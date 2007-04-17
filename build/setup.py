@@ -67,7 +67,7 @@ def main():
           scripts=['bin/dimsbuild'],
           data_files=[('/etc/dimsbuild', ['conf/dimsbuild.conf']),
                       ('/etc/dimsbuild/example-fedora-base-6', ['conf/example-fedora-base-6/distro.conf']),
-                      ('/etc/dimsbuild/example-redhat-base-5', ['conf/example-redhat-base-5/distro.conf']),
+                      ('/etc/dimsbuild/example-redhat-base-5', ['conf/example-redhat-base-5/distro.conf'])],
           cmdclass={'bdist_rpm': bdist_rpm,
                     'install': install,}          
           )
