@@ -341,7 +341,7 @@ class Dispatch:
       except IndexError:
         break # we're done
       try:
-        self.register_by_id(event, parentid=parentid)
+        self.register_event_by_id(event, parentid=parentid)
         firstunreg = None
       except UnregisteredEventError:
         if event == firstunreg: # we've gone a complete loop without registering anythimg
