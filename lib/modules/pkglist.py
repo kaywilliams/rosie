@@ -1,13 +1,14 @@
 from os.path import join, exists
 
+import dims.depsolver  as depsolver
 import dims.filereader as filereader
-import dims.osutils as osutils
-import dims.depsolver as depsolver
+import dims.osutils    as osutils
 
 from dims.repocreator import YumRepoCreator
 
+from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface
-from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from main      import ARCH_MAP
 
 API_VERSION = 3.0
 
@@ -30,7 +31,6 @@ YUMCONF_HEADER = [
   'gpgcheck=0',
   'tolerant=1',
   'exactarch=1',
-  'installroot=/var/cache/dimsbuild/shared/.depsolve',
   'reposdir=/'
   '',
 ]
@@ -39,8 +39,6 @@ class PkglistInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
   
-  def getDepsolveCache(self):
-    return self._base.DEPSOLVE_CACHE
   def getRequiredPackages(self):
     return self._base.reqpkgs
   def getPkglist(self):
@@ -98,14 +96,17 @@ def pkglist_hook(interface):
                        fallback='//stores')
   dmdc.createRepoFile()
   
+  osutils.mkdir(join(interface.getMetadata(), '.depsolve'))
+  
   conf = filereader.read(cfgfile)
   conf = YUMCONF_HEADER + conf
   filereader.write(conf, cfgfile)
   
   pkgtups = depsolver.resolve(interface.getRequiredPackages(),
-                              root=interface.getDepsolveCache(),
+                              root=join(interface.getMetadata(), '.depsolve'),
                               config=cfgfile,
-                              logthresh=interface.errlogthresh)
+                              logthresh=interface.errlogthresh,
+                              archs=ARCH_MAP[interface.arch])
 
   interface.log(1, "pkglist closure achieved @ %s packages" % len(pkgtups))
   osutils.rm(cfgfile, force=True)

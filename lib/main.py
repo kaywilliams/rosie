@@ -15,17 +15,17 @@ import sys
 
 from os.path import join, exists
 
-import dims.logger as logger
+import dims.logger  as logger
 import dims.osutils as osutils
 
-from dims.xmltree import XmlPathError
 from dims.CacheManager import CacheManager
-from dims.sortlib import dcompare
+from dims.sortlib      import dcompare
+from dims.xmltree      import XmlPathError
 
 import event
 
 from interface import EventInterface
-from callback import BuildLogger
+from callback  import BuildLogger
 
 # RPMS we need to check for
 # createrepo
@@ -36,6 +36,14 @@ BOOLEANS_TRUE  = ['True', 'true', 'Yes', 'yes', '1']
 BOOLEANS_FALSE = ['False', 'false', 'No', 'no', '0']
 OPT_FORCE = '--force'
 OPT_SKIP  = '--skip'
+
+ARCH_MAP = {
+  'noarch': ['noarch'],
+  'i686':   ['i686', 'i586', 'i386', 'noarch'],
+  'i586':   ['i586', 'i386', 'noarch'],
+  'i386':   ['i386', 'noarch'],
+  'x86_64': ['x86_64', 'i686', 'i586', 'i386', 'noarch'],
+}
 
 API_VERSION = 3.0
 
@@ -80,9 +88,7 @@ class Build:
     self.CACHE = '/var/cache/dimsbuild/'
     self.INPUT_STORE = join(self.CACHE, 'shared/stores')
     self.TEMP = '/tmp/dimsbuild'
-    self.DEPSOLVE_CACHE = join(self.CACHE, 'shared/.depsolve')
     self.CACHE_MAX_SIZE = 30*1024*1024*1024 # 30 GB
-    self.ARCH = ['i386', 'i586', 'i686', 'noarch'] # TODO support config
     
     # set up loggers
     ##self.log = logger.Logger(options.logthresh)
@@ -107,15 +113,16 @@ class Build:
     self.base_vars['product'] = self.config.get('//main/product/text()')
     self.base_vars['version'] = self.config.get('//main/version/text()')
     self.base_vars['release'] = self.config.get('//main/release/text()', '0')
-    self.base_vars['arch'] = 'i386'
+    self.base_vars['arch']    = self.config.get('//main/arch/text()', 'i686')
     self.base_vars['fullname'] = self.config.get('//main/fullname/text()',
                                                  self.base_vars['product'])
     self.base_vars['provider'] = self.config.get('//main/distro-provider/text()')
     
     # set up other directories
-    distro_prefix = 'distros/%s/%s' % (self.base_vars['product'],
-                                       self.base_vars['version'])
-    self.SOFTWARE_STORE = join(self.CACHE, distro_prefix, 'output')
+    distro_prefix = 'distros/%s/%s/%s' % (self.base_vars['product'],
+                                          self.base_vars['version'],
+                                          self.base_vars['arch'])
+    self.SOFTWARE_STORE = join(self.CACHE, distro_prefix, 'os')
     self.METADATA = join(self.CACHE, distro_prefix, 'builddata')
 
     try:

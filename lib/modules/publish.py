@@ -3,12 +3,12 @@ import os
 from os.path import join
 
 import dims.osutils as osutils
-import dims.sync as sync
-import dims.shlib as shlib
+import dims.shlib   as shlib
 import dims.sortlib as sortlib
+import dims.sync    as sync
 
+from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface
-from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
 API_VERSION = 3.0
 
@@ -37,16 +37,18 @@ def publish_hook(interface):
   bv = interface.getBaseVars()
   version = bv['version']
   release = bv['release']
+  arch    = bv['arch']
   interface.log(0, "publishing output store (%s-%s)" % (version, release))
   
   # sync to output folder
-  dest = join(interface.getPublishStore(), 'test/%s-%s/' % (version, release))
+  dest = join(interface.getPublishStore(), 'test/%s-%s/%s' % (version, release, arch))
+  dest_os = join(dest, 'os')
   
   interface.log(2, "making directory '%s'" % dest)
-  osutils.mkdir(dest, parent=True)
+  osutils.mkdir(dest_os, parent=True)
   
-  sync.sync(join(interface.getSoftwareStore(), '*'), dest, link=True)
-  sync.sync(join(interface.getSoftwareStore(), '.*'), dest, link=True) # .discinfo
+  sync.sync(join(interface.getSoftwareStore(), '*'), dest_os, link=True)
+  sync.sync(join(interface.getSoftwareStore(), '.*'), dest_os, link=True) # .discinfo
   shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % dest)
   
   # clean up old revisions

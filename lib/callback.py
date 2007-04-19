@@ -3,9 +3,9 @@ callback.py
 
 Callback classes for dimsbuild
 """
-from dims.osutils import basename
+from dims.osutils       import basename
 from dims.sync.callback import SyncCallbackMetered
-from dims.progressbar import ProgressBar
+from dims.progressbar   import ProgressBar
 
 # format of the various printouts
 LEVEL_0_FORMAT = '%s'

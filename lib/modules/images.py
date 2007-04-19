@@ -3,21 +3,21 @@ import os
 
 from os.path import join, exists
 
-import dims.filereader as filereader
-import dims.imglib as imglib
-import dims.osutils as osutils
-import dims.sync as sync
+import dims.filereader    as filereader
+import dims.imglib        as imglib
+import dims.osutils       as osutils
+import dims.sync          as sync
 import dims.FormattedFile as ffile
 
 from dims.xmltree import XmlPathError, read
 
 from interface import EventInterface, LocalsMixin
-from output import OutputEventMixin, OutputEventHandler
-from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from locals import L_BUILDSTAMP, L_FILES, L_IMAGES, L_INSTALLCLASS
-from main import BOOLEANS_TRUE, BOOLEANS_FALSE
-from magic import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS
-from callback import BuildSyncCallback
+from output    import OutputEventMixin, OutputEventHandler
+from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from locals    import L_BUILDSTAMP, L_FILES, L_IMAGES, L_INSTALLCLASS
+from main      import BOOLEANS_TRUE, BOOLEANS_FALSE
+from magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS
+from callback  import BuildSyncCallback
 
 API_VERSION = 3.0
 
@@ -236,15 +236,6 @@ class InitrdImageHandler(OutputEventHandler, ImageHandler):
   def testOutputValid(self):
     # TODO - expand on this, this is pretty basic
     return self.validate_image()
-    #p = self._getpath()
-    #if not exists(p):
-    #  return False
-    #else:
-    #  if self._iszipped():
-    #    return self.interface.verifyType(p, FILE_TYPE_GZIP)
-    #  else:
-    #    format = self.l_image.iget('format/text()')
-    #    return self.interface.verifyType(p, MAGIC_MAP[format])
   
   def removeObsoletes(self):
     self.removeInvalids()
@@ -297,10 +288,6 @@ class ProductImageHandler(OutputEventHandler, ImageHandler):
   
   def testOutputValid(self):
     # TODO - expand on this, this is pretty basic
-    #if not exists(self._getpath()):
-    #  return False
-    #else:
-    #  return True
     return self.validate_image()
   
   def removeObsoletes(self):
@@ -381,10 +368,6 @@ class UpdatesImageHandler(OutputEventHandler, ImageHandler):
   
   def testOutputValid(self):
     # TODO - expand on this, this is pretty basic
-    #if not exists(self._getpath()):
-    #  return False
-    #else:
-    #  return True
     return self.validate_image()
   
   def removeObsoletes(self):

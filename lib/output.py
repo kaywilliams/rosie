@@ -30,7 +30,7 @@ __date__    = "March 8th, 2007"
 
 from os.path import join, exists
 
-import dims.md5lib as md5lib
+import dims.md5lib  as md5lib
 import dims.osutils as osutils
 import dims.xmltree as xmltree
 

@@ -1,9 +1,9 @@
-from os.path import join, isfile
+from os.path            import join, isfile
 from urlgrabber.grabber import URLGrabError
 
+import dims.filereader  as filereader
 import dims.listcompare as listcompare
-import dims.filereader as filereader
-import dims.spider as spider
+import dims.spider      as spider
 
 from interface import EventInterface
 

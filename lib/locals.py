@@ -10,8 +10,8 @@ __date__    = "March 13th, 2007"
 
 from StringIO import StringIO
 
+import dims.locals  as locals
 import dims.sortlib as sortlib
-import dims.locals as locals
 
 #----------- CONSTANTS ------------#
 L_BUILDSTAMP    = 'buildstamp-entries'

@@ -12,14 +12,15 @@ import re
 
 from os.path import join
 
-import dims.execlib as execlib
-import dims.imerge as imerge # probably will end up in XmlTree someday
+import dims.execlib    as execlib
 import dims.filereader as filereader
-import dims.osutils as osutils
-import dims.sortlib as sortlib
-import dims.sync as sync
-import dims.xmltree as xmltree
+import dims.imerge     as imerge # probably will end up in XmlTree someday
+import dims.osutils    as osutils
+import dims.sortlib    as sortlib
+import dims.sync       as sync
+import dims.xmltree    as xmltree
 
+from dims.ConfigLib    import expand_macros
 from dims.EventManager import PluginInterface
 
 import locals
@@ -58,6 +59,9 @@ class EventInterface(PluginInterface):
     self.arch    = self._base.base_vars['arch']
     self.fullname = self._base.base_vars['fullname']
     self.provider = self._base.base_vars['provider']
+  
+  def expandMacros(self, text):
+    return expand_macros(text, self._base.base_vars)
   
   def cache(self, path, *args, **kwargs):
     self._base.cachemanager.get(path, *args, **kwargs)

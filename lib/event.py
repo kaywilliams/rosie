@@ -43,7 +43,6 @@ import resolve
 
 from interface import EventInterface
 
-
 #------ EVENT TYPES ------#
 """ 
 Event properties - the following are supported properties on Events

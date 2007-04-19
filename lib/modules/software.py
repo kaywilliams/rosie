@@ -4,17 +4,17 @@ import os
 
 from os.path import join
 
-#import dims.HtmlIndexWalker as hiw
-import dims.spider as spider
 import dims.listcompare as listcompare
-import dims.osutils as osutils
-import dims.sortlib as sortlib
-import dims.shlib as shlib
-import dims.sync as sync
+import dims.osutils     as osutils
+import dims.shlib       as shlib
+import dims.sortlib     as sortlib
+import dims.spider      as spider
+import dims.sync        as sync
 
+from callback  import BuildSyncCallback
+from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface, VersionMixin
-from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from callback import BuildSyncCallback
+from main      import ARCH_MAP
 
 API_VERSION = 3.0
 
@@ -44,9 +44,7 @@ class SoftwareInterface(EventInterface, VersionMixin):
       return self._base.pkglist
     except AttributeError:
       return None
-  def getArch(self):
-    return self._base.ARCH
-    
+  
   def rpmNameDeformat(self, rpm):
     """ 
     p[ath],n[ame],v[ersion],r[elease],a[rch] = SoftwareInterface.rpmNameDeformat(rpm)
@@ -170,7 +168,7 @@ def software_hook(interface):
     tosign = [] # newly synched rpms will be signed
     for rpm in new:
       for arch in packages[rpm]:
-        if arch in interface.getArch():
+        if arch in ARCH_MAP[interface.arch]:
           try:
             store, path, rpmname = packages[rpm][arch][0]
             interface.syncRpm(rpmname, store, path)
@@ -179,9 +177,9 @@ def software_hook(interface):
             self.errlog(1, "No rpm '%s' found in store '%s' for arch '%s'" % (rpm, store, arch))
     
     # sign new packages
-    #args = ['/bin/rpm', '--addsign']
-    #args.extend([join(rpmdir, osutils.basename(rpm)) for rpm in tosign])
-    #os.spawnv(os.P_WAIT, '/bin/rpm', args)
+    ##args = ['/bin/rpm', '--addsign']
+    ##args.extend([join(rpmdir, osutils.basename(rpm)) for rpm in tosign])
+    ##os.spawnv(os.P_WAIT, '/bin/rpm', args)
     interface.log(1, "signing new rpms")
     args = ''
     for rpm in tosign: args = args + ' ' + rpm

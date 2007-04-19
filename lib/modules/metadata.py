@@ -4,12 +4,12 @@ import os
 from os.path import join
 
 import dims.FormattedFile as ffile
-import dims.osutils as osutils
-import dims.sync as sync
+import dims.osutils       as osutils
+import dims.sync          as sync
 
+from event     import EVENT_TYPE_PROC
 from interface import EventInterface, LocalsMixin
-from event import EVENT_TYPE_PROC
-from locals import L_DISCINFO_PATH, L_DISCINFO
+from locals    import L_DISCINFO_PATH, L_DISCINFO
 
 API_VERSION = 3.0
 

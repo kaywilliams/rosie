@@ -1,19 +1,18 @@
 import copy
-
 import os
 
 from os.path import join, isfile, exists
 
-import dims.osutils as osutils
-import dims.xmltree as xmltree
 import dims.listcompare as listcompare
-import dims.sortlib as sortlib
+import dims.osutils     as osutils
+import dims.sortlib     as sortlib
+import dims.xmltree     as xmltree
 
-from dims.ConfigLib import ConfigError
 from dims.CacheManager import CacheManagerError
+from dims.ConfigLib    import ConfigError
 
+from event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
 from interface import EventInterface, VersionMixin, FlowControlROMixin
-from event import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
 
 API_VERSION = 3.0
 
@@ -246,7 +245,6 @@ class CompsHandler:
   
   def __get_groupfiles(self):
     "Get a list of all groupfiles in all repositories"
-    #groupfiles = {}
     groupfiles = []
     
     for store in self.config.mget('//store/@id'):
