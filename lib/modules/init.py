@@ -1,3 +1,4 @@
+from event     import EVENT_TYPE_META
 from interface import EventInterface, FlowControlRWMixin
 
 API_VERSION = 3.0
@@ -20,7 +21,8 @@ EVENTS = [
     'id': 'MAIN',
     'provides': ['MAIN'],
     'requires': ['init', 'applyopt'],
-    'parent': 'ALL'
+    'parent': 'ALL',
+    'properties': EVENT_TYPE_META,
   },
 ]
 

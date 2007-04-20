@@ -45,31 +45,38 @@ from interface import EventInterface
 
 #------ EVENT TYPES ------#
 """ 
-Event properties - the following are supported properties on Events
+Event properties - the following are supported properties on Events.
 
-bit 0 : EVENT_TYPE_MARK (0), EVENT_TYPE_PROC (1)
-        The default for an event is to be a 'marker' event - these events merely
-        signify a single specific point in the execution of a program.  If this
-        bit is set, the event becomes a 'process' event.  Process events are
-        associated with (a) specific function(s), or process (hence the name).
-        Instead of a single event, process events have three - an event before
-        the process, the process event itself, and an event afterwards.
-bit 1 : EVENT_TYPE_CTRL (0), EVENT_TYPE_MDLR (1)
-        Events default to being 'control' events, which are considered to be
-        integral parts of program execution that cannot be enabled or disabled
-        by user command (such as through the use of --force or --skip at the
-        command line).  If this bit is set, the event becomes a 'module-class'
-        event, which can be freely enabled and disabled by the user at runtime
-        without adverse effect.
+bit 0 : PROP_HAS_PRE
+        Property denoting whether an event has a 'preevent'.  Preevents run before
+        the execution of the main event, and are exposed via the hooking system to
+        allow other modules/plugins to hook and modify the input to the event
+bit 1 : PROP_HAS_POST
+        Property denoting whether an event has a 'postevent'.  Postevents are
+        identical to prevents except that they run after the execution of the main
+        event and are exposed to that event output can be modified.
+bit 2 : PROP_CAN_DISABLE
+        Property indicating whether an event can be controlled by the user via
+        command-line arguments.
+bit 3 : PROP_META
+        Property indicating whether an event can be considered a special 'meta
+        event', which is a grouping of other events.  Meta events have special
+        behavior when enabled and disabled in that changes to their enabled status
+        propagate to their immediate children.
+
+Properties can be combined using bitwise operations (& and |) to enable and
+disable certain properties as required by the specific Event.
 """
-EVENT_TYPE_MARK = 00 # 'marker' events
-EVENT_TYPE_PROC = 01 # 'process' events
-EVENT_TYPE_CTRL = 00 # 'control' events
-EVENT_TYPE_MDLR = 10 # 'modular' events
+PROP_HAS_PRE     =    1
+PROP_HAS_POST    =   10
+PROP_CAN_DISABLE =  100
+PROP_META        = 1000
 
-# bitmasks for EVENT_TYPE_* variables
-MASK_TYPE  = 01
-MASK_CLASS = 10
+EVENT_TYPE_MARK = 0000
+EVENT_TYPE_PROC = 0011
+EVENT_TYPE_CTRL = 0000
+EVENT_TYPE_MDLR = 0100
+EVENT_TYPE_META = 1100
 
 
 #------ CLASSES ------#
@@ -118,11 +125,13 @@ class Event(resolve.Item, tree.Node):
     
     self.functions = []
     
-    if self.gettype() == EVENT_TYPE_PROC:
+    if self.test(PROP_HAS_PRE):
       self.pre = Event('pre%s' % self.id, interface=self.interface)
-      self.post = Event('post%s' % self.id, interface=self.interface)
     else:
       self.pre = None
+    if self.test(PROP_HAS_POST):
+      self.post = Event('post%s' % self.id, interface=self.interface)
+    else:
       self.post = None
   
   def __iter__(self): return EventIterator(self)
@@ -130,8 +139,16 @@ class Event(resolve.Item, tree.Node):
   def __repr__(self): return '<events.Event instance id=\'%s\'>' % self.id
   
   #------ BITMASK FUNCTIONS ------#
-  def gettype(self):  return self.properties & MASK_TYPE
-  def getclass(self): return self.properties & MASK_CLASS
+  def test(self, property): return self.properties & property
+  
+  #------ ENABLING/DISABLING FUNCTIONS ------#
+  def enable(self):  self._set_enable_status(True)
+  def disable(self): self._set_enable_status(False)
+  def _set_enable_status(self, status):
+    self.enabled = status
+    if self.test(PROP_META):
+      for event in self.get_children():
+        event._set_enable_status(status)
   
   #------ REGISTRATION FUNCTIONS ------#
   def register_function(self, function, sub=None):
@@ -155,8 +172,9 @@ class Event(resolve.Item, tree.Node):
     """
     if self.interface is None or force:
       self.interface = interface
-      if self.gettype() == EVENT_TYPE_PROC:
+      if self.test(PROP_HAS_PRE):
         self.pre.register_interface(interface, force)
+      if self.test(PROP_HAS_POST):
         self.post.register_interface(interface, force)
     else:
       raise RegisterInterfaceError, 'interface %s already registered' % self.interface
@@ -169,7 +187,7 @@ class Event(resolve.Item, tree.Node):
     return self.prevsibling or self.parent or None
   
   #------ EXECUTE ------#
-  def run(self, *args, **kwargs):
+  def run(self, force=False, *args, **kwargs):
     """ 
     Create an instance of the registered interface and pass it as an argument
     to all registered functions.  If this Event has the EVENT_TYPE_PROC property,
@@ -177,12 +195,12 @@ class Event(resolve.Item, tree.Node):
     """
     interface = self.interface(*args, **kwargs)
     try:
-      if self.gettype() == EVENT_TYPE_PROC:
+      if self.test(PROP_HAS_PRE):
         for hfunc in self.pre.functions:  hfunc(interface)
+      if self.enabled or force:
         for hfunc in self.functions:      hfunc(interface)
+      if self.test(PROP_HAS_POST):
         for hfunc in self.post.functions: hfunc(interface)
-      else:
-        for hfunc in self.functions:      hfunc(interface)
     except HookExit, e:
       print e
       sys.exit()
@@ -257,7 +275,7 @@ class Dispatch:
                    These functions are similarly registered when commit() is
                    called.
     """
-    self.event = Event('ALL')
+    self.event = Event('ALL', properties=EVENT_TYPE_META)
     self.event.register_interface(EventInterface) # hack
     self.currevent = None
     self.iter = None
@@ -298,7 +316,7 @@ class Dispatch:
     if self.currevent is None: return
     if self.currevent.id in self.skip: return
     if not self.currevent.enabled and self.currevent.id not in self.force: return
-    self.currevent.run(*args, **kwargs)
+    self.currevent.run((self.currevent.id in self.force), *args, **kwargs)
   
   #------ COMMIT FUNCTIONS ------#
   def commit(self):
@@ -390,18 +408,18 @@ class Dispatch:
     event (for example, self.get('pregen') will get the 'gen' event, if it
     exists).
     """
-    reqproc = False
+    type = None
     if eventid.startswith('pre'):
-      eventid = eventid.replace('pre', ''); reqproc = True
+      eventid = eventid.replace('pre', ''); type = 'pre'
     elif eventid.startswith('post'):
-      eventid = eventid.replace('post', ''); reqproc = True
+      eventid = eventid.replace('post', ''); type = 'post'
     for e in self.event:
       if e.id == eventid:
-        if not reqproc:
-          return e
-        else:
-          if e.gettype() == EVENT_TYPE_PROC:
-            return e
+        if type is None:            return e
+        elif type == 'pre':
+          if e.test(PROP_HAS_PRE):  return e
+        elif type == 'post':
+          if e.test(PROP_HAS_POST): return e
     if err:
       raise UnregisteredEventError, eventid
     else:

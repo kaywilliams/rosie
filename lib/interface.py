@@ -10,6 +10,7 @@ __date__    = "March 8th, 2007"
 
 import re
 
+from os      import stat
 from os.path import join
 
 import dims.execlib    as execlib
@@ -133,7 +134,7 @@ class EventInterface(PluginInterface):
   def eventStatus(self, eventid): return self._base.dispatch.get(eventid, err=True).enabled
   
   def __set_event(self, eventid, flag):
-    self._base.dispatch.get(eventid, err=True).enabled = flag
+    self._base.dispatch.get(eventid, err=True)._set_enable_status(flag)
   
   # program state flags
   def setFlag(self, flag, state):

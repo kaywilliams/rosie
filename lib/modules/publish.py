@@ -18,8 +18,7 @@ EVENTS = [
     'interface': 'PublishInterface',
     'properties': EVENT_TYPE_MDLR,
     'provides': ['publish'],
-    ##'requires': ['MAIN', 'iso']
-    'requires': ['MAIN'], #!
+    'requires': ['MAIN', 'iso'],
     'parent': 'ALL',
   },
 ]

@@ -1,7 +1,7 @@
 import copy
 import os
 
-from os.path import join
+from os.path import join, exists
 
 import dims.FormattedFile as ffile
 import dims.osutils       as osutils
@@ -51,5 +51,15 @@ def discinfo_hook(interface):
   base_vars = discinfo.read(join(dest, discinfo_path))
   interface.setSourceVars(copy.copy(base_vars))
   base_vars.update(interface.getBaseVars())
-  discinfo.write(join(interface.getSoftwareStore(), '.discinfo'), **base_vars)
-  os.chmod(join(interface.getSoftwareStore(), '.discinfo'), 0644)
+  
+  # check if a discinfo already exists; if so, only modify if stuff has changed
+  difile = join(interface.getSoftwareStore(), '.discinfo')
+  if not exists(difile) or discinfo_changed(discinfo.read(difile), base_vars):
+    discinfo.write(difile, **base_vars)
+    os.chmod(difile, 0644)
+
+def discinfo_changed(newvars, oldvars):
+  for k,v in newvars.items():
+    if oldvars[k] != v:
+      return True
+  return False

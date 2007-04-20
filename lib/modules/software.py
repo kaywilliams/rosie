@@ -37,7 +37,7 @@ class SoftwareInterface(EventInterface, VersionMixin):
     VersionMixin.__init__(self, join(self.getMetadata(), '%s.pkgs' % self.getBaseStore()))
     self.product = self._base.base_vars['product']
     self.ts = rpm.TransactionSet()
-    self.callback = BuildSyncCallback(base.log.threshold) #!
+    self.callback = BuildSyncCallback(base.log.threshold)
   
   def getPkglist(self):
     try:

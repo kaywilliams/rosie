@@ -13,7 +13,7 @@ from dims.xmltree import XmlPathError, read
 
 from interface import EventInterface, LocalsMixin
 from output    import OutputEventMixin, OutputEventHandler
-from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR, EVENT_TYPE_META
 from locals    import L_BUILDSTAMP, L_FILES, L_IMAGES, L_INSTALLCLASS
 from main      import BOOLEANS_TRUE, BOOLEANS_FALSE
 from magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS
@@ -30,6 +30,7 @@ EVENTS = [
     'id': 'IMAGES',
     'provides': ['IMAGES'],
     'requires': ['.discinfo', 'comps.xml'],
+    'properties': EVENT_TYPE_META,
   },
   {
     'id': 'initrd',
@@ -221,7 +222,7 @@ class InitrdImageHandler(OutputEventHandler, ImageHandler):
     self.isrc = join(interface.getInputStore(), n, d, initrd_path, 'initrd.img')
     self.username = u
     self.password = p
-    self.dest = join(interface.getSoftwareStore(), initrd_path, 'inird.img')
+    self.dest = join(interface.getSoftwareStore(), initrd_path, 'initrd.img')
     self.mdfile = join(interface.getMetadata(), 'initrd.img.md')
     
     self.l_image = interface.getLocalPath(L_IMAGES, 'image[@id="initrd.img"]')
@@ -478,6 +479,7 @@ def stage2_hook(interface):
     osutils.mkdir(join(interface.getSoftwareStore(), linfix), parent=True)
     sync.sync(join(interface.getInputStore(), n, d, rinfix, filename),
                  join(interface.getSoftwareStore(), linfix))
+
 
 #--------- HELPER FUNCTIONS ---------#
 def printf_local(elem, vars):

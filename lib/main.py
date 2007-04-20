@@ -252,20 +252,22 @@ class Build:
   
   def __flowcontrol_apply(self, eventid, option=OPT_FORCE):
     "Internal function that applies the --force or --skip option to an event"
-    try:
-      e = self.dispatch.get(eventid)
-      if e.getclass() != event.EVENT_TYPE_CTRL:
-        self.userFC[eventid] = (option == OPT_FORCE)
-      else:
-        raise ValueError, "Cannot %s control-class event '%s'" % (option, eventid)
-    except ValueError:
-      raise event.UnregisteredEventError, eventid
+    e = self.dispatch.get(eventid, err=True)
+    if e.test(event.PROP_CAN_DISABLE):
+      self.userFC[eventid] = (option == OPT_FORCE)
+      # apply to immediate children if a meta event
+      if e.test(event.PROP_META):
+        for child in e.get_children():
+          if child.test(event.PROP_CAN_DISABLE):
+            self.__flowcontrol_apply(child.id, option)
+    else:
+      raise ValueError, "Cannot %s control-class event '%s'" % (option, eventid)
   
   def get_mdlr_events(self):
     "Return a list of the modular events in this dimsbuild instance"
     list = []
     for e in self.dispatch:
-      if e.getclass() == event.EVENT_TYPE_MDLR:
+      if e.test(event.PROP_CAN_DISABLE):
         list.append(e.id)
     return list
   
