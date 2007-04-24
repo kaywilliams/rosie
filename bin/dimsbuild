@@ -47,7 +47,10 @@ def main():
   parser.add_option('--lib-path', # TODO rename in concurrence with --conf-path
                     dest='libpath',
                     help="path to dimsbuild library files")
-
+  parser.add_option('--share-path',
+                    dest='sharepath',
+                    help="path to dimsbuild shared files"
+                    default='/usr/share/dimsbuild')
   parser.add_option('--force',
                     action='callback',
                     dest='force_events',
@@ -98,6 +101,7 @@ def main():
 
   import_dirs = mainconfig.mget('//librarypaths/path/text()')
   if opts.libpath: import_dirs.insert(0, opts.libpath)
+  
   for dir in sys.path:
     if dir not in import_dirs: import_dirs.append(dir)
   

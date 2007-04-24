@@ -241,6 +241,8 @@ class Build:
       self.__flowcontrol_apply(e, OPT_FORCE)
     for e in options.skip_events:
       self.__flowcontrol_apply(e, OPT_SKIP)
+      
+    self.sharepath = options.sharepath
     
     self.dispatch.raise_event(self, options) # raise applyopt - kinda hackish
     self.dispatch.next() # advance to next event

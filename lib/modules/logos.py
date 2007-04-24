@@ -4,16 +4,16 @@ import Image
 import ImageDraw
 import ImageFilter
 import ImageFont
-import os
 import dims.xmltree as xmltree
+import os
 
-from dims.osutils import tree, basename, dirname, mkdir
+from dims.osutils import basename, dirname, mkdir, tree
 from dims.sync import sync
-from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from interface import EventInterface, LocalsMixin
 from locals import L_LOGOS
 from os.path import exists, join
-from output import OutputEventMixin, OutputEventHandler
+from output import OutputEventHandler, OutputEventMixin
 
 XmlPathError = xmltree.XmlPathError
 
@@ -48,10 +48,6 @@ LOGOS_MD_STRUCT = {
   ]
 }
 
-#----------- MIXINS -------------#
-class LogosOutputMixin:
-    pass
-
 #----------- INTERFACES -----------#
 class LogosInterface(EventInterface, LocalsMixin, OutputEventMixin):
     def __init__(self, base):
@@ -70,15 +66,18 @@ class LogosHandler(OutputEventHandler):
     # TODO: Add text formatting nodes' handling
     #
     def __init__(self, interface, data):
+        self.share_path = interface.base.sharepath
+        self.method = interface.getMethod()
         self.cache_path = dirname(interface.getMetadata())
         self.logos_path = join(interface.getMetadata(), 'logos')
         self.mdfile = join(interface.getMetadata(), 'logos.md')
         self.locals = interface.locals        
         OutputEventHandler.__init__(self, interface.config, data, None, self.mdfile)
-        self.controllist = {}        
+        self.controllist = {}
         self.build_controllist()
 
     def build_controllist(self):
+        self.controllist = {}
         logos = self.locals.getLocalPath(L_LOGOS, '/logos')
         for logo in logos.get('logo', fallback=[]):
             id = logo.attrib['id']
