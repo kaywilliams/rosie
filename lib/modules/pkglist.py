@@ -1,11 +1,12 @@
 from os.path import join, exists
 
-import dims.depsolver  as depsolver
+import dims.depsolve   as depsolve
 import dims.filereader as filereader
 import dims.osutils    as osutils
 
 from dims.repocreator import YumRepoCreator
 
+from callback  import BuildDepsolveCallback
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface
 from main      import ARCH_MAP
@@ -102,11 +103,11 @@ def pkglist_hook(interface):
   conf = YUMCONF_HEADER + conf
   filereader.write(conf, cfgfile)
   
-  pkgtups = depsolver.resolve(interface.getRequiredPackages(),
-                              root=join(interface.getMetadata(), '.depsolve'),
-                              config=cfgfile,
-                              logthresh=interface.errlogthresh,
-                              archs=ARCH_MAP[interface.arch])
+  pkgtups = depsolve.resolve(interface.getRequiredPackages(),
+                             root=join(interface.getMetadata(), '.depsolve'),
+                             config=cfgfile,
+                             arch=interface.arch,
+                             callback=BuildDepsolveCallback(interface.logthresh))
 
   interface.log(1, "pkglist closure achieved @ %s packages" % len(pkgtups))
   osutils.rm(cfgfile, force=True)

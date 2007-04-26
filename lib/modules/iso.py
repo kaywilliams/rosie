@@ -34,10 +34,7 @@ def manifest_hook(interface):
   interface.setFlag('do-iso', False)
   manifest = []
   for file in osutils.tree(interface.getSoftwareStore(), prefix=False):
-    fstat = os.stat(join(interface.getSoftwareStore(), file))
-    manifest.append({'file': file,
-                     'size': str(fstat.st_size),
-                     'mtime': str(fstat.st_mtime)})
+    manifest.append(__gen_manifest_line(join(interface.getSoftwareStore(), file)))
   
   mfile = join(interface.getMetadata(), 'manifest')
   if manifest_changed(manifest, mfile):
@@ -49,6 +46,12 @@ def manifest_hook(interface):
       mwriter.writerow(line)
     mf.close()
 
+def __gen_manifest_line(file):
+  fstat = os.stat(file)
+  return {'file': file,
+          'size': str(fstat.st_size),
+          'mtime': str(fstat.st_mtime)}
+
 def manifest_changed(manifest, old_manifest_file):
   if exists(old_manifest_file):
     mf = open(old_manifest_file, 'r')
@@ -58,7 +61,8 @@ def manifest_changed(manifest, old_manifest_file):
     mf.close()
     
     return manifest != old_manifest
-  return True
+  else:
+    return True
 
 def iso_hook(interface):
   if not interface.getFlag('do-iso') and not interface.eventForceStatus('iso'):

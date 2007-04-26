@@ -160,10 +160,14 @@ class FlowControlRWMixin(FlowControlROMixin):
       self._base.userFC[eventid] = flag
 
 class VersionMixin:
+  # including this mixin with an interface requires that the associated event have
+  # 'stores' listed as a requirement
   def __init__(self, verfile):
     self.anaconda_version = get_anaconda_version(verfile)
 
 class LocalsMixin:
+  # including this mixin with an interface requires that the associated event have
+  # 'stores' listed as a requirement
   def __init__(self, verfile, dirs):
     self.anaconda_version = get_anaconda_version(verfile)
     
@@ -204,16 +208,10 @@ class ReleaseRpmInterface(RpmInterface):
   def __init__(self):
     pass
 
-class LogosRpmInterface(RpmInterface):
-  def __init__(self):
-    pass
-
-class IsoInterface(EventInterface):
-  def __init__(self):
-    pass
 
 #------ HELPER FUNCTIONS ------#
 def get_anaconda_version(file):
+  # using this function requires that the 'stores' event has run
   scan = re.compile('.*/anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
   version = None
   

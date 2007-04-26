@@ -110,7 +110,7 @@ def software_hook(interface):
   rpmdir = join(interface.getSoftwareStore(), interface.product, 'RPMS')
   osutils.mkdir(rpmdir, parent=True)
   
-  rpms = osutils.find('*.[Rr][Pp][Mm]', location=rpmdir, prefix=False)
+  rpms = osutils.find(rpmdir, name='*.[Rr][Pp][Mm]', prefix=False)
   
   # construct a list of rpms without .<arch>.rpm
   rpmlist = []

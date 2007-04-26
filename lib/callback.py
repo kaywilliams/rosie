@@ -51,6 +51,35 @@ class BuildSyncCallback(SyncCallbackMetered):
     SyncCallbackMetered._do_end(self, amount_read, now)
 
 
+class BuildDepsolveCallback:
+  def __init__(self, threshold):
+    self.logger = BuildLogger(threshold)
+    self.loop = 1
+    self.count = 0
+    self.bar = None
+  def pkgAdded(self, pkgtup=None, state=None):
+    if not self.logger.test(2): return
+    self.bar.update(self.bar.position+1)
+    self.bar.draw()
+  def start(self):
+    pass
+  def tscheck(self, unresolved=0):
+    self.count = unresolved
+    if self.logger.test(2):
+      if self.count == 1: msg = 'loop %d (%d package)'
+      else:               msg = 'loop %d (%d packages)'
+      self.bar = ProgressBar(self.count, LEVEL_2_FORMAT % (msg % (self.loop, self.count)))
+      self.bar.layout = '[title:width=25] [ratio:width=7] [bar] [percent] [time]'
+      self.bar.start()
+      self.bar.draw()
+  def restartLoop(self):
+    if self.logger.test(2):
+      self.bar.finish()
+    self.loop += 1
+  def end(self):
+    self.logger.log(2, 'pkglist resolution complete')
+
+
 class BuildLogger:
   def __init__(self, threshold):
     self.threshold = int(threshold)

@@ -210,7 +210,7 @@ class Build:
     for path in self.IMPORT_DIRS:
       modpath = join(path, 'modules')
       if not exists(modpath): continue
-      for mod in osutils.find('*.py', modpath, prefix=False):
+      for mod in osutils.find(modpath, name='*.py', prefix=False):
         if mod.replace('.py', '') not in disabled_modules and \
            mod.replace('.py', '') not in registered_modules:
           m = self.__loadmodule(join(modpath, mod))
