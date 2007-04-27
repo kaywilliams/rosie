@@ -1,9 +1,15 @@
 API_VERSION = 3.0
 
-import Image
-import ImageDraw
-import ImageFilter
-import ImageFont
+import sys
+try:
+    import Image
+    import ImageDraw
+    import ImageFilter
+    import ImageFont
+except ImportError:
+    print "Install the python-imaging RPM and try again."
+    sys.exit(1)
+    
 import dims.xmltree as xmltree
 import os
 
