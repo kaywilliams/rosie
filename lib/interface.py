@@ -58,6 +58,7 @@ class EventInterface(PluginInterface):
     self.version = self._base.base_vars['version']
     self.release = self._base.base_vars['release']
     self.arch    = self._base.base_vars['arch']
+    self.basearch = self._base.base_vars['basearch']
     self.fullname = self._base.base_vars['fullname']
     self.provider = self._base.base_vars['provider']
   

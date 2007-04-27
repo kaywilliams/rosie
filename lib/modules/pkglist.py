@@ -9,7 +9,6 @@ from dims.repocreator import YumRepoCreator
 from callback  import BuildDepsolveCallback
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface
-from main      import ARCH_MAP
 
 API_VERSION = 3.0
 

@@ -92,7 +92,7 @@ LOCALS_XML = \
           <string>%s.%s</string>
           <format>
             <item>timestamp</item>
-            <item>arch</item>
+            <item>basearch</item>
           </format>
         </string-format>
       </action>
@@ -326,11 +326,11 @@ LOCALS_XML = \
           </format>
         </string-format>
       </line>
-      <line id="arch" position="2">
+      <line id="basearch" position="2">
         <string-format>
           <string>%s</string>
           <format>
-            <item>arch</item>
+            <item>basearch</item>
           </format>
         </string-format>
       </line>

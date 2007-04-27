@@ -1,6 +1,6 @@
 import os
 
-from os.path import join
+from os.path       import join
 
 import dims.osutils as osutils
 import dims.shlib   as shlib
@@ -36,11 +36,11 @@ def publish_hook(interface):
   bv = interface.getBaseVars()
   version = bv['version']
   release = bv['release']
-  arch    = bv['arch']
+  basearch = bv['basearch']
   interface.log(0, "publishing output store (%s-%s)" % (version, release))
   
   # sync to output folder
-  dest = join(interface.getPublishStore(), 'test/%s-%s/%s' % (version, release, arch))
+  dest = join(interface.getPublishStore(), 'test/%s-%s/%s' % (version, release, basearch))
   dest_os = join(dest, 'os')
   
   interface.log(2, "making directory '%s'" % dest)

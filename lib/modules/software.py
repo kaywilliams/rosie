@@ -2,7 +2,8 @@ import re
 import rpm
 import os
 
-from os.path import join
+from os.path       import join
+from rpmUtils.arch import getBaseArch
 
 import dims.listcompare as listcompare
 import dims.osutils     as osutils
@@ -14,7 +15,6 @@ import dims.sync        as sync
 from callback  import BuildSyncCallback
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface, VersionMixin
-from main      import ARCH_MAP
 
 API_VERSION = 3.0
 
@@ -166,9 +166,10 @@ def software_hook(interface):
     
     # sync new rpms
     tosign = [] # newly synched rpms will be signed
+    validarchs = getBaseArch(interface.arch)
     for rpm in new:
       for arch in packages[rpm]:
-        if arch in ARCH_MAP[interface.arch]:
+        if arch in validarchs:
           try:
             store, path, rpmname = packages[rpm][arch][0]
             interface.syncRpm(rpmname, store, path)

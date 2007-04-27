@@ -13,7 +13,8 @@ import imp
 import os
 import sys
 
-from os.path import join, exists
+from os.path       import join, exists
+from rpmUtils.arch import getBaseArch
 
 import dims.logger  as logger
 import dims.osutils as osutils
@@ -36,14 +37,6 @@ BOOLEANS_TRUE  = ['True', 'true', 'Yes', 'yes', '1']
 BOOLEANS_FALSE = ['False', 'false', 'No', 'no', '0']
 OPT_FORCE = '--force'
 OPT_SKIP  = '--skip'
-
-ARCH_MAP = {
-  'noarch': ['noarch'],
-  'i686':   ['i686', 'i586', 'i386', 'noarch'],
-  'i586':   ['i586', 'i386', 'noarch'],
-  'i386':   ['i386', 'noarch'],
-  'x86_64': ['x86_64', 'i686', 'i586', 'i386', 'noarch'],
-}
 
 API_VERSION = 3.0
 
@@ -114,6 +107,7 @@ class Build:
     self.base_vars['version'] = self.config.get('//main/version/text()')
     self.base_vars['release'] = self.config.get('//main/release/text()', '0')
     self.base_vars['arch']    = self.config.get('//main/arch/text()', 'i686')
+    self.base_vars['basearch'] = getBaseArch(self.base_vars['arch'])
     self.base_vars['fullname'] = self.config.get('//main/fullname/text()',
                                                  self.base_vars['product'])
     self.base_vars['provider'] = self.config.get('//main/distro-provider/text()')
@@ -121,7 +115,7 @@ class Build:
     # set up other directories
     distro_prefix = 'distros/%s/%s/%s' % (self.base_vars['product'],
                                           self.base_vars['version'],
-                                          self.base_vars['arch'])
+                                          self.base_vars['basearch'])
     self.SOFTWARE_STORE = join(self.CACHE, distro_prefix, 'os')
     self.METADATA = join(self.CACHE, distro_prefix, 'builddata')
 
@@ -225,7 +219,7 @@ class Build:
     if bool:
       return '@%s="True" or @%s="true" or @%s="Yes" or @%s="yes" or @%s="1"' % (attr, attr, attr, attr, attr)
     else:
-      return '@%s="False" or @%s="False" or @%s="No" or @%s="no" or @%s="0"' % (attr, attr, attr, attr, attr)
+      return '@%s="False" or @%s="false" or @%s="No" or @%s="no" or @%s="0"' % (attr, attr, attr, attr, attr)
   
   def preprocess(self):
     if exists(join(self.METADATA, '.firstrun')):
