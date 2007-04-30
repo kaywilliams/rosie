@@ -72,11 +72,37 @@ PROP_HAS_POST    =   10
 PROP_CAN_DISABLE =  100
 PROP_META        = 1000
 
+""" 
+Event types - a few convenience bitmasks to use as the basis for events.  These event
+types can be combined using standard bitwise arithmetic, as normal.
+
+EVENT_TYPE_MARK ('marker events')
+  Marker events are events that signify a certain point in the execution of
+  a program.  They do not have either a pre or post event, and without the added
+  capability, they can't be enabled or disabled.
+EVENT_TYPE_PROC ('process events')
+  Process events are events that are associated with a specific process in program
+  execution; for example, with the execution of a certain function.  They have pre
+  and post events that are called immediately before and after the execution of this
+  process.  These events are also disableable, which will prevent the process from
+  running, but not the pre and post events.
+EVENT_TYPE_CTRL ('control events')
+  Control events are generally reserved for the main program to define and use; they
+  are treated as special in that they cannot be disabled by the user.
+EVENT_TYE_MDLR ('modular events')
+  Modular events are typically defined by program modules.  As such, they can be
+  enabled and disabled normally by the user.
+EVENT_TYPE_META ('meta events')
+  Meta events are special events that have different behavior from other events.  A
+  meta event is usually a container for other events and doesn't have hook functions
+  of its own.  It does have pre and post events, both of which can be hooked normally.
+"""
+
 EVENT_TYPE_MARK = 0000
 EVENT_TYPE_PROC = 0011
 EVENT_TYPE_CTRL = 0000
 EVENT_TYPE_MDLR = 0100
-EVENT_TYPE_META = 1100
+EVENT_TYPE_META = 1111
 
 
 #------ CLASSES ------#
@@ -488,7 +514,7 @@ class Dispatch:
     else:
       raise ImportError, "Missing definition for EVENTS variable in module %s" % module
     
-    # ...and get functions
+    # ... and get functions
     for attr in dir(module):
       if attr.endswith('_hook'):
         eventid = attr.replace('_hook', '')

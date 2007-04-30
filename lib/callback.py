@@ -21,7 +21,6 @@ MSG_MAXWIDTH = 40
 
 class BuildSyncCallback(SyncCallbackMetered):
   def __init__(self, threshold):
-    #TextMeter.__init__(self)
     SyncCallbackMetered.__init__(self)
     self.logger = BuildLogger(threshold)
   
@@ -42,13 +41,13 @@ class BuildSyncCallback(SyncCallbackMetered):
     if self.logger.test(3): self.bar.draw()
         
   def _do_update(self, amount_read, now=None):
-    if not self.logger.test(3): return
-    SyncCallbackMetered._do_update(self, amount_read, now)
+    if self.logger.test(3):
+      SyncCallbackMetered._do_update(self, amount_read, now)
 
   def _do_end(self, amount_read, now=None):
-    if not self.logger.test(3): return
-    self.bar.layout = '[title:width=30] [curvalue:condensed] [bar] -- DONE --'
-    SyncCallbackMetered._do_end(self, amount_read, now)
+    if self.logger.test(3):
+      self.bar.layout = '[title:width=30] [curvalue:condensed] [bar] -- DONE --'
+      SyncCallbackMetered._do_end(self, amount_read, now)
 
 
 class BuildDepsolveCallback:
@@ -58,9 +57,9 @@ class BuildDepsolveCallback:
     self.count = 0
     self.bar = None
   def pkgAdded(self, pkgtup=None, state=None):
-    if not self.logger.test(2): return
-    self.bar.update(self.bar.position+1)
-    self.bar.draw()
+    if self.logger.test(2):
+      self.bar.update(self.bar.position+1)
+      self.bar.draw()
   def start(self):
     pass
   def tscheck(self, unresolved=0):

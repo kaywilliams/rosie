@@ -1,6 +1,6 @@
 from os.path import join, exists
 
-import dims.depsolve   as depsolve
+import dims.depsolver  as depsolver
 import dims.filereader as filereader
 import dims.osutils    as osutils
 
@@ -102,11 +102,11 @@ def pkglist_hook(interface):
   conf = YUMCONF_HEADER + conf
   filereader.write(conf, cfgfile)
   
-  pkgtups = depsolve.resolve(interface.getRequiredPackages(),
-                             root=join(interface.getMetadata(), '.depsolve'),
-                             config=cfgfile,
-                             arch=interface.arch,
-                             callback=BuildDepsolveCallback(interface.logthresh))
+  pkgtups = depsolver.resolve(interface.getRequiredPackages(),
+                              root=join(interface.getMetadata(), '.depsolve'),
+                              config=cfgfile,
+                              arch=interface.arch,
+                              callback=BuildDepsolveCallback(interface.logthresh))
 
   interface.log(1, "pkglist closure achieved @ %s packages" % len(pkgtups))
   osutils.rm(cfgfile, force=True)

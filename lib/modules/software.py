@@ -3,7 +3,7 @@ import rpm
 import os
 
 from os.path       import join
-from rpmUtils.arch import getBaseArch
+from rpmUtils.arch import getArchList
 
 import dims.listcompare as listcompare
 import dims.osutils     as osutils
@@ -166,7 +166,7 @@ def software_hook(interface):
     
     # sync new rpms
     tosign = [] # newly synched rpms will be signed
-    validarchs = getBaseArch(interface.arch)
+    validarchs = getArchList(interface.arch)
     for rpm in new:
       for arch in packages[rpm]:
         if arch in validarchs:
