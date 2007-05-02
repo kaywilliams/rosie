@@ -14,11 +14,18 @@ API_VERSION = 3.0
 
 EVENTS = [
   {
+    'id': 'repogen',
+    'interface': 'EventInterface',
+    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
+    'provides': ['repoconfig'],
+    'requires': ['comps.xml', 'stores', 'RPMS'],
+  },
+  {
     'id': 'pkglist',
     'interface': 'PkglistInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['pkglist'],
-    'requires': ['comps.xml', 'stores'],
+    'requires': ['comps.xml', 'stores', 'repoconfig'],
   },
 ]
 
@@ -61,12 +68,12 @@ def init_hook(interface):
 
 class DepsolveMDCreator(YumRepoCreator):
   "A subclass of YumRepoCreator that handles making the depsolve config file"
-  def __init__(self, yumrepo, config, inputstore, fallback):
-    YumRepoCreator.__init__(self, yumrepo, config, inputstore, fallback, nocache=True)
+  def __init__(self, yumrepo, config, fallback):
+    YumRepoCreator.__init__(self, yumrepo, config, fallback)
   
   def getPath(self, storeQuery):
-    path = self.config.get(join(storeQuery, 'path/text()'))
-    mdpath = self.config.get(join(storeQuery, 'repodata-path/text()'), None)
+    path = self.config.eget(join(storeQuery, 'path/text()'))
+    mdpath = self.config.eget(join(storeQuery, 'repodata-path/text()'), None)
     if mdpath is not None:
       path = join(path, mdpath)
     
@@ -74,6 +81,18 @@ class DepsolveMDCreator(YumRepoCreator):
 
 #def applyopt_hook(interface):
 #  interface.setEventControlOption('pkglist', interface.options.do_pkglist)
+
+def prerepogen_hook(interface):
+  interface.setFlag('repoconfig', False)
+
+def repogen_hook(interface):
+  cfgfile = join(interface.getTemp(), 'depsolve')
+  
+  dmdc = DepsolveMDCreator(cfgfile,
+                       interface.config.file,
+                       fallback='//stores')
+  dmdc.createRepoFile()
+  interface.setFlag('repoconfig', cfgfile)
 
 def prepkglist_hook(interface):
   interface.disableEvent('pkglist')
@@ -83,18 +102,13 @@ def prepkglist_hook(interface):
           interface.getPkglist() is None:
     interface.enableEvent('pkglist')
   interface.setFlag('pkglist-changed', False)
-  
+
 def pkglist_hook(interface):
   interface.log(0, "resolving pkglist")
   interface.log(1, "generating new pkglist")
   
-  cfgfile = join(interface.getTemp(), 'depsolve')
-  
-  dmdc = DepsolveMDCreator(cfgfile,
-                       interface.config.file,
-                       interface.getInputStore(),
-                       fallback='//stores')
-  dmdc.createRepoFile()
+  cfgfile = interface.getFlag('repoconfig')
+  if not cfgfile: raise RuntimeError, 'repoconfig is not set'
   
   osutils.mkdir(join(interface.getMetadata(), '.depsolve'))
   

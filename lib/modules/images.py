@@ -213,13 +213,13 @@ class ImageHandler:
 
 class InitrdImageHandler(OutputEventHandler, ImageHandler):
   def __init__(self, interface, data):
-    n,s,d,u,p = interface.getStoreInfo(interface.getBaseStore())
+    i,s,n,d,u,p = interface.getStoreInfo(interface.getBaseStore())
     
     initrd_path = interface.getLocalPath(L_FILES, 'file[@id="initrd.img"]/path')
     initrd_path = printf_local(initrd_path, interface.getBaseVars())
     
-    self.rsrc = join(s, d, initrd_path, 'initrd.img')
-    self.isrc = join(interface.getInputStore(), n, d, initrd_path, 'initrd.img')
+    self.rsrc = interface.storeInfoJoin(s, n, join(d, initrd_path, 'initrd.img'))
+    self.isrc = join(interface.getInputStore(), i, d, initrd_path, 'initrd.img')
     self.username = u
     self.password = p
     self.dest = join(interface.getSoftwareStore(), initrd_path, 'initrd.img')
@@ -465,20 +465,20 @@ def updates_hook(interface):
 def stage2_hook(interface):
   interface.log(0, "synchronizing files")
   cb = BuildSyncCallback(interface.logthresh)
-  n,_,d,_,_ = interface.getStoreInfo(interface.getBaseStore())
+  i,_,_,d,_,_ = interface.getStoreInfo(interface.getBaseStore())
+  d = d.lstrip('/') # un-absolute path d
   local_files = interface.getLocal(L_FILES)
   for file in local_files.get('file'):
     filename = file.attrib['id']
     if filename in IMAGES: continue # skip images we already process
     if file.attrib.get('virtual', 'False') in BOOLEANS_TRUE: continue # skip virtual images
     
-    ##interface.log(1, "syncronizing %s" % filename)
     rinfix = printf_local(file.iget('path'), interface.getSourceVars())
     linfix = printf_local(file.iget('path'), interface.getBaseVars())
-    interface.cache(join(d, rinfix, filename), prefix=n, callback=cb)
+    interface.cache(join(d, rinfix, filename), prefix=i, callback=cb)
     osutils.mkdir(join(interface.getSoftwareStore(), linfix), parent=True)
-    sync.sync(join(interface.getInputStore(), n, d, rinfix, filename),
-                 join(interface.getSoftwareStore(), linfix))
+    sync.sync(join(interface.getInputStore(), i, d, rinfix, filename),
+              join(interface.getSoftwareStore(), linfix))
 
 
 #--------- HELPER FUNCTIONS ---------#

@@ -67,10 +67,10 @@ bit 3 : PROP_META
 Properties can be combined using bitwise operations (& and |) to enable and
 disable certain properties as required by the specific Event.
 """
-PROP_HAS_PRE     =    1
-PROP_HAS_POST    =   10
-PROP_CAN_DISABLE =  100
-PROP_META        = 1000
+PROP_HAS_PRE     =    01
+PROP_HAS_POST    =   010
+PROP_CAN_DISABLE =  0100
+PROP_META        = 01000
 
 """ 
 Event types - a few convenience bitmasks to use as the basis for events.  These event
@@ -98,11 +98,11 @@ EVENT_TYPE_META ('meta events')
   of its own.  It does have pre and post events, both of which can be hooked normally.
 """
 
-EVENT_TYPE_MARK = 0000
-EVENT_TYPE_PROC = 0011
-EVENT_TYPE_CTRL = 0000
-EVENT_TYPE_MDLR = 0100
-EVENT_TYPE_META = 1111
+EVENT_TYPE_MARK = 00000
+EVENT_TYPE_PROC = 00011
+EVENT_TYPE_CTRL = 00000
+EVENT_TYPE_MDLR = 00100
+EVENT_TYPE_META = 01111
 
 
 #------ CLASSES ------#
@@ -219,14 +219,11 @@ class Event(resolve.Item, tree.Node):
     to all registered functions.  If this Event has the EVENT_TYPE_PROC property,
     also do so to the event's pre and post events.
     """
-    interface = self.interface(*args, **kwargs)
     try:
-      if self.test(PROP_HAS_PRE):
-        for hfunc in self.pre.functions:  hfunc(interface)
-      if self.enabled or force:
-        for hfunc in self.functions:      hfunc(interface)
-      if self.test(PROP_HAS_POST):
-        for hfunc in self.post.functions: hfunc(interface)
+      if (self.enabled or force) and not self.test(PROP_META):
+        interface = self.interface(*args, **kwargs)
+        for hfunc in self.functions:
+          hfunc(interface)
     except HookExit, e:
       print e
       sys.exit()
@@ -525,7 +522,8 @@ class EventIterator:
   "Basic iterator over Event-type objects"
   def __init__(self, eventtree):
     self.order = []
-    for event in tree.depthfirst(eventtree):
+    #for event in tree.depthfirst(eventtree):
+    for event in depthfirst(eventtree):
       self.order.append(event)
     self.reset() # sets self.index to -1
     self.reversed = False
@@ -560,6 +558,18 @@ class EventIterator:
       self.index = newindex
     return self.order[self.index]
 
+
+def depthfirst(event):
+  if event: 
+    if event.test(PROP_HAS_PRE):
+      yield event.pre
+    yield event
+    for x in depthfirst(event.firstchild):
+      yield x
+    if event.test(PROP_HAS_POST):
+      yield event.post
+    for x in depthfirst(event.nextsibling):
+      yield x
 
 #------ FACTORY FUNCTIONS ------#
 def EventFromStruct(struct):

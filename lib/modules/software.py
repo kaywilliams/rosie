@@ -24,8 +24,7 @@ EVENTS = [
     'interface': 'SoftwareInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['software'],
-    ##'requires': ['comps.xml', 'pkglist', 'RPMS', 'IMAGES'],
-    'requires': ['comps.xml', 'pkglist'],
+    'requires': ['comps.xml', 'pkglist', 'RPMS', 'IMAGES'],
   },
 ]
 
@@ -123,7 +122,7 @@ def software_hook(interface):
   
   # check signatures on stuff in both lists
   if len(both) > 0:
-    interface.log(1, "checking rpm signatures")
+    interface.log(1, "checking rpm signatures (%d packages)" % len(both))
     for rpm in both:
       try:
         path = osutils.expand_glob(join(rpmdir, '*%s*.[Rr][Pp][Mm]' % rpm))[0]
@@ -140,19 +139,19 @@ def software_hook(interface):
   
   # delete old packages
   if len(old) > 0:
-    interface.log(1, "deleting old rpms")
+    interface.log(1, "deleting old rpms (%d packages)" % len(old))
     for rpm in old:
       interface.deleteRpm(rpm)
   
   # download new packages
   if len(new) > 0:
-    interface.log(1, "downloading new rpms")
+    interface.log(1, "downloading new rpms (%d packages)" % len(new))
     packages = {} # dict of lists of available rpms
     
     for store in interface.config.mget('//stores/*/store/@id'):
-      n,s,d,u,p = interface.getStoreInfo(store)
+      i,s,n,d,u,p = interface.getStoreInfo(store)
       
-      base = join(s,d)
+      base = interface.storeInfoJoin(s,n,d)
       
       # get the list of .rpms in the input store
       rpms = spider.find(base, glob='*.[Rr][Pp][Mm]', prefix=False,
@@ -162,7 +161,7 @@ def software_hook(interface):
         fullname = '%s-%s-%s' % (name, version, release)
         if not packages.has_key(fullname): packages[fullname] = {}
         if not packages[fullname].has_key(arch): packages[fullname][arch] = []
-        packages[fullname][arch].append((n,d,rpm))
+        packages[fullname][arch].append((i,d,rpm))
     
     # sync new rpms
     tosign = [] # newly synched rpms will be signed

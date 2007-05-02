@@ -62,5 +62,5 @@ def publish_hook(interface):
   
   # create published directory
   osutils.rm(join(interface.getPublishStore(), version), force=True)
-  os.symlink(join(interface.getPublishStore(), 'test/%s-%s' % (version, release)),
+  os.symlink('test/%s-%s' % (version, release),
              join(interface.getPublishStore(), version))

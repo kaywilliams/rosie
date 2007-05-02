@@ -22,7 +22,7 @@ EVENTS = [
     'interface': 'CompsInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['comps.xml'],
-    'requires': ['.discinfo', 'stores'],
+    'requires': ['.discinfo', 'stores', 'RPMS'],
   },
 ]
 
@@ -248,25 +248,27 @@ class CompsHandler:
     groupfiles = []
     
     for store in self.config.mget('//store/@id'):
-      n,s,d,u,p = self.interface.getStoreInfo(store)
+      i,s,n,d,u,p = self.interface.getStoreInfo(store)
+      d = d.lstrip('/') # remove absolute pathing on d
       
       repodatapath = self.config.get('//store[@id="%s"]/repodata-path/text()' % store, None)
       if repodatapath is not None:
         d = join(d, repodatapath) # TODO - this should accept absolute paths as well
       
-      dest = join(self.interface.getInputStore(), n, d)
+      dest = join(self.interface.getInputStore(), i, d)
       osutils.mkdir('%s/repodata' % dest, parent=True) # TODO allow this to be config'd?
       
       try:
-        groupfile = self.interface.cache(join(d, 'repodata/repomd.xml'), prefix=n, username=u, password=p)
+        groupfile = self.interface.cache(join(d, 'repodata/repomd.xml'),
+                                         prefix=i, username=u, password=p)
       except CacheManagerError:
         raise ConfigError, "The '%s' store does not appear to be valid; unable to get groupfile from '%s'" % (store, join(d, 'repodata/repomd.xml'))
       
       try:
         groupfile = xmltree.read(join(dest, 'repodata/repomd.xml')).get('//data[@type="group"]/location/@href')
         if len(groupfile) > 0:
-          self.interface.cache(join(d, groupfile[0]), prefix=n)
-        groupfiles.append((store, join(self.interface.getInputStore(), n, d, groupfile[0])))
+          self.interface.cache(join(d, groupfile[0]), prefix=i)
+        groupfiles.append((store, join(self.interface.getInputStore(), i, d, groupfile[0])))
       except IndexError:
         pass # this is ok, not all repositories have groupfiles
       

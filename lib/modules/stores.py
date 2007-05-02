@@ -1,10 +1,14 @@
-from os.path            import join, isfile
+from os.path            import join, isfile, exists
+from StringIO           import StringIO
 from urlgrabber.grabber import URLGrabError
+from urlparse           import urlparse
 
 import dims.filereader  as filereader
 import dims.listcompare as listcompare
 import dims.spider      as spider
+import dims.xmltree     as xmltree
 
+from event     import EVENT_TYPE_PROC
 from interface import EventInterface
 
 API_VERSION = 3.0
@@ -13,8 +17,25 @@ EVENTS = [
   {
     'id': 'stores',
     'provides': ['stores'],
+    'properties': EVENT_TYPE_PROC,
+    'interface': 'StoresInterface',
   },
 ]
+
+class StoresInterface(EventInterface):
+  def __init__(self, base):
+    EventInterface.__init__(self, base)
+  
+  def add_store(self, xml):
+    parent = self.config.get('//stores/additional')
+    element = xmltree.read(StringIO(xml))
+    element.parent = parent
+    parent.append(element.root)
+    s,n,d,_,_,_ = urlparse(element.iget('path/text()'))
+    server = '://'.join((s,n))
+    if server not in self._base.cachemanager.SOURCES:
+      self._base.cachemanager.SOURCES.append(server)
+    
 
 def stores_hook(interface):
   """Check input stores to see if their contents have changed by comparing them
@@ -25,9 +46,9 @@ def stores_hook(interface):
   
   for store in interface.config.mget('//stores/*/store/@id'):
     interface.log(1, store)
-    n,s,d,u,p = interface.getStoreInfo(store)
+    i,s,n,d,u,p = interface.getStoreInfo(store)
     
-    base = join(s,d)
+    base = interface.storeInfoJoin(s or 'file', n, d)
     
     # get the list of .rpms in the input store
     try:
@@ -47,7 +68,7 @@ def stores_hook(interface):
     old, new, _ = listcompare.compare(oldpkgs, pkgs)
     
     # if content changed, write new contents to file
-    if len(old) > 0 or len(new) > 0:
+    if len(old) > 0 or len(new) > 0 or not exists(oldpkgsfile):
       changed = True
       filereader.write(pkgs, oldpkgsfile)
   

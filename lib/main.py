@@ -15,6 +15,7 @@ import sys
 
 from os.path       import join, exists
 from rpmUtils.arch import getBaseArch
+from urlparse      import urlparse
 
 import dims.logger  as logger
 import dims.osutils as osutils
@@ -144,9 +145,12 @@ class Build:
     #  * False - prevent this event from running
     self.userFC = {}
     
-    # get everything started - raise init
-    self.dispatch.move(2) # advance to init - hack, figure something out with this
-    self.dispatch.raise_event(self, parser)
+    # get everything started - raise init - this is so hack
+   # print self.dispatch.iter.order
+    self.dispatch.next()
+    self.dispatch.raise_event(self) # raise preALL
+    self.dispatch.move(2) # skip ALL (meta event)
+    self.dispatch.raise_event(self, parser) # raise init
     self.dispatch.next()
     
   
@@ -277,8 +281,10 @@ class Build:
   def __compute_servers(self):
     "Compute a list of the servers represented in the configuration file"
     servers = []
-    servers.extend(self.config.mget('//stores/*/store/server/text()'))
-    servers.extend(self.config.mget('//stores/server/text()'))
+    for path in self.config.emget('//stores/*/store/path/text()'):
+      s,n,d,_,_,_ = urlparse(path)
+      server = '://'.join((s,n))
+      if server not in servers: servers.append(server)
     return servers
   
   def __check_api_version(self, module):

@@ -1,7 +1,7 @@
 import copy
 import os
 
-from os.path import join, exists
+from os.path  import join, exists
 
 import dims.FormattedFile as ffile
 import dims.osutils       as osutils
@@ -38,14 +38,14 @@ def prediscinfo_hook(interface):
 
 def discinfo_hook(interface):
   "Get the .discinfo file from the base store"
-  n,s,d,u,p = interface.getStoreInfo(interface.getBaseStore())
-  dest = join(interface.getInputStore(), n, d)
+  i,s,n,d,u,p = interface.getStoreInfo(interface.getBaseStore())
+  dest = join(interface.getInputStore(), i, d)
   osutils.mkdir(dest, parent=True)
   
   discinfo_path = interface.getLocalPath(L_DISCINFO_PATH, 'path/text()')
   discinfo_fmt  = interface.getLocalPath(L_DISCINFO, '.')
   
-  sync.sync(join(s, d, discinfo_path), dest, username=u, password=p)
+  sync.sync(interface.storeInfoJoin(s, n, join(d, discinfo_path)), dest, username=u, password=p)
   
   discinfo = ffile.XmlToFormattedFile(discinfo_fmt)
   base_vars = discinfo.read(join(dest, discinfo_path))

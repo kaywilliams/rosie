@@ -10,8 +10,9 @@ __date__    = "March 8th, 2007"
 
 import re
 
-from os      import stat
-from os.path import join
+from os       import stat
+from os.path  import join
+from urlparse import urlparse, urlunparse
 
 import dims.execlib    as execlib
 import dims.filereader as filereader
@@ -37,11 +38,6 @@ EVENTS = {
     'interface': 'LogosRpmInterface',
     'provides': ['logos.rpm'],
     'requires': [],
-  },
-  'iso': {
-    'interface': 'IsoInterface',
-    'provides': ['iso'],
-    'requires': ['stage2', '.discinfo', 'software'],
   },
 }
 
@@ -69,29 +65,27 @@ class EventInterface(PluginInterface):
     self._base.cachemanager.get(path, *args, **kwargs)
   
   # store information functions
-  def getStoreInfo(self, n):
+  def getStoreInfo(self, i):
     """ 
-    n[ame],s[erver],d[irectory],u[sername],p[assword] = get_store_info(storeid)
+    i[d],s[cheme],n[etloc],d[irectory],u[sername],p[assword] = getStoreInfo(storeid)
     
     Get information about a store
     """
     storepath = None
     try:
-      storepath = '//stores/*/store[@id="%s"]' % n
+      storepath = '//stores/*/store[@id="%s"]' % i
       self.config.get(storepath) # try to get it, if not found, fail
     except xmltree.XmlPathError, e:
       raise xmltree.XmlPathError, "The specified store, '%s', does not exist in the config file" % storeid
     
-    s = self.config.get(['%s/server/text()' % storepath,
-                        '//stores/server/text()'])
-    d = self.config.get(['%s/path/text()' % storepath,
-                        '//stores/path/text()'])
-    u = self.config.get(['%s/username/text()' % storepath,
-                        '//stores/username/text()'], None)
-    p = self.config.get(['%s/password/text()' % storepath,
-                        '//stores/password/text()'], None)
+    s,n,d,_,_,_ = urlparse(self.config.eget(['%s/path/text()' % storepath]))
+    u = self.config.eget(['%s/username/text()' % storepath])
+    p = self.config.eget(['%s/password/text()' % storepath])
     
-    return n, s, d, u, p
+    return i, s, n, d, u, p
+  
+  def storeInfoJoin(self, s, n, d):
+    return urlunparse((s,n,d,'','',''))
     
   def getBaseStore(self):
     "Get the id of the base store from the config file"
