@@ -10,6 +10,7 @@ import dims.xmltree     as xmltree
 
 from event     import EVENT_TYPE_PROC
 from interface import EventInterface
+from main      import BOOLEANS_TRUE
 
 API_VERSION = 3.0
 
@@ -71,7 +72,7 @@ def stores_hook(interface):
     if len(old) > 0 or len(new) > 0 or not exists(oldpkgsfile):
       changed = True
       filereader.write(pkgs, oldpkgsfile)
-  
+    
   interface.setFlag('inputstore-changed', changed)
 
 class StoreNotFoundError(StandardError): pass

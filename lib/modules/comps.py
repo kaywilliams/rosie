@@ -247,11 +247,11 @@ class CompsHandler:
     "Get a list of all groupfiles in all repositories"
     groupfiles = []
     
-    for store in self.config.mget('//store/@id'):
+    for store in self.config.mget('//stores/*/store/@id'):
       i,s,n,d,u,p = self.interface.getStoreInfo(store)
       d = d.lstrip('/') # remove absolute pathing on d
       
-      repodatapath = self.config.get('//store[@id="%s"]/repodata-path/text()' % store, None)
+      repodatapath = self.config.get('//stores/*/store[@id="%s"]/repodata-path/text()' % store, None)
       if repodatapath is not None:
         d = join(d, repodatapath) # TODO - this should accept absolute paths as well
       

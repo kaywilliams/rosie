@@ -17,7 +17,7 @@ EVENTS = [
     'id': 'RPMS',
     'provides': ['RPMS'],
     'requires': ['.discinfo'], #!
-    'interface': 'RPMInterface',
+    'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_META,
   },
 ]
@@ -28,9 +28,9 @@ STORE_XML = '''
 </store>
 '''
 
-class RPMInterface(EventInterface):
-  def __init__(self, base):
-    EventInterface.__init__(self, base)
+#------ MIXINS ------#
+class RpmsMixin:
+  def __init__(self):
     self.LOCAL_REPO = join(self.getMetadata(), 'localrepo/')
   
   def addRPM(self, path):
@@ -42,6 +42,15 @@ class RPMInterface(EventInterface):
     shlib.execute('/usr/bin/createrepo -q .')
     os.chdir(pwd)
 
+
+#------ INTERFACES ------#
+class RpmsInterface(EventInterface, RpmsMixin):
+  def __init__(self, base):
+    EventInterface.__init__(self, base)
+    RpmsMixin.__init__(self)
+
+
+#------ HOOK FUNCTIONS ------#
 def prestores_hook(interface):
   localrepo = join(interface.getMetadata(), 'localrepo/')
   osutils.mkdir(localrepo)

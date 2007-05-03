@@ -37,6 +37,8 @@ class SoftwareInterface(EventInterface, VersionMixin):
     self.product = self._base.base_vars['product']
     self.ts = rpm.TransactionSet()
     self.callback = BuildSyncCallback(base.log.threshold)
+    
+    self.rpmdest = join(self.getSoftwareStore(), self.product, 'RPMS')
   
   def getPkglist(self):
     try:
@@ -74,16 +76,15 @@ class SoftwareInterface(EventInterface, VersionMixin):
   def syncRpm(self, rpm, store, path):
     "Sync an rpm from path within store into the the output store"
     #self.log(1, "   - downloading %s" % rpm)
-    path = self._base.cachemanager.get(join(path, rpm), prefix=store, callback=self.callback)
+    path = self.cache(join(path, rpm), prefix=store, callback=self.callback)
     rpmsrc  = join(self.getInputStore(), store, path)
-    rpmdest = join(self.getSoftwareStore(), self.product, 'RPMS')
-    sync.sync(rpmsrc, rpmdest)
-    self.rpmCheckSignatures(join(rpmdest, osutils.basename(rpm)), verbose=False) # raises RpmSignatureInvalidError
+    sync.sync(rpmsrc, self.rpmdest)
+    self.rpmCheckSignatures(join(self.rpmdest, osutils.basename(rpm)), verbose=False) # raises RpmSignatureInvalidError
   
   def deleteRpm(self, rpm):
     "Delete an rpm from the output store"
     self.log(2, "deleting %s" % rpm)
-    osutils.rm(join(self.getSoftwareStore(), self.product, 'RPMS/%s.*.[Rr][Pp][Mm]' % rpm))
+    osutils.rm(join(self.rpmdest, '%s.*.[Rr][Pp][Mm]' % rpm))
 
   def createrepo(self):
     "Run createrepo on the output store"
@@ -106,10 +107,9 @@ def software_hook(interface):
   # the --force option may not perform exactly as desired for this
   # TODO discuss and examine possibilities
   interface.log(0, "processing rpms")
-  rpmdir = join(interface.getSoftwareStore(), interface.product, 'RPMS')
-  osutils.mkdir(rpmdir, parent=True)
+  osutils.mkdir(interface.rpmdest, parent=True)
   
-  rpms = osutils.find(rpmdir, name='*.[Rr][Pp][Mm]', prefix=False)
+  rpms = osutils.find(interface.rpmdest, name='*.[Rr][Pp][Mm]', prefix=False)
   
   # construct a list of rpms without .<arch>.rpm
   rpmlist = []
@@ -125,12 +125,10 @@ def software_hook(interface):
     interface.log(1, "checking rpm signatures (%d packages)" % len(both))
     for rpm in both:
       try:
-        path = osutils.expand_glob(join(rpmdir, '*%s*.[Rr][Pp][Mm]' % rpm))[0]
-        interface.rpmCheckSignatures(path)
-        if interface.logthresh >= 2:
-          interface.log(None, "OK")
-      except IndexError:
-        raise OSError, "RPM '%s' not found in input store" % rpm
+        for path in osutils.expand_glob(join(interface.rpmdest, '*%s*.[Rr][Pp][Mm]' % rpm)):
+          interface.rpmCheckSignatures(path)
+          if interface.logthresh >= 2:
+            interface.log(None, "OK")
       except RpmSignatureInvalidError:
         # remove invalid rpm and redownload
         interface.log(None, "INVALID: redownloading")

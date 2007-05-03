@@ -62,7 +62,7 @@ class EventInterface(PluginInterface):
     return expand_macros(text, self._base.base_vars)
   
   def cache(self, path, *args, **kwargs):
-    self._base.cachemanager.get(path, *args, **kwargs)
+    return self._base.cachemanager.get(path, *args, **kwargs)
   
   # store information functions
   def getStoreInfo(self, i):
@@ -73,7 +73,7 @@ class EventInterface(PluginInterface):
     """
     storepath = None
     try:
-      storepath = '//stores/*/store[@id="%s"]' % i
+      storepath = '//store[@id="%s"]' % i
       self.config.get(storepath) # try to get it, if not found, fail
     except xmltree.XmlPathError, e:
       raise xmltree.XmlPathError, "The specified store, '%s', does not exist in the config file" % storeid

@@ -433,9 +433,9 @@ class Dispatch:
     """
     type = None
     if eventid.startswith('pre'):
-      eventid = eventid.replace('pre', ''); type = 'pre'
+      eventid = eventid.replace('pre', '', 1); type = 'pre'
     elif eventid.startswith('post'):
-      eventid = eventid.replace('post', ''); type = 'post'
+      eventid = eventid.replace('post', '', 1); type = 'post'
     for e in self.event:
       if e.id == eventid:
         if type is None:            return e
