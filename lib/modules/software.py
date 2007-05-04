@@ -5,7 +5,6 @@ import os
 from os.path       import join
 from rpmUtils.arch import getArchList
 
-import dims.listcompare as listcompare
 import dims.osutils     as osutils
 import dims.shlib       as shlib
 import dims.sortlib     as sortlib
@@ -14,7 +13,7 @@ import dims.sync        as sync
 
 from callback  import BuildSyncCallback
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from interface import EventInterface, VersionMixin
+from interface import EventInterface, VersionMixin, ListCompareMixin
 
 API_VERSION = 3.0
 
@@ -30,10 +29,11 @@ EVENTS = [
 
 RPM_PNVRA_REGEX = re.compile('(.*/)?(.+)-(.+)-(.+)\.(.+)\.[Rr][Pp][Mm]')
 
-class SoftwareInterface(EventInterface, VersionMixin):
+class SoftwareInterface(EventInterface, VersionMixin, ListCompareMixin):
   def __init__(self, base):
     EventInterface.__init__(self, base)
     VersionMixin.__init__(self, join(self.getMetadata(), '%s.pkgs' % self.getBaseStore()))
+    ListCompareMixin.__init__(self)
     self.product = self._base.base_vars['product']
     self.ts = rpm.TransactionSet()
     self.callback = BuildSyncCallback(base.log.threshold)
@@ -108,95 +108,112 @@ def software_hook(interface):
   # TODO discuss and examine possibilities
   interface.log(0, "processing rpms")
   osutils.mkdir(interface.rpmdest, parent=True)
+
+  handler = SoftwareHandler(interface)
+  handler.handle()
   
-  rpms = osutils.find(interface.rpmdest, name='*.[Rr][Pp][Mm]', prefix=False)
-  
-  # construct a list of rpms without .<arch>.rpm
-  rpmlist = []
-  for rpm in rpms:
-    _,name,version,release,_ = interface.rpmNameDeformat(rpm)
-    fullname = '%s-%s-%s' % (name, version, release)
-    if fullname not in rpmlist: rpmlist.append(fullname)
-  
-  old, new, both = listcompare.compare(rpmlist, interface.getPkglist())
-  
-  # check signatures on stuff in both lists
-  if len(both) > 0:
-    interface.log(1, "checking rpm signatures (%d packages)" % len(both))
-    for rpm in both:
-      try:
-        for path in osutils.expand_glob(join(interface.rpmdest, '*%s*.[Rr][Pp][Mm]' % rpm)):
-          interface.rpmCheckSignatures(path)
-          if interface.logthresh >= 2:
-            interface.log(None, "OK")
-      except RpmSignatureInvalidError:
-        # remove invalid rpm and redownload
-        interface.log(None, "INVALID: redownloading")
-        osutils.rm(path, force=True)
-        new.append(rpm)
-  
-  # delete old packages
-  if len(old) > 0:
-    interface.log(1, "deleting old rpms (%d packages)" % len(old))
-    for rpm in old:
-      interface.deleteRpm(rpm)
-  
-  # download new packages
-  if len(new) > 0:
-    interface.log(1, "downloading new rpms (%d packages)" % len(new))
-    packages = {} # dict of lists of available rpms
+
+class SoftwareHandler:
+  def __init__(self, interface):
+    self.interface = interface
+    self.interface.lfn = self.delete_rpm
+    self.interface.rfn = self.download_rpm
+    self.interface.bfn = self.check_rpm
+    self.interface.cb = self
     
-    for store in interface.config.mget('//stores/*/store/@id'):
-      i,s,n,d,u,p = interface.getStoreInfo(store)
+    self.changed = False
+    self._packages = {}
+    self._validarchs = getArchList(self.interface.arch)
+    self._tosign = []
+  
+  def handle(self):
+    "Generate a software store"
+    rpms = osutils.find(self.interface.rpmdest, name='*.[Rr][Pp][Mm]', prefix=False)
+  
+    # construct a list of rpms without .<arch>.rpm
+    rpmlist = []
+    for rpm in rpms:
+      _,name,version,release,_ = self.interface.rpmNameDeformat(rpm)
+      fullname = '%s-%s-%s' % (name, version, release)
+      if fullname not in rpmlist: rpmlist.append(fullname)
+  
+    self.interface.compare(rpmlist, self.interface.getPkglist())
+    self.sign_rpms()
+    self.create_metadata()
+  
+  # callback functions
+  def notify_both(self, i):
+    self.interface.log(1, "checking rpm signatures (%d packages)" % i)
+  def notify_left(self, i):
+    self.changed = True
+    self.interface.log(1, "deleting old rpms (%d packages)" % i)
+  def notify_right(self, i):
+    self.changed = True
+    self.interface.log(1, "downloading new rpms (%d packages)" % i)
+    for store in self.interface.config.mget('//stores/*/store/@id'):
+      i,s,n,d,u,p = self.interface.getStoreInfo(store)
       
-      base = interface.storeInfoJoin(s,n,d)
+      base = self.interface.storeInfoJoin(s,n,d)
       
       # get the list of .rpms in the input store
       rpms = spider.find(base, glob='*.[Rr][Pp][Mm]', prefix=False,
                          username=u, password=p)
       for rpm in rpms:
-        _,name,version,release,arch = interface.rpmNameDeformat(rpm)
+        _,name,version,release,arch = self.interface.rpmNameDeformat(rpm)
         fullname = '%s-%s-%s' % (name, version, release)
-        if not packages.has_key(fullname): packages[fullname] = {}
-        if not packages[fullname].has_key(arch): packages[fullname][arch] = []
-        packages[fullname][arch].append((i,d,rpm))
+        if not self._packages.has_key(fullname):
+          self._packages[fullname] = {}
+        if not self._packages[fullname].has_key(arch):
+          self._packages[fullname][arch] = []
+        self._packages[fullname][arch].append((i,d,rpm))
     
-    # sync new rpms
-    tosign = [] # newly synched rpms will be signed
-    validarchs = getArchList(interface.arch)
-    for rpm in new:
-      for arch in packages[rpm]:
-        if arch in validarchs:
-          try:
-            store, path, rpmname = packages[rpm][arch][0]
-            interface.syncRpm(rpmname, store, path)
-            tosign.append(rpmname)
-          except IndexError, e:
-            self.errlog(1, "No rpm '%s' found in store '%s' for arch '%s'" % (rpm, store, arch))
-    
+  def check_rpm(self, rpm):
+    try:
+      for path in osutils.expand_glob(join(self.interface.rpmdest, '*%s*.[Rr][Pp][Mm]' % rpm)):
+        self.interface.rpmCheckSignatures(path)
+        if self.interface.logthresh >= 2:
+          self.interface.log(None, "OK")
+    except RpmSignatureInvalidError:
+      # remove invalid rpm and redownload
+      self.interface.log(None, "INVALID: redownloading")
+      osutils.rm(path, force=True)
+      self.interface.r.append(rpm)
+  
+  def delete_rpm(self, rpm):
+    self.interface.deleteRpm(rpm)
+  
+  def download_rpm(self, rpm):
+    for arch in self._packages[rpm]:
+      if arch in self._validarchs:
+        try:
+          store, path, rpmname = self._packages[rpm][arch][0]
+          self.interface.syncRpm(rpmname, store, path)
+          self._tosign.append(rpmname)
+        except IndexError, e:
+          self.errlog(1, "No rpm '%s' found in store '%s' for arch '%s'" % (rpm, store, arch))
+  
+  def sign_rpms(self):
     # sign new packages
     ##args = ['/bin/rpm', '--addsign']
     ##args.extend([join(rpmdir, osutils.basename(rpm)) for rpm in tosign])
     ##os.spawnv(os.P_WAIT, '/bin/rpm', args)
-    interface.log(1, "signing new rpms")
+    self.interface.log(1, "signing new rpms")
     args = ''
-    for rpm in tosign: args = args + ' ' + rpm
+    for rpm in self._tosign: args = args + ' ' + rpm
     shlib.execute('expect -c "spawn /bin/rpm --addsign %s; send timeout -1; ' + \
                              'stty -echo; expect \\"Enter pass phrase: \\"; ' + \
                              'send \\"\\n\\"; expect exp_continue"')
-    
-    # TODO - if build fails at this point, it will succeed the next time because
-    # the file lists are the same.  We need some way to detect if metadata was
-    # computed properly
-    
+
+  def create_metadata(self):
     # create repository metadata
-    if len(old) > 0 or len(new) > 0: # any package changed
-      interface.log(1, "creating repository metadata")
-      interface.createrepo()
+    if self.changed:
+      self.interface.log(1, "creating repository metadata")
+      self.interface.createrepo()
 
       # run genhdlist, if anaconda version < 10.92
-      if sortlib.dcompare(interface.anaconda_version, '10.92') < 0:
-        interface.genhdlist()
+      if sortlib.dcompare(self.interface.anaconda_version, '10.92') < 0:
+        self.interface.genhdlist()
+
 
 class RpmSignatureInvalidError(StandardError):
   "Class of exceptions raised when an RPM signature check fails in some way"

@@ -92,6 +92,11 @@ def repogen_hook(interface):
                        interface.config.file,
                        fallback='//stores')
   dmdc.createRepoFile()
+  
+  conf = filereader.read(cfgfile)
+  conf = YUMCONF_HEADER + conf
+  filereader.write(conf, cfgfile)
+  
   interface.setFlag('repoconfig', cfgfile)
 
 def prepkglist_hook(interface):
@@ -112,10 +117,6 @@ def pkglist_hook(interface):
   
   osutils.mkdir(join(interface.getMetadata(), '.depsolve'))
   
-  conf = filereader.read(cfgfile)
-  conf = YUMCONF_HEADER + conf
-  filereader.write(conf, cfgfile)
-  
   pkgtups = depsolver.resolve(interface.getRequiredPackages(),
                               root=join(interface.getMetadata(), '.depsolve'),
                               config=cfgfile,
@@ -123,7 +124,6 @@ def pkglist_hook(interface):
                               callback=BuildDepsolveCallback(interface.logthresh))
 
   interface.log(1, "pkglist closure achieved @ %s packages" % len(pkgtups))
-  osutils.rm(cfgfile, force=True)
   
   pkglist = []
   for n,_,_,v,r in pkgtups:
@@ -140,3 +140,4 @@ def postpkglist_hook(interface):
   else:
     interface.log(1, "writing pkglist")
     filereader.write(interface.getPkglist(), join(interface.getMetadata(), 'pkglist'))
+  osutils.rm(interface.getFlag('repoconfig'), force=True)

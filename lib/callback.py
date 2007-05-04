@@ -68,7 +68,7 @@ class BuildDepsolveCallback:
       if self.count == 1: msg = 'loop %d (%d package)'
       else:               msg = 'loop %d (%d packages)'
       self.bar = ProgressBar(self.count, LEVEL_2_FORMAT % (msg % (self.loop, self.count)))
-      self.bar.layout = '[title:width=25] [ratio:width=7] [bar] [percent] [time]'
+      self.bar.layout = '[title:width=28] [ratio:width=9] [bar] [percent] [time]'
       self.bar.start()
       self.bar.draw()
   def restartLoop(self):

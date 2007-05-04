@@ -14,13 +14,14 @@ from os       import stat
 from os.path  import join
 from urlparse import urlparse, urlunparse
 
-import dims.execlib    as execlib
-import dims.filereader as filereader
-import dims.imerge     as imerge # probably will end up in XmlTree someday
-import dims.osutils    as osutils
-import dims.sortlib    as sortlib
-import dims.sync       as sync
-import dims.xmltree    as xmltree
+import dims.execlib     as execlib
+import dims.filereader  as filereader
+import dims.imerge      as imerge # probably will end up in XmlTree someday
+import dims.listcompare as listcompare
+import dims.osutils     as osutils
+import dims.sortlib     as sortlib
+import dims.sync        as sync
+import dims.xmltree     as xmltree
 
 from dims.ConfigLib    import expand_macros
 from dims.EventManager import PluginInterface
@@ -193,15 +194,35 @@ class GPGMixin:
   
   def sign(self, rpm): pass # to be completed when rpm signing library is done
 
-
-# Old interfaces, these are going away eventually
-class RpmInterface(EventInterface):
-  def __init__(self):
-    pass
-
-class ReleaseRpmInterface(RpmInterface):
-  def __init__(self):
-    pass
+class ListCompareMixin:
+  def __init__(self, lfn=None, rfn=None, bfn=None, cb=None):
+    self.lfn = lfn
+    self.rfn = rfn
+    self.bfn = bfn
+    self.cb  = cb
+    
+    self.l = None
+    self.r = None
+    self.b = None
+  
+  def compare(self, l1, l2):
+    self.l, self.r, self.b = listcompare.compare(l1, l2)
+    
+    if len(self.b) > 0:
+      if self.cb:
+        self.cb.notify_both(len(self.b))
+      if self.bfn:
+        for i in self.b: self.bfn(i)
+    if len(self.l) > 0:
+      if self.cb:
+        self.cb.notify_left(len(self.l))
+      if self.lfn:
+        for i in self.l: self.lfn(i)
+    if len(self.r) > 0:
+      if self.cb:
+        self.cb.notify_right(len(self.r))
+      if self.rfn:
+        for i in self.r: self.rfn(i)
 
 
 #------ HELPER FUNCTIONS ------#
