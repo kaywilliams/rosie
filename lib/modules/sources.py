@@ -62,7 +62,7 @@ class SrpmInterface(EventInterface, ListCompareMixin):
 
 
 def source_hook(interface):
-  if interface.config.get('//source/include/text()') not in BOOLEANS_TRUE:
+  if interface.config.get('//source/include/text()', 'False') not in BOOLEANS_TRUE:
     osutils.rm(interface.srpmsrc, recursive=True, force=True)
     return
   
