@@ -327,10 +327,9 @@ class ProductImageHandler(OutputEventHandler, ImageHandler, MorphStructMixin):
     for dir in product_dirs:
       try:
         files = os.listdir(dir)
-        
         if 'installclasses' in files: installclass_found = True
           #self.__generate_installclass()
-        if 'pixmaps' not in files: pixmaps_found = True
+        if 'pixmaps' in files: pixmaps_found = True
           #self.__generate_pixmaps()
         
         self.image.write([ join(dir, file) for file in files ],
@@ -364,9 +363,9 @@ class ProductImageHandler(OutputEventHandler, ImageHandler, MorphStructMixin):
     filereader.write([installclass], join(self.image.mount, 'installclasses/custom.py'))
   
   def __generate_pixmaps(self):
-    # For now, just copy the logos from static locations to the product.img
+    # For now, just copy the logos from static locations to the product.img    
     osutils.mkdir(join(self.image.mount, 'pixmaps'))
-    osutils.cp(join(self.interface.getMetadata(), 'logos/product.img/*'),
+    osutils.cp(join(self.interface.getMetadata(), 'images-src/product.img/*'),
                join(self.image.mount, 'pixmaps'))
 
 class UpdatesImageHandler(OutputEventHandler, ImageHandler, MorphStructMixin):

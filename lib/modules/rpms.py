@@ -531,7 +531,7 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
         shlib.execute('convert %s %s' %(splash_png, splash_xpm,))
         shlib.execute('gzip %s' %(splash_xpm,))
       RpmHandler.addOutput(self)    
-    # create the builddata/logos/product.img folder all the time,
+    # create the builddata/images-src/product.img folder all the time,
     # even if the user provided the RPM. 
     self.createPixmaps()
     self.interface.setFlag('logos-changed', True)
@@ -541,41 +541,43 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
     Create the product.img folder that can be used by the
     product.img module.
     """
-    # create the product.img folder/ if it doesn't exist
-    product_img = join(self.output_location, 'product.img')
-    if not exists(product_img):
-      product_images = []
-      # copy the logos from the anaconda folder and pixmaps folder
-      # to builddata/logos/product.img
-      mkdir(product_img)
-      if self.method == 'useexisting':
-        # look at the RPM/usr/share/anaconda folder for files
-        dirs_to_look = [join(self.output_location, 'usr', 'share', 'anaconda')]
-      else:
-        # look at builddata/logos/anaconda for files to put in product.img
-        dirs_to_look = [join(self.output_location, 'anaconda')]
-        
-      # generate the list of files to use
-      for folder in dirs_to_look:
-        product_images.extend(tree(folder, prefix=True, type='f|l'))
+    # delete the pixmaps folder in the images-src/product.img/ folder
+    # and re-link the images from the logos/ folder to the pixmaps folder.
+    product_img = join(self.metadata, 'images-src', 'product.img', 'pixmaps')
+    if exists(product_img):
+      rm(product_img, recursive=True, force=True)
+    mkdir(product_img, parent=True)
+    product_images = []
+    # copy the logos from the anaconda folder and pixmaps folder
+    # to builddata/logos/product.img
+    if self.method == 'useexisting':
+      # look at the <folder to which the RPM was exploded>/usr/share/anaconda folder for files
+      dirs_to_look = [join(self.output_location, 'usr', 'share', 'anaconda')]
+    else:
+      # look at builddata/logos/anaconda for files to put in product.img
+      dirs_to_look = [join(self.output_location, 'anaconda')]
+      
+    # generate the list of files to use
+    for folder in dirs_to_look:
+      product_images.extend(tree(folder, prefix=True, type='f|l'))
 
-      # look at the config files for other files to put in the product.img
-      if self.config.get('//logos/include-in-product-img/@use-default-set',
-                         'False') in BOOLEANS_TRUE:
-        files = self.config.mget('//logos/include-in-product-img/file/text()', [])
-        folders = self.config.mget('//logos/include-in-product-img/folder/text()',
-                                   [])
-        product_images.extend(files)                
-        for folder in folders:
-          product_images.extend(tree(folder, prefix=True, type='f|l'))
+    # look at the config files for other files to put in the product.img
+    if self.config.get('//logos/include-in-product-img/@use-default-set',
+                       'False') in BOOLEANS_TRUE:
+      files = self.config.mget('//logos/include-in-product-img/file/text()', [])
+      folders = self.config.mget('//logos/include-in-product-img/folder/text()',
+                                 [])
+      product_images.extend(files)                
+      for folder in folders:
+        product_images.extend(tree(folder, prefix=True, type='f|l'))
           
-      # now copy the files from the user-specified locations to this folder.
-      # If the file already exists, it is removed and the user-specified one
-      # is used.
-      for image in product_images:
-        file_name = basename(image)
-        self.log(2, "hardlinking %s to %s" %(file_name, product_img,))
-        os.link(image, join(product_img, file_name))                    
+    # now copy the files from the user-specified locations to this folder.
+    # If the file already exists, it is removed and the user-specified one
+    # is used.
+    for image in product_images:
+      file_name = basename(image)      
+      self.log(2, "hardlinking %s to %s" %(file_name, product_img,))
+      os.link(image, join(product_img, file_name))                    
         
   def _get_data_files(self):
     manifest = join(self.output_location, 'MANIFEST')
@@ -624,7 +626,6 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
       
     font = ImageFont.truetype(ttf_file, font_size)
     
-    # create a new image slightly larger that the text
     im = Image.new('RGB', (width, height),
                    int(self.config.get('//logos/create/background-color/text()', '0xffffff'), 16))
     
@@ -723,7 +724,7 @@ def prelogos_hook(interface):
   if interface.pre(handler) or (interface.eventForceStatus('logos') or False):
     interface.enableEvent('logos')
   interface.setFlag('logos-changed', False)
-  osutils.mkdir(join(interface.getMetadata(), 'logos/product.img'), parent=True)
+  osutils.mkdir(join(interface.getMetadata(), 'images-src/product.img'), parent=True)
         
 def logos_hook(interface):
   interface.log(0, "processing logos")
