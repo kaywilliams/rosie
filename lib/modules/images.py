@@ -12,7 +12,7 @@ import dims.FormattedFile as ffile
 from dims.xmltree import XmlPathError, read
 
 from interface import EventInterface, LocalsMixin
-from output    import OutputEventMixin, OutputEventHandler
+from output    import MorphStructMixin, OutputEventMixin, OutputEventHandler
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR, EVENT_TYPE_META
 from locals    import L_BUILDSTAMP, L_FILES, L_IMAGES, L_INSTALLCLASS
 from main      import BOOLEANS_TRUE, BOOLEANS_FALSE
@@ -67,30 +67,29 @@ EVENTS = [
 #---------- IMAGE METADATA -----------#
 INITRD_MD_STRUCT = {
   'config': ['/distro/main/product/text()',
-             '/distro/main/version/text()'
+             '/distro/main/version/text()',
              '/distro/main/fullname/text()',
              '/distro/main/initrd-src/text()'],
   'variables': ['anaconda_version'],
-  'files':  '/distro/main/initrd-src/text()',
-  'source': True,
+  'input':  '/distro/main/initrd-src/text()',
 }
 
 PRODUCT_MD_STRUCT = {
   'config': ['/distro/main/product/text()',
-             '/distro/main/version/text()'
+             '/distro/main/version/text()',
              '/distro/main/fullname/text()',
              '/distro/main/product-src/text()'],
   'variables': ['anaconda_version'],
-  'files':  '/distro/main/product-src/text()',
+  'input':  '/distro/main/product-src/text()',
 }
 
 UPDATES_MD_STRUCT = {
   'config': ['/distro/main/product/text()',
-             '/distro/main/version/text()'
+             '/distro/main/version/text()',
              '/distro/main/fullname/text()',
              '/distro/main/updates-src/text()'],
   'variables': ['anaconda_version'],
-  'files':  '/distro/main/updates-src/text()',
+  'input':  '/distro/main/updates-src/text()',
 }
 
 # mappings of locals file types to magic file types (semi-hack)
@@ -99,7 +98,6 @@ MAGIC_MAP = {
   'cpio': FILE_TYPE_CPIO,
   'squashfs': FILE_TYPE_SQUASHFS,
 }
-
 
 #-------- HANDLER DICTIONARY ---------#
 # dictionary of semi-permanent handlers so that I can keep one instance
@@ -186,7 +184,7 @@ class ImageHandler:
   def write_filelist(self):
     filereader.write(self.image.list(),
                      join(self.interface.getMetadata(), '%s.list' % self.name))
-  
+    
   def _getpath(self):
     FILE = self.locals.getLocalPath(L_FILES, 'file[@id="%s"]' % self.name)
     path = join(self.interface.getSoftwareStore(),
@@ -209,9 +207,7 @@ class ImageHandler:
         format = self.l_image.iget('format/text()')
         return self.interface.verifyType(p, MAGIC_MAP[format])
 
-
-
-class InitrdImageHandler(OutputEventHandler, ImageHandler):
+class InitrdImageHandler(OutputEventHandler, ImageHandler, MorphStructMixin):
   def __init__(self, interface, data):
     i,s,n,d,u,p = interface.getStoreInfo(interface.getBaseStore())
     
@@ -226,7 +222,10 @@ class InitrdImageHandler(OutputEventHandler, ImageHandler):
     self.mdfile = join(interface.getMetadata(), 'initrd.img.md')
     
     self.l_image = interface.getLocalPath(L_IMAGES, 'image[@id="initrd.img"]')
-    
+
+    MorphStructMixin.__init__(self, interface.config)  
+    self.expandInput(data) # expand the input xpath query in struct
+
     OutputEventHandler.__init__(self, interface.config, data, self.isrc, self.mdfile)
     ImageHandler.__init__(self, interface, interface.locals)
     self.name = 'initrd.img'
@@ -240,15 +239,18 @@ class InitrdImageHandler(OutputEventHandler, ImageHandler):
   
   def removeObsoletes(self):
     self.removeInvalids()
+    
   def removeInvalids(self):
     osutils.rm(self.dest, force=True)
-    osutils.rm(self.mdfile, force=True)
+    #osutils.rm(self.mdfile, force=True)
   
   def getInput(self):
     osutils.mkdir(osutils.dirname(self.isrc), parent=True)
     sync.sync(self.rsrc, osutils.dirname(self.isrc),
                  username=self.username, password=self.password) # cachemanager this
-  def testInputValid(self): pass # tested in addOutput
+    
+  def testInputValid(self):
+    return True # tested in addOutput
   
   def addOutput(self):
     self.interface.log(0, "modifying initrd.img")
@@ -265,12 +267,12 @@ class InitrdImageHandler(OutputEventHandler, ImageHandler):
                    join(osutils.dirname(self.interface.config.file), 'initrd'))
     if exists(initrd_dir):
       self.write_directory(initrd_dir)
+    self.write_directory(join(self.interface.getMetadata(), 'images-src/initrd.img'))
     self.generate_buildstamp()
     self.write_buildstamp()
     self.interface.setFlag('initrd-changed', True)
 
-
-class ProductImageHandler(OutputEventHandler, ImageHandler):
+class ProductImageHandler(OutputEventHandler, ImageHandler, MorphStructMixin):
   def __init__(self, interface, data):
     product_path = interface.getLocalPath(L_FILES, 'file[@id="product.img"]/path')
     product_path = printf_local(product_path, interface.getBaseVars())
@@ -279,6 +281,9 @@ class ProductImageHandler(OutputEventHandler, ImageHandler):
     self.mdfile = join(interface.getMetadata(), 'product.img.md')
     
     self.l_image = interface.getLocalPath(L_IMAGES, 'image[@id="product.img"]')
+
+    MorphStructMixin.__init__(self, interface.config)        
+    self.expandInput(data) # expand the input xpath query in struct
     
     OutputEventHandler.__init__(self, interface.config, data, None, self.mdfile)
     ImageHandler.__init__(self, interface, interface.locals)
@@ -293,12 +298,15 @@ class ProductImageHandler(OutputEventHandler, ImageHandler):
   
   def removeObsoletes(self):
     self.removeInvalids()
+    
   def removeInvalids(self):
     osutils.rm(self.dest, force=True)
-    osutils.rm(self.mdfile, force=True)
+    #osutils.rm(self.mdfile, force=True)
   
   def getInput(self): pass # this image is created on the fly
-  def testInputValid(self): pass # tested in addOutput
+
+  def testInputValid(self):
+    return True# tested in addOutput
   
   def addOutput(self):
     self.interface.log(0, "generating product.img")
@@ -310,24 +318,32 @@ class ProductImageHandler(OutputEventHandler, ImageHandler):
   # storeMetadata() defined by OutputEventHandler
   
   def generate(self):
-    product_dir = self.interface.config.get('//main/stores/product-src/text()',
-                   join(osutils.dirname(self.interface.config.file), 'product'))
-    try:
-      files = os.listdir(product_dir)
-      
-      if 'installclasses' not in files:
-        self.__generate_installclass()
-      if 'pixmaps' not in files:
-        self.__generate_pixmaps()
-      
-      self.image.write([ join(product_dir, file) for file in files ],
-                       removeprefix=product_dir)
-    except OSError, e:
-      if e.errno == 2:
-        self.__generate_installclass()
-        self.__generate_pixmaps()
-      else:
-        raise e
+    product_dirs = self.interface.config.mget('//main/stores/product-src/text()',
+                     [join(osutils.dirname(self.interface.config.file), 'product')])
+    product_dirs.append(join(self.interface.getMetadata(), 'images-src/product.img'))
+    
+    installclass_found = False
+    pixmaps_found = False
+    for dir in product_dirs:
+      try:
+        files = os.listdir(dir)
+        
+        if 'installclasses' in files: installclass_found = True
+          #self.__generate_installclass()
+        if 'pixmaps' not in files: pixmaps_found = True
+          #self.__generate_pixmaps()
+        
+        self.image.write([ join(dir, file) for file in files ],
+                         removeprefix=dir)
+      except OSError, e:
+        if e.errno == 2:
+          #self.__generate_installclass()
+          #self.__generate_pixmaps()
+          pass
+        else:
+          raise e
+    if not installclass_found: self.__generate_installclass()
+    if not pixmaps_found: self.__generate_pixmaps()
     
     self.write_buildstamp()
     self.interface.setFlag('product-changed', True)
@@ -347,10 +363,13 @@ class ProductImageHandler(OutputEventHandler, ImageHandler):
     osutils.mkdir(join(self.image.mount, 'installclasses'))
     filereader.write([installclass], join(self.image.mount, 'installclasses/custom.py'))
   
-  def __generate_pixmaps(self): pass
+  def __generate_pixmaps(self):
+    # For now, just copy the logos from static locations to the product.img
+    osutils.mkdir(join(self.image.mount, 'pixmaps'))
+    osutils.cp(join(self.interface.getMetadata(), 'logos/product.img/*'),
+               join(self.image.mount, 'pixmaps'))
 
-
-class UpdatesImageHandler(OutputEventHandler, ImageHandler):
+class UpdatesImageHandler(OutputEventHandler, ImageHandler, MorphStructMixin):
   def __init__(self, interface, data):
     updates_path = interface.getLocalPath(L_FILES, 'file[@id="updates.img"]/path')
     updates_path = printf_local(updates_path, interface.getBaseVars())
@@ -359,7 +378,10 @@ class UpdatesImageHandler(OutputEventHandler, ImageHandler):
     self.mdfile = join(interface.getMetadata(), 'updates.img.md')
     
     self.l_image = interface.getLocalPath(L_IMAGES, 'image[@id="updates.img"]')
-    
+
+    MorphStructMixin.__init__(self, interface.config)        
+    self.expandInput(data) # expand the input xpath query in struct
+
     OutputEventHandler.__init__(self, interface.config, data, None, self.mdfile)
     ImageHandler.__init__(self, interface, interface.locals)
     self.name = 'updates.img'
@@ -373,12 +395,15 @@ class UpdatesImageHandler(OutputEventHandler, ImageHandler):
   
   def removeObsoletes(self):
     self.removeInvalids()
+    
   def removeInvalids(self):
     osutils.rm(self.dest, force=True)
-    osutils.rm(self.mdfile, force=True)
+    #osutils.rm(self.mdfile, force=True)
   
   def getInput(self): pass # this image is created on the fly
-  def testInputValid(self): pass # tested in addOutput
+
+  def testInputValid(self):
+    return True # tested in addOutput
   
   def addOutput(self):
     self.interface.log(0, "generating updates.img")
@@ -390,22 +415,25 @@ class UpdatesImageHandler(OutputEventHandler, ImageHandler):
   # storeMetadata() defined by OutputEventHandler
   
   def generate(self):
-    updates_dir = self.interface.config.get('//main/stores/updates-src/text()',
-                    join(osutils.dirname(self.interface.config.file), 'updates'))
-    try:
-      files = os.listdir(updates_dir)
-      
-      if 'pixmaps' in files:
-        self.interface.errlog(0, "Warning: excluding pixmaps directory - please include modified pixmaps in product.img")
-        files.remove('pixmaps')
-      
-      self.image.write([ join(updates_dir, file) for file in files ],
-                       removeprefix=updates_dir)
-    except OSError, e:
-      if e.errno == 2:
-        pass
-    else:
-      raise e
+    updates_dirs = self.interface.config.mget('//main/stores/updates-src/text()',
+                    [join(osutils.dirname(self.interface.config.file), 'updates')])
+    updates_dirs.append(join(self.interface.getMetadata(), 'images-src/updates.img'))
+    
+    for dir in updates_dirs:
+      try:
+        files = os.listdir(dir)
+        
+        if 'pixmaps' in files:
+          self.interface.errlog(0, "Warning: excluding pixmaps directory - please include modified pixmaps in product.img")
+          files.remove('pixmaps')
+        
+        self.image.write([ join(dir, file) for file in files ],
+                         removeprefix=dir)
+      except OSError, e:
+        if e.errno == 2:
+          pass
+        else:
+          raise e
     
     self.write_buildstamp()
     self.interface.setFlag('updates-changed', True)
@@ -420,7 +448,10 @@ def init_hook(interface):
                     dest='with_images',
                     metavar='IMAGEDIR',
                     help='use the images found in IMAGEDIR instead of modifying/generating them')
-
+  
+  for image in IMAGES:
+    osutils.mkdir(join(interface.getMetadata(), 'images-src', image), parent=True)
+  
 #def applyopt_hook(interface):
 #  interface.setEventControlOption('initrd',  interface.options.do_images)
 #  interface.setEventControlOption('product', interface.options.do_images)
