@@ -101,7 +101,12 @@ class Build:
     if options.libpath: self.IMPORT_DIRS.insert(0, options.libpath) # TODO make this a list
     for dir in sys.path:
       if dir not in self.IMPORT_DIRS: self.IMPORT_DIRS.append(dir)
-    
+
+
+    self.sharepath = options.sharepath or \
+                     mainconfig.get('//sharepath/text()', None) or \
+                     '/usr/share/dimsbuild'
+  
     # set up base variables
     self.base_vars = {}
     self.base_vars['product'] = self.config.get('//main/product/text()')
@@ -239,8 +244,6 @@ class Build:
       self.__flowcontrol_apply(e, OPT_FORCE)
     for e in options.skip_events:
       self.__flowcontrol_apply(e, OPT_SKIP)
-      
-    self.sharepath = options.sharepath
     
     self.dispatch.raise_event(self, options) # raise applyopt - kinda hackish
     self.dispatch.next() # advance to next event

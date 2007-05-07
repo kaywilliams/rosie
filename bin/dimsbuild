@@ -88,7 +88,8 @@ def main():
   try:
     preargs = __filter_cmd_args(args,
                                 ['--no-plugins'],
-                                ['-c', '--config', '-l', '-e', '--conf-path', '--lib-path'])
+                                ['-c', '--config', '-l', '-e', '--conf-path',
+                                 '--lib-path', '--share-path'])
   except ValueError:
     parser.print_help()
     sys.exit(1)
@@ -106,7 +107,7 @@ def main():
     if dir not in import_dirs: import_dirs.append(dir)
   
   sys.path = import_dirs
-
+    
   # import dimsbuild from some path in import_dirs
   fp, path, desc = imp.find_module('main', import_dirs)
   build = imp.load_module('main', fp, path, desc)
