@@ -49,8 +49,7 @@ def main():
                     help="path to dimsbuild library files")
   parser.add_option('--share-path',
                     dest='sharepath',
-                    help="path to dimsbuild shared files",
-                    default='/usr/share/dimsbuild')
+                    help="path to dimsbuild shared files")
   parser.add_option('--force',
                     action='callback',
                     dest='force_events',
