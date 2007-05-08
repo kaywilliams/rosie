@@ -5,11 +5,11 @@ import os
 from os.path       import join
 from rpmUtils.arch import getArchList
 
-import dims.osutils     as osutils
-import dims.shlib       as shlib
-import dims.sortlib     as sortlib
-import dims.spider      as spider
-import dims.sync        as sync
+import dims.osutils as osutils
+import dims.shlib   as shlib
+import dims.sortlib as sortlib
+import dims.spider  as spider
+import dims.sync    as sync
 
 from callback  import BuildSyncCallback
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
@@ -23,7 +23,7 @@ EVENTS = [
     'interface': 'SoftwareInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['software'],
-    'requires': ['comps.xml', 'pkglist', 'RPMS', 'IMAGES'],
+    'requires': ['comps.xml', 'pkglist', 'RPMS'],
   },
 ]
 

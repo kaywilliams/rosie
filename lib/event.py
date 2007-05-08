@@ -216,8 +216,7 @@ class Event(resolve.Item, tree.Node):
   def run(self, force=False, *args, **kwargs):
     """ 
     Create an instance of the registered interface and pass it as an argument
-    to all registered functions.  If this Event has the EVENT_TYPE_PROC property,
-    also do so to the event's pre and post events.
+    to all registered functions.
     """
     try:
       if (self.enabled or force) and not self.test(PROP_META):

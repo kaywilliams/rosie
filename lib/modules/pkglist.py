@@ -83,7 +83,7 @@ class DepsolveMDCreator(YumRepoCreator):
 #  interface.setEventControlOption('pkglist', interface.options.do_pkglist)
 
 def prerepogen_hook(interface):
-  interface.setFlag('repoconfig', False)
+  interface.set_cvar('repoconfig', False)
 
 def repogen_hook(interface):
   cfgfile = join(interface.getTemp(), 'depsolve')
@@ -97,22 +97,22 @@ def repogen_hook(interface):
   conf = YUMCONF_HEADER + conf
   filereader.write(conf, cfgfile)
   
-  interface.setFlag('repoconfig', cfgfile)
+  interface.set_cvar('repoconfig', cfgfile)
 
 def prepkglist_hook(interface):
   interface.disableEvent('pkglist')
-  if interface.getFlag('inputstore-changed') or interface.getFlag('comps-changed'):
+  if interface.get_cvar('inputstore-changed') or interface.get_cvar('comps-changed'):
     interface.enableEvent('pkglist')
   elif not exists(join(interface.getMetadata(), 'pkglist')) and \
           interface.getPkglist() is None:
     interface.enableEvent('pkglist')
-  interface.setFlag('pkglist-changed', False)
+  interface.set_cvar('pkglist-changed', False)
 
 def pkglist_hook(interface):
   interface.log(0, "resolving pkglist")
   interface.log(1, "generating new pkglist")
   
-  cfgfile = interface.getFlag('repoconfig')
+  cfgfile = interface.get_cvar('repoconfig')
   if not cfgfile: raise RuntimeError, 'repoconfig is not set'
   
   osutils.mkdir(join(interface.getMetadata(), '.depsolve'))
@@ -122,7 +122,15 @@ def pkglist_hook(interface):
                               config=cfgfile,
                               arch=interface.arch,
                               callback=BuildDepsolveCallback(interface.logthresh))
-
+  
+  # verify that final package list contains all user-specified packages
+  interface.log(1, "verifying package list")
+  nlist = [ n for n,_,_,_,_ in pkgtups ] # extract pkg names for checking
+  for pcheck in interface.get_cvar('required-packages', []):
+    if pcheck not in nlist:
+      raise DepSolveError, "User-specified package '%s' not found in resolved pkglist" % pcheck
+  del nlist
+  
   interface.log(1, "pkglist closure achieved @ %s packages" % len(pkgtups))
   
   pkglist = []
@@ -131,7 +139,7 @@ def pkglist_hook(interface):
   pkglist.sort()
 
   interface.setPkglist(pkglist)
-  interface.setFlag('pkglist-changed', True)
+  interface.set_cvar('pkglist-changed', True)
 
   
 def postpkglist_hook(interface):
@@ -140,4 +148,6 @@ def postpkglist_hook(interface):
   else:
     interface.log(1, "writing pkglist")
     filereader.write(interface.getPkglist(), join(interface.getMetadata(), 'pkglist'))
-  osutils.rm(interface.getFlag('repoconfig'), force=True)
+  osutils.rm(interface.get_cvar('repoconfig'), force=True)
+
+class DepSolveError(StandardError): pass

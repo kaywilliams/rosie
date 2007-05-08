@@ -73,6 +73,6 @@ def stores_hook(interface):
       changed = True
       filereader.write(pkgs, oldpkgsfile)
     
-  interface.setFlag('inputstore-changed', changed)
+  interface.set_cvar('inputstore-changed', changed)
 
 class StoreNotFoundError(StandardError): pass

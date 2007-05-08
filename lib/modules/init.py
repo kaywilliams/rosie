@@ -41,3 +41,4 @@ class ApplyOptInterface(EventInterface, FlowControlRWMixin):
   def __init__(self, base, options):
     EventInterface.__init__(self, base)
     FlowControlRWMixin.__init__(self, options)
+    self.options = options

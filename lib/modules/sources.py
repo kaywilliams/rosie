@@ -2,7 +2,7 @@ import os
 import re
 import rpm
 
-from os.path            import join
+from os.path            import join, exists
 from urlgrabber.grabber import URLGrabError
 
 import dims.osutils     as osutils
@@ -61,12 +61,32 @@ class SrpmInterface(EventInterface, ListCompareMixin):
       return (None, None, None, None, None)
 
 
+#------ HOOK FUNCTIONS ------#
+def init_hook(interface):
+  parser = interface.getOptParser('build')
+  
+  parser.add_option('--no-srpms',
+                    default=True,
+                    dest='do_srpms',
+                    action='store_false',
+                    help='do not include SRPMS with the output distribution')
+
+def applyopt_hook(interface):
+  interface.set_cvar('source-include', interface.options.do_srpms)
+
+#def presource_hook(interface):
+#  interface.disableEvent('source')
+#  if interface.get_cvar('pkglist-changed'):
+#    interface.enableEvent('source')
+
 def source_hook(interface):
-  if interface.config.get('//source/include/text()', 'False') not in BOOLEANS_TRUE:
+  if not interface.get_cvar('source-include') or \
+     interface.config.get('//source/include/text()', 'False') not in BOOLEANS_TRUE:
     osutils.rm(interface.srpmdest, recursive=True, force=True)
     return
   
   interface.log(0, "processing srpms")
+  interface.set_cvar('source-include', True)
   
   handler = SourcesHandler(interface)
   handler.handle()

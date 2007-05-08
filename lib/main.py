@@ -106,7 +106,7 @@ class Build:
     self.sharepath = options.sharepath or \
                      mainconfig.get('//sharepath/text()', None) or \
                      '/usr/share/dimsbuild'
-  
+    
     # set up base variables
     self.base_vars = {}
     self.base_vars['product'] = self.config.get('//main/product/text()')
@@ -140,9 +140,9 @@ class Build:
     
     self.__init_dispatch() # sets up self.dispatch
     
-    # self.flags is a place that modules/plugins can store various flag values
+    # self.mvars is a place that modules/plugins can store various var values
     # that they themselves or other modules/plugins can access
-    self.flags = {}
+    self.mvars = {}
     # self.userFC is a dictionary of user-specified flow control data keyed
     # by event id. Possible values are
     #  * None  - no user option specified
@@ -151,7 +151,6 @@ class Build:
     self.userFC = {}
     
     # get everything started - raise init - this is so hack
-   # print self.dispatch.iter.order
     self.dispatch.next()
     self.dispatch.raise_event(self) # raise preALL
     self.dispatch.move(2) # skip ALL (meta event)

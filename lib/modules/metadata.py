@@ -23,6 +23,7 @@ EVENTS = [
   },
 ]
 
+
 class MetadataInterface(EventInterface, LocalsMixin):
   def __init__(self, base):
     EventInterface.__init__(self, base)

@@ -132,11 +132,11 @@ class EventInterface(PluginInterface):
   def __set_event(self, eventid, flag):
     self._base.dispatch.get(eventid, err=True)._set_enable_status(flag)
   
-  # program state flags
-  def setFlag(self, flag, state):
-    self._base.flags[flag] = state
-  def getFlag(self, flag):
-    return self._base.flags.get(flag)
+  # program control variables
+  def set_cvar(self, flag, state):
+    self._base.mvars[flag] = state
+  def get_cvar(self, flag, fallback=False):
+    return self._base.mvars.get(flag, fallback)
 
 
 #------ MIXINS ------#

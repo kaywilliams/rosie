@@ -62,35 +62,38 @@ class CompsInterface(EventInterface, VersionMixin, FlowControlROMixin):
 def init_hook(interface):
   parser = interface.getOptParser('build')
   
-  # the following option doesn't work yet
   parser.add_option('--with-comps',
                     default=None,
                     dest='with_comps',
                     metavar='COMPSFILE',
                     help='use COMPSFILE for the comps.xml instead of generating one')
 
-#def applyopt_hook(interface):
-#  interface.setEventControlOption('comps', interface.options.do_comps)
+def applyopt_hook(interface):
+  #interface.setEventControlOption('comps', interface.options.do_comps)
+  if interface.options.with_comps is not None:
+    interface.set_cvar('with-comps', interface.options.with_comps)
 
 def precomps_hook(interface):
   interface.disableEvent('comps')
   # if the input stores changes, we need to run
   # if there is no comps file in the ouput directory, and one isn't otherwise
   # specified, we do need to run
-  if interface.getFlag('inputstore-changed'):
+  if interface.get_cvar('inputstore-changed'):
     interface.enableEvent('comps')
   elif not exists(join(interface.getMetadata(), 'comps.xml')) and \
      interface.getCompsFile() is None:
     interface.enableEvent('comps')
-  interface.setFlag('comps-changed', False)
+  interface.set_cvar('comps-changed', False)
 
 def comps_hook(interface):
   interface.log(0, "computing required packages")
   compshandler = CompsHandler(interface)
 
-  groupfile = interface.config.get('//main/groupfile/text()', None)
+  groupfile = interface.get_cvar('with-comps',
+                                 interface.config.get('//comps/use-existing/path/text()',
+                                 None))
   if groupfile is not None:
-    interface.log(1, "reading supplied comps file")
+    interface.log(1, "reading supplied groupfile '%s'" % groupfile)
     reqpkgs = xmltree.read(groupfile).get('//packagereq/text()')
   else:
     interface.log(1, "resolving required groups and packages")
@@ -116,7 +119,7 @@ def comps_hook(interface):
       interface.log(1, "writing comps.xml")
       compshandler.comps.write(interface.mdgroupfile)
       os.chmod(interface.mdgroupfile, 0644)
-    interface.setFlag('comps-changed', True)
+    interface.set_cvar('comps-changed', True)
   else:
     interface.log(1, "required packages unchanged")
 
@@ -138,6 +141,7 @@ class CompsHandler:
     self.comps = xmltree.Tree('comps')
     self.comps.setheader(HEADER_FORMAT % (xmlversion, xmlencoding))
     self.config = self.interface.config
+    self.exclude = self.config.mget('//comps/create-new/exclude/package/text()')
   
   def generateComps(self):
     product  = self.config.get('//main/product/text()')
@@ -148,10 +152,10 @@ class CompsHandler:
     groupfiles = self.__get_groupfiles()
     
     # create base distro group
-    base = None
-    packages = self.config.mget('//main/packages/package/text()')
+    packages = self.config.mget('//comps/create-new/include/package/text()')
     base = Group(product, fullname, 'This group includes packages specific to %s' % fullname)
     if len(packages) > 0:
+      self.interface.set_cvar('required-packages', packages)
       self.comps.getroot().append(base)
       for package in packages:
         self.add_group_package(package, base, type='mandatory')
@@ -209,11 +213,16 @@ class CompsHandler:
     for kernel in KERNELS:
       if kernel in allpkgs:
         found = True; break
-    
     if not found:
       # base is defined above, it is the base group for the repository
       if len(packages) == 0: self.comps.getroot().insert(0, base) # HAK HAK HAK
       self.add_group_package('kernel', base, type='mandatory')
+    
+    # exclude all package in self.exclude
+    for pkg in self.exclude:
+      matches = self.comps.get('//packagereq[text()="%s"]' % pkg)
+      for match in matches:
+        match.getparent().remove(match)
     
     # add category
     ver = self.interface.anaconda_version

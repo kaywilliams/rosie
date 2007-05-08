@@ -65,7 +65,7 @@ class IsoInterface(EventInterface, ListCompareMixin, LocalsMixin):
 
 def prepkgorder_hook(interface):
   interface.disableEvent('pkgorder')
-  if interface.getFlag('pkglist-changed'):
+  if interface.get_cvar('pkglist-changed'):
     interface.enableEvent('pkgorder')
   elif not exists(join(interface.getMetadata(), 'pkgorder')):
     interface.enableEvent('pkgorder')
@@ -87,14 +87,14 @@ def pkgorder_hook(interface):
   osutils.rm(cfg, force=True)
 
 def manifest_hook(interface):
-  interface.setFlag('do-iso', False)
+  interface.set_cvar('do-iso', False)
   manifest = []
   for file in osutils.tree(interface.getSoftwareStore(), prefix=False):
     manifest.append(__gen_manifest_line(join(interface.getSoftwareStore(), file)))
   
   mfile = join(interface.getMetadata(), 'manifest')
   if manifest_changed(manifest, mfile):
-    interface.setFlag('do-iso', True)      
+    interface.set_cvar('do-iso', True)      
     if not exists(mfile): os.mknod(mfile)
     mf = open(mfile, 'w')
     mwriter = csv.DictWriter(mf, FIELDS, lineterminator='\n')
@@ -121,7 +121,7 @@ def manifest_changed(manifest, old_manifest_file):
     return True
 
 def iso_hook(interface):
-  if not interface.getFlag('do-iso') and not interface.eventForceStatus('iso'):
+  if not interface.get_cvar('do-iso') and not interface.eventForceStatus('iso'):
     return
   interface.log(0, 'generating iso image(s)')
 
@@ -172,10 +172,11 @@ class IsoHandler:
                 join(self.interface.isodir, newset))
       if newset in self.interface.r:
         self.interface.r.remove(newset) # don't create iso tree; it already exists
+  
   def generate_isotree(self, set):
     osutils.mkdir(join(self.interface.isodir, set), parent=True)
     
-    splitter = splittree.Timber(set, dosrc=True) #!
+    splitter = splittree.Timber(set, dosrc=self.interface.get_cvar('source-include'))
     splitter.product = self.interface.product
     splitter.unified_tree = self.interface.getSoftwareStore()
     splitter.unified_source_tree = self.interface.getSoftwareStore()

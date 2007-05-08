@@ -534,7 +534,7 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
     # create the builddata/images-src/product.img folder all the time,
     # even if the user provided the RPM. 
     self.createPixmaps()
-    self.interface.setFlag('logos-changed', True)
+    self.interface.set_cvar('logos-changed', True)
 
   def createPixmaps(self):
     """
@@ -693,7 +693,7 @@ def postRPMS_hook(interface):
   interface.createrepo()
 
 def postrepogen_hook(interface):
-  cfgfile = interface.getFlag('repoconfig')
+  cfgfile = interface.get_cvar('repoconfig')
   if not cfgfile: return  
   
   lines = filereader.read(cfgfile)
@@ -710,7 +710,7 @@ def prerelease_hook(interface):
   interface.disableEvent('release')
   if interface.pre(handler) or (interface.eventForceStatus('release') or False):
     interface.enableEvent('release')
-  interface.setFlag('release-changed', False)
+  interface.set_cvar('release-changed', False)
         
 def release_hook(interface):
   interface.log(0, "processing release")
@@ -723,7 +723,7 @@ def prelogos_hook(interface):
   interface.disableEvent('logos')
   if interface.pre(handler) or (interface.eventForceStatus('logos') or False):
     interface.enableEvent('logos')
-  interface.setFlag('logos-changed', False)
+  interface.set_cvar('logos-changed', False)
   osutils.mkdir(join(interface.getMetadata(), 'images-src/product.img'), parent=True)
         
 def logos_hook(interface):

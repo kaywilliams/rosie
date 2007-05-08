@@ -29,7 +29,7 @@ EVENTS = [
   {
     'id': 'IMAGES',
     'provides': ['IMAGES'],
-    'requires': ['.discinfo', 'comps.xml'],
+    'requires': ['.discinfo', 'comps.xml', 'software'],
     'properties': EVENT_TYPE_META,
   },
   {
@@ -270,7 +270,7 @@ class InitrdImageHandler(OutputEventHandler, ImageHandler, MorphStructMixin):
     self.write_directory(join(self.interface.getMetadata(), 'images-src/initrd.img'))
     self.generate_buildstamp()
     self.write_buildstamp()
-    self.interface.setFlag('initrd-changed', True)
+    self.interface.set_cvar('initrd-changed', True)
 
 class ProductImageHandler(OutputEventHandler, ImageHandler, MorphStructMixin):
   def __init__(self, interface, data):
@@ -345,7 +345,7 @@ class ProductImageHandler(OutputEventHandler, ImageHandler, MorphStructMixin):
     if not pixmaps_found: self.__generate_pixmaps()
     
     self.write_buildstamp()
-    self.interface.setFlag('product-changed', True)
+    self.interface.set_cvar('product-changed', True)
   
   def __generate_installclass(self):
     # I don't like this, rereading comps.xml is annoying
@@ -435,7 +435,7 @@ class UpdatesImageHandler(OutputEventHandler, ImageHandler, MorphStructMixin):
           raise e
     
     self.write_buildstamp()
-    self.interface.setFlag('updates-changed', True)
+    self.interface.set_cvar('updates-changed', True)
 
 #---------- HOOK FUNCTIONS -----------#
 def init_hook(interface):
@@ -462,7 +462,7 @@ def preinitrd_hook(interface):
   interface.disableEvent('initrd')
   if interface.pre(handler) or (interface.eventForceStatus('initrd') or False):
     interface.enableEvent('initrd')
-  interface.setFlag('initrd-changed', False)
+  interface.set_cvar('initrd-changed', False)
 
 def preproduct_hook(interface):
   handler = ProductImageHandler(interface, PRODUCT_MD_STRUCT)
@@ -470,7 +470,7 @@ def preproduct_hook(interface):
   interface.disableEvent('product')
   if interface.pre(handler) or (interface.eventForceStatus('product') or False):
     interface.enableEvent('product')
-  interface.setFlag('product-changed', False)
+  interface.set_cvar('product-changed', False)
 
 def preupdates_hook(interface):
   handler = UpdatesImageHandler(interface, UPDATES_MD_STRUCT)
@@ -478,7 +478,7 @@ def preupdates_hook(interface):
   interface.disableEvent('updates')
   if interface.pre(handler) or (interface.eventForceStatus('updates') or False):
     interface.enableEvent('updates')
-  interface.setFlag('updates-changed', False)
+  interface.set_cvar('updates-changed', False)
 
 def initrd_hook(interface):
   handler = getHandler('initrd')
