@@ -132,12 +132,18 @@ LOCALS_XML = \
         <height>480</height>
         <location>/boot/grub/splash.png</location>
         <description>Background image when the grub menu is displayed. When we get around to modifying the diskboot.img so that it is a part of the output distribution, we will have to modify/create the splash.lss file.</description>
+        <textmaxwidth>600</textmaxwidth>
+        <textvcenter>240</textvcenter>
+        <texthcenter>320</texthcenter>
       </logo>
       <logo id="anaconda/syslinux-splash.png">
         <width>640</width>
         <height>300</height>
         <location>/usr/lib/anaconda-runtime/boot/syslinux-splash.png</location>
         <description>Used as splash image during syslinux boot, i.e. during cd/dvd, pxeand diskboot.img boot processes.</description>
+        <textmaxwidth>300</textmaxwidth>
+        <textvcenter>150</textvcenter>
+        <texthcenter>320</texthcenter>
       </logo>
       <logo id="anaconda/splashtolss.sh">
         <location>/usr/lib/anaconda-runtime/splashtolss.sh</location>
@@ -148,24 +154,36 @@ LOCALS_XML = \
         <height>89</height>
         <location>/usr/share/anaconda/pixmaps/anaconda_header.png</location>
         <description>The header image displayed during the installation stage.</description>
+        <textmaxwidth>750</textmaxwidth>
+        <textvcenter>45</textvcenter>
+        <texthcenter>400</texthcenter>
       </logo>
       <logo id="anaconda/progress_first-lowres.png">
         <width>350</width>
         <height>224</height>
         <location>/usr/share/anaconda/pixmaps/progress_first-lowres.png</location>
         <description>The image that is displayed during the install/upgrade windowsetup stage when the resolution is set to be anything but 800x600.</description>
+        <textmaxwidth>300</textmaxwidth>
+        <textvcenter>112</textvcenter>
+        <texthcenter>175</texthcenter>        
       </logo>
       <logo id="anaconda/progress_first.png">
         <width>507</width>
         <height>325</height>
         <location>/usr/share/anaconda/pixmaps/progress_first.png</location>
         <description>The image that is displayed during the install/upgrade windowsetup stage.</description>
+        <textmaxwidth>450</textmaxwidth>
+        <textvcenter>150</textvcenter>
+        <texthcenter>250</texthcenter>        
       </logo>
       <logo id="anaconda/splash.png">
         <width>507</width>
         <height>388</height>
         <location>/usr/share/anaconda/pixmaps/splash.png</location>
         <description>The image displayed on the welcome screen.</description>
+        <textmaxwidth>450</textmaxwidth>
+        <textvcenter>194</textvcenter>
+        <texthcenter>250</texthcenter>        
       </logo>
       <logo id="kde-splash/BlueCurve/Theme.rc">
         <location>/usr/share/apps/ksplash/Themes/BlueCurve/Theme.rc</location>
@@ -176,30 +194,45 @@ LOCALS_XML = \
         <height>61</height>
         <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_active_bar.png</location>
         <description>The active bar icons that are displayed when the computer is booting.</description>
+        <textmaxwidth>350</textmaxwidth>
+        <textvcenter>30</textvcenter>
+        <texthcenter>200</texthcenter>        
       </logo>
       <logo id="kde-splash/BlueCurve/splash_bottom.png">
         <width>400</width>
         <height>16</height>
         <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_bottom.png</location>
         <description>The footer for the splash image.</description>
+        <textmaxwidth>350</textmaxwidth>
+        <textvcenter>8</textvcenter>
+        <texthcenter>200</texthcenter>        
       </logo>
       <logo id="kde-splash/BlueCurve/splash_inactive_bar.png">
         <width>400</width>
         <height>61</height>
         <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_inactive_bar.png</location>
         <description>The inactive bar icons that are displayed when the computer is booting.</description>
+        <textmaxwidth>350</textmaxwidth>
+        <textvcenter>30</textvcenter>
+        <texthcenter>200</texthcenter>        
       </logo>
       <logo id="kde-splash/BlueCurve/splash_top.png">
         <width>400</width>
         <height>244</height>
         <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_top.png</location>
         <description>The header for the splash image.</description>
+        <textmaxwidth>350</textmaxwidth>
+        <textvcenter>112</textvcenter>
+        <texthcenter>200</texthcenter>        
       </logo>
       <logo id="firstboot/firstboot-header.png">
         <width>800</width>
         <height>58</height>
         <location>/usr/share/firstboot/pixmaps/firstboot-header.png</location>
         <description>The firstboot header image.</description>
+        <textmaxwidth>750</textmaxwidth>
+        <textvcenter>25</textvcenter>
+        <texthcenter>400</texthcenter>        
       </logo>
       <logo id="firstboot/firstboot-left.png">
         <width>160</width>
@@ -218,12 +251,15 @@ LOCALS_XML = \
         <height>200</height>
         <location>/usr/share/firstboot/pixmaps/splash-small.png</location>
         <description>The splash image displayed during firstboot.</description>
+        <textmaxwidth>500</textmaxwidth>
+        <textvcenter>100</textvcenter>
+        <texthcenter>250</texthcenter>        
       </logo>
       <logo id="firstboot/workstation.png">
         <width>48</width>
         <height>48</height>
         <location>/usr/share/firstboot/pixmaps/workstation.png</location>
-        <description>The workstation image displayed during firstboot.</description>
+        <description>The workstation image displayed during firstboot.</description>        
       </logo>
       <logo id="gnome-screensaver/lock-dialog-system.glade">
         <location>/usr/share/gnome-screensaver/lock-dialog-system.glade</location>
@@ -288,18 +324,27 @@ LOCALS_XML = \
         <height>420</height>
         <location>/usr/share/pixmaps/splash/gnome-splash.png</location>
         <description>The Gnome splash image.</description>
+        <textmaxwidth>450</textmaxwidth>
+        <textvcenter>210</textvcenter>
+        <texthcenter>250</texthcenter>        
       </logo>
       <logo id="rhgb/main-logo.png">
         <width>320</width>
         <height>396</height>
         <location>/usr/share/rhgb/main-logo.png</location>
         <description>The RedHat Graphical Boot's main logo.</description>
+        <textmaxwidth>250</textmaxwidth>
+        <textvcenter>198</textvcenter>
+        <texthcenter>160</texthcenter>        
       </logo>
       <logo id="rhgb/system-logo.png">
         <width>183</width>
         <height>45</height>
         <location>/usr/share/rhgb/system-logo.png</location>
         <description>The RedHat Graphical Boot uses this image to display the distro name.</description>
+        <textmaxwidth>120</textmaxwidth>
+        <textvcenter>22</textvcenter>
+        <texthcenter>90</texthcenter>        
       </logo>
       <logo id="COPYING">
         <location>/usr/share/NVR/COPYING</location>

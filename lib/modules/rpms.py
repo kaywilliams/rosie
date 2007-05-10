@@ -5,7 +5,6 @@ import sys
 
 from ConfigParser import ConfigParser
 from StringIO import StringIO
-from dims.imglib import CpioImage
 from dims.osutils import *
 from dims.sync import sync
 from event import EVENT_TYPE_META, EVENT_TYPE_PROC, EVENT_TYPE_MDLR
@@ -13,7 +12,6 @@ from interface import EventInterface, LocalsMixin
 from main import BOOLEANS_TRUE
 from os.path import join, exists
 from output import *
-from rpmUtils.miscutils import rpm2cpio
 from locals import L_LOGOS
 
 try:
@@ -49,8 +47,9 @@ EVENTS = [
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['logos-package'],
     'parent': 'RPMS',
-  },  
+  },
 ]
+
 
 STORE_XML = ''' 
 <store id="dimsbuild-local">
@@ -61,16 +60,16 @@ STORE_XML = '''
 #-------------- METADATA STRUCTS ---------#
 RELEASE_MD_STRUCT = {
     'config': [
-        '//main/fullname/text()',
-        '//main/version/text()',
-        '//release-package',    
-        '//stores/*/store/gpgkey/text()',
-        '//main/signing/publickey/text()',
+      '//main/fullname/text()',
+      '//main/version/text()',
+      '//release-package',    
+      '//stores/*/store/gpgkey/text()',
+      '//main/signing/publickey/text()',
     ],
     'input': [
-        '//release-package/create/yum-repo/path/text()',
-        '//stores/*/store/gpgkey/text()',
-        '//main/signing/publickey/text()',
+      '//release-package/create/yum-repo/path/text()',
+      '//stores/*/store/gpgkey/text()',
+      '//main/signing/publickey/text()',
     ],
     'output': [
         'os/release-files/',
@@ -79,13 +78,12 @@ RELEASE_MD_STRUCT = {
 
 LOGOS_MD_STRUCT = {
     'config': [
-        '/distro/main/fullname/text()',
-        '/distro/main/version/text()',
-        '//logos',
+      '/distro/main/fullname/text()',
+      '/distro/main/version/text()',
+      '//logos',
     ],
-    'input': '/distro/main/logos/use/path/text()',
-     'output': [
-        'builddata/logos/',
+    'output': [
+      'builddata/logos/',
     ]
   }
 
@@ -110,7 +108,6 @@ class RpmsMixin:
     shlib.execute('/usr/bin/createrepo -q .')
     os.chdir(pwd)
 
-
 #--------------- FUNCTIONS ------------------#
 def getProvides(rpmPath):
     """
@@ -125,41 +122,11 @@ def getProvides(rpmPath):
     os.close(fd)
     return provides    
 
-def extract(rpmPath, output=os.getcwd()):
-    """
-    Extract the contents of the RPM file specified by rpmPath to
-    the output location. The rpmPath parameter can use globbing.
-    
-    @param rpmPath : the path to the RPM file    
-    @param output  : the directory that is going to contain the RPM's
-    contents
-    """
-    dir = tempfile.mkdtemp()
-    filename = join(dir, 'rpm.cpio')
-    temp_output = join(dir, 'rpm.contents')
-    mkdir(temp_output)
-    
-    #
-    # Sync the RPM down to the temporary directory
-    #
-    sync(rpmPath, dir)
-    rpmFile = join(dir, basename(rpmPath))
-    
-    rpm2cpio(os.open(rpmFile, os.O_RDONLY), open(filename, 'w+'))
-    cpio = CpioImage(filename)
-    cpio.open(point=temp_output)
-    
-    if not exists(output):
-      mkdir(output, parent=True)
-        
-    cp(''.join([temp_output, '/*']), output, force=True, recursive=True)
-    rm(dir, recursive=True, force=True)
-
 def buildRpm(path, rpm_output, changelog=None, logger='rpmbuild',
              functionName='main', keepTemp=True, createrepo=False,
              quiet=True):
-    # keepTemp should be True if self.path points to a location inside
-    # the builddata/ folder, because if keepTemp is False, self.path
+    # keepTemp should be True if path points to a location inside
+    # the builddata/ folder, because if keepTemp is False, path
     # is going to get deleted once the rpm build process is complete.
     eargv = ['--bdist-base', '/usr/src/redhat',
              '--rpm-base', '/usr/src/redhat/']
@@ -180,6 +147,18 @@ class RpmsInterface(EventInterface, RpmsMixin, OutputEventMixin, LocalsMixin):
     OutputEventMixin.__init__(self)
     LocalsMixin.__init__(self, join(self.getMetadata(), '%s.pkgs' %(self.getBaseStore(),)),
                          base.IMPORT_DIRS)
+
+  def append_cvar(self, flag, value):
+    if flag in self._base.mvars.keys():
+      if type(value) == list:
+        self._base.mvars[flag].extend(value)
+      else:
+        self._base.mvars[flag].append(value)
+    else:
+      if type(value) == list:
+        self._base.mvars[flag] = value
+      else:
+        self._base.mvars[flag] = [value]
         
 #---------- HANDLERS -------------#
 class RpmHandler(OutputEventHandler):
@@ -192,6 +171,7 @@ class RpmHandler(OutputEventHandler):
     self.interface = interface    
     self.config = self.interface.config
     self.metadata = self.interface.getMetadata()
+    self.software_store = self.interface.getSoftwareStore()
     self.rpm_output = join(self.metadata, 'localrepo/')
 
     self.fullname = self.config.get('//main/fullname/text()')
@@ -208,12 +188,7 @@ class RpmHandler(OutputEventHandler):
     self.output_location = join(self.metadata, self.elementname)
 
     self.log = self.interface.log
-     
-    if not exists(self.rpm_output):
-      mkdir(self.rpm_output, parent=True)
-    if not exists(self.output_location):
-      mkdir(self.output_location, parent=True)
-    
+         
     self._set_method()
     
     OutputEventHandler.__init__(self, self.config, data, None,
@@ -221,49 +196,46 @@ class RpmHandler(OutputEventHandler):
                                 mddir=self.output_location)
     
   def _set_method(self):
-    # trying to get <use> to see if it exists, and if it does            
-    # self.method is 'useexisting', else if it doesn't exist
-    # an XmlPathError.
-    if self.config.get('//%s/use' %(self.elementname,), None):
-      if self.config.get('%s/create' %(self.elementname,), None):
-        raise XmlPathError, "The create and use elements in %s are mutually exclusive."\
-              " Only one of them should be specified" %(self.elementname,)
-      self.method = 'useexisting'
+    if self.config.get('//%s/create/text()' %(self.elementname,), 'False') in BOOLEANS_TRUE:
+      self.create = True
     else:
-      self.method = 'create'
+      self.create = False
 
-  def removeObsoletes(self): pass
-  def removeInvalids(self): pass
+  def removeObsoletes(self):
+    for rpm in find(location=self.rpm_output, name='%s*[Rr][Pp][Mm]'):
+      rm(rpm, force=True)
+    rm(self.output_location, recursive=True, force=True)
 
-  def testInputValid(self):
-    if self.method == 'useexisting':
-      rpmPath = self.config.get('//%s/use/path/text()' %(self.elementname,), None)
-      if not rpmPath:
-        self.log(2, "no RPM was specified in the config file for %s" %(self.elementname,))
-        return False
-      if self.provides_test not in getProvides(rpmPath):
-        self.log(2, "the user-provided RPM doesn't provided %s" %(self.provides_test,))
-        return False
-    return True
+  removeInvalids = removeObsoletes
 
-  def testOutputValid(self): return True
+  def testInputChanged(self):
+    # if self.create is False, skip the RPM creation
+    return self.create and OutputEventHandler.testInputChanged(self)
+  
+  def testInputValid(self): return True
+
+  testOutputValid = testInputValid
 
   def getInput(self):
-    if self.method == 'useexisting':
-      rpmPath = self.config.get('//%s/use/path/text()' %(self.elementname,))
-      # by this time, we know that the rpmPath is not None, because otherwise
-      # testInputValid() would have returned False and we wouldn't have gotten
-      # this far
-      extract(rpmPath, self.output_location)
-      sync(rpmPath, self.rpm_output)
-    else: # self.method == 'create'
-      for input in self.data['input']:
-        sync(input, self.output_location)
+    if not exists(self.rpm_output):
+      mkdir(self.rpm_output, parent=True)
+    if not exists(self.output_location):
+      mkdir(self.output_location, parent=True)    
+    if self.create and self.data.has_key('input'):
+        for input in self.data['input']:
+          sync(input, self.output_location)
 
   def addOutput(self):
-    if self.method == 'create':
+    if self.create:
       self._setup()
       buildRpm(self.output_location, self.rpm_output)
+      # add rpms to the included-packages control var, so that
+      # they are added to the comps.xml
+      self.interface.append_cvar('included-packages', [self.rpmname])
+      
+      # add rpms to the excluded-packages control var, so that
+      # they are removed from the comps.xml
+      self.interface.append_cvar('excluded-packages', self.obsoletes.split())
       
   def _setup(self):
     setup_cfg = join(self.output_location, 'setup.cfg')
@@ -321,7 +293,7 @@ class RpmHandler(OutputEventHandler):
     self.log(2, "the %s RPM's release number is %s" %(self.elementname, new_release,))
     return new_release
 
-  def _get_data_files(self): pass # HAS to be implemented by the child class
+  def _get_data_files(self): raise NotImplementedError # HAS to be implemented by the child class
 
 class ReleaseRpmHandler(RpmHandler, MorphStructMixin):
   def __init__(self, interface, data):
@@ -329,7 +301,7 @@ class ReleaseRpmHandler(RpmHandler, MorphStructMixin):
     MorphStructMixin.__init__(self, interface.config)
     
     RpmHandler.__init__(self, interface, data,
-                        elementname='release-package',
+                        elementname='release-rpm',
                         rpmname='%s-release' %(interface.product,),
                         provides_test='redhat-release',
                         provides='redhat-release',
@@ -337,58 +309,18 @@ class ReleaseRpmHandler(RpmHandler, MorphStructMixin):
                         'redhat-release-notes fedora-release-notes centos-release-notes',
                         description='The Release RPM',
                         long_description='The Release RPM built by dimsbuild')
-
-    self.software_store = interface.getSoftwareStore()
     
-    self.expandInput(self.data)
-    self.expandOutput(self.data, dirname(self.software_store)) # the 'output' element has entries
-                                                               # relative to dirname(software_store)
+    if self.data.has_key('input'):
+      self.expandInput(self.data)
+    if self.data.has_key('output'):      
+      self.expandOutput(self.data, dirname(self.software_store)) # the 'output' element has entries
+                                                                 # relative to dirname(software_store)
     
     self.prefix = dirname(self.software_store) # prefix to the directories in data['output']
     
     if not exists(self.software_store):
       mkdir(self.software_store, parent=True)    
-        
-  def removeObsoletes(self):
-    for location in self.data['output']:
-      location = join(self.prefix, location)
-      rm(location, recursive=True, force=True)
-      
-  def removeInvalids(self):
-    self.removeObsoletes()
     
-  def getInput(self):
-    RpmHandler.getInput(self)
-    
-    find_files = []
-    find_folders = []
-    for file in self.config.mget('//release-package/include-in-tree/file/text()'):
-      find_files.append(file)
-    for folder in self.config.mget('//release-package/include-in-tree/folder/text()'):
-      find_folders.append(folder)
-    if self.config.get('//release-package/include-in-tree/@use-default-set', 'True') in BOOLEANS_TRUE:
-      find_files.extend([
-        'eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README', '*RPM-GPG',
-        'RPM-GPG-KEY', 'RPM-GPG-KEY-beta', 'README-BURNING-ISOS-en_US.txt',
-        'RELEASE-NOTES-en-US.html',
-        ])
-      find_folders.extend([
-        'stylesheet-images',
-        ])
-      
-    files = []
-    folders = []
-    for file in find_files:
-      files.extend(find(location=self.output_location, name=file, type=TYPE_FILE))
-      files.extend(find(location=self.output_location, name=file, type=TYPE_LINK))
-    for folder in find_folders:
-      folders.extend(find(location=self.output_location, name=folder, type=TYPE_DIR))
-      
-    for file in files:
-      sync(file, self.software_store)
-    for folder in folders:
-      sync(folder, self.software_store)
-
   def _get_data_files(self):
     manifest = join(self.output_location, 'MANIFEST')
     f = open(manifest, 'w')
@@ -397,7 +329,7 @@ class ReleaseRpmHandler(RpmHandler, MorphStructMixin):
     files = tree(self.output_location, type='f|l', prefix=False)
     for file in files:
       f.write('%s\n' %(file,))
-      f.close()
+    f.close()
     config_option = '/usr/share/%s-release-notes-%s :'
     value = ', '.join(files)
     return ''.join([config_option, value])
@@ -413,16 +345,18 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
                         elementname='logos',
                         rpmname='%s-logos' %(interface.product,),
                         provides_test='redhat-logos',
-                        provides='system-logos = 4.9.3, redhat-logos = 4.9.3',
+                        provides='system-logos, redhat-logos = 4.9.3',
                         obsoletes = 'fedora-logos centos-logos redhat-logos',
                         description="Icons and pictures related to %s" %(interface.config.get('//main/fullname/text()'),),
                         long_description="The %s-logos package contains image files "\
                         "which have been automatically created by dimsbuild and are specific "\
                         "to the %s distribution." %(interface.product, interface.config.get('//main/fullname/text()'),))
 
-    self.expandOutput(self.data, dirname(self.metadata)) # the paths in self.data['output'] are
-                                                         # relative to dirname(self.metadata)
-    self.expandInput(self.data)
+    if self.data.has_key('input'):
+      self.expandInput(self.data)
+    if self.data.has_key('output'):      
+      self.expandOutput(self.data, dirname(self.metadata)) # the 'output' element has entries
+                                                           # relative to dirname(self.metadata)
     
     self.share_path = self.interface._base.sharepath
     self.locals = self.interface.locals
@@ -441,43 +375,23 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
     logos = self.locals.getLocalPath(L_LOGOS, '/logos')
     for logo in logos.get('logo', fallback=[]):
       id = logo.attrib['id']
-      install_path = get_value(logo, 'location')
-      width = get_value(logo, 'width', optional=True)
-      if width:
-        width = int(width)            
-      height = get_value(logo, 'height', optional=True)
-      if height:
-        height = int(height)
+      install_path = get_value(logo, 'location')      
       file_name = basename(id)
       dir_name = dirname(id)
       self.controlset[id] = {
         'install_path': install_path,
-        'width': width,
-        'height': height,
         'file_name': file_name,
         'dir_name': dir_name,
-        }
-    
-  def removeObsoletes(self):
-    """
-    Remove the files that are specified in self.mdfile that do not
-    match the files in the input set.
-    """
-    if self.mdvalid:
-      for file in self._get_obsoletes():
-        rm(file, force=True)
-        
-  def removeInvalids(self):
-    """
-    Remove the files that are specified in self.mdfile that do not
-    match the files in the output set.
-    """
-    if self.mdvalid:            
-      for file in self._get_invalids():
-        rm(file, force=True)
-        
+        }      
+      for optional_item in ['width', 'height', 'textmaxwidth', 'textvcenter', 'texthcenter']:
+        value = get_value(logo, optional_item, optional=True)
+        if value:
+          self.controlset[id][optional_item] = int(value)
+        else:
+          self.controlset[id][optional_item] = None
+
   def testOutputValid(self):
-    if self.method == 'create':
+    if self.create:
       if self.data.has_key('output'):
         for id in self.controlset.keys():
           file = join(self.output_location, id)
@@ -493,7 +407,15 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
     return True
             
   def addOutput(self):
-    if self.method == 'create':
+    if self.create:
+      # get the font file, either from the config file or the dimsbuild's shared folder
+      ttf_file = self.config.get('//logos/font-file/text()', None)
+      if not ttf_file:
+        fallback_fonts = filter(lambda x: x.find('svn') == -1,
+                                tree(join(self.share_path, 'fonts'), prefix=True,
+                                     type='f|l'))
+        ttf_file = fallback_fonts[0]
+      
       for id in self.controlset.keys():
         shared_file = join(self.share_path, 'logos', id)
         file_name = join(self.output_location, id)
@@ -509,13 +431,21 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
           else:
             width = self.controlset[id]['width']
             height = self.controlset[id]['height']
+            textmaxwidth = self.controlset[id]['textmaxwidth']
+            text_xcood = self.controlset[id]['texthcenter']
+            text_ycood = self.controlset[id]['textvcenter']
             self.log(2, "creating %s" %(id,))
-            self._generate_image(file_name,
-                                 width,
-                                 height,                 
-                                 50,
-                                 text='%s %s'%(self.fullname,
-                                               self.version))
+            if textmaxwidth and text_xcood and text_ycood:
+              self._generate_image(file_name, width, height,
+                                   font_file=ttf_file,
+                                   font_size=50,
+                                   text_width=textmaxwidth,
+                                   text='%s %s'%(self.fullname,
+                                                 self.version),
+                                   text_cood=(text_xcood,text_ycood),
+                                   format='png')
+            else:
+              self._generate_image(file_name, width, height)              
         else:
           # The file is a text file that needs to be in the logos rpm.
           # These files are found in the share/ folder. If they are not
@@ -523,18 +453,26 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
           if os.path.exists(shared_file):
             self.log(2, "file %s exists in share/" %(id,))
             sync(shared_file, dir)
-      # hack to create the splash.xpm file
+          else: # required text file not there in shared/ folder, passing for now
+            pass
+      # hack to create the splash.xpm file, have to first convert
+      # the grub-splash.png to an xpm and then gzip it.
       splash_xpm = join(self.output_location, 'bootloader', 'grub-splash.xpm')
       splash_xgz = ''.join([splash_xpm, '.gz'])
       splash_png = join(self.output_location, 'bootloader', 'grub-splash.png')
       if not exists(splash_xgz):
         shlib.execute('convert %s %s' %(splash_png, splash_xpm,))
-        shlib.execute('gzip %s' %(splash_xpm,))
+        import gzip
+        infile = file(splash_xpm, 'rb')
+        data = infile.read()
+        infile.close()
+        outfile = gzip.GzipFile(splash_xgz, 'wb')
+        outfile.write(data)
+        outfile.close()
       RpmHandler.addOutput(self)    
     # create the builddata/images-src/product.img folder all the time,
     # even if the user provided the RPM. 
     self.createPixmaps()
-    self.interface.set_cvar('logos-changed', True)
 
   def createPixmaps(self):
     """
@@ -550,12 +488,8 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
     product_images = []
     # copy the logos from the anaconda folder and pixmaps folder
     # to builddata/logos/product.img
-    if self.method == 'useexisting':
-      # look at the <folder to which the RPM was exploded>/usr/share/anaconda folder for files
-      dirs_to_look = [join(self.output_location, 'usr', 'share', 'anaconda')]
-    else:
-      # look at builddata/logos/anaconda for files to put in product.img
-      dirs_to_look = [join(self.output_location, 'anaconda')]
+    # look at builddata/logos/anaconda for files to put in product.img
+    dirs_to_look = [join(self.output_location, 'anaconda')]
       
     # generate the list of files to use
     for folder in dirs_to_look:
@@ -585,7 +519,7 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
     f.write('setup.py\n')
     f.write('setup.cfg\n')
     items = {}
-    for id in self.controlset.keys():
+    for id in self.controlset.keys():      
       file = join(self.output_location, id)
       file_name = basename(file)
       file_dir = dirname(file)
@@ -599,11 +533,11 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
           new_file = join(file_dir, install_filename)
           os.link(file, new_file)
           id = join(file_dir, install_filename)
-          if install_dir in items.keys():
-            items[install_dir].append(id)
-          else:
-            items[install_dir] = [id]
-            f.write('%s\n' %(id,))
+        if install_dir in items.keys():
+          items[install_dir].append(id)
+        else:
+          items[install_dir] = [id]
+        f.write('%s\n' %(id,))
     f.close()
     # convert items to a config-styled string
     rtn = ""
@@ -613,34 +547,62 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
       rtn = ''.join([rtn, dir, files, '\n\t'])
     return rtn
         
-  def _generate_image(self, file_name, width, height, font_size,
-                      text=None, fmt='png'):
-    """Generate a captcha image"""
-    # create a font object
-    ttf_file = self.config.get('//logos/font-file/text()', None)
-    if not ttf_file:
-      fallback_fonts = filter(lambda x: x.find('svn') == -1,
-                              tree(join(self.share_path, 'fonts'), prefix=True,
-                                   type='f|l'))
-      ttf_file = fallback_fonts[0]
+  def _generate_image(self, file_name, width, height, font_size=0, font_file=None, 
+                      text_width=100, text=None, text_cood=(10,10), format='png'):
+    """
+    Generate an image that is added to the logos RPM and the product.img.
+
+    @param file_name  : the name of the file to be generated
+    @param width      : the width of the image
+    @param height     : the height of the image
+    @param font_size  : the 'starting' font size of the text on the image
+    @param text       : the text to be added to the image
+    @param text_cood  : coordinates of the center of the text block
+    @param text_width : maximum length of the text block
+    @param format     : the format of the image: png, jpeg etc.
+    """
+    def _get_font(width, height, xcood, ycood, textmaxwidth, text, font_file, font_size):
+      startX = xcood - textmaxwidth/2
+      font = ImageFont.truetype(font_file, font_size)
+      (text_width, text_height) = font.getsize(text)
+      startY = ycood - text_height/2
+      while (text_width > textmaxwidth) or \
+                ((startX+text_width) > width) or \
+                ((startY+text_height) > height):
+        if text_height <= 10: # have to decide on a "good" minimum font size
+          break               # 10 pixels good enough?
+        font_size = font_size - 2
+        font = ImageFont.truetype(font_file, font_size)
+        (text_width, text_height) = font.getsize(text)
+        startY = ycood - text_height/2
+      return font
+
+    def get_color(xquery, fallback):
+      # the python-imaging library accepts big-endian colors, this
+      # function, swaps the first and the third byte in the user-specified
+      # color, and returns it. HACK :(.
+      color = self.config.get(xquery, fallback)
+      if color.startswith('0x'):
+        color = color[2:]
+      color = ''.join([(6-len(color))*'0', color])
+      return int(''.join(['0x', color[4:], color[2:4], color[:2]]), 16)
       
-    font = ImageFont.truetype(ttf_file, font_size)
-    
     im = Image.new('RGB', (width, height),
-                   int(self.config.get('//logos/create/background-color/text()', '0xffffff'), 16))
-    
+                   get_color('//logos/create/background-color/text()', '0x285191'))
     # add text to the image, if specified
     if text:
+      font = _get_font(width, height,
+                       text_cood[0],
+                       text_cood[1],
+                       text_width,
+                       text, font_file, font_size)
       dim = font.getsize(text)
       d = ImageDraw.Draw(im)
-      d.text((15, 45), text, font=font,
-             fill=int(self.config.get('//logos/create/text-color/text()', '0x000000'), 16))
-            
-    im = im.filter(ImageFilter.EDGE_ENHANCE_MORE)
-    
+      d.text((text_cood[0]-dim[0]/2, text_cood[1]-dim[1]/2), text, font=font,
+             fill=get_color('//logos/create/text-color/text()', '0xffffff'))
     # save the image to a file
-    im.save(file_name, format=fmt)        
-        
+    im.save(file_name, format=format)        
+
   def _get_path_id(self, filename):
     for item in self.controlset.keys():
       if self.controlset[item]['file_name'] == filename:
@@ -660,28 +622,6 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
       if input_size != control_size:
         return False
     return True
-
-  def _get_obsoletes(self):
-    obsoletes = self._get_bad_files(self.input)
-    return obsoletes
-
-  def _get_invalids(self):
-    invalids = self._get_bad_files(self.output)
-    return invalids
-
-  def _get_bad_files(self, fileinfo):
-    bad_files = []
-    for input_file in fileinfo.keys():
-      if input_file[-3:].lower() == 'xpm':
-        # HACK: assume that all xpm files are fine, because the python-imaging
-        # chokes on them. The xpm files used in the logos RPM are static
-        # ones, so it is "fine" to make this assumption. 
-        continue
-      id = self._get_path_id(basename(input_file))
-      if not id or not os.path.exists(input_file) or \
-             not self._verify_file(input_file, self.controlset[id]):
-        bad_files.append(input_file)
-    return bad_files
 
 #------ HOOK FUNCTIONS ------#
 def prestores_hook(interface):
@@ -710,7 +650,6 @@ def prerelease_hook(interface):
   interface.disableEvent('release')
   if interface.pre(handler) or (interface.eventForceStatus('release') or False):
     interface.enableEvent('release')
-  interface.set_cvar('release-changed', False)
         
 def release_hook(interface):
   interface.log(0, "processing release")
@@ -723,7 +662,6 @@ def prelogos_hook(interface):
   interface.disableEvent('logos')
   if interface.pre(handler) or (interface.eventForceStatus('logos') or False):
     interface.enableEvent('logos')
-  interface.set_cvar('logos-changed', False)
   osutils.mkdir(join(interface.getMetadata(), 'images-src/product.img'), parent=True)
         
 def logos_hook(interface):

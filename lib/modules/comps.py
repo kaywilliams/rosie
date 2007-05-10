@@ -53,7 +53,7 @@ class CompsInterface(EventInterface, VersionMixin, FlowControlROMixin):
     try:
       return self._base.reqpkgs
     except AttributeError:
-      return None
+      return None    
   def setRequiredPackages(self, reqpkgs):
     self._base.reqpkgs = reqpkgs
   
@@ -142,6 +142,9 @@ class CompsHandler:
     self.comps.setheader(HEADER_FORMAT % (xmlversion, xmlencoding))
     self.config = self.interface.config
     self.exclude = self.config.mget('//comps/create-new/exclude/package/text()')
+    force_exclude_pkgs = self.interface.get_cvar('excluded-packages')
+    if type(force_exclude_pkgs) == list:
+      self.exclude += force_exclude_pkgs
   
   def generateComps(self):
     product  = self.config.get('//main/product/text()')
@@ -153,6 +156,9 @@ class CompsHandler:
     
     # create base distro group
     packages = self.config.mget('//comps/create-new/include/package/text()')
+    force_include_pkgs = self.interface.get_cvar('included-packages')
+    if type(force_include_pkgs) == list:
+      packages += force_include_pkgs
     base = Group(product, fullname, 'This group includes packages specific to %s' % fullname)
     if len(packages) > 0:
       self.interface.set_cvar('required-packages', packages)
