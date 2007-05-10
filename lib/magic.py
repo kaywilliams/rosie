@@ -39,6 +39,7 @@ FILE_TYPE_SQUASHFS = 'application/x-squashfs'
 FILE_TYPE_EXT2FS   = 'application/x-linux-ext2fs'
 FILE_TYPE_CPIO     = 'application/x-cpio'
 FILE_TYPE_GPGKEY   = 'application/x-gpg-key'
+FILE_TYPE_LSS      = 'Syslinux SLL16 image data'
 
 #------ MAGIC NUMBERS ------#
 # Dictionary of known magic numbers. Keys are from the list of file types,
@@ -61,6 +62,7 @@ magic = {
                        (0,    TYPE_STRING, ENDIAN_BIG,    '070702'),
                        (0,    TYPE_STRING, ENDIAN_BIG,    '070707')],
   FILE_TYPE_GPGKEY:   [(0,    TYPE_STRING, ENDIAN_BIG,    '-----BEGIN PGP')],
+  FILE_TYPE_LSS:      [(0,    TYPE_LONG,   ENDIAN_LITTLE, 0x1413f33d)],
 }
 
 
@@ -97,7 +99,7 @@ class MagicNumber:
                            data[self.offset : self.offset+LENGTH_SHORT])
     return self.value == data
   
-  def _long_matcH(self, data):
+  def _long_match(self, data):
     [data] = struct.unpack(self.endian + self.type,
                            data[self.offset : self.offset+LENGTH_LONG])
     return self.value == data

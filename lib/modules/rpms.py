@@ -80,7 +80,10 @@ LOGOS_MD_STRUCT = {
     'config': [
       '/distro/main/fullname/text()',
       '/distro/main/version/text()',
-      '//logos',
+      '//logos-rpm',
+    ],
+    'input': [
+      '/logos-rpm/path/text()',
     ],
     'output': [
       'builddata/logos/',
@@ -181,7 +184,7 @@ class RpmHandler(OutputEventHandler):
     self.rpmname = rpmname
     self.provides = provides
     self.provides_test = provides_test
-    self.obsoletes = obsoletes
+    self.obsoletes = self.config.get('//%s/obsoletes/text()' %(self.elementname,), None) or obsoletes
     self.description = description
     self.long_description = long_description
     self.author = 'dimsbuild'
@@ -229,13 +232,6 @@ class RpmHandler(OutputEventHandler):
     if self.create:
       self._setup()
       buildRpm(self.output_location, self.rpm_output)
-      # add rpms to the included-packages control var, so that
-      # they are added to the comps.xml
-      self.interface.append_cvar('included-packages', [self.rpmname])
-      
-      # add rpms to the excluded-packages control var, so that
-      # they are removed from the comps.xml
-      self.interface.append_cvar('excluded-packages', self.obsoletes.split())
       
   def _setup(self):
     setup_cfg = join(self.output_location, 'setup.cfg')
@@ -342,7 +338,7 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
     MorphStructMixin.__init__(self, interface.config)        
 
     RpmHandler.__init__(self, interface, data,
-                        elementname='logos',
+                        elementname='logos-rpm',
                         rpmname='%s-logos' %(interface.product,),
                         provides_test='redhat-logos',
                         provides='system-logos, redhat-logos = 4.9.3',
@@ -496,10 +492,10 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
       product_images.extend(tree(folder, prefix=True, type='f|l'))
 
     # look at the config files for other files to put in the product.img
-    if self.config.get('//logos/include-in-product-img/@use-default-set',
+    if self.config.get('//%s/include-in-product-img/@use-default-set' %(self.elementname,),
                        'False') in BOOLEANS_TRUE:
-      files = self.config.mget('//logos/include-in-product-img/file/text()', [])
-      folders = self.config.mget('//logos/include-in-product-img/folder/text()',
+      files = self.config.mget('//%s/include-in-product-img/file/text()' %(self.elementname,), [])
+      folders = self.config.mget('//%s/include-in-product-img/folder/text()' %(self.elementname,),
                                  [])
       product_images.extend(files)                
       for folder in folders:
@@ -588,7 +584,7 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
       return int(''.join(['0x', color[4:], color[2:4], color[:2]]), 16)
       
     im = Image.new('RGB', (width, height),
-                   get_color('//logos/create/background-color/text()', '0x285191'))
+                   get_color('//%s/background-color/text()' %(self.elementname,), '0x285191'))
     # add text to the image, if specified
     if text:
       font = _get_font(width, height,
@@ -599,7 +595,7 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
       dim = font.getsize(text)
       d = ImageDraw.Draw(im)
       d.text((text_cood[0]-dim[0]/2, text_cood[1]-dim[1]/2), text, font=font,
-             fill=get_color('//logos/create/text-color/text()', '0xffffff'))
+             fill=get_color('//%s/text-color/text()' %(self.elementname,), '0xffffff'))
     # save the image to a file
     im.save(file_name, format=format)        
 
@@ -656,6 +652,16 @@ def release_hook(interface):
   handler = getHandler('release')
   interface.modify(handler)
 
+def postrelease_hook(interface):
+  handler = getHandler('release')
+  # add rpms to the included-packages control var, so that
+  # they are added to the comps.xml
+  interface.append_cvar('included-packages', [handler.rpmname])
+  
+  # add rpms to the excluded-packages control var, so that
+  # they are removed from the comps.xml
+  interface.append_cvar('excluded-packages', handler.obsoletes.split())
+
 def prelogos_hook(interface):
   handler = LogosRpmHandler(interface, LOGOS_MD_STRUCT)
   addHandler(handler, 'logos')
@@ -668,3 +674,14 @@ def logos_hook(interface):
   interface.log(0, "processing logos")
   handler = getHandler('logos')
   interface.modify(handler)
+
+def postlogos_hook(interface):
+  handler = getHandler('logos')
+  # add rpms to the included-packages control var, so that
+  # they are added to the comps.xml
+  interface.append_cvar('included-packages', [handler.rpmname])
+  
+  # add rpms to the excluded-packages control var, so that
+  # they are removed from the comps.xml
+  interface.append_cvar('excluded-packages', handler.obsoletes.split())
+  

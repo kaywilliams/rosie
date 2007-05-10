@@ -141,10 +141,8 @@ class CompsHandler:
     self.comps = xmltree.Tree('comps')
     self.comps.setheader(HEADER_FORMAT % (xmlversion, xmlencoding))
     self.config = self.interface.config
-    self.exclude = self.config.mget('//comps/create-new/exclude/package/text()')
-    force_exclude_pkgs = self.interface.get_cvar('excluded-packages')
-    if type(force_exclude_pkgs) == list:
-      self.exclude += force_exclude_pkgs
+    self.exclude = self.config.mget('//comps/create-new/exclude/package/text()') + \
+                   self.interface.get_cvar('excluded-packages', fallback=[])
   
   def generateComps(self):
     product  = self.config.get('//main/product/text()')
@@ -155,10 +153,8 @@ class CompsHandler:
     groupfiles = self.__get_groupfiles()
     
     # create base distro group
-    packages = self.config.mget('//comps/create-new/include/package/text()')
-    force_include_pkgs = self.interface.get_cvar('included-packages')
-    if type(force_include_pkgs) == list:
-      packages += force_include_pkgs
+    packages = self.config.mget('//comps/create-new/include/package/text()') + \
+               self.interface.get_cvar('included-packages', fallback=[])
     base = Group(product, fullname, 'This group includes packages specific to %s' % fullname)
     if len(packages) > 0:
       self.interface.set_cvar('required-packages', packages)

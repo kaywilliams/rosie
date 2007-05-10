@@ -4,6 +4,7 @@ from dims.sync import sync
 from event import EVENT_TYPE_META, EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface
 from main import BOOLEANS_TRUE
+from magic import FILE_TYPE_LSS
 from os.path import join, exists, isdir, isfile
 from output import OutputEventHandler, OutputEventMixin
 from rpmUtils.miscutils import rpm2cpio
@@ -161,7 +162,11 @@ class InstallerLogosHandler(InstallerHandler):
       Image.open(splash_png[0]).save(splash_ppm)
       shlib.execute('ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 < %s > %s'
                     %(splash_ppm, splash_lss,))
-    return [join(self.software_store, 'isolinux', 'splash.lss')]
+    self.splash_lss= join(self.software_store, 'isolinux', 'splash.lss')
+    return [self.splash_lss]
+  
+  def testOutputValid(self):
+    return self.interface.verifyType(self.splash_lss, FILE_TYPE_LSS)
 
 class InstallerReleaseHandler(InstallerHandler):
   def __init__(self, interface):
