@@ -138,19 +138,20 @@ class InstallerLogosHandler(InstallerHandler):
                                         '%s-logos' %(interface.product,))],
         }
     InstallerHandler.__init__(self, interface, data, 'installer_logos')
+    self.splash_lss= join(self.software_store, 'isolinux', 'splash.lss')    
 
   def _generate(self):
     """
     Create the splash.lss file and copy it to the isolinux/ folder
     """
-    splash_lss = find(self.working_dir, 'splash.lss')
     output_dir = join(self.software_store, 'isolinux')
     if not exists(output_dir):
       mkdir(output_dir, parent=True)
 
     # if splash.lss exists in the rpm, copy it to the isolinux/ folder
     # else convert the syslinux-splash.png to splash.lss and copy it
-    # to the isolinux/ folder    
+    # to the isolinux/ folder
+    splash_lss = find(self.working_dir, 'splash.lss')    
     if splash_lss:
       sync(splash_lss[0], output_dir)
     else:
@@ -162,7 +163,6 @@ class InstallerLogosHandler(InstallerHandler):
       Image.open(splash_png[0]).save(splash_ppm)
       shlib.execute('ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 < %s > %s'
                     %(splash_ppm, splash_lss,))
-    self.splash_lss= join(self.software_store, 'isolinux', 'splash.lss')
     return [self.splash_lss]
   
   def testOutputValid(self):

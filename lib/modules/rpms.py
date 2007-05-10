@@ -109,7 +109,7 @@ class RpmsMixin:
     pwd = os.getcwd()
     os.chdir(self.LOCAL_REPO)
     shlib.execute('/usr/bin/createrepo -q .')
-    os.chdir(pwd)
+    os.chdir(pwd)  
 
 #--------------- FUNCTIONS ------------------#
 def getProvides(rpmPath):
@@ -627,6 +627,11 @@ def prestores_hook(interface):
 
 def postRPMS_hook(interface):
   interface.createrepo()
+  pkgs = find(interface.LOCAL_REPO, '*.[Rr][Pp][Mm]',
+              nregex='.*src.[Rr][Pp][Mm]',prefix=False)
+  pkgsfile = join(interface.getMetadata(), 'dimsbuild-local.pkgs')
+  if len(pkgs) > 0:
+    filereader.write(pkgs, pkgsfile)  
 
 def postrepogen_hook(interface):
   cfgfile = interface.get_cvar('repoconfig')
