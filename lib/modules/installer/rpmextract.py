@@ -121,12 +121,10 @@ class InstallerHandler(OutputEventHandler):
     self.interface = interface
 
     self.config = self.interface.config
-    self.working_dir = tempfile.mkdtemp() # temporary directory, gets deleted once done
     self.data = data
 
     OutputEventHandler.__init__(self, self.config, data, None,
-                                mdfile=join(self.interface.getMetadata(), '%s.md' %(name,)),
-                                mddir=self.working_dir)
+                                mdfile=join(self.interface.getMetadata(), '%s.md' %(name,)))
     
     self.software_store = self.interface.getSoftwareStore()
 
@@ -147,6 +145,7 @@ class InstallerHandler(OutputEventHandler):
   
   def getInput(self):
     # extract the RPMs
+    self.working_dir = tempfile.mkdtemp() # temporary directory, gets deleted once done    
     for rpm_name in self.data['input']:
       rpms = find(location=self.software_store, name='%s*[Rr][Pp][Mm]' %(rpm_name,))
       if len(rpms) == 0:
