@@ -11,10 +11,12 @@ import dims.FormattedFile as ffile
 
 from dims.xmltree import XmlPathError, read
 
+import locals
+
 from interface import EventInterface, LocalsMixin
 from output    import MorphStructMixin, OutputEventMixin, OutputEventHandler
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR, EVENT_TYPE_META
-from locals    import L_BUILDSTAMP, L_FILES, L_IMAGES, L_INSTALLCLASS
+from locals    import L_BUILDSTAMP, L_FILES, L_IMAGES, L_INSTALLCLASS #!
 from main      import BOOLEANS_TRUE, BOOLEANS_FALSE
 from magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS
 from callback  import BuildSyncCallback
@@ -55,13 +57,13 @@ EVENTS = [
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'parent': 'IMAGES',
   },
-  {
-    'id': 'stage2',
-    'interface': 'ImageInterface',
-    'provides': ['stage2'],
-    'requires': ['.discinfo'],
-    'parent': 'IMAGES',
-  },
+  #{
+  #  'id': 'stage2',
+  #  'interface': 'ImageInterface2',
+  #  'provides': ['stage2'],
+  #  'requires': ['.discinfo'],
+  #  'parent': 'IMAGES',
+  #},
 ]
 
 #---------- IMAGE METADATA -----------#
@@ -115,13 +117,6 @@ class ImageInterface(EventInterface, LocalsMixin, OutputEventMixin):
                          self._base.IMPORT_DIRS)
     OutputEventMixin.__init__(self)
   
-  def getImageFile(self, filename):
-    FILE = self.getLocalPath(L_FILES, 'file[@id="%s"]' % filename)
-    path = join(self.getSoftwareStore(),
-                printf_local(FILE.iget('path'), self.getBaseVars()),
-                filename)
-    return path
-  
 
 #-------- HANDLER CLASSES ---------#
 class ImageHandler:
@@ -142,7 +137,7 @@ class ImageHandler:
     format = IMAGE.iget('format/text()')
     zipped = IMAGE.iget('zipped/text()', False)
     
-    if FILE.iget('virtual/text()', False):
+    if FILE.attrib.get('virtual', 'False') in BOOLEANS_TRUE:
       if exists(path): osutils.rm(path) # delete old image
       self.image = imglib.createImage(path, format, zipped)
     else:
@@ -480,9 +475,9 @@ def preupdates_hook(interface):
     interface.enableEvent('updates')
   interface.set_cvar('updates-changed', False)
 
-def initrd_hook(interface):
-  handler = getHandler('initrd')
-  interface.modify(handler)
+##def initrd_hook(interface):
+##  handler = getHandler('initrd')
+##  interface.modify(handler)
 
 def product_hook(interface):
   handler = getHandler('product')
@@ -492,12 +487,19 @@ def updates_hook(interface):
   handler = getHandler('updates')
   interface.modify(handler)
 
+''' 
 def stage2_hook(interface):
   interface.log(0, "synchronizing files")
   cb = BuildSyncCallback(interface.logthresh)
   i,_,_,d,_,_ = interface.getStoreInfo(interface.getBaseStore())
   d = d.lstrip('/') # un-absolute path d
-  local_files = interface.getLocal(L_FILES)
+  ##local_files = interface.getLocal(L_FILES)
+  ##L = locals.XmlLocalsHandler() #!
+  ##for local in LOCALS['stage2']: #!
+  ##  L.register_local_string('stage2', local) #!
+  ##L.commit(interface.anaconda_version) #!
+  ##local_files = L.get_local_path('stage2', '.') #!
+  local_files = interface.getLocalPath('stage2', '.') #!
   for file in local_files.get('file'):
     filename = file.attrib['id']
     if filename in IMAGES: continue # skip images we already process
@@ -509,11 +511,11 @@ def stage2_hook(interface):
     osutils.mkdir(join(interface.getSoftwareStore(), linfix), parent=True)
     sync.sync(join(interface.getInputStore(), i, d, rinfix, filename),
               join(interface.getSoftwareStore(), linfix))
-
+'''
 
 #--------- HELPER FUNCTIONS ---------#
 def printf_local(elem, vars):
-  string = elem.iget('string-format/string/text()', elem.text)
+  string = elem.iget('string-format/@string', elem.text)
   format = elem.get('string-format/format/item/text()', [])
   return printf(string, format, vars)
 
@@ -524,3 +526,205 @@ def printf(string, fmt, vars):
     except KeyError:
       raise KeyError, "Variable '%s' not defined in supplied scope" % f
   return string
+
+
+#------ LOCALS ------#
+LOCALS = """ 
+<locals>
+  <buildstamp-format-entries>
+  <buildstamp-format version="0">
+    <line id="timestamp" position="0">
+      <string-format string="%s">
+        <format>
+          <item>timestamp</item>
+        </format>
+      </string-format>
+    </line>
+    <line id="fullname" position="1">
+      <string-format string="%s">
+        <format>
+          <item>fullname</item>
+        </format>
+      </string-format>
+    </line>
+    <line id="version" position="2">
+      <string-format string="%s">
+        <format>
+          <item>version</item>
+        </format>
+      </string-format>
+    </line>
+    <line id="product" position="3">
+      <string-format string="%s">
+        <format>
+          <item>product</item>
+        </format>
+      </string-format>
+    </line>
+  </buildstamp-format>
+  
+  <!-- 10.2.0.63-1 - added '.arch' to timestamp -->
+  <buildstamp-format version="10.2.0.63-1">
+    <action type="update" path="line[@id='timestamp']">
+      <string-format string="%s.%s">
+        <format>
+          <item>timestamp</item>
+          <item>basearch</item>
+        </format>
+      </string-format>
+    </action>
+  </buildstamp-format>
+  
+  <!-- 10.1.0.1 to 10.2.1.5 (uncertain) - webloc line added -->
+  <buildstamp-format version="10.2.1.5">
+    <action type="insert" path=".">
+      <line id="webloc" position="4">
+        <string-format string="%s">
+          <format>
+            <item>webloc</item>
+          </format>
+        </string-format>
+      </line>
+    </action>
+  </buildstamp-format>
+  </buildstamp-format-entries>
+  
+  <files-entries>
+  <files version="0">
+    <file id="initrd.img">
+      <path>isolinux</path>
+    </file>
+    <file id="vmlinuz">
+      <path>isolinux</path>
+    </file>
+    <file id="product.img" virtual="True">
+      <path>
+        <string-format string="%s/base">
+          <format>
+            <item>product</item>
+          </format>
+        </string-format>
+      </path>
+    </file>
+    <file id="updates.img" virtual="True">
+      <path>
+        <string-format string="%s/base">
+          <format>
+            <item>product</item>
+          </format>
+        </string-format>
+      </path>
+    </file>
+    <file id="stage2.img">
+      <path>
+        <string-format string="%s/base">
+          <format>
+            <item>product</item>
+          </format>
+        </string-format>
+      </path>
+    </file>
+    <file id="netstg2.img">
+      <path>
+        <string-format string="%s/base">
+          <format>
+            <item>product</item>
+          </format>
+        </string-format>
+      </path>
+    </file>
+    <file id="hdstg2.img">
+      <path>
+        <string-format string="%s/base">
+          <format>
+            <item>product</item>
+          </format>
+        </string-format>
+      </path>
+    </file>
+  </files>
+  
+  <!-- 10.89.1.1 - netstg2.img and hdstg2.img combined into minstg2.img -->
+  <files version="10.89.1.1">
+    <action type="delete" path="file[@id='netstg2.img']"/>
+    <action type="delete" path="file[@id='hdstg2.img']"/>
+    <action type="insert" path=".">
+      <file id="minstg2.img">
+        <path>
+          <string-format string="%s/base">
+            <format>
+              <item>product</item>
+            </format>
+          </string-format>
+        </path>
+      </file>
+    </action>
+  </files>
+  
+  <!-- 11.1.0.51-1 - images moved from $PROD/base/ to images/ -->
+  <files version="11.1.0.51-1">
+    <action type="update" path="file[@id='stage2.img']">
+      <path>images</path>
+    </action>
+    <action type="update" path="file[@id='minstg2.img']">
+      <path>images</path>
+    </action>
+    <action type="update" path="file[@id='product.img']">
+      <path>images</path>
+    </action>
+    <action type="update" path="file[@id='updates.img']">
+      <path>images</path>
+    </action>
+  </files>
+  </files-entries>
+  
+  
+  <images-entries>
+  <images version="0">
+    <image id="initrd.img">
+      <format>ext2</format>
+      <zipped>True</zipped>
+      <buildstamp>.buildstamp</buildstamp>
+    </image>
+    <image id="product.img">
+      <format>ext2</format>
+      <buildstamp>.buildstamp</buildstamp>
+    </image>
+    <image id="updates.img">
+      <format>ext2</format>
+      <buildstamp>.buildstamp</buildstamp>
+    </image>
+  </images>
+  
+  <!-- approx 10.2.0.3-1 - initrd.img format changed to cpio -->
+  <images version="10.2.0.3-1">
+    <action type="update" path="image[@id='initrd.img']">
+      <format>cpio</format>
+    </action>
+  </images>
+  
+  <!-- 11.1.0.11-1 - updates.img format changed to cpio, zipped -->
+  <images version="11.1.0.11-1">
+    <action type="update" path="image[@id='updates.img']">
+      <format>cpio</format>
+      <zipped>True</zipped>
+    </action>
+  </images>
+  </images-entries>
+  
+  
+  <installclass-entries>
+  <installclass version="0">0</installclass>
+  
+  <!-- 11.1.0.7-1 pass anaconda object instead of id -->
+  <installclass version="11.1.0.7-1">
+    <action type="replace" path=".">11.1.0.7-1</action>
+  </installclass>
+  
+  <!-- approx 11.1.2.36-1 - pass anaconda object to setGroupSelection -->
+  <installclass version="11.1.2.36-1">
+    <action type="replace" path=".">11.1.2.36-1</action>
+  </installclass>
+  </installclass-entries>
+</locals>
+"""

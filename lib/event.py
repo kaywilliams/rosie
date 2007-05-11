@@ -599,6 +599,8 @@ def EventFromStruct(struct):
   properties = struct.get('properties', EVENT_TYPE_MARK|EVENT_TYPE_CTRL)
   provides = struct.get('provides', [])
   requires = struct.get('requires', [])
+  if type(provides) != type([]): provides = [provides]
+  if type(requires) != type([]): requires = [requires]
   return Event(id, provides=provides, requires=requires, properties=properties)
 
 

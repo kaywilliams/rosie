@@ -25,6 +25,7 @@ from dims.sortlib      import dcompare
 from dims.xmltree      import XmlPathError
 
 import event
+import locals
 
 from interface import EventInterface
 from callback  import BuildLogger
@@ -138,6 +139,7 @@ class Build:
       self.log(2, "Making directory '%s'" % dir)
       osutils.mkdir(dir, parent=True)
     
+    # load all modules, register events, set up dispatcher
     self.__init_dispatch() # sets up self.dispatch
     
     # self.mvars is a place that modules/plugins can store various var values
@@ -212,10 +214,12 @@ class Build:
     for path in self.IMPORT_DIRS:
       modpath = join(path, 'modules')
       if not exists(modpath): continue
-      for mod in osutils.find(modpath, name='*.py', prefix=False):
+      for mod in filter(None, osutils.find(modpath, nregex='.*\.pyc',
+                                           prefix=False, maxdepth=1)):
         if mod.replace('.py', '') not in disabled_modules and \
            mod.replace('.py', '') not in registered_modules:
           m = self.__loadmodule(join(modpath, mod))
+          if m is None: continue # requested file wasn't a python module
           self.__check_api_version(m) # raises ImportError
           self.dispatch.process_module(m)
           registered_modules.append(mod.replace('.py', ''))
@@ -323,8 +327,11 @@ class Build:
     mod = mod.split('.py')[0] # remove .py
     try:
       fp, path, desc = imp.find_module(mod, [dir])
+    except ImportError:
+      return # this isn't a python module, thats ok
+    try:
       module = imp.load_module(mod, fp, path, desc)
     except ImportError, e: # provide a more useful message
       raise ImportError, "Could not load module '%s':\n%s" % (path, e)
-    fp.close()
+    fp and fp.close()
     return module

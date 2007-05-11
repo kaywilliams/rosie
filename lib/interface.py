@@ -28,20 +28,6 @@ from dims.EventManager import PluginInterface
 
 import locals
 
-# These are going away eventually
-EVENTS = {
-  'release-rpm': {
-    'interface': 'ReleaseRpmInterface',
-    'provides': ['release.rpm'],
-    'requires': [],
-  },
-  'logos-rpm': {
-    'interface': 'LogosRpmInterface',
-    'provides': ['logos.rpm'],
-    'requires': [],
-  },
-}
-
 
 #------ INTERFACES ------#
 class EventInterface(PluginInterface):
@@ -174,6 +160,7 @@ class LocalsMixin:
     
     self.getLocal = self.locals.getLocal
     self.getLocalPath = self.locals.getLocalPath
+
 
 class GPGMixin:
   def __init__(self):

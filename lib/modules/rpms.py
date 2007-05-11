@@ -1,18 +1,20 @@
 import os
-import dims.filereader as filereader
-import dims.shlib as shlib
-import sys
 
 from ConfigParser import ConfigParser
-from StringIO import StringIO
+from os.path      import join, exists
+from StringIO     import StringIO
+
+import dims.filereader as filereader
+import dims.shlib      as shlib
+
 from dims.osutils import *
-from dims.sync import sync
-from event import EVENT_TYPE_META, EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dims.sync    import sync
+
+from event     import EVENT_TYPE_META, EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface, LocalsMixin
-from main import BOOLEANS_TRUE
-from os.path import join, exists
-from output import *
-from locals import L_LOGOS
+from main      import BOOLEANS_TRUE
+from output    import *
+from locals    import L_LOGOS
 
 try:
   import Image
@@ -20,8 +22,7 @@ try:
   import ImageFilter
   import ImageFont
 except ImportError:
-  print "Install the python-imaging RPM and try again."
-  sys.exit(1)
+  raise ImportError, "missing 'python-imaging' RPM"
 
 API_VERSION = 3.0
 
@@ -51,53 +52,7 @@ EVENTS = [
 ]
 
 
-STORE_XML = ''' 
-<store id="dimsbuild-local">
-  <path>file://%s</path>
-</store>
-'''
-
-#-------------- METADATA STRUCTS ---------#
-RELEASE_MD_STRUCT = {
-    'config': [
-      '//main/fullname/text()',
-      '//main/version/text()',
-      '//release-package',    
-      '//stores/*/store/gpgkey/text()',
-      '//main/signing/publickey/text()',
-    ],
-    'input': [
-      '//release-package/create/yum-repo/path/text()',
-      '//stores/*/store/gpgkey/text()',
-      '//main/signing/publickey/text()',
-    ],
-    'output': [
-        'os/release-files/',
-    ],   
-    }
-
-LOGOS_MD_STRUCT = {
-    'config': [
-      '/distro/main/fullname/text()',
-      '/distro/main/version/text()',
-      '//logos-rpm',
-    ],
-    'input': [
-      '/logos-rpm/path/text()',
-    ],
-    'output': [
-      'builddata/logos/',
-    ]
-  }
-
-#-------- HANDLER DICTIONARY ---------#
-# dictionary of semi-permanent handlers so that I can keep one instance
-# around between two hook functions
-HANDLERS = {}
-def addHandler(handler, key): HANDLERS[key] = handler
-def getHandler(key): return HANDLERS[key]
-
-#------ MIXINS ------#
+#------ INTERFACES/MIXINS ------#
 class RpmsMixin:
   def __init__(self):
     self.LOCAL_REPO = join(self.getMetadata(), 'localrepo/')
@@ -111,12 +66,112 @@ class RpmsMixin:
     shlib.execute('/usr/bin/createrepo -q .')
     os.chdir(pwd)  
 
+class RpmsInterface(EventInterface, RpmsMixin, OutputEventMixin, LocalsMixin):
+  def __init__(self, base):
+    EventInterface.__init__(self, base)
+    RpmsMixin.__init__(self)
+    OutputEventMixin.__init__(self)
+    LocalsMixin.__init__(self, join(self.getMetadata(), '%s.pkgs' %(self.getBaseStore(),)),
+                         base.IMPORT_DIRS)
+
+  def append_cvar(self, flag, value):
+    if flag in self._base.mvars.keys():
+      if type(value) == list:
+        self._base.mvars[flag].extend(value)
+      else:
+        self._base.mvars[flag].append(value)
+    else:
+      if type(value) == list:
+        self._base.mvars[flag] = value
+      else:
+        self._base.mvars[flag] = [value]
+
+
+#------ HOOK FUNCTIONS ------#
+def prestores_hook(interface):
+  localrepo = join(interface.getMetadata(), 'localrepo/')
+  mkdir(localrepo)
+  interface.add_store(STORE_XML % localrepo)
+
+def postRPMS_hook(interface):
+  interface.createrepo()
+  #pkgs = find(interface.LOCAL_REPO, '*.[Rr][Pp][Mm]',
+  #            nregex='.*src.[Rr][Pp][Mm]',prefix=False)
+  pkgs = find(interface.LOCAL_REPO, '*.[Rr][Pp][Mm]', prefix=False)
+  pkgsfile = join(interface.getMetadata(), 'dimsbuild-local.pkgs')
+  if len(pkgs) > 0:
+    filereader.write(pkgs, pkgsfile)  
+
+def postrepogen_hook(interface):
+  cfgfile = interface.get_cvar('repoconfig')
+  if not cfgfile: return  
+  
+  lines = filereader.read(cfgfile)
+  
+  lines.append('[dimsbuild-local]')
+  lines.append('name = dimsbuild-local')
+  lines.append('baseurl = file://%s' % join(interface.getMetadata(), 'localrepo/'))
+  
+  filereader.write(lines, cfgfile)
+
+def prerelease_hook(interface):
+  handler = ReleaseRpmHandler(interface, RELEASE_MD_STRUCT)
+  addHandler(handler, 'release')
+  interface.disableEvent('release')
+  if interface.pre(handler) or (interface.eventForceStatus('release') or False):
+    interface.enableEvent('release')
+        
+def release_hook(interface):
+  interface.log(0, "processing release")
+  handler = getHandler('release')
+  interface.modify(handler)
+
+def postrelease_hook(interface):
+  handler = getHandler('release')
+  if handler.create:
+    # add rpms to the included-packages control var, so that
+    # they are added to the comps.xml
+    interface.append_cvar('included-packages', [handler.rpmname])    
+    # add rpms to the excluded-packages control var, so that
+    # they are removed from the comps.xml
+    interface.append_cvar('excluded-packages', handler.obsoletes.split())
+    
+def prelogos_hook(interface):
+  handler = LogosRpmHandler(interface, LOGOS_MD_STRUCT)
+  addHandler(handler, 'logos')
+  interface.disableEvent('logos')
+  if interface.pre(handler) or (interface.eventForceStatus('logos') or False):
+    interface.enableEvent('logos')
+  osutils.mkdir(join(interface.getMetadata(), 'images-src/product.img'), parent=True)
+        
+def logos_hook(interface):
+  interface.log(0, "processing logos")
+  handler = getHandler('logos')
+  interface.modify(handler)
+
+def postlogos_hook(interface):
+  handler = getHandler('logos')
+  if handler.create:
+    # add rpms to the included-packages control var, so that
+    # they are added to the comps.xml
+    interface.append_cvar('included-packages', [handler.rpmname])
+    
+    # add rpms to the excluded-packages control var, so that
+    # they are removed from the comps.xml
+    interface.append_cvar('excluded-packages', handler.obsoletes.split())
+  
+
+#-------- HANDLER DICTIONARY ---------#
+# dictionary of semi-permanent handlers so that I can keep one instance
+# around between two hook functions
+HANDLERS = {}
+def addHandler(handler, key): HANDLERS[key] = handler
+def getHandler(key): return HANDLERS[key]
+
+
 #--------------- FUNCTIONS ------------------#
 def getProvides(rpmPath):
-    """
-    Returns the list of items provided by the RPM specified by
-    rpmPath.
-    """
+    "Returns the list of items provided by the RPM specified by rpmPath."
     ts = rpm.TransactionSet()
     fd = os.open(rpmPath, os.O_RDONLY)
     h = ts.hdrFromFdno(fd)
@@ -142,32 +197,12 @@ def buildRpm(path, rpm_output, changelog=None, logger='rpmbuild',
     # already to wherever they need to be. 
     rm(join(path, 'dist'), recursive=True, force=True)
 
-#------ INTERFACES ------#
-class RpmsInterface(EventInterface, RpmsMixin, OutputEventMixin, LocalsMixin):
-  def __init__(self, base):
-    EventInterface.__init__(self, base)
-    RpmsMixin.__init__(self)
-    OutputEventMixin.__init__(self)
-    LocalsMixin.__init__(self, join(self.getMetadata(), '%s.pkgs' %(self.getBaseStore(),)),
-                         base.IMPORT_DIRS)
-
-  def append_cvar(self, flag, value):
-    if flag in self._base.mvars.keys():
-      if type(value) == list:
-        self._base.mvars[flag].extend(value)
-      else:
-        self._base.mvars[flag].append(value)
-    else:
-      if type(value) == list:
-        self._base.mvars[flag] = value
-      else:
-        self._base.mvars[flag] = [value]
         
 #---------- HANDLERS -------------#
 class RpmHandler(OutputEventHandler):
-  def __init__(self, interface, data, elementname='UNKNOWN',
-               rpmname='UNKNOWN', provides='UNKNOWN', provides_test='UNKNOWN',
-               obsoletes='UNKNOWN', description='UNKNOWN', long_description='UNKNOWN'):
+  def __init__(self, interface, data, elementname=None, rpmname=None,
+               provides=None, provides_test=None, obsoletes=None,
+               description=None, long_description=None):
     if len(data['output']) > 1:
       raise Exception, "only one item should be specified in data['output']"
         
@@ -180,13 +215,13 @@ class RpmHandler(OutputEventHandler):
     self.fullname = self.config.get('//main/fullname/text()')
     self.version = self.config.get('//main/version/text()')
 
-    self.elementname = elementname
-    self.rpmname = rpmname
-    self.provides = provides
-    self.provides_test = provides_test
-    self.obsoletes = self.config.get('//%s/obsoletes/text()' %(self.elementname,), None) or obsoletes
-    self.description = description
-    self.long_description = long_description
+    self.elementname = elementname or 'UNKNOWN'
+    self.rpmname = rpmname or 'UNKNOWN'
+    self.provides = provides or 'UNKNOWN'
+    self.provides_test = provides_test or 'UNKNOWN'
+    self.obsoletes = self.config.get('//%s/obsoletes/text()' %(self.elementname,), None) or obsoletes or 'UNKNOWN'
+    self.description = description or 'UNKNOWN'
+    self.long_description = long_description or 'UNKNOWN'
     self.author = 'dimsbuild'
     self.output_location = join(self.metadata, self.elementname)
 
@@ -286,7 +321,7 @@ class RpmHandler(OutputEventHandler):
       
     xmltree.Element('release', parent=create_package, text=new_release)            
     ad.write(autoconf)
-    self.log(2, "the %s RPM's release number is %s" %(self.elementname, new_release,))
+    self.log(1, "'%s' release number: %s" %(self.elementname, new_release,))
     return new_release
 
   def _get_data_files(self): raise NotImplementedError # HAS to be implemented by the child class
@@ -301,10 +336,13 @@ class ReleaseRpmHandler(RpmHandler, MorphStructMixin):
                         rpmname='%s-release' %(interface.product,),
                         provides_test='redhat-release',
                         provides='redhat-release',
-                        obsoletes = 'fedora-release redhat-release centos-release '\
-                        'redhat-release-notes fedora-release-notes centos-release-notes',
-                        description='The Release RPM',
-                        long_description='The Release RPM built by dimsbuild')
+                        obsoletes = 'fedora-release redhat-release '
+                                    'centos-release redhat-release-notes '
+                                    'fedora-release-notes '
+                                    'centos-release-notes',
+                        description='distribution release files',
+                        long_description='distribution release files; '
+                          'autogenerated by dimsbuild')
     
     if self.data.has_key('input'):
       self.expandInput(self.data)
@@ -343,10 +381,13 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
                         provides_test='redhat-logos',
                         provides='system-logos, redhat-logos = 4.9.3',
                         obsoletes = 'fedora-logos centos-logos redhat-logos',
-                        description="Icons and pictures related to %s" %(interface.config.get('//main/fullname/text()'),),
-                        long_description="The %s-logos package contains image files "\
-                        "which have been automatically created by dimsbuild and are specific "\
-                        "to the %s distribution." %(interface.product, interface.config.get('//main/fullname/text()'),))
+                        description='Icons and pictures related to %s' \
+                          %(interface.config.get('//main/fullname/text()'),),
+                        long_description='The %s-logos package contains '
+                          'image files which have been automatically created '
+                          'by dimsbuild and are specific to the %s '
+                          'distribution.' \
+                          %(interface.product, interface.config.get('//main/fullname/text()'),))
 
     if self.data.has_key('input'):
       self.expandInput(self.data)
@@ -398,7 +439,7 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
             # ones, so it is "fine" to make this assumption. 
             continue               
           if not self._verify_file(file, self.controlset[id]):
-            self.log(2, "file %s has invalid dimensions" %(file,))
+            self.log(4, "file '%s' has invalid dimensions" %(file,))
             return False
     return True
             
@@ -422,7 +463,7 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
           mkdir(dir, parent=True)
         if self.controlset[id]['width'] and self.controlset[id]['height']:
           if os.path.exists(shared_file):
-            self.log(2, "image %s exists in the share/" %(id,))
+            self.log(4, "image '%s' exists in the share/" %(id,))
             sync(shared_file, dir)
           else:
             width = self.controlset[id]['width']
@@ -430,7 +471,7 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
             textmaxwidth = self.controlset[id]['textmaxwidth']
             text_xcood = self.controlset[id]['texthcenter']
             text_ycood = self.controlset[id]['textvcenter']
-            self.log(2, "creating %s" %(id,))
+            self.log(4, "creating '%s'" %(id,))
             if textmaxwidth and text_xcood and text_ycood:
               self._generate_image(file_name, width, height,
                                    font_file=ttf_file,
@@ -447,14 +488,14 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
           # These files are found in the share/ folder. If they are not
           # found, they are skipped; this needs to change eventually.
           if os.path.exists(shared_file):
-            self.log(2, "file %s exists in share/" %(id,))
+            self.log(4, "file '%s' exists in share/" %(id,))
             sync(shared_file, dir)
           else: # required text file not there in shared/ folder, passing for now
             pass
       # hack to create the splash.xpm file, have to first convert
       # the grub-splash.png to an xpm and then gzip it.
       splash_xpm = join(self.output_location, 'bootloader', 'grub-splash.xpm')
-      splash_xgz = ''.join([splash_xpm, '.gz'])
+      splash_xgz = '%s.gz' % splash_xpm
       splash_png = join(self.output_location, 'bootloader', 'grub-splash.png')
       if not exists(splash_xgz):
         shlib.execute('convert %s %s' %(splash_png, splash_xpm,))
@@ -494,16 +535,16 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
         f.write('%s\n' %(id,))
     f.close()
     # convert items to a config-styled string
-    rtn = ""
+    rtn = ''
     for item in items.keys():
-      dir = "".join([item, ': '])
+      dir = ''.join([item, ': '])
       files = ', '.join(items[item])
       rtn = ''.join([rtn, dir, files, '\n\t'])
     return rtn
         
   def _generate_image(self, file_name, width, height, font_size=0, font_file=None, 
                       text_width=100, text=None, text_cood=(10,10), format='png'):
-    """
+    """ 
     Generate an image that is added to the logos RPM and the product.img.
 
     @param file_name  : the name of the file to be generated
@@ -538,8 +579,8 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
       color = self.config.get(xquery, fallback)
       if color.startswith('0x'):
         color = color[2:]
-      color = ''.join([(6-len(color))*'0', color])
-      return int(''.join(['0x', color[4:], color[2:4], color[:2]]), 16)
+      color = '%s%s' % ((6-len(color))*'0', color) # prepend zeros to color
+      return int('0x%s%s%s' % (color[4:], color[2:4], color[:2]), 16)
       
     im = Image.new('RGB', (width, height),
                    get_color('//%s/background-color/text()' %(self.elementname,), '0x285191'))
@@ -577,76 +618,42 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
         return False
     return True
 
-#------ HOOK FUNCTIONS ------#
-def prestores_hook(interface):
-  localrepo = join(interface.getMetadata(), 'localrepo/')
-  mkdir(localrepo)
-  interface.add_store(STORE_XML % localrepo)
 
-def postRPMS_hook(interface):
-  interface.createrepo()
-  #pkgs = find(interface.LOCAL_REPO, '*.[Rr][Pp][Mm]',
-  #            nregex='.*src.[Rr][Pp][Mm]',prefix=False)
-  pkgs = find(interface.LOCAL_REPO, '*.[Rr][Pp][Mm]', prefix=False)
-  pkgsfile = join(interface.getMetadata(), 'dimsbuild-local.pkgs')
-  if len(pkgs) > 0:
-    filereader.write(pkgs, pkgsfile)  
+STORE_XML = ''' 
+<store id="dimsbuild-local">
+  <path>file://%s</path>
+</store>
+'''
 
-def postrepogen_hook(interface):
-  cfgfile = interface.get_cvar('repoconfig')
-  if not cfgfile: return  
-  
-  lines = filereader.read(cfgfile)
-  
-  lines.append('[dimsbuild-local]')
-  lines.append('name = dimsbuild-local')
-  lines.append('baseurl = file://%s' % join(interface.getMetadata(), 'localrepo/'))
-  
-  filereader.write(lines, cfgfile)
+#-------------- METADATA STRUCTS ---------#
+RELEASE_MD_STRUCT = {
+    'config': [
+      '//main/fullname/text()',
+      '//main/version/text()',
+      '//release-package',    
+      '//stores/*/store/gpgkey/text()',
+      '//main/signing/publickey/text()',
+    ],
+    'input': [
+      '//release-package/create/yum-repo/path/text()',
+      '//stores/*/store/gpgkey/text()',
+      '//main/signing/publickey/text()',
+    ],
+    'output': [
+        'os/release-files/',
+    ],   
+    }
 
-def prerelease_hook(interface):
-  handler = ReleaseRpmHandler(interface, RELEASE_MD_STRUCT)
-  addHandler(handler, 'release')
-  interface.disableEvent('release')
-  if interface.pre(handler) or (interface.eventForceStatus('release') or False):
-    interface.enableEvent('release')
-        
-def release_hook(interface):
-  interface.log(0, "processing release")
-  handler = getHandler('release')
-  interface.modify(handler)
-
-def postrelease_hook(interface):
-  handler = getHandler('release')
-  if handler.create:
-    # add rpms to the included-packages control var, so that
-    # they are added to the comps.xml
-    interface.append_cvar('included-packages', [handler.rpmname])    
-    # add rpms to the excluded-packages control var, so that
-    # they are removed from the comps.xml
-    interface.append_cvar('excluded-packages', handler.obsoletes.split())
-    
-def prelogos_hook(interface):
-  handler = LogosRpmHandler(interface, LOGOS_MD_STRUCT)
-  addHandler(handler, 'logos')
-  interface.disableEvent('logos')
-  if interface.pre(handler) or (interface.eventForceStatus('logos') or False):
-    interface.enableEvent('logos')
-  osutils.mkdir(join(interface.getMetadata(), 'images-src/product.img'), parent=True)
-        
-def logos_hook(interface):
-  interface.log(0, "processing logos")
-  handler = getHandler('logos')
-  interface.modify(handler)
-
-def postlogos_hook(interface):
-  handler = getHandler('logos')
-  if handler.create:
-    # add rpms to the included-packages control var, so that
-    # they are added to the comps.xml
-    interface.append_cvar('included-packages', [handler.rpmname])
-    
-    # add rpms to the excluded-packages control var, so that
-    # they are removed from the comps.xml
-    interface.append_cvar('excluded-packages', handler.obsoletes.split())
-  
+LOGOS_MD_STRUCT = {
+    'config': [
+      '/distro/main/fullname/text()',
+      '/distro/main/version/text()',
+      '//logos-rpm',
+    ],
+    'input': [
+      '/logos-rpm/path/text()',
+    ],
+    'output': [
+      'builddata/logos/',
+    ]
+  }

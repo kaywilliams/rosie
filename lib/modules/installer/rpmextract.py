@@ -1,41 +1,44 @@
-from dims.imglib import CpioImage
-from dims.osutils import *
-from dims.sync import sync
-from event import EVENT_TYPE_META, EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from interface import EventInterface
-from main import BOOLEANS_TRUE
-from magic import FILE_TYPE_LSS
-from os.path import join, exists, isdir, isfile
-from output import OutputEventHandler, OutputEventMixin, tree
+import os
+import tempfile
+
+from os.path            import join, exists, isdir, isfile
 from rpmUtils.miscutils import rpm2cpio
 
 import dims.shlib as shlib
-import os
-import sys
-import tempfile
+
+from dims.imglib  import CpioImage
+from dims.osutils import *
+from dims.sync    import sync
+
+from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from interface import EventInterface
+from main      import BOOLEANS_TRUE
+from magic     import FILE_TYPE_LSS
+from output    import OutputEventHandler, OutputEventMixin, tree
 
 try:
   import Image
 except ImportError:
-  print "install the python-imaging rpm and try again."
-  sys.exit(1)
+  raise ImportError, "missing 'python-imaging' rpm"
 
 API_VERSION = 3.0
 
 EVENTS = [
   {
-  'id': 'installer_logos',
-  'interface': 'InstallerInterface',
-  'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-  'provides': ['installer-logos', 'splash.lss'],
-  'requires': ['software'],
+    'id': 'installer_logos',
+    'interface': 'InstallerInterface',
+    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
+    'provides': ['installer-logos', 'splash.lss'],
+    'requires': ['software'],
+    'parent': 'INSTALLER',
   },
   {
-  'id': 'installer_release_files',
-  'interface': 'InstallerInterface',
-  'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-  'provides': ['installer-release-files'],
-  'requires': ['software'],
+    'id': 'installer_release_files',
+    'interface': 'InstallerInterface',
+    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
+    'provides': ['installer-release-files'],
+    'requires': ['software'],
+    'parent': 'INSTALLER',
   },  
 ]
 
@@ -46,9 +49,10 @@ HANDLERS = {}
 def addHandler(handler, key): HANDLERS[key] = handler
 def getHandler(key): return HANDLERS[key]
 
+
 #-------- HELPER FUNCTIONS -----------#
 def extractRpm(rpmPath, output=os.getcwd()):
-  """
+  """ 
   Extract the contents of the RPM file specified by rpmPath to
   the output location. The rpmPath parameter can use globbing.
   
@@ -77,11 +81,39 @@ def extractRpm(rpmPath, output=os.getcwd()):
 
   rm(dir, recursive=True, force=True)
 
+
 #------------ INTERFACES --------------------#
 class InstallerInterface(EventInterface, OutputEventMixin):
   def __init__(self, base):
     EventInterface.__init__(self, base)
     OutputEventMixin.__init__(self)
+
+
+#------------- HOOK FUNCTIONS --------------#
+def preinstaller_logos_hook(interface):
+  handler = InstallerLogosHandler(interface)
+  addHandler(handler, 'installer_logos')
+  interface.disableEvent('installer_logos')
+  if interface.pre(handler) or (interface.eventForceStatus('installer_logos') or False):
+    interface.enableEvent('installer_logos')
+  
+def installer_logos_hook(interface):
+  interface.log(0, "processing installer logos")
+  handler = getHandler('installer_logos')
+  interface.modify(handler)
+
+def preinstaller_release_files_hook(interface):
+  handler = InstallerReleaseHandler(interface)
+  addHandler(handler, 'installer_release_files')
+  interface.disableEvent('installer_release_files')
+  if interface.pre(handler) or (interface.eventForceStatus('installer_release_files') or False):
+    interface.enableEvent('installer_release_files')
+
+def installer_release_files_hook(interface):
+  interface.log(0, "processing installer release files")  
+  handler = getHandler('installer_release_files')
+  interface.modify(handler)
+
 
 #------------ HANDLERS -----------------#
 class InstallerHandler(OutputEventHandler):
@@ -118,7 +150,7 @@ class InstallerHandler(OutputEventHandler):
     for rpm_name in self.data['input']:
       rpms = find(location=self.software_store, name='%s*[Rr][Pp][Mm]' %(rpm_name,))
       if len(rpms) == 0:
-        raise RpmNotFound, "the %s RPM was not found" %(rpm_name,)
+        raise RpmNotFoundError, "the %s RPM was not found" %(rpm_name,)
       extractRpm(rpms[0], self.working_dir)
 
   def addOutput(self):
@@ -129,6 +161,7 @@ class InstallerHandler(OutputEventHandler):
       rm(self.working_dir, recursive=True, force=True)
 
   def _generate(self): raise NotImplementedError
+
 
 class InstallerLogosHandler(InstallerHandler):
   def __init__(self, interface):
@@ -141,9 +174,7 @@ class InstallerLogosHandler(InstallerHandler):
     self.splash_lss= join(self.software_store, 'isolinux', 'splash.lss')    
 
   def _generate(self):
-    """
-    Create the splash.lss file and copy it to the isolinux/ folder
-    """
+    "Create the splash.lss file and copy it to the isolinux/ folder"
     output_dir = join(self.software_store, 'isolinux')
     if not exists(output_dir):
       mkdir(output_dir, parent=True)
@@ -157,7 +188,7 @@ class InstallerLogosHandler(InstallerHandler):
     else:
       splash_png = find(self.working_dir, 'syslinux-splash.png')
       if not splash_png:
-        raise SplashImageNotFound, "no syslinux-splash.png found in logos RPM"
+        raise SplashImageNotFoundError, "no syslinux-splash.png found in logos RPM"
       splash_ppm = join(self.working_dir, 'splash.ppm')
       splash_lss = join(output_dir, 'splash.lss')
       Image.open(splash_png[0]).save(splash_ppm)
@@ -168,7 +199,7 @@ class InstallerLogosHandler(InstallerHandler):
     return output
 
   def createPixmaps(self):
-    """
+    """ 
     Create the product.img folder that can be used by the
     product.img module.
     """
@@ -186,7 +217,8 @@ class InstallerLogosHandler(InstallerHandler):
     for folder in dirs_to_look:
       for image in tree(folder, prefix=True, type='f|l'):
         file_name = basename(image)
-        self.interface.log(2, "hardlinking %s to %s" %(file_name, product_img,))
+        # the following is too verbose for lvl 2
+        #self.interface.log(2, "hardlinking %s to %s" %(file_name, product_img,))
         pixmap = join(product_img, file_name)
         sync(image, product_img)
         pixmaps.append(pixmap)
@@ -194,6 +226,7 @@ class InstallerLogosHandler(InstallerHandler):
   
   def testOutputValid(self):
     return self.interface.verifyType(self.splash_lss, FILE_TYPE_LSS)
+
 
 class InstallerReleaseHandler(InstallerHandler):
   def __init__(self, interface):
@@ -228,30 +261,5 @@ class InstallerReleaseHandler(InstallerHandler):
     return rtn
 
 #------------- EXCEPTIONS/ERRORS ------------#
-class RpmNotFound(Exception): pass
-class SplashImageNotFound(StandardError): pass
-
-#------------- HOOK FUNCTIONS --------------#
-def preinstaller_logos_hook(interface):
-  handler = InstallerLogosHandler(interface)
-  addHandler(handler, 'installer_logos')
-  interface.disableEvent('installer_logos')
-  if interface.pre(handler) or (interface.eventForceStatus('installer_logos') or False):
-    interface.enableEvent('installer_logos')
-  
-def installer_logos_hook(interface):
-  interface.log(0, "processing installer logos")
-  handler = getHandler('installer_logos')
-  interface.modify(handler)
-
-def preinstaller_release_files_hook(interface):
-  handler = InstallerReleaseHandler(interface)
-  addHandler(handler, 'installer_release_files')
-  interface.disableEvent('installer_release_files')
-  if interface.pre(handler) or (interface.eventForceStatus('installer_release_files') or False):
-    interface.enableEvent('installer_release_files')
-
-def installer_release_files_hook(interface):
-  interface.log(0, "processing installer release files")  
-  handler = getHandler('installer_release_files')
-  interface.modify(handler)
+class RpmNotFoundError(Exception): pass
+class SplashImageNotFoundError(StandardError): pass
