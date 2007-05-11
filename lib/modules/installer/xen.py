@@ -18,6 +18,20 @@ EVENTS = [
   },
 ]
 
+HANDLERS = {}
+def addHandler(handler, key): HANDLERS[key] = handler
+def getHandler(key): return HANDLERS[key]
+
+def prexen_hook(interface):
+  handler = ImageModifier('initrd.img', interface, INITRD_MD_STRUCT, L_IMAGES,
+                          mdfile=join(interface.getMetadata(), 'initrd.img-xen.md'))
+  addHandler(handler, 'initrd.img-xen')
+  
+  interface.disableEvent('xen')
+  if interface.eventForceStatus('xen') or False:
+    interface.enableEvent('xen')
+  elif interface.pre(handler):
+    interface.enableEvent('xen')
 
 def xen_hook(interface):
   interface.log(0, "preparing xen images")
@@ -31,18 +45,17 @@ def xen_hook(interface):
   dl.download(d,i)
   
   # modify initrd.img
-  handler = ImageModifier('initrd.img', interface, INITRD_MD_STRUCT, L_IMAGES)
-  if interface.pre(handler):
-    interface.modify(handler)
+  handler = getHandler('initrd.img-xen')
+  interface.modify(handler)
 
 
 INITRD_MD_STRUCT = {
   'config':    ['/distro/main/product/text()',
                 '/distro/main/version/text()',
                 '/distro/main/fullname/text()',
-                '/distro/main/initrd-src/text()'],
+                '/distro/installer/initrd.img/path/text()'],
   'variables': ['anaconda_version'],
-  'input':     ['/distro/main/initrd-src/text()'],
+  'input':     ['/distro/installer/initrd.img/path/text()'],
 }
 
 L_FILES = ''' 

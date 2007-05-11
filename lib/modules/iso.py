@@ -37,7 +37,7 @@ EVENTS = [
     'provides': ['iso'],
     'parent': 'ALL',
     'interface': 'IsoInterface',
-    'properties': EVENT_TYPE_MDLR,
+    'properties': EVENT_TYPE_MDLR|EVENT_TYPE_PROC,
   },
 ]
 
@@ -120,9 +120,14 @@ def manifest_changed(manifest, old_manifest_file):
   else:
     return True
 
+def preiso_hook(interface):
+  interface.disableEvent('iso')
+  if interface.eventForceStatus('iso') or False:
+    interface.enableEvent('iso')
+  elif interface.get_cvar('do-iso'):
+    interface.enableEvent('iso')
+
 def iso_hook(interface):
-  if not interface.get_cvar('do-iso') and not interface.eventForceStatus('iso'):
-    return
   interface.log(0, 'generating iso image(s)')
 
   handler = IsoHandler(interface)

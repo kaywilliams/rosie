@@ -27,7 +27,22 @@ EVENTS = [
   },
 ]
 
+HANDLERS = {}
+def addHandler(handler, key): HANDLERS[key] = handler
+def getHandler(key): return HANDLERS[key]
+
 #------ HOOK FUNCTIONS ------#
+def preisolinux_hook(interface):
+  handler = ImageModifier('initrd.img', interface, INITRD_MD_STRUCT, L_IMAGES)
+  addHandler(handler, 'initrd.img')
+  
+  interface.disableEvent('isolinux')
+  if interface.eventForceStatus('isolinux') or False:
+    interface.enableEvent('isolinux')
+  elif interface.pre(handler):
+    interface.enableEvent('isolinux')
+  
+
 def isolinux_hook(interface):
   interface.log(0, "synchronizing isolinux files")
   i,_,_,d,_,_ = interface.getStoreInfo(interface.getBaseStore())
@@ -40,9 +55,18 @@ def isolinux_hook(interface):
   dl.download(d,i)
   
   # modify initrd.img
-  handler = ImageModifier('initrd.img', interface, INITRD_MD_STRUCT, L_IMAGES)
-  if interface.pre(handler):
-    interface.modify(handler)
+  handler = getHandler('initrd.img')
+  interface.modify(handler)
+  
+  interface.set_cvar('isolinux-changed', True)
+
+def prebootiso_hook(interface):
+  interface.disableEvent('bootiso')
+  
+  if interface.eventForceStatus('bootiso') or False:
+    interface.enableEvent('bootiso')
+  elif interface.get_cvar('isolinux-changed'):
+    interface.enableEvent('bootiso')
 
 def bootiso_hook(interface):
   interface.log(0, "generating boot.iso")
@@ -64,9 +88,9 @@ INITRD_MD_STRUCT = {
   'config':    ['/distro/main/product/text()',
                 '/distro/main/version/text()',
                 '/distro/main/fullname/text()',
-                '/distro/main/initrd-src/text()'],
+                '/distro/installer/product.img/path/text()'],
   'variables': ['anaconda_version'],
-  'input':     ['/distro/main/initrd-src/text()'],
+  'input':     ['/distro/installer/product.img/path/text()'],
 }
 
 L_FILES = ''' 

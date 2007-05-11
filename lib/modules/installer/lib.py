@@ -48,7 +48,7 @@ class ImageHandler:
     image  = self.locals.iget('//images/image[@id="%s"]' % self.name)
     path   = self._getpath()
     format = image.iget('format/text()')
-    zipped = image.iget('zipped/text()', 'False')
+    zipped = image.iget('zipped/text()', 'False') in BOOLEANS_TRUE
     
     if image.attrib.get('virtual', 'False') in BOOLEANS_TRUE:
       if exists(path): osutils.rm(path) # delete old image
@@ -99,6 +99,10 @@ class ImageHandler:
     IMAGE = self.locals.iget('//images/image[@id="%s"]' % self.name)
     return IMAGE.iget('zipped/text()', 'False') in BOOLEANS_TRUE
   
+  def _isvirtual(self):
+    IMAGE = self.locals.iget('//images/image[@id="%s"]' % self.name)
+    return IMAGE.iget('@virtual', 'True') in BOOLEANS_TRUE
+  
   def validate_image(self):
     p = self._getpath()
     if not exists(p):
@@ -112,7 +116,7 @@ class ImageHandler:
 
 
 class ImageModifier(OutputEventHandler, ImageHandler, MorphStructMixin):
-  def __init__(self, name, interface, data, locals):
+  def __init__(self, name, interface, data, locals, mdfile=None):
     locals = locals_imerge(locals, interface.anaconda_version)
 
     i,s,n,d,u,p = interface.getStoreInfo(interface.getBaseStore())
@@ -125,7 +129,10 @@ class ImageModifier(OutputEventHandler, ImageHandler, MorphStructMixin):
     self.username = u
     self.password = p
     self.dest = join(interface.getSoftwareStore(), image_path, name)
-    self.mdfile = join(interface.getMetadata(), '%s.md' % name)
+    if mdfile is None:
+      self.mdfile = join(interface.getMetadata(), '%s.md' % name)
+    else:
+      self.mdfile = mdfile
     
     self.l_image = locals.iget('//images/image[@id="%s"]' % name)
     
@@ -150,8 +157,14 @@ class ImageModifier(OutputEventHandler, ImageHandler, MorphStructMixin):
   
   def getInput(self):
     osutils.mkdir(osutils.dirname(self.isrc), parent=True)
-    sync.sync(self.rsrc, osutils.dirname(self.isrc),
-              username=self.username, password=self.password) # cachemanager this
+    # try to get the image from the input store - if its not there and image is
+    # virtual, that's ok; otherwise, raise
+    try:
+      sync.sync(self.rsrc, osutils.dirname(self.isrc),
+                username=self.username, password=self.password) # cachemanager this
+    except sync.util.SyncError, e:
+      if self._isvirtual(): pass
+      else: raise e
   
   def testInputValid(self):
     return True # tested in addOutput
@@ -159,7 +172,11 @@ class ImageModifier(OutputEventHandler, ImageHandler, MorphStructMixin):
   def addOutput(self):
     self.interface.log(1, "modifying %s" % self.name)
     osutils.mkdir(osutils.dirname(self.dest), parent=True)
-    sync.sync(self.isrc, osutils.dirname(self.dest))
+    try:
+      sync.sync(self.isrc, osutils.dirname(self.dest))
+    except sync.util.SyncError, e:
+      if self._isvirtual(): pass
+      else: raise e
     self.open() # testInputValid()
     self.generate()
     self.close()
