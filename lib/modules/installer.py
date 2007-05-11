@@ -6,7 +6,7 @@ from interface import EventInterface
 from main import BOOLEANS_TRUE
 from magic import FILE_TYPE_LSS
 from os.path import join, exists, isdir, isfile
-from output import OutputEventHandler, OutputEventMixin
+from output import OutputEventHandler, OutputEventMixin, tree
 from rpmUtils.miscutils import rpm2cpio
 
 import dims.shlib as shlib
@@ -163,7 +163,34 @@ class InstallerLogosHandler(InstallerHandler):
       Image.open(splash_png[0]).save(splash_ppm)
       shlib.execute('ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 < %s > %s'
                     %(splash_ppm, splash_lss,))
-    return [self.splash_lss]
+    pixmaps = self.createPixmaps()
+    output = pixmaps + [self.splash_lss]
+    return output
+
+  def createPixmaps(self):
+    """
+    Create the product.img folder that can be used by the
+    product.img module.
+    """
+    # delete the pixmaps folder in the images-src/product.img/ folder
+    # and link the images from the RPM folder to the pixmaps folder.
+    product_img = join(self.interface.getMetadata(), 'images-src', 'product.img', 'pixmaps')
+    mkdir(product_img, parent=True)
+
+    dirs_to_look = []
+    for dir in ['pixmaps']:      
+      dirs_to_look += find(location=self.working_dir, name=dir, type=TYPE_DIR, regex='.*anaconda.*')
+
+    # generate the list of files to use and copy them to the product.img folder
+    pixmaps = []    
+    for folder in dirs_to_look:
+      for image in tree(folder, prefix=True, type='f|l'):
+        file_name = basename(image)
+        self.interface.log(2, "hardlinking %s to %s" %(file_name, product_img,))
+        pixmap = join(product_img, file_name)
+        sync(image, product_img)
+        pixmaps.append(pixmap)
+    return pixmaps
   
   def testOutputValid(self):
     return self.interface.verifyType(self.splash_lss, FILE_TYPE_LSS)

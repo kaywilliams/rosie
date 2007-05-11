@@ -199,7 +199,7 @@ class RpmHandler(OutputEventHandler):
                                 mddir=self.output_location)
     
   def _set_method(self):
-    if self.config.get('//%s/create/text()' %(self.elementname,), 'False') in BOOLEANS_TRUE:
+    if self.config.get('//%s/create/text()' %(self.elementname,), 'True') in BOOLEANS_TRUE:
       self.create = True
     else:
       self.create = False
@@ -465,49 +465,7 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
         outfile = gzip.GzipFile(splash_xgz, 'wb')
         outfile.write(data)
         outfile.close()
-      RpmHandler.addOutput(self)    
-    # create the builddata/images-src/product.img folder all the time,
-    # even if the user provided the RPM. 
-    self.createPixmaps()
-
-  def createPixmaps(self):
-    """
-    Create the product.img folder that can be used by the
-    product.img module.
-    """
-    # delete the pixmaps folder in the images-src/product.img/ folder
-    # and re-link the images from the logos/ folder to the pixmaps folder.
-    product_img = join(self.metadata, 'images-src', 'product.img', 'pixmaps')
-    if exists(product_img):
-      rm(product_img, recursive=True, force=True)
-    mkdir(product_img, parent=True)
-    product_images = []
-    # copy the logos from the anaconda folder and pixmaps folder
-    # to builddata/logos/product.img
-    # look at builddata/logos/anaconda for files to put in product.img
-    dirs_to_look = [join(self.output_location, 'anaconda')]
-      
-    # generate the list of files to use
-    for folder in dirs_to_look:
-      product_images.extend(tree(folder, prefix=True, type='f|l'))
-
-    # look at the config files for other files to put in the product.img
-    if self.config.get('//%s/include-in-product-img/@use-default-set' %(self.elementname,),
-                       'False') in BOOLEANS_TRUE:
-      files = self.config.mget('//%s/include-in-product-img/file/text()' %(self.elementname,), [])
-      folders = self.config.mget('//%s/include-in-product-img/folder/text()' %(self.elementname,),
-                                 [])
-      product_images.extend(files)                
-      for folder in folders:
-        product_images.extend(tree(folder, prefix=True, type='f|l'))
-          
-    # now copy the files from the user-specified locations to this folder.
-    # If the file already exists, it is removed and the user-specified one
-    # is used.
-    for image in product_images:
-      file_name = basename(image)      
-      self.log(2, "hardlinking %s to %s" %(file_name, product_img,))
-      os.link(image, join(product_img, file_name))                    
+      RpmHandler.addOutput(self)
         
   def _get_data_files(self):
     manifest = join(self.output_location, 'MANIFEST')
@@ -660,14 +618,14 @@ def release_hook(interface):
 
 def postrelease_hook(interface):
   handler = getHandler('release')
-  # add rpms to the included-packages control var, so that
-  # they are added to the comps.xml
-  interface.append_cvar('included-packages', [handler.rpmname])
-  
-  # add rpms to the excluded-packages control var, so that
-  # they are removed from the comps.xml
-  interface.append_cvar('excluded-packages', handler.obsoletes.split())
-
+  if handler.create:
+    # add rpms to the included-packages control var, so that
+    # they are added to the comps.xml
+    interface.append_cvar('included-packages', [handler.rpmname])    
+    # add rpms to the excluded-packages control var, so that
+    # they are removed from the comps.xml
+    interface.append_cvar('excluded-packages', handler.obsoletes.split())
+    
 def prelogos_hook(interface):
   handler = LogosRpmHandler(interface, LOGOS_MD_STRUCT)
   addHandler(handler, 'logos')
@@ -683,11 +641,12 @@ def logos_hook(interface):
 
 def postlogos_hook(interface):
   handler = getHandler('logos')
-  # add rpms to the included-packages control var, so that
-  # they are added to the comps.xml
-  interface.append_cvar('included-packages', [handler.rpmname])
-  
-  # add rpms to the excluded-packages control var, so that
-  # they are removed from the comps.xml
-  interface.append_cvar('excluded-packages', handler.obsoletes.split())
+  if handler.create:
+    # add rpms to the included-packages control var, so that
+    # they are added to the comps.xml
+    interface.append_cvar('included-packages', [handler.rpmname])
+    
+    # add rpms to the excluded-packages control var, so that
+    # they are removed from the comps.xml
+    interface.append_cvar('excluded-packages', handler.obsoletes.split())
   

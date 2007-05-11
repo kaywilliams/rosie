@@ -29,7 +29,7 @@ EVENTS = [
   {
     'id': 'IMAGES',
     'provides': ['IMAGES'],
-    'requires': ['.discinfo', 'comps.xml', 'software'],
+    'requires': ['.discinfo', 'comps.xml', 'software', 'installer-logos'],
     'properties': EVENT_TYPE_META,
   },
   {
