@@ -32,9 +32,8 @@ def preproduct_hook(interface):
     interface.enableEvent('product')
 
 def product_hook(interface):
-  interface.log(0, "generating product.img")
-  
-  handler = getHandler('product')
+  interface.log(0, "generating product.img")  
+  handler = getHandler('product.img')
   interface.modify(handler)
 
 
