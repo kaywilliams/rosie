@@ -6,7 +6,7 @@ from lib          import RpmsInterface
 from os.path      import exists, join
 
 from release import EVENTS as release_EVENTS, prerelease_hook, release_hook, postrelease_hook
-from rpms    import EVENTS as logos_EVENTS, prelogos_hook, logos_hook, postlogos_hook
+from logos   import EVENTS as logos_EVENTS, prelogos_hook, logos_hook, postlogos_hook
 
 API_VERSION = 3.0
 
