@@ -95,6 +95,7 @@ class RpmHandler(OutputEventHandler):
     self.rpm_output = join(self.metadata, 'localrepo/')
 
     self.fullname = self.config.get('//main/fullname/text()')
+    self.product = self.config.get('//main/product/text()')
     self.version = self.config.get('//main/version/text()')
 
     self.elementname = elementname
@@ -154,9 +155,12 @@ class RpmHandler(OutputEventHandler):
 
   def addOutput(self):
     if self.create:
+      self._generate()
       self._setup()
       buildRpm(self.output_location, self.rpm_output)
-      
+
+  def _generate(self): pass
+  
   def _setup(self):
     setup_cfg = join(self.output_location, 'setup.cfg')
     if exists(setup_cfg):

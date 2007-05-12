@@ -1,3 +1,5 @@
+import dims.filereader as filereader
+
 from dims.osutils import basename, dirname, mkdir
 from event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from interface import EventInterface, LocalsMixin
@@ -88,8 +90,16 @@ class ReleaseRpmHandler(RpmHandler, MorphStructMixin):
     
     if not exists(self.software_store):
       mkdir(self.software_store, parent=True)    
-    
+
+  def _generate(self):
+    # generate the .repo files if required
+    pass
+
   def _get_data_files(self):
+    # create the files that are installed in the /etc/ folder
+    # and add the data_files entry for it, all the other
+    # files are installed at /usr/share/release-notes.
+    etc_files = self._create_etc_files()
     manifest = join(self.output_location, 'MANIFEST')
     f = open(manifest, 'w')
     f.write('setup.py\n')
@@ -98,8 +108,27 @@ class ReleaseRpmHandler(RpmHandler, MorphStructMixin):
     for file in files:
       f.write('%s\n' %(file,))
     f.close()
-    config_option = '/usr/share/%s-release-notes-%s :'
-    value = ', '.join(files)
-    return ''.join([config_option, value])
+    config_option = '/usr/share/%s-release-notes-%s :' %(self.product, self.version,)
+    rnotes_files = filter(lambda x: x not in etc_files and x != 'MANIFEST', files)
+    rtn = ''
+    if rnotes_files:
+      value = ', '.join(rnotes_files)      
+      rtn = ''.join([rtn, config_option, value, '\n\t'])
+    if etc_files:
+      rtn = ''.join([rtn, '/etc : ', ', '.join(etc_files)])
+    return rtn
 
+  def _create_etc_files(self):
+    release_string = ['%s %s' %(self.fullname, self.version,)]
+    issue_string = ['Kernel \\r on an \\m\n']
+
+    # write the product-release and redhat-release files
+    filereader.write(release_string, join(self.output_location, 'redhat-release'))
+    filereader.write(release_string, join(self.output_location, '%s-release' %(self.product,)))
+    
+    # write the issue and issue.net files
+    filereader.write(release_string+issue_string, join(self.output_location, 'issue'))    
+    filereader.write(release_string+issue_string, join(self.output_location, 'issue.net'))
+    
+    return ['redhat-release', '%s-release' %(self.product,), 'issue', 'issue.net']
     
