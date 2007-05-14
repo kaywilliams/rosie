@@ -216,8 +216,7 @@ class InstallerLogosHandler(InstallerHandler):
     for folder in dirs_to_look:
       for image in tree(folder, prefix=True, type='f|l'):
         file_name = basename(image)
-        # the following is too verbose for lvl 2
-        #self.interface.log(2, "hardlinking %s to %s" %(file_name, product_img,))
+        self.interface.log(3, "hardlinking %s to %s" %(file_name, product_img,))
         pixmap = join(product_img, file_name)
         sync(image, product_img)
         pixmaps.append(pixmap)
@@ -239,11 +238,11 @@ class InstallerReleaseHandler(InstallerHandler):
   def _generate(self):
     files = {}
     rtn = []    
-    for path in self.config.mget('//installer/release-package/path'):
+    for path in self.config.mget('//installer/release-files/path'):
       source = path.text
       dest = join(self.software_store, path.attrib['dest'])
       files[source] = dest
-    if self.config.get('//release-package/include-in-tree/@use-default-set', 'True') in BOOLEANS_TRUE:
+    if self.config.get('//release-files/include-in-tree/@use-default-set', 'True') in BOOLEANS_TRUE:
       for default_item in ['eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README', '*RPM-GPG',
                            'RPM-GPG-KEY', 'RPM-GPG-KEY-beta', 'README-BURNING-ISOS-en_US.txt',
                            'RELEASE-NOTES-en-US.html', 'stylesheet-images']:
