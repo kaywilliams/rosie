@@ -101,6 +101,7 @@ def manifest_hook(interface):
     for line in manifest:
       mwriter.writerow(line)
     mf.close()
+    
 
 def __gen_manifest_line(file):
   fstat = os.stat(file)

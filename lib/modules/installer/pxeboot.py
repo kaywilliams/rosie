@@ -1,4 +1,4 @@
-from os.path import join, exists
+from os.path import join, exists, islink
 
 import os
 
@@ -33,8 +33,14 @@ def pxeboot_hook(interface):
   
   for file in ['vmlinuz', 'initrd.img']:
     dest = join(pxeboot_dir, file)
-    osutils.rm(dest, force=True)
-    os.symlink(join('../../isolinux', file), join(pxeboot_dir, file))
+    target = join('../../isolinux', file)
+    if islink(dest):
+      if os.readlink(dest) != target:
+        osutils.rm(dest, force=True)
+    else:
+      osutils.rm(dest, force=True)
+    if not exists(dest):
+      os.symlink(target, dest)
 
 
 INITRD_MD_STRUCT = {
