@@ -304,7 +304,6 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
       self.expandOutput(self.data, dirname(self.metadata)) # the 'output' element has entries
                                                            # relative to dirname(self.metadata)
 
-    self.share_path = self.interface._base.sharepath
     self.locals = locals_imerge(L_LOGOS)
     self.build_controlset()
     

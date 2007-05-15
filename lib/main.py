@@ -126,10 +126,9 @@ class Build:
     self.SOFTWARE_STORE = join(self.CACHE, distro_prefix, 'os')
     self.METADATA = join(self.CACHE, distro_prefix, 'builddata')
 
-    try:
-      self.PUBLISH_DIR = self.config.get('//main/publishpath/text()')
-    except XmlPathError:
-      self.PUBLISH_DIR = '/var/www/html/open_software/%s/' % self.base_vars['product']
+    self.PUBLISH_DIR = '/'.join([self.config.get('//main/webroot/text()', '/var/www/html'),
+                                 self.config.get('//main/publishpath/text()', 'open_software'),
+                                 self.base_vars['product']])
     
     self.cachemanager = CacheManager(self.__compute_servers(),
                                      self.INPUT_STORE,

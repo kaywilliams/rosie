@@ -1,5 +1,8 @@
+import fcntl
 import os
 import rpm
+import socket
+import struct
 
 import dims.mkrpm as mkrpm
 import dims.shlib as shlib
@@ -31,9 +34,15 @@ def getProvides(rpmPath):
   os.close(fd)
   return provides    
 
+def getIpAddress(ifname='eth0'):
+  s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+  return socket.inet_ntoa(fcntl.ioctl(s.fileno(),
+                                      0x8915, # SIOCGIFADDR
+                                      struct.pack('256s', ifname[:15]))[20:24])
+                                      
 def buildRpm(path, rpm_output, changelog=None, logger='rpmbuild',
              functionName='main', keepTemp=True, createrepo=False,
-             quiet=True):
+             quiet=False):
   # keepTemp should be True if path points to a location inside
   # the builddata/ folder, because if keepTemp is False, path
   # is going to get deleted once the rpm build process is complete.
@@ -97,6 +106,7 @@ class RpmHandler(OutputEventHandler):
     self.fullname = self.config.get('//main/fullname/text()')
     self.product = self.config.get('//main/product/text()')
     self.version = self.config.get('//main/version/text()')
+    self.arch = self.config.get('//main/arch/text()', 'i686')
 
     self.elementname = elementname
     self.rpmname = rpmname
@@ -114,7 +124,8 @@ class RpmHandler(OutputEventHandler):
     self.long_description = long_description
     self.author = 'dimsbuild'
     self.output_location = join(self.metadata, self.elementname)
-
+    self.share_path = self.interface._base.sharepath
+    
     self.log = self.interface.log
          
     self._set_method()
@@ -155,13 +166,13 @@ class RpmHandler(OutputEventHandler):
 
   def addOutput(self):
     if self.create:
-      self._generate()
-      self._setup()
+      self.generate()
+      self.setup()
       buildRpm(self.output_location, self.rpm_output)
 
-  def _generate(self): pass
+  def generate(self): pass
   
-  def _setup(self):
+  def setup(self):
     setup_cfg = join(self.output_location, 'setup.cfg')
     if exists(setup_cfg):
       return
@@ -218,5 +229,4 @@ class RpmHandler(OutputEventHandler):
     return new_release
 
   def _get_data_files(self): raise NotImplementedError # HAS to be implemented by the child class
-
 
