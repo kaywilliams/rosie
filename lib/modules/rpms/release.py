@@ -11,7 +11,7 @@ from interface import EventInterface, LocalsMixin
 from lib import RpmHandler, RpmsInterface, addHandler, getHandler, getIpAddress
 from main import BOOLEANS_TRUE
 from os.path import exists, join
-from output import MorphStructMixin, tree
+from output import tree
 
 EVENTS = [
   {
@@ -23,31 +23,9 @@ EVENTS = [
   },    
 ]
 
-#-------------- METADATA STRUCTS ---------#
-RELEASE_MD_STRUCT = {
-  'config': [
-    '//main/fullname/text()',
-    '//main/version/text()',
-    '//release-rpm',    
-    '//stores/*/store/gpgkey/text()',
-    '//main/signing/publickey/text()',
-  ],
-  'input': [
-    '//release-rpm/yum-repos/path/text()',
-    '//release-rpm/eula/path/text()',
-    '//release-rpm/release-notes/path/text()',
-    '//release-rpm/release-files/path/text()',
-    '//stores/*/store/gpgkey/text()',
-    '//rpms/gpgkey/public/text()',
-  ],
-  'output': [
-    'builddata/release-rpm',
-  ],   
-}
-
 #------ HOOK FUNCTIONS ------#
 def prerelease_hook(interface):
-  handler = ReleaseRpmHandler(interface, RELEASE_MD_STRUCT)
+  handler = ReleaseRpmHandler(interface)
   addHandler(handler, 'release')
   interface.disableEvent('release')
   if interface.pre(handler) or (interface.eventForceStatus('release') or False):
@@ -69,10 +47,30 @@ def postrelease_hook(interface):
     interface.append_cvar('excluded-packages', handler.obsoletes.split())
 
 #---------- HANDLERS -------------#
-class ReleaseRpmHandler(RpmHandler, MorphStructMixin):
-  def __init__(self, interface, data):
+class ReleaseRpmHandler(RpmHandler):
+  def __init__(self, interface):
     # expand the xpath queries in the data struct
-    MorphStructMixin.__init__(self, interface.config)
+    data = {
+      'config': [
+        '//main/fullname/text()',
+        '//main/version/text()',
+        '//release-rpm',    
+        '//stores/*/store/gpgkey/text()',
+        '//main/signing/publickey/text()',
+      ],
+      'input': [
+        interface.config.mget('//release-rpm/yum-repos/path/text()', []),
+        interface.config.mget('//release-rpm/eula/path/text()', []),
+        interface.config.mget('//release-rpm/release-notes/path/text()', []),
+        interface.config.mget('//release-rpm/release-files/path/text()', []),
+        interface.config.mget('//stores/*/store/gpgkey/text()', []),
+        interface.config.mget('//rpms/gpgkey/public/text()', []),
+      ],
+      'output': [
+        join(interface.getMetadata(), 'release-rpm'),
+      ],
+    }
+
     RpmHandler.__init__(self, interface, data,
                         elementname='release-rpm',
                         rpmname='%s-release' %(interface.product,),
@@ -84,12 +82,6 @@ class ReleaseRpmHandler(RpmHandler, MorphStructMixin):
                                     'centos-release-notes',
                         description='%s release files' %(interface.fullname,),
                         long_description='%s release files created by dimsbuild' %(interface.fullname,))
-    
-    if self.data.has_key('input'):
-      self.expandInput(self.data)
-    if self.data.has_key('output'):      
-      self.expandOutput(self.data, dirname(self.metadata)) # the 'output' element has entries
-                                                           # relative to dirname(metadata)
     
     self.prefix = dirname(self.software_store) # prefix to the directories in data['output']    
     if not exists(self.software_store):

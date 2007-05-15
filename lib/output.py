@@ -153,50 +153,6 @@ class OutputEventMixin:
   def verifyType(self, file, type):
     return magic.match(file) == type
 
-class MorphStructMixin:
-  """
-  Expands the 'input' tag's xpath query and replaces the value of the
-  'input' tag with the list of files and folders the xpath expands
-  to. Can be extended to change other elements of the struct too.  
-  """
-  
-  def __init__(self, config):
-    """
-    self.config : the Config object to use to read the data
-    """
-    self.config = config
-    
-  def expandInput(self, data, fallback=[]):
-    """    
-    Morph the input element of the data struct so that the
-    data['input'] element's value, which is a xpath query, is replaced
-    with a list of files and folder paths it expands to. Look at
-    _expand_xquery() for details.
-    """
-    if type(data['input']) == str:
-      data['input'] = [data['input']]
-
-    paths = []
-    for xquery in data['input']:
-      paths.extend(self.config.mget(xquery))
-    if not paths and fallback:
-      if type(fallback) == str:
-        paths = [fallback]
-      else:
-        paths = fallback
-    data['input'] = paths
-
-  def expandOutput(self, data, prefix):
-    """
-    Add the prefix specified by the prefix paramater to each of the
-    directories/files specified in data['output']. After this method
-    call, data['output'] will have a list of files.
-    """
-    if type(data['output']) == str:
-      data['output'] = [data['output']]
-
-    data['output'] = map(lambda x: join(prefix, x), data['output'])
-
 #---------- CLASSES ----------#
 class OutputEventHandler(OutputEventTemplate):
   """ 
@@ -220,19 +176,27 @@ class OutputEventHandler(OutputEventTemplate):
   def __init__(self, config, data, file, mdfile=None, mddir=None):
     """ 
     Initialize the OutputEventHandler
-     * self.file    : the file to be modified (the destination, not the source)
-     * self.mdfile  : the metadata file in which modification metadata is stored
-     * self.mddir   : dirname(self.mdfile) if not specified. If not None, it should
-                      be the file that contains the output files' location. For example,
-                      the LogosHandler sets mddir to be builddata/logos. 
-     * self.config  : the configuration file from which to read config values
-     * self.data    : a data structure representing the output object
-    """
+    
+     * self.file    : the file to be modified (the destination, not the
+                      source)     
+     * self.mdfile  : the metadata file in which modification metadata
+                      is stored     
+     * self.mddir   : dirname(self.mdfile) if not specified. If not
+                      None, it should be the file that contains the
+                      output files' location. For example, the
+                      LogosHandler sets mddir to be builddata/logos.                      
+     * self.config  : the configuration file from which to read config
+                      values     
+     * self.data    : a data structure representing the output
+                      object. Currently, four keys are supported:
+                      'config' -- a list of xpath queries to elements
+                      of the config file, 'variables' -- a list of
+                      variables of the object, 'input' -- a list of
+                      strings or lists to the input files, and 'output' --
+                      a list of strings or lists to the output files/directories.
+    """    
     self.file = file
-    if mdfile is not None:
-      self.mdfile = mdfile
-    else:
-      self.mdfile = join(osutils.dirname(file), '%s.md' % osutils.basename(file))    
+    self.mdfile = mdfile or join(osutils.dirname(file), '%s.md' % osutils.basename(file))
     self.mddir = mddir or osutils.dirname(self.mdfile)
     self.config = config
     
@@ -303,12 +267,15 @@ class OutputEventHandler(OutputEventTemplate):
       object = getattr(self, key)
       if self.data.has_key(key):
         for item in self.data[key]:
-          sources = metadata.get('/metadata/%s/file' %(key,), fallback=[])
-          for source in sources:
-            file = source.attrib['path']
-            object[file] = {}
-            object[file]['size'] = int(source.iget('size').text)
-            object[file]['mtime'] = int(source.iget('lastModified').text)
+          if type(item) == str:
+            item = [item]
+          for path in item:            
+            for file in tree(path, type='f|l'):            
+              source = metadata.iget('/metadata/%s/file[@path="%s"]' %(key, file,), None)
+              if source:
+                object[file] = {}
+                object[file]['size'] = int(source.iget('size').text)
+                object[file]['mtime'] = int(source.iget('lastModified').text)
     self.mdvalid = True # md readin was successful
   
   def write_metadata(self):
@@ -370,18 +337,21 @@ class OutputEventHandler(OutputEventTemplate):
           try: root.remove(root.get('/metadata/%s' %(key,), [])[0])
           except IndexError: pass          
           parent_node = xmltree.Element(key, parent=root)
-          for path in self.data[key]:
-            #print "DEBUG: path is %s" %(path,)
-            if isfile(path):
-              items = [path]
-            else:
-              items = tree(path, type='f|l')
-            for file in items:
-              file_element = xmltree.Element('file', parent=parent_node, text=None,
-                                             attrs={'path': file})
-              stat = os.stat(file)
-              size = xmltree.Element('size', parent=file_element, text=str(stat.st_size))
-              mtime = xmltree.Element('lastModified', parent=file_element, text=str(stat.st_mtime))
+          for item in self.data[key]:
+            if type(item) == str:
+              item = [item]
+            for path in item:
+              #print "DEBUG: path is %s" %(path,)            
+              if isfile(path):
+                files = [path]
+              else:
+                files = tree(path, type='f|l')
+              for file in files:
+                file_element = xmltree.Element('file', parent=parent_node, text=None,
+                                               attrs={'path': file})
+                stat = os.stat(file)
+                size = xmltree.Element('size', parent=file_element, text=str(stat.st_size))
+                mtime = xmltree.Element('lastModified', parent=file_element, text=str(stat.st_mtime))
     md.write(self.mdfile)
 
   def initVars(self): pass
@@ -489,18 +459,21 @@ class OutputEventHandler(OutputEventTemplate):
     # compare the files in the metadata with the files in self.data['output']
     return self._has_changed(self.output, self.data['output'])
 
-  def _has_changed(self, metadata, newoutput):
+  def _has_changed(self, olddata, newdata):
     """
     Return True if the files in the metadata don't match the
     files in the new items list.
     """
     newfiles = []
-    for item in newoutput:
-      if isdir(item):
-        newfiles.extend(tree(item, type='f|l'))
-      else:
-        newfiles.append(item)
-    for file in metadata.keys():
+    for item in newdata:
+      if type(item) == str:
+        item = [item]
+      for path in item:
+        if isfile(path):
+          newfiles.append(path)
+        else:
+          newfiles.extend(tree(path, type='f|l'))
+    for file in olddata.keys():
       if file not in newfiles:
         #print "DEBUG: file %s is now obsolete" %(file,)
         return True # obsolete file
@@ -510,10 +483,11 @@ class OutputEventHandler(OutputEventTemplate):
         #print "DEBUG: file %s wasn't found" %(file,)
         return True # file has been deleted, or wasn't found.
                     # Either way something bad happened.
-      if (stats.st_mtime != metadata[file]['mtime']) or \
-             (stats.st_size  != metadata[file]['size']):
+      if (stats.st_mtime != olddata[file]['mtime']) or \
+             (stats.st_size  != olddata[file]['size']):
         #print "DEBUG: file %s is invalid" %(file,)
         return True # invalid file
+      #print "DEBUG: file '%s' has not changed" %(file,)
     return False
 
 #--------- HELPER CLASSES ----------#
@@ -547,7 +521,6 @@ class NoneEntry:
     "returns 0 if this Entry has the same index as other; 1 otherwise"
     try: return cmp(self.index, other.index)
     except AttributeError: return 1
-
   def __str__(self):
     return "NoneEntry: %s" %(self.index,)
 

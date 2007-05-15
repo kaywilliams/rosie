@@ -42,7 +42,7 @@ def getIpAddress(ifname='eth0'):
                                       
 def buildRpm(path, rpm_output, changelog=None, logger='rpmbuild',
              functionName='main', keepTemp=True, createrepo=False,
-             quiet=False):
+             quiet=True):
   # keepTemp should be True if path points to a location inside
   # the builddata/ folder, because if keepTemp is False, path
   # is going to get deleted once the rpm build process is complete.
@@ -168,7 +168,8 @@ class RpmHandler(OutputEventHandler):
     if self.create:
       self.generate()
       self.setup()
-      buildRpm(self.output_location, self.rpm_output)
+      buildRpm(self.output_location, self.rpm_output,
+               quiet=(self.interface.logthresh < 4)) # piping rpmbuild output to loglevel 4
 
   def generate(self): pass
   

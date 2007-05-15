@@ -10,7 +10,7 @@ from dims.sync import sync
 from event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from lib import RpmHandler, RpmsInterface, addHandler, getHandler
 from os.path import exists, join, isdir, isfile
-from output import MorphStructMixin, tree
+from output import tree
 
 try:
   import Image
@@ -234,19 +234,6 @@ L_LOGOS = """
 </locals>
 """
 
-#-------------- METADATA STRUCTS ---------#
-LOGOS_MD_STRUCT = {
-    'config': [
-      '/distro/main/fullname/text()',
-      '/distro/main/version/text()',
-      '//logos-rpm',
-    ],
-    'output': [
-      'builddata/logos-rpm/',
-    ]
-  }
-
-
 def locals_imerge(string, ver='0'):
   tree = xmltree.read(StringIO(string))
   locals = xmltree.Element('locals')
@@ -256,7 +243,7 @@ def locals_imerge(string, ver='0'):
 
 #------ HOOK FUNCTIONS ------#
 def prelogos_hook(interface):
-  handler = LogosRpmHandler(interface, LOGOS_MD_STRUCT)
+  handler = LogosRpmHandler(interface)
   addHandler(handler, 'logos')
   interface.disableEvent('logos')
   if interface.pre(handler) or (interface.eventForceStatus('logos') or False):
@@ -280,10 +267,18 @@ def postlogos_hook(interface):
     interface.append_cvar('excluded-packages', handler.obsoletes.split())
 
 #---------- HANDLERS -------------#
-class LogosRpmHandler(RpmHandler, MorphStructMixin):
-  def __init__(self, interface, data):      
-    MorphStructMixin.__init__(self, interface.config)        
-
+class LogosRpmHandler(RpmHandler):
+  def __init__(self, interface):
+    data =  {
+      'config': [
+        '/distro/main/fullname/text()',
+        '/distro/main/version/text()',
+        '//logos-rpm',
+      ],
+      'output': [
+        join(interface.getMetadata(), 'logos-rpm/'),
+      ]
+    }  
     RpmHandler.__init__(self, interface, data,
                         elementname='logos-rpm',
                         rpmname='%s-logos' %(interface.product,),
@@ -297,12 +292,6 @@ class LogosRpmHandler(RpmHandler, MorphStructMixin):
                           'by dimsbuild and are specific to the %s '
                           'distribution.' \
                           %(interface.product, interface.config.get('//main/fullname/text()'),))
-
-    if self.data.has_key('input'):
-      self.expandInput(self.data)
-    if self.data.has_key('output'):
-      self.expandOutput(self.data, dirname(self.metadata)) # the 'output' element has entries
-                                                           # relative to dirname(self.metadata)
 
     self.locals = locals_imerge(L_LOGOS)
     self.build_controlset()
