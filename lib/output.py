@@ -465,6 +465,7 @@ class OutputEventHandler(OutputEventTemplate):
     files in the new items list.
     """
     newfiles = []
+    # newfiles is a list of files
     for item in newdata:
       if type(item) == str:
         item = [item]
@@ -473,10 +474,13 @@ class OutputEventHandler(OutputEventTemplate):
           newfiles.append(path)
         else:
           newfiles.extend(tree(path, type='f|l'))
-    for file in olddata.keys():
-      if file not in newfiles:
-        #print "DEBUG: file %s is now obsolete" %(file,)
-        return True # obsolete file
+    oldfiles = olddata.keys()
+    newfiles.sort()
+    oldfiles.sort()
+    if newfiles != oldfiles:
+      #print "DEBUG: old files obsolete"
+      return True
+    for file in oldfiles:
       try:
         stats = os.stat(file)
       except OSError:
