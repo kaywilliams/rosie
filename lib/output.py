@@ -203,6 +203,7 @@ class OutputEventHandler(OutputEventTemplate):
     
     # data structure representing this output object
     self.data = data
+    self._expand_data() # expand the lists in 'input' and 'output'
     
     # read in metadata - self.mdvalid is False unless read_metadata() finds a file
     self.mdvalid = False
@@ -267,16 +268,13 @@ class OutputEventHandler(OutputEventTemplate):
     for key in ['input', 'output']:
       object = getattr(self, key)
       if self.data.has_key(key):
-        for item in self.data[key]:
-          if type(item) == str:
-            item = [item]
-          for path in item:            
-            for file in tree(path, type='f|l'):            
-              source = metadata.iget('/metadata/%s/file[@path="%s"]' %(key, file,), None)
-              if source:
-                object[file] = {}
-                object[file]['size'] = int(source.iget('size').text)
-                object[file]['mtime'] = int(source.iget('lastModified').text)
+        for path in self.data[key]:
+          for file in tree(path, type='f|l'):            
+            source = metadata.iget('/metadata/%s/file[@path="%s"]' %(key, file,), None)
+            if source:
+              object[file] = {}
+              object[file]['size'] = int(source.iget('size').text)
+              object[file]['mtime'] = int(source.iget('lastModified').text)
     self.mdvalid = True # md readin was successful
   
   def write_metadata(self):
@@ -338,21 +336,14 @@ class OutputEventHandler(OutputEventTemplate):
           try: root.remove(root.get('/metadata/%s' %(key,), [])[0])
           except IndexError: pass          
           parent_node = xmltree.Element(key, parent=root)
-          for item in self.data[key]:
-            if type(item) == str:
-              item = [item]
-            for path in item:
-              #print "DEBUG: path is %s" %(path,)            
-              if isfile(path):
-                files = [path]
-              else:
-                files = tree(path, type='f|l')
-              for file in files:
-                file_element = xmltree.Element('file', parent=parent_node, text=None,
-                                               attrs={'path': file})
-                stat = os.stat(file)
-                size = xmltree.Element('size', parent=file_element, text=str(stat.st_size))
-                mtime = xmltree.Element('lastModified', parent=file_element, text=str(stat.st_mtime))
+          for path in self.data[key]:
+            #print "DEBUG: path is %s" %(path,)              
+            for file in tree(path, type='f|l'):
+              file_element = xmltree.Element('file', parent=parent_node, text=None,
+                                             attrs={'path': file})
+              stat = os.stat(file)
+              size = xmltree.Element('size', parent=file_element, text=str(stat.st_size))
+              mtime = xmltree.Element('lastModified', parent=file_element, text=str(stat.st_mtime))
     md.write(self.mdfile)
 
   def initVars(self): pass
@@ -471,14 +462,13 @@ class OutputEventHandler(OutputEventTemplate):
       if type(item) == str:
         item = [item]
       for path in item:
-        if isfile(path):
-          newfiles.append(path)
-        else:
-          newfiles.extend(tree(path, type='f|l'))
+        newfiles.extend(tree(path, type='f|l'))
     oldfiles = olddata.keys()
     newfiles.sort()
     oldfiles.sort()
-    if newfiles != oldfiles:
+    diff = [x for x in newfiles if x not in oldfiles] + \
+           [x for x in oldfiles if x not in newfiles]
+    if len(diff) > 0:
       #print "DEBUG: old files obsolete"
       return True
     for file in oldfiles:
@@ -488,12 +478,25 @@ class OutputEventHandler(OutputEventTemplate):
         #print "DEBUG: file %s wasn't found" %(file,)
         return True # file has been deleted, or wasn't found.
                     # Either way something bad happened.
-      if (stats.st_mtime != olddata[file]['mtime']) or \
-             (stats.st_size  != olddata[file]['size']):
-        #print "DEBUG: file %s is invalid" %(file,)
-        return True # invalid file
+      if (stats.st_mtime != olddata[file]['mtime']):
+        #print "DEBUG: file %s has been updated" %(file,)
+        return True
+      if (stats.st_size != olddata[file]['size']):
+        #print "DEBUG: file %s has a different size" %(file,)
+        return True
       #print "DEBUG: file '%s' has not changed" %(file,)
     return False
+
+  def _expand_data(self):
+    for key in ['input', 'output']:
+      if self.data.has_key(key):
+        newvalue = []
+        for item in self.data[key]:
+          if type(item) == list:
+            newvalue.extend(item)
+          else:
+            newvalue.append(item)
+        self.data[key] = newvalue
 
 #--------- HELPER CLASSES ----------#
 # In _test_configvals_changed(), above, there were a few cases we needed to
