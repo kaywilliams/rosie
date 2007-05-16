@@ -40,6 +40,7 @@ FILE_TYPE_EXT2FS   = 'application/x-linux-ext2fs'
 FILE_TYPE_CPIO     = 'application/x-cpio'
 FILE_TYPE_GPGKEY   = 'application/x-gpg-key'
 FILE_TYPE_LSS      = 'Syslinux SLL16 image data'
+FILE_TYPE_FAT      = 'FAT filesystem'
 
 #------ MAGIC NUMBERS ------#
 # Dictionary of known magic numbers. Keys are from the list of file types,
@@ -56,13 +57,14 @@ magic = {
   # (offset, type, endianness, value)
   FILE_TYPE_GZIP:     [(0,    TYPE_STRING, ENDIAN_BIG,    '\x1f\x8b\x08')],
   FILE_TYPE_SQUASHFS: [(0,    TYPE_STRING, ENDIAN_BIG,    'hsqs')],
-  FILE_TYPE_EXT2FS:   [(1080, TYPE_SHORT , ENDIAN_LITTLE, 61267L)], # 0xEF53
+  FILE_TYPE_EXT2FS:   [(1080, TYPE_SHORT,  ENDIAN_LITTLE, 61267L)], # 0xEF53
   FILE_TYPE_CPIO:     [(0,    TYPE_SHORT,  ENDIAN_BIG,    70707L),
                        (0,    TYPE_STRING, ENDIAN_BIG,    '070701'),
                        (0,    TYPE_STRING, ENDIAN_BIG,    '070702'),
                        (0,    TYPE_STRING, ENDIAN_BIG,    '070707')],
   FILE_TYPE_GPGKEY:   [(0,    TYPE_STRING, ENDIAN_BIG,    '-----BEGIN PGP')],
   FILE_TYPE_LSS:      [(0,    TYPE_LONG,   ENDIAN_LITTLE, 0x1413f33d)],
+  FILE_TYPE_FAT:      [(510,  TYPE_SHORT,  ENDIAN_LITTLE, 43605L)], # 0xAA55
 }
 
 

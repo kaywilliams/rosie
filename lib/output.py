@@ -138,6 +138,7 @@ class OutputEventMixin:
       #print "DEBUG: output invalid"
       handler.removeInvalids()
       return True
+    #print "DEBUG: input unchanged, output valid"
     return False
   
   def modify(self, handler):
@@ -529,12 +530,8 @@ class NoneEntry:
     return "NoneEntry: %s" %(self.index,)
 
 #--------- EXCEPTIONS ----------#
-class OutputInvalidException(Exception):
-  """
-  Exception raised when the output is invalid.
-  """
+class OutputInvalidException(StandardError):
+  "Exception raised when the output is invalid."
 
-class InputInvalidException(Exception):
-  """
-  Exception raised when the input is invalid.
-  """
+class InputInvalidException(StandardError):
+  "Exception raised when the input is invalid."

@@ -63,7 +63,6 @@ class SoftwareInterface(EventInterface, VersionMixin, ListCompareMixin):
     "Reads the rpm header to ensure the signature and gpg key validity of an rpm."
     if verbose:
       self._base.log.write(2, "%s" % osutils.basename(rpmpath), 40)
-    return #!
     fd = os.open(rpmpath, os.O_RDONLY)
     try:
       try:
@@ -124,7 +123,7 @@ class SoftwareHandler:
     self.changed = False
     self._packages = {}
     self._validarchs = getArchList(self.interface.arch)
-    self._tosign = []
+    #self._tosign = []
   
   def handle(self):
     "Generate a software store"
@@ -138,7 +137,7 @@ class SoftwareHandler:
       if fullname not in rpmlist: rpmlist.append(fullname)
   
     self.interface.compare(rpmlist, self.interface.getPkglist())
-    self.sign_rpms()
+    #self.sign_rpms()
     self.create_metadata()
   
   # callback functions
@@ -175,7 +174,8 @@ class SoftwareHandler:
           self.interface.log(None, "OK")
     except RpmSignatureInvalidError:
       # remove invalid rpm and redownload
-      self.interface.log(None, "INVALID: redownloading")
+      if self.interface.logthresh >= 2:
+        self.interface.log(None, "INVALID: redownloading")
       osutils.rm(path, force=True)
       self.interface.r.append(rpm)
   
@@ -188,21 +188,21 @@ class SoftwareHandler:
         try:
           store, path, rpmname = self._packages[rpm][arch][0]
           self.interface.syncRpm(rpmname, store, path)
-          self._tosign.append(rpmname)
+          #self._tosign.append(rpmname)
         except IndexError, e:
           self.errlog(1, "No rpm '%s' found in store '%s' for arch '%s'" % (rpm, store, arch))
   
-  def sign_rpms(self):
-    # sign new packages
-    ##args = ['/bin/rpm', '--addsign']
-    ##args.extend([join(rpmdir, osutils.basename(rpm)) for rpm in tosign])
-    ##os.spawnv(os.P_WAIT, '/bin/rpm', args)
-    self.interface.log(1, "signing new rpms")
-    args = ''
-    for rpm in self._tosign: args = args + ' ' + rpm
-    shlib.execute('expect -c "spawn /bin/rpm --addsign %s; send timeout -1; ' + \
-                             'stty -echo; expect \\"Enter pass phrase: \\"; ' + \
-                             'send \\"\\n\\"; expect exp_continue"')
+  #def sign_rpms(self):
+  #  # sign new packages
+  #  ##args = ['/bin/rpm', '--addsign']
+  #  ##args.extend([join(rpmdir, osutils.basename(rpm)) for rpm in tosign])
+  #  ##os.spawnv(os.P_WAIT, '/bin/rpm', args)
+  #  self.interface.log(1, "signing new rpms")
+  #  args = ''
+  #  for rpm in self._tosign: args = args + ' ' + rpm
+  #  shlib.execute('expect -c "spawn /bin/rpm --addsign %s; send timeout -1; ' + \
+  #                           'stty -echo; expect \\"Enter pass phrase: \\"; ' + \
+  #                           'send \\"\\n\\"; expect exp_continue"')
 
   def create_metadata(self):
     # create repository metadata
