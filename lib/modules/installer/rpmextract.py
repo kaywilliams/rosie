@@ -94,7 +94,8 @@ def preinstaller_logos_hook(interface):
   handler = InstallerLogosHandler(interface)
   addHandler(handler, 'installer_logos')
   interface.disableEvent('installer_logos')
-  if interface.pre(handler) or (interface.eventForceStatus('installer_logos') or False):
+  if (interface.eventForceStatus('installer_logos') or False) or \
+     (interface.pre(handler)):
     interface.enableEvent('installer_logos')
   
 def installer_logos_hook(interface):
@@ -106,7 +107,8 @@ def preinstaller_release_files_hook(interface):
   handler = InstallerReleaseHandler(interface)
   addHandler(handler, 'installer_release_files')
   interface.disableEvent('installer_release_files')
-  if interface.pre(handler) or (interface.eventForceStatus('installer_release_files') or False):
+  if (interface.eventForceStatus('installer_release_files') or False) or \
+     (interface.pre(handler)):
     interface.enableEvent('installer_release_files')
 
 def installer_release_files_hook(interface):

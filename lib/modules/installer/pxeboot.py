@@ -43,15 +43,6 @@ def pxeboot_hook(interface):
       os.symlink(target, dest)
 
 
-INITRD_MD_STRUCT = {
-  'config':    ['/distro/main/product/text()',
-                '/distro/main/version/text()',
-                '/distro/main/fullname/text()',
-                '/distro/main/initrd-src/text()'],
-  'variables': ['anaconda_version'],
-  'input':     ['/distro/main/initrd-src/text()'],
-}
-
 L_FILES = ''' 
 <locals>
   <files-entries>

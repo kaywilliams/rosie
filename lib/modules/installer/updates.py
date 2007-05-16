@@ -23,7 +23,17 @@ def addHandler(handler, key): HANDLERS[key] = handler
 def getHandler(key): return HANDLERS[key]
 
 def preupdates_hook(interface):
-  handler = ImageModifier('updates.img', interface, UPDATES_MD_STRUCT, L_IMAGES)
+  updates_md_struct = {
+    'config':    ['/distro/main/product/text()',
+                  '/distro/main/version/text()',
+                  '/distro/main/fullname/text()',
+                  '/distro/installer/updates.img/path/text()'],
+    'variables': ['anaconda_version'],
+    'input':     [interface.config.mget('/distro/installer/updates.img/path/text()', [])],
+    'output':    [join(interface.getSoftwareStore(), 'images/updates.img')],
+  }
+  
+  handler = ImageModifier('updates.img', interface, updates_md_struct, L_IMAGES)
   addHandler(handler, 'updates.img')
   
   interface.disableEvent('updates')
@@ -38,15 +48,6 @@ def updates_hook(interface):
   handler = getHandler('updates.img')
   interface.modify(handler)
 
-
-UPDATES_MD_STRUCT = {
-  'config':    ['/distro/main/product/text()',
-                '/distro/main/version/text()',
-                '/distro/main/fullname/text()',
-                '/distro/installer/updates.img/path/text()'],
-  'variables': ['anaconda_version'],
-  'input':     ['/distro/installer/updates.img/path/text()'],
-}
 
 L_IMAGES = ''' 
 <locals>

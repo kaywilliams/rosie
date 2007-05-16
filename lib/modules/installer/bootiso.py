@@ -33,7 +33,26 @@ def getHandler(key): return HANDLERS[key]
 
 #------ HOOK FUNCTIONS ------#
 def preisolinux_hook(interface):
-  handler = ImageModifier('initrd.img', interface, INITRD_MD_STRUCT, L_IMAGES)
+  bootiso_md_struct = {
+    'config':    ['/distro/main/product/text()',
+                  '/distro/main/version/text()',
+                  '/distro/main/fullname/text()',
+                  '/distro/installer/product.img/path/text()'],
+    'variables': ['anaconda_version'],
+    'input':     [interface.config.mget('/distro/installer/initrd.img/path/text()', [])],
+    'output':    [join(interface.getSoftwareStore(), 'isolinux/boot.msg'),
+                  join(interface.getSoftwareStore(), 'isolinux/general.msg'),
+                  join(interface.getSoftwareStore(), 'isolinux/initrd.img'),
+                  join(interface.getSoftwareStore(), 'isolinux/isolinux.bin'),
+                  join(interface.getSoftwareStore(), 'isolinux/isolinux.cfg'),
+                  join(interface.getSoftwareStore(), 'isolinux/memtest'),
+                  join(interface.getSoftwareStore(), 'isolinux/options.msg'),
+                  join(interface.getSoftwareStore(), 'isolinux/param.msg'),
+                  join(interface.getSoftwareStore(), 'isolinux/rescue.msg'),
+                  join(interface.getSoftwareStore(), 'isolinux/vmlinuz')],
+  }
+  
+  handler = ImageModifier('initrd.img', interface, bootiso_md_struct, L_IMAGES)
   addHandler(handler, 'initrd.img')
   
   interface.disableEvent('isolinux')
@@ -84,15 +103,6 @@ def bootiso_hook(interface):
 
 
 #------ LOCALS ------#
-INITRD_MD_STRUCT = {
-  'config':    ['/distro/main/product/text()',
-                '/distro/main/version/text()',
-                '/distro/main/fullname/text()',
-                '/distro/installer/product.img/path/text()'],
-  'variables': ['anaconda_version'],
-  'input':     ['/distro/installer/product.img/path/text()'],
-}
-
 L_FILES = ''' 
 <locals>
   <files-entries>

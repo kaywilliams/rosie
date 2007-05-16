@@ -22,7 +22,17 @@ def addHandler(handler, key): HANDLERS[key] = handler
 def getHandler(key): return HANDLERS[key]
 
 def preproduct_hook(interface):
-  handler = ImageModifier('product.img', interface, PRODUCT_MD_STRUCT, L_IMAGES)
+  product_md_struct = {
+    'config':    ['/distro/main/product/text()',
+                  '/distro/main/version/text()',
+                  '/distro/main/fullname/text()',
+                  '/distro/installer/product.img/path/text()'],
+    'variables': ['anaconda_version'],
+    'input':     [interface.config.mget('/distro/installer/product.img/path/text()', [])],
+    'output':    [join(interface.getSoftwareStore(), 'images/product.img')],
+  }
+  
+  handler = ImageModifier('product.img', interface, product_md_struct, L_IMAGES)
   addHandler(handler, 'product.img')
   
   interface.disableEvent('product')
@@ -36,15 +46,6 @@ def product_hook(interface):
   handler = getHandler('product.img')
   interface.modify(handler)
 
-
-PRODUCT_MD_STRUCT = {
-  'config':    ['/distro/main/product/text()',
-                '/distro/main/version/text()',
-                '/distro/main/fullname/text()',
-                '/distro/installer/product.img/path/text()'],
-  'variables': ['anaconda_version'],
-  'input':     ['/distro/installer/product.img/path/text()'],
-}
 
 L_IMAGES = ''' 
 <locals>

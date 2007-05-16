@@ -23,7 +23,18 @@ def addHandler(handler, key): HANDLERS[key] = handler
 def getHandler(key): return HANDLERS[key]
 
 def prexen_hook(interface):
-  handler = ImageModifier('initrd.img', interface, INITRD_MD_STRUCT, L_IMAGES,
+  xen_md_struct = {
+    'config':    ['/distro/main/product/text()',
+                  '/distro/main/version/text()',
+                  '/distro/main/fullname/text()',
+                  '/distro/installer/initrd.img/path/text()'],
+    'variables': ['anaconda_version'],
+    'input':     [interface.config.mget('/distro/installer/initrd.img/path/text()', [])],
+    'output':    [join(interface.getSoftwareStore(), 'images/xen/initrd.img'),
+                  join(interface.getSoftwareStore(), 'images/xen/vmlinuz')],
+  }
+  
+  handler = ImageModifier('initrd.img', interface, xen_md_struct, L_IMAGES,
                           mdfile=join(interface.getMetadata(), 'initrd.img-xen.md'))
   addHandler(handler, 'initrd.img-xen')
   
@@ -48,15 +59,6 @@ def xen_hook(interface):
   handler = getHandler('initrd.img-xen')
   interface.modify(handler)
 
-
-INITRD_MD_STRUCT = {
-  'config':    ['/distro/main/product/text()',
-                '/distro/main/version/text()',
-                '/distro/main/fullname/text()',
-                '/distro/installer/initrd.img/path/text()'],
-  'variables': ['anaconda_version'],
-  'input':     ['/distro/installer/initrd.img/path/text()'],
-}
 
 L_FILES = ''' 
 <locals>

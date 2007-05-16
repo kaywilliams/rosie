@@ -15,15 +15,16 @@ from callback  import BuildSyncCallback
 from interface import EventInterface, VersionMixin
 from locals    import printf_local
 from main      import BOOLEANS_TRUE
-from magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS
-from output    import OutputEventMixin, MorphStructMixin, OutputEventHandler
+from magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS, FILE_TYPE_FAT
+from output    import OutputEventMixin, OutputEventHandler
 
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')
 
 MAGIC_MAP = {
   'ext2': FILE_TYPE_EXT2FS,
   'cpio': FILE_TYPE_CPIO,
-  'squashfs': FILE_TYPE_SQUASHFS
+  'squashfs': FILE_TYPE_SQUASHFS,
+  'fat32': FILE_TYPE_FAT,
 }
 
 
@@ -115,7 +116,7 @@ class ImageHandler:
         return self.interface.verifyType(p, MAGIC_MAP[format])
 
 
-class ImageModifier(OutputEventHandler, ImageHandler, MorphStructMixin):
+class ImageModifier(OutputEventHandler, ImageHandler):
   def __init__(self, name, interface, data, locals, mdfile=None):
     locals = locals_imerge(locals, interface.anaconda_version)
 
@@ -136,11 +137,9 @@ class ImageModifier(OutputEventHandler, ImageHandler, MorphStructMixin):
     
     self.l_image = locals.iget('//images/image[@id="%s"]' % name)
     
-    MorphStructMixin.__init__(self, interface.config)
-    self.expandInput(data)
-    
     OutputEventHandler.__init__(self, interface.config, data, self.isrc, self.mdfile)
     ImageHandler.__init__(self, interface, locals)
+    
     self.name = name
   
   def initVars(self): pass
