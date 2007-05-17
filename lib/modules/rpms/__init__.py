@@ -1,12 +1,12 @@
+from os.path import exists, join
+
 import dims.filereader as filereader
 
 from dims.osutils import find, mkdir
-from event        import EVENT_TYPE_META
-from lib          import RpmsInterface
-from os.path      import exists, join
 
-from release import EVENTS as release_EVENTS, prerelease_hook, release_hook, postrelease_hook
-from logos   import EVENTS as logos_EVENTS, prelogos_hook, logos_hook, postlogos_hook
+from event import EVENT_TYPE_META
+
+from rpms.lib import RpmsInterface
 
 API_VERSION = 3.0
 
@@ -21,8 +21,10 @@ EVENTS = [
   },
 ]
 
-EVENTS.extend(release_EVENTS)
-EVENTS.extend(logos_EVENTS)
+MODULES = [
+  'release',
+  'logos',
+]
 
 STORE_XML = ''' 
 <store id="dimsbuild-local">
