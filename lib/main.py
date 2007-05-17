@@ -83,7 +83,7 @@ class Build:
     self.CACHE = '/var/cache/dimsbuild/'
     self.INPUT_STORE = join(self.CACHE, 'shared/stores')
     self.TEMP = '/tmp/dimsbuild'
-    self.CACHE_MAX_SIZE = 30*1024*1024*1024 # 30 GB
+    self.CACHE_MAX_SIZE = 30*1024**3 # 30 GB
     
     # set up loggers
     ##self.log = logger.Logger(options.logthresh)
@@ -126,9 +126,9 @@ class Build:
     self.SOFTWARE_STORE = join(self.CACHE, distro_prefix, 'os')
     self.METADATA = join(self.CACHE, distro_prefix, 'builddata')
 
-    self.PUBLISH_DIR = '/'.join([self.config.get('//main/webroot/text()', '/var/www/html'),
-                                 self.config.get('//main/publishpath/text()', 'open_software'),
-                                 self.base_vars['product']])
+    self.PUBLISH_DIR = join(self.config.get('//main/webroot/text()', '/var/www/html'),
+                            self.config.get('//main/publishpath/text()', 'open_software'),
+                            self.base_vars['product'])
     
     self.cachemanager = CacheManager(self.__compute_servers(),
                                      self.INPUT_STORE,
@@ -190,7 +190,7 @@ class Build:
       for path in self.IMPORT_DIRS:
         mod = join(path, 'plugins', '%s.py' % plugin)
         if exists(mod):
-          m = self.__loadmodule(mod)
+          m = load_module(mod)
           self.dispatch.process_module(m)
           imported = True; break
       if not imported:
@@ -217,7 +217,7 @@ class Build:
                                            prefix=False, maxdepth=1)):
         if mod.replace('.py', '') not in disabled_modules and \
            mod.replace('.py', '') not in registered_modules:
-          m = self.__loadmodule(join(modpath, mod))
+          m = load_module(join(modpath, mod))
           if m is None: continue # requested file wasn't a python module
           self.__check_api_version(m) # raises ImportError
           self.dispatch.process_module(m)
@@ -319,18 +319,20 @@ class Build:
       raise ImportError, "Module API version '%s' is less than the required API version '%s'" % (mAPI, rAPI)
     else:
       print "DEBUG: mAPI =", mAPI, "rAPI = ", rAPI
-  
-  def __loadmodule(self, path):
-    "Load the module located at path"
-    dir, mod = osutils.split(path)
-    mod = mod.split('.py')[0] # remove .py
-    try:
-      fp, path, desc = imp.find_module(mod, [dir])
-    except ImportError:
-      return # this isn't a python module, thats ok
-    try:
-      module = imp.load_module(mod, fp, path, desc)
-    except ImportError, e: # provide a more useful message
-      raise ImportError, "Could not load module '%s':\n%s" % (path, e)
-    fp and fp.close()
-    return module
+
+
+#------ UTILITY FUNCTIONS ------#
+def load_module(path):
+  "Load and return the module located at path"
+  dir, mod = osutils.split(path)
+  mod = mod.split('.py')[0] # remove .py
+  try:
+    fp, path, desc = imp.find_module(mod, [dir])
+  except ImportError:
+    return # this isn't a python module, thats ok
+  try:
+    module = imp.load_module(mod, fp, path, desc)
+  except ImportError, e: # provide a more useful message
+    raise ImportError, "Could not load module '%s':\n%s" % (path, e)
+  fp and fp.close()
+  return module

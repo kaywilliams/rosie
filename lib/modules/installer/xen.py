@@ -4,7 +4,7 @@ import dims.osutils as osutils
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
-from lib import InstallerInterface, FileDownloader, ImageModifier
+from installer.lib import InstallerInterface, FileDownloader, ImageModifier
 
 API_VERSION = 3.0
 

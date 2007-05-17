@@ -2,7 +2,7 @@ from os.path import join
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
-from lib import FileDownloader, InstallerInterface
+from installer.lib import FileDownloader, InstallerInterface
 
 API_VERSION = 3.0
 

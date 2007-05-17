@@ -9,7 +9,7 @@ from callback import BuildSyncCallback
 from event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from locals   import printf_local
 
-from lib import InstallerInterface, FileDownloader, ImageModifier, locals_imerge
+from installer.lib import InstallerInterface, FileDownloader, ImageModifier, locals_imerge
 
 API_VERSION = 3.0
 

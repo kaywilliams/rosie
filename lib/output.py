@@ -52,7 +52,7 @@ def tree(path, type='d|f|l', prefix=True):
   
 #------------ TEMPLATES -------------#
 class OutputEventTemplate:
-  """
+  """ 
   Interface for all output events.   Essentially  a java-style interface.
   Classes  that wish to use the output event API must subclass and implement
   this interface.
@@ -195,7 +195,7 @@ class OutputEventHandler(OutputEventTemplate):
                       variables of the object, 'input' -- a list of
                       strings or lists to the input files, and 'output' --
                       a list of strings or lists to the output files/directories.
-    """    
+    """
     self.file = file
     self.mdfile = mdfile or join(osutils.dirname(file), '%s.md' % osutils.basename(file))
     self.mddir = mddir or osutils.dirname(self.mdfile)
@@ -274,7 +274,7 @@ class OutputEventHandler(OutputEventTemplate):
             if source:
               object[file] = {}
               object[file]['size'] = int(source.iget('size').text)
-              object[file]['mtime'] = int(source.iget('lastModified').text)
+              object[file]['mtime'] = int(source.iget('mtime').text)
     self.mdvalid = True # md readin was successful
   
   def write_metadata(self):
@@ -343,7 +343,7 @@ class OutputEventHandler(OutputEventTemplate):
                                              attrs={'path': file})
               stat = os.stat(file)
               size = xmltree.Element('size', parent=file_element, text=str(stat.st_size))
-              mtime = xmltree.Element('lastModified', parent=file_element, text=str(stat.st_mtime))
+              mtime = xmltree.Element('mtime', parent=file_element, text=str(stat.st_mtime))
     md.write(self.mdfile)
 
   def initVars(self): pass
@@ -430,7 +430,7 @@ class OutputEventHandler(OutputEventTemplate):
     return False
   
   def _test_input_changed(self):
-    """
+    """ 
     Compare the input files' timestamp and size to see if any have
     changed. Use self.input as the list of elements to compare
     against.    
@@ -441,7 +441,7 @@ class OutputEventHandler(OutputEventTemplate):
     return self._has_changed(self.input, self.data['input'])
   
   def _test_output_changed(self):
-    """
+    """ 
     Compare the source's timestamp and size to the one stored in
     self.output; if they are the same, this test succeeds else it
     fails.    
@@ -452,7 +452,7 @@ class OutputEventHandler(OutputEventTemplate):
     return self._has_changed(self.output, self.data['output'])
 
   def _has_changed(self, olddata, newdata):
-    """
+    """ 
     Return True if the files in the metadata don't match the
     files in the new items list.
     """

@@ -5,7 +5,7 @@ import dims.osutils as osutils
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
-from lib import ImageModifier, InstallerInterface, locals_imerge
+from installer.lib import ImageModifier, InstallerInterface, locals_imerge
 
 EVENTS = [
   {

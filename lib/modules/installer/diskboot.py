@@ -5,7 +5,7 @@ import dims.osutils as osutils
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
-from lib import InstallerInterface, FileDownloader, ImageModifier, locals_imerge
+from installer.lib import InstallerInterface, FileDownloader, ImageModifier, locals_imerge
 
 API_VERSION = 3.0
 
@@ -41,6 +41,8 @@ def prediskboot_hook(interface):
   
   interface.disableEvent('diskboot')
   if interface.eventForceStatus('diskboot') or False:
+    interface.enableEvent('diskboot')
+  elif interface.get_cvar('isolinux-changed'):
     interface.enableEvent('diskboot')
   elif interface.pre(handler):
     interface.enableEvent('diskboot')

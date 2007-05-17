@@ -37,6 +37,10 @@ __author__  = "Daniel Musgrave <dmusgrave@abodiosoftware.com>"
 __version__ = "2.0"
 __date__    = "April 17th, 2007"
 
+import imp
+
+from os.path import join
+
 import dims.tree as tree
 
 import resolve
@@ -495,6 +499,13 @@ class Dispatch:
       raise DispatchError, "Cannot register module %s, already committed" % module
     
     # get events and associated interfaces...
+    self.load_events(module)
+    # ... then get modules ...
+    self.load_modules(module)
+    # ... and finally get functions
+    self.load_functions(module)
+  
+  def load_events(self, module):
     if hasattr(module, 'EVENTS'):
       for struct in module.EVENTS:
         event = EventFromStruct(struct)
@@ -508,14 +519,24 @@ class Dispatch:
           interface = EventInterface
         event.register_interface(interface)
     else:
-      raise ImportError, "Missing definition for EVENTS variable in module %s" % module
-    
-    # ... and get functions
+      raise ImportError, "Missing definition for 'EVENTS' variable in module %s" % module
+  
+  def load_modules(self, module):
+    if hasattr(module, 'MODULES'):
+      for mod in module.MODULES:
+        try:
+          mod = imp.load_source('%s.%s' % (module.__name__, mod),
+                                join(module.__path__[0], '%s.py' % mod))
+        except ImportError, e:
+          raise ImportError, "Could not load module '%s':\n%s" % (mod, e)
+        self.load_functions(mod)
+        self.load_events(mod)
+  
+  def load_functions(self, module):
     for attr in dir(module):
       if attr.endswith('_hook'):
         eventid = attr.replace('_hook', '')
         self.register_function(getattr(module, attr), eventid)
-
   
 class EventIterator:
   "Basic iterator over Event-type objects"

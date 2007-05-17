@@ -1,3 +1,5 @@
+import os
+
 from os.path import join
 
 import dims.osutils as osutils
@@ -5,7 +7,7 @@ import dims.shlib   as shlib
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
-from lib import FileDownloader, ImageModifier, InstallerInterface
+from installer.lib import FileDownloader, ImageModifier, InstallerInterface
 
 API_VERSION = 3.0
 
@@ -96,9 +98,15 @@ def bootiso_hook(interface):
   
   osutils.mkdir(isodir, parent=True)
   osutils.cp(isolinux_dir, isodir, recursive=True, link=True)
+  # apparently mkisofs modifies the mtime of the file it uses as a boot image.
+  # to avoid this, we copy the boot image timestamp and overwrite the original
+  # when we finish
+  isolinux_atime = os.stat(join(isolinux_dir, 'isolinux.bin')).st_atime
+  isolinux_mtime = os.stat(join(isolinux_dir, 'isolinux.bin')).st_mtime
   shlib.execute('mkisofs -o %s -b isolinux/isolinux.bin -c isolinux/boot.cat '
                 '-no-emul-boot -boot-load-size 4 -boot-info-table -RJTV "%s" %s' \
                 % (isofile, interface.product, isodir))
+  os.utime(join(isolinux_dir, 'isolinux.bin'), (isolinux_atime, isolinux_mtime))
   osutils.rm(isodir, recursive=True, force=True)
 
 
