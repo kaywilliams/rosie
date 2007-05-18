@@ -92,7 +92,7 @@ class RpmsInterface(EventInterface, RpmsMixin, OutputEventMixin):
 #---------- HANDLERS -------------#
 class RpmHandler(OutputEventHandler):
   def __init__(self, interface, data, elementname=None, rpmname=None,
-               provides=None, provides_test=None, obsoletes=None,
+               provides=None, provides_test=None, obsoletes=None, requires=None,
                description=None, long_description=None):
     if len(data['output']) > 1:
       raise Exception, "only one item should be specified in data['output']"
@@ -120,6 +120,7 @@ class RpmHandler(OutputEventHandler):
       else:
         self.obsoletes = obsoletes
 
+    self.requires = requires    
     self.description = description
     self.long_description = long_description
     self.author = 'dimsbuild'
@@ -147,10 +148,13 @@ class RpmHandler(OutputEventHandler):
 
   removeInvalids = removeObsoletes
 
-  def testInputChanged(self):
-    # if self.create is False, skip the RPM creation
-    return self.create and OutputEventHandler.testInputChanged(self)
-  
+  def testInputChanged(self, checkCreate=True):
+    if checkCreate:
+      # if self.create is False, skip the RPM creation    
+      return self.create and OutputEventHandler.testInputChanged(self)
+    else:
+      return OutputEventHandler.testInputChanged(self)
+    
   def testInputValid(self): return True
 
   testOutputValid = testInputValid
@@ -159,13 +163,14 @@ class RpmHandler(OutputEventHandler):
     if not exists(self.rpm_output):
       mkdir(self.rpm_output, parent=True)
     if not exists(self.output_location):
-      mkdir(self.output_location, parent=True)    
-    if self.create and self.data.has_key('input'):
-        for input in self.data['input']:
-          sync(input, self.output_location)
+      mkdir(self.output_location, parent=True)
+    if ((type(self.create) == bool and self.create) or self.create != None) and \
+           self.data.has_key('input'):
+      for input in self.data['input']:
+        sync(input, self.output_location)
 
   def addOutput(self):
-    if self.create:
+    if ((type(self.create) == bool and self.create) or self.create != None):
       self.generate()
       self.setup()
       buildRpm(self.output_location, self.rpm_output,
@@ -190,8 +195,12 @@ class RpmHandler(OutputEventHandler):
     parser.add_section('bdist_rpm')
     parser.set('bdist_rpm', 'release', self._get_release())
     parser.set('bdist_rpm', 'distribution_name', self.fullname)
-    parser.set('bdist_rpm', 'provides', self.provides)
-    parser.set('bdist_rpm', 'obsoletes', self.obsoletes)
+    if self.provides:
+      parser.set('bdist_rpm', 'provides', self.provides)
+    if self.obsoletes:
+      parser.set('bdist_rpm', 'obsoletes', self.obsoletes)
+    if self.requires:
+      parser.set('bdist_rpm', 'requires', self.requires)
     
     f = open(setup_cfg, 'w')
     parser.write(f)

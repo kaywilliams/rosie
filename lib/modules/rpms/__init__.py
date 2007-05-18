@@ -22,8 +22,9 @@ EVENTS = [
 ]
 
 MODULES = [
+  'config',
+  'logos',  
   'release',
-  'logos',
 ]
 
 STORE_XML = ''' 
