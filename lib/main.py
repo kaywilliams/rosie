@@ -158,6 +158,10 @@ class Build:
     self.dispatch.raise_event(self, parser) # raise init
     self.dispatch.next()
     
+    #for event in self.dispatch.iter.order:
+    #  print event.id
+    #raise ''
+    
   
   def __init_dispatch(self):
     """ 
