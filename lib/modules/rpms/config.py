@@ -89,6 +89,6 @@ def config_hook(interface):
 
 def postconfig_hook(interface):
   handler = getHandler('config')
-  if handler.create:
+  if handler.create != None:
     interface.append_cvar('included-packages', [handler.rpmname])
 
