@@ -56,7 +56,7 @@ class ReleaseRpmHandler(RpmHandler):
         '//main/version/text()',
         '//release-rpm',    
         '//stores/*/store/gpgkey/text()',
-        '//main/gpgkey',
+        '//gpgkey',
       ],
       'input': [
         interface.config.mget('//release-rpm/yum-repos/path/text()', []),
@@ -115,7 +115,7 @@ class ReleaseRpmHandler(RpmHandler):
     mkdir(gpg_dir)
     gpgkeys = []
     if self.config.get('//gpgkey/sign/text()', 'False') in BOOLEANS_TRUE:
-      gpg_key = interface.get('//gpgkey/public/text()', None)
+      gpg_key = self.config.get('//gpgkey/public/text()', None)
       if gpg_key is None:
         raise Exception, "no public gpg key specified"
       gpgkeys.append(gpg_key)
@@ -126,8 +126,8 @@ class ReleaseRpmHandler(RpmHandler):
       sync(gpgkey, gpg_dir)
     files = os.listdir(gpg_dir)
     if files:      
-      self.gpg_files = map(lambda x: join(gpg_dir, x), files)
-      self.gpg_data = '/etc/pki/rpm-gpg : gpg/*'
+      self.gpg_files = map(lambda x: join('gpg', x), files)
+      self.gpg_data = ''.join(['/etc/pki/rpm-gpg : ', ', '.join(self.gpg_files)])
     else:
       self.gpg_files = []
       self.gpg_data = ''
