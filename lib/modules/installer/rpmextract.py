@@ -125,7 +125,7 @@ class InstallerHandler(OutputEventHandler):
     self.config = self.interface.config
     self.data = data
 
-    OutputEventHandler.__init__(self, self.config, data, None,
+    OutputEventHandler.__init__(self, self.config, data,
                                 mdfile=join(self.interface.getMetadata(), '%s.md' %(name,)))
     
     self.software_store = self.interface.getSoftwareStore()

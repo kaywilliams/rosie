@@ -174,12 +174,9 @@ class OutputEventHandler(OutputEventTemplate):
   See the  individual function  documentation for more detailed information
   on what each function does.
   """
-  def __init__(self, config, data, file, mdfile=None, mddir=None):
+  def __init__(self, config, data, mdfile=None, mddir=None):
     """ 
     Initialize the OutputEventHandler
-    
-     * self.file    : the file to be modified (the destination, not the
-                      source)     
      * self.mdfile  : the metadata file in which modification metadata
                       is stored     
      * self.mddir   : dirname(self.mdfile) if not specified. If not
@@ -196,7 +193,6 @@ class OutputEventHandler(OutputEventTemplate):
                       strings or lists to the input files, and 'output' --
                       a list of strings or lists to the output files/directories.
     """
-    self.file = file
     self.mdfile = mdfile or join(osutils.dirname(file), '%s.md' % osutils.basename(file))
     self.mddir = mddir or osutils.dirname(self.mdfile)
     self.config = config

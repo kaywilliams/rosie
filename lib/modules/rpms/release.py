@@ -32,7 +32,7 @@ def prerelease_hook(interface):
     interface.enableEvent('release')
         
 def release_hook(interface):
-  interface.log(0, "processing release")
+  interface.log(0, "creating release rpm")
   handler = getHandler('release')
   interface.modify(handler)
 
@@ -56,7 +56,7 @@ class ReleaseRpmHandler(RpmHandler):
         '//main/version/text()',
         '//release-rpm',    
         '//stores/*/store/gpgkey/text()',
-        '//main/signing/publickey/text()',
+        '//main/gpgkey',
       ],
       'input': [
         interface.config.mget('//release-rpm/yum-repos/path/text()', []),
@@ -64,7 +64,7 @@ class ReleaseRpmHandler(RpmHandler):
         interface.config.mget('//release-rpm/release-notes/path/text()', []),
         interface.config.mget('//release-rpm/release-files/path/text()', []),
         interface.config.mget('//stores/*/store/gpgkey/text()', []),
-        interface.config.mget('//rpms/gpgkey/public/text()', []),
+        interface.config.mget('//gpgkey/public/text()', []),
       ],
       'output': [
         join(interface.getMetadata(), 'release-rpm'),
@@ -114,10 +114,12 @@ class ReleaseRpmHandler(RpmHandler):
     gpg_dir = join(self.output_location, 'gpg')
     mkdir(gpg_dir)
     gpgkeys = []
-    try:
-      gpgkeys.append(self.config.get('//rpms/gpgkey/public/text()'))
-    except XmlPathError:
-      pass
+    if self.config.get('//gpgkey/sign/text()', 'False') in BOOLEANS_TRUE:
+      gpg_key = interface.get('//gpgkey/public/text()', None)
+      if gpg_key is None:
+        raise Exception, "no public gpg key specified"
+      gpgkeys.append(gpg_key)
+
     gpgkeys.extend(self.config.mget('//stores/*/store/gpgkey/text()', []))
 
     for gpgkey in gpgkeys:
@@ -183,10 +185,10 @@ class ReleaseRpmHandler(RpmHandler):
         'name=%s %s - %s' %(self.fullname, self.version, self.arch,),
         'baseurl=%s' %(join(authority, path),),
         ]
-      try:
-        gpgkey = self.config.get('//rpms/gpgkey/public/text()')
+      if self.config.get('//gpgkey/sign/text()', 'False') in BOOLEANS_TRUE:
+        gpgkey = self.config.get('//gpgkey/public/text()')
         lines.extend(['gpgcheck=1', 'gpgkey=%s' %(gpgkey,)])
-      except XmlPathError:
+      else:
         lines.append('gpgcheck=0')
       filereader.write(lines, repofile)
       if self.repos_files:

@@ -137,7 +137,7 @@ class ImageModifier(OutputEventHandler, ImageHandler):
     
     self.l_image = locals.iget('//images/image[@id="%s"]' % name)
     
-    OutputEventHandler.__init__(self, interface.config, data, self.isrc, self.mdfile)
+    OutputEventHandler.__init__(self, interface.config, data, self.mdfile)
     ImageHandler.__init__(self, interface, locals)
     
     self.name = name

@@ -251,7 +251,7 @@ def prelogos_hook(interface):
   mkdir(join(interface.getMetadata(), 'images-src/product.img'), parent=True)
         
 def logos_hook(interface):
-  interface.log(0, "processing logos")
+  interface.log(0, "creating logos rpm")
   handler = getHandler('logos')
   interface.modify(handler)
 

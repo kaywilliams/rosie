@@ -12,6 +12,7 @@ EVENTS = [
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['config-rpm'],
+    'parent': 'RPMS',
   }
 ]
 

@@ -131,7 +131,7 @@ class RpmHandler(OutputEventHandler):
          
     self._set_method()
     
-    OutputEventHandler.__init__(self, self.config, data, None,
+    OutputEventHandler.__init__(self, self.config, data,
                                 mdfile=join(self.metadata, '%s.md' %(self.elementname,)),
                                 mddir=self.output_location)
     
