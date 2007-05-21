@@ -20,9 +20,6 @@ EVENTS = [
   },
 ]
 
-HANDLERS = {}
-def addHandler(handler, key): HANDLERS[key] = handler
-def getHandler(key): return HANDLERS[key]
 
 def prediskboot_hook(interface):
   diskboot_md_struct = {
@@ -37,7 +34,7 @@ def prediskboot_hook(interface):
   
   # modify image
   handler = DiskbootModifier('diskboot.img', interface, diskboot_md_struct, L_IMAGES)
-  addHandler(handler, 'diskboot.img')
+  interface.add_handler('diskboot.img', handler)
   
   interface.disableEvent('diskboot')
   if interface.eventForceStatus('diskboot') or False:
@@ -58,7 +55,7 @@ def diskboot_hook(interface):
   dl = FileDownloader(L_FILES, interface)
   dl.download(d,i)
   
-  handler = getHandler('diskboot.img')
+  handler = interface.get_handler('diskboot.img')
   interface.modify(handler)
 
 

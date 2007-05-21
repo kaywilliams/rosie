@@ -19,7 +19,6 @@ __version__ = "1.0"
 __date__    = "April 17th, 2007"
 
 import struct
-import sys
 
 #------ CONSTANTS ------#
 TYPE_STRING = 's'
@@ -121,6 +120,7 @@ for k,v in magic.items():
     MAGIC_NUMBERS.append(MagicNumber(k, m[0], m[1], m[2], m[3]))
 
 if __name__ == '__main__':
+  import sys
   if len(sys.argv) != 2:
     print 'usage: magic.py FILE'
     sys.exit(2)

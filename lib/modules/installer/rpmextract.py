@@ -42,13 +42,6 @@ EVENTS = [
   },  
 ]
 
-#-------- HANDLER DICTIONARY ---------#
-# dictionary of semi-permanent handlers so that I can keep one instance
-# around between two hook functions
-HANDLERS = {}
-def addHandler(handler, key): HANDLERS[key] = handler
-def getHandler(key): return HANDLERS[key]
-
 
 #-------- HELPER FUNCTIONS -----------#
 def extractRpm(rpmPath, output=os.getcwd()):
@@ -92,7 +85,7 @@ class InstallerInterface(EventInterface, OutputEventMixin):
 #------------- HOOK FUNCTIONS --------------#
 def preinstaller_logos_hook(interface):
   handler = InstallerLogosHandler(interface)
-  addHandler(handler, 'installer_logos')
+  interface.add_handler('installer_logos', handler)
   interface.disableEvent('installer_logos')
   if (interface.eventForceStatus('installer_logos') or False) or \
      (interface.pre(handler)):
@@ -100,12 +93,12 @@ def preinstaller_logos_hook(interface):
   
 def installer_logos_hook(interface):
   interface.log(0, "processing installer logos")
-  handler = getHandler('installer_logos')
+  handler = interface.get_handler('installer_logos')
   interface.modify(handler)
 
 def preinstaller_release_files_hook(interface):
   handler = InstallerReleaseHandler(interface)
-  addHandler(handler, 'installer_release_files')
+  interface.add_handler('installer_release_files', handler)
   interface.disableEvent('installer_release_files')
   if (interface.eventForceStatus('installer_release_files') or False) or \
      (interface.pre(handler)):
@@ -113,7 +106,7 @@ def preinstaller_release_files_hook(interface):
 
 def installer_release_files_hook(interface):
   interface.log(0, "processing installer release files")  
-  handler = getHandler('installer_release_files')
+  handler = interface.get_handler('installer_release_files')
   interface.modify(handler)
 
 

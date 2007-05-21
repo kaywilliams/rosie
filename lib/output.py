@@ -143,9 +143,9 @@ class OutputEventMixin:
   
   def modify(self, handler):
     "Perform the modification"
+    handler.getInput()
     if not handler.testInputValid():
       raise InputInvalidException, "the input files are invalid"
-    handler.getInput()
     handler.addOutput()
     if not handler.testOutputValid():
       raise OutputInvalidException, "the output files are invalid"      
@@ -182,7 +182,7 @@ class OutputEventHandler(OutputEventTemplate):
      * self.mddir   : dirname(self.mdfile) if not specified. If not
                       None, it should be the file that contains the
                       output files' location. For example, the
-                      LogosHandler sets mddir to be builddata/logos.                      
+                      LogosHandler sets mddir to be builddata/logos.
      * self.config  : the configuration file from which to read config
                       values     
      * self.data    : a data structure representing the output

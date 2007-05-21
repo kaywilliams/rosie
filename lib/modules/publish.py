@@ -1,6 +1,6 @@
 import os
 
-from os.path       import join
+from os.path import join, exists
 
 import dims.osutils as osutils
 import dims.shlib   as shlib
@@ -43,7 +43,8 @@ def publish_hook(interface):
   dest = join(interface.getPublishStore(), 'test/%s-%s/%s' % (version, release, basearch))
   dest_os = join(dest, 'os')
   
-  interface.log(2, "making directory '%s'" % dest)
+  if not exists(dest):
+    interface.log(2, "making directory '%s'" % dest)
   osutils.mkdir(dest_os, parent=True)
   
   sync.sync(join(interface.getSoftwareStore(), '*'), dest_os, link=True)

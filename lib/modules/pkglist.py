@@ -15,14 +15,12 @@ API_VERSION = 3.0
 EVENTS = [
   {
     'id': 'repogen',
-    'interface': 'EventInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['repoconfig'],
     'requires': ['comps.xml', 'stores', 'RPMS'],
   },
   {
     'id': 'pkglist',
-    'interface': 'PkglistInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['pkglist'],
     'requires': ['comps.xml', 'stores', 'repoconfig'],
@@ -42,19 +40,6 @@ YUMCONF_HEADER = [
   '',
 ]
 
-class PkglistInterface(EventInterface):
-  def __init__(self, base):
-    EventInterface.__init__(self, base)
-  
-  def getRequiredPackages(self):
-    return self._base.reqpkgs
-  def getPkglist(self):
-    try:
-      return self._base.pkglist
-    except AttributeError:
-      return None
-  def setPkglist(self, pkglist):
-    self._base.pkglist = pkglist
 
 def init_hook(interface):
   parser = interface.getOptParser('build')
@@ -104,7 +89,7 @@ def prepkglist_hook(interface):
   if interface.get_cvar('inputstore-changed') or interface.get_cvar('comps-changed'):
     interface.enableEvent('pkglist')
   elif not exists(join(interface.getMetadata(), 'pkglist')) and \
-          interface.getPkglist() is None:
+       not interface.get_cvar('pkglist'):
     interface.enableEvent('pkglist')
   interface.set_cvar('pkglist-changed', False)
 
@@ -117,7 +102,7 @@ def pkglist_hook(interface):
   
   osutils.mkdir(join(interface.getMetadata(), '.depsolve'))
   
-  pkgtups = depsolver.resolve(interface.getRequiredPackages(),
+  pkgtups = depsolver.resolve(interface.get_cvar('required-packages'),
                               root=join(interface.getMetadata(), '.depsolve'),
                               config=cfgfile,
                               arch=interface.arch,
@@ -126,7 +111,7 @@ def pkglist_hook(interface):
   # verify that final package list contains all user-specified packages
   interface.log(1, "verifying package list")
   nlist = [ n for n,_,_,_,_ in pkgtups ] # extract pkg names for checking
-  for pcheck in interface.get_cvar('required-packages', []):
+  for pcheck in interface.get_cvar('user-required-packages', []):
     if pcheck not in nlist:
       raise DepSolveError, "User-specified package '%s' not found in resolved pkglist" % pcheck
   del nlist
@@ -138,16 +123,16 @@ def pkglist_hook(interface):
     pkglist.append('%s-%s-%s' % (n,v,r))
   pkglist.sort()
 
-  interface.setPkglist(pkglist)
+  interface.set_cvar('pkglist', pkglist)
   interface.set_cvar('pkglist-changed', True)
 
   
 def postpkglist_hook(interface):
-  if interface.getPkglist() is None:
-    interface.setPkglist(filereader.read(join(interface.getMetadata(), 'pkglist')))
+  if not interface.get_cvar('pkglist'):
+    interface.set_cvar('pkglist', filereader.read(join(interface.getMetadata(), 'pkglist')))
   else:
     interface.log(1, "writing pkglist")
-    filereader.write(interface.getPkglist(), join(interface.getMetadata(), 'pkglist'))
+    filereader.write(interface.get_cvar('pkglist'), join(interface.getMetadata(), 'pkglist'))
   osutils.rm(interface.get_cvar('repoconfig'), force=True)
 
 class DepSolveError(StandardError): pass

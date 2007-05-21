@@ -18,9 +18,6 @@ EVENTS = [
   },
 ]
 
-HANDLERS = {}
-def addHandler(handler, key): HANDLERS[key] = handler
-def getHandler(key): return HANDLERS[key]
 
 def prexen_hook(interface):
   xen_md_struct = {
@@ -36,7 +33,7 @@ def prexen_hook(interface):
   
   handler = ImageModifier('initrd.img', interface, xen_md_struct, L_IMAGES,
                           mdfile=join(interface.getMetadata(), 'initrd.img-xen.md'))
-  addHandler(handler, 'initrd.img-xen')
+  interface.add_handler('initrd.img-xen', handler)
   
   interface.disableEvent('xen')
   if interface.eventForceStatus('xen') or False:
@@ -56,7 +53,7 @@ def xen_hook(interface):
   dl.download(d,i)
   
   # modify initrd.img
-  handler = getHandler('initrd.img-xen')
+  handler = interface.get_handler('initrd.img-xen')
   interface.modify(handler)
 
 

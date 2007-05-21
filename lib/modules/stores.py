@@ -53,7 +53,7 @@ def stores_hook(interface):
     
     # get the list of .rpms in the input store
     try:
-      pkgs = spider.find(base, glob='*.[Rr][Pp][Mm]', prefix=False,
+      pkgs = spider.find(base, glob='*.[Rr][Pp][Mm]', nglob='repodata', prefix=False,
                          username=u, password=p)
     except URLGrabError, e:
       print e

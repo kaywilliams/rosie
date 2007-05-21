@@ -7,8 +7,8 @@ from dims.repocreator import YumRepoCreator
 from dims.sync import sync
 from dims.xmltree import XmlPathError
 from event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from interface import EventInterface, LocalsMixin
-from lib import RpmHandler, RpmsInterface, addHandler, getHandler, getIpAddress
+from interface import EventInterface
+from lib import RpmHandler, RpmsInterface, getIpAddress
 from main import BOOLEANS_TRUE
 from os.path import exists, join
 from output import tree
@@ -26,18 +26,18 @@ EVENTS = [
 #------ HOOK FUNCTIONS ------#
 def prerelease_hook(interface):
   handler = ReleaseRpmHandler(interface)
-  addHandler(handler, 'release')
+  interface.add_handler('release', handler)
   interface.disableEvent('release')
   if interface.pre(handler) or (interface.eventForceStatus('release') or False):
     interface.enableEvent('release')
         
 def release_hook(interface):
   interface.log(0, "creating release rpm")
-  handler = getHandler('release')
+  handler = interface.get_handler('release')
   interface.modify(handler)
 
 def postrelease_hook(interface):
-  handler = getHandler('release')
+  handler = interface.get_handler('release')
   if handler.create:
     # add rpms to the included-packages control var, so that
     # they are added to the comps.xml

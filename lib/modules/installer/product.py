@@ -17,9 +17,6 @@ EVENTS = [
   },
 ]
 
-HANDLERS = {}
-def addHandler(handler, key): HANDLERS[key] = handler
-def getHandler(key): return HANDLERS[key]
 
 def preproduct_hook(interface):
   product_md_struct = {
@@ -33,7 +30,7 @@ def preproduct_hook(interface):
   }
   
   handler = ImageModifier('product.img', interface, product_md_struct, L_IMAGES)
-  addHandler(handler, 'product.img')
+  interface.add_handler('product.img', handler)
   
   interface.disableEvent('product')
   if interface.eventForceStatus('product') or False:
@@ -43,7 +40,7 @@ def preproduct_hook(interface):
 
 def product_hook(interface):
   interface.log(0, "generating product.img")  
-  handler = getHandler('product.img')
+  handler = interface.get_handler('product.img')
   interface.modify(handler)
 
 

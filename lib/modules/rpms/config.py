@@ -2,19 +2,38 @@ from ConfigParser import ConfigParser
 from dims.osutils import basename, find
 from dims.sync    import sync
 from event        import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from lib          import RpmHandler, RpmsInterface, addHandler, getHandler
+from lib          import RpmHandler, RpmsInterface
 from os.path      import exists, join
 from output       import tree
 
 EVENTS = [
   {
-    'id': 'config',
+    'id': 'config_rpm',
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['config-rpm'],
     'parent': 'RPMS',
   }
 ]
+
+
+def preconfig_rpm_hook(interface):
+  handler = ConfigRpmHandler(interface)
+  interface.add_handler('config-rpm', handler)
+  interface.disableEvent('config_rpm')
+  if interface.pre(handler) or (interface.eventForceStatus('config_rpm') or False):
+    interface.enableEvent('config_rpm')
+
+def config_rpm_hook(interface):
+  interface.log(0, "creating config rpm")
+  handler = interface.get_handler('config-rpm')
+  interface.modify(handler)
+
+def postconfig_rpm_hook(interface):
+  handler = interface.get_handler('config-rpm')
+  if handler.create != None:
+    interface.append_cvar('included-packages', [handler.rpmname])
+
 
 class ConfigRpmHandler(RpmHandler):
   def __init__(self, interface):
@@ -75,21 +94,4 @@ class ConfigRpmHandler(RpmHandler):
       f.write('%s\n' %(file,))
     f.close()
     return ''.join(['/usr/lib/%s/ : ' %(self.product,), ', '.join(lib_files)])
-
-def preconfig_hook(interface):
-  handler = ConfigRpmHandler(interface)
-  addHandler(handler, 'config')
-  interface.disableEvent('config')
-  if interface.pre(handler) or (interface.eventForceStatus('config') or False):
-    interface.enableEvent('config')
-
-def config_hook(interface):
-  interface.log(0, "creating config rpm")
-  handler = getHandler('config')
-  interface.modify(handler)
-
-def postconfig_hook(interface):
-  handler = getHandler('config')
-  if handler.create != None:
-    interface.append_cvar('included-packages', [handler.rpmname])
 

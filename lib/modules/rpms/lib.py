@@ -16,12 +16,6 @@ from main import BOOLEANS_TRUE
 from os.path import exists, join
 from output import OutputEventHandler, OutputEventMixin
 
-#-------- HANDLER DICTIONARY ---------#
-# dictionary of semi-permanent handlers so that I can keep one instance
-# around between two hook functions
-HANDLERS = {}
-def addHandler(handler, key): HANDLERS[key] = handler
-def getHandler(key): return HANDLERS[key]
 
 #--------------- FUNCTIONS ------------------#
 def getProvides(rpmPath):

@@ -44,19 +44,6 @@ class CompsInterface(EventInterface, VersionMixin, FlowControlROMixin):
                                   self._base.base_vars['product'],
                                   'base')
   
-  def getCompsFile(self):
-    return self._base.COMPS_FILE
-  def setCompsFile(self, file):
-    self._base.COMPS_FILE = file
-  
-  def getRequiredPackages(self):
-    try:
-      return self._base.reqpkgs
-    except AttributeError:
-      return None    
-  def setRequiredPackages(self, reqpkgs):
-    self._base.reqpkgs = reqpkgs
-  
 
 #---------- HOOK FUNCTIONS ----------#
 def init_hook(interface):
@@ -81,7 +68,7 @@ def precomps_hook(interface):
   if interface.get_cvar('inputstore-changed'):
     interface.enableEvent('comps')
   elif not exists(join(interface.getMetadata(), 'comps.xml')) and \
-     interface.getCompsFile() is None:
+       not interface.get_cvar('comps-file'):
     interface.enableEvent('comps')
   interface.set_cvar('comps-changed', False)
 
@@ -125,14 +112,14 @@ def comps_hook(interface):
 
 def postcomps_hook(interface):  
   # copy groupfile
-  if interface.getCompsFile() is None:
-    interface.setCompsFile(interface.mdgroupfile)
+  if not interface.get_cvar('comps-file'):
+    interface.set_cvar('comps-file', interface.mdgroupfile)
   osutils.mkdir(interface.storegroupfileloc, parent=True)
-  osutils.cp(interface.getCompsFile(), interface.storegroupfileloc)
+  osutils.cp(interface.get_cvar('comps-file'), interface.storegroupfileloc)
   
   # set required packages
-  reqpkgs = xmltree.read(interface.getCompsFile()).get('//packagereq/text()')
-  interface.setRequiredPackages(reqpkgs)
+  reqpkgs = xmltree.read(interface.get_cvar('comps-file')).get('//packagereq/text()')
+  interface.set_cvar('required-packages', reqpkgs)
   
 
 class CompsHandler:
@@ -157,7 +144,7 @@ class CompsHandler:
                self.interface.get_cvar('included-packages', fallback=[])
     base = Group(product, fullname, 'This group includes packages specific to %s' % fullname)
     if len(packages) > 0:
-      self.interface.set_cvar('required-packages', packages)
+      self.interface.set_cvar('user-required-packages', packages)
       self.comps.getroot().append(base)
       for package in packages:
         self.add_group_package(package, base, type='mandatory')

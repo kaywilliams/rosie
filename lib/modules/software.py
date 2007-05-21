@@ -6,6 +6,7 @@ from os.path       import join
 from rpmUtils.arch import getArchList
 
 import dims.osutils as osutils
+import dims.mkrpm   as mkrpm
 import dims.shlib   as shlib
 import dims.sortlib as sortlib
 import dims.spider  as spider
@@ -14,6 +15,7 @@ import dims.sync    as sync
 from callback  import BuildSyncCallback
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface, VersionMixin, ListCompareMixin
+from main      import BOOLEANS_TRUE
 
 API_VERSION = 3.0
 
@@ -34,17 +36,50 @@ class SoftwareInterface(EventInterface, VersionMixin, ListCompareMixin):
     EventInterface.__init__(self, base)
     VersionMixin.__init__(self, join(self.getMetadata(), '%s.pkgs' % self.getBaseStore()))
     ListCompareMixin.__init__(self)
+    
     self.product = self._base.base_vars['product']
     self.ts = rpm.TransactionSet()
     self.callback = BuildSyncCallback(base.log.threshold)
     
     self.rpmdest = join(self.getSoftwareStore(), self.product, 'RPMS')
+    
+    # gpg key variables; sets up self.pubkey, self.seckey, self.password, self.sign
+    self._get_gpg_key()
   
-  def getPkglist(self):
-    try:
-      return self._base.pkglist
-    except AttributeError:
-      return None
+  def _get_gpg_key(self):
+    if not self.config.get('//gpgkey/do-sign/text()', 'False') in BOOLEANS_TRUE:
+      self.sign = False
+      self.pubkey = None
+      self.seckey = None
+      self.password = None
+      return
+    else:
+      self.sign = True
+    
+    # public key
+    self.pubkey = self.config.get('//gpgkey/public/text()',
+                                  self.get_cvar('gpg-public-key'))
+    if not self.pubkey:
+      raise GpgError, "Missing GPG public key"
+    
+    # secret key
+    self.seckey = self.config.get('//gpgkey/secret/text()',
+                                   self.get_cvar('gpg-secret-key'))
+    if not self.seckey:
+      raise GpgError, "Missing GPG secret key"
+    
+    # password
+    if self.config.pathExists('//gpgkey/password'):
+      self.password = self.config.get('//gpgkey/password/text()', '')
+    else:
+      self.password = self.get_cvar('gpg-passphrase')
+      if not self.password:
+        self.password = mkrpm.rpmsign.getPassphrase()
+    
+    # save values so subsequent instantiations don't redo work
+    self.set_cvar('gpg-public-key', self.pubkey)
+    self.set_cvar('gpg-secret-key', self.seckey)
+    self.set_cvar('gpg-passphrase', self.password)
   
   def rpmNameDeformat(self, rpm):
     """ 
@@ -61,16 +96,16 @@ class SoftwareInterface(EventInterface, VersionMixin, ListCompareMixin):
   
   def rpmCheckSignatures(self, rpmpath, verbose=True):
     "Reads the rpm header to ensure the signature and gpg key validity of an rpm."
+    if not self.sign: return
     if verbose:
       self._base.log.write(2, "%s" % osutils.basename(rpmpath), 40)
-    fd = os.open(rpmpath, os.O_RDONLY)
+    if self.pubkey is None or self.seckey is None or self.password is None:
+      raise GpgError, "GPG key to verify signatures with not specified"
     try:
-      try:
-        self.ts.hdrFromFdno(fd)
-      except rpm.error, e:
-        raise RpmSignatureInvalidError, "Error reading rpm header for file %s: %s" % (rpmpath, str(e))
-    finally:
-      os.close(fd)
+      mkrpm.rpmsign.verifyRpm(rpmpath, passphrase=self.password,
+                              public=self.pubkey, force=True)
+    except mkrpm.rpmsign.SignatureInvalidException:
+      raise RpmSignatureInvalidError
   
   def syncRpm(self, rpm, store, path):
     "Sync an rpm from path within store into the the output store"
@@ -78,13 +113,13 @@ class SoftwareInterface(EventInterface, VersionMixin, ListCompareMixin):
     path = self.cache(join(path, rpm), prefix=store, callback=self.callback)
     rpmsrc  = join(self.getInputStore(), store, path)
     sync.sync(rpmsrc, self.rpmdest)
-    self.rpmCheckSignatures(join(self.rpmdest, osutils.basename(rpm)), verbose=False) # raises RpmSignatureInvalidError
+    #self.rpmCheckSignatures(join(self.rpmdest, osutils.basename(rpm)), verbose=False) # raises RpmSignatureInvalidError
   
   def deleteRpm(self, rpm):
     "Delete an rpm from the output store"
     self.log(2, "deleting %s" % rpm)
     osutils.rm(join(self.rpmdest, '%s.*.[Rr][Pp][Mm]' % rpm))
-
+  
   def createrepo(self):
     "Run createrepo on the output store"
     pwd = os.getcwd()
@@ -100,6 +135,8 @@ class SoftwareInterface(EventInterface, VersionMixin, ListCompareMixin):
     shlib.execute('/usr/lib/anaconda-runtime/genhdlist --productpath %s %s' % \
                   (self.product, self.getSoftwareStore()))
 
+def presoftware_hook(interface):
+  pass
 
 def software_hook(interface):
   "Build a software store"
@@ -123,8 +160,8 @@ class SoftwareHandler:
     self.changed = False
     self._packages = {}
     self._validarchs = getArchList(self.interface.arch)
-    #self._tosign = []
-  
+    self._tosign = []
+    
   def handle(self):
     "Generate a software store"
     rpms = osutils.find(self.interface.rpmdest, name='*.[Rr][Pp][Mm]', prefix=False)
@@ -136,13 +173,14 @@ class SoftwareHandler:
       fullname = '%s-%s-%s' % (name, version, release)
       if fullname not in rpmlist: rpmlist.append(fullname)
   
-    self.interface.compare(rpmlist, self.interface.getPkglist())
-    #self.sign_rpms()
+    self.interface.compare(rpmlist, self.interface.get_cvar('pkglist'))
+    self.sign_rpms()
     self.create_metadata()
   
   # callback functions
   def notify_both(self, i):
-    self.interface.log(1, "checking rpm signatures (%d packages)" % i)
+    if self.interface.sign:
+      self.interface.log(1, "checking rpm signatures (%d packages)" % i)
   def notify_left(self, i):
     self.changed = True
     self.interface.log(1, "deleting old rpms (%d packages)" % i)
@@ -167,6 +205,7 @@ class SoftwareHandler:
         self._packages[fullname][arch].append((i,d,rpm))
     
   def check_rpm(self, rpm):
+    if not self.interface.sign: return
     try:
       for path in osutils.expand_glob(join(self.interface.rpmdest, '*%s*.[Rr][Pp][Mm]' % rpm)):
         self.interface.rpmCheckSignatures(path)
@@ -188,21 +227,19 @@ class SoftwareHandler:
         try:
           store, path, rpmname = self._packages[rpm][arch][0]
           self.interface.syncRpm(rpmname, store, path)
-          #self._tosign.append(rpmname)
+          self._tosign.append(rpmname)
         except IndexError, e:
           self.errlog(1, "No rpm '%s' found in store '%s' for arch '%s'" % (rpm, store, arch))
   
-  #def sign_rpms(self):
-  #  # sign new packages
-  #  ##args = ['/bin/rpm', '--addsign']
-  #  ##args.extend([join(rpmdir, osutils.basename(rpm)) for rpm in tosign])
-  #  ##os.spawnv(os.P_WAIT, '/bin/rpm', args)
-  #  self.interface.log(1, "signing new rpms")
-  #  args = ''
-  #  for rpm in self._tosign: args = args + ' ' + rpm
-  #  shlib.execute('expect -c "spawn /bin/rpm --addsign %s; send timeout -1; ' + \
-  #                           'stty -echo; expect \\"Enter pass phrase: \\"; ' + \
-  #                           'send \\"\\n\\"; expect exp_continue"')
+  def sign_rpms(self):
+    if not self.interface.sign: return
+    self.interface.log(1, "signing new rpms")
+    for rpm in self._tosign:
+      self.interface.log(2, osutils.basename(rpm))
+      mkrpm.rpmsign.signRpm(join(self.interface.rpmdest, osutils.basename(rpm)),
+                            public=self.interface.pubkey,
+                            secret=self.interface.seckey,
+                            passphrase=self.interface.password)
 
   def create_metadata(self):
     # create repository metadata
@@ -217,3 +254,5 @@ class SoftwareHandler:
 
 class RpmSignatureInvalidError(StandardError):
   "Class of exceptions raised when an RPM signature check fails in some way"
+class GpgError(StandardError):
+  "Class of exceptions raised when a GPG-related error occurs"

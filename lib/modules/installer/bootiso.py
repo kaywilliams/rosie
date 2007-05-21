@@ -29,9 +29,6 @@ EVENTS = [
   },
 ]
 
-HANDLERS = {}
-def addHandler(handler, key): HANDLERS[key] = handler
-def getHandler(key): return HANDLERS[key]
 
 #------ HOOK FUNCTIONS ------#
 def preisolinux_hook(interface):
@@ -55,7 +52,7 @@ def preisolinux_hook(interface):
   }
   
   handler = ImageModifier('initrd.img', interface, bootiso_md_struct, L_IMAGES)
-  addHandler(handler, 'initrd.img')
+  interface.add_handler('initrd.img', handler)
   
   interface.disableEvent('isolinux')
   if interface.eventForceStatus('isolinux') or False:
@@ -76,7 +73,7 @@ def isolinux_hook(interface):
   dl.download(d,i)
   
   # modify initrd.img
-  handler = getHandler('initrd.img')
+  handler = interface.get_handler('initrd.img')
   interface.modify(handler)
   
   interface.set_cvar('isolinux-changed', True)

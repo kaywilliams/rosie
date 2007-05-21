@@ -8,7 +8,7 @@ from StringIO import StringIO
 from dims.osutils import basename, dirname, mkdir
 from dims.sync import sync
 from event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from lib import RpmHandler, RpmsInterface, addHandler, getHandler
+from lib import RpmHandler, RpmsInterface
 from os.path import exists, join, isdir, isfile
 from output import tree
 
@@ -30,209 +30,6 @@ EVENTS = [
   },
 ]
 
-L_LOGOS = """
-<locals>
-  <logos-entries>
-    <logos version="0">
-      <logo id="bootloader/grub-splash.xpm.gz">
-        <location>/boot/grub/splash.xpm.gz</location>
-      </logo>
-      <logo id="bootloader/grub-splash.png">
-        <width>640</width>
-        <height>480</height>
-        <location>/boot/grub/splash.png</location>
-        <textmaxwidth>600</textmaxwidth>
-        <textvcenter>240</textvcenter>
-        <texthcenter>320</texthcenter>
-      </logo>
-      <logo id="anaconda/syslinux-splash.png">
-        <width>640</width>
-        <height>300</height>
-        <location>/usr/lib/anaconda-runtime/boot/syslinux-splash.png</location>
-        <textmaxwidth>300</textmaxwidth>
-        <textvcenter>150</textvcenter>
-        <texthcenter>320</texthcenter>
-      </logo>
-      <logo id="anaconda/splashtolss.sh">
-        <location>/usr/lib/anaconda-runtime/splashtolss.sh</location>
-      </logo>
-      <logo id="anaconda/anaconda_header.png">
-        <width>800</width>
-        <height>89</height>
-        <location>/usr/share/anaconda/pixmaps/anaconda_header.png</location>
-        <textmaxwidth>750</textmaxwidth>
-        <textvcenter>45</textvcenter>
-        <texthcenter>400</texthcenter>
-      </logo>
-      <logo id="anaconda/progress_first-lowres.png">
-        <width>350</width>
-        <height>224</height>
-        <location>/usr/share/anaconda/pixmaps/progress_first-lowres.png</location>
-        <textmaxwidth>300</textmaxwidth>
-        <textvcenter>112</textvcenter>
-        <texthcenter>175</texthcenter>        
-      </logo>
-      <logo id="anaconda/progress_first.png">
-        <width>507</width>
-        <height>325</height>
-        <location>/usr/share/anaconda/pixmaps/progress_first.png</location>
-        <textmaxwidth>450</textmaxwidth>
-        <textvcenter>150</textvcenter>
-        <texthcenter>250</texthcenter>        
-      </logo>
-      <logo id="anaconda/splash.png">
-        <width>507</width>
-        <height>388</height>
-        <location>/usr/share/anaconda/pixmaps/splash.png</location>
-        <textmaxwidth>450</textmaxwidth>
-        <textvcenter>194</textvcenter>
-        <texthcenter>250</texthcenter>        
-      </logo>
-      <logo id="kde-splash/BlueCurve/Theme.rc">
-        <location>/usr/share/apps/ksplash/Themes/BlueCurve/Theme.rc</location>
-      </logo>
-      <logo id="kde-splash/BlueCurve/splash_active_bar.png">
-        <width>400</width>
-        <height>61</height>
-        <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_active_bar.png</location>
-        <textmaxwidth>350</textmaxwidth>
-        <textvcenter>30</textvcenter>
-        <texthcenter>200</texthcenter>        
-      </logo>
-      <logo id="kde-splash/BlueCurve/splash_bottom.png">
-        <width>400</width>
-        <height>16</height>
-        <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_bottom.png</location>
-        <textmaxwidth>350</textmaxwidth>
-        <textvcenter>8</textvcenter>
-        <texthcenter>200</texthcenter>        
-      </logo>
-      <logo id="kde-splash/BlueCurve/splash_inactive_bar.png">
-        <width>400</width>
-        <height>61</height>
-        <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_inactive_bar.png</location>
-        <textmaxwidth>350</textmaxwidth>
-        <textvcenter>30</textvcenter>
-        <texthcenter>200</texthcenter>        
-      </logo>
-      <logo id="kde-splash/BlueCurve/splash_top.png">
-        <width>400</width>
-        <height>244</height>
-        <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_top.png</location>
-        <textmaxwidth>350</textmaxwidth>
-        <textvcenter>112</textvcenter>
-        <texthcenter>200</texthcenter>        
-      </logo>
-      <logo id="firstboot/firstboot-header.png">
-        <width>800</width>
-        <height>58</height>
-        <location>/usr/share/firstboot/pixmaps/firstboot-header.png</location>
-        <textmaxwidth>750</textmaxwidth>
-        <textvcenter>25</textvcenter>
-        <texthcenter>400</texthcenter>        
-      </logo>
-      <logo id="firstboot/firstboot-left.png">
-        <width>160</width>
-        <height>600</height>
-        <location>/usr/share/firstboot/pixmaps/firstboot-left.png</location>
-      </logo>
-      <logo id="firstboot/shadowman-round-48.png">
-        <width>48</width>
-        <height>48</height>
-        <location>/usr/share/firstboot/pixmaps/shadowman-round-48.png</location>
-      </logo>
-      <logo id="firstboot/splash-small.png">
-        <width>550</width>
-        <height>200</height>
-        <location>/usr/share/firstboot/pixmaps/splash-small.png</location>
-        <textmaxwidth>500</textmaxwidth>
-        <textvcenter>100</textvcenter>
-        <texthcenter>250</texthcenter>        
-      </logo>
-      <logo id="firstboot/workstation.png">
-        <width>48</width>
-        <height>48</height>
-        <location>/usr/share/firstboot/pixmaps/workstation.png</location>
-      </logo>
-      <logo id="gnome-screensaver/lock-dialog-system.glade">
-        <location>/usr/share/gnome-screensaver/lock-dialog-system.glade</location>
-      </logo>
-      <logo id="redhat-pixmaps/rhad.png">
-        <width>291</width>
-        <height>380</height>
-        <location>/usr/share/pixmaps/redhat/rhad.png</location>
-      </logo>
-      <logo id="redhat-pixmaps/rpm.tif">
-        <width>801</width>
-        <height>512</height>
-        <location>/usr/share/pixmaps/redhat/rpm.tif</location>
-      </logo>
-      <logo id="redhat-pixmaps/rpmlogo-200.png">
-        <width>200</width>
-        <height>200</height>
-        <location>/usr/share/pixmaps/redhat/rpmlogo-200.png</location>
-      </logo>
-      <logo id="redhat-pixmaps/rpmlogo-32.png">
-        <width>32</width>
-        <height>32</height>
-        <location>/usr/share/pixmaps/redhat/rpmlogo-32.png</location>
-      </logo>
-      <logo id="redhat-pixmaps/rpmlogo-32.xpm">
-        <width>32</width>
-        <height>32</height>
-        <location>/usr/share/pixmaps/redhat/rpmlogo-32.xpm</location>
-      </logo>
-      <logo id="redhat-pixmaps/rpmlogo-48.png">
-        <width>48</width>
-        <height>48</height>
-        <location>/usr/share/pixmaps/redhat/rpmlogo-48.png</location>
-      </logo>
-      <logo id="redhat-pixmaps/rpmlogo-48.xpm">
-        <width>48</width>
-        <height>48</height>
-        <location>/usr/share/pixmaps/redhat/rpmlogo-48.xpm</location>
-      </logo>
-      <logo id="redhat-pixmaps/rpmlogo-64.png">
-        <width>64</width>
-        <height>64</height>
-        <location>/usr/share/pixmaps/redhat/rpmlogo-64.png</location>
-      </logo>
-      <logo id="redhat-pixmaps/rpmlogo-64.xpm">
-        <width>64</width>
-        <height>64</height>
-        <location>/usr/share/pixmaps/redhat/rpmlogo-64.xpm</location>
-      </logo>
-      <logo id="gnome-splash/gnome-splash.png">
-        <width>503</width>
-        <height>420</height>
-        <location>/usr/share/pixmaps/splash/gnome-splash.png</location>
-        <textmaxwidth>450</textmaxwidth>
-        <textvcenter>210</textvcenter>
-        <texthcenter>250</texthcenter>        
-      </logo>
-      <logo id="rhgb/main-logo.png">
-        <width>320</width>
-        <height>396</height>
-        <location>/usr/share/rhgb/main-logo.png</location>
-        <textmaxwidth>250</textmaxwidth>
-        <textvcenter>198</textvcenter>
-        <texthcenter>160</texthcenter>        
-      </logo>
-      <logo id="rhgb/system-logo.png">
-        <width>183</width>
-        <height>45</height>
-        <location>/usr/share/rhgb/system-logo.png</location>
-        <textmaxwidth>120</textmaxwidth>
-        <textvcenter>22</textvcenter>
-        <texthcenter>90</texthcenter>        
-      </logo>
-      <logo id="COPYING">
-        <location>/usr/share/NVR/COPYING</location>
-      </logo>
-    </logos>
-  </logos-entries>
-</locals>
-"""
 
 def locals_imerge(string, ver='0'):
   tree = xmltree.read(StringIO(string))
@@ -244,7 +41,7 @@ def locals_imerge(string, ver='0'):
 #------ HOOK FUNCTIONS ------#
 def prelogos_hook(interface):
   handler = LogosRpmHandler(interface)
-  addHandler(handler, 'logos')
+  interface.add_handler('logos', handler)
   interface.disableEvent('logos')
   if interface.pre(handler) or (interface.eventForceStatus('logos') or False):
     interface.enableEvent('logos')
@@ -252,11 +49,11 @@ def prelogos_hook(interface):
         
 def logos_hook(interface):
   interface.log(0, "creating logos rpm")
-  handler = getHandler('logos')
+  handler = interface.get_handler('logos')
   interface.modify(handler)
 
 def postlogos_hook(interface):
-  handler = getHandler('logos')
+  handler = interface.get_handler('logos')
   if handler.create:
     # add rpms to the included-packages control var, so that
     # they are added to the comps.xml
@@ -513,3 +310,208 @@ class LogosRpmHandler(RpmHandler):
       if input_size != control_size:
         return False
     return True
+
+
+L_LOGOS = """ 
+<locals>
+  <logos-entries>
+    <logos version="0">
+      <logo id="bootloader/grub-splash.xpm.gz">
+        <location>/boot/grub/splash.xpm.gz</location>
+      </logo>
+      <logo id="bootloader/grub-splash.png">
+        <width>640</width>
+        <height>480</height>
+        <location>/boot/grub/splash.png</location>
+        <textmaxwidth>600</textmaxwidth>
+        <textvcenter>240</textvcenter>
+        <texthcenter>320</texthcenter>
+      </logo>
+      <logo id="anaconda/syslinux-splash.png">
+        <width>640</width>
+        <height>300</height>
+        <location>/usr/lib/anaconda-runtime/boot/syslinux-splash.png</location>
+        <textmaxwidth>300</textmaxwidth>
+        <textvcenter>150</textvcenter>
+        <texthcenter>320</texthcenter>
+      </logo>
+      <logo id="anaconda/splashtolss.sh">
+        <location>/usr/lib/anaconda-runtime/splashtolss.sh</location>
+      </logo>
+      <logo id="anaconda/anaconda_header.png">
+        <width>800</width>
+        <height>89</height>
+        <location>/usr/share/anaconda/pixmaps/anaconda_header.png</location>
+        <textmaxwidth>750</textmaxwidth>
+        <textvcenter>45</textvcenter>
+        <texthcenter>400</texthcenter>
+      </logo>
+      <logo id="anaconda/progress_first-lowres.png">
+        <width>350</width>
+        <height>224</height>
+        <location>/usr/share/anaconda/pixmaps/progress_first-lowres.png</location>
+        <textmaxwidth>300</textmaxwidth>
+        <textvcenter>112</textvcenter>
+        <texthcenter>175</texthcenter>        
+      </logo>
+      <logo id="anaconda/progress_first.png">
+        <width>507</width>
+        <height>325</height>
+        <location>/usr/share/anaconda/pixmaps/progress_first.png</location>
+        <textmaxwidth>450</textmaxwidth>
+        <textvcenter>150</textvcenter>
+        <texthcenter>250</texthcenter>        
+      </logo>
+      <logo id="anaconda/splash.png">
+        <width>507</width>
+        <height>388</height>
+        <location>/usr/share/anaconda/pixmaps/splash.png</location>
+        <textmaxwidth>450</textmaxwidth>
+        <textvcenter>194</textvcenter>
+        <texthcenter>250</texthcenter>        
+      </logo>
+      <logo id="kde-splash/BlueCurve/Theme.rc">
+        <location>/usr/share/apps/ksplash/Themes/BlueCurve/Theme.rc</location>
+      </logo>
+      <logo id="kde-splash/BlueCurve/splash_active_bar.png">
+        <width>400</width>
+        <height>61</height>
+        <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_active_bar.png</location>
+        <textmaxwidth>350</textmaxwidth>
+        <textvcenter>30</textvcenter>
+        <texthcenter>200</texthcenter>        
+      </logo>
+      <logo id="kde-splash/BlueCurve/splash_bottom.png">
+        <width>400</width>
+        <height>16</height>
+        <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_bottom.png</location>
+        <textmaxwidth>350</textmaxwidth>
+        <textvcenter>8</textvcenter>
+        <texthcenter>200</texthcenter>        
+      </logo>
+      <logo id="kde-splash/BlueCurve/splash_inactive_bar.png">
+        <width>400</width>
+        <height>61</height>
+        <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_inactive_bar.png</location>
+        <textmaxwidth>350</textmaxwidth>
+        <textvcenter>30</textvcenter>
+        <texthcenter>200</texthcenter>        
+      </logo>
+      <logo id="kde-splash/BlueCurve/splash_top.png">
+        <width>400</width>
+        <height>244</height>
+        <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_top.png</location>
+        <textmaxwidth>350</textmaxwidth>
+        <textvcenter>112</textvcenter>
+        <texthcenter>200</texthcenter>        
+      </logo>
+      <logo id="firstboot/firstboot-header.png">
+        <width>800</width>
+        <height>58</height>
+        <location>/usr/share/firstboot/pixmaps/firstboot-header.png</location>
+        <textmaxwidth>750</textmaxwidth>
+        <textvcenter>25</textvcenter>
+        <texthcenter>400</texthcenter>        
+      </logo>
+      <logo id="firstboot/firstboot-left.png">
+        <width>160</width>
+        <height>600</height>
+        <location>/usr/share/firstboot/pixmaps/firstboot-left.png</location>
+      </logo>
+      <logo id="firstboot/shadowman-round-48.png">
+        <width>48</width>
+        <height>48</height>
+        <location>/usr/share/firstboot/pixmaps/shadowman-round-48.png</location>
+      </logo>
+      <logo id="firstboot/splash-small.png">
+        <width>550</width>
+        <height>200</height>
+        <location>/usr/share/firstboot/pixmaps/splash-small.png</location>
+        <textmaxwidth>500</textmaxwidth>
+        <textvcenter>100</textvcenter>
+        <texthcenter>250</texthcenter>        
+      </logo>
+      <logo id="firstboot/workstation.png">
+        <width>48</width>
+        <height>48</height>
+        <location>/usr/share/firstboot/pixmaps/workstation.png</location>
+      </logo>
+      <logo id="gnome-screensaver/lock-dialog-system.glade">
+        <location>/usr/share/gnome-screensaver/lock-dialog-system.glade</location>
+      </logo>
+      <logo id="redhat-pixmaps/rhad.png">
+        <width>291</width>
+        <height>380</height>
+        <location>/usr/share/pixmaps/redhat/rhad.png</location>
+      </logo>
+      <logo id="redhat-pixmaps/rpm.tif">
+        <width>801</width>
+        <height>512</height>
+        <location>/usr/share/pixmaps/redhat/rpm.tif</location>
+      </logo>
+      <logo id="redhat-pixmaps/rpmlogo-200.png">
+        <width>200</width>
+        <height>200</height>
+        <location>/usr/share/pixmaps/redhat/rpmlogo-200.png</location>
+      </logo>
+      <logo id="redhat-pixmaps/rpmlogo-32.png">
+        <width>32</width>
+        <height>32</height>
+        <location>/usr/share/pixmaps/redhat/rpmlogo-32.png</location>
+      </logo>
+      <logo id="redhat-pixmaps/rpmlogo-32.xpm">
+        <width>32</width>
+        <height>32</height>
+        <location>/usr/share/pixmaps/redhat/rpmlogo-32.xpm</location>
+      </logo>
+      <logo id="redhat-pixmaps/rpmlogo-48.png">
+        <width>48</width>
+        <height>48</height>
+        <location>/usr/share/pixmaps/redhat/rpmlogo-48.png</location>
+      </logo>
+      <logo id="redhat-pixmaps/rpmlogo-48.xpm">
+        <width>48</width>
+        <height>48</height>
+        <location>/usr/share/pixmaps/redhat/rpmlogo-48.xpm</location>
+      </logo>
+      <logo id="redhat-pixmaps/rpmlogo-64.png">
+        <width>64</width>
+        <height>64</height>
+        <location>/usr/share/pixmaps/redhat/rpmlogo-64.png</location>
+      </logo>
+      <logo id="redhat-pixmaps/rpmlogo-64.xpm">
+        <width>64</width>
+        <height>64</height>
+        <location>/usr/share/pixmaps/redhat/rpmlogo-64.xpm</location>
+      </logo>
+      <logo id="gnome-splash/gnome-splash.png">
+        <width>503</width>
+        <height>420</height>
+        <location>/usr/share/pixmaps/splash/gnome-splash.png</location>
+        <textmaxwidth>450</textmaxwidth>
+        <textvcenter>210</textvcenter>
+        <texthcenter>250</texthcenter>        
+      </logo>
+      <logo id="rhgb/main-logo.png">
+        <width>320</width>
+        <height>396</height>
+        <location>/usr/share/rhgb/main-logo.png</location>
+        <textmaxwidth>250</textmaxwidth>
+        <textvcenter>198</textvcenter>
+        <texthcenter>160</texthcenter>        
+      </logo>
+      <logo id="rhgb/system-logo.png">
+        <width>183</width>
+        <height>45</height>
+        <location>/usr/share/rhgb/system-logo.png</location>
+        <textmaxwidth>120</textmaxwidth>
+        <textvcenter>22</textvcenter>
+        <texthcenter>90</texthcenter>        
+      </logo>
+      <logo id="COPYING">
+        <location>/usr/share/NVR/COPYING</location>
+      </logo>
+    </logos>
+  </logos-entries>
+</locals>
+"""

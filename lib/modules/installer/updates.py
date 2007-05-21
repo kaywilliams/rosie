@@ -18,9 +18,6 @@ EVENTS = [
   },
 ]
 
-HANDLERS = {}
-def addHandler(handler, key): HANDLERS[key] = handler
-def getHandler(key): return HANDLERS[key]
 
 def preupdates_hook(interface):
   updates_md_struct = {
@@ -34,7 +31,7 @@ def preupdates_hook(interface):
   }
   
   handler = ImageModifier('updates.img', interface, updates_md_struct, L_IMAGES)
-  addHandler(handler, 'updates.img')
+  interface.add_handler('updates.img', handler)
   
   interface.disableEvent('updates')
   if interface.eventForceStatus('updates') or False:
@@ -45,7 +42,7 @@ def preupdates_hook(interface):
 def updates_hook(interface):
   interface.log(0, "generating updates.img")
   
-  handler = getHandler('updates.img')
+  handler = interface.get_handler('updates.img')
   interface.modify(handler)
 
 

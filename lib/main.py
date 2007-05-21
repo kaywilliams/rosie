@@ -95,8 +95,6 @@ class Build:
     self.config = distroconfig
     self.CONFIG_DIR = osutils.dirname(self.config.file)
     
-    self.COMPS_FILE = None
-    
     # set up IMPORT_DIRS
     self.IMPORT_DIRS = mainconfig.mget('//librarypaths/path/text()')
     if options.libpath: self.IMPORT_DIRS.insert(0, options.libpath) # TODO make this a list
@@ -135,7 +133,8 @@ class Build:
                                      self.CACHE_MAX_SIZE)
     
     for dir in [self.SOFTWARE_STORE, self.METADATA, self.TEMP]:
-      self.log(2, "Making directory '%s'" % dir)
+      if not exists(dir):
+        self.log(2, "Making directory '%s'" % dir)
       osutils.mkdir(dir, parent=True)
     
     # load all modules, register events, set up dispatcher
@@ -150,6 +149,10 @@ class Build:
     #  * True  - force this event to run
     #  * False - prevent this event from running
     self.userFC = {}
+    # list of handlers - allows modules to instantiate a single handler
+    # for other modules to use without redoing the work of instantiating
+    # it multiple times
+    self.handlers = {}
     
     # get everything started - raise init - this is so hack
     self.dispatch.next()

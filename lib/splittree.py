@@ -6,7 +6,6 @@ import rpm
 from math import ceil
 from os.path import exists, isfile, isdir, join
 
-import dims.filereader    as filereader
 import dims.FormattedFile as ffile
 import dims.pkgorder      as pkgorder
 import dims.osutils       as osutils
