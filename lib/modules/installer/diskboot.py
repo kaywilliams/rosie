@@ -41,7 +41,7 @@ def prediskboot_hook(interface):
     interface.enableEvent('diskboot')
   elif interface.get_cvar('isolinux-changed'):
     interface.enableEvent('diskboot')
-  elif interface.pre(handler):
+  elif handler.pre():
     interface.enableEvent('diskboot')
 
 def diskboot_hook(interface):
@@ -56,7 +56,7 @@ def diskboot_hook(interface):
   dl.download(d,i)
   
   handler = interface.get_handler('diskboot.img')
-  interface.modify(handler)
+  handler.modify()
 
 
 class DiskbootModifier(ImageModifier):

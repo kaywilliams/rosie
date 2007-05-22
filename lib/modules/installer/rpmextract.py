@@ -13,8 +13,8 @@ from dims.sync    import sync
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface
 from main      import BOOLEANS_TRUE
-from magic     import FILE_TYPE_LSS
-from output    import OutputEventHandler, OutputEventMixin, tree
+from magic     import match as magic_match, FILE_TYPE_LSS
+from output    import OutputEventHandler, tree, InputInvalidError, OutputInvalidError
 
 try:
   import Image
@@ -76,38 +76,37 @@ def extractRpm(rpmPath, output=os.getcwd()):
 
 
 #------------ INTERFACES --------------------#
-class InstallerInterface(EventInterface, OutputEventMixin):
+class InstallerInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
-    OutputEventMixin.__init__(self)
 
 
 #------------- HOOK FUNCTIONS --------------#
 def preinstaller_logos_hook(interface):
   handler = InstallerLogosHandler(interface)
   interface.add_handler('installer_logos', handler)
+  
   interface.disableEvent('installer_logos')
-  if (interface.eventForceStatus('installer_logos') or False) or \
-     (interface.pre(handler)):
+  if (interface.eventForceStatus('installer_logos') or False) or handler.pre():
     interface.enableEvent('installer_logos')
   
 def installer_logos_hook(interface):
   interface.log(0, "processing installer logos")
   handler = interface.get_handler('installer_logos')
-  interface.modify(handler)
+  handler.modify()
 
 def preinstaller_release_files_hook(interface):
   handler = InstallerReleaseHandler(interface)
   interface.add_handler('installer_release_files', handler)
+  
   interface.disableEvent('installer_release_files')
-  if (interface.eventForceStatus('installer_release_files') or False) or \
-     (interface.pre(handler)):
+  if (interface.eventForceStatus('installer_release_files') or False) or handler.pre():
     interface.enableEvent('installer_release_files')
 
 def installer_release_files_hook(interface):
   interface.log(0, "processing installer release files")  
   handler = interface.get_handler('installer_release_files')
-  interface.modify(handler)
+  handler.modify()
 
 
 #------------ HANDLERS -----------------#
@@ -123,14 +122,7 @@ class InstallerHandler(OutputEventHandler):
     
     self.software_store = self.interface.getSoftwareStore()
 
-  def removeObsoletes(self):
-    if hasattr(self, 'output'):
-      for file in self.output.keys():
-        rm(file, recursive=True, force=True)
-
-  removeInvalids = removeObsoletes
-
-  def testInputChanged(self):
+  def test_input_changed(self):
     if not self.mdvalid:
       return True
     else:
@@ -138,24 +130,43 @@ class InstallerHandler(OutputEventHandler):
       self.inputvalid  = (not self._test_input_changed())
       return not(self.configvalid and self.inputvalid)
   
-  def getInput(self):
-    # extract the RPMs
+  def test_output_valid(self):
+    return True
+  
+  def pre(self):
+    if self.test_input_changed() or not self.test_output_valid():
+      self.clean_output()
+      return True
+    return False
+  
+  def clean_output(self):
+    if hasattr(self, 'output'):
+      for file in self.output.keys():
+        rm(file, recursive=True, force=True)
+  
+  def modify(self):
+    # get input - extract RPMs
     self.working_dir = tempfile.mkdtemp() # temporary directory, gets deleted once done    
     for rpm_name in self.data['input']:
-      rpms = find(location=self.software_store, name='%s*[Rr][Pp][Mm]' %(rpm_name,))
+      rpms = find(location=self.software_store, name='%s*[Rr][Pp][Mm]' % rpm_name)
       if len(rpms) == 0:
-        raise RpmNotFoundError, "the %s RPM was not found" %(rpm_name,)
+        raise RpmNotFoundError, "the %s RPM was not found" % rpm_name
       extractRpm(rpms[0], self.working_dir)
-
-  def addOutput(self):
+    
+    # generate output files
     try:
-      self.data['output'] = self._generate() # need to modify self.data, so that the metadata
-                                             # written has all the files created.
+      self.data['output'] = self.generate() # need to modify self.data, so that the metadata
+                                            # written has all the files created.
     finally:
       rm(self.working_dir, recursive=True, force=True)
-
-  def _generate(self): raise NotImplementedError
-
+    
+    # check output validity
+    if not self.test_output_valid():
+      raise OutputInvalidError, "output files are invalid"
+    
+    # write metadata
+    self.write_metadata()
+  
 
 class InstallerLogosHandler(InstallerHandler):
   def __init__(self, interface):
@@ -167,7 +178,7 @@ class InstallerLogosHandler(InstallerHandler):
     InstallerHandler.__init__(self, interface, data, 'installer_logos')
     self.splash_lss= join(self.software_store, 'isolinux', 'splash.lss')    
 
-  def _generate(self):
+  def generate(self):
     "Create the splash.lss file and copy it to the isolinux/ folder"
     output_dir = join(self.software_store, 'isolinux')
     if not exists(output_dir):
@@ -188,11 +199,11 @@ class InstallerLogosHandler(InstallerHandler):
       Image.open(splash_png[0]).save(splash_ppm)
       shlib.execute('ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 < %s > %s'
                     %(splash_ppm, splash_lss,))
-    pixmaps = self.createPixmaps()
+    pixmaps = self.create_pixmaps()
     output = pixmaps + [self.splash_lss]
     return output
 
-  def createPixmaps(self):
+  def create_pixmaps(self):
     """ 
     Create the product.img folder that can be used by the
     product.img module.
@@ -217,8 +228,8 @@ class InstallerLogosHandler(InstallerHandler):
         pixmaps.append(pixmap)
     return pixmaps
   
-  def testOutputValid(self):
-    return self.interface.verifyType(self.splash_lss, FILE_TYPE_LSS)
+  def test_output_valid(self):
+    return magic_match(self.splash_lss) == FILE_TYPE_LSS
 
 
 class InstallerReleaseHandler(InstallerHandler):
@@ -230,7 +241,7 @@ class InstallerReleaseHandler(InstallerHandler):
         }
     InstallerHandler.__init__(self, interface, data, 'installer_release_files')
 
-  def _generate(self):
+  def generate(self):
     files = {}
     rtn = []    
     for path in self.config.mget('//installer/release-files/path'):

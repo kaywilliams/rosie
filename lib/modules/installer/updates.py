@@ -36,14 +36,14 @@ def preupdates_hook(interface):
   interface.disableEvent('updates')
   if interface.eventForceStatus('updates') or False:
     interface.enableEvent('updates')
-  elif interface.pre(handler):
+  elif handler.pre():
     interface.enableEvent('updates')
 
 def updates_hook(interface):
   interface.log(0, "generating updates.img")
   
   handler = interface.get_handler('updates.img')
-  interface.modify(handler)
+  handler.modify()
 
 
 L_IMAGES = ''' 

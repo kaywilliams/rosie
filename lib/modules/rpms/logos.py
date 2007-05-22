@@ -43,14 +43,14 @@ def prelogos_hook(interface):
   handler = LogosRpmHandler(interface)
   interface.add_handler('logos', handler)
   interface.disableEvent('logos')
-  if interface.pre(handler) or (interface.eventForceStatus('logos') or False):
+  if (interface.eventForceStatus('logos') or False) or handler.pre():
     interface.enableEvent('logos')
   mkdir(join(interface.getMetadata(), 'images-src/product.img'), parent=True)
         
 def logos_hook(interface):
   interface.log(0, "creating logos rpm")
   handler = interface.get_handler('logos')
-  interface.modify(handler)
+  handler.modify()
 
 def postlogos_hook(interface):
   handler = interface.get_handler('logos')
@@ -67,28 +67,24 @@ def postlogos_hook(interface):
 class LogosRpmHandler(RpmHandler):
   def __init__(self, interface):
     data =  {
-      'config': [
-        '/distro/main/fullname/text()',
-        '/distro/main/version/text()',
-        '//logos-rpm',
-      ],
-      'output': [
-        join(interface.getMetadata(), 'logos-rpm/'),
-      ]
+      'config': ['/distro/main/fullname/text()',
+                 '/distro/main/version/text()',
+                 '//logos-rpm'],
+      'output': [join(interface.getMetadata(), 'logos-rpm/')]
     }  
     RpmHandler.__init__(self, interface, data,
                         elementname='logos-rpm',
-                        rpmname='%s-logos' %(interface.product,),
+                        rpmname='%s-logos' % interface.product,
                         provides_test='redhat-logos',
                         provides='system-logos, redhat-logos = 4.9.3',
                         obsoletes = 'fedora-logos centos-logos redhat-logos',
                         description='Icons and pictures related to %s' \
-                          %(interface.config.get('//main/fullname/text()'),),
+                          % interface.config.get('//main/fullname/text()'),
                         long_description='The %s-logos package contains '
                           'image files which have been automatically created '
                           'by dimsbuild and are specific to the %s '
                           'distribution.' \
-                          %(interface.product, interface.config.get('//main/fullname/text()'),))
+                          % (interface.product, interface.config.get('//main/fullname/text()')))
 
     self.locals = locals_imerge(L_LOGOS)
     self.build_controlset()
@@ -312,7 +308,7 @@ class LogosRpmHandler(RpmHandler):
     return True
 
 
-L_LOGOS = """ 
+L_LOGOS = ''' 
 <locals>
   <logos-entries>
     <logos version="0">
@@ -514,4 +510,4 @@ L_LOGOS = """
     </logos>
   </logos-entries>
 </locals>
-"""
+'''

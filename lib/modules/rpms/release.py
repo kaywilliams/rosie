@@ -28,13 +28,14 @@ def prerelease_hook(interface):
   handler = ReleaseRpmHandler(interface)
   interface.add_handler('release', handler)
   interface.disableEvent('release')
-  if interface.pre(handler) or (interface.eventForceStatus('release') or False):
+  if (interface.eventForceStatus('release') or False) or \
+      handler.pre():
     interface.enableEvent('release')
         
 def release_hook(interface):
   interface.log(0, "creating release rpm")
   handler = interface.get_handler('release')
-  interface.modify(handler)
+  handler.modify()
 
 def postrelease_hook(interface):
   handler = interface.get_handler('release')

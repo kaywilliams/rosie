@@ -193,8 +193,8 @@ class SoftwareHandler:
       base = self.interface.storeInfoJoin(s,n,d)
       
       # get the list of .rpms in the input store
-      rpms = spider.find(base, glob='*.[Rr][Pp][Mm]', prefix=False,
-                         username=u, password=p)
+      rpms = spider.find(base, glob='*.[Rr][Pp][Mm]', nglob='repodata',
+                         prefix=False, username=u, password=p)
       for rpm in rpms:
         _,name,version,release,arch = self.interface.rpmNameDeformat(rpm)
         fullname = '%s-%s-%s' % (name, version, release)

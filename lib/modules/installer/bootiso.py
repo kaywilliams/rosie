@@ -57,7 +57,7 @@ def preisolinux_hook(interface):
   interface.disableEvent('isolinux')
   if interface.eventForceStatus('isolinux') or False:
     interface.enableEvent('isolinux')
-  elif interface.pre(handler):
+  elif handler.pre():
     interface.enableEvent('isolinux')
   
 
@@ -74,7 +74,7 @@ def isolinux_hook(interface):
   
   # modify initrd.img
   handler = interface.get_handler('initrd.img')
-  interface.modify(handler)
+  handler.modify()
   
   interface.set_cvar('isolinux-changed', True)
 

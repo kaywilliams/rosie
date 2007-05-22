@@ -15,8 +15,9 @@ from callback  import BuildSyncCallback
 from interface import EventInterface, VersionMixin
 from locals    import printf_local
 from main      import BOOLEANS_TRUE
+from magic     import match as magic_match
 from magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS, FILE_TYPE_FAT
-from output    import OutputEventMixin, OutputEventHandler
+from output    import OutputEventHandler, OutputInvalidError
 
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')
 
@@ -28,11 +29,10 @@ MAGIC_MAP = {
 }
 
 
-class InstallerInterface(EventInterface, OutputEventMixin, VersionMixin):
+class InstallerInterface(EventInterface, VersionMixin):
   def __init__(self, base):
     EventInterface.__init__(self, base)
     VersionMixin.__init__(self, join(self.getMetadata(), '%s.pkgs' % self.getBaseStore()))
-    OutputEventMixin.__init__(self)
   
 
 class ImageHandler:
@@ -110,10 +110,10 @@ class ImageHandler:
       return False
     else:
       if self._iszipped():
-        return self.interface.verifyType(p, FILE_TYPE_GZIP)
+        return magic_match(p) == FILE_TYPE_GZIP
       else:
         format = self.l_image.iget('format/text()')
-        return self.interface.verifyType(p, MAGIC_MAP[format])
+        return magic_match(p) == MAGIC_MAP[format]
 
 
 class ImageModifier(OutputEventHandler, ImageHandler):
@@ -142,43 +142,47 @@ class ImageModifier(OutputEventHandler, ImageHandler):
     
     self.name = name
   
-  def initVars(self): pass
-  
-  def testOutputValid(self): # TODO - expand on this, pretty basic
-    return self.validate_image()
-  
-  def removeObsoletes(self):
-    self.removeInvalids()
-  
-  def removeInvalids(self):
-    osutils.rm(self.dest, force=True)
-    #osutils.rm(self.mdfile, force=True)
-  
-  def getInput(self):
+  def pre(self):
+    if self.test_input_changed():
+      osutils.rm(self.dest, force=True)
+      return True
+    if not self.validate_image():
+      ostuils.rm(self.dest, force=True)
+      return True
+    return False
+    
+  def modify(self):
+    # sync image to input store
     osutils.mkdir(osutils.dirname(self.isrc), parent=True)
-    # try to get the image from the input store - if its not there and image is
-    # virtual, that's ok; otherwise, raise
+    # try to get image from input store - if it is not there and image is virtual,
+    # that's ok; otherwise, raise
     try:
       sync.sync(self.rsrc, osutils.dirname(self.isrc),
                 username=self.username, password=self.password) # cachemanager this
     except sync.util.SyncError, e:
       if self._isvirtual(): pass
       else: raise e
-  
-  def testInputValid(self):
-    return True # tested in addOutput
-  
-  def addOutput(self):
-    self.interface.log(1, "modifying %s" % self.name)
+    
+    # sync image to output store
     osutils.mkdir(osutils.dirname(self.dest), parent=True)
     try:
       sync.sync(self.isrc, osutils.dirname(self.dest))
     except sync.util.SyncError, e:
       if self._isvirtual(): pass
       else: raise e
-    self.open() # testInputValid()
+    
+    # modify image
+    self.interface.log(1, "modifying %s" % self.name)
+    self.open()
     self.generate()
     self.close()
+    
+    # validate output
+    if not self.validate_image():
+      raise OutputInvalidError, "output files are invalid"
+    
+    # write metadata
+    self.write_metadata()
   
   def generate(self):
     for file in self.interface.config.mget('//installer/%s/path' % self.name, []):

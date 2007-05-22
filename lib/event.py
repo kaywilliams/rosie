@@ -591,6 +591,20 @@ def depthfirst(event):
     for x in depthfirst(event.nextsibling):
       yield x
 
+def pprint(event):
+  for event in depthfirst(event):
+    if event.id.startswith('pre') or event.id.startswith('post'):
+      continue # hack
+    e = event; depth = 0
+    # this is somewhat inefficient
+    while e.parent is not None:
+      e = e.parent; depth += 1
+    if depth == 0:
+      print event.id
+    else:
+      print '|  ' * (depth-1) + '|- ' + event.id
+    
+
 #------ FACTORY FUNCTIONS ------#
 def EventFromStruct(struct):
   """ 

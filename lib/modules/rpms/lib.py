@@ -14,7 +14,7 @@ from dims.sync import sync
 from event import EventInterface
 from main import BOOLEANS_TRUE
 from os.path import exists, join
-from output import OutputEventHandler, OutputEventMixin
+from output import OutputEventHandler, OutputInvalidError
 
 
 #--------------- FUNCTIONS ------------------#
@@ -42,7 +42,7 @@ def buildRpm(path, rpm_output, changelog=None, logger='rpmbuild',
   # is going to get deleted once the rpm build process is complete.
   eargv = ['--bdist-base', '/usr/src/redhat',
            '--rpm-base', '/usr/src/redhat/']
-
+  
   mkrpm.build(path, rpm_output, changelog=changelog, logger=logger,
               functionName=functionName, keepTemp=keepTemp, createrepo=createrepo,
               quiet=quiet, eargv=eargv)
@@ -65,11 +65,10 @@ class RpmsMixin:
     shlib.execute('/usr/bin/createrepo -q .')
     os.chdir(pwd)  
 
-class RpmsInterface(EventInterface, RpmsMixin, OutputEventMixin):
+class RpmsInterface(EventInterface, RpmsMixin):
   def __init__(self, base):
     EventInterface.__init__(self, base)
     RpmsMixin.__init__(self)
-    OutputEventMixin.__init__(self)
 
   def append_cvar(self, flag, value):
     if flag in self._base.mvars.keys():
@@ -126,45 +125,47 @@ class RpmHandler(OutputEventHandler):
     self._set_method()
     
     OutputEventHandler.__init__(self, self.config, data,
-                                mdfile=join(self.metadata, '%s.md' %(self.elementname,)),
-                                mddir=self.output_location)
+                                mdfile=join(self.metadata, '%s.md' % self.elementname))
     
   def _set_method(self):
-    if self.config.get('//%s/create/text()' %(self.elementname,), 'True') in BOOLEANS_TRUE:
+    if self.config.get('//%s/create/text()' % self.elementname, 'True') in BOOLEANS_TRUE:
       self.create = True
     else:
       self.create = False
-
-  def removeObsoletes(self):
-    for rpm in find(location=self.rpm_output, name='%s*[Rr][Pp][Mm]'):
-      rm(rpm, force=True)
-    rm(self.output_location, recursive=True, force=True)
-
-  removeInvalids = removeObsoletes
-
-  def testInputChanged(self, checkCreate=True):
-    if checkCreate:
-      # if self.create is False, skip the RPM creation    
-      return self.create and OutputEventHandler.testInputChanged(self)
-    else:
-      return OutputEventHandler.testInputChanged(self)
+  
+  def pre(self):
+    if self.test_input_changed() or not self.testOutputValid():
+      for rpm in find(self.rpm_output, name='%s*[Rr][Pp][Mm]' % self.rpmname):
+        rm(rpm, force=True)
+      rm(self.output_location, recursive=True, force=True)
+      return True
+    return False
     
-  def testInputValid(self): return True
-
-  testOutputValid = testInputValid
-
+  def modify(self):
+    self.getInput()
+    self.addOutput()
+    if not self.testOutputValid():
+      raise OutputInvalidError, "output is invalid"
+    self.write_metadata()
+  
+  #def testInputChanged(self, checkCreate=True):
+  #  if checkCreate:
+  #    # if self.create is False, skip the RPM creation    
+  #    return self.create and OutputEventHandler.testInputChanged(self)
+  #  else:
+  #    return OutputEventHandler.testInputChanged(self)
+    
   def getInput(self):
     if not exists(self.rpm_output):
       mkdir(self.rpm_output, parent=True)
     if not exists(self.output_location):
       mkdir(self.output_location, parent=True)
-    if ((type(self.create) == bool and self.create) or self.create != None) and \
-           self.data.has_key('input'):
+    if self.create and self.data.has_key('input'):
       for input in self.data['input']:
         sync(input, self.output_location)
 
   def addOutput(self):
-    if ((type(self.create) == bool and self.create) or self.create != None):
+    if self.create:
       self.generate()
       self.setup()
       buildRpm(self.output_location, self.rpm_output,

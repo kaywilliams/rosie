@@ -38,7 +38,7 @@ def prexen_hook(interface):
   interface.disableEvent('xen')
   if interface.eventForceStatus('xen') or False:
     interface.enableEvent('xen')
-  elif interface.pre(handler):
+  elif handler.pre():
     interface.enableEvent('xen')
 
 def xen_hook(interface):
@@ -54,7 +54,7 @@ def xen_hook(interface):
   
   # modify initrd.img
   handler = interface.get_handler('initrd.img-xen')
-  interface.modify(handler)
+  handler.modify()
 
 
 L_FILES = ''' 

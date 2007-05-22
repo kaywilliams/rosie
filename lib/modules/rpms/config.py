@@ -21,33 +21,27 @@ def preconfig_rpm_hook(interface):
   handler = ConfigRpmHandler(interface)
   interface.add_handler('config-rpm', handler)
   interface.disableEvent('config_rpm')
-  if interface.pre(handler) or (interface.eventForceStatus('config_rpm') or False):
+  if (interface.eventForceStatus('config_rpm') or False) or handler.pre():
     interface.enableEvent('config_rpm')
 
 def config_rpm_hook(interface):
   interface.log(0, "creating config rpm")
   handler = interface.get_handler('config-rpm')
-  interface.modify(handler)
+  handler.modify()
 
 def postconfig_rpm_hook(interface):
   handler = interface.get_handler('config-rpm')
-  if handler.create != None:
+  if handler.create:
     interface.append_cvar('included-packages', [handler.rpmname])
 
 
 class ConfigRpmHandler(RpmHandler):
   def __init__(self, interface):
     data = {
-      'config': [
-        '//rpms/config-rpm',
-      ],
-      'input': [
-        interface.config.mget('//rpms/config-rpm/config/script/path/text()', []),
-        interface.config.mget('//rpms/config-rpm/config/supporting-files/path/text()', []),
-      ],
-      'output': [
-        join(interface.getMetadata(), 'config-rpm'),
-      ]
+      'config': ['//rpms/config-rpm'],
+      'input':  [interface.config.mget('//rpms/config-rpm/config/script/path/text()', []),
+                 interface.config.mget('//rpms/config-rpm/config/supporting-files/path/text()', [])],
+      'output': [join(interface.getMetadata(), 'config-rpm')]
     }
     requires = ''.join(interface.config.mget('//rpms/config-rpm/requires/package/text()', []))
     obsoletes = ''.join(interface.config.mget('//rpms/config-rpm/obsoletes/package/text()', []))
@@ -61,11 +55,8 @@ class ConfigRpmHandler(RpmHandler):
                         'configuring the %s distribution' %(interface.product, interface.fullname,))
 
     # @override RpmHandler.create    
-    self.create = (self.config.get('//rpms/config-rpm/requires', None) and \
-                   self.config.get('//rpms/config-rpm/obsoletes', None))
-
-  def testInputChanged(self):
-    return RpmHandler.testInputChanged(self, checkCreate=False)
+    self.create = (self.config.get('//rpms/config-rpm/requires', None) or \
+                   self.config.get('//rpms/config-rpm/obsoletes', None)) is not None
 
   def setup(self):
     # overriding RpmHandler.setup() because need to add the post script
