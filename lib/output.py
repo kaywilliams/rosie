@@ -89,7 +89,11 @@ class OutputEventHandler:
     # data structure representing this output object
     self.data = data
     self._expand_data() # expand the lists in 'input' and 'output'
-    
+
+    # all the relative paths in the struct's input entry, are relative to the
+    # the config file's directory.
+    self.data['input'] = map(lambda x: join(dirname(self.config.file), x), self.data['input'])
+      
     # read in metadata - self.mdvalid is False unless read_metadata() finds a file
     self.mdvalid = False
     self.read_metadata()
