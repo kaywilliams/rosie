@@ -14,10 +14,8 @@ EVENTS = [
   {
     'id': 'RPMS',
     'provides': ['RPMS'],
-    'requires': ['.discinfo'],
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_META,
-    'requires': ['stores'],        
   },
 ]
 
@@ -41,12 +39,6 @@ def prestores_hook(interface):
 
 def postRPMS_hook(interface):
   interface.createrepo()
-  #pkgs = find(interface.LOCAL_REPO, '*.[Rr][Pp][Mm]',
-  #            nregex='.*src.[Rr][Pp][Mm]',prefix=False)
-  pkgs = find(interface.LOCAL_REPO, '*.[Rr][Pp][Mm]', prefix=False)
-  pkgsfile = join(interface.getMetadata(), 'dimsbuild-local.pkgs')
-  if len(pkgs) > 0:
-    filereader.write(pkgs, pkgsfile)  
 
 def postrepogen_hook(interface):
   cfgfile = interface.get_cvar('repoconfig')

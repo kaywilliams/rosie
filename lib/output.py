@@ -159,11 +159,17 @@ class OutputEventHandler:
     for item in self.data.get('config', []):
       try:
         node = metadata.get('/metadata/config-values/value[@path="%s"]/*' % item)[0]
-        self.configvals[item] = node or NoneEntry(item)
+        if node is not None:
+          self.configvals[item] = node
+        else:
+          self.configvals[item] = NoneEntry(item)
       except IndexError:
         try:
           node = metadata.get('/metadata/config-values/value[@path="%s"]' % item)[0]
-          self.configvals[item] = node.text or NoneEntry(item)          
+          if node is not None:
+            self.configvals[item] = node.text or NoneEntry(item)
+          else:
+            self.configvals[item] = NoneEntry(item)
         except IndexError:
           self.configvals[item] = NewEntry()
 
@@ -180,14 +186,10 @@ class OutputEventHandler:
     # using a for-loop around it :).
     for key in ['input', 'output']:
       object = getattr(self, key)
-      if self.data.has_key(key):
-        for path in self.data[key]:
-          for file in tree(path, type='f|l'):            
-            source = metadata.iget('/metadata/%s/file[@path="%s"]' % (key, file), None)
-            if source:
-              object[file] = {}
-              object[file]['size']  = int(source.iget('size').text)
-              object[file]['mtime'] = int(source.iget('mtime').text)
+      for source in metadata.get('/metadata/%s/file' % key):
+        file = source.iget('@path')
+        object[file] = {'size': int(source.iget('size').text),
+                        'mtime': int(source.iget('mtime').text)}
     self.mdvalid = True # md readin was successful
   
   def write_metadata(self):
@@ -232,8 +234,8 @@ class OutputEventHandler:
         varvals = xmltree.Element('variable-values')
         root.insert(1, varvals)
         for var in self.data['variables']:
+          self.dprint("writing %s = %s to metadata file" % (var, eval('self.%s' % var)))
           try:            
-            self.dprint("writing %s = %s to metadata file" % (var, eval('self.%s' % var)))
             xmltree.Element('value', parent=varvals, text=eval('self.%s' % var),
                             attrs={'variable': var})
           except xmltree.XmlPathError:
@@ -266,6 +268,7 @@ class OutputEventHandler:
     individual function descriptions for more information on the specifics
     of each test.
     """
+    print 'default:test_input_changed()'
     if not self.mdvalid:
       return True
     else:
@@ -287,6 +290,7 @@ class OutputEventHandler:
     different,  this  test  fails.   Additionally, if  self.data['config']
     contains an item not in self.configvals, this test fails.    
     """
+    if not self.mdvalid: return True
     if not self.data.has_key('config'):
       return False
     else:
@@ -303,8 +307,11 @@ class OutputEventHandler:
           #self.dprint("key = %s" % path)
           return True
     return False  
-
+  
+  test_config_changed = _test_configvals_changed
+  
   def _test_vars_changed(self):
+    if not self.mdvalid: return True
     if not self.data.has_key('variables'):
       return False
     else:
@@ -322,16 +329,29 @@ class OutputEventHandler:
           return True
     return False
   
+  test_vars_changed = _test_vars_changed
+  
   def _test_input_changed(self):
     """ 
     Compare the input files' timestamp and size to see if any have
     changed. Use self.input as the list of elements to compare
     against.    
     """
+    if not self.mdvalid: return True
     if not self.data.has_key('input'):
       return False
     # compare the files in the metadata with the files in self.data['input']
+    print 'input'
+    print self.diff(self.input, self.data['input'])
     return self._has_changed(self.input, self.data['input'])
+  
+  def test_input_changed2(self):
+    "Return a list of diff tuples of differeing input"
+    if not self.mdvalid:
+      return self.diff({}, self.data['input'])
+    if not self.data.has_key('input'):
+      return []
+    return self.diff(self.input, self.data['input'])
   
   def _test_output_changed(self):
     """ 
@@ -339,10 +359,21 @@ class OutputEventHandler:
     self.output; if they are the same, this test succeeds else it
     fails.    
     """
+    if not self.mdvalid: return True
     if not self.data.has_key('output'):
       return False
     # compare the files in the metadata with the files in self.data['output']
+    print 'output'
+    print self.diff(self.output, self.data['output'])
     return self._has_changed(self.output, self.data['output'])
+  
+  def test_output_changed2(self):
+    "Return a list of diff tuples of differing output"
+    if not self.mdvalid:
+      return self.diff({}, self.data['output'])
+    if not self.data.has_key('output'):
+      return []
+    return self.diff(self.output, self.data['output'])
 
   def _has_changed(self, olddata, newdata):
     """ 
@@ -379,7 +410,83 @@ class OutputEventHandler:
         return True
       #self.dprint("file '%s' unchanged" % file)
     return False
-
+  
+  def diff(self, olddata, newdata):
+    """ 
+    Return a dictionary of 'diff tuples' expressing the differences between
+    olddata and newdata.  If there are no differences, the dictionary will be
+    empty.  olddata is an expanded list of dictionaries containing 'size'
+    and 'mtime' values; newdata is a list of lists of filenames.
+    
+    There are 3 possible types of diff tuples.  Each means something slightly
+    different:
+      (size, mtime):
+        in metadata: file is present in metadata file
+        in struct:   file is listed in struct and exists on disk
+      (None, None):
+        in metadata: N/A
+        in struct:   file is listed in struct but doesn not exist on disk
+      None:
+        in metadata: file is not present in metadata file
+        in struct:   file is not listed in struct
+    """
+    diffdict = {}
+    
+    newfiles = [] # list of files in the struct
+    for item in newdata:
+      if type(item) == str:
+        item = [item]
+      for path in item:
+        newfiles.extend(tree(path, type='f|l'))
+    newfiles.sort()
+    
+    oldfiles = olddata.keys() # list of files in metadata
+    oldfiles.sort()
+    
+    # keep a list of already-processed elements so we don't add them in twice
+    processed = []
+    
+    # first check for presence/absence of files in each list
+    for x in newfiles:
+      if x not in oldfiles:
+        diffdict[x] = (None, self.__gen_diff_tuple2(x))
+    for x in oldfiles:
+      if x not in newfiles:
+        processed.append(x)
+        diffdict[x] = ((olddata[x]['size'], olddata[x]['mtime']), None)
+    
+    # now check sizes and mtimes
+    for file in oldfiles:
+      if file in processed: continue
+      oldtup = (olddata[file]['size'], olddata[file]['mtime'])
+      try:
+        stats = os.stat(file)
+        # files differ in size or mtime
+        if (stats.st_mtime != olddata[file]['mtime']) or \
+           (stats.st_size != olddata[file]['size']):
+          diffdict[file] = (oldtup, (stats.st_size, stats.st_mtime))
+      except OSError:
+        # file does not exist
+        diffdict[file] = (None, None)
+    
+    return diffdict
+  
+  def __gen_diff_tuple(self, file):
+    "Generate a (filename, size, mtime) tuple"
+    try:
+      stats = os.stat(file)
+    except OSError:
+      return (file, None, None)
+    return (file, stats.st_size, stats.st_mtime)
+  
+  def __gen_diff_tuple2(self, file):
+    "Generate a (size, mtime) tuple for file"
+    try:
+      stats = os.stat(file)
+    except OSError:
+      return (None, None)
+    return (stats.st_size, stats.st_mtime)
+  
   def _expand_data(self):
     for key in ['input', 'output']:
       if self.data.has_key(key):

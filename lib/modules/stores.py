@@ -18,6 +18,7 @@ EVENTS = [
   {
     'id': 'stores',
     'provides': ['stores'],
+    'requires': ['RPMS'],
     'properties': EVENT_TYPE_PROC,
     'interface': 'StoresInterface',
   },
