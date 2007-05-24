@@ -111,16 +111,22 @@ def installer_release_files_hook(interface):
 
 #------------ HANDLERS -----------------#
 class InstallerHandler(OutputEventHandler):
-  def __init__(self, interface, data, name):
+  def __init__(self, interface, data, name):    
     self.interface = interface
-
     self.config = self.interface.config
-    self.data = data
+    self.software_store = self.interface.getSoftwareStore()
 
+    # find all the input RPMs and set the struct's 'input' list
+    input = []
+    for rpmname in data['input']:
+      rpms = find(self.software_store, name='%s*[Rr][Pp][Mm]' %(rpmname,))
+      if len(rpms) == 0:
+        raise RpmNotFoundError, "'%s' RPM missing" %(rpmname,)
+      input.append(rpms[0])
+    data['input'] = input
+    
     OutputEventHandler.__init__(self, self.config, data,
                                 mdfile=join(self.interface.getMetadata(), '%s.md' %(name,)))
-    
-    self.software_store = self.interface.getSoftwareStore()
 
   def test_input_changed(self):
     if not self.mdvalid:
@@ -147,11 +153,9 @@ class InstallerHandler(OutputEventHandler):
   def modify(self):
     # get input - extract RPMs
     self.working_dir = tempfile.mkdtemp() # temporary directory, gets deleted once done    
-    for rpm_name in self.data['input']:
-      rpms = find(location=self.software_store, name='%s*[Rr][Pp][Mm]' % rpm_name)
-      if len(rpms) == 0:
-        raise RpmNotFoundError, "the %s RPM was not found" % rpm_name
-      extractRpm(rpms[0], self.working_dir)
+
+    for rpmname in self.data['input']:
+      extractRpm(rpmname, self.working_dir)
     
     # generate output files
     try:
@@ -169,7 +173,7 @@ class InstallerHandler(OutputEventHandler):
   
 
 class InstallerLogosHandler(InstallerHandler):
-  def __init__(self, interface):
+  def __init__(self, interface):    
     data = {
         'config': ['//installer/logos'],
         'input':  [interface.config.get('//installer/logos/package/text()',
@@ -238,7 +242,7 @@ class InstallerReleaseHandler(InstallerHandler):
         'config': ['//installer/release-files'],
         'input':  [interface.config.get('//installer/release-files/package/text()',
                                         '%s-release' %(interface.product,))],
-        }
+    }
     InstallerHandler.__init__(self, interface, data, 'installer_release_files')
 
   def generate(self):
