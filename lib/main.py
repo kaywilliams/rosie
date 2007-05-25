@@ -5,9 +5,9 @@ Python script defining the Build class, the primary controller for the
 Distribution Management System (DiMS).
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@abodiosoftware.com>"
-__version__ = "3.0"
-__date__    = "March 7th, 2007"
+__author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
+__version__ = '3.0'
+__date__    = 'March 7th, 2007'
 
 import imp
 import os
@@ -154,12 +154,9 @@ class Build:
     # it multiple times
     self.handlers = {}
     
-    # get everything started - raise init - this is so hack
-    self.dispatch.next()
-    self.dispatch.raise_event(self) # raise preALL
-    self.dispatch.move(2) # skip ALL (meta event)
-    self.dispatch.raise_event(self, parser) # raise init
-    self.dispatch.next()
+    # get everything started - raise init and other events prior
+    self.dispatch.process(until='ALL',  base=self)
+    self.dispatch.process(until='init', base=self, parser=parser)
     
     #for event in self.dispatch.iter.order:
     #  print event.id
@@ -254,8 +251,7 @@ class Build:
     for e in options.skip_events:
       self.__flowcontrol_apply(e, OPT_SKIP)
     
-    self.dispatch.raise_event(self, options) # raise applyopt - kinda hackish
-    #self.dispatch.next() # advance to next event - removed so that validate event will not be skipped
+    self.dispatch.process(until='applyopt', base=self, options=options)
     
     for eventid, enabled in self.userFC.items():
       if enabled is None: continue
@@ -285,7 +281,7 @@ class Build:
   
   def main(self):
     "Build a distribution"
-    self.dispatch.process(self)
+    self.dispatch.process(until=None, base=self)
   
   def postprocess(self):
     osutils.rm(join(self.METADATA, '.firstrun'), force=True)

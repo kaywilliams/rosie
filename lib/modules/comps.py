@@ -65,7 +65,7 @@ def precomps_hook(interface):
   # if the input stores changes, we need to run
   # if there is no comps file in the ouput directory, and one isn't otherwise
   # specified, we do need to run
-  if interface.get_cvar('inputstore-changed'):
+  if interface.get_cvar('input-store-changed'):
     interface.enableEvent('comps')
   elif not exists(join(interface.getMetadata(), 'comps.xml')) and \
        not interface.get_cvar('comps-file'):

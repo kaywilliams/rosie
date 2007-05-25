@@ -33,9 +33,9 @@ Note: this could probably be removed from dimsbuild and included as a standard
 DiMS library.
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@abodiosoftware.com>"
-__version__ = "2.0"
-__date__    = "April 17th, 2007"
+__author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
+__version__ = '2.0'
+__date__    = 'April 17th, 2007'
 
 import imp
 
@@ -322,17 +322,19 @@ class Dispatch:
       raise DispatchError, "Dispatch is not committed"
   
   #------ EXECUTION FUNCTIONS ------#
-  def process(self, *args, **kwargs):
+  def process(self, until=None, *args, **kwargs):
     """ 
     Iterate over the events contained in this Dispatch object, raising them one
     at a time until the final event is executed.  process() can't be run until
-    commit() has successfully completed.
+    commit() has successfully completed.  If until is set, process events until
+    the eventid specified is reached (this event is also executed).
     """
     self._test_commit()
     while True:
       try:
         self.next()
         self.raise_event(*args, **kwargs)
+        if self.currevent.id == until: raise StopIteration
       except StopIteration: break
   
   def raise_event(self, *args, **kwargs):

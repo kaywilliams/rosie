@@ -6,27 +6,29 @@ An output interface template
 This template  is intended for use with managing  the modification of  a single
 file when both the input files and/or variables can and do change periodically.
 
-OutputEventTemplate  defines  a  series of functions that  allow for efficient
+OutputEventTemplate  defines  a  series of  functions that  allow for efficient
 testing of both of these conditions, with appropriate behavior depending on the
 results.
 
 OutputEventMixin  is a mixin  for use with a  event.py interface that  executes
-the functions defined in  OutputEventTemplate in the  correct order.   Calling
+the functions defined in  OutputEventTemplate  in the  correct order.   Calling
 the handle()  function on any  handler that implements  the OuputEventInterface
 will result in correctly-handled output event processing.
 
-OutputEventHandler  partially  implements  the  OutputEventTemplate,  using  a
+OutputEventHandler   partially  implements  the  OutputEventTemplate,  using  a
 metadata file to track  details about input and variables.   Classes interested
 in utilizing this metadata format should subclass OutputEventHandler and define
 the missing functions.
 
-See  the  descriptions  in  the  OutputEventTemplate  as to  what exactly each
+See  the  descriptions  in  the  OutputEventTemplate  as to  what  exactly each
 function is responsible for doing.
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@abodiosoftware.com>"
-__version__ = "1.0"
-__date__    = "March 8th, 2007"
+__author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
+__version__ = '1.5'
+__date__    = 'March 8th, 2007'
+
+import copy
 
 from os.path import join, exists, isfile, isdir
 
@@ -34,6 +36,7 @@ import dims.md5lib  as md5lib
 import dims.xmltree as xmltree
 import dims.mkrpm   as mkrpm
 import dims.osutils as osutils
+import dims.xmlserialize as xmlserialize
 
 import magic
 import os
@@ -92,7 +95,8 @@ class OutputEventHandler:
 
     # all the relative paths in the struct's input entry, are relative to the
     # the config file's directory.
-    self.data['input'] = map(lambda x: join(dirname(self.config.file), x), self.data['input'])
+    if self.data.has_key('input'):
+      self.data['input'] = map(lambda x: join(osutils.dirname(self.config.file), x), self.data['input'])
       
     # read in metadata - self.mdvalid is False unless read_metadata() finds a file
     self.mdvalid = False
@@ -112,7 +116,9 @@ class OutputEventHandler:
     if self.debug: print 'DEBUG: %s' % msg
   
   # temporary function definitions until I disembed them
-  def initVars(self): pass
+  # get rid of the annoying messages by not calling them anymore!
+  def initVars(self):
+    print 'default:initVars()'
   def testInputChanged(self):
     print 'default:testInputChanged()'; return self.test_input_changed()
   def removeObsoletes(self):
@@ -160,28 +166,23 @@ class OutputEventHandler:
     self.output     = {}
     
     # set up self.configvals dictionary
-    for item in self.data.get('config', []):
-      try:
-        node = metadata.get('/metadata/config-values/value[@path="%s"]/*' % item)[0]
-        if node is not None:
-          self.configvals[item] = node
-        else:
-          self.configvals[item] = NoneEntry(item)
-      except IndexError:
-        try:
-          node = metadata.get('/metadata/config-values/value[@path="%s"]' % item)[0]
-          if node is not None:
-            self.configvals[item] = node.text or NoneEntry(item)
-          else:
-            self.configvals[item] = NoneEntry(item)
-        except IndexError:
-          self.configvals[item] = NewEntry()
-
+    for path in self.data.get('config', []):
+      # if a path is listed twice, what happens? #!
+      node = metadata.iget('/metadata/config-values/value[@path="%s"]' % path, None)
+      if node is not None:
+        self.configvals[path] = node.get('elements/*', None) or \
+                                node.get('text/text()', NoneEntry(path))
+      else:
+        self.configvals[path] = NewEntry()
+    
     # set up self.varvals dictionary
     for item in self.data.get('variables', []):
       try:
-        node = metadata.iget('/metadata/variable-values/value[@variable="%s"]/text()' % item)
-        self.varvals[item] = node or NoneEntry(item)
+        node = metadata.iget('/metadata/variable-values/value[@variable="%s"]' % item)
+        if len(node.getchildren()) == 0:
+          self.varvals[item] = NoneEntry(item)
+        else:
+          self.varvals[item] = xmlserialize.unserialize(node[0])
       except xmltree.XmlPathError:
         self.varvals[item] = NewEntry()        
 
@@ -221,11 +222,13 @@ class OutputEventHandler:
         configvals = xmltree.Element('config-values')
         root.insert(0, configvals)
         for path in self.data['config']:
-          try:
-            xmltree.Element('value', parent=configvals, text=self.config.get(path).__str__(),
-                            attrs={'path': path})
-          except xmltree.XmlPathError:
-            xmltree.Element('value', parent=configvals, text=None, attrs={'path': path})
+          value = xmltree.Element('value', parent=configvals, attrs={'path': path})
+          for val in self.config.mget(path):
+            if type(val) == type(''): # config pointed to a string
+              xmltree.Element('text', parent=value, text=val)
+            else:
+              elements = xmltree.Element('elements', parent=value)
+              elements.append(copy.copy(val)) # append() is destructive, so copy
     
     # set up <variable-values> element
     if self.data.has_key('variables'):
@@ -239,12 +242,9 @@ class OutputEventHandler:
         root.insert(1, varvals)
         for var in self.data['variables']:
           self.dprint("writing %s = %s to metadata file" % (var, eval('self.%s' % var)))
-          try:            
-            xmltree.Element('value', parent=varvals, text=eval('self.%s' % var),
-                            attrs={'variable': var})
-          except xmltree.XmlPathError:
-            xmltree.Element('value', parent=varvals, text=None, attrs={'variable': var})
-
+          parent = xmltree.Element('value', parent=varvals, attrs={'variable': var})
+          parent.append(xmlserialize.serialize(eval('self.%s' % var)))
+    
     # set up <input> and <output> elements. Watch me be lazy in the following
     # for-loop.
     for key in ['input', 'output']:
@@ -264,7 +264,7 @@ class OutputEventHandler:
               size = xmltree.Element('size', parent=file_element, text=str(stat.st_size))
               mtime = xmltree.Element('mtime', parent=file_element, text=str(stat.st_mtime))
     md.write(self.mdfile)
-
+  
   def test_input_changed(self):
     """ 
     Test to see if the input has changed.  Utilizes four  helper functions
@@ -300,10 +300,8 @@ class OutputEventHandler:
     else:
       for path in self.data['config']:
         if self.configvals.has_key(path):
-          try:
-            cfgval = self.config.get(path)
-          except xmltree.XmlPathError:
-            cfgval = NoneEntry(path)
+          cfgval = self.config.mget(path)
+          if len(cfgval) == 0: cfgval = NoneEntry(path)
           if self.configvals[path] != cfgval:
             self.dprint("%s != %s" % (self.configvals[path], cfgval))
             return True
@@ -345,8 +343,10 @@ class OutputEventHandler:
     if not self.data.has_key('input'):
       return False
     # compare the files in the metadata with the files in self.data['input']
-    print 'input'
-    print self.diff(self.input, self.data['input'])
+    d = self.diff(self.input, self.data['input'])
+    if len(d) > 0:
+      print 'input'
+      print d
     return self._has_changed(self.input, self.data['input'])
   
   def test_input_changed2(self):
@@ -360,15 +360,17 @@ class OutputEventHandler:
   def _test_output_changed(self):
     """ 
     Compare the source's timestamp and size to the one stored in
-    self.output; if they are the same, this test succeeds else it
+    self.output; if they are the same, this test succeeds; else it
     fails.    
     """
     if not self.mdvalid: return True
     if not self.data.has_key('output'):
       return False
     # compare the files in the metadata with the files in self.data['output']
-    print 'output'
-    print self.diff(self.output, self.data['output'])
+    d = self.diff(self.output, self.data['output'])
+    if len(d) > 0:
+      print 'output'
+      print d
     return self._has_changed(self.output, self.data['output'])
   
   def test_output_changed2(self):

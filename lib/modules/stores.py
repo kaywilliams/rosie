@@ -46,6 +46,8 @@ def stores_hook(interface):
   interface.log(0, "generating filelists for input stores")
   changed = False
   
+  storelists = {}
+  
   for store in interface.config.mget('//stores/*/store/@id'):
     interface.log(1, store)
     i,s,n,d,u,p = interface.getStoreInfo(store)
@@ -69,11 +71,15 @@ def stores_hook(interface):
     # test if content of input store changed
     old, new, _ = listcompare.compare(oldpkgs, pkgs)
     
+    # save input store content list to storelists
+    storelists[store] = pkgs
+    
     # if content changed, write new contents to file
     if len(old) > 0 or len(new) > 0 or not exists(oldpkgsfile):
       changed = True
       filereader.write(pkgs, oldpkgsfile)
     
-  interface.set_cvar('inputstore-changed', changed)
+  interface.set_cvar('input-store-changed', changed)
+  interface.set_cvar('input-store-lists', storelists)
 
 class StoreNotFoundError(StandardError): pass

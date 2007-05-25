@@ -226,7 +226,7 @@ class InstallerLogosHandler(InstallerHandler):
     for folder in dirs_to_look:
       for image in tree(folder, prefix=True, type='f|l'):
         file_name = basename(image)
-        self.interface.log(3, "hardlinking %s to %s" %(file_name, product_img,))
+        self.interface.log(4, "hardlinking %s to %s" %(file_name, product_img,))
         pixmap = join(product_img, file_name)
         sync(image, product_img)
         pixmaps.append(pixmap)

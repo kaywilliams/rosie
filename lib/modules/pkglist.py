@@ -86,7 +86,7 @@ def repogen_hook(interface):
 
 def prepkglist_hook(interface):
   interface.disableEvent('pkglist')
-  if interface.get_cvar('inputstore-changed') or interface.get_cvar('comps-changed'):
+  if interface.get_cvar('input-store-changed') or interface.get_cvar('comps-changed'):
     interface.enableEvent('pkglist')
   elif not exists(join(interface.getMetadata(), 'pkglist')) and \
        not interface.get_cvar('pkglist'):
@@ -107,6 +107,7 @@ def pkglist_hook(interface):
                               config=cfgfile,
                               arch=interface.arch,
                               callback=BuildDepsolveCallback(interface.logthresh))
+  
   
   # verify that final package list contains all user-specified packages
   interface.log(1, "verifying package list")

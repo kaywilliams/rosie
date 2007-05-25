@@ -51,4 +51,3 @@ def postrepogen_hook(interface):
   lines.append('baseurl = file://%s' % join(interface.getMetadata(), 'localrepo/'))
   
   filereader.write(lines, cfgfile)
-
