@@ -255,7 +255,7 @@ class Build:
       self.__flowcontrol_apply(e, OPT_SKIP)
     
     self.dispatch.raise_event(self, options) # raise applyopt - kinda hackish
-    self.dispatch.next() # advance to next event
+    #self.dispatch.next() # advance to next event - removed so that validate event will not be skipped
     
     for eventid, enabled in self.userFC.items():
       if enabled is None: continue

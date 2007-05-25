@@ -18,6 +18,13 @@ EVENTS = [
     'parent': 'ALL',
   },
   {
+    'id': 'validate',
+    'interface': 'ValidateInterface',
+    'provides': ['validate'],
+    'requires': ['applyopt'],
+    'parent': 'ALL',
+  },
+  {
     'id': 'MAIN',
     'provides': ['MAIN'],
     'requires': ['init', 'applyopt'],
@@ -42,3 +49,11 @@ class ApplyOptInterface(EventInterface, FlowControlRWMixin):
     EventInterface.__init__(self, base)
     FlowControlRWMixin.__init__(self, options)
     self.options = options
+
+class ValidateInterface(EventInterface):
+  def __init__(self, base):
+    EventInterface.__init__(self, base)
+
+def validate_hook(interface):
+  "Perform preprocess validation"
+  interface.log(0, "performing preprocess validation")
