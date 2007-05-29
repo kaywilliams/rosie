@@ -56,13 +56,10 @@ class ConfigRpmHandler(RpmHandler):
 
     self.create = (self.config.get('//rpms/config-rpm/requires', None) or \
                    self.config.get('//rpms/config-rpm/obsoletes', None) or \
-                   self.config.get('//rpms/config-rpm/script/path/text()', None) or \
-                   self.config.get('//rpms/config-rpm/supporting-files/path/text()', None)) is not None
-
-  def setup(self):
-    # overriding RpmHandler.setup() because need to add the post script
-    RpmHandler.setup(self)
-
+                   self.config.get('//rpms/config-rpm/config/script/path/text()', None) or \
+                   self.config.get('//rpms/config-rpm/config/supporting-files/path/text()', None)) \
+                   is not None
+    
   def get_post_install_script(self):
     script = self.config.get('//rpms/config-rpm/config/script/path/text()', None)
     if script:      
