@@ -28,7 +28,7 @@ EVENTS = [
 
 HEADER_FORMAT = "<?xml version='%s' encoding='%s'?>"
 
-TYPES = ['mandatory', 'optional', 'required', 'default']
+TYPES = ['mandatory', 'optional', 'conditional', 'default']
 KERNELS = ['kernel', 'kernel-smp', 'kernel-zen', 'kernel-zen0',
            'kernel-enterprise', 'kernel-hugemem', 'kernel-bigmem',
            'kernel-BOOT']
@@ -87,7 +87,7 @@ def comps_hook(interface):
     compshandler.generateComps()
     reqpkgs = compshandler.comps.get('//packagereq/text()')
   
-  if isfile(interface.mdgroupfile):
+  if isfile(interface.mdgroupfile) and not (interface.eventForceStatus('comps') or False):
     oldreqpkgs = xmltree.read(interface.mdgroupfile).get('//packagereq/text()')
   else:
     oldreqpkgs = []
@@ -138,56 +138,69 @@ class CompsHandler:
     
     mapped, unmapped = self.__map_groups()
     groupfiles = self.__get_groupfiles()
-    
+
     # create base distro group
-    packages = self.config.mget('//comps/create-new/include/package/text()') + \
-               self.interface.get_cvar('included-packages', fallback=[])
+    packages = []
+    for package in self.config.mget('//comps/create-new/include/package', []):
+      packagename = package.text
+      packagetype = package.iget('@type', 'mandatory')
+      packagerequires = package.iget('@requires', None)
+      packages.append(packagename, packagetype, packagerequires)
+      
+    for package in self.interface.get_cvar('included-packages', fallback=[]):
+      if type(package) == tuple:
+        packages.append(package)
+      else: 
+        assert type(package) == str
+        packages.append((package, 'mandatory', None))
+    
     base = Group(product, fullname, 'This group includes packages specific to %s' % fullname)
     if len(packages) > 0:
-      self.interface.set_cvar('user-required-packages', packages)
+      self.interface.set_cvar('user-required-packages', [x[0] for x in packages])
       self.comps.getroot().append(base)
-      for package in packages:
-        self.add_group_package(package, base, type='mandatory')
-    
+      for packagename, packagetype, packagerequires in packages:
+        self.add_group_package(packagename, base, packagerequires, packagetype)      
+        
     processed = [] # processed groups
-    
     # process groups
     for groupfileid, path, in groupfiles:
-        # read groupfile
+      # read groupfile
+      try:
+        tree = xmltree.read(path)
+      except ValueError, e:
+        print e
+        raise CompsError, "the file '%s' does not exist" % file
+      
+      # add the 'core' group of the base store
+      if groupfileid == base_store:
         try:
-          tree = xmltree.read(path)
-        except ValueError, e:
-          print e
-          raise CompsError, "the file '%s' does not exist" % file
-      
-        # add the 'core' group of the base store
-        if groupfileid == base_store:
-          try:
-            self.add_group_by_id('core', tree, mapped[groupfileid])
-            processed.append('core')
-          except IndexError:
-            pass
-      
-        # process mapped groups - each MUST be processed or we raise an exception
-        while len(mapped[groupfileid]) > 0:
-          groupid = mapped[groupfileid].pop(0)
-          if groupid in processed: continue # skip those we already processed
-          self.add_group_by_id(groupid, tree, mapped[groupfileid])
-          processed.append(groupid)
-      
-        # process unmapped groups - these do not need to be processed at each step
-        i = 0; j = len(unmapped['unmapped'])
-        while i < j:
-          groupid = unmapped['unmapped'][i]
-          if groupid in processed:
-            i += 1; continue
-          try:
-            group = tree.get('//group[id/text()="%s"]' % groupid)[0]
-            self.add_group_by_id(groupid, tree, unmapped['unmapped'], processed)
-            processed.append(unmapped['unmapped'].pop(i))
-            j = len(unmapped['unmapped'])
-          except IndexError:
-            i += 1
+          self.add_group_by_id('core', tree, mapped[groupfileid])
+          processed.append('core')
+        except IndexError:
+          pass
+          
+      # process mapped groups - each MUST be processed or we raise an exception
+      while len(mapped[groupfileid]) > 0:
+        groupid = mapped[groupfileid].pop(0)
+        if groupid in processed: continue # skip those we already processed
+        default = self.config.get('//main/groups/group[text()="%s"]/@default' %(groupid,), 'true')
+        self.add_group_by_id(groupid, tree, mapped[groupfileid], default=default)
+        processed.append(groupid)
+        
+      # process unmapped groups - these do not need to be processed at each step
+      i = 0; j = len(unmapped['unmapped'])
+      while i < j:
+        groupid = unmapped['unmapped'][i]
+        if groupid in processed:
+          i += 1; continue
+        try:
+          group = tree.get('//group[id/text()="%s"]' % groupid)[0]
+          default = self.config.get('//main/groups/group[text()="%s"]/@default' %(groupid,), 'true')
+          self.add_group_by_id(groupid, tree, unmapped['unmapped'], processed, default=default)
+          processed.append(unmapped['unmapped'].pop(i))
+          j = len(unmapped['unmapped'])
+        except IndexError:
+          i += 1
     
     if 'core' not in processed:
       raise CompsError, "The base store '%s' does not appear to define a 'core' group in any of its comps.xml files" % base_store
@@ -283,12 +296,21 @@ class CompsHandler:
     packagelist = uElement('packagelist', parent = group)
     Element('packagereq', text=package, attrs=attrs, parent=packagelist)
   
-  def add_group_by_id(self, groupid, tree, toprocess, processed=[]):
+  def add_group_by_id(self, groupid, tree, toprocess, processed=[], default='true'):
     group = tree.get('//group[id/text()="%s"]' % groupid)[0]
     
     # append is destructive, so copy() it
     self.comps.getroot().append(copy.deepcopy(group))
-    
+
+    compsgroup = self.comps.getroot().iget('group[id/text()="%s"]' %(groupid,))
+    try:
+      d = compsgroup.iget('default')
+      index = compsgroup.index(d)
+      compsgroup.remove(d)
+    except TypeError:
+      index = compsgroup.index(compsgroup.get('description[last()]')) + 1
+    compsgroup.insert(index, xmltree.Element('default', text=default))
+
     # process any elements in the <grouplist> element
     groupreqs = tree.get('//group[id/text()="%s"]/grouplist/groupreq/text()' % groupid)
     for groupreq in groupreqs:

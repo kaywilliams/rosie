@@ -28,8 +28,7 @@ def prerelease_hook(interface):
   handler = ReleaseRpmHandler(interface)
   interface.add_handler('release', handler)
   interface.disableEvent('release')
-  if (interface.eventForceStatus('release') or False) or \
-      handler.pre():
+  if handler.pre() or (interface.eventForceStatus('release') or False):
     interface.enableEvent('release')
         
 def release_hook(interface):
@@ -144,8 +143,9 @@ class ReleaseRpmHandler(RpmHandler):
     #   self.eula_files : the list of eula files
     #   self.eula_data  : the string that needs to be added to setup.cfg's data_files option 
     self._sync_files('eula', '/usr/share/eula')
-
-    if self.config.get('//release-rpm/eula/include-in-firstboot/text()', 'True') in BOOLEANS_TRUE:
+    
+    if self.config.get('//release-rpm/eula/include-in-firstboot/text()', 'True') in BOOLEANS_TRUE and \
+           self.config.get('//release-rpm/eula/path/text()', None) is not None:
       source = join(self.share_path, 'release', 'eula.py')
       sync(source, join(self.output_location, 'eula'))
       self.eulapy_data = '/usr/share/firstboot/modules : eula/eula.py'
@@ -180,7 +180,8 @@ class ReleaseRpmHandler(RpmHandler):
       repofile = join(self.output_location, 'repos', '%s.repo' %(self.product,))
       authority = self.config.get('//%s/publish-repo/authority/text()' %(self.elementname,),
                                   ''.join(['http://', getIpAddress()]))
-      path = join(self.config.get('//main/publishpath/text()', 'open_software'), self.product)
+      path = join(self.config.get('//main/publishpath/text()', 'open_software'),
+                  self.product, self.version, self.arch, 'os')
       lines = [
         '[%s]' %(self.product,),
         'name=%s %s - %s' %(self.fullname, self.version, self.arch,),
@@ -229,7 +230,7 @@ class ReleaseRpmHandler(RpmHandler):
     self.etc_files = ['redhat-release', '%s-release' %(self.product,), 'issue', 'issue.net']
     self.etc_data = ''.join(['/etc : ', ', '.join(self.etc_files)])
 
-  def _get_data_files(self):
+  def get_data_files(self):
     manifest = join(self.output_location, 'MANIFEST')
     f = open(manifest, 'w')
     f.write('setup.py\n')

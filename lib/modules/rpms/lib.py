@@ -94,12 +94,12 @@ class RpmHandler(OutputEventHandler):
     self.config = self.interface.config
     self.metadata = self.interface.getMetadata()
     self.software_store = self.interface.getSoftwareStore()
+    self.arch = self.interface.basearch    
     self.rpm_output = join(self.metadata, 'localrepo/')
 
     self.fullname = self.config.get('//main/fullname/text()')
     self.product = self.config.get('//main/product/text()')
     self.version = self.config.get('//main/version/text()')
-    self.arch = self.config.get('//main/arch/text()', 'i686')
 
     self.elementname = elementname
     self.rpmname = rpmname
@@ -147,14 +147,9 @@ class RpmHandler(OutputEventHandler):
     if not self.testOutputValid():
       raise OutputInvalidError, "output is invalid"
     self.write_metadata()
+
+  def testOutputValid(self): return True
   
-  #def testInputChanged(self, checkCreate=True):
-  #  if checkCreate:
-  #    # if self.create is False, skip the RPM creation    
-  #    return self.create and OutputEventHandler.testInputChanged(self)
-  #  else:
-  #    return OutputEventHandler.testInputChanged(self)
-    
   def getInput(self):
     if not exists(self.rpm_output):
       mkdir(self.rpm_output, parent=True)
@@ -185,10 +180,12 @@ class RpmHandler(OutputEventHandler):
     parser.set('pkg_data', 'long_description', self.long_description)
     parser.set('pkg_data', 'description', self.description)
     parser.set('pkg_data', 'author', self.author)
-    parser.set('pkg_data', 'data_files', self._get_data_files())
+    data_files = self.get_data_files()
+    if data_files:
+      parser.set('pkg_data', 'data_files', data_files)
     
     parser.add_section('bdist_rpm')
-    parser.set('bdist_rpm', 'release', self._get_release())
+    parser.set('bdist_rpm', 'release', self.get_release())
     parser.set('bdist_rpm', 'distribution_name', self.fullname)
     if self.provides:
       parser.set('bdist_rpm', 'provides', self.provides)
@@ -196,12 +193,23 @@ class RpmHandler(OutputEventHandler):
       parser.set('bdist_rpm', 'obsoletes', self.obsoletes)
     if self.requires:
       parser.set('bdist_rpm', 'requires', self.requires)
-    
+
+    post_install_script = self.get_post_install_script() 
+    if post_install_script:
+      parser.set('bdist_rpm', 'post_install', post_install_script)
+
+    install_script = self.get_install_script()
+    if install_script:
+      parser.set('bdist_rpm', 'install_script', install_script)
     f = open(setup_cfg, 'w')
     parser.write(f)
     f.close()
-    
-  def _get_release(self):
+
+  def get_install_script(self):      return None    
+  def get_post_install_script(self): return None
+  def get_data_files(self):          return None
+  
+  def get_release(self):
     autoconf = join(dirname(self.config.file), 'distro.conf.auto')
 
     new_release = None
@@ -210,13 +218,13 @@ class RpmHandler(OutputEventHandler):
     if exists(autoconf):
       ad = xmltree.read(autoconf)
       root = ad.getroot()
-      old_release = root.iget('//%s/create/release/text()' %(self.elementname,))
+      old_release = root.iget('//%s/release/text()' %(self.elementname,))
       if old_release:
         new_release = str(int(old_release)+1)
-        create_package = root.iget('//%s/create' %(self.elementname,))
+        create_package = root.iget('//%s' %(self.elementname,))
         # TODO: raise exception if not found? We are creating this file, so maybe
         # it's OK to not raise an exception 
-        create_package.remove(root.get('//%s/create/release' %(self.elementname,), [])[0]) 
+        create_package.remove(root.get('//%s/release' %(self.elementname,), [])[0]) 
         
     if not new_release:
       if ad:
@@ -224,14 +232,11 @@ class RpmHandler(OutputEventHandler):
       else:
         document_root = xmltree.Element('auto')
         ad = xmltree.XmlTree(document_root)
-      parent_node = xmltree.Element(self.elementname, parent=document_root)            
+      create_package = xmltree.Element(self.elementname, parent=document_root)            
       new_release = '1'
-      create_package = xmltree.Element('create', parent=parent_node)
       
     xmltree.Element('release', parent=create_package, text=new_release)            
     ad.write(autoconf)
     self.log(1, "'%s' release number: %s" %(self.elementname, new_release,))
     return new_release
-
-  def _get_data_files(self): raise NotImplementedError # HAS to be implemented by the child class
 

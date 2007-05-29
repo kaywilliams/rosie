@@ -21,7 +21,7 @@ def preconfig_rpm_hook(interface):
   handler = ConfigRpmHandler(interface)
   interface.add_handler('config-rpm', handler)
   interface.disableEvent('config_rpm')
-  if (interface.eventForceStatus('config_rpm') or False) or handler.pre():
+  if handler.pre() or (interface.eventForceStatus('config_rpm') or False):
     interface.enableEvent('config_rpm')
 
 def config_rpm_hook(interface):
@@ -43,8 +43,8 @@ class ConfigRpmHandler(RpmHandler):
                  interface.config.mget('//rpms/config-rpm/config/supporting-files/path/text()', [])],
       'output': [join(interface.getMetadata(), 'config-rpm')]
     }
-    requires = ''.join(interface.config.mget('//rpms/config-rpm/requires/package/text()', []))
-    obsoletes = ''.join(interface.config.mget('//rpms/config-rpm/obsoletes/package/text()', []))
+    requires = ' '.join(interface.config.mget('//rpms/config-rpm/requires/package/text()', []))
+    obsoletes = ' '.join(interface.config.mget('//rpms/config-rpm/obsoletes/package/text()', []))
     RpmHandler.__init__(self, interface, data,
                         elementname='config-rpm',
                         rpmname='%s-config' %(interface.product,),
@@ -54,28 +54,26 @@ class ConfigRpmHandler(RpmHandler):
                         long_description='The %s-config provides scripts and supporting files for'\
                         'configuring the %s distribution' %(interface.product, interface.fullname,))
 
-    # @override RpmHandler.create    
     self.create = (self.config.get('//rpms/config-rpm/requires', None) or \
-                   self.config.get('//rpms/config-rpm/obsoletes', None)) is not None
+                   self.config.get('//rpms/config-rpm/obsoletes', None) or \
+                   self.config.get('//rpms/config-rpm/script/path/text()', None) or \
+                   self.config.get('//rpms/config-rpm/supporting-files/path/text()', None)) is not None
 
   def setup(self):
     # overriding RpmHandler.setup() because need to add the post script
     RpmHandler.setup(self)
+
+  def get_post_install_script(self):
     script = self.config.get('//rpms/config-rpm/config/script/path/text()', None)
-    if script:
+    if script:      
       post_install_scripts = find(location=self.output_location,
                                  name=basename(script),
                                  prefix=False)
       assert len(post_install_scripts) == 1
-      setup_cfg = join(self.output_location, 'setup.cfg')
-      parser = ConfigParser()
-      parser.read(setup_cfg)
-      parser.set('bdist_rpm', 'post_install', post_install_scripts[0])
-      f = open(setup_cfg, 'w')
-      parser.write(f)
-      f.close()
+      return post_install_scripts[0]
+    return None
     
-  def _get_data_files(self):
+  def get_data_files(self):
     lib_files = tree(self.output_location, type='f|l', prefix=False)
     manifest = join(self.output_location, 'MANIFEST')
     f = open(manifest, 'w')
@@ -85,4 +83,3 @@ class ConfigRpmHandler(RpmHandler):
       f.write('%s\n' %(file,))
     f.close()
     return ''.join(['/usr/lib/%s/ : ' %(self.product,), ', '.join(lib_files)])
-
