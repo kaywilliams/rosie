@@ -74,7 +74,7 @@ class GpgInterface(EventInterface):
 
 def presoftware_hook(interface):
   interface.log(0, "checking gpg signature status")
-  handler = GpgSignHandler(interface) #! figure this out, see !MARK below
+  handler = GpgSignHandler(interface)
   try:
     last_val = handler.configvals['//gpgsign'][0].iget('sign/text()')
   except (AttributeError, IndexError, KeyError, XmlPathError):
@@ -86,7 +86,7 @@ def presoftware_hook(interface):
     osutils.rm(interface.rpmdest, recursive=True, force=True)
     
 def pregpgsign_hook(interface):
-  handler = GpgSignHandler(interface) #! figure this out, see !MARK above
+  handler = GpgSignHandler(interface)
   interface.add_handler('gpgsign', handler)
   
   interface.disableEvent('gpgsign')
@@ -113,6 +113,7 @@ class GpgSignHandler(OutputEventHandler):
   
   def handle(self):
     if self.interface.sign:
+      self.interface.log(0, "signing packages")
       for rpm, store in self.interface.get_cvar('new-rpms', []):
         self.interface.sign_rpm(rpm)
     self.write_metadata()

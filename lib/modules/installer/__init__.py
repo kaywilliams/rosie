@@ -7,7 +7,7 @@ EVENTS = [
     'id': 'INSTALLER',
     'properties': EVENT_TYPE_META,
     'provides': ['INSTALLER'],
-    'requires': ['.discinfo', 'software'],
+    'requires': ['.discinfo', 'software', 'gpgsign'], # gpgsign is temporarily here, will be an optional dependency
   },
 ]
 
