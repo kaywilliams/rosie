@@ -5,44 +5,51 @@ import os
 from os.path       import join
 from rpmUtils.arch import getArchList
 
-import dims.osutils as osutils
-import dims.mkrpm   as mkrpm
-import dims.shlib   as shlib
-import dims.sortlib as sortlib
-import dims.spider  as spider
-import dims.sync    as sync
+from dims import osutils
+from dims import mkrpm
+from dims import shlib
+from dims import sortlib
+from dims import spider
+from dims import sync
 
 from callback  import BuildSyncCallback
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from interface import EventInterface, VersionMixin, ListCompareMixin
+from interface import EventInterface, ListCompareMixin
 from main      import BOOLEANS_TRUE
 
-API_VERSION = 3.0
+API_VERSION = 4.0
 
+#------ EVENTS ------#
 EVENTS = [
   {
     'id': 'software',
     'interface': 'SoftwareInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['software'],
-    'requires': ['comps.xml', 'pkglist', 'RPMS'],
+    'requires': ['pkglist', 'anaconda-version'],
+    'conditional-requires': ['comps.xml', 'RPMS'],
   },
 ]
+
+HOOK_MAPPING = {
+  'SoftwareHook': 'software',
+}
+
 
 RPM_PNVRA_REGEX = re.compile('(.*/)?(.+)-(.+)-(.+)\.(.+)\.[Rr][Pp][Mm]')
 RPM_GLOB = '*.[Rr][Pp][Mm]'
 
-class SoftwareInterface(EventInterface, VersionMixin, ListCompareMixin):
+
+#------ INTERFACES ------#
+class SoftwareInterface(EventInterface, ListCompareMixin):
   def __init__(self, base):
     EventInterface.__init__(self, base)
-    VersionMixin.__init__(self, join(self.getMetadata(), '%s.pkgs' % self.getBaseStore()))
     ListCompareMixin.__init__(self)
     
-    self.product = self._base.base_vars['product']
     self.ts = rpm.TransactionSet()
     self.callback = BuildSyncCallback(base.log.threshold)
     
-    self.rpmdest = join(self.getSoftwareStore(), self.product, 'RPMS')
+    self.rpmdest = join(self.SOFTWARE_STORE, self.product, 'RPMS') #!
     
   def rpmNameDeformat(self, rpm):
     """ 
@@ -64,15 +71,18 @@ class SoftwareInterface(EventInterface, VersionMixin, ListCompareMixin):
   
   def rpmCheckSignature(self, rpm, pubkey, verbose=True):
     "Check RPM signature's validity.  Raises mkrpm.rpmsign.SignatureInvalidException"
-    if verbose: self._base.log.write(2, osutils.basename(rpm), 40)
-    if len(pubkey) == 0: raise RuntimeError, "No GPG keys found to check against"
+    if verbose:
+      self._base.log.write(2, osutils.basename(rpm), 40)
+    if len(pubkey) == 0: 
+      raise RuntimeError, "No GPG keys found to check against"
     mkrpm.rpmsign.verifyRpm(rpm, public=pubkey, force=True)
   
-  def syncRpm(self, rpm, store, path):
+  def syncRpm(self, rpm, store, path, force=False):
     "Sync an rpm from path within store into the the output store"
-    #self.log(1, "   - downloading %s" % rpm)
     path = self.cache(join(path, rpm), prefix=store, callback=self.callback)
-    rpmsrc  = join(self.getInputStore(), store, path)
+    ## uncomment the following when cache forcing is supported
+    ## path = self.cache(join(path, rpm), prefix=store, callback=self.callback, force=force)
+    rpmsrc = join(self.INPUT_STORE, store, path)
     sync.sync(rpmsrc, self.rpmdest)
   
   def deleteRpm(self, rpm):
@@ -89,7 +99,7 @@ class SoftwareInterface(EventInterface, VersionMixin, ListCompareMixin):
   def createrepo(self):
     "Run createrepo on the output store"
     pwd = os.getcwd()
-    os.chdir(self.getSoftwareStore())
+    os.chdir(self.SOFTWARE_STORE)
     self.log(2, "running createrepo")
     shlib.execute('/usr/bin/createrepo -q -g %s/base/comps.xml .' % self.product)
     os.chdir(pwd)
@@ -98,57 +108,59 @@ class SoftwareInterface(EventInterface, VersionMixin, ListCompareMixin):
     "Run genhdlist on the output store.  Only necesary in some versions of anaconda"
     self.log(2, "running genhdlist")
     shlib.execute('/usr/lib/anaconda-runtime/genhdlist --productpath %s %s' % \
-                  (self.product, self.getSoftwareStore()))
+                  (self.product, self.SOFTWARE_STORE))
 
-def presoftware_hook(interface):
-  if interface.eventForceStatus('software'):
-    osutils.rm(interface.rpmdest, recursive=True, force=True)
 
-def software_hook(interface):
-  "Build a software store"
-  # the --force option may not perform exactly as desired for this
-  # TODO discuss and examine possibilities
-  interface.log(0, "processing rpms")
-  osutils.mkdir(interface.rpmdest, parent=True)
-
-  handler = SoftwareHandler(interface)
-  handler.handle()
-  
-
-class SoftwareHandler:
+#------ HOOKS ------#
+class SoftwareHook:
   def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'software.software'
+    
     self.interface = interface
-    self.interface.lfn = self.delete_rpm
-    self.interface.rfn = self.download_rpm
+    
+    # callback vars
+    self.interface.lfn = self._delete_rpm
+    self.interface.rfn = self._download_rpm
     self.interface.cb = self
     
-    self.changed = False
+    self._changed = False
     self._packages = {}
     self._validarchs = getArchList(self.interface.arch)
-    self._tocheck = []
-    
-  def handle(self):
-    "Generate a software store"
+    self._new_rpms = []
+  
+  def force(self):
+    osutils.rm(self.interface.rpmdest, recursive=True, force=True)
+  
+  def run(self):
+    "Build a software store"
+    self.interface.log(0, "processing rpms")
+    osutils.mkdir(self.interface.rpmdest, parent=True)
+  
     # construct a list of rpms without .<arch>.rpm
     rpmlist = []
     for rpm in osutils.find(self.interface.rpmdest, name=RPM_GLOB, prefix=False):
       nvr = self.interface.nvr(rpm)
       if nvr not in rpmlist: rpmlist.append(nvr)
     
-    # call interface.lfn (delete_rpm()) and interface.rfn (download_rpm())
+    # call interface.lfn (_delete_rpm()) and interface.rfn (_download_rpm())
     # on each rpm in rpmlist not in the cvar, and each rpm in the cvar not
     # in rpmlist, respectively
     self.interface.compare(rpmlist, self.interface.get_cvar('pkglist'))
-    self.check_rpm_signatures()
-    self.create_metadata()
+    self._check_rpm_signatures()
+    self._create_metadata()
+  
+  def apply(self):
+    osutils.mkdir(self.interface.rpmdest, parent=True)
+    self.interface.set_cvar('new-rpms', self._new_rpms)
   
   # callback functions
   def notify_both(self, i): pass
   def notify_left(self, i):
-    self.changed = True
+    self._changed = True
     self.interface.log(1, "deleting old rpms (%d packages)" % i)
   def notify_right(self, i):
-    self.changed = True
+    self._changed = True
     self.interface.log(1, "downloading new rpms (%d packages)" % i)
     for store in self.interface.config.mget('//stores/*/store/@id'):
       i,s,n,d,u,p = self.interface.getStoreInfo(store)
@@ -165,28 +177,28 @@ class SoftwareHandler:
           self._packages[nvr][a] = []
         self._packages[nvr][a].append((i,d,rpm))
     
-  def delete_rpm(self, rpm): # lfn
+  def _delete_rpm(self, rpm): # lfn
     self.interface.deleteRpm(rpm)
   
-  def download_rpm(self, rpm): # rfn
+  def _download_rpm(self, rpm): # rfn
     for arch in self._packages[rpm]:
       if arch in self._validarchs:
         try:
           store, path, rpmname = self._packages[rpm][arch][0]
-          self.interface.syncRpm(rpmname, store, path)
-          self._tocheck.append((osutils.basename(rpmname), store))
+          self.interface.syncRpm(rpmname, store, path,
+                                 force=self.interface.isForced('software'))
+          self._new_rpms.append((osutils.basename(rpmname), store))
         except IndexError, e:
           self.errlog(1, "No rpm '%s' found in store '%s' for arch '%s'" % (rpm, store, arch))
-    self.interface.set_cvar('new-rpms', self._tocheck) #!
   
-  def check_rpm_signatures(self):
-    if len(self._tocheck) == 0:
+  def _check_rpm_signatures(self):
+    if len(self._new_rpms) == 0:
       return
     self.interface.log(1, "checking gpgkeys on new rpms")
     
     gpgkeys = self._prepare_gpgcheck()
     
-    for rpm, store in self._tocheck:
+    for rpm, store in self._new_rpms:
       if self.interface.config.get(['//stores/*/store[@id="%s"]/gpgcheck/text()' % store,
                                     '//stores/gpgcheck/text()'],
                                    'False') not in BOOLEANS_TRUE:
@@ -205,7 +217,7 @@ class SoftwareHandler:
     self._clean_gpgcheck()
   
   def _prepare_gpgcheck(self):
-    gpgtemp = join(self.interface.getTemp(), 'gpgkeys')
+    gpgtemp = join(self.interface.TEMP_DIR, 'gpgkeys')
     osutils.mkdir(gpgtemp)
     for store in self.interface.config.mget('//stores/*/store'):
       if store.iget('gpgcheck/text()', 'False') not in BOOLEANS_TRUE: continue
@@ -214,16 +226,16 @@ class SoftwareHandler:
     return osutils.find(gpgtemp, maxdepth=1, type=osutils.TYPE_FILE)
   
   def _clean_gpgcheck(self):
-    osutils.rm(join(self.interface.getTemp(), 'gpgkeys'), recursive=True, force=True)
+    osutils.rm(join(self.interface.TEMP_DIR, 'gpgkeys'), recursive=True, force=True)
   
-  def create_metadata(self):
+  def _create_metadata(self):
     # create repository metadata
-    if self.changed:
+    if self._changed:
       self.interface.log(1, "creating repository metadata")
       self.interface.createrepo()
 
       # run genhdlist, if anaconda version < 10.92
-      if sortlib.dcompare(self.interface.anaconda_version, '10.92') < 0:
+      if sortlib.dcompare(self.interface.get_cvar('anaconda-version'), '10.92') < 0:
         self.interface.genhdlist()
 
 

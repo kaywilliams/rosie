@@ -3,43 +3,53 @@ import os
 
 from os.path import join, exists
 
-import dims.filereader  as filereader
-import dims.pkgorder    as pkgorder
-import dims.listcompare as listcompare
-import dims.osutils     as osutils
-import dims.shlib       as shlib
+from dims import filereader
+from dims import pkgorder
+from dims import listcompare
+from dims import osutils
+from dims import shlib
 
 import splittree
 
 from callback  import BuildDepsolveCallback
 from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from interface import EventInterface, ListCompareMixin, LocalsMixin
-from locals    import L_DISCINFO
+from interface import EventInterface, ListCompareMixin
+from main      import locals_imerge
 
-API_VERSION = 3.0
+API_VERSION = 4.0
 
 EVENTS = [
   {
-    'id': 'manifest',
-    'requires': ['MAIN'],
-    'provides': ['manifest'],
-    'parent': 'ALL',
-  },
-  {
     'id': 'pkgorder',
-    'requires': ['pkglist', 'RPMS', 'software'],
+    'requires': ['software'],
+    'conditional-requires': ['pkglist'],
     'provides': ['pkgorder'],
     'properties': EVENT_TYPE_MDLR|EVENT_TYPE_PROC,
   },
   {
+    'id': 'manifest',
+    'conditional-requires': ['MAIN'],
+    'provides': ['manifest', 'do-iso'],
+    'parent': 'ALL',
+  },
+  {
     'id': 'iso',
-    'requires': ['manifest', 'pkgorder'],
+    'requires': ['pkgorder', 'anaconda-version'],
+    'conditional-requires': ['do-iso', 'source'],
     'provides': ['iso'],
     'parent': 'ALL',
     'interface': 'IsoInterface',
     'properties': EVENT_TYPE_MDLR|EVENT_TYPE_PROC,
   },
 ]
+
+HOOK_MAPPING = {
+  'InitHook':     'init',
+  'ApplyoptHook': 'applyopt',
+  'PkgorderHook': 'pkgorder',
+  'ManifestHook': 'manifest',
+  'IsoHook':      'iso',
+}
 
 FIELDS = ['file', 'size', 'mtime']
 
@@ -55,110 +65,194 @@ name = %s - $basearch
 baseurl = file://%s
 '''
 
-class IsoInterface(EventInterface, ListCompareMixin, LocalsMixin):
+class IsoInterface(EventInterface, ListCompareMixin):
   def __init__(self, base):
     EventInterface.__init__(self, base)
     ListCompareMixin.__init__(self)
-    LocalsMixin.__init__(self, join(self.getMetadata(), '%s.pkgs' % self.getBaseStore()),
-                         self._base.IMPORT_DIRS)
-    self.isodir = join(osutils.dirname(self.getSoftwareStore()), 'iso')
-
-def prepkgorder_hook(interface):
-  interface.disableEvent('pkgorder')
-  if interface.get_cvar('pkglist-changed'):
-    interface.enableEvent('pkgorder')
-  elif not exists(join(interface.getMetadata(), 'pkgorder')):
-    interface.enableEvent('pkgorder')
-
-def pkgorder_hook(interface):
-  interface.log(0, "generating package ordering")
-  cfg = join(interface.getTemp(), 'pkgorder')
-  
-  filereader.write([YUMCONF % (interface.getBaseStore(),
-                               interface.getBaseStore(),
-                               interface.getSoftwareStore())], cfg)
-  
-  pkgtups = pkgorder.order(config=cfg,
-                           arch=interface.arch,
-                           callback=BuildDepsolveCallback(interface.logthresh))
-  
-  pkgorder.write_pkgorder(join(interface.getMetadata(), 'pkgorder'), pkgtups)
-  
-  osutils.rm(cfg, force=True)
-
-def manifest_hook(interface):
-  interface.set_cvar('do-iso', False)
-  manifest = []
-  for file in osutils.tree(interface.getSoftwareStore(), prefix=False):
-    manifest.append(__gen_manifest_line(join(interface.getSoftwareStore(), file)))
-  
-  mfile = join(interface.getMetadata(), 'manifest')
-  if manifest_changed(manifest, mfile):
-    interface.set_cvar('do-iso', True)      
-    if not exists(mfile): os.mknod(mfile)
-    mf = open(mfile, 'w')
-    mwriter = csv.DictWriter(mf, FIELDS, lineterminator='\n')
-    for line in manifest:
-      mwriter.writerow(line)
-    mf.close()
     
-
-def __gen_manifest_line(file):
-  fstat = os.stat(file)
-  return {'file': file,
-          'size': str(fstat.st_size),
-          'mtime': str(fstat.st_mtime)}
-
-def manifest_changed(manifest, old_manifest_file):
-  if exists(old_manifest_file):
-    mf = open(old_manifest_file, 'r')
-    mreader = csv.DictReader(mf, FIELDS)
-    old_manifest = []
-    for line in mreader: old_manifest.append(line)
-    mf.close()
-    
-    return manifest != old_manifest
-  else:
-    return True
-
-def preiso_hook(interface):
-  interface.disableEvent('iso')
-  if interface.eventForceStatus('iso') or False:
-    interface.enableEvent('iso')
-  elif interface.get_cvar('do-iso'):
-    interface.enableEvent('iso')
-
-def iso_hook(interface):
-  interface.log(0, 'generating iso image(s)')
-
-  handler = IsoHandler(interface)
-  handler.handle()
+    self.isodir = join(osutils.dirname(self.SOFTWARE_STORE), 'iso')
 
 
-class IsoHandler:
+#------ HOOKS ------#
+class InitHook:
   def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'iso.init'
+    
     self.interface = interface
-    self.interface.lfn = self.delete_isotree
-    self.interface.rfn = self.generate_isotree
-    self.interface.bfn = self.check_isotree
+  
+  def run(self):
+    parser = self.interface.getOptParser('build')
+
+    # the following option doesn't work yet
+    parser.add_option('--with-pkgorder',
+                      default=None,
+                      dest='with_pkgorder',
+                      metavar='PKGORDERFILE',
+                      help='use PKGORDERFILE for package ordering instead of generating it')
+
+class ApplyoptHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'iso.applyopt'
+    
+    self.interface = interface
+                
+  def run(self):
+    if self.interface.options.with_pkgorder is not None:
+      self.interface.set_cvar('pkgorder-file', self.interface.options.with_pkgorder)
+
+
+class PkgorderHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'iso.pkgorder'
+    
+    self.interface = interface
+    
+    self.pkgorderfile = join(self.interface.METADATA_DIR, 'pkgorder')
+  
+  def force(self):
+    osutils.rm(self.pkgorderfile, force=True)
+  
+  def run(self):
+    if not self._test_runstatus(): return
+    
+    pkgorderfile = self.interface.get_cvar('pkgorder-file', None)
+    if pkgorderfile is not None:
+      self.interface.log(1, "reading supplied pkgorder file '%s'" % pkgordefile)
+    else:
+      self.interface.log(0, "generating package ordering")
+      cfg = join(self.interface.TEMP_DIR, 'pkgorder')
+      
+      filereader.write([YUMCONF % (self.interface.getBaseStore(),
+                                   self.interface.getBaseStore(),
+                                   self.interface.SOFTWARE_STORE)], cfg)
+      
+      pkgtups = pkgorder.order(config=cfg,
+                               arch=self.interface.arch,
+                               callback=BuildDepsolveCallback(self.interface.logthresh))
+      
+      if exists(self.pkgorderfile):
+        oldpkgorder = filereader.read(self.pkgorderfile)
+      else:
+        oldpkgorder = []
+      
+      old,new,_ = listcompare.compare(oldpkgorder, pkgtups)
+      if len(new) > 0 or len(old) > 0:
+        self.interface.log(1, "package ordering has changed")
+        self.interface.set_cvar('pkgorder-changed', True)
+        pkgorder.write_pkgorder(self.pkgorderfile, pkgtups)
+      else:
+        self.interface.log(1, "package ordering unchanged")
+      
+      osutils.rm(cfg, force=True)
+  
+  def apply(self):
+    if not self.interface.get_cvar('pkgorder-file'):
+      self.interface.set_cvar('pkgorder-file', self.pkgorderfile)
+    pkgorderfile = self.interface.get_cvar('pkgorder-file')
+    
+    if not exists(pkgorderfile):
+      raise RuntimeError, "Unable to find pkgorder file at '%s'" % pkgorderfile
+    else:
+      if pkgorderfile != self.pkgorderfile:
+        osutils.cp(pkgorderfile, self.pkgorderfile)
+    
+    # read in pkgorder
+    self.interface.set_cvar('pkgorder', filereader.read(pkgorderfile))
+  
+  def _test_runstatus(self):
+    return self.interface.isForced('pkglist') or \
+           self.interface.get_cvar('pkgorder-file') or \
+           self.interface.get_cvar('pkglist-changed') or \
+           not exists(self.pkgorderfile) and not self.interface.get_cvar('pkgorder-file')
+
+
+class ManifestHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'iso.manifest'
+    
+    self.interface = interface
+    
+    self.mfile = join(self.interface.METADATA_DIR, 'manifest')
+  
+  def force(self):
+    osutils.rm(self.mfile, force=True)
+  
+  def run(self):
+    manifest = []
+    for file in osutils.tree(self.interface.SOFTWARE_STORE, prefix=False):
+      manifest.append(
+          self.__gen_manifest_line(file, prefix=self.interface.SOFTWARE_STORE)
+        )
+    
+    if self._manifest_changed(manifest, self.mfile):
+      self.interface.set_cvar('do-iso', True)      
+      if not exists(self.mfile): os.mknod(self.mfile)
+      mf = open(self.mfile, 'w')
+      mwriter = csv.DictWriter(mf, FIELDS, lineterminator='\n')
+      for line in manifest:
+        mwriter.writerow(line)
+      mf.close()
+  
+  def apply(self):
+    if not exists(self.mfile):
+      raise RuntimeError, "Unable to find manifest file at '%s'" % self.mfile
+  
+  def __gen_manifest_line(self, file, prefix):
+    fstat = os.stat(join(prefix, file))
+    return {'file': file,
+            'size': str(fstat.st_size),
+            'mtime': str(fstat.st_mtime)}
+
+  def _manifest_changed(self, manifest, old_manifest_file):
+    if exists(old_manifest_file):
+      mf = open(old_manifest_file, 'r')
+      mreader = csv.DictReader(mf, FIELDS)
+      old_manifest = []
+      for line in mreader: old_manifest.append(line)
+      mf.close()
+      
+      return manifest != old_manifest
+    else:
+      return True
+
+
+class IsoHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'iso.iso'
+    
+    self.interface = interface
+    
+    self.interface.lfn = self._delete_isotree
+    self.interface.rfn = self._generate_isotree
+    self.interface.bfn = self._check_isotree
+  
+  def force(self):
+    osutils.rm(self.interface.isodir, recursive=True, force=True)
+  
+  def run(self):
+    if not self._test_runstatus(): return
+    
+    self.interface.log(0, "generating iso image(s)")
     
     self.newsets = self.interface.config.mget('//iso/set/@size', [])
     self.newsets_expanded = []
     for set in self.newsets:
       self.newsets_expanded.append(splittree.parse_size(set))
-  
-  def handle(self):
-    "Generate isos"
-    
+
     oldsets = filter(None, osutils.find(self.interface.isodir, type=osutils.TYPE_DIR,
-                           maxdepth=1, prefix=False))
+                                        maxdepth=1, prefix=False))
+    
     self.interface.compare(oldsets, self.newsets)
     
     for iso in osutils.find(self.interface.isodir, type=osutils.TYPE_DIR,
                             mindepth=2, maxdepth=2, prefix=False):
       
       self.interface.log(1, "generating %s.iso" % osutils.basename(iso))
-      ## add -quiet and remove verbose when done testing
       shlib.execute('mkisofs -UJRTV "%s" -o %s.iso %s' % \
         ('%s %s %s' % (self.interface.product,
                        self.interface.version,
@@ -166,9 +260,12 @@ class IsoHandler:
          join(self.interface.isodir, iso),
          join(self.interface.isodir, iso)),
          verbose=True)
-      
   
-  def delete_isotree(self, set):
+  def _test_runstatus(self):
+    return self.interface.isForced('iso') or \
+           self.interface.get_cvar('do-iso')
+  
+  def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
     if expanded_set not in self.newsets_expanded:
       osutils.rm(join(self.interface.isodir, set), recursive=True, force=True)
@@ -179,16 +276,16 @@ class IsoHandler:
       if newset in self.interface.r:
         self.interface.r.remove(newset) # don't create iso tree; it already exists
   
-  def generate_isotree(self, set):
+  def _generate_isotree(self, set):
     osutils.mkdir(join(self.interface.isodir, set), parent=True)
     
     splitter = splittree.Timber(set, dosrc=self.interface.get_cvar('source-include'))
     splitter.product = self.interface.product
-    splitter.unified_tree = self.interface.getSoftwareStore()
-    splitter.unified_source_tree = self.interface.getSoftwareStore()
+    splitter.unified_tree = self.interface.SOFTWARE_STORE
+    splitter.unified_source_tree = self.interface.SOFTWARE_STORE
     splitter.split_tree = join(self.interface.isodir, set)
-    splitter.difmt = self.interface.getLocalPath(L_DISCINFO, '.')
-    splitter.pkgorder = join(self.interface.getMetadata(), 'pkgorder')
+    splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.interface.get_cvar('anaconda-version')).iget('discinfo')
+    splitter.pkgorder = self.interface.get_cvar('pkgorder-file')
     
     splitter.compute_layout()
     splitter.cleanup()
@@ -196,4 +293,63 @@ class IsoHandler:
     splitter.split_rpms()
     splitter.split_srpms()
     
-  def check_isotree(self, set): pass
+  def _check_isotree(self, set): pass
+
+L_DISCINFO_FORMAT = ''' 
+<locals>
+  <!-- .discinfo format entries -->
+  <discinfo-entries>
+    <discinfo version="0">
+      <line id="timestamp" position="0">
+        <string-format string="%s">
+          <format>
+            <item>timestamp</item>
+          </format>
+        </string-format>
+      </line>
+      <line id="fullname" position="1">
+        <string-format string="%s">
+          <format>
+            <item>fullname</item>
+          </format>
+        </string-format>
+      </line>
+      <line id="basearch" position="2">
+        <string-format string="%s">
+          <format>
+            <item>basearch</item>
+          </format>
+        </string-format>
+      </line>
+      <line id="discs" position="3">
+        <string-format string="%s">
+          <format>
+            <item>discs</item>
+          </format>
+        </string-format>
+      </line>
+      <line id="base" position="4">
+        <string-format string="%s/base">
+          <format>
+            <item>product</item>
+          </format>
+        </string-format>
+      </line>
+      <line id="rpms" position="5">
+        <string-format string="%s/RPMS">
+          <format>
+            <item>product</item>
+          </format>
+        </string-format>
+      </line>
+      <line id="pixmaps" position="6">
+        <string-format string="%s/pixmaps">
+          <format>
+            <item>product</item>
+          </format>
+        </string-format>
+      </line>
+    </discinfo>
+  </discinfo-entries>
+</locals>
+'''

@@ -1,21 +1,36 @@
+"""
+Creates the release RPM.
+
+To add more files to the release RPM, four things should be done:
+
+1. set an instance variable that is a list of files to install
+2. set an instance variable that is a string that looks as follows:
+   <install directory>: <comma-separated list of files to install>
+3. add the first variable to list in create_manifest()
+4. add the second variable to the list in get_data_files()
+
+You can use the _sync_files() function to do the first two of the four
+steps.
+"""
+
 import os
 
 import dims.filereader as filereader
 
-from dims.osutils import basename, dirname, mkdir, find
+from dims.osutils     import basename, dirname, mkdir, find
 from dims.repocreator import YumRepoCreator
-from dims.sync import sync
-from dims.xmltree import XmlPathError
-from event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from interface import EventInterface
-from lib import RpmHandler, RpmsInterface, getIpAddress
-from main import BOOLEANS_TRUE
-from os.path import exists, join
-from output import tree
+from dims.sync        import sync
+from dims.xmltree     import XmlPathError
+from event            import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
+from interface        import EventInterface
+from lib              import ColorMixin, RpmHandler, RpmsInterface, getIpAddress
+from main             import BOOLEANS_TRUE
+from os.path          import exists, join
+from output           import tree
 
 EVENTS = [
   {
-    'id': 'release',
+    'id': 'release-rpm',
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['release-rpm'],
@@ -23,32 +38,17 @@ EVENTS = [
   },    
 ]
 
-#------ HOOK FUNCTIONS ------#
-def prerelease_hook(interface):
-  handler = ReleaseRpmHandler(interface)
-  interface.add_handler('release', handler)
-  interface.disableEvent('release')
-  if handler.pre() or (interface.eventForceStatus('release') or False):
-    interface.enableEvent('release')
-        
-def release_hook(interface):
-  interface.log(0, "creating release rpm")
-  handler = interface.get_handler('release')
-  handler.modify()
+HOOK_MAPPING = {
+  'ReleaseRpmHook': 'release-rpm',
+}
 
-def postrelease_hook(interface):
-  handler = interface.get_handler('release')
-  if handler.create:
-    # add rpms to the included-packages control var, so that
-    # they are added to the comps.xml
-    interface.append_cvar('included-packages', [handler.rpmname])    
-    # add rpms to the excluded-packages control var, so that
-    # they are removed from the comps.xml
-    interface.append_cvar('excluded-packages', handler.obsoletes.split())
+API_VERSION = 4.0
 
 #---------- HANDLERS -------------#
-class ReleaseRpmHandler(RpmHandler):
+class ReleaseRpmHook(RpmHandler, ColorMixin):
   def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'release.release'
     # expand the xpath queries in the data struct
     data = {
       'config': [
@@ -67,7 +67,7 @@ class ReleaseRpmHandler(RpmHandler):
         interface.config.mget('//gpgkey/public/text()', []),
       ],
       'output': [
-        join(interface.getMetadata(), 'release-rpm'),
+        join(interface.METADATA_DIR, 'release-rpm'),
       ],
     }
 
@@ -82,12 +82,18 @@ class ReleaseRpmHandler(RpmHandler):
                                     'centos-release-notes',
                         description='%s release files' %(interface.fullname,),
                         long_description='%s release files created by dimsbuild' %(interface.fullname,))
+    ColorMixin.__init__(self, join(self.interface.METADATA_DIR,
+                                   '%s.pkgs' %(self.interface.getBaseStore(),)))
     
     self.prefix = dirname(self.software_store) # prefix to the directories in data['output']    
     if not exists(self.software_store):
       mkdir(self.software_store, parent=True)
 
-  def getInput(self):
+  def run(self):
+    self.set_colors()
+    RpmHandler.run(self)
+      
+  def get_input(self):
     if not exists(self.rpm_output):
       mkdir(self.rpm_output, parent=True)
     if not exists(self.output_location):
@@ -106,11 +112,73 @@ class ReleaseRpmHandler(RpmHandler):
   def generate(self):
     self._generate_repos() # modify self.repos_files and self.repos_data
     self._generate_etc_files() # set self.etc_files and self.etc_data
+    self._verify_release_notes()
 
+  def create_manifest(self):
+    manifest = join(self.output_location, 'MANIFEST')
+    f = open(manifest, 'w')
+    f.write('setup.py\n')
+    f.write('setup.cfg\n')    
+    for item in ['etc_files', 'eula_files', 'rnotes_doc_files', 'rnotes_omf_files',
+                 'rnotes_html_files', 'release_files', 'gpg_files', 'repos_files',
+                 'eulapy_files', 'default_rnotes_files']:
+      if hasattr(self, item):
+        for file in getattr(self, item):          
+          f.write('%s\n' %(file,))
+    f.close()
+    
+  def get_data_files(self):
+    data_value = None
+    for data in ['etc_data', 'eula_data', 'rnotes_doc_data', 'rnotes_omf_data', 'rnotes_html_data',
+                 'release_data', 'gpg_data', 'repos_data', 'eulapy_data', 'default_rnotes_data']:
+      if hasattr(self, data):
+        value = getattr(self, data)
+        if data_value is None:
+          data_value = value
+        else:
+          data_value = '\n'.join([data_value, value])
+    return data_value
+
+  def _verify_release_notes(self):
+    rnotes = find(location=self.output_location, name='RELEASE-NOTES*')
+    if len(rnotes) == 0:
+      # create a default release notes file because none were found.
+      import locale
+      rnotename = 'RELEASE-NOTES-%s.html' %(locale.getdefaultlocale()[0],) 
+      path = join(self.output_location, rnotename)
+      f = open(path, 'w')      
+      f.write("""<html>
+        <head>
+        <style type="text/css">
+          <!--
+          body {
+            background-color: %s;
+            color: %s;
+            font-family: sans-serif;
+          }
+          .center {
+            text-align: center;
+          }
+          p {
+            margin-top: 20%%;
+          }
+          -->
+        </style>
+        </head>
+        <body>
+          <h1>
+            <p class="center">Welcome to %s!</p>
+          </h1>
+        </body>
+      </html>
+      """ %(self.bgcolor.replace('0x', '#'), self.textcolor.replace('0x', '#'), self.fullname,))
+      f.close()
+      index_html = join(self.output_location, 'index.html')
+      os.link(path, index_html)
+      self.default_rnotes_files = [rnotename, 'index.html']
+      self.default_rnotes_data = "/usr/share/doc/HTML/: %s, index.html" %(rnotename,)
+      
   def _sync_gpg_keys(self):
-    # sets the following variables:
-    #   self.gpg_files : the list of gpgkeys, with paths relative to builddata/release-rpm
-    #   self.gpg_data  : the string corresponding to the files, to be added to setup.cfg
     gpg_dir = join(self.output_location, 'gpg')
     mkdir(gpg_dir)
     gpgkeys = []
@@ -128,20 +196,11 @@ class ReleaseRpmHandler(RpmHandler):
     if files:      
       self.gpg_files = map(lambda x: join('gpg', x), files)
       self.gpg_data = ''.join(['/etc/pki/rpm-gpg : ', ', '.join(self.gpg_files)])
-    else:
-      self.gpg_files = []
-      self.gpg_data = ''
 
   def _sync_repos(self):
-    # sets the following variables:
-    #   self.repos_files : the list of .repo files, paths relative to builddata/release-rpm
-    #   self.repos_data  : the string that needs to be added to setup.cfg's data_files option
     self._sync_files('yum-repos', '/etc/yum.repos.d', dirname='repos')
     
   def _sync_eula_files(self):
-    # sets the following variables:
-    #   self.eula_files : the list of eula files
-    #   self.eula_data  : the string that needs to be added to setup.cfg's data_files option 
     self._sync_files('eula', '/usr/share/eula')
     
     if self.config.get('//release-rpm/eula/include-in-firstboot/text()', 'True') in BOOLEANS_TRUE and \
@@ -150,27 +209,17 @@ class ReleaseRpmHandler(RpmHandler):
       sync(source, join(self.output_location, 'eula'))
       self.eulapy_data = '/usr/share/firstboot/modules : eula/eula.py'
       self.eulapy_files = ['eula/eula.py']
-    else:
-      self.eulapy_data = ''
-      self.eulapy_files = []
 
   def _sync_release_notes(self):
-    # sets the following variables:
-    #   self.rnotes_doc_files : the list of release notes files to be installed in share/doc
-    #   self.rnotes_doc_data  : the string that needs to be added to setup.cfg's data_files option
-    #
-    #   self.rnotes_omf_files : the list of release notes files to be installed in share/omf
-    #   self.rnotes_omf_data  : the string that needs to be added to setup.cfg's data_files option    
-    self._sync_files('release-notes', '/usr/share/doc/%s-release-notes-%s' %(self.product,
-                                                                             self.version),
-                     dirname='rnotes-doc', triage=lambda x: not x.endswith('omf'))
-    self._sync_files('release-notes', '/usr/share/doc/%s-release-notes' %(self.product,),
-                     dirname='rnotes-omf', triage=lambda x: x.endswith('omf'))
+    for element, path, dirname in \
+            [('release-notes/omf', '/usr/share/omf/%s-release-notes' %(self.product,), 'rnotes-omf'),
+             ('release-notes/html', '/usr/share/doc/HTML', 'rnotes-html'),
+             ('release-notes/doc', '/usr/share/doc/%s-release-notes-%s'
+              %(self.product, self.version,), 'rnotes-doc')]:
+      installpath = self.config.get('//%s/%s/@install-path' %(self.elementname, element,), path)      
+      self._sync_files(element, installpath, dirname=dirname)
 
   def _sync_release_files(self):
-    # sets the following variables:
-    #   self.release_files : the list of release files installed at share/doc/prod-release/
-    #   self.release_data  : the string that needs to be added to setup.cfg's data_files option    
     self._sync_files('release-files', '/usr/share/doc/%s-release-%s' %(self.product, self.version,),
                      dirname='release')
 
@@ -193,7 +242,7 @@ class ReleaseRpmHandler(RpmHandler):
       else:
         lines.append('gpgcheck=0')
       filereader.write(lines, repofile)
-      if self.repos_files:
+      if hasattr(self, 'repos_files'):
         self.repos_files.append(repofile)
         self.repos_data = ', '.join([self.repos_data, join('repos', '%s.repo' %(self.product,))])
       else:
@@ -229,19 +278,6 @@ class ReleaseRpmHandler(RpmHandler):
 
     self.etc_files = ['redhat-release', '%s-release' %(self.product,), 'issue', 'issue.net']
     self.etc_data = ''.join(['/etc : ', ', '.join(self.etc_files)])
-
-  def get_data_files(self):
-    manifest = join(self.output_location, 'MANIFEST')
-    f = open(manifest, 'w')
-    f.write('setup.py\n')
-    f.write('setup.cfg\n')
-    for file in self.etc_files + self.eula_files + self.rnotes_doc_files + self.rnotes_omf_files + \
-            self.release_files + self.gpg_files + self.repos_files + self.eulapy_files:
-      f.write('%s\n' %(file,))
-    f.close()
-    return '\n'.join([self.etc_data, self.eula_data, self.rnotes_doc_data, 
-                      self.rnotes_omf_data, self.release_data, self.gpg_data,
-                      self.repos_data, self.eulapy_data])
     
   def _sync_files(self, element, installdir, dirname=None, triage=lambda x: True):
     if not dirname:
@@ -252,12 +288,9 @@ class ReleaseRpmHandler(RpmHandler):
     for item in self.config.mget('//%s/%s/path/text()' %(self.elementname, element), []):
       sync(item, dest_dir)
 
-    dirname = dirname.replace('-', '_')
+    variable_prefix = dirname.replace('-', '_')
     files = map(lambda x: join(dirname, x), filter(triage, os.listdir(dest_dir)))
     if files:
-      setattr(self, '%s_files' %(dirname,), files)
-      setattr(self, '%s_data' %(dirname,),
+      setattr(self, '%s_files' %(variable_prefix,), files)
+      setattr(self, '%s_data' %(variable_prefix,),
               ''.join(['%s : ' %(installdir,), ', '.join(files)]))
-    else:
-      setattr(self, '%s_data' %(dirname,), '')  # if no files found, self.<element> is an empty string
-      setattr(self, '%s_files' %(dirname,), [])

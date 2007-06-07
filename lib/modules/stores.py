@@ -1,28 +1,33 @@
+import re
+
 from os.path            import join, isfile, exists
 from StringIO           import StringIO
 from urlgrabber.grabber import URLGrabError
 from urlparse           import urlparse
 
-import dims.filereader  as filereader
-import dims.listcompare as listcompare
-import dims.spider      as spider
-import dims.xmltree     as xmltree
+from dims import filereader
+from dims import listcompare
+from dims import osutils
+from dims import spider
+from dims import xmltree
 
-from event     import EVENT_TYPE_PROC
+from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface
-from main      import BOOLEANS_TRUE
 
-API_VERSION = 3.0
+API_VERSION = 4.0
 
 EVENTS = [
   {
     'id': 'stores',
-    'provides': ['stores'],
-    'requires': ['RPMS'],
-    'properties': EVENT_TYPE_PROC,
+    'provides': ['stores', 'anaconda-version'],
+    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'interface': 'StoresInterface',
   },
 ]
+
+HOOK_MAPPING = {
+  'StoresHook': 'stores',
+}
 
 class StoresInterface(EventInterface):
   def __init__(self, base):
@@ -37,49 +42,104 @@ class StoresInterface(EventInterface):
     server = '://'.join((s,n))
     if server not in self._base.cachemanager.SOURCES:
       self._base.cachemanager.SOURCES.append(server)
-    
 
-def stores_hook(interface):
-  """Check input stores to see if their contents have changed by comparing them
-  to the corresponding <store>.pkgs file in interface.getMetadata()"""
-  
-  interface.log(0, "generating filelists for input stores")
-  changed = False
-  
-  storelists = {}
-  
-  for store in interface.config.mget('//stores/*/store/@id'):
-    interface.log(1, store)
-    i,s,n,d,u,p = interface.getStoreInfo(store)
-    
-    base = interface.storeInfoJoin(s or 'file', n, d)
-    
-    # get the list of .rpms in the input store
-    try:
-      pkgs = spider.find(base, glob='*.[Rr][Pp][Mm]', nglob='repodata', prefix=False,
-                         username=u, password=p)
-    except URLGrabError, e:
-      print e
-      raise StoreNotFoundError, "The specified store '%s' at url '%s' does not appear to exist" % (store, base)
-    
-    oldpkgsfile = join(interface.getMetadata(), '%s.pkgs' % store)
-    if isfile(oldpkgsfile):
-      oldpkgs = filereader.read(oldpkgsfile)
-    else:
-      oldpkgs = []
-    
-    # test if content of input store changed
-    old, new, _ = listcompare.compare(oldpkgs, pkgs)
-    
-    # save input store content list to storelists
-    storelists[store] = pkgs
-    
-    # if content changed, write new contents to file
-    if len(old) > 0 or len(new) > 0 or not exists(oldpkgsfile):
-      changed = True
-      filereader.write(pkgs, oldpkgsfile)
-    
-  interface.set_cvar('input-store-changed', changed)
-  interface.set_cvar('input-store-lists', storelists)
 
+#------ HOOKS ------#
+class StoresHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'stores.stores'
+    
+    self.interface = interface
+  
+  def force(self):
+    for file in osutils.find(self.interface.METADATA_DIR, name='*.pkgs', maxdepth=1):
+      osutils.rm(file, force=True)
+  
+  def run(self):
+    """Check input stores to see if their contents have changed by comparing them
+    to the corresponding <store>.pkgs file in interface.METADATA_DIR"""
+   
+    self.interface.log(0, "generating filelists for input stores")
+    changed = False
+    
+    storelists = {}
+    
+    for store in self.interface.config.mget('//stores/*/store/@id'):
+      self.interface.log(1, store)
+      i,s,n,d,u,p = self.interface.getStoreInfo(store)
+      
+      base = self.interface.storeInfoJoin(s or 'file', n, d)
+      
+      # get the list of .rpms in the input store
+      try:
+        pkgs = spider.find(base, glob='*.[Rr][Pp][Mm]', nglob='repodata', prefix=False,
+                           username=u, password=p)
+      except URLGrabError, e:
+        print e
+        raise StoreNotFoundError, "The specified store '%s' at url '%s' does not appear to exist" % (store, base)
+      
+      oldpkgsfile = join(self.interface.METADATA_DIR, '%s.pkgs' % store)
+      if isfile(oldpkgsfile):
+        oldpkgs = filereader.read(oldpkgsfile)
+      else:
+        oldpkgs = []
+      
+      # test if content of input store changed
+      old,new,_ = listcompare.compare(oldpkgs, pkgs)
+      
+      # save input store content list to storelists
+      storelists[store] = pkgs
+      
+      # if content changed, write new contents to file
+      if len(old) > 0 or len(new) > 0 or not exists(oldpkgsfile):
+        changed = True
+        filereader.write(pkgs, oldpkgsfile)
+      
+    self.interface.set_cvar('input-store-changed', changed)
+    self.interface.set_cvar('input-store-lists', storelists)
+  
+  def apply(self):
+    if not self.interface.get_cvar('input-store-lists'):
+      storelists = {}
+      
+      storefiles = osutils.find(self.interface.METADATA_DIR, name='*.pkgs', maxdepth=1)
+      if len(storefiles) == 0:
+        raise RuntimeError, "Unable to find any store files in metadata directory"
+      for file in storefiles:
+        storeid = osutils.basename(file.replace('.pkgs', '')) # potential problem if store has .pkgs in name
+        storelists[storeid] = filereader.read(file)
+            
+      self.interface.set_cvar('input-store-lists', storelists)
+      # if we're skipping stores, assume store lists didn't change; otherwise,
+      # assume they did
+      if self.interface.isSkipped('stores'):
+        self.interface.set_cvar('input-store-changed', True)
+    
+    if not self.interface.get_cvar('anaconda-version'):
+      anaconda_version = \
+        get_anaconda_version(join(self.interface.METADATA_DIR,
+                                  '%s.pkgs' % self.interface.getBaseStore()))
+      self.interface.set_cvar('anaconda-version', anaconda_version)
+
+#------ HELPER FUNCTIONS ------#
+def get_anaconda_version(file):
+  scan = re.compile('.*/anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
+  version = None
+  
+  fl = filereader.read(file)
+  for rpm in fl:
+    match = scan.match(rpm)
+    if match:
+      try:
+        version = match.groups()[0]
+      except (AttributeError, IndexError), e:
+        pass
+      break
+  if version is not None:
+    return version
+  else:
+    raise ValueError, "unable to compute anaconda version from distro metadata"
+
+#------ ERRORS ------#
 class StoreNotFoundError(StandardError): pass

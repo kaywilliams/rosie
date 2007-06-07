@@ -8,7 +8,7 @@ from output       import tree
 
 EVENTS = [
   {
-    'id': 'config_rpm',
+    'id': 'config-rpm',
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['config-rpm'],
@@ -16,33 +16,25 @@ EVENTS = [
   }
 ]
 
-
-def preconfig_rpm_hook(interface):
-  handler = ConfigRpmHandler(interface)
-  interface.add_handler('config-rpm', handler)
-  interface.disableEvent('config_rpm')
-  if handler.pre() or (interface.eventForceStatus('config_rpm') or False):
-    interface.enableEvent('config_rpm')
-
-def config_rpm_hook(interface):
-  interface.log(0, "creating config rpm")
-  handler = interface.get_handler('config-rpm')
-  handler.modify()
-
-def postconfig_rpm_hook(interface):
-  handler = interface.get_handler('config-rpm')
-  if handler.create:
-    interface.append_cvar('included-packages', [handler.rpmname])
+HOOK_MAPPING = {
+  'ConfigRpmHook': 'config-rpm',
+}
 
 
-class ConfigRpmHandler(RpmHandler):
+API_VERSION = 4.0
+
+class ConfigRpmHook(RpmHandler):
   def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'config.config_rpm'
+    
     data = {
       'config': ['//rpms/config-rpm'],
       'input':  [interface.config.mget('//rpms/config-rpm/config/script/path/text()', []),
                  interface.config.mget('//rpms/config-rpm/config/supporting-files/path/text()', [])],
-      'output': [join(interface.getMetadata(), 'config-rpm')]
+      'output': [join(interface.METADATA_DIR, 'config-rpm')]
     }
+    
     requires = ' '.join(interface.config.mget('//rpms/config-rpm/requires/package/text()', []))
     obsoletes = ' '.join(interface.config.mget('//rpms/config-rpm/obsoletes/package/text()', []))
     RpmHandler.__init__(self, interface, data,
@@ -59,7 +51,11 @@ class ConfigRpmHandler(RpmHandler):
                    self.config.get('//rpms/config-rpm/config/script/path/text()', None) or \
                    self.config.get('//rpms/config-rpm/config/supporting-files/path/text()', None)) \
                    is not None
-    
+
+    # all the relative paths in the config file's <config-rpm> section
+    # are relative to the config file's directory.
+    self.expand_input()
+      
   def get_post_install_script(self):
     script = self.config.get('//rpms/config-rpm/config/script/path/text()', None)
     if script:      
@@ -69,7 +65,8 @@ class ConfigRpmHandler(RpmHandler):
       assert len(post_install_scripts) == 1
       return post_install_scripts[0]
     return None
-    
+
+  def create_manifest(self): pass # done by get_data_files(), below.
   def get_data_files(self):
     lib_files = tree(self.output_location, type='f|l', prefix=False)
     manifest = join(self.output_location, 'MANIFEST')

@@ -1,7 +1,7 @@
 from event     import EVENT_TYPE_META
-from interface import EventInterface, FlowControlRWMixin
+from interface import EventInterface
 
-API_VERSION = 3.0
+API_VERSION = 4.0
 
 EVENTS = [
   {
@@ -14,29 +14,33 @@ EVENTS = [
     'id': 'applyopt',
     'interface': 'ApplyOptInterface',
     'provides': ['applyopt'],
-    'requires': ['init'],
+    'conditional-requires': ['init'],
     'parent': 'ALL',
   },
   {
     'id': 'validate',
-    'interface': 'ValidateInterface',
     'provides': ['validate'],
-    'requires': ['applyopt'],
+    'conditional-requires': ['applyopt'],
     'parent': 'ALL',
   },
   {
     'id': 'MAIN',
     'provides': ['MAIN'],
-    'requires': ['init', 'applyopt'],
+    'conditional-requires': ['init', 'applyopt', 'validate'],
     'parent': 'ALL',
     'properties': EVENT_TYPE_META,
   },
 ]
 
+HOOK_MAPPING = {
+  'ValidateHook': 'validate',
+}
+
+
 class InitInterface(EventInterface):
-  def __init__(self, base, parser):
+  def __init__(self, base):
     EventInterface.__init__(self, base)
-    self.parser = parser
+    self.parser = None
   
   def getOptParser(self, groupid):
     for group in self.parser.option_groups:
@@ -44,16 +48,17 @@ class InitInterface(EventInterface):
         return group
     return self.parser
 
-class ApplyOptInterface(EventInterface, FlowControlRWMixin):
-  def __init__(self, base, options):
-    EventInterface.__init__(self, base)
-    FlowControlRWMixin.__init__(self, options)
-    self.options = options
-
-class ValidateInterface(EventInterface):
+class ApplyOptInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
+    self.options = None
 
-def validate_hook(interface):
-  "Perform preprocess validation"
-  interface.log(0, "performing preprocess validation")
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'init.validate'
+    
+    self.interface = interface
+  
+  def run(self):
+    self.interface.log(0, "performing preprocess validation")

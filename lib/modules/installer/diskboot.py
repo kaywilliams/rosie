@@ -1,73 +1,96 @@
 from os.path import join, exists
 
-import dims.imglib  as imglib
-import dims.osutils as osutils
+from dims import osutils
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from main  import locals_imerge
 
-from installer.lib import InstallerInterface, FileDownloader, ImageModifier, locals_imerge
+from installer.lib import FileDownloader, ImageModifier
 
-API_VERSION = 3.0
+API_VERSION = 4.0
 
 EVENTS = [
   {
     'id': 'diskboot',
-    'interface': 'InstallerInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['diskboot'],
-    'requires': ['initrd.img', 'splash.lss'],
+    'requires': ['initrd.img'],
+    'conditional-requires': ['splash.lss'],
     'parent': 'INSTALLER',
   },
 ]
 
-
-def prediskboot_hook(interface):
-  diskboot_md_struct = {
-    'config':    ['/distro/main/product/text()',
-                  '/distro/main/version/text()',
-                  '/distro/main/fullname/text()'],
-    'variables': ['anaconda_version'],
-    'input':     [join(interface.getSoftwareStore(), 'isolinux/initrd.img'),
-                  join(interface.getSoftwareStore(), 'isolinux/splash.lss')],
-    'output':    [join(interface.getSoftwareStore(), 'images/diskboot.img')],
-  }
-  
-  # modify image
-  handler = DiskbootModifier('diskboot.img', interface, diskboot_md_struct, L_IMAGES)
-  interface.add_handler('diskboot.img', handler)
-  
-  interface.disableEvent('diskboot')
-  if interface.eventForceStatus('diskboot') or False:
-    interface.enableEvent('diskboot')
-  elif interface.get_cvar('isolinux-changed'):
-    interface.enableEvent('diskboot')
-  elif handler.pre():
-    interface.enableEvent('diskboot')
-
-def diskboot_hook(interface):
-  interface.log(0, "preparing diskboot image")
-  i,_,_,d,_,_ = interface.getStoreInfo(interface.getBaseStore())
-  
-  diskboot_dir = join(interface.getSoftwareStore(), 'images')
-  osutils.mkdir(diskboot_dir, parent=True)
-  
-  # download file
-  dl = FileDownloader(L_FILES, interface)
-  dl.download(d,i)
-  
-  handler = interface.get_handler('diskboot.img')
-  handler.modify()
+HOOK_MAPPING = {
+  'DiskbootHook': 'diskboot',
+}
 
 
-class DiskbootModifier(ImageModifier):
-  def __init__(self, name, interface, data, locals, mdfile=None):
-    ImageModifier.__init__(self, name, interface, data, locals, mdfile)
+#------ HOOKS ------#
+class DiskbootHook(ImageModifier, FileDownloader):
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'diskboot.diskboot'
+    
+    self.interface = interface
+    
+    self.diskbootimage = join(interface.SOFTWARE_STORE, 'images/diskboot.img')
   
+    diskboot_md_struct = {
+      'config':    ['/distro/main/product/text()',
+                    '/distro/main/version/text()',
+                    '/distro/main/fullname/text()'],
+      'variables': ['anaconda_version'],
+      'input':     [join(interface.SOFTWARE_STORE, 'isolinux/initrd.img'),
+                    join(interface.SOFTWARE_STORE, 'isolinux/splash.lss')],
+      'output':    [self.diskbootimage],
+    }
+    
+    ImageModifier.__init__(self, 'diskboot.img', interface, diskboot_md_struct)
+    FileDownloader.__init__(self, interface)
+  
+  def error(self, e):
+    try:
+      self.close()
+    except:
+      pass
+  
+  def force(self):
+    osutils.rm(self.diskbootimage, force=True)
+  
+  def run(self):
+    self.register_image_locals(L_IMAGES)
+    self.register_file_locals(L_FILES)
+    
+    if not self._test_runstatus(): return    
+    
+    self.interface.log(0, "preparing diskboot image")
+    i,_,_,d,_,_ = self.interface.getStoreInfo(self.interface.getBaseStore())
+    
+    diskboot_dir = join(self.interface.SOFTWARE_STORE, 'images')
+    osutils.mkdir(diskboot_dir, parent=True)
+    
+    # download file - see FileDownloader in lib.py
+    self.download(d,i)
+    
+    # modify image - see DiskbootModifier, below, and ImageModifier in lib.py
+    self.modify()
+  
+  def apply(self):
+    if not exists(self.diskbootimage):
+      raise RuntimeError, "Unable to find 'diskboot.img' at '%s'" % self.diskbootimage
+  
+  def _test_runstatus(self):
+    return self.interface.isForced('diskboot') or \
+           self.interface.get_cvar('isolinux-changed') or \
+           self.check_run_status()
+
   def generate(self):
-    self.image.write(join(self.interface.getSoftwareStore(), 'isolinux/initrd.img'), '/')
-    self.image.write(join(self.interface.getSoftwareStore(), 'isolinux/splash.lss'), '/')
+    self.image.write(join(self.interface.SOFTWARE_STORE, 'isolinux/initrd.img'), '/')
+    if exists(join(self.interface.SOFTWARE_STORE, 'isolinux/splash.lss')):
+      self.image.write(join(self.interface.SOFTWARE_STORE, 'isolinux/splash.lss'), '/')
 
 
+#------ LOCALS ------#
 L_FILES = ''' 
 <locals>
   <files-entries>

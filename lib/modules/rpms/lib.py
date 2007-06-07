@@ -4,37 +4,27 @@ import rpm
 import socket
 import struct
 
-import dims.mkrpm as mkrpm
-import dims.shlib as shlib
-import dims.xmltree as xmltree
+import dims.filereader as filereader
+import dims.mkrpm      as mkrpm
+import dims.shlib      as shlib
+import dims.xmltree    as xmltree
 
 from ConfigParser import ConfigParser
 from dims.osutils import basename, dirname, find, mkdir, rm
-from dims.sync import sync
-from event import EventInterface
-from main import BOOLEANS_TRUE
-from os.path import exists, join
-from output import OutputEventHandler, OutputInvalidError
-
+from dims.sync    import sync
+from event        import EventInterface
+from main         import BOOLEANS_TRUE
+from os.path      import exists, join
+from output       import OutputEventHandler, OutputInvalidError
 
 #--------------- FUNCTIONS ------------------#
-def getProvides(rpmPath):
-  "Returns the list of items provided by the RPM specified by rpmPath."
-  ts = rpm.TransactionSet()
-  fd = os.open(rpmPath, os.O_RDONLY)
-  h = ts.hdrFromFdno(fd)
-  del ts
-  provides = h['providename']    
-  os.close(fd)
-  return provides    
-
 def getIpAddress(ifname='eth0'):
   s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
   return socket.inet_ntoa(fcntl.ioctl(s.fileno(),
                                       0x8915, # SIOCGIFADDR
                                       struct.pack('256s', ifname[:15]))[20:24])
                                       
-def buildRpm(path, rpm_output, changelog=None, logger='rpmbuild',
+def build_rpm(path, rpm_output, changelog=None, logger='rpmbuild',
              functionName='main', keepTemp=True, createrepo=False,
              quiet=True):
   # keepTemp should be True if path points to a location inside
@@ -51,10 +41,11 @@ def buildRpm(path, rpm_output, changelog=None, logger='rpmbuild',
   # already to wherever they need to be. 
   rm(join(path, 'dist'), recursive=True, force=True)
 
+
 #------ INTERFACES/MIXINS ------#
 class RpmsMixin:
   def __init__(self):
-    self.LOCAL_REPO = join(self.getMetadata(), 'localrepo/')
+    self.LOCAL_REPO = join(self.METADATA_DIR, 'localrepo/')
   
   def addRpm(self, path):
     cp(path, self.LOCAL_REPO)
@@ -65,22 +56,67 @@ class RpmsMixin:
     shlib.execute('/usr/bin/createrepo -q .')
     os.chdir(pwd)  
 
+
+class ColorMixin:
+  def __init__(self, verfile):
+    self.verfile = verfile
+
+  def set_colors(self):
+    # compute the background and foreground colors to use
+    self.distroname, self.distroversion = self._get_distro_info()
+    try:
+      self.bgcolor, self.textcolor, self.hlcolor = IMAGE_COLORS[self.distroname][self.distroversion]
+    except KeyError:
+      self.bgcolor, self.textcolor, self.hlcolor = IMAGE_COLORS['*']['0']    
+    
+  def color_to_bigendian(self, color):
+    if type(color) == tuple:
+      return self._color_to_bigendian(color[0]), self._color_to_bigendian(color[1])
+    else:
+      return self._color_to_bigendian(color)
+
+  def _color_to_bigendian(self, color):
+    if color.startswith('0x'):
+      color = color[2:]
+    color = '%s%s' % ((6-len(color))*'0', color) # prepend zeroes to color
+    return int('0x%s%s%s' % (color[4:], color[2:4], color[:2]), 16)
+
+  def _get_distro_info(self):
+    import re
+    scan = re.compile('.*/(.*)-release-([\d]).*\.[Rr][Pp][Mm]')
+    distro, version = None, None
+    fl = filereader.read(self.verfile)
+    for rpm in fl:
+      match = scan.match(rpm)
+      if match:
+        try:
+          distro = match.groups()[0]
+          version = match.groups()[1]
+        except (AttributeError, IndexError), e:
+          raise ValueError, "Unable to compute release version from distro metadata"
+        break
+    if distro is None or version is None:
+      raise ValueError, "Unable to compute release version from distro metadata"
+    return (distro, version[0])
+
+
 class RpmsInterface(EventInterface, RpmsMixin):
   def __init__(self, base):
     EventInterface.__init__(self, base)
     RpmsMixin.__init__(self)
 
   def append_cvar(self, flag, value):
-    if flag in self._base.mvars.keys():
+    if flag in self._base.cvars.keys():
       if type(value) == list:
-        self._base.mvars[flag].extend(value)
+        self._base.cvars[flag].extend(value)
       else:
-        self._base.mvars[flag].append(value)
+        self._base.cvars[flag].append(value)
     else:
       if type(value) == list:
-        self._base.mvars[flag] = value
+        self._base.cvars[flag] = value
       else:
-        self._base.mvars[flag] = [value]
+        self._base.cvars[flag] = [value]
+        
 
 #---------- HANDLERS -------------#
 class RpmHandler(OutputEventHandler):
@@ -92,8 +128,8 @@ class RpmHandler(OutputEventHandler):
         
     self.interface = interface    
     self.config = self.interface.config
-    self.metadata = self.interface.getMetadata()
-    self.software_store = self.interface.getSoftwareStore()
+    self.metadata = self.interface.METADATA_DIR
+    self.software_store = self.interface.SOFTWARE_STORE
     self.arch = self.interface.basearch    
     self.rpm_output = join(self.metadata, 'localrepo/')
 
@@ -108,8 +144,8 @@ class RpmHandler(OutputEventHandler):
 
     self.obsoletes = self.config.get('//%s/obsoletes/text()' %(self.elementname,), None)
     if self.config.get('//%s/obsoletes/@use-default-set' %(self.elementname,), 'True') in BOOLEANS_TRUE:
-      if self.obsoletes:
-        self.obsoletes = ' '.join([self.obsoletes, obsoletes])
+      if self.obsoletes is not None:
+        self.obsoletes = ' '.join([self.obsoletes.strip(), obsoletes])
       else:
         self.obsoletes = obsoletes
 
@@ -126,31 +162,55 @@ class RpmHandler(OutputEventHandler):
     
     OutputEventHandler.__init__(self, self.config, data,
                                 mdfile=join(self.metadata, '%s.md' % self.elementname))
-    
+        
   def _set_method(self):
     if self.config.get('//%s/create/text()' % self.elementname, 'True') in BOOLEANS_TRUE:
       self.create = True
     else:
       self.create = False
+
+  def clear_output(self):
+    for rpm in find(self.rpm_output, name='%s*[Rr][Pp][Mm]' %(self.rpmname,)):
+      rm(rpm, force=True)
+    rm(self.output_location, recursive=True, force=True)
+
+  def force(self):
+    self.clear_output()
   
-  def pre(self):
-    if self.test_input_changed() or not self.testOutputValid():
-      for rpm in find(self.rpm_output, name='%s*[Rr][Pp][Mm]' % self.rpmname):
-        rm(rpm, force=True)
-      rm(self.output_location, recursive=True, force=True)
-      return True
-    return False
-    
-  def modify(self):
-    self.getInput()
-    self.addOutput()
-    if not self.testOutputValid():
+  def run(self):
+    if self.test_input_changed() or not self.test_output_valid():
+      self.clear_output()
+    else:
+      return
+    self.get_input()
+    self.add_output()
+    if not self.test_output_valid():
       raise OutputInvalidError, "output is invalid"
     self.write_metadata()
+    if self.create:
+      self.interface.set_cvar('input-store-changed', True)
+      # need to the remove the .depsolve/dimsbuild-local folder so
+      # that depsolver picks up the new RPM.
+      depsolver_cache = join(self.interface.METADATA_DIR, '.depsolve', 'dimsbuild-local')
+      if exists(depsolver_cache):
+        rm(depsolver_cache, recursive=True, force=True)      
 
-  def testOutputValid(self): return True
+  def apply(self):    
+    try:
+      find(join(self.interface.METADATA_DIR, 'localrepo', 'RPMS'),
+           name='%s*.[Rr][Pp][Mm]' %(self.rpmname,), prefix=False)[0]
+      # add rpms to the included-packages control var, so that
+      # they are added to the comps.xml
+      self.interface.append_cvar('included-packages', [self.rpmname])
+      if self.obsoletes is not None:
+        self.interface.append_cvar('excluded-packages', self.obsoletes.split())        
+    except IndexError:
+      if self.create:
+        raise RuntimeError("missing rpm: '%s'" %(self.rpmname,))
+    
+  def test_output_valid(self): return True
   
-  def getInput(self):
+  def get_input(self):
     if not exists(self.rpm_output):
       mkdir(self.rpm_output, parent=True)
     if not exists(self.output_location):
@@ -159,16 +219,17 @@ class RpmHandler(OutputEventHandler):
       for input in self.data['input']:
         sync(input, self.output_location)
 
-  def addOutput(self):
+  def add_output(self):
     if self.create:
       self.generate()
       self.setup()
-      buildRpm(self.output_location, self.rpm_output,
-               quiet=(self.interface.logthresh < 4)) # piping rpmbuild output to loglevel 4
-
+      build_rpm(self.output_location, self.rpm_output,
+                quiet=(self.interface.logthresh < 4)) # piping rpmbuild output to loglevel 4
+    
   def generate(self): pass
-  
+
   def setup(self):
+    self.create_manifest()
     setup_cfg = join(self.output_location, 'setup.cfg')
     if exists(setup_cfg):
       return
@@ -181,35 +242,38 @@ class RpmHandler(OutputEventHandler):
     parser.set('pkg_data', 'description', self.description)
     parser.set('pkg_data', 'author', self.author)
     data_files = self.get_data_files()
-    if data_files:
+    if data_files is not None:
       parser.set('pkg_data', 'data_files', data_files)
     
     parser.add_section('bdist_rpm')
-    parser.set('bdist_rpm', 'release', self.get_release())
+    parser.set('bdist_rpm', 'release', self.get_release_number())
     parser.set('bdist_rpm', 'distribution_name', self.fullname)
-    if self.provides:
+    if self.provides is not None and len(self.provides.strip()) > 0:
       parser.set('bdist_rpm', 'provides', self.provides)
-    if self.obsoletes:
+    if self.obsoletes is not None and len(self.obsoletes.strip()) > 0:
       parser.set('bdist_rpm', 'obsoletes', self.obsoletes)
-    if self.requires:
+    if self.requires is not None and len(self.requires.strip()) > 0:
       parser.set('bdist_rpm', 'requires', self.requires)
 
     post_install_script = self.get_post_install_script() 
-    if post_install_script:
+    if post_install_script is not None:
       parser.set('bdist_rpm', 'post_install', post_install_script)
 
     install_script = self.get_install_script()
-    if install_script:
+    if install_script is not None:
       parser.set('bdist_rpm', 'install_script', install_script)
+      
     f = open(setup_cfg, 'w')
     parser.write(f)
     f.close()
+
+  def create_manifest(self): pass
 
   def get_install_script(self):      return None    
   def get_post_install_script(self): return None
   def get_data_files(self):          return None
   
-  def get_release(self):
+  def get_release_number(self):
     autoconf = join(dirname(self.config.file), 'distro.conf.auto')
 
     new_release = None
@@ -222,7 +286,7 @@ class RpmHandler(OutputEventHandler):
       if old_release:
         new_release = str(int(old_release)+1)
         create_package = root.iget('//%s' %(self.elementname,))
-        # TODO: raise exception if not found? We are creating this file, so maybe
+        # FIXME: raise exception if not found? We are creating this file, so maybe
         # it's OK to not raise an exception 
         create_package.remove(root.get('//%s/release' %(self.elementname,), [])[0]) 
         
@@ -240,3 +304,22 @@ class RpmHandler(OutputEventHandler):
     self.log(1, "'%s' release number: %s" %(self.elementname, new_release,))
     return new_release
 
+
+# each element for a distro's version, e.g. redhat/5, is a 3-tuple:
+# (background color, font color, highlight color). To add an entry,
+# look at the rhgb SRPM and copy the values from splash.c.
+IMAGE_COLORS = {
+  'centos': {
+    '5': ('0x215593', '0xffffff', '0x1e518c'),
+  },
+  'fedora': {
+    '6': ('0x00254d', '0xffffff', '0x002044'),
+    '7': ('0x001b52', '0xffffff', '0x1c2959'),
+  },
+  'redhat': {
+    '5': ('0x781e1d', '0xffffff', '0x581715'),
+  },
+  '*': {
+    '0': ('0x00254d', '0xffffff', '0x002044'),
+  }
+}

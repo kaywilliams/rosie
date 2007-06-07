@@ -1,38 +1,32 @@
-from event   import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from lib     import RpmHandler, RpmsInterface
-from os.path import join
+from dims.osutils import find
+from event        import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
+from lib          import RpmHandler, RpmsInterface
+from os.path      import join
 
-EVENTS = [{
-  'id': 'default_theme_rpm',
-  'interface': 'RpmsInterface',
-  'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-  'provides': ['default-theme'],
-  'parent': 'RPMS',
-}]
+EVENTS = [
+  {
+    'id': 'default-theme-rpm',
+    'interface': 'RpmsInterface',
+    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
+    'provides': ['default-theme-rpm'],
+    'parent': 'RPMS', 
+  },
+]
 
-def predefault_theme_rpm_hook(interface):
-  handler = ThemeRpmHandler(interface)
-  interface.add_handler('default_theme_rpm', handler)
-  interface.disableEvent('default_theme_rpm')
-  if handler.pre() or (interface.eventForceStatus('default_theme_rpm') or False):
-    interface.enableEvent('default_theme_rpm')
+HOOK_MAPPING = {
+  'DefaultThemeHook': 'default-theme-rpm',
+}
 
-def default_theme_rpm_hook(interface):
-  interface.log(0, "creating the default theme rpm")
-  handler = interface.get_handler('default_theme_rpm')
-  handler.modify()
+API_VERSION = 4.0
 
-def postdefault_theme_rpm_hook(interface):
-  handler = interface.get_handler('default_theme_rpm')
-  if handler.create:
-    interface.append_cvar('included-packages', [(handler.rpmname, 'conditional', 'gdm')])
-
-
-class ThemeRpmHandler(RpmHandler):
+class DefaultThemeHook(RpmHandler):
   def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'default_them.default_theme_rpm'
+    
     data = {
       'config': ['//rpms/default-theme-rpm'],
-      'output': [join(interface.getMetadata(), 'default-theme-rpm/')],
+      'output': [join(interface.METADATA_DIR, 'default-theme-rpm/')],
     }
     self.themename = interface.config.get('//rpms/default-theme-rpm/theme/text()', interface.product)
     RpmHandler.__init__(self, interface, data,
@@ -44,11 +38,22 @@ class ThemeRpmHandler(RpmHandler):
                         ' Its sole function is to modify the value of the GraphicalTheme attribute in'
                         ' /usr/share/gdm/defaults.conf to the %s theme' %(interface.product,
                                                                           self.themename,))
+  def apply(self):
+    try:
+      find(join(self.interface.METADATA_DIR, 'localrepo', 'RPMS'),
+           name='%s*.[Rr][Pp][Mm]' %(self.rpmname,), prefix=False)[0]
+    except IndexError:
+      raise RuntimeError("missing rpm: '%s'" %(self.rpmname,))
+    # add rpms to the included-packages control var, so that
+    # they are added to the comps.xml
+    self.interface.append_cvar('included-packages', [(self.rpmname, 'conditional', 'gdm')])
+    
   def get_post_install_script(self):
     f = open(join(self.output_location, 'postinstall.sh'), 'w')
     f.write(SCRIPT %(self.themename,))
     f.close()
     return 'postinstall.sh'
+
     
 SCRIPT = """
 chmod +w /usr/share/gdm/defaults.conf

@@ -1,23 +1,21 @@
 """ 
 interface.py
-
-
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@abodiosoftware.com>"
-__version__ = "3.0"
-__date__    = "May 21st, 2007"
+__author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
+__version__ = '3.0'
+__date__    = 'June 5th, 2007'
 
 import re
 
 from urlparse import urlparse, urlunparse
 
-import dims.filereader  as filereader
-import dims.listcompare as listcompare
-import dims.sortlib     as sortlib
-import dims.xmltree     as xmltree
+from dims import filereader
+from dims import listcompare
+from dims import sortlib
+from dims import xmltree
 
-from dims.ConfigLib    import expand_macros
+from dims.ConfigLib import expand_macros
 
 import locals
 
@@ -30,19 +28,18 @@ class EventInterface:
     self.logthresh = self._base.log.threshold
     self.errlogthresh = self._base.errlog.threshold
     
-    for var in ['product', 'version', 'release', 'arch',
-                'basearch', 'fullname', 'provider']:
-      setattr(self, var, self._base.base_vars[var])
-    #self.product  = self._base.base_vars['product']
-    #self.version  = self._base.base_vars['version']
-    #self.release  = self._base.base_vars['release']
-    #self.arch     = self._base.base_vars['arch']
-    #self.basearch = self._base.base_vars['basearch']
-    #self.fullname = self._base.base_vars['fullname']
-    #self.provider = self._base.base_vars['provider']
+    for k,v in self._base.cvars['base-vars'].items():
+      setattr(self, k, v)
+    self.BASE_VARS      = self._base.cvars['base-vars']
+  
+    self.CACHE_DIR      = self._base.CACHE_DIR
+    self.SOFTWARE_STORE = self._base.SOFTWARE_STORE
+    self.INPUT_STORE    = self._base.INPUT_STORE
+    self.METADATA_DIR   = self._base.METADATA_DIR
+    self.TEMP_DIR       = self._base.TEMP_DIR
     
   def expandMacros(self, text):
-    return expand_macros(text, self._base.base_vars)
+    return expand_macros(text, self._base.cvars['base-vars'])
   
   def cache(self, path, *args, **kwargs):
     return self._base.cachemanager.get(path, *args, **kwargs)
@@ -59,7 +56,7 @@ class EventInterface:
       storepath = '//store[@id="%s"]' % i
       self.config.get(storepath) # try to get it, if not found, fail
     except xmltree.XmlPathError, e:
-      raise xmltree.XmlPathError, "The specified store, '%s', does not exist in the config file" % storeid
+      raise xmltree.XmlPathError, "The specified store, '%s', does not exist in the config file" % i
     
     s,n,d,_,_,_ = urlparse(self.config.eget(['%s/path/text()' % storepath]))
     u = self.config.eget(['%s/username/text()' % storepath])
@@ -78,37 +75,26 @@ class EventInterface:
   def log(self, level, msg):    self._base.log(level, msg)
   def errlog(self, level, msg): self._base.errlog(level, msg)
   
-  # directory functions
-  def getCache(self):         return self._base.CACHE
-  def getSoftwareStore(self): return self._base.SOFTWARE_STORE
-  def getMetadata(self):      return self._base.METADATA
-  def getInputStore(self):    return self._base.INPUT_STORE
-  def getTemp(self):          return self._base.TEMP
-  
-  # replacement variable functions
-  def getBaseVars(self): return self._base.base_vars
-  def getSourceVars(self): return self._base.source_vars
-  
   # event processing functions
   # 'force' event functions - user specified
-  def eventForceStatus(self, eventid):
-    if self._base.userFC.has_key(eventid):
-      return self._base.userFC[eventid]
-    else: return None
+  def isForced(self, eventid):
+    return self._base.userFC.get(eventid, None) == True
+  def isSkipped(self, eventid):
+    return self._base.userFC.get(eventid, None) == False
   
   # 'standard' event functions - program specified
   def enableEvent(self, eventid): self.__set_event(eventid, True)
   def disableEvent(self, eventid): self.__set_event(eventid, False)
-  def eventStatus(self, eventid): return self._base.dispatch.get(eventid, err=True).enabled
+  def isEnabled(self, eventid): return self._base.dispatch.get(eventid, err=True).enabled
   
   def __set_event(self, eventid, flag):
     self._base.dispatch.get(eventid, err=True)._set_enable_status(flag)
   
   # program control variables
   def set_cvar(self, flag, state):
-    self._base.mvars[flag] = state
+    self._base.cvars[flag] = state
   def get_cvar(self, flag, fallback=False):
-    return self._base.mvars.get(flag, fallback)
+    return self._base.cvars.get(flag, fallback)
   
   # handlers
   def add_handler(self, id, handler):
@@ -118,42 +104,6 @@ class EventInterface:
   
 
 #------ MIXINS ------#
-class FlowControlROMixin:
-  def __init__(self): pass
-  
-  def getEventControlOption(self, eventid):
-    return self._base.userFC[eventid]
-
-class FlowControlRWMixin(FlowControlROMixin):
-  def __init__(self, options):
-    FlowControlROMixin.__init__(self)
-    self.options = options
-  
-  def setEventControlOption(self, eventid, flag):
-    if flag is not None:
-      self._base.userFC[eventid] = flag
-
-class VersionMixin:
-  # including this mixin with an interface requires that the associated event have
-  # 'stores' listed as a requirement
-  def __init__(self, verfile):
-    self.anaconda_version = get_anaconda_version(verfile)
-
-class LocalsMixin:
-  # including this mixin with an interface requires that the associated event have
-  # 'stores' listed as a requirement
-  def __init__(self, verfile, dirs):
-    self.anaconda_version = get_anaconda_version(verfile)
-    
-    if sortlib.dcompare(self.anaconda_version, '0') < 0:
-      raise ValueError, "Invalid anaconda version number '%s'" % self.anaconda_version
-    
-    self.locals = locals.load(self.anaconda_version)
-    
-    self.getLocal = self.locals.getLocal
-    self.getLocalPath = self.locals.getLocalPath
-
-
 class ListCompareMixin:
   def __init__(self, lfn=None, rfn=None, bfn=None, cb=None):
     self.lfn = lfn
@@ -183,24 +133,3 @@ class ListCompareMixin:
         self.cb.notify_right(len(self.r))
       if self.rfn:
         for i in self.r: self.rfn(i)
-
-
-#------ HELPER FUNCTIONS ------#
-def get_anaconda_version(file):
-  # using this function requires that the 'stores' event has run
-  scan = re.compile('.*/anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
-  version = None
-  
-  fl = filereader.read(file)
-  for rpm in fl:
-    match = scan.match(rpm)
-    if match:
-      try:
-        version = match.groups()[0]
-      except (AttributeError, IndexError), e:
-        raise ValueError, "Unable to compute anaconda version from distro metadata"
-      break
-  if version is not None:
-    return version
-  else:
-    raise ValueError, "Unable to compute anaconda version from distro metadata"

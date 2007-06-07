@@ -34,10 +34,12 @@ DiMS library.
 """
 
 __author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
-__version__ = '2.0'
-__date__    = 'April 17th, 2007'
+__version__ = '3.0'
+__date__    = 'May 30th, 2007'
 
 import imp
+import traceback
+import sys
 
 from os.path import join
 
@@ -127,6 +129,7 @@ class Event(resolve.Item, tree.Node):
   arranged in a tree-like structure.
   """
   def __init__(self, name, provides=[], requires=[],
+                     conditional_requires=[],
                      properties=EVENT_TYPE_MARK|EVENT_TYPE_CTRL,
                      interface=None):
     """ 
@@ -137,33 +140,21 @@ class Event(resolve.Item, tree.Node):
      * inteface   : pointer to the interface that will be instantiated by
                     this Event and passed to each of its registered
                     functions when it is executed
-     * functions  : list of registered functions; these functions are called
+     * hooks      : list of registered hooks; these hook's functions are called
                     sequentially with an instance of the interface defined
                     in self.interface whenever this Event is executed
-     * pre        : pointer to the Event's 'preevent', which precedes this
-                    event's own execution.  This is None for events that do
-                    not have the EVENT_TYPE_PROC property.
-     * post       : pointer to the Event's 'postevent', which follows this
-                    event's own execution.  This is None for events that do
-                    not have the EVENT_TYPE_PROC property.
     """
-    resolve.Item.__init__(self, provides, requires)
+    resolve.Item.__init__(self, provides, requires,
+                          conditional_requires=conditional_requires)
     tree.Node.__init__(self, name)
     
     self.properties = properties
-    self.interface = interface
+    self.interfaceid = interface
     
-    self.functions = []
+    self.hookids = []
+    self.hooks = []
+    self.fn_iter = EventFunctionIterator(self) #!
     
-    if self.test(PROP_HAS_PRE):
-      self.pre = Event('pre%s' % self.id, interface=self.interface)
-    else:
-      self.pre = None
-    if self.test(PROP_HAS_POST):
-      self.post = Event('post%s' % self.id, interface=self.interface)
-    else:
-      self.post = None
-  
   def __iter__(self): return EventIterator(self)
   def __str__(self): return self.id
   def __repr__(self): return '<events.Event instance id=\'%s\'>' % self.id
@@ -181,31 +172,20 @@ class Event(resolve.Item, tree.Node):
         event._set_enable_status(status)
   
   #------ REGISTRATION FUNCTIONS ------#
-  def register_function(self, function, sub=None):
+  def register_hook(self, hook):
     """ 
-    Register a function to be run when this Event is executed.  The function must
-    accept an Interface as its first argument.
+    Register a hook who's functions will be run when this Event is raised.
+    The hook must accept an Interface as its first argument.
     """
-    if sub is None:
-      self.functions.append(function)
-    elif sub == 'pre':
-      self.pre.functions.append(function)
-    elif sub == 'post':
-      self.post.functions.append(function)
-    else:
-      raise ValueError, 'Invalid value for sub: \'%s\'' % sub
+    self.hookids.append(hook)
   
   def register_interface(self, interface, force=False):
     """ 
     Register an Interface to be passed to all registered functions when this Event
     is executed.
     """
-    if self.interface is None or force:
-      self.interface = interface
-      if self.test(PROP_HAS_PRE):
-        self.pre.register_interface(interface, force)
-      if self.test(PROP_HAS_POST):
-        self.post.register_interface(interface, force)
+    if self.interfaceid is None or force:
+      self.interfaceid = interface
     else:
       raise RegisterInterfaceError, 'interface %s already registered' % self.interface
   
@@ -217,19 +197,47 @@ class Event(resolve.Item, tree.Node):
     return self.prevsibling or self.parent or None
   
   #------ EXECUTE ------#
-  def run(self, force=False, *args, **kwargs):
+  def raise_self(self, force=False, skip=False):
+    fn = self.fn_iter.next()
+    if fn == self.run:
+      if skip:
+        self.skip()
+        self.enabled = False
+      if force:
+        self.force()
+        self.enabled = True
+      if self.enabled:
+        fn()
+    else:
+      fn()
+  def apply(self): self._run_hooks(fn='apply')
+  def force(self): self._run_hooks(fn='force')
+  def pre(self):   self._run_hooks(fn='pre')
+  def post(self):  self._run_hooks(fn='post')
+  def run(self):   self._run_hooks(fn='run')
+  def skip(self):  self._run_hooks(fn='skip')
+  def _run_hooks(self, fn='run'):
     """ 
     Create an instance of the registered interface and pass it as an argument
-    to all registered functions.
+    to all registered hook functions.  args and kwargs serve as the arguments
+    to the interface, not the functions themselves.
     """
-    try:
-      if (self.enabled or force) and not self.test(PROP_META):
-        interface = self.interface(*args, **kwargs)
-        for hfunc in self.functions:
-          hfunc(interface)
-    except HookExit, e:
-      print e
-      sys.exit()
+    print '%s.%s()' % (self.id, fn) #!
+    for hook in self.hooks:
+      try:
+        if hasattr(hook, fn):
+          getattr(hook, fn)()
+        else:
+          pass
+      except HookExit, e:
+        print e
+        sys.exit()
+      except Exception, e:
+        if hasattr(hook, 'error'):
+          hook.error(e)
+        # raise e again, sort of
+        traceback.print_exc(file=sys.stderr)
+        sys.exit(1)
     
   #------ TREE FUNCTION WRAPPERS ------#
   # children/sibling wrappers, make sure provides lists are updated
@@ -259,9 +267,9 @@ class Dispatch:
   The primary dispatch class; handles Event, Interface, and hook function
   processing and registration.
   
-  After instantiating a Dispatch object, events and functions can be registered
+  After instantiating a Dispatch object, events and hooks can be registered
   using the appropriate register_*() functions.  The ordering of registration
-  does not matter; that is, a function that hooks onto a 'start' event can be
+  does not matter; that is, a hook that hooks onto a 'start' event can be
   registered before the 'start' event itself is actually registered.  No checking
   is performed until the commit() function is called.  This function attempts to
   create an event tree and register all functions based on the contents of its
@@ -288,18 +296,16 @@ class Dispatch:
                    degree of control over the execution of events at runtime.
                    self.skip has a higher priority than self.force
      * committed : boolean indicating whether commit() has been executed
-     * unregistered_events : list of events that have not yet been actually
-                   registered with the dispatcher.  Event registration is a 
-                   two step process - because events can be registered in any
-                   order, an event may request a parent that does not exist yet.
-                   Thus, events aren't completely registered until commit() is
-                   called.
-     * unregistered_functions : dictionary of functions that have not yet been
-                   registered.  As with self.unregistered_events, above,
-                   functions can be defined in program modules that hook onto
-                   events that have not yet been registered with the dispatcher.
-                   These functions are similarly registered when commit() is
-                   called.
+     * ureg_events : list of events that have not yet been actually registered
+                   with the dispatcher.  Event registration is a two step process
+                   - because events can be registered in any order, an event may
+                   request a parent that does not exist yet.  Thus, events aren't
+                   completely registered until commit() is called.
+     * ureg_hooks : dictionary of hooks that have not yet been registered.  As
+                   with self.unregistered_events, above, hooks can be defined in
+                   program modules that hook onto events that have not yet been
+                   registered with the dispatcher.  These hooks are similarly
+                   registered when commit() is called.
     """
     self.event = Event('ALL', properties=EVENT_TYPE_META)
     self.event.register_interface(EventInterface) # hack
@@ -308,9 +314,14 @@ class Dispatch:
     
     self.force = []
     self.skip = []
+    self.disabled = []
     self.committed = False
-    self.unregistered_events = []
-    self.unregistered_functions = {}
+    self.ureg_events = []
+    self.ureg_hooks = {}
+    
+    # args passed to newly-instanteated interfaces
+    self.iargs = []
+    self.ikwargs = {}
   
   def __iter__(self):
     self._test_commit()
@@ -322,7 +333,7 @@ class Dispatch:
       raise DispatchError, "Dispatch is not committed"
   
   #------ EXECUTION FUNCTIONS ------#
-  def process(self, until=None, *args, **kwargs):
+  def process(self, until=None):
     """ 
     Iterate over the events contained in this Dispatch object, raising them one
     at a time until the final event is executed.  process() can't be run until
@@ -330,38 +341,51 @@ class Dispatch:
     the eventid specified is reached (this event is also executed).
     """
     self._test_commit()
+    
+    # figure out how many times this event will occur, so we know when to stop
+    if until is not None:
+      event = self.get(until)
+      ecount = 0
+      if event is not None:
+        ecount += 2 # run(), apply()
+        if event.test(PROP_HAS_PRE):  ecount += 1 # pre()
+        ##if event.test(PROP_HAS_POST): ecount += 1 # post()
+    
+    i = 0
     while True:
       try:
         self.next()
-        self.raise_event(*args, **kwargs)
-        if self.currevent.id == until: raise StopIteration
+        self.raise_event()
+        if self.currevent.id == until:
+          i += 1
+          if i == ecount: raise StopIteration
       except StopIteration: break
   
-  def raise_event(self, *args, **kwargs):
+  def raise_event(self):
     """ 
     Raise the Event self.currevent, causing all functions that hook it to execute.
     """
     if self.currevent is None: return
-    if self.currevent.id in self.skip: return
-    if not self.currevent.enabled and self.currevent.id not in self.force: return
-    self.currevent.run((self.currevent.id in self.force), *args, **kwargs)
+    self.currevent.raise_self(force=(self.currevent.id in self.force),
+                              skip=(self.currevent.id in self.skip))
   
   #------ COMMIT FUNCTIONS ------#
   def commit(self):
     """ 
     Commit event and function registrations
     
-    Due to the fact that events and functions can be registered in any order, the
+    Due to the fact that events and hooks can be registered in any order, the
     dispatcher cannot ascertain that a given Event's requested parent exists, or
-    that the Event a function is trying to hook actually exists.  Instead, once
-    all event and functions have been registered individually, commit() is called
-    in order to finish off the process.  Specifically, commit() is responsible for
+    that the Event a hook is trying to hook actually exists.  Instead, once all
+    event and hooks have been registered individually, commit() is called in order
+    to finish off the process.  Specifically, commit() is responsible for
     constructing an event tree and resolving event execution order as well as with
     registering hook functions with the appropriate events.
     """
     self.__process_unregistered_events()
-    self.__process_unregistered_functions()
+    self.__process_unregistered_hooks()
     self.__resolve()
+    self.__init_hooks()
     self.committed = True
     self.iter = iter(self)
   def uncommit(self):
@@ -382,7 +406,7 @@ class Dispatch:
     firstunreg = None
     while True:
       try:
-        event, parentid = self.unregistered_events.pop(0)
+        event, parentid = self.ureg_events.pop(0)
       except IndexError:
         break # we're done
       try:
@@ -391,26 +415,21 @@ class Dispatch:
       except UnregisteredEventError:
         if event == firstunreg: # we've gone a complete loop without registering anythimg
           raise DispatchError, "Unable to completely register all events"
-        self.unregistered_events.append((event, parentid))
+        self.ureg_events.append((event, parentid))
         if firstunreg is None: firstunreg = event
     
-  def __process_unregistered_functions(self):
+  def __process_unregistered_hooks(self):
     """ 
     Attempt to register all functions with their respective events.  If the Event
     in question doesn't exist, raise an UnregisteredEventError.
     """
     # register all functions
-    for eventid, funcs in self.unregistered_functions.items():
-      event = self.get(eventid) # handles pre and post replacement, if necessary
+    for eventid, hooks in self.ureg_hooks.items():
+      event = self.get(eventid)
       if event is None: raise UnregisteredEventError, eventid
-      for f in funcs:
-        if eventid.startswith('pre'):
-          event.register_function(f, sub='pre')
-        elif eventid.startswith('post'):
-          event.register_function(f, sub='post')
-        else:
-          event.register_function(f, sub=None)
-    self.unregistered_functions = {}
+      for h in hooks:
+        event.register_hook(h)
+    self.ureg_hooks = {}
   
   def __resolve(self, event=None):
     "Recursively perform dependency resolution at each level of the event tree."
@@ -418,6 +437,16 @@ class Dispatch:
     for child in event.get_children():
       self.__resolve(child)
     tree.stitch(resolve.resolve(event.get_children()), event)
+  
+  def __init_hooks(self):
+    "Initialize all interfaces and hooks"
+    processed = []
+    for event in self.event:
+      if event.id in processed: continue # skip events that show up multiple times
+      event.interface = event.interfaceid(*self.iargs, **self.ikwargs)
+      for hook in event.hookids:
+        event.hooks.append(hook(event.interface))
+      processed.append(event.id)
   
   #------ ITERATION FUNCTIONS ------#
   def next(self): self.move(1)
@@ -432,22 +461,10 @@ class Dispatch:
     
     Search the event tree for an event with id eventid.  If found, return the
     event.  If not found and err is False, return None; else raise an
-    UnregisteredEventError.  Getting a pre or post event will return the base
-    event (for example, self.get('pregen') will get the 'gen' event, if it
-    exists).
+    UnregisteredEventError.
     """
-    type = None
-    if eventid.startswith('pre'):
-      eventid = eventid.replace('pre', '', 1); type = 'pre'
-    elif eventid.startswith('post'):
-      eventid = eventid.replace('post', '', 1); type = 'post'
     for e in self.event:
-      if e.id == eventid:
-        if type is None:            return e
-        elif type == 'pre':
-          if e.test(PROP_HAS_PRE):  return e
-        elif type == 'post':
-          if e.test(PROP_HAS_POST): return e
+      if e.id == eventid: return e
     if err:
       raise UnregisteredEventError, eventid
     else:
@@ -467,11 +484,11 @@ class Dispatch:
     if parent is None: raise UnregisteredEventError, parentid
     self.register_event(event, parent=parent, prepend=prepend)
   
-  def register_function(self, function, eventid):
-    "Register a function to the event identified by eventid"
-    if not self.unregistered_functions.has_key(eventid):
-      self.unregistered_functions[eventid] = []
-    self.unregistered_functions[eventid].append(function)
+  def register_hook(self, hook, eventid):
+    "Register a hook to the event identified by eventid"
+    if not self.ureg_hooks.has_key(eventid):
+      self.ureg_hooks[eventid] = []
+    self.ureg_hooks[eventid].append(hook)
   
   #------ MODULE LOADING FUNCTIONS ------#
   def process_module(self, module):
@@ -485,13 +502,10 @@ class Dispatch:
      * for every event struct, must have a definition for the interface specified
        in the 'interfaces' attribute.  This can be a class definition in the file
        itself or the module can import an interface definition from another file
-     * if the module wishes to register any hook functions, these functions must
-       be named according to the following scheme: <eventid>_hook, where <eventid>
-       is the id of the Event the function wishes to hook.  For example, if the
-       EVENTS list defines an event named 'initrd', then a hook function onto this
-       event would be named 'initrd_hook'.  Note: the module isn't limited to
-       hooking events defined in the same file; it can hook events from any other
-       program module as well.
+     * may have a HOOK_MAPPING dictionary that maps the names of various hook
+       classes to their associated event.  For example, if a 'CompsHook' class
+       intends to hook onto the 'comps' event, the key would be 'CompsHook' and the
+       value would be 'comps'.
     
     Raises a DispatchError if the dispatcher is already committed.  Raises
     ImportErrors at several stages of the process if the import fails for any
@@ -504,14 +518,14 @@ class Dispatch:
     self.load_events(module)
     # ... then get modules ...
     self.load_modules(module)
-    # ... and finally get functions
-    self.load_functions(module)
+    # ... and finally get hooks
+    self.load_hooks(module)
   
   def load_events(self, module):
     if hasattr(module, 'EVENTS'):
       for struct in module.EVENTS:
         event = EventFromStruct(struct)
-        self.unregistered_events.append((event, struct.get('parent', 'MAIN')))
+        self.ureg_events.append((event, struct.get('parent', 'MAIN')))
         if struct.has_key('interface'):
           if hasattr(module, struct['interface']):
             interface = getattr(module, struct['interface'])
@@ -524,6 +538,7 @@ class Dispatch:
       raise ImportError, "Missing definition for 'EVENTS' variable in module %s" % module
   
   def load_modules(self, module):
+    from main import check_api_version # hack #!
     if hasattr(module, 'MODULES'):
       for mod in module.MODULES:
         try:
@@ -531,38 +546,37 @@ class Dispatch:
                                 join(module.__path__[0], '%s.py' % mod))
         except ImportError, e:
           raise ImportError, "Could not load module '%s':\n%s" % (mod, e)
-        self.load_functions(mod)
-        self.load_events(mod)
+        check_api_version(mod) # raises ImportError
+        if mod.__name__ not in self.disabled:
+          self.load_hooks(mod)
+          self.load_events(mod)
   
-  def load_functions(self, module):
-    for attr in dir(module):
-      if attr.endswith('_hook'):
-        eventid = attr.replace('_hook', '')
-        self.register_function(getattr(module, attr), eventid)
+  def load_hooks(self, module):
+    if hasattr(module, 'HOOK_MAPPING'):
+      print module.__file__ #!
+      for hook, eventid in module.HOOK_MAPPING.items():
+        self.register_hook(getattr(module, hook), eventid)
   
 class EventIterator:
   "Basic iterator over Event-type objects"
   def __init__(self, eventtree):
     self.order = []
-    #for event in tree.depthfirst(eventtree):
     for event in depthfirst(eventtree):
       self.order.append(event)
     self.reset() # sets self.index to -1
     self.reversed = False
   
   def next(self):
-    self.index += 1
-    if self.index >= len(self.order):
-      raise StopIteration
-    else:
-      return self.order[self.index]
-  
+    return self.advance(1)
   def prev(self):
-    self.index -= 1
-    if self.index < 0:
+    return self.advance(-1)
+  def advance(self, amount=1):
+    newindex = self.index + amount
+    if newindex < 0 or newindex >= len(self.order):
       raise StopIteration
     else:
-      return self.order[self.index]
+      self.index = newindex
+    return self.order[self.index]
   
   def reset(self):
     self.index = -1
@@ -571,32 +585,46 @@ class EventIterator:
     self.order.reverse()
     self.reversed = not self.reversed
     self.reset()
+
+
+class EventFunctionIterator:
+  "Iterator over the pre(), run(), and post() functions of an event"
+  "This is probably a hack and could be handled better" #!
+  def __init__(self, event):
+    self.funcs = []
+    if event.test(PROP_HAS_PRE):
+      self.funcs.append(event.pre)
+    self.funcs.append(event.run)
+    self.funcs.append(event.apply)
+    if event.test(PROP_HAS_POST):
+      self.funcs.append(event.post)
+    
+    self.index = -1
   
-  def advance(self, amount=1):
-    newindex = self.index + amount
-    if newindex < 0 or newindex >= len(self.order):
+  def next(self):
+    self.index += 1
+    if self.index >= len(self.funcs):
       raise StopIteration
     else:
-      self.index = newindex
-    return self.order[self.index]
+      return self.funcs[self.index]
 
 
 def depthfirst(event):
   if event: 
     if event.test(PROP_HAS_PRE):
-      yield event.pre
-    yield event
+      yield event # event.pre()
+    yield event   # event.run()
+    yield event   # event.apply()
     for x in depthfirst(event.firstchild):
-      yield x
+      yield x     # children
     if event.test(PROP_HAS_POST):
-      yield event.post
+      yield event # event.post()
     for x in depthfirst(event.nextsibling):
-      yield x
+      yield x     # siblings
 
 def pprint(event):
+  # this function is broken with the new changes, sort of #!
   for event in depthfirst(event):
-    if event.id.startswith('pre') or event.id.startswith('post'):
-      continue # hack
     e = event; depth = 0
     # this is somewhat inefficient
     while e.parent is not None:
@@ -632,13 +660,25 @@ def EventFromStruct(struct):
      resolver to determine the order of event execution
    * parent (optional): the id of this Event's parent
   """
+  VALID_KEYS = ['id', 'properties', 'provides', 'requires',
+                'conditional-requires', 'parent', 'interface']
+  
+  # validate struct before continuing
+  for k in struct.keys():
+    if k not in VALID_KEYS:
+      raise ValueError, "Invalid event key '%s' in struct %s" % (k, struct)
+  
   id = struct.get('id')
   properties = struct.get('properties', EVENT_TYPE_MARK|EVENT_TYPE_CTRL)
   provides = struct.get('provides', [])
   requires = struct.get('requires', [])
+  cond_req = struct.get('conditional-requires', [])
   if type(provides) != type([]): provides = [provides]
   if type(requires) != type([]): requires = [requires]
-  return Event(id, provides=provides, requires=requires, properties=properties)
+  if type(cond_req) != type([]): cond_req = [cond_req]
+    
+  return Event(id, provides=provides, requires=requires, properties=properties,
+               conditional_requires=cond_req)
 
 
 #------ EXCEPTIONS ------#

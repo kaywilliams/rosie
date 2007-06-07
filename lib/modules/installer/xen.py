@@ -1,60 +1,89 @@
-from os.path import join
+from os.path import join, exists
 
-import dims.osutils as osutils
+from dims import osutils
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
-from installer.lib import InstallerInterface, FileDownloader, ImageModifier
+from installer.lib import FileDownloader, ImageModifier
 
-API_VERSION = 3.0
+API_VERSION = 4.0
 
 EVENTS = [
   {
     'id': 'xen',
-    'interface': 'InstallerInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['vmlinuz-xen', 'initrd-xen'],
     'parent': 'INSTALLER',
   },
 ]
 
+HOOK_MAPPING = {
+  'XenHook': 'xen',
+}
 
-def prexen_hook(interface):
-  xen_md_struct = {
-    'config':    ['/distro/main/product/text()',
-                  '/distro/main/version/text()',
-                  '/distro/main/fullname/text()',
-                  '/distro/installer/initrd.img/path/text()'],
-    'variables': ['anaconda_version'],
-    'input':     [interface.config.mget('/distro/installer/initrd.img/path/text()', [])],
-    'output':    [join(interface.getSoftwareStore(), 'images/xen/initrd.img'),
-                  join(interface.getSoftwareStore(), 'images/xen/vmlinuz')],
-  }
-  
-  handler = ImageModifier('initrd.img', interface, xen_md_struct, L_IMAGES,
-                          mdfile=join(interface.getMetadata(), 'initrd.img-xen.md'))
-  interface.add_handler('initrd.img-xen', handler)
-  
-  interface.disableEvent('xen')
-  if interface.eventForceStatus('xen') or False:
-    interface.enableEvent('xen')
-  elif handler.pre():
-    interface.enableEvent('xen')
+XEN_OUTPUT_FILES = [
+  'images/xen/initrd.img',
+  'images/xen/vmlinuz',
+]
 
-def xen_hook(interface):
-  interface.log(0, "preparing xen images")
-  i,_,_,d,_,_ = interface.getStoreInfo(interface.getBaseStore())
+#------ HOOKS ------#
+class XenHook(ImageModifier, FileDownloader):
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.id = 'xen.xen'
+    
+    self.interface = interface
+
+    self.xen_dir = join(self.interface.SOFTWARE_STORE, 'images/xen')
+
+    xen_md_struct = {
+      'config':    ['/distro/main/product/text()',
+                    '/distro/main/version/text()',
+                    '/distro/main/fullname/text()',
+                    '/distro/installer/initrd.img/path/text()'],
+      'variables': ['anaconda_version'],
+      'input':     [interface.config.mget('/distro/installer/initrd.img/path/text()', [])],
+      'output':    [join(interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ],
+    }
   
-  xen_dir = join(interface.getSoftwareStore(), 'images/xen')
-  osutils.mkdir(xen_dir, parent=True)
+    ImageModifier.__init__(self, 'initrd.img', interface, xen_md_struct,
+                           mdfile=join(interface.METADATA_DIR, 'initrd.img-xen.md'))
+    FileDownloader.__init__(self, interface)
   
-  # download files
-  dl = FileDownloader(L_FILES, interface)
-  dl.download(d,i)
+  def error(self, e):
+    try:
+      self.close()
+    except:
+      pass
   
-  # modify initrd.img
-  handler = interface.get_handler('initrd.img-xen')
-  handler.modify()
+  def force(self):
+    osutils.rm(self.xen_dir, recursive=True, force=True)
+  
+  def run(self):
+    self.register_image_locals(L_IMAGES)
+    self.register_file_locals(L_FILES)
+    
+    if not self._test_runstatus(): return
+    
+    self.interface.log(0, "preparing xen images")
+    i,_,_,d,_,_ = self.interface.getStoreInfo(self.interface.getBaseStore())
+    
+    osutils.mkdir(self.xen_dir, parent=True)
+    
+    # download files
+    self.download(d,i) # see FileDownloader.download() in lib.py
+    
+    # modify initrd.img
+    self.modify() # see ImageModifier.modify() in lib.py
+  
+  def apply(self):
+    for file in XEN_OUTPUT_FILES:
+      if not exists(join(self.interface.SOFTWARE_STORE, file)):
+        raise RuntimeError, "Unable to find '%s' in '%s'" % (file, join(self.interface.SOFTWARE_STORE, file))
+  
+  def _test_runstatus(self):
+    return self.interface.isForced('xen') or \
+           self.check_run_status()
 
 
 L_FILES = ''' 

@@ -17,9 +17,9 @@ RPM-like dependency resolution for other tasks that require similar functionalit
 Note: this file could be moved into a DiMS library.
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@abodiosoftware.com>"
-__version__ = "2.0"
-__date__    = "April 17th, 2007"
+__author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
+__version__ = '2.0'
+__date__    = 'April 17th, 2007'
 
 import copy
 
@@ -30,10 +30,12 @@ class Item:
   to the 'Provides:' and 'Requires:' fields in an RPM spec file.  Also has
   an 'enabled' flag.
   """
-  def __init__(self, provides=[], requires=[], enabled=True):
+  def __init__(self, provides=[], requires=[], enabled=True,
+               conditional_requires=[]):
     self.provides = provides
     self.requires = requires
     self.enabled = enabled
+    self.conditional_requires = conditional_requires
 
 def resolve(nodes):
   """ 
@@ -58,35 +60,34 @@ def resolve(nodes):
   resolved = []
   provides = []
   
+  all_provs = []
   # pad resolved and provides to be len(nodes) in size, but empty
+  # also make a list of all provides
   for node in nodes:
     resolved.append(None)
     provides.append([])
+    
+    for prov in node.provides:
+      if prov not in all_provs: all_provs.append(prov)
   
   # parent requirement are assumed as provided to the children
   if nodes[0].parent is not None:
     provides[0] = copy.copy(nodes[0].parent.requires)
   
-  return _resolve(nodes, resolved, provides)
+  return _resolve(nodes, resolved, provides, all_provs)
 
-def _resolve(unresolved, resolved, provides):
+def _resolve(unresolved, resolved, provides, all_provs):
   "'Recursively' resolve all nodes in unresolved"
   for node in unresolved:
-    min_index = 0 # earliest position in resolved that node could be placed
-    
     # try to resolve node requires in resolved
+    # min_index is the earliest the node could occur in the ordering
+    
+    # construct a list of meaningful conditional requires
+    # (those that are actually provided)
+    conds = [ n for n in node.conditional_requires if n in all_provs ]
+    
     try:
-      for req in node.requires:
-       found = False
-       try:
-         for i in range(0, len(provides)):
-           min_index = max(min_index, i+1)
-           if req in provides[i]:
-             found = True; raise StopIteration
-         if not found:
-           raise UnresolvableError
-       except StopIteration:
-         continue
+      min_index = check_requires(node.requires + conds, provides, 0)
     except UnresolvableError:
       continue
      
@@ -100,11 +101,27 @@ def _resolve(unresolved, resolved, provides):
         added = True; break
       j += 1
     if not added: raise IndexError # this should never happen
-    _resolve(unresolved, resolved, provides) # new item added, do another cycle
-   
+    _resolve(unresolved, resolved, provides, all_provs) # new item added, do another cycle
+  
   if len(unresolved) > 0:
     raise UnresolvableError, unresolved
-   
+  
   return resolved
+
+def check_requires(reqs, provides, min_index=0):
+  for req in reqs:
+    found = False
+    try:
+      for i in range(0, len(provides)):
+        min_index = max(min_index, i+1)
+        if req in provides[i]:
+          found = True; raise StopIteration
+      if not found:
+        raise UnresolvableError
+    except StopIteration:
+      continue
+  
+  return min_index
+  
 
 class UnresolvableError(StandardError): pass

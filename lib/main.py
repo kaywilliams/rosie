@@ -15,14 +15,15 @@ import sys
 
 from os.path       import join, exists
 from rpmUtils.arch import getBaseArch
+from StringIO      import StringIO
 from urlparse      import urlparse
 
-import dims.logger  as logger
-import dims.osutils as osutils
-
+from dims import imerge
+from dims import logger
+from dims import osutils
+from dims import xmltree
 from dims.CacheManager import CacheManager
 from dims.sortlib      import dcompare
-from dims.xmltree      import XmlPathError
 
 import event
 import locals
@@ -33,14 +34,13 @@ from callback  import BuildLogger
 # RPMS we need to check for
 # createrepo
 # anaconda-runtime
-# expect
 
 BOOLEANS_TRUE  = ['True', 'true', 'Yes', 'yes', '1']
 BOOLEANS_FALSE = ['False', 'false', 'No', 'no', '0']
 OPT_FORCE = '--force'
 OPT_SKIP  = '--skip'
 
-API_VERSION = 3.0
+API_VERSION = 4.0
 
 class Build:
   """ 
@@ -80,9 +80,13 @@ class Build:
     These parameters are normally passed in from the command-line handler
     ('/usr/bin/dimsbuild')
     """
-    self.CACHE = '/var/cache/dimsbuild/'
-    self.INPUT_STORE = join(self.CACHE, 'shared/stores')
-    self.TEMP = '/tmp/dimsbuild'
+    # self.cvars is a list of program 'control variables' - modules can use
+    # this to communicate between themselves as necessary
+    self.cvars = {}
+    
+    self.CACHE_DIR = '/var/cache/dimsbuild'
+    self.TEMP_DIR  = '/tmp/dimsbuild'
+    self.INPUT_STORE = join(self.CACHE_DIR, 'shared/stores')
     self.CACHE_MAX_SIZE = 30*1024**3 # 30 GB
     
     # set up loggers
@@ -93,56 +97,59 @@ class Build:
     # set up config dirs
     self.mainconfig = mainconfig
     self.config = distroconfig
-    self.CONFIG_DIR = osutils.dirname(self.config.file)
     
     # set up IMPORT_DIRS
     self.IMPORT_DIRS = mainconfig.mget('//librarypaths/path/text()')
-    if options.libpath: self.IMPORT_DIRS.insert(0, options.libpath) # TODO make this a list
+    if options.libpath:
+      self.IMPORT_DIRS.insert(0, options.libpath) # TODO make this a list
     for dir in sys.path:
-      if dir not in self.IMPORT_DIRS: self.IMPORT_DIRS.append(dir)
-
-
+      if dir not in self.IMPORT_DIRS:
+        self.IMPORT_DIRS.append(dir)
+    
     self.sharepath = options.sharepath or \
                      mainconfig.get('//sharepath/text()', None) or \
                      '/usr/share/dimsbuild'
     
     # set up base variables
-    self.base_vars = {}
-    self.base_vars['product'] = self.config.get('//main/product/text()')
-    self.base_vars['version'] = self.config.get('//main/version/text()')
-    self.base_vars['release'] = self.config.get('//main/release/text()', '0')
-    self.base_vars['arch']    = self.config.get('//main/arch/text()', 'i686')
-    self.base_vars['basearch'] = getBaseArch(self.base_vars['arch'])
-    self.base_vars['fullname'] = self.config.get('//main/fullname/text()',
-                                                 self.base_vars['product'])
-    self.base_vars['provider'] = self.config.get('//main/distro-provider/text()')
+    self.cvars['base-vars'] = {}
+    self.cvars['base-vars']['product'] = self.config.get('//main/product/text()')
+    self.cvars['base-vars']['version'] = self.config.get('//main/version/text()')
+    self.cvars['base-vars']['release'] = self.config.get('//main/release/text()', '0')
+    self.cvars['base-vars']['arch']    = self.config.get('//main/arch/text()', 'i686')
+    self.cvars['base-vars']['basearch'] = getBaseArch(self.cvars['base-vars']['arch'])
+    self.cvars['base-vars']['fullname'] = self.config.get('//main/fullname/text()',
+                                                         self.cvars['base-vars']['product'])
+    self.cvars['base-vars']['provider'] = self.config.get('//main/distro-provider/text()')
     
     # set up other directories
-    distro_prefix = 'distros/%s/%s/%s' % (self.base_vars['product'],
-                                          self.base_vars['version'],
-                                          self.base_vars['basearch'])
-    self.SOFTWARE_STORE = join(self.CACHE, distro_prefix, 'os')
-    self.METADATA = join(self.CACHE, distro_prefix, 'builddata')
-
-    self.PUBLISH_DIR = join(self.config.get('//main/webroot/text()', '/var/www/html'),
-                            self.config.get('//main/publishpath/text()', 'open_software'),
-                            self.base_vars['product'])
+    distro_prefix = 'distros/%s/%s/%s' % (self.cvars['base-vars']['product'],
+                                          self.cvars['base-vars']['version'],
+                                          self.cvars['base-vars']['basearch'])
+    self.SOFTWARE_STORE = join(self.CACHE_DIR, distro_prefix, 'os')
+    self.METADATA_DIR = join(self.CACHE_DIR, distro_prefix, 'builddata')
     
     self.cachemanager = CacheManager(self.__compute_servers(),
                                      self.INPUT_STORE,
                                      self.CACHE_MAX_SIZE)
     
-    for dir in [self.SOFTWARE_STORE, self.METADATA, self.TEMP]:
+    for dir in [self.SOFTWARE_STORE, self.METADATA_DIR, self.TEMP_DIR]:
       if not exists(dir):
         self.log(2, "Making directory '%s'" % dir)
       osutils.mkdir(dir, parent=True)
     
-    # load all modules, register events, set up dispatcher
-    self.__init_dispatch() # sets up self.dispatch
+    # set up list of disabled modules
+    self.disabled_modules = self.mainconfig.mget('//modules/module[%s]/text()' % \
+                            self.__generate_attr_bool('enabled', False), [])
+    self.disabled_modules.append('__init__') # hack
+    # update with distro-specific config
+    for module in self.config.mget('//modules/module', []):
+      if module.attrib.get('enabled', 'False') in BOOLEANS_FALSE:
+        if module.text not in self.disabled_modules:
+          self.disabled_modules.append(module.text)
+      else:
+        if module.text in self.disabled_modules:
+          self.disabled_modules.remove(modules.text)
     
-    # self.mvars is a place that modules/plugins can store various var values
-    # that they themselves or other modules/plugins can access
-    self.mvars = {}
     # self.userFC is a dictionary of user-specified flow control data keyed
     # by event id. Possible values are
     #  * None  - no user option specified
@@ -154,13 +161,17 @@ class Build:
     # it multiple times
     self.handlers = {}
     
-    # get everything started - raise init and other events prior
-    self.dispatch.process(until='ALL',  base=self)
-    self.dispatch.process(until='init', base=self, parser=parser)
+    # load all enabled modules, register events, set up dispatcher
+    self.__init_dispatch() # sets up self.dispatch
     
-    #for event in self.dispatch.iter.order:
-    #  print event.id
-    #raise ''
+    # get everything started - raise init and other events prior
+    self.dispatch.get('init').interface.parser = parser
+    #self.dispatch.process(until='ALL')
+    self.dispatch.process(until='init')
+    
+    ##for event in self.dispatch.iter.order: #!
+    ##  print event.id #!
+    ##sys.exit() #!
     
   
   def __init_dispatch(self):
@@ -176,6 +187,8 @@ class Build:
     configuration file(s)).
     """
     self.dispatch = event.Dispatch()
+    self.dispatch.disabled = self.disabled_modules
+    self.dispatch.iargs.append(self)
     
     # load all enabled plugins
     enabled_plugins = self.mainconfig.mget('//plugins/plugin[%s]/text()' % \
@@ -200,30 +213,17 @@ class Build:
       if not imported:
         raise ImportError, "Unable to load '%s' plugin; not found in any specified path" % plugin
     
-    # load all modules not disabled in config
-    disabled_modules = self.mainconfig.mget('//modules/module[%s]/text()' % \
-                         self.__generate_attr_bool('enabled', False), [])
-    disabled_modules.append('__init__') # hack
-    # update with distro-specific config
-    for module in self.config.mget('//modules/module/text()', []):
-      if module.attrib.get('enabled', 'False') in BOOLEANS_FALSE:
-        if module.text not in disabled_modules:
-          disabled_plugins.append(module)
-      else:
-        if module.text in disabled_modules:
-          disabled_modules.remove(modules)
     registered_modules = []
-    
     for path in self.IMPORT_DIRS:
       modpath = join(path, 'modules')
       if not exists(modpath): continue
       for mod in filter(None, osutils.find(modpath, nregex='.*\.pyc',
                                            prefix=False, maxdepth=1)):
-        if mod.replace('.py', '') not in disabled_modules and \
+        if mod.replace('.py', '') not in self.disabled_modules and \
            mod.replace('.py', '') not in registered_modules:
           m = load_module(join(modpath, mod))
           if m is None: continue # requested file wasn't a python module
-          self.__check_api_version(m) # raises ImportError
+          check_api_version(m) # raises ImportError
           self.dispatch.process_module(m)
           registered_modules.append(mod.replace('.py', ''))
     
@@ -237,7 +237,7 @@ class Build:
       return '@%s="False" or @%s="false" or @%s="No" or @%s="no" or @%s="0"' % (attr, attr, attr, attr, attr)
   
   def preprocess(self):
-    if exists(join(self.METADATA, '.firstrun')):
+    if exists(join(self.METADATA_DIR, '.firstrun')):
       # enable all events
       for e in self.dispatch:
         self.userFC[e.id] = True
@@ -251,7 +251,8 @@ class Build:
     for e in options.skip_events:
       self.__flowcontrol_apply(e, OPT_SKIP)
     
-    self.dispatch.process(until='applyopt', base=self, options=options)
+    self.dispatch.get('applyopt').interface.options = options
+    self.dispatch.process(until='applyopt')
     
     for eventid, enabled in self.userFC.items():
       if enabled is None: continue
@@ -281,10 +282,10 @@ class Build:
   
   def main(self):
     "Build a distribution"
-    self.dispatch.process(until=None, base=self)
+    self.dispatch.process(until=None)
   
   def postprocess(self):
-    osutils.rm(join(self.METADATA, '.firstrun'), force=True)
+    osutils.rm(join(self.METADATA_DIR, '.firstrun'), force=True)
   
   def __compute_servers(self):
     "Compute a list of the servers represented in the configuration file"
@@ -295,34 +296,6 @@ class Build:
       if server not in servers: servers.append(server)
     return servers
   
-  def __check_api_version(self, module):
-    """ 
-    Examine the module m to ensure that the API it is expecting is provided
-    by this Build instance.   A given API version  can support modules with
-    the same major version number and any minor version number less than or
-    equal to its own.   Thus, for example,  a main.py with API_VERSION  set
-    to 3.4 results in the following behavior:
-      * 0.0-2.x is rejected
-      * 3.0-3.4 is accepted
-      * 3.5-X.x is rejected
-    where X and x are any positive integers.
-    """
-    if not hasattr(module, 'API_VERSION'):
-      raise ImportError, "Module '%s' does not have API_VERSION variable" % module
-    mAPI = str(module.API_VERSION)
-    rAPI = str(API_VERSION)
-    
-    reqM, reqm = rAPI.split('.')
-    reqM = '%s.0' % reqM
-    if dcompare(mAPI, rAPI) > 0:
-      raise ImportError, "Module API version '%s' is greater than the supplied API version '%s'" % (rAPI, mAPI)
-    elif dcompare(mAPI, rAPI) <= 0 and dcompare (mAPI, reqM) >= 0:
-      pass
-    elif dcompare(mAPI, rAPI) < 0:
-      raise ImportError, "Module API version '%s' is less than the required API version '%s'" % (mAPI, rAPI)
-    else:
-      print "DEBUG: mAPI =", mAPI, "rAPI = ", rAPI
-
 
 #------ UTILITY FUNCTIONS ------#
 def load_module(path):
@@ -339,3 +312,38 @@ def load_module(path):
     raise ImportError, "Could not load module '%s':\n%s" % (path, e)
   fp and fp.close()
   return module
+
+def check_api_version(module):
+  """ 
+  Examine the module m to ensure that the API it is expecting is provided
+  by this Build instance.   A given API version  can support modules with
+  the same major version number and any minor version number less than or
+  equal to its own.   Thus, for example,  a main.py with API_VERSION  set
+  to 3.4 results in the following behavior:
+    * 0.0-2.x is rejected
+    * 3.0-3.4 is accepted
+    * 3.5-X.x is rejected
+  where X and x are any positive integers.
+  """
+  if not hasattr(module, 'API_VERSION'):
+    raise ImportError, "Module '%s' does not have API_VERSION variable" % module.__file__
+  mAPI = str(module.API_VERSION)
+  rAPI = str(API_VERSION)
+  
+  reqM, reqm = rAPI.split('.')
+  reqM = '%s.0' % reqM
+  if dcompare(mAPI, rAPI) > 0:
+    raise ImportError, "Module API version '%s' is greater than the supplied API version '%s' in module %s" % (rAPI, mAPI, module.__file__)
+  elif dcompare(mAPI, rAPI) <= 0 and dcompare (mAPI, reqM) >= 0:
+    pass
+  elif dcompare(mAPI, rAPI) < 0:
+    raise ImportError, "Module API version '%s' is less than the required API version '%s' in module %s" % (mAPI, rAPI, module.__file__)
+  else:
+    print "DEBUG: mAPI =", mAPI, "rAPI = ", rAPI
+
+def locals_imerge(string, ver):
+  tree = xmltree.read(StringIO(string))
+  locals = xmltree.Element('locals')
+  for child in tree.getroot().getchildren():
+    locals.append(imerge.incremental_merge(child, ver))
+  return locals

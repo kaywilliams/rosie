@@ -1,4 +1,3 @@
-import math
 import os
 
 import dims.imerge  as imerge
@@ -9,26 +8,34 @@ from StringIO     import StringIO
 from dims.osutils import basename, dirname, mkdir
 from dims.sync    import sync
 from event        import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from lib          import RpmHandler, RpmsInterface
+from main         import BOOLEANS_TRUE
 from os.path      import exists, join, isdir, isfile
 from output       import tree
+from rpms.lib     import ColorMixin, RpmHandler, RpmsInterface
 
 try:
   import Image
   import ImageDraw
   import ImageFont
+  import ImageFilter
 except ImportError:
   raise ImportError, "missing 'python-imaging' RPM"
 
 EVENTS = [
   {
-    'id': 'logos',
+    'id': 'logos-rpm',
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['logos-rpm'],
     'parent': 'RPMS',
   },
 ]
+
+HOOK_MAPPING = {
+  'LogosRpmHook': 'logos-rpm',
+}
+
+API_VERSION = 4.0
 
 def locals_imerge(string, ver='0'):
   tree = xmltree.read(StringIO(string))
@@ -37,40 +44,20 @@ def locals_imerge(string, ver='0'):
     locals.append(imerge.incremental_merge(child, ver))
   return locals
 
-#------ HOOK FUNCTIONS ------#
-def prelogos_hook(interface):
-  handler = LogosRpmHandler(interface)
-  interface.add_handler('logos', handler)
-  interface.disableEvent('logos')
-  if handler.pre() or (interface.eventForceStatus('logos') or False):
-    interface.enableEvent('logos')
-  mkdir(join(interface.getMetadata(), 'images-src/product.img'), parent=True)
-        
-def logos_hook(interface):
-  interface.log(0, "creating logos rpm")
-  handler = interface.get_handler('logos')
-  handler.modify()
-
-def postlogos_hook(interface):
-  handler = interface.get_handler('logos')
-  if handler.create:
-    # add rpms to the included-packages control var, so that
-    # they are added to the comps.xml
-    interface.append_cvar('included-packages', [handler.rpmname])
-    
-    # add rpms to the excluded-packages control var, so that
-    # they are removed from the comps.xml
-    interface.append_cvar('excluded-packages', handler.obsoletes.split())
 
 #---------- HANDLERS -------------#
-class LogosRpmHandler(RpmHandler):
+class LogosRpmHook(RpmHandler, ColorMixin):
   def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'logos.logos'
+    
     data =  {
       'config': ['/distro/main/fullname/text()',
                  '/distro/main/version/text()',
                  '//logos-rpm'],
-      'output': [join(interface.getMetadata(), 'logos-rpm/')]
-    }  
+      'output': [join(interface.METADATA_DIR, 'logos-rpm/')]
+    }
+    
     RpmHandler.__init__(self, interface, data,
                         elementname='logos-rpm',
                         rpmname='%s-logos' % interface.product,
@@ -85,12 +72,22 @@ class LogosRpmHandler(RpmHandler):
                           'distribution.' \
                           %(interface.product, interface.config.get('//main/fullname/text()')))
 
+    ColorMixin.__init__(self, join(self.interface.METADATA_DIR,
+                                   '%s.pkgs' %(self.interface.getBaseStore(),)))
+        
+    # build the data structure containing information about
+    # the images
     expand = (self.product,)*8
-    self.locals = locals_imerge(L_LOGOS %expand)
+    self.imageslocal = locals_imerge(L_LOGOS %expand)
     self.build_controlset()
     
+    # set the font to use
+    available_fonts = filter(lambda x: x.endswith('.ttf'),
+                             tree(join(self.share_path, 'fonts'), prefix=True, type='f|l'))
+    self.fontfile = available_fonts[0]
+    
   def build_controlset(self):
-    def get_value(logo, name, optional=False):
+    def getvalue(logo, name, optional=False):
       try:
         return logo.iget(name).text
       except AttributeError:
@@ -99,9 +96,9 @@ class LogosRpmHandler(RpmHandler):
         else:
           raise
     self.controlset = {}
-    for logo in self.locals.get('//logo'):
+    for logo in self.imageslocal.get('//logo'):
       id = logo.attrib['id']
-      install_path = get_value(logo, 'location')      
+      install_path = getvalue(logo, 'location')      
       file_name = basename(id)
       dir_name = dirname(id)
       self.controlset[id] = {
@@ -109,109 +106,36 @@ class LogosRpmHandler(RpmHandler):
         'file_name': file_name,
         'dir_name': dir_name,
         }      
-      for optional_item in ['width', 'height',
-                            'textmaxwidth', 'textmaxheight',                            
-                            'textvcenter', 'texthcenter']:
-        value = get_value(logo, optional_item, optional=True)
-        if value:
-          self.controlset[id][optional_item] = int(value)
+      for integer_item in ['width', 'height', 'textmaxwidth',                            
+                           'textvcenter', 'texthcenter']:
+        value = getvalue(logo, integer_item, optional=True)
+        if value is not None:
+          self.controlset[id][integer_item] = int(value)
         else:
-          self.controlset[id][optional_item] = None
+          self.controlset[id][integer_item] = None
+      for boolean_item in ['gradient', 'highlight']:
+        value = getvalue(logo, boolean_item, optional=True)
+        if value is not None and value in BOOLEANS_TRUE:
+          self.controlset[id][boolean_item] = True
+        else:
+          self.controlset[id][boolean_item] = False          
 
-  def testOutputValid(self):
-    if self.create:
-      if self.data.has_key('output'):
-        for id in self.controlset.keys():
-          file = join(self.output_location, id)
-          # TODO: Fail if a file in the control list is not found
-          if file[-3:].lower() == 'xpm':
-            # assume that all xpm files are fine, because the python-imaging
-            # chokes on them. The xpm files used in the logos RPM are static
-            # ones, so it is "fine" to make this assumption. 
-            continue               
-          if not self._verify_file(file, self.controlset[id]):
-            self.log(4, "file '%s' has invalid dimensions" %(file,))
-            return False
-    return True
+  def run(self):
+    self.set_colors()
+
+    # set the colors, the python-imaging library uses big-endian colors.
+    self.bgcolor = self.color_to_bigendian(self.bgcolor)
+    self.textcolor = self.color_to_bigendian(self.textcolor)
+    self.hlcolor = self.color_to_bigendian(self.hlcolor)
+    
+    mkdir(join(self.interface.METADATA_DIR, 'images-src/product.img'), parent=True)
+    RpmHandler.run(self)
             
   def generate(self):
     self._generate_images()
     self._generate_theme_files()
-    
-  def _generate_theme_files(self):
-    # generate the GdmGreeterTheme.desktop file
-    f = open(join(self.output_location, 'gdm', 'themes', self.product, 'GdmGreeterTheme.desktop'), 'w')
-    f.write(GDM_GREETER_THEME %(self.product, self.fullname, self.fullname,))
-    f.close()
-    # generate the %{self.product}.xml file
-    f = open(join(self.output_location, 'gdm', 'themes', self.product, '%s.xml' %(self.product,)), 'w')
-    f.write(THEME_XML)
-    f.close()
-  
-  def _generate_images(self):
-    # get the font file, either from the config file or the dimsbuild's shared folder
-    ttf_file = self.config.get('//%s/font-file/text()' %(self.elementname,), None)
-    if not ttf_file:
-      fallback_fonts = filter(lambda x: x.find('svn') == -1,
-                              tree(join(self.share_path, 'fonts'), prefix=True,
-                                   type='f|l'))
-      ttf_file = fallback_fonts[0]
-      
-    for id in self.controlset.keys():
-      shared_file = join(self.share_path, 'logos', id)
-      filename = join(self.output_location, id)
-      dir = dirname(filename)
-      if exists(filename):
-        continue
-      if not isdir(dir):
-        mkdir(dir, parent=True)
-      if self.controlset[id]['width'] and self.controlset[id]['height']:
-        if exists(shared_file):
-          self.log(4, "image '%s' exists in the share/" %(id,))
-          sync(shared_file, dir)
-        else:
-          width = self.controlset[id]['width']
-          height = self.controlset[id]['height']
-          textmaxwidth = self.controlset[id]['textmaxwidth']
-          textmaxheight = self.controlset[id]['textmaxheight']
-          text_xcood = self.controlset[id]['texthcenter']
-          text_ycood = self.controlset[id]['textvcenter']
-          self.log(4, "creating '%s'" %(id,))
-          if textmaxwidth and text_xcood and text_ycood:
-            self._generate_image(filename, width, height,
-                                 text='%s %s'%(self.fullname,
-                                               self.version),
-                                 textcood=(text_xcood, text_ycood),
-                                 fontsize=52,
-                                 fontfile=ttf_file,
-                                 maxwidth=textmaxwidth,
-                                 maxheight=textmaxheight,
-                                 format='png')
-          else:
-            self._generate_image(filename, width, height)              
-      else:
-        # The file is a text file that needs to be in the logos rpm.
-        # These files are found in the share/ folder. If they are not
-        # found, they are skipped; this needs to change eventually.
-        if exists(shared_file):
-          self.log(4, "file '%s' exists in share/" %(id,))
-          sync(shared_file, dir)
-        else: # required text file not there in shared/ folder, passing for now
-          pass
-    # hack to create the splash.xpm file, have to first convert
-    # the grub-splash.png to an xpm and then gzip it.
-    splash_xpm = join(self.output_location, 'bootloader', 'grub-splash.xpm')
-    splash_xgz = '%s.gz' %(splash_xpm,)
-    splash_png = join(self.output_location, 'bootloader', 'grub-splash.png')
-    if not exists(splash_xgz):
-      shlib.execute('convert %s %s' %(splash_png, splash_xpm,))
-      import gzip
-      infile = file(splash_xpm, 'rb')
-      data = infile.read()
-      infile.close()
-      outfile = gzip.GzipFile(splash_xgz, 'wb')
-      outfile.write(data)
-      outfile.close()
+
+  def create_manifest(self): pass # done by get_data_files()
   
   def get_data_files(self):
     manifest = join(self.output_location, 'MANIFEST')
@@ -246,84 +170,163 @@ class LogosRpmHandler(RpmHandler):
       files = ', '.join(items[item])
       rtn = ''.join([rtn, dir, files, '\n\t'])
     return rtn
+    
+  def test_output_valid(self):
+    if self.create:
+      if self.data.has_key('output'):
+        for id in self.controlset.keys():
+          file = join(self.output_location, id)
+          # TODO: Fail if a file in the control list is not found
+          if file[-3:].lower() == 'xpm':
+            # assume that all xpm files are fine, because the python-imaging
+            # chokes on them. The xpm files used in the logos RPM are static
+            # ones, so it is "fine" to make this assumption. 
+            continue               
+          if not self._verify_file(file, self.controlset[id]):
+            self.log(4, "file '%s' has invalid dimensions" %(file,))
+            return False
+    return True
+
+  def _generate_theme_files(self):
+    # generate the GdmGreeterTheme.desktop file
+    f = open(join(self.output_location, 'gdm', 'themes', self.product, 'GdmGreeterTheme.desktop'), 'w')
+    f.write(GDM_GREETER_THEME %(self.product, self.fullname, self.fullname,))
+    f.close()
+    # generate the %{self.product}.xml file
+    f = open(join(self.output_location, 'gdm', 'themes', self.product, '%s.xml' %(self.product,)), 'w')
+    f.write(THEME_XML)
+    f.close()
+  
+  def _generate_images(self):
+    ##
+    ## CHANGE: June 4, 2007. Removing font-file element from <logos-rpm>
+    ## ttf_file = self.config.get('//%s/font-file/text()' %(self.elementname,), None)
+    ##
+    for id in self.controlset.keys():
+      shared_file = join(self.share_path, 'logos', id)
+      filename = join(self.output_location, id)
+      dir = dirname(filename)
+      if exists(filename):
+        continue
+      if not isdir(dir):
+        mkdir(dir, parent=True)
+      if self.controlset[id]['width'] and self.controlset[id]['height']:
+        # an image in the shared folder gets precedence
+        if exists(shared_file):
+          self.log(4, "image '%s' exists in the share/" %(id,))
+          sync(shared_file, dir)
+        else:
+          width = self.controlset[id]['width']
+          height = self.controlset[id]['height']
+          textmaxwidth = self.controlset[id]['textmaxwidth']
+          text_xcood = self.controlset[id]['texthcenter']
+          text_ycood = self.controlset[id]['textvcenter']
+          gradient = self.controlset[id]['gradient']
+          highlight = self.controlset[id]['highlight']
+          self.log(4, "creating '%s'" %(id,))
+          if textmaxwidth and text_xcood and text_ycood:
+            self._generate_image(filename, width, height,
+                                 text='%s %s'%(self.fullname,
+                                               self.version),
+                                 textcood=(text_xcood, text_ycood),
+                                 fontsize=52,
+                                 maxwidth=textmaxwidth,
+                                 highlight=highlight,
+                                 format='png')
+          else:
+            self._generate_blank_image(filename, width, height, highlight=highlight)
+      else:
+        # The file is a text file that needs to be in the logos rpm.
+        # These files are found in the share/ folder. If they are not
+        # found, they are skipped.        
+        if exists(shared_file):
+          self.log(4, "file '%s' exists in share/" %(id,))
+          sync(shared_file, dir)
+        else:
+          # required text file not there in shared/ folder, passing for now          
+          # FIXME: raise an exception here?
+          pass
         
+    # HACK: hack to create the splash.xpm file, have to first convert
+    # the grub-splash.png to an xpm and then gzip it.
+    splash_xpm = join(self.output_location, 'bootloader', 'grub-splash.xpm')
+    splash_xgz = '%s.gz' %(splash_xpm,)
+    if not exists(splash_xgz):
+      splash_png = join(self.output_location, 'bootloader', 'grub-splash.png')
+      # TODO: Find a better way to do this conversion.
+      shlib.execute('convert %s %s' %(splash_png, splash_xpm,))
+      import gzip
+      infile = file(splash_xpm, 'rb')
+      data = infile.read()
+      infile.close()
+      outfile = gzip.GzipFile(splash_xgz, 'wb')
+      outfile.write(data)
+      outfile.close()
+
+  def _generate_blank_image(self, filename, width, height, highlight=False, format='png'):
+    self._generate_image(filename, width, height, highlight=highlight, format=format)
+    
+  def _generate_gradient_image(self, filename, width, height, text=None, format='png'):
+    raise NotImplementedError
+    #fontsize = 15
+    #TODO: create font object and compute text coordinates
+    #self._generate_image(filename, width, height, text=text, textcood=(x,y),
+    #                     font=font, format=format)
+  
   def _generate_image(self, filename, width, height, text=None, textcood=(10,10),
-                      fontsize=52, fontfile=None, maxwidth=100, maxheight=100, format='png'):
+                      fontsize=52, maxwidth=100, format='png', font=None,
+                      highlight=False, gradient=False):
     """ 
     Generate an image that is added to the logos RPM and the product.img.
 
+    TODO: add support for the gradient parameter.
+    
     @param filename   : the name of the file to be generated
     @param width      : the width of the image
     @param height     : the height of the image
     @param text       : the text to be added to the image
     @param textcood   : coordinates of the center of the text block    
     @param fontsize   : the 'starting' font size of the text on the image
-    @param fontfile   : the font file to use to write the text
     @param maxwidth   : maximum length of the text block
-    @param maxheight  : maximum height of the text block
     @param format     : the format of the image: png, jpeg etc.
     """
-    def getcolor(xquery, fallback):
-      # the python-imaging library accepts big-endian colors, this
-      # function, swaps the first and the third byte in the user-specified
-      # color, and returns it. HACK :(.
-      color = self.config.get(xquery, fallback)
-      if color.startswith('0x'):
-        color = color[2:]
-      color = '%s%s' % ((6-len(color))*'0', color) # prepend zeroes to color
-      return int('0x%s%s%s' % (color[4:], color[2:4], color[:2]), 16)
-
-    def getfont(imagewidth, imageheight, maxwidth, maxheight,
-                text, fontfile, fontsize=52, linespace=10):
-      minfontsize = 20
-      minfont = ImageFont.truetype(fontfile, minfontsize)      
-      ltext = [text]
-      while True:
-        font = ImageFont.truetype(fontfile, fontsize)
-        width = minwidth = 0
-        height = minheight = -linespace
-        for t in ltext:
-          w, h = font.getsize(t)
-          mw, mh = minfont.getsize(t)
-          width = width + w
-          minwidth = minwidth + mw
-          height = height + h + linespace
-          minheight = minheight + mh + linespace
-        if width <= minwidth or height <= minheight:
-          if width > imagewidth or height > imageheight:
-            minfontsize = minfontsize - 2
-            minfont = ImageFont.truetype(fontfile, minfontsize)
-          else:
-            break
-        elif width <= maxwidth and height <= maxheight:
-          break
+    def getfont(fontsize, fontfile):
+      xcood, ycood = textcood
+      startX = xcood - maxwidth/2
+      font = ImageFont.truetype(fontfile, fontsize)
+      (textwidth, textheight) = font.getsize(text)
+      startY = ycood - textheight/2
+      while (textwidth > maxwidth) or \
+                ((startX+textwidth) > width) or \
+                ((startY+textheight) > height):
+        if textheight <= 10:
+          return None # if fontsize is less than 10, don't write anything
         fontsize = fontsize - 2
-      return ltext, font
+        font = ImageFont.truetype(fontfile, fontsize)
+        (textwidth, textheight) = font.getsize(text)
+        startY = ycood - textheight/2
+      return font
 
-    im = Image.new('RGB', (width, height),
-                   getcolor('//%s/background-color/text()' %(self.elementname,), '0x285191'))
+    if highlight:
+      color = self.hlcolor
+    else:
+      color = self.bgcolor      
+    im = Image.new('RGB', (width, height), color)
+    
     # add text to the image, if specified
     if text:
-      linespace = 5
-      textlines, font = getfont(width, height, maxwidth, maxheight,
-                                text, fontfile, fontsize, linespace)
-      x = textcood[0] - maxwidth/2
-      prevy = 0
-      for i, line in enumerate(textlines):
-        d = ImageDraw.Draw(im)
-        y = textcood[1] + prevy + (i*linespace)
-        prevy = font.getsize(line)[1]
-        d.text((x,y), line, font=font,
-               fill=getcolor('//%s/text-color/text()' %(self.elementname,), '0xffffff'))
+      if font is None:
+        font = getfont(fontsize, self.fontfile)
+      # if font is None, the text is too long for the image, don't
+      # write anything as it will look ugly.
+      if font is not None:
+        d = ImageDraw.Draw(im)        
+        w, h = font.getsize(text)
+        d.text((textcood[0]-(w/2), textcood[1]-(h/2)), text, font=font, fill=self.textcolor)
 
     # save the image to a file
+    im = im.filter(ImageFilter.DETAIL)
     im.save(filename, format=format)        
-
-  def _get_path_id(self, filename):
-    for item in self.controlset.keys():
-      if self.controlset[item]['file_name'] == filename:
-        return item
-    return None        
 
   def _verify_file(self, input, control):
     width = control['width']
@@ -338,6 +341,7 @@ class LogosRpmHandler(RpmHandler):
       if input_size != control_size:
         return False
     return True
+
 
 GDM_GREETER_THEME = '''
 # This is not really a .desktop file like the rest, but it\'s useful to treat
@@ -362,17 +366,12 @@ L_LOGOS = '''
         <width>640</width>
         <height>480</height>
         <location>/boot/grub/splash.png</location>
-        <textmaxwidth>600</textmaxwidth>
-        <textmaxheight>400</textmaxheight>
-        <textvcenter>240</textvcenter>
-        <texthcenter>320</texthcenter>
       </logo>
       <logo id="anaconda/syslinux-splash.png">
         <width>640</width>
         <height>300</height>
         <location>/usr/lib/anaconda-runtime/boot/syslinux-splash.png</location>
         <textmaxwidth>600</textmaxwidth>
-        <textmaxheight>280</textmaxheight>
         <textvcenter>150</textvcenter>
         <texthcenter>320</texthcenter>
       </logo>
@@ -384,7 +383,6 @@ L_LOGOS = '''
         <height>89</height>
         <location>/usr/share/anaconda/pixmaps/anaconda_header.png</location>
         <textmaxwidth>750</textmaxwidth>
-        <textmaxheight>75</textmaxheight>        
         <textvcenter>45</textvcenter>
         <texthcenter>400</texthcenter>
       </logo>
@@ -393,27 +391,27 @@ L_LOGOS = '''
         <height>224</height>
         <location>/usr/share/anaconda/pixmaps/progress_first-lowres.png</location>
         <textmaxwidth>300</textmaxwidth>
-        <textmaxheight>200</textmaxheight>
         <texthcenter>175</texthcenter>                
         <textvcenter>112</textvcenter>
+        <gradient>True</gradient>
       </logo>
       <logo id="anaconda/progress_first.png">
         <width>507</width>
         <height>325</height>
         <location>/usr/share/anaconda/pixmaps/progress_first.png</location>
         <textmaxwidth>450</textmaxwidth>
-        <textmaxheight>300</textmaxheight>
         <textvcenter>150</textvcenter>
-        <texthcenter>250</texthcenter>        
+        <texthcenter>250</texthcenter>
+        <gradient>True</gradient>
       </logo>
       <logo id="anaconda/splash.png">
         <width>507</width>
         <height>388</height>
         <location>/usr/share/anaconda/pixmaps/splash.png</location>
         <textmaxwidth>450</textmaxwidth>
-        <textmaxheight>340</textmaxheight>        
         <textvcenter>194</textvcenter>
-        <texthcenter>250</texthcenter>        
+        <texthcenter>250</texthcenter>
+        <gradient>True</gradient>        
       </logo>
       <logo id="kde-splash/BlueCurve/Theme.rc">
         <location>/usr/share/apps/ksplash/Themes/BlueCurve/Theme.rc</location>
@@ -423,7 +421,6 @@ L_LOGOS = '''
         <height>61</height>
         <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_active_bar.png</location>
         <textmaxwidth>350</textmaxwidth>
-        <textmaxheight>45</textmaxheight>
         <textvcenter>30</textvcenter>
         <texthcenter>200</texthcenter>        
       </logo>
@@ -432,8 +429,7 @@ L_LOGOS = '''
         <height>16</height>
         <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_bottom.png</location>
         <textmaxwidth>350</textmaxwidth>
-        <textmaxheight>8</textmaxheight>
-        <textvcenter>13</textvcenter>
+        <textvcenter>8</textvcenter>
         <texthcenter>200</texthcenter>        
       </logo>
       <logo id="kde-splash/BlueCurve/splash_inactive_bar.png">
@@ -441,7 +437,6 @@ L_LOGOS = '''
         <height>61</height>
         <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_inactive_bar.png</location>
         <textmaxwidth>350</textmaxwidth>
-        <textmaxheight>50</textmaxheight>                
         <textvcenter>30</textvcenter>
         <texthcenter>200</texthcenter>        
       </logo>
@@ -450,7 +445,6 @@ L_LOGOS = '''
         <height>244</height>
         <location>/usr/share/apps/ksplash/Themes/BlueCurve/splash_top.png</location>
         <textmaxwidth>350</textmaxwidth>
-        <textmaxheight>200</textmaxheight>        
         <textvcenter>112</textvcenter>
         <texthcenter>200</texthcenter>        
       </logo>
@@ -459,14 +453,15 @@ L_LOGOS = '''
         <height>58</height>
         <location>/usr/share/firstboot/pixmaps/firstboot-header.png</location>
         <textmaxwidth>750</textmaxwidth>
-        <textmaxheight>45</textmaxheight>        
         <textvcenter>25</textvcenter>
-        <texthcenter>400</texthcenter>        
+        <texthcenter>400</texthcenter>
+        <highlight>True</highlight>
       </logo>
       <logo id="firstboot/firstboot-left.png">
         <width>160</width>
         <height>600</height>
         <location>/usr/share/firstboot/pixmaps/firstboot-left.png</location>
+        <highlight>True</highlight>
       </logo>
       <logo id="firstboot/shadowman-round-48.png">
         <width>48</width>
@@ -477,10 +472,10 @@ L_LOGOS = '''
         <width>550</width>
         <height>200</height>
         <location>/usr/share/firstboot/pixmaps/splash-small.png</location>
-        <textmaxwidth>500</textmaxwidth>
-        <textmaxheight>170</textmaxheight>        
+        <textmaxwidth>530</textmaxwidth>
         <textvcenter>100</textvcenter>
-        <texthcenter>250</texthcenter>        
+        <texthcenter>275</texthcenter>
+        <highlight>True</highlight>
       </logo>
       <logo id="firstboot/workstation.png">
         <width>48</width>
@@ -540,25 +535,23 @@ L_LOGOS = '''
         <height>420</height>
         <location>/usr/share/pixmaps/splash/gnome-splash.png</location>
         <textmaxwidth>450</textmaxwidth>
-        <textmaxheight>400</textmaxheight>
         <textvcenter>210</textvcenter>
-        <texthcenter>250</texthcenter>        
+        <texthcenter>250</texthcenter>
+        <gradient>True</gradient>        
       </logo>
       <logo id="rhgb/main-logo.png">
         <width>320</width>
         <height>396</height>
         <location>/usr/share/rhgb/main-logo.png</location>
-        <textmaxwidth>280</textmaxwidth>
-        <textmaxheight>350</textmaxheight>
-        <textvcenter>198</textvcenter>
+        <textmaxwidth>320</textmaxwidth>
+        <textvcenter>190</textvcenter>
         <texthcenter>160</texthcenter>        
       </logo>
       <logo id="rhgb/system-logo.png">
         <width>183</width>
         <height>45</height>
         <location>/usr/share/rhgb/system-logo.png</location>
-        <textmaxwidth>120</textmaxwidth>
-        <textmaxheight>35</textmaxheight>
+        <textmaxwidth>150</textmaxwidth>
         <textvcenter>22</textvcenter>
         <texthcenter>90</texthcenter>        
       </logo>
@@ -569,6 +562,7 @@ L_LOGOS = '''
         <width>635</width>
         <height>480</height>
         <location>/usr/share/gdm/themes/%s/background.png</location>
+        <gradient>True</gradient>        
       </logo>
       <logo id="gdm/themes/%s/GdmGreeterTheme.desktop">
         <location>/usr/share/gdm/themes/%s/GdmGreeterTheme.desktop</location>

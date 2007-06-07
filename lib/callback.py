@@ -46,7 +46,7 @@ class BuildSyncCallback(SyncCallbackMetered):
 
   def _do_end(self, amount_read, now=None):
     if self.logger.test(3):
-      self.bar.layout = '[title:width=30] [curvalue:condensed] [bar] -- DONE --'
+      #self.bar.layout = '[title:width=30] [curvalue:condensed] [bar] -- DONE --'
       SyncCallbackMetered._do_end(self, amount_read, now)
 
 

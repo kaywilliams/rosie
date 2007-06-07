@@ -1,13 +1,15 @@
 from event import EVENT_TYPE_META
 
-API_VERSION = 3.0
+API_VERSION = 4.0
 
 EVENTS = [
   {
     'id': 'INSTALLER',
     'properties': EVENT_TYPE_META,
-    'provides': ['INSTALLER'],
-    'requires': ['.discinfo', 'software', 'gpgsign'], # gpgsign is temporarily here, will be an optional dependency
+    'provides': ['INSTALLER', 'software'],
+    ##'requires': ['.discinfo', 'software'], #!
+    'requires': ['anaconda-version', '.discinfo', 'software'],
+    'conditional-requires': ['gpgsign'], #!
   },
 ]
 

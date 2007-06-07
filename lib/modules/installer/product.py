@@ -1,65 +1,91 @@
 from os.path  import join, exists
 
-import dims.filereader as filereader
-import dims.imglib  as imglib
-import dims.osutils as osutils
-import dims.sortlib as sortlib
-import dims.xmltree as xmltree
+from dims import filereader
+from dims import osutils
+from dims import sortlib
+from dims import xmltree
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from main  import locals_imerge
 
-from installer.lib import ImageModifier, InstallerInterface, locals_imerge
+from installer.lib import ImageModifier
+
+API_VERSION = 4.0
 
 EVENTS = [
   {
     'id': 'product',
-    'interface': 'InstallerInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['product.img'],
+    ##'requires': ['anaconda-version'],
     'parent': 'INSTALLER',
   },
 ]
 
-
-def preproduct_hook(interface):
-  product_md_struct = {
-    'config':    ['/distro/main/product/text()',
-                  '/distro/main/version/text()',
-                  '/distro/main/fullname/text()',
-                  '/distro/installer/product.img/path/text()'],
-    'variables': ['anaconda_version'],
-    'input':     [interface.config.mget('/distro/installer/product.img/path/text()', [])],
-    'output':    [join(interface.getSoftwareStore(), 'images/product.img')],
-  }
-  
-  handler = ProductImageModifier('product.img', interface, product_md_struct,
-                                 L_IMAGES, L_INSTALLCLASSES)
-  interface.add_handler('product.img', handler)
-  
-  interface.disableEvent('product')
-  if interface.eventForceStatus('product') or False:
-    interface.enableEvent('product')
-  elif handler.pre():
-    interface.enableEvent('product')
-
-def product_hook(interface):
-  interface.log(0, "generating product.img")  
-  handler = interface.get_handler('product.img')
-  handler.modify()
+HOOK_MAPPING = {
+  'ProductHook': 'product',
+}
 
 
-class ProductImageModifier(ImageModifier):
-  def __init__(self, name, interface, data, mlocals, ic_locals):
-    ImageModifier.__init__(self, name, interface, data, mlocals)
-    self.ic_locals = locals_imerge(ic_locals, self.interface.anaconda_version)
+#------ HOOKS ------#
+class ProductHook(ImageModifier):
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'product.product'
     
-    # replace element text with real installclass string
+    self.interface = interface
+    
+    self.productimage = join(self.interface.SOFTWARE_STORE, 'images/product.img')
+    
+    product_md_struct = {
+      'config':    ['//main/product/text()',
+                    '//main/version/text()',
+                    '//main/fullname/text()',
+                    '//installer/product.img/path/text()'],
+      'variables': ['anaconda_version'],
+      'input':     [interface.config.mget('//installer/product.img/path/text()', [])],
+      'output':    [self.productimage],
+    }
+  
+    ImageModifier.__init__(self, 'product.img', interface, product_md_struct)
+    
+  def error(self, e):
+    try:
+      self.close()
+    except:
+      pass
+  
+  def register_image_locals(self, locals):
+    ImageModifier.register_image_locals(self, locals)
+    
+    self.ic_locals = locals_imerge(L_INSTALLCLASSES,
+                                   self.interface.get_cvar('anaconda-version'))
+    
+    # replace element text wtih real installclass string
     indexes = sortlib.dsort(INSTALLCLASSES.keys())
     for i in indexes:
-      if sortlib.dcompare(i, self.interface.anaconda_version) <= 0:
+      if sortlib.dcompare(i, self.interface.get_cvar('anaconda-version')) <= 0:
         self.ic_locals.iget('//installclass').text = INSTALLCLASSES[i]
       else:
         break
+  
+  def force(self):
+    osutils.rm(self.productimage, force=True)
+  
+  def run(self):
+    self.register_image_locals(L_IMAGES)
+    
+    if not self._test_runstatus(): return
+    self.interface.log(0, "generating product.img")  
+    self.modify() # see ProductImageModifier, below, and ImageModifier in lib.py
+  
+  def apply(self):
+    if not exists(self.productimage):
+      raise RuntimeError, "Unable to find 'product.img' at '%s'" % self.productimage
+  
+  def _test_runstatus(self):
+    return self.interface.isForced('product') or \
+           self.check_run_status()
   
   def generate(self):
     ImageModifier.generate(self)
@@ -69,7 +95,7 @@ class ProductImageModifier(ImageModifier):
       self._generate_installclass()
   
   def _generate_installclass(self):
-    comps = xmltree.read(join(self.interface.getMetadata(), 'comps.xml'))
+    comps = xmltree.read(join(self.interface.METADATA_DIR, 'comps.xml'))
     groups = comps.get('//group/id/text()')
     defgroups = comps.get('//group[default/text() = "true"]/id/text()')
     
@@ -84,6 +110,8 @@ class ProductImageModifier(ImageModifier):
     osutils.mkdir(join(self.image.mount, 'installclasses'))
     filereader.write([installclass], join(self.image.mount, 'installclasses/custom.py'))
 
+
+#------ LOCALS ------#
 L_IMAGES = ''' 
 <locals>
   <images-entries>

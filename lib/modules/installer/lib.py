@@ -4,15 +4,14 @@ import time
 from os.path  import join, exists
 from StringIO import StringIO
 
-import dims.FormattedFile as ffile
-import dims.imerge        as imerge
-import dims.imglib        as imglib
-import dims.osutils       as osutils
-import dims.sync          as sync
-import dims.xmltree       as xmltree
+from dims import FormattedFile as ffile
+from dims import imerge
+from dims import imglib
+from dims import osutils
+from dims import sync
+from dims import xmltree
 
 from callback  import BuildSyncCallback
-from interface import EventInterface, VersionMixin
 from locals    import printf_local
 from main      import BOOLEANS_TRUE
 from magic     import match as magic_match
@@ -29,24 +28,23 @@ MAGIC_MAP = {
 }
 
 
-class InstallerInterface(EventInterface, VersionMixin):
-  def __init__(self, base):
-    EventInterface.__init__(self, base)
-    VersionMixin.__init__(self, join(self.getMetadata(), '%s.pkgs' % self.getBaseStore()))
-  
-
 class ImageHandler:
-  def __init__(self, interface, locals):
+  "Classes that extend this must require 'anaconda-version'"
+  def __init__(self, interface):
     self.name = 'super' # subclasses override this
     self.image = None
     self.interface = interface
-    self.locals = locals
+    self.i_locals = None
     
-    self.vars = self.interface.getBaseVars()
-    self.anaconda_version = self.interface.anaconda_version
+    self.vars = self.interface.BASE_VARS
+    self.anaconda_version = None
+  
+  def register_image_locals(self, locals):
+    self.i_locals = locals_imerge(locals, self.interface.get_cvar('anaconda-version'))
+    self.anaconda_version = self.interface.get_cvar('anaconda-version')
   
   def open(self):
-    image  = self.locals.iget('//images/image[@id="%s"]' % self.name)
+    image  = self.i_locals.iget('//images/image[@id="%s"]' % self.name)
     path   = self._getpath()
     format = image.iget('format/text()')
     zipped = image.iget('zipped/text()', 'False') in BOOLEANS_TRUE
@@ -67,10 +65,10 @@ class ImageHandler:
   
   def generate_buildstamp(self):
     "Generate a .buildstamp file"
-    md = self.interface.getMetadata()
+    md = self.interface.METADATA_DIR
     osutils.mkdir(md, parent=True)
     
-    locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.interface.anaconda_version)
+    locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.anaconda_version)
     
     buildstamp_fmt = locals.iget('//buildstamp-format')
     buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
@@ -85,23 +83,23 @@ class ImageHandler:
     os.chmod(join(md, '.buildstamp'), 0644)
   
   def write_buildstamp(self):
-    self.image.write(join(self.interface.getMetadata(), '.buildstamp'), '/')
+    self.image.write(join(self.interface.METADATA_DIR, '.buildstamp'), '/')
   
   def write_directory(self, dir):
     self.image.write([ join(dir, file) for file in os.listdir(dir) ], '/')
   
   def _getpath(self):
-    FILE = self.locals.iget('//images/image[@id="%s"]' % self.name)
-    return join(self.interface.getSoftwareStore(),
+    FILE = self.i_locals.iget('//images/image[@id="%s"]' % self.name)
+    return join(self.interface.SOFTWARE_STORE,
                 printf_local(FILE.iget('path'), self.vars),
                 self.name)
   
   def _iszipped(self):
-    IMAGE = self.locals.iget('//images/image[@id="%s"]' % self.name)
+    IMAGE = self.i_locals.iget('//images/image[@id="%s"]' % self.name)
     return IMAGE.iget('zipped/text()', 'False') in BOOLEANS_TRUE
   
   def _isvirtual(self):
-    IMAGE = self.locals.iget('//images/image[@id="%s"]' % self.name)
+    IMAGE = self.i_locals.iget('//images/image[@id="%s"]' % self.name)
     return IMAGE.iget('@virtual', 'True') in BOOLEANS_TRUE
   
   def validate_image(self):
@@ -117,32 +115,35 @@ class ImageHandler:
 
 
 class ImageModifier(OutputEventHandler, ImageHandler):
-  def __init__(self, name, interface, data, locals, mdfile=None):
-    locals = locals_imerge(locals, interface.anaconda_version)
-
-    i,s,n,d,u,p = interface.getStoreInfo(interface.getBaseStore())
-    
-    image_path = locals.iget('//images/image[@id="%s"]/path' % name)
-    image_path = printf_local(image_path, interface.getBaseVars())
-    
-    self.rsrc = interface.storeInfoJoin(s, n, join(d, image_path, name))
-    self.isrc = join(interface.getInputStore(), i, d, image_path, name)
-    self.username = u
-    self.password = p
-    self.dest = join(interface.getSoftwareStore(), image_path, name)
+  "Classes that extend this must require 'anaconda-version'"
+  def __init__(self, name, interface, data, mdfile=None):
     if mdfile is None:
-      self.mdfile = join(interface.getMetadata(), '%s.md' % name)
+      self.mdfile = join(interface.METADATA_DIR, '%s.md' % name)
     else:
       self.mdfile = mdfile
     
-    self.l_image = locals.iget('//images/image[@id="%s"]' % name)
-    
     OutputEventHandler.__init__(self, interface.config, data, self.mdfile)
-    ImageHandler.__init__(self, interface, locals)
+    ImageHandler.__init__(self, interface)
     
     self.name = name
   
-  def pre(self):
+  def register_image_locals(self, locals):
+    ImageHandler.register_image_locals(self, locals)
+    
+    i,s,n,d,u,p = self.interface.getStoreInfo(self.interface.getBaseStore())
+    
+    image_path = self.i_locals.iget('//images/image[@id="%s"]/path' % self.name)
+    image_path = printf_local(image_path, self.interface.BASE_VARS)
+    
+    self.rsrc = self.interface.storeInfoJoin(s, n, join(d, image_path, self.name))
+    self.isrc = join(self.interface.INPUT_STORE, i, d, image_path, self.name)
+    self.username = u
+    self.password = p
+    self.dest = join(self.interface.SOFTWARE_STORE, image_path, self.name)
+    
+    self.l_image = self.i_locals.iget('//images/image[@id="%s"]' % self.name)
+  
+  def check_run_status(self): #!
     if self.test_input_changed():
       osutils.rm(self.dest, force=True)
       return True
@@ -150,7 +151,7 @@ class ImageModifier(OutputEventHandler, ImageHandler):
       ostuils.rm(self.dest, force=True)
       return True
     return False
-    
+  
   def modify(self):
     # sync image to input store
     osutils.mkdir(osutils.dirname(self.isrc), parent=True)
@@ -190,8 +191,8 @@ class ImageModifier(OutputEventHandler, ImageHandler):
       dest = file.iget('@dest', '/')
       if exists(src):
         self.image.write(src, dest)
-    if exists(join(self.interface.getMetadata(), 'images-src/%s' % self.name)):
-      self.write_directory(join(self.interface.getMetadata(),
+    if exists(join(self.interface.METADATA_DIR, 'images-src/%s' % self.name)):
+      self.write_directory(join(self.interface.METADATA_DIR,
                                 'images-src/%s' % self.name))
     self.generate_buildstamp()
     self.write_buildstamp()
@@ -199,27 +200,33 @@ class ImageModifier(OutputEventHandler, ImageHandler):
 
 
 class FileDownloader:
-  def __init__(self, locals, interface):
-    self.locals = locals_imerge(locals, interface.anaconda_version)
+  "Classes that extend this must require 'anaconda-version' and 'source-vars'"
+  def __init__(self, interface):
+    self.f_locals = None
     
     self.interface = interface
     
     self.callback = BuildSyncCallback(interface.logthresh)
   
+  def register_file_locals(self, locals):
+    self.f_locals = locals_imerge(locals, self.interface.get_cvar('anaconda-version'))
+  
   def download(self, dest, store):
+    if not self.f_locals:
+      raise RuntimeError, "FileDownloader instance has no registered locals"
     dest = dest.lstrip('/') # make sure it is not an absolute path
-    for file in self.locals.get('//files/file'):
+    for file in self.f_locals.get('//files/file'):
       filename = file.attrib['id']
       if file.attrib.get('virtual', 'False') in BOOLEANS_TRUE: continue # skip virtual files
       
-      rinfix = printf_local(file.iget('path'), self.interface.getSourceVars())
-      linfix = printf_local(file.iget('path'), self.interface.getBaseVars())
+      rinfix = printf_local(file.iget('path'), self.interface.get_cvar('source-vars'))
+      linfix = printf_local(file.iget('path'), self.interface.BASE_VARS)
       
       self.interface.cache(join(dest, rinfix, filename),
                            prefix=store, callback=self.callback)
-      osutils.mkdir(join(self.interface.getSoftwareStore(), linfix), parent=True)
-      sync.sync(join(self.interface.getInputStore(), store, dest, rinfix, filename),
-                join(self.interface.getSoftwareStore(), linfix))
+      osutils.mkdir(join(self.interface.SOFTWARE_STORE, linfix), parent=True)
+      sync.sync(join(self.interface.INPUT_STORE, store, dest, rinfix, filename),
+                join(self.interface.SOFTWARE_STORE, linfix))
 
 
 def locals_imerge(string, ver):

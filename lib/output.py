@@ -92,11 +92,6 @@ class OutputEventHandler:
     # data structure representing this output object
     self.data = data
     self._expand_data() # expand the lists in 'input' and 'output'
-
-    # all the relative paths in the struct's input entry, are relative to the
-    # the config file's directory.
-    if self.data.has_key('input'):
-      self.data['input'] = map(lambda x: join(osutils.dirname(self.config.file), x), self.data['input'])
       
     # read in metadata - self.mdvalid is False unless read_metadata() finds a file
     self.mdvalid = False
@@ -110,7 +105,13 @@ class OutputEventHandler:
     
     # debug
     self.debug = False
-  
+
+  def expand_input(self, prefix=None):
+    if self.data.has_key('input'):
+      if prefix is None:
+        prefix = osutils.dirname(self.config.file)
+      self.data['input'] = map(lambda x: join(prefix, x), self.data['input'])
+
   def dprint(self, msg):
     "Print msg iff self.debug is True)"
     if self.debug: print 'DEBUG: %s' % msg

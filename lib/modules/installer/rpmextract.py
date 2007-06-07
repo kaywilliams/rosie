@@ -4,7 +4,7 @@ import tempfile
 from os.path            import join, exists, isdir, isfile
 from rpmUtils.miscutils import rpm2cpio
 
-import dims.shlib as shlib
+from dims import shlib
 
 from dims.imglib  import CpioImage
 from dims.osutils import *
@@ -13,28 +13,28 @@ from dims.sync    import sync
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface
 from main      import BOOLEANS_TRUE
-from magic     import match as magic_match, FILE_TYPE_LSS
-from output    import OutputEventHandler, tree, InputInvalidError, OutputInvalidError
+from magic     import FILE_TYPE_LSS, match as magic_match
+from output    import OutputEventHandler, InputInvalidError, OutputInvalidError, tree
 
 try:
   import Image
 except ImportError:
-  raise ImportError, "missing 'python-imaging' rpm"
+  raise ImportError("missing 'python-imaging' RPM")
 
-API_VERSION = 3.0
+API_VERSION = 4.0
 
 EVENTS = [
   {
-    'id': 'installer_logos',
-    'interface': 'InstallerInterface',
+    'id': 'installer-logos',
+    'interface': 'EventInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['installer-logos', 'splash.lss'],
     'requires': ['software'],
     'parent': 'INSTALLER',
   },
   {
-    'id': 'installer_release_files',
-    'interface': 'InstallerInterface',
+    'id': 'installer-release-files',
+    'interface': 'EventInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['installer-release-files'],
     'requires': ['software'],
@@ -42,8 +42,12 @@ EVENTS = [
   },  
 ]
 
+HOOK_MAPPING = {
+  'InstallerLogosHook':   'installer-logos',
+  'InstallerReleaseHook': 'installer-release-files',
+}
 
-#-------- HELPER FUNCTIONS -----------#
+#------ HELPER FUNCTIONS ------#
 def extractRpm(rpmPath, output=os.getcwd()):
   """ 
   Extract the contents of the RPM file specified by rpmPath to
@@ -54,79 +58,63 @@ def extractRpm(rpmPath, output=os.getcwd()):
   contents
   """
   dir = tempfile.mkdtemp()
-  filename = join(dir, 'rpm.cpio')
-  temp_output = join(dir, 'rpm.contents')
-  mkdir(temp_output)
+  try:
+    filename = join(dir, 'rpm.cpio')
     
-  # sync the RPM down to the temporary directory
-  sync(rpmPath, dir)
-  rpmFile = join(dir, basename(rpmPath))
-  
-  rpm2cpio(os.open(rpmFile, os.O_RDONLY), open(filename, 'w+'))
-  cpio = CpioImage(filename)
-  cpio.open(point=temp_output)
-  
-  if not exists(output):
-    mkdir(output, parent=True)
+    # sync the RPM down to the temporary directory
+    sync(rpmPath, dir)
+    rpmFile = join(dir, basename(rpmPath))
+    
+    rpm2cpio(os.open(rpmFile, os.O_RDONLY), open(filename, 'w+'))
+    cpio = CpioImage(filename)    
+    if not exists(output):
+      mkdir(output, parent=True)    
+    cpio.open(point=output)
+  finally:
+    rm(dir, recursive=True, force=True)
 
-  for item in os.listdir(temp_output):
-    sync(join(temp_output, item), output)
-
-  rm(dir, recursive=True, force=True)
-
-
-#------------ INTERFACES --------------------#
-class InstallerInterface(EventInterface):
-  def __init__(self, base):
-    EventInterface.__init__(self, base)
-
-
-#------------- HOOK FUNCTIONS --------------#
-def preinstaller_logos_hook(interface):
-  handler = InstallerLogosHandler(interface)
-  interface.add_handler('installer_logos', handler)
-  
-  interface.disableEvent('installer_logos')
-  if (interface.eventForceStatus('installer_logos') or False) or handler.pre():
-    interface.enableEvent('installer_logos')
-  
-def installer_logos_hook(interface):
-  interface.log(0, "processing installer logos")
-  handler = interface.get_handler('installer_logos')
-  handler.modify()
-
-def preinstaller_release_files_hook(interface):
-  handler = InstallerReleaseHandler(interface)
-  interface.add_handler('installer_release_files', handler)
-  
-  interface.disableEvent('installer_release_files')
-  if (interface.eventForceStatus('installer_release_files') or False) or handler.pre():
-    interface.enableEvent('installer_release_files')
-
-def installer_release_files_hook(interface):
-  interface.log(0, "processing installer release files")  
-  handler = interface.get_handler('installer_release_files')
-  handler.modify()
-
-
-#------------ HANDLERS -----------------#
-class InstallerHandler(OutputEventHandler):
-  def __init__(self, interface, data, name):    
+class ExtractEventHandler(OutputEventHandler):
+  def __init__(self, interface, data, mdfile):    
     self.interface = interface
     self.config = self.interface.config
-    self.software_store = self.interface.getSoftwareStore()
+    self.software_store = self.interface.SOFTWARE_STORE    
+    OutputEventHandler.__init__(self, self.config, data, mdfile)
 
-    # find all the input RPMs and set the struct's 'input' list
-    input = []
-    for rpmname in data['input']:
-      rpms = find(self.software_store, name='%s*[Rr][Pp][Mm]' %(rpmname,))
-      if len(rpms) == 0:
-        raise RpmNotFoundError, "'%s' RPM missing" %(rpmname,)
-      input.append(rpms[0])
-    data['input'] = input
+  def force(self):
+    self.clean_output()
+
+  def run(self, message):
+    self.modify_input_data()
+    if self.check_run_status():
+      self.interface.log(0, message)
+      # get input - extract RPMs
+      self.working_dir = tempfile.mkdtemp() # temporary directory, gets deleted once done
+      for rpmname in self.data['input']:
+        extractRpm(rpmname, self.working_dir)    
+      # generate output files
+      try:
+        # need to modify self.data, so that the metadata
+        # written has all the files created. Otherwise, self.data['output']
+        # will be empty.
+        self.data['output'] = self.generate() 
+      finally:
+        #rm(self.working_dir, recursive=True, force=True)
+        pass
+      # write metadata
+      self.write_metadata()
     
-    OutputEventHandler.__init__(self, self.config, data,
-                                mdfile=join(self.interface.getMetadata(), '%s.md' %(name,)))
+  def get_rpms(self):
+    return self.interface.get_cvar('RPMS-%s' %(self.ID,), None)
+
+  def set_rpms(self, rpms):
+    self.interface.set_cvar('RPMS-%s' %(self.ID,), rpms)
+
+  def modify_input_data(self):
+    rpms = self.get_rpms()
+    if rpms is None:
+      rpms = self.find_rpms()
+      self.set_rpms(rpms)
+    self.data['input'] = rpms
 
   def test_input_changed(self):
     if not self.mdvalid:
@@ -134,12 +122,23 @@ class InstallerHandler(OutputEventHandler):
     else:
       self.configvalid = (not self._test_configvals_changed())
       self.inputvalid  = (not self._test_input_changed())
-      return not(self.configvalid and self.inputvalid)
-  
-  def test_output_valid(self):
-    return True
-  
-  def pre(self):
+      self.outputvalid = (not self._test_output_changed())
+      return not(self.configvalid and self.inputvalid and self.outputvalid)
+    
+  def _test_output_changed(self):
+    # have to use this _test_output_changed() instead of OutputEventHandler's
+    # because self.data['output'] hasn't been set yet. 
+    if hasattr(self, 'output'):      
+      for file in self.output.keys():
+        if not exists(file):
+          return True
+        stats = os.stat(file)      
+        if stats.st_size != int(self.output[file]['size']) or \
+               stats.st_mtime != int(self.output[file]['mtime']):
+          return True
+    return False
+    
+  def check_run_status(self):
     if self.test_input_changed() or not self.test_output_valid():
       self.clean_output()
       return True
@@ -149,38 +148,26 @@ class InstallerHandler(OutputEventHandler):
     if hasattr(self, 'output'):
       for file in self.output.keys():
         rm(file, recursive=True, force=True)
-  
-  def modify(self):
-    # get input - extract RPMs
-    self.working_dir = tempfile.mkdtemp() # temporary directory, gets deleted once done    
 
-    for rpmname in self.data['input']:
-      extractRpm(rpmname, self.working_dir)
-    
-    # generate output files
-    try:
-      self.data['output'] = self.generate() # need to modify self.data, so that the metadata
-                                            # written has all the files created.
-    finally:
-      rm(self.working_dir, recursive=True, force=True)
-    
-    # check output validity
-    if not self.test_output_valid():
-      raise OutputInvalidError, "output files are invalid"
-    
-    # write metadata
-    self.write_metadata()
-  
 
-class InstallerLogosHandler(InstallerHandler):
-  def __init__(self, interface):    
-    data = {
-        'config': ['//installer/logos'],
-        'input':  [interface.config.get('//installer/logos/package/text()',
-                                        '%s-logos' %(interface.product,))],
-        }
-    InstallerHandler.__init__(self, interface, data, 'installer_logos')
-    self.splash_lss= join(self.software_store, 'isolinux', 'splash.lss')    
+#------ HOOKS ------#
+class InstallerLogosHook(ExtractEventHandler):
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'rpmextract.installer_logos'
+
+    self.metadata_struct =  {
+      'config': ['//installer/logos'],
+      'input':  [interface.config.get('//installer/logos/package/text()',
+                                     '%s-logos' %(interface.product,))],
+    }
+    
+    ExtractEventHandler.__init__(self, interface, self.metadata_struct,
+                                 join(interface.METADATA_DIR, 'installer-logos.md'))
+    self.splash_lss = join(self.software_store, 'isolinux', 'splash.lss')
+  
+  def run(self):
+    ExtractEventHandler.run(self, "processing installer logos")
 
   def generate(self):
     "Create the splash.lss file and copy it to the isolinux/ folder"
@@ -188,38 +175,31 @@ class InstallerLogosHandler(InstallerHandler):
     if not exists(output_dir):
       mkdir(output_dir, parent=True)
 
-    # if splash.lss exists in the rpm, copy it to the isolinux/ folder
-    # else convert the syslinux-splash.png to splash.lss and copy it
+    output = self.create_pixmaps()
+    # convert the syslinux-splash.png to splash.lss and copy it
     # to the isolinux/ folder
-    splash_lss = find(self.working_dir, 'splash.lss')    
-    if splash_lss:
-      sync(splash_lss[0], output_dir)
-    else:
-      splash_png = find(self.working_dir, 'syslinux-splash.png')
-      if not splash_png:
-        raise SplashImageNotFoundError, "no syslinux-splash.png found in logos RPM"
-      splash_ppm = join(self.working_dir, 'splash.ppm')
-      splash_lss = join(output_dir, 'splash.lss')
-      Image.open(splash_png[0]).save(splash_ppm)
-      shlib.execute('ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 < %s > %s'
-                    %(splash_ppm, splash_lss,))
-    pixmaps = self.create_pixmaps()
-    output = pixmaps + [self.splash_lss]
+    splash_pngs = find(self.working_dir, 'syslinux-splash.png')
+    if len(splash_pngs) == 0:
+      raise SplashImageNotFoundError, "no syslinux-splash.png found in logos RPM"
+    shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
+                  %(splash_pngs[0], self.splash_lss,))
+    output.append(self.splash_lss)
     return output
 
   def create_pixmaps(self):
     """ 
-    Create the product.img folder that can be used by the
-    product.img module.
+    Create the product.img folder that can be used by the product.img
+    module.
     """
     # delete the pixmaps folder in the images-src/product.img/ folder
     # and link the images from the RPM folder to the pixmaps folder.
-    product_img = join(self.interface.getMetadata(), 'images-src', 'product.img', 'pixmaps')
+    product_img = join(self.interface.METADATA_DIR, 'images-src', 'product.img', 'pixmaps')
     mkdir(product_img, parent=True)
 
     dirs_to_look = []
     for dir in ['pixmaps']:      
-      dirs_to_look += find(location=self.working_dir, name=dir, type=TYPE_DIR, regex='.*anaconda.*')
+      dirs_to_look.extend(find(location=self.working_dir,
+                               name=dir, type=TYPE_DIR, regex='.*anaconda.*'))
 
     # generate the list of files to use and copy them to the product.img folder
     pixmaps = []    
@@ -233,17 +213,35 @@ class InstallerLogosHandler(InstallerHandler):
     return pixmaps
   
   def test_output_valid(self):
-    return magic_match(self.splash_lss) == FILE_TYPE_LSS
+    return exists(self.splash_lss) and magic_match(self.splash_lss) == FILE_TYPE_LSS
+
+  def find_rpms(self):
+    pkgname = self.config.get('//installer/logos/package/text()',
+                              '%s-logos' %(self.interface.product,))
+    rpms = find(self.software_store, name='%s-*-*' %(pkgname,))
+    if len(rpms) == 0:
+      rpms = find(self.software_store, name='*-logos-*-*')
+      if len(rpms) == 0:
+        raise RpmNotFoundError("missing logo RPM")
+    return [rpms[0]]
 
 
-class InstallerReleaseHandler(InstallerHandler):
+class InstallerReleaseHook(ExtractEventHandler):
   def __init__(self, interface):
-    data = {
-        'config': ['//installer/release-files'],
-        'input':  [interface.config.get('//installer/release-files/package/text()',
-                                        '%s-release' %(interface.product,))],
+    self.VERSION = 0
+    self.ID = 'rpmextract.installer_release_files'
+
+    self.metadata_struct = {
+      'config': ['//installer/release-files'],
+      'input':  [interface.config.get('//installer/release-files/package/text()',
+                                      '%s-release' %(interface.product,))],
     }
-    InstallerHandler.__init__(self, interface, data, 'installer_release_files')
+    
+    ExtractEventHandler.__init__(self, interface, self.metadata_struct,
+                                 join(interface.METADATA_DIR, 'installer-release-files.md'))    
+  
+  def run(self):
+    ExtractEventHandler.run(self, "synchronizing installer release files")
 
   def generate(self):
     files = {}
@@ -253,21 +251,36 @@ class InstallerReleaseHandler(InstallerHandler):
       dest = join(self.software_store, path.attrib['dest'])
       files[source] = dest
     if self.config.get('//release-files/include-in-tree/@use-default-set', 'True') in BOOLEANS_TRUE:
-      for default_item in ['eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README', '*RPM-GPG',
-                           'RPM-GPG-KEY', 'RPM-GPG-KEY-beta', 'README-BURNING-ISOS-en_US.txt',
-                           'RELEASE-NOTES-en-US.html', 'stylesheet-images']:
-        for item in find(location=self.working_dir, name=default_item):
-          files[source] = self.software_store
+      for default_item in ['eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README',
+                           '*-RPM-GPG', 'RPM-GPG-KEY-*', 'RPM-GPG-KEY-beta',
+                           'README-BURNING-ISOS-en_US.txt', 'RELEASE-NOTES-en_US.html']:
+        for item in find(location=self.working_dir, name=default_item):    
+          files[item] = self.software_store
+
     for source in files.keys():
-      if isfile(source) and isdir(files[source]):
-        dest = join(self.files[source], basename(source))
-      rtn.append(dest)
-      
-    for source in files.keys():
-      dest = self.files[source]
-      sync(source, dest)
+      dest = files[source]
+      if isfile(source) and isdir(dest):
+        dest = join(dest, basename(source))
+      rtn.append(dest)      
+      os.link(source, dest)
     return rtn
 
-#------------- EXCEPTIONS/ERRORS ------------#
+  def test_output_valid(self): return True
+
+  def find_rpms(self):
+    rpmnames = self.config.mget('//installer/release-files/package/text()',
+                                ['%s-release' %(self.interface.product,)])
+    rpms = []
+    for rpmname in rpmnames:
+      rpms.extend(find(self.software_store, name='%s-*-*' %(rpmname,)))
+    if len(rpms) == 0:
+      for regex in ['*-release-*-[a-zA-Z0-9]*.[Rr][Pp][Mm]',
+                    '*-release-notes-*-*']:
+        rpms.extend(find(self.software_store, name=regex))
+        if len(rpms) == 0:
+          raise RpmNotFoundError("missing release and release-notes RPMs")
+    return rpms    
+
+#------ EXCEPTIONS ------#
 class RpmNotFoundError(Exception): pass
 class SplashImageNotFoundError(StandardError): pass

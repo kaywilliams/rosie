@@ -2,21 +2,21 @@ from os.path import join, exists, islink
 
 import os
 
-import dims.osutils as osutils
-import dims.sync    as sync
+from dims import osutils
+from dims import sync
 
 from callback import BuildSyncCallback
 from event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from locals   import printf_local
+from locals   import printf_local #!
+from main     import locals_imerge
 
-from installer.lib import InstallerInterface, FileDownloader, ImageModifier, locals_imerge
+from installer.lib import FileDownloader, ImageModifier
 
-API_VERSION = 3.0
+API_VERSION = 4.0
 
 EVENTS = [
   {
     'id': 'pxeboot',
-    'interface': 'InstallerInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['pxeboot'],
     'requires': ['isolinux'],
@@ -24,57 +24,41 @@ EVENTS = [
   },
 ]
 
-
-def pxeboot_hook(interface):
-  interface.log(0, "preparing pxeboot images")
-
-  pxeboot_dir  = join(interface.getSoftwareStore(), 'images/pxeboot')
-  osutils.mkdir(pxeboot_dir, parent=True)
-  
-  for file in ['vmlinuz', 'initrd.img']:
-    dest = join(pxeboot_dir, file)
-    target = join('../../isolinux', file)
-    if islink(dest):
-      if os.readlink(dest) != target:
-        osutils.rm(dest, force=True)
-    else:
-      osutils.rm(dest, force=True)
-    if not exists(dest):
-      os.symlink(target, dest)
+HOOK_MAPPING = {
+  'PxebootHook': 'pxeboot',
+}
 
 
-L_FILES = ''' 
-<locals>
-  <files-entries>
-    <files version="0">
-      <file id="vmlinuz">
-        <path>images/pxeboot</path>
-      </file>
-      <file id="initrd.img">
-        <path>images/pxeboot</path>
-      </file>
-    </files>
-  </files-entries>
-</locals>
-'''
-
-L_IMAGES = ''' 
-<locals>
-  <images-entries>
-    <images version="0">
-      <image id="initrd.img">
-        <format>ext2</format>
-        <zipped>True</zipped>
-        <path>images/pxeboot</path>
-      </image>
-    </images>
+#------ HOOKS ------#
+class PxebootHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'pxeboot.pxeboot'
     
-    <!-- approx 10.2.0.3-1 - initrd.img format changed to cpio -->
-    <images version="10.2.0.3-1">
-      <action type="update" path="image[@id='initrd.img']">
-        <format>cpio</format>
-      </action>
-    </images>
-  </images-entries>
-</locals>
-'''
+    self.interface = interface
+    
+    self.pxeboot_dir = join(self.interface.SOFTWARE_STORE, 'images/pxeboot')
+  
+  def force(self):
+    osutils.rm(self.pxeboot_dir, recursive=True, force=True)
+  
+  def run(self):
+    self.interface.log(0, "preparing pxeboot images")
+    
+    osutils.mkdir(self.pxeboot_dir, parent=True)
+    
+    for file in ['vmlinuz', 'initrd.img']:
+      dest = join(self.pxeboot_dir, file)
+      target = join('../../isolinux', file)
+      if islink(dest):
+        if os.readlink(dest) != target:
+          osutils.rm(dest, force=True)
+      else:
+        osutils.rm(dest, force=True)
+      if not exists(dest):
+        os.symlink(target, dest)
+  
+  def apply(self):
+    for file in ['vmlinuz', 'initrd.img']:
+      if not exists(join(self.pxeboot_dir, file)):
+        raise RuntimeError, "Unable to find '%s' in '%s'" % (file, join(self.pxeboot_dir, file))

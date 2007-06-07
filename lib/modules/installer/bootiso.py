@@ -1,110 +1,151 @@
 import os
 
-from os.path import join
+from os.path import join, exists
 
-import dims.osutils as osutils
-import dims.shlib   as shlib
+from dims import osutils
+from dims import shlib
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
-from installer.lib import FileDownloader, ImageModifier, InstallerInterface
+from installer.lib import FileDownloader, ImageModifier
 
-API_VERSION = 3.0
+API_VERSION = 4.0
 
 #------ EVENTS ------#
 EVENTS = [
   {
     'id': 'isolinux',
-    'interface': 'InstallerInterface',
     'provides': ['isolinux', 'vmlinuz', 'initrd.img', '.buildstamp'],
+    ##'requires': ['anaconda-version', 'source-vars'],
     'parent': 'INSTALLER',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR    
   },
   {
     'id': 'bootiso',
     'provides': ['boot.iso'],
-    'requires': ['vmlinuz', 'initrd.img', 'isolinux', 'splash.lss'],
+    'requires': ['vmlinuz', 'initrd.img', 'isolinux'],
+    'conditional-requires': ['splash.lss'],
     'parent': 'INSTALLER',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
   },
 ]
 
+HOOK_MAPPING = {
+  'IsolinuxHook': 'isolinux',
+  'BootisoHook':  'bootiso',
+}
 
-#------ HOOK FUNCTIONS ------#
-def preisolinux_hook(interface):
-  bootiso_md_struct = {
-    'config':    ['/distro/main/product/text()',
-                  '/distro/main/version/text()',
-                  '/distro/main/fullname/text()',
-                  '/distro/installer/product.img/path/text()'],
-    'variables': ['anaconda_version'],
-    'input':     [interface.config.mget('/distro/installer/initrd.img/path/text()', [])],
-    'output':    [join(interface.getSoftwareStore(), 'isolinux/boot.msg'),
-                  join(interface.getSoftwareStore(), 'isolinux/general.msg'),
-                  join(interface.getSoftwareStore(), 'isolinux/initrd.img'),
-                  join(interface.getSoftwareStore(), 'isolinux/isolinux.bin'),
-                  join(interface.getSoftwareStore(), 'isolinux/isolinux.cfg'),
-                  join(interface.getSoftwareStore(), 'isolinux/memtest'),
-                  join(interface.getSoftwareStore(), 'isolinux/options.msg'),
-                  join(interface.getSoftwareStore(), 'isolinux/param.msg'),
-                  join(interface.getSoftwareStore(), 'isolinux/rescue.msg'),
-                  join(interface.getSoftwareStore(), 'isolinux/vmlinuz')],
-  }
-  
-  handler = ImageModifier('initrd.img', interface, bootiso_md_struct, L_IMAGES)
-  interface.add_handler('initrd.img', handler)
-  
-  interface.disableEvent('isolinux')
-  if interface.eventForceStatus('isolinux') or False:
-    interface.enableEvent('isolinux')
-  elif handler.pre():
-    interface.enableEvent('isolinux')
-  
+ISOLINUX_OUTPUT_FILES = [
+  'isolinux/boot.msg',
+  'isolinux/general.msg',
+  'isolinux/initrd.img',
+  'isolinux/isolinux.bin',
+  'isolinux/isolinux.cfg',
+  'isolinux/memtest',
+  'isolinux/options.msg',
+  'isolinux/param.msg',
+  'isolinux/rescue.msg',
+  'isolinux/vmlinuz',
+]
 
-def isolinux_hook(interface):
-  interface.log(0, "synchronizing isolinux files")
-  i,_,_,d,_,_ = interface.getStoreInfo(interface.getBaseStore())
+#------ HOOKS ------#
+class IsolinuxHook(ImageModifier, FileDownloader):
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'bootiso.isolinux'
+    
+    self.interface = interface
+    
+    self.isolinux_dir = join(self.interface.SOFTWARE_STORE, 'isolinux')
+    
+    isolinux_md_struct = {
+      'config':    ['/distro/main/product/text()',
+                    '/distro/main/version/text()',
+                    '/distro/main/fullname/text()',
+                    '/distro/installer/product.img/path/text()'],
+      'variables': ['anaconda_version'],
+      'input':     [interface.config.mget('/distro/installer/initrd.img/path/text()', [])],
+      'output':    [join(interface.SOFTWARE_STORE, x) for x in ISOLINUX_OUTPUT_FILES]
+    }
+    
+    ImageModifier.__init__(self, 'initrd.img', interface, isolinux_md_struct)
+    FileDownloader.__init__(self, interface)
   
-  isolinux_dir = join(interface.getSoftwareStore(), 'isolinux')
-  osutils.mkdir(isolinux_dir, parent=True)
+  def error(self, e):
+    try:
+      self.close()
+    except:
+      pass
   
-  # download all files
-  dl = FileDownloader(L_FILES, interface)
-  dl.download(d,i)
+  def run(self):
+    self.register_file_locals(L_FILES)
+    self.register_image_locals(L_IMAGES)
+    
+    if not self._test_runstatus(): return
+    
+    self.interface.log(0, "synchronizing isolinux files")
+    i,_,_,d,_,_ = self.interface.getStoreInfo(self.interface.getBaseStore())
+    
+    osutils.mkdir(self.isolinux_dir, parent=True)
+    
+    # download all files - see FileDownloader.download() in lib.py
+    self.download(d,i)
+    
+    # modify initrd.img - see ImageModifier.modify() in lib.py
+    self.modify()
+    
+    self.interface.set_cvar('isolinux-changed', True)
   
-  # modify initrd.img
-  handler = interface.get_handler('initrd.img')
-  handler.modify()
+  def apply(self):
+    for file in ISOLINUX_OUTPUT_FILES:
+      if not exists(join(self.interface.SOFTWARE_STORE, file)):
+        raise RuntimeError, "Unable to find '%s' at '%s'" % (file, join(self.interface.SOFTWARE_STORE))
   
-  interface.set_cvar('isolinux-changed', True)
+  def _test_runstatus(self):
+    return self.interface.isForced('isolinux') or \
+           self.check_run_status()
 
-def prebootiso_hook(interface):
-  interface.disableEvent('bootiso')
-  
-  if interface.eventForceStatus('bootiso') or False:
-    interface.enableEvent('bootiso')
-  elif interface.get_cvar('isolinux-changed'):
-    interface.enableEvent('bootiso')
 
-def bootiso_hook(interface):
-  interface.log(0, "generating boot.iso")
+class BootisoHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'bootiso.bootiso'
+    
+    self.interface = interface
+    
+    self.isolinux_dir = join(self.interface.SOFTWARE_STORE, 'isolinux')
+    self.bootiso = join(self.interface.SOFTWARE_STORE, 'images/boot.iso')
   
-  isolinux_dir = join(interface.getSoftwareStore(), 'isolinux')
-  isodir = join(interface.getSoftwareStore(), 'images/isopath')
-  isofile = join(interface.getSoftwareStore(), 'images/boot.iso')
+  def force(self):
+    osutils.rm(self.bootiso, force=True)
   
-  osutils.mkdir(isodir, parent=True)
-  osutils.cp(isolinux_dir, isodir, recursive=True, link=True)
-  # apparently mkisofs modifies the mtime of the file it uses as a boot image.
-  # to avoid this, we copy the boot image timestamp and overwrite the original
-  # when we finish
-  isolinux_atime = os.stat(join(isolinux_dir, 'isolinux.bin')).st_atime
-  isolinux_mtime = os.stat(join(isolinux_dir, 'isolinux.bin')).st_mtime
-  shlib.execute('mkisofs -o %s -b isolinux/isolinux.bin -c isolinux/boot.cat '
-                '-no-emul-boot -boot-load-size 4 -boot-info-table -RJTV "%s" %s' \
-                % (isofile, interface.product, isodir))
-  os.utime(join(isolinux_dir, 'isolinux.bin'), (isolinux_atime, isolinux_mtime))
-  osutils.rm(isodir, recursive=True, force=True)
+  def run(self):
+    if not self._test_runstatus(): return
+    
+    self.interface.log(0, "generating boot.iso")
+    
+    isodir = join(self.interface.SOFTWARE_STORE, 'images/isopath')
+    
+    osutils.mkdir(isodir, parent=True)
+    osutils.cp(self.isolinux_dir, isodir, recursive=True, link=True)
+    # apparently mkisofs modifies the mtime of the file it uses as a boot image.
+    # to avoid this, we copy the boot image timestamp and overwrite the original
+    # when we finish
+    isolinux_atime = os.stat(join(self.isolinux_dir, 'isolinux.bin')).st_atime
+    isolinux_mtime = os.stat(join(self.isolinux_dir, 'isolinux.bin')).st_mtime
+    shlib.execute('mkisofs -o %s -b isolinux/isolinux.bin -c isolinux/boot.cat '
+                  '-no-emul-boot -boot-load-size 4 -boot-info-table -RJTV "%s" %s' \
+                  % (self.bootiso, self.interface.product, isodir))
+    os.utime(join(self.isolinux_dir, 'isolinux.bin'), (isolinux_atime, isolinux_mtime))
+    osutils.rm(isodir, recursive=True, force=True)
+  
+  def apply(self):
+    if not exists(self.bootiso):
+      raise RuntimeError, "Unable to find boot.iso at '%s'" % self.bootiso
+  
+  def _test_runstatus(self):
+    return self.interface.isForced('bootiso') or \
+           self.interface.get_cvar('isolinux-changed')
 
 
 #------ LOCALS ------#

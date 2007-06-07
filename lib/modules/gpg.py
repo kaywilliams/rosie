@@ -1,33 +1,38 @@
 from os.path import join
 
-import dims.osutils as osutils
+from dims import osutils
+from dims import xmltree
 
 from dims.mkrpm   import rpmsign
-from dims.xmltree import XmlPathError
 
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface
 from main      import BOOLEANS_TRUE
 from output    import OutputEventHandler
 
-API_VERSION = 3.0
+API_VERSION = 4.0
 
 EVENTS = [
   {
     'id': 'gpgsign',
     'interface': 'GpgInterface',
     'provides': ['gpgsign'],
-    'requires': ['software'],
+    'conditional-requires': ['software'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
   },
 ]
+
+HOOK_MAPPING = {
+  'SoftwareHook': 'software',
+  'GpgsignHook':  'gpgsign',
+}
 
 class GpgInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
     self._get_gpg_key()
     
-    self.rpmdest = join(self.getSoftwareStore(), self.product, 'RPMS') #!
+    self.rpmdest = join(self.SOFTWARE_STORE, self.product, 'RPMS') #!
     
   def _get_gpg_key(self):
     if not self.config.get('//gpgsign/sign/text()', 'False') in BOOLEANS_TRUE:
@@ -72,50 +77,72 @@ class GpgInterface(EventInterface):
                     secret=self.seckey,
                     passphrase=self.password)
 
-def presoftware_hook(interface):
-  interface.log(0, "checking gpg signature status")
-  handler = GpgSignHandler(interface)
-  try:
-    last_val = handler.configvals['//gpgsign'][0].iget('sign/text()')
-  except (AttributeError, IndexError, KeyError, XmlPathError):
-    last_val = None
-  # if last_val != config.get(...):
-  if (last_val in BOOLEANS_TRUE) != \
-     (interface.config.get('//gpgsign/sign/text()', 'False') in BOOLEANS_TRUE):
-    interface.log(1, "signature status differs; removing rpms")
-    osutils.rm(interface.rpmdest, recursive=True, force=True)
-    
-def pregpgsign_hook(interface):
-  handler = GpgSignHandler(interface)
-  interface.add_handler('gpgsign', handler)
-  
-  interface.disableEvent('gpgsign')
-  if interface.eventForceStatus('gpgsign') or handler.pre():
-    interface.enableEvent('gpgsign')
 
-def gpgsign_hook(interface):
-  handler = interface.get_handler('gpgsign')
-  handler.handle()
-
-class GpgSignHandler(OutputEventHandler):
+class SoftwareHook:
   def __init__(self, interface):
-    self.interface = interface
+    self.VERSION = 0
+    self.ID = 'gpg.software'
     
+    self.interface = interface
+
+  def pre(self):
+    # TODO - check if we can remove RPM signatures more easily without actually
+    # deleting the entire RPM
+    self.interface.log(0, "checking gpg signature status")
+    try:
+      # the following is kind of a hack - read gpg's metadata and compare the value
+      # of the sign element to that in the config file
+      mdfile = xmltree.read(join(self.interface.METADATA_DIR, 'gpg.md'))
+      elem = mdfile.iget('//config-values/value[@path="//gpgsign"]/elements')
+      last_val = elem.iget('gpgsign/sign/text()')
+    except (AttributeError, xmltree.XmlPathError, ValueError):
+      last_val = None
+    
+    # the following is roughly equivalent to 'if last_val != config.get(...):'
+    if (last_val in BOOLEANS_TRUE) != \
+       (self.interface.config.get('//gpgsign/sign/text()', 'False') in BOOLEANS_TRUE):
+      self.interface.log(1, "signature status differs; removing rpms")
+      osutils.rm(self.interface.rpmdest, recursive=True, force=True)
+
+class GpgsignHook(OutputEventHandler):
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'gpg.gpgsign'
+    
+    self.interface = interface
+
     data = {
       'config': ['//gpgsign', '//gpgkey/text()'],
     }
     
-    self.mdfile = join(interface.getMetadata(), 'gpg.md')
-    OutputEventHandler.__init__(self, interface.config, data, self.mdfile)
+    self.mdfile = join(interface.METADATA_DIR, 'gpg.md')
+    OutputEventHandler.__init__(self, self.interface.config, data, self.mdfile)
   
-  def pre(self):
-    return self.test_input_changed()
+  def force(self):
+    self.interface.set_cvar('gpg-tosign',
+                            [ (x, None) for x in \
+                              osutils.find(self.interface.rpmdest,
+                                           maxdepth=1,
+                                           name='*.[Rr][Pp][Mm]',
+                                           type=osutils.TYPE_FILE,
+                                           prefix=False) ] )
   
-  def handle(self):
+  def run(self):
+    if not self._test_runstatus(): return
+    
     if self.interface.sign:
       self.interface.log(0, "signing packages")
-      for rpm, store in self.interface.get_cvar('new-rpms', []):
+      for rpm,_ in self.interface.get_cvar('new-rpms', []) + \
+                   self.interface.get_cvar('gpg-tosign', []):
         self.interface.sign_rpm(rpm)
+  
+  def apply(self):
     self.write_metadata()
+  
+  def _test_runstatus(self):
+    return self.interface.isForced('gpgsign') or \
+           self.test_input_changed()
 
+
+#------ ERRORS ------#
 class GpgError: pass
