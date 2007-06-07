@@ -20,7 +20,7 @@ EVENTS = [
     'id': 'comps',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['comps.xml', 'required-packages', 'user-required-packages'],
-    'requires': ['.discinfo', 'anaconda-version'],
+    'requires': ['anaconda-version'],
     'conditional-requires': ['RPMS'],
   },
 ]
