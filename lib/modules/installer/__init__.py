@@ -8,7 +8,7 @@ EVENTS = [
     'properties': EVENT_TYPE_META,
     'provides': ['INSTALLER', 'software'],
     ##'requires': ['.discinfo', 'software'], #!
-    'requires': ['anaconda-version', '.discinfo', 'software'],
+    'requires': ['anaconda-version', 'software'],
     'conditional-requires': ['gpgsign'], #!
   },
 ]
@@ -16,6 +16,7 @@ EVENTS = [
 MODULES = [
   'stage2',
   'pxeboot',
+  'discinfo',
   'bootiso',
   'rpmextract',
   'xen',
