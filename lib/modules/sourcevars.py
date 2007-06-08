@@ -35,7 +35,7 @@ EVENTS = [
   {
     'id': 'sourcevars',
     'interface': 'SourcevarsInterface',
-    'provides': ['ssource-vars'],
+    'provides': ['source-vars'],
     'requires': ['anaconda-version'],
     'properties': EVENT_TYPE_PROC
   },
