@@ -25,7 +25,7 @@ from dims import imerge
 
 from event     import EVENT_TYPE_PROC
 from interface import EventInterface
-from locals   import LOCALS_XML
+from locals   import L_BUILDSTAMP_FORMAT, L_IMAGES
 from main      import BOOLEANS_TRUE
 
 API_VERSION = 4.0
@@ -68,13 +68,12 @@ class SourcevarsHook:
     source_initrd_file = self.interface.storeInfoJoin(s, n, join(d, 'isolinux/initrd.img'))
     cache_initrd_file = join(self.interface.INPUT_STORE, i, d, 'isolinux/initrd.img')
 
-    locals = self.locals_imerge(LOCALS_XML, self.interface.get_cvar('anaconda-version'))
-
     #Download initrd.img to cache
     osutils.mkdir(osutils.dirname(cache_initrd_file), parent=True)
     sync.sync(source_initrd_file, osutils.dirname(cache_initrd_file), username=u, password=p)
 
     #Extract buildstamp
+    locals = self.locals_imerge(L_IMAGES, self.interface.get_cvar('anaconda-version'))
     image  = locals.iget('//images/image[@id="initrd.img"]')
     format = image.iget('format/text()')
     zipped = image.iget('zipped/text()', 'False') in BOOLEANS_TRUE
@@ -83,14 +82,14 @@ class SourcevarsHook:
     sourcevars = self.image.read('.buildstamp')
 
     #Parse buildstamp
-    buildstamp_fmt = locals.iget('//buildstamp')
+    locals = self.locals_imerge(L_BUILDSTAMP_FORMAT, self.interface.get_cvar('anaconda-version'))
+    buildstamp_fmt = locals.iget('//buildstamp-format')
     buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
     sourcevars = buildstamp.floread(self.image.read('.buildstamp'))
 
     #Update source_vars
-    #print self.interface.get_cvar('source-vars')
     self.interface.set_cvar('source-vars', sourcevars)
-    print self.interface.get_cvar('source-vars')
+    #print self.interface.get_cvar('source-vars')
 
 #------ HELPER FUNCTIONS ------#
 

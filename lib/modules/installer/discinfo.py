@@ -10,6 +10,7 @@ __date__    = "June 7th, 2007"
 
 import copy
 import os
+import time
 
 from os.path  import join, exists
 
@@ -21,6 +22,7 @@ from dims import sync
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface
 from main      import locals_imerge
+from output    import OutputEventHandler
 
 API_VERSION = 4.0
 
@@ -41,28 +43,24 @@ HOOK_MAPPING = {
 }
 
 #------ HOOKS ------#
-class DiscinfoHook:
+class DiscinfoHook(OutputEventHandler):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'metadata.discinfo'
     
     self.interface = interface
+    self.difile = join(self.interface.SOFTWARE_STORE, '.discinfo')
+
+    data =  {
+      'config': ['/distro/main/fullname/text()'],
+      'output': [self.difile]
+    }
+    mdfile = join(self.interface.METADATA_DIR, 'discinfo.md')
+
+    OutputEventHandler.__init__(self, self.interface.config, data, mdfile)
     
-    i,s,n,d,u,p = self.interface.getStoreInfo(self.interface.getBaseStore())
-    d = d.lstrip('/') # un-absolute d
-    
-    # remote, input, local discinfo file locations
-    self.r_difile = self.interface.storeInfoJoin(s, n, join(d, '.discinfo'))
-    self.i_difile = join(self.interface.INPUT_STORE, i, d, '.discinfo')
-    self.m_difile = join(self.interface.METADATA_DIR, '.discinfo')
-    self.l_difile = join(self.interface.SOFTWARE_STORE, '.discinfo')
-    
-    self.username = u
-    self.password = p
-  
   def force(self):
-    osutils.rm(self.l_difile, force=True)
-    osutils.rm(self.i_difile, force=True)
+    osutils.rm(self.difile, force=True)
   
   def pre(self):
     vars = self.interface.BASE_VARS
@@ -70,35 +68,27 @@ class DiscinfoHook:
     vars.update({'fullname': fn})
   
   def run(self):
-    "Get the .discinfo file from the base store"
-    osutils.mkdir(osutils.dirname(self.i_difile),  parent=True)
+    # setup
+    locals = locals_imerge(L_DISCINFO_FORMAT, self.interface.get_cvar('anaconda-version'))
     
-    sync.sync(self.r_difile, osutils.dirname(self.i_difile),
-              username=self.username, password=self.password)
-  
-  def apply(self):
-    locals = locals_imerge(L_DISCINFO_FORMAT,
-                           self.interface.get_cvar('anaconda-version'))
-    
-    discinfo = ffile.XmlToFormattedFile(locals.iget('discinfo'))
-    try:
-      base_vars = discinfo.read(self.i_difile)
-    except filereader.FileReaderError:
-      raise RuntimeError, "Cannot find .discinfo file in input store at '%s'" % self.i_difile
-    
-    # check if a discinfo already exists; if so, only modify if stuff has changed
-    if not exists(self.l_difile) or \
-       self._discinfo_changed(discinfo.read(self.l_difile), base_vars):
-      discinfo.write(self.l_difile, **base_vars)
-      os.chmod(self.l_difile, 0644)
-      osutils.cp(self.l_difile, self.m_difile) # copy to metadata folder
+    if self.test_input_changed():
+  		# create empty .discinfo formatted file object
+      discinfo = ffile.XmlToFormattedFile(locals.iget('discinfo'))
 
-  def _discinfo_changed(self, newvars, oldvars):
-    for k,v in newvars.items():
-      if oldvars[k] != v:
-        return True
-    return False
+      # get product, fullname, and basearch from interface
+      base_vars = self.interface.BASE_VARS
 
+      # add timestamp and discs using defaults to match anaconda makestamp.py
+      ts = "%f" % time.time()
+      discs = "1"
+      base_vars.update({'timestamp': ts, 'discs': discs})
+
+      # write .discinfo
+      discinfo.write(self.difile, **base_vars)
+      os.chmod(self.difile, 0644)
+
+      # write metadata
+      self.write_metadata()
 
 #------ LOCALS ------#
 L_DISCINFO_FORMAT = ''' 
@@ -142,7 +132,7 @@ L_DISCINFO_FORMAT = '''
         </string-format>
       </line>
       <line id="rpms" position="5">
-        <string-format string="%s/RPMS">
+        <string-format string="%s">
           <format>
             <item>product</item>
           </format>

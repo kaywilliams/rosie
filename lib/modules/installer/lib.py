@@ -12,7 +12,7 @@ from dims import sync
 from dims import xmltree
 
 from callback  import BuildSyncCallback
-from locals    import printf_local
+from locals    import printf_local, L_BUILDSTAMP_FORMAT, L_IMAGES
 from main      import BOOLEANS_TRUE
 from magic     import match as magic_match
 from magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS, FILE_TYPE_FAT
@@ -237,65 +237,3 @@ def locals_imerge(string, ver):
   return locals
 
 
-L_BUILDSTAMP_FORMAT = ''' 
-<locals>
-  <buildstamp-format-entries>
-    <buildstamp-format version="0">
-      <line id="timestamp" position="0">
-        <string-format string="%s">
-          <format>
-            <item>timestamp</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="fullname" position="1">
-        <string-format string="%s">
-          <format>
-            <item>fullname</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="version" position="2">
-        <string-format string="%s">
-          <format>
-            <item>version</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="product" position="3">
-        <string-format string="%s">
-          <format>
-            <item>product</item>
-          </format>
-        </string-format>
-      </line>
-    </buildstamp-format>
-    
-    <!-- 10.2.0.63-1 - added '.arch' to timestamp -->
-    <buildstamp-format version="10.2.0.63-1">
-      <action type="update" path="line[@id='timestamp']">
-        <string-format string="%s.%s">
-          <format>
-            <item>timestamp</item>
-            <item>basearch</item>
-          </format>
-        </string-format>
-      </action>
-    </buildstamp-format>
-  
-    <!-- 10.1.0.1 to 10.2.1.5 (uncertain) - webloc line added -->
-    <buildstamp-format version="10.2.1.5">
-      <action type="insert" path=".">
-        <line id="webloc" position="4">
-          <string-format string="%s">
-            <format>
-              <item>webloc</item>
-            </format>
-          </string-format>
-        </line>
-      </action>
-    </buildstamp-format>
-  
-  </buildstamp-format-entries>
-</locals>
-'''
