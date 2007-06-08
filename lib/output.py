@@ -32,11 +32,10 @@ import copy
 
 from os.path import join, exists, isfile, isdir
 
-import dims.md5lib  as md5lib
-import dims.xmltree as xmltree
-import dims.mkrpm   as mkrpm
+import dims.listcompare as listcompare
 import dims.osutils as osutils
 import dims.xmlserialize as xmlserialize
+import dims.xmltree as xmltree
 
 import magic
 import os
@@ -113,7 +112,7 @@ class OutputEventHandler:
       self.data['input'] = map(lambda x: join(prefix, x), self.data['input'])
 
   def dprint(self, msg):
-    "Print msg iff self.debug is True)"
+    "Print msg iff self.debug is True"
     if self.debug: print 'DEBUG: %s' % msg
   
   # temporary function definitions until I disembed them
@@ -346,8 +345,7 @@ class OutputEventHandler:
     # compare the files in the metadata with the files in self.data['input']
     d = self.diff(self.input, self.data['input'])
     if len(d) > 0:
-      print 'input'
-      print d
+      self.dprint('input: %s' %(d,))
     return self._has_changed(self.input, self.data['input'])
   
   def test_input_changed2(self):
@@ -370,8 +368,7 @@ class OutputEventHandler:
     # compare the files in the metadata with the files in self.data['output']
     d = self.diff(self.output, self.data['output'])
     if len(d) > 0:
-      print 'output'
-      print d
+      self.dprint('output: %s' %(d,))
     return self._has_changed(self.output, self.data['output'])
   
   def test_output_changed2(self):
@@ -395,27 +392,27 @@ class OutputEventHandler:
       for path in item:
         newfiles.extend(tree(path, type='f|l'))
     oldfiles = olddata.keys()
-    newfiles.sort()
-    oldfiles.sort()
-    diff = [x for x in newfiles if x not in oldfiles] + \
-           [x for x in oldfiles if x not in newfiles]
-    if len(diff) > 0:
-      self.dprint("old files obsolete")
+    l, r, b = listcompare.compare(oldfiles, newfiles)
+    if l: # obsolete files
+      self.dprint("obsolete files found")
       return True
-    for file in oldfiles:
-      try:
-        stats = os.stat(file)
-      except OSError:
-        self.dprint("file %s not found" % file)
-        return True # file has been deleted, or wasn't found.
-                    # Either way something bad happened.
-      if (stats.st_mtime != olddata[file]['mtime']):
-        self.dprint("file %s updated" % file)
-        return True
-      if (stats.st_size != olddata[file]['size']):
-        self.dprint("file %s size differs" % file)
-        return True
-      #self.dprint("file '%s' unchanged" % file)
+    if r: # new files
+      self.dprint("new files found")
+      return True
+    if b:
+      for f in b:
+        try:
+          stats = os.stat(f)
+        except OSError:
+          self.dprint("file '%s' not found" % f) # should never happen
+          return True
+        if (stats.st_mtime != olddata[f]['mtime']):
+          self.dprint("file '%s' updated" % f)
+          return True
+        if (stats.st_size != olddata[f]['size']):
+          self.dprint("file '%s' size differs" % f)
+          return True
+      self.dprint("file '%s' unchanged" % f)
     return False
   
   def diff(self, olddata, newdata):

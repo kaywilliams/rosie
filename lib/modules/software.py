@@ -25,7 +25,7 @@ EVENTS = [
     'id': 'software',
     'interface': 'SoftwareInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['software'],
+    'provides': ['software', 'rpms-directory'],
     'requires': ['pkglist', 'anaconda-version'],
     'conditional-requires': ['comps.xml', 'RPMS'],
   },
@@ -49,7 +49,7 @@ class SoftwareInterface(EventInterface, ListCompareMixin):
     self.ts = rpm.TransactionSet()
     self.callback = BuildSyncCallback(base.log.threshold)
     
-    self.rpmdest = join(self.SOFTWARE_STORE, self.product, 'RPMS') #!
+    self.rpmdest = join(self.SOFTWARE_STORE, self.product) 
     
   def rpmNameDeformat(self, rpm):
     """ 
@@ -101,7 +101,7 @@ class SoftwareInterface(EventInterface, ListCompareMixin):
     pwd = os.getcwd()
     os.chdir(self.SOFTWARE_STORE)
     self.log(2, "running createrepo")
-    shlib.execute('/usr/bin/createrepo -q -g %s/base/comps.xml .' % self.product)
+    shlib.execute('/usr/bin/createrepo -q -g %s .' % join(self.METADATA_DIR, 'comps.xml'))
     os.chdir(pwd)
   
   def genhdlist(self):
@@ -153,6 +153,7 @@ class SoftwareHook:
   def apply(self):
     osutils.mkdir(self.interface.rpmdest, parent=True)
     self.interface.set_cvar('new-rpms', self._new_rpms)
+    self.interface.set_cvar('rpms-directory', self.interface.rpmdest)
   
   # callback functions
   def notify_both(self, i): pass

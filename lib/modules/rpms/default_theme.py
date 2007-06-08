@@ -22,7 +22,8 @@ API_VERSION = 4.0
 class DefaultThemeHook(RpmHandler):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'default_them.default_theme_rpm'
+    self.ID = 'default_theme.default-theme-rpm'
+    self.eventid = 'default-theme-rpm'
     
     data = {
       'config': ['//rpms/default-theme-rpm'],
@@ -39,14 +40,7 @@ class DefaultThemeHook(RpmHandler):
                         ' /usr/share/gdm/defaults.conf to the %s theme' %(interface.product,
                                                                           self.themename,))
   def apply(self):
-    try:
-      find(join(self.interface.METADATA_DIR, 'localrepo', 'RPMS'),
-           name='%s*.[Rr][Pp][Mm]' %(self.rpmname,), prefix=False)[0]
-    except IndexError:
-      raise RuntimeError("missing rpm: '%s'" %(self.rpmname,))
-    # add rpms to the included-packages control var, so that
-    # they are added to the comps.xml
-    self.interface.append_cvar('included-packages', [(self.rpmname, 'conditional', 'gdm')])
+    RpmHandler.apply(self, type='conditional', requires='gdm')
     
   def get_post_install_script(self):
     f = open(join(self.output_location, 'postinstall.sh'), 'w')

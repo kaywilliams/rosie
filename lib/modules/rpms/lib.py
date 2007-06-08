@@ -159,12 +159,16 @@ class RpmHandler(OutputEventHandler):
     self.log = self.interface.log
          
     self._set_method()
+
+    # get the rpms and srpms to be a part of the output too
+    data['output'].extend(find(self.rpm_output, name='%s*' %(self.rpmname,)))
     
     OutputEventHandler.__init__(self, self.config, data,
                                 mdfile=join(self.metadata, '%s.md' % self.elementname))
         
   def _set_method(self):
-    if self.config.get('//%s/create/text()' % self.elementname, 'True') in BOOLEANS_TRUE:
+    if self.config.get('//%s/create/text()' % self.elementname, 'True') or \
+           self.interface.isForced(self.eventid) in BOOLEANS_TRUE:
       self.create = True
     else:
       self.create = False
@@ -178,34 +182,38 @@ class RpmHandler(OutputEventHandler):
     self.clear_output()
   
   def run(self):
-    if self.test_input_changed() or not self.test_output_valid():
-      self.clear_output()
-    else:
-      return
-    self.get_input()
-    self.add_output()
-    if not self.test_output_valid():
-      raise OutputInvalidError, "output is invalid"
-    self.write_metadata()
     if self.create:
+      if self.test_input_changed() or not self.test_output_valid():
+        self.clear_output()
+      else:
+        return
+      self.get_input()
+      self.add_output()
+      if not self.test_output_valid():
+        raise OutputInvalidError, "output is invalid"
+      
+      self.write_metadata()
+
+      # input store has changed because a new rpm has been created
       self.interface.set_cvar('input-store-changed', True)
+
       # need to the remove the .depsolve/dimsbuild-local folder so
       # that depsolver picks up the new RPM.
       depsolver_cache = join(self.interface.METADATA_DIR, '.depsolve', 'dimsbuild-local')
       if exists(depsolver_cache):
         rm(depsolver_cache, recursive=True, force=True)      
 
-  def apply(self):    
+  def apply(self, type='mandatory', requires=None):    
     try:
       find(join(self.interface.METADATA_DIR, 'localrepo', 'RPMS'),
            name='%s*.[Rr][Pp][Mm]' %(self.rpmname,), prefix=False)[0]
       # add rpms to the included-packages control var, so that
       # they are added to the comps.xml
-      self.interface.append_cvar('included-packages', [self.rpmname])
+      self.interface.append_cvar('included-packages', (self.rpmname, type, requires))
       if self.obsoletes is not None:
         self.interface.append_cvar('excluded-packages', self.obsoletes.split())        
     except IndexError:
-      if self.create:
+      if self.create and not self.interface.isSkipped(self.eventid):
         raise RuntimeError("missing rpm: '%s'" %(self.rpmname,))
     
   def test_output_valid(self): return True
@@ -248,11 +256,11 @@ class RpmHandler(OutputEventHandler):
     parser.add_section('bdist_rpm')
     parser.set('bdist_rpm', 'release', self.get_release_number())
     parser.set('bdist_rpm', 'distribution_name', self.fullname)
-    if self.provides is not None and len(self.provides.strip()) > 0:
+    if self.provides is not None:
       parser.set('bdist_rpm', 'provides', self.provides)
-    if self.obsoletes is not None and len(self.obsoletes.strip()) > 0:
+    if self.obsoletes is not None:
       parser.set('bdist_rpm', 'obsoletes', self.obsoletes)
-    if self.requires is not None and len(self.requires.strip()) > 0:
+    if self.requires is not None:
       parser.set('bdist_rpm', 'requires', self.requires)
 
     post_install_script = self.get_post_install_script() 

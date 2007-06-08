@@ -190,7 +190,7 @@ class PkglistHook:
   def apply(self):
     if self.interface.get_cvar('pkglist-file'):
       if not exists(self.interface.get_cvar('pkglist-file')):
-        raise RuntimeError, "Unable to find pkglist ast '%s'" % self.interface.get_cvar('pkglist-file')
+        raise RuntimeError, "Unable to find pkglist at '%s'" % self.interface.get_cvar('pkglist-file')
       else:
         if self.interface.get_cvar('pkglist-file') != self.pkglistfile:
           osutils.cp(self.interface.get_cvar('pkglist-file'), self.pkglistfile)

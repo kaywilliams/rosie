@@ -17,6 +17,7 @@ EVENTS = [
     'id': 'gpgsign',
     'interface': 'GpgInterface',
     'provides': ['gpgsign'],
+    'requires': ['rpms-directory'],
     'conditional-requires': ['software'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
   },
@@ -31,8 +32,6 @@ class GpgInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
     self._get_gpg_key()
-    
-    self.rpmdest = join(self.SOFTWARE_STORE, self.product, 'RPMS') #!
     
   def _get_gpg_key(self):
     if not self.config.get('//gpgsign/sign/text()', 'False') in BOOLEANS_TRUE:
@@ -72,7 +71,7 @@ class GpgInterface(EventInterface):
   def sign_rpm(self, rpm):
     "Sign a RPM"
     self.log(2, "signing %s" % rpm)
-    rpmsign.signRpm(join(self.rpmdest, rpm),
+    rpmsign.signRpm(join(self.get_cvar('rpms-directory'), rpm),
                     public=self.pubkey,
                     secret=self.seckey,
                     passphrase=self.password)
@@ -102,7 +101,7 @@ class SoftwareHook:
     if (last_val in BOOLEANS_TRUE) != \
        (self.interface.config.get('//gpgsign/sign/text()', 'False') in BOOLEANS_TRUE):
       self.interface.log(1, "signature status differs; removing rpms")
-      osutils.rm(self.interface.rpmdest, recursive=True, force=True)
+      osutils.rm(self.interface.get_cvar('rpms-directory'), recursive=True, force=True)
 
 class GpgsignHook(OutputEventHandler):
   def __init__(self, interface):
@@ -121,7 +120,7 @@ class GpgsignHook(OutputEventHandler):
   def force(self):
     self.interface.set_cvar('gpg-tosign',
                             [ (x, None) for x in \
-                              osutils.find(self.interface.rpmdest,
+                              osutils.find(self.interface.get_cvar('rpms-directory'),
                                            maxdepth=1,
                                            name='*.[Rr][Pp][Mm]',
                                            type=osutils.TYPE_FILE,

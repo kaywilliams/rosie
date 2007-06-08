@@ -347,3 +347,10 @@ def locals_imerge(string, ver):
   for child in tree.getroot().getchildren():
     locals.append(imerge.incremental_merge(child, ver))
   return locals
+
+def uElement(name, parent, **kwargs):
+  "Gets the child of the parent named name, or creates it if it doesn't exist."
+  elem = parent.iget(name, None)
+  if elem is None:
+    elem = xmltree.Element(name, parent=parent, **kwargs)
+  return elem

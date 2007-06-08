@@ -12,6 +12,7 @@ from dims.CacheManager import CacheManagerError
 from dims.ConfigLib    import ConfigError
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
+from main  import uElement
 
 API_VERSION = 4.0
 
@@ -76,15 +77,12 @@ class CompsHook:
     
     # metadata and store comps file locations
     self.m_compsfile = join(self.interface.METADATA_DIR, 'comps.xml')
-    self.s_compsfile = join(self.interface.SOFTWARE_STORE,
-                            self.interface.product, 'base', 'comps.xml')
     
     self.comps = xmltree.Tree('comps')
     self.comps.setheader(HEADER_FORMAT % ('1.0', 'UTF-8'))
   
   def force(self):
     osutils.rm(self.m_compsfile, force=True)
-    osutils.rm(self.s_compsfile, recursive=True, force=True)
   
   def run(self):
     if not self._test_runstatus(): return # check if we should be running
@@ -132,8 +130,6 @@ class CompsHook:
     # copy groupfile
     if not self.interface.get_cvar('comps-file'):
       self.interface.set_cvar('comps-file', self.m_compsfile)
-    osutils.mkdir(osutils.dirname(self.s_compsfile), parent=True)
-    osutils.cp(self.interface.get_cvar('comps-file'), self.s_compsfile)
     
     # set required packages
     reqpkgs = xmltree.read(self.interface.get_cvar('comps-file')).get('//packagereq/text()')
@@ -364,13 +360,6 @@ def Category(name, fullname='', version='0'):
     uElement('display_order', parent=top, text='99')
     uElement('grouplist',     parent=top)
   return top
-
-def uElement(name, parent, **kwargs):
-  "Gets the child of the parent named name, or creates it if it doesn't exist."
-  elem = parent.iget(name, None)
-  if elem is None:
-    elem = xmltree.Element(name, parent=parent, **kwargs)
-  return elem
 
 Element = xmltree.Element # convenience function
 

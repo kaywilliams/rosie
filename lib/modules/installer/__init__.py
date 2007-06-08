@@ -7,8 +7,7 @@ EVENTS = [
     'id': 'INSTALLER',
     'properties': EVENT_TYPE_META,
     'provides': ['INSTALLER', 'software'],
-    ##'requires': ['.discinfo', 'software'], #!
-    'requires': ['anaconda-version', 'software'],
+    'requires': ['anaconda-version', 'software', 'rpms-directory'],
     'conditional-requires': ['gpgsign'], #!
   },
 ]

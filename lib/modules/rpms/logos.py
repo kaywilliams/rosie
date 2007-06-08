@@ -49,7 +49,8 @@ def locals_imerge(string, ver='0'):
 class LogosRpmHook(RpmHandler, ColorMixin):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'logos.logos'
+    self.ID = 'logos.logos-rpm'
+    self.eventid = 'logos-rpm'
     
     data =  {
       'config': ['/distro/main/fullname/text()',

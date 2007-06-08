@@ -13,6 +13,7 @@ from dims import xmltree
 
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface
+from main      import uElement
 
 API_VERSION = 4.0
 
@@ -34,7 +35,7 @@ class StoresInterface(EventInterface):
     EventInterface.__init__(self, base)
   
   def add_store(self, xml):
-    parent = self.config.get('//stores/additional')
+    parent = uElement('additional', self.config.get('//stores'))
     element = xmltree.read(StringIO(xml))
     element.parent = parent
     parent.append(element.root)

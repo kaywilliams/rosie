@@ -16,17 +16,17 @@ EVENTS = [
   }
 ]
 
+API_VERSION = 4.0
+
 HOOK_MAPPING = {
   'ConfigRpmHook': 'config-rpm',
 }
 
-
-API_VERSION = 4.0
-
 class ConfigRpmHook(RpmHandler):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'config.config_rpm'
+    self.ID = 'config.config-rpm'
+    self.eventid = 'config-rpm'
     
     data = {
       'config': ['//rpms/config-rpm'],
@@ -46,11 +46,12 @@ class ConfigRpmHook(RpmHandler):
                         long_description='The %s-config provides scripts and supporting files for'\
                         'configuring the %s distribution' %(interface.product, interface.fullname,))
 
-    self.create = (self.config.get('//rpms/config-rpm/requires', None) or \
+    self.create = self.interface.isForced(self.eventid) or \
+                  (self.config.get('//rpms/config-rpm/requires', None) or \
                    self.config.get('//rpms/config-rpm/obsoletes', None) or \
                    self.config.get('//rpms/config-rpm/config/script/path/text()', None) or \
-                   self.config.get('//rpms/config-rpm/config/supporting-files/path/text()', None)) \
-                   is not None
+                   self.config.get('//rpms/config-rpm/config/supporting-files/path/text()', None) \
+                   is not None)
 
     # all the relative paths in the config file's <config-rpm> section
     # are relative to the config file's directory.

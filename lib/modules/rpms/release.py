@@ -48,7 +48,9 @@ API_VERSION = 4.0
 class ReleaseRpmHook(RpmHandler, ColorMixin):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'release.release'
+    self.ID = 'release.release-rpm'
+    self.eventid = 'release-rpm'
+    
     # expand the xpath queries in the data struct
     data = {
       'config': [

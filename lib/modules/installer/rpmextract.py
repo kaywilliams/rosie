@@ -77,7 +77,8 @@ class ExtractEventHandler(OutputEventHandler):
   def __init__(self, interface, data, mdfile):    
     self.interface = interface
     self.config = self.interface.config
-    self.software_store = self.interface.SOFTWARE_STORE    
+    self.software_store = self.interface.SOFTWARE_STORE
+
     OutputEventHandler.__init__(self, self.config, data, mdfile)
 
   def force(self):
@@ -214,13 +215,15 @@ class InstallerLogosHook(ExtractEventHandler):
   
   def test_output_valid(self):
     return exists(self.splash_lss) and magic_match(self.splash_lss) == FILE_TYPE_LSS
-
+  
   def find_rpms(self):
     pkgname = self.config.get('//installer/logos/package/text()',
                               '%s-logos' %(self.interface.product,))
-    rpms = find(self.software_store, name='%s-*-*' %(pkgname,))
+    rpms = find(self.interface.get_cvar('rpms-directory'), name='%s-*-*' %(pkgname,),
+                nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
     if len(rpms) == 0:
-      rpms = find(self.software_store, name='*-logos-*-*')
+      rpms = find(self.interface.get_cvar('rpms-directory'), name='*-logos-*-*',
+                  nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
       if len(rpms) == 0:
         raise RpmNotFoundError("missing logo RPM")
     return [rpms[0]]
@@ -272,13 +275,17 @@ class InstallerReleaseHook(ExtractEventHandler):
                                 ['%s-release' %(self.interface.product,)])
     rpms = []
     for rpmname in rpmnames:
-      rpms.extend(find(self.software_store, name='%s-*-*' %(rpmname,)))
+      release_rpms = find(self.interface.get_cvar('rpms-directory'), name='%s-*-*' %(rpmname,),
+                          nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
+      rpms.extend(release_rpms)
     if len(rpms) == 0:
-      for regex in ['*-release-*-[a-zA-Z0-9]*.[Rr][Pp][Mm]',
-                    '*-release-notes-*-*']:
-        rpms.extend(find(self.software_store, name=regex))
+      for glob in ['*-release-*-[a-zA-Z0-9]*.[Rr][Pp][Mm]',
+                   '*-release-notes-*-*']:
+        release_rpms = find(self.interface.get_cvar('rpms-directory'), name=glob,
+                            nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
+        rpms.extend(release_rpms)
         if len(rpms) == 0:
-          raise RpmNotFoundError("missing release and release-notes RPMs")
+          raise RpmNotFoundError("missing release RPM(s)")
     return rpms    
 
 #------ EXCEPTIONS ------#

@@ -2,16 +2,19 @@ import os
 import re
 import rpm
 
-from os.path import join, exists
+from StringIO import StringIO
+from os.path  import join, exists
+from urlparse import urlparse
 
 from dims import osutils
 from dims import spider
 from dims import sync
+from dims import xmltree
 
 from callback  import BuildSyncCallback
 from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from interface import EventInterface, ListCompareMixin
-from main      import BOOLEANS_TRUE
+from main      import BOOLEANS_TRUE, uElement
 
 API_VERSION = 4.0
 
@@ -63,7 +66,7 @@ class SrpmInterface(EventInterface, ListCompareMixin):
   def deleteSrpm(self, srpm):
     "Delete a srpm from the output store"
     self.log(2, "deleting %s" % srpm)
-    osutils.rm(join(self.srpmdest, '%s.*.[Ss][Rr][Cc].[Rr][Pp][Mm]' % srpm))
+    osutils.rm(join(self.srpmdest, srpm))
   
   def srpmNameDeformat(self, srpm):
     try:
@@ -72,6 +75,16 @@ class SrpmInterface(EventInterface, ListCompareMixin):
       self.errlog(2, "DEBUG: Unable to extract srpm information from name '%s'" % srpm)
       return (None, None, None, None, None)
 
+  def add_store(self, storeXml):
+    stores = uElement('stores', self.config.get('//source'))
+    store = xmltree.read(StringIO(storeXml))
+    store.parent = stores
+    stores.append(store.root)
+    s,n,d,_,_,_ = urlparse(store.iget('path/text()'))
+    server = '://'.join((s,n))
+    if server not in self._base.cachemanager.SOURCES:
+      self._base.cachemanager.SOURCES.append(server)
+  
 
 #------ HOOKS ------#
 class InitHook:
@@ -140,14 +153,13 @@ class SourceHook:
     srpmlist = []
     for pkg in osutils.find(join(self.interface.SOFTWARE_STORE,
                                  self.interface.product),
-                            name=RPM_GLOB, prefix=True):
-      print pkg
+                            name=RPM_GLOB, prefix=True):      
       i = os.open(pkg, os.O_RDONLY)
       h = self.interface.ts.hdrFromFdno(i)
       os.close(i)
       srpm = h[rpm.RPMTAG_SOURCERPM]
       if srpm not in srpmlist: srpmlist.append(srpm)
-    
+
     self.interface.compare(oldsrpmlist, srpmlist)
   
   def _test_runstatus(self):
@@ -166,18 +178,16 @@ class SourceHook:
   def notify_right(self, i):
     self.interface.log(1, "downloading new srpms (%d packages)" % i)
     # set up packages metadata dictionary for use in syncing
-    for store in self.interface.config.mget('//source/*/store/@id'):
+    for store in self.interface.config.mget('//source/stores/store/@id'):
       i,s,n,d,u,p = self.interface.getStoreInfo(store)
       
       base = self.interface.storeInfoJoin(s or 'file', n, d)
-      
       srpms = spider.find(base, glob=SRPM_GLOB, prefix=False,
                           username=u, password=p)
-      
       for srpm in srpms:
         _,n,v,r,a = self.interface.srpmNameDeformat(srpm)
         self._packages[srpm] = (i,d,srpm)
-    
+
     osutils.mkdir(self.interface.srpmdest, parent=True)
     
   def _check_srpm(self, srpm):
@@ -200,8 +210,10 @@ class SourceHook:
       store, path, _ = self._packages[srpm]
       self.interface.syncSrpm(srpm, store, path,
                               force=self.interface.isForced('source'))
-
-
+    else:
+      raise SrpmNotFound("missing '%s' srpm" %(srpm,))
+  
 #------ ERRORS ------#
+class SrpmNotFound(StandardError): pass
 class SourceStoreNotFoundError(StandardError): pass
 class SrpmSignatureInvalidError(StandardError): pass
