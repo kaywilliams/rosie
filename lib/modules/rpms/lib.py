@@ -191,7 +191,9 @@ class RpmHandler(OutputEventHandler):
       self.add_output()
       if not self.test_output_valid():
         raise OutputInvalidError, "output is invalid"
-      
+
+      # remove all the rpm and srpms from data['output'] and add new ones
+      self.data['output'].extend(find(self.rpm_output, name='%s*' %(self.rpmname,)))
       self.write_metadata()
 
       # input store has changed because a new rpm has been created
