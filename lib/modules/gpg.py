@@ -101,7 +101,7 @@ class SoftwareHook:
     if (last_val in BOOLEANS_TRUE) != \
        (self.interface.config.get('//gpgsign/sign/text()', 'False') in BOOLEANS_TRUE):
       self.interface.log(1, "signature status differs; removing rpms")
-      osutils.rm(self.interface.get_cvar('rpms-directory'), recursive=True, force=True)
+      osutils.rm(self.interface.rpmdest, recursive=True, force=True)
 
 class GpgsignHook(OutputEventHandler):
   def __init__(self, interface):

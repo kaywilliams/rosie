@@ -4,13 +4,13 @@ from dims import osutils
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
-from installer.lib import FileDownloader, ImageModifier
+from installer.lib import FileDownloadMixin, ImageModifyMixin
 
 API_VERSION = 4.0
 
 EVENTS = [
   {
-    'id': 'xen',
+    'id': 'xen-images',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['vmlinuz-xen', 'initrd-xen'],
     'parent': 'INSTALLER',
@@ -18,7 +18,7 @@ EVENTS = [
 ]
 
 HOOK_MAPPING = {
-  'XenHook': 'xen',
+  'XenHook': 'xen-images',
 }
 
 XEN_OUTPUT_FILES = [
@@ -27,10 +27,10 @@ XEN_OUTPUT_FILES = [
 ]
 
 #------ HOOKS ------#
-class XenHook(ImageModifier, FileDownloader):
+class XenHook(ImageModifyMixin, FileDownloadMixin):
   def __init__(self, interface):
     self.VERSION = 0
-    self.id = 'xen.xen'
+    self.ID = 'installer.xen.xen-images'
     
     self.interface = interface
 
@@ -46,9 +46,9 @@ class XenHook(ImageModifier, FileDownloader):
       'output':    [join(interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ],
     }
   
-    ImageModifier.__init__(self, 'initrd.img', interface, xen_md_struct,
+    ImageModifyMixin.__init__(self, 'initrd.img', interface, xen_md_struct,
                            mdfile=join(interface.METADATA_DIR, 'initrd.img-xen.md'))
-    FileDownloader.__init__(self, interface)
+    FileDownloadMixin.__init__(self, interface)
   
   def error(self, e):
     try:
@@ -71,10 +71,10 @@ class XenHook(ImageModifier, FileDownloader):
     osutils.mkdir(self.xen_dir, parent=True)
     
     # download files
-    self.download(d,i) # see FileDownloader.download() in lib.py
+    self.download(d,i) # see FileDownloadMixin.download() in lib.py
     
     # modify initrd.img
-    self.modify() # see ImageModifier.modify() in lib.py
+    self.modify() # see ImageModifyMixin.modify() in lib.py
   
   def apply(self):
     for file in XEN_OUTPUT_FILES:
@@ -82,7 +82,7 @@ class XenHook(ImageModifier, FileDownloader):
         raise RuntimeError, "Unable to find '%s' in '%s'" % (file, join(self.interface.SOFTWARE_STORE, file))
   
   def _test_runstatus(self):
-    return self.interface.isForced('xen') or \
+    return self.interface.isForced('xen-images') or \
            self.check_run_status()
 
 

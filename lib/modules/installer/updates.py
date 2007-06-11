@@ -5,30 +5,32 @@ from dims import osutils
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from main  import locals_imerge
 
-from installer.lib import ImageModifier
+from installer.lib import ImageModifyMixin
 
-API_VERSION = 4.0
+API_VERSION = 4.1
 
 EVENTS = [
   {
-    'id': 'updates',
+    'id': 'updates-image',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['updates.img'],
-    'requires': ['.buildstamp'],
-    ##'requires': ['.buildstamp', 'anaconda-version'],
+    'requires': ['.buildstamp', 'anaconda-version'],
     'conditional-requires': ['installer-logos'],
     'parent': 'INSTALLER',
   },
 ]
 
 HOOK_MAPPING = {
-  'UpdatesHook': 'updates',
+  'UpdatesHook': 'updates-image',
 }
 
 
 #------ HOOKS ------#
-class UpdatesHook(ImageModifier):
+class UpdatesHook(ImageModifyMixin):
   def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'installer.updates.updates-image'
+    
     self.updatesimage = join(interface.SOFTWARE_STORE, 'images/updates.img')
     
     updates_md_struct = {
@@ -41,7 +43,7 @@ class UpdatesHook(ImageModifier):
       'output':    [self.updatesimage],
     }
   
-    ImageModifier.__init__(self, 'updates.img', interface, updates_md_struct)
+    ImageModifyMixin.__init__(self, 'updates.img', interface, updates_md_struct)
   
   def error(self, e):
     try:
@@ -58,14 +60,14 @@ class UpdatesHook(ImageModifier):
     if not self._test_runstatus(): return
     
     self.interface.log(0, "generating updates.img")
-    self.modify() # modify image; see ImageModifier.modify() in lib.py
+    self.modify() # modify image; see ImageModifyMixin.modify() in lib.py
   
   def apply(self):
     if not exists(self.updatesimage):
       raise RuntimeError, "Unable to find 'updates.img' at '%s'" % self.updatesimage
   
   def _test_runstatus(self):
-    return self.interface.isForced('updates') or \
+    return self.interface.isForced('updates-image') or \
            self.check_run_status()
 
 

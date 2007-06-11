@@ -153,7 +153,7 @@ class SourceHook:
     srpmlist = []
     for pkg in osutils.find(join(self.interface.SOFTWARE_STORE,
                                  self.interface.product),
-                            name=RPM_GLOB, prefix=True):      
+                            name=RPM_GLOB, prefix=True):
       i = os.open(pkg, os.O_RDONLY)
       h = self.interface.ts.hdrFromFdno(i)
       os.close(i)
@@ -211,9 +211,9 @@ class SourceHook:
       self.interface.syncSrpm(srpm, store, path,
                               force=self.interface.isForced('source'))
     else:
-      raise SrpmNotFound("missing '%s' srpm" %(srpm,))
+      raise SrpmNotFoundError("missing '%s' srpm" %(srpm,))
   
 #------ ERRORS ------#
-class SrpmNotFound(StandardError): pass
+class SrpmNotFoundError(StandardError): pass
 class SourceStoreNotFoundError(StandardError): pass
 class SrpmSignatureInvalidError(StandardError): pass

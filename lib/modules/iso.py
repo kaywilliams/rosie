@@ -285,6 +285,7 @@ class IsoHook:
     splitter.unified_source_tree = self.interface.SOFTWARE_STORE
     splitter.split_tree = join(self.interface.isodir, set)
     splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.interface.get_cvar('anaconda-version')).iget('discinfo')
+    #splitter.discinfo_vars = self.interface.get_cvar('base-vars')
     splitter.pkgorder = self.interface.get_cvar('pkgorder-file')
     
     splitter.compute_layout()
@@ -329,21 +330,21 @@ L_DISCINFO_FORMAT = '''
         </string-format>
       </line>
       <line id="base" position="4">
-        <string-format string="%s/base">
+        <string-format string="%s">
           <format>
             <item>product</item>
           </format>
         </string-format>
       </line>
       <line id="rpms" position="5">
-        <string-format string="%s/RPMS">
+        <string-format string="%s">
           <format>
             <item>product</item>
           </format>
         </string-format>
       </line>
       <line id="pixmaps" position="6">
-        <string-format string="%s/pixmaps">
+        <string-format string="%s">
           <format>
             <item>product</item>
           </format>

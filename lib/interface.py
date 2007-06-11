@@ -96,12 +96,6 @@ class EventInterface:
   def get_cvar(self, flag, fallback=False):
     return self._base.cvars.get(flag, fallback)
   
-  # handlers
-  def add_handler(self, id, handler):
-    self._base.handlers[id] = handler
-  def get_handler(self, id):
-    return self._base.handlers[id]
-  
 
 #------ MIXINS ------#
 class ListCompareMixin:

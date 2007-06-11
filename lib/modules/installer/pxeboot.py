@@ -10,13 +10,11 @@ from event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from locals   import printf_local #!
 from main     import locals_imerge
 
-from installer.lib import FileDownloader, ImageModifier
-
 API_VERSION = 4.0
 
 EVENTS = [
   {
-    'id': 'pxeboot',
+    'id': 'pxeboot-images',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['pxeboot'],
     'requires': ['isolinux'],
@@ -25,7 +23,7 @@ EVENTS = [
 ]
 
 HOOK_MAPPING = {
-  'PxebootHook': 'pxeboot',
+  'PxebootHook': 'pxeboot-images',
 }
 
 
@@ -33,7 +31,7 @@ HOOK_MAPPING = {
 class PxebootHook:
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'pxeboot.pxeboot'
+    self.ID = 'installer.pxeboot.pxeboot-images'
     
     self.interface = interface
     

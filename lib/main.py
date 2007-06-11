@@ -40,7 +40,7 @@ BOOLEANS_FALSE = ['False', 'false', 'No', 'no', '0']
 OPT_FORCE = '--force'
 OPT_SKIP  = '--skip'
 
-API_VERSION = 4.0
+API_VERSION = 4.1
 
 class Build:
   """ 
@@ -169,10 +169,8 @@ class Build:
     #self.dispatch.process(until='ALL')
     self.dispatch.process(until='init')
     
-    ##for event in self.dispatch.iter.order: #!
-    ##  print event.id #!
-    ##sys.exit() #!
-    
+    ##event.pprint(self.dispatch.event) #!
+    ##sys.exit() #!    
   
   def __init_dispatch(self):
     """ 
@@ -276,6 +274,7 @@ class Build:
     "Return a list of the modular events in this dimsbuild instance"
     list = []
     for e in self.dispatch:
+      if e == -1: continue
       if e.test(event.PROP_CAN_DISABLE):
         list.append(e.id)
     return list

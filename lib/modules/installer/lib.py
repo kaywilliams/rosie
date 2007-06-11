@@ -13,7 +13,7 @@ from dims import xmltree
 
 from callback  import BuildSyncCallback
 from locals    import printf_local, L_BUILDSTAMP_FORMAT, L_IMAGES
-from main      import BOOLEANS_TRUE
+from main      import BOOLEANS_TRUE, locals_imerge
 from magic     import match as magic_match
 from magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS, FILE_TYPE_FAT
 from output    import OutputEventHandler, OutputInvalidError
@@ -114,7 +114,7 @@ class ImageHandler:
         return magic_match(p) == MAGIC_MAP[format]
 
 
-class ImageModifier(OutputEventHandler, ImageHandler):
+class ImageModifyMixin(OutputEventHandler, ImageHandler):
   "Classes that extend this must require 'anaconda-version'"
   def __init__(self, name, interface, data, mdfile=None):
     if mdfile is None:
@@ -199,7 +199,7 @@ class ImageModifier(OutputEventHandler, ImageHandler):
     self.interface.set_cvar('%s-changed' % self.name, True)
 
 
-class FileDownloader:
+class FileDownloadMixin:
   "Classes that extend this must require 'anaconda-version' and 'source-vars'"
   def __init__(self, interface):
     self.f_locals = None
@@ -213,7 +213,7 @@ class FileDownloader:
   
   def download(self, dest, store):
     if not self.f_locals:
-      raise RuntimeError, "FileDownloader instance has no registered locals"
+      raise RuntimeError, "FileDownloadMixin instance has no registered locals"
     dest = dest.lstrip('/') # make sure it is not an absolute path
     for file in self.f_locals.get('//files/file'):
       filename = file.attrib['id']
@@ -227,13 +227,3 @@ class FileDownloader:
       osutils.mkdir(join(self.interface.SOFTWARE_STORE, linfix), parent=True)
       sync.sync(join(self.interface.INPUT_STORE, store, dest, rinfix, filename),
                 join(self.interface.SOFTWARE_STORE, linfix))
-
-
-def locals_imerge(string, ver):
-  tree = xmltree.read(StringIO(string))
-  locals = xmltree.Element('locals')
-  for child in tree.getroot().getchildren():
-    locals.append(imerge.incremental_merge(child, ver))
-  return locals
-
-

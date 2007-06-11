@@ -25,15 +25,15 @@ from dims import imerge
 
 from event     import EVENT_TYPE_PROC
 from interface import EventInterface
-from locals   import L_BUILDSTAMP_FORMAT, L_IMAGES
-from main      import BOOLEANS_TRUE
+from locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
+from main      import BOOLEANS_TRUE, locals_imerge
 
 API_VERSION = 4.0
 
 #------ EVENTS ------#
 EVENTS = [
   {
-    'id': 'sourcevars',
+    'id': 'source-vars',
     'interface': 'SourcevarsInterface',
     'provides': ['source-vars'],
     'requires': ['anaconda-version'],
@@ -42,7 +42,7 @@ EVENTS = [
 ]
 
 HOOK_MAPPING = {
-  'SourcevarsHook': 'sourcevars',
+  'SourcevarsHook': 'source-vars',
 }
 
 #------ INTERFACES ------#
@@ -56,7 +56,7 @@ class SourcevarsInterface(EventInterface):
 class SourcevarsHook:
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'sourcevars.sourcevars'
+    self.ID = 'sourcevars.source-vars'
     
     self.interface = interface
     self.vars = self.interface.BASE_VARS
@@ -73,7 +73,7 @@ class SourcevarsHook:
     sync.sync(source_initrd_file, osutils.dirname(cache_initrd_file), username=u, password=p)
 
     #Extract buildstamp
-    locals = self.locals_imerge(L_IMAGES, self.interface.get_cvar('anaconda-version'))
+    locals = locals_imerge(L_IMAGES, self.interface.get_cvar('anaconda-version'))
     image  = locals.iget('//images/image[@id="initrd.img"]')
     format = image.iget('format/text()')
     zipped = image.iget('zipped/text()', 'False') in BOOLEANS_TRUE
@@ -82,7 +82,7 @@ class SourcevarsHook:
     sourcevars = self.image.read('.buildstamp')
 
     #Parse buildstamp
-    locals = self.locals_imerge(L_BUILDSTAMP_FORMAT, self.interface.get_cvar('anaconda-version'))
+    locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.interface.get_cvar('anaconda-version'))
     buildstamp_fmt = locals.iget('//buildstamp-format')
     buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
     sourcevars = buildstamp.floread(self.image.read('.buildstamp'))
@@ -90,12 +90,3 @@ class SourcevarsHook:
     #Update source_vars
     self.interface.set_cvar('source-vars', sourcevars)
     #print self.interface.get_cvar('source-vars')
-
-#------ HELPER FUNCTIONS ------#
-
-  def locals_imerge(self, string, ver):
-    tree = xmltree.read(StringIO(string))
-    locals = xmltree.Element('locals')
-    for child in tree.getroot().getchildren():
-      locals.append(imerge.incremental_merge(child, ver))
-    return locals

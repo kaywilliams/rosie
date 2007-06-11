@@ -8,30 +8,30 @@ from dims import xmltree
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from main  import locals_imerge
 
-from installer.lib import ImageModifier
+from installer.lib import ImageModifyMixin
 
-API_VERSION = 4.0
+API_VERSION = 4.1
 
 EVENTS = [
   {
-    'id': 'product',
+    'id': 'product-image',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['product.img'],
-    ##'requires': ['anaconda-version'],
+    'requires': ['anaconda-version'],
     'parent': 'INSTALLER',
   },
 ]
 
 HOOK_MAPPING = {
-  'ProductHook': 'product',
+  'ProductHook': 'product-image',
 }
 
 
 #------ HOOKS ------#
-class ProductHook(ImageModifier):
+class ProductHook(ImageModifyMixin):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'product.product'
+    self.ID = 'installer.product.product-image'
     
     self.interface = interface
     
@@ -47,7 +47,7 @@ class ProductHook(ImageModifier):
       'output':    [self.productimage],
     }
   
-    ImageModifier.__init__(self, 'product.img', interface, product_md_struct)
+    ImageModifyMixin.__init__(self, 'product.img', interface, product_md_struct)
     
   def error(self, e):
     try:
@@ -56,7 +56,7 @@ class ProductHook(ImageModifier):
       pass
   
   def register_image_locals(self, locals):
-    ImageModifier.register_image_locals(self, locals)
+    ImageModifyMixin.register_image_locals(self, locals)
     
     self.ic_locals = locals_imerge(L_INSTALLCLASSES,
                                    self.interface.get_cvar('anaconda-version'))
@@ -77,18 +77,18 @@ class ProductHook(ImageModifier):
     
     if not self._test_runstatus(): return
     self.interface.log(0, "generating product.img")  
-    self.modify() # see ProductImageModifier, below, and ImageModifier in lib.py
+    self.modify() # see generate(), below, and ImageModifyMixin in lib.py
   
   def apply(self):
     if not exists(self.productimage):
       raise RuntimeError, "Unable to find 'product.img' at '%s'" % self.productimage
   
   def _test_runstatus(self):
-    return self.interface.isForced('product') or \
+    return self.interface.isForced('product-image') or \
            self.check_run_status()
   
   def generate(self):
-    ImageModifier.generate(self)
+    ImageModifyMixin.generate(self)
     
     # generate installclasses if none exist
     if len(osutils.find(join(self.image.mount, 'installclasses'), name='*.py')) == 0:

@@ -5,31 +5,31 @@ from dims import osutils
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from main  import locals_imerge
 
-from installer.lib import FileDownloader, ImageModifier
+from installer.lib import FileDownloadMixin, ImageModifyMixin
 
-API_VERSION = 4.0
+API_VERSION = 4.1
 
 EVENTS = [
   {
-    'id': 'diskboot',
+    'id': 'diskboot-image',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['diskboot'],
-    'requires': ['initrd.img'],
+    'provides': ['diskboot.img'],
+    'requires': ['initrd.img', 'anaconda-version', 'source-vars'],
     'conditional-requires': ['splash.lss'],
     'parent': 'INSTALLER',
   },
 ]
 
 HOOK_MAPPING = {
-  'DiskbootHook': 'diskboot',
+  'DiskbootHook': 'diskboot-image',
 }
 
 
 #------ HOOKS ------#
-class DiskbootHook(ImageModifier, FileDownloader):
+class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'diskboot.diskboot'
+    self.ID = 'installer.diskboot.diskboot-image'
     
     self.interface = interface
     
@@ -45,8 +45,8 @@ class DiskbootHook(ImageModifier, FileDownloader):
       'output':    [self.diskbootimage],
     }
     
-    ImageModifier.__init__(self, 'diskboot.img', interface, diskboot_md_struct)
-    FileDownloader.__init__(self, interface)
+    ImageModifyMixin.__init__(self, 'diskboot.img', interface, diskboot_md_struct)
+    FileDownloadMixin.__init__(self, interface)
   
   def error(self, e):
     try:
@@ -69,10 +69,10 @@ class DiskbootHook(ImageModifier, FileDownloader):
     diskboot_dir = join(self.interface.SOFTWARE_STORE, 'images')
     osutils.mkdir(diskboot_dir, parent=True)
     
-    # download file - see FileDownloader in lib.py
+    # download file - see FileDownloadMixin in lib.py
     self.download(d,i)
     
-    # modify image - see DiskbootModifier, below, and ImageModifier in lib.py
+    # modify image - see DiskbootModifier, below, and ImageModifyMixin in lib.py
     self.modify()
   
   def apply(self):
@@ -80,7 +80,7 @@ class DiskbootHook(ImageModifier, FileDownloader):
       raise RuntimeError, "Unable to find 'diskboot.img' at '%s'" % self.diskbootimage
   
   def _test_runstatus(self):
-    return self.interface.isForced('diskboot') or \
+    return self.interface.isForced('diskboot-image') or \
            self.interface.get_cvar('isolinux-changed') or \
            self.check_run_status()
 

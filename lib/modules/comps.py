@@ -76,13 +76,13 @@ class CompsHook:
     self.interface = interface
     
     # metadata and store comps file locations
-    self.m_compsfile = join(self.interface.METADATA_DIR, 'comps.xml')
+    self.s_compsfile = join(self.interface.METADATA_DIR, 'comps.xml')
     
     self.comps = xmltree.Tree('comps')
     self.comps.setheader(HEADER_FORMAT % ('1.0', 'UTF-8'))
   
   def force(self):
-    osutils.rm(self.m_compsfile, force=True)
+    osutils.rm(self.s_compsfile, force=True)
   
   def run(self):
     if not self._test_runstatus(): return # check if we should be running
@@ -100,8 +100,8 @@ class CompsHook:
       self.generate_comps()
       reqpkgs = self.comps.get('//packagereq/text()')
     
-    if isfile(self.m_compsfile) and not self.interface.isForced('comps'):
-      oldreqpkgs = xmltree.read(self.m_compsfile).get('//packagereq/text()')
+    if isfile(self.s_compsfile) and not self.interface.isForced('comps'):
+      oldreqpkgs = xmltree.read(self.s_compsfile).get('//packagereq/text()')
     else:
       oldreqpkgs = []
     
@@ -113,23 +113,26 @@ class CompsHook:
     if len(old) > 0 or len(new) > 0:
       self.interface.log(1, "required packages have changed")
       if groupfile is not None:
-        osutils.cp(groupfile, self.m_compsfile)
+        osutils.cp(groupfile, self.s_compsfile)
       else:
         self.interface.log(1, "writing comps.xml")
-        self.comps.write(self.m_compsfile)
-        os.chmod(self.m_compsfile, 0644)
+        self.comps.write(self.s_compsfile)
+        os.chmod(self.s_compsfile, 0644)
       self.interface.set_cvar('comps-changed', True)
     else:
       self.interface.log(1, "required packages unchanged")
   
   def apply(self):
-    compsfile = self.interface.get_cvar('comps-file') or self.m_compsfile
+    compsfile = self.interface.get_cvar('comps-file') or self.s_compsfile
     if not exists(compsfile):
       raise RuntimeError, "Unable to find comps.xml at '%s'" % compsfile
     
     # copy groupfile
     if not self.interface.get_cvar('comps-file'):
-      self.interface.set_cvar('comps-file', self.m_compsfile)
+      self.interface.set_cvar('comps-file', self.s_compsfile)
+    osutils.mkdir(osutils.dirname(self.s_compsfile), parent=True)
+    if self.interface.get_cvar('comps-file') != self.s_compsfile:
+      osutils.cp(self.interface.get_cvar('comps-file'), self.s_compsfile)
     
     # set required packages
     reqpkgs = xmltree.read(self.interface.get_cvar('comps-file')).get('//packagereq/text()')
@@ -142,7 +145,7 @@ class CompsHook:
     return self.interface.isForced('comps') or \
            self.interface.get_cvar('with-comps') or \
            self.interface.get_cvar('input-store-changed') or \
-           (not exists(self.m_compsfile) and not self.interface.get_cvar('comps-file'))
+           (not exists(self.s_compsfile) and not self.interface.get_cvar('comps-file'))
   
   #------ COMPS FILE GENERATION FUNCTIONS ------#
   def generate_comps(self):
@@ -362,7 +365,7 @@ def Category(name, fullname='', version='0'):
   return top
 
 Element = xmltree.Element # convenience function
-
+#uElement defined in main.py
 
 #------ ERRORS ------#
 class CompsError(StandardError): pass

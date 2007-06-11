@@ -7,16 +7,16 @@ from dims import shlib
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
-from installer.lib import FileDownloader, ImageModifier
+from installer.lib import FileDownloadMixin, ImageModifyMixin
 
-API_VERSION = 4.0
+API_VERSION = 4.1
 
 #------ EVENTS ------#
 EVENTS = [
   {
     'id': 'isolinux',
     'provides': ['isolinux', 'vmlinuz', 'initrd.img', '.buildstamp'],
-    ##'requires': ['anaconda-version', 'source-vars'],
+    'requires': ['anaconda-version', 'source-vars'],
     'parent': 'INSTALLER',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR    
   },
@@ -49,10 +49,10 @@ ISOLINUX_OUTPUT_FILES = [
 ]
 
 #------ HOOKS ------#
-class IsolinuxHook(ImageModifier, FileDownloader):
+class IsolinuxHook(ImageModifyMixin, FileDownloadMixin):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'bootiso.isolinux'
+    self.ID = 'installer.bootiso.isolinux'
     
     self.interface = interface
     
@@ -68,8 +68,8 @@ class IsolinuxHook(ImageModifier, FileDownloader):
       'output':    [join(interface.SOFTWARE_STORE, x) for x in ISOLINUX_OUTPUT_FILES]
     }
     
-    ImageModifier.__init__(self, 'initrd.img', interface, isolinux_md_struct)
-    FileDownloader.__init__(self, interface)
+    ImageModifyMixin.__init__(self, 'initrd.img', interface, isolinux_md_struct)
+    FileDownloadMixin.__init__(self, interface)
   
   def error(self, e):
     try:
@@ -88,10 +88,10 @@ class IsolinuxHook(ImageModifier, FileDownloader):
     
     osutils.mkdir(self.isolinux_dir, parent=True)
     
-    # download all files - see FileDownloader.download() in lib.py
+    # download all files - see FileDownloadMixin.download() in lib.py
     self.download(d,i)
     
-    # modify initrd.img - see ImageModifier.modify() in lib.py
+    # modify initrd.img - see ImageModifyMixin.modify() in lib.py
     self.modify()
     
     self.interface.set_cvar('isolinux-changed', True)
@@ -109,7 +109,7 @@ class IsolinuxHook(ImageModifier, FileDownloader):
 class BootisoHook:
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'bootiso.bootiso'
+    self.ID = 'installer.bootiso.bootiso'
     
     self.interface = interface
     
@@ -145,7 +145,9 @@ class BootisoHook:
   
   def _test_runstatus(self):
     return self.interface.isForced('bootiso') or \
-           self.interface.get_cvar('isolinux-changed')
+           self.interface.get_cvar('isolinux-changed') or \
+           not exists(self.bootiso)
+
 
 
 #------ LOCALS ------#

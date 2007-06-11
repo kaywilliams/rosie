@@ -2,35 +2,35 @@ from os.path import join
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
-from installer.lib import FileDownloader
+from installer.lib import FileDownloadMixin
 
-API_VERSION = 4.0
+API_VERSION = 4.1
 
 #------ EVENTS ------#
 EVENTS = [
   {
-    'id': 'stage2',
+    'id': 'stage2-images',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['stage2'],
-    ##'requires': ['anaconda-version', 'source-vars'],
+    'requires': ['anaconda-version', 'source-vars'],
     'parent': 'INSTALLER',
   },
 ]
 
 HOOK_MAPPING = {
-  'Stage2Hook': 'stage2',
+  'Stage2Hook': 'stage2-images',
 }
 
 
 #------ HOOKS ------#
-class Stage2Hook(FileDownloader):
+class Stage2Hook(FileDownloadMixin):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'stage2.stage2'
+    self.ID = 'installer.stage2.stage2-images'
     
     self.interface = interface
     
-    FileDownloader.__init__(self, interface)
+    FileDownloadMixin.__init__(self, interface)
   
   def run(self):
     self.interface.log(0, "synchronizing stage2 images")
@@ -39,7 +39,7 @@ class Stage2Hook(FileDownloader):
     
     i,_,_,d,_,_ = self.interface.getStoreInfo(self.interface.getBaseStore())
     
-    self.download(d,i) # download files, see FileDownloader.download() in lib.py
+    self.download(d,i) # download files, see FileDownloadMixin.download() in lib.py
 
 
 #------ LOCALS ------#

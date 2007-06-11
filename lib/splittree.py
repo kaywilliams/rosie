@@ -49,9 +49,6 @@ class Timber:
     
   def create_discinfo(self, discnumber):
     "Create a .discinfo file for disc number in split tree"
-    if not exists(join(self.unified_tree, '.discinfo')):
-      raise RuntimeError, "Error: .discinfo doesn't exist in unified tree"
-    
     if type(self.difmt) == type({}):
       discinfo = ffile.DictToFormattedFile(self.difmt)
     elif type(self.difmt == type('')):
@@ -60,6 +57,8 @@ class Timber:
       raise ValueError, "Unsupported format %s for pkgorder.difmt" % type(self.difmt)
     
     if self.discinfo_vars is None:
+      if not exists(join(self.unified_tree, '.discinfo')):
+        raise RuntimeError, "Error: .discinfo doesn't exist in unified tree"
       self.discinfo_vars = discinfo.read(join(self.unified_tree, '.discinfo'))
     vars = copy.copy(self.discinfo_vars)
     vars['discs'] = str(discnumber)

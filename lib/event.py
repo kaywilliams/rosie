@@ -43,7 +43,7 @@ import sys
 
 from os.path import join
 
-import dims.tree as tree
+from dims import tree
 
 import resolve
 
@@ -153,7 +153,6 @@ class Event(resolve.Item, tree.Node):
     
     self.hookids = []
     self.hooks = []
-    self.fn_iter = EventFunctionIterator(self) #!
     
   def __iter__(self): return EventIterator(self)
   def __str__(self): return self.id
@@ -190,26 +189,10 @@ class Event(resolve.Item, tree.Node):
       raise RegisterInterfaceError, 'interface %s already registered' % self.interface
   
   #------ ITERATION FUNCTIONS ------#
-  def next(self):
-    return self.firstchild or self.nextsibling or None
-  
-  def prev(self):
-    return self.prevsibling or self.parent or None
+  def next(self): return self.firstchild  or self.nextsibling or None
+  def prev(self): return self.prevsibling or self.parent      or None
   
   #------ EXECUTE ------#
-  def raise_self(self, force=False, skip=False):
-    fn = self.fn_iter.next()
-    if fn == self.run:
-      if skip:
-        self.skip()
-        self.enabled = False
-      if force:
-        self.force()
-        self.enabled = True
-      if self.enabled:
-        fn()
-    else:
-      fn()
   def apply(self): self._run_hooks(fn='apply')
   def force(self): self._run_hooks(fn='force')
   def pre(self):   self._run_hooks(fn='pre')
@@ -238,28 +221,6 @@ class Event(resolve.Item, tree.Node):
         # raise e again, sort of
         traceback.print_exc(file=sys.stderr)
         sys.exit(1)
-    
-  #------ TREE FUNCTION WRAPPERS ------#
-  # children/sibling wrappers, make sure provides lists are updated
-  def append_child(self, child):
-    tree.Node.append_child(self, child)
-    self.__add_provs(child.provides)
-  def prepend_child(self, child):
-    tree.Node.prepend_child(self, child)
-    self.__add_provs(child.provides)
-  
-  def append_sibling(self, sibling):
-    tree.Node.append_sibling(self, sibling)
-    if self.parent is not None:
-      self.parent.__add_provs(sibling.provides)
-  def prepend_sibling(self, sibling):
-    tree.Node.prepend_sibling(self, sibling)
-    if self.parent is not None:
-      self.parent.__add_provs(sibling.provides)
-  
-  def __add_provs(self, provisions):
-    for prov in provisions:
-      if prov not in self.provides: self.provides.append(prov)
 
 
 class Dispatch:
@@ -311,6 +272,7 @@ class Dispatch:
     self.event.register_interface(EventInterface) # hack
     self.currevent = None
     self.iter = None
+    self.sorted_events = None
     
     self.force = []
     self.skip = []
@@ -322,10 +284,13 @@ class Dispatch:
     # args passed to newly-instanteated interfaces
     self.iargs = []
     self.ikwargs = {}
+    
+    # processing vars
+    self.event_stack = []
   
   def __iter__(self):
     self._test_commit()
-    return iter(self.event)
+    return ResolveResultIterator(self.sorted_events)
 
   def _test_commit(self):
     "Raises a DispatchError if self.committed is False"
@@ -342,32 +307,33 @@ class Dispatch:
     """
     self._test_commit()
     
-    # figure out how many times this event will occur, so we know when to stop
-    if until is not None:
-      event = self.get(until)
-      ecount = 0
-      if event is not None:
-        ecount += 2 # run(), apply()
-        if event.test(PROP_HAS_PRE):  ecount += 1 # pre()
-        ##if event.test(PROP_HAS_POST): ecount += 1 # post()
-    
-    i = 0
     while True:
       try:
         self.next()
-        self.raise_event()
-        if self.currevent.id == until:
-          i += 1
-          if i == ecount: raise StopIteration
+        if self.currevent == -1:
+          self.event_stack.pop().post()
+        else:
+          self.currevent.pre()
+          if self.currevent.id in self.skip:
+            self.currevent.skip()
+            self.currevent.enabled = False
+          if self.currevent.id in self.force:
+            self.currevent.force()
+            self.currevent.enabled = True
+          if self.currevent.enabled:
+            self.currevent.run()
+          self.currevent.apply()
+          
+          # if event has children, running post() is postponed until after they're done
+          if len(self.currevent.get_children()) > 0:
+            self.event_stack.append(self.currevent)
+          else:
+            self.currevent.post()
+        
+          if self.currevent.id == until:
+            raise StopIteration
+       
       except StopIteration: break
-  
-  def raise_event(self):
-    """ 
-    Raise the Event self.currevent, causing all functions that hook it to execute.
-    """
-    if self.currevent is None: return
-    self.currevent.raise_self(force=(self.currevent.id in self.force),
-                              skip=(self.currevent.id in self.skip))
   
   #------ COMMIT FUNCTIONS ------#
   def commit(self):
@@ -431,22 +397,18 @@ class Dispatch:
         event.register_hook(h)
     self.ureg_hooks = {}
   
-  def __resolve(self, event=None):
+  def __resolve(self):
     "Recursively perform dependency resolution at each level of the event tree."
-    if event is None: event = self.event
-    for child in event.get_children():
-      self.__resolve(child)
-    tree.stitch(resolve.resolve(event.get_children()), event)
-  
+    resolver = resolve.Resolver()
+    resolver.create_event_nodes([self.event])
+    self.sorted_events = resolver.resolve()
+    
   def __init_hooks(self):
     "Initialize all interfaces and hooks"
-    processed = []
     for event in self.event:
-      if event.id in processed: continue # skip events that show up multiple times
       event.interface = event.interfaceid(*self.iargs, **self.ikwargs)
       for hook in event.hookids:
         event.hooks.append(hook(event.interface))
-      processed.append(event.id)
   
   #------ ITERATION FUNCTIONS ------#
   def next(self): self.move(1)
@@ -586,44 +548,35 @@ class EventIterator:
     self.reversed = not self.reversed
     self.reset()
 
-
-class EventFunctionIterator:
-  "Iterator over the pre(), run(), and post() functions of an event"
-  "This is probably a hack and could be handled better" #!
-  def __init__(self, event):
-    self.funcs = []
-    if event.test(PROP_HAS_PRE):
-      self.funcs.append(event.pre)
-    self.funcs.append(event.run)
-    self.funcs.append(event.apply)
-    if event.test(PROP_HAS_POST):
-      self.funcs.append(event.post)
-    
-    self.index = -1
+class ResolveResultIterator(EventIterator):
+  "Iterator layer on top the default ResolveResult iterator"
+  def __init__(self, resolve_result):
+    self.order = []
+    for event in resolve_result:
+      self.order.append(event)
+    self.reset() # sets self.index to -1
+    self.reversed = False
   
-  def next(self):
-    self.index += 1
-    if self.index >= len(self.funcs):
+  def advance(self, amount=1):
+    newindex = self.index + amount
+    if newindex < 0 or newindex >= len(self.order):
       raise StopIteration
     else:
-      return self.funcs[self.index]
-
+      self.index = newindex
+    val = self.order[self.index]
+    if val == -1: return val
+    else: return val.data
+  
 
 def depthfirst(event):
   if event: 
-    if event.test(PROP_HAS_PRE):
-      yield event # event.pre()
-    yield event   # event.run()
-    yield event   # event.apply()
+    yield event # event
     for x in depthfirst(event.firstchild):
-      yield x     # children
-    if event.test(PROP_HAS_POST):
-      yield event # event.post()
+      yield x   # children
     for x in depthfirst(event.nextsibling):
-      yield x     # siblings
+      yield x   # siblings
 
 def pprint(event):
-  # this function is broken with the new changes, sort of #!
   for event in depthfirst(event):
     e = event; depth = 0
     # this is somewhat inefficient
