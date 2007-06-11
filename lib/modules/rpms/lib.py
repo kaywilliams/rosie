@@ -199,8 +199,12 @@ class RpmHandler(OutputEventHandler):
            name='%s*.[Rr][Pp][Mm]' %(self.rpmname,), prefix=False)[0]
       # add rpms to the included-packages control var, so that
       # they are added to the comps.xml
+      if not self.interface.cvars['included-packages']:
+        self.interface.cvars['included-packages'] = []
       self.interface.cvars['included-packages'].append((self.rpmname, type, requires))
       if self.obsoletes is not None:
+        if not self.interface.cvars['excluded-packages']:
+          self.interface.cvars['excluded-packages'] = []
         self.interface.cvars['excluded-packages'].extend(self.obsoletes.split())
     except IndexError:
       if self.create and not self.interface.isSkipped(self.eventid):
