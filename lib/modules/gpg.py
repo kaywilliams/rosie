@@ -44,19 +44,19 @@ class GpgInterface(EventInterface):
       self.sign = True
     
     # public key
-    self.pubkey = self.get_cvar('gpg-public-key',
-                                self.config.get('//gpgsign/public/text()'))
+    self.pubkey = self.cvars['gpg-public-key'] or \
+                  self.config.get('//gpgsign/public/text()')
     if not self.pubkey:
       raise GpgError, "Missing GPG public key"
     
     # secret key
-    self.seckey = self.get_cvar('gpg-secret-key',
-                                self.config.get('//gpgsign/secret/text()'))
+    self.seckey = self.cvars['gpg-secret-key'] or \
+                  self.config.get('//gpgsign/secret/text()')
     if not self.seckey:
       raise GpgError, "Missing GPG secret key"
     
     # password
-    self.password = self.get_cvar('gpg-passphrase')
+    self.password = self.cvars['gpg-passphrase']
     if not self.password:
       if self.config.pathExists('//gpgsign/password'):
         self.password = self.config.get('//gpgsign/password/text()', '')
@@ -64,14 +64,14 @@ class GpgInterface(EventInterface):
         self.password = rpmsign.getPassphrase()
     
     # save values so subsequent instantiations don't redo work
-    self.set_cvar('gpg-public-key', self.pubkey)
-    self.set_cvar('gpg-secret-key', self.seckey)
-    self.set_cvar('gpg-passphrase', self.password)
+    self.cvars['gpg-public-key'] = self.pubkey
+    self.cvars['gpg-secret-key'] = self.seckey
+    self.cvars['gpg-passphrase'] = self.password
   
   def sign_rpm(self, rpm):
     "Sign a RPM"
     self.log(2, "signing %s" % rpm)
-    rpmsign.signRpm(join(self.get_cvar('rpms-directory'), rpm),
+    rpmsign.signRpm(join(self.cvars['rpms-directory'], rpm),
                     public=self.pubkey,
                     secret=self.seckey,
                     passphrase=self.password)
@@ -118,21 +118,21 @@ class GpgsignHook(OutputEventHandler):
     OutputEventHandler.__init__(self, self.interface.config, data, self.mdfile)
   
   def force(self):
-    self.interface.set_cvar('gpg-tosign',
+    self.interface.cvars['gpg-tosign'] or \
                             [ (x, None) for x in \
-                              osutils.find(self.interface.get_cvar('rpms-directory'),
+                              osutils.find(self.interface.cvars['rpms-directory'],
                                            maxdepth=1,
                                            name='*.[Rr][Pp][Mm]',
                                            type=osutils.TYPE_FILE,
-                                           prefix=False) ] )
+                                           prefix=False) ]
   
   def run(self):
     if not self._test_runstatus(): return
     
     if self.interface.sign:
       self.interface.log(0, "signing packages")
-      for rpm,_ in self.interface.get_cvar('new-rpms', []) + \
-                   self.interface.get_cvar('gpg-tosign', []):
+      for rpm,_ in (self.interface.cvars['new-rpms'] or []) + \
+                   (self.interface.cvars['gpg-tosign'] or []):
         self.interface.sign_rpm(rpm)
   
   def apply(self):

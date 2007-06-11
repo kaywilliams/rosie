@@ -89,7 +89,7 @@ class ApplyoptHook:
   
   def run(self):
     if self.interface.options.with_pkglist is not None:
-      self.interface.set_cvar('pkglist-file', self.interface.options.with_pkglist)
+      self.interface.cvars['pkglist-file'] = self.interface.options.with_pkglist
 
 class RepogenHook:
   def __init__(self, interface):
@@ -114,7 +114,7 @@ class RepogenHook:
   def apply(self):
     if not exists(self.cfgfile):
       raise RuntimeError, "Unable to find depsolve config file at '%s'" % self.cfgfile
-    self.interface.set_cvar('repoconfig-file', self.cfgfile)
+    self.interface.cvars['repoconfig-file'] = self.cfgfile
 
 class PkglistHook:
   def __init__(self, interface):
@@ -136,21 +136,20 @@ class PkglistHook:
     self.interface.log(0, "resolving pkglist")
     
     pkglist = []
-    pkglistfile = self.interface.get_cvar('pkglist-file', None)
-    if pkglistfile is not None:
-      self.interface.log(1, "reading supplied pkglist file '%s'" % pkglistfile)
-      pkglist = filereader.read(pkglistfile)
+    if self.interface.cvars['pkglist-file']:
+      self.interface.log(1, "reading supplied pkglist file '%s'" % self.interface.cvars['pkglist-file'])
+      pkglist = filereader.read(self.interface.cvars['pkglist-file'])
     else:
       self.interface.log(1, "generating new pkglist")
       
-      cfgfile = self.interface.get_cvar('repoconfig-file')
-      if not cfgfile: raise RuntimeError, 'repoconfig-file is not set'
+      if not self.interface.cvars['repoconfig-file']:
+        raise RuntimeError, 'repoconfig-file is not set'
       
       osutils.mkdir(self.mddir)
       
-      pkgtups = depsolver.resolve(self.interface.get_cvar('required-packages', []),
+      pkgtups = depsolver.resolve(self.interface.cvars['required-packages'] or [],
                                   root=self.mddir,
-                                  config=cfgfile,
+                                  config=self.interface.cvars['repoconfig-file'],
                                   arch=self.interface.arch,
                                   callback=BuildDepsolveCallback(self.interface.logthresh))
       
@@ -158,9 +157,8 @@ class PkglistHook:
       # verify that final package list contains all user-specified packages
       self.interface.log(1, "verifying package list")
       nlist = [ n for n,_,_,_,_ in pkgtups ] # extract pkg names for checking
-      for pcheck in self.interface.get_cvar('user-required-packages', []):
+      for pcheck in (self.interface.cvars['user-required-packages'] or []):
         if pcheck not in nlist:
-          print self.interface.get_cvar('user-required-packages', [])
           raise DepSolveError, "User-specified package '%s' not found in resolved pkglist" % pcheck
       del nlist
       
@@ -180,37 +178,37 @@ class PkglistHook:
     old,new,_ = listcompare.compare(oldpkglist, pkglist)
     if len(new) > 0 or len(old) > 0:
       self.interface.log(1, "package list has changed")
-      self.interface.set_cvar('pkglist-changed', True)
-      if pkglistfile is None:
+      self.interface.cvars['pkglist-changed'] = True
+      if not self.interface.cvars['pkglist-file']:
         self.interface.log(1, "writing pkglist")
         filereader.write(pkglist, self.pkglistfile)
     else:
       self.interface.log(1, "package list unchanged")
   
   def apply(self):
-    if self.interface.get_cvar('pkglist-file'):
-      if not exists(self.interface.get_cvar('pkglist-file')):
-        raise RuntimeError, "Unable to find pkglist at '%s'" % self.interface.get_cvar('pkglist-file')
+    if self.interface.cvars['pkglist-file']:
+      if not exists(self.interface.cvars['pkglist-file']):
+        raise RuntimeError, "Unable to find pkglist at '%s'" % self.interface.cvars['pkglist-file']
       else:
-        if self.interface.get_cvar('pkglist-file') != self.pkglistfile:
-          osutils.cp(self.interface.get_cvar('pkglist-file'), self.pkglistfile)
+        if self.interface.cvars['pkglist-file'] != self.pkglistfile:
+          osutils.cp(self.interface.cvars['pkglist-file'], self.pkglistfile)
     else:
-      self.interface.set_cvar('pkglist-file', self.pkglistfile)
+      self.interface.cvars['pkglist-file'] = self.pkglistfile
     
     # read in package list
-    self.interface.set_cvar('pkglist', filereader.read(self.interface.get_cvar('pkglist-file')))
+    self.interface.cvars['pkglist'] = filereader.read(self.interface.cvars['pkglist-file'])
   
   def post(self):
     # clean up metadata
-    repoconfig = self.interface.get_cvar('repoconfig-file')
+    repoconfig = self.interface.cvars['repoconfig-file']
     if repoconfig: osutils.rm(repoconfig, force=True)
     
   def _test_runstatus(self):
     return self.interface.isForced('pkglist') or \
-           self.interface.get_cvar('pkglist-file') or \
-           self.interface.get_cvar('input-store-changed') or \
-           self.interface.get_cvar('comps-changed') or \
-           not exists(self.pkglistfile) and not self.interface.get_cvar('pkglist-file')
+           self.interface.cvars['pkglist-file'] or \
+           self.interface.cvars['input-store-changed'] or \
+           self.interface.cvars['comps-changed'] or \
+           not exists(self.pkglistfile) and not self.interface.cvars['pkglist-file']
 
 
 #------ ERRORS ------#

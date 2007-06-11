@@ -82,7 +82,7 @@ class Build:
     """
     # self.cvars is a list of program 'control variables' - modules can use
     # this to communicate between themselves as necessary
-    self.cvars = {}
+    self.cvars = CvarsDict()
     
     self.CACHE_DIR = '/var/cache/dimsbuild'
     self.TEMP_DIR  = '/tmp/dimsbuild'
@@ -295,6 +295,10 @@ class Build:
       if server not in servers: servers.append(server)
     return servers
   
+
+class CvarsDict(dict):
+  def __getitem__(self, key):
+    return self.get(key, None)
 
 #------ UTILITY FUNCTIONS ------#
 def load_module(path):

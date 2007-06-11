@@ -100,7 +100,7 @@ class ApplyoptHook:
                 
   def run(self):
     if self.interface.options.with_pkgorder is not None:
-      self.interface.set_cvar('pkgorder-file', self.interface.options.with_pkgorder)
+      self.interface.cvars['pkgorder-file'] = self.interface.options.with_pkgorder
 
 
 class PkgorderHook:
@@ -118,9 +118,8 @@ class PkgorderHook:
   def run(self):
     if not self._test_runstatus(): return
     
-    pkgorderfile = self.interface.get_cvar('pkgorder-file', None)
-    if pkgorderfile is not None:
-      self.interface.log(1, "reading supplied pkgorder file '%s'" % pkgordefile)
+    if self.interface.cvars['pkgorder-file']:
+      self.interface.log(1, "reading supplied pkgorder file '%s'" % self.interface.cvars['pkgorder-file'])
     else:
       self.interface.log(0, "generating package ordering")
       cfg = join(self.interface.TEMP_DIR, 'pkgorder')
@@ -141,7 +140,7 @@ class PkgorderHook:
       old,new,_ = listcompare.compare(oldpkgorder, pkgtups)
       if len(new) > 0 or len(old) > 0:
         self.interface.log(1, "package ordering has changed")
-        self.interface.set_cvar('pkgorder-changed', True)
+        self.interface.cvars['pkgorder-changed'] = True
         pkgorder.write_pkgorder(self.pkgorderfile, pkgtups)
       else:
         self.interface.log(1, "package ordering unchanged")
@@ -149,24 +148,23 @@ class PkgorderHook:
       osutils.rm(cfg, force=True)
   
   def apply(self):
-    if not self.interface.get_cvar('pkgorder-file'):
-      self.interface.set_cvar('pkgorder-file', self.pkgorderfile)
-    pkgorderfile = self.interface.get_cvar('pkgorder-file')
+    if not self.interface.cvars['pkgorder-file']:
+      self.interface.cvars['pkgorder-file'] = self.pkgorderfile
     
-    if not exists(pkgorderfile):
-      raise RuntimeError, "Unable to find pkgorder file at '%s'" % pkgorderfile
+    if not exists(self.interface.cvars['pkgorder-file']):
+      raise RuntimeError, "Unable to find pkgorder file at '%s'" % self.interface.cvars['pkgorder-file']
     else:
-      if pkgorderfile != self.pkgorderfile:
-        osutils.cp(pkgorderfile, self.pkgorderfile)
+      if self.interface.cvars['pkgorder-file'] != self.pkgorderfile:
+        osutils.cp(self.interface.cvars['pkgorder-file'], self.pkgorderfile)
     
     # read in pkgorder
-    self.interface.set_cvar('pkgorder', filereader.read(pkgorderfile))
+    self.interface.cvars['pkgorder'] = filereader.read(self.pkgorderfile)
   
   def _test_runstatus(self):
-    return self.interface.isForced('pkglist') or \
-           self.interface.get_cvar('pkgorder-file') or \
-           self.interface.get_cvar('pkglist-changed') or \
-           not exists(self.pkgorderfile) and not self.interface.get_cvar('pkgorder-file')
+    return self.interface.isForced('pkgorder') or \
+           self.interface.cvars['pkgorder-file'] or \
+           self.interface.cvars['pkglist-changed'] or \
+           (not exists(self.pkgorderfile) and not self.interface.cvars['pkgorder-file'])
 
 
 class ManifestHook:
@@ -189,7 +187,7 @@ class ManifestHook:
         )
     
     if self._manifest_changed(manifest, self.mfile):
-      self.interface.set_cvar('do-iso', True)      
+      self.interface.cvars['do-iso'] = True
       if not exists(self.mfile): os.mknod(self.mfile)
       mf = open(self.mfile, 'w')
       mwriter = csv.DictWriter(mf, FIELDS, lineterminator='\n')
@@ -263,7 +261,7 @@ class IsoHook:
   
   def _test_runstatus(self):
     return self.interface.isForced('iso') or \
-           self.interface.get_cvar('do-iso')
+           self.interface.cvars['do-iso']
   
   def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
@@ -279,14 +277,13 @@ class IsoHook:
   def _generate_isotree(self, set):
     osutils.mkdir(join(self.interface.isodir, set), parent=True)
     
-    splitter = splittree.Timber(set, dosrc=self.interface.get_cvar('source-include'))
+    splitter = splittree.Timber(set, dosrc=self.interface.cvars['source-include'])
     splitter.product = self.interface.product
     splitter.unified_tree = self.interface.SOFTWARE_STORE
     splitter.unified_source_tree = self.interface.SOFTWARE_STORE
     splitter.split_tree = join(self.interface.isodir, set)
-    splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.interface.get_cvar('anaconda-version')).iget('discinfo')
-    #splitter.discinfo_vars = self.interface.get_cvar('base-vars')
-    splitter.pkgorder = self.interface.get_cvar('pkgorder-file')
+    splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.interface.cvars['anaconda-version']).iget('discinfo')
+    splitter.pkgorder = self.interface.cvars['pkgorder-file']
     
     splitter.compute_layout()
     splitter.cleanup()

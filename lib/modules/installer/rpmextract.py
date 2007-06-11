@@ -21,7 +21,7 @@ try:
 except ImportError:
   raise ImportError("missing 'python-imaging' RPM")
 
-API_VERSION = 4.0
+API_VERSION = 4.1
 
 EVENTS = [
   {
@@ -105,10 +105,10 @@ class ExtractEventHandler(OutputEventHandler):
       self.write_metadata()
     
   def get_rpms(self):
-    return self.interface.get_cvar('RPMS-%s' %(self.ID,), None)
+    return self.interface.cvars['RPMS-%s' % self.ID] or None
 
   def set_rpms(self, rpms):
-    self.interface.set_cvar('RPMS-%s' %(self.ID,), rpms)
+    self.interface.cvars['RPMS-%s' % self.ID] = rpms
 
   def modify_input_data(self):
     rpms = self.get_rpms()
@@ -155,7 +155,7 @@ class ExtractEventHandler(OutputEventHandler):
 class InstallerLogosHook(ExtractEventHandler):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'rpmextract.installer_logos'
+    self.ID = 'installer.rpmextract.installer-logos'
 
     self.metadata_struct =  {
       'config': ['//installer/logos'],
@@ -219,10 +219,10 @@ class InstallerLogosHook(ExtractEventHandler):
   def find_rpms(self):
     pkgname = self.config.get('//installer/logos/package/text()',
                               '%s-logos' %(self.interface.product,))
-    rpms = find(self.interface.get_cvar('rpms-directory'), name='%s-*-*' %(pkgname,),
+    rpms = find(self.interface.cvars['rpms-directory'], name='%s-*-*' %(pkgname,),
                 nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
     if len(rpms) == 0:
-      rpms = find(self.interface.get_cvar('rpms-directory'), name='*-logos-*-*',
+      rpms = find(self.interface.cvars['rpms-directory'], name='*-logos-*-*',
                   nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
       if len(rpms) == 0:
         raise RpmNotFoundError("missing logo RPM")
@@ -232,7 +232,7 @@ class InstallerLogosHook(ExtractEventHandler):
 class InstallerReleaseHook(ExtractEventHandler):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'rpmextract.installer_release_files'
+    self.ID = 'installer.rpmextract.installer-release-files'
 
     self.metadata_struct = {
       'config': ['//installer/release-files'],
@@ -275,13 +275,13 @@ class InstallerReleaseHook(ExtractEventHandler):
                                 ['%s-release' %(self.interface.product,)])
     rpms = []
     for rpmname in rpmnames:
-      release_rpms = find(self.interface.get_cvar('rpms-directory'), name='%s-*-*' %(rpmname,),
+      release_rpms = find(self.interface.cvars['rpms-directory'], name='%s-*-*' %(rpmname,),
                           nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
       rpms.extend(release_rpms)
     if len(rpms) == 0:
       for glob in ['*-release-*-[a-zA-Z0-9]*.[Rr][Pp][Mm]',
                    '*-release-notes-*-*']:
-        release_rpms = find(self.interface.get_cvar('rpms-directory'), name=glob,
+        release_rpms = find(self.interface.cvars['rpms-directory'], name=glob,
                             nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
         rpms.extend(release_rpms)
         if len(rpms) == 0:

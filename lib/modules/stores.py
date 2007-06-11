@@ -97,11 +97,11 @@ class StoresHook:
         changed = True
         filereader.write(pkgs, oldpkgsfile)
       
-    self.interface.set_cvar('input-store-changed', changed)
-    self.interface.set_cvar('input-store-lists', storelists)
+    self.interface.cvars['input-store-changed'] = changed
+    self.interface.cvars['input-store-lists'] = storelists
   
   def apply(self):
-    if not self.interface.get_cvar('input-store-lists'):
+    if not self.interface.cvars['input-store-lists']:
       storelists = {}
       
       storefiles = osutils.find(self.interface.METADATA_DIR, name='*.pkgs', maxdepth=1)
@@ -111,17 +111,17 @@ class StoresHook:
         storeid = osutils.basename(file.replace('.pkgs', '')) # potential problem if store has .pkgs in name
         storelists[storeid] = filereader.read(file)
             
-      self.interface.set_cvar('input-store-lists', storelists)
+      self.interface.cvars['input-store-lists'] = storelists
       # if we're skipping stores, assume store lists didn't change; otherwise,
       # assume they did
       if self.interface.isSkipped('stores'):
-        self.interface.set_cvar('input-store-changed', True)
+        self.interface.cvars['input-store-changed'] = True
     
-    if not self.interface.get_cvar('anaconda-version'):
+    if not self.interface.cvars['anaconda-version']:
       anaconda_version = \
         get_anaconda_version(join(self.interface.METADATA_DIR,
                                   '%s.pkgs' % self.interface.getBaseStore()))
-      self.interface.set_cvar('anaconda-version', anaconda_version)
+      self.interface.cvars['anaconda-version'] = anaconda_version
 
 #------ HELPER FUNCTIONS ------#
 def get_anaconda_version(file):

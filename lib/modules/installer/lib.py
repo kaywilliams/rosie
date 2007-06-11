@@ -40,8 +40,8 @@ class ImageHandler:
     self.anaconda_version = None
   
   def register_image_locals(self, locals):
-    self.i_locals = locals_imerge(locals, self.interface.get_cvar('anaconda-version'))
-    self.anaconda_version = self.interface.get_cvar('anaconda-version')
+    self.i_locals = locals_imerge(locals, self.interface.cvars['anaconda-version'])
+    self.anaconda_version = self.interface.cvars['anaconda-version']
   
   def open(self):
     image  = self.i_locals.iget('//images/image[@id="%s"]' % self.name)
@@ -196,7 +196,7 @@ class ImageModifyMixin(OutputEventHandler, ImageHandler):
                                 'images-src/%s' % self.name))
     self.generate_buildstamp()
     self.write_buildstamp()
-    self.interface.set_cvar('%s-changed' % self.name, True)
+    self.interface.cvars['%s-changed' % self.name] = True
 
 
 class FileDownloadMixin:
@@ -209,7 +209,7 @@ class FileDownloadMixin:
     self.callback = BuildSyncCallback(interface.logthresh)
   
   def register_file_locals(self, locals):
-    self.f_locals = locals_imerge(locals, self.interface.get_cvar('anaconda-version'))
+    self.f_locals = locals_imerge(locals, self.interface.cvars['anaconda-version'])
   
   def download(self, dest, store):
     if not self.f_locals:
@@ -219,7 +219,7 @@ class FileDownloadMixin:
       filename = file.attrib['id']
       if file.attrib.get('virtual', 'False') in BOOLEANS_TRUE: continue # skip virtual files
       
-      rinfix = printf_local(file.iget('path'), self.interface.get_cvar('source-vars'))
+      rinfix = printf_local(file.iget('path'), self.interface.cvars['source-vars'])
       linfix = printf_local(file.iget('path'), self.interface.BASE_VARS)
       
       self.interface.cache(join(dest, rinfix, filename),

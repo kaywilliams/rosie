@@ -112,7 +112,7 @@ class ApplyoptHook:
     self.interface = interface
   
   def run(self):
-    self.interface.set_cvar('source-include', self.interface.options.do_srpms)
+    self.interface.cvars['source-include'] = self.interface.options.do_srpms
 
 
 class SourceHook:
@@ -130,13 +130,13 @@ class SourceHook:
 
   def force(self):
     osutils.rm(self.interface.srpmdest, recursive=True, force=True)
-    self.interface.set_cvar('source-include', True)
+    self.interface.cvars['source-include'] = True
   
   def pre(self):
     self.interface.disableEvent('source')
-    if self.interface.get_cvar('source-include') or \
+    if self.interface.cvars['source-include'] or \
        self.interface.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE:
-      if self.interface.get_cvar('pkglist-changed'):
+      if self.interface.cvars['pkglist-changed']:
         self.interface.enableEvent('source')
     else:
       self.flush()
@@ -144,7 +144,7 @@ class SourceHook:
   def run(self):
     "Generate SRPM store"
     self.interface.log(0, "processing srpms")
-    self.interface.set_cvar('source-include', True)
+    self.interface.cvars['source-include'] = True
     
     # generate list of srpms we already have
     oldsrpmlist = osutils.find(self.interface.srpmdest, name=SRPM_GLOB, prefix=False)
@@ -163,10 +163,11 @@ class SourceHook:
     self.interface.compare(oldsrpmlist, srpmlist)
   
   def _test_runstatus(self):
-    if self.interface.get_cvar('source-include') or \
+    if self.interface.cvars['source-include'] or \
        self.interface.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE:
       return self.interface.isForced('source') or \
-             self.interface.get_cvar('pkglist-changed')
+             self.interface.cvars['pkglist-changed'] or \
+             not exists(self.interface.srpmdest)
     else:
       return False
   

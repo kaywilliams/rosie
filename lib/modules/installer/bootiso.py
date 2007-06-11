@@ -94,7 +94,7 @@ class IsolinuxHook(ImageModifyMixin, FileDownloadMixin):
     # modify initrd.img - see ImageModifyMixin.modify() in lib.py
     self.modify()
     
-    self.interface.set_cvar('isolinux-changed', True)
+    self.interface.cvars['isolinux-changed'] = True
   
   def apply(self):
     for file in ISOLINUX_OUTPUT_FILES:
@@ -145,7 +145,7 @@ class BootisoHook:
   
   def _test_runstatus(self):
     return self.interface.isForced('bootiso') or \
-           self.interface.get_cvar('isolinux-changed') or \
+           self.interface.cvars['isolinux-changed'] or \
            not exists(self.bootiso)
 
 

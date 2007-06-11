@@ -59,12 +59,12 @@ class ProductHook(ImageModifyMixin):
     ImageModifyMixin.register_image_locals(self, locals)
     
     self.ic_locals = locals_imerge(L_INSTALLCLASSES,
-                                   self.interface.get_cvar('anaconda-version'))
+                                   self.interface.cvars['anaconda-version'])
     
     # replace element text wtih real installclass string
     indexes = sortlib.dsort(INSTALLCLASSES.keys())
     for i in indexes:
-      if sortlib.dcompare(i, self.interface.get_cvar('anaconda-version')) <= 0:
+      if sortlib.dcompare(i, self.interface.cvars['anaconda-version']) <= 0:
         self.ic_locals.iget('//installclass').text = INSTALLCLASSES[i]
       else:
         break

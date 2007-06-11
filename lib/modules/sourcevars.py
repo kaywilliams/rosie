@@ -8,20 +8,12 @@ __author__  = "Kay Williams <kwilliams@abodiosoftware.com>"
 __version__ = "1.0"
 __date__    = "June 5th, 2007"
 
-import re
-import copy
-import os
-
 from os.path  import join, exists
-from urlparse import urlparse
-from StringIO import StringIO
 
 from dims import FormattedFile as ffile
 from dims import osutils
 from dims import sync
 from dims import imglib
-from dims import xmltree
-from dims import imerge
 
 from event     import EVENT_TYPE_PROC
 from interface import EventInterface
@@ -73,7 +65,7 @@ class SourcevarsHook:
     sync.sync(source_initrd_file, osutils.dirname(cache_initrd_file), username=u, password=p)
 
     #Extract buildstamp
-    locals = locals_imerge(L_IMAGES, self.interface.get_cvar('anaconda-version'))
+    locals = locals_imerge(L_IMAGES, self.interface.cvars['anaconda-version'])
     image  = locals.iget('//images/image[@id="initrd.img"]')
     format = image.iget('format/text()')
     zipped = image.iget('zipped/text()', 'False') in BOOLEANS_TRUE
@@ -82,11 +74,10 @@ class SourcevarsHook:
     sourcevars = self.image.read('.buildstamp')
 
     #Parse buildstamp
-    locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.interface.get_cvar('anaconda-version'))
+    locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.interface.cvars['anaconda-version'])
     buildstamp_fmt = locals.iget('//buildstamp-format')
     buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
     sourcevars = buildstamp.floread(self.image.read('.buildstamp'))
 
     #Update source_vars
-    self.interface.set_cvar('source-vars', sourcevars)
-    #print self.interface.get_cvar('source-vars')
+    self.interface.cvars['source-vars'] = sourcevars

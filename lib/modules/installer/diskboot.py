@@ -81,7 +81,7 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
   
   def _test_runstatus(self):
     return self.interface.isForced('diskboot-image') or \
-           self.interface.get_cvar('isolinux-changed') or \
+           self.interface.cvars['isolinux-changed'] or \
            self.check_run_status()
 
   def generate(self):

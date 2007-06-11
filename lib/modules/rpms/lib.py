@@ -105,18 +105,6 @@ class RpmsInterface(EventInterface, RpmsMixin):
     EventInterface.__init__(self, base)
     RpmsMixin.__init__(self)
 
-  def append_cvar(self, flag, value):
-    if flag in self._base.cvars.keys():
-      if type(value) == list:
-        self._base.cvars[flag].extend(value)
-      else:
-        self._base.cvars[flag].append(value)
-    else:
-      if type(value) == list:
-        self._base.cvars[flag] = value
-      else:
-        self._base.cvars[flag] = [value]
-        
 
 #---------- HANDLERS -------------#
 class RpmHandler(OutputEventHandler):
@@ -197,7 +185,7 @@ class RpmHandler(OutputEventHandler):
       self.write_metadata()
 
       # input store has changed because a new rpm has been created
-      self.interface.set_cvar('input-store-changed', True)
+      self.interface.cvars['input-store-changed'] = True
 
       # need to the remove the .depsolve/dimsbuild-local folder so
       # that depsolver picks up the new RPM.
@@ -211,9 +199,9 @@ class RpmHandler(OutputEventHandler):
            name='%s*.[Rr][Pp][Mm]' %(self.rpmname,), prefix=False)[0]
       # add rpms to the included-packages control var, so that
       # they are added to the comps.xml
-      self.interface.append_cvar('included-packages', (self.rpmname, type, requires))
+      self.interface.cvars['included-packages'].append((self.rpmname, type, requires))
       if self.obsoletes is not None:
-        self.interface.append_cvar('excluded-packages', self.obsoletes.split())        
+        self.interface.cvars['excluded-packages'].extend(self.obsoletes.split())
     except IndexError:
       if self.create and not self.interface.isSkipped(self.eventid):
         raise RuntimeError("missing rpm: '%s'" %(self.rpmname,))

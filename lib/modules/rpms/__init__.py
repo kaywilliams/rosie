@@ -78,9 +78,9 @@ class RpmsHook:
     pkgs = find(location=self.interface.LOCAL_REPO, name='*[Rr][Pp][Mm]', prefix=False)
     if len(pkgs) > 0:
       filereader.write(pkgs, join(self.interface.METADATA_DIR, 'dimsbuild-local.pkgs'))
-    storesinfo = self.interface.get_cvar('input-store-lists')
+    storesinfo = self.interface.cvars['input-store-lists']
     storesinfo.update({'dimsbuild-local': pkgs})
-    self.interface.set_cvar('input-stores-list', storesinfo)    
+    self.interface.cvars['input-stores-list'] = storesinfo
 
 class LocalRepogenHook:
   def __init__(self, interface):
@@ -89,10 +89,9 @@ class LocalRepogenHook:
     self.interface = interface
 
   def post(self):
-    cfgfile = self.interface.get_cvar('repoconfig-file', None)
-    if cfgfile is None: return  
-    lines = filereader.read(cfgfile)
+    if not self.interface.cvars['repoconfig-file']: return
+    lines = filereader.read(self.interface.cvars['repoconfig-file'])
     lines.append('[dimsbuild-local]')
     lines.append('name = dimsbuild-local')
-    lines.append('baseurl = file://%s' % join(self.interface.METADATA_DIR, 'localrepo/'))  
-    filereader.write(lines, cfgfile)
+    lines.append('baseurl = file://%s' % join(self.interface.METADATA_DIR, 'localrepo/'))
+    filereader.write(lines, self.interface.cvars['repoconfig-file'])

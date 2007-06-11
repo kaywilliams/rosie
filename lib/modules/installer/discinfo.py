@@ -69,7 +69,7 @@ class DiscinfoHook(OutputEventHandler):
   
   def run(self):
     # setup
-    locals = locals_imerge(L_DISCINFO_FORMAT, self.interface.get_cvar('anaconda-version'))
+    locals = locals_imerge(L_DISCINFO_FORMAT, self.interface.cvars['anaconda-version'])
     
     if self.test_input_changed():
   		# create empty .discinfo formatted file object

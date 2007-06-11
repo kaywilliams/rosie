@@ -146,14 +146,14 @@ class SoftwareHook:
     # call interface.lfn (_delete_rpm()) and interface.rfn (_download_rpm())
     # on each rpm in rpmlist not in the cvar, and each rpm in the cvar not
     # in rpmlist, respectively
-    self.interface.compare(rpmlist, self.interface.get_cvar('pkglist'))
+    self.interface.compare(rpmlist, self.interface.cvars['pkglist'])
     self._check_rpm_signatures()
     self._create_metadata()
   
   def apply(self):
     osutils.mkdir(self.interface.rpmdest, parent=True)
-    self.interface.set_cvar('new-rpms', self._new_rpms)
-    self.interface.set_cvar('rpms-directory', self.interface.rpmdest)
+    self.interface.cvars['new-rpms'] = self._new_rpms
+    self.interface.cvars['rpms-directory'] = self.interface.rpmdest
   
   # callback functions
   def notify_both(self, i): pass
@@ -169,7 +169,7 @@ class SoftwareHook:
       base = self.interface.storeInfoJoin(s,n,d)
       
       # get the list of .rpms in the input store
-      for rpm in self.interface.get_cvar('input-store-lists')[store]:
+      for rpm in self.interface.cvars['input-store-lists'][store]:
         _,n,v,r,a = self.interface.rpmNameDeformat(rpm)
         nvr = '%s-%s-%s' % (n,v,r)
         if not self._packages.has_key(nvr):
@@ -236,7 +236,7 @@ class SoftwareHook:
       self.interface.createrepo()
 
       # run genhdlist, if anaconda version < 10.92
-      if sortlib.dcompare(self.interface.get_cvar('anaconda-version'), '10.92') < 0:
+      if sortlib.dcompare(self.interface.cvars['anaconda-version'], '10.92') < 0:
         self.interface.genhdlist()
 
 

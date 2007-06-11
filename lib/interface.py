@@ -38,6 +38,8 @@ class EventInterface:
     self.METADATA_DIR   = self._base.METADATA_DIR
     self.TEMP_DIR       = self._base.TEMP_DIR
     
+    self.cvars = self._base.cvars
+    
   def expandMacros(self, text):
     return expand_macros(text, self._base.cvars['base-vars'])
   
@@ -91,10 +93,10 @@ class EventInterface:
     self._base.dispatch.get(eventid, err=True)._set_enable_status(flag)
   
   # program control variables
-  def set_cvar(self, flag, state):
-    self._base.cvars[flag] = state
-  def get_cvar(self, flag, fallback=False):
-    return self._base.cvars.get(flag, fallback)
+  ##def set_cvar(self, flag, state):
+  ##  self._base.cvars[flag] = state
+  ##def get_cvar(self, flag, fallback=False):
+  ##  return self._base.cvars.get(flag, fallback)
   
 
 #------ MIXINS ------#

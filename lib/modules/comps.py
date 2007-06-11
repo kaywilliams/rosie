@@ -66,7 +66,7 @@ class ApplyoptHook:
   
   def run(self):
     if self.interface.options.with_comps is not None:
-      self.interface.set_cvar('with-comps', self.interface.options.with_comps)
+      self.interface.cvars['with-comps'] = self.interface.options.with_comps
 
 class CompsHook:
   def __init__(self, interface):
@@ -89,9 +89,9 @@ class CompsHook:
     
     self.interface.log(0, "computing required packages")
     
-    groupfile = self.interface.get_cvar('with-comps',
+    groupfile = self.interface.cvars['with-comps'] or \
                 self.interface.config.get('//comps/use-existing/path/text()',
-                None))
+                None)
     if groupfile is not None:
       self.interface.log(1, "reading supplied groupfile '%s'" % groupfile)
       reqpkgs = xmltree.read(groupfile).get('//packagereq/text()')
@@ -118,34 +118,34 @@ class CompsHook:
         self.interface.log(1, "writing comps.xml")
         self.comps.write(self.s_compsfile)
         os.chmod(self.s_compsfile, 0644)
-      self.interface.set_cvar('comps-changed', True)
+      self.interface.cvars['comps-changed'] = True
     else:
       self.interface.log(1, "required packages unchanged")
   
   def apply(self):
-    compsfile = self.interface.get_cvar('comps-file') or self.s_compsfile
+    compsfile = self.interface.cvars['comps-file'] or self.s_compsfile
     if not exists(compsfile):
       raise RuntimeError, "Unable to find comps.xml at '%s'" % compsfile
     
     # copy groupfile
-    if not self.interface.get_cvar('comps-file'):
-      self.interface.set_cvar('comps-file', self.s_compsfile)
+    if not self.interface.cvars['comps-file']:
+      self.interface.cvars['comps-file'] = self.s_compsfile
     osutils.mkdir(osutils.dirname(self.s_compsfile), parent=True)
-    if self.interface.get_cvar('comps-file') != self.s_compsfile:
-      osutils.cp(self.interface.get_cvar('comps-file'), self.s_compsfile)
+    if self.interface.cvars['comps-file'] != self.s_compsfile:
+      osutils.cp(self.interface.cvars['comps-file'], self.s_compsfile)
     
     # set required packages
-    reqpkgs = xmltree.read(self.interface.get_cvar('comps-file')).get('//packagereq/text()')
-    self.interface.set_cvar('required-packages', reqpkgs)
+    reqpkgs = xmltree.read(self.interface.cvars['comps-file']).get('//packagereq/text()')
+    self.interface.cvars['required-packages'] = reqpkgs
   
   def _test_runstatus(self):
     # if the input stores changes, we need to run
     # if there is no comps file in the ouput directory and one isn't otherwise
     # specified, we need to run
     return self.interface.isForced('comps') or \
-           self.interface.get_cvar('with-comps') or \
-           self.interface.get_cvar('input-store-changed') or \
-           (not exists(self.s_compsfile) and not self.interface.get_cvar('comps-file'))
+           self.interface.cvars['with-comps'] or \
+           self.interface.cvars['input-store-changed'] or \
+           (not exists(self.s_compsfile) and not self.interface.cvars['comps-file'])
   
   #------ COMPS FILE GENERATION FUNCTIONS ------#
   def generate_comps(self):
@@ -160,7 +160,7 @@ class CompsHook:
       pkgrequires = pkg.iget('@requires', None)
       packages.append((pkgname, pkgtype, pkgrequires))
       
-    for pkg in self.interface.get_cvar('included-packages', []):
+    for pkg in (self.interface.cvars['included-packages'] or []):
       if type(pkg) == tuple:
         packages.append(pkg)
       else: 
@@ -170,7 +170,7 @@ class CompsHook:
     base = Group(self.interface.product, self.interface.fullname,
                  'This group includes packages specific to %s' % self.interface.fullname)
     if len(packages) > 0:
-      self.interface.set_cvar('user-required-packages', [x[0] for x in packages])
+      self.interface.cvars['user-required-packages'] = [ x[0] for x in packages ]
       self.comps.getroot().append(base)
       for pkgname, pkgtype, pkgrequires in packages:
         self._add_group_package(pkgname, base, pkgrequires, type=pkgtype)
@@ -237,7 +237,7 @@ class CompsHook:
     
     # exclude all package in self.exclude
     exclude = self.interface.config.mget('//comps/create-new/exclude/packages/text()') + \
-              self.interface.get_cvar('excluded-packages', [])
+              (self.interface.cvars['excluded-packages'] or [])
 
     for pkg in exclude:
       matches = self.comps.get('//packagereq[text()="%s"]' % pkg)
@@ -246,7 +246,7 @@ class CompsHook:
     
     # add category
     cat = Category('Groups', fullname=self.interface.fullname,
-                             version=self.interface.get_cvar('anaconda-version'))
+                             version=self.interface.cvars['anaconda-version'])
     self.comps.getroot().append(cat)
     for group in self.comps.getroot().get('//group/id/text()'):
       self._add_category_group(group, cat)
@@ -327,7 +327,7 @@ class CompsHook:
         toprocess.append(groupreq)
   
   def _add_category_group(self, group, category, version='0'):
-    if sortlib.dcompare(self.interface.get_cvar('anaconda-version'), '10.2.0.14-1') < 0:
+    if sortlib.dcompare(self.interface.cvars['anaconda-version'], '10.2.0.14-1') < 0:
       parent = category.iget('category/subcategories')
       Element('subcategory', parent=parent, text=group)
     else:
