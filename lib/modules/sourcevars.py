@@ -19,6 +19,7 @@ from event     import EVENT_TYPE_PROC
 from interface import EventInterface
 from locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
 from main      import BOOLEANS_TRUE, locals_imerge
+from callback  import BuildSyncCallback
 
 API_VERSION = 4.0
 
@@ -53,6 +54,8 @@ class SourcevarsHook:
     self.interface = interface
     self.vars = self.interface.BASE_VARS
 
+    self.callback = BuildSyncCallback(interface.logthresh)
+
   def run(self):
     #Setup
     i,s,n,d,u,p = self.interface.getStoreInfo(self.interface.getBaseStore())
@@ -62,7 +65,8 @@ class SourcevarsHook:
 
     #Download initrd.img to cache
     osutils.mkdir(osutils.dirname(cache_initrd_file), parent=True)
-    sync.sync(source_initrd_file, osutils.dirname(cache_initrd_file), username=u, password=p)
+    #sync.sync(source_initrd_file, osutils.dirname(cache_initrd_file), username=u, password=p)
+    self.interface.cache(join(d, 'isolinux/initrd.img'), prefix=i, callback=self.callback)
 
     #Extract buildstamp
     locals = locals_imerge(L_IMAGES, self.interface.cvars['anaconda-version'])
