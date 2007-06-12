@@ -282,7 +282,7 @@ class IsoHook(OutputEventHandler):
         # clean up old iso folder
         self.force()
         return False
-      else
+      else:
         return True  
 
   def _delete_isotree(self, set):
