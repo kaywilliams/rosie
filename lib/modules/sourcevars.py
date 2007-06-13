@@ -57,6 +57,7 @@ class SourcevarsHook:
     self.callback = BuildSyncCallback(interface.logthresh)
 
   def run(self):
+    self.interface.log(0, "computing source variables")
     #Setup
     i,s,n,d,u,p = self.interface.getStoreInfo(self.interface.getBaseStore())
     d = d.lstrip('/') # un-absolute d

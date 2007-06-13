@@ -20,13 +20,6 @@ API_VERSION = 4.0
 
 EVENTS = [
   {
-    'id': 'pkgorder',
-    'properties': EVENT_TYPE_MDLR|EVENT_TYPE_PROC,
-    'provides': ['pkgorder-file', 'pkgorder-changed', 'pkgorder'],
-    'requires': ['software'],
-    'conditional-requires': ['pkglist'],
-  },
-  {
     'id': 'manifest',
     'provides': ['do-iso'],
     'conditional-requires': ['MAIN'],
@@ -36,7 +29,7 @@ EVENTS = [
     'id': 'iso',
     'interface': 'IsoInterface',
     'properties': EVENT_TYPE_MDLR|EVENT_TYPE_PROC,
-    'requires': ['pkgorder-file', 'anaconda-version'],
+    'requires': ['anaconda-version'],
     'conditional-requires': ['do-iso', 'source'],
     'parent': 'ALL',
   },
@@ -45,7 +38,6 @@ EVENTS = [
 HOOK_MAPPING = {
   'InitHook':     'init',
   'ApplyoptHook': 'applyopt',
-  'PkgorderHook': 'pkgorder',
   'ManifestHook': 'manifest',
   'IsoHook':      'iso',
 }
@@ -101,69 +93,6 @@ class ApplyoptHook:
     if self.interface.options.with_pkgorder is not None:
       self.interface.cvars['pkgorder-file'] = self.interface.options.with_pkgorder
 
-
-class PkgorderHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'iso.pkgorder'
-    
-    self.interface = interface
-    
-    self.pkgorderfile = join(self.interface.METADATA_DIR, 'pkgorder')
-  
-  def force(self):
-    osutils.rm(self.pkgorderfile, force=True)
-  
-  def check(self):
-    return self.interface.isForced('pkgorder') or \
-           self.interface.cvars['pkgorder-file'] or \
-           self.interface.cvars['pkglist-changed'] or \
-           (not exists(self.pkgorderfile) and not self.interface.cvars['pkgorder-file'])
-  
-  def run(self):
-    if self.interface.cvars['pkgorder-file']:
-      self.interface.log(1, "reading supplied pkgorder file '%s'" % self.interface.cvars['pkgorder-file'])
-    else:
-      self.interface.log(0, "generating package ordering")
-      cfg = join(self.interface.TEMP_DIR, 'pkgorder')
-      
-      filereader.write([YUMCONF % (self.interface.getBaseStore(),
-                                   self.interface.getBaseStore(),
-                                   self.interface.SOFTWARE_STORE)], cfg)
-      
-      pkgtups = pkgorder.order(config=cfg,
-                               arch=self.interface.arch,
-                               callback=BuildDepsolveCallback(self.interface.logthresh))
-      
-      if exists(self.pkgorderfile):
-        oldpkgorder = filereader.read(self.pkgorderfile)
-      else:
-        oldpkgorder = []
-      
-      old,new,_ = listcompare.compare(oldpkgorder, pkgtups)
-      if len(new) > 0 or len(old) > 0:
-        self.interface.log(1, "package ordering has changed")
-        self.interface.cvars['pkgorder-changed'] = True
-        pkgorder.write_pkgorder(self.pkgorderfile, pkgtups)
-      else:
-        self.interface.log(1, "package ordering unchanged")
-      
-      osutils.rm(cfg, force=True)
-  
-  def apply(self):
-    if not self.interface.cvars['pkgorder-file']:
-      self.interface.cvars['pkgorder-file'] = self.pkgorderfile
-    
-    if not exists(self.interface.cvars['pkgorder-file']):
-      raise RuntimeError, "Unable to find pkgorder file at '%s'" \
-                          % self.interface.cvars['pkgorder-file']
-    else:
-      if self.interface.cvars['pkgorder-file'] != self.pkgorderfile:
-        osutils.cp(self.interface.cvars['pkgorder-file'], self.pkgorderfile)
-    
-    # read in pkgorder
-    self.interface.cvars['pkgorder'] = filereader.read(self.pkgorderfile)
-  
 
 class ManifestHook:
   def __init__(self, interface):
@@ -226,6 +155,8 @@ class IsoHook(DiffMixin):
     self.interface.rfn = self._generate_isotree
     self.interface.bfn = self._check_isotree
     
+    self.interface.cb = self
+    
     self.DATA =  {
       'config': ['//iso', '//source'],
       'input':  [join(self.interface.METADATA_DIR, 'manifest')], 
@@ -253,6 +184,7 @@ class IsoHook(DiffMixin):
     oldsets = filter(None, osutils.find(self.interface.isodir, type=osutils.TYPE_DIR,
                                         maxdepth=1, prefix=False))
     
+    print oldsets, self.newsets
     self.interface.compare(oldsets, self.newsets)
     
     for iso in osutils.find(self.interface.isodir, type=osutils.TYPE_DIR,
@@ -268,6 +200,41 @@ class IsoHook(DiffMixin):
          verbose=True)
 
     self.write_metadata()
+  
+  # callback functions
+  def notify_left(self, n): pass
+  def notify_right(self, n):
+    pkgorderfile = join(self.interface.METADATA_DIR, 'pkgorder')
+    
+    if n > 0:
+      if self.interface.cvars['pkglist-changed'] and \
+         not self.interface.cvars['pkgorder-file']:
+        self.interface.log(1, "generating package ordering")
+        cfg = join(self.interface.TEMP_DIR, 'pkgorder')
+        
+        filereader.write([YUMCONF % (self.interface.getBaseStore(),
+                                     self.interface.getBaseStore(),
+                                     self.interface.SOFTWARE_STORE)], cfg)
+        
+        pkgtups = pkgorder.order(config=cfg,
+                                 arch=self.interface.arch,
+                                 callback=BuildDepsolveCallback(self.interface.logthresh))
+        
+        if exists(pkgorderfile):
+          oldpkgorder = filereader.read(pkgorderfile)
+        else:
+          oldpkgorder = []
+        
+        old,new,_ = listcompare.compare(oldpkgorder, pkgtups)
+        if len(new) > 0 or len(old) > 0:
+          pkgorder.write_pkgorder(pkgorderfile, pkgtups)
+        
+        osutils.rm(cfg, force=True)
+      
+      if not self.interface.cvars['pkgorder-file']:
+        self.interface.cvars['pkgorder-file'] = pkgorderfile
+  
+  def notify_both(self, n): pass
   
   def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
