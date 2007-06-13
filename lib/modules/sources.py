@@ -22,7 +22,7 @@ EVENTS = [
   {
     'id': 'source',
     'provides': ['SRPMS'],
-    'requires': ['software'],
+    'requires': ['software', 'pkglist-changed'],
     'conditional-requires': ['RPMS'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'interface': 'SrpmInterface',
@@ -46,6 +46,7 @@ class SrpmInterface(EventInterface, ListCompareMixin):
     EventInterface.__init__(self, base)
     ListCompareMixin.__init__(self)
     self.ts = rpm.TransactionSet()
+    self.ts.setVSFlags(-1)
     self.callback = BuildSyncCallback(base.log.threshold)
     self.srpmdest = join(self.SOFTWARE_STORE, 'SRPMS')
   
@@ -141,6 +142,16 @@ class SourceHook:
     else:
       self.flush()
   
+  def check(self):
+    if self.interface.cvars['source-include'] or \
+       self.interface.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE:
+      return self.interface.isForced('source') or \
+             self.interface.cvars['pkglist-changed'] or \
+             not exists(self.interface.srpmdest)
+    else:
+      return False
+  
+  
   def run(self):
     "Generate SRPM store"
     self.interface.log(0, "processing srpms")
@@ -161,15 +172,6 @@ class SourceHook:
       if srpm not in srpmlist: srpmlist.append(srpm)
 
     self.interface.compare(oldsrpmlist, srpmlist)
-  
-  def _test_runstatus(self):
-    if self.interface.cvars['source-include'] or \
-       self.interface.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE:
-      return self.interface.isForced('source') or \
-             self.interface.cvars['pkglist-changed'] or \
-             not exists(self.interface.srpmdest)
-    else:
-      return False
   
   # callback functions
   def notify_both(self, i):

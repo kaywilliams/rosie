@@ -249,7 +249,7 @@ class InstallerReleaseHook(ExtractEventHandler):
   def generate(self):
     files = {}
     rtn = []    
-    for path in self.config.mget('//installer/release-files/path'):
+    for path in self.config.mget('//installer/release-files/path', []):
       source = path.text
       dest = join(self.software_store, path.attrib['dest'])
       files[source] = dest

@@ -13,34 +13,32 @@ import splittree
 
 from callback  import BuildDepsolveCallback
 from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from interface import EventInterface, ListCompareMixin
+from interface import EventInterface, ListCompareMixin, DiffMixin
 from main      import locals_imerge
-from output    import OutputEventHandler
 
 API_VERSION = 4.0
 
 EVENTS = [
   {
     'id': 'pkgorder',
+    'properties': EVENT_TYPE_MDLR|EVENT_TYPE_PROC,
+    'provides': ['pkgorder-file', 'pkgorder-changed', 'pkgorder'],
     'requires': ['software'],
     'conditional-requires': ['pkglist'],
-    'provides': ['pkgorder'],
-    'properties': EVENT_TYPE_MDLR|EVENT_TYPE_PROC,
   },
   {
     'id': 'manifest',
+    'provides': ['do-iso'],
     'conditional-requires': ['MAIN'],
-    'provides': ['manifest'],
     'parent': 'ALL',
   },
   {
     'id': 'iso',
-    'requires': ['pkgorder', 'anaconda-version'],
-    'conditional-requires': ['manifest', 'source'],
-    'provides': ['iso'],
-    'parent': 'ALL',
     'interface': 'IsoInterface',
     'properties': EVENT_TYPE_MDLR|EVENT_TYPE_PROC,
+    'requires': ['pkgorder-file', 'anaconda-version'],
+    'conditional-requires': ['do-iso', 'source'],
+    'parent': 'ALL',
   },
 ]
 
@@ -116,9 +114,13 @@ class PkgorderHook:
   def force(self):
     osutils.rm(self.pkgorderfile, force=True)
   
+  def check(self):
+    return self.interface.isForced('pkgorder') or \
+           self.interface.cvars['pkgorder-file'] or \
+           self.interface.cvars['pkglist-changed'] or \
+           (not exists(self.pkgorderfile) and not self.interface.cvars['pkgorder-file'])
+  
   def run(self):
-    if not self._test_runstatus(): return
-    
     if self.interface.cvars['pkgorder-file']:
       self.interface.log(1, "reading supplied pkgorder file '%s'" % self.interface.cvars['pkgorder-file'])
     else:
@@ -149,29 +151,19 @@ class PkgorderHook:
       osutils.rm(cfg, force=True)
   
   def apply(self):
-    if self.interface.config.get('//iso/set', None) is not None:
-      if not self.interface.cvars['pkgorder-file']:
-        self.interface.cvars['pkgorder-file'] = self.pkgorderfile
+    if not self.interface.cvars['pkgorder-file']:
+      self.interface.cvars['pkgorder-file'] = self.pkgorderfile
     
-      if not exists(self.interface.cvars['pkgorder-file']):
-        raise RuntimeError, "Unable to find pkgorder file at '%s'" \
-                            % self.interface.cvars['pkgorder-file']
-      else:
-        if self.interface.cvars['pkgorder-file'] != self.pkgorderfile:
-          osutils.cp(self.interface.cvars['pkgorder-file'], self.pkgorderfile)
+    if not exists(self.interface.cvars['pkgorder-file']):
+      raise RuntimeError, "Unable to find pkgorder file at '%s'" \
+                          % self.interface.cvars['pkgorder-file']
+    else:
+      if self.interface.cvars['pkgorder-file'] != self.pkgorderfile:
+        osutils.cp(self.interface.cvars['pkgorder-file'], self.pkgorderfile)
     
-      # read in pkgorder
-      self.interface.cvars['pkgorder'] = filereader.read(self.pkgorderfile)
+    # read in pkgorder
+    self.interface.cvars['pkgorder'] = filereader.read(self.pkgorderfile)
   
-  def _test_runstatus(self):
-    if self.interface.config.get('//iso/set', None) is not None:
-      return self.interface.isForced('pkgorder') or \
-             self.interface.cvars['pkgorder-file'] or \
-             self.interface.cvars['pkglist-changed'] or \
-             (not exists(self.pkgorderfile) and not self.interface.cvars['pkgorder-file'])
-    #clean up if previous file exists
-    osutils.rm(self.pkgorderfile, force=True)
-    return False
 
 class ManifestHook:
   def __init__(self, interface):
@@ -223,7 +215,7 @@ class ManifestHook:
       return True
 
 
-class IsoHook(OutputEventHandler):
+class IsoHook(DiffMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'iso.iso'
@@ -233,23 +225,24 @@ class IsoHook(OutputEventHandler):
     self.interface.lfn = self._delete_isotree
     self.interface.rfn = self._generate_isotree
     self.interface.bfn = self._check_isotree
-
-    data =  {
-      'config': ['//iso',
-                 '//source'],
+    
+    self.DATA =  {
+      'config': ['//iso', '//source'],
       'input':  [join(self.interface.METADATA_DIR, 'manifest')], 
       'output': [self.interface.isodir]
     }
-    mdfile = join(self.interface.METADATA_DIR, 'iso.md')
-
-    OutputEventHandler.__init__(self, self.interface.config, data, mdfile)
+    self.mdfile = join(self.interface.METADATA_DIR, 'iso.md')
+    
+    DiffMixin.__init__(self, self.mdfile, self.DATA)
   
   def force(self):
     osutils.rm(self.interface.isodir, recursive=True, force=True)
+    osutils.rm(self.mdfile, force=True)
+  
+  def check(self):
+    return self.test_diffs()
   
   def run(self):
-    if not self._test_runstatus(): return
-    
     self.interface.log(0, "generating iso image(s)")
     
     self.newsets = self.interface.config.mget('//iso/set/@size', [])
@@ -276,15 +269,6 @@ class IsoHook(OutputEventHandler):
 
     self.write_metadata()
   
-  def _test_runstatus(self):
-    if self.test_input_changed():
-      if self.interface.config.get('//iso/set', None) is None:
-        # clean up old iso folder
-        self.force()
-        return False
-      else:
-        return True  
-
   def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
     if expanded_set not in self.newsets_expanded:

@@ -1,3 +1,6 @@
+### THIS FILE IS DEPRECATED ###
+### see difftest.py and interface.DiffMixin for replacement ###
+
 """ 
 output.py
 
@@ -32,15 +35,15 @@ import copy
 
 from os.path import join, exists, isfile, isdir
 
-import dims.listcompare as listcompare
-import dims.osutils as osutils
-import dims.xmlserialize as xmlserialize
-import dims.xmltree as xmltree
+from dims import listcompare
+from dims import osutils
+from dims import xmlserialize
+from dims import xmltree
 
 import magic
 import os
 
-#--------- FUNCTIONS --------------#
+#------ FUNCTIONS ------#
 def tree(path, type='d|f|l', prefix=True):
   types = type.split('|')
   rtn = []
@@ -114,29 +117,6 @@ class OutputEventHandler:
   def dprint(self, msg):
     "Print msg iff self.debug is True"
     if self.debug: print 'DEBUG: %s' % msg
-  
-  # temporary function definitions until I disembed them
-  # get rid of the annoying messages by not calling them anymore!
-  def initVars(self):
-    print 'default:initVars()'
-  def testInputChanged(self):
-    print 'default:testInputChanged()'; return self.test_input_changed()
-  def removeObsoletes(self):
-    print 'default:removeObsoletes()'
-  def testOutputValid(self):
-    print 'default:testOutputValid()'; return True
-  def removeInvalids(self):
-    print 'default:removeInvalids()'
-  def getInput(self):
-    print 'default:getInput()'
-  def testInputValid(self):
-    print 'default:testInputValid()'; return True
-  def addOutput(self):
-    print 'default:addOutput()'
-  def testOutputValid(self):
-    print 'default:testOutputValid()'; return True
-  def storeMetadata(self):
-    print 'default:storeMetadata()'; self.write_metadata()
   
   def read_metadata(self):
     """ 
@@ -223,7 +203,7 @@ class OutputEventHandler:
         root.insert(0, configvals)
         for path in self.data['config']:
           value = xmltree.Element('value', parent=configvals, attrs={'path': path})
-          for val in self.config.mget(path):
+          for val in self.config.mget(path, []):
             if type(val) == type(''): # config pointed to a string
               xmltree.Element('text', parent=value, text=val)
             else:
@@ -300,7 +280,7 @@ class OutputEventHandler:
     else:
       for path in self.data['config']:
         if self.configvals.has_key(path):
-          cfgval = self.config.mget(path)
+          cfgval = self.config.mget(path, [])
           if len(cfgval) == 0: cfgval = NoneEntry(path)
           if self.configvals[path] != cfgval:
             self.dprint("%s != %s" % (self.configvals[path], cfgval))
@@ -412,7 +392,7 @@ class OutputEventHandler:
         if (stats.st_size != olddata[f]['size']):
           self.dprint("file '%s' size differs" % f)
           return True
-      self.dprint("file '%s' unchanged" % f)
+      #self.dprint("file '%s' unchanged" % f)
     return False
   
   def diff(self, olddata, newdata):

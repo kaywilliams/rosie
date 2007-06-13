@@ -12,11 +12,11 @@ from dims import sync
 from dims import xmltree
 
 from callback  import BuildSyncCallback
+from interface import DiffMixin
 from locals    import printf_local, L_BUILDSTAMP_FORMAT, L_IMAGES
 from main      import BOOLEANS_TRUE, locals_imerge
 from magic     import match as magic_match
 from magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS, FILE_TYPE_FAT
-from output    import OutputEventHandler, OutputInvalidError
 
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')
 
@@ -114,7 +114,7 @@ class ImageHandler:
         return magic_match(p) == MAGIC_MAP[format]
 
 
-class ImageModifyMixin(OutputEventHandler, ImageHandler):
+class ImageModifyMixin(ImageHandler, DiffMixin):
   "Classes that extend this must require 'anaconda-version'"
   def __init__(self, name, interface, data, mdfile=None):
     if mdfile is None:
@@ -122,8 +122,8 @@ class ImageModifyMixin(OutputEventHandler, ImageHandler):
     else:
       self.mdfile = mdfile
     
-    OutputEventHandler.__init__(self, interface.config, data, self.mdfile)
     ImageHandler.__init__(self, interface)
+    DiffMixin.__init__(self, self.mdfile, data)
     
     self.name = name
   
@@ -142,15 +142,6 @@ class ImageModifyMixin(OutputEventHandler, ImageHandler):
     self.dest = join(self.interface.SOFTWARE_STORE, image_path, self.name)
     
     self.l_image = self.i_locals.iget('//images/image[@id="%s"]' % self.name)
-  
-  def check_run_status(self): #!
-    if self.test_input_changed():
-      osutils.rm(self.dest, force=True)
-      return True
-    if not self.validate_image():
-      ostuils.rm(self.dest, force=True)
-      return True
-    return False
   
   def modify(self):
     # sync image to input store

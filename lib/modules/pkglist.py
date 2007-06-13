@@ -16,15 +16,15 @@ EVENTS = [
   {
     'id': 'repogen',
     'properties': EVENT_TYPE_PROC,
-    'provides': ['repoconfig'],
-    'conditional-requires': ['comps.xml', 'RPMS'],
+    'provides': ['repoconfig-file'],
+    'conditional-requires': ['comps-changed', 'RPMS'],
   },
   {
     'id': 'pkglist',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['pkglist'],
-    'requires': ['required-packages', 'repoconfig'],
-    'conditional-requires': ['stores', 'user-required-packages'],
+    'provides': ['pkglist-file', 'pkglist', 'pkglist-changed'],
+    'requires': ['required-packages', 'repoconfig-file'],
+    'conditional-requires': ['user-required-packages', 'input-store-changed'],
   },
 ]
 
@@ -130,9 +130,14 @@ class PkglistHook:
     osutils.rm(self.mddir, recursive=True, force=True)
     osutils.rm(self.pkglistfile, force=True)
   
+  def check(self):
+    return self.interface.isForced('pkglist') or \
+           self.interface.cvars['pkglist-file'] or \
+           self.interface.cvars['input-store-changed'] or \
+           self.interface.cvars['comps-changed'] or \
+           not exists(self.pkglistfile) and not self.interface.cvars['pkglist-file']
+  
   def run(self):
-    if not self._test_runstatus(): return # check to make sure we should be running
-    
     self.interface.log(0, "resolving pkglist")
     
     pkglist = []
@@ -203,13 +208,6 @@ class PkglistHook:
     repoconfig = self.interface.cvars['repoconfig-file']
     if repoconfig: osutils.rm(repoconfig, force=True)
     
-  def _test_runstatus(self):
-    return self.interface.isForced('pkglist') or \
-           self.interface.cvars['pkglist-file'] or \
-           self.interface.cvars['input-store-changed'] or \
-           self.interface.cvars['comps-changed'] or \
-           not exists(self.pkglistfile) and not self.interface.cvars['pkglist-file']
-
 
 #------ ERRORS ------#
 class DepSolveError(StandardError): pass

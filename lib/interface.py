@@ -17,6 +17,7 @@ from dims import xmltree
 
 from dims.ConfigLib import expand_macros
 
+import difftest
 import locals
 
 
@@ -61,8 +62,8 @@ class EventInterface:
       raise xmltree.XmlPathError, "The specified store, '%s', does not exist in the config file" % i
     
     s,n,d,_,_,_ = urlparse(self.config.eget(['%s/path/text()' % storepath]))
-    u = self.config.eget(['%s/username/text()' % storepath])
-    p = self.config.eget(['%s/password/text()' % storepath])
+    u = self.config.eget(['%s/username/text()' % storepath], None)
+    p = self.config.eget(['%s/password/text()' % storepath], None)
     
     return i, s, n, d, u, p
   
@@ -129,3 +130,38 @@ class ListCompareMixin:
         self.cb.notify_right(len(self.r))
       if self.rfn:
         for i in self.r: self.rfn(i)
+
+class DiffMixin:
+  def __init__(self, mdfile, data):
+    self.mdfile = mdfile
+    self.data = data
+    
+    self.DT = difftest.DiffTest(self.mdfile)
+    self.handlers = {} # keep a dictionary of pointers to handlers so we can access later
+    
+    # in order for this to run successfully, DiffMixin's __init__ function must be
+    # called after self.interface and self.interface.config are already defined
+    if self.data.has_key('input'):
+      h = difftest.InputHandler(self.data['input'])
+      self.DT.addHandler(h)
+      self.handlers['input'] = h
+    if self.data.has_key('output'):
+      h = difftest.OutputHandler(self.data['output'])
+      self.DT.addHandler(h)
+      self.handlers['output'] = h
+    if self.data.has_key('variables'):
+      h = difftest.VariablesHandler(self.data['variables'], self.interface)
+      self.DT.addHandler(h)
+      self.handlers['variables'] = h
+    if self.data.has_key('config'):
+      h = difftest.ConfigHandler(self.data['config'], self.interface.config)
+      self.DT.addHandler(h)
+      self.handlers['config'] = h
+    
+    self.DT.read_metadata()
+  
+  def test_diffs(self):
+    return self.DT.changed()
+  
+  def write_metadata(self):
+    self.DT.write_metadata()

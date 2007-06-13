@@ -36,17 +36,17 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
 
     self.xen_dir = join(self.interface.SOFTWARE_STORE, 'images/xen')
 
-    xen_md_struct = {
+    self.DATA = {
       'config':    ['/distro/main/product/text()',
                     '/distro/main/version/text()',
                     '/distro/main/fullname/text()',
                     '/distro/installer/initrd.img/path/text()'],
-      'variables': ['anaconda_version'],
+      'variables': ['cvars[\'anaconda-version\']'],
       'input':     [interface.config.mget('/distro/installer/initrd.img/path/text()', [])],
       'output':    [join(interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ],
     }
   
-    ImageModifyMixin.__init__(self, 'initrd.img', interface, xen_md_struct,
+    ImageModifyMixin.__init__(self, 'initrd.img', interface, self.DATA,
                            mdfile=join(interface.METADATA_DIR, 'initrd.img-xen.md'))
     FileDownloadMixin.__init__(self, interface)
   
@@ -59,12 +59,15 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
   def force(self):
     osutils.rm(self.xen_dir, recursive=True, force=True)
   
-  def run(self):
+  def check(self):
     self.register_image_locals(L_IMAGES)
     self.register_file_locals(L_FILES)
     
-    if not self._test_runstatus(): return
-    
+    return self.interface.isForced('xen-images') or \
+           not self.validate_image() or \
+           self.test_diffs()
+  
+  def run(self):
     self.interface.log(0, "preparing xen images")
     i,_,_,d,_,_ = self.interface.getStoreInfo(self.interface.getBaseStore())
     
@@ -81,10 +84,6 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
       if not exists(join(self.interface.SOFTWARE_STORE, file)):
         raise RuntimeError, "Unable to find '%s' in '%s'" % (file, join(self.interface.SOFTWARE_STORE, file))
   
-  def _test_runstatus(self):
-    return self.interface.isForced('xen-images') or \
-           self.check_run_status()
-
 
 L_FILES = ''' 
 <locals>

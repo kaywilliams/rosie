@@ -99,7 +99,7 @@ class Build:
     self.config = distroconfig
     
     # set up IMPORT_DIRS
-    self.IMPORT_DIRS = mainconfig.mget('//librarypaths/path/text()')
+    self.IMPORT_DIRS = mainconfig.mget('//librarypaths/path/text()', [])
     if options.libpath:
       self.IMPORT_DIRS.insert(0, options.libpath) # TODO make this a list
     for dir in sys.path:
@@ -156,21 +156,16 @@ class Build:
     #  * True  - force this event to run
     #  * False - prevent this event from running
     self.userFC = {}
-    # list of handlers - allows modules to instantiate a single handler
-    # for other modules to use without redoing the work of instantiating
-    # it multiple times
-    self.handlers = {}
     
     # load all enabled modules, register events, set up dispatcher
     self.__init_dispatch() # sets up self.dispatch
     
+    self.dispatch.pprint() #!
+    ##sys.exit() #!
+    
     # get everything started - raise init and other events prior
     self.dispatch.get('init').interface.parser = parser
-    #self.dispatch.process(until='ALL')
     self.dispatch.process(until='init')
-    
-    ##event.pprint(self.dispatch.event) #!
-    ##sys.exit() #!    
   
   def __init_dispatch(self):
     """ 
@@ -262,7 +257,7 @@ class Build:
     e = self.dispatch.get(eventid, err=True)
     if e.test(event.PROP_CAN_DISABLE):
       self.userFC[eventid] = (option == OPT_FORCE)
-      # apply to immediate children if a meta event
+      # apply to all successors if event has the PROP_META property
       if e.test(event.PROP_META):
         for child in e.get_children():
           if child.test(event.PROP_CAN_DISABLE):

@@ -20,9 +20,9 @@ EVENTS = [
   {
     'id': 'comps',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['comps.xml', 'required-packages', 'user-required-packages'],
+    'provides': ['comps-file', 'comps-changed', 'required-packages', 'user-required-packages'],
     'requires': ['anaconda-version'],
-    'conditional-requires': ['RPMS'],
+    'conditional-requires': ['RPMS', 'input-store-changed'],
   },
 ]
 
@@ -84,9 +84,17 @@ class CompsHook:
   def force(self):
     osutils.rm(self.s_compsfile, force=True)
   
+  def check(self):
+    # if the input stores changes, we need to run
+    # if there is no comps file in the ouput directory and one isn't otherwise
+    # specified, we need to run
+    return self.interface.isForced('comps') or \
+           self.interface.cvars['with-comps'] or \
+           self.interface.cvars['input-store-changed'] or \
+           (not exists(self.s_compsfile) and not self.interface.cvars['comps-file'])
+  
+
   def run(self):
-    if not self._test_runstatus(): return # check if we should be running
-    
     self.interface.log(0, "computing required packages")
     
     groupfile = self.interface.cvars['with-comps'] or \
@@ -137,15 +145,6 @@ class CompsHook:
     # set required packages
     reqpkgs = xmltree.read(self.interface.cvars['comps-file']).get('//packagereq/text()')
     self.interface.cvars['required-packages'] = reqpkgs
-  
-  def _test_runstatus(self):
-    # if the input stores changes, we need to run
-    # if there is no comps file in the ouput directory and one isn't otherwise
-    # specified, we need to run
-    return self.interface.isForced('comps') or \
-           self.interface.cvars['with-comps'] or \
-           self.interface.cvars['input-store-changed'] or \
-           (not exists(self.s_compsfile) and not self.interface.cvars['comps-file'])
   
   #------ COMPS FILE GENERATION FUNCTIONS ------#
   def generate_comps(self):
@@ -236,7 +235,7 @@ class CompsHook:
       self._add_group_package('kernel', base, type='mandatory')
     
     # exclude all package in self.exclude
-    exclude = self.interface.config.mget('//comps/create-new/exclude/packages/text()') + \
+    exclude = self.interface.config.mget('//comps/create-new/exclude/packages/text()', []) + \
               (self.interface.cvars['excluded-packages'] or [])
 
     for pkg in exclude:
@@ -257,7 +256,7 @@ class CompsHook:
       mapped[store] = []
     unmapped = []
     
-    for group in self.interface.config.mget('//main/groups/group'):
+    for group in self.interface.config.mget('//main/groups/group', []):
       store = group.attrib.get('store', None)
       if store is not None:
         try:

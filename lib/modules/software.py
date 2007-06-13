@@ -25,9 +25,9 @@ EVENTS = [
     'id': 'software',
     'interface': 'SoftwareInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['software', 'rpms-directory'],
-    'requires': ['pkglist', 'anaconda-version'],
-    'conditional-requires': ['comps.xml', 'RPMS'],
+    'provides': ['rpms-directory', 'new-rpms'],
+    'requires': ['pkglist', 'anaconda-version', 'input-store-lists'],
+    'conditional-requires': ['comps-file', 'RPMS'],
   },
 ]
 

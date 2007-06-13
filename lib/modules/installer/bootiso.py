@@ -5,7 +5,8 @@ from os.path import join, exists
 from dims import osutils
 from dims import shlib
 
-from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from difftest import DiffTest, ConfigHandler, VariablesHandler, InputHandler, OutputHandler
+from event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
 from installer.lib import FileDownloadMixin, ImageModifyMixin
 
@@ -15,16 +16,15 @@ API_VERSION = 4.1
 EVENTS = [
   {
     'id': 'isolinux',
-    'provides': ['isolinux', 'vmlinuz', 'initrd.img', '.buildstamp'],
+    'provides': ['vmlinuz', 'initrd.img', '.buildstamp', 'isolinux-changed'],
     'requires': ['anaconda-version', 'source-vars'],
     'parent': 'INSTALLER',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR    
   },
   {
     'id': 'bootiso',
-    'provides': ['boot.iso'],
     'requires': ['vmlinuz', 'initrd.img', 'isolinux'],
-    'conditional-requires': ['splash.lss'],
+    'conditional-requires': ['splash.lss', 'isolinux-changed'],
     'parent': 'INSTALLER',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
   },
@@ -58,17 +58,17 @@ class IsolinuxHook(ImageModifyMixin, FileDownloadMixin):
     
     self.isolinux_dir = join(self.interface.SOFTWARE_STORE, 'isolinux')
     
-    isolinux_md_struct = {
+    self.DATA = {
       'config':    ['/distro/main/product/text()',
                     '/distro/main/version/text()',
                     '/distro/main/fullname/text()',
                     '/distro/installer/product.img/path/text()'],
-      'variables': ['anaconda_version'],
+      'variables': ['cvars[\'anaconda-version\']'],
       'input':     [interface.config.mget('/distro/installer/initrd.img/path/text()', [])],
       'output':    [join(interface.SOFTWARE_STORE, x) for x in ISOLINUX_OUTPUT_FILES]
     }
     
-    ImageModifyMixin.__init__(self, 'initrd.img', interface, isolinux_md_struct)
+    ImageModifyMixin.__init__(self, 'initrd.img', interface, self.DATA)
     FileDownloadMixin.__init__(self, interface)
   
   def error(self, e):
@@ -77,12 +77,15 @@ class IsolinuxHook(ImageModifyMixin, FileDownloadMixin):
     except:
       pass
   
-  def run(self):
+  def check(self):
     self.register_file_locals(L_FILES)
     self.register_image_locals(L_IMAGES)
     
-    if not self._test_runstatus(): return
-    
+    return self.interface.isForced('isolinux') or \
+           not self.validate_image() or \
+           self.test_diffs()
+  
+  def run(self):
     self.interface.log(0, "synchronizing isolinux files")
     i,_,_,d,_,_ = self.interface.getStoreInfo(self.interface.getBaseStore())
     
@@ -101,10 +104,6 @@ class IsolinuxHook(ImageModifyMixin, FileDownloadMixin):
       if not exists(join(self.interface.SOFTWARE_STORE, file)):
         raise RuntimeError, "Unable to find '%s' at '%s'" % (file, join(self.interface.SOFTWARE_STORE))
   
-  def _test_runstatus(self):
-    return self.interface.isForced('isolinux') or \
-           self.check_run_status()
-
 
 class BootisoHook:
   def __init__(self, interface):
@@ -119,9 +118,12 @@ class BootisoHook:
   def force(self):
     osutils.rm(self.bootiso, force=True)
   
+  def check(self):
+    return self.interface.isForced('bootiso') or \
+           self.interface.cvars['isolinux-changed'] or \
+           not exists(self.bootiso)
+  
   def run(self):
-    if not self._test_runstatus(): return
-    
     self.interface.log(0, "generating boot.iso")
     
     isodir = join(self.interface.SOFTWARE_STORE, 'images/isopath')
@@ -143,12 +145,6 @@ class BootisoHook:
     if not exists(self.bootiso):
       raise RuntimeError, "Unable to find boot.iso at '%s'" % self.bootiso
   
-  def _test_runstatus(self):
-    return self.interface.isForced('bootiso') or \
-           self.interface.cvars['isolinux-changed'] or \
-           not exists(self.bootiso)
-
-
 
 #------ LOCALS ------#
 L_FILES = ''' 

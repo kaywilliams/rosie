@@ -7,25 +7,23 @@ EVENTS = [
   {
     'id': 'init',
     'interface': 'InitInterface',
-    'provides': ['init'],
+    'provides': ['option-parser'],
     'parent': 'ALL',
   },
   {
     'id': 'applyopt',
     'interface': 'ApplyOptInterface',
-    'provides': ['applyopt'],
+    'requires': ['option-parser'],
     'conditional-requires': ['init'],
     'parent': 'ALL',
   },
   {
     'id': 'validate',
-    'provides': ['validate'],
     'conditional-requires': ['applyopt'],
     'parent': 'ALL',
   },
   {
     'id': 'MAIN',
-    'provides': ['MAIN'],
     'conditional-requires': ['init', 'applyopt', 'validate'],
     'parent': 'ALL',
     'properties': EVENT_TYPE_META,

@@ -6,7 +6,6 @@ EVENTS = [
   {
     'id': 'INSTALLER',
     'properties': EVENT_TYPE_META,
-    'provides': ['INSTALLER', 'software'],
   },
 ]
 

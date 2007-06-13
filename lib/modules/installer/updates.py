@@ -33,17 +33,17 @@ class UpdatesHook(ImageModifyMixin):
     
     self.updatesimage = join(interface.SOFTWARE_STORE, 'images/updates.img')
     
-    updates_md_struct = {
+    self.DATA = {
       'config':    ['/distro/main/product/text()',
                     '/distro/main/version/text()',
                     '/distro/main/fullname/text()',
                     '/distro/installer/updates.img/path/text()'],
-      'variables': ['anaconda_version'],
+      'variables': ['cvars[\'anaconda-version\']'],
       'input':     [interface.config.mget('/distro/installer/updates.img/path/text()', [])],
       'output':    [self.updatesimage],
     }
   
-    ImageModifyMixin.__init__(self, 'updates.img', interface, updates_md_struct)
+    ImageModifyMixin.__init__(self, 'updates.img', interface, self.DATA)
   
   def error(self, e):
     try:
@@ -54,11 +54,14 @@ class UpdatesHook(ImageModifyMixin):
   def force(self):
     osutils.rm(self.updatesimage, force=True)
   
-  def run(self):
+  def check(self):
     self.register_image_locals(L_IMAGES)
     
-    if not self._test_runstatus(): return
-    
+    return self.interface.isForced('updates-image') or \
+           not self.validate_image() or \
+           self.test_diffs()
+  
+  def run(self):
     self.interface.log(0, "generating updates.img")
     self.modify() # modify image; see ImageModifyMixin.modify() in lib.py
   
@@ -66,10 +69,6 @@ class UpdatesHook(ImageModifyMixin):
     if not exists(self.updatesimage):
       raise RuntimeError, "Unable to find 'updates.img' at '%s'" % self.updatesimage
   
-  def _test_runstatus(self):
-    return self.interface.isForced('updates-image') or \
-           self.check_run_status()
-
 
 #------ LOCALS ------#
 L_IMAGES = ''' 

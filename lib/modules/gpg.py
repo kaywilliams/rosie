@@ -6,9 +6,8 @@ from dims import xmltree
 from dims.mkrpm   import rpmsign
 
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from interface import EventInterface
+from interface import EventInterface, DiffMixin
 from main      import BOOLEANS_TRUE
-from output    import OutputEventHandler
 
 API_VERSION = 4.0
 
@@ -16,9 +15,8 @@ EVENTS = [
   {
     'id': 'gpgsign',
     'interface': 'GpgInterface',
-    'provides': ['gpgsign'],
     'requires': ['rpms-directory'],
-    'conditional-requires': ['software'],
+    'conditional-requires': ['new-rpms', 'software'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
   },
 ]
@@ -92,7 +90,7 @@ class SoftwareHook:
       # the following is kind of a hack - read gpg's metadata and compare the value
       # of the sign element to that in the config file
       mdfile = xmltree.read(join(self.interface.METADATA_DIR, 'gpg.md'))
-      elem = mdfile.iget('//config-values/value[@path="//gpgsign"]/elements')
+      elem = mdfile.iget('//config/value[@path="//gpgsign"]/elements')
       last_val = elem.iget('gpgsign/sign/text()')
     except (AttributeError, xmltree.XmlPathError, ValueError):
       last_val = None
@@ -103,19 +101,19 @@ class SoftwareHook:
       self.interface.log(1, "signature status differs; removing rpms")
       osutils.rm(self.interface.rpmdest, recursive=True, force=True)
 
-class GpgsignHook(OutputEventHandler):
+class GpgsignHook(DiffMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'gpg.gpgsign'
     
     self.interface = interface
 
-    data = {
+    self.DATA =  {
       'config': ['//gpgsign', '//gpgkey/text()'],
     }
-    
     self.mdfile = join(interface.METADATA_DIR, 'gpg.md')
-    OutputEventHandler.__init__(self, self.interface.config, data, self.mdfile)
+    
+    DiffMixin.__init__(self, self.mdfile, self.DATA)
   
   def force(self):
     self.interface.cvars['gpg-tosign'] or \
@@ -126,22 +124,19 @@ class GpgsignHook(OutputEventHandler):
                                            type=osutils.TYPE_FILE,
                                            prefix=False) ]
   
-  def run(self):
-    if not self._test_runstatus(): return
+  def check(self):
+    return self.interface.isForced('gpgsign') or \
+           self.test_diffs()
     
+  def run(self):
     if self.interface.sign:
       self.interface.log(0, "signing packages")
       for rpm,_ in (self.interface.cvars['new-rpms'] or []) + \
                    (self.interface.cvars['gpg-tosign'] or []):
         self.interface.sign_rpm(rpm)
+      
+      self.write_metadata()
   
-  def apply(self):
-    self.write_metadata()
-  
-  def _test_runstatus(self):
-    return self.interface.isForced('gpgsign') or \
-           self.test_input_changed()
-
 
 #------ ERRORS ------#
 class GpgError: pass

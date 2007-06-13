@@ -117,12 +117,12 @@ class Timber:
     
     for i in self.rpm_disc_map:
       discpath = join(self.split_tree, '%s-disc%d' % (self.product, i))
-      osutils.mkdir(join(discpath, self.product, 'RPMS'), parent=True)
+      osutils.mkdir(join(discpath, self.product), parent=True)
       if i == 1: # put release files on disc 1
         filelist = osutils.find(self.unified_tree, type=osutils.TYPE_FILE,
-                                nregex='.*(\.discinfo|RPMS/.*\.[Rr][Pp][Mm]).*', prefix=False)
+                                nregex='.*(\.discinfo|.*\.[Rr][Pp][Mm]).*', prefix=False)
         dirlist  = osutils.find(self.unified_tree, type=osutils.TYPE_DIR,
-                                nregex='.*(RPMS|SRPMS).*', prefix=False)
+                                nregex='.*(RPMS|SRPMS|%s).*' % self.product, prefix=False)
         
         for dir in dirlist:
           osutils.mkdir(join(discpath, dir), parent=True)
@@ -180,13 +180,13 @@ class Timber:
             nextdisc = self.rpm_disc_map.index(disc+1)
             disc = self.rpm_disc_map[nextdisc]
             discpath = join(self.split_tree, '%s-disc%d' % (self.product, disc))
-            self.link(pkgdir, join(discpath, self.product, 'RPMS'), [file])
+            self.link(pkgdir, join(discpath, self.product), [file])
           except IndexError:
             disc = disc - 1
             print 'DEBUG: overflow from disc %d onto disc %d' % (disc+1, disc)
             continue
         else:
-          self.link(pkgdir, join(discpath, self.product, 'RPMS'), [file])
+          self.link(pkgdir, join(discpath, self.product), [file])
   
   def split_srpms(self):
     if self.srpm_discs is None:

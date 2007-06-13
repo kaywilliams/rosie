@@ -144,6 +144,9 @@ class Event(resolve.Item, tree.Node):
                     sequentially with an instance of the interface defined
                     in self.interface whenever this Event is executed
     """
+    # implicitly include event name in provides list
+    if name not in provides: provides.append(name)
+    
     resolve.Item.__init__(self, provides, requires,
                           conditional_requires=conditional_requires)
     tree.Node.__init__(self, name)
@@ -197,31 +200,34 @@ class Event(resolve.Item, tree.Node):
   def force(self): self._run_hooks(fn='force')
   def pre(self):   self._run_hooks(fn='pre')
   def post(self):  self._run_hooks(fn='post')
-  def run(self):   self._run_hooks(fn='run')
   def skip(self):  self._run_hooks(fn='skip')
-  def _run_hooks(self, fn='run'):
-    """ 
-    Create an instance of the registered interface and pass it as an argument
-    to all registered hook functions.  args and kwargs serve as the arguments
-    to the interface, not the functions themselves.
-    """
-    print '%s.%s()' % (self.id, fn) #!
+  def run(self):
     for hook in self.hooks:
-      try:
-        if hasattr(hook, fn):
-          getattr(hook, fn)()
-        else:
-          pass
-      except HookExit, e:
-        print e
-        sys.exit()
-      except Exception, e:
-        if hasattr(hook, 'error'):
-          hook.error(e)
-        # raise e again, sort of
-        traceback.print_exc(file=sys.stderr)
-        sys.exit(1)
-
+      if not (hasattr(hook, 'check') and not hook.check()):
+        self._run_hook(hook, 'run')
+  
+  def _run_hooks(self, fn='run'):
+    "Run the function specified in fn on each registered hook, if it has one."
+    ##print '%s.%s()' % (self.id, fn) #!
+    for hook in self.hooks:
+      self._run_hook(hook, fn)
+  
+  def _run_hook(self, hook, fn='run'):
+    try:
+      if hasattr(hook, fn):
+        getattr(hook, fn)()
+      else:
+        pass
+    except HookExit, e:
+      print e
+      sys.exit()
+    except Exception, e:
+      if hasattr(hook, 'error'):
+        hook.error(e)
+      # raise e again, sort of
+      traceback.print_exc(file=sys.stderr)
+      sys.exit(1)
+  
 
 class Dispatch:
   """ 
@@ -515,9 +521,22 @@ class Dispatch:
   
   def load_hooks(self, module):
     if hasattr(module, 'HOOK_MAPPING'):
-      print module.__file__ #!
+      print "Loading module '%s'" % module.__file__ #!
       for hook, eventid in module.HOOK_MAPPING.items():
         self.register_hook(getattr(module, hook), eventid)
+
+  def pprint(self):
+    depth = 0
+    for event in self:
+      if event == -1:
+        depth -= 1; continue
+      if depth == 0:
+        print event.id
+      else:
+        print '|  ' * (depth-1) + '|- ' + event.id
+      if len(event.get_children()) > 0:
+        depth += 1
+    print
   
 class EventIterator:
   "Basic iterator over Event-type objects"
@@ -576,17 +595,6 @@ def depthfirst(event):
     for x in depthfirst(event.nextsibling):
       yield x   # siblings
 
-def pprint(event):
-  for event in depthfirst(event):
-    e = event; depth = 0
-    # this is somewhat inefficient
-    while e.parent is not None:
-      e = e.parent; depth += 1
-    if depth == 0:
-      print event.id
-    else:
-      print '|  ' * (depth-1) + '|- ' + event.id
-    
 
 #------ FACTORY FUNCTIONS ------#
 def EventFromStruct(struct):

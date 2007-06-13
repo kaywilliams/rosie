@@ -4,9 +4,9 @@ discinfo.py
 generates a .discinfo file
 """
 
-__author__  = "Kay Williams <kwilliams@abodiosoftware.com>"
-__version__ = "1.0"
-__date__    = "June 7th, 2007"
+__author__  = 'Kay Williams <kwilliams@abodiosoftware.com>'
+__version__ = '1.0'
+__date__    = 'June 7th, 2007'
 
 import copy
 import os
@@ -20,9 +20,8 @@ from dims import osutils
 from dims import sync
 
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from interface import EventInterface
+from interface import EventInterface, DiffMixin
 from main      import locals_imerge
-from output    import OutputEventHandler
 
 API_VERSION = 4.0
 
@@ -43,21 +42,21 @@ HOOK_MAPPING = {
 }
 
 #------ HOOKS ------#
-class DiscinfoHook(OutputEventHandler):
+class DiscinfoHook(DiffMixin):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'metadata.discinfo'
+    self.ID = 'installer.discinfo.discinfo'
     
     self.interface = interface
     self.difile = join(self.interface.SOFTWARE_STORE, '.discinfo')
 
-    data =  {
+    self.DATA =  {
       'config': ['/distro/main/fullname/text()'],
       'output': [self.difile]
     }
     mdfile = join(self.interface.METADATA_DIR, 'discinfo.md')
-
-    OutputEventHandler.__init__(self, self.interface.config, data, mdfile)
+    
+    DiffMixin.__init__(self, mdfile, self.DATA)
     
   def force(self):
     osutils.rm(self.difile, force=True)
@@ -67,28 +66,30 @@ class DiscinfoHook(OutputEventHandler):
     fn = self.interface.config.get('//main/fullname/text()', vars['product'])
     vars.update({'fullname': fn})
   
+  def check(self):
+    return self.test_diffs()
+  
   def run(self):
     # setup
     locals = locals_imerge(L_DISCINFO_FORMAT, self.interface.cvars['anaconda-version'])
     
-    if self.test_input_changed():
-  		# create empty .discinfo formatted file object
-      discinfo = ffile.XmlToFormattedFile(locals.iget('discinfo'))
-
-      # get product, fullname, and basearch from interface
-      base_vars = self.interface.BASE_VARS
-
-      # add timestamp and discs using defaults to match anaconda makestamp.py
-      ts = "%f" % time.time()
-      discs = "1"
-      base_vars.update({'timestamp': ts, 'discs': discs})
-
-      # write .discinfo
-      discinfo.write(self.difile, **base_vars)
-      os.chmod(self.difile, 0644)
-
-      # write metadata
-      self.write_metadata()
+    # create empty .discinfo formatted file object
+    discinfo = ffile.XmlToFormattedFile(locals.iget('discinfo'))
+    
+    # get product, fullname, and basearch from interface
+    base_vars = self.interface.BASE_VARS
+    
+    # add timestamp and discs using defaults to match anaconda makestamp.py
+    base_vars.update({'timestamp': str(time.time()), 'discs': '1'}) #! do we want to be updating the 'real' base vars?
+    
+    # write .discinfo
+    discinfo.write(self.difile, **base_vars)
+    os.chmod(self.difile, 0644)
+  
+  def apply(self):
+    if not exists(self.difile):
+      raise RuntimeError, "Unable to find .discinfo file at '%s'" % self.difile
+    self.write_metadata()
 
 #------ LOCALS ------#
 L_DISCINFO_FORMAT = ''' 

@@ -20,7 +20,7 @@ API_VERSION = 4.0
 EVENTS = [
   {
     'id': 'stores',
-    'provides': ['stores', 'anaconda-version'],
+    'provides': ['anaconda-version', 'input-store-lists', 'input-store-changed'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'interface': 'StoresInterface',
   },

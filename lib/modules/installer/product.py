@@ -5,8 +5,9 @@ from dims import osutils
 from dims import sortlib
 from dims import xmltree
 
-from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from main  import locals_imerge
+from difftest import DiffTest, OutputHandler, InputHandler, VariablesHandler, ConfigHandler
+from event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from main     import locals_imerge
 
 from installer.lib import ImageModifyMixin
 
@@ -37,23 +38,41 @@ class ProductHook(ImageModifyMixin):
     
     self.productimage = join(self.interface.SOFTWARE_STORE, 'images/product.img')
     
-    product_md_struct = {
+    self.DATA = {
       'config':    ['//main/product/text()',
                     '//main/version/text()',
                     '//main/fullname/text()',
                     '//installer/product.img/path/text()'],
-      'variables': ['anaconda_version'],
+      'variables': ['cvars[\'anaconda-version\']'],
       'input':     [interface.config.mget('//installer/product.img/path/text()', [])],
       'output':    [self.productimage],
     }
   
-    ImageModifyMixin.__init__(self, 'product.img', interface, product_md_struct)
+    ImageModifyMixin.__init__(self, 'product.img', interface, self.DATA)
     
   def error(self, e):
     try:
       self.close()
     except:
       pass
+  
+  def force(self):
+    osutils.rm(self.productimage, force=True)
+  
+  def check(self):
+    self.register_image_locals(L_IMAGES)
+    
+    return self.interface.isForced('product-image') or \
+           not self.validate_image() or \
+           self.test_diffs()
+  
+  def run(self):
+    self.interface.log(0, "generating product.img")  
+    self.modify() # see generate(), below, and ImageModifyMixin in lib.py
+  
+  def apply(self):
+    if not exists(self.productimage):
+      raise RuntimeError, "Unable to find 'product.img' at '%s'" % self.productimage
   
   def register_image_locals(self, locals):
     ImageModifyMixin.register_image_locals(self, locals)
@@ -68,24 +87,6 @@ class ProductHook(ImageModifyMixin):
         self.ic_locals.iget('//installclass').text = INSTALLCLASSES[i]
       else:
         break
-  
-  def force(self):
-    osutils.rm(self.productimage, force=True)
-  
-  def run(self):
-    self.register_image_locals(L_IMAGES)
-    
-    if not self._test_runstatus(): return
-    self.interface.log(0, "generating product.img")  
-    self.modify() # see generate(), below, and ImageModifyMixin in lib.py
-  
-  def apply(self):
-    if not exists(self.productimage):
-      raise RuntimeError, "Unable to find 'product.img' at '%s'" % self.productimage
-  
-  def _test_runstatus(self):
-    return self.interface.isForced('product-image') or \
-           self.check_run_status()
   
   def generate(self):
     ImageModifyMixin.generate(self)
