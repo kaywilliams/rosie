@@ -90,14 +90,14 @@ class LogosRpmHook(RpmHandler, ColorMixin):
   def build_controlset(self):
     def getvalue(logo, name, optional=False):
       try:
-        return logo.iget(name).text
+        return logo.get(name).text
       except AttributeError:
         if optional:
           return None
         else:
           raise
     self.controlset = {}
-    for logo in self.imageslocal.get('//logo'):
+    for logo in self.imageslocal.xpath('//logo'):
       id = logo.attrib['id']
       install_path = getvalue(logo, 'location')      
       file_name = basename(id)

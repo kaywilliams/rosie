@@ -205,14 +205,14 @@ class InputHandler:
     
   def mdread(self, metadata):
     for path in self.data:
-      for file in metadata.get('/metadata/input/file'):
-        self.input[file.iget('@path')] = {'size':  int(file.iget('size/text()')),
-                                          'mtime': int(file.iget('mtime/text()'))}
+      for file in metadata.xpath('/metadata/input/file'):
+        self.input[file.get('@path')] = {'size':  int(file.get('size/text()')),
+                                          'mtime': int(file.get('mtime/text()'))}
   
   def mdwrite(self, root):
     # remove previous node, if present
     try:
-      root.remove(root.iget('/metadata/input'))
+      root.remove(root.get('/metadata/input'))
     except TypeError:
       pass
     
@@ -236,14 +236,14 @@ class OutputHandler:
     
   def mdread(self, metadata):
     for path in self.data:
-      for file in metadata.get('/metadata/output/file'):
-        self.output[file.iget('@path')] = {'size':  int(file.iget('size/text()')),
-                                           'mtime': int(file.iget('mtime/text()'))}
+      for file in metadata.xpath('/metadata/output/file'):
+        self.output[file.get('@path')] = {'size':  int(file.get('size/text()')),
+                                           'mtime': int(file.get('mtime/text()'))}
   
   def mdwrite(self, root):
     # remove previous node, if present
     try:
-      root.remove(root.iget('/metadata/output'))
+      root.remove(root.get('/metadata/output'))
     except TypeError:
       pass
     
@@ -268,43 +268,43 @@ class ConfigHandler:
     
   def mdread(self, metadata):
     for path in self.data:
-      node = metadata.iget('/metadata/config/value[@path="%s"]' % path, None)
+      node = metadata.get('/metadata/config/value[@path="%s"]' % path, None)
       if node is not None:
-        self.cfg[path] = node.get('elements/*', None) or \
-                            node.get('text/text()', NoneEntry(path))
+        self.cfg[path] = node.xpath('elements/*', None) or \
+                         node.xpath('text/text()', NoneEntry(path))
       else:
         self.cfg[path] = NewEntry()
   
   def mdwrite(self, root):
     # remove previous node, if present
     try:
-      root.remove(root.iget('/metadata/config'))
+      root.remove(root.get('/metadata/config'))
     except TypeError:
       pass
     
     config = xmltree.Element('config', parent=root)
     for path in self.data:
       value = xmltree.Element('value', parent=config, attrs={'path': path})
-      for val in self.config.mget(path, []):
+      for val in self.config.xpath(path, []):
         if type(val) == type(''): # a string
           xmltree.Element('text', parent=value, text=val)
         else:
           elements = xmltree.Element('elements', parent=value)
-          elements.append(copy.copy(val)) # append() is destructive
+          elements.append(copy.copy(val).config) # append() is destructive
     
   def diff(self):
     diff = {}
     for path in self.data:
       if self.cfg.has_key(path):
         try:
-          cfgval = self.config.mget(path)
+          cfgval = self.config.xpath(path)
         except xmltree.XmlPathError:
           cfgval = NoneEntry(path)
         if self.cfg[path] != cfgval:
           diff[path] = (self.cfg[path], cfgval)
       else:
         try:
-          cfgval = self.config.mget(path)
+          cfgval = self.config.xpath(path)
         except xmltree.XmlPathError:
           cfgval = NoneEntry(path)
         diff[path] = (NewEntry(), cfgval)
@@ -319,7 +319,7 @@ class VariablesHandler:
   
   def mdread(self, metadata):
     for item in self.data:
-      node = metadata.iget('/metadata/variables/value[@variable="%s"]' % item)
+      node = metadata.get('/metadata/variables/value[@variable="%s"]' % item)
       if node is None:
         self.vars[item] = NewEntry()
       else:
@@ -330,7 +330,7 @@ class VariablesHandler:
   
   def mdwrite(self, root):
     try:
-      root.remove(root.iget('/metadata/variables'))
+      root.remove(root.get('/metadata/variables'))
     except TypeError:
       pass
     

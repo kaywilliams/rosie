@@ -44,10 +44,10 @@ class ImageHandler:
     self.anaconda_version = self.interface.cvars['anaconda-version']
   
   def open(self):
-    image  = self.i_locals.iget('//images/image[@id="%s"]' % self.name)
+    image  = self.i_locals.get('//images/image[@id="%s"]' % self.name)
     path   = self._getpath()
-    format = image.iget('format/text()')
-    zipped = image.iget('zipped/text()', 'False') in BOOLEANS_TRUE
+    format = image.get('format/text()')
+    zipped = image.get('zipped/text()', 'False') in BOOLEANS_TRUE
     
     if image.attrib.get('virtual', 'False') in BOOLEANS_TRUE:
       if exists(path): osutils.rm(path) # delete old image
@@ -70,7 +70,7 @@ class ImageHandler:
     
     locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.anaconda_version)
     
-    buildstamp_fmt = locals.iget('//buildstamp-format')
+    buildstamp_fmt = locals.get('//buildstamp-format')
     buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
     try:
       base_vars = buildstamp.floread(self.image.read('.buildstamp'))
@@ -89,18 +89,18 @@ class ImageHandler:
     self.image.write([ join(dir, file) for file in os.listdir(dir) ], '/')
   
   def _getpath(self):
-    FILE = self.i_locals.iget('//images/image[@id="%s"]' % self.name)
+    FILE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
     return join(self.interface.SOFTWARE_STORE,
-                printf_local(FILE.iget('path'), self.vars),
+                printf_local(FILE.get('path'), self.vars),
                 self.name)
   
   def _iszipped(self):
-    IMAGE = self.i_locals.iget('//images/image[@id="%s"]' % self.name)
-    return IMAGE.iget('zipped/text()', 'False') in BOOLEANS_TRUE
+    IMAGE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
+    return IMAGE.get('zipped/text()', 'False') in BOOLEANS_TRUE
   
   def _isvirtual(self):
-    IMAGE = self.i_locals.iget('//images/image[@id="%s"]' % self.name)
-    return IMAGE.iget('@virtual', 'True') in BOOLEANS_TRUE
+    IMAGE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
+    return IMAGE.get('@virtual', 'True') in BOOLEANS_TRUE
   
   def validate_image(self):
     p = self._getpath()
@@ -110,7 +110,7 @@ class ImageHandler:
       if self._iszipped():
         return magic_match(p) == FILE_TYPE_GZIP
       else:
-        format = self.l_image.iget('format/text()')
+        format = self.l_image.get('format/text()')
         return magic_match(p) == MAGIC_MAP[format]
 
 
@@ -132,7 +132,7 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
     
     i,s,n,d,u,p = self.interface.getStoreInfo(self.interface.getBaseStore())
     
-    image_path = self.i_locals.iget('//images/image[@id="%s"]/path' % self.name)
+    image_path = self.i_locals.get('//images/image[@id="%s"]/path' % self.name)
     image_path = printf_local(image_path, self.interface.BASE_VARS)
     
     self.rsrc = self.interface.storeInfoJoin(s, n, join(d, image_path, self.name))
@@ -141,7 +141,7 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
     self.password = p
     self.dest = join(self.interface.SOFTWARE_STORE, image_path, self.name)
     
-    self.l_image = self.i_locals.iget('//images/image[@id="%s"]' % self.name)
+    self.l_image = self.i_locals.get('//images/image[@id="%s"]' % self.name)
   
   def modify(self):
     # sync image to input store
@@ -177,9 +177,9 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
     self.write_metadata()
   
   def generate(self):
-    for file in self.interface.config.mget('//installer/%s/path' % self.name, []):
-      src = file.iget('text()')
-      dest = file.iget('@dest', '/')
+    for file in self.interface.config.xpath('//installer/%s/path' % self.name, []):
+      src = file.get('text()')
+      dest = file.get('@dest', '/')
       if exists(src):
         self.image.write(src, dest)
     if exists(join(self.interface.METADATA_DIR, 'images-src/%s' % self.name)):
@@ -206,12 +206,12 @@ class FileDownloadMixin:
     if not self.f_locals:
       raise RuntimeError, "FileDownloadMixin instance has no registered locals"
     dest = dest.lstrip('/') # make sure it is not an absolute path
-    for file in self.f_locals.get('//files/file'):
+    for file in self.f_locals.xpath('//files/file'):
       filename = file.attrib['id']
       if file.attrib.get('virtual', 'False') in BOOLEANS_TRUE: continue # skip virtual files
       
-      rinfix = printf_local(file.iget('path'), self.interface.cvars['source-vars'])
-      linfix = printf_local(file.iget('path'), self.interface.BASE_VARS)
+      rinfix = printf_local(file.get('path'), self.interface.cvars['source-vars'])
+      linfix = printf_local(file.get('path'), self.interface.BASE_VARS)
       
       self.interface.cache(join(dest, rinfix, filename),
                            prefix=store, callback=self.callback)

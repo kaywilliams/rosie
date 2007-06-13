@@ -163,7 +163,7 @@ class SoftwareHook:
   def notify_right(self, i):
     self._changed = True
     self.interface.log(1, "downloading new rpms (%d packages)" % i)
-    for store in self.interface.config.mget('//stores/*/store/@id'):
+    for store in self.interface.config.xpath('//stores/*/store/@id'):
       i,s,n,d,u,p = self.interface.getStoreInfo(store)
       
       base = self.interface.storeInfoJoin(s,n,d)
@@ -220,9 +220,9 @@ class SoftwareHook:
   def _prepare_gpgcheck(self):
     gpgtemp = join(self.interface.TEMP_DIR, 'gpgkeys')
     osutils.mkdir(gpgtemp)
-    for store in self.interface.config.mget('//stores/*/store'):
-      if store.iget('gpgcheck/text()', 'False') not in BOOLEANS_TRUE: continue
-      key = store.iget('gpgkey/text()', None)
+    for store in self.interface.config.xpath('//stores/*/store'):
+      if store.get('gpgcheck/text()', 'False') not in BOOLEANS_TRUE: continue
+      key = store.get('gpgkey/text()', None)
       if key: sync.sync(self.interface.config.expand(key), gpgtemp)
     return osutils.find(gpgtemp, maxdepth=1, type=osutils.TYPE_FILE)
   

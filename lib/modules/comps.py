@@ -102,14 +102,14 @@ class CompsHook:
                 None)
     if groupfile is not None:
       self.interface.log(1, "reading supplied groupfile '%s'" % groupfile)
-      reqpkgs = xmltree.read(groupfile).get('//packagereq/text()')
+      reqpkgs = xmltree.read(groupfile).xpath('//packagereq/text()')
     else:
       self.interface.log(1, "resolving required groups and packages")
       self.generate_comps()
-      reqpkgs = self.comps.get('//packagereq/text()')
+      reqpkgs = self.comps.xpath('//packagereq/text()')
     
     if isfile(self.s_compsfile) and not self.interface.isForced('comps'):
-      oldreqpkgs = xmltree.read(self.s_compsfile).get('//packagereq/text()')
+      oldreqpkgs = xmltree.read(self.s_compsfile).xpath('//packagereq/text()')
     else:
       oldreqpkgs = []
     
@@ -143,7 +143,7 @@ class CompsHook:
       osutils.cp(self.interface.cvars['comps-file'], self.s_compsfile)
     
     # set required packages
-    reqpkgs = xmltree.read(self.interface.cvars['comps-file']).get('//packagereq/text()')
+    reqpkgs = xmltree.read(self.interface.cvars['comps-file']).xpath('//packagereq/text()')
     self.interface.cvars['required-packages'] = reqpkgs
   
   #------ COMPS FILE GENERATION FUNCTIONS ------#
@@ -153,10 +153,10 @@ class CompsHook:
     
     # create base distro group
     packages = []
-    for pkg in self.interface.config.mget('//comps/create-new/include/package', []):
-      pkgname = pkg.text
-      pkgtype = pkg.iget('@type', 'mandatory')
-      pkgrequires = pkg.iget('@requires', None)
+    for pkg in self.interface.config.xpath('//comps/create-new/include/package', []):
+      pkgname = pkg.get('text()')
+      pkgtype = pkg.get('@type', 'mandatory')
+      pkgrequires = pkg.get('@requires', None)
       packages.append((pkgname, pkgtype, pkgrequires))
       
     for pkg in (self.interface.cvars['included-packages'] or []):
@@ -208,7 +208,7 @@ class CompsHook:
         if groupid in processed:
           i += 1; continue
         try:
-          group = tree.get('//group[id/text()="%s"]' % groupid)[0]
+          group = tree.get('//group[id/text()="%s"]' % groupid)
           default = self.interface.config.get('//main/groups/group[text()="%s"]/@default' % groupid, 'true')
           self._add_group_by_id(groupid, tree, unmapped, processed, default=default)
           processed.append(unmapped.pop(i))
@@ -235,28 +235,27 @@ class CompsHook:
       self._add_group_package('kernel', base, type='mandatory')
     
     # exclude all package in self.exclude
-    exclude = self.interface.config.mget('//comps/create-new/exclude/packages/text()', []) + \
+    exclude = self.interface.config.xpath('//comps/create-new/exclude/packages/text()', []) + \
               (self.interface.cvars['excluded-packages'] or [])
 
     for pkg in exclude:
-      matches = self.comps.get('//packagereq[text()="%s"]' % pkg)
-      for match in matches:
+      for match in self.comps.xpath('//packagereq[text()="%s"]' % pkg):
         match.getparent().remove(match)
     
     # add category
     cat = Category('Groups', fullname=self.interface.fullname,
                              version=self.interface.cvars['anaconda-version'])
     self.comps.getroot().append(cat)
-    for group in self.comps.getroot().get('//group/id/text()'):
+    for group in self.comps.getroot().xpath('//group/id/text()'):
       self._add_category_group(group, cat)
   
   def __map_groups(self):
     mapped = {}
-    for store in self.interface.config.mget('//stores/*/store/@id'):
+    for store in self.interface.config.xpath('//stores/*/store/@id'):
       mapped[store] = []
     unmapped = []
     
-    for group in self.interface.config.mget('//main/groups/group', []):
+    for group in self.interface.config.xpath('//main/groups/group', []):
       store = group.attrib.get('store', None)
       if store is not None:
         try:
@@ -272,7 +271,7 @@ class CompsHook:
     "Get a list of all groupfiles in all repositories"
     groupfiles = []
     
-    for store in self.interface.config.mget('//stores/*/store/@id'):
+    for store in self.interface.config.xpath('//stores/*/store/@id'):
       i,s,n,d,u,p = self.interface.getStoreInfo(store)
       d = d.lstrip('/') # remove absolute pathing on d
       
@@ -290,7 +289,7 @@ class CompsHook:
         raise ConfigError, "The '%s' store does not appear to be valid; unable to get groupfile from '%s'" % (store, join(d, 'repodata/repomd.xml'))
       
       try:
-        groupfile = xmltree.read(join(dest, 'repodata/repomd.xml')).get('//data[@type="group"]/location/@href')
+        groupfile = xmltree.read(join(dest, 'repodata/repomd.xml')).xpath('//data[@type="group"]/location/@href')
         if len(groupfile) > 0:
           self.interface.cache(join(d, groupfile[0]), prefix=i)
         groupfiles.append((store, join(self.interface.INPUT_STORE, i, d, groupfile[0])))
@@ -311,26 +310,26 @@ class CompsHook:
     Element('packagereq', text=package, attrs=attrs, parent=packagelist)
     
   def _add_group_by_id(self, groupid, tree, toprocess, processed=[], default='true'):
-    group = tree.get('//group[id/text()="%s"]' % groupid)[0]
+    group = tree.get('//group[id/text()="%s"]' % groupid)
     
     # append is destructive, so copy() it
     self.comps.getroot().append(copy.deepcopy(group))
     
     # replace the contents of the default element's text node
-    self.comps.getroot().iget('group[id/text()="%s"]/default' % groupid).text = default
+    self.comps.getroot().get('group[id/text()="%s"]/default' % groupid).text = default
     
     # process any elements in the <grouplist> element
-    groupreqs = tree.get('//group[id/text()="%s"]/grouplist/groupreq/text()' % groupid)
+    groupreqs = tree.xpath('//group[id/text()="%s"]/grouplist/groupreq/text()' % groupid)
     for groupreq in groupreqs:
       if groupreq not in toprocess and groupreq not in processed:
         toprocess.append(groupreq)
   
   def _add_category_group(self, group, category, version='0'):
     if sortlib.dcompare(self.interface.cvars['anaconda-version'], '10.2.0.14-1') < 0:
-      parent = category.iget('category/subcategories')
+      parent = category.get('category/subcategories')
       Element('subcategory', parent=parent, text=group)
     else:
-      parent = category.iget('grouplist')
+      parent = category.get('grouplist')
       Element('groupid', parent=parent, text=group)
 
 

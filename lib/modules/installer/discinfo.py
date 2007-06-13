@@ -74,7 +74,7 @@ class DiscinfoHook(DiffMixin):
     locals = locals_imerge(L_DISCINFO_FORMAT, self.interface.cvars['anaconda-version'])
     
     # create empty .discinfo formatted file object
-    discinfo = ffile.XmlToFormattedFile(locals.iget('discinfo'))
+    discinfo = ffile.XmlToFormattedFile(locals.get('discinfo'))
     
     # get product, fullname, and basearch from interface
     base_vars = self.interface.BASE_VARS

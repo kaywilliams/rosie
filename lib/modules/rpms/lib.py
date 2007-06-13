@@ -130,7 +130,7 @@ class RpmHandler(OutputEventHandler):
     self.provides = provides
     self.provides_test = provides_test
 
-    self.obsoletes = self.config.get('//%s/obsoletes/text()' %(self.elementname,), None)
+    self.obsoletes = self.config.get('//%s/obsoletes/text()' % self.elementname, None)
     if self.config.get('//%s/obsoletes/@use-default-set' %(self.elementname,), 'True') in BOOLEANS_TRUE:
       if self.obsoletes is not None:
         self.obsoletes = ' '.join([self.obsoletes.strip(), obsoletes])
@@ -284,13 +284,13 @@ class RpmHandler(OutputEventHandler):
     if exists(autoconf):
       ad = xmltree.read(autoconf)
       root = ad.getroot()
-      old_release = root.iget('//%s/release/text()' %(self.elementname,))
+      old_release = root.get('//%s/release/text()' %(self.elementname,))
       if old_release:
         new_release = str(int(old_release)+1)
-        create_package = root.iget('//%s' %(self.elementname,))
+        create_package = root.get('//%s' %(self.elementname,))
         # FIXME: raise exception if not found? We are creating this file, so maybe
         # it's OK to not raise an exception 
-        create_package.remove(root.get('//%s/release' %(self.elementname,), [])[0]) 
+        create_package.remove(root.get('//%s/release' % self.elementname)) 
         
     if not new_release:
       if ad:

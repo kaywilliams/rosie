@@ -61,9 +61,9 @@ class EventInterface:
     except xmltree.XmlPathError, e:
       raise xmltree.XmlPathError, "The specified store, '%s', does not exist in the config file" % i
     
-    s,n,d,_,_,_ = urlparse(self.config.eget(['%s/path/text()' % storepath]))
-    u = self.config.eget(['%s/username/text()' % storepath], None)
-    p = self.config.eget(['%s/password/text()' % storepath], None)
+    s,n,d,_,_,_ = urlparse(self.config.get('%s/path/text()' % storepath))
+    u = self.config.get('%s/username/text()' % storepath, None)
+    p = self.config.get('%s/password/text()' % storepath, None)
     
     return i, s, n, d, u, p
   
@@ -92,12 +92,6 @@ class EventInterface:
   
   def __set_event(self, eventid, flag):
     self._base.dispatch.get(eventid, err=True)._set_enable_status(flag)
-  
-  # program control variables
-  ##def set_cvar(self, flag, state):
-  ##  self._base.cvars[flag] = state
-  ##def get_cvar(self, flag, fallback=False):
-  ##  return self._base.cvars.get(flag, fallback)
   
 
 #------ MIXINS ------#

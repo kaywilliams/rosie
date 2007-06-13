@@ -35,11 +35,11 @@ class StoresInterface(EventInterface):
     EventInterface.__init__(self, base)
   
   def add_store(self, xml):
-    parent = uElement('additional', self.config.get('//stores'))
+    parent = uElement('additional', self.config.get('//stores').config)
     element = xmltree.read(StringIO(xml))
     element.parent = parent
     parent.append(element.root)
-    s,n,d,_,_,_ = urlparse(element.iget('path/text()'))
+    s,n,d,_,_,_ = urlparse(element.get('path/text()'))
     server = '://'.join((s,n))
     if server not in self._base.cachemanager.SOURCES:
       self._base.cachemanager.SOURCES.append(server)
@@ -66,7 +66,7 @@ class StoresHook:
     
     storelists = {}
     
-    for store in self.interface.config.mget('//stores/*/store/@id'):
+    for store in self.interface.config.xpath('//stores/*/store/@id'):
       self.interface.log(1, store)
       i,s,n,d,u,p = self.interface.getStoreInfo(store)
       

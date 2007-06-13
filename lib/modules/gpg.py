@@ -90,8 +90,8 @@ class SoftwareHook:
       # the following is kind of a hack - read gpg's metadata and compare the value
       # of the sign element to that in the config file
       mdfile = xmltree.read(join(self.interface.METADATA_DIR, 'gpg.md'))
-      elem = mdfile.iget('//config/value[@path="//gpgsign"]/elements')
-      last_val = elem.iget('gpgsign/sign/text()')
+      elem = mdfile.get('//config/value[@path="//gpgsign"]/elements')
+      last_val = elem.get('gpgsign/sign/text()')
     except (AttributeError, xmltree.XmlPathError, ValueError):
       last_val = None
     

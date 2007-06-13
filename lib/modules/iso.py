@@ -176,7 +176,7 @@ class IsoHook(DiffMixin):
   def run(self):
     self.interface.log(0, "generating iso image(s)")
     
-    self.newsets = self.interface.config.mget('//iso/set/@size', [])
+    self.newsets = self.interface.config.xpath('//iso/set/@size', [])
     self.newsets_expanded = []
     for set in self.newsets:
       self.newsets_expanded.append(splittree.parse_size(set))
@@ -184,7 +184,6 @@ class IsoHook(DiffMixin):
     oldsets = filter(None, osutils.find(self.interface.isodir, type=osutils.TYPE_DIR,
                                         maxdepth=1, prefix=False))
     
-    print oldsets, self.newsets
     self.interface.compare(oldsets, self.newsets)
     
     for iso in osutils.find(self.interface.isodir, type=osutils.TYPE_DIR,
@@ -255,7 +254,7 @@ class IsoHook(DiffMixin):
     splitter.unified_tree = self.interface.SOFTWARE_STORE
     splitter.unified_source_tree = self.interface.SOFTWARE_STORE
     splitter.split_tree = join(self.interface.isodir, set)
-    splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.interface.cvars['anaconda-version']).iget('discinfo')
+    splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.interface.cvars['anaconda-version']).get('discinfo')
     splitter.pkgorder = self.interface.cvars['pkgorder-file']
     
     splitter.compute_layout()

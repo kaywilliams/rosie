@@ -55,8 +55,8 @@ class DepsolveMDCreator(YumRepoCreator):
     YumRepoCreator.__init__(self, yumrepo, config, fallback)
   
   def getPath(self, storeQuery):
-    path   = self.config.eget(join(storeQuery, 'path/text()'))
-    mdpath = self.config.eget(join(storeQuery, 'repodata-path/text()'), None)
+    path   = self.config.get(join(storeQuery, 'path/text()'))
+    mdpath = self.config.get(join(storeQuery, 'repodata-path/text()'), None)
     if mdpath is not None:
       path = join(path, mdpath)
     return path

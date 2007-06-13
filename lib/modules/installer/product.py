@@ -44,7 +44,7 @@ class ProductHook(ImageModifyMixin):
                     '//main/fullname/text()',
                     '//installer/product.img/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
-      'input':     [interface.config.mget('//installer/product.img/path/text()', [])],
+      'input':     [interface.config.xpath('//installer/product.img/path/text()', [])],
       'output':    [self.productimage],
     }
   
@@ -84,7 +84,7 @@ class ProductHook(ImageModifyMixin):
     indexes = sortlib.dsort(INSTALLCLASSES.keys())
     for i in indexes:
       if sortlib.dcompare(i, self.interface.cvars['anaconda-version']) <= 0:
-        self.ic_locals.iget('//installclass').text = INSTALLCLASSES[i]
+        self.ic_locals.get('//installclass').text = INSTALLCLASSES[i]
       else:
         break
   
@@ -97,10 +97,10 @@ class ProductHook(ImageModifyMixin):
   
   def _generate_installclass(self):
     comps = xmltree.read(join(self.interface.METADATA_DIR, 'comps.xml'))
-    groups = comps.get('//group/id/text()')
-    defgroups = comps.get('//group[default/text() = "true"]/id/text()')
+    groups = comps.xpath('//group/id/text()')
+    defgroups = comps.xpath('//group[default/text() = "true"]/id/text()')
     
-    installclass = self.ic_locals.iget('//installclass/text()')
+    installclass = self.ic_locals.get('//installclass/text()')
     
     # try to perform the replacement; skip if it doesn't work
     try:

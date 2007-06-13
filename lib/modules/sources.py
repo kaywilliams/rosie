@@ -77,11 +77,11 @@ class SrpmInterface(EventInterface, ListCompareMixin):
       return (None, None, None, None, None)
 
   def add_store(self, storeXml):
-    stores = uElement('stores', self.config.get('//source'))
+    stores = uElement('stores', self.config.get('//source')).config
     store = xmltree.read(StringIO(storeXml))
     store.parent = stores
     stores.append(store.root)
-    s,n,d,_,_,_ = urlparse(store.iget('path/text()'))
+    s,n,d,_,_,_ = urlparse(store.get('path/text()'))
     server = '://'.join((s,n))
     if server not in self._base.cachemanager.SOURCES:
       self._base.cachemanager.SOURCES.append(server)
@@ -181,7 +181,7 @@ class SourceHook:
   def notify_right(self, i):
     self.interface.log(1, "downloading new srpms (%d packages)" % i)
     # set up packages metadata dictionary for use in syncing
-    for store in self.interface.config.mget('//source/stores/store/@id'):
+    for store in self.interface.config.xpath('//source/stores/store/@id'):
       i,s,n,d,u,p = self.interface.getStoreInfo(store)
       
       base = self.interface.storeInfoJoin(s or 'file', n, d)

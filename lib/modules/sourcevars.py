@@ -71,16 +71,16 @@ class SourcevarsHook:
 
     #Extract buildstamp
     locals = locals_imerge(L_IMAGES, self.interface.cvars['anaconda-version'])
-    image  = locals.iget('//images/image[@id="initrd.img"]')
-    format = image.iget('format/text()')
-    zipped = image.iget('zipped/text()', 'False') in BOOLEANS_TRUE
+    image  = locals.get('//images/image[@id="initrd.img"]')
+    format = image.get('format/text()')
+    zipped = image.get('zipped/text()', 'False') in BOOLEANS_TRUE
     self.image = imglib.Image(cache_initrd_file, format, zipped)
     self.image.open()
     sourcevars = self.image.read('.buildstamp')
 
     #Parse buildstamp
     locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.interface.cvars['anaconda-version'])
-    buildstamp_fmt = locals.iget('//buildstamp-format')
+    buildstamp_fmt = locals.get('//buildstamp-format')
     buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
     sourcevars = buildstamp.floread(self.image.read('.buildstamp'))
 

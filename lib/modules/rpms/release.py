@@ -1,4 +1,4 @@
-"""
+""" 
 Creates the release RPM.
 
 To add more files to the release RPM, four things should be done:
@@ -61,12 +61,12 @@ class ReleaseRpmHook(RpmHandler, ColorMixin):
         '//gpgkey',
       ],
       'input': [
-        interface.config.mget('//release-rpm/yum-repos/path/text()', []),
-        interface.config.mget('//release-rpm/eula/path/text()', []),
-        interface.config.mget('//release-rpm/release-notes/path/text()', []),
-        interface.config.mget('//release-rpm/release-files/path/text()', []),
-        interface.config.mget('//stores/*/store/gpgkey/text()', []),
-        interface.config.mget('//gpgkey/public/text()', []),
+        interface.config.xpath('//release-rpm/yum-repos/path/text()', []),
+        interface.config.xpath('//release-rpm/eula/path/text()', []),
+        interface.config.xpath('//release-rpm/release-notes/path/text()', []),
+        interface.config.xpath('//release-rpm/release-files/path/text()', []),
+        interface.config.xpath('//stores/*/store/gpgkey/text()', []),
+        interface.config.xpath('//gpgkey/public/text()', []),
       ],
       'output': [
         join(interface.METADATA_DIR, 'release-rpm'),
@@ -185,12 +185,12 @@ class ReleaseRpmHook(RpmHandler, ColorMixin):
     mkdir(gpg_dir)
     gpgkeys = []
     if self.config.get('//gpgkey/sign/text()', 'False') in BOOLEANS_TRUE:
-      gpg_key = self.config.eget('//gpgkey/public/text()', None)
+      gpg_key = self.config.get('//gpgkey/public/text()', None)
       if gpg_key is None:
         raise Exception, "no public gpg key specified"
       gpgkeys.append(gpg_key)
 
-    gpgkeys.extend(self.config.emget('//stores/*/store/gpgkey/text()', []))
+    gpgkeys.extend(self.config.xpath('//stores/*/store/gpgkey/text()', []))
 
     for gpgkey in gpgkeys:
       sync(gpgkey, gpg_dir)
@@ -287,7 +287,7 @@ class ReleaseRpmHook(RpmHandler, ColorMixin):
     dest_dir = join(self.output_location, dirname)
     mkdir(dest_dir)
     
-    for item in self.config.mget('//%s/%s/path/text()' %(self.elementname, element), []):
+    for item in self.config.xpath('//%s/%s/path/text()' %(self.elementname, element), []):
       sync(item, dest_dir)
 
     variable_prefix = dirname.replace('-', '_')

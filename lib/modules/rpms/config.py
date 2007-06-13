@@ -30,13 +30,13 @@ class ConfigRpmHook(RpmHandler):
     
     data = {
       'config': ['//rpms/config-rpm'],
-      'input':  [interface.config.mget('//rpms/config-rpm/config/script/path/text()', []),
-                 interface.config.mget('//rpms/config-rpm/config/supporting-files/path/text()', [])],
+      'input':  [interface.config.xpath('//rpms/config-rpm/config/script/path/text()', []),
+                 interface.config.xpath('//rpms/config-rpm/config/supporting-files/path/text()', [])],
       'output': [join(interface.METADATA_DIR, 'config-rpm')]
     }
     
-    requires = ' '.join(interface.config.mget('//rpms/config-rpm/requires/package/text()', []))
-    obsoletes = ' '.join(interface.config.mget('//rpms/config-rpm/obsoletes/package/text()', []))
+    requires = ' '.join(interface.config.xpath('//rpms/config-rpm/requires/package/text()', []))
+    obsoletes = ' '.join(interface.config.xpath('//rpms/config-rpm/obsoletes/package/text()', []))
     RpmHandler.__init__(self, interface, data,
                         elementname='config-rpm',
                         rpmname='%s-config' %(interface.product,),

@@ -31,15 +31,15 @@ def load(version):
   indexes = sortlib.dsort(indexes)
   for i in indexes:
     if sortlib.dcompare(i, version) <= 0:
-      ic.iget('.').text = LOCALS_INSTALLCLASSES[i]
+      ic.get('.').text = LOCALS_INSTALLCLASSES[i]
     else:
       break
   
   return L
 
 def printf_local(elem, vars):
-  string = elem.iget('string-format/@string', elem.text)
-  format = elem.get('string-format/format/item/text()', [])
+  string = elem.get('string-format/@string', elem.text)
+  format = elem.xpath('string-format/format/item/text()')
   return printf(string, format, vars)
 
 def printf(string, fmt, vars):

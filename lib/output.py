@@ -148,17 +148,17 @@ class OutputEventHandler:
     # set up self.configvals dictionary
     for path in self.data.get('config', []):
       # if a path is listed twice, what happens? #!
-      node = metadata.iget('/metadata/config-values/value[@path="%s"]' % path, None)
+      node = metadata.get('/metadata/config-values/value[@path="%s"]' % path, None)
       if node is not None:
-        self.configvals[path] = node.get('elements/*', None) or \
-                                node.get('text/text()', NoneEntry(path))
+        self.configvals[path] = node.xpath('elements/*', None) or \
+                                node.xpath('text/text()', NoneEntry(path))
       else:
         self.configvals[path] = NewEntry()
     
     # set up self.varvals dictionary
     for item in self.data.get('variables', []):
       try:
-        node = metadata.iget('/metadata/variable-values/value[@variable="%s"]' % item)
+        node = metadata.get('/metadata/variable-values/value[@variable="%s"]' % item)
         if len(node.getchildren()) == 0:
           self.varvals[item] = NoneEntry(item)
         else:
@@ -171,10 +171,10 @@ class OutputEventHandler:
     # using a for-loop around it :).
     for key in ['input', 'output']:
       object = getattr(self, key)
-      for source in metadata.get('/metadata/%s/file' % key):
-        file = source.iget('@path')
-        object[file] = {'size': int(source.iget('size').text),
-                        'mtime': int(source.iget('mtime').text)}
+      for source in metadata.xpath('/metadata/%s/file' % key):
+        file = source.get('@path')
+        object[file] = {'size': int(source.get('size').text),
+                        'mtime': int(source.get('mtime').text)}
     self.mdvalid = True # md readin was successful
   
   def write_metadata(self):
@@ -197,18 +197,18 @@ class OutputEventHandler:
     # set up <config-values> element
     if self.data.has_key('config'):
       if not (self.configvalid and self.mdvalid):
-        try: root.remove(root.iget('/metadata/config-values'))
+        try: root.remove(root.get('/metadata/config-values'))
         except TypeError: pass
         configvals = xmltree.Element('config-values')
         root.insert(0, configvals)
         for path in self.data['config']:
           value = xmltree.Element('value', parent=configvals, attrs={'path': path})
-          for val in self.config.mget(path, []):
+          for val in self.config.xpath(path, []):
             if type(val) == type(''): # config pointed to a string
               xmltree.Element('text', parent=value, text=val)
             else:
               elements = xmltree.Element('elements', parent=value)
-              elements.append(copy.copy(val)) # append() is destructive, so copy
+              elements.append(copy.copy(val.config)) # append() is destructive, so copy
     
     # set up <variable-values> element
     if self.data.has_key('variables'):
@@ -216,7 +216,7 @@ class OutputEventHandler:
       self.dprint("mdvalid? %s" % self.mdvalid)
       if not (self.varsvalid and self.mdvalid):
         self.dprint("inside the <variables> read section's if-block")
-        try: root.remove(root.iget('/metadata/variable-values'))
+        try: root.remove(root.get('/metadata/variable-values'))
         except TypeError: pass
         varvals = xmltree.Element('variable-values')
         root.insert(1, varvals)
@@ -232,7 +232,7 @@ class OutputEventHandler:
       if self.data.has_key(key):
         if not (valid and self.mdvalid):
           self.dprint("writing %s to metadata file" % key)
-          try: root.remove(root.iget('/metadata/%s' % key))
+          try: root.remove(root.get('/metadata/%s' % key))
           except TypeError: pass          
           parent_node = xmltree.Element(key, parent=root)
           for path in self.data[key]:
@@ -280,7 +280,7 @@ class OutputEventHandler:
     else:
       for path in self.data['config']:
         if self.configvals.has_key(path):
-          cfgval = self.config.mget(path, [])
+          cfgval = self.config.xpath(path, [])
           if len(cfgval) == 0: cfgval = NoneEntry(path)
           if self.configvals[path] != cfgval:
             self.dprint("%s != %s" % (self.configvals[path], cfgval))

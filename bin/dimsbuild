@@ -99,7 +99,7 @@ def main():
 
   #print opts
 
-  import_dirs = mainconfig.mget('//librarypaths/path/text()')
+  import_dirs = mainconfig.xpath('//librarypaths/path/text()')
   if opts.libpath: import_dirs.insert(0, opts.libpath)
   
   for dir in sys.path:
@@ -157,8 +157,7 @@ def __get_config(mainconfigpath, userconfig=None, loglevel=1):
   # mainconfigpath now set via option parser and passed in as a function parameter
   # mainconfigpath = "/etc/dimsbuild/"
   
-  mainconfig = ConfigLib.read(join(mainconfigpath, 'dimsbuild.conf'),
-                              secure=True)
+  mainconfig = ConfigLib.read(join(mainconfigpath, 'dimsbuild.conf'))
   
   # neat trick - if userconfig is an absolute path, join() ignores defaultconfig
   if userconfig is not None:
@@ -172,7 +171,7 @@ def __get_config(mainconfigpath, userconfig=None, loglevel=1):
     raise OSError, "The config file '%s' doesn't exist" % distroconfigpath
   
   if loglevel >= 3: print "Reading config file '%s'" % distroconfigpath
-  distroconfig = ConfigLib.read(distroconfigpath, secure=True)
+  distroconfig = ConfigLib.read(distroconfigpath)
   
   return mainconfig, distroconfig
   

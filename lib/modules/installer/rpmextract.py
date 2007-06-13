@@ -249,7 +249,7 @@ class InstallerReleaseHook(ExtractEventHandler):
   def generate(self):
     files = {}
     rtn = []    
-    for path in self.config.mget('//installer/release-files/path', []):
+    for path in self.config.xpath('//installer/release-files/path', []):
       source = path.text
       dest = join(self.software_store, path.attrib['dest'])
       files[source] = dest
@@ -271,7 +271,7 @@ class InstallerReleaseHook(ExtractEventHandler):
   def test_output_valid(self): return True
 
   def find_rpms(self):
-    rpmnames = self.config.mget('//installer/release-files/package/text()',
+    rpmnames = self.config.xpath('//installer/release-files/package/text()',
                                 ['%s-release' %(self.interface.product,)])
     rpms = []
     for rpmname in rpmnames:

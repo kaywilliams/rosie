@@ -39,7 +39,7 @@ class UpdatesHook(ImageModifyMixin):
                     '/distro/main/fullname/text()',
                     '/distro/installer/updates.img/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
-      'input':     [interface.config.mget('/distro/installer/updates.img/path/text()', [])],
+      'input':     [interface.config.xpath('/distro/installer/updates.img/path/text()', [])],
       'output':    [self.updatesimage],
     }
   

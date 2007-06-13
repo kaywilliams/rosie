@@ -99,7 +99,7 @@ class Build:
     self.config = distroconfig
     
     # set up IMPORT_DIRS
-    self.IMPORT_DIRS = mainconfig.mget('//librarypaths/path/text()', [])
+    self.IMPORT_DIRS = mainconfig.xpath('//librarypaths/path/text()', [])
     if options.libpath:
       self.IMPORT_DIRS.insert(0, options.libpath) # TODO make this a list
     for dir in sys.path:
@@ -138,11 +138,11 @@ class Build:
       osutils.mkdir(dir, parent=True)
     
     # set up list of disabled modules
-    self.disabled_modules = self.mainconfig.mget('//modules/module[%s]/text()' % \
+    self.disabled_modules = self.mainconfig.xpath('//modules/module[%s]/text()' % \
                             self.__generate_attr_bool('enabled', False), [])
     self.disabled_modules.append('__init__') # hack
     # update with distro-specific config
-    for module in self.config.mget('//modules/module', []):
+    for module in self.config.xpath('//modules/module', []):
       if module.attrib.get('enabled', 'False') in BOOLEANS_FALSE:
         if module.text not in self.disabled_modules:
           self.disabled_modules.append(module.text)
@@ -184,10 +184,10 @@ class Build:
     self.dispatch.iargs.append(self)
     
     # load all enabled plugins
-    enabled_plugins = self.mainconfig.mget('//plugins/plugin[%s]/text()' % \
+    enabled_plugins = self.mainconfig.xpath('//plugins/plugin[%s]/text()' % \
                         self.__generate_attr_bool('enabled', True), [])
     # update with distro-specific config
-    for plugin in self.config.mget('//plugins/plugin/text()', []):
+    for plugin in self.config.xpath('//plugins/plugin/text()', []):
       if plugin.attrib.get('enabled', 'True') in BOOLEANS_TRUE:
         if plugin.text not in enabled_plugins:
           enabled_plugins.append(plugin)
@@ -284,7 +284,7 @@ class Build:
   def __compute_servers(self):
     "Compute a list of the servers represented in the configuration file"
     servers = []
-    for path in self.config.emget('//stores/*/store/path/text()'):
+    for path in self.config.xpath('//stores/*/store/path/text()'):
       s,n,d,_,_,_ = urlparse(path)
       server = '://'.join((s,n))
       if server not in servers: servers.append(server)
@@ -348,7 +348,7 @@ def locals_imerge(string, ver):
 
 def uElement(name, parent, **kwargs):
   "Gets the child of the parent named name, or creates it if it doesn't exist."
-  elem = parent.iget(name, None)
+  elem = parent.get(name, None)
   if elem is None:
     elem = xmltree.Element(name, parent=parent, **kwargs)
   return elem
