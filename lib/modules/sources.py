@@ -4,9 +4,9 @@ sources.py
 downloads srpms 
 """
 
-__author__  = "Kay Williams <kwilliams@abodiosoftware.com>"
-__version__ = "1.1"
-__date__    = "June 12th, 2007"
+__author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
+__version__ = '1.1'
+__date__    = 'June 12th, 2007'
 
 import os
 import re
@@ -41,7 +41,7 @@ EVENTS = [
 ]
 
 HOOK_MAPPING = {
-  'SourceHook':   'source',
+  'SourceHook': 'source',
 }
 
 
@@ -112,7 +112,7 @@ class SourceHook(DiffMixin):
   
   def check(self):
     if self.interface.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE:
-      return len(self.interface.cvars['new-rpms']) is not 0 or \
+      return self.interface.cvars['new-rpms'] is not None or \
              not exists(self.interface.srpmdest) or \
              self.test_diffs()
     else:
@@ -145,7 +145,6 @@ class SourceHook(DiffMixin):
 
     self.interface.compare(oldsrpmlist, srpmlist)
 
-    print "writing metadata"
     osutils.rm(self.mdfile, force=True)
     self.write_metadata()
 

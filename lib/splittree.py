@@ -35,9 +35,6 @@ class Timber:
     self.unified_source_tree = None
     self.split_tree = None
     
-    self.total_discs = None
-    self.rpm_discs = None
-    self.srpm_discs = None
     self.rpm_disc_map = None
     self.srpm_disc_map = None
     
@@ -75,29 +72,27 @@ class Timber:
     osutils.rm(join(self.split_tree, '%s-disc*' % self.product), recursive=True, force=True)
   
   def compute_layout(self):
-    size_total = osutils.du(self.unified_tree)
-    size_rpms = osutils.du(osutils.find(join(self.unified_tree, self.product),
-                                        name='*.[Rr][Pp][Mm]'))
+    srpm_nregex = '.*\.[Ss][Rr][Cc]\.[Rr][Pp][Mm]'
+    
+    # rpms
+    totalsize = osutils.du(osutils.find(self.unified_tree, nregex=srpm_nregex))
+    rpmsize = osutils.du(osutils.find(self.unified_tree, name='*.[Rr][Pp][Mm]',
+                                      nregex=srpm_nregex))
+    
+    extrasize = totalsize - rpmsize
+    
+    ndiscs = int(ceil(float(totalsize)/self.discsize))
+    nrpmdiscs = self.__consume_discs(rpmsize + extrasize)
+    self.rpm_disc_map = range(1, nrpmdiscs + 1)
+    
+    # srpms
     if self.dosrc:
-      size_srpms = osutils.du(osutils.find(self.unified_source_tree,
-                                           name='*.[Ss][Rr][Cc].[Rr][Pp][Mm]'))
-    else:
-      size_srpms = 0
-    
-    size_extras = size_total - size_rpms - size_srpms
-    
-    self.total_discs = int(ceil(float(size_total)/self.discsize))
-    self.rpm_discs = self.__consume_discs(size_rpms+size_extras)
-    if self.dosrc:
-      self.srpm_discs = self.__consume_discs(size_srpms)
-      self.total_discs += 1
-    else:
-      self.srmp_discs = 0
-    
-    # lists mapping rpms and srpms to discs
-    self.rpm_disc_map   = range(1, self.rpm_discs + 1)
-    self.srpm_disc_map  = range(self.total_discs - (self.srpm_discs or 0) + 1, self.total_discs + 1)
-  
+      srpmsize = osutils.du(osutils.find(self.unified_source_tree,
+                                         name='*.[Ss][Rr][Cc].[Rr][Pp][Mm]'))
+      ndiscs = int(ceil(float(srpmsize)/self.discsize))
+      nsrpmdiscs = self.__consume_discs(srpmsize)
+      self.srpm_disc_map = range(nrpmdiscs + 1, nrpmdiscs + nsrpmdiscs + 1)
+      
   def __consume_discs(self, size):
 
     i_size = 0
@@ -134,7 +129,7 @@ class Timber:
         self.link(self.unified_tree, discpath, self.common_files)
       self.create_discinfo(i)
     
-    if self.srpm_discs != 0:
+    if self.dosrc:
       for i in self.srpm_disc_map:
         discpath = join(self.split_tree, '%s-disc%d' % (self.product, i))
         osutils.mkdir(join(discpath, 'SRPMS'), parent=True)
@@ -189,7 +184,7 @@ class Timber:
           self.link(pkgdir, join(discpath, self.product), [file])
   
   def split_srpms(self):
-    if self.srpm_discs is None:
+    if not self.dosrc:
       return
     
     srpms = []

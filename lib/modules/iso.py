@@ -155,8 +155,6 @@ class IsoHook(DiffMixin):
     self.interface.rfn = self._generate_isotree
     self.interface.bfn = self._check_isotree
     
-    self.interface.cb = self
-    
     self.DATA =  {
       'config': ['//iso', '//source'],
       'input':  [join(self.interface.METADATA_DIR, 'manifest')], 
@@ -186,54 +184,31 @@ class IsoHook(DiffMixin):
     
     self.interface.compare(oldsets, self.newsets)
     
-    for iso in osutils.find(self.interface.isodir, type=osutils.TYPE_DIR,
-                            mindepth=2, maxdepth=2, prefix=False):
-      
-      self.interface.log(1, "generating %s.iso" % osutils.basename(iso))
-      shlib.execute('mkisofs -UJRTV "%s" -o %s.iso %s' % \
-        ('%s %s %s' % (self.interface.product,
-                       self.interface.version,
-                       self.interface.release),
-         join(self.interface.isodir, iso),
-         join(self.interface.isodir, iso)),
-         verbose=True)
-
     self.write_metadata()
   
-  # callback functions
-  def notify_left(self, n): pass
-  def notify_right(self, n):
+  def _generate_pkgorder(self):
+    self.interface.log(1, "generating package ordering")
     pkgorderfile = join(self.interface.METADATA_DIR, 'pkgorder')
+    cfg = join(self.interface.TEMP_DIR, 'pkgorder')
     
-    if n > 0:
-      if (self.interface.cvars['pkglist-changed'] and \
-          not self.interface.cvars['pkgorder-file']): #! fix me
-        self.interface.log(1, "generating package ordering")
-        cfg = join(self.interface.TEMP_DIR, 'pkgorder')
-        
-        filereader.write([YUMCONF % (self.interface.getBaseStore(),
-                                     self.interface.getBaseStore(),
-                                     self.interface.SOFTWARE_STORE)], cfg)
-        
-        pkgtups = pkgorder.order(config=cfg,
-                                 arch=self.interface.arch,
-                                 callback=BuildDepsolveCallback(self.interface.logthresh))
-        
-        if exists(pkgorderfile):
-          oldpkgorder = filereader.read(pkgorderfile)
-        else:
-          oldpkgorder = []
-        
-        old,new,_ = listcompare.compare(oldpkgorder, pkgtups)
-        if len(new) > 0 or len(old) > 0:
-          pkgorder.write_pkgorder(pkgorderfile, pkgtups)
-        
-        osutils.rm(cfg, force=True)
-      
-      if not self.interface.cvars['pkgorder-file']:
-        self.interface.cvars['pkgorder-file'] = pkgorderfile
-  
-  def notify_both(self, n): pass
+    filereader.write([YUMCONF % (self.interface.getBaseStore(),
+                                 self.interface.getBaseStore(),
+                                 self.interface.SOFTWARE_STORE)], cfg)
+    
+    pkgtups = pkgorder.order(config=cfg,
+                             arch=self.interface.arch,
+                             callback=BuildDepsolveCallback(self.interface.logthresh))
+    
+    if exists(pkgorderfile):
+      oldpkgorder = filereader.read(pkgorderfile)
+    else:
+      oldpkgorder = []
+    
+    old,new,_ = listcompare.compare(oldpkgorder, pkgtups)
+    if len(new) > 0 or len(old) > 0:
+      pkgorder.write_pkgorder(pkgorderfile, pkgtups)
+    
+    osutils.rm(cfg, force=True)
   
   def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
@@ -247,15 +222,18 @@ class IsoHook(DiffMixin):
         self.interface.r.remove(newset) # don't create iso tree; it already exists
   
   def _generate_isotree(self, set):
+    if not exists(join(self.interface.METADATA_DIR, 'pkgorder')):
+      self._generate_pkgorder()
+    
     osutils.mkdir(join(self.interface.isodir, set), parent=True)
     
     splitter = splittree.Timber(set, dosrc=self.interface.cvars['source-include'])
     splitter.product = self.interface.product
     splitter.unified_tree = self.interface.SOFTWARE_STORE
-    splitter.unified_source_tree = self.interface.SOFTWARE_STORE
+    splitter.unified_source_tree = join(self.interface.DISTRO_DIR, 'SRPMS')
     splitter.split_tree = join(self.interface.isodir, set)
     splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.interface.cvars['anaconda-version']).get('discinfo')
-    splitter.pkgorder = self.interface.cvars['pkgorder-file']
+    splitter.pkgorder = join(self.interface.METADATA_DIR, 'pkgorder')
     
     splitter.compute_layout()
     splitter.cleanup()
@@ -263,7 +241,29 @@ class IsoHook(DiffMixin):
     splitter.split_rpms()
     splitter.split_srpms()
     
-  def _check_isotree(self, set): pass
+    for iso in osutils.find(self.interface.isodir,
+                            name='%s-disc*' % self.interface.product,
+                            type=osutils.TYPE_DIR,
+                            mindepth=2, maxdepth=2,
+                            prefix=False):
+      self.interface.log(1, "generating %s.iso" % osutils.basename(iso))
+      shlib.execute('mkisofs -UJRTV "%s" -o %s.iso %s' % \
+        ( '%s %s %s' % (self.interface.product,
+                        self.interface.version,
+                        self.interface.release),
+          join(self.interface.isodir, iso),
+          join(self.interface.isodir, iso)),
+        verbose=True)
+  
+  def _check_isotree(self, set):
+    for disc in (osutils.find(join(self.interface.isodir, set),
+                              name='%s-disc*' % self.interface.product,
+                              type=osutils.TYPE_DIR,
+                              maxdepth=1,
+                              prefix=False)):
+      if not exists(join(self.interface.isodir, set, '%s.iso' % disc)):
+        self._delete_isotree(set)
+        self._generate_isotree(set)
 
 L_DISCINFO_FORMAT = ''' 
 <locals>
