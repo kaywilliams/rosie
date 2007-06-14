@@ -85,3 +85,9 @@ class SourcevarsHook:
 
     #Update source_vars
     self.interface.cvars['source-vars'] = sourcevars
+
+  def error(self, e):
+    try:
+      self.close()
+    except:
+      pass
