@@ -56,7 +56,7 @@ class GpgInterface(EventInterface):
     # password
     self.password = self.cvars['gpg-passphrase']
     if not self.password:
-      if self.config.pathExists('//gpgsign/password'):
+      if self.config.pathexists('//gpgsign/password'):
         self.password = self.config.get('//gpgsign/password/text()', '')
       else:
         self.password = rpmsign.getPassphrase()

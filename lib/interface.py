@@ -15,7 +15,7 @@ from dims import listcompare
 from dims import sortlib
 from dims import xmltree
 
-from dims.ConfigLib import expand_macros
+from dims.configlib import expand_macros
 
 import difftest
 import locals
@@ -55,11 +55,8 @@ class EventInterface:
     
     Get information about a store
     """
-    storepath = None
-    try:
-      storepath = '//store[@id="%s"]' % i
-      self.config.get(storepath) # try to get it, if not found, fail
-    except xmltree.XmlPathError, e:
+    storepath = '//store[@id="%s"]' % i
+    if not self.config.pathexists(storepath):
       raise xmltree.XmlPathError, "The specified store, '%s', does not exist in the config file" % i
     
     s,n,d,_,_,_ = urlparse(self.config.get('%s/path/text()' % storepath))

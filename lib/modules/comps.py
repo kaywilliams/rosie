@@ -9,10 +9,9 @@ from dims import sortlib
 from dims import xmltree
 
 from dims.CacheManager import CacheManagerError
-from dims.ConfigLib    import ConfigError
+from dims.configlib    import ConfigError, uElement
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
-from main  import uElement
 
 API_VERSION = 4.0
 
@@ -78,8 +77,8 @@ class CompsHook:
     # metadata and store comps file locations
     self.s_compsfile = join(self.interface.METADATA_DIR, 'comps.xml')
     
-    self.comps = xmltree.Tree('comps')
-    self.comps.setheader(HEADER_FORMAT % ('1.0', 'UTF-8'))
+    self.comps = xmltree.Element('comps')
+    self.header = HEADER_FORMAT % ('1.0', 'UTF-8')
   
   def force(self):
     osutils.rm(self.s_compsfile, force=True)

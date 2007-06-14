@@ -70,21 +70,20 @@ class DiffTest:
 
   def write_metadata(self):
     """ 
-    Create an XmlTree from self.mdfile, if it exists, or make a new one and pass
-    it to each of the handler's mdwrite() functions.  Due to the way xmltree.XmlTree's
-    work, mdwrite() doesn't need to return any values; xmltree appends are destructive.
+    Create an XmlTreeElement from self.mdfile, if it exists, or make a new one and
+    pass it to each of the handler's mdwrite() functions.  Due to the way
+    xmltree.XmlTreeElements work, mdwrite() doesn't need to return any values;
+    xmltree appends are destructive.
     """
     if exists(self.mdfile):
-      md = xmltree.read(self.mdfile)
-      root = md.getroot()
+      root = xmltree.read(self.mdfile)
     else:
       root = xmltree.Element('metadata')
-      md = xmltree.XmlTree(root)
 
     for handler in self.handlers:
       handler.mdwrite(root)
 
-    md.write(self.mdfile)
+    root.write(self.mdfile)
   
   def changed(self):
     "Returns true if any handler returns a diff with length greater than 0"
@@ -290,7 +289,7 @@ class ConfigHandler:
           xmltree.Element('text', parent=value, text=val)
         else:
           elements = xmltree.Element('elements', parent=value)
-          elements.append(copy.copy(val).config) # append() is destructive
+          elements.append(copy.copy(val)) # append() is destructive
     
   def diff(self):
     diff = {}

@@ -206,8 +206,8 @@ class IsoHook(DiffMixin):
     pkgorderfile = join(self.interface.METADATA_DIR, 'pkgorder')
     
     if n > 0:
-      if self.interface.cvars['pkglist-changed'] and \
-         not self.interface.cvars['pkgorder-file']:
+      if (self.interface.cvars['pkglist-changed'] and \
+          not self.interface.cvars['pkgorder-file']): #! fix me
         self.interface.log(1, "generating package ordering")
         cfg = join(self.interface.TEMP_DIR, 'pkgorder')
         

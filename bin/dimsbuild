@@ -13,8 +13,8 @@ import sys
 from os.path import join, exists, isdir
 from optparse import OptionParser, SUPPRESS_HELP
 
-import dims.ConfigLib as ConfigLib
-import dims.listfmt as listfmt
+from dims import configlib
+from dims import listfmt
 
 from dims.CleanHelpFormatter import CleanHelpFormatter, OptionGroupId
 
@@ -157,7 +157,7 @@ def __get_config(mainconfigpath, userconfig=None, loglevel=1):
   # mainconfigpath now set via option parser and passed in as a function parameter
   # mainconfigpath = "/etc/dimsbuild/"
   
-  mainconfig = ConfigLib.read(join(mainconfigpath, 'dimsbuild.conf'))
+  mainconfig = configlib.read(join(mainconfigpath, 'dimsbuild.conf'))
   
   # neat trick - if userconfig is an absolute path, join() ignores defaultconfig
   if userconfig is not None:
@@ -171,7 +171,7 @@ def __get_config(mainconfigpath, userconfig=None, loglevel=1):
     raise OSError, "The config file '%s' doesn't exist" % distroconfigpath
   
   if loglevel >= 3: print "Reading config file '%s'" % distroconfigpath
-  distroconfig = ConfigLib.read(distroconfigpath)
+  distroconfig = configlib.read(distroconfigpath)
   
   return mainconfig, distroconfig
   

@@ -21,10 +21,12 @@ from dims import spider
 from dims import sync
 from dims import xmltree
 
+from dims.configlib import uElement
+
 from callback  import BuildSyncCallback
 from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from interface import EventInterface, ListCompareMixin, DiffMixin
-from main      import BOOLEANS_TRUE, uElement
+from main      import BOOLEANS_TRUE
 
 API_VERSION = 4.0
 
@@ -78,10 +80,9 @@ class SrpmInterface(EventInterface, ListCompareMixin):
       return (None, None, None, None, None)
 
   def add_store(self, storeXml):
-    stores = uElement('stores', self.config.get('//source')).config
+    stores = uElement('stores', self.config.get('//source'))
     store = xmltree.read(StringIO(storeXml))
-    store.parent = stores
-    stores.append(store.root)
+    stores.append(store)
     s,n,d,_,_,_ = urlparse(store.get('path/text()'))
     server = '://'.join((s,n))
     if server not in self._base.cachemanager.SOURCES:

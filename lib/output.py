@@ -187,12 +187,10 @@ class OutputEventHandler:
     """
     if exists(self.mdfile):
       self.dprint("metadata file exists")
-      md = xmltree.read(self.mdfile)
-      root = md.getroot()
+      root = xmltree.read(self.mdfile)
     else:
       self.dprint("metadata file doesn't exist")
       root = xmltree.Element('metadata')
-      md = xmltree.XmlTree(root)
     
     # set up <config-values> element
     if self.data.has_key('config'):
@@ -208,7 +206,7 @@ class OutputEventHandler:
               xmltree.Element('text', parent=value, text=val)
             else:
               elements = xmltree.Element('elements', parent=value)
-              elements.append(copy.copy(val.config)) # append() is destructive, so copy
+              elements.append(copy.copy(val)) # append() is destructive, so copy
     
     # set up <variable-values> element
     if self.data.has_key('variables'):
@@ -243,7 +241,7 @@ class OutputEventHandler:
               stat = os.stat(file)
               size = xmltree.Element('size', parent=file_element, text=str(stat.st_size))
               mtime = xmltree.Element('mtime', parent=file_element, text=str(stat.st_mtime))
-    md.write(self.mdfile)
+    root.write(self.mdfile)
   
   def test_input_changed(self):
     """ 
