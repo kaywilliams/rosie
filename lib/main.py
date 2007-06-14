@@ -125,6 +125,7 @@ class Build:
     distro_prefix = 'distros/%s/%s/%s' % (self.cvars['base-vars']['product'],
                                           self.cvars['base-vars']['version'],
                                           self.cvars['base-vars']['basearch'])
+    self.DISTRO_DIR = join(self.CACHE_DIR, distro_prefix)
     self.SOFTWARE_STORE = join(self.CACHE_DIR, distro_prefix, 'os')
     self.METADATA_DIR = join(self.CACHE_DIR, distro_prefix, 'builddata')
     

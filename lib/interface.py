@@ -34,6 +34,7 @@ class EventInterface:
     self.BASE_VARS      = self._base.cvars['base-vars']
   
     self.CACHE_DIR      = self._base.CACHE_DIR
+    self.DISTRO_DIR     = self._base.DISTRO_DIR
     self.SOFTWARE_STORE = self._base.SOFTWARE_STORE
     self.INPUT_STORE    = self._base.INPUT_STORE
     self.METADATA_DIR   = self._base.METADATA_DIR
