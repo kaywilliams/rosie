@@ -1,3 +1,13 @@
+""" 
+sources.py
+
+downloads srpms 
+"""
+
+__author__  = "Kay Williams <kwilliams@abodiosoftware.com>"
+__version__ = "1.1"
+__date__    = "June 12th, 2007"
+
 import os
 import re
 import rpm
@@ -13,7 +23,7 @@ from dims import xmltree
 
 from callback  import BuildSyncCallback
 from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from interface import EventInterface, ListCompareMixin
+from interface import EventInterface, ListCompareMixin, DiffMixin
 from main      import BOOLEANS_TRUE, uElement
 
 API_VERSION = 4.0
@@ -21,22 +31,19 @@ API_VERSION = 4.0
 EVENTS = [
   {
     'id': 'source',
-    'provides': ['SRPMS'],
-    'requires': ['software', 'pkglist-changed'],
-    'conditional-requires': ['RPMS'],
+    'provides': ['SRPMS', 'source-include'],
+    'requires': ['software', 'new-rpms', 'rpms-directory'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'interface': 'SrpmInterface',
   },
 ]
 
 HOOK_MAPPING = {
-  'InitHook':     'init',
-  'ApplyoptHook': 'applyopt',
   'SourceHook':   'source',
 }
 
 
-SRPM_PNVRA_REGEX = re.compile('(.*/)?(.+)-(.+)-(.+)\.(.+)\.[Ss][Rr][Cc]\.[Rr][Pp][Mm]')
+SRPM_PNVRA_REGEX = re.compile('(.*/)?(.+)-(.+)-(.+)\.([Ss][Rr][Cc])\.[Rr][Pp][Mm]')
 SRPM_GLOB = '*.[Ss][Rr][Cc].[Rr][Pp][Mm]'
 RPM_GLOB = '*.[Rr][Pp][Mm]'
 
@@ -48,13 +55,7 @@ class SrpmInterface(EventInterface, ListCompareMixin):
     self.ts = rpm.TransactionSet()
     self.ts.setVSFlags(-1)
     self.callback = BuildSyncCallback(base.log.threshold)
-    self.srpmdest = join(self.SOFTWARE_STORE, 'SRPMS')
-  
-  def srpmCheckSignatures(self, srpm, verbose=True):
-    if verbose:
-      self._base.log.write(2, "%s" % osutils.basename(srpm), 40)
-    return #!
-    # more stuff here
+    self.srpmdest = join(self.DISTRO_DIR, 'SRPMS')
   
   def syncSrpm(self, srpm, store, path, force=False):
     "Sync a srpm from path within store into the output store"
@@ -88,75 +89,45 @@ class SrpmInterface(EventInterface, ListCompareMixin):
   
 
 #------ HOOKS ------#
-class InitHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'sources.init'
-    
-    self.interface = interface
-  
-  def run(self):
-    parser = self.interface.getOptParser('build')
-    
-    parser.add_option('--no-srpms',
-                      default=True,
-                      dest='do_srpms',
-                      action='store_false',
-                      help='do not include SRPMS with the output distribution')
-
-
-class ApplyoptHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'sources.applyopt'
-    
-    self.interface = interface
-  
-  def run(self):
-    self.interface.cvars['source-include'] = self.interface.options.do_srpms
-
-
-class SourceHook:
+class SourceHook(DiffMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'sources.source'
     
     self.interface = interface
-    
-    self.interface.lfn = self._delete_srpm
-    self.interface.rfn = self._download_srpm
-    self.interface.bfn = self._check_srpm
-    self.interface.cb = self
-    self._packages = {}
+
+    self.DATA =  {
+      'config': ['//source'],
+      'output': [self.interface.srpmdest]
+    }
+
+    self.mdfile = join(self.interface.METADATA_DIR, 'source.md')
+
+    DiffMixin.__init__(self, self.mdfile, self.DATA)
 
   def force(self):
     osutils.rm(self.interface.srpmdest, recursive=True, force=True)
-    self.interface.cvars['source-include'] = True
-  
-  def pre(self):
-    self.interface.disableEvent('source')
-    if self.interface.cvars['source-include'] or \
-       self.interface.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE:
-      if self.interface.cvars['pkglist-changed']:
-        self.interface.enableEvent('source')
-    else:
-      self.flush()
+    osutils.rm(self.mdfile, force=True)
   
   def check(self):
-    if self.interface.cvars['source-include'] or \
-       self.interface.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE:
-      return self.interface.isForced('source') or \
-             self.interface.cvars['pkglist-changed'] or \
-             not exists(self.interface.srpmdest)
+    if self.interface.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE:
+      return len(self.interface.cvars['new-rpms']) is not 0 or \
+             not exists(self.interface.srpmdest) or \
+             self.test_diffs()
     else:
+      # clean up old output and metadata
+      self.force()
       return False
-  
-  
+   
   def run(self):
     "Generate SRPM store"
     self.interface.log(0, "processing srpms")
-    self.interface.cvars['source-include'] = True
-    
+
+    self.interface.lfn = self._delete_srpm
+    self.interface.rfn = self._download_srpm
+    self.interface.cb = self
+    self._packages = {}
+
     # generate list of srpms we already have
     oldsrpmlist = osutils.find(self.interface.srpmdest, name=SRPM_GLOB, prefix=False)
     
@@ -172,10 +143,18 @@ class SourceHook:
       if srpm not in srpmlist: srpmlist.append(srpm)
 
     self.interface.compare(oldsrpmlist, srpmlist)
+
+    print "writing metadata"
+    osutils.rm(self.mdfile, force=True)
+    self.write_metadata()
+
+  def apply(self):
+    if self.interface.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE:
+      self.interface.cvars['source-include'] = True
   
   # callback functions
   def notify_both(self, i):
-    self.interface.log(1, "checking srpms (%d packages)" % i)
+    pass
   def notify_left(self, i):
     self.interface.log(1, "deleting old srpms (%d packages)" % i)
   def notify_right(self, i):
@@ -183,7 +162,7 @@ class SourceHook:
     # set up packages metadata dictionary for use in syncing
     for store in self.interface.config.xpath('//source/stores/store/@id'):
       i,s,n,d,u,p = self.interface.getStoreInfo(store)
-      
+
       base = self.interface.storeInfoJoin(s or 'file', n, d)
       srpms = spider.find(base, glob=SRPM_GLOB, prefix=False,
                           username=u, password=p)
@@ -192,18 +171,6 @@ class SourceHook:
         self._packages[srpm] = (i,d,srpm)
 
     osutils.mkdir(self.interface.srpmdest, parent=True)
-    
-  def _check_srpm(self, srpm):
-    try:
-      for path in osutils.expand_glob(join(self.interface.srpmdest, srpm)):
-        self.interface.srpmCheckSignatures(path)
-        if self.interface.logthresh >= 2:
-          self.interface.log(None, "OK")
-    except SrpmSignatureInvalidError:
-      # remove invalid srpm and redownload
-      self.interface.log(None, "INVALID: redownloading")
-      osutils.rm(path, force=True)
-      self.interface.r.append(srpm)
   
   def _delete_srpm(self, srpm):
     self.interface.deleteSrpm(srpm)
