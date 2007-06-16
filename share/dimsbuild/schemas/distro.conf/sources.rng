@@ -1,0 +1,58 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="distro">
+
+      <!-- DOCBOOK ENTRY -->
+      <refentry xmlns="">
+        <refsect1>
+          <title>SOURCE</title>
+          <para>information about the source element</para>
+        </refsect1>
+      </refentry>
+      
+      <!-- ELEMENT CONTENTS -->
+      <optional>        
+        <element name="source">
+          <choice>
+            <group>
+              <element name="include">
+                <choice>
+                  <value type="string">False</value>
+                  <value type="boolean">false</value>
+                  <value type="string">no</value>
+                  <value type="boolean">0</value>
+                </choice>
+              </element>
+              <optional>
+                <ref name="stores-element"/>
+              </optional>
+            </group>
+            <group>
+              <element name="include">
+                <choice>
+                  <value type="string">True</value>
+                  <value type="boolean">true</value>
+                  <value type="string">yes</value>
+                  <value type="boolean">1</value>
+                </choice>
+              </element>
+              <ref name="stores-element"/>
+            </group>
+          </choice>
+        </element>
+      </optional>
+    </element>
+  </start>
+
+  <define name="stores-element">
+    <element name="stores">
+      <oneOrMore>
+        <element name="store">
+          <attribute name="id"/>
+          <element name="path"><text/></element>
+        </element>
+      </oneOrMore>
+    </element>
+  </define>
+</grammar>

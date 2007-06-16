@@ -1,0 +1,67 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="dimsbuild">
+      <attribute name="schema-version">
+        <choice>
+          <value type="string">1.0</value>
+        </choice>
+      </attribute>
+      <interleave>
+        <element name="default"><text/></element>
+        <optional>
+          <element name="sharepath"><text/></element>
+        </optional>
+        <optional>
+          <element name="librarypaths">
+            <oneOrMore>
+              <element name="path"><text/></element>
+            </oneOrMore>
+          </element>
+        </optional>
+        <optional>
+          <element name="modules">
+            <oneOrMore>
+              <element name="module">
+                <optional>
+                  <attribute name="enabled">
+                    <ref name="dimsbuild-boolean"/>
+                  </attribute>
+                </optional>
+                <text/>
+              </element>
+            </oneOrMore>
+          </element>
+        </optional>
+        <optional>
+          <element name="plugins">
+            <oneOrMore>
+              <element name="plugin">
+                <optional>
+                  <attribute name="enabled">
+                    <ref name="dimsbuild-boolean"/>
+                  </attribute>
+                </optional>                
+                <text/>
+              </element>
+            </oneOrMore>
+          </element>
+        </optional>
+      </interleave>
+    </element>
+  </start>
+
+  <define name="dimsbuild-boolean">
+    <choice>
+      <value type="string">True</value>
+      <value type="string">False</value>
+      <value type="string">yes</value>
+      <value type="string">no</value>                      
+      <value type="boolean">0</value>
+      <value type="boolean">1</value>
+      <value type="boolean">false</value>
+      <value type="boolean">true</value>
+    </choice>
+  </define>
+
+</grammar>

@@ -1,0 +1,78 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="distro">
+      <optional>
+        <element name="comps">
+
+        <!-- DOCBOOK ENTRY -->
+          <refentry xmlns="">
+            <refsect1>
+              <title>COMPS</title>
+              <para>information about the comps element</para>
+            </refsect1>
+          </refentry>
+
+          <!-- ELEMENT CONTENTS -->
+          <interleave>
+            <optional>
+              <element name="create-new">                
+                <element name="groups">
+                  <oneOrMore>
+                    <element name="group">
+                      <optional>
+                        <attribute name="storeid"/>
+                      </optional>
+                      <optional>
+                        <attribute name="default">
+                          <choice>
+                            <value type="string">True</value>
+                            <value type="string">False</value>
+                            <data type="boolean"/>
+                          </choice>
+                        </attribute>
+                      </optional>
+                      <text/>
+                    </element>
+                  </oneOrMore>
+                </element>                
+                <optional>
+                  <element name="include">
+                    <oneOrMore>
+                      <element name="package">
+                        <optional>
+                          <attribute name="type">
+                            <choice>
+                              <value type="string">conditional</value>
+                              <value type="string">default</value>
+                              <value type="string">optional</value>
+                              <value type="string">mandatory</value>
+                            </choice>
+                          </attribute>
+                        </optional>
+                        <optional><attribute name="requires"/></optional>
+                        <text/>
+                      </element>
+                    </oneOrMore>
+                  </element>
+                </optional>                
+                <optional>
+                  <element name="exclude">
+                    <oneOrMore>
+                      <element name="package"><text/></element>
+                    </oneOrMore>
+                  </element>
+                </optional>                
+              </element>
+            </optional>
+            <optional>
+              <element name="use-existing">
+                <element name="path"><text/></element>
+              </element>
+            </optional>
+          </interleave>
+        </element>
+      </optional>
+    </element>
+  </start>
+</grammar>

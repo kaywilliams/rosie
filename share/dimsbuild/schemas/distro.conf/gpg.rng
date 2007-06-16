@@ -1,0 +1,33 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="distro">
+      <optional>
+        <element name="gpgsign">
+          
+          <!-- DOCBOOK ENTRY -->
+          <refentry xmlns="">
+            <refsect1>
+              <title>GPGSIGN</title>
+              <para>information about the gpgsign element</para>
+            </refsect1>
+          </refentry>
+          
+          <!-- ELEMENT CONTENTS -->
+          <interleave>
+            <element name="sign">
+              <choice>
+                <value type="string">True</value>
+                <value type="string">False</value>
+                <data type="boolean"/>
+              </choice>
+            </element>
+            <element name="public"><text/></element>
+            <element name="secret"><text/></element>
+            <element name="password"><text/></element>    
+          </interleave>
+        </element>
+      </optional>
+    </element>
+  </start>
+</grammar>

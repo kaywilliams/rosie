@@ -1,0 +1,54 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="distro">
+      <optional>
+        <element name="iso">
+          
+          <!-- DOCBOOK ENTRY -->
+          <refentry xmlns="">
+            <refsect1>
+              <title>ISO</title>
+              <para>information about the iso element</para>
+            </refsect1>
+          </refentry>
+
+          <!-- ELEMENT CONTENTS -->
+          <interleave>
+            <oneOrMore>
+              <element name="set">
+                <attribute name="size">
+                  <choice>          
+                    <value type="string">650M</value>
+                    <value type="string">700M</value>
+                    <value type="string">4.7G</value>
+                    <value type="string">8.5G</value>
+                    <value type="string">CD</value>
+                    <value type="string">DVD</value>          
+                  </choice>
+                </attribute>
+              </element>
+            </oneOrMore>
+            <element name="include-on-all-discs">
+              <attribute name="use-default-set">
+                <choice>
+                  <value type="string">True</value>
+                  <value type="string">False</value>
+                  <data type="boolean"/>
+                </choice>        
+              </attribute>
+              <zeroOrMore>
+                <optional>
+                  <element name="folder"><text/></element>
+                </optional>
+                <optional>
+                  <element name="file"><text/></element>
+                </optional>
+              </zeroOrMore>
+            </element>
+          </interleave>
+        </element>
+      </optional>
+    </element>
+  </start>
+</grammar>

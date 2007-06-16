@@ -1,0 +1,74 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="distro">
+      <element name="stores">
+
+        <!-- DOCBOOK ENTRY -->        
+        <refentry xmlns="">      
+          <refsect1>
+            <title>STORES</title>
+            <para>information about the stores element</para>
+          </refsect1>
+        </refentry>        
+        
+        <!-- ELEMENT CONTENTS -->
+        <optional>
+          <element name="exclude">
+            <oneOrMore>
+              <element name="package"><text/></element>
+            </oneOrMore>
+          </element>
+        </optional>      
+        <element name="base">
+          <ref name="store-element"/>
+        </element>      
+        <optional>
+          <element name="additional">
+            <oneOrMore>
+              <ref name="store-element"/>
+            </oneOrMore>
+          </element>
+        </optional>
+      </element>
+    </element>
+  </start>
+
+  <define name="store-element">
+    <element name="store">
+      <interleave>
+        <attribute name="id"/>
+        <element name="path"><text/></element>        
+        <optional>
+          <element name="repodata-path"><text/></element>
+        </optional>
+        <optional>
+          <element name="include">
+            <oneOrMore>
+              <element name="package"><text/></element>
+            </oneOrMore>
+          </element>
+        </optional>        
+        <optional>
+          <element name="exclude">
+            <oneOrMore>
+              <element name="package"><text/></element>
+            </oneOrMore>
+          </element>
+        </optional>        
+        <optional>
+          <element name="gpgkey"><text/></element>
+        </optional>
+        <optional>
+          <element name="gpgcheck">
+            <choice>
+              <value type="string">True</value>
+              <value type="string">False</value>
+              <data type="boolean"/>
+            </choice>
+          </element>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+</grammar>

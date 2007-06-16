@@ -1,0 +1,59 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="distro">
+      <element name="main">
+        
+        <!-- DOCBOOK ENTRY -->
+        <refentry id="distro.conf" xmlns="">          
+          <refmeta>
+            <refentrytitle>distro.conf</refentrytitle>
+            <manvolnum>5</manvolnum>
+          </refmeta>
+          <refnamediv>
+            <refname>distro.conf</refname> <!-- defines the name of the output file -->
+            <refpurpose>DiMSBuild's configuration file.</refpurpose>
+          </refnamediv>
+          <refsynopsisdiv>
+            <title>SYNOPSIS</title>
+            <synopsis>distro.conf synopsis</synopsis>
+          </refsynopsisdiv>
+          <refsect1>
+            <title>MAIN</title>
+            <para>information about the main element</para>
+          </refsect1>
+        </refentry>
+
+        <!-- ELEMENT CONTENTS -->
+        <interleave>
+          <element name="product"><text/></element>
+          <element name="version"><text/></element>
+          <element name="fullname"><text/></element>
+          <optional>
+            <element name="arch">
+              <choice>
+                <value type="string">i586</value>
+                <value type="string">i686</value>
+                <value type="string">x86_64</value>
+              </choice>
+            </element>
+          </optional>
+          <optional>
+            <element name="webroot"><text/></element>
+          </optional>
+          <optional>
+            <element name="publishpath"><text/></element>
+          </optional>      
+          <optional>
+            <element name="rpmspath"><text/></element>
+          </optional>
+          <optional>    
+            <element name="distro-provider"><text/></element>
+          </optional>
+        </interleave>
+      </element>
+    </element>
+  </start>
+</grammar>
+
+
