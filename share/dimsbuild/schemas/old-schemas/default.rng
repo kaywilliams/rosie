@@ -1,0 +1,31 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+
+<start>
+   <element name="default">
+     <attribute name="schema-version"><value type="string">1.0</value></attribute>
+     <ref name="policyAttributes"/>
+     <text/>
+   </element>
+</start>
+
+<define name="policyAttributes">
+  <optional><attribute name="policyAttributes-schema-version"><value>0.10</value></attribute></optional>
+  <optional>
+    <attribute name="action">
+      <choice>
+        <value type="string">insert</value>
+        <value type="string">delete</value>
+        <value type="string">replace</value>
+        <value type="string">update</value>
+      </choice>
+    </attribute>
+    <attribute name="allowoverride">
+      <choice>
+        <value type="string">yes</value>
+        <value type="string">no</value>
+      </choice>
+    </attribute>
+  </optional>
+</define>
+
+</grammar>

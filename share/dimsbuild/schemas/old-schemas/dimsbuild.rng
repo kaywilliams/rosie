@@ -1,0 +1,108 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+<start>
+   <element name="dimsbuild">
+     <attribute name="schema-version"><value type="string">0.10</value></attribute>
+     <optional><ref name="policyAttributes"/></optional>
+     <element name="main">
+       <optional><ref name="policyAttributes"/></optional>
+       <interleave>
+         <element name="product"><optional><ref name="policyAttributes"/></optional><text/></element>
+         <element name="version"><optional><ref name="policyAttributes"/></optional><text/></element>
+         <optional><element name="gpgkeypath"><optional><ref name="policyAttributes"/></optional><text/></element></optional>
+         <optional><element name="publishpath"><optional><ref name="policyAttributes"/></optional><text/></element></optional>
+         <optional><element name="groupfile"><optional><ref name="policyAttributes"/></optional><text/></element></optional>
+         <optional><element name="groups"><optional><ref name="policyAttributes"/></optional><text/></element></optional>
+         <optional><element name="packages"><optional><ref name="policyAttributes"/></optional><text/></element></optional>
+         <optional><element name="repackage"><optional><ref name="policyAttributes"/></optional><text/></element></optional>
+       </interleave>
+     </element>
+     <element name="stores">
+       <optional><ref name="policyAttributes"/></optional>
+       <ref name="storesfallbackGroup"/>
+       <interleave>
+         <element name="base">
+           <optional><ref name="policyAttributes"/></optional>
+           <ref name="storeElement"/>
+         </element>
+         <optional><element name="additional">
+           <optional><ref name="policyAttributes"/></optional>
+           <zeroOrMore><ref name="storeElement"/></zeroOrMore>
+         </element></optional>
+         <optional><element name="repackage">
+           <optional><ref name="policyAttributes"/></optional>
+           <zeroOrMore><ref name="storeElement"/></zeroOrMore>
+         </element></optional>
+         <optional><element name="srpm">
+           <optional><ref name="policyAttributes"/></optional>
+           <zeroOrMore><ref name="storeElement"/></zeroOrMore>
+         </element></optional>
+       </interleave>       
+     </element>
+   </element>
+</start>
+
+<define name="policyAttributes">
+  <optional><attribute name="policyAttributes-schema-version"><value>0.10</value></attribute></optional>
+  <optional>
+    <attribute name="action">
+      <choice>
+        <value type="string">insert</value>
+        <value type="string">delete</value>
+        <value type="string">replace</value>
+        <value type="string">update</value>
+      </choice>
+    </attribute>
+    <attribute name="allowoverride">
+      <choice>
+        <value type="string">yes</value>
+        <value type="string">no</value>
+      </choice>
+    </attribute>
+  </optional>
+</define>
+
+<define name="yesnoContent">
+  <optional><attribute name="yesnoContent-schema-version"><value>0.10</value></attribute></optional>
+  <choice>
+    <value type="string">yes</value>
+    <value type="string">no</value>
+  </choice>
+</define>
+
+<define name="storeElement">
+<!--requires policyAttributes-->
+<!--requires yesnoContent-->
+  <element name="store">
+    <optional><attribute name="store-schema-version"><value>0.12</value></attribute></optional>
+    <attribute name="id"><data type="ID" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"/></attribute>
+    <optional><ref name="policyAttributes"/></optional>
+    <interleave>
+      <optional><element name="name"><ref name="policyAttributes"/><text/></element></optional>
+      <optional><element name="server"><ref name="policyAttributes"/><text/></element></optional>
+      <element name="path"><ref name="policyAttributes"/><text/></element>
+      <optional><element name="cache"><ref name="policyAttributes"/><ref name="yesnoContent"/></element></optional>
+      <optional><element name="gpgkey"><ref name="policyAttributes"/><text/></element></optional>
+      <optional><element name="gpgcheck"><ref name="policyAttributes"/><ref name="yesnoContent"/></element></optional>
+      <optional><element name="sslcheck"><ref name="policyAttributes"/><ref name="yesnoContent"/></element></optional>
+      <optional><element name="username"><ref name="policyAttributes"/><text/></element></optional>
+      <optional><element name="password"><ref name="policyAttributes"/><text/></element></optional>     
+    </interleave>
+  </element>
+</define>
+
+<define name="storesfallbackGroup">
+<!--requires yesnoContent-->
+  <optional><attribute name="storesfallbackGroup-schema-version"><value>0.10</value></attribute></optional>
+  <interleave>
+    <optional><element name="server"><ref name="policyAttributes"/><text/></element></optional>
+    <optional><element name="cache"><ref name="policyAttributes"/><ref name="yesnoContent"/></element></optional>
+    <optional><element name="gpgkey"><ref name="policyAttributes"/><text/></element></optional>
+    <optional><element name="sslcheck"><ref name="policyAttributes"/><ref name="yesnoContent"/></element></optional>
+    <optional><element name="username"><ref name="policyAttributes"/><text/></element></optional>
+    <optional><element name="password"><ref name="policyAttributes"/><text/></element></optional> 
+  </interleave>
+</define>
+
+</grammar>
