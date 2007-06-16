@@ -503,7 +503,8 @@ class Dispatch:
           interface = EventInterface
         event.register_interface(interface)
     else:
-      raise ImportError, "Missing definition for 'EVENTS' variable in module %s" % module
+      #raise ImportError, "Missing definition for 'EVENTS' variable in module %s" % module
+      pass # the python module is a plugin
   
   def load_modules(self, module):
     from main import check_api_version # hack #!

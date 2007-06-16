@@ -24,11 +24,21 @@ EVENTS = [
 ]
 
 HOOK_MAPPING = {
-  'ProductHook': 'product-image',
+  'ProductHook':  'product-image',
+  'ValidateHook': 'validate',
 }
 
 
 #------ HOOKS ------#
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'installer.product.validate'
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('//product.img', 'product.rng')
+    
 class ProductHook(ImageModifyMixin):
   def __init__(self, interface):
     self.VERSION = 0

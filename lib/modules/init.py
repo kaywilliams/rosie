@@ -1,3 +1,5 @@
+from dims.CleanHelpFormatter import OptionGroupId
+
 from event     import EVENT_TYPE_META
 from interface import EventInterface
 
@@ -18,11 +20,6 @@ EVENTS = [
     'parent': 'ALL',
   },
   {
-    'id': 'validate',
-    'conditional-requires': ['applyopt'],
-    'parent': 'ALL',
-  },
-  {
     'id': 'MAIN',
     'conditional-requires': ['init', 'applyopt', 'validate'],
     'parent': 'ALL',
@@ -30,33 +27,26 @@ EVENTS = [
   },
 ]
 
-HOOK_MAPPING = {
-  'ValidateHook': 'validate',
-}
-
 
 class InitInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
     self.parser = None
   
-  def getOptParser(self, groupid):
+  def getOptParser(self, groupid=None):
+    if groupid is None:
+      return self.parser    
     for group in self.parser.option_groups:
       if group.id == groupid:
         return group
-    return self.parser
+      
+    # at this point, the groupid is not there in option_groups
+    # list; add it and return the pointer to it
+    group = OptionGroupId(self.parser, "Configuration file validation options", groupid)
+    self.parser.add_option_group(group)
+    return group
 
 class ApplyOptInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
     self.options = None
-
-class ValidateHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'init.validate'
-    
-    self.interface = interface
-  
-  def run(self):
-    self.interface.log(0, "performing preprocess validation")

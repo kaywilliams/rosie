@@ -11,6 +11,8 @@ from dims import xmltree
 from dims.CacheManager import CacheManagerError
 from dims.configlib    import ConfigError, uElement
 
+from event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
+from main      import uElement
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
 
 API_VERSION = 4.0
@@ -29,6 +31,7 @@ HOOK_MAPPING = {
   'InitHook':     'init',
   'ApplyoptHook': 'applyopt',
   'CompsHook':    'comps',
+  'ValidateHook': 'validate',
 }
 
 HEADER_FORMAT = '<?xml version=\'%s\' encoding=\'%s\'?>'
@@ -40,6 +43,15 @@ KERNELS = ['kernel', 'kernel-smp', 'kernel-zen', 'kernel-zen0',
 
 
 #------ HOOKS ------#
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'comps.validate'
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('//comps', schemafile='comps.rng')
+  
 class InitHook:
   def __init__(self, interface):
     self.VERSION = 0

@@ -123,6 +123,7 @@ class ListCompareMixin:
       if self.rfn:
         for i in self.r: self.rfn(i)
 
+
 class DiffMixin:
   def __init__(self, mdfile, data):
     self.mdfile = mdfile
@@ -150,8 +151,6 @@ class DiffMixin:
       self.DT.addHandler(h)
       self.handlers['config'] = h
     
-    self.DT.read_metadata()
-  
   def test_diffs(self):
     return self.DT.changed()
   

@@ -1,8 +1,8 @@
-import os
-import tempfile
-
 from os.path            import join, exists, isdir, isfile
 from rpmUtils.miscutils import rpm2cpio
+
+import os
+import tempfile
 
 from dims import shlib
 
@@ -10,11 +10,11 @@ from dims.imglib  import CpioImage
 from dims.osutils import *
 from dims.sync    import sync
 
+from difftest  import InputHandler, OutputHandler
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from interface import EventInterface
-from main      import BOOLEANS_TRUE
+from interface import DiffMixin, EventInterface
+from main      import BOOLEANS_TRUE, tree
 from magic     import FILE_TYPE_LSS, match as magic_match
-from output    import OutputEventHandler, InputInvalidError, OutputInvalidError, tree
 
 try:
   import Image
@@ -28,16 +28,17 @@ EVENTS = [
     'id': 'installer-logos',
     'interface': 'EventInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['installer-logos', 'splash.lss'],
+    'provides': ['splash.lss'],
     'requires': ['software'],
+    'conditional-requires': ['gpgsign'],    
     'parent': 'INSTALLER',
   },
   {
     'id': 'installer-release-files',
     'interface': 'EventInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['installer-release-files'],
     'requires': ['software'],
+    'conditional-requires': ['gpgsign'],
     'parent': 'INSTALLER',
   },  
 ]
@@ -73,61 +74,63 @@ def extractRpm(rpmPath, output=os.getcwd()):
   finally:
     rm(dir, recursive=True, force=True)
 
-class ExtractEventHandler(OutputEventHandler):
+
+class ExtractEventHandler(DiffMixin):
   def __init__(self, interface, data, mdfile):    
     self.interface = interface
     self.config = self.interface.config
     self.software_store = self.interface.SOFTWARE_STORE
-
-    OutputEventHandler.__init__(self, self.config, data, mdfile)
+    
+    DiffMixin.__init__(self, mdfile, data)
 
   def force(self):
     self.clean_output()
 
-  def run(self, message):
-    self.modify_input_data()
-    if self.check_run_status():
-      self.interface.log(0, message)
-      # get input - extract RPMs
-      self.working_dir = tempfile.mkdtemp() # temporary directory, gets deleted once done
-      for rpmname in self.data['input']:
-        extractRpm(rpmname, self.working_dir)    
-      # generate output files
-      try:
-        # need to modify self.data, so that the metadata
-        # written has all the files created. Otherwise, self.data['output']
-        # will be empty.
-        self.data['output'] = self.generate() 
-      finally:
-        #rm(self.working_dir, recursive=True, force=True)
-        pass
-      # write metadata
-      self.write_metadata()
-    
-  def get_rpms(self):
-    return self.interface.cvars['RPMS-%s' % self.ID] or None
-
-  def set_rpms(self, rpms):
-    self.interface.cvars['RPMS-%s' % self.ID] = rpms
-
-  def modify_input_data(self):
-    rpms = self.get_rpms()
-    if rpms is None:
-      rpms = self.find_rpms()
-      self.set_rpms(rpms)
-    self.data['input'] = rpms
-
-  def test_input_changed(self):
-    if not self.mdvalid:
+  def check(self):
+    self.modify_input_data(self.find_rpms())    
+    if self.test_diffs() or self.output_changed() or not self.output_valid():
+      self.clean_output()
       return True
-    else:
-      self.configvalid = (not self._test_configvals_changed())
-      self.inputvalid  = (not self._test_input_changed())
-      self.outputvalid = (not self._test_output_changed())
-      return not(self.configvalid and self.inputvalid and self.outputvalid)
+    return False
+
+  def extract(self, message):
+    self.interface.log(0, message)
     
-  def _test_output_changed(self):
-    # have to use this _test_output_changed() instead of OutputEventHandler's
+    # get input - extract RPMs
+    self.working_dir = tempfile.mkdtemp() # temporary directory, gets deleted once done
+    for rpmname in self.data['input']:
+      extractRpm(rpmname, self.working_dir)    
+
+    # generate output files
+    try:
+      # need to modify self.data, so that the metadata
+      # written has all the files created. Otherwise, self.data['output']
+      # will be empty.
+      self.modify_output_data(self.generate())
+    finally:
+      rm(self.working_dir, recursive=True, force=True)
+
+    # write metadata
+    self.write_metadata()
+
+  def modify_input_data(self, input):
+    self._modify('input', input)
+
+  def modify_output_data(self, output):
+    self._modify('output', output)
+
+  def _modify(self, key, value):
+    self.data[key] = value
+    if key not in self.handlers.keys():
+      h = {
+        'input':  InputHandler,
+        'output': OutputHandler,
+        }[key](self.data[key])
+      self.DT.addHandler(h)
+      self.handlers[key] = h
+      
+  def output_changed(self):
+    # have to use this output_changed() instead of DiffMixin's
     # because self.data['output'] hasn't been set yet. 
     if hasattr(self, 'output'):      
       for file in self.output.keys():
@@ -137,12 +140,6 @@ class ExtractEventHandler(OutputEventHandler):
         if stats.st_size != int(self.output[file]['size']) or \
                stats.st_mtime != int(self.output[file]['mtime']):
           return True
-    return False
-    
-  def check_run_status(self):
-    if self.test_input_changed() or not self.test_output_valid():
-      self.clean_output()
-      return True
     return False
   
   def clean_output(self):
@@ -157,18 +154,19 @@ class InstallerLogosHook(ExtractEventHandler):
     self.VERSION = 0
     self.ID = 'installer.rpmextract.installer-logos'
 
-    self.metadata_struct =  {
-      'config': ['//installer/logos'],
-      'input':  [interface.config.get('//installer/logos/package/text()',
-                                     '%s-logos' %(interface.product,))],
+    self.metadata_struct = {
+      'config': [
+        '//installer/logos',
+      ],
     }
     
     ExtractEventHandler.__init__(self, interface, self.metadata_struct,
                                  join(interface.METADATA_DIR, 'installer-logos.md'))
+
     self.splash_lss = join(self.software_store, 'isolinux', 'splash.lss')
   
   def run(self):
-    ExtractEventHandler.run(self, "processing installer logos")
+    ExtractEventHandler.extract(self, "processing installer logos")
 
   def generate(self):
     "Create the splash.lss file and copy it to the isolinux/ folder"
@@ -181,7 +179,7 @@ class InstallerLogosHook(ExtractEventHandler):
     # to the isolinux/ folder
     splash_pngs = find(self.working_dir, 'syslinux-splash.png')
     if len(splash_pngs) == 0:
-      raise SplashImageNotFoundError, "no syslinux-splash.png found in logos RPM"
+      raise SplashImageNotFoundError("no syslinux-splash.png found in logos RPM")
     shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
                   %(splash_pngs[0], self.splash_lss,))
     output.append(self.splash_lss)
@@ -198,7 +196,7 @@ class InstallerLogosHook(ExtractEventHandler):
     mkdir(product_img, parent=True)
 
     dirs_to_look = []
-    for dir in ['pixmaps']:      
+    for dir in ['pixmaps']: # FIXME: is the 'pixmaps' directory sufficient?
       dirs_to_look.extend(find(location=self.working_dir,
                                name=dir, type=TYPE_DIR, regex='.*anaconda.*'))
 
@@ -213,7 +211,7 @@ class InstallerLogosHook(ExtractEventHandler):
         pixmaps.append(pixmap)
     return pixmaps
   
-  def test_output_valid(self):
+  def output_valid(self):
     return exists(self.splash_lss) and magic_match(self.splash_lss) == FILE_TYPE_LSS
   
   def find_rpms(self):
@@ -235,16 +233,16 @@ class InstallerReleaseHook(ExtractEventHandler):
     self.ID = 'installer.rpmextract.installer-release-files'
 
     self.metadata_struct = {
-      'config': ['//installer/release-files'],
-      'input':  [interface.config.get('//installer/release-files/package/text()',
-                                      '%s-release' %(interface.product,))],
+      'config': [
+        '//installer/release-files',
+      ],
     }
     
     ExtractEventHandler.__init__(self, interface, self.metadata_struct,
-                                 join(interface.METADATA_DIR, 'installer-release-files.md'))    
+                                 join(interface.METADATA_DIR, 'installer-release-files.md'))
   
   def run(self):
-    ExtractEventHandler.run(self, "synchronizing installer release files")
+    ExtractEventHandler.extract(self, "synchronizing installer release files")
 
   def generate(self):
     files = {}
@@ -264,11 +262,13 @@ class InstallerReleaseHook(ExtractEventHandler):
       dest = files[source]
       if isfile(source) and isdir(dest):
         dest = join(dest, basename(source))
-      rtn.append(dest)      
+      rtn.append(dest)
+      if exists(dest):
+        rm(dest, force=True)
       os.link(source, dest)
     return rtn
 
-  def test_output_valid(self): return True
+  def output_valid(self): return True
 
   def find_rpms(self):
     rpmnames = self.config.xpath('//installer/release-files/package/text()',

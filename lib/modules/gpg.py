@@ -6,7 +6,7 @@ from dims import xmltree
 from dims.mkrpm   import rpmsign
 
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from interface import EventInterface, DiffMixin
+from interface import DiffMixin, EventInterface
 from main      import BOOLEANS_TRUE
 
 API_VERSION = 4.0
@@ -24,6 +24,7 @@ EVENTS = [
 HOOK_MAPPING = {
   'SoftwareHook': 'software',
   'GpgsignHook':  'gpgsign',
+  'ValidateHook': 'validate',
 }
 
 class GpgInterface(EventInterface):
@@ -137,6 +138,16 @@ class GpgsignHook(DiffMixin):
       
       self.write_metadata()
   
+
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'gpg.validate'
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('//gpgsign', schemafile='gpg.rng')
+    
 
 #------ ERRORS ------#
 class GpgError: pass

@@ -18,7 +18,8 @@ EVENTS = [
 ]
 
 HOOK_MAPPING = {
-  'XenHook': 'xen-images',
+  'XenHook':      'xen-images',
+  'ValidateHook': 'validate',
 }
 
 XEN_OUTPUT_FILES = [
@@ -27,6 +28,15 @@ XEN_OUTPUT_FILES = [
 ]
 
 #------ HOOKS ------#
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'installer.xen.validate'
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('//initrd.img', 'xen.rng')
+    
 class XenHook(ImageModifyMixin, FileDownloadMixin):
   def __init__(self, interface):
     self.VERSION = 0

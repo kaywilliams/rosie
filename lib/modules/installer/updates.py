@@ -22,10 +22,20 @@ EVENTS = [
 
 HOOK_MAPPING = {
   'UpdatesHook': 'updates-image',
+  'ValidateHook': 'validate',  
 }
 
 
 #------ HOOKS ------#
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'installer.updates.validate'
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('//updates.img', 'updates.rng')
+    
 class UpdatesHook(ImageModifyMixin):
   def __init__(self, interface):
     self.VERSION = 0

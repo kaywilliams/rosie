@@ -29,6 +29,7 @@ EVENTS = [
 
 HOOK_MAPPING = {
   'StoresHook': 'stores',
+  'ValidateHook': 'validate',
 }
 
 class StoresInterface(EventInterface):
@@ -46,6 +47,15 @@ class StoresInterface(EventInterface):
 
 
 #------ HOOKS ------#
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'stores.validate'
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('//stores', schemafile='stores.rng')
+    
 class StoresHook:
   def __init__(self, interface):
     self.VERSION = 0

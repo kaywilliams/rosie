@@ -1,21 +1,23 @@
+from ConfigParser import ConfigParser
+from os.path      import exists, join
+
 import fcntl
 import os
 import rpm
 import socket
 import struct
 
+from dims.osutils import basename, dirname, find, mkdir, rm
+from dims.sync    import sync
+
 import dims.filereader as filereader
 import dims.mkrpm      as mkrpm
 import dims.shlib      as shlib
 import dims.xmltree    as xmltree
 
-from ConfigParser import ConfigParser
-from dims.osutils import basename, dirname, find, mkdir, rm
-from dims.sync    import sync
-from event        import EventInterface
-from main         import BOOLEANS_TRUE
-from os.path      import exists, join
-from output       import OutputEventHandler, OutputInvalidError
+from event     import EventInterface
+from interface import DiffMixin
+from main      import BOOLEANS_TRUE
 
 #--------------- FUNCTIONS ------------------#
 def getIpAddress(ifname='eth0'):
@@ -23,18 +25,15 @@ def getIpAddress(ifname='eth0'):
   return socket.inet_ntoa(fcntl.ioctl(s.fileno(),
                                       0x8915, # SIOCGIFADDR
                                       struct.pack('256s', ifname[:15]))[20:24])
-                                      
-def build_rpm(path, rpm_output, changelog=None, logger='rpmbuild',
-             functionName='main', keepTemp=True, createrepo=False,
-             quiet=True):
-  # keepTemp should be True if path points to a location inside
-  # the builddata/ folder, because if keepTemp is False, path
-  # is going to get deleted once the rpm build process is complete.
+
+
+def buildRpm(path, rpm_output, changelog=None, logger='rpmbuild',
+             functionName='main', createrepo=False, quiet=True):
   eargv = ['--bdist-base', '/usr/src/redhat',
            '--rpm-base', '/usr/src/redhat/']
   
   mkrpm.build(path, rpm_output, changelog=changelog, logger=logger,
-              functionName=functionName, keepTemp=keepTemp, createrepo=createrepo,
+              functionName=functionName, keepTemp=True, createrepo=createrepo,
               quiet=quiet, eargv=eargv)
   
   # need to delete the dist folder, because the RPMS have been copied
@@ -42,7 +41,7 @@ def build_rpm(path, rpm_output, changelog=None, logger='rpmbuild',
   rm(join(path, 'dist'), recursive=True, force=True)
 
 
-#------ INTERFACES/MIXINS ------#
+#------ MIXINS ------#
 class RpmsMixin:
   def __init__(self):
     self.LOCAL_REPO = join(self.METADATA_DIR, 'localrepo/')
@@ -70,12 +69,6 @@ class ColorMixin:
       self.bgcolor, self.textcolor, self.hlcolor = IMAGE_COLORS['*']['0']    
     
   def color_to_bigendian(self, color):
-    if type(color) == tuple:
-      return self._color_to_bigendian(color[0]), self._color_to_bigendian(color[1])
-    else:
-      return self._color_to_bigendian(color)
-
-  def _color_to_bigendian(self, color):
     if color.startswith('0x'):
       color = color[2:]
     color = '%s%s' % ((6-len(color))*'0', color) # prepend zeroes to color
@@ -100,6 +93,7 @@ class ColorMixin:
     return (distro, version[0])
 
 
+#---------- INTERFACES -----------#
 class RpmsInterface(EventInterface, RpmsMixin):
   def __init__(self, base):
     EventInterface.__init__(self, base)
@@ -107,7 +101,7 @@ class RpmsInterface(EventInterface, RpmsMixin):
 
 
 #---------- HANDLERS -------------#
-class RpmHandler(OutputEventHandler):
+class RpmsHandler(DiffMixin):
   def __init__(self, interface, data, elementname=None, rpmname=None,
                provides=None, provides_test=None, obsoletes=None, requires=None,
                description=None, long_description=None):
@@ -142,91 +136,91 @@ class RpmHandler(OutputEventHandler):
     self.long_description = long_description
     self.author = 'dimsbuild'
     self.output_location = join(self.metadata, self.elementname)
-    self.share_path = self.interface._base.sharepath
+    self.sharepath = self.interface._base.sharepath
     
     self.log = self.interface.log
-         
-    self._set_method()
 
     # get the rpms and srpms to be a part of the output too
     data['output'].extend(find(self.rpm_output, name='%s*' %(self.rpmname,)))
-    
-    OutputEventHandler.__init__(self, self.config, data,
-                                mdfile=join(self.metadata, '%s.md' % self.elementname))
-        
-  def _set_method(self):
-    if self.config.get('//%s/create/text()' % self.elementname, 'True') or \
-           self.interface.isForced(self.eventid) in BOOLEANS_TRUE:
-      self.create = True
-    else:
-      self.create = False
 
-  def clear_output(self):
+    DiffMixin.__init__(self, join(self.metadata, '%s.md' % self.elementname), data)
+
+  def clean_output(self):
     for rpm in find(self.rpm_output, name='%s*[Rr][Pp][Mm]' %(self.rpmname,)):
       rm(rpm, force=True)
     rm(self.output_location, recursive=True, force=True)
 
   def force(self):
-    self.clear_output()
+    self.clean_output()
+
+  def test_build_rpm(self):
+    return not self.interface.isSkipped(self.eventid) and \
+           (self.interface.isForced(self.eventid) or \
+            self.config.get('//%s/create/text()' %(self.elementname,), 'True') in BOOLEANS_TRUE)
+  
+  def check(self):
+    if self.test_build_rpm() and (self.test_diffs() or not self.output_valid()):
+      self.clean_output()
+      return True
+    return False
   
   def run(self):
-    if self.create:
-      if self.test_input_changed() or not self.test_output_valid():
-        self.clear_output()
-      else:
-        return
-      self.get_input()
-      self.add_output()
-      if not self.test_output_valid():
-        raise OutputInvalidError, "output is invalid"
+    self.log(0, "creating '%s' rpm" %(self.rpmname,))
+    self.get_input()
+    self.add_output()
 
-      # remove all the rpm and srpms from data['output'] and add new ones
-      self.data['output'].extend(find(self.rpm_output, name='%s*' %(self.rpmname,)))
-      self.write_metadata()
+    if not self.output_valid():
+      raise OutputInvalidError("%s RPM output is invalid" %(self.rpmname,))
 
-      # input store has changed because a new rpm has been created
-      self.interface.cvars['input-store-changed'] = True
-
-      # need to the remove the .depsolve/dimsbuild-local folder so
-      # that depsolver picks up the new RPM.
-      depsolver_cache = join(self.interface.METADATA_DIR, '.depsolve', 'dimsbuild-local')
-      if exists(depsolver_cache):
-        rm(depsolver_cache, recursive=True, force=True)      
+    # remove all the rpm and srpms from data['output'] and add new ones
+    self.data['output'].extend(find(self.rpm_output, name='%s*' %(self.rpmname,)))
+    
+    self.write_metadata()
+    
+    # input store has changed because a new rpm has been created
+    self.interface.cvars['input-store-changed'] = True
+    
+    # HACK ALERT: need to the remove the .depsolve/dimsbuild-local folder so
+    # that depsolver picks up the new RPM.
+    depsolver_cache = join(self.interface.METADATA_DIR, '.depsolve', 'dimsbuild-local')
+    if exists(depsolver_cache):
+      rm(depsolver_cache, recursive=True, force=True)      
 
   def apply(self, type='mandatory', requires=None):    
     try:
       find(join(self.interface.METADATA_DIR, 'localrepo', 'RPMS'),
            name='%s*.[Rr][Pp][Mm]' %(self.rpmname,), prefix=False)[0]
+
       # add rpms to the included-packages control var, so that
       # they are added to the comps.xml
       if not self.interface.cvars['included-packages']:
         self.interface.cvars['included-packages'] = []
       self.interface.cvars['included-packages'].append((self.rpmname, type, requires))
+      
       if self.obsoletes is not None:
         if not self.interface.cvars['excluded-packages']:
           self.interface.cvars['excluded-packages'] = []
         self.interface.cvars['excluded-packages'].extend(self.obsoletes.split())
     except IndexError:
-      if self.create and not self.interface.isSkipped(self.eventid):
+      if self.test_build_rpm():
         raise RuntimeError("missing rpm: '%s'" %(self.rpmname,))
     
-  def test_output_valid(self): return True
+  def output_valid(self): return True
   
   def get_input(self):
     if not exists(self.rpm_output):
       mkdir(self.rpm_output, parent=True)
     if not exists(self.output_location):
       mkdir(self.output_location, parent=True)
-    if self.create and self.data.has_key('input'):
+    if self.data.has_key('input'):
       for input in self.data['input']:
         sync(input, self.output_location)
 
   def add_output(self):
-    if self.create:
-      self.generate()
-      self.setup()
-      build_rpm(self.output_location, self.rpm_output,
-                quiet=(self.interface.logthresh < 4)) # piping rpmbuild output to loglevel 4
+    self.generate()
+    self.setup()
+    buildRpm(self.output_location, self.rpm_output,
+             quiet=(self.interface.logthresh < 4)) # piping rpmbuild output to loglevel 4
     
   def generate(self): pass
 
@@ -278,33 +272,31 @@ class RpmHandler(OutputEventHandler):
   def get_release_number(self):
     autoconf = join(dirname(self.config.file), 'distro.conf.auto')
 
-    new_release = None
+    newrelease = None
     ad = None
 
     if exists(autoconf):
-      ad = xmltree.read(autoconf)
-      root = ad.getroot()
-      old_release = root.get('//%s/release/text()' %(self.elementname,))
-      if old_release:
-        new_release = str(int(old_release)+1)
-        create_package = root.get('//%s' %(self.elementname,))
-        # FIXME: raise exception if not found? We are creating this file, so maybe
-        # it's OK to not raise an exception 
-        create_package.remove(root.get('//%s/release' % self.elementname)) 
-        
-    if not new_release:
-      if ad:
-        document_root = ad.getroot()
-      else:
-        document_root = xmltree.Element('auto')
-        ad = xmltree.XmlTree(document_root)
-      create_package = xmltree.Element(self.elementname, parent=document_root)            
-      new_release = '1'
-      
-    xmltree.Element('release', parent=create_package, text=new_release)            
-    ad.write(autoconf)
-    self.log(1, "'%s' release number: %s" %(self.elementname, new_release,))
-    return new_release
+      root = xmltree.read(autoconf)
+    else:
+      root = xmltree.Element('auto')
+
+    package = root.get('//%s' %self.elementname, None) or \
+              xmltree.Element(self.elementname, parent=root)
+    release = package.get('release', None)
+
+    if release is not None:      
+      oldrelease = release.text
+    else:
+      release = xmltree.Element('release', parent=package)
+      oldrelease = '0'
+    
+    newrelease = str(int(oldrelease) + 1)
+
+    release.text = newrelease
+    root.write(autoconf)
+    
+    self.log(1, "'%s' release number: %s" %(self.elementname, newrelease,))
+    return newrelease
 
 
 # each element for a distro's version, e.g. redhat/5, is a 3-tuple:

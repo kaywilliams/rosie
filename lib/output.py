@@ -44,16 +44,6 @@ import magic
 import os
 
 #------ FUNCTIONS ------#
-def tree(path, type='d|f|l', prefix=True):
-  types = type.split('|')
-  rtn = []
-  if 'd' in types:
-    rtn.extend(osutils.find(location=path, name='*', type=osutils.TYPE_DIR, prefix=prefix))
-  if 'f' in types:
-    rtn.extend(osutils.find(location=path, name='*', type=osutils.TYPE_FILE, prefix=prefix))
-  if 'l' in types:
-    rtn.extend(osutils.find(location=path, name='*', type=osutils.TYPE_LINK, prefix=prefix))
-  return rtn
   
 #---------- CLASSES ----------#
 class OutputEventHandler:

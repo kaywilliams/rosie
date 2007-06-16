@@ -1,17 +1,19 @@
+from StringIO import StringIO
+from os.path  import exists, join, isdir, isfile
+
 import os
+
+from dims.osutils import basename, dirname, mkdir, rm
+from dims.sync    import sync
 
 import dims.imerge  as imerge
 import dims.shlib   as shlib
 import dims.xmltree as xmltree
 
-from StringIO     import StringIO
-from dims.osutils import basename, dirname, mkdir
-from dims.sync    import sync
-from event        import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from main         import BOOLEANS_TRUE
-from os.path      import exists, join, isdir, isfile
-from output       import tree
-from rpms.lib     import ColorMixin, RpmHandler, RpmsInterface
+from event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
+from main  import BOOLEANS_TRUE, tree
+
+from rpms.lib import ColorMixin, RpmsHandler, RpmsInterface
 
 try:
   import Image
@@ -19,14 +21,13 @@ try:
   import ImageFont
   import ImageFilter
 except ImportError:
-  raise ImportError, "missing 'python-imaging' RPM"
+  raise ImportError("missing 'python-imaging' RPM")
 
 EVENTS = [
   {
     'id': 'logos-rpm',
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['logos-rpm'],
     'parent': 'RPMS',
   },
 ]
@@ -46,124 +47,98 @@ def locals_imerge(string, ver='0'):
 
 
 #---------- HANDLERS -------------#
-class LogosRpmHook(RpmHandler, ColorMixin):
+class LogosRpmHook(RpmsHandler, ColorMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'logos.logos-rpm'
     self.eventid = 'logos-rpm'
     
     data =  {
-      'config': ['/distro/main/fullname/text()',
-                 '/distro/main/version/text()',
-                 '//logos-rpm'],
-      'output': [join(interface.METADATA_DIR, 'logos-rpm/')]
+      'config': [
+        '/distro/main/fullname/text()',
+        '/distro/main/version/text()',
+        '//logos-rpm',
+      ],
+      'output': [
+        join(interface.METADATA_DIR, 'logos-rpm/'),
+      ],
     }
     
-    RpmHandler.__init__(self, interface, data,
-                        elementname='logos-rpm',
-                        rpmname='%s-logos' % interface.product,
-                        provides_test='redhat-logos',
-                        provides='system-logos, redhat-logos = 4.9.3',
-                        obsoletes = 'fedora-logos centos-logos redhat-logos',
-                        description='Icons and pictures related to %s' \
-                          % interface.config.get('//main/fullname/text()'),
-                        long_description='The %s-logos package contains '
-                          'image files which have been automatically created '
-                          'by dimsbuild and are specific to the %s '
-                          'distribution.' \
-                          %(interface.product, interface.config.get('//main/fullname/text()')))
-
+    RpmsHandler.__init__(self, interface, data,
+                         elementname='logos-rpm',
+                         rpmname='%s-logos' % interface.product,
+                         provides_test='redhat-logos',
+                         provides='system-logos, redhat-logos = 4.9.3',
+                         obsoletes = 'fedora-logos centos-logos redhat-logos',
+                         description='Icons and pictures related to %s' \
+                         % interface.config.get('//main/fullname/text()'),
+                         long_description='The %s-logos package contains '
+                         'image files which have been automatically created '
+                         'by dimsbuild and are specific to the %s '
+                         'distribution.' \
+                         %(interface.product, interface.config.get('//main/fullname/text()')))
+    
     ColorMixin.__init__(self, join(self.interface.METADATA_DIR,
                                    '%s.pkgs' %(self.interface.getBaseStore(),)))
-        
+    
     # build the data structure containing information about
     # the images
     expand = (self.product,)*8
     self.imageslocal = locals_imerge(L_LOGOS %expand)
-    self.build_controlset()
     
     # set the font to use
     available_fonts = filter(lambda x: x.endswith('.ttf'),
-                             tree(join(self.share_path, 'fonts'), prefix=True, type='f|l'))
+                             tree(join(self.sharepath, 'fonts'), prefix=True, type='f|l'))
     self.fontfile = available_fonts[0]
-    
-  def build_controlset(self):
-    def getvalue(logo, name, optional=False):
-      try:
-        return logo.get(name).text
-      except AttributeError:
-        if optional:
-          return None
-        else:
-          raise
-    self.controlset = {}
-    for logo in self.imageslocal.xpath('//logo'):
-      id = logo.attrib['id']
-      install_path = getvalue(logo, 'location')      
-      file_name = basename(id)
-      dir_name = dirname(id)
-      self.controlset[id] = {
-        'install_path': install_path,
-        'file_name': file_name,
-        'dir_name': dir_name,
-        }      
-      for integer_item in ['width', 'height', 'textmaxwidth',                            
-                           'textvcenter', 'texthcenter']:
-        value = getvalue(logo, integer_item, optional=True)
-        if value is not None:
-          self.controlset[id][integer_item] = int(value)
-        else:
-          self.controlset[id][integer_item] = None
-      for boolean_item in ['gradient', 'highlight']:
-        value = getvalue(logo, boolean_item, optional=True)
-        if value is not None and value in BOOLEANS_TRUE:
-          self.controlset[id][boolean_item] = True
-        else:
-          self.controlset[id][boolean_item] = False          
 
   def run(self):
     self.set_colors()
 
-    # set the colors, the python-imaging library uses big-endian colors.
+    # convert the colors to big endian because the python-imaging library uses big-endian colors.
     self.bgcolor = self.color_to_bigendian(self.bgcolor)
     self.textcolor = self.color_to_bigendian(self.textcolor)
     self.hlcolor = self.color_to_bigendian(self.hlcolor)
     
     mkdir(join(self.interface.METADATA_DIR, 'images-src/product.img'), parent=True)
-    RpmHandler.run(self)
+    RpmsHandler.run(self)
             
   def generate(self):
     self._generate_images()
     self._generate_theme_files()
 
   def create_manifest(self): pass # done by get_data_files()
-  
+
   def get_data_files(self):
     manifest = join(self.output_location, 'MANIFEST')
     f = open(manifest, 'w')
     f.write('setup.py\n')
     f.write('setup.cfg\n')
     items = {}
-    for id in self.controlset.keys():      
-      file = join(self.output_location, id)
-      file_name = basename(file)
-      file_dir = dirname(file)
+    for logoinfo in self.imageslocal.xpath('//logos/logo', []):
+      i,l,_,_,_,_,_,_,_ = self._get_image_info(logoinfo)
+
+      file = join(self.output_location, i)
+      filename = basename(file)
+      filedir = dirname(file)
+
+      installname = basename(l)
+      installdir = dirname(l)
+
+      if not exists(file): continue # FIXME: fail if a file is not found?
       
-      install_file = self.controlset[id]['install_path']
-      install_filename = basename(install_file)            
-      install_dir = dirname(install_file)
-      
-      if exists(file):
-        if file_name != install_filename:
-          new_file = join(file_dir, install_filename)
-          os.link(file, new_file)
-          id = join(file_dir, install_filename)
-        if install_dir in items.keys():
-          items[install_dir].append(id)
-        else:
-          items[install_dir] = [id]
-        f.write('%s\n' %(id,))
+      if filename != installname:
+        newfile = join(filedir, installname)
+        os.link(file, newfile)
+        i = newfile
+
+      if installdir not in items.keys():
+        items[installdir] = []
+
+      items[installdir].append(i)
+
+      f.write('%s\n' %(i,))
     f.close()
+    
     # convert items to a config-styled string
     rtn = ''
     for item in items.keys():
@@ -172,19 +147,23 @@ class LogosRpmHook(RpmHandler, ColorMixin):
       rtn = ''.join([rtn, dir, files, '\n\t'])
     return rtn
     
-  def test_output_valid(self):
-    if self.create:
-      if self.data.has_key('output'):
-        for id in self.controlset.keys():
-          file = join(self.output_location, id)
-          # TODO: Fail if a file in the control list is not found
-          if file[-3:].lower() == 'xpm':
-            # assume that all xpm files are fine, because the python-imaging
-            # chokes on them. The xpm files used in the logos RPM are static
-            # ones, so it is "fine" to make this assumption. 
-            continue               
-          if not self._verify_file(file, self.controlset[id]):
-            self.log(4, "file '%s' has invalid dimensions" %(file,))
+  def output_valid(self):
+    if self.data.has_key('output'):
+      for logoinfo in self.imageslocal.xpath('//logos/logo', []):
+        i,_,w,h,_,_,_,_,_ = self._get_image_info(logoinfo)
+        file = join(self.output_location, i)
+        if file.lower().endswith('xpm'):
+          # HACK: Assuming that all the .xpm files are valid. It is a fair
+          # assumption because all the xpm files are from the share directory
+          continue
+        if w and h:
+          try:
+            image = Image.open(file)
+          except IOError:
+            self.log(4, "file '%s' was not found" %(file,)) # should never happen
+            return False
+          if image.size != (w,h):
+            self.log(4, "file '%s' has invalid dimensions" %(file,))            
             return False
     return True
 
@@ -199,50 +178,35 @@ class LogosRpmHook(RpmHandler, ColorMixin):
     f.close()
   
   def _generate_images(self):
-    ##
-    ## CHANGE: June 4, 2007. Removing font-file element from <logos-rpm>
-    ## ttf_file = self.config.get('//%s/font-file/text()' %(self.elementname,), None)
-    ##
-    for id in self.controlset.keys():
-      shared_file = join(self.share_path, 'logos', id)
-      filename = join(self.output_location, id)
+    for logoinfo in self.imageslocal.xpath('//logos/logo', []):
+      # (id, _, location, width, height, maxwidth, x, y, gradient, highlight)
+      i,_,l,b,m,x,y,g,h = self._get_image_info(logoinfo)
+      sharedfile = join(self.sharepath, 'logos', i)
+      filename = join(self.output_location, i)
       dir = dirname(filename)
       if exists(filename):
-        continue
+        rm(filename, force=True)
       if not isdir(dir):
         mkdir(dir, parent=True)
-      if self.controlset[id]['width'] and self.controlset[id]['height']:
-        # an image in the shared folder gets precedence
-        if exists(shared_file):
-          self.log(4, "image '%s' exists in the share/" %(id,))
-          sync(shared_file, dir)
+
+      if l and b:
+        if exists(sharedfile):
+          self.log(4, "image '%s' exists in share/" %i)
+          sync(sharedfile, dir)
         else:
-          width = self.controlset[id]['width']
-          height = self.controlset[id]['height']
-          textmaxwidth = self.controlset[id]['textmaxwidth']
-          text_xcood = self.controlset[id]['texthcenter']
-          text_ycood = self.controlset[id]['textvcenter']
-          gradient = self.controlset[id]['gradient']
-          highlight = self.controlset[id]['highlight']
-          self.log(4, "creating '%s'" %(id,))
-          if textmaxwidth and text_xcood and text_ycood:
-            self._generate_image(filename, width, height,
-                                 text='%s %s'%(self.fullname,
-                                               self.version),
-                                 textcood=(text_xcood, text_ycood),
-                                 fontsize=52,
-                                 maxwidth=textmaxwidth,
-                                 highlight=highlight,
-                                 format='png')
+          self.log(4, "creating '%s'" %(i,))
+          if m and x and y:
+            self._generate_image(filename, l, b, text='%s %s ' %(self.fullname, self.version),
+                                 textcood=(x,y), fontsize=52, maxwidth=m, highlight=h, format='png')
           else:
-            self._generate_blank_image(filename, width, height, highlight=highlight)
+            self._generate_blank_image(filename, l, b, highlight=h)
       else:
         # The file is a text file that needs to be in the logos rpm.
         # These files are found in the share/ folder. If they are not
-        # found, they are skipped.        
-        if exists(shared_file):
-          self.log(4, "file '%s' exists in share/" %(id,))
-          sync(shared_file, dir)
+        # found, they are skipped.
+        if exists(sharedfile):
+          self.log(4, "file '%s' exists in share/" %(i,))
+          sync(sharedfile, dir)
         else:
           # required text file not there in shared/ folder, passing for now          
           # FIXME: raise an exception here?
@@ -263,16 +227,6 @@ class LogosRpmHook(RpmHandler, ColorMixin):
       outfile = gzip.GzipFile(splash_xgz, 'wb')
       outfile.write(data)
       outfile.close()
-
-  def _generate_blank_image(self, filename, width, height, highlight=False, format='png'):
-    self._generate_image(filename, width, height, highlight=highlight, format=format)
-    
-  def _generate_gradient_image(self, filename, width, height, text=None, format='png'):
-    raise NotImplementedError
-    #fontsize = 15
-    #TODO: create font object and compute text coordinates
-    #self._generate_image(filename, width, height, text=text, textcood=(x,y),
-    #                     font=font, format=format)
   
   def _generate_image(self, filename, width, height, text=None, textcood=(10,10),
                       fontsize=52, maxwidth=100, format='png', font=None,
@@ -327,22 +281,34 @@ class LogosRpmHook(RpmHandler, ColorMixin):
 
     # save the image to a file
     im = im.filter(ImageFilter.DETAIL)
-    im.save(filename, format=format)        
+    im.save(filename, format=format)
 
-  def _verify_file(self, input, control):
-    width = control['width']
-    height = control['height']
-    if width and height:
-      control_size = (width, height)
-      try:
-        image = Image.open(input)
-      except IOError:
-        return False
-      input_size = image.size
-      if input_size != control_size:
-        return False
-    return True
+  _generate_blank_image = _generate_image
+  _generate_gradient_image = _generate_image # TODO: Implement this
 
+  def _get_image_info(self, logo):
+    id = logo.attrib['id']
+    location = logo.get('location/text()')    
+    width = logo.get('width/text()', None)
+    height = logo.get('height/text()', None)
+    textmaxwidth = logo.get('textmaxwidth/text()', None)
+    textvcenter = logo.get('textvcenter/text()', None)
+    texthcenter = logo.get('texthcenter/text()', None)
+    gradient = logo.get('gradient/text()', 'False') in BOOLEANS_TRUE
+    highlight = logo.get('highlight/text()', 'False') in BOOLEANS_TRUE
+
+    if width:
+      width = int(width)
+    if height:
+      height = int(height)
+    if textmaxwidth:
+      textmaxwidth = int(textmaxwidth)
+    if textvcenter:
+      textvcenter = int(textvcenter)
+    if texthcenter:
+      texthcenter = int(texthcenter)
+
+    return id, location, width, height, textmaxwidth, texthcenter, textvcenter, gradient, highlight
 
 GDM_GREETER_THEME = '''
 # This is not really a .desktop file like the rest, but it\'s useful to treat

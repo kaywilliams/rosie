@@ -42,6 +42,7 @@ EVENTS = [
 
 HOOK_MAPPING = {
   'SourceHook': 'source',
+  'ValidateHook': 'validate',
 }
 
 
@@ -90,6 +91,15 @@ class SrpmInterface(EventInterface, ListCompareMixin):
   
 
 #------ HOOKS ------#
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'sources.validate'
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('//source', 'sources.rng')
+    
 class SourceHook(DiffMixin):
   def __init__(self, interface):
     self.VERSION = 0

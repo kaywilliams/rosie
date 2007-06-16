@@ -23,7 +23,7 @@ EVENTS = [
 ]
 
 HOOK_MAPPING = {
-  'PublishHook': 'publish',
+  'PublishHook':  'publish',
 }
 
 class PublishInterface(EventInterface):

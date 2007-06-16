@@ -13,7 +13,7 @@ import splittree
 
 from callback  import BuildDepsolveCallback
 from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from interface import EventInterface, ListCompareMixin, DiffMixin
+from interface import DiffMixin, EventInterface, ListCompareMixin
 from main      import locals_imerge
 
 API_VERSION = 4.0
@@ -40,6 +40,7 @@ HOOK_MAPPING = {
   'ApplyoptHook': 'applyopt',
   'ManifestHook': 'manifest',
   'IsoHook':      'iso',
+  'ValidateHook': 'validate',  
 }
 
 FIELDS = ['file', 'size', 'mtime']
@@ -92,6 +93,80 @@ class ApplyoptHook:
   def run(self):
     if self.interface.options.with_pkgorder is not None:
       self.interface.cvars['pkgorder-file'] = self.interface.options.with_pkgorder
+
+
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'iso.validate'
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('//iso', schemafile='iso.rng')
+
+
+class PkgorderHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'iso.pkgorder'
+    
+    self.interface = interface
+    
+    self.pkgorderfile = join(self.interface.METADATA_DIR, 'pkgorder')
+  
+  def force(self):
+    osutils.rm(self.pkgorderfile, force=True)
+  
+  def run(self):
+    if not self._test_runstatus(): return
+    
+    if self.interface.cvars['pkgorder-file']:
+      self.interface.log(1, "reading supplied pkgorder file '%s'" % self.interface.cvars['pkgorder-file'])
+    else:
+      self.interface.log(0, "generating package ordering")
+      cfg = join(self.interface.TEMP_DIR, 'pkgorder')
+      
+      filereader.write([YUMCONF % (self.interface.getBaseStore(),
+                                   self.interface.getBaseStore(),
+                                   self.interface.SOFTWARE_STORE)], cfg)
+      
+      pkgtups = pkgorder.order(config=cfg,
+                               arch=self.interface.arch,
+                               callback=BuildDepsolveCallback(self.interface.logthresh))
+      
+      if exists(self.pkgorderfile):
+        oldpkgorder = filereader.read(self.pkgorderfile)
+      else:
+        oldpkgorder = []
+      
+      old,new,_ = listcompare.compare(oldpkgorder, pkgtups)
+      if len(new) > 0 or len(old) > 0:
+        self.interface.log(1, "package ordering has changed")
+        self.interface.cvars['pkgorder-changed'] = True
+        pkgorder.write_pkgorder(self.pkgorderfile, pkgtups)
+      else:
+        self.interface.log(1, "package ordering unchanged")
+      
+      osutils.rm(cfg, force=True)
+  
+  def apply(self):
+    if not self.interface.cvars['pkgorder-file']:
+      self.interface.cvars['pkgorder-file'] = self.pkgorderfile
+    
+    if not exists(self.interface.cvars['pkgorder-file']):
+      raise RuntimeError, "Unable to find pkgorder file at '%s'" % self.interface.cvars['pkgorder-file']
+    else:
+      if self.interface.cvars['pkgorder-file'] != self.pkgorderfile:
+        osutils.cp(self.interface.cvars['pkgorder-file'], self.pkgorderfile)
+    
+    # read in pkgorder
+    self.interface.cvars['pkgorder'] = filereader.read(self.pkgorderfile)
+  
+  def _test_runstatus(self):
+    return self.interface.isForced('pkgorder') or \
+           self.interface.cvars['pkgorder-file'] or \
+           self.interface.cvars['pkglist-changed'] or \
+           (not exists(self.pkgorderfile) and not self.interface.cvars['pkgorder-file'])
 
 
 class ManifestHook:

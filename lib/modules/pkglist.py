@@ -33,6 +33,7 @@ HOOK_MAPPING = {
   'ApplyoptHook': 'applyopt',
   'RepogenHook':  'repogen',
   'PkglistHook':  'pkglist',
+  'ValidateHook': 'validate',
 }
 
 YUMCONF_HEADER = [
@@ -91,6 +92,15 @@ class ApplyoptHook:
     if self.interface.options.with_pkglist is not None:
       self.interface.cvars['pkglist-file'] = self.interface.options.with_pkglist
 
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'pkglist.validate'
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('//pkglist', schemafile='pkglist.rng')
+    
 class RepogenHook:
   def __init__(self, interface):
     self.VERSION = 0

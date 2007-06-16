@@ -57,6 +57,13 @@ class DiffTest:
     "Add a handler that implements the status interface (described above)"
     self.handlers.append(handler)
 
+    try:
+      metadata = xmltree.read(self.mdfile)
+    except ValueError:
+      return
+
+    handler.mdread(metadata)
+
   def read_metadata(self):
     "Read the file stored at self.mdfile and pass it to each of the handler's"
     "mdread() functions"
@@ -89,6 +96,7 @@ class DiffTest:
     "Returns true if any handler returns a diff with length greater than 0"
     for handler in self.handlers:
       if len(handler.diff()) > 0:
+        print handler.diff()
         return True
     return False
   
@@ -199,11 +207,11 @@ class NoneEntry:
 #------ HANDLERS ------#
 class InputHandler:
   def __init__(self, data):
-    self.data = expand(data)
+    self.data = data
     self.input = {}
     
   def mdread(self, metadata):
-    for path in self.data:
+    for path in expand(self.data):
       for file in metadata.xpath('/metadata/input/file'):
         self.input[file.get('@path')] = {'size':  int(file.get('size/text()')),
                                           'mtime': int(file.get('mtime/text()'))}
@@ -217,7 +225,7 @@ class InputHandler:
     
     # create new parent node
     parent = xmltree.Element('input', parent=root)
-    for path in self.data:
+    for path in expand(self.data):
       for file in osutils.find(path, type=osutils.TYPE_FILE) + \
                   osutils.find(path, type=osutils.TYPE_LINK):
         e = xmltree.Element('file', parent=parent, attrs={'path': file})
@@ -226,15 +234,15 @@ class InputHandler:
         xmltree.Element('mtime', parent=e, text=str(stat.st_mtime))
   
   def diff(self):
-    return diff(self.input, self.data)
+    return diff(self.input, expand(self.data))
 
 class OutputHandler:
   def __init__(self, data):
-    self.data = expand(data)
+    self.data = data
     self.output = {}
     
   def mdread(self, metadata):
-    for path in self.data:
+    for path in expand(self.data):
       for file in metadata.xpath('/metadata/output/file'):
         self.output[file.get('@path')] = {'size':  int(file.get('size/text()')),
                                            'mtime': int(file.get('mtime/text()'))}
@@ -248,7 +256,7 @@ class OutputHandler:
     
     # create new parent node
     parent = xmltree.Element('output', parent=root)
-    for path in self.data:
+    for path in expand(self.data):
       for file in osutils.find(path, type=osutils.TYPE_FILE) + \
                   osutils.find(path, type=osutils.TYPE_LINK):
         e = xmltree.Element('file', parent=parent, attrs={'path': file})
@@ -257,7 +265,7 @@ class OutputHandler:
         xmltree.Element('mtime', parent=e, text=str(stat.st_mtime))
   
   def diff(self):
-    return diff(self.output, self.data)
+    return diff(self.output, expand(self.data))
 
 class ConfigHandler:
   def __init__(self, data, config):
@@ -266,7 +274,7 @@ class ConfigHandler:
     self.cfg = {}
     
   def mdread(self, metadata):
-    for path in self.data:
+    for path in expand(self.data):
       node = metadata.get('/metadata/config/value[@path="%s"]' % path, None)
       if node is not None:
         self.cfg[path] = node.xpath('elements/*', None) or \
@@ -282,7 +290,7 @@ class ConfigHandler:
       pass
     
     config = xmltree.Element('config', parent=root)
-    for path in self.data:
+    for path in expand(self.data):
       value = xmltree.Element('value', parent=config, attrs={'path': path})
       for val in self.config.xpath(path, []):
         if type(val) == type(''): # a string
@@ -293,7 +301,7 @@ class ConfigHandler:
     
   def diff(self):
     diff = {}
-    for path in self.data:
+    for path in expand(self.data):
       if self.cfg.has_key(path):
         try:
           cfgval = self.config.xpath(path)
@@ -317,7 +325,7 @@ class VariablesHandler:
     self.vars = {}
   
   def mdread(self, metadata):
-    for item in self.data:
+    for item in expand(self.data):
       node = metadata.get('/metadata/variables/value[@variable="%s"]' % item)
       if node is None:
         self.vars[item] = NewEntry()
@@ -334,7 +342,7 @@ class VariablesHandler:
       pass
     
     vars = xmltree.Element('variables', parent=root)
-    for var in self.data:
+    for var in expand(self.data):
       parent = xmltree.Element('value', parent=vars, attrs={'variable': var})
       try:
         val = eval('self.obj.%s' % var)
@@ -344,7 +352,7 @@ class VariablesHandler:
   
   def diff(self):
     diff = {}
-    for var in self.data:
+    for var in expand(self.data):
       try:
         val = eval('self.obj.%s' % var)
       except AttributeError:
