@@ -52,9 +52,16 @@ class DiffTest:
     self.mdfile = mdfile # the location of the file to store information
     
     self.handlers = [] # a list of registered handlers
+    
+    self.debug = False
+  
+  def dprint(self, msg):
+    if self.debug: print msg
 
   def addHandler(self, handler):
     "Add a handler that implements the status interface (described above)"
+    handler.debug = self.debug
+    handler.dprint = self.dprint
     self.handlers.append(handler)
 
     try:
@@ -143,8 +150,7 @@ def diff(olddata, newdata):
     if type(item) == str:
       item = [item]
     for path in item:
-      newfiles.extend(osutils.find(path, type=osutils.TYPE_FILE) + \
-                      osutils.find(path, type=osutils.TYPE_LINK))
+      newfiles.extend(osutils.find(path))
   newfiles.sort()
   
   oldfiles = olddata.keys() # list of files in metadata
@@ -214,7 +220,7 @@ class InputHandler:
     for path in expand(self.data):
       for file in metadata.xpath('/metadata/input/file'):
         self.input[file.get('@path')] = {'size':  int(file.get('size/text()')),
-                                          'mtime': int(file.get('mtime/text()'))}
+                                         'mtime': int(file.get('mtime/text()'))}
   
   def mdwrite(self, root):
     # remove previous node, if present
@@ -226,15 +232,16 @@ class InputHandler:
     # create new parent node
     parent = xmltree.Element('input', parent=root)
     for path in expand(self.data):
-      for file in osutils.find(path, type=osutils.TYPE_FILE) + \
-                  osutils.find(path, type=osutils.TYPE_LINK):
+      for file in osutils.find(path):
         e = xmltree.Element('file', parent=parent, attrs={'path': file})
         stat = os.stat(file)
         xmltree.Element('size',  parent=e, text=str(stat.st_size))
         xmltree.Element('mtime', parent=e, text=str(stat.st_mtime))
   
   def diff(self):
-    return diff(self.input, expand(self.data))
+    d = diff(self.input, expand(self.data))
+    self.dprint(d)
+    return d
 
 class OutputHandler:
   def __init__(self, data):
@@ -245,7 +252,7 @@ class OutputHandler:
     for path in expand(self.data):
       for file in metadata.xpath('/metadata/output/file'):
         self.output[file.get('@path')] = {'size':  int(file.get('size/text()')),
-                                           'mtime': int(file.get('mtime/text()'))}
+                                          'mtime': int(file.get('mtime/text()'))}
   
   def mdwrite(self, root):
     # remove previous node, if present
@@ -257,15 +264,16 @@ class OutputHandler:
     # create new parent node
     parent = xmltree.Element('output', parent=root)
     for path in expand(self.data):
-      for file in osutils.find(path, type=osutils.TYPE_FILE) + \
-                  osutils.find(path, type=osutils.TYPE_LINK):
+      for file in osutils.find(path):
         e = xmltree.Element('file', parent=parent, attrs={'path': file})
         stat = os.stat(file)
         xmltree.Element('size',  parent=e, text=str(stat.st_size))
         xmltree.Element('mtime', parent=e, text=str(stat.st_mtime))
   
   def diff(self):
-    return diff(self.output, expand(self.data))
+    d = diff(self.output, expand(self.data))
+    self.dprint(d)    
+    return d
 
 class ConfigHandler:
   def __init__(self, data, config):
@@ -315,6 +323,7 @@ class ConfigHandler:
         except xmltree.XmlPathError:
           cfgval = NoneEntry(path)
         diff[path] = (NewEntry(), cfgval)
+    self.dprint(diff)
     return diff
 
 class VariablesHandler:
@@ -362,4 +371,5 @@ class VariablesHandler:
           diff[var] = (self.vars[var], val)
       else:
         diff[var] = (NewEntry(), val)
+    self.dprint(diff)
     return diff

@@ -322,6 +322,8 @@ class CompsHook:
     
   def _add_group_by_id(self, groupid, tree, toprocess, processed=[], default='true'):
     group = tree.get('//group[id/text()="%s"]' % groupid)
+    if group is None:
+      raise CompsError, "Group id '%s' not found in comps file" % groupid
     
     # append is destructive, so copy() it
     self.comps.getroot().append(copy.deepcopy(group))

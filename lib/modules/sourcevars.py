@@ -52,42 +52,39 @@ class SourcevarsHook:
     self.ID = 'sourcevars.source-vars'
     
     self.interface = interface
-    self.vars = self.interface.BASE_VARS
-
-    self.callback = BuildSyncCallback(interface.logthresh)
-
+  
   def run(self):
+    self.interface.log(0, "computing source variables")
     #Setup
     i,s,n,d,u,p = self.interface.getStoreInfo(self.interface.getBaseStore())
     d = d.lstrip('/') # un-absolute d
-    source_initrd_file = self.interface.storeInfoJoin(s, n, join(d, 'isolinux/initrd.img'))
-    cache_initrd_file = join(self.interface.INPUT_STORE, i, d, 'isolinux/initrd.img')
-
+    
     #Download initrd.img to cache
-    osutils.mkdir(osutils.dirname(cache_initrd_file), parent=True)
-    #sync.sync(source_initrd_file, osutils.dirname(cache_initrd_file), username=u, password=p)
-    self.interface.cache(join(d, 'isolinux/initrd.img'), prefix=i, callback=self.callback)
-
+    initrd_file = join(self.interface.INPUT_STORE, i,
+                       self.interface.cache(join(d, 'isolinux/initrd.img'),
+                         prefix=i, username=u, password=p,
+                         callback=BuildSyncCallback(self.interface.logthresh)))
+    
     #Extract buildstamp
     locals = locals_imerge(L_IMAGES, self.interface.cvars['anaconda-version'])
     image  = locals.get('//images/image[@id="initrd.img"]')
     format = image.get('format/text()')
     zipped = image.get('zipped/text()', 'False') in BOOLEANS_TRUE
-    self.image = imglib.Image(cache_initrd_file, format, zipped)
+    self.image = imglib.Image(initrd_file, format, zipped)
     self.image.open()
     sourcevars = self.image.read('.buildstamp')
-
+    
     #Parse buildstamp
     locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.interface.cvars['anaconda-version'])
     buildstamp_fmt = locals.get('//buildstamp-format')
     buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
     sourcevars = buildstamp.floread(self.image.read('.buildstamp'))
-
+    
     #Update source_vars
     self.interface.cvars['source-vars'] = sourcevars
 
   def error(self, e):
     try:
-      self.close()
+      self.image.close()
     except:
       pass

@@ -183,7 +183,7 @@ class ManifestHook:
   
   def run(self):
     manifest = []
-    for file in osutils.tree(self.interface.SOFTWARE_STORE, prefix=False):
+    for file in osutils.find(self.interface.SOFTWARE_STORE, prefix=False):
       manifest.append(
           self.__gen_manifest_line(file, prefix=self.interface.SOFTWARE_STORE)
         )
@@ -310,6 +310,7 @@ class IsoHook(DiffMixin):
     splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.interface.cvars['anaconda-version']).get('discinfo')
     splitter.pkgorder = join(self.interface.METADATA_DIR, 'pkgorder')
     
+    self.interface.log(1, "splitting trees")
     splitter.compute_layout()
     splitter.cleanup()
     splitter.split_trees()

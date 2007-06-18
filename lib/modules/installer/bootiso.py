@@ -130,11 +130,13 @@ class BootisoHook:
     
     osutils.mkdir(isodir, parent=True)
     osutils.cp(self.isolinux_dir, isodir, recursive=True, link=True)
+    
     # apparently mkisofs modifies the mtime of the file it uses as a boot image.
     # to avoid this, we copy the boot image timestamp and overwrite the original
     # when we finish
     isolinux_atime = os.stat(join(self.isolinux_dir, 'isolinux.bin')).st_atime
     isolinux_mtime = os.stat(join(self.isolinux_dir, 'isolinux.bin')).st_mtime
+    
     shlib.execute('mkisofs -o %s -b isolinux/isolinux.bin -c isolinux/boot.cat '
                   '-no-emul-boot -boot-load-size 4 -boot-info-table -RJTV "%s" %s' \
                   % (self.bootiso, self.interface.product, isodir))

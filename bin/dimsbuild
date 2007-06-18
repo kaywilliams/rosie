@@ -27,11 +27,11 @@ def main():
                     default=False,
                     action='store_true',
                     help="enable verbose output (deprecated)")
-  parser.add_option('-l',
+  parser.add_option('-l', '--log-level',
                     dest='logthresh',
-                    default=0,
+                    default=3,
                     help="specify the level of verbosity of the output log")
-  parser.add_option('-e',
+  parser.add_option('-e', '--errlog-level',
                     dest='errthresh',
                     default=1,
                     help="specify the level of verbosity of the error log")

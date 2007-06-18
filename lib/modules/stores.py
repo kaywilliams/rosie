@@ -132,6 +132,7 @@ class StoresHook:
         get_anaconda_version(join(self.interface.METADATA_DIR,
                                   '%s.pkgs' % self.interface.getBaseStore()))
       self.interface.cvars['anaconda-version'] = anaconda_version
+    
 
 #------ HELPER FUNCTIONS ------#
 def get_anaconda_version(file):
