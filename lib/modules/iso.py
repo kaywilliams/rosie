@@ -244,7 +244,12 @@ class IsoHook(DiffMixin):
     osutils.rm(self.mdfile, force=True)
   
   def check(self):
-    return self.test_diffs()
+    if self.interface.config.xpath('//iso/set', None) is None:
+      #cleanup empty iso folder
+      self.force()
+      return False
+    else:
+      return self.test_diffs()
   
   def run(self):
     self.interface.log(0, "generating iso image(s)")
