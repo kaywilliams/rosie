@@ -63,13 +63,10 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
         join(interface.METADATA_DIR, 'logos-rpm/'),
       ],
     }
-    
+
     RpmsHandler.__init__(self, interface, data,
                          elementname='logos-rpm',
                          rpmname='%s-logos' % interface.product,
-                         provides_test='redhat-logos',
-                         provides='system-logos, redhat-logos = 4.9.3',
-                         obsoletes = 'fedora-logos centos-logos redhat-logos',
                          description='Icons and pictures related to %s' \
                          % interface.config.get('//main/fullname/text()'),
                          long_description='The %s-logos package contains '
@@ -81,8 +78,6 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     ColorMixin.__init__(self, join(self.interface.METADATA_DIR,
                                    '%s.pkgs' %(self.interface.getBaseStore(),)))
     
-    # build the data structure containing information about
-    # the images
     expand = (self.product,)*8
     self.imageslocal = locals_imerge(L_LOGOS %expand)
     
@@ -166,6 +161,21 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
             self.log(4, "file '%s' has invalid dimensions" %(file,))            
             return False
     return True
+
+  def get_obsoletes(self):
+    packages = self.config.xpath('//rpms/logos-rpm/obsoletes/package/text()', [])
+    if self.config.get('//rpms/logos-rpm/@use-default-set', 'True') in BOOLEANS_TRUE:
+      packages.extend(['fedora-logos', 'centos-logos', 'redhat-logos'])
+
+    if packages:
+      return ' '.join(packages)
+    return None
+
+  def get_provides(self):
+    return 'system-logos, redhat-logos = 4.9.3'
+
+  def get_requires(self):
+    return 'redhat-artwork'    
 
   def _generate_theme_files(self):
     # generate the GdmGreeterTheme.desktop file

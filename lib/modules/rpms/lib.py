@@ -103,8 +103,8 @@ class RpmsInterface(EventInterface, RpmsMixin):
 #---------- HANDLERS -------------#
 class RpmsHandler(DiffMixin):
   def __init__(self, interface, data, elementname=None, rpmname=None,
-               provides=None, provides_test=None, obsoletes=None, requires=None,
                description=None, long_description=None):
+
     if len(data['output']) > 1:
       raise Exception, "only one item should be specified in data['output']"
         
@@ -121,20 +121,11 @@ class RpmsHandler(DiffMixin):
 
     self.elementname = elementname
     self.rpmname = rpmname
-    self.provides = provides
-    self.provides_test = provides_test
 
-    self.obsoletes = self.config.get('//%s/obsoletes/text()' % self.elementname, None)
-    if self.config.get('//%s/obsoletes/@use-default-set' %(self.elementname,), 'True') in BOOLEANS_TRUE:
-      if self.obsoletes is not None:
-        self.obsoletes = ' '.join([self.obsoletes.strip(), obsoletes])
-      else:
-        self.obsoletes = obsoletes
-
-    self.requires = requires    
     self.description = description
     self.long_description = long_description
     self.author = 'dimsbuild'
+
     self.output_location = join(self.metadata, self.elementname)
     self.sharepath = self.interface._base.sharepath
     
@@ -147,6 +138,8 @@ class RpmsHandler(DiffMixin):
 
   def clean_output(self):
     for rpm in find(self.rpm_output, name='%s*[Rr][Pp][Mm]' %(self.rpmname,)):
+      if rpm in self.data['output']:
+        self.data['output'].remove(rpm)
       rm(rpm, force=True)
     rm(self.output_location, recursive=True, force=True)
 
@@ -174,7 +167,7 @@ class RpmsHandler(DiffMixin):
 
     # remove all the rpm and srpms from data['output'] and add new ones
     self.data['output'].extend(find(self.rpm_output, name='%s*' %(self.rpmname,)))
-    
+
     self.write_metadata()
     
     # input store has changed because a new rpm has been created
@@ -196,11 +189,13 @@ class RpmsHandler(DiffMixin):
       if not self.interface.cvars['included-packages']:
         self.interface.cvars['included-packages'] = []
       self.interface.cvars['included-packages'].append((self.rpmname, type, requires))
-      
-      if self.obsoletes is not None:
+
+      obsoletes = self.get_obsoletes()
+      if obsoletes is not None:
         if not self.interface.cvars['excluded-packages']:
           self.interface.cvars['excluded-packages'] = []
-        self.interface.cvars['excluded-packages'].extend(self.obsoletes.split())
+        self.interface.cvars['excluded-packages'].extend(obsoletes.split())
+        
     except IndexError:
       if self.test_build_rpm():
         raise RuntimeError("missing rpm: '%s'" %(self.rpmname,))
@@ -237,27 +232,20 @@ class RpmsHandler(DiffMixin):
     parser.set('pkg_data', 'long_description', self.long_description)
     parser.set('pkg_data', 'description', self.description)
     parser.set('pkg_data', 'author', self.author)
+
     data_files = self.get_data_files()
     if data_files is not None:
       parser.set('pkg_data', 'data_files', data_files)
     
     parser.add_section('bdist_rpm')
-    parser.set('bdist_rpm', 'release', self.get_release_number())
     parser.set('bdist_rpm', 'distribution_name', self.fullname)
-    if self.provides is not None:
-      parser.set('bdist_rpm', 'provides', self.provides)
-    if self.obsoletes is not None:
-      parser.set('bdist_rpm', 'obsoletes', self.obsoletes)
-    if self.requires is not None:
-      parser.set('bdist_rpm', 'requires', self.requires)
 
-    post_install_script = self.get_post_install_script() 
-    if post_install_script is not None:
-      parser.set('bdist_rpm', 'post_install', post_install_script)
-
-    install_script = self.get_install_script()
-    if install_script is not None:
-      parser.set('bdist_rpm', 'install_script', install_script)
+    for tag in ['release', 'provides', 'requires', 'obsoletes', 'post_install', 'install_script']:
+      attr = 'get_%s' %tag
+      if hasattr(self, attr):
+        value = getattr(self, attr)()
+        if value is not None:
+          parser.set('bdist_rpm', tag, value)
       
     f = open(setup_cfg, 'w')
     parser.write(f)
@@ -265,11 +253,14 @@ class RpmsHandler(DiffMixin):
 
   def create_manifest(self): pass
 
-  def get_install_script(self):      return None    
-  def get_post_install_script(self): return None
-  def get_data_files(self):          return None
+  def get_data_files(self):     return None
+  def get_install_script(self): return None    
+  def get_obsoletes(self):      return None  
+  def get_post_install(self):   return None
+  def get_provides(self):       return None
+  def get_requires(self):       return None
   
-  def get_release_number(self):
+  def get_release(self):
     autoconf = join(dirname(self.config.file), 'distro.conf.auto')
 
     newrelease = None

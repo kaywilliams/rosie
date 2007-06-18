@@ -28,32 +28,31 @@ class ConfigRpmHook(RpmsHandler):
     self.VERSION = 0
     self.ID = 'config.config-rpm'
     self.eventid = 'config-rpm'
-    
+
+    self.configdir = dirname(interface.config.file)
+
+    input = []
+    for x in interface.config.xpath('//rpms/config-rpm/config/script/path/text()', []) + \
+        interface.config.xpath('//rpms/config-rpm/config/supporting-files/path/text()', []):
+      input.append(join(self.configdir, x))
+
     data = {
       'config': [
         '//rpms/config-rpm',
       ],
-      'input': [
-        interface.config.xpath('//rpms/config-rpm/config/script/path/text()', []),
-        interface.config.xpath('//rpms/config-rpm/config/supporting-files/path/text()', []),
-      ],
+      'input': input,
       'output': [
         join(interface.METADATA_DIR, 'config-rpm'),
       ],
     }
-    
-    requires = ' '.join(interface.config.xpath('//rpms/config-rpm/requires/package/text()', []))
-    obsoletes = ' '.join(interface.config.xpath('//rpms/config-rpm/obsoletes/package/text()', []))
+
     RpmsHandler.__init__(self, interface, data,
                          elementname='config-rpm',
                          rpmname='%s-config' %(interface.product,),
-                         requires=requires,
-                         obsoletes=obsoletes,
-                         description='%s configuration script and supporting files' %(interface.fullname,),
+                         description='%s configuration script and supporting files' \
+                         %(interface.fullname,),
                          long_description='The %s-config provides scripts and supporting files for'\
                          'configuring the %s distribution' %(interface.product, interface.fullname,))
-    if self.data.has_key('input'):
-      self.data['input'] = [join(dirname(self.config.file), x) for x in expand(self.data['input'])]
     
   def test_build_rpm(self):
     return (self.config.get('//rpms/config-rpm/requires', None) or \
@@ -64,15 +63,27 @@ class ConfigRpmHook(RpmsHandler):
             (not self.interface.isSkipped(self.eventid) or self.interface.isForced(self.eventid))
              
     
-  def get_post_install_script(self):
+  def get_post_install(self):
     script = self.config.get('//rpms/config-rpm/config/script/path/text()', None)
     if script:      
       post_install_scripts = find(location=self.output_location,
-                                 name=basename(script),
-                                 prefix=False)
+                                  name=basename(script),
+                                  prefix=False)
       assert len(post_install_scripts) == 1
       return post_install_scripts[0]
     return None
+
+  def get_requires(self):
+    packages = self.config.xpath('//rpms/config-rpm/requires/package/text()', [])
+    if packages:
+      return ' '.join(packages)
+    return None
+
+  def get_obsoletes(self):
+    packages = self.config.xpath('//rpms/config-rpm/obsoletes/package/text()', [])
+    if packages:
+      return ' '.join(packages)
+    return None    
 
   def create_manifest(self): pass # done by get_data_files(), below.
   

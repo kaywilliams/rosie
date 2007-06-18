@@ -61,12 +61,6 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     RpmsHandler.__init__(self, interface, data,
                          elementname='release-rpm',
                          rpmname='%s-release' %(interface.product,),
-                         provides_test='redhat-release',
-                         provides='redhat-release',
-                         obsoletes = 'fedora-release redhat-release '\
-                         'centos-release redhat-release-notes '\
-                         'fedora-release-notes '\
-                         'centos-release-notes',
                          description='%s release files' %(interface.fullname,),
                          long_description='%s release files created by dimsbuild' %(interface.fullname,))
     
@@ -83,6 +77,9 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     #     files should be installed.
     #  2. create a function that sets up the variable; self._sync_files() might come in
     #     in handy.
+    #
+    # For example, self.etcfiles is a variable that holds a list of files that are
+    # installed to the /etc location.
     self.installdirs = {
       'default_rnotes': '/usr/share/doc/HTML',
       'etcfiles':       '/etc',
@@ -94,11 +91,8 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
       'rnotes_doc':     '/usr/share/doc/%s-release-notes-%s' %(self.product, self.version,),
       'rnotes_html':    '/usr/share/doc/HTML',
       'rnotes_omf':     '/usr/share/omf/%s-release-notes' %(self.product,),
-      }
+    }
     
-  def run(self):
-    RpmsHandler.run(self)
-      
   def get_input(self):
     if not exists(self.rpm_output):
       mkdir(self.rpm_output, parent=True)
@@ -137,9 +131,22 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
           if data is None:
             data = datum
           else:
-            data = '\n'.join([data, datum])
+            data = '\n\t'.join([data, datum])
     return data
 
+  def get_provides(self):
+    return 'redhat-release'
+
+  def get_obsoletes(self):
+    packages = self.config.xpath('//rpms/release-rpm/obsoletes/package/text()', [])
+    if self.config.get('//rpms/release-rpm/@use-default-set', 'True') in BOOLEANS_TRUE:
+      packages.extend(['fedora-release', 'redhat-release', 'centos-release',
+                       'fedora-release-notes', 'redhat-release-notes', 'centos-release-notes'])
+
+    if packages:
+      return ' '.join(packages)
+    return None
+      
   def _verify_release_notes(self):
     rnotes = find(location=self.output_location, name='RELEASE-NOTES*')
     if len(rnotes) == 0:
@@ -265,6 +272,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     files = map(lambda x: join(dirname, x), filter(triage, os.listdir(destdir)))
     if files:
       setattr(self, variable, files)
+
 
 RELEASE_NOTES_HTML = """<html>
   <head>
