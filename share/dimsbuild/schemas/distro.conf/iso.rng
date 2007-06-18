@@ -29,23 +29,6 @@
                 </attribute>
               </element>
             </oneOrMore>
-            <element name="include-on-all-discs">
-              <attribute name="use-default-set">
-                <choice>
-                  <value type="string">True</value>
-                  <value type="string">False</value>
-                  <data type="boolean"/>
-                </choice>        
-              </attribute>
-              <zeroOrMore>
-                <optional>
-                  <element name="folder"><text/></element>
-                </optional>
-                <optional>
-                  <element name="file"><text/></element>
-                </optional>
-              </zeroOrMore>
-            </element>
           </interleave>
         </element>
       </optional>
