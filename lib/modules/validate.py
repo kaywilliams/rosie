@@ -2,6 +2,7 @@ from lxml    import etree
 from os.path import exists, join
 
 import copy
+import os
 
 import dims.filereader as filereader
 import dims.xmltree    as xmltree
@@ -41,18 +42,30 @@ class ValidateInterface(EventInterface):
            (schemafile is not None and schemacontents is not None):
       raise RuntimeError("either the schema file or the schema contents should be specified")
     
-    schemacontents = schemacontents or self.get_schema(schemafile)
-    
-    schema = etree.RelaxNG(etree.ElementTree(etree.fromstring(schemacontents)))    
-    doc = self.get_xml_section(xquery)
-
-    if not schema.validate(doc):
-      if schemafile is not None:        
-        raise InvalidConfigError("validation of the %s.conf against the %s failed" \
-                                 %(self.cvars.get('validate', 'distro'), schemafile))
-      else:
-        raise InvalidConfigError("validation of the %s.conf failed" \
-                                 %(self.cvars.get('validate', 'distro'),))
+    cwd = os.getcwd()
+    os.chdir(join(self.schemaspath, 'distro.conf'))
+    try:
+      schemacontents = schemacontents or self.get_schema(schemafile)
+      try:
+        schema = etree.RelaxNG(etree.ElementTree(etree.fromstring(schemacontents)))
+      except etree.RelaxNGParseError, e:
+        why = e.error_log.last_error.message
+        if schemafile is not None:
+          raise InvalidSchemaError("'%s': %s" %(schemafile, why))
+        else:
+          raise InvalidSchemaError(why)
+        
+      doc = self.get_xml_section(xquery)
+      if not schema.validate(doc):
+        why = schema.error_log.last_error.message
+        if schemafile is not None:        
+          raise InvalidConfigError("validation of the %s.conf against the %s failed: %s" \
+                                   %(self.cvars.get('validate', 'distro'), schemafile, why))
+        else:
+          raise InvalidConfigError("validation of the %s.conf failed: %s" \
+                                   %(self.cvars.get('validate', 'distro'), why))
+    finally:
+      os.chdir(cwd)
     
   def get_schema(self, filename):
     if self.cvars.get('validate', 'distro') == 'dimsbuild':
@@ -146,3 +159,4 @@ class ValidateHook:
       raise HookExit
 
 class InvalidConfigError(StandardError): pass 
+class InvalidSchemaError(StandardError): pass
