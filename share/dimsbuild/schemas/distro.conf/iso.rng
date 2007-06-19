@@ -18,16 +18,9 @@
             <oneOrMore>
               <element name="set">
                 <attribute name="size">
-                  <choice>          
-                    <value type="string">650M</value>
-                    <value type="string">700M</value>
-                    <value type="string">4.7G</value>
-                    <value type="string">8.5G</value>
-                    <value type="string">CD</value>
-                    <value type="string">DVD</value>          
-                    <value type="string">cd</value>
-                    <value type="string">dvd</value>
-                  </choice>
+                  <data type="string">
+                    <param name="pattern">650[mM]|700[mM]|4.7[gG]|8.5[gG]|[cC][dD]|[dD][vV][dD]</param>
+                  </data> 
                 </attribute>
               </element>
             </oneOrMore>
