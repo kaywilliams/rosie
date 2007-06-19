@@ -25,6 +25,8 @@
                     <value type="string">8.5G</value>
                     <value type="string">CD</value>
                     <value type="string">DVD</value>          
+                    <value type="string">cd</value>
+                    <value type="string">dvd</value>
                   </choice>
                 </attribute>
               </element>
