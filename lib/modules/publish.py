@@ -32,7 +32,7 @@ class PublishInterface(EventInterface):
     
     # TODO - move config location out of //main
     self.PUBLISH_STORE = join(self.config.get('//main/webroot/text()', '/var/www/html'),
-                              self.config.get('//main/publishpath/text()', 'open_software'),
+                              self.config.get('//main/publishpath/text()', 'distros'),
                               self.product)
   
 
@@ -49,14 +49,12 @@ class PublishHook:
   
   def run(self):
     "Publish the contents of interface.SOFTWARE_STORE to interface.PUBLISH_STORE"
-    self.interface.log(0, "publishing output store (%s-%s)" % \
-                        (self.interface.version, self.interface.release))
+    self.interface.log(0, "publishing output store")
     
     # sync to output folder
     dest = join(self.interface.PUBLISH_STORE,
-                'test/%s-%s/%s' % (self.interface.version,
-                                   self.interface.release,
-                                   self.interface.basearch))
+                '%s/%s' % (self.interface.version,
+                           self.interface.basearch))
     dest_os = join(dest, 'os')
     
     if not exists(dest):
@@ -66,18 +64,3 @@ class PublishHook:
     sync.sync(join(self.interface.SOFTWARE_STORE, '*'),  dest_os, link=True)
     sync.sync(join(self.interface.SOFTWARE_STORE, '.*'), dest_os, link=True) # .discinfo
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % dest)
-    
-    # clean up old revisions
-    revisions = os.listdir(join(self.interface.PUBLISH_STORE, 'test'))
-    if len(revisions) > 10:
-      revisions = sortlib.dsort(revisions)
-      i = len(revisions) - 11 # correct for off-by-one
-      while 1 >= 0:
-        self.interface.log(1, "removing old revision '%s'" % revisions[i])
-        osutils.rm(revisions[i], recursive=True, force=True)
-        i -= 1
-    
-    # create published directory
-    osutils.rm(join(self.interface.PUBLISH_STORE, self.interface.version), force=True)
-    os.symlink('test/%s-%s' % (self.interface.version, self.interface.release),
-               join(self.interface.PUBLISH_STORE, self.interface.version))

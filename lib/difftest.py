@@ -241,7 +241,7 @@ class InputHandler:
   
   def diff(self):
     d = diff(self.input, expand(self.data))
-    self.dprint(d)
+    if d: self.dprint(d)
     return d
 
 class OutputHandler:
@@ -273,7 +273,7 @@ class OutputHandler:
   
   def diff(self):
     d = diff(self.output, expand(self.data))
-    self.dprint(d)    
+    if d: self.dprint(d)    
     return d
 
 class ConfigHandler:
@@ -324,7 +324,7 @@ class ConfigHandler:
         except xmltree.XmlPathError:
           cfgval = NoneEntry(path)
         diff[path] = (NewEntry(), cfgval)
-    self.dprint(diff)
+    if diff: self.dprint(diff)
     return diff
 
 class VariablesHandler:
@@ -372,5 +372,5 @@ class VariablesHandler:
           diff[var] = (self.vars[var], val)
       else:
         diff[var] = (NewEntry(), val)
-    self.dprint(diff)
+    if diff: self.dprint(diff)
     return diff

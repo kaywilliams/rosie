@@ -266,7 +266,7 @@ class CompsHook:
       mapped[store] = []
     unmapped = []
     
-    for group in self.interface.config.xpath('//main/groups/group', []):
+    for group in self.interface.config.xpath('//comps/create-new/groups/group', []):
       store = group.attrib.get('store', None)
       if store is not None:
         try:

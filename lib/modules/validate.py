@@ -6,7 +6,7 @@ import copy
 import dims.filereader as filereader
 import dims.xmltree    as xmltree
 
-from event     import HookExit
+from event     import HookExit, EVENT_TYPE_MDLR
 from interface import EventInterface
 
 API_VERSION = 4.0
@@ -16,6 +16,7 @@ EVENTS = [
     'id': 'validate',
     'provides': ['validate'],
     'conditional-requires': ['applyopt'],
+    'properties': EVENT_TYPE_MDLR,
     'parent': 'ALL',
     'interface': 'ValidateInterface',
   },    
@@ -41,7 +42,7 @@ class ValidateInterface(EventInterface):
       raise RuntimeError("either the schema file or the schema contents should be specified")
     
     schemacontents = schemacontents or self.get_schema(schemafile)
-
+    
     schema = etree.RelaxNG(etree.ElementTree(etree.fromstring(schemacontents)))    
     doc = self.get_xml_section(xquery)
 
