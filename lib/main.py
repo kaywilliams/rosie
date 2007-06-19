@@ -120,12 +120,12 @@ class Build:
     self.cvars['base-vars']['fullname'] = self.config.get('//main/fullname/text()',
                                                          self.cvars['base-vars']['product'])
     self.cvars['base-vars']['provider'] = self.config.get('//main/distro-provider/text()')
+    self.cvars['base-vars']['pva'] = '%s-%s-%s' % (self.cvars['base-vars']['product'],
+                                                   self.cvars['base-vars']['version'],
+                                                   self.cvars['base-vars']['basearch'])
     
     # set up other directories
-    distro_prefix = 'distros/%s/%s/%s' % (self.cvars['base-vars']['product'],
-                                          self.cvars['base-vars']['version'],
-                                          self.cvars['base-vars']['basearch'])
-    self.DISTRO_DIR = join(self.CACHE_DIR, distro_prefix)
+    self.DISTRO_DIR = join(self.CACHE_DIR, self.cvars['base-vars']['pva'])
     self.SOFTWARE_STORE = join(self.DISTRO_DIR, 'os')
     self.METADATA_DIR = join(self.DISTRO_DIR, 'builddata')
     

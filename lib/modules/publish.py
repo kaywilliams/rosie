@@ -29,11 +29,10 @@ HOOK_MAPPING = {
 class PublishInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
-    
+
     # TODO - move config location out of //main
-    self.PUBLISH_STORE = join(self.config.get('//main/webroot/text()', '/var/www/html'),
-                              self.config.get('//main/publishpath/text()', 'distros'),
-                              self.product)
+    self.PUBLISH_DIR = join(self.config.get('//main/publishpath/text()', '/var/www/html/distros'),
+                              self.pva)
   
 
 #------ HOOKS ------#
@@ -52,9 +51,7 @@ class PublishHook:
     self.interface.log(0, "publishing output store")
     
     # sync to output folder
-    dest = join(self.interface.PUBLISH_STORE,
-                '%s/%s' % (self.interface.version,
-                           self.interface.basearch))
+    dest = self.interface.PUBLISH_DIR
     dest_os = join(dest, 'os')
     
     if not exists(dest):

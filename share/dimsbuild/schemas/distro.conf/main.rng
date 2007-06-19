@@ -39,9 +39,6 @@
             </element>
           </optional>
           <optional>
-            <element name="webroot"><text/></element>
-          </optional>
-          <optional>
             <element name="publishpath"><text/></element>
           </optional>      
           <optional>
