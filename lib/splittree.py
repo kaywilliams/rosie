@@ -114,17 +114,10 @@ class Timber:
       discpath = join(self.split_tree, '%s-disc%d' % (self.product, i))
       osutils.mkdir(join(discpath, self.product), parent=True)
       if i == 1: # put release files on disc 1
-        filelist = osutils.find(self.unified_tree, type=osutils.TYPE_FILE,
-                                nregex='.*(\.discinfo|.*\.[Rr][Pp][Mm]).*', prefix=False)
-        dirlist  = osutils.find(self.unified_tree, type=osutils.TYPE_DIR,
-                                nregex='.*(RPMS|SRPMS|%s).*' % self.product, prefix=False)
-        
-        for dir in dirlist:
-          osutils.mkdir(join(discpath, dir), parent=True)
-        
-        for file in filelist:
-          osutils.cp(join(self.unified_tree, file), join(discpath, file), link=True)
-        
+        for file in filter(None, osutils.find(self.unified_tree,
+            nregex='.*(\.discinfo|.*\.[Rr][Pp][Mm]|(S)?RPMS|%s)' % self.product,
+            mindepth=1, maxdepth=1)):
+          osutils.cp(file, discpath, link=True, recursive=True)
       else:
         self.link(self.unified_tree, discpath, self.common_files)
       self.create_discinfo(i)
@@ -159,11 +152,12 @@ class Timber:
     disc = self.rpm_disc_map[0]
     discpath = join(self.split_tree, '%s-disc%d' % (self.product, disc))
     
+    used = osutils.du(discpath)
     for rpmnvr in order:
       if not packages.has_key(rpmnvr): continue
       for file in packages[rpmnvr]:
-        used = osutils.du(discpath)
         size = osutils.du(join(pkgdir, file))
+        assert size > 0
         newsize = used + size
         
         if disc == 1: maxsize = self.discsize - self.comps - self.reserve
@@ -176,12 +170,14 @@ class Timber:
             disc = self.rpm_disc_map[nextdisc]
             discpath = join(self.split_tree, '%s-disc%d' % (self.product, disc))
             self.link(pkgdir, join(discpath, self.product), [file])
-          except IndexError:
+          except (IndexError, ValueError):
             disc = disc - 1
             print 'DEBUG: overflow from disc %d onto disc %d' % (disc+1, disc)
+            print 'DEBUG: newsize: %s maxsize: %s' % (newsize, maxsize)
             continue
         else:
           self.link(pkgdir, join(discpath, self.product), [file])
+      used = newsize
   
   def split_srpms(self):
     if not self.dosrc:
@@ -196,27 +192,20 @@ class Timber:
     srpms.sort()
     srpms.reverse()
     
-    for srpmtup in srpms:
-      for disc in self.srpm_disc_map:
-        discpath = join(self.split_tree, '%s-disc%d' % (self.product, disc))
-        cursize = osutils.du(discpath)
-        if cursize > self.discsize:
-          if len(self.srpm_disc_map) < 2:
-            print 'DEBUG: overflow %s onto disc %d' % (srpmtup[1], disc)
-            break
-          else:
-            self.srpm_disc_map.pop(self.srpm_disc_map.index(disc))
-      
-      os.link(join(self.unified_source_tree, srpmtup[1]),
-              join(self.split_tree, '%s-disc%d/SRPMS/%s' % \
-                (self.product, self.get_smallest_tree(), osutils.basename(srpmtup[1]))))
-  
-  def get_smallest_tree(self):
+    # keep list of SRPM trees and their sizes
     sizes = []
     for disc in self.srpm_disc_map:
-      sizes.append((osutils.du(join(self.split_tree, '%s-disc%d' % (self.product, disc))), disc))
+      sizes.append([osutils.du(join(self.split_tree, '%s-disc%d' % (self.product, disc))), disc])
     sizes.sort()
-    return sizes[0][1]
+    
+    # add srpm to the smallest source tree
+    for srpmtup in srpms:
+      os.link(join(self.unified_source_tree, srpmtup[1]),
+              join(self.split_tree, '%s-disc%d/SRPMS/%s' % \
+                (self.product, sizes[0][1], osutils.basename(srpmtup[1]))))
+      sizes[0][0] += srpmtup[0]
+      sizes.sort()
+  
 
 def nvra(pkgfile):
   fd = os.open(pkgfile, os.O_RDONLY)

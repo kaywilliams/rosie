@@ -102,8 +102,9 @@ class DiffTest:
   def changed(self):
     "Returns true if any handler returns a diff with length greater than 0"
     for handler in self.handlers:
-      if len(handler.diff()) > 0:
-        print handler.diff()
+      d = handler.diff()
+      if len(d) > 0:
+        self.dprint(d)
         return True
     return False
   

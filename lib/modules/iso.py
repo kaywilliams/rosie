@@ -316,10 +316,14 @@ class IsoHook(DiffMixin):
     splitter.pkgorder = join(self.interface.METADATA_DIR, 'pkgorder')
     
     self.interface.log(1, "splitting trees")
+    self.interface.log(2, "computing layout")
     splitter.compute_layout()
     splitter.cleanup()
+    self.interface.log(2, "splitting base files")
     splitter.split_trees()
+    self.interface.log(2, "splitting rpms")
     splitter.split_rpms()
+    self.interface.log(2, "splitting srpms")
     splitter.split_srpms()
     
     for iso in osutils.find(self.interface.isodir,
