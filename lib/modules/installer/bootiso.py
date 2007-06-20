@@ -62,7 +62,7 @@ class IsolinuxHook(ImageModifyMixin, FileDownloadMixin):
       'config':    ['/distro/main/product/text()',
                     '/distro/main/version/text()',
                     '/distro/main/fullname/text()',
-                    '/distro/installer/product.img/path/text()'],
+                    '/distro/installer/initrd.img/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [interface.config.xpath('/distro/installer/initrd.img/path/text()', [])],
       'output':    [join(interface.SOFTWARE_STORE, x) for x in ISOLINUX_OUTPUT_FILES]
