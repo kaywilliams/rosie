@@ -125,7 +125,7 @@ class StoresHook:
       # if we're skipping stores, assume store lists didn't change; otherwise,
       # assume they did
       if self.interface.isSkipped('stores'):
-        self.interface.cvars['input-store-changed'] = True
+        self.interface.cvars['input-store-changed'] = False
     
     if not self.interface.cvars['anaconda-version']:
       anaconda_version = \
