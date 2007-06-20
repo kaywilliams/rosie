@@ -1,7 +1,9 @@
 from os.path import exists, join
 
 from dims         import filereader
-from dims.osutils import find, mkdir
+from dims.osutils import find, mkdir, rm
+
+import dims.listcompare as listcompare
 
 from event    import EVENT_TYPE_META
 from main     import BOOLEANS_TRUE
@@ -75,12 +77,23 @@ class RpmsHook:
 
   def post(self):    
     self.interface.createrepo()
-    pkgs = find(location=self.interface.LOCAL_REPO, name='*[Rr][Pp][Mm]', prefix=False)
-    if len(pkgs) > 0:
-      filereader.write(pkgs, join(self.interface.METADATA_DIR, 'dimsbuild-local.pkgs'))
-    storesinfo = self.interface.cvars['input-store-lists']
-    storesinfo.update({'dimsbuild-local': pkgs})
-    self.interface.cvars['input-stores-list'] = storesinfo
+    pkgsfile = join(self.interface.METADATA_DIR, 'dimsbuild-local.pkgs')    
+    old = filereader.read(pkgsfile)
+
+    current = find(location=self.interface.LOCAL_REPO, name='*[Rr][Pp][Mm]', prefix=False)
+    l,r,_ = listcompare.compare(old, current)
+
+    if l or r:
+      self.interface.cvars['input-store-changed'] = True
+
+      # HACK ALERT: need to the remove the .depsolve/dimsbuild-local folder so
+      # that depsolver picks up the new RPM.
+      depsolver_cache = join(self.interface.METADATA_DIR, '.depsolve', 'dimsbuild-local')
+      if exists(depsolver_cache):
+        rm(depsolver_cache, recursive=True, force=True)      
+
+    filereader.write(current, pkgsfile)
+    storesinfo = self.interface.cvars['input-store-lists'].update({'dimsbuild-local': current})
 
 class LocalRepogenHook:
   def __init__(self, interface):

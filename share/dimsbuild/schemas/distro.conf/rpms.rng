@@ -1,0 +1,32 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <!-- DOCBOOK ENTRY -->
+  <refentry xmlns="">
+    <refsect1>
+      <title>RPMS</title>
+      <para>information about the rpms element</para>
+    </refsect1>
+  </refentry>
+
+  <define name="create-element">
+    <element name="create">
+      <ref name="dimsbuild-boolean"/>
+    </element>
+  </define>
+
+  <define name="obsoletes-element">
+    <element name="obsoletes">
+      <optional>
+        <attribute name="use-default-set">
+          <ref name="dimsbuild-boolean"/>
+        </attribute>
+      </optional>
+      <oneOrMore>
+        <ref name="package-element"/>
+      </oneOrMore>
+    </element>
+  </define>
+  
+  <include href="lib.rng"/>
+</grammar>

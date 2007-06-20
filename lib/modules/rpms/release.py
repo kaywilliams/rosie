@@ -11,7 +11,7 @@ import dims.filereader as filereader
 
 from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from interface import EventInterface
-from main      import BOOLEANS_TRUE, tree
+from main      import BOOLEANS_TRUE
 
 from rpms.lib import ColorMixin, RpmsHandler, RpmsInterface, getIpAddress
 
@@ -58,11 +58,11 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
       ],
     }
 
-    RpmsHandler.__init__(self, interface, data,
-                         elementname='release-rpm',
-                         rpmname='%s-release' %(interface.product,),
+    RpmsHandler.__init__(self, interface, data, 'release-rpm',
+                         '%s-release' %(interface.product,),
                          description='%s release files' %(interface.fullname,),
-                         long_description='%s release files created by dimsbuild' %(interface.fullname,))
+                         long_description='%s release files created by dimsbuild' \
+                         %(interface.fullname,))
     
     ColorMixin.__init__(self, join(self.interface.METADATA_DIR,
                                    '%s.pkgs' %(self.interface.getBaseStore(),)))
@@ -78,8 +78,8 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     #  2. create a function that sets up the variable; self._sync_files() might come in
     #     in handy.
     #
-    # For example, self.etcfiles is a variable that holds a list of files that are
-    # installed to the /etc location.
+    # For example, self.etcfiles holds a list of files that are installed to the /etc 
+    # folder.
     self.installdirs = {
       'default_rnotes': '/usr/share/doc/HTML',
       'etcfiles':       '/etc',
@@ -93,13 +93,9 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
       'rnotes_omf':     '/usr/share/omf/%s-release-notes' %(self.product,),
     }
     
-  def get_input(self):
-    if not exists(self.rpm_output):
-      mkdir(self.rpm_output, parent=True)
-    if not exists(self.output_location):
-      mkdir(self.output_location, parent=True)
+  def copy(self): pass # copy() in _generate(), below
 
-  def generate(self):
+  def _generate(self):
     self._process_gpg_keys()
     self._process_eula_files()
     self._process_release_notes()
@@ -108,7 +104,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     self._process_etc_files()
     self._verify_release_notes()
 
-  def create_manifest(self):
+  def _create_manifest(self):
     manifest = join(self.output_location, 'MANIFEST')
     f = open(manifest, 'w')
     f.write('setup.py\n')
@@ -121,7 +117,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
             f.write('%s\n' %(file,))
     f.close()
     
-  def get_data_files(self):
+  def _get_data_files(self):
     data = None
     for key in self.installdirs.keys():
       if hasattr(self, key):
@@ -134,10 +130,10 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
             data = '\n\t'.join([data, datum])
     return data
 
-  def get_provides(self):
+  def _get_provides(self):
     return 'redhat-release'
 
-  def get_obsoletes(self):
+  def _get_obsoletes(self):
     packages = self.config.xpath('//rpms/release-rpm/obsoletes/package/text()', [])
     if self.config.get('//rpms/release-rpm/@use-default-set', 'True') in BOOLEANS_TRUE:
       packages.extend(['fedora-release', 'redhat-release', 'centos-release',
@@ -189,9 +185,9 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     reposdir = join(self.output_location, 'repos')
     
     extrarepos = []
-    if self.config.get('//%s/yum-repos/publish-repo/include/text()' %(self.elementname,), 'True') in BOOLEANS_TRUE:      
+    if self.config.get('//%s/yum-repos/publish-repo/include/text()' %(self.id,), 'True') in BOOLEANS_TRUE:      
       repofile = join(reposdir, '%s.repo' %(self.product,))
-      authority = self.config.get('//%s/publish-repo/authority/text()' %(self.elementname,),
+      authority = self.config.get('//%s/publish-repo/authority/text()' %(self.id,),
                                   ''.join(['http://', getIpAddress()]))
       path = join(self.config.get('//main/publishpath/text()', 'open_software'),
                   self.product, self.version, self.arch, 'os')
@@ -208,13 +204,13 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
       filereader.write(lines, repofile)
       extrarepos.append(join('repos', '%s.repo' %(self.product,)))
 
-    if self.config.get('//%s/yum-repos/input-repo/include/text()' %(self.elementname,), 'False') in BOOLEANS_TRUE:
+    if self.config.get('//%s/yum-repos/input-repo/include/text()' %(self.id,), 'False') in BOOLEANS_TRUE:
       repofile = join(reposdir, 'source.repo')
       rc = YumRepoCreator(repofile, self.config.file, '//stores')
       rc.createRepoFile()
       extrarepos.append(join('repos', 'source.repo'))
 
-    for repo in self.config.xpath('//%s/yum-repos/path/text()' %(self.elementname,), []):
+    for repo in self.config.xpath('//%s/yum-repos/path/text()' %(self.id,), []):
       sync(repo, reposdir)
       extrarepos.append(repo)
       
@@ -225,8 +221,8 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     
   def _process_eula_files(self):
     self._sync_files('eula', 'eulafiles', dirname='eula')
-    if self.config.get('//%s/eula/include-in-firstboot/text()' %(self.elementname,), 'True') in BOOLEANS_TRUE and \
-           self.config.get('//%s/eula/path/text()' %(self.elementname,), None) is not None:
+    if self.config.get('//%s/eula/include-in-firstboot/text()' %(self.id,), 'True') in BOOLEANS_TRUE and \
+           self.config.get('//%s/eula/path/text()' %(self.id,), None) is not None:
       source = join(self.sharepath, 'release', 'eula.py')
       sync(source, join(self.output_location, 'eula'))
       self.eulapyfiles = ['eula/eula.py']
@@ -238,7 +234,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
               ('release-notes/doc',  'rnotes_doc')]
 
     for element, variable in rnotes:
-      installpath = self.config.get('//%s/%s/@install-path' %(self.elementname, element), None)
+      installpath = self.config.get('//%s/%s/@install-path' %(self.id, element), None)
       if installpath is not None:
         self.installdirs[variable] = installpath
       self._sync_files(element, variable)
@@ -266,7 +262,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     if not exists(destdir):
       mkdir(destdir)
     
-    for item in self.config.xpath('//%s/%s/path/text()' %(self.elementname, element), []):
+    for item in self.config.xpath('//%s/%s/path/text()' %(self.id, element), []):
       sync(item, destdir)
 
     files = map(lambda x: join(dirname, x), filter(triage, os.listdir(destdir)))

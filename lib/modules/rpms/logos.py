@@ -3,7 +3,7 @@ from os.path  import exists, join, isdir, isfile
 
 import os
 
-from dims.osutils import basename, dirname, mkdir, rm
+from dims.osutils import *
 from dims.sync    import sync
 
 import dims.imerge  as imerge
@@ -11,7 +11,7 @@ import dims.shlib   as shlib
 import dims.xmltree as xmltree
 
 from event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from main  import BOOLEANS_TRUE, tree
+from main  import BOOLEANS_TRUE
 
 from rpms.lib import ColorMixin, RpmsHandler, RpmsInterface
 
@@ -34,6 +34,7 @@ EVENTS = [
 
 HOOK_MAPPING = {
   'LogosRpmHook': 'logos-rpm',
+  'ValidateHook': 'validate',
 }
 
 API_VERSION = 4.0
@@ -46,12 +47,20 @@ def locals_imerge(string, ver='0'):
   return locals
 
 
-#---------- HANDLERS -------------#
+#---------- HOOKS -------------#
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'logos.validate'
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('//logos-rpm', schemafile='logos-rpm.rng')
+
 class LogosRpmHook(RpmsHandler, ColorMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'logos.logos-rpm'
-    self.eventid = 'logos-rpm'
     
     data =  {
       'config': [
@@ -65,8 +74,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     }
 
     RpmsHandler.__init__(self, interface, data,
-                         elementname='logos-rpm',
-                         rpmname='%s-logos' % interface.product,
+                         'logos-rpm', '%s-logos' % interface.product,
                          description='Icons and pictures related to %s' \
                          % interface.config.get('//main/fullname/text()'),
                          long_description='The %s-logos package contains '
@@ -82,8 +90,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     self.imageslocal = locals_imerge(L_LOGOS %expand)
     
     # set the font to use
-    available_fonts = filter(lambda x: x.endswith('.ttf'),
-                             tree(join(self.sharepath, 'fonts'), prefix=True, type='f|l'))
+    available_fonts = find(join(self.sharepath, 'fonts'), name='*.ttf')
     self.fontfile = available_fonts[0]
 
   def run(self):
@@ -97,13 +104,13 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     mkdir(join(self.interface.METADATA_DIR, 'images-src/product.img'), parent=True)
     RpmsHandler.run(self)
             
-  def generate(self):
+  def _generate(self):
     self._generate_images()
     self._generate_theme_files()
 
-  def create_manifest(self): pass # done by get_data_files()
+  def _create_manifest(self): pass # done by get_data_files()
 
-  def get_data_files(self):
+  def _get_data_files(self):
     manifest = join(self.output_location, 'MANIFEST')
     f = open(manifest, 'w')
     f.write('setup.py\n')
@@ -162,7 +169,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
             return False
     return True
 
-  def get_obsoletes(self):
+  def _get_obsoletes(self):
     packages = self.config.xpath('//rpms/logos-rpm/obsoletes/package/text()', [])
     if self.config.get('//rpms/logos-rpm/@use-default-set', 'True') in BOOLEANS_TRUE:
       packages.extend(['fedora-logos', 'centos-logos', 'redhat-logos'])
@@ -171,10 +178,10 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
       return ' '.join(packages)
     return None
 
-  def get_provides(self):
+  def _get_provides(self):
     return 'system-logos, redhat-logos = 4.9.3'
 
-  def get_requires(self):
+  def _get_requires(self):
     return 'redhat-artwork'    
 
   def _generate_theme_files(self):
@@ -319,6 +326,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
       texthcenter = int(texthcenter)
 
     return id, location, width, height, textmaxwidth, texthcenter, textvcenter, gradient, highlight
+
 
 GDM_GREETER_THEME = '''
 # This is not really a .desktop file like the rest, but it\'s useful to treat

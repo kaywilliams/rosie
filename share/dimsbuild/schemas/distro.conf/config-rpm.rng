@@ -1,0 +1,56 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <!-- DOCBOOK ENTRY -->
+    <refentry xmlns="">
+      <refsect1>
+        <title>CONFIG RPM</title>
+        <para>information about the config-rpm element</para>
+      </refsect1>
+    </refentry>
+
+    <element name="distro">
+      <optional>
+        <element name="config-rpm">
+          <interleave>
+            <optional>
+              <element name="config">                
+                <interleave>                  
+                  <optional>
+                    <element name="script">
+                      <ref name="path-element"/>
+                    </element>
+                  </optional>                                                
+                  <optional>
+                    <element name="supporting-files">
+                      <zeroOrMore>
+                        <ref name="path-element"/>
+                      </zeroOrMore>
+                    </element>
+                  </optional>                  
+                </interleave>                
+              </element>
+            </optional>
+            <optional>
+              <element name="requires">
+                <zeroOrMore>
+                  <ref name="package-element"/>
+                </zeroOrMore>                
+              </element>
+            </optional>
+            <optional>
+              <element name="obsoletes">
+                <zeroOrMore>
+                  <ref name="package-element"/>
+                </zeroOrMore>                                
+              </element>
+            </optional>
+          </interleave>
+        </element>
+      </optional>
+    </element>
+  </start>
+
+  <include href="lib.rng"/>
+
+</grammar>

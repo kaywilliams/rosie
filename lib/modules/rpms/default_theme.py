@@ -23,12 +23,22 @@ EVENTS = [
 
 HOOK_MAPPING = {
   'DefaultThemeHook': 'default-theme-rpm',
-  'PkglistHook':      'pkglist',
+  'PkglistHook'     : 'pkglist',
+  'ValidateHook'    : 'validate',
 }
 
 RPM_PNVR_REGEX = re.compile('([.*]?.+-.+-.+)\..+\.[Rr][Pp][Mm]')
 
 API_VERSION = 4.0
+
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'default_theme.validate'
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('//default-theme-rpm', schemafile='default-theme-rpm.rng')
 
 class PkglistHook:
   def __init__(self, interface):
@@ -43,30 +53,35 @@ class PkglistHook:
         default_theme_info = self.interface.cvars.get('default-theme-info', None)
         if default_theme_info is not None:
           rpmname, nvr, type, requires = default_theme_info # for convenience
-
+          
           attrs = {'type': type or 'mandatory'}
           if requires is not None:
             attrs['requires'] = requires
-          
-          # add the rpm to the pkglist
-          self.interface.cvars['pkglist'].append(nvr)
-          filereader.write(self.interface.cvars['pkglist'], self.interface.cvars['pkglist-file'])
+
+          if nvr not in self.interface.cvars['pkglist']:
+            # add the rpm to the pkglist
+            self.interface.cvars['pkglist'].append(nvr)
+            self.interface.cvars['pkglist'].sort()            
+            filereader.write(self.interface.cvars['pkglist'], self.interface.cvars['pkglist-file'])
 
           # add the rpm information to the comps.xml
-          self.interface.cvars['required-packages'].append(rpmname)
+          if rpmname not in self.interface.cvars['required-packages']:
+            self.interface.cvars['required-packages'].append(rpmname)
           
           compstree = xmltree.read(self.interface.cvars['comps-file'])
           group = compstree.get('//group[id/text() = "%s"]' %self.productid)
-          packagelist = group.get('packagelist', None) or xmltree.Element('packagelist', parent=group)
-          packagereq = xmltree.Element('packagereq', parent=packagelist, text=rpmname, attrs=attrs)
-          compstree.write(self.interface.cvars['comps-file'])
+          packagelist = group.get('packagelist', None)
+          if packagelist is None:
+            packagelist = xmltree.Element('packagelist', parent=group)
+          if packagelist.get('packagereq[text() = "%s"]' %rpmname, None) is None:
+            packagereq = xmltree.Element('packagereq', parent=packagelist, text=rpmname, attrs=attrs)
+            compstree.write(self.interface.cvars['comps-file'])
         break    
     
 class DefaultThemeHook(RpmsHandler):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'default_theme.default-theme-rpm'
-    self.eventid = 'default-theme-rpm'
     
     data = {
       'config': [
@@ -79,9 +94,8 @@ class DefaultThemeHook(RpmsHandler):
 
     self.themename = interface.config.get('//rpms/default-theme-rpm/theme/text()', interface.product)
 
-    RpmsHandler.__init__(self, interface, data,
-                         elementname='default-theme-rpm',
-                         rpmname='%s-default-theme' %(interface.product,),
+    RpmsHandler.__init__(self, interface, data, 'default-theme-rpm',
+                         '%s-default-theme' %(interface.product,),
                          description='Script to set default gdm graphical theme',
                          long_description='The %s-default-theme package requires the gdm package. '
                          ' Its sole function is to modify the value of the GraphicalTheme attribute in'
@@ -91,10 +105,9 @@ class DefaultThemeHook(RpmsHandler):
   def apply(self): pass  
 
   def post(self):
-    try:
+    try:      
       rpm = find(join(self.interface.METADATA_DIR, 'localrepo', 'RPMS'),
                  name='%s*.[Rr][Pp][Mm]' %(self.rpmname,), prefix=False)[0]
-      
       self.interface.cvars['default-theme-info'] = (self.rpmname,
                                                     RPM_PNVR_REGEX.match(rpm).groups()[0],
                                                     'conditional', 'gdm')
@@ -104,10 +117,10 @@ class DefaultThemeHook(RpmsHandler):
       else:
         self.interface.cvars['default-theme-info'] = None
 
-  def get_requires(self):
+  def _get_requires(self):
     return 'gdm'
   
-  def get_post_install(self):
+  def _get_post_install(self):
     f = open(join(self.output_location, 'postinstall.sh'), 'w')
     f.write(SCRIPT %(self.themename,))
     f.close()

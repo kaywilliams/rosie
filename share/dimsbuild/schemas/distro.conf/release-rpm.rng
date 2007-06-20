@@ -1,0 +1,98 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <!-- DOCBOOK ENTRY -->
+    <refentry xmlns="">
+      <refsect1>
+        <title>RELEASE RPM</title>
+        <para>information about the release-rpm element</para>
+      </refsect1>
+    </refentry>
+
+  <element name="distro">
+    <optional>
+      <element name="release-rpm">
+        <interleave>              
+          <optional>
+            <ref name="create-element"/>
+          </optional>
+          <optional>
+            <ref name="obsoletes-element"/>
+          </optional>
+          <optional>
+            <element name="release-files">
+              <oneOrMore>
+                <ref name="path-element"/>
+              </oneOrMore>
+            </element>
+          </optional>              
+          <optional>
+            <element name="release-notes">
+              <interleave>                                              
+                <optional>
+                  <element name="omf">
+                    <optional>
+                      <attribute name="install-path"><text/></attribute>
+                    </optional>
+                    <oneOrMore>
+                      <ref name="path-element"/>
+                    </oneOrMore>                        
+                  </element>
+                </optional>                    
+                <optional>
+                  <element name="html">
+                    <optional>
+                      <attribute name="install-path"><text/></attribute>
+                    </optional>
+                    <oneOrMore>
+                      <ref name="path-element"/>
+                    </oneOrMore>                        
+                  </element>
+                </optional>
+                <optional>
+                  <element name="doc">
+                    <optional>
+                      <attribute name="install-path"><text/></attribute>
+                    </optional>
+                    <oneOrMore>
+                      <ref name="path-element"/>
+                    </oneOrMore>                        
+                  </element>
+                </optional>                    
+              </interleave>
+            </element>
+          </optional>              
+          <optional>
+            <element name="yum-repos">
+              <interleave>
+                <optional>
+                  <element name="publish-repo">
+                    <optional>
+                      <element name="include"><ref name="dimsbuild-boolean"/></element>
+                    </optional>
+                    <optional>
+                      <element name="authority"><text/></element>
+                    </optional>
+                  </element>
+                </optional>
+                <optional>
+                  <element name="input-repos">
+                    <optional>
+                      <element name="include"><ref name="dimsbuild-boolean"/></element>
+                    </optional>
+                  </element>
+                </optional>
+                <zeroOrMore>
+                  <ref name="path-element"/>
+                </zeroOrMore>
+              </interleave>
+            </element>
+          </optional>
+        </interleave>            
+      </element>
+    </optional>
+  </element>
+  </start>
+
+  <include href="rpms.rng"/>
+</grammar>
