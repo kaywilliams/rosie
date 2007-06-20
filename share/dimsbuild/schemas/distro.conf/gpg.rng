@@ -16,11 +16,7 @@
           <!-- ELEMENT CONTENTS -->
           <interleave>
             <element name="sign">
-              <choice>
-                <value type="string">True</value>
-                <value type="string">False</value>
-                <data type="boolean"/>
-              </choice>
+              <ref name="dimsbuild-boolean"/>
             </element>
             <element name="public"><text/></element>
             <element name="secret"><text/></element>
@@ -30,4 +26,6 @@
       </optional>
     </element>
   </start>
+
+  <include href="lib.rng"/>
 </grammar>

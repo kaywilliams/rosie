@@ -16,7 +16,7 @@
           <!-- ELEMENT CONTENTS -->
           <interleave>
             <optional>
-              <element name="create-new">                
+              <element name="create-new">
                 <element name="groups">
                   <oneOrMore>
                     <element name="group">
@@ -25,24 +25,21 @@
                       </optional>
                       <optional>
                         <attribute name="default">
-                          <choice>
-                            <value type="string">True</value>
-                            <value type="string">False</value>
-                            <data type="boolean"/>
-                          </choice>
+                          <ref name="dimsbuild-boolean"/>
                         </attribute>
                       </optional>
                       <text/>
                     </element>
                   </oneOrMore>
-                </element>                
+                </element>
+       
                 <optional>
                   <element name="include">
                     <oneOrMore>
                       <element name="package">
                         <optional>
                           <attribute name="type">
-                            <choice>
+                             <choice>
                               <value type="string">conditional</value>
                               <value type="string">default</value>
                               <value type="string">optional</value>
@@ -56,6 +53,7 @@
                     </oneOrMore>
                   </element>
                 </optional>                
+
                 <optional>
                   <element name="exclude">
                     <oneOrMore>
@@ -65,6 +63,7 @@
                 </optional>                
               </element>
             </optional>
+
             <optional>
               <element name="use-existing">
                 <element name="path"><text/></element>
@@ -75,4 +74,7 @@
       </optional>
     </element>
   </start>
+
+  <include href="lib.rng"/>
+
 </grammar>

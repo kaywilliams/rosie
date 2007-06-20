@@ -17,12 +17,7 @@
           <choice>
             <group>
               <element name="include">
-                <choice>
-                  <value type="string">False</value>
-                  <value type="boolean">false</value>
-                  <value type="string">no</value>
-                  <value type="boolean">0</value>
-                </choice>
+                <ref name="boolean-false"/>
               </element>
               <optional>
                 <ref name="stores-element"/>
@@ -30,12 +25,7 @@
             </group>
             <group>
               <element name="include">
-                <choice>
-                  <value type="string">True</value>
-                  <value type="boolean">true</value>
-                  <value type="string">yes</value>
-                  <value type="boolean">1</value>
-                </choice>
+                <ref name="boolean-true"/>
               </element>
               <ref name="stores-element"/>
             </group>
@@ -45,6 +35,10 @@
     </element>
   </start>
 
+  <include href="lib.rng"/>
+
+  <!-- REMOVE THE FOLLOWING: once the stores.rng and sources.rng have a similar
+       stores-element definition -->
   <define name="stores-element">
     <element name="stores">
       <oneOrMore>

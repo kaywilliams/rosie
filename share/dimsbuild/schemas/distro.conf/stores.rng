@@ -3,7 +3,6 @@
   <start>
     <element name="distro">
       <element name="stores">
-
         <!-- DOCBOOK ENTRY -->        
         <refentry xmlns="">      
           <refsect1>
@@ -34,41 +33,5 @@
     </element>
   </start>
 
-  <define name="store-element">
-    <element name="store">
-      <interleave>
-        <attribute name="id"/>
-        <element name="path"><text/></element>        
-        <optional>
-          <element name="repodata-path"><text/></element>
-        </optional>
-        <optional>
-          <element name="include">
-            <oneOrMore>
-              <element name="package"><text/></element>
-            </oneOrMore>
-          </element>
-        </optional>        
-        <optional>
-          <element name="exclude">
-            <oneOrMore>
-              <element name="package"><text/></element>
-            </oneOrMore>
-          </element>
-        </optional>        
-        <optional>
-          <element name="gpgkey"><text/></element>
-        </optional>
-        <optional>
-          <element name="gpgcheck">
-            <choice>
-              <value type="string">True</value>
-              <value type="string">False</value>
-              <data type="boolean"/>
-            </choice>
-          </element>
-        </optional>
-      </interleave>
-    </element>
-  </define>
+  <include href="lib.rng"/> 
 </grammar>
