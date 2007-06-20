@@ -13,8 +13,8 @@ from dims.sync    import sync
 from difftest  import InputHandler, OutputHandler
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import DiffMixin, EventInterface
-from main      import BOOLEANS_TRUE, tree
-from magic     import FILE_TYPE_LSS, match as magic_match
+from main      import BOOLEANS_TRUE, locals_imerge
+from magic     import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
 
 try:
   import Image
@@ -28,7 +28,7 @@ EVENTS = [
     'id': 'installer-logos',
     'interface': 'EventInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['splash.lss'],
+    'provides': ['splash'],
     'requires': ['software'],
     'conditional-requires': ['gpgsign'],    
     'parent': 'INSTALLER',
@@ -85,10 +85,10 @@ class ExtractEventHandler(DiffMixin):
 
   def force(self):
     self.clean_output()
-
+  
   def check(self):
     self.modify_input_data(self.find_rpms())    
-    if self.test_diffs() or self.output_changed() or not self.output_valid():
+    if self.test_diffs() or self.output_changed():
       self.clean_output()
       return True
     return False
@@ -120,7 +120,14 @@ class ExtractEventHandler(DiffMixin):
     self._modify('output', output)
 
   def _modify(self, key, value):
-    self.data[key] = value
+    if self.data.has_key(key):
+      for x in self.data[key]:
+        self.data.remove(x)
+    else:
+      self.data[key] = []
+      
+    self.data[key].extend(value)
+    
     if key not in self.handlers.keys():
       h = {
         'input':  InputHandler,
@@ -155,37 +162,54 @@ class InstallerLogosHook(ExtractEventHandler):
     self.ID = 'installer.rpmextract.installer-logos'
 
     self.metadata_struct = {
-      'config': [
-        '//installer/logos',
-      ],
+      'config'   : ['//installer/logos'],
+      'variables': ['cvars[\'anaconda-version\']'],
     }
     
     ExtractEventHandler.__init__(self, interface, self.metadata_struct,
                                  join(interface.METADATA_DIR, 'installer-logos.md'))
+    self.format = None
+    self.splash = None
 
-    self.splash_lss = join(self.software_store, 'isolinux', 'splash.lss')
+  def check(self):
+    self.locals = locals_imerge(L_INSTALLER_LOGOS, self.interface.cvars['anaconda-version'])
+    self.format = self.locals.get('//splash-image/format/text()')
+    self.splash = join(self.software_store, 'isolinux', 'splash.%s' %self.format)
+    return ExtractEventHandler.check(self)
   
   def run(self):
     ExtractEventHandler.extract(self, "processing installer logos")
 
   def generate(self):
-    "Create the splash.lss file and copy it to the isolinux/ folder"
+    "Create the splash image and copy it to the isolinux/ folder"
     output_dir = join(self.software_store, 'isolinux')
     if not exists(output_dir):
       mkdir(output_dir, parent=True)
 
-    output = self.create_pixmaps()
+    # copy images to the product.img/ folder
+    output = self.copy_pixmaps()
+
+    # create the splash image
+    self.generate_splash()
+    output.append(self.splash)
+    
+    return output
+  
+  def generate_splash(self):
     # convert the syslinux-splash.png to splash.lss and copy it
     # to the isolinux/ folder
     splash_pngs = find(self.working_dir, 'syslinux-splash.png')
     if len(splash_pngs) == 0:
-      raise SplashImageNotFoundError("no syslinux-splash.png found in logos RPM")
-    shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
-                  %(splash_pngs[0], self.splash_lss,))
-    output.append(self.splash_lss)
-    return output
+      raise SplashImageNotFound("no syslinux-splash.png found in logos RPM")
+    
+    splash_png = splash_pngs[0]
+    if self.format == 'jpg':
+      Image.open(splash_png).save(self.splash)
+    else:
+      shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
+                    %(splash_png, self.splash,))
 
-  def create_pixmaps(self):
+  def copy_pixmaps(self):
     """ 
     Create the product.img folder that can be used by the product.img
     module.
@@ -195,25 +219,31 @@ class InstallerLogosHook(ExtractEventHandler):
     product_img = join(self.interface.METADATA_DIR, 'images-src', 'product.img', 'pixmaps')
     mkdir(product_img, parent=True)
 
-    dirs_to_look = []
-    for dir in ['pixmaps']: # FIXME: is the 'pixmaps' directory sufficient?
-      dirs_to_look.extend(find(location=self.working_dir,
-                               name=dir, type=TYPE_DIR, regex='.*anaconda.*'))
+    # FIXME: is the anaconda/pixmaps folder sufficient?
+    dirs_to_look = find(self.working_dir, name='pixmaps', type=TYPE_DIR, regex='.*anaconda.*')
 
     # generate the list of files to use and copy them to the product.img folder
     pixmaps = []    
     for folder in dirs_to_look:
-      for image in tree(folder, prefix=True, type='f|l'):
+      for image in find(folder, type=0101, prefix=True):
         file_name = basename(image)
         self.interface.log(4, "hardlinking %s to %s" %(file_name, product_img,))
         pixmap = join(product_img, file_name)
-        sync(image, product_img)
+        sync(image, product_img, link=True)
         pixmaps.append(pixmap)
     return pixmaps
-  
-  def output_valid(self):
-    return exists(self.splash_lss) and magic_match(self.splash_lss) == FILE_TYPE_LSS
-  
+
+  def apply(self):
+    if not self.valid_splash():
+      raise RuntimeError("%s is not a valid %s file" %(self.splash, self.format))
+    self.interface.cvars['splash'] = self.splash
+
+  def valid_splash(self):
+    if self.format == 'jpg':
+      return magic_match(self.splash) == FILE_TYPE_JPG
+    else:
+      return magic_match(self.splash) == FILE_TYPE_LSS
+      
   def find_rpms(self):
     pkgname = self.config.get('//installer/logos/package/text()',
                               '%s-logos' %(self.interface.product,))
@@ -233,9 +263,7 @@ class InstallerReleaseHook(ExtractEventHandler):
     self.ID = 'installer.rpmextract.installer-release-files'
 
     self.metadata_struct = {
-      'config': [
-        '//installer/release-files',
-      ],
+      'config': ['//installer/release-files'],
     }
     
     ExtractEventHandler.__init__(self, interface, self.metadata_struct,
@@ -268,8 +296,6 @@ class InstallerReleaseHook(ExtractEventHandler):
       os.link(source, dest)
     return rtn
 
-  def output_valid(self): return True
-
   def find_rpms(self):
     rpmnames = self.config.xpath('//installer/release-files/package/text()',
                                 ['%s-release' %(self.interface.product,)])
@@ -288,6 +314,26 @@ class InstallerReleaseHook(ExtractEventHandler):
           raise RpmNotFoundError("missing release RPM(s)")
     return rpms    
 
+L_INSTALLER_LOGOS = '''
+<locals>
+  <installer-logos>
+
+    <installer-logo version="0">
+      <splash-image>
+        <format>lss</format>
+      </splash-image>
+    </installer-logo>
+
+    <installer-logo version="11.2.0.66-1">
+      <action type="update" path="splash-image">
+        <format>jpg</format>
+      </action>
+    </installer-logo>
+
+  </installer-logos>
+</locals>
+'''
+
 #------ EXCEPTIONS ------#
 class RpmNotFoundError(Exception): pass
-class SplashImageNotFoundError(StandardError): pass
+class SplashImageNotFound(StandardError): pass

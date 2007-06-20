@@ -522,7 +522,6 @@ class Dispatch:
   
   def load_hooks(self, module):
     if hasattr(module, 'HOOK_MAPPING'):
-      print "Loading module '%s'" % module.__file__ #!
       for hook, eventid in module.HOOK_MAPPING.items():
         self.register_hook(getattr(module, hook), eventid)
 

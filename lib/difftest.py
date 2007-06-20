@@ -218,11 +218,10 @@ class InputHandler:
     self.input = {}
     
   def mdread(self, metadata):
-    for path in expand(self.data):
-      for file in metadata.xpath('/metadata/input/file'):
-        self.input[file.get('@path')] = {'size':  int(file.get('size/text()')),
-                                         'mtime': int(file.get('mtime/text()'))}
-  
+    for file in metadata.xpath('/metadata/input/file'):
+      self.input[file.get('@path')] = {'size':  int(file.get('size/text()')),
+                                       'mtime': int(file.get('mtime/text()'))}
+      
   def mdwrite(self, root):
     # remove previous node, if present
     try:
@@ -250,10 +249,9 @@ class OutputHandler:
     self.output = {}
     
   def mdread(self, metadata):
-    for path in expand(self.data):
-      for file in metadata.xpath('/metadata/output/file'):
-        self.output[file.get('@path')] = {'size':  int(file.get('size/text()')),
-                                          'mtime': int(file.get('mtime/text()'))}
+    for file in metadata.xpath('/metadata/output/file'):
+      self.output[file.get('@path')] = {'size':  int(file.get('size/text()')),
+                                        'mtime': int(file.get('mtime/text()'))}
   
   def mdwrite(self, root):
     # remove previous node, if present

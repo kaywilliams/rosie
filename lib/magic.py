@@ -40,6 +40,7 @@ FILE_TYPE_CPIO     = 'application/x-cpio'
 FILE_TYPE_GPGKEY   = 'application/x-gpg-key'
 FILE_TYPE_LSS      = 'Syslinux SLL16 image data'
 FILE_TYPE_FAT      = 'FAT filesystem'
+FILE_TYPE_JPG      = 'JPEG image data'
 
 #------ MAGIC NUMBERS ------#
 # Dictionary of known magic numbers. Keys are from the list of file types,
@@ -64,6 +65,7 @@ magic = {
   FILE_TYPE_GPGKEY:   [(0,    TYPE_STRING, ENDIAN_BIG,    '-----BEGIN PGP')],
   FILE_TYPE_LSS:      [(0,    TYPE_LONG,   ENDIAN_LITTLE, 0x1413f33d)],
   FILE_TYPE_FAT:      [(510,  TYPE_SHORT,  ENDIAN_LITTLE, 43605L)], # 0xAA55
+  FILE_TYPE_JPG:      [(0,    TYPE_SHORT,  ENDIAN_BIG,    0xffd8)],
 }
 
 
