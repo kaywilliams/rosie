@@ -1,5 +1,4 @@
-from os.path import join, exists, islink
-
+from os.path import join, exists
 import os
 
 from dims import osutils
@@ -44,17 +43,10 @@ class PxebootHook:
     self.interface.log(0, "preparing pxeboot images")
     
     osutils.mkdir(self.pxeboot_dir, parent=True)
-    
+ 
     for file in ['vmlinuz', 'initrd.img']:
-      dest = join(self.pxeboot_dir, file)
-      target = join('../../isolinux', file)
-      if islink(dest):
-        if os.readlink(dest) != target:
-          osutils.rm(dest, force=True)
-      else:
-        osutils.rm(dest, force=True)
-      if not exists(dest):
-        os.symlink(target, dest)
+      target = join(self.interface.SOFTWARE_STORE, 'isolinux', file)
+      sync.sync(target, self.pxeboot_dir)
   
   def apply(self):
     for file in ['vmlinuz', 'initrd.img']:
