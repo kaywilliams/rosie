@@ -120,6 +120,10 @@ class Build:
     self.cvars['base-vars']['fullname'] = self.config.get('//main/fullname/text()',
                                                          self.cvars['base-vars']['product'])
     self.cvars['base-vars']['provider'] = self.config.get('//main/distro-provider/text()')
+    self.cvars['base-vars']['webroot'] = self.config.get('/distro/main/publishpath/webroot/text()', 
+                                                         '/var/www/html/')
+    self.cvars['base-vars']['distrosroot'] = self.config.get('/distro/main/publishpath/distrosroot/text()',
+                                                         'distros')
     self.cvars['base-vars']['pva'] = '%s-%s-%s' % (self.cvars['base-vars']['product'],
                                                    self.cvars['base-vars']['version'],
                                                    self.cvars['base-vars']['basearch'])

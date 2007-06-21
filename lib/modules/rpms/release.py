@@ -37,6 +37,8 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     self.ID = 'release.release-rpm'
     self.eventid = 'release-rpm'
     
+    self.interface = interface
+
     data = {
       'config': [
         '//main/fullname/text()',
@@ -45,6 +47,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
         '//stores/*/store/gpgkey',
         '//gpgsign',
       ],      
+      'variables': ['distrosroot'],
       'input': [
         interface.config.xpath('//release-rpm/yum-repos/path/text()', []),
         interface.config.xpath('//release-rpm/eula/path/text()', []),
@@ -189,8 +192,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
       repofile = join(reposdir, '%s.repo' %(self.product,))
       authority = self.config.get('//%s/publish-repo/authority/text()' %(self.id,),
                                   ''.join(['http://', getIpAddress()]))
-      path = join(self.config.get('//main/publishpath/text()', 'open_software'),
-                  self.product, self.version, self.arch, 'os')
+      path = join(self.interface.distrosroot, self.interface.pva, 'os')
       lines = ['[%s]' %(self.product,),
                'name=%s %s - %s' %(self.fullname, self.version, self.arch,),
                'baseurl=%s' %(join(authority, path),)]

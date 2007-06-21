@@ -39,7 +39,16 @@
             </element>
           </optional>
           <optional>
-            <element name="publishpath"><text/></element>
+            <element name="publishpath">
+              <interleave>
+                <optional>
+                  <element name="webroot"><text/></element>
+                </optional>
+                <optional>
+                  <element name="distrosroot"><text/></element>
+                </optional>
+              </interleave>
+            </element>
           </optional>      
           <optional>
             <element name="rpmspath"><text/></element>
