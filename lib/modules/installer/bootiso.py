@@ -24,7 +24,7 @@ EVENTS = [
   {
     'id': 'bootiso',
     'requires': ['vmlinuz', 'initrd.img', 'isolinux'],
-    'conditional-requires': ['splash.lss', 'isolinux-changed'],
+    'conditional-requires': ['installer-splash', 'isolinux-changed'],
     'parent': 'INSTALLER',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
   },

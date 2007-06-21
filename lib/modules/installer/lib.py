@@ -1,8 +1,10 @@
 import os
+import tempfile
 import time
 
-from os.path  import join, exists
 from StringIO import StringIO
+from os.path  import join, exists
+from rpmUtils.miscutils import rpm2cpio
 
 from dims import FormattedFile as ffile
 from dims import imerge
@@ -12,6 +14,7 @@ from dims import sync
 from dims import xmltree
 
 from callback  import BuildSyncCallback
+from difftest  import InputHandler, OutputHandler
 from interface import DiffMixin
 from locals    import printf_local, L_BUILDSTAMP_FORMAT, L_IMAGES
 from main      import BOOLEANS_TRUE, locals_imerge
@@ -27,6 +30,102 @@ MAGIC_MAP = {
   'fat32': FILE_TYPE_FAT,
 }
 
+
+#------ HELPER FUNCTIONS ------#
+def extractRpm(rpmPath, output=os.getcwd()):
+  """ 
+  Extract the contents of the RPM file specified by rpmPath to
+  the output location. The rpmPath parameter can use globbing.
+  
+  @param rpmPath : the path to the RPM file    
+  @param output  : the directory that is going to contain the RPM's
+  contents
+  """
+  dir = tempfile.mkdtemp()
+  try:
+    filename = join(dir, 'rpm.cpio')
+    
+    # sync the RPM down to the temporary directory
+    sync.sync(rpmPath, dir)
+    rpmFile = join(dir, osutils.basename(rpmPath))
+    
+    rpm2cpio(os.open(rpmFile, os.O_RDONLY), open(filename, 'w+'))
+    cpio = imglib.CpioImage(filename)    
+    if not exists(output):
+      osutils.mkdir(output, parent=True)    
+    cpio.open(point=output)
+  finally:
+    osutils.rm(dir, recursive=True, force=True)
+
+
+class ExtractHandler(DiffMixin):
+  def __init__(self, interface, data, mdfile):    
+    self.interface = interface
+    self.config = self.interface.config
+    self.software_store = self.interface.SOFTWARE_STORE
+    
+    DiffMixin.__init__(self, mdfile, data)
+
+  def force(self):
+    self.modify_output_data(self.handlers['output'].output.keys())
+    self.clean_output()
+  
+  def check(self):
+    self.modify_input_data(self.find_rpms())
+    self.modify_output_data(self.handlers['output'].output.keys())
+    if self.test_diffs():
+      self.clean_output()
+      return True
+    return False
+
+  def extract(self, message):
+    self.interface.log(0, message)
+    
+    # get input - extract RPMs
+    self.working_dir = tempfile.mkdtemp() # temporary directory, gets deleted once done
+    for rpmname in self.data['input']:
+      extractRpm(rpmname, self.working_dir)    
+
+    # generate output files
+    try:
+      # need to modify self.data, so that the metadata
+      # written has all the files created. Otherwise, self.data['output']
+      # will be empty.
+      self.modify_output_data(self.generate())
+    finally:
+      osutils.rm(self.working_dir, recursive=True, force=True)
+
+    # write metadata
+    self.write_metadata()
+
+  def modify_input_data(self, input):
+    self._modify('input', input)
+
+  def modify_output_data(self, output):
+    self._modify('output', output)
+
+  def _modify(self, key, value):
+    if self.data.has_key(key):
+      for x in self.data[key]:
+        self.data[key].remove(x)
+    else:
+      self.data[key] = []
+      
+    self.data[key].extend(value)
+    
+    if key not in self.handlers.keys():
+      h = {
+        'input':  InputHandler,
+        'output': OutputHandler,
+        }[key](self.data[key])
+      self.DT.addHandler(h)
+      self.handlers[key] = h
+      
+  def clean_output(self):
+    if self.data.has_key('output'):
+      for file in self.data['output']:
+        osutils.rm(file, recursive=True, force=True)
+        
 
 class ImageHandler:
   "Classes that extend this must require 'anaconda-version'"
@@ -218,3 +317,5 @@ class FileDownloadMixin:
       osutils.mkdir(join(self.interface.SOFTWARE_STORE, linfix), parent=True)
       sync.sync(join(self.interface.INPUT_STORE, store, dest, rinfix, filename),
                 join(self.interface.SOFTWARE_STORE, linfix))
+
+class RpmNotFoundError(Exception): pass

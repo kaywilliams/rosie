@@ -10,13 +10,14 @@ EVENTS = [
 ]
 
 MODULES = [
-  'stage2',
-  'pxeboot',
   'bootiso',
-  'rpmextract',
-  'xen',
-  'updates',
-  'product',
-  'diskboot',
   'discinfo',
+  'diskboot',
+  'installer_release',
+  'product',
+  'pxeboot',
+  'rpmextract',
+  'stage2',
+  'updates',
+  'xen',
 ]

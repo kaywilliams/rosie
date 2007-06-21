@@ -19,6 +19,7 @@ EVENTS = [
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['product.img'],
     'requires': ['anaconda-version'],
+    'conditional-requires': ['installer-logos'],
     'parent': 'INSTALLER',
   },
 ]

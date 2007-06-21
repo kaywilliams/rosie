@@ -16,7 +16,7 @@ EVENTS = [
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['diskboot.img'],
     'requires': ['initrd.img'],
-    'conditional-requires': ['splash.lss', 'isolinux-changed'],
+    'conditional-requires': ['installer-splash', 'isolinux-changed'],
     'parent': 'INSTALLER',
   },
 ]
@@ -41,8 +41,7 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
                     '/distro/main/version/text()',
                     '/distro/main/fullname/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
-      'input':     [join(interface.SOFTWARE_STORE, 'isolinux/initrd.img'),
-                    join(interface.SOFTWARE_STORE, 'isolinux/splash.lss')],
+      'input':     [join(interface.SOFTWARE_STORE, 'isolinux/initrd.img')],
       'output':    [self.diskbootimage],
     }
     
@@ -59,6 +58,7 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
     osutils.rm(self.diskbootimage, force=True)
   
   def check(self):
+    self.data['input'].append(self.interface.cvars['installer-splash'])
     self.register_image_locals(L_IMAGES)
     self.register_file_locals(L_FILES)
     
@@ -86,8 +86,9 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
   
   def generate(self):
     self.image.write(join(self.interface.SOFTWARE_STORE, 'isolinux/initrd.img'), '/')
-    if exists(join(self.interface.SOFTWARE_STORE, 'isolinux/splash.lss')):
-      self.image.write(join(self.interface.SOFTWARE_STORE, 'isolinux/splash.lss'), '/')
+    splash = self.interface.cvars.get('installer-splash', None)
+    if splash is not None and exists(splash):
+      self.image.write(splash, '/')
 
 
 #------ LOCALS ------#
