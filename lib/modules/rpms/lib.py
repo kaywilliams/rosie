@@ -74,22 +74,9 @@ class ColorMixin:
     return int('0x%s%s%s' % (color[4:], color[2:4], color[:2]), 16)
 
   def _get_distro_info(self):
-    import re
-    scan = re.compile('.*/(.*)-release-([\d]).*\.[Rr][Pp][Mm]')
-    distro, version = None, None
-    fl = filereader.read(self.verfile)
-    for rpm in fl:
-      match = scan.match(rpm)
-      if match:
-        try:
-          distro = match.groups()[0]
-          version = match.groups()[1]
-        except (AttributeError, IndexError), e:
-          raise ValueError, "Unable to compute release version from distro metadata"
-        break
-    if distro is None or version is None:
-      raise ValueError, "Unable to compute release version from distro metadata"
-    return (distro, version[0])
+    fullname = self.interface.cvars['source-vars']['fullname']    
+    version = self.interface.cvars['source-vars']['version']
+    return fullname, version
 
 
 #---------- INTERFACES -----------#
@@ -112,7 +99,7 @@ class RpmsHandler(DiffMixin):
     self.metadata = self.interface.METADATA_DIR
     self.software_store = self.interface.SOFTWARE_STORE
     self.arch = self.interface.basearch    
-    self.rpm_output = join(self.metadata, 'localrepo/')
+    self.rpm_output = self.interface.LOCAL_REPO
 
     self.fullname = self.config.get('//main/fullname/text()')
     self.product = self.config.get('//main/product/text()')
@@ -245,6 +232,9 @@ class RpmsHandler(DiffMixin):
     parser = ConfigParser()
 
     version, release, arch = self._read_autoconf()
+
+    parser.add_section('global')
+    parser.set('global', 'verbose', '0')
     
     parser.add_section('pkg_data')        
     parser.set('pkg_data', 'name', self.rpmname)
@@ -343,15 +333,18 @@ class OutputInvalidError(IOError): pass
 # each element for a distro's version, e.g. redhat/5, is a 3-tuple:
 # (background color, font color, highlight color). To add an entry,
 # look at the rhgb SRPM and copy the values from splash.c.
+
 IMAGE_COLORS = {
-  'centos': {
-    '5': ('0x215593', '0xffffff', '0x1e518c'),
+  'CentOS': {
+    '5.0': ('0x215593', '0xffffff', '0x1e518c'),
   },
-  'fedora': {
-    '6': ('0x00254d', '0xffffff', '0x002044'),
+  'Fedora Core': {
+    '6': ('0x00254d', '0xffffff', '0x002044'),  
+  },
+  'Fedora': {
     '7': ('0x001b52', '0xffffff', '0x1c2959'),
   },
-  'redhat': {
+  'Red Hat Enterprise Linux Server': {
     '5': ('0x781e1d', '0xffffff', '0x581715'),
   },
   '*': {

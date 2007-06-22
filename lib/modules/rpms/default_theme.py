@@ -112,7 +112,7 @@ class DefaultThemeHook(RpmsHandler):
                                                     RPM_PNVR_REGEX.match(rpm).groups()[0],
                                                     'conditional', 'gdm')
     except IndexError:
-      if self.test_build_rpm():
+      if self.test_build_rpm() and not self.interface.isSkipped(self.id):
         raise RuntimeError("missing rpm: '%s'" %(self.rpmname,))
       else:
         self.interface.cvars['default-theme-info'] = None

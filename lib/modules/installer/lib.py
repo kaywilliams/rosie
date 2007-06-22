@@ -105,21 +105,9 @@ class ExtractHandler(DiffMixin):
     self._modify('output', output)
 
   def _modify(self, key, value):
-    if self.data.has_key(key):
-      for x in self.data[key]:
-        self.data[key].remove(x)
-    else:
-      self.data[key] = []
-      
+    while len(self.data[key]) != 0:
+      self.data[key].pop()
     self.data[key].extend(value)
-    
-    if key not in self.handlers.keys():
-      h = {
-        'input':  InputHandler,
-        'output': OutputHandler,
-        }[key](self.data[key])
-      self.DT.addHandler(h)
-      self.handlers[key] = h
       
   def clean_output(self):
     if self.data.has_key('output'):

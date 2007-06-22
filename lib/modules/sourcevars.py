@@ -90,5 +90,6 @@ class SourcevarsHook:
   def error(self, e):
     try:
       self.image.close()
+      self.image.cleanup()
     except:
       pass

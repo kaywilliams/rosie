@@ -10,7 +10,7 @@ from dims import shlib
 from dims.osutils import *
 from dims.sync    import sync
 
-from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from interface import EventInterface
 from magic     import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
 from main      import locals_imerge
@@ -54,16 +54,16 @@ class InstallerLogosHook(ExtractHandler):
     self.metadata_struct = {
       'config'   : ['//installer/logos'],
       'variables': ['cvars[\'anaconda-version\']'],
+      'input'    : [],
       'output'   : [],
     }
     
     ExtractHandler.__init__(self, interface, self.metadata_struct,
-                                 join(interface.METADATA_DIR, 'installer-logos.md'))
-
+                            join(interface.METADATA_DIR, 'installer-logos.md'))
+    
   def check(self):
     self.locals = locals_imerge(L_INSTALLER_LOGOS, self.interface.cvars['anaconda-version'])
     self.format = self.locals.get('//splash-image/format/text()')
-    self.splash = join(self.software_store, 'isolinux', 'splash.%s' %self.format)
     return ExtractHandler.check(self)
   
   def run(self):
@@ -79,12 +79,12 @@ class InstallerLogosHook(ExtractHandler):
     output = self.copy_pixmaps()
 
     # create the splash image
-    self.generate_splash()
-    output.append(self.splash)
+    output.append(self.generate_splash())
     
     return output
   
   def generate_splash(self):
+    splash = join(self.software_store, 'isolinux', 'splash.%s' %self.format)
     # convert the syslinux-splash.png to splash.lss and copy it
     # to the isolinux/ folder
     splash_pngs = find(self.working_dir, 'syslinux-splash.png')
@@ -93,10 +93,11 @@ class InstallerLogosHook(ExtractHandler):
     
     splash_png = splash_pngs[0]
     if self.format == 'jpg':
-      Image.open(splash_png).save(self.splash)
+      Image.open(splash_png).save(splash)
     else:
       shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
-                    %(splash_png, self.splash,))
+                    %(splash_png, splash,))
+    return splash
 
   def copy_pixmaps(self):
     """ 
@@ -123,21 +124,22 @@ class InstallerLogosHook(ExtractHandler):
     return pixmaps
 
   def apply(self):
-    if not exists(self.splash):
-      raise RuntimeError("missing file: '%s'" %(self.splash))
-    if not self.valid_splash():
-      raise RuntimeError("%s is not a valid %s file" %(self.splash, self.format))
-    self.interface.cvars['installer-splash'] = self.splash
+    splash = join(self.software_store, 'isolinux', 'splash.%s' %self.format)
+    if not exists(splash):
+      raise RuntimeError("missing file: '%s'" %(splash))
+    if not self.valid_splash(splash):
+      raise RuntimeError("%s is not a valid %s file" %(splash, self.format))
+    self.interface.cvars['installer-splash'] = splash
 
-  def valid_splash(self):
+  def valid_splash(self, splash):
     if self.format == 'jpg':
-      return magic_match(self.splash) == FILE_TYPE_JPG
+      return magic_match(splash) == FILE_TYPE_JPG
     else:
-      return magic_match(self.splash) == FILE_TYPE_LSS
+      return magic_match(splash) == FILE_TYPE_LSS
       
   def find_rpms(self):
     pkgname = self.config.get('//installer/logos/package/text()',
-                              '%s-logos' %(self.interface.product,))
+                              '%s-logos' %(self.interface.product,))    
     rpms = find(self.interface.cvars['rpms-directory'], name='%s-*-*' %(pkgname,),
                 nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
     if len(rpms) == 0:

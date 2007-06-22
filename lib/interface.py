@@ -163,9 +163,9 @@ class DiffMixin:
 
 
 class RepoContentMixin:
-  def __init__(self):
+  def __init__(self, mdstores=None):
     # self.interface must already be defined for this to work
-    self.mdstores = join(self.interface.METADATA_DIR, 'stores')
+    self.mdstores = mdstores or join(self.interface.METADATA_DIR, 'stores')
     
     self.parser = xml.sax.make_parser()
     self.handler = PrimaryXmlContentHandler()

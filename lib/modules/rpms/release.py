@@ -21,6 +21,7 @@ EVENTS = [
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'parent': 'RPMS',
+    'requires': ['source-vars'],
   },    
 ]
 
@@ -28,7 +29,7 @@ HOOK_MAPPING = {
   'ReleaseRpmHook': 'release-rpm',
 }
 
-API_VERSION = 4.0
+API_VERSION = 4.1
 
 #---------- HANDLERS -------------#
 class ReleaseRpmHook(RpmsHandler, ColorMixin):

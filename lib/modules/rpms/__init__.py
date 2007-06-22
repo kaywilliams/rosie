@@ -5,8 +5,10 @@ from dims.osutils import find, mkdir, rm
 
 import dims.listcompare as listcompare
 
-from event    import EVENT_TYPE_META
-from main     import BOOLEANS_TRUE
+from event     import EVENT_TYPE_META
+from interface import RepoContentMixin
+from main      import BOOLEANS_TRUE
+
 from rpms.lib import RpmsInterface
 
 API_VERSION = 4.0
@@ -29,13 +31,13 @@ MODULES = [
 ]
 
 STORE_XML = ''' 
-<store id="dimsbuild-local">
+<store id="localrepo">
   <path>file://%s</path>
 </store>
 '''
 
 SOURCE_XML = ''' 
-<store id="dimsbuild-local-srpms">
+<store id="localrepo-srpms">
   <path>file://%s</path>
 </store>
 '''
@@ -69,30 +71,35 @@ class LocalSrpmsHook:
       store = join(self.interface.METADATA_DIR, 'localrepo/SRPMS/')
       self.interface.add_store(SOURCE_XML % store)
 
-class RpmsHook:
+class RpmsHook(RepoContentMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'rpms.__init__.RPMS'
     self.interface = interface
 
-  def post(self):    
-    pkgsfile = join(self.interface.METADATA_DIR, 'dimsbuild-local.pkgs')    
-    old = filereader.read(pkgsfile)
-    
-    current = find(location=self.interface.LOCAL_REPO, name='*[Rr][Pp][Mm]', prefix=False)
-    l,r,_ = listcompare.compare(old, current)
-    
-    if l or r:
-      self.interface.createrepo()
-      self.interface.cvars['input-store-changed'] = True
-      
-      # HACK ALERT: need to the remove the .depsolve/dimsbuild-local folder so
-      # that depsolver picks up the new RPM.
-      rm(join(self.interface.METADATA_DIR, '.depsolve/dimsbuild-local'),
+    RepoContentMixin.__init__(self, mdstores=self.interface.METADATA_DIR)
+
+  def post(self):
+    changed = False
+
+    if not exists(join(self.mdstores, 'repodata')):
+      self.interface.createrepo()      
+      changed = True
+
+    pkgs = self.getRepoContents('localrepo')
+
+    if not changed and self.compareRepoContents('localrepo', pkgs):
+      self.interface.createrepo()        
+      changed = True
+
+    if changed:
+      # HACK ALERT: need to the remove the .depsolve/localrepo folder so
+      # that depsolver picks up the new RPM.      
+      rm(join(self.interface.METADATA_DIR, '.depsolve/localrepo'),
          recursive=True, force=True)
-    
-      filereader.write(current, pkgsfile)
-      storesinfo = self.interface.cvars['input-store-lists'].update({'dimsbuild-local': current})
+      
+      self.interface.cvars['input-store-changed'] = True
+      self.interface.cvars['input-store-lists'].update({'localrepo': pkgs})
 
 class LocalRepogenHook:
   def __init__(self, interface):
@@ -103,7 +110,7 @@ class LocalRepogenHook:
   def post(self):
     if not self.interface.cvars['repoconfig-file']: return
     lines = filereader.read(self.interface.cvars['repoconfig-file'])
-    lines.append('[dimsbuild-local]')
-    lines.append('name = dimsbuild-local')
+    lines.append('[localrepo]')
+    lines.append('name = localrepo')
     lines.append('baseurl = file://%s' % join(self.interface.METADATA_DIR, 'localrepo/'))
     filereader.write(lines, self.interface.cvars['repoconfig-file'])

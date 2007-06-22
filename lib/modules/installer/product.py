@@ -244,4 +244,44 @@ class InstallClass(BaseInstallClass):
   def __init__(self, expert):
     BaseInstallClass.__init__(self, expert)
 '''
+,
+  '11.2.0.66-1':
+'''
+from installclass import BaseInstallClass
+from rhpl.translate import N_
+from constants import *
+
+import logging
+log = logging.getLogger("anaconda")
+
+class InstallClass(BaseInstallClass):
+  id = "custom"
+  name = N_("_Custom")
+  pixmap = "custom.png"
+  description = N_("Select the software you would like to install on your system.")
+  sortPriority = 10000
+  showLoginChoice = 1
+  showMinimal = 1
+
+  tasks = [("Default", %s), ("Everything", %s)]
+
+  def setInstallData(self, anaconda):
+    BaseInstallClass.setInstallData(self, anaconda)
+    BaseInstallClass.setDefaultPartitioning(self, anaconda.id.partitions, CLEARPART_TYPE_LINUX)
+
+  def setGroupSelection(self, anaconda):
+    grps = anaconda.backend.getDefaultGroups(anaconda)
+    log.info(grps)
+    map(lambda x: anaconda.backend.selectGroup(x), grps)
+
+  def getBackend(self, methodstr):
+    if methodstr.startswith("livecd://"):
+      import livecd
+      return livecd.LiveCDCopyBackend
+    import yuminstall
+    return yuminstall.YumBackend
+
+  def __init__(self, expert):
+    BaseInstallClass.__init__(self, expert)
+'''  
 }

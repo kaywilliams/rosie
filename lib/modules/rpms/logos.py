@@ -11,7 +11,7 @@ import dims.shlib   as shlib
 import dims.xmltree as xmltree
 
 from event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from main  import BOOLEANS_TRUE
+from main  import BOOLEANS_TRUE, locals_imerge
 
 from rpms.lib import ColorMixin, RpmsHandler, RpmsInterface
 
@@ -29,6 +29,7 @@ EVENTS = [
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'parent': 'RPMS',
+    'requires': ['source-vars'],
   },
 ]
 
@@ -37,14 +38,7 @@ HOOK_MAPPING = {
   'ValidateHook': 'validate',
 }
 
-API_VERSION = 4.0
-
-def locals_imerge(string, ver='0'):
-  tree = xmltree.read(StringIO(string))
-  locals = xmltree.Element('locals')
-  for child in tree.getroot().getchildren():
-    locals.append(imerge.incremental_merge(child, ver))
-  return locals
+API_VERSION = 4.1
 
 
 #---------- HOOKS -------------#
@@ -87,7 +81,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
                                    '%s.pkgs' %(self.interface.getBaseStore(),)))
     
     expand = (self.product,)*8
-    self.imageslocal = locals_imerge(L_LOGOS %expand)
+    self.imageslocal = locals_imerge(L_LOGOS %expand, '0')
     
     # set the font to use
     available_fonts = find(join(self.sharepath, 'fonts'), name='*.ttf')

@@ -51,7 +51,7 @@ class ValidateInterface(EventInterface):
       except etree.RelaxNGParseError, e:
         why = e.error_log.last_error.message
         if schemafile is not None:
-          raise InvalidSchemaError("'%s': %s" %(schemafile, why))
+          raise InvalidSchemaError("%s: %s" %(schemafile, why))
         else:
           raise InvalidSchemaError(why)
         

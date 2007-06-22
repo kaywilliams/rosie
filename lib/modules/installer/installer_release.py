@@ -3,7 +3,7 @@ from os.path import exists, isdir, isfile, join
 from dims.osutils import basename, find, mkdir, rm
 from dims.sync    import sync
 
-from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from interface import EventInterface
 from main      import BOOLEANS_TRUE
 
@@ -44,6 +44,7 @@ class InstallerReleaseHook(ExtractHandler):
 
     self.metadata_struct = {
       'config': ['//installer/release-files'],
+      'input' : [],
       'output': [],
     }
     
@@ -80,15 +81,18 @@ class InstallerReleaseHook(ExtractHandler):
                                 ['%s-release' %(self.interface.product,)])
     rpms = []
     for rpmname in rpmnames:
-      release_rpms = find(self.interface.cvars['rpms-directory'], name='%s-*-*' %(rpmname,),
-                          nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
-      rpms.extend(release_rpms)
+      for rpm in find(self.interface.cvars['rpms-directory'], name='%s-*-*' %(rpmname,),
+                      nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]'):
+        if rpm not in rpms:
+          rpms.append(rpm)
+
     if len(rpms) == 0:
       for glob in ['*-release-*-[a-zA-Z0-9]*.[Rr][Pp][Mm]',
                    '*-release-notes-*-*']:
-        release_rpms = find(self.interface.cvars['rpms-directory'], name=glob,
-                            nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
-        rpms.extend(release_rpms)
+        for rpm in find(self.interface.cvars['rpms-directory'], name=glob,
+                        nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]'):
+          if rpm not in rpms:
+            rpms.append(rpm)
         if len(rpms) == 0:
           raise RpmNotFoundError("missing release RPM(s)")
     return rpms    
