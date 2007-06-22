@@ -45,12 +45,12 @@ class IsolinuxHook(ImageModifyMixin, FileDownloadMixin):
     self.interface = interface
     
     self.isolinux_dir = join(self.interface.SOFTWARE_STORE, 'isolinux')
-    
+
     self.DATA = {
       'config':    ['/distro/main/product/text()',
                     '/distro/main/version/text()',
                     '/distro/main/fullname/text()',
-                    '/distro/installer/initrd.img/path/text()'],
+                    '/distro/installer/initrd.img/path'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [interface.config.xpath('/distro/installer/initrd.img/path/text()', [])],
     }
@@ -63,18 +63,25 @@ class IsolinuxHook(ImageModifyMixin, FileDownloadMixin):
       self.close()
     except:
       pass
+
+  def force(self):
+    print self.isolinux_dir
+    osutils.rm(self.isolinux_dir, recursive=True, force=True)
   
   def check(self):
     self.register_file_locals(L_FILES)
     self.register_image_locals(L_IMAGES)
-    
+
     self.DATA['output'] = [ join(f.get('path/text()'), f.get('@id')) for f in \
                             self.f_locals.xpath('//file') ]
     
-    return self.interface.isForced('isolinux') or \
-           not self.validate_image() or \
-           self.test_diffs()
-  
+    if self.test_diffs():
+      self.force()
+      return True
+    else:    
+      return False
+
+
   def run(self):
     self.interface.log(0, "synchronizing isolinux files")
     i,_,_,d,_,_ = self.interface.getStoreInfo(self.interface.getBaseStore())
