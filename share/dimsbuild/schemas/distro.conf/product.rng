@@ -13,9 +13,11 @@
           </refentry>
 
           <!--ELEMENT CONTENTS -->
-          <element name="path"><text/></element>
+          <ref name="element-path"/>
         </element>
       </optional>
     </element>
   </start>
+  
+  <include href="lib.rng"/>
 </grammar>

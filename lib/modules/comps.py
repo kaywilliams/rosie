@@ -12,8 +12,9 @@ from dims.CacheManager import CacheManagerError
 from dims.configlib    import ConfigError, uElement
 
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
+from interface import DiffMixin
 from main      import uElement
-from event import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
+from event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
 
 API_VERSION = 4.0
 
@@ -79,7 +80,7 @@ class ApplyoptHook:
     if self.interface.options.with_comps is not None:
       self.interface.cvars['with-comps'] = self.interface.options.with_comps
 
-class CompsHook:
+class CompsHook(DiffMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'comps.comps'
@@ -91,6 +92,14 @@ class CompsHook:
     
     self.comps = xmltree.Element('comps')
     self.header = HEADER_FORMAT % ('1.0', 'UTF-8')
+    
+    self.DATA = {
+      'config': ['//comps'],
+      'output': [self.s_compsfile],
+    }
+    self.mdfile = join(self.interface.METADATA_DIR, 'comps.md')
+    
+    DiffMixin.__init__(self, self.mdfile, self.DATA)
   
   def force(self):
     osutils.rm(self.s_compsfile, force=True)
@@ -102,7 +111,8 @@ class CompsHook:
     return self.interface.isForced('comps') or \
            self.interface.cvars['with-comps'] or \
            self.interface.cvars['input-store-changed'] or \
-           (not exists(self.s_compsfile) and not self.interface.cvars['comps-file'])
+           (not exists(self.s_compsfile) and not self.interface.cvars['comps-file']) or \
+           self.test_diffs()
   
 
   def run(self):
@@ -156,6 +166,8 @@ class CompsHook:
     # set required packages
     reqpkgs = xmltree.read(self.interface.cvars['comps-file']).xpath('//packagereq/text()')
     self.interface.cvars['required-packages'] = reqpkgs
+    
+    self.write_metadata()
   
   #------ COMPS FILE GENERATION FUNCTIONS ------#
   def generate_comps(self):
@@ -217,6 +229,7 @@ class CompsHook:
       while i < j:
         groupid = unmapped[i]
         if groupid in processed:
+          unmapped.pop(i)
           i += 1; continue
         try:
           group = tree.get('//group[id/text()="%s"]' % groupid)
@@ -232,7 +245,7 @@ class CompsHook:
     
     # if any unmapped group wasn't processed, raise an exception
     if len(unmapped) > 0:
-      raise ConfigError, "Unable to resolve all groups in available stores: missing %s" % unmapped['unmapped']
+      raise ConfigError, "Unable to resolve all groups in available stores: missing %s" % unmapped
     
     # check to make sure a 'kernel' pacakge or equivalent exists - kinda icky
     allpkgs = self.comps.get('//packagereq/text()')

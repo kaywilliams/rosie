@@ -6,7 +6,7 @@
         <element name="release-files">
           <optional>
             <attribute name="use-default-set">
-              <ref name="dimsbuild-boolean"/>
+              <ref name="value-boolean"/>
             </attribute>
           </optional>          
           <interleave>

@@ -30,13 +30,7 @@
           <element name="version"><text/></element>
           <element name="fullname"><text/></element>
           <optional>
-            <element name="arch">
-              <choice>
-                <value type="string">i586</value>
-                <value type="string">i686</value>
-                <value type="string">x86_64</value>
-              </choice>
-            </element>
+            <ref name="element-arch"/>
           </optional>
           <optional>
             <element name="publishpath">
@@ -56,10 +50,46 @@
           <optional>    
             <element name="distro-provider"><text/></element>
           </optional>
+          <optional>
+            <ref name="element-modules"/>
+          </optional>
+          <optional>
+            <ref name="element-plugins"/>
+          </optional>
         </interleave>
       </element>
     </element>
   </start>
+  
+  <include href="lib.rng"/>
+  
+  <define name="element-arch">
+    <element name="arch">
+      <choice>
+        <value type="string">i586</value>
+        <value type="string">i686</value>
+        <value type="string">x86_64</value>
+      </choice>
+    </element>
+  </define>
+
+  <define name="element-modules">
+    <oneOrMore>
+      <element name="module">
+        <attribute name="enabled">
+          <ref name="value-boolean"/>
+        </attribute>
+      </element>
+    </oneOrMore>
+  </define>
+  
+  <define name="element-plugins">
+    <oneOrMore>
+      <element name="plugin">
+        <attribute name="enabled">
+          <ref name="value-boolean"/>
+        </attribute>
+      </element>
+    </oneOrMore>
+  </define>
 </grammar>
-
-

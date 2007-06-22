@@ -15,18 +15,27 @@
 
           <!-- ELEMENT CONTENTS -->
           <interleave>
-            <oneOrMore>
-              <element name="set">
-                <attribute name="size">
-                  <data type="string">
-                    <param name="pattern">650[mM]|700[mM]|4.7[gG]|8.5[gG]|[cC][dD]|[dD][vV][dD]</param>
-                  </data> 
-                </attribute>
-              </element>
-            </oneOrMore>
+            <ref name="element-create"/>
+            <ref name="element-sets"/>
           </interleave>
         </element>
       </optional>
     </element>
   </start>
+  
+  <include href="lib.rng"/>
+  
+  <define name="element-create">
+    <element name="create">
+      <ref name="value-boolean"/>
+    </element>
+  </define>
+  
+  <define name="element-sets">
+    <element name="sets">
+      <oneOrMore>
+        <element name="set"><text/></element>
+      </oneOrMore>
+    </element>
+  </define>  
 </grammar>

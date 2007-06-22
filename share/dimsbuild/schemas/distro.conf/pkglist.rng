@@ -15,10 +15,12 @@
           
           <!-- ELEMENT CONTENTS -->
           <optional>
-            <element name="path"><text/></element>
+            <ref name="element-path"/>
           </optional>
         </element>
       </optional>
     </element>
   </start>
+  
+  <include href="lib.rng"/>
 </grammar>

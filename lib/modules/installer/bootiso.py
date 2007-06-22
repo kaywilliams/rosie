@@ -35,18 +35,6 @@ HOOK_MAPPING = {
   'BootisoHook':  'bootiso',
 }
 
-ISOLINUX_OUTPUT_FILES = [
-  'isolinux/boot.msg',
-  'isolinux/general.msg',
-  'isolinux/initrd.img',
-  'isolinux/isolinux.bin',
-  'isolinux/isolinux.cfg',
-  'isolinux/memtest',
-  'isolinux/options.msg',
-  'isolinux/param.msg',
-  'isolinux/rescue.msg',
-  'isolinux/vmlinuz',
-]
 
 #------ HOOKS ------#
 class IsolinuxHook(ImageModifyMixin, FileDownloadMixin):
@@ -65,7 +53,6 @@ class IsolinuxHook(ImageModifyMixin, FileDownloadMixin):
                     '/distro/installer/initrd.img/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [interface.config.xpath('/distro/installer/initrd.img/path/text()', [])],
-      'output':    [join(interface.SOFTWARE_STORE, x) for x in ISOLINUX_OUTPUT_FILES]
     }
     
     ImageModifyMixin.__init__(self, 'initrd.img', interface, self.DATA)
@@ -80,6 +67,9 @@ class IsolinuxHook(ImageModifyMixin, FileDownloadMixin):
   def check(self):
     self.register_file_locals(L_FILES)
     self.register_image_locals(L_IMAGES)
+    
+    self.DATA['output'] = [ join(f.get('path/text()'), f.get('@id')) for f in \
+                            self.f_locals.xpath('//file') ]
     
     return self.interface.isForced('isolinux') or \
            not self.validate_image() or \
@@ -100,7 +90,7 @@ class IsolinuxHook(ImageModifyMixin, FileDownloadMixin):
     self.interface.cvars['isolinux-changed'] = True
   
   def apply(self):
-    for file in ISOLINUX_OUTPUT_FILES:
+    for file in self.DATA['output']:
       if not exists(join(self.interface.SOFTWARE_STORE, file)):
         raise RuntimeError, "Unable to find '%s' at '%s'" % (file, join(self.interface.SOFTWARE_STORE))
   
@@ -183,6 +173,16 @@ L_FILES = '''
       <file id="vmlinuz">
         <path>isolinux</path>
       </file>
+    </files>
+    
+    <!-- 11.2.0.66-1 - memtest removed, vesamenu.c32 added -->
+    <files version="11.2.0.66-1">
+      <action type="delete" path="file[@id='memtest']"/>
+      <action type="insert" path=".">
+        <file id="vesamenu.c32">
+          <path>isolinux</path>
+        </file>
+      </action>
     </files>
   </files-entries>
 </locals>

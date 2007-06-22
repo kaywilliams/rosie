@@ -13,25 +13,37 @@
         
         <!-- ELEMENT CONTENTS -->
         <optional>
-          <element name="exclude">
-            <oneOrMore>
-              <element name="package"><text/></element>
-            </oneOrMore>
-          </element>
+          <ref name="element-exclude"/>
         </optional>      
-        <element name="base">
-          <ref name="store-element"/>
-        </element>      
+        <ref name="element-base"/>
         <optional>
-          <element name="additional">
-            <oneOrMore>
-              <ref name="store-element"/>
-            </oneOrMore>
-          </element>
+          <ref name="element-additional"/>
         </optional>
       </element>
     </element>
   </start>
-
-  <include href="lib.rng"/> 
+  
+  <include href="lib.rng"/>
+  
+  <define name="element-exclude">
+    <element name="exclude">
+      <oneOrMore>
+        <element name="package"><text/></element>
+      </oneOrMore>
+    </element>
+  </define>
+  
+  <define name="element-base">
+    <element name="base">
+      <ref name="element-store"/>
+    </element>
+  </define>
+  
+  <define name="element-additional">
+    <element name="additional">
+      <oneOrMore>
+        <ref name="element-store"/>
+      </oneOrMore>
+    </element>
+  </define>
 </grammar>

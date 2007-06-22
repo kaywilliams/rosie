@@ -14,67 +14,77 @@
           </refentry>
 
           <!-- ELEMENT CONTENTS -->
-          <interleave>
-            <optional>
-              <element name="create-new">
-                <element name="groups">
-                  <oneOrMore>
-                    <element name="group">
-                      <optional>
-                        <attribute name="storeid"/>
-                      </optional>
-                      <optional>
-                        <attribute name="default">
-                          <ref name="dimsbuild-boolean"/>
-                        </attribute>
-                      </optional>
-                      <text/>
-                    </element>
-                  </oneOrMore>
-                </element>
-       
-                <optional>
-                  <element name="include">
-                    <oneOrMore>
-                      <element name="package">
-                        <optional>
-                          <attribute name="type">
-                             <choice>
-                              <value type="string">conditional</value>
-                              <value type="string">default</value>
-                              <value type="string">optional</value>
-                              <value type="string">mandatory</value>
-                            </choice>
-                          </attribute>
-                        </optional>
-                        <optional><attribute name="requires"/></optional>
-                        <text/>
-                      </element>
-                    </oneOrMore>
-                  </element>
-                </optional>                
-
-                <optional>
-                  <element name="exclude">
-                    <oneOrMore>
-                      <element name="package"><text/></element>
-                    </oneOrMore>
-                  </element>
-                </optional>                
-              </element>
-            </optional>
-
-            <optional>
-              <element name="use-existing">
-                <element name="path"><text/></element>
-              </element>
-            </optional>
-          </interleave>
+          <choice>
+            <ref name="element-create-new"/>
+            <ref name="element-use-existing"/>
+          </choice>
         </element>
       </optional>
     </element>
   </start>
-
+  
   <include href="lib.rng"/>
-
+  
+  <define name="element-create-new">
+    <element name="create-new">
+      <interleave>
+        <element name="groups">
+          <oneOrMore>
+            <ref name="element-group"/>
+          </oneOrMore>
+        </element>
+        <optional>
+          <element name="include">
+            <oneOrMore>
+              <ref name="element-package"/>
+            </oneOrMore>
+          </element>
+        </optional>
+        <optional>
+          <element name="exclude">
+            <oneOrMore>
+              <element name="package"><text/></element>
+            </oneOrMore>
+          </element>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+  
+  <define name="element-group">
+    <element name="group">
+      <optional>
+        <attribute name="storeid"/>
+      </optional>
+      <optional>
+        <attribute name="default">
+          <ref name="value-boolean"/>
+        </attribute>
+      </optional>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element-package">
+    <element name="package">
+      <optional>
+        <attribute name="type">
+          <choice>
+            <value type="string">conditional</value>
+            <value type="string">default</value>
+            <value type="string">optional</value>
+            <value type="string">mandatory</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional><attribute name="requires"/></optional>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element-use-existing">
+    <element name="use-existing">
+      <element name="path"><text/></element>
+    </element>
+  </define>
 </grammar>

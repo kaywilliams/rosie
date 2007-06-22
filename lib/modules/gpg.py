@@ -135,8 +135,9 @@ class GpgsignHook(DiffMixin):
       for rpm,_ in (self.interface.cvars['new-rpms'] or []) + \
                    (self.interface.cvars['gpg-tosign'] or []):
         self.interface.sign_rpm(rpm)
-      
-      self.write_metadata()
+  
+  def apply(self):
+    self.write_metadata()
   
 
 class ValidateHook:

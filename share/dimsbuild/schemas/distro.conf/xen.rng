@@ -13,9 +13,20 @@
     <element name="distro">
       <optional>
         <element name="initrd.img">
-          <element name="path"><text/></element>
+          <oneOrMore>
+            <ref name="element-path"/>
+          </oneOrMore>
         </element>
       </optional>
     </element>
   </start>
+  
+  <define name="element-path">
+    <element name="path">
+      <optional>
+        <attribute name="dest"/>
+      </optional>
+      <text/>
+    </element>
+  </define>
 </grammar>

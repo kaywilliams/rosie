@@ -186,11 +186,13 @@ class IsoHook(DiffMixin):
   
   def check(self):
     if self.interface.config.get('//iso/create/text()', 'False') in BOOLEANS_TRUE:
-      return self.test_diffs()
+      if self.test_diffs():
+        self.force()
+        return True
     else:
       # clean up old output and metadata
       self.force()
-      return False
+    return False
   
   def run(self):
     self.interface.log(0, "generating iso image(s)")

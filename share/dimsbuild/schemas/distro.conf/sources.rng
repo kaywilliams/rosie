@@ -14,39 +14,31 @@
       <!-- ELEMENT CONTENTS -->
       <optional>        
         <element name="source">
-          <choice>
-            <group>
-              <element name="include">
-                <ref name="boolean-false"/>
-              </element>
-              <optional>
-                <ref name="stores-element"/>
-              </optional>
-            </group>
-            <group>
-              <element name="include">
-                <ref name="boolean-true"/>
-              </element>
-              <ref name="stores-element"/>
-            </group>
-          </choice>
+          <interleave>
+            <ref name="element-include"/>
+            <optional>
+              <ref name="element-stores"/>
+            </optional>
+          </interleave>
         </element>
       </optional>
     </element>
   </start>
 
   <include href="lib.rng"/>
-
-  <!-- REMOVE THE FOLLOWING: once the stores.rng and sources.rng have a similar
-       stores-element definition -->
-  <define name="stores-element">
+  
+  <define name="element-include">
+    <element name="include">
+      <ref name="value-boolean"/>
+    </element>
+  </define>
+  
+  <define name="element-stores">
     <element name="stores">
       <oneOrMore>
-        <element name="store">
-          <attribute name="id"/>
-          <element name="path"><text/></element>
-        </element>
+        <ref name="element-store"/>
       </oneOrMore>
     </element>
   </define>
+  
 </grammar>

@@ -2,19 +2,20 @@ import re
 
 from os.path            import join, isfile, exists
 from StringIO           import StringIO
-from urlgrabber.grabber import URLGrabError
+from urlgrabber.grabber import URLGrabError #!
 from urlparse           import urlparse
 
 from dims import filereader
 from dims import listcompare
 from dims import osutils
-from dims import spider
+from dims import spider #!
+from dims import sync
 from dims import xmltree
 
 from dims.configlib import uElement
 
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from interface import EventInterface
+from interface import EventInterface, DiffMixin, RepoContentMixin
 
 API_VERSION = 4.0
 
@@ -28,7 +29,7 @@ EVENTS = [
 ]
 
 HOOK_MAPPING = {
-  'StoresHook': 'stores',
+  'StoresHook':   'stores',
   'ValidateHook': 'validate',
 }
 
@@ -44,6 +45,9 @@ class StoresInterface(EventInterface):
     server = '://'.join((s,n))
     if server not in self._base.cachemanager.SOURCES:
       self._base.cachemanager.SOURCES.append(server)
+  
+  def getAllStoreIDs(self):
+    return self.config.xpath('//stores/*/store/@id')
 
 
 #------ HOOKS ------#
@@ -56,82 +60,102 @@ class ValidateHook:
   def run(self):
     self.interface.validate('//stores', schemafile='stores.rng')
     
-class StoresHook:
+
+class StoresHook(DiffMixin, RepoContentMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'stores.stores'
     
     self.interface = interface
-  
+    
+    self.mdstores = join(self.interface.METADATA_DIR, 'stores')
+    
+    self.DATA = {
+      'config': ['//stores/*/store'],
+      'input':  [], # to be filled later
+      'output': [], # to be filled later
+    }
+    self.mdfile = join(self.interface.METADATA_DIR, 'stores.md')
+    
+    DiffMixin.__init__(self, self.mdfile, self.DATA)
+    RepoContentMixin.__init__(self)
+    
   def force(self):
-    for file in osutils.find(self.interface.METADATA_DIR, name='*.pkgs', maxdepth=1):
+    for file in [ join(self.mdfile, storeid) for storeid in \
+                  self.interface.getAllStoreIDs() ]:
       osutils.rm(file, force=True)
   
-  def run(self):
-    """Check input stores to see if their contents have changed by comparing them
-    to the corresponding <store>.pkgs file in interface.METADATA_DIR"""
-   
+  def pre(self):
     self.interface.log(0, "generating filelists for input stores")
-    changed = False
+    osutils.mkdir(self.mdstores, parent=True)
+    
+    # sync all repodata folders to builddata
+    self.interface.log(1, "synchronizing repository metadata")
+    for storeid in self.interface.getAllStoreIDs():
+      i,s,n,d,u,p = self.interface.getStoreInfo(storeid)
+      
+      self.interface.log(2, storeid)
+      osutils.mkdir(join(self.mdstores, storeid, 'repodata'), parent=True)
+      
+      # hack hack hack - file sync and http sync behave differently in
+      # directory to directory synching :( - FIX ME!
+      src  = self.interface.storeInfoJoin(s,n,join(d, 'repodata/'))
+      if s == 'file':
+        dest = join(self.mdstores, storeid)
+      else:
+        dest = join(self.mdstores, storeid, 'repodata')
+      sync.sync(src, dest, username=u, password=p)
+      
+      self.DATA['input'].append(join(self.mdstores, storeid, 'repodata'))
+      self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % storeid))
+  
+  def check(self):
+    self.interface.cvars['input-store-changed'] = self.interface.isForced('stores') or \
+                                                  self.test_diffs()
+    return self.interface.cvars['input-store-changed']
+  
+  def run(self):
+    self.interface.log(1, "computing store contents")
     
     storelists = {}
+    changed = False
     
-    for store in self.interface.config.xpath('//stores/*/store/@id'):
-      self.interface.log(1, store)
-      i,s,n,d,u,p = self.interface.getStoreInfo(store)
+    # generate store lists
+    for storeid in self.interface.getAllStoreIDs():
+      self.interface.log(2, storeid)
       
-      base = self.interface.storeInfoJoin(s or 'file', n, d)
-      
-      # get the list of .rpms in the input store
-      try:
-        pkgs = spider.find(base, glob='*.[Rr][Pp][Mm]', nglob='repodata', prefix=False,
-                           username=u, password=p)
-      except URLGrabError, e:
-        print e
-        raise StoreNotFoundError, "The specified store '%s' at url '%s' does not appear to exist" % (store, base)
-      
-      oldpkgsfile = join(self.interface.METADATA_DIR, '%s.pkgs' % store)
-      if isfile(oldpkgsfile):
-        oldpkgs = filereader.read(oldpkgsfile)
-      else:
-        oldpkgs = []
-      
-      # test if content of input store changed
-      old,new,_ = listcompare.compare(oldpkgs, pkgs)
-      
-      # save input store content list to storelists
-      storelists[store] = pkgs
-      
-      # if content changed, write new contents to file
-      if len(old) > 0 or len(new) > 0 or not exists(oldpkgsfile):
+      pkgs = self.getRepoContents(storeid)
+      if self.compareRepoContents(storeid, pkgs):
         changed = True
-        filereader.write(pkgs, oldpkgsfile)
-      
+      storelists[storeid] = pkgs
+    
     self.interface.cvars['input-store-changed'] = changed
-    self.interface.cvars['input-store-lists'] = storelists
-  
+    self.interface.cvars['input-store-lists']   = storelists
+
   def apply(self):
     if not self.interface.cvars['input-store-lists']:
       storelists = {}
       
-      storefiles = osutils.find(self.interface.METADATA_DIR, name='*.pkgs', maxdepth=1)
-      if len(storefiles) == 0:
-        raise RuntimeError, "Unable to find any store files in metadata directory"
-      for file in storefiles:
-        storeid = osutils.basename(file.replace('.pkgs', '')) # potential problem if store has .pkgs in name
-        storelists[storeid] = filereader.read(file)
+      for storeid in self.interface.getAllStoreIDs():
+        storefile = join(self.interface.METADATA_DIR, '%s.pkgs' % storeid)
+        if not exists(storefile):
+          raise RuntimeError, "Unable to find store file '%s'" % storefile
+        storelists[storeid] = filereader.read(storefile)
             
       self.interface.cvars['input-store-lists'] = storelists
-      # if we're skipping stores, assume store lists didn't change; otherwise,
-      # assume they did
-      if self.interface.isSkipped('stores'):
-        self.interface.cvars['input-store-changed'] = False
+    
+    # if we're skipping stores, assume store lists didn't change; otherwise,
+    # assume they did
+    if self.interface.isSkipped('stores'):
+      self.interface.cvars['input-store-changed'] = False
     
     if not self.interface.cvars['anaconda-version']:
       anaconda_version = \
         get_anaconda_version(join(self.interface.METADATA_DIR,
                                   '%s.pkgs' % self.interface.getBaseStore()))
       self.interface.cvars['anaconda-version'] = anaconda_version
+    
+    self.write_metadata()
     
 
 #------ HELPER FUNCTIONS ------#

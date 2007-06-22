@@ -127,6 +127,7 @@ class Build:
     self.cvars['base-vars']['pva'] = '%s-%s-%s' % (self.cvars['base-vars']['product'],
                                                    self.cvars['base-vars']['version'],
                                                    self.cvars['base-vars']['basearch'])
+    self.cvars['base-vars']['productpath'] = self.cvars['base-vars']['product']
     
     # set up other directories
     self.DISTRO_DIR = join(self.CACHE_DIR, self.cvars['base-vars']['pva'])

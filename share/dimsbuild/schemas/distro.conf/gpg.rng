@@ -16,7 +16,7 @@
           <!-- ELEMENT CONTENTS -->
           <interleave>
             <element name="sign">
-              <ref name="dimsbuild-boolean"/>
+              <ref name="value-boolean"/>
             </element>
             <element name="public"><text/></element>
             <element name="secret"><text/></element>

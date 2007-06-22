@@ -12,12 +12,15 @@ import copy
 import os
 import time
 
-from os.path  import join, exists
+from os.path      import join, exists
+from ConfigParser import ConfigParser
 
 from dims import filereader
 from dims import FormattedFile as ffile
 from dims import osutils
 from dims import sync
+
+from dims.sortlib import dcompare
 
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface, DiffMixin
@@ -29,16 +32,23 @@ API_VERSION = 4.0
 EVENTS = [
   {
     'id': 'discinfo',
-    'interface': 'EventInterface',
     'parent': 'INSTALLER',
     'provides': ['.discinfo'],
     'requires': ['anaconda-version'],
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR
+    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
   },
+  {
+    'id': 'treeinfo',
+    'parent': 'INSTALLER',
+    'provides': ['.treeinfo'],
+    'requires': ['anaconda-version'],
+    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
+  }
 ]
 
 HOOK_MAPPING = {
   'DiscinfoHook': 'discinfo',
+  'TreeinfoHook': 'treeinfo',
 }
 
 #------ HOOKS ------#
@@ -89,6 +99,71 @@ class DiscinfoHook(DiffMixin):
   def apply(self):
     if not exists(self.difile):
       raise RuntimeError, "Unable to find .discinfo file at '%s'" % self.difile
+    self.write_metadata()
+
+
+class TreeinfoHook(DiffMixin):
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'installer.discinfo.treeinfo'
+    
+    self.interface = interface
+    self.tifile = join(self.interface.SOFTWARE_STORE, '.treeinfo')
+
+    self.DATA =  {
+      'output': [self.tifile]
+    }
+    self.mdfile = join(self.interface.METADATA_DIR, 'treeinfo.md')
+    
+    DiffMixin.__init__(self, self.mdfile, self.DATA)
+    
+  def force(self):
+    osutils.rm(self.tifile, force=True)
+    osutils.rm(self.mdfile, force=True)
+  
+  def check(self):
+    if dcompare(self.interface.cvars['anaconda-version'], '11.2.0.66-1') < 0:
+      return False
+    return self.test_diffs()
+  
+  def run(self):
+    treeinfo = ConfigParser()
+    
+    # generate treeinfo sections
+    treeinfo.add_section('general')
+    treeinfo.set('general', 'family',     self.interface.product)
+    treeinfo.set('general', 'timestamp',  time.time())
+    treeinfo.set('general', 'variant',    self.interface.product)
+    treeinfo.set('general', 'totaldiscs', '1')
+    treeinfo.set('general', 'version',    self.interface.version)
+    treeinfo.set('general', 'discnum',    '1')
+    treeinfo.set('general', 'packagedir', self.interface.cvars['product-path'])
+    treeinfo.set('general', 'arch',       self.interface.basearch)
+    
+    imgsect = 'images-%s' % self.interface.basearch
+    treeinfo.add_section(imgsect)
+    treeinfo.set(imgsect, 'kernel',       'images/pxeboot/vmlinux')
+    treeinfo.set(imgsect, 'initrd',       'images/pxeboot/initrd.img')
+    treeinfo.set(imgsect, 'boot.iso',     'images/boot.ixo')
+    treeinfo.set(imgsect, 'diskboot.img', 'images/diskboot.img')
+    
+    treeinfo.add_section('images-xen')
+    treeinfo.set('images-xen', 'kernel', 'images/xen/vmlinuz')
+    treeinfo.set('images-xen', 'initrd', 'images/xen/initrd.img')
+    
+    # write .treeinfo
+    if not exists(self.tifile):
+      os.mknod(self.tifile)
+    tiflo = open(self.tifile, 'w')
+    treeinfo.write(tiflo)
+    tiflo.close()
+    os.chmod(self.tifile, 0644)
+  
+  def apply(self):
+    if dcompare(self.interface.cvars['anaconda-version'], '11.2.0.66-1') < 0:
+      return
+    if not exists(self.tifile):
+      raise RuntimeError, "Unable to find .treeinfo file at '%s'" % self.tifile
     self.write_metadata()
 
 #------ LOCALS ------#

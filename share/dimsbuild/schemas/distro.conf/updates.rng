@@ -14,9 +14,11 @@
       <!-- ELEMENT CONTENTS -->
       <optional>
         <element name="updates.img">
-          <element name="path"><text/></element>
+          <ref name="element-path"/>
         </element>
       </optional>
     </element>
   </start>
+  
+  <include href="lib.rng"/>  
 </grammar>

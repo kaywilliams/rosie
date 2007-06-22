@@ -53,7 +53,7 @@ class LocalStoresHook:
     self.ID = 'rpms.__init__.stores'
     self.interface = interface
     
-  def pre(self):
+  def post(self):
     localrepo = join(self.interface.METADATA_DIR, 'localrepo/')
     mkdir(localrepo)
     self.interface.add_store(STORE_XML % localrepo)
@@ -76,24 +76,23 @@ class RpmsHook:
     self.interface = interface
 
   def post(self):    
-    self.interface.createrepo()
     pkgsfile = join(self.interface.METADATA_DIR, 'dimsbuild-local.pkgs')    
     old = filereader.read(pkgsfile)
-
+    
     current = find(location=self.interface.LOCAL_REPO, name='*[Rr][Pp][Mm]', prefix=False)
     l,r,_ = listcompare.compare(old, current)
-
+    
     if l or r:
+      self.interface.createrepo()
       self.interface.cvars['input-store-changed'] = True
-
+      
       # HACK ALERT: need to the remove the .depsolve/dimsbuild-local folder so
       # that depsolver picks up the new RPM.
-      depsolver_cache = join(self.interface.METADATA_DIR, '.depsolve', 'dimsbuild-local')
-      if exists(depsolver_cache):
-        rm(depsolver_cache, recursive=True, force=True)      
-
-    filereader.write(current, pkgsfile)
-    storesinfo = self.interface.cvars['input-store-lists'].update({'dimsbuild-local': current})
+      rm(join(self.interface.METADATA_DIR, '.depsolve/dimsbuild-local'),
+         recursive=True, force=True)
+    
+      filereader.write(current, pkgsfile)
+      storesinfo = self.interface.cvars['input-store-lists'].update({'dimsbuild-local': current})
 
 class LocalRepogenHook:
   def __init__(self, interface):

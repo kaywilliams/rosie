@@ -1,9 +1,11 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0" 
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
-  <define name="store-element">
+  
+  <!-- a store element -->
+  <define name="element-store">
     <element name="store">
+      <attribute name="id"/>
       <interleave>
-        <attribute name="id"/>
         <element name="path"><text/></element>        
         <optional>
           <element name="repodata-path"><text/></element>
@@ -27,51 +29,35 @@
         </optional>
         <optional>
           <element name="gpgcheck">
-            <choice>
-              <value type="string">True</value>
-              <value type="string">False</value>
-              <data type="boolean"/>
-            </choice>
+            <ref name="value-boolean"/>
           </element>
         </optional>
       </interleave>
     </element>
   </define>
 
-  <define name="dimsbuild-boolean">
+  <!-- boolean values -->
+  <define name="value-boolean">
     <choice>
-      <value type="string">True</value>
-      <value type="string">False</value>
-      <value type="string">yes</value>
-      <value type="string">no</value>
-      <data type="boolean"/>
-    </choice>
-  </define>  
-
-  <define name="boolean-true">
-    <choice>
-      <value type="string">True</value>
-      <value type="string">yes</value>
-      <value type="boolean">1</value>
-      <value type="boolean">true</value>
+      <ref name="value-boolean-true"/>
+      <ref name="value-boolean-false"/>
     </choice>
   </define>
-
-  <define name="boolean-false">
-    <choice>
-      <value type="string">False</value>
-      <value type="string">no</value>
-      <value type="boolean">0</value>
-      <value type="boolean">false</value>
-    </choice>
+  
+  <define name="value-boolean-true">
+    <data type="token">
+      <param name="pattern">[Yy]es|[Tt]rue|1</param>
+    </data>
   </define>
-
-  <define name="path-element">
+  
+  <define name="value-boolean-false">
+    <data type="token">
+      <param name="pattern">[Nn]o|[Ff]alse|0</param>
+    </data>
+  </define>
+  
+  <define name="element-path">
     <element name="path"><text/></element>
-  </define>
-
-  <define name="package-element">
-    <element name="package"><text/></element>
   </define>
 
 </grammar>

@@ -7,11 +7,15 @@ __version__ = '3.0'
 __date__    = 'June 5th, 2007'
 
 import re
+import xml.sax
 
+from os.path  import join, isfile, exists
 from urlparse import urlparse, urlunparse
 
 from dims import filereader
 from dims import listcompare
+from dims import osutils
+from dims import shlib
 from dims import sortlib
 from dims import xmltree
 
@@ -156,3 +160,55 @@ class DiffMixin:
   
   def write_metadata(self):
     self.DT.write_metadata()
+
+
+class RepoContentMixin:
+  def __init__(self):
+    # self.interface must already be defined for this to work
+    self.mdstores = join(self.interface.METADATA_DIR, 'stores')
+    
+    self.parser = xml.sax.make_parser()
+    self.handler = PrimaryXmlContentHandler()
+    self.parser.setContentHandler(self.handler)
+  
+  def getRepoContents(self, storeid):
+    pxmlz = join(self.mdstores, storeid, 'repodata/primary.xml.gz')
+    pxml  = join(self.mdstores, storeid, 'repodata/primary.xml')
+    
+    shlib.execute('gunzip -c %s > %s' % (pxmlz, pxml)) # perhaps use python for this
+    
+    self.parser.parse(pxml)
+    osutils.rm(pxml, force=True)
+    
+    pkgs = self.handler.locs
+    pkgs.sort()
+    self.handler.locs = [] # reset locs list
+    
+    return pkgs
+  
+  def compareRepoContents(self, storeid, pkgs):
+    oldpkgsfile = join(self.interface.METADATA_DIR, '%s.pkgs' % storeid)
+    if isfile(oldpkgsfile):
+      oldpkgs = filereader.read(oldpkgsfile)
+    else:
+      oldpkgs = []
+    
+    old,new,_ = listcompare.compare(oldpkgs, pkgs)
+    
+    # if the contents changed, write out new contents to file
+    if old or new or not exists(oldpkgsfile):
+      filereader.write(pkgs, oldpkgsfile)
+      return True
+    
+    return False
+
+
+class PrimaryXmlContentHandler(xml.sax.ContentHandler):
+  def __init__(self):
+    xml.sax.ContentHandler.__init__(self)
+    
+    self.locs = []
+  
+  def startElement(self, name, attrs):
+    if name == 'location':
+      self.locs.append(str(attrs.get('href')))
