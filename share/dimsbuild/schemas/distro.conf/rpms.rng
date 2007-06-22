@@ -11,7 +11,7 @@
 
   <define name="create-element">
     <element name="create">
-      <ref name="dimsbuild-boolean"/>
+      <ref name="value-boolean"/>
     </element>
   </define>
 
@@ -19,11 +19,11 @@
     <element name="obsoletes">
       <optional>
         <attribute name="use-default-set">
-          <ref name="dimsbuild-boolean"/>
+          <ref name="value-boolean"/>
         </attribute>
       </optional>
       <oneOrMore>
-        <ref name="package-element"/>
+        <element name="package"><text/></element>
       </oneOrMore>
     </element>
   </define>

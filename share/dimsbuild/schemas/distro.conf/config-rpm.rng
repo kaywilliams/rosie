@@ -18,13 +18,13 @@
                 <interleave>                  
                   <optional>
                     <element name="script">
-                      <ref name="path-element"/>
+                      <ref name="element-path"/>
                     </element>
                   </optional>                                                
                   <optional>
                     <element name="supporting-files">
                       <zeroOrMore>
-                        <ref name="path-element"/>
+                        <ref name="element-path"/>
                       </zeroOrMore>
                     </element>
                   </optional>                  
@@ -34,14 +34,14 @@
             <optional>
               <element name="requires">
                 <zeroOrMore>
-                  <ref name="package-element"/>
+                  <element name="package"><text/></element>                  
                 </zeroOrMore>                
               </element>
             </optional>
             <optional>
               <element name="obsoletes">
                 <zeroOrMore>
-                  <ref name="package-element"/>
+                  <element name="package"><text/></element>
                 </zeroOrMore>                                
               </element>
             </optional>
