@@ -83,6 +83,10 @@ class SourcevarsHook:
     #Update source_vars
     self.interface.cvars['source-vars'] = sourcevars
 
+    #Cleanup
+    self.image.close()
+    self.image.cleanup()
+
   def error(self, e):
     try:
       self.image.close()
