@@ -97,7 +97,7 @@ class InstallerLogosHook(ExtractHandler):
       cp(startimage, splash)
     else:
       shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
-                    %(splash_png, splash,))
+                    %(startimage, splash,))
     return splash
 
   def copy_pixmaps(self):
