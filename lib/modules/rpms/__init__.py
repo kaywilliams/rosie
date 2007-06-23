@@ -80,19 +80,15 @@ class RpmsHook(RepoContentMixin):
     RepoContentMixin.__init__(self, mdstores=self.interface.METADATA_DIR)
 
   def post(self):
-    changed = False
-
-    if not exists(join(self.mdstores, 'repodata')):
+    createrepo = True
+    if not exists(join(self.mdstores, 'localrepo', 'repodata')):
       self.interface.createrepo()      
-      changed = True
+      createrepo = False
 
     pkgs = self.getRepoContents('localrepo')
-
-    if not changed and self.compareRepoContents('localrepo', pkgs):
-      self.interface.createrepo()        
-      changed = True
-
-    if changed:
+    if self.compareRepoContents('localrepo', pkgs):
+      if createrepo:
+        self.interface.createrepo()        
       # HACK ALERT: need to the remove the .depsolve/localrepo folder so
       # that depsolver picks up the new RPM.      
       rm(join(self.interface.METADATA_DIR, '.depsolve/localrepo'),

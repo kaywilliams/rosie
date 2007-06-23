@@ -29,7 +29,7 @@ EVENTS = [
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'parent': 'RPMS',
-    'requires': ['source-vars'],
+    'requires': ['source-vars', 'anaconda-version'],
   },
 ]
 
@@ -79,14 +79,15 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     
     ColorMixin.__init__(self, join(self.interface.METADATA_DIR,
                                    '%s.pkgs' %(self.interface.getBaseStore(),)))
-    
-    expand = (self.product,)*8
-    self.imageslocal = locals_imerge(L_LOGOS %expand, '0')
-    
+        
     # set the font to use
     available_fonts = find(join(self.sharepath, 'fonts'), name='*.ttf')
     self.fontfile = available_fonts[0]
 
+  def pre(self):
+    expand = (self.product,)*8
+    self.imageslocal = locals_imerge(L_LOGOS %expand, self.interface.cvars['anaconda-version'])
+    
   def run(self):
     self.set_colors()
 
@@ -111,7 +112,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     f.write('setup.cfg\n')
     items = {}
     for logoinfo in self.imageslocal.xpath('//logos/logo', []):
-      i,l,_,_,_,_,_,_,_ = self._get_image_info(logoinfo)
+      i,l,_,_,_,_,_,_,_,_ = self._get_image_info(logoinfo)
 
       file = join(self.output_location, i)
       filename = basename(file)
@@ -146,7 +147,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
   def output_valid(self):
     if self.data.has_key('output'):
       for logoinfo in self.imageslocal.xpath('//logos/logo', []):
-        i,_,w,h,_,_,_,_,_ = self._get_image_info(logoinfo)
+        i,_,w,h,_,_,_,_,_,_ = self._get_image_info(logoinfo)
         file = join(self.output_location, i)
         if file.lower().endswith('xpm'):
           # HACK: Assuming that all the .xpm files are valid. It is a fair
@@ -191,7 +192,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
   def _generate_images(self):
     for logoinfo in self.imageslocal.xpath('//logos/logo', []):
       # (id, _, location, width, height, maxwidth, x, y, gradient, highlight)
-      i,_,l,b,m,x,y,g,h = self._get_image_info(logoinfo)
+      i,_,l,b,m,x,y,g,h,f = self._get_image_info(logoinfo)
       sharedfile = join(self.sharepath, 'logos', i)
       filename = join(self.output_location, i)
       dir = dirname(filename)
@@ -208,9 +209,9 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
           self.log(4, "creating '%s'" %(i,))
           if m and x and y:
             self._generate_image(filename, l, b, text='%s %s ' %(self.fullname, self.version),
-                                 textcood=(x,y), fontsize=52, maxwidth=m, highlight=h, format='png')
+                                 textcood=(x,y), fontsize=52, maxwidth=m, highlight=h, format=f)
           else:
-            self._generate_blank_image(filename, l, b, highlight=h)
+            self._generate_blank_image(filename, l, b, highlight=h, format=f)
       else:
         # The file is a text file that needs to be in the logos rpm.
         # These files are found in the share/ folder. If they are not
@@ -307,7 +308,8 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     texthcenter = logo.get('texthcenter/text()', None)
     gradient = logo.get('gradient/text()', 'False') in BOOLEANS_TRUE
     highlight = logo.get('highlight/text()', 'False') in BOOLEANS_TRUE
-
+    format = logo.get('format/text()', 'png')
+    
     if width:
       width = int(width)
     if height:
@@ -319,7 +321,8 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     if texthcenter:
       texthcenter = int(texthcenter)
 
-    return id, location, width, height, textmaxwidth, texthcenter, textvcenter, gradient, highlight
+    return (id, location, width, height, textmaxwidth,
+            texthcenter, textvcenter, gradient, highlight, format)
 
 
 GDM_GREETER_THEME = '''
@@ -549,6 +552,16 @@ L_LOGOS = '''
       <logo id="gdm/themes/%s/%s.xml">
         <location>/usr/share/gdm/themes/%s/%s.xml</location>
       </logo>
+    </logos>
+    <logos version="11.2.0.66-1">
+      <action type="insert" path=".">
+        <logo id="anaconda/syslinux-vesa-splash.jpg">
+          <location>/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg</location>
+          <width>640</width>
+          <height>480</height>
+          <format>jpeg</format>
+        </logo>
+      </action>
     </logos>
   </logos-entries>
 </locals>

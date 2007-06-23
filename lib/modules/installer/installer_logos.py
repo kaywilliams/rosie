@@ -64,6 +64,7 @@ class InstallerLogosHook(ExtractHandler):
   def check(self):
     self.locals = locals_imerge(L_INSTALLER_LOGOS, self.interface.cvars['anaconda-version'])
     self.format = self.locals.get('//splash-image/format/text()')
+    self.file = self.locals.get('//splash-image/file/text()')
     return ExtractHandler.check(self)
   
   def run(self):
@@ -87,13 +88,13 @@ class InstallerLogosHook(ExtractHandler):
     splash = join(self.software_store, 'isolinux', 'splash.%s' %self.format)
     # convert the syslinux-splash.png to splash.lss and copy it
     # to the isolinux/ folder
-    splash_pngs = find(self.working_dir, 'syslinux-splash.png')
-    if len(splash_pngs) == 0:
-      raise SplashImageNotFound("no syslinux-splash.png found in logos RPM")
-    
-    splash_png = splash_pngs[0]
+    try:
+      startimage = find(self.working_dir, self.file)[0]
+    except IndexError:
+      raise SplashImageNotFound("missing '%s' in logos RPM" %(self.file,))
+
     if self.format == 'jpg':
-      Image.open(splash_png).save(splash)
+      cp(startimage, splash)
     else:
       shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
                     %(splash_png, splash,))
@@ -157,12 +158,14 @@ L_INSTALLER_LOGOS = '''
     <installer-logo version="0">
       <splash-image>
         <format>lss</format>
+        <file>syslinux-splash.png</file>
       </splash-image>
     </installer-logo>
 
     <installer-logo version="11.2.0.66-1">
       <action type="update" path="splash-image">
         <format>jpg</format>
+        <file>syslinux-vesa-splash.jpg</file>
       </action>
     </installer-logo>
 
