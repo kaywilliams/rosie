@@ -22,8 +22,7 @@ from dims import imerge
 from dims import logger
 from dims import osutils
 from dims import xmltree
-from dims.CacheManager import CacheManager
-from dims.sortlib      import dcompare
+from dims.sortlib import dcompare
 
 import event
 import locals
@@ -133,10 +132,6 @@ class Build:
     self.DISTRO_DIR = join(self.CACHE_DIR, self.cvars['base-vars']['pva'])
     self.SOFTWARE_STORE = join(self.DISTRO_DIR, 'os')
     self.METADATA_DIR = join(self.DISTRO_DIR, 'builddata')
-    
-    self.cachemanager = CacheManager(self.__compute_servers(),
-                                     self.INPUT_STORE,
-                                     self.CACHE_MAX_SIZE)
     
     for dir in [self.SOFTWARE_STORE, self.METADATA_DIR, self.TEMP_DIR]:
       if not exists(dir):

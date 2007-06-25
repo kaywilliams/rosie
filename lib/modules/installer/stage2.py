@@ -30,16 +30,15 @@ class Stage2Hook(FileDownloadMixin):
     
     self.interface = interface
     
-    FileDownloadMixin.__init__(self, interface)
+    FileDownloadMixin.__init__(self, interface, self.interface.getBaseStore())
   
   def run(self):
     self.interface.log(0, "synchronizing stage2 images")
     
     self.register_file_locals(L_FILES)
     
-    i,_,_,d,_,_ = self.interface.getStoreInfo(self.interface.getBaseStore())
-    
-    self.download(d,i) # download files, see FileDownloadMixin.download() in lib.py
+    # download files, see FileDownloadMixin.download() in lib.py
+    self.download()
 
 
 #------ LOCALS ------#

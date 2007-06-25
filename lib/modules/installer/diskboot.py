@@ -46,7 +46,7 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
     }
     
     ImageModifyMixin.__init__(self, 'diskboot.img', interface, self.DATA)
-    FileDownloadMixin.__init__(self, interface)
+    FileDownloadMixin.__init__(self, interface, self.interface.getBaseStore())
   
   def error(self, e):
     try:
@@ -69,13 +69,12 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
   
   def run(self):
     self.interface.log(0, "preparing diskboot image")
-    i,_,_,d,_,_ = self.interface.getStoreInfo(self.interface.getBaseStore())
     
     diskboot_dir = join(self.interface.SOFTWARE_STORE, 'images')
     osutils.mkdir(diskboot_dir, parent=True)
     
     # download file - see FileDownloadMixin in lib.py
-    self.download(d,i)
+    self.download()
     
     # modify image - see DiskbootModifier, below, and ImageModifyMixin in lib.py
     self.modify()

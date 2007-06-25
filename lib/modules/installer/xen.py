@@ -13,6 +13,7 @@ EVENTS = [
     'id': 'xen-images',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['vmlinuz-xen', 'initrd-xen'],
+    'requires': ['initrd.img'],
     'parent': 'INSTALLER',
   },
 ]
@@ -58,7 +59,7 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
   
     ImageModifyMixin.__init__(self, 'initrd.img', interface, self.DATA,
                            mdfile=join(interface.METADATA_DIR, 'initrd.img-xen.md'))
-    FileDownloadMixin.__init__(self, interface)
+    FileDownloadMixin.__init__(self, interface, self.interface.getBaseStore())
   
   def error(self, e):
     try:
@@ -79,12 +80,10 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
   
   def run(self):
     self.interface.log(0, "preparing xen images")
-    i,_,_,d,_,_ = self.interface.getStoreInfo(self.interface.getBaseStore())
-    
     osutils.mkdir(self.xen_dir, parent=True)
     
     # download files
-    self.download(d,i) # see FileDownloadMixin.download() in lib.py
+    self.download() # see FileDownloadMixin.download() in lib.py
     
     # modify initrd.img
     self.modify() # see ImageModifyMixin.modify() in lib.py

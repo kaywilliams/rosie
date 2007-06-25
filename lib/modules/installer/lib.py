@@ -217,15 +217,16 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
   def register_image_locals(self, locals):
     ImageHandler.register_image_locals(self, locals)
     
-    i,s,n,d,u,p = self.interface.getStoreInfo(self.interface.getBaseStore())
+    info = self.interface.getStoreInfo(self.interface.getBaseStore())
     
     image_path = self.i_locals.get('//images/image[@id="%s"]/path' % self.name)
     image_path = printf_local(image_path, self.interface.BASE_VARS)
     
-    self.rsrc = self.interface.storeInfoJoin(s, n, join(d, image_path, self.name))
-    self.isrc = join(self.interface.INPUT_STORE, i, d, image_path, self.name)
-    self.username = u
-    self.password = p
+    self.rsrc = info.join(image_path, self.name)
+    self.isrc = join(self.interface.INPUT_STORE, info.id,
+                     info.directory, image_path, self.name)
+    self.username = info.username
+    self.password = info.password
     self.dest = join(self.interface.SOFTWARE_STORE, image_path, self.name)
     
     self.l_image = self.i_locals.get('//images/image[@id="%s"]' % self.name)
@@ -279,20 +280,21 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
 
 class FileDownloadMixin:
   "Classes that extend this must require 'anaconda-version' and 'source-vars'"
-  def __init__(self, interface):
+  def __init__(self, interface, storeid):
     self.f_locals = None
     
     self.interface = interface
+    self.storeid = storeid
     
     self.callback = BuildSyncCallback(interface.logthresh)
-  
+    
   def register_file_locals(self, locals):
     self.f_locals = locals_imerge(locals, self.interface.cvars['anaconda-version'])
   
-  def download(self, dest, store):
+  def download(self):
     if not self.f_locals:
       raise RuntimeError, "FileDownloadMixin instance has no registered locals"
-    dest = dest.lstrip('/') # make sure it is not an absolute path
+    
     for file in self.f_locals.xpath('//files/file'):
       filename = file.attrib['id']
       if file.attrib.get('virtual', 'False') in BOOLEANS_TRUE: continue # skip virtual files
@@ -300,10 +302,9 @@ class FileDownloadMixin:
       rinfix = printf_local(file.get('path'), self.interface.cvars['source-vars'])
       linfix = printf_local(file.get('path'), self.interface.BASE_VARS)
       
-      self.interface.cache(join(dest, rinfix, filename),
-                           prefix=store, callback=self.callback)
-      osutils.mkdir(join(self.interface.SOFTWARE_STORE, linfix), parent=True)
-      sync.sync(join(self.interface.INPUT_STORE, store, dest, rinfix, filename),
-                join(self.interface.SOFTWARE_STORE, linfix))
+      src = self.interface.cache(self.storeid, join(rinfix, filename), callback=self.callback)
+      dest = join(self.interface.SOFTWARE_STORE, linfix)
+      osutils.mkdir(dest, parent=True)
+      sync.sync(src, dest)
 
 class RpmNotFoundError(Exception): pass

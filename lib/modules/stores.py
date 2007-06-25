@@ -1,14 +1,11 @@
 import re
 
-from os.path            import join, isfile, exists
-from StringIO           import StringIO
-from urlgrabber.grabber import URLGrabError #!
-from urlparse           import urlparse
+from os.path  import join, exists
+from StringIO import StringIO
+from urlparse import urlparse
 
 from dims import filereader
-from dims import listcompare
 from dims import osutils
-from dims import spider #!
 from dims import sync
 from dims import xmltree
 
@@ -22,7 +19,10 @@ API_VERSION = 4.0
 EVENTS = [
   {
     'id': 'stores',
-    'provides': ['anaconda-version', 'input-store-lists', 'input-store-changed'],
+    'provides': ['anaconda-version',
+                 'input-store-lists',
+                 'input-store-changed',
+                 'local-repodata'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'interface': 'StoresInterface',
   },
@@ -43,8 +43,6 @@ class StoresInterface(EventInterface):
     parent.append(element)
     s,n,d,_,_,_ = urlparse(element.get('path/text()'))
     server = '://'.join((s,n))
-    if server not in self._base.cachemanager.SOURCES:
-      self._base.cachemanager.SOURCES.append(server)
   
   def getAllStoreIDs(self):
     return self.config.xpath('//stores/*/store/@id')
@@ -92,19 +90,20 @@ class StoresHook(DiffMixin, RepoContentMixin):
     # sync all repodata folders to builddata
     self.interface.log(1, "synchronizing repository metadata")
     for storeid in self.interface.getAllStoreIDs():
-      i,s,n,d,u,p = self.interface.getStoreInfo(storeid)
+      info = self.interface.getStoreInfo(storeid)
+      
+      repodatapath = self.interface.config.get('//stores/*/store[@id="%s"]/repodata-path/text()' % storeid, '') #!
       
       self.interface.log(2, storeid)
-      osutils.mkdir(join(self.mdstores, storeid, 'repodata'), parent=True)
+      osutils.mkdir(join(self.mdstores, storeid, repodatapath, 'repodata'), parent=True)
       
-      # hack hack hack - file sync and http sync behave differently in
-      # directory to directory synching :( - FIX ME!
-      src  = self.interface.storeInfoJoin(s,n,join(d, 'repodata/'))
-      if s == 'file':
-        dest = join(self.mdstores, storeid)
-      else:
-        dest = join(self.mdstores, storeid, 'repodata')
-      sync.sync(src, dest, username=u, password=p)
+      src = info.join(repodatapath)
+      repomdfile = join(src, 'repodata/repomd.xml')
+      dest = join(self.mdstores, storeid, 'repodata')
+      sync.sync(repomdfile, dest, username=info.username, password=info.password)
+      
+      for file in xmltree.read(join(dest, 'repomd.xml')).xpath('//location/@href'):
+        sync.sync(join(src, file), dest, username=info.username, password=info.password)
       
       self.DATA['input'].append(join(self.mdstores, storeid, 'repodata'))
       self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % storeid))
@@ -154,6 +153,8 @@ class StoresHook(DiffMixin, RepoContentMixin):
         get_anaconda_version(join(self.interface.METADATA_DIR,
                                   '%s.pkgs' % self.interface.getBaseStore()))
       self.interface.cvars['anaconda-version'] = anaconda_version
+    
+    self.interface.cvars['local-repodata'] = self.mdstores
     
     self.write_metadata()
     

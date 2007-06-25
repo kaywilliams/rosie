@@ -17,6 +17,7 @@ from dims import listcompare
 from dims import osutils
 from dims import shlib
 from dims import sortlib
+from dims import sync
 from dims import xmltree
 
 from dims.configlib import expand_macros
@@ -49,29 +50,32 @@ class EventInterface:
   def expandMacros(self, text):
     return expand_macros(text, self._base.cvars['base-vars'])
   
-  def cache(self, path, *args, **kwargs):
-    return self._base.cachemanager.get(path, *args, **kwargs)
+  def cache(self, storeid, path, force=False, *args, **kwargs):
+    info = self.getStoreInfo(storeid)
+    
+    src = info.join(path)
+    dest = join(self.INPUT_STORE, storeid, join(info.directory, osutils.dirname(path)))
+    if force:
+      osutils.rm(join(self.INPUT_STORE, storeid, join(info.directory, path)),
+                 recursive=True, force=True)
+    osutils.mkdir(dest, parent=True)
+    sync.sync(src, dest, *args, **kwargs)
+    return join(dest, osutils.basename(path))
   
   # store information functions
-  def getStoreInfo(self, i):
-    """ 
-    i[d],s[cheme],n[etloc],d[irectory],u[sername],p[assword] = getStoreInfo(storeid)
-    
-    Get information about a store
-    """
-    storepath = '//store[@id="%s"]' % i
+  def getStoreInfo(self, storeid):
+    "Return a StoreInfo object representing information about the requested storeid"
+    storepath = '//store[@id="%s"]' % storeid
     if not self.config.pathexists(storepath):
-      raise xmltree.XmlPathError, "The specified store, '%s', does not exist in the config file" % i
+      raise xmltree.XmlPathError, "The specified store, '%s', does not exist in the config file" % storeid
     
-    s,n,d,_,_,_ = urlparse(self.config.get('%s/path/text()' % storepath))
-    u = self.config.get('%s/username/text()' % storepath, None)
-    p = self.config.get('%s/password/text()' % storepath, None)
+    storeinfo = StoreInfo(storeid)
+    storeinfo.split(self.config.get('%s/path/text()' % storepath))
+    storeinfo.username = self.config.get('%s/username/text()' % storepath, None)
+    storeinfo.password = self.config.get('%s/password/text()' % storepath, None)
     
-    return i, s, n, d, u, p
+    return storeinfo
   
-  def storeInfoJoin(self, s, n, d):
-    return urlunparse((s,n,d,'','',''))
-    
   def getBaseStore(self):
     "Get the id of the base store from the config file"
     return self.config.get('//stores/base/store/@id')
@@ -212,3 +216,21 @@ class PrimaryXmlContentHandler(xml.sax.ContentHandler):
   def startElement(self, name, attrs):
     if name == 'location':
       self.locs.append(str(attrs.get('href')))
+
+class StoreInfo:
+  def __init__(self, id, scheme='', netloc='', directory='',
+                     username=None, password=None):
+    self.id        = id
+    self.scheme    = scheme
+    self.netloc    = netloc
+    self.directory = directory
+    self.username  = username
+    self.password  = password
+  
+  def split(self, url):
+    self.scheme, self.netloc, self.directory, _, _, _ = urlparse(url)
+    self.directory = self.directory.lstrip('/') # for joining convenience
+  
+  def join(self, *args):
+    return urlunparse((self.scheme or 'file', self.netloc, join(self.directory, *args),
+                       '','',''))

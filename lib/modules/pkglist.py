@@ -1,3 +1,5 @@
+import re
+
 from os.path import join, exists
 
 from dims import depsolver
@@ -23,7 +25,7 @@ EVENTS = [
     'id': 'pkglist',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['pkglist-file', 'pkglist', 'pkglist-changed'],
-    'requires': ['required-packages', 'repoconfig-file'],
+    'requires': ['required-packages', 'repoconfig-file', 'local-repodata'],
     'conditional-requires': ['user-required-packages', 'input-store-changed'],
   },
 ]
@@ -52,15 +54,16 @@ YUMCONF_HEADER = [
 
 class DepsolveMDCreator(YumRepoCreator):
   "A subclass of YumRepoCreator that handles making the depsolve config file"
-  def __init__(self, yumrepo, config, fallback):
+  def __init__(self, yumrepo, config, fallback, localrepos):
     YumRepoCreator.__init__(self, yumrepo, config, fallback)
+    
+    self.localrepos = localrepos
+    
+    self.idre = re.compile('.*\[@id="(.*)"\].*')
   
   def getPath(self, storeQuery):
-    path   = self.config.get(join(storeQuery, 'path/text()'))
-    mdpath = self.config.get(join(storeQuery, 'repodata-path/text()'), None)
-    if mdpath is not None:
-      path = join(path, mdpath)
-    return path
+    storeid = self.idre.match(storeQuery).groups()[0]
+    return 'file://' + join(self.localrepos, storeid)
 
 
 #------ HOOKS ------#
@@ -114,7 +117,9 @@ class RepogenHook:
     osutils.rm(self.cfgfile, force=True)
   
   def run(self):
-    dmdc = DepsolveMDCreator(self.cfgfile, self.interface.config.file, fallback='//stores')
+    dmdc = DepsolveMDCreator(self.cfgfile, self.interface.config.file,
+                             fallback='//stores',
+                             localrepos=self.interface.cvars['local-repodata'])
     dmdc.createRepoFile()
     
     conf = filereader.read(self.cfgfile)

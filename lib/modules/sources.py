@@ -60,12 +60,9 @@ class SrpmInterface(EventInterface, ListCompareMixin):
     self.callback = BuildSyncCallback(base.log.threshold)
     self.srpmdest = join(self.DISTRO_DIR, 'SRPMS')
   
-  def syncSrpm(self, srpm, store, path, force=False):
+  def syncSrpm(self, srpm, store, force=False):
     "Sync a srpm from path within store into the output store"
-    path = self.cache(join(path, srpm), prefix=store, callback=self.callback)
-    ##uncomment the following when forced caching works
-    ##path = self.cache(join(path, srpm), prefix=store, callback=self.callback, force=force)
-    srpmsrc  = join(self.INPUT_STORE, store, path)
+    srpmsrc = self.cache(store, srpm, callback=self.callback, force=force)
     sync.sync(srpmsrc, self.srpmdest)
   
   def deleteSrpm(self, srpm):
@@ -86,8 +83,6 @@ class SrpmInterface(EventInterface, ListCompareMixin):
     stores.append(store)
     s,n,d,_,_,_ = urlparse(store.get('path/text()'))
     server = '://'.join((s,n))
-    if server not in self._base.cachemanager.SOURCES:
-      self._base.cachemanager.SOURCES.append(server)
   
 
 #------ HOOKS ------#
@@ -171,14 +166,13 @@ class SourceHook(DiffMixin):
     self.interface.log(1, "downloading new srpms (%d packages)" % i)
     # set up packages metadata dictionary for use in syncing
     for store in self.interface.config.xpath('//source/stores/store/@id'):
-      i,s,n,d,u,p = self.interface.getStoreInfo(store)
-
-      base = self.interface.storeInfoJoin(s or 'file', n, d)
-      srpms = spider.find(base, glob=SRPM_GLOB, prefix=False,
-                          username=u, password=p)
+      info = self.interface.getStoreInfo(store)
+      
+      srpms = spider.find(info.join(), glob=SRPM_GLOB, prefix=False,
+                          username=info.username, password=info.password)
       for srpm in srpms:
-        _,n,v,r,a = self.interface.srpmNameDeformat(srpm)
-        self._packages[srpm] = (i,d,srpm)
+        #_,n,v,r,a = self.interface.srpmNameDeformat(srpm)
+        self._packages[srpm] = i
 
     osutils.mkdir(self.interface.srpmdest, parent=True)
   
@@ -187,11 +181,10 @@ class SourceHook(DiffMixin):
   
   def _download_srpm(self, srpm):
     if self._packages.has_key(srpm):
-      store, path, _ = self._packages[srpm]
-      self.interface.syncSrpm(srpm, store, path,
+      self.interface.syncSrpm(srpm, self._packages[srpm],
                               force=self.interface.isForced('source'))
     else:
-      raise SrpmNotFoundError("missing '%s' srpm" %(srpm,))
+      raise SrpmNotFoundError("missing '%s' srpm" % srpm)
   
 #------ ERRORS ------#
 class SrpmNotFoundError(StandardError): pass

@@ -23,7 +23,7 @@ EVENTS = [
     'id': 'comps',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['comps-file', 'comps-changed', 'required-packages', 'user-required-packages'],
-    'requires': ['anaconda-version'],
+    'requires': ['anaconda-version', 'local-repodata'],
     'conditional-requires': ['RPMS', 'input-store-changed'],
   },
 ]
@@ -295,30 +295,17 @@ class CompsHook(DiffMixin):
     "Get a list of all groupfiles in all repositories"
     groupfiles = []
     
-    for store in self.interface.config.xpath('//stores/*/store/@id'):
-      i,s,n,d,u,p = self.interface.getStoreInfo(store)
-      d = d.lstrip('/') # remove absolute pathing on d
-      
-      repodatapath = self.interface.config.get('//stores/*/store[@id="%s"]/repodata-path/text()' % store, None)
-      if repodatapath is not None:
-        d = join(d, repodatapath) # TODO - this should accept absolute paths as well
-      
-      dest = join(self.interface.INPUT_STORE, i, d)
-      osutils.mkdir(join(dest, 'repodata'), parent=True) # TODO allow this to be config'd?
-      
-      try:
-        groupfile = self.interface.cache(join(d, 'repodata/repomd.xml'),
-                                         prefix=i, username=u, password=p)
-      except CacheManagerError:
-        raise ConfigError, "The '%s' store does not appear to be valid; unable to get groupfile from '%s'" % (store, join(d, 'repodata/repomd.xml'))
-      
-      try:
-        groupfile = xmltree.read(join(dest, 'repodata/repomd.xml')).xpath('//data[@type="group"]/location/@href')
-        if len(groupfile) > 0:
-          self.interface.cache(join(d, groupfile[0]), prefix=i)
-        groupfiles.append((store, join(self.interface.INPUT_STORE, i, d, groupfile[0])))
-      except IndexError:
-        pass # this is ok, not all repositories have groupfiles
+    for storeid in self.interface.config.xpath('//stores/*/store/@id'):
+      groupfile = xmltree.read(join(self.interface.cvars['local-repodata'],
+                                    storeid, 'repodata/repomd.xml')).get(
+                                      '//data[@type="group"]/location/@href'
+                                    )
+      if groupfile: # not all stores have groupfiles
+        groupfiles.append((storeid,
+                           join(self.interface.cvars['local-repodata'],
+                                storeid,
+                                groupfile)
+                          ))
       
     return groupfiles
   

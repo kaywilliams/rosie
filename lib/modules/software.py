@@ -77,12 +77,9 @@ class SoftwareInterface(EventInterface, ListCompareMixin):
       raise RuntimeError, "No GPG keys found to check against"
     mkrpm.rpmsign.verifyRpm(rpm, public=pubkey, force=True)
   
-  def syncRpm(self, rpm, store, path, force=False):
+  def syncRpm(self, rpm, store, force=False):
     "Sync an rpm from path within store into the the output store"
-    path = self.cache(join(path, rpm), prefix=store, callback=self.callback)
-    ## uncomment the following when cache forcing is supported
-    ## path = self.cache(join(path, rpm), prefix=store, callback=self.callback, force=force)
-    rpmsrc = join(self.INPUT_STORE, store, path)
+    rpmsrc = self.cache(store, rpm, force=force, callback=self.callback)
     sync.sync(rpmsrc, self.rpmdest)
   
   def deleteRpm(self, rpm):
@@ -164,10 +161,6 @@ class SoftwareHook:
     self._changed = True
     self.interface.log(1, "downloading new rpms (%d packages)" % i)
     for store in self.interface.config.xpath('//stores/*/store/@id'):
-      i,s,n,d,u,p = self.interface.getStoreInfo(store)
-      
-      base = self.interface.storeInfoJoin(s,n,d)
-      
       # get the list of .rpms in the input store
       for rpm in self.interface.cvars['input-store-lists'][store]:
         _,n,v,r,a = self.interface.rpmNameDeformat(rpm)
@@ -176,7 +169,7 @@ class SoftwareHook:
           self._packages[nvr] = {}
         if not self._packages[nvr].has_key(a):
           self._packages[nvr][a] = []
-        self._packages[nvr][a].append((i,d,rpm))
+        self._packages[nvr][a].append((store,rpm))
     
   def _delete_rpm(self, rpm): # lfn
     self.interface.deleteRpm(rpm)
@@ -185,8 +178,8 @@ class SoftwareHook:
     for arch in self._packages[rpm]:
       if arch in self._validarchs:
         try:
-          store, path, rpmname = self._packages[rpm][arch][0]
-          self.interface.syncRpm(rpmname, store, path,
+          store, rpmname = self._packages[rpm][arch][0]
+          self.interface.syncRpm(rpmname, store,
                                  force=self.interface.isForced('software'))
           self._new_rpms.append((osutils.basename(rpmname), store))
         except IndexError, e:

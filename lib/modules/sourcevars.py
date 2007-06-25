@@ -56,13 +56,12 @@ class SourcevarsHook:
   def run(self):
     self.interface.log(0, "computing source variables")
     #Setup
-    i,s,n,d,u,p = self.interface.getStoreInfo(self.interface.getBaseStore())
-    d = d.lstrip('/') # un-absolute d
+    info = self.interface.getStoreInfo(self.interface.getBaseStore())
     
     #Download initrd.img to cache
-    initrd_file = join(self.interface.INPUT_STORE, i,
-                       self.interface.cache(join(d, 'isolinux/initrd.img'),
-                         prefix=i, username=u, password=p,
+    initrd_file = join(self.interface.INPUT_STORE, info.id,
+                       self.interface.cache(info.id, 'isolinux/initrd.img',
+                         username=info.username, password=info.password,
                          callback=BuildSyncCallback(self.interface.logthresh)))
     
     #Extract buildstamp
