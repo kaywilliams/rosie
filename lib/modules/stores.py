@@ -161,9 +161,9 @@ class StoresHook(DiffMixin, RepoContentMixin):
 
 #------ HELPER FUNCTIONS ------#
 def get_anaconda_version(file):
-  scan = re.compile('.*/anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
+  scan = re.compile('.*anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
   version = None
-  
+
   fl = filereader.read(file)
   for rpm in fl:
     match = scan.match(rpm)
