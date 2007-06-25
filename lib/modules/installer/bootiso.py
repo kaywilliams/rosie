@@ -65,7 +65,6 @@ class IsolinuxHook(ImageModifyMixin, FileDownloadMixin):
       pass
 
   def force(self):
-    print self.isolinux_dir
     osutils.rm(self.isolinux_dir, recursive=True, force=True)
   
   def check(self):

@@ -95,7 +95,10 @@ class RpmsHook(RepoContentMixin):
          recursive=True, force=True)
       
       self.interface.cvars['input-store-changed'] = True
-      self.interface.cvars['input-store-lists'].update({'localrepo': pkgs})
+
+    if not self.interface.cvars['input-store-lists']:
+      self.interface.cvars['input-store-lists'] = {}
+    self.interface.cvars['input-store-lists'].update({'localrepo': pkgs})
 
 class LocalRepogenHook:
   def __init__(self, interface):
