@@ -13,7 +13,6 @@ from dims.configlib    import ConfigError, uElement
 
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
 from interface import DiffMixin
-from main      import uElement
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
 
 API_VERSION = 4.0

@@ -12,9 +12,10 @@ from dims import shlib
 import splittree
 
 from callback  import BuildDepsolveCallback
+from constants import BOOLEANS_TRUE
 from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from interface import DiffMixin, EventInterface, ListCompareMixin
-from main      import locals_imerge, BOOLEANS_TRUE
+from misc      import locals_imerge
 
 API_VERSION = 4.0
 

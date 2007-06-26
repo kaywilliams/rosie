@@ -3,7 +3,7 @@ from os.path import join, exists
 from dims import osutils
 
 from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from main  import locals_imerge
+from misc  import locals_imerge
 
 from installer.lib import ImageModifyMixin
 

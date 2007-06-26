@@ -4,7 +4,7 @@ from dims import osutils
 
 from difftest import DiffTest, ConfigHandler, VariablesHandler, InputHandler, OutputHandler
 from event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from main     import locals_imerge
+from misc     import locals_imerge
 
 from installer.lib import FileDownloadMixin, ImageModifyMixin
 

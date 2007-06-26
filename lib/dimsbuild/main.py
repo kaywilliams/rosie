@@ -7,7 +7,7 @@ Distribution Management System (DiMS).
 
 __author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
 __version__ = '3.0'
-__date__    = 'March 7th, 2007'
+__date__    = 'June 26th, 2007'
 
 import imp
 import os
@@ -15,29 +15,21 @@ import sys
 
 from os.path       import join, exists
 from rpmUtils.arch import getBaseArch
-from StringIO      import StringIO
 from urlparse      import urlparse
 
-from dims import imerge
 from dims import logger
 from dims import osutils
-from dims import xmltree
 from dims.sortlib import dcompare
 
 import event
 import locals
 
-from interface import EventInterface
 from callback  import BuildLogger
+from constants import BOOLEANS_TRUE, BOOLEANS_FALSE, OPT_SKIP, OPT_FORCE
 
 # RPMS we need to check for
 # createrepo
 # anaconda-runtime
-
-BOOLEANS_TRUE  = ['True', 'true', 'Yes', 'yes', '1']
-BOOLEANS_FALSE = ['False', 'false', 'No', 'no', '0']
-OPT_FORCE = '--force'
-OPT_SKIP  = '--skip'
 
 API_VERSION = 4.1
 
@@ -339,28 +331,3 @@ def check_api_version(module):
     raise ImportError, "Module API version '%s' is less than the required API version '%s' in module %s" % (mAPI, rAPI, module.__file__)
   else:
     print "DEBUG: mAPI =", mAPI, "rAPI = ", rAPI
-
-def locals_imerge(string, ver):
-  tree = xmltree.read(StringIO(string))
-  locals = xmltree.Element('locals')
-  for child in tree.getroot().getchildren():
-    locals.append(imerge.incremental_merge(child, ver))
-  return locals
-
-def uElement(name, parent, **kwargs):
-  "Gets the child of the parent named name, or creates it if it doesn't exist."
-  elem = parent.get(name, None)
-  if elem is None:
-    elem = xmltree.Element(name, parent=parent, **kwargs)
-  return elem
-
-def tree(path, type='d|f|l', prefix=True):
-  types = type.split('|')
-  rtn = []
-  if 'd' in types:
-    rtn.extend(osutils.find(location=path, name='*', type=osutils.TYPE_DIR, prefix=prefix))
-  if 'f' in types:
-    rtn.extend(osutils.find(location=path, name='*', type=osutils.TYPE_FILE, prefix=prefix))
-  if 'l' in types:
-    rtn.extend(osutils.find(location=path, name='*', type=osutils.TYPE_LINK, prefix=prefix))
-  return rtn

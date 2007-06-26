@@ -7,7 +7,7 @@ from dims import xmltree
 
 from difftest import DiffTest, OutputHandler, InputHandler, VariablesHandler, ConfigHandler
 from event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from main     import locals_imerge
+from misc     import locals_imerge
 
 from installer.lib import ImageModifyMixin
 

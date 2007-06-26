@@ -13,9 +13,9 @@ from dims import spider
 from dims import sync
 
 from callback  import BuildSyncCallback
+from constants import BOOLEANS_TRUE
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import EventInterface, ListCompareMixin
-from main      import BOOLEANS_TRUE
 
 API_VERSION = 4.0
 

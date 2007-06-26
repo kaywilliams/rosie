@@ -12,7 +12,7 @@ from dims import xmltree
 from dims.configlib import uElement
 
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from interface import EventInterface, DiffMixin, RepoContentMixin
+from interface import EventInterface, DiffMixin, RepoContentMixin, RepoFromXml, Repo
 
 API_VERSION = 4.0
 
@@ -87,23 +87,18 @@ class StoresHook(DiffMixin, RepoContentMixin):
     self.interface.log(0, "generating filelists for input stores")
     osutils.mkdir(self.mdstores, parent=True)
     
+    self.interface.cvars['repos'] = {}
+    
     # sync all repodata folders to builddata
     self.interface.log(1, "synchronizing repository metadata")
-    for storeid in self.interface.getAllStoreIDs():
-      info = self.interface.getStoreInfo(storeid)
-      
-      repodatapath = self.interface.config.get('//stores/*/store[@id="%s"]/repodata-path/text()' % storeid, '') #!
-      
+    for storeid in self.interface.config.xpath('//stores/*/store/@id'):
       self.interface.log(2, storeid)
-      osutils.mkdir(join(self.mdstores, storeid, repodatapath, 'repodata'), parent=True)
+      repo = RepoFromXml(self.interface.config.get('//stores/*/store[@id="%s"]' % storeid))
+      repo.local_path = join(self.interface.METADATA_DIR, 'stores')
       
-      src = info.join(repodatapath)
-      repomdfile = join(src, 'repodata/repomd.xml')
-      dest = join(self.mdstores, storeid, 'repodata')
-      sync.sync(repomdfile, dest, username=info.username, password=info.password)
+      repo.getRepodata()
       
-      for file in xmltree.read(join(dest, 'repomd.xml')).xpath('//location/@href'):
-        sync.sync(join(src, file), dest, username=info.username, password=info.password)
+      self.interface.cvars['repos'][storeid] = repo
       
       self.DATA['input'].append(join(self.mdstores, storeid, 'repodata'))
       self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % storeid))
@@ -116,32 +111,27 @@ class StoresHook(DiffMixin, RepoContentMixin):
   def run(self):
     self.interface.log(1, "computing store contents")
     
-    storelists = {}
     changed = False
     
-    # generate store lists
-    for storeid in self.interface.getAllStoreIDs():
-      self.interface.log(2, storeid)
-      
-      pkgs = self.getRepoContents(storeid)
-      if self.compareRepoContents(storeid, pkgs):
-        changed = True
-      storelists[storeid] = pkgs
+    # generate repo RPM lists
+    for repo in self.interface.getAllRepos():
+      self.interface.log(2, repo.id)
+      pkgs = repo.getRepoContents()
+      repofile = join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id)
+      if repo.compareRepoContents(repofile):
+        repo.changed = True; changed = True
+        repo.writeRepoContents(repofile)
     
     self.interface.cvars['input-store-changed'] = changed
-    self.interface.cvars['input-store-lists']   = storelists
 
   def apply(self):
-    if not self.interface.cvars['input-store-lists']:
-      storelists = {}
+    # populate the rpms list for each repo
+    for repo in self.interface.getAllRepos():
+      repofile = join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id)
       
-      for storeid in self.interface.getAllStoreIDs():
-        storefile = join(self.interface.METADATA_DIR, '%s.pkgs' % storeid)
-        if not exists(storefile):
-          raise RuntimeError, "Unable to find store file '%s'" % storefile
-        storelists[storeid] = filereader.read(storefile)
-            
-      self.interface.cvars['input-store-lists'] = storelists
+      if not exists(repofile):
+        raise RuntimeError, "Unable to find store file '%s'" % repofile
+      repo.rpms = filereader.read(repofile)
     
     # if we're skipping stores, assume store lists didn't change; otherwise,
     # assume they did
@@ -158,12 +148,15 @@ class StoresHook(DiffMixin, RepoContentMixin):
     
     self.write_metadata()
     
+    for repo in self.interface.getAllRepos(): print repo
+    raise ''
+    
 
 #------ HELPER FUNCTIONS ------#
 def get_anaconda_version(file):
-  scan = re.compile('.*anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
+  scan = re.compile('.*/anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
   version = None
-
+  
   fl = filereader.read(file)
   for rpm in fl:
     match = scan.match(rpm)

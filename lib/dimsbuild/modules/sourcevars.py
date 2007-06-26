@@ -15,11 +15,12 @@ from dims import osutils
 from dims import sync
 from dims import imglib
 
+from callback  import BuildSyncCallback
+from constants import BOOLEANS_TRUE
 from event     import EVENT_TYPE_PROC
 from interface import EventInterface
 from locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
-from main      import BOOLEANS_TRUE, locals_imerge
-from callback  import BuildSyncCallback
+from misc      import locals_imerge
 
 API_VERSION = 4.0
 
@@ -64,13 +65,18 @@ class SourcevarsHook:
                          username=info.username, password=info.password,
                          callback=BuildSyncCallback(self.interface.logthresh)))
     
+    # because imglib isn't very good at preserving timestamps when it should be,
+    # we make a copy before opening and reading
+    initrd_file2 = '%s2' % initrd_file #!
+    osutils.cp(initrd_file, initrd_file2) #!
+    
     #Extract buildstamp
     locals = locals_imerge(L_IMAGES, self.interface.cvars['anaconda-version'])
     image  = locals.get('//images/image[@id="initrd.img"]')
     format = image.get('format/text()')
     zipped = image.get('zipped/text()', 'False') in BOOLEANS_TRUE
-    self.image = imglib.Image(initrd_file, format, zipped)
-    self.image.open()
+    self.image = imglib.Image(initrd_file2, format, zipped) #!
+    self.image.open('r')
     sourcevars = self.image.read('.buildstamp')
     
     #Parse buildstamp
@@ -85,6 +91,8 @@ class SourcevarsHook:
     #Cleanup
     self.image.close()
     self.image.cleanup()
+    
+    osutils.rm(initrd_file2, force=True) #!
 
   def error(self, e):
     try:

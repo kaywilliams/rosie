@@ -6,8 +6,7 @@ from dims import sync
 
 from callback import BuildSyncCallback
 from event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from locals   import printf_local #!
-from main     import locals_imerge
+from misc     import locals_imerge
 
 API_VERSION = 4.0
 

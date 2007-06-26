@@ -25,6 +25,7 @@ from dims.configlib import expand_macros
 import difftest
 import locals
 
+from constants import BOOLEANS_TRUE
 
 #------ INTERFACES ------#
 class EventInterface:
@@ -79,6 +80,9 @@ class EventInterface:
   def getBaseStore(self):
     "Get the id of the base store from the config file"
     return self.config.get('//stores/base/store/@id')
+  
+  def getAllRepos(self):
+    return self.cvars['stores'].values()
   
   # logging functions
   def log(self, level, msg):    self._base.log(level, msg)
@@ -158,7 +162,7 @@ class DiffMixin:
       h = difftest.ConfigHandler(self.data['config'], self.interface.config)
       self.DT.addHandler(h)
       self.handlers['config'] = h
-    
+  
   def test_diffs(self):
     return self.DT.changed()
   
@@ -234,3 +238,95 @@ class StoreInfo:
   def join(self, *args):
     return urlunparse((self.scheme or 'file', self.netloc, join(self.directory, *args),
                        '','',''))
+
+class Repo:
+  def __init__(self, id):
+    self.id = id
+    
+    self.remote_path = None
+    self.local_path = None
+    
+    self.gpgcheck = False
+    self.gpgkey = None
+    
+    self.rpms = []
+    self.include = []
+    self.exclude = []
+    self.changed = False
+    
+    self.repodata_path = ''
+    self.groupfile    = None
+    self.primaryfile  = None
+    self.filelistsfile = None
+    self.otherfile    = None
+    self.mdfile = 'repodata/repomd.xml'
+    
+    self.parser = xml.sax.make_parser()
+  
+  def getRepodata(self):
+    # treating as if Repo is a StoreInfo
+    dest = join(self.local_path, self.id, self.repodata_path)
+    
+    osutils.mkdir(dest)
+    
+    src = self.join()
+    repomdfile = join(src, self.mdfile)
+    
+    sync.sync(self.join(self.mdfile), dest,
+              username=self.username, password=self.password)
+    
+    for data in xmltree.read(join(self.local_path, self.mdfile)).xpath('//data'):
+      repofile = data.get('location/@href')
+      sync.sync(self.join(repofile), dest,
+                username=self.username, password=self.password)
+      self.repodata_files.append(repofile)
+      
+      filetype = data.get('@type')
+      if   filetype == 'group':     self.groupfile     = repofile
+      elif filetype == 'primary':   self.primaryfile   = repofile
+      elif filetype == 'filelists': self.filelistsfile = repofile
+      elif filetype == 'other':     self.otherfile     = repofile
+  
+  def getRepoContents(self):
+    pxmlz = self.join(self.primaryfile)
+    pxml  = self.join('primary.xml')
+    
+    shlib.execute('gunzip -c %s > %s' % (pxmlz, pxml)) # perhaps use python for this
+    
+    handler = PrimaryXmlContentHandler()
+    self.parser.setContentHandler(handler)
+    self.parser.parse(pxml)
+    osutils.rm(pxml, force=True)
+    
+    pkgs = handler.locs
+    pkgs.sort()
+    
+    self.rpms = pkgs
+    
+    return pkgs
+  
+  def compareRepoContents(self, oldfile):
+    if isfile(oldfile):
+      oldpkgs = filereader.read(oldfile)
+    else:
+      oldpkgs = []
+    
+    old,new,_ = listcompare.compare(oldpkgs, self.pkgs)
+    
+    return old or new
+  
+  def writeRepoContents(self, file):
+    filereader.write(self.pkgs, file)
+
+
+#------ FACTORY FUNCTIONS ------#
+def RepoFromXml(xml):
+  repo = Repo(xml.get('@id'))
+  repo.remote_path   = xml.get('path')
+  repo.gpgcheck      = xml.get('gpgcheck/text()', 'False') in BOOLEANS_TRUE
+  repo.gpgkey        = xml.get('gpgkey/text()', None)
+  repo.repodata_path = xml.get('repodata-path/text()', '')
+  repo.include       = xml.get('include/package/text()', [])
+  repo.exclude       = xml.get('exclude/package/text()', [])
+  
+  return repo

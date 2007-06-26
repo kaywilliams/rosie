@@ -11,9 +11,8 @@ from dims.osutils import *
 from dims.sync    import sync
 
 from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from interface import EventInterface
 from magic     import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
-from main      import locals_imerge
+from misc      import locals_imerge
 
 from installer.lib import ExtractHandler, RpmNotFoundError
 
@@ -22,7 +21,6 @@ API_VERSION = 4.1
 EVENTS = [
   {
     'id': 'installer-logos',
-    'interface': 'EventInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['installer-splash'],
     'requires': ['software'],

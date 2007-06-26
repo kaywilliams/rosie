@@ -3,9 +3,8 @@ from os.path import exists, isdir, isfile, join
 from dims.osutils import basename, find, mkdir, rm
 from dims.sync    import sync
 
+from constants import BOOLEANS_TRUE
 from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from interface import EventInterface
-from main      import BOOLEANS_TRUE
 
 from installer.lib import ExtractHandler, RpmNotFoundError
 
@@ -14,7 +13,6 @@ API_VERSION = 4.1
 EVENTS = [
   {
     'id': 'installer-release-files',
-    'interface': 'EventInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'requires': ['software'],
     'conditional-requires': ['gpgsign'],

@@ -159,8 +159,10 @@ class InitrdHook(ImageModifyMixin):
 
 
   def run(self):
+    self.interface.log(0, "processing initrd.img")
     # modify initrd.img - see ImageModifyMixin.modify() in lib.py
     self.modify()
+
     
     self.interface.cvars['isolinux-changed'] = True
   

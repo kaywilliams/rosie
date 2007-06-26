@@ -5,9 +5,9 @@ from dims.osutils import find, mkdir, rm
 
 import dims.listcompare as listcompare
 
+from constants import BOOLEANS_TRUE
 from event     import EVENT_TYPE_META
 from interface import RepoContentMixin
-from main      import BOOLEANS_TRUE
 
 from rpms.lib import RpmsInterface
 

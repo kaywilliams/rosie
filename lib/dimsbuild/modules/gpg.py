@@ -5,9 +5,9 @@ from dims import xmltree
 
 from dims.mkrpm   import rpmsign
 
+from constants import BOOLEANS_TRUE
 from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from interface import DiffMixin, EventInterface
-from main      import BOOLEANS_TRUE
 
 API_VERSION = 4.0
 

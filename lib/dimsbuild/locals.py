@@ -37,19 +37,6 @@ def load(version):
   
   return L
 
-def printf_local(elem, vars):
-  string = elem.get('string-format/@string', elem.text)
-  format = elem.xpath('string-format/format/item/text()')
-  return printf(string, format, vars)
-
-def printf(string, fmt, vars):
-  for f in fmt:
-    try:
-      string = string.replace('%s', vars[f], 1)
-    except KeyError:
-      raise KeyError, "Variable '%s' not defined in supplied scope" % f
-  return string
-
 #---------- LOCALS DATA -----------#
 
 L_IMAGES = """ 

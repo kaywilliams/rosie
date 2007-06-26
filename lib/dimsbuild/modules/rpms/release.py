@@ -9,9 +9,9 @@ from dims.xmltree     import XmlPathError
 
 import dims.filereader as filereader
 
+from constants import BOOLEANS_TRUE
 from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from interface import EventInterface
-from main      import BOOLEANS_TRUE
 
 from rpms.lib import ColorMixin, RpmsHandler, RpmsInterface, getIpAddress
 

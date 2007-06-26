@@ -14,12 +14,13 @@ from dims import sync
 from dims import xmltree
 
 from callback  import BuildSyncCallback
+from constants import BOOLEANS_TRUE
 from difftest  import InputHandler, OutputHandler
 from interface import DiffMixin
-from locals    import printf_local, L_BUILDSTAMP_FORMAT, L_IMAGES
-from main      import BOOLEANS_TRUE, locals_imerge
+from locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
 from magic     import match as magic_match
 from magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS, FILE_TYPE_FAT
+from misc      import locals_imerge, locals_printf
 
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')
 
@@ -178,7 +179,7 @@ class ImageHandler:
   def _getpath(self):
     FILE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
     return join(self.interface.SOFTWARE_STORE,
-                printf_local(FILE.get('path'), self.vars),
+                locals_printf(FILE.get('path'), self.vars),
                 self.name)
   
   def _iszipped(self):
@@ -220,7 +221,7 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
     info = self.interface.getStoreInfo(self.interface.getBaseStore())
     
     image_path = self.i_locals.get('//images/image[@id="%s"]/path' % self.name)
-    image_path = printf_local(image_path, self.interface.BASE_VARS)
+    image_path = locals_printf(image_path, self.interface.BASE_VARS)
     
     self.rsrc = info.join(image_path, self.name)
     self.isrc = join(self.interface.INPUT_STORE, info.id,
@@ -299,8 +300,8 @@ class FileDownloadMixin:
       filename = file.attrib['id']
       if file.attrib.get('virtual', 'False') in BOOLEANS_TRUE: continue # skip virtual files
       
-      rinfix = printf_local(file.get('path'), self.interface.cvars['source-vars'])
-      linfix = printf_local(file.get('path'), self.interface.BASE_VARS)
+      rinfix = locals_printf(file.get('path'), self.interface.cvars['source-vars'])
+      linfix = locals_printf(file.get('path'), self.interface.BASE_VARS)
       
       src = self.interface.cache(self.storeid, join(rinfix, filename), callback=self.callback)
       dest = join(self.interface.SOFTWARE_STORE, linfix)

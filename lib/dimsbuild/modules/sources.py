@@ -24,9 +24,9 @@ from dims import xmltree
 from dims.configlib import uElement
 
 from callback  import BuildSyncCallback
+from constants import BOOLEANS_TRUE
 from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from interface import EventInterface, ListCompareMixin, DiffMixin
-from main      import BOOLEANS_TRUE
 
 API_VERSION = 4.0
 
