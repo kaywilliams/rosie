@@ -101,7 +101,7 @@ class StoresHook(DiffMixin, RepoContentMixin):
       
       self.interface.cvars['repos'][storeid] = repo
       
-      self.DATA['input'].append(join(self.mdstores, storeid, 'repodata'))
+      self.DATA['input'].append(join(self.mdstores, storeid, repo.repodata_path, 'repodata'))
       self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % storeid))
   
   def check(self):
@@ -152,7 +152,7 @@ class StoresHook(DiffMixin, RepoContentMixin):
 
 #------ HELPER FUNCTIONS ------#
 def get_anaconda_version(file):
-  scan = re.compile('.*/anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
+  scan = re.compile('.*anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
   version = None
   
   fl = filereader.read(file)

@@ -267,19 +267,16 @@ class Repo:
     return join(self.local_path, *args)
   
   def getRepodata(self):
-    dest = join(self.local_path, self.repodata_path, 'repodata')
+    dest = self.ljoin(self.repodata_path, 'repodata')
     
     osutils.mkdir(dest, parent=True)
     
-    src = self.rjoin()
-    repomdfile = join(src, self.mdfile)
-    
-    sync.sync(self.rjoin(self.mdfile), dest,
+    sync.sync(self.rjoin(self.repodata_path, self.mdfile), dest,
               username=self.username, password=self.password)
     
-    for data in xmltree.read(join(self.local_path, self.mdfile)).xpath('//data'):
+    for data in xmltree.read(self.ljoin(self.repodata_path, self.mdfile)).xpath('//data'):
       repofile = data.get('location/@href')
-      sync.sync(self.rjoin(repofile), dest,
+      sync.sync(self.rjoin(self.repodata_path, repofile), dest,
                 username=self.username, password=self.password)
       
       filetype = data.get('@type')

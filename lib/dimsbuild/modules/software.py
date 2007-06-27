@@ -79,7 +79,8 @@ class SoftwareInterface(EventInterface, ListCompareMixin):
   
   def syncRpm(self, rpm, repo, force=False):
     "Sync an rpm from path within repo into the the output store"
-    rpmsrc = self.cache(repo, rpm, force=force, callback=self.callback)
+    rpmsrc = self.cache(repo, join(self.getRepo(repo).repodata_path, rpm),
+                        force=force, callback=self.callback)
     sync.sync(rpmsrc, self.rpmdest)
   
   def deleteRpm(self, rpm):

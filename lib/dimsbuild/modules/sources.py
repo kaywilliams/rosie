@@ -172,7 +172,6 @@ class SourceHook(DiffMixin):
       srpms = spider.find(info.rjoin(), glob=SRPM_GLOB, prefix=False,
                           username=info.username, password=info.password)
       for srpm in srpms:
-        #_,n,v,r,a = self.interface.srpmNameDeformat(srpm)
         self._packages[srpm] = info.id
 
     osutils.mkdir(self.interface.srpmdest, parent=True)
