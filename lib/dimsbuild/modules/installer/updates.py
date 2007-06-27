@@ -2,10 +2,10 @@ from os.path import join, exists
 
 from dims import osutils
 
-from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from misc  import locals_imerge
+from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.misc  import locals_imerge
 
-from installer.lib import ImageModifyMixin
+from lib import ImageModifyMixin
 
 API_VERSION = 4.1
 
@@ -61,12 +61,13 @@ class UpdatesHook(ImageModifyMixin):
     except:
       pass
   
+  def setup(self):
+    self.register_image_locals(L_IMAGES)
+  
   def force(self):
     osutils.rm(self.updatesimage, force=True)
   
   def check(self):
-    self.register_image_locals(L_IMAGES)
-    
     return self.interface.isForced('updates-image') or \
            not self.validate_image() or \
            self.test_diffs()

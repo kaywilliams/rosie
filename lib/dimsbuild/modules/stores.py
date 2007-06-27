@@ -11,8 +11,8 @@ from dims import xmltree
 
 from dims.configlib import uElement
 
-from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from interface import EventInterface, DiffMixin, RepoContentMixin, RepoFromXml, Repo
+from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.interface import EventInterface, DiffMixin, RepoContentMixin, RepoFromXml, Repo
 
 API_VERSION = 4.0
 
@@ -38,11 +38,12 @@ class StoresInterface(EventInterface):
     EventInterface.__init__(self, base)
   
   def add_store(self, xml):
-    parent = uElement('additional', self.config.get('//stores'))
-    element = xmltree.read(StringIO(xml))
-    parent.append(element)
-    s,n,d,_,_,_ = urlparse(element.get('path/text()'))
-    server = '://'.join((s,n))
+    pass
+    #parent = uElement('additional', self.config.get('//stores'))
+    #element = xmltree.read(StringIO(xml))
+    #parent.append(element)
+    #s,n,d,_,_,_ = urlparse(element.get('path/text()'))
+    #server = '://'.join((s,n))
   
   def getAllStoreIDs(self):
     return self.config.xpath('//stores/*/store/@id')
@@ -83,7 +84,7 @@ class StoresHook(DiffMixin, RepoContentMixin):
                   self.interface.getAllStoreIDs() ]:
       osutils.rm(file, force=True)
   
-  def pre(self):
+  def setup(self):
     self.interface.log(0, "generating filelists for input stores")
     osutils.mkdir(self.mdstores, parent=True)
     
@@ -94,7 +95,7 @@ class StoresHook(DiffMixin, RepoContentMixin):
     for storeid in self.interface.config.xpath('//stores/*/store/@id'):
       self.interface.log(2, storeid)
       repo = RepoFromXml(self.interface.config.get('//stores/*/store[@id="%s"]' % storeid))
-      repo.local_path = join(self.interface.METADATA_DIR, 'stores')
+      repo.local_path = join(self.interface.METADATA_DIR, 'stores', repo.id)
       
       repo.getRepodata()
       
@@ -147,9 +148,6 @@ class StoresHook(DiffMixin, RepoContentMixin):
     self.interface.cvars['local-repodata'] = self.mdstores
     
     self.write_metadata()
-    
-    for repo in self.interface.getAllRepos(): print repo
-    raise ''
     
 
 #------ HELPER FUNCTIONS ------#

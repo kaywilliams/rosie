@@ -1,8 +1,8 @@
 from os.path import join
 
-from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
-from installer.lib import FileDownloadMixin
+from lib import FileDownloadMixin
 
 API_VERSION = 4.1
 
@@ -32,14 +32,15 @@ class Stage2Hook(FileDownloadMixin):
     
     FileDownloadMixin.__init__(self, interface, self.interface.getBaseStore())
   
+  def setup(self):
+    self.register_file_locals(L_FILES)
+  
   def run(self):
     self.interface.log(0, "synchronizing stage2 images")
     
-    self.register_file_locals(L_FILES)
-    
     # download files, see FileDownloadMixin.download() in lib.py
     self.download()
-
+  
 
 #------ LOCALS ------#
 L_FILES = ''' 

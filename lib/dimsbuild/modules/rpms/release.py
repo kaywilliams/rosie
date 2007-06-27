@@ -2,18 +2,18 @@ from os.path          import exists, join
 
 import os
 
+from dims import filereader
+
 from dims.osutils     import basename, dirname, mkdir, find
 from dims.repocreator import YumRepoCreator
 from dims.sync        import sync
 from dims.xmltree     import XmlPathError
 
-import dims.filereader as filereader
+from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
+from dimsbuild.interface import EventInterface
 
-from constants import BOOLEANS_TRUE
-from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from interface import EventInterface
-
-from rpms.lib import ColorMixin, RpmsHandler, RpmsInterface, getIpAddress
+from lib import ColorMixin, RpmsHandler, RpmsInterface, getIpAddress
 
 EVENTS = [
   {

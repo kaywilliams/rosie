@@ -13,14 +13,14 @@ from dims import osutils
 from dims import sync
 from dims import xmltree
 
-from callback  import BuildSyncCallback
-from constants import BOOLEANS_TRUE
-from difftest  import InputHandler, OutputHandler
-from interface import DiffMixin
-from locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
-from magic     import match as magic_match
-from magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS, FILE_TYPE_FAT
-from misc      import locals_imerge, locals_printf
+from dimsbuild.callback  import BuildSyncCallback
+from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.difftest  import InputHandler, OutputHandler
+from dimsbuild.interface import DiffMixin
+from dimsbuild.locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
+from dimsbuild.magic     import match as magic_match
+from dimsbuild.magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS, FILE_TYPE_FAT
+from dimsbuild.misc      import locals_imerge, locals_printf
 
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')
 
@@ -223,7 +223,7 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
     image_path = self.i_locals.get('//images/image[@id="%s"]/path' % self.name)
     image_path = locals_printf(image_path, self.interface.BASE_VARS)
     
-    self.rsrc = info.join(image_path, self.name)
+    self.rsrc = info.rjoin(image_path, self.name)
     self.isrc = join(self.interface.INPUT_STORE, info.id,
                      info.directory, image_path, self.name)
     self.username = info.username

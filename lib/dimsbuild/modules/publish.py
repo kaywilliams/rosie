@@ -7,8 +7,8 @@ from dims import shlib
 from dims import sortlib
 from dims import sync
 
-from event     import EVENT_TYPE_MDLR
-from interface import EventInterface, DiffMixin
+from dimsbuild.event     import EVENT_TYPE_MDLR
+from dimsbuild.interface import EventInterface, DiffMixin
 
 API_VERSION = 4.0
 
@@ -81,7 +81,7 @@ class PublishHook(DiffMixin):
     osutils.mkdir(dest_os, parent=True)
     
     sync.sync(join(self.interface.SOFTWARE_STORE, '*'),  dest_os, link=True)
-    sync.sync(join(self.interface.SOFTWARE_STORE, '.*'), dest_os, link=True) # .discinfo
+    sync.sync(join(self.interface.SOFTWARE_STORE, '.*'), dest_os, link=True) # dotfiles
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % dest)
 
     self.write_metadata()

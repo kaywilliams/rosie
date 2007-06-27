@@ -15,12 +15,11 @@ from dims import osutils
 from dims import sync
 from dims import imglib
 
-from callback  import BuildSyncCallback
-from constants import BOOLEANS_TRUE
-from event     import EVENT_TYPE_PROC
-from interface import EventInterface
-from locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
-from misc      import locals_imerge
+from dimsbuild.callback  import BuildSyncCallback
+from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.event     import EVENT_TYPE_PROC
+from dimsbuild.locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
+from dimsbuild.misc      import locals_imerge
 
 API_VERSION = 4.0
 
@@ -28,7 +27,6 @@ API_VERSION = 4.0
 EVENTS = [
   {
     'id': 'source-vars',
-    'interface': 'SourcevarsInterface',
     'provides': ['source-vars'],
     'requires': ['anaconda-version'],
     'properties': EVENT_TYPE_PROC
@@ -39,12 +37,6 @@ HOOK_MAPPING = {
   'SourcevarsHook': 'source-vars',
 }
 
-#------ INTERFACES ------#
-class SourcevarsInterface(EventInterface):
-  def __init__(self, base):
-    EventInterface.__init__(self, base)
-  def setSourceVars(self, vars):
-    self._base.source_vars = vars
 
 #------ HOOKS ------#
 class SourcevarsHook:
@@ -53,6 +45,13 @@ class SourcevarsHook:
     self.ID = 'sourcevars.source-vars'
     
     self.interface = interface
+  
+  def error(self, e):
+    try:
+      self.image.close()
+      self.image.cleanup()
+    except:
+      pass
   
   def run(self):
     self.interface.log(0, "computing source variables")
@@ -93,10 +92,3 @@ class SourcevarsHook:
     self.image.cleanup()
     
     osutils.rm(initrd_file2, force=True) #!
-
-  def error(self, e):
-    try:
-      self.image.close()
-      self.image.cleanup()
-    except:
-      pass

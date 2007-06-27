@@ -15,10 +15,10 @@ import dims.mkrpm      as mkrpm
 import dims.shlib      as shlib
 import dims.xmltree    as xmltree
 
-from constants import BOOLEANS_TRUE
-from difftest  import expand
-from event     import EventInterface
-from interface import DiffMixin
+from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.difftest  import expand
+from dimsbuild.event     import EventInterface
+from dimsbuild.interface import DiffMixin
 
 #--------------- FUNCTIONS ------------------#
 def getIpAddress(ifname='eth0'):

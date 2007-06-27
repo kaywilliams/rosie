@@ -22,10 +22,10 @@ from dims import xmltree
 
 from dims.configlib import expand_macros
 
-import difftest
-import locals
+from dimsbuild import difftest
+from dimsbuild import locals
 
-from constants import BOOLEANS_TRUE
+from dimsbuild.constants import BOOLEANS_TRUE
 
 #------ INTERFACES ------#
 class EventInterface:
@@ -54,7 +54,7 @@ class EventInterface:
   def cache(self, storeid, path, force=False, *args, **kwargs):
     info = self.getStoreInfo(storeid)
     
-    src = info.join(path)
+    src = info.rjoin(path)
     dest = join(self.INPUT_STORE, storeid, join(info.directory, osutils.dirname(path)))
     if force:
       osutils.rm(join(self.INPUT_STORE, storeid, join(info.directory, path)),
@@ -70,7 +70,7 @@ class EventInterface:
     if not self.config.pathexists(storepath):
       raise xmltree.XmlPathError, "The specified store, '%s', does not exist in the config file" % storeid
     
-    storeinfo = StoreInfo(storeid)
+    storeinfo = Repo(storeid)
     storeinfo.split(self.config.get('%s/path/text()' % storepath))
     storeinfo.username = self.config.get('%s/username/text()' % storepath, None)
     storeinfo.password = self.config.get('%s/password/text()' % storepath, None)
@@ -82,7 +82,10 @@ class EventInterface:
     return self.config.get('//stores/base/store/@id')
   
   def getAllRepos(self):
-    return self.cvars['stores'].values()
+    return self.cvars['repos'].values()
+  
+  def getRepo(self, repoid):
+    return self.cvars['repos'][repoid]
   
   # logging functions
   def log(self, level, msg):    self._base.log(level, msg)
@@ -221,27 +224,16 @@ class PrimaryXmlContentHandler(xml.sax.ContentHandler):
     if name == 'location':
       self.locs.append(str(attrs.get('href')))
 
-class StoreInfo:
-  def __init__(self, id, scheme='', netloc='', directory='',
-                     username=None, password=None):
-    self.id        = id
-    self.scheme    = scheme
-    self.netloc    = netloc
-    self.directory = directory
-    self.username  = username
-    self.password  = password
   
-  def split(self, url):
-    self.scheme, self.netloc, self.directory, _, _, _ = urlparse(url)
-    self.directory = self.directory.lstrip('/') # for joining convenience
-  
-  def join(self, *args):
-    return urlunparse((self.scheme or 'file', self.netloc, join(self.directory, *args),
-                       '','',''))
-
 class Repo:
   def __init__(self, id):
     self.id = id
+    
+    self.scheme    = None
+    self.netloc    = None
+    self.directory = None
+    self.username  = None
+    self.password  = None
     
     self.remote_path = None
     self.local_path = None
@@ -263,33 +255,42 @@ class Repo:
     
     self.parser = xml.sax.make_parser()
   
+  def split(self, url):
+    self.scheme, self.netloc, self.directory, _, _, _ = urlparse(url)
+    self.directory = self.directory.lstrip('/') # for joining convenience
+  
+  def rjoin(self, *args):
+    return urlunparse((self.scheme or 'file', self.netloc, join(self.directory, *args),
+                       '','',''))
+  
+  def ljoin(self, *args):
+    return join(self.local_path, *args)
+  
   def getRepodata(self):
-    # treating as if Repo is a StoreInfo
-    dest = join(self.local_path, self.id, self.repodata_path)
+    dest = join(self.local_path, self.repodata_path, 'repodata')
     
-    osutils.mkdir(dest)
+    osutils.mkdir(dest, parent=True)
     
-    src = self.join()
+    src = self.rjoin()
     repomdfile = join(src, self.mdfile)
     
-    sync.sync(self.join(self.mdfile), dest,
+    sync.sync(self.rjoin(self.mdfile), dest,
               username=self.username, password=self.password)
     
     for data in xmltree.read(join(self.local_path, self.mdfile)).xpath('//data'):
       repofile = data.get('location/@href')
-      sync.sync(self.join(repofile), dest,
+      sync.sync(self.rjoin(repofile), dest,
                 username=self.username, password=self.password)
-      self.repodata_files.append(repofile)
       
       filetype = data.get('@type')
-      if   filetype == 'group':     self.groupfile     = repofile
-      elif filetype == 'primary':   self.primaryfile   = repofile
-      elif filetype == 'filelists': self.filelistsfile = repofile
-      elif filetype == 'other':     self.otherfile     = repofile
+      if   filetype == 'group':     self.groupfile     = osutils.basename(repofile)
+      elif filetype == 'primary':   self.primaryfile   = osutils.basename(repofile)
+      elif filetype == 'filelists': self.filelistsfile = osutils.basename(repofile)
+      elif filetype == 'other':     self.otherfile     = osutils.basename(repofile)
   
   def getRepoContents(self):
-    pxmlz = self.join(self.primaryfile)
-    pxml  = self.join('primary.xml')
+    pxmlz = self.ljoin(self.repodata_path, 'repodata', self.primaryfile)
+    pxml  = self.ljoin(self.repodata_path, 'repodata', 'primary.xml')
     
     shlib.execute('gunzip -c %s > %s' % (pxmlz, pxml)) # perhaps use python for this
     
@@ -311,22 +312,24 @@ class Repo:
     else:
       oldpkgs = []
     
-    old,new,_ = listcompare.compare(oldpkgs, self.pkgs)
+    old,new,_ = listcompare.compare(oldpkgs, self.rpms)
     
     return old or new
   
   def writeRepoContents(self, file):
-    filereader.write(self.pkgs, file)
+    filereader.write(self.rpms, file)
 
 
 #------ FACTORY FUNCTIONS ------#
 def RepoFromXml(xml):
   repo = Repo(xml.get('@id'))
-  repo.remote_path   = xml.get('path')
+  repo.remote_path   = xml.get('path/text()')
   repo.gpgcheck      = xml.get('gpgcheck/text()', 'False') in BOOLEANS_TRUE
   repo.gpgkey        = xml.get('gpgkey/text()', None)
   repo.repodata_path = xml.get('repodata-path/text()', '')
   repo.include       = xml.get('include/package/text()', [])
   repo.exclude       = xml.get('exclude/package/text()', [])
+  
+  repo.split(repo.remote_path)
   
   return repo

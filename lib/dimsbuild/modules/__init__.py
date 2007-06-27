@@ -19,9 +19,9 @@ the EVENTS  dictionary with at least one  event-type struct;  the rest is option
 (though usually present).
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@abodiosoftare.com>"
-__version__ = "3.0"
-__date__    = "March 13th, 2007"
+__author__  = 'Daniel Musgrave <dmusgrave@abodiosoftare.com>'
+__version__ = '3.0'
+__date__    = 'March 13th, 2007'
 
 # from interface import EventInterface
 # from dispatch import EVENT_TYPE_PROC, EVENT_TYPE_MARK

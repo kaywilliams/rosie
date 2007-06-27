@@ -4,9 +4,9 @@ import os
 from dims import osutils
 from dims import sync
 
-from callback import BuildSyncCallback
-from event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from misc     import locals_imerge
+from dimsbuild.callback import BuildSyncCallback
+from dimsbuild.event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.misc     import locals_imerge
 
 API_VERSION = 4.0
 

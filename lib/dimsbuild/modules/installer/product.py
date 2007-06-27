@@ -5,11 +5,10 @@ from dims import osutils
 from dims import sortlib
 from dims import xmltree
 
-from difftest import DiffTest, OutputHandler, InputHandler, VariablesHandler, ConfigHandler
-from event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from misc     import locals_imerge
+from dimsbuild.event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.misc     import locals_imerge
 
-from installer.lib import ImageModifyMixin
+from lib import ImageModifyMixin
 
 API_VERSION = 4.1
 
@@ -67,12 +66,13 @@ class ProductHook(ImageModifyMixin):
     except:
       pass
   
+  def setup(self):
+    self.register_image_locals(L_IMAGES)
+  
   def force(self):
     osutils.rm(self.productimage, force=True)
   
   def check(self):
-    self.register_image_locals(L_IMAGES)
-    
     return self.interface.isForced('product-image') or \
            not self.validate_image() or \
            self.test_diffs()
@@ -246,7 +246,7 @@ class InstallClass(BaseInstallClass):
 '''
 ,
   '11.2.0.66-1':
-'''
+''' 
 from installclass import BaseInstallClass
 from rhpl.translate import N_
 from constants import *

@@ -5,9 +5,9 @@ from dims import xmltree
 
 from dims.mkrpm   import rpmsign
 
-from constants import BOOLEANS_TRUE
-from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from interface import DiffMixin, EventInterface
+from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.interface import DiffMixin, EventInterface
 
 API_VERSION = 4.0
 
@@ -101,6 +101,7 @@ class SoftwareHook:
        (self.interface.config.get('//gpgsign/sign/text()', 'False') in BOOLEANS_TRUE):
       self.interface.log(1, "signature status differs; removing rpms")
       osutils.rm(self.interface.rpmdest, recursive=True, force=True)
+
 
 class GpgsignHook(DiffMixin):
   def __init__(self, interface):

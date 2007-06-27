@@ -23,10 +23,10 @@ from dims import xmltree
 
 from dims.configlib import uElement
 
-from callback  import BuildSyncCallback
-from constants import BOOLEANS_TRUE
-from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from interface import EventInterface, ListCompareMixin, DiffMixin
+from dimsbuild.callback  import BuildSyncCallback
+from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
+from dimsbuild.interface import EventInterface, ListCompareMixin, DiffMixin
 
 API_VERSION = 4.0
 
@@ -78,11 +78,12 @@ class SrpmInterface(EventInterface, ListCompareMixin):
       return (None, None, None, None, None)
 
   def add_store(self, storeXml):
-    stores = uElement('stores', self.config.get('//source'))
-    store = xmltree.read(StringIO(storeXml))
-    stores.append(store)
-    s,n,d,_,_,_ = urlparse(store.get('path/text()'))
-    server = '://'.join((s,n))
+    pass
+    #stores = uElement('stores', self.config.get('//source'))
+    #store = xmltree.read(StringIO(storeXml))
+    #stores.append(store)
+    #s,n,d,_,_,_ = urlparse(store.get('path/text()'))
+    #server = '://'.join((s,n))
   
 
 #------ HOOKS ------#
@@ -168,7 +169,7 @@ class SourceHook(DiffMixin):
     for store in self.interface.config.xpath('//source/stores/store/@id'):
       info = self.interface.getStoreInfo(store)
       
-      srpms = spider.find(info.join(), glob=SRPM_GLOB, prefix=False,
+      srpms = spider.find(info.rjoin(), glob=SRPM_GLOB, prefix=False,
                           username=info.username, password=info.password)
       for srpm in srpms:
         #_,n,v,r,a = self.interface.srpmNameDeformat(srpm)
@@ -188,5 +189,3 @@ class SourceHook(DiffMixin):
   
 #------ ERRORS ------#
 class SrpmNotFoundError(StandardError): pass
-class SourceStoreNotFoundError(StandardError): pass
-class SrpmSignatureInvalidError(StandardError): pass

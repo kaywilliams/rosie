@@ -7,9 +7,9 @@ from dims.osutils import find
 import dims.filereader as filereader
 import dims.xmltree as xmltree
 
-from event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
+from dimsbuild.event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 
-from rpms.lib import RpmsHandler, RpmsInterface
+from lib import RpmsHandler, RpmsInterface
 
 EVENTS = [
   {

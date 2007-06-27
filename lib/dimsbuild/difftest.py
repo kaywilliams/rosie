@@ -53,7 +53,7 @@ class DiffTest:
     
     self.handlers = [] # a list of registered handlers
     
-    self.debug = True
+    self.debug = False
   
   def dprint(self, msg):
     if self.debug: print msg

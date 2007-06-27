@@ -10,11 +10,11 @@ import dims.imerge  as imerge
 import dims.shlib   as shlib
 import dims.xmltree as xmltree
 
-from constants import BOOLEANS_TRUE
-from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from misc      import locals_imerge
+from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
+from dimsbuild.misc      import locals_imerge
 
-from rpms.lib import ColorMixin, RpmsHandler, RpmsInterface
+from lib import ColorMixin, RpmsHandler, RpmsInterface
 
 try:
   import Image

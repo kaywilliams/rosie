@@ -106,7 +106,9 @@ def main():
     if dir not in import_dirs: import_dirs.append(dir)
   
   sys.path = import_dirs
-    
+  
+  import_dirs = [ join(i, 'dimsbuild') for i in import_dirs ]
+  
   # import dimsbuild from some path in import_dirs
   fp, path, desc = imp.find_module('main', import_dirs)
   build = imp.load_module('main', fp, path, desc)

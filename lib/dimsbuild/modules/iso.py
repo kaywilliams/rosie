@@ -9,13 +9,13 @@ from dims import listcompare
 from dims import osutils
 from dims import shlib
 
-import splittree
+from dimsbuild import splittree
 
-from callback  import BuildDepsolveCallback
-from constants import BOOLEANS_TRUE
-from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from interface import DiffMixin, EventInterface, ListCompareMixin
-from misc      import locals_imerge
+from dimsbuild.callback  import BuildDepsolveCallback
+from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
+from dimsbuild.interface import DiffMixin, EventInterface, ListCompareMixin
+from dimsbuild.misc      import locals_imerge
 
 API_VERSION = 4.0
 
@@ -191,8 +191,7 @@ class IsoHook(DiffMixin):
         self.force()
         return True
     else:
-      # clean up old output and metadata
-      self.force()
+      self.force() # clean up old output and metadata
     return False
   
   def run(self):
@@ -297,7 +296,6 @@ class IsoHook(DiffMixin):
 
 L_DISCINFO_FORMAT = ''' 
 <locals>
-  <!-- .discinfo format entries -->
   <discinfo-entries>
     <discinfo version="0">
       <line id="timestamp" position="0">

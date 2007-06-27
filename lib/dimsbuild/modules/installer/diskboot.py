@@ -2,11 +2,10 @@ from os.path import join, exists
 
 from dims import osutils
 
-from difftest import DiffTest, ConfigHandler, VariablesHandler, InputHandler, OutputHandler
-from event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from misc     import locals_imerge
+from dimsbuild.event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.misc     import locals_imerge
 
-from installer.lib import FileDownloadMixin, ImageModifyMixin
+from lib import FileDownloadMixin, ImageModifyMixin
 
 API_VERSION = 4.1
 
@@ -54,14 +53,15 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
     except:
       pass
   
+  def setup(self):
+    self.data['input'].append(self.interface.cvars['installer-splash'])
+    self.register_image_locals(L_IMAGES)
+    self.register_file_locals(L_FILES)
+  
   def force(self):
     osutils.rm(self.diskbootimage, force=True)
   
   def check(self):
-    self.data['input'].append(self.interface.cvars['installer-splash'])
-    self.register_image_locals(L_IMAGES)
-    self.register_file_locals(L_FILES)
-    
     return self.interface.isForced('diskboot-image') or \
            self.interface.cvars['isolinux-changed'] or \
            not self.validate_image() or \
@@ -75,7 +75,6 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
     
     # download file - see FileDownloadMixin in lib.py
     self.download()
-    
     # modify image - see DiskbootModifier, below, and ImageModifyMixin in lib.py
     self.modify()
   

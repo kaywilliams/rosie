@@ -11,9 +11,9 @@ from dims import xmltree
 from dims.CacheManager import CacheManagerError
 from dims.configlib    import ConfigError, uElement
 
-from event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
-from interface import DiffMixin
-from event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
+from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
+from dimsbuild.interface import DiffMixin
+from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
 
 API_VERSION = 4.0
 
@@ -274,8 +274,8 @@ class CompsHook(DiffMixin):
   
   def __map_groups(self):
     mapped = {}
-    for store in self.interface.config.xpath('//stores/*/store/@id'):
-      mapped[store] = []
+    for repo in self.interface.getAllRepos():
+      mapped[repo.id] = []
     unmapped = []
     
     for group in self.interface.config.xpath('//comps/create-new/groups/group', []):
@@ -294,17 +294,10 @@ class CompsHook(DiffMixin):
     "Get a list of all groupfiles in all repositories"
     groupfiles = []
     
-    for storeid in self.interface.config.xpath('//stores/*/store/@id'):
-      groupfile = xmltree.read(join(self.interface.cvars['local-repodata'],
-                                    storeid, 'repodata/repomd.xml')).get(
-                                      '//data[@type="group"]/location/@href'
-                                    )
-      if groupfile: # not all stores have groupfiles
-        groupfiles.append((storeid,
-                           join(self.interface.cvars['local-repodata'],
-                                storeid,
-                                groupfile)
-                          ))
+    for repo in self.interface.getAllRepos():
+      if repo.groupfile is not None:
+        groupfiles.append((repo.id,
+                           repo.ljoin(repo.repodata_path, 'repodata', repo.groupfile)))
       
     return groupfiles
   

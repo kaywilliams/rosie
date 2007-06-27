@@ -1,7 +1,7 @@
 from dims.CleanHelpFormatter import OptionGroupId
 
-from event     import EVENT_TYPE_META
-from interface import EventInterface
+from dimsbuild.event     import EVENT_TYPE_META
+from dimsbuild.interface import EventInterface
 
 API_VERSION = 4.0
 

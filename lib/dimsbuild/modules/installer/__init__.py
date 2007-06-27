@@ -1,4 +1,4 @@
-from event import EVENT_TYPE_META
+from dimsbuild.event import EVENT_TYPE_META
 
 API_VERSION = 4.0
 
@@ -15,6 +15,7 @@ MODULES = [
   'diskboot',
   'installer_logos',
   'installer_release',
+  'isolinux',
   'product',
   'pxeboot',
   'stage2',

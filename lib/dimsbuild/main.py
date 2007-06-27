@@ -21,11 +21,11 @@ from dims import logger
 from dims import osutils
 from dims.sortlib import dcompare
 
-import event
-import locals
+from dimsbuild import event
+from dimsbuild import locals
 
-from callback  import BuildLogger
-from constants import BOOLEANS_TRUE, BOOLEANS_FALSE, OPT_SKIP, OPT_FORCE
+from dimsbuild.callback  import BuildLogger
+from dimsbuild.constants import *
 
 # RPMS we need to check for
 # createrepo
@@ -191,7 +191,7 @@ class Build:
     for plugin in enabled_plugins:
       imported = False
       for path in self.IMPORT_DIRS:
-        mod = join(path, 'plugins', '%s.py' % plugin)
+        mod = join(path, 'dimsbuild/plugins', '%s.py' % plugin)
         if exists(mod):
           m = load_module(mod)
           self.dispatch.process_module(m)
@@ -201,7 +201,7 @@ class Build:
     
     registered_modules = []
     for path in self.IMPORT_DIRS:
-      modpath = join(path, 'modules')
+      modpath = join(path, 'dimsbuild/modules')
       if not exists(modpath): continue
       for mod in filter(None, osutils.find(modpath, nregex='.*\.pyc',
                                            prefix=False, maxdepth=1)):
@@ -241,6 +241,7 @@ class Build:
     self.dispatch.process(until='applyopt')
     
     for eventid, enabled in self.userFC.items():
+      self.dispatch.get(eventid).status = enabled
       if enabled is None: continue
       if enabled: self.dispatch.force.append(eventid)
       else:       self.dispatch.skip.append(eventid)

@@ -12,10 +12,10 @@ from dims import sortlib
 from dims import spider
 from dims import sync
 
-from callback  import BuildSyncCallback
-from constants import BOOLEANS_TRUE
-from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from interface import EventInterface, ListCompareMixin
+from dimsbuild.callback  import BuildSyncCallback
+from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.interface import EventInterface, ListCompareMixin
 
 API_VERSION = 4.0
 
@@ -77,9 +77,9 @@ class SoftwareInterface(EventInterface, ListCompareMixin):
       raise RuntimeError, "No GPG keys found to check against"
     mkrpm.rpmsign.verifyRpm(rpm, public=pubkey, force=True)
   
-  def syncRpm(self, rpm, store, force=False):
-    "Sync an rpm from path within store into the the output store"
-    rpmsrc = self.cache(store, rpm, force=force, callback=self.callback)
+  def syncRpm(self, rpm, repo, force=False):
+    "Sync an rpm from path within repo into the the output store"
+    rpmsrc = self.cache(repo, rpm, force=force, callback=self.callback)
     sync.sync(rpmsrc, self.rpmdest)
   
   def deleteRpm(self, rpm):
@@ -160,16 +160,16 @@ class SoftwareHook:
   def notify_right(self, i):
     self._changed = True
     self.interface.log(1, "downloading new rpms (%d packages)" % i)
-    for store in self.interface.config.xpath('//stores/*/store/@id'):
-      # get the list of .rpms in the input store
-      for rpm in self.interface.cvars['input-store-lists'][store]:
+    # construct a reverse-lookup table of rpm name/arch to store and file location
+    for repo in self.interface.getAllRepos():
+      for rpm in repo.rpms:
         _,n,v,r,a = self.interface.rpmNameDeformat(rpm)
         nvr = '%s-%s-%s' % (n,v,r)
         if not self._packages.has_key(nvr):
           self._packages[nvr] = {}
         if not self._packages[nvr].has_key(a):
           self._packages[nvr][a] = []
-        self._packages[nvr][a].append((store,rpm))
+        self._packages[nvr][a].append((repo.id,rpm))
     
   def _delete_rpm(self, rpm): # lfn
     self.interface.deleteRpm(rpm)
@@ -178,12 +178,12 @@ class SoftwareHook:
     for arch in self._packages[rpm]:
       if arch in self._validarchs:
         try:
-          store, rpmname = self._packages[rpm][arch][0]
-          self.interface.syncRpm(rpmname, store,
+          repoid, rpmname = self._packages[rpm][arch][0]
+          self.interface.syncRpm(rpmname, repoid,
                                  force=self.interface.isForced('software'))
-          self._new_rpms.append((osutils.basename(rpmname), store))
+          self._new_rpms.append((osutils.basename(rpmname), repoid))
         except IndexError, e:
-          self.errlog(1, "No rpm '%s' found in store '%s' for arch '%s'" % (rpm, store, arch))
+          self.errlog(1, "No rpm '%s' found in store '%s' for arch '%s'" % (rpm, repoid, arch))
   
   def _check_rpm_signatures(self):
     if len(self._new_rpms) == 0:
@@ -192,12 +192,8 @@ class SoftwareHook:
     
     gpgkeys = self._prepare_gpgcheck()
     
-    for rpm, store in self._new_rpms:
-      if self.interface.config.get(['//stores/*/store[@id="%s"]/gpgcheck/text()' % store,
-                                    '//stores/gpgcheck/text()'],
-                                   'False') not in BOOLEANS_TRUE:
-        continue
-      
+    for rpm, repoid in self._new_rpms:
+      if not self.interface.getRepo(repoid).gpgcheck: continue
       invalids = []
       try:
         self.interface.rpmCheckSignature(join(self.interface.rpmdest, rpm), gpgkeys)
@@ -213,10 +209,9 @@ class SoftwareHook:
   def _prepare_gpgcheck(self):
     gpgtemp = join(self.interface.TEMP_DIR, 'gpgkeys')
     osutils.mkdir(gpgtemp)
-    for store in self.interface.config.xpath('//stores/*/store'):
-      if store.get('gpgcheck/text()', 'False') not in BOOLEANS_TRUE: continue
-      key = store.get('gpgkey/text()', None)
-      if key: sync.sync(self.interface.config.expand(key), gpgtemp)
+    for repo in self.interface.getAllRepos():
+      if not repo.gpgcheck: continue
+      if repo.gpgkey: sync.sync(repo.gpgkey, gpgtemp)
     return osutils.find(gpgtemp, maxdepth=1, type=osutils.TYPE_FILE)
   
   def _clean_gpgcheck(self):

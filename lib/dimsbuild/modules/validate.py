@@ -7,8 +7,8 @@ import os
 import dims.filereader as filereader
 import dims.xmltree    as xmltree
 
-from event     import HookExit, EVENT_TYPE_MDLR
-from interface import EventInterface
+from dimsbuild.event     import HookExit, EVENT_TYPE_MDLR
+from dimsbuild.interface import EventInterface
 
 API_VERSION = 4.0
 
@@ -140,7 +140,7 @@ class ValidateHook:
     self.ID = 'validate.validate'    
     self.interface = interface
 
-  def pre(self):
+  def setup(self):
     self.interface.log(0, "performing config validation")
     if self.interface.cvars.get('validate', 'distro') == 'distro':
       self.interface.log(1, "validating distro.conf")      

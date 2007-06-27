@@ -9,8 +9,8 @@ from dims import osutils
 
 from dims.repocreator import YumRepoCreator
 
-from callback  import BuildDepsolveCallback
-from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.callback import BuildDepsolveCallback
+from dimsbuild.event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
 API_VERSION = 4.0
 
@@ -54,16 +54,17 @@ YUMCONF_HEADER = [
 
 class DepsolveMDCreator(YumRepoCreator):
   "A subclass of YumRepoCreator that handles making the depsolve config file"
-  def __init__(self, yumrepo, config, fallback, localrepos):
+  def __init__(self, yumrepo, config, fallback, repos):
     YumRepoCreator.__init__(self, yumrepo, config, fallback)
     
-    self.localrepos = localrepos
+    self.repos = repos
     
     self.idre = re.compile('.*\[@id="(.*)"\].*')
   
   def getPath(self, storeQuery):
-    storeid = self.idre.match(storeQuery).groups()[0]
-    return 'file://' + join(self.localrepos, storeid)
+    repoid = self.idre.match(storeQuery).groups()[0]
+    repo = self.repos[repoid]
+    return 'file://' + repo.ljoin(repo.repodata_path)
 
 
 #------ HOOKS ------#
@@ -77,12 +78,12 @@ class InitHook:
   def run(self):
     parser = self.interface.getOptParser('build')
     
-    # the following option doesn't work yet
     parser.add_option('--with-pkglist',
                       default=None,
                       dest='with_pkglist',
                       metavar='PKGLISTFILE',
                       help='use PKGLISTFILE for the pkglist instead of generating it')
+
 
 class ApplyoptHook:
   def __init__(self, interface):
@@ -95,6 +96,7 @@ class ApplyoptHook:
     if self.interface.options.with_pkglist is not None:
       self.interface.cvars['pkglist-file'] = self.interface.options.with_pkglist
 
+
 class ValidateHook:
   def __init__(self, interface):
     self.VERSION = 0
@@ -104,6 +106,7 @@ class ValidateHook:
   def run(self):
     self.interface.validate('//pkglist', schemafile='pkglist.rng')
     
+
 class RepogenHook:
   def __init__(self, interface):
     self.VERSION = 0
@@ -119,7 +122,7 @@ class RepogenHook:
   def run(self):
     dmdc = DepsolveMDCreator(self.cfgfile, self.interface.config.file,
                              fallback='//stores',
-                             localrepos=self.interface.cvars['local-repodata'])
+                             repos=self.interface.cvars['repos'])
     dmdc.createRepoFile()
     
     conf = filereader.read(self.cfgfile)
@@ -130,6 +133,7 @@ class RepogenHook:
     if not exists(self.cfgfile):
       raise RuntimeError, "Unable to find depsolve config file at '%s'" % self.cfgfile
     self.interface.cvars['repoconfig-file'] = self.cfgfile
+
 
 class PkglistHook:
   def __init__(self, interface):

@@ -3,10 +3,10 @@ from os.path import exists, isdir, isfile, join
 from dims.osutils import basename, find, mkdir, rm
 from dims.sync    import sync
 
-from constants import BOOLEANS_TRUE
-from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
+from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 
-from installer.lib import ExtractHandler, RpmNotFoundError
+from lib import ExtractHandler, RpmNotFoundError
 
 API_VERSION = 4.1
 

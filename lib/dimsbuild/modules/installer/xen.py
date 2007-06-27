@@ -2,9 +2,9 @@ from os.path import join, exists
 
 from dims import osutils
 
-from event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
-from installer.lib import FileDownloadMixin, ImageModifyMixin
+from lib import FileDownloadMixin, ImageModifyMixin
 
 API_VERSION = 4.0
 
@@ -67,13 +67,14 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
     except:
       pass
   
+  def setup(self):
+    self.register_image_locals(L_IMAGES)
+    self.register_file_locals(L_FILES)
+    
   def force(self):
     osutils.rm(self.xen_dir, recursive=True, force=True)
   
   def check(self):
-    self.register_image_locals(L_IMAGES)
-    self.register_file_locals(L_FILES)
-    
     return self.interface.isForced('xen-images') or \
            not self.validate_image() or \
            self.test_diffs()

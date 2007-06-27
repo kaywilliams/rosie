@@ -2,10 +2,10 @@ from os.path import join
 
 from dims.osutils import basename, dirname, find
 
-from difftest import expand
-from event    import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
+from dimsbuild.difftest import expand
+from dimsbuild.event    import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 
-from rpms.lib import RpmsHandler, RpmsInterface
+from lib import RpmsHandler, RpmsInterface
 
 EVENTS = [
   {

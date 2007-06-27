@@ -45,9 +45,9 @@ from os.path import join
 
 from dims import tree
 
-import resolve
+from dimsbuild import resolve
 
-from interface import EventInterface
+from dimsbuild.interface import EventInterface
 
 #------ EVENT TYPES ------#
 """ 
@@ -157,6 +157,8 @@ class Event(resolve.Item, tree.Node):
     self.hookids = []
     self.hooks = []
     
+    self.status = None
+    
   def __iter__(self): return EventIterator(self)
   def __str__(self): return self.id
   def __repr__(self): return '<events.Event instance id=\'%s\'>' % self.id
@@ -196,15 +198,25 @@ class Event(resolve.Item, tree.Node):
   def prev(self): return self.prevsibling or self.parent      or None
   
   #------ EXECUTE ------#
-  def apply(self): self._run_hooks(fn='apply')
-  def force(self): self._run_hooks(fn='force')
-  def pre(self):   self._run_hooks(fn='pre')
-  def post(self):  self._run_hooks(fn='post')
-  def skip(self):  self._run_hooks(fn='skip')
+  def pre(self):  self._run_hooks(fn='pre')
+  def post(self): self._run_hooks(fn='post')
   def run(self):
-    for hook in self.hooks:
-      if not (hasattr(hook, 'check') and not hook.check()):
-        self._run_hook(hook, 'run')
+    self._setup()
+    if self.enabled and self.status != False:
+      ##print '%s.run()' % self.id #!
+      for hook in self.hooks:
+        if not hasattr(hook, 'check') or \
+           hasattr(hook, 'check') and hook.check():
+          self._run_hook(hook, 'run')
+    self._run_hooks(fn='apply')
+  
+  def _setup(self):
+    if self.status == False:
+      self._run_hooks(fn='skip')
+    else:
+      self._run_hooks(fn='setup')
+      if self.status == True:
+        self._run_hooks(fn='force')
   
   def _run_hooks(self, fn='run'):
     "Run the function specified in fn on each registered hook, if it has one."
@@ -320,16 +332,7 @@ class Dispatch:
           self.event_stack.pop().post()
         else:
           self.currevent.pre()
-          if self.currevent.id in self.skip:
-            self.currevent.skip()
-            self.currevent.enabled = False
-          if self.currevent.id in self.force:
-            self.currevent.force()
-            self.currevent.enabled = True
-          if self.currevent.enabled:
-            self.currevent.run()
-          self.currevent.apply()
-          
+          self.currevent.run()
           # if event has children, running post() is postponed until after they're done
           if len(self.currevent.get_children()) > 0:
             self.event_stack.append(self.currevent)

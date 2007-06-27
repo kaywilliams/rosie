@@ -22,9 +22,9 @@ from dims import sync
 
 from dims.sortlib import dcompare
 
-from event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from interface import EventInterface, DiffMixin
-from misc      import locals_imerge
+from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.interface import DiffMixin
+from dimsbuild.misc      import locals_imerge
 
 API_VERSION = 4.0
 
@@ -165,6 +165,7 @@ class TreeinfoHook(DiffMixin):
     if not exists(self.tifile):
       raise RuntimeError, "Unable to find .treeinfo file at '%s'" % self.tifile
     self.write_metadata()
+
 
 #------ LOCALS ------#
 L_DISCINFO_FORMAT = ''' 

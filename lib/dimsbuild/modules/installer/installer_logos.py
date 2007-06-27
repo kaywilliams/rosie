@@ -10,11 +10,11 @@ from dims import shlib
 from dims.osutils import *
 from dims.sync    import sync
 
-from event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from magic     import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
-from misc      import locals_imerge
+from dimsbuild.event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
+from dimsbuild.magic import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
+from dimsbuild.misc  import locals_imerge
 
-from installer.lib import ExtractHandler, RpmNotFoundError
+from lib import ExtractHandler, RpmNotFoundError
 
 API_VERSION = 4.1
 
@@ -58,11 +58,13 @@ class InstallerLogosHook(ExtractHandler):
     
     ExtractHandler.__init__(self, interface, self.metadata_struct,
                             join(interface.METADATA_DIR, 'installer-logos.md'))
-    
-  def check(self):
+  
+  def setup(self):
     self.locals = locals_imerge(L_INSTALLER_LOGOS, self.interface.cvars['anaconda-version'])
     self.format = self.locals.get('//splash-image/format/text()')
     self.file = self.locals.get('//splash-image/file/text()')
+  
+  def check(self):
     return ExtractHandler.check(self)
   
   def run(self):
@@ -149,7 +151,7 @@ class InstallerLogosHook(ExtractHandler):
     return [rpms[0]]
 
 
-L_INSTALLER_LOGOS = '''
+L_INSTALLER_LOGOS = ''' 
 <locals>
   <installer-logos>
 
