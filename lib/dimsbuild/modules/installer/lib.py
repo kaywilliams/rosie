@@ -67,13 +67,14 @@ class ExtractHandler(DiffMixin):
     
     DiffMixin.__init__(self, mdfile, data)
 
-  def force(self):
+  def setup(self):
     self.modify_output_data(self.handlers['output'].output.keys())
-    self.clean_output()
-  
-  def check(self):
     self.modify_input_data(self.find_rpms())
-    self.modify_output_data(self.handlers['output'].output.keys())
+
+  def force(self):
+    self.clean_output()
+    
+  def check(self):    
     if self.test_diffs():
       self.clean_output()
       return True
@@ -82,16 +83,17 @@ class ExtractHandler(DiffMixin):
   def extract(self, message):
     self.interface.log(0, message)
     
-    # get input - extract RPMs
-    self.working_dir = tempfile.mkdtemp() # temporary directory, gets deleted once done
-    for rpmname in self.data['input']:
-      extractRpm(rpmname, self.working_dir)    
-
     # generate output files
     try:
-      # need to modify self.data, so that the metadata
-      # written has all the files created. Otherwise, self.data['output']
-      # will be empty.
+      # get input - extract RPMs
+      self.working_dir = tempfile.mkdtemp() # temporary directory, gets deleted once done
+
+      for rpmname in self.data['input']:
+        extractRpm(rpmname, self.working_dir)    
+      
+      # need to modify self.data, so that the metadata written has all
+      # the files created. Otherwise, self.data['output'] will be
+      # empty.
       self.modify_output_data(self.generate())
     finally:
       osutils.rm(self.working_dir, recursive=True, force=True)
@@ -218,7 +220,7 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
   def register_image_locals(self, locals):
     ImageHandler.register_image_locals(self, locals)
     
-    info = self.interface.getStoreInfo(self.interface.getBaseStore())
+    info = self.interface.getRepo(self.interface.getBaseStore())
     
     image_path = self.i_locals.get('//images/image[@id="%s"]/path' % self.name)
     image_path = locals_printf(image_path, self.interface.BASE_VARS)

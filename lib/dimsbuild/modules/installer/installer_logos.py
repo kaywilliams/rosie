@@ -23,7 +23,7 @@ EVENTS = [
     'id': 'installer-logos',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['installer-splash'],
-    'requires': ['software'],
+    'requires': ['software', 'anaconda-version'],
     'conditional-requires': ['gpgsign'],    
     'parent': 'INSTALLER',
   },
@@ -42,7 +42,9 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//installer/logos', schemafile='installer-logos.rng')
+    self.interface.validate('/distro/installer/logos',
+                            schemafile='installer-logos.rng')
+    
 
 class InstallerLogosHook(ExtractHandler):
   def __init__(self, interface):
@@ -50,7 +52,7 @@ class InstallerLogosHook(ExtractHandler):
     self.ID = 'installer_logos.installer-logos'
 
     self.metadata_struct = {
-      'config'   : ['//installer/logos'],
+      'config'   : ['/distro/installer/logos'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input'    : [],
       'output'   : [],
@@ -63,9 +65,7 @@ class InstallerLogosHook(ExtractHandler):
     self.locals = locals_imerge(L_INSTALLER_LOGOS, self.interface.cvars['anaconda-version'])
     self.format = self.locals.get('//splash-image/format/text()')
     self.file = self.locals.get('//splash-image/file/text()')
-  
-  def check(self):
-    return ExtractHandler.check(self)
+    ExtractHandler.setup(self)
   
   def run(self):
     ExtractHandler.extract(self, "processing installer logos")
@@ -105,23 +105,24 @@ class InstallerLogosHook(ExtractHandler):
     Create the product.img folder that can be used by the product.img
     module.
     """
-    # delete the pixmaps folder in the images-src/product.img/ folder
-    # and link the images from the RPM folder to the pixmaps folder.
+    # link the images from the RPM folder to the pixmaps/ folder in
+    # the folder the product.img event looks in.
     product_img = join(self.interface.METADATA_DIR, 'images-src', 'product.img', 'pixmaps')
     mkdir(product_img, parent=True)
 
     # FIXME: is the anaconda/pixmaps folder sufficient?
     dirs_to_look = find(self.working_dir, name='pixmaps', type=TYPE_DIR, regex='.*anaconda.*')
 
-    # generate the list of files to use and copy them to the product.img folder
+    # generate the list of files to use and copy them to the
+    # product.img folder    
     pixmaps = []    
     for folder in dirs_to_look:
       for image in find(folder, type=TYPE_FILE|TYPE_LINK, prefix=True):
         file_name = basename(image)
         self.interface.log(4, "hardlinking %s to %s" %(file_name, product_img,))
-        pixmap = join(product_img, file_name)
         sync(image, product_img, link=True)
-        pixmaps.append(pixmap)
+        pixmaps.append(join(product_img, file_name))
+        
     return pixmaps
 
   def apply(self):
@@ -139,7 +140,7 @@ class InstallerLogosHook(ExtractHandler):
       return magic_match(splash) == FILE_TYPE_LSS
       
   def find_rpms(self):
-    pkgname = self.config.get('//installer/logos/package/text()',
+    pkgname = self.config.get('/distro/installer/logos/package/text()',
                               '%s-logos' %(self.interface.product,))    
     rpms = find(self.interface.cvars['rpms-directory'], name='%s-*-*' %(pkgname,),
                 nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
@@ -162,6 +163,8 @@ L_INSTALLER_LOGOS = '''
       </splash-image>
     </installer-logo>
 
+    <!-- approx 11.2.0.66-1 - starting using a .jpg instead of converting -->
+    <!-- syslinux.png to splash.lss .                                     -->
     <installer-logo version="11.2.0.66-1">
       <action type="update" path="splash-image">
         <format>jpg</format>
@@ -172,6 +175,7 @@ L_INSTALLER_LOGOS = '''
   </installer-logos>
 </locals>
 '''
+
 
 #------ EXCEPTIONS ------#
 class SplashImageNotFound(StandardError): pass

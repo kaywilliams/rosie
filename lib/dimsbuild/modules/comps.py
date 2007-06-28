@@ -9,7 +9,7 @@ from dims import sortlib
 from dims import xmltree
 
 from dims.CacheManager import CacheManagerError
-from dims.configlib    import ConfigError, uElement
+from dims.configlib    import ConfigError
 
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
 from dimsbuild.interface import DiffMixin
@@ -89,7 +89,7 @@ class CompsHook(DiffMixin):
     # metadata and store comps file locations
     self.s_compsfile = join(self.interface.METADATA_DIR, 'comps.xml')
     
-    self.comps = xmltree.Element('comps')
+    self.comps = Element('comps')
     self.header = HEADER_FORMAT % ('1.0', 'UTF-8')
     
     self.DATA = {
@@ -308,7 +308,7 @@ class CompsHook(DiffMixin):
     attrs = {}
     if requires is not None: attrs['requires'] = requires
     attrs['type'] = type
-    
+
     packagelist = uElement('packagelist', parent=group)
     Element('packagereq', text=package, attrs=attrs, parent=packagelist)
     
@@ -367,8 +367,9 @@ def Category(name, fullname='', version='0'):
     uElement('grouplist',     parent=top)
   return top
 
-Element = xmltree.Element # convenience function
-#uElement defined in main.py
+# convenience functions
+Element  = xmltree.Element  
+uElement = xmltree.uElement
 
 #------ ERRORS ------#
 class CompsError(StandardError): pass

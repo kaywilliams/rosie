@@ -56,7 +56,7 @@ class SourcevarsHook:
   def run(self):
     self.interface.log(0, "computing source variables")
     #Setup
-    info = self.interface.getStoreInfo(self.interface.getBaseStore())
+    info = self.interface.getRepo(self.interface.getBaseStore())
     
     #Download initrd.img to cache
     initrd_file = join(self.interface.INPUT_STORE, info.id,

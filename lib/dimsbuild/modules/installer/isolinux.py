@@ -59,7 +59,7 @@ class IsolinuxHook(FileDownloadMixin, DiffMixin):
   def setup(self):
     self.register_file_locals(L_FILES)
     
-    info = self.interface.getStoreInfo(self.interface.getBaseStore())
+    info = self.interface.getRepo(self.interface.getBaseStore())
     
     self.DATA['input'].extend(  [ join(self.interface.INPUT_STORE,
                                        info.id, info.directory,
@@ -129,7 +129,7 @@ class InitrdHook(ImageModifyMixin):
   def setup(self):
     self.register_image_locals(L_IMAGES)
 
-    info = self.interface.getStoreInfo(self.interface.getBaseStore())
+    info = self.interface.getRepo(self.interface.getBaseStore())
     
     self.DATA['input'].extend(  [ join(self.interface.INPUT_STORE,
                                        info.id, info.directory,

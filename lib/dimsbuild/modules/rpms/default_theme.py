@@ -38,14 +38,14 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//default-theme-rpm', schemafile='default-theme-rpm.rng')
+    self.interface.validate('/distro/rpms/default-theme-rpm', schemafile='default-theme-rpm.rng')
 
 class PkglistHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'default_theme.pkglist'
     self.interface = interface
-    self.productid = self.interface.config.get('//main/product/text()')
+    self.productid = self.interface.config.get('/distro/main/product/text()')
 
   def post(self):
     for pkg in self.interface.cvars.get('pkglist', []):
@@ -54,7 +54,7 @@ class PkglistHook:
         if default_theme_info is not None:
           rpmname, nvr, type, requires = default_theme_info # for convenience
           
-          attrs = {'type': type or 'mandatory'}
+          attrs = {'type': type}
           if requires is not None:
             attrs['requires'] = requires
 
@@ -85,14 +85,15 @@ class DefaultThemeHook(RpmsHandler):
     
     data = {
       'config': [
-        '//rpms/default-theme-rpm',
+        '/distro/rpms/default-theme-rpm',
       ],
       'output': [
         join(interface.METADATA_DIR, 'default-theme-rpm/'),
       ],
     }
 
-    self.themename = interface.config.get('//rpms/default-theme-rpm/theme/text()', interface.product)
+    self.themename = interface.config.get('/distro/rpms/default-theme-rpm/theme/text()',
+                                          interface.product)
 
     RpmsHandler.__init__(self, interface, data, 'default-theme-rpm',
                          '%s-default-theme' %(interface.product,),

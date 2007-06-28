@@ -7,9 +7,9 @@ import dims.listcompare as listcompare
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_META
-from dimsbuild.interface import RepoContentMixin
+from dimsbuild.interface import Repo
 
-from lib import RpmsInterface
+from rpms.lib import RpmsInterface
 
 API_VERSION = 4.0
 
@@ -30,12 +30,6 @@ MODULES = [
   'release',
 ]
 
-STORE_XML = ''' 
-<store id="localrepo">
-  <path>file://%s</path>
-</store>
-'''
-
 SOURCE_XML = ''' 
 <store id="localrepo-srpms">
   <path>file://%s</path>
@@ -43,22 +37,10 @@ SOURCE_XML = '''
 '''
 
 HOOK_MAPPING = {
-  'LocalStoresHook'  : 'stores',
   'LocalSrpmsHook'   : 'source',
   'RpmsHook'         : 'RPMS',
   'LocalRepogenHook' : 'repogen',
 }
-
-class LocalStoresHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'rpms.__init__.stores'
-    self.interface = interface
-    
-  def post(self):
-    localrepo = join(self.interface.METADATA_DIR, 'localrepo/')
-    mkdir(localrepo)
-    self.interface.add_store(STORE_XML % localrepo)
 
 class LocalSrpmsHook:
   def __init__(self, interface):
@@ -71,34 +53,36 @@ class LocalSrpmsHook:
       store = join(self.interface.METADATA_DIR, 'localrepo/SRPMS/')
       self.interface.add_store(SOURCE_XML % store)
 
-class RpmsHook(RepoContentMixin):
+class RpmsHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'rpms.__init__.RPMS'
     self.interface = interface
 
-    RepoContentMixin.__init__(self, mdstores=self.interface.METADATA_DIR)
-
   def post(self):
-    createrepo = True
-    if not exists(join(self.mdstores, 'localrepo', 'repodata')):
-      self.interface.createrepo()      
-      createrepo = False
+    repo = Repo('localrepo')
+    repo.local_path = join(self.interface.METADATA_DIR, repo.id)
+    repo.remote_path = 'file://%s' %repo.local_path
+    repo.split('file:///%s' % repo.local_path)
 
-    pkgs = self.getRepoContents('localrepo')
-    if self.compareRepoContents('localrepo', pkgs):
-      if createrepo:
-        self.interface.createrepo()        
+    self.interface.createrepo()
+
+    repo.readRepoData()    
+    repo.readRepoContents()
+    repofile = join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id)
+    
+    if repo.compareRepoContents(repofile):      
+      repo.changed = True
+      self.interface.cvars['input-store-changed'] = True
+      repo.writeRepoContents(repofile)      
       # HACK ALERT: need to the remove the .depsolve/localrepo folder so
       # that depsolver picks up the new RPM.      
       rm(join(self.interface.METADATA_DIR, '.depsolve/localrepo'),
          recursive=True, force=True)
-      
-      self.interface.cvars['input-store-changed'] = True
-
-    if not self.interface.cvars['input-store-lists']:
-      self.interface.cvars['input-store-lists'] = {}
-    self.interface.cvars['input-store-lists'].update({'localrepo': pkgs})
+    
+    if not self.interface.cvars['repos']:
+      self.interface.cvars['repos'] = {}
+    self.interface.cvars['repos'][repo.id] = repo    
 
 class LocalRepogenHook:
   def __init__(self, interface):

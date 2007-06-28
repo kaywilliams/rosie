@@ -50,7 +50,7 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//logos-rpm', schemafile='logos-rpm.rng')
+    self.interface.validate('/distro/rpms/logos-rpm', schemafile='logos-rpm.rng')
 
 class LogosRpmHook(RpmsHandler, ColorMixin):
   def __init__(self, interface):
@@ -61,7 +61,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
       'config': [
         '/distro/main/fullname/text()',
         '/distro/main/version/text()',
-        '//logos-rpm',
+        '/distro/rpms/logos-rpm',
       ],
       'output': [
         join(interface.METADATA_DIR, 'logos-rpm/'),
@@ -71,40 +71,39 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     RpmsHandler.__init__(self, interface, data,
                          'logos-rpm', '%s-logos' % interface.product,
                          description='Icons and pictures related to %s' \
-                         % interface.config.get('//main/fullname/text()'),
+                         % interface.config.get('/distro/main/fullname/text()'),
                          long_description='The %s-logos package contains '
                          'image files which have been automatically created '
                          'by dimsbuild and are specific to the %s '
                          'distribution.' \
-                         %(interface.product, interface.config.get('//main/fullname/text()')))
+                         %(interface.product, interface.config.get('/distro/main/fullname/text()')))
     
     ColorMixin.__init__(self, join(self.interface.METADATA_DIR,
                                    '%s.pkgs' %(self.interface.getBaseStore(),)))
-        
+
+  def setup(self):
     # set the font to use
     available_fonts = find(join(self.sharepath, 'fonts'), name='*.ttf')
     self.fontfile = available_fonts[0]
-
-  def pre(self):
+    
     expand = (self.product,)*8
     self.imageslocal = locals_imerge(L_LOGOS %expand, self.interface.cvars['anaconda-version'])
-    
-  def run(self):
-    self.set_colors()
 
-    # convert the colors to big endian because the python-imaging library uses big-endian colors.
-    self.bgcolor = self.color_to_bigendian(self.bgcolor)
-    self.textcolor = self.color_to_bigendian(self.textcolor)
-    self.hlcolor = self.color_to_bigendian(self.hlcolor)
+    # convert the colors to big endian because the python-imaging
+    # library uses big-endian colors.    
+    self.setColors(be=True)
+    self.bgcolor = int(self.bgcolor, 16)
+    self.textcolor = int(self.textcolor, 16)
+    self.hlcolor = int(self.hlcolor, 16)
     
     mkdir(join(self.interface.METADATA_DIR, 'images-src/product.img'), parent=True)
-    RpmsHandler.run(self)
-            
+    RpmsHandler.setup(self)
+  
   def _generate(self):
     self._generate_images()
     self._generate_theme_files()
 
-  def _create_manifest(self): pass # done by get_data_files()
+  def _create_manifest(self): pass # done by get_data_files(), below
 
   def _get_data_files(self):
     manifest = join(self.output_location, 'MANIFEST')
@@ -166,8 +165,8 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     return True
 
   def _get_obsoletes(self):
-    packages = self.config.xpath('//rpms/logos-rpm/obsoletes/package/text()', [])
-    if self.config.get('//rpms/logos-rpm/@use-default-set', 'True') in BOOLEANS_TRUE:
+    packages = self.config.xpath('/distro/rpms/logos-rpm/obsoletes/package/text()', [])
+    if self.config.get('/distro/rpms/logos-rpm/@use-default-set', 'True') in BOOLEANS_TRUE:
       packages.extend(['fedora-logos', 'centos-logos', 'redhat-logos'])
 
     if packages:
@@ -175,7 +174,12 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     return None
 
   def _get_provides(self):
-    return 'system-logos, redhat-logos = 4.9.3'
+    packages = self.config.xpath('/distro/rpms/logos-rpm/obsoletes/package/text()', [])
+    packages.extend(['redhat-logos = 4.9.3', 'system-logos'])
+    if self.config.get('/distro/rpms/logos-rpm/@use-default-set', 'True') in BOOLEANS_TRUE:
+      packages.extend(['fedora-logos', 'centos-logos'])
+    
+    return ' '.join(packages)
 
   def _get_requires(self):
     return 'redhat-artwork'    
@@ -537,9 +541,6 @@ L_LOGOS = '''
         <textmaxwidth>150</textmaxwidth>
         <textvcenter>22</textvcenter>
         <texthcenter>90</texthcenter>        
-      </logo>
-      <logo id="COPYING">
-        <location>/usr/share/NVR/COPYING</location>
       </logo>
       <logo id="gdm/themes/%s/background.png">
         <width>635</width>

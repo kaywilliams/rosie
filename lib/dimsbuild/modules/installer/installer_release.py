@@ -32,7 +32,8 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//installer/release-files', schemafile='installer-release-files.rng')
+    self.interface.validate('/distro/installer/release-files',
+                            schemafile='installer-release-files.rng')
 
 
 class InstallerReleaseHook(ExtractHandler):
@@ -41,7 +42,7 @@ class InstallerReleaseHook(ExtractHandler):
     self.ID = 'installer_release.installer-release-files'
 
     self.metadata_struct = {
-      'config': ['//installer/release-files'],
+      'config': ['/distro/installer/release-files'],
       'input' : [],
       'output': [],
     }
@@ -55,11 +56,12 @@ class InstallerReleaseHook(ExtractHandler):
   def generate(self):
     files = {}
     rtn = []    
-    for path in self.config.xpath('//installer/release-files/path', []):
+    for path in self.config.xpath('/distro/installer/release-files/path', []):
       source = path.text
       dest = join(self.software_store, path.attrib['dest'])
       files[source] = dest
-    if self.config.get('//release-files/include-in-tree/@use-default-set', 'True') in BOOLEANS_TRUE:
+    if self.config.get('/distro/installer/release-files/include-in-tree/@use-default-set', 'True') \
+           in BOOLEANS_TRUE:
       for default_item in ['eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README',
                            '*-RPM-GPG', 'RPM-GPG-KEY-*', 'RPM-GPG-KEY-beta',
                            'README-BURNING-ISOS-en_US.txt', 'RELEASE-NOTES-en_US.html']:
@@ -75,7 +77,7 @@ class InstallerReleaseHook(ExtractHandler):
     return rtn
 
   def find_rpms(self):
-    rpmnames = self.config.xpath('//installer/release-files/package/text()',
+    rpmnames = self.config.xpath('/distro/installer/release-files/package/text()',
                                 ['%s-release' %(self.interface.product,)])
     rpms = []
     for rpmname in rpmnames:

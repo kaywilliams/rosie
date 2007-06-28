@@ -52,7 +52,7 @@ class EventInterface:
     return expand_macros(text, self._base.cvars['base-vars'])
   
   def cache(self, storeid, path, force=False, *args, **kwargs):
-    info = self.getStoreInfo(storeid)
+    info = self.getRepo(storeid)
     
     src = info.rjoin(path)
     dest = join(self.INPUT_STORE, storeid, join(info.directory, osutils.dirname(path)))
@@ -63,20 +63,6 @@ class EventInterface:
     sync.sync(src, dest, *args, **kwargs)
     return join(dest, osutils.basename(path))
   
-  # store information functions
-  def getStoreInfo(self, storeid):
-    "Return a StoreInfo object representing information about the requested storeid"
-    storepath = '//store[@id="%s"]' % storeid
-    if not self.config.pathexists(storepath):
-      raise xmltree.XmlPathError, "The specified store, '%s', does not exist in the config file" % storeid
-    
-    storeinfo = Repo(storeid)
-    storeinfo.split(self.config.get('%s/path/text()' % storepath))
-    storeinfo.username = self.config.get('%s/username/text()' % storepath, None)
-    storeinfo.password = self.config.get('%s/password/text()' % storepath, None)
-    
-    return storeinfo
-  
   def getBaseStore(self):
     "Get the id of the base store from the config file"
     return self.config.get('//stores/base/store/@id')
@@ -86,7 +72,21 @@ class EventInterface:
   
   def getRepo(self, repoid):
     return self.cvars['repos'][repoid]
-  
+
+  # store information functions
+  def getStoreInfo(self, storeid):
+    "Return a StoreInfo object representing information about the requested storeid"
+    storepath = '//store[@id="%s"]' % storeid
+    if not self.config.pathexists(storepath):
+      raise xmltree.XmlPathError, "The specified store, '%s', does not exist in the config file" % storeid
+
+    storeinfo = Repo(storeid)
+    storeinfo.split(self.config.get('%s/path/text()' % storepath))
+    storeinfo.username = self.config.get('%s/username/text()' % storepath, None)
+    storeinfo.password = self.config.get('%s/password/text()' % storepath, None)
+    
+    return storeinfo
+      
   # logging functions
   def log(self, level, msg):    self._base.log(level, msg)
   def errlog(self, level, msg): self._base.errlog(level, msg)
@@ -173,47 +173,6 @@ class DiffMixin:
     self.DT.write_metadata()
 
 
-class RepoContentMixin:
-  def __init__(self, mdstores=None):
-    # self.interface must already be defined for this to work
-    self.mdstores = mdstores or join(self.interface.METADATA_DIR, 'stores')
-    
-    self.parser = xml.sax.make_parser()
-    self.handler = PrimaryXmlContentHandler()
-    self.parser.setContentHandler(self.handler)
-  
-  def getRepoContents(self, storeid):
-    pxmlz = join(self.mdstores, storeid, 'repodata/primary.xml.gz')
-    pxml  = join(self.mdstores, storeid, 'repodata/primary.xml')
-    
-    shlib.execute('gunzip -c %s > %s' % (pxmlz, pxml)) # perhaps use python for this
-    
-    self.parser.parse(pxml)
-    osutils.rm(pxml, force=True)
-    
-    pkgs = self.handler.locs
-    pkgs.sort()
-    self.handler.locs = [] # reset locs list
-    
-    return pkgs
-  
-  def compareRepoContents(self, storeid, pkgs):
-    oldpkgsfile = join(self.interface.METADATA_DIR, '%s.pkgs' % storeid)
-    if isfile(oldpkgsfile):
-      oldpkgs = filereader.read(oldpkgsfile)
-    else:
-      oldpkgs = []
-    
-    old,new,_ = listcompare.compare(oldpkgs, pkgs)
-    
-    # if the contents changed, write out new contents to file
-    if old or new or not exists(oldpkgsfile):
-      filereader.write(pkgs, oldpkgsfile)
-      return True
-    
-    return False
-
-
 class PrimaryXmlContentHandler(xml.sax.ContentHandler):
   def __init__(self):
     xml.sax.ContentHandler.__init__(self)
@@ -258,7 +217,7 @@ class Repo:
   def split(self, url):
     self.scheme, self.netloc, self.directory, _, _, _ = urlparse(url)
     self.directory = self.directory.lstrip('/') # for joining convenience
-  
+
   def rjoin(self, *args):
     return urlunparse((self.scheme or 'file', self.netloc, join(self.directory, *args),
                        '','',''))
@@ -266,26 +225,34 @@ class Repo:
   def ljoin(self, *args):
     return join(self.local_path, *args)
   
-  def getRepodata(self):
+  def getRepoData(self, read=True):
     dest = self.ljoin(self.repodata_path, 'repodata')
-    
     osutils.mkdir(dest, parent=True)
-    
+
     sync.sync(self.rjoin(self.repodata_path, self.mdfile), dest,
               username=self.username, password=self.password)
-    
-    for data in xmltree.read(self.ljoin(self.repodata_path, self.mdfile)).xpath('//data'):
+
+    repomd = xmltree.read(self.ljoin(self.repodata_path, self.mdfile)).xpath('//data')
+    for data in repomd:
       repofile = data.get('location/@href')
       sync.sync(self.rjoin(self.repodata_path, repofile), dest,
                 username=self.username, password=self.password)
       
+    if read:
+      self.readRepoData(repomd)
+
+  def readRepoData(self, repomd=None):
+    repomd = repomd or xmltree.read(self.ljoin(self.repodata_path, self.mdfile)).xpath('//data')
+
+    for data in repomd:
+      repofile = data.get('location/@href')
       filetype = data.get('@type')
       if   filetype == 'group':     self.groupfile     = osutils.basename(repofile)
       elif filetype == 'primary':   self.primaryfile   = osutils.basename(repofile)
       elif filetype == 'filelists': self.filelistsfile = osutils.basename(repofile)
       elif filetype == 'other':     self.otherfile     = osutils.basename(repofile)
   
-  def getRepoContents(self):
+  def readRepoContents(self):
     pxmlz = self.ljoin(self.repodata_path, 'repodata', self.primaryfile)
     pxml  = self.ljoin(self.repodata_path, 'repodata', 'primary.xml')
     
@@ -300,17 +267,14 @@ class Repo:
     pkgs.sort()
     
     self.rpms = pkgs
-    
-    return pkgs
   
   def compareRepoContents(self, oldfile):
     if isfile(oldfile):
       oldpkgs = filereader.read(oldfile)
     else:
       oldpkgs = []
-    
+
     old,new,_ = listcompare.compare(oldpkgs, self.rpms)
-    
     return old or new
   
   def writeRepoContents(self, file):

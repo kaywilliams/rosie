@@ -1,4 +1,4 @@
-from os.path          import exists, join
+from os.path import exists, join
 
 import os
 
@@ -42,20 +42,20 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
 
     data = {
       'config': [
-        '//main/fullname/text()',
-        '//main/version/text()',
-        '//release-rpm',    
-        '//stores/*/store/gpgkey',
-        '//gpgsign',
+        '/distro/main/fullname/text()',
+        '/distro/main/version/text()',
+        '/distro/rpms/release-rpm',    
+        '/distro/stores/*/store/gpgkey',
+        '/distro/gpgsign',
       ],      
       'variables': ['distrosroot'],
       'input': [
-        interface.config.xpath('//release-rpm/yum-repos/path/text()', []),
-        interface.config.xpath('//release-rpm/eula/path/text()', []),
-        interface.config.xpath('//release-rpm/release-notes/path/text()', []),
-        interface.config.xpath('//release-rpm/release-files/path/text()', []),
-        interface.config.xpath('//stores/*/store/gpgkey/text()', []),
-        interface.config.xpath('//gpgsign/public/text()', []),
+        interface.config.xpath('/distro/rpms/release-rpm/yum-repos/path/text()', []),
+        interface.config.xpath('/distro/rpms/release-rpm/eula/path/text()', []),
+        interface.config.xpath('/distro/rpms/release-rpm/release-notes/path/text()', []),
+        interface.config.xpath('/distro/rpms/release-rpm/release-files/path/text()', []),
+        interface.config.xpath('/distro/stores/*/store/gpgkey/text()', []),
+        interface.config.xpath('/distro/gpgsign/public/text()', []),
       ],
       'output': [
         join(interface.METADATA_DIR, 'release-rpm'),
@@ -70,7 +70,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     
     ColorMixin.__init__(self, join(self.interface.METADATA_DIR,
                                    '%s.pkgs' %(self.interface.getBaseStore(),)))
-
+    
     # self.installdirs is a (key:value) mapping with the key the name
     # of a variable in self's scope -- the self.variable is a list of files --
     # and the value of it is the directory to which those files should be installed
@@ -82,9 +82,9 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     #  2. create a function that sets up the variable; self._sync_files() might come in
     #     in handy.
     #
-    # For example, self.etcfiles holds a list of files that are installed to the /etc 
-    # folder.
-    self.installdirs = {
+    # For example, self.eulafiles holds a list of files that are installed to the
+    # /usr/share/eula folder.
+    self.datafiles = {
       'default_rnotes': '/usr/share/doc/HTML',
       'etcfiles':       '/etc',
       'eulafiles':      '/usr/share/eula',
@@ -113,7 +113,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     f = open(manifest, 'w')
     f.write('setup.py\n')
     f.write('setup.cfg\n')
-    for item in self.installdirs.keys():
+    for item in self.datafiles.keys():
       if hasattr(self, item):
         files = getattr(self, item)
         if files:
@@ -123,23 +123,34 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     
   def _get_data_files(self):
     data = None
-    for key in self.installdirs.keys():
+    for key in self.datafiles.keys():
       if hasattr(self, key):
         files = getattr(self, key)
         if files:
-          datum = '%s : %s' %(self.installdirs[key], ', '.join(files))
+          datum = '%s : %s' %(self.datafiles[key], ', '.join(files))
           if data is None:
             data = datum
           else:
             data = '\n\t'.join([data, datum])
     return data
 
+  def _get_config_files(self):
+    rtn = None
+    for configitem in ['etcfiles', 'gpgfiles', 'reposfiles']:
+      value = '\n\t'.join([ join(self.datafiles[configitem], basename(x)) for x in getattr(self, configitem) ])
+      if rtn is None: rtn = value
+      else          : rtn = '\n\t'.join([rtn.strip(), value])
+    return rtn
+
   def _get_provides(self):
+    obsoletes = self._get_obsoletes()
+    if obsoletes:
+      return ' '.join(['redhat-release', obsoletes])
     return 'redhat-release'
 
   def _get_obsoletes(self):
-    packages = self.config.xpath('//rpms/release-rpm/obsoletes/package/text()', [])
-    if self.config.get('//rpms/release-rpm/@use-default-set', 'True') in BOOLEANS_TRUE:
+    packages = self.config.xpath('/distro/rpms/release-rpm/obsoletes/package/text()', [])
+    if self.config.get('/distro/rpms/release-rpm/@use-default-set', 'True') in BOOLEANS_TRUE:
       packages.extend(['fedora-release', 'redhat-release', 'centos-release',
                        'fedora-release-notes', 'redhat-release-notes', 'centos-release-notes'])
 
@@ -150,16 +161,16 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
   def _verify_release_notes(self):
     rnotes = find(location=self.output_location, name='RELEASE-NOTES*')
     if len(rnotes) == 0:
-      self.set_colors()      
+      self.setColors(prefix='#')      
       # create a default release notes file because none were found.
       import locale
+
       rnotename = 'RELEASE-NOTES-%s.html' %(locale.getdefaultlocale()[0],) 
       path = join(self.output_location, rnotename)
       f = open(path, 'w')      
-      f.write(RELEASE_NOTES_HTML %(self.bgcolor.replace('0x', '#'),
-                                   self.textcolor.replace('0x', '#'),
-                                   self.fullname,))
+      f.write(RELEASE_NOTES_HTML %(self.bgcolor, self.textcolor, self.fullname))      
       f.close()
+      
       self.default_rnotes = [rnotename]
       index_html = join(self.output_location, 'index.html')
       if not exists(index_html):
@@ -172,12 +183,12 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     mkdir(gpgdir)
     gpgkeys = []
 
-    if self.config.get('//gpgsign/sign/text()', 'False') in BOOLEANS_TRUE:      
-      gpgkey = self.config.get('//gpgkey/public/text()', None)
+    if self.config.get('/distro/gpgsign/sign/text()', 'False') in BOOLEANS_TRUE:      
+      gpgkey = self.config.get('/distro/gpgsign/public/text()', None)
       if gpgkey is not None:
         gpgkeys.append(gpgkey)
 
-    gpgkeys.extend(self.config.xpath('//stores/*/store/gpgkey/text()', []))
+    gpgkeys.extend(self.config.xpath('/distro/stores/*/store/gpgkey/text()', []))
 
     for gpgkey in gpgkeys:
       sync(gpgkey, gpg_dir)
@@ -189,17 +200,18 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     reposdir = join(self.output_location, 'repos')
     
     extrarepos = []
-    if self.config.get('//%s/yum-repos/publish-repo/include/text()' %(self.id,), 'True') in BOOLEANS_TRUE:      
+    if self.config.get('/distro/rpms/%s/yum-repos/publish-repo/include/text()' %(self.id,),
+                       'True') in BOOLEANS_TRUE:      
       repofile = join(reposdir, '%s.repo' %(self.product,))
-      authority = self.config.get('//%s/publish-repo/authority/text()' %(self.id,),
+      authority = self.config.get('/distro/rpms/%s/publish-repo/authority/text()' %(self.id,),
                                   ''.join(['http://', getIpAddress()]))
       path = join(self.interface.distrosroot, self.interface.pva, 'os')
       lines = ['[%s]' %(self.product,),
                'name=%s %s - %s' %(self.fullname, self.version, self.arch,),
                'baseurl=%s' %(join(authority, path),)]
       
-      if self.config.get('//gpgsign/sign/text()', 'False') in BOOLEANS_TRUE:
-        gpgkey = self.config.get('//gpgsign/public/text()')
+      if self.config.get('/distro/gpgsign/sign/text()', 'False') in BOOLEANS_TRUE:
+        gpgkey = self.config.get('/distro/gpgsign/public/text()')
         lines.extend(['gpgcheck=1', 'gpgkey=%s' %(gpgkey,)])
       else:
         lines.append('gpgcheck=0')
@@ -207,13 +219,14 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
       filereader.write(lines, repofile)
       extrarepos.append(join('repos', '%s.repo' %(self.product,)))
 
-    if self.config.get('//%s/yum-repos/input-repo/include/text()' %(self.id,), 'False') in BOOLEANS_TRUE:
+    if self.config.get('/distro/rpms/%s/yum-repos/input-repo/include/text()' %(self.id,), 'False') \
+           in BOOLEANS_TRUE:
       repofile = join(reposdir, 'source.repo')
-      rc = YumRepoCreator(repofile, self.config.file, '//stores')
+      rc = YumRepoCreator(repofile, self.config.file, '/distro/stores')
       rc.createRepoFile()
       extrarepos.append(join('repos', 'source.repo'))
 
-    for repo in self.config.xpath('//%s/yum-repos/path/text()' %(self.id,), []):
+    for repo in self.config.xpath('/distro/rpms/%s/yum-repos/path/text()' %(self.id,), []):
       sync(repo, reposdir)
       extrarepos.append(repo)
       
@@ -224,8 +237,10 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     
   def _process_eula_files(self):
     self._sync_files('eula', 'eulafiles', dirname='eula')
-    if self.config.get('//%s/eula/include-in-firstboot/text()' %(self.id,), 'True') in BOOLEANS_TRUE and \
-           self.config.get('//%s/eula/path/text()' %(self.id,), None) is not None:
+    if self.config.get('/distro/rpms/%s/eula/include-in-firstboot/text()' %(self.id,),
+                       'True') in BOOLEANS_TRUE and \
+                       self.config.get('/distro/rpms/%s/eula/path/text()' %(self.id,), None) \
+                       is not None:
       source = join(self.sharepath, 'release', 'eula.py')
       sync(source, join(self.output_location, 'eula'))
       self.eulapyfiles = ['eula/eula.py']
@@ -237,14 +252,14 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
               ('release-notes/doc',  'rnotes_doc')]
 
     for element, variable in rnotes:
-      installpath = self.config.get('//%s/%s/@install-path' %(self.id, element), None)
+      installpath = self.config.get('/distro/rpms/%s/%s/@install-path' %(self.id, element), None)
       if installpath is not None:
-        self.installdirs[variable] = installpath
+        self.datafiles[variable] = installpath
       self._sync_files(element, variable)
 
   def _process_release_files(self):
-    self._sync_files('release-files', 'release')
-
+    self._sync_files('release-files', 'releasefiles')
+  
   def _process_etc_files(self):
     release_string = ['%s %s' %(self.fullname, self.version,)]
     issue_string = ['Kernel \\r on an \\m\n']
@@ -265,7 +280,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     if not exists(destdir):
       mkdir(destdir)
     
-    for item in self.config.xpath('//%s/%s/path/text()' %(self.id, element), []):
+    for item in self.config.xpath('/distro/rpms/%s/%s/path/text()' %(self.id, element), []):
       sync(item, destdir)
 
     files = map(lambda x: join(dirname, x), filter(triage, os.listdir(destdir)))

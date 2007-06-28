@@ -13,7 +13,7 @@ import imp
 import os
 import sys
 
-from os.path       import join, exists
+from os.path       import abspath, join, exists
 from rpmUtils.arch import getBaseArch
 from urlparse      import urlparse
 
@@ -97,7 +97,7 @@ class Build:
       if dir not in self.IMPORT_DIRS:
         self.IMPORT_DIRS.append(dir)
     
-    self.sharepath = options.sharepath or \
+    self.sharepath = abspath(options.sharepath) or \
                      mainconfig.get('//sharepath/text()', None) or \
                      '/usr/share/dimsbuild'
     

@@ -29,10 +29,10 @@ def getIpAddress(ifname='eth0'):
 
 
 def buildRpm(path, rpm_output, changelog=None, logger='rpmbuild',
-             functionName='main', createrepo=False, quiet=True):
+             createrepo=False, quiet=True):
 
   mkrpm.build(path, rpm_output, changelog=changelog, logger=logger,
-              functionName=functionName, keepTemp=True, createrepo=createrepo,
+              keepTemp=True, createrepo=createrepo,
               quiet=quiet)
   
   # need to delete the dist folder, because the RPMS have been copied
@@ -59,19 +59,30 @@ class ColorMixin:
   def __init__(self, verfile):
     self.verfile = verfile
 
-  def set_colors(self):
+  def setColors(self, be=False, prefix='0x'):    
     # compute the background and foreground colors to use
     self.distroname, self.distroversion = self._get_distro_info()
     try:
       self.bgcolor, self.textcolor, self.hlcolor = IMAGE_COLORS[self.distroname][self.distroversion]
     except KeyError:
-      self.bgcolor, self.textcolor, self.hlcolor = IMAGE_COLORS['*']['0']    
+      self.bgcolor, self.textcolor, self.hlcolor = IMAGE_COLORS['*']['0']
+
+    # if be (big-endian) is True, convert the colors to big-endian
+    if be:
+      self.bgcolor = self.toBigEndian(self.bgcolor)
+      self.textcolor = self.toBigEndian(self.textcolor)
+      self.hlcolor = self.toBigEndian(self.hlcolor)
+
+    if prefix != '0x':
+      self.bgcolor = self.bgcolor.replace('0x', prefix)
+      self.textcolor = self.textcolor.replace('0x', prefix)
+      self.hlcolor = self.textcolor.replace('0x', prefix)
     
-  def color_to_bigendian(self, color):
+  def toBigEndian(self, color):
     if color.startswith('0x'):
       color = color[2:]
     color = '%s%s' % ((6-len(color))*'0', color) # prepend zeroes to color
-    return int('0x%s%s%s' % (color[4:], color[2:4], color[:2]), 16)
+    return '0x%s%s%s' % (color[4:], color[2:4], color[:2])
 
   def _get_distro_info(self):
     fullname = self.interface.cvars['source-vars']['fullname']    
@@ -129,15 +140,18 @@ class RpmsHandler(DiffMixin):
         rm(x, force=True)
     rm(self.mdfile, force=True)
 
-  def force(self):
+  def setup(self):
     self._modify_output_data()
+    
+  def force(self):
     self.clean_output()
       
   def check(self):
-    self._modify_output_data()
     if self.test_build_rpm():
       if self.test_diffs():
-        self.clean_output()
+        # if forced, clean_output() has already been called once, why call it again?
+        if not self.interface.isForced(self.id): 
+          self.clean_output()
         return True
       else:
         return False
@@ -146,7 +160,7 @@ class RpmsHandler(DiffMixin):
       return False
   
   def run(self):
-    self.log(0, "creating '%s' rpm" %(self.rpmname,))
+    self.log(0, "building %s rpm" %(self.rpmname,))
     self.init()
     self.copy()
     self.create()
@@ -255,9 +269,10 @@ class RpmsHandler(DiffMixin):
 
     parser.set('bdist_rpm', 'force_arch', arch)
 
-    self.log(1, "%s rpm: release=%s" %(self.rpmname, release))
+    self.log(1, "release number: %s" % release)
     
-    for tag in ['provides', 'requires', 'obsoletes', 'post_install', 'install_script']:
+    for tag in ['config_files', 'doc_files', 'install_script', 'obsoletes',
+                'post_install', 'provides', 'requires']:
       attr = '_get_%s' %tag
       if hasattr(self, attr):
         value = getattr(self, attr)()
@@ -319,8 +334,10 @@ class RpmsHandler(DiffMixin):
   
   def _create_manifest(self): pass
 
-  def _get_force_arch(self):     return 'noarch'
+  def _get_config_files(self):   return None
   def _get_data_files(self):     return None
+  def _get_doc_files(self):      return None
+  def _get_force_arch(self):     return 'noarch'
   def _get_install_script(self): return None    
   def _get_obsoletes(self):      return None  
   def _get_post_install(self):   return None

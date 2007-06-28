@@ -30,7 +30,7 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//config-rpm', schemafile='config-rpm.rng')
+    self.interface.validate('/distro/rpms/config-rpm', schemafile='config-rpm.rng')
     
 class ConfigRpmHook(RpmsHandler):
   def __init__(self, interface):
@@ -39,16 +39,11 @@ class ConfigRpmHook(RpmsHandler):
 
     self.configdir = dirname(interface.config.file)
 
-    input = []
-    for x in interface.config.xpath('//rpms/config-rpm/config/script/path/text()', []) + \
-        interface.config.xpath('//rpms/config-rpm/config/supporting-files/path/text()', []):
-      input.append(join(self.configdir, x))
-
     data = {
       'config': [
-        '//rpms/config-rpm',
+        '/distro/rpms/config-rpm',
       ],
-      'input': input,
+      'input': [],
       'output': [
         join(interface.METADATA_DIR, 'config-rpm'),
       ],
@@ -59,17 +54,24 @@ class ConfigRpmHook(RpmsHandler):
                          %(interface.fullname,),
                          long_description='The %s-config provides scripts and supporting files for'\
                          'configuring the %s distribution' %(interface.product, interface.fullname,))
+
+  def setup(self):
+    input = []
+    for x in self.interface.config.xpath('/distro/rpms/config-rpm/config/script/path/text()', []) + \
+        self.interface.config.xpath('/distro/rpms/config-rpm/config/supporting-files/path/text()', []):
+      input.append(join(self.configdir, x))
+    self.data['input'].extend(input)
+    RpmsHandler.setup(self)
     
   def test_build_rpm(self):
-    return (self.config.get('//rpms/config-rpm/requires', None) or \
-            self.config.get('//rpms/config-rpm/obsoletes', None) or \
-            self.config.get('//rpms/config-rpm/config/script/path/text()', None) or \
-            self.config.get('//rpms/config-rpm/config/supporting-files/path/text()', None) \
+    return (self.config.get('/distro/rpms/config-rpm/requires', None) or \
+            self.config.get('/distro/rpms/config-rpm/obsoletes', None) or \
+            self.config.get('/distro/rpms/config-rpm/config/script/path/text()', None) or \
+            self.config.get('/distro/rpms/config-rpm/config/supporting-files/path/text()', None) \
             is not None)
-             
     
   def _get_post_install(self):
-    script = self.config.get('//rpms/config-rpm/config/script/path/text()', None)
+    script = self.config.get('/distro/rpms/config-rpm/config/script/path/text()', None)
     if script:      
       post_install_scripts = find(location=self.output_location,
                                   name=basename(script),
@@ -79,13 +81,13 @@ class ConfigRpmHook(RpmsHandler):
     return None
 
   def _get_requires(self):
-    packages = self.config.xpath('//rpms/config-rpm/requires/package/text()', [])
+    packages = self.config.xpath('/distro/rpms/config-rpm/requires/package/text()', [])
     if packages:
       return ' '.join(packages)
     return None
 
   def _get_obsoletes(self):
-    packages = self.config.xpath('//rpms/config-rpm/obsoletes/package/text()', [])
+    packages = self.config.xpath('/distro/rpms/config-rpm/obsoletes/package/text()', [])
     if packages:
       return ' '.join(packages)
     return None    

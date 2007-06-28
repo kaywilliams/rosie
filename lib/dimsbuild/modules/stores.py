@@ -12,7 +12,7 @@ from dims import xmltree
 from dims.configlib import uElement
 
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.interface import EventInterface, DiffMixin, RepoContentMixin, RepoFromXml, Repo
+from dimsbuild.interface import EventInterface, DiffMixin, RepoFromXml, Repo
 
 API_VERSION = 4.0
 
@@ -24,7 +24,7 @@ EVENTS = [
                  'input-store-changed',
                  'local-repodata'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'interface': 'StoresInterface',
+    'interface': 'EventInterface',
   },
 ]
 
@@ -32,22 +32,6 @@ HOOK_MAPPING = {
   'StoresHook':   'stores',
   'ValidateHook': 'validate',
 }
-
-class StoresInterface(EventInterface):
-  def __init__(self, base):
-    EventInterface.__init__(self, base)
-  
-  def add_store(self, xml):
-    pass
-    #parent = uElement('additional', self.config.get('//stores'))
-    #element = xmltree.read(StringIO(xml))
-    #parent.append(element)
-    #s,n,d,_,_,_ = urlparse(element.get('path/text()'))
-    #server = '://'.join((s,n))
-  
-  def getAllStoreIDs(self):
-    return self.config.xpath('//stores/*/store/@id')
-
 
 #------ HOOKS ------#
 class ValidateHook:
@@ -60,7 +44,7 @@ class ValidateHook:
     self.interface.validate('//stores', schemafile='stores.rng')
     
 
-class StoresHook(DiffMixin, RepoContentMixin):
+class StoresHook(DiffMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'stores.stores'
@@ -77,11 +61,10 @@ class StoresHook(DiffMixin, RepoContentMixin):
     self.mdfile = join(self.interface.METADATA_DIR, 'stores.md')
     
     DiffMixin.__init__(self, self.mdfile, self.DATA)
-    RepoContentMixin.__init__(self)
     
   def force(self):
     for file in [ join(self.mdfile, storeid) for storeid in \
-                  self.interface.getAllStoreIDs() ]:
+                  self.interface.getAllRepos() ]:
       osutils.rm(file, force=True)
   
   def setup(self):
@@ -97,7 +80,7 @@ class StoresHook(DiffMixin, RepoContentMixin):
       repo = RepoFromXml(self.interface.config.get('//stores/*/store[@id="%s"]' % storeid))
       repo.local_path = join(self.interface.METADATA_DIR, 'stores', repo.id)
       
-      repo.getRepodata()
+      repo.getRepoData()
       
       self.interface.cvars['repos'][storeid] = repo
       
@@ -117,7 +100,7 @@ class StoresHook(DiffMixin, RepoContentMixin):
     # generate repo RPM lists
     for repo in self.interface.getAllRepos():
       self.interface.log(2, repo.id)
-      pkgs = repo.getRepoContents()
+      repo.readRepoContents()
       repofile = join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id)
       if repo.compareRepoContents(repofile):
         repo.changed = True; changed = True
