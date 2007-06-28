@@ -1,7 +1,7 @@
-from distutils.core import setup
 from ConfigParser import ConfigParser, NoOptionError
 from distutils.command.bdist_rpm import bdist_rpm as _bdist_rpm
 from distutils.command.install import install as _install
+from distutils.core import setup
 
 import re
 
@@ -142,8 +142,8 @@ class bdist_rpm(_bdist_rpm):
         # make setup quiet
         self.__update(f, '%setup', replacement='%setup -q')
         
-        # make sure that the first thing done in the %install section is
-        # cleaning out the RPM_BUILD_ROOT
+        # make sure that the first thing done in the %install section
+        # is cleaning out the RPM_BUILD_ROOT        
         idx = f.index('%install')
         if f[idx+1] != 'rm -rf $RPM_BUILD_ROOT':
             f.insert(idx+1, 'rm -rf $RPM_BUILD_ROOT')
@@ -152,9 +152,9 @@ class bdist_rpm(_bdist_rpm):
         if self.config_files:
             self.__modify_section(f, '%files', '%config(noreplace)', self.config_files, offset=2)
 
-        # distutils adds all the doc files on one line, rpmbuild
-        # fails on it. If there are more than one doc files
-        # specified, break them up into individual lines.        
+        # distutils adds all the doc files on one line, rpmbuild fails
+        # on it. If there are more than one doc files specified, break
+        # them up into individual lines.        
         if self.doc_files and len(self.doc_files) > 1:
             self.__modify_section(f, '%doc', '%doc', self.doc_files, remove=True)
 
@@ -180,15 +180,54 @@ class bdist_rpm(_bdist_rpm):
         for x in value:
             specfile.insert(i, ''.join([descriptive, ' ', x]))
 
-#            
-# A bug in distutils causes rpmbuild to fail
-# if optimize is set to False. This class takes care of that.
-# If this fix is not there, rpmbuild dies.
-#
+            
+# A bug in distutils causes rpmbuild to fail if optimize is set to
+# False. This class takes care of that.  If this fix is not there,
+# rpmbuild dies.
 class install(_install):
     def initialize_options(self):
         _install.initialize_options(self)
         self.optimize = True
+
+    def get_outputs (self):
+        # Assemble the outputs of all the sub-commands.
+        
+        # HACK ALERT: I have to do this because bdist_rpm is insanely
+        # stupid about byte-compiled and optimized python code :(.
+        try:
+            config_files = self.distribution.get_option_dict('bdist_rpm')['config_files'][1].split()
+        except KeyError:
+            config_files = None
+            
+        outputs = []        
+        for cmd_name in self.get_sub_commands():
+            cmd = self.get_finalized_command(cmd_name)
+            # Add the contents of cmd.get_outputs(), ensuring that
+            # outputs doesn't contain duplicate entries            
+            for filename in cmd.get_outputs():
+                if filename not in outputs:
+                    outputs.append(filename)
+                    if filename.endswith('.py'):
+                        filename_pyc = ''.join([filename, 'c'])
+                        filename_pyo = ''.join([filename, 'o'])
+                        if filename_pyc not in outputs:
+                            outputs.append(filename_pyc)
+                        if filename_pyo not in outputs:
+                            outputs.append(filename_pyo)
+        if self.path_file and self.install_path_file:
+            outputs.append(os.path.join(self.install_libbase,
+                                        self.path_file + ".pth"))
+
+        # filter out config files from data files
+        if config_files is not None:
+            rtn = []
+            for file in outputs:
+                config = filter(lambda config: file.endswith(config), config_files)
+                if len(config) ==  0:
+                    rtn.append(file)
+            return rtn
+        else:
+            return outputs
 
 def main():
     p = Parser()
