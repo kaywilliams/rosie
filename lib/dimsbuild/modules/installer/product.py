@@ -103,7 +103,7 @@ class ProductHook(ImageModifyMixin):
     ImageModifyMixin.generate(self)
     
     # generate installclasses if none exist
-    if len(osutils.find(join(self.image.mount, 'installclasses'), name='*.py')) == 0:
+    if len(osutils.find(join(self.image.handler._mount, 'installclasses'), name='*.py')) == 0:
       self._generate_installclass()
   
   def _generate_installclass(self):
@@ -119,8 +119,8 @@ class ProductHook(ImageModifyMixin):
     except TypeError:
       pass
     
-    osutils.mkdir(join(self.image.mount, 'installclasses'))
-    filereader.write([installclass], join(self.image.mount, 'installclasses/custom.py'))
+    self.image.writeflo(filereader.writeFLO(installclass),
+                        filename='custom.py', dest='installclasses')
 
 
 #------ LOCALS ------#

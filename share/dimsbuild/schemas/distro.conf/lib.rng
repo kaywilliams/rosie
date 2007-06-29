@@ -1,9 +1,9 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0" 
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   
-  <!-- a store element -->
-  <define name="element-store">
-    <element name="store">
+  <!-- a repo element -->
+  <define name="element-repo">
+    <element name="repo">
       <attribute name="id"/>
       <interleave>
         <element name="path"><text/></element>        

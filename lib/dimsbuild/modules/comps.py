@@ -23,7 +23,7 @@ EVENTS = [
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['comps-file', 'comps-changed', 'required-packages', 'user-required-packages'],
     'requires': ['anaconda-version', 'local-repodata'],
-    'conditional-requires': ['RPMS', 'input-store-changed'],
+    'conditional-requires': ['RPMS', 'input-repos-changed'],
   },
 ]
 
@@ -86,7 +86,7 @@ class CompsHook(DiffMixin):
     
     self.interface = interface
     
-    # metadata and store comps file locations
+    # metadata and repo comps file locations
     self.s_compsfile = join(self.interface.METADATA_DIR, 'comps.xml')
     
     self.comps = Element('comps')
@@ -104,12 +104,12 @@ class CompsHook(DiffMixin):
     osutils.rm(self.s_compsfile, force=True)
   
   def check(self):
-    # if the input stores changes, we need to run
+    # if the input repos change, we need to run
     # if there is no comps file in the ouput directory and one isn't otherwise
     # specified, we need to run
     return self.interface.isForced('comps') or \
            self.interface.cvars['with-comps'] or \
-           self.interface.cvars['input-store-changed'] or \
+           self.interface.cvars['input-repos-changed'] or \
            (not exists(self.s_compsfile) and not self.interface.cvars['comps-file']) or \
            self.test_diffs()
   
@@ -207,8 +207,8 @@ class CompsHook(DiffMixin):
         print e
         raise CompsError, "the file '%s' does not exist" % file
       
-      # add the 'core' group of the base store
-      if groupfileid == self.interface.getBaseStore():
+      # add the 'core' group of the base repo
+      if groupfileid == self.interface.getBaseRepoId():
         try:
           self._add_group_by_id('core', tree, mapped[groupfileid])
           processed.append('core')
@@ -240,11 +240,11 @@ class CompsHook(DiffMixin):
           i += 1
     
     if 'core' not in processed:
-      raise CompsError, "The base store '%s' does not appear to define a 'core' group in any of its comps.xml files" % base_store
+      raise CompsError, "The base repo '%s' does not appear to define a 'core' group in any of its comps.xml files" % self.interface.getBaseRepoId()
     
     # if any unmapped group wasn't processed, raise an exception
     if len(unmapped) > 0:
-      raise ConfigError, "Unable to resolve all groups in available stores: missing %s" % unmapped
+      raise ConfigError, "Unable to resolve all groups in available repos: missing %s" % unmapped
     
     # check to make sure a 'kernel' pacakge or equivalent exists - kinda icky
     allpkgs = self.comps.get('//packagereq/text()')
@@ -279,12 +279,12 @@ class CompsHook(DiffMixin):
     unmapped = []
     
     for group in self.interface.config.xpath('//comps/create-new/groups/group', []):
-      store = group.attrib.get('store', None)
-      if store is not None:
+      repo = group.attrib.get('repo', None)
+      if repo is not None:
         try:
-          mapped[store].append(group.text)
+          mapped[repo].append(group.text)
         except KeyError:
-          raise ConfigError, "Invalid store '%s' specified in group %s" % (store, group)
+          raise ConfigError, "Invalid repo '%s' specified in group %s" % (repo, group)
       else:
         unmapped.append(group.text)
     

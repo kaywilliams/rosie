@@ -214,9 +214,9 @@ class IsoHook(DiffMixin):
     pkgorderfile = join(self.interface.METADATA_DIR, 'pkgorder')
     cfg = join(self.interface.TEMP_DIR, 'pkgorder')
     
-    filereader.write([YUMCONF % (self.interface.getBaseStore(),
-                                 self.interface.getBaseStore(),
-                                 self.interface.SOFTWARE_STORE)], cfg)
+    repoid = self.interface.getBaseRepoId()
+    
+    filereader.write([YUMCONF % (repoid, repoid, self.interface.SOFTWARE_STORE)], cfg)
     
     pkgtups = pkgorder.order(config=cfg,
                              arch=self.interface.arch,

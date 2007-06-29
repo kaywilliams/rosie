@@ -59,7 +59,7 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
   
     ImageModifyMixin.__init__(self, 'initrd.img', interface, self.DATA,
                            mdfile=join(interface.METADATA_DIR, 'initrd.img-xen.md'))
-    FileDownloadMixin.__init__(self, interface, self.interface.getBaseStore())
+    FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
   
   def error(self, e):
     try:

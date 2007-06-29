@@ -4,3 +4,9 @@ BOOLEANS_FALSE = ['False', 'false', 'No', 'no', '0']
 
 OPT_FORCE = '--force'
 OPT_SKIP  = '--skip'
+
+RPM_GLOB  = '*.[Rr][Pp][Mm]'
+SRPM_GLOB = '*.[Ss][Rr][Cc].[Rr][Pp][Mm]'
+
+RPM_PNVRA  = '(.*/)?(.+)-(.+)-(.+)\.(.+)\.[Rr][Pp][Mm]'
+SRPM_PNVRA = '(.*/)?(.+)-(.+)-(.+)\.([Ss][Rr][Cc])\.[Rr][Pp][Mm]'

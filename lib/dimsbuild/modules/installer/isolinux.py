@@ -53,16 +53,16 @@ class IsolinuxHook(FileDownloadMixin, DiffMixin):
     
     self.mdfile = join(self.interface.METADATA_DIR, 'isolinux.md')
     
-    FileDownloadMixin.__init__(self, interface, self.interface.getBaseStore())
+    FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
     DiffMixin.__init__(self, self.mdfile, self.DATA)
   
   def setup(self):
     self.register_file_locals(L_FILES)
     
-    info = self.interface.getRepo(self.interface.getBaseStore())
+    repo = self.interface.getRepo(self.interface.getBaseRepoId())
     
     self.DATA['input'].extend(  [ join(self.interface.INPUT_STORE,
-                                       info.id, info.directory,
+                                       repo.id, repo.directory,
                                        f.get('path/text()'),
                                        f.get('@id')) \
                                   for f in self.f_locals.xpath('//file') ] )
@@ -129,10 +129,10 @@ class InitrdHook(ImageModifyMixin):
   def setup(self):
     self.register_image_locals(L_IMAGES)
 
-    info = self.interface.getRepo(self.interface.getBaseStore())
+    repo = self.interface.getRepo(self.interface.getBaseRepoId())
     
     self.DATA['input'].extend(  [ join(self.interface.INPUT_STORE,
-                                       info.id, info.directory,
+                                       repo.id, repo.directory,
                                        f.get('path/text()'),
                                        f.get('@id')) \
                                   for f in self.i_locals.xpath('//image') ] )

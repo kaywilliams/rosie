@@ -13,7 +13,7 @@ from os.path  import join, exists
 from dims import FormattedFile as ffile
 from dims import osutils
 from dims import sync
-from dims import imglib
+from dims import img
 
 from dimsbuild.callback  import BuildSyncCallback
 from dimsbuild.constants import BOOLEANS_TRUE
@@ -56,39 +56,31 @@ class SourcevarsHook:
   def run(self):
     self.interface.log(0, "computing source variables")
     #Setup
-    info = self.interface.getRepo(self.interface.getBaseStore())
+    repo = self.interface.getRepo(self.interface.getBaseRepoId())
     
     #Download initrd.img to cache
-    initrd_file = join(self.interface.INPUT_STORE, info.id,
-                       self.interface.cache(info.id, 'isolinux/initrd.img',
-                         username=info.username, password=info.password,
+    initrd_file = join(self.interface.INPUT_STORE, repo.id,
+                       self.interface.cache(repo, 'isolinux/initrd.img',
+                         username=repo.username, password=repo.password,
                          callback=BuildSyncCallback(self.interface.logthresh)))
-    
-    # because imglib isn't very good at preserving timestamps when it should be,
-    # we make a copy before opening and reading
-    initrd_file2 = '%s2' % initrd_file #!
-    osutils.cp(initrd_file, initrd_file2) #!
     
     #Extract buildstamp
     locals = locals_imerge(L_IMAGES, self.interface.cvars['anaconda-version'])
     image  = locals.get('//images/image[@id="initrd.img"]')
     format = image.get('format/text()')
     zipped = image.get('zipped/text()', 'False') in BOOLEANS_TRUE
-    self.image = imglib.Image(initrd_file2, format, zipped) #!
+    self.image = img.MakeImage(initrd_file, format, zipped)
     self.image.open('r')
-    sourcevars = self.image.read('.buildstamp')
     
     #Parse buildstamp
     locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.interface.cvars['anaconda-version'])
     buildstamp_fmt = locals.get('//buildstamp-format')
     buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
-    sourcevars = buildstamp.floread(self.image.read('.buildstamp'))
+    sourcevars = buildstamp.floread(self.image.readflo('.buildstamp'))
     
     #Update source_vars
     self.interface.cvars['source-vars'] = sourcevars
 
     #Cleanup
     self.image.close()
-    self.image.cleanup()
-    
-    osutils.rm(initrd_file2, force=True) #!
+    img.cleanup()

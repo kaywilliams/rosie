@@ -17,7 +17,7 @@
           <interleave>
             <ref name="element-include"/>
             <optional>
-              <ref name="element-stores"/>
+              <ref name="element-repos"/>
             </optional>
           </interleave>
         </element>
@@ -33,10 +33,10 @@
     </element>
   </define>
   
-  <define name="element-stores">
-    <element name="stores">
+  <define name="element-repos">
+    <element name="repos">
       <oneOrMore>
-        <ref name="element-store"/>
+        <ref name="element-repo"/>
       </oneOrMore>
     </element>
   </define>

@@ -79,7 +79,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
                          %(interface.product, interface.config.get('/distro/main/fullname/text()')))
     
     ColorMixin.__init__(self, join(self.interface.METADATA_DIR,
-                                   '%s.pkgs' %(self.interface.getBaseStore(),)))
+                                   '%s.pkgs' %(self.interface.getBaseRepoId(),)))
 
   def setup(self):
     # set the font to use

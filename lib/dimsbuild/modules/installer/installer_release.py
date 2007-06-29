@@ -82,7 +82,7 @@ class InstallerReleaseHook(ExtractHandler):
     rpms = []
     for rpmname in rpmnames:
       for rpm in find(self.interface.cvars['rpms-directory'], name='%s-*-*' %(rpmname,),
-                      nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]'):
+                      nregex='.*[Ss][Rr][Cc]\.[Rr][Pp][Mm]'):
         if rpm not in rpms:
           rpms.append(rpm)
 
@@ -90,7 +90,7 @@ class InstallerReleaseHook(ExtractHandler):
       for glob in ['*-release-*-[a-zA-Z0-9]*.[Rr][Pp][Mm]',
                    '*-release-notes-*-*']:
         for rpm in find(self.interface.cvars['rpms-directory'], name=glob,
-                        nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]'):
+                        nregex='.*[Ss][Rr][Cc]\.[Rr][Pp][Mm]'):
           if rpm not in rpms:
             rpms.append(rpm)
         if len(rpms) == 0:

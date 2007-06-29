@@ -30,7 +30,7 @@ class Stage2Hook(FileDownloadMixin):
     
     self.interface = interface
     
-    FileDownloadMixin.__init__(self, interface, self.interface.getBaseStore())
+    FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
   
   def setup(self):
     self.register_file_locals(L_FILES)

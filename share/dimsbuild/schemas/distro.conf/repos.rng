@@ -2,12 +2,12 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="distro">
-      <element name="stores">
+      <element name="repos">
         <!-- DOCBOOK ENTRY -->        
         <refentry xmlns="">      
           <refsect1>
             <title>STORES</title>
-            <para>information about the stores element</para>
+            <para>information about the repos element</para>
           </refsect1>
         </refentry>        
         
@@ -35,14 +35,14 @@
   
   <define name="element-base">
     <element name="base">
-      <ref name="element-store"/>
+      <ref name="element-repo"/>
     </element>
   </define>
   
   <define name="element-additional">
     <element name="additional">
       <oneOrMore>
-        <ref name="element-store"/>
+        <ref name="element-repo"/>
       </oneOrMore>
     </element>
   </define>

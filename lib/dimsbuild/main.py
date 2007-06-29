@@ -77,7 +77,7 @@ class Build:
     
     self.CACHE_DIR = '/var/cache/dimsbuild'
     self.TEMP_DIR  = '/tmp/dimsbuild'
-    self.INPUT_STORE = join(self.CACHE_DIR, 'shared/stores')
+    self.INPUT_STORE = join(self.CACHE_DIR, 'shared/repos')
     self.CACHE_MAX_SIZE = 30*1024**3 # 30 GB
     
     # set up loggers
@@ -97,9 +97,11 @@ class Build:
       if dir not in self.IMPORT_DIRS:
         self.IMPORT_DIRS.append(dir)
     
-    self.sharepath = abspath(options.sharepath) or \
-                     mainconfig.get('//sharepath/text()', None) or \
-                     '/usr/share/dimsbuild'
+    if options.sharepath:
+      self.sharepath = abspath(options.sharepath)
+    else:
+      self.sharepath = mainconfig.get('//sharepath/text()', None) or \
+                       '/usr/share/dimsbuild'
     
     # set up base variables
     self.cvars['base-vars'] = {}
@@ -278,7 +280,7 @@ class Build:
   def __compute_servers(self):
     "Compute a list of the servers represented in the configuration file"
     servers = []
-    for path in self.config.xpath('//stores/*/store/path/text()'):
+    for path in self.config.xpath('//repos/*/repo/path/text()'):
       s,n,d,_,_,_ = urlparse(path)
       server = '://'.join((s,n))
       if server not in servers: servers.append(server)

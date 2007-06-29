@@ -13,7 +13,7 @@ from dims import spider
 from dims import sync
 
 from dimsbuild.callback  import BuildSyncCallback
-from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, RPM_PNVRA
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.interface import EventInterface, ListCompareMixin
 
@@ -26,7 +26,7 @@ EVENTS = [
     'interface': 'SoftwareInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['rpms-directory', 'new-rpms'],
-    'requires': ['pkglist', 'anaconda-version', 'input-store-lists'],
+    'requires': ['pkglist', 'anaconda-version', 'repo-contents'],
     'conditional-requires': ['comps-file', 'RPMS'],
   },
 ]
@@ -35,9 +35,7 @@ HOOK_MAPPING = {
   'SoftwareHook': 'software',
 }
 
-
-RPM_PNVRA_REGEX = re.compile('(.*/)?(.+)-(.+)-(.+)\.(.+)\.[Rr][Pp][Mm]')
-RPM_GLOB = '*.[Rr][Pp][Mm]'
+RPM_PNVRA_REGEX = re.compile(RPM_PNVRA)
 
 
 #------ INTERFACES ------#
@@ -79,7 +77,7 @@ class SoftwareInterface(EventInterface, ListCompareMixin):
   
   def syncRpm(self, rpm, repo, force=False):
     "Sync an rpm from path within repo into the the output store"
-    rpmsrc = self.cache(repo, join(self.getRepo(repo).repodata_path, rpm),
+    rpmsrc = self.cache(repo, join(repo.repodata_path, rpm),
                         force=force, callback=self.callback)
     sync.sync(rpmsrc, self.rpmdest)
   
@@ -170,7 +168,7 @@ class SoftwareHook:
           self._packages[nvr] = {}
         if not self._packages[nvr].has_key(a):
           self._packages[nvr][a] = []
-        self._packages[nvr][a].append((repo.id,rpm))
+        self._packages[nvr][a].append((repo,rpm))
     
   def _delete_rpm(self, rpm): # lfn
     self.interface.deleteRpm(rpm)
@@ -179,12 +177,11 @@ class SoftwareHook:
     for arch in self._packages[rpm]:
       if arch in self._validarchs:
         try:
-          repoid, rpmname = self._packages[rpm][arch][0]
-          self.interface.syncRpm(rpmname, repoid,
-                                 force=self.interface.isForced('software'))
-          self._new_rpms.append((osutils.basename(rpmname), repoid))
+          repo, rpmname = self._packages[rpm][arch][0]
+          self.interface.syncRpm(rpmname, repo, force=self.interface.isForced('software'))
+          self._new_rpms.append((osutils.basename(rpmname), repo))
         except IndexError, e:
-          self.errlog(1, "No rpm '%s' found in store '%s' for arch '%s'" % (rpm, repoid, arch))
+          self.errlog(1, "No rpm '%s' found in repo '%s' for arch '%s'" % (rpm, repo.id, arch))
   
   def _check_rpm_signatures(self):
     if len(self._new_rpms) == 0:
@@ -193,8 +190,8 @@ class SoftwareHook:
     
     gpgkeys = self._prepare_gpgcheck()
     
-    for rpm, repoid in self._new_rpms:
-      if not self.interface.getRepo(repoid).gpgcheck: continue
+    for rpm, repo in self._new_rpms:
+      if not repo.gpgcheck: continue
       invalids = []
       try:
         self.interface.rpmCheckSignature(join(self.interface.rpmdest, rpm), gpgkeys)

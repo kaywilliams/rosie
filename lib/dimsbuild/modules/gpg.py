@@ -5,7 +5,7 @@ from dims import xmltree
 
 from dims.mkrpm   import rpmsign
 
-from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.interface import DiffMixin, EventInterface
 
@@ -122,7 +122,7 @@ class GpgsignHook(DiffMixin):
                             [ (x, None) for x in \
                               osutils.find(self.interface.cvars['rpms-directory'],
                                            maxdepth=1,
-                                           name='*.[Rr][Pp][Mm]',
+                                           name=RPM_GLOB,
                                            type=osutils.TYPE_FILE,
                                            prefix=False) ]
   

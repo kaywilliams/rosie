@@ -73,15 +73,15 @@ class PublishHook(DiffMixin):
         pass
     
     # sync to output folder
-    dest = self.interface.PUBLISH_DIR
-    dest_os = join(dest, 'os')
+    if not exists(self.interface.PUBLISH_DIR):
+      self.interface.log(2, "making directory '%s'" % self.interface.PUBLISH_DIR)
+      osutils.mkdir(self.interface.PUBLISH_DIR, parent=True)
     
-    if not exists(dest):
-      self.interface.log(2, "making directory '%s'" % dest)
-    osutils.mkdir(dest_os, parent=True)
+    for d in ['os', 'iso', 'SRPMS']:
+      src = join(self.interface.DISTRO_DIR, d)
+      if not exists(src): continue # all folders are technically optional
+      sync.sync(src, self.interface.PUBLISH_DIR, link=True)
     
-    sync.sync(join(self.interface.SOFTWARE_STORE, '*'),  dest_os, link=True)
-    sync.sync(join(self.interface.SOFTWARE_STORE, '.*'), dest_os, link=True) # dotfiles
-    shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % dest)
+    shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.interface.PUBLISH_DIR)
 
     self.write_metadata()

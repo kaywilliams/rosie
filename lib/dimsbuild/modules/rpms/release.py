@@ -45,7 +45,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
         '/distro/main/fullname/text()',
         '/distro/main/version/text()',
         '/distro/rpms/release-rpm',    
-        '/distro/stores/*/store/gpgkey',
+        '/distro/repos/*/repo/gpgkey',
         '/distro/gpgsign',
       ],      
       'variables': ['distrosroot'],
@@ -54,7 +54,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
         interface.config.xpath('/distro/rpms/release-rpm/eula/path/text()', []),
         interface.config.xpath('/distro/rpms/release-rpm/release-notes/path/text()', []),
         interface.config.xpath('/distro/rpms/release-rpm/release-files/path/text()', []),
-        interface.config.xpath('/distro/stores/*/store/gpgkey/text()', []),
+        interface.config.xpath('/distro/repos/*/repo/gpgkey/text()', []),
         interface.config.xpath('/distro/gpgsign/public/text()', []),
       ],
       'output': [
@@ -69,7 +69,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
                          %(interface.fullname,))
     
     ColorMixin.__init__(self, join(self.interface.METADATA_DIR,
-                                   '%s.pkgs' %(self.interface.getBaseStore(),)))
+                                   '%s.pkgs' %(self.interface.getBaseRepoId(),)))
     
     # self.installdirs is a (key:value) mapping with the key the name
     # of a variable in self's scope -- the self.variable is a list of files --
@@ -188,7 +188,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
       if gpgkey is not None:
         gpgkeys.append(gpgkey)
 
-    gpgkeys.extend(self.config.xpath('/distro/stores/*/store/gpgkey/text()', []))
+    gpgkeys.extend(self.config.xpath('/distro/repos/*/repo/gpgkey/text()', []))
 
     for gpgkey in gpgkeys:
       sync(gpgkey, gpg_dir)
@@ -222,7 +222,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     if self.config.get('/distro/rpms/%s/yum-repos/input-repo/include/text()' %(self.id,), 'False') \
            in BOOLEANS_TRUE:
       repofile = join(reposdir, 'source.repo')
-      rc = YumRepoCreator(repofile, self.config.file, '/distro/stores')
+      rc = YumRepoCreator(repofile, self.config.file, '/distro/repos')
       rc.createRepoFile()
       extrarepos.append(join('repos', 'source.repo'))
 

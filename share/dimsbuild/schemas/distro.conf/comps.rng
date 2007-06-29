@@ -54,7 +54,7 @@
   <define name="element-group">
     <element name="group">
       <optional>
-        <attribute name="storeid"/>
+        <attribute name="repoid"/>
       </optional>
       <optional>
         <attribute name="default">

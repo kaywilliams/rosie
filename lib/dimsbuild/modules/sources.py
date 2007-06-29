@@ -24,16 +24,16 @@ from dims import xmltree
 from dims.configlib import uElement
 
 from dimsbuild.callback  import BuildSyncCallback
-from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, SRPM_GLOB, SRPM_PNVRA
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from dimsbuild.interface import EventInterface, ListCompareMixin, DiffMixin
+from dimsbuild.interface import EventInterface, ListCompareMixin, DiffMixin, RepoFromXml, Repo
 
 API_VERSION = 4.0
 
 EVENTS = [
   {
     'id': 'source',
-    'provides': ['SRPMS', 'source-include'],
+    'provides': ['SRPMS', 'source-include', 'source-repos'],
     'requires': ['software', 'new-rpms', 'rpms-directory'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'interface': 'SrpmInterface',
@@ -45,10 +45,7 @@ HOOK_MAPPING = {
   'ValidateHook': 'validate',
 }
 
-
-SRPM_PNVRA_REGEX = re.compile('(.*/)?(.+)-(.+)-(.+)\.([Ss][Rr][Cc])\.[Rr][Pp][Mm]')
-SRPM_GLOB = '*.[Ss][Rr][Cc].[Rr][Pp][Mm]'
-RPM_GLOB = '*.[Rr][Pp][Mm]'
+SRPM_PNVRA_REGEX = re.compile(SRPM_PNVRA)
 
 
 class SrpmInterface(EventInterface, ListCompareMixin):
@@ -60,9 +57,9 @@ class SrpmInterface(EventInterface, ListCompareMixin):
     self.callback = BuildSyncCallback(base.log.threshold)
     self.srpmdest = join(self.DISTRO_DIR, 'SRPMS')
   
-  def syncSrpm(self, srpm, store, force=False):
-    "Sync a srpm from path within store into the output store"
-    srpmsrc = self.cache(store, srpm, callback=self.callback, force=force)
+  def syncSrpm(self, srpm, repo, force=False):
+    "Sync a srpm from path within repo into the output store"
+    srpmsrc = self.cache(repo, srpm, callback=self.callback, force=force)
     sync.sync(srpmsrc, self.srpmdest)
   
   def deleteSrpm(self, srpm):
@@ -76,7 +73,10 @@ class SrpmInterface(EventInterface, ListCompareMixin):
     except (AttributeError, IndexError), e:
       self.errlog(2, "DEBUG: Unable to extract srpm information from name '%s'" % srpm)
       return (None, None, None, None, None)
-
+  
+  def getAllSourceRepos(self):
+    return self.cvars['source-repos'].values()
+  
   def add_store(self, storeXml):
     pass
     #stores = uElement('stores', self.config.get('//source'))
@@ -102,22 +102,47 @@ class SourceHook(DiffMixin):
     self.ID = 'sources.source'
     
     self.interface = interface
-
+    
     self.DATA =  {
       'config': ['//source'],
-      'output': [self.interface.srpmdest]
+      'input':  [], # to be filled later
+      'output': [self.interface.srpmdest],
     }
-
+    
+    self.mdsrcrepos = join(self.interface.METADATA_DIR, 'source-repos')
     self.mdfile = join(self.interface.METADATA_DIR, 'source.md')
-
+    self._packages = {}
+    
+    self.dosource = self.interface.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE
+    
     DiffMixin.__init__(self, self.mdfile, self.DATA)
-
+  
+  def setup(self):
+    if not self.dosource: return
+    
+    osutils.mkdir(self.mdsrcrepos, parent=True)
+    
+    self.interface.cvars['source-repos'] = {}
+    
+    for repo in self.interface.config.xpath('//source/repos/repo'):
+      repoid = repo.get('@id')
+      repo = RepoFromXml(repo)
+      repo.local_path = join(self.mdsrcrepos, repo.id)
+      
+      repo.getRepoData()
+      repo.readRepoContents()
+      
+      self.interface.cvars['source-repos'][repo.id] = repo
+      
+      self.DATA['input'].append(join(self.mdsrcrepos, repo.id, repo.repodata_path, 'repodata'))
+  
   def force(self):
     osutils.rm(self.interface.srpmdest, recursive=True, force=True)
     osutils.rm(self.mdfile, force=True)
+    osutils.rm(self.mdsrcrepos, force=True)
   
   def check(self):
-    if self.interface.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE:
+    if self.dosource:
       return self.interface.cvars['new-rpms'] is not None or \
              not exists(self.interface.srpmdest) or \
              self.test_diffs()
@@ -125,16 +150,15 @@ class SourceHook(DiffMixin):
       # clean up old output and metadata
       self.force()
       return False
-   
+  
   def run(self):
     "Generate SRPM store"
     self.interface.log(0, "processing srpms")
-
+    
     self.interface.lfn = self._delete_srpm
     self.interface.rfn = self._download_srpm
     self.interface.cb = self
-    self._packages = {}
-
+    
     # generate list of srpms we already have
     oldsrpmlist = osutils.find(self.interface.srpmdest, name=SRPM_GLOB, prefix=False)
     
@@ -148,14 +172,14 @@ class SourceHook(DiffMixin):
       os.close(i)
       srpm = h[rpm.RPMTAG_SOURCERPM]
       if srpm not in srpmlist: srpmlist.append(srpm)
-
+    
     self.interface.compare(oldsrpmlist, srpmlist)
-
+    
     osutils.rm(self.mdfile, force=True)
     self.write_metadata()
 
   def apply(self):
-    if self.interface.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE:
+    if self.dosource:
       self.interface.cvars['source-include'] = True
   
   # callback functions
@@ -166,14 +190,10 @@ class SourceHook(DiffMixin):
   def notify_right(self, i):
     self.interface.log(1, "downloading new srpms (%d packages)" % i)
     # set up packages metadata dictionary for use in syncing
-    for store in self.interface.config.xpath('//source/stores/store/@id'):
-      info = self.interface.getStoreInfo(store)
-      
-      srpms = spider.find(info.rjoin(), glob=SRPM_GLOB, prefix=False,
-                          username=info.username, password=info.password)
-      for srpm in srpms:
-        self._packages[srpm] = info.id
-
+    for repo in self.interface.getAllSourceRepos():
+      for srpm in repo.rpms:
+        self._packages[srpm] = repo
+    
     osutils.mkdir(self.interface.srpmdest, parent=True)
   
   def _delete_srpm(self, srpm):

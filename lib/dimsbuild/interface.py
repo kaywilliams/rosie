@@ -51,21 +51,19 @@ class EventInterface:
   def expandMacros(self, text):
     return expand_macros(text, self._base.cvars['base-vars'])
   
-  def cache(self, storeid, path, force=False, *args, **kwargs):
-    info = self.getRepo(storeid)
-    
-    src = info.rjoin(path)
-    dest = join(self.INPUT_STORE, storeid, join(info.directory, osutils.dirname(path)))
+  def cache(self, repo, path, force=False, *args, **kwargs):
+    src = repo.rjoin(path)
+    dest = join(self.INPUT_STORE, repo.id, join(repo.directory, osutils.dirname(path)))
     if force:
-      osutils.rm(join(self.INPUT_STORE, storeid, join(info.directory, path)),
+      osutils.rm(join(self.INPUT_STORE, repo.id, join(repo.directory, path)),
                  recursive=True, force=True)
     osutils.mkdir(dest, parent=True)
     sync.sync(src, dest, *args, **kwargs)
     return join(dest, osutils.basename(path))
   
-  def getBaseStore(self):
-    "Get the id of the base store from the config file"
-    return self.config.get('//stores/base/store/@id')
+  def getBaseRepoId(self):
+    "Get the id of the base repo from the config file"
+    return self.config.get('//repos/base/repo/@id')
   
   def getAllRepos(self):
     return self.cvars['repos'].values()
@@ -73,20 +71,6 @@ class EventInterface:
   def getRepo(self, repoid):
     return self.cvars['repos'][repoid]
 
-  # store information functions
-  def getStoreInfo(self, storeid):
-    "Return a StoreInfo object representing information about the requested storeid"
-    storepath = '//store[@id="%s"]' % storeid
-    if not self.config.pathexists(storepath):
-      raise xmltree.XmlPathError, "The specified store, '%s', does not exist in the config file" % storeid
-
-    storeinfo = Repo(storeid)
-    storeinfo.split(self.config.get('%s/path/text()' % storepath))
-    storeinfo.username = self.config.get('%s/username/text()' % storepath, None)
-    storeinfo.password = self.config.get('%s/password/text()' % storepath, None)
-    
-    return storeinfo
-      
   # logging functions
   def log(self, level, msg):    self._base.log(level, msg)
   def errlog(self, level, msg): self._base.errlog(level, msg)

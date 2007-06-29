@@ -19,7 +19,7 @@ EVENTS = [
     'provides': ['RPMS'],
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_META,
-    'requires': ['stores'],
+    'requires': ['repos'],
   },
 ]
 
@@ -73,7 +73,7 @@ class RpmsHook:
     
     if repo.compareRepoContents(repofile):      
       repo.changed = True
-      self.interface.cvars['input-store-changed'] = True
+      self.interface.cvars['input-repos-changed'] = True
       repo.writeRepoContents(repofile)      
       # HACK ALERT: need to the remove the .depsolve/localrepo folder so
       # that depsolver picks up the new RPM.      

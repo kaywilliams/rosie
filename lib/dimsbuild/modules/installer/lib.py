@@ -8,7 +8,7 @@ from rpmUtils.miscutils import rpm2cpio
 
 from dims import FormattedFile as ffile
 from dims import imerge
-from dims import imglib
+from dims import img
 from dims import osutils
 from dims import sync
 from dims import xmltree
@@ -51,7 +51,7 @@ def extractRpm(rpmPath, output=os.getcwd()):
     rpmFile = join(dir, osutils.basename(rpmPath))
     
     rpm2cpio(os.open(rpmFile, os.O_RDONLY), open(filename, 'w+'))
-    cpio = imglib.CpioImage(filename)    
+    cpio = img.MakeImage(filename, 'cpio')
     if not exists(output):
       osutils.mkdir(output, parent=True)    
     cpio.open(point=output)
@@ -141,14 +141,12 @@ class ImageHandler:
     
     if image.attrib.get('virtual', 'False') in BOOLEANS_TRUE:
       if exists(path): osutils.rm(path) # delete old image
-      self.image = imglib.createImage(path, format, zipped)
-    else:
-      self.image = imglib.Image(path, format, zipped)
+    self.image = img.MakeImage(path, format, zipped)
     self.image.open()
   
   def close(self):
     self.image.close()
-    self.image.cleanup()
+    img.cleanup()
   
   def generate(self):
     raise NotImplementedError
@@ -163,9 +161,9 @@ class ImageHandler:
     buildstamp_fmt = locals.get('//buildstamp-format')
     buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
     try:
-      base_vars = buildstamp.floread(self.image.read('.buildstamp'))
+      base_vars = buildstamp.floread(self.image.readflo('.buildstamp'))
       base_vars.update(self.vars)
-    except imglib.ImageIOError:
+    except img.ImageIOError:
       base_vars = self.vars
       base_vars['timestamp'] = ANACONDA_UUID_FMT
     base_vars['webloc'] = self.interface.config.get('//main/url/text()', 'No bug url provided')
@@ -220,16 +218,16 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
   def register_image_locals(self, locals):
     ImageHandler.register_image_locals(self, locals)
     
-    info = self.interface.getRepo(self.interface.getBaseStore())
+    repo = self.interface.getRepo(self.interface.getBaseRepoId())
     
     image_path = self.i_locals.get('//images/image[@id="%s"]/path' % self.name)
     image_path = locals_printf(image_path, self.interface.BASE_VARS)
     
-    self.rsrc = info.rjoin(image_path, self.name)
-    self.isrc = join(self.interface.INPUT_STORE, info.id,
-                     info.directory, image_path, self.name)
-    self.username = info.username
-    self.password = info.password
+    self.rsrc = repo.rjoin(image_path, self.name)
+    self.isrc = join(self.interface.INPUT_STORE, repo.id,
+                     repo.directory, image_path, self.name)
+    self.username = repo.username
+    self.password = repo.password
     self.dest = join(self.interface.SOFTWARE_STORE, image_path, self.name)
     
     self.l_image = self.i_locals.get('//images/image[@id="%s"]' % self.name)
@@ -283,11 +281,11 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
 
 class FileDownloadMixin:
   "Classes that extend this must require 'anaconda-version' and 'source-vars'"
-  def __init__(self, interface, storeid):
+  def __init__(self, interface, repoid):
     self.f_locals = None
     
     self.interface = interface
-    self.storeid = storeid
+    self.repoid = repoid
     
     self.callback = BuildSyncCallback(interface.logthresh)
     
@@ -305,7 +303,8 @@ class FileDownloadMixin:
       rinfix = locals_printf(file.get('path'), self.interface.cvars['source-vars'])
       linfix = locals_printf(file.get('path'), self.interface.BASE_VARS)
       
-      src = self.interface.cache(self.storeid, join(rinfix, filename), callback=self.callback)
+      src = self.interface.cache(self.interface.getRepo(self.repoid),
+                                 join(rinfix, filename), callback=self.callback)
       dest = join(self.interface.SOFTWARE_STORE, linfix)
       osutils.mkdir(dest, parent=True)
       sync.sync(src, dest)

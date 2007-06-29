@@ -143,10 +143,10 @@ class InstallerLogosHook(ExtractHandler):
     pkgname = self.config.get('/distro/installer/logos/package/text()',
                               '%s-logos' %(self.interface.product,))    
     rpms = find(self.interface.cvars['rpms-directory'], name='%s-*-*' %(pkgname,),
-                nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
+                nregex='.*[Ss][Rr][Cc]\.[Rr][Pp][Mm]')
     if len(rpms) == 0:
       rpms = find(self.interface.cvars['rpms-directory'], name='*-logos-*-*',
-                  nregex='.*[Ss][Rr][Cc][.][Rr][Pp][Mm]')
+                  nregex='.*[Ss][Rr][Cc]\.[Rr][Pp][Mm]')
       if len(rpms) == 0:
         raise RpmNotFoundError("missing logo RPM")
     return [rpms[0]]

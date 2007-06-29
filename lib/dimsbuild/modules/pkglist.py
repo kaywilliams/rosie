@@ -26,7 +26,7 @@ EVENTS = [
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['pkglist-file', 'pkglist', 'pkglist-changed'],
     'requires': ['required-packages', 'repoconfig-file', 'local-repodata'],
-    'conditional-requires': ['user-required-packages', 'input-store-changed'],
+    'conditional-requires': ['user-required-packages', 'input-repos-changed'],
   },
 ]
 
@@ -61,8 +61,8 @@ class DepsolveMDCreator(YumRepoCreator):
     
     self.idre = re.compile('.*\[@id="(.*)"\].*')
   
-  def getPath(self, storeQuery):
-    repoid = self.idre.match(storeQuery).groups()[0]
+  def getPath(self, repoQuery):
+    repoid = self.idre.match(repoQuery).groups()[0]
     repo = self.repos[repoid]
     return 'file://' + repo.ljoin(repo.repodata_path)
 
@@ -121,7 +121,7 @@ class RepogenHook:
   
   def run(self):
     dmdc = DepsolveMDCreator(self.cfgfile, self.interface.config.file,
-                             fallback='//stores',
+                             fallback='//repos',
                              repos=self.interface.cvars['repos'])
     dmdc.createRepoFile()
     
@@ -152,7 +152,7 @@ class PkglistHook:
   def check(self):
     return self.interface.isForced('pkglist') or \
            self.interface.cvars['pkglist-file'] or \
-           self.interface.cvars['input-store-changed'] or \
+           self.interface.cvars['input-repos-changed'] or \
            self.interface.cvars['comps-changed'] or \
            not exists(self.pkglistfile) and not self.interface.cvars['pkglist-file']
   
