@@ -270,7 +270,7 @@ class OutputHandler:
         xmltree.Element('mtime', parent=e, text=str(stat.st_mtime))
   
   def diff(self):
-    d = diff(self.output, expand(self.data))
+    d = diff(self.output, self.output.keys())
     if d: self.dprint(d)    
     return d
 
