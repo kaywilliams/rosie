@@ -13,7 +13,7 @@ from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from dimsbuild.interface import EventInterface
 
-from lib import ColorMixin, RpmsHandler, RpmsInterface, getIpAddress
+from lib import ColorMixin, RpmsHandler, RpmsInterface
 
 EVENTS = [
   {
@@ -33,6 +33,7 @@ API_VERSION = 4.1
 
 #---------- HANDLERS -------------#
 class ReleaseRpmHook(RpmsHandler, ColorMixin):
+
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'release.release-rpm'
@@ -45,21 +46,12 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
         '/distro/main/fullname/text()',
         '/distro/main/version/text()',
         '/distro/rpms/release-rpm',    
-        '/distro/repos/*/repo/gpgkey',
+        '/distro/stores/*/store/gpgkey',
         '/distro/gpgsign',
       ],      
       'variables': ['distrosroot'],
-      'input': [
-        interface.config.xpath('/distro/rpms/release-rpm/yum-repos/path/text()', []),
-        interface.config.xpath('/distro/rpms/release-rpm/eula/path/text()', []),
-        interface.config.xpath('/distro/rpms/release-rpm/release-notes/path/text()', []),
-        interface.config.xpath('/distro/rpms/release-rpm/release-files/path/text()', []),
-        interface.config.xpath('/distro/repos/*/repo/gpgkey/text()', []),
-        interface.config.xpath('/distro/gpgsign/public/text()', []),
-      ],
-      'output': [
-        join(interface.METADATA_DIR, 'release-rpm'),
-      ],
+      'input': [],
+      'output': [],
     }
 
     RpmsHandler.__init__(self, interface, data, 'release-rpm',
@@ -68,78 +60,104 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
                          long_description='%s release files created by dimsbuild' \
                          %(interface.fullname,))
     
-    ColorMixin.__init__(self, join(self.interface.METADATA_DIR,
-                                   '%s.pkgs' %(self.interface.getBaseRepoId(),)))
-    
-    # self.installdirs is a (key:value) mapping with the key the name
-    # of a variable in self's scope -- the self.variable is a list of files --
-    # and the value of it is the directory to which those files should be installed
-    #
-    # To add more files to the release rpm, do the following:
-    #  1. add an entry to this dictionary, with the name of the variable that holds
-    #     a list of files as the key and the value being the directory to which those
-    #     files should be installed.
-    #  2. create a function that sets up the variable; self._sync_files() might come in
-    #     in handy.
-    #
-    # For example, self.eulafiles holds a list of files that are installed to the
-    # /usr/share/eula folder.
-    self.datafiles = {
-      'default_rnotes': '/usr/share/doc/HTML',
-      'etcfiles':       '/etc',
-      'eulafiles':      '/usr/share/eula',
-      'eulapy':         '/usr/share/firstboot/modules',
-      'gpgfiles':       '/etc/pki/rpm-gpg',
-      'releasefiles':   '/usr/share/doc/%s-release-%s' %(self.product, self.version,),
-      'reposfiles':     '/etc/yum.repos.d',
-      'rnotes_doc':     '/usr/share/doc/%s-release-notes-%s' %(self.product, self.version,),
-      'rnotes_html':    '/usr/share/doc/HTML',
-      'rnotes_omf':     '/usr/share/omf/%s-release-notes' %(self.product,),
-    }
-    
-  def copy(self): pass # copy() in _generate(), below
+    ColorMixin.__init__(self)
 
+    #  Each key of the installinfo directionary is the name of the directory in
+    # release RPM event's working directory and its value tells the program
+    # what it should do with those files.
+    #
+    #  Each value of in the installinfo dictionary should be a string or a 2-tuple.
+    # If it is a string, it should be install directory. If it's a 2-tuple, it should
+    # be the default install directory and the xpath query to the user-specified
+    # install path.
+    #
+    #  For example, self.installinfo['gpg'] are installed to /etc/pki/rpm-gpg.
+    self.installinfo = {
+      'gpg'     : ('/distro/stores/*/store/gpgkey/text()', '/etc/pki/rpm-gpg', None),
+      'repo'    : ('/distro/rpms/release-rpm/yum-repos/path/text()', '/etc/yum.repos.d', None),
+      'eula'    : ('/distro/rpms/release-rpm/eula/path/text()', '/usr/share/eula', None),
+      'omf'     : ('/distro/rpms/release-rpm/release-notes/omf/path/text()',
+                   '/usr/share/omf/%s-release-notes' %(self.product,),
+                   '/distro/rpms/release-rpm/release-notes/omf/@install-path'),
+      'html'    : ('/distro/rpms/release-rpm/release-notes/html/path/text()',
+                   '/usr/share/doc/HTML',
+                   '/distro/rpms/release-rpm/release-notes/html/@install-path'),
+      'doc'     : ('/distro/rpms/release-rpm/release-notes/doc/path/text()',
+                   '/usr/share/doc/%s-release-notes-%s' %(self.product, self.version,),
+                   '/distro/rpms/release-rpm/release-notes/doc/@install-path'),                   
+      'release' : ('/distro/rpms/release-rpm/release-files/path/text()',
+                   '/usr/share/doc/%s-release-%s' %(self.product, self.version,),
+                   None),
+      'etc'     : (None, '/etc', None), 
+      'eulapy'  : (None, '/usr/share/firstboot/modules', None),
+    }
+
+  def setup(self):
+    for k,v in self.installinfo.items():
+      xquery,_,_ = v
+      if xquery is not None:
+        self.addInput(self.interface.config.xpath(xquery, []))
+    self.expandInput()
+    RpmsHandler.setup(self)
+    
+  def _copy(self):
+    for k,v in self.installinfo.items():
+      xquery,_,_ = v
+      if xquery is not None:
+        for file in self.interface.config.xpath(xquery, []):
+          dest = join(self.output_location, k)
+          if not exists(dest):
+            mkdir(dest, parent=True)
+          sync(file, dest)
+    
   def _generate(self):
-    self._process_gpg_keys()
-    self._process_eula_files()
-    self._process_release_notes()
-    self._process_release_files()
-    self._process_repos()
-    self._process_etc_files()
+    "Create files besides the ones that have been synced."
+    for type in self.installinfo.keys():
+      function = '_create_%s_files' %type      
+      if hasattr(self, function):
+        getattr(self, function)()
+
     self._verify_release_notes()
 
-  def _create_manifest(self):
-    manifest = join(self.output_location, 'MANIFEST')
-    f = open(manifest, 'w')
-    f.write('setup.py\n')
-    f.write('setup.cfg\n')
-    for item in self.datafiles.keys():
-      if hasattr(self, item):
-        files = getattr(self, item)
-        if files:
-          for file in files:
-            f.write('%s\n' %(file,))
-    f.close()
-    
+  def _create_manifest(self): # done by _get_data_files(), below
+    pass
+
   def _get_data_files(self):
-    data = None
-    for key in self.datafiles.keys():
-      if hasattr(self, key):
-        files = getattr(self, key)
-        if files:
-          datum = '%s : %s' %(self.datafiles[key], ', '.join(files))
-          if data is None:
-            data = datum
-          else:
-            data = '\n\t'.join([data, datum])
+    data = None  
+    manifest = ['setup.py', 'setup.cfg']
+    for k,v in self.installinfo.items():
+      dir = join(self.output_location, k)
+      if exists(dir):
+        files = [ join(k,x) for x in os.listdir(dir) ]
+      else:
+        files = []
+
+      if files:        
+        manifest.extend(files)
+        if v[2] is not None: installpath = self.config.get(v[2], None) or v[1]
+        else: installpath = v[1]
+        
+        datum = '%s : %s' %(installpath, ', '.join(files))
+        if data is None:
+          data = datum
+        else:
+          data = '\n\t'.join([data.strip(), datum])
+    filereader.write(manifest, join(self.output_location, 'MANIFEST'))
     return data
 
   def _get_config_files(self):
     rtn = None
-    for configitem in ['etcfiles', 'gpgfiles', 'reposfiles']:
-      value = '\n\t'.join([ join(self.datafiles[configitem], basename(x)) for x in getattr(self, configitem) ])
-      if rtn is None: rtn = value
-      else          : rtn = '\n\t'.join([rtn.strip(), value])
+    for k,v in self.installinfo.items():
+      if v[2] is not None: installpath = self.config.get(v[2], None) or v[1]
+      else: installpath = v[1]
+
+      if installpath.startswith('/etc'): # is a config file
+        dir = join(self.output_location, k)
+        if not exists(dir):
+          continue
+        value = '\n\t'.join([ join(installpath, basename(x)) for x in os.listdir(dir) ])
+        if rtn is None: rtn = value
+        else          : rtn = '\n\t'.join([rtn.strip(), value])
     return rtn
 
   def _get_provides(self):
@@ -157,54 +175,38 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     if packages:
       return ' '.join(packages)
     return None
-      
+    
   def _verify_release_notes(self):
+    "Ensure the presence of RELEASE-NOTES.html and an index.html"
     rnotes = find(location=self.output_location, name='RELEASE-NOTES*')
     if len(rnotes) == 0:
       self.setColors(prefix='#')      
+      dir = join(self.output_location, 'html')
+      if not exists(dir):
+        mkdir(dir, parent=True)
+        
       # create a default release notes file because none were found.
-      import locale
+      import locale        
+      path = join(dir, 'RELEASE-NOTES-%s.html' %(locale.getdefaultlocale()[0],))
 
-      rnotename = 'RELEASE-NOTES-%s.html' %(locale.getdefaultlocale()[0],) 
-      path = join(self.output_location, rnotename)
       f = open(path, 'w')      
       f.write(RELEASE_NOTES_HTML %(self.bgcolor, self.textcolor, self.fullname))      
       f.close()
       
-      self.default_rnotes = [rnotename]
-      index_html = join(self.output_location, 'index.html')
+      index_html = join(self.output_location, 'html', 'index.html')
       if not exists(index_html):
         os.link(path, index_html)
-        self.default_rnotes.append('index.html')
       
-  def _process_gpg_keys(self):
-    # sets self.gpgfiles and self.gpgdata    
-    gpgdir = join(self.output_location, 'gpg')
-    mkdir(gpgdir)
-    gpgkeys = []
-
-    if self.config.get('/distro/gpgsign/sign/text()', 'False') in BOOLEANS_TRUE:      
-      gpgkey = self.config.get('/distro/gpgsign/public/text()', None)
-      if gpgkey is not None:
-        gpgkeys.append(gpgkey)
-
-    gpgkeys.extend(self.config.xpath('/distro/repos/*/repo/gpgkey/text()', []))
-
-    for gpgkey in gpgkeys:
-      sync(gpgkey, gpg_dir)
-
-    self.gpgfiles = [join('gpg', x) for x in os.listdir(gpgdir)]
-
-  def _process_repos(self):
-    self._sync_files('yum-repos', 'reposfiles', dirname='repos')
-    reposdir = join(self.output_location, 'repos')
-    
-    extrarepos = []
-    if self.config.get('/distro/rpms/%s/yum-repos/publish-repo/include/text()' %(self.id,),
-                       'True') in BOOLEANS_TRUE:      
+  def _create_repo_files(self):
+    reposdir = join(self.output_location, 'repo')
+    if not exists(reposdir):
+      mkdir(reposdir, parent=True)
+      
+    if self.config.get('/distro/rpms/release-rpm/yum-repos/publish-repo/include/text()', 'True') \
+           in BOOLEANS_TRUE:
       repofile = join(reposdir, '%s.repo' %(self.product,))
-      authority = self.config.get('/distro/rpms/%s/publish-repo/authority/text()' %(self.id,),
-                                  ''.join(['http://', getIpAddress()]))
+      authority = self.config.get('/distro/rpms/release-rpm/publish-repo/authority/text()',
+                                  ''.join(['http://', self.interface.getIpAddress()]))
       path = join(self.interface.distrosroot, self.interface.pva, 'os')
       lines = ['[%s]' %(self.product,),
                'name=%s %s - %s' %(self.fullname, self.version, self.arch,),
@@ -217,75 +219,37 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
         lines.append('gpgcheck=0')
         
       filereader.write(lines, repofile)
-      extrarepos.append(join('repos', '%s.repo' %(self.product,)))
 
-    if self.config.get('/distro/rpms/%s/yum-repos/input-repo/include/text()' %(self.id,), 'False') \
+    if self.config.get('/distro/rpms/release-rpm/yum-repos/input-repo/include/text()', 'False') \
            in BOOLEANS_TRUE:
       repofile = join(reposdir, 'source.repo')
-      rc = YumRepoCreator(repofile, self.config.file, '/distro/repos')
+      rc = YumRepoCreator(repofile, self.config.file, '/distro/stores')
       rc.createRepoFile()
-      extrarepos.append(join('repos', 'source.repo'))
 
-    for repo in self.config.xpath('/distro/rpms/%s/yum-repos/path/text()' %(self.id,), []):
-      sync(repo, reposdir)
-      extrarepos.append(repo)
-      
-    if hasattr(self, 'reposfiles'):
-      self.reposfiles.extend(extrarepos)
-    else:
-      self.reposfiles = extrarepos
-    
-  def _process_eula_files(self):
-    self._sync_files('eula', 'eulafiles', dirname='eula')
-    if self.config.get('/distro/rpms/%s/eula/include-in-firstboot/text()' %(self.id,),
-                       'True') in BOOLEANS_TRUE and \
-                       self.config.get('/distro/rpms/%s/eula/path/text()' %(self.id,), None) \
-                       is not None:
-      source = join(self.sharepath, 'release', 'eula.py')
-      sync(source, join(self.output_location, 'eula'))
-      self.eulapyfiles = ['eula/eula.py']
+  def _create_eulapy_file(self):
+    if self.config.get('/distro/rpms/release-rpm/eula/include-in-firstboot/text()', 'True') in BOOLEANS_TRUE:
+      if self.config.get('/distro/rpms/release-rpm/eula/path/text()', None) is not None:
+        src = join(self.sharepath, 'release', 'eula.py')
+        dst = join(self.output_location, 'eulapy')
+        if not exists(dst):
+          mkdir(dst, parent=True)
+        sync(src, dst)
 
-  def _process_release_notes(self):
-    # rnotes is a list of 3-tuples: (xpath query relative to release-rpm, variable name)
-    rnotes = [('release-notes/omf',  'rnotes_omf'),
-              ('release-notes/html', 'rnotes_html'),
-              ('release-notes/doc',  'rnotes_doc')]
-
-    for element, variable in rnotes:
-      installpath = self.config.get('/distro/rpms/%s/%s/@install-path' %(self.id, element), None)
-      if installpath is not None:
-        self.datafiles[variable] = installpath
-      self._sync_files(element, variable)
-
-  def _process_release_files(self):
-    self._sync_files('release-files', 'releasefiles')
-  
-  def _process_etc_files(self):
+  def _create_etc_files(self):
     release_string = ['%s %s' %(self.fullname, self.version,)]
     issue_string = ['Kernel \\r on an \\m\n']
 
+    etcdir = join(self.output_location, 'etc')
+    if not exists(etcdir):
+      mkdir(etcdir, parent=True)
+      
     # write the product-release and redhat-release files
-    filereader.write(release_string, join(self.output_location, 'redhat-release'))
-    filereader.write(release_string, join(self.output_location, '%s-release' %(self.product,)))
+    filereader.write(release_string, join(etcdir, 'redhat-release'))
+    filereader.write(release_string, join(etcdir, '%s-release' %(self.product,)))
     
     # write the issue and issue.net files
-    filereader.write(release_string+issue_string, join(self.output_location, 'issue'))    
-    filereader.write(release_string+issue_string, join(self.output_location, 'issue.net'))
-
-    self.etcfiles = ['redhat-release', '%s-release' %(self.product,), 'issue', 'issue.net']
-    
-  def _sync_files(self, element, variable, dirname=None, triage=lambda x: True):
-    dirname = dirname or variable
-    destdir = join(self.output_location, dirname)
-    if not exists(destdir):
-      mkdir(destdir)
-    
-    for item in self.config.xpath('/distro/rpms/%s/%s/path/text()' %(self.id, element), []):
-      sync(item, destdir)
-
-    files = map(lambda x: join(dirname, x), filter(triage, os.listdir(destdir)))
-    if files:
-      setattr(self, variable, files)
+    filereader.write(release_string+issue_string, join(etcdir, 'issue'))    
+    filereader.write(release_string+issue_string, join(etcdir, 'issue.net'))
 
 
 RELEASE_NOTES_HTML = """<html>

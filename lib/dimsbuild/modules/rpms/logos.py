@@ -63,9 +63,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
         '/distro/main/version/text()',
         '/distro/rpms/logos-rpm',
       ],
-      'output': [
-        join(interface.METADATA_DIR, 'logos-rpm/'),
-      ],
+      'output': [],
     }
 
     RpmsHandler.__init__(self, interface, data,
@@ -78,8 +76,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
                          'distribution.' \
                          %(interface.product, interface.config.get('/distro/main/fullname/text()')))
     
-    ColorMixin.__init__(self, join(self.interface.METADATA_DIR,
-                                   '%s.pkgs' %(self.interface.getBaseRepoId(),)))
+    ColorMixin.__init__(self)
 
   def setup(self):
     # set the font to use
@@ -144,7 +141,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
       rtn = ''.join([rtn, dir, files, '\n\t'])
     return rtn
     
-  def output_valid(self):
+  def _valid(self):
     if self.data.has_key('output'):
       for logoinfo in self.imageslocal.xpath('//logos/logo', []):
         i,_,w,h,_,_,_,_,_,_ = self._get_image_info(logoinfo)

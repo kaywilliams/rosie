@@ -6,7 +6,7 @@ from dims.osutils import find, mkdir, rm
 import dims.listcompare as listcompare
 
 from dimsbuild.constants import BOOLEANS_TRUE
-from dimsbuild.event     import EVENT_TYPE_META
+from dimsbuild.event     import EVENT_TYPE_META, HookExit
 from dimsbuild.interface import Repo
 
 from rpms.lib import RpmsInterface
@@ -59,17 +59,22 @@ class RpmsHook:
     self.ID = 'rpms.__init__.RPMS'
     self.interface = interface
 
+  def setup(self):
+    if not exists(self.interface.LOCAL_REPO):
+      mkdir(self.interface.LOCAL_REPO, parent=True)
+    
   def post(self):
+    if self.interface.isSkipped('RPMS'): return
+
     repo = Repo('localrepo')
     repo.local_path = join(self.interface.METADATA_DIR, repo.id)
-    repo.remote_path = 'file://%s' %repo.local_path
-    repo.split('file:///%s' % repo.local_path)
+    repo.split(repo.local_path)
 
     self.interface.createrepo()
 
     repo.readRepoData()    
     repo.readRepoContents()
-    repofile = join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id)
+    repofile = join(self.interface.METADATA_DIR, 'localrepo.pkgs')
     
     if repo.compareRepoContents(repofile):      
       repo.changed = True
@@ -82,7 +87,7 @@ class RpmsHook:
     
     if not self.interface.cvars['repos']:
       self.interface.cvars['repos'] = {}
-    self.interface.cvars['repos'][repo.id] = repo    
+    self.interface.cvars['repos'][repo.id] = repo
 
 class LocalRepogenHook:
   def __init__(self, interface):
@@ -91,7 +96,7 @@ class LocalRepogenHook:
     self.interface = interface
 
   def post(self):
-    if not self.interface.cvars['repoconfig-file']: return
+    if not self.interface.cvars['repoconfig-file'] or self.interface.isSkipped('RPMS'): return
     lines = filereader.read(self.interface.cvars['repoconfig-file'])
     lines.append('[localrepo]')
     lines.append('name = localrepo')

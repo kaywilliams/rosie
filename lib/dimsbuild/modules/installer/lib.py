@@ -16,7 +16,7 @@ from dims import xmltree
 from dimsbuild.callback  import BuildSyncCallback
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.difftest  import InputHandler, OutputHandler
-from dimsbuild.interface import DiffMixin
+from dimsbuild.interface import DiffMixin, DataModifyMixin
 from dimsbuild.locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
 from dimsbuild.magic     import match as magic_match
 from dimsbuild.magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS, FILE_TYPE_FAT
@@ -42,7 +42,7 @@ def extractRpm(rpmPath, output=os.getcwd()):
   @param output  : the directory that is going to contain the RPM's
   contents
   """
-  dir = tempfile.mkdtemp()
+  dir = tempfile.mkdtemp(dir='/tmp/dimsbuild')
   try:
     filename = join(dir, 'rpm.cpio')
     
@@ -59,17 +59,20 @@ def extractRpm(rpmPath, output=os.getcwd()):
     osutils.rm(dir, recursive=True, force=True)
 
 
-class ExtractHandler(DiffMixin):
+class ExtractHandler(DiffMixin, DataModifyMixin):
   def __init__(self, interface, data, mdfile):    
     self.interface = interface
     self.config = self.interface.config
     self.software_store = self.interface.SOFTWARE_STORE
     
     DiffMixin.__init__(self, mdfile, data)
+    DataModifyMixin.__init__(self)
 
   def setup(self):
-    self.modify_output_data(self.handlers['output'].output.keys())
-    self.modify_input_data(self.find_rpms())
+    for file in self.handlers['output'].output.keys():
+      self.addOutput(file)
+    for file in self.find_rpms():
+      self.addInput(file)
 
   def force(self):
     self.clean_output()
@@ -86,7 +89,7 @@ class ExtractHandler(DiffMixin):
     # generate output files
     try:
       # get input - extract RPMs
-      self.working_dir = tempfile.mkdtemp() # temporary directory, gets deleted once done
+      self.working_dir = tempfile.mkdtemp(dir='/tmp/dimsbuild') # temporary directory, gets deleted once done
 
       for rpmname in self.data['input']:
         extractRpm(rpmname, self.working_dir)    
@@ -94,24 +97,14 @@ class ExtractHandler(DiffMixin):
       # need to modify self.data, so that the metadata written has all
       # the files created. Otherwise, self.data['output'] will be
       # empty.
-      self.modify_output_data(self.generate())
+      for output in self.generate():
+        self.addOutput(output)
     finally:
       osutils.rm(self.working_dir, recursive=True, force=True)
 
     # write metadata
     self.write_metadata()
 
-  def modify_input_data(self, input):
-    self._modify('input', input)
-
-  def modify_output_data(self, output):
-    self._modify('output', output)
-
-  def _modify(self, key, value):
-    while len(self.data[key]) != 0:
-      self.data[key].pop()
-    self.data[key].extend(value)
-      
   def clean_output(self):
     if self.data.has_key('output'):
       for file in self.data['output']:
@@ -310,3 +303,4 @@ class FileDownloadMixin:
       sync.sync(src, dest)
 
 class RpmNotFoundError(Exception): pass
+class OutputInvalidError(Exception): pass

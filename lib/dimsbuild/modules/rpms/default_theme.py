@@ -87,9 +87,7 @@ class DefaultThemeHook(RpmsHandler):
       'config': [
         '/distro/rpms/default-theme-rpm',
       ],
-      'output': [
-        join(interface.METADATA_DIR, 'default-theme-rpm/'),
-      ],
+      'output': [],
     }
 
     self.themename = interface.config.get('/distro/rpms/default-theme-rpm/theme/text()',
@@ -113,7 +111,7 @@ class DefaultThemeHook(RpmsHandler):
                                                     RPM_PNVR_REGEX.match(rpm).groups()[0],
                                                     'conditional', 'gdm')
     except IndexError:
-      if self.test_build_rpm() and not self.interface.isSkipped(self.id):
+      if self._test_build_rpm() and not self.interface.isSkipped(self.id):
         raise RuntimeError("missing rpm: '%s'" %(self.rpmname,))
       else:
         self.interface.cvars['default-theme-info'] = None

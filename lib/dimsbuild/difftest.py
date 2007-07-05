@@ -34,10 +34,13 @@ __date__    = 'June 12th, 2007'
 
 import copy
 import os
+import time
+import urllib2
 
 from os.path import join, exists
 
 from dims import osutils
+from dims import spider
 from dims import xmlserialize
 from dims import xmltree
 
@@ -63,7 +66,8 @@ class DiffTest:
     handler.debug = self.debug
     handler.dprint = self.dprint
     self.handlers.append(handler)
-
+    expand(handler.data)
+    
     try:
       metadata = xmltree.read(self.mdfile)
     except ValueError:
@@ -101,12 +105,13 @@ class DiffTest:
   
   def changed(self):
     "Returns true if any handler returns a diff with length greater than 0"
+    changed = False
     for handler in self.handlers:
       d = handler.diff()
       if len(d) > 0:
+        changed = True
         self.dprint(d)
-        return True
-    return False
+    return changed
   
   def test(self):
     "Perform a full check, from reading metadata to writing"
@@ -116,16 +121,47 @@ class DiffTest:
     return change
 
 def expand(list):
-  "Expands a list of lists into a list"
-  ret = []
+  "Expands a list of lists into a list, in place."
+  old = []
+  new = []
+  # expand all lists in the list
   for item in list:
     if type(item) == type(list):
-      ret.extend(item)
-    else:
-      ret.append(item)
-  return ret
+      new.extend(item)
+      old.append(item)    
+  for x in old: list.remove(x)
+  for x in new: list.append(x)
 
-def diff(olddata, newdata):
+def getMetadata(uri):
+  "Return the (size,mtime) of a remote of local uri"
+  if uri.startswith('file:/'):
+    uri = '/' + uri[6:].lstrip('/')
+
+  if uri.startswith('/'): # local uri
+    stats = os.stat(uri)
+    return (stats.st_size, stats.st_mtime)
+  else: # remote uri
+    request = urllib2.Request(uri)
+    request.get_method = lambda : 'HEAD'
+    http_file = urllib2.urlopen(request)
+    headers = http_file.info()
+    size = headers.getheader('content-length') or '0'
+    mtime = headers.getheader('last-modified') or 'Wed, 31 Dec 1969 16:00:00 GMT'
+    http_file.close()
+    return int(size), int(time.mktime(time.strptime(mtime, '%a, %d %b %Y %H:%M:%S GMT')))
+
+def getFiles(uri):
+  "Return the files of a remote of local uri"
+  if uri.startswith('file:/'):
+    uri = '/' + uri[6:].lstrip('/')
+
+  if uri.startswith('/'): # local uri
+    files = osutils.find(uri) or [uri]
+  else: # remote uri
+    files = spider.find(uri)
+  return files
+  
+def diff(olddata, newfiles):
   """ 
   Return a dictionary of 'diff tuples' expressing the differences between
   olddata and newdata.  If there are no differences, the dictionary will be
@@ -139,24 +175,15 @@ def diff(olddata, newdata):
       in struct:   file is listed in struct and exists on disk
     (None, None):
       in metadata: N/A
-      in struct:   file is listed in struct but doesn not exist on disk
+      in struct:   file is listed in struct but does not exist on disk
     None:
       in metadata: file is not present in metadata file
       in struct:   file is not listed in struct
   """
   diffdict = {}
   
-  newfiles = [] # list of files in the struct
-  for item in newdata:
-    if type(item) == str:
-      item = [item]
-    for path in item:
-      newfiles.extend(osutils.find(path))
-  newfiles.sort()
-  
   oldfiles = olddata.keys() # list of files in metadata
-  oldfiles.sort()
-  
+
   # keep a list of already-processed elements so we don't add them in twice
   processed = []
   
@@ -164,6 +191,7 @@ def diff(olddata, newdata):
   for x in newfiles:
     if x not in oldfiles:
       diffdict[x] = (None, DiffTuple(x))
+        
   for x in oldfiles:
     if x not in newfiles:
       processed.append(x)
@@ -174,12 +202,12 @@ def diff(olddata, newdata):
     if file in processed: continue
     oldtup = (olddata[file]['size'], olddata[file]['mtime'])
     try:
-      stats = os.stat(file)
+      size, mtime = getMetadata(file)
       # files differ in size or mtime
-      if (stats.st_mtime != olddata[file]['mtime']) or \
-         (stats.st_size != olddata[file]['size']):
-        diffdict[file] = (oldtup, (stats.st_size, stats.st_mtime))
-    except OSError:
+      if (mtime != olddata[file]['mtime']) or \
+         (size != olddata[file]['size']):
+        diffdict[file] = (oldtup, (size, mtime))
+    except OSError, HTTPError:
       # file does not exist
       diffdict[file] = (None, None)
   
@@ -188,14 +216,14 @@ def diff(olddata, newdata):
 def DiffTuple(file):
   "Generate a (size, mtime) tuple for file"
   try:
-    stats = os.stat(file)
-  except OSError:
-    return (None, None)
-  return (stats.st_size, stats.st_mtime)
+    return getMetadata(file)
+  except OSError, HTTPError:
+    # FIXME: should the exception be raised here?
+    return (None, None) 
   
 class NewEntry:
   "Represents an item requested in a handler's data section that is not currently"
-  "present in its metadata"""
+  "present in its metadata"
 class NoneEntry:
   "Represents an item requested in a handler's data section that does not exist"
   "for any reason"
@@ -216,32 +244,36 @@ class InputHandler:
   def __init__(self, data):
     self.data = data
     self.input = {}
-    
+    self.diffdict = {}
+
   def mdread(self, metadata):
     for file in metadata.xpath('/metadata/input/file'):
       self.input[file.get('@path')] = {'size':  int(file.get('size/text()')),
                                        'mtime': int(file.get('mtime/text()'))}
       
   def mdwrite(self, root):
-    # remove previous node, if present
-    try:
-      root.remove(root.get('/metadata/input'))
-    except TypeError:
-      pass
+    try: root.remove(root.get('input'))
+    except TypeError: pass
     
-    # create new parent node
     parent = xmltree.Element('input', parent=root)
-    for path in expand(self.data):
-      for file in osutils.find(path):
-        e = xmltree.Element('file', parent=parent, attrs={'path': file})
-        stat = os.stat(file)
-        xmltree.Element('size',  parent=e, text=str(stat.st_size))
-        xmltree.Element('mtime', parent=e, text=str(stat.st_mtime))
-  
+    for datum in self.data:
+      size, mtime = (None, None)
+      if datum in self.diffdict.keys():
+        size, mtime = self.diffdict[datum][1]
+
+      if size is None or mtime is None:
+        # should not happen, unless the input handler's data was
+        # modified after diff() was called.        
+        size, mtime = getMetadata(datum)
+          
+      e = xmltree.Element('file', parent=parent, attrs={'path': datum})
+      xmltree.Element('size', parent=e, text=str(size))
+      xmltree.Element('mtime', parent=e, text=str(mtime))
+    
   def diff(self):
-    d = diff(self.input, expand(self.data))
-    if d: self.dprint(d)
-    return d
+    self.diffdict = diff(self.input, self.data)
+    if self.diffdict: self.dprint(self.diffdict)
+    return self.diffdict
 
 class OutputHandler:
   def __init__(self, data):
@@ -254,34 +286,38 @@ class OutputHandler:
                                         'mtime': int(file.get('mtime/text()'))}
   
   def mdwrite(self, root):
-    # remove previous node, if present
-    try:
-      root.remove(root.get('/metadata/output'))
-    except TypeError:
-      pass
-    
-    # create new parent node
-    parent = xmltree.Element('output', parent=root)
-    for path in expand(self.data):
-      for file in osutils.find(path):
+    try: root.remove('output')
+    except TypeError: pass
+    parent = xmltree.uElement('output', parent=root)
+    for datum in self.data:
+      # it is OK to call getFiles() because all the files in self.data
+      # are local files, and it is guaranteed that no spidering will
+      # take place. We have to call getFiles() because there might be
+      # new files added to self.data between test_diffs() and
+      # now.
+      for file in getFiles(datum):
+        size, mtime = getMetadata(file) 
+        
         e = xmltree.Element('file', parent=parent, attrs={'path': file})
-        stat = os.stat(file)
-        xmltree.Element('size',  parent=e, text=str(stat.st_size))
-        xmltree.Element('mtime', parent=e, text=str(stat.st_mtime))
-  
-  def diff(self):
+        xmltree.Element('size', parent=e, text=str(size))
+        xmltree.Element('mtime', parent=e, text=str(mtime))
+
+  def diff(self):    
+    ### CHANGE. June 2, 2007: changed the second parameter in the
+    ### diff() function call to be self.output.keys(); it was
+    ### self.data before.    
     d = diff(self.output, self.output.keys())
-    if d: self.dprint(d)    
+    if d: self.dprint(d)
     return d
 
 class ConfigHandler:
   def __init__(self, data, config):
     self.data = data
     self.config = config
-    self.cfg = {}
+    self.cfg = {}    
     
   def mdread(self, metadata):
-    for path in expand(self.data):
+    for path in self.data:
       node = metadata.get('/metadata/config/value[@path="%s"]' % path, None)
       if node is not None:
         self.cfg[path] = node.xpath('elements/*', None) or \
@@ -297,7 +333,7 @@ class ConfigHandler:
       pass
     
     config = xmltree.Element('config', parent=root)
-    for path in expand(self.data):
+    for path in self.data:
       value = xmltree.Element('value', parent=config, attrs={'path': path})
       for val in self.config.xpath(path, []):
         if type(val) == type(''): # a string
@@ -308,7 +344,7 @@ class ConfigHandler:
     
   def diff(self):
     diff = {}
-    for path in expand(self.data):
+    for path in self.data:
       if self.cfg.has_key(path):
         try:
           cfgval = self.config.xpath(path)
@@ -333,7 +369,7 @@ class VariablesHandler:
     self.vars = {}
   
   def mdread(self, metadata):
-    for item in expand(self.data):
+    for item in self.data:
       node = metadata.get('/metadata/variables/value[@variable="%s"]' % item)
       if node is None:
         self.vars[item] = NewEntry()
@@ -350,7 +386,7 @@ class VariablesHandler:
       pass
     
     vars = xmltree.Element('variables', parent=root)
-    for var in expand(self.data):
+    for var in self.data:
       parent = xmltree.Element('value', parent=vars, attrs={'variable': var})
       try:
         val = eval('self.obj.%s' % var)
@@ -360,7 +396,7 @@ class VariablesHandler:
   
   def diff(self):
     diff = {}
-    for var in expand(self.data):
+    for var in self.data:
       try:
         val = eval('self.obj.%s' % var)
       except AttributeError:

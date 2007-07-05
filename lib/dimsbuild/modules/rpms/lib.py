@@ -7,7 +7,7 @@ import rpm
 import socket
 import struct
 
-from dims.osutils import basename, dirname, find, mkdir, rm
+from dims.osutils import *
 from dims.sync    import sync
 
 import dims.filereader as filereader
@@ -16,29 +16,8 @@ import dims.shlib      as shlib
 import dims.xmltree    as xmltree
 
 from dimsbuild.constants import BOOLEANS_TRUE
-from dimsbuild.difftest  import expand
 from dimsbuild.event     import EventInterface
-from dimsbuild.interface import DiffMixin
-
-#--------------- FUNCTIONS ------------------#
-def getIpAddress(ifname='eth0'):
-  s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-  return socket.inet_ntoa(fcntl.ioctl(s.fileno(),
-                                      0x8915, # SIOCGIFADDR
-                                      struct.pack('256s', ifname[:15]))[20:24])
-
-
-def buildRpm(path, rpm_output, changelog=None, logger='rpmbuild',
-             createrepo=False, quiet=True):
-
-  mkrpm.build(path, rpm_output, changelog=changelog, logger=logger,
-              keepTemp=True, createrepo=createrepo,
-              quiet=quiet)
-  
-  # need to delete the dist folder, because the RPMS have been copied
-  # already to wherever they need to be. 
-  rm(join(path, 'dist'), recursive=True, force=True)
-
+from dimsbuild.interface import DataModifyMixin, DiffMixin
 
 #------ MIXINS ------#
 class RpmsMixin:
@@ -52,12 +31,10 @@ class RpmsMixin:
     pwd = os.getcwd()
     os.chdir(self.LOCAL_REPO)
     shlib.execute('/usr/bin/createrepo -q .')
-    os.chdir(pwd)  
-
+    os.chdir(pwd)
 
 class ColorMixin:
-  def __init__(self, verfile):
-    self.verfile = verfile
+  def __init__(self): pass
 
   def setColors(self, be=False, prefix='0x'):    
     # compute the background and foreground colors to use
@@ -96,90 +73,96 @@ class RpmsInterface(EventInterface, RpmsMixin):
     EventInterface.__init__(self, base)
     RpmsMixin.__init__(self)
 
+  def buildRpm(self, path, rpm_output, changelog=None, logger='rpmbuild',
+               createrepo=False, quiet=True):
+
+    mkrpm.build(path, rpm_output, changelog=changelog, logger=logger,
+                keepTemp=True, createrepo=createrepo,
+                quiet=quiet)
+    
+    # need to delete the dist folder, because the RPMS have been copied
+    # already to wherever they need to be. 
+    rm(join(path, 'dist'), recursive=True, force=True)
+
+  def getIpAddress(self, ifname='eth0'):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(s.fileno(),
+                                        0x8915, # SIOCGIFADDR
+                                        struct.pack('256s', ifname[:15]))[20:24])  
+
 
 #---------- HANDLERS -------------#
-class RpmsHandler(DiffMixin):
+class RpmsHandler(DiffMixin, DataModifyMixin):
   def __init__(self, interface, data, id, rpmname,
                description=None, long_description=None):
 
     if len(data['output']) > 1:
       raise Exception, "only one item should be specified in data['output']"
         
-    self.interface = interface    
-    self.config = self.interface.config
-    self.metadata = self.interface.METADATA_DIR
-    self.software_store = self.interface.SOFTWARE_STORE
-    self.arch = self.interface.basearch    
-    self.rpm_output = self.interface.LOCAL_REPO
+    self.interface = interface
 
-    self.fullname = self.config.get('//main/fullname/text()')
-    self.product = self.config.get('//main/product/text()')
-    self.version = self.config.get('//main/version/text()')
+    # self.<k> = self.interface.<v>
+    for k,v in [('config', 'config'), ('fullname', 'fullname'),
+                ('arch', 'basearch'), ('software_store', 'SOFTWARE_STORE'),
+                ('fullname', 'fullname'), ('product', 'product'),
+                ('version', 'version'), ('metadata', 'METADATA_DIR'), ('log', 'log')]:
+      setattr(self, k, getattr(self.interface, v))
+
+    self.sharepath = self.interface._base.sharepath
 
     self.id = id
     self.rpmname = rpmname
-
     self.description = description
     self.long_description = long_description
     self.author = 'dimsbuild'
 
     self.output_location = join(self.metadata, self.id)
-    self.sharepath = self.interface._base.sharepath
-    
-    self.log = self.interface.log
     self.autoconf = join(dirname(self.config.file), 'distro.conf.auto')
 
     DiffMixin.__init__(self, join(self.metadata, '%s.md' % self.id), data)
-
-  def clean_output(self):
-    rm(self.output_location, recursive=True, force=True)
-    for x in self._find_rpms():
-      if self.data.has_key('output') and x in self.data['output']:
-        self.data['output'].remove(x)
-      if exists(x):
-        rm(x, force=True)
-    rm(self.mdfile, force=True)
+    DataModifyMixin.__init__(self)
 
   def setup(self):
-    self._modify_output_data()
+    self.addOutput(self.output_location)
+    self.addOutput(join(self.interface.LOCAL_REPO, 'RPMS',
+                        '%s*[!Ss][!Rr][!Cc].[Rr][Pp][Mm]' % self.rpmname))
+    self.addOutput(join(self.interface.LOCAL_REPO, 'SRPMS',
+                        '%s*[Ss][Rr][Cc].[Rr][Pp][Mm]' % self.rpmname))
     
   def force(self):
-    self.clean_output()
-      
+    self._clean()
+    
   def check(self):
-    if self.test_build_rpm():
-      if self.test_diffs():
-        # if forced, clean_output() has already been called once, why call it again?
-        if not self.interface.isForced(self.id): 
-          self.clean_output()
-        return True
-      else:
-        return False
+    if self._test_build():      
+      if self.test_diffs(): self._clean(); return True
+      else: return False
     else:
-      self.clean_output()
-      return False
+      self._clean(); return False
   
   def run(self):
     self.log(0, "building %s rpm" %(self.rpmname,))
-    self.init()
-    self.copy()
-    self.create()
-    if not self.output_valid():
+    if not exists(self.output_location):
+      mkdir(self.output_location, parent=True)    
+    self._copy()
+    self._generate()
+    self._write_spec()
+    self.interface.buildRpm(self.output_location, self.interface.LOCAL_REPO,
+                            quiet=(self.interface.logthresh < 4))
+    if not self._valid():
       raise OutputInvalidError("'%s' output invalid" %(self.rpmname,))
-    self._modify_output_data()
-    self.write_metadata()
-    
+    self.write_metadata()    
+
   def apply(self, type='mandatory', requires=None):
     missingrpms = [ x for x in self._find_rpms() if not exists(x) ]
 
     if len(missingrpms) != 0:
-      if self.test_build_rpm() and not self.interface.isSkipped(self.id):
+      if self._test_build() and not self.interface.isSkipped(self.id):
         raise RuntimeError("missing rpm(s): " %(', '.join(missingrpms)))
       else:
         return # the rpm hasn't been created, therefore nothing else to do here
 
-    # add rpms to the included-packages control var, so that
-    # they are added to the comps.xml
+    # add rpms to the included-packages control var, so that they are
+    # added to the comps.xml
     if not self.interface.cvars['included-packages']:
       self.interface.cvars['included-packages'] = []
     self.interface.cvars['included-packages'].append((self.rpmname, type, requires))
@@ -189,67 +172,41 @@ class RpmsHandler(DiffMixin):
       if not self.interface.cvars['excluded-packages']:
         self.interface.cvars['excluded-packages'] = []
       self.interface.cvars['excluded-packages'].extend(obsoletes.split())
-  
-  def init(self):
-    if not exists(self.rpm_output):
-      mkdir(self.rpm_output, parent=True)
-    if not exists(self.output_location):
-      mkdir(self.output_location, parent=True)
 
-  def copy(self):
-    if self.data.has_key('input'):
-      for input in self.data['input']:
-        sync(input, self.output_location)
+  def _clean(self):
+    for rpm in self._find_rpms():
+      self.removeOutput(rpm)
+      rm(rpm, force=True)
+    rm(self.output_location, recursive=True, force=True)
+    rm(self.mdfile, force=True)    
 
-  def create(self):
-    self._generate()
-    self._setup()
-    buildRpm(self.output_location, self.rpm_output,
-             quiet=(self.interface.logthresh < 4)) # piping rpmbuild output to loglevel 4
-    
-  def test_build_rpm(self):
-    return self.config.get('//%s/create/text()' %(self.id,), 'True') in BOOLEANS_TRUE
+  def _test_build(self):
+    return self.config.get('/distro/rpms/%s/create/text()' %(self.id,), 'True') in BOOLEANS_TRUE
 
   def _find_rpms(self, prefix=True):
-    v, r, a = self._read_autoconf()
+    v,r,a = self._read_autoconf()
     rpm = join('RPMS', '%s-%s-%s.%s.rpm' %(self.rpmname, v, r, a))
     srpm = join('SRPMS', '%s-%s-%s.src.rpm' %(self.rpmname, v, r))    
 
     if prefix:
-      rpm = join(self.rpm_output, rpm)
-      srpm = join(self.rpm_output, srpm)
+      rpm = join(self.interface.LOCAL_REPO, rpm)
+      srpm = join(self.interface.LOCAL_REPO, srpm)
 
     return [rpm, srpm]
   
-  def _modify_output_data(self):
-    if not self.data.has_key('output'):
-      assert 'output' not in self.handlers.keys()
-      self.data['output'] = []
-      h = OutputHandler(self.data['output'])
-      self.DT.addHandler(h)
-      self.handlers[key] = h
-    
-    rpms = self._find_rpms()
-    for rpm in rpms:
-      if rpm not in self.data['output']:
-        self.data['output'].append(rpm)
-    
-  def output_valid(self): return True
+  def _copy(self):
+    if self.data.has_key('input'):
+      for file in self.data['input']:
+        sync(file, self.output_location)
   
-  def _generate(self): pass
-  
-  def _setup(self):
+  def _write_spec(self):
     self._create_manifest()
     setup_cfg = join(self.output_location, 'setup.cfg')
-    if exists(setup_cfg):
-      return
-    parser = ConfigParser()
-
+    if exists(setup_cfg): return
+    
     version, release, arch = self._read_autoconf()
 
-    parser.add_section('global')
-    parser.set('global', 'verbose', '0')
-    
+    parser = ConfigParser()    
     parser.add_section('pkg_data')        
     parser.set('pkg_data', 'name', self.rpmname)
     parser.set('pkg_data', 'version', version)
@@ -332,8 +289,9 @@ class RpmsHandler(DiffMixin):
     
     root.write(self.autoconf)
   
-  def _create_manifest(self): pass
-
+  def _create_manifest(self): pass        
+  def _generate(self):        pass
+  
   def _get_config_files(self):   return None
   def _get_data_files(self):     return None
   def _get_doc_files(self):      return None
@@ -343,7 +301,25 @@ class RpmsHandler(DiffMixin):
   def _get_post_install(self):   return None
   def _get_provides(self):       return None
   def _get_requires(self):       return None
+  def _valid(self):              return True
 
+  def _cache_input(self, info=[], prefix=None):
+    rtn = []
+    prefix = prefix or dirname(self.config.file)
+    for dir, xquery in info:
+      sources = []
+      for source in self.interface.config.xpath(xquery, []):
+        if not source.startswith('/') and source.find('://') == -1: # relative path
+          source = join(prefix, source)
+        sources.append(source)
+
+      if sources:
+        dst = join(self.output_location, dir)
+        if not exists(dst):
+          mkdir(dst, parent=True)
+        sync(sources, dst)
+        rtn.extend(find(location=join(self.output_location, dir), name='*'))
+    return rtn
 
 class OutputInvalidError(IOError): pass
 

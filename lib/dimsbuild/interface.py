@@ -157,6 +157,88 @@ class DiffMixin:
     self.DT.write_metadata()
 
 
+class DataModifyMixin:
+  def __init__(self):
+    # ensure that self.interface is defined before this Mixin is initialized.
+    if not hasattr(self, 'interface'):
+      raise AttributeError("missing 'interface' instance variable in %s" % self.__class__.__name__)
+
+  def expandOutput(self, prefix=None):
+    """
+    Fix relative paths to be relative to the prefix parameter. If prefix
+    is None, the relative paths specified as output, are relative to the
+    distro.conf's directory.
+    """
+    self._expand('output', prefix=prefix)
+
+  def expandInput(self, prefix=None):
+    """
+    Convert all the relative paths to absolute and spider remote and
+    local paths specified as input.
+    """    
+    self._expand('input', prefix=prefix)
+
+  def _expand(self, type, prefix=None):
+    if type not in self.handlers.keys(): return
+    prefix = prefix or osutils.dirname(self.interface.config.file)
+    for path in self.handlers[type].data:
+      if not path.startswith('/') and path.find('://') == -1: # relative path
+        path = osutils.join(prefix, path)
+      if type == 'input':
+        self.addInput(path)
+      else: # type == 'output'
+        self.addOutput(path)
+    
+  def addInput(self, input):
+    """
+    Add a file as input.
+    """
+    self._add_item('input', input)
+
+  def addOutput(self, output):
+    """
+    Add a file as an output file. If addOutput() is called after
+    OutputHandler.diff() has been called, the late parameter should be
+    set to True.    
+    """
+    outputs = self._add_item('output', output)
+
+  def _add_item(self, kind, items):
+    if kind not in self.handlers.keys(): return []
+
+    if type(items) == str: items = [items]
+
+    added_files = []
+    for file in items:
+      for f in difftest.getFiles(file):
+        if f not in self.handlers[kind].data and f not in added_files:
+          added_files.append(f)    
+        
+    self.handlers[kind].data.extend(added_files)
+    return added_files
+      
+  def cleanOutput(self):
+    """
+    Remove all files from the output files' list.
+    """    
+    if 'output' not in self.handlers.keys(): return         
+    while len(self.handlers['output'].data) > 0:
+      self.handlers['output'].data.pop()
+    if len(self.handlers['output'].output) > 0:
+      self.handlers['output'].output.clear()
+      
+  def removeOutput(self, file):
+    """
+    Remove a file from the list of outputs. 
+    """
+    if 'output' not in self.handlers.keys(): return
+    for path in osutils.find(file):
+      if path in self.handlers['output'].data:
+        self.handlers['output'].data.remove(path)
+      if path in self.handlers['output'].output.keys():
+        self.handlers['output'].output.pop(path)
+        
+
 class PrimaryXmlContentHandler(xml.sax.ContentHandler):
   def __init__(self):
     xml.sax.ContentHandler.__init__(self)
@@ -227,7 +309,6 @@ class Repo:
 
   def readRepoData(self, repomd=None):
     repomd = repomd or xmltree.read(self.ljoin(self.repodata_path, self.mdfile)).xpath('//data')
-
     for data in repomd:
       repofile = data.get('location/@href')
       filetype = data.get('@type')
@@ -238,8 +319,8 @@ class Repo:
   
   def readRepoContents(self):
     pxmlz = self.ljoin(self.repodata_path, 'repodata', self.primaryfile)
-    pxml  = self.ljoin(self.repodata_path, 'repodata', 'primary.xml')
-    
+    pxml  = join('/tmp', 'dimsbuild', '%s-primary.xml' % self.id)
+
     shlib.execute('gunzip -c %s > %s' % (pxmlz, pxml)) # perhaps use python for this
     
     handler = PrimaryXmlContentHandler()

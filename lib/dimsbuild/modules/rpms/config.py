@@ -36,17 +36,18 @@ class ConfigRpmHook(RpmsHandler):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'config.config-rpm'
-
+    
     self.configdir = dirname(interface.config.file)
 
     data = {
       'config': [
         '/distro/rpms/config-rpm',
       ],
-      'input': [],
-      'output': [
-        join(interface.METADATA_DIR, 'config-rpm'),
+      'input': [
+        interface.config.xpath('/distro/rpms/config-rpm/config/script/path/text()', []),
+        interface.config.xpath('/distro/rpms/config-rpm/config/supporting-files/path/text()', []),
       ],
+      'output': [],
     }
 
     RpmsHandler.__init__(self, interface, data, 'config-rpm', '%s-config' %(interface.product,),
@@ -54,16 +55,11 @@ class ConfigRpmHook(RpmsHandler):
                          %(interface.fullname,),
                          long_description='The %s-config provides scripts and supporting files for'\
                          'configuring the %s distribution' %(interface.product, interface.fullname,))
-
   def setup(self):
-    input = []
-    for x in self.interface.config.xpath('/distro/rpms/config-rpm/config/script/path/text()', []) + \
-        self.interface.config.xpath('/distro/rpms/config-rpm/config/supporting-files/path/text()', []):
-      input.append(join(self.configdir, x))
-    self.data['input'].extend(input)
+    self.expandInput()
     RpmsHandler.setup(self)
-    
-  def test_build_rpm(self):
+  
+  def _test_build(self):
     return (self.config.get('/distro/rpms/config-rpm/requires', None) or \
             self.config.get('/distro/rpms/config-rpm/obsoletes', None) or \
             self.config.get('/distro/rpms/config-rpm/config/script/path/text()', None) or \
