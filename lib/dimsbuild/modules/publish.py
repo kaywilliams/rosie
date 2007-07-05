@@ -71,6 +71,8 @@ class PublishHook(DiffMixin):
 
       except KeyError:
         pass
+
+    if not exists(self.interface.OUTPUT_DIR): return
     
     # sync to output folder
     if not exists(self.interface.PUBLISH_DIR):
@@ -78,7 +80,7 @@ class PublishHook(DiffMixin):
       osutils.mkdir(self.interface.PUBLISH_DIR, parent=True)
     
     for d in ['os', 'iso', 'SRPMS']:
-      src = join(self.interface.DISTRO_DIR, d)
+      src = join(self.interface.OUTPUT_DIR, d)
       if not exists(src): continue # all folders are technically optional
       sync.sync(src, self.interface.PUBLISH_DIR, link=True)
     

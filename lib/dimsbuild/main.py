@@ -116,7 +116,7 @@ class Build:
     self.cvars['base-vars']['webroot'] = self.config.get('/distro/main/publishpath/webroot/text()', 
                                                          '/var/www/html/')
     self.cvars['base-vars']['distrosroot'] = self.config.get('/distro/main/publishpath/distrosroot/text()',
-                                                         'distros')
+                                                             'distros')
     self.cvars['base-vars']['pva'] = '%s-%s-%s' % (self.cvars['base-vars']['product'],
                                                    self.cvars['base-vars']['version'],
                                                    self.cvars['base-vars']['basearch'])
@@ -124,8 +124,9 @@ class Build:
     
     # set up other directories
     self.DISTRO_DIR = join(self.CACHE_DIR, self.cvars['base-vars']['pva'])
-    self.SOFTWARE_STORE = join(self.DISTRO_DIR, 'os')
+    self.OUTPUT_DIR = join(self.DISTRO_DIR, 'output')
     self.METADATA_DIR = join(self.DISTRO_DIR, 'builddata')
+    self.SOFTWARE_STORE = join(self.OUTPUT_DIR, 'os')    
     
     for dir in [self.SOFTWARE_STORE, self.METADATA_DIR, self.TEMP_DIR]:
       if not exists(dir):

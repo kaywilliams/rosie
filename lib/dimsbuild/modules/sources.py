@@ -55,7 +55,7 @@ class SrpmInterface(EventInterface, ListCompareMixin):
     self.ts = rpm.TransactionSet()
     self.ts.setVSFlags(-1)
     self.callback = BuildSyncCallback(base.log.threshold)
-    self.srpmdest = join(self.DISTRO_DIR, 'SRPMS')
+    self.srpmdest = join(self.OUTPUT_DIR, 'SRPMS')
   
   def syncSrpm(self, srpm, repo, force=False):
     "Sync a srpm from path within repo into the output store"
@@ -76,15 +76,7 @@ class SrpmInterface(EventInterface, ListCompareMixin):
   
   def getAllSourceRepos(self):
     return self.cvars['source-repos'].values()
-  
-  def add_store(self, storeXml):
-    pass
-    #stores = uElement('stores', self.config.get('//source'))
-    #store = xmltree.read(StringIO(storeXml))
-    #stores.append(store)
-    #s,n,d,_,_,_ = urlparse(store.get('path/text()'))
-    #server = '://'.join((s,n))
-  
+
 
 #------ HOOKS ------#
 class ValidateHook:
@@ -119,10 +111,10 @@ class SourceHook(DiffMixin):
   
   def setup(self):
     if not self.dosource: return
-    
     osutils.mkdir(self.mdsrcrepos, parent=True)
     
-    self.interface.cvars['source-repos'] = {}
+    if not self.interface.cvars['source-repos']:
+      self.interface.cvars['source-repos'] = {}
     
     for repo in self.interface.config.xpath('//source/repos/repo'):
       repoid = repo.get('@id')

@@ -27,11 +27,12 @@ class RpmsMixin:
   def addRpm(self, path):
     cp(path, self.LOCAL_REPO)
   
-  def createrepo(self):
-    pwd = os.getcwd()
-    os.chdir(self.LOCAL_REPO)
+  def createrepo(self, path=None):
+    path = path or self.LOCAL_REPO
+    cwd = os.getcwd()
+    os.chdir(path)
     shlib.execute('/usr/bin/createrepo -q .')
-    os.chdir(pwd)
+    os.chdir(cwd)
 
 class ColorMixin:
   def __init__(self): pass

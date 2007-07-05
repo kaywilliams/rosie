@@ -30,28 +30,10 @@ MODULES = [
   'release',
 ]
 
-SOURCE_XML = ''' 
-<store id="localrepo-srpms">
-  <path>file://%s</path>
-</store>
-'''
-
 HOOK_MAPPING = {
-  'LocalSrpmsHook'   : 'source',
   'RpmsHook'         : 'RPMS',
   'LocalRepogenHook' : 'repogen',
 }
-
-class LocalSrpmsHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'rpms.__init__.source'
-    self.interface = interface
-
-  def pre(self):
-    if self.interface.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE:
-      store = join(self.interface.METADATA_DIR, 'localrepo/SRPMS/')
-      self.interface.add_store(SOURCE_XML % store)
 
 class RpmsHook:
   def __init__(self, interface):
@@ -65,12 +47,15 @@ class RpmsHook:
     
   def post(self):
     if self.interface.isSkipped('RPMS'): return
+    self._add_repo()
+    self._add_source()
 
+  def _add_repo(self):
     repo = Repo('localrepo')
-    repo.local_path = join(self.interface.METADATA_DIR, repo.id)
+    repo.local_path = join(self.interface.LOCAL_REPO, 'RPMS')
     repo.split(repo.local_path)
 
-    self.interface.createrepo()
+    self.interface.createrepo(repo.local_path)
 
     repo.readRepoData()    
     repo.readRepoContents()
@@ -89,6 +74,21 @@ class RpmsHook:
       self.interface.cvars['repos'] = {}
     self.interface.cvars['repos'][repo.id] = repo
 
+  def _add_source(self):
+    if self.interface.config.get('/distro/source/include/text()', 'False') in BOOLEANS_TRUE:
+      repo = Repo('localrepo-sources')
+      repo.local_path = join(self.interface.LOCAL_REPO, 'SRPMS')
+      repo.split(repo.local_path)
+
+      self.interface.createrepo(repo.local_path)
+
+      repo.readRepoData()
+      repo.readRepoContents()
+      
+      if not self.interface.cvars['source-repos']:
+        self.interface.cvars['source-repos'] = {}
+      self.interface.cvars['source-repos'][repo.id] = repo
+        
 class LocalRepogenHook:
   def __init__(self, interface):
     self.VERSION = 0
@@ -100,5 +100,5 @@ class LocalRepogenHook:
     lines = filereader.read(self.interface.cvars['repoconfig-file'])
     lines.append('[localrepo]')
     lines.append('name = localrepo')
-    lines.append('baseurl = file://%s' % join(self.interface.METADATA_DIR, 'localrepo/'))
+    lines.append('baseurl = file://%s' % join(self.interface.METADATA_DIR, 'localrepo', 'RPMS'))
     filereader.write(lines, self.interface.cvars['repoconfig-file'])

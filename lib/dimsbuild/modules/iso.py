@@ -63,7 +63,7 @@ class IsoInterface(EventInterface, ListCompareMixin):
     EventInterface.__init__(self, base)
     ListCompareMixin.__init__(self)
     
-    self.isodir = join(osutils.dirname(self.SOFTWARE_STORE), 'iso')
+    self.isodir = join(self.OUTPUT_DIR, 'iso')
 
 
 #------ HOOKS ------#
