@@ -289,16 +289,24 @@ class OutputHandler:
     try: root.remove('output')
     except TypeError: pass
     parent = xmltree.uElement('output', parent=root)
+
+    outputs = []
     for datum in self.data:
       # it is OK to call getFiles() because all the files in self.data
       # are local files, and it is guaranteed that no spidering will
       # take place. We have to call getFiles() because there might be
       # new files added to self.data between test_diffs() and
       # now.
-      for file in getFiles(datum):
-        size, mtime = getMetadata(file) 
-        
-        e = xmltree.Element('file', parent=parent, attrs={'path': file})
+      outputs.extend(getFiles(datum))
+
+    # remove duplicate entries from outputs list
+    outputs = {}.fromkeys(outputs).keys()
+    outputs.sort()
+
+    # write to metadata file 
+    for output in outputs:
+        size, mtime = getMetadata(output)         
+        e = xmltree.Element('file', parent=parent, attrs={'path': output})
         xmltree.Element('size', parent=e, text=str(size))
         xmltree.Element('mtime', parent=e, text=str(mtime))
 
