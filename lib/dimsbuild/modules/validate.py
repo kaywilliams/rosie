@@ -15,8 +15,7 @@ API_VERSION = 4.0
 EVENTS = [
   {
     'id': 'validate',
-    'provides': ['validate'],
-    'conditional-requires': ['applyopt'],
+    'conditional-requires': ['applyopt', 'clean'],
     'properties': EVENT_TYPE_MDLR,
     'parent': 'ALL',
     'interface': 'ValidateInterface',

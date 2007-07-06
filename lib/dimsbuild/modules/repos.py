@@ -129,7 +129,7 @@ class ReposHook(DiffMixin):
       self.interface.cvars['anaconda-version'] = anaconda_version
     
     self.interface.cvars['local-repodata'] = self.mdrepos
-    
+
     self.write_metadata()
     
 

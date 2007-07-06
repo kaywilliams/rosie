@@ -67,21 +67,17 @@ class DiffTest:
     handler.dprint = self.dprint
     self.handlers.append(handler)
     expand(handler.data)
-    
-    try:
-      metadata = xmltree.read(self.mdfile)
-    except ValueError:
-      return
+
+    try: metadata = xmltree.read(self.mdfile)
+    except ValueError: return
 
     handler.mdread(metadata)
-
+    
   def read_metadata(self):
     "Read the file stored at self.mdfile and pass it to each of the handler's"
     "mdread() functions"
-    try:
-      metadata = xmltree.read(self.mdfile)
-    except ValueError:
-      return
+    try: metadata = xmltree.read(self.mdfile)
+    except ValueError: return
 
     for handler in self.handlers:
       handler.mdread(metadata)
@@ -93,10 +89,8 @@ class DiffTest:
     xmltree.XmlTreeElements work, mdwrite() doesn't need to return any values;
     xmltree appends are destructive.
     """
-    if exists(self.mdfile):
-      root = xmltree.read(self.mdfile)
-    else:
-      root = xmltree.Element('metadata')
+    if exists(self.mdfile): root = xmltree.read(self.mdfile)
+    else: root = xmltree.Element('metadata')
 
     for handler in self.handlers:
       handler.mdwrite(root)
@@ -156,7 +150,7 @@ def getFiles(uri):
     uri = '/' + uri[6:].lstrip('/')
 
   if uri.startswith('/'): # local uri
-    files = osutils.find(uri) or [uri]
+    files = osutils.find(uri)
   else: # remote uri
     files = spider.find(uri)
   return files
@@ -290,25 +284,12 @@ class OutputHandler:
     except TypeError: pass
     parent = xmltree.uElement('output', parent=root)
 
-    outputs = []
-    for datum in self.data:
-      # it is OK to call getFiles() because all the files in self.data
-      # are local files, and it is guaranteed that no spidering will
-      # take place. We have to call getFiles() because there might be
-      # new files added to self.data between test_diffs() and
-      # now.
-      outputs.extend(getFiles(datum))
-
-    # remove duplicate entries from outputs list
-    outputs = {}.fromkeys(outputs).keys()
-    outputs.sort()
-
     # write to metadata file 
-    for output in outputs:
-        size, mtime = getMetadata(output)         
-        e = xmltree.Element('file', parent=parent, attrs={'path': output})
-        xmltree.Element('size', parent=e, text=str(size))
-        xmltree.Element('mtime', parent=e, text=str(mtime))
+    for output in self.data:
+      size, mtime = getMetadata(output)         
+      e = xmltree.Element('file', parent=parent, attrs={'path': output})
+      xmltree.Element('size', parent=e, text=str(size))
+      xmltree.Element('mtime', parent=e, text=str(mtime))
 
   def diff(self):    
     ### CHANGE. June 2, 2007: changed the second parameter in the

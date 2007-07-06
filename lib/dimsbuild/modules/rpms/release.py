@@ -98,8 +98,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
       if xquery is not None:
         self.addInput(self.interface.config.xpath(xquery, []))
     self.expandInput()
-    RpmsHandler.setup(self)
-    
+
   def _copy(self):
     for k,v in self.installinfo.items():
       xquery,_,_ = v

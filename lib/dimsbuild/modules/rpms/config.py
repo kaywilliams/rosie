@@ -57,7 +57,6 @@ class ConfigRpmHook(RpmsHandler):
                          'configuring the %s distribution' %(interface.product, interface.fullname,))
   def setup(self):
     self.expandInput()
-    RpmsHandler.setup(self)
   
   def _test_build(self):
     return (self.config.get('/distro/rpms/config-rpm/requires', None) or \

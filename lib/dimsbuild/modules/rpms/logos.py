@@ -94,7 +94,6 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     self.hlcolor = int(self.hlcolor, 16)
     
     mkdir(join(self.interface.METADATA_DIR, 'images-src/product.img'), parent=True)
-    RpmsHandler.setup(self)
   
   def _generate(self):
     self._generate_images()

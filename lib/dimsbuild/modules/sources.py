@@ -168,6 +168,8 @@ class SourceHook(DiffMixin):
     self.interface.compare(oldsrpmlist, srpmlist)
     
     osutils.rm(self.mdfile, force=True)
+
+    self.expandOutput()
     self.write_metadata()
 
   def apply(self):

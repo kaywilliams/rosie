@@ -21,7 +21,7 @@ EVENTS = [
   },
   {
     'id': 'MAIN',
-    'conditional-requires': ['init', 'applyopt', 'validate'],
+    'conditional-requires': ['init', 'applyopt', 'validate', 'clean'],
     'parent': 'ALL',
     'properties': EVENT_TYPE_META,
   },

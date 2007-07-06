@@ -526,7 +526,7 @@ class Dispatch:
   def load_hooks(self, module):
     if hasattr(module, 'HOOK_MAPPING'):
       for hook, eventid in module.HOOK_MAPPING.items():
-        self.register_hook(getattr(module, hook), eventid)
+        self.register_hook(getattr(module, hook), eventid)        
 
   def pprint(self):
     depth = 0
@@ -540,7 +540,8 @@ class Dispatch:
       if len(event.get_children()) > 0:
         depth += 1
     print
-  
+
+      
 class EventIterator:
   "Basic iterator over Event-type objects"
   def __init__(self, eventtree):

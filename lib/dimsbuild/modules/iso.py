@@ -206,7 +206,8 @@ class IsoHook(DiffMixin):
                                         maxdepth=1, prefix=False))
     
     self.interface.compare(oldsets, self.newsets)
-    
+
+    self.expandOutput()
     self.write_metadata()
   
   def _generate_pkgorder(self):

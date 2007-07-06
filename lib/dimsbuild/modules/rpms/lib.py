@@ -17,7 +17,7 @@ import dims.xmltree    as xmltree
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EventInterface
-from dimsbuild.interface import DataModifyMixin, DiffMixin
+from dimsbuild.interface import DiffMixin
 
 #------ MIXINS ------#
 class RpmsMixin:
@@ -93,7 +93,7 @@ class RpmsInterface(EventInterface, RpmsMixin):
 
 
 #---------- HANDLERS -------------#
-class RpmsHandler(DiffMixin, DataModifyMixin):
+class RpmsHandler(DiffMixin):
   def __init__(self, interface, data, id, rpmname,
                description=None, long_description=None):
 
@@ -121,20 +121,12 @@ class RpmsHandler(DiffMixin, DataModifyMixin):
     self.autoconf = join(dirname(self.config.file), 'distro.conf.auto')
 
     DiffMixin.__init__(self, join(self.metadata, '%s.md' % self.id), data)
-    DataModifyMixin.__init__(self)
-
-  def setup(self):
-    self.addOutput(self.output_location)
-    self.addOutput(join(self.interface.LOCAL_REPO, 'RPMS',
-                        '%s*[!Ss][!Rr][!Cc].[Rr][Pp][Mm]' % self.rpmname))
-    self.addOutput(join(self.interface.LOCAL_REPO, 'SRPMS',
-                        '%s*[Ss][Rr][Cc].[Rr][Pp][Mm]' % self.rpmname))
     
   def force(self):
     self._clean()
     
   def check(self):
-    if self._test_build():      
+    if self._test_build():
       if self.test_diffs(): self._clean(); return True
       else: return False
     else:
@@ -151,6 +143,13 @@ class RpmsHandler(DiffMixin, DataModifyMixin):
                             quiet=(self.interface.logthresh < 4))
     if not self._valid():
       raise OutputInvalidError("'%s' output invalid" %(self.rpmname,))
+
+    self.addOutput(self.output_location)
+    self.addOutput(join(self.interface.LOCAL_REPO, 'RPMS',
+                        '%s*[!Ss][!Rr][!Cc].[Rr][Pp][Mm]' % self.rpmname))
+    self.addOutput(join(self.interface.LOCAL_REPO, 'SRPMS',
+                        '%s*[Ss][Rr][Cc].[Rr][Pp][Mm]' % self.rpmname))
+    self.expandOutput()
     self.write_metadata()    
 
   def apply(self, type='mandatory', requires=None):
@@ -303,24 +302,6 @@ class RpmsHandler(DiffMixin, DataModifyMixin):
   def _get_provides(self):       return None
   def _get_requires(self):       return None
   def _valid(self):              return True
-
-  def _cache_input(self, info=[], prefix=None):
-    rtn = []
-    prefix = prefix or dirname(self.config.file)
-    for dir, xquery in info:
-      sources = []
-      for source in self.interface.config.xpath(xquery, []):
-        if not source.startswith('/') and source.find('://') == -1: # relative path
-          source = join(prefix, source)
-        sources.append(source)
-
-      if sources:
-        dst = join(self.output_location, dir)
-        if not exists(dst):
-          mkdir(dst, parent=True)
-        sync(sources, dst)
-        rtn.extend(find(location=join(self.output_location, dir), name='*'))
-    return rtn
 
 class OutputInvalidError(IOError): pass
 

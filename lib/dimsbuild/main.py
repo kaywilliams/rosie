@@ -248,7 +248,7 @@ class Build:
       if enabled is None: continue
       if enabled: self.dispatch.force.append(eventid)
       else:       self.dispatch.skip.append(eventid)
-  
+    
   def __flowcontrol_apply(self, eventid, option=OPT_FORCE):
     "Internal function that applies the --force or --skip option to an event"
     e = self.dispatch.get(eventid, err=True)
@@ -286,7 +286,6 @@ class Build:
       server = '://'.join((s,n))
       if server not in servers: servers.append(server)
     return servers
-  
 
 class CvarsDict(dict):
   def __getitem__(self, key):

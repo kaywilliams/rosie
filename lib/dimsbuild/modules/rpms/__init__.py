@@ -35,6 +35,7 @@ HOOK_MAPPING = {
   'LocalRepogenHook' : 'repogen',
 }
 
+#--------- HOOKS ----------#
 class RpmsHook:
   def __init__(self, interface):
     self.VERSION = 0

@@ -157,13 +157,6 @@ class DiffMixin:
   def write_metadata(self):
     self.DT.write_metadata()
 
-
-class DataModifyMixin:
-  def __init__(self):
-    # ensure that self.interface is defined before this Mixin is initialized.
-    if not hasattr(self, 'interface'):
-      raise AttributeError("missing 'interface' instance variable in %s" % self.__class__.__name__)
-
   def expandOutput(self, prefix=None):
     """
     Fix relative paths to be relative to the prefix parameter. If prefix
@@ -192,31 +185,25 @@ class DataModifyMixin:
     
   def addInput(self, input):
     """
-    Add a file as input.
+    Add a file(s) as input.
     """
     self._add_item('input', input)
 
   def addOutput(self, output):
     """
-    Add a file as an output file. If addOutput() is called after
-    OutputHandler.diff() has been called, the late parameter should be
-    set to True.    
+    Add a file(s) as an output file.
     """
-    outputs = self._add_item('output', output)
+    self._add_item('output', output)
 
   def _add_item(self, kind, items):
     if kind not in self.handlers.keys(): return []
 
     if type(items) == str: items = [items]
 
-    added_files = []
     for file in items:
-      for f in difftest.getFiles(file):
-        if f not in self.handlers[kind].data and f not in added_files:
-          added_files.append(f)    
-        
-    self.handlers[kind].data.extend(added_files)
-    return added_files
+      for f in difftest.getFiles(file):        
+        if f not in self.handlers[kind].data:
+          self.handlers[kind].data.append(f)
       
   def cleanOutput(self):
     """

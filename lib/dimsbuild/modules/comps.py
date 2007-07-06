@@ -165,7 +165,7 @@ class CompsHook(DiffMixin):
     # set required packages
     reqpkgs = xmltree.read(self.interface.cvars['comps-file']).xpath('//packagereq/text()')
     self.interface.cvars['required-packages'] = reqpkgs
-    
+
     self.write_metadata()
   
   #------ COMPS FILE GENERATION FUNCTIONS ------#
