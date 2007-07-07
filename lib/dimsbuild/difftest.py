@@ -292,7 +292,7 @@ class OutputHandler:
                                         'mtime': int(file.get('mtime/text()'))}
   
   def mdwrite(self, root):
-    try: root.remove('output')
+    try: root.remove(root.get('output'))
     except TypeError: pass
     parent = xmltree.uElement('output', parent=root)
 
