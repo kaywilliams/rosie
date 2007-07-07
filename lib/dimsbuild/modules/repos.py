@@ -66,6 +66,7 @@ class ReposHook(DiffMixin):
     for file in [ join(self.mdfile, repo.id) for repo in \
                   self.interface.getAllRepos() ]:
       osutils.rm(file, force=True)
+    self.clean_metadata()
   
   def setup(self):
     self.interface.log(0, "generating filelists for input repositories")

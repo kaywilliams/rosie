@@ -73,6 +73,7 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
     
   def force(self):
     osutils.rm(self.xen_dir, recursive=True, force=True)
+    self.clean_metadata()
   
   def check(self):
     return self.interface.isForced('xen-images') or \

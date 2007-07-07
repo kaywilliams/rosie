@@ -6,9 +6,7 @@ import os
 from dims.osutils import *
 from dims.sync    import sync
 
-import dims.imerge  as imerge
 import dims.shlib   as shlib
-import dims.xmltree as xmltree
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC

@@ -74,7 +74,7 @@ class IsolinuxHook(FileDownloadMixin, DiffMixin):
   def force(self):
     for file in self.DATA['output']:
       osutils.rm(file, recursive=True, force=True)
-    osutils.rm(self.mdfile, force=True)
+    self.clean_metadata()
   
   def check(self):
     if self.test_diffs():

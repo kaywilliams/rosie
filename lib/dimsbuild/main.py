@@ -152,6 +152,11 @@ class Build:
     #  * True  - force this event to run
     #  * False - prevent this event from running
     self.userFC = {}
+
+    # self.autoFC is a dictionary of dimsbuild-specified flow control data
+    # that is computed programmatically and is keyed by event id. Its
+    # possible values are similar to self.userFC's.
+    self.autoFC = {}
     
     # load all enabled modules, register events, set up dispatcher
     self.__init_dispatch() # sets up self.dispatch

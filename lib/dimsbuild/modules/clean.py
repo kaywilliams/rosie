@@ -1,4 +1,4 @@
-from os.path import join
+from os.path import exists, join
 
 from dims import osutils
 from dims import xmltree
@@ -29,6 +29,10 @@ class HookHandler:
     self.hooks = {}
     self.diffdict = {}
 
+  def clean(self):
+    self.hooks.clear()
+    self.diffdict.clear()
+    
   def mdread(self, metadata):
     for hook in metadata.xpath('/metadata/hooks/hook'):
       self.hooks[hook.get('@id')] = hook.get('version/text()')
@@ -75,12 +79,15 @@ class CleanHook(DiffMixin):
       for hook in event.hooks:
         self.hookInfo[hook.ID] = event.id
         self.DATA['hooks'].update({hook.ID: str(hook.VERSION)})
+
+  def force(self):
+    self.clean_metadata()
     
   def check(self):
-    return self.test_diffs() or self.interface.isForced('clean')
+    return self.test_diffs()
   
   def run(self):
-    if self.handlers['hooks'].diffdict.has_key(self.ID) or self.interface.isForced('clean'):
+    if self.handlers['hooks'].diffdict.has_key(self.ID):
       self.interface.log(0, "forcing all events")
       self._force_all_events()
     else:
@@ -106,7 +113,7 @@ class CleanHook(DiffMixin):
     e = self.dispatch.get(eventid, err=True)
     if e.test(event.PROP_CAN_DISABLE):
       e.status = True
-      self.interface._base.userFC[e.id] = True
+      self.interface._base.autoFC[e.id] = True
       if e.test(event.PROP_META):
         for child in e.get_children():
           self.__force(child.id)

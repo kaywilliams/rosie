@@ -66,6 +66,7 @@ class UpdatesHook(ImageModifyMixin):
   
   def force(self):
     osutils.rm(self.updatesimage, force=True)
+    self.clean_metadata()
   
   def check(self):
     return self.interface.isForced('updates-image') or \

@@ -125,6 +125,7 @@ class GpgsignHook(DiffMixin):
                                            name=RPM_GLOB,
                                            type=osutils.TYPE_FILE,
                                            prefix=False) ]
+    self.clean_metadata()
   
   def check(self):
     return self.interface.isForced('gpgsign') or \

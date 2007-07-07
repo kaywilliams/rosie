@@ -60,6 +60,7 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
   
   def force(self):
     osutils.rm(self.diskbootimage, force=True)
+    self.clean_metadata()
   
   def check(self):
     return self.interface.isForced('diskboot-image') or \

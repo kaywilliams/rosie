@@ -70,6 +70,7 @@ class DiscinfoHook(DiffMixin):
     
   def force(self):
     osutils.rm(self.difile, force=True)
+    self.clean_metadata()
   
   def pre(self):
     vars = self.interface.BASE_VARS

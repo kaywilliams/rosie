@@ -71,6 +71,7 @@ class ProductHook(ImageModifyMixin):
   
   def force(self):
     osutils.rm(self.productimage, force=True)
+    self.clean_metadata()
   
   def check(self):
     return self.interface.isForced('product-image') or \

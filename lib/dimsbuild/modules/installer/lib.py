@@ -73,6 +73,7 @@ class ExtractHandler(DiffMixin):
 
   def force(self):
     self.clean_output()
+    self.clean_metadata()
     
   def check(self):    
     if self.test_diffs():

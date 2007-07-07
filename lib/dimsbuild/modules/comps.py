@@ -102,6 +102,7 @@ class CompsHook(DiffMixin):
   
   def force(self):
     osutils.rm(self.s_compsfile, force=True)
+    self.clean_metadata()
   
   def check(self):
     # if the input repos change, we need to run

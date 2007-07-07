@@ -72,7 +72,12 @@ class DiffTest:
     except ValueError: return
 
     handler.mdread(metadata)
-    
+
+  def clean_metadata(self):
+    for handler in self.handlers:
+      handler.clean()
+    osutils.rm(self.mdfile, force=True)
+      
   def read_metadata(self):
     "Read the file stored at self.mdfile and pass it to each of the handler's"
     "mdread() functions"
@@ -81,7 +86,7 @@ class DiffTest:
 
     for handler in self.handlers:
       handler.mdread(metadata)
-
+    
   def write_metadata(self):
     """ 
     Create an XmlTreeElement from self.mdfile, if it exists, or make a new one and
@@ -240,6 +245,10 @@ class InputHandler:
     self.input = {}
     self.diffdict = {}
 
+  def clean(self):
+    self.input.clear()
+    self.diffdict.clear()
+      
   def mdread(self, metadata):
     for file in metadata.xpath('/metadata/input/file'):
       self.input[file.get('@path')] = {'size':  int(file.get('size/text()')),
@@ -273,6 +282,9 @@ class OutputHandler:
   def __init__(self, data):
     self.data = data
     self.output = {}
+
+  def clean(self):
+    self.output.clear()
     
   def mdread(self, metadata):
     for file in metadata.xpath('/metadata/output/file'):
@@ -304,6 +316,9 @@ class ConfigHandler:
     self.data = data
     self.config = config
     self.cfg = {}    
+
+  def clean(self):
+    self.cfg.clear()
     
   def mdread(self, metadata):
     for path in self.data:
@@ -356,7 +371,10 @@ class VariablesHandler:
     self.obj = obj
     
     self.vars = {}
-  
+
+  def clean(self):
+    self.vars.clear()
+    
   def mdread(self, metadata):
     for item in self.data:
       node = metadata.get('/metadata/variables/value[@variable="%s"]' % item)

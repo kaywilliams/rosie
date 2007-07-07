@@ -50,6 +50,7 @@ class PublishHook(DiffMixin):
   
   def force(self):
     osutils.rm(self.interface.PUBLISH_DIR, recursive=True, force=True)
+    self.clean_metadata()
 
   def run(self):
     "Publish the contents of interface.SOFTWARE_STORE to interface.PUBLISH_STORE"

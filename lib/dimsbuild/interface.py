@@ -79,9 +79,12 @@ class EventInterface:
   # event processing functions
   # 'force' event functions - user specified
   def isForced(self, eventid):
-    return self._base.userFC.get(eventid, None) == True
+    return self._base.userFC.get(eventid, None) == True or \
+           self._base.autoFC.get(eventid, None) == True
+  
   def isSkipped(self, eventid):
-    return self._base.userFC.get(eventid, None) == False
+    return self._base.userFC.get(eventid, None) == False or \
+           self._base.autoFC.get(eventid, None) == False
   
   # 'standard' event functions - program specified
   def enableEvent(self, eventid): self.__set_event(eventid, True)
@@ -150,7 +153,13 @@ class DiffMixin:
       h = difftest.ConfigHandler(self.data['config'], self.interface.config)
       self.DT.addHandler(h)
       self.handlers['config'] = h
-  
+
+  def clean_metadata(self):
+    self.DT.clean_metadata()
+    
+  def read_metadata(self):
+    self.DT.read_metadata()
+    
   def test_diffs(self):
     return self.DT.changed()
   

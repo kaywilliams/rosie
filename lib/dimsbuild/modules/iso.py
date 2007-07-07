@@ -183,7 +183,7 @@ class IsoHook(DiffMixin):
   def force(self):
     osutils.rm(self.interface.isodir, recursive=True, force=True)
     osutils.rm(self.splittrees, recursive=True, force=True)
-    osutils.rm(self.mdfile, force=True)
+    self.clean_metadata()
   
   def check(self):
     if self.interface.config.get('//iso/create/text()', 'False') in BOOLEANS_TRUE:

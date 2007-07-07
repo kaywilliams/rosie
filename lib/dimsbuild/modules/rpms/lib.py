@@ -124,6 +124,7 @@ class RpmsHandler(DiffMixin):
     
   def force(self):
     self._clean()
+    self.clean_metadata()
     
   def check(self):
     if self._test_build():
