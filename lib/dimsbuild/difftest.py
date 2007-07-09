@@ -37,10 +37,9 @@ import os
 import time
 import urllib2
 
-from os.path import join, exists
+from os.path import exists
 
 from dims import osutils
-from dims import spider
 from dims import xmlserialize
 from dims import xmltree
 
@@ -148,17 +147,6 @@ def getMetadata(uri):
     mtime = headers.getheader('last-modified') or 'Wed, 31 Dec 1969 16:00:00 GMT'
     http_file.close()
     return int(size), int(time.mktime(time.strptime(mtime, '%a, %d %b %Y %H:%M:%S GMT')))
-
-def getFiles(uri):
-  "Return the files of a remote of local uri"
-  if uri.startswith('file:/'):
-    uri = '/' + uri[6:].lstrip('/')
-
-  if uri.startswith('/'): # local uri
-    files = osutils.find(uri)
-  else: # remote uri
-    files = spider.find(uri)
-  return files
   
 def diff(olddata, newfiles):
   """ 

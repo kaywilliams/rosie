@@ -169,7 +169,7 @@ class SourceHook(DiffMixin):
     
     osutils.rm(self.mdfile, force=True)
 
-    self.expandOutput()
+    self.interface.expand(self.DATA['output'])
     self.write_metadata()
 
   def apply(self):

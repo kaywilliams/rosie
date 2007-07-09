@@ -127,11 +127,10 @@ class Build:
     self.OUTPUT_DIR = join(self.DISTRO_DIR, 'output')
     self.METADATA_DIR = join(self.DISTRO_DIR, 'builddata')
     self.SOFTWARE_STORE = join(self.OUTPUT_DIR, 'os')    
-    
-    for dir in [self.SOFTWARE_STORE, self.METADATA_DIR, self.TEMP_DIR]:
-      if not exists(dir):
-        self.log(2, "Making directory '%s'" % dir)
-      osutils.mkdir(dir, parent=True)
+
+    if not exists(self.TEMP_DIR):
+      self.log(2, "Making directory '%s'" % self.TEMP_DIR)
+      osutils.mkdir(self.TEMP_DIR, parent=True)
     
     # set up list of disabled modules
     self.disabled_modules = self.mainconfig.xpath('//modules/module[%s]/text()' % \
@@ -229,12 +228,6 @@ class Build:
       return '@%s="True" or @%s="true" or @%s="Yes" or @%s="yes" or @%s="1"' % (attr, attr, attr, attr, attr)
     else:
       return '@%s="False" or @%s="false" or @%s="No" or @%s="no" or @%s="0"' % (attr, attr, attr, attr, attr)
-  
-  def preprocess(self):
-    if exists(join(self.METADATA_DIR, '.firstrun')):
-      # enable all events
-      for e in self.dispatch:
-        self.userFC[e.id] = True
     
   def apply_options(self, options):
     """Raise the 'applyopt' event, which plugins/modules can use to apply
@@ -279,9 +272,6 @@ class Build:
   def main(self):
     "Build a distribution"
     self.dispatch.process(until=None)
-  
-  def postprocess(self):
-    osutils.rm(join(self.METADATA_DIR, '.firstrun'), force=True)
   
   def __compute_servers(self):
     "Compute a list of the servers represented in the configuration file"

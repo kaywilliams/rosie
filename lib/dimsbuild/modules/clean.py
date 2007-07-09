@@ -82,19 +82,34 @@ class CleanHook(DiffMixin):
 
   def force(self):
     self.clean_metadata()
+    # HACK ALERT: The following should ideally be in a hook on the ALL event,
+    # but that's not possible because we want applyopt to run before we
+    # delete the working directories.
+    if self.interface.isForced('ALL'):
+      self.interface.log(0, "cleaning events")
+      self.interface.log(1, "cleaning all events")
+      for dir in [self.interface.DISTRO_DIR]:
+        if exists(dir):
+          self.interface.log(2, "Removing directory '%s'" % dir)
+          osutils.rm(dir, recursive=True, force=True)
     
   def check(self):
     return self.test_diffs()
   
   def run(self):
+    # Look at previous HACK ALERT
+    for dir in [self.interface.SOFTWARE_STORE, self.interface.METADATA_DIR]:
+      if not exists(dir):
+        self.interface.log(2, "Making directory '%s'" % dir)
+        osutils.mkdir(dir, parent=True)
+    
     if self.handlers['hooks'].diffdict.has_key(self.ID):
-      self.interface.log(0, "forcing all events")
       self._force_all_events()
     else:
-      self.interface.log(0, "modified events found")      
+      self.interface.log(0, "cleaning events")      
       for hook in self.handlers['hooks'].diffdict.keys():
         eventid = self.hookInfo[hook]
-        self.interface.log(1, "forcing %s" % eventid)
+        self.interface.log(1, "cleaning %s" % eventid)
         self._force_event(eventid)
 
   def apply(self):
@@ -112,7 +127,9 @@ class CleanHook(DiffMixin):
   def __force(self, eventid):
     e = self.dispatch.get(eventid, err=True)
     if e.test(event.PROP_CAN_DISABLE):
-      e.status = True
+      if not e.status:
+        self.interface.log(3, "forcing %s" % eventid)        
+        e.status = True
       self.interface._base.autoFC[e.id] = True
       if e.test(event.PROP_META):
         for child in e.get_children():

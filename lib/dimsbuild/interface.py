@@ -9,7 +9,7 @@ __date__    = 'June 5th, 2007'
 import re
 import xml.sax
 
-from os.path  import join, isfile, exists
+from os.path  import join, isfile
 from urlparse import urlparse, urlunparse
 
 from dims import filereader
@@ -17,6 +17,7 @@ from dims import listcompare
 from dims import osutils
 from dims import shlib
 from dims import sortlib
+from dims import spider
 from dims import sync
 from dims import xmltree
 
@@ -94,7 +95,35 @@ class EventInterface:
   def __set_event(self, eventid, flag):
     self._base.dispatch.get(eventid, err=True)._set_enable_status(flag)
   
+  # path-fixing functions
+  def expand(self, paths=[], resolve=True, prefix=None):
+    prefix = prefix or osutils.dirname(self.config.file)
+    npaths = []
+    for path in paths:
+      if resolve and path.startswith('/') and path.find('://') == -1:
+        path = join(prefix, path)        
+      npaths.extend(self._get_files(path))
 
+    while len(paths) > 0: paths.pop()
+
+    for npath in npaths:
+      if npath not in paths:
+        paths.append(npath)
+    
+    return paths # not necessarily required, because the expansion is in-place
+
+  def _get_files(self, uri):
+    "Return the files of a remote of local uri"
+    if uri.startswith('file:/'):
+      uri = '/' + uri[6:].lstrip('/')
+      
+    if uri.startswith('/'): # local uri
+      files = osutils.find(uri)
+    else: # remote uri
+      files = spider.find(uri)
+    return files
+    
+      
 #------ MIXINS ------#
 class ListCompareMixin:
   def __init__(self, lfn=None, rfn=None, bfn=None, cb=None):
@@ -165,32 +194,6 @@ class DiffMixin:
   
   def write_metadata(self):
     self.DT.write_metadata()
-
-  def expandOutput(self, prefix=None):
-    """
-    Fix relative paths to be relative to the prefix parameter. If prefix
-    is None, the relative paths specified as output, are relative to the
-    distro.conf's directory.
-    """
-    self._expand('output', prefix=prefix)
-
-  def expandInput(self, prefix=None):
-    """
-    Convert all the relative paths to absolute and spider remote and
-    local paths specified as input.
-    """    
-    self._expand('input', prefix=prefix)
-
-  def _expand(self, type, prefix=None):
-    if type not in self.handlers.keys(): return
-    prefix = prefix or osutils.dirname(self.interface.config.file)
-    for path in self.handlers[type].data:
-      if not path.startswith('/') and path.find('://') == -1: # relative path
-        path = osutils.join(prefix, path)
-      if type == 'input':
-        self.addInput(path)
-      else: # type == 'output'
-        self.addOutput(path)
     
   def addInput(self, input):
     """
@@ -206,13 +209,11 @@ class DiffMixin:
 
   def _add_item(self, kind, items):
     if kind not in self.handlers.keys(): return []
-
-    if type(items) == str: items = [items]
-
-    for file in items:
-      for f in difftest.getFiles(file):        
-        if f not in self.handlers[kind].data:
-          self.handlers[kind].data.append(f)
+    if type(items) == str:
+      self.handlers[kind].data.append(items)
+    else:
+      assert type(items) == list
+      self.handlers[kind].data.extend(items)
       
   def cleanOutput(self):
     """
@@ -224,16 +225,15 @@ class DiffMixin:
     if len(self.handlers['output'].output) > 0:
       self.handlers['output'].output.clear()
       
-  def removeOutput(self, file):
+  def removeOutput(self, output):
     """
     Remove a file from the list of outputs. 
     """
     if 'output' not in self.handlers.keys(): return
-    for path in osutils.find(file):
-      if path in self.handlers['output'].data:
-        self.handlers['output'].data.remove(path)
-      if path in self.handlers['output'].output.keys():
-        self.handlers['output'].output.pop(path)
+    if output in self.handlers['output'].data:
+      self.handlers['output'].data.remove(output)
+    if output in self.handlers['output'].output.keys():
+      self.handlers['output'].output.pop(output)
         
 
 class PrimaryXmlContentHandler(xml.sax.ContentHandler):

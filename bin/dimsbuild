@@ -126,10 +126,8 @@ def main():
   
   # now apply the real option set to the software builder, and run the main function
   options, args = parser.parse_args()
-  sbuilder.preprocess()
   sbuilder.apply_options(options)
   sbuilder.main()
-  sbuilder.postprocess()
   sys.exit()
 
 

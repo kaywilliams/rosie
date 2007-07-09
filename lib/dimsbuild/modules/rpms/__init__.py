@@ -16,7 +16,6 @@ API_VERSION = 4.0
 EVENTS = [
   {
     'id': 'RPMS',
-    'provides': ['RPMS'],
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_META,
     'requires': ['repos'],

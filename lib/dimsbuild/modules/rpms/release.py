@@ -90,14 +90,14 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
                    None),
       'etc'     : (None, '/etc', None), 
       'eulapy'  : (None, '/usr/share/firstboot/modules', None),
-    }
+    }    
 
   def setup(self):
     for k,v in self.installinfo.items():
       xquery,_,_ = v
       if xquery is not None:
         self.addInput(self.interface.config.xpath(xquery, []))
-    self.expandInput()
+    self.interface.expand(self.data['input'])
 
   def _copy(self):
     for k,v in self.installinfo.items():

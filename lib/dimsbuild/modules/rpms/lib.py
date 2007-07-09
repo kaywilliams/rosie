@@ -150,7 +150,8 @@ class RpmsHandler(DiffMixin):
                         '%s*[!Ss][!Rr][!Cc].[Rr][Pp][Mm]' % self.rpmname))
     self.addOutput(join(self.interface.LOCAL_REPO, 'SRPMS',
                         '%s*[Ss][Rr][Cc].[Rr][Pp][Mm]' % self.rpmname))
-    self.expandOutput()
+
+    self.interface.expand(self.data['output'])
     self.write_metadata()    
 
   def apply(self, type='mandatory', requires=None):
