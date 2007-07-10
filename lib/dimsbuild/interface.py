@@ -120,10 +120,9 @@ class EventInterface:
       uri = '/' + uri[6:].lstrip('/')
       
     if uri.startswith('/'): # local uri
-      print uri
-      files = osutils.find(uri)
+      files = osutils.find(uri, indicators=True)
     else: # remote uri
-      files = spider.find(uri)
+      files = spider.find(uri, indicators=True)
     return files
     
       
