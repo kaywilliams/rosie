@@ -24,9 +24,10 @@ from dims.sortlib import dcompare
 
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.interface import DiffMixin
+from dimsbuild.locals    import L_BUILDSTAMP_FORMAT
 from dimsbuild.misc      import locals_imerge
 
-API_VERSION = 4.0
+API_VERSION = 4.1
 
 #------ EVENTS ------#
 EVENTS = [
@@ -43,12 +44,20 @@ EVENTS = [
     'provides': ['.treeinfo'],
     'requires': ['anaconda-version'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
+  },
+  {
+    'id': 'buildstamp',
+    'parent': 'INSTALLER',
+    'provides': ['buildstamp-file'],
+    'requires': ['anaconda-version', 'source-vars'],
+    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
   }
 ]
 
 HOOK_MAPPING = {
-  'DiscinfoHook': 'discinfo',
-  'TreeinfoHook': 'treeinfo',
+  'DiscinfoHook'  : 'discinfo',
+  'TreeinfoHook'  : 'treeinfo',
+  'BuildStampHook': 'buildstamp',
 }
 
 #------ HOOKS ------#
@@ -166,6 +175,63 @@ class TreeinfoHook(DiffMixin):
     if not exists(self.tifile):
       raise RuntimeError, "Unable to find .treeinfo file at '%s'" % self.tifile
     self.write_metadata()
+
+
+class BuildStampHook(DiffMixin):
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'installer.discinfo.buildstamp'
+    self.interface = interface
+
+    self.bsfile = join(self.interface.METADATA_DIR, '.buildstamp')
+    self.DATA = {
+      'config': [
+        '/distro/main/fullname/text()',
+        '/distro/main/product/text()',
+        '/distro/main/version/text()',
+        '/distro/main/arch/text()',
+      ],
+      'variables': [
+        'cvars[\'anaconda-version\']',
+        'cvars[\'source-vars\']',
+      ],
+      'output': [self.bsfile],        
+    }
+    DiffMixin.__init__(self, join(self.interface.METADATA_DIR, 'buildstamp.md'), self.DATA)
+
+  def setup(self):
+    self.anaconda_version = self.interface.cvars['anaconda-version']
+
+  def force(self):
+    for file in self.handlers['output'].output.keys():
+      osutils.rm(file, force=True, recursive=True)
+    self.clean_metadata()
+      
+  def check(self):
+    return self.test_diffs()
+
+  def run(self):
+    "Generate a .buildstamp file"
+    self.interface.log(0, "generating buildstamp")
+    
+    locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.anaconda_version)
+    
+    buildstamp_fmt = locals.get('//buildstamp-format')
+    buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
+
+    base_vars = copy.deepcopy(self.interface.cvars['source-vars'])
+    base_vars.update(self.interface.BASE_VARS)
+    base_vars['webloc'] = self.interface.config.get('/distro/main/url/text()', 'No bug url provided')
+
+    buildstamp.write(self.bsfile, **base_vars)
+    os.chmod(self.bsfile, 0644)
+
+    self.write_metadata()
+
+  def apply(self):
+    if not exists(self.bsfile):
+      raise RuntimeError("missing file '%s'" % self.bsfile)
+    self.interface.cvars['buildstamp-file'] = self.bsfile
 
 
 #------ LOCALS ------#

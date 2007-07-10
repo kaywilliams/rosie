@@ -109,7 +109,10 @@ class ExtractHandler(DiffMixin):
         
 
 class ImageHandler:
-  "Classes that extend this must require 'anaconda-version'"
+  """
+  Classes that extend this must require 'anaconda-version',
+  'buildstamp-file' and 'buildstamp-changed'.  
+  """
   def __init__(self, interface):
     self.name = 'super' # subclasses override this
     self.image = None
@@ -141,27 +144,8 @@ class ImageHandler:
   def generate(self):
     raise NotImplementedError
   
-  def generate_buildstamp(self):
-    "Generate a .buildstamp file"
-    md = self.interface.METADATA_DIR
-    osutils.mkdir(md, parent=True)
-    
-    locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.anaconda_version)
-    
-    buildstamp_fmt = locals.get('//buildstamp-format')
-    buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
-    try:
-      base_vars = buildstamp.floread(self.image.readflo('.buildstamp'))
-      base_vars.update(self.vars)
-    except img.ImageIOError:
-      base_vars = self.vars
-      base_vars['timestamp'] = ANACONDA_UUID_FMT
-    base_vars['webloc'] = self.interface.config.get('//main/url/text()', 'No bug url provided')
-    buildstamp.write(join(md, '.buildstamp'), **base_vars)
-    os.chmod(join(md, '.buildstamp'), 0644)
-  
   def write_buildstamp(self):
-    self.image.write(join(self.interface.METADATA_DIR, '.buildstamp'), '/')
+    self.image.write(self.interface.cvars['buildstamp-file'], '/')
   
   def write_directory(self, dir):
     self.image.write([ join(dir, file) for file in os.listdir(dir) ], '/')
@@ -264,7 +248,6 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
     if exists(join(self.interface.METADATA_DIR, 'images-src/%s' % self.name)):
       self.write_directory(join(self.interface.METADATA_DIR,
                                 'images-src/%s' % self.name))
-    self.generate_buildstamp()
     self.write_buildstamp()
     self.interface.cvars['%s-changed' % self.name] = True
 

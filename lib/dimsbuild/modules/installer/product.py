@@ -17,7 +17,7 @@ EVENTS = [
     'id': 'product-image',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['product.img'],
-    'requires': ['anaconda-version'],
+    'requires': ['anaconda-version', 'buildstamp-file'],
     'conditional-requires': ['installer-logos'],
     'parent': 'INSTALLER',
   },
@@ -68,6 +68,7 @@ class ProductHook(ImageModifyMixin):
   
   def setup(self):
     self.register_image_locals(L_IMAGES)
+    self.addInput(self.interface.cvars['buildstamp-file'])
   
   def force(self):
     osutils.rm(self.productimage, force=True)

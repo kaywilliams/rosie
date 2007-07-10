@@ -14,7 +14,7 @@ EVENTS = [
     'id': 'updates-image',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['updates.img'],
-    'requires': ['.buildstamp', 'anaconda-version'],
+    'requires': ['buildstamp-file', 'anaconda-version'],
     'conditional-requires': ['installer-logos'],
     'parent': 'INSTALLER',
   },
@@ -63,6 +63,7 @@ class UpdatesHook(ImageModifyMixin):
   
   def setup(self):
     self.register_image_locals(L_IMAGES)
+    self.addInput(self.interface.cvars['buildstamp-file'])
   
   def force(self):
     osutils.rm(self.updatesimage, force=True)

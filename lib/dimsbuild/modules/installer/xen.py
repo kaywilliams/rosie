@@ -13,7 +13,7 @@ EVENTS = [
     'id': 'xen-images',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['vmlinuz-xen', 'initrd-xen'],
-    'requires': ['initrd.img'],
+    'requires': ['anaconda-version', 'initrd.img', 'buildstamp-file'],
     'parent': 'INSTALLER',
   },
 ]
@@ -70,6 +70,7 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
   def setup(self):
     self.register_image_locals(L_IMAGES)
     self.register_file_locals(L_FILES)
+    self.addInput(self.interface.cvars['buildstamp-file'])
     
   def force(self):
     osutils.rm(self.xen_dir, recursive=True, force=True)

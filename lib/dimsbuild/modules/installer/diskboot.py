@@ -14,7 +14,7 @@ EVENTS = [
     'id': 'diskboot-image',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['diskboot.img'],
-    'requires': ['initrd.img'],
+    'requires': ['initrd.img', 'buildstamp-file'],
     'conditional-requires': ['installer-splash', 'isolinux-changed'],
     'parent': 'INSTALLER',
   },
@@ -54,7 +54,7 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
       pass
   
   def setup(self):
-    self.data['input'].append(self.interface.cvars['installer-splash'])
+    self.addInput([self.interface.cvars['installer-splash'], self.interface.cvars['buildstamp-file']])
     self.register_image_locals(L_IMAGES)
     self.register_file_locals(L_FILES)
   

@@ -15,7 +15,7 @@ API_VERSION = 4.1
 EVENTS = [
   {
     'id': 'isolinux',
-    'provides': ['vmlinuz', '.buildstamp', 'isolinux-changed'],
+    'provides': ['vmlinuz', 'isolinux-changed'],
     'requires': ['anaconda-version', 'source-vars', 'initrd.img'], #! 'initrd.img' for run-before functionality
     'parent': 'INSTALLER',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
@@ -23,6 +23,7 @@ EVENTS = [
   {
     'id': 'initrd-image',
     'provides': ['initrd.img', 'isolinux-changed'],
+    'requires': ['anaconda-version', 'buildstamp-file'],
     #'run-before': ['isolinux'],
     'parent': 'INSTALLER',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
@@ -140,6 +141,7 @@ class InitrdHook(ImageModifyMixin):
                                        f.get('path/text()'),
                                        f.get('@id')) \
                                   for f in self.i_locals.xpath('//image') ] )
+    self.addInput(self.interface.cvars['buildstamp-file'])
     
   
   def force(self):

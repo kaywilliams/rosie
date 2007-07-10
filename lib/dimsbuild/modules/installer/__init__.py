@@ -11,8 +11,8 @@ EVENTS = [
 
 MODULES = [
   'bootiso',
-  'discinfo',
   'diskboot',
+  'infofiles',
   'installer_logos',
   'installer_release',
   'isolinux',
