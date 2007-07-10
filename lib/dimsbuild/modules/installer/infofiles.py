@@ -1,7 +1,7 @@
 """ 
-discinfo.py
+infofiles.py
 
-generates a .discinfo file
+generates distribution information files: .discinfo, .treeinfo, and .buildstamp 
 """
 
 __author__  = 'Kay Williams <kwilliams@abodiosoftware.com>'
