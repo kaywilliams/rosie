@@ -42,12 +42,23 @@ class FilesHook(DiffMixin):
     
     self.interface = interface
 
+    mdfile = join(self.interface.METADATA_DIR, 'files.md')
+
+    self.DATA =  {
+      'config':    ['/distro/files'],
+      'input':     [],
+      'output':    []
+    }
+
+    DiffMixin.__init__(self, mdfile, self.DATA)
+
+
   def setup(self):
 
     # Build up a dictionary of tuples keyed by full output path. Tuples contain 
     # * source-folder - resolved full path dirname of item specified in config or 
     #   locals
-    # * expansion-folder - path between source and item, empty unless folder expansion
+    # * sub-folder - path between source and item, empty unless folder expansion
     #   has occurred, useful during recursive sync operations to identify sync target
     # * file - filename, or empty if the item is a folder
     # * destination-folder - relative destination in the output folder as provided by a default
@@ -55,10 +66,7 @@ class FilesHook(DiffMixin):
     #   output target folder
 
     self.files = {}
-    self.dests = {}
     for path in self.interface.config.xpath('/distro/files/path', []):
-
-#      path = self.resolve(
 
       # get destination folder
       try: 
@@ -66,12 +74,9 @@ class FilesHook(DiffMixin):
         if dest == '/': dest = ''
       except KeyError: 
         dest = ''
-
-      #save dest folders so that we can deal with them during add/remove
-      if dest: self.dests[dest] = dest
-      
-      # determine if item points to one or multiple files
-      items = osutils.find(path.text, indicators=True)
+  
+      # resolve relative paths and expand folders to files
+      items = self.interface.expand(path.text, resolve=True, prefix=None)
       items.sort()
 
       # deal with folders
@@ -79,40 +84,32 @@ class FilesHook(DiffMixin):
         for item in items :
           source = item[:len(path.text)]
           common = item[len(path.text):]
-          expansion = dirname(common)
+          sub = dirname(common)
           base = basename(common)
           self.files[join(self.interface.SOFTWARE_STORE, dest, common)] = \
-                    ((source, expansion, base, dest))
+                    ((source, sub, base, dest))
 
       # deal with single files
       if len(items) == 1 :
         for item in items :
           common = basename(item)
-          expansion = dirname(common)
+          sub = dirname(common)
           base = basename(common)
           self.files[join(self.interface.SOFTWARE_STORE, dest, common)] = \
-                    ((dirname(item), expansion, base, dest)) 
+                    ((dirname(item), sub, base, dest)) 
 
-#    print ('files: %s' % self.files)
+    #print ('files: %s' % self.files)
 
     # create outfiles variable
     self.outfiles = []
     for item in self.files.values():
-      s,e,f,d = item # common-path, source-folder, dest-folder
-      self.outfiles.append(join(self.interface.SOFTWARE_STORE, d, e, f))
+      source,sub,file,dest = item # common-path, source-folder, dest-folder
+      self.outfiles.append(join(self.interface.SOFTWARE_STORE, dest, sub, file))
 
-    mdfile = join(self.interface.METADATA_DIR, 'files.md')
+    self.addInput(self.files.keys())
+    self.addOutput(self.outfiles)
 
-    self.DATA =  {
-      'config':    ['/distro/files'],
-      'input':     [self.files.keys()],
-      'output':    [self.outfiles]
-    }
-
-    DiffMixin.__init__(self, mdfile, self.DATA)
-
-
-    if self.outfiles or self.handlers['output'].output.keys():
+    if self.files.keys() or self.handlers['output'].output.keys():
       self.interface.log(0, "processing user-provided files")
 
   def force(self):
@@ -120,10 +117,7 @@ class FilesHook(DiffMixin):
     self.clean_metadata()
 
   def check(self):
-    if self.test_diffs():
-      return True
-    else:
-      return False
+    return self.test_diffs()
 
   def run(self):
 
@@ -142,13 +136,13 @@ class FilesHook(DiffMixin):
       add.sort()
       self.interface.log(1, "adding files and folders '%d'" % len(add))  
       for item in add:
-        s,e,f,d = self.files[item]
-        dest = join(self.interface.SOFTWARE_STORE, d)
-        self.interface.log(2, "adding '%s'" % join(d, e, f))
+        source,sub,file,dest = self.files[item]
+        full_dest = join(self.interface.SOFTWARE_STORE, dest)
+        self.interface.log(2, "adding '%s'" % join(dest, sub, file))
         if item[-1] == "/":
           osutils.mkdir(item)
         else: 
-         sync.sync(join(s,e,f), join(dest, e))
+         sync.sync(join(source,sub,file), join(full_dest, sub))
 
   def remove(self, removeset):
 
