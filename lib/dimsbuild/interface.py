@@ -98,6 +98,8 @@ class EventInterface:
   # path-fixing functions
   def expand(self, paths=[], resolve=True, prefix=None):
     prefix = prefix or osutils.dirname(self.config.file)
+    if type(paths) == str: paths = [paths]
+
     npaths = []
     for path in paths:
       if resolve and path.startswith('/') and path.find('://') == -1:
@@ -118,6 +120,7 @@ class EventInterface:
       uri = '/' + uri[6:].lstrip('/')
       
     if uri.startswith('/'): # local uri
+      print uri
       files = osutils.find(uri)
     else: # remote uri
       files = spider.find(uri)
