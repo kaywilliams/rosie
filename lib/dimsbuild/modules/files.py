@@ -116,10 +116,12 @@ class FilesHook(DiffMixin):
       source,sub,file,dest = item # common-path, source-folder, dest-folder
       self.infiles.append(join(source, sub, file))
 
-    self.addInput(self.infiles)
-    self.addOutput(self.files.keys())
+    self.outfiles = self.files.keys()
 
-    if self.files.keys() or self.handlers['output'].output.keys():
+    self.addInput(self.infiles)
+    self.addOutput(self.outfiles)
+
+    if self.outfiles or self.handlers['output'].output.keys():
       self.interface.log(0, "processing user-provided files")
 
   def force(self):
@@ -131,22 +133,22 @@ class FilesHook(DiffMixin):
 
   def run(self):
 
-    removeset = set(self.handlers['output'].output.keys()).difference(set(self.files.keys()))
+    removeset = set(self.handlers['output'].output.keys()).difference(set(self.outfiles))
     self.remove(removeset)
 
-    addset = set(self.files.keys()).difference(set(self.handlers['output'].output.keys()))
-    self.add(addset)
+    addset = set(self.outfiles).difference(set(self.handlers['output'].output.keys()))
+    self.add(addset, self.files)
  
     self.write_metadata()  
   
-  def add(self, addset):
+  def add(self, addset, filesdict):
     if addset: 
       # convert set to list for sorting
       add = [item for item in addset]
       add.sort()
       self.interface.log(1, "adding files and folders '%d'" % len(add))  
       for item in add:
-        source,sub,file,dest = self.files[item]
+        source,sub,file,dest = filesdict[item]
         full_dest = join(self.interface.SOFTWARE_STORE, dest)
         self.interface.log(2, "adding '%s'" % join(dest, sub, file))
         if item[-1] == "/":
