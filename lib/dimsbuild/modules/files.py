@@ -101,13 +101,13 @@ class FilesHook(DiffMixin):
     #print ('files: %s' % self.files)
 
     # create outfiles variable
-    self.outfiles = []
+    self.infiles = []
     for item in self.files.values():
       source,sub,file,dest = item # common-path, source-folder, dest-folder
-      self.outfiles.append(join(self.interface.SOFTWARE_STORE, dest, sub, file))
+      self.infiles.append(join(source, sub, file))
 
-    self.addInput(self.files.keys())
-    self.addOutput(self.outfiles)
+    self.addInput(self.infiles)
+    self.addOutput(self.files.keys())
 
     if self.files.keys() or self.handlers['output'].output.keys():
       self.interface.log(0, "processing user-provided files")
@@ -121,10 +121,10 @@ class FilesHook(DiffMixin):
 
   def run(self):
 
-    removeset = set(self.handlers['output'].output.keys()).difference(set(self.outfiles))
+    removeset = set(self.handlers['output'].output.keys()).difference(set(self.files.keys()))
     self.remove(removeset)
 
-    addset = set(self.outfiles).difference(set(self.handlers['output'].output.keys()))
+    addset = set(self.files.keys()).difference(set(self.handlers['output'].output.keys()))
     self.add(addset)
  
     self.write_metadata()  
@@ -155,6 +155,9 @@ class FilesHook(DiffMixin):
     for item in removeset:
       if item[-1] == '/': folders.append(item)
       else: files.append(item)        
+
+    folders.sort()
+    files.sort()
 
     if files:
       for item in files:
