@@ -60,4 +60,11 @@
     <element name="path"><text/></element>
   </define>
 
+  <define name="element-path-with-dest">
+    <element name="path">
+       <optional><attribute name="dest"/></optional>
+       <text/>
+    </element>
+  </define>
+
 </grammar>

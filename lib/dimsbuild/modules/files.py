@@ -32,9 +32,19 @@ EVENTS = [
 
 HOOK_MAPPING = {
   'FilesHook': 'files',
+  'ValidateHook': 'validate',
 }
 
 #------ HOOKS ------#
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'files.validate'
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('/distro/files', 'files.rng')
+
 class FilesHook(DiffMixin):
   def __init__(self, interface):
     self.VERSION = 0
