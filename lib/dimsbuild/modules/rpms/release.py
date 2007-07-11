@@ -43,22 +43,27 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
 
     data = {
       'config': [
-        '/distro/main/fullname/text()',
-        '/distro/main/version/text()',
         '/distro/rpms/release-rpm',    
         '/distro/stores/*/store/gpgkey',
         '/distro/gpgsign',
       ],      
-      'variables': ['distrosroot'],
+      'variables': [
+        'distrosroot',
+        'cvars[\'base-vars\'][\'fullname\']',
+        'cvars[\'base-vars\'][\'version\']',        
+      ],
       'input': [],
       'output': [],
     }
 
     RpmsHandler.__init__(self, interface, data, 'release-rpm',
-                         '%s-release' %(interface.product,),
-                         description='%s release files' %(interface.fullname,),
-                         long_description='%s release files created by dimsbuild' \
-                         %(interface.fullname,))
+                         '%s-release' \
+                         % interface.cvars['base-vars']['product'],
+                         summary='%s release files' \
+                         % interface.cvars['base-vars']['fullname'],
+                         description='%s release files created by '
+                         'dimsbuild' \
+                         % interface.cvars['base-vars']['fullname'])
     
     ColorMixin.__init__(self)
 

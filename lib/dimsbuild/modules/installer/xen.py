@@ -13,7 +13,7 @@ EVENTS = [
     'id': 'xen-images',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['vmlinuz-xen', 'initrd-xen'],
-    'requires': ['anaconda-version', 'initrd.img', 'buildstamp-file'],
+    'requires': ['anaconda-version', 'initrd-file', 'buildstamp-file'],
     'parent': 'INSTALLER',
   },
 ]
@@ -48,13 +48,15 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
     self.xen_dir = join(self.interface.SOFTWARE_STORE, 'images/xen')
 
     self.DATA = {
-      'config':    ['/distro/main/product/text()',
-                    '/distro/main/version/text()',
-                    '/distro/main/fullname/text()',
-                    '/distro/installer/initrd.img/path/text()'],
-      'variables': ['cvars[\'anaconda-version\']'],
-      'input':     [interface.config.xpath('/distro/installer/initrd.img/path/text()', [])],
-      'output':    [join(interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ],
+      'config':    ['/distro/installer/initrd.img/path/text()'],
+      'variables': [
+        'cvars[\'anaconda-version\']',
+        'cvars[\'base-vars\'][\'fullname\']',
+        'cvars[\'base-vars\'][\'product\']',
+        'cvars[\'base-vars\'][\'version\']',
+      ],
+      'input':     [],
+      'output':    [ join(interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ],
     }
   
     ImageModifyMixin.__init__(self, 'initrd.img', interface, self.DATA,
@@ -68,19 +70,25 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
       pass
   
   def setup(self):
+    ImageModifyMixin.setup(self)
     self.register_image_locals(L_IMAGES)
     self.register_file_locals(L_FILES)
-    self.addInput(self.interface.cvars['buildstamp-file'])
     
   def force(self):
-    osutils.rm(self.xen_dir, recursive=True, force=True)
-    self.clean_metadata()
+    self.interface.log(0, "forcing xen-images")
+    self.clean()
   
   def check(self):
-    return self.interface.isForced('xen-images') or \
+    if self.interface.isForced('xen-images') or \
            not self.validate_image() or \
-           self.test_diffs()
-  
+           self.test_diffs():
+      if not self.interface.isForced('xen-images'):
+        self.interface.log(0, "cleaning xen-images")
+        self.clean()
+      return True
+    else:
+      return False
+    
   def run(self):
     self.interface.log(0, "preparing xen images")
     osutils.mkdir(self.xen_dir, parent=True)

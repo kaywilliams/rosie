@@ -44,12 +44,14 @@ class UpdatesHook(ImageModifyMixin):
     self.updatesimage = join(interface.SOFTWARE_STORE, 'images/updates.img')
     
     self.DATA = {
-      'config':    ['/distro/main/product/text()',
-                    '/distro/main/version/text()',
-                    '/distro/main/fullname/text()',
-                    '/distro/installer/updates.img/path/text()'],
-      'variables': ['cvars[\'anaconda-version\']'],
-      'input':     [interface.config.xpath('/distro/installer/updates.img/path/text()', [])],
+      'config':    ['/distro/installer/updates.img/path/text()'],
+      'variables': [
+        'cvars[\'anaconda-version\']',
+        'cvars[\'base-vars\'][\'fullname\']',
+        'cvars[\'base-vars\'][\'product\']',
+        'cvars[\'base-vars\'][\'version\']',        
+      ],
+      'input':     [],
       'output':    [self.updatesimage],
     }
   
@@ -62,17 +64,23 @@ class UpdatesHook(ImageModifyMixin):
       pass
   
   def setup(self):
-    self.register_image_locals(L_IMAGES)
-    self.addInput(self.interface.cvars['buildstamp-file'])
+    ImageModifyMixin.setup(self, buildstamp=False)
+    self.register_image_locals(L_IMAGES)    
   
   def force(self):
-    osutils.rm(self.updatesimage, force=True)
-    self.clean_metadata()
+    self.interface.log(0, "forcing updates-image")
+    self.clean()
   
   def check(self):
-    return self.interface.isForced('updates-image') or \
+    if self.interface.isForced('updates-image') or \
            not self.validate_image() or \
-           self.test_diffs()
+           self.test_diffs():
+      if not self.interface.isForced('updates-image'):
+        self.interface.log(0, "cleaning updates-image")
+        self.clean()
+      return True
+    else:
+      return False
   
   def run(self):
     self.interface.log(0, "generating updates.img")

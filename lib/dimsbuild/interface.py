@@ -112,17 +112,17 @@ class EventInterface:
       if npath not in paths:
         paths.append(npath)
     
-    return paths # not necessarily required, because the expansion is in-place
+    return paths
 
   def _get_files(self, uri):
-    "Return the files of a remote of local uri"
+    "Return the files of a remote or local (absolute) uri"
     if uri.startswith('file:/'):
       uri = '/' + uri[6:].lstrip('/')
       
     if uri.startswith('/'): # local uri
       files = osutils.find(uri, indicators=True)
     else: # remote uri
-      files = spider.find(uri, indicators=True)
+      files = spider.find(uri)
     return files
     
       

@@ -13,7 +13,7 @@ API_VERSION = 4.0
 EVENTS = [
   {
     'id': 'bootiso',
-    'requires': ['vmlinuz', 'initrd.img', 'isolinux'],
+    'requires': ['vmlinuz', 'initrd-file', 'isolinux'],
     'conditional-requires': ['installer-splash', 'isolinux-changed'],
     'parent': 'INSTALLER',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,

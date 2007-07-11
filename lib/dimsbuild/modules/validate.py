@@ -44,7 +44,7 @@ class ValidateInterface(EventInterface):
     cwd = os.getcwd()
     os.chdir(join(self.schemaspath, 'distro.conf'))
     try:
-      schemacontents = schemacontents or self.get_schema(schemafile)
+      schemacontents = schemacontents or self.getSchema(schemafile)
       try:
         schema = etree.RelaxNG(etree.ElementTree(etree.fromstring(schemacontents)))
       except etree.RelaxNGParseError, e:
@@ -54,7 +54,7 @@ class ValidateInterface(EventInterface):
         else:
           raise InvalidSchemaError(why)
         
-      doc = self.get_xml_section(xquery)
+      doc = self.getXmlSection(xquery)
       if not schema.validate(doc):
         why = schema.error_log.last_error.message
         if schemafile is not None:        
@@ -66,7 +66,7 @@ class ValidateInterface(EventInterface):
     finally:
       os.chdir(cwd)
     
-  def get_schema(self, filename):
+  def getSchema(self, filename):
     if self.cvars.get('validate', 'distro') == 'dimsbuild':
       schema = join(self.schemaspath, filename)
     else:      
@@ -77,7 +77,7 @@ class ValidateInterface(EventInterface):
     else:
       raise IOError, "missing file: '%s'" %(schema,)
 
-  def get_xml_section(self, xquery):
+  def getXmlSection(self, xquery):
     "Return the element in the tree with the xpath query provided."
     if self.cvars.get('validate', 'distro') == 'dimsbuild':
       return self._get_dimsbuild_section(xquery)

@@ -3,7 +3,7 @@ import tempfile
 import time
 
 from StringIO import StringIO
-from os.path  import join, exists
+from os.path  import exists, isdir, join
 from rpmUtils.miscutils import rpm2cpio
 
 from dims import FormattedFile as ffile
@@ -111,7 +111,7 @@ class ExtractHandler(DiffMixin):
 class ImageHandler:
   """
   Classes that extend this must require 'anaconda-version',
-  'buildstamp-file' and 'buildstamp-changed'.  
+  'buildstamp-file.'
   """
   def __init__(self, interface):
     self.name = 'super' # subclasses override this
@@ -147,8 +147,8 @@ class ImageHandler:
   def write_buildstamp(self):
     self.image.write(self.interface.cvars['buildstamp-file'], '/')
   
-  def write_directory(self, dir):
-    self.image.write([ join(dir, file) for file in os.listdir(dir) ], '/')
+  def write_directory(self, dir, dest='/'):
+    self.image.write([ join(dir, file) for file in os.listdir(dir) ], dest)
   
   def _getpath(self):
     FILE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
@@ -177,7 +177,10 @@ class ImageHandler:
 
 
 class ImageModifyMixin(ImageHandler, DiffMixin):
-  "Classes that extend this must require 'anaconda-version'"
+  """
+  Classes that extend this must require 'anaconda-version' and
+  'buildstamp-file.'  
+  """
   def __init__(self, name, interface, data, mdfile=None):
     if mdfile is None:
       self.mdfile = join(interface.METADATA_DIR, '%s.md' % name)
@@ -188,7 +191,27 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
     DiffMixin.__init__(self, self.mdfile, data)
     
     self.name = name
-  
+    self.inputfiles = {}
+
+  def setup(self, buildstamp=True, config=True):
+    if config:
+      for path in self.interface.config.xpath('/distro/installer/%s/path' % self.name, []):
+        src = path.get('text()')
+        dst = path.get('@dest', '/')
+        self.addInput(src, dest=dst)
+
+    imagessrc = join(self.interface.METADATA_DIR, 'images-src', self.name)
+    if exists(imagessrc):
+      self.addInput(imagessrc, dest='/')
+
+    if buildstamp:
+      self.addInput(self.interface.cvars['buildstamp-file'], '/')
+
+  def addInput(self, input, dest='/'):
+    for path in self.interface.expand(input):
+      self.inputfiles.update({path: dest})
+      DiffMixin.addInput(self, path)
+    
   def register_image_locals(self, locals):
     ImageHandler.register_image_locals(self, locals)
     
@@ -205,6 +228,19 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
     self.dest = join(self.interface.SOFTWARE_STORE, image_path, self.name)
     
     self.l_image = self.i_locals.get('//images/image[@id="%s"]' % self.name)
+
+  def clean(self):
+    for path in self.handlers['output'].output.keys():
+      if exists(path):
+        pvar = path
+        for prefix in [self.interface.OUTPUT_DIR, self.interface.METADATA_DIR,
+                       self.interface.INPUT_STORE]:
+          if pvar.startswith(prefix):
+            pvar = pvar.replace(prefix, '').lstrip('/')
+            break
+        self.interface.log(2, "deleting '%s'" % pvar)
+        osutils.rm(path, recursive=True, force=True)
+    self.clean_metadata()
   
   def modify(self):
     # sync image to input store
@@ -240,16 +276,20 @@ class ImageModifyMixin(ImageHandler, DiffMixin):
     self.write_metadata()
   
   def generate(self):
-    for file in self.interface.config.xpath('//installer/%s/path' % self.name, []):
-      src = file.get('text()')
-      dest = file.get('@dest', '/')
-      if exists(src):
-        self.image.write(src, dest)
-    if exists(join(self.interface.METADATA_DIR, 'images-src/%s' % self.name)):
-      self.write_directory(join(self.interface.METADATA_DIR,
-                                'images-src/%s' % self.name))
-    self.write_buildstamp()
     self.interface.cvars['%s-changed' % self.name] = True
+    for src, dst in self.inputfiles.items():
+      if not exists(src): continue
+      pvar = src
+      for prefix in [self.interface.OUTPUT_DIR, self.interface.METADATA_DIR,
+                     self.interface.INPUT_STORE]:
+        if pvar.startswith(prefix):
+          pvar = pvar.replace(prefix, '').lstrip('/')
+          break
+      self.interface.log(2, "adding '%s'" % pvar)
+      if isdir(src):
+        self.write_directory(src, dst)
+      else:
+        self.image.write(src, dst)
 
 
 class FileDownloadMixin:

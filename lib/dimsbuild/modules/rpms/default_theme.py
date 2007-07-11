@@ -45,7 +45,7 @@ class PkglistHook:
     self.VERSION = 0
     self.ID = 'default_theme.pkglist'
     self.interface = interface
-    self.productid = self.interface.config.get('/distro/main/product/text()')
+    self.productid = self.interface.cvars['base-vars']['product']
 
   def post(self):
     for pkg in self.interface.cvars.get('pkglist', []):
@@ -94,13 +94,15 @@ class DefaultThemeHook(RpmsHandler):
                                           interface.product)
 
     RpmsHandler.__init__(self, interface, data, 'default-theme-rpm',
-                         '%s-default-theme' %(interface.product,),
-                         description='Script to set default gdm graphical theme',
-                         long_description='The %s-default-theme package requires the gdm package. '
-                         ' Its sole function is to modify the value of the GraphicalTheme attribute in'
-                         ' /usr/share/gdm/defaults.conf to the %s theme' %(interface.product,
-                                                                           self.themename,))
-
+                         '%s-default-theme' % interface.product,
+                         summary='Script to set default gdm graphical '
+                         'theme', description='The %s-default-theme '
+                         'package requires the gdm package. Its sole '
+                         'function is to modify the value of the '
+                         'GraphicalTheme attribute in '
+                         '/usr/share/gdm/defaults.conf to the %s '
+                         'theme.' %(interface.product, self.themename,))
+    
   def apply(self): pass  
 
   def post(self):

@@ -70,7 +70,7 @@ class DiscinfoHook(DiffMixin):
     self.difile = join(self.interface.SOFTWARE_STORE, '.discinfo')
 
     self.DATA =  {
-      'config': ['/distro/main/fullname/text()'],
+      'variables': ['cvars[\'base-vars\'][\'fullname\']'],
       'output': [self.difile]
     }
     mdfile = join(self.interface.METADATA_DIR, 'discinfo.md')
@@ -80,11 +80,6 @@ class DiscinfoHook(DiffMixin):
   def force(self):
     osutils.rm(self.difile, force=True)
     self.clean_metadata()
-  
-  def pre(self):
-    vars = self.interface.BASE_VARS
-    fn = self.interface.config.get('//main/fullname/text()', vars['product'])
-    vars.update({'fullname': fn})
   
   def check(self):
     return self.test_diffs()
@@ -185,13 +180,12 @@ class BuildStampHook(DiffMixin):
 
     self.bsfile = join(self.interface.METADATA_DIR, '.buildstamp')
     self.DATA = {
-      'config': [
-        '/distro/main/fullname/text()',
-        '/distro/main/product/text()',
-        '/distro/main/version/text()',
-        '/distro/main/arch/text()',
-      ],
       'variables': [
+        'cvars[\'base-vars\'][\'fullname\']',
+        'cvars[\'base-vars\'][\'product\']',
+        'cvars[\'base-vars\'][\'version\']',
+        'cvars[\'base-vars\'][\'arch\']',
+        'cvars[\'base-vars\'][\'webloc\']',        
         'cvars[\'anaconda-version\']',
         'cvars[\'source-vars\']',
       ],
@@ -221,7 +215,6 @@ class BuildStampHook(DiffMixin):
 
     base_vars = copy.deepcopy(self.interface.cvars['source-vars'])
     base_vars.update(self.interface.BASE_VARS)
-    base_vars['webloc'] = self.interface.config.get('/distro/main/url/text()', 'No bug url provided')
 
     buildstamp.write(self.bsfile, **base_vars)
     os.chmod(self.bsfile, 0644)

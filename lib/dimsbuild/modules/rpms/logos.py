@@ -56,23 +56,25 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     self.ID = 'logos.logos-rpm'
     
     data =  {
-      'config': [
-        '/distro/main/fullname/text()',
-        '/distro/main/version/text()',
-        '/distro/rpms/logos-rpm',
+      'config': ['/distro/rpms/logos-rpm'],
+      'variables': [
+        'cvars[\'base-vars\'][\'fullname\']',
+        'cvars[\'base-vars\'][\'version\']',
+        'cvars[\'base-vars\'][\'product\']',                
       ],
       'output': [],
     }
 
-    RpmsHandler.__init__(self, interface, data,
-                         'logos-rpm', '%s-logos' % interface.product,
-                         description='Icons and pictures related to %s' \
-                         % interface.config.get('/distro/main/fullname/text()'),
-                         long_description='The %s-logos package contains '
-                         'image files which have been automatically created '
-                         'by dimsbuild and are specific to the %s '
-                         'distribution.' \
-                         %(interface.product, interface.config.get('/distro/main/fullname/text()')))
+    RpmsHandler.__init__(self, interface, data, 'logos-rpm',
+                         '%s-logos' % interface.product,
+                         summary='Icons and pictures related to '
+                         '%s' % interface.cvars['base-vars']['fullname'],
+                         description='The %s-logos package '
+                         'contains image files which have been '
+                         'automatically created by dimsbuild and are '
+                         'specific to the %s distribution.' \
+                         %(interface.cvars['base-vars']['product'],
+                         interface.cvars['base-vars']['fullname']))
     
     ColorMixin.__init__(self)
 

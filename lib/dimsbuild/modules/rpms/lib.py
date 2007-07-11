@@ -20,20 +20,6 @@ from dimsbuild.event     import EventInterface
 from dimsbuild.interface import DiffMixin
 
 #------ MIXINS ------#
-class RpmsMixin:
-  def __init__(self):
-    self.LOCAL_REPO = join(self.METADATA_DIR, 'localrepo/')
-  
-  def addRpm(self, path):
-    cp(path, self.LOCAL_REPO)
-  
-  def createrepo(self, path=None):
-    path = path or self.LOCAL_REPO
-    cwd = os.getcwd()
-    os.chdir(path)
-    shlib.execute('/usr/bin/createrepo -q .')
-    os.chdir(cwd)
-
 class ColorMixin:
   def __init__(self): pass
 
@@ -69,10 +55,20 @@ class ColorMixin:
 
 
 #---------- INTERFACES -----------#
-class RpmsInterface(EventInterface, RpmsMixin):
+class RpmsInterface(EventInterface):
   def __init__(self, base):
+    self.LOCAL_REPO = join(base.METADATA_DIR, 'localrepo/')    
     EventInterface.__init__(self, base)
-    RpmsMixin.__init__(self)
+
+  def addRpm(self, path):
+    cp(path, self.LOCAL_REPO)
+  
+  def createrepo(self, path=None):
+    path = path or self.LOCAL_REPO
+    cwd = os.getcwd()
+    os.chdir(path)
+    shlib.execute('/usr/bin/createrepo -q .')
+    os.chdir(cwd)
 
   def buildRpm(self, path, rpm_output, changelog=None, logger='rpmbuild',
                createrepo=False, quiet=True):
@@ -95,7 +91,7 @@ class RpmsInterface(EventInterface, RpmsMixin):
 #---------- HANDLERS -------------#
 class RpmsHandler(DiffMixin):
   def __init__(self, interface, data, id, rpmname,
-               description=None, long_description=None):
+               summary=None, description=None):
 
     if len(data['output']) > 1:
       raise Exception, "only one item should be specified in data['output']"
@@ -103,18 +99,19 @@ class RpmsHandler(DiffMixin):
     self.interface = interface
 
     # self.<k> = self.interface.<v>
-    for k,v in [('config', 'config'), ('fullname', 'fullname'),
-                ('arch', 'basearch'), ('software_store', 'SOFTWARE_STORE'),
-                ('fullname', 'fullname'), ('product', 'product'),
-                ('version', 'version'), ('metadata', 'METADATA_DIR'), ('log', 'log')]:
+    for k,v in [('config',   'config'),   ('fullname',       'fullname'),
+                ('arch',     'basearch'), ('software_store', 'SOFTWARE_STORE'),
+                ('fullname', 'fullname'), ('product',        'product'),
+                ('version',  'version'),  ('metadata',       'METADATA_DIR'),
+                ('log',      'log')]:
       setattr(self, k, getattr(self.interface, v))
 
     self.sharepath = self.interface._base.sharepath
 
     self.id = id
     self.rpmname = rpmname
+    self.summary = summary
     self.description = description
-    self.long_description = long_description
     self.author = 'dimsbuild'
 
     self.output_location = join(self.metadata, self.id)
@@ -203,30 +200,29 @@ class RpmsHandler(DiffMixin):
   
   def _write_spec(self):
     self._create_manifest()
-    setup_cfg = join(self.output_location, 'setup.cfg')
-    if exists(setup_cfg): return
+    setupcfg = join(self.output_location, 'setup.cfg')
+    if exists(setupcfg): return # can happen only if setup.cfg is an input file
     
     version, release, arch = self._read_autoconf()
 
-    parser = ConfigParser()    
-    parser.add_section('pkg_data')        
-    parser.set('pkg_data', 'name', self.rpmname)
-    parser.set('pkg_data', 'version', version)
-    parser.set('pkg_data', 'long_description', self.long_description)
-    parser.set('pkg_data', 'description', self.description)
-    parser.set('pkg_data', 'author', self.author)
+    spec = ConfigParser()    
+    spec.add_section('pkg_data')        
+    spec.set('pkg_data', 'name',             self.rpmname)
+    spec.set('pkg_data', 'version',          version)
+    spec.set('pkg_data', 'long_description', self.description)
+    spec.set('pkg_data', 'description',      self.summary)
+    spec.set('pkg_data', 'author',           self.author)
 
     data_files = self._get_data_files()
     if data_files is not None:
-      parser.set('pkg_data', 'data_files', data_files)
+      spec.set('pkg_data', 'data_files', data_files)
     
-    parser.add_section('bdist_rpm')
-    parser.set('bdist_rpm', 'distribution_name', self.fullname)
+    spec.add_section('bdist_rpm')
+    spec.set('bdist_rpm', 'distribution_name', self.fullname)
     
     release = str(int(release) + 1)
-    parser.set('bdist_rpm', 'release', release)
-
-    parser.set('bdist_rpm', 'force_arch', arch)
+    spec.set('bdist_rpm', 'release',    release)
+    spec.set('bdist_rpm', 'force_arch', arch)
 
     self.log(1, "release number: %s" % release)
     
@@ -236,12 +232,12 @@ class RpmsHandler(DiffMixin):
       if hasattr(self, attr):
         value = getattr(self, attr)()
         if value is not None:
-          parser.set('bdist_rpm', tag, value)
+          spec.set('bdist_rpm', tag, value)
 
     self._write_autoconf(release=release)
     
-    f = open(setup_cfg, 'w')
-    parser.write(f)
+    f = open(setupcfg, 'w')
+    spec.write(f)
     f.close()
 
   def _read_autoconf(self):
@@ -259,25 +255,21 @@ class RpmsHandler(DiffMixin):
     if exists(self.autoconf):
       root = xmltree.read(self.autoconf)
       package = root.get('//distro-auto/%s' %self.id, None)
-      if package is None:
-        package = xmltree.Element(self.id, parent=root)
+      if package is None: package = xmltree.Element(self.id, parent=root)
 
       if version is not None:
         v = package.get('version', None)
-        if v is None:
-          v = xmltree.Element('version', parent=package)
+        if v is None: v = xmltree.Element('version', parent=package)
         v.text = version
 
       if release is not None:
         r = package.get('release', None)
-        if r is None:
-          r = xmltree.Element('release', parent=package)
+        if r is None: r = xmltree.Element('release', parent=package)
         r.text = release
         
       if arch is not None:
         a = package.get('arch', None)
-        if a is None:
-          a = xmltree.Element('arch', parent=package)
+        if a is None: a = xmltree.Element('arch', parent=package)
         a.text = arch
     else:
       root = xmltree.Element('distro-auto')
@@ -310,7 +302,6 @@ class OutputInvalidError(IOError): pass
 # each element for a distro's version, e.g. redhat/5, is a 3-tuple:
 # (background color, font color, highlight color). To add an entry,
 # look at the rhgb SRPM and copy the values from splash.c.
-
 IMAGE_COLORS = {
   'CentOS': {
     '5.0': ('0x215593', '0xffffff', '0x1e518c'),

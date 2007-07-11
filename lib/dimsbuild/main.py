@@ -105,16 +105,18 @@ class Build:
     
     # set up base variables
     self.cvars['base-vars'] = {}
-    self.cvars['base-vars']['product'] = self.config.get('//main/product/text()')
-    self.cvars['base-vars']['version'] = self.config.get('//main/version/text()')
-    self.cvars['base-vars']['release'] = self.config.get('//main/release/text()', '0')
-    self.cvars['base-vars']['arch']    = self.config.get('//main/arch/text()', 'i686')
+    self.cvars['base-vars']['product'] = self.config.get('/distro/main/product/text()')
+    self.cvars['base-vars']['version'] = self.config.get('/distro/main/version/text()')
+    self.cvars['base-vars']['release'] = self.config.get('/distro/main/release/text()', '0')
+    self.cvars['base-vars']['arch']    = self.config.get('/distro/main/arch/text()', 'i686')
     self.cvars['base-vars']['basearch'] = getBaseArch(self.cvars['base-vars']['arch'])
-    self.cvars['base-vars']['fullname'] = self.config.get('//main/fullname/text()',
+    self.cvars['base-vars']['fullname'] = self.config.get('/distro/main/fullname/text()',
                                                          self.cvars['base-vars']['product'])
-    self.cvars['base-vars']['provider'] = self.config.get('//main/distro-provider/text()')
+    self.cvars['base-vars']['provider'] = self.config.get('/distro/main/distro-provider/text()')
     self.cvars['base-vars']['webroot'] = self.config.get('/distro/main/publishpath/webroot/text()', 
                                                          '/var/www/html/')
+    self.cvars['base-vars']['webloc'] = self.config.get('/distro/main/url/text()',
+                                                        'No bug url provided')
     self.cvars['base-vars']['distrosroot'] = self.config.get('/distro/main/publishpath/distrosroot/text()',
                                                              'distros')
     self.cvars['base-vars']['pva'] = '%s-%s-%s' % (self.cvars['base-vars']['product'],

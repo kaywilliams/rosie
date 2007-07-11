@@ -49,12 +49,14 @@ class ProductHook(ImageModifyMixin):
     self.productimage = join(self.interface.SOFTWARE_STORE, 'images/product.img')
     
     self.DATA = {
-      'config':    ['//main/product/text()',
-                    '//main/version/text()',
-                    '//main/fullname/text()',
-                    '//installer/product.img/path/text()'],
-      'variables': ['cvars[\'anaconda-version\']'],
-      'input':     [interface.config.xpath('//installer/product.img/path/text()', [])],
+      'config':    ['//installer/product.img/path/text()'],
+      'variables': [
+        'cvars[\'anaconda-version\']',
+        'cvars[\'base-vars\'][\'fullname\']',
+        'cvars[\'base-vars\'][\'product\']',
+        'cvars[\'base-vars\'][\'version\']',        
+      ],
+      'input':     [],
       'output':    [self.productimage],
     }
   
@@ -67,17 +69,23 @@ class ProductHook(ImageModifyMixin):
       pass
   
   def setup(self):
+    ImageModifyMixin.setup(self)
     self.register_image_locals(L_IMAGES)
-    self.addInput(self.interface.cvars['buildstamp-file'])
   
   def force(self):
-    osutils.rm(self.productimage, force=True)
-    self.clean_metadata()
+    self.interface.log(0, "forcing product-image")
+    self.clean()
   
   def check(self):
-    return self.interface.isForced('product-image') or \
+    if self.interface.isForced('product-image') or \
            not self.validate_image() or \
-           self.test_diffs()
+           self.test_diffs():
+      if not self.interface.isForced('product-image'):
+        self.interface.log(0, "cleaning product-image")
+        self.clean()
+      return True
+    else:
+      return False
   
   def run(self):
     self.interface.log(0, "generating product.img")  

@@ -50,11 +50,14 @@ class ConfigRpmHook(RpmsHandler):
       'output': [],
     }
     
-    RpmsHandler.__init__(self, interface, data, 'config-rpm', '%s-config' %(interface.product,),
-                         description='%s configuration script and supporting files' \
-                         %(interface.fullname,),
-                         long_description='The %s-config provides scripts and supporting files for'\
-                         'configuring the %s distribution' %(interface.product, interface.fullname,))
+    RpmsHandler.__init__(self, interface, data, 'config-rpm',
+                         '%s-config' %(interface.product,),
+                         summary='%s configuration script and '
+                         'supporting files' % interface.fullname,
+                         description='The %s-config provides scripts '
+                         'and supporting files for configuring the '
+                         '%s distribution' %(interface.product,
+                                             interface.fullname))
 
   def setup(self):
     self.interface.expand(self.data['input'])

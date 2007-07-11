@@ -16,13 +16,13 @@ EVENTS = [
   {
     'id': 'isolinux',
     'provides': ['vmlinuz', 'isolinux-changed'],
-    'requires': ['anaconda-version', 'source-vars', 'initrd.img'], #! 'initrd.img' for run-before functionality
+    'requires': ['anaconda-version', 'source-vars', 'initrd-file'], #! 'initrd-file' for run-before functionality
     'parent': 'INSTALLER',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
   },
   {
     'id': 'initrd-image',
-    'provides': ['initrd.img', 'isolinux-changed'],
+    'provides': ['initrd-file', 'isolinux-changed'],
     'requires': ['anaconda-version', 'buildstamp-file'],
     #'run-before': ['isolinux'],
     'parent': 'INSTALLER',
@@ -74,6 +74,10 @@ class IsolinuxHook(FileDownloadMixin, DiffMixin):
   
   def force(self):
     for file in self.DATA['output']:
+      pvar = file
+      if file.startswith(self.interface.SOFTWARE_STORE):
+        pvar = pvar.replace(self.interface.SOFTWARE_STORE, '').lstrip('/')
+      self.interface.log(2, "deleting '%s'" % pvar)
       osutils.rm(file, recursive=True, force=True)
     self.clean_metadata()
   
@@ -110,12 +114,14 @@ class InitrdHook(ImageModifyMixin):
     self.interface = interface
     
     self.DATA = {
-      'config':    ['/distro/main/product/text()',
-                    '/distro/main/version/text()',
-                    '/distro/main/fullname/text()',
-                    '/distro/installer/initrd.img/path'],
-      'variables': ['cvars[\'anaconda-version\']'],
-      'input':     [interface.config.xpath('/distro/installer/initrd.img/path/text()', [])],
+      'config':    ['/distro/installer/initrd.img/path'],
+      'variables': [
+        'cvars[\'anaconda-version\']',
+        'cvars[\'base-vars\'][\'fullname\']',
+        'cvars[\'base-vars\'][\'product\']',
+        'cvars[\'base-vars\'][\'version\']',        
+      ],
+      'input':     [],
       'output':    [] # to be filled later
     }
     
@@ -128,34 +134,40 @@ class InitrdHook(ImageModifyMixin):
       pass
   
   def setup(self):
+    ImageModifyMixin.setup(self)
     self.register_image_locals(L_IMAGES)
 
     repo = self.interface.getRepo(self.interface.getBaseRepoId())
-    
-    self.DATA['input'].extend(  [ join(self.interface.INPUT_STORE,
-                                       repo.id, repo.directory,
-                                       f.get('path/text()'),
-                                       f.get('@id')) \
-                                  for f in self.i_locals.xpath('//image') ] )
+
+    # add input files
+    self.DATA['input'].extend( [ join(self.interface.INPUT_STORE,
+                                      repo.id, repo.directory,
+                                      f.get('path/text()'),
+                                      f.get('@id')) \
+                                 for f in self.i_locals.xpath('//image') ] )
+
+    # add output files
     self.DATA['output'].extend( [ join(self.interface.SOFTWARE_STORE,
                                        f.get('path/text()'),
                                        f.get('@id')) \
                                   for f in self.i_locals.xpath('//image') ] )
-    self.addInput(self.interface.cvars['buildstamp-file'])
-    
   
   def force(self):
-    osutils.rm(self.mdfile, force=True)
+    self.interface.log(0, "forcing initrd-image")
+    self.clean()
   
   def check(self):
     if self.test_diffs():
-      self.force()
+      if not self.interface.isForced('initrd-image'):
+        self.interface.log(0, "cleaning initrd-image")
+        self.clean()
       return True
     else:    
       return False
   
   def run(self):
     self.interface.log(0, "processing initrd.img")
+    
     # modify initrd.img - see ImageModifyMixin.modify() in lib.py
     self.modify()
     
@@ -166,6 +178,9 @@ class InitrdHook(ImageModifyMixin):
       if not exists(join(self.interface.SOFTWARE_STORE, file)):
         raise RuntimeError, "Unable to find '%s' at '%s'" % (file, join(self.interface.SOFTWARE_STORE))
 
+    initrd = self.i_locals.get('//image[@id="initrd.img"]')
+    self.interface.cvars['initrd-file'] = join(self.interface.SOFTWARE_STORE,
+                                               initrd.get('path/text()'), 'initrd.img')
 
 #------ LOCALS ------#
 L_FILES = ''' 

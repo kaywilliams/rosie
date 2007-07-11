@@ -14,7 +14,7 @@ EVENTS = [
     'id': 'diskboot-image',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['diskboot.img'],
-    'requires': ['initrd.img', 'buildstamp-file'],
+    'requires': ['initrd-file', 'buildstamp-file'],
     'conditional-requires': ['installer-splash', 'isolinux-changed'],
     'parent': 'INSTALLER',
   },
@@ -36,11 +36,13 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
     self.diskbootimage = join(interface.SOFTWARE_STORE, 'images/diskboot.img')
   
     self.DATA = {
-      'config':    ['/distro/main/product/text()',
-                    '/distro/main/version/text()',
-                    '/distro/main/fullname/text()'],
-      'variables': ['cvars[\'anaconda-version\']'],
-      'input':     [join(interface.SOFTWARE_STORE, 'isolinux/initrd.img')],
+      'variables': [
+        'cvars[\'anaconda-version\']',
+        'cvars[\'base-vars\'][\'fullname\']',
+        'cvars[\'base-vars\'][\'product\']',
+        'cvars[\'base-vars\'][\'version\']',        
+      ],
+      'input':     [],
       'output':    [self.diskbootimage],
     }
     
@@ -54,23 +56,31 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
       pass
   
   def setup(self):
-    self.addInput([self.interface.cvars['installer-splash'], self.interface.cvars['buildstamp-file']])
+    ImageModifyMixin.setup(self, config=False)
+    self.addInput(self.interface.cvars['installer-splash'], dest='/')
+    self.addInput(self.interface.cvars['initrd-file'], dest='/')
+    
     self.register_image_locals(L_IMAGES)
     self.register_file_locals(L_FILES)
   
   def force(self):
-    osutils.rm(self.diskbootimage, force=True)
-    self.clean_metadata()
+    self.interface.log(0, "forcing diskboot-image")
+    self.clean()
   
   def check(self):
-    return self.interface.isForced('diskboot-image') or \
+    if self.interface.isForced('diskboot-image') or \
            self.interface.cvars['isolinux-changed'] or \
            not self.validate_image() or \
-           self.test_diffs()
+           self.test_diffs():
+      if not self.interface.isForced('diskboot-image'):
+        self.interface.log(0, "cleaning diskboot-image")
+        self.clean()
+      return True
+    else:
+      return False
   
   def run(self):
     self.interface.log(0, "preparing diskboot image")
-    
     diskboot_dir = join(self.interface.SOFTWARE_STORE, 'images')
     osutils.mkdir(diskboot_dir, parent=True)
     
@@ -82,12 +92,6 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
   def apply(self):
     if not exists(self.diskbootimage):
       raise RuntimeError, "Unable to find 'diskboot.img' at '%s'" % self.diskbootimage
-  
-  def generate(self):
-    self.image.write(join(self.interface.SOFTWARE_STORE, 'isolinux/initrd.img'), '/')
-    splash = self.interface.cvars.get('installer-splash', None)
-    if splash is not None and exists(splash):
-      self.image.write(splash, '/')
 
 
 #------ LOCALS ------#
