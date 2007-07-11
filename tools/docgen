@@ -1,0 +1,62 @@
+#!/usr/bin/python
+
+__author__  = "Uday Prakash <uprakash@abodiosoftware.com>"
+__date__    = "July 11, 2007"
+__version__ = "1.0"
+
+import sys
+
+from optparse import OptionParser
+
+from dims import xmltree
+
+from dims.CleanHelpFormatter import CleanHelpFormatter
+from dims.docbook            import GENERATORS, ManualGenerator, filterCmdArgs, getGenerator
+
+class DbManualGenerator(ManualGenerator):
+  def __init__(self):
+    ManualGenerator.__init__(self)
+
+  def modify(self, tree):
+    refentry = tree.get('/docbook/refentry', None)
+    if refentry is not None:      
+      config = xmltree.Element('refsect1', parent=refentry)
+      title = xmltree.Element('title', parent=config, text='CONFIG ELEMENTS')
+      refsect2s = refentry.xpath('/docbook/refentry/refsect2', [])
+      refsect2s.sort(lambda x,y: cmp(x.get('title/text()'), y.get('title/text()')))
+      for refsect2 in refsect2s:
+        refsect2.parent = config
+        config.append(refsect2)
+  
+def main():
+  # TODO: add support for generators besides manpages
+  parser = OptionParser("%prog [OPTIONS]", formatter=CleanHelpFormatter(),
+                        version=__version__)
+
+  parser.add_option('-w', '--what',
+                    dest='what',
+                    help="the type of output, defaults to 'manpage'",
+                    metavar='OUTPUTTYPE',
+                    default='manpage',
+                    choices=GENERATORS)
+
+  args = sys.argv[1:]
+
+  try:
+    preargs = filterCmdArgs(args, [], ['-w', '--what'])
+  except ValueError:
+    parser.print_help()
+    sys.exit(1)
+
+  opts,_ = parser.parse_args(args=preargs)
+  g = getGenerator(opts.what, newgenerators={'manpage': DbManualGenerator})()
+
+  # add the generator-specific options 
+  g.addOptions(parser)
+  options, args = parser.parse_args()
+  g.applyOptions(options)
+  
+  g.generate()
+
+if __name__ == '__main__':
+  main()
