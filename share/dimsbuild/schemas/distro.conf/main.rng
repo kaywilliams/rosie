@@ -56,6 +56,9 @@
           <optional>
             <ref name="element-plugins"/>
           </optional>
+          <optional>
+            <element name="url"><text/></element>
+          </optional>
         </interleave>
       </element>
     </element>
