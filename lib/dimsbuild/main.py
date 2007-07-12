@@ -130,9 +130,12 @@ class Build:
     self.METADATA_DIR = join(self.DISTRO_DIR, 'builddata')
     self.SOFTWARE_STORE = join(self.OUTPUT_DIR, 'os')    
 
-    if not exists(self.TEMP_DIR):
-      self.log(2, "Making directory '%s'" % self.TEMP_DIR)
-      osutils.mkdir(self.TEMP_DIR, parent=True)
+    # note: if making changes to SOFTWARE_STORE and METADATA_DIR vars, need to 
+    # make parallel changes to the force function in clean.py
+    for folder in [self.TEMP_DIR, self.SOFTWARE_STORE, self.METADATA_DIR]:
+      if not exists(folder):
+        self.log(2, "Making directory '%s'" % folder)
+        osutils.mkdir(folder, parent=True)
     
     # set up list of disabled modules
     self.disabled_modules = self.mainconfig.xpath('//modules/module[%s]/text()' % \

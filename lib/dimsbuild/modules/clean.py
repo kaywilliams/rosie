@@ -54,9 +54,6 @@ class HookHandler:
         newv = self.data[k]
         if v != newv:
           diff[k] = (v, newv)
-    for k,v in self.data.items():
-      if not self.hooks.has_key(k):
-        diff[k] = (None, v)
     self.diffdict.update(diff)
     return self.diffdict
 
@@ -72,12 +69,12 @@ class CleanHook(DiffMixin):
     self.VERSION = 0
     self.ID = 'clean.clean'
 
-    self.DATA = {'hooks': {}}    
+    self.DATA = {'hooks':  {} }    
     self.hookInfo = {}
 
     self.interface = interface
     self.dispatch = self.interface.dispatch
-    
+
     DiffMixin.__init__(self, join(self.interface.METADATA_DIR, 'clean.md'), self.DATA)
     self._add_handler()
 
@@ -88,43 +85,43 @@ class CleanHook(DiffMixin):
         self.DATA['hooks'].update({hook.ID: str(hook.VERSION)})
 
   def force(self):
-    self.clean_metadata()
-    ## HACK ALERT: The following should ideally be in a hook on the ALL event,
-    ## but that's not possible because we want applyopt to run before we
-    ## delete the working directories.
-    self.interface.log(0, "cleaning events")
-    self.interface.log(1, "cleaning all events")    
-    if self.interface.isForced('ALL'):
-      if exists(self.interface.DISTRO_DIR):
-        self.interface.log(2, "Removing directory '%s'" % self.interface.DISTRO_DIR)
-        osutils.rm(self.interface.DISTRO_DIR, recursive=True, force=True)
+    self._force_all_events()
     
   def check(self):
     return self.test_diffs()
   
   def run(self):
-    ## Look at previous HACK ALERT
-    for dir in [self.interface.SOFTWARE_STORE, self.interface.METADATA_DIR]:
-      if not exists(dir):
-        self.interface.log(2, "Making directory '%s'" % dir)
-        osutils.mkdir(dir, parent=True)
-    ## END HACK
-        
+    self.interface.log(0, "processing clean")
+    self.interface.log(1, "forcing events") 
+
+    # if clean hook version changes, force all
     if self.handlers['hooks'].diffdict.has_key(self.ID):
       self._force_all_events()
     else:
-      self.interface.log(0, "cleaning events")      
       for hook in self.handlers['hooks'].diffdict.keys():
-        eventid = self.hookInfo[hook]
-        self.interface.log(1, "cleaning %s" % eventid)
-        self._force_event(eventid)
+	      eventid = self.hookInfo[hook]
+	      self._force_event(eventid)
 
   def apply(self):
+    # every time since diffs not reported in first run scenario
     self.write_metadata()
 
   def _force_all_events(self):
-    for eventid in self.hookInfo.values():
-      self._force_event(eventid)
+    self.interface.log(0, "cleaning all")
+
+    self.interface.log(1, "cleaning folder")    
+    if exists(self.interface.DISTRO_DIR):
+      self.interface.log(2, "cleaning '%s'" % self.interface.DISTRO_DIR)
+      osutils.rm(self.interface.DISTRO_DIR, recursive=True, force=True)
+      for folder in [self.interface.SOFTWARE_STORE, self.interface.METADATA_DIR]:
+        osutils.mkdir(folder, parent=True)
+
+    if not self.interface.isForced('ALL'):
+      self.interface.log(1, "forcing events")
+      for eventid in self.hookInfo.values():
+        self._force_event(eventid)
+
+      self.clean_metadata()
       
   def _force_event(self, eventid):
     self.__force(eventid)
