@@ -158,18 +158,19 @@ class FilesHook(DiffMixin):
 
   def remove(self, removeset):
 
-    if removeset:
-	    self.interface.log(1, "removing files and folders '%d'" % len(removeset) )
-
     folders = []
     files = []
 
     for item in removeset:
-      if item[-1] == '/': folders.append(item)
-      else: files.append(item)        
+      if exists(item): # eliminate missing item from list, e.g. because --force ALL has removed them
+	      if item[-1] == '/' : folders.append(item)
+	      else: files.append(item)        
 
     folders.sort()
     files.sort()
+
+    if files or folders:
+	    self.interface.log(1, "removing files and folders '%d'" % len(files + folders) )
 
     if files:
       for item in files:
