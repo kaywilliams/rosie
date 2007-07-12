@@ -7,13 +7,13 @@ import rpm
 import socket
 import struct
 
+from dims import filereader
+from dims import mkrpm
+from dims import shlib
+from dims import xmltree
+
 from dims.osutils import *
 from dims.sync    import sync
-
-import dims.filereader as filereader
-import dims.mkrpm      as mkrpm
-import dims.shlib      as shlib
-import dims.xmltree    as xmltree
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EventInterface
@@ -53,15 +53,19 @@ class ColorMixin:
     version = self.interface.cvars['source-vars']['version']
     return fullname, version
 
-
 #---------- INTERFACES -----------#
 class RpmsInterface(EventInterface):
   def __init__(self, base):
-    self.LOCAL_REPO = join(base.METADATA_DIR, 'localrepo/')    
+    self.LOCAL_REPO = join(base.METADATA_DIR, 'localrepo/')
+    self.sharepath = base.sharepath
+    
     EventInterface.__init__(self, base)
 
+  def getSourcesDirectory(self):
+    return join(self.METADATA_DIR, 'rpms-src')
+
   def addRpm(self, path):
-    cp(path, self.LOCAL_REPO)
+    sync(path, self.LOCAL_REPO)
   
   def createrepo(self, path=None):
     path = path or self.LOCAL_REPO
@@ -91,7 +95,7 @@ class RpmsInterface(EventInterface):
 #---------- HANDLERS -------------#
 class RpmsHandler(DiffMixin):
   def __init__(self, interface, data, id, rpmname,
-               summary=None, description=None):
+               summary=None, description=None, installinfo={}):
 
     if len(data['output']) > 1:
       raise Exception, "only one item should be specified in data['output']"
@@ -103,10 +107,8 @@ class RpmsHandler(DiffMixin):
                 ('arch',     'basearch'), ('software_store', 'SOFTWARE_STORE'),
                 ('fullname', 'fullname'), ('product',        'product'),
                 ('version',  'version'),  ('metadata',       'METADATA_DIR'),
-                ('log',      'log')]:
+                ('log',      'log'),      ('sharepath',      'sharepath')]:
       setattr(self, k, getattr(self.interface, v))
-
-    self.sharepath = self.interface._base.sharepath
 
     self.id = id
     self.rpmname = rpmname
@@ -117,7 +119,18 @@ class RpmsHandler(DiffMixin):
     self.output_location = join(self.metadata, self.id)
     self.autoconf = join(dirname(self.config.file), 'distro.conf.auto')
 
+    self.installinfo = installinfo
+    
     DiffMixin.__init__(self, join(self.metadata, '%s.md' % self.id), data)
+
+  def setup(self):
+    rpmssrc = join(self.interface.getSourcesDirectory(), self.id)
+    if exists(rpmssrc):      
+      self.addInput(self.interface.expand(rpmssrc))
+    for k,v in self.installinfo.items():
+      xquery,_ = v
+      if xquery is not None:
+        self.addInput(self.interface.expand(self.interface.config.xpath(xquery, [])))
     
   def force(self):
     self._clean()
@@ -137,6 +150,8 @@ class RpmsHandler(DiffMixin):
     self._copy()
     self._generate()
     self._write_spec()
+    self._write_manifest()    
+    
     self.interface.buildRpm(self.output_location, self.interface.LOCAL_REPO,
                             quiet=(self.interface.logthresh < 4))
     if not self._valid():
@@ -147,8 +162,8 @@ class RpmsHandler(DiffMixin):
                         '%s*[!Ss][!Rr][!Cc].[Rr][Pp][Mm]' % self.rpmname))
     self.addOutput(join(self.interface.LOCAL_REPO, 'SRPMS',
                         '%s*[Ss][Rr][Cc].[Rr][Pp][Mm]' % self.rpmname))
-
     self.interface.expand(self.data['output'])
+    
     self.write_metadata()    
 
   def apply(self, type='mandatory', requires=None):
@@ -177,8 +192,18 @@ class RpmsHandler(DiffMixin):
       self.removeOutput(rpm)
       rm(rpm, force=True)
     rm(self.output_location, recursive=True, force=True)
-    rm(self.mdfile, force=True)    
+    rm(self.mdfile, force=True)
 
+  def _copy(self):
+    for k,v in self.installinfo.items():
+      xquery,_ = v
+      if xquery is not None:
+        for file in self.interface.config.xpath(xquery, []):
+          dest = join(self.output_location, k)
+          if not exists(dest):
+            mkdir(dest, parent=True)
+          sync(file, dest)
+    
   def _test_build(self):
     return self.config.get('/distro/rpms/%s/create/text()' %(self.id,), 'True') in BOOLEANS_TRUE
 
@@ -193,13 +218,7 @@ class RpmsHandler(DiffMixin):
 
     return [rpm, srpm]
   
-  def _copy(self):
-    if self.data.has_key('input'):
-      for file in self.data['input']:
-        sync(file, self.output_location)
-  
   def _write_spec(self):
-    self._create_manifest()
     setupcfg = join(self.output_location, 'setup.cfg')
     if exists(setupcfg): return # can happen only if setup.cfg is an input file
     
@@ -215,7 +234,13 @@ class RpmsHandler(DiffMixin):
 
     data_files = self._get_data_files()
     if data_files is not None:
-      spec.set('pkg_data', 'data_files', data_files)
+      value = None
+      for installdir, files in data_files.items():
+        v = '%s : %s' %(installdir, ', '.join(files))
+        if value is None: value = v
+        else:             value = '\n\t'.join([value.strip(), v])
+
+      if value is not None: spec.set('pkg_data', 'data_files', value)
     
     spec.add_section('bdist_rpm')
     spec.set('bdist_rpm', 'distribution_name', self.fullname)
@@ -240,6 +265,15 @@ class RpmsHandler(DiffMixin):
     spec.write(f)
     f.close()
 
+  def _write_manifest(self):
+    manifest = ['setup.py'] # setup.py is created by mkrpm.RpmBuilder
+    srcdir = join(self.interface.getSourcesDirectory(), self.id)
+    if exists(srcdir):
+      manifest.extend(find(srcdir, type=TYPE_FILE|TYPE_LINK, prefix=True))
+    if exists(self.output_location):
+      manifest.extend(find(self.output_location, type=TYPE_FILE|TYPE_LINK, prefix=False))
+    filereader.write(manifest, join(self.output_location, 'MANIFEST'))          
+
   def _read_autoconf(self):
     if exists(self.autoconf):
       root = xmltree.read(self.autoconf)
@@ -248,7 +282,7 @@ class RpmsHandler(DiffMixin):
         v = package.get('version/text()', self.version)
         r = package.get('release/text()', '0')
         a = package.get('arch/text()', self._get_force_arch())
-        return v, r, a
+        return v,r,a
     return self.version, '0', self._get_force_arch()
 
   def _write_autoconf(self, version=None, release=None, arch=None):
@@ -282,12 +316,35 @@ class RpmsHandler(DiffMixin):
         a = xmltree.Element('arch', parent=package, text=arch)
     
     root.write(self.autoconf)
-  
-  def _create_manifest(self): pass        
-  def _generate(self):        pass
+
+  def _get_data_files(self):
+    srcdir = join(self.interface.getSourcesDirectory(), self.id)
+    sources = {}          
+    if exists(srcdir):
+      for file in find(srcdir, type=TYPE_FILE|TYPE_LINK, prefix=False):
+        dir = dirname(file)
+        if not dir.startswith('/'): dir = '/' + dir
+        if not sources.has_key(dir):
+          sources[dir] = []
+        sources[dir].append(join(srcdir, file))
+    for k,v in self.installinfo.items():
+      dir = join(self.output_location, k)
+      if exists(dir):
+        files = [ join(k,x) for x in os.listdir(dir) ]
+      else:
+        files = []
+
+      if files:        
+        installpath = v[1]
+        if sources.has_key(installpath):
+          sources[installpath].extend(files)
+        else:
+          sources[installpath] = files
+    return sources
+    
+  def _generate(self): pass
   
   def _get_config_files(self):   return None
-  def _get_data_files(self):     return None
   def _get_doc_files(self):      return None
   def _get_force_arch(self):     return 'noarch'
   def _get_install_script(self): return None    

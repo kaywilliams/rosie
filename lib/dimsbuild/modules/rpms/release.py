@@ -18,7 +18,7 @@ from lib import ColorMixin, RpmsHandler, RpmsInterface
 EVENTS = [
   {
     'id': 'release-rpm',
-    'interface': 'RpmsInterface',
+    'interface': 'ReleaseRpmInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'parent': 'RPMS',
     'requires': ['source-vars'],
@@ -31,7 +31,43 @@ HOOK_MAPPING = {
 
 API_VERSION = 4.1
 
-#---------- HANDLERS -------------#
+#---------- INTERFACES --------#
+class ReleaseRpmInterface(RpmsInterface):
+  def __init__(self, base):
+    RpmsInterface.__init__(self, base)
+    
+  def getGpgDirectory(self):
+    return '/etc/pkg/rpm-gpg'
+
+  def getRepoDirectory(self):
+    return '/etc/yum.repos.d'
+
+  def getEulaDirectory(self):
+    return '/usr/share/eula'
+
+  def getOmfDirectory(self):
+    return self.config.get('/distro/rpms/release-rpm/release-notes/omf/@install-path', None) or \
+           '/usr/share/omf/%s-release-notes' % self.product
+
+  def getHtmlDirectory(self):
+    return self.config.get('/distro/rpms/release-rpm/release-notes/html/@install-path', None) or \
+           '/usr/share/doc/HTML'
+
+  def getDocDirectory(self):
+    return self.config.get('/distro/rpms/release-rpm/release-notes/doc/@install-path', None) or \
+           '/usr/share/doc/%s-release-notes-%s' %(self.product, self.version)
+
+  def getReleaseDirectory(self):
+    return '/usr/share/doc/%s-release-%s' %(self.product, self.version)
+
+  def getEtcDirectory(self):
+    return '/etc'
+
+  def getEulaPyDirectory(self):
+    return '/usr/share/firstboot/modules'
+  
+
+#---------- HOOKS -------------#
 class ReleaseRpmHook(RpmsHandler, ColorMixin):
 
   def __init__(self, interface):
@@ -56,6 +92,33 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
       'output': [],
     }
 
+    #  Each key of the installinfo directionary is the name of the
+    # directory in release RPM event's working directory and its value
+    # tells the program what it should do with those files.
+    #
+    #  For example, self.installinfo['gpg'] are installed to
+    # /etc/pki/rpm-gpg.
+    installinfo = {
+      'gpg'     : ('/distro/stores/*/store/gpgkey/text()',
+                   interface.getGpgDirectory()),
+      'repo'    : ('/distro/rpms/release-rpm/yum-repos/path/text()',
+                   interface.getRepoDirectory()),
+      'eula'    : ('/distro/rpms/release-rpm/eula/path/text()',
+                   interface.getEulaDirectory()),
+      'omf'     : ('/distro/rpms/release-rpm/release-notes/omf/path/text()',
+                   interface.getOmfDirectory()),
+      'html'    : ('/distro/rpms/release-rpm/release-notes/html/path/text()',
+                   interface.getHtmlDirectory()),
+      'doc'     : ('/distro/rpms/release-rpm/release-notes/doc/path/text()',
+                   interface.getDocDirectory()),
+      'release' : ('/distro/rpms/release-rpm/release-files/path/text()',
+                   interface.getReleaseDirectory()),
+      'etc'     : (None,
+                   interface.getEtcDirectory()), 
+      'eulapy'  : (None,
+                   interface.getEulaPyDirectory()),
+    }
+
     RpmsHandler.__init__(self, interface, data, 'release-rpm',
                          '%s-release' \
                          % interface.cvars['base-vars']['product'],
@@ -63,57 +126,11 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
                          % interface.cvars['base-vars']['fullname'],
                          description='%s release files created by '
                          'dimsbuild' \
-                         % interface.cvars['base-vars']['fullname'])
+                         % interface.cvars['base-vars']['fullname'],
+                         installinfo=installinfo)
     
     ColorMixin.__init__(self)
 
-    #  Each key of the installinfo directionary is the name of the directory in
-    # release RPM event's working directory and its value tells the program
-    # what it should do with those files.
-    #
-    #  Each value of in the installinfo dictionary should be a string or a 2-tuple.
-    # If it is a string, it should be install directory. If it's a 2-tuple, it should
-    # be the default install directory and the xpath query to the user-specified
-    # install path.
-    #
-    #  For example, self.installinfo['gpg'] are installed to /etc/pki/rpm-gpg.
-    self.installinfo = {
-      'gpg'     : ('/distro/stores/*/store/gpgkey/text()', '/etc/pki/rpm-gpg', None),
-      'repo'    : ('/distro/rpms/release-rpm/yum-repos/path/text()', '/etc/yum.repos.d', None),
-      'eula'    : ('/distro/rpms/release-rpm/eula/path/text()', '/usr/share/eula', None),
-      'omf'     : ('/distro/rpms/release-rpm/release-notes/omf/path/text()',
-                   '/usr/share/omf/%s-release-notes' %(self.product,),
-                   '/distro/rpms/release-rpm/release-notes/omf/@install-path'),
-      'html'    : ('/distro/rpms/release-rpm/release-notes/html/path/text()',
-                   '/usr/share/doc/HTML',
-                   '/distro/rpms/release-rpm/release-notes/html/@install-path'),
-      'doc'     : ('/distro/rpms/release-rpm/release-notes/doc/path/text()',
-                   '/usr/share/doc/%s-release-notes-%s' %(self.product, self.version,),
-                   '/distro/rpms/release-rpm/release-notes/doc/@install-path'),                   
-      'release' : ('/distro/rpms/release-rpm/release-files/path/text()',
-                   '/usr/share/doc/%s-release-%s' %(self.product, self.version,),
-                   None),
-      'etc'     : (None, '/etc', None), 
-      'eulapy'  : (None, '/usr/share/firstboot/modules', None),
-    }    
-
-  def setup(self):
-    for k,v in self.installinfo.items():
-      xquery,_,_ = v
-      if xquery is not None:
-        self.addInput(self.interface.config.xpath(xquery, []))
-    self.interface.expand(self.data['input'])
-
-  def _copy(self):
-    for k,v in self.installinfo.items():
-      xquery,_,_ = v
-      if xquery is not None:
-        for file in self.interface.config.xpath(xquery, []):
-          dest = join(self.output_location, k)
-          if not exists(dest):
-            mkdir(dest, parent=True)
-          sync(file, dest)
-    
   def _generate(self):
     "Create files besides the ones that have been synced."
     for type in self.installinfo.keys():
@@ -123,37 +140,10 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
 
     self._verify_release_notes()
 
-  def _create_manifest(self): # done by _get_data_files(), below
-    pass
-
-  def _get_data_files(self):
-    data = None  
-    manifest = ['setup.py', 'setup.cfg']
-    for k,v in self.installinfo.items():
-      dir = join(self.output_location, k)
-      if exists(dir):
-        files = [ join(k,x) for x in os.listdir(dir) ]
-      else:
-        files = []
-
-      if files:        
-        manifest.extend(files)
-        if v[2] is not None: installpath = self.config.get(v[2], None) or v[1]
-        else: installpath = v[1]
-        
-        datum = '%s : %s' %(installpath, ', '.join(files))
-        if data is None:
-          data = datum
-        else:
-          data = '\n\t'.join([data.strip(), datum])
-    filereader.write(manifest, join(self.output_location, 'MANIFEST'))
-    return data
-
   def _get_config_files(self):
     rtn = None
     for k,v in self.installinfo.items():
-      if v[2] is not None: installpath = self.config.get(v[2], None) or v[1]
-      else: installpath = v[1]
+      installpath = v[1]
 
       if installpath.startswith('/etc'): # is a config file
         dir = join(self.output_location, k)

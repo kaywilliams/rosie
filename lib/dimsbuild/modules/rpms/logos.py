@@ -99,14 +99,8 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     self._generate_images()
     self._generate_theme_files()
 
-  def _create_manifest(self): pass # done by get_data_files(), below
-
   def _get_data_files(self):
-    manifest = join(self.output_location, 'MANIFEST')
-    f = open(manifest, 'w')
-    f.write('setup.py\n')
-    f.write('setup.cfg\n')
-    items = {}
+    items = RpmsHandler._get_data_files(self)
     for logoinfo in self.imageslocal.xpath('//logos/logo', []):
       i,l,_,_,_,_,_,_,_,_ = self._get_image_info(logoinfo)
 
@@ -128,17 +122,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
         items[installdir] = []
 
       items[installdir].append(i)
-
-      f.write('%s\n' %(i,))
-    f.close()
-    
-    # convert items to a config-styled string
-    rtn = ''
-    for item in items.keys():
-      dir = ''.join([item, ': '])
-      files = ', '.join(items[item])
-      rtn = ''.join([rtn, dir, files, '\n\t'])
-    return rtn
+    return items
     
   def _valid(self):
     if self.data.has_key('output'):

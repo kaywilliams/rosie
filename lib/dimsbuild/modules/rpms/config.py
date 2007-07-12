@@ -1,6 +1,6 @@
 from os.path import join
 
-from dims.osutils import basename, dirname, find
+from dims.osutils import *
 
 from dimsbuild.difftest import expand
 from dimsbuild.event    import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
@@ -43,13 +43,17 @@ class ConfigRpmHook(RpmsHandler):
       'config': [
         '/distro/rpms/config-rpm',
       ],
-      'input': [
-        interface.config.xpath('/distro/rpms/config-rpm/config/script/path/text()', []),
-        interface.config.xpath('/distro/rpms/config-rpm/config/supporting-files/path/text()', []),
-      ],
+      'input': [],
       'output': [],
     }
-    
+
+    installinfo = {
+      'config' : ('/distro/rpms/config-rpm/config/script/path/text()',
+                  '/usr/lib/%s' % interface.product),
+      'support': ('/distro/rpms/config-rpm/config/supporting-files/path/text()',
+                  '/usr/lib/%s' % interface.product),
+    }
+
     RpmsHandler.__init__(self, interface, data, 'config-rpm',
                          '%s-config' %(interface.product,),
                          summary='%s configuration script and '
@@ -57,20 +61,18 @@ class ConfigRpmHook(RpmsHandler):
                          description='The %s-config provides scripts '
                          'and supporting files for configuring the '
                          '%s distribution' %(interface.product,
-                                             interface.fullname))
-
-  def setup(self):
-    self.interface.expand(self.data['input'])
+                                             interface.fullname),
+                         installinfo=installinfo)
 
   def _test_build(self):
     return (self.config.get('/distro/rpms/config-rpm/requires', None) or \
             self.config.get('/distro/rpms/config-rpm/obsoletes', None) or \
             self.config.get('/distro/rpms/config-rpm/config/script/path/text()', None) or \
-            self.config.get('/distro/rpms/config-rpm/config/supporting-files/path/text()', None) \
-            is not None)
+            self.config.get('/distro/rpms/config-rpm/config/supporting-files/path/text()', None) or \
+            find(join(self.interface.getSourcesDirectory(), self.id), type=TYPE_FILE|TYPE_LINK))
     
   def _get_post_install(self):
-    script = self.config.get('/distro/rpms/config-rpm/config/script/path/text()', None)
+    script = self.config.get(self.installinfo['config'][0], None)
     if script:      
       post_install_scripts = find(location=self.output_location,
                                   name=basename(script),
@@ -90,16 +92,3 @@ class ConfigRpmHook(RpmsHandler):
     if packages:
       return ' '.join(packages)
     return None    
-
-  def _create_manifest(self): pass # done by get_data_files(), below.
-  
-  def _get_data_files(self):
-    lib_files = find(self.output_location, name='*', type=0101)
-    manifest = join(self.output_location, 'MANIFEST')
-    f = open(manifest, 'w')
-    f.write('setup.py\n')
-    f.write('setup.cfg\n')
-    for file in lib_files:
-      f.write('%s\n' %(file,))
-    f.close()
-    return ''.join(['/usr/lib/%s/ : ' %(self.product,), ', '.join(lib_files)])
