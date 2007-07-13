@@ -4,23 +4,15 @@
     <element name="distro">
       <optional>
         <element name="gpgsign">
-          
-          <!-- DOCBOOK ENTRY -->
-          <refentry xmlns="">
-            <refsect1>
-              <title>GPGSIGN</title>
-              <para>information about the gpgsign element</para>
-            </refsect1>
-          </refentry>
-          
-          <!-- ELEMENT CONTENTS -->
+          <attribute name="enabled">
+            <ref name="value-boolean-with-default"/>
+          </attribute>
           <interleave>
-            <element name="sign">
-              <ref name="value-boolean"/>
-            </element>
-            <element name="public"><text/></element>
-            <element name="secret"><text/></element>
-            <element name="password"><text/></element>    
+            <element name="gpg-public-key"><text/></element>
+            <element name="gpg-secret-key"><text/></element>
+            <optional>
+              <element name="gpg-passphrase"><text/></element>
+            </optional>
           </interleave>
         </element>
       </optional>

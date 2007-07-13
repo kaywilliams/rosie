@@ -1,12 +1,22 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0" 
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   
+  <refentry>
+    <refsect1>
+      <title>COMMON ELEMENTS</title>
+      <para>
+      The following are a few commonly-shared elements across several dimsbuild
+      modules.
+      </para>
+    </refsect1>
+  </refentry>
+  
   <!-- a repo element -->
   <define name="element-repo">
     <element name="repo">
       <attribute name="id"/>
+      <element name="path"><text/></element>
       <interleave>
-        <element name="path"><text/></element>        
         <optional>
           <element name="repodata-path"><text/></element>
         </optional>
@@ -32,15 +42,43 @@
             <ref name="value-boolean"/>
           </element>
         </optional>
+        <optional>
+          <interleave>
+            <element name="username"><text/></element>
+            <element name="password"><text/></element>
+          </interleave>
+        </optional>
       </interleave>
     </element>
   </define>
 
   <!-- boolean values -->
   <define name="value-boolean">
+    <refentry>
+      <refsection>
+        <title>BOOLEAN VALUES</title>
+        <para>
+        Many of the elements in the config file accept boolean values.  The
+        following values are all equivalent representations of 'true':
+        </para>
+        <programlisting>True, true, Yes, yes, 1</programlisting>
+        <para>
+        Similarly, the following values are all equivalent to 'false':
+        </para>
+        <programlisting>False, false, No, no, 0</programlisting>
+      </refsection>
+    </refentry>
     <choice>
       <ref name="value-boolean-true"/>
       <ref name="value-boolean-false"/>
+    </choice>
+  </define>
+  
+  <define name="value-boolean-with-default">
+    <choice>
+      <ref name="value-boolean-true"/>
+      <ref name="value-boolean-false"/>
+      <ref name="value-default"/>
     </choice>
   </define>
   
@@ -56,10 +94,67 @@
     </data>
   </define>
   
+  <define name="value-default">
+    <data type="token">
+      <param name="pattern">[Dd]efault</param>
+    </data>
+  </define>
+  
   <define name="element-path">
     <element name="path"><text/></element>
   </define>
-
+  
+  <refentry>
+    <refsection>
+      <title>MACROS</title>
+      <para>
+      Macro elements are provided to the config user as a convenience to avoid having
+      to type the same thing repeatedly.  They also provide a single common place to
+      edit in the case when certain text values should share some common prefix, such
+      as file paths.  Defining a macro allows the user to reference the macro by at
+      some other point in the config file; when this value is returned by the config
+      library, the macro's text will be evaluated and replaced with the value stored
+      in the macro element itself.
+      </para>
+      <para>
+      There are two kinds of macros - absolute and referential.  The difference
+      between them is in how their replacement text values are computed.  Absolute
+      macros simply use their text value for replacement.  Referential macros, on the
+      other hand, point to some other element in the config file and use that element's
+      text value
+      </para>
+      <refsection>
+        <title>Example macro elements</title>
+      </refsection>
+      <programlisting>
+&lt;macro id='location'&gt;/var/cache/dimsbuild&lt;/macro&gt;
+&lt;macro id='server' path='//server/text()'/&gt;
+      </programlisting>
+      <refsection>
+        <title>Attributes and children</title>
+        <para>Macro elements have the following attributes:</para>
+        <refsection>
+          <title>id</title>
+          <para>
+          the id of this macro; used to refer to it elsewhere by placing the id inside
+          '%{' and '}'.  For example, if a macro with id 'location' is defined, other
+          elements can reference it in their text value fields with '%{location}'.
+          </para>
+        </refsection>
+        <refsection>
+          <title>path</title>
+          <para>
+          optional; absence makes this macro absolute, presence makes it referential;
+          an xpath expression to another element in the config file who's text value will
+          become the value used by this macro.  This query must point to a string value,
+          not an element.  If multiple matches are found to the query, the first one is
+          used.
+          </para>
+        </refsection>
+      </refsection>
+    </refsection>
+  </refentry>
+  
   <define name="element-path-with-dest">
     <element name="path">
        <optional><attribute name="dest"/></optional>

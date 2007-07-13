@@ -13,7 +13,7 @@
       <optional>
         <element name="default-theme-rpm">
           <optional>
-            <ref name="create-element"/>
+            <ref name="element-create"/>
           </optional>
           <optional>
             <element name="theme"><text/></element>

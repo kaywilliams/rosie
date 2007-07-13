@@ -3,28 +3,6 @@
   <start>
     <element name="distro">
       <element name="main">
-        
-        <!-- DOCBOOK ENTRY -->
-        <refentry id="distro.conf" xmlns="">          
-          <refmeta>
-            <refentrytitle>distro.conf</refentrytitle>
-            <manvolnum>5</manvolnum>
-          </refmeta>
-          <refnamediv>
-            <refname>distro.conf</refname> <!-- defines the name of the output file -->
-            <refpurpose>DiMSBuild's configuration file.</refpurpose>
-          </refnamediv>
-          <refsynopsisdiv>
-            <title>SYNOPSIS</title>
-            <synopsis>distro.conf synopsis</synopsis>
-          </refsynopsisdiv>
-          <refsect1>
-            <title>MAIN</title>
-            <para>information about the main element</para>
-          </refsect1>
-        </refentry>
-
-        <!-- ELEMENT CONTENTS -->
         <interleave>
           <element name="product"><text/></element>
           <element name="version"><text/></element>
@@ -33,31 +11,13 @@
             <ref name="element-arch"/>
           </optional>
           <optional>
-            <element name="publishpath">
-              <interleave>
-                <optional>
-                  <element name="webroot"><text/></element>
-                </optional>
-                <optional>
-                  <element name="distrosroot"><text/></element>
-                </optional>
-              </interleave>
-            </element>
-          </optional>      
-          <optional>
-            <element name="rpmspath"><text/></element>
-          </optional>
-          <optional>    
-            <element name="distro-provider"><text/></element>
-          </optional>
-          <optional>
             <ref name="element-modules"/>
           </optional>
           <optional>
             <ref name="element-plugins"/>
           </optional>
           <optional>
-            <element name="url"><text/></element>
+            <element name="bug-url"><text/></element>
           </optional>
         </interleave>
       </element>
@@ -77,22 +37,32 @@
   </define>
 
   <define name="element-modules">
-    <oneOrMore>
-      <element name="module">
-        <attribute name="enabled">
-          <ref name="value-boolean"/>
-        </attribute>
-      </element>
-    </oneOrMore>
+    <element name="modules">
+      <attribute name="default">
+        <ref name="value-boolean"/>
+      </attribute>
+      <oneOrMore>
+        <element name="module">
+          <attribute name="enabled">
+            <ref name="value-boolean-with-default"/>
+          </attribute>
+        </element>
+      </oneOrMore>
+    </element>
   </define>
   
   <define name="element-plugins">
-    <oneOrMore>
-      <element name="plugin">
-        <attribute name="enabled">
-          <ref name="value-boolean"/>
-        </attribute>
-      </element>
-    </oneOrMore>
+    <element name="plugins">
+      <attribute name="default">
+        <ref name="value-boolean"/>
+      </attribute>
+      <oneOrMore>
+        <element name="plugin">
+          <attribute name="enabled">
+            <ref name="value-boolean-with-default"/>
+          </attribute>
+        </element>
+      </oneOrMore>
+    </element>
   </define>
 </grammar>

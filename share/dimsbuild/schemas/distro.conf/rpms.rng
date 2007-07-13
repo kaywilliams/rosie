@@ -9,13 +9,13 @@
     </refsect1>
   </refentry>
 
-  <define name="create-element">
+  <define name="element-create">
     <element name="create">
       <ref name="value-boolean"/>
     </element>
   </define>
 
-  <define name="obsoletes-element">
+  <define name="element-obsoletes">
     <element name="obsoletes">
       <optional>
         <attribute name="use-default-set">

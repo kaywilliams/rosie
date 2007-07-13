@@ -4,20 +4,12 @@
     <element name="distro">
       <optional>
         <element name="iso">
-          
-          <!-- DOCBOOK ENTRY -->
-          <refentry xmlns="">
-            <refsect1>
-              <title>ISO</title>
-              <para>information about the iso element</para>
-            </refsect1>
-          </refentry>
-
-          <!-- ELEMENT CONTENTS -->
-          <interleave>
-            <ref name="element-create"/>
-            <ref name="element-sets"/>
-          </interleave>
+          <attribute name="enabled">
+            <ref name="value-boolean-with-default"/>
+          </attribute>
+          <oneOrMore>
+            <element name="set"><text/></element>
+          </oneOrMore>
         </element>
       </optional>
     </element>
@@ -25,17 +17,4 @@
   
   <include href="lib.rng"/>
   
-  <define name="element-create">
-    <element name="create">
-      <ref name="value-boolean"/>
-    </element>
-  </define>
-  
-  <define name="element-sets">
-    <element name="sets">
-      <oneOrMore>
-        <element name="set"><text/></element>
-      </oneOrMore>
-    </element>
-  </define>  
 </grammar>

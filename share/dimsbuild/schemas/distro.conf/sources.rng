@@ -2,43 +2,18 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="distro">
-
-      <!-- DOCBOOK ENTRY -->
-      <refentry xmlns="">
-        <refsect1>
-          <title>SOURCE</title>
-          <para>information about the source element</para>
-        </refsect1>
-      </refentry>
-      
-      <!-- ELEMENT CONTENTS -->
       <optional>        
         <element name="source">
-          <interleave>
-            <ref name="element-include"/>
-            <optional>
-              <ref name="element-repos"/>
-            </optional>
-          </interleave>
+          <attribute name="enabled">
+            <ref name="value-boolean-with-default"/>
+          </attribute>
+          <oneOrMore>
+            <ref name="element-repo"/>
+          </oneOrMore>
         </element>
       </optional>
     </element>
   </start>
 
-  <include href="lib.rng"/>
-  
-  <define name="element-include">
-    <element name="include">
-      <ref name="value-boolean"/>
-    </element>
-  </define>
-  
-  <define name="element-repos">
-    <element name="repos">
-      <oneOrMore>
-        <ref name="element-repo"/>
-      </oneOrMore>
-    </element>
-  </define>
-  
+  <include href="lib.rng"/>  
 </grammar>

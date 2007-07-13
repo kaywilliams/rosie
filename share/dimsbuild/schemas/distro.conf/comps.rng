@@ -4,16 +4,6 @@
     <element name="distro">
       <optional>
         <element name="comps">
-
-        <!-- DOCBOOK ENTRY -->
-          <refentry xmlns="">
-            <refsect1>
-              <title>COMPS</title>
-              <para>information about the comps element</para>
-            </refsect1>
-          </refentry>
-
-          <!-- ELEMENT CONTENTS -->
           <choice>
             <ref name="element-create-new"/>
             <ref name="element-use-existing"/>
@@ -25,6 +15,12 @@
   
   <include href="lib.rng"/>
   
+  <define name="element-use-existing">
+    <element name="use-existing">
+      <element name="path"><text/></element>
+    </element>
+  </define>
+  
   <define name="element-create-new">
     <element name="create-new">
       <interleave>
@@ -33,6 +29,7 @@
             <ref name="element-group"/>
           </oneOrMore>
         </element>
+        
         <optional>
           <element name="include">
             <oneOrMore>
@@ -40,6 +37,7 @@
             </oneOrMore>
           </element>
         </optional>
+        
         <optional>
           <element name="exclude">
             <oneOrMore>
@@ -82,9 +80,4 @@
     </element>
   </define>
   
-  <define name="element-use-existing">
-    <element name="use-existing">
-      <element name="path"><text/></element>
-    </element>
-  </define>
 </grammar>

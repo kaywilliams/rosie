@@ -4,16 +4,9 @@
     <element name="distro">
       <optional>
         <element name="product.img">
-          <!-- DOCBOOK ENTRY -->
-          <refentry xmlns="">
-            <refsect1>
-              <title>PRODUCT.IMG</title>
-              <para>information about the product.img element</para>
-            </refsect1>
-          </refentry>
-
-          <!--ELEMENT CONTENTS -->
-          <ref name="element-path"/>
+          <zeroOrMore>
+            <ref name="element-path"/>
+          </zeroOrMore>
         </element>
       </optional>
     </element>
