@@ -1,0 +1,115 @@
+<docroot>
+  <refentry>
+    
+    <!-- gpg-public-key -->
+    <refsect2>
+      <title>&lt;gpg-public-key&gt;</title>
+      <para>
+      Element describing to gpgsign where to find an exported RPM GPG public key that
+      can be used to sign RPMs.
+      </para>
+      <programlisting>
+element gpg-public-key { text }
+      </programlisting>
+      <refsection>
+        <title>Parents</title>
+        <para>gpgsign</para>
+      </refsection>
+      <refsection>
+        <title>See also</title>
+        <para>gpg-secret-key, gpg-passphrase</para>
+      </refsection>
+    </refsect2>
+    
+    <!-- gpg-secret-key -->
+    <refsect2>
+      <title>&lt;gpg-secret-key&gt;</title>
+      <para>
+      Element describing to gpgsign where to find an exported RPM GPG secret key that
+      can be used to sign RPMs.
+      </para>
+      <programlisting>
+element gpg-secret-key { text }
+      </programlisting>
+      <refsection>
+        <title>Parents</title>
+        <para>gpgsign</para>
+      </refsection>
+      <refsection>
+        <title>See also</title>
+        <para>gpg-public-key, gpg-password</para>
+      </refsection>
+    </refsect2>
+    
+    <!-- gpg-passphrase -->
+    <refsect2>
+      <title>&lt;gpg-passphrase&gt;</title>
+      <para>
+      Optional element for use by gpgsign in providing a passphrase to gpg when signing
+      RPMs.  If this element is not present, dimsbuild will prompt the user for the
+      passphrase before continuing.  Note - use of this element is discouraged in most
+      cases, as it stores your gpg passphrase in plaintext mode.
+      </para>
+      <programlisting>
+element gpg-passphrase { text }
+      </programlisting>
+      <refsection>
+        <title>Parents</title>
+        <para>gpgsign</para>
+      </refsection>
+    </refsect2>
+    
+    <!-- gpgsign -->
+    <refsect2>
+      <title>&lt;gpgsign&gt; (top level)</title>
+      <para>
+      gpgsign is the container for the gpgsign module's configuration data.
+      </para>
+      <programlisting>
+element gpgsign {
+  attribute enabled { ... }
+  &amp; (
+    element gpg-public-key { ... }
+    &amp; element gpg-secret-key { ... }
+    &amp; element gpg-passphrase { ... }?
+  )?
+}
+      </programlisting>
+      <refsection>
+        <title>Parents</title>
+        <para>distro</para>
+      </refsection>
+      <refsection>
+        <title>Attributes</title>
+        <para>gpgsign elements have the following attributes:</para>
+        <refsection>
+          <title>enabled</title>
+          <para>
+          optional; boolean value indicating whether this event is active or not;
+          defaults to 'false'
+          </para>
+          <para>
+          If enabled, all RPMs included in the distribution are signed with the
+          gpg keys specified in the public and secret elements; if it is disabled,
+          gpgkeys will be removed from any existing output.
+          </para>
+        </refsection>
+      </refsection>
+      <refsection>
+        <title>Examples</title>
+        <para>
+        The following gpgsign element will cause dimsbuild to sign each RPM that is
+        included in the custom distribution it generates by utilizing the GPG keys
+        that are specified in the public and secret elements.
+        </para>
+        <programlisting>
+&lt;gpgsign enabled='true'&gt;
+  &lt;gpg-public-key&gt;/var/gpg/public-key-export&lt;/gpg-public-key&gt;
+  &lt;gpg-secret-key&gt;/var/gpg/secret-key-export&lt;/gpg-secret-key&gt;
+&lt;/gpgsign&gt;        
+        </programlisting>
+      </refsection>
+    </refsect2>
+    
+  </refentry>
+</docroot>

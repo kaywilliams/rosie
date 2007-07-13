@@ -1,0 +1,89 @@
+<docroot>
+  <refentry>
+  
+    <!-- iso -->
+    <refsect2>
+      <title>&lt;iso&gt; (top level)</title>
+      <para>
+      iso is the container for the iso module's configuration data
+      </para>
+      <programlisting>
+element iso {
+  attribute enabled { ... }
+  | element sets { ... }
+}
+      </programlisting>
+      <refsection>
+        <title>Parent</title>
+        <para>distro</para>
+      </refsection>
+      <refsection>
+        <title>Attributes</title>
+        <para>iso elements have the following attributes:</para>
+        <refsection>
+          <title>enabled</title>
+          <para>
+          optional; boolean value controlling whether this event is enabled; defaults
+          to 'false'
+          </para>
+          <para>
+          If enabled, iso sets as defined in the sets list will be output to the iso
+          directory; if it is inactive, isos will not be generated and any existing
+          output will be deleted.
+          </para>
+        </refsection>
+      </refsection>
+      <refsection>
+        <title>Examples</title>
+        <para>
+        The following iso element creates two sets of ISO images from the output
+        of dimsbuild - one at 640 megabytes in size, the second at 700 megabytes.
+        </para>
+        <programlisting>
+&lt;iso enabled='true'&gt;
+  &lt;set&gt;CD&lt;/set&gt;
+  &lt;set&gt;800M&lt;/set&gt;
+&lt;/iso&gt;
+        </programlisting>
+      </refsection>
+      <refsection>
+        <title>See also</title>
+        <para>sets</para>
+      </refsection>
+    </refsect2>
+    
+    <!-- set -->
+    <refsect2>
+      <title>&lt;set&gt;</title>
+      <para>
+      set elements are used by dimsbuild to determine the size of an iso set to
+      generate.  The output trees are automatically split so that each iso is smaller
+      than the specified size.  Sizes are indicated by a number in bytes, a number
+      followed by a size indicator ('K', 'M', or 'G', optionally followed by a 'B',
+      all of which are case-insensitive), or one of the reserved values 'CD' and 'DVD'
+      (which map to '640MB' and '4.7GB', respectively).
+      </para>
+      <para>
+      If the size of a set changes to an equivalent size with a different name between
+      executions of dimsbuild, the output folder's name is changed without recreating
+      the ISO images in order to save time.
+      </para>
+      <programlisting>
+element set { text }
+      </programlisting>
+      <refsection>
+        <title>Restrictions</title>
+        <para>The size given for the set must be larger than 100 MB.</para>
+      </refsection>
+      <refsection>
+        <title>Parents</title>
+        <para>sets</para>
+      </refsection>
+      <refsection>
+        <title>Examples</title>
+        <para>See iso for an example of a set element</para>
+      </refsection>
+    </refsect2>
+    
+  </refentry>
+</docroot>

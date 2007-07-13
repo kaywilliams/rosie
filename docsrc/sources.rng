@@ -1,0 +1,59 @@
+<docroot>
+  <refentry>
+  
+    <!-- source -->
+    <refsect2>
+      <title>&lt;source&gt; (top level)</title>
+      <para>
+      The source element of the config file contains configuration related to including
+      source RPMs (SRPMs) in your custom distribution.
+      </para>
+      <programlisting>
+element source {
+  attribute enabled { text },
+  element repo { ... }+
+}
+      </programlisting>
+      <refsection>
+        <title>Attributes</title>
+        <para>source elements have the following attributes:</para>
+        <refsection>
+          <title>enabled</title>
+          <para>
+          optional; boolean value indicating whether this event is active or not;
+          defaults to 'false'
+          </para>
+          <para>
+          If enabled, dimsbuild will include the necessary SRPMs to correspond to the
+          list of RPMs in the distribution; if it is disabled, any SRPMs will be removed
+          from existing output.
+          </para>
+        </refsection>
+      </refsection>
+      <refsection>
+        <title>Parents</title>
+        <para>distro</para>
+      </refsection>
+      <refsection>
+        <title>Examples</title>
+        <para>
+        The following is an example source element.  Note that the definition includes
+        a macro element; see the appropriate section for information on how these are
+        processed.
+        </para>
+        <programlisting>
+&lt;sources enabled='true'&gt;
+  &lt;macro id='root'&gt;http://redhat.download.fedoraproject.org&lt;macro&gt;
+  &lt;repo id='fedora-base-src'&gt;
+    &lt;path&gt;%{root}/pub/fedora/linux/core/6/source/SRPMS&lt;/path&gt;
+  &lt;/repo&gt;
+  &lt;repo id='fedora-extras-src'&gt;
+    &lt;path&gt;%{root}/pub/fedora/linux/extras/6/SRPMS&lt;/path&gt;
+  &lt;/repo&gt;
+&lt;/sources&gt;
+        </programlisting>
+      </refsection>
+    </refsect2>
+    
+  </refentry>
+</docroot>

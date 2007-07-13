@@ -1,0 +1,86 @@
+<docroot>
+  <refentry>
+    <!-- gpgkey -->
+    <refsect2>
+      <title>&lt;gpgkey&gt;</title>
+      <para>
+      Some RPMs are signed with a gpgkey, allowing end users to validate their
+      contents.  The gpgkey element points to an exported RPM GPG public key that
+      can be used to validate a repository's RPMs.
+      </para>
+      <programlisting>
+element gpgkey {
+  attribute check { text },
+  text
+}
+      </programlisting>
+      <refsection>
+        <title>Attributes</title>
+        <para>gpgkey elements have the following attributes:</para>
+        <refsection>
+          <title>check</title>
+          <para>
+          optional; boolean value indicating whether or not to actually check the
+          RPMs against this key; defaults to 'false'
+          </para>
+        </refsection>
+      </refsection>
+      <refsection>
+        <title>Parents</title>
+        <para>repo</para>
+      </refsection>
+    </refsect2>
+    
+    <!-- repodata-path -->
+    <refsect2>
+      <title>&lt;repodata-path&gt;</title>
+      <para>
+      repodata-path is a path, relative to a repo's &lt;path&gt; element, where the
+      'repodata' folder of the repository can be found.  This element is optional;
+      if not present, '.' is assumed
+      </para>
+      <programlisting>
+element repodata-path { text }
+      </programlisting>
+      <refsection>
+        <title>Parents</title>
+        <para>repo</para>
+      </refsection>
+    </refsect2>
+    
+    <!-- repos -->
+    <refsect2>
+      <title>&lt;repos&gt; (top level)</title>
+      <para>
+      The repos element contains configuration data regarding the source repositories
+      from which to gather RPMs for the custom distribution.  It lists each
+      repository separately, along with any and all information required to download
+      files from it (such as username/password for https locations).
+      </para>
+      <para>
+      The repos container must contain exactly one repo with type 'base'; this
+      indicates that this repository should be used as the source for several other
+      important distribution files, including group files, stage 2 images, and
+      isolinux files.  There can be any number of any other type of repo.
+      </para>
+      <programlisting>
+element repos {
+  element repo { attribute type { 'base' } ... }
+  element repo { ... }*
+}
+      </programlisting>
+      <refsection>
+        <title>Parents</title>
+        <para>distro</para>
+      </refsection>
+      <refsection>
+        <title>Examples</title>
+        <para>
+        A repos element consists of multiple repo elements; see repo for an example
+        of repo elements.
+        </para>
+      </refsection>
+    </refsect2>
+    
+  </refentry>
+</docroot>

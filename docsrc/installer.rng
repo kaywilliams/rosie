@@ -1,0 +1,28 @@
+<docroot>
+  <refentry>
+  
+    <!-- installer -->
+    <refsect2>
+      <title>&lt;installer&gt; (top level)</title>
+      <para>
+      installer is the top level container for configuration related to installation
+      images and other files.
+      </para>
+      <programlisting>
+element installer {
+  element release-files { ... }?
+  &amp; element logos { ... }?
+  &amp; element initrd.img { ... }?
+  &amp; element product.img { ... }?
+  &amp; element updates.img { ... }?
+  &amp; element isolinux { ... }?
+}
+      </programlisting>
+      <refsection>
+        <title>Parents</title>
+        <para>distro</para>
+      </refsection>
+    </refsect2>
+    
+  </refentry>
+</docroot>
