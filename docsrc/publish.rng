@@ -57,6 +57,7 @@ element publish {
   element remote-webroot { ... }?
   &amp; element local-webroot { ... }?
   &amp; element path-prefix { ... }?
+  &amp; element repofile { ... }?
 }
       </programlisting>
       <refsection>
@@ -102,6 +103,51 @@ element remote-webroot { text }
       <refsection>
         <title>See also</title>
         <para>path-prefix</para>
+      </refsection>
+    </refsect2>
+    
+    <!-- repofile -->
+    <refsect2>
+      <title>&lt;repofile&gt;</title>
+      <para>
+      The repofile element pertains to the creation of a yum repository definition file
+      that can be used to update machines based off this build.  If repo file creation
+      is enabled (by setting the enabled attribute to 'true'), then dimsbuild generates
+      a .repo file that points to the publish directory on the build machine which can
+      be used by end user machines for updates.
+      </para>
+      <programlisting>
+element repofile {
+  attribute enabled { text }?,
+  attribute include-input { text }?,
+}
+      </programlisting>
+      <refsection>
+        <title>Attributes</title>
+        <para>repofile elements have the following attributes:</para>
+        <refsection>
+          <title>enabled</title>
+          <para>
+          optional; whether or not to generate a .repo file for the distribution;
+          defaults to 'true'
+          </para>
+        </refsection>
+        <refsection>
+          <title>include-input</title>
+          <para>
+          optional; if enabled, generates a second .repo file pointing to the
+          repositories used as inputs by dimsbuild in creating the final output;
+          defaults to 'false'
+          </para>
+        </refsection>
+      </refsection>
+      <refsection>
+        <title>Parent</title>
+        <para>publish</para>
+      </refsection>
+      <refsection>
+        <title>See also</title>
+        <para>release-rpm</para>
       </refsection>
     </refsect2>
     
