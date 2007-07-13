@@ -22,6 +22,9 @@ class DbManualGenerator(ManualGenerator):
     if refentry is not None:      
       config = xmltree.Element('refsect1', parent=refentry)
       title = xmltree.Element('title', parent=config, text='CONFIG ELEMENTS')
+      xmltree.Element('para', parent=config,
+        text='Detailed below is a comprehensive list of XML elements available '
+             'in the dimsbuild config file.')
       refsect2s = refentry.xpath('/docbook/refentry/refsect2', [])
       refsect2s.sort(lambda x,y: cmp(x.get('title/text()'), y.get('title/text()')))
       for refsect2 in refsect2s:
