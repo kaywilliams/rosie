@@ -124,6 +124,9 @@ class RpmsHandler(DiffMixin):
     DiffMixin.__init__(self, join(self.metadata, '%s.md' % self.id), data)
 
   def setup(self):
+    if not exists(self.output_location):
+      mkdir(self.output_location, parent=True)
+    
     rpmssrc = join(self.interface.getSourcesDirectory(), self.id)
     if exists(rpmssrc):      
       self.addInput(self.interface.expand(rpmssrc))
@@ -134,7 +137,6 @@ class RpmsHandler(DiffMixin):
     
   def force(self):
     self._clean()
-    self.clean_metadata()
     
   def check(self):
     if self._test_build():
@@ -144,18 +146,25 @@ class RpmsHandler(DiffMixin):
       self._clean(); return False
   
   def run(self):
-    self.log(0, "building %s rpm" %(self.rpmname,))
-    if not exists(self.output_location):
-      mkdir(self.output_location, parent=True)    
+    self.log(0, "building %s rpm" % self.rpmname)
+
+    # sync input files....
     self._copy()
+
+    # ....generate additional files, if required....
     self._generate()
+
+    # ....write setup.cfg....
     self._write_spec()
+
+    # ....write MANIFEST....
     self._write_manifest()    
-    
+
+    # ....finally build the RPM....
     self.interface.buildRpm(self.output_location, self.interface.LOCAL_REPO,
                             quiet=(self.interface.logthresh < 4))
     if not self._valid():
-      raise OutputInvalidError("'%s' output invalid" %(self.rpmname,))
+      raise OutputInvalidError("'%s' output invalid" % self.rpmname)
 
     self.addOutput(self.output_location)
     self.addOutput(join(self.interface.LOCAL_REPO, 'RPMS',
@@ -163,7 +172,8 @@ class RpmsHandler(DiffMixin):
     self.addOutput(join(self.interface.LOCAL_REPO, 'SRPMS',
                         '%s*[Ss][Rr][Cc].[Rr][Pp][Mm]' % self.rpmname))
     self.interface.expand(self.data['output'])
-    
+
+    # ....but wait! Write the metadata file too.
     self.write_metadata()    
 
   def apply(self, type='mandatory', requires=None):
@@ -171,7 +181,7 @@ class RpmsHandler(DiffMixin):
 
     if len(missingrpms) != 0:
       if self._test_build() and not self.interface.isSkipped(self.id):
-        raise RuntimeError("missing rpm(s): " %(', '.join(missingrpms)))
+        raise RuntimeError("missing rpm(s): " % ', '.join(missingrpms))
       else:
         return # the rpm hasn't been created, therefore nothing else to do here
 
@@ -193,6 +203,9 @@ class RpmsHandler(DiffMixin):
       rm(rpm, force=True)
     rm(self.output_location, recursive=True, force=True)
     rm(self.mdfile, force=True)
+    self.clean_metadata()
+
+    mkdir(self.output_location, parent=True)    
 
   def _copy(self):
     for k,v in self.installinfo.items():
@@ -205,7 +218,7 @@ class RpmsHandler(DiffMixin):
           sync(file, dest)
     
   def _test_build(self):
-    return self.config.get('/distro/rpms/%s/create/text()' %(self.id,), 'True') in BOOLEANS_TRUE
+    return self.config.get('/distro/rpms/%s/create/text()' % self.id, 'True') in BOOLEANS_TRUE
 
   def _find_rpms(self, prefix=True):
     v,r,a = self._read_autoconf()
@@ -225,45 +238,61 @@ class RpmsHandler(DiffMixin):
     version, release, arch = self._read_autoconf()
 
     spec = ConfigParser()    
-    spec.add_section('pkg_data')        
+    spec.add_section('pkg_data')
+    spec.add_section('bdist_rpm')
+    
     spec.set('pkg_data', 'name',             self.rpmname)
     spec.set('pkg_data', 'version',          version)
     spec.set('pkg_data', 'long_description', self.description)
     spec.set('pkg_data', 'description',      self.summary)
     spec.set('pkg_data', 'author',           self.author)
-
-    data_files = self._get_data_files()
-    if data_files is not None:
-      value = None
-      for installdir, files in data_files.items():
-        v = '%s : %s' %(installdir, ', '.join(files))
-        if value is None: value = v
-        else:             value = '\n\t'.join([value.strip(), v])
-
-      if value is not None: spec.set('pkg_data', 'data_files', value)
     
-    spec.add_section('bdist_rpm')
-    spec.set('bdist_rpm', 'distribution_name', self.fullname)
+    spec.set('bdist_rpm', 'distribution_name', self.fullname)    
+    spec.set('bdist_rpm', 'force_arch',        arch)
     
-    release = str(int(release) + 1)
-    spec.set('bdist_rpm', 'release',    release)
-    spec.set('bdist_rpm', 'force_arch', arch)
-
-    self.log(1, "release number: %s" % release)
-    
-    for tag in ['config_files', 'doc_files', 'install_script', 'obsoletes',
-                'post_install', 'provides', 'requires']:
+    for tag in ['install_script', 'obsoletes', 'post_install', 'provides', 'requires']:
       attr = '_get_%s' %tag
       if hasattr(self, attr):
         value = getattr(self, attr)()
         if value is not None:
           spec.set('bdist_rpm', tag, value)
-
+    
+    release = str(int(release) + 1)
+    spec.set('bdist_rpm', 'release',    release)
+    self.log(1, "release number: %s" % release)
     self._write_autoconf(release=release)
+
+    self._add_files_info(spec)
     
     f = open(setupcfg, 'w')
     spec.write(f)
     f.close()
+
+  def _add_files_info(self, spec):
+    # write the list of files to be installed and where they should be installed
+    data_files = self._get_data_files()
+    if data_files:
+      value = []
+      for installdir, files in data_files.items():
+        value.append('%s : %s' %(installdir, ', '.join(files)))
+      spec.set('pkg_data', 'data_files', '\n\t'.join(value))
+      
+    
+    # mark files to be installed in '/etc' as config files
+    config_files = []
+    for installdir in data_files.keys():
+      if installdir.startswith('/etc'): # config files
+        config_files.extend([ join(installdir, basename(x)) for x in data_files[installdir] ])
+    if config_files:
+      spec.set('bdist_rpm', 'config_files', '\n\t'.join(config_files))
+
+    # mark files to be installed in '/usr/share/doc' as doc files
+    doc_files = []
+    for installdir in data_files.keys():
+      if installdir.startswith('/usr/share/doc'):
+        doc_files.extend([ join(installdir, basename(x)) for x in data_files[installdir] ])
+    if doc_files:
+      spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))    
 
   def _write_manifest(self):
     manifest = ['setup.py'] # setup.py is created by mkrpm.RpmBuilder
@@ -341,17 +370,17 @@ class RpmsHandler(DiffMixin):
         else:
           sources[installpath] = files
     return sources
-    
+
   def _generate(self): pass
   
-  def _get_config_files(self):   return None
-  def _get_doc_files(self):      return None
   def _get_force_arch(self):     return 'noarch'
+
   def _get_install_script(self): return None    
   def _get_obsoletes(self):      return None  
   def _get_post_install(self):   return None
   def _get_provides(self):       return None
   def _get_requires(self):       return None
+  
   def _valid(self):              return True
 
 class OutputInvalidError(IOError): pass

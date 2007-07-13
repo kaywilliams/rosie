@@ -108,13 +108,13 @@ class DefaultThemeHook(RpmsHandler):
   def post(self):
     try:      
       rpm = find(join(self.interface.METADATA_DIR, 'localrepo', 'RPMS'),
-                 name='%s*.[Rr][Pp][Mm]' %(self.rpmname,), prefix=False)[0]
+                 name='%s*.[Rr][Pp][Mm]' % self.rpmname, prefix=False)[0]
       self.interface.cvars['default-theme-info'] = (self.rpmname,
                                                     RPM_PNVR_REGEX.match(rpm).groups()[0],
                                                     'conditional', 'gdm')
     except IndexError:
       if self._test_build() and not self.interface.isSkipped(self.id):
-        raise RuntimeError("missing rpm: '%s'" %(self.rpmname,))
+        raise RuntimeError("missing rpm: '%s'" % self.rpmname)
       else:
         self.interface.cvars['default-theme-info'] = None
 
@@ -123,7 +123,7 @@ class DefaultThemeHook(RpmsHandler):
   
   def _get_post_install(self):
     f = open(join(self.output_location, 'postinstall.sh'), 'w')
-    f.write(SCRIPT %(self.themename,))
+    f.write(SCRIPT % self.themename)
     f.close()
     return 'postinstall.sh'
 

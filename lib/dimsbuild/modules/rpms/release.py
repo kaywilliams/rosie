@@ -73,7 +73,6 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'release.release-rpm'
-    self.eventid = 'release-rpm'
     
     self.interface = interface
 
@@ -132,27 +131,13 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
     ColorMixin.__init__(self)
 
   def _generate(self):
-    "Create files besides the ones that have been synced."
+    "Create additional files."
     for type in self.installinfo.keys():
       function = '_create_%s_files' %type      
       if hasattr(self, function):
         getattr(self, function)()
 
     self._verify_release_notes()
-
-  def _get_config_files(self):
-    rtn = None
-    for k,v in self.installinfo.items():
-      installpath = v[1]
-
-      if installpath.startswith('/etc'): # is a config file
-        dir = join(self.output_location, k)
-        if not exists(dir):
-          continue
-        value = '\n\t'.join([ join(installpath, basename(x)) for x in os.listdir(dir) ])
-        if rtn is None: rtn = value
-        else          : rtn = '\n\t'.join([rtn.strip(), value])
-    return rtn
 
   def _get_provides(self):
     obsoletes = self._get_obsoletes()
@@ -181,7 +166,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
         
       # create a default release notes file because none were found.
       import locale        
-      path = join(dir, 'RELEASE-NOTES-%s.html' %(locale.getdefaultlocale()[0],))
+      path = join(dir, 'RELEASE-NOTES-%s.html' % locale.getdefaultlocale()[0])
 
       f = open(path, 'w')      
       f.write(RELEASE_NOTES_HTML %(self.bgcolor, self.textcolor, self.fullname))      
@@ -198,17 +183,17 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
       
     if self.config.get('/distro/rpms/release-rpm/yum-repos/publish-repo/include/text()', 'True') \
            in BOOLEANS_TRUE:
-      repofile = join(reposdir, '%s.repo' %(self.product,))
+      repofile = join(reposdir, '%s.repo' % self.product)
       authority = self.config.get('/distro/rpms/release-rpm/publish-repo/authority/text()',
                                   ''.join(['http://', self.interface.getIpAddress()]))
       path = join(self.interface.distrosroot, self.interface.pva, 'os')
-      lines = ['[%s]' %(self.product,),
+      lines = ['[%s]' % self.product,
                'name=%s %s - %s' %(self.fullname, self.version, self.arch,),
-               'baseurl=%s' %(join(authority, path),)]
+               'baseurl=%s' % join(authority, path)]
       
       if self.config.get('/distro/gpgsign/sign/text()', 'False') in BOOLEANS_TRUE:
-        gpgkey = self.config.get('/distro/gpgsign/public/text()')
-        lines.extend(['gpgcheck=1', 'gpgkey=%s' %(gpgkey,)])
+        gpgkey = self.config.get('/distro/gpgsign/public/text()')        
+        lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
       else:
         lines.append('gpgcheck=0')
         
@@ -239,7 +224,7 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
       
     # write the product-release and redhat-release files
     filereader.write(release_string, join(etcdir, 'redhat-release'))
-    filereader.write(release_string, join(etcdir, '%s-release' %(self.product,)))
+    filereader.write(release_string, join(etcdir, '%s-release' % self.product))
     
     # write the issue and issue.net files
     filereader.write(release_string+issue_string, join(etcdir, 'issue'))    

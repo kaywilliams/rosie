@@ -137,10 +137,10 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
           try:
             image = Image.open(file)
           except IOError:
-            self.log(4, "file '%s' was not found" %(file,)) # should never happen
+            self.log(4, "file '%s' was not found" % file) # should never happen
             return False
           if image.size != (w,h):
-            self.log(4, "file '%s' has invalid dimensions" %(file,))            
+            self.log(4, "file '%s' has invalid dimensions" % file)   
             return False
     return True
 
@@ -170,7 +170,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     f.write(GDM_GREETER_THEME %(self.product, self.fullname, self.fullname,))
     f.close()
     # generate the %{self.product}.xml file
-    f = open(join(self.output_location, 'gdm', 'themes', self.product, '%s.xml' %(self.product,)), 'w')
+    f = open(join(self.output_location, 'gdm', 'themes', self.product, '%s.xml' % self.product), 'w')
     f.write(THEME_XML)
     f.close()
   
@@ -191,7 +191,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
           self.log(4, "image '%s' exists in share/" %i)
           sync(sharedfile, dir)
         else:
-          self.log(4, "creating '%s'" %(i,))
+          self.log(4, "creating '%s'" %i)
           if m and x and y:
             self._generate_image(filename, l, b, text='%s %s ' %(self.fullname, self.version),
                                  textcood=(x,y), fontsize=52, maxwidth=m, highlight=h, format=f)
@@ -202,7 +202,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
         # These files are found in the share/ folder. If they are not
         # found, they are skipped.
         if exists(sharedfile):
-          self.log(4, "file '%s' exists in share/" %(i,))
+          self.log(4, "file '%s' exists in share/" % i)
           sync(sharedfile, dir)
         else:
           # required text file not there in shared/ folder, passing for now          
@@ -212,9 +212,10 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     # HACK: hack to create the splash.xpm file, have to first convert
     # the grub-splash.png to an xpm and then gzip it.
     splash_xpm = join(self.output_location, 'bootloader', 'grub-splash.xpm')
-    splash_xgz = '%s.gz' %(splash_xpm,)
+    splash_xgz = '%s.gz' % splash_xpm
     if not exists(splash_xgz):
       splash_png = join(self.output_location, 'bootloader', 'grub-splash.png')
+
       # TODO: Find a better way to do this conversion.
       shlib.execute('convert %s %s' %(splash_png, splash_xpm,))
       import gzip

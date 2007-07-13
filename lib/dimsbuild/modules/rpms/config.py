@@ -55,7 +55,7 @@ class ConfigRpmHook(RpmsHandler):
     }
 
     RpmsHandler.__init__(self, interface, data, 'config-rpm',
-                         '%s-config' %(interface.product,),
+                         '%s-config' % interface.product,
                          summary='%s configuration script and '
                          'supporting files' % interface.fullname,
                          description='The %s-config provides scripts '
