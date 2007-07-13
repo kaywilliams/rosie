@@ -75,7 +75,7 @@ class RpmsHook:
     self.interface.cvars['repos'][repo.id] = repo
 
   def _add_source(self):
-    if self.interface.config.get('/distro/source/include/text()', 'False') in BOOLEANS_TRUE:
+    if self.interface.cvars['source-include']:
       repo = Repo('localrepo-sources')
       repo.local_path = join(self.interface.LOCAL_REPO, 'SRPMS')
       repo.split(repo.local_path)
