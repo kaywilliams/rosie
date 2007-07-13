@@ -181,7 +181,7 @@ class RpmsHandler(DiffMixin):
 
     if len(missingrpms) != 0:
       if self._test_build() and not self.interface.isSkipped(self.id):
-        raise RuntimeError("missing rpm(s): " % ', '.join(missingrpms))
+        raise RuntimeError("missing rpm(s): %s" % ', '.join(missingrpms))
       else:
         return # the rpm hasn't been created, therefore nothing else to do here
 
