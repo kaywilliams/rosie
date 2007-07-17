@@ -101,20 +101,23 @@ class DiffTest:
 
     root.write(self.mdfile)
   
-  def changed(self):
+  def changed(self, debug=None):
     "Returns true if any handler returns a diff with length greater than 0"
+    old_dbgval = self.debug
+    if debug is not None: self.debug = debug
     changed = False
     for handler in self.handlers:
       d = handler.diff()
       if len(d) > 0:
         changed = True
-        self.dprint(d)
+        #self.dprint(d) # already handled by handlers I think
+    self.debug = old_dbgval
     return changed
   
-  def test(self):
+  def test(self, debug=None):
     "Perform a full check, from reading metadata to writing"
     self.read_metadata()
-    change = self.changed()
+    change = self.changed(debug=debug)
     self.write_metadata()
     return change
 
@@ -223,7 +226,7 @@ class NoneEntry:
   def __ne__(self, other):
     return not self == other
   def __str__(self):
-    return "NoneEntry: %s" %(self.index,)
+    return "NoneEntry: %s" % self.index
 
 
 #------ HANDLERS ------#

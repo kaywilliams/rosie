@@ -7,6 +7,9 @@ generates distribution information files: .discinfo, .treeinfo, and .buildstamp
 __author__  = 'Kay Williams <kwilliams@abodiosoftware.com>'
 __version__ = '1.0'
 __date__    = 'June 7th, 2007'
+__credits__ = \
+'''Uday Prakash <uprakash@abodiosoftware.com> for BuildStampHook
+Daniel Musgrave <dmusgrave@abodiosoftware.com> for TreeInfoHook'''
 
 import copy
 import os
@@ -70,8 +73,8 @@ class DiscinfoHook(DiffMixin):
     self.difile = join(self.interface.SOFTWARE_STORE, '.discinfo')
 
     self.DATA =  {
-      'variables': ['cvars[\'base-vars\'][\'fullname\']'],
-      'output': [self.difile]
+      'variables': ['interface.BASE_VARS'],
+      'output':    [self.difile]
     }
     mdfile = join(self.interface.METADATA_DIR, 'discinfo.md')
     
@@ -92,10 +95,10 @@ class DiscinfoHook(DiffMixin):
     discinfo = ffile.XmlToFormattedFile(locals.get('discinfo'))
     
     # get product, fullname, and basearch from interface
-    base_vars = self.interface.BASE_VARS
+    base_vars = copy.deepcopy(self.interface.BASE_VARS)
     
     # add timestamp and discs using defaults to match anaconda makestamp.py
-    base_vars.update({'timestamp': str(time.time()), 'discs': '1'}) #! do we want to be updating the 'real' base vars?
+    base_vars.update({'timestamp': str(time.time()), 'discs': '1'})
     
     # write .discinfo
     discinfo.write(self.difile, **base_vars)
@@ -180,16 +183,10 @@ class BuildStampHook(DiffMixin):
 
     self.bsfile = join(self.interface.METADATA_DIR, '.buildstamp')
     self.DATA = {
-      'variables': [
-        'cvars[\'base-vars\'][\'fullname\']',
-        'cvars[\'base-vars\'][\'product\']',
-        'cvars[\'base-vars\'][\'version\']',
-        'cvars[\'base-vars\'][\'arch\']',
-        'cvars[\'base-vars\'][\'webloc\']',        
-        'cvars[\'anaconda-version\']',
-        'cvars[\'source-vars\']',
-      ],
-      'output': [self.bsfile],        
+      'variables': ['interface.BASE_VARS',
+                    'interface.cvars[\'anaconda-version\']',
+                    'interface.cvars[\'source-vars\']'],
+      'output':    [self.bsfile],        
     }
     DiffMixin.__init__(self, join(self.interface.METADATA_DIR, 'buildstamp.md'), self.DATA)
 

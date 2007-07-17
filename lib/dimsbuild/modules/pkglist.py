@@ -104,7 +104,7 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//pkglist', schemafile='pkglist.rng')
+    self.interface.validate('/distro/pkglist', schemafile='pkglist.rng')
     
 
 class RepogenHook:
@@ -121,7 +121,7 @@ class RepogenHook:
   
   def run(self):
     dmdc = DepsolveMDCreator(self.cfgfile, self.interface.config.file,
-                             fallback='//repos',
+                             fallback='/distro/repos',
                              repos=self.interface.cvars['repos'])
     dmdc.createRepoFile()
     
@@ -148,6 +148,12 @@ class PkglistHook:
   def force(self):
     osutils.rm(self.mddir, recursive=True, force=True)
     osutils.rm(self.pkglistfile, force=True)
+  
+  def setup(self):
+    # if the config file defines a pkglist file to use, set up the cvar
+    pkglistfile = self.interface.config.get('/distro/pkglist/path/text()', None)
+    if pkglistfile and not self.interface.cvars['pkglist-file']:
+      self.interface.cvars['pkglist-file'] = pkglistfile
   
   def check(self):
     return self.interface.isForced('pkglist') or \

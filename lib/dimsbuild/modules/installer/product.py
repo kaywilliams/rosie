@@ -37,7 +37,7 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//product.img', 'product.rng')
+    self.interface.validate('/distro/installer/product.img', 'product.rng')
     
 class ProductHook(ImageModifyMixin):
   def __init__(self, interface):
@@ -49,13 +49,8 @@ class ProductHook(ImageModifyMixin):
     self.productimage = join(self.interface.SOFTWARE_STORE, 'images/product.img')
     
     self.DATA = {
-      'config':    ['//installer/product.img/path/text()'],
-      'variables': [
-        'cvars[\'anaconda-version\']',
-        'cvars[\'base-vars\'][\'fullname\']',
-        'cvars[\'base-vars\'][\'product\']',
-        'cvars[\'base-vars\'][\'version\']',        
-      ],
+      'config':    ['/distro/installer/product.img/path/text()'],
+      'variables': ['interface.cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [self.productimage],
     }

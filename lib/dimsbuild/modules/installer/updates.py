@@ -34,7 +34,7 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//updates.img', 'updates.rng')
+    self.interface.validate('/distro/installer/updates.img', 'updates.rng')
     
 class UpdatesHook(ImageModifyMixin):
   def __init__(self, interface):
@@ -45,12 +45,7 @@ class UpdatesHook(ImageModifyMixin):
     
     self.DATA = {
       'config':    ['/distro/installer/updates.img/path/text()'],
-      'variables': [
-        'cvars[\'anaconda-version\']',
-        'cvars[\'base-vars\'][\'fullname\']',
-        'cvars[\'base-vars\'][\'product\']',
-        'cvars[\'base-vars\'][\'version\']',        
-      ],
+      'variables': ['interface.cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [self.updatesimage],
     }

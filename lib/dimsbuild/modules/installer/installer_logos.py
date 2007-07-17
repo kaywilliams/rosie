@@ -53,7 +53,7 @@ class InstallerLogosHook(ExtractHandler):
 
     self.metadata_struct = {
       'config'   : ['/distro/installer/logos'],
-      'variables': ['cvars[\'anaconda-version\']'],
+      'variables': ['installer.cvars[\'anaconda-version\']'],
       'input'    : [],
       'output'   : [],
     }

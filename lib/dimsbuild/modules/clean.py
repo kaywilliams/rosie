@@ -143,4 +143,4 @@ class CleanHook(DiffMixin):
     handler = HookHandler(self.DATA['hooks'])
     self.DT.addHandler(handler)
     self.handlers['hooks'] = handler
-    
+

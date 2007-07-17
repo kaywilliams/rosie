@@ -19,6 +19,7 @@ EVENTS = [
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_META,
     'requires': ['repos'],
+    'conditional-requires': ['rpm-source-files'],
   },
 ]
 

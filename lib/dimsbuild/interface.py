@@ -65,7 +65,8 @@ class EventInterface:
   
   def getBaseRepoId(self):
     "Get the id of the base repo from the config file"
-    return self.config.get('//repos/base/repo/@id')
+    # this is kinda illegal; we need to change this to a cvar
+    return self.config.get('/distro/repos/repo[@type="base"]/@id')
   
   def getAllRepos(self):
     return self.cvars['repos'].values()
@@ -177,7 +178,7 @@ class DiffMixin:
       self.DT.addHandler(h)
       self.handlers['output'] = h
     if self.data.has_key('variables'):
-      h = difftest.VariablesHandler(self.data['variables'], self.interface)
+      h = difftest.VariablesHandler(self.data['variables'], self)
       self.DT.addHandler(h)
       self.handlers['variables'] = h
     if self.data.has_key('config'):
@@ -191,22 +192,18 @@ class DiffMixin:
   def read_metadata(self):
     self.DT.read_metadata()
     
-  def test_diffs(self):
-    return self.DT.changed()
+  def test_diffs(self, debug=None):
+    return self.DT.changed(debug=debug)
   
   def write_metadata(self):
     self.DT.write_metadata()
     
   def addInput(self, input):
-    """
-    Add a file(s) as input.
-    """
+    "Add a file(s) as input"
     self._add_item('input', input)
 
   def addOutput(self, output):
-    """
-    Add a file(s) as an output file.
-    """
+    "Add a file(s) as an output file"
     self._add_item('output', output)
 
   def _add_item(self, kind, items):
@@ -218,9 +215,7 @@ class DiffMixin:
       self.handlers[kind].data.extend(items)
       
   def cleanOutput(self):
-    """
-    Remove all files from the output files' list.
-    """    
+    "Remove all files from the output files' list"    
     if 'output' not in self.handlers.keys(): return         
     while len(self.handlers['output'].data) > 0:
       self.handlers['output'].data.pop()
@@ -228,9 +223,7 @@ class DiffMixin:
       self.handlers['output'].output.clear()
       
   def removeOutput(self, output):
-    """
-    Remove a file from the list of outputs. 
-    """
+    "Remove a file from the list of outputs"
     if 'output' not in self.handlers.keys(): return
     if output in self.handlers['output'].data:
       self.handlers['output'].data.remove(output)

@@ -15,8 +15,10 @@ TS.setVSFlags(-1)
 
 SIZE_REGEX = re.compile('[\s]*([\d]+(?:\.[\d]+)?)[\s]*([kKmMgG]?)[bB]?[\s]*$')
 
-SIZE_CD  = '640MB'
-SIZE_DVD = '4.7GB'
+SIZE_ALIASES = {
+  'CD':  '640MB',
+  'DVD': '4.7GB'
+}
 
 ORDINALS = ['', 'K', 'M', 'G']
 
@@ -92,6 +94,8 @@ class Timber:
       ndiscs = int(ceil(float(srpmsize)/self.discsize))
       nsrpmdiscs = self.__consume_discs(srpmsize)
       self.srpm_disc_map = range(nrpmdiscs + 1, nrpmdiscs + nsrpmdiscs + 1)
+    
+    self.numdiscs = nrpmdiscs + nsrpmdiscs
       
   def __consume_discs(self, size):
 
@@ -222,8 +226,8 @@ def parse_size(size):
   elif type(size) == type(0.0):
     return int(size)
   elif type(size) == type(''):
-    if   size.upper() == 'CD':  size = SIZE_CD
-    elif size.upper() == 'DVD': size = SIZE_DVD
+    if size in SIZE_ALIASES:
+      size = SIZE_ALIASES[size]
     try:
       size, ord = SIZE_REGEX.match(size).groups() # raises AttributeError if no match
       size = float(size)

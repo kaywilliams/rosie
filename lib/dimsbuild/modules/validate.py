@@ -25,7 +25,7 @@ EVENTS = [
 HOOK_MAPPING = {
   'ApplyOptHook': 'applyopt',
   'InitHook':     'init',
-  'ValidateHook': 'validate',  
+  'ValidateHook': 'validate',
 }
 
 #------------ INTERFACES ------------#
@@ -33,10 +33,10 @@ class ValidateInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
     self.schemaspath = join(base.sharepath, 'schemas')
-
+  
   def validate(self, xquery, schemafile=None, schemacontents=None, what='distro'):
     if what != self.cvars.get('validate', 'distro'): return
-
+    
     if (schemafile is None and schemacontents is None) or \
            (schemafile is not None and schemacontents is not None):
       raise RuntimeError("either the schema file or the schema contents should be specified")
@@ -53,19 +53,22 @@ class ValidateInterface(EventInterface):
           raise InvalidSchemaError("%s: %s" %(schemafile, why))
         else:
           raise InvalidSchemaError(why)
-        
+      
       doc = self.getXmlSection(xquery)
       if not schema.validate(doc):
         why = schema.error_log.last_error.message
-        if schemafile is not None:        
-          raise InvalidConfigError("validation of the %s.conf against the %s failed: %s" \
-                                   %(self.cvars.get('validate', 'distro'), schemafile, why))
+        if schemafile is not None:
+          self.raiseInvalidConfig("validation of the %s.conf against the %s failed: %s" \
+            % (self.cvarcs.get('validate', 'distro'), schemafile, why))
         else:
-          raise InvalidConfigError("validation of the %s.conf failed: %s" \
-                                   %(self.cvars.get('validate', 'distro'), why))
+          self.raiseInvalidConfig("validation of the %s.conf failed: %s" \
+            % (self.cvars.get('validate', 'distro', why)))
     finally:
       os.chdir(cwd)
-    
+  
+  def raiseInvalidConfig(self, message):
+    raise InvalidConfigError(message)
+  
   def getSchema(self, filename):
     if self.cvars.get('validate', 'distro') == 'dimsbuild':
       schema = join(self.schemaspath, filename)
@@ -85,12 +88,12 @@ class ValidateInterface(EventInterface):
       return self._get_distro_section(xquery)
 
   def _get_dimsbuild_section(self, xquery):
-    tree = copy.deepcopy(self._base.mainconfig.get(xquery, None))    
+    tree = copy.deepcopy(self._base.mainconfig.get(xquery, None))
     self._strip_macro_elements(tree)
     return tree
-
+  
   def _get_distro_section(self, xquery):
-    parent = xmltree.Element('distro', parent=None)      
+    parent = xmltree.Element('distro', parent=None)
     tree = copy.deepcopy(self.config.get(xquery, None))
     
     if tree is not None:
@@ -98,10 +101,10 @@ class ValidateInterface(EventInterface):
       self._strip_macro_elements(tree)
       parent.append(tree)
     return parent
-
+  
   def _strip_macro_elements(self, tree):
     for macro in tree.xpath('//macro', []):
-      tree.remove(macro)        
+      tree.remove(macro)
 
 
 #---------- HOOKS ------------#
@@ -110,7 +113,7 @@ class InitHook:
     self.VERSION = 0
     self.ID = 'validate.init'
     self.interface = interface
-
+  
   def run(self):
     parser = self.interface.getOptParser('validate')
     parser.add_option('--valid',
@@ -126,7 +129,7 @@ class ApplyOptHook:
     self.VERSION = 0
     self.ID = 'validate.applyopt'
     self.interface = interface
-
+  
   def run(self):
     if self.interface.options.validate is not None:
       self.interface.cvars['exit-after-validate'] = True
@@ -136,22 +139,22 @@ class ApplyOptHook:
 class ValidateHook:
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'validate.validate'    
+    self.ID = 'validate.validate'
     self.interface = interface
-
+  
   def setup(self):
     self.interface.log(0, "performing config validation")
     if self.interface.cvars.get('validate', 'distro') == 'distro':
-      self.interface.log(1, "validating distro.conf")      
+      self.interface.log(1, "validating distro.conf")
     else:
       self.interface.log(1, "validating dimsbuild.conf")
     
   def run(self):
     if self.interface.cvars.get('validate', 'distro') == 'distro':
-      self.interface.validate('//main', schemafile='main.rng', what='distro')
+      self.interface.validate('/distro/main', schemafile='main.rng', what='distro')
     else:
       self.interface.validate('/dimsbuild', schemafile='dimsbuild.rng', what='dimsbuild')
-
+  
   def post(self):
     if self.interface.cvars.get('exit-after-validate', False):
       self.interface.log(4, "exiting because the '--valid' option was used at command line")

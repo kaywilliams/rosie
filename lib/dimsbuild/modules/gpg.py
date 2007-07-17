@@ -30,35 +30,36 @@ HOOK_MAPPING = {
 class GpgInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
+    self.sign = False
+    self.pubkey = None
+    self.seckey = None
+    self.password = None
     self._get_gpg_key()
     
   def _get_gpg_key(self):
-    if not self.config.get('//gpgsign/sign/text()', 'False') in BOOLEANS_TRUE:
-      self.sign = False
-      self.pubkey = None
-      self.seckey = None
-      self.password = None
+    # gpg defaults to off, and 'default' not in BOOLEANS_TRUE
+    if not self.config.get('/distro/gpgsign/@enabled', 'False') in BOOLEANS_TRUE:
       return
-    else:
-      self.sign = True
+    
+    self.sign = True
     
     # public key
     self.pubkey = self.cvars['gpg-public-key'] or \
-                  self.config.get('//gpgsign/public/text()')
+                  self.config.get('/distro/gpgsign/public/text()')
     if not self.pubkey:
       raise GpgError, "Missing GPG public key"
     
     # secret key
     self.seckey = self.cvars['gpg-secret-key'] or \
-                  self.config.get('//gpgsign/secret/text()')
+                  self.config.get('/distro/gpgsign/secret/text()')
     if not self.seckey:
       raise GpgError, "Missing GPG secret key"
     
     # password
     self.password = self.cvars['gpg-passphrase']
     if not self.password:
-      if self.config.pathexists('//gpgsign/password'):
-        self.password = self.config.get('//gpgsign/password/text()', '')
+      if self.config.pathexists('/distro/gpgsign/password'):
+        self.password = self.config.get('/distro/gpgsign/password/text()', '')
       else:
         self.password = rpmsign.getPassphrase()
     
@@ -91,14 +92,14 @@ class SoftwareHook:
       # the following is kind of a hack - read gpg's metadata and compare the value
       # of the sign element to that in the config file
       mdfile = xmltree.read(join(self.interface.METADATA_DIR, 'gpg.md'))
-      elem = mdfile.get('//config/value[@path="//gpgsign"]/elements')
-      last_val = elem.get('gpgsign/sign/text()')
+      elem = mdfile.get('//config/value[@path="/distro/gpgsign"]/elements')
+      last_val = elem.get('gpgsign/@enabled')
     except (AttributeError, xmltree.XmlPathError, ValueError):
       last_val = None
     
     # the following is roughly equivalent to 'if last_val != config.get(...):'
     if (last_val in BOOLEANS_TRUE) != \
-       (self.interface.config.get('//gpgsign/sign/text()', 'False') in BOOLEANS_TRUE):
+       (self.interface.config.get('/distro/gpgsign/@enabled', 'False') in BOOLEANS_TRUE):
       self.interface.log(1, "signature status differs; removing rpms")
       osutils.rm(self.interface.rpmdest, recursive=True, force=True)
 
@@ -111,7 +112,7 @@ class GpgsignHook(DiffMixin):
     self.interface = interface
 
     self.DATA =  {
-      'config': ['//gpgsign', '//gpgkey/text()'],
+      'config': ['/distro/gpgsign', '//gpgkey/text()'],
     }
     self.mdfile = join(interface.METADATA_DIR, 'gpg.md')
     
@@ -149,7 +150,7 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//gpgsign', schemafile='gpg.rng')
+    self.interface.validate('/distro/gpgsign', schemafile='gpg.rng')
     
 
 #------ ERRORS ------#

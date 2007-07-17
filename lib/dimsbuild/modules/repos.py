@@ -41,7 +41,9 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//repos', schemafile='repos.rng')
+    self.interface.validate('/distro/repos', schemafile='repos.rng')
+    if len(self.interface.config.xpath('/distro/repos/repo[@type="base"]')) != 1:
+      self.interface.raiseInvalidConfig("Config file must define one repo with type 'base'")
     
 
 class ReposHook(DiffMixin):
@@ -54,7 +56,7 @@ class ReposHook(DiffMixin):
     self.mdrepos = join(self.interface.METADATA_DIR, 'repos')
     
     self.DATA = {
-      'config': ['//repos/*/repo'],
+      'config': ['/distro/repos/repo'],
       'input':  [], # to be filled later
       'output': [], # to be filled later
     }
@@ -76,7 +78,7 @@ class ReposHook(DiffMixin):
     
     # sync all repodata folders to builddata
     self.interface.log(1, "synchronizing repository metadata")
-    for repoxml in self.interface.config.xpath('//repos/*/repo'):
+    for repoxml in self.interface.config.xpath('/distro/repos/repo'):
       self.interface.log(2, repoxml.get('@id'))
       repo = RepoFromXml(repoxml)
       repo.local_path = join(self.mdrepos, repo.id)
@@ -87,6 +89,8 @@ class ReposHook(DiffMixin):
       
       self.DATA['input'].append(join(self.mdrepos, repo.id, repo.repodata_path, 'repodata'))
       self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id))
+      
+      self.interface.expand(self.DATA['input']) # this is silly
   
   def check(self):
     self.interface.cvars['input-repos-changed'] = self.interface.isForced('repos') or \

@@ -36,7 +36,7 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//initrd.img', 'xen.rng')
+    self.interface.validate('/distro/installer/initrd.img', 'xen.rng')
     
 class XenHook(ImageModifyMixin, FileDownloadMixin):
   def __init__(self, interface):
@@ -49,12 +49,7 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
 
     self.DATA = {
       'config':    ['/distro/installer/initrd.img/path/text()'],
-      'variables': [
-        'cvars[\'anaconda-version\']',
-        'cvars[\'base-vars\'][\'fullname\']',
-        'cvars[\'base-vars\'][\'product\']',
-        'cvars[\'base-vars\'][\'version\']',
-      ],
+      'variables': ['interface.cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [ join(interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ],
     }

@@ -36,12 +36,7 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
     self.diskbootimage = join(interface.SOFTWARE_STORE, 'images/diskboot.img')
   
     self.DATA = {
-      'variables': [
-        'cvars[\'anaconda-version\']',
-        'cvars[\'base-vars\'][\'fullname\']',
-        'cvars[\'base-vars\'][\'product\']',
-        'cvars[\'base-vars\'][\'version\']',        
-      ],
+      'variables': ['interface.cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [self.diskbootimage],
     }

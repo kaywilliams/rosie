@@ -103,7 +103,7 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//iso', schemafile='iso.rng')
+    self.interface.validate('/distro/iso', schemafile='iso.rng')
 
 
 class ManifestHook:
@@ -170,8 +170,8 @@ class IsoHook(DiffMixin):
     self.splittrees = join(self.interface.METADATA_DIR, 'iso/split-trees')
     
     self.DATA =  {
-      'config':    ['//iso'],
-      'variables': ['cvars[\'source-include\']'],
+      'config':    ['/distro/iso'],
+      'variables': ['interface.cvars[\'source-include\']'],
       'input':     [join(self.interface.METADATA_DIR, 'manifest')], 
       'output':    [self.interface.isodir,
                     self.splittrees], # may or may not want to include this one
@@ -186,8 +186,14 @@ class IsoHook(DiffMixin):
     osutils.rm(self.splittrees, recursive=True, force=True)
     self.clean_metadata()
   
+  def setup(self):
+    pkgorderfile = self.interface.config.get('/distro/iso/pkgorder/text()', None)
+    if pkgorderfile and not self.interface.cvars['pkgorder-file']:
+      self.interface.cvars['pkgorder-file'] = pkgorderfile
+  
   def check(self):
-    if self.interface.config.get('//iso/create/text()', 'False') in BOOLEANS_TRUE:
+    # iso defaults to off, and 'default' not in BOOLEANS_TRUE
+    if self.interface.config.get('/distro/iso/@enabled', 'False') in BOOLEANS_TRUE:
       if self.test_diffs():
         self.force()
         return True
@@ -198,7 +204,7 @@ class IsoHook(DiffMixin):
   def run(self):
     self.interface.log(0, "generating iso image(s)")
     
-    self.newsets = self.interface.config.xpath('//iso/sets/set/text()', [])
+    self.newsets = self.interface.config.xpath('/distro/iso/set/text()', [])
     self.newsets_expanded = []
     for set in self.newsets:
       self.newsets_expanded.append(splittree.parse_size(set))
@@ -212,17 +218,25 @@ class IsoHook(DiffMixin):
     self.write_metadata()
   
   def _generate_pkgorder(self):
-    self.interface.log(1, "generating package ordering")
     pkgorderfile = join(self.interface.METADATA_DIR, 'pkgorder')
-    cfg = join(self.interface.TEMP_DIR, 'pkgorder')
     
-    repoid = self.interface.getBaseRepoId()
-    
-    filereader.write([YUMCONF % (repoid, repoid, self.interface.SOFTWARE_STORE)], cfg)
-    
-    pkgtups = pkgorder.order(config=cfg,
-                             arch=self.interface.arch,
-                             callback=BuildDepsolveCallback(self.interface.logthresh))
+    if self.interface.cvars['pkgorder-file']:
+      self.interface.log(1, "using supplide package ordering file")
+      pkgtups = pkgorder.parse_pkgorder(self.interface.cvars['pkgorder-file'])
+    else:
+      self.interface.log(1, "generating package ordering")
+      cfg = join(self.interface.TEMP_DIR, 'pkgorder')
+      
+      repoid = self.interface.getBaseRepoId()
+      
+      filereader.write([YUMCONF % (repoid, repoid, self.interface.SOFTWARE_STORE)], cfg)
+      
+      pkgtups = pkgorder.order(config=cfg,
+                               arch=self.interface.arch,
+                               callback=BuildDepsolveCallback(self.interface.logthresh))
+      
+      osutils.rm(cfg, force=True)
+  
     
     if exists(pkgorderfile):
       oldpkgorder = filereader.read(pkgorderfile)
@@ -233,8 +247,6 @@ class IsoHook(DiffMixin):
     if len(new) > 0 or len(old) > 0:
       pkgorder.write_pkgorder(pkgorderfile, pkgtups)
     
-    osutils.rm(cfg, force=True)
-  
   def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
     if expanded_set not in self.newsets_expanded:
@@ -272,19 +284,28 @@ class IsoHook(DiffMixin):
     self.interface.log(2, "splitting srpms")
     splitter.split_srpms()
     
-    for iso in osutils.find(self.splittrees,
-                            name='%s-disc*' % self.interface.product,
-                            type=osutils.TYPE_DIR,
-                            mindepth=2, maxdepth=2,
-                            prefix=False):
-      self.interface.log(1, "generating %s.iso" % osutils.basename(iso))
-      shlib.execute('mkisofs -UJRTV "%s" -o %s.iso %s' % \
-        ( '%s %s %s' % (self.interface.product,
+    for i in range(1, splitter.numdiscs + 1):
+      iso = '%s-disc%d' % (self.interface.product, i)
+      self.interface.log(1, "generating %s.iso" % iso)
+      isolinux_stat = os.stat(join(self.splittrees, set, iso, 'isolinux/isolinux.bin'))
+      if i == 1: # the first disc needs to be made bootable
+        bootargs = '-b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table'
+      else:
+        bootargs = ''
+      shlib.execute('mkisofs %s -UJRTV "%s" -o %s.iso %s' % \
+         (bootargs,
+          '%s %s %s disc %d' % \
+                       (self.interface.product,
                         self.interface.version,
-                        self.interface.release),
-          join(self.interface.isodir, iso),
-          join(self.splittrees, iso)),
+                        self.interface.release,
+                        i),
+          join(self.interface.isodir, set, iso),
+          join(self.splittrees, set, iso)),
         verbose=True)
+      
+      if i == 1: # reset mtimte on isolinux.bin (mkisofs is so misbehaved in this regard)
+        os.utime(join(self.splittrees, set, iso, 'isolinux/isolinux.bin'),
+                 (isolinux_stat.st_atime, isolinux_stat.st_mtime))
   
   def _check_isotree(self, set):
     for disc in (osutils.find(join(self.splittrees, set),

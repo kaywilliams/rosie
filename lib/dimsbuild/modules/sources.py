@@ -54,10 +54,12 @@ class SrpmInterface(EventInterface, ListCompareMixin):
     ListCompareMixin.__init__(self)
     self.ts = rpm.TransactionSet()
     self.ts.setVSFlags(-1)
+    
     self.callback = BuildSyncCallback(base.log.threshold)
     self.srpmdest = join(self.OUTPUT_DIR, 'SRPMS')
-    self.dosource = self.config.get('//source/include/text()', 'False') in BOOLEANS_TRUE
-    self.cvars['source-include'] = self.dosource
+    
+    self.cvars['source-include'] = \
+      self.config.get('/distro/source/@enabled', 'False') in BOOLEANS_TRUE
   
   def syncSrpm(self, srpm, repo, force=False):
     "Sync a srpm from path within repo into the output store"
@@ -88,7 +90,7 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//source', 'sources.rng')
+    self.interface.validate('/distro/source', 'sources.rng')
     
 class SourceHook(DiffMixin):
   def __init__(self, interface):
@@ -98,7 +100,7 @@ class SourceHook(DiffMixin):
     self.interface = interface
     
     self.DATA =  {
-      'config': ['//source'],
+      'config': ['/distro/source'],
       'input':  [], # to be filled later
       'output': [self.interface.srpmdest],
     }
@@ -107,7 +109,8 @@ class SourceHook(DiffMixin):
     self.mdfile = join(self.interface.METADATA_DIR, 'source.md')
     self._packages = {}
     
-    self.dosource = self.interface.dosource
+    # source defaults to off, and 'default' not in BOOLEANS_TRUE
+    self.dosource = self.interface.cvars['source-include']
     
     DiffMixin.__init__(self, self.mdfile, self.DATA)
   
@@ -118,7 +121,7 @@ class SourceHook(DiffMixin):
     if not self.interface.cvars['source-repos']:
       self.interface.cvars['source-repos'] = {}
     
-    for repo in self.interface.config.xpath('//source/repos/repo'):
+    for repo in self.interface.config.xpath('/distro/source/repo'):
       repoid = repo.get('@id')
       repo = RepoFromXml(repo)
       repo.local_path = join(self.mdsrcrepos, repo.id)

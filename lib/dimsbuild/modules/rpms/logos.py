@@ -57,24 +57,20 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     
     data =  {
       'config': ['/distro/rpms/logos-rpm'],
-      'variables': [
-        'cvars[\'base-vars\'][\'fullname\']',
-        'cvars[\'base-vars\'][\'version\']',
-        'cvars[\'base-vars\'][\'product\']',                
-      ],
+      'variables': ['interface.fullname',
+                    'interface.product'],
       'output': [],
     }
 
     RpmsHandler.__init__(self, interface, data, 'logos-rpm',
                          '%s-logos' % interface.product,
                          summary='Icons and pictures related to '
-                         '%s' % interface.cvars['base-vars']['fullname'],
+                         '%s' % interface.fullname,
                          description='The %s-logos package '
                          'contains image files which have been '
                          'automatically created by dimsbuild and are '
                          'specific to the %s distribution.' \
-                         %(interface.cvars['base-vars']['product'],
-                         interface.cvars['base-vars']['fullname']))
+                         % (interface.product, interface.fullname))
     
     ColorMixin.__init__(self)
 
@@ -311,7 +307,7 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
             texthcenter, textvcenter, gradient, highlight, format)
 
 
-GDM_GREETER_THEME = '''
+GDM_GREETER_THEME = ''' 
 # This is not really a .desktop file like the rest, but it\'s useful to treat
 # it as such
 [GdmGreeterTheme]
@@ -550,7 +546,7 @@ L_LOGOS = '''
 </locals>
 '''
 
-THEME_XML = """<?xml version="1.0" encoding="UTF-8"?>
+THEME_XML = '''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE greeter SYSTEM "greeter.dtd">
 <greeter>
   <item type="pixmap">
@@ -657,4 +653,4 @@ THEME_XML = """<?xml version="1.0" encoding="UTF-8"?>
     </fixed>
   </item>
 </greeter>
-"""
+'''

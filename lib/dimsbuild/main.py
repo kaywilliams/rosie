@@ -19,7 +19,8 @@ from urlparse      import urlparse
 
 from dims import logger
 from dims import osutils
-from dims.sortlib import dcompare
+from dims.configlib import ConfigError
+from dims.sortlib   import dcompare
 
 from dimsbuild import event
 from dimsbuild import locals
@@ -90,7 +91,7 @@ class Build:
     self.config = distroconfig
     
     # set up IMPORT_DIRS
-    self.IMPORT_DIRS = mainconfig.xpath('//librarypaths/path/text()', [])
+    self.IMPORT_DIRS = mainconfig.xpath('/dimsbuild/librarypaths/path/text()', [])
     if options.libpath:
       self.IMPORT_DIRS.insert(0, options.libpath) # TODO make this a list
     for dir in sys.path:
@@ -100,7 +101,7 @@ class Build:
     if options.sharepath:
       self.sharepath = abspath(options.sharepath)
     else:
-      self.sharepath = mainconfig.get('//sharepath/text()', None) or \
+      self.sharepath = mainconfig.get('/dimsbuild/sharepath/text()', None) or \
                        '/usr/share/dimsbuild'
     
     # set up base variables
@@ -112,13 +113,8 @@ class Build:
     self.cvars['base-vars']['basearch'] = getBaseArch(self.cvars['base-vars']['arch'])
     self.cvars['base-vars']['fullname'] = self.config.get('/distro/main/fullname/text()',
                                                          self.cvars['base-vars']['product'])
-    self.cvars['base-vars']['provider'] = self.config.get('/distro/main/distro-provider/text()')
-    self.cvars['base-vars']['webroot'] = self.config.get('/distro/main/publishpath/webroot/text()', 
-                                                         '/var/www/html/')
-    self.cvars['base-vars']['webloc'] = self.config.get('/distro/main/url/text()',
+    self.cvars['base-vars']['webloc'] = self.config.get('/distro/main/bug-url/text()',
                                                         'No bug url provided')
-    self.cvars['base-vars']['distrosroot'] = self.config.get('/distro/main/publishpath/distrosroot/text()',
-                                                             'distros')
     self.cvars['base-vars']['pva'] = '%s-%s-%s' % (self.cvars['base-vars']['product'],
                                                    self.cvars['base-vars']['version'],
                                                    self.cvars['base-vars']['basearch'])
@@ -138,17 +134,23 @@ class Build:
         osutils.mkdir(folder, parent=True)
     
     # set up list of disabled modules
-    self.disabled_modules = self.mainconfig.xpath('//modules/module[%s]/text()' % \
-                            self.__generate_attr_bool('enabled', False), [])
+    self.disabled_modules = []
+    for k,v in self.__eval_modlist(self.mainconfig.get('/dimsbuild/modules', None),
+                                   default=True).items():
+      if v in BOOLEANS_FALSE:
+        self.disabled_modules.append(k)
+    
     self.disabled_modules.append('__init__') # hack
+    
     # update with distro-specific config
-    for module in self.config.xpath('//modules/module', []):
-      if module.attrib.get('enabled', 'False') in BOOLEANS_FALSE:
-        if module.text not in self.disabled_modules:
-          self.disabled_modules.append(module.text)
-      else:
-        if module.text in self.disabled_modules:
-          self.disabled_modules.remove(modules.text)
+    for k,v in self.__eval_modlist(self.config.get('/distro/modules', None),
+                                   default=True).items():
+      if v in BOOLEANS_FALSE:
+        if k not in self.disabled_modules:
+          self.disabled_modules.append(k)
+      elif v in BOOLEANS_TRUE:
+        if k in self.disabled_modules:
+          self.disabled_modules.remove(k)
     
     # self.userFC is a dictionary of user-specified flow control data keyed
     # by event id. Possible values are
@@ -189,16 +191,21 @@ class Build:
     self.dispatch.iargs.append(self)
     
     # load all enabled plugins
-    enabled_plugins = self.mainconfig.xpath('//plugins/plugin[%s]/text()' % \
-                        self.__generate_attr_bool('enabled', True), [])
+    enabled_plugins = []
+    for k,v in self.__eval_modlist(self.mainconfig.get('/dimsbuild/plugins', None),
+                                   default=False).items():
+      if v in BOOLEANS_TRUE:
+        enabled_plugins.append(k)
+    
     # update with distro-specific config
-    for plugin in self.config.xpath('//plugins/plugin/text()', []):
-      if plugin.attrib.get('enabled', 'True') in BOOLEANS_TRUE:
-        if plugin.text not in enabled_plugins:
-          enabled_plugins.append(plugin)
-      else:
-        if plugin.text in enabled_plugins:
-          enabled_plugins.remove(plugin)
+    for k,v in self.__eval_modlist(self.config.get('/distro/plugins', None),
+                                   default=False).items():
+      if v in BOOLEANS_TRUE:
+        if k not in enabled_plugins:
+          enabled_plugins.append(k)
+      elif v in BOOLEANS_FALSE:
+        if k in enabled_plugins:
+          enabled_plugins.remove(k)
     
     for plugin in enabled_plugins:
       imported = False
@@ -227,13 +234,24 @@ class Build:
     
     self.dispatch.commit()
   
-  def __generate_attr_bool(self, attr, bool):
-    "Generate an attr list that matches one of any acceptable booleans"
-    if bool:
-      return '@%s="True" or @%s="true" or @%s="Yes" or @%s="yes" or @%s="1"' % (attr, attr, attr, attr, attr)
-    else:
-      return '@%s="False" or @%s="false" or @%s="No" or @%s="no" or @%s="0"' % (attr, attr, attr, attr, attr)
+  def __eval_modlist(self, mods, default=None):
+    "Return a dictionary of modules and their enable status"
+    ret = {}
     
+    if not mods: return ret
+    
+    mod_default = mods.get('@default', default)
+    for mod in mods.getchildren():
+      name = mod.get('text()')
+      enabled = mod.get('@enabled', default)
+      if enabled == 'default' or enabled == 'Default':
+        enabled = mod_default
+      if enabled is None:
+        raise ConfigError("Default status requested on '%s', but no default specified" % name)
+      ret[name] = enabled
+    
+    return ret
+  
   def apply_options(self, options):
     """Raise the 'applyopt' event, which plugins/modules can use to apply
     command-line argument configuration to themselves"""
@@ -278,14 +296,6 @@ class Build:
     "Build a distribution"
     self.dispatch.process(until=None)
   
-  def __compute_servers(self):
-    "Compute a list of the servers represented in the configuration file"
-    servers = []
-    for path in self.config.xpath('//repos/*/repo/path/text()'):
-      s,n,d,_,_,_ = urlparse(path)
-      server = '://'.join((s,n))
-      if server not in servers: servers.append(server)
-    return servers
 
 class CvarsDict(dict):
   def __getitem__(self, key):

@@ -50,7 +50,7 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('//comps', schemafile='comps.rng')
+    self.interface.validate('/distro/comps', schemafile='comps.rng')
   
 class InitHook:
   def __init__(self, interface):
@@ -93,7 +93,7 @@ class CompsHook(DiffMixin):
     self.header = HEADER_FORMAT % ('1.0', 'UTF-8')
     
     self.DATA = {
-      'config': ['//comps'],
+      'config': ['/distro/comps'],
       'output': [self.s_compsfile],
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'comps.md')
@@ -119,7 +119,7 @@ class CompsHook(DiffMixin):
     self.interface.log(0, "computing required packages")
     
     groupfile = self.interface.cvars['with-comps'] or \
-                self.interface.config.get('//comps/use-existing/path/text()',
+                self.interface.config.get('/distro/comps/use-existing/path/text()',
                 None)
     if groupfile is not None:
       self.interface.log(1, "reading supplied groupfile '%s'" % groupfile)
@@ -176,7 +176,7 @@ class CompsHook(DiffMixin):
     
     # create base distro group
     packages = []
-    for pkg in self.interface.config.xpath('//comps/create-new/include/package', []):
+    for pkg in self.interface.config.xpath('/distro/comps/create-new/include/package', []):
       pkgname = pkg.get('text()')
       pkgtype = pkg.get('@type', 'mandatory')
       pkgrequires = pkg.get('@requires', None)
@@ -220,7 +220,7 @@ class CompsHook(DiffMixin):
       while len(mapped[groupfileid]) > 0:
         groupid = mapped[groupfileid].pop(0)
         if groupid in processed: continue # skip those we already processed
-        default = self.interface.config.get('//main/groups/group[text()="%s"]/@default' % groupid, 'true')
+        default = self.interface.config.get('/distro/comps/create-new/groups/group[text()="%s"]/@default' % groupid, 'true')
         self._add_group_by_id(groupid, tree, mapped[groupfileid], default=default)
         processed.append(groupid)
         
@@ -233,7 +233,7 @@ class CompsHook(DiffMixin):
           i += 1; continue
         try:
           group = tree.get('//group[id/text()="%s"]' % groupid)
-          default = self.interface.config.get('//main/groups/group[text()="%s"]/@default' % groupid, 'true')
+          default = self.interface.config.get('/distro/comps/create-new/groups/group[text()="%s"]/@default' % groupid, 'true')
           self._add_group_by_id(groupid, tree, unmapped, processed, default=default)
           processed.append(unmapped.pop(i))
           j = len(unmapped)
@@ -259,7 +259,7 @@ class CompsHook(DiffMixin):
       self._add_group_package('kernel', base, type='mandatory')
     
     # exclude all package in self.exclude
-    exclude = self.interface.config.xpath('//comps/create-new/exclude/packages/text()', []) + \
+    exclude = self.interface.config.xpath('/distro/comps/create-new/exclude/packages/text()', []) + \
               (self.interface.cvars['excluded-packages'] or [])
 
     for pkg in exclude:
@@ -279,7 +279,7 @@ class CompsHook(DiffMixin):
       mapped[repo.id] = []
     unmapped = []
     
-    for group in self.interface.config.xpath('//comps/create-new/groups/group', []):
+    for group in self.interface.config.xpath('/distro/comps/create-new/groups/group', []):
       repo = group.attrib.get('repo', None)
       if repo is not None:
         try:
