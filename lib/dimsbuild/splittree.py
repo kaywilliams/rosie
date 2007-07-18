@@ -3,7 +3,7 @@ import os
 import re
 import rpm
 
-from math import ceil
+from math    import ceil
 from os.path import exists, isfile, isdir, join
 
 import dims.FormattedFile as ffile
@@ -142,12 +142,12 @@ class Timber:
     
     for rpm in rpms:
       size = os.path.getsize(join(pkgdir, rpm))
-      pkgnvr = nvra(join(pkgdir, rpm))
+      pkgnvra = nvra(join(pkgdir, rpm))
       
-      if packages.has_key(pkgnvr):
-        packages[pkgnvr].append(rpm)
+      if packages.has_key(pkgnvra):
+        packages[pkgnvra].append(rpm)
       else:
-        packages[pkgnvr] = [rpm]
+        packages[pkgnvra] = [rpm]
     
     order = pkgorder.parse_pkgorder(self.pkgorder)
     for i in range(0, len(order)):
@@ -157,9 +157,10 @@ class Timber:
     discpath = join(self.split_tree, '%s-disc%d' % (self.product, disc))
     
     used = osutils.du(discpath)
-    for rpmnvr in order:
-      if not packages.has_key(rpmnvr): continue
-      for file in packages[rpmnvr]:
+    for rpmnvra in order:
+      if not packages.has_key(rpmnvra): continue
+      
+      for file in packages[rpmnvra]:
         size = osutils.du(join(pkgdir, file))
         assert size > 0
         newsize = used + size
@@ -215,10 +216,10 @@ def nvra(pkgfile):
   fd = os.open(pkgfile, os.O_RDONLY)
   h = TS.hdrFromFdno(fd)
   os.close(fd)
-  return '%s-%s-%s' % (h['name'], h['version'], h['release'])
+  return '%s-%s-%s.%s' % (h['name'], h['version'], h['release'], h['arch'])
 
 def pkgtup_to_nvra(pkgtup):
-  return '%s-%s-%s' % (pkgtup[0], pkgtup[3], pkgtup[4])
+  return '%s-%s-%s.%s' % (pkgtup[0], pkgtup[3], pkgtup[4], pkgtup[1])
 
 def parse_size(size):
   if type(size) == type(0):

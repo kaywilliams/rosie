@@ -175,7 +175,7 @@ class PkglistHook:
       if not self.interface.cvars['repoconfig-file']:
         raise RuntimeError, 'repoconfig-file is not set'
       
-      osutils.mkdir(self.mddir)
+      osutils.mkdir(self.mddir, parent=True)
       
       pkgtups = depsolver.resolve(self.interface.cvars['required-packages'] or [],
                                   root=self.mddir,

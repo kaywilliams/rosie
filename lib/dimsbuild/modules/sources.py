@@ -135,7 +135,7 @@ class SourceHook(DiffMixin):
   
   def force(self):
     osutils.rm(self.interface.srpmdest, recursive=True, force=True)
-    osutils.rm(self.mdsrcrepos, force=True)
+    ##osutils.rm(self.mdsrcrepos, recursive=True, force=True)
     self.clean_metadata()
   
   def check(self):
