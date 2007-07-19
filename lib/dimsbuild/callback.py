@@ -4,7 +4,7 @@ callback.py
 Callback classes for dimsbuild
 """
 from dims.osutils       import basename
-from dims.sync.callback import SyncCallbackMetered
+from dims.sync.callback import SyncCallbackMetered, SyncCallbackTracker
 from dims.progressbar   import ProgressBar
 
 # format of the various printouts
@@ -19,20 +19,25 @@ LEVEL_MAX = 2
 
 MSG_MAXWIDTH = 40
 
-class BuildSyncCallback(SyncCallbackMetered):
+class BuildSyncCallback(SyncCallbackMetered, SyncCallbackTracker):
   def __init__(self, threshold):
     SyncCallbackMetered.__init__(self)
+    SyncCallbackTracker.__init__(self)
     self.logger = BuildLogger(threshold)
   
   # sync callbacks - kinda hackish
   def sync_start(self, src, dest):
+    SyncCallbackTracker.sync_start(self, src, dest)
     if self.logger.threshold == 2:
       self.logger.log(2, '%s' % basename(src), MSG_MAXWIDTH)
-  def sync_end(self, src, dest): pass
+  def sync_copy(self, src, dest):
+    SyncCallbackTracker.sync_copy(self, src, dest)
+  def sync_update(self, src, dest):
+    SyncCallbackTracker.sync_update(self, src, dest)
   def mkdir_start(self, src, dest):
+    SyncCallbackTracker.mkdir_start(self, src, dest)
     if self.logger.threshold == 2:
       self.logger.log(2, '%s' % basename(src), MSG_MAXWIDTH)
-  def mkdir_end(self, src, dest): pass
   
   def _do_start(self, total=None, now=None):
     self.bar = ProgressBar(self.size, LEVEL_2_FORMAT % (self.text or self.basename))
@@ -48,6 +53,18 @@ class BuildSyncCallback(SyncCallbackMetered):
     if self.logger.test(3):
       #self.bar.layout = '[title:width=30] [curvalue:condensed] [bar] -- DONE --'
       SyncCallbackMetered._do_end(self, amount_read, now)
+  
+  
+  def OCP(self, src, dest, link=False, update=False):
+    if update:
+      self.sync_update(src, dest)
+    else:
+      self.sync_copy(src, dest)
+    if self.logger.test(3):
+      self.logger.log(2, '%s' % basename(src), MSG_MAXWIDTH)
+  
+  def OOMITDIR(self, dir):
+    pass
 
 
 class BuildDepsolveCallback:

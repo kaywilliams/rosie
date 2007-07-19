@@ -130,6 +130,8 @@ class GpgsignHook(DiffMixin):
   
   def check(self):
     return self.interface.isForced('gpgsign') or \
+           self.interface.cvars['new-rpms'] or \
+           self.interface.cvars['gpg-tosign'] or \
            self.test_diffs()
     
   def run(self):

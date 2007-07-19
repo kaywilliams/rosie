@@ -79,7 +79,11 @@ class SoftwareInterface(EventInterface, ListCompareMixin):
     "Sync an rpm from path within repo into the the output store"
     rpmsrc = self.cache(repo, join(repo.repodata_path, rpm),
                         force=force, callback=self.callback)
-    sync.sync(rpmsrc, self.rpmdest)
+    # only display file callback if we didn't sync from remote location
+    if rpmsrc not in [ lsrc for _,lsrc in self.callback.new ]:
+      sync.sync(rpmsrc, self.rpmdest, callback=self.callback)
+    else:
+      sync.sync(rpmsrc, self.rpmdest)
   
   def deleteRpm(self, rpm):
     "Delete an rpm from the output store"
