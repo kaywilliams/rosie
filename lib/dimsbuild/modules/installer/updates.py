@@ -40,7 +40,7 @@ class UpdatesHook(ImageModifyMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'installer.updates.updates-image'
-    
+
     self.updatesimage = join(interface.SOFTWARE_STORE, 'images/updates.img')
     
     self.DATA = {
@@ -49,7 +49,6 @@ class UpdatesHook(ImageModifyMixin):
       'input':     [],
       'output':    [self.updatesimage],
     }
-  
     ImageModifyMixin.__init__(self, 'updates.img', interface, self.DATA)
   
   def error(self, e):
@@ -59,12 +58,12 @@ class UpdatesHook(ImageModifyMixin):
       pass
   
   def setup(self):
-    ImageModifyMixin.setup(self, buildstamp=False)
-    self.register_image_locals(L_IMAGES)    
+    ImageModifyMixin.setup(self)
+    self.register_image_locals(L_IMAGES)
   
   def force(self):
     self.interface.log(0, "forcing updates-image")
-    self.clean()
+    self.remove_files(self.handlers['output'].oldoutput.keys())
   
   def check(self):
     if self.interface.isForced('updates-image') or \
@@ -72,7 +71,7 @@ class UpdatesHook(ImageModifyMixin):
            self.test_diffs():
       if not self.interface.isForced('updates-image'):
         self.interface.log(0, "cleaning updates-image")
-        self.clean()
+        self.remove_files(self.handlers['output'].oldoutput.keys())
       return True
     else:
       return False
@@ -85,7 +84,6 @@ class UpdatesHook(ImageModifyMixin):
     if not exists(self.updatesimage):
       raise RuntimeError, "Unable to find 'updates.img' at '%s'" % self.updatesimage
   
-
 #------ LOCALS ------#
 L_IMAGES = ''' 
 <locals>

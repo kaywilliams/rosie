@@ -14,7 +14,6 @@ import rpm
 
 from StringIO import StringIO
 from os.path  import join, exists
-from urlparse import urlparse
 
 from dims import osutils
 from dims import spider
@@ -174,7 +173,6 @@ class SourceHook(DiffMixin):
     
     osutils.rm(self.mdfile, force=True)
 
-    self.interface.expand(self.DATA['output'])
     self.write_metadata()
 
   def apply(self):

@@ -17,7 +17,7 @@ from dims.sync    import sync
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EventInterface
-from dimsbuild.interface import DiffMixin
+from dimsbuild.interface import DiffMixin, FilesMixin
 
 #------ MIXINS ------#
 class ColorMixin:
@@ -53,14 +53,35 @@ class ColorMixin:
     version = self.interface.cvars['source-vars']['version']
     return fullname, version
 
+class FileDownloadMixin(FilesMixin):
+  def __init__(self, prefix, installinfo):
+    # the class using FileDownloadMixin should also extend DiffMixin
+    self.installinfo = installinfo
+    self.prefix = prefix
+    
+    FilesMixin.__init__(self, self.prefix)
+
+  def register(self):
+    for k,v in self.installinfo.items():
+      xquery,_ = v
+      if xquery is not None:
+        self.add_files(xquery, prefix=join(self.prefix, k))
+        
+  def download(self):
+    for k,v in self.installinfo.items():
+      xquery,_ = v
+      if xquery is not None:
+        self.sync_files(xquery, prefix=join(self.prefix, k))
+
+
 #---------- INTERFACES -----------#
 class RpmsInterface(EventInterface):
   def __init__(self, base):
-    self.LOCAL_REPO = join(base.METADATA_DIR, 'localrepo/')
-    self.sharepath = base.sharepath
-    
     EventInterface.__init__(self, base)
 
+    self.sharepath = self._base.sharepath
+    self.LOCAL_REPO = join(self._base.METADATA_DIR, 'localrepo')
+    
   def getSourcesDirectory(self):
     return join(self.METADATA_DIR, 'rpms-src')
 
@@ -93,23 +114,20 @@ class RpmsInterface(EventInterface):
 
 
 #---------- HANDLERS -------------#
-class RpmsHandler(DiffMixin):
+class RpmsHandler(DiffMixin, FileDownloadMixin):
   def __init__(self, interface, data, id, rpmname,
                summary=None, description=None, installinfo={}):
-
-    if len(data['output']) > 1:
-      raise Exception, "only one item should be specified in data['output']"
-        
     self.interface = interface
 
     # self.<k> = self.interface.<v>
     for k,v in [('config',   'config'),   ('fullname',       'fullname'),
                 ('arch',     'basearch'), ('software_store', 'SOFTWARE_STORE'),
                 ('fullname', 'fullname'), ('product',        'product'),
-                ('version',  'version'),  ('metadata',       'METADATA_DIR'),
-                ('log',      'log'),      ('sharepath',      'sharepath')]:
+                ('version',  'version'),  ('log',            'log'),
+                ('sharepath',      'sharepath')]:
       setattr(self, k, getattr(self.interface, v))
 
+    self.metadata = join(self.interface.METADATA_DIR, 'RPMS')
     self.id = id
     self.rpmname = rpmname
     self.summary = summary
@@ -118,36 +136,53 @@ class RpmsHandler(DiffMixin):
 
     self.output_location = join(self.metadata, self.id)
     self.autoconf = join(dirname(self.config.file), 'distro.conf.auto')
-
-    self.installinfo = installinfo
     
     DiffMixin.__init__(self, join(self.metadata, '%s.md' % self.id), data)
-
+    FileDownloadMixin.__init__(self, self.output_location, installinfo)
+                        
   def setup(self):
     if not exists(self.output_location):
       mkdir(self.output_location, parent=True)
-    
+
+    # register xpath queries for input files - look at FileDownloadMixin.register()
+    self.register()
+
+    # add the directory (if exists) to which other events add files to
+    # that are to be installed by this RPM.
     rpmssrc = join(self.interface.getSourcesDirectory(), self.id)
-    if exists(rpmssrc):      
-      self.addInput(self.interface.expand(rpmssrc))
-    for k,v in self.installinfo.items():
-      xquery,_ = v
-      if xquery is not None:
-        self.addInput(self.interface.expand(self.interface.config.xpath(xquery, [])))
-    
+    if exists(rpmssrc):
+      self.update({'input': rpmssrc})
+
+    self.update({
+      'output': [
+         self.output_location,
+         join(self.interface.LOCAL_REPO, 'RPMS',
+              '%s*[!Ss][!Rr][!Cc].[Rr][Pp][Mm]' % self.rpmname),
+         join(self.interface.LOCAL_REPO, 'SRPMS',
+              '%s*[Ss][Rr][Cc].[Rr][Pp][Mm]' % self.rpmname)
+       ],
+    })
+        
   def force(self):
+    self.log(0, "forcing %s" % self.id)
     self._clean()
     
   def check(self):
     if self._test_build():
-      if self.test_diffs(): self._clean(); return True
-      else: return False
+      if self.test_diffs():
+        if not self.interface.isForced(self.id):
+          self.log(0, "building %s rpm" % self.rpmname)        
+        self._clean()
+        return True
+      else:
+        return False
     else:
-      self._clean(); return False
+      self._clean()
+      return False
   
   def run(self):
-    self.log(0, "building %s rpm" % self.rpmname)
-
+    mkdir(self.output_location, parent=True)
+    
     # sync input files....
     self._copy()
 
@@ -160,24 +195,27 @@ class RpmsHandler(DiffMixin):
     # ....write MANIFEST....
     self._write_manifest()    
 
-    # ....finally build the RPM....
+    # ....build the RPM....
     self.interface.buildRpm(self.output_location, self.interface.LOCAL_REPO,
                             quiet=(self.interface.logthresh < 4))
     if not self._valid():
       raise OutputInvalidError("'%s' output invalid" % self.rpmname)
 
-    self.addOutput(self.output_location)
-    self.addOutput(join(self.interface.LOCAL_REPO, 'RPMS',
-                        '%s*[!Ss][!Rr][!Cc].[Rr][Pp][Mm]' % self.rpmname))
-    self.addOutput(join(self.interface.LOCAL_REPO, 'SRPMS',
-                        '%s*[Ss][Rr][Cc].[Rr][Pp][Mm]' % self.rpmname))
-    self.interface.expand(self.data['output'])
+    self.update({
+      'output': [
+         self.output_location,
+         join(self.interface.LOCAL_REPO, 'RPMS',
+              '%s*[!Ss][!Rr][!Cc].[Rr][Pp][Mm]' % self.rpmname),
+         join(self.interface.LOCAL_REPO, 'SRPMS',
+              '%s*[Ss][Rr][Cc].[Rr][Pp][Mm]' % self.rpmname)
+       ],
+    })
 
-    # ....but wait! Write the metadata file too.
+    # ....finally write the metadata file.
     self.write_metadata()    
 
   def apply(self, type='mandatory', requires=None):
-    missingrpms = [ x for x in self._find_rpms() if not exists(x) ]
+    missingrpms = [ x for x in self.get_rpms() if not exists(x) ]
 
     if len(missingrpms) != 0:
       if self._test_build() and not self.interface.isSkipped(self.id):
@@ -197,30 +235,7 @@ class RpmsHandler(DiffMixin):
         self.interface.cvars['excluded-packages'] = []
       self.interface.cvars['excluded-packages'].extend(obsoletes.split())
 
-  def _clean(self):
-    for rpm in self._find_rpms():
-      self.removeOutput(rpm)
-      rm(rpm, force=True)
-    rm(self.output_location, recursive=True, force=True)
-    rm(self.mdfile, force=True)
-    self.clean_metadata()
-
-    mkdir(self.output_location, parent=True)    
-
-  def _copy(self):
-    for k,v in self.installinfo.items():
-      xquery,_ = v
-      if xquery is not None:
-        for file in self.interface.config.xpath(xquery, []):
-          dest = join(self.output_location, k)
-          if not exists(dest):
-            mkdir(dest, parent=True)
-          sync(file, dest)
-    
-  def _test_build(self):
-    return self.config.get('/distro/rpms/%s/create/text()' % self.id, 'True') in BOOLEANS_TRUE
-
-  def _find_rpms(self, prefix=True):
+  def get_rpms(self, prefix=True):
     v,r,a = self._read_autoconf()
     rpm = join('RPMS', '%s-%s-%s.%s.rpm' %(self.rpmname, v, r, a))
     srpm = join('SRPMS', '%s-%s-%s.src.rpm' %(self.rpmname, v, r))    
@@ -229,8 +244,32 @@ class RpmsHandler(DiffMixin):
       rpm = join(self.interface.LOCAL_REPO, rpm)
       srpm = join(self.interface.LOCAL_REPO, srpm)
 
-    return [rpm, srpm]
-  
+    return [rpm, srpm]  
+
+  def _clean(self):
+    self.clean_metadata()
+    for rpm in self.get_rpms():
+      if rpm in self.handlers['output'].data:
+        self.handlers['output'].data.remove(rpm)
+      if rpm in self.handlers['output'].oldoutput.keys():
+        self.handlers['output'].oldoutput.keys()
+      if exists(rpm):
+        self.interface.log(2, "deleting %s" % basename(rpm))
+        rm(rpm, force=True)
+
+    rm(self.output_location, recursive=True, force=True)    
+
+  def _copy(self):
+    # download input files - look at FileDownloadMixin.download()
+    self.download()
+    
+  def _test_build(self):
+    tobuild = self.config.get('/distro/rpms/%s/@enabled' % self.id,
+                              self.config.get('/distro/rpms/@enabled', 'True'))
+    if tobuild == 'default' or tobuild in BOOLEANS_TRUE:
+      return True
+    return False
+
   def _write_spec(self):
     setupcfg = join(self.output_location, 'setup.cfg')
     if exists(setupcfg): return # can happen only if setup.cfg is an input file
@@ -383,7 +422,9 @@ class RpmsHandler(DiffMixin):
   
   def _valid(self):              return True
 
+
 class OutputInvalidError(IOError): pass
+
 
 # each element for a distro's version, e.g. redhat/5, is a 3-tuple:
 # (background color, font color, highlight color). To add an entry,

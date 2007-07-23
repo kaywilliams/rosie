@@ -48,9 +48,9 @@ class ConfigRpmHook(RpmsHandler):
     }
 
     installinfo = {
-      'config' : ('/distro/rpms/config-rpm/config/script/path/text()',
+      'config' : ('/distro/rpms/config-rpm/config/script/path',
                   '/usr/lib/%s' % interface.product),
-      'support': ('/distro/rpms/config-rpm/config/supporting-files/path/text()',
+      'support': ('/distro/rpms/config-rpm/config/supporting-files/path',
                   '/usr/lib/%s' % interface.product),
     }
 
@@ -63,9 +63,10 @@ class ConfigRpmHook(RpmsHandler):
                          '%s distribution' %(interface.product,
                                              interface.fullname),
                          installinfo=installinfo)
-
+  
   def _test_build(self):
-    return (self.config.get('/distro/rpms/config-rpm/requires', None) or \
+    return RpmsHandler._test_build(self) and \
+           (self.config.get('/distro/rpms/config-rpm/requires', None) or \
             self.config.get('/distro/rpms/config-rpm/obsoletes', None) or \
             self.config.get('/distro/rpms/config-rpm/config/script/path/text()', None) or \
             self.config.get('/distro/rpms/config-rpm/config/supporting-files/path/text()', None) or \

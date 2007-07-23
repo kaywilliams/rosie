@@ -178,7 +178,6 @@ class IsoHook(DiffMixin):
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'iso.md')
 
-    self.interface.expand(self.DATA['output'])
     DiffMixin.__init__(self, self.mdfile, self.DATA)
   
   def force(self):
@@ -214,7 +213,6 @@ class IsoHook(DiffMixin):
     
     self.interface.compare(oldsets, self.newsets)
 
-    self.interface.expand(self.DATA['output'])
     self.write_metadata()
   
   def _generate_pkgorder(self):

@@ -2,10 +2,12 @@ import os
 
 from os.path import join, exists
 
+from dims import filereader
 from dims import osutils
+from dims import sync
 
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.interface import DiffMixin
+from dimsbuild.interface import DiffMixin, FilesMixin
 
 from lib import FileDownloadMixin, ImageModifyMixin
 
@@ -37,7 +39,7 @@ HOOK_MAPPING = {
 
 
 #------ HOOKS ------#
-class IsolinuxHook(FileDownloadMixin, DiffMixin):
+class IsolinuxHook(FileDownloadMixin, FilesMixin, DiffMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'installer.bootiso.isolinux'
@@ -50,62 +52,79 @@ class IsolinuxHook(FileDownloadMixin, DiffMixin):
       'variables': ['interface.cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
+      'config':    ['/distro/installer/isolinux'],
     }
     
     self.mdfile = join(self.interface.METADATA_DIR, 'isolinux.md')
     
-    FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
     DiffMixin.__init__(self, self.mdfile, self.DATA)
+    FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
+    FilesMixin.__init__(self, self.isolinux_dir)
   
   def setup(self):
-    self.register_file_locals(L_FILES)
-    
     repo = self.interface.getRepo(self.interface.getBaseRepoId())
+    self.register_file_locals(L_FILES)
+
+    self.add_files('/distro/installer/isolinux/path')
     
-    self.DATA['input'].extend(  [ join(self.interface.INPUT_STORE,
-                                       repo.id, repo.directory,
-                                       f.get('path/text()'),
-                                       f.get('@id')) \
-                                  for f in self.f_locals.xpath('//file') ] )
-    self.DATA['output'].extend( [ join(self.interface.SOFTWARE_STORE,
-                                       f.get('path/text()'),
-                                       f.get('@id')) \
-                                   for f in self.f_locals.xpath('//file') ] )
-  
+    self.update({
+      'input': [ repo.rjoin(f.get('path/text()'),
+                            f.get('@id')) \
+                 for f in self.f_locals.xpath('//file') ],
+      'output': [ join(self.interface.SOFTWARE_STORE,
+                       f.get('path/text()'),
+                       f.get('@id')) \
+                  for f in self.f_locals.xpath('//file') ],
+    })
+
   def force(self):
-    for file in self.DATA['output']:
-      pvar = file
-      if file.startswith(self.interface.SOFTWARE_STORE):
-        pvar = pvar.replace(self.interface.SOFTWARE_STORE, '').lstrip('/')
-      self.interface.log(2, "deleting '%s'" % pvar)
-      osutils.rm(file, recursive=True, force=True)
-    self.clean_metadata()
+    self.interface.log(0, "forcing isolinux")
+    self.remove_files(self.handlers['output'].oldoutput.keys())
   
   def check(self):
     if self.test_diffs():
-      self.force()
+      if not self.interface.isForced('isolinux'):
+        self.interface.log(0, "cleaning isolinux")
+        self.remove_files(self.handlers['output'].oldoutput.keys())
       return True
     else:    
       return False
   
   def run(self):
-    self.interface.log(0, "synchronizing isolinux files")
-    
+    self.interface.log(0, "synchronizing isolinux files")    
     osutils.mkdir(self.isolinux_dir, parent=True)
-    
-    # download all files - see FileDownloadMixin.download() in lib.py
+
+    # download all files - see FileDownloadMixin.download() in lib.py    
     self.download()
+
+    # copy input files - see FilesMixin.sync_files() in interface.py
+    self.sync_files('/distro/installer/isolinux/path')
+    
+    # modify the first append line in isolinux.cfg
+    bootargs = self.interface.config.get('/distro/installer/isolinux/boot-args/text()', None)
+    if bootargs:
+      cfg = join(self.isolinux_dir, 'isolinux.cfg')
+      if not exists(cfg):
+        raise RuntimeError("missing file '%s'" % cfg)
+      lines = filereader.read(cfg)
+
+      for i, line in enumerate(lines):
+        if line.strip().startswith('append'):
+          break
+      value = lines.pop(i)
+      value = value.strip() + ' %s' % bootargs.strip()
+      lines.insert(i, value)
+      filereader.write(lines, cfg)
     
     self.interface.cvars['isolinux-changed'] = True
+
+    self.write_metadata()    
   
   def apply(self):
     for file in self.DATA['output']:
       if not exists(file):
         raise RuntimeError, "Unable to find '%s'" % file
     
-    self.write_metadata()
-
-
 class InitrdHook(ImageModifyMixin):
   def __init__(self, interface):
     self.VERSION = 0
@@ -135,27 +154,32 @@ class InitrdHook(ImageModifyMixin):
     repo = self.interface.getRepo(self.interface.getBaseRepoId())
 
     # add input files
-    self.DATA['input'].extend( [ join(self.interface.INPUT_STORE,
-                                      repo.id, repo.directory,
-                                      f.get('path/text()'),
-                                      f.get('@id')) \
-                                 for f in self.i_locals.xpath('//image') ] )
+    self.update({
+      'input':  [
+        [ join(self.interface.INPUT_STORE,
+               repo.id, repo.directory,
+               f.get('path/text()'),
+               f.get('@id')) \
+          for f in self.i_locals.xpath('//image') ],
+        self.interface.cvars['buildstamp-file'],
+      ],
+      'output': [
+        [ join(self.interface.SOFTWARE_STORE,
+               f.get('path/text()'),
+               f.get('@id')) \
+          for f in self.i_locals.xpath('//image') ],
+      ]
+    })
 
-    # add output files
-    self.DATA['output'].extend( [ join(self.interface.SOFTWARE_STORE,
-                                       f.get('path/text()'),
-                                       f.get('@id')) \
-                                  for f in self.i_locals.xpath('//image') ] )
-  
   def force(self):
     self.interface.log(0, "forcing initrd-image")
-    self.clean()
+    self.remove_files(self.handlers['output'].oldoutput.keys())
   
   def check(self):
-    if self.test_diffs():
+    if self.interface.isForced('initrd-image') or self.test_diffs():
       if not self.interface.isForced('initrd-image'):
         self.interface.log(0, "cleaning initrd-image")
-        self.clean()
+        self.remove_files(self.handlers['output'].oldoutput.keys())
       return True
     else:    
       return False
@@ -176,6 +200,10 @@ class InitrdHook(ImageModifyMixin):
     initrd = self.i_locals.get('//image[@id="initrd.img"]')
     self.interface.cvars['initrd-file'] = join(self.interface.SOFTWARE_STORE,
                                                initrd.get('path/text()'), 'initrd.img')
+
+  def generate(self):
+    ImageModifyMixin.generate(self)
+    self.add_file(self.interface.cvars['buildstamp-file'], '/')
 
 #------ LOCALS ------#
 L_FILES = ''' 

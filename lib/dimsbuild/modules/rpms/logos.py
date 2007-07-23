@@ -75,6 +75,8 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     ColorMixin.__init__(self)
 
   def setup(self):
+    RpmsHandler.setup(self)
+    
     # set the font to use
     available_fonts = find(join(self.sharepath, 'fonts'), name='*.ttf')
     self.fontfile = available_fonts[0]
@@ -88,8 +90,6 @@ class LogosRpmHook(RpmsHandler, ColorMixin):
     self.bgcolor = int(self.bgcolor, 16)
     self.textcolor = int(self.textcolor, 16)
     self.hlcolor = int(self.hlcolor, 16)
-    
-    mkdir(join(self.interface.METADATA_DIR, 'images-src/product.img'), parent=True)
   
   def _generate(self):
     self._generate_images()

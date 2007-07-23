@@ -30,31 +30,40 @@ class HookHandler:
     self.hooks = {}
     self.diffdict = {}
 
-  def clean(self):
+  def clear(self):
     self.hooks.clear()
     self.diffdict.clear()
-    
+
+  def update(self, data):
+    assert type(data) == dict
+    self.data.update(data)
+        
   def mdread(self, metadata):
     for hook in metadata.xpath('/metadata/hooks/hook'):
       self.hooks[hook.get('@id')] = hook.get('version/text()')
 
   def mdwrite(self, root):
-    try: root.remove(root.get('hooks'))
-    except TypeError: pass
-    
-    parent = xmltree.Element('hooks', parent=root)
-    for k,v in self.data.items():
-      e = xmltree.Element('hook', parent=parent, attrs={'id': k})
-      xmltree.Element('version', parent=e, text=str(v))
+    parent = xmltree.uElement('hooks', parent=root)
 
-  def diff(self):
-    diff = {}
+    for k,v in self.diffdict.items():
+      try: parent.remove(parent.get('hook[@id="%s"]' % k))
+      except TypeError: pass
+      if v[1] is not None:
+        e = xmltree.Element('hook', parent=parent, attrs={'id': k})
+        xmltree.Element('version', parent=e, text=str(v[1]))
+
+  def diff(self):    
     for k,v in self.hooks.items():
       if self.data.has_key(k):
         newv = self.data[k]
         if v != newv:
-          diff[k] = (v, newv)
-    self.diffdict.update(diff)
+          self.diffdict[k] = (v, newv)
+      else:
+        self.diffdict[k] = (v, None)
+
+    for k,v in self.data.items():
+      if not self.hooks.has_key(k):
+        self.diffdict[k] = (None, v)
     return self.diffdict
 
 #------------- INTERFACES -----------#
@@ -69,7 +78,7 @@ class CleanHook(DiffMixin):
     self.VERSION = 0
     self.ID = 'clean.clean'
 
-    self.DATA = {'hooks':  {} }    
+    self.DATA = {'hooks':  {}}    
     self.hookInfo = {}
 
     self.interface = interface
@@ -82,8 +91,8 @@ class CleanHook(DiffMixin):
     for event in self.dispatch.event:
       for hook in event.hooks:
         self.hookInfo[hook.ID] = event.id
-        self.DATA['hooks'].update({hook.ID: str(hook.VERSION)})
-
+        self.update({'hooks': {hook.ID: str(hook.VERSION)}})
+        
   def force(self):
     self._force_all_events()
     
@@ -93,14 +102,16 @@ class CleanHook(DiffMixin):
   def run(self):
     self.interface.log(0, "processing clean")
     self.interface.log(1, "forcing events") 
-
     # if clean hook version changes, force all
-    if self.handlers['hooks'].diffdict.has_key(self.ID):
-      self._force_all_events()
+    if self.handlers['hooks'].diffdict.has_key(self.ID):      
+      prevver, currver = self.handlers['hooks'].diffdict[self.ID]
+      if prevver and currver:
+        self._force_all_events()
     else:
       for hook in self.handlers['hooks'].diffdict.keys():
-	      eventid = self.hookInfo[hook]
-	      self._force_event(eventid)
+        prevver, currver = self.handlers['hooks'].diffdict[hook]
+        if prevver and currver:
+          self._force_event(self.hookInfo[hook])
 
   def apply(self):
     # every time since diffs not reported in first run scenario
@@ -109,7 +120,7 @@ class CleanHook(DiffMixin):
   def _force_all_events(self):
     self.interface.log(0, "cleaning all")
 
-    self.interface.log(1, "cleaning folder")    
+    self.interface.log(1, "cleaning folders")    
     if exists(self.interface.DISTRO_DIR):
       self.interface.log(2, "cleaning '%s'" % self.interface.DISTRO_DIR)
       osutils.rm(self.interface.DISTRO_DIR, recursive=True, force=True)
@@ -143,4 +154,3 @@ class CleanHook(DiffMixin):
     handler = HookHandler(self.DATA['hooks'])
     self.DT.addHandler(handler)
     self.handlers['hooks'] = handler
-

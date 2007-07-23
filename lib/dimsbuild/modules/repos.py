@@ -2,7 +2,6 @@ import re
 
 from os.path  import join, exists
 from StringIO import StringIO
-from urlparse import urlparse
 
 from dims import filereader
 from dims import osutils
@@ -90,8 +89,6 @@ class ReposHook(DiffMixin):
       self.DATA['input'].append(join(self.mdrepos, repo.id, repo.repodata_path, 'repodata'))
       self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id))
       
-      self.interface.expand(self.DATA['input']) # this is silly
-  
   def check(self):
     self.interface.cvars['input-repos-changed'] = self.interface.isForced('repos') or \
                                                   self.test_diffs()

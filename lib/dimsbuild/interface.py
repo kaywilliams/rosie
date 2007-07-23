@@ -9,7 +9,7 @@ __date__    = 'June 5th, 2007'
 import re
 import xml.sax
 
-from os.path  import join, isfile
+from os.path  import exists, isfile, join
 from urlparse import urlparse, urlunparse
 
 from dims import filereader
@@ -17,7 +17,6 @@ from dims import listcompare
 from dims import osutils
 from dims import shlib
 from dims import sortlib
-from dims import spider
 from dims import sync
 from dims import xmltree
 
@@ -26,6 +25,7 @@ from dims.configlib import expand_macros
 from dimsbuild import difftest
 from dimsbuild import locals
 
+from dimsbuild.callback  import BuildSyncCallback
 from dimsbuild.constants import BOOLEANS_TRUE
 
 #------ INTERFACES ------#
@@ -55,6 +55,9 @@ class EventInterface:
   
   def cache(self, repo, path, force=False, *args, **kwargs):
     src = repo.rjoin(path)
+    ## FIXME: this is kinda restricting because only files in the
+    ## input repos can be cached. URLs that point to just regular
+    ## input files can't be cached.    
     dest = join(self.INPUT_STORE, repo.id, join(repo.directory, osutils.dirname(path)))
     if force:
       osutils.rm(join(self.INPUT_STORE, repo.id, join(repo.directory, path)),
@@ -62,7 +65,7 @@ class EventInterface:
     osutils.mkdir(dest, parent=True)
     sync.sync(src, dest, *args, **kwargs)
     return join(dest, osutils.basename(path))
-  
+    
   def getBaseRepoId(self):
     "Get the id of the base repo from the config file"
     # this is kinda illegal; we need to change this to a cvar
@@ -95,37 +98,7 @@ class EventInterface:
   
   def __set_event(self, eventid, flag):
     self._base.dispatch.get(eventid, err=True)._set_enable_status(flag)
-  
-  # path-fixing functions
-  def expand(self, paths=[], resolve=True, prefix=None):
-    prefix = prefix or osutils.dirname(self.config.file)
-    if type(paths) == str: paths = [paths]
 
-    npaths = []
-    for path in paths:
-      if resolve and path.startswith('/') and path.find('://') == -1:
-        path = join(prefix, path)        
-      npaths.extend(self._get_files(path))
-
-    while len(paths) > 0: paths.pop()
-
-    for npath in npaths:
-      if npath not in paths:
-        paths.append(npath)
-    
-    return paths
-
-  def _get_files(self, uri):
-    "Return the files of a remote or local (absolute) uri"
-    if uri.startswith('file:/'):
-      uri = '/' + uri[6:].lstrip('/')
-      
-    if uri.startswith('/'): # local uri
-      files = osutils.find(uri, indicators=True)
-    else: # remote uri
-      files = spider.find(uri)
-    return files
-    
       
 #------ MIXINS ------#
 class ListCompareMixin:
@@ -158,7 +131,6 @@ class ListCompareMixin:
       if self.rfn:
         for i in self.r: self.rfn(i)
 
-
 class DiffMixin:
   def __init__(self, mdfile, data):
     self.mdfile = mdfile
@@ -168,13 +140,15 @@ class DiffMixin:
     self.handlers = {} # keep a dictionary of pointers to handlers so we can access later
     
     # in order for this to run successfully, DiffMixin's __init__ function must be
-    # called after self.interface and self.interface.config are already defined
+    # called after self.interface.config is already defined
     if self.data.has_key('input'):
-      h = difftest.InputHandler(self.data['input'])
+      h = difftest.InputHandler(self.data['input'],
+                                osutils.dirname(self.interface.config.file))
       self.DT.addHandler(h)
       self.handlers['input'] = h
     if self.data.has_key('output'):
-      h = difftest.OutputHandler(self.data['output'])
+      h = difftest.OutputHandler(self.data['output'],
+                                 osutils.dirname(self.interface.config.file))
       self.DT.addHandler(h)
       self.handlers['output'] = h
     if self.data.has_key('variables'):
@@ -186,6 +160,11 @@ class DiffMixin:
       self.DT.addHandler(h)
       self.handlers['config'] = h
 
+  def update(self, datadict):
+    for key in datadict:
+      if self.handlers.has_key(key):
+        self.handlers[key].update(datadict[key])
+          
   def clean_metadata(self):
     self.DT.clean_metadata()
     
@@ -197,40 +176,127 @@ class DiffMixin:
   
   def write_metadata(self):
     self.DT.write_metadata()
+
+class FilesMixin:
+  def __init__(self, parentdir):
+    self.parentdir = parentdir
     
-  def addInput(self, input):
-    "Add a file(s) as input"
-    self._add_item('input', input)
+  def add_files(self, xqueries, prefix=None, addinput=True, addoutput=True):
+    "Add the input and output filelists."    
+    paths = self.__read_paths(xqueries, prefix=prefix)
+    if addinput:      
+      self.update({
+        'input': [ s for s,_ in paths ]
+      })
+    if addoutput:
+      self.update({
+        'output': [ join(d, osutils.basename(s)) for s,d in paths ]
+      })
 
-  def addOutput(self, output):
-    "Add a file(s) as an output file"
-    self._add_item('output', output)
+  def sync_files(self, xqueries, prefix=None):
+    "Sync the input files to their output locations."
+    paths = self.__read_paths(xqueries, prefix=prefix)
+    for src, dst in paths:
+      if not self.handlers['input'].filelists.has_key(src):
+        self.handlers['input'].filelists[src] = difftest.expandPaths(src, prefix=self.handlers['input'].prefix)
+      for ifile in self.handlers['input'].filelists[src]:
+        if src.endswith('/'):
+          fulldest = join(dst, osutils.basename(src), osutils.basename(ifile))
+        else:
+          fulldest = join(dst, osutils.basename(ifile))
+        self.add_file(ifile, osutils.dirname(fulldest))
 
-  def _add_item(self, kind, items):
-    if kind not in self.handlers.keys(): return []
-    if type(items) == str:
-      self.handlers[kind].data.append(items)
-    else:
-      assert type(items) == list
-      self.handlers[kind].data.extend(items)
+  def add_file(self, src, dst):
+    "Add an individual file to the output location."
+    if not exists(dst):
+      osutils.mkdir(dst, parent=True)
+    sync.sync(src, dst, callback=BuildSyncCallback(self.interface.logthresh))
+    
+  def remove_files(self, rmlist=[]):
+    "Remove obsolete/modified files and delete empty directories."
+    if not rmlist:
+      # default to removing files that have been modified or
+      # are no longer required.
+      rmlist = self.handlers['output'].diffdict.keys()
+      rmlist.extend([x \
+                     for x in self.handlers['output'].oldoutput.keys() \
+                     if x not in self.handlers['output'].newoutput.keys() ])
+      if not rmlist:
+        return
       
-  def cleanOutput(self):
-    "Remove all files from the output files' list"    
-    if 'output' not in self.handlers.keys(): return         
-    while len(self.handlers['output'].data) > 0:
-      self.handlers['output'].data.pop()
-    if len(self.handlers['output'].output) > 0:
-      self.handlers['output'].output.clear()
-      
-  def removeOutput(self, output):
-    "Remove a file from the list of outputs"
-    if 'output' not in self.handlers.keys(): return
-    if output in self.handlers['output'].data:
-      self.handlers['output'].data.remove(output)
-    if output in self.handlers['output'].output.keys():
-      self.handlers['output'].output.pop(output)
-        
+    rmlist.sort()
+    toremove = []
+    for item in rmlist:
+      # remove the items in the rmlist as soon as possible, so that
+      # all empty directories can be computed. Once an item is
+      # deleted, its parent directories are checked to see if they are
+      # empty, and if they are, they are deleted (this is what the
+      # while-loop does).
+      if not exists(item):
+        continue
+      self.interface.log(2, "removing '%s'" % item[len(self.parentdir):].lstrip('/'))
+      osutils.rm(item, recursive=True, force=True)    
 
+      item = osutils.dirname(item)        
+      while not osutils.find(item, type=osutils.TYPE_FILE|osutils.TYPE_LINK):
+        if item.lstrip('/') == self.parentdir.lstrip('/'):
+          break
+        toremove.append(item)
+        item = osutils.dirname(item)
+
+    toremove.sort()
+    if toremove:
+      for item in toremove:
+        if exists(item):
+          self.interface.log(2, "removing empty directory '%s'" % item[len(self.parentdir):].lstrip('/'))          
+          osutils.rm(item, recursive=True, force=True)
+    
+  def __read_paths(self, xqueries, prefix=None):
+    """
+    Read the xpath queries specified by the xqueries parameter. For
+    each of the elements found, the text node's value is the source
+    and the value of the 'dest' attribute is the destination (or
+    prefix if no such attribute is found).    
+    """
+    if type(xqueries) == str: xqueries = [xqueries]
+
+    paths = []
+    for xquery in xqueries:
+      for path in self.interface.config.xpath(xquery, []):
+        src = path.get('text()')
+        dest = path.get('@dest', None)
+        paths.append((src, dest))
+    return self.__fix_paths(paths, prefix=prefix)
+
+  def __fix_paths(self, info=[], prefix=None):
+    """
+    Add paths specified by the info parameter which is a list of
+    tuples with the source as the first element and the destination as
+    the second. If info element is not a list, it is converted to
+    one.
+    """
+    paths = []
+    
+    prefix = prefix or self.parentdir
+    if type(info) != list: info = [info]
+    
+    for item in info:
+      if type(item) == str:
+        src, dest = item, prefix
+      else:
+        assert type(item) == tuple
+        src, dest = item
+        if dest is None:
+          dest = prefix
+        else:
+          if dest.startswith('/'): dest = dest[1:]
+          dest = join(prefix, dest)
+      paths.append((src, dest))
+
+    return paths
+
+
+#------- CLASSES ---------#
 class PrimaryXmlContentHandler(xml.sax.ContentHandler):
   def __init__(self):
     xml.sax.ContentHandler.__init__(self)
@@ -241,7 +307,6 @@ class PrimaryXmlContentHandler(xml.sax.ContentHandler):
     if name == 'location':
       self.locs.append(str(attrs.get('href')))
 
-  
 class Repo:
   def __init__(self, id):
     self.id = id

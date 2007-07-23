@@ -103,11 +103,9 @@ class DefaultThemeHook(RpmsHandler):
                          '/usr/share/gdm/defaults.conf to the %s '
                          'theme.' %(interface.product, self.themename,))
     
-  def apply(self): pass  
-
-  def post(self):
+  def apply(self):
     try:      
-      rpm = find(join(self.interface.METADATA_DIR, 'localrepo', 'RPMS'),
+      rpm = find(join(self.interface.LOCAL_REPO, 'RPMS'),
                  name='%s*.[Rr][Pp][Mm]' % self.rpmname, prefix=False)[0]
       self.interface.cvars['default-theme-info'] = (self.rpmname,
                                                     RPM_PNVR_REGEX.match(rpm).groups()[0],

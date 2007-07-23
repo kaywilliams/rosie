@@ -37,9 +37,10 @@ import os
 import time
 import urllib2
 
-from os.path import exists
+from os.path import exists, join
 
 from dims import osutils
+from dims import spider
 from dims import xmlserialize
 from dims import xmltree
 
@@ -65,8 +66,7 @@ class DiffTest:
     handler.debug = self.debug
     handler.dprint = self.dprint
     self.handlers.append(handler)
-    expand(handler.data)
-
+    
     try: metadata = xmltree.read(self.mdfile)
     except ValueError: return
 
@@ -74,12 +74,14 @@ class DiffTest:
 
   def clean_metadata(self):
     for handler in self.handlers:
-      handler.clean()
+      handler.clear()
     osutils.rm(self.mdfile, force=True)
       
   def read_metadata(self):
-    "Read the file stored at self.mdfile and pass it to each of the handler's"
-    "mdread() functions"
+    """
+    Read the file stored at self.mdfile and pass it to each of the
+    handler's mdread() functions.
+    """
     try: metadata = xmltree.read(self.mdfile)
     except ValueError: return
 
@@ -87,11 +89,11 @@ class DiffTest:
       handler.mdread(metadata)
     
   def write_metadata(self):
-    """ 
-    Create an XmlTreeElement from self.mdfile, if it exists, or make a new one and
-    pass it to each of the handler's mdwrite() functions.  Due to the way
-    xmltree.XmlTreeElements work, mdwrite() doesn't need to return any values;
-    xmltree appends are destructive.
+    """    
+    Create an XmlTreeElement from self.mdfile, if it exists, or make a
+    new one and pass it to each of the handler's mdwrite() functions.
+    Due to the way xmltree.XmlTreeElements work, mdwrite() doesn't
+    need to return any values; xmltree appends are destructive.    
     """
     if exists(self.mdfile): root = xmltree.read(self.mdfile)
     else: root = xmltree.Element('metadata')
@@ -100,7 +102,7 @@ class DiffTest:
       handler.mdwrite(root)
 
     root.write(self.mdfile)
-  
+
   def changed(self, debug=None):
     "Returns true if any handler returns a diff with length greater than 0"
     old_dbgval = self.debug
@@ -110,7 +112,6 @@ class DiffTest:
       d = handler.diff()
       if len(d) > 0:
         changed = True
-        #self.dprint(d) # already handled by handlers I think
     self.debug = old_dbgval
     return changed
   
@@ -134,7 +135,7 @@ def expand(list):
   for x in new: list.append(x)
 
 def getMetadata(uri):
-  "Return the (size,mtime) of a remote of local uri"
+  "Return the (size,mtime) of a remote or local uri."
   if uri.startswith('file:/'):
     uri = '/' + uri[6:].lstrip('/')
 
@@ -151,7 +152,7 @@ def getMetadata(uri):
     http_file.close()
     return int(size), int(time.mktime(time.strptime(mtime, '%a, %d %b %Y %H:%M:%S GMT')))
   
-def diff(olddata, newfiles):
+def diff(oldstats, newstats):
   """ 
   Return a dictionary of 'diff tuples' expressing the differences between
   olddata and newdata.  If there are no differences, the dictionary will be
@@ -165,43 +166,62 @@ def diff(olddata, newfiles):
       in struct:   file is listed in struct and exists on disk
     (None, None):
       in metadata: N/A
-      in struct:   file is listed in struct but does not exist on disk
+      in struct:   file is listed in struct but does not exist
     None:
       in metadata: file is not present in metadata file
       in struct:   file is not listed in struct
   """
   diffdict = {}
-  
-  oldfiles = olddata.keys() # list of files in metadata
 
   # keep a list of already-processed elements so we don't add them in twice
   processed = []
   
   # first check for presence/absence of files in each list
-  for x in newfiles:
-    if x not in oldfiles:
-      diffdict[x] = (None, DiffTuple(x))
-        
-  for x in oldfiles:
-    if x not in newfiles:
+  for x in newstats:
+    if x not in oldstats:
+      diffdict[x] = (None, newstats[x])
       processed.append(x)
-      diffdict[x] = ((olddata[x]['size'], olddata[x]['mtime']), None)
+
+  for x in oldstats:
+    if x not in newstats:
+      diffdict[x] = (oldstats[x], None)
+      processed.append(x)
     
   # now check sizes and mtimes
-  for file in oldfiles:
+  for file in oldstats:
     if file in processed: continue
-    oldtup = (olddata[file]['size'], olddata[file]['mtime'])
-    try:
-      size, mtime = getMetadata(file)
-      # files differ in size or mtime
-      if (mtime != olddata[file]['mtime']) or \
-         (size != olddata[file]['size']):
-        diffdict[file] = (oldtup, (size, mtime))
-    except OSError, HTTPError:
-      # file does not exist
-      diffdict[file] = (None, None)
-  
+    if oldstats[file] != newstats[file]:
+      diffdict[file] = (oldstats[file], newstats[file])
   return diffdict
+  
+def expandPaths(paths, prefix=None):
+  if type(paths) == str: paths = [paths]
+  
+  npaths = []
+  for path in paths:
+    if prefix and not path.startswith('/') and path.find('://') == -1:
+      path = join(prefix, path)        
+    npaths.extend(getFileList(path))
+      
+  while len(paths) > 0: paths.pop()
+  
+  for npath in npaths:
+    if npath not in paths:
+      paths.append(npath)
+      
+  return paths
+
+def getFileList(uri):
+  "Return the files of a remote or local (absolute) uri"
+  if uri.startswith('file:/'):
+    uri = '/' + uri[6:].lstrip('/')
+    
+  if uri.startswith('/'): # local uri
+    return osutils.find(uri, indicators=True, type=osutils.TYPE_FILE|osutils.TYPE_LINK) or \
+           [uri]
+  else: # remote uri
+    return spider.find(uri, nregex='.*/$') or \
+           [uri]
   
 def DiffTuple(file):
   "Generate a (size, mtime) tuple for file"
@@ -210,10 +230,11 @@ def DiffTuple(file):
   except OSError, HTTPError:
     # FIXME: should the exception be raised here?
     return (None, None) 
-  
+
 class NewEntry:
   "Represents an item requested in a handler's data section that is not currently"
   "present in its metadata"
+
 class NoneEntry:
   "Represents an item requested in a handler's data section that does not exist"
   "for any reason"
@@ -228,87 +249,132 @@ class NoneEntry:
   def __str__(self):
     return "NoneEntry: %s" % self.index
 
-
 #------ HANDLERS ------#
 class InputHandler:
-  def __init__(self, data):
-    self.data = data
-    self.input = {}
-    self.diffdict = {}
+  def __init__(self, data, prefix):
+    self.prefix = prefix
 
-  def clean(self):
-    self.input.clear()
-    self.diffdict.clear()
+    self.data = []
+    self.oldinput = {} # {file: stats}
+    self.newinput = {} # {file: stats}
+
+    self.filelists = {} # {path: expanded list}
+    self.diffdict = {}  # {file: (old stats, new stats)}
+    
+    self.update(data)
+        
+  def update(self, data):
+    if type(data) == str:
+      self.data.append(data)
+    else:
+      for datum in data:
+        if type(datum) == list:
+          self.data.extend(datum)
+        else:
+          self.data.append(datum)
+                                     
+  def clear(self):
+    self.oldinput.clear()
       
-  def mdread(self, metadata):
+  def mdread(self, metadata):    
     for file in metadata.xpath('/metadata/input/file'):
-      self.input[file.get('@path')] = {'size':  int(file.get('size/text()')),
-                                       'mtime': int(file.get('mtime/text()'))}
+      self.oldinput[file.get('@path')] = (int(file.get('size/text()')), int(file.get('mtime/text()')))
       
   def mdwrite(self, root):
     try: root.remove(root.get('input'))
     except TypeError: pass
-    
     parent = xmltree.Element('input', parent=root)
     for datum in self.data:
-      size, mtime = (None, None)
-      if datum in self.diffdict.keys():
-        size, mtime = self.diffdict[datum][1]
-
-      if size is None or mtime is None:
-        # should not happen, unless the input handler's data was
-        # modified after diff() was called.        
-        size, mtime = getMetadata(datum)
-          
-      e = xmltree.Element('file', parent=parent, attrs={'path': datum})
-      xmltree.Element('size', parent=e, text=str(size))
-      xmltree.Element('mtime', parent=e, text=str(mtime))
+      ifiles = self.filelists.get(datum, expandPaths(datum, prefix=self.prefix))
+      for ifile in ifiles:
+        size, mtime = self.newinput.get(ifile, getMetadata(ifile))
+        e = xmltree.Element('file', parent=parent, attrs={'path': ifile})
+        xmltree.Element('size', parent=e, text=str(size))
+        xmltree.Element('mtime', parent=e, text=str(mtime))
     
   def diff(self):
-    self.diffdict = diff(self.input, self.data)
+    for datum in self.data:
+      ifiles = expandPaths(datum, prefix=self.prefix)
+      self.filelists[datum] = ifiles
+      for ifile in ifiles:
+        self.newinput[ifile] = DiffTuple(ifile)        
+    self.diffdict = diff(self.oldinput, self.newinput)    
     if self.diffdict: self.dprint(self.diffdict)
     return self.diffdict
 
 class OutputHandler:
-  def __init__(self, data):
-    self.data = data
-    self.output = {}
+  def __init__(self, data, prefix):
+    self.prefix = prefix
 
-  def clean(self):
-    self.output.clear()
+    self.data = []
+    self.oldoutput = {}
+    self.newoutput = {}
+    
+    self.diffdict = {}
+
+    self.update(data)
+
+  def update(self, data):
+    if type(data) == str: data = [data]
+    
+    for datum in data:
+      if type(datum) == list:
+        self.data.extend(datum)
+      else:
+        self.data.append(datum)
+    
+  def clear(self):
+    self.oldoutput.clear()
     
   def mdread(self, metadata):
     for file in metadata.xpath('/metadata/output/file'):
-      self.output[file.get('@path')] = {'size':  int(file.get('size/text()')),
-                                        'mtime': int(file.get('mtime/text()'))}
+      self.oldoutput[file.get('@path')] = (int(file.get('size/text()')), int(file.get('mtime/text()')))
   
-  def mdwrite(self, root):
+  def mdwrite(self, root):    
     try: root.remove(root.get('output'))
     except TypeError: pass
+    
     parent = xmltree.uElement('output', parent=root)
 
     # write to metadata file 
-    for output in self.data:
+    for output in expandPaths(self.data, prefix=self.prefix):
       size, mtime = getMetadata(output)         
       e = xmltree.Element('file', parent=parent, attrs={'path': output})
       xmltree.Element('size', parent=e, text=str(size))
       xmltree.Element('mtime', parent=e, text=str(mtime))
 
-  def diff(self):    
-    ### CHANGE. June 2, 2007: changed the second parameter in the
-    ### diff() function call to be self.output.keys(); it was
-    ### self.data before.    
-    d = diff(self.output, self.output.keys())
-    if d: self.dprint(d)
-    return d
+  def diff(self):
+    ## FIXME: fix the following if-else. The else-block shouldn't
+    ## be required. 
+    if self.data:      
+      for file in expandPaths(self.data, prefix=self.prefix):
+        self.newoutput[file] = DiffTuple(file)
+    else:
+      for file in self.oldoutput.keys():
+        self.newoutput[file] = DiffTuple(file)
+
+    self.diffdict = diff(self.oldoutput, self.newoutput)
+    if self.diffdict: self.dprint(self.diffdict)
+    return self.diffdict
 
 class ConfigHandler:
   def __init__(self, data, config):
     self.data = data
     self.config = config
-    self.cfg = {}    
+    self.cfg = {}
 
-  def clean(self):
+    expand(self.data)
+
+  def update(self, data):
+    if type(data) == str: data = [data]
+
+    for datum in data:
+      if type(data) == list:
+        self.data.extend(datum)
+      else:
+        self.data.append(datum)
+      
+  def clear(self):
     self.cfg.clear()
     
   def mdread(self, metadata):
@@ -360,10 +426,20 @@ class VariablesHandler:
   def __init__(self, data, obj):
     self.data = data
     self.obj = obj
-    
     self.vars = {}
 
-  def clean(self):
+    expand(self.data)
+
+  def update(self, data):
+    if type(data) == str: data = [data]
+
+    for datum in data:
+      if type(data) == list:
+        self.data.extend(datum)
+      else:
+        self.data.append(datum)
+
+  def clear(self):
     self.vars.clear()
     
   def mdread(self, metadata):
@@ -397,6 +473,8 @@ class VariablesHandler:
     for var in self.data:
       try:
         val = eval('self.obj.%s' % var)
+        if val is None:
+          val = NoneEntry(var)
       except AttributeError:
         val = NoneEntry(var)
       if self.vars.has_key(var):

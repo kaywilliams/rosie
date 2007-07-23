@@ -194,7 +194,7 @@ class BuildStampHook(DiffMixin):
     self.anaconda_version = self.interface.cvars['anaconda-version']
 
   def force(self):
-    for file in self.handlers['output'].output.keys():
+    for file in self.handlers['output'].oldoutput.keys():
       osutils.rm(file, force=True, recursive=True)
     self.clean_metadata()
       

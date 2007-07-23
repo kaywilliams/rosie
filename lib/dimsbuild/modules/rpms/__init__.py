@@ -7,7 +7,7 @@ import dims.listcompare as listcompare
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_META, HookExit
-from dimsbuild.interface import Repo
+from dimsbuild.interface import DiffMixin, Repo
 
 from rpms.lib import RpmsInterface
 
@@ -36,18 +36,43 @@ HOOK_MAPPING = {
 }
 
 #--------- HOOKS ----------#
-class RpmsHook:
+class RpmsHook(DiffMixin):
   def __init__(self, interface):
-    self.VERSION = 0
+    self.VERSION = 1
     self.ID = 'rpms.__init__.RPMS'
     self.interface = interface
 
+    data = {
+      'output': [self.interface.LOCAL_REPO],
+    }
+
+    DiffMixin.__init__(self, join(self.interface.METADATA_DIR, 'RPMS', 'RPMS.md'), data)
+
+  def pre(self):
+    self.interface.log(0, "generating custom rpms")
+    
   def setup(self):
     if not exists(self.interface.LOCAL_REPO):
       mkdir(self.interface.LOCAL_REPO, parent=True)
+    if not exists(join(self.interface.LOCAL_REPO, 'RPMS')):
+      mkdir(join(self.interface.LOCAL_REPO, 'RPMS'), parent=True)
+    if not exists(join(self.interface.LOCAL_REPO, 'SRPMS')):
+      mkdir(join(self.interface.LOCAL_REPO, 'SRPMS'), parent=True)    
     
   def post(self):
     if self.interface.isSkipped('RPMS'): return
+    self.interface.log(1, "checking repository metadata")
+    if self.test_diffs():
+      self.interface.log(2, "running createrepo")
+      self.interface.createrepo(join(self.interface.LOCAL_REPO, 'RPMS'))
+      self.interface.createrepo(join(self.interface.LOCAL_REPO, 'SRPMS'))
+
+      # need to the remove the .depsolve/localrepo folder so that
+      # depsolver picks up the new RPM.
+      rm(join(self.interface.METADATA_DIR, '.depsolve/localrepo'),
+         recursive=True, force=True)
+      self.write_metadata()
+
     self._add_repo()
     self._add_source()
 
@@ -55,8 +80,6 @@ class RpmsHook:
     repo = Repo('localrepo')
     repo.local_path = join(self.interface.LOCAL_REPO, 'RPMS')
     repo.split(repo.local_path)
-
-    self.interface.createrepo(repo.local_path)
 
     repo.readRepoData()    
     repo.readRepoContents()
@@ -66,10 +89,6 @@ class RpmsHook:
       repo.changed = True
       self.interface.cvars['input-repos-changed'] = True
       repo.writeRepoContents(repofile)      
-      # HACK ALERT: need to the remove the .depsolve/localrepo folder so
-      # that depsolver picks up the new RPM.      
-      rm(join(self.interface.METADATA_DIR, '.depsolve/localrepo'),
-         recursive=True, force=True)
     
     if not self.interface.cvars['repos']:
       self.interface.cvars['repos'] = {}
@@ -80,8 +99,6 @@ class RpmsHook:
       repo = Repo('localrepo-sources')
       repo.local_path = join(self.interface.LOCAL_REPO, 'SRPMS')
       repo.split(repo.local_path)
-
-      self.interface.createrepo(repo.local_path)
 
       repo.readRepoData()
       repo.readRepoContents()

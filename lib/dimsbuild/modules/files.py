@@ -17,7 +17,7 @@ from dims import osutils
 from dims import sync
 
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.interface import DiffMixin
+from dimsbuild.interface import DiffMixin, FilesMixin
 
 API_VERSION = 4.0
 
@@ -45,143 +45,45 @@ class ValidateHook:
   def run(self):
     self.interface.validate('/distro/files', 'files.rng')
 
-class FilesHook(DiffMixin):
+class FilesHook(DiffMixin, FilesMixin):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'files'
-    
+    self.ID = 'files.files'    
     self.interface = interface
-
-    mdfile = join(self.interface.METADATA_DIR, 'files.md')
 
     self.DATA =  {
       'config':    ['/distro/files'],
       'input':     [],
-      'output':    []
+      'output':    [],
     }
 
-    DiffMixin.__init__(self, mdfile, self.DATA)
+    DiffMixin.__init__(self, join(self.interface.METADATA_DIR, 'files.md'), self.DATA)
+    FilesMixin.__init__(self, self.interface.SOFTWARE_STORE)
 
-
-  def setup(self):
-
-    # Build up a dictionary of tuples keyed by full output path. Tuples contain 
-    # * source-folder - resolved full path dirname of item specified in config or 
-    #   locals
-    # * sub-folder - path between source and item, empty unless folder expansion
-    #   has occurred, useful during recursive sync operations to identify sync target
-    # * file - filename, or empty if the item is a folder
-    # * destination-folder - relative destination in the output folder as provided by a default
-    #   value or specified by the dest element of the config file, used to compose
-    #   output target folder
-
-    self.files = {}
-    for path in self.interface.config.xpath('/distro/files/path', []):
-
-      # get destination folder
-      try: 
-        dest = path.attrib['dest']
-        if dest == '/': dest = ''
-      except KeyError: 
-        dest = ''
-  
-      # resolve relative paths and expand folders to files
-      items = self.interface.expand(path.text, resolve=True, prefix=None)
-      items.sort()
-
-      # deal with folders
-      if len(items) > 1 :
-        for item in items :
-          source = item[:len(path.text)]
-          common = item[len(path.text):]
-          sub = dirname(common)
-          base = basename(common)
-          self.files[join(self.interface.SOFTWARE_STORE, dest, common)] = \
-                    ((source, sub, base, dest))
-
-      # deal with single files
-      if len(items) == 1 :
-        for item in items :
-          common = basename(item)
-          sub = dirname(common)
-          base = basename(common)
-          self.files[join(self.interface.SOFTWARE_STORE, dest, common)] = \
-                    ((dirname(item), sub, base, dest)) 
-
-    #print ('files: %s' % self.files)
-
-    # create outfiles variable
-    self.infiles = []
-    for item in self.files.values():
-      source,sub,file,dest = item # common-path, source-folder, dest-folder
-      self.infiles.append(join(source, sub, file))
-
-    self.outfiles = self.files.keys()
-
-    self.addInput(self.infiles)
-    self.addOutput(self.outfiles)
-
-    if self.outfiles or self.handlers['output'].output.keys():
+  def pre(self):
+    if self.interface.config.xpath('/distro/files/path/text()', []):
       self.interface.log(0, "processing user-provided files")
+    elif self.handlers['output'].oldoutput.keys():
+      self.interface.log(0, "removing previously-provided files")
+      
+  def setup(self):
+    # add files to the input and output filelists - look at FilesMixin.add_files() in interface.py
+    self.add_files('/distro/files/path')
 
   def force(self):
-    self.remove(self.handlers['output'].output.keys())
+    self.remove_files(self.handlers['output'].oldoutput.keys())
     self.clean_metadata()
 
   def check(self):
     return self.test_diffs()
 
   def run(self):
-
-    removeset = set(self.handlers['output'].output.keys()).difference(set(self.outfiles))
-    self.remove(removeset)
-
-    addset = set(self.outfiles).difference(set(self.handlers['output'].output.keys()))
-    self.add(addset, self.files)
- 
+    if not self.interface.isForced('files'):
+      # delete the files that have been modified or aren't required anymore
+      self.remove_files()
+    
+    # download the files
+    self.sync_files('/distro/files/path')
+    
+  def apply(self):
     self.write_metadata()  
-  
-  def add(self, addset, filesdict):
-    if addset: 
-      # convert set to list for sorting
-      add = [item for item in addset]
-      add.sort()
-      self.interface.log(1, "adding files and folders '%d'" % len(add))  
-      for item in add:
-        source,sub,file,dest = filesdict[item]
-        full_dest = join(self.interface.SOFTWARE_STORE, dest)
-        self.interface.log(2, "adding '%s'" % join(dest, sub, file))
-        if item[-1] == "/":
-          osutils.mkdir(item)
-        else: 
-         sync.sync(join(source,sub,file), join(full_dest, sub))
-
-  def remove(self, removeset):
-
-    folders = []
-    files = []
-
-    for item in removeset:
-      if exists(item): # eliminate missing item from list, e.g. because --force ALL has removed them
-	      if item[-1] == '/' : folders.append(item)
-	      else: files.append(item)        
-
-    folders.sort()
-    files.sort()
-
-    if files or folders:
-	    self.interface.log(1, "removing files and folders '%d'" % len(files + folders) )
-
-    if files:
-      for item in files:
-        self.interface.log(2, "removing '%s'" % item[len(self.interface.SOFTWARE_STORE + '/'):])
-        osutils.rm(item)
-
-    remove = []
-    for item in folders:
-      if not osutils.find(item, type=0101): remove.append(item)
-
-    if remove:
-      for item in remove:
-        self.interface.log(2, "removing '%s'" % item[len(self.interface.SOFTWARE_STORE + '/'):])
-        osutils.rm(remove, force=True, recursive=True)

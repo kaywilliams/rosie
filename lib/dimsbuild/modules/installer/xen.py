@@ -68,10 +68,13 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
     ImageModifyMixin.setup(self)
     self.register_image_locals(L_IMAGES)
     self.register_file_locals(L_FILES)
+    self.update({
+      'input': self.interface.cvars['buildstamp-file'],
+    })
     
   def force(self):
     self.interface.log(0, "forcing xen-images")
-    self.clean()
+    self.remove_files([ join(self.interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ])
   
   def check(self):
     if self.interface.isForced('xen-images') or \
@@ -79,7 +82,7 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
            self.test_diffs():
       if not self.interface.isForced('xen-images'):
         self.interface.log(0, "cleaning xen-images")
-        self.clean()
+        self.remove_files([ join(self.interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ])
       return True
     else:
       return False
@@ -98,6 +101,10 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
     for file in XEN_OUTPUT_FILES:
       if not exists(join(self.interface.SOFTWARE_STORE, file)):
         raise RuntimeError, "Unable to find '%s' in '%s'" % (file, join(self.interface.SOFTWARE_STORE, file))
+
+  def generate(self):
+    ImageModifyMixin.generate(self)
+    self.add_file(self.interface.cvars['buildstamp-file'], '/')
   
 
 L_FILES = ''' 

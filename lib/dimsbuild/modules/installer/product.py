@@ -66,10 +66,14 @@ class ProductHook(ImageModifyMixin):
   def setup(self):
     ImageModifyMixin.setup(self)
     self.register_image_locals(L_IMAGES)
+
+    self.update({
+      'input': self.interface.cvars['buildstamp-file'],
+    })
   
   def force(self):
     self.interface.log(0, "forcing product-image")
-    self.clean()
+    self.remove_files(self.handlers['output'].oldoutput.keys())
   
   def check(self):
     if self.interface.isForced('product-image') or \
@@ -77,7 +81,7 @@ class ProductHook(ImageModifyMixin):
            self.test_diffs():
       if not self.interface.isForced('product-image'):
         self.interface.log(0, "cleaning product-image")
-        self.clean()
+        self.remove_files(self.handlers['output'].oldoutput.keys())
       return True
     else:
       return False
@@ -110,6 +114,9 @@ class ProductHook(ImageModifyMixin):
     # generate installclasses if none exist
     if len(osutils.find(join(self.image.handler._mount, 'installclasses'), name='*.py')) == 0:
       self._generate_installclass()
+
+    # write the buildstamp file to the image
+    self.add_file(self.interface.cvars['buildstamp-file'], '/')
   
   def _generate_installclass(self):
     comps = xmltree.read(join(self.interface.METADATA_DIR, 'comps.xml'))
