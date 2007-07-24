@@ -134,7 +134,7 @@ class RepofileHook(DiffMixin):
 
 class PublishHook(DiffMixin):
   def __init__(self, interface):
-    self.VERSION = 0
+    self.VERSION = 1
     self.ID = 'publish.publish'
     
     self.interface = interface
