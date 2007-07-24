@@ -1,7 +1,7 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0" 
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   
-  <refentry>
+  <refentry xmlns="">
     <refsect1>
       <title>COMMON ELEMENTS</title>
       <para>
@@ -15,6 +15,9 @@
   <define name="element-repo">
     <element name="repo">
       <attribute name="id"/>
+      <optional>
+        <attribute name="type"><text/></attribute>
+      </optional>
       <element name="path"><text/></element>
       <interleave>
         <optional>
@@ -54,7 +57,7 @@
 
   <!-- boolean values -->
   <define name="value-boolean">
-    <refentry>
+    <refentry xmlns="">
       <refsection>
         <title>BOOLEAN VALUES</title>
         <para>
@@ -104,7 +107,7 @@
     <element name="path"><text/></element>
   </define>
   
-  <refentry>
+  <refentry xmlns="">
     <refsection>
       <title>MACROS</title>
       <para>
