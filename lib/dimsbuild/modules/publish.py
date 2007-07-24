@@ -178,10 +178,12 @@ class PublishHook(DiffMixin):
       self.interface.log(2, "making directory '%s'" % self.interface.PUBLISH_DIR)
       osutils.mkdir(self.interface.PUBLISH_DIR, parent=True)
     
-    for d in ['os', 'iso', 'SRPMS']:
+    for d in ['os', 'iso', 'SRPMS']: # each folder is technically optional
       src = join(self.interface.OUTPUT_DIR, d)
-      if not exists(src): continue # all folders are technically optional
-      sync.sync(src, self.interface.PUBLISH_DIR, link=True)
+      if not exists(src): # clean up any existing folders if not present in input
+        osutils.rm(join(self.interface.PUBLISH_DIR, d), recursive=True, force=True)
+        continue
+      sync.sync(src, self.interface.PUBLISH_DIR, link=True, strict=True)
     
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.interface.PUBLISH_DIR)
 
