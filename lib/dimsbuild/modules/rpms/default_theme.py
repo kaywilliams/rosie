@@ -75,7 +75,11 @@ class PkglistHook:
             packagelist = xmltree.Element('packagelist', parent=group)
           if packagelist.get('packagereq[text() = "%s"]' %rpmname, None) is None:
             packagereq = xmltree.Element('packagereq', parent=packagelist, text=rpmname, attrs=attrs)
+
+            ## HACK: have to reset the mtime of the comps.xml
+            stats = os.stat(self.interface.cvars['comps-file'])
             compstree.write(self.interface.cvars['comps-file'])
+            os.utime(self.interface.cvars['comps-file'], (stats.st_atime, stats.st_mtime))
         break    
     
 class DefaultThemeHook(RpmsHandler):
