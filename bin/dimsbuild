@@ -99,7 +99,7 @@ def main():
 
   #print opts
 
-  import_dirs = mainconfig.xpath('//librarypaths/path/text()')
+  import_dirs = mainconfig.xpath('//librarypaths/path/text()', [])
   if opts.libpath: import_dirs.insert(0, opts.libpath)
   
   for dir in sys.path:
