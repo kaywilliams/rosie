@@ -88,6 +88,7 @@ class Timber:
     self.rpm_disc_map = range(1, nrpmdiscs + 1)
     
     # srpms
+    nsrpmdiscs = 0
     if self.dosrc:
       srpmsize = osutils.du(osutils.find(self.unified_source_tree,
                                          name='*.[Ss][Rr][Cc].[Rr][Pp][Mm]'))

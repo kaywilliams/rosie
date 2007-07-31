@@ -24,11 +24,13 @@
   <define name="element-create-new">
     <element name="create-new">
       <interleave>
-        <element name="groups">
-          <oneOrMore>
-            <ref name="element-group"/>
-          </oneOrMore>
-        </element>
+        <optional>
+          <element name="groups">
+            <oneOrMore>
+              <ref name="element-group"/>
+            </oneOrMore>
+          </element>
+        </optional>
         
         <optional>
           <element name="include">
