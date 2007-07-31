@@ -227,6 +227,7 @@ def parse_size(size):
   elif type(size) == type(0.0):
     return int(size)
   elif type(size) == type(''):
+    size = size.upper()
     if size in SIZE_ALIASES:
       size = SIZE_ALIASES[size]
     try:

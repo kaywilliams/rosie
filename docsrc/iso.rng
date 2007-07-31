@@ -24,12 +24,12 @@ element iso {
           <title>enabled</title>
           <para>
           optional; boolean value controlling whether this event is enabled; defaults
-          to 'false'
+          to 'true'
           </para>
           <para>
-          If enabled, iso sets as defined in the sets list will be output to the iso
-          directory; if it is inactive, isos will not be generated and any existing
-          output will be deleted.
+          If enabled is true or unspecified, iso sets as defined in the sets list will
+          be output to the iso directory; if enabled is false, isos will not be generated 
+          and any existing output will be deleted.
           </para>
         </refsection>
       </refsection>
@@ -40,7 +40,7 @@ element iso {
         of dimsbuild - one at 640 megabytes in size, the second at 700 megabytes.
         </para>
         <programlisting>
-&lt;iso enabled='true'&gt;
+&lt;iso&gt;
   &lt;set&gt;CD&lt;/set&gt;
   &lt;set&gt;800M&lt;/set&gt;
 &lt;/iso&gt;
@@ -59,9 +59,9 @@ element iso {
       set elements are used by dimsbuild to determine the size of an iso set to
       generate.  The output trees are automatically split so that each iso is smaller
       than the specified size.  Sizes are indicated by a number in bytes, a number
-      followed by a size indicator ('K', 'M', or 'G', optionally followed by a 'B',
-      all of which are case-insensitive), or one of the reserved values 'CD' and 'DVD'
-      (which map to '640MB' and '4.7GB', respectively).
+      followed by a size indicator ('K', 'M', or 'G', optionally followed by a 'B'), 
+      or one of the reserved values 'CD' and 'DVD' (which map to '640MB' and '4.7GB', 
+      respectively).  Size indicators and reserved values are case-insensitive.
       </para>
       <para>
       If the size of a set changes to an equivalent size with a different name between

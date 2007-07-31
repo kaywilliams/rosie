@@ -4,9 +4,11 @@
     <element name="distro">
       <optional>
         <element name="iso">
-          <attribute name="enabled">
-            <ref name="value-boolean-with-default"/>
-          </attribute>
+          <optional>
+            <attribute name="enabled">
+              <ref name="value-boolean-with-default"/>
+            </attribute>
+          </optional>
           <oneOrMore>
             <element name="set"><text/></element>
           </oneOrMore>

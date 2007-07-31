@@ -191,8 +191,7 @@ class IsoHook(DiffMixin):
       self.interface.cvars['pkgorder-file'] = pkgorderfile
   
   def check(self):
-    # iso defaults to off, and 'default' not in BOOLEANS_TRUE
-    if self.interface.config.get('/distro/iso/@enabled', 'False') in BOOLEANS_TRUE:
+    if self.interface.config.get('/distro/iso/@enabled', 'True') in BOOLEANS_TRUE:
       if self.test_diffs():
         self.force()
         return True
