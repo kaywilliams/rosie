@@ -58,7 +58,7 @@ class SrpmInterface(EventInterface, ListCompareMixin):
     self.srpmdest = join(self.OUTPUT_DIR, 'SRPMS')
     
     self.cvars['source-include'] = \
-      self.config.get('/distro/source/@enabled', 'False') in BOOLEANS_TRUE
+      self.config.get('/distro/source/@enabled', 'True') in BOOLEANS_TRUE
   
   def syncSrpm(self, srpm, repo, force=False):
     "Sync a srpm from path within repo into the output store"

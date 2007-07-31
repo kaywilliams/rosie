@@ -21,7 +21,7 @@ element source {
           <title>enabled</title>
           <para>
           optional; boolean value indicating whether this event is active or not;
-          defaults to 'false'
+          defaults to 'true'
           </para>
           <para>
           If enabled, dimsbuild will include the necessary SRPMs to correspond to the

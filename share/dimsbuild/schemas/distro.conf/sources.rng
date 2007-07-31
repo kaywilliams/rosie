@@ -4,9 +4,11 @@
     <element name="distro">
       <optional>        
         <element name="source">
-          <attribute name="enabled">
-            <ref name="value-boolean-with-default"/>
-          </attribute>
+          <optional>
+            <attribute name="enabled">
+              <ref name="value-boolean-with-default"/>
+            </attribute>
+          </optional>
           <oneOrMore>
             <ref name="element-repo"/>
           </oneOrMore>
