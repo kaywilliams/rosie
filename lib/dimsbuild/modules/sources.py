@@ -57,7 +57,7 @@ class SrpmInterface(EventInterface, ListCompareMixin):
     self.callback = BuildSyncCallback(base.log.threshold)
     self.srpmdest = join(self.OUTPUT_DIR, 'SRPMS')
     
-    self.cvars['source-include'] = \
+    self.cvars['source-include'] = self.config.get('/distro/source', '') != '' and \
       self.config.get('/distro/source/@enabled', 'True') in BOOLEANS_TRUE
   
   def syncSrpm(self, srpm, repo, force=False):
@@ -108,7 +108,6 @@ class SourceHook(DiffMixin):
     self.mdfile = join(self.interface.METADATA_DIR, 'source.md')
     self._packages = {}
     
-    # source defaults to off, and 'default' not in BOOLEANS_TRUE
     self.dosource = self.interface.cvars['source-include']
     
     DiffMixin.__init__(self, self.mdfile, self.DATA)
