@@ -265,7 +265,7 @@ class IsoHook(DiffMixin):
     splitter = splittree.Timber(set, dosrc=self.interface.cvars['source-include'])
     splitter.product = self.interface.product
     splitter.unified_tree = self.interface.SOFTWARE_STORE
-    splitter.unified_source_tree = join(self.interface.DISTRO_DIR, 'SRPMS')
+    splitter.unified_source_tree = join(self.interface.OUTPUT_DIR, 'SRPMS')
     splitter.split_tree = join(self.splittrees, set)
     splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.interface.cvars['anaconda-version']).get('discinfo')
     splitter.pkgorder = join(self.interface.METADATA_DIR, 'pkgorder')
@@ -284,8 +284,8 @@ class IsoHook(DiffMixin):
     for i in range(1, splitter.numdiscs + 1):
       iso = '%s-disc%d' % (self.interface.product, i)
       self.interface.log(1, "generating %s.iso" % iso)
-      isolinux_stat = os.stat(join(self.splittrees, set, iso, 'isolinux/isolinux.bin'))
       if i == 1: # the first disc needs to be made bootable
+        isolinux_stat = os.stat(join(self.splittrees, set, iso, 'isolinux/isolinux.bin'))
         bootargs = '-b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table'
       else:
         bootargs = ''
