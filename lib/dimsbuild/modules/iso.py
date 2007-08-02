@@ -174,6 +174,7 @@ class IsoHook(DiffMixin):
       'variables': ['interface.cvars[\'source-include\']'],
       'input':     [join(self.interface.METADATA_DIR, 'manifest')], 
       'output':    [self.interface.isodir,
+                    join(self.interface.METADATA_DIR, 'pkgorder'),
                     self.splittrees], # may or may not want to include this one
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'iso.md')
@@ -181,8 +182,10 @@ class IsoHook(DiffMixin):
     DiffMixin.__init__(self, self.mdfile, self.DATA)
   
   def force(self):
+    # TODO generalize remove_files from the FilesMixin and use it here
     osutils.rm(self.interface.isodir, recursive=True, force=True)
     osutils.rm(self.splittrees, recursive=True, force=True)
+    osutils.rm(join(self.interface.METADATA_DIR, 'pkgorder'), force=True)
     self.clean_metadata()
   
   def setup(self):
