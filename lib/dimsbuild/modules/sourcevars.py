@@ -59,10 +59,9 @@ class SourcevarsHook:
     repo = self.interface.getRepo(self.interface.getBaseRepoId())
     
     #Download initrd.img to cache
-    initrd_file = join(self.interface.INPUT_STORE, repo.id,
-                       self.interface.cache(repo, 'isolinux/initrd.img',
-                         username=repo.username, password=repo.password,
-                         callback=BuildSyncCallback(self.interface.logthresh)))
+    initrd_file = self.interface.cache(repo, 'isolinux/initrd.img',
+                  username=repo.username, password=repo.password,
+                  callback=BuildSyncCallback(self.interface.logthresh))
     
     #Extract buildstamp
     locals = locals_imerge(L_IMAGES, self.interface.cvars['anaconda-version'])
