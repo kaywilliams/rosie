@@ -45,21 +45,21 @@ class GpgInterface(EventInterface):
     
     # public key
     self.pubkey = self.cvars['gpg-public-key'] or \
-                  self.config.get('/distro/gpgsign/public/text()')
+                  self.config.get('/distro/gpgsign/gpg-public-key/text()')
     if not self.pubkey:
       raise GpgError, "Missing GPG public key"
     
     # secret key
     self.seckey = self.cvars['gpg-secret-key'] or \
-                  self.config.get('/distro/gpgsign/secret/text()')
+                  self.config.get('/distro/gpgsign/gpg-secret-key/text()')
     if not self.seckey:
       raise GpgError, "Missing GPG secret key"
     
     # password
     self.password = self.cvars['gpg-passphrase']
     if not self.password:
-      if self.config.pathexists('/distro/gpgsign/password'):
-        self.password = self.config.get('/distro/gpgsign/password/text()', '')
+      if self.config.pathexists('/distro/gpgsign/gpg-passphrase'):
+        self.password = self.config.get('/distro/gpgsign/gpg-passphrase/text()', '')
       else:
         self.password = rpmsign.getPassphrase()
     
