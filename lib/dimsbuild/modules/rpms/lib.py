@@ -337,9 +337,9 @@ class RpmsHandler(DiffMixin, FileDownloadMixin):
     manifest = ['setup.py'] # setup.py is created by mkrpm.RpmBuilder
     srcdir = join(self.interface.getSourcesDirectory(), self.id)
     if exists(srcdir):
-      manifest.extend(find(srcdir, type=TYPE_FILE|TYPE_LINK, prefix=True))
+      manifest.extend(find(srcdir, type=TYPE_FILE|TYPE_LINK, printf='%P'))
     if exists(self.output_location):
-      manifest.extend(find(self.output_location, type=TYPE_FILE|TYPE_LINK, prefix=False))
+      manifest.extend(find(self.output_location, type=TYPE_FILE|TYPE_LINK, printf='%P'))
     filereader.write(manifest, join(self.output_location, 'MANIFEST'))          
 
   def _read_autoconf(self):
@@ -389,7 +389,7 @@ class RpmsHandler(DiffMixin, FileDownloadMixin):
     srcdir = join(self.interface.getSourcesDirectory(), self.id)
     sources = {}          
     if exists(srcdir):
-      for file in find(srcdir, type=TYPE_FILE|TYPE_LINK, prefix=False):
+      for file in find(srcdir, type=TYPE_FILE|TYPE_LINK, printf='%P'):
         dir = dirname(file)
         if not dir.startswith('/'): dir = '/' + dir
         if not sources.has_key(dir):

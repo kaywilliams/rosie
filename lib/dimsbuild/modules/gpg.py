@@ -125,7 +125,7 @@ class GpgsignHook(DiffMixin):
                                            maxdepth=1,
                                            name=RPM_GLOB,
                                            type=osutils.TYPE_FILE,
-                                           prefix=False) ]
+                                           printf='%P') ]
     self.clean_metadata()
   
   def check(self):

@@ -220,6 +220,7 @@ def getFileList(uri):
     return osutils.find(uri, indicators=True, type=osutils.TYPE_FILE|osutils.TYPE_LINK) or \
            [uri]
   else: # remote uri
+    # TODO - change this once spider supports type=TYPE argument
     return spider.find(uri, nregex='.*/$') or \
            [uri]
   

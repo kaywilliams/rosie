@@ -89,7 +89,7 @@ class InstallerLogosHook(ExtractHandler):
     # convert the syslinux-splash.png to splash.lss and copy it
     # to the isolinux/ folder
     try:
-      startimage = find(self.working_dir, self.file)[0]
+      startimage = find(self.working_dir, name=self.file)[0]
     except IndexError:
       raise SplashImageNotFound("missing '%s' in logos RPM" %(self.file,))
 

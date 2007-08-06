@@ -139,7 +139,7 @@ class SoftwareHook:
   
     # construct a list of rpms without .<arch>.rpm
     rpmlist = []
-    for rpm in osutils.find(self.interface.rpmdest, name=RPM_GLOB, prefix=False):
+    for rpm in osutils.find(self.interface.rpmdest, name=RPM_GLOB, printf='%P'):
       nvr = self.interface.nvr(rpm)
       if nvr not in rpmlist: rpmlist.append(nvr)
     

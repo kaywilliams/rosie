@@ -120,7 +120,7 @@ class ManifestHook:
   
   def run(self):
     manifest = []
-    for file in osutils.find(self.interface.SOFTWARE_STORE, prefix=False):
+    for file in osutils.find(self.interface.SOFTWARE_STORE, printf='%P'):
       manifest.append(
           self.__gen_manifest_line(file, prefix=self.interface.SOFTWARE_STORE)
         )
@@ -212,7 +212,7 @@ class IsoHook(DiffMixin):
       self.newsets_expanded.append(splittree.parse_size(set))
 
     oldsets = filter(None, osutils.find(self.splittrees, type=osutils.TYPE_DIR,
-                                        maxdepth=1, prefix=False))
+                                        maxdepth=1, printf='%P'))
     
     self.interface.compare(oldsets, self.newsets)
 
@@ -313,7 +313,7 @@ class IsoHook(DiffMixin):
                               name='%s-disc*' % self.interface.product,
                               type=osutils.TYPE_DIR,
                               maxdepth=1,
-                              prefix=False)):
+                              printf='%P')):
       if not exists(join(self.interface.isodir, set, '%s.iso' % disc)):
         self._delete_isotree(set)
         self._generate_isotree(set)

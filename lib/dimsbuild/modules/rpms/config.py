@@ -77,7 +77,7 @@ class ConfigRpmHook(RpmsHandler):
     if script:      
       post_install_scripts = find(location=self.output_location,
                                   name=basename(script),
-                                  prefix=False)
+                                  printf='%P')
       assert len(post_install_scripts) == 1
       return post_install_scripts[0]
     return None

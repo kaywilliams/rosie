@@ -155,13 +155,13 @@ class SourceHook(DiffMixin):
     self.interface.cb = self
     
     # generate list of srpms we already have
-    oldsrpmlist = osutils.find(self.interface.srpmdest, name=SRPM_GLOB, prefix=False)
+    oldsrpmlist = osutils.find(self.interface.srpmdest, name=SRPM_GLOB, printf='%P')
     
     # generate list of srpms to get
     srpmlist = []
     for pkg in osutils.find(join(self.interface.SOFTWARE_STORE,
                                  self.interface.product),
-                            name=RPM_GLOB, prefix=True):
+                            name=RPM_GLOB):
       i = os.open(pkg, os.O_RDONLY)
       h = self.interface.ts.hdrFromFdno(i)
       os.close(i)

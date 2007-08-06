@@ -223,7 +223,7 @@ class Build:
       modpath = join(path, 'dimsbuild/modules')
       if not exists(modpath): continue
       for mod in filter(None, osutils.find(modpath, nregex='.*\.pyc',
-                                           prefix=False, maxdepth=1)):
+                                           printf='%P', maxdepth=1)):
         if mod.replace('.py', '') not in self.disabled_modules and \
            mod.replace('.py', '') not in registered_modules:
           m = load_module(join(modpath, mod))
