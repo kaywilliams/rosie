@@ -117,7 +117,7 @@ class InstallerLogosHook(ExtractHandler):
     # product.img folder    
     pixmaps = []    
     for folder in dirs_to_look:
-      for image in find(folder, type=TYPE_FILE|TYPE_LINK, prefix=True):
+      for image in find(folder, type=TYPE_FILE|TYPE_LINK):
         file_name = basename(image)
         self.interface.log(4, "hardlinking %s to %s" %(file_name, product_img,))
         sync(image, product_img, link=True)
