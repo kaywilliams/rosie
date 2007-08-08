@@ -7,7 +7,8 @@ from dims import osutils
 from dims import sync
 
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.interface import DiffMixin, FilesMixin
+
+from dimsbuild.modules.lib import DiffMixin, FilesMixin
 
 from lib import FileDownloadMixin, ImageModifyMixin
 
@@ -65,7 +66,7 @@ class IsolinuxHook(FileDownloadMixin, FilesMixin, DiffMixin):
     repo = self.interface.getRepo(self.interface.getBaseRepoId())
     self.register_file_locals(L_FILES)
 
-    self.add_files('/distro/installer/isolinux/path')
+    self.add_files(xpaths='/distro/installer/isolinux/path')
     
     self.update({
       'input': [ repo.rjoin(f.get('path/text()'),
@@ -85,7 +86,7 @@ class IsolinuxHook(FileDownloadMixin, FilesMixin, DiffMixin):
     if self.test_diffs():
       if not self.interface.isForced('isolinux'):
         self.interface.log(0, "cleaning isolinux")
-        self.remove_files(self.handlers['output'].oldoutput.keys())
+        self.remove_files()
       return True
     else:    
       return False
@@ -98,7 +99,7 @@ class IsolinuxHook(FileDownloadMixin, FilesMixin, DiffMixin):
     self.download()
 
     # copy input files - see FilesMixin.sync_files() in interface.py
-    self.sync_files('/distro/installer/isolinux/path')
+    self.sync_files()
     
     # modify the first append line in isolinux.cfg
     bootargs = self.interface.config.get('/distro/installer/isolinux/boot-args/text()', None)
@@ -203,7 +204,7 @@ class InitrdHook(ImageModifyMixin):
 
   def generate(self):
     ImageModifyMixin.generate(self)
-    self.add_file(self.interface.cvars['buildstamp-file'], '/')
+    self.write_buildstamp()
 
 #------ LOCALS ------#
 L_FILES = ''' 

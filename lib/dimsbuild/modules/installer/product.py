@@ -116,7 +116,7 @@ class ProductHook(ImageModifyMixin):
       self._generate_installclass()
 
     # write the buildstamp file to the image
-    self.add_file(self.interface.cvars['buildstamp-file'], '/')
+    self.write_buildstamp()
   
   def _generate_installclass(self):
     comps = xmltree.read(join(self.interface.METADATA_DIR, 'comps.xml'))

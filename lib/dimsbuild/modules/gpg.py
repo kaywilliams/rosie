@@ -7,7 +7,9 @@ from dims.mkrpm   import rpmsign
 
 from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.interface import DiffMixin, EventInterface
+from dimsbuild.interface import EventInterface
+
+from dimsbuild.modules.lib import DiffMixin
 
 API_VERSION = 4.0
 

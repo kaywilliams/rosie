@@ -15,7 +15,9 @@ from dims import sync
 from dimsbuild.callback  import BuildSyncCallback
 from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, RPM_PNVRA
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.interface import EventInterface, ListCompareMixin
+from dimsbuild.interface import EventInterface
+
+from dimsbuild.modules.lib import ListCompareMixin
 
 API_VERSION = 4.0
 

@@ -11,7 +11,9 @@ from dims import xmltree
 from dims.configlib import uElement
 
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.interface import EventInterface, DiffMixin, RepoFromXml, Repo
+from dimsbuild.interface import EventInterface, RepoFromXml, Repo
+
+from dimsbuild.modules.lib import DiffMixin
 
 API_VERSION = 4.0
 

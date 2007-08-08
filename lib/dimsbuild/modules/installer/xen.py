@@ -104,7 +104,7 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
 
   def generate(self):
     ImageModifyMixin.generate(self)
-    self.add_file(self.interface.cvars['buildstamp-file'], '/')
+    self.write_buildstamp()
   
 
 L_FILES = ''' 

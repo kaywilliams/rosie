@@ -15,7 +15,9 @@ from dims.repocreator import YumRepoCreator
 
 from dimsbuild.constants import *
 from dimsbuild.event     import EVENT_TYPE_MDLR
-from dimsbuild.interface import EventInterface, DiffMixin
+from dimsbuild.interface import EventInterface
+
+from dimsbuild.modules.lib import DiffMixin
 
 API_VERSION = 4.0
 
@@ -57,9 +59,8 @@ class RepofileHook(DiffMixin):
     
     self.interface = interface
     
-    self.repodir = join(self.interface.METADATA_DIR,
-                        'rpms-src/release-rpm', # this is the fragile part
-                        'etc/yum.repos.d')
+    self.repodir = join(self.interface.METADATA_DIR, 'RPMS/rpms-src',
+                        'release-rpm/etc/yum.repos.d')
     self.repofile    = join(self.repodir, '%s.repo' % self.interface.product)
     self.srcrepofile = join(self.repodir, 'source.repo')
     

@@ -25,7 +25,9 @@ from dims.configlib import uElement
 from dimsbuild.callback  import BuildSyncCallback
 from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, SRPM_GLOB, SRPM_PNVRA
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from dimsbuild.interface import EventInterface, ListCompareMixin, DiffMixin, RepoFromXml, Repo
+from dimsbuild.interface import EventInterface, RepoFromXml, Repo
+
+from dimsbuild.modules.lib import DiffMixin, ListCompareMixin
 
 API_VERSION = 4.0
 

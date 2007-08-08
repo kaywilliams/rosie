@@ -5,7 +5,7 @@ from os.path import join, exists
 from dims import osutils
 from dims import shlib
 
-from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
 API_VERSION = 4.0
 

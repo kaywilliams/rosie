@@ -5,10 +5,9 @@ try:
 except ImportError:
   raise ImportError("missing 'python-imaging' RPM")
 
+from dims import osutils
 from dims import shlib
-
-from dims.osutils import *
-from dims.sync    import sync
+from dims import sync
 
 from dimsbuild.event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from dimsbuild.magic import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
@@ -70,37 +69,37 @@ class InstallerLogosHook(ExtractHandler):
   def run(self):
     ExtractHandler.extract(self, "processing installer logos")
 
-  def generate(self):
+  def generate(self, working_dir):
     "Create the splash image and copy it to the isolinux/ folder"
     output_dir = join(self.software_store, 'isolinux')
     if not exists(output_dir):
-      mkdir(output_dir, parent=True)
+      osutils.mkdir(output_dir, parent=True)
 
     # copy images to the product.img/ folder
-    output = self.copy_pixmaps()
+    output = self.copy_pixmaps(working_dir)
 
     # create the splash image
-    output.append(self.generate_splash())
+    output.append(self.generate_splash(working_dir))
     
     return output
   
-  def generate_splash(self):
+  def generate_splash(self, working_dir):
     splash = join(self.software_store, 'isolinux', 'splash.%s' %self.format)
     # convert the syslinux-splash.png to splash.lss and copy it
     # to the isolinux/ folder
     try:
-      startimage = find(self.working_dir, name=self.file)[0]
+      startimage = osutils.find(working_dir, name=self.file)[0]
     except IndexError:
       raise SplashImageNotFound("missing '%s' in logos RPM" %(self.file,))
 
     if self.format == 'jpg':
-      cp(startimage, splash)
+      osutils.cp(startimage, splash)
     else:
       shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
                     %(startimage, splash,))
     return splash
 
-  def copy_pixmaps(self):
+  def copy_pixmaps(self, working_dir):
     """ 
     Create the product.img folder that can be used by the product.img
     module.
@@ -108,21 +107,17 @@ class InstallerLogosHook(ExtractHandler):
     # link the images from the RPM folder to the pixmaps/ folder in
     # the folder the product.img event looks in.
     product_img = join(self.interface.METADATA_DIR, 'images-src', 'product.img', 'pixmaps')
-    mkdir(product_img, parent=True)
-
-    # FIXME: is the anaconda/pixmaps folder sufficient?
-    dirs_to_look = find(self.working_dir, name='pixmaps', type=TYPE_DIR, regex='.*anaconda.*')
+    osutils.mkdir(product_img, parent=True)
 
     # generate the list of files to use and copy them to the
-    # product.img folder    
-    pixmaps = []    
-    for folder in dirs_to_look:
-      for image in find(folder, type=TYPE_FILE|TYPE_LINK):
-        file_name = basename(image)
-        self.interface.log(4, "hardlinking %s to %s" %(file_name, product_img,))
-        sync(image, product_img, link=True)
-        pixmaps.append(join(product_img, file_name))
-        
+    # product.img folder
+    ## FIXME: is anaconda/pixmaps sufficient?
+    pixmaps = []
+    for img in osutils.find(working_dir,
+                            regex='.*usr/share/anaconda/pixmaps*',
+                            type=osutils.TYPE_FILE|osutils.TYPE_LINK):      
+      sync.sync(img, product_img)
+      pixmaps.append(join(product_img, osutils.basename(img)))
     return pixmaps
 
   def apply(self):
@@ -142,11 +137,11 @@ class InstallerLogosHook(ExtractHandler):
   def find_rpms(self):
     pkgname = self.config.get('/distro/installer/logos/package/text()',
                               '%s-logos' %(self.interface.product,))    
-    rpms = find(self.interface.cvars['rpms-directory'], name='%s-*-*' %(pkgname,),
-                nregex='.*[Ss][Rr][Cc]\.[Rr][Pp][Mm]')
+    rpms = osutils.find(self.interface.cvars['rpms-directory'], name='%s-*-*' %(pkgname,),
+                        nregex='.*[Ss][Rr][Cc]\.[Rr][Pp][Mm]')
     if len(rpms) == 0:
-      rpms = find(self.interface.cvars['rpms-directory'], name='*-logos-*-*',
-                  nregex='.*[Ss][Rr][Cc]\.[Rr][Pp][Mm]')
+      rpms = osutils.find(self.interface.cvars['rpms-directory'], name='*-logos-*-*',
+                          nregex='.*[Ss][Rr][Cc]\.[Rr][Pp][Mm]')
       if len(rpms) == 0:
         raise RpmNotFoundError("missing logo RPM")
     return [rpms[0]]
@@ -163,8 +158,8 @@ L_INSTALLER_LOGOS = '''
       </splash-image>
     </installer-logo>
 
-    <!-- approx 11.2.0.66-1 - starting using a .jpg instead of converting -->
-    <!-- syslinux.png to splash.lss .                                     -->
+    <!-- approx 11.2.0.66-1 - started using a .jpg instead of converting -->
+    <!-- syslinux.png to splash.lss                                      -->
     <installer-logo version="11.2.0.66-1">
       <action type="update" path="splash-image">
         <format>jpg</format>

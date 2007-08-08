@@ -32,6 +32,8 @@ __author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
 __version__ = '1.0'
 __date__    = 'June 12th, 2007'
 
+from xml.sax import SAXParseException
+
 import copy
 import os
 import time
@@ -44,83 +46,6 @@ from dims import spider
 from dims import xmlserialize
 from dims import xmltree
 
-class DiffTest:
-  """ 
-  The main status manager class.  Contains a list of handlers, which are classes
-  that actually perform the necessary checks.  Also capable of reading and writing
-  a metadata file, stored in xml format, which can store information between sessions.
-  """
-  def __init__(self, mdfile):
-    "mdfile is the location to use as the metadata file for storage between executions"
-    self.mdfile = mdfile # the location of the file to store information
-    
-    self.handlers = [] # a list of registered handlers
-    
-    self.debug = False
-  
-  def dprint(self, msg):
-    if self.debug: print msg
-
-  def addHandler(self, handler):
-    "Add a handler that implements the status interface (described above)"
-    handler.debug = self.debug
-    handler.dprint = self.dprint
-    self.handlers.append(handler)
-    
-    try: metadata = xmltree.read(self.mdfile)
-    except ValueError: return
-
-    handler.mdread(metadata)
-
-  def clean_metadata(self):
-    for handler in self.handlers:
-      handler.clear()
-    osutils.rm(self.mdfile, force=True)
-      
-  def read_metadata(self):
-    """
-    Read the file stored at self.mdfile and pass it to each of the
-    handler's mdread() functions.
-    """
-    try: metadata = xmltree.read(self.mdfile)
-    except ValueError: return
-
-    for handler in self.handlers:
-      handler.mdread(metadata)
-    
-  def write_metadata(self):
-    """    
-    Create an XmlTreeElement from self.mdfile, if it exists, or make a
-    new one and pass it to each of the handler's mdwrite() functions.
-    Due to the way xmltree.XmlTreeElements work, mdwrite() doesn't
-    need to return any values; xmltree appends are destructive.    
-    """
-    if exists(self.mdfile): root = xmltree.read(self.mdfile)
-    else: root = xmltree.Element('metadata')
-
-    for handler in self.handlers:
-      handler.mdwrite(root)
-
-    root.write(self.mdfile)
-
-  def changed(self, debug=None):
-    "Returns true if any handler returns a diff with length greater than 0"
-    old_dbgval = self.debug
-    if debug is not None: self.debug = debug
-    changed = False
-    for handler in self.handlers:
-      d = handler.diff()
-      if len(d) > 0:
-        changed = True
-    self.debug = old_dbgval
-    return changed
-  
-  def test(self, debug=None):
-    "Perform a full check, from reading metadata to writing"
-    self.read_metadata()
-    change = self.changed(debug=debug)
-    self.write_metadata()
-    return change
 
 def expand(list):
   "Expands a list of lists into a list, in place."
@@ -194,22 +119,14 @@ def diff(oldstats, newstats):
       diffdict[file] = (oldstats[file], newstats[file])
   return diffdict
   
-def expandPaths(paths, prefix=None):
+def expandPaths(paths):
   if type(paths) == str: paths = [paths]
   
   npaths = []
   for path in paths:
-    if prefix and not path.startswith('/') and path.find('://') == -1:
-      path = join(prefix, path)        
     npaths.extend(getFileList(path))
-      
-  while len(paths) > 0: paths.pop()
-  
-  for npath in npaths:
-    if npath not in paths:
-      paths.append(npath)
-      
-  return paths
+
+  return npaths
 
 def getFileList(uri):
   "Return the files of a remote or local (absolute) uri"
@@ -217,12 +134,9 @@ def getFileList(uri):
     uri = '/' + uri[6:].lstrip('/')
     
   if uri.startswith('/'): # local uri
-    return osutils.find(uri, indicators=True, type=osutils.TYPE_FILE|osutils.TYPE_LINK) or \
-           [uri]
+    return osutils.find(uri, type=osutils.TYPE_FILE|osutils.TYPE_LINK)
   else: # remote uri
-    # TODO - change this once spider supports type=TYPE argument
-    return spider.find(uri, nregex='.*/$') or \
-           [uri]
+    return spider.find(uri, nregex='.*/$')
   
 def DiffTuple(file):
   "Generate a (size, mtime) tuple for file"
@@ -231,6 +145,85 @@ def DiffTuple(file):
   except OSError, HTTPError:
     # FIXME: should the exception be raised here?
     return (None, None) 
+
+
+class DiffTest:
+  """ 
+  The main status manager class.  Contains a list of handlers, which are classes
+  that actually perform the necessary checks.  Also capable of reading and writing
+  a metadata file, stored in xml format, which can store information between sessions.
+  """
+  def __init__(self, mdfile):
+    "mdfile is the location to use as the metadata file for storage between executions"
+    self.mdfile = mdfile # the location of the file to store information    
+    self.handlers = [] # a list of registered handlers
+    self.debug = False
+  
+  def dprint(self, msg):
+    if self.debug: print msg
+
+  def addHandler(self, handler):
+    "Add a handler that implements the status interface (described above)"
+    handler.debug = self.debug
+    handler.dprint = self.dprint
+    self.handlers.append(handler)
+    
+    try:
+      metadata = xmltree.read(self.mdfile)
+    except ValueError, SAXParseException:
+      return
+
+    handler.mdread(metadata)
+
+  def clean_metadata(self):
+    for handler in self.handlers:
+      handler.clear()
+    osutils.rm(self.mdfile, force=True)
+      
+  def read_metadata(self):
+    """
+    Read the file stored at self.mdfile and pass it to each of the
+    handler's mdread() functions.
+    """
+    try: metadata = xmltree.read(self.mdfile)
+    except ValueError: return
+
+    for handler in self.handlers:
+      handler.mdread(metadata)
+    
+  def write_metadata(self):
+    """    
+    Create an XmlTreeElement from self.mdfile, if it exists, or make a
+    new one and pass it to each of the handler's mdwrite() functions.
+    Due to the way xmltree.XmlTreeElements work, mdwrite() doesn't
+    need to return any values; xmltree appends are destructive.    
+    """
+    if exists(self.mdfile): root = xmltree.read(self.mdfile)
+    else: root = xmltree.Element('metadata')
+
+    for handler in self.handlers:
+      handler.mdwrite(root)
+
+    root.write(self.mdfile)
+
+  def changed(self, debug=None):
+    "Returns true if any handler returns a diff with length greater than 0"
+    old_dbgval = self.debug
+    if debug is not None: self.debug = debug
+    changed = False
+    for handler in self.handlers:
+      d = handler.diff()
+      if len(d) > 0:
+        changed = True
+    self.debug = old_dbgval        
+    return changed
+
+  def test(self, debug=None):
+    "Perform a full check, from reading metadata to writing"
+    self.read_metadata()
+    change = self.changed(debug=debug)
+    self.write_metadata()
+    return change
 
 class NewEntry:
   "Represents an item requested in a handler's data section that is not currently"
@@ -252,9 +245,8 @@ class NoneEntry:
 
 #------ HANDLERS ------#
 class InputHandler:
-  def __init__(self, data, prefix):
-    self.prefix = prefix
-
+  def __init__(self, data):
+    self.name = 'input'
     self.data = []
     self.oldinput = {} # {file: stats}
     self.newinput = {} # {file: stats}
@@ -286,17 +278,18 @@ class InputHandler:
     except TypeError: pass
     parent = xmltree.Element('input', parent=root)
     for datum in self.data:
-      ifiles = self.filelists.get(datum, expandPaths(datum, prefix=self.prefix))
+      ifiles = self.filelists.get(datum, expandPaths(datum))
       for ifile in ifiles:
-        size, mtime = self.newinput.get(ifile, getMetadata(ifile))
+        size, mtime = self.newinput.get(ifile, DiffTuple(ifile))
         e = xmltree.Element('file', parent=parent, attrs={'path': ifile})
         xmltree.Element('size', parent=e, text=str(size))
         xmltree.Element('mtime', parent=e, text=str(mtime))
     
   def diff(self):
     for datum in self.data:
-      ifiles = expandPaths(datum, prefix=self.prefix)
-      self.filelists[datum] = ifiles
+      if not self.filelists.has_key(datum):
+        self.filelists[datum] = expandPaths(datum)
+      ifiles = self.filelists[datum]
       for ifile in ifiles:
         self.newinput[ifile] = DiffTuple(ifile)        
     self.diffdict = diff(self.oldinput, self.newinput)    
@@ -304,9 +297,9 @@ class InputHandler:
     return self.diffdict
 
 class OutputHandler:
-  def __init__(self, data, prefix):
-    self.prefix = prefix
-
+  def __init__(self, data):
+    self.name = 'output'
+    
     self.data = []
     self.oldoutput = {}
     self.newoutput = {}
@@ -336,23 +329,18 @@ class OutputHandler:
     except TypeError: pass
     
     parent = xmltree.uElement('output', parent=root)
-
-    # write to metadata file 
-    for output in expandPaths(self.data, prefix=self.prefix):
-      size, mtime = getMetadata(output)         
-      e = xmltree.Element('file', parent=parent, attrs={'path': output})
-      xmltree.Element('size', parent=e, text=str(size))
-      xmltree.Element('mtime', parent=e, text=str(mtime))
+    # write to metadata file
+    paths = expandPaths(self.data)
+    if paths:
+      for output in paths:
+        size, mtime = DiffTuple(output)
+        e = xmltree.Element('file', parent=parent, attrs={'path': output})
+        xmltree.Element('size', parent=e, text=str(size))
+        xmltree.Element('mtime', parent=e, text=str(mtime))
 
   def diff(self):
-    ## FIXME: fix the following if-else. The else-block shouldn't
-    ## be required. 
-    if self.data:      
-      for file in expandPaths(self.data, prefix=self.prefix):
-        self.newoutput[file] = DiffTuple(file)
-    else:
-      for file in self.oldoutput.keys():
-        self.newoutput[file] = DiffTuple(file)
+    for file in expandPaths(self.data):
+      self.newoutput[file] = DiffTuple(file)
 
     self.diffdict = diff(self.oldoutput, self.newoutput)
     if self.diffdict: self.dprint(self.diffdict)
@@ -360,6 +348,8 @@ class OutputHandler:
 
 class ConfigHandler:
   def __init__(self, data, config):
+    self.name = 'config'
+    
     self.data = data
     self.config = config
     self.cfg = {}
@@ -425,6 +415,8 @@ class ConfigHandler:
 
 class VariablesHandler:
   def __init__(self, data, obj):
+    self.name = 'variables'
+    
     self.data = data
     self.obj = obj
     self.vars = {}

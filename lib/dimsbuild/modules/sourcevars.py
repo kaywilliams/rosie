@@ -20,7 +20,8 @@ from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
 from dimsbuild.misc      import locals_imerge
-from dimsbuild.interface import DiffMixin
+
+from dimsbuild.modules.lib import DiffMixin
 
 API_VERSION = 4.0
 

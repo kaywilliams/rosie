@@ -12,8 +12,9 @@ from dims.CacheManager import CacheManagerError
 from dims.configlib    import ConfigError
 
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
-from dimsbuild.interface import DiffMixin
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
+
+from dimsbuild.modules.lib import DiffMixin
 
 API_VERSION = 4.0
 

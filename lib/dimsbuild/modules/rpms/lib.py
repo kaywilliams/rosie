@@ -1,23 +1,59 @@
 from ConfigParser import ConfigParser
 from os.path      import exists, join
 
-import fcntl
 import os
-import rpm
-import socket
-import struct
 
 from dims import filereader
 from dims import mkrpm
+from dims import osutils
 from dims import shlib
+from dims import sync
 from dims import xmltree
 
-from dims.osutils import *
-from dims.sync    import sync
-
 from dimsbuild.constants import BOOLEANS_TRUE
-from dimsbuild.event     import EventInterface
-from dimsbuild.interface import DiffMixin, FilesMixin
+from dimsbuild.event     import EventInterface, HookExit
+
+from dimsbuild.modules.lib import DiffMixin, FilesMixin
+
+TYPE_FILE = osutils.TYPE_FILE
+TYPE_LINK = osutils.TYPE_LINK
+
+#------- INTERFACES --------#
+class RpmsInterface(EventInterface):
+  def __init__(self, base):
+    EventInterface.__init__(self, base)
+
+    self.LOCAL_REPO  = join(self.METADATA_DIR, 'RPMS', 'localrepo')
+    self.SOURCES_DIR = join(self.METADATA_DIR, 'RPMS', 'rpms-src')
+    self.LOCAL_RPMS  = join(self.LOCAL_REPO, 'RPMS')
+    self.LOCAL_SRPMS = join(self.LOCAL_REPO, 'SRPMS')
+    self.RPMS_DEST   = join(self.SOFTWARE_STORE, self.product)
+    
+    self.sharepath = self._base.sharepath
+
+    self.cvars['local-rpms'] = self.LOCAL_RPMS
+
+  def createrepo(self, path=None):
+    path = path or self.LOCAL_REPO
+    cwd = os.getcwd()
+    os.chdir(path)
+    shlib.execute('/usr/bin/createrepo -q .')
+    os.chdir(cwd)
+
+  def addRpm(self, path):
+    sync.sync(path, self.LOCAL_REPO)    
+  
+  def buildRpm(self, path, rpm_output, changelog=None, logger='rpmbuild',
+               createrepo=False, quiet=True):
+
+    mkrpm.build(path, rpm_output, changelog=changelog, logger=logger,
+                keepTemp=True, createrepo=createrepo,
+                quiet=quiet)
+    
+    # need to delete the dist folder, because the RPMS have been copied
+    # already to wherever they need to be. 
+    osutils.rm(join(path, 'dist'), recursive=True, force=True)
+
 
 #------ MIXINS ------#
 class ColorMixin:
@@ -27,7 +63,8 @@ class ColorMixin:
     # compute the background and foreground colors to use
     self.distroname, self.distroversion = self._get_distro_info()
     try:
-      self.bgcolor, self.textcolor, self.hlcolor = IMAGE_COLORS[self.distroname][self.distroversion]
+      self.bgcolor, self.textcolor, self.hlcolor = \
+                    IMAGE_COLORS[self.distroname][self.distroversion]
     except KeyError:
       self.bgcolor, self.textcolor, self.hlcolor = IMAGE_COLORS['*']['0']
 
@@ -53,6 +90,7 @@ class ColorMixin:
     version = self.interface.cvars['source-vars']['version']
     return fullname, version
 
+
 class FileDownloadMixin(FilesMixin):
   def __init__(self, prefix, installinfo):
     # the class using FileDownloadMixin should also extend DiffMixin
@@ -63,243 +101,238 @@ class FileDownloadMixin(FilesMixin):
 
   def register(self):
     for k,v in self.installinfo.items():
-      xquery,_ = v
-      if xquery is not None:
-        self.add_files(xquery, prefix=join(self.prefix, k))
+      xpath,_ = v
+      if xpath is not None:
+        oprefix = join(self.prefix, k)
+        self.add_files(xpaths=xpath, oprefix=oprefix, addoutput=False)
         
   def download(self):
-    for k,v in self.installinfo.items():
-      xquery,_ = v
-      if xquery is not None:
-        self.sync_files(xquery, prefix=join(self.prefix, k))
+    self.sync_files()
 
 
-#---------- INTERFACES -----------#
-class RpmsInterface(EventInterface):
-  def __init__(self, base):
-    EventInterface.__init__(self, base)
+class RpmBuildHook(DiffMixin, FileDownloadMixin):
+  def __init__(self,
+               interface,
+               data,
+               id,
+               rpmname,
+               version=None,
+               arch='noarch',
+               summary=None,
+               description=None,
+               provides=None,
+               requires=None,
+               obsoletes=None,          
+               installinfo={},
+               default='True',
+               package_type=None,
+               condrequires=None):
+    """
+    @param interface   : the interface object for this hook
+    @param data        : the diff metadata struct
+    @param id          : the id of the hook's event
+    @param default     : the value of the enabled attribute
+                         if it is 'default'
 
-    self.sharepath = self._base.sharepath
-    self.LOCAL_REPO = join(self._base.METADATA_DIR, 'localrepo')
-    
-  def getSourcesDirectory(self):
-    return join(self.METADATA_DIR, 'rpms-src')
+    RPM spec file related parameters -    
+    @param rpmname     : the name of the rpm to build
+    @param version     : the version of this RPM
+    @param arch        : the architecture for the RPM    
+    @param summary     : the summary for the RPM
+    @param description : the description of the RPM    
+    @param provides    : the items this RPM provides
+    @param requires    : the items this RPM requires
+    @param obsoletes   : the items this RPM obsoletes
 
-  def addRpm(self, path):
-    sync(path, self.LOCAL_REPO)
-  
-  def createrepo(self, path=None):
-    path = path or self.LOCAL_REPO
-    cwd = os.getcwd()
-    os.chdir(path)
-    shlib.execute('/usr/bin/createrepo -q .')
-    os.chdir(cwd)
+    comps.xml related parameters - 
+    @param package_type: the type of the package: mandatory,
+                         conditional etc.
+    @param condrequires: the package this package conditionally
+                         requires
 
-  def buildRpm(self, path, rpm_output, changelog=None, logger='rpmbuild',
-               createrepo=False, quiet=True):
-
-    mkrpm.build(path, rpm_output, changelog=changelog, logger=logger,
-                keepTemp=True, createrepo=createrepo,
-                quiet=quiet)
-    
-    # need to delete the dist folder, because the RPMS have been copied
-    # already to wherever they need to be. 
-    rm(join(path, 'dist'), recursive=True, force=True)
-
-  def getIpAddress(self, ifname='eth0'):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    return socket.inet_ntoa(fcntl.ioctl(s.fileno(),
-                                        0x8915, # SIOCGIFADDR
-                                        struct.pack('256s', ifname[:15]))[20:24])  
-
-
-#---------- HANDLERS -------------#
-class RpmsHandler(DiffMixin, FileDownloadMixin):
-  def __init__(self, interface, data, id, rpmname,
-               summary=None, description=None, installinfo={}):
+    path element related parameters -
+    @param installinfo : the xpath queries to install directory
+                         mappings    
+    """
     self.interface = interface
-
-    # self.<k> = self.interface.<v>
-    for k,v in [('config',   'config'),   ('fullname',       'fullname'),
-                ('arch',     'basearch'), ('software_store', 'SOFTWARE_STORE'),
-                ('fullname', 'fullname'), ('product',        'product'),
-                ('version',  'version'),  ('log',            'log'),
-                ('sharepath',      'sharepath')]:
-      setattr(self, k, getattr(self.interface, v))
-
-    self.metadata = join(self.interface.METADATA_DIR, 'RPMS')
-    self.id = id
-    self.rpmname = rpmname
-    self.summary = summary
-    self.description = description
-    self.author = 'dimsbuild'
-
-    self.output_location = join(self.metadata, self.id)
-    self.autoconf = join(dirname(self.config.file), 'distro.conf.auto')
     
-    DiffMixin.__init__(self, join(self.metadata, '%s.md' % self.id), data)
-    FileDownloadMixin.__init__(self, self.output_location, installinfo)
+    self.id      = id
+    self.default = default
+    
+    # spec file information
+    self.arch        = arch
+    self.author      = 'dimsbuild'
+    self.description = description
+    self.obsoletes   = obsoletes
+    self.provides    = provides
+    self.requires    = requires
+    self.release     = None # filled in in run()
+    self.rpmname     = rpmname
+    self.summary     = summary
+    self.version     = version or self.interface.version
+
+    # comps.xml information
+    self.condrequires = condrequires
+    self.package_type = package_type or 'mandatory'    
+
+    # build information
+    self.build_folder = join(self.interface.METADATA_DIR,
+                             'RPMS', self.id)
+    self.autoconf = join(osutils.dirname(self.interface.config.file),
+                         'distro.conf.auto')    
+    
+    DiffMixin.__init__(self,
+                       join(self.interface.METADATA_DIR, 'RPMS',
+                            '%s.md' % self.id),
+                       data)
+    FileDownloadMixin.__init__(self, self.build_folder, installinfo)
                         
   def setup(self):
-    if not exists(self.output_location):
-      mkdir(self.output_location, parent=True)
-
     # register xpath queries for input files - look at FileDownloadMixin.register()
     self.register()
 
     # add the directory (if exists) to which other events add files to
     # that are to be installed by this RPM.
-    rpmssrc = join(self.interface.getSourcesDirectory(), self.id)
+    rpmssrc = join(self.interface.SOURCES_DIR, self.id)
     if exists(rpmssrc):
       self.update({'input': rpmssrc})
-
+    
     self.update({
       'output': [
-         self.output_location,
-         join(self.interface.LOCAL_REPO, 'RPMS',
-              '%s*[!Ss][!Rr][!Cc].[Rr][Pp][Mm]' % self.rpmname),
-         join(self.interface.LOCAL_REPO, 'SRPMS',
-              '%s*[Ss][Rr][Cc].[Rr][Pp][Mm]' % self.rpmname)
+         self.build_folder,
+         osutils.find(self.interface.LOCAL_RPMS,
+                      name='%s*[Rr][Pp][Mm]' % self.rpmname),
+         osutils.find(self.interface.LOCAL_SRPMS,
+                      name='%s*[Ss][Rr][Cc].[Rr][Pp][Mm]' % self.rpmname)         
        ],
     })
-        
-  def force(self):
-    self.log(0, "forcing %s" % self.id)
-    self._clean()
     
   def check(self):
-    if self._test_build():
-      if self.test_diffs():
-        if not self.interface.isForced(self.id):
-          self.log(0, "building %s rpm" % self.rpmname)        
-        self._clean()
-        return True
-      else:
-        return False
+    if self.test_build():
+      return self.interface.isForced(self.id) or \
+             not exists(self.mdfile) or \
+             not exists(self.autoconf) or \
+             self.test_diffs()              
     else:
-      self._clean()
+      self._delete_old_files()
       return False
   
   def run(self):
-    mkdir(self.output_location, parent=True)
+    self.interface.log(0, "building %s rpm" % self.rpmname)
+
+    # compute the release number....
+    self.set_release()
+    self.interface.log(1, "rpm release number: %s" % self.release)
     
-    # sync input files....
-    self._copy()
+    # ....delete older rpms....
+    self._delete_old_files()
+
+    # ....make sure that the build folder exists....
+    osutils.mkdir(self.build_folder, parent=True)
+    
+    # ....sync input files....
+    self.download()
 
     # ....generate additional files, if required....
-    self._generate()
+    self.generate()
 
     # ....write setup.cfg....
-    self._write_spec()
+    self.write_spec()
 
     # ....write MANIFEST....
-    self._write_manifest()    
+    self.write_manifest()    
 
     # ....build the RPM....
-    self.interface.buildRpm(self.output_location, self.interface.LOCAL_REPO,
+    self.interface.buildRpm(self.build_folder, self.interface.LOCAL_REPO,
                             quiet=(self.interface.logthresh < 4))
-    if not self._valid():
+
+    # ....test the output's validity....
+    if not self.output_valid():
       raise OutputInvalidError("'%s' output invalid" % self.rpmname)
 
+    # ....update the release number....
+    self.write_autoconf(self.release)
+    
     self.update({
       'output': [
-         self.output_location,
-         join(self.interface.LOCAL_REPO, 'RPMS',
-              '%s*[!Ss][!Rr][!Cc].[Rr][Pp][Mm]' % self.rpmname),
-         join(self.interface.LOCAL_REPO, 'SRPMS',
-              '%s*[Ss][Rr][Cc].[Rr][Pp][Mm]' % self.rpmname)
-       ],
+         join(self.interface.LOCAL_RPMS,
+              '%s-%s-%s.%s.rpm' % (self.rpmname, self.version, self.release, self.arch)),
+         join(self.interface.LOCAL_SRPMS,
+              '%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release))
+       ]
     })
 
-    # ....finally write the metadata file.
-    self.write_metadata()    
+    # ....finally, write the metadata file.
+    self.write_metadata()
+    self.interface.cvars['custom-rpms-built'] = True
 
-  def apply(self, type='mandatory', requires=None):
-    missingrpms = [ x for x in self.get_rpms() if not exists(x) ]
-
-    if len(missingrpms) != 0:
-      if self._test_build() and not self.interface.isSkipped(self.id):
-        raise RuntimeError("missing rpm(s): %s" % ', '.join(missingrpms))
-      else:
-        return # the rpm hasn't been created, therefore nothing else to do here
-
-    # add rpms to the included-packages control var, so that they are
-    # added to the comps.xml
-    if not self.interface.cvars['included-packages']:
-      self.interface.cvars['included-packages'] = []
-    self.interface.cvars['included-packages'].append((self.rpmname, type, requires))
-
-    obsoletes = self._get_obsoletes()
-    if obsoletes is not None:
-      if not self.interface.cvars['excluded-packages']:
-        self.interface.cvars['excluded-packages'] = []
-      self.interface.cvars['excluded-packages'].extend(obsoletes.split())
-
-  def get_rpms(self, prefix=True):
-    v,r,a = self._read_autoconf()
-    rpm = join('RPMS', '%s-%s-%s.%s.rpm' %(self.rpmname, v, r, a))
-    srpm = join('SRPMS', '%s-%s-%s.src.rpm' %(self.rpmname, v, r))    
-
-    if prefix:
-      rpm = join(self.interface.LOCAL_REPO, rpm)
-      srpm = join(self.interface.LOCAL_REPO, srpm)
-
-    return [rpm, srpm]  
-
-  def _clean(self):
-    self.clean_metadata()
-    for rpm in self.get_rpms():
-      if rpm in self.handlers['output'].data:
-        self.handlers['output'].data.remove(rpm)
-      if rpm in self.handlers['output'].oldoutput.keys():
-        self.handlers['output'].oldoutput.keys()
-      if exists(rpm):
-        self.interface.log(2, "deleting %s" % basename(rpm))
-        rm(rpm, force=True)
-
-    rm(self.output_location, recursive=True, force=True)    
-
-  def _copy(self):
-    # download input files - look at FileDownloadMixin.download()
-    self.download()
+  def apply(self):
+    if not self.test_build():
+      return
+    release = self.read_autoconf() or '1'
+    rpm = join(self.interface.LOCAL_RPMS,
+               '%s-%s-%s.%s.rpm' % (self.rpmname,
+                                    self.version,
+                                    release,
+                                    self.arch))
+    srpm = join(self.interface.LOCAL_SRPMS,
+                '%s-%s-%s.src.rpm' % (self.rpmname,
+                                      self.version,
+                                      release))
+    if not exists(rpm):
+      raise RuntimeError("missing rpm: %s" % osutils.basename(rpm))
+    if not exists(srpm):
+      raise RuntimeError("missing srpm: %s" % osutils.basename(srpm))
+      
+    if not self.interface.cvars['custom-rpms-info']:
+      self.interface.cvars['custom-rpms-info'] = []
+      
+    self.interface.cvars['custom-rpms-info'].append((self.rpmname,
+                                                     self.package_type,
+                                                     self.condrequires,
+                                                     self.obsoletes))
     
-  def _test_build(self):
-    tobuild = self.config.get('/distro/rpms/%s/@enabled' % self.id,
-                              self.config.get('/distro/rpms/@enabled', 'True'))
-    if tobuild == 'default' or tobuild in BOOLEANS_TRUE:
-      return True
-    return False
+  def test_build(self):
+    tobuild = self.interface.config.get('/distro/rpms/%s/@enabled' % self.id,
+                   self.interface.config.get('/distro/rpms/@enabled', self.default))
+    if tobuild == 'default': tobuild = self.default
+    return tobuild in BOOLEANS_TRUE
 
-  def _write_spec(self):
-    setupcfg = join(self.output_location, 'setup.cfg')
+  def generate(self):
+    pass
+  
+  def output_valid(self):
+    return True
+  
+  def write_spec(self):
+    setupcfg = join(self.build_folder, 'setup.cfg')
     if exists(setupcfg): return # can happen only if setup.cfg is an input file
-    
-    version, release, arch = self._read_autoconf()
 
     spec = ConfigParser()    
     spec.add_section('pkg_data')
     spec.add_section('bdist_rpm')
     
     spec.set('pkg_data', 'name',             self.rpmname)
-    spec.set('pkg_data', 'version',          version)
+    spec.set('pkg_data', 'version',          self.version)
     spec.set('pkg_data', 'long_description', self.description)
     spec.set('pkg_data', 'description',      self.summary)
     spec.set('pkg_data', 'author',           self.author)
     
-    spec.set('bdist_rpm', 'distribution_name', self.fullname)    
-    spec.set('bdist_rpm', 'force_arch',        arch)
-    
-    for tag in ['install_script', 'obsoletes', 'post_install', 'provides', 'requires']:
+    spec.set('bdist_rpm', 'distribution_name', self.interface.fullname)    
+    spec.set('bdist_rpm', 'force_arch',        self.arch)
+    spec.set('bdist_rpm', 'release',           self.release)    
+
+    for tag in ['obsoletes', 'provides', 'requires']:
+      value = getattr(self, tag)
+      if value:
+        spec.set('bdist_rpm', tag, value)
+
+    for tag in ['install_script', 'post_install']:
       attr = '_get_%s' %tag
       if hasattr(self, attr):
         value = getattr(self, attr)()
         if value is not None:
           spec.set('bdist_rpm', tag, value)
-    
-    release = str(int(release) + 1)
-    spec.set('bdist_rpm', 'release',    release)
-    self.log(1, "release number: %s" % release)
-    self._write_autoconf(release=release)
 
     self._add_files_info(spec)
     
@@ -307,21 +340,125 @@ class RpmsHandler(DiffMixin, FileDownloadMixin):
     spec.write(f)
     f.close()
 
+  def write_manifest(self):
+    manifest = ['setup.py'] # setup.py is created by mkrpm.RpmBuilder
+    srcdir = join(self.interface.SOURCES_DIR, self.id)
+    if exists(srcdir):
+      manifest.extend(osutils.find(srcdir,
+                                   type=TYPE_FILE|TYPE_LINK, printf='%p'))
+    if exists(self.build_folder):
+      manifest.extend(osutils.find(self.build_folder,
+                                   type=TYPE_FILE|TYPE_LINK, printf='%P'))
+    filereader.write(manifest, join(self.build_folder, 'MANIFEST'))
+
+  def set_release(self):
+    if exists(self.autoconf):
+      bumpcheck = False
+      self.release = self.read_autoconf()
+
+      if not self.release:
+        self.release = '1'
+        bumpcheck = True
+      elif not exists(self.mdfile):
+        # missing .md file
+        bumpcheck = True
+      else:
+        if self.changed('input') or \
+               self.changed('variables') or \
+               self.changed('config'):
+          bumpcheck = True
+        
+      if bumpcheck:
+        if self.interface.cvars['auto-bump-release']:
+          self.release = str(int(self.release or '1') + 1)
+        else:
+          self.interface.log(0, "Current release number is %s" % self.release)
+          self.interface.log(0, "i)ncrement, c)continue, e)xit ")
+          ans = raw_input()
+          if len(ans) == 1:
+            ans = ans[0].lower()
+            if ans == 'i':
+              self.release = str(int(self.release) + 1)
+            elif ans == 'e':
+              raise HookExit
+            else:
+              pass # nothing to do
+          else:
+            raise HookExit        
+    else:
+      # missing .auto file
+      if self.interface.cvars['auto-bump-release']:
+        self.release = '1'
+      else:
+        self.interface.log(0, "The distro.conf.auto file is missing")
+        self.interface.log(0, "s)tart at 1, e)xit ")
+        ans = raw_input()
+        if len(ans) == 1:
+          ans = ans[0].lower()
+          if ans == 's':
+            self.release = '1'
+          else:
+            raise HookExit
+        else:
+          raise HookExit
+
+  def read_autoconf(self):
+    if exists(self.autoconf):
+      root = xmltree.read(self.autoconf)
+      release = root.get('//distro-auto/%s/release/text()' % self.id, None)
+      return release
+    return None
+
+  def write_autoconf(self, release):
+    if exists(self.autoconf):
+      root = xmltree.read(self.autoconf)
+      package = root.get('//distro-auto/%s' %self.id, None)
+      if package is None:
+        package = xmltree.Element(self.id, parent=root)
+        
+      r = package.get('release', None)
+      if r is None:
+        r = xmltree.Element('release', parent=package)            
+      r.text = release
+    else:
+      root = xmltree.Element('distro-auto')
+      package = xmltree.Element(self.id, parent=root)
+      xmltree.Element('release', parent=package, text=release)
+    
+    root.write(self.autoconf)
+
+  def _delete_old_files(self):
+    todelete = osutils.find(self.interface.LOCAL_REPO,
+                            name='%s*[Rr][Pp][Mm]' % self.rpmname)
+    if todelete:
+      self.interface.log(1, "deleting previously-built rpms")
+      for rpm in todelete:
+        if rpm in self.handlers['output'].data:
+          self.handlers['output'].data.remove(rpm)
+        self.interface.log(2, osutils.basename(rpm))
+        for outputrpm in osutils.find(self.interface.RPMS_DEST, osutils.basename(rpm)):
+          osutils.rm(outputrpm, force=True)
+        osutils.rm(rpm, force=True)
+    
+    # reset build folder
+    osutils.rm(self.build_folder, recursive=True, force=True)
+    osutils.mkdir(self.build_folder, parent=True)
+
   def _add_files_info(self, spec):
     # write the list of files to be installed and where they should be installed
     data_files = self._get_data_files()
-    if data_files:
-      value = []
-      for installdir, files in data_files.items():
-        value.append('%s : %s' %(installdir, ', '.join(files)))
-      spec.set('pkg_data', 'data_files', '\n\t'.join(value))
-      
+    if not data_files: return
     
+    value = []
+    for installdir, files in data_files.items():
+      value.append('%s : %s' %(installdir, ', '.join(files)))
+    spec.set('pkg_data', 'data_files', '\n\t'.join(value))
+          
     # mark files to be installed in '/etc' as config files
     config_files = []
     for installdir in data_files.keys():
       if installdir.startswith('/etc'): # config files
-        config_files.extend([ join(installdir, basename(x)) for x in data_files[installdir] ])
+        config_files.extend([ join(installdir, osutils.basename(x)) for x in data_files[installdir] ])
     if config_files:
       spec.set('bdist_rpm', 'config_files', '\n\t'.join(config_files))
 
@@ -329,76 +466,27 @@ class RpmsHandler(DiffMixin, FileDownloadMixin):
     doc_files = []
     for installdir in data_files.keys():
       if installdir.startswith('/usr/share/doc'):
-        doc_files.extend([ join(installdir, basename(x)) for x in data_files[installdir] ])
+        doc_files.extend([ join(installdir, osutils.basename(x)) for x in data_files[installdir] ])
     if doc_files:
       spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))    
 
-  def _write_manifest(self):
-    manifest = ['setup.py'] # setup.py is created by mkrpm.RpmBuilder
-    srcdir = join(self.interface.getSourcesDirectory(), self.id)
-    if exists(srcdir):
-      manifest.extend(find(srcdir, type=TYPE_FILE|TYPE_LINK, printf='%P'))
-    if exists(self.output_location):
-      manifest.extend(find(self.output_location, type=TYPE_FILE|TYPE_LINK, printf='%P'))
-    filereader.write(manifest, join(self.output_location, 'MANIFEST'))          
-
-  def _read_autoconf(self):
-    if exists(self.autoconf):
-      root = xmltree.read(self.autoconf)
-      package = root.get('//distro-auto/%s' %self.id, None)
-      if package is not None:
-        v = package.get('version/text()', self.version)
-        r = package.get('release/text()', '0')
-        a = package.get('arch/text()', self._get_force_arch())
-        return v,r,a
-    return self.version, '0', self._get_force_arch()
-
-  def _write_autoconf(self, version=None, release=None, arch=None):
-    if exists(self.autoconf):
-      root = xmltree.read(self.autoconf)
-      package = root.get('//distro-auto/%s' %self.id, None)
-      if package is None: package = xmltree.Element(self.id, parent=root)
-
-      if version is not None:
-        v = package.get('version', None)
-        if v is None: v = xmltree.Element('version', parent=package)
-        v.text = version
-
-      if release is not None:
-        r = package.get('release', None)
-        if r is None: r = xmltree.Element('release', parent=package)
-        r.text = release
-        
-      if arch is not None:
-        a = package.get('arch', None)
-        if a is None: a = xmltree.Element('arch', parent=package)
-        a.text = arch
-    else:
-      root = xmltree.Element('distro-auto')
-      package = xmltree.Element(self.id, parent=root)
-      if version is not None:
-        v = xmltree.Element('version', parent=package, text=version)
-      if release is not None:
-        r = xmltree.Element('release', parent=package, text=release)
-      if arch is not None:
-        a = xmltree.Element('arch', parent=package, text=arch)
-    
-    root.write(self.autoconf)
-
   def _get_data_files(self):
-    srcdir = join(self.interface.getSourcesDirectory(), self.id)
+    srcdir = join(self.interface.SOURCES_DIR, self.id)
     sources = {}          
     if exists(srcdir):
-      for file in find(srcdir, type=TYPE_FILE|TYPE_LINK, printf='%P'):
-        dir = dirname(file)
+      for file in osutils.find(srcdir, type=TYPE_FILE|TYPE_LINK, printf='%p'):
+        dir = osutils.dirname(file)
         if not dir.startswith('/'): dir = '/' + dir
         if not sources.has_key(dir):
           sources[dir] = []
         sources[dir].append(join(srcdir, file))
+
     for k,v in self.installinfo.items():
-      dir = join(self.output_location, k)
+      dir = join(self.build_folder, k)
       if exists(dir):
-        files = [ join(k,x) for x in os.listdir(dir) ]
+        files = [ join(k,x) \
+                  for x in osutils.find(dir, printf='%P',
+                                        type=osutils.TYPE_FILE|osutils.TYPE_LINK)]
       else:
         files = []
 
@@ -410,22 +498,16 @@ class RpmsHandler(DiffMixin, FileDownloadMixin):
           sources[installpath] = files
     return sources
 
-  def _generate(self): pass
-  
-  def _get_force_arch(self):     return 'noarch'
-
   def _get_install_script(self): return None    
-  def _get_obsoletes(self):      return None  
   def _get_post_install(self):   return None
-  def _get_provides(self):       return None
-  def _get_requires(self):       return None
-  
-  def _valid(self):              return True
 
 
-class OutputInvalidError(IOError): pass
+#---------- ERRORS -------------#
+class OutputInvalidError(IOError):
+  pass
 
 
+#---------- GLOBAL VARIABLES --------#
 # each element for a distro's version, e.g. redhat/5, is a 3-tuple:
 # (background color, font color, highlight color). To add an entry,
 # look at the rhgb SRPM and copy the values from splash.c.

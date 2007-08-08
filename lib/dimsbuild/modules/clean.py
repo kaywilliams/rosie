@@ -5,7 +5,9 @@ from dims import xmltree
 
 from dimsbuild import event
 
-from dimsbuild.interface import DiffMixin, EventInterface
+from dimsbuild.interface import EventInterface
+
+from dimsbuild.modules.lib import DiffMixin
 
 API_VERSION = 4.0
 
@@ -26,6 +28,8 @@ HOOK_MAPPING = {
 #--------- METADATA HANDLERS ----------#
 class HookHandler:
   def __init__(self, data):
+    self.name = 'hooks'
+    
     self.data = data
     self.hooks = {}
     self.diffdict = {}
@@ -153,4 +157,4 @@ class CleanHook(DiffMixin):
   def _add_handler(self):
     handler = HookHandler(self.DATA['hooks'])
     self.DT.addHandler(handler)
-    self.handlers['hooks'] = handler
+    self.handlers[handler.name] = handler

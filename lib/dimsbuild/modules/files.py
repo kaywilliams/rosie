@@ -16,8 +16,9 @@ from ConfigParser import ConfigParser
 from dims import osutils
 from dims import sync
 
-from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.interface import DiffMixin, FilesMixin
+from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+
+from dimsbuild.modules.lib import DiffMixin, FilesMixin
 
 API_VERSION = 4.0
 
@@ -68,8 +69,8 @@ class FilesHook(DiffMixin, FilesMixin):
       
   def setup(self):
     # add files to the input and output filelists - look at FilesMixin.add_files() in interface.py
-    self.add_files('/distro/files/path')
-
+    self.add_files(xpaths='/distro/files/path')
+    
   def force(self):
     self.remove_files(self.handlers['output'].oldoutput.keys())
     self.clean_metadata()
@@ -81,9 +82,9 @@ class FilesHook(DiffMixin, FilesMixin):
     if not self.interface.isForced('files'):
       # delete the files that have been modified or aren't required anymore
       self.remove_files()
-    
+          
     # download the files
-    self.sync_files('/distro/files/path')
+    self.sync_files()
     
   def apply(self):
-    self.write_metadata()  
+    self.write_metadata()

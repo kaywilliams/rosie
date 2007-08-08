@@ -26,9 +26,10 @@ from dims import sync
 from dims.sortlib import dcompare
 
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.interface import DiffMixin
 from dimsbuild.locals    import L_BUILDSTAMP_FORMAT
 from dimsbuild.misc      import locals_imerge
+
+from dimsbuild.modules.lib import DiffMixin
 
 API_VERSION = 4.1
 

@@ -1,5 +1,6 @@
 from os.path import join, exists
 
+from dims import filereader
 from dims import osutils
 
 from dimsbuild.event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
@@ -95,8 +96,28 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
 
   def generate(self):
     ImageModifyMixin.generate(self)
-    self.add_file(self.interface.cvars['installer-splash'], '/')
-    self.add_file(self.interface.cvars['initrd-file'], '/')
+    self.write_file(self.interface.cvars['installer-splash'], '/')
+    self.write_file(self.interface.cvars['initrd-file'], '/')
+    bootargs = self.interface.config.get('/distro/installer/diskboot.img/boot-args/text()', None)
+    if bootargs:      
+      if not 'syslinux.cfg' in self.image.list():
+        raise RuntimeError("syslinux.cfg not found in the diskboot.img")
+      wcopy = '/tmp/dimsbuild/syslinux.cfg'
+      if exists(wcopy):
+        osutils.rm(wcopy)
+        
+      self.image.read('syslinux.cfg', '/tmp/dimsbuild')
+      lines = filereader.read(wcopy)
+      for i, line in enumerate(lines):
+        if line.strip().startswith('append'):
+          break
+
+      value = lines.pop(i)
+      value = value.strip() + ' ' + bootargs.strip()
+      lines.insert(i, value)
+      filereader.write(lines, wcopy)
+
+      self.write_file(wcopy, '/')
 
 #------ LOCALS ------#
 L_FILES = ''' 

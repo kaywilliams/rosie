@@ -14,8 +14,10 @@ from dimsbuild import splittree
 from dimsbuild.callback  import BuildDepsolveCallback
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from dimsbuild.interface import DiffMixin, EventInterface, ListCompareMixin
+from dimsbuild.interface import EventInterface
 from dimsbuild.misc      import locals_imerge
+
+from dimsbuild.modules.lib import DiffMixin, ListCompareMixin
 
 API_VERSION = 4.0
 

@@ -3,24 +3,23 @@ from os.path import exists, join
 import os
 
 from dims import filereader
-
-from dims.osutils     import basename, dirname, mkdir, find
-from dims.sync        import sync
-from dims.xmltree     import XmlPathError
+from dims import osutils
+from dims import sync
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from dimsbuild.interface import EventInterface
 
-from lib import ColorMixin, RpmsHandler, RpmsInterface
+from lib       import ColorMixin, RpmBuildHook, RpmsInterface
+from rpmlocals import RELEASE_NOTES_HTML
 
 EVENTS = [
   {
-    'id': 'release-rpm',
+    'id':        'release-rpm',
     'interface': 'ReleaseRpmInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'parent': 'RPMS',
-    'requires': ['source-vars'],
+    'parent':    'RPMS',
+    'requires':  ['source-vars'],
   },    
 ]
 
@@ -52,8 +51,7 @@ class ReleaseRpmInterface(RpmsInterface):
   
 
 #---------- HOOKS -------------#
-class ReleaseRpmHook(RpmsHandler, ColorMixin):
-  
+class ReleaseRpmHook(RpmBuildHook, ColorMixin):  
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'release.release-rpm'
@@ -72,14 +70,11 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
       'output': [],
     }
     
-    #  Each key of the installinfo directionary is the name of the
+    # Each key of the installinfo directionary is the name of the
     # directory in release RPM event's working directory and its value
     # tells the program what it should do with those files.
-    #
-    #  For example, self.installinfo['gpg'] are installed to
-    # /etc/pki/rpm-gpg.
     installinfo = {
-      'gpg'     : ('/distro/repos/repo/gpgkey',
+      'gpg'     : (None,
                    interface.gpg_dir),
       'repo'    : ('/distro/rpms/release-rpm/yum-repos/path',
                    interface.repo_dir),
@@ -98,110 +93,99 @@ class ReleaseRpmHook(RpmsHandler, ColorMixin):
       'eulapy'  : (None,
                    interface.eula_dir),
     }
-    
-    RpmsHandler.__init__(self, interface, data, 'release-rpm',
-                         '%s-release' % interface.product,
-                         summary='%s release files' % interface.fullname,
-                         description='%s release files created by '
-                                     'dimsbuild' % interface.fullname,
-                         installinfo=installinfo)
+
+    packages = self.interface.config.xpath(
+      '/distro/rpms/release-rpm/obsoletes/package/text()', []
+    )
+    if interface.config.get('/distro/rpms/release-rpm/@use-default-set', 'True') \
+           in BOOLEANS_TRUE:
+      packages.extend(['fedora-release', 'redhat-release', 'centos-release',
+                       'fedora-release-notes', 'redhat-release-notes',
+                       'centos-release-notes'])
+    if packages:
+      obsoletes = ' '.join(packages)
+    else:
+      obsoletes = None
+
+    provides = 'redhat-release'
+    if obsoletes:
+      provides = provides + obsoletes
+      
+    RpmBuildHook.__init__(self, interface, data, 'release-rpm',
+                          '%s-release' % interface.product,
+                          summary='%s release files' % interface.fullname,
+                          description='%s release files created by '
+                          'dimsbuild' % interface.fullname,
+                          installinfo=installinfo,
+                          provides=provides,
+                          obsoletes=obsoletes)
     
     ColorMixin.__init__(self)
-  
-  def _generate(self):
+    
+  def generate(self):
     "Create additional files."
     for type in self.installinfo.keys():
-      function = '_create_%s_files' %type
-      if hasattr(self, function):
-        getattr(self, function)()
-    
+      generator = '_generate_%s_files' % type
+      if hasattr(self, generator):
+        dest = join(self.build_folder, type)
+        getattr(self, generator)(dest)
+
     self._verify_release_notes()
-  
-  def _get_provides(self):
-    obsoletes = self._get_obsoletes()
-    if obsoletes:
-      return ' '.join(['redhat-release', obsoletes])
-    return 'redhat-release'
-  
-  def _get_obsoletes(self):
-    packages = self.config.xpath('/distro/rpms/release-rpm/obsoletes/package/text()', [])
-    if self.config.get('/distro/rpms/release-rpm/@use-default-set', 'True') in BOOLEANS_TRUE:
-      packages.extend(['fedora-release', 'redhat-release', 'centos-release',
-                       'fedora-release-notes', 'redhat-release-notes', 'centos-release-notes'])
-    
-    if packages:
-      return ' '.join(packages)
-    return None
     
   def _verify_release_notes(self):
     "Ensure the presence of RELEASE-NOTES.html and an index.html"
-    rnotes = find(location=self.output_location, name='RELEASE-NOTES*')
+    rnotes = osutils.find(location=self.build_folder, name='RELEASE-NOTES*')
     if len(rnotes) == 0:
       self.setColors(prefix='#')
-      dir = join(self.output_location, 'html')
+      dir = join(self.build_folder, 'html')
       if not exists(dir):
-        mkdir(dir, parent=True)
+        osutils.mkdir(dir, parent=True)
       
       # create a default release notes file because none were found.
       import locale
       path = join(dir, 'RELEASE-NOTES-%s.html' % locale.getdefaultlocale()[0])
       
       f = open(path, 'w')      
-      f.write(RELEASE_NOTES_HTML %(self.bgcolor, self.textcolor, self.fullname))
+      f.write(RELEASE_NOTES_HTML %(self.bgcolor,
+                                   self.textcolor,
+                                   self.interface.fullname))
       f.close()
       
-      index_html = join(self.output_location, 'html', 'index.html')
+      index_html = join(self.build_folder, 'html', 'index.html')
       if not exists(index_html):
         os.link(path, index_html)
-  
-  def _create_eulapy_file(self):
-    if self.config.get('/distro/rpms/release-rpm/eula/include-in-firstboot/text()', 'True') in BOOLEANS_TRUE:
-      if self.config.get('/distro/rpms/release-rpm/eula/path/text()', None) is not None:
-        src = join(self.sharepath, 'release', 'eula.py')
-        dst = join(self.output_location, 'eulapy')
-        if not exists(dst):
-          mkdir(dst, parent=True)
-        sync(src, dst)
-  
-  def _create_etc_files(self):
-    release_string = ['%s %s' %(self.fullname, self.version,)]
-    issue_string = ['Kernel \\r on an \\m\n']
+
+  def _generate_gpg_files(self, dest):
+    if self.interface.cvars.get('gpg-public-key', None):
+      osutils.mkdir(dest, parent=True)
+      sync.sync(self.interface.cvars['gpg-public-key'], dest)
+    for repo in self.interface.cvars['repos'].values():
+      osutils.mkdir(dest, parent=True)      
+      if repo.gpgkey:
+        sync.sync(repo.gpgkey, dest)    
     
-    etcdir = join(self.output_location, 'etc')
-    if not exists(etcdir):
-      mkdir(etcdir, parent=True)
+  def _generate_eulapy_files(self, dest):
+    if self.interface.config.get(
+         '/distro/rpms/release-rpm/eula/include-in-firstboot/text()', 'True'
+       ) in BOOLEANS_TRUE:
+      if self.interface.config.get(
+           '/distro/rpms/release-rpm/eula/path/text()', None
+         ) is not None:
+        osutils.mkdir(dest, parent=True)
+        src = join(self.interface.sharepath, 'release', 'eula.py')
+        sync.sync(src, dest)
+  
+  def _generate_etc_files(self, dest):
+    osutils.mkdir(dest, parent=True)
+    release_string = ['%s %s' %(self.interface.fullname,
+                                self.interface.version)]
+    issue_string = ['Kernel \\r on an \\m\n']
       
     # write the product-release and redhat-release files
-    filereader.write(release_string, join(etcdir, 'redhat-release'))
-    filereader.write(release_string, join(etcdir, '%s-release' % self.product))
+    filereader.write(release_string, join(dest, 'redhat-release'))
+    filereader.write(release_string, join(dest, '%s-release' % \
+                                          self.interface.product))
     
     # write the issue and issue.net files
-    filereader.write(release_string+issue_string, join(etcdir, 'issue'))
-    filereader.write(release_string+issue_string, join(etcdir, 'issue.net'))
-
-
-RELEASE_NOTES_HTML = '''<html>
-  <head>
-  <style type="text/css">
-  <!--
-  body {
-    background-color: %s;
-    color: %s;
-    font-family: sans-serif;
-  }
-  .center {
-    text-align: center;
-  }
-  p {
-    margin-top: 20%%;
-  }
-  -->
-  </style>
-  </head>
-  <body>
-  <h1>
-    <p class="center">Welcome to %s!</p>
-  </h1>
-  </body>
-</html>
-'''
+    filereader.write(release_string+issue_string, join(dest, 'issue'))
+    filereader.write(release_string+issue_string, join(dest, 'issue.net'))

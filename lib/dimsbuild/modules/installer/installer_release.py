@@ -1,7 +1,7 @@
 from os.path import exists, isdir, isfile, join
 
-from dims.osutils import basename, find, mkdir, rm
-from dims.sync    import sync
+from dims import osutils
+from dims import sync
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
@@ -53,7 +53,7 @@ class InstallerReleaseHook(ExtractHandler):
   def run(self):
     ExtractHandler.extract(self, "synchronizing installer release files")
 
-  def generate(self):
+  def generate(self, working_dir):
     files = {}
     rtn = []    
     for path in self.config.xpath('/distro/installer/release-files/path', []):
@@ -65,15 +65,15 @@ class InstallerReleaseHook(ExtractHandler):
       for default_item in ['eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README',
                            '*-RPM-GPG', 'RPM-GPG-KEY-*', 'RPM-GPG-KEY-beta',
                            'README-BURNING-ISOS-en_US.txt', 'RELEASE-NOTES-en_US.html']:
-        for item in find(location=self.working_dir, name=default_item):    
+        for item in osutils.find(location=working_dir, name=default_item):    
           files[item] = self.software_store
 
-    mkdir(self.interface.SOFTWARE_STORE, parent=True)
+    osutils.mkdir(self.interface.SOFTWARE_STORE, parent=True)
     for source in files.keys():
       dest = files[source]
       if isfile(source) and isdir(dest):
-        rtn.append(join(dest, basename(source)))
-      sync(source, dest, link=True)
+        rtn.append(join(dest, osutils.basename(source)))
+      sync.sync(source, dest, link=True)
     return rtn
 
   def find_rpms(self):
@@ -81,7 +81,7 @@ class InstallerReleaseHook(ExtractHandler):
                                 ['%s-release' %(self.interface.product,)])
     rpms = []
     for rpmname in rpmnames:
-      for rpm in find(self.interface.cvars['rpms-directory'], name='%s-*-*' %(rpmname,),
+      for rpm in osutils.find(self.interface.cvars['rpms-directory'], name='%s-*-*' %(rpmname,),
                       nregex='.*[Ss][Rr][Cc]\.[Rr][Pp][Mm]'):
         if rpm not in rpms:
           rpms.append(rpm)
@@ -89,7 +89,7 @@ class InstallerReleaseHook(ExtractHandler):
     if len(rpms) == 0:
       for glob in ['*-release-*-[a-zA-Z0-9]*.[Rr][Pp][Mm]',
                    '*-release-notes-*-*']:
-        for rpm in find(self.interface.cvars['rpms-directory'], name=glob,
+        for rpm in osutils.find(self.interface.cvars['rpms-directory'], name=glob,
                         nregex='.*[Ss][Rr][Cc]\.[Rr][Pp][Mm]'):
           if rpm not in rpms:
             rpms.append(rpm)

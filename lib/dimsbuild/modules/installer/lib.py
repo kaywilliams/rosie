@@ -15,11 +15,12 @@ from dims import xmltree
 
 from dimsbuild.callback  import BuildSyncCallback
 from dimsbuild.constants import BOOLEANS_TRUE
-from dimsbuild.interface import DiffMixin, FilesMixin
 from dimsbuild.locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
 from dimsbuild.magic     import match as magic_match
 from dimsbuild.magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS, FILE_TYPE_FAT
 from dimsbuild.misc      import locals_imerge, locals_printf
+
+from dimsbuild.modules.lib import DiffMixin, FilesMixin
 
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')
 
@@ -68,7 +69,8 @@ class ExtractHandler(DiffMixin):
 
   def setup(self):
     self.update({
-      'input': self.find_rpms()
+      'input':  self.find_rpms(),
+      'output': self.handlers['output'].oldoutput.keys(),
     })
 
   def force(self):
@@ -87,17 +89,17 @@ class ExtractHandler(DiffMixin):
     # generate output files
     try:
       # get input - extract RPMs
-      self.working_dir = tempfile.mkdtemp(dir='/tmp/dimsbuild') # temporary directory, gets deleted once done
+      working_dir = tempfile.mkdtemp(dir='/tmp/dimsbuild') # temporary directory, gets deleted once done
 
       for rpmname in self.find_rpms():
-        extractRpm(rpmname, self.working_dir)    
+        extractRpm(rpmname, working_dir)
       
       # need to modify self.data, so that the metadata written has all
       # the files created. Otherwise, self.data['output'] will be
       # empty.
-      self.update({'output': self.generate()})
+      self.update({'output': self.generate(working_dir)})
     finally:
-      osutils.rm(self.working_dir, recursive=True, force=True)
+      osutils.rm(working_dir, recursive=True, force=True)
 
     # write metadata
     self.write_metadata()
@@ -106,8 +108,9 @@ class ExtractHandler(DiffMixin):
     if self.handlers.has_key('output'):      
       for file in self.handlers['output'].oldoutput.keys():
         osutils.rm(file, recursive=True, force=True)
+    while len(self.handlers['output'].data) > 0:
+      self.handlers['output'].data.pop()
         
-
 class ImageHandler:
   """
   Classes that extend this must require 'anaconda-version',
@@ -195,7 +198,8 @@ class ImageModifyMixin(ImageHandler, DiffMixin, FilesMixin):
 
   def setup(self, config=True):
     if config:
-      self.add_files('/distro/installer/%s/path' % self.name, addoutput=False)
+      self.add_files(xpaths='/distro/installer/%s/path' % self.name,
+                     addoutput=False)
 
     imagessrc = join(self.interface.METADATA_DIR, 'images-src', self.name)
     if exists(imagessrc):
@@ -255,12 +259,9 @@ class ImageModifyMixin(ImageHandler, DiffMixin, FilesMixin):
   
   def generate(self):
     self.interface.cvars['%s-changed' % self.name] = True
-    self.sync_files('/distro/installer/%s/path' % self.name)
-
-  def add_directory(self, src, dest='/'): pass
+    self.sync_files(action=self.write_file)                    
     
-  def add_file(self, src, dest):
-    "@override FilesMixin.add_file()"
+  def write_file(self, src, dest):
     self.image.write(src, dest)
 
   def remove_files(self, rmlist=[]):

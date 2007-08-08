@@ -141,6 +141,7 @@ class Build:
         self.disabled_modules.append(k)
     
     self.disabled_modules.append('__init__') # hack
+    self.disabled_modules.append('lib') # +1
     
     # update with distro-specific config
     for k,v in self.__eval_modlist(self.config.get('/distro/modules', None),
