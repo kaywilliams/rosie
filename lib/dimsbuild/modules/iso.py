@@ -127,7 +127,7 @@ class PkgorderHook(DiffMixin, FilesMixin):
     else: 
       self.pkgorder_out = join(self.interface.ISO_METADATA_DIR, 'pkgorder')
 
-    # add files to the input and output filelists - look at FilesMixin.add_files() in interface.py
+    # add files to the input and output filelists - see FilesMixin.add_files() in lib.py
     # TODO - once FilesMixin accepts paths, pass pkgorder_in var to add_files 
     self.add_files('/distro/iso/pkgorder')
 

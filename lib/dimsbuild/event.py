@@ -513,11 +513,12 @@ class Dispatch:
     from main import check_api_version # hack #!
     if hasattr(module, 'MODULES'):
       for mod in module.MODULES:
-        #try:
-        mod = imp.load_source('%s.%s' % (module.__name__, mod),
-                              join(module.__path__[0], '%s.py' % mod))
+        try:
+          mod = imp.load_source('%s.%s' % (module.__name__, mod),
+                                join(module.__path__[0], '%s.py' % mod))
         #except ImportError, e:
-        #  raise ImportError, "Could not load module '%s':\n%s" % (mod, e)
+        except Exception, e:
+          raise ImportError, "Could not load module '%s':\n%s" % (mod, e)
         check_api_version(mod) # raises ImportError
         if mod.__name__ not in self.disabled:
           self.load_hooks(mod)

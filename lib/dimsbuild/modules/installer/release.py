@@ -12,7 +12,7 @@ API_VERSION = 4.1
 
 EVENTS = [
   {
-    'id': 'installer-release-files',
+    'id': 'release-files',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'requires': ['software'],
     'conditional-requires': ['gpgsign'],
@@ -21,25 +21,25 @@ EVENTS = [
 ]
 
 HOOK_MAPPING = {
- 'InstallerReleaseHook': 'installer-release-files',
- 'ValidateHook':         'validate',
+ 'ReleaseHook':  'release-files',
+ 'ValidateHook': 'validate',
 }    
 
 class ValidateHook:
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'installer_release.validate'
+    self.ID = 'release.validate'
     self.interface = interface
 
   def run(self):
     self.interface.validate('/distro/installer/release-files',
-                            schemafile='installer-release-files.rng')
+                            schemafile='release-files.rng')
 
 
-class InstallerReleaseHook(ExtractHandler):
+class ReleaseHook(ExtractHandler):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'installer_release.installer-release-files'
+    self.ID = 'release.release-files'
 
     self.metadata_struct = {
       'config': ['/distro/installer/release-files'],
@@ -48,10 +48,10 @@ class InstallerReleaseHook(ExtractHandler):
     }
     
     ExtractHandler.__init__(self, interface, self.metadata_struct,
-                            join(interface.METADATA_DIR, 'installer-release-files.md'))
+                            join(interface.METADATA_DIR, 'release-files.md'))
     
   def run(self):
-    ExtractHandler.extract(self, "synchronizing installer release files")
+    ExtractHandler.extract(self, "synchronizing release files")
 
   def generate(self, working_dir):
     files = {}

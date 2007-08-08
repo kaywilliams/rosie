@@ -19,7 +19,7 @@ API_VERSION = 4.1
 
 EVENTS = [
   {
-    'id': 'installer-logos',
+    'id': 'logos',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['installer-splash'],
     'requires': ['software', 'anaconda-version'],
@@ -29,7 +29,7 @@ EVENTS = [
 ]
 
 HOOK_MAPPING = {
-  'InstallerLogosHook': 'installer-logos',
+  'LogosHook': 'logos',
   'ValidateHook':       'validate',
 }
 
@@ -37,18 +37,18 @@ HOOK_MAPPING = {
 class ValidateHook:
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'installer_logos.validate'
+    self.ID = 'logos.validate'
     self.interface = interface
 
   def run(self):
     self.interface.validate('/distro/installer/logos',
-                            schemafile='installer-logos.rng')
+                            schemafile='logos.rng')
     
 
-class InstallerLogosHook(ExtractHandler):
+class LogosHook(ExtractHandler):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'installer_logos.installer-logos'
+    self.ID = 'logos.logos'
 
     self.metadata_struct = {
       'config'   : ['/distro/installer/logos'],
@@ -58,16 +58,16 @@ class InstallerLogosHook(ExtractHandler):
     }
     
     ExtractHandler.__init__(self, interface, self.metadata_struct,
-                            join(interface.METADATA_DIR, 'installer-logos.md'))
+                            join(interface.METADATA_DIR, 'logos.md'))
   
   def setup(self):
-    self.locals = locals_imerge(L_INSTALLER_LOGOS, self.interface.cvars['anaconda-version'])
+    self.locals = locals_imerge(L_LOGOS, self.interface.cvars['anaconda-version'])
     self.format = self.locals.get('//splash-image/format/text()')
     self.file = self.locals.get('//splash-image/file/text()')
     ExtractHandler.setup(self)
   
   def run(self):
-    ExtractHandler.extract(self, "processing installer logos")
+    ExtractHandler.extract(self, "processing logos")
 
   def generate(self, working_dir):
     "Create the splash image and copy it to the isolinux/ folder"
@@ -147,30 +147,29 @@ class InstallerLogosHook(ExtractHandler):
     return [rpms[0]]
 
 
-L_INSTALLER_LOGOS = ''' 
+L_LOGOS = ''' 
 <locals>
-  <installer-logos>
+  <logos>
 
-    <installer-logo version="0">
+    <logo version="0">
       <splash-image>
         <format>lss</format>
         <file>syslinux-splash.png</file>
       </splash-image>
-    </installer-logo>
+    </logo>
 
     <!-- approx 11.2.0.66-1 - started using a .jpg instead of converting -->
     <!-- syslinux.png to splash.lss                                      -->
-    <installer-logo version="11.2.0.66-1">
+    <logo version="11.2.0.66-1">
       <action type="update" path="splash-image">
         <format>jpg</format>
         <file>syslinux-vesa-splash.jpg</file>
       </action>
-    </installer-logo>
+    </logo>
 
-  </installer-logos>
+  </logos>
 </locals>
 '''
-
 
 #------ EXCEPTIONS ------#
 class SplashImageNotFound(StandardError): pass
