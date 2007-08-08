@@ -12,10 +12,12 @@
   <element name="distro">
     <optional>
       <element name="release-rpm">
+        <optional>
+          <attribute name="enabled">
+            <ref name="value-boolean-with-default"/>
+          </attribute>
+        </optional>        
         <interleave>              
-          <optional>
-            <ref name="element-create"/>
-          </optional>
           <optional>
             <ref name="element-obsoletes"/>
           </optional>

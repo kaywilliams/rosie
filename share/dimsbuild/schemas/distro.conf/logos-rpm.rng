@@ -13,10 +13,12 @@
     <element name="distro">
       <optional>
         <element name="logos-rpm">
-          <interleave>
-            <optional>
-              <ref name="element-create"/>
-            </optional>
+          <optional>
+            <attribute name="enabled">
+              <ref name="value-boolean-with-default"/>
+            </attribute>
+          </optional>          
+          <interleave>            
             <optional>
               <ref name="element-obsoletes"/>
             </optional>

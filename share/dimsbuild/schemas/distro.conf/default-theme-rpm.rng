@@ -13,7 +13,9 @@
       <optional>
         <element name="default-theme-rpm">
           <optional>
-            <ref name="element-create"/>
+            <attribute name="enabled">
+              <ref name="value-boolean-with-default"/>
+            </attribute>
           </optional>
           <optional>
             <element name="theme"><text/></element>

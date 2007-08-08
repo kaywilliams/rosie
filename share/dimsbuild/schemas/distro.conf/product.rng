@@ -5,7 +5,7 @@
       <optional>
         <element name="product.img">
           <zeroOrMore>
-            <ref name="element-path"/>
+            <ref name="element-path-with-dest"/>
           </zeroOrMore>
         </element>
       </optional>
