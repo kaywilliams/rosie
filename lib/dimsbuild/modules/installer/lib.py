@@ -13,7 +13,6 @@ from dims import osutils
 from dims import sync
 from dims import xmltree
 
-from dimsbuild.callback  import BuildSyncCallback
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
 from dimsbuild.magic     import match as magic_match
@@ -278,8 +277,6 @@ class FileDownloadMixin:
     self.interface = interface
     self.repoid = repoid
     
-    self.callback = BuildSyncCallback(interface.logthresh)
-    
   def register_file_locals(self, locals):
     self.f_locals = locals_imerge(locals, self.interface.cvars['anaconda-version'])
   
@@ -294,11 +291,8 @@ class FileDownloadMixin:
       rinfix = locals_printf(file.get('path'), self.interface.cvars['source-vars'])
       linfix = locals_printf(file.get('path'), self.interface.BASE_VARS)
       
-      src = self.interface.cache(self.interface.getRepo(self.repoid),
-                                 join(rinfix, filename), callback=self.callback)
-      dest = join(self.interface.SOFTWARE_STORE, linfix)
-      osutils.mkdir(dest, parent=True)
-      sync.sync(src, dest)
+      self.interface.cache(self.interface.getRepo(self.repoid).rjoin(rinfix, filename),
+                           join(self.interface.SOFTWARE_STORE, linfix))
 
 class RpmNotFoundError(Exception): pass
 class OutputInvalidError(Exception): pass

@@ -9,9 +9,9 @@ from dims import filereader
 from dims import osutils
 from dims import shlib
 from dims import sortlib
-from dims import sync
 
 from dims.repocreator import YumRepoCreator
+from dims.sync        import link
 
 from dimsbuild.constants import *
 from dimsbuild.event     import EVENT_TYPE_MDLR
@@ -184,7 +184,7 @@ class PublishHook(DiffMixin):
       if not exists(src): # clean up any existing folders if not present in input
         osutils.rm(join(self.interface.PUBLISH_DIR, d), recursive=True, force=True)
         continue
-      sync.sync(src, self.interface.PUBLISH_DIR, link=True, strict=True)
+      link.sync(src, self.interface.PUBLISH_DIR, strict=True)
     
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.interface.PUBLISH_DIR)
 

@@ -22,7 +22,6 @@ from dims import xmltree
 
 from dims.configlib import uElement
 
-from dimsbuild.callback  import BuildSyncCallback
 from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, SRPM_GLOB, SRPM_PNVRA
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from dimsbuild.interface import EventInterface, RepoFromXml, Repo
@@ -56,7 +55,6 @@ class SrpmInterface(EventInterface, ListCompareMixin):
     self.ts = rpm.TransactionSet()
     self.ts.setVSFlags(-1)
     
-    self.callback = BuildSyncCallback(base.log.threshold)
     self.srpmdest = join(self.OUTPUT_DIR, 'SRPMS')
     
     self.cvars['source-include'] = self.config.get('/distro/source', '') != '' and \
@@ -64,8 +62,7 @@ class SrpmInterface(EventInterface, ListCompareMixin):
   
   def syncSrpm(self, srpm, repo, force=False):
     "Sync a srpm from path within repo into the output store"
-    srpmsrc = self.cache(repo, srpm, callback=self.callback, force=force)
-    sync.sync(srpmsrc, self.srpmdest)
+    self.cache(repo.rjoin(srpm), self.srpmdest, force=force)
   
   def deleteSrpm(self, srpm):
     "Delete a srpm from the output store"

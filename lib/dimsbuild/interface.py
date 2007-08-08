@@ -19,7 +19,9 @@ from dims import sync
 from dims import xmltree
 
 from dims.configlib import expand_macros
+from dims.sync      import cache, link
 
+from dimsbuild.callback  import BuildSyncCallback
 from dimsbuild.constants import BOOLEANS_TRUE
 
 #------ INTERFACES ------#
@@ -44,21 +46,29 @@ class EventInterface:
     
     self.cvars = self._base.cvars
     
+    self.cache_handler  = cache.CachedSyncHandler(
+                            cache_dir=join(self.CACHE_DIR, 'cache'),
+                            cache_max_size=self._base.CACHE_MAX_SIZE
+                          )
+    self.cache_callback = BuildSyncCallback(self.logthresh)
+    self.copy_handler   = sync.CopyHandler()
+    self.link_handler   = link.LinkHandler()
+    
   def expandMacros(self, text):
     return expand_macros(text, self._base.cvars['base-vars'])
   
-  def cache(self, repo, path, force=False, *args, **kwargs):
-    src = repo.rjoin(path)
-    ## FIXME: this is kinda restricting because only files in the
-    ## input repos can be cached. URLs that point to just regular
-    ## input files can't be cached.    
-    dest = join(self.INPUT_STORE, repo.id, join(repo.directory, osutils.dirname(path)))
-    if force:
-      osutils.rm(join(self.INPUT_STORE, repo.id, join(repo.directory, path)),
-                 recursive=True, force=True)
+  def cache(self, src, dest, link=False, force=False, **kwargs):
+    self.cache_handler.force = force
+    if link: self.cache_handler.cache_copy_handler = self.link_handler
+    else:    self.cache_handler.cache_copy_handler = self.copy_handler
+    
+    if not kwargs.has_key('copy_handler'):
+      kwargs['copy_handler'] = self.cache_handler
+    if not kwargs.has_key('callback'):
+      kwargs['callback'] = self.cache_callback
+    
     osutils.mkdir(dest, parent=True)
-    sync.sync(src, dest, *args, **kwargs)    
-    return join(dest, osutils.basename(path))
+    sync.sync(src, dest, **kwargs)
     
   def getBaseRepoId(self):
     "Get the id of the base repo from the config file"

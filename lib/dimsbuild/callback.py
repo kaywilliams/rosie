@@ -4,7 +4,7 @@ callback.py
 Callback classes for dimsbuild
 """
 from dims.osutils       import basename
-from dims.sync.callback import SyncCallbackMetered, SyncCallbackTracker
+from dims.sync.cache    import CachedSyncCallback
 from dims.progressbar   import ProgressBar
 
 # format of the various printouts
@@ -19,56 +19,38 @@ LEVEL_MAX = 2
 
 MSG_MAXWIDTH = 40
 
-class BuildSyncCallback(SyncCallbackMetered, SyncCallbackTracker):
+class BuildSyncCallback(CachedSyncCallback):
   def __init__(self, threshold):
-    SyncCallbackMetered.__init__(self)
-    SyncCallbackTracker.__init__(self)
+    CachedSyncCallback.__init__(self)
     self.logger = BuildLogger(threshold)
   
   # sync callbacks - kinda hackish
-  def sync_start(self, src, dest):
-    SyncCallbackTracker.sync_start(self, src, dest)
+  def start(self, src, dest):
     if self.logger.threshold == 2:
       self.logger.log(2, '%s' % basename(src), MSG_MAXWIDTH)
-  def sync_copy(self, src, dest):
-    SyncCallbackTracker.sync_copy(self, src, dest)
-  def sync_update(self, src, dest):
-    SyncCallbackTracker.sync_update(self, src, dest)
-  def mkdir_start(self, src, dest):
-    SyncCallbackTracker.mkdir_start(self, src, dest)
-    if self.logger.threshold == 2:
-      self.logger.log(2, '%s' % basename(src), MSG_MAXWIDTH)
+  def cp(self, src, dest): pass
+  def sync_update(self, src, dest): pass
+  def mkdir(self, src, dest): pass
   
-  def _do_start(self, total=None, now=None):
-    self.bar = ProgressBar(self.size, LEVEL_2_FORMAT % (self.text or self.basename))
-    self.bar.layout = '[title:width=30] [curvalue:condensed] [bar] [percent] [time]'
-    self.bar.start()
-    if self.logger.test(3): self.bar.draw()
-        
-  def _do_update(self, amount_read, now=None):
-    if self.logger.test(3):
-      SyncCallbackMetered._do_update(self, amount_read, now)
+  def _cache_start(self, size, text):
+    CachedSyncCallback._cache_start(self, size, LEVEL_2_FORMAT % text)
+  
+  def _cp_start(self, size, text, position=0.0):
+    CachedSyncCallback._cp_start(self, size=size, text=LEVEL_2_FORMAT % text,
+                                       position=position, draw=self.logger.test(3))
+  
+  def _cp_update(self, amount_read):
+    CachedSyncCallback._cp_update(self, amount_read=amount_read,
+                                        draw=self.logger.test(3))
 
-  def _do_end(self, amount_read, now=None):
-    if self.logger.test(3):
-      #self.bar.layout = '[title:width=30] [curvalue:condensed] [bar] -- DONE --'
-      SyncCallbackMetered._do_end(self, amount_read, now)
-  
-  
-  def OCP(self, src, dest, link=False, update=False):
-    if update:
-      self.sync_update(src, dest)
-    else:
-      self.sync_copy(src, dest)
-    if self.logger.test(3):
-      self.logger.log(2, '%s' % basename(src), MSG_MAXWIDTH)
-  
-  def OOMITDIR(self, dir):
-    pass
+  def _cp_end(self, amount_read):
+    CachedSyncCallback._cp_end(self, amount_read=amount_read,
+                                     draw=self.logger.test(3))
 
 
 class BuildDepsolveCallback:
   def __init__(self, threshold):
+
     self.logger = BuildLogger(threshold)
     self.loop = 1
     self.count = 0

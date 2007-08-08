@@ -373,7 +373,7 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
           self.release = str(int(self.release or '1') + 1)
         else:
           self.interface.log(0, "Current release number is %s" % self.release)
-          self.interface.log(0, "i)ncrement, c)continue, e)xit ")
+          self.interface.log(0, "i)ncrement, c)ontinue, e)xit ")
           ans = raw_input()
           if len(ans) == 1:
             ans = ans[0].lower()

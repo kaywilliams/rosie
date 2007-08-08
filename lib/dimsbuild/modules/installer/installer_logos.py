@@ -84,7 +84,7 @@ class InstallerLogosHook(ExtractHandler):
     return output
   
   def generate_splash(self, working_dir):
-    splash = join(self.software_store, 'isolinux', 'splash.%s' %self.format)
+    splash = join(self.software_store, 'isolinux/splash.%s' %self.format)
     # convert the syslinux-splash.png to splash.lss and copy it
     # to the isolinux/ folder
     try:
@@ -106,9 +106,9 @@ class InstallerLogosHook(ExtractHandler):
     """
     # link the images from the RPM folder to the pixmaps/ folder in
     # the folder the product.img event looks in.
-    product_img = join(self.interface.METADATA_DIR, 'images-src', 'product.img', 'pixmaps')
+    product_img = join(self.interface.METADATA_DIR, 'images-src/product.img/pixmaps')
     osutils.mkdir(product_img, parent=True)
-
+    
     # generate the list of files to use and copy them to the
     # product.img folder
     ## FIXME: is anaconda/pixmaps sufficient?
@@ -121,7 +121,7 @@ class InstallerLogosHook(ExtractHandler):
     return pixmaps
 
   def apply(self):
-    splash = join(self.software_store, 'isolinux', 'splash.%s' %self.format)
+    splash = join(self.software_store, 'isolinux/splash.%s' %self.format)
     if not exists(splash):
       raise RuntimeError("missing file: '%s'" %(splash))
     if not self.valid_splash(splash):

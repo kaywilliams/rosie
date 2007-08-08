@@ -15,7 +15,6 @@ from dims import osutils
 from dims import sync
 from dims import img
 
-from dimsbuild.callback  import BuildSyncCallback
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
@@ -83,10 +82,10 @@ class SourcevarsHook(DiffMixin):
   def run(self):
     self.interface.log(0, "computing source variables")
         
-    #Download initrd.img to cache
-    initrd_file = self.interface.cache(self.repo, 'isolinux/initrd.img',
-                  username=self.repo.username, password=self.repo.password,
-                  callback=BuildSyncCallback(self.interface.logthresh))
+    #Download initrd.img to cache # TODO - use link handlers in cache as well
+    initrd_file = join(self.interface.TEMP_DIR, 'initrd.img')
+    self.interface.cache(self.repo.rjoin('isolinux/initrd.img'), self.interface.TEMP_DIR,
+                         username=self.repo.username, password=self.repo.password)
     
     #Extract buildstamp
     locals = locals_imerge(L_IMAGES, self.interface.cvars['anaconda-version'])
@@ -98,7 +97,9 @@ class SourcevarsHook(DiffMixin):
     self.image.read('.buildstamp', self.md_dir)
     self.image.close()
     img.cleanup()
-
+    
+    osutils.rm(initrd_file) # clean up temp file
+    
     #Update metadata
     self.write_metadata()
     

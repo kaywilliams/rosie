@@ -12,7 +12,6 @@ from dims import sortlib
 from dims import spider
 from dims import sync
 
-from dimsbuild.callback  import BuildSyncCallback
 from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, RPM_PNVRA
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.interface import EventInterface
@@ -47,8 +46,6 @@ class SoftwareInterface(EventInterface, ListCompareMixin):
     ListCompareMixin.__init__(self)
     
     self.ts = rpm.TransactionSet()
-    self.callback = BuildSyncCallback(base.log.threshold)
-    
     self.rpmdest = join(self.SOFTWARE_STORE, self.product) 
     
   def rpmNameDeformat(self, rpm):
@@ -79,13 +76,7 @@ class SoftwareInterface(EventInterface, ListCompareMixin):
   
   def syncRpm(self, rpm, repo, force=False):
     "Sync an rpm from path within repo into the the output store"
-    rpmsrc = self.cache(repo, join(repo.repodata_path, rpm),
-                        force=force, callback=self.callback)
-    # only display file callback if we didn't sync from remote location
-    if rpmsrc not in [ lsrc for _,lsrc in self.callback.new ]:
-      sync.sync(rpmsrc, self.rpmdest, callback=self.callback)
-    else:
-      sync.sync(rpmsrc, self.rpmdest)
+    self.cache(repo.rjoin(repo.repodata_path, rpm), self.rpmdest, force=force)
   
   def deleteRpm(self, rpm):
     "Delete an rpm from the output store"

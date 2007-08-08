@@ -73,7 +73,7 @@ class InstallerReleaseHook(ExtractHandler):
       dest = files[source]
       if isfile(source) and isdir(dest):
         rtn.append(join(dest, osutils.basename(source)))
-      sync.sync(source, dest, link=True)
+      self.interface.cache(source, dest, link=True)
     return rtn
 
   def find_rpms(self):
