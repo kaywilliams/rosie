@@ -405,7 +405,7 @@ class ConfigHandler:
           elements.append(copy.copy(val)) # append() is destructive
     
   def diff(self):
-    diff = {}
+    self.diffdict = {}
     for path in self.data:
       if self.cfg.has_key(path):
         try:
@@ -413,15 +413,15 @@ class ConfigHandler:
         except xmltree.XmlPathError:
           cfgval = NoneEntry(path)
         if self.cfg[path] != cfgval:
-          diff[path] = (self.cfg[path], cfgval)
+          self.diffdict[path] = (self.cfg[path], cfgval)
       else:
         try:
           cfgval = self.config.xpath(path)
         except xmltree.XmlPathError:
           cfgval = NoneEntry(path)
-        diff[path] = (NewEntry(), cfgval)
-    if diff: self.dprint(diff)
-    return diff
+        self.diffdict[path] = (NewEntry(), cfgval)
+    if self.diffdict: self.dprint(self.diffdict)
+    return self.diffdict
 
 class VariablesHandler:
   def __init__(self, data, obj):
@@ -470,7 +470,7 @@ class VariablesHandler:
         pass
   
   def diff(self):
-    diff = {}
+    self.diffdict = {}
     for var in self.data:
       try:
         val = eval('self.obj.%s' % var)
@@ -480,8 +480,8 @@ class VariablesHandler:
         val = NoneEntry(var)
       if self.vars.has_key(var):
         if self.vars[var] != val:
-          diff[var] = (self.vars[var], val)
+          self.diffdict[var] = (self.vars[var], val)
       else:
-        diff[var] = (NewEntry(), val)
-    if diff: self.dprint(diff)
-    return diff
+        self.diffdict[var] = (NewEntry(), val)
+    if self.diffdict: self.dprint(self.diffdict)
+    return self.diffdict
