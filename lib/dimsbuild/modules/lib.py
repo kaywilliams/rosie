@@ -1,4 +1,4 @@
-from os.path import abspath, exists, join
+from os.path import abspath, exists, isdir, join
 
 from dims import filereader
 from dims import listcompare
@@ -9,6 +9,39 @@ from dimsbuild import difftest
 
 from dimsbuild.callback import BuildSyncCallback
 
+def removeFiles(rmlist, parent, logger):
+  rmlist.sort()
+  emptydirs = []
+  for item in rmlist:
+    # remove the items in the rmlist as soon as possible, so that
+    # all empty directories can be computed. Once an item is
+    # deleted, its parent directories are checked to see if they are
+    # empty, and if they are, they are deleted (this is what the
+    # while-loop does).
+    if isdir(item) and osutils.find(item, type=osutils.TYPE_FILE|osutils.TYPE_LINK):
+      # don't mess with directories that have files in them
+      continue
+    
+    if exists(item):
+      logger(2, item[len(parent):].strip('/'))      
+      osutils.rm(item, recursive=True, force=True)
+      
+    item = osutils.dirname(item)    
+    while not osutils.find(item, type=osutils.TYPE_FILE|osutils.TYPE_LINK):
+      if item.lstrip('/') == parent.lstrip('/'):
+        # if upper-bound is reached, break out of loop.
+        break
+      emptydirs.append(item)
+      item = osutils.dirname(item)
+      
+  emptydirs.sort()
+  if emptydirs:
+    logger(1, "removing empty directories")
+    for item in emptydirs:
+      if exists(item):
+        logger(2, item[len(parent):].lstrip('/'))
+        osutils.rm(item, recursive=True, force=True)
+        
 class ListCompareMixin:
   def __init__(self, lfn=None, rfn=None, bfn=None, cb=None):
     self.lfn = lfn
@@ -99,11 +132,10 @@ class DiffMixin:
     self.DT.write_metadata()
 
 class FilesMixin:
-  def __init__(self, parentdir, quiet=False):
+  def __init__(self, parentdir):
     self.parentdir = parentdir.rstrip('/') # make sure there is no trailing slash
     self.callback = BuildSyncCallback(self.interface.logthresh)
     self.info = {}
-    self.quiet = quiet
     
   def add_files(self,
                 xpaths=None,
@@ -132,8 +164,6 @@ class FilesMixin:
       self._process_xpaths(xpaths, iprefix, oprefix, self.__add_item)
     if paths:
       self._process_paths(paths, iprefix, oprefix, self.__add_item)
-
-    #print self.info
     
     if addinput:
       self.update({
@@ -158,8 +188,7 @@ class FilesMixin:
       self.interface.log(4, "nothing to sync")
       return
     
-    if not self.quiet:
-      self.interface.log(1, message)
+    self.interface.log(1, message)
 
     for item in self.info.keys():
       dst = osutils.dirname(item)
@@ -188,37 +217,9 @@ class FilesMixin:
       if not rmlist:
         return
       
-    if not self.quiet:
-      self.interface.log(1, message)
-      
-    rmlist.sort()
-    emptydirs = []
-    for item in rmlist:
-      # remove the items in the rmlist as soon as possible, so that
-      # all empty directories can be computed. Once an item is
-      # deleted, its parent directories are checked to see if they are
-      # empty, and if they are, they are deleted (this is what the
-      # while-loop does).
-      if not exists(item): continue
-      self.interface.log(2, item[len(self.parentdir):].strip('/'))
-      osutils.rm(item, recursive=True, force=True)    
+    self.interface.log(1, message)
 
-      item = osutils.dirname(item)        
-      while not osutils.find(item, type=osutils.TYPE_FILE|osutils.TYPE_LINK):
-        if item.lstrip('/') == self.parentdir.lstrip('/'):
-          # should never happen
-          break
-        emptydirs.append(item)
-        item = osutils.dirname(item)
-
-    emptydirs.sort()
-    if emptydirs:
-      if not self.quiet:
-        self.interface.log(1, "removing empty directories")
-      for item in emptydirs:
-        if exists(item):
-          self.interface.log(2, item[len(self.parentdir):].lstrip('/'))
-          osutils.rm(item, recursive=True, force=True)
+    removeFiles(rmlist, self.parentdir, self.interface.log)
     
   def _process_xpaths(self, xpaths, iprefix, oprefix, action):
     """
@@ -274,7 +275,7 @@ class FilesMixin:
   def __sync_item(self, src, dst):
     if not exists(dst):
       osutils.mkdir(dst, parent=True)
-    sync.sync(src, dst, callback=self.callback)    
+    self.interface.cache(src, dst)
 
   def __add_item(self, src, dst):
     if not self.handlers['input'].filelists.has_key(src):
