@@ -42,13 +42,49 @@ element iso {
         <programlisting>
 &lt;iso&gt;
   &lt;set&gt;CD&lt;/set&gt;
-  &lt;set&gt;800M&lt;/set&gt;
+  &lt;set&gt;700M&lt;/set&gt;
 &lt;/iso&gt;
         </programlisting>
       </refsection>
       <refsection>
         <title>See also</title>
         <para>sets</para>
+      </refsection>
+    </refsect2>
+
+    <!-- pkgorder -->
+    <refsect2>
+      <title>&lt;pkgorder&gt;</title>
+      <para>
+      Optional element providing a path to a package order file. The file must be
+      in the format produced by the Anaconda pkgorder script and consumable by the 
+      Anaconda splittree script; if not provided, dimsbuild creates a package order 
+      file using standard values.
+      </para>
+      <programlisting>
+element pkgorder { text }
+      </programlisting>
+      <refsection>
+        <title>Parents</title>
+        <para>iso</para>
+      </refsection>
+      <refsection>
+        <title>Examples</title>
+        <para>
+        The following element creates a set of CD images using a file named
+        "pkgorder" to order the files in the images.  The "pkgorder" file is located 
+        in a folder relative to the distribution configuration (distro.conf) file.
+        </para>
+        <programlisting>
+&lt;iso&gt;
+  &lt;pkgorder&gt;pkgorder&lt;/pkgorder&gt;
+  &lt;set&gt;cd&lt;/set&gt;
+&lt;/iso&gt;
+        </programlisting>
+      </refsection>
+      <refsection>
+        <title>See also</title>
+        <para>path</para>
       </refsection>
     </refsect2>
     
@@ -77,7 +113,7 @@ element set { text }
       </refsection>
       <refsection>
         <title>Parents</title>
-        <para>sets</para>
+        <para>iso</para>
       </refsection>
       <refsection>
         <title>Examples</title>

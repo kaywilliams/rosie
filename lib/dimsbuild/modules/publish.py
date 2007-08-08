@@ -30,7 +30,7 @@ EVENTS = [
     'id': 'publish',
     'interface': 'PublishInterface',
     'properties': EVENT_TYPE_MDLR,
-    'conditional-requires': ['MAIN', 'iso'],
+    'conditional-requires': ['MAIN', 'ISO'],
     'parent': 'ALL',
   },
 ]

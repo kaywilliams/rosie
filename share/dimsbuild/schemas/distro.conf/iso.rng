@@ -9,6 +9,9 @@
               <ref name="value-boolean-with-default"/>
             </attribute>
           </optional>
+          <optional>
+            <element name="pkgorder"><text/></element>
+          </optional>
           <oneOrMore>
             <element name="set"><text/></element>
           </oneOrMore>
