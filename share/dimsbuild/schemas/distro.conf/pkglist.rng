@@ -4,16 +4,6 @@
     <element name="distro">      
       <optional>
         <element name="pkglist">
-
-          <!-- DOCBOOK ENTRY -->
-          <refentry xmlns="">
-            <refsect1>
-              <title>PKGLIST</title>
-              <para>information about the pkglist element</para>
-            </refsect1>
-          </refentry>
-          
-          <!-- ELEMENT CONTENTS -->
           <optional>
             <ref name="element-path"/>
           </optional>

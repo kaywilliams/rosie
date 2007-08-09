@@ -29,8 +29,8 @@ EVENTS = [
 ]
 
 HOOK_MAPPING = {
-  'LogosHook': 'logos',
-  'ValidateHook':       'validate',
+  'LogosHook':    'logos',
+  'ValidateHook': 'validate',
 }
 
 #------ HOOKS ------#
