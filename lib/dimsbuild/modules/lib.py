@@ -10,6 +10,7 @@ from dimsbuild import difftest
 from dimsbuild.callback import BuildSyncCallback
 
 def removeFiles(rmlist, parent, logger):
+  if type(rmlist) == str: rmlist = [rmlist]
   rmlist.sort()
   emptydirs = []
   for item in rmlist:
