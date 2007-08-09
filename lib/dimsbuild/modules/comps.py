@@ -101,7 +101,7 @@ class CompsHook(DiffMixin):
     
     DiffMixin.__init__(self, self.mdfile, self.DATA)
   
-  def force(self):
+  def clean(self):
     osutils.rm(self.s_compsfile, force=True)
     self.clean_metadata()
   
@@ -109,8 +109,7 @@ class CompsHook(DiffMixin):
     # if the input repos change, we need to run
     # if there is no comps file in the ouput directory and one isn't otherwise
     # specified, we need to run
-    return self.interface.isForced('comps') or \
-           self.interface.cvars['with-comps'] or \
+    return self.interface.cvars['with-comps'] or \
            self.interface.cvars['input-repos-changed'] or \
            (not exists(self.s_compsfile) and not self.interface.cvars['comps-file']) or \
            self.test_diffs()
@@ -130,7 +129,7 @@ class CompsHook(DiffMixin):
       self.generate_comps()
       reqpkgs = self.comps.xpath('//packagereq/text()')
     
-    if isfile(self.s_compsfile) and not self.interface.isForced('comps'):
+    if isfile(self.s_compsfile):
       oldreqpkgs = xmltree.read(self.s_compsfile).xpath('//packagereq/text()')
     else:
       oldreqpkgs = []

@@ -35,7 +35,7 @@ class PxebootHook:
     
     self.pxeboot_dir = join(self.interface.SOFTWARE_STORE, 'images/pxeboot')
   
-  def force(self):
+  def clean(self):
     osutils.rm(self.pxeboot_dir, recursive=True, force=True)
   
   def run(self):

@@ -2,7 +2,7 @@
 BOOLEANS_TRUE  = ['True', 'true', 'Yes', 'yes', '1']
 BOOLEANS_FALSE = ['False', 'false', 'No', 'no', '0']
 
-OPT_FORCE = '--force'
+OPT_FORCE = '--clean'
 OPT_SKIP  = '--skip'
 
 RPM_GLOB  = '*.[Rr][Pp][Mm]'

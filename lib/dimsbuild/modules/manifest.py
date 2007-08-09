@@ -64,7 +64,7 @@ class ManifestHook(DiffMixin):
   def check(self):
     return self.test_diffs()    
 
-  def force(self):
+  def clean(self):
     osutils.rm(self.handlers['output'].oldoutput.keys(), force=True)
     self.clean_metadata()
   

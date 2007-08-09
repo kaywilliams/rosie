@@ -81,7 +81,7 @@ class DiscinfoHook(DiffMixin):
     
     DiffMixin.__init__(self, mdfile, self.DATA)
     
-  def force(self):
+  def clean(self):
     osutils.rm(self.difile, force=True)
     self.clean_metadata()
   
@@ -126,7 +126,7 @@ class TreeinfoHook(DiffMixin):
     
     DiffMixin.__init__(self, self.mdfile, self.DATA)
     
-  def force(self):
+  def clean(self):
     osutils.rm(self.tifile, force=True)
     osutils.rm(self.mdfile, force=True)
   
@@ -194,7 +194,7 @@ class BuildStampHook(DiffMixin):
   def setup(self):
     self.anaconda_version = self.interface.cvars['anaconda-version']
 
-  def force(self):
+  def clean(self):
     for file in self.handlers['output'].oldoutput.keys():
       osutils.rm(file, force=True, recursive=True)
     self.clean_metadata()

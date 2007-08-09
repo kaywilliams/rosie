@@ -65,7 +65,7 @@ class ReposHook(DiffMixin):
     
     DiffMixin.__init__(self, self.mdfile, self.DATA)
     
-  def force(self):
+  def clean(self):
     for file in [ join(self.mdfile, repo.id) for repo in \
                   self.interface.getAllRepos() ]:
       osutils.rm(file, force=True)
@@ -76,6 +76,7 @@ class ReposHook(DiffMixin):
     osutils.mkdir(self.mdrepos, parent=True)
     
     self.interface.cvars['repos'] = {}
+    self.interface.cvars['input-repos-changed'] = False
     
     # sync all repodata folders to builddata
     self.interface.log(1, "synchronizing repository metadata")
@@ -92,9 +93,7 @@ class ReposHook(DiffMixin):
       self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id))
       
   def check(self):
-    self.interface.cvars['input-repos-changed'] = self.interface.isForced('repos') or \
-                                                  self.test_diffs()
-    return self.interface.cvars['input-repos-changed']
+    return self.test_diffs()
   
   def run(self):
     self.interface.log(1, "computing repo contents")

@@ -127,7 +127,7 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
                default='True',
                package_type=None,
                condrequires=None):
-    """
+    """ 
     @param interface   : the interface object for this hook
     @param data        : the diff metadata struct
     @param id          : the id of the hook's event
@@ -208,49 +208,49 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
     })
     
   def check(self):
-    if self.test_build():
-      return self.interface.isForced(self.id) or \
-             not exists(self.mdfile) or \
-             not exists(self.autoconf) or \
-             self.test_diffs()              
-    else:
-      self._delete_old_files()
-      return False
+    return not exists(self.mdfile) or \
+           not exists(self.autoconf) or \
+           self.test_diffs()
   
   def run(self):
+    # only generate RPM if test_build() returns true
+    if not self.test_build():
+      self._delete_old_files()
+      return
+        
     self.interface.log(0, "building %s rpm" % self.rpmname)
 
-    # compute the release number....
+    # compute the release number ...
     self.set_release()
     self.interface.log(1, "rpm release number: %s" % self.release)
     
-    # ....delete older rpms....
+    # ... delete older rpms ...
     self._delete_old_files()
 
-    # ....make sure that the build folder exists....
+    # ... make sure that the build folder exists ...
     osutils.mkdir(self.build_folder, parent=True)
     
-    # ....sync input files....
+    # ... sync input files ...
     self.download()
 
-    # ....generate additional files, if required....
+    # ... generate additional files, if required ...
     self.generate()
 
-    # ....write setup.cfg....
+    # ... write setup.cfg ...
     self.write_spec()
 
-    # ....write MANIFEST....
+    # ... write MANIFEST ...
     self.write_manifest()    
 
-    # ....build the RPM....
+    # ... build the RPM ...
     self.interface.buildRpm(self.build_folder, self.interface.LOCAL_REPO,
                             quiet=(self.interface.logthresh < 4))
 
-    # ....test the output's validity....
+    # ... test the output's validity ...
     if not self.output_valid():
       raise OutputInvalidError("'%s' output invalid" % self.rpmname)
 
-    # ....update the release number....
+    # ... update the release number ...
     self.write_autoconf(self.release)
     
     self.update({
@@ -262,7 +262,7 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
        ]
     })
 
-    # ....finally, write the metadata file.
+    # ... finally, write the metadata file.
     self.write_metadata()
     self.interface.cvars['custom-rpms-built'] = True
 
@@ -373,32 +373,28 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
           self.release = str(int(self.release or '1') + 1)
         else:
           self.interface.log(0, "Current release number is %s" % self.release)
-          self.interface.log(0, "i)ncrement, c)ontinue, e)xit ")
-          ans = raw_input()
-          if len(ans) == 1:
-            ans = ans[0].lower()
-            if ans == 'i':
-              self.release = str(int(self.release) + 1)
-            elif ans == 'e':
-              raise HookExit
-            else:
-              pass # nothing to do
+          ans = None
+          while not ans or (ans and ans[0] not in 'ice'):
+            self.interface._base.log.write(0, "i)ncrement, c)ontinue, e)xit: ")
+            ans = raw_input().lower()
+          if ans[0] == 'i':
+            self.release = str(int(self.release) + 1)
+          elif ans[0] == 'e':
+            raise HookExit
           else:
-            raise HookExit        
+            pass # nothing to do
     else:
       # missing .auto file
       if self.interface.cvars['auto-bump-release']:
         self.release = '1'
       else:
         self.interface.log(0, "The distro.conf.auto file is missing")
-        self.interface.log(0, "s)tart at 1, e)xit ")
-        ans = raw_input()
-        if len(ans) == 1:
-          ans = ans[0].lower()
-          if ans == 's':
-            self.release = '1'
-          else:
-            raise HookExit
+        ans = None
+        while not ans or (ans and ans[0] not in 'se'):
+          self.interface._base.log.write(0,"s)tart at 1, e)xit: ")
+          ans = raw_input().lower()
+        if ans[0] == 's':
+          self.release = '1'
         else:
           raise HookExit
 

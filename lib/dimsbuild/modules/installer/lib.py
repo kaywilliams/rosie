@@ -72,16 +72,13 @@ class ExtractHandler(DiffMixin):
       'output': self.handlers['output'].oldoutput.keys(),
     })
 
-  def force(self):
+  def clean(self):
     self.clean_output()
     self.clean_metadata()
     
   def check(self):    
-    if self.test_diffs():
-      self.clean_output()
-      return True
-    return False
-
+    return self.test_diffs()
+  
   def extract(self, message):
     self.interface.log(0, message)
     
@@ -214,9 +211,7 @@ class ImageModifyMixin(ImageHandler, DiffMixin, FilesMixin):
     image_path = self.i_locals.get('//images/image[@id="%s"]/path' % self.name)
     image_path = locals_printf(image_path, self.interface.BASE_VARS)
     
-    self.rsrc = repo.rjoin(image_path, self.name)
-    self.isrc = join(self.interface.INPUT_STORE, repo.id,
-                     repo.directory, image_path, self.name)
+    self.src = repo.rjoin(image_path, self.name)
     self.username = repo.username
     self.password = repo.password
     self.dest = join(self.interface.SOFTWARE_STORE, image_path, self.name)
@@ -225,24 +220,12 @@ class ImageModifyMixin(ImageHandler, DiffMixin, FilesMixin):
   
   def modify(self):
     # sync image to input store
-    osutils.mkdir(osutils.dirname(self.isrc), parent=True)
-    # try to get image from input store - if it is not there and image is virtual,
-    # that's ok; otherwise, raise
     try:
-      sync.sync(self.rsrc, osutils.dirname(self.isrc),
-                username=self.username, password=self.password) # cachemanager this
+      self.interface.cache(self.src, osutils.dirname(self.dest))
     except sync.util.SyncError, e:
       if self._isvirtual(): pass
       else: raise e
-    
-    # sync image to output store
-    osutils.mkdir(osutils.dirname(self.dest), parent=True)
-    try:
-      sync.sync(self.isrc, osutils.dirname(self.dest))
-    except sync.util.SyncError, e:
-      if self._isvirtual(): pass
-      else: raise e
-    
+      
     # modify image
     self.interface.log(1, "modifying %s" % self.name)
     self.open()

@@ -71,23 +71,18 @@ class ProductHook(ImageModifyMixin):
       'input': self.interface.cvars['buildstamp-file'],
     })
   
-  def force(self):
-    self.interface.log(0, "forcing product-image")
+  def clean(self):
     self.remove_files(self.handlers['output'].oldoutput.keys())
   
   def check(self):
-    if self.interface.isForced('product-image') or \
-           not self.validate_image() or \
-           self.test_diffs():
-      if not self.interface.isForced('product-image'):
-        self.interface.log(0, "cleaning product-image")
-        self.remove_files(self.handlers['output'].oldoutput.keys())
-      return True
-    else:
-      return False
+    return not self.validate_image or \
+           self.test_diffs()
   
   def run(self):
     self.interface.log(0, "generating product.img")  
+    # clean up old output
+    self.clean()
+    # modify image
     self.modify() # see generate(), below, and ImageModifyMixin in lib.py
   
   def apply(self):

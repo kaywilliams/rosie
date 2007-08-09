@@ -36,12 +36,11 @@ class BootisoHook:
     self.isolinux_dir = join(self.interface.SOFTWARE_STORE, 'isolinux')
     self.bootiso = join(self.interface.SOFTWARE_STORE, 'images/boot.iso')
   
-  def force(self):
+  def clean(self):
     osutils.rm(self.bootiso, force=True)
   
   def check(self):
-    return self.interface.isForced('bootiso') or \
-           self.interface.cvars['isolinux-changed'] or \
+    return self.interface.cvars['isolinux-changed'] or \
            not exists(self.bootiso)
   
   def run(self):

@@ -116,7 +116,7 @@ class RepogenHook:
     
     self.cfgfile = join(self.interface.TEMP_DIR, 'depsolve')
  
-  def force(self):
+  def clean(self):
     osutils.rm(self.cfgfile, force=True)
   
   def run(self):
@@ -145,7 +145,7 @@ class PkglistHook:
     self.mddir = join(self.interface.METADATA_DIR, '.depsolve')
     self.pkglistfile = join(self.interface.METADATA_DIR, 'pkglist')
   
-  def force(self):
+  def clean(self):
     osutils.rm(self.mddir, recursive=True, force=True)
     osutils.rm(self.pkglistfile, force=True)
   
@@ -156,8 +156,7 @@ class PkglistHook:
       self.interface.cvars['pkglist-file'] = pkglistfile
   
   def check(self):
-    return self.interface.isForced('pkglist') or \
-           self.interface.cvars['pkglist-file'] or \
+    return self.interface.cvars['pkglist-file'] or \
            self.interface.cvars['input-repos-changed'] or \
            self.interface.cvars['comps-changed'] or \
            not exists(self.pkglistfile) and not self.interface.cvars['pkglist-file']

@@ -32,10 +32,11 @@ class EventInterface:
     self.logthresh = self._base.log.threshold
     self.errlogthresh = self._base.errlog.threshold
     
+    # variables
     for k,v in self._base.cvars['base-vars'].items():
       setattr(self, k, v)
     self.BASE_VARS      = self._base.cvars['base-vars']
-  
+    
     self.CACHE_DIR      = self._base.CACHE_DIR
     self.DISTRO_DIR     = self._base.DISTRO_DIR
     self.OUTPUT_DIR     = self._base.OUTPUT_DIR
@@ -46,9 +47,18 @@ class EventInterface:
     
     self.cvars = self._base.cvars
     
+    # sync/caching stuff
+    cache_dir = self._base.mainconfig.get('/dimsbuild/cache/path/text()', None) or \
+                join(self.CACHE_DIR, '.cache')
+    cache_size = self._base.mainconfig.get('/dimsbuild/cache/max-size/text()', None)
+    if cache_size:
+      cache_size = int(cache_size)
+    else:
+      cache_size = self._base.CACHE_MAX_SIZE
+    
     self.cache_handler  = cache.CachedSyncHandler(
-                            cache_dir=join(self.CACHE_DIR, 'cache'),
-                            cache_max_size=self._base.CACHE_MAX_SIZE
+                            cache_dir=cache_dir,
+                            cache_max_size=cache_size,
                           )
     self.cache_callback = BuildSyncCallback(self.logthresh)
     self.copy_handler   = sync.CopyHandler()
@@ -88,12 +98,10 @@ class EventInterface:
   # event processing functions
   # 'force' event functions - user specified
   def isForced(self, eventid):
-    return self._base.userFC.get(eventid, None) == True or \
-           self._base.autoFC.get(eventid, None) == True
+    return self._base.dispatch.get(eventid, err=True).status == True
   
   def isSkipped(self, eventid):
-    return self._base.userFC.get(eventid, None) == False or \
-           self._base.autoFC.get(eventid, None) == False
+    return self._base.dispatch.get(eventid, err=True).status == False
   
   # 'standard' event functions - program specified
   def enableEvent(self, eventid): self.__set_event(eventid, True)

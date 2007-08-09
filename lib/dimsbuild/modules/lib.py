@@ -19,6 +19,7 @@ def removeFiles(rmlist, parent, logger):
     # deleted, its parent directories are checked to see if they are
     # empty, and if they are, they are deleted (this is what the
     # while-loop does).
+    # this is very inefficient #!
     if isdir(item) and osutils.find(item, type=osutils.TYPE_FILE|osutils.TYPE_LINK):
       # don't mess with directories that have files in them
       continue
@@ -135,7 +136,7 @@ class DiffMixin:
 class FilesMixin:
   def __init__(self, parentdir):
     self.parentdir = parentdir.rstrip('/') # make sure there is no trailing slash
-    self.callback = BuildSyncCallback(self.interface.logthresh)
+    self.callback = BuildSyncCallback(self.interface.logthresh) #! TODO - remove this
     self.info = {}
     
   def add_files(self,
@@ -145,7 +146,7 @@ class FilesMixin:
                 addoutput=True,
                 iprefix=None,
                 oprefix=None):
-    """    
+    """ 
     @param xpaths    : a list of xpath queries to the path elements    
     @param paths     : a list of 2-tuples: (src, dest). If dest is None it
                        is set to self.parentdir
@@ -167,6 +168,7 @@ class FilesMixin:
       self._process_paths(paths, iprefix, oprefix, self.__add_item)
     
     if addinput:
+      # we don't know if self.update exists, unless DictMixin is also imported #!
       self.update({
         'input':  self.info.values(),
       })
@@ -178,7 +180,7 @@ class FilesMixin:
   def sync_files(self,
                  action=None,
                  message="downloading input files"):
-    """
+    """ 
     Sync the input files to their output locations.
     
     @param action: the function to call with the source file and
@@ -191,9 +193,8 @@ class FilesMixin:
     
     self.interface.log(1, message)
 
-    for item in self.info.keys():
-      dst = osutils.dirname(item)
-      src = self.info[item]
+    for dst, src in self.info.items():
+      dst = osutils.dirname(dst)
       if action:
         action(src, dst)
       else:
@@ -223,7 +224,7 @@ class FilesMixin:
     removeFiles(rmlist, self.parentdir, self.interface.log)
     
   def _process_xpaths(self, xpaths, iprefix, oprefix, action):
-    """
+    """ 
     Read the xpath queries specified by the xpaths parameter. For
     each of the elements found, the text node's value is the source
     and the value of the 'dest' attribute is the destination (or
@@ -241,7 +242,7 @@ class FilesMixin:
     self._process_paths(paths, iprefix, oprefix, action)
 
   def _process_paths(self, paths, iprefix, oprefix, action):
-    """
+    """ 
     Add paths specified by the info parameter which is a list of
     tuples with the source as the first element and the destination as
     the second. If info element is not a list, it is converted to
@@ -261,7 +262,7 @@ class FilesMixin:
       if src.startswith('file://'):
         src = src[7:]
       
-      if iprefix and not src.startswith('/') and src.find('://') == -1:
+      if iprefix and src.find('://') == -1:
         src = join(iprefix, src)
 
       if dest is None:
@@ -274,8 +275,6 @@ class FilesMixin:
       action(s,d)
       
   def __sync_item(self, src, dst):
-    if not exists(dst):
-      osutils.mkdir(dst, parent=True)
     self.interface.cache(src, dst)
 
   def __add_item(self, src, dst):

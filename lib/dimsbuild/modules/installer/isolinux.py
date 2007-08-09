@@ -78,26 +78,20 @@ class IsolinuxHook(FileDownloadMixin, FilesMixin, DiffMixin):
                   for f in self.f_locals.xpath('//file') ],
     })
 
-  def force(self):
-    self.interface.log(0, "forcing isolinux")
+  def clean(self):
     self.remove_files(self.handlers['output'].oldoutput.keys())
   
   def check(self):
-    if self.test_diffs():
-      if not self.interface.isForced('isolinux'):
-        self.interface.log(0, "cleaning isolinux")
-        self.remove_files()
-      return True
-    else:    
-      return False
+    return self.test_diffs()
   
   def run(self):
     self.interface.log(0, "synchronizing isolinux files")    
     osutils.mkdir(self.isolinux_dir, parent=True)
-
+    
+    # clean up old output
+    self.clean()
     # download all files - see FileDownloadMixin.download() in lib.py    
     self.download()
-
     # copy input files - see FilesMixin.sync_files() in interface.py
     self.sync_files()
     
@@ -108,7 +102,7 @@ class IsolinuxHook(FileDownloadMixin, FilesMixin, DiffMixin):
       if not exists(cfg):
         raise RuntimeError("missing file '%s'" % cfg)
       lines = filereader.read(cfg)
-
+      
       for i, line in enumerate(lines):
         if line.strip().startswith('append'):
           break
@@ -118,7 +112,7 @@ class IsolinuxHook(FileDownloadMixin, FilesMixin, DiffMixin):
       filereader.write(lines, cfg)
     
     self.interface.cvars['isolinux-changed'] = True
-
+    
     self.write_metadata()    
   
   def apply(self):
@@ -157,6 +151,7 @@ class InitrdHook(ImageModifyMixin):
     # add input files
     self.update({
       'input':  [
+        # TODO - this input location no longer exists
         [ join(self.interface.INPUT_STORE,
                repo.id, repo.directory,
                f.get('path/text()'),
@@ -172,22 +167,17 @@ class InitrdHook(ImageModifyMixin):
       ]
     })
 
-  def force(self):
-    self.interface.log(0, "forcing initrd-image")
+  def clean(self):
     self.remove_files(self.handlers['output'].oldoutput.keys())
   
   def check(self):
-    if self.interface.isForced('initrd-image') or self.test_diffs():
-      if not self.interface.isForced('initrd-image'):
-        self.interface.log(0, "cleaning initrd-image")
-        self.remove_files(self.handlers['output'].oldoutput.keys())
-      return True
-    else:    
-      return False
+    return self.test_diffs()
   
   def run(self):
     self.interface.log(0, "processing initrd.img")
     
+    # clean up old output
+    self.clean()
     # modify initrd.img - see ImageModifyMixin.modify() in lib.py
     self.modify()
     

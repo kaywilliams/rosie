@@ -63,30 +63,23 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
       ],
     })
   
-  def force(self):
-    self.interface.log(0, "forcing diskboot-image")
+  def clean(self):
     self.remove_files(self.handlers['output'].oldoutput.keys())
   
   def check(self):
-    if self.interface.cvars['isolinux-changed'] or \
-           self.interface.isForced('diskboot-image') or \
+    return self.interface.cvars['isolinux-changed'] or \
            not self.validate_image() or \
-           self.test_diffs():
-      if not self.interface.isForced('diskboot-image'):
-        self.interface.log(0, "cleaning diskboot-image")
-        self.remove_files(self.handlers['output'].oldoutput.keys())
-      return True
-    else:
-      return False
+           self.test_diffs()
   
   def run(self):
     self.interface.log(0, "preparing diskboot image")
     diskboot_dir = join(self.interface.SOFTWARE_STORE, 'images')
     osutils.mkdir(diskboot_dir, parent=True)
     
+    # clean up old output
+    self.clean()
     # download file - see FileDownloadMixin in lib.py
     self.download()
-
     # modify image - see DiskbootModifier, below, and ImageModifyMixin in lib.py
     self.modify()
   

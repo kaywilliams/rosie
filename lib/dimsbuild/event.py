@@ -201,22 +201,17 @@ class Event(resolve.Item, tree.Node):
   def pre(self):  self._run_hooks(fn='pre')
   def post(self): self._run_hooks(fn='post')
   def run(self):
-    self._setup()
     if self.enabled and self.status != False:
-      ##print '%s.run()' % self.id #!
-      for hook in self.hooks:
-        if not hasattr(hook, 'check') or \
-           hasattr(hook, 'check') and hook.check():
-          self._run_hook(hook, 'run')
-    self._run_hooks(fn='apply')
-  
-  def _setup(self):
-    if self.status == False:
-      self._run_hooks(fn='skip')
-    else:
       self._run_hooks(fn='setup')
       if self.status == True:
-        self._run_hooks(fn='force')
+        self._run_hooks(fn='clean')
+      for hook in self.hooks:
+        # run if not forced via --clean, no check() fn, or check() returns True
+        if self.status != True or \
+           not hasattr(hook, 'check') or \
+           hook.check():
+          self._run_hook(hook, 'run')
+    self._run_hooks(fn='apply')
   
   def _run_hooks(self, fn='run'):
     "Run the function specified in fn on each registered hook, if it has one."
@@ -265,22 +260,13 @@ class Dispatch:
                    this value are adjusted as events are processed
      * iter      : an iterator over self.event.  This value is None until
                    self.commit() is run
-     * force     : list of events that will be forced to execute when running
-                   process().  The purpose of this list is to allow the
-                   status of events to be ultimately controlled beyond what
-                   the ordinary execution of code would indicate; for
-                   example, by a user's command-line arguments
-     * skip      : list of events that will be skipped when running process().
-                   Like self.force, this is intended to provide a greater
-                   degree of control over the execution of events at runtime.
-                   self.skip has a higher priority than self.force
      * committed : boolean indicating whether commit() has been executed
-     * ureg_events : list of events that have not yet been actually registered
+     * _ureg_events : list of events that have not yet been actually registered
                    with the dispatcher.  Event registration is a two step process
                    - because events can be registered in any order, an event may
                    request a parent that does not exist yet.  Thus, events aren't
                    completely registered until commit() is called.
-     * ureg_hooks : dictionary of hooks that have not yet been registered.  As
+     * _ureg_hooks : dictionary of hooks that have not yet been registered.  As
                    with self.unregistered_events, above, hooks can be defined in
                    program modules that hook onto events that have not yet been
                    registered with the dispatcher.  These hooks are similarly
@@ -292,12 +278,10 @@ class Dispatch:
     self.iter = None
     self.sorted_events = None
     
-    self.force = []
-    self.skip = []
     self.disabled = []
     self.committed = False
-    self.ureg_events = []
-    self.ureg_hooks = {}
+    self._ureg_events = []
+    self._ureg_hooks = {}
     
     # args passed to newly-instanteated interfaces
     self.iargs = []
@@ -381,7 +365,7 @@ class Dispatch:
     firstunreg = None
     while True:
       try:
-        event, parentid = self.ureg_events.pop(0)
+        event, parentid = self._ureg_events.pop(0)
       except IndexError:
         break # we're done
       try:
@@ -390,7 +374,7 @@ class Dispatch:
       except UnregisteredEventError:
         if event == firstunreg: # we've gone a complete loop without registering anythimg
           raise DispatchError, "Unable to completely register all events"
-        self.ureg_events.append((event, parentid))
+        self._ureg_events.append((event, parentid))
         if firstunreg is None: firstunreg = event
     
   def __process_unregistered_hooks(self):
@@ -399,12 +383,12 @@ class Dispatch:
     in question doesn't exist, raise an UnregisteredEventError.
     """
     # register all functions
-    for eventid, hooks in self.ureg_hooks.items():
+    for eventid, hooks in self._ureg_hooks.items():
       event = self.get(eventid)
       if event is None: raise UnregisteredEventError, eventid
       for h in hooks:
         event.register_hook(h)
-    self.ureg_hooks = {}
+    self._ureg_hooks = {}
   
   def __resolve(self):
     "Recursively perform dependency resolution at each level of the event tree."
@@ -457,9 +441,9 @@ class Dispatch:
   
   def register_hook(self, hook, eventid):
     "Register a hook to the event identified by eventid"
-    if not self.ureg_hooks.has_key(eventid):
-      self.ureg_hooks[eventid] = []
-    self.ureg_hooks[eventid].append(hook)
+    if not self._ureg_hooks.has_key(eventid):
+      self._ureg_hooks[eventid] = []
+    self._ureg_hooks[eventid].append(hook)
   
   #------ MODULE LOADING FUNCTIONS ------#
   def process_module(self, module):
@@ -496,7 +480,7 @@ class Dispatch:
     if hasattr(module, 'EVENTS'):
       for struct in module.EVENTS:
         event = EventFromStruct(struct)
-        self.ureg_events.append((event, struct.get('parent', 'MAIN')))
+        self._ureg_events.append((event, struct.get('parent', 'MAIN')))
         if struct.has_key('interface'):
           if hasattr(module, struct['interface']):
             interface = getattr(module, struct['interface'])

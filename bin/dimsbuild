@@ -50,9 +50,14 @@ def main():
   parser.add_option('--share-path',
                     dest='sharepath',
                     help="path to dimsbuild shared files")
-  parser.add_option('--force',
+  parser.add_option('--clear-cache',
+                    dest='clear_cache',
+                    action='store_true',
+                    default=False,
+                    help="clear cache of downloaded files before executing")
+  parser.add_option('--clean',
                     action='callback',
-                    dest='force_events',
+                    dest='clean_events',
                     metavar='EVENT1 [EVENT2 ...]',
                     default=[],
                     callback=append_events_callback,
@@ -119,7 +124,7 @@ def main():
   # of the parser
   sbuilder = build.Build(opts, parser, mainconfig, distroconfig)
   
-  # calculate the events available to --force and --skip, and format nicely
+  # calculate the events available to --clean and --skip, and format nicely
   events = sbuilder.get_mdlr_events()
   parser.set_description("Valid events for EVENT, below, are: %s." % \
     listfmt.format(events, pre="'", post="'", last="and ", sep=", "))

@@ -120,7 +120,8 @@ class GpgsignHook(DiffMixin):
     
     DiffMixin.__init__(self, self.mdfile, self.DATA)
   
-  def force(self):
+  def clean(self):
+    # WTF is this supposed to do?
     self.interface.cvars['gpg-tosign'] or \
                             [ (x, None) for x in \
                               osutils.find(self.interface.cvars['rpms-directory'],
@@ -131,8 +132,7 @@ class GpgsignHook(DiffMixin):
     self.clean_metadata()
   
   def check(self):
-    return self.interface.isForced('gpgsign') or \
-           self.interface.cvars['new-rpms'] or \
+    return self.interface.cvars['new-rpms'] or \
            self.interface.cvars['gpg-tosign'] or \
            self.test_diffs()
     

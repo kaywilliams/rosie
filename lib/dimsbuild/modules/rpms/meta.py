@@ -70,8 +70,8 @@ class RpmsHook:
     self.interface.log(1, "checking repository metadata")
 
     if not exists(join(self.interface.LOCAL_RPMS, 'repodata')) or \
-           not exists(join(self.interface.LOCAL_SRPMS, 'repodata')) or \
-           self.interface.cvars['custom-rpms-built']:
+       not exists(join(self.interface.LOCAL_SRPMS, 'repodata')) or \
+       self.interface.cvars['custom-rpms-built']:
       osutils.rm(join(self.interface.METADATA_DIR, '.depsolve', 'localrepo'),
                  recursive=True, force=True)
       self.interface.log(2, "running createrepo")
@@ -141,5 +141,3 @@ class RepogenHook:
                   'name = localrepo',
                   'baseurl = file://%s' % self.interface.cvars['local-rpms']])
     filereader.write(lines, self.interface.cvars['repoconfig-file'])
-      
-

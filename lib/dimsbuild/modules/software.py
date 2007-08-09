@@ -74,9 +74,9 @@ class SoftwareInterface(EventInterface, ListCompareMixin):
       raise RuntimeError, "No GPG keys found to check against"
     mkrpm.rpmsign.verifyRpm(rpm, public=pubkey, force=True)
   
-  def syncRpm(self, rpm, repo, force=False):
+  def syncRpm(self, rpm, repo):
     "Sync an rpm from path within repo into the the output store"
-    self.cache(repo.rjoin(repo.repodata_path, rpm), self.rpmdest, force=force)
+    self.cache(repo.rjoin(repo.repodata_path, rpm), self.rpmdest)
   
   def deleteRpm(self, rpm):
     "Delete an rpm from the output store"
@@ -122,7 +122,7 @@ class SoftwareHook:
     self._validarchs = getArchList(self.interface.arch)
     self._new_rpms = []
   
-  def force(self):
+  def clean(self):
     osutils.rm(self.interface.rpmdest, recursive=True, force=True)
   
   def run(self):
@@ -175,7 +175,7 @@ class SoftwareHook:
       if arch in self._validarchs:
         try:
           repo, rpmname = self._packages[rpm][arch][0]
-          self.interface.syncRpm(rpmname, repo, force=self.interface.isForced('software'))
+          self.interface.syncRpm(rpmname, repo)
           self._new_rpms.append((osutils.basename(rpmname), repo))
         except IndexError, e:
           self.errlog(1, "No rpm '%s' found in repo '%s' for arch '%s'" % (rpm, repo.id, arch))

@@ -50,7 +50,7 @@ EVENTS = [
 HOOK_MAPPING = {
   'IsoHook':      'ISO',
   'PkgorderHook': 'pkgorder',
-  'isoSetsHook':  'iso-sets',
+  'IsoSetsHook':  'iso-sets',
   'ValidateHook': 'validate',  
 }
 
@@ -131,7 +131,7 @@ class PkgorderHook(DiffMixin, FilesMixin):
     # TODO - once FilesMixin accepts paths, pass pkgorder_in var to add_files 
     self.add_files('/distro/iso/pkgorder')
 
-  def force(self):
+  def clean(self):
     self._remove_output()
     self.clean_metadata()
 
@@ -195,7 +195,7 @@ class PkgorderHook(DiffMixin, FilesMixin):
       self.interface.log(0, "removing pkgorder file")
       self.remove_files(self.handlers['output'].oldoutput.keys())    
 
-class isoSetsHook(DiffMixin):
+class IsoSetsHook(DiffMixin):
   def __init__(self, interface):
     self.VERSION = 1
     self.ID = 'iso.iso-sets'
@@ -223,7 +223,7 @@ class isoSetsHook(DiffMixin):
     if self.interface.cvars['iso-enabled']:
       self.update({'input': [ self.interface.cvars['pkgorder-file'] ]})
 
-  def force(self):
+  def clean(self):
     self._remove_output()
     self.clean_metadata()
   

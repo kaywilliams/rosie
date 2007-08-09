@@ -98,7 +98,10 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
     # set the font to use
     available_fonts = osutils.find(join(self.interface.sharepath, 'fonts'),
                                    name='*.ttf')
-    self.fontfile = available_fonts[0]
+    try:
+      self.fontfile = available_fonts[0]
+    except IndexError:
+      raise RuntimeError("Unable to find any font files in share path '%s'" % self.interface.sharepath)
     
     expand = (self.interface.product,)*8
     self.imageslocal = locals_imerge(L_LOGOS %expand,

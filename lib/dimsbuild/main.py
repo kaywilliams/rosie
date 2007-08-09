@@ -82,9 +82,8 @@ class Build:
     self.CACHE_MAX_SIZE = 30*1024**3 # 30 GB
     
     # set up loggers
-    ##self.log = logger.Logger(options.logthresh)
     self.log = BuildLogger(options.logthresh)
-    self.errlog = logger.Logger(options.errthresh)
+    self.errlog = logger.Logger(options.errthresh) # TODO - BuildLogger this #!
     
     # set up config dirs
     self.mainconfig = mainconfig
@@ -125,13 +124,9 @@ class Build:
     self.OUTPUT_DIR = join(self.DISTRO_DIR, 'output')
     self.METADATA_DIR = join(self.DISTRO_DIR, 'builddata')
     self.SOFTWARE_STORE = join(self.OUTPUT_DIR, 'os')    
-
-    # note: if making changes to SOFTWARE_STORE and METADATA_DIR vars, need to 
-    # make parallel changes to the force function in clean.py
-    for folder in [self.TEMP_DIR, self.SOFTWARE_STORE, self.METADATA_DIR]:
-      if not exists(folder):
-        self.log(2, "Making directory '%s'" % folder)
-        osutils.mkdir(folder, parent=True)
+    
+    # set up necessary directories, see TODO below
+    self._init_directories(self.TEMP_DIR, self.SOFTWARE_STORE, self.METADATA_DIR)
     
     # set up list of disabled modules
     self.disabled_modules = []
@@ -140,8 +135,8 @@ class Build:
       if v in BOOLEANS_FALSE:
         self.disabled_modules.append(k)
     
-    self.disabled_modules.append('__init__') # hack
-    self.disabled_modules.append('lib') # +1
+    self.disabled_modules.append('__init__') # hack, kinda; this isn't a module
+    self.disabled_modules.append('lib') # +1; neither is this
     
     # update with distro-specific config
     for k,v in self.__eval_modlist(self.config.get('/distro/modules', None),
@@ -153,29 +148,17 @@ class Build:
         if k in self.disabled_modules:
           self.disabled_modules.remove(k)
     
-    # self.userFC is a dictionary of user-specified flow control data keyed
-    # by event id. Possible values are
-    #  * None  - no user option specified
-    #  * True  - force this event to run
-    #  * False - prevent this event from running
-    self.userFC = {}
-
-    # self.autoFC is a dictionary of dimsbuild-specified flow control data
-    # that is computed programmatically and is keyed by event id. Its
-    # possible values are similar to self.userFC's.
-    self.autoFC = {}
-    
     # load all enabled modules, register events, set up dispatcher
-    self.__init_dispatch() # sets up self.dispatch
+    self._init_dispatch() # sets up self.dispatch
     
-    self.dispatch.pprint() #!
+    self.dispatch.pprint() #! debug statement for now
     ##sys.exit() #!
     
     # get everything started - raise init and other events prior
     self.dispatch.get('init').interface.parser = parser
     self.dispatch.process(until='init')
   
-  def __init_dispatch(self):
+  def _init_dispatch(self):
     """ 
     Initialize the dispatch object
     
@@ -192,13 +175,14 @@ class Build:
     self.dispatch.iargs.append(self)
     
     # load all enabled plugins
+    # generate list of enabled plugins in main config
     enabled_plugins = []
     for k,v in self.__eval_modlist(self.mainconfig.get('/dimsbuild/plugins', None),
                                    default=False).items():
       if v in BOOLEANS_TRUE:
         enabled_plugins.append(k)
     
-    # update with distro-specific config
+    # update list with distro-specific config
     for k,v in self.__eval_modlist(self.config.get('/distro/plugins', None),
                                    default=False).items():
       if v in BOOLEANS_TRUE:
@@ -208,6 +192,7 @@ class Build:
         if k in enabled_plugins:
           enabled_plugins.remove(k)
     
+    # load enabled plugins
     for plugin in enabled_plugins:
       imported = False
       for path in self.IMPORT_DIRS:
@@ -219,6 +204,7 @@ class Build:
       if not imported:
         raise ImportError, "Unable to load '%s' plugin; not found in any specified path" % plugin
     
+    # load all modules not explicitly disabled
     registered_modules = []
     for path in self.IMPORT_DIRS:
       modpath = join(path, 'dimsbuild/modules')
@@ -235,8 +221,16 @@ class Build:
     
     self.dispatch.commit()
   
+  def _init_directories(self, *dirs):
+    # TODO - callback this, then we can remove fn
+    for folder in dirs:
+      if not exists(folder):
+        self.log(2, "Making directory '%s'" % folder)
+        osutils.mkdir(folder, parent=True)
+  
   def __eval_modlist(self, mods, default=None):
-    "Return a dictionary of modules and their enable status"
+    "Return a dictionary of modules and their enable status, as found in the"
+    "config file"
     ret = {}
     
     if not mods: return ret
@@ -254,35 +248,39 @@ class Build:
     return ret
   
   def apply_options(self, options):
-    """Raise the 'applyopt' event, which plugins/modules can use to apply
-    command-line argument configuration to themselves"""
-    # point of failure - if the --force or --skip options change
-    for e in options.force_events:
-      self.__flowcontrol_apply(e, OPT_FORCE)
-    for e in options.skip_events:
-      self.__flowcontrol_apply(e, OPT_SKIP)
+    "Raise the 'applyopt' event, which plugins/modules can use to apply"
+    "command-line argument configuration to themselves"
+    # apply --clean to events
+    for eventid in options.clean_events:
+      e = self.dispatch.get(eventid, err=True)
+      if not e.test(event.PROP_CAN_DISABLE):
+        raise ValueError("Cannot --clean control-class event '%s'" % eventid)
+      self._apply_flowcontrol(e, True)
+    # apply --skip to events
+    for eventid in options.skip_events:
+      e = self.dispatch.get(eventid, err=True)
+      if not e.test(event.PROP_CAN_DISABLE):
+        raise ValueError("Cannot --skip control-class event '%s'" % eventid)
+      self._apply_flowcontrol(e, False)
+    
+    # clear cache, if requested
+    if options.clear_cache:
+      self.log(0, "clearing cache")
+      cache_dir = self.dispatch.get('applyopt').interface.cache_handler.cache_dir
+      osutils.rm(cache_dir, recursive=True, force=True)
+      osutils.mkdir(cache_dir, parent=True)
     
     self.dispatch.get('applyopt').interface.options = options
     self.dispatch.process(until='applyopt')
     
-    for eventid, enabled in self.userFC.items():
-      self.dispatch.get(eventid).status = enabled
-      if enabled is None: continue
-      if enabled: self.dispatch.force.append(eventid)
-      else:       self.dispatch.skip.append(eventid)
+  def _apply_flowcontrol(self, e, status):
+    e.status = status
     
-  def __flowcontrol_apply(self, eventid, option=OPT_FORCE):
-    "Internal function that applies the --force or --skip option to an event"
-    e = self.dispatch.get(eventid, err=True)
-    if e.test(event.PROP_CAN_DISABLE):
-      self.userFC[eventid] = (option == OPT_FORCE)
-      # apply to all successors if event has the PROP_META property
-      if e.test(event.PROP_META):
-        for child in e.get_children():
-          if child.test(event.PROP_CAN_DISABLE):
-            self.__flowcontrol_apply(child.id, option)
-    else:
-      raise ValueError, "Cannot %s control-class event '%s'" % (option, eventid)
+    # apply to all children if event has the PROP_META property
+    if e.test(event.PROP_META):
+      for child in e.get_children():
+        if child.test(event.PROP_CAN_DISABLE):
+          self._apply_flowcontrol(child, status)
   
   def get_mdlr_events(self):
     "Return a list of the modular events in this dimsbuild instance"

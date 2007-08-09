@@ -71,7 +71,7 @@ class FilesHook(DiffMixin, FilesMixin):
     # add files to the input and output filelists - look at FilesMixin.add_files() in interface.py
     self.add_files(xpaths='/distro/files/path')
     
-  def force(self):
+  def clean(self):
     self.remove_files(self.handlers['output'].oldoutput.keys())
     self.clean_metadata()
 

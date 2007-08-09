@@ -72,28 +72,21 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
       'input': self.interface.cvars['buildstamp-file'],
     })
     
-  def force(self):
-    self.interface.log(0, "forcing xen-images")
+  def clean(self):
     self.remove_files([ join(self.interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ])
   
   def check(self):
-    if self.interface.isForced('xen-images') or \
-           not self.validate_image() or \
-           self.test_diffs():
-      if not self.interface.isForced('xen-images'):
-        self.interface.log(0, "cleaning xen-images")
-        self.remove_files([ join(self.interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ])
-      return True
-    else:
-      return False
-    
+    return not self.validate_image() or \
+           self.test_diffs()
+  
   def run(self):
     self.interface.log(0, "preparing xen images")
     osutils.mkdir(self.xen_dir, parent=True)
     
+    # clean up old output
+    self.clean()
     # download files
     self.download() # see FileDownloadMixin.download() in lib.py
-    
     # modify initrd.img
     self.modify() # see ImageModifyMixin.modify() in lib.py
   

@@ -25,7 +25,7 @@ HOOK_MAPPING = {
   'CleanHook': 'clean',
 }
 
-#--------- METADATA HANDLERS ----------#
+#------ METADATA HANDLERS ------#
 class HookHandler:
   def __init__(self, data):
     self.name = 'hooks'
@@ -70,13 +70,13 @@ class HookHandler:
         self.diffdict[k] = (None, v)
     return self.diffdict
 
-#------------- INTERFACES -----------#
+#------ INTERFACES ------#
 class CleanInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
     self.dispatch = self._base.dispatch
 
-#------------- HOOKS --------------#
+#------ HOOKS ------#
 class CleanHook(DiffMixin):
   def __init__(self, interface):
     self.VERSION = 0
@@ -90,15 +90,20 @@ class CleanHook(DiffMixin):
 
     DiffMixin.__init__(self, join(self.interface.METADATA_DIR, 'clean.md'), self.DATA)
     self._add_handler()
+  
+  def _add_handler(self):
+    handler = HookHandler(self.DATA['hooks'])
+    self.DT.addHandler(handler)
+    self.handlers[handler.name] = handler
 
   def setup(self):
     for event in self.dispatch.event:
       for hook in event.hooks:
         self.hookInfo[hook.ID] = event.id
         self.update({'hooks': {hook.ID: str(hook.VERSION)}})
-        
-  def force(self):
-    self._force_all_events()
+  
+  def clean(self):
+    self._clean_all()
     
   def check(self):
     return self.test_diffs()
@@ -110,51 +115,34 @@ class CleanHook(DiffMixin):
     if self.handlers['hooks'].diffdict.has_key(self.ID):      
       prevver, currver = self.handlers['hooks'].diffdict[self.ID]
       if prevver and currver:
-        self._force_all_events()
+        self._clean_all()
     else:
       for hook in self.handlers['hooks'].diffdict.keys():
         prevver, currver = self.handlers['hooks'].diffdict[hook]
         if prevver and currver:
-          self._force_event(self.hookInfo[hook])
-
+          self._force_clean(self.hookInfo[hook])
+  
   def apply(self):
     # every time since diffs not reported in first run scenario
     self.write_metadata()
-
-  def _force_all_events(self):
+  
+  def _clean_all(self):
     self.interface.log(0, "cleaning all")
-
+    
     self.interface.log(1, "cleaning folders")    
+    #! TODO - these should be callbacked
     if exists(self.interface.DISTRO_DIR):
       self.interface.log(2, "cleaning '%s'" % self.interface.DISTRO_DIR)
       osutils.rm(self.interface.DISTRO_DIR, recursive=True, force=True)
-      for folder in [self.interface.SOFTWARE_STORE, self.interface.METADATA_DIR]:
-        osutils.mkdir(folder, parent=True)
-
-    if not self.interface.isForced('ALL'):
-      self.interface.log(1, "forcing events")
-      for eventid in self.hookInfo.values():
-        self._force_event(eventid)
-
-      self.clean_metadata()
+    if exists(self.interface.TEMP_DIR):
+      self.interface.log(2, "cleaning '%s'" % self.interface.TEMP_DIR)
+      osutils.rm(self.interface.TEMP_DIR, recursive=True, force=True)
       
-  def _force_event(self, eventid):
-    self.__force(eventid)
-    if eventid not in self.dispatch.force:
-      self.dispatch.force.append(eventid)
-
-  def __force(self, eventid):
-    e = self.dispatch.get(eventid, err=True)
-    if e.test(event.PROP_CAN_DISABLE):
-      if not e.status:
-        self.interface.log(2, "forcing %s" % eventid)        
-        e.status = True
-      self.interface._base.autoFC[e.id] = True
-      if e.test(event.PROP_META):
-        for child in e.get_children():
-          self.__force(child.id)
-
-  def _add_handler(self):
-    handler = HookHandler(self.DATA['hooks'])
-    self.DT.addHandler(handler)
-    self.handlers[handler.name] = handler
+      #! the following is currently illegal
+      self.interface._base._init_directories(self.interface.TEMP_DIR, 
+                                             self.interface.SOFTWARE_STORE,
+                                             self.interface.METADATA_DIR)
+  
+  def _force_clean(self, eventid):
+    self.interface.log(2, "forcing --clean on %s" % eventid)
+    self.interface._base._apply_flowcontrol(eventid, True) #! illegal, currently

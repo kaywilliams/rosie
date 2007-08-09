@@ -60,9 +60,9 @@ class SrpmInterface(EventInterface, ListCompareMixin):
     self.cvars['source-include'] = self.config.get('/distro/source', '') != '' and \
       self.config.get('/distro/source/@enabled', 'True') in BOOLEANS_TRUE
   
-  def syncSrpm(self, srpm, repo, force=False):
+  def syncSrpm(self, srpm, repo):
     "Sync a srpm from path within repo into the output store"
-    self.cache(repo.rjoin(srpm), self.srpmdest, force=force)
+    self.cache(repo.rjoin(srpm), self.srpmdest)
   
   def deleteSrpm(self, srpm):
     "Delete a srpm from the output store"
@@ -130,23 +130,23 @@ class SourceHook(DiffMixin):
       
       self.DATA['input'].append(join(self.mdsrcrepos, repo.id, repo.repodata_path, 'repodata'))
   
-  def force(self):
+  def clean(self):
     osutils.rm(self.interface.srpmdest, recursive=True, force=True)
-    ##osutils.rm(self.mdsrcrepos, recursive=True, force=True)
+    ##osutils.rm(self.mdsrcrepos, recursive=True, force=True) # breaks stuff
     self.clean_metadata()
   
   def check(self):
-    if self.dosource:
-      return self.interface.cvars['new-rpms'] is not None or \
-             not exists(self.interface.srpmdest) or \
-             self.test_diffs()
-    else:
-      # clean up old output and metadata
-      self.force()
-      return False
+    return self.interface.cvars['new-rpms'] is not None or \
+           not exists(self.interface.srpmdest) or \
+           self.test_diffs()
   
   def run(self):
     "Generate SRPM store"
+    # if we're not enabled, clean up output and return immediately
+    if not self.dosource:
+      self.clean()
+      return
+    
     self.interface.log(0, "processing srpms")
     
     self.interface.lfn = self._delete_srpm
@@ -196,8 +196,7 @@ class SourceHook(DiffMixin):
   
   def _download_srpm(self, srpm):
     if self._packages.has_key(srpm):
-      self.interface.syncSrpm(srpm, self._packages[srpm],
-                              force=self.interface.isForced('source'))
+      self.interface.syncSrpm(srpm, self._packages[srpm])
     else:
       raise SrpmNotFoundError("missing '%s' srpm" % srpm)
   

@@ -73,22 +73,21 @@ class RepofileHook(DiffMixin):
     
     DiffMixin.__init__(self, self.mdfile, self.DATA)
   
-  def force(self):
+  def clean(self):
     osutils.rm(self.repofile, force=True)
     osutils.rm(self.srcrepofile, force=True)
     self.clean_metadata()
   
   def check(self):
-    if not self.interface.isSkipped('publish') and \
-       self.interface.config.get('/distro/publish/repofile/@enabled',
-                                 'True') in BOOLEANS_TRUE and \
-       self.test_diffs():
-      self.force()
-      return True
-    else:
-      return False
+    return self.test_diffs()
   
   def run(self):
+    # if we're not enabled, clean up and return immediately
+    if self.interface.config.get('/distro/publish/repofile/@enabled',
+                                 'True') not in BOOLEANS_TRUE:
+      self.clean()
+      return
+    
     self.interface.log(0, "generating yum repo file")
         
     osutils.mkdir(osutils.dirname(self.repofile), parent=True)
@@ -128,6 +127,7 @@ class RepofileHook(DiffMixin):
     self.write_metadata()
   
   def _getIpAddress(self, ifname='eth0'):
+    # TODO - improve this, its not particularly accurate in some cases
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     return socket.inet_ntoa(fcntl.ioctl(s.fileno(),
                                         0x8915,
@@ -147,7 +147,7 @@ class PublishHook(DiffMixin):
     
     DiffMixin.__init__(self, self.mdfile, self.DATA)
   
-  def force(self):
+  def clean(self):
     osutils.rm(self.interface.PUBLISH_DIR, recursive=True, force=True)
     self.clean_metadata()
 

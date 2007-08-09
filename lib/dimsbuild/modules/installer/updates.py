@@ -61,23 +61,18 @@ class UpdatesHook(ImageModifyMixin):
     ImageModifyMixin.setup(self)
     self.register_image_locals(L_IMAGES)
   
-  def force(self):
-    self.interface.log(0, "forcing updates-image")
+  def clean(self):
     self.remove_files(self.handlers['output'].oldoutput.keys())
   
   def check(self):
-    if self.interface.isForced('updates-image') or \
-           not self.validate_image() or \
-           self.test_diffs():
-      if not self.interface.isForced('updates-image'):
-        self.interface.log(0, "cleaning updates-image")
-        self.remove_files(self.handlers['output'].oldoutput.keys())
-      return True
-    else:
-      return False
+    return not self.validate_image() or \
+           self.test_diffs()
   
   def run(self):
     self.interface.log(0, "generating updates.img")
+    # clean up old output
+    self.clean()
+    # modify image
     self.modify() # modify image; see ImageModifyMixin.modify() in lib.py
   
   def apply(self):
