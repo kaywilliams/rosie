@@ -118,18 +118,18 @@ class PkgorderHook(DiffMixin, FilesMixin):
     FilesMixin.__init__(self, self.interface.ISO_METADATA_DIR)
 
   def setup(self):
+    if self.interface.cvars['iso-enabled']:
+      #set variables used in run and apply functions
+      self.pkgorder_in = self.interface.config.get('/distro/iso/pkgorder/text()', None)
 
-    self.pkgorder_in = self.interface.config.get('/distro/iso/pkgorder/text()', None)
+      if self.pkgorder_in: 
+        self.pkgorder_out = join(self.interface.ISO_METADATA_DIR, self.pkgorder_in)
+      else: 
+        self.pkgorder_out = join(self.interface.ISO_METADATA_DIR, 'pkgorder')
 
-    #set pkgorder_out variable used in run and apply functions
-    if self.pkgorder_in: 
-      self.pkgorder_out = join(self.interface.ISO_METADATA_DIR, self.pkgorder_in)
-    else: 
-      self.pkgorder_out = join(self.interface.ISO_METADATA_DIR, 'pkgorder')
-
-    # add files to the input and output filelists - see FilesMixin.add_files() in lib.py
-    # TODO - once FilesMixin accepts paths, pass pkgorder_in var to add_files 
-    self.add_files('/distro/iso/pkgorder')
+      # add files to the input and output filelists - see FilesMixin.add_files() in lib.py
+      # TODO - once FilesMixin accepts paths, pass pkgorder_in var to add_files 
+      self.add_files('/distro/iso/pkgorder')
 
   def clean(self):
     self._remove_output()
@@ -150,7 +150,7 @@ class PkgorderHook(DiffMixin, FilesMixin):
       if self.pkgorder_in:    
         # download pkgorder file, if provided
         self.interface.log(1, "adding new pkgorder file")
-        self.sync_files('/distro/iso/pkgorder')
+        self.sync_files()
 
       else:
         # generate pkgorder
@@ -172,7 +172,6 @@ class PkgorderHook(DiffMixin, FilesMixin):
 
         # cleanup
         osutils.rm(cfg, force=True)
-   
 
     else:
       # iso not enabled, clean up old pkgorder
@@ -184,14 +183,19 @@ class PkgorderHook(DiffMixin, FilesMixin):
   def apply(self):
     #set pkgorder-file variable
     if self.interface.cvars['iso-enabled']:
-      self.interface.cvars['pkgorder-file'] = self.pkgorder_out
+      if exists(self.pkgorder_out):
+        self.interface.cvars['pkgorder-file'] = self.pkgorder_out
+      else:
+        raise RuntimeError("Unable to find cached pkgorder at '%s'. Perhaps you are skipping the pkgorder event before it has been allowed to run once?" % self.pkgorder_out)
 
   def _remove_output(self):
-    run = False
+    # print a header message only if a pkgorder file exists to remove
+    files_exist = False
     for item in self.handlers['output'].oldoutput.keys():
       if exists(item):
-        run = True
-    if run:
+        files_exist = True
+        continue
+    if files_exist:
       self.interface.log(0, "removing pkgorder file")
       self.remove_files(self.handlers['output'].oldoutput.keys())    
 
