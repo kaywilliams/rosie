@@ -287,7 +287,7 @@ class FilesMixin:
     
     ifiles = self.handlers['input'].filelists[src]
     if not ifiles:
-      self.interface.errlog(1, "missing input file(s): %s" % src)
+      raise RuntimeError("missing input file(s): %s" % src)
 
     for ifile in ifiles:
       # populate {output: input} mapping
