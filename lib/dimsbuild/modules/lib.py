@@ -1,13 +1,9 @@
 from os.path import abspath, exists, isdir, join
 
-from dims import filereader
 from dims import listcompare
 from dims import osutils
-from dims import sync
 
 from dimsbuild import difftest
-
-from dimsbuild.callback import BuildSyncCallback
 
 def removeFiles(rmlist, parent, logger):
   if type(rmlist) == str: rmlist = [rmlist]
@@ -136,7 +132,6 @@ class DiffMixin:
 class FilesMixin:
   def __init__(self, parentdir):
     self.parentdir = parentdir.rstrip('/') # make sure there is no trailing slash
-    self.callback = BuildSyncCallback(self.interface.logthresh) #! TODO - remove this
     self.info = {}
     
   def add_files(self,
@@ -177,6 +172,15 @@ class FilesMixin:
         'output': self.info.keys(),
       })    
 
+  def compute(self, ifile):
+    "Compute the output file(s), given the input file/directory."    
+    ifile = ifile.rstrip('/')
+    outputs = []
+    for ofile in self.info.keys():
+      if self.info[ofile].startswith(ifile):
+        outputs.append(ofile)
+    return outputs
+    
   def sync_files(self,
                  action=None,
                  message="downloading input files"):

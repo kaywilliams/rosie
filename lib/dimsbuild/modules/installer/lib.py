@@ -81,6 +81,7 @@ class ExtractHandler(DiffMixin):
   
   def extract(self, message):
     self.interface.log(0, message)
+    self.clean_output()
     
     # generate output files
     try:

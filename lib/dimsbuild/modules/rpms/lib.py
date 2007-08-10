@@ -213,9 +213,11 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
            self.test_diffs()
   
   def run(self):
+    # ... delete older rpms ...
+    self._delete_old_files()    
+    
     # only generate RPM if test_build() returns true
     if not self.test_build():
-      self._delete_old_files()
       return
         
     self.interface.log(0, "building %s rpm" % self.rpmname)
@@ -223,14 +225,11 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
     # compute the release number ...
     self.set_release()
     self.interface.log(1, "rpm release number: %s" % self.release)
-    
-    # ... delete older rpms ...
-    self._delete_old_files()
 
     # ... make sure that the build folder exists ...
     osutils.mkdir(self.build_folder, parent=True)
     
-    # ... sync input files ...
+    # ... sync any input files ...
     self.download()
 
     # ... generate additional files, if required ...
@@ -263,10 +262,10 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
     })
 
     # ... finally, write the metadata file.
-    self.write_metadata()
     self.interface.cvars['custom-rpms-built'] = True
 
   def apply(self):
+    self.write_metadata()
     if not self.test_build():
       return
     release = self.read_autoconf() or '1'
@@ -363,11 +362,11 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
         # missing .md file
         bumpcheck = True
       else:
-        if self.changed('input') or \
-               self.changed('variables') or \
-               self.changed('config'):
-          bumpcheck = True
-        
+        for dtype in ['input', 'variables', 'config']:
+          if self.handlers.has_key(dtype) and self.changed(dtype):
+            bumpcheck = True
+            break
+
       if bumpcheck:
         if self.interface.cvars['auto-bump-release']:
           self.release = str(int(self.release or '1') + 1)
