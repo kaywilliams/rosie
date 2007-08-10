@@ -201,8 +201,8 @@ class Event(resolve.Item, tree.Node):
   def pre(self):  self._run_hooks(fn='pre')
   def post(self): self._run_hooks(fn='post')
   def run(self):
+    self._run_hooks(fn='setup')
     if self.enabled and self.status != False:
-      self._run_hooks(fn='setup')
       if self.status == True:
         self._run_hooks(fn='clean')
       for hook in self.hooks:
