@@ -4,7 +4,7 @@
   <!-- a repo element -->
   <define name="element-repo">
     <element name="repo">
-      <attribute name="id"/>
+      <ref name="attribute-id"/>
       <optional>
         <attribute name="type"><text/></attribute>
       </optional>
@@ -88,6 +88,13 @@
        <optional><attribute name="dest"/></optional>
        <text/>
     </element>
+  </define>
+  
+  <!-- id attribute -->
+  <define name="attribute-id">
+    <attribute name="id">
+      <data type="ID"/>
+    </attribute>
   </define>
 
 </grammar>

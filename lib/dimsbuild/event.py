@@ -206,7 +206,7 @@ class Event(resolve.Item, tree.Node):
       if self.status == True:
         self._run_hooks(fn='clean')
       for hook in self.hooks:
-        # run if not forced via --clean, no check() fn, or check() returns True
+        # run if forced via --clean, no check() fn, or check() returns True
         if self.status == True or \
            not hasattr(hook, 'check') or \
            hook.check():
