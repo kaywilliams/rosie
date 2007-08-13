@@ -145,4 +145,5 @@ class CleanHook(DiffMixin):
   
   def _force_clean(self, eventid):
     self.interface.log(2, "forcing --clean on %s" % eventid)
-    self.interface._base._apply_flowcontrol(eventid, True) #! illegal, currently
+    #! the following is currently illegal
+    self.interface._base._apply_flowcontrol(self.interface._base.dispatch.get(eventid), True) 
