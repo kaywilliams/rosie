@@ -170,7 +170,7 @@ class DiffTest:
     
     try:
       metadata = xmltree.read(self.mdfile)
-    except ValueError, SAXParseException:
+    except (ValueError, IOError), SAXParseException:
       return
 
     handler.mdread(metadata)
