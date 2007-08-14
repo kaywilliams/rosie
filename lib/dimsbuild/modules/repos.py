@@ -155,7 +155,6 @@ def get_anaconda_version(file):
         pass
       break
   if version is not None:
-    print 'version: ', version
     return version
   else:
     raise ValueError, "unable to compute anaconda version from distro metadata"
