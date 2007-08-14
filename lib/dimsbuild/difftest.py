@@ -66,7 +66,7 @@ def getMetadata(uri):
 
   if uri.startswith('/'): # local uri
     stats = os.stat(uri)
-    return (stats.st_size, stats.st_mtime)
+    return (int(stats.st_size), int(stats.st_mtime))
   else: # remote uri
     request = urllib2.Request(uri)
     request.get_method = lambda : 'HEAD'
