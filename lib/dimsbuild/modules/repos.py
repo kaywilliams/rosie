@@ -142,7 +142,7 @@ class ReposHook(DiffMixin):
 
 #------ HELPER FUNCTIONS ------#
 def get_anaconda_version(file):
-  scan = re.compile('(.*/)?anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
+  scan = re.compile('(?:.*/)?anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
   version = None
   
   fl = filereader.read(file)
@@ -150,11 +150,12 @@ def get_anaconda_version(file):
     match = scan.match(rpm)
     if match:
       try:
-        version = match.groups()[1]
+        version = match.groups()[0]
       except (AttributeError, IndexError), e:
         pass
       break
   if version is not None:
+    print 'version: ', version
     return version
   else:
     raise ValueError, "unable to compute anaconda version from distro metadata"
