@@ -79,6 +79,7 @@ class ReposHook(DiffMixin):
     self.interface.cvars['input-repos-changed'] = False
     
     # sync all repodata folders to builddata
+    # TODO - Move to FilesMixin, also always sync if local file differs from source
     self.interface.log(1, "synchronizing repository metadata")
     for repoxml in self.interface.config.xpath('/distro/repos/repo'):
       self.interface.log(2, repoxml.get('@id'))
@@ -89,9 +90,11 @@ class ReposHook(DiffMixin):
       
       self.interface.cvars['repos'][repo.id] = repo
       
-      self.DATA['input'].append(join(self.mdrepos, repo.id, repo.repodata_path, 'repodata'))
-      self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id))
-      
+      self.update({
+        'input':  [ join(self.mdrepos, repo.id, repo.repodata_path, 'repodata') ],
+        'output': [ join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id) ]
+      })
+
   def check(self):
     return self.test_diffs()
   
@@ -108,6 +111,7 @@ class ReposHook(DiffMixin):
       if repo.compareRepoContents(repofile):
         repo.changed = True; changed = True
         repo.writeRepoContents(repofile)
+
     
     self.interface.cvars['input-repos-changed'] = changed
 
@@ -138,7 +142,7 @@ class ReposHook(DiffMixin):
 
 #------ HELPER FUNCTIONS ------#
 def get_anaconda_version(file):
-  scan = re.compile('.*anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
+  scan = re.compile('(.*/)?anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
   version = None
   
   fl = filereader.read(file)
@@ -146,7 +150,7 @@ def get_anaconda_version(file):
     match = scan.match(rpm)
     if match:
       try:
-        version = match.groups()[0]
+        version = match.groups()[1]
       except (AttributeError, IndexError), e:
         pass
       break
