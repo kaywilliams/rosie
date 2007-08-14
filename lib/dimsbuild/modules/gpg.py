@@ -96,7 +96,7 @@ class SoftwareHook:
       mdfile = xmltree.read(join(self.interface.METADATA_DIR, 'gpg.md'))
       elem = mdfile.get('//config/value[@path="/distro/gpgsign"]/elements')
       last_val = elem.get('gpgsign/@enabled')
-    except (AttributeError, xmltree.XmlPathError, ValueError):
+    except (AttributeError, xmltree.XmlPathError, ValueError, IOError):
       last_val = None
     
     # the following is roughly equivalent to 'if last_val != config.get(...):'
