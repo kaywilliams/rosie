@@ -8,6 +8,7 @@ __date__    = 'June 5th, 2007'
 
 import xml.sax
 
+from gzip     import GzipFile
 from os.path  import exists, isfile, join
 from urlparse import urlparse, urlunparse
 
@@ -191,15 +192,15 @@ class Repo:
       elif filetype == 'other':     self.otherfile     = osutils.basename(repofile)
   
   def readRepoContents(self):
-    pxmlz = self.ljoin(self.repodata_path, 'repodata', self.primaryfile)
-    pxml  = join('/tmp', 'dimsbuild', '%s-primary.xml' % self.id)
-
-    shlib.execute('gunzip -c %s > %s' % (pxmlz, pxml)) # perhaps use python for this
+    pxmlz = open(self.ljoin(self.repodata_path, 'repodata', self.primaryfile), 'rb')
+    pxml = GzipFile(fileobj=pxmlz, mode='rt')
     
     handler = PrimaryXmlContentHandler()
     self.parser.setContentHandler(handler)
     self.parser.parse(pxml)
-    osutils.rm(pxml, force=True)
+
+    pxml.close()
+    pxmlz.close()
     
     pkgs = handler.locs
     pkgs.sort()
