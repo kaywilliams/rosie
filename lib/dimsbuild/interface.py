@@ -192,15 +192,14 @@ class Repo:
       elif filetype == 'other':     self.otherfile     = osutils.basename(repofile)
   
   def readRepoContents(self):
-    pxmlz = open(self.ljoin(self.repodata_path, 'repodata', self.primaryfile), 'rb')
-    pxml = GzipFile(fileobj=pxmlz, mode='rt')
+    pxml = GzipFile(filename=self.ljoin(self.repodata_path, 'repodata', self.primaryfile),
+                    mode='rt')
     
     handler = PrimaryXmlContentHandler()
     self.parser.setContentHandler(handler)
     self.parser.parse(pxml)
 
     pxml.close()
-    pxmlz.close()
     
     pkgs = handler.locs
     pkgs.sort()
