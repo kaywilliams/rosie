@@ -32,32 +32,6 @@ MAGIC_MAP = {
 
 
 #------ HELPER FUNCTIONS ------#
-def extractRpm(rpmPath, output=os.getcwd()):
-  """ 
-  Extract the contents of the RPM file specified by rpmPath to
-  the output location. The rpmPath parameter can use globbing.
-  
-  @param rpmPath : the path to the RPM file    
-  @param output  : the directory that is going to contain the RPM's
-  contents
-  """
-  dir = tempfile.mkdtemp(dir='/tmp/dimsbuild')
-  try:
-    filename = join(dir, 'rpm.cpio')
-    
-    # sync the RPM down to the temporary directory
-    sync.sync(rpmPath, dir)
-    rpmFile = join(dir, osutils.basename(rpmPath))
-    
-    rpm2cpio(os.open(rpmFile, os.O_RDONLY), open(filename, 'w+'))
-    cpio = img.MakeImage(filename, 'cpio')
-    if not exists(output):
-      osutils.mkdir(output, parent=True)    
-    cpio.open(point=output)
-  finally:
-    osutils.rm(dir, recursive=True, force=True)
-
-
 class ExtractHandler(DiffMixin):
   def __init__(self, interface, data, mdfile):    
     self.interface = interface
@@ -86,10 +60,11 @@ class ExtractHandler(DiffMixin):
     # generate output files
     try:
       # get input - extract RPMs
-      working_dir = tempfile.mkdtemp(dir='/tmp/dimsbuild') # temporary directory, gets deleted once done
+      # create temporary directory for rpms, gets deleted once done
+      working_dir = tempfile.mkdtemp(dir=self.interface.TEMP_DIR) 
 
       for rpmname in self.find_rpms():
-        extractRpm(rpmname, working_dir)
+        self.extractRpm(rpmname, working_dir)
       
       # need to modify self.data, so that the metadata written has all
       # the files created. Otherwise, self.data['output'] will be
@@ -100,6 +75,32 @@ class ExtractHandler(DiffMixin):
 
     # write metadata
     self.write_metadata()
+
+  def extractRpm(self, rpmPath, output=os.getcwd()):
+    """ 
+    Extract the contents of the RPM file specified by rpmPath to
+    the output location. The rpmPath parameter can use globbing.
+  
+    @param rpmPath : the path to the RPM file    
+    @param output  : the directory that is going to contain the RPM's
+    contents
+    """
+    # create temporary directory for rpm contents
+    dir = tempfile.mkdtemp(dir=self.interface.TEMP_DIR)
+    try:
+      filename = join(dir, 'rpm.cpio')
+    
+      # sync the RPM down to the temporary directory
+      sync.sync(rpmPath, dir)
+      rpmFile = join(dir, osutils.basename(rpmPath))
+    
+      rpm2cpio(os.open(rpmFile, os.O_RDONLY), open(filename, 'w+'))
+      cpio = img.MakeImage(filename, 'cpio')
+      if not exists(output):
+        osutils.mkdir(output, parent=True)    
+      cpio.open(point=output)
+    finally:
+      osutils.rm(dir, recursive=True, force=True)
 
   def clean_output(self):
     if self.handlers.has_key('output'):      
