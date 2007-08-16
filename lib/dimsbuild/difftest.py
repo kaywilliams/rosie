@@ -186,7 +186,7 @@ class DiffTest:
     handler's mdread() functions.
     """
     try: metadata = xmltree.read(self.mdfile)
-    except ValueError: return
+    except (ValueError, IOError, SAXParseException): return
 
     for handler in self.handlers:
       handler.mdread(metadata)
