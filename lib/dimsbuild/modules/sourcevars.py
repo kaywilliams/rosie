@@ -20,8 +20,6 @@ from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
 from dimsbuild.misc      import locals_imerge
 
-from dimsbuild.modules.lib import DiffMixin
-
 API_VERSION = 4.0
 
 #------ EVENTS ------#
@@ -38,9 +36,8 @@ HOOK_MAPPING = {
   'SourcevarsHook': 'source-vars',
 }
 
-
 #------ HOOKS ------#
-class SourcevarsHook(DiffMixin):
+class SourcevarsHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'sourcevars.source-vars'
@@ -53,8 +50,6 @@ class SourcevarsHook(DiffMixin):
     }
 
     self.md_dir = join(self.interface.METADATA_DIR, 'sourcevars/')
-
-    DiffMixin.__init__(self, join(self.md_dir, 'sourcevars.md'), self.DATA)
   
   def error(self, e):
     try:
@@ -68,16 +63,19 @@ class SourcevarsHook(DiffMixin):
     self.infile = self.repo.rjoin('isolinux/initrd.img')
     self.outfile = join(self.md_dir, '.buildstamp')
 
-    self.update({'input':  [ self.infile ],
-                 'output': [ self.outfile ]
+    self.DATA.update({
+      'input':  [ self.infile ],
+      'output': [ self.outfile ],
     })
 
+    self.interface.setup_diff(join(self.md_dir, 'sourcevars.md'), self.DATA)
+    
   def check(self):
-    return self.test_diffs()    
+    return self.interface.test_diffs()
 
   def clean(self):
-    osutils.rm(self.handlers['output'].oldoutput.keys(), force=True)
-    self.clean_metadata()
+    osutils.rm(self.interface.handlers['output'].oldoutput.keys(), force=True)
+    self.interface.clean_metadata()
 
   def run(self):
     self.interface.log(0, "computing source variables")
@@ -99,11 +97,11 @@ class SourcevarsHook(DiffMixin):
     img.cleanup()
     
     osutils.rm(initrd_file) # clean up temp file
-    
-    #Update metadata
-    self.write_metadata()
-    
+        
   def apply(self):
+    #Update metadata
+    self.interface.write_metadata()
+    
     #Parse buildstamp
     locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.interface.cvars['anaconda-version'])
     buildstamp_fmt = locals.get('//buildstamp-format')

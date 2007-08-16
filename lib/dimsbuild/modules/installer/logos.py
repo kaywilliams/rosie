@@ -1,13 +1,7 @@
 from os.path import exists, join
 
-try:
-  import Image
-except ImportError:
-  raise ImportError("missing 'python-imaging' RPM")
-
 from dims import osutils
 from dims import shlib
-from dims import sync
 
 from dimsbuild.event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from dimsbuild.magic import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
@@ -115,8 +109,8 @@ class LogosHook(ExtractHandler):
     pixmaps = []
     for img in osutils.find(working_dir,
                             regex='.*usr/share/anaconda/pixmaps*',
-                            type=osutils.TYPE_FILE|osutils.TYPE_LINK):      
-      sync.sync(img, product_img)
+                            type=osutils.TYPE_FILE|osutils.TYPE_LINK):
+      self.interface.cache(img, product_img)
       pixmaps.append(join(product_img, osutils.basename(img)))
     return pixmaps
 

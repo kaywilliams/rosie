@@ -13,8 +13,6 @@ from dims import xmltree
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EventInterface, HookExit
 
-from dimsbuild.modules.lib import DiffMixin, FilesMixin
-
 TYPE_FILE = osutils.TYPE_FILE
 TYPE_LINK = osutils.TYPE_LINK
 
@@ -91,26 +89,7 @@ class ColorMixin:
     return fullname, version
 
 
-class FileDownloadMixin(FilesMixin):
-  def __init__(self, prefix, installinfo):
-    # the class using FileDownloadMixin should also extend DiffMixin
-    self.installinfo = installinfo
-    self.prefix = prefix
-    
-    FilesMixin.__init__(self, self.prefix)
-
-  def register(self):
-    for k,v in self.installinfo.items():
-      xpath,_ = v
-      if xpath is not None:
-        oprefix = join(self.prefix, k)
-        self.add_files(xpaths=xpath, oprefix=oprefix, addoutput=False)
-        
-  def download(self):
-    self.sync_files()
-
-
-class RpmBuildHook(DiffMixin, FileDownloadMixin):
+class RpmBuildHook:
   def __init__(self,
                interface,
                data,
@@ -180,37 +159,47 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
                              'RPMS', self.id)
     self.autoconf = join(osutils.dirname(self.interface.config.file),
                          'distro.conf.auto')    
-    
-    DiffMixin.__init__(self,
-                       join(self.interface.METADATA_DIR, 'RPMS',
-                            '%s.md' % self.id),
-                       data)
-    FileDownloadMixin.__init__(self, self.build_folder, installinfo)
-                        
-  def setup(self):
-    # register xpath queries for input files - look at FileDownloadMixin.register()
-    self.register()
+    # input files
+    self.installinfo = installinfo
 
+    self.DATA = data
+    self.mdfile = join(self.interface.METADATA_DIR, 'RPMS', '%s.md' % self.id)
+
+  def setup(self):
     # add the directory (if exists) to which other events add files to
     # that are to be installed by this RPM.
     rpmssrc = join(self.interface.SOURCES_DIR, self.id)
     if exists(rpmssrc):
-      self.update({'input': rpmssrc})
-    
-    self.update({
-      'output': [
-         self.build_folder,
-         osutils.find(self.interface.LOCAL_RPMS,
-                      name='%s*[Rr][Pp][Mm]' % self.rpmname),
-         osutils.find(self.interface.LOCAL_SRPMS,
-                      name='%s*[Ss][Rr][Cc].[Rr][Pp][Mm]' % self.rpmname)         
-       ],
-    })
-    
+      self.DATA['input'].append(rpmssrc)
+
+    # add output files
+    self.DATA['output'].extend([
+      self.build_folder,
+      join(self.interface.LOCAL_RPMS,
+           '%s-%s-%s.%s.rpm' % (self.rpmname, self.version, self.release, self.arch)),
+      join(self.interface.LOCAL_SRPMS,
+           '%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release))
+    ])
+      
+    self.interface.setup_diff(self.mdfile, self.DATA)
+
+    if self.installinfo:
+      xpaths = []
+      for k,v in self.installinfo.items():
+        xpath,_ = v
+        if xpath is not None:
+          xpaths.append((xpath,
+                         osutils.dirname(self.interface.config.file),
+                         join(self.build_folder, k.lstrip('/'))))
+      i,_ = self.interface.getFileLists(xpaths=xpaths)
+      if not self.DATA.has_key('input'):
+        self.DATA['input'] = []
+      self.DATA['input'].extend(i)      
+        
   def check(self):
     return not exists(self.mdfile) or \
            not exists(self.autoconf) or \
-           self.test_diffs()
+           self.interface.test_diffs()
   
   def run(self):
     # ... delete older rpms ...
@@ -230,7 +219,8 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
     osutils.mkdir(self.build_folder, parent=True)
     
     # ... sync any input files ...
-    self.download()
+    if self.installinfo:
+      self.interface.sync_input()
 
     # ... generate additional files, if required ...
     self.generate()
@@ -252,20 +242,12 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
     # ... update the release number ...
     self.write_autoconf(self.release)
     
-    self.update({
-      'output': [
-         join(self.interface.LOCAL_RPMS,
-              '%s-%s-%s.%s.rpm' % (self.rpmname, self.version, self.release, self.arch)),
-         join(self.interface.LOCAL_SRPMS,
-              '%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release))
-       ]
-    })
-
     # ... finally, write the metadata file.
     self.interface.cvars['custom-rpms-built'] = True
 
   def apply(self):
-    self.write_metadata()
+    self.interface.write_metadata()
+    
     if not self.test_build():
       return
     release = self.read_autoconf() or '1'
@@ -363,7 +345,8 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
         bumpcheck = True
       else:
         for dtype in ['input', 'variables', 'config']:
-          if self.handlers.has_key(dtype) and self.changed(dtype):
+          if self.interface.handlers.has_key(dtype) and \
+                 self.interface.has_changed(dtype):
             bumpcheck = True
             break
 
@@ -428,11 +411,7 @@ class RpmBuildHook(DiffMixin, FileDownloadMixin):
     if todelete:
       self.interface.log(1, "deleting previously-built rpms")
       for rpm in todelete:
-        if rpm in self.handlers['output'].data:
-          self.handlers['output'].data.remove(rpm)
         self.interface.log(2, osutils.basename(rpm))
-        for outputrpm in osutils.find(self.interface.RPMS_DEST, osutils.basename(rpm)):
-          osutils.rm(outputrpm, force=True)
         osutils.rm(rpm, force=True)
     
     # reset build folder

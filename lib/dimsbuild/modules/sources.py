@@ -26,7 +26,7 @@ from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, SRPM_GLOB, SRPM_PNVRA
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from dimsbuild.interface import EventInterface, RepoFromXml, Repo
 
-from dimsbuild.modules.lib import DiffMixin, ListCompareMixin
+from dimsbuild.modules.lib import ListCompareMixin
 
 API_VERSION = 4.0
 
@@ -90,7 +90,7 @@ class ValidateHook:
   def run(self):
     self.interface.validate('/distro/source', 'sources.rng')
     
-class SourceHook(DiffMixin):
+class SourceHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'sources.source'
@@ -108,11 +108,8 @@ class SourceHook(DiffMixin):
     self._packages = {}
     
     self.dosource = self.interface.cvars['source-include']
-    
-    DiffMixin.__init__(self, self.mdfile, self.DATA)
-  
+      
   def setup(self):
-    if not self.dosource: return
     osutils.mkdir(self.mdsrcrepos, parent=True)
     
     if not self.interface.cvars['source-repos']:
@@ -129,17 +126,18 @@ class SourceHook(DiffMixin):
       self.interface.cvars['source-repos'][repo.id] = repo
       
       self.DATA['input'].append(join(self.mdsrcrepos, repo.id, repo.repodata_path, 'repodata'))
+    self.interface.setup_diff(self.mdfile, self.DATA)      
   
   def clean(self):
     osutils.rm(self.interface.srpmdest, recursive=True, force=True)
     ##osutils.rm(self.mdsrcrepos, recursive=True, force=True) # breaks stuff
-    self.clean_metadata()
+    self.interface.clean_metadata()
   
   def check(self):
     return self.interface.cvars['new-rpms'] is not None or \
            not exists(self.interface.srpmdest) or \
-           self.test_diffs()
-  
+           self.interface.test_diffs()  
+
   def run(self):
     "Generate SRPM store"
     # if we're not enabled, clean up output and return immediately
@@ -171,9 +169,8 @@ class SourceHook(DiffMixin):
     
     osutils.rm(self.mdfile, force=True)
 
-    self.write_metadata()
-
   def apply(self):
+    self.interface.write_metadata()
     if self.dosource:
       self.interface.cvars['source-include'] = True
   

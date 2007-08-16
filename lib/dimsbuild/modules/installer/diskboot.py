@@ -56,20 +56,18 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
     self.register_image_locals(L_IMAGES)
     self.register_file_locals(L_FILES)
 
-    self.update({
-     'input': [
-        self.interface.cvars['installer-splash'],
-        self.interface.cvars['initrd-file'],        
-      ],
-    })
+    self.DATA['input'].extend([
+      self.interface.cvars['installer-splash'],
+      self.interface.cvars['initrd-file'],        
+    ])
   
   def clean(self):
-    self.remove_files(self.handlers['output'].oldoutput.keys())
+    self.interface.remove_output(all=True)
   
   def check(self):
     return self.interface.cvars['isolinux-changed'] or \
            not self.validate_image() or \
-           self.test_diffs()
+           self.interface.test_diffs()
   
   def run(self):
     self.interface.log(0, "preparing diskboot image")

@@ -144,7 +144,7 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
     return items
     
   def output_valid(self):
-    if self.data.has_key('output'):
+    if self.DATA.has_key('output'):
       for logoinfo in self.imageslocal.xpath('//logos/logo', []):
         i,_,w,h,_,_,_,_,_,_ = self._get_image_info(logoinfo)
         file = join(self.build_folder, i)

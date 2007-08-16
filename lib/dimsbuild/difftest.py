@@ -53,7 +53,7 @@ def expand(list):
   new = []
   # expand all lists in the list
   for item in list:
-    if type(item) == type(list):
+    if type(item) == type([]):
       new.extend(item)
       old.append(item)    
   for x in old: list.remove(x)
@@ -247,37 +247,28 @@ class NoneEntry:
 class InputHandler:
   def __init__(self, data):
     self.name = 'input'
-    self.data = []
+    self.idata = data
     self.oldinput = {} # {file: stats}
     self.newinput = {} # {file: stats}
 
     self.filelists = {} # {path: expanded list}
-    self.diffdict = {}  # {file: (old stats, new stats)}
-    
-    self.update(data)
+    self.idiff = {}  # {file: (old stats, new stats)}
+
+    expand(self.idata)
         
-  def update(self, data):
-    if type(data) == str:
-      self.data.append(data)
-    else:
-      for datum in data:
-        if type(datum) == list:
-          self.data.extend(datum)
-        else:
-          self.data.append(datum)
-                                     
   def clear(self):
     self.oldinput.clear()
       
   def mdread(self, metadata):    
     for file in metadata.xpath('/metadata/input/file'):
-      self.oldinput[file.get('@path')] = (int(file.get('size/text()')), int(file.get('mtime/text()')))
+      self.oldinput[file.get('@path')] = (int(file.get('size/text()')),
+                                          int(file.get('mtime/text()')))
       
   def mdwrite(self, root):
     try: root.remove(root.get('input'))
     except TypeError: pass
     parent = xmltree.Element('input', parent=root)
-    for datum in self.data:
+    for datum in self.idata:
       ifiles = self.filelists.get(datum, expandPaths(datum))
       for ifile in ifiles:
         size, mtime = self.newinput.get(ifile, DiffTuple(ifile))
@@ -286,43 +277,34 @@ class InputHandler:
         xmltree.Element('mtime', parent=e, text=str(mtime))
     
   def diff(self):
-    for datum in self.data:
+    for datum in self.idata:
       if not self.filelists.has_key(datum):
         self.filelists[datum] = expandPaths(datum)
       ifiles = self.filelists[datum]
       for ifile in ifiles:
         self.newinput[ifile] = DiffTuple(ifile)        
-    self.diffdict = diff(self.oldinput, self.newinput)    
-    if self.diffdict: self.dprint(self.diffdict)
-    return self.diffdict
+    self.idiff = diff(self.oldinput, self.newinput)    
+    if self.idiff: self.dprint(self.idiff)
+    return self.idiff
 
 class OutputHandler:
   def __init__(self, data):
     self.name = 'output'
     
-    self.data = []
+    self.odata = data
     self.oldoutput = {}
-    self.newoutput = {}
-    
-    self.diffdict = {}
 
-    self.update(data)
+    self.odiff = {}
 
-  def update(self, data):
-    if type(data) == str: data = [data]
-    
-    for datum in data:
-      if type(datum) == list:
-        self.data.extend(datum)
-      else:
-        self.data.append(datum)
+    expand(self.odata)
     
   def clear(self):
     self.oldoutput.clear()
     
   def mdread(self, metadata):
     for file in metadata.xpath('/metadata/output/file'):
-      self.oldoutput[file.get('@path')] = (int(file.get('size/text()')), int(file.get('mtime/text()')))
+      self.oldoutput[file.get('@path')] = (int(file.get('size/text()')),
+                                           int(file.get('mtime/text()')))
   
   def mdwrite(self, root):    
     try: root.remove(root.get('output'))
@@ -330,7 +312,7 @@ class OutputHandler:
     
     parent = xmltree.uElement('output', parent=root)
     # write to metadata file
-    paths = expandPaths(self.data)
+    paths = expandPaths(self.odata)
     if paths:
       for output in paths:
         size, mtime = DiffTuple(output)
@@ -339,37 +321,29 @@ class OutputHandler:
         xmltree.Element('mtime', parent=e, text=str(mtime))
 
   def diff(self):
-    for file in expandPaths(self.data):
-      self.newoutput[file] = DiffTuple(file)
-
-    self.diffdict = diff(self.oldoutput, self.newoutput)
-    if self.diffdict: self.dprint(self.diffdict)
-    return self.diffdict
+    newitems = {}
+    for item in self.oldoutput.keys():
+      newitems[item] = DiffTuple(item)
+      
+    self.odiff = diff(self.oldoutput, newitems)
+    if self.odiff: self.dprint(self.odiff)
+    return self.odiff
 
 class ConfigHandler:
   def __init__(self, data, config):
     self.name = 'config'
     
-    self.data = data
+    self.cdata = data
     self.config = config
     self.cfg = {}
 
-    expand(self.data)
+    expand(self.cdata)
 
-  def update(self, data):
-    if type(data) == str: data = [data]
-
-    for datum in data:
-      if type(data) == list:
-        self.data.extend(datum)
-      else:
-        self.data.append(datum)
-      
   def clear(self):
     self.cfg.clear()
     
   def mdread(self, metadata):
-    for path in self.data:
+    for path in self.cdata:
       node = metadata.get('/metadata/config/value[@path="%s"]' % path, None)
       if node is not None:
         self.cfg[path] = node.xpath('elements/*', None) or \
@@ -385,7 +359,7 @@ class ConfigHandler:
       pass
     
     config = xmltree.Element('config', parent=root)
-    for path in self.data:
+    for path in self.cdata:
       value = xmltree.Element('value', parent=config, attrs={'path': path})
       for val in self.config.xpath(path, []):
         if type(val) == type(''): # a string
@@ -395,48 +369,39 @@ class ConfigHandler:
           elements.append(copy.copy(val)) # append() is destructive
     
   def diff(self):
-    self.diffdict = {}
-    for path in self.data:
+    self.cdiff = {}
+    for path in self.cdata:
       if self.cfg.has_key(path):
         try:
           cfgval = self.config.xpath(path)
         except xmltree.XmlPathError:
           cfgval = NoneEntry(path)
         if self.cfg[path] != cfgval:
-          self.diffdict[path] = (self.cfg[path], cfgval)
+          self.cdiff[path] = (self.cfg[path], cfgval)
       else:
         try:
           cfgval = self.config.xpath(path)
         except xmltree.XmlPathError:
           cfgval = NoneEntry(path)
-        self.diffdict[path] = (NewEntry(), cfgval)
-    if self.diffdict: self.dprint(self.diffdict)
-    return self.diffdict
+        self.cdiff[path] = (NewEntry(), cfgval)
+    if self.cdiff: self.dprint(self.cdiff)
+    return self.cdiff
 
 class VariablesHandler:
   def __init__(self, data, obj):
     self.name = 'variables'
     
-    self.data = data
+    self.vdata = data
     self.obj = obj
     self.vars = {}
 
-    expand(self.data)
-
-  def update(self, data):
-    if type(data) == str: data = [data]
-
-    for datum in data:
-      if type(data) == list:
-        self.data.extend(datum)
-      else:
-        self.data.append(datum)
+    expand(self.vdata)
 
   def clear(self):
     self.vars.clear()
     
   def mdread(self, metadata):
-    for item in self.data:
+    for item in self.vdata:
       node = metadata.get('/metadata/variables/value[@variable="%s"]' % item)
       if node is None:
         self.vars[item] = NewEntry()
@@ -453,7 +418,7 @@ class VariablesHandler:
       pass
     
     vars = xmltree.Element('variables', parent=root)
-    for var in self.data:
+    for var in self.vdata:
       parent = xmltree.Element('value', parent=vars, attrs={'variable': var})
       try:
         val = eval('self.obj.%s' % var)
@@ -462,8 +427,8 @@ class VariablesHandler:
         pass
   
   def diff(self):
-    self.diffdict = {}
-    for var in self.data:
+    self.vdiff = {}
+    for var in self.vdata:
       try:
         val = eval('self.obj.%s' % var)
         if val is None:
@@ -472,8 +437,8 @@ class VariablesHandler:
         val = NoneEntry(var)
       if self.vars.has_key(var):
         if self.vars[var] != val:
-          self.diffdict[var] = (self.vars[var], val)
+          self.vdiff[var] = (self.vars[var], val)
       else:
-        self.diffdict[var] = (NewEntry(), val)
-    if self.diffdict: self.dprint(self.diffdict)
-    return self.diffdict
+        self.vdiff[var] = (NewEntry(), val)
+    if self.vdiff: self.dprint(self.vdiff)
+    return self.vdiff

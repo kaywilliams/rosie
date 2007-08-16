@@ -13,8 +13,6 @@ from dims.configlib import uElement
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.interface import EventInterface, RepoFromXml, Repo
 
-from dimsbuild.modules.lib import DiffMixin
-
 API_VERSION = 4.0
 
 EVENTS = [
@@ -47,7 +45,7 @@ class ValidateHook:
       self.interface.raiseInvalidConfig("Config file must define one repo with type 'base'")
     
 
-class ReposHook(DiffMixin):
+class ReposHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'repos.repos'
@@ -62,14 +60,12 @@ class ReposHook(DiffMixin):
       'output': [], # to be filled later
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'repos.md')
-    
-    DiffMixin.__init__(self, self.mdfile, self.DATA)
-    
+  
   def clean(self):
     for file in [ join(self.mdfile, repo.id) for repo in \
                   self.interface.getAllRepos() ]:
       osutils.rm(file, force=True)
-    self.clean_metadata()
+    self.interface.clean_metadata()
   
   def setup(self):
     self.interface.log(0, "generating filelists for input repositories")
@@ -90,13 +86,12 @@ class ReposHook(DiffMixin):
       
       self.interface.cvars['repos'][repo.id] = repo
       
-      self.update({
-        'input':  [ join(self.mdrepos, repo.id, repo.repodata_path, 'repodata') ],
-        'output': [ join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id) ]
-      })
-
+      self.DATA['input'].append(join(self.mdrepos, repo.id, repo.repodata_path, 'repodata'))
+      self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id))      
+    self.interface.setup_diff(self.mdfile, self.DATA)    
+      
   def check(self):
-    return self.test_diffs()
+    return self.interface.test_diffs()
   
   def run(self):
     self.interface.log(1, "computing repo contents")
@@ -137,7 +132,7 @@ class ReposHook(DiffMixin):
     
     self.interface.cvars['local-repodata'] = self.mdrepos
 
-    self.write_metadata()
+    self.interface.write_metadata()
     
 
 #------ HELPER FUNCTIONS ------#

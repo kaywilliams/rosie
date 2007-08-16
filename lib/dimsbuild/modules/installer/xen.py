@@ -68,16 +68,16 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
     ImageModifyMixin.setup(self)
     self.register_image_locals(L_IMAGES)
     self.register_file_locals(L_FILES)
-    self.update({
-      'input': self.interface.cvars['buildstamp-file'],
-    })
+    self.DATA['input'].append(self.interface.cvars['buildstamp-file'])
     
   def clean(self):
-    self.remove_files([ join(self.interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ])
+    self.interface.remove_output(
+      rmlist=[ join(self.interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ]
+    )
   
   def check(self):
     return not self.validate_image() or \
-           self.test_diffs()
+           self.interface.test_diffs()
   
   def run(self):
     self.interface.log(0, "preparing xen images")

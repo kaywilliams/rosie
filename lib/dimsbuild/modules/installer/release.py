@@ -1,7 +1,6 @@
 from os.path import exists, isdir, isfile, join
 
 from dims import osutils
-from dims import sync
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC

@@ -62,11 +62,11 @@ class UpdatesHook(ImageModifyMixin):
     self.register_image_locals(L_IMAGES)
   
   def clean(self):
-    self.remove_files(self.handlers['output'].oldoutput.keys())
+    self.interface.remove_output(all=True)
   
   def check(self):
     return not self.validate_image() or \
-           self.test_diffs()
+           self.interface.test_diffs()
   
   def run(self):
     self.interface.log(0, "generating updates.img")

@@ -7,8 +7,6 @@ from dimsbuild import event
 
 from dimsbuild.interface import EventInterface
 
-from dimsbuild.modules.lib import DiffMixin
-
 API_VERSION = 4.0
 
 EVENTS = [
@@ -37,10 +35,6 @@ class HookHandler:
   def clear(self):
     self.hooks.clear()
     self.diffdict.clear()
-
-  def update(self, data):
-    assert type(data) == dict
-    self.data.update(data)
         
   def mdread(self, metadata):
     for hook in metadata.xpath('/metadata/hooks/hook'):
@@ -77,54 +71,48 @@ class CleanInterface(EventInterface):
     self.dispatch = self._base.dispatch
 
 #------ HOOKS ------#
-class CleanHook(DiffMixin):
+class CleanHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'clean.clean'
 
-    self.DATA = {'hooks':  {}}    
+    self.DATA = {'hooks': {}}
     self.hookInfo = {}
 
     self.interface = interface
     self.dispatch = self.interface.dispatch
 
-    DiffMixin.__init__(self, join(self.interface.METADATA_DIR, 'clean.md'), self.DATA)
-    self._add_handler()
-  
-  def _add_handler(self):
-    handler = HookHandler(self.DATA['hooks'])
-    self.DT.addHandler(handler)
-    self.handlers[handler.name] = handler
-
   def setup(self):
     for event in self.dispatch.event:
       for hook in event.hooks:
         self.hookInfo[hook.ID] = event.id
-        self.update({'hooks': {hook.ID: str(hook.VERSION)}})
+        self.DATA['hooks'].update({hook.ID: str(hook.VERSION)})
+        
+    self.interface.setup_diff(join(self.interface.METADATA_DIR, 'clean.md'), self.DATA)
+    self.interface.add_handler(HookHandler(self.DATA['hooks']))
   
   def clean(self):
     self._clean_all()
     
   def check(self):
-    return self.test_diffs()
+    return self.interface.test_diffs()
   
   def run(self):
     self.interface.log(0, "processing clean")
     self.interface.log(1, "forcing events") 
     # if clean hook version changes, force all
-    if self.handlers['hooks'].diffdict.has_key(self.ID):      
-      prevver, currver = self.handlers['hooks'].diffdict[self.ID]
+    if self.interface.handlers['hooks'].diffdict.has_key(self.ID):      
+      prevver, currver = self.interface.handlers['hooks'].diffdict[self.ID]
       if prevver and currver:
         self._clean_all()
     else:
-      for hook in self.handlers['hooks'].diffdict.keys():
-        prevver, currver = self.handlers['hooks'].diffdict[hook]
+      for hook in self.interface.handlers['hooks'].diffdict.keys():
+        prevver, currver = self.interface.handlers['hooks'].diffdict[hook]
         if prevver and currver:
           self._force_clean(self.hookInfo[hook])
   
   def apply(self):
-    # every time since diffs not reported in first run scenario
-    self.write_metadata()
+    self.interface.write_metadata()
   
   def _clean_all(self):
     self.interface.log(0, "cleaning all")

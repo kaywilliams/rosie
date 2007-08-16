@@ -14,8 +14,6 @@ from dims.configlib    import ConfigError
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
 
-from dimsbuild.modules.lib import DiffMixin
-
 API_VERSION = 4.0
 
 EVENTS = [
@@ -80,7 +78,7 @@ class ApplyoptHook:
     if self.interface.options.with_comps is not None:
       self.interface.cvars['with-comps'] = self.interface.options.with_comps
 
-class CompsHook(DiffMixin):
+class CompsHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'comps.comps'
@@ -98,13 +96,14 @@ class CompsHook(DiffMixin):
       'output': [self.s_compsfile],
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'comps.md')
-    
-    DiffMixin.__init__(self, self.mdfile, self.DATA)
   
   def clean(self):
     osutils.rm(self.s_compsfile, force=True)
-    self.clean_metadata()
-  
+    self.interface.clean_metadata()
+
+  def setup(self):
+    self.interface.setup_diff(self.mdfile, self.DATA)
+    
   def check(self):
     # if the input repos change, we need to run
     # if there is no comps file in the ouput directory and one isn't otherwise
@@ -112,8 +111,7 @@ class CompsHook(DiffMixin):
     return self.interface.cvars['with-comps'] or \
            self.interface.cvars['input-repos-changed'] or \
            (not exists(self.s_compsfile) and not self.interface.cvars['comps-file']) or \
-           self.test_diffs()
-  
+           self.interface.test_diffs()
 
   def run(self):
     self.interface.log(0, "computing required packages")
@@ -167,7 +165,7 @@ class CompsHook(DiffMixin):
     reqpkgs = xmltree.read(self.interface.cvars['comps-file']).xpath('//packagereq/text()')
     self.interface.cvars['required-packages'] = reqpkgs
 
-    self.write_metadata()
+    self.interface.write_metadata()
   
   #------ COMPS FILE GENERATION FUNCTIONS ------#
   def generate_comps(self):

@@ -8,17 +8,11 @@ __author__  = 'Kay Williams <kwilliams@abodiosoftware.com>'
 __version__ = '1.0'
 __date__    = 'June 29th, 2007'
 
-import os
-
-from os.path      import join, exists, dirname, basename, isdir
-from ConfigParser import ConfigParser
+from os.path import join
 
 from dims import osutils
-from dims import sync
 
 from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-
-from dimsbuild.modules.lib import DiffMixin, FilesMixin
 
 API_VERSION = 4.0
 
@@ -46,45 +40,47 @@ class ValidateHook:
   def run(self):
     self.interface.validate('/distro/files', 'files.rng')
 
-class FilesHook(DiffMixin, FilesMixin):
+class FilesHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'files.files'    
     self.interface = interface
 
     self.DATA =  {
-      'config':    ['/distro/files'],
-      'input':     [],
-      'output':    [],
+      'config': ['/distro/files'],
+      'input':  [],
+      'output': [],
     }
+    self.mdfile = join(self.interface.METADATA_DIR, 'files.md')
 
-    DiffMixin.__init__(self, join(self.interface.METADATA_DIR, 'files.md'), self.DATA)
-    FilesMixin.__init__(self, self.interface.SOFTWARE_STORE)
-
-  def pre(self):
+  def setup(self):
+    self.interface.setup_diff(self.mdfile, self.DATA)
+    i,o = self.interface.getFileLists(
+      xpaths=[('/distro/files/path',
+               osutils.dirname(self.interface.config.file),
+               self.interface.SOFTWARE_STORE)]
+    )
+    self.DATA['input'].extend(i)
+    self.DATA['output'].extend(o)
+    
     if self.interface.config.xpath('/distro/files/path/text()', []):
       self.interface.log(0, "processing user-provided files")
-    elif self.handlers['output'].oldoutput.keys():
-      self.interface.log(0, "removing previously-provided files")
-      
-  def setup(self):
-    # add files to the input and output filelists - look at FilesMixin.add_files() in interface.py
-    self.add_files(xpaths='/distro/files/path')
+    elif self.interface.handlers['output'].oldoutput.keys():
+      self.interface.log(0, "removing previously-provided files")    
     
   def clean(self):
-    self.remove_files(self.handlers['output'].oldoutput.keys())
-    self.clean_metadata()
+    self.interface.remove_output(self.interface.SOFTWARE_STORE, all=True)
+    self.interface.clean_metadata()
 
   def check(self):
-    return self.test_diffs()
+    return self.interface.test_diffs()
 
   def run(self):
-    if not self.interface.isForced('files'):
-      # delete the files that have been modified or aren't required anymore
-      self.remove_files()
+    # delete altered files
+    self.interface.remove_output(self.interface.SOFTWARE_STORE)
           
-    # download the files
-    self.sync_files()
+    # download input files
+    self.interface.sync_input()
     
   def apply(self):
-    self.write_metadata()
+    self.interface.write_metadata()

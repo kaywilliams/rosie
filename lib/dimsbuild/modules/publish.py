@@ -17,8 +17,6 @@ from dimsbuild.constants import *
 from dimsbuild.event     import EVENT_TYPE_MDLR
 from dimsbuild.interface import EventInterface
 
-from dimsbuild.modules.lib import DiffMixin
-
 API_VERSION = 4.0
 
 EVENTS = [
@@ -52,7 +50,7 @@ class PublishInterface(EventInterface):
 
 
 #------ HOOKS ------#
-class RepofileHook(DiffMixin):
+class RepofileHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'publish.repofile'
@@ -70,16 +68,17 @@ class RepofileHook(DiffMixin):
       'output':    [self.repofile]
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'repofile.md')
-    
-    DiffMixin.__init__(self, self.mdfile, self.DATA)
+
+  def setup(self):
+    self.interface.setup_diff(self.mdfile, self.DATA)
   
   def clean(self):
     osutils.rm(self.repofile, force=True)
     osutils.rm(self.srcrepofile, force=True)
-    self.clean_metadata()
+    self.interface.clean_metadata()
   
   def check(self):
-    return self.test_diffs()
+    return self.interface.test_diffs()
   
   def run(self):
     # if we're not enabled, clean up and return immediately
@@ -124,7 +123,7 @@ class RepofileHook(DiffMixin):
       rc.createRepoFile()
   
   def apply(self):
-    self.write_metadata()
+    self.interface.write_metadata()
   
   def _getIpAddress(self, ifname='eth0'):
     # TODO - improve this, its not particularly accurate in some cases
@@ -133,7 +132,7 @@ class RepofileHook(DiffMixin):
                                         0x8915,
                                         struct.pack('256s', ifname[:15]))[20:24])
 
-class PublishHook(DiffMixin):
+class PublishHook:
   def __init__(self, interface):
     self.VERSION = 1
     self.ID = 'publish.publish'
@@ -144,22 +143,22 @@ class PublishHook(DiffMixin):
       'variables': ['interface.PUBLISH_DIR'],
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'publish.md')
-    
-    DiffMixin.__init__(self, self.mdfile, self.DATA)
+
+  def setup(self):
+    self.interface.setup_diff(self.mdfile, self.DATA)
   
   def clean(self):
     osutils.rm(self.interface.PUBLISH_DIR, recursive=True, force=True)
-    self.clean_metadata()
+    self.interface.clean_metadata()
 
   def run(self):
     "Publish the contents of interface.SOFTWARE_STORE to interface.PUBLISH_STORE"
     self.interface.log(0, "publishing output store")
 
     # Cleanup - remove old publish_dir folders
-    if self.test_diffs():
-
+    if self.interface.test_diffs():
       try:
-        olddir = self.handlers['variables'].vars['interface.PUBLISH_DIR']
+        olddir = self.interface.handlers['variables'].vars['interface.PUBLISH_DIR']
         oldparent = os.path.dirname(olddir)
 
         self.interface.log(2, "removing directory '%s'" % olddir)
@@ -188,4 +187,5 @@ class PublishHook(DiffMixin):
     
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.interface.PUBLISH_DIR)
 
-    self.write_metadata()
+  def apply(self):
+    self.interface.write_metadata()

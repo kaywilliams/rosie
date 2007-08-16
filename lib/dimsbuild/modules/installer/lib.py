@@ -19,8 +19,6 @@ from dimsbuild.magic     import match as magic_match
 from dimsbuild.magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS, FILE_TYPE_FAT
 from dimsbuild.misc      import locals_imerge, locals_printf
 
-from dimsbuild.modules.lib import DiffMixin, FilesMixin
-
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')
 
 MAGIC_MAP = {
@@ -30,32 +28,29 @@ MAGIC_MAP = {
   'fat32': FILE_TYPE_FAT,
 }
 
-
-#------ HELPER FUNCTIONS ------#
-class ExtractHandler(DiffMixin):
+class ExtractHandler:
   def __init__(self, interface, data, mdfile):    
     self.interface = interface
     self.config = self.interface.config
     self.software_store = self.interface.SOFTWARE_STORE
-    
-    DiffMixin.__init__(self, mdfile, data)
 
+    self.DATA = data
+    self.mdfile = mdfile
+    
   def setup(self):
-    self.update({
-      'input':  self.find_rpms(),
-      'output': self.handlers['output'].oldoutput.keys(),
-    })
+    self.DATA['input'].extend(self.find_rpms())
+    self.interface.setup_diff(self.mdfile, self.DATA)
 
   def clean(self):
-    self.clean_output()
-    self.clean_metadata()
+    self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
     
-  def check(self):    
-    return self.test_diffs()
+  def check(self):
+    return self.interface.test_diffs()
   
   def extract(self, message):
     self.interface.log(0, message)
-    self.clean_output()
+    self.interface.remove_output(all=True)
     
     # generate output files
     try:
@@ -69,12 +64,12 @@ class ExtractHandler(DiffMixin):
       # need to modify self.data, so that the metadata written has all
       # the files created. Otherwise, self.data['output'] will be
       # empty.
-      self.update({'output': self.generate(working_dir)})
+      self.DATA['output'].extend(self.generate(working_dir))
     finally:
       osutils.rm(working_dir, recursive=True, force=True)
 
     # write metadata
-    self.write_metadata()
+    self.interface.write_metadata()
 
   def extractRpm(self, rpmPath, output=os.getcwd()):
     """ 
@@ -101,13 +96,6 @@ class ExtractHandler(DiffMixin):
       cpio.open(point=output)
     finally:
       osutils.rm(dir, recursive=True, force=True)
-
-  def clean_output(self):
-    if self.handlers.has_key('output'):      
-      for file in self.handlers['output'].oldoutput.keys():
-        osutils.rm(file, recursive=True, force=True)
-    while len(self.handlers['output'].data) > 0:
-      self.handlers['output'].data.pop()
         
 class ImageHandler:
   """
@@ -177,7 +165,7 @@ class ImageHandler:
         return magic_match(p) == MAGIC_MAP[format]
 
 
-class ImageModifyMixin(ImageHandler, DiffMixin, FilesMixin):
+class ImageModifyMixin(ImageHandler):
   """
   Classes that extend this must require 'anaconda-version' and
   'buildstamp-file.'  
@@ -187,23 +175,23 @@ class ImageModifyMixin(ImageHandler, DiffMixin, FilesMixin):
       self.mdfile = join(interface.METADATA_DIR, '%s.md' % name)
     else:
       self.mdfile = mdfile
-
+    self.DATA = data    
     ImageHandler.__init__(self, interface)
-    DiffMixin.__init__(self, self.mdfile, data)
-    FilesMixin.__init__(self, '/')
-
+    
     self.name = name        
 
   def setup(self, config=True):
-    if config:
-      self.add_files(xpaths='/distro/installer/%s/path' % self.name,
-                     addoutput=False)
-
     imagessrc = join(self.interface.METADATA_DIR, 'images-src', self.name)
     if exists(imagessrc):
-      self.update({
-        'input': imagessrc,
-      })
+      self.DATA['input'].append(imagessrc)
+    self.interface.setup_diff(self.mdfile, self.DATA)
+    if config:
+      i,_ = self.interface.getFileLists(xpaths=[(
+        '/distro/installer/%s/path' % self.name,
+        osutils.dirname(self.interface.config.file),
+        '/'
+      )])
+      self.DATA['input'].extend(i)
     
   def register_image_locals(self, locals):
     ImageHandler.register_image_locals(self, locals)
@@ -239,20 +227,14 @@ class ImageModifyMixin(ImageHandler, DiffMixin, FilesMixin):
       raise OutputInvalidError, "output files are invalid"
     
     # write metadata
-    self.write_metadata()
+    self.interface.write_metadata()
   
   def generate(self):
     self.interface.cvars['%s-changed' % self.name] = True
-    self.sync_files(action=self.write_file)                    
+    self.interface.sync_input(action=self.write_file)
     
   def write_file(self, src, dest):
     self.image.write(src, dest)
-
-  def remove_files(self, rmlist=[]):
-    for item in rmlist:
-      if exists(item):
-        self.interface.log(2, "removing %s" % osutils.basename(item))
-        osutils.rm(item, recursive=True, force=True)
 
 class FileDownloadMixin:
   "Classes that extend this must require 'anaconda-version' and 'source-vars'"

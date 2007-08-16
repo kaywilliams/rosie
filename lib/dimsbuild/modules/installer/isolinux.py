@@ -8,8 +8,6 @@ from dims import sync
 
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
-from dimsbuild.modules.lib import DiffMixin, FilesMixin
-
 from lib import FileDownloadMixin, ImageModifyMixin
 
 API_VERSION = 4.1
@@ -40,7 +38,7 @@ HOOK_MAPPING = {
 
 
 #------ HOOKS ------#
-class IsolinuxHook(FileDownloadMixin, FilesMixin, DiffMixin):
+class IsolinuxHook(FileDownloadMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'installer.bootiso.isolinux'
@@ -57,18 +55,13 @@ class IsolinuxHook(FileDownloadMixin, FilesMixin, DiffMixin):
     }
     
     self.mdfile = join(self.interface.METADATA_DIR, 'isolinux.md')
-    
-    DiffMixin.__init__(self, self.mdfile, self.DATA)
     FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
-    FilesMixin.__init__(self, self.isolinux_dir)
   
   def setup(self):
     repo = self.interface.getRepo(self.interface.getBaseRepoId())
     self.register_file_locals(L_FILES)
 
-    self.add_files(xpaths='/distro/installer/isolinux/path')
-    
-    self.update({
+    self.DATA.update({
       'input': [ repo.rjoin(f.get('path/text()'),
                             f.get('@id')) \
                  for f in self.f_locals.xpath('//file') ],
@@ -77,12 +70,18 @@ class IsolinuxHook(FileDownloadMixin, FilesMixin, DiffMixin):
                        f.get('@id')) \
                   for f in self.f_locals.xpath('//file') ],
     })
+    self.interface.setup_diff(self.mdfile, self.DATA)
+    i,o = self.interface.getFileLists(xpaths=[('/distro/installer/isolinux/path',
+                                               osutils.dirname(self.interface.config.file),
+                                               self.isolinux_dir)])
+    self.DATA['input'].extend(i)
+    self.DATA['output'].extend(o)
 
   def clean(self):
-    self.remove_files(self.handlers['output'].oldoutput.keys())
-  
+    self.interface.remove_output(all=True)
+    
   def check(self):
-    return self.test_diffs()
+    return self.interface.test_diffs()
   
   def run(self):
     self.interface.log(0, "synchronizing isolinux files")    
@@ -90,10 +89,12 @@ class IsolinuxHook(FileDownloadMixin, FilesMixin, DiffMixin):
     
     # clean up old output
     self.clean()
+
     # download all files - see FileDownloadMixin.download() in lib.py    
     self.download()
+
     # copy input files - see FilesMixin.sync_files() in interface.py
-    self.sync_files()
+    self.interface.sync_input()
     
     # modify the first append line in isolinux.cfg
     bootargs = self.interface.config.get('/distro/installer/isolinux/boot-args/text()', None)
@@ -112,13 +113,14 @@ class IsolinuxHook(FileDownloadMixin, FilesMixin, DiffMixin):
       filereader.write(lines, cfg)
     
     self.interface.cvars['isolinux-changed'] = True
-    
-    self.write_metadata()    
-  
+      
   def apply(self):
+    self.interface.write_metadata()
     for file in self.DATA['output']:
+      #print file
+      if type(file) == type(()): file = file[0]
       if not exists(file):
-        raise RuntimeError, "Unable to find '%s'" % file
+        raise RuntimeError("Unable to find '%s'" % file)
     
 class InitrdHook(ImageModifyMixin):
   def __init__(self, interface):
@@ -149,29 +151,26 @@ class InitrdHook(ImageModifyMixin):
     repo = self.interface.getRepo(self.interface.getBaseRepoId())
 
     # add input files
-    self.update({
-      'input':  [
-        # TODO - this input location no longer exists
-        [ join(self.interface.INPUT_STORE,
-               repo.id, repo.directory,
-               f.get('path/text()'),
-               f.get('@id')) \
-          for f in self.i_locals.xpath('//image') ],
-        self.interface.cvars['buildstamp-file'],
-      ],
-      'output': [
-        [ join(self.interface.SOFTWARE_STORE,
-               f.get('path/text()'),
-               f.get('@id')) \
-          for f in self.i_locals.xpath('//image') ],
-      ]
-    })
+    self.DATA['input'].append(self.interface.cvars['buildstamp-file'])
+    self.DATA['input'].extend([
+      join(self.interface.INPUT_STORE,
+           repo.id, repo.directory,
+           f.get('path/text()'),
+           f.get('@id')) \
+      for f in self.i_locals.xpath('//image')
+    ])
+    self.DATA['output'].extend([
+      join(self.interface.SOFTWARE_STORE,
+           f.get('path/text()'),
+           f.get('@id')) \
+      for f in self.i_locals.xpath('//image')
+    ])
 
   def clean(self):
-    self.remove_files(self.handlers['output'].oldoutput.keys())
+    self.interface.remove_output(all=True)
   
   def check(self):
-    return self.test_diffs()
+    return self.interface.test_diffs()
   
   def run(self):
     self.interface.log(0, "processing initrd.img")
@@ -185,6 +184,8 @@ class InitrdHook(ImageModifyMixin):
   
   def apply(self):
     for file in self.DATA['output']:
+      if type(file) == type(()):
+        file = file[0] #### FIXME
       if not exists(join(self.interface.SOFTWARE_STORE, file)):
         raise RuntimeError, "Unable to find '%s' at '%s'" % (file, join(self.interface.SOFTWARE_STORE))
 

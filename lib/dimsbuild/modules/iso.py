@@ -15,7 +15,7 @@ from dimsbuild.callback    import BuildDepsolveCallback
 from dimsbuild.constants   import BOOLEANS_TRUE
 from dimsbuild.event       import EVENT_TYPE_MDLR, EVENT_TYPE_PROC, EVENT_TYPE_META
 from dimsbuild.interface   import EventInterface 
-from dimsbuild.modules.lib import DiffMixin, ListCompareMixin, FilesMixin
+from dimsbuild.modules.lib import ListCompareMixin
 from dimsbuild.misc        import locals_imerge
 
 API_VERSION = 4.0
@@ -98,7 +98,7 @@ class ValidateHook:
   def run(self):
     self.interface.validate('/distro/iso', schemafile='iso.rng')
 
-class PkgorderHook(DiffMixin, FilesMixin):
+class PkgorderHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'iso.iso'
@@ -114,10 +114,7 @@ class PkgorderHook(DiffMixin, FilesMixin):
     }
     self.mdfile = join(self.interface.ISO_METADATA_DIR, 'pkgorder.md')
 
-    DiffMixin.__init__(self, self.mdfile, self.DATA)
-    FilesMixin.__init__(self, self.interface.ISO_METADATA_DIR)
-
-  def setup(self):
+  def setup(self):    
     if self.interface.cvars['iso-enabled']:
       #set variables used in run and apply functions
       self.pkgorder_in = self.interface.config.get('/distro/iso/pkgorder/text()', None)
@@ -127,30 +124,36 @@ class PkgorderHook(DiffMixin, FilesMixin):
       else: 
         self.pkgorder_out = join(self.interface.ISO_METADATA_DIR, 'pkgorder')
 
-      # add files to the input and output filelists - see FilesMixin.add_files() in lib.py
-      # TODO - once FilesMixin accepts paths, pass pkgorder_in var to add_files 
-      self.add_files('/distro/iso/pkgorder')
-
+    self.interface.setup_diff(self.mdfile, self.DATA)
+    
+    # add files to the input and output filelists - see FilesMixin.add_files() in lib.py
+    # TODO - once FilesMixin accepts paths, pass pkgorder_in var to add_files
+    i,o = self.interface.getFileLists(xpaths=[('/distro/iso/pkgorder',
+                                               osutils.dirname(self.interface.config.file),
+                                               self.interface.ISO_METADATA_DIR)])
+    self.DATA['input'].extend(i)
+    self.DATA['output'].extend(o)    
+      
   def clean(self):
     self._remove_output()
-    self.clean_metadata()
+    self.interface.clean_metadata()
 
   def check(self):
-    return self.test_diffs()
+    return self.interface.test_diffs()
 
   def run(self):
     if self.interface.cvars['iso-enabled']:
       self.interface.log(0, "processing pkgorder file")
 
       # delete prior pkgorder file, if exists
-      if self.handlers['output'].oldoutput.keys():
+      if self.interface.handlers['output'].oldoutput.keys():
         self.interface.log(1, "removing prior pkgorder file")
-        self.remove_files(self.handlers['output'].oldoutput.keys())
+        self.interface.remove_output(all=True)
 
       if self.pkgorder_in:    
         # download pkgorder file, if provided
         self.interface.log(1, "adding new pkgorder file")
-        self.sync_files()
+        self.interface.sync_input()
 
       else:
         # generate pkgorder
@@ -168,7 +171,7 @@ class PkgorderHook(DiffMixin, FilesMixin):
         pkgorder.write_pkgorder(self.pkgorder_out, pkgtups)
 
         # update output data
-        self.update({'output': [ self.pkgorder_out ]})
+        self.DATA['output'].append(self.pkgorder_out)
 
         # cleanup
         osutils.rm(cfg, force=True)
@@ -178,7 +181,7 @@ class PkgorderHook(DiffMixin, FilesMixin):
       self._remove_output()
 
     # write metadata
-    self.write_metadata() 
+    self.interface.write_metadata()
 
   def apply(self):
     #set pkgorder-file variable
@@ -191,15 +194,15 @@ class PkgorderHook(DiffMixin, FilesMixin):
   def _remove_output(self):
     # print a header message only if a pkgorder file exists to remove
     files_exist = False
-    for item in self.handlers['output'].oldoutput.keys():
+    for item in self.interface.handlers['output'].oldoutput.keys():
       if exists(item):
         files_exist = True
         continue
     if files_exist:
       self.interface.log(0, "removing pkgorder file")
-      self.remove_files(self.handlers['output'].oldoutput.keys())    
+      self.interface.remove_output(all=True)
 
-class IsoSetsHook(DiffMixin):
+class IsoSetsHook:
   def __init__(self, interface):
     self.VERSION = 1
     self.ID = 'iso.iso-sets'
@@ -220,20 +223,19 @@ class IsoSetsHook(DiffMixin):
     }
 
     self.mdfile = join(self.interface.ISO_METADATA_DIR, 'iso.md')
-
-    DiffMixin.__init__(self, self.mdfile, self.DATA)
   
   def setup(self):
     if self.interface.cvars['iso-enabled']:
-      self.update({'input': [ self.interface.cvars['pkgorder-file'] ]})
+      self.DATA['input'].append(self.interface.cvars['pkgorder-file'])
+    self.interface.setup_diff(self.mdfile, self.DATA)
 
   def clean(self):
     self._remove_output()
-    self.clean_metadata()
-  
-  def check(self):
-    return self.test_diffs()
+    self.interface.clean_metadata()
 
+  def check(self):
+    return self.interface.test_diffs()
+  
   def run(self):
     if self.interface.cvars['iso-enabled']:
 
@@ -245,9 +247,8 @@ class IsoSetsHook(DiffMixin):
       for set in self.newsets:
         self.newsets_expanded.append(splittree.parse_size(set))
 
-      if self.handlers['input'].diffdict or \
-         self.handlers['variables'].diffdict.has_key("interface.cvars['source-include']"):
-        #TODO use FilesMixin here
+      if self.interface.handlers['input'].idiff or \
+         self.interface.handlers['variables'].vdiff.has_key("interface.cvars['source-include']"):
         osutils.rm(self.interface.isodir, recursive=True, force=True)
         osutils.rm(self.splittrees, recursive=True, force=True)        
         #osutils.rm(self.handlers['output'].oldoutput.keys(), recursive=True, force=True)
@@ -258,16 +259,15 @@ class IsoSetsHook(DiffMixin):
 
       self.interface.compare(oldsets, self.newsets)
 
-      self.update({'output': [ self.interface.isodir,
-                               self.splittrees] # may or may not want to include this one ]
-      })
-
+      self.DATA['output'].extend([self.interface.isodir,
+                                  self.splittrees])
     else:
       # iso not enabled, clean up old output and metadata
       # TODO - only do this if prior output exists
       self._remove_output() 
 
-    self.write_metadata()
+  def apply(self):
+    self.interface.write_metadata()
 
   def _remove_output(self):
     # TODO generalize remove_files from the FilesMixin and use it here

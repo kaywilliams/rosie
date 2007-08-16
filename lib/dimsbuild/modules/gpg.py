@@ -9,8 +9,6 @@ from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.interface import EventInterface
 
-from dimsbuild.modules.lib import DiffMixin
-
 API_VERSION = 4.0
 
 EVENTS = [
@@ -106,7 +104,7 @@ class SoftwareHook:
       osutils.rm(self.interface.rpmdest, recursive=True, force=True)
 
 
-class GpgsignHook(DiffMixin):
+class GpgsignHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'gpg.gpgsign'
@@ -117,8 +115,9 @@ class GpgsignHook(DiffMixin):
       'config': ['/distro/gpgsign', '//gpgkey/text()'],
     }
     self.mdfile = join(interface.METADATA_DIR, 'gpg.md')
-    
-    DiffMixin.__init__(self, self.mdfile, self.DATA)
+
+  def setup(self):
+    self.interface.setup_diff(self.mdfile, self.DATA)
   
   def clean(self):
     # WTF is this supposed to do?
@@ -129,12 +128,12 @@ class GpgsignHook(DiffMixin):
                                            name=RPM_GLOB,
                                            type=osutils.TYPE_FILE,
                                            printf='%P') ]
-    self.clean_metadata()
+    self.interface.clean_metadata()
   
   def check(self):
     return self.interface.cvars['new-rpms'] or \
            self.interface.cvars['gpg-tosign'] or \
-           self.test_diffs()
+           self.interface.test_diffs()
     
   def run(self):
     if self.interface.sign:
@@ -144,8 +143,7 @@ class GpgsignHook(DiffMixin):
         self.interface.sign_rpm(rpm)
   
   def apply(self):
-    self.write_metadata()
-  
+    self.interface.write_metadata()  
 
 class ValidateHook:
   def __init__(self, interface):

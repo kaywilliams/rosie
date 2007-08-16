@@ -29,8 +29,6 @@ from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.locals    import L_BUILDSTAMP_FORMAT
 from dimsbuild.misc      import locals_imerge
 
-from dimsbuild.modules.lib import DiffMixin
-
 API_VERSION = 4.1
 
 #------ EVENTS ------#
@@ -65,7 +63,7 @@ HOOK_MAPPING = {
 }
 
 #------ HOOKS ------#
-class DiscinfoHook(DiffMixin):
+class DiscinfoHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'installer.discinfo.discinfo'
@@ -77,16 +75,17 @@ class DiscinfoHook(DiffMixin):
       'variables': ['interface.BASE_VARS'],
       'output':    [self.difile]
     }
-    mdfile = join(self.interface.METADATA_DIR, 'discinfo.md')
-    
-    DiffMixin.__init__(self, mdfile, self.DATA)
+    self.mdfile = join(self.interface.METADATA_DIR, 'discinfo.md')
+
+  def setup(self):
+    self.interface.setup_diff(self.mdfile, self.DATA)
     
   def clean(self):
     osutils.rm(self.difile, force=True)
-    self.clean_metadata()
+    self.interface.clean_metadata()
   
   def check(self):
-    return self.test_diffs()
+    return self.interface.test_diffs()
   
   def run(self):
     # setup
@@ -108,10 +107,10 @@ class DiscinfoHook(DiffMixin):
   def apply(self):
     if not exists(self.difile):
       raise RuntimeError, "Unable to find .discinfo file at '%s'" % self.difile
-    self.write_metadata()
+    self.interface.write_metadata()
 
 
-class TreeinfoHook(DiffMixin):
+class TreeinfoHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'installer.discinfo.treeinfo'
@@ -123,8 +122,9 @@ class TreeinfoHook(DiffMixin):
       'output': [self.tifile]
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'treeinfo.md')
-    
-    DiffMixin.__init__(self, self.mdfile, self.DATA)
+
+  def setup(self):
+    self.interface.setup_diff(self.mdfile, self.DATA)
     
   def clean(self):
     osutils.rm(self.tifile, force=True)
@@ -133,7 +133,7 @@ class TreeinfoHook(DiffMixin):
   def check(self):
     if dcompare(self.interface.cvars['anaconda-version'], '11.2.0.66-1') < 0:
       return False
-    return self.test_diffs()
+    return self.interface.test_diffs()
   
   def run(self):
     treeinfo = ConfigParser()
@@ -173,37 +173,38 @@ class TreeinfoHook(DiffMixin):
       return
     if not exists(self.tifile):
       raise RuntimeError, "Unable to find .treeinfo file at '%s'" % self.tifile
-    self.write_metadata()
+    self.interface.write_metadata()
+    
 
-
-class BuildStampHook(DiffMixin):
+class BuildStampHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'installer.discinfo.buildstamp'
     self.interface = interface
 
     self.bsfile = join(self.interface.METADATA_DIR, '.buildstamp')
+
     self.DATA = {
       'variables': ['interface.BASE_VARS',
                     'interface.cvars[\'anaconda-version\']',
                     'interface.cvars[\'source-vars\']'],
       'output':    [self.bsfile],        
     }
-    DiffMixin.__init__(self, join(self.interface.METADATA_DIR, 'buildstamp.md'), self.DATA)
+    self.mdfile = join(self.interface.METADATA_DIR, 'buildstamp.md')
 
   def setup(self):
+    self.interface.setup_diff(self.mdfile, self.DATA)
     self.anaconda_version = self.interface.cvars['anaconda-version']
 
   def clean(self):
-    for file in self.handlers['output'].oldoutput.keys():
-      osutils.rm(file, force=True, recursive=True)
-    self.clean_metadata()
+    self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
       
   def check(self):
-    return self.test_diffs()
+    return self.interface.test_diffs()
 
   def run(self):
-    "Generate a .buildstamp file"
+    "Generate a .buildstamp file."
     self.interface.log(0, "generating buildstamp")
     
     locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.anaconda_version)
@@ -217,12 +218,11 @@ class BuildStampHook(DiffMixin):
     buildstamp.write(self.bsfile, **base_vars)
     os.chmod(self.bsfile, 0644)
 
-    self.write_metadata()
-
   def apply(self):
     if not exists(self.bsfile):
       raise RuntimeError("missing file '%s'" % self.bsfile)
     self.interface.cvars['buildstamp-file'] = self.bsfile
+    self.interface.write_metadata()
 
 
 #------ LOCALS ------#
