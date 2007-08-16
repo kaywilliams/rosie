@@ -267,6 +267,13 @@ class EventInterface:
       for d in newio[s]:
         if not self.handlers['input'].filelists.has_key(s):
           self.handlers['input'].filelists[s] = difftest.expandPaths(s)
+        ifiles = self.handlers['input'].filelists[s]
+        if not ifiles:
+          if s.find('://') == -1 and not exists(s):
+            raise IOError("missing input file(s) %s" % s)
+          else:
+            ## TODO if source is 404'd raise exception
+            pass
         for ifile in self.handlers['input'].filelists[s]:
           if not self.syncinfo.has_key(ifile): self.syncinfo[ifile] = []
           ofile = (join(d, ifile[s.rstrip('/').rfind('/')+1:]))
