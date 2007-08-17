@@ -110,6 +110,10 @@ class SourceHook:
     self.dosource = self.interface.cvars['source-include']
       
   def setup(self):
+    self.interface.setup_diff(self.mdfile, self.DATA)
+
+    if not self.dosource: return
+
     osutils.mkdir(self.mdsrcrepos, parent=True)
     
     if not self.interface.cvars['source-repos']:
@@ -126,7 +130,6 @@ class SourceHook:
       self.interface.cvars['source-repos'][repo.id] = repo
       
       self.DATA['input'].append(join(self.mdsrcrepos, repo.id, repo.repodata_path, 'repodata'))
-    self.interface.setup_diff(self.mdfile, self.DATA)      
   
   def clean(self):
     osutils.rm(self.interface.srpmdest, recursive=True, force=True)
