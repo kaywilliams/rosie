@@ -59,54 +59,60 @@ class SourcevarsHook:
       pass
 
   def setup(self):
-    self.repo = self.interface.getRepo(self.interface.getBaseRepoId())
-    self.infile = self.repo.rjoin('isolinux/initrd.img')
-    self.outfile = join(self.md_dir, '.buildstamp')
-
-    self.DATA.update({
-      'input':  [ self.infile ],
-      'output': [ self.outfile ],
-    })
-
     self.interface.setup_diff(join(self.md_dir, 'sourcevars.md'), self.DATA)
-    
+
+    initrd_in=self.interface.getRepo(self.interface.getBaseRepoId()).rjoin('isolinux/initrd.img')
+
+    i,o = self.interface.getFileLists( paths=[(initrd_in, self.md_dir)] )
+
+    #TODO remove after list_output is fixed
+    for item in o:
+      dest,src = item
+      self.initrd_out=dest
+      break
+
+    self.buildstamp_out = join(self.md_dir, '.buildstamp')
+
+    self.DATA['input'].extend(i)
+    self.DATA['output'].extend(o)
+    self.DATA['output'].append(self.buildstamp_out)
+
+    # TODO uncomment after list_output is fixed
+    #self.initrd_out=self.interface.list_output( initrd_in )
+   
   def check(self):
     return self.interface.test_diffs()
 
   def clean(self):
-    osutils.rm(self.interface.handlers['output'].oldoutput.keys(), force=True)
+    self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
   def run(self):
     self.interface.log(0, "computing source variables")
         
-    #Download initrd.img to cache # TODO - use link handlers in cache as well
-    initrd_file = join(self.interface.TEMP_DIR, 'initrd.img')
-    self.interface.cache(self.repo.rjoin('isolinux/initrd.img'), self.interface.TEMP_DIR,
-                         username=self.repo.username, password=self.repo.password)
+    # download input files
+    self.interface.sync_input()
     
     #Extract buildstamp
     locals = locals_imerge(L_IMAGES, self.interface.cvars['anaconda-version'])
     image  = locals.get('//images/image[@id="initrd.img"]')
     format = image.get('format/text()')
     zipped = image.get('zipped/text()', 'False') in BOOLEANS_TRUE
-    self.image = img.MakeImage(initrd_file, format, zipped)
+    self.image = img.MakeImage(self.initrd_out, format, zipped)
     self.image.open('r')
     self.image.read('.buildstamp', self.md_dir)
     self.image.close()
     img.cleanup()
-    
-    osutils.rm(initrd_file) # clean up temp file
-        
-  def apply(self):
+
     #Update metadata
     self.interface.write_metadata()
-    
+        
+  def apply(self):
     #Parse buildstamp
     locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.interface.cvars['anaconda-version'])
     buildstamp_fmt = locals.get('//buildstamp-format')
     buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
-    sourcevars = buildstamp.read(self.outfile)
+    sourcevars = buildstamp.read(self.buildstamp_out)
     
     #Update source_vars
     self.interface.cvars['source-vars'] = sourcevars
