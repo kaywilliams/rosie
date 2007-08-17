@@ -8,7 +8,6 @@
         </choice>
       </attribute>
       <interleave>
-        <element name="default"><text/></element>
         <optional>
           <element name="sharepath"><text/></element>
         </optional>

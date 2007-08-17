@@ -10,8 +10,9 @@ import imp
 import os
 import sys
 
-from os.path import join, exists, isdir
+from os.path import join, exists, isdir, expandvars
 from optparse import OptionParser, SUPPRESS_HELP
+from StringIO import StringIO
 
 from dims import configlib
 from dims import listfmt
@@ -20,9 +21,9 @@ from dims.CleanHelpFormatter import CleanHelpFormatter, OptionGroupId
 
 def main():
   parser = OptionParser("usage: %prog [OPTIONS]", formatter=CleanHelpFormatter())
-  parser.add_option('-c', '--config',
-                    dest='userconfig',
-                    help="specify the location of the distro.conf to use")
+  parser.add_option('-c', '--distro-conf',
+                    dest='userdistroconfigpath',
+                    help="specify path to distro.conf file")
   parser.add_option('-v', '--verbose',
                     default=False,
                     action='store_true',
@@ -40,16 +41,16 @@ def main():
                     action='store_false',
                     dest='plugins',
                     help="disable plugins")
-  parser.add_option('--conf-path', # TODO rename, confusing wrt -c, --config
-                    default='/etc/dimsbuild/',
+  parser.add_option('--dimsbuild-conf', 
+                    default='/etc/dimsbuild.conf',
                     dest='mainconfigpath',
-                    help="path to dimsbuild.conf")
-  parser.add_option('--lib-path', # TODO rename in concurrence with --conf-path
+                    help="specify path dimsbuild.conf")
+  parser.add_option('--lib-path', 
                     dest='libpath',
-                    help="path to dimsbuild library files")
+                    help="specify directory containing dimsbuild library files")
   parser.add_option('--share-path',
                     dest='sharepath',
-                    help="path to dimsbuild shared files")
+                    help="specify directory containing dimsbuild shared files")
   parser.add_option('--clear-cache',
                     dest='clear_cache',
                     action='store_true',
@@ -79,20 +80,12 @@ def main():
   buildgroup = OptionGroupId(parser, 'Software store build options', 'build')
   parser.add_option_group(buildgroup)
   
-  publishgroup = OptionGroupId(parser, 'Software store publish options', 'publish')
-  #publishgroup.add_option('--no-publish',
-  #                  default=True,
-  #                  action='store_false',
-  #                  dest='publish',
-  #                  help="do not publish the final output store to the web root")
-  parser.add_option_group(publishgroup)
-
   args = sys.argv[1:]
 
   try:
     preargs = __filter_cmd_args(args,
-                                ['--no-plugins'],
-                                ['-c', '--config', '-l', '-e', '--conf-path',
+                                ['--no-plugins', '-h', '--help'],
+                                ['-c', '--distro-conf', '-l', '-e', '--dimsbuild-conf',
                                  '--lib-path', '--share-path'])
   except ValueError:
     parser.print_help()
@@ -100,20 +93,18 @@ def main():
   
   opts,_ = parser.parse_args(args=preargs)
 
-  mainconfig, distroconfig = __get_config(opts.mainconfigpath, opts.userconfig, opts.logthresh)
+  mainconfig, distroconfig = __get_conf(opts.mainconfigpath, opts.userdistroconfigpath, 
+                                          opts.logthresh)
 
-  #print opts
-
+  # set up IMPORT_DIRS  
   import_dirs = mainconfig.xpath('//librarypaths/path/text()', [])
-  if opts.libpath: import_dirs.insert(0, opts.libpath)
-  
+  if opts.libpath: 
+    import_dirs.insert(0, opts.libpath)
   for dir in sys.path:
     if dir not in import_dirs: import_dirs.append(dir)
-  
   sys.path = import_dirs
-  
   import_dirs = [ join(i, 'dimsbuild') for i in import_dirs ]
-  
+
   # import dimsbuild from some path in import_dirs
   fp, path, desc = imp.find_module('main', import_dirs)
   build = imp.load_module('main', fp, path, desc)
@@ -154,28 +145,22 @@ def append_events_callback(option, opt, value, parser):
       if event not in values: values.append(event)
 
 
-def __get_config(mainconfigpath, userconfig=None, loglevel=1):
-  """Gets and reads in the dimsbuild configuration file.  Computes the location
-  of the distribution-specific configuration, either by reading it from dimsbuild.conf
-  or by using the user-specified config file."""
-  
-  # mainconfigpath now set via option parser and passed in as a function parameter
-  # mainconfigpath = "/etc/dimsbuild/"
-  
-  mainconfig = configlib.read(join(mainconfigpath, 'dimsbuild.conf'))
-  
-  # neat trick - if userconfig is an absolute path, join() ignores defaultconfig
-  if userconfig is not None:
-    distroconfigpath = join(mainconfigpath, userconfig)
+def __get_conf(mainconfigpath, distroconfigpath=None, loglevel=1):
+  """Computes the location and reads main and distro configuration files"""
+
+  if exists(mainconfigpath):
+    if loglevel >= 4: print "Reading reading main config file '%s'" % mainconfigpath
+    mainconfig = configlib.read(mainconfigpath)
   else:
-    distroconfigpath = join(mainconfigpath, mainconfig.get('//default/text()'))
-  if exists(distroconfigpath):
-    if isdir(distroconfigpath):
-      distroconfigpath = join(distroconfigpath, 'distro.conf')
-  else:
-    raise OSError, "The config file '%s' doesn't exist" % distroconfigpath
+    if loglevel >= 4: print "No main config file found at '%s'. Using default settings..." % mainconfigpath
+    mainconfig = configlib.read(StringIO('<dimsbuild></dimsbuild>'))
+
+  if distroconfigpath is None: distroconfigpath = 'distro.conf'
+  distroconfigpath = join(os.getcwd(), expandvars(distroconfigpath))
+  if not exists(distroconfigpath):
+    raise OSError, "No config file found at '%s'" % distroconfigpath
   
-  if loglevel >= 3: print "Reading config file '%s'" % distroconfigpath
+  if loglevel >= 3: print "Reading distro config file '%s'" % distroconfigpath
   distroconfig = configlib.read(distroconfigpath)
   
   return mainconfig, distroconfig
