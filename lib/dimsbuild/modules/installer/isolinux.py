@@ -48,7 +48,7 @@ class IsolinuxHook(FileDownloadMixin):
     self.isolinux_dir = join(self.interface.SOFTWARE_STORE, 'isolinux') #! not versioned
 
     self.DATA = {
-      'variables': ['interface.cvars[\'anaconda-version\']'],
+      'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
       'config':    ['/distro/installer/isolinux'],
@@ -131,7 +131,7 @@ class InitrdHook(ImageModifyMixin):
     
     self.DATA = {
       'config':    ['/distro/installer/initrd.img/path'],
-      'variables': ['interface.cvars[\'anaconda-version\']'],
+      'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [] # to be filled later
     }

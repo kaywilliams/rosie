@@ -106,8 +106,8 @@ class PkgorderHook:
     self.interface = interface
 
     self.DATA =  {
-      'variables': ['interface.cvars[\'iso-enabled\']',
-                    'interface.cvars[\'pkglist\']'],
+      'variables': ['cvars[\'iso-enabled\']',
+                    'cvars[\'pkglist\']'],
       'config':    ['/distro/iso/pkgorder'],
       'input':     [], 
       'output':    []
@@ -213,11 +213,11 @@ class IsoSetsHook:
     self.interface.rfn = self._generate_isotree
     
     self.splittrees = join(self.interface.ISO_METADATA_DIR, 'split-trees')
-    
+ 
     self.DATA =  {
       'config':    ['//iso/set'],
-      'variables': ['interface.cvars[\'source-include\']',
-                    'interface.cvars[\'iso-enabled\']'],
+      'variables': ['cvars[\'source-include\']',
+                    'cvars[\'iso-enabled\']'],
       'input':     [], 
       'output':    []
     }

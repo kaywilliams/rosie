@@ -64,8 +64,8 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
         '/distro/repos/repo/gpgkey',
         '/distro/gpgsign',
       ],
-      'variables': ['interface.fullname',
-                    'interface.product'],
+      'variables': ['fullname',
+                    'product'],
       'input': [],
       'output': [],
     }

@@ -72,7 +72,7 @@ class DiscinfoHook:
     self.difile = join(self.interface.SOFTWARE_STORE, '.discinfo')
 
     self.DATA =  {
-      'variables': ['interface.BASE_VARS'],
+      'variables': ['BASE_VARS'],
       'output':    [self.difile]
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'discinfo.md')
@@ -185,9 +185,9 @@ class BuildStampHook:
     self.bsfile = join(self.interface.METADATA_DIR, '.buildstamp')
 
     self.DATA = {
-      'variables': ['interface.BASE_VARS',
-                    'interface.cvars[\'anaconda-version\']',
-                    'interface.cvars[\'source-vars\']'],
+      'variables': ['BASE_VARS',
+                    'cvars[\'anaconda-version\']',
+                    'cvars[\'source-vars\']'],
       'output':    [self.bsfile],        
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'buildstamp.md')

@@ -49,7 +49,7 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
 
     self.DATA = {
       'config':    ['/distro/installer/initrd.img/path/text()'],
-      'variables': ['interface.cvars[\'anaconda-version\']'],
+      'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [ join(interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ],
     }

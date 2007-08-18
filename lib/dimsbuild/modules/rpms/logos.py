@@ -57,8 +57,8 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
     
     data =  {
       'config': ['/distro/rpms/logos-rpm'],
-      'variables': ['interface.fullname',
-                    'interface.product'],
+      'variables': ['fullname',
+                    'product'],
       'output': [],
     }
 

@@ -50,7 +50,7 @@ class ProductHook(ImageModifyMixin):
     
     self.DATA = {
       'config':    ['/distro/installer/product.img/path/text()'],
-      'variables': ['interface.cvars[\'anaconda-version\']'],
+      'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [self.productimage],
     }

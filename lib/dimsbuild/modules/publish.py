@@ -64,7 +64,7 @@ class RepofileHook:
     
     self.DATA =  {
       'config':    ['/distro/publish'],
-      'variables': ['interface.cvars[\'gpg-public-key\']'],
+      'variables': ['cvars[\'gpg-public-key\']'],
       'output':    [self.repofile]
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'repofile.md')
@@ -140,7 +140,7 @@ class PublishHook:
     self.interface = interface
 
     self.DATA =  {
-      'variables': ['interface.PUBLISH_DIR'],
+      'variables': ['PUBLISH_DIR'],
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'publish.md')
 
@@ -158,7 +158,7 @@ class PublishHook:
     # Cleanup - remove old publish_dir folders
     if self.interface.test_diffs():
       try:
-        olddir = self.interface.handlers['variables'].vars['interface.PUBLISH_DIR']
+        olddir = self.interface.handlers['variables'].vars['PUBLISH_DIR']
         oldparent = os.path.dirname(olddir)
 
         self.interface.log(2, "removing directory '%s'" % olddir)
