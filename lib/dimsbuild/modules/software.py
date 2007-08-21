@@ -73,7 +73,7 @@ class SoftwareInterface(EventInterface):
     pwd = os.getcwd()
     os.chdir(self.SOFTWARE_STORE)
     self.log(1, "running createrepo")
-    shlib.execute('/usr/bin/createrepo -q -g %s .' % join(self.METADATA_DIR, 'comps.xml'))
+    shlib.execute('/usr/bin/createrepo -q -g %s .' % cvars['comps-file'])
     os.chdir(pwd)
   
   def genhdlist(self):
