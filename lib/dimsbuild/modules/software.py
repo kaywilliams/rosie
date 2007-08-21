@@ -73,7 +73,7 @@ class SoftwareInterface(EventInterface):
     pwd = os.getcwd()
     os.chdir(self.SOFTWARE_STORE)
     self.log(1, "running createrepo")
-    shlib.execute('/usr/bin/createrepo -q -g %s .' % cvars['comps-file'])
+    shlib.execute('/usr/bin/createrepo -q -g %s .' % self.cvars['comps-file'])
     os.chdir(pwd)
   
   def genhdlist(self):
@@ -124,7 +124,7 @@ class SoftwareHook:
     self.DATA['output'].extend(o)
     
   def clean(self):
-    self.interface.remove_output(parent=self.interface.rpmdest, all=True)
+    self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
   def check(self):
@@ -137,9 +137,9 @@ class SoftwareHook:
     if self.interface.cvars['gpg-status-changed'] and \
            exists(self.interface.rpmdest):
       self.interface.log(0, "deleting old rpms")
-      self.interface.remove_output(parent=self.interface.rpmdest, all=True)    
+      self.interface.remove_output(all=True)
     else:
-      self.interface.remove_output(parent=self.interface.rpmdest)      
+      self.interface.remove_output()
     self.interface.log(0, "processing rpms")
     newrpms = self.interface.sync_input()
     newrpms.sort()
