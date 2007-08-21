@@ -20,15 +20,15 @@ EVENTS = [
   {
     'id': 'comps',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['comps-file', 'comps-changed', 'required-packages', 'user-required-packages'],
+    'provides': ['comps-file', 'required-packages', 'user-required-packages'],
     'requires': ['anaconda-version', 'local-repodata'],
     'conditional-requires': ['RPMS', 'input-repos-changed'],
   },
 ]
 
 HOOK_MAPPING = {
-  'InitHook':     'init',
-  'ApplyoptHook': 'applyopt',
+#  'InitHook':     'init',
+#  'ApplyoptHook': 'applyopt',
   'CompsHook':    'comps',
   'ValidateHook': 'validate',
 }
@@ -51,33 +51,6 @@ class ValidateHook:
   def run(self):
     self.interface.validate('/distro/comps', schemafile='comps.rng')
   
-class InitHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'comps.init'
-    
-    self.interface = interface
-  
-  def run(self):
-    parser = self.interface.getOptParser('build')
-  
-    parser.add_option('--with-comps',
-                      default=None,
-                      dest='with_comps',
-                      metavar='COMPSFILE',
-                      help='use COMPSFILE for the comps.xml instead of generating one')
-
-class ApplyoptHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'comps.applyopt'
-    
-    self.interface = interface
-  
-  def run(self):
-    if self.interface.options.with_comps is not None:
-      self.interface.cvars['with-comps'] = self.interface.options.with_comps
-
 class CompsHook:
   def __init__(self, interface):
     self.VERSION = 0
@@ -85,87 +58,84 @@ class CompsHook:
     
     self.interface = interface
     
-    # metadata and repo comps file locations
-    self.s_compsfile = join(self.interface.METADATA_DIR, 'comps.xml')
-    
     self.comps = Element('comps')
     self.header = HEADER_FORMAT % ('1.0', 'UTF-8')
     
     self.DATA = {
-      'config': ['/distro/comps'],
-      'output': [self.s_compsfile],
+      'variables': ['cvars[\'anaconda-version\']'],
+      'config':    ['/distro/comps'],
+      'input':     [],
+      'output':    []
     }
-    self.mdfile = join(self.interface.METADATA_DIR, 'comps.md')
+    self.mddir = join(self.interface.METADATA_DIR, 'comps')
+    self.mdfile = join(self.mddir, 'comps.md')
   
-  def clean(self):
-    osutils.rm(self.s_compsfile, force=True)
-    self.interface.clean_metadata()
-
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
-    
+
+    self.comps_supplied = self.interface.config.get('/distro/comps/use-existing/path/text()', None)
+
+    if self.comps_supplied: 
+      i,o = self.interface.getFileLists(xpaths=[('/distro/comps/use-existing/path',
+                                               osutils.dirname(self.interface.config.file),
+                                               self.mddir)])
+      self.DATA['input'].extend(i)
+      self.DATA['output'].extend(o) 
+
+      #TODO remove after list_output is fixed
+      for item in o:
+        dest,src = item
+        self.comps_out=dest
+        break
+      # TODO uncomment after list_output is fixed
+      #self.initrd_out=self.interface.list_output( initrd_in )
+
+    else: 
+      self.comps_out = join(self.mddir, 'comps.xml')
+      self.DATA['output'].append(self.comps_out)
+
+  def clean(self):
+    self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
+   
   def check(self):
     # if the input repos change, we need to run
-    # if there is no comps file in the ouput directory and one isn't otherwise
-    # specified, we need to run
-    return self.interface.cvars['with-comps'] or \
-           self.interface.cvars['input-repos-changed'] or \
-           (not exists(self.s_compsfile) and not self.interface.cvars['comps-file']) or \
+    return self.interface.cvars['input-repos-changed'] or \
            self.interface.test_diffs()
 
   def run(self):
-    self.interface.log(0, "computing required packages")
-    
-    groupfile = self.interface.cvars['with-comps'] or \
-                self.interface.config.get('/distro/comps/use-existing/path/text()',
-                None)
-    if groupfile is not None:
-      self.interface.log(1, "reading supplied groupfile '%s'" % groupfile)
-      reqpkgs = xmltree.read(groupfile).xpath('//packagereq/text()')
-    else:
-      self.interface.log(1, "resolving required groups and packages")
+    self.interface.log(0, "processing comps file")
+
+    # delete prior comps file
+    self.interface.remove_output(all=True)
+
+    # create mddir, if needed
+    if not exists(self.mddir): osutils.mkdir(self.mddir)
+
+    if self.comps_supplied: # download comps file   
+      self.interface.log(1, "using comps file '%s'" % self.comps_supplied)
+      self.interface.sync_input()
+
+    else: # generate comps file
+      self.interface.log(1, "creating comps file")
       self.generate_comps()
-      reqpkgs = self.comps.xpath('//packagereq/text()')
-    
-    if isfile(self.s_compsfile):
-      oldreqpkgs = xmltree.read(self.s_compsfile).xpath('//packagereq/text()')
-    else:
-      oldreqpkgs = []
-    
-    reqpkgs.sort()
-    oldreqpkgs.sort()
-    
-    # test if required packages have changed
-    old,new,_ = listcompare.compare(oldreqpkgs, reqpkgs)
-    if len(old) > 0 or len(new) > 0:
-      self.interface.log(1, "required packages have changed")
-      if groupfile is not None:
-        osutils.cp(groupfile, self.s_compsfile)
-      else:
-        self.interface.log(1, "writing comps.xml")
-        self.comps.write(self.s_compsfile)
-        os.chmod(self.s_compsfile, 0644)
-      self.interface.cvars['comps-changed'] = True
-    else:
-      self.interface.log(1, "required packages unchanged")
+      self.comps.write(self.comps_out)
+      os.chmod(self.comps_out, 0644)
+
+    # write metadata
+    self.interface.write_metadata()
   
   def apply(self):
-    compsfile = self.interface.cvars['comps-file'] or self.s_compsfile
-    if not exists(compsfile):
-      raise RuntimeError, "Unable to find comps.xml at '%s'" % compsfile
+    if not exists(self.comps_out):
+      raise RuntimeError, "Unable to find cached comps file at '%s'. Perhaps you are skipping the comps event before it has been allowed to run once?" % self.comps_out
     
-    # copy groupfile
-    if not self.interface.cvars['comps-file']:
-      self.interface.cvars['comps-file'] = self.s_compsfile
-    osutils.mkdir(osutils.dirname(self.s_compsfile), parent=True)
-    if self.interface.cvars['comps-file'] != self.s_compsfile:
-      osutils.cp(self.interface.cvars['comps-file'], self.s_compsfile)
+    # set comps-file variable
+    self.interface.cvars['comps-file'] = self.comps_out
     
-    # set required packages
+    # set required packages variable
     reqpkgs = xmltree.read(self.interface.cvars['comps-file']).xpath('//packagereq/text()')
     self.interface.cvars['required-packages'] = reqpkgs
 
-    self.interface.write_metadata()
   
   #------ COMPS FILE GENERATION FUNCTIONS ------#
   def generate_comps(self):

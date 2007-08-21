@@ -19,7 +19,7 @@ EVENTS = [
     'id': 'repogen',
     'properties': EVENT_TYPE_PROC,
     'provides': ['repoconfig-file'],
-    'conditional-requires': ['comps-changed', 'RPMS'],
+    'conditional-requires': ['RPMS'],
   },
   {
     'id': 'pkglist',
@@ -144,12 +144,19 @@ class PkglistHook:
     
     self.mddir = join(self.interface.METADATA_DIR, '.depsolve')
     self.pkglistfile = join(self.interface.METADATA_DIR, 'pkglist')
+
+    self.DATA = {
+      'variables': ['cvars[\'required-packages\']'],
+    }
+    self.mdfile = join(self.interface.METADATA_DIR, 'pkglist.md')
   
   def clean(self):
     osutils.rm(self.mddir, recursive=True, force=True)
     osutils.rm(self.pkglistfile, force=True)
   
   def setup(self):
+    self.interface.setup_diff(self.mdfile, self.DATA)
+
     # if the config file defines a pkglist file to use, set up the cvar
     pkglistfile = self.interface.config.get('/distro/pkglist/path/text()', None)
     if pkglistfile and not self.interface.cvars['pkglist-file']:
@@ -158,7 +165,7 @@ class PkglistHook:
   def check(self):
     return self.interface.cvars['pkglist-file'] or \
            self.interface.cvars['input-repos-changed'] or \
-           self.interface.cvars['comps-changed'] or \
+           self.interface.test_diffs() or \
            not exists(self.pkglistfile) and not self.interface.cvars['pkglist-file']
   
   def run(self):
@@ -213,6 +220,9 @@ class PkglistHook:
         filereader.write(pkglist, self.pkglistfile)
     else:
       self.interface.log(1, "package list unchanged")
+
+    # write metadata
+    self.interface.write_metadata()
   
   def apply(self):
     if self.interface.cvars['pkglist-file']:
