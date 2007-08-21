@@ -111,7 +111,6 @@ class CleanHook:
         if prevver and currver:
           self._force_clean(self.hookInfo[hook])
   
-  def apply(self):
     self.interface.write_metadata()
   
   def _clean_all(self):
