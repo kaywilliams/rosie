@@ -16,6 +16,8 @@ from os.path import join, exists
 
 from dims import osutils
 
+from dimsbuild import difftest
+
 from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
 API_VERSION = 4.0
@@ -50,43 +52,38 @@ class ManifestHook:
       'input':  [],
       'output': [self.mfile],
     }
+    self.mdfile = join(self.interface.METADATA_DIR, 'manifest.md')
   
   def setup(self):
-    files = []
-    for file in osutils.find(self.interface.SOFTWARE_STORE):
-      if file != self.mfile and file != self.interface.SOFTWARE_STORE :
-        files.append(file)
-
-    self.DATA['input'].extend(files)
-    self.interface.setup_diff(join(self.interface.METADATA_DIR, 'manifest.md'), self.DATA)
+    self.filesdata = [ (i,s,m) for i,s,m in \
+                       difftest.getFileList(self.interface.SOFTWARE_STORE) \
+                       if i != self.mfile ]
+    self.DATA['input'].extend(self.filesdata)
+    self.interface.setup_diff(self.mdfile, self.DATA)
 
   def check(self):
     return self.interface.test_diffs()
 
   def clean(self):
-    osutils.rm(self.interface.handlers['output'].oldoutput.keys(), force=True)
+    self.interface.remove_output(all=True)
     self.interface.clean_metadata()
   
   def run(self):
     self.interface.log(0, "generating manifest")
-    if not self.interface.has_changed('input'):
-      return 
-
-    #get file stat data (reuse from difftest)
+    self.interface.remove_output(all=True)
+    
+    # set manifest data
     manifest = []
-    for file in self.interface.handlers['input'].newinput.keys():
-      size,mtime = self.interface.handlers['input'].newinput[file]
-      file = file[len(self.interface.SOFTWARE_STORE)+1:]
-      if file != '/.manifest':
-        manifest.append({'file':  file,
-                         'size':  size,
-                         'mtime': mtime})
+    for i,s,m in self.filesdata:
+      if i not in self.DATA['output']:
+        manifest.append({
+          'file':  i[len(self.interface.SOFTWARE_STORE)+1:],
+          'size':  s,
+          'mtime': m,
+        })
     manifest.sort()
 
-    #generate manifest    
-    osutils.rm(self.interface.handlers['output'].oldoutput.keys(), force=True)
-    if exists(self.mfile):
-      osutils.rm(self.mfile, force=True) #### FIXME
+    # generate manifest    
     os.mknod(self.mfile)
     mf = open(self.mfile, 'w')
     mwriter = csv.DictWriter(mf, FIELDS, lineterminator='\n')
@@ -94,10 +91,10 @@ class ManifestHook:
       mwriter.writerow(line)
     mf.close()
 
-    #set global variable
+    # set global variable
     self.interface.cvars['manifest-changed'] = True
 
   def apply(self):
-    #Update metadata
+    # update metadata
     self.interface.write_metadata()
 
