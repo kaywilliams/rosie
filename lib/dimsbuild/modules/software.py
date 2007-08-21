@@ -143,7 +143,8 @@ class SoftwareHook:
     self.interface.log(0, "processing rpms")
     newrpms = self.interface.sync_input()
     newrpms.sort()
-    self.interface.sign_rpms(newrpms, homedir=self.interface.cvars['gpg-homedir'],
+    if self.interface.cvars['gpg-enabled']:
+      self.interface.sign_rpms(newrpms, homedir=self.interface.cvars['gpg-homedir'],
                              passphrase=self.interface.cvars['gpg-passphrase'])
     self.interface.createrepo()
     self.interface.cvars['new-rpms'] = newrpms
