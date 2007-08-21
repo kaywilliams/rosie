@@ -13,14 +13,14 @@ API_VERSION = 4.0
 
 EVENTS = [
   {
-    'id': 'gpgcheck',
+    'id': 'gpg',
     'provides': ['gpg-enabled', 'gpg-status-changed'],
     'interface': 'EventInterface',
   }
 ]
 
 HOOK_MAPPING = {
-  'GpgCheckHook': 'gpgcheck',
+  'GpgCheckHook': 'gpg',
   'ValidateHook': 'validate',
 }
 
