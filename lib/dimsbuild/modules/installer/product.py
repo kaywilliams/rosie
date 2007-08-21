@@ -111,7 +111,7 @@ class ProductHook(ImageModifyMixin):
     self.write_buildstamp()
   
   def _generate_installclass(self):
-    comps = xmltree.read(join(self.interface.METADATA_DIR, 'comps.xml'))
+    comps = xmltree.read(self.interface.cvars['comps-file'])
     groups = comps.xpath('//group/id/text()')
     defgroups = comps.xpath('//group[default/text() = "true"]/id/text()')
     
