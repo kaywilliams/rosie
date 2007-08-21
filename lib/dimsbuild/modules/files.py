@@ -55,7 +55,7 @@ class FilesHook:
 
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
-    i,o = self.interface.getFileLists(
+    i,o = self.interface.setup_sync(
       xpaths=[('/distro/files/path',
                osutils.dirname(self.interface.config.file),
                self.interface.SOFTWARE_STORE)]

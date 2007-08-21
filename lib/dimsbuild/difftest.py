@@ -252,11 +252,10 @@ class InputHandler:
   def __init__(self, data):
     self.name = 'input'
     self.idata = data
-    
     self.oldinput = {} # {file: stats}
     self.newinput = {} # {file: stats}
 
-    self.processed = [] # list of processed input data elements
+    self.filelists = {} # {path: expanded list}
     self.diffdict = {}  # {file: (old stats, new stats)}
 
     expand(self.idata)
@@ -274,40 +273,23 @@ class InputHandler:
     except TypeError: pass
     parent = xmltree.Element('input', parent=root)
     for datum in self.idata:
-      self.mdadd(datum)
-    for i in self.newinput.keys():
-      s,m = self.newinput[i]
-      e = xmltree.Element('file', parent=parent, attrs={'path': i})
-      xmltree.Element('size', parent=e, text=str(s))
-      xmltree.Element('mtime', parent=e, text=str(m))
+      ifiles = self.filelists.get(datum, expandPaths(datum))
+      for ifile in ifiles:
+        size, mtime = self.newinput.get(ifile, DiffTuple(ifile))
+        e = xmltree.Element('file', parent=parent, attrs={'path': ifile})
+        xmltree.Element('size', parent=e, text=str(size))
+        xmltree.Element('mtime', parent=e, text=str(mtime))
     
   def diff(self):
     for datum in self.idata:
-      self.mdadd(datum)
+      if not self.filelists.has_key(datum):
+        self.filelists[datum] = expandPaths(datum)
+      ifiles = self.filelists[datum]
+      for ifile in ifiles:
+        self.newinput[ifile] = DiffTuple(ifile)        
     self.diffdict = diff(self.oldinput, self.newinput)    
     if self.diffdict: self.dprint(self.diffdict)
     return self.diffdict
-
-  def mdadd(self, input):
-    if input in self.processed:
-      return [ x for x in self.processed if x.startswith(input) ]
-
-    inputs = []
-    if type(input) == type(()):
-      i,s,m = input
-      if i.startswith('file://'): i = i[7:]
-      self.processed.append(i)
-      self.newinput[i] = (s,m)
-      inputs.append(i)
-    else:
-      if input.startswith('file://'): input = input[7:]
-      self.processed.append(input)
-      for i,s,m in expandPaths(input):
-        if i not in self.processed:
-          self.processed.append(i)
-        self.newinput[i] = (s,m)
-        inputs.append(i)
-    return inputs
 
 class OutputHandler:
   def __init__(self, data):

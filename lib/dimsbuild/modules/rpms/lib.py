@@ -191,7 +191,7 @@ class RpmBuildHook:
           xpaths.append((xpath,
                          osutils.dirname(self.interface.config.file),
                          join(self.build_folder, k.lstrip('/'))))
-      i,_ = self.interface.getFileLists(xpaths=xpaths)
+      i,_ = self.interface.setup_sync(xpaths=xpaths)
       if not self.DATA.has_key('input'):
         self.DATA['input'] = []
       self.DATA['input'].extend(i)

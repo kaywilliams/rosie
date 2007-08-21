@@ -71,7 +71,7 @@ class IsolinuxHook(FileDownloadMixin):
                   for f in self.f_locals.xpath('//file') ],
     })
     self.interface.setup_diff(self.mdfile, self.DATA)
-    i,o = self.interface.getFileLists(xpaths=[('/distro/installer/isolinux/path',
+    i,o = self.interface.setup_sync(xpaths=[('/distro/installer/isolinux/path',
                                                osutils.dirname(self.interface.config.file),
                                                self.isolinux_dir)])
     self.DATA['input'].extend(i)

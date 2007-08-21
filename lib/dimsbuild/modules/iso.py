@@ -75,8 +75,8 @@ class IsoInterface(EventInterface, ListCompareMixin):
 
     self.ISO_METADATA_DIR = join(self.METADATA_DIR, 'iso')
 
-    self.cvars['iso-enabled'] = self.config.get('/distro/source', '') != '' and \
-      self.config.get('/distro/iso/@enabled', 'True') in BOOLEANS_TRUE
+    self.cvars['iso-enabled'] = self.config.pathexists('/distro/iso') and \
+                                self.config.get('/distro/iso/@enabled', 'True') in BOOLEANS_TRUE
 
 #------ HOOKS ------#
 class IsoHook:
@@ -109,98 +109,76 @@ class PkgorderHook:
       'variables': ['cvars[\'iso-enabled\']',
                     'cvars[\'pkglist\']'],
       'config':    ['/distro/iso/pkgorder'],
-      'input':     [], 
       'output':    []
     }
     self.mdfile = join(self.interface.ISO_METADATA_DIR, 'pkgorder.md')
+    self.dosync = self.interface.config.pathexists('/distro/iso/pkgorder/text()')
+    if self.dosync:
+      self.DATA['input'] = []
 
-  def setup(self):    
-    if self.interface.cvars['iso-enabled']:
-      #set variables used in run and apply functions
-      self.pkgorder_in = self.interface.config.get('/distro/iso/pkgorder/text()', None)
-
-      if self.pkgorder_in: 
-        self.pkgorder_out = join(self.interface.ISO_METADATA_DIR, self.pkgorder_in)
-      else: 
-        self.pkgorder_out = join(self.interface.ISO_METADATA_DIR, 'pkgorder')
-
+  def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
-    
-    # add files to the input and output filelists - see FilesMixin.add_files() in lib.py
-    # TODO - once FilesMixin accepts paths, pass pkgorder_in var to add_files
-    i,o = self.interface.getFileLists(xpaths=[('/distro/iso/pkgorder',
+    if not self.interface.cvars['iso-enabled']: return
+
+    if self.dosync:
+      i,o = self.interface.setup_sync(xpaths=[('/distro/iso/pkgorder',
                                                osutils.dirname(self.interface.config.file),
                                                self.interface.ISO_METADATA_DIR)])
-    self.DATA['input'].extend(i)
-    self.DATA['output'].extend(o)    
+      
+      self.DATA['input'].extend(i)
+      self.DATA['output'].extend(o)
+      assert len(i) == 1 and len(o) == 1
+      self.pkgorderfile = o[0][0]
+    else:
+      self.pkgorderfile = join(self.interface.ISO_METADATA_DIR, 'pkgorder')
+      self.DATA['output'].append(self.pkgorderfile)
       
   def clean(self):
-    self._remove_output()
+    self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
   def check(self):
     return self.interface.test_diffs()
 
   def run(self):
-    if self.interface.cvars['iso-enabled']:
-      self.interface.log(0, "processing pkgorder file")
+    if not self.interface.cvars['iso-enabled']:
+      self.interface.remove_output(all=True)
+      return
 
-      # delete prior pkgorder file, if exists
-      if self.interface.handlers['output'].oldoutput.keys():
-        self.interface.log(1, "removing prior pkgorder file")
-        self.interface.remove_output(all=True)
+    self.interface.log(0, "processing pkgorder file")
 
-      if self.pkgorder_in:    
-        # download pkgorder file, if provided
-        self.interface.log(1, "adding new pkgorder file")
-        self.interface.sync_input()
-
-      else:
-        # generate pkgorder
-        self.interface.log(1, "generating package ordering")
-
-        # create yum config needed by pkgorder
-        cfg = join(self.interface.TEMP_DIR, 'pkgorder')
-        repoid = self.interface.getBaseRepoId()
-        filereader.write([YUMCONF % (repoid, repoid, self.interface.SOFTWARE_STORE)], cfg)
-
-        # create pkgorder
-        pkgtups = pkgorder.order(config=cfg,
-                                 arch=self.interface.arch,
-                                 callback=BuildDepsolveCallback(self.interface.logthresh))
-        pkgorder.write_pkgorder(self.pkgorder_out, pkgtups)
-
-        # update output data
-        self.DATA['output'].append(self.pkgorder_out)
-
-        # cleanup
-        osutils.rm(cfg, force=True)
-
+    # delete prior pkgorder file, if exists    
+    self.interface.remove_output(all=True)
+    if self.dosync:
+      self.interface.sync_input()
     else:
-      # iso not enabled, clean up old pkgorder
-      self._remove_output()
+      # generate pkgorder
+      self.interface.log(1, "generating package ordering")
+      
+      # create yum config needed by pkgorder
+      cfg = join(self.interface.TEMP_DIR, 'pkgorder')
+      repoid = self.interface.getBaseRepoId()
+      filereader.write([YUMCONF % (repoid, repoid, self.interface.SOFTWARE_STORE)], cfg)
 
-    # write metadata
-    self.interface.write_metadata()
+      # create pkgorder
+      pkgtups = pkgorder.order(config=cfg,
+                               arch=self.interface.arch,
+                               callback=BuildDepsolveCallback(self.interface.logthresh))
+
+      # cleanup
+      osutils.rm(cfg, force=True)
+
+      # write pkgorder
+      pkgorder.write_pkgorder(self.pkgorderfile, pkgtups)      
 
   def apply(self):
-    #set pkgorder-file variable
+    self.interface.write_metadata()
     if self.interface.cvars['iso-enabled']:
-      if exists(self.pkgorder_out):
-        self.interface.cvars['pkgorder-file'] = self.pkgorder_out
-      else:
-        raise RuntimeError("Unable to find cached pkgorder at '%s'. Perhaps you are skipping the pkgorder event before it has been allowed to run once?" % self.pkgorder_out)
-
-  def _remove_output(self):
-    # print a header message only if a pkgorder file exists to remove
-    files_exist = False
-    for item in self.interface.handlers['output'].oldoutput.keys():
-      if exists(item):
-        files_exist = True
-        continue
-    if files_exist:
-      self.interface.log(0, "removing pkgorder file")
-      self.interface.remove_output(all=True)
+      if not exists(self.pkgorderfile):
+        raise RuntimeError("Unable to find cached pkgorder at '%s'. "\
+                           "Perhaps you are skipping the pkgorder event "\
+                           "before it has been allowed to run once?" % self.pkgorderfile)
+      self.interface.cvars['pkgorder-file'] = self.pkgorderfile
 
 class IsoSetsHook:
   def __init__(self, interface):
@@ -219,7 +197,7 @@ class IsoSetsHook:
       'variables': ['cvars[\'source-include\']',
                     'cvars[\'iso-enabled\']'],
       'input':     [], 
-      'output':    []
+      'output':    [],
     }
 
     self.mdfile = join(self.interface.ISO_METADATA_DIR, 'iso.md')
@@ -230,52 +208,41 @@ class IsoSetsHook:
     self.interface.setup_diff(self.mdfile, self.DATA)
 
   def clean(self):
-    self._remove_output()
+    self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
   def check(self):
     return self.interface.test_diffs()
   
   def run(self):
-    if self.interface.cvars['iso-enabled']:
+    if not self.interface.cvars['iso-enabled']:
+      self.interface.remove_output(all=True)
+      return
 
-      self.interface.log(0, "generating iso image(s)")
+    self.interface.log(0, "generating iso image(s)")
     
-      # get list of new sets
-      self.newsets = self.interface.config.xpath('/distro/iso/set/text()', [])
-      self.newsets_expanded = []
-      for set in self.newsets:
-        self.newsets_expanded.append(splittree.parse_size(set))
-
-      if self.interface.handlers['input'].diffdict or \
+    # get list of new sets
+    self.newsets = self.interface.config.xpath('/distro/iso/set/text()', [])
+    self.newsets_expanded = []
+    for set in self.newsets:
+      self.newsets_expanded.append(splittree.parse_size(set))
+      
+    if self.interface.handlers['input'].diffdict or \
          self.interface.handlers['variables'].diffdict.has_key("interface.cvars['source-include']"):
-        osutils.rm(self.interface.isodir, recursive=True, force=True)
-        osutils.rm(self.splittrees, recursive=True, force=True)        
-        #osutils.rm(self.handlers['output'].oldoutput.keys(), recursive=True, force=True)
-
-      # get current list of prior sets
-      oldsets = filter(None, osutils.find(self.splittrees, type=osutils.TYPE_DIR,
-                       maxdepth=1, printf='%P'))
-
-      self.interface.compare(oldsets, self.newsets)
-
-      self.DATA['output'].extend([self.interface.isodir,
-                                  self.splittrees])
-    else:
-      # iso not enabled, clean up old output and metadata
-      # TODO - only do this if prior output exists
-      self._remove_output() 
-
+      self.interface.remove_output(all=True)
+      
+    # get current list of prior sets
+    oldsets = filter(None, osutils.find(self.splittrees, type=osutils.TYPE_DIR,
+                                        maxdepth=1, printf='%P'))
+    
+    self.interface.compare(oldsets, self.newsets)
+    
+    self.DATA['output'].extend([self.interface.isodir,
+                                self.splittrees])
+    
   def apply(self):
     self.interface.write_metadata()
 
-  def _remove_output(self):
-    # TODO generalize remove_files from the FilesMixin and use it here
-    if exists(self.interface.isodir) or exists(self.splittrees):
-      self.interface.log(0, "removing iso image(s)")
-      osutils.rm(self.interface.isodir, recursive=True, force=True)
-      osutils.rm(self.splittrees, recursive=True, force=True)
-  
   def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
     if expanded_set not in self.newsets_expanded:

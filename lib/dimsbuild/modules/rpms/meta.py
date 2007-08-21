@@ -1,7 +1,6 @@
 from os.path import exists, join
 
 from dims import osutils
-from dims import filereader
 
 from dimsbuild.event     import EVENT_TYPE_META
 from dimsbuild.interface import Repo
@@ -24,7 +23,6 @@ HOOK_MAPPING = {
   'InitHook'    : 'init',     ## remove once testing is done
   'ApplyoptHook': 'applyopt', ## remove once testing is done
   'RpmsHook'    : 'RPMS',
-  'RepogenHook' : 'repogen',
 }
 
 #--------- HOOKS ----------#
@@ -128,18 +126,3 @@ class RpmsHook:
         if not self.interface.cvars['excluded-packages']:
           self.interface.cvars['excluded-packages'] = []
         self.interface.cvars['excluded-packages'].extend(obsoletes.split())
-
-
-class RepogenHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'meta.repogen'
-    self.interface = interface
-
-  def post(self):
-    if self.interface.isSkipped('RPMS'): return 
-    lines = filereader.read(self.interface.cvars['repoconfig-file'])
-    lines.extend(['[localrepo]',
-                  'name = localrepo',
-                  'baseurl = file://%s' % self.interface.cvars['local-rpms']])
-    filereader.write(lines, self.interface.cvars['repoconfig-file'])

@@ -1,31 +1,25 @@
 import re
 
-from os.path import join, exists
+from ConfigParser import ConfigParser
+from os.path      import join, exists
 
 from dims import depsolver
 from dims import filereader
 from dims import listcompare
 from dims import osutils
 
-from dims.repocreator import YumRepoCreator
-
-from dimsbuild.callback import BuildDepsolveCallback
-from dimsbuild.event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.callback  import BuildDepsolveCallback
+from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.interface import EventInterface
 
 API_VERSION = 4.0
 
 EVENTS = [
   {
-    'id': 'repogen',
-    'properties': EVENT_TYPE_PROC,
-    'provides': ['repoconfig-file'],
-    'conditional-requires': ['RPMS'],
-  },
-  {
     'id': 'pkglist',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['pkglist-file', 'pkglist', 'pkglist-changed'],
-    'requires': ['required-packages', 'repoconfig-file', 'local-repodata'],
+    'requires': ['required-packages', 'local-repodata'],
     'conditional-requires': ['user-required-packages', 'input-repos-changed'],
   },
 ]
@@ -33,7 +27,6 @@ EVENTS = [
 HOOK_MAPPING = {
   'InitHook':     'init',
   'ApplyoptHook': 'applyopt',
-  'RepogenHook':  'repogen',
   'PkglistHook':  'pkglist',
   'ValidateHook': 'validate',
 }
@@ -50,22 +43,6 @@ YUMCONF_HEADER = [
   'reposdir=/'
   '\n',
 ]
-
-
-class DepsolveMDCreator(YumRepoCreator):
-  "A subclass of YumRepoCreator that handles making the depsolve config file"
-  def __init__(self, yumrepo, config, fallback, repos):
-    YumRepoCreator.__init__(self, yumrepo, config, fallback)
-    
-    self.repos = repos
-    
-    self.idre = re.compile('.*\[@id="(.*)"\].*')
-  
-  def getPath(self, repoQuery):
-    repoid = self.idre.match(repoQuery).groups()[0]
-    repo = self.repos[repoid]
-    return 'file://' + repo.ljoin(repo.repodata_path)
-
 
 #------ HOOKS ------#
 class InitHook:
@@ -101,38 +78,11 @@ class ValidateHook:
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'pkglist.validate'
+
     self.interface = interface
 
   def run(self):
     self.interface.validate('/distro/pkglist', schemafile='pkglist.rng')
-    
-
-class RepogenHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'pkglist.repogen'
-    
-    self.interface = interface
-    
-    self.cfgfile = join(self.interface.TEMP_DIR, 'depsolve')
- 
-  def clean(self):
-    osutils.rm(self.cfgfile, force=True)
-  
-  def run(self):
-    dmdc = DepsolveMDCreator(self.cfgfile, self.interface.config.file,
-                             fallback='/distro/repos',
-                             repos=self.interface.cvars['repos'])
-    dmdc.createRepoFile()
-    
-    conf = filereader.read(self.cfgfile)
-    conf = YUMCONF_HEADER + conf
-    filereader.write(conf, self.cfgfile)
-  
-  def apply(self):
-    if not exists(self.cfgfile):
-      raise RuntimeError, "Unable to find depsolve config file at '%s'" % self.cfgfile
-    self.interface.cvars['repoconfig-file'] = self.cfgfile
 
 
 class PkglistHook:
@@ -146,102 +96,96 @@ class PkglistHook:
     self.pkglistfile = join(self.interface.METADATA_DIR, 'pkglist')
 
     self.DATA = {
+      'config':    ['/distro/pkglist'],
       'variables': ['cvars[\'required-packages\']'],
+      'output':    [], 
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'pkglist.md')
+    self.docopy = self.interface.config.pathexists('/distro/pkglist/path/text()')
+    if self.docopy:
+      self.DATA['input'] = []
   
   def clean(self):
-    osutils.rm(self.mddir, recursive=True, force=True)
-    osutils.rm(self.pkglistfile, force=True)
+    self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
   
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
-
-    # if the config file defines a pkglist file to use, set up the cvar
-    pkglistfile = self.interface.config.get('/distro/pkglist/path/text()', None)
-    if pkglistfile and not self.interface.cvars['pkglist-file']:
-      self.interface.cvars['pkglist-file'] = pkglistfile
+    if self.docopy:
+      i,o = self.interface.setup_sync(xpaths=[('/distro/pkglist/path',
+                                               osutils.dirname(self.interface.config.file),
+                                               self.interface.METADATA_DIR)])
+      self.DATA['input'].extend(i)
+      self.DATA['output'].extend(o)
+      assert len(i) == 1 and len(o) == 1
+      self.pkglistfile = o[0][0]
+    else:
+      self.pkglistfile = join(self.interface.METADATA_DIR, 'pkglist')
+      self.DATA['output'].append(self.mddir)
+      self.DATA['output'].append(self.pkglistfile)
   
   def check(self):
-    return self.interface.cvars['pkglist-file'] or \
-           self.interface.cvars['input-repos-changed'] or \
-           self.interface.test_diffs() or \
-           not exists(self.pkglistfile) and not self.interface.cvars['pkglist-file']
+    return self.interface.cvars['input-repos-changed'] or \
+           self.interface.test_diffs()
   
   def run(self):
     self.interface.log(0, "resolving pkglist")
+    self.interface.remove_output(all=True)
     
-    pkglist = []
-    if self.interface.cvars['pkglist-file']:
-      self.interface.log(1, "reading supplied pkglist file '%s'" % self.interface.cvars['pkglist-file'])
-      pkglist = filereader.read(self.interface.cvars['pkglist-file'])
+    if self.docopy:
+      self.interface.sync_input()
+      self.interface.log(1, "reading supplied pkglist file")      
     else:
       self.interface.log(1, "generating new pkglist")
-      
-      if not self.interface.cvars['repoconfig-file']:
-        raise RuntimeError, 'repoconfig-file is not set'
-      
       osutils.mkdir(self.mddir, parent=True)
-      
+
+      repoconfig = self.create_repoconfig()
       pkgtups = depsolver.resolve(self.interface.cvars['required-packages'] or [],
                                   root=self.mddir,
-                                  config=self.interface.cvars['repoconfig-file'],
+                                  config=repoconfig,
                                   arch=self.interface.arch,
                                   callback=BuildDepsolveCallback(self.interface.logthresh))
-      
+      osutils.rm(repoconfig, force=True)
       
       # verify that final package list contains all user-specified packages
       self.interface.log(1, "verifying package list")
       nlist = [ n for n,_,_,_,_ in pkgtups ] # extract pkg names for checking
-      for pcheck in (self.interface.cvars['user-required-packages'] or []):
+      for pcheck in self.interface.cvars.get('user-required-packages', []):
         if pcheck not in nlist:
-          raise DepSolveError, "User-specified package '%s' not found in resolved pkglist" % pcheck
+          raise DepSolveError("User-specified package '%s' not found in resolved pkglist" % pcheck)
       del nlist
       
       self.interface.log(1, "pkglist closure achieved in %d packages" % len(pkgtups))
-    
+
+      pkglist = []
       for n,_,_,v,r in pkgtups:
         pkglist.append('%s-%s-%s' % (n,v,r))
-    
-    pkglist.sort()
-    
-    if exists(self.pkglistfile):
-      oldpkglist = filereader.read(self.pkglistfile)
-    else:
-      oldpkglist = []
-    oldpkglist.sort()
-    
-    old,new,_ = listcompare.compare(oldpkglist, pkglist)
-    if len(new) > 0 or len(old) > 0:
-      self.interface.log(1, "package list has changed")
-      self.interface.cvars['pkglist-changed'] = True
-      if not self.interface.cvars['pkglist-file']:
-        self.interface.log(1, "writing pkglist")
-        filereader.write(pkglist, self.pkglistfile)
-    else:
-      self.interface.log(1, "package list unchanged")
 
-    # write metadata
-    self.interface.write_metadata()
-  
+      self.interface.log(1, "writing pkglist")        
+      filereader.write(pkglist, self.pkglistfile)
+
+  def create_repoconfig(self):
+    repoconfig = join(self.interface.TEMP_DIR, 'depsolve.repo')
+    if exists(repoconfig):
+      osutils.rm(repoconfig, force=True)
+    conf = []
+    conf.extend(YUMCONF_HEADER)
+    for repo in self.interface.getAllRepos():
+      conf.extend([
+        '[%s]' % repo.id,
+        'name = %s' % repo.id,
+        'baseurl = file://%s' % repo.local_path,
+        '\n',
+      ])
+    filereader.write(conf, repoconfig)
+    return repoconfig
+    
   def apply(self):
-    if self.interface.cvars['pkglist-file']:
-      if not exists(self.interface.cvars['pkglist-file']):
-        raise RuntimeError, "Unable to find pkglist at '%s'" % self.interface.cvars['pkglist-file']
-      else:
-        if self.interface.cvars['pkglist-file'] != self.pkglistfile:
-          osutils.cp(self.interface.cvars['pkglist-file'], self.pkglistfile)
-    else:
-      self.interface.cvars['pkglist-file'] = self.pkglistfile
-    
-    # read in package list
-    self.interface.cvars['pkglist'] = filereader.read(self.interface.cvars['pkglist-file'])
+    self.interface.write_metadata()
+    if not exists(self.pkglistfile):
+      raise RuntimeError("missing package list file: '%s'" % self.pkglistfile)
+    self.interface.cvars['pkglist-file'] = self.pkglistfile
+    self.interface.cvars['pkglist'] = filereader.read(self.pkglistfile)
   
-  def post(self):
-    # clean up metadata
-    repoconfig = self.interface.cvars['repoconfig-file']
-    if repoconfig: osutils.rm(repoconfig, force=True)
-    
-
 #------ ERRORS ------#
 class DepSolveError(StandardError): pass

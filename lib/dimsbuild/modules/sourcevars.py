@@ -63,7 +63,7 @@ class SourcevarsHook:
 
     initrd_in=self.interface.getRepo(self.interface.getBaseRepoId()).rjoin('isolinux/initrd.img')
 
-    i,o = self.interface.getFileLists( paths=[(initrd_in, self.md_dir)] )
+    i,o = self.interface.setup_sync( paths=[(initrd_in, self.md_dir)] )
 
     #TODO remove after list_output is fixed
     for item in o:

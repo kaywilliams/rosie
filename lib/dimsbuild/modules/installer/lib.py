@@ -186,7 +186,7 @@ class ImageModifyMixin(ImageHandler):
       self.DATA['input'].append(imagessrc)
     self.interface.setup_diff(self.mdfile, self.DATA)
     if config:
-      i,_ = self.interface.getFileLists(xpaths=[(
+      i,_ = self.interface.setup_sync(xpaths=[(
         '/distro/installer/%s/path' % self.name,
         osutils.dirname(self.interface.config.file),
         '/'

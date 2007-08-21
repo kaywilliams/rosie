@@ -100,9 +100,9 @@ class SoftwareHook:
     self.mdfile = join(self.interface.METADATA_DIR, 'software.md')
     
   def setup(self):
-    ## for each rpm in the pkglist, find the RPM's timestamp and size
-    ## from the repo's primary.xml.gz and add the (rpm, size, mtime)
-    ## 3-tuple to the input file's list.
+    # for each rpm in the pkglist, find the RPM's timestamp and size
+    # from the repo's primary.xml.gz and add the (rpm, size, mtime)
+    # 3-tuple to the input file's list.
     paths = []
     for repo in self.interface.getAllRepos():
       for rpminfo in repo.repoinfo:
@@ -119,7 +119,7 @@ class SoftwareHook:
     self.DATA['input'].append(join(self.interface.METADATA_DIR, 'repos'))
     self.interface.setup_diff(self.mdfile, self.DATA)
     
-    i,o = self.interface.getFileLists(paths=paths)
+    i,o = self.interface.setup_sync(paths=paths)
     self.DATA['input'].extend(i)
     self.DATA['output'].extend(o)
     
@@ -140,14 +140,16 @@ class SoftwareHook:
       self.interface.remove_output(all=True)
     else:
       self.interface.remove_output()
+
     self.interface.log(0, "processing rpms")
     newrpms = self.interface.sync_input()
-    newrpms.sort()
-    if self.interface.cvars['gpg-enabled']:
-      self.interface.sign_rpms(newrpms, homedir=self.interface.cvars['gpg-homedir'],
-                             passphrase=self.interface.cvars['gpg-passphrase'])
-    self.interface.createrepo()
-    self.interface.cvars['new-rpms'] = newrpms
+    if newrpms:
+      newrpms.sort()
+      if self.interface.cvars['gpg-enabled']:
+        self.interface.sign_rpms(newrpms, homedir=self.interface.cvars['gpg-homedir'],
+                                 passphrase=self.interface.cvars['gpg-passphrase'])
+      self.interface.createrepo()
+      self.interface.cvars['new-rpms'] = newrpms
     
   def apply(self):
     osutils.mkdir(self.interface.rpmdest, parent=True)

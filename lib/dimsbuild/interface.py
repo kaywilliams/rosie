@@ -129,7 +129,7 @@ class EventInterface:
   def setup_diff(self, mdfile, data):
     self.DT = difftest.DiffTest(mdfile)
     if data.has_key('input'):
-      self.add_handler(difftest.InputHandler(data['input']))
+      self.add_handler(InputHandler(data['input']))
     if data.has_key('output'):
       self.add_handler(OutputHandler(data['output']))
     if data.has_key('variables'):
@@ -172,82 +172,22 @@ class EventInterface:
     self.DT.write_metadata()
 
   ## FilesMixin stuff ##
-  def remove_output(self, rmlist=None, all=False, cb=None):
+  def setup_sync(self, xpaths=[], paths=[]):
     """
-    remove_output([all[,cb]])
+    setup_sync([xpaths[,paths]])
 
-    Remove output files.
-    @param all    : If all is True, remove all output files, else remove
-                    the files that have changed.
-    """
-    if rmlist is None:
-      if all:
-        rmlist = self.handlers['output'].oldoutput.keys()
-      else:
-        rmlist = []
-        # remove previously-outputted files that have been modified
-        # since last run        
-        if self.has_changed('output'):
-          rmlist.extend([ f for f,d in self.handlers['output'].diffdict.items() if d[0] is not None ])
-
-        # remove files the input of which has been modified
-        if self.has_changed('input'):
-          for ofile, ifile in self.handlers['output'].odata:
-            if file not in rmlist and self.handlers['input'].diffdict.has_key(ifile):
-              rmlist.append(ofile)
-
-        # remove files that were outputted the last time, but aren't
-        # needed anymore
-        for oldfile in self.handlers['output'].oldoutput.keys():
-          found = False
-          for ds in self.syncinfo.values():
-            if oldfile in ds:
-              found = True
-          if not found:
-            rmlist.append(oldfile)
-      rmlist = [ r for r in rmlist if exists(r) ]
-            
-    if not rmlist: return
-
-    cb = cb or self.files_callback
-    cb.remove_start()
-    rmlist.sort()
-    dirs = []
-    # delete the files, whether or not they exist
-    for rmitem in rmlist:
-      cb.remove(rmitem)
-      osutils.rm(rmitem, recursive=True, force=True)
-      dir = osutils.dirname(rmitem)
-      if dir not in dirs:
-        dirs.append(dir)
-
-    dirs = [ d for d in dirs if not osutils.find(location=d,
-                                                 type=osutils.TYPE_FILE|osutils.TYPE_LINK) ]
-
-    if not dirs: return
-    dirs.reverse()
-    cb.remove_dir_start()
-    for dir in dirs:
-      if exists(dir):
-        try:
-          cb.remove_dir(dir)
-          os.removedirs(dir)
-        except OSError:
-          pass # should never happen
-  
-  def getFileLists(self, xpaths=[], paths=[]):
-    """
-    getFilesLists([xpaths[,paths]])
-
-    Currently, getFileLists() can be called only after setup_diff() is called.
+    Currently, setup_sync() can be called only after setup_diff() is called.
     This will get fixed once the location of the metadata file can be
     programmatically determined.
     
-    @param xpaths    : [(xpath query, input prefix, output prefix), ...]
-    @param paths     : [(path to file, output prefix), ...]
+    @param xpaths  : [(xpath query, input prefix, output prefix), ...]
+    @param paths   : [(path to file, output prefix), ...]
+
+    @return input  : a list of all the input files
+    @return output : [(output file, source file),...]
     """
     if not self.handlers.has_key('input'):
-      self.add_handler(difftest.InputHandler([]))
+      self.add_handler(InputHandler([]))
     
     for x,i,o in xpaths:
       for item in self.config.xpath(x,[]):
@@ -257,23 +197,21 @@ class EventInterface:
         if not s.startswith('/') and s.find('://') == -1:
           s = join(i,s)
         d = join(o, d.lstrip('/'))
-        self.addInputFile(s,d)
+        self._setup_sync(s,d)
 
     for p,o in paths:
       if type(p) != type([]):
-        self.addInputFile(p,o)
-      else:
-        for item in p:
-          self.addInputFile(item, o)
+        p = [p]
+      for item in p:
+        self._setup_sync(item, o)
 
-    ## TODO: filter items already in the data lists
     outputs = []
     for s,ds in self.syncinfo.items():
       for d in ds:
         outputs.append((d,s))
     return (self.syncinfo.keys(), outputs)
 
-  def addInputFile(self, sourcefile, destdir):
+  def _setup_sync(self, sourcefile, destdir):
     inputs = self.handlers['input'].mdadd(sourcefile)
 
     if type(sourcefile) == type(()):
@@ -300,17 +238,68 @@ class EventInterface:
       ofile = join(destdir, f[sourcefile.rstrip('/').rfind('/')+1:])
       self.syncinfo[f].append(ofile)
 
-  def list_output(self, source):
+  def remove_output(self, rmlist=None, all=False, cb=None):
     """
-    list_output(source)
-    
-    Returns the list of output files corresponding to an input file/directory.
+    remove_output([all[,cb]])
 
-    @param source: the source file for which the output files' list is
-                   requested.    
+    Remove output files.
+    @param all  : If all is True, remove all output files, else remove
+                  the files that have changed.
     """
-    return [ d for d,s in self.handlers['output'].odata if s is not None and s.startswith(source) ]
-    
+    if rmlist is None:
+      if all:
+        rmlist = self.handlers['output'].oldoutput.keys()
+      else:
+        rmlist = []
+        # remove previous output files that have been modified
+        # since last run        
+        if self.has_changed('output'):
+          rmlist.extend([ f for f,d in self.handlers['output'].diffdict.items() if d[0] is not None ])
+
+        # remove files the input of which has been modified
+        if self.has_changed('input'):
+          for ofile, ifile in self.handlers['output'].odata:
+            if file not in rmlist and self.handlers['input'].diffdict.has_key(ifile):
+              rmlist.append(ofile)
+
+        # remove output files from the last time that aren't needed
+        # anymore
+        for oldfile in self.handlers['output'].oldoutput.keys():
+          found = False
+          for ds in self.syncinfo.values():
+            if oldfile in ds:
+              found = True
+          if not found:
+            rmlist.append(oldfile)
+      rmlist = [ r for r in rmlist if exists(r) ]
+            
+    if not rmlist:
+      return
+
+    cb = cb or self.files_callback
+    cb.remove_start()
+    rmlist.sort()
+    dirs = []
+    # delete the files, whether or not they exist
+    for rmitem in rmlist:
+      cb.remove(rmitem)
+      osutils.rm(rmitem, recursive=True, force=True)
+      dir = osutils.dirname(rmitem)
+      if dir not in dirs:
+        dirs.append(dir)
+
+    dirs = [ d for d in dirs if not osutils.find(location=d,
+                                                 type=osutils.TYPE_FILE|osutils.TYPE_LINK) ]    
+    if not dirs: return
+    dirs.reverse()
+    cb.remove_dir_start()
+    for dir in dirs:
+      try:
+        cb.remove_dir(dir)
+        os.removedirs(dir)
+      except OSError:
+        pass 
+
   def sync_input(self, action=None, cb=None):
     """
     sync_input([action[,cb]])
@@ -326,7 +315,9 @@ class EventInterface:
       sync_items.extend( [ (s,d) for d in self.syncinfo[s] if not exists(d) ] )    
 
     # return if there is nothing to sync
-    if not sync_items: return
+    if not sync_items:
+      return []
+    
     cb = cb or self.files_callback
     cb.sync_file_start()
     
@@ -337,8 +328,80 @@ class EventInterface:
       else:      self.cache(s, osutils.dirname(d))
       
     return [ d for _,d in sync_items ]
+  
+  def list_output(self, source):
+    """
+    list_output(source)
+    
+    Returns the list of output files corresponding to an input file/directory.
+
+    @param source: the source file for which the output files' list is
+                   requested.    
+    """
+    return self.syncinfo.get(source, [])    
 
 #------- DIFFTEST HANDLERS -----#
+class InputHandler:
+  def __init__(self, data):
+    self.name = 'input'
+    self.idata = data
+    
+    self.oldinput = {} # {file: stats}
+    self.newinput = {} # {file: stats}
+
+    self.processed = [] # list of processed input data elements
+    self.diffdict = {}  # {file: (old stats, new stats)}
+
+    difftest.expand(self.idata)
+        
+  def clear(self):
+    self.oldinput.clear()
+      
+  def mdread(self, metadata):    
+    for file in metadata.xpath('/metadata/input/file'):
+      self.oldinput[file.get('@path')] = (int(file.get('size/text()')),
+                                          int(file.get('mtime/text()')))
+      
+  def mdwrite(self, root):
+    try: root.remove(root.get('input'))
+    except TypeError: pass
+    parent = xmltree.Element('input', parent=root)
+    for datum in self.idata:
+      self.mdadd(datum)
+    for i in self.newinput.keys():
+      s,m = self.newinput[i]
+      e = xmltree.Element('file', parent=parent, attrs={'path': i})
+      xmltree.Element('size', parent=e, text=str(s))
+      xmltree.Element('mtime', parent=e, text=str(m))
+    
+  def diff(self):
+    for datum in self.idata:
+      self.mdadd(datum)
+    self.diffdict = difftest.diff(self.oldinput, self.newinput)    
+    if self.diffdict: self.dprint(self.diffdict)
+    return self.diffdict
+
+  def mdadd(self, input):
+    if input in self.processed:
+      return [ x for x in self.processed if x.startswith(input) ]
+    
+    if type(input) == type(()):
+      i,s,m = input
+      if i.startswith('file://'): i = i[7:]
+      self.processed.append(i)
+      self.newinput[i] = (s,m)
+      return [i]
+    else:
+      inputs = []
+      if input.startswith('file://'): input = input[7:]
+      self.processed.append(input)
+      for i,s,m in difftest.expandPaths(input):
+        if i not in self.processed:
+          self.processed.append(i)
+        self.newinput[i] = (s,m)
+        inputs.append(i)
+      return inputs
+
 class OutputHandler:
   def __init__(self, data):
     self.name  = 'output'
