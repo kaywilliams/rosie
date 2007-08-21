@@ -144,10 +144,10 @@ class SourceRepoHook:
   
   def run(self):
     if not self.dosource:
-      self.interface.remove_output(parent=self.interface.METADATA_DIR, all=True)
+      self.interface.remove_output(all=True)
       return
     else:
-      self.interface.remove_output(parent=self.interface.METADATA_DIR)
+      self.interface.remove_output()
 
     self.interface.log(1, "computing source repo contents")      
     for repo in self.interface.getAllSourceRepos():
@@ -227,7 +227,7 @@ class SourceHook:
     self.DATA['output'].extend(o)
 
   def clean(self):
-    self.interface.remove_output(parent=self.interface.OUTPUT_DIR, all=True)
+    self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
   def check(self):
@@ -237,10 +237,10 @@ class SourceHook:
 
   def run(self):
     if not self.dosource:
-      self.interface.remove_output(parent=self.interface.OUTPUT_DIR, all=True)
+      self.interface.remove_output(all=True)
       return
     else:
-      self.interface.remove_output(parent=self.interface.OUTPUT_DIR)
+      self.interface.remove_output()
 
     self.interface.log(0, "processing srpms")
     osutils.mkdir(self.interface.srpmdest, parent=True)

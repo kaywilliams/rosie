@@ -172,14 +172,11 @@ class EventInterface:
     self.DT.write_metadata()
 
   ## FilesMixin stuff ##
-  def remove_output(self, parent=None, rmlist=None, all=False, cb=None):
+  def remove_output(self, rmlist=None, all=False, cb=None):
     """
-    remove_output(parent[,all[,cb]])
+    remove_output([all[,cb]])
 
     Remove output files.
-
-    @param parent : the parent directory of the files. If None, it is
-                    the file's parent directory.
     @param all    : If all is True, remove all output files, else remove
                     the files that have changed.
     """

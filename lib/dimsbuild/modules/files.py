@@ -69,7 +69,7 @@ class FilesHook:
       self.interface.log(0, "removing previously-provided files")    
     
   def clean(self):
-    self.interface.remove_output(self.interface.SOFTWARE_STORE, all=True)
+    self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
   def check(self):
@@ -77,7 +77,7 @@ class FilesHook:
 
   def run(self):
     # delete altered files
-    self.interface.remove_output(self.interface.SOFTWARE_STORE)
+    self.interface.remove_output()
           
     # download input files
     self.interface.sync_input()
