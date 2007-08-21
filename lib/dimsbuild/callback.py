@@ -19,6 +19,28 @@ LEVEL_MAX = 2
 
 MSG_MAXWIDTH = 40
 
+class FilesCallback:
+  def __init__(self, logger):
+    self.logger = logger
+
+  def remove_start(self):
+    self.logger(1, "removing files")
+
+  def remove(self, fn):
+    self.logger(2, basename(fn))
+
+  def remove_dir_start(self):
+    self.logger(1, "removing empty directories")
+  
+  def remove_dir(self, dn):
+    self.logger(2, basename(dn))
+
+  def sync_file_start(self):
+    self.logger(1, "downloading input files")
+
+  def sync_file(self, sn, dn):
+    self.logger(4, "%s --> %s" %(sn, dn))
+  
 class BuildSyncCallback(CachedSyncCallback):
   def __init__(self, threshold):
     CachedSyncCallback.__init__(self)

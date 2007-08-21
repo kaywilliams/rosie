@@ -14,8 +14,10 @@ import rpm
 
 from StringIO import StringIO
 from os.path  import join, exists
+from rpm      import TransactionSet, RPMTAG_SOURCERPM
 
 from dims import osutils
+from dims import shlib 
 from dims import spider
 from dims import sync
 from dims import xmltree
@@ -26,59 +28,61 @@ from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, SRPM_GLOB, SRPM_PNVRA
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from dimsbuild.interface import EventInterface, RepoFromXml, Repo
 
-from dimsbuild.modules.lib import ListCompareMixin
-
 API_VERSION = 4.0
 
 EVENTS = [
   {
     'id': 'source',
-    'provides': ['SRPMS', 'source-include', 'source-repos'],
-    'requires': ['software', 'new-rpms', 'rpms-directory'],
+    'provides': ['SRPMS',],
+    'requires': ['software', 'new-rpms', 'rpms-directory', 'source-repo-contents'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'interface': 'SrpmInterface',
   },
+  {
+    'id': 'source-repos',
+    'provides': ['local-source-repodata',
+                 'source-repo-contents',
+                 'source-include'],
+    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
+    'interface': 'SrpmInterface',
+  }
 ]
 
 HOOK_MAPPING = {
-  'SourceHook': 'source',
-  'ValidateHook': 'validate',
+  'SourceHook':     'source',
+  'ValidateHook':   'validate',
+  'SourceRepoHook': 'source-repos',
 }
 
 SRPM_PNVRA_REGEX = re.compile(SRPM_PNVRA)
 
-
-class SrpmInterface(EventInterface, ListCompareMixin):
+class SrpmInterface(EventInterface):
   def __init__(self, base):
-    EventInterface.__init__(self, base)
-    ListCompareMixin.__init__(self)
-    self.ts = rpm.TransactionSet()
-    self.ts.setVSFlags(-1)
-    
+    EventInterface.__init__(self, base)    
     self.srpmdest = join(self.OUTPUT_DIR, 'SRPMS')
     
-    self.cvars['source-include'] = self.config.get('/distro/source', '') != '' and \
-      self.config.get('/distro/source/@enabled', 'True') in BOOLEANS_TRUE
+  def getAllSourceRepos(self):
+    return self.cvars['source-repos'].values()
   
-  def syncSrpm(self, srpm, repo):
-    "Sync a srpm from path within repo into the output store"
-    self.cache(repo.rjoin(srpm), self.srpmdest)
-  
-  def deleteSrpm(self, srpm):
-    "Delete a srpm from the output store"
-    self.log(2, "deleting %s" % srpm)
-    osutils.rm(join(self.srpmdest, srpm))
-  
-  def srpmNameDeformat(self, srpm):
+  def deformat(self, srpm):
     try:
       return SRPM_PNVRA_REGEX.match(srpm).groups()
     except (AttributeError, IndexError), e:
       self.errlog(2, "DEBUG: Unable to extract srpm information from name '%s'" % srpm)
       return (None, None, None, None, None)
-  
-  def getAllSourceRepos(self):
-    return self.cvars['source-repos'].values()
 
+  def nvr(self, srpm):
+    "nvr = SoftwareInterface.nvr(rpm) - convert an RPM filename into an NVR string"
+    _,n,v,r,_ = self.deformat(srpm)
+    return '%s-%s-%s' % (n,v,r)    
+
+  def createrepo(self):
+    "Run createrepo on the output store"
+    pwd = os.getcwd()
+    os.chdir(self.srpmdest)
+    self.log(1, "running createrepo")
+    shlib.execute('/usr/bin/createrepo -q .')
+    os.chdir(pwd)
 
 #------ HOOKS ------#
 class ValidateHook:
@@ -90,6 +94,86 @@ class ValidateHook:
   def run(self):
     self.interface.validate('/distro/source', 'sources.rng')
     
+class SourceRepoHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'sources.source-repos'
+    self.interface = interface
+
+    self.mdsrcrepos = join(self.interface.METADATA_DIR, 'source-repos')
+    
+    self.DATA = {
+      'config': ['/distro/source'],
+      'input':  [],
+      'output': [],
+    }
+    self.mdfile = join(self.interface.METADATA_DIR, 'source-repos.md')
+    if self.interface.config.pathexists('/distro/source') and \
+       self.interface.config.get('/distro/source/@enabled', 'True') in BOOLEANS_TRUE:
+      self.dosource = True
+    else:
+      self.dosource = False
+
+  def clean(self):
+    self.interface.clean_metadata()
+
+  def setup(self):    
+    self.interface.cvars['source-repos'] = {}
+    self.interface.setup_diff(self.mdfile, self.DATA)
+    
+    if self.dosource:    
+      self.interface.log(0, "generating filelists for input source repositories")
+      osutils.mkdir(self.mdsrcrepos, parent=True)
+      
+      # sync all repodata folders to builddata
+      self.interface.log(1, "synchronizing repository metadata")
+      for repoxml in self.interface.config.xpath('/distro/source/repo'):
+        self.interface.log(2, repoxml.get('@id'))
+        repo = RepoFromXml(repoxml)
+        repo.local_path = join(self.mdsrcrepos, repo.id)
+        
+        repo.getRepoData()
+        
+        self.interface.cvars['source-repos'][repo.id] = repo
+
+        self.DATA['output'].append(repo.ljoin(repo.repodata_path, 'repodata'))
+        self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id))
+
+  def check(self):
+    return self.interface.test_diffs()
+  
+  def run(self):
+    if not self.dosource:
+      self.interface.remove_output(parent=self.interface.METADATA_DIR, all=True)
+      return
+    else:
+      self.interface.remove_output(parent=self.interface.METADATA_DIR)
+
+    self.interface.log(1, "computing source repo contents")      
+    for repo in self.interface.getAllSourceRepos():
+      self.interface.log(2, repo.id)
+      repo.readRepoContents()
+      repofile = join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id)
+      if repo.compareRepoContents(repofile):
+        repo.changed = True
+        repo.writeRepoContents(repofile)
+    
+  def apply(self):
+    self.interface.cvars['source-include'] = self.dosource
+    self.interface.write_metadata()    
+    if self.dosource:
+      # populate the srpms list for each repo
+      for repo in self.interface.getAllSourceRepos():
+        repofile = join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id)
+        if not exists(repofile):
+          raise RuntimeError("Unable to find repo file '%s'" % repofile)
+
+        ## It is a lot faster to read a CSV file as compared to an XML file :)
+        repo.readRepoContents(repofile=repofile)
+    
+    self.interface.cvars['local-source-repodata'] = self.mdsrcrepos
+
+
 class SourceHook:
   def __init__(self, interface):
     self.VERSION = 0
@@ -98,107 +182,70 @@ class SourceHook:
     self.interface = interface
     
     self.DATA =  {
-      'config': ['/distro/source'],
-      'input':  [], # to be filled later
-      'output': [self.interface.srpmdest],
+      'input':  [],
+      'output': [],
     }
-    
-    self.mdsrcrepos = join(self.interface.METADATA_DIR, 'source-repos')
-    self.mdfile = join(self.interface.METADATA_DIR, 'source.md')
-    self._packages = {}
-    
-    self.dosource = self.interface.cvars['source-include']
+    self.mdfile = join(self.interface.METADATA_DIR, 'source.md')    
       
   def setup(self):
+    self.mdsrcrepos = self.interface.cvars['local-source-repodata']    
+    self.dosource = self.interface.cvars['source-include']
+    
     self.interface.setup_diff(self.mdfile, self.DATA)
-
     if not self.dosource: return
 
-    osutils.mkdir(self.mdsrcrepos, parent=True)
+    # compute the list of SRPMS
+    self.ts = TransactionSet()
+    self.ts.setVSFlags(-1)    
+    srpmlist = []
+    for pkg in osutils.find(self.interface.cvars['rpms-directory'],
+                            name=RPM_GLOB):
+      i = os.open(pkg, os.O_RDONLY)
+      h = self.ts.hdrFromFdno(i)
+      os.close(i)
+      srpm = h[RPMTAG_SOURCERPM]
+      if srpm not in srpmlist:
+        srpmlist.append(srpm)
+
+    # populate input and output lists
+    paths = []
+    for repo in self.interface.getAllSourceRepos():
+      for rpminfo in repo.repoinfo:
+        rpm = rpminfo['file']
+        size = rpminfo['size']
+        mtime = rpminfo['mtime']
+        _,n,v,r,a = self.interface.deformat(rpm)        
+        nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a) ## assuming the prefix to be lower-case 'rpm' suffixed
+        if nvra in srpmlist:
+          paths.append(((rpm, size, mtime), self.interface.srpmdest))
+
+    self.DATA['input'].append(self.mdsrcrepos)
+    self.DATA['output'].append(join(self.interface.srpmdest, 'repodata'))
     
-    if not self.interface.cvars['source-repos']:
-      self.interface.cvars['source-repos'] = {}
-    
-    for repo in self.interface.config.xpath('/distro/source/repo'):
-      repoid = repo.get('@id')
-      repo = RepoFromXml(repo)
-      repo.local_path = join(self.mdsrcrepos, repo.id)
-      
-      repo.getRepoData()
-      repo.readRepoContents()
-      
-      self.interface.cvars['source-repos'][repo.id] = repo
-      
-      self.DATA['input'].append(join(self.mdsrcrepos, repo.id, repo.repodata_path, 'repodata'))
-  
+    i,o = self.interface.getFileLists(paths=paths)
+    self.DATA['input'].extend(i)
+    self.DATA['output'].extend(o)
+
   def clean(self):
-    osutils.rm(self.interface.srpmdest, recursive=True, force=True)
-    ##osutils.rm(self.mdsrcrepos, recursive=True, force=True) # breaks stuff
+    self.interface.remove_output(parent=self.interface.OUTPUT_DIR, all=True)
     self.interface.clean_metadata()
-  
+
   def check(self):
-    return self.interface.cvars['new-rpms'] is not None or \
+    return self.interface.cvars['new-rpms'] or \
            not exists(self.interface.srpmdest) or \
            self.interface.test_diffs()  
 
   def run(self):
-    "Generate SRPM store"
-    # if we're not enabled, clean up output and return immediately
     if not self.dosource:
-      self.clean()
+      self.interface.remove_output(parent=self.interface.OUTPUT_DIR, all=True)
       return
-    
+    else:
+      self.interface.remove_output(parent=self.interface.OUTPUT_DIR)
+
     self.interface.log(0, "processing srpms")
-    
-    self.interface.lfn = self._delete_srpm
-    self.interface.rfn = self._download_srpm
-    self.interface.cb = self
-    
-    # generate list of srpms we already have
-    oldsrpmlist = osutils.find(self.interface.srpmdest, name=SRPM_GLOB, printf='%P')
-    
-    # generate list of srpms to get
-    srpmlist = []
-    for pkg in osutils.find(join(self.interface.SOFTWARE_STORE,
-                                 self.interface.product),
-                            name=RPM_GLOB):
-      i = os.open(pkg, os.O_RDONLY)
-      h = self.interface.ts.hdrFromFdno(i)
-      os.close(i)
-      srpm = h[rpm.RPMTAG_SOURCERPM]
-      if srpm not in srpmlist: srpmlist.append(srpm)
-    
-    self.interface.compare(oldsrpmlist, srpmlist)
-    
-    osutils.rm(self.mdfile, force=True)
+    osutils.mkdir(self.interface.srpmdest, parent=True)
+    self.interface.sync_input()
+    self.interface.createrepo()
 
   def apply(self):
     self.interface.write_metadata()
-    if self.dosource:
-      self.interface.cvars['source-include'] = True
-  
-  # callback functions
-  def notify_both(self, i):
-    pass
-  def notify_left(self, i):
-    self.interface.log(1, "deleting old srpms (%d packages)" % i)
-  def notify_right(self, i):
-    self.interface.log(1, "downloading new srpms (%d packages)" % i)
-    # set up packages metadata dictionary for use in syncing
-    for repo in self.interface.getAllSourceRepos():
-      for srpm in repo.rpms:
-        self._packages[srpm] = repo
-    
-    osutils.mkdir(self.interface.srpmdest, parent=True)
-  
-  def _delete_srpm(self, srpm):
-    self.interface.deleteSrpm(srpm)
-  
-  def _download_srpm(self, srpm):
-    if self._packages.has_key(srpm):
-      self.interface.syncSrpm(srpm, self._packages[srpm])
-    else:
-      raise SrpmNotFoundError("missing '%s' srpm" % srpm)
-  
-#------ ERRORS ------#
-class SrpmNotFoundError(StandardError): pass

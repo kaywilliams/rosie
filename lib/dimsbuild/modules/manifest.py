@@ -16,7 +16,7 @@ from os.path import join, exists
 
 from dims import osutils
 
-from dimsbuild.event       import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
 API_VERSION = 4.0
 
@@ -47,7 +47,8 @@ class ManifestHook:
     self.mfile = join(self.interface.SOFTWARE_STORE, '.manifest')
 
     self.DATA =  {
-      'output':    [self.mfile],
+      'input':  [],
+      'output': [self.mfile],
     }
   
   def setup(self):
@@ -56,7 +57,7 @@ class ManifestHook:
       if file != self.mfile and file != self.interface.SOFTWARE_STORE :
         files.append(file)
 
-    self.DATA.update({'input' : files})
+    self.DATA['input'].extend(files)
     self.interface.setup_diff(join(self.interface.METADATA_DIR, 'manifest.md'), self.DATA)
 
   def check(self):
@@ -68,6 +69,8 @@ class ManifestHook:
   
   def run(self):
     self.interface.log(0, "generating manifest")
+    if not self.interface.has_changed('input'):
+      return 
 
     #get file stat data (reuse from difftest)
     manifest = []
@@ -82,6 +85,8 @@ class ManifestHook:
 
     #generate manifest    
     osutils.rm(self.interface.handlers['output'].oldoutput.keys(), force=True)
+    if exists(self.mfile):
+      osutils.rm(self.mfile, force=True) #### FIXME
     os.mknod(self.mfile)
     mf = open(self.mfile, 'w')
     mwriter = csv.DictWriter(mf, FIELDS, lineterminator='\n')

@@ -125,18 +125,23 @@ def expandPaths(paths):
   npaths = []
   for path in paths:
     npaths.extend(getFileList(path))
-
+  
   return npaths
 
 def getFileList(uri):
   "Return the files of a remote or local (absolute) uri"
-  if uri.startswith('file:/'):
-    uri = '/' + uri[6:].lstrip('/')
-    
+  if uri.startswith('file://'):
+    uri = uri[7:]
+
   if uri.startswith('/'): # local uri
-    return osutils.find(uri, type=osutils.TYPE_FILE|osutils.TYPE_LINK)
+    ls = osutils.find(uri, type=osutils.TYPE_FILE|osutils.TYPE_LINK)
   else: # remote uri
-    return spider.find(uri, nregex='.*/$')
+    ls = spider.find(uri, nregex='.*/$')
+  rtn = []
+  for l in ls:
+    s,m = getMetadata(l)
+    rtn.append((l,s,m))
+  return rtn
   
 def DiffTuple(file):
   "Generate a (size, mtime) tuple for file"
@@ -145,7 +150,6 @@ def DiffTuple(file):
   except OSError, HTTPError:
     # FIXME: should the exception be raised here?
     return (None, None) 
-
 
 class DiffTest:
   """ 
@@ -248,11 +252,12 @@ class InputHandler:
   def __init__(self, data):
     self.name = 'input'
     self.idata = data
+    
     self.oldinput = {} # {file: stats}
     self.newinput = {} # {file: stats}
 
-    self.filelists = {} # {path: expanded list}
-    self.idiff = {}  # {file: (old stats, new stats)}
+    self.processed = [] # list of processed input data elements
+    self.diffdict = {}  # {file: (old stats, new stats)}
 
     expand(self.idata)
         
@@ -269,23 +274,40 @@ class InputHandler:
     except TypeError: pass
     parent = xmltree.Element('input', parent=root)
     for datum in self.idata:
-      ifiles = self.filelists.get(datum, expandPaths(datum))
-      for ifile in ifiles:
-        size, mtime = self.newinput.get(ifile, DiffTuple(ifile))
-        e = xmltree.Element('file', parent=parent, attrs={'path': ifile})
-        xmltree.Element('size', parent=e, text=str(size))
-        xmltree.Element('mtime', parent=e, text=str(mtime))
+      self.mdadd(datum)
+    for i in self.newinput.keys():
+      s,m = self.newinput[i]
+      e = xmltree.Element('file', parent=parent, attrs={'path': i})
+      xmltree.Element('size', parent=e, text=str(s))
+      xmltree.Element('mtime', parent=e, text=str(m))
     
   def diff(self):
     for datum in self.idata:
-      if not self.filelists.has_key(datum):
-        self.filelists[datum] = expandPaths(datum)
-      ifiles = self.filelists[datum]
-      for ifile in ifiles:
-        self.newinput[ifile] = DiffTuple(ifile)        
-    self.idiff = diff(self.oldinput, self.newinput)    
-    if self.idiff: self.dprint(self.idiff)
-    return self.idiff
+      self.mdadd(datum)
+    self.diffdict = diff(self.oldinput, self.newinput)    
+    if self.diffdict: self.dprint(self.diffdict)
+    return self.diffdict
+
+  def mdadd(self, input):
+    if input in self.processed:
+      return [ x for x in self.processed if x.startswith(input) ]
+
+    inputs = []
+    if type(input) == type(()):
+      i,s,m = input
+      if i.startswith('file://'): i = i[7:]
+      self.processed.append(i)
+      self.newinput[i] = (s,m)
+      inputs.append(i)
+    else:
+      if input.startswith('file://'): input = input[7:]
+      self.processed.append(input)
+      for i,s,m in expandPaths(input):
+        if i not in self.processed:
+          self.processed.append(i)
+        self.newinput[i] = (s,m)
+        inputs.append(i)
+    return inputs
 
 class OutputHandler:
   def __init__(self, data):
@@ -294,7 +316,7 @@ class OutputHandler:
     self.odata = data
     self.oldoutput = {}
 
-    self.odiff = {}
+    self.diffdict = {}
 
     expand(self.odata)
     
@@ -312,22 +334,20 @@ class OutputHandler:
     
     parent = xmltree.uElement('output', parent=root)
     # write to metadata file
-    paths = expandPaths(self.odata)
-    if paths:
-      for output in paths:
-        size, mtime = DiffTuple(output)
-        e = xmltree.Element('file', parent=parent, attrs={'path': output})
-        xmltree.Element('size', parent=e, text=str(size))
-        xmltree.Element('mtime', parent=e, text=str(mtime))
+    info = expandPaths(self.odata)
+    for o,s,m in info:
+      e = xmltree.Element('file', parent=parent, attrs={'path': o})
+      xmltree.Element('size', parent=e, text=str(s))
+      xmltree.Element('mtime', parent=e, text=str(m))
 
   def diff(self):
     newitems = {}
     for item in self.oldoutput.keys():
       newitems[item] = DiffTuple(item)
       
-    self.odiff = diff(self.oldoutput, newitems)
-    if self.odiff: self.dprint(self.odiff)
-    return self.odiff
+    self.diffdict = diff(self.oldoutput, newitems)
+    if self.diffdict: self.dprint(self.diffdict)
+    return self.diffdict
 
 class ConfigHandler:
   def __init__(self, data, config):
@@ -336,7 +356,8 @@ class ConfigHandler:
     self.cdata = data
     self.config = config
     self.cfg = {}
-
+    self.diffdict = {}
+    
     expand(self.cdata)
 
   def clear(self):
@@ -369,7 +390,7 @@ class ConfigHandler:
           elements.append(copy.copy(val)) # append() is destructive
     
   def diff(self):
-    self.cdiff = {}
+    self.diffdict = {}
     for path in self.cdata:
       if self.cfg.has_key(path):
         try:
@@ -377,15 +398,15 @@ class ConfigHandler:
         except xmltree.XmlPathError:
           cfgval = NoneEntry(path)
         if self.cfg[path] != cfgval:
-          self.cdiff[path] = (self.cfg[path], cfgval)
+          self.diffdict[path] = (self.cfg[path], cfgval)
       else:
         try:
           cfgval = self.config.xpath(path)
         except xmltree.XmlPathError:
           cfgval = NoneEntry(path)
-        self.cdiff[path] = (NewEntry(), cfgval)
-    if self.cdiff: self.dprint(self.cdiff)
-    return self.cdiff
+        self.diffdict[path] = (NewEntry(), cfgval)
+    if self.diffdict: self.dprint(self.diffdict)
+    return self.diffdict
 
 class VariablesHandler:
   def __init__(self, data, obj):
@@ -394,7 +415,8 @@ class VariablesHandler:
     self.vdata = data
     self.obj = obj
     self.vars = {}
-
+    self.diffdict = {}
+    
     expand(self.vdata)
 
   def clear(self):
@@ -427,7 +449,7 @@ class VariablesHandler:
         pass
   
   def diff(self):
-    self.vdiff = {}
+    self.diffdict = {}
     for var in self.vdata:
       try:
         val = eval('self.obj.%s' % var)
@@ -437,8 +459,8 @@ class VariablesHandler:
         val = NoneEntry(var)
       if self.vars.has_key(var):
         if self.vars[var] != val:
-          self.vdiff[var] = (self.vars[var], val)
+          self.diffdict[var] = (self.vars[var], val)
       else:
-        self.vdiff[var] = (NewEntry(), val)
-    if self.vdiff: self.dprint(self.vdiff)
-    return self.vdiff
+        self.diffdict[var] = (NewEntry(), val)
+    if self.diffdict: self.dprint(self.diffdict)
+    return self.diffdict

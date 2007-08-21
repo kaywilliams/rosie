@@ -1,8 +1,7 @@
 import re
-import rpm
 import os
 
-from os.path       import join
+from os.path       import exists, join
 from rpmUtils.arch import getArchList
 
 from dims import osutils
@@ -16,8 +15,6 @@ from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, RPM_PNVRA
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.interface import EventInterface
 
-from dimsbuild.modules.lib import ListCompareMixin
-
 API_VERSION = 4.0
 
 #------ EVENTS ------#
@@ -27,7 +24,7 @@ EVENTS = [
     'interface': 'SoftwareInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['rpms-directory', 'new-rpms'],
-    'requires': ['pkglist', 'anaconda-version', 'repo-contents'],
+    'requires': ['pkglist', 'anaconda-version', 'repo-contents', 'gpg-status-changed'],
     'conditional-requires': ['comps-file', 'RPMS'],
   },
 ]
@@ -40,17 +37,15 @@ RPM_PNVRA_REGEX = re.compile(RPM_PNVRA)
 
 
 #------ INTERFACES ------#
-class SoftwareInterface(EventInterface, ListCompareMixin):
+class SoftwareInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
-    ListCompareMixin.__init__(self)
     
-    self.ts = rpm.TransactionSet()
-    self.rpmdest = join(self.SOFTWARE_STORE, self.product) 
-    
-  def rpmNameDeformat(self, rpm):
+    self.rpmdest = join(self.SOFTWARE_STORE, self.product)
+
+  def deformat(self, rpm):
     """ 
-    p[ath],n[ame],v[ersion],r[elease],a[rch] = SoftwareInterface.rpmNameDeformat(rpm)
+    p[ath],n[ame],v[ersion],r[elease],a[rch] = SoftwareInterface.deformat(rpm)
     
     Takes an rpm with an optional path prefix and splits it into its component parts.
     Returns a path, name, version, release, arch tuple.
@@ -63,43 +58,27 @@ class SoftwareInterface(EventInterface, ListCompareMixin):
   
   def nvr(self, rpm):
     "nvr = SoftwareInterface.nvr(rpm) - convert an RPM filename into an NVR string"
-    _,n,v,r,_ = self.rpmNameDeformat(rpm)
+    _,n,v,r,_ = self.deformat(rpm)
     return '%s-%s-%s' % (n,v,r)
   
-  def rpmCheckSignature(self, rpm, pubkey, verbose=True):
-    "Check RPM signature's validity.  Raises mkrpm.rpmsign.SignatureInvalidException"
-    if verbose:
-      self._base.log.write(2, osutils.basename(rpm), 40)
-    if len(pubkey) == 0: 
-      raise RuntimeError, "No GPG keys found to check against"
-    mkrpm.rpmsign.verifyRpm(rpm, public=pubkey, force=True)
-  
-  def syncRpm(self, rpm, repo):
-    "Sync an rpm from path within repo into the the output store"
-    self.cache(repo.rjoin(repo.repodata_path, rpm), self.rpmdest)
-  
-  def deleteRpm(self, rpm):
-    "Delete an rpm from the output store"
-    self.log(2, "deleting %s" % rpm)
-    osutils.rm(join(self.rpmdest, '%s.*.[Rr][Pp][Mm]' % rpm))
-  
-  def signRpm(self, rpm, pubkey, seckey, password):
+  def sign_rpms(self, rpms, homedir, passphrase):
     "Sign an RPM"
-    self.log(2, "signing %s" % osutils.basename(rpm))
-    for r in osutils.find(self.rpmdest, name='%s.*.[Rr][Pp][Mm]' % rpm, maxdepth=1):
-      mkrpm.rpmsign.signRpm(r, public=pubkey, secret=seckey, passphrase=password)
+    self.log(1, "signing rpms")
+    for r in rpms:
+      self.log(2, osutils.basename(r))
+      mkrpm.rpmsign.signRpm(r, homedir=homedir, passphrase=passphrase)
   
   def createrepo(self):
     "Run createrepo on the output store"
     pwd = os.getcwd()
     os.chdir(self.SOFTWARE_STORE)
-    self.log(2, "running createrepo")
+    self.log(1, "running createrepo")
     shlib.execute('/usr/bin/createrepo -q -g %s .' % join(self.METADATA_DIR, 'comps.xml'))
     os.chdir(pwd)
   
   def genhdlist(self):
     "Run genhdlist on the output store.  Only necesary in some versions of anaconda"
-    self.log(2, "running genhdlist")
+    self.log(1, "running genhdlist")
     shlib.execute('/usr/lib/anaconda-runtime/genhdlist --productpath %s %s' % \
                   (self.product, self.SOFTWARE_STORE))
 
@@ -111,117 +90,65 @@ class SoftwareHook:
     self.ID = 'software.software'
     
     self.interface = interface
-    
-    # callback vars
-    self.interface.lfn = self._delete_rpm
-    self.interface.rfn = self._download_rpm
-    self.interface.cb = self
-    
-    self._changed = False
-    self._packages = {}
+
     self._validarchs = getArchList(self.interface.arch)
-    self._new_rpms = []
-  
+
+    self.DATA = {
+      'input':  [],
+      'output': [],
+    }
+    self.mdfile = join(self.interface.METADATA_DIR, 'software.md')
+    
+  def setup(self):
+    ## for each rpm in the pkglist, find the RPM's timestamp and size
+    ## from the repo's primary.xml.gz and add the (rpm, size, mtime)
+    ## 3-tuple to the input file's list.
+    paths = []
+    for repo in self.interface.getAllRepos():
+      for rpminfo in repo.repoinfo:
+        rpm = rpminfo['file']
+        size = rpminfo['size']
+        mtime = rpminfo['mtime']
+        _,n,v,r,a = self.interface.deformat(rpm)
+        nvr = '%s-%s-%s' % (n,v,r)
+        if nvr in self.interface.cvars['pkglist'] and \
+               a in self._validarchs:
+          paths.append(((rpm, size, mtime), self.interface.rpmdest))
+    
+    self.DATA['input'].append(self.interface.cvars['pkglist-file'])
+    self.DATA['input'].append(join(self.interface.METADATA_DIR, 'repos'))
+    self.interface.setup_diff(self.mdfile, self.DATA)
+    
+    i,o = self.interface.getFileLists(paths=paths)
+    self.DATA['input'].extend(i)
+    self.DATA['output'].extend(o)
+    
   def clean(self):
-    osutils.rm(self.interface.rpmdest, recursive=True, force=True)
+    self.interface.remove_output(parent=self.interface.rpmdest, all=True)
+    self.interface.clean_metadata()
+
+  def check(self):
+    return self.interface.cvars['gpg-status-changed'] or \
+           not exists(self.interface.rpmdest) or \
+           self.interface.test_diffs()
   
   def run(self):
     "Build a software store"
+    if self.interface.cvars['gpg-status-changed'] and \
+           exists(self.interface.rpmdest):
+      self.interface.log(0, "deleting old rpms")
+      self.interface.remove_output(parent=self.interface.rpmdest, all=True)    
+    else:
+      self.interface.remove_output(parent=self.interface.rpmdest)      
     self.interface.log(0, "processing rpms")
-    osutils.mkdir(self.interface.rpmdest, parent=True)
-  
-    # construct a list of rpms without .<arch>.rpm
-    rpmlist = []
-    for rpm in osutils.find(self.interface.rpmdest, name=RPM_GLOB, printf='%P'):
-      nvr = self.interface.nvr(rpm)
-      if nvr not in rpmlist: rpmlist.append(nvr)
+    newrpms = self.interface.sync_input()
+    newrpms.sort()
+    self.interface.sign_rpms(newrpms, homedir=self.interface.cvars['gpg-homedir'],
+                             passphrase=self.interface.cvars['gpg-passphrase'])
+    self.interface.createrepo()
+    self.interface.cvars['new-rpms'] = newrpms
     
-    # call interface.lfn (_delete_rpm()) and interface.rfn (_download_rpm())
-    # on each rpm in rpmlist not in the cvar, and each rpm in the cvar not
-    # in rpmlist, respectively
-    self.interface.compare(rpmlist, self.interface.cvars['pkglist'])
-    self._check_rpm_signatures()
-    self._create_metadata()
-  
   def apply(self):
     osutils.mkdir(self.interface.rpmdest, parent=True)
-    self.interface.cvars['new-rpms'] = self._new_rpms
     self.interface.cvars['rpms-directory'] = self.interface.rpmdest
-  
-  # callback functions
-  def notify_both(self, i): pass
-  def notify_left(self, i):
-    self._changed = True
-    self.interface.log(1, "deleting old rpms (%d packages)" % i)
-  def notify_right(self, i):
-    self._changed = True
-    self.interface.log(1, "downloading new rpms (%d packages)" % i)
-    # construct a reverse-lookup table of rpm name/arch to store and file location
-    for repo in self.interface.getAllRepos():
-      for rpm in repo.rpms:
-        _,n,v,r,a = self.interface.rpmNameDeformat(rpm)
-        nvr = '%s-%s-%s' % (n,v,r)
-        if not self._packages.has_key(nvr):
-          self._packages[nvr] = {}
-        if not self._packages[nvr].has_key(a):
-          self._packages[nvr][a] = []
-        self._packages[nvr][a].append((repo,rpm))
-    
-  def _delete_rpm(self, rpm): # lfn
-    self.interface.deleteRpm(rpm)
-  
-  def _download_rpm(self, rpm): # rfn
-    for arch in self._packages[rpm]:
-      if arch in self._validarchs:
-        try:
-          repo, rpmname = self._packages[rpm][arch][0]
-          self.interface.syncRpm(rpmname, repo)
-          self._new_rpms.append((osutils.basename(rpmname), repo))
-        except IndexError, e:
-          self.errlog(1, "No rpm '%s' found in repo '%s' for arch '%s'" % (rpm, repo.id, arch))
-  
-  def _check_rpm_signatures(self):
-    if len(self._new_rpms) == 0:
-      return
-    self.interface.log(1, "checking gpgkeys on new rpms")
-    
-    gpgkeys = self._prepare_gpgcheck()
-    
-    for rpm, repo in self._new_rpms:
-      if not repo.gpgcheck: continue
-      invalids = []
-      try:
-        self.interface.rpmCheckSignature(join(self.interface.rpmdest, rpm), gpgkeys)
-        self.interface.log(None, "OK")
-      except mkrpm.rpmsign.SignatureInvalidException:
-        self.interface.log(None, "INVALID")
-        invalids.append(osutils.basename(rpm))
-      
-      if invalids:
-        raise RpmSignatureInvalidError, "One or more RPMS failed GPG key checking: %s" % invalids
-    self._clean_gpgcheck()
-  
-  def _prepare_gpgcheck(self):
-    gpgtemp = join(self.interface.TEMP_DIR, 'gpgkeys')
-    osutils.mkdir(gpgtemp)
-    for repo in self.interface.getAllRepos():
-      if not repo.gpgcheck: continue
-      if repo.gpgkey: sync.sync(repo.gpgkey, gpgtemp)
-    return osutils.find(gpgtemp, maxdepth=1, type=osutils.TYPE_FILE)
-  
-  def _clean_gpgcheck(self):
-    osutils.rm(join(self.interface.TEMP_DIR, 'gpgkeys'), recursive=True, force=True)
-  
-  def _create_metadata(self):
-    # create repository metadata
-    if self._changed:
-      self.interface.log(1, "creating repository metadata")
-      self.interface.createrepo()
-
-      # run genhdlist, if anaconda version < 10.92
-      if sortlib.dcompare(self.interface.cvars['anaconda-version'], '10.92') < 0:
-        self.interface.genhdlist()
-
-
-class RpmSignatureInvalidError(StandardError):
-  "Class of exceptions raised when an RPM signature check fails in some way"
+    self.interface.write_metadata()

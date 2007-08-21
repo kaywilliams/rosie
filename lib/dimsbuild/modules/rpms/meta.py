@@ -88,13 +88,14 @@ class RpmsHook:
   def add_store(self):
     repo = Repo('localrepo')
     repo.local_path = self.interface.LOCAL_RPMS
+    repo.remote_path = self.interface.LOCAL_RPMS
     repo.split(repo.local_path)
 
     repo.readRepoData()    
     repo.readRepoContents()
     repofile = join(self.interface.METADATA_DIR, 'localrepo.pkgs')
     
-    if repo.compareRepoContents(repofile):      
+    if repo.compareRepoContents(repofile, what='file'):
       repo.changed = True
       self.interface.cvars['input-repos-changed'] = True
       repo.writeRepoContents(repofile)      
@@ -107,6 +108,7 @@ class RpmsHook:
     if self.interface.cvars['source-include']:
       repo = Repo('localrepo-sources')
       repo.local_path = self.interface.LOCAL_SRPMS
+      repo.remote_path = self.interface.LOCAL_SRPMS
       repo.split(repo.local_path)
 
       repo.readRepoData()

@@ -194,7 +194,7 @@ class RpmBuildHook:
       i,_ = self.interface.getFileLists(xpaths=xpaths)
       if not self.DATA.has_key('input'):
         self.DATA['input'] = []
-      self.DATA['input'].extend(i)      
+      self.DATA['input'].extend(i)
         
   def check(self):
     return not exists(self.mdfile) or \

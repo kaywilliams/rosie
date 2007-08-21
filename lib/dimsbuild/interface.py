@@ -6,11 +6,14 @@ __author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
 __version__ = '3.0'
 __date__    = 'June 5th, 2007'
 
+import csv
+import os
 import xml.sax
 
 from gzip     import GzipFile
 from os.path  import exists, isfile, join
 from urlparse import urlparse, urlunparse
+from urllib   import urlopen
 
 from dims import filereader
 from dims import listcompare
@@ -24,7 +27,7 @@ from dims.sync      import cache, link
 
 from dimsbuild import difftest
 
-from dimsbuild.callback  import BuildSyncCallback
+from dimsbuild.callback  import BuildSyncCallback, FilesCallback
 from dimsbuild.constants import BOOLEANS_TRUE
 
 #------ INTERFACES ------#
@@ -71,7 +74,8 @@ class EventInterface:
     self.handlers = {}
     self.diffset = {}
 
-    # download stuff
+    # FilesMixin stuff
+    self.files_callback = FilesCallback(self.log)
     self.syncinfo = {}
     
   def expandMacros(self, text):
@@ -155,9 +159,11 @@ class EventInterface:
     self.DT.debug = old_dbgval
     return (True in self.diffset.values())
   
-  def has_changed(self, name):
+  def has_changed(self, name, err=False):
     if not self.handlers.has_key(name):
-      raise RuntimeError("unknown handler accessed: '%s'" % name)    
+      if err:
+        raise RuntimeError("Missing %s metadata handler" % name)
+      return False
     if not self.diffset.has_key(name):
       self.diffset[name] = (len(self.handlers[name].diff()) > 0)
     return self.diffset[name]
@@ -165,9 +171,10 @@ class EventInterface:
   def write_metadata(self):
     self.DT.write_metadata()
 
-  def remove_output(self, parent=None, rmlist=None, all=False, message="removing files"):
+  ## FilesMixin stuff ##
+  def remove_output(self, parent=None, rmlist=None, all=False, cb=None):
     """
-    remove_output(parent[,all[,message]])
+    remove_output(parent[,all[,cb]])
 
     Remove output files.
 
@@ -180,15 +187,20 @@ class EventInterface:
       if all:
         rmlist = self.handlers['output'].oldoutput.keys()
       else:
-        # remove files that have been altered, the source of the file has modified, or
-        # the file is no longer needed.
         rmlist = []
+        # remove previously-outputted files that have been modified
+        # since last run        
         if self.has_changed('output'):
-          rmlist.extend([ f for f,d in self.handlers['output'].odiff.items() if d[0] is not None ])
+          rmlist.extend([ f for f,d in self.handlers['output'].diffdict.items() if d[0] is not None ])
+
+        # remove files the input of which has been modified
         if self.has_changed('input'):
-          for source, file in self.handlers['output'].odata:
-            if file not in rmlist and self.handlers['input'].idiff.has_key(source):
-              rmlist.append(file)
+          for ofile, ifile in self.handlers['output'].odata:
+            if file not in rmlist and self.handlers['input'].diffdict.has_key(ifile):
+              rmlist.append(ofile)
+
+        # remove files that were outputted the last time, but aren't
+        # needed anymore
         for oldfile in self.handlers['output'].oldoutput.keys():
           found = False
           for ds in self.syncinfo.values():
@@ -199,37 +211,33 @@ class EventInterface:
       rmlist = [ r for r in rmlist if exists(r) ]
             
     if not rmlist: return
-    
-    self.log(1, message)
+
+    cb = cb or self.files_callback
+    cb.remove_start()
     rmlist.sort()
     dirs = []
     # delete the files, whether or not they exist
     for rmitem in rmlist:
-      self.log(2, osutils.basename(rmitem))
+      cb.remove(rmitem)
       osutils.rm(rmitem, recursive=True, force=True)
       dir = osutils.dirname(rmitem)
-      if dir not in dirs and \
-             (parent and dir != parent.rstrip('/')):
+      if dir not in dirs:
         dirs.append(dir)
 
-    if not dirs: return 
+    dirs = [ d for d in dirs if not osutils.find(location=d,
+                                                 type=osutils.TYPE_FILE|osutils.TYPE_LINK) ]
 
-    dirs.sort()
-    ubound = len(dirs)
-    # filter subdirectories
-    for i in xrange(ubound-1):
-      for j in xrange(i+1, ubound):
-        if dirs[j].startswith(dirs[i]):
-          dirs.pop(j)    
-
-    # delete empty directories, if any exist
-    dirs = [ d for d in dirs if not osutils.find(d, type=osutils.TYPE_FILE|osutils.TYPE_LINK) ]
-    if dirs:
-      self.log(1, "removing empty directories")
-      for d in dirs:
-        self.log(2, osutils.basename(d))
-        osutils.rm(d, recursive=True, force=True)  
-      
+    if not dirs: return
+    dirs.reverse()
+    cb.remove_dir_start()
+    for dir in dirs:
+      if exists(dir):
+        try:
+          cb.remove_dir(dir)
+          os.removedirs(dir)
+        except OSError:
+          pass # should never happen
+  
   def getFileLists(self, xpaths=[], paths=[]):
     """
     getFilesLists([xpaths[,paths]])
@@ -243,7 +251,7 @@ class EventInterface:
     """
     if not self.handlers.has_key('input'):
       self.add_handler(difftest.InputHandler([]))
-    newio = {}
+    
     for x,i,o in xpaths:
       for item in self.config.xpath(x,[]):
         s = item.get('text()')
@@ -252,35 +260,48 @@ class EventInterface:
         if not s.startswith('/') and s.find('://') == -1:
           s = join(i,s)
         d = join(o, d.lstrip('/'))
-        if not newio.has_key(s): newio[s] = []
-        newio[s].append(d)
+        self.addInputFile(s,d)
 
     for p,o in paths:
-      if type(p) == type(''): p = [p]
-      for item in p:
-        if item.startswith('file://'): item = item[7:]
-        if not newio.has_key(item): newio[item] = []
-        newio[item].append(o)
+      if type(p) != type([]):
+        self.addInputFile(p,o)
+      else:
+        for item in p:
+          self.addInputFile(item, o)
 
+    ## TODO: filter items already in the data lists
     outputs = []
-    for s in newio.keys():
-      for d in newio[s]:
-        if not self.handlers['input'].filelists.has_key(s):
-          self.handlers['input'].filelists[s] = difftest.expandPaths(s)
-        ifiles = self.handlers['input'].filelists[s]
-        if not ifiles:
-          if s.find('://') == -1 and not exists(s):
-            raise IOError("missing input file(s) %s" % s)
-          else:
-            ## TODO if source is 404'd raise exception
-            pass
-        for ifile in self.handlers['input'].filelists[s]:
-          if not self.syncinfo.has_key(ifile): self.syncinfo[ifile] = []
-          ofile = (join(d, ifile[s.rstrip('/').rfind('/')+1:]))
-          self.syncinfo[ifile].append(ofile)
-          outputs.append((ofile, ifile))
+    for s,ds in self.syncinfo.items():
+      for d in ds:
+        outputs.append((d,s))
+    return (self.syncinfo.keys(), outputs)
+
+  def addInputFile(self, sourcefile, destdir):
+    inputs = self.handlers['input'].mdadd(sourcefile)
+
+    if type(sourcefile) == type(()):
+      sourcefile = sourcefile[0]
           
-    return self.syncinfo.keys(), outputs
+    if sourcefile.startswith('file://'):
+      sourcefile = sourcefile[7:]
+      
+    if not inputs:
+      if sourcefile.find('://') == -1:
+        if not exists(sourcefile):
+          raise IOError("missing input file(s) %s" % sourcefile)
+      else:
+        try:
+          site = urlopen(sourcefile)
+        except:
+          raise IOError("missing input file(s) %s" % sourcefile)
+        else:
+          site.close()
+
+    for f in inputs:
+      if not self.syncinfo.has_key(f):
+        self.syncinfo[f] = []
+      ofile = join(destdir, f[sourcefile.rstrip('/').rfind('/')+1:])
+      self.syncinfo[f].append(ofile)
 
   def list_output(self, source):
     """
@@ -293,9 +314,9 @@ class EventInterface:
     """
     return [ d for d,s in self.handlers['output'].odata if s is not None and s.startswith(source) ]
     
-  def sync_input(self, action=None, message="downloading input files"):
+  def sync_input(self, action=None, cb=None):
     """
-    sync_input([action[,message]])
+    sync_input([action[,cb]])
     
     Sync the input files to their output locations.
     
@@ -303,16 +324,22 @@ class EventInterface:
                    destination as parameters. If None, simply sync the
                    source file to the destination.
     """
-    if not self.syncinfo:
-      self.log(4, "nothing to sync")
-      return
+    sync_items = []
+    for s in self.syncinfo.keys():      
+      sync_items.extend( [ (s,d) for d in self.syncinfo[s] if not exists(d) ] )    
+
+    # return if there is nothing to sync
+    if not sync_items: return
+    cb = cb or self.files_callback
+    cb.sync_file_start()
     
-    self.log(1, message)
-    for s,ds in self.syncinfo.items():
-      for d in ds:
-        d = osutils.dirname(d)
-        if action: action(s,d)
-        else:      self.cache(s,d)
+    sync_items.sort(lambda x,y: cmp(x[1], y[1]))
+    for s,d in sync_items:
+      cb.sync_file(s,d)
+      if action: action(s, osutils.dirname(d))
+      else:      self.cache(s, osutils.dirname(d))
+      
+    return [ d for _,d in sync_items ]
 
 #------- DIFFTEST HANDLERS -----#
 class OutputHandler:
@@ -320,7 +347,7 @@ class OutputHandler:
     self.name  = 'output'
     self.odata = data
     self.oldoutput = {}
-    self.odiff = {}
+    self.diffdict = {}
 
     self.refresh()
     
@@ -332,7 +359,7 @@ class OutputHandler:
       if type(datum) == type(''):
         torem.append(datum)
         toapp.append((datum, None))
-      if type(datum) == type([]):
+      elif type(datum) == type([]):
         torem.append(datum)
         toapp.extend([ (x,None) for x in datum ])
       
@@ -355,16 +382,13 @@ class OutputHandler:
     
     parent = xmltree.uElement('output', parent=root)
     for file, source in self.odata:
-      paths = difftest.expandPaths(file)
-      if paths:
-        for output in paths:
-          size, mtime = difftest.DiffTuple(output)
-          attrs = {'path': output}          
-          e = xmltree.Element('file', parent=parent, attrs=attrs)
-          xmltree.Element('size', parent=e, text=str(size))
-          xmltree.Element('mtime', parent=e, text=str(mtime))
-          if source:
-            xmltree.Element('source', parent=e, text=source)
+      info = difftest.expandPaths(file)
+      for o,s,m in info:
+        e = xmltree.Element('file', parent=parent, attrs={'path': o})
+        xmltree.Element('size', parent=e, text=str(s))
+        xmltree.Element('mtime', parent=e, text=str(m))
+        if source:
+          xmltree.Element('source', parent=e, text=source)
 
   def diff(self):
     self.refresh()
@@ -372,21 +396,11 @@ class OutputHandler:
     for file in self.oldoutput.keys():
       size, mtime = difftest.DiffTuple(file)
       newitems[file] = (size, mtime, self.oldoutput[file][2])
-    self.odiff = difftest.diff(self.oldoutput, newitems)
-    if self.odiff: self.dprint(self.odiff)
-    return self.odiff
+    self.diffdict = difftest.diff(self.oldoutput, newitems)
+    if self.diffdict: self.dprint(self.diffdict)
+    return self.diffdict
 
 #------- CLASSES ---------#
-class PrimaryXmlContentHandler(xml.sax.ContentHandler):
-  def __init__(self):
-    xml.sax.ContentHandler.__init__(self)
-    
-    self.locs = []
-  
-  def startElement(self, name, attrs):
-    if name == 'location':
-      self.locs.append(str(attrs.get('href')))
-
 class Repo:
   def __init__(self, id):
     self.id = id
@@ -403,7 +417,8 @@ class Repo:
     self.gpgcheck = False
     self.gpgkey = None
     
-    self.rpms = []
+    self.repoinfo = []
+    
     self.include = []
     self.exclude = []
     self.changed = False
@@ -428,7 +443,7 @@ class Repo:
   def ljoin(self, *args):
     return join(self.local_path, *args)
   
-  def getRepoData(self, read=True):
+  def getRepoData(self):
     dest = self.ljoin(self.repodata_path, 'repodata')
     osutils.mkdir(dest, parent=True)
 
@@ -440,9 +455,8 @@ class Repo:
       repofile = data.get('location/@href')
       sync.sync(self.rjoin(self.repodata_path, repofile), dest,
                 username=self.username, password=self.password)
-      
-    if read:
-      self.readRepoData(repomd)
+
+    self.readRepoData(repomd)
 
   def readRepoData(self, repomd=None):
     repomd = repomd or xmltree.read(self.ljoin(self.repodata_path, self.mdfile)).xpath('//data')
@@ -454,33 +468,71 @@ class Repo:
       elif filetype == 'filelists': self.filelistsfile = osutils.basename(repofile)
       elif filetype == 'other':     self.otherfile     = osutils.basename(repofile)
   
-  def readRepoContents(self):
-    pxml = GzipFile(filename=self.ljoin(self.repodata_path, 'repodata', self.primaryfile),
-                    mode='rt')
-    
-    handler = PrimaryXmlContentHandler()
-    self.parser.setContentHandler(handler)
-    self.parser.parse(pxml)
-
-    pxml.close()
-    
-    pkgs = handler.locs
-    pkgs.sort()
-    
-    self.rpms = pkgs
-  
-  def compareRepoContents(self, oldfile):
-    if isfile(oldfile):
-      oldpkgs = filereader.read(oldfile)
+  def readRepoContents(self, repofile=None):
+    if repofile is None:
+      self.repoinfo = []
+      pxml = GzipFile(filename=self.ljoin(self.repodata_path, 'repodata', self.primaryfile),
+                      mode='rt')
+      tree = xmltree.read(pxml)
+      pxml.close()      
+      for package in tree.xpath('/metadata/package', []):
+        location = package.get('location/@href')
+        size     = package.get('size/@package')
+        mtime    = package.get('time/@file')
+        self.repoinfo.append({
+          'file':  self.rjoin(self.repodata_path, location),
+          'size':  int(size),
+          'mtime': int(mtime),
+        })
     else:
-      oldpkgs = []
+      self.repoinfo = []      
+      mr = open(repofile, 'r')
+      mreader = csv.DictReader(mr, ['file', 'size', 'mtime'], lineterminator='\n')
+      for item in mreader:
+        self.repoinfo.append({
+          'mtime': int(item['mtime']),
+          'size':  int(item['size']),
+          'file':  item['file'],
+        })      
+      mr.close()      
 
-    old,new,_ = listcompare.compare(oldpkgs, self.rpms)
-    return old or new
+  def compareRepoContents(self, oldfile, what=None):
+    "@param what: the item to compare. Can be any of 'mtime', 'size', or 'file'."
+    oldpkgs = []
+    newpkgs = self.repoinfo
+
+    if isfile(oldfile):
+      mr = open(oldfile, 'r')
+      mreader = csv.DictReader(mr, ['file', 'size', 'mtime'], lineterminator='\n')
+      for item in mreader:
+        oldpkgs.append({
+          'mtime': int(item['mtime']),
+          'size':  int(item['size']),
+          'file':  item['file'],
+        })      
+      mr.close()
+
+    if what is None:
+      oldpkgs.sort()
+      newpkgs.sort()    
+      return oldpkgs != newpkgs
+    else:
+      old = [ d[what] for d in oldpkgs ]
+      new = [ d[what] for d in newpkgs ]
+      old.sort()
+      new.sort()
+      return old != new
   
   def writeRepoContents(self, file):
-    filereader.write(self.rpms, file)
-
+    if exists(file):
+      osutils.rm(file, force=True)
+    os.mknod(file)
+    mf = open(file, 'w')
+    mwriter = csv.DictWriter(mf, ['file', 'size', 'mtime'], lineterminator='\n')
+    for item in self.repoinfo:
+      mwriter.writerow(item)
+    mf.close()
+    
 
 #------ FACTORY FUNCTIONS ------#
 def RepoFromXml(xml):

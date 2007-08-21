@@ -247,8 +247,8 @@ class IsoSetsHook:
       for set in self.newsets:
         self.newsets_expanded.append(splittree.parse_size(set))
 
-      if self.interface.handlers['input'].idiff or \
-         self.interface.handlers['variables'].vdiff.has_key("interface.cvars['source-include']"):
+      if self.interface.handlers['input'].diffdict or \
+         self.interface.handlers['variables'].diffdict.has_key("interface.cvars['source-include']"):
         osutils.rm(self.interface.isodir, recursive=True, force=True)
         osutils.rm(self.splittrees, recursive=True, force=True)        
         #osutils.rm(self.handlers['output'].oldoutput.keys(), recursive=True, force=True)

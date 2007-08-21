@@ -62,9 +62,6 @@ class ReposHook:
     self.mdfile = join(self.interface.METADATA_DIR, 'repos.md')
   
   def clean(self):
-    for file in [ join(self.mdfile, repo.id) for repo in \
-                  self.interface.getAllRepos() ]:
-      osutils.rm(file, force=True)
     self.interface.clean_metadata()
   
   def setup(self):
@@ -106,7 +103,6 @@ class ReposHook:
       if repo.compareRepoContents(repofile):
         repo.changed = True; changed = True
         repo.writeRepoContents(repofile)
-
     
     self.interface.cvars['input-repos-changed'] = changed
 
@@ -117,7 +113,8 @@ class ReposHook:
       
       if not exists(repofile):
         raise RuntimeError, "Unable to find repo file '%s'" % repofile
-      repo.rpms = filereader.read(repofile)
+
+      repo.readRepoContents(repofile=repofile)
     
     # if we're skipping repos, assume repo lists didn't change; otherwise,
     # assume they did
