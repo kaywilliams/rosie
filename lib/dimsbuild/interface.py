@@ -186,6 +186,11 @@ class EventInterface:
     @return input  : a list of all the input files
     @return output : [(output file, source file),...]
     """
+    if paths and type(paths) != type([]):
+      paths = [paths]
+    if xpaths and type(xpaths) != type([]):
+      xpaths = [xpaths]
+                
     if not self.handlers.has_key('input'):
       self.add_handler(InputHandler([]))
     
@@ -300,7 +305,7 @@ class EventInterface:
       except OSError:
         pass 
 
-  def sync_input(self, action=None, cb=None):
+  def sync_input(self, action=None, cb=None, link=False):
     """
     sync_input([action[,cb]])
     
@@ -309,6 +314,8 @@ class EventInterface:
     @param action: the function to call with the source file and
                    destination as parameters. If None, simply sync the
                    source file to the destination.
+    @param link:   if action is not specified, and link is True the
+                   input files are linked to the output location.
     """
     sync_items = []
     for s in self.syncinfo.keys():      
@@ -325,7 +332,7 @@ class EventInterface:
     for s,d in sync_items:
       cb.sync_file(s,d)
       if action: action(s, osutils.dirname(d))
-      else:      self.cache(s, osutils.dirname(d))
+      else:      self.cache(s, osutils.dirname(d), link=link)
       
     return [ d for _,d in sync_items ]
   
