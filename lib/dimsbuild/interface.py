@@ -529,23 +529,23 @@ class Repo:
       elif filetype == 'other':     self.otherfile     = osutils.basename(repofile)
   
   def readRepoContents(self, repofile=None):
+    self.repoinfo = []    
     if repofile is None:
-      self.repoinfo = []
       pxml = GzipFile(filename=self.ljoin(self.repodata_path, 'repodata', self.primaryfile),
                       mode='rt')
-      tree = xmltree.read(pxml)
-      pxml.close()      
-      for package in tree.xpath('/metadata/package', []):
-        location = package.get('location/@href')
-        size     = package.get('size/@package')
-        mtime    = package.get('time/@file')
+      handler = PrimaryXmlContentHandler()
+      self.parser.setContentHandler(handler)
+      self.parser.parse(pxml)
+      pxml.close()
+      
+      for f,s,m in handler.pkgs:
         self.repoinfo.append({
-          'file':  self.rjoin(self.repodata_path, location),
-          'size':  int(size),
-          'mtime': int(mtime),
-        })
+          'file':  self.rjoin(self.repodata_path, f),
+          'size':  s,
+          'mtime': m,
+          })
+      self.repoinfo.sort()
     else:
-      self.repoinfo = []      
       mr = open(repofile, 'r')
       mreader = csv.DictReader(mr, ['file', 'size', 'mtime'], lineterminator='\n')
       for item in mreader:
@@ -554,8 +554,8 @@ class Repo:
           'size':  int(item['size']),
           'file':  item['file'],
         })      
-      mr.close()      
-
+      mr.close()
+    
   def compareRepoContents(self, oldfile, what=None):
     "@param what: the item to compare. Can be any of 'mtime', 'size', or 'file'."
     oldpkgs = []
@@ -588,11 +588,37 @@ class Repo:
       osutils.rm(file, force=True)
     os.mknod(file)
     mf = open(file, 'w')
-    mwriter = csv.DictWriter(mf, ['file', 'size', 'mtime'], lineterminator='\n')
+    mwriter = csv.DictWriter(mf, ['file', 'size', 'mtime'], lineterminator='\n')    
     for item in self.repoinfo:
       mwriter.writerow(item)
     mf.close()
     
+
+class PrimaryXmlContentHandler(xml.sax.ContentHandler):
+  def __init__(self):
+    xml.sax.ContentHandler.__init__(self)
+    self.pkgs = []
+
+    self.mtime = None
+    self.size  = None
+    self.loc   = None
+
+    self.pkgstart = False
+    
+  def startElement(self, name, attrs):
+    if name == 'package':
+      self.pkgstart = True
+    elif self.pkgstart and name == 'location':
+      self.loc = str(attrs.get('href'))
+    elif self.pkgstart and name == 'size':
+      self.size = int(attrs.get('package'))
+    elif self.pkgstart and name == 'time':
+      self.mtime = int(attrs.get('file'))
+
+  def endElement(self, name):
+    if name == 'package':
+      self.pkgstart = False
+      self.pkgs.append((self.loc, self.size, self.mtime))
 
 #------ FACTORY FUNCTIONS ------#
 def RepoFromXml(xml):
