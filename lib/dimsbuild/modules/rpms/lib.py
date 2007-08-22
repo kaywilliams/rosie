@@ -195,7 +195,11 @@ class RpmBuildHook:
       if not self.DATA.has_key('input'):
         self.DATA['input'] = []
       self.DATA['input'].extend(i)
-        
+
+  def clean(self):
+    self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
+    
   def check(self):
     return not exists(self.mdfile) or \
            not exists(self.autoconf) or \
@@ -203,7 +207,8 @@ class RpmBuildHook:
   
   def run(self):
     # ... delete older rpms ...
-    self._delete_old_files()    
+    self.interface.remove_output(all=True)
+    osutils.mkdir(self.build_folder, parent=True)
     
     # only generate RPM if test_build() returns true
     if not self.test_build():
@@ -404,19 +409,6 @@ class RpmBuildHook:
       xmltree.Element('release', parent=package, text=release)
     
     root.write(self.autoconf)
-
-  def _delete_old_files(self):
-    todelete = osutils.find(self.interface.LOCAL_REPO,
-                            name='%s*[Rr][Pp][Mm]' % self.rpmname)
-    if todelete:
-      self.interface.log(1, "deleting previously-built rpms")
-      for rpm in todelete:
-        self.interface.log(2, osutils.basename(rpm))
-        osutils.rm(rpm, force=True)
-    
-    # reset build folder
-    osutils.rm(self.build_folder, recursive=True, force=True)
-    osutils.mkdir(self.build_folder, parent=True)
 
   def _add_files_info(self, spec):
     # write the list of files to be installed and where they should be installed

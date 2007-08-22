@@ -68,10 +68,8 @@ class RpmsHook:
     self.interface.log(1, "checking repository metadata")
 
     if not exists(join(self.interface.LOCAL_RPMS, 'repodata')) or \
-       not exists(join(self.interface.LOCAL_SRPMS, 'repodata')) or \
-       self.interface.cvars['custom-rpms-built']:
-      osutils.rm(join(self.interface.METADATA_DIR, '.depsolve', 'localrepo'),
-                 recursive=True, force=True)
+         not exists(join(self.interface.LOCAL_SRPMS, 'repodata')) or \
+         self.interface.cvars['custom-rpms-built']:
       self.interface.log(2, "running createrepo")
       self.interface.createrepo(self.interface.LOCAL_RPMS)
       self.interface.createrepo(self.interface.LOCAL_SRPMS)
