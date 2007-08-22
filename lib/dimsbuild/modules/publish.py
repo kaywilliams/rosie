@@ -141,50 +141,41 @@ class PublishHook:
 
     self.DATA =  {
       'variables': ['PUBLISH_DIR'],
+      'input':     [],
+      'output':    [],
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'publish.md')
 
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
-  
+    paths = []
+    osdir = join(self.interface.OUTPUT_DIR, 'os')
+    isodir = join(self.interface.OUTPUT_DIR, 'iso')
+    srpmdir = join(self.interface.OUTPUT_DIR, 'SRPMS')
+    if exists(osdir):
+      paths.append((osdir, self.interface.PUBLISH_DIR))
+    if exists(isodir):
+      paths.append((isodir, self.interface.PUBLISH_DIR))
+    if exists(srpmdir):
+      paths.append((srpmdir, self.interface.PUBLISH_DIR))
+
+    if paths:
+      i,o = self.interface.setup_sync(paths=paths)
+      self.DATA['input'].extend(i)
+      self.DATA['output'].extend(o)
+
   def clean(self):
-    osutils.rm(self.interface.PUBLISH_DIR, recursive=True, force=True)
+    self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
+  def check(self):
+    return self.interface.test_diffs()
+    
   def run(self):
     "Publish the contents of interface.SOFTWARE_STORE to interface.PUBLISH_STORE"
     self.interface.log(0, "publishing output store")
-
-    # Cleanup - remove old publish_dir folders
-    if self.interface.test_diffs():
-      try:
-        olddir = self.interface.handlers['variables'].vars['PUBLISH_DIR']
-        oldparent = os.path.dirname(olddir)
-
-        self.interface.log(2, "removing directory '%s'" % olddir)
-        osutils.rm(olddir, recursive=True, force=True)
-
-        if not os.listdir(oldparent):
-          self.interface.log(2, "removing directory '%s'" % oldparent)        
-          osutils.rm(oldparent, force=True)
-
-      except KeyError:
-        pass
-
-    if not exists(self.interface.OUTPUT_DIR): return
-    
-    # sync to output folder
-    if not exists(self.interface.PUBLISH_DIR):
-      self.interface.log(2, "making directory '%s'" % self.interface.PUBLISH_DIR)
-      osutils.mkdir(self.interface.PUBLISH_DIR, parent=True)
-    
-    for d in ['os', 'iso', 'SRPMS']: # each folder is technically optional
-      src = join(self.interface.OUTPUT_DIR, d)
-      if not exists(src): # clean up any existing folders if not present in input
-        osutils.rm(join(self.interface.PUBLISH_DIR, d), recursive=True, force=True)
-        continue
-      link.sync(src, self.interface.PUBLISH_DIR, strict=True)
-    
+    self.interface.remove_output()
+    self.interface.sync_input(link=True)
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.interface.PUBLISH_DIR)
 
   def apply(self):
