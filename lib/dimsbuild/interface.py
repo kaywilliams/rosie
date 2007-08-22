@@ -480,10 +480,11 @@ class Repo:
     
     self.remote_path = None
     self.local_path = None
-    
+
     self.gpgcheck = False
     self.gpgkey = None
     
+    self.pkgsfile = None
     self.repoinfo = []
     
     self.include = []

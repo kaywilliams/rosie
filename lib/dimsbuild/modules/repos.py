@@ -35,7 +35,7 @@ HOOK_MAPPING = {
 #------ HOOKS ------#
 class ValidateHook:
   def __init__(self, interface):
-    self.VERSION = 0
+    self.VERSION = 1
     self.ID = 'repos.validate'
     self.interface = interface
 
@@ -52,85 +52,95 @@ class ReposHook:
     
     self.interface = interface
     
-    self.mdrepos = join(self.interface.METADATA_DIR, 'repos')
+    self.mddir = join(self.interface.METADATA_DIR, 'repos')
     
     self.DATA = {
       'config': ['/distro/repos/repo'],
       'input':  [], # to be filled later
       'output': [], # to be filled later
     }
-    self.mdfile = join(self.interface.METADATA_DIR, 'repos.md')
-  
-  def clean(self):
-    self.interface.clean_metadata()
+    self.mdfile = join(self.mddir, 'repos.md')
   
   def setup(self):
-    self.interface.log(0, "generating filelists for input repositories")
-    osutils.mkdir(self.mdrepos, parent=True)
-    
-    self.interface.cvars['repos'] = {}
+    self.interface.setup_diff(self.mdfile, self.DATA)
+
+    osutils.mkdir(self.mddir, parent=True)
+
+    self.repos = {}
     self.interface.cvars['input-repos-changed'] = False
-    
-    # sync all repodata folders to builddata
-    # TODO - Move to FilesMixin, also always sync if local file differs from source
-    self.interface.log(1, "synchronizing repository metadata")
+
     for repoxml in self.interface.config.xpath('/distro/repos/repo'):
-      self.interface.log(2, repoxml.get('@id'))
+      # create repo objects
       repo = RepoFromXml(repoxml)
-      repo.local_path = join(self.mdrepos, repo.id)
-      
-      repo.getRepoData()
-      
-      self.interface.cvars['repos'][repo.id] = repo
-      
-      self.DATA['input'].append(join(self.mdrepos, repo.id, repo.repodata_path, 'repodata'))
-      self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id))      
-    self.interface.setup_diff(self.mdfile, self.DATA)    
-      
+      repo.local_path = join(self.mddir, repo.id) 
+      repo.pkgsfile = join(self.mddir, '%s.pkgs' % repo.id)
+
+      # setup sync
+      i,o = self.interface.setup_sync(paths=[(repo.rjoin(repo.repodata_path,'repodata'),
+                                              repo.ljoin(repo.repodata_path))])
+
+      # populate difftest variables
+      self.DATA['input'].extend(i)
+      self.DATA['output'].extend(o)
+      self.DATA['output'].append(repo.pkgsfile)
+
+      self.repos[repo.id] = repo
+
+  def clean(self):
+    self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
+
   def check(self):
     return self.interface.test_diffs()
   
   def run(self):
-    self.interface.log(1, "computing repo contents")
-    
-    changed = False
-    
-    # generate repo RPM lists
-    for repo in self.interface.getAllRepos():
+    self.interface.log(0, "processing input repositories")
+
+    # sync repodata folders to builddata
+    self.interface.sync_input()
+
+    self.interface.log(1, "reading available packages")    
+
+    self.interface.repoinfo = {}
+
+    for repo in self.repos.values():
       self.interface.log(2, repo.id)
+
+      # read repomd.xml file
+      repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')
+      repo.readRepoData(repomd)
+
+      # read primary.xml file, store to a variable we can write into the repos.md file
       repo.readRepoContents()
-      repofile = join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id)
-      if repo.compareRepoContents(repofile):
-        repo.changed = True; changed = True
-        repo.writeRepoContents(repofile)
-    
-    self.interface.cvars['input-repos-changed'] = changed
+      repo.writeRepoContents(repo.pkgsfile)
 
-  def apply(self):
-    # populate the rpms list for each repo
-    for repo in self.interface.getAllRepos():
-      repofile = join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id)
-      
-      if not exists(repofile):
-        raise RuntimeError, "Unable to find repo file '%s'" % repofile
-
-      repo.readRepoContents(repofile=repofile)
-    
-    # if we're skipping repos, assume repo lists didn't change; otherwise,
-    # assume they did
-    if self.interface.isSkipped('repos'):
-      self.interface.cvars['input-repos-changed'] = False
-    
-    if not self.interface.cvars['anaconda-version']:
-      anaconda_version = \
-        get_anaconda_version(join(self.interface.METADATA_DIR,
-                                  '%s.pkgs' % self.interface.getBaseRepoId()))
-      self.interface.cvars['anaconda-version'] = anaconda_version
-    
-    self.interface.cvars['local-repodata'] = self.mdrepos
+    if self.interface.handlers['input'].diffdict:
+      self.interface.cvars['input-repos-changed'] = True
 
     self.interface.write_metadata()
-    
+
+  def apply(self):
+    for repo in self.repos.values():
+      # finish populating repo object, unless already done in run function
+      if not self.interface.cvars['input-repos-changed']:
+        repomdfile = repo.ljoin(repo.repodata_path, repo.mdfile)
+        for file in repomdfile, repo.pkgsfile:
+          if not exists(file):
+            raise RuntimeError, "Unable to find cached file at '%s'. Perhaps you are skipping the repos event before it has been allowed to run once?" % file
+   
+        repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')
+        repo.readRepoData(repomd)
+        repo.readRepoContents(repofile=repo.pkgsfile)
+
+      # get anaconda_version, if base repo
+      if repo.id == self.interface.getBaseRepoId():
+        anaconda_version = get_anaconda_version(repo.pkgsfile)
+        self.interface.cvars['anaconda-version'] = anaconda_version
+
+    self.interface.cvars['repos'] = self.repos
+        
+    self.interface.cvars['local-repodata'] = self.mddir
+   
 
 #------ HELPER FUNCTIONS ------#
 def get_anaconda_version(file):
