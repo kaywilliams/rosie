@@ -121,7 +121,6 @@ class PkglistHook:
       self.pkglistfile = o[0][0]
     else:
       self.pkglistfile = join(self.interface.METADATA_DIR, 'pkglist')
-      self.DATA['output'].append(self.mddir)
       self.DATA['output'].append(self.pkglistfile)
   
   def check(self):
@@ -134,11 +133,13 @@ class PkglistHook:
     
     if self.docopy:
       self.interface.sync_input()
-      self.interface.log(1, "reading supplied pkglist file")      
+      self.interface.log(1, "reading supplied pkglist file")
+      if exists(self.mddir):
+        osutils.rm(self.mddir, recursive=True, force=True)        
     else:
       self.interface.log(1, "generating new pkglist")
       osutils.mkdir(self.mddir, parent=True)
-
+      
       repoconfig = self.create_repoconfig()
       pkgtups = depsolver.resolve(self.interface.cvars['required-packages'] or [],
                                   root=self.mddir,
@@ -160,7 +161,8 @@ class PkglistHook:
       pkglist = []
       for n,_,_,v,r in pkgtups:
         pkglist.append('%s-%s-%s' % (n,v,r))
-
+      pkglist.sort()
+      
       self.interface.log(1, "writing pkglist")        
       filereader.write(pkglist, self.pkglistfile)
 
@@ -171,6 +173,9 @@ class PkglistHook:
     conf = []
     conf.extend(YUMCONF_HEADER)
     for repo in self.interface.getAllRepos():
+      if repo.changed:
+        ## HACK: delete a folder's depsolve metadata if it has changed. 
+        osutils.rm(join(self.mddir, repo.id), recursive=True, force=True)
       conf.extend([
         '[%s]' % repo.id,
         'name = %s' % repo.id,
