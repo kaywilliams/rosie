@@ -165,6 +165,7 @@ class PublishHook:
       self.DATA['output'].extend(o)
 
   def clean(self):
+    self.interface.log(0, "cleaning publish event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
@@ -178,5 +179,4 @@ class PublishHook:
     self.interface.sync_input(link=True)
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.interface.PUBLISH_DIR)
 
-  def apply(self):
     self.interface.write_metadata()

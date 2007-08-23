@@ -124,6 +124,7 @@ class SoftwareHook:
     self.DATA['output'].extend(o)
     
   def clean(self):
+    self.interface.log(0, "cleaning software event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
@@ -150,8 +151,10 @@ class SoftwareHook:
                                  passphrase=self.interface.cvars['gpg-passphrase'])
       self.interface.createrepo()
       self.interface.cvars['new-rpms'] = newrpms
+
+    self.interface.write_metadata()
     
   def apply(self):
     osutils.mkdir(self.interface.rpmdest, parent=True)
     self.interface.cvars['rpms-directory'] = self.interface.rpmdest
-    self.interface.write_metadata()
+

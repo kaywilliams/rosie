@@ -134,6 +134,7 @@ class PkgorderHook:
       self.DATA['output'].append(self.pkgorderfile)
       
   def clean(self):
+    self.interface.log(0, "cleaning pkgorder event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
@@ -142,7 +143,7 @@ class PkgorderHook:
 
   def run(self):
     if not self.interface.cvars['iso-enabled']:
-      self.interface.remove_output(all=True)
+      self.clean()
       return
 
     self.interface.log(0, "processing pkgorder file")
@@ -208,6 +209,7 @@ class IsoSetsHook:
     self.interface.setup_diff(self.mdfile, self.DATA)
 
   def clean(self):
+    self.interface.log(0, "cleaning iso event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
@@ -216,7 +218,7 @@ class IsoSetsHook:
   
   def run(self):
     if not self.interface.cvars['iso-enabled']:
-      self.interface.remove_output(all=True)
+      self.clean()
       return
 
     self.interface.log(0, "generating iso image(s)")

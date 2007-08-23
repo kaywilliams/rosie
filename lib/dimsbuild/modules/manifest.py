@@ -65,6 +65,7 @@ class ManifestHook:
     return self.interface.test_diffs()
 
   def clean(self):
+    self.interface.log(0, "cleaning manifest event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
   
@@ -94,7 +95,6 @@ class ManifestHook:
     # set global variable
     self.interface.cvars['manifest-changed'] = True
 
-  def apply(self):
     # update metadata
     self.interface.write_metadata()
 

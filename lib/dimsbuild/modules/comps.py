@@ -95,6 +95,7 @@ class CompsHook:
       self.DATA['output'].append(self.comps_out)
 
   def clean(self):
+    self.interface.log(0, "cleaning comps event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
    

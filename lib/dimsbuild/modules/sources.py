@@ -146,10 +146,9 @@ class SourceRepoHook:
     if not self.dosource:
       self.interface.remove_output(all=True)
       return
-    else:
-      self.interface.remove_output()
 
     self.interface.log(1, "computing source repo contents")      
+    self.interface.remove_output()
     for repo in self.interface.getAllSourceRepos():
       self.interface.log(2, repo.id)
       repo.readRepoContents()
@@ -157,10 +156,12 @@ class SourceRepoHook:
       if repo.compareRepoContents(repofile):
         repo.changed = True
         repo.writeRepoContents(repofile)
+
+    self.interface.write_metadata() 
     
   def apply(self):
     self.interface.cvars['source-include'] = self.dosource
-    self.interface.write_metadata()    
+   
     if self.dosource:
       # populate the srpms list for each repo
       for repo in self.interface.getAllSourceRepos():
@@ -237,15 +238,13 @@ class SourceHook:
 
   def run(self):
     if not self.dosource:
-      self.interface.remove_output(all=True)
+      self.clean()
       return
-    else:
-      self.interface.remove_output()
 
     self.interface.log(0, "processing srpms")
+    self.interface.remove_output()
     osutils.mkdir(self.interface.srpmdest, parent=True)
     self.interface.sync_input()
     self.interface.createrepo()
 
-  def apply(self):
     self.interface.write_metadata()

@@ -37,6 +37,7 @@ class GpgCheckHook(GpgMixin):
     self.DATA = {
       'config': ['/distro/gpgsign', '//gpgkey/text()'],
       'input':  [],
+      'output': [], #filled in run function if gpg-enabled
     }
     self.mdfile = join(self.GPG_DIR, 'gpg.md')
 
@@ -75,27 +76,33 @@ class GpgCheckHook(GpgMixin):
     
     self.DATA['input'].extend([pubkey, seckey])
 
+  def clean(self):
+    self.interface.log(0, "cleaning gpg event")
+    self.interface.remove_output(all=True)
+    self.interface.clean_metadata()    
+
   def check(self):
     return self.interface.test_diffs()
 
   def run(self):
-    self.interface.log(0, "checking gpg signature status")
-    osutils.mkdir(self.GPG_DIR, parent=True)
     self.interface.cvars['gpg-status-changed'] = True
 
-    if self.interface.has_changed('input') and \
-           self.interface.cvars['gpg-public-key'] and \
-           self.interface.cvars['gpg-secret-key'] and \
-           self.interface.cvars['gpg-homedir']:
-      osutils.rm(self.interface.cvars['gpg-homedir'], recursive=True, force=True)
-      osutils.mkdir(self.interface.cvars['gpg-homedir'], parent=True)
+    if not self.interface.cvars['gpg-enabled']:
+      self.clean()
+      return
 
-      # create a home directory for GPG to use. 
-      self.importGpgKeys(self.interface.cvars['gpg-public-key'],
-                         self.interface.cvars['gpg-secret-key'],
-                         homedir=self.interface.cvars['gpg-homedir'])
+    self.interface.log(0, "configuring gpg")
+    osutils.mkdir(self.GPG_DIR, parent=True)
 
-  def apply(self):
+    # create a home directory for GPG to use. 
+    osutils.rm(self.interface.cvars['gpg-homedir'], recursive=True, force=True)
+    osutils.mkdir(self.interface.cvars['gpg-homedir'], parent=True)
+    self.importGpgKeys(self.interface.cvars['gpg-public-key'],
+                       self.interface.cvars['gpg-secret-key'],
+                       homedir=self.interface.cvars['gpg-homedir'])
+
+    self.DATA['output'].append(self.interface.cvars['gpg-homedir'])
+
     self.interface.write_metadata()
 
 class ValidateHook:

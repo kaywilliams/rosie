@@ -72,7 +72,8 @@ class DiscinfoHook:
     self.difile = join(self.interface.SOFTWARE_STORE, '.discinfo')
 
     self.DATA =  {
-      'variables': ['BASE_VARS'],
+      'variables': ['BASE_VARS'
+                    'cvars[\'anaconda-version\']'],
       'output':    [self.difile]
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'discinfo.md')
@@ -81,7 +82,8 @@ class DiscinfoHook:
     self.interface.setup_diff(self.mdfile, self.DATA)
     
   def clean(self):
-    osutils.rm(self.difile, force=True)
+    self.interface.log(0, "cleaning treeinfo event")
+    self.interface.remove_output(all=True)
     self.interface.clean_metadata()
   
   def check(self):
@@ -119,7 +121,9 @@ class TreeinfoHook:
     self.tifile = join(self.interface.SOFTWARE_STORE, '.treeinfo')
 
     self.DATA =  {
-      'output': [self.tifile]
+      'variables': ['BASE_VARS', 
+                    'cvars[\'product-path\']'],
+      'output':    [self.tifile]
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'treeinfo.md')
 
@@ -127,12 +131,11 @@ class TreeinfoHook:
     self.interface.setup_diff(self.mdfile, self.DATA)
     
   def clean(self):
-    osutils.rm(self.tifile, force=True)
-    osutils.rm(self.mdfile, force=True)
+    self.interface.log(0, "cleaning treeinfo event")
+    self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
   
   def check(self):
-    if dcompare(self.interface.cvars['anaconda-version'], '11.2.0.66-1') < 0:
-      return False
     return self.interface.test_diffs()
   
   def run(self):
@@ -167,13 +170,12 @@ class TreeinfoHook:
     treeinfo.write(tiflo)
     tiflo.close()
     os.chmod(self.tifile, 0644)
-  
+
+    self.interface.write_metadata()
+
   def apply(self):
-    if dcompare(self.interface.cvars['anaconda-version'], '11.2.0.66-1') < 0:
-      return
     if not exists(self.tifile):
       raise RuntimeError, "Unable to find .treeinfo file at '%s'" % self.tifile
-    self.interface.write_metadata()
     
 
 class BuildStampHook:
@@ -197,6 +199,7 @@ class BuildStampHook:
     self.anaconda_version = self.interface.cvars['anaconda-version']
 
   def clean(self):
+    self.interface.log(0, "cleaning buildstamp")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
       
@@ -218,11 +221,12 @@ class BuildStampHook:
     buildstamp.write(self.bsfile, **base_vars)
     os.chmod(self.bsfile, 0644)
 
+    self.interface.write_metadata()
+
   def apply(self):
     if not exists(self.bsfile):
       raise RuntimeError("missing file '%s'" % self.bsfile)
     self.interface.cvars['buildstamp-file'] = self.bsfile
-    self.interface.write_metadata()
 
 
 #------ LOCALS ------#

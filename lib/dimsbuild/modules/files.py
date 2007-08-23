@@ -63,12 +63,8 @@ class FilesHook:
     self.DATA['input'].extend(i)
     self.DATA['output'].extend(o)
     
-    if self.interface.config.xpath('/distro/files/path/text()', []):
-      self.interface.log(0, "processing user-provided files")
-    elif self.interface.handlers['output'].oldoutput.keys():
-      self.interface.log(0, "removing previously-provided files")    
-    
   def clean(self):
+    self.interface.log(0, "cleaning files event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
@@ -76,11 +72,11 @@ class FilesHook:
     return self.interface.test_diffs()
 
   def run(self):
+    self.interface.log(0, "processing user-provided files")
     # delete altered files
     self.interface.remove_output()
           
     # download input files
     self.interface.sync_input()
     
-  def apply(self):
     self.interface.write_metadata()

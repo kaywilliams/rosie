@@ -87,6 +87,7 @@ class ReposHook:
       self.repos[repo.id] = repo
 
   def clean(self):
+    self.interface.log(0, "cleaning repos event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
@@ -114,7 +115,7 @@ class ReposHook:
       repo.readRepoContents()
       repo.writeRepoContents(repo.pkgsfile)
 
-    if self.interface.handlers['input'].diffdict:
+    if self.interface.has_changed('input'):
       self.interface.cvars['input-repos-changed'] = True
 
     self.interface.write_metadata()

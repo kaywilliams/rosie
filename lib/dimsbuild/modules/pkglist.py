@@ -106,6 +106,7 @@ class PkglistHook:
       self.DATA['input'] = []
   
   def clean(self):
+    self.interface.log(0, "cleaning pkglist event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
   
@@ -166,6 +167,8 @@ class PkglistHook:
       self.interface.log(1, "writing pkglist")        
       filereader.write(pkglist, self.pkglistfile)
 
+    self.interface.write_metadata()
+
   def create_repoconfig(self):
     repoconfig = join(self.interface.TEMP_DIR, 'depsolve.repo')
     if exists(repoconfig):
@@ -186,7 +189,6 @@ class PkglistHook:
     return repoconfig
     
   def apply(self):
-    self.interface.write_metadata()
     if not exists(self.pkglistfile):
       raise RuntimeError("missing package list file: '%s'" % self.pkglistfile)
     self.interface.cvars['pkglist-file'] = self.pkglistfile

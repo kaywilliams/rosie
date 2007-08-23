@@ -84,6 +84,7 @@ class SourcevarsHook:
     return self.interface.test_diffs()
 
   def clean(self):
+    self.interface.log(0, "cleaning source-vars event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
