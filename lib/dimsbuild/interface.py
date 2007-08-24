@@ -8,12 +8,12 @@ __date__    = 'June 5th, 2007'
 
 import csv
 import os
+import urllib2
 import xml.sax
 
 from gzip     import GzipFile
 from os.path  import exists, isfile, join
 from urlparse import urlparse, urlunparse
-from urllib   import urlopen
 
 from dims import filereader
 from dims import listcompare
@@ -237,18 +237,16 @@ class EventInterface:
           
     if sourcefile.startswith('file://'):
       sourcefile = sourcefile[7:]
-      
     if not inputs:
       if sourcefile.find('://') == -1:
         if not exists(sourcefile):
           raise IOError("missing input file(s) %s" % sourcefile)
       else:
         try:
-          site = urlopen(sourcefile)
-        except:
-          raise IOError("missing input file(s) %s" % sourcefile)
-        else:
+          site = urllib2.urlopen(sourcefile)
           site.close()
+        except Exception, e:
+          raise IOError("missing input file(s) %s" % sourcefile)
 
     for f in inputs:
       if not self.syncinfo.has_key(id):

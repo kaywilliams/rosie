@@ -196,16 +196,19 @@ class ImageModifyMixin(ImageHandler):
     
     image_path = self.i_locals.get('//images/image[@id="%s"]/path' % self.name)
     image_path = locals_printf(image_path, self.interface.BASE_VARS)
-
-    self.interface.setup_sync(paths=[(repo.rjoin(image_path, self.name),
-                                      join(self.interface.SOFTWARE_STORE, image_path))],
-                              id='ImageModifyMixin')
+    try:
+      self.interface.setup_sync(paths=[(repo.rjoin(image_path, self.name),
+                                        join(self.interface.SOFTWARE_STORE, image_path))],
+                                id='ImageModifyMixin')
+    except IOError:
+      if not self._isvirtual():
+        raise
     self.l_image = self.i_locals.get('//images/image[@id="%s"]' % self.name)
   
   def modify(self):
     # sync image to input store
     self.interface.sync_input(what=['ImageModifyMixin', 'default'])
-      
+    
     # modify image
     self.interface.log(1, "modifying %s" % self.name)
     self.open()
