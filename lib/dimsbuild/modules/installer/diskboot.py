@@ -38,7 +38,7 @@ class DiskbootHook(ImageModifyMixin):
     self.DATA = {
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
-      'output':    [self.diskbootimage],
+      'output':    [],
     }
     
     ImageModifyMixin.__init__(self, 'diskboot.img', interface, self.DATA)
@@ -57,7 +57,7 @@ class DiskbootHook(ImageModifyMixin):
       self.interface.cvars['installer-splash'],
       self.interface.cvars['initrd-file'],        
     ])
-  
+
   def clean(self):
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
@@ -99,6 +99,7 @@ class DiskbootHook(ImageModifyMixin):
       lines.insert(i, value)
       filereader.write(lines, wcopy)
       self.image.write(wcopy, '/')
+      osutils.rm(wcopy, force=True)
 
 #------ LOCALS ------#
 L_IMAGES = ''' 

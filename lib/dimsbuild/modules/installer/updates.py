@@ -47,7 +47,7 @@ class UpdatesHook(ImageModifyMixin):
       'config':    ['/distro/installer/updates.img/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
-      'output':    [self.updatesimage],
+      'output':    [],
     }
     ImageModifyMixin.__init__(self, 'updates.img', interface, self.DATA)
   

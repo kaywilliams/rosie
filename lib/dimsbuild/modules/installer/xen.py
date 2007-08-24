@@ -51,7 +51,8 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
       'config':    ['/distro/installer/initrd.img/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
-      'output':    [ join(interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ],
+      #'output':    [ join(interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ],
+      'output':    [],
     }
   
     ImageModifyMixin.__init__(self, 'initrd.img', interface, self.DATA,

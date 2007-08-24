@@ -202,7 +202,9 @@ class ImageModifyMixin(ImageHandler):
                                     id='ImageModifyMixin')
       self.DATA['output'].extend(o)
     except IOError:
-      if not self._isvirtual():
+      if self._isvirtual():
+        self.DATA['output'].append(join(self.interface.SOFTWARE_STORE, image_path, self.name))
+      else:
         raise
     self.l_image = self.i_locals.get('//images/image[@id="%s"]' % self.name)
   
