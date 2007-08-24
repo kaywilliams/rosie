@@ -40,7 +40,8 @@ EVENTS = [
   },
   {
     'id': 'source-repos',
-    'provides': ['local-source-repodata',
+    'provides': ['input-source-repos-changed',
+                 'local-source-repodata',
                  'source-repo-contents',
                  'source-include'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
@@ -108,72 +109,85 @@ class SourceRepoHook:
       'output': [],
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'source-repos.md')
+
     if self.interface.config.pathexists('/distro/source') and \
        self.interface.config.get('/distro/source/@enabled', 'True') in BOOLEANS_TRUE:
       self.dosource = True
     else:
       self.dosource = False
 
-  def clean(self):
-    self.interface.clean_metadata()
-
   def setup(self):    
-    self.interface.cvars['source-repos'] = {}
     self.interface.setup_diff(self.mdfile, self.DATA)
-    
-    if self.dosource:    
-      self.interface.log(0, "generating filelists for input source repositories")
+    if self.dosource:
+      self.srcrepos = {}
       osutils.mkdir(self.mdsrcrepos, parent=True)
-      
-      # sync all repodata folders to builddata
-      self.interface.log(1, "synchronizing repository metadata")
       for repoxml in self.interface.config.xpath('/distro/source/repo'):
-        self.interface.log(2, repoxml.get('@id'))
         repo = RepoFromXml(repoxml)
         repo.local_path = join(self.mdsrcrepos, repo.id)
+        repo.pkgsfile = join(self.mdsrcrepos, '%s.pkgs' % repo.id)
         
+        o = self.interface.setup_sync(paths=[(repo.rjoin(repo.repodata_path, 'repodata'),
+                                              repo.ljoin(repo.repodata_path))])
+        self.DATA['output'].extend(o)
+        self.DATA['output'].append(repo.pkgsfile)
+        
+          
         repo.getRepoData()
         
-        self.interface.cvars['source-repos'][repo.id] = repo
+        self.srcrepos[repo.id] = repo
 
         self.DATA['output'].append(repo.ljoin(repo.repodata_path, 'repodata'))
         self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id))
+        self.srcrepos[repo.id] = repo
+
+  def clean(self):
+    self.interface.log(0, "cleaning source-repos event")
+    self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
 
   def check(self):
     return self.interface.test_diffs()
   
   def run(self):
     if not self.dosource:
-      self.interface.remove_output(all=True)
+      self.clean()
       return
+    self.interface.log(0, "processing input source repositories")
+    self.interface.sync_input()
 
-    self.interface.log(1, "computing source repo contents")      
-    self.interface.remove_output()
-    for repo in self.interface.getAllSourceRepos():
+    self.interface.log(1, "reading available packages")
+    self.interface.repoinfo = {}
+    for repo in self.srcrepos.values():
       self.interface.log(2, repo.id)
-      repo.readRepoContents()
-      repofile = join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id)
-      if repo.compareRepoContents(repofile):
-        repo.changed = True
-        repo.writeRepoContents(repofile)
 
-    self.interface.write_metadata() 
+      # read repomd.xml
+      repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')
+      repo.readRepoData(repomd)
+
+      # read primary.xml
+      repo.readRepoContents()
+      repo.writeRepoContents(repo.pkgsfile)
+
+    if self.interface.has_changed('input'):
+      self.interface.cvars['input-source-repos-changed'] = True
+    self.interface.write_metadata()
     
   def apply(self):
     self.interface.cvars['source-include'] = self.dosource
-   
-    if self.dosource:
-      # populate the srpms list for each repo
-      for repo in self.interface.getAllSourceRepos():
-        repofile = join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id)
-        if not exists(repofile):
-          raise RuntimeError("Unable to find repo file '%s'" % repofile)
-
-        ## It is a lot faster to read a CSV file as compared to an XML file :)
-        repo.readRepoContents(repofile=repofile)
-    
     self.interface.cvars['local-source-repodata'] = self.mdsrcrepos
+    self.interface.cvars['source-repos'] = self.srcrepos
 
+    if self.dosource and not self.interface.cvars['input-source-repos-changed']:      
+      for repo in self.srcrepos.values():
+        repomdfile = repo.ljoin(repo.repodata_path, repo.mdfile)
+        for file in repomdfile, repo.pkgsfile:
+          if not exists(file):
+            raise RuntimeError("Unable to find cached file at '%s'. Perhaps you " \
+                               "are skipping the 'source-repos' event before it has "\
+                               "been allowed to run once?" % file)
+        repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')
+        repo.readRepoData(repomd)
+        repo.readRepoContents(repofile=repo.pkgsfile)
 
 class SourceHook:
   def __init__(self, interface):
