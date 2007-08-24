@@ -346,13 +346,10 @@ class ConfigHandler:
     self.cfg.clear()
     
   def mdread(self, metadata):
-    for path in self.cdata:
-      node = metadata.get('/metadata/config/value[@path="%s"]' % path, None)
-      if node is not None:
-        self.cfg[path] = node.xpath('elements/*', None) or \
-                         node.xpath('text/text()', NoneEntry(path))
-      else:
-        self.cfg[path] = NewEntry()
+    for node in metadata.xpath('/metadata/config/value'):
+      path = node.get('@path')
+      self.cfg[path] = node.xpath('elements/*', None) or \
+                       node.xpath('text/text()', NoneEntry(path)) 
   
   def mdwrite(self, root):
     # remove previous node, if present
@@ -370,7 +367,7 @@ class ConfigHandler:
         else:
           elements = xmltree.Element('elements', parent=value)
           elements.append(copy.copy(val)) # append() is destructive
-    
+
   def diff(self):
     self.diffdict = {}
     for path in self.cdata:
@@ -405,15 +402,12 @@ class VariablesHandler:
     self.vars.clear()
     
   def mdread(self, metadata):
-    for item in self.vdata:
-      node = metadata.get('/metadata/variables/value[@variable="%s"]' % item)
-      if node is None:
-        self.vars[item] = NewEntry()
+    for node in metadata.xpath('/metadata/variables/value'):
+      item = node.get('@variable')
+      if len(node.getchildren()) == 0:
+        self.vars[item] = NoneEntry(item)
       else:
-        if len(node.getchildren()) == 0:
-          self.vars[item] = NoneEntry(item)
-        else:
-          self.vars[item] = xmlserialize.unserialize(node[0])
+        self.vars[item] = xmlserialize.unserialize(node[0])
   
   def mdwrite(self, root):
     try:
