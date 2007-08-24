@@ -121,11 +121,8 @@ class PkgorderHook:
     if not self.interface.cvars['iso-enabled']: return
 
     if self.dosync:
-      i,o = self.interface.setup_sync(xpaths=[('/distro/iso/pkgorder',
-                                               osutils.dirname(self.interface.config.file),
-                                               self.interface.ISO_METADATA_DIR)])
-      
-      self.DATA['input'].extend(i)
+      o = self.interface.setup_sync(xpaths=[('/distro/iso/pkgorder',
+                                             self.interface.ISO_METADATA_DIR)])      
       self.DATA['output'].extend(o)
       assert len(i) == 1 and len(o) == 1
       self.pkgorderfile = o[0][0]

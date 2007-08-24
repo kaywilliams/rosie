@@ -3,10 +3,10 @@ from os.path import join, exists
 from dims import filereader
 from dims import osutils
 
-from dimsbuild.event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.misc     import locals_imerge
+from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.misc  import locals_imerge
 
-from lib import FileDownloadMixin, ImageModifyMixin
+from lib import ImageModifyMixin
 
 API_VERSION = 4.1
 
@@ -25,9 +25,8 @@ HOOK_MAPPING = {
   'DiskbootHook': 'diskboot-image',
 }
 
-
 #------ HOOKS ------#
-class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
+class DiskbootHook(ImageModifyMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'installer.diskboot.diskboot-image'
@@ -43,8 +42,7 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
     }
     
     ImageModifyMixin.__init__(self, 'diskboot.img', interface, self.DATA)
-    FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
-  
+    
   def error(self, e):
     try:
       self.close()
@@ -54,7 +52,6 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
   def setup(self):
     ImageModifyMixin.setup(self)
     self.register_image_locals(L_IMAGES)
-    self.register_file_locals(L_FILES)
 
     self.DATA['input'].extend([
       self.interface.cvars['installer-splash'],
@@ -63,6 +60,7 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
   
   def clean(self):
     self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
   
   def check(self):
     return self.interface.cvars['isolinux-changed'] or \
@@ -71,14 +69,7 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
   
   def run(self):
     self.interface.log(0, "preparing diskboot image")
-    diskboot_dir = join(self.interface.SOFTWARE_STORE, 'images')
-    osutils.mkdir(diskboot_dir, parent=True)
-    
-    # clean up old output
-    self.clean()
-    # download file - see FileDownloadMixin in lib.py
-    self.download()
-    # modify image - see DiskbootModifier, below, and ImageModifyMixin in lib.py
+    self.interface.remove_output()
     self.modify()
   
   def apply(self):
@@ -87,17 +78,17 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
 
   def generate(self):
     ImageModifyMixin.generate(self)
-    self.write_file(self.interface.cvars['installer-splash'], '/')
-    self.write_file(self.interface.cvars['initrd-file'], '/')
+    self.image.write(self.interface.cvars['installer-splash'], '/')
+    self.image.write(self.interface.cvars['initrd-file'], '/')
     bootargs = self.interface.config.get('/distro/installer/diskboot.img/boot-args/text()', None)
     if bootargs:      
       if not 'syslinux.cfg' in self.image.list():
         raise RuntimeError("syslinux.cfg not found in the diskboot.img")
-      wcopy = '/tmp/dimsbuild/syslinux.cfg'
+      wcopy = join(self.interface.TEMP_DIR, 'syslinux.cfg')
       if exists(wcopy):
         osutils.rm(wcopy)
         
-      self.image.read('syslinux.cfg', '/tmp/dimsbuild')
+      self.image.read('syslinux.cfg', self.interface.TEMP_DIR)
       lines = filereader.read(wcopy)
       for i, line in enumerate(lines):
         if line.strip().startswith('append'):
@@ -107,22 +98,9 @@ class DiskbootHook(ImageModifyMixin, FileDownloadMixin):
       value = value.strip() + ' ' + bootargs.strip()
       lines.insert(i, value)
       filereader.write(lines, wcopy)
-
-      self.write_file(wcopy, '/')
+      self.image.write(wcopy, '/')
 
 #------ LOCALS ------#
-L_FILES = ''' 
-<locals>
-  <files-entries>
-    <files version="0">
-      <file id="diskboot.img">
-        <path>images</path>
-      </file>
-    </files>
-  </files-entries>
-</locals>
-'''
-
 L_IMAGES = ''' 
 <locals>
   <images-entries>

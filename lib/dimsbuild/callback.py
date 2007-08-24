@@ -3,7 +3,10 @@ callback.py
 
 Callback classes for dimsbuild
 """
-from dims.osutils       import basename
+import os
+
+from dims import osutils
+
 from dims.sync.cache    import CachedSyncCallback
 from dims.progressbar   import ProgressBar
 
@@ -11,35 +14,43 @@ from dims.progressbar   import ProgressBar
 LEVEL_0_FORMAT = '%s'
 LEVEL_1_FORMAT = ' * %s'
 LEVEL_2_FORMAT = '   - %s'
+LEVEL_3_FORMAT = '     + %s'
+LEVEL_4_FORMAT = '       o %s'
+
 LEVEL_OTHER_FORMAT = '%s' # format to use if not one of the above
 
 # adjust these as necessary
 LEVEL_MIN = 0
-LEVEL_MAX = 2
+LEVEL_MAX = 4
 
 MSG_MAXWIDTH = 40
 
 class FilesCallback:
-  def __init__(self, logger):
-    self.logger = logger
+  def __init__(self, interface):
+    self.interface = interface
 
   def remove_start(self):
-    self.logger(1, "removing files")
+    self.interface.log(1, "removing files")
 
   def remove(self, fn):
-    self.logger(2, basename(fn))
-
+    self.interface.log(4, osutils.basename(fn))
+    osutils.rm(fn, recursive=True, force=True)
+    
   def remove_dir_start(self):
-    self.logger(1, "removing empty directories")
+    self.interface.log(1, "removing empty directories")
   
   def remove_dir(self, dn):
-    self.logger(2, basename(dn))
+    try:
+      self.interface.log(4, osutils.basename(dn))
+      os.removedirs(dn)
+    except OSError:
+      pass      
 
   def sync_file_start(self):
-    self.logger(1, "downloading input files")
+    self.interface.log(1, "downloading input files")
 
-  def sync_file(self, sn, dn):
-    self.logger(4, "%s --> %s" %(sn, dn))
+  def sync_file(self, sn, dn, link=False):
+    self.interface.cache(sn, osutils.dirname(dn), link=link)
   
 class BuildSyncCallback(CachedSyncCallback):
   def __init__(self, threshold):
@@ -49,7 +60,7 @@ class BuildSyncCallback(CachedSyncCallback):
   # sync callbacks - kinda hackish
   def start(self, src, dest):
     if self.logger.threshold == 2:
-      self.logger.log(2, '%s' % basename(src), MSG_MAXWIDTH)
+      self.logger.log(2, '%s' % osutils.basename(src), MSG_MAXWIDTH)
   def cp(self, src, dest): pass
   def sync_update(self, src, dest): pass
   def mkdir(self, src, dest): pass
@@ -57,9 +68,9 @@ class BuildSyncCallback(CachedSyncCallback):
   def _cache_start(self, size, text):
     CachedSyncCallback._cache_start(self, size, LEVEL_2_FORMAT % text)
   
-  def _cp_start(self, size, text, position=0.0):
+  def _cp_start(self, size, text, seek=0.0):
     CachedSyncCallback._cp_start(self, size=size, text=LEVEL_2_FORMAT % text,
-                                       position=position, draw=self.logger.test(3))
+                                       seek=seek, draw=self.logger.test(3))
   
   def _cp_update(self, amount_read):
     CachedSyncCallback._cp_update(self, amount_read=amount_read,

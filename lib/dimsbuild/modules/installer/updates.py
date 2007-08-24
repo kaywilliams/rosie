@@ -63,6 +63,7 @@ class UpdatesHook(ImageModifyMixin):
   
   def clean(self):
     self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
   
   def check(self):
     return not self.validate_image() or \
@@ -70,11 +71,9 @@ class UpdatesHook(ImageModifyMixin):
   
   def run(self):
     self.interface.log(0, "generating updates.img")
-    # clean up old output
-    self.clean()
-    # modify image
-    self.modify() # modify image; see ImageModifyMixin.modify() in lib.py
-  
+    self.interface.remove_output()
+    self.modify()
+    
   def apply(self):
     if not exists(self.updatesimage):
       raise RuntimeError, "Unable to find 'updates.img' at '%s'" % self.updatesimage

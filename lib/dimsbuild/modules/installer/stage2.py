@@ -31,15 +31,28 @@ class Stage2Hook(FileDownloadMixin):
     self.interface = interface
     
     FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
-  
+    self.DATA = {
+      'input':  [],
+      'output': [],      
+    }
+    self.mdfile = join(self.interface.METADATA_DIR, 'INSTALLER', 'stage2.md')
+    
   def setup(self):
+    self.interface.setup_diff(self.mdfile, self.DATA)
     self.register_file_locals(L_FILES)
-  
+
+  def clean(self):
+    self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
+    
+  def check(self):
+    return self.interface.test_diffs()
+
   def run(self):
     self.interface.log(0, "synchronizing stage2 images")
-    
-    # download files, see FileDownloadMixin.download() in lib.py
+    self.interface.remove_output()
     self.download()
+    self.interface.write_metadata()
   
 
 #------ LOCALS ------#

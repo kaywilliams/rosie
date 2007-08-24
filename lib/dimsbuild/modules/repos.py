@@ -76,11 +76,10 @@ class ReposHook:
       repo.pkgsfile = join(self.mddir, '%s.pkgs' % repo.id)
 
       # setup sync
-      i,o = self.interface.setup_sync(paths=[(repo.rjoin(repo.repodata_path,'repodata'),
+      o = self.interface.setup_sync(paths=[(repo.rjoin(repo.repodata_path,'repodata'),
                                               repo.ljoin(repo.repodata_path))])
 
       # populate difftest variables
-      self.DATA['input'].extend(i)
       self.DATA['output'].extend(o)
       self.DATA['output'].append(repo.pkgsfile)
 

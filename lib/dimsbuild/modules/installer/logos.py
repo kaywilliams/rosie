@@ -52,7 +52,7 @@ class LogosHook(ExtractHandler):
     }
     
     ExtractHandler.__init__(self, interface, self.metadata_struct,
-                            join(interface.METADATA_DIR, 'logos.md'))
+                            join(interface.METADATA_DIR, 'INSTALLER', 'logos.md'))
   
   def setup(self):
     self.locals = locals_imerge(L_LOGOS, self.interface.cvars['anaconda-version'])

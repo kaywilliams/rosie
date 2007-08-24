@@ -55,9 +55,6 @@ class RpmsHook:
     self.ID = 'meta.RPMS'
     self.interface = interface
     
-  def pre(self):
-    self.interface.log(0, "generating custom rpms")
-    
   def setup(self):
     osutils.mkdir(self.interface.LOCAL_REPO,  parent=True)
     osutils.mkdir(self.interface.LOCAL_RPMS,  parent=True)
@@ -65,12 +62,10 @@ class RpmsHook:
           
   def post(self):
     if self.interface.isSkipped('RPMS'): return
-    self.interface.log(1, "checking repository metadata")
-
     if not exists(join(self.interface.LOCAL_RPMS, 'repodata')) or \
          not exists(join(self.interface.LOCAL_SRPMS, 'repodata')) or \
          self.interface.cvars['custom-rpms-built']:
-      self.interface.log(2, "running createrepo")
+      self.interface.log(1, "running createrepo")
       self.interface.createrepo(self.interface.LOCAL_RPMS)
       self.interface.createrepo(self.interface.LOCAL_SRPMS)
 

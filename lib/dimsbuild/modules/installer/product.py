@@ -70,17 +70,16 @@ class ProductHook(ImageModifyMixin):
   
   def clean(self):
     self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
     
   def check(self):
     return not self.validate_image or \
            self.interface.test_diffs()
   
   def run(self):
-    self.interface.log(0, "generating product.img")  
-    # clean up old output
-    self.clean()
-    # modify image
-    self.modify() # see generate(), below, and ImageModifyMixin in lib.py
+    self.interface.log(0, "generating product.img")
+    self.interface.remove_output()
+    self.modify()
   
   def apply(self):
     if not exists(self.productimage):

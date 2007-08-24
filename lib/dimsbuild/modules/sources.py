@@ -223,8 +223,7 @@ class SourceHook:
     self.DATA['input'].append(self.mdsrcrepos)
     self.DATA['output'].append(join(self.interface.srpmdest, 'repodata'))
     
-    i,o = self.interface.setup_sync(paths=paths)
-    self.DATA['input'].extend(i)
+    o = self.interface.setup_sync(paths=paths)
     self.DATA['output'].extend(o)
 
   def clean(self):

@@ -63,22 +63,13 @@ class SourcevarsHook:
 
     initrd_in=self.interface.getRepo(self.interface.getBaseRepoId()).rjoin('isolinux/initrd.img')
 
-    i,o = self.interface.setup_sync( paths=[(initrd_in, self.md_dir)] )
-
-    #TODO remove after list_output is fixed
-    for item in o:
-      dest,src = item
-      self.initrd_out=dest
-      break
+    o = self.interface.setup_sync( paths=[(initrd_in, self.md_dir)] )
+    self.initrd_out = o[0][0]
 
     self.buildstamp_out = join(self.md_dir, '.buildstamp')
 
-    self.DATA['input'].extend(i)
     self.DATA['output'].extend(o)
     self.DATA['output'].append(self.buildstamp_out)
-
-    # TODO uncomment after list_output is fixed
-    #self.initrd_out=self.interface.list_output( initrd_in )
    
   def check(self):
     return self.interface.test_diffs()

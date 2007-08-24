@@ -76,20 +76,10 @@ class CompsHook:
     self.comps_supplied = self.interface.config.get('/distro/comps/use-existing/path/text()', None)
 
     if self.comps_supplied: 
-      i,o = self.interface.setup_sync(xpaths=[('/distro/comps/use-existing/path',
-                                               osutils.dirname(self.interface.config.file),
-                                               self.mddir)])
-      self.DATA['input'].extend(i)
-      self.DATA['output'].extend(o) 
-
-      #TODO remove after list_output is fixed
-      for item in o:
-        dest,src = item
-        self.comps_out=dest
-        break
-      # TODO uncomment after list_output is fixed
-      #self.initrd_out=self.interface.list_output( initrd_in )
-
+      o = self.interface.setup_sync(xpaths=[('/distro/comps/use-existing/path',
+                                             self.mddir)])
+      self.DATA['output'].extend(o)
+      self.comps_out = o[0][0]
     else: 
       self.comps_out = join(self.mddir, 'comps.xml')
       self.DATA['output'].append(self.comps_out)

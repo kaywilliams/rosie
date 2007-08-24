@@ -102,8 +102,8 @@ class ImageHandler:
   Classes that extend this must require 'anaconda-version',
   'buildstamp-file.'
   """
-  def __init__(self, interface):
-    self.name = 'super' # subclasses override this
+  def __init__(self, interface, name):
+    self.name = name 
     self.image = None
     self.interface = interface
     self.i_locals = None
@@ -168,30 +168,26 @@ class ImageHandler:
 class ImageModifyMixin(ImageHandler):
   """
   Classes that extend this must require 'anaconda-version' and
-  'buildstamp-file.'  
+  'buildstamp-file.'
+
+  This class downloads (if the image exists) and modifies it.
   """
   def __init__(self, name, interface, data, mdfile=None):
-    if mdfile is None:
-      self.mdfile = join(interface.METADATA_DIR, '%s.md' % name)
-    else:
-      self.mdfile = mdfile
+    ImageHandler.__init__(self, interface, name)
+    self.mdfile = mdfile or join(interface.METADATA_DIR, 'INSTALLER', '%s.md' % name)
     self.DATA = data    
-    ImageHandler.__init__(self, interface)
-    
-    self.name = name        
+    self.imagedir = join(self.interface.METADATA_DIR, 'INSTALLER', self.name)
 
-  def setup(self, config=True):
+  def setup(self):
     imagessrc = join(self.interface.METADATA_DIR, 'images-src', self.name)
     if exists(imagessrc):
       self.DATA['input'].append(imagessrc)
+
     self.interface.setup_diff(self.mdfile, self.DATA)
-    if config:
-      i,_ = self.interface.setup_sync(xpaths=[(
-        '/distro/installer/%s/path' % self.name,
-        osutils.dirname(self.interface.config.file),
-        '/'
-      )])
-      self.DATA['input'].extend(i)
+
+    o = self.interface.setup_sync(xpaths=[('/distro/installer/%s/path' % self.name,
+                                           self.imagedir)])
+    self.DATA['output'].extend(o)
     
   def register_image_locals(self, locals):
     ImageHandler.register_image_locals(self, locals)
@@ -200,21 +196,15 @@ class ImageModifyMixin(ImageHandler):
     
     image_path = self.i_locals.get('//images/image[@id="%s"]/path' % self.name)
     image_path = locals_printf(image_path, self.interface.BASE_VARS)
-    
-    self.src = repo.rjoin(image_path, self.name)
-    self.username = repo.username
-    self.password = repo.password
-    self.dest = join(self.interface.SOFTWARE_STORE, image_path, self.name)
-    
+
+    self.interface.setup_sync(paths=[(repo.rjoin(image_path, self.name),
+                                      join(self.interface.SOFTWARE_STORE, image_path))],
+                              id='ImageModifyMixin')
     self.l_image = self.i_locals.get('//images/image[@id="%s"]' % self.name)
   
   def modify(self):
     # sync image to input store
-    try:
-      self.interface.cache(self.src, osutils.dirname(self.dest))
-    except sync.util.SyncError, e:
-      if self._isvirtual(): pass
-      else: raise e
+    self.interface.sync_input(what=['ImageModifyMixin', 'default'])
       
     # modify image
     self.interface.log(1, "modifying %s" % self.name)
@@ -224,20 +214,23 @@ class ImageModifyMixin(ImageHandler):
     
     # validate output
     if not self.validate_image():
-      raise OutputInvalidError, "output files are invalid"
+      raise OutputInvalidError("output files are invalid")
     
     # write metadata
     self.interface.write_metadata()
   
   def generate(self):
     self.interface.cvars['%s-changed' % self.name] = True
-    self.interface.sync_input(action=self.write_file)
-    
-  def write_file(self, src, dest):
-    self.image.write(src, dest)
+    if exists(self.imagedir):
+      self.write_directory(self.imagedir)
 
 class FileDownloadMixin:
-  "Classes that extend this must require 'anaconda-version' and 'source-vars'"
+  """
+  Classes that extend this must require 'anaconda-version' and
+  'source-vars'.
+
+  This class should be used to download files besides the images.
+  """  
   def __init__(self, interface, repoid):
     self.f_locals = None
     
@@ -246,20 +239,22 @@ class FileDownloadMixin:
     
   def register_file_locals(self, locals):
     self.f_locals = locals_imerge(locals, self.interface.cvars['anaconda-version'])
-  
-  def download(self):
-    if not self.f_locals:
-      raise RuntimeError, "FileDownloadMixin instance has no registered locals"
-    
+    paths = []
     for file in self.f_locals.xpath('//files/file'):
       filename = file.attrib['id']
-      if file.attrib.get('virtual', 'False') in BOOLEANS_TRUE: continue # skip virtual files
+      if file.attrib.get('virtual', 'False') in BOOLEANS_TRUE:
+        continue # skip virtual files      
       
       rinfix = locals_printf(file.get('path'), self.interface.cvars['source-vars'])
       linfix = locals_printf(file.get('path'), self.interface.BASE_VARS)
-      
-      self.interface.cache(self.interface.getRepo(self.repoid).rjoin(rinfix, filename),
-                           join(self.interface.SOFTWARE_STORE, linfix))
+      paths.append((self.interface.getRepo(self.repoid).rjoin(rinfix, filename),
+                    join(self.interface.SOFTWARE_STORE, linfix)))
 
+    o = self.interface.setup_sync(paths=paths, id='FileDownloadMixin')
+    self.DATA['output'].extend(o)    
+
+  def download(self):
+    self.interface.sync_input(what='FileDownloadMixin')
+    
 class RpmNotFoundError(Exception): pass
 class OutputInvalidError(Exception): pass

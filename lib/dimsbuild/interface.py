@@ -75,7 +75,7 @@ class EventInterface:
     self.diffset = {}
 
     # FilesMixin stuff
-    self.files_callback = FilesCallback(self.log)
+    self.files_callback = FilesCallback(self)
     self.syncinfo = {}
     
   def expandMacros(self, text):
@@ -171,8 +171,7 @@ class EventInterface:
   def write_metadata(self):
     self.DT.write_metadata()
 
-  ## FilesMixin stuff ##
-  def setup_sync(self, xpaths=[], paths=[]):
+  def setup_sync(self, xpaths=[], paths=[], iprefix=None, id='default'):
     """
     setup_sync([xpaths[,paths]])
 
@@ -180,12 +179,15 @@ class EventInterface:
     This will get fixed once the location of the metadata file can be
     programmatically determined.
     
-    @param xpaths  : [(xpath query, input prefix, output prefix), ...]
+    @param xpaths  : [(xpath query,  output prefix), ...]
     @param paths   : [(path to file, output prefix), ...]
+    @param iprefix : the prefix to use for relative paths
+    @param id      : give an id to refer to these input files with
 
-    @return input  : a list of all the input files
     @return output : [(output file, source file),...]
     """
+    iprefix = iprefix or osutils.dirname(self.config.file)
+    
     if paths and type(paths) != type([]):
       paths = [paths]
     if xpaths and type(xpaths) != type([]):
@@ -194,29 +196,40 @@ class EventInterface:
     if not self.handlers.has_key('input'):
       self.add_handler(InputHandler([]))
     
-    for x,i,o in xpaths:
+    for x,o in xpaths:
       for item in self.config.xpath(x,[]):
         s = item.get('text()')
         d = item.get('@dest', '')
         if s.startswith('file://'): s = s[7:]
         if not s.startswith('/') and s.find('://') == -1:
-          s = join(i,s)
+          s = join(iprefix, s)
         d = join(o, d.lstrip('/'))
-        self._setup_sync(s,d)
+        self._setup_sync(s, d, id)
 
     for p,o in paths:
       if type(p) != type([]):
         p = [p]
       for item in p:
-        self._setup_sync(item, o)
+        if type(item) == type(()):
+          if item[0].startswith('file://'):
+            item = (item[0][7:], item[1], item[2])
+          elif item[0].startswith('/') and item[0].find('://') == -1:
+            item = (join(iprefix, item[0]), item[1], item[2])
+        else:
+          if item.startswith('file://'): item = item[7:]
+          if not item.startswith('/') and item.find('://') == -1:
+            item = join(iprefix, item)
+        self._setup_sync(item, o, id)
 
+    if not self.syncinfo.has_key(id): return []
+    
     outputs = []
-    for s,ds in self.syncinfo.items():
+    for s,ds in self.syncinfo[id].items():
       for d in ds:
         outputs.append((d,s))
-    return (self.syncinfo.keys(), outputs)
+    return outputs
 
-  def _setup_sync(self, sourcefile, destdir):
+  def _setup_sync(self, sourcefile, destdir, id):
     inputs = self.handlers['input'].mdadd(sourcefile)
 
     if type(sourcefile) == type(()):
@@ -238,10 +251,12 @@ class EventInterface:
           site.close()
 
     for f in inputs:
-      if not self.syncinfo.has_key(f):
-        self.syncinfo[f] = []
+      if not self.syncinfo.has_key(id):
+        self.syncinfo[id] = {}
+      if not self.syncinfo[id].has_key(f):
+        self.syncinfo[id][f] = []
       ofile = join(destdir, f[sourcefile.rstrip('/').rfind('/')+1:])
-      self.syncinfo[f].append(ofile)
+      self.syncinfo[id][f].append(ofile)
 
   def remove_output(self, rmlist=None, all=False, cb=None):
     """
@@ -271,24 +286,31 @@ class EventInterface:
         # anymore
         for oldfile in self.handlers['output'].oldoutput.keys():
           found = False
-          for ds in self.syncinfo.values():
-            if oldfile in ds:
-              found = True
+          
+          for id in self.syncinfo.keys():
+            for ds in self.syncinfo[id].values():
+              if oldfile in ds:
+                found = True
+                break
+            if found:
+              break
+            
           if not found:
             rmlist.append(oldfile)
-      rmlist = [ r for r in rmlist if exists(r) ]
             
+      rmlist = [ r for r in rmlist if exists(r) ]
     if not rmlist:
       return
 
     cb = cb or self.files_callback
     cb.remove_start()
-    rmlist.sort()
+
+    rmlist.sort(lambda x,y: cmp(osutils.basename(x), osutils.basename(y)))
     dirs = []
+    
     # delete the files, whether or not they exist
     for rmitem in rmlist:
       cb.remove(rmitem)
-      osutils.rm(rmitem, recursive=True, force=True)
       dir = osutils.dirname(rmitem)
       if dir not in dirs:
         dirs.append(dir)
@@ -299,53 +321,64 @@ class EventInterface:
     dirs.reverse()
     cb.remove_dir_start()
     for dir in dirs:
-      try:
-        cb.remove_dir(dir)
-        os.removedirs(dir)
-      except OSError:
-        pass 
+      cb.remove_dir(dir)
 
-  def sync_input(self, action=None, cb=None, link=False):
+  def sync_input(self, cb=None, link=False, what=None):
     """
     sync_input([action[,cb]])
     
     Sync the input files to their output locations.
-    
-    @param action: the function to call with the source file and
-                   destination as parameters. If None, simply sync the
-                   source file to the destination.
-    @param link:   if action is not specified, and link is True the
-                   input files are linked to the output location.
-    """
-    sync_items = []
-    for s in self.syncinfo.keys():      
-      sync_items.extend( [ (s,d) for d in self.syncinfo[s] if not exists(d) ] )    
 
-    # return if there is nothing to sync
-    if not sync_items:
-      return []
-    
+    @param link : if action is not specified, and link is True the
+                  input files are linked to the output location.
+    @param what : list of IDs identifying what to download.
+    """
+    if what is None: what = self.syncinfo.keys()
+    if type(what) == type(''): what = [what]
+      
+    sync_items = {}
+    for id in what:
+      if not self.syncinfo.has_key(id):
+        continue
+      for s,ds in self.syncinfo[id].items():
+        for d in ds:
+          if not exists(d):
+            if not sync_items.has_key(id):
+              sync_items[id] = []
+            sync_items[id].append((s,d))
+    if not sync_items: return
+
+    for id in sync_items.keys():
+      sync_items[id].sort(lambda x, y: cmp(osutils.basename(x[1]), osutils.basename(y[1])))
+      
+    outputs = []
     cb = cb or self.files_callback
     cb.sync_file_start()
-    
-    sync_items.sort(lambda x,y: cmp(x[1], y[1]))
-    for s,d in sync_items:
-      cb.sync_file(s,d)
-      if action: action(s, osutils.dirname(d))
-      else:      self.cache(s, osutils.dirname(d), link=link)
-      
-    return [ d for _,d in sync_items ]
+    for id in sync_items.keys():
+      if id != 'default':
+        self.log(2, '-' * 60)
+      for s,d in sync_items[id]:
+        cb.sync_file(s, d, link=link)
+        outputs.append(d)
+      if id != 'default':
+        self.log(2, '-' * 60)
+    return outputs
   
-  def list_output(self, source):
+  def list_output(self, id):
     """
     list_output(source)
     
     Returns the list of output files corresponding to an input file/directory.
 
-    @param source: the source file for which the output files' list is
-                   requested.    
+    @param id : the ID of the files for which the output files list is
+                requested.    
     """
-    return self.syncinfo.get(source, [])    
+    if not self.syncinfo.has_key(id):
+      return []
+    outputs = []
+    for ds in self.syncinfo[id].values():
+      outputs.extend(ds)
+    return outputs
 
 #------- DIFFTEST HANDLERS -----#
 class InputHandler:

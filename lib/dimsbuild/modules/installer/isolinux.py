@@ -54,47 +54,29 @@ class IsolinuxHook(FileDownloadMixin):
       'config':    ['/distro/installer/isolinux'],
     }
     
-    self.mdfile = join(self.interface.METADATA_DIR, 'isolinux.md')
+    self.mdfile = join(self.interface.METADATA_DIR, 'INSTALLER', 'isolinux.md')
     FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
   
   def setup(self):
-    repo = self.interface.getRepo(self.interface.getBaseRepoId())
-    self.register_file_locals(L_FILES)
-
-    self.DATA.update({
-      'input': [ repo.rjoin(f.get('path/text()'),
-                            f.get('@id')) \
-                 for f in self.f_locals.xpath('//file') ],
-      'output': [ join(self.interface.SOFTWARE_STORE,
-                       f.get('path/text()'),
-                       f.get('@id')) \
-                  for f in self.f_locals.xpath('//file') ],
-    })
     self.interface.setup_diff(self.mdfile, self.DATA)
-    i,o = self.interface.setup_sync(xpaths=[('/distro/installer/isolinux/path',
-                                               osutils.dirname(self.interface.config.file),
-                                               self.isolinux_dir)])
-    self.DATA['input'].extend(i)
+    self.register_file_locals(L_FILES)
+    o = self.interface.setup_sync(xpaths=[('/distro/installer/isolinux/path',
+                                           self.isolinux_dir)],
+                                  id='IsoLinuxFiles')
     self.DATA['output'].extend(o)
 
   def clean(self):
     self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
     
   def check(self):
     return self.interface.test_diffs()
   
   def run(self):
-    self.interface.log(0, "synchronizing isolinux files")    
-    osutils.mkdir(self.isolinux_dir, parent=True)
-    
-    # clean up old output
-    self.clean()
-
-    # download all files - see FileDownloadMixin.download() in lib.py    
+    self.interface.log(0, "synchronizing isolinux files")
+    self.interface.remove_output()
     self.download()
-
-    # copy input files - see FilesMixin.sync_files() in interface.py
-    self.interface.sync_input()
+    self.interface.sync_input(what='IsoLinuxFiles')
     
     # modify the first append line in isolinux.cfg
     bootargs = self.interface.config.get('/distro/installer/isolinux/boot-args/text()', None)
@@ -117,7 +99,6 @@ class IsolinuxHook(FileDownloadMixin):
   def apply(self):
     self.interface.write_metadata()
     for file in self.DATA['output']:
-      #print file
       if type(file) == type(()): file = file[0]
       if not exists(file):
         raise RuntimeError("Unable to find '%s'" % file)
@@ -148,47 +129,25 @@ class InitrdHook(ImageModifyMixin):
     ImageModifyMixin.setup(self)
     self.register_image_locals(L_IMAGES)
 
-    repo = self.interface.getRepo(self.interface.getBaseRepoId())
-
-    # add input files
-    self.DATA['input'].append(self.interface.cvars['buildstamp-file'])
-    self.DATA['input'].extend([
-      join(self.interface.INPUT_STORE,
-           repo.id, repo.directory,
-           f.get('path/text()'),
-           f.get('@id')) \
-      for f in self.i_locals.xpath('//image')
-    ])
-    self.DATA['output'].extend([
-      join(self.interface.SOFTWARE_STORE,
-           f.get('path/text()'),
-           f.get('@id')) \
-      for f in self.i_locals.xpath('//image')
-    ])
-
   def clean(self):
     self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
   
   def check(self):
     return self.interface.test_diffs()
   
   def run(self):
     self.interface.log(0, "processing initrd.img")
-    
-    # clean up old output
-    self.clean()
-    # modify initrd.img - see ImageModifyMixin.modify() in lib.py
-    self.modify()
-    
+    self.interface.remove_output(all=True)
+    self.modify()    
     self.interface.cvars['isolinux-changed'] = True
   
   def apply(self):
     for file in self.DATA['output']:
-      if type(file) == type(()):
-        file = file[0] #### FIXME
+      if type(file) == type(()): file = file[0]
       if not exists(join(self.interface.SOFTWARE_STORE, file)):
-        raise RuntimeError, "Unable to find '%s' at '%s'" % (file, join(self.interface.SOFTWARE_STORE))
-
+        raise RuntimeError("Unable to find '%s' at '%s'"  \
+                           % (file, join(self.interface.SOFTWARE_STORE)))
     initrd = self.i_locals.get('//image[@id="initrd.img"]')
     self.interface.cvars['initrd-file'] = join(self.interface.SOFTWARE_STORE,
                                                initrd.get('path/text()'), 'initrd.img')

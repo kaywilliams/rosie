@@ -55,7 +55,8 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
     }
   
     ImageModifyMixin.__init__(self, 'initrd.img', interface, self.DATA,
-                           mdfile=join(interface.METADATA_DIR, 'initrd.img-xen.md'))
+                              mdfile=join(interface.METADATA_DIR, 'INSTALLER',
+                                          'initrd.img-xen.md'))
     FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
   
   def error(self, e):
@@ -71,9 +72,8 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
     self.DATA['input'].append(self.interface.cvars['buildstamp-file'])
     
   def clean(self):
-    self.interface.remove_output(
-      rmlist=[ join(self.interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ]
-    )
+    self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
   
   def check(self):
     return not self.validate_image() or \
@@ -81,14 +81,9 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
   
   def run(self):
     self.interface.log(0, "preparing xen images")
-    osutils.mkdir(self.xen_dir, parent=True)
-    
-    # clean up old output
-    self.clean()
-    # download files
-    self.download() # see FileDownloadMixin.download() in lib.py
-    # modify initrd.img
-    self.modify() # see ImageModifyMixin.modify() in lib.py
+    self.interface.remove_output(all=True)
+    self.download()
+    self.modify()
   
   def apply(self):
     for file in XEN_OUTPUT_FILES:
@@ -104,9 +99,6 @@ L_FILES = '''
 <locals>
   <files-entries>
     <files version="0">
-      <file id="initrd.img">
-        <path>images/xen</path>
-      </file>
       <file id="vmlinuz">
         <path>images/xen</path>
       </file>

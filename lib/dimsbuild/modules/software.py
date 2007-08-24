@@ -119,8 +119,7 @@ class SoftwareHook:
     self.DATA['input'].append(join(self.interface.METADATA_DIR, 'repos'))
     self.interface.setup_diff(self.mdfile, self.DATA)
     
-    i,o = self.interface.setup_sync(paths=paths)
-    self.DATA['input'].extend(i)
+    o = self.interface.setup_sync(paths=paths)
     self.DATA['output'].extend(o)
     
   def clean(self):

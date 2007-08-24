@@ -189,12 +189,8 @@ class RpmBuildHook:
         xpath,_ = v
         if xpath is not None:
           xpaths.append((xpath,
-                         osutils.dirname(self.interface.config.file),
                          join(self.build_folder, k.lstrip('/'))))
-      i,_ = self.interface.setup_sync(xpaths=xpaths)
-      if not self.DATA.has_key('input'):
-        self.DATA['input'] = []
-      self.DATA['input'].extend(i)
+      self.interface.setup_sync(xpaths=xpaths)
 
   def clean(self):
     self.interface.remove_output(all=True)
@@ -238,7 +234,7 @@ class RpmBuildHook:
 
     # ... build the RPM ...
     self.interface.buildRpm(self.build_folder, self.interface.LOCAL_REPO,
-                            quiet=(self.interface.logthresh < 4))
+                            quiet=(self.interface.logthresh < 5))
 
     # ... test the output's validity ...
     if not self.output_valid():

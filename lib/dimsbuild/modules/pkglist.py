@@ -113,10 +113,8 @@ class PkglistHook:
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
     if self.docopy:
-      i,o = self.interface.setup_sync(xpaths=[('/distro/pkglist/path',
-                                               osutils.dirname(self.interface.config.file),
-                                               self.interface.METADATA_DIR)])
-      self.DATA['input'].extend(i)
+      o = self.interface.setup_sync(xpaths=[('/distro/pkglist/path',
+                                             self.interface.METADATA_DIR)])
       self.DATA['output'].extend(o)
       assert len(i) == 1 and len(o) == 1
       self.pkglistfile = o[0][0]

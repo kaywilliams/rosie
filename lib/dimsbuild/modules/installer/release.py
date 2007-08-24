@@ -47,7 +47,7 @@ class ReleaseHook(ExtractHandler):
     }
     
     ExtractHandler.__init__(self, interface, self.metadata_struct,
-                            join(interface.METADATA_DIR, 'release-files.md'))
+                            join(interface.METADATA_DIR, 'INSTALLER', 'release-files.md'))
     
   def run(self):
     ExtractHandler.extract(self, "synchronizing release files")
