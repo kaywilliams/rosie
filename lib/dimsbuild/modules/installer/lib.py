@@ -197,9 +197,10 @@ class ImageModifyMixin(ImageHandler):
     image_path = self.i_locals.get('//images/image[@id="%s"]/path' % self.name)
     image_path = locals_printf(image_path, self.interface.BASE_VARS)
     try:
-      self.interface.setup_sync(paths=[(repo.rjoin(image_path, self.name),
-                                        join(self.interface.SOFTWARE_STORE, image_path))],
-                                id='ImageModifyMixin')
+      o = self.interface.setup_sync(paths=[(repo.rjoin(image_path, self.name),
+                                            join(self.interface.SOFTWARE_STORE, image_path))],
+                                    id='ImageModifyMixin')
+      self.DATA['output'].extend(o)
     except IOError:
       if not self._isvirtual():
         raise
