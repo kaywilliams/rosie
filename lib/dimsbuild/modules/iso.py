@@ -124,7 +124,7 @@ class PkgorderHook:
       o = self.interface.setup_sync(xpaths=[('/distro/iso/pkgorder',
                                              self.interface.ISO_METADATA_DIR)])      
       self.DATA['output'].extend(o)
-      assert len(i) == 1 and len(o) == 1
+      assert len(o) == 1
       self.pkgorderfile = o[0][0]
     else:
       self.pkgorderfile = join(self.interface.ISO_METADATA_DIR, 'pkgorder')

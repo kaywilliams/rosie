@@ -116,7 +116,7 @@ class PkglistHook:
       o = self.interface.setup_sync(xpaths=[('/distro/pkglist/path',
                                              self.interface.METADATA_DIR)])
       self.DATA['output'].extend(o)
-      assert len(i) == 1 and len(o) == 1
+      assert len(o) == 1
       self.pkglistfile = o[0][0]
     else:
       self.pkglistfile = join(self.interface.METADATA_DIR, 'pkglist')
