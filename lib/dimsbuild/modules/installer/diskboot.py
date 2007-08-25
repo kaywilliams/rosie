@@ -32,9 +32,7 @@ class DiskbootHook(ImageModifyMixin):
     self.ID = 'installer.diskboot.diskboot-image'
     
     self.interface = interface
-    
-    self.diskbootimage = join(interface.SOFTWARE_STORE, 'images/diskboot.img')
-  
+
     self.DATA = {
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
@@ -59,6 +57,7 @@ class DiskbootHook(ImageModifyMixin):
     ])
 
   def clean(self):
+    self.interface.log(0, "cleaning diskboot-image event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
   
@@ -73,8 +72,9 @@ class DiskbootHook(ImageModifyMixin):
     self.modify()
   
   def apply(self):
-    if not exists(self.diskbootimage):
-      raise RuntimeError, "Unable to find 'diskboot.img' at '%s'" % self.diskbootimage
+    for file in self.interface.list_output():
+      if not exists(file):
+        raise RuntimeError("Unable to find '%s' at '%s'" % (osutils.basename(file), file))
 
   def generate(self):
     ImageModifyMixin.generate(self)

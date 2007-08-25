@@ -50,6 +50,7 @@ class PxebootHook:
     self.DATA['output'].extend(outputs)
     
   def clean(self):
+    self.interface.log(0, "cleaning pxeboot-images event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()  
 

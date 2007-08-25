@@ -5,7 +5,7 @@ from dims import osutils
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 
-from lib import ExtractHandler, RpmNotFoundError
+from lib import ExtractMixin, RpmNotFoundError
 
 API_VERSION = 4.1
 
@@ -35,7 +35,7 @@ class ValidateHook:
                             schemafile='release-files.rng')
 
 
-class ReleaseHook(ExtractHandler):
+class ReleaseHook(ExtractMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'release.release-files'
@@ -46,11 +46,24 @@ class ReleaseHook(ExtractHandler):
       'output': [],
     }
     
-    ExtractHandler.__init__(self, interface, self.metadata_struct,
-                            join(interface.METADATA_DIR, 'INSTALLER', 'release-files.md'))
+    ExtractMixin.__init__(self, interface, self.metadata_struct,
+                          join(interface.METADATA_DIR, 'INSTALLER', 'release-files.md'))
+
+  def setup(self):
+    self.DATA['input'].extend(self.find_rpms())
+    self.interface.setup_diff(self.mdfile, self.DATA)
     
+  def clean(self):
+    self.interface.log(0, "cleaning release-files event")
+    self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
+
+  def check(self):
+    return self.interface.test_diffs()
+  
   def run(self):
-    ExtractHandler.extract(self, "synchronizing release files")
+    self.interface.log(0, "synchronizing release files")
+    self.extract()
 
   def generate(self, working_dir):
     files = {}
@@ -72,7 +85,7 @@ class ReleaseHook(ExtractHandler):
       dest = files[source]
       if isfile(source) and isdir(dest):
         rtn.append(join(dest, osutils.basename(source)))
-      self.interface.cache(source, dest, link=True)
+      self.interface.copy(source, dest, link=True)
     return rtn
 
   def find_rpms(self):

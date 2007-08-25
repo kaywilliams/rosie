@@ -149,16 +149,10 @@ class PublishHook:
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
     paths = []
-    osdir = join(self.interface.OUTPUT_DIR, 'os')
-    isodir = join(self.interface.OUTPUT_DIR, 'iso')
-    srpmdir = join(self.interface.OUTPUT_DIR, 'SRPMS')
-    if exists(osdir):
-      paths.append((osdir, self.interface.PUBLISH_DIR))
-    if exists(isodir):
-      paths.append((isodir, self.interface.PUBLISH_DIR))
-    if exists(srpmdir):
-      paths.append((srpmdir, self.interface.PUBLISH_DIR))
-
+    for dir in ['os', 'iso', 'SRPMS']:
+      pdir = join(self.interface.OUTPUT_DIR, dir)
+      if exists(pdir):
+        paths.append((pdir, self.interface.PUBLISH_DIR))
     if paths:
       o = self.interface.setup_sync(paths=paths)
       self.DATA['output'].extend(o)
@@ -175,7 +169,7 @@ class PublishHook:
     "Publish the contents of interface.SOFTWARE_STORE to interface.PUBLISH_STORE"
     self.interface.log(0, "publishing output store")
     self.interface.remove_output()
-    self.interface.sync_input(link=True)
+    self.interface.sync_input(copy=True, link=True)
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.interface.PUBLISH_DIR)
 
     self.interface.write_metadata()

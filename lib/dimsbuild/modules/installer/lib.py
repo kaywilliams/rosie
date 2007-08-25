@@ -28,7 +28,7 @@ MAGIC_MAP = {
   'fat32': FILE_TYPE_FAT,
 }
 
-class ExtractHandler:
+class ExtractMixin:
   def __init__(self, interface, data, mdfile):    
     self.interface = interface
     self.config = self.interface.config
@@ -37,19 +37,7 @@ class ExtractHandler:
     self.DATA = data
     self.mdfile = mdfile
     
-  def setup(self):
-    self.DATA['input'].extend(self.find_rpms())
-    self.interface.setup_diff(self.mdfile, self.DATA)
-
-  def clean(self):
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
-    
-  def check(self):
-    return self.interface.test_diffs()
-  
-  def extract(self, message):
-    self.interface.log(0, message)
+  def extract(self):
     self.interface.remove_output(all=True)
     
     # generate output files
@@ -59,7 +47,7 @@ class ExtractHandler:
       working_dir = tempfile.mkdtemp(dir=self.interface.TEMP_DIR) 
 
       for rpmname in self.find_rpms():
-        self.extractRpm(rpmname, working_dir)
+        self.extract_rpm(rpmname, working_dir)
       
       # need to modify self.data, so that the metadata written has all
       # the files created. Otherwise, self.data['output'] will be
@@ -71,14 +59,14 @@ class ExtractHandler:
     # write metadata
     self.interface.write_metadata()
 
-  def extractRpm(self, rpmPath, output=os.getcwd()):
+  def extract_rpm(self, rpmPath, output=os.getcwd()):
     """ 
     Extract the contents of the RPM file specified by rpmPath to
     the output location. The rpmPath parameter can use globbing.
   
     @param rpmPath : the path to the RPM file    
     @param output  : the directory that is going to contain the RPM's
-    contents
+                     contents
     """
     # create temporary directory for rpm contents
     dir = tempfile.mkdtemp(dir=self.interface.TEMP_DIR)
@@ -210,7 +198,8 @@ class ImageModifyMixin(ImageHandler):
   
   def modify(self):
     # sync image to input store
-    self.interface.sync_input(what=['ImageModifyMixin', 'default'])
+    self.interface.sync_input(what=['ImageModifyMixin',
+                                    '/distro/installer/%s/path' % self.name])
     
     # modify image
     self.interface.log(1, "modifying %s" % self.name)

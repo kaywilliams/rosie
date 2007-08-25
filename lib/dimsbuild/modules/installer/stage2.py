@@ -1,4 +1,6 @@
-from os.path import join
+from os.path import exists, join
+
+from dims import osutils
 
 from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
@@ -42,6 +44,7 @@ class Stage2Hook(FileDownloadMixin):
     self.register_file_locals(L_FILES)
 
   def clean(self):
+    self.interface.log(0, "cleaning stage2-images event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
     
@@ -53,7 +56,11 @@ class Stage2Hook(FileDownloadMixin):
     self.interface.remove_output()
     self.download()
     self.interface.write_metadata()
-  
+
+  def apply(self):
+    for file in self.interface.list_output():
+      if not exists(file):
+        raise RuntimeError("Unable to file '%s' at '%s'" % (osutils.basename(file), file))
 
 #------ LOCALS ------#
 L_FILES = ''' 

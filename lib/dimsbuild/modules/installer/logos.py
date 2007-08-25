@@ -7,7 +7,7 @@ from dimsbuild.event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from dimsbuild.magic import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
 from dimsbuild.misc  import locals_imerge
 
-from lib import ExtractHandler, RpmNotFoundError
+from lib import ExtractMixin, RpmNotFoundError
 
 API_VERSION = 4.1
 
@@ -39,7 +39,7 @@ class ValidateHook:
                             schemafile='logos.rng')
     
 
-class LogosHook(ExtractHandler):
+class LogosHook(ExtractMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'logos.logos'
@@ -51,17 +51,27 @@ class LogosHook(ExtractHandler):
       'output'   : [],
     }
     
-    ExtractHandler.__init__(self, interface, self.metadata_struct,
-                            join(interface.METADATA_DIR, 'INSTALLER', 'logos.md'))
+    ExtractMixin.__init__(self, interface, self.metadata_struct,
+                          join(interface.METADATA_DIR, 'INSTALLER', 'logos.md'))
   
   def setup(self):
     self.locals = locals_imerge(L_LOGOS, self.interface.cvars['anaconda-version'])
     self.format = self.locals.get('//splash-image/format/text()')
     self.file = self.locals.get('//splash-image/file/text()')
-    ExtractHandler.setup(self)
+    self.DATA['input'].extend(self.find_rpms())
+    self.interface.setup_diff(self.mdfile, self.DATA)
+
+  def clean(self):
+    self.interface.log(0, "cleaning logos event")
+    self.interface.remove_output(all=True)
+    self.interface.clean_metadata()
+
+  def check(self):
+    return self.interface.test_diffs()
   
   def run(self):
-    ExtractHandler.extract(self, "processing logos")
+    self.interface.log(0, "processing logos")
+    self.extract()
 
   def generate(self, working_dir):
     "Create the splash image and copy it to the isolinux/ folder"
@@ -105,12 +115,11 @@ class LogosHook(ExtractHandler):
     
     # generate the list of files to use and copy them to the
     # product.img folder
-    ## FIXME: is anaconda/pixmaps sufficient?
     pixmaps = []
     for img in osutils.find(working_dir,
                             regex='.*usr/share/anaconda/pixmaps*',
                             type=osutils.TYPE_FILE|osutils.TYPE_LINK):
-      self.interface.cache(img, product_img)
+      self.interface.copy(img, product_img)
       pixmaps.append(join(product_img, osutils.basename(img)))
     return pixmaps
 
@@ -118,11 +127,11 @@ class LogosHook(ExtractHandler):
     splash = join(self.software_store, 'isolinux/splash.%s' %self.format)
     if not exists(splash):
       raise RuntimeError("missing file: '%s'" %(splash))
-    if not self.valid_splash(splash):
-      raise RuntimeError("%s is not a valid %s file" %(splash, self.format))
+    if not self.validate_splash(splash):
+      raise RuntimeError("'%s' is not a valid '%s' file" %(splash, self.format))
     self.interface.cvars['installer-splash'] = splash
 
-  def valid_splash(self, splash):
+  def validate_splash(self, splash):
     if self.format == 'jpg':
       return magic_match(splash) == FILE_TYPE_JPG
     else:

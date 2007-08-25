@@ -51,7 +51,6 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
       'config':    ['/distro/installer/initrd.img/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
-      #'output':    [ join(interface.SOFTWARE_STORE, x) for x in XEN_OUTPUT_FILES ],
       'output':    [],
     }
   
@@ -73,6 +72,7 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
     self.DATA['input'].append(self.interface.cvars['buildstamp-file'])
     
   def clean(self):
+    self.interface.log(0, "cleaning xen-images event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
   
@@ -87,9 +87,9 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
     self.modify()
   
   def apply(self):
-    for file in XEN_OUTPUT_FILES:
-      if not exists(join(self.interface.SOFTWARE_STORE, file)):
-        raise RuntimeError, "Unable to find '%s' in '%s'" % (file, join(self.interface.SOFTWARE_STORE, file))
+    for file in self.interface.list_output():
+      if not exists(file):
+        raise RuntimeError("Unable to find '%s' in '%s'" % (osutils.basename(file), file))
 
   def generate(self):
     ImageModifyMixin.generate(self)

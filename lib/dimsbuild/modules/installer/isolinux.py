@@ -66,6 +66,7 @@ class IsolinuxHook(FileDownloadMixin):
     self.DATA['output'].extend(o)
 
   def clean(self):
+    self.interface.log(0, "cleaning isolinux event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
     
@@ -98,8 +99,7 @@ class IsolinuxHook(FileDownloadMixin):
       
   def apply(self):
     self.interface.write_metadata()
-    for file in self.DATA['output']:
-      if type(file) == type(()): file = file[0]
+    for file in self.interface.list_output():
       if not exists(file):
         raise RuntimeError("Unable to find '%s'" % file)
     
@@ -130,6 +130,7 @@ class InitrdHook(ImageModifyMixin):
     self.register_image_locals(L_IMAGES)
 
   def clean(self):
+    self.interface.log(0, "cleaning initrd-image event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
   
@@ -143,8 +144,7 @@ class InitrdHook(ImageModifyMixin):
     self.interface.cvars['isolinux-changed'] = True
   
   def apply(self):
-    for file in self.DATA['output']:
-      if type(file) == type(()): file = file[0]
+    for file in self.interface.list_output():
       if not exists(join(self.interface.SOFTWARE_STORE, file)):
         raise RuntimeError("Unable to find '%s' at '%s'"  \
                            % (file, join(self.interface.SOFTWARE_STORE)))

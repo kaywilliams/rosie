@@ -46,8 +46,6 @@ class ProductHook(ImageModifyMixin):
     
     self.interface = interface
     
-    self.productimage = join(self.interface.SOFTWARE_STORE, 'images/product.img')
-    
     self.DATA = {
       'config':    ['/distro/installer/product.img/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
@@ -69,6 +67,7 @@ class ProductHook(ImageModifyMixin):
     self.DATA['input'].append(self.interface.cvars['buildstamp-file'])
   
   def clean(self):
+    self.interface.log(0, "cleaning product-image event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
     
@@ -82,9 +81,10 @@ class ProductHook(ImageModifyMixin):
     self.modify()
   
   def apply(self):
-    if not exists(self.productimage):
-      raise RuntimeError, "Unable to find 'product.img' at '%s'" % self.productimage
-  
+    for file in self.interface.list_output():
+      if not exists(file):
+        raise RuntimeError("Unable to find '%s' at '%s'" % (osutils.basename(file), file))
+      
   def register_image_locals(self, locals):
     ImageModifyMixin.register_image_locals(self, locals)
     

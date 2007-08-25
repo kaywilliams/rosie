@@ -37,6 +37,7 @@ class BootisoHook:
     self.bootiso = join(self.interface.SOFTWARE_STORE, 'images/boot.iso')
   
   def clean(self):
+    self.interface.log(0, "cleaning bootiso event")
     osutils.rm(self.bootiso, force=True)
   
   def check(self):

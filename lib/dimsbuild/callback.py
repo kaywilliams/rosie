@@ -49,8 +49,9 @@ class FilesCallback:
   def sync_file_start(self):
     self.interface.log(1, "downloading input files")
 
-  def sync_file(self, sn, dn, link=False):
-    self.interface.cache(sn, osutils.dirname(dn), link=link)
+  def sync_file(self, sn, dn, copy=False, link=False):
+    if copy: self.interface.copy(sn, osutils.dirname(dn), link=link)
+    else:    self.interface.cache(sn, osutils.dirname(dn), link=link)
   
 class BuildSyncCallback(CachedSyncCallback):
   def __init__(self, threshold):

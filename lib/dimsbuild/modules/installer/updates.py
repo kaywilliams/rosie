@@ -62,6 +62,7 @@ class UpdatesHook(ImageModifyMixin):
     self.register_image_locals(L_IMAGES)
   
   def clean(self):
+    self.interface.log(0, "cleaning updates-image event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
   
@@ -75,8 +76,9 @@ class UpdatesHook(ImageModifyMixin):
     self.modify()
     
   def apply(self):
-    if not exists(self.updatesimage):
-      raise RuntimeError, "Unable to find 'updates.img' at '%s'" % self.updatesimage
+    for file in self.interface.list_output():
+      if not exists(file):
+        raise RuntimeError("Unable to find '%s' at '%s'" % (osutils.basename(file), file))
   
 #------ LOCALS ------#
 L_IMAGES = ''' 

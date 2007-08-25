@@ -130,7 +130,6 @@ class SourceRepoHook:
                                               repo.ljoin(repo.repodata_path))])
         self.DATA['output'].extend(o)
         self.DATA['output'].append(repo.pkgsfile)
-        
           
         repo.getRepoData()
         
