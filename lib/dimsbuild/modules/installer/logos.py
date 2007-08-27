@@ -58,7 +58,6 @@ class LogosHook(ExtractMixin):
     self.locals = locals_imerge(L_LOGOS, self.interface.cvars['anaconda-version'])
     self.format = self.locals.get('//splash-image/format/text()')
     self.file = self.locals.get('//splash-image/file/text()')
-    print self.find_rpms()
     self.DATA['input'].extend(self.find_rpms())
     self.interface.setup_diff(self.mdfile, self.DATA)
 
@@ -68,7 +67,7 @@ class LogosHook(ExtractMixin):
     self.interface.clean_metadata()
 
   def check(self):
-    return self.interface.test_diffs(debug=True)
+    return self.interface.test_diffs()
   
   def run(self):
     self.interface.log(0, "processing logos")
