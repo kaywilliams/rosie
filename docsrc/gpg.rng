@@ -86,7 +86,7 @@ element gpgsign {
           <title>enabled</title>
           <para>
           optional; boolean value indicating whether this event is active or not;
-          defaults to 'false'
+          defaults to 'true'
           </para>
           <para>
           If enabled, all RPMs included in the distribution are signed with the

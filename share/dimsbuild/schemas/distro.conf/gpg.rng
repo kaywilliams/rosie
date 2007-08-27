@@ -4,9 +4,11 @@
     <element name="distro">
       <optional>
         <element name="gpgsign">
-          <attribute name="enabled">
-            <ref name="value-boolean-with-default"/>
-          </attribute>
+          <optional>
+            <attribute name="enabled">
+              <ref name="value-boolean-with-default"/>
+            </attribute>
+          </optional>
           <interleave>
             <element name="gpg-public-key"><text/></element>
             <element name="gpg-secret-key"><text/></element>

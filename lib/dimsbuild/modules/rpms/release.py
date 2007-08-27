@@ -19,7 +19,7 @@ EVENTS = [
     'interface': 'ReleaseRpmInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'parent':    'RPMS',
-    'requires':  ['source-vars'],
+    'requires':  ['source-vars', 'gpg-public-key'],
   },    
 ]
 
@@ -62,10 +62,10 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
       'config': [
         '/distro/rpms/release-rpm',    
         '/distro/repos/repo/gpgkey',
-        '/distro/gpgsign',
       ],
       'variables': ['fullname',
-                    'product'],
+                    'product',
+                    'cvars[\'gpg-public-key\']'],
       'input': [],
       'output': [],
     }

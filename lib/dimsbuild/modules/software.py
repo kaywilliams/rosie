@@ -11,6 +11,7 @@ from dims import sortlib
 from dims import spider
 from dims import sync
 
+from dims.mkrpm.rpmsign  import GpgMixin, getPassphrase, signRpm
 from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, RPM_PNVRA
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.interface import EventInterface
@@ -23,9 +24,10 @@ EVENTS = [
     'id': 'software',
     'interface': 'SoftwareInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['rpms-directory', 'new-rpms'],
-    'requires': ['pkglist', 'anaconda-version', 'repo-contents', 'gpg-status-changed'],
-    'conditional-requires': ['comps-file', 'RPMS'],
+    'provides': ['rpms-directory', 'new-rpms', 'gpg-passphrase'],
+    'requires': ['pkglist', 'anaconda-version', 'repo-contents', 'gpg-enabled',
+                 'gpg-keys-changed', 'gpg-homedir', 'gpg-passphrase'],
+    'conditional-requires': ['comps-file', 'RPMS',],
   },
 ]
 
@@ -94,8 +96,9 @@ class SoftwareHook:
     self._validarchs = getArchList(self.interface.arch)
 
     self.DATA = {
-      'input':  [],
-      'output': [],
+      'variables': ['cvars[\'gpg-enabled\']'],
+      'input':     [],
+      'output':    [],
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'software.md')
     
@@ -118,34 +121,46 @@ class SoftwareHook:
     self.DATA['input'].append(self.interface.cvars['pkglist-file'])
     self.DATA['input'].append(join(self.interface.METADATA_DIR, 'repos'))
     self.interface.setup_diff(self.mdfile, self.DATA)
-    
+
     o = self.interface.setup_sync(paths=paths)
+
     self.DATA['output'].extend(o)
-    
+
   def clean(self):
     self.interface.log(0, "cleaning software event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
   def check(self):
-    return self.interface.cvars['gpg-status-changed'] or \
-           not exists(self.interface.rpmdest) or \
+    return self.interface.cvars['gpg-keys-changed'] or \
            self.interface.test_diffs()
   
   def run(self):
     "Build a software store"
-    if self.interface.cvars['gpg-status-changed'] and \
-           exists(self.interface.rpmdest):
-      self.interface.log(0, "deleting old rpms")
+    self.interface.log(0, "processing rpms")
+
+    # when changing from gpg-enabled to gpg-disabled, remove all rpms and start again
+    # test - diffdict has entry, metadata file has entry, metadata file entry is true
+    if self.interface.handlers['variables'].diffdict.has_key('cvars[\'gpg-enabled\']') and \
+      self.interface.handlers['variables'].vars.has_key('cvars[\'gpg-enabled\']') and \
+      self.interface.handlers['variables'].vars['cvars[\'gpg-enabled\']']:
       self.interface.remove_output(all=True)
+    # otherwise, remove only outdated rpms
     else:
       self.interface.remove_output()
 
-    self.interface.log(0, "processing rpms")
+    # sync new rpms
     newrpms = self.interface.sync_input()
+
+    # when gpg keys change, set newrpms = all rpms, so they will be signed with new keys
+    if self.interface.cvars['gpg-keys-changed']:
+      newrpms = self.interface.list_output()
+
     if newrpms:
       newrpms.sort()
       if self.interface.cvars['gpg-enabled']:
+        if not self.interface.cvars['gpg-passphrase']:
+          self.interface.cvars['gpg-passphrase'] = getPassphrase()
         self.interface.sign_rpms(newrpms, homedir=self.interface.cvars['gpg-homedir'],
                                  passphrase=self.interface.cvars['gpg-passphrase'])
       self.interface.createrepo()
@@ -156,4 +171,3 @@ class SoftwareHook:
   def apply(self):
     osutils.mkdir(self.interface.rpmdest, parent=True)
     self.interface.cvars['rpms-directory'] = self.interface.rpmdest
-

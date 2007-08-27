@@ -13,69 +13,61 @@ API_VERSION = 4.0
 
 EVENTS = [
   {
-    'id': 'gpg',
-    'provides': ['gpg-enabled', 'gpg-status-changed'],
+    'id': 'gpg-setup',
+    'provides': ['gpg-enabled', 'gpg-keys-changed', 
+                 'gpg-public-key', 'gpg-homedir', 'gpg-passphrase'],
     'interface': 'EventInterface',
-  }
+    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
+  },
 ]
 
 HOOK_MAPPING = {
-  'GpgCheckHook': 'gpg',
+  'GpgSetupHook': 'gpg-setup',
   'ValidateHook': 'validate',
 }
 
 #------- HOOKS -------#
-class GpgCheckHook(GpgMixin):
+class GpgSetupHook(GpgMixin):
   def __init__(self, interface):
     GpgMixin.__init__(self)
     
-    self.ID = 'gpg.gpgcheck'
+    self.ID = 'gpg-setup.gpgcheck'
     self.VERSION = 0
     self.interface = interface
-    self.GPG_DIR = join(self.interface.METADATA_DIR, 'gpg')
+    self.mddir = join(self.interface.METADATA_DIR, 'gpg-setup')
+    self.gnupg_dir = join(self.mddir, '.gnupg')
+
+    self.interface.cvars['gpg-enabled'] = \
+      self.interface.config.pathexists('/distro/gpgsign') and \
+      self.interface.config.get('/distro/gpgsign/@enabled', 'True') in BOOLEANS_TRUE
 
     self.DATA = {
-      'config': ['/distro/gpgsign', '//gpgkey/text()'],
-      'input':  [],
-      'output': [], #filled in run function if gpg-enabled
+      'config':    [],
+      'input':     [],
+      'output':    [],
     }
-    self.mdfile = join(self.GPG_DIR, 'gpg.md')
+    self.mdfile = join(self.mddir, 'gpg-setup.md')
 
   def setup(self):
-    self.interface.setup_diff(self.mdfile, self.DATA)    
-    if not self.interface.config.get('/distro/gpgsign/@enabled', 'False') in BOOLEANS_TRUE:
-      self.interface.cvars['gpg-enabled'] = False
-      return 
-    self.interface.cvars['gpg-enabled'] = True
+    self.interface.setup_diff(self.mdfile, self.DATA) 
 
-    # public key
-    pubkey = self.interface.cvars['gpg-public-key'] or \
-             self.interface.config.get('/distro/gpgsign/gpg-public-key/text()')
-    if not pubkey:
-      raise GpgError("Missing GPG public key")
-    
-    # secret key
-    seckey = self.interface.cvars['gpg-secret-key'] or \
-             self.interface.config.get('/distro/gpgsign/gpg-secret-key/text()')
-    if not seckey:
-      raise GpgError("Missing GPG secret key")
-    
-    # password
-    password = self.interface.cvars['gpg-passphrase']
-    if not password:
-      if self.interface.config.pathexists('/distro/gpgsign/gpg-passphrase'):
-        password = self.interface.config.get('/distro/gpgsign/gpg-passphrase/text()', '')
-      else:
-        password = getPassphrase()
-    
-    # save values so subsequent instantiations don't redo work
-    self.interface.cvars['gpg-public-key'] = pubkey
-    self.interface.cvars['gpg-secret-key'] = seckey
-    self.interface.cvars['gpg-passphrase'] = password
-    self.interface.cvars['gpg-homedir']    = join(self.GPG_DIR, '.gnupg')
-    
-    self.DATA['input'].extend([pubkey, seckey])
+    if not self.interface.cvars['gpg-enabled']: return
 
+    # config elements
+    self.DATA['config'].extend(['/distro/gpgsign/gpg-public-key',
+                                '/distro/gpgsign/gpg-secret-key',])
+
+    # set pubkey and seckey variables
+    #! TODO tighten this up once setup_sync uses xpath as default id
+    keys = [ ('public', '/distro/gpgsign/gpg-public-key'),
+             ('secret', '/distro/gpgsign/gpg-secret-key') ]
+    for name,xpath in keys:
+      self.DATA['output'].extend(
+        self.interface.setup_sync(xpaths=[(xpath, self.mddir)], id=name))
+
+    self.pubkey = self.interface.list_output(what='public')[0]
+    self.seckey = self.interface.list_output(what='secret')[0]
+   
   def clean(self):
     self.interface.log(0, "cleaning gpg event")
     self.interface.remove_output(all=True)
@@ -85,25 +77,38 @@ class GpgCheckHook(GpgMixin):
     return self.interface.test_diffs()
 
   def run(self):
-    self.interface.cvars['gpg-status-changed'] = True
-
     if not self.interface.cvars['gpg-enabled']:
       self.clean()
       return
 
-    self.interface.log(0, "configuring gpg")
-    osutils.mkdir(self.GPG_DIR, parent=True)
+    self.interface.cvars['gpg-keys-changed'] = \
+      self.interface.handlers['input'].diffdict
 
+    self.interface.log(0, "configuring gpg signing")
     # create a home directory for GPG to use. 
-    osutils.rm(self.interface.cvars['gpg-homedir'], recursive=True, force=True)
-    osutils.mkdir(self.interface.cvars['gpg-homedir'], parent=True)
-    self.importGpgKeys(self.interface.cvars['gpg-public-key'],
-                       self.interface.cvars['gpg-secret-key'],
-                       homedir=self.interface.cvars['gpg-homedir'])
+    osutils.rm(self.mddir, recursive=True, force=True)
+    osutils.mkdir(self.mddir, parent=True)
 
-    self.DATA['output'].append(self.interface.cvars['gpg-homedir'])
+    # sync keys
+    self.interface.sync_input()
+
+    # import keys
+    self.importKey(self.gnupg_dir, self.pubkey)
+    self.importKey(self.gnupg_dir, self.seckey)
+
+    # don't leave secret key lying around
+    osutils.rm(self.seckey, force=True)
+
+    self.DATA['output'].append(self.gnupg_dir)
 
     self.interface.write_metadata()
+
+  def apply(self):
+    if self.interface.cvars['gpg-enabled']:
+      self.interface.cvars['gpg-homedir']    = self.gnupg_dir
+      self.interface.cvars['gpg-public-key'] = self.pubkey
+      self.interface.cvars['gpg-passphrase'] = \
+        self.interface.config.get('/distro/gpgsign/gpg-passphrase/text()', None)
 
 class ValidateHook:
   def __init__(self, interface):
@@ -113,7 +118,3 @@ class ValidateHook:
 
   def run(self):
     self.interface.validate('/distro/gpgsign', schemafile='gpg.rng')
-    
-
-#------ ERRORS ------#
-class GpgError: pass
