@@ -3,7 +3,7 @@
   <start>
     <element name="distro">
       <optional>        
-        <element name="source">
+        <element name="sources">
           <optional>
             <attribute name="enabled">
               <ref name="value-boolean-with-default"/>

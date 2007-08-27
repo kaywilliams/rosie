@@ -32,7 +32,7 @@ API_VERSION = 4.0
 
 EVENTS = [
   {
-    'id': 'source',
+    'id': 'sources',
     'provides': ['SRPMS',],
     'requires': ['software', 'new-rpms', 'rpms-directory', 'source-repo-contents'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
@@ -50,7 +50,7 @@ EVENTS = [
 ]
 
 HOOK_MAPPING = {
-  'SourceHook':     'source',
+  'SourcesHook':    'sources',
   'ValidateHook':   'validate',
   'SourceRepoHook': 'source-repos',
 }
@@ -93,7 +93,7 @@ class ValidateHook:
     self.interface = interface
 
   def run(self):
-    self.interface.validate('/distro/source', 'sources.rng')
+    self.interface.validate('/distro/sources', 'sources.rng')
     
 class SourceRepoHook:
   def __init__(self, interface):
@@ -104,14 +104,14 @@ class SourceRepoHook:
     self.mdsrcrepos = join(self.interface.METADATA_DIR, 'source-repos')
     
     self.DATA = {
-      'config': ['/distro/source'],
+      'config': ['/distro/sources'],
       'input':  [],
       'output': [],
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'source-repos.md')
 
-    if self.interface.config.pathexists('/distro/source') and \
-       self.interface.config.get('/distro/source/@enabled', 'True') in BOOLEANS_TRUE:
+    if self.interface.config.pathexists('/distro/sources') and \
+       self.interface.config.get('/distro/sources/@enabled', 'True') in BOOLEANS_TRUE:
       self.dosource = True
     else:
       self.dosource = False
@@ -121,7 +121,7 @@ class SourceRepoHook:
     if self.dosource:
       self.srcrepos = {}
       osutils.mkdir(self.mdsrcrepos, parent=True)
-      for repoxml in self.interface.config.xpath('/distro/source/repo'):
+      for repoxml in self.interface.config.xpath('/distro/sources/repo'):
         repo = RepoFromXml(repoxml)
         repo.local_path = join(self.mdsrcrepos, repo.id)
         repo.pkgsfile = join(self.mdsrcrepos, '%s.pkgs' % repo.id)
@@ -169,29 +169,35 @@ class SourceRepoHook:
 
     if self.interface.has_changed('input'):
       self.interface.cvars['input-source-repos-changed'] = True
-    self.interface.write_metadata()
     
   def apply(self):
+    ## write_metadata() should be called here because if self.dosource
+    ## is False and there is no source element in the config file,
+    ## ConfigHandler.diff() is always going to return True because
+    ## the metadata file doesn't exist because of which '/distro/sources'
+    ## is a NewEntry() and diff(NewEntry, NoneEntry) is going to return
+    ## True.    
+    self.interface.write_metadata()    
     self.interface.cvars['source-include'] = self.dosource
     self.interface.cvars['local-source-repodata'] = self.mdsrcrepos
-    self.interface.cvars['source-repos'] = self.srcrepos
+    if self.dosource:
+      self.interface.cvars['source-repos'] = self.srcrepos
+      if not self.interface.cvars['input-source-repos-changed']:      
+        for repo in self.srcrepos.values():
+          repomdfile = repo.ljoin(repo.repodata_path, repo.mdfile)
+          for file in repomdfile, repo.pkgsfile:
+            if not exists(file):
+              raise RuntimeError("Unable to find cached file at '%s'. Perhaps you " \
+                                 "are skipping the 'source-repos' event before it has "\
+                                 "been allowed to run once?" % file)
+          repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')
+          repo.readRepoData(repomd)
+          repo.readRepoContents(repofile=repo.pkgsfile)
 
-    if self.dosource and not self.interface.cvars['input-source-repos-changed']:      
-      for repo in self.srcrepos.values():
-        repomdfile = repo.ljoin(repo.repodata_path, repo.mdfile)
-        for file in repomdfile, repo.pkgsfile:
-          if not exists(file):
-            raise RuntimeError("Unable to find cached file at '%s'. Perhaps you " \
-                               "are skipping the 'source-repos' event before it has "\
-                               "been allowed to run once?" % file)
-        repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')
-        repo.readRepoData(repomd)
-        repo.readRepoContents(repofile=repo.pkgsfile)
-
-class SourceHook:
+class SourcesHook:
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'sources.source'
+    self.ID = 'sources.sources'
     
     self.interface = interface
     
