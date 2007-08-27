@@ -130,6 +130,8 @@ class PkgorderHook:
     else:
       self.pkgorderfile = join(self.interface.ISO_METADATA_DIR, 'pkgorder')
       self.DATA['output'].append(self.pkgorderfile)
+
+    print self.pkgorderfile
       
   def clean(self):
     self.interface.log(0, "cleaning pkgorder event")
@@ -147,7 +149,8 @@ class PkgorderHook:
         self.interface.handlers['variables'].vars.has_key('cvars[\'iso-enabled\']') and \
         self.interface.handlers['variables'].vars['cvars[\'iso-enabled\']']:
       self.clean()
-      return
+
+    if not self.interface.cvars['iso-enabled']: return
 
     self.interface.log(0, "processing pkgorder file")
 
@@ -227,7 +230,8 @@ class IsoSetsHook:
         self.interface.handlers['variables'].vars.has_key('cvars[\'iso-enabled\']') and \
         self.interface.handlers['variables'].vars['cvars[\'iso-enabled\']']:
       self.clean()
-      return
+
+    if not self.interface.cvars['iso-enabled']: return
 
     self.interface.log(0, "generating iso image(s)")
     
