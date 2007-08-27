@@ -78,6 +78,7 @@ class IsoInterface(EventInterface, ListCompareMixin):
     self.cvars['iso-enabled'] = self.config.pathexists('/distro/iso') and \
                                 self.config.get('/distro/iso/@enabled', 'True') in BOOLEANS_TRUE
 
+
 #------ HOOKS ------#
 class IsoHook:
   def __init__(self, interface):
@@ -139,7 +140,12 @@ class PkgorderHook:
     return self.interface.test_diffs()
 
   def run(self):
-    if not self.interface.cvars['iso-enabled']:
+    # TODO - duplicate code alert - see iso-sets run function
+    # when changing from iso-enabled to iso-disabled, cleanup old iso files and metadata
+    # test - diffdict has entry, metadata file has entry, metadata file entry is true
+    if self.interface.handlers['variables'].diffdict.has_key('cvars[\'iso-enabled\']') and \
+        self.interface.handlers['variables'].vars.has_key('cvars[\'iso-enabled\']') and \
+        self.interface.handlers['variables'].vars['cvars[\'iso-enabled\']']:
       self.clean()
       return
 
@@ -214,7 +220,12 @@ class IsoSetsHook:
     return self.interface.test_diffs()
   
   def run(self):
-    if not self.interface.cvars['iso-enabled']:
+    # TODO - duplicate code alert - see pkgorder run function
+    # when changing from iso-enabled to iso-disabled, cleanup old iso files and metadata
+    # test - diffdict has entry, metadata file has entry, metadata file entry is true
+    if self.interface.handlers['variables'].diffdict.has_key('cvars[\'iso-enabled\']') and \
+        self.interface.handlers['variables'].vars.has_key('cvars[\'iso-enabled\']') and \
+        self.interface.handlers['variables'].vars['cvars[\'iso-enabled\']']:
       self.clean()
       return
 
