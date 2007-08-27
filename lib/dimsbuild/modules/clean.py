@@ -62,6 +62,7 @@ class HookHandler:
     for k,v in self.data.items():
       if not self.hooks.has_key(k):
         self.diffdict[k] = (None, v)
+    if self.diffdict: self.dprint(self.diffdict)
     return self.diffdict
 
 #------ INTERFACES ------#
