@@ -15,7 +15,7 @@ EVENTS = [
     'interface': 'RpmsInterface',
     'properties': EVENT_TYPE_META,
     'requires':  ['repos'],
-    'conditional-requires': ['rpm-source-files'],
+    'conditional-requires': ['sources-enabled', 'source-repos'],
   },
 ]
 
@@ -96,7 +96,7 @@ class RpmsHook:
     self.interface.cvars['repos'][repo.id] = repo
 
   def add_source(self):
-    if self.interface.cvars['source-include']:
+    if self.interface.cvars['sources-enabled']:
       repo = Repo('localrepo-sources')
       repo.local_path = self.interface.LOCAL_SRPMS
       repo.remote_path = self.interface.LOCAL_SRPMS

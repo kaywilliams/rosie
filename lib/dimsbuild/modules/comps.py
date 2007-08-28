@@ -8,7 +8,6 @@ from dims import osutils
 from dims import sortlib
 from dims import xmltree
 
-from dims.CacheManager import CacheManagerError
 from dims.configlib    import ConfigError
 
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR

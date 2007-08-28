@@ -172,6 +172,16 @@ class EventInterface:
     if not self.diffset.has_key(name):
       self.diffset[name] = (len(self.handlers[name].diff()) > 0)
     return self.diffset[name]
+
+  def var_changed_from_true(self, var):
+    if not self.handlers['variables']:
+      raise RuntimeError("No variables metadata handler")
+    if self.handlers['variables'].diffdict.has_key(var) and \
+       self.handlers['variables'].vars.has_key(var) and \
+       self.handlers['variables'].vars[var]:
+      return True
+    else:
+      return False
   
   def write_metadata(self):
     self.DT.write_metadata()
@@ -547,21 +557,6 @@ class Repo:
   def ljoin(self, *args):
     return join(self.local_path, *args)
   
-  def getRepoData(self):
-    dest = self.ljoin(self.repodata_path, 'repodata')
-    osutils.mkdir(dest, parent=True)
-
-    sync.sync(self.rjoin(self.repodata_path, self.mdfile), dest,
-              username=self.username, password=self.password)
-
-    repomd = xmltree.read(self.ljoin(self.repodata_path, self.mdfile)).xpath('//data')
-    for data in repomd:
-      repofile = data.get('location/@href')
-      sync.sync(self.rjoin(self.repodata_path, repofile), dest,
-                username=self.username, password=self.password)
-
-    self.readRepoData(repomd)
-
   def readRepoData(self, repomd=None):
     repomd = repomd or xmltree.read(self.ljoin(self.repodata_path, self.mdfile)).xpath('//data')
     for data in repomd:

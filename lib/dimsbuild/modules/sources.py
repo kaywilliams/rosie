@@ -43,7 +43,7 @@ EVENTS = [
     'provides': ['input-source-repos-changed',
                  'local-source-repodata',
                  'source-repo-contents',
-                 'source-include'],
+                 'sources-enabled'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'interface': 'SrpmInterface',
   }
@@ -102,42 +102,40 @@ class SourceRepoHook:
     self.interface = interface
 
     self.mdsrcrepos = join(self.interface.METADATA_DIR, 'source-repos')
+
+    self.interface.cvars['sources-enabled'] = \
+       self.interface.config.pathexists('/distro/sources') and \
+       self.interface.config.get('/distro/sources/@enabled', 'True') in BOOLEANS_TRUE
     
     self.DATA = {
-      'config': ['/distro/sources'],
-      'input':  [],
-      'output': [],
+      'variables': ['cvars[\'sources-enabled\']'],
+      'config':    ['/distro/sources'],
+      'input':     [],
+      'output':    [],
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'source-repos.md')
 
-    if self.interface.config.pathexists('/distro/sources') and \
-       self.interface.config.get('/distro/sources/@enabled', 'True') in BOOLEANS_TRUE:
-      self.dosource = True
-    else:
-      self.dosource = False
-
   def setup(self):    
     self.interface.setup_diff(self.mdfile, self.DATA)
-    if self.dosource:
-      self.srcrepos = {}
-      osutils.mkdir(self.mdsrcrepos, parent=True)
-      for repoxml in self.interface.config.xpath('/distro/sources/repo'):
-        repo = RepoFromXml(repoxml)
-        repo.local_path = join(self.mdsrcrepos, repo.id)
-        repo.pkgsfile = join(self.mdsrcrepos, '%s.pkgs' % repo.id)
-        
-        o = self.interface.setup_sync(paths=[(repo.rjoin(repo.repodata_path, 'repodata'),
-                                              repo.ljoin(repo.repodata_path))])
-        self.DATA['output'].extend(o)
-        self.DATA['output'].append(repo.pkgsfile)
-          
-        repo.getRepoData()
-        
-        self.srcrepos[repo.id] = repo
+    if not self.interface.cvars['sources-enabled']: return
 
-        self.DATA['output'].append(repo.ljoin(repo.repodata_path, 'repodata'))
-        self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id))
-        self.srcrepos[repo.id] = repo
+    self.srcrepos = {}
+    osutils.mkdir(self.mdsrcrepos, parent=True)
+    for repoxml in self.interface.config.xpath('/distro/sources/repo'):
+      repo = RepoFromXml(repoxml)
+      repo.local_path = join(self.mdsrcrepos, repo.id)
+      repo.pkgsfile = join(self.mdsrcrepos, '%s.pkgs' % repo.id)
+        
+      o = self.interface.setup_sync(paths=[(repo.rjoin(repo.repodata_path, 'repodata'),
+                                              repo.ljoin(repo.repodata_path))])
+      self.DATA['output'].extend(o)
+      self.DATA['output'].append(repo.pkgsfile)
+    
+      self.srcrepos[repo.id] = repo
+
+      self.DATA['output'].append(repo.ljoin(repo.repodata_path, 'repodata'))
+      self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id))
+      self.srcrepos[repo.id] = repo
 
   def clean(self):
     self.interface.log(0, "cleaning source-repos event")
@@ -148,9 +146,12 @@ class SourceRepoHook:
     return self.interface.test_diffs()
   
   def run(self):
-    if not self.dosource:
+    # changing from sources-enabled true, cleanup old files and metadata
+    if self.interface.var_changed_from_true('cvars[\'sources-enabled\']'):
       self.clean()
-      return
+
+    if not self.interface.cvars['sources-enabled']: return
+
     self.interface.log(0, "processing input source repositories")
     self.interface.sync_input()
 
@@ -169,18 +170,12 @@ class SourceRepoHook:
 
     if self.interface.has_changed('input'):
       self.interface.cvars['input-source-repos-changed'] = True
+
+    self.interface.write_metadata() 
     
   def apply(self):
-    ## write_metadata() should be called here because if self.dosource
-    ## is False and there is no source element in the config file,
-    ## ConfigHandler.diff() is always going to return True because
-    ## the metadata file doesn't exist because of which '/distro/sources'
-    ## is a NewEntry() and diff(NewEntry, NoneEntry) is going to return
-    ## True.    
-    self.interface.write_metadata()    
-    self.interface.cvars['source-include'] = self.dosource
     self.interface.cvars['local-source-repodata'] = self.mdsrcrepos
-    if self.dosource:
+    if self.interface.cvars['sources-enabled']:
       self.interface.cvars['source-repos'] = self.srcrepos
       if not self.interface.cvars['input-source-repos-changed']:      
         for repo in self.srcrepos.values():
@@ -202,17 +197,18 @@ class SourcesHook:
     self.interface = interface
     
     self.DATA =  {
-      'input':  [],
-      'output': [],
+      'variables':['cvars[\'sources-enabled\']'], 
+      'input':    [],
+      'output':   [],
     }
     self.mdfile = join(self.interface.METADATA_DIR, 'source.md')    
       
   def setup(self):
     self.mdsrcrepos = self.interface.cvars['local-source-repodata']    
-    self.dosource = self.interface.cvars['source-include']
     
     self.interface.setup_diff(self.mdfile, self.DATA)
-    if not self.dosource: return
+
+    if not self.interface.cvars['sources-enabled']: return
 
     # compute the list of SRPMS
     self.ts = TransactionSet()
@@ -246,6 +242,7 @@ class SourcesHook:
     self.DATA['output'].extend(o)
 
   def clean(self):
+    self.interface.log(0, "cleaning sources event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
@@ -255,9 +252,11 @@ class SourcesHook:
            self.interface.test_diffs()  
 
   def run(self):
-    if not self.dosource:
+    # changing from sources-enabled true, cleanup old files and metadata
+    if self.interface.var_changed_from_true('cvars[\'sources-enabled\']'):
       self.clean()
-      return
+
+    if not self.interface.cvars['sources-enabled']: return
 
     self.interface.log(0, "processing srpms")
     self.interface.remove_output()
