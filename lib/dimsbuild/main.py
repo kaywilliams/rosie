@@ -31,6 +31,9 @@ from dimsbuild.constants import *
 # RPMS we need to check for
 # createrepo
 # anaconda-runtime
+# python-devel
+# syslinux
+# python-setuptools
 
 API_VERSION = 4.1
 
