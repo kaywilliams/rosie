@@ -150,7 +150,9 @@ class SourceRepoHook:
     if self.interface.var_changed_from_true('cvars[\'sources-enabled\']'):
       self.clean()
 
-    if not self.interface.cvars['sources-enabled']: return
+    if not self.interface.cvars['sources-enabled']: 
+      self.interface.write_metadata()
+      return
 
     self.interface.log(0, "processing input source repositories")
     self.interface.sync_input()
@@ -248,7 +250,6 @@ class SourcesHook:
 
   def check(self):
     return self.interface.cvars['new-rpms'] or \
-           not exists(self.interface.srpmdest) or \
            self.interface.test_diffs()  
 
   def run(self):
@@ -256,7 +257,9 @@ class SourcesHook:
     if self.interface.var_changed_from_true('cvars[\'sources-enabled\']'):
       self.clean()
 
-    if not self.interface.cvars['sources-enabled']: return
+    if not self.interface.cvars['sources-enabled']: 
+      self.interface.write_metadata()
+      return
 
     self.interface.log(0, "processing srpms")
     self.interface.remove_output()

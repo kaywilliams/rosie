@@ -42,6 +42,7 @@ class GpgSetupHook(GpgMixin):
       self.interface.config.get('/distro/gpgsign/@enabled', 'True') in BOOLEANS_TRUE
 
     self.DATA = {
+      'variables': ['cvars[\'gpg-enabled\']'],
       'config':    [],
       'input':     [],
       'output':    [],
@@ -77,8 +78,12 @@ class GpgSetupHook(GpgMixin):
     return self.interface.test_diffs()
 
   def run(self):
-    if not self.interface.cvars['gpg-enabled']:
+    # changing from gpg-enabled true, cleanup old files and metadata
+    if self.interface.var_changed_from_true('cvars[\'gpg-enabled\']'):
       self.clean()
+
+    if not self.interface.cvars['gpg-enabled']:
+      self.interface.write_metadata()
       return
 
     self.interface.cvars['gpg-keys-changed'] = \

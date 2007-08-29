@@ -145,7 +145,9 @@ class PkgorderHook:
     if self.interface.var_changed_from_true('cvars[\'iso-enabled\']'):
       self.clean()
 
-    if not self.interface.cvars['iso-enabled']: return
+    if not self.interface.cvars['iso-enabled']: 
+      self.interface.write_metadata()
+      return
 
     self.interface.log(0, "processing pkgorder file")
 
@@ -225,22 +227,27 @@ class IsoSetsHook:
     if self.interface.var_changed_from_true('cvars[\'iso-enabled\']'):
       self.clean()
 
-    if not self.interface.cvars['iso-enabled']: return
+    if not self.interface.cvars['iso-enabled']: 
+      self.interface.write_metadata()
+      return
 
     self.interface.log(0, "processing iso image(s)")
  
+    # pkgorder file or sources-enabled changed
     if self.interface.handlers['input'].diffdict or \
          self.interface.handlers['variables'].diffdict.has_key("cvars['sources-enabled']"):
       self.interface.remove_output(all=True)
-      
-    oldsets,newsets = self.interface.handlers['config'].diffdict['/distro/iso/set/text()']
-    if isinstance(oldsets, NewEntry): oldsets = []
+    
+    # sets changed
+    if self.interface.handlers['config'].diffdict.has_key('/distro/iso/set/text()'):
+      oldsets,newsets = self.interface.handlers['config'].diffdict['/distro/iso/set/text()']
+      if isinstance(oldsets, NewEntry): oldsets = []
 
-    self.newsets_expanded = []
-    for set in newsets:
-      self.newsets_expanded.append(splittree.parse_size(set))
+      self.newsets_expanded = []
+      for set in newsets:
+        self.newsets_expanded.append(splittree.parse_size(set))
 
-    self.interface.compare(oldsets, newsets)
+      self.interface.compare(oldsets, newsets)
     
     self.DATA['output'].extend([self.interface.isodir,
                                 self.splittrees])
