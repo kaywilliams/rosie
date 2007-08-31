@@ -16,7 +16,7 @@ EVENTS = [
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['comps-file', 'required-packages', 'user-required-packages'],
     'requires': ['anaconda-version', 'local-repodata'],
-    'conditional-requires': ['RPMS', 'repos-changed'],
+    'conditional-requires': ['RPMS'],
   },
 ]
 
@@ -77,6 +77,8 @@ class CompsHook:
     else:
       self.comps_out = self.mddir/'comps.xml'
       self.DATA['output'].append(self.comps_out)
+      self.interface.groupfiles = self.__get_groupfiles()
+      self.DATA['variables'].append('groupfiles')
 
   def clean(self):
     self.interface.log(0, "cleaning comps event")
@@ -84,9 +86,7 @@ class CompsHook:
     self.interface.clean_metadata()
    
   def check(self):
-    # if the input repos change, we need to run
-    return self.interface.cvars['repos-changed'] or \
-           self.interface.test_diffs()
+    return self.interface.test_diffs()
 
   def run(self):
     self.interface.log(0, "processing comps file")
@@ -125,7 +125,6 @@ class CompsHook:
   #------ COMPS FILE GENERATION FUNCTIONS ------#
   def generate_comps(self):
     mapped, unmapped = self.__map_groups()
-    groupfiles = self.__get_groupfiles()
     
     # create base distro group
     packages = []
@@ -153,7 +152,7 @@ class CompsHook:
     processed = [] # processed groups
     
     # process groups
-    for groupfileid, path in groupfiles:
+    for groupfileid, path in self.interface.groupfiles:
       # read groupfile
       try:
         tree = xmltree.read(path)
