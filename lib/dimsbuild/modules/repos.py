@@ -65,7 +65,7 @@ class ReposHook:
       # create repo objects
       repo = RepoFromXml(repoxml)
       repo.local_path = self.mddir/repo.id
-      repo.pkgsfile = self.mddir/('%s.pkgs' % repo.id)
+      repo.pkgsfile = self.mddir/'%s.pkgs' % repo.id
 
       # setup sync
       o = self.interface.setup_sync(paths=[(repo.rjoin(repo.repodata_path,

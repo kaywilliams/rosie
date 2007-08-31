@@ -158,7 +158,7 @@ class ImageModifyMixin(ImageHandler):
   """
   def __init__(self, name, interface, data, mdfile=None):
     ImageHandler.__init__(self, interface, name)
-    self.mdfile = P(mdfile or interface.METADATA_DIR/'INSTALLER'/('%s.md' % name))
+    self.mdfile = P(mdfile or interface.METADATA_DIR/'INSTALLER/%s.md' % name)
     self.DATA = data    
     self.imagedir = self.interface.METADATA_DIR/'INSTALLER'/self.name
 

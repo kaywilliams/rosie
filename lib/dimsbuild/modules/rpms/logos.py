@@ -172,7 +172,7 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
     f.close()
     # generate the %{self.interface.product}.xml file
     f = (self.build_folder/'gdm/themes' / \
-         self.interface.product/('%s.xml' % self.interface.product)).open('w')
+         self.interface.product/'%s.xml' % self.interface.product).open('w')
     f.write(THEME_XML)
     f.close()
   

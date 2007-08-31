@@ -55,7 +55,7 @@ class RepofileHook:
     self.interface = interface
     
     self.repodir = self.interface.METADATA_DIR/'RPMS/rpms-src/release-rpm/etc/yum.repos.d'
-    self.repofile    = self.repodir/('%s.repo' % self.interface.product)
+    self.repofile    = self.repodir/'%s.repo' % self.interface.product
     self.srcrepofile = self.repodir/'source.repo'
     
     self.DATA =  {

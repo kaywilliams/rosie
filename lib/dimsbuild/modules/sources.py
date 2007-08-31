@@ -115,7 +115,7 @@ class SourceRepoHook:
     for repoxml in self.interface.config.xpath('/distro/sources/repo'):
       repo = RepoFromXml(repoxml)
       repo.local_path = self.mdsrcrepos/repo.id
-      repo.pkgsfile = self.mdsrcrepos/('%s.pkgs' % repo.id)
+      repo.pkgsfile = self.mdsrcrepos/'%s.pkgs' % repo.id
         
       o = self.interface.setup_sync(paths=[(repo.rjoin(repo.repodata_path, 'repodata'),
                                               repo.ljoin(repo.repodata_path))])
@@ -125,7 +125,7 @@ class SourceRepoHook:
       self.srcrepos[repo.id] = repo
 
       self.DATA['output'].append(repo.ljoin(repo.repodata_path, 'repodata'))
-      self.DATA['output'].append(join(self.interface.METADATA_DIR, '%s.pkgs' % repo.id))
+      self.DATA['output'].append(self.interface.METADATA_DIR/'%s.pkgs' % repo.id)
       self.srcrepos[repo.id] = repo
 
   def clean(self):

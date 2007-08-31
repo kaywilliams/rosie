@@ -160,7 +160,7 @@ class RpmBuildHook:
     self.installinfo = installinfo
 
     self.DATA = data
-    self.mdfile = self.interface.METADATA_DIR/('RPMS/%s.md' % self.id)
+    self.mdfile = self.interface.METADATA_DIR/'RPMS/%s.md' % self.id
 
   def setup(self):
     # add the directory (if exists) to which other events add files to

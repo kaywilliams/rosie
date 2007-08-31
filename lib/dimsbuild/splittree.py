@@ -67,7 +67,7 @@ class Timber:
     vars = copy.copy(self.discinfo_vars)
     vars['discs'] = str(discnumber)
     discinfo.write(
-      self.s_tree/('%s-disc%d' % (self.product, discnumber))/'.discinfo',
+      self.s_tree/'%s-disc%d' % (self.product, discnumber)/'.discinfo',
       **vars
     )
   
@@ -123,7 +123,7 @@ class Timber:
     ##print shared, self.total_discs
     
     for i in self.rpm_disc_map:
-      discpath = self.s_tree/('%s-disc%d' % (self.product, i))
+      discpath = self.s_tree/'%s-disc%d' % (self.product, i)
       (discpath/self.product).mkdirs()
       if i == 1: # put release files on disc 1
         for file in self.u_tree.findpaths(
@@ -136,7 +136,7 @@ class Timber:
     
     if self.dosrc:
       for i in self.srpm_disc_map:
-        discpath = self.s_tree/('%s-disc%d' % (self.product, i))
+        discpath = self.s_tree/'%s-disc%d' % (self.product, i)
         (discpath/'SRPMS').mkdirs()
         self.link(self.u_tree, discpath, self.common_files)
         self.create_discinfo(i)
@@ -159,7 +159,7 @@ class Timber:
       order[i] = pkgtup_to_nvra(order[i])
     
     disc = self.rpm_disc_map[0]
-    discpath = self.s_tree/('%s-disc%d' % (self.product, disc))
+    discpath = self.s_tree/'%s-disc%d' % (self.product, disc)
     
     used = osutils.du(discpath)
     for rpmnvra in order:
@@ -178,12 +178,12 @@ class Timber:
           try:
             nextdisc = self.rpm_disc_map.index(disc+1)
             disc = self.rpm_disc_map[nextdisc]
-            discpath = self.s_tree/('%s-disc%d' % (self.product, disc))
+            discpath = self.s_tree/'%s-disc%d' % (self.product, disc)
             self.link(pkgdir, join(discpath, self.product), [file])
           except (IndexError, ValueError):
             disc = disc - 1
             print 'DEBUG: overflow from disc %d onto disc %d' % (disc+1, disc)
-            print 'DEBUG: newsize: %s maxsize: %s' % (newsize, maxsize)
+            print 'DEBUG: newsize: %d maxsize: %d' % (newsize, maxsize)
             continue
         else:
           self.link(pkgdir, join(discpath, self.product), [file])
@@ -200,14 +200,14 @@ class Timber:
     # keep list of SRPM trees and their sizes
     sizes = []
     for disc in self.srpm_disc_map:
-      sizes.append([osutils.du(self.s_tree/('%s-disc%d' % (self.product, disc))), disc])
+      sizes.append([osutils.du(self.s_tree/'%s-disc%d' % (self.product, disc)), disc])
     sizes.sort()
     
     # add srpm to the smallest source tree
     for srpm in srpms:
       os.link(self.u_src_tree/srpm,
-              self.s_tree/('%s-disc%d/SRPMS/%s' % \
-                (self.product, sizes[0][1], srpm.basename)))
+              self.s_tree/'%s-disc%d/SRPMS/%s' % \
+                (self.product, sizes[0][1], srpm.basename))
       sizes[0][0] += srpm.getsize()
       sizes.sort()
   

@@ -136,7 +136,7 @@ class BuildLogger:
     if level is None:
       print msg,
     elif level >= LEVEL_MIN and level <= LEVEL_MAX:
-      print eval('LEVEL_%s_FORMAT' % level) % msg,
+      print eval('LEVEL_%d_FORMAT' % level) % msg,
     else:
       print '[DEBUG]:', LEVEL_OTHER_FORMAT % msg,
   

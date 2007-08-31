@@ -89,13 +89,13 @@ class LogosHook(ExtractMixin):
     return output
   
   def generate_splash(self, working_dir):
-    splash = self.software_store/('isolinux/splash.%s' % self.format)
+    splash = self.software_store/'isolinux/splash.%s' % self.format
     # convert the syslinux-splash.png to splash.lss and copy it
     # to the isolinux/ folder
     try:
       startimage = working_dir.findpaths(glob=self.file)[0]
     except IndexError:
-      raise SplashImageNotFound("missing '%s' in logos RPM" %(self.file,))
+      raise SplashImageNotFound("missing '%s' in logos RPM" % self.file)
     
     if self.format == 'jpg':
       startimage.cp(splash)
@@ -124,7 +124,7 @@ class LogosHook(ExtractMixin):
     return pixmaps
 
   def apply(self):
-    splash = self.software_store/('isolinux/splash.%s' % self.format)
+    splash = self.software_store/'isolinux/splash.%s' % self.format
     if not splash.exists():
       raise RuntimeError("missing file: '%s'" % splash)
     if not self.validate_splash(splash):

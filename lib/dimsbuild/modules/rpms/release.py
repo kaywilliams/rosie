@@ -1,4 +1,5 @@
 from dims import filereader
+from dims import pps
 from dims import sync
 
 from dimsbuild.constants import BOOLEANS_TRUE
@@ -6,6 +7,8 @@ from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 
 from lib       import ColorMixin, RpmBuildHook, RpmsInterface
 from rpmlocals import RELEASE_NOTES_HTML
+
+P = pps.Path
 
 EVENTS = [
   {
@@ -28,20 +31,20 @@ class ReleaseRpmInterface(RpmsInterface):
   def __init__(self, base):
     RpmsInterface.__init__(self, base)
     
-    self.gpg_dir     = '/etc/pkg/rpm-gpg'
-    self.repo_dir    = '/etc/yum.repos.d'
-    self.eula_dir    = '/usr/share/eula'
-    self.release_dir = '/usr/share/doc/%s-release-%s' % (self.product, self.version)
-    self.etc_dir     = '/etc'
-    self.eula_dir    = '/usr/share/firstboot/modules'
+    self.gpg_dir     = P('/etc/pkg/rpm-gpg')
+    self.repo_dir    = P('/etc/yum.repos.d')
+    self.eula_dir    = P('/usr/share/eula')
+    self.release_dir = P('/usr/share/doc/%s-release-%s' % (self.product, self.version))
+    self.etc_dir     = P('/etc')
+    self.eula_dir    = P('/usr/share/firstboot/modules')
     
-    relpath = '/distro/rpms/release-rpm/release-notes/%s/@install-path'
-    self.omf_dir  = self.config.get(relpath % 'omf', None) or \
-                    '/usr/share/omf/%s-release-notes' % self.product
-    self.html_dir = self.config.get(relpath % 'html', None) or \
-                    '/usr/share/doc/HTML'
-    self.doc_dir  = self.config.get(relpath % 'doc', None) or \
-                    '/usr/share/doc/%s-release-notes-%s' % (self.product, self.version)
+    relpath = P('/distro/rpms/release-rpm/release-notes/%s/@install-path')
+    self.omf_dir  = P(self.config.get(relpath % 'omf', None) or \
+                    '/usr/share/omf/%s-release-notes' % self.product)
+    self.html_dir = P(self.config.get(relpath % 'html', None) or \
+                    '/usr/share/doc/HTML')
+    self.doc_dir  = P(self.config.get(relpath % 'doc', None) or \
+                    '/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
   
 
 #---------- HOOKS -------------#
@@ -177,7 +180,7 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
       
     # write the product-release and redhat-release files
     filereader.write(release_string, dest/'redhat-release')
-    filereader.write(release_string, dest/('%s-release' % self.interface.product))
+    filereader.write(release_string, dest/'%s-release' % self.interface.product)
     
     # write the issue and issue.net files
     filereader.write(release_string+issue_string, dest/'issue')
