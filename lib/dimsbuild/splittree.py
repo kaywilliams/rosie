@@ -4,13 +4,13 @@ import re
 import rpm
 
 from math    import ceil
-from os.path import exists, isfile, isdir, join
 
 from dims import FormattedFile as ffile
 from dims import pkgorder
-from dims import osutils
 
 from dims.xmltree import XmlTreeElement
+
+from dimsbuild.constants import RPM_GLOB, SRPM_GLOB
 
 TS = rpm.TransactionSet()
 TS.setVSFlags(-1)
@@ -83,9 +83,8 @@ class Timber:
     srpm_nregex = '.*\.[Ss][Rr][Cc]\.[Rr][Pp][Mm]'
     
     # rpms
-    totalsize = osutils.du(self.u_tree.findpaths(nregex=srpm_nregex))
-    rpmsize = osutils.du(self.u_tree.findpaths(glob='*.[Rr][Pp][Mm]',
-                                                        nregex=srpm_nregex))
+    totalsize = self.u_tree.findpaths(nregex=srpm_nregex).getsize()
+    rpmsize = self.u_tree.findpaths(glob=RPM_GLOB, nregex=srpm_nregex).getsize()
     
     extrasize = totalsize - rpmsize
     
@@ -96,9 +95,7 @@ class Timber:
     # srpms
     nsrpmdiscs = 0
     if self.dosrc:
-      srpmsize = osutils.du(
-        self.u_src_tree.findpaths(glob='*.[Ss][Rr][Cc].[Rr][Pp][Mm]')
-      )
+      srpmsize = self.u_src_tree.findpaths(glob=SRPM_GLOB).getsize()
       ndiscs = int(ceil(float(srpmsize)/self.discsize))
       nsrpmdiscs = self.__consume_discs(srpmsize)
       self.srpm_disc_map = range(nrpmdiscs + 1, nrpmdiscs + nsrpmdiscs + 1)
@@ -161,7 +158,7 @@ class Timber:
     disc = self.rpm_disc_map[0]
     discpath = self.s_tree/'%s-disc%d' % (self.product, disc)
     
-    used = osutils.du(discpath)
+    used = discpath.findpaths().getsize()
     for rpmnvra in order:
       if not packages.has_key(rpmnvra): continue
       
@@ -179,14 +176,14 @@ class Timber:
             nextdisc = self.rpm_disc_map.index(disc+1)
             disc = self.rpm_disc_map[nextdisc]
             discpath = self.s_tree/'%s-disc%d' % (self.product, disc)
-            self.link(pkgdir, join(discpath, self.product), [file])
+            self.link(pkgdir, discpath/self.product, [file])
           except (IndexError, ValueError):
             disc = disc - 1
             print 'DEBUG: overflow from disc %d onto disc %d' % (disc+1, disc)
             print 'DEBUG: newsize: %d maxsize: %d' % (newsize, maxsize)
             continue
         else:
-          self.link(pkgdir, join(discpath, self.product), [file])
+          self.link(pkgdir, discpath/self.product, [file])
       used = newsize
   
   def split_srpms(self):
@@ -200,14 +197,16 @@ class Timber:
     # keep list of SRPM trees and their sizes
     sizes = []
     for disc in self.srpm_disc_map:
-      sizes.append([osutils.du(self.s_tree/'%s-disc%d' % (self.product, disc)), disc])
+      sizes.append(
+        [ self.s_tree/'%s-disc%d' % (self.product, disc).findpaths().getsize(),
+          disc ]
+      )
     sizes.sort()
     
     # add srpm to the smallest source tree
     for srpm in srpms:
-      os.link(self.u_src_tree/srpm,
-              self.s_tree/'%s-disc%d/SRPMS/%s' % \
-                (self.product, sizes[0][1], srpm.basename))
+      (self.u_src_tree/srpm).link(self.s_tree/'%s-disc%d/SRPMS/%s' % \
+        (self.product, sizes[0][1], srpm.basename))
       sizes[0][0] += srpm.getsize()
       sizes.sort()
   

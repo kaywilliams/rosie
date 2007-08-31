@@ -3,7 +3,6 @@ callback.py
 
 Callback classes for dimsbuild
 """
-import os
 
 from dims.sync.cache    import CachedSyncCallback
 from dims.progressbar   import ProgressBar
