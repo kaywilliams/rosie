@@ -4,30 +4,16 @@ infofiles.py
 generates distribution information files: .discinfo, .treeinfo, and .buildstamp 
 """
 
-__author__  = 'Kay Williams <kwilliams@abodiosoftware.com>'
-__version__ = '1.0'
-__date__    = 'June 7th, 2007'
-__credits__ = \
-'''Uday Prakash <uprakash@abodiosoftware.com> for BuildStampHook
-Daniel Musgrave <dmusgrave@abodiosoftware.com> for TreeInfoHook'''
-
 import copy
-import os
 import time
 
-from os.path      import join, exists
 from ConfigParser import ConfigParser
 
-from dims import filereader
 from dims import FormattedFile as ffile
-from dims import osutils
-from dims import sync
 
-from dims.sortlib import dcompare
-
-from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.locals    import L_BUILDSTAMP_FORMAT
-from dimsbuild.misc      import locals_imerge
+from dimsbuild.event  import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.locals import L_BUILDSTAMP_FORMAT
+from dimsbuild.misc   import locals_imerge
 
 API_VERSION = 4.1
 
@@ -69,14 +55,14 @@ class DiscinfoHook:
     self.ID = 'installer.discinfo.discinfo'
     
     self.interface = interface
-    self.difile = join(self.interface.SOFTWARE_STORE, '.discinfo')
+    self.difile = self.interface.SOFTWARE_STORE/'.discinfo'
 
     self.DATA =  {
       'variables': ['BASE_VARS'
                     'cvars[\'anaconda-version\']'],
       'output':    [self.difile]
     }
-    self.mdfile = join(self.interface.METADATA_DIR, 'discinfo.md')
+    self.mdfile = self.interface.METADATA_DIR/'discinfo.md'
 
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
@@ -104,10 +90,10 @@ class DiscinfoHook:
     
     # write .discinfo
     discinfo.write(self.difile, **base_vars)
-    os.chmod(self.difile, 0644)
+    self.difile.chmod(0644)
   
   def apply(self):
-    if not exists(self.difile):
+    if not self.difile.exists():
       raise RuntimeError, "Unable to find .discinfo file at '%s'" % self.difile
     self.interface.write_metadata()
 
@@ -118,14 +104,14 @@ class TreeinfoHook:
     self.ID = 'installer.discinfo.treeinfo'
     
     self.interface = interface
-    self.tifile = join(self.interface.SOFTWARE_STORE, '.treeinfo')
+    self.tifile = self.interface.SOFTWARE_STORE/'.treeinfo'
 
     self.DATA =  {
       'variables': ['BASE_VARS', 
                     'cvars[\'product-path\']'],
       'output':    [self.tifile]
     }
-    self.mdfile = join(self.interface.METADATA_DIR, 'treeinfo.md')
+    self.mdfile = self.interface.METADATA_DIR/'treeinfo.md'
 
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
@@ -164,17 +150,17 @@ class TreeinfoHook:
     treeinfo.set('images-xen', 'initrd', 'images/xen/initrd.img')
     
     # write .treeinfo
-    if not exists(self.tifile):
-      os.mknod(self.tifile)
-    tiflo = open(self.tifile, 'w')
+    if not self.tifile.exists():
+      self.tifile.touch()
+    tiflo = self.tifile.open('w')
     treeinfo.write(tiflo)
     tiflo.close()
-    os.chmod(self.tifile, 0644)
-
+    self.tifile.chmod(0644)
+    
     self.interface.write_metadata()
-
+  
   def apply(self):
-    if not exists(self.tifile):
+    if not self.tifile.exists():
       raise RuntimeError, "Unable to find .treeinfo file at '%s'" % self.tifile
     
 
@@ -184,7 +170,7 @@ class BuildStampHook:
     self.ID = 'installer.discinfo.buildstamp'
     self.interface = interface
 
-    self.bsfile = join(self.interface.METADATA_DIR, '.buildstamp')
+    self.bsfile = self.interface.METADATA_DIR/'.buildstamp'
 
     self.DATA = {
       'variables': ['BASE_VARS',
@@ -192,7 +178,7 @@ class BuildStampHook:
                     'cvars[\'source-vars\']'],
       'output':    [self.bsfile],        
     }
-    self.mdfile = join(self.interface.METADATA_DIR, 'buildstamp.md')
+    self.mdfile = self.interface.METADATA_DIR/'buildstamp.md'
 
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
@@ -214,17 +200,17 @@ class BuildStampHook:
     
     buildstamp_fmt = locals.get('//buildstamp-format')
     buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
-
+    
     base_vars = copy.deepcopy(self.interface.cvars['source-vars'])
     base_vars.update(self.interface.BASE_VARS)
-
+    
     buildstamp.write(self.bsfile, **base_vars)
-    os.chmod(self.bsfile, 0644)
-
+    self.bsfile.chmod(0644)
+    
     self.interface.write_metadata()
-
+  
   def apply(self):
-    if not exists(self.bsfile):
+    if not self.bsfile.exists():
       raise RuntimeError("missing file '%s'" % self.bsfile)
     self.interface.cvars['buildstamp-file'] = self.bsfile
 

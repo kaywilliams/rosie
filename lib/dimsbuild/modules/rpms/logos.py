@@ -1,8 +1,6 @@
-from os.path  import exists, join, isdir, isfile
-
 import os
 
-from dims import osutils
+from dims import pps
 from dims import shlib
 from dims import sync
 
@@ -20,6 +18,8 @@ try:
   import ImageFilter
 except ImportError:
   raise ImportError("missing 'python-imaging' RPM")
+
+P = pps.Path
 
 EVENTS = [
   {
@@ -96,8 +96,7 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
     RpmBuildHook.setup(self)
     
     # set the font to use
-    available_fonts = osutils.find(join(self.interface.sharepath, 'fonts'),
-                                   name='*.ttf')
+    available_fonts = (self.interface.sharepath/'fonts').findpaths(glob='*.ttf')
     try:
       self.fontfile = available_fonts[0]
     except IndexError:
@@ -123,18 +122,18 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
     for logoinfo in self.imageslocal.xpath('//logos/logo', []):
       i,l,_,_,_,_,_,_,_,_ = self._get_image_info(logoinfo)
 
-      file = join(self.build_folder, i)
-      filename = osutils.basename(file)
-      filedir = osutils.dirname(file)
+      file = self.build_folder/i
+      filename = file.basename
+      filedir = file.dirname
 
-      installname = osutils.basename(l)
-      installdir = osutils.dirname(l)
+      installname = l.basename
+      installdir = l.dirname
 
-      if not exists(file): continue # FIXME: fail if a file is not found?
+      if not file.exists(): continue # FIXME: fail if a file is not found?
       
       if filename != installname:
-        newfile = join(filedir, installname)
-        os.link(file, newfile)
+        newfile = filedir/installname
+        file.link(newfile)
         i = newfile
 
       if installdir not in items.keys():
@@ -147,7 +146,7 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
     if self.DATA.has_key('output'):
       for logoinfo in self.imageslocal.xpath('//logos/logo', []):
         i,_,w,h,_,_,_,_,_,_ = self._get_image_info(logoinfo)
-        file = join(self.build_folder, i)
+        file = self.build_folder/i
         if file.lower().endswith('xpm'):
           # HACK: Assuming that all the .xpm files are valid. It is a fair
           # assumption because all the xpm files are from the shared directory
@@ -166,15 +165,14 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
 
   def _generate_theme_files(self):
     # generate the GdmGreeterTheme.desktop file
-    f = open(join(self.build_folder, 'gdm', 'themes',
-                  self.interface.product, 'GdmGreeterTheme.desktop'), 'w')
+    f = (self.build_folder/'gdm/themes' / \
+         self.interface.product/'GdmGreeterTheme.desktop').open('w')
     f.write(GDM_GREETER_THEME %(self.interface.product, self.interface.fullname,
                                 self.interface.fullname,))
     f.close()
     # generate the %{self.interface.product}.xml file
-    f = open(join(self.build_folder, 'gdm', 'themes',
-                  self.interface.product, '%s.xml' % self.interface.product),
-             'w')
+    f = (self.build_folder/'gdm/themes' / \
+         self.interface.product/('%s.xml' % self.interface.product)).open('w')
     f.write(THEME_XML)
     f.close()
   
@@ -182,18 +180,18 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
     for logoinfo in self.imageslocal.xpath('//logos/logo', []):
       # (id, _, location, width, height, maxwidth, x, y, gradient, highlight)
       i,_,l,b,m,x,y,g,h,f = self._get_image_info(logoinfo)
-      sharedfile = join(self.interface.sharepath, 'logos', i)
-      filename = join(self.build_folder, i)
-      dir = osutils.dirname(filename)
-      if exists(filename):
-        osutils.rm(filename, force=True)
-      if not isdir(dir):
-        osutils.mkdir(dir, parent=True)
-
+      sharedfile = self.interface.sharepath/'logos'/i
+      filename = self.build_folder/i
+      dir = filename.dirname
+      if filename.exists():
+        filename.rm(force=True)
+      if not dir.isdir():
+        dir.mkdirs()
+      
       if l and b:
-        if exists(sharedfile):
+        if sharedfile.exists():
           self.interface.log(4, "image '%s' exists in share/" %i)
-          sync.sync(sharedfile, dir)
+          sync.sync(sharedfile, dir) #! fix me
         else:
           self.interface.log(4, "creating '%s'" %i)
           if m and x and y:
@@ -211,9 +209,9 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
         # The file is a text file that needs to be in the logos rpm.
         # These files are found in the share/ folder. If they are not
         # found, they are skipped.
-        if exists(sharedfile):
+        if sharedfile.exists():
           self.interface.log(4, "file '%s' exists in share/" % i)
-          sync.sync(sharedfile, dir)
+          sync.sync(sharedfile, dir) #! fix me
         else:
           # required text file not there in shared/ folder, passing for now          
           # FIXME: raise an exception here?
@@ -221,11 +219,11 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
         
     # HACK: hack to create the splash.xpm file, have to first convert
     # the grub-splash.png to an xpm and then gzip it.
-    splash_xpm = join(self.build_folder, 'bootloader', 'grub-splash.xpm')
-    splash_xgz = '%s.gz' % splash_xpm
-    if not exists(splash_xgz):
-      splash_png = join(self.build_folder, 'bootloader', 'grub-splash.png')
-
+    splash_xpm = self.build_folder/'bootloader/grub-splash.xpm'
+    splash_xgz = splash_xpm + '.gz'
+    if not splash_xgz.exists():
+      splash_png = self.build_folder/'bootloader/grub-splash.png'
+      
       # TODO: Find a better way to do this conversion.
       shlib.execute('convert %s %s' %(splash_png, splash_xpm,))
       import gzip
@@ -298,7 +296,7 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
 
   def _get_image_info(self, logo):
     id = logo.attrib['id']
-    location = logo.get('location/text()')    
+    location = P(logo.get('location/text()'))
     width = logo.get('width/text()', None)
     height = logo.get('height/text()', None)
     textmaxwidth = logo.get('textmaxwidth/text()', None)

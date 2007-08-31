@@ -1,7 +1,3 @@
-from os.path import exists, join
-
-from dims import osutils
-
 from dimsbuild.event     import EVENT_TYPE_META
 from dimsbuild.interface import Repo
 
@@ -56,15 +52,15 @@ class RpmsHook:
     self.interface = interface
     
   def setup(self):
-    osutils.mkdir(self.interface.LOCAL_REPO,  parent=True)
-    osutils.mkdir(self.interface.LOCAL_RPMS,  parent=True)
-    osutils.mkdir(self.interface.LOCAL_SRPMS, parent=True)
-          
+    self.interface.LOCAL_REPO.mkdirs()
+    self.interface.LOCAL_RPMS.mkdirs()
+    self.interface.LOCAL_SRPMS.mkdirs()
+  
   def post(self):
     if self.interface.isSkipped('RPMS'): return
-    if not exists(join(self.interface.LOCAL_RPMS, 'repodata')) or \
-         not exists(join(self.interface.LOCAL_SRPMS, 'repodata')) or \
-         self.interface.cvars['custom-rpms-built']:
+    if not (self.interface.LOCAL_RPMS/'repodata').exists() or \
+       not (self.interface.LOCAL_SRPMS/'repodata').exists() or \
+       self.interface.cvars['custom-rpms-built']:
       self.interface.log(1, "running createrepo")
       self.interface.createrepo(self.interface.LOCAL_RPMS)
       self.interface.createrepo(self.interface.LOCAL_SRPMS)
@@ -80,11 +76,10 @@ class RpmsHook:
     repo = Repo('localrepo')
     repo.local_path = self.interface.LOCAL_RPMS
     repo.remote_path = self.interface.LOCAL_RPMS
-    repo.split(repo.local_path)
-
+    
     repo.readRepoData()    
     repo.readRepoContents()
-    repofile = join(self.interface.METADATA_DIR, 'localrepo.pkgs')
+    repofile = self.interface.METADATA_DIR/'localrepo.pkgs'
     
     if repo.compareRepoContents(repofile, what='file'):
       repo.changed = True

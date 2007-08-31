@@ -1,7 +1,3 @@
-from os.path import join
-
-from dims import osutils
-
 from dimsbuild.event import EVENT_TYPE_META
 
 API_VERSION = 4.0
@@ -38,4 +34,4 @@ class InstallerHook:
     self.interface = interface
 
   def pre(self):
-    osutils.mkdir(join(self.interface.METADATA_DIR, 'INSTALLER'), parent=True)
+    (self.interface.METADATA_DIR/'INSTALLER').mkdirs()

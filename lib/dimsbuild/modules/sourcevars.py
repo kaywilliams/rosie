@@ -4,15 +4,7 @@ sourcevars.py
 provides information about the source distribution 
 """
 
-__author__  = "Kay Williams <kwilliams@abodiosoftware.com>"
-__version__ = "1.0"
-__date__    = "June 5th, 2007"
-
-from os.path  import join, exists
-
 from dims import FormattedFile as ffile
-from dims import osutils
-from dims import sync
 from dims import img
 
 from dimsbuild.constants import BOOLEANS_TRUE
@@ -49,7 +41,7 @@ class SourcevarsHook:
       'output':    [],
     }
 
-    self.md_dir = join(self.interface.METADATA_DIR, 'sourcevars/')
+    self.mddir = self.interface.METADATA_DIR/'sourcevars'
   
   def error(self, e):
     try:
@@ -59,15 +51,15 @@ class SourcevarsHook:
       pass
 
   def setup(self):
-    self.interface.setup_diff(join(self.md_dir, 'sourcevars.md'), self.DATA)
-
+    self.interface.setup_diff(self.mddir/'sourcevars.md', self.DATA)
+    
     initrd_in=self.interface.getRepo(self.interface.getBaseRepoId()).rjoin('isolinux/initrd.img')
-
-    o = self.interface.setup_sync( paths=[(initrd_in, self.md_dir)] )
-    self.initrd_out = o[0][0]
-
-    self.buildstamp_out = join(self.md_dir, '.buildstamp')
-
+    
+    o = self.interface.setup_sync( paths=[(initrd_in, self.mddir)] )
+    self.initrd_out = o[0]
+    
+    self.buildstamp_out = self.mddir/'.buildstamp'
+    
     self.DATA['output'].extend(o)
     self.DATA['output'].append(self.buildstamp_out)
    
@@ -92,7 +84,7 @@ class SourcevarsHook:
     zipped = image.get('zipped/text()', 'False') in BOOLEANS_TRUE
     self.image = img.MakeImage(self.initrd_out, format, zipped)
     self.image.open('r')
-    self.image.read('.buildstamp', self.md_dir)
+    self.image.read('.buildstamp', self.mddir)
     self.image.close()
     img.cleanup()
 

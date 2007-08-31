@@ -4,10 +4,6 @@ locals.py
 Local data/settings for dimsbuild
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@abodiosoftware.com>"
-__version__ = "3.0"
-__date__    = "May 9th, 2007"
-
 #---------- LOCALS DATA -----------#
 
 L_DISCINFO_PATH = """ 

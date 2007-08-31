@@ -1,7 +1,5 @@
-from os.path  import join, exists
-
 from dims import filereader
-from dims import osutils
+from dims import pps
 from dims import sortlib
 from dims import xmltree
 
@@ -9,6 +7,8 @@ from dimsbuild.event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.misc     import locals_imerge
 
 from lib import ImageModifyMixin
+
+P = pps.Path
 
 API_VERSION = 4.1
 
@@ -82,8 +82,8 @@ class ProductHook(ImageModifyMixin):
   
   def apply(self):
     for file in self.interface.list_output():
-      if not exists(file):
-        raise RuntimeError("Unable to find '%s' at '%s'" % (osutils.basename(file), file))
+      if not file.exists():
+        raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
       
   def register_image_locals(self, locals):
     ImageModifyMixin.register_image_locals(self, locals)
@@ -103,7 +103,7 @@ class ProductHook(ImageModifyMixin):
     ImageModifyMixin.generate(self)
     
     # generate installclasses if none exist
-    if len(osutils.find(join(self.image.handler._mount, 'installclasses'), name='*.py')) == 0:
+    if len((P(self.image.handler._mount)/'installclasses').findpaths(glob='*.py')) == 0:
       self._generate_installclass()
 
     # write the buildstamp file to the image

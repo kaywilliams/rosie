@@ -1,11 +1,10 @@
-from lxml    import etree
-from os.path import exists, join
-
 import copy
 import os
 
-import dims.filereader as filereader
-import dims.xmltree    as xmltree
+from lxml import etree
+
+from dims import filereader
+from dims import xmltree
 
 from dimsbuild.event     import HookExit, EVENT_TYPE_MDLR
 from dimsbuild.interface import EventInterface
@@ -32,7 +31,7 @@ HOOK_MAPPING = {
 class ValidateInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
-    self.schemaspath = join(base.sharepath, 'schemas')
+    self.schemaspath = base.sharepath/'schemas'
   
   def validate(self, xquery, schemafile=None, schemacontents=None, what='distro'):
     if what != self.cvars.get('validate', 'distro'): return
@@ -42,7 +41,7 @@ class ValidateInterface(EventInterface):
       raise RuntimeError("either the schema file or the schema contents should be specified")
     
     cwd = os.getcwd()
-    os.chdir(join(self.schemaspath, 'distro.conf'))
+    os.chdir(self.schemaspath/'distro.conf')
     try:
       schemacontents = schemacontents or self.getSchema(schemafile)
       try:
@@ -71,11 +70,11 @@ class ValidateInterface(EventInterface):
   
   def getSchema(self, filename):
     if self.cvars.get('validate', 'distro') == 'dimsbuild':
-      schema = join(self.schemaspath, filename)
+      schema = self.schemaspath/filename
     else:      
-      schema = join(self.schemaspath, 'distro.conf', filename)
+      schema = self.schemaspath/'distro.conf'/filename
       
-    if exists(schema):
+    if schema.exists():
       return '\n'.join(filereader.read(schema))
     else:
       raise IOError, "missing file: '%s'" %(schema,)

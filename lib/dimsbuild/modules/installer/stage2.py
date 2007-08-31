@@ -1,7 +1,3 @@
-from os.path import exists, join
-
-from dims import osutils
-
 from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
 from lib import FileDownloadMixin
@@ -37,7 +33,7 @@ class Stage2Hook(FileDownloadMixin):
       'input':  [],
       'output': [],      
     }
-    self.mdfile = join(self.interface.METADATA_DIR, 'INSTALLER', 'stage2.md')
+    self.mdfile = self.interface.METADATA_DIR/'INSTALLER/stage2.md'
     
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
@@ -59,8 +55,8 @@ class Stage2Hook(FileDownloadMixin):
 
   def apply(self):
     for file in self.interface.list_output():
-      if not exists(file):
-        raise RuntimeError("Unable to file '%s' at '%s'" % (osutils.basename(file), file))
+      if not file.exists():
+        raise RuntimeError("Unable to file '%s' at '%s'" % (file.basename, file.dirname))
 
 #------ LOCALS ------#
 L_FILES = ''' 

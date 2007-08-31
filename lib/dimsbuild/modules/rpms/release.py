@@ -1,14 +1,8 @@
-from os.path import exists, join
-
-import os
-
 from dims import filereader
-from dims import osutils
 from dims import sync
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from dimsbuild.interface import EventInterface
 
 from lib       import ColorMixin, RpmBuildHook, RpmsInterface
 from rpmlocals import RELEASE_NOTES_HTML
@@ -127,42 +121,42 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
     for type in self.installinfo.keys():
       generator = '_generate_%s_files' % type
       if hasattr(self, generator):
-        dest = join(self.build_folder, type)
+        dest = self.build_folder/type
         getattr(self, generator)(dest)
 
     self._verify_release_notes()
     
   def _verify_release_notes(self):
     "Ensure the presence of RELEASE-NOTES.html and an index.html"
-    rnotes = osutils.find(location=self.build_folder, name='RELEASE-NOTES*')
+    rnotes = self.build_folder.findpaths(glob='RELEASE-NOTES*')
     if len(rnotes) == 0:
       self.setColors(prefix='#')
-      dir = join(self.build_folder, 'html')
-      if not exists(dir):
-        osutils.mkdir(dir, parent=True)
+      dir = self.build_folder/'html'
+      if not dir.exists():
+        dir.mkdirs()
       
       # create a default release notes file because none were found.
       import locale
-      path = join(dir, 'RELEASE-NOTES-%s.html' % locale.getdefaultlocale()[0])
+      path = dir/('RELEASE-NOTES-%s.html' % locale.getdefaultlocale()[0])
       
-      f = open(path, 'w')      
+      f = path.open('w')
       f.write(RELEASE_NOTES_HTML %(self.bgcolor,
                                    self.textcolor,
                                    self.interface.fullname))
       f.close()
       
-      index_html = join(self.build_folder, 'html', 'index.html')
-      if not exists(index_html):
-        os.link(path, index_html)
+      index_html = self.build_folder/'html/index.html'
+      if not index_html.exists():
+        path.link(index_html)
 
   def _generate_gpg_files(self, dest):
     if self.interface.cvars.get('gpg-public-key', None):
-      osutils.mkdir(dest, parent=True)
-      sync.sync(self.interface.cvars['gpg-public-key'], dest)
+      dest.mkdirs()
+      sync.sync(self.interface.cvars['gpg-public-key'], dest) #! fix me
     for repo in self.interface.cvars['repos'].values():
-      osutils.mkdir(dest, parent=True)      
+      dest.mkdirs()
       if repo.gpgkey:
-        sync.sync(repo.gpgkey, dest)    
+        sync.sync(repo.gpgkey, dest) #! fix me
     
   def _generate_eulapy_files(self, dest):
     if self.interface.config.get(
@@ -171,21 +165,20 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
       if self.interface.config.get(
            '/distro/rpms/release-rpm/eula/path/text()', None
          ) is not None:
-        osutils.mkdir(dest, parent=True)
-        src = join(self.interface.sharepath, 'release', 'eula.py')
-        sync.sync(src, dest)
+        dest.mkdirs()
+        src = self.interface.sharepath/'release/eula.py'
+        sync.sync(src, dest) #! fix me
   
   def _generate_etc_files(self, dest):
-    osutils.mkdir(dest, parent=True)
+    dest.mkdirs()
     release_string = ['%s %s' %(self.interface.fullname,
                                 self.interface.version)]
     issue_string = ['Kernel \\r on an \\m\n']
       
     # write the product-release and redhat-release files
-    filereader.write(release_string, join(dest, 'redhat-release'))
-    filereader.write(release_string, join(dest, '%s-release' % \
-                                          self.interface.product))
+    filereader.write(release_string, dest/'redhat-release')
+    filereader.write(release_string, dest/('%s-release' % self.interface.product))
     
     # write the issue and issue.net files
-    filereader.write(release_string+issue_string, join(dest, 'issue'))
-    filereader.write(release_string+issue_string, join(dest, 'issue.net'))
+    filereader.write(release_string+issue_string, dest/'issue')
+    filereader.write(release_string+issue_string, dest/'issue.net')

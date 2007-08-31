@@ -1,9 +1,3 @@
-from os.path import join
-
-import os
-import re
-
-from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 
 from lib       import RpmBuildHook, RpmsInterface
@@ -68,7 +62,7 @@ class DefaultThemeHook(RpmBuildHook):
                           default=False)
   
   def _get_post_install(self):
-    f = open(join(self.build_folder, 'postinstall.sh'), 'w')
+    f = (self.build_folder/'postinstall.sh').open('w')
     f.write(SCRIPT % self.themename)
     f.close()
     return 'postinstall.sh'

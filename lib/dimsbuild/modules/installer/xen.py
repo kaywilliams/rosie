@@ -1,7 +1,3 @@
-from os.path import join, exists
-
-from dims import osutils
-
 from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
 from lib import FileDownloadMixin, ImageModifyMixin
@@ -45,7 +41,7 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
     
     self.interface = interface
 
-    self.xen_dir = join(self.interface.SOFTWARE_STORE, 'images/xen')
+    self.xen_dir = self.interface.SOFTWARE_STORE/'images/xen'
 
     self.DATA = {
       'config':    ['/distro/installer/initrd.img/path/text()'],
@@ -55,8 +51,7 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
     }
   
     ImageModifyMixin.__init__(self, 'initrd.img', interface, self.DATA,
-                              mdfile=join(interface.METADATA_DIR, 'INSTALLER',
-                                          'initrd.img-xen.md'))
+      mdfile=interface.METADATA_DIR/'INSTALLER/initrd.img-xen.md')
     FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
   
   def error(self, e):
@@ -88,8 +83,8 @@ class XenHook(ImageModifyMixin, FileDownloadMixin):
   
   def apply(self):
     for file in self.interface.list_output():
-      if not exists(file):
-        raise RuntimeError("Unable to find '%s' in '%s'" % (osutils.basename(file), file))
+      if not file.exists():
+        raise RuntimeError("Unable to find '%s' in '%s'" % (file.basename, file.dirname))
 
   def generate(self):
     ImageModifyMixin.generate(self)

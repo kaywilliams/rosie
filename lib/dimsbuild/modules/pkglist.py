@@ -1,18 +1,10 @@
-import re
-
-from ConfigParser import ConfigParser
-from os.path      import join, exists
-
 from dims import depsolver
 from dims import filereader
-from dims import listcompare
-from dims import osutils
 
 from dimsbuild.callback  import BuildDepsolveCallback
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.interface import EventInterface
 
-API_VERSION = 4.0
+API_VERSION = 4.1
 
 EVENTS = [
   {
@@ -92,15 +84,15 @@ class PkglistHook:
     
     self.interface = interface
     
-    self.mddir = join(self.interface.METADATA_DIR, '.depsolve')
-    self.pkglistfile = join(self.interface.METADATA_DIR, 'pkglist')
+    self.mddir = self.interface.METADATA_DIR / '.depsolve'
+    self.pkglistfile = self.interface.METADATA_DIR / 'pkglist'
 
     self.DATA = {
       'config':    ['/distro/pkglist'],
       'variables': ['cvars[\'required-packages\']'],
       'output':    [], 
     }
-    self.mdfile = join(self.interface.METADATA_DIR, 'pkglist.md')
+    self.mdfile = self.interface.METADATA_DIR / 'pkglist.md'
     self.docopy = self.interface.config.pathexists('/distro/pkglist/path/text()')
     if self.docopy:
       self.DATA['input'] = []
@@ -117,9 +109,9 @@ class PkglistHook:
                                              self.interface.METADATA_DIR)])
       self.DATA['output'].extend(o)
       assert len(o) == 1
-      self.pkglistfile = o[0][0]
+      self.pkglistfile = o[0]
     else:
-      self.pkglistfile = join(self.interface.METADATA_DIR, 'pkglist')
+      self.pkglistfile = self.interface.METADATA_DIR / 'pkglist'
       self.DATA['output'].append(self.pkglistfile)
   
   def check(self):
@@ -133,19 +125,21 @@ class PkglistHook:
     if self.docopy:
       self.interface.sync_input()
       self.interface.log(1, "reading supplied pkglist file")
-      if exists(self.mddir):
-        osutils.rm(self.mddir, recursive=True, force=True)        
+      if self.mddir.exists():
+        self.mddir.rm(recursive=True)
     else:
       self.interface.log(1, "generating new pkglist")
-      osutils.mkdir(self.mddir, parent=True)
+      self.mddir.mkdirs()
       
       repoconfig = self.create_repoconfig()
-      pkgtups = depsolver.resolve(self.interface.cvars['required-packages'] or [],
-                                  root=self.mddir,
-                                  config=repoconfig,
-                                  arch=self.interface.arch,
-                                  callback=BuildDepsolveCallback(self.interface.logthresh))
-      osutils.rm(repoconfig, force=True)
+      pkgtups = depsolver.resolve(
+        self.interface.cvars['required-packages'] or [],
+        root=str(self.mddir), # yum is much happier if these are strings
+        config=str(repoconfig), # this too
+        arch=self.interface.arch,
+        callback=BuildDepsolveCallback(self.interface.logthresh)
+      )
+      repoconfig.remove()
       
       # verify that final package list contains all user-specified packages
       self.interface.log(1, "verifying package list")
@@ -168,15 +162,15 @@ class PkglistHook:
     self.interface.write_metadata()
 
   def create_repoconfig(self):
-    repoconfig = join(self.interface.TEMP_DIR, 'depsolve.repo')
-    if exists(repoconfig):
-      osutils.rm(repoconfig, force=True)
+    repoconfig = self.interface.TEMP_DIR / 'depsolve.repo'
+    if repoconfig.exists():
+      repoconfig.remove()
     conf = []
     conf.extend(YUMCONF_HEADER)
     for repo in self.interface.getAllRepos():
       if repo.changed:
         ## HACK: delete a folder's depsolve metadata if it has changed. 
-        osutils.rm(join(self.mddir, repo.id), recursive=True, force=True)
+        (self.mddir/repo.id).rm(recursive=True, force=True)
       conf.extend([
         '[%s]' % repo.id,
         'name = %s' % repo.id,
@@ -187,7 +181,7 @@ class PkglistHook:
     return repoconfig
     
   def apply(self):
-    if not exists(self.pkglistfile):
+    if not self.pkglistfile.exists():
       raise RuntimeError("missing package list file: '%s'" % self.pkglistfile)
     self.interface.cvars['pkglist-file'] = self.pkglistfile
     self.interface.cvars['pkglist'] = filereader.read(self.pkglistfile)

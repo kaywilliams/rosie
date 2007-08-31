@@ -1,17 +1,10 @@
 import re
 
-from os.path  import join, exists
-from StringIO import StringIO
-
 from dims import filereader
-from dims import osutils
-from dims import sync
 from dims import xmltree
 
-from dims.configlib import uElement
-
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.interface import EventInterface, RepoFromXml, Repo
+from dimsbuild.interface import RepoFromXml
 
 API_VERSION = 4.0
 
@@ -23,7 +16,6 @@ EVENTS = [
                  'input-repos-changed',
                  'local-repodata'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'interface': 'EventInterface',
   },
 ]
 
@@ -52,19 +44,19 @@ class ReposHook:
     
     self.interface = interface
     
-    self.mddir = join(self.interface.METADATA_DIR, 'repos')
+    self.mddir = self.interface.METADATA_DIR/'repos'
     
     self.DATA = {
       'config': ['/distro/repos/repo'],
       'input':  [], # to be filled later
       'output': [], # to be filled later
     }
-    self.mdfile = join(self.mddir, 'repos.md')
+    self.mdfile = self.mddir/'repos.md'
   
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
 
-    osutils.mkdir(self.mddir, parent=True)
+    self.mddir.mkdirs()
 
     self.repos = {}
     self.interface.cvars['input-repos-changed'] = False
@@ -72,12 +64,13 @@ class ReposHook:
     for repoxml in self.interface.config.xpath('/distro/repos/repo'):
       # create repo objects
       repo = RepoFromXml(repoxml)
-      repo.local_path = join(self.mddir, repo.id) 
-      repo.pkgsfile = join(self.mddir, '%s.pkgs' % repo.id)
+      repo.local_path = self.mddir/repo.id
+      repo.pkgsfile = self.mddir/('%s.pkgs' % repo.id)
 
       # setup sync
-      o = self.interface.setup_sync(paths=[(repo.rjoin(repo.repodata_path,'repodata'),
-                                              repo.ljoin(repo.repodata_path))])
+      o = self.interface.setup_sync(paths=[(repo.rjoin(repo.repodata_path,
+                                                       'repodata'),
+                                            repo.ljoin(repo.repodata_path))])
 
       # populate difftest variables
       self.DATA['output'].extend(o)
@@ -105,7 +98,7 @@ class ReposHook:
 
     for repo in self.repos.values():
       self.interface.log(2, repo.id)
-
+      
       # read repomd.xml file
       repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')
       repo.readRepoData(repomd)
@@ -125,7 +118,7 @@ class ReposHook:
       if not self.interface.cvars['input-repos-changed']:
         repomdfile = repo.ljoin(repo.repodata_path, repo.mdfile)
         for file in repomdfile, repo.pkgsfile:
-          if not exists(file):
+          if not file.exists():
             raise RuntimeError, "Unable to find cached file at '%s'. Perhaps you are skipping the repos event before it has been allowed to run once?" % file
    
         repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')

@@ -1,17 +1,12 @@
 import copy
-import os
-
-from os.path import join, isfile, exists
 
 from dims import listcompare
-from dims import osutils
 from dims import sortlib
 from dims import xmltree
 
-from dims.configlib    import ConfigError
+from dims.configlib import ConfigError
 
-from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
-from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
+from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
 
 API_VERSION = 4.0
 
@@ -66,8 +61,8 @@ class CompsHook:
       'input':     [],
       'output':    []
     }
-    self.mddir = join(self.interface.METADATA_DIR, 'comps')
-    self.mdfile = join(self.mddir, 'comps.md')
+    self.mddir = self.interface.METADATA_DIR/'comps'
+    self.mdfile = self.mddir/'comps.md'
   
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
@@ -78,9 +73,9 @@ class CompsHook:
       o = self.interface.setup_sync(xpaths=[('/distro/comps/use-existing/path',
                                              self.mddir)])
       self.DATA['output'].extend(o)
-      self.comps_out = o[0][0]
-    else: 
-      self.comps_out = join(self.mddir, 'comps.xml')
+      self.comps_out = o[0]
+    else:
+      self.comps_out = self.mddir/'comps.xml'
       self.DATA['output'].append(self.comps_out)
 
   def clean(self):
@@ -100,7 +95,7 @@ class CompsHook:
     self.interface.remove_output(all=True)
 
     # create mddir, if needed
-    if not exists(self.mddir): osutils.mkdir(self.mddir)
+    if not self.mddir.exists(): self.mddir.mkdirs()
 
     if self.comps_supplied: # download comps file   
       self.interface.log(1, "using comps file '%s'" % self.comps_supplied)
@@ -110,13 +105,13 @@ class CompsHook:
       self.interface.log(1, "creating comps file")
       self.generate_comps()
       self.comps.write(self.comps_out)
-      os.chmod(self.comps_out, 0644)
+      self.comps_out.chmod(0644)
 
     # write metadata
     self.interface.write_metadata()
   
   def apply(self):
-    if not exists(self.comps_out):
+    if not self.comps_out.exists():
       raise RuntimeError, "Unable to find cached comps file at '%s'. Perhaps you are skipping the comps event before it has been allowed to run once?" % self.comps_out
     
     # set comps-file variable
@@ -143,8 +138,8 @@ class CompsHook:
     for pkg in (self.interface.cvars['included-packages'] or []):
       if type(pkg) == tuple:
         packages.append(pkg)
-      else: 
-        assert type(pkg) == str
+      else:
+        assert isinstance(pkg, str)
         packages.append((pkg, 'mandatory', None))
     
     base = Group(self.interface.product, self.interface.fullname,

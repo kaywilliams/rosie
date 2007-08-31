@@ -5,8 +5,6 @@ Callback classes for dimsbuild
 """
 import os
 
-from dims import osutils
-
 from dims.sync.cache    import CachedSyncCallback
 from dims.progressbar   import ProgressBar
 
@@ -28,31 +26,22 @@ MSG_MAXWIDTH = 40
 class FilesCallback:
   def __init__(self, interface):
     self.interface = interface
-
+  
   def remove_start(self):
     self.interface.log(1, "removing files")
-
+  
   def remove(self, fn):
-    self.interface.log(4, osutils.basename(fn))
-    osutils.rm(fn, recursive=True, force=True)
-    
+    self.interface.log(4, fn.basename)
+  
   def remove_dir_start(self):
     self.interface.log(1, "removing empty directories")
   
   def remove_dir(self, dn):
-    try:
-      self.interface.log(4, osutils.basename(dn))
-      os.removedirs(dn)
-    except OSError:
-      pass      
-
+    self.interface.log(4, dn.basename)
+  
   def sync_file_start(self):
     self.interface.log(1, "downloading input files")
 
-  def sync_file(self, sn, dn, copy=False, link=False):
-    if copy: self.interface.copy(sn, osutils.dirname(dn), link=link)
-    else:    self.interface.cache(sn, osutils.dirname(dn), link=link)
-  
 class BuildSyncCallback(CachedSyncCallback):
   def __init__(self, threshold):
     CachedSyncCallback.__init__(self)
@@ -61,7 +50,7 @@ class BuildSyncCallback(CachedSyncCallback):
   # sync callbacks - kinda hackish
   def start(self, src, dest):
     if self.logger.threshold == 2:
-      self.logger.log(2, '%s' % osutils.basename(src), MSG_MAXWIDTH)
+      self.logger.log(2, '%s' % src.basename, MSG_MAXWIDTH)
   def cp(self, src, dest): pass
   def sync_update(self, src, dest): pass
   def mkdir(self, src, dest): pass

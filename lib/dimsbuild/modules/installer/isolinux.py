@@ -1,12 +1,8 @@
 import os
 
-from os.path import join, exists
-
 from dims import filereader
-from dims import osutils
-from dims import sync
 
-from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
 from lib import FileDownloadMixin, ImageModifyMixin
 
@@ -45,7 +41,7 @@ class IsolinuxHook(FileDownloadMixin):
     
     self.interface = interface
     
-    self.isolinux_dir = join(self.interface.SOFTWARE_STORE, 'isolinux') #! not versioned
+    self.isolinux_dir = self.interface.SOFTWARE_STORE/'isolinux' #! not versioned
 
     self.DATA = {
       'variables': ['cvars[\'anaconda-version\']'],
@@ -54,7 +50,7 @@ class IsolinuxHook(FileDownloadMixin):
       'config':    ['/distro/installer/isolinux'],
     }
     
-    self.mdfile = join(self.interface.METADATA_DIR, 'INSTALLER', 'isolinux.md')
+    self.mdfile = self.interface.METADATA_DIR/'INSTALLER/isolinux.md'
     FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
   
   def setup(self):
@@ -82,8 +78,8 @@ class IsolinuxHook(FileDownloadMixin):
     # modify the first append line in isolinux.cfg
     bootargs = self.interface.config.get('/distro/installer/isolinux/boot-args/text()', None)
     if bootargs:
-      cfg = join(self.isolinux_dir, 'isolinux.cfg')
-      if not exists(cfg):
+      cfg = self.isolinux_dir/'isolinux.cfg'
+      if not cfg.exists():
         raise RuntimeError("missing file '%s'" % cfg)
       lines = filereader.read(cfg)
       
@@ -100,7 +96,7 @@ class IsolinuxHook(FileDownloadMixin):
   def apply(self):
     self.interface.write_metadata()
     for file in self.interface.list_output():
-      if not exists(file):
+      if not file.exists():
         raise RuntimeError("Unable to find '%s'" % file)
     
 class InitrdHook(ImageModifyMixin):
@@ -145,12 +141,12 @@ class InitrdHook(ImageModifyMixin):
   
   def apply(self):
     for file in self.interface.list_output():
-      if not exists(join(self.interface.SOFTWARE_STORE, file)):
-        raise RuntimeError("Unable to find '%s' at '%s'"  \
-                           % (file, join(self.interface.SOFTWARE_STORE)))
+      if not file.exists():
+        raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
     initrd = self.i_locals.get('//image[@id="initrd.img"]')
-    self.interface.cvars['initrd-file'] = join(self.interface.SOFTWARE_STORE,
-                                               initrd.get('path/text()'), 'initrd.img')
+    self.interface.cvars['initrd-file'] = self.interface.SOFTWARE_STORE / \
+                                               initrd.get('path/text()') / \
+                                               'initrd.img'
 
   def generate(self):
     ImageModifyMixin.generate(self)

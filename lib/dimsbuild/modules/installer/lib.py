@@ -2,22 +2,18 @@ import os
 import tempfile
 import time
 
-from StringIO import StringIO
-from os.path  import exists, isdir, join
 from rpmUtils.miscutils import rpm2cpio
 
-from dims import FormattedFile as ffile
-from dims import imerge
 from dims import img
-from dims import osutils
+from dims import pps
 from dims import sync
-from dims import xmltree
 
 from dimsbuild.constants import BOOLEANS_TRUE
-from dimsbuild.locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
 from dimsbuild.magic     import match as magic_match
 from dimsbuild.magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS, FILE_TYPE_FAT
 from dimsbuild.misc      import locals_imerge, locals_printf
+
+P = pps.Path
 
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')
 
@@ -44,8 +40,8 @@ class ExtractMixin:
     try:
       # get input - extract RPMs
       # create temporary directory for rpms, gets deleted once done
-      working_dir = tempfile.mkdtemp(dir=self.interface.TEMP_DIR) 
-
+      working_dir = P(tempfile.mkdtemp(dir=self.interface.TEMP_DIR))
+      
       for rpmname in self.find_rpms():
         self.extract_rpm(rpmname, working_dir)
       
@@ -54,12 +50,12 @@ class ExtractMixin:
       # empty.
       self.DATA['output'].extend(self.generate(working_dir))
     finally:
-      osutils.rm(working_dir, recursive=True, force=True)
-
+      working_dir.rm(recursive=True)
+    
     # write metadata
     self.interface.write_metadata()
-
-  def extract_rpm(self, rpmPath, output=os.getcwd()):
+  
+  def extract_rpm(self, rpmPath, output=P(os.getcwd())):
     """ 
     Extract the contents of the RPM file specified by rpmPath to
     the output location. The rpmPath parameter can use globbing.
@@ -69,22 +65,22 @@ class ExtractMixin:
                      contents
     """
     # create temporary directory for rpm contents
-    dir = tempfile.mkdtemp(dir=self.interface.TEMP_DIR)
+    dir = P(tempfile.mkdtemp(dir=self.interface.TEMP_DIR))
     try:
-      filename = join(dir, 'rpm.cpio')
+      filename = dir/'rpm.cpio'
     
       # sync the RPM down to the temporary directory
-      sync.sync(rpmPath, dir)
-      rpmFile = join(dir, osutils.basename(rpmPath))
+      sync.sync(rpmPath, dir) #! fix me
+      rpmFile = dir/rpmPath.basename
     
-      rpm2cpio(os.open(rpmFile, os.O_RDONLY), open(filename, 'w+'))
+      rpm2cpio(os.open(rpmFile, os.O_RDONLY), filename.open('w+'))
       cpio = img.MakeImage(filename, 'cpio')
-      if not exists(output):
-        osutils.mkdir(output, parent=True)    
+      if not output.exists():
+        output.mkdirs()
       cpio.open(point=output)
     finally:
-      osutils.rm(dir, recursive=True, force=True)
-        
+      dir.rm(recursive=True)
+    
 class ImageHandler:
   """
   Classes that extend this must require 'anaconda-version',
@@ -110,7 +106,7 @@ class ImageHandler:
     zipped = image.get('zipped/text()', 'False') in BOOLEANS_TRUE
     
     if image.attrib.get('virtual', 'False') in BOOLEANS_TRUE:
-      if exists(path): osutils.rm(path) # delete old image
+      if path.exists(): path.remove() # delete old image
     self.image = img.MakeImage(path, format, zipped)
     self.image.open()
   
@@ -125,13 +121,13 @@ class ImageHandler:
     self.image.write(self.interface.cvars['buildstamp-file'], '/')
   
   def write_directory(self, dir, dest='/'):
-    self.image.write([ join(dir, file) for file in os.listdir(dir) ], dest)
+    self.image.write([ file for file in dir.listdir() ], dest)
   
   def _getpath(self):
     FILE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
-    return join(self.interface.SOFTWARE_STORE,
-                locals_printf(FILE.get('path'), self.vars),
-                self.name)
+    return self.interface.SOFTWARE_STORE / \
+                locals_printf(FILE.get('path'), self.vars) / \
+                self.name
   
   def _iszipped(self):
     IMAGE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
@@ -143,7 +139,7 @@ class ImageHandler:
   
   def validate_image(self):
     p = self._getpath()
-    if not exists(p):
+    if not p.exists():
       return False
     else:
       if self._iszipped():
@@ -154,7 +150,7 @@ class ImageHandler:
 
 
 class ImageModifyMixin(ImageHandler):
-  """
+  """ 
   Classes that extend this must require 'anaconda-version' and
   'buildstamp-file.'
 
@@ -162,17 +158,17 @@ class ImageModifyMixin(ImageHandler):
   """
   def __init__(self, name, interface, data, mdfile=None):
     ImageHandler.__init__(self, interface, name)
-    self.mdfile = mdfile or join(interface.METADATA_DIR, 'INSTALLER', '%s.md' % name)
+    self.mdfile = P(mdfile or interface.METADATA_DIR/'INSTALLER'/('%s.md' % name))
     self.DATA = data    
-    self.imagedir = join(self.interface.METADATA_DIR, 'INSTALLER', self.name)
+    self.imagedir = self.interface.METADATA_DIR/'INSTALLER'/self.name
 
   def setup(self):
-    imagessrc = join(self.interface.METADATA_DIR, 'images-src', self.name)
-    if exists(imagessrc):
+    imagessrc = self.interface.METADATA_DIR/'images-src'/self.name
+    if imagessrc.exists():
       self.DATA['input'].append(imagessrc)
-
+    
     self.interface.setup_diff(self.mdfile, self.DATA)
-
+    
     o = self.interface.setup_sync(xpaths=[('/distro/installer/%s/path' % self.name,
                                            self.imagedir)])
     self.DATA['output'].extend(o)
@@ -186,12 +182,12 @@ class ImageModifyMixin(ImageHandler):
     image_path = locals_printf(image_path, self.interface.BASE_VARS)
     try:
       o = self.interface.setup_sync(paths=[(repo.rjoin(image_path, self.name),
-                                            join(self.interface.SOFTWARE_STORE, image_path))],
+                                            self.interface.SOFTWARE_STORE/image_path)],
                                     id='ImageModifyMixin')
       self.DATA['output'].extend(o)
     except IOError:
       if self._isvirtual():
-        self.DATA['output'].append(join(self.interface.SOFTWARE_STORE, image_path, self.name))
+        self.DATA['output'].append(self.interface.SOFTWARE_STORE/image_path/self.name)
       else:
         raise
     self.l_image = self.i_locals.get('//images/image[@id="%s"]' % self.name)
@@ -216,11 +212,11 @@ class ImageModifyMixin(ImageHandler):
   
   def generate(self):
     self.interface.cvars['%s-changed' % self.name] = True
-    if exists(self.imagedir):
+    if self.imagedir.exists():
       self.write_directory(self.imagedir)
 
 class FileDownloadMixin:
-  """
+  """ 
   Classes that extend this must require 'anaconda-version' and
   'source-vars'.
 
@@ -243,7 +239,7 @@ class FileDownloadMixin:
       rinfix = locals_printf(file.get('path'), self.interface.cvars['source-vars'])
       linfix = locals_printf(file.get('path'), self.interface.BASE_VARS)
       paths.append((self.interface.getRepo(self.repoid).rjoin(rinfix, filename),
-                    join(self.interface.SOFTWARE_STORE, linfix)))
+                    self.interface.SOFTWARE_STORE/linfix))
 
     o = self.interface.setup_sync(paths=paths, id='FileDownloadMixin')
     self.DATA['output'].extend(o)    

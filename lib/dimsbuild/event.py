@@ -622,10 +622,10 @@ def EventFromStruct(struct):
   provides = struct.get('provides', [])
   requires = struct.get('requires', [])
   cond_req = struct.get('conditional-requires', [])
-  if type(provides) != type([]): provides = [provides]
-  if type(requires) != type([]): requires = [requires]
-  if type(cond_req) != type([]): cond_req = [cond_req]
-    
+  if not hasattr(provides, '__iter__'): provides = [provides]
+  if not hasattr(requires, '__iter__'): requires = [requires]
+  if not hasattr(cond_req, '__iter__'): cond_req = [cond_req]
+  
   return Event(id, provides=provides, requires=requires, properties=properties,
                conditional_requires=cond_req)
 

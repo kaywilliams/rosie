@@ -1,9 +1,4 @@
-from os.path import join, exists
-
-from dims import osutils
-
 from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
-from dimsbuild.misc  import locals_imerge
 
 from lib import ImageModifyMixin
 
@@ -41,7 +36,7 @@ class UpdatesHook(ImageModifyMixin):
     self.VERSION = 0
     self.ID = 'installer.updates.updates-image'
 
-    self.updatesimage = join(interface.SOFTWARE_STORE, 'images/updates.img')
+    self.updatesimage = interface.SOFTWARE_STORE/'images/updates.img'
     
     self.DATA = {
       'config':    ['/distro/installer/updates.img/path/text()'],
@@ -77,8 +72,8 @@ class UpdatesHook(ImageModifyMixin):
     
   def apply(self):
     for file in self.interface.list_output():
-      if not exists(file):
-        raise RuntimeError("Unable to find '%s' at '%s'" % (osutils.basename(file), file))
+      if not file.exists():
+        raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
   
 #------ LOCALS ------#
 L_IMAGES = ''' 

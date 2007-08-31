@@ -1,5 +1,5 @@
 """ 
-status.py
+difftest.py
 
 A flexible, modular status monitoring system for determining whether or not a
 given set of data has changed or not.  Allows the client application to define
@@ -35,17 +35,12 @@ __date__    = 'June 12th, 2007'
 from xml.sax import SAXParseException
 
 import copy
-import os
-import time
-import urllib2
 
-from os.path import exists, join
-
-from dims import osutils
-from dims import spider
+from dims import pps
 from dims import xmlserialize
 from dims import xmltree
 
+P = pps.Path
 
 def expand(list):
   "Expands a list of lists into a list, in place."
@@ -53,30 +48,12 @@ def expand(list):
   new = []
   # expand all lists in the list
   for item in list:
-    if type(item) == type([]):
+    if hasattr(item, '__iter__'):
       new.extend(item)
       old.append(item)    
   for x in old: list.remove(x)
   for x in new: list.append(x)
 
-def getMetadata(uri):
-  "Return the (size,mtime) of a remote or local uri."
-  if uri.startswith('file:/'):
-    uri = '/' + uri[6:].lstrip('/')
-
-  if uri.startswith('/'): # local uri
-    stats = os.stat(uri)
-    return (int(stats.st_size), int(stats.st_mtime))
-  else: # remote uri
-    request = urllib2.Request(uri)
-    request.get_method = lambda : 'HEAD'
-    http_file = urllib2.urlopen(request)
-    headers = http_file.info()
-    size = headers.getheader('content-length') or '0'
-    mtime = headers.getheader('last-modified') or 'Wed, 31 Dec 1969 16:00:00 GMT'
-    http_file.close()
-    return int(size), int(time.mktime(time.strptime(mtime, '%a, %d %b %Y %H:%M:%S GMT')))
-  
 def diff(oldstats, newstats):
   """ 
   Return a dictionary of 'diff tuples' expressing the differences between
@@ -119,35 +96,14 @@ def diff(oldstats, newstats):
       diffdict[file] = (oldstats[file], newstats[file])
   return diffdict
   
-def expandPaths(paths):
-  if type(paths) == str: paths = [paths]
-  
-  npaths = []
-  for path in paths:
-    npaths.extend(getFileList(path))
-  
-  return npaths
-
-def getFileList(uri):
-  "Return the files of a remote or local (absolute) uri"
-  if uri.startswith('file://'):
-    uri = uri[7:]
-
-  if uri.startswith('/'): # local uri
-    ls = osutils.find(uri, type=osutils.TYPE_FILE|osutils.TYPE_LINK)
-  else: # remote uri
-    ls = spider.find(uri, nregex='.*/$')
-  rtn = []
-  for l in ls:
-    s,m = getMetadata(l)
-    rtn.append((l,s,m))
-  return rtn
-  
 def DiffTuple(file):
   "Generate a (size, mtime) tuple for file"
   try:
-    return getMetadata(file)
-  except OSError, HTTPError:
+    if isinstance(file, tuple):
+      return file[1], file[2]
+    st = file.stat()
+    return st.st_size, st.st_mtime
+  except pps.path.error.PathError:
     # FIXME: should the exception be raised here?
     return (None, None) 
 
@@ -182,10 +138,10 @@ class DiffTest:
   def clean_metadata(self):
     for handler in self.handlers:
       handler.clear()
-    osutils.rm(self.mdfile, force=True)
-      
+    self.mdfile.rm(force=True)
+  
   def read_metadata(self):
-    """
+    """ 
     Read the file stored at self.mdfile and pass it to each of the
     handler's mdread() functions.
     """
@@ -202,12 +158,12 @@ class DiffTest:
     Due to the way xmltree.XmlTreeElements work, mdwrite() doesn't
     need to return any values; xmltree appends are destructive.    
     """
-    if exists(self.mdfile): root = xmltree.read(self.mdfile)
+    if self.mdfile.exists(): root = xmltree.read(self.mdfile)
     else: root = xmltree.Element('metadata')
 
     for handler in self.handlers:
       handler.mdwrite(root)
-
+    
     root.write(self.mdfile)
 
   def changed(self, debug=None):
@@ -265,16 +221,16 @@ class InputHandler:
       
   def mdread(self, metadata):    
     for file in metadata.xpath('/metadata/input/file'):
-      self.oldinput[file.get('@path')] = (int(file.get('size/text()')),
-                                          int(file.get('mtime/text()')))
+      self.oldinput[P(file.get('@path'))] = (int(file.get('size/text()')),
+                                             int(file.get('mtime/text()')))
       
   def mdwrite(self, root):
     try: root.remove(root.get('input'))
     except TypeError: pass
     parent = xmltree.Element('input', parent=root)
     for datum in self.idata:
-      ifiles = self.filelists.get(datum, expandPaths(datum))
-      for ifile in ifiles:
+      for ifile in self.filelists.get(datum,
+         P(datum).findpaths(type=pps.constants.TYPE_NOT_DIR)):
         size, mtime = self.newinput.get(ifile, DiffTuple(ifile))
         e = xmltree.Element('file', parent=parent, attrs={'path': ifile})
         xmltree.Element('size', parent=e, text=str(size))
@@ -283,12 +239,12 @@ class InputHandler:
   def diff(self):
     for datum in self.idata:
       if not self.filelists.has_key(datum):
-        self.filelists[datum] = expandPaths(datum)
+        self.filelists[datum] = P(datum).findpaths(type=pps.constants.TYPE_NOT_DIR)
       ifiles = self.filelists[datum]
       for ifile in ifiles:
-        self.newinput[ifile] = DiffTuple(ifile)        
+        self.newinput[ifile] = DiffTuple(ifile)
     self.diffdict = diff(self.oldinput, self.newinput)    
-    if self.diffdict: self.dprint(self.diffdict)
+    if self.diffdict: self.dprint('input: %s' % self.diffdict)
     return self.diffdict
 
 class OutputHandler:
@@ -307,8 +263,8 @@ class OutputHandler:
     
   def mdread(self, metadata):
     for file in metadata.xpath('/metadata/output/file'):
-      self.oldoutput[file.get('@path')] = (int(file.get('size/text()')),
-                                           int(file.get('mtime/text()')))
+      self.oldoutput[P(file.get('@path'))] = (int(file.get('size/text()')),
+                                              int(file.get('mtime/text()')))
   
   def mdwrite(self, root):    
     try: root.remove(root.get('output'))
@@ -316,11 +272,13 @@ class OutputHandler:
     
     parent = xmltree.uElement('output', parent=root)
     # write to metadata file
-    info = expandPaths(self.odata)
-    for o,s,m in info:
-      e = xmltree.Element('file', parent=parent, attrs={'path': o})
-      xmltree.Element('size', parent=e, text=str(s))
-      xmltree.Element('mtime', parent=e, text=str(m))
+    paths = []
+    for file in self.odata:
+      paths.extend(file.findpaths(type=pps.constants.TYPE_NOT_DIR))
+    for file in paths:
+      e = xmltree.Element('file', parent=parent, attrs={'path': file})
+      xmltree.Element('size', parent=e, text=str(file.stat().st_size))
+      xmltree.Element('mtime', parent=e, text=str(file.stat().st_mtime))
 
   def diff(self):
     newitems = {}
@@ -328,7 +286,7 @@ class OutputHandler:
       newitems[item] = DiffTuple(item)
       
     self.diffdict = diff(self.oldoutput, newitems)
-    if self.diffdict: self.dprint(self.diffdict)
+    if self.diffdict: self.dprint('output: %s' % self.diffdict)
     return self.diffdict
 
 class ConfigHandler:
@@ -362,9 +320,9 @@ class ConfigHandler:
     for path in self.cdata:
       value = xmltree.Element('value', parent=config, attrs={'path': path})
       for val in self.config.xpath(path, []):
-        if type(val) == type(''): # a string
+        if isinstance(val, str): # a string
           xmltree.Element('text', parent=value, text=val)
-        else:
+        else: # elements
           elements = xmltree.Element('elements', parent=value)
           elements.append(copy.copy(val)) # append() is destructive
 
@@ -384,7 +342,7 @@ class ConfigHandler:
         except xmltree.XmlPathError:
           cfgval = NoneEntry(path)
         self.diffdict[path] = (NewEntry(), cfgval)
-    if self.diffdict: self.dprint(self.diffdict)
+    if self.diffdict: self.dprint('config: %s' % self.diffdict)
     return self.diffdict
 
 class VariablesHandler:
@@ -421,7 +379,7 @@ class VariablesHandler:
       try:
         val = eval('self.obj.%s' % var)
         parent.append(xmlserialize.serialize(val))
-      except (AttributeError, TypeError):
+      except (AttributeError, TypeError), e:
         pass
   
   def diff(self):
@@ -438,5 +396,5 @@ class VariablesHandler:
           self.diffdict[var] = (self.vars[var], val)
       else:
         self.diffdict[var] = (NewEntry(), val)
-    if self.diffdict: self.dprint(self.diffdict)
+    if self.diffdict: self.dprint('variables: %s' % self.diffdict)
     return self.diffdict

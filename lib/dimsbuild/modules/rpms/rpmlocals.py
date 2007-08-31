@@ -1,8 +1,8 @@
-SCRIPT = """
+SCRIPT = ''' 
 chmod +w /usr/share/gdm/defaults.conf
 sed -i 's/^GraphicalTheme=[a-zA-Z]*$/GraphicalTheme=%s/g' /usr/share/gdm/defaults.conf
 chmod -w /usr/share/gdm/defaults.conf
-"""
+'''
 
 RELEASE_NOTES_HTML = '''<html>
   <head>
@@ -377,4 +377,3 @@ THEME_XML = '''<?xml version="1.0" encoding="UTF-8"?>
   </item>
 </greeter>
 '''
-

@@ -6,9 +6,11 @@ import rpm
 from math    import ceil
 from os.path import exists, isfile, isdir, join
 
-import dims.FormattedFile as ffile
-import dims.pkgorder      as pkgorder
-import dims.osutils       as osutils
+from dims import FormattedFile as ffile
+from dims import pkgorder
+from dims import osutils
+
+from dims.xmltree import XmlTreeElement
 
 TS = rpm.TransactionSet()
 TS.setVSFlags(-1)
@@ -33,9 +35,11 @@ class Timber:
     self.reserve = 0
     self.product = None
     self.pkgorder = None
-    self.unified_tree = None
-    self.unified_source_tree = None
-    self.split_tree = None
+    
+    # the following must be pps.Path objects
+    self.u_tree = None     # unified tree
+    self.u_src_tree = None # uniifed source tree
+    self.s_tree = None     # split tree
     
     self.rpm_disc_map = None
     self.srpm_disc_map = None
@@ -48,38 +52,40 @@ class Timber:
     
   def create_discinfo(self, discnumber):
     "Create a .discinfo file for disc number in split tree"
-    if type(self.difmt) == type({}):
+    if isinstance(self.difmt, dict):
       discinfo = ffile.DictToFormattedFile(self.difmt)
-    elif type(self.difmt == type('')):
+    elif isinstance(self.difmt, XmlTreeElement):
       discinfo = ffile.XmlToFormattedFile(self.difmt)
     else:
       raise ValueError, "Unsupported format %s for pkgorder.difmt" % type(self.difmt)
     
     if self.discinfo_vars is None:
-      if not exists(join(self.unified_tree, '.discinfo')):
+      difile = self.u_tree/'.discinfo'
+      if not difile.exists():
         raise RuntimeError, "Error: .discinfo doesn't exist in unified tree"
-      self.discinfo_vars = discinfo.read(join(self.unified_tree, '.discinfo'))
+      self.discinfo_vars = discinfo.read(difile)
     vars = copy.copy(self.discinfo_vars)
     vars['discs'] = str(discnumber)
-    discinfo.write(join(self.split_tree,
-                        '%s-disc%d' % (self.product, discnumber),
-                        '.discinfo'), **vars)
+    discinfo.write(
+      self.s_tree/('%s-disc%d' % (self.product, discnumber))/'.discinfo',
+      **vars
+    )
   
-  def link(self, src, dest, files):
+  def link(self, src, dst, files):
     "Link each file in src/[files] to dest/[files]"
     for file in files:
-      osutils.cp(join(src, file), dest, link=True, recursive=True)
+      (src/file).cp(dst, link=True, recursive=True)
   
   def cleanup(self):
-    osutils.rm(join(self.split_tree, '%s-disc*' % self.product), recursive=True, force=True)
+    self.s_tree.glob('%s-disc*' % self.product).rm(recursive=True, force=True)
   
   def compute_layout(self):
     srpm_nregex = '.*\.[Ss][Rr][Cc]\.[Rr][Pp][Mm]'
     
     # rpms
-    totalsize = osutils.du(osutils.find(self.unified_tree, nregex=srpm_nregex))
-    rpmsize = osutils.du(osutils.find(self.unified_tree, name='*.[Rr][Pp][Mm]',
-                                      nregex=srpm_nregex))
+    totalsize = osutils.du(self.u_tree.findpaths(nregex=srpm_nregex))
+    rpmsize = osutils.du(self.u_tree.findpaths(glob='*.[Rr][Pp][Mm]',
+                                                        nregex=srpm_nregex))
     
     extrasize = totalsize - rpmsize
     
@@ -90,8 +96,9 @@ class Timber:
     # srpms
     nsrpmdiscs = 0
     if self.dosrc:
-      srpmsize = osutils.du(osutils.find(self.unified_source_tree,
-                                         name='*.[Ss][Rr][Cc].[Rr][Pp][Mm]'))
+      srpmsize = osutils.du(
+        self.u_src_tree.findpaths(glob='*.[Ss][Rr][Cc].[Rr][Pp][Mm]')
+      )
       ndiscs = int(ceil(float(srpmsize)/self.discsize))
       nsrpmdiscs = self.__consume_discs(srpmsize)
       self.srpm_disc_map = range(nrpmdiscs + 1, nrpmdiscs + nsrpmdiscs + 1)
@@ -116,34 +123,31 @@ class Timber:
     ##print shared, self.total_discs
     
     for i in self.rpm_disc_map:
-      discpath = join(self.split_tree, '%s-disc%d' % (self.product, i))
-      osutils.mkdir(join(discpath, self.product), parent=True)
+      discpath = self.s_tree/('%s-disc%d' % (self.product, i))
+      (discpath/self.product).mkdirs()
       if i == 1: # put release files on disc 1
-        for file in filter(None, osutils.find(self.unified_tree,
-            nregex='.*(\.discinfo|.*\.[Rr][Pp][Mm]|(S)?RPMS|%s)' % self.product,
-            mindepth=1, maxdepth=1)):
-          osutils.cp(file, discpath, link=True, recursive=True)
+        for file in self.u_tree.findpaths(
+            nregex='.*(\..*|.*\.[Rr][Pp][Mm]|(S)?RPMS|%s)$' % self.product,
+            mindepth=1, maxdepth=1):
+          file.cp(discpath, link=True, recursive=True)
       else:
-        self.link(self.unified_tree, discpath, self.common_files)
+        self.link(self.u_tree, discpath, self.common_files)
       self.create_discinfo(i)
     
     if self.dosrc:
       for i in self.srpm_disc_map:
-        discpath = join(self.split_tree, '%s-disc%d' % (self.product, i))
-        osutils.mkdir(join(discpath, 'SRPMS'), parent=True)
-        self.link(self.unified_tree, discpath, self.common_files)
+        discpath = self.s_tree/('%s-disc%d' % (self.product, i))
+        (discpath/'SRPMS').mkdirs()
+        self.link(self.u_tree, discpath, self.common_files)
         self.create_discinfo(i)
 
   def split_rpms(self):
     packages = {}
-    pkgdir = join(self.unified_tree, self.product)
+    pkgdir = self.u_tree/self.product
     
-    rpms = osutils.find(pkgdir, name='*.[Rr][Pp][Mm]')
-    rpms.sort()
-    
-    for rpm in rpms:
-      size = os.path.getsize(join(pkgdir, rpm))
-      pkgnvra = nvra(join(pkgdir, rpm))
+    for rpm in pkgdir.findpaths(glob='*.[Rr][Pp][Mm]'):
+      size = rpm.getsize()
+      pkgnvra = nvra(rpm)
       
       if packages.has_key(pkgnvra):
         packages[pkgnvra].append(rpm)
@@ -155,14 +159,14 @@ class Timber:
       order[i] = pkgtup_to_nvra(order[i])
     
     disc = self.rpm_disc_map[0]
-    discpath = join(self.split_tree, '%s-disc%d' % (self.product, disc))
+    discpath = self.s_tree/('%s-disc%d' % (self.product, disc))
     
     used = osutils.du(discpath)
     for rpmnvra in order:
       if not packages.has_key(rpmnvra): continue
       
       for file in packages[rpmnvra]:
-        size = osutils.du(join(pkgdir, file))
+        size = file.getsize()
         assert size > 0
         newsize = used + size
         
@@ -174,7 +178,7 @@ class Timber:
           try:
             nextdisc = self.rpm_disc_map.index(disc+1)
             disc = self.rpm_disc_map[nextdisc]
-            discpath = join(self.split_tree, '%s-disc%d' % (self.product, disc))
+            discpath = self.s_tree/('%s-disc%d' % (self.product, disc))
             self.link(pkgdir, join(discpath, self.product), [file])
           except (IndexError, ValueError):
             disc = disc - 1
@@ -189,27 +193,22 @@ class Timber:
     if not self.dosrc:
       return
     
-    srpms = []
-    # create list of (size, srpm) tuples
-    for srpm in osutils.find(self.unified_source_tree, name='*.[Ss][Rr][Cc].[Rr][Pp][Mm]'):
-      size = os.path.getsize(join(self.unified_source_tree, srpm))
-      srpms.append((size, srpm))
+    srpms = self.u_src_tree.findpaths(glob='*.[Ss][Rr][Cc].[Rr][Pp][Mm]')
     
-    srpms.sort()
-    srpms.reverse()
+    srpms.sort('size')
     
     # keep list of SRPM trees and their sizes
     sizes = []
     for disc in self.srpm_disc_map:
-      sizes.append([osutils.du(join(self.split_tree, '%s-disc%d' % (self.product, disc))), disc])
+      sizes.append([osutils.du(self.s_tree/('%s-disc%d' % (self.product, disc))), disc])
     sizes.sort()
     
     # add srpm to the smallest source tree
-    for srpmtup in srpms:
-      os.link(join(self.unified_source_tree, srpmtup[1]),
-              join(self.split_tree, '%s-disc%d/SRPMS/%s' % \
-                (self.product, sizes[0][1], osutils.basename(srpmtup[1]))))
-      sizes[0][0] += srpmtup[0]
+    for srpm in srpms:
+      os.link(self.u_src_tree/srpm,
+              self.s_tree/('%s-disc%d/SRPMS/%s' % \
+                (self.product, sizes[0][1], srpm.basename)))
+      sizes[0][0] += srpm.getsize()
       sizes.sort()
   
 

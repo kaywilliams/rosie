@@ -1,11 +1,10 @@
-from os.path import join
+from dims import pps
 
-from dims import osutils
-
-from dimsbuild.difftest import expand
-from dimsbuild.event    import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
+from dimsbuild.event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 
 from lib import RpmBuildHook, RpmsInterface
+
+P = pps.Path
 
 EVENTS = [
   {
@@ -38,7 +37,7 @@ class ConfigRpmHook(RpmBuildHook):
     self.VERSION = 0
     self.ID = 'config.config-rpm'
     
-    self.configdir = osutils.dirname(interface.config.file)
+    self.configdir = P(interface.config.file)
 
     data = {
       'config': [
@@ -86,19 +85,17 @@ class ConfigRpmHook(RpmBuildHook):
   def test_build(self):
     if RpmBuildHook.test_build(self):
       if self.interface.config.get('//config-rpm/requires', None) or \
-         osutils.find(join(self.interface.SOURCES_DIR, self.id)) or \
          self.interface.config.get('//config-rpm/obsoletes', None) or \
          self.interface.config.get('//config-rpm/config/script/path/text()', None) or \
-         self.interface.config.get('//config-rpm/config/supporting-files/path/text()', None):
+         self.interface.config.get('//config-rpm/config/supporting-files/path/text()', None) or \
+         (self.interface.SOURCES_DIR/self.id).findpaths():
         return True
     return False
   
   def _get_post_install(self):
     script = self.interface.config.get(self.installinfo['config'][0], None)
-    if script:      
-      post_install_scripts = find(location=self.output_location,
-                                  name=osutils.basename(script),
-                                  printf='%P')
+    if script:
+      post_install_scripts = self.output_location.findpaths(glob=P(script).basename)
       assert len(post_install_scripts) == 1
       return post_install_scripts[0]
     return None

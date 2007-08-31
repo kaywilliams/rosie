@@ -4,29 +4,19 @@ sources.py
 downloads srpms 
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
-__version__ = '1.1'
-__date__    = 'June 12th, 2007'
-
 import os
 import re
 import rpm
 
-from StringIO import StringIO
-from os.path  import join, exists
-from rpm      import TransactionSet, RPMTAG_SOURCERPM
-
-from dims import osutils
+from dims import pps
 from dims import shlib 
-from dims import spider
-from dims import sync
 from dims import xmltree
 
-from dims.configlib import uElement
-
-from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, SRPM_GLOB, SRPM_PNVRA
+from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, SRPM_PNVRA
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from dimsbuild.interface import EventInterface, RepoFromXml, Repo
+from dimsbuild.interface import EventInterface, RepoFromXml
+
+P = pps.Path
 
 API_VERSION = 4.0
 
@@ -60,7 +50,7 @@ SRPM_PNVRA_REGEX = re.compile(SRPM_PNVRA)
 class SrpmInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)    
-    self.srpmdest = join(self.OUTPUT_DIR, 'SRPMS')
+    self.srpmdest = self.OUTPUT_DIR/'SRPMS'
     
   def getAllSourceRepos(self):
     return self.cvars['source-repos'].values()
@@ -101,7 +91,7 @@ class SourceRepoHook:
     self.ID = 'sources.source-repos'
     self.interface = interface
 
-    self.mdsrcrepos = join(self.interface.METADATA_DIR, 'source-repos')
+    self.mdsrcrepos = self.interface.METADATA_DIR/'source-repos'
 
     self.interface.cvars['sources-enabled'] = \
        self.interface.config.pathexists('/distro/sources') and \
@@ -113,18 +103,19 @@ class SourceRepoHook:
       'input':     [],
       'output':    [],
     }
-    self.mdfile = join(self.interface.METADATA_DIR, 'source-repos.md')
+    self.mdfile = self.interface.METADATA_DIR/'source-repos.md'
 
   def setup(self):    
     self.interface.setup_diff(self.mdfile, self.DATA)
     if not self.interface.cvars['sources-enabled']: return
 
     self.srcrepos = {}
-    osutils.mkdir(self.mdsrcrepos, parent=True)
+    self.mdsrcrepos.mkdirs()
+    
     for repoxml in self.interface.config.xpath('/distro/sources/repo'):
       repo = RepoFromXml(repoxml)
-      repo.local_path = join(self.mdsrcrepos, repo.id)
-      repo.pkgsfile = join(self.mdsrcrepos, '%s.pkgs' % repo.id)
+      repo.local_path = self.mdsrcrepos/repo.id
+      repo.pkgsfile = self.mdsrcrepos/('%s.pkgs' % repo.id)
         
       o = self.interface.setup_sync(paths=[(repo.rjoin(repo.repodata_path, 'repodata'),
                                               repo.ljoin(repo.repodata_path))])
@@ -183,7 +174,7 @@ class SourceRepoHook:
         for repo in self.srcrepos.values():
           repomdfile = repo.ljoin(repo.repodata_path, repo.mdfile)
           for file in repomdfile, repo.pkgsfile:
-            if not exists(file):
+            if not file.exists():
               raise RuntimeError("Unable to find cached file at '%s'. Perhaps you " \
                                  "are skipping the 'source-repos' event before it has "\
                                  "been allowed to run once?" % file)
@@ -203,7 +194,7 @@ class SourcesHook:
       'input':    [],
       'output':   [],
     }
-    self.mdfile = join(self.interface.METADATA_DIR, 'source.md')    
+    self.mdfile = self.interface.METADATA_DIR/'source.md'
       
   def setup(self):
     self.mdsrcrepos = self.interface.cvars['local-source-repodata']    
@@ -213,15 +204,15 @@ class SourcesHook:
     if not self.interface.cvars['sources-enabled']: return
 
     # compute the list of SRPMS
-    self.ts = TransactionSet()
+    self.ts = rpm.TransactionSet()
     self.ts.setVSFlags(-1)    
     srpmlist = []
-    for pkg in osutils.find(self.interface.cvars['rpms-directory'],
-                            name=RPM_GLOB):
+    for pkg in P(self.interface.cvars['rpms-directory']).findpaths(
+                 name=RPM_GLOB):
       i = os.open(pkg, os.O_RDONLY)
       h = self.ts.hdrFromFdno(i)
       os.close(i)
-      srpm = h[RPMTAG_SOURCERPM]
+      srpm = h[rpm.RPMTAG_SOURCERPM]
       if srpm not in srpmlist:
         srpmlist.append(srpm)
 
@@ -238,7 +229,7 @@ class SourcesHook:
           paths.append(((rpm, size, mtime), self.interface.srpmdest))
 
     self.DATA['input'].append(self.mdsrcrepos)
-    self.DATA['output'].append(join(self.interface.srpmdest, 'repodata'))
+    self.DATA['output'].append(self.interface.srpmdest/'repodata')
     
     o = self.interface.setup_sync(paths=paths)
     self.DATA['output'].extend(o)
@@ -263,7 +254,7 @@ class SourcesHook:
 
     self.interface.log(0, "processing srpms")
     self.interface.remove_output()
-    osutils.mkdir(self.interface.srpmdest, parent=True)
+    self.interface.srpmdest.mkdirs()
     self.interface.sync_input()
     self.interface.createrepo()
 

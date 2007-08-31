@@ -1,22 +1,16 @@
 import re
 import os
 
-from os.path       import exists, join
 from rpmUtils.arch import getArchList
 
-from dims import osutils
 from dims import mkrpm
 from dims import shlib
-from dims import sortlib
-from dims import spider
-from dims import sync
 
-from dims.mkrpm.rpmsign  import GpgMixin, getPassphrase, signRpm
-from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, RPM_PNVRA
+from dimsbuild.constants import RPM_PNVRA
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.interface import EventInterface
 
-API_VERSION = 4.0
+API_VERSION = 4.1
 
 #------ EVENTS ------#
 EVENTS = [
@@ -43,7 +37,7 @@ class SoftwareInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
     
-    self.rpmdest = join(self.SOFTWARE_STORE, self.product)
+    self.rpmdest = self.SOFTWARE_STORE/self.product
 
   def deformat(self, rpm):
     """ 
@@ -67,7 +61,7 @@ class SoftwareInterface(EventInterface):
     "Sign an RPM"
     self.log(1, "signing rpms")
     for r in rpms:
-      self.log(2, osutils.basename(r))
+      self.log(2, r.basename)
       mkrpm.rpmsign.signRpm(r, homedir=homedir, passphrase=passphrase)
   
   def createrepo(self):
@@ -100,7 +94,7 @@ class SoftwareHook:
       'input':     [],
       'output':    [],
     }
-    self.mdfile = join(self.interface.METADATA_DIR, 'software.md')
+    self.mdfile = self.interface.METADATA_DIR/'software.md'
     
   def setup(self):
     # for each rpm in the pkglist, find the RPM's timestamp and size
@@ -110,16 +104,14 @@ class SoftwareHook:
     for repo in self.interface.getAllRepos():
       for rpminfo in repo.repoinfo:
         rpm = rpminfo['file']
-        size = rpminfo['size']
-        mtime = rpminfo['mtime']
         _,n,v,r,a = self.interface.deformat(rpm)
         nvr = '%s-%s-%s' % (n,v,r)
         if nvr in self.interface.cvars['pkglist'] and \
                a in self._validarchs:
-          paths.append(((rpm, size, mtime), self.interface.rpmdest))
+          paths.append((rpm, self.interface.rpmdest))
     
     self.DATA['input'].append(self.interface.cvars['pkglist-file'])
-    self.DATA['input'].append(join(self.interface.METADATA_DIR, 'repos'))
+    self.DATA['input'].append(self.interface.METADATA_DIR/'repos')
     self.interface.setup_diff(self.mdfile, self.DATA)
 
     o = self.interface.setup_sync(paths=paths)
@@ -160,7 +152,7 @@ class SoftwareHook:
       newrpms.sort()
       if self.interface.cvars['gpg-enabled']:
         if not self.interface.cvars['gpg-passphrase']:
-          self.interface.cvars['gpg-passphrase'] = getPassphrase()
+          self.interface.cvars['gpg-passphrase'] = mkrpm.rpmsign.getPassphrase()
         self.interface.sign_rpms(newrpms, homedir=self.interface.cvars['gpg-homedir'],
                                  passphrase=self.interface.cvars['gpg-passphrase'])
       self.interface.createrepo()
@@ -169,5 +161,5 @@ class SoftwareHook:
     self.interface.write_metadata()
     
   def apply(self):
-    osutils.mkdir(self.interface.rpmdest, parent=True)
+    self.interface.rpmdest.mkdirs()
     self.interface.cvars['rpms-directory'] = self.interface.rpmdest

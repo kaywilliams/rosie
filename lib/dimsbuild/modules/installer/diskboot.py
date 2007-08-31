@@ -1,7 +1,4 @@
-from os.path import join, exists
-
 from dims import filereader
-from dims import osutils
 
 from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.misc  import locals_imerge
@@ -73,8 +70,8 @@ class DiskbootHook(ImageModifyMixin):
   
   def apply(self):
     for file in self.interface.list_output():
-      if not exists(file):
-        raise RuntimeError("Unable to find '%s' at '%s'" % (osutils.basename(file), file))
+      if not file.exists():
+        raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
 
   def generate(self):
     ImageModifyMixin.generate(self)
@@ -84,22 +81,22 @@ class DiskbootHook(ImageModifyMixin):
     if bootargs:      
       if not 'syslinux.cfg' in self.image.list():
         raise RuntimeError("syslinux.cfg not found in the diskboot.img")
-      wcopy = join(self.interface.TEMP_DIR, 'syslinux.cfg')
-      if exists(wcopy):
-        osutils.rm(wcopy)
-        
+      wcopy = self.interface.TEMP_DIR/'syslinux.cfg'
+      if wcopy.exists():
+        wcopy.remove()
+      
       self.image.read('syslinux.cfg', self.interface.TEMP_DIR)
       lines = filereader.read(wcopy)
       for i, line in enumerate(lines):
         if line.strip().startswith('append'):
           break
-
+      
       value = lines.pop(i)
       value = value.strip() + ' ' + bootargs.strip()
       lines.insert(i, value)
       filereader.write(lines, wcopy)
       self.image.write(wcopy, '/')
-      osutils.rm(wcopy, force=True)
+      wcopy.remove()
 
 #------ LOCALS ------#
 L_IMAGES = ''' 

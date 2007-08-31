@@ -1,11 +1,11 @@
-from os.path import exists, isdir, isfile, join
+from dims import pps
 
-from dims import osutils
-
-from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.constants import BOOLEANS_TRUE, SRPM_REGEX
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 
 from lib import ExtractMixin, RpmNotFoundError
+
+P = pps.Path
 
 API_VERSION = 4.1
 
@@ -47,7 +47,7 @@ class ReleaseHook(ExtractMixin):
     }
     
     ExtractMixin.__init__(self, interface, self.metadata_struct,
-                          join(interface.METADATA_DIR, 'INSTALLER', 'release-files.md'))
+                          interface.METADATA_DIR/'INSTALLER/release-files.md')
 
   def setup(self):
     self.DATA['input'].extend(self.find_rpms())
@@ -69,22 +69,22 @@ class ReleaseHook(ExtractMixin):
     files = {}
     rtn = []    
     for path in self.config.xpath('/distro/installer/release-files/path', []):
-      source = path.text
-      dest = join(self.software_store, path.attrib['dest'])
+      source = P(path.text)
+      dest = self.software_store/path.attrib['dest']
       files[source] = dest
     if self.config.get('/distro/installer/release-files/include-in-tree/@use-default-set', 'True') \
            in BOOLEANS_TRUE:
       for default_item in ['eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README',
                            '*-RPM-GPG', 'RPM-GPG-KEY-*', 'RPM-GPG-KEY-beta',
                            'README-BURNING-ISOS-en_US.txt', 'RELEASE-NOTES-en_US.html']:
-        for item in osutils.find(location=working_dir, name=default_item):    
+        for item in working_dir.findpaths(glob=default_item):
           files[item] = self.software_store
-
-    osutils.mkdir(self.interface.SOFTWARE_STORE, parent=True)
+    
+    self.interface.SOFTWARE_STORE.mkdirs()
     for source in files.keys():
       dest = files[source]
-      if isfile(source) and isdir(dest):
-        rtn.append(join(dest, osutils.basename(source)))
+      if source.isfile() and dest.isdir():
+        rtn.append(dest/source.basename)
       self.interface.copy(source, dest, link=True)
     return rtn
 
@@ -93,16 +93,16 @@ class ReleaseHook(ExtractMixin):
                                 ['%s-release' %(self.interface.product,)])
     rpms = []
     for rpmname in rpmnames:
-      for rpm in osutils.find(self.interface.cvars['rpms-directory'], name='%s-*-*' %(rpmname,),
-                      nregex='.*[Ss][Rr][Cc]\.[Rr][Pp][Mm]'):
+      for rpm in self.interface.cvars['rpms-directory'].findpaths(
+          glob='%s-*-*' % rpmname, nregex=SRPM_REGEX):
         if rpm not in rpms:
           rpms.append(rpm)
 
     if len(rpms) == 0:
       for glob in ['*-release-*-[a-zA-Z0-9]*.[Rr][Pp][Mm]',
                    '*-release-notes-*-*']:
-        for rpm in osutils.find(self.interface.cvars['rpms-directory'], name=glob,
-                        nregex='.*[Ss][Rr][Cc]\.[Rr][Pp][Mm]'):
+        for rpm in self.interface.cvars['rpms-directory'].findpaths(
+            glob=glob, nregex=SRPM_REGEX):
           if rpm not in rpms:
             rpms.append(rpm)
         if len(rpms) == 0:

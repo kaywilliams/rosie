@@ -4,14 +4,6 @@ files.py
 Includes user-provided files and folders within the distribution folder.
 """
 
-__author__  = 'Kay Williams <kwilliams@abodiosoftware.com>'
-__version__ = '1.0'
-__date__    = 'June 29th, 2007'
-
-from os.path import join
-
-from dims import osutils
-
 from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 
 API_VERSION = 4.0
@@ -36,7 +28,7 @@ class ValidateHook:
     self.VERSION = 0
     self.ID = 'files.validate'
     self.interface = interface
-
+  
   def run(self):
     self.interface.validate('/distro/files', 'files.rng')
 
@@ -51,8 +43,8 @@ class FilesHook:
       'input':  [],
       'output': [],
     }
-    self.mdfile = join(self.interface.METADATA_DIR, 'files.md')
-
+    self.mdfile = self.interface.METADATA_DIR/'files.md'
+  
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
     o = self.interface.setup_sync(
@@ -65,10 +57,10 @@ class FilesHook:
     self.interface.log(0, "cleaning files event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
-
+  
   def check(self):
     return self.interface.test_diffs()
-
+  
   def run(self):
     self.interface.log(0, "processing user-provided files")
     # delete altered files

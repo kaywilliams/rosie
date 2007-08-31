@@ -1,23 +1,20 @@
 import fcntl
-import os
 import socket
 import struct
 
-from os.path import join, exists
-
 from dims import filereader
-from dims import osutils
+from dims import pps
 from dims import shlib
-from dims import sortlib
 
 from dims.repocreator import YumRepoCreator
-from dims.sync        import link
 
 from dimsbuild.constants import *
 from dimsbuild.event     import EVENT_TYPE_MDLR
 from dimsbuild.interface import EventInterface
 
-API_VERSION = 4.0
+P = pps.Path
+
+API_VERSION = 4.1
 
 EVENTS = [
   {
@@ -44,9 +41,9 @@ class PublishInterface(EventInterface):
     EventInterface.__init__(self, base)
 
     self.PUBLISH_DIR = \
-      join(self.config.get('/distro/publish/local-webroot/text()', '/var/www/html'),
-           self.config.get('/distro/publish/path-prefix/text()', 'distros'),
-           self.pva)
+      P(self.config.get('/distro/publish/local-webroot/text()', '/var/www/html')) / \
+        self.config.get('/distro/publish/path-prefix/text()', 'distros') / \
+        self.pva
 
 
 #------ HOOKS ------#
@@ -57,24 +54,23 @@ class RepofileHook:
     
     self.interface = interface
     
-    self.repodir = join(self.interface.METADATA_DIR, 'RPMS/rpms-src',
-                        'release-rpm/etc/yum.repos.d')
-    self.repofile    = join(self.repodir, '%s.repo' % self.interface.product)
-    self.srcrepofile = join(self.repodir, 'source.repo')
+    self.repodir = self.interface.METADATA_DIR/'RPMS/rpms-src/release-rpm/etc/yum.repos.d'
+    self.repofile    = self.repodir/('%s.repo' % self.interface.product)
+    self.srcrepofile = self.repodir/'source.repo'
     
     self.DATA =  {
       'config':    ['/distro/publish'],
       'variables': ['cvars[\'gpg-public-key\']'],
       'output':    [self.repofile]
     }
-    self.mdfile = join(self.interface.METADATA_DIR, 'repofile.md')
+    self.mdfile = self.interface.METADATA_DIR/'repofile.md'
 
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
   
   def clean(self):
-    osutils.rm(self.repofile, force=True)
-    osutils.rm(self.srcrepofile, force=True)
+    self.repofile.rm(force=True)
+    self.srcrepofile.rm(force=True)
     self.interface.clean_metadata()
   
   def check(self):
@@ -88,24 +84,22 @@ class RepofileHook:
       return
     
     self.interface.log(0, "generating yum repo file")
-        
-    osutils.mkdir(osutils.dirname(self.repofile), parent=True)
+    
+    self.repofile.dirname.mkdirs()
     
     authority = self.interface.config.get('/distro/publish/remote-webroot/text()', None) or \
                 'http://' + self._getIpAddress()
-    path = join(self.interface.config.get('/distro/publish/path-prefix/text()', 'distros'),
-                self.interface.pva, 'os')
+    path = P(self.interface.config.get('/distro/publish/path-prefix/text()', 'distros')) / \
+             self.interface.pva/'os'
     
     lines = [ '[%s]' % self.interface.product,
               'name=%s - %s' % (self.interface.fullname, self.interface.basearch),
-              'baseurl=%s' % join(authority, path) ]
+              'baseurl=%s/%s' % (authority, path) ]
     
     if self.interface.cvars['gpg-public-key']:
-      gpgkey = join(authority,
-                    path,
-                    osutils.basename(
-                      self.interface.cvars['gpg-public-key']
-                    ))
+      gpgkey = '%s/%s/%s' % (authority,
+                             path,
+                             P(self.interface.cvars['gpg-public-key']).basename)
       lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
     else:
       lines.append('gpgcheck=0')
@@ -144,14 +138,14 @@ class PublishHook:
       'input':     [],
       'output':    [],
     }
-    self.mdfile = join(self.interface.METADATA_DIR, 'publish.md')
+    self.mdfile = self.interface.METADATA_DIR/'publish.md'
 
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
     paths = []
     for dir in ['os', 'iso', 'SRPMS']:
-      pdir = join(self.interface.OUTPUT_DIR, dir)
-      if exists(pdir):
+      pdir = self.interface.OUTPUT_DIR/dir
+      if pdir.exists():
         paths.append((pdir, self.interface.PUBLISH_DIR))
     if paths:
       o = self.interface.setup_sync(paths=paths)

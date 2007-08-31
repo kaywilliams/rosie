@@ -1,11 +1,10 @@
 from ConfigParser import ConfigParser
-from os.path      import exists, join
 
 import os
 
 from dims import filereader
 from dims import mkrpm
-from dims import osutils
+from dims import pps
 from dims import shlib
 from dims import sync
 from dims import xmltree
@@ -13,19 +12,18 @@ from dims import xmltree
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EventInterface, HookExit
 
-TYPE_FILE = osutils.TYPE_FILE
-TYPE_LINK = osutils.TYPE_LINK
+P = pps.Path
 
 #------- INTERFACES --------#
 class RpmsInterface(EventInterface):
   def __init__(self, base):
     EventInterface.__init__(self, base)
 
-    self.LOCAL_REPO  = join(self.METADATA_DIR, 'RPMS', 'localrepo')
-    self.SOURCES_DIR = join(self.METADATA_DIR, 'RPMS', 'rpms-src')
-    self.LOCAL_RPMS  = join(self.LOCAL_REPO, 'RPMS')
-    self.LOCAL_SRPMS = join(self.LOCAL_REPO, 'SRPMS')
-    self.RPMS_DEST   = join(self.SOFTWARE_STORE, self.product)
+    self.LOCAL_REPO  = self.METADATA_DIR/'RPMS/localrepo'
+    self.SOURCES_DIR = self.METADATA_DIR/'RPMS/rpms-src'
+    self.LOCAL_RPMS  = self.LOCAL_REPO/'RPMS'
+    self.LOCAL_SRPMS = self.LOCAL_REPO/'SRPMS'
+    self.RPMS_DEST   = self.SOFTWARE_STORE/self.product
     
     self.sharepath = self._base.sharepath
 
@@ -39,7 +37,7 @@ class RpmsInterface(EventInterface):
     os.chdir(cwd)
 
   def addRpm(self, path):
-    sync.sync(path, self.LOCAL_REPO)    
+    sync.sync(path, self.LOCAL_REPO) #! fix me
   
   def buildRpm(self, path, rpm_output, changelog=None, logger='rpmbuild',
                createrepo=False, quiet=True):
@@ -49,9 +47,9 @@ class RpmsInterface(EventInterface):
                 quiet=quiet)
     
     # need to delete the dist folder, because the RPMS have been copied
-    # already to wherever they need to be. 
-    osutils.rm(join(path, 'dist'), recursive=True, force=True)
-
+    # already to wherever they need to be.
+    (path/'dist').rm(recursive=True, force=True)
+    
 
 #------ MIXINS ------#
 class ColorMixin:
@@ -155,30 +153,29 @@ class RpmBuildHook:
     self.package_type = package_type or 'mandatory'    
 
     # build information
-    self.build_folder = join(self.interface.METADATA_DIR,
-                             'RPMS', self.id)
-    self.autoconf = join(osutils.dirname(self.interface.config.file),
-                         'distro.conf.auto')    
+    self.build_folder = self.interface.METADATA_DIR/'RPMS'/self.id
+    self.autoconf = P(self.interface.config.file).dirname/'distro.conf.auto'
+    
     # input files
     self.installinfo = installinfo
 
     self.DATA = data
-    self.mdfile = join(self.interface.METADATA_DIR, 'RPMS', '%s.md' % self.id)
+    self.mdfile = self.interface.METADATA_DIR/('RPMS/%s.md' % self.id)
 
   def setup(self):
     # add the directory (if exists) to which other events add files to
     # that are to be installed by this RPM.
-    rpmssrc = join(self.interface.SOURCES_DIR, self.id)
-    if exists(rpmssrc):
+    rpmssrc = self.interface.SOURCES_DIR/self.id
+    if rpmssrc.exists():
       self.DATA['input'].append(rpmssrc)
 
     # add output files
     self.DATA['output'].extend([
       self.build_folder,
-      join(self.interface.LOCAL_RPMS,
-           '%s-%s-%s.%s.rpm' % (self.rpmname, self.version, self.release, self.arch)),
-      join(self.interface.LOCAL_SRPMS,
-           '%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release))
+      self.interface.LOCAL_RPMS/ \
+           ('%s-%s-%s.%s.rpm' % (self.rpmname, self.version, self.release, self.arch)),
+      self.interface.LOCAL_SRPMS/ \
+           ('%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release))
     ])
       
     self.interface.setup_diff(self.mdfile, self.DATA)
@@ -189,7 +186,7 @@ class RpmBuildHook:
         xpath,_ = v
         if xpath is not None:
           xpaths.append((xpath,
-                         join(self.build_folder, k.lstrip('/'))))
+                         self.build_folder/k.lstrip('/')))
       self.interface.setup_sync(xpaths=xpaths)
 
   def clean(self):
@@ -197,14 +194,13 @@ class RpmBuildHook:
     self.interface.clean_metadata()
     
   def check(self):
-    return not exists(self.mdfile) or \
-           not exists(self.autoconf) or \
-           self.interface.test_diffs()
+    return not self.mdfile.exists() or \
+           not self.autoconf.exists() or \
+           self.interface.test_diffs(True)
   
   def run(self):
     # ... delete older rpms ...
     self.interface.remove_output(all=True)
-    osutils.mkdir(self.build_folder, parent=True)
     
     # only generate RPM if test_build() returns true
     if not self.test_build():
@@ -217,7 +213,7 @@ class RpmBuildHook:
     self.interface.log(1, "rpm release number: %s" % self.release)
 
     # ... make sure that the build folder exists ...
-    osutils.mkdir(self.build_folder, parent=True)
+    self.build_folder.mkdirs()
     
     # ... sync any input files ...
     if self.installinfo:
@@ -252,19 +248,19 @@ class RpmBuildHook:
     if not self.test_build():
       return
     release = self.read_autoconf() or '1'
-    rpm = join(self.interface.LOCAL_RPMS,
-               '%s-%s-%s.%s.rpm' % (self.rpmname,
-                                    self.version,
-                                    release,
-                                    self.arch))
-    srpm = join(self.interface.LOCAL_SRPMS,
-                '%s-%s-%s.src.rpm' % (self.rpmname,
-                                      self.version,
-                                      release))
-    if not exists(rpm):
-      raise RuntimeError("missing rpm: %s" % osutils.basename(rpm))
-    if not exists(srpm):
-      raise RuntimeError("missing srpm: %s" % osutils.basename(srpm))
+    rpm = self.interface.LOCAL_RPMS/ \
+               ('%s-%s-%s.%s.rpm' % (self.rpmname,
+                                     self.version,
+                                     release,
+                                     self.arch))
+    srpm = self.interface.LOCAL_SRPMS/ \
+                ('%s-%s-%s.src.rpm' % (self.rpmname,
+                                       self.version,
+                                       release))
+    if not rpm.exists():
+      raise RuntimeError("missing rpm: %s" % rpm.basename)
+    if not srpm.exists():
+      raise RuntimeError("missing srpm: %s" % srpm.basename)
       
     if not self.interface.cvars['custom-rpms-info']:
       self.interface.cvars['custom-rpms-info'] = []
@@ -287,8 +283,8 @@ class RpmBuildHook:
     return True
   
   def write_spec(self):
-    setupcfg = join(self.build_folder, 'setup.cfg')
-    if exists(setupcfg): return # can happen only if setup.cfg is an input file
+    setupcfg = self.build_folder/'setup.cfg'
+    if setupcfg.exists(): return # can happen only if setup.cfg is an input file
 
     spec = ConfigParser()    
     spec.add_section('pkg_data')
@@ -324,24 +320,24 @@ class RpmBuildHook:
 
   def write_manifest(self):
     manifest = ['setup.py'] # setup.py is created by mkrpm.RpmBuilder
-    srcdir = join(self.interface.SOURCES_DIR, self.id)
-    if exists(srcdir):
-      manifest.extend(osutils.find(srcdir,
-                                   type=TYPE_FILE|TYPE_LINK, printf='%p'))
-    if exists(self.build_folder):
-      manifest.extend(osutils.find(self.build_folder,
-                                   type=TYPE_FILE|TYPE_LINK, printf='%P'))
-    filereader.write(manifest, join(self.build_folder, 'MANIFEST'))
+    srcdir = self.interface.SOURCES_DIR/self.id
+    if srcdir.exists():
+      manifest.extend(srcdir.findpaths(type=pps.constants.TYPE_NOT_DIR))
+    if self.build_folder.exists():
+      manifest.extend(
+        [ x.tokens[len(self.build_folder.tokens):] for x in \
+          self.build_folder.findpaths(type=pps.constants.TYPE_NOT_DIR) ] )
+    filereader.write(manifest, self.build_folder/'MANIFEST')
 
   def set_release(self):
-    if exists(self.autoconf):
+    if self.autoconf.exists():
       bumpcheck = False
       self.release = self.read_autoconf()
 
       if not self.release:
         self.release = '1'
         bumpcheck = True
-      elif not exists(self.mdfile):
+      elif not self.mdfile.exists():
         # missing .md file
         bumpcheck = True
       else:
@@ -382,14 +378,14 @@ class RpmBuildHook:
           raise HookExit
 
   def read_autoconf(self):
-    if exists(self.autoconf):
+    if self.autoconf.exists():
       root = xmltree.read(self.autoconf)
       release = root.get('//distro-auto/%s/release/text()' % self.id, None)
       return release
     return None
 
   def write_autoconf(self, release):
-    if exists(self.autoconf):
+    if self.autoconf.exists():
       root = xmltree.read(self.autoconf)
       package = root.get('//distro-auto/%s' %self.id, None)
       if package is None:
@@ -420,7 +416,7 @@ class RpmBuildHook:
     config_files = []
     for installdir in data_files.keys():
       if installdir.startswith('/etc'): # config files
-        config_files.extend([ join(installdir, osutils.basename(x)) for x in data_files[installdir] ])
+        config_files.extend([ installdir/x.basename for x in data_files[installdir] ])
     if config_files:
       spec.set('bdist_rpm', 'config_files', '\n\t'.join(config_files))
 
@@ -428,36 +424,37 @@ class RpmBuildHook:
     doc_files = []
     for installdir in data_files.keys():
       if installdir.startswith('/usr/share/doc'):
-        doc_files.extend([ join(installdir, osutils.basename(x)) for x in data_files[installdir] ])
+        doc_files.extend([ installdir/x.basename for x in data_files[installdir] ])
     if doc_files:
       spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))    
 
   def _get_data_files(self):
-    srcdir = join(self.interface.SOURCES_DIR, self.id)
+    srcdir = self.interface.SOURCES_DIR/self.id
     sources = {}          
-    if exists(srcdir):
-      for file in osutils.find(srcdir, type=TYPE_FILE|TYPE_LINK, printf='%p'):
-        dir = osutils.dirname(file)
-        if not dir.startswith('/'): dir = '/' + dir
+    if srcdir.exists():
+      for file in srcdir.findpaths(type=pps.constants.TYPE_NOT_DIR):
+        dir = file.dirname
+        if not dir.isabs(): dir = P('/'+dir)
         if not sources.has_key(dir):
           sources[dir] = []
-        sources[dir].append(join(srcdir, file))
+        sources[dir].append(file)
 
     for k,v in self.installinfo.items():
-      dir = join(self.build_folder, k)
-      if exists(dir):
-        files = [ join(k,x) \
-                  for x in osutils.find(dir, printf='%P',
-                                        type=osutils.TYPE_FILE|osutils.TYPE_LINK)]
+      dir = self.build_folder/k
+      k = P(k)
+      if dir.exists():
+        files = [ k/x.tokens[len(dir.tokens):] for x in \
+                  dir.findpaths(type=pps.constants.TYPE_NOT_DIR) ]
       else:
         files = []
 
       if files:        
-        installpath = v[1]
+        installpath = P(v[1])
         if sources.has_key(installpath):
           sources[installpath].extend(files)
         else:
           sources[installpath] = files
+    
     return sources
 
   def _get_install_script(self): return None    

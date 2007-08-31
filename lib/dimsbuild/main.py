@@ -10,23 +10,21 @@ __version__ = '3.0'
 __date__    = 'June 26th, 2007'
 
 import imp
-import os
 import sys
 
-from os.path       import abspath, join, exists
 from rpmUtils.arch import getBaseArch
-from urlparse      import urlparse
 
+from dims import pps
 from dims import logger
-from dims import osutils
 from dims.configlib import ConfigError
 from dims.sortlib   import dcompare
 
 from dimsbuild import event
-from dimsbuild import locals
 
 from dimsbuild.callback  import BuildLogger
 from dimsbuild.constants import *
+
+P = pps.Path # convenience
 
 # RPMS we need to check for
 # createrepo
@@ -79,9 +77,9 @@ class Build:
     # this to communicate between themselves as necessary
     self.cvars = CvarsDict()
     
-    self.CACHE_DIR = '/var/cache/dimsbuild'
-    self.TEMP_DIR  = '/tmp/dimsbuild'
-    self.INPUT_STORE = join(self.CACHE_DIR, 'shared/repos')
+    self.CACHE_DIR   = P('/var/cache/dimsbuild')
+    self.TEMP_DIR    = P('/tmp/dimsbuild')
+    self.INPUT_STORE = self.CACHE_DIR / 'shared/repos'
     self.CACHE_MAX_SIZE = 30*1024**3 # 30 GB
     
     # set up loggers
@@ -93,18 +91,20 @@ class Build:
     self.config = distroconfig
     
     # set up IMPORT_DIRS
-    self.IMPORT_DIRS = mainconfig.xpath('/dimsbuild/librarypaths/path/text()', [])
+    self.IMPORT_DIRS = [ P(x) for x in \
+                         mainconfig.xpath('/dimsbuild/librarypaths/path/text()', [])
+                       ]
     if options.libpath:
-      self.IMPORT_DIRS.insert(0, options.libpath) # TODO make this a list
+      self.IMPORT_DIRS.insert(0, P(options.libpath)) # TODO make this a list
     for dir in sys.path:
       if dir not in self.IMPORT_DIRS:
-        self.IMPORT_DIRS.append(dir)
+        self.IMPORT_DIRS.append(P(dir))
     
     if options.sharepath:
-      self.sharepath = abspath(options.sharepath)
+      self.sharepath = P(options.sharepath).abspath()
     else:
-      self.sharepath = mainconfig.get('/dimsbuild/sharepath/text()', None) or \
-                       '/usr/share/dimsbuild'
+      self.sharepath = P(mainconfig.get('/dimsbuild/sharepath/text()', None) or \
+                                '/usr/share/dimsbuild')
     
     # set up base variables
     self.cvars['base-vars'] = {}
@@ -123,10 +123,10 @@ class Build:
     self.cvars['base-vars']['product-path'] = self.cvars['base-vars']['product']
     
     # set up other directories
-    self.DISTRO_DIR = join(self.CACHE_DIR, self.cvars['base-vars']['pva'])
-    self.OUTPUT_DIR = join(self.DISTRO_DIR, 'output')
-    self.METADATA_DIR = join(self.DISTRO_DIR, 'builddata')
-    self.SOFTWARE_STORE = join(self.OUTPUT_DIR, 'os')    
+    self.DISTRO_DIR     = self.CACHE_DIR  / self.cvars['base-vars']['pva']
+    self.OUTPUT_DIR     = self.DISTRO_DIR / 'output'
+    self.METADATA_DIR   = self.DISTRO_DIR / 'builddata'
+    self.SOFTWARE_STORE = self.OUTPUT_DIR / 'os'
     
     # set up necessary directories, see TODO below
     self._init_directories(self.TEMP_DIR, self.SOFTWARE_STORE, self.METADATA_DIR)
@@ -142,7 +142,7 @@ class Build:
     self.disabled_modules.append('lib') # +1; neither is this
     
     # update with distro-specific config
-    for k,v in self.__eval_modlist(self.config.get('/distro/modules', None),
+    for k,v in self.__eval_modlist(self.config.get('/distro/main/modules', None),
                                    default=True).items():
       if v in BOOLEANS_FALSE:
         if k not in self.disabled_modules:
@@ -180,7 +180,7 @@ class Build:
     # load all enabled plugins
     # generate list of enabled plugins in main config
     enabled_plugins = []
-    for k,v in self.__eval_modlist(self.mainconfig.get('/dimsbuild/plugins', None),
+    for k,v in self.__eval_modlist(self.mainconfig.get('/dimsbuild/main/plugins', None),
                                    default=False).items():
       if v in BOOLEANS_TRUE:
         enabled_plugins.append(k)
@@ -199,8 +199,8 @@ class Build:
     for plugin in enabled_plugins:
       imported = False
       for path in self.IMPORT_DIRS:
-        mod = join(path, 'dimsbuild/plugins', '%s.py' % plugin)
-        if exists(mod):
+        mod = path / 'dimsbuild/plugins/%s.py' % plugin
+        if mod.exists():
           m = load_module(mod)
           self.dispatch.process_module(m)
           imported = True; break
@@ -210,26 +210,26 @@ class Build:
     # load all modules not explicitly disabled
     registered_modules = []
     for path in self.IMPORT_DIRS:
-      modpath = join(path, 'dimsbuild/modules')
-      if not exists(modpath): continue
-      for mod in filter(None, osutils.find(modpath, nregex='.*\.pyc',
-                                           printf='%P', maxdepth=1)):
-        if mod.replace('.py', '') not in self.disabled_modules and \
-           mod.replace('.py', '') not in registered_modules:
-          m = load_module(join(modpath, mod))
+      modpath = path / 'dimsbuild/modules'
+      if not modpath.exists(): continue
+      for mod in modpath.findpaths(nregex='.*\.pyc', mindepth=1, maxdepth=1):
+        modname = mod.basename.replace('.py', '')
+        if modname not in self.disabled_modules and \
+           modname not in registered_modules:
+          m = load_module(mod)
           if m is None: continue # requested file wasn't a python module
           check_api_version(m) # raises ImportError
           self.dispatch.process_module(m)
-          registered_modules.append(mod.replace('.py', ''))
+          registered_modules.append(modname)
     
     self.dispatch.commit()
   
   def _init_directories(self, *dirs):
     # TODO - callback this, then we can remove fn
     for folder in dirs:
-      if not exists(folder):
+      if not folder.exists():
         self.log(2, "Making directory '%s'" % folder)
-        osutils.mkdir(folder, parent=True)
+        folder.mkdirs()
   
   def __eval_modlist(self, mods, default=None):
     "Return a dictionary of modules and their enable status, as found in the"
@@ -241,8 +241,8 @@ class Build:
     mod_default = mods.get('@default', default)
     for mod in mods.getchildren():
       name = mod.get('text()')
-      enabled = mod.get('@enabled', default)
-      if enabled == 'default' or enabled == 'Default':
+      enabled = mod.get('@enabled', default).lower()
+      if enabled == 'default':
         enabled = mod_default
       if enabled is None:
         raise ConfigError("Default status requested on '%s', but no default specified" % name)
@@ -269,9 +269,9 @@ class Build:
     # clear cache, if requested
     if options.clear_cache:
       self.log(0, "clearing cache")
-      cache_dir = self.dispatch.get('applyopt').interface.cache_handler.cache_dir
-      osutils.rm(cache_dir, recursive=True, force=True)
-      osutils.mkdir(cache_dir, parent=True)
+      cache_dir = P(self.dispatch.get('applyopt').interface.cache_handler.cache_dir)
+      cache_dir.rm(recursive=True, force=True)
+      cache_dir.mkdirs()
     
     self.dispatch.get('applyopt').interface.options = options
     self.dispatch.process(until='applyopt')
@@ -306,8 +306,8 @@ class CvarsDict(dict):
 #------ UTILITY FUNCTIONS ------#
 def load_module(path):
   "Load and return the module located at path"
-  dir, mod = osutils.split(path)
-  mod = mod.split('.py')[0] # remove .py
+  dir = path.dirname
+  mod = path.basename.replace('.py', '')
   try:
     fp, path, desc = imp.find_module(mod, [dir])
   except ImportError:
