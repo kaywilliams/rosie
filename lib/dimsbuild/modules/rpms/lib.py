@@ -190,13 +190,14 @@ class RpmBuildHook:
       self.interface.setup_sync(xpaths=xpaths)
 
   def clean(self):
+    self.interface.log(0, "cleaning %s event" % self.id)
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
     
   def check(self):
     return not self.mdfile.exists() or \
            not self.autoconf.exists() or \
-           self.interface.test_diffs(True)
+           self.interface.test_diffs()
   
   def run(self):
     # ... delete older rpms ...

@@ -12,7 +12,7 @@ EVENTS = [
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['pkglist-file', 'pkglist', 'pkglist-changed'],
     'requires': ['required-packages', 'local-repodata'],
-    'conditional-requires': ['user-required-packages', 'input-repos-changed'],
+    'conditional-requires': ['user-required-packages', 'repos-changed'],
   },
 ]
 
@@ -115,7 +115,7 @@ class PkglistHook:
       self.DATA['output'].append(self.pkglistfile)
   
   def check(self):
-    return self.interface.cvars['input-repos-changed'] or \
+    return self.interface.cvars['repos-changed'] or \
            self.interface.test_diffs()
   
   def run(self):

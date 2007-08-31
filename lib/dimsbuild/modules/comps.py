@@ -16,7 +16,7 @@ EVENTS = [
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'provides': ['comps-file', 'required-packages', 'user-required-packages'],
     'requires': ['anaconda-version', 'local-repodata'],
-    'conditional-requires': ['RPMS', 'input-repos-changed'],
+    'conditional-requires': ['RPMS', 'repos-changed'],
   },
 ]
 
@@ -85,7 +85,7 @@ class CompsHook:
    
   def check(self):
     # if the input repos change, we need to run
-    return self.interface.cvars['input-repos-changed'] or \
+    return self.interface.cvars['repos-changed'] or \
            self.interface.test_diffs()
 
   def run(self):

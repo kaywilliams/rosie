@@ -20,6 +20,7 @@ EVENTS = [
   {
     'id': 'repofile',
     'properties': EVENT_TYPE_MDLR,
+    'conditional-requires': ['gpgsign-public-key'] 
   },
   {
     'id': 'publish',
@@ -60,7 +61,7 @@ class RepofileHook:
     
     self.DATA =  {
       'config':    ['/distro/publish'],
-      'variables': ['cvars[\'gpg-public-key\']'],
+      'variables': ['cvars[\'gpgsign-public-key\']'],
       'output':    [self.repofile]
     }
     self.mdfile = self.interface.METADATA_DIR/'repofile.md'
@@ -96,10 +97,10 @@ class RepofileHook:
               'name=%s - %s' % (self.interface.fullname, self.interface.basearch),
               'baseurl=%s/%s' % (authority, path) ]
     
-    if self.interface.cvars['gpg-public-key']:
+    if self.interface.cvars['gpgsign-public-key']:
       gpgkey = '%s/%s/%s' % (authority,
                              path,
-                             P(self.interface.cvars['gpg-public-key']).basename)
+                             P(self.interface.cvars['gpgsign-public-key']).basename)
       lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
     else:
       lines.append('gpgcheck=0')

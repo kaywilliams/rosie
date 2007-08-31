@@ -16,7 +16,7 @@ EVENTS = [
     'interface': 'ReleaseRpmInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'parent':    'RPMS',
-    'requires':  ['source-vars', 'gpg-public-key'],
+    'requires':  ['source-vars', 'gpgsign-public-key', 'repos'],
   },    
 ]
 
@@ -56,15 +56,12 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
     self.interface = interface
     
     data = {
-      'config': [
-        '/distro/rpms/release-rpm',    
-        '/distro/repos/repo/gpgkey',
-      ],
+      'config':    ['/distro/rpms/release-rpm'],
       'variables': ['fullname',
                     'product',
-                    'cvars[\'gpg-public-key\']'],
-      'input': [],
-      'output': [],
+                    'cvars[\'gpgsign-public-key\']'],
+      'input':     [],
+      'output':    [],
     }
     
     # Each key of the installinfo directionary is the name of the
@@ -119,6 +116,34 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
     
     ColorMixin.__init__(self)
     
+  def setup(self):
+    RpmBuildHook.setup(self)
+
+    # sync setup for items not handled by RPMBuildHook base class
+    paths = []
+
+    # public gpg keys
+    dest = self.build_folder / 'gpg'
+    if self.interface.cvars.get('gpgsign-public-key', None):
+      paths.append((self.interface.cvars.get('gpgsign-public-key'), dest))
+    for repo in self.interface.cvars['repos'].values():
+      for key in repo.gpgkeys:
+        paths.append((key, dest))
+
+    # eulapy file
+    dest = self.build_folder / 'eulapy'
+    if self.interface.config.get(
+         '/distro/rpms/release-rpm/eula/include-in-firstboot/text()', 'True'
+       ) in BOOLEANS_TRUE:
+      if self.interface.config.get(
+           '/distro/rpms/release-rpm/eula/path/text()', None
+         ) is not None:
+        if not dest.exists(): dest.mkdirs()
+        src = self.interface.sharepath / 'release' / 'eula.py'
+        paths.append((src, dest))
+
+    self.interface.setup_sync(paths=paths)
+
   def generate(self):
     "Create additional files."
     for type in self.installinfo.keys():
@@ -151,26 +176,6 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
       index_html = self.build_folder/'html/index.html'
       if not index_html.exists():
         path.link(index_html)
-
-  def _generate_gpg_files(self, dest):
-    if self.interface.cvars.get('gpg-public-key', None):
-      dest.mkdirs()
-      sync.sync(self.interface.cvars['gpg-public-key'], dest) #! fix me
-    for repo in self.interface.cvars['repos'].values():
-      dest.mkdirs()
-      if repo.gpgkey:
-        sync.sync(repo.gpgkey, dest) #! fix me
-    
-  def _generate_eulapy_files(self, dest):
-    if self.interface.config.get(
-         '/distro/rpms/release-rpm/eula/include-in-firstboot/text()', 'True'
-       ) in BOOLEANS_TRUE:
-      if self.interface.config.get(
-           '/distro/rpms/release-rpm/eula/path/text()', None
-         ) is not None:
-        dest.mkdirs()
-        src = self.interface.sharepath/'release/eula.py'
-        sync.sync(src, dest) #! fix me
   
   def _generate_etc_files(self, dest):
     dest.mkdirs()

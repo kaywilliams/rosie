@@ -28,7 +28,9 @@
           </element>
         </optional>        
         <optional>
-          <element name="gpgkey"><text/></element>
+          <oneOrMore>
+            <element name="gpgkey"><text/></element>
+          </oneOrMore>
         </optional>
         <optional>
           <element name="gpgcheck">

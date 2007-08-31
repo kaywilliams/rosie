@@ -385,7 +385,8 @@ class Repo:
     self.local_path = None
 
     self.gpgcheck = False
-    self.gpgkey = None
+    self.gpgkeys = []      # full path to remote gpgkeys
+    self.homedir = None    # local homedir with imported gpgkeys
     
     self.username = None
     self.password = None
@@ -450,7 +451,7 @@ class Repo:
         self.repoinfo.append({
           'mtime': int(item['mtime']),
           'size':  int(item['size']),
-          'file':  item['file'],
+          'file':  P(item['file']),
         })      
       mr.close()
     
@@ -523,9 +524,9 @@ def RepoFromXml(xml):
   repo = Repo(xml.get('@id'))
   repo.remote_path   = P(xml.get('path/text()'))
   repo.gpgcheck      = xml.get('gpgcheck/text()', 'False') in BOOLEANS_TRUE
-  repo.gpgkey        = xml.get('gpgkey/text()', None)
+  repo.gpgkeys       = [ P(path) for path in xml.xpath('gpgkey/text()', [])]
   repo.repodata_path = xml.get('repodata-path/text()', '')
-  repo.include       = xml.get('include/package/text()', [])
-  repo.exclude       = xml.get('exclude/package/text()', [])
+  repo.include       = xml.xpath('include/package/text()', [])
+  repo.exclude       = xml.xpath('exclude/package/text()', [])
   
   return repo
