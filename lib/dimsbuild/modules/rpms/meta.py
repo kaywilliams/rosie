@@ -95,7 +95,6 @@ class RpmsHook:
       repo = Repo('localrepo-sources')
       repo.local_path = self.interface.LOCAL_SRPMS
       repo.remote_path = self.interface.LOCAL_SRPMS
-      repo.split(repo.local_path)
 
       repo.readRepoData()
       repo.readRepoContents()
