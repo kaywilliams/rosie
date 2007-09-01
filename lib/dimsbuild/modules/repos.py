@@ -14,7 +14,6 @@ EVENTS = [
     'id': 'repos',
     'provides': ['anaconda-version',
                  'repo-contents',
-                 'repos-changed',
                  'local-repodata'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
   },
@@ -59,7 +58,6 @@ class ReposHook:
     self.interface.setup_diff(self.mdfile, self.DATA)
 
     self.repos = {}
-    self.interface.cvars['repos-changed'] = False
     self.gpgkeys = []  # list of gpgkey src,dest tuples
     self.primaryfiles = [] # list of primary xml files
 
@@ -105,9 +103,6 @@ class ReposHook:
   
   def run(self):
     if not self.mddir.exists(): self.mddir.mkdirs()
-
-    if self.interface.has_changed('input'):
-      self.interface.cvars['repos-changed'] = True
 
     self.interface.log(0, "processing input repositories")
 
@@ -155,16 +150,14 @@ class ReposHook:
 
   def apply(self):
     for repo in self.repos.values():
-      # finish populating repo object, unless already done in run function
-      if not self.interface.cvars['repos-changed']:
-        repomdfile = repo.ljoin(repo.repodata_path, repo.mdfile)
-        for file in repomdfile, repo.pkgsfile:
-          if not file.exists():
-            raise RuntimeError, "Unable to find cached file at '%s'. Perhaps you are skipping the repos event before it has been allowed to run once?" % file
+      repomdfile = repo.ljoin(repo.repodata_path, repo.mdfile)
+      for file in repomdfile, repo.pkgsfile:
+        if not file.exists():
+          raise RuntimeError, "Unable to find cached file at '%s'. Perhaps you are skipping the repos event before it has been allowed to run once?" % file
    
-        repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')
-        repo.readRepoData(repomd)
-        repo.readRepoContents(repofile=repo.pkgsfile)
+      repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')
+      repo.readRepoData(repomd)
+      repo.readRepoContents(repofile=repo.pkgsfile)
 
       # get anaconda_version, if base repo
       if repo.id == self.interface.getBaseRepoId():

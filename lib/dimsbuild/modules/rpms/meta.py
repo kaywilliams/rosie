@@ -82,8 +82,6 @@ class RpmsHook:
     repofile = self.interface.METADATA_DIR/'localrepo.pkgs'
     
     if repo.compareRepoContents(repofile, what='file'):
-      repo.changed = True
-      self.interface.cvars['input-repos-changed'] = True
       repo.writeRepoContents(repofile)      
     
     if not self.interface.cvars['repos']:

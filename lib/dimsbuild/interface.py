@@ -396,7 +396,6 @@ class Repo:
     
     self.include = []
     self.exclude = []
-    self.changed = False
     
     self.repodata_path = ''
     self.groupfile    = None
