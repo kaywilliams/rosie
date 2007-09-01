@@ -3,11 +3,7 @@
   <start>    
     <element name="distro">      
       <optional>
-        <element name="pkglist">
-          <optional>
-            <ref name="element-path"/>
-          </optional>
-        </element>
+        <element name="pkglist"><text/></element>
       </optional>
     </element>
   </start>

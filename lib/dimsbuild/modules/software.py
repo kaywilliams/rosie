@@ -107,7 +107,8 @@ class SoftwareHook:
     self._validarchs = getArchList(self.interface.arch)
 
     self.DATA = {
-      'variables': ['cvars[\'gpgsign-enabled\']'],
+      'variables': ['cvars[\'gpgsign-enabled\']',
+                    'cvars[\'pkglist\']'],
       'input':     [],
       'output':    [],
     }
@@ -140,7 +141,6 @@ class SoftwareHook:
           if repo.gpgcheck:
             self.interface.checksig[self.interface.rpmdest/rpm.basename] = repo.homedir
 
-    self.DATA['input'].append(self.interface.cvars['pkglist-file'])
     self.DATA['input'].extend(self.homedirs)
 
     o = self.interface.setup_sync(paths=paths)
