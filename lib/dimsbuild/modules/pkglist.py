@@ -71,11 +71,9 @@ class PkglistHook:
 
     # setup if copying pkglist
     if self.docopy:
-      o = self.interface.setup_sync(xpaths=[('/distro/pkglist',
-                                             self.mddir)])
-      self.DATA['output'].extend(o)
-      assert len(o) == 1
-      self.pkglistfile = o[0]
+      self.interface.setup_sync(self.mddir, id='pkglist',
+                                xpaths=['/distro/pkglist'])
+      self.pkglistfile = self.interface.list_output(what='pkglist')[0]
       return
 
     # setup if creating pkglist

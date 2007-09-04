@@ -70,10 +70,9 @@ class CompsHook:
     self.comps_supplied = self.interface.config.get('/distro/comps/use-existing/path/text()', None)
 
     if self.comps_supplied: 
-      o = self.interface.setup_sync(xpaths=[('/distro/comps/use-existing/path',
-                                             self.mddir)])
-      self.DATA['output'].extend(o)
-      self.comps_out = o[0]
+      self.interface.setup_sync(self.mddir, id='comps.xml',
+                                xpaths=['/distro/comps/use-existing/path'])
+      self.comps_out = self.interface.list_output(what='comps.xml')[0]
     else:
       self.comps_out = self.mddir/'comps.xml'
       self.DATA['output'].append(self.comps_out)

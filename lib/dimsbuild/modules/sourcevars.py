@@ -55,12 +55,11 @@ class SourcevarsHook:
     
     initrd_in=self.interface.getRepo(self.interface.getBaseRepoId()).rjoin('isolinux/initrd.img')
     
-    o = self.interface.setup_sync( paths=[(initrd_in, self.mddir)] )
-    self.initrd_out = o[0]
+    self.interface.setup_sync(self.mddir, id='initrd.img', paths=[initrd_in])
+    self.initrd_out = self.interface.list_output(what='initrd.img')[0]
     
     self.buildstamp_out = self.mddir/'.buildstamp'
     
-    self.DATA['output'].extend(o)
     self.DATA['output'].append(self.buildstamp_out)
    
   def check(self):

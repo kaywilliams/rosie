@@ -117,9 +117,9 @@ class SourceRepoHook:
       repo.local_path = self.mdsrcrepos/repo.id
       repo.pkgsfile = self.mdsrcrepos/'%s.pkgs' % repo.id
         
-      o = self.interface.setup_sync(paths=[(repo.rjoin(repo.repodata_path, 'repodata'),
-                                              repo.ljoin(repo.repodata_path))])
-      self.DATA['output'].extend(o)
+      self.interface.setup_sync(repo.ljoin(repo.repodata_path),
+                                paths=[repo.rjoin(repo.repodata_path,
+                                                  'repodata')])
       self.DATA['output'].append(repo.pkgsfile)
     
       self.srcrepos[repo.id] = repo
@@ -208,7 +208,7 @@ class SourcesHook:
     self.ts.setVSFlags(-1)    
     srpmlist = []
     for pkg in P(self.interface.cvars['rpms-directory']).findpaths(
-                 name=RPM_GLOB):
+                 glob=RPM_GLOB):
       i = os.open(pkg, os.O_RDONLY)
       h = self.ts.hdrFromFdno(i)
       os.close(i)
@@ -220,20 +220,17 @@ class SourcesHook:
     paths = []
     for repo in self.interface.getAllSourceRepos():
       for rpminfo in repo.repoinfo:
-        rpm = rpminfo['file']
-        size = rpminfo['size']
-        mtime = rpminfo['mtime']
-        _,n,v,r,a = self.interface.deformat(rpm)        
+        rpmi = rpminfo['file']
+        _,n,v,r,a = self.interface.deformat(rpmi)
         nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a) ## assuming the prefix to be lower-case 'rpm' suffixed
         if nvra in srpmlist:
-          paths.append(((rpm, size, mtime), self.interface.srpmdest))
+          paths.append(rpmi)
 
     self.DATA['input'].append(self.mdsrcrepos)
     self.DATA['output'].append(self.interface.srpmdest/'repodata')
     
-    o = self.interface.setup_sync(paths=paths)
-    self.DATA['output'].extend(o)
-
+    self.interface.setup_sync(self.interface.srpmdest, paths=paths)
+  
   def clean(self):
     self.interface.log(0, "cleaning sources event")
     self.interface.remove_output(all=True)

@@ -198,7 +198,7 @@ class Timber:
     sizes = []
     for disc in self.srpm_disc_map:
       sizes.append(
-        [ self.s_tree/'%s-disc%d' % (self.product, disc).findpaths().getsize(),
+        [ (self.s_tree/'%s-disc%d' % (self.product, disc)).findpaths().getsize(),
           disc ]
       )
     sizes.sort()

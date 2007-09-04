@@ -36,10 +36,8 @@ class PxebootHook:
     self.interface.setup_diff(self.mdfile, self.DATA)
     paths = []
     for file in ['vmlinuz', 'initrd.img']:
-      paths.append((self.interface.SOFTWARE_STORE/'isolinux'/file,
-                    self.pxebootdir))    
-    outputs = self.interface.setup_sync(paths=paths)
-    self.DATA['output'].extend(outputs)
+      paths.append(self.interface.SOFTWARE_STORE/'isolinux'/file)
+    self.interface.setup_sync(self.pxebootdir, paths=paths)
     
   def clean(self):
     self.interface.log(0, "cleaning pxeboot-images event")

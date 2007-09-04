@@ -119,19 +119,18 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
   def setup(self):
     RpmBuildHook.setup(self)
 
-    # sync setup for items not handled by RPMBuildHook base class
-    paths = []
-
     # public gpg keys
-    dest = self.build_folder / 'gpg'
+    paths = []
     if self.interface.cvars.get('gpgsign-public-key', None):
-      paths.append((self.interface.cvars.get('gpgsign-public-key'), dest))
+      paths.append(self.interface.cvars.get('gpgsign-public-key'))
     for repo in self.interface.cvars['repos'].values():
       for key in repo.gpgkeys:
-        paths.append((key, dest))
+        paths.append(key)
+    
+    self.interface.setup_sync(self.build_folder/'gpg', paths=paths)
 
     # eulapy file
-    dest = self.build_folder / 'eulapy'
+    paths = []
     if self.interface.config.get(
          '/distro/rpms/release-rpm/eula/include-in-firstboot/text()', 'True'
        ) in BOOLEANS_TRUE:
@@ -139,10 +138,9 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
            '/distro/rpms/release-rpm/eula/path/text()', None
          ) is not None:
         if not dest.exists(): dest.mkdirs()
-        src = self.interface.sharepath / 'release' / 'eula.py'
-        paths.append((src, dest))
-
-    self.interface.setup_sync(paths=paths)
+        paths.append(self.interface.sharepath / 'release/eula.py')
+        
+    self.interface.setup_sync(self.build_folder/'eulapy', paths=paths)
 
   def generate(self):
     "Create additional files."

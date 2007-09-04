@@ -143,15 +143,11 @@ class PublishHook:
 
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
-    paths = []
     for dir in ['os', 'iso', 'SRPMS']:
       pdir = self.interface.OUTPUT_DIR/dir
       if pdir.exists():
-        paths.append((pdir, self.interface.PUBLISH_DIR))
-    if paths:
-      o = self.interface.setup_sync(paths=paths)
-      self.DATA['output'].extend(o)
-
+        self.interface.setup_sync(self.interface.PUBLISH_DIR, paths=[pdir])
+  
   def clean(self):
     self.interface.log(0, "cleaning publish event")
     self.interface.remove_output(all=True)

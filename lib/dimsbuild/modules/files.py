@@ -47,12 +47,9 @@ class FilesHook:
   
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
-    o = self.interface.setup_sync(
-      xpaths=[('/distro/files/path',
-               self.interface.SOFTWARE_STORE)]
-    )
-    self.DATA['output'].extend(o)
-    
+    self.interface.setup_sync(self.interface.SOFTWARE_STORE,
+                              xpaths=['/distro/files/path'])
+  
   def clean(self):
     self.interface.log(0, "cleaning files event")
     self.interface.remove_output(all=True)

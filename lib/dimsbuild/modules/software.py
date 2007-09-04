@@ -50,13 +50,13 @@ class SoftwareInterface(EventInterface):
     EventInterface.__init__(self, base)
     
     self.rpmdest = self.SOFTWARE_STORE/self.product
-
+  
   def rpmCheckSignature(self, rpm, homedir, verbose=True):
     "Check RPM signature's validity.  Raises mkrpm.rpmsign.SignatureInvalidException"
     if verbose:
       self._base.log.write(2, rpm.basename, 40)
     mkrpm.rpmsign.verifyRpm(rpm, homedir=homedir, force=True)
-
+  
   def deformat(self, rpm):
     """ 
     p[ath],n[ame],v[ersion],r[elease],a[rch] = SoftwareInterface.deformat(rpm)
@@ -103,9 +103,9 @@ class SoftwareHook:
     self.ID = 'software.software'
     
     self.interface = interface
-
+    
     self._validarchs = getArchList(self.interface.arch)
-
+    
     self.DATA = {
       'variables': ['cvars[\'gpgsign-enabled\']',
                     'cvars[\'pkglist\']'],
@@ -113,23 +113,21 @@ class SoftwareHook:
       'output':    [],
     }
     self.mdfile = self.interface.METADATA_DIR/'software.md'
-    
+  
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
-
+    
     paths = [] # list of rpms to download
-               # for each rpm in the pkglist, find the RPM's timestamp and size
-               # from the repo's primary.xml.gz and add the (rpm, size, mtime)
-               # 3-tuple to the input file's list.
-
+    
     self.interface.checksig = {} # dictionary of rpms and associated gpgkey homedir
                                  # interface variable so it can be saved in metadata
-
+    
     self.homedirs = [] # list of gpgkey homedirs
-
+    
     for repo in self.interface.getAllRepos():
+      homedir = repo.ljoin('homedir')
       #populate homedir var
-      if repo.homedir: self.homedirs.append(repo.homedir)
+      if homedir.exists(): self.homedirs.append(homedir)
       #populate rpms and checksig vars
       for rpminfo in repo.repoinfo:
         rpm = rpminfo['file']
@@ -137,17 +135,16 @@ class SoftwareHook:
         nvr = '%s-%s-%s' % (n,v,r)
         if nvr in self.interface.cvars['pkglist'] and \
                a in self._validarchs:
-          paths.append((rpm, self.interface.rpmdest))
+          paths.append(rpm)
           if repo.gpgcheck:
-            self.interface.checksig[self.interface.rpmdest/rpm.basename] = repo.homedir
-
+            self.interface.checksig[self.interface.rpmdest/rpm.basename] = homedir
+    
     self.DATA['input'].extend(self.homedirs)
-
-    o = self.interface.setup_sync(paths=paths)
-
-    self.DATA['output'].extend(o)
+    
+    self.interface.setup_sync(self.interface.rpmdest, paths=paths)
+    
     self.DATA['variables'].append('checksig')
-
+  
   def clean(self):
     self.interface.log(0, "cleaning software event")
     self.interface.remove_output(all=True)
@@ -160,7 +157,7 @@ class SoftwareHook:
   def run(self):
     "Build a software store"
     self.interface.log(0, "processing rpms")
-
+    
     # determine if gpg homedirs changed
     homedirs_changed = False
     for homedir in self.homedirs:
@@ -168,7 +165,7 @@ class SoftwareHook:
         if file.startswith(homedir):
           homedirs_changed = True
           break
-
+    
     # changing from gpgsign-enabled, or gpgsign-enabled and checkkeys changed
     # remove all rpms from output store
     if self.interface.var_changed_from_true('cvars[\'gpgsign-enabled\']') or \
@@ -177,19 +174,19 @@ class SoftwareHook:
     # otherwise, remove only outdated rpms
     else:
       self.interface.remove_output()
-
+    
     # sync new rpms
     self.newrpms = self.interface.sync_input()
-
+    
     # check signatures
-#    if self.newrpms and self.interface.checksig:
-#      self._check_rpm_signatures()
-
-
+    ##if self.newrpms and self.interface.checksig:
+    ##  self._check_rpm_signatures()
+    
+    
     # sign rpms
     if self.interface.cvars['gpgsign-keys-changed']:
       self.newrpms = self.interface.list_output()
-
+    
     if self.newrpms:
       self.newrpms.sort()
       if self.interface.cvars['gpgsign-enabled']:
@@ -199,16 +196,16 @@ class SoftwareHook:
         self.interface.sign_rpms(self.newrpms, 
                                  homedir=self.interface.cvars['gpgsign-homedir'],
                                  passphrase=self.interface.cvars['gpgsign-passphrase'])
-
+      
       self.interface.createrepo()
       self.interface.cvars['new-rpms'] = self.newrpms
-
-    self.interface.write_metadata()
     
+    self.interface.write_metadata()
+  
   def apply(self):
     self.interface.rpmdest.mkdirs()
     self.interface.cvars['rpms-directory'] = self.interface.rpmdest
-
+  
   def _check_rpm_signatures(self):
     self.interface.log(1, "checking signatures")
     

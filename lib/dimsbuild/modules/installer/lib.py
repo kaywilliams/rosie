@@ -169,10 +169,9 @@ class ImageModifyMixin(ImageHandler):
     
     self.interface.setup_diff(self.mdfile, self.DATA)
     
-    o = self.interface.setup_sync(xpaths=[('/distro/installer/%s/path' % self.name,
-                                           self.imagedir)])
-    self.DATA['output'].extend(o)
-    
+    self.interface.setup_sync(self.imagedir, 
+                              xpaths=['/distro/installer/%s/path' % self.name])
+  
   def register_image_locals(self, locals):
     ImageHandler.register_image_locals(self, locals)
     
@@ -181,10 +180,9 @@ class ImageModifyMixin(ImageHandler):
     image_path = self.i_locals.get('//images/image[@id="%s"]/path' % self.name)
     image_path = locals_printf(image_path, self.interface.BASE_VARS)
     try:
-      o = self.interface.setup_sync(paths=[(repo.rjoin(image_path, self.name),
-                                            self.interface.SOFTWARE_STORE/image_path)],
-                                    id='ImageModifyMixin')
-      self.DATA['output'].extend(o)
+      self.interface.setup_sync(self.interface.SOFTWARE_STORE/image_path,
+                                id='ImageModifyMixin',
+                                paths=[repo.rjoin(image_path, self.name)])
     except IOError:
       if self._isvirtual():
         self.DATA['output'].append(self.interface.SOFTWARE_STORE/image_path/self.name)
@@ -238,12 +236,10 @@ class FileDownloadMixin:
       
       rinfix = locals_printf(file.get('path'), self.interface.cvars['source-vars'])
       linfix = locals_printf(file.get('path'), self.interface.BASE_VARS)
-      paths.append((self.interface.getRepo(self.repoid).rjoin(rinfix, filename),
-                    self.interface.SOFTWARE_STORE/linfix))
-
-    o = self.interface.setup_sync(paths=paths, id='FileDownloadMixin')
-    self.DATA['output'].extend(o)    
-
+      self.interface.setup_sync(
+        self.interface.SOFTWARE_STORE/linfix, id='FileDownloadMixin',
+        paths=[self.interface.getRepo(self.repoid).rjoin(rinfix, filename)])
+  
   def download(self):
     self.interface.sync_input(what='FileDownloadMixin')
     

@@ -56,11 +56,9 @@ class IsolinuxHook(FileDownloadMixin):
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
     self.register_file_locals(L_FILES)
-    o = self.interface.setup_sync(xpaths=[('/distro/installer/isolinux/path',
-                                           self.isolinux_dir)],
-                                  id='IsoLinuxFiles')
-    self.DATA['output'].extend(o)
-
+    self.interface.setup_sync(self.isolinux_dir, id='IsoLinuxFiles',
+                              xpaths=['/distro/installer/isolinux/path'])
+  
   def clean(self):
     self.interface.log(0, "cleaning isolinux event")
     self.interface.remove_output(all=True)

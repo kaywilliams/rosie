@@ -181,14 +181,12 @@ class RpmBuildHook:
     self.interface.setup_diff(self.mdfile, self.DATA)
 
     if self.installinfo:
-      xpaths = []
       for k,v in self.installinfo.items():
         xpath,_ = v
-        if xpath is not None:
-          xpaths.append((xpath,
-                         self.build_folder/k.lstrip('/')))
-      self.interface.setup_sync(xpaths=xpaths)
-
+        if xpath:
+          self.interface.setup_sync(self.build_folder/k.lstrip('/'),
+                                    xpaths=[xpath])
+  
   def clean(self):
     self.interface.log(0, "cleaning %s event" % self.id)
     self.interface.remove_output(all=True)

@@ -26,19 +26,19 @@ class FilesCallback:
   def __init__(self, interface):
     self.interface = interface
   
-  def remove_start(self):
+  def rm_start(self):
     self.interface.log(1, "removing files")
   
-  def remove(self, fn):
+  def rm(self, fn):
     self.interface.log(4, fn.basename)
   
-  def remove_dir_start(self):
+  def rmdir_start(self):
     self.interface.log(1, "removing empty directories")
   
-  def remove_dir(self, dn):
+  def rmdir(self, dn):
     self.interface.log(4, dn.basename)
   
-  def sync_file_start(self):
+  def sync_start(self):
     self.interface.log(1, "downloading input files")
 
 class BuildSyncCallback(CachedSyncCallback):
@@ -111,13 +111,14 @@ class BuildLogger:
   
   def write(self, level, msg, width=None):
     """ 
-    Raw write msg to stdout (trailing newline not appended).  The level argument
-    determines the formatting applied.  If it is between LEVEL_MIN and LEVEL_MAX,
-    it is used as the formatting replacement to the appropriate LEVEL_X_FORMAT
-    string, above; otherwise, it uses LEVEL_OTHER_FORMAT. If, on the other hand,
-    level is None, no formatting is applied.  The width argument determines how
-    wide the string is.  If it is None, no adjustments are applied; if it is a
-    positive integer, the line is padded or truncated to match the specified width.
+    Raw write msg to stdout (trailing newline not appended).  The level
+    argument determines the formatting applied.  If it is between LEVEL_MIN
+    and LEVEL_MAX, it is used as the formatting replacement to the appropriate
+    LEVEL_X_FORMAT string, above; otherwise, it uses LEVEL_OTHER_FORMAT. If,
+    on the other hand, level is None, no formatting is applied.  The width
+    argument determines how wide the string is.  If it is None, no adjustments
+    are applied; if it is a positive integer, the line is padded or truncated
+    to match the specified width.
     """
   
     if not self.test(level): return

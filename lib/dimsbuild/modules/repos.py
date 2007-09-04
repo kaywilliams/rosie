@@ -69,28 +69,27 @@ class ReposHook:
       repo.pkgsfile = self.mddir/repo.id/'packages'
 
       # add repodata folder as input/output
-      self.DATA['output'].extend(
-        self.interface.setup_sync(paths=[(repo.rjoin(repo.repodata_path,'repodata'),
-                                          repo.ljoin(repo.repodata_path))]))
-
+      self.interface.setup_sync(repo.ljoin(repo.repodata_path),
+                                paths=[repo.rjoin(repo.repodata_path,
+                                                  'repodata')])
+      
+      # populate difftest variables
+      self.DATA['output'].append(repo.pkgsfile)
+      
       # gpgkey related setup
       if repo.gpgcheck and not repo.gpgkeys:
         raise RuntimeError, \
               "Error: gpgcheck set but no gpgkeys provided for repo '%s'" % repo.id 
-
+      
       if repo.gpgcheck and repo.gpgkeys:
-        # add homedir var
-        repo.homedir = repo.ljoin('homedir')
-
         # add gpgkeys as input/output
         for gpgkey in repo.gpgkeys:
-          self.gpgkeys.append((gpgkey,repo.local_path))
+          self.gpgkeys.append(gpgkey)
 
-      self.DATA['output'].extend(
-        self.interface.setup_sync(paths=self.gpgkeys))
+      self.interface.setup_sync(repo.local_path, paths=self.gpgkeys)
 
       self.repos[repo.id] = repo
-
+  
     self.DATA['variables'].extend(['gpgkeys'])
 
   def clean(self):
@@ -136,15 +135,15 @@ class ReposHook:
       self.interface.log(1, "processing gpg keys") 
       for repo in self.repos.values():
         self.interface.log(2, repo.id)
+        homedir = repo.ljoin('homedir')
         if repo.gpgcheck and repo.gpgkeys:
           for key in repo.gpgkeys:
-            if not repo.homedir.exists(): repo.homedir.mkdirs()
-            execute('gpg --homedir %s --import %s' %(repo.homedir, 
+            if not homedir.exists(): homedir.mkdirs()
+            execute('gpg --homedir %s --import %s' %(homedir, 
                                                      repo.ljoin(key.basename)))
-          if repo.homedir:
-            self.DATA['output'].append(repo.homedir)
+          self.DATA['output'].append(homedir)
         else:
-          repo.ljoin('homedir').rm(force=True, recursive=True) 
+          homedir.rm(force=True, recursive=True) 
 
     self.interface.write_metadata()
 
