@@ -22,6 +22,9 @@
             <ref name="element-obsoletes"/>
           </optional>
           <optional>
+            <element name="release"><text/></element>
+          </optional>
+          <optional>
             <element name="release-files">
               <oneOrMore>
                 <ref name="element-path"/>

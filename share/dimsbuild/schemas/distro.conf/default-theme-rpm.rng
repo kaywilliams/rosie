@@ -17,9 +17,14 @@
               <ref name="value-boolean-with-default"/>
             </attribute>
           </optional>
-          <optional>
-            <element name="theme"><text/></element>
-          </optional>
+          <interleave>
+            <optional>            
+              <element name="theme"><text/></element>
+            </optional>
+            <optional>
+              <element name="release"><text/></element>
+            </optional>
+          </interleave>
         </element>
       </optional>
     </element>

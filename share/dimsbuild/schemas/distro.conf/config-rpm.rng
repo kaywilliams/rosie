@@ -19,6 +19,9 @@
           </optional>
           <interleave>
             <optional>
+              <element name="release"><text/></element>
+            </optional>
+            <optional>
               <element name="config">               
                 <interleave>                  
                   <optional>

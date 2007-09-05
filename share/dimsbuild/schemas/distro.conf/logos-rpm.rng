@@ -18,7 +18,10 @@
               <ref name="value-boolean-with-default"/>
             </attribute>
           </optional>          
-          <interleave>            
+          <interleave>
+            <optional>
+              <element name="release"><text/></element>
+            </optional>            
             <optional>
               <ref name="element-obsoletes"/>
             </optional>
