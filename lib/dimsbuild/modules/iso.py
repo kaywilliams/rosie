@@ -77,7 +77,7 @@ class IsoInterface(EventInterface, ListCompareMixin):
 class IsoHook:
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'iso'
+    self.ID = 'iso.ISO'
     self.interface = interface
   
   def setup(self):

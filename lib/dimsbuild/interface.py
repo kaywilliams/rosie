@@ -38,11 +38,9 @@ class EventInterface:
       setattr(self, k, v)
     
     self.BASE_VARS      = self._base.cvars['base-vars']
-    self.CACHE_DIR      = self._base.CACHE_DIR
     self.DISTRO_DIR     = self._base.DISTRO_DIR
     self.OUTPUT_DIR     = self._base.OUTPUT_DIR
     self.SOFTWARE_STORE = self._base.SOFTWARE_STORE
-    self.INPUT_STORE    = self._base.INPUT_STORE
     self.METADATA_DIR   = self._base.METADATA_DIR
     self.TEMP_DIR       = self._base.TEMP_DIR
     
@@ -50,7 +48,7 @@ class EventInterface:
     
     # sync/caching stuff
     cache_dir = P(self._base.mainconfig.get('/dimsbuild/cache/path/text()', None) or \
-                  self.CACHE_DIR / '.cache')
+                  self._base.CACHE_DIR / '.cache')
     cache_size = self._base.mainconfig.get('/dimsbuild/cache/max-size/text()', None)
     if cache_size:
       cache_size = int(cache_size)
@@ -183,8 +181,6 @@ class EventInterface:
   
   def setup_sync(self, dst, xpaths=[], paths=[], id=None, iprefix=None):
     """ 
-    setup_sync([xpaths[,paths]])
-    
     Currently, setup_sync() can be called only after setup_diff() is called.
     This will get fixed once the location of the metadata file can be
     programmatically determined.
@@ -252,8 +248,6 @@ class EventInterface:
   
   def remove_output(self, rmlist=None, all=False, cb=None):
     """ 
-    remove_output([all[,cb]])
-    
     Remove output files.
     @param all  : If all is True, remove all output files, else remove
                   the files that have changed.

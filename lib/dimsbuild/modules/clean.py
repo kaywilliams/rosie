@@ -122,11 +122,14 @@ class CleanHook:
       self.interface.log(2, "cleaning '%s'" % self.interface.TEMP_DIR)
       self.interface.TEMP_DIR.rm(recursive=True)
       
-      #! the following is currently illegal
-      self.interface._base._init_directories(self.interface.TEMP_DIR, 
-                                             self.interface.SOFTWARE_STORE,
-                                             self.interface.METADATA_DIR)
-  
+    #! the following is currently illegal
+    for dir in [self.interface.TEMP_DIR, self.interface.SOFTWARE_STORE,
+                self.interface.METADATA_DIR]:
+      if not dir.exists():
+        self.interface.log(2, "creating directory '%s'" % dir)
+        dir.mkdirs()
+    
+    
   def _force_clean(self, eventid):
     self.interface.log(2, "forcing --clean on %s" % eventid)
     #! the following is currently illegal

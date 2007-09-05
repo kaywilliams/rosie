@@ -87,24 +87,22 @@ class ReleaseHook(ExtractMixin):
         rtn.append(dest/source.basename)
       self.interface.copy(source, dest, link=True)
     return rtn
-
+  
   def find_rpms(self):
     rpmnames = self.config.xpath('/distro/installer/release-files/package/text()',
                                 ['%s-release' %(self.interface.product,)])
-    rpms = []
+    rpmset = set()
     for rpmname in rpmnames:
       for rpm in self.interface.cvars['rpms-directory'].findpaths(
           glob='%s-*-*' % rpmname, nregex=SRPM_REGEX):
-        if rpm not in rpms:
-          rpms.append(rpm)
-
-    if len(rpms) == 0:
+        rpmset.add(rpm)
+    
+    if len(rpmset) == 0:
       for glob in ['*-release-*-[a-zA-Z0-9]*.[Rr][Pp][Mm]',
                    '*-release-notes-*-*']:
         for rpm in self.interface.cvars['rpms-directory'].findpaths(
             glob=glob, nregex=SRPM_REGEX):
-          if rpm not in rpms:
-            rpms.append(rpm)
-        if len(rpms) == 0:
+          rpmset.add(rpm)
+        if len(rpmset) == 0:
           raise RpmNotFoundError("missing release RPM(s)")
-    return rpms    
+    return rpmset

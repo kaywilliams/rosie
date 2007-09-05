@@ -29,7 +29,7 @@ EVENTS = [
                  ],
     'conditional-requires': ['comps-file',   # for createrepo
                              'RPMS',],       # for auto generated rpms
-    'provides': ['rpms-directory', 
+    'provides': ['rpms-directory',
                  'rpms',                     # list of rpms included in the distribution
                  'gpgsign-passphrase'        # if passphrase was not set previously
                                              # software promps for it and sets global var
@@ -126,15 +126,14 @@ class SoftwareHook:
     
     for repo in self.interface.getAllRepos():
       homedir = repo.ljoin('homedir')
-      #populate homedir var
+      # populate homedir var
       if homedir.exists(): self.homedirs.append(homedir)
-      #populate rpms and checksig vars
+      # populate rpms and checksig vars
       for rpminfo in repo.repoinfo:
         rpm = rpminfo['file']
         _,n,v,r,a = self.interface.deformat(rpm)
         nvr = '%s-%s-%s' % (n,v,r)
-        if nvr in self.interface.cvars['pkglist'] and \
-               a in self._validarchs:
+        if nvr in self.interface.cvars['pkglist'] and a in self._validarchs:
           paths.append(rpm)
           if repo.gpgcheck:
             self.interface.checksig[self.interface.rpmdest/rpm.basename] = homedir
@@ -152,7 +151,7 @@ class SoftwareHook:
 
   def check(self):
     return self.interface.cvars['gpgsign-keys-changed'] or \
-      self.interface.test_diffs()
+           self.interface.test_diffs()
   
   def run(self):
     "Build a software store"
@@ -181,7 +180,6 @@ class SoftwareHook:
     # check signatures
     ##if self.newrpms and self.interface.checksig:
     ##  self._check_rpm_signatures()
-    
     
     # sign rpms
     if self.interface.cvars['gpgsign-keys-changed']:

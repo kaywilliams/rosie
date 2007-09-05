@@ -201,16 +201,16 @@ class SourcesHook:
 
     # compute the list of SRPMS
     self.ts = rpm.TransactionSet()
-    self.ts.setVSFlags(-1)    
-    srpmlist = []
+    self.ts.setVSFlags(-1)
+    
+    srpmset = set()
     for pkg in self.interface.cvars['rpms']:
       i = os.open(pkg, os.O_RDONLY)
       h = self.ts.hdrFromFdno(i)
       os.close(i)
       srpm = h[rpm.RPMTAG_SOURCERPM]
-      if srpm not in srpmlist:
-        srpmlist.append(srpm)
-
+      srpmset.add(srpm)
+    
     # setup sync
     paths = []
     for repo in self.interface.getAllSourceRepos():
@@ -218,7 +218,7 @@ class SourcesHook:
         rpmi = rpminfo['file']
         _,n,v,r,a = self.interface.deformat(rpmi)
         nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a) ## assuming the prefix to be lower-case 'rpm' suffixed
-        if nvra in srpmlist:
+        if nvra in srpmset:
           paths.append(rpmi)
 
     self.interface.setup_sync(self.interface.srpmdest, paths=paths, id='srpms')

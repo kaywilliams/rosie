@@ -77,11 +77,6 @@ class Build:
     # this to communicate between themselves as necessary
     self.cvars = CvarsDict()
     
-    self.CACHE_DIR   = P('/var/cache/dimsbuild')
-    self.TEMP_DIR    = P('/tmp/dimsbuild')
-    self.INPUT_STORE = self.CACHE_DIR / 'shared/repos'
-    self.CACHE_MAX_SIZE = 30*1024**3 # 30 GB
-    
     # set up loggers
     self.log = BuildLogger(options.logthresh)
     self.errlog = logger.Logger(options.errthresh) # TODO - BuildLogger this #!
@@ -90,15 +85,15 @@ class Build:
     self.mainconfig = mainconfig
     self.config = distroconfig
     
-    # set up IMPORT_DIRS
-    self.IMPORT_DIRS = [ P(x) for x in \
+    # set up import_dirs
+    self.import_dirs = [ P(x) for x in \
                          mainconfig.xpath('/dimsbuild/librarypaths/path/text()', [])
                        ]
     if options.libpath:
-      self.IMPORT_DIRS.insert(0, P(options.libpath)) # TODO make this a list
+      self.import_dirs.insert(0, P(options.libpath)) # TODO make this a list
     for dir in sys.path:
-      if dir not in self.IMPORT_DIRS:
-        self.IMPORT_DIRS.append(P(dir))
+      if dir not in self.import_dirs:
+        self.import_dirs.append(P(dir))
     
     if options.sharepath:
       self.sharepath = P(options.sharepath).abspath()
@@ -123,33 +118,29 @@ class Build:
     self.cvars['base-vars']['product-path'] = self.cvars['base-vars']['product']
     
     # set up other directories
+    self.CACHE_DIR      = P('/var/cache/dimsbuild')
+    self.TEMP_DIR       = P('/tmp/dimsbuild')
     self.DISTRO_DIR     = self.CACHE_DIR  / self.cvars['base-vars']['pva']
     self.OUTPUT_DIR     = self.DISTRO_DIR / 'output'
     self.METADATA_DIR   = self.DISTRO_DIR / 'builddata'
     self.SOFTWARE_STORE = self.OUTPUT_DIR / 'os'
     
-    # set up necessary directories, see TODO below
-    self._init_directories(self.TEMP_DIR, self.SOFTWARE_STORE, self.METADATA_DIR)
+    self.CACHE_MAX_SIZE = 30*1024**3 # 30 GB
     
     # set up list of disabled modules
-    self.disabled_modules = []
+    self.disabled_modules = set()
     for k,v in self.__eval_modlist(self.mainconfig.get('/dimsbuild/modules', None),
                                    default=True).items():
-      if v in BOOLEANS_FALSE:
-        self.disabled_modules.append(k)
+      if v in BOOLEANS_FALSE: self.disabled_modules.add(k)
     
-    self.disabled_modules.append('__init__') # hack, kinda; this isn't a module
-    self.disabled_modules.append('lib') # +1; neither is this
+    self.disabled_modules.add('__init__') # hack, kinda; this isn't a module
+    self.disabled_modules.add('lib') # +1; neither is this
     
     # update with distro-specific config
     for k,v in self.__eval_modlist(self.config.get('/distro/main/modules', None),
                                    default=True).items():
-      if v in BOOLEANS_FALSE:
-        if k not in self.disabled_modules:
-          self.disabled_modules.append(k)
-      elif v in BOOLEANS_TRUE:
-        if k in self.disabled_modules:
-          self.disabled_modules.remove(k)
+      if   v in BOOLEANS_FALSE: self.disabled_modules.add(k)
+      elif v in BOOLEANS_TRUE:  self.disabled_modules.discard(k)
     
     # load all enabled modules, register events, set up dispatcher
     self._init_dispatch() # sets up self.dispatch
@@ -170,7 +161,7 @@ class Build:
     if they are explicitly  enabled  (setting the  'enabled' attribute  to
     'true' in one  of the configuration files).   Conversely,  all modules
     are enabled by default,  and  are only  skipped if they  are explicity
-    disabled  (again, by setting the 'enabled'  attribute to 'true' in the
+    disabled  (again, by setting the 'enabled' attribute to 'false' in the
     configuration file(s)).
     """
     self.dispatch = event.Dispatch()
@@ -179,26 +170,21 @@ class Build:
     
     # load all enabled plugins
     # generate list of enabled plugins in main config
-    enabled_plugins = []
+    enabled_plugins = set()
     for k,v in self.__eval_modlist(self.mainconfig.get('/dimsbuild/main/plugins', None),
                                    default=False).items():
-      if v in BOOLEANS_TRUE:
-        enabled_plugins.append(k)
+      if v in BOOLEANS_TRUE: enabled_plugins.add(k)
     
     # update list with distro-specific config
     for k,v in self.__eval_modlist(self.config.get('/distro/plugins', None),
                                    default=False).items():
-      if v in BOOLEANS_TRUE:
-        if k not in enabled_plugins:
-          enabled_plugins.append(k)
-      elif v in BOOLEANS_FALSE:
-        if k in enabled_plugins:
-          enabled_plugins.remove(k)
+      if   v in BOOLEANS_TRUE:  enabled_plugins.add(k)
+      elif v in BOOLEANS_FALSE: enabled_plugins.discard(k)
     
     # load enabled plugins
     for plugin in enabled_plugins:
       imported = False
-      for path in self.IMPORT_DIRS:
+      for path in self.import_dirs:
         mod = path / 'dimsbuild/plugins/%s.py' % plugin
         if mod.exists():
           m = load_module(mod)
@@ -209,7 +195,7 @@ class Build:
     
     # load all modules not explicitly disabled
     registered_modules = []
-    for path in self.IMPORT_DIRS:
+    for path in self.import_dirs:
       modpath = path / 'dimsbuild/modules'
       if not modpath.exists(): continue
       for mod in modpath.findpaths(nregex='.*\.pyc', mindepth=1, maxdepth=1):
@@ -223,13 +209,6 @@ class Build:
           registered_modules.append(modname)
     
     self.dispatch.commit()
-  
-  def _init_directories(self, *dirs):
-    # TODO - callback this, then we can remove fn
-    for folder in dirs:
-      if not folder.exists():
-        self.log(2, "Making directory '%s'" % folder)
-        folder.mkdirs()
   
   def __eval_modlist(self, mods, default=None):
     "Return a dictionary of modules and their enable status, as found in the"
