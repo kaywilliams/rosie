@@ -76,10 +76,6 @@ def main():
                          "would ordinarily run them.  See above for the list " + \
                          "of accepted events")
 
-  
-  buildgroup = OptionGroupId(parser, 'Software store build options', 'build')
-  parser.add_option_group(buildgroup)
-  
   args = sys.argv[1:]
 
   try:
