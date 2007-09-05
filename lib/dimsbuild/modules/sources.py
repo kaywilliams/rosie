@@ -217,7 +217,8 @@ class SourcesHook:
       for rpminfo in repo.repoinfo:
         rpmi = rpminfo['file']
         _,n,v,r,a = self.interface.deformat(rpmi)
-        nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a) ## assuming the prefix to be lower-case 'rpm' suffixed
+        ## assuming the rpm file name to be lower-case 'rpm' suffixed        
+        nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a) 
         if nvra in srpmset:
           paths.append(rpmi)
 

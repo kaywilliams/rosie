@@ -32,7 +32,8 @@ __author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
 __version__ = '1.0'
 __date__    = 'June 12th, 2007'
 
-from xml.sax import SAXParseException
+from lxml.etree import XMLSyntaxError
+from xml.sax    import SAXParseException
 
 import copy
 
@@ -130,7 +131,7 @@ class DiffTest:
     
     try:
       metadata = xmltree.read(self.mdfile)
-    except (ValueError, IOError, SAXParseException):
+    except (ValueError, IOError, SAXParseException, XMLSyntaxError):
       return
 
     handler.mdread(metadata)
