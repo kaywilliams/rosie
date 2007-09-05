@@ -36,7 +36,7 @@ EVENTS = [
     'interface': 'IsoInterface',
     'properties': EVENT_TYPE_MDLR|EVENT_TYPE_PROC,
     'requires': ['anaconda-version', 'pkgorder-file'],
-    'conditional-requires': ['manifest-changed', 'sources-enabled'],
+    'conditional-requires': ['manifest-changed', 'sources-enabled', 'srpms'],
     'parent': 'ISO',
   },
 ]
@@ -189,9 +189,8 @@ class IsoSetsHook:
     self.splittrees = self.interface.ISO_METADATA_DIR/'split-trees'
     
     self.DATA =  {
-      'config':    ['/distro/iso/set/text()'],
-      'variables': ['cvars[\'sources-enabled\']',
-                    'cvars[\'iso-enabled\']'],
+      'variables': ['cvars[\'iso-enabled\']'],
+      'config':    [],
       'input':     [], 
       'output':    [],
     }
@@ -203,6 +202,9 @@ class IsoSetsHook:
     
     if not self.interface.cvars['iso-enabled']: return
     
+    self.DATA['config'].extend(['/distro/iso/set/text()',
+                                'cvars[\'sources-enabled\']',
+                                'cvars[\'srpms\']',])
     self.DATA['input'].append(self.interface.cvars['pkgorder-file'])
   
   def clean(self):
@@ -224,21 +226,29 @@ class IsoSetsHook:
     
     self.interface.log(0, "processing iso image(s)")
     
-    # pkgorder file or sources-enabled changed
+    oldsets = None
+
+    # remove oldsets if pkgorder file, srpms, or sources-enabled changed
     if self.interface.handlers['input'].diffdict or \
-         self.interface.handlers['variables'].diffdict.has_key("cvars['sources-enabled']"):
+       self.interface.handlers['variables'].diffdict.has_key("cvars['srpms']") or \
+       self.interface.handlers['variables'].diffdict.has_key("cvars['sources-enabled']"):
       self.interface.remove_output(all=True)
-    
-    # sets changed
-    if self.interface.handlers['config'].diffdict.has_key('/distro/iso/set/text()'):
-      oldsets,newsets = self.interface.handlers['config'].diffdict['/distro/iso/set/text()']
-      if isinstance(oldsets, NewEntry): oldsets = []
+      oldsets = []
+
+    # otherwise get oldsets from metadata file
+    if oldsets is None:    
+      try: 
+        oldsets = self.interface.handlers['config'].cfg['/distro/iso/set/text()']
+      except KeyError:
+        oldsets = []
+
+    newsets = self.interface.config.xpath('/distro/iso/set/text()', [])
+     
+    self.newsets_expanded = []
+    for set in newsets:
+      self.newsets_expanded.append(splittree.parse_size(set))
       
-      self.newsets_expanded = []
-      for set in newsets:
-        self.newsets_expanded.append(splittree.parse_size(set))
-      
-      self.interface.compare(oldsets, newsets)
+    self.interface.compare(oldsets, newsets)
     
     self.DATA['output'].extend([self.interface.isodir, self.splittrees])
     

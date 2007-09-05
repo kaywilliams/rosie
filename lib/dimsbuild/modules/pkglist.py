@@ -152,15 +152,15 @@ class PkglistHook:
     conf.extend(YUMCONF_HEADER)
     for repo in self.interface.getAllRepos():
 
-      # determine if repodata folders changed
-      rddirs_changed = False
+      # determine if repodata folder changed
+      rddir_changed = False
       for rddir in self.rddirs:
         for file in self.interface.handlers['input'].diffdict.keys():
           if file.startswith(rddir):
             rddirs_changed = True
             break
  
-      if rddirs_changed: 
+      if rddir_changed: 
         ## HACK: delete a folder's depsolve metadata if it has changed. 
         (self.dsdir/repo.id).rm(recursive=True, force=True)
 

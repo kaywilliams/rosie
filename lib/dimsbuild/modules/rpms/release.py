@@ -131,6 +131,7 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
 
     # eulapy file
     paths = []
+    dest = self.interface.sharepath
     if self.interface.config.get(
          '/distro/rpms/release-rpm/eula/include-in-firstboot/text()', 'True'
        ) in BOOLEANS_TRUE:
@@ -138,7 +139,7 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
            '/distro/rpms/release-rpm/eula/path/text()', None
          ) is not None:
         if not dest.exists(): dest.mkdirs()
-        paths.append(self.interface.sharepath / 'release/eula.py')
+        paths.append(dest / 'release/eula.py')
         
     self.interface.setup_sync(self.build_folder/'eulapy', paths=paths)
 

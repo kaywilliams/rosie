@@ -30,8 +30,8 @@ EVENTS = [
     'conditional-requires': ['comps-file',   # for createrepo
                              'RPMS',],       # for auto generated rpms
     'provides': ['rpms-directory', 
-                 'new-rpms', 
-                 'gpgsign-passphrase'            # if passphrase was not set previously
+                 'rpms',                     # list of rpms included in the distribution
+                 'gpgsign-passphrase'        # if passphrase was not set previously
                                              # software promps for it and sets global var
                 ],
   },
@@ -140,8 +140,8 @@ class SoftwareHook:
             self.interface.checksig[self.interface.rpmdest/rpm.basename] = homedir
     
     self.DATA['input'].extend(self.homedirs)
-    
-    self.interface.setup_sync(self.interface.rpmdest, paths=paths)
+
+    self.interface.setup_sync(self.interface.rpmdest, paths=paths, id='rpms')
     
     self.DATA['variables'].append('checksig')
   
@@ -198,14 +198,14 @@ class SoftwareHook:
                                  passphrase=self.interface.cvars['gpgsign-passphrase'])
       
       self.interface.createrepo()
-      self.interface.cvars['new-rpms'] = self.newrpms
     
     self.interface.write_metadata()
   
   def apply(self):
     self.interface.rpmdest.mkdirs()
     self.interface.cvars['rpms-directory'] = self.interface.rpmdest
-  
+    self.interface.cvars['rpms'] = self.interface.list_output(what=['rpms'])
+
   def _check_rpm_signatures(self):
     self.interface.log(1, "checking signatures")
     

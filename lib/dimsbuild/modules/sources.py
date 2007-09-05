@@ -22,21 +22,20 @@ API_VERSION = 4.0
 
 EVENTS = [
   {
-    'id': 'sources',
-    'provides': ['SRPMS',],
-    'requires': ['software', 'new-rpms', 'rpms-directory', 'source-repo-contents'],
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'interface': 'SrpmInterface',
-  },
-  {
     'id': 'source-repos',
-    'provides': ['input-source-repos-changed',
-                 'local-source-repodata',
+    'provides': ['local-source-repodata',
                  'source-repo-contents',
                  'sources-enabled'],
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
     'interface': 'SrpmInterface',
-  }
+  },
+  {
+    'id': 'sources',
+    'provides': ['srpms',],
+    'requires': ['rpms', 'source-repo-contents'],
+    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
+    'interface': 'SrpmInterface',
+  },
 ]
 
 HOOK_MAPPING = {
@@ -145,7 +144,7 @@ class SourceRepoHook:
       self.interface.write_metadata()
       return
 
-    self.interface.log(0, "processing input source repositories")
+    self.interface.log(0, "processing source repositories")
     self.interface.sync_input()
 
     self.interface.log(1, "reading available packages")
@@ -161,26 +160,22 @@ class SourceRepoHook:
       repo.readRepoContents()
       repo.writeRepoContents(repo.pkgsfile)
 
-    if self.interface.has_changed('input'):
-      self.interface.cvars['input-source-repos-changed'] = True
-
     self.interface.write_metadata() 
     
   def apply(self):
     self.interface.cvars['local-source-repodata'] = self.mdsrcrepos
     if self.interface.cvars['sources-enabled']:
       self.interface.cvars['source-repos'] = self.srcrepos
-      if not self.interface.cvars['input-source-repos-changed']:      
-        for repo in self.srcrepos.values():
-          repomdfile = repo.ljoin(repo.repodata_path, repo.mdfile)
-          for file in repomdfile, repo.pkgsfile:
-            if not file.exists():
-              raise RuntimeError("Unable to find cached file at '%s'. Perhaps you " \
-                                 "are skipping the 'source-repos' event before it has "\
-                                 "been allowed to run once?" % file)
-          repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')
-          repo.readRepoData(repomd)
-          repo.readRepoContents(repofile=repo.pkgsfile)
+      for repo in self.srcrepos.values():
+        repomdfile = repo.ljoin(repo.repodata_path, repo.mdfile)
+        for file in repomdfile, repo.pkgsfile:
+          if not file.exists():
+            raise RuntimeError("Unable to find cached file at '%s'. Perhaps you " \
+                               "are skipping the 'source-repos' event before it has "\
+                               "been allowed to run once?" % file)
+        repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')
+        repo.readRepoData(repomd)
+        repo.readRepoContents(repofile=repo.pkgsfile)
 
 class SourcesHook:
   def __init__(self, interface):
@@ -190,7 +185,8 @@ class SourcesHook:
     self.interface = interface
     
     self.DATA =  {
-      'variables':['cvars[\'sources-enabled\']'], 
+      'variables':['cvars[\'sources-enabled\']',
+                   'cvars[\'rpms\']'], 
       'input':    [],
       'output':   [],
     }
@@ -207,8 +203,7 @@ class SourcesHook:
     self.ts = rpm.TransactionSet()
     self.ts.setVSFlags(-1)    
     srpmlist = []
-    for pkg in P(self.interface.cvars['rpms-directory']).findpaths(
-                 glob=RPM_GLOB):
+    for pkg in self.interface.cvars['rpms']:
       i = os.open(pkg, os.O_RDONLY)
       h = self.ts.hdrFromFdno(i)
       os.close(i)
@@ -216,7 +211,7 @@ class SourcesHook:
       if srpm not in srpmlist:
         srpmlist.append(srpm)
 
-    # populate input and output lists
+    # setup sync
     paths = []
     for repo in self.interface.getAllSourceRepos():
       for rpminfo in repo.repoinfo:
@@ -226,19 +221,15 @@ class SourcesHook:
         if nvra in srpmlist:
           paths.append(rpmi)
 
-    self.DATA['input'].append(self.mdsrcrepos)
-    self.DATA['output'].append(self.interface.srpmdest/'repodata')
-    
-    self.interface.setup_sync(self.interface.srpmdest, paths=paths)
-  
+    self.interface.setup_sync(self.interface.srpmdest, paths=paths, id='srpms')
+
   def clean(self):
     self.interface.log(0, "cleaning sources event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()
 
   def check(self):
-    return self.interface.cvars['new-rpms'] or \
-           self.interface.test_diffs()  
+    return self.interface.test_diffs()  
 
   def run(self):
     # changing from sources-enabled true, cleanup old files and metadata
@@ -254,5 +245,11 @@ class SourcesHook:
     self.interface.srpmdest.mkdirs()
     self.interface.sync_input()
     self.interface.createrepo()
+    self.DATA['output'].extend(self.interface.list_output(what=['srpms']))
+    self.DATA['output'].append(self.interface.srpmdest/'repodata')
 
     self.interface.write_metadata()
+
+  def apply(self):
+    if self.interface.cvars['sources-enabled']:
+      self.interface.cvars['srpms'] = self.interface.list_output(what=['srpms'])

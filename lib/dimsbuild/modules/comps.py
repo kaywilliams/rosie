@@ -67,17 +67,30 @@ class CompsHook:
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
 
-    self.comps_supplied = self.interface.config.get('/distro/comps/use-existing/path/text()', None)
+    self.comps_supplied = self.interface.config.get(
+                          '/distro/comps/use-existing/path/text()', None)
 
     if self.comps_supplied: 
+      xpath = '/distro/comps/use-existing/path'
+
       self.interface.setup_sync(self.mddir, id='comps.xml',
-                                xpaths=['/distro/comps/use-existing/path'])
-      self.comps_out = self.interface.list_output(what='comps.xml')[0]
+                                xpaths=[xpath])
+
+      # ensure exactly only one item returned above
+      if len(self.interface.list_output(what='comps.xml')) != 1: 
+        raise RuntimeError, "The path specified at '%s' expands to multiple "\
+        "items. Only one comps file is allowed." % xpath 
+
     else:
       self.comps_out = self.mddir/'comps.xml'
-      self.DATA['output'].append(self.comps_out)
       self.interface.groupfiles = self.__get_groupfiles()
-      self.DATA['variables'].append('groupfiles')
+
+      # track changes in repo/groupfile relationships
+      self.DATA['variables'].append('groupfiles') 
+
+      # track file changes
+      self.DATA['input'].extend([groupfile for repo,groupfile in
+                                 self.interface.groupfiles])
 
   def clean(self):
     self.interface.log(0, "cleaning comps event")
@@ -89,12 +102,10 @@ class CompsHook:
 
   def run(self):
     self.interface.log(0, "processing comps file")
+    if not self.mddir.exists(): self.mddir.mkdirs()
 
     # delete prior comps file
     self.interface.remove_output(all=True)
-
-    # create mddir, if needed
-    if not self.mddir.exists(): self.mddir.mkdirs()
 
     if self.comps_supplied: # download comps file   
       self.interface.log(1, "using comps file '%s'" % self.comps_supplied)
@@ -105,16 +116,23 @@ class CompsHook:
       self.generate_comps()
       self.comps.write(self.comps_out)
       self.comps_out.chmod(0644)
+      self.DATA['output'].append(self.comps_out)
 
     # write metadata
     self.interface.write_metadata()
   
   def apply(self):
-    if not self.comps_out.exists():
-      raise RuntimeError, "Unable to find cached comps file at '%s'. Perhaps you are skipping the comps event before it has been allowed to run once?" % self.comps_out
-    
-    # set comps-file variable
-    self.interface.cvars['comps-file'] = self.comps_out
+    # set comps-file control variable
+    if self.comps_supplied: 
+      self.interface.cvars['comps-file'] = self.interface.list_output(what='comps.xml')[0]
+    else:
+      self.interface.cvars['comps-file'] = self.comps_out
+
+    # verify comps-file exists
+    if not self.interface.cvars['comps-file'].exists():
+      raise RuntimeError, "Unable to find cached comps file at '%s'. Perhaps you "\
+      "are skipping the comps event before it has been allowed to run once?"\
+      % self.comps_out
     
     # set required packages variable
     reqpkgs = xmltree.read(self.interface.cvars['comps-file']).xpath('//packagereq/text()')
