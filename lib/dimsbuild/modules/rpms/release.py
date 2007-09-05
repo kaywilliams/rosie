@@ -1,6 +1,5 @@
 from dims import filereader
 from dims import pps
-from dims import sync
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
@@ -54,8 +53,8 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
     self.ID = 'release.release-rpm'
     
     self.interface = interface
-    
-    data = {
+
+    self.DATA = {
       'config':    ['/distro/rpms/release-rpm'],
       'variables': ['fullname',
                     'product',
@@ -63,61 +62,52 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
       'input':     [],
       'output':    [],
     }
-    
-    # Each key of the installinfo directionary is the name of the
-    # directory in release RPM event's working directory and its value
-    # tells the program what it should do with those files.
+    self.mdfile = self.interface.METADATA_DIR/'RPMS/release-rpm.md'
+
+    RpmBuildHook.__init__(self, 'release-rpm')
+    ColorMixin.__init__(self)
+
+  def setup(self):
+    self.interface.setup_diff(self.mdfile, self.DATA)
     installinfo = {
       'gpg'     : (None,
-                   interface.gpg_dir),
+                   self.interface.gpg_dir),
       'repo'    : ('/distro/rpms/release-rpm/yum-repos/path',
-                   interface.repo_dir),
+                   self.interface.repo_dir),
       'eula'    : ('/distro/rpms/release-rpm/eula/path',
-                   interface.eula_dir),
+                   self.interface.eula_dir),
       'omf'     : ('/distro/rpms/release-rpm/release-notes/omf/path',
-                   interface.omf_dir),
+                   self.interface.omf_dir),
       'html'    : ('/distro/rpms/release-rpm/release-notes/html/path',
-                   interface.html_dir),
+                   self.interface.html_dir),
       'doc'     : ('/distro/rpms/release-rpm/release-notes/doc/path',
-                   interface.doc_dir),
+                   self.interface.doc_dir),
       'release' : ('/distro/rpms/release-rpm/release-files/path',
-                   interface.release_dir),
+                   self.interface.release_dir),
       'etc'     : (None,
-                   interface.etc_dir), 
+                   self.interface.etc_dir), 
       'eulapy'  : (None,
-                   interface.eula_dir),
+                   self.interface.eula_dir),
     }
-
-    packages = self.interface.config.xpath(
-      '/distro/rpms/release-rpm/obsoletes/package/text()', []
-    )
-    if interface.config.get('/distro/rpms/release-rpm/@use-default-set', 'True') \
-           in BOOLEANS_TRUE:
-      packages.extend(['fedora-release', 'redhat-release', 'centos-release',
-                       'fedora-release-notes', 'redhat-release-notes',
-                       'centos-release-notes'])
-    if packages:
-      obsoletes = ' '.join(packages)
-    else:
-      obsoletes = None
-
-    provides = 'redhat-release'
-    if obsoletes:
-      provides = provides + obsoletes
-      
-    RpmBuildHook.__init__(self, interface, data, 'release-rpm',
-                          '%s-release' % interface.product,
-                          summary='%s release files' % interface.fullname,
-                          description='%s release files created by '
-                          'dimsbuild' % interface.fullname,
-                          installinfo=installinfo,
-                          provides=provides,
-                          obsoletes=obsoletes)
     
-    ColorMixin.__init__(self)
+    kwargs = {}
+    kwargs['release'] = self.interface.config.get('/distro/rpms/release-rpm/release/text()', '0')
     
-  def setup(self):
-    RpmBuildHook.setup(self)
+    kwargs['obsoletes'] = ''
+    if self.interface.config.pathexists('/distro/rpms/release-rpm/obsoletes/package/text()'):
+      kwargs['obsoletes'] += ' '.join(self.interface.config.xpath(
+                             '/distro/rpms/release-rpm/obsoletes/package/text()'))
+    if self.interface.config.get('/distro/rpms/release-rpm/@use-default-set', 'True'):
+      kwargs['obsoletes'] += 'fedora-release redhat-release centos-release '\
+                             'fedora-release-notes redhat-release-notes centos-release-notes'
+    kwargs['provides'] = kwargs['obsoletes']
+    self.register('%s-release' % self.interface.product,
+                  '%s release files created by dimsbuild' % self.interface.fullname,
+                  '%s release files' % self.interface.product,
+                  installinfo=installinfo,
+                  **kwargs)
+    self.setColors(prefix='#')
+    self.add_data()    
 
     # public gpg keys
     paths = []
@@ -141,6 +131,21 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
         
     self.interface.setup_sync(self.build_folder/'eulapy', paths=paths)
 
+  def run(self):
+    self.interface.remove_output(all=True)
+    if not self.test_build('True'):
+      return
+    self.build_rpm()
+    self.interface.write_metadata()
+
+  def apply(self):
+    if not self.test_build('True'):
+      return
+    self.check_rpms()
+    if not self.interface.cvars['custom-rpms-info']:
+      self.interface.cvars['custom-rpms-info'] = []      
+    self.interface.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
+
   def generate(self):
     "Create additional files."
     for type in self.installinfo.keys():
@@ -155,7 +160,6 @@ class ReleaseRpmHook(RpmBuildHook, ColorMixin):
     "Ensure the presence of RELEASE-NOTES.html and an index.html"
     rnotes = self.build_folder.findpaths(glob='RELEASE-NOTES*')
     if len(rnotes) == 0:
-      self.setColors(prefix='#')
       dir = self.build_folder/'html'
       if not dir.exists():
         dir.mkdirs()

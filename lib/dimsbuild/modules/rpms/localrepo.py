@@ -1,4 +1,4 @@
-from dimsbuild.event     import EVENT_TYPE_META
+from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 from dimsbuild.interface import Repo
 
 from lib import RpmsInterface
@@ -7,56 +7,30 @@ API_VERSION = 4.0
 
 EVENTS = [
   {
-    'id':        'RPMS',
+    'id':        'localrepo',
+    'parent':    'RPMS',
     'interface': 'RpmsInterface',
-    'properties': EVENT_TYPE_META,
-    'requires':  ['repos'],
-    'conditional-requires': ['sources-enabled', 'source-repos'],
+    'properties': EVENT_TYPE_MDLR|EVENT_TYPE_PROC,
+    'requires':   ['logos-rpm',
+                   'config-rpm',
+                   'default-theme-rpm',
+                   'release-rpm',
+                  ], 
   },
 ]
 
 HOOK_MAPPING = {
-  'InitHook'    : 'init',     ## remove once testing is done
-  'ApplyoptHook': 'applyopt', ## remove once testing is done
-  'RpmsHook'    : 'RPMS',
+  'LocalRepoHook': 'localrepo',
 }
 
 #--------- HOOKS ----------#
-class InitHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'meta.init'
-    self.interface = interface
-
-  def run(self):
-    parser = self.interface.getOptParser()
-    parser.add_option('--auto-bump',
-                      default=False,
-                      action='store_true',
-                      metavar=' ',
-                      dest='autobump',
-                      help='increment the release number instead of prompting')
-class ApplyoptHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'meta.applyopt'
-    self.interface = interface
-
-  def run(self):
-    self.interface.cvars['auto-bump-release'] = self.interface.options.autobump
-    
-class RpmsHook:
+class LocalRepoHook:  
   def __init__(self, interface):
     self.VERSION = 1
-    self.ID = 'meta.RPMS'
+    self.ID = 'localrepo.RPMS'
     self.interface = interface
-    
-  def setup(self):
-    self.interface.LOCAL_REPO.mkdirs()
-    self.interface.LOCAL_RPMS.mkdirs()
-    self.interface.LOCAL_SRPMS.mkdirs()
   
-  def post(self):
+  def run(self):
     if self.interface.isSkipped('RPMS'): return
     if not (self.interface.LOCAL_RPMS/'repodata').exists() or \
        not (self.interface.LOCAL_SRPMS/'repodata').exists() or \
@@ -82,6 +56,8 @@ class RpmsHook:
     repofile = self.interface.METADATA_DIR/'localrepo.pkgs'
     
     if repo.compareRepoContents(repofile, what='file'):
+      repo.changed = True
+      self.interface.cvars['input-repos-changed'] = True
       repo.writeRepoContents(repofile)      
     
     if not self.interface.cvars['repos']:

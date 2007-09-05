@@ -1,14 +1,10 @@
-import os
-
 from dims import pps
 from dims import shlib
-from dims import sync
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
-from dimsbuild.misc      import locals_imerge
 
-from lib       import ColorMixin, RpmBuildHook, RpmsInterface
+from lib       import ColorMixin, OutputInvalidError, RpmBuildHook, RpmsInterface
 from rpmlocals import L_LOGOS, GDM_GREETER_THEME, THEME_XML
 
 try:
@@ -38,7 +34,6 @@ HOOK_MAPPING = {
 
 API_VERSION = 4.1
 
-
 #---------- HOOKS -------------#
 class ValidateHook:
   def __init__(self, interface):
@@ -54,46 +49,38 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'logos.logos-rpm'
-    
-    data =  {
+    self.interface = interface
+    self.DATA = {
       'config': ['/distro/rpms/logos-rpm'],
-      'variables': ['fullname',
-                    'product'],
+      'variables': ['fullname', 'product'],
       'output': [],
     }
+    self.mdfile = self.interface.METADATA_DIR/'RPMS/logos-rpm.md'
 
-    packages = interface.config.xpath(
-      '/distro/rpms/logos-rpm/obsoletes/package/text()', []
-    )
-    if interface.config.get('/distro/rpms/logos-rpm/@use-default-set', 'True') \
-           in BOOLEANS_TRUE:
-      packages.extend(['fedora-logos', 'centos-logos', 'redhat-logos'])
-    if packages:
-      obsoletes = ' '.join(packages)
-    else:
-      obsoletes = None
-
-    provides = 'redhat-logos = 4.9.3 system-logos'
-    if obsoletes:
-      provides = provides + ' ' + obsoletes    
-    
-    RpmBuildHook.__init__(self, interface, data, 'logos-rpm',
-                           '%s-logos' % interface.product,
-                           summary='Icons and pictures related to '
-                           '%s' % interface.fullname,
-                           description='The %s-logos package '
-                           'contains image files which have been '
-                           'automatically created by dimsbuild and are '
-                           'specific to the %s distribution.' \
-                           % (interface.product, interface.fullname),
-                           provides=provides,
-                           requires='redhat-artwork',
-                           obsoletes=obsoletes)
-    
+    RpmBuildHook.__init__(self, 'logos-rpm')
     ColorMixin.__init__(self)
 
   def setup(self):
-    RpmBuildHook.setup(self)
+    self.interface.setup_diff(self.mdfile, self.DATA)
+    
+    kwargs = {}
+    kwargs['release'] = self.interface.config.get('/distro/rpms/logos-rpm/release/text()', '0')
+    
+    kwargs['obsoletes'] = ''
+    if self.interface.config.pathexists('/distro/rpms/logos-rpm/obsoletes/package/text()'):
+      kwargs['obsoletes'] += ' '.join(self.interface.config.xpath(
+                             '/distro/rpms/logos-rpm/obsoletes/package/text()'))
+    if self.interface.config.get('/distro/rpms/logos-rpm/@use-default-set', 'True'):
+      kwargs['obsoletes'] += 'fedora-logos centos-logos redhat-logos'
+    kwargs['provides'] = kwargs['obsoletes'] + ' system-logos'
+    self.register('%s-logos' % self.interface.product,
+                  'The %s-logos package contains image files which '\
+                  'have been automatically created by dimsbuild and '\
+                  'are specific to %s.' % (self.interface.product, self.interface.fullname),
+                  'Icons and pictures related to %s' % self.interface.fullname,
+                  fileslocals=L_LOGOS % ((self.interface.product,)*8),
+                  **kwargs)
+    self.add_data()
     
     # set the font to use
     available_fonts = (self.interface.sharepath/'fonts').findpaths(glob='*.ttf')
@@ -101,10 +88,6 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
       self.fontfile = available_fonts[0]
     except IndexError:
       raise RuntimeError("Unable to find any font files in share path '%s'" % self.interface.sharepath)
-    
-    expand = (self.interface.product,)*8
-    self.imageslocal = locals_imerge(L_LOGOS %expand,
-                                     self.interface.cvars['anaconda-version'])
 
     # convert the colors to big endian because the python-imaging
     # library uses big-endian colors.    
@@ -112,39 +95,31 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
     self.bgcolor = int(self.bgcolor, 16)
     self.textcolor = int(self.textcolor, 16)
     self.hlcolor = int(self.hlcolor, 16)
-  
+
+  def run(self):
+    self.interface.remove_output(all=True)
+    if not self.test_build('True'):
+      return
+    self.build_rpm()
+    self.interface.write_metadata()    
+
+  def apply(self):
+    if not self.test_build('True'):
+      return
+    self.check_rpms()
+    if not self.interface.cvars['custom-rpms-info']:
+      self.interface.cvars['custom-rpms-info'] = []      
+    self.interface.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
+    
   def generate(self):
     self._generate_images()
     self._generate_theme_files()
-
-  def _get_data_files(self):
-    items = RpmBuildHook._get_data_files(self)
-    for logoinfo in self.imageslocal.xpath('//logos/logo', []):
-      i,l,_,_,_,_,_,_,_,_ = self._get_image_info(logoinfo)
-
-      file = self.build_folder/i
-      filename = file.basename
-      filedir = file.dirname
-
-      installname = l.basename
-      installdir = l.dirname
-
-      if not file.exists(): continue # FIXME: fail if a file is not found?
-      
-      if filename != installname:
-        newfile = filedir/installname
-        file.link(newfile)
-        i = newfile
-
-      if installdir not in items.keys():
-        items[installdir] = []
-
-      items[installdir].append(i)
-    return items
+    if not self.output_valid():
+      raise OutputInvalidError      
     
   def output_valid(self):
     if self.DATA.has_key('output'):
-      for logoinfo in self.imageslocal.xpath('//logos/logo', []):
+      for logoinfo in self.fileslocals.xpath('//files/file', []):
         i,_,w,h,_,_,_,_,_,_ = self._get_image_info(logoinfo)
         file = self.build_folder/i
         if file.lower().endswith('xpm'):
@@ -177,7 +152,7 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
     f.close()
   
   def _generate_images(self):
-    for logoinfo in self.imageslocal.xpath('//logos/logo', []):
+    for logoinfo in self.fileslocals.xpath('//files/file', []):
       # (id, _, location, width, height, maxwidth, x, y, gradient, highlight)
       i,_,l,b,m,x,y,g,h,f = self._get_image_info(logoinfo)
       sharedfile = self.interface.sharepath/'logos'/i
@@ -191,7 +166,7 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
       if l and b:
         if sharedfile.exists():
           self.interface.log(4, "image '%s' exists in share/" %i)
-          sync.sync(sharedfile, dir) #! fix me
+          self.interface.copy(sharedfile, dir)
         else:
           self.interface.log(4, "creating '%s'" %i)
           if m and x and y:
@@ -211,7 +186,7 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
         # found, they are skipped.
         if sharedfile.exists():
           self.interface.log(4, "file '%s' exists in share/" % i)
-          sync.sync(sharedfile, dir) #! fix me
+          self.interface.copy(sharedfile, dir)
         else:
           # required text file not there in shared/ folder, passing for now          
           # FIXME: raise an exception here?

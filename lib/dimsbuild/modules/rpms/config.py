@@ -36,10 +36,9 @@ class ConfigRpmHook(RpmBuildHook):
   def __init__(self, interface):
     self.VERSION = 0
     self.ID = 'config.config-rpm'
-    
-    self.configdir = P(interface.config.file)
+    self.interface = interface
 
-    data = {
+    self.DATA = {
       'config': [
         '/distro/rpms/config-rpm',
       ],
@@ -47,43 +46,55 @@ class ConfigRpmHook(RpmBuildHook):
       'output': [],
     }
 
+    self.mdfile = self.interface.METADATA_DIR/'RPMS/config-rpm.md'
+
+    RpmBuildHook.__init__(self, 'config-rpm')
+
+  def setup(self):
+    self.interface.setup_diff(self.mdfile, self.DATA)
+
+    kwargs = {}
+    kwargs['release'] = self.interface.config.get('/distro/rpms/config-rpm/release/text()', '0')
+    if self.interface.config.pathexists('/distro/rpms/config-rpm/requires/package/text()'):
+      kwargs['requires'] = ' '.join(self.interface.config.xpath(
+                           '/distro/rpms/config-rpm/requires/package/text()'))
+    if self.interface.config.pathexists('/distro/rpms/config-rpm/obsoletes/package/text()'):    
+      kwargs['obsoletes'] = ' '.join(self.interface.config.xpath(
+                           '/distro/rpms/config-rpm/obsoletes/package/text()'))
+    kwargs['provides'] = kwargs.get('obsoletes', None)
     installinfo = {
       'config' : ('/distro/rpms/config-rpm/config/script/path',
-                  '/usr/lib/%s' % interface.product),
+                  '/usr/lib/%s' % self.interface.product),
       'support': ('/distro/rpms/config-rpm/config/supporting-files/path',
-                  '/usr/lib/%s' % interface.product),
+                  '/usr/lib/%s' % self.interface.product),
     }
+    
+    self.register('%s-config' % self.interface.product,
+                  'The %s-config provides scripts and supporting '\
+                  'files for configuring the %s '\
+                  'distribution.' %(self.interface.product, self.interface.fullname),
+                  '%s configuration script and supporting files' % self.interface.fullname,
+                  installinfo=installinfo,
+                  **kwargs)
+    self.add_data()
+    
+  def run(self):
+    self.interface.remove_output(all=True)
+    if not self.test_build('True'):
+      return
+    self.build_rpm()
+    self.interface.write_metadata()    
 
-    packages = interface.config.xpath(
-      '/distro/rpms/config-rpm/requires/package/text()', []
-    )
-    if packages:
-      requires = ' '.join(packages)
-    else:
-      requires = None
-
-    packages = interface.config.xpath(
-      '/distro/rpms/config-rpm/obsoletes/package/text()', []
-    )
-    if packages:
-      obsoletes = ' '.join(obsoletes)
-    else:
-      obsoletes = None
-
-    RpmBuildHook.__init__(self, interface, data, 'config-rpm',
-                           '%s-config' % interface.product,
-                           summary='%s configuration script and '
-                           'supporting files' % interface.fullname,
-                           description='The %s-config provides scripts '
-                           'and supporting files for configuring the '
-                           '%s distribution' %(interface.product,
-                                               interface.fullname),
-                           installinfo=installinfo,
-                           requires=requires,
-                           obsoletes=obsoletes)
+  def apply(self):
+    if not self.test_build('True'):
+      return
+    self.check_rpms()
+    if not self.interface.cvars['custom-rpms-info']:
+      self.interface.cvars['custom-rpms-info'] = []      
+    self.interface.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
   
-  def test_build(self):
-    if RpmBuildHook.test_build(self):
+  def test_build(self, default):
+    if RpmBuildHook.test_build(self, default):
       if self.interface.config.get('//config-rpm/requires', None) or \
          self.interface.config.get('//config-rpm/obsoletes', None) or \
          self.interface.config.get('//config-rpm/config/script/path/text()', None) or \
@@ -92,7 +103,7 @@ class ConfigRpmHook(RpmBuildHook):
         return True
     return False
   
-  def _get_post_install(self):
+  def getpscript(self):
     script = self.interface.config.get(self.installinfo['config'][0], None)
     if script:
       post_install_scripts = self.output_location.findpaths(glob=P(script).basename)
