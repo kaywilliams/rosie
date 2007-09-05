@@ -28,7 +28,7 @@ EVENTS = [
 ]
 
 HOOK_MAPPING = {
-  'MainHook': 'MAIN',
+  'InitHook': 'init',
 }
 
 
@@ -56,16 +56,15 @@ class ApplyOptInterface(EventInterface):
     self.options = None
 
 
-class MainHook:
+class InitHook:
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'init.MAIN'
-    
+    self.ID = 'init.init'    
     self.interface = interface
   
   def run(self):
     for folder in [self.interface.TEMP_DIR, self.interface.SOFTWARE_STORE,
                    self.interface.METADATA_DIR]:
       if not folder.exists():
-        self.log(2, "Making directory '%s'" % folder)
+        self.interface.log(2, "Making directory '%s'" % folder)
         folder.mkdirs()
