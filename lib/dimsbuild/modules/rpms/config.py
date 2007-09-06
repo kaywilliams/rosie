@@ -99,7 +99,7 @@ class ConfigRpmHook(RpmBuildHook):
          self.interface.config.get('//config-rpm/obsoletes', None) or \
          self.interface.config.get('//config-rpm/config/script/path/text()', None) or \
          self.interface.config.get('//config-rpm/config/supporting-files/path/text()', None) or \
-         (self.interface.SOURCES_DIR/self.id).findpaths():
+         (self.interface.SOURCES_DIR/self.name).findpaths():
         return True
     return False
   

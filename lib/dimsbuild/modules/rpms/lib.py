@@ -273,7 +273,7 @@ class RpmBuildHook(RpmBuildMixin):
   def save_release(self):
     rpms_element    = xmltree.uElement('rpms',    parent=self.interface.config.get('/distro'))
     parent_element  = xmltree.uElement(self.name, parent=rpms_element)
-    release_element = xmltree.uElement('release', parent=parent_element, debug=True)
+    release_element = xmltree.uElement('release', parent=parent_element)
 
     release_element.text = self.release
     self.interface.config.write(self.interface.config.file)
