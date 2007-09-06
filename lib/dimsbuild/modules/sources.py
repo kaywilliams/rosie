@@ -137,7 +137,7 @@ class SourceRepoHook:
   
   def run(self):
     # changing from sources-enabled true, cleanup old files and metadata
-    if self.interface.var_changed_from_true('cvars[\'sources-enabled\']'):
+    if self.interface.var_changed_from_value('cvars[\'sources-enabled\']', True):
       self.clean()
 
     if not self.interface.cvars['sources-enabled']: 
@@ -237,7 +237,7 @@ class SourcesHook:
 
   def run(self):
     # changing from sources-enabled true, cleanup old files and metadata
-    if self.interface.var_changed_from_true('cvars[\'sources-enabled\']'):
+    if self.interface.var_changed_from_value('cvars[\'sources-enabled\']', True):
       self.clean()
 
     if not self.interface.cvars['sources-enabled']: 

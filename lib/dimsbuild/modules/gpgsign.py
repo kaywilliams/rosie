@@ -9,8 +9,8 @@ API_VERSION = 4.0
 EVENTS = [
   {
     'id': 'gpgsign-setup',
-    'provides': ['gpgsign-enabled', 'gpgsign-keys-changed', 
-                 'gpgsign-public-key', 'gpgsign-homedir', 'gpgsign-passphrase'],
+    'provides': ['gpgsign-enabled', 'gpgsign-public-key',  
+                 'gpgsign-homedir', 'gpgsign-passphrase'],
     'interface': 'EventInterface',
     'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
   },
@@ -64,7 +64,7 @@ class GpgSetupHook(GpgMixin):
     self.seckey = self.interface.list_output(what='secret')[0]
   
   def clean(self):
-    self.interface.log(0, "cleaning gpg event")
+    self.interface.log(0, "cleaning gpgsign event")
     self.interface.remove_output(all=True)
     self.interface.clean_metadata()    
   
@@ -75,15 +75,12 @@ class GpgSetupHook(GpgMixin):
     if not self.mdfile.dirname.exists(): self.mdfile.dirname.mkdirs()
     
     # changing from gpgsign-enabled true, cleanup old files and metadata
-    if self.interface.var_changed_from_true('cvars[\'gpgsign-enabled\']'):
+    if self.interface.var_changed_from_value('cvars[\'gpgsign-enabled\']', True):
       self.clean()
     
     if not self.interface.cvars['gpgsign-enabled']:
       self.interface.write_metadata()
       return
-    
-    self.interface.cvars['gpgsign-keys-changed'] = \
-      self.interface.handlers['input'].diffdict
     
     self.interface.log(0, "configuring gpg signing")
     # create a home directory for GPG to use. 
@@ -109,7 +106,8 @@ class GpgSetupHook(GpgMixin):
       self.interface.cvars['gpgsign-homedir']    = self.gnupg_dir
       self.interface.cvars['gpgsign-public-key'] = self.pubkey
       self.interface.cvars['gpgsign-passphrase'] = \
-        self.interface.config.get('/distro/gpgsign/gpgsign-passphrase/text()', None)
+        self.interface.config.get('/distro/gpgsign/gpg-passphrase/text()', None)
+
 
 class ValidateHook:
   def __init__(self, interface):

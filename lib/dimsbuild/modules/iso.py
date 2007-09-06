@@ -133,7 +133,7 @@ class PkgorderHook:
   
   def run(self):
     # changing from iso-enabled true, cleanup old files and metadata
-    if self.interface.var_changed_from_true('cvars[\'iso-enabled\']'):
+    if self.interface.var_changed_from_value('cvars[\'iso-enabled\']', True):
       self.clean()
     
     if not self.interface.cvars['iso-enabled']: 
@@ -217,7 +217,7 @@ class IsoSetsHook:
   
   def run(self):
     # changing from iso-enabled true, cleanup old files and metadata
-    if self.interface.var_changed_from_true('cvars[\'iso-enabled\']'):
+    if self.interface.var_changed_from_value('cvars[\'iso-enabled\']', True):
       self.clean()
     
     if not self.interface.cvars['iso-enabled']: 

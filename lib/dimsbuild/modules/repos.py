@@ -48,7 +48,6 @@ class ReposHook:
     
     self.DATA = {
       'config':    ['/distro/repos/repo'],
-      'variables': [], # filled later
       'input':     [], # filled later
       'output':    [], # filled later
     }
@@ -58,8 +57,7 @@ class ReposHook:
     self.interface.setup_diff(self.mdfile, self.DATA)
 
     self.repos = {}
-    self.gpgkeys = []  # list of gpgkey src,dest tuples
-    self.primaryfiles = [] # list of primary xml files
+    self.primaryfiles = []       # list of primary xml files
 
     for repoxml in self.interface.config.xpath('/distro/repos/repo'):
       # create repo objects
@@ -73,24 +71,7 @@ class ReposHook:
                                 paths=[repo.rjoin(repo.repodata_path,
                                                   'repodata')])
       
-      # populate difftest variables
-      self.DATA['output'].append(repo.pkgsfile)
-      
-      # gpgkey related setup
-      if repo.gpgcheck and not repo.gpgkeys:
-        raise RuntimeError, \
-              "Error: gpgcheck set but no gpgkeys provided for repo '%s'" % repo.id 
-      
-      if repo.gpgcheck and repo.gpgkeys:
-        # add gpgkeys as input/output
-        for gpgkey in repo.gpgkeys:
-          self.gpgkeys.append(gpgkey)
-
-      self.interface.setup_sync(repo.local_path, paths=self.gpgkeys)
-
       self.repos[repo.id] = repo
-  
-    self.DATA['variables'].extend(['gpgkeys'])
 
   def clean(self):
     self.interface.log(0, "cleaning repos event")
@@ -127,23 +108,6 @@ class ReposHook:
         repo.readRepoContents()
         repo.writeRepoContents(repo.pkgsfile)
         self.DATA['output'].append(repo.pkgsfile)
-
-    # process gpg keys
-    if self.gpgkeys:
-
-      # create gpg homedirs
-      self.interface.log(1, "processing gpg keys") 
-      for repo in self.repos.values():
-        self.interface.log(2, repo.id)
-        homedir = repo.ljoin('homedir')
-        if repo.gpgcheck and repo.gpgkeys:
-          for key in repo.gpgkeys:
-            if not homedir.exists(): homedir.mkdirs()
-            execute('gpg --homedir %s --import %s' %(homedir, 
-                                                     repo.ljoin(key.basename)))
-          self.DATA['output'].append(homedir)
-        else:
-          homedir.rm(force=True, recursive=True) 
 
     self.interface.write_metadata()
 

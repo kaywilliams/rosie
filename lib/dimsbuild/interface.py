@@ -166,12 +166,12 @@ class EventInterface:
       self.diffset[name] = (len(self.handlers[name].diff()) > 0)
     return self.diffset[name]
   
-  def var_changed_from_true(self, var):
+  def var_changed_from_value(self, var, value):
     if not self.handlers['variables']:
       raise RuntimeError("No variables metadata handler")
     if self.handlers['variables'].diffdict.has_key(var) and \
        self.handlers['variables'].vars.has_key(var) and \
-       self.handlers['variables'].vars[var]:
+       self.handlers['variables'].vars[var] == value:
       return True
     else:
       return False
@@ -323,8 +323,7 @@ class EventInterface:
         continue
       for s,ds in self.syncinfo[id].items():
         for d in ds:
-          if not d.exists():
-            sync_items.append((s,d))
+          sync_items.append((s,d))
     
     if not sync_items: return
     
@@ -337,7 +336,7 @@ class EventInterface:
       if copy: self.copy(s, d.dirname, link=link)
       else:    self.cache(s, d.dirname, link=link)
       outputs.append(d)
-    return outputs
+    return sorted(outputs)
   
   def list_output(self, what=None):
     """ 
@@ -357,7 +356,7 @@ class EventInterface:
         continue
       for ds in self.syncinfo[id].values():
         rtn.extend(ds)
-    return rtn
+    return sorted(rtn)
 
 
 #------- CLASSES ---------#
