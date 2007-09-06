@@ -5,6 +5,7 @@ from rpmUtils.arch import getArchList
 
 from dims import mkrpm
 from dims import shlib
+from dims import pps
 
 from dims.mkrpm.rpmsign  import getPassphrase, signRpm
 from dimsbuild.constants import RPM_PNVRA
@@ -12,6 +13,8 @@ from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.interface import EventInterface
 
 API_VERSION = 4.1
+
+P = pps.Path
 
 #------ EVENTS ------#
 EVENTS = [
@@ -130,7 +133,10 @@ class SoftwareHook:
       if homedir.exists(): self.homedirs.append(homedir)
       # populate rpms and checksig vars
       for rpminfo in repo.repoinfo:
-        rpm = rpminfo['file']
+        rpm = P(rpminfo['file'])
+        if isinstance(rpm, pps.path.http.HttpPath): #! bad        
+          rpm._update_stat({'st_size':  rpminfo['size'],
+                            'st_mtime': rpminfo['mtime']})
         _,n,v,r,a = self.interface.deformat(rpm)
         nvr = '%s-%s-%s' % (n,v,r)
         if nvr in self.interface.cvars['pkglist'] and a in self._validarchs:

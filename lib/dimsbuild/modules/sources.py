@@ -215,7 +215,10 @@ class SourcesHook:
     paths = []
     for repo in self.interface.getAllSourceRepos():
       for rpminfo in repo.repoinfo:
-        rpmi = rpminfo['file']
+        rpmi = P(rpminfo['file'])
+        if isinstance(rpmi, pps.path.http.HttpPath): #! bad
+          rpmi._update_stat({'st_size':  rpminfo['size'],
+                             'st_mtime': rpminfo['mtime']})
         _,n,v,r,a = self.interface.deformat(rpmi)
         ## assuming the rpm file name to be lower-case 'rpm' suffixed        
         nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a) 
