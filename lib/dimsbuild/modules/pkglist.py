@@ -157,7 +157,7 @@ class PkglistHook:
       for rddir in self.rddirs:
         for file in self.interface.handlers['input'].diffdict.keys():
           if file.startswith(rddir):
-            rddirs_changed = True
+            rddir_changed = True
             break
  
       if rddir_changed: 
