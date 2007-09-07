@@ -214,7 +214,7 @@ class EventInterface:
         src = P(s)
         dst = dst / d.lstrip('/')
         inputs.append(src)
-        outputs.extend(self._setup_sync(src, dst, id or x))
+        outputs.append(self._setup_sync(src, dst, id or x))
     
     for s in paths:
       assert isinstance(s, str)
@@ -222,29 +222,22 @@ class EventInterface:
         s = iprefix / s
       src = P(s)
       inputs.append(src)
-      outputs.extend(self._setup_sync(src, dst, id or s))
+      outputs.append(self._setup_sync(src, dst, id or s))
     
     return inputs, outputs
   
   def _setup_sync(self, sourcefile, dstdir, id):
-    rtn = []
-    
-    self.handlers['input'].idata.append(sourcefile)
-    
     if not sourcefile.exists():
       raise IOError("missing input file(s) %s" % sourcefile)
-    
-    for f in sourcefile.findpaths(type=pps.constants.TYPE_NOT_DIR):
-      if not self.syncinfo.has_key(id):
-        self.syncinfo[id] = {}
-      if not self.syncinfo[id].has_key(f):
-        self.syncinfo[id][f] = []
-      ofile = dstdir / f.tokens[len(sourcefile.tokens)-1:]
-      self.syncinfo[id][f].append(ofile)
-      rtn.append(ofile)
-      
-      self.handlers['output'].odata.append(ofile)
-    return rtn
+    self.handlers['input'].idata.append(sourcefile)
+    if not self.syncinfo.has_key(id):
+      self.syncinfo[id] = {}
+    if not self.syncinfo[id].has_key(sourcefile):
+      self.syncinfo[id][sourcefile] = []
+    ofile = dstdir / sourcefile.basename
+    self.syncinfo[id][sourcefile].append(ofile)
+    self.handlers['output'].odata.append(ofile)
+    return ofile
   
   def remove_output(self, rmlist=None, all=False, cb=None):
     """ 

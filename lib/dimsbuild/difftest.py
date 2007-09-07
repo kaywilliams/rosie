@@ -211,8 +211,6 @@ class InputHandler:
     self.idata = data
     self.oldinput = {} # {file: stats}
     self.newinput = {} # {file: stats}
-
-    self.filelists = {} # {path: expanded list}
     self.diffdict = {}  # {file: (old stats, new stats)}
 
     expand(self.idata)
@@ -230,19 +228,16 @@ class InputHandler:
     except TypeError: pass
     parent = xmltree.Element('input', parent=root)
     for datum in self.idata:
-      for ifile in self.filelists.get(datum,
-         P(datum).findpaths(type=pps.constants.TYPE_NOT_DIR)):
+      for ifile in P(datum).findpaths(type=pps.constants.TYPE_NOT_DIR):
         size, mtime = self.newinput.get(ifile, DiffTuple(ifile))
         e = xmltree.Element('file', parent=parent, attrs={'path': ifile})
         xmltree.Element('size', parent=e, text=str(size))
         xmltree.Element('mtime', parent=e, text=str(mtime))
     
   def diff(self):
+    self.newinput = {}
     for datum in self.idata:
-      if not self.filelists.has_key(datum):
-        self.filelists[datum] = P(datum).findpaths(type=pps.constants.TYPE_NOT_DIR)
-      ifiles = self.filelists[datum]
-      for ifile in ifiles:
+      for ifile in P(datum).findpaths(type=pps.constants.TYPE_NOT_DIR):
         self.newinput[ifile] = DiffTuple(ifile)
     self.diffdict = diff(self.oldinput, self.newinput)    
     if self.diffdict: self.dprint('input: %s' % self.diffdict)

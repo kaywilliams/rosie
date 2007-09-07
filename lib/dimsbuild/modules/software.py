@@ -1,5 +1,6 @@
-import re
 import os
+import re
+import stat
 
 from rpmUtils.arch import getArchList
 
@@ -89,20 +90,20 @@ class SoftwareDownloadHook:
     for repo in self.interface.getAllRepos():
       self.repokeys.extend(repo.gpgkeys)
       for rpminfo in repo.repoinfo:
-        rpm = P(rpminfo['file'])
-        if isinstance(rpm, pps.path.http.HttpPath): #! bad        
-          rpm._update_stat({'st_size':  rpminfo['size'],
-                            'st_mtime': rpminfo['mtime']})
+        rpm = rpminfo['file']
         _,n,v,r,a = self.deformat(rpm)
         nvr = '%s-%s-%s' % (n,v,r)
         if nvr in self.interface.cvars['pkglist'] and a in self._validarchs:
+          rpm = P(rpminfo['file'])
+          if isinstance(rpm, pps.path.http.HttpPath): #! bad        
+            rpm._update_stat({'st_size':  rpminfo['size'],
+                              'st_mtime': rpminfo['mtime'],
+                              'st_mode':  stat.S_IFREG})
           paths.append(rpm)
           if repo.gpgcheck:
             self.interface.check.add(self.download_dest/rpm.basename) 
-    
     self.interface.setup_sync(self.download_dest, paths=paths, id='rpms')
-    self.interface.setup_sync(self.mddir, paths=self.repokeys, id='repokeys')
-    
+    self.interface.setup_sync(self.mddir, paths=self.repokeys, id='repokeys')    
     self.DATA['variables'].append('check')
   
   def clean(self):

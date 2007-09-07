@@ -7,6 +7,7 @@ downloads srpms
 import os
 import re
 import rpm
+import stat
 
 from dims import pps
 from dims import shlib 
@@ -215,14 +216,16 @@ class SourcesHook:
     paths = []
     for repo in self.interface.getAllSourceRepos():
       for rpminfo in repo.repoinfo:
-        rpmi = P(rpminfo['file'])
-        if isinstance(rpmi, pps.path.http.HttpPath): #! bad
-          rpmi._update_stat({'st_size':  rpminfo['size'],
-                             'st_mtime': rpminfo['mtime']})
+        rpmi = rpminfo['file']
         _,n,v,r,a = self.interface.deformat(rpmi)
         ## assuming the rpm file name to be lower-case 'rpm' suffixed        
         nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a) 
         if nvra in srpmset:
+          rpmi = P(rpminfo['file'])
+          if isinstance(rpmi, pps.path.http.HttpPath): #! bad
+            rpmi._update_stat({'st_size':  rpminfo['size'],
+                               'st_mtime': rpminfo['mtime'],
+                               'st_mode':  stat.S_IFREG})
           paths.append(rpmi)
 
     self.interface.setup_sync(self.interface.srpmdest, paths=paths, id='srpms')
