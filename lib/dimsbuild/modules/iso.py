@@ -27,7 +27,7 @@ EVENTS = [
     'id': 'pkgorder',
     'interface': 'IsoInterface',
     'properties': EVENT_TYPE_MDLR|EVENT_TYPE_PROC,
-    'requires': ['pkglist'],
+    'requires': ['repodata-directory'],
     'provides': ['pkgorder-file'],
     'parent': 'ISO',
   },
@@ -99,11 +99,13 @@ class PkgorderHook:
     self.ID = 'iso.iso'
     
     self.interface = interface
+
+    print self.interface.cvars['repodata-directory']
     
     self.DATA =  {
-      'variables': ['cvars[\'iso-enabled\']',
-                    'cvars[\'pkglist\']'],
+      'variables': ['cvars[\'iso-enabled\']'],
       'config':    ['/distro/iso/pkgorder'],
+      'input':     [],
       'output':    []
     }
     self.mdfile = self.interface.ISO_METADATA_DIR/'pkgorder.md'
@@ -114,6 +116,8 @@ class PkgorderHook:
   def setup(self):
     self.interface.setup_diff(self.mdfile, self.DATA)
     if not self.interface.cvars['iso-enabled']: return
+
+    self.DATA['input'].append(self.interface.cvars['repodata-directory'])
     
     if self.dosync:
       self.interface.setup_sync(self.interface.ISO_METADATA_DIR, id='pkgorder',
@@ -152,7 +156,7 @@ class PkgorderHook:
       
       # create yum config needed by pkgorder
       cfg = self.interface.TEMP_DIR/'pkgorder'
-      repoid = self.interface.getBaseRepoId()
+      repoid = self.interface.pva
       filereader.write([YUMCONF % (repoid, repoid, self.interface.SOFTWARE_STORE)], cfg)
       
       # create pkgorder

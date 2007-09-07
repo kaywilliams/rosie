@@ -24,7 +24,8 @@ EVENTS = [
     'id':        'SOFTWARE',
     'properties': EVENT_TYPE_META,
     'provides': ['software',                 # complete software repository
-                 'rpms-directory',           # directory where rpms can be located
+                 'rpms-directory',           # rpm folder location
+                 'repodata-directory',       # repodata folder location
                  'rpms']                     # list of rpms in sofware repo
   },
   {
@@ -44,10 +45,12 @@ EVENTS = [
                  'gpgsign-passphrase'        # for signing rpms
                  ],
     'conditional-requires': ['comps-file'],  # for createrepo
-    'provides': ['gpgsign-passphrase',       # if passphrase was not set previously
-                                             # software-sign prompts and sets global var
+    'provides': ['gpgsign-passphrase',       # if passphrase not set previously,
+                                             # prompts and sets global var
                  'rpms'                      # list of rpms in software repo
-                 'rpms-directory',           # directory where rpms can be located
+                 'rpms-directory',           # rpms folder location
+                 'repodata-directory',       # repodata folder location;
+                                             # used by pkgorder
                  'software'],                # complete software repository
                  
     'parent':    'SOFTWARE',
@@ -269,6 +272,7 @@ class SoftwareCreaterepoHook:
   def apply(self):
     self.rpmdest.mkdirs()
     self.interface.cvars['rpms-directory'] = self.rpmdest
+    self.interface.cvars['repodata-directory'] = self.interface.SOFTWARE_STORE/'repodata'
     self.interface.cvars['rpms'] = self.interface.list_output(what=['rpms'])
 
   def error(self, e):
