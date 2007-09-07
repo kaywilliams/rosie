@@ -32,6 +32,7 @@ class DiskbootHook(ImageModifyMixin):
 
     self.DATA = {
       'variables': ['cvars[\'anaconda-version\']'],
+      'config':    ['/distro/installer/diskboot.img'],
       'input':     [],
       'output':    [],
     }
