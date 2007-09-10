@@ -112,7 +112,7 @@ EVENT_TYPE_META = 01111
 
 
 #------ CLASSES ------#
-class Event(resolve.Item, tree.Node):
+class Event(resolve.Item, tree.NodeMixin):
   """ 
   An object representing an event in program execution
   
@@ -147,9 +147,10 @@ class Event(resolve.Item, tree.Node):
     # implicitly include event name in provides list
     if name not in provides: provides.append(name)
     
+    self.id = name
     resolve.Item.__init__(self, provides, requires,
                           conditional_requires=conditional_requires)
-    tree.Node.__init__(self, name)
+    tree.NodeMixin.__init__(self)
     
     self.properties = properties
     self.interfaceid = interface
