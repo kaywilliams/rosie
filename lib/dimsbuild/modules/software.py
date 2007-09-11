@@ -8,8 +8,6 @@ from dims import mkrpm
 from dims import shlib
 from dims import pps
 
-from dims.shlib          import execute
-from dims.mkrpm.rpmsign  import getPassphrase, signRpm
 from dimsbuild.constants import RPM_PNVRA
 from dimsbuild.event     import EVENT_TYPE_META, EVENT_TYPE_PROC, EVENT_TYPE_MDLR
 from dimsbuild.interface import EventInterface
@@ -216,7 +214,7 @@ class SoftwareHook:
     homedir.rm(force=True, recursive=True)
     homedir.mkdirs()
     for key in self.interface.list_output(what='repokeys'):
-      execute('gpg --homedir %s --import %s' %(homedir,key))      
+      shlib.execute('gpg --homedir %s --import %s' %(homedir,key))      
     
     # check rpms
     invalids = []
@@ -224,15 +222,15 @@ class SoftwareHook:
     for rpm in new_rpms_to_check:
       try:
         self.interface._base.log.write(2, rpm.basename, 40)
-        mkrpm.rpmsign.verifyRpm(rpm, homedir=homedir, force=True)
+        mkrpm.VerifyRpm(rpm, homedir=homedir, force=True)
         self.interface.log(None, "OK")
-      except mkrpm.rpmsign.SignatureInvalidException:
+      except mkrpm.RpmSignatureInvalidError:
         self.interface.log(None, "INVALID")
         invalids.append(rpm.basename)
       
     if invalids:
-      raise RpmSignatureInvalidError, "One or more RPMS failed "\
-                                      "GPG key checking: %s" % invalids
+      raise RpmSignatureInvalidError("One or more RPMS failed "\
+                                     "GPG key checking: %s" % invalids)
 
   def _sign_rpms(self):
     homedir_changed = False
@@ -250,14 +248,14 @@ class SoftwareHook:
     if rpms_to_sign:
       self.interface.log(1, "signing rpms")
       if not self.interface.cvars['gpgsign-passphrase']:
-        self.interface.cvars['gpgsign-passphrase'] = getPassphrase()
-      for r in rpms_to_sign:
-        self.interface.log(2, r.basename)
-        mkrpm.rpmsign.signRpm(r, 
-                              homedir=self.interface.cvars['gpgsign-homedir'],
-                              passphrase=self.interface.cvars['gpgsign-passphrase'])
-  
+        self.interface.cvars['gpgsign-passphrase'] = mkrpm.getPassphrase()
+      for rpm_to_sign in rpms_to_sign:
+        self.interface.log(2, rpm_to_sign.basename)        
+        mkrpm.SignRpm(rpm_to_sign, 
+                      homedir=self.interface.cvars['gpgsign-homedir'],
+                      passphrase=self.interface.cvars['gpgsign-passphrase'])
 
+        
 class CreateRepoHook:
   def __init__(self, interface):
     self.VERSION = 0

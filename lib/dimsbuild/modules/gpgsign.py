@@ -1,4 +1,4 @@
-from dims.mkrpm.rpmsign import GpgMixin
+from dims.mkrpm import GpgMixin
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
@@ -91,8 +91,8 @@ class GpgSetupHook(GpgMixin):
     self.interface.sync_input()
     
     # import keys
-    self.importKey(self.gnupg_dir, self.pubkey)
-    self.importKey(self.gnupg_dir, self.seckey)
+    self.import_key(self.gnupg_dir, self.pubkey)
+    self.import_key(self.gnupg_dir, self.seckey)
     
     # don't leave secret key lying around
     self.seckey.remove()
