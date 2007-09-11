@@ -30,14 +30,25 @@ EVENTS = [
 HOOK_MAPPING = {
   'IsolinuxHook': 'isolinux',
   'InitrdHook':   'initrd-image',
+  'ValidateHook': 'validate',
 }
 
 
 #------ HOOKS ------#
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'installer.isolinux.validate'
+
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('/distro/installer/isolinux', schemafile='isolinux.rng')
+
 class IsolinuxHook(FileDownloadMixin):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'installer.bootiso.isolinux'
+    self.ID = 'installer.isolinux.isolinux'
     
     self.interface = interface
     
@@ -100,7 +111,7 @@ class IsolinuxHook(FileDownloadMixin):
 class InitrdHook(ImageModifyMixin):
   def __init__(self, interface):
     self.VERSION = 0
-    self.ID = 'installer.bootiso.initrd'
+    self.ID = 'installer.isolinux.initrd'
     
     self.interface = interface
     

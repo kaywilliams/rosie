@@ -20,9 +20,20 @@ EVENTS = [
 
 HOOK_MAPPING = {
   'DiskbootHook': 'diskboot-image',
+  'ValidateHook': 'validate',
 }
 
 #------ HOOKS ------#
+class ValidateHook:
+  def __init__(self, interface):
+    self.VERSION = 0
+    self.ID = 'installer.diskboot.validate'
+
+    self.interface = interface
+
+  def run(self):
+    self.interface.validate('/distro/installer/diskboot.img', schemafile='diskboot.rng')
+
 class DiskbootHook(ImageModifyMixin):
   def __init__(self, interface):
     self.VERSION = 0

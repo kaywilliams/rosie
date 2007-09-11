@@ -1,32 +1,16 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0" 
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <!-- DOCBOOK ENTRY -->
-    <refentry xmlns="">
-      <refsect1>
-        <title>XEN</title>
-        <para>information about the xen element</para>
-      </refsect1>
-    </refentry>
-    
-    <!-- ELEMENT CONTENTS -->
     <element name="distro">
       <optional>
         <element name="initrd.img">
           <oneOrMore>
-            <ref name="element-path"/>
+            <ref name="element-path-with-dest"/>
           </oneOrMore>
         </element>
       </optional>
     </element>
   </start>
   
-  <define name="element-path">
-    <element name="path">
-      <optional>
-        <attribute name="dest"/>
-      </optional>
-      <text/>
-    </element>
-  </define>
+  <include href="lib.rng"/>
 </grammar>
