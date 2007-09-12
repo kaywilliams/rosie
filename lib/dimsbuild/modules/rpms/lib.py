@@ -163,7 +163,7 @@ class RpmBuildMixin:
     sources = {}
     if self.srcdir.exists():
       for file in self.srcdir.findpaths(type=pps.constants.TYPE_NOT_DIR):
-        dir = file.dirname
+        dir = file.tokens[len(self.srcdir.tokens):].dirname
         if not dir.isabs():          dir = P('/'+dir)
         if not sources.has_key(dir): sources[dir] = []
         sources[dir].append(file)
