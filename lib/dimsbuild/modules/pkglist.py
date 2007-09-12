@@ -167,7 +167,7 @@ class PkglistHook:
       conf.extend([
         '[%s]' % repo.id,
         'name = %s' % repo.id,
-        'baseurl = file://%s' % repo.local_path,
+        'baseurl = file://%s' % repo.ljoin(repo.repodata_path),
         '\n',
       ])
     filereader.write(conf, repoconfig)
