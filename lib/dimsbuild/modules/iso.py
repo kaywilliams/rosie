@@ -99,9 +99,7 @@ class PkgorderHook:
     self.ID = 'iso.iso'
     
     self.interface = interface
-
-    print self.interface.cvars['repodata-directory']
-    
+   
     self.DATA =  {
       'variables': ['cvars[\'iso-enabled\']'],
       'config':    ['/distro/iso/pkgorder'],
