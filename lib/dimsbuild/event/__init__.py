@@ -4,9 +4,9 @@ import traceback
 from dims import dispatch
 from dims import sync
 
-from diff     import DiffMixin
-from fileio   import IOMixin
-from validate import ValidateMixin
+from dimsbuild.event.diff     import DiffMixin
+from dimsbuild.event.fileio   import IOMixin
+from dimsbuild.event.validate import ValidateMixin
 
 class Event(dispatch.Event, IOMixin, DiffMixin, ValidateMixin):
   def __init__(self, id, version=0, *args, **kwargs):
