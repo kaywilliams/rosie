@@ -40,17 +40,10 @@ class RpmBuildEvent(Event):
            self.test_diffs()
   
   def add_data(self):
+    # input added here 
+    # output added in build_rpm, after release number is calculated
     if self.srcdir.exists():
       self.DATA['input'].append(self.srcdir)
-    
-    # add output files
-    self.DATA['output'].extend([
-      self.build_folder,
-      self.LOCAL_RPMS/ \
-           ('%s-%s-%s.%s.rpm' % (self.rpmname, self.version, self.release, self.arch)),
-      self.LOCAL_SRPMS/ \
-           ('%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release))
-    ])      
   
   def build_rpm(self):
     self.log(0, "building %s rpm" % self.rpmname)
@@ -58,6 +51,7 @@ class RpmBuildEvent(Event):
     self.log(1, "release number: %s" % self.release)
     self.build()
     self.save_release()
+    self.add_output()
   
   def save_release(self):
     rpms_element    = xmltree.uElement('rpms',    parent=self.config.get('/distro'))
@@ -66,7 +60,16 @@ class RpmBuildEvent(Event):
     
     release_element.text = self.release
     self.config.write(self.config.file)
-  
+
+  def add_output(self):
+    self.DATA['output'].extend([
+      self.build_folder,
+      self.LOCAL_RPMS/ \
+           ('%s-%s-%s.%s.rpm' % (self.rpmname, self.version, self.release, self.arch)),
+      self.LOCAL_SRPMS/ \
+           ('%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release))
+    ])    
+
   def check_release(self):
     if not self.mdfile.exists() or \
        self.has_changed('input') or \
