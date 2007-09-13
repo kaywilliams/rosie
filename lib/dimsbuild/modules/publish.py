@@ -29,7 +29,8 @@ class RepoFileEvent(Event):
     
     self.DATA =  {
       'config':    ['/distro/publish'],
-      'variables': ['cvars[\'gpgsign-public-key\']'],
+      'variables': ['cvars[\'gpgsign-public-key\']',
+                    'product'],
       'output':    [self.repofile]
     }
     self.mdfile = self.get_mdfile()
@@ -86,7 +87,7 @@ class RepoFileEvent(Event):
       rc.createRepoFile()
     
     self.write_metadata()
-  
+
   def _getIpAddress(self, ifname='eth0'):
     # TODO - improve this, its not particularly accurate in some cases
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
