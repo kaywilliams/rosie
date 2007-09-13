@@ -102,6 +102,9 @@ class SoftwareEvent(Event, RepoMixin):
     self.log(0, "creating software repository")
     if not self.mddir.exists(): self.mddir.mkdirs()
 
+    # remove old output
+    self.remove_output()
+
     # sync rpms to builddata folder
     self.log(1, "caching rpms")
     self.newrpms = self.sync_input(what='cached', link=True)
@@ -110,13 +113,11 @@ class SoftwareEvent(Event, RepoMixin):
     if self.rpms_to_check:    
       self._gpgcheck_rpms()
 
-    # remove outdated rpms from output folder
+    # clean output folder if signing disabled
     if self.var_changed_from_value('cvars[\'gpgsign-enabled\']', True): 
       self.log(1, "removing prior signed rpms")
       self.output_dest.rm(recursive=True, force=True)
-    else:
-      self.remove_output()
-    
+
     # sync rpms to output folder
     self.log(1, "copying from shared cache")
     newrpms = self.sync_input(copy=True, what='output')
