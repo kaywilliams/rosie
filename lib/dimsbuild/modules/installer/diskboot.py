@@ -1,46 +1,21 @@
 from dims import filereader
 
-from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event import Event
 from dimsbuild.misc  import locals_imerge
 
-from lib import ImageModifyMixin
+from dimsbuild.modules.installer.lib import ImageModifyMixin
 
-API_VERSION = 4.1
+API_VERSION = 5.0
 
-EVENTS = [
-  {
-    'id': 'diskboot-image',
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['diskboot.img'],
-    'requires': ['initrd-file', 'buildstamp-file'],
-    'conditional-requires': ['installer-splash', 'isolinux-changed'],
-    'parent': 'INSTALLER',
-  },
-]
-
-HOOK_MAPPING = {
-  'DiskbootHook': 'diskboot-image',
-  'ValidateHook': 'validate',
-}
-
-#------ HOOKS ------#
-class ValidateHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.diskboot.validate'
-
-    self.interface = interface
-
-  def run(self):
-    self.interface.validate('/distro/installer/diskboot.img', schemafile='diskboot.rng')
-
-class DiskbootHook(ImageModifyMixin):
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.diskboot.diskboot-image'
-    
-    self.interface = interface
-
+class DiskbootImageEvent(Event, ImageModifyMixin):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'diskboot-image',
+      provides = ['diskboot.img'],
+      requires = ['initrd-file', 'buildstamp-file'],
+      conditionally_requires = ['installer-splash', 'isolinux-changed'],
+    )
+     
     self.DATA = {
       'variables': ['cvars[\'anaconda-version\']'],
       'config':    ['/distro/installer/diskboot.img'],
@@ -48,56 +23,58 @@ class DiskbootHook(ImageModifyMixin):
       'output':    [],
     }
     
-    ImageModifyMixin.__init__(self, 'diskboot.img', interface, self.DATA)
+    self.mdfile = self.get_mdfile()
     
-  def error(self, e):
+    ImageModifyMixin.__init__(self, 'diskboot.img')
+  
+  def _error(self, e):
     try:
       self.close()
     except:
       pass
   
-  def setup(self):
-    ImageModifyMixin.setup(self)
+  def _setup(self):
+    ImageModifyMixin._setup(self)
     self.register_image_locals(L_IMAGES)
 
     self.DATA['input'].extend([
-      self.interface.cvars['installer-splash'],
-      self.interface.cvars['initrd-file'],        
+      self.cvars['installer-splash'],
+      self.cvars['initrd-file'],        
     ])
 
-  def clean(self):
-    self.interface.log(0, "cleaning diskboot-image event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
+  def _clean(self):
+    self.log(0, "cleaning diskboot-image event")
+    self.remove_output(all=True)
+    self.clean_metadata()
   
-  def check(self):
-    return self.interface.cvars['isolinux-changed'] or \
+  def _check(self):
+    return self.cvars['isolinux-changed'] or \
            not self.validate_image() or \
-           self.interface.test_diffs()
+           self.test_diffs()
   
-  def run(self):
-    self.interface.log(0, "preparing diskboot image")
-    self.interface.remove_output()
+  def _run(self):
+    self.log(0, "preparing diskboot image")
+    self.remove_output()
     self.modify()
   
-  def apply(self):
-    for file in self.interface.list_output():
+  def _apply(self):
+    for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
 
   def generate(self):
     ImageModifyMixin.generate(self)
-    self.image.write(self.interface.cvars['installer-splash'], '/')
-    self.image.write(self.interface.cvars['initrd-file'], '/')
-    bootargs = self.interface.config.get('/distro/installer/diskboot.img/boot-args/text()', None)
+    self.image.write(self.cvars['installer-splash'], '/')
+    self.image.write(self.cvars['initrd-file'], '/')
+    bootargs = self.config.get('/distro/installer/diskboot.img/boot-args/text()', None)
     if bootargs:      
       if not 'syslinux.cfg' in self.image.list():
         raise RuntimeError("syslinux.cfg not found in the diskboot.img")
-      wcopy = self.interface.TEMP_DIR/'syslinux.cfg'
+      wcopy = self.TEMP_DIR/'syslinux.cfg'
       if wcopy.exists():
         wcopy.remove()
       
-      self.image.read('syslinux.cfg', self.interface.TEMP_DIR)
+      self.image.read('syslinux.cfg', self.TEMP_DIR)
       lines = filereader.read(wcopy)
       for i, line in enumerate(lines):
         if line.strip().startswith('append'):
@@ -109,6 +86,8 @@ class DiskbootHook(ImageModifyMixin):
       filereader.write(lines, wcopy)
       self.image.write(wcopy, '/')
       wcopy.remove()
+
+EVENTS = {'INSTALLER': [DiskbootImageEvent]}
 
 #------ LOCALS ------#
 L_IMAGES = ''' 

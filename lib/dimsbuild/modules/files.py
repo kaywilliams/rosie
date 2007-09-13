@@ -4,66 +4,48 @@ files.py
 Includes user-provided files and folders within the distribution folder.
 """
 
-from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event import Event
 
-API_VERSION = 4.0
+API_VERSION = 5.0
 
-#------ EVENTS ------#
-EVENTS = [
-  {
-    'id': 'files',
-    'parent': 'MAIN',
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-  },
-]
 
-HOOK_MAPPING = {
-  'FilesHook': 'files',
-  'ValidateHook': 'validate',
-}
-
-#------ HOOKS ------#
-class ValidateHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'files.validate'
-    self.interface = interface
-  
-  def run(self):
-    self.interface.validate('/distro/files', 'files.rng')
-
-class FilesHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'files.files'    
-    self.interface = interface
-
+class FilesEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'files',
+    )
+    
     self.DATA =  {
       'config': ['/distro/files'],
       'input':  [],
       'output': [],
     }
-    self.mdfile = self.interface.METADATA_DIR/'files.md'
+    self.mdfile = self.get_mdfile()
   
-  def setup(self):
-    self.interface.setup_diff(self.mdfile, self.DATA)
-    self.interface.setup_sync(self.interface.SOFTWARE_STORE,
-                              xpaths=['/distro/files/path'])
+  def _validate(self):
+    self.validate('/distro/files', 'files.rng')
   
-  def clean(self):
-    self.interface.log(0, "cleaning files event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
+  def _setup(self):
+    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_sync(self.SOFTWARE_STORE,
+                    xpaths=['/distro/files/path'])
   
-  def check(self):
-    return self.interface.test_diffs()
+  def _clean(self):
+    self.log(0, "cleaning files event")
+    self.remove_output(all=True)
+    self.clean_metadata()
   
-  def run(self):
-    self.interface.log(0, "processing user-provided files")
+  def _check(self):
+    return self.test_diffs()
+  
+  def _run(self):
+    self.log(0, "processing user-provided files")
     # delete altered files
-    self.interface.remove_output()
+    self.remove_output()
           
     # download input files
-    self.interface.sync_input()
+    self.sync_input()
     
-    self.interface.write_metadata()
+    self.write_metadata()
+
+EVENTS = {'MAIN': [FilesEvent]}

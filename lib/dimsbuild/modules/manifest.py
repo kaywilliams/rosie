@@ -1,65 +1,45 @@
-""" 
-manifest.py
-
-Provides information about files included in the distribution.  
-"""
-
 import csv
 
-from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event import Event
 
-API_VERSION = 4.1
-
-EVENTS = [
-  {
-    'id': 'manifest',
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['manifest-changed'],
-    'conditional-requires': ['MAIN'],
-    'parent': 'ALL',
-  },
-]
-
-HOOK_MAPPING = {
-  'ManifestHook': 'manifest',
-}
+API_VERSION = 5.0
 
 FIELDS = ['file', 'size', 'mtime']
 
-#------ HOOKS ------#
-class ManifestHook:
-  def __init__(self, interface):
-    self.VERSION = 2
-    self.ID = 'manifest'
+class ManifestEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'manifest',
+      provides = ['manifest-changed'],
+      comes_after = ['MAIN'],
+    )
     
-    self.interface = interface
-    
-    self.mfile = self.interface.SOFTWARE_STORE/'.manifest'
+    self.mfile = self.SOFTWARE_STORE/'.manifest'
     
     self.DATA =  {
       'input':  [],
       'output': [self.mfile],
     }
-    self.mdfile = self.interface.METADATA_DIR/'manifest.md'
+    
+    self.mdfile = self.get_mdfile()
   
-  def setup(self):
+  def _setup(self):
     self.filesdata = [ i for i in \
-                       self.interface.SOFTWARE_STORE.findpaths() \
+                       self.SOFTWARE_STORE.findpaths() \
                        if i != self.mfile and not i.isdir() ]
     self.DATA['input'].extend(self.filesdata)
-    self.interface.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.mdfile, self.DATA)
   
-  def check(self):
-    return self.interface.test_diffs()
+  def _check(self):
+    return self.test_diffs()
   
-  def clean(self):
-    self.interface.log(0, "cleaning manifest event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
   
-  def run(self):
-    self.interface.log(0, "generating manifest")
-    self.interface.remove_output(all=True)
+  def _run(self):
+    self.log(0, "generating manifest")
+    self.remove_output(all=True)
     
     # set manifest data
     manifest = []
@@ -67,7 +47,7 @@ class ManifestHook:
       if i not in self.DATA['output']:
         st = i.stat()
         manifest.append({
-          'file':  i[len(self.interface.SOFTWARE_STORE)+1:],
+          'file':  i[len(self.SOFTWARE_STORE)+1:],
           'size':  st.st_size,
           'mtime': st.st_mtime,
         })
@@ -82,7 +62,10 @@ class ManifestHook:
     mf.close()
     
     # set global variable
-    self.interface.cvars['manifest-changed'] = True
+    self.cvars['manifest-changed'] = True
     
     # update metadata
-    self.interface.write_metadata()
+    self.write_metadata()
+
+
+EVENTS = {'ALL': [ManifestEvent]}

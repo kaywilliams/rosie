@@ -6,26 +6,9 @@ from dims import xmltree
 
 from dims.configlib import ConfigError
 
-from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MARK, EVENT_TYPE_MDLR
+from dimsbuild.event import Event, RepoMixin #!
 
-API_VERSION = 4.0
-
-EVENTS = [
-  {
-    'id': 'comps',
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['comps-file', 'required-packages', 'user-required-packages'],
-    'requires': ['anaconda-version', 'local-repodata'],
-    'conditional-requires': ['RPMS'],
-  },
-]
-
-HOOK_MAPPING = {
-#  'InitHook':     'init',
-#  'ApplyoptHook': 'applyopt',
-  'CompsHook':    'comps',
-  'ValidateHook': 'validate',
-}
+API_VERSION = 5.0
 
 HEADER_FORMAT = '<?xml version=\'%s\' encoding=\'%s\'?>'
 
@@ -35,22 +18,14 @@ KERNELS = ['kernel', 'kernel-smp', 'kernel-zen', 'kernel-zen0',
            'kernel-BOOT']
 
 
-#------ HOOKS ------#
-class ValidateHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'comps.validate'
-    self.interface = interface
-
-  def run(self):
-    self.interface.validate('/distro/comps', schemafile='comps.rng')
-  
-class CompsHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'comps.comps'
-    
-    self.interface = interface
+class CompsEvent(Event, RepoMixin):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'comps',
+      provides = ['comps-file', 'required-packages', 'user-required-packages'],
+      requires = ['anaconda-version', 'local-repodata'],
+      conditionally_requires = ['RPMS'],
+    )
     
     self.comps = Element('comps')
     self.header = HEADER_FORMAT % ('1.0', 'UTF-8')
@@ -61,83 +36,84 @@ class CompsHook:
       'input':     [],
       'output':    []
     }
-    self.mddir = self.interface.METADATA_DIR/'comps'
-    self.mdfile = self.mddir/'comps.md'
+    
+    self.mdfile = self.get_mdfile()
+    self.mddir = self.mdfile.dirname
   
-  def setup(self):
-    self.interface.setup_diff(self.mdfile, self.DATA)
+  def _validate(self):
+    self.validate('/distro/comps', 'comps.rng')
+  
+  def _setup(self):
+    self.setup_diff(self.mdfile, self.DATA)
 
-    self.comps_supplied = self.interface.config.get(
-                          '/distro/comps/use-existing/path/text()', None)
+    self.comps_supplied = \
+      self.config.get('/distro/comps/use-existing/path/text()', None)
 
     if self.comps_supplied: 
       xpath = '/distro/comps/use-existing/path'
 
-      self.interface.setup_sync(self.mddir, id='comps.xml',
-                                xpaths=[xpath])
+      self.setup_sync(self.mddir, id='comps.xml', xpaths=[xpath])
 
       # ensure exactly only one item returned above
-      if len(self.interface.list_output(what='comps.xml')) != 1: 
+      if len(self.list_output(what='comps.xml')) != 1: 
         raise RuntimeError, "The path specified at '%s' expands to multiple "\
         "items. Only one comps file is allowed." % xpath 
 
     else:
       self.comps_out = self.mddir/'comps.xml'
-      self.interface.groupfiles = self.__get_groupfiles()
+      self.groupfiles = self.__get_groupfiles()
 
       # track changes in repo/groupfile relationships
       self.DATA['variables'].append('groupfiles') 
 
       # track file changes
       self.DATA['input'].extend([groupfile for repo,groupfile in
-                                 self.interface.groupfiles])
-
-  def clean(self):
-    self.interface.log(0, "cleaning comps event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
-   
-  def check(self):
-    return self.interface.test_diffs()
-
-  def run(self):
-    self.interface.log(0, "processing comps file")
-    if not self.mddir.exists(): self.mddir.mkdirs()
-
+                                 self.groupfiles])
+  
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
+  
+  def _check(self):
+    return self.test_diffs()
+  
+  def _run(self):
+    self.log(0, "processing comps file")
+    
     # delete prior comps file
-    self.interface.remove_output(all=True)
-
+    self.remove_output(all=True)
+    
     if self.comps_supplied: # download comps file   
-      self.interface.log(1, "using comps file '%s'" % self.comps_supplied)
-      self.interface.sync_input()
-
+      self.log(1, "using comps file '%s'" % self.comps_supplied)
+      self.sync_input()
+    
     else: # generate comps file
-      self.interface.log(1, "creating comps file")
+      self.log(1, "creating comps file")
       self.generate_comps()
       self.comps.write(self.comps_out)
       self.comps_out.chmod(0644)
       self.DATA['output'].append(self.comps_out)
-
+    
     # write metadata
-    self.interface.write_metadata()
+    self.write_metadata()
   
-  def apply(self):
+  def _apply(self):
     # set comps-file control variable
     if self.comps_supplied: 
-      self.interface.cvars['comps-file'] = self.interface.list_output(what='comps.xml')[0]
+      self.cvars['comps-file'] = self.list_output(what='comps.xml')[0]
     else:
-      self.interface.cvars['comps-file'] = self.comps_out
-
+      self.cvars['comps-file'] = self.comps_out
+    
     # verify comps-file exists
-    if not self.interface.cvars['comps-file'].exists():
+    if not self.cvars['comps-file'].exists():
       raise RuntimeError, "Unable to find cached comps file at '%s'. Perhaps you "\
       "are skipping the comps event before it has been allowed to run once?"\
       % self.comps_out
     
     # set required packages variable
-    reqpkgs = xmltree.read(self.interface.cvars['comps-file']).xpath('//packagereq/text()')
-    self.interface.cvars['required-packages'] = reqpkgs
-
+    reqpkgs = xmltree.read(self.cvars['comps-file']).xpath('//packagereq/text()')
+    self.cvars['required-packages'] = reqpkgs
+  
   
   #------ COMPS FILE GENERATION FUNCTIONS ------#
   def generate_comps(self):
@@ -145,31 +121,31 @@ class CompsHook:
     
     # create base distro group
     packages = []
-    for pkg in self.interface.config.xpath('/distro/comps/create-new/include/package', []):
+    for pkg in self.config.xpath('/distro/comps/create-new/include/package', []):
       pkgname = pkg.get('text()')
       pkgtype = pkg.get('@type', 'mandatory')
       pkgrequires = pkg.get('@requires', None)
       packages.append((pkgname, pkgtype, pkgrequires))
       
-    for pkg in (self.interface.cvars['included-packages'] or []):
+    for pkg in (self.cvars['included-packages'] or []):
       if type(pkg) == tuple:
         packages.append(pkg)
       else:
         assert isinstance(pkg, str)
         packages.append((pkg, 'mandatory', None))
     
-    base = Group(self.interface.product, self.interface.fullname,
-                 'This group includes packages specific to %s' % self.interface.fullname)
+    base = Group(self.product, self.fullname,
+                 'This group includes packages specific to %s' % self.fullname)
     if len(packages) > 0:
-      self.interface.cvars['user-required-packages'] = [ x[0] for x in packages ]
+      self.cvars['user-required-packages'] = [ x[0] for x in packages ]
       self.comps.getroot().append(base)
       for pkgname, pkgtype, pkgrequires in packages:
         self._add_group_package(pkgname, base, pkgrequires, type=pkgtype)
-        
+    
     processed = [] # processed groups
     
     # process groups
-    for groupfileid, path in self.interface.groupfiles:
+    for groupfileid, path in self.groupfiles:
       # read groupfile
       try:
         tree = xmltree.read(path)
@@ -178,18 +154,18 @@ class CompsHook:
         raise CompsError, "the file '%s' does not exist" % file
       
       # add the 'core' group of the base repo
-      if groupfileid == self.interface.getBaseRepoId():
+      if groupfileid == self.getBaseRepoId():
         try:
           self._add_group_by_id('core', tree, mapped[groupfileid])
           processed.append('core')
         except IndexError:
           pass
-          
+      
       # process mapped groups - each MUST be processed or we raise an exception
       while len(mapped[groupfileid]) > 0:
         groupid = mapped[groupfileid].pop(0)
         if groupid in processed: continue # skip those we already processed
-        default = self.interface.config.get('/distro/comps/create-new/groups/group[text()="%s"]/@default' % groupid, 'true')
+        default = self.config.get('/distro/comps/create-new/groups/group[text()="%s"]/@default' % groupid, 'true')
         self._add_group_by_id(groupid, tree, mapped[groupfileid], default=default)
         processed.append(groupid)
         
@@ -202,7 +178,7 @@ class CompsHook:
           i += 1; continue
         try:
           group = tree.get('//group[id/text()="%s"]' % groupid)
-          default = self.interface.config.get('/distro/comps/create-new/groups/group[text()="%s"]/@default' % groupid, 'true')
+          default = self.config.get('/distro/comps/create-new/groups/group[text()="%s"]/@default' % groupid, 'true')
           self._add_group_by_id(groupid, tree, unmapped, processed, default=default)
           processed.append(unmapped.pop(i))
           j = len(unmapped)
@@ -210,7 +186,7 @@ class CompsHook:
           i += 1
     
     if 'core' not in processed:
-      raise CompsError, "The base repo '%s' does not appear to define a 'core' group in any of its comps.xml files" % self.interface.getBaseRepoId()
+      raise CompsError, "The base repo '%s' does not appear to define a 'core' group in any of its comps.xml files" % self.getBaseRepoId()
     
     # if any unmapped group wasn't processed, raise an exception
     if len(unmapped) > 0:
@@ -228,27 +204,27 @@ class CompsHook:
       self._add_group_package('kernel', base, type='mandatory')
     
     # exclude all package in self.exclude
-    exclude = self.interface.config.xpath('/distro/comps/create-new/exclude/packages/text()', []) + \
-              (self.interface.cvars['excluded-packages'] or [])
+    exclude = self.config.xpath('/distro/comps/create-new/exclude/packages/text()', []) + \
+              (self.cvars['excluded-packages'] or [])
 
     for pkg in exclude:
       for match in self.comps.xpath('//packagereq[text()="%s"]' % pkg):
         match.getparent().remove(match)
     
     # add category
-    cat = Category('Groups', fullname=self.interface.fullname,
-                             version=self.interface.cvars['anaconda-version'])
+    cat = Category('Groups', fullname=self.fullname,
+                             version=self.cvars['anaconda-version'])
     self.comps.getroot().append(cat)
     for group in self.comps.getroot().xpath('//group/id/text()'):
       self._add_category_group(group, cat)
   
   def __map_groups(self):
     mapped = {}
-    for repo in self.interface.getAllRepos():
+    for repo in self.getAllRepos():
       mapped[repo.id] = []
     unmapped = []
     
-    for group in self.interface.config.xpath('/distro/comps/create-new/groups/group', []):
+    for group in self.config.xpath('/distro/comps/create-new/groups/group', []):
       repo = group.attrib.get('repo', None)
       if repo is not None:
         try:
@@ -264,7 +240,7 @@ class CompsHook:
     "Get a list of all groupfiles in all repositories"
     groupfiles = []
     
-    for repo in self.interface.getAllRepos():
+    for repo in self.getAllRepos():
       if repo.groupfile is not None:
         groupfiles.append((repo.id,
                            repo.ljoin(repo.repodata_path, 'repodata', repo.groupfile)))
@@ -300,7 +276,7 @@ class CompsHook:
         toprocess.append(groupreq)
   
   def _add_category_group(self, group, category, version='0'):
-    if sortlib.dcompare(self.interface.cvars['anaconda-version'], '10.2.0.14-1') < 0:
+    if sortlib.dcompare(self.cvars['anaconda-version'], '10.2.0.14-1') < 0:
       parent = category.get('category/subcategories')
       Element('subcategory', parent=parent, text=group)
     else:
@@ -340,6 +316,8 @@ def Category(name, fullname='', version='0'):
 # convenience functions
 Element  = xmltree.Element  
 uElement = xmltree.uElement
+
+EVENTS = {'MAIN': [CompsEvent]}
 
 #------ ERRORS ------#
 class CompsError(StandardError): pass

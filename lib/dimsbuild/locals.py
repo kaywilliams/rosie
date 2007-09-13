@@ -8,38 +8,9 @@ __author__  = "Daniel Musgrave <dmusgrave@abodiosoftware.com>"
 __version__ = "3.0"
 __date__    = "March 13th, 2007"
 
-from StringIO import StringIO
-
-import dims.locals  as locals
-import dims.sortlib as sortlib
-
-#---------- FUNCTIONS ----------#
-def load(version):
-  """ 
-  Load locals into a Locals instance.  Performs additional processing on
-  <installclass-entries> element - specifically, copies the contents of the
-  LOCALS_INSTALLCLASSES dictionary at the appropriate index into this element's
-  text field.  This processing is necessary because the XML parser's whitespace
-  normalization removes all line breaks and tabs in the python code, making for
-  an unreadable custom.py installclass.
-  """
-  L = locals.Locals(StringIO(LOCALS_XML), version)
-  
-  # postprocess installclass entries
-  ic = L.getLocal(L_INSTALLCLASS)
-  indexes = LOCALS_INSTALLCLASSES.keys()
-  indexes = sortlib.dsort(indexes)
-  for i in indexes:
-    if sortlib.dcompare(i, version) <= 0:
-      ic.get('.').text = LOCALS_INSTALLCLASSES[i]
-    else:
-      break
-  
-  return L
-
 #---------- LOCALS DATA -----------#
 
-L_IMAGES = """ 
+L_IMAGES = ''' 
 <locals>  
   <images-entries>
     <images version="0">
@@ -74,9 +45,9 @@ L_IMAGES = """
     </images>
   </images-entries>
 </locals>
-"""
+'''
 
-L_BUILDSTAMP_FORMAT = """
+L_BUILDSTAMP_FORMAT = ''' 
 <locals>
   <!-- .buildstamp format entries -->
   <buildstamp-format-entries>
@@ -136,4 +107,4 @@ L_BUILDSTAMP_FORMAT = """
     </buildstamp-format>
   </buildstamp-format-entries>
 </locals>
-"""
+'''

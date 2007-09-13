@@ -2,94 +2,82 @@ from dims import pps
 from dims import shlib
 
 from dimsbuild.constants import SRPM_REGEX
-from dimsbuild.event import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
+from dimsbuild.event import Event
 from dimsbuild.magic import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
 from dimsbuild.misc  import locals_imerge
 
-from lib import ExtractMixin, RpmNotFoundError
+from dimsbuild.modules.installer.lib import ExtractMixin, RpmNotFoundError
 
 P = pps.Path
 
-API_VERSION = 4.1
+API_VERSION = 5.0
 
-EVENTS = [
-  {
-    'id': 'logos',
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['installer-splash'],
-    'requires': ['software', 'anaconda-version'],
-    'conditional-requires': ['gpgsign'],    
-    'parent': 'INSTALLER',
-  },
-]
-
-HOOK_MAPPING = {
-  'LogosHook':    'logos',
-  'ValidateHook': 'validate',
-}
-
-#------ HOOKS ------#
-class ValidateHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'logos.validate'
-    self.interface = interface
-
-  def run(self):
-    self.interface.validate('/distro/installer/logos',
-                            schemafile='logos.rng')
+class LogosEvent(Event, ExtractMixin):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'logos',
+      provides = ['installer-splash'],
+      requires = ['rpms-directory', 'anaconda-version'],
+      conditionally_requires = ['gpgsign'],
+    )
     
-
-class LogosHook(ExtractMixin):
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'logos.logos'
-
-    self.metadata_struct = {
+    self.DATA = {
       'config'   : ['/distro/installer/logos'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input'    : [],
       'output'   : [],
     }
     
-    ExtractMixin.__init__(self, interface, self.metadata_struct,
-                          interface.METADATA_DIR/'INSTALLER/logos.md')
+    self.mdfile = self.get_mdfile()
   
-  def setup(self):
-    self.locals = locals_imerge(L_LOGOS, self.interface.cvars['anaconda-version'])
+  def _validate(self):
+    self.validate('/distro/installer/logos', 'logos.rng')
+  
+  def _setup(self):
+    self.locals = locals_imerge(L_LOGOS, self.cvars['anaconda-version'])
     self.format = self.locals.get('//splash-image/format/text()')
     self.file = self.locals.get('//splash-image/file/text()')
     self.DATA['input'].extend(self.find_rpms())
-    self.interface.setup_diff(self.mdfile, self.DATA)
-
-  def clean(self):
-    self.interface.log(0, "cleaning logos event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
-
-  def check(self):
-    return self.interface.test_diffs()
+    self.setup_diff(self.mdfile, self.DATA)
+    
+    assert self.file is not None
+    assert self.format is not None
   
-  def run(self):
-    self.interface.log(0, "processing logos")
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
+  
+  def _check(self):
+    return self.test_diffs()
+  
+  def _run(self):
+    self.log(0, "processing logos")
     self.extract()
+  
+  def _apply(self):
+    splash = self.SOFTWARE_STORE/'isolinux/splash.%s' % self.format
+    if not splash.exists():
+      raise RuntimeError("missing file: '%s'" % splash)
+    if not self.validate_splash(splash):
+      raise RuntimeError("'%s' is not a valid '%s' file" %(splash, self.format))
+    self.cvars['installer-splash'] = splash
 
   def generate(self, working_dir):
     "Create the splash image and copy it to the isolinux/ folder"
-    output_dir = self.software_store/'isolinux'
+    output_dir = self.SOFTWARE_STORE/'isolinux'
     if not output_dir.exists():
       output_dir.mkdirs()
     
     # copy images to the product.img/ folder
     output = self.copy_pixmaps(working_dir)
-
+    
     # create the splash image
     output.append(self.generate_splash(working_dir))
     
     return output
   
   def generate_splash(self, working_dir):
-    splash = self.software_store/'isolinux/splash.%s' % self.format
+    splash = self.SOFTWARE_STORE/'isolinux/splash.%s' % self.format
     # convert the syslinux-splash.png to splash.lss and copy it
     # to the isolinux/ folder
     try:
@@ -103,7 +91,7 @@ class LogosHook(ExtractMixin):
       shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
                     %(startimage, splash,))
     return splash
-
+  
   def copy_pixmaps(self, working_dir):
     """ 
     Create the product.img folder that can be used by the product.img
@@ -111,7 +99,7 @@ class LogosHook(ExtractMixin):
     """
     # link the images from the RPM folder to the pixmaps/ folder in
     # the folder the product.img event looks in.
-    product_img = self.interface.METADATA_DIR/'images-src/product.img/pixmaps'
+    product_img = self.METADATA_DIR/'images-src/product.img/pixmaps'
     product_img.mkdirs()
     
     # generate the list of files to use and copy them to the
@@ -119,18 +107,10 @@ class LogosHook(ExtractMixin):
     pixmaps = []
     for img in working_dir.findpaths(regex='.*usr/share/anaconda/pixmaps*',
                                      type=pps.constants.TYPE_NOT_DIR):
-      self.interface.copy(img, product_img)
+      self.copy(img, product_img)
       pixmaps.append(product_img/img.basename)
     return pixmaps
-
-  def apply(self):
-    splash = self.software_store/'isolinux/splash.%s' % self.format
-    if not splash.exists():
-      raise RuntimeError("missing file: '%s'" % splash)
-    if not self.validate_splash(splash):
-      raise RuntimeError("'%s' is not a valid '%s' file" %(splash, self.format))
-    self.interface.cvars['installer-splash'] = splash
-
+  
   def validate_splash(self, splash):
     if self.format == 'jpg':
       return magic_match(splash) == FILE_TYPE_JPG
@@ -139,16 +119,18 @@ class LogosHook(ExtractMixin):
       
   def find_rpms(self):
     pkgname = self.config.get('/distro/installer/logos/package/text()',
-                              '%s-logos' %(self.interface.product,))
-    rpms = P(self.interface.cvars['rpms-directory']).findpaths(
+                              '%s-logos' %(self.product,))
+    rpms = P(self.cvars['rpms-directory']).findpaths(
       glob='%s-*-*' % pkgname, nregex=SRPM_REGEX)
     if len(rpms) == 0:
-      rpms = P(self.interface.cvars['rpms-directory']).findpaths(
+      rpms = P(self.cvars['rpms-directory']).findpaths(
         glob='*-logos-*-*', nregex=SRPM_REGEX)
       if len(rpms) == 0:
         raise RpmNotFoundError("missing logo RPM")
     return [rpms[0]]
 
+
+EVENTS = {'INSTALLER': [LogosEvent]}
 
 L_LOGOS = ''' 
 <locals>

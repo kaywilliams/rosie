@@ -1,62 +1,50 @@
-from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event import Event
 
-from lib import FileDownloadMixin
+from dimsbuild.modules.installer.lib import FileDownloadMixin
 
-API_VERSION = 4.1
+API_VERSION = 5.0
 
-#------ EVENTS ------#
-EVENTS = [
-  {
-    'id': 'stage2-images',
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['stage2'],
-    'requires': ['anaconda-version', 'source-vars'],
-    'parent': 'INSTALLER',
-  },
-]
-
-HOOK_MAPPING = {
-  'Stage2Hook': 'stage2-images',
-}
-
-
-#------ HOOKS ------#
-class Stage2Hook(FileDownloadMixin):
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.stage2.stage2-images'
+class Stage2ImagesEvent(Event, FileDownloadMixin):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'stage2-images',
+      provides = ['stage2'],
+      requires = ['anaconda-version', 'source-vars'],
+    )
     
-    self.interface = interface
-    
-    FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
     self.DATA = {
       'input':  [],
       'output': [],      
     }
-    self.mdfile = self.interface.METADATA_DIR/'INSTALLER/stage2.md'
     
-  def setup(self):
-    self.interface.setup_diff(self.mdfile, self.DATA)
+    self.mdfile = self.get_mdfile()
+    
+    FileDownloadMixin.__init__(self, self.getBaseRepoId())
+  
+  def _setup(self):
+    self.setup_diff(self.mdfile, self.DATA)
     self.register_file_locals(L_FILES)
-
-  def clean(self):
-    self.interface.log(0, "cleaning stage2-images event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
-    
-  def check(self):
-    return self.interface.test_diffs()
-
-  def run(self):
-    self.interface.log(0, "synchronizing stage2 images")
-    self.interface.remove_output()
+  
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
+  
+  def _check(self):
+    return self.test_diffs()
+  
+  def _run(self):
+    self.log(0, "synchronizing stage2 images")
+    self.remove_output()
     self.download()
-    self.interface.write_metadata()
-
-  def apply(self):
-    for file in self.interface.list_output():
+    self.write_metadata()
+  
+  def _apply(self):
+    for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to file '%s' at '%s'" % (file.basename, file.dirname))
+
+
+EVENTS = {'INSTALLER': [Stage2ImagesEvent]}
 
 #------ LOCALS ------#
 L_FILES = ''' 

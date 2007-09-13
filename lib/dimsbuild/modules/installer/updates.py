@@ -1,42 +1,19 @@
-from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event import Event
 
-from lib import ImageModifyMixin
+from dimsbuild.modules.installer.lib import ImageModifyMixin
 
-API_VERSION = 4.1
+API_VERSION = 5.0
 
-EVENTS = [
-  {
-    'id': 'updates-image',
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['updates.img'],
-    'requires': ['buildstamp-file', 'anaconda-version'],
-    'conditional-requires': ['installer-logos'],
-    'parent': 'INSTALLER',
-  },
-]
-
-HOOK_MAPPING = {
-  'UpdatesHook': 'updates-image',
-  'ValidateHook': 'validate',  
-}
-
-
-#------ HOOKS ------#
-class ValidateHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.updates.validate'
-    self.interface = interface
-
-  def run(self):
-    self.interface.validate('/distro/installer/updates.img', 'updates.rng')
+class UpdatesImageEvent(Event, ImageModifyMixin):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'updates-image',
+      provides = ['updates.img'],
+      requires = ['buildstamp-file', 'anaconda-version'],
+      conditionally_requires = ['logos'],
+    )
     
-class UpdatesHook(ImageModifyMixin):
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.updates.updates-image'
-
-    self.updatesimage = interface.SOFTWARE_STORE/'images/updates.img'
+    self.updatesimage = self.SOFTWARE_STORE/'images/updates.img'
     
     self.DATA = {
       'config':    ['/distro/installer/updates.img/path/text()'],
@@ -44,37 +21,45 @@ class UpdatesHook(ImageModifyMixin):
       'input':     [],
       'output':    [],
     }
-    ImageModifyMixin.__init__(self, 'updates.img', interface, self.DATA)
+    
+    self.mdfile = self.get_mdfile()
+    
+    ImageModifyMixin.__init__(self, 'updates.img')
   
-  def error(self, e):
+  def _validate(self):
+    self.validate('/distro/installer/updates.img', 'updates.rng')
+  
+  def _error(self, e):
     try:
       self.close()
     except:
       pass
   
-  def setup(self):
-    ImageModifyMixin.setup(self)
+  def _setup(self):
+    ImageModifyMixin._setup(self)
     self.register_image_locals(L_IMAGES)
   
-  def clean(self):
-    self.interface.log(0, "cleaning updates-image event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
   
-  def check(self):
+  def _check(self):
     return not self.validate_image() or \
-           self.interface.test_diffs()
+           self.test_diffs()
   
-  def run(self):
-    self.interface.log(0, "generating updates.img")
-    self.interface.remove_output()
+  def _run(self):
+    self.log(0, "generating updates.img")
+    self.remove_output()
     self.modify()
     
-  def apply(self):
-    for file in self.interface.list_output():
+  def _apply(self):
+    for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
-  
+
+
+EVENTS = {'INSTALLER': [UpdatesImageEvent]}
+
 #------ LOCALS ------#
 L_IMAGES = ''' 
 <locals>

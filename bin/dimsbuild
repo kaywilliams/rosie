@@ -75,13 +75,14 @@ def main():
                          "being executed, even if normal program execution " + \
                          "would ordinarily run them.  See above for the list " + \
                          "of accepted events")
-
+  
   args = sys.argv[1:]
-
+  
   try:
     preargs = __filter_cmd_args(args,
-                                ['--no-plugins', '-h', '--help'],
-                                ['-c', '--distro-conf', '-l', '-e', '--dimsbuild-conf',
+                                ['--no-plugins'],
+                                ['-c', '--distro-conf', '--dimsbuild-conf',
+                                 '-l', '-e',
                                  '--lib-path', '--share-path'])
   except ValueError:
     parser.print_help()
@@ -91,16 +92,17 @@ def main():
 
   mainconfig, distroconfig = __get_conf(opts.mainconfigpath, opts.userdistroconfigpath, 
                                           opts.logthresh)
-
+  
   # set up IMPORT_DIRS  
-  import_dirs = mainconfig.xpath('//librarypaths/path/text()', [])
+  import_dirs = mainconfig.xpath('/dimsbuild/librarypaths/path/text()', [])
   if opts.libpath: 
     import_dirs.insert(0, opts.libpath)
+  import_dirs.insert(0, '.') # allow current directory imports to work
   for dir in sys.path:
     if dir not in import_dirs: import_dirs.append(dir)
   sys.path = import_dirs
   import_dirs = [ join(i, 'dimsbuild') for i in import_dirs ]
-
+  
   # import dimsbuild from some path in import_dirs
   fp, path, desc = imp.find_module('main', import_dirs)
   build = imp.load_module('main', fp, path, desc)
@@ -114,7 +116,7 @@ def main():
   # calculate the events available to --clean and --skip, and format nicely
   events = sbuilder.get_mdlr_events()
   parser.set_description("Valid events for EVENT, below, are: %s." % \
-    listfmt.format(events, pre="'", post="'", last="and ", sep=", "))
+    listfmt.format(events, pre='\'', post='\'', last='and ', sep=', '))
   
   # now apply the real option set to the software builder, and run the main function
   options, args = parser.parse_args()

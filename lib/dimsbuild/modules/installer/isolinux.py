@@ -2,58 +2,22 @@ import os
 
 from dims import filereader
 
-from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event import Event
 
-from lib import FileDownloadMixin, ImageModifyMixin
+from dimsbuild.modules.installer.lib import FileDownloadMixin, ImageModifyMixin
 
-API_VERSION = 4.1
+API_VERSION = 5.0
 
-#------ EVENTS ------#
-EVENTS = [
-  {
-    'id': 'isolinux',
-    'provides': ['vmlinuz', 'isolinux-changed'],
-    'requires': ['anaconda-version', 'source-vars', 'initrd-file'], #! 'initrd-file' for run-before functionality
-    'parent': 'INSTALLER',
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-  },
-  {
-    'id': 'initrd-image',
-    'provides': ['initrd-file', 'isolinux-changed'],
-    'requires': ['anaconda-version', 'buildstamp-file'],
-    #'run-before': ['isolinux'],
-    'parent': 'INSTALLER',
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-  },
-]
-
-HOOK_MAPPING = {
-  'IsolinuxHook': 'isolinux',
-  'InitrdHook':   'initrd-image',
-  'ValidateHook': 'validate',
-}
-
-
-#------ HOOKS ------#
-class ValidateHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.isolinux.validate'
-
-    self.interface = interface
-
-  def run(self):
-    self.interface.validate('/distro/installer/isolinux', schemafile='isolinux.rng')
-
-class IsolinuxHook(FileDownloadMixin):
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.isolinux.isolinux'
+class IsolinuxEvent(Event, FileDownloadMixin):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'isolinux',
+      provides = ['vmlinuz', 'isolinux-changed'],
+      requires = ['anaconda-version', 'source-vars'],
+    )
     
-    self.interface = interface
+    self.isolinux_dir = self.SOFTWARE_STORE/'isolinux' #! not versioned
     
-    self.isolinux_dir = self.interface.SOFTWARE_STORE/'isolinux' #! not versioned
-
     self.DATA = {
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
@@ -61,31 +25,30 @@ class IsolinuxHook(FileDownloadMixin):
       'config':    ['/distro/installer/isolinux'],
     }
     
-    self.mdfile = self.interface.METADATA_DIR/'INSTALLER/isolinux.md'
-    FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
+    self.mdfile = self.get_mdfile()
+    FileDownloadMixin.__init__(self, self.getBaseRepoId())
   
-  def setup(self):
-    self.interface.setup_diff(self.mdfile, self.DATA)
+  def _setup(self):
+    self.setup_diff(self.mdfile, self.DATA)
     self.register_file_locals(L_FILES)
-    self.interface.setup_sync(self.isolinux_dir, id='IsoLinuxFiles',
-                              xpaths=['/distro/installer/isolinux/path'])
+    self.setup_sync(self.isolinux_dir, id='IsoLinuxFiles',
+                    xpaths=['/distro/installer/isolinux/path'])
   
-  def clean(self):
-    self.interface.log(0, "cleaning isolinux event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
     
-  def check(self):
-    return self.interface.test_diffs()
+  def _check(self):
+    return self.test_diffs()
   
-  def run(self):
-    self.interface.log(0, "synchronizing isolinux files")
-    self.interface.remove_output()
+  def _run(self):
+    self.log(0, "synchronizing isolinux files")
+    self.remove_output()
     self.download()
-    self.interface.sync_input(what='IsoLinuxFiles')
+    self.sync_input(what='IsoLinuxFiles')
     
     # modify the first append line in isolinux.cfg
-    bootargs = self.interface.config.get('/distro/installer/isolinux/boot-args/text()', None)
+    bootargs = self.config.get('/distro/installer/isolinux/boot-args/text()', None)
     if bootargs:
       cfg = self.isolinux_dir/'isolinux.cfg'
       if not cfg.exists():
@@ -100,20 +63,24 @@ class IsolinuxHook(FileDownloadMixin):
       lines.insert(i, value)
       filereader.write(lines, cfg)
     
-    self.interface.cvars['isolinux-changed'] = True
-      
-  def apply(self):
-    self.interface.write_metadata()
-    for file in self.interface.list_output():
+    self.cvars['isolinux-changed'] = True
+    
+    self.write_metadata()
+  
+  def _apply(self):
+    for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s'" % file)
-    
-class InitrdHook(ImageModifyMixin):
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.isolinux.initrd'
-    
-    self.interface = interface
+
+
+class InitrdImageEvent(Event, ImageModifyMixin):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'initrd-image',
+      provides = ['initrd-file', 'isolinux-changed'],
+      requires = ['anaconda-version', 'buildstamp-file'],
+      comes_before = ['isolinux'],
+    )
     
     self.DATA = {
       'config':    ['/distro/installer/initrd.img/path'],
@@ -122,44 +89,50 @@ class InitrdHook(ImageModifyMixin):
       'output':    [] # to be filled later
     }
     
-    ImageModifyMixin.__init__(self, 'initrd.img', interface, self.DATA)
+    self.mdfile = self.get_mdfile()
+    
+    ImageModifyMixin.__init__(self, 'initrd.img')
   
-  def error(self, e):
+  def _error(self, e):
     try:
+      import traceback
+      traceback.print_exc()
       self.close()
     except:
       pass
   
-  def setup(self):
-    ImageModifyMixin.setup(self)
+  def _setup(self):
+    ImageModifyMixin._setup(self)
     self.register_image_locals(L_IMAGES)
-
-  def clean(self):
-    self.interface.log(0, "cleaning initrd-image event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
   
-  def check(self):
-    return self.interface.test_diffs()
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
   
-  def run(self):
-    self.interface.log(0, "processing initrd.img")
-    self.interface.remove_output(all=True)
-    self.modify()    
-    self.interface.cvars['isolinux-changed'] = True
+  def _check(self):
+    return self.test_diffs()
   
-  def apply(self):
-    for file in self.interface.list_output():
+  def _run(self):
+    self.log(0, "processing initrd.img")
+    self.remove_output(all=True)
+    self.modify()
+    self.cvars['isolinux-changed'] = True
+  
+  def _apply(self):
+    for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
     initrd = self.i_locals.get('//image[@id="initrd.img"]')
-    self.interface.cvars['initrd-file'] = self.interface.SOFTWARE_STORE / \
-                                               initrd.get('path/text()') / \
-                                               'initrd.img'
-
+    self.cvars['initrd-file'] = self.SOFTWARE_STORE / \
+                                initrd.get('path/text()') / \
+                                'initrd.img'
+  
   def generate(self):
     ImageModifyMixin.generate(self)
     self.write_buildstamp()
+
+
+EVENTS = {'INSTALLER': [IsolinuxEvent, InitrdImageEvent]}
 
 #------ LOCALS ------#
 L_FILES = ''' 

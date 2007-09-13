@@ -14,15 +14,18 @@ import sys
 
 from rpmUtils.arch import getBaseArch
 
+from dims import dispatch
 from dims import pps
 from dims import logger
 from dims.configlib import ConfigError
-from dims.sortlib   import dcompare
 
-from dimsbuild import event
+from dims import sync
+from dims.sync import cache
+from dims.sync import link
 
-from dimsbuild.callback  import BuildLogger
+from dimsbuild.callback  import BuildLogger, BuildSyncCallback, FilesCallback
 from dimsbuild.constants import *
+from dimsbuild.event     import Event
 
 P = pps.Path # convenience
 
@@ -33,7 +36,7 @@ P = pps.Path # convenience
 # syslinux
 # python-setuptools
 
-API_VERSION = 4.1
+API_VERSION = 5.0
 
 class Build:
   """ 
@@ -73,214 +76,179 @@ class Build:
     These parameters are normally passed in from the command-line handler
     ('/usr/bin/dimsbuild')
     """
-    # self.cvars is a list of program 'control variables' - modules can use
-    # this to communicate between themselves as necessary
-    self.cvars = CvarsDict()
-    
-    # set up loggers
-    self.log = BuildLogger(options.logthresh)
-    self.errlog = logger.Logger(options.errthresh) # TODO - BuildLogger this #!
-    
-    # set up config dirs
-    self.mainconfig = mainconfig
-    self.config = distroconfig
     
     # set up import_dirs
-    self.import_dirs = [ P(x) for x in \
+    import_dirs = [ P(x) for x in \
                          mainconfig.xpath('/dimsbuild/librarypaths/path/text()', [])
                        ]
     if options.libpath:
-      self.import_dirs.insert(0, P(options.libpath)) # TODO make this a list
+      import_dirs.insert(0, P(options.libpath)) # TODO make this a list
     for dir in sys.path:
-      if dir not in self.import_dirs:
-        self.import_dirs.append(P(dir))
-    
-    if options.sharepath:
-      self.sharepath = P(options.sharepath).abspath()
-    else:
-      self.sharepath = P(mainconfig.get('/dimsbuild/sharepath/text()', None) or \
-                                '/usr/share/dimsbuild')
-    
-    # set up base variables
-    self.cvars['base-vars'] = {}
-    self.cvars['base-vars']['product'] = self.config.get('/distro/main/product/text()')
-    self.cvars['base-vars']['version'] = self.config.get('/distro/main/version/text()')
-    self.cvars['base-vars']['release'] = self.config.get('/distro/main/release/text()', '0')
-    self.cvars['base-vars']['arch']    = self.config.get('/distro/main/arch/text()', 'i686')
-    self.cvars['base-vars']['basearch'] = getBaseArch(self.cvars['base-vars']['arch'])
-    self.cvars['base-vars']['fullname'] = self.config.get('/distro/main/fullname/text()',
-                                                         self.cvars['base-vars']['product'])
-    self.cvars['base-vars']['webloc'] = self.config.get('/distro/main/bug-url/text()',
-                                                        'No bug url provided')
-    self.cvars['base-vars']['pva'] = '%s-%s-%s' % (self.cvars['base-vars']['product'],
-                                                   self.cvars['base-vars']['version'],
-                                                   self.cvars['base-vars']['basearch'])
-    self.cvars['base-vars']['product-path'] = self.cvars['base-vars']['product']
-    
-    # set up other directories
-    self.CACHE_DIR      = P('/var/cache/dimsbuild')
-    self.TEMP_DIR       = P('/tmp/dimsbuild')
-    self.DISTRO_DIR     = self.CACHE_DIR  / self.cvars['base-vars']['pva']
-    self.OUTPUT_DIR     = self.DISTRO_DIR / 'output'
-    self.METADATA_DIR   = self.DISTRO_DIR / 'builddata'
-    self.SOFTWARE_STORE = self.OUTPUT_DIR / 'os'
-    
-    self.CACHE_MAX_SIZE = 30*1024**3 # 30 GB
+      if dir not in import_dirs:
+        import_dirs.append(P(dir))
     
     # set up list of disabled modules
-    self.disabled_modules = set()
-    for k,v in self.__eval_modlist(self.mainconfig.get('/dimsbuild/modules', None),
-                                   default=True).items():
-      if v in BOOLEANS_FALSE: self.disabled_modules.add(k)
+    disabled_modules = set()
+    for k,v in eval_modlist(mainconfig.get('/dimsbuild/modules', None),
+                            default=True).items():
+      if v in BOOLEANS_FALSE: disabled_modules.add(k)
     
-    self.disabled_modules.add('__init__') # hack, kinda; this isn't a module
-    self.disabled_modules.add('lib') # +1; neither is this
+    disabled_modules.add('__init__') # hack, kinda; this isn't a module
+    disabled_modules.add('lib') # +1; neither is this
     
     # update with distro-specific config
-    for k,v in self.__eval_modlist(self.config.get('/distro/main/modules', None),
-                                   default=True).items():
-      if   v in BOOLEANS_FALSE: self.disabled_modules.add(k)
-      elif v in BOOLEANS_TRUE:  self.disabled_modules.discard(k)
+    for k,v in eval_modlist(distroconfig.get('/distro/main/modules', None),
+                            default=True).items():
+      if   v in BOOLEANS_FALSE: disabled_modules.add(k)
+      elif v in BOOLEANS_TRUE:  disabled_modules.discard(k)
+    
+    # set up event superclass so that it contains good default values
+    self.make_event_superclass(options, mainconfig, distroconfig)
+    
+    # clean up previous builds
+    Event.logger.log(2, "Cleaning up previous builds")
+    ##self.core.BUILD_DIR.rm(recursive=True, force=True)
     
     # load all enabled modules, register events, set up dispatcher
-    self._init_dispatch() # sets up self.dispatch
+    loader = dispatch.Loader(
+      top = Event(id='ALL', properties = dispatch.PROPERTY_META),
+      api_ver = API_VERSION)
+    loader.ignore = disabled_modules
+    self.dispatch = dispatch.Dispatch(
+                      loader.load(import_dirs, prefix='dimsbuild/modules')
+                    )
     
     self.dispatch.pprint() #! debug statement for now
+    self.dispatch.reset() #!
     ##sys.exit() #!
     
-    # get everything started - raise init and other events prior
-    self.dispatch.get('init').interface.parser = parser
-    self.dispatch.process(until='init')
-  
-  def _init_dispatch(self):
-    """ 
-    Initialize the dispatch object
+    # get everything started
+    for e in self.dispatch: e._add_cli(parser)
     
-    Loads  all  plugins  and  modules,  and then  registers them  with the
-    dispatcher.   All plugins are disabled by default, and are only loaded
-    if they are explicitly  enabled  (setting the  'enabled' attribute  to
-    'true' in one  of the configuration files).   Conversely,  all modules
-    are enabled by default,  and  are only  skipped if they  are explicity
-    disabled  (again, by setting the 'enabled' attribute to 'false' in the
-    configuration file(s)).
-    """
-    self.dispatch = event.Dispatch()
-    self.dispatch.disabled = self.disabled_modules
-    self.dispatch.iargs.append(self)
-    
-    # load all enabled plugins
-    # generate list of enabled plugins in main config
-    enabled_plugins = set()
-    for k,v in self.__eval_modlist(self.mainconfig.get('/dimsbuild/main/plugins', None),
-                                   default=False).items():
-      if v in BOOLEANS_TRUE: enabled_plugins.add(k)
-    
-    # update list with distro-specific config
-    for k,v in self.__eval_modlist(self.config.get('/distro/plugins', None),
-                                   default=False).items():
-      if   v in BOOLEANS_TRUE:  enabled_plugins.add(k)
-      elif v in BOOLEANS_FALSE: enabled_plugins.discard(k)
-    
-    # load enabled plugins
-    for plugin in enabled_plugins:
-      imported = False
-      for path in self.import_dirs:
-        mod = path / 'dimsbuild/plugins/%s.py' % plugin
-        if mod.exists():
-          m = load_module(mod)
-          self.dispatch.process_module(m)
-          imported = True; break
-      if not imported:
-        raise ImportError, "Unable to load '%s' plugin; not found in any specified path" % plugin
-    
-    # load all modules not explicitly disabled
-    registered_modules = []
-    for path in self.import_dirs:
-      modpath = path / 'dimsbuild/modules'
-      if not modpath.exists(): continue
-      for mod in modpath.findpaths(nregex='.*\.pyc', mindepth=1, maxdepth=1):
-        modname = mod.basename.replace('.py', '')
-        if modname not in self.disabled_modules and \
-           modname not in registered_modules:
-          m = load_module(mod)
-          if m is None: continue # requested file wasn't a python module
-          check_api_version(m) # raises ImportError
-          self.dispatch.process_module(m)
-          registered_modules.append(modname)
-    
-    self.dispatch.commit()
-  
-  def __eval_modlist(self, mods, default=None):
-    "Return a dictionary of modules and their enable status, as found in the"
-    "config file"
-    ret = {}
-    
-    if not mods: return ret
-    
-    mod_default = mods.get('@default', default)
-    for mod in mods.getchildren():
-      name = mod.get('text()')
-      enabled = mod.get('@enabled', default).lower()
-      if enabled == 'default':
-        enabled = mod_default
-      if enabled is None:
-        raise ConfigError("Default status requested on '%s', but no default specified" % name)
-      ret[name] = enabled
-    
-    return ret
+    # raise init and other events prior
+    self.dispatch.run(until='init')
   
   def apply_options(self, options):
     "Raise the 'applyopt' event, which plugins/modules can use to apply"
     "command-line argument configuration to themselves"
     # apply --clean to events
     for eventid in options.clean_events:
-      e = self.dispatch.get(eventid, err=True)
-      if not e.test(event.PROP_CAN_DISABLE):
+      e = self.dispatch.get(eventid)
+      if e.test(dispatch.PROPERTY_PROTECTED):
         raise ValueError("Cannot --clean control-class event '%s'" % eventid)
-      self._apply_flowcontrol(e, True)
+      apply_flowcontrol(e, True)
     # apply --skip to events
     for eventid in options.skip_events:
-      e = self.dispatch.get(eventid, err=True)
-      if not e.test(event.PROP_CAN_DISABLE):
+      e = self.dispatch.get(eventid)
+      if e.test(dispatch.PROPERTY_PROTECTED):
         raise ValueError("Cannot --skip control-class event '%s'" % eventid)
-      self._apply_flowcontrol(e, False)
+      apply_flowcontrol(e, False)
     
     # clear cache, if requested
     if options.clear_cache:
       self.log(0, "clearing cache")
-      cache_dir = P(self.dispatch.get('applyopt').interface.cache_handler.cache_dir)
+      cache_dir = P(self.core.cache_handler.cache_dir)
       cache_dir.rm(recursive=True, force=True)
       cache_dir.mkdirs()
     
-    self.dispatch.get('applyopt').interface.options = options
-    self.dispatch.process(until='applyopt')
+    # apply options:
+    for e in self.dispatch: e._apply_options(options)
     
-  def _apply_flowcontrol(self, e, status):
-    e.status = status
-    
-    # apply to all children if event has the PROP_META property
-    if e.test(event.PROP_META):
-      for child in e.get_children():
-        if child.test(event.PROP_CAN_DISABLE):
-          self._apply_flowcontrol(child, status)
-  
-  def get_mdlr_events(self):
-    "Return a list of the modular events in this dimsbuild instance"
-    list = []
-    for e in self.dispatch:
-      if e == -1: continue
-      if e.test(event.PROP_CAN_DISABLE):
-        list.append(e.id)
-    return list
+    # validate config
+    for e in self.dispatch: e._validate()
   
   def main(self):
     "Build a distribution"
-    self.dispatch.process(until=None)
+    self.dispatch.run(until=None)
   
+  def get_mdlr_events(self):
+    "Return a list of the modular events in this dimsbuild instance"
+    return [ e.id for e in self.dispatch \
+             if not e.test(dispatch.PROPERTY_PROTECTED) ]
+  
+  def make_event_superclass(self, options, mainconfig, distroconfig):
+    """ 
+    Set up a bunch of variables in the Event superclass that all subclasses
+    inherit automatically.
+    
+    Accepts four parameters:
+      options: an  OptionParser.Options  object  with  the  command  line
+               arguments encountered during command line parsing
+      mainconfig: the configlib.Config object created by parsing the main
+               program   configuration   file,    normally   located   at
+               '/etc/dimsbuild/dimsbuild.conf'
+      distroconfig: the  configlib.Config  object created by parsing  the
+               distribution-specific configuraiton file, normally located
+               at '/etc/dimsbuild/<distro>/distro.conf'
+    """
+    # Event.cvars is a list of program 'control variables' - modules can use
+    # this to communicate between themselves as necessary
+    Event.cvars = CvarsDict()
+    
+    # set up loggers
+    Event.logger    = BuildLogger(options.logthresh)
+    Event.errlogger = logger.Logger(options.errthresh) # TODO - BuildLogger this #!
+    
+    # set up config dirs
+    Event.mainconfig = mainconfig
+    Event.config = distroconfig
+    
+    # set up base variables
+    Event.cvars['base-vars'] = {}
+    
+    qstr = '/distro/main/%s/text()'
+    base_vars = Event.cvars['base-vars']
+    
+    base_vars['product']  = Event.config.get(qstr % 'product')
+    base_vars['version']  = Event.config.get(qstr % 'version')
+    base_vars['release']  = Event.config.get(qstr % 'release', '0')
+    base_vars['arch']     = Event.config.get(qstr % 'arch', 'i686')
+    base_vars['basearch'] = getBaseArch(base_vars['arch'])
+    base_vars['fullname'] = Event.config.get(qstr % 'fullname',
+                            base_vars['product'])
+    base_vars['webloc']   = Event.config.get(qstr % 'bug-url',
+                            'No bug url provided')
+    base_vars['pva']      = '%s-%s-%s' % (base_vars['product'],
+                                          base_vars['version'],
+                                          base_vars['basearch'])
+    base_vars['product-path'] = base_vars['product']
+    
+    for k,v in base_vars.items():
+      setattr(Event, k, v)
+    
+    # set up other directories
+    Event.CACHE_DIR      = P(mainconfig.get('/dimsbuild/cache/path/text()',
+                                           '/var/cache/dimsbuild'))
+    Event.TEMP_DIR       = P('/tmp/dimsbuild')
+    Event.BUILD_DIR      = Event.TEMP_DIR   / 'build'
+    Event.DISTRO_DIR     = Event.BUILD_DIR  / base_vars['pva']
+    Event.OUTPUT_DIR     = Event.DISTRO_DIR / 'output'
+    Event.METADATA_DIR   = Event.DISTRO_DIR / 'builddata'
+    Event.SOFTWARE_STORE = Event.OUTPUT_DIR / 'os'
+    if options.sharepath:
+      Event.SHARE_DIR = P(options.sharepath).abspath()
+    else:
+      Event.SHARE_DIR = P(mainconfig.get('/dimsbuild/sharepath/text()',
+                                        '/usr/share/dimsbuild'))
+    
+    Event.CACHE_MAX_SIZE = int(mainconfig.get('/dimsbuild/cache/max-size/text()',
+                                             30*1024**3))
+    
+    Event.cache_handler = cache.CachedSyncHandler(
+                           cache_dir = Event.CACHE_DIR / '.cache',
+                           cache_max_size = Event.CACHE_MAX_SIZE,
+                          )
+    Event.cache_callback = BuildSyncCallback(Event.logger)
+    Event.copy_handler = sync.CopyHandler()
+    Event.link_handler = link.LinkHandler()
+    
+    Event.files_callback = FilesCallback(Event.logger)
+
 
 class CvarsDict(dict):
   def __getitem__(self, key):
     return self.get(key, None)
+
 
 #------ UTILITY FUNCTIONS ------#
 def load_module(path):
@@ -298,30 +266,30 @@ def load_module(path):
   fp and fp.close()
   return module
 
-def check_api_version(module):
-  """ 
-  Examine the module m to ensure that the API it is expecting is provided
-  by this Build instance.   A given API version  can support modules with
-  the same major version number and any minor version number less than or
-  equal to its own.   Thus, for example,  a main.py with API_VERSION  set
-  to 3.4 results in the following behavior:
-    * 0.0-2.x is rejected
-    * 3.0-3.4 is accepted
-    * 3.5-X.x is rejected
-  where X and x are any positive integers.
-  """
-  if not hasattr(module, 'API_VERSION'):
-    raise ImportError, "Module '%s' does not have API_VERSION variable" % module.__file__
-  mAPI = str(module.API_VERSION)
-  rAPI = str(API_VERSION)
+def eval_modlist(mods, default=None):
+  "Return a dictionary of modules and their enable status, as found in the"
+  "config file"
+  ret = {}
   
-  reqM, reqm = rAPI.split('.')
-  reqM = '%s.0' % reqM
-  if dcompare(mAPI, rAPI) > 0:
-    raise ImportError, "Module API version '%s' is greater than the supplied API version '%s' in module %s" % (rAPI, mAPI, module.__file__)
-  elif dcompare(mAPI, rAPI) <= 0 and dcompare (mAPI, reqM) >= 0:
-    pass
-  elif dcompare(mAPI, rAPI) < 0:
-    raise ImportError, "Module API version '%s' is less than the required API version '%s' in module %s" % (mAPI, rAPI, module.__file__)
-  else:
-    print "DEBUG: mAPI =", mAPI, "rAPI = ", rAPI
+  if not mods: return ret
+  
+  mod_default = mods.get('@default', default)
+  for mod in mods.getchildren():
+    name = mod.get('text()')
+    enabled = mod.get('@enabled', default).lower()
+    if enabled == 'default':
+      enabled = mod_default
+    if enabled is None:
+      raise ConfigError("Default status requested on '%s', but no default specified" % name)
+    ret[name] = enabled
+  
+  return ret
+
+def apply_flowcontrol(e, status):
+  e._status = status
+  
+  # apply to all children if event has the PROPERTY_META property
+  if e.test(dispatch.PROPERTY_META):
+    for child in e.get_children():
+      if not child.test(dispatch.PROPERTY_PROTECTED):
+        apply_flowcontrol(child, status)

@@ -2,51 +2,17 @@ from dims import filereader
 from dims import pkgorder
 from dims import shlib
 
+from dims.dispatch import PROPERTY_META
+
 from dimsbuild import splittree
 
 from dimsbuild.callback    import BuildDepsolveCallback
 from dimsbuild.constants   import BOOLEANS_TRUE
-from dimsbuild.difftest    import NewEntry
-from dimsbuild.event       import EVENT_TYPE_MDLR, EVENT_TYPE_PROC, EVENT_TYPE_META
-from dimsbuild.interface   import EventInterface 
+from dimsbuild.event       import Event
 from dimsbuild.modules.lib import ListCompareMixin
 from dimsbuild.misc        import locals_imerge
 
-API_VERSION = 4.0
-
-EVENTS = [
-  {
-    'id': 'ISO',
-    'interface': 'IsoInterface',
-    'properties': EVENT_TYPE_META,
-    'conditional-requires': ['MAIN', 'manifest'],
-    'provides': ['iso-enabled'],
-    'parent': 'ALL',
-  },
-  {
-    'id': 'pkgorder',
-    'interface': 'IsoInterface',
-    'properties': EVENT_TYPE_MDLR|EVENT_TYPE_PROC,
-    'requires': ['repodata-directory'],
-    'provides': ['pkgorder-file'],
-    'parent': 'ISO',
-  },
-  {
-    'id': 'iso-sets',
-    'interface': 'IsoInterface',
-    'properties': EVENT_TYPE_MDLR|EVENT_TYPE_PROC,
-    'requires': ['anaconda-version', 'pkgorder-file'],
-    'conditional-requires': ['manifest-changed', 'sources-enabled', 'srpms'],
-    'parent': 'ISO',
-  },
-]
-
-HOOK_MAPPING = {
-  'IsoHook':      'ISO',
-  'PkgorderHook': 'pkgorder',
-  'IsoSetsHook':  'iso-sets',
-  'ValidateHook': 'validate',  
-}
+API_VERSION = 5.0
 
 YUMCONF = ''' 
 [main]
@@ -60,11 +26,8 @@ name = %s - $basearch
 baseurl = file://%s
 '''
 
-class IsoInterface(EventInterface, ListCompareMixin):
-  def __init__(self, base):
-    EventInterface.__init__(self, base)
-    ListCompareMixin.__init__(self)
-    
+class IsoMixin:
+  def __init__(self):
     self.isodir = self.OUTPUT_DIR/'iso'
     
     self.ISO_METADATA_DIR = self.METADATA_DIR/'iso'
@@ -73,94 +36,90 @@ class IsoInterface(EventInterface, ListCompareMixin):
                                 self.config.get('/distro/iso/@enabled', 'True') in BOOLEANS_TRUE
 
 
-#------ HOOKS ------#
-class IsoHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'iso.ISO'
-    self.interface = interface
-  
-  def setup(self):
-    if not self.interface.ISO_METADATA_DIR.exists():
-      self.interface.ISO_METADATA_DIR.mkdirs()
-
-class ValidateHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'iso.validate'
-    self.interface = interface
-  
-  def run(self):
-    self.interface.validate('/distro/iso', schemafile='iso.rng')
-
-class PkgorderHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'iso.iso'
+class IsoMetaEvent(Event, IsoMixin):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'ISO',
+      properties = PROPERTY_META,
+      provides = ['iso-enabled'],
+      comes_after = ['MAIN', 'manifest'],
+    )
+    IsoMixin.__init__(self)
     
-    self.interface = interface
-   
+  def _setup(self):
+    if not self.ISO_METADATA_DIR.exists():
+      self.ISO_METADATA_DIR.mkdirs()
+
+
+class PkgorderEvent(Event, IsoMixin):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'pkgorder',
+      provides = ['pkgorder-file'],
+      requires = ['repodata-directory'],
+    )
+    IsoMixin.__init__(self)
+    
     self.DATA =  {
       'variables': ['cvars[\'iso-enabled\']'],
       'config':    ['/distro/iso/pkgorder'],
       'input':     [],
       'output':    []
     }
-    self.mdfile = self.interface.ISO_METADATA_DIR/'pkgorder.md'
-    self.dosync = self.interface.config.pathexists('/distro/iso/pkgorder/text()')
-    if self.dosync:
-      self.DATA['input'] = []
+    
+    self.mdfile = self.get_mdfile()
+    self.dosync = self.config.pathexists('/distro/iso/pkgorder/text()')
+    if self.dosync: self.DATA['input'] = [] # huh?
   
-  def setup(self):
-    self.interface.setup_diff(self.mdfile, self.DATA)
-    if not self.interface.cvars['iso-enabled']: return
+  def _setup(self):
+    self.setup_diff(self.mdfile, self.DATA)
+    if not self.cvars['iso-enabled']: return
 
-    self.DATA['input'].append(self.interface.cvars['repodata-directory'])
+    self.DATA['input'].append(self.cvars['repodata-directory'])
     
     if self.dosync:
-      self.interface.setup_sync(self.interface.ISO_METADATA_DIR, id='pkgorder',
-                                xpaths=['/distro/iso/pkgorder'])
-      self.pkgorderfile = self.interface.list_output(what='pkgorder')[0]
+      self.setup_sync(self.ISO_METADATA_DIR, id='pkgorder',
+                      xpaths=['/distro/iso/pkgorder'])
+      self.pkgorderfile = self.list_output(what='pkgorder')[0]
     else:
-      self.pkgorderfile = self.interface.ISO_METADATA_DIR/'pkgorder'
+      self.pkgorderfile = self.ISO_METADATA_DIR/'pkgorder'
       self.DATA['output'].append(self.pkgorderfile)
-      
-  def clean(self):
-    self.interface.log(0, "cleaning pkgorder event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
   
-  def check(self):
-    return self.interface.test_diffs()
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
   
-  def run(self):
+  def _check(self):
+    return self.test_diffs()
+  
+  def _run(self):
     # changing from iso-enabled true, cleanup old files and metadata
-    if self.interface.var_changed_from_value('cvars[\'iso-enabled\']', True):
-      self.clean()
+    if self.var_changed_from_value('cvars[\'iso-enabled\']', True):
+      self._clean()
     
-    if not self.interface.cvars['iso-enabled']: 
-      self.interface.write_metadata()
+    if not self.cvars['iso-enabled']: 
+      self.write_metadata()
       return
     
-    self.interface.log(0, "processing pkgorder file")
+    self.log(0, "processing pkgorder file")
     
     # delete prior pkgorder file, if exists    
-    self.interface.remove_output(all=True)
+    self.remove_output(all=True)
     if self.dosync:
-      self.interface.sync_input()
+      self.sync_input()
     else:
       # generate pkgorder
-      self.interface.log(1, "generating package ordering")
+      self.log(1, "generating package ordering")
       
       # create yum config needed by pkgorder
-      cfg = self.interface.TEMP_DIR/'pkgorder'
-      repoid = self.interface.pva
-      filereader.write([YUMCONF % (repoid, repoid, self.interface.SOFTWARE_STORE)], cfg)
+      cfg = self.TEMP_DIR/'pkgorder'
+      repoid = self.pva
+      filereader.write([YUMCONF % (self.pva, self.pva, self.SOFTWARE_STORE)], cfg)
       
       # create pkgorder
       pkgtups = pkgorder.order(config=cfg,
-                               arch=self.interface.arch,
-                               callback=BuildDepsolveCallback(self.interface.logthresh))
+                               arch=self.arch,
+                               callback=BuildDepsolveCallback(self.logger))
       
       # cleanup
       cfg.remove()
@@ -168,27 +127,31 @@ class PkgorderHook:
       # write pkgorder
       pkgorder.write_pkgorder(self.pkgorderfile, pkgtups)      
     
-    self.interface.write_metadata()
+    self.write_metadata()
   
-  def apply(self):
-    if self.interface.cvars['iso-enabled']:
+  def _apply(self):
+    if self.cvars['iso-enabled']:
       if not self.pkgorderfile.exists():
         raise RuntimeError("Unable to find cached pkgorder at '%s'. "\
                            "Perhaps you are skipping the pkgorder event "\
                            "before it has been allowed to run once?" % self.pkgorderfile)
-      self.interface.cvars['pkgorder-file'] = self.pkgorderfile
+      self.cvars['pkgorder-file'] = self.pkgorderfile
 
-class IsoSetsHook:
-  def __init__(self, interface):
-    self.VERSION = 1
-    self.ID = 'iso.iso-sets'
+
+class IsoSetsEvent(Event, IsoMixin, ListCompareMixin):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'iso-sets',
+      requires = ['anaconda-version', 'pkgorder-file'],
+      conditionally_requires = ['manifest-changed', 'sources-enabled', 'srpms'],
+    )
+    IsoMixin.__init__(self)
+    ListCompareMixin.__init__(self)
     
-    self.interface = interface
+    self.lfn = self._delete_isotree
+    self.rfn = self._generate_isotree
     
-    self.interface.lfn = self._delete_isotree
-    self.interface.rfn = self._generate_isotree
-    
-    self.splittrees = self.interface.ISO_METADATA_DIR/'split-trees'
+    self.splittrees = self.ISO_METADATA_DIR/'split-trees'
     
     self.DATA =  {
       'variables': ['cvars[\'iso-enabled\']'],
@@ -197,103 +160,105 @@ class IsoSetsHook:
       'output':    [],
     }
 
-    self.mdfile = self.interface.ISO_METADATA_DIR/'iso.md'
+    self.mdfile = self.get_mdfile()
   
-  def setup(self):
-    self.interface.setup_diff(self.mdfile, self.DATA)
+  def _validate(self):
+    self.validate('/distro/iso', 'iso.rng')
+  
+  def _setup(self):
+    self.setup_diff(self.mdfile, self.DATA)
     
-    if not self.interface.cvars['iso-enabled']: return
+    if not self.cvars['iso-enabled']: return
     
     self.DATA['config'].extend(['/distro/iso/set/text()',
                                 'cvars[\'sources-enabled\']',
                                 'cvars[\'srpms\']',])
-    self.DATA['input'].append(self.interface.cvars['pkgorder-file'])
+    self.DATA['input'].append(self.cvars['pkgorder-file'])
   
-  def clean(self):
-    self.interface.log(0, "cleaning iso event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
   
-  def check(self):
-    return self.interface.test_diffs()
+  def _check(self):
+    return self.test_diffs()
   
-  def run(self):
+  def _run(self):
     # changing from iso-enabled true, cleanup old files and metadata
-    if self.interface.var_changed_from_value('cvars[\'iso-enabled\']', True):
-      self.clean()
+    if self.var_changed_from_value('cvars[\'iso-enabled\']', True):
+      self._clean()
     
-    if not self.interface.cvars['iso-enabled']: 
-      self.interface.write_metadata()
+    if not self.cvars['iso-enabled']: 
+      self.write_metadata()
       return
     
-    self.interface.log(0, "processing iso image(s)")
+    self.log(0, "processing iso image(s)")
     
     oldsets = None
-
+    
     # remove oldsets if pkgorder file, srpms, or sources-enabled changed
-    if self.interface.handlers['input'].diffdict or \
-       self.interface.handlers['variables'].diffdict.has_key("cvars['srpms']") or \
-       self.interface.handlers['variables'].diffdict.has_key("cvars['sources-enabled']"):
-      self.interface.remove_output(all=True)
+    if self._diff_handlers['input'].diffdict or \
+       self._diff_handlers['variables'].diffdict.has_key("cvars['srpms']") or \
+       self._diff_handlers['variables'].diffdict.has_key("cvars['sources-enabled']"):
+      self.remove_output(all=True)
       oldsets = []
-
+    
     # otherwise get oldsets from metadata file
     if oldsets is None:    
       try: 
-        oldsets = self.interface.handlers['config'].cfg['/distro/iso/set/text()']
+        oldsets = self._diff_handlers['config'].cfg['/distro/iso/set/text()']
       except KeyError:
         oldsets = []
-
-    newsets = self.interface.config.xpath('/distro/iso/set/text()', [])
-     
+    
+    newsets = self.config.xpath('/distro/iso/set/text()', [])
+    
     self.newsets_expanded = []
     for set in newsets:
       self.newsets_expanded.append(splittree.parse_size(set))
-      
-    self.interface.compare(oldsets, newsets)
     
-    self.DATA['output'].extend([self.interface.isodir, self.splittrees])
+    self.compare(oldsets, newsets)
     
-    self.interface.write_metadata()
+    self.DATA['output'].extend([self.isodir, self.splittrees])
+    
+    self.write_metadata()
   
   def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
     if expanded_set not in self.newsets_expanded:
-      self.interface.remove_output(rmlist=[self.splittrees/set,
-                                           self.interface.isodir/set])
+      self.remove_output(rmlist=[self.splittrees/set,
+                                 self.isodir/set])
     else:
       newset = self.newsets[self.newsets_expanded.index(expanded_set)]
       (self.splittrees/set).rename(self.splittrees/newset)
-      if newset in self.interface.r:
-        self.interface.r.remove(newset) # don't create iso tree; it already exists
+      if newset in self.r:
+        self.r.remove(newset) # don't create iso tree; it already exists
   
   def _generate_isotree(self, set):
-    self.interface.log(1, "generating iso tree '%s'" % set)
-    (self.interface.isodir/set).mkdirs()
+    self.log(1, "generating iso tree '%s'" % set)
+    (self.isodir/set).mkdirs()
     (self.splittrees/set).mkdirs()
     
-    splitter = splittree.Timber(set, dosrc=self.interface.cvars['sources-enabled'])
-    splitter.product = self.interface.product
-    splitter.u_tree     = self.interface.SOFTWARE_STORE
-    splitter.u_src_tree = self.interface.OUTPUT_DIR/'SRPMS'
+    splitter = splittree.Timber(set, dosrc=self.cvars['sources-enabled'])
+    splitter.product = self.product
+    splitter.u_tree     = self.SOFTWARE_STORE
+    splitter.u_src_tree = self.OUTPUT_DIR/'SRPMS'
     splitter.s_tree     = self.splittrees/set
-    splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.interface.cvars['anaconda-version']).get('discinfo')
-    splitter.pkgorder = self.interface.cvars['pkgorder-file']
+    splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.cvars['anaconda-version']).get('discinfo')
+    splitter.pkgorder = self.cvars['pkgorder-file']
     
-    self.interface.log(2, "splitting trees")
-    self.interface.log(3, "computing layout")
+    self.log(2, "splitting trees")
+    self.log(3, "computing layout")
     splitter.compute_layout()
     splitter.cleanup()
-    self.interface.log(3, "splitting base files")
+    self.log(3, "splitting base files")
     splitter.split_trees()
-    self.interface.log(3, "splitting rpms")
+    self.log(3, "splitting rpms")
     splitter.split_rpms()
-    self.interface.log(3, "splitting srpms")
+    self.log(3, "splitting srpms")
     splitter.split_srpms()
     
     for i in range(1, splitter.numdiscs + 1):
-      iso = '%s-disc%d' % (self.interface.product, i)
-      self.interface.log(2, "generating %s.iso" % iso)
+      iso = '%s-disc%d' % (self.product, i)
+      self.log(2, "generating %s.iso" % iso)
       if i == 1: # the first disc needs to be made bootable
         isolinux_path = self.splittrees/set/iso/'isolinux/isolinux.bin'
         i_st = isolinux_path.stat()
@@ -303,17 +268,20 @@ class IsoSetsHook:
       shlib.execute('mkisofs %s -UJRTV "%s" -o %s.iso %s' % \
          (bootargs,
           '%s %s %s disc %d' % \
-                       (self.interface.product,
-                        self.interface.version,
-                        self.interface.release,
+                       (self.product,
+                        self.version,
+                        self.release,
                         i),
-          self.interface.isodir/set/iso,
+          self.isodir/set/iso,
           self.splittrees/set/iso),
         verbose=True)
       
       if i == 1: # reset mtimte on isolinux.bin (mkisofs is so misbehaved in this regard)
         isolinux_path.utime((i_st.st_atime, i_st.st_mtime))
   
+
+EVENTS = {'ALL': [IsoMetaEvent], 'ISO': [PkgorderEvent, IsoSetsEvent]}
+
 
 L_DISCINFO_FORMAT = ''' 
 <locals>

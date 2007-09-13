@@ -1,20 +1,22 @@
-from dimsbuild.event import EVENT_TYPE_META
+from dims.dispatch import PROPERTY_META
 
-API_VERSION = 4.1
+from dimsbuild.event import Event
+
+API_VERSION = 5.0
+
+class RpmsEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'RPMS',
+      properties = PROPERTY_META,
+    )
 
 MODULES = [
   'config',
   'default_theme',
   'localrepo',
-  'logos',  
+  'logos',
   'release',
 ]
 
-EVENTS = [
-  {
-    'id':        'RPMS',
-    'properties': EVENT_TYPE_META,
-    'requires':  ['repos'],
-    'conditional-requires': ['sources-enabled', 'source-repos'],
-  },
-]
+EVENTS = {'MAIN': [RpmsEvent]}

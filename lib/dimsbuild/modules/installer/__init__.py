@@ -1,17 +1,17 @@
-from dimsbuild.event import EVENT_TYPE_META
+from dims.dispatch import PROPERTY_META
 
-API_VERSION = 4.0
+from dimsbuild.event import Event
 
-EVENTS = [
-  {
-    'id': 'INSTALLER',
-    'properties': EVENT_TYPE_META,
-  },
-]
+API_VERSION = 5.0
 
-HOOK_MAPPING = {
-  'InstallerHook': 'INSTALLER',
-}
+class InstallerEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'INSTALLER',
+      properties = PROPERTY_META,
+    )
+  
+EVENTS = {'MAIN': [InstallerEvent]}
 
 MODULES = [
   'bootiso',
@@ -26,12 +26,3 @@ MODULES = [
   'updates',
   'xen',
 ]
-
-class InstallerHook:
-  def __init__(self, interface):
-    self.ID = 'installer.__init__'
-    self.VERSION = 0
-    self.interface = interface
-
-  def pre(self):
-    (self.interface.METADATA_DIR/'INSTALLER').mkdirs()

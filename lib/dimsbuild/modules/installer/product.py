@@ -3,48 +3,24 @@ from dims import pps
 from dims import sortlib
 from dims import xmltree
 
-from dimsbuild.event    import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event    import Event
 from dimsbuild.misc     import locals_imerge
 
-from lib import ImageModifyMixin
+from dimsbuild.modules.installer.lib import ImageModifyMixin
 
 P = pps.Path
 
-API_VERSION = 4.1
-
-EVENTS = [
-  {
-    'id': 'product-image',
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['product.img'],
-    'requires': ['anaconda-version', 'buildstamp-file'],
-    'conditional-requires': ['installer-logos'],
-    'parent': 'INSTALLER',
-  },
-]
-
-HOOK_MAPPING = {
-  'ProductHook':  'product-image',
-  'ValidateHook': 'validate',
-}
+API_VERSION = 5.0
 
 
-#------ HOOKS ------#
-class ValidateHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.product.validate'
-    self.interface = interface
-
-  def run(self):
-    self.interface.validate('/distro/installer/product.img', 'product.rng')
-    
-class ProductHook(ImageModifyMixin):
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.product.product-image'
-    
-    self.interface = interface
+class ProductImageEvent(Event, ImageModifyMixin):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'product-image',
+      provides = ['product.img'],
+      requires = ['anaconda-version', 'buildstamp-file'],
+      conditionally_requires = ['logos'],
+    )
     
     self.DATA = {
       'config':    ['/distro/installer/product.img/path/text()'],
@@ -52,36 +28,40 @@ class ProductHook(ImageModifyMixin):
       'input':     [],
       'output':    [],
     }
-  
-    ImageModifyMixin.__init__(self, 'product.img', interface, self.DATA)
     
-  def error(self, e):
+    self.mdfile = self.get_mdfile()
+  
+    ImageModifyMixin.__init__(self, 'product.img')
+  
+  def _validate(self):
+    self.validate('/distro/installer/product.img', 'product.rng')
+    
+  def _error(self, e):
     try:
       self.close()
     except:
       pass
   
-  def setup(self):
-    ImageModifyMixin.setup(self)
+  def _setup(self):
+    ImageModifyMixin._setup(self)
     self.register_image_locals(L_IMAGES)
-    self.DATA['input'].append(self.interface.cvars['buildstamp-file'])
+    self.DATA['input'].append(self.cvars['buildstamp-file'])
   
-  def clean(self):
-    self.interface.log(0, "cleaning product-image event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
-    
-  def check(self):
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
+  
+  def _check(self):
     return not self.validate_image or \
-           self.interface.test_diffs()
+           self.test_diffs()
   
-  def run(self):
-    self.interface.log(0, "generating product.img")
-    self.interface.remove_output()
+  def _run(self):
+    self.log(0, "generating product.img")
+    self.remove_output()
     self.modify()
   
-  def apply(self):
-    for file in self.interface.list_output():
+  def _apply(self):
+    for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
       
@@ -89,12 +69,12 @@ class ProductHook(ImageModifyMixin):
     ImageModifyMixin.register_image_locals(self, locals)
     
     self.ic_locals = locals_imerge(L_INSTALLCLASSES,
-                                   self.interface.cvars['anaconda-version'])
+                                   self.cvars['anaconda-version'])
     
     # replace element text wtih real installclass string
     indexes = sortlib.dsort(INSTALLCLASSES.keys())
     for i in indexes:
-      if sortlib.dcompare(i, self.interface.cvars['anaconda-version']) <= 0:
+      if sortlib.dcompare(i, self.cvars['anaconda-version']) <= 0:
         self.ic_locals.get('//installclass').text = INSTALLCLASSES[i]
       else:
         break
@@ -105,12 +85,12 @@ class ProductHook(ImageModifyMixin):
     # generate installclasses if none exist
     if len((P(self.image.handler._mount)/'installclasses').findpaths(glob='*.py')) == 0:
       self._generate_installclass()
-
+    
     # write the buildstamp file to the image
     self.write_buildstamp()
   
   def _generate_installclass(self):
-    comps = xmltree.read(self.interface.cvars['comps-file'])
+    comps = xmltree.read(self.cvars['comps-file'])
     groups = comps.xpath('//group/id/text()')
     defgroups = comps.xpath('//group[default/text() = "true"]/id/text()')
     
@@ -125,6 +105,8 @@ class ProductHook(ImageModifyMixin):
     self.image.writeflo(filereader.writeFLO(installclass),
                         filename='custom.py', dest='installclasses')
 
+
+EVENTS = {'INSTALLER': [ProductImageEvent]}
 
 #------ LOCALS ------#
 L_IMAGES = ''' 

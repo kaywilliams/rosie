@@ -10,100 +10,153 @@ from dims import sync
 from dims import xmltree
 
 from dimsbuild.constants import BOOLEANS_TRUE
-from dimsbuild.event     import EventInterface, HookExit
+from dimsbuild.event     import Event, EventExit
 from dimsbuild.misc      import locals_imerge
 
 P = pps.Path
 
-#------- INTERFACES --------#
-class RpmsInterface(EventInterface):
-  def __init__(self, base):
-    EventInterface.__init__(self, base)
-
+class RpmBuildEvent(Event):
+  def __init__(self, *args, **kwargs):
+    Event.__init__(self, *args, **kwargs)
+    
+    self.build_folder = self.METADATA_DIR/'RPMS'/self.id
+    self.srcdir = self.METADATA_DIR/'RPMS'/'rpms-src'/self.id
+    
     self.LOCAL_REPO  = self.METADATA_DIR/'RPMS/localrepo'
     self.SOURCES_DIR = self.METADATA_DIR/'RPMS/rpms-src'
     self.LOCAL_RPMS  = self.LOCAL_REPO/'RPMS'
     self.LOCAL_SRPMS = self.LOCAL_REPO/'SRPMS'
     self.RPMS_DEST   = self.SOFTWARE_STORE/self.product
     
-    self.sharepath = self._base.sharepath
-
     self.cvars['local-rpms'] = self.LOCAL_RPMS
-
+  
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
+    
+  def _check(self):
+    return self.release == '0' or \
+           not self.mdfile.exists() or \
+           self.test_diffs()
+  
+  def add_data(self):
+    if self.srcdir.exists():
+      self.DATA['input'].append(self.srcdir)
+    
+    # add output files
+    self.DATA['output'].extend([
+      self.build_folder,
+      self.LOCAL_RPMS/ \
+           ('%s-%s-%s.%s.rpm' % (self.rpmname, self.version, self.release, self.arch)),
+      self.LOCAL_SRPMS/ \
+           ('%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release))
+    ])      
+  
+  def build_rpm(self):
+    self.log(0, "building %s rpm" % self.rpmname)
+    self.check_release()
+    self.log(1, "release number: %s" % self.release)
+    self.build()
+    self.save_release()
+  
+  def save_release(self):
+    rpms_element    = xmltree.uElement('rpms',    parent=self.config.get('/distro'))
+    parent_element  = xmltree.uElement(self.id,   parent=rpms_element)
+    release_element = xmltree.uElement('release', parent=parent_element)
+    
+    release_element.text = self.release
+    self.config.write(self.config.file)
+  
+  def check_release(self):
+    if not self.mdfile.exists() or \
+       self.has_changed('input') or \
+       self.has_changed('variables') or \
+       self.has_changed('config'):
+      self.release = str(int(self.release)+1)
+  
+  def check_rpms(self):
+    rpm = self.LOCAL_RPMS/'%s-%s-%s.%s.rpm' % (self.rpmname, self.version,
+                                               self.release, self.arch)
+    srpm = self.LOCAL_SRPMS/'%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release)
+    if not rpm.exists():
+      raise RuntimeError("missing rpm: '%s' at '%s'" % (rpm.basename, rpm))
+    if not srpm.exists():
+      raise RuntimeError("missing srpm: '%s' at '%s'" % (srpm.basename, srpm))
+  
+  def test_build(self, default):
+    tobuild = self.config.get(['/distro/rpms/%s/@enabled' % self.id,
+                               '/distro/rpms/@enabled'], default)
+    if tobuild == 'default':
+      return default in BOOLEANS_TRUE
+    return tobuild in BOOLEANS_TRUE
+  
+  def generate(self):   pass
+  def getiscript(self): return None
+  def getpscript(self): return None
+  
   def createrepo(self, path=None):
     path = path or self.LOCAL_REPO
     cwd = os.getcwd()
     os.chdir(path)
     shlib.execute('/usr/bin/createrepo -q .')
     os.chdir(cwd)
-
-  def add_rpm(self, path):
-    self.cache(path, self.LOCAL_REPO)
-
-#------ MIXINS ------#
-class RpmBuildMixin:
-  def __init__(self, name):
-    self.name = name
-    self.build_folder = self.interface.METADATA_DIR/'RPMS'/self.name
-    self.srcdir = self.interface.METADATA_DIR/'RPMS'/'rpms-src'/self.name
-
+  
   def build(self):
     self.build_folder.mkdirs()
-    self.interface.sync_input()    
+    self.sync_input()    
     self.generate()
     self.write_spec()
     self.write_manifest()
     mkrpm.build(self.build_folder,
-                self.interface.LOCAL_REPO,
+                self.LOCAL_REPO,
                 keepTemp=True, 
-                quiet=(self.interface.logthresh < 5))
+                quiet=(self.logger.threshold < 5))
     (self.build_folder/'dist').rm(recursive=True, force=True)
-
+  
   def register(self, rpmname, description, summary, fileslocals=None, installinfo=None, **kwargs):
     self.rpmname = rpmname
     self.description = description
     self.summary = summary
-
+    
     if fileslocals:
-      self.fileslocals = locals_imerge(fileslocals, self.interface.cvars['anaconda-version'])
+      self.fileslocals = locals_imerge(fileslocals, self.cvars['anaconda-version'])
     else:
       self.fileslocals = None
-
+    
     self.arch      = kwargs.get('arch',      'noarch')
     self.author    = kwargs.get('author',    'dimsbuild')
-    self.fullname  = kwargs.get('fullname',  self.interface.fullname)
+    self.fullname  = kwargs.get('fullname',  self.fullname)
     self.obsoletes = kwargs.get('obsoletes', None)
     self.provides  = kwargs.get('provides',  None)
     self.release   = kwargs.get('release',   '0')
     self.requires  = kwargs.get('requires',  None)
-    self.version   = kwargs.get('version',   self.interface.version)
-
+    self.version   = kwargs.get('version',   self.version)
+    
     if installinfo:
-      self.installinfo = installinfo      
+      self.installinfo = installinfo
       xpaths = []
       for k,v in self.installinfo.items():
         xpath,_ = v
         if xpath:
-          self.interface.setup_sync(self.build_folder/k.lstrip('/'),
-                                    xpaths=[xpath])
+          self.setup_sync(self.build_folder/k.lstrip('/'), xpaths=[xpath])
     else:
       self.installinfo = None
-
+  
   def write_spec(self):
     setupcfg = self.build_folder/'setup.cfg'
     if setupcfg.exists(): return # can happen only if setup.cfg is an input file
-
+    
     spec = ConfigParser()
     spec.add_section('pkg_data')
     spec.add_section('bdist_rpm')
-
+    
     spec.set('pkg_data', 'name',             self.rpmname)
     spec.set('pkg_data', 'long_description', self.description)
     spec.set('pkg_data', 'description',      self.summary)
-
+    
     spec.set('pkg_data', 'author',   self.author)
     spec.set('pkg_data', 'version',  self.version)
-
+    
     spec.set('bdist_rpm', 'force_arch',        self.arch)
     spec.set('bdist_rpm', 'distribution_name', self.fullname)
     
@@ -112,18 +165,18 @@ class RpmBuildMixin:
     if self.provides:  spec.set('bdist_rpm', 'provides',  self.provides)
     if self.requires:  spec.set('bdist_rpm', 'requires',  self.requires)
     if self.obsoletes: spec.set('bdist_rpm', 'obsoletes', self.obsoletes)
-
+    
     iscript = self.getiscript()
     pscript = self.getpscript()
     if iscript: spec.set('bdist_rpm', 'install_script', iscript)
     if pscript: spec.set('bdist_rpm', 'post_install', pscript)
-
+    
     self.__addfiles(spec)
-
+    
     f = open(setupcfg, 'w')
     spec.write(f)
     f.close()    
-
+  
   def write_manifest(self):
     manifest = ['setup.py']
     if self.srcdir.exists():
@@ -150,7 +203,7 @@ class RpmBuildMixin:
         config_files.extend([ installdir/x.basename for x in data_files[installdir] ])
     if config_files:
       spec.set('bdist_rpm', 'config_files', '\n\t'.join(config_files))
-
+    
     # mark files to be installed in '/usr/share/doc' as doc files
     doc_files = []
     for installdir in data_files.keys():
@@ -158,7 +211,7 @@ class RpmBuildMixin:
         doc_files.extend([ installdir/x.basename for x in data_files[installdir] ])
     if doc_files:
       spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))    
-
+  
   def __getfiles(self):
     sources = {}
     if self.srcdir.exists():
@@ -176,7 +229,7 @@ class RpmBuildMixin:
                     dir.findpaths(type=pps.constants.TYPE_NOT_DIR) ]
         else:
           files = []
-
+        
         if files:        
           installpath = P(v[1])
           if sources.has_key(installpath):
@@ -202,8 +255,6 @@ class RpmBuildMixin:
 
 
 class ColorMixin:
-  def __init__(self): pass
-
   def setColors(self, be=False, prefix='0x'):    
     # compute the background and foreground colors to use
     self.distroname, self.distroversion = self._get_distro_info()
@@ -231,90 +282,13 @@ class ColorMixin:
     return '0x%s%s%s' % (color[4:], color[2:4], color[:2])
 
   def _get_distro_info(self):
-    fullname = self.interface.cvars['source-vars']['fullname']    
-    version = self.interface.cvars['source-vars']['version']
+    fullname = self.cvars['source-vars']['fullname']    
+    version = self.cvars['source-vars']['version']
     return fullname, version
-  
-
-#------- HOOK SUPERCLASS ---------#
-class RpmBuildHook(RpmBuildMixin):
-  def __init__(self, name):
-    RpmBuildMixin.__init__(self, name)
-
-  def clean(self):
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
-    
-  def check(self):
-    return self.release == '0' or \
-           not self.mdfile.exists() or \
-           self.interface.test_diffs()
-
-  def add_data(self):
-    if self.srcdir.exists():
-      self.DATA['input'].append(self.srcdir)
-
-    # add output files
-    self.DATA['output'].extend([
-      self.build_folder,
-      self.interface.LOCAL_RPMS/ \
-           ('%s-%s-%s.%s.rpm' % (self.rpmname, self.version, self.release, self.arch)),
-      self.interface.LOCAL_SRPMS/ \
-           ('%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release))
-    ])      
-  
-  def build_rpm(self):
-    self.interface.log(0, "building %s rpm" % self.rpmname)
-    self.check_release()
-    self.interface.log(1, "release number: %s" % self.release)
-    self.build()
-    self.save_release()
-
-  def save_release(self):
-    rpms_element    = xmltree.uElement('rpms',    parent=self.interface.config.get('/distro'))
-    parent_element  = xmltree.uElement(self.name, parent=rpms_element)
-    release_element = xmltree.uElement('release', parent=parent_element)
-
-    release_element.text = self.release
-    self.interface.config.write(self.interface.config.file)
-  
-  def check_release(self):
-    if not self.mdfile.exists() or \
-       self.interface.has_changed('input') or \
-       self.interface.has_changed('variables') or \
-       self.interface.has_changed('config'):
-      self.release = str(int(self.release)+1)
-
-  def check_rpms(self):
-    rpm = self.interface.LOCAL_RPMS/'%s-%s-%s.%s.rpm' % (self.rpmname, self.version,
-                                                         self.release, self.arch)
-    srpm = self.interface.LOCAL_SRPMS/'%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release)
-    if not rpm.exists():
-      raise RuntimeError("missing rpm: '%s' at '%s'" % (rpm.basename, rpm))
-    if not srpm.exists():
-      raise RuntimeError("missing srpm: '%s' at '%s'" % (srpm.basename, srpm))
-    
-  def test_build(self, default):
-    tobuild = self.interface.config.get('/distro/rpms/%s/@enabled' % self.name,
-                   self.interface.config.get('/distro/rpms/@enabled', default))
-    if tobuild == 'default':
-      return default in BOOLEANS_TRUE
-    return tobuild in BOOLEANS_TRUE
-
-  def generate(self):
-    pass
-
-  def getiscript(self):
-    return None
-  
-  def getpscript(self):
-    return None
-  
   
 
 #---------- ERRORS -------------#
 class OutputInvalidError(IOError): pass
-
 
 #---------- GLOBAL VARIABLES --------#
 # each element for a distro's version, e.g. redhat/5, is a 3-tuple:

@@ -11,79 +11,52 @@ from ConfigParser import ConfigParser
 
 from dims import FormattedFile as ffile
 
-from dimsbuild.event  import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event  import Event
 from dimsbuild.locals import L_BUILDSTAMP_FORMAT
 from dimsbuild.misc   import locals_imerge
 
-API_VERSION = 4.1
+API_VERSION = 5.0
 
-#------ EVENTS ------#
-EVENTS = [
-  {
-    'id': 'discinfo',
-    'parent': 'INSTALLER',
-    'provides': ['.discinfo'],
-    'requires': ['anaconda-version'],
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-  },
-  {
-    'id': 'treeinfo',
-    'parent': 'INSTALLER',
-    'provides': ['.treeinfo'],
-    'requires': ['anaconda-version'],
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-  },
-  {
-    'id': 'buildstamp',
-    'parent': 'INSTALLER',
-    'provides': ['buildstamp-file'],
-    'requires': ['anaconda-version', 'source-vars'],
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-  }
-]
 
-HOOK_MAPPING = {
-  'DiscinfoHook'  : 'discinfo',
-  'TreeinfoHook'  : 'treeinfo',
-  'BuildStampHook': 'buildstamp',
-}
-
-#------ HOOKS ------#
-class DiscinfoHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.discinfo.discinfo'
+class DiscinfoEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'discinfo',
+      provides = ['.discinfo'],
+      requires = ['anaconda-version'],
+    )
     
-    self.interface = interface
-    self.difile = self.interface.SOFTWARE_STORE/'.discinfo'
-
+    self.difile = self.SOFTWARE_STORE/'.discinfo'
+    
     self.DATA =  {
       'variables': ['BASE_VARS'
                     'cvars[\'anaconda-version\']'],
       'output':    [self.difile]
     }
-    self.mdfile = self.interface.METADATA_DIR/'discinfo.md'
-
-  def setup(self):
-    self.interface.setup_diff(self.mdfile, self.DATA)
     
-  def clean(self):
-    self.interface.log(0, "cleaning treeinfo event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
+    self.mdfile = self.get_mdfile()
   
-  def check(self):
-    return self.interface.test_diffs()
+  def _setup(self):
+    self.setup_diff(self.mdfile, self.DATA)
+    
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
   
-  def run(self):
+  def _check(self):
+    return self.test_diffs()
+  
+  def _run(self):
+    self.log(0, "generating discinfo")
+    
     # setup
-    locals = locals_imerge(L_DISCINFO_FORMAT, self.interface.cvars['anaconda-version'])
+    locals = locals_imerge(L_DISCINFO_FORMAT, self.cvars['anaconda-version'])
     
     # create empty .discinfo formatted file object
     discinfo = ffile.XmlToFormattedFile(locals.get('discinfo'))
     
-    # get product, fullname, and basearch from interface
-    base_vars = copy.deepcopy(self.interface.BASE_VARS)
+    # get product, fullname, and basearch from cvars
+    base_vars = copy.deepcopy(self.cvars['base-vars'])
     
     # add timestamp and discs using defaults to match anaconda makestamp.py
     base_vars.update({'timestamp': str(time.time()), 'discs': '1'})
@@ -92,53 +65,56 @@ class DiscinfoHook:
     discinfo.write(self.difile, **base_vars)
     self.difile.chmod(0644)
   
-  def apply(self):
+  def _apply(self):
     if not self.difile.exists():
       raise RuntimeError, "Unable to find .discinfo file at '%s'" % self.difile
-    self.interface.write_metadata()
+    self.write_metadata()
 
 
-class TreeinfoHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.discinfo.treeinfo'
+class TreeinfoEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'treeinfo',
+      provides = ['.treeinfo'],
+      requires = ['anaconda-version'],
+    )
     
-    self.interface = interface
-    self.tifile = self.interface.SOFTWARE_STORE/'.treeinfo'
+    self.tifile = self.SOFTWARE_STORE/'.treeinfo'
 
     self.DATA =  {
       'variables': ['BASE_VARS', 
                     'cvars[\'product-path\']'],
       'output':    [self.tifile]
     }
-    self.mdfile = self.interface.METADATA_DIR/'treeinfo.md'
-
-  def setup(self):
-    self.interface.setup_diff(self.mdfile, self.DATA)
     
-  def clean(self):
-    self.interface.log(0, "cleaning treeinfo event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
+    self.mdfile = self.get_mdfile()
   
-  def check(self):
-    return self.interface.test_diffs()
+  def _setup(self):
+    self.setup_diff(self.mdfile, self.DATA)
+    
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
   
-  def run(self):
+  def _check(self):
+    return self.test_diffs()
+  
+  def _run(self):
+    self.log(0, "generating treeinfo")
     treeinfo = ConfigParser()
     
     # generate treeinfo sections
     treeinfo.add_section('general')
-    treeinfo.set('general', 'family',     self.interface.product)
+    treeinfo.set('general', 'family',     self.product)
     treeinfo.set('general', 'timestamp',  time.time())
-    treeinfo.set('general', 'variant',    self.interface.product)
+    treeinfo.set('general', 'variant',    self.product)
     treeinfo.set('general', 'totaldiscs', '1')
-    treeinfo.set('general', 'version',    self.interface.version)
+    treeinfo.set('general', 'version',    self.version)
     treeinfo.set('general', 'discnum',    '1')
-    treeinfo.set('general', 'packagedir', self.interface.cvars['product-path'])
-    treeinfo.set('general', 'arch',       self.interface.basearch)
+    treeinfo.set('general', 'packagedir', self.cvars['product-path'])
+    treeinfo.set('general', 'arch',       self.basearch)
     
-    imgsect = 'images-%s' % self.interface.basearch
+    imgsect = 'images-%s' % self.basearch
     treeinfo.add_section(imgsect)
     treeinfo.set(imgsect, 'kernel',       'images/pxeboot/vmlinux')
     treeinfo.set(imgsect, 'initrd',       'images/pxeboot/initrd.img')
@@ -157,63 +133,64 @@ class TreeinfoHook:
     tiflo.close()
     self.tifile.chmod(0644)
     
-    self.interface.write_metadata()
+    self.write_metadata()
   
-  def apply(self):
+  def _apply(self):
     if not self.tifile.exists():
       raise RuntimeError, "Unable to find .treeinfo file at '%s'" % self.tifile
+
+class BuildstampEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'buildstamp',
+      provides = ['buildstamp-file'],
+      requires = ['anaconda-version', 'source-vars'],
+    )
     
-
-class BuildStampHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.discinfo.buildstamp'
-    self.interface = interface
-
-    self.bsfile = self.interface.METADATA_DIR/'.buildstamp'
-
+    self.bsfile = self.METADATA_DIR/'.buildstamp'
+    
     self.DATA = {
       'variables': ['BASE_VARS',
                     'cvars[\'anaconda-version\']',
                     'cvars[\'source-vars\']'],
       'output':    [self.bsfile],        
     }
-    self.mdfile = self.interface.METADATA_DIR/'buildstamp.md'
-
-  def setup(self):
-    self.interface.setup_diff(self.mdfile, self.DATA)
-    self.anaconda_version = self.interface.cvars['anaconda-version']
-
-  def clean(self):
-    self.interface.log(0, "cleaning buildstamp")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
-      
-  def check(self):
-    return self.interface.test_diffs()
-
-  def run(self):
-    "Generate a .buildstamp file."
-    self.interface.log(0, "generating buildstamp")
     
-    locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.anaconda_version)
+    self.mdfile = self.get_mdfile()
+  
+  def _setup(self):
+    self.setup_diff(self.mdfile, self.DATA)
+  
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
+      
+  def _check(self):
+    return self.test_diffs()
+  
+  def _run(self):
+    "Generate a .buildstamp file."
+    self.log(0, "generating buildstamp")
+    
+    locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.cvars['anaconda-version'])
     
     buildstamp_fmt = locals.get('//buildstamp-format')
     buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
     
-    base_vars = copy.deepcopy(self.interface.cvars['source-vars'])
-    base_vars.update(self.interface.BASE_VARS)
+    base_vars = copy.deepcopy(self.cvars['source-vars'])
+    base_vars.update(self.cvars['base-vars'])
     
     buildstamp.write(self.bsfile, **base_vars)
     self.bsfile.chmod(0644)
     
-    self.interface.write_metadata()
+    self.write_metadata()
   
-  def apply(self):
+  def _apply(self):
     if not self.bsfile.exists():
       raise RuntimeError("missing file '%s'" % self.bsfile)
-    self.interface.cvars['buildstamp-file'] = self.bsfile
+    self.cvars['buildstamp-file'] = self.bsfile
 
+EVENTS = {'INSTALLER': [DiscinfoEvent, TreeinfoEvent, BuildstampEvent]}
 
 #------ LOCALS ------#
 L_DISCINFO_FORMAT = ''' 

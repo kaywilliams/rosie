@@ -1,95 +1,76 @@
-from dimsbuild.event import EVENT_TYPE_PROC, EVENT_TYPE_MDLR
+from dimsbuild.event import Event
 
-from lib import FileDownloadMixin, ImageModifyMixin
+from dimsbuild.modules.installer.lib import FileDownloadMixin, ImageModifyMixin
 
-API_VERSION = 4.0
-
-EVENTS = [
-  {
-    'id': 'xen-images',
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'provides': ['vmlinuz-xen', 'initrd-xen'],
-    'requires': ['anaconda-version', 'initrd-file', 'buildstamp-file'],
-    'parent': 'INSTALLER',
-  },
-]
-
-HOOK_MAPPING = {
-  'XenHook':      'xen-images',
-  'ValidateHook': 'validate',
-}
+API_VERSION = 5.0
 
 XEN_OUTPUT_FILES = [
   'images/xen/initrd.img',
   'images/xen/vmlinuz',
 ]
 
-#------ HOOKS ------#
-class ValidateHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.xen.validate'
-    self.interface = interface
-
-  def run(self):
-    self.interface.validate('/distro/installer/initrd.img', 'xen.rng')
+class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'xen-images',
+      provides = ['vmlinuz-xen', 'initrd-xen'],
+      requires = ['anaconda-version', 'initrd-file', 'buildstamp-file'],
+    )
     
-class XenHook(ImageModifyMixin, FileDownloadMixin):
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'installer.xen.xen-images'
+    self.xen_dir = self.SOFTWARE_STORE/'images/xen'
     
-    self.interface = interface
-
-    self.xen_dir = self.interface.SOFTWARE_STORE/'images/xen'
-
     self.DATA = {
       'config':    ['/distro/installer/initrd.img/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
     }
+    
+    self.mdfile = self.get_mdfile()
+    
+    ImageModifyMixin.__init__(self, 'initrd.img')
+    FileDownloadMixin.__init__(self, self.getBaseRepoId())
   
-    ImageModifyMixin.__init__(self, 'initrd.img', interface, self.DATA,
-      mdfile=interface.METADATA_DIR/'INSTALLER/initrd.img-xen.md')
-    FileDownloadMixin.__init__(self, interface, self.interface.getBaseRepoId())
+  def _validate(self):
+    self.validate('/distro/installer/initrd.img', 'xen.rng')
   
-  def error(self, e):
+  def _error(self, e):
     try:
       self.close()
     except:
       pass
   
-  def setup(self):
-    ImageModifyMixin.setup(self)
+  def _setup(self):
+    ImageModifyMixin._setup(self)
     self.register_image_locals(L_IMAGES)
     self.register_file_locals(L_FILES)
-    self.DATA['input'].append(self.interface.cvars['buildstamp-file'])
+    self.DATA['input'].append(self.cvars['buildstamp-file'])
     
-  def clean(self):
-    self.interface.log(0, "cleaning xen-images event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
   
-  def check(self):
+  def _check(self):
     return not self.validate_image() or \
-           self.interface.test_diffs()
+           self.test_diffs()
   
-  def run(self):
-    self.interface.log(0, "preparing xen images")
-    self.interface.remove_output(all=True)
+  def _run(self):
+    self.log(0, "preparing xen images")
+    self.remove_output(all=True)
     self.download()
     self.modify()
   
-  def apply(self):
-    for file in self.interface.list_output():
+  def _apply(self):
+    for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' in '%s'" % (file.basename, file.dirname))
-
+  
   def generate(self):
     ImageModifyMixin.generate(self)
     self.write_buildstamp()
-  
+
+
+EVENTS = {'INSTALLER': [XenImagesEvent]}
 
 L_FILES = ''' 
 <locals>

@@ -9,54 +9,22 @@ from dims import shlib
 from dims.repocreator import YumRepoCreator
 
 from dimsbuild.constants import *
-from dimsbuild.event     import EVENT_TYPE_MDLR
-from dimsbuild.interface import EventInterface
+from dimsbuild.event     import Event
 
 P = pps.Path
 
-API_VERSION = 4.1
-
-EVENTS = [
-  {
-    'id': 'repofile',
-    'properties': EVENT_TYPE_MDLR,
-    'conditional-requires': ['gpgsign-public-key'] 
-  },
-  {
-    'id': 'publish',
-    'interface': 'PublishInterface',
-    'properties': EVENT_TYPE_MDLR,
-    'conditional-requires': ['MAIN', 'ISO'],
-    'parent': 'ALL',
-  },
-]
-
-HOOK_MAPPING = {
-  'RepofileHook': 'repofile',
-  'PublishHook':  'publish',
-}
+API_VERSION = 5.0
 
 
-class PublishInterface(EventInterface):
-  def __init__(self, base):
-    EventInterface.__init__(self, base)
-
-    self.PUBLISH_DIR = \
-      P(self.config.get('/distro/publish/local-webroot/text()', '/var/www/html')) / \
-        self.config.get('/distro/publish/path-prefix/text()', 'distros') / \
-        self.pva
-
-
-#------ HOOKS ------#
-class RepofileHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'publish.repofile'
-    
-    self.interface = interface
-    
-    self.repodir = self.interface.METADATA_DIR/'RPMS/rpms-src/release-rpm/etc/yum.repos.d'
-    self.repofile    = self.repodir/'%s.repo' % self.interface.product
+class RepoFileEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'repo-file',
+      conditionally_requires = ['gpgsign-public-key'],
+    )
+  
+    self.repodir = self.METADATA_DIR/'RPMS/rpms-src/release-rpm/etc/yum.repos.d'
+    self.repofile    = self.repodir/'%s.repo' % self.product
     self.srcrepofile = self.repodir/'source.repo'
     
     self.DATA =  {
@@ -64,43 +32,43 @@ class RepofileHook:
       'variables': ['cvars[\'gpgsign-public-key\']'],
       'output':    [self.repofile]
     }
-    self.mdfile = self.interface.METADATA_DIR/'repofile.md'
+    self.mdfile = self.get_mdfile()
 
-  def setup(self):
-    self.interface.setup_diff(self.mdfile, self.DATA)
+  def _setup(self):
+    self.setup_diff(self.mdfile, self.DATA)
   
-  def clean(self):
+  def _clean(self):
     self.repofile.rm(force=True)
     self.srcrepofile.rm(force=True)
-    self.interface.clean_metadata()
+    self.clean_metadata()
   
-  def check(self):
-    return self.interface.test_diffs()
+  def _check(self):
+    return self.test_diffs()
   
-  def run(self):
+  def _run(self):
     # if we're not enabled, clean up and return immediately
-    if self.interface.config.get('/distro/publish/repofile/@enabled',
-                                 'True') not in BOOLEANS_TRUE:
-      self.clean()
+    if self.config.get('/distro/publish/repofile/@enabled',
+                       'True') not in BOOLEANS_TRUE:
+      self._clean()
       return
     
-    self.interface.log(0, "generating yum repo file")
+    self.log(0, "generating yum repo file")
     
     self.repofile.dirname.mkdirs()
     
-    authority = self.interface.config.get('/distro/publish/remote-webroot/text()', None) or \
+    authority = self.config.get('/distro/publish/remote-webroot/text()', None) or \
                 'http://' + self._getIpAddress()
-    path = P(self.interface.config.get('/distro/publish/path-prefix/text()', 'distros')) / \
-             self.interface.pva/'os'
+    path = P(self.config.get('/distro/publish/path-prefix/text()', 'distros')) / \
+             self.pva/'os'
     
-    lines = [ '[%s]' % self.interface.product,
-              'name=%s - %s' % (self.interface.fullname, self.interface.basearch),
+    lines = [ '[%s]' % self.product,
+              'name=%s - %s' % (self.fullname, self.basearch),
               'baseurl=%s/%s' % (authority, path) ]
     
-    if self.interface.cvars['gpgsign-public-key']:
+    if self.cvars['gpgsign-public-key']:
       gpgkey = '%s/%s/%s' % (authority,
                              path,
-                             P(self.interface.cvars['gpgsign-public-key']).basename)
+                             P(self.cvars['gpgsign-public-key']).basename)
       lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
     else:
       lines.append('gpgcheck=0')
@@ -108,17 +76,16 @@ class RepofileHook:
     filereader.write(lines, self.repofile)
     
     # include source repos too, if requested
-    if self.interface.config.get('/distro/publish/repofile/@include-input',
-                                 'False') in BOOLEANS_TRUE:
+    if self.config.get('/distro/publish/repofile/@include-input',
+                       'False') in BOOLEANS_TRUE:
       self.DATA['output'].append(self.srcrepofile)
       
       rc = YumRepoCreator(self.srcrepofile,
-                          self.interface.config.file,
+                          self.config.file,
                           '/distro/repos')
       rc.createRepoFile()
-  
-  def apply(self):
-    self.interface.write_metadata()
+    
+    self.write_metadata()
   
   def _getIpAddress(self, ifname='eth0'):
     # TODO - improve this, its not particularly accurate in some cases
@@ -127,40 +94,47 @@ class RepofileHook:
                                         0x8915,
                                         struct.pack('256s', ifname[:15]))[20:24])
 
-class PublishHook:
-  def __init__(self, interface):
-    self.VERSION = 1
-    self.ID = 'publish.publish'
+class PublishEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'publish',
+      comes_after = ['MAIN', 'ISO'],
+    )
     
-    self.interface = interface
-
+    self.PUBLISH_DIR = \
+      P(self.config.get('/distro/publish/local-webroot/text()', '/var/www/html')) / \
+        self.config.get('/distro/publish/path-prefix/text()', 'distros') / \
+        self.pva
+    
     self.DATA =  {
       'variables': ['PUBLISH_DIR'],
       'input':     [],
       'output':    [],
     }
-    self.mdfile = self.interface.METADATA_DIR/'publish.md'
-
-  def setup(self):
-    self.interface.setup_diff(self.mdfile, self.DATA)
-    for dir in ['os', 'iso', 'SRPMS']:
-      pdir = self.interface.OUTPUT_DIR/dir
-      if pdir.exists():
-        self.interface.setup_sync(self.interface.PUBLISH_DIR, paths=[pdir])
-  
-  def clean(self):
-    self.interface.log(0, "cleaning publish event")
-    self.interface.remove_output(all=True)
-    self.interface.clean_metadata()
-
-  def check(self):
-    return self.interface.test_diffs()
     
-  def run(self):
-    "Publish the contents of interface.SOFTWARE_STORE to interface.PUBLISH_STORE"
-    self.interface.log(0, "publishing output store")
-    self.interface.remove_output()
-    self.interface.sync_input(copy=True, link=True)
-    shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.interface.PUBLISH_DIR)
+    self.mdfile = self.get_mdfile()
+  
+  def _setup(self):
+    self.setup_diff(self.mdfile, self.DATA)
+    for dir in ['os', 'iso', 'SRPMS']:
+      pdir = self.OUTPUT_DIR/dir
+      if pdir.exists():
+        self.setup_sync(self.PUBLISH_DIR, paths=[pdir])
+  
+  def _clean(self):
+    self.remove_output(all=True)
+    self.clean_metadata()
+  
+  def _check(self):
+    return self.test_diffs()
+  
+  def _run(self):
+    "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
+    self.log(0, "publishing output store")
+    self.remove_output()
+    self.sync_input(copy=True, link=True)
+    shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.PUBLISH_DIR)
+    
+    self.write_metadata()
 
-    self.interface.write_metadata()
+EVENTS = {'ALL': [PublishEvent], 'MAIN': [RepoFileEvent]}

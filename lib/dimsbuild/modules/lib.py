@@ -29,4 +29,3 @@ class ListCompareMixin:
         self.cb.notify_right(len(self.r))
       if self.rfn:
         for i in self.r: self.rfn(i)
-

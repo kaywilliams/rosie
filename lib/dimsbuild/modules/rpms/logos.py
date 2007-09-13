@@ -2,10 +2,9 @@ from dims import pps
 from dims import shlib
 
 from dimsbuild.constants import BOOLEANS_TRUE
-from dimsbuild.event     import EVENT_TYPE_MDLR, EVENT_TYPE_PROC
 
-from lib       import ColorMixin, OutputInvalidError, RpmBuildHook, RpmsInterface
-from rpmlocals import L_LOGOS, GDM_GREETER_THEME, THEME_XML
+from dimsbuild.modules.rpms.lib    import ColorMixin, OutputInvalidError, RpmBuildEvent
+from dimsbuild.modules.rpms.locals import L_LOGOS, GDM_GREETER_THEME, THEME_XML
 
 try:
   import Image
@@ -17,99 +16,76 @@ except ImportError:
 
 P = pps.Path
 
-EVENTS = [
-  {
-    'id':        'logos-rpm',
-    'interface': 'RpmsInterface',
-    'properties': EVENT_TYPE_PROC|EVENT_TYPE_MDLR,
-    'parent':    'RPMS',
-    'requires':  ['source-vars', 'anaconda-version'],
-  },
-]
+API_VERSION = 5.0
 
-HOOK_MAPPING = {
-  'LogosRpmHook': 'logos-rpm',
-  'ValidateHook': 'validate',
-}
-
-API_VERSION = 4.1
-
-#---------- HOOKS -------------#
-class ValidateHook:
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'logos.validate'
-    self.interface = interface
-
-  def run(self):
-    self.interface.validate('/distro/rpms/logos-rpm',
-                            schemafile='logos-rpm.rng')
-
-class LogosRpmHook(RpmBuildHook, ColorMixin):
-  def __init__(self, interface):
-    self.VERSION = 0
-    self.ID = 'logos.logos-rpm'
-    self.interface = interface
+class LogosRpmEvent(RpmBuildEvent, ColorMixin):
+  def __init__(self):
+    RpmBuildEvent.__init__(self,
+      id = 'logos-rpm',
+      requires = ['source-vars', 'anaconda-version'],
+    )
+    
     self.DATA = {
       'config': ['/distro/rpms/logos-rpm'],
       'variables': ['fullname', 'product'],
       'output': [],
     }
-    self.mdfile = self.interface.METADATA_DIR/'RPMS/logos-rpm.md'
-
-    RpmBuildHook.__init__(self, 'logos-rpm')
-    ColorMixin.__init__(self)
-
-  def setup(self):
-    self.interface.setup_diff(self.mdfile, self.DATA)
+    
+    self.mdfile = self.get_mdfile()
+    
+  def _validate(self):
+    self.validate('/distro/rpms/logos-rpm', 'logos-rpm.rng')
+  
+  def _setup(self):
+    self.setup_diff(self.mdfile, self.DATA)
     
     kwargs = {}
-    kwargs['release'] = self.interface.config.get('/distro/rpms/logos-rpm/release/text()', '0')
+    kwargs['release'] = self.config.get('/distro/rpms/logos-rpm/release/text()', '0')
     
     kwargs['obsoletes'] = ''
-    if self.interface.config.pathexists('/distro/rpms/logos-rpm/obsoletes/package/text()'):
-      kwargs['obsoletes'] += ' '.join(self.interface.config.xpath(
+    if self.config.pathexists('/distro/rpms/logos-rpm/obsoletes/package/text()'):
+      kwargs['obsoletes'] += ' '.join(self.config.xpath(
                              '/distro/rpms/logos-rpm/obsoletes/package/text()'))
-    if self.interface.config.get('/distro/rpms/logos-rpm/@use-default-set', 'True'):
+    if self.config.get('/distro/rpms/logos-rpm/@use-default-set', 'True'):
       kwargs['obsoletes'] += 'fedora-logos centos-logos redhat-logos'
     kwargs['provides'] = kwargs['obsoletes'] + ' system-logos'
-    self.register('%s-logos' % self.interface.product,
+    self.register('%s-logos' % self.product,
                   'The %s-logos package contains image files which '\
                   'have been automatically created by dimsbuild and '\
-                  'are specific to %s.' % (self.interface.product, self.interface.fullname),
-                  'Icons and pictures related to %s' % self.interface.fullname,
-                  fileslocals=L_LOGOS % ((self.interface.product,)*8),
+                  'are specific to %s.' % (self.product, self.fullname),
+                  'Icons and pictures related to %s' % self.fullname,
+                  fileslocals=L_LOGOS % ((self.product,)*8),
                   **kwargs)
     self.add_data()
     
     # set the font to use
-    available_fonts = (self.interface.sharepath/'fonts').findpaths(glob='*.ttf')
+    available_fonts = (self.SHARE_DIR/'fonts').findpaths(glob='*.ttf')
     try:
       self.fontfile = available_fonts[0]
     except IndexError:
-      raise RuntimeError("Unable to find any font files in share path '%s'" % self.interface.sharepath)
-
+      raise RuntimeError("Unable to find any font files in share path '%s'" % self.SHARE_DIR)
+    
     # convert the colors to big endian because the python-imaging
     # library uses big-endian colors.    
     self.setColors(be=True)
     self.bgcolor = int(self.bgcolor, 16)
     self.textcolor = int(self.textcolor, 16)
     self.hlcolor = int(self.hlcolor, 16)
-
-  def run(self):
-    self.interface.remove_output(all=True)
+  
+  def _run(self):
+    self.remove_output(all=True)
     if not self.test_build('True'):
       return
     self.build_rpm()
-    self.interface.write_metadata()    
-
-  def apply(self):
+    self.write_metadata()    
+  
+  def _apply(self):
     if not self.test_build('True'):
       return
     self.check_rpms()
-    if not self.interface.cvars['custom-rpms-info']:
-      self.interface.cvars['custom-rpms-info'] = []      
-    self.interface.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
+    if not self.cvars['custom-rpms-info']:
+      self.cvars['custom-rpms-info'] = []      
+    self.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
     
   def generate(self):
     self._generate_images()
@@ -131,23 +107,23 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
             image = Image.open(file)
           except IOError:
             # should never happen
-            self.interface.log(4, "file '%s' was not found" % file) 
+            self.log(4, "file '%s' was not found" % file) 
             return False
           if image.size != (w,h):
-            self.interface.log(4, "file '%s' has invalid dimensions" % file)   
+            self.log(4, "file '%s' has invalid dimensions" % file)   
             return False
     return True
-
+  
   def _generate_theme_files(self):
     # generate the GdmGreeterTheme.desktop file
     f = (self.build_folder/'gdm/themes' / \
-         self.interface.product/'GdmGreeterTheme.desktop').open('w')
-    f.write(GDM_GREETER_THEME %(self.interface.product, self.interface.fullname,
-                                self.interface.fullname,))
+         self.product/'GdmGreeterTheme.desktop').open('w')
+    f.write(GDM_GREETER_THEME %(self.product, self.fullname,
+                                self.fullname,))
     f.close()
-    # generate the %{self.interface.product}.xml file
+    # generate the %{self.product}.xml file
     f = (self.build_folder/'gdm/themes' / \
-         self.interface.product/'%s.xml' % self.interface.product).open('w')
+         self.product/'%s.xml' % self.product).open('w')
     f.write(THEME_XML)
     f.close()
   
@@ -155,7 +131,7 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
     for logoinfo in self.fileslocals.xpath('//files/file', []):
       # (id, _, location, width, height, maxwidth, x, y, gradient, highlight)
       i,_,l,b,m,x,y,g,h,f = self._get_image_info(logoinfo)
-      sharedfile = self.interface.sharepath/'logos'/i
+      sharedfile = self.SHARE_DIR/'logos'/i
       filename = self.build_folder/i
       dir = filename.dirname
       if filename.exists():
@@ -165,14 +141,14 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
       
       if l and b:
         if sharedfile.exists():
-          self.interface.log(4, "image '%s' exists in share/" %i)
-          self.interface.copy(sharedfile, dir)
+          self.log(4, "image '%s' exists in share/" %i)
+          self.copy(sharedfile, dir)
         else:
-          self.interface.log(4, "creating '%s'" %i)
+          self.log(4, "creating '%s'" %i)
           if m and x and y:
             self._generate_image(filename, l, b,
-                                 text='%s %s ' %(self.interface.fullname,
-                                                 self.interface.version),
+                                 text='%s %s ' %(self.fullname,
+                                                 self.version),
                                  textcood=(x,y),
                                  fontsize=52,
                                  maxwidth=m,
@@ -185,8 +161,8 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
         # These files are found in the share/ folder. If they are not
         # found, they are skipped.
         if sharedfile.exists():
-          self.interface.log(4, "file '%s' exists in share/" % i)
-          self.interface.copy(sharedfile, dir)
+          self.log(4, "file '%s' exists in share/" % i)
+          self.copy(sharedfile, dir)
         else:
           # required text file not there in shared/ folder, passing for now          
           # FIXME: raise an exception here?
@@ -215,7 +191,7 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
                       highlight=False, gradient=False):
     """ 
     Generate an image that is added to the logos RPM and the product.img.
-
+    
     TODO: add support for the gradient parameter.
     
     @param filename   : the name of the file to be generated
@@ -243,7 +219,7 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
         (textwidth, textheight) = font.getsize(text)
         startY = ycood - textheight/2
       return font
-
+    
     if highlight:
       color = self.hlcolor
     else:
@@ -261,14 +237,14 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
         w, h = font.getsize(text)
         d.text((textcood[0]-(w/2), textcood[1]-(h/2)), text,
                font=font, fill=self.textcolor)
-
+    
     # save the image to a file
     im = im.filter(ImageFilter.DETAIL)
     im.save(filename, format=format)
-
+  
   _generate_blank_image = _generate_image
   _generate_gradient_image = _generate_image # TODO: Implement this
-
+  
   def _get_image_info(self, logo):
     id = logo.attrib['id']
     location = P(logo.get('location/text()'))
@@ -291,7 +267,9 @@ class LogosRpmHook(RpmBuildHook, ColorMixin):
       textvcenter = int(textvcenter)
     if texthcenter:
       texthcenter = int(texthcenter)
-
+    
     return (id, location, width, height, textmaxwidth,
             texthcenter, textvcenter, gradient, highlight, format)
 
+
+EVENTS = {'RPMS': [LogosRpmEvent]}

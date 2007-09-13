@@ -23,28 +23,28 @@ LEVEL_MAX = 4
 MSG_MAXWIDTH = 40
 
 class FilesCallback:
-  def __init__(self, interface):
-    self.interface = interface
+  def __init__(self, logger):
+    self.logger = logger
   
   def rm_start(self):
-    self.interface.log(1, "removing files")
+    self.logger.log(1, "removing files")
   
   def rm(self, fn):
-    self.interface.log(4, fn.basename)
+    self.logger.log(4, fn.basename)
   
   def rmdir_start(self):
-    self.interface.log(1, "removing empty directories")
+    self.logger.log(1, "removing empty directories")
   
   def rmdir(self, dn):
-    self.interface.log(4, dn.basename)
+    self.logger.log(4, dn.basename)
   
   def sync_start(self):
-    self.interface.log(1, "downloading input files")
+    self.logger.log(1, "downloading input files")
 
 class BuildSyncCallback(CachedSyncCallback):
-  def __init__(self, threshold):
+  def __init__(self, logger):
     CachedSyncCallback.__init__(self)
-    self.logger = BuildLogger(threshold)
+    self.logger = logger
   
   # sync callbacks - kinda hackish
   def start(self, src, dest):
@@ -71,9 +71,9 @@ class BuildSyncCallback(CachedSyncCallback):
 
 
 class BuildDepsolveCallback:
-  def __init__(self, threshold):
+  def __init__(self, logger):
 
-    self.logger = BuildLogger(threshold)
+    self.logger = logger
     self.loop = 1
     self.count = 0
     self.bar = None
