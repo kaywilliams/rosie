@@ -52,7 +52,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
   
   def _run(self):
     self.log(0, "preparing diskboot image")
-    self.remove_output(all=True) # avoids writing duplicate bootargs to syslinux.cfg
+    self.remove_output(all=True)
     self.modify()
   
   def _apply(self):
