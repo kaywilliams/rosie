@@ -13,7 +13,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
       id = 'diskboot-image',
       provides = ['diskboot.img'],
       requires = ['initrd-file', 'buildstamp-file'],
-      conditionally_requires = ['installer-splash', 'isolinux-changed'],
+      conditionally_requires = ['installer-splash',],
     )
      
     self.DATA = {
@@ -48,13 +48,11 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     self.clean_metadata()
   
   def _check(self):
-    return self.cvars['isolinux-changed'] or \
-           not self.validate_image() or \
-           self.test_diffs()
+    return self.test_diffs()
   
   def _run(self):
     self.log(0, "preparing diskboot image")
-    self.remove_output()
+    self.remove_output(all=True) # avoids writing duplicate bootargs to syslinux.cfg
     self.modify()
   
   def _apply(self):
