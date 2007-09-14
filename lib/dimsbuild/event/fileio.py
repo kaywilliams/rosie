@@ -147,7 +147,8 @@ class IOMixin:
         continue
       for s,ds in self._syncinfo[id].items():
         for d in ds:
-          sync_items.append((s,d))
+          if self._diff_handlers['input'].diffdict.has_key(s):
+            sync_items.append((s,d))
     
     if not sync_items: return
     
