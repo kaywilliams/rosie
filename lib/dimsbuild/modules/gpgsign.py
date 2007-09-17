@@ -64,7 +64,7 @@ class GpgSetupEvent(Event, GpgMixin):
   def _run(self):
     # changing from gpgsign-enabled true, cleanup old files and metadata
     if self.var_changed_from_value('cvars[\'gpgsign-enabled\']', True):
-      self.clean()
+      self._clean()
     
     if not self.cvars['gpgsign-enabled']:
       self.write_metadata()
