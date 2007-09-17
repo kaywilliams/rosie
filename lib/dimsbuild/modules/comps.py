@@ -216,7 +216,6 @@ class CompsEvent(Event, RepoMixin):
     
     for group in self.config.xpath('/distro/comps/create-new/groups/group', []):
       repo = group.attrib.get('repoid', None)
-      print repo
       if repo is not None:
         try:
           mapped[repo].append(group.text)
