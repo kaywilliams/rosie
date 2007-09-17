@@ -144,10 +144,10 @@ class IsoSetsEvent(Event, ListCompareMixin):
   def _setup(self):
     self.setup_diff(self.DATA)
     
-    if not self.cvars['iso-enabled']: return
-    
     ##self.isodir = self.cvars['composed-tree']/'iso'
     self.isodir = self.mddir/'iso'
+    
+    if not self.cvars['iso-enabled']: return
     
     self.DATA['config'].extend(['/distro/iso/set/text()',
                                 'cvars[\'sources-enabled\']',

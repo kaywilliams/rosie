@@ -293,6 +293,7 @@ class ColorMixin:
 #---------- ERRORS -------------#
 class OutputInvalidError(IOError): pass
 
+
 #---------- GLOBAL VARIABLES --------#
 # each element for a distro's version, e.g. redhat/5, is a 3-tuple:
 # (background color, font color, highlight color). To add an entry,
