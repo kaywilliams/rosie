@@ -51,8 +51,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     self.clean_metadata()
   
   def _check(self):
-    return not self.validate_image() or \
-           self.test_diffs()
+    return self.test_diffs(debug=True)
   
   def _run(self):
     self.log(0, "preparing xen images")

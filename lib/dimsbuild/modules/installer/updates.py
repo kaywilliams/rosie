@@ -44,8 +44,7 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     self.clean_metadata()
   
   def _check(self):
-    return not self.validate_image() or \
-           self.test_diffs()
+    return self.test_diffs()
   
   def _run(self):
     self.log(0, "generating updates.img")
