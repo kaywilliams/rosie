@@ -32,9 +32,6 @@ class SourceReposEvent(Event):
                   'sources-enabled'],
     )
     
-    self.mdfile = self.get_mdfile()
-    self.mddir  = self.mdfile.dirname
-    
     self.cvars['sources-enabled'] = \
        self.config.pathexists('/distro/sources') and \
        self.config.get('/distro/sources/@enabled', 'True') in BOOLEANS_TRUE
@@ -50,7 +47,7 @@ class SourceReposEvent(Event):
     self.validate('/distro/sources', 'sources.rng')
 
   def _setup(self):    
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     if not self.cvars['sources-enabled']: return
     
     self.srcrepos = {}
@@ -70,14 +67,6 @@ class SourceReposEvent(Event):
       self.DATA['output'].append(repo.ljoin(repo.repodata_path, 'repodata'))
       self.DATA['output'].append(repo.pkgsfile)
       self.srcrepos[repo.id] = repo
-  
-  def _clean(self):
-    self.log(0, "cleaning source-repos event")
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
   
   def _run(self):
     # changing from sources-enabled true, cleanup old files and metadata
@@ -139,12 +128,10 @@ class SourcesEvent(Event):
       'output':   [],
     }
     
-    self.mdfile = self.get_mdfile()
-    
   def _setup(self):
     self.mdsrcrepos = self.cvars['local-source-repodata']    
     
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     
     if not self.cvars['sources-enabled']: return
     

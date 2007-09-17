@@ -3,7 +3,8 @@ import re
 from dims import filereader
 from dims import xmltree
 
-from dims.shlib          import execute
+from dims.dispatch import PROPERTY_META
+from dims.shlib    import execute
 
 from dimsbuild.event     import Event, RepoMixin
 from dimsbuild.repo      import RepoFromXml
@@ -14,6 +15,7 @@ class ReposMetaEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'REPOS',
+      properties = PROPERTY_META,
       provides = ['local-repodata'],
     )
     
@@ -39,16 +41,13 @@ class RepomdEvent(Event, RepoMixin): #!
       'output':    [], # filled later
     }
     
-    self.mdfile = self.get_mdfile()
-    self.mddir = self.mdfile.dirname
-  
   def _validate(self):
     self.validate('/distro/repos', schemafile='repos.rng')
     if len(self.config.xpath('/distro/repos/repo[@type="base"]')) != 1:
       self.raiseInvalidConfig("Config file must define one repo with type 'base'")
   
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     
     self.repos = {}
     
@@ -61,13 +60,6 @@ class RepomdEvent(Event, RepoMixin): #!
       # add repodata folder as input/output
       self.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'),
                       paths=[repo.rjoin(repo.repodata_path, repo.mdfile)])
-      
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
   
   def _run(self):
     self.log(0, "processing input repositories")
@@ -83,9 +75,9 @@ class RepomdEvent(Event, RepoMixin): #!
     for repo in self.repos.values():
       repomdfile = repo.ljoin(repo.repodata_path, repo.mdfile)
       if not repomdfile.exists():
-        raise RuntimeError("Unable to find cached file at '%s'. Perhaps you"
-        "are skipping the repomd event before it has been allowed to run"
-        "once?" % file)
+        raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "
+        "are skipping the repomd event before it has been allowed to run "
+        "once?" % repomdfile)
       
       self.cvars['repomd-files'].append(repomdfile)
       repomd = xmltree.read(repomdfile).xpath('//data')
@@ -108,10 +100,8 @@ class RepoContentsEvent(Event, RepoMixin):
       'output':    [], # filled later
     }
     
-    self.mdfile = self.get_mdfile()
-  
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     
     for repo in self.cvars['repos'].values():
       repo.pkgsfile = self.cvars['local-repodata']/repo.id/'packages'

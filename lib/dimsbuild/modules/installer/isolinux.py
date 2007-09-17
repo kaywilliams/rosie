@@ -1,4 +1,4 @@
-import os
+'import os
 
 from dims import filereader
 
@@ -12,7 +12,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'isolinux',
-      provides = ['vmlinuz', 'isolinux-changed'],
+      provides = ['vmlinuz-file', 'isolinux-files'],
       requires = ['anaconda-version', 'source-vars'],
     )
     
@@ -25,21 +25,13 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       'config':    ['/distro/installer/isolinux'],
     }
     
-    self.mdfile = self.get_mdfile()
     FileDownloadMixin.__init__(self, self.getBaseRepoId())
   
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     self.register_file_locals(L_FILES)
     self.setup_sync(self.isolinux_dir, id='IsoLinuxFiles',
                     xpaths=['/distro/installer/isolinux/path'])
-  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-    
-  def _check(self):
-    return self.test_diffs()
   
   def _run(self):
     self.log(0, "synchronizing isolinux files")
@@ -63,21 +55,24 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       lines.insert(i, value)
       filereader.write(lines, cfg)
     
-    self.cvars['isolinux-changed'] = True
-    
     self.write_metadata()
   
   def _apply(self):
     for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s'" % file)
+    vmlinuz = self.f_locals.get('//file[@id="vmlinuz"]')
+    # fix this, this must be doable via list_output
+    self.cvars['vmlinuz-file'] = self.SOFTWARE_STORE / \
+                                 vmlinuz.get('path/text()') / \
+                                 'vmlinuz'
 
 
 class InitrdImageEvent(Event, ImageModifyMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'initrd-image',
-      provides = ['initrd-file', 'isolinux-changed'],
+      provides = ['initrd-file'],
       requires = ['anaconda-version', 'buildstamp-file'],
       comes_before = ['isolinux'],
     )
@@ -89,14 +84,10 @@ class InitrdImageEvent(Event, ImageModifyMixin):
       'output':    [] # to be filled later
     }
     
-    self.mdfile = self.get_mdfile()
-    
     ImageModifyMixin.__init__(self, 'initrd.img')
   
   def _error(self, e):
     try:
-      import traceback
-      traceback.print_exc()
       self.close()
     except:
       pass
@@ -105,24 +96,17 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin._setup(self)
     self.register_image_locals(L_IMAGES)
   
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
-  
   def _run(self):
     self.log(0, "processing initrd.img")
     self.remove_output(all=True)
     self.modify()
-    self.cvars['isolinux-changed'] = True
   
   def _apply(self):
     for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
     initrd = self.i_locals.get('//image[@id="initrd.img"]')
+    # fix this, this must be doable via list_output
     self.cvars['initrd-file'] = self.SOFTWARE_STORE / \
                                 initrd.get('path/text()') / \
                                 'initrd.img'

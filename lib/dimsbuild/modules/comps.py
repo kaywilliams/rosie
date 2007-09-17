@@ -36,15 +36,12 @@ class CompsEvent(Event, RepoMixin):
       'input':     [],
       'output':    []
     }
-    
-    self.mdfile = self.get_mdfile()
-    self.mddir = self.mdfile.dirname
   
   def _validate(self):
     self.validate('/distro/comps', 'comps.rng')
   
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
 
     self.comps_supplied = \
       self.config.get('/distro/comps/use-existing/path/text()', None)
@@ -69,13 +66,6 @@ class CompsEvent(Event, RepoMixin):
       # track file changes
       self.DATA['input'].extend([groupfile for repo,groupfile in
                                  self.groupfiles])
-  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
   
   def _run(self):
     self.log(0, "processing comps file")

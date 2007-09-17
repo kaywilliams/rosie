@@ -14,7 +14,6 @@ from dimsbuild.misc      import locals_imerge
 
 API_VERSION = 5.0
 
-#------ EVENTS ------#
 class SourceVarsEvent(Event, RepoMixin): #!
   def __init__(self):
     Event.__init__(self,
@@ -28,9 +27,6 @@ class SourceVarsEvent(Event, RepoMixin): #!
       'output':    [],
     }
     
-    self.mdfile = self.get_mdfile()
-    self.mddir = self.mdfile.dirname
-  
   def _error(self, e):
     try:
       self.image.close()
@@ -39,7 +35,7 @@ class SourceVarsEvent(Event, RepoMixin): #!
       pass
 
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     
     initrd_in=self.getRepo(self.getBaseRepoId()).rjoin('isolinux/initrd.img')
     
@@ -50,14 +46,6 @@ class SourceVarsEvent(Event, RepoMixin): #!
     
     self.DATA['output'].append(self.buildstamp_out)
    
-  def _check(self):
-    return self.test_diffs()
-
-  def _clean(self):
-    self.log(0, "cleaning source-vars event")
-    self.remove_output(all=True)
-    self.clean_metadata()
-
   def _run(self):
     self.log(0, "computing source variables")
         

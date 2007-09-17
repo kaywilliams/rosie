@@ -28,8 +28,6 @@ class PkglistEvent(Event, RepoMixin):
       conditionally_requires = ['user-required-packages'],
     )
     
-    self.mdfile = self.get_mdfile()
-    self.mddir = self.mdfile.dirname
     self.dsdir = self.mddir / '.depsolve'
     self.pkglistfile = self.mddir / 'pkglist'
     
@@ -45,7 +43,7 @@ class PkglistEvent(Event, RepoMixin):
     self.validate('/distro/pkglist', schemafile='pkglist.rng')
   
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     
     # setup if copying pkglist
     if self.docopy:
@@ -63,14 +61,6 @@ class PkglistEvent(Event, RepoMixin):
       self.rddirs.append(repo.ljoin(repo.repodata_path, 'repodata'))
     
     self.DATA['input'].extend(self.rddirs)
-  
-  def _clean(self):
-    self.log(0, "cleaning pkglist event")
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
   
   def _run(self):
     self.log(0, "resolving pkglist")

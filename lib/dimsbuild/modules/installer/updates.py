@@ -13,16 +13,12 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
       conditionally_requires = ['logos'],
     )
     
-    self.updatesimage = self.SOFTWARE_STORE/'images/updates.img'
-    
     self.DATA = {
       'config':    ['/distro/installer/updates.img/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
     }
-    
-    self.mdfile = self.get_mdfile()
     
     ImageModifyMixin.__init__(self, 'updates.img')
   
@@ -38,13 +34,6 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
   def _setup(self):
     ImageModifyMixin._setup(self)
     self.register_image_locals(L_IMAGES)
-  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
   
   def _run(self):
     self.log(0, "generating updates.img")

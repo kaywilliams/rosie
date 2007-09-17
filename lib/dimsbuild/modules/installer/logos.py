@@ -28,8 +28,6 @@ class LogosEvent(Event, ExtractMixin):
       'output'   : [],
     }
     
-    self.mdfile = self.get_mdfile()
-  
   def _validate(self):
     self.validate('/distro/installer/logos', 'logos.rng')
   
@@ -38,18 +36,8 @@ class LogosEvent(Event, ExtractMixin):
     self.format = self.locals.get('//splash-image/format/text()')
     self.file = self.locals.get('//splash-image/file/text()')
     self.DATA['input'].extend(self.find_rpms())
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     
-    assert self.file is not None
-    assert self.format is not None
-  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
-  
   def _run(self):
     self.log(0, "processing logos")
     self.extract()

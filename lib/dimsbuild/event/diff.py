@@ -2,16 +2,28 @@ from dims import difftest
 
 class DiffMixin:
   def __init__(self):
-    self._diff_tester = difftest.DiffTest(self.get_mdfile())
+    self._diff_tester = difftest.DiffTest(self.mdfile)
     self._diff_handlers = {}
     self._diff_set = {}
   
+  def _clean(self):
+    self.clean_metadata()
+  
+  def _check(self):
+    return self.test_diffs()
+  
   # former DiffMixin stuff
-  def setup_diff(self, mdfile, data):
+  def setup_diff(self, data):
     if data.has_key('input'):
       self._add_handler(difftest.InputHandler(data['input']))
     if data.has_key('output'):
       self._add_handler(difftest.OutputHandler(data['output']))
+      # link files in old output folder to the build dir
+      for file in self._diff_handlers['output'].oldoutput.keys():
+        src = self.CACHE_DIR/file.relpathfrom(self.BUILD_DIR)
+        if src.exists():
+          file.dirname.mkdirs()
+          src.cp(file, link=True, force=True, preserve=True)
     if data.has_key('variables'):
       self._add_handler(difftest.VariablesHandler(data['variables'], self))
     if data.has_key('config'):
@@ -34,7 +46,11 @@ class DiffMixin:
       self._diff_set[handler.name] = (len(handler.diff()) > 0)
     
     self._diff_tester.debug = old_dbgval
-    return (True in self._diff_set.values())
+    
+    if len(self._diff_set) > 0:
+      return (True in self._diff_set.values())
+    else:
+      return True
   
   def has_changed(self, name, err=False):
     if not self._diff_handlers.has_key(name):

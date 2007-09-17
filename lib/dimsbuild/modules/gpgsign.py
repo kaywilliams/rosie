@@ -16,8 +16,6 @@ class GpgSetupEvent(Event, GpgMixin):
     
     GpgMixin.__init__(self)
     
-    self.mdfile = self.get_mdfile()
-    self.mddir = self.mdfile.dirname
     self.gnupg_dir = self.mddir / '.gnupg'
     
     self.cvars['gpgsign-enabled'] = \
@@ -35,7 +33,7 @@ class GpgSetupEvent(Event, GpgMixin):
     self.validate('/distro/gpgsign', 'gpgsign.rng')
   
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA) 
+    self.setup_diff(self.DATA) 
     
     if not self.cvars['gpgsign-enabled']: return
     
@@ -52,14 +50,6 @@ class GpgSetupEvent(Event, GpgMixin):
     
     self.pubkey = self.list_output(what='public')[0]
     self.seckey = self.list_output(what='secret')[0]
-  
-  def _clean(self):
-    self.log(0, "cleaning gpgsign event")
-    self.remove_output(all=True)
-    self.clean_metadata()    
-  
-  def _check(self):
-    return self.test_diffs()
   
   def _run(self):
     # changing from gpgsign-enabled true, cleanup old files and metadata

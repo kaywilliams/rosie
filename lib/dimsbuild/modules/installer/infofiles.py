@@ -29,22 +29,13 @@ class DiscinfoEvent(Event):
     self.difile = self.SOFTWARE_STORE/'.discinfo'
     
     self.DATA =  {
-      'variables': ['BASE_VARS'
+      'variables': ['cvars[\'base-vars\']',
                     'cvars[\'anaconda-version\']'],
       'output':    [self.difile]
     }
-    
-    self.mdfile = self.get_mdfile()
   
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
-    
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
+    self.setup_diff(self.DATA)
   
   def _run(self):
     self.log(0, "generating discinfo")
@@ -62,6 +53,7 @@ class DiscinfoEvent(Event):
     base_vars.update({'timestamp': str(time.time()), 'discs': '1'})
     
     # write .discinfo
+    self.difile.dirname.mkdirs()
     discinfo.write(self.difile, **base_vars)
     self.difile.chmod(0644)
   
@@ -80,24 +72,15 @@ class TreeinfoEvent(Event):
     )
     
     self.tifile = self.SOFTWARE_STORE/'.treeinfo'
-
+    
     self.DATA =  {
-      'variables': ['BASE_VARS', 
+      'variables': ['cvars[\'base-vars\']', 
                     'cvars[\'product-path\']'],
       'output':    [self.tifile]
     }
     
-    self.mdfile = self.get_mdfile()
-  
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
-    
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
+    self.setup_diff(self.DATA)
   
   def _run(self):
     self.log(0, "generating treeinfo")
@@ -126,6 +109,7 @@ class TreeinfoEvent(Event):
     treeinfo.set('images-xen', 'initrd', 'images/xen/initrd.img')
     
     # write .treeinfo
+    self.tifile.dirname.mkdirs()
     if not self.tifile.exists():
       self.tifile.touch()
     tiflo = self.tifile.open('w')
@@ -156,18 +140,9 @@ class BuildstampEvent(Event):
       'output':    [self.bsfile],        
     }
     
-    self.mdfile = self.get_mdfile()
-  
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
-  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-      
-  def _check(self):
-    return self.test_diffs()
-  
+    self.setup_diff(self.DATA)
+    
   def _run(self):
     "Generate a .buildstamp file."
     self.log(0, "generating buildstamp")
@@ -180,6 +155,7 @@ class BuildstampEvent(Event):
     base_vars = copy.deepcopy(self.cvars['source-vars'])
     base_vars.update(self.cvars['base-vars'])
     
+    self.bsfile.dirname.mkdirs()
     buildstamp.write(self.bsfile, **base_vars)
     self.bsfile.chmod(0644)
     

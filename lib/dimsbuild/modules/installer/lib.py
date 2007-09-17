@@ -74,70 +74,8 @@ class ExtractMixin:
     finally:
       dir.rm(recursive=True)
     
-class ImageHandler:
-  """ 
-  Classes that extend this must require 'anaconda-version',
-  'buildstamp-file.'
-  """
-  def __init__(self, name):
-    self.name = name 
-    self.image = None
-    self.i_locals = None
-    
-  def register_image_locals(self, locals):
-    self.i_locals = locals_imerge(locals, self.cvars['anaconda-version'])
-  
-  def open(self):
-    image  = self.i_locals.get('//images/image[@id="%s"]' % self.name)
-    path   = self._getpath()
-    format = image.get('format/text()')
-    zipped = image.get('zipped/text()', 'False') in BOOLEANS_TRUE
-    
-    if image.attrib.get('virtual', 'False') in BOOLEANS_TRUE:
-      if path.exists(): path.remove() # delete old image
-    self.image = img.MakeImage(path, format, zipped)
-    self.image.open()
-  
-  def close(self):
-    self.image.close()
-    img.cleanup()
-  
-  def generate(self):
-    raise NotImplementedError
-  
-  def write_buildstamp(self):
-    self.image.write(self.cvars['buildstamp-file'], '/')
-  
-  def write_directory(self, dir, dest='/'):
-    self.image.write([ file for file in dir.listdir() ], dest)
-  
-  def _getpath(self):
-    FILE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
-    return self.SOFTWARE_STORE / \
-            locals_printf(FILE.get('path'), self.cvars['base-vars']) / \
-            self.name
-  
-  def _iszipped(self):
-    IMAGE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
-    return IMAGE.get('zipped/text()', 'False') in BOOLEANS_TRUE
-  
-  def _isvirtual(self):
-    IMAGE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
-    return IMAGE.get('@virtual', 'True') in BOOLEANS_TRUE
-  
-  def validate_image(self):
-    p = self._getpath()
-    if not p.exists():
-      return False
-    else:
-      if self._iszipped():
-        return magic_match(p) == FILE_TYPE_GZIP
-      else:
-        format = self.l_image.get('format/text()')
-        return magic_match(p) == MAGIC_MAP[format]
 
-
-class ImageModifyMixin(ImageHandler, RepoMixin):
+class ImageModifyMixin(RepoMixin):
   """ 
   Classes that extend this must require 'anaconda-version' and
   'buildstamp-file.'
@@ -145,22 +83,29 @@ class ImageModifyMixin(ImageHandler, RepoMixin):
   This class downloads (if the image exists) and modifies it.
   """
   def __init__(self, name):
-    ImageHandler.__init__(self, name)
-    self.imagedir = self.get_mdfile().dirname/'image'
+    self.imagedir = self.mddir/'image'
+    
+    self.name = name 
+    self.image = None
+    self.i_locals = None
   
   def _setup(self):
     self.images_src = self.METADATA_DIR/'images-src'/self.name
     if self.images_src.exists():
       self.DATA['input'].append(self.images_src)
     
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     
     self.setup_sync(self.imagedir,
                     xpaths=['/distro/installer/%s/path' % self.name],
                     id='%s-input-files' % self.name)
   
+  def _check(self):
+    return not self.validate_image or \
+           self.test_diffs()
+  
   def register_image_locals(self, locals):
-    ImageHandler.register_image_locals(self, locals)
+    self.i_locals = locals_imerge(locals, self.cvars['anaconda-version'])
     
     repo = self.getRepo(self.getBaseRepoId())
     
@@ -170,12 +115,28 @@ class ImageModifyMixin(ImageHandler, RepoMixin):
       self.setup_sync(self.SOFTWARE_STORE/image_path,
                       id='ImageModifyMixin',
                       paths=[repo.rjoin(image_path, self.name)])
-    except IOError:
+    except IOError, e:
       if self._isvirtual():
         self.DATA['output'].append(self.SOFTWARE_STORE/image_path/self.name)
       else:
-        raise
+        raise e
     self.l_image = self.i_locals.get('//images/image[@id="%s"]' % self.name)
+  
+  def open(self):
+    image  = self.i_locals.get('//images/image[@id="%s"]' % self.name)
+    path   = self._getpath()
+    format = image.get('format/text()')
+    zipped = image.get('zipped/text()', 'False') in BOOLEANS_TRUE
+    
+    if image.attrib.get('virtual', 'False') in BOOLEANS_TRUE:
+      if path.exists(): path.remove() # delete old image
+    path.dirname.mkdirs()
+    self.image = img.MakeImage(path, format, zipped)
+    self.image.open()
+  
+  def close(self):
+    self.image.close()
+    img.cleanup()
   
   def modify(self):
     # sync image to input store
@@ -200,6 +161,38 @@ class ImageModifyMixin(ImageHandler, RepoMixin):
       self.write_directory(self.imagedir)
     if self.images_src.exists():
       self.write_directory(self.images_src)
+  
+  def write_buildstamp(self):
+    self.image.write(self.cvars['buildstamp-file'], '/')
+  
+  def write_directory(self, dir, dest='/'):
+    self.image.write([ file for file in dir.listdir() ], dest)
+  
+  def _getpath(self):
+    FILE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
+    return self.SOFTWARE_STORE / \
+           locals_printf(FILE.get('path'), self.cvars['base-vars']) / \
+           self.name
+  
+  def _iszipped(self):
+    IMAGE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
+    return IMAGE.get('zipped/text()', 'False') in BOOLEANS_TRUE
+  
+  def _isvirtual(self):
+    IMAGE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
+    return IMAGE.get('@virtual', 'True') in BOOLEANS_TRUE
+  
+  def validate_image(self):
+    p = self._getpath()
+    if not p.exists():
+      return False
+    else:
+      if self._iszipped():
+        return magic_match(p) == FILE_TYPE_GZIP
+      else:
+        format = self.l_image.get('format/text()')
+        return magic_match(p) == MAGIC_MAP[format]
+
 
 class FileDownloadMixin(RepoMixin):
   """ 

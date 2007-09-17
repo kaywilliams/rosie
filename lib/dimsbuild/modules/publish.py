@@ -33,18 +33,14 @@ class RepoFileEvent(Event):
                     'product'],
       'output':    [self.repofile]
     }
-    self.mdfile = self.get_mdfile()
 
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
   
   def _clean(self):
     self.repofile.rm(force=True)
     self.srcrepofile.rm(force=True)
     self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
   
   def _run(self):
     # if we're not enabled, clean up and return immediately
@@ -99,6 +95,7 @@ class PublishEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish',
+      requires = ['composed-tree'],
       comes_after = ['MAIN', 'ISO'],
     )
     
@@ -109,31 +106,23 @@ class PublishEvent(Event):
     
     self.DATA =  {
       'variables': ['PUBLISH_DIR'],
-      'input':     [],
-      'output':    [],
+      #'input':     [],
+      #'output':    [],
     }
-    
-    self.mdfile = self.get_mdfile()
   
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
-    for dir in ['os', 'iso', 'SRPMS']:
-      pdir = self.OUTPUT_DIR/dir
-      if pdir.exists():
-        self.setup_sync(self.PUBLISH_DIR, paths=[pdir])
-  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
+    self.setup_diff(self.DATA)
+    #for dir in self.cvars['composed-tree'].listdir():
+    #  self.setup_sync(self.PUBLISH_DIR, paths=[dir])
   
   def _run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
     self.log(0, "publishing output store")
-    self.remove_output()
-    self.sync_input(copy=True, link=True)
+    #self.remove_output()
+    self.PUBLISH_DIR.rm(recursive=True, force=True)
+    #self.sync_input(copy=True, link=True)
+    for dir in self.cvars['composed-tree'].listdir():
+      self.copy(dir, self.PUBLISH_DIR, link=True)
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.PUBLISH_DIR)
     
     self.write_metadata()

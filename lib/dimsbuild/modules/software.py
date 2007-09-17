@@ -33,8 +33,9 @@ class SoftwareEvent(Event, RepoMixin):
       id = 'software',
       provides = ['gpgsign-passphase', 'rpms', 'rpms-directory',
                   'repodata-directory'],
-      requires = ['pkglist', 'repos', 'gpgsign-enabled', 'gpgsign-homedir',
-                  'gpgsign-passphrase'],
+      requires = ['pkglist', 'repos'],
+      conditionally_requires = ['gpgsign-enabled', 'gpgsign-homedir',
+                                'gpgsign-passphrase']
     )
 
     self._validarchs = getArchList(self.arch)
@@ -46,14 +47,11 @@ class SoftwareEvent(Event, RepoMixin):
       'output':    [],
     }
     
-    self.mdfile = self.get_mdfile()
-    self.mddir = self.mdfile.dirname
-    
     self.builddata_dest = self.mddir/'rpms'
     self.output_dest = self.SOFTWARE_STORE/self.cvars['base-vars']['product']
   
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
  
     input_rpms = set()         # set of rpms to download
     self.repokeys = []         # list of gpgcheck keys to download
@@ -91,13 +89,6 @@ class SoftwareEvent(Event, RepoMixin):
     if self.cvars['gpgsign-enabled']:
       self.DATA['input'].append(self.cvars['gpgsign-homedir'])
  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-
-  def _check(self):
-    return self.test_diffs()
-  
   def _run(self):
     self.log(0, "creating software repository")
     if not self.mddir.exists(): self.mddir.mkdirs()
@@ -235,17 +226,8 @@ class CreaterepoEvent(Event):
       'output':    [self.cvars['repodata-directory']]
     }
     
-    self.mdfile = self.get_mdfile()
-  
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
-  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
+    self.setup_diff(self.DATA)
   
   def _run(self):
     self.log(0, "running createrepo")

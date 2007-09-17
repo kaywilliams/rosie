@@ -12,8 +12,13 @@ class InitEvent(Event):
       provides = ['option-parser'],
     )
   
+  def _clean(self):
+    if self.CACHE_DIR.exists():
+      self.log(2, "cleaning '%s'" % self.CACHE_DIR)
+      self.CACHE_DIR.rm(recursive=True)
+  
   def _run(self):
-    for folder in [self.TEMP_DIR, self.SOFTWARE_STORE, self.METADATA_DIR]:
+    for folder in [self.TEMP_DIR, self.METADATA_DIR]:
       if not folder.exists():
         self.log(2, "Making directory '%s'" % folder)
         folder.mkdirs()

@@ -40,10 +40,9 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
       'input':     [],
       'output':    [],
     }
-    self.mdfile = self.get_mdfile()
     
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     installinfo = {
       'gpg'     : (None, self.gpg_dir),
       'repo'    : ('/distro/rpms/release-rpm/yum-repos/path', self.repo_dir),

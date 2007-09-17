@@ -38,14 +38,17 @@
 
   <define name="element-modules">
     <element name="modules">
-      <attribute name="default">
-        <ref name="value-boolean"/>
-      </attribute>
+      <optional>
+        <attribute name="default">
+          <ref name="value-boolean"/>
+        </attribute>
+      </optional>
       <oneOrMore>
         <element name="module">
           <attribute name="enabled">
             <ref name="value-boolean-with-default"/>
           </attribute>
+          <text/>
         </element>
       </oneOrMore>
     </element>

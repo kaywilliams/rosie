@@ -24,22 +24,13 @@ class ReleaseFilesEvent(Event, ExtractMixin):
       'output': [],
     }
     
-    self.mdfile = self.get_mdfile()
-  
   def _validate(self):
     self.validate('/distro/installer/release-files', 'release-files.rng')
   
   def _setup(self):
     self.DATA['input'].extend(self.find_rpms())
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-
-  def _check(self):
-    return self.test_diffs()
-  
   def _run(self):
     self.log(0, "synchronizing release files")
     self.extract()
@@ -59,7 +50,6 @@ class ReleaseFilesEvent(Event, ExtractMixin):
         for item in working_dir.findpaths(glob=default_item):
           files[item] = self.SOFTWARE_STORE
     
-    self.SOFTWARE_STORE.mkdirs()
     for source in files.keys():
       dest = files[source]
       if source.isfile() and dest.isdir():
@@ -88,4 +78,3 @@ class ReleaseFilesEvent(Event, ExtractMixin):
 
 
 EVENTS = {'INSTALLER': [ReleaseFilesEvent]}
-

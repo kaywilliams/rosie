@@ -26,39 +26,26 @@ name = %s - $basearch
 baseurl = file://%s
 '''
 
-class IsoMixin:
-  def __init__(self):
-    self.isodir = self.OUTPUT_DIR/'iso'
-    
-    self.ISO_METADATA_DIR = self.METADATA_DIR/'iso'
-    
-    self.cvars['iso-enabled'] = self.config.pathexists('/distro/iso') and \
-                                self.config.get('/distro/iso/@enabled', 'True') in BOOLEANS_TRUE
-
-
-class IsoMetaEvent(Event, IsoMixin):
+class IsoMetaEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'ISO',
       properties = PROPERTY_META,
       provides = ['iso-enabled'],
-      comes_after = ['MAIN', 'manifest'],
+      comes_after = ['MAIN'],
     )
-    IsoMixin.__init__(self)
     
-  def _setup(self):
-    if not self.ISO_METADATA_DIR.exists():
-      self.ISO_METADATA_DIR.mkdirs()
+    self.cvars['iso-enabled'] = self.config.pathexists('/distro/iso') and \
+                                self.config.get('/distro/iso/@enabled', 'True') in BOOLEANS_TRUE
 
 
-class PkgorderEvent(Event, IsoMixin):
+class PkgorderEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'pkgorder',
       provides = ['pkgorder-file'],
-      requires = ['repodata-directory'],
+      requires = ['repodata-directory', 'composed-tree'],
     )
-    IsoMixin.__init__(self)
     
     self.DATA =  {
       'variables': ['cvars[\'iso-enabled\']'],
@@ -67,30 +54,22 @@ class PkgorderEvent(Event, IsoMixin):
       'output':    []
     }
     
-    self.mdfile = self.get_mdfile()
     self.dosync = self.config.pathexists('/distro/iso/pkgorder/text()')
     if self.dosync: self.DATA['input'] = [] # huh?
   
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     if not self.cvars['iso-enabled']: return
 
     self.DATA['input'].append(self.cvars['repodata-directory'])
     
     if self.dosync:
-      self.setup_sync(self.ISO_METADATA_DIR, id='pkgorder',
+      self.setup_sync(self.mddir, id='pkgorder',
                       xpaths=['/distro/iso/pkgorder'])
       self.pkgorderfile = self.list_output(what='pkgorder')[0]
     else:
-      self.pkgorderfile = self.ISO_METADATA_DIR/'pkgorder'
+      self.pkgorderfile = self.mddir/'pkgorder'
       self.DATA['output'].append(self.pkgorderfile)
-  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
   
   def _run(self):
     # changing from iso-enabled true, cleanup old files and metadata
@@ -114,7 +93,7 @@ class PkgorderEvent(Event, IsoMixin):
       # create yum config needed by pkgorder
       cfg = self.TEMP_DIR/'pkgorder'
       repoid = self.pva
-      filereader.write([YUMCONF % (self.pva, self.pva, self.SOFTWARE_STORE)], cfg)
+      filereader.write([YUMCONF % (self.pva, self.pva, self.cvars['composed-tree']/'os')], cfg)
       
       # create pkgorder
       pkgtups = pkgorder.order(config=cfg,
@@ -132,26 +111,25 @@ class PkgorderEvent(Event, IsoMixin):
   def _apply(self):
     if self.cvars['iso-enabled']:
       if not self.pkgorderfile.exists():
-        raise RuntimeError("Unable to find cached pkgorder at '%s'. "\
-                           "Perhaps you are skipping the pkgorder event "\
+        raise RuntimeError("Unable to find cached pkgorder at '%s'.  "
+                           "Perhaps you are skipping the pkgorder event "
                            "before it has been allowed to run once?" % self.pkgorderfile)
       self.cvars['pkgorder-file'] = self.pkgorderfile
 
 
-class IsoSetsEvent(Event, IsoMixin, ListCompareMixin):
+class IsoSetsEvent(Event, ListCompareMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'iso-sets',
-      requires = ['anaconda-version', 'pkgorder-file'],
+      requires = ['anaconda-version', 'pkgorder-file', 'composed-tree'],
       conditionally_requires = ['manifest-changed', 'sources-enabled', 'srpms'],
     )
-    IsoMixin.__init__(self)
     ListCompareMixin.__init__(self)
     
     self.lfn = self._delete_isotree
     self.rfn = self._generate_isotree
     
-    self.splittrees = self.ISO_METADATA_DIR/'split-trees'
+    self.splittrees = self.mddir/'split-trees'
     
     self.DATA =  {
       'variables': ['cvars[\'iso-enabled\']'],
@@ -160,27 +138,21 @@ class IsoSetsEvent(Event, IsoMixin, ListCompareMixin):
       'output':    [],
     }
 
-    self.mdfile = self.get_mdfile()
-  
   def _validate(self):
     self.validate('/distro/iso', 'iso.rng')
   
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     
     if not self.cvars['iso-enabled']: return
+    
+    ##self.isodir = self.cvars['composed-tree']/'iso'
+    self.isodir = self.mddir/'iso'
     
     self.DATA['config'].extend(['/distro/iso/set/text()',
                                 'cvars[\'sources-enabled\']',
                                 'cvars[\'srpms\']',])
     self.DATA['input'].append(self.cvars['pkgorder-file'])
-  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
   
   def _run(self):
     # changing from iso-enabled true, cleanup old files and metadata
@@ -221,6 +193,10 @@ class IsoSetsEvent(Event, IsoMixin, ListCompareMixin):
     
     self.write_metadata()
   
+  def _apply(self):
+    # copy iso sets into composed tree
+    self.isodir.cp(self.cvars['composed-tree'], recursive=True, link=True)
+  
   def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
     if expanded_set not in self.newsets_expanded:
@@ -239,8 +215,8 @@ class IsoSetsEvent(Event, IsoMixin, ListCompareMixin):
     
     splitter = splittree.Timber(set, dosrc=self.cvars['sources-enabled'])
     splitter.product = self.product
-    splitter.u_tree     = self.SOFTWARE_STORE
-    splitter.u_src_tree = self.OUTPUT_DIR/'SRPMS'
+    splitter.u_tree     = self.cvars['composed-tree']/'os'
+    splitter.u_src_tree = self.cvars['composed-tree']/'SRPMS'
     splitter.s_tree     = self.splittrees/set
     splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.cvars['anaconda-version']).get('discinfo')
     splitter.pkgorder = self.cvars['pkgorder-file']
@@ -268,10 +244,7 @@ class IsoSetsEvent(Event, IsoMixin, ListCompareMixin):
       shlib.execute('mkisofs %s -UJRTV "%s" -o %s.iso %s' % \
          (bootargs,
           '%s %s %s disc %d' % \
-                       (self.product,
-                        self.version,
-                        self.release,
-                        i),
+            (self.product, self.version, self.release, i),
           self.isodir/set/iso,
           self.splittrees/set/iso),
         verbose=True)

@@ -8,20 +8,21 @@ class BootisoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'bootiso',
-      requires = ['vmlinuz', 'initrd-file', 'isolinux'],
-      conditionally_requires = ['installer-splash', 'isolinux-changed'],
+      requires = ['initrd-file', 'isolinux-files'],
+      conditionally_requires = ['installer-splash',],
     )
     
-    self.isolinux_dir = self.SOFTWARE_STORE/'isolinux'
+    ##self.isolinux_dir = self.SOFTWARE_STORE/'isolinux'
+    self.isolinux_dir = self.METADATA_DIR/'isolinux/output/os/isolinux' #! illegal
     self.bootiso = self.SOFTWARE_STORE/'images/boot.iso'
+    
+    self.DATA = {
+      'input':  [self.isolinux_dir],
+      'output': [self.bootiso],
+    }
   
-  def _clean(self):
-    self.log(0, "cleaning bootiso event")
-    self.bootiso.rm(force=True)
-  
-  def _check(self):
-    return self.cvars['isolinux-changed'] or \
-           not self.bootiso.exists()
+  def _setup(self):
+    self.setup_diff(self.DATA)
   
   def _run(self):
     self.log(0, "generating boot.iso")
@@ -42,6 +43,8 @@ class BootisoEvent(Event):
                   % (self.bootiso, self.product, isodir))
     ibin_path.utime((ibin_st.st_atime, ibin_st.st_mtime))
     isodir.rm(recursive=True)
+    
+    self.write_metadata()
   
   def _apply(self):
     if not self.bootiso.exists():

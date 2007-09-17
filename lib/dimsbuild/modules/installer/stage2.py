@@ -17,20 +17,11 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
       'output': [],      
     }
     
-    self.mdfile = self.get_mdfile()
-    
     FileDownloadMixin.__init__(self, self.getBaseRepoId())
   
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     self.register_file_locals(L_FILES)
-  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
   
   def _run(self):
     self.log(0, "synchronizing stage2 images")

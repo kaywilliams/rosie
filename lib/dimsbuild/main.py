@@ -107,7 +107,7 @@ class Build:
     
     # clean up previous builds
     Event.logger.log(2, "Cleaning up previous builds")
-    ##self.core.BUILD_DIR.rm(recursive=True, force=True)
+    Event.DISTRO_DIR.rm(recursive=True, force=True)
     
     # load all enabled modules, register events, set up dispatcher
     loader = dispatch.Loader(
@@ -218,25 +218,26 @@ class Build:
     
     # set up other directories
     Event.CACHE_DIR      = P(mainconfig.get('/dimsbuild/cache/path/text()',
-                                           '/var/cache/dimsbuild'))
+                                            '/var/cache/dimsbuild'))
     Event.TEMP_DIR       = P('/tmp/dimsbuild')
     Event.BUILD_DIR      = Event.TEMP_DIR   / 'build'
     Event.DISTRO_DIR     = Event.BUILD_DIR  / base_vars['pva']
-    Event.OUTPUT_DIR     = Event.DISTRO_DIR / 'output'
+    #Event.OUTPUT_DIR     = Event.DISTRO_DIR / 'output'
     Event.METADATA_DIR   = Event.DISTRO_DIR / 'builddata'
-    Event.SOFTWARE_STORE = Event.OUTPUT_DIR / 'os'
+    #Event.SOFTWARE_STORE = Event.OUTPUT_DIR / 'os'
+    
     if options.sharepath:
       Event.SHARE_DIR = P(options.sharepath).abspath()
     else:
       Event.SHARE_DIR = P(mainconfig.get('/dimsbuild/sharepath/text()',
-                                        '/usr/share/dimsbuild'))
+                                         '/usr/share/dimsbuild'))
     
     Event.CACHE_MAX_SIZE = int(mainconfig.get('/dimsbuild/cache/max-size/text()',
-                                             30*1024**3))
+                                              30*1024**3))
     
     Event.cache_handler = cache.CachedSyncHandler(
-                           cache_dir = Event.CACHE_DIR / '.cache',
-                           cache_max_size = Event.CACHE_MAX_SIZE,
+                            cache_dir = Event.CACHE_DIR / '.cache',
+                            cache_max_size = Event.CACHE_MAX_SIZE,
                           )
     Event.cache_callback = BuildSyncCallback(Event.logger)
     Event.copy_handler = sync.CopyHandler()

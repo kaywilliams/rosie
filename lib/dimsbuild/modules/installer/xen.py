@@ -26,8 +26,6 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
       'output':    [],
     }
     
-    self.mdfile = self.get_mdfile()
-    
     ImageModifyMixin.__init__(self, 'initrd.img')
     FileDownloadMixin.__init__(self, self.getBaseRepoId())
   
@@ -46,13 +44,6 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     self.register_file_locals(L_FILES)
     self.DATA['input'].append(self.cvars['buildstamp-file'])
     
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs(debug=True)
-  
   def _run(self):
     self.log(0, "preparing xen images")
     self.remove_output(all=True)

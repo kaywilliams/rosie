@@ -29,8 +29,6 @@ class ProductImageEvent(Event, ImageModifyMixin):
       'output':    [],
     }
     
-    self.mdfile = self.get_mdfile()
-  
     ImageModifyMixin.__init__(self, 'product.img')
   
   def _validate(self):
@@ -46,14 +44,6 @@ class ProductImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin._setup(self)
     self.register_image_locals(L_IMAGES)
     self.DATA['input'].append(self.cvars['buildstamp-file'])
-  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return not self.validate_image or \
-           self.test_diffs()
   
   def _run(self):
     self.log(0, "generating product.img")

@@ -26,7 +26,7 @@ class RpmBuildEvent(Event):
     self.SOURCES_DIR = self.METADATA_DIR/'RPMS/rpms-src'
     self.LOCAL_RPMS  = self.LOCAL_REPO/'RPMS'
     self.LOCAL_SRPMS = self.LOCAL_REPO/'SRPMS'
-    self.RPMS_DEST   = self.SOFTWARE_STORE/self.product
+    ##self.RPMS_DEST   = self.SOFTWARE_STORE/self.product
     
     self.cvars['local-rpms'] = self.LOCAL_RPMS
   

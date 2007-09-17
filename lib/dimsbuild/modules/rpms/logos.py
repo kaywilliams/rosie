@@ -31,13 +31,11 @@ class LogosRpmEvent(RpmBuildEvent, ColorMixin):
       'output': [],
     }
     
-    self.mdfile = self.get_mdfile()
-    
   def _validate(self):
     self.validate('/distro/rpms/logos-rpm', 'logos-rpm.rng')
   
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     
     kwargs = {}
     kwargs['release'] = self.config.get('/distro/rpms/logos-rpm/release/text()', '0')

@@ -6,6 +6,9 @@ class IOMixin:
   def __init__(self):
     self._syncinfo = {}
   
+  def _clean(self):
+    self.remove_output(all=True)
+  
   # former FilesMixin stuff
   def setup_sync(self, dst, xpaths=[], paths=[], id=None, iprefix=None):
     """ 
@@ -76,6 +79,8 @@ class IOMixin:
     @param all  : If all is True, remove all output files, else remove
                   the files that have changed.
     """
+    if not self._diff_handlers.has_key('output'): return
+    
     if rmlist is None:
       if all:
         rmlist = self._diff_handlers['output'].oldoutput.keys()

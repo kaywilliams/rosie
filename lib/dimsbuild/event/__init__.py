@@ -35,8 +35,8 @@ class Event(dispatch.Event, IOMixin, DiffMixin, ValidateMixin):
     except Exception, e:
       if hasattr(self, '_error'):
         self._error(e)
-      else:
-        traceback.print_exc(file=sys.stderr)
+      ##else:
+      traceback.print_exc(file=sys.stderr) #!
       sys.exit(1)
   
   # override these methods to get stuff to actually happen!
@@ -44,8 +44,11 @@ class Event(dispatch.Event, IOMixin, DiffMixin, ValidateMixin):
   def _apply_options(self, options): pass
   def _validate(self): pass
   def _setup(self): pass
-  def _clean(self): pass
-  def _check(self): return True
+  def _clean(self):
+    self.log(0, "cleaning %s" % self.id)
+    IOMixin._clean(self)
+    DiffMixin._clean(self)
+  #_check defined in mixins
   def _run(self): pass
   def _apply(self): pass
   
@@ -71,11 +74,28 @@ class Event(dispatch.Event, IOMixin, DiffMixin, ValidateMixin):
     if link: sync.link.sync(src, dst)
     else:    sync.sync(src, dst)
   
-  def get_mdfile(self):
-    file = self.METADATA_DIR/self.id/'%s.md' % self.id
-    file.dirname.mkdirs()
-    return file
-
+  def _get_mddir(self):
+    dir = self.METADATA_DIR/self.id
+    dir.mkdirs()
+    return dir
+  mddir = property(_get_mddir)
+  
+  def _get_mdfile(self):
+    return self.mddir/'%s.md' % self.id
+  mdfile = property(_get_mdfile)
+  
+  def _get_output_dir(self):
+    dir = self.METADATA_DIR/self.id/'output'
+    dir.mkdirs()
+    return dir
+  OUTPUT_DIR = property(_get_output_dir)
+  
+  def _get_software_store(self):
+    dir = self.METADATA_DIR/self.id/'output/os'
+    dir.mkdirs()
+    return dir
+  SOFTWARE_STORE = property(_get_software_store)
+  
 class CvarsDict(dict):
   def __getitem__(self, key):
     return self.get(key, None)

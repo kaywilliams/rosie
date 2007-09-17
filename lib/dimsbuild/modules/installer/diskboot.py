@@ -23,8 +23,6 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
       'output':    [],
     }
     
-    self.mdfile = self.get_mdfile()
-    
     ImageModifyMixin.__init__(self, 'diskboot.img')
   
   def _error(self, e):
@@ -42,14 +40,6 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
       self.cvars['initrd-file'],        
     ])
 
-  def _clean(self):
-    self.log(0, "cleaning diskboot-image event")
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
-  
   def _run(self):
     self.log(0, "preparing diskboot image")
     self.remove_output(all=True)

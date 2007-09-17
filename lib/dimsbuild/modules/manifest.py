@@ -11,31 +11,26 @@ class ManifestEvent(Event):
     Event.__init__(self,
       id = 'manifest',
       provides = ['manifest-changed'],
+      requires = ['composed-tree'],
       comes_after = ['MAIN'],
+      comes_before = ['cache-output'],
     )
-    
-    self.mfile = self.SOFTWARE_STORE/'.manifest'
     
     self.DATA =  {
       'input':  [],
-      'output': [self.mfile],
+      'output': [],
     }
     
-    self.mdfile = self.get_mdfile()
-  
   def _setup(self):
+    ##self.mfile = self.cvars['composed-tree']/'.manifest'
+    self.mfile = self.mddir/'.manifest'
+    self.DATA['output'].append(self.mfile)
+    
     self.filesdata = [ i for i in \
-                       self.SOFTWARE_STORE.findpaths() \
+                       self.cvars['composed-tree'].findpaths() \
                        if i != self.mfile and not i.isdir() ]
     self.DATA['input'].extend(self.filesdata)
-    self.setup_diff(self.mdfile, self.DATA)
-  
-  def _check(self):
-    return self.test_diffs()
-  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
+    self.setup_diff(self.DATA)
   
   def _run(self):
     self.log(0, "generating manifest")
@@ -47,13 +42,14 @@ class ManifestEvent(Event):
       if i not in self.DATA['output']:
         st = i.stat()
         manifest.append({
-          'file':  i[len(self.SOFTWARE_STORE)+1:],
+          'file':  i[len(self.cvars['composed-tree'])+1:],
           'size':  st.st_size,
           'mtime': st.st_mtime,
         })
     manifest.sort()
     
     # generate manifest
+    self.mfile.dirname.mkdirs()
     self.mfile.touch()
     mf = self.mfile.open('w')
     mwriter = csv.DictWriter(mf, FIELDS, lineterminator='\n')

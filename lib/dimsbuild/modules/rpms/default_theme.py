@@ -16,8 +16,6 @@ class DefaultThemeRpmEvent(RpmBuildEvent):
       'output': [],
     }
     
-    self.mdfile = self.get_mdfile()
-    
     self.themename = \
       self.config.get('/distro/rpms/default-theme-rpm/theme/text()', self.product)
     
@@ -25,7 +23,7 @@ class DefaultThemeRpmEvent(RpmBuildEvent):
     self.validate('/distro/rpms/default-theme-rpm', 'default-theme-rpm.rng')
   
   def _setup(self):
-    self.setup_diff(self.mdfile, self.DATA)
+    self.setup_diff(self.DATA)
     
     kwargs = {}
     kwargs['requires'] = 'gdm'
