@@ -5,10 +5,10 @@ from dimsbuild.main  import apply_flowcontrol
 
 API_VERSION = 5.0
 
-class CleanEvent(Event):
+class AutocleanEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'clean',
+      id = 'autoclean',
       comes_after = ['init'],
     )
     
@@ -24,8 +24,7 @@ class CleanEvent(Event):
     self._add_handler(EventHandler(self.DATA['events']))
   
   def _run(self):
-    self.log(0, "processing clean")
-    self.log(1, "forcing events") 
+    self.log(0, "processing autoclean")
     for event in self._diff_handlers['events'].diffdict.keys():
       prevver, currver = self._diff_handlers['events'].diffdict[event]
       if prevver and currver:
@@ -38,7 +37,7 @@ class CleanEvent(Event):
     #! the following is currently illegal
     apply_flowcontrol(self.get(eventid), True)
 
-EVENTS = {'ALL': [CleanEvent]}
+EVENTS = {'ALL': [AutocleanEvent]}
 
 
 #------ METADATA HANDLER ------#
