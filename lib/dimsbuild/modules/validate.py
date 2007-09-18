@@ -34,7 +34,7 @@ class ValidateEvent(Event):
   
     if self.cvars.get('exit-after-validate', False):
       self.log(4, "exiting because the '--validate' option was used at command line")
-      raise HookExit
+      raise EventExit
 
 
 EVENTS = {'ALL': [ValidateEvent]}
