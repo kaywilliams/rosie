@@ -19,7 +19,7 @@ class RpmBuildEvent(Event):
                fileslocals=None, installinfo=None, 
                *args, **kwargs):
     Event.__init__(self, *args, **kwargs)
-    
+
     self.DATA = data
     
     self.description  = description
@@ -69,6 +69,10 @@ class RpmBuildEvent(Event):
       self.requires += ' ' + ' '.join(self.config.xpath(
                                  '/distro/rpms/%s/requires/package/text()' % self.requires))
     
+    self.setup_diff(self.DATA)
+    if self.srcdir.exists():
+      self.DATA['input'].append(self.srcdir)
+
     if self.installinfo:
       for k,v in self.installinfo.items():
         xpath, dst = v
@@ -77,11 +81,7 @@ class RpmBuildEvent(Event):
     
     if self.fileslocals:
       self.fileslocals = locals_imerge(self.fileslocals, self.cvars['anaconda-version'])
-      
-    self.setup_diff(self.DATA)
-    if self.srcdir.exists():
-      self.DATA['input'].append(self.srcdir)
-    
+        
     self.arch      = kwargs.get('arch',     'noarch')
     self.author    = kwargs.get('author',   'dimsbuild')
     self.fullname  = kwargs.get('fullname', self.fullname)
