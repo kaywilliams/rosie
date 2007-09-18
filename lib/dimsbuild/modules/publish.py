@@ -91,6 +91,7 @@ class RepoFileEvent(Event):
                                         0x8915,
                                         struct.pack('256s', ifname[:15]))[20:24])
 
+
 class PublishEvent(Event):
   def __init__(self):
     Event.__init__(self,
@@ -121,7 +122,7 @@ class PublishEvent(Event):
     #self.remove_output()
     self.PUBLISH_DIR.rm(recursive=True, force=True)
     #self.sync_input(copy=True, link=True)
-    for dir in self.cvars['composed-tree'].listdir():
+    for dir in (self.DISTRO_DIR/'output').listdir():
       self.copy(dir, self.PUBLISH_DIR, link=True)
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.PUBLISH_DIR)
     

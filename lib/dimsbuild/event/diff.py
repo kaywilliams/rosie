@@ -18,12 +18,6 @@ class DiffMixin:
       self._add_handler(difftest.InputHandler(data['input']))
     if data.has_key('output'):
       self._add_handler(difftest.OutputHandler(data['output']))
-      # link files in old output folder to the build dir
-      for file in self._diff_handlers['output'].oldoutput.keys():
-        src = self.CACHE_DIR/file.relpathfrom(self.BUILD_DIR)
-        if src.exists():
-          file.dirname.mkdirs()
-          src.cp(file, link=True, force=True, preserve=True)
     if data.has_key('variables'):
       self._add_handler(difftest.VariablesHandler(data['variables'], self))
     if data.has_key('config'):

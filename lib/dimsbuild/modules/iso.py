@@ -93,7 +93,7 @@ class PkgorderEvent(Event):
       # create yum config needed by pkgorder
       cfg = self.TEMP_DIR/'pkgorder'
       repoid = self.pva
-      filereader.write([YUMCONF % (self.pva, self.pva, self.cvars['composed-tree']/'os')], cfg)
+      filereader.write([YUMCONF % (self.pva, self.pva, self.DISTRO_DIR/'output/os')], cfg)
       
       # create pkgorder
       pkgtups = pkgorder.order(config=cfg,
@@ -137,6 +137,8 @@ class IsoSetsEvent(Event, ListCompareMixin):
       'input':     [], 
       'output':    [],
     }
+    
+    self.output_dir = self.DISTRO_DIR/'output'
 
   def _validate(self):
     self.validate('/distro/iso', 'iso.rng')
@@ -144,7 +146,6 @@ class IsoSetsEvent(Event, ListCompareMixin):
   def _setup(self):
     self.setup_diff(self.DATA)
     
-    ##self.isodir = self.cvars['composed-tree']/'iso'
     self.isodir = self.mddir/'iso'
     
     if not self.cvars['iso-enabled']: return
@@ -195,7 +196,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
   
   def _apply(self):
     # copy iso sets into composed tree
-    self.isodir.cp(self.cvars['composed-tree'], recursive=True, link=True)
+    self.isodir.cp(self.output_dir, recursive=True, link=True)
   
   def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
@@ -215,8 +216,8 @@ class IsoSetsEvent(Event, ListCompareMixin):
     
     splitter = splittree.Timber(set, dosrc=self.cvars['sources-enabled'])
     splitter.product = self.product
-    splitter.u_tree     = self.cvars['composed-tree']/'os'
-    splitter.u_src_tree = self.cvars['composed-tree']/'SRPMS'
+    splitter.u_tree     = self.output_dir/'os'
+    splitter.u_src_tree = self.output_dir/'SRPMS'
     splitter.s_tree     = self.splittrees/set
     splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.cvars['anaconda-version']).get('discinfo')
     splitter.pkgorder = self.cvars['pkgorder-file']

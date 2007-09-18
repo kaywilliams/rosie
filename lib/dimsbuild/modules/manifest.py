@@ -13,7 +13,6 @@ class ManifestEvent(Event):
       provides = ['manifest-changed'],
       requires = ['composed-tree'],
       comes_after = ['MAIN'],
-      comes_before = ['cache-output'],
     )
     
     self.DATA =  {
@@ -21,13 +20,14 @@ class ManifestEvent(Event):
       'output': [],
     }
     
+    self.output_dir = self.DISTRO_DIR/'output'
+    
   def _setup(self):
-    ##self.mfile = self.cvars['composed-tree']/'.manifest'
     self.mfile = self.mddir/'.manifest'
     self.DATA['output'].append(self.mfile)
     
     self.filesdata = [ i for i in \
-                       self.cvars['composed-tree'].findpaths() \
+                       self.output_dir.findpaths() \
                        if i != self.mfile and not i.isdir() ]
     self.DATA['input'].extend(self.filesdata)
     self.setup_diff(self.DATA)
@@ -42,7 +42,7 @@ class ManifestEvent(Event):
       if i not in self.DATA['output']:
         st = i.stat()
         manifest.append({
-          'file':  i[len(self.cvars['composed-tree'])+1:],
+          'file':  i[len(self.output_dir)+1:],
           'size':  st.st_size,
           'mtime': st.st_mtime,
         })

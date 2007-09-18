@@ -26,16 +26,10 @@ class CleanEvent(Event):
   def _run(self):
     self.log(0, "processing clean")
     self.log(1, "forcing events") 
-    # if clean event version changes, force all
-    if self._diff_handlers['events'].diffdict.has_key(self.id):
-      prevver, currver = self._diff_handlers['events'].diffdict[self.id]
+    for event in self._diff_handlers['events'].diffdict.keys():
+      prevver, currver = self._diff_handlers['events'].diffdict[event]
       if prevver and currver:
-        self._clean_all()
-    else:
-      for event in self._diff_handlers['events'].diffdict.keys():
-        prevver, currver = self._diff_handlers['events'].diffdict[event]
-        if prevver and currver:
-          self._force_clean(self.eventinfo[event])
+        self._force_clean(self.eventinfo[event])
     
     self.write_metadata()
   

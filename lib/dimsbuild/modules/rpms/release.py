@@ -57,7 +57,8 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
                            'fedora-release-notes redhat-release-notes centos-release-notes',
                            installinfo=installinfo,
                            id='release-rpm',
-                           requires=['source-vars', 'gpgsign-public-key', 'repos'])
+                           requires=['source-vars', 'repos'],
+                           conditionally_requires=['gpgsign-public-key'])
     
   def _setup(self):
     RpmBuildEvent._setup(self)

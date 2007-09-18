@@ -105,9 +105,9 @@ class Build:
     # set up event superclass so that it contains good default values
     self.make_event_superclass(options, mainconfig, distroconfig)
     
-    # clean up previous builds
-    Event.logger.log(2, "Cleaning up previous builds")
-    Event.DISTRO_DIR.rm(recursive=True, force=True)
+    ### clean up previous builds
+    ##Event.logger.log(2, "Cleaning up previous builds")
+    ##Event.DISTRO_DIR.rm(recursive=True, force=True)
     
     # load all enabled modules, register events, set up dispatcher
     loader = dispatch.Loader(
@@ -220,11 +220,8 @@ class Build:
     Event.CACHE_DIR      = P(mainconfig.get('/dimsbuild/cache/path/text()',
                                             '/var/cache/dimsbuild'))
     Event.TEMP_DIR       = P('/tmp/dimsbuild')
-    Event.BUILD_DIR      = Event.TEMP_DIR   / 'build'
-    Event.DISTRO_DIR     = Event.BUILD_DIR  / base_vars['pva']
-    #Event.OUTPUT_DIR     = Event.DISTRO_DIR / 'output'
+    Event.DISTRO_DIR     = Event.CACHE_DIR  / base_vars['pva']
     Event.METADATA_DIR   = Event.DISTRO_DIR / 'builddata'
-    #Event.SOFTWARE_STORE = Event.OUTPUT_DIR / 'os'
     
     if options.sharepath:
       Event.SHARE_DIR = P(options.sharepath).abspath()
