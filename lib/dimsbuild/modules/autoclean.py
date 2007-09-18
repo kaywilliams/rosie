@@ -1,7 +1,7 @@
 from dims import xmltree
 
 from dimsbuild.event import Event
-from dimsbuild.main  import apply_flowcontrol
+from dimsbuild.main  import apply_flowcontrol #!
 
 API_VERSION = 5.0
 
@@ -16,7 +16,7 @@ class AutocleanEvent(Event):
     self.eventinfo = {}
   
   def setup(self):
-    for event in self:
+    for event in self._getroot():
       self.eventinfo[event.id] = event.id
       self.DATA['events'].update({event.id: str(event.event_version)})
     
@@ -28,15 +28,13 @@ class AutocleanEvent(Event):
     for event in self._diff_handlers['events'].diffdict.keys():
       prevver, currver = self._diff_handlers['events'].diffdict[event]
       if prevver and currver:
-        self._force_clean(self.eventinfo[event])
+        self.log(2, "forcing --clean on %s" % self.eventinfo[event])
+        #! the following is currently illegal
+        apply_flowcontrol(self._getroot().get(self.eventinfo[event]), True)
     
     self.write_metadata()
-  
-  def _force_clean(self, eventid):
-    self.log(2, "forcing --clean on %s" % eventid)
-    #! the following is currently illegal
-    apply_flowcontrol(self.get(eventid), True)
 
+  
 EVENTS = {'ALL': [AutocleanEvent]}
 
 

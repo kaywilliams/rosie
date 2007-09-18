@@ -110,9 +110,7 @@ class Build:
     ##Event.DISTRO_DIR.rm(recursive=True, force=True)
     
     # load all enabled modules, register events, set up dispatcher
-    loader = dispatch.Loader(
-      top = Event(id='ALL', properties = dispatch.PROPERTY_META),
-      api_ver = API_VERSION)
+    loader = dispatch.Loader(top = AllEvent(), api_ver = API_VERSION)
     loader.ignore = disabled_modules
     self.dispatch = dispatch.Dispatch(
                       loader.load(import_dirs, prefix='dimsbuild/modules')
@@ -246,6 +244,17 @@ class Build:
 class CvarsDict(dict):
   def __getitem__(self, key):
     return self.get(key, None)
+
+
+class AllEvent(Event):
+  "Top level event that is the ancestor of all other events.  Changing this "  
+  "event's version will cause all events to automatically run."
+  def __init__(self):
+    Event.__init__(self,
+      id = 'ALL',
+      version = 0,
+      properties = dispatch.PROPERTY_META,
+    )
 
 
 #------ UTILITY FUNCTIONS ------#
