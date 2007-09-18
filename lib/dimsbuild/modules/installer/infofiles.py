@@ -34,10 +34,10 @@ class DiscinfoEvent(Event):
       'output':    [self.difile]
     }
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
   
-  def _run(self):
+  def run(self):
     self.log(0, "generating discinfo")
     
     # setup
@@ -57,7 +57,7 @@ class DiscinfoEvent(Event):
     discinfo.write(self.difile, **base_vars)
     self.difile.chmod(0644)
   
-  def _apply(self):
+  def apply(self):
     if not self.difile.exists():
       raise RuntimeError, "Unable to find .discinfo file at '%s'" % self.difile
     self.write_metadata()
@@ -79,10 +79,10 @@ class TreeinfoEvent(Event):
       'output':    [self.tifile]
     }
     
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
   
-  def _run(self):
+  def run(self):
     self.log(0, "generating treeinfo")
     treeinfo = ConfigParser()
     
@@ -119,7 +119,7 @@ class TreeinfoEvent(Event):
     
     self.write_metadata()
   
-  def _apply(self):
+  def apply(self):
     if not self.tifile.exists():
       raise RuntimeError, "Unable to find .treeinfo file at '%s'" % self.tifile
 
@@ -140,10 +140,10 @@ class BuildstampEvent(Event):
       'output':    [self.bsfile],        
     }
     
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
     
-  def _run(self):
+  def run(self):
     "Generate a .buildstamp file."
     self.log(0, "generating buildstamp")
     
@@ -161,7 +161,7 @@ class BuildstampEvent(Event):
     
     self.write_metadata()
   
-  def _apply(self):
+  def apply(self):
     if not self.bsfile.exists():
       raise RuntimeError("missing file '%s'" % self.bsfile)
     self.cvars['buildstamp-file'] = self.bsfile

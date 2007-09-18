@@ -21,15 +21,14 @@ class FilesEvent(Event):
       'output': [],
     }
   
-  def _validate(self):
-    self.validate('/distro/files', 'files.rng')
+  def validate(self):
+    self._validate('/distro/files', 'files.rng')
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
-    self.setup_sync(self.SOFTWARE_STORE,
-                    xpaths=['/distro/files/path'])
+    self.setup_sync(self.SOFTWARE_STORE, xpaths=['/distro/files/path'])
   
-  def _run(self):
+  def run(self):
     self.log(0, "processing user-provided files")
     # delete altered files
     self.remove_output()

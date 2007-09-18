@@ -37,10 +37,10 @@ class CompsEvent(Event, RepoMixin):
       'output':    []
     }
   
-  def _validate(self):
-    self.validate('/distro/comps', 'comps.rng')
+  def validate(self):
+    self._validate('/distro/comps', 'comps.rng')
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
 
     self.comps_supplied = \
@@ -67,7 +67,7 @@ class CompsEvent(Event, RepoMixin):
       self.DATA['input'].extend([groupfile for repo,groupfile in
                                  self.groupfiles])
   
-  def _run(self):
+  def run(self):
     self.log(0, "processing comps file")
     
     # delete prior comps file
@@ -79,7 +79,7 @@ class CompsEvent(Event, RepoMixin):
     
     else: # generate comps file
       self.log(1, "creating comps file")
-      self.generate_comps()
+      self._generate_comps()
       self.comps.write(self.comps_out)
       self.comps_out.chmod(0644)
       self.DATA['output'].append(self.comps_out)
@@ -87,7 +87,7 @@ class CompsEvent(Event, RepoMixin):
     # write metadata
     self.write_metadata()
   
-  def _apply(self):
+  def apply(self):
     # set comps-file control variable
     if self.comps_supplied: 
       self.cvars['comps-file'] = self.list_output(what='comps.xml')[0]
@@ -106,7 +106,7 @@ class CompsEvent(Event, RepoMixin):
   
   
   #------ COMPS FILE GENERATION FUNCTIONS ------#
-  def generate_comps(self):
+  def _generate_comps(self):
     mapped, unmapped = self.__map_groups()
     
     # create base distro group

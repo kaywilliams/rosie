@@ -50,15 +50,15 @@ class SoftwareEvent(Event, RepoMixin):
     self.builddata_dest = self.mddir/'rpms'
     self.output_dest = self.SOFTWARE_STORE/self.cvars['base-vars']['product']
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
- 
+    
     input_rpms = set()         # set of rpms to download
     self.repokeys = []         # list of gpgcheck keys to download
     self.rpms_to_check = set() # set of rpms to be checked
     
     for repo in self.getAllRepos():
-
+      
       # append to list of rpms to download
       for rpminfo in repo.repoinfo:
         rpm = rpminfo['file']
@@ -71,16 +71,16 @@ class SoftwareEvent(Event, RepoMixin):
                               'st_mtime': rpminfo['mtime'],
                               'st_mode':  stat.S_IFREG})
           input_rpms.add(rpm)
-
+      
       # extend list of gpgkeys to download  
       self.repokeys.extend(repo.gpgkeys)
-
+      
       # add to set of rpms to be checked
       if repo.gpgcheck:
         repo_rpms =  set([rpminfo['file'] for rpminfo in repo.repoinfo])
         for rpm in repo_rpms.intersection(set(input_rpms)):
           self.rpms_to_check.add(self.builddata_dest/rpm.basename) 
-
+    
     self.setup_sync(self.builddata_dest, paths=input_rpms, id='cached')
     self.setup_sync(self.mddir, paths=self.repokeys, id='repokeys')    
     self.DATA['variables'].append('rpms_to_check')
@@ -88,49 +88,48 @@ class SoftwareEvent(Event, RepoMixin):
     
     if self.cvars['gpgsign-enabled']:
       self.DATA['input'].append(self.cvars['gpgsign-homedir'])
- 
-  def _run(self):
+  
+  def run(self):
     self.log(0, "creating software repository")
-    if not self.mddir.exists(): self.mddir.mkdirs()
-
+    
     # remove old output
     self.remove_output()
-
+    
     # sync rpms to builddata folder
     self.log(1, "caching rpms")
     self.newrpms = self.sync_input(what='cached', link=True)
-  
+    
     # gpgcheck rpms
     if self.rpms_to_check:    
       self._gpgcheck_rpms()
-
+    
     # clean output folder if signing disabled
     if self.var_changed_from_value('cvars[\'gpgsign-enabled\']', True): 
       self.log(1, "removing prior signed rpms")
       self.output_dest.rm(recursive=True, force=True)
-
+    
     # sync rpms to output folder
     self.log(1, "copying from shared cache")
     newrpms = self.sync_input(copy=True, what='output')
-
+    
     # sign rpms
     if self.cvars['gpgsign-enabled']:
       self._sign_rpms()
-
-    self.write_metadata()
     
-  def _apply(self):
+    self.write_metadata()
+  
+  def apply(self):
     self.output_dest.mkdirs()
     self.cvars['rpms-directory'] = self.output_dest
     self.cvars['repodata-directory'] = self.SOFTWARE_STORE/'repodata'
     self.cvars['rpms'] = self.list_output(what=['output'])
   
-  def _error(self, e):
+  def error(self, e):
     # why?
-    self._clean()
+    self.clean()
     self.mddir.rm(force=True, recursive=True)
     self.output_dest.rm(force=True, recursive=True)
-
+  
   def _deformat(self, rpm):
     """ 
     p[ath],n[ame],v[ersion],r[elease],a[rch] = _deformat(rpm)
@@ -143,24 +142,24 @@ class SoftwareEvent(Event, RepoMixin):
     except (AttributeError, IndexError), e:
       self.errlog(2, "DEBUG: Unable to extract rpm information from name '%s'" % rpm)
       return (None, None, None, None, None)
-
+  
   def _gpgcheck_rpms(self):
     repokeys_changed = False
     for key in self.repokeys:
       if self._diff_handlers['input'].diffdict.has_key(key):
         repokeys_changed = True
         break
-
+    
     if repokeys_changed: 
       new_rpms_to_check = self.rpms_to_check
     else: 
       new_rpms_to_check = self.rpms_to_check.intersection(
                             set(self.newrpms))
-
+    
     if new_rpms_to_check: 
       self.log(1, "checking signatures")
       self._check_rpm_signatures(sorted(new_rpms_to_check))
-
+  
   def _check_rpm_signatures(self, new_rpms_to_check):
     # create homedir
     self.sync_input(what='repokeys')
@@ -181,7 +180,7 @@ class SoftwareEvent(Event, RepoMixin):
       except mkrpm.RpmSignatureInvalidError:
         self.log(None, "INVALID")
         invalids.append(rpm.basename)
-      
+    
     if invalids:
       raise RpmSignatureInvalidError("One or more RPMS failed "\
                                      "GPG key checking: %s" % invalids)
@@ -226,10 +225,10 @@ class CreaterepoEvent(Event):
       'output':    [self.cvars['repodata-directory']]
     }
     
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
   
-  def _run(self):
+  def run(self):
     self.log(0, "running createrepo")
     
     pwd = os.getcwd()
@@ -240,9 +239,9 @@ class CreaterepoEvent(Event):
     
     self.write_metadata()
   
-  def _error(self, e):
+  def error(self, e):
     # why?
-    self._clean()
+    self.clean()
 
 EVENTS = {'MAIN': [SoftwareMetaEvent], 'SOFTWARE': [SoftwareEvent, CreaterepoEvent]}
 

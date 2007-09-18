@@ -19,28 +19,31 @@ class RpmBuildEvent(Event):
                fileslocals=None, installinfo=None, 
                *args, **kwargs):
     Event.__init__(self, *args, **kwargs)
-
+    
     self.DATA = data
     
     self.description  = description
     self.rpmname      = rpmname
     self.summary      = summary
-
+    
     self.defobsoletes = defobsoletes
     self.defprovides  = defprovides
     self.defrequires  = defrequires
-
+    
     self.installinfo = installinfo
     self.fileslocals = fileslocals
 
     self.autofile = P(self.config.file).dirname / 'distro.dat'
   
-  def _setup(self, **kwargs):
+  def error(self, e):
+    self.build_folder.rm(recursive=True, force=True)
+  
+  def setup(self, **kwargs):
     self.build_folder = self.mddir/'build'
-
+    
     self.srcdir = self.cvars['rpms-source']/self.id ## FIXME
     self.rpmdir = self.mddir/'rpm'
-
+    
     if self.autofile.exists():
       self.release = xmltree.read(self.autofile).get(
                      '/distro/rpms/%s/release/text()' % self.id, '0')
@@ -57,7 +60,7 @@ class RpmBuildEvent(Event):
     self.provides = self.obsoletes
     if self.defprovides:
       self.provides += ' ' + self.defprovides    
-
+    
     if self.defrequires:
       self.requires = self.defrequires
     else:
@@ -65,13 +68,13 @@ class RpmBuildEvent(Event):
     if self.config.pathexists('/distro/rpms/%s/requires/package/text()' % self.requires):
       self.requires += ' ' + ' '.join(self.config.xpath(
                                  '/distro/rpms/%s/requires/package/text()' % self.requires))
-
+    
     if self.installinfo:
       for k,v in self.installinfo.items():
         xpath, dst = v
         if xpath:
           self.setup_sync(self.rpmdir/dst.lstrip('/'), xpaths=[xpath])
-
+    
     if self.fileslocals:
       self.fileslocals = locals_imerge(self.fileslocals, self.cvars['anaconda-version'])
       
@@ -83,23 +86,15 @@ class RpmBuildEvent(Event):
     self.author    = kwargs.get('author',   'dimsbuild')
     self.fullname  = kwargs.get('fullname', self.fullname)
     self.version   = kwargs.get('version',  self.version)
-    
-  def _check(self):    
-    return self.release == '0' or \
-           not self.mdfile.exists() or \
-           self.test_diffs()
-      
-  def build_rpm(self):
+  
+  def _build_rpm(self):
     self.log(0, "building %s rpm" % self.rpmname)
-    self.check_release()
+    self._check_release()
     self.log(1, "release number: %s" % self.release)
-    self.build()
-    self.save_release()
-
-  def _error(self, e):
-    self.build_folder.rm(recursive=True, force=True)
-    
-  def add_output(self):
+    self._build()
+    self._save_release()
+  
+  def _add_output(self):
     self.DATA['output'].append(self.mddir/'RPMS'/'%s-%s-%s.%s.rpm' % (self.rpmname,
                                                                       self.version,
                                                                       self.release,
@@ -107,8 +102,8 @@ class RpmBuildEvent(Event):
     self.DATA['output'].append(self.mddir/'SRPMS'/'%s-%s-%s.src.rpm' % (self.rpmname,
                                                                         self.version,
                                                                         self.release))
-    
-  def save_release(self):
+  
+  def _save_release(self):
     if self.autofile.exists():
       root_element = xmltree.read(self.autofile).get('/distro')
     else:
@@ -120,8 +115,8 @@ class RpmBuildEvent(Event):
     
     release_element.text = self.release
     root_element.write(self.autofile)
-
-  def check_release(self):
+  
+  def _check_release(self):
     if self.release == '0' or  \
        not self.autofile.exists() or \
        not self.mdfile.exists() or \
@@ -130,14 +125,14 @@ class RpmBuildEvent(Event):
        self.has_changed('config'):
       self.release = str(int(self.release)+1)
 
-  def test_build(self, default):
+  def _test_build(self, default):
     tobuild = self.config.get(['/distro/rpms/%s/@enabled' % self.id,
                                '/distro/rpms/@enabled'], default)
     if tobuild == 'default':
       return default in BOOLEANS_TRUE
     return tobuild in BOOLEANS_TRUE
   
-  def check_rpms(self):
+  def _check_rpms(self):
     rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % (self.rpmname, self.version,
                                                self.release, self.arch)
     srpm = self.mddir/'SRPMS/%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release)
@@ -150,24 +145,24 @@ class RpmBuildEvent(Event):
       raise RuntimeError("missing srpm: '%s' at '%s'" % (srpm.basename, srpm.dirname))
     else:
       self.cvars['custom-srpms'].append(srpm)
-    
-  def generate(self):   pass
-  def getiscript(self): return None
-  def getpscript(self): return None
   
-  def build(self):
+  def _generate(self):   pass
+  def _getiscript(self): return None
+  def _getpscript(self): return None
+  
+  def _build(self):
     self.build_folder.mkdirs()
-    self.sync_input()    
-    self.generate()
-    self.write_spec()
-    self.write_manifest()
+    self.sync_input()
+    self._generate()
+    self._write_spec()
+    self._write_manifest()
     mkrpm.build(self.build_folder,
                 self.mddir,
                 createrepo=False,
                 quiet=(self.logger.threshold < 5))
     (self.build_folder/'dist').rm(recursive=True, force=True)
   
-  def write_spec(self):
+  def _write_spec(self):
     setupcfg = self.build_folder/'setup.cfg'
 
     spec = ConfigParser()
@@ -190,8 +185,8 @@ class RpmBuildEvent(Event):
     if self.requires:  spec.set('bdist_rpm', 'requires',  self.requires)
     if self.obsoletes: spec.set('bdist_rpm', 'obsoletes', self.obsoletes)
     
-    iscript = self.getiscript()
-    pscript = self.getpscript()
+    iscript = self._getiscript()
+    pscript = self._getpscript()
     if iscript: spec.set('bdist_rpm', 'install_script', iscript)
     if pscript: spec.set('bdist_rpm', 'post_install', pscript)
     
@@ -201,7 +196,7 @@ class RpmBuildEvent(Event):
     spec.write(f)
     f.close()    
   
-  def write_manifest(self):
+  def _write_manifest(self):
     manifest = ['setup.py']
     if self.srcdir.exists():
       manifest.extend(self.srcdir.findpaths(type=pps.constants.TYPE_NOT_DIR))

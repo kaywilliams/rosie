@@ -34,19 +34,19 @@ class RepoFileEvent(Event):
       'output':    [self.repofile]
     }
 
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
   
-  def _clean(self):
+  def clean(self):
     self.repofile.rm(force=True)
     self.srcrepofile.rm(force=True)
     self.clean_metadata()
   
-  def _run(self):
+  def run(self):
     # if we're not enabled, clean up and return immediately
     if self.config.get('/distro/publish/repofile/@enabled',
                        'True') not in BOOLEANS_TRUE:
-      self._clean()
+      self.clean()
       return
     
     self.log(0, "generating yum repo file")
@@ -111,12 +111,12 @@ class PublishEvent(Event):
       #'output':    [],
     }
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
     #for dir in self.cvars['composed-tree'].listdir():
     #  self.setup_sync(self.PUBLISH_DIR, paths=[dir])
   
-  def _run(self):
+  def run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
     self.log(0, "publishing output store")
     #self.remove_output()

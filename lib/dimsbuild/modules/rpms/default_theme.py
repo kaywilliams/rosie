@@ -27,26 +27,26 @@ class DefaultThemeRpmEvent(RpmBuildEvent):
                            defrequires='gdm',
                            id='default-theme-rpm')
     
-  def _validate(self):
-    self.validate('/distro/rpms/default-theme-rpm', 'default-theme-rpm.rng')
+  def validate(self):
+    self._validate('/distro/rpms/default-theme-rpm', 'default-theme-rpm.rng')
 
-  def _run(self):
+  def run(self):
     self.remove_output(all=True)
-    if not self.test_build('False'):
+    if not self._test_build('False'):
       return
-    self.build_rpm()
-    self.add_output()    
+    self._build_rpm()
+    self._add_output()    
     self.write_metadata()    
   
-  def _apply(self):
-    if not self.test_build('False'):
+  def apply(self):
+    if not self._test_build('False'):
       return
-    self.check_rpms()
+    self._check_rpms()
     if not self.cvars['custom-rpms-info']:
       self.cvars['custom-rpms-info'] = []      
     self.cvars['custom-rpms-info'].append((self.rpmname, 'conditional', 'gdm', self.obsoletes))
   
-  def getpscript(self):
+  def _getpscript(self):
     f = (self.build_folder/'postinstall.sh').open('w')
     f.write(SCRIPT % self.themename)
     f.close()

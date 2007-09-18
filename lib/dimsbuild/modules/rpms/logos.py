@@ -41,11 +41,11 @@ class LogosRpmEvent(RpmBuildEvent, ColorMixin):
                            requires=['source-vars', 'anaconda-version'])
     
     
-  def _validate(self):
-    self.validate('/distro/rpms/logos-rpm', 'logos-rpm.rng')
+  def validate(self):
+    self._validate('/distro/rpms/logos-rpm', 'logos-rpm.rng')
   
-  def _setup(self):
-    RpmBuildEvent._setup(self)
+  def setup(self):
+    RpmBuildEvent.setup(self)
     
     # set the font to use
     available_fonts = (self.SHARE_DIR/'fonts').findpaths(glob='*.ttf')
@@ -61,29 +61,29 @@ class LogosRpmEvent(RpmBuildEvent, ColorMixin):
     self.textcolor = int(self.textcolor, 16)
     self.hlcolor = int(self.hlcolor, 16)
   
-  def _run(self):
+  def run(self):
     self.remove_output(all=True)
-    if not self.test_build('True'):
+    if not self._test_build('True'):
       return
-    self.build_rpm()
-    self.add_output()    
+    self._build_rpm()
+    self._add_output()    
     self.write_metadata()    
   
-  def _apply(self):
-    if not self.test_build('True'):
+  def apply(self):
+    if not self._test_build('True'):
       return
-    self.check_rpms()
+    self._check_rpms()
     if not self.cvars['custom-rpms-info']:
       self.cvars['custom-rpms-info'] = []      
     self.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
-    
-  def generate(self):
+  
+  def _generate(self):
     self._generate_images()
     self._generate_theme_files()
-    if not self.output_valid():
+    if not self._output_valid():
       raise OutputInvalidError      
-    
-  def output_valid(self):
+  
+  def _output_valid(self):
     if self.DATA.has_key('output'):
       for logoinfo in self.fileslocals.xpath('//files/file', []):
         i,_,w,h,_,_,_,_,_,_ = self._get_image_info(logoinfo)
@@ -158,7 +158,7 @@ class LogosRpmEvent(RpmBuildEvent, ColorMixin):
           # FIXME: raise an exception here?
           pass
         
-    # HACK: hack to create the splash.xpm file, have to first convert
+    # HACK: to create the splash.xpm file, have to first convert
     # the grub-splash.png to an xpm and then gzip it.
     splash_xpm = self.build_folder/'bootloader/grub-splash.xpm'
     splash_xgz = splash_xpm + '.gz'

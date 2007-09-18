@@ -18,18 +18,18 @@ class PxebootImagesEvent(Event):
     
     self.pxebootdir = self.SOFTWARE_STORE/'images/pxeboot'
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
     paths = [self.cvars['vmlinuz-file'], self.cvars['initrd-file']]
     self.setup_sync(self.pxebootdir, paths=paths)
     
-  def _run(self):
+  def run(self):
     self.log(0, "preparing pxeboot images")
     self.remove_output()
     self.sync_input()
     self.write_metadata()
   
-  def _apply(self):
+  def apply(self):
     for file in ['vmlinuz', 'initrd.img']:
       if not (self.pxebootdir/file).exists():
         raise RuntimeError("Unable to find '%s' in '%s'" % (file, self.pxebootdir))

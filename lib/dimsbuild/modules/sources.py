@@ -43,10 +43,10 @@ class SourceReposEvent(Event):
       'output':    [],
     }
   
-  def _validate(self):
-    self.validate('/distro/sources', 'sources.rng')
+  def validate(self):
+    self._validate('/distro/sources', 'sources.rng')
 
-  def _setup(self):    
+  def setup(self):    
     self.setup_diff(self.DATA)
     if not self.cvars['sources-enabled']: return
     
@@ -68,7 +68,7 @@ class SourceReposEvent(Event):
       self.DATA['output'].append(repo.pkgsfile)
       self.srcrepos[repo.id] = repo
   
-  def _run(self):
+  def run(self):
     # changing from sources-enabled true, cleanup old files and metadata
     if self.var_changed_from_value('cvars[\'sources-enabled\']', True):
       self.clean()
@@ -95,7 +95,7 @@ class SourceReposEvent(Event):
     
     self.write_metadata() 
   
-  def _apply(self):
+  def apply(self):
     self.cvars['local-source-repodata'] = self.mddir
     if self.cvars['sources-enabled']:
       self.cvars['source-repos'] = self.srcrepos
@@ -128,7 +128,7 @@ class SourcesEvent(Event):
       'output':   [],
     }
     
-  def _setup(self):
+  def setup(self):
     self.mdsrcrepos = self.cvars['local-source-repodata']    
     
     self.setup_diff(self.DATA)
@@ -149,10 +149,10 @@ class SourcesEvent(Event):
     
     # setup sync
     paths = []
-    for repo in self.getAllSourceRepos():
+    for repo in self._getAllSourceRepos():
       for rpminfo in repo.repoinfo:
         rpmi = rpminfo['file']
-        _,n,v,r,a = self.deformat(rpmi)
+        _,n,v,r,a = self._deformat(rpmi)
         ## assuming the rpm file name to be lower-case 'rpm' suffixed        
         nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a) 
         if nvra in srpmset:
@@ -165,17 +165,10 @@ class SourcesEvent(Event):
     
     self.setup_sync(self.srpmdest, paths=paths, id='srpms')
   
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()  
-  
-  def _run(self):
+  def run(self):
     # changing from sources-enabled true, cleanup old files and metadata
     if self.var_changed_from_value('cvars[\'sources-enabled\']', True):
-      self._clean()
+      self.clean()
     
     if not self.cvars['sources-enabled']: 
       self.write_metadata()
@@ -185,33 +178,28 @@ class SourcesEvent(Event):
     self.remove_output()
     self.srpmdest.mkdirs()
     self.sync_input()
-    self.createrepo()
+    self._createrepo()
     self.DATA['output'].extend(self.list_output(what=['srpms']))
     self.DATA['output'].append(self.srpmdest/'repodata')
     
     self.write_metadata()
   
-  def _apply(self):
+  def apply(self):
     if self.cvars['sources-enabled']:
       self.cvars['srpms'] = self.list_output(what=['srpms'])
-
-    
-  def getAllSourceRepos(self):
+  
+  
+  def _getAllSourceRepos(self):
     return self.cvars['source-repos'].values()
   
-  def deformat(self, srpm):
+  def _deformat(self, srpm):
     try:
       return SRPM_PNVRA_REGEX.match(srpm).groups()
     except (AttributeError, IndexError), e:
       self.errlog(2, "DEBUG: Unable to extract srpm information from name '%s'" % srpm)
       return (None, None, None, None, None)
-
-  def nvr(self, srpm):
-    "nvr = SoftwareInterface.nvr(rpm) - convert an RPM filename into an NVR string"
-    _,n,v,r,_ = self.deformat(srpm)
-    return '%s-%s-%s' % (n,v,r)    
-
-  def createrepo(self):
+  
+  def _createrepo(self):
     "Run createrepo on the output store"
     pwd = os.getcwd()
     os.chdir(self.srpmdest)

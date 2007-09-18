@@ -29,35 +29,35 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     ImageModifyMixin.__init__(self, 'initrd.img')
     FileDownloadMixin.__init__(self, self.getBaseRepoId())
   
-  def _validate(self):
-    self.validate('/distro/installer/initrd.img', 'xen.rng')
+  def validate(self):
+    self._validate('/distro/installer/initrd.img', 'xen.rng')
   
-  def _error(self, e):
+  def error(self, e):
     try:
-      self.close()
+      self._close()
     except:
       pass
   
-  def _setup(self):
-    ImageModifyMixin._setup(self)
-    self.register_image_locals(L_IMAGES)
-    self.register_file_locals(L_FILES)
+  def setup(self):
+    ImageModifyMixin.setup(self)
+    self._register_image_locals(L_IMAGES)
+    self._register_file_locals(L_FILES)
     self.DATA['input'].append(self.cvars['buildstamp-file'])
     
-  def _run(self):
+  def run(self):
     self.log(0, "preparing xen images")
     self.remove_output(all=True)
-    self.download()
-    self.modify()
+    self._download()
+    self._modify()
   
-  def _apply(self):
+  def apply(self):
     for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' in '%s'" % (file.basename, file.dirname))
   
-  def generate(self):
-    ImageModifyMixin.generate(self)
-    self.write_buildstamp()
+  def _generate(self):
+    ImageModifyMixin._generate(self)
+    self._write_buildstamp()
 
 
 EVENTS = {'INSTALLER': [XenImagesEvent]}

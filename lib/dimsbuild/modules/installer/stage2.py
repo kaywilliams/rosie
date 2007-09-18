@@ -19,17 +19,17 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
     
     FileDownloadMixin.__init__(self, self.getBaseRepoId())
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
-    self.register_file_locals(L_FILES)
+    self._register_file_locals(L_FILES)
   
-  def _run(self):
+  def run(self):
     self.log(0, "synchronizing stage2 images")
     self.remove_output()
-    self.download()
+    self._download()
     self.write_metadata()
   
-  def _apply(self):
+  def apply(self):
     for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to file '%s' at '%s'" % (file.basename, file.dirname))

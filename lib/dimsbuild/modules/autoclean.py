@@ -15,7 +15,7 @@ class AutocleanEvent(Event):
     self.DATA = {'events': {}}
     self.eventinfo = {}
   
-  def _setup(self):
+  def setup(self):
     for event in self:
       self.eventinfo[event.id] = event.id
       self.DATA['events'].update({event.id: str(event.event_version)})
@@ -23,7 +23,7 @@ class AutocleanEvent(Event):
     self.setup_diff(self.DATA)
     self._add_handler(EventHandler(self.DATA['events']))
   
-  def _run(self):
+  def run(self):
     self.log(0, "processing autoclean")
     for event in self._diff_handlers['events'].diffdict.keys():
       prevver, currver = self._diff_handlers['events'].diffdict[event]

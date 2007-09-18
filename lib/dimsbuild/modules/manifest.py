@@ -22,7 +22,7 @@ class ManifestEvent(Event):
     
     self.output_dir = self.DISTRO_DIR/'output'
     
-  def _setup(self):
+  def setup(self):
     self.mfile = self.mddir/'.manifest'
     self.DATA['output'].append(self.mfile)
     
@@ -32,7 +32,7 @@ class ManifestEvent(Event):
     self.DATA['input'].extend(self.filesdata)
     self.setup_diff(self.DATA)
   
-  def _run(self):
+  def run(self):
     self.log(0, "generating manifest")
     self.remove_output(all=True)
     

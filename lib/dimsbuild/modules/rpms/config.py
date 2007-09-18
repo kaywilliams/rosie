@@ -33,27 +33,27 @@ class ConfigRpmEvent(RpmBuildEvent):
                            data=data,
                            id='config-rpm')
         
-  def _validate(self):
-    self.validate('/distro/rpms/config-rpm', 'config-rpm.rng')
+  def validate(self):
+    self._validate('/distro/rpms/config-rpm', 'config-rpm.rng')
     
-  def _run(self):
+  def run(self):
     self.remove_output(all=True)
-    if not self.test_build('True'):
+    if not self._test_build('True'):
       return
-    self.build_rpm()
-    self.add_output()    
+    self._build_rpm()
+    self._add_output()    
     self.write_metadata()    
 
-  def _apply(self):
-    if not self.test_build('True'):
+  def apply(self):
+    if not self._test_build('True'):
       return
-    self.check_rpms()
+    self._check_rpms()
     if not self.cvars['custom-rpms-info']:
       self.cvars['custom-rpms-info'] = []      
     self.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
   
-  def test_build(self, default):
-    if RpmBuildEvent.test_build(self, default):
+  def _test_build(self, default):
+    if RpmBuildEvent._test_build(self, default):
       if self.config.get('//config-rpm/requires', None) or \
          self.config.get('//config-rpm/obsoletes', None) or \
          self.config.get('//config-rpm/config/script/path/text()', None) or \
@@ -62,7 +62,7 @@ class ConfigRpmEvent(RpmBuildEvent):
         return True
     return False
   
-  def getpscript(self):
+  def _getpscript(self):
     script = self.config.get(self.installinfo['config'][0], None)
     if script:
       post_install_scripts = self.output_location.findpaths(glob=P(script).basename)

@@ -11,7 +11,7 @@ class ValidateMixin:
   def __init__(self):
     self.schemaspath = self.SHARE_DIR/'schemas'
   
-  def validate(self, xquery, schemafile=None, schemacontents=None, what='distro'):
+  def _validate(self, xquery, schemafile=None, schemacontents=None, what='distro'):
     if what != self.cvars.get('validate', 'distro'): return
     
     if (schemafile is None and schemacontents is None) or \

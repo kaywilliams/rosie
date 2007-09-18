@@ -31,32 +31,32 @@ class ProductImageEvent(Event, ImageModifyMixin):
     
     ImageModifyMixin.__init__(self, 'product.img')
   
-  def _validate(self):
-    self.validate('/distro/installer/product.img', 'product.rng')
+  def validate(self):
+    self._validate('/distro/installer/product.img', 'product.rng')
     
-  def _error(self, e):
+  def error(self, e):
     try:
-      self.close()
+      self._close()
     except:
       pass
   
-  def _setup(self):
-    ImageModifyMixin._setup(self)
-    self.register_image_locals(L_IMAGES)
+  def setup(self):
+    ImageModifyMixin.setup(self)
+    self._register_image_locals(L_IMAGES)
     self.DATA['input'].append(self.cvars['buildstamp-file'])
   
-  def _run(self):
+  def run(self):
     self.log(0, "generating product.img")
     self.remove_output()
-    self.modify()
+    self._modify()
   
-  def _apply(self):
+  def apply(self):
     for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
       
-  def register_image_locals(self, locals):
-    ImageModifyMixin.register_image_locals(self, locals)
+  def _register_image_locals(self, locals):
+    ImageModifyMixin._register_image_locals(self, locals)
     
     self.ic_locals = locals_imerge(L_INSTALLCLASSES,
                                    self.cvars['anaconda-version'])
@@ -69,15 +69,15 @@ class ProductImageEvent(Event, ImageModifyMixin):
       else:
         break
   
-  def generate(self):
-    ImageModifyMixin.generate(self)
+  def _generate(self):
+    ImageModifyMixin._generate(self)
     
     # generate installclasses if none exist
     if len((P(self.image.handler._mount)/'installclasses').findpaths(glob='*.py')) == 0:
       self._generate_installclass()
     
     # write the buildstamp file to the image
-    self.write_buildstamp()
+    self._write_buildstamp()
   
   def _generate_installclass(self):
     comps = xmltree.read(self.cvars['comps-file'])

@@ -26,7 +26,7 @@ MAGIC_MAP = {
 }
 
 class ExtractMixin:
-  def extract(self):
+  def _extract(self):
     self.remove_output(all=True)
     
     # generate output files
@@ -35,20 +35,20 @@ class ExtractMixin:
       # create temporary directory for rpms, gets deleted once done
       working_dir = P(tempfile.mkdtemp(dir=self.TEMP_DIR))
       
-      for rpmname in self.find_rpms():
-        self.extract_rpm(rpmname, working_dir)
+      for rpmname in self._find_rpms():
+        self._extract_rpm(rpmname, working_dir)
       
       # need to modify self.data, so that the metadata written has all
       # the files created. Otherwise, self.data['output'] will be
       # empty.
-      self.DATA['output'].extend(self.generate(working_dir))
+      self.DATA['output'].extend(self._generate(working_dir))
     finally:
       working_dir.rm(recursive=True)
     
     # write metadata
     self.write_metadata()
   
-  def extract_rpm(self, rpmPath, output=P(os.getcwd())):
+  def _extract_rpm(self, rpmPath, output=P(os.getcwd())):
     """ 
     Extract the contents of the RPM file specified by rpmPath to
     the output location. The rpmPath parameter can use globbing.
@@ -89,7 +89,7 @@ class ImageModifyMixin(RepoMixin):
     self.image = None
     self.i_locals = None
   
-  def _setup(self):
+  def setup(self):
     self.images_src = self.METADATA_DIR/'images-src'/self.name
     if self.images_src.exists():
       self.DATA['input'].append(self.images_src)
@@ -100,11 +100,11 @@ class ImageModifyMixin(RepoMixin):
                     xpaths=['/distro/installer/%s/path' % self.name],
                     id='%s-input-files' % self.name)
   
-  def _check(self):
-    return not self.validate_image or \
+  def check(self):
+    return not self._validate_image or \
            self.test_diffs()
   
-  def register_image_locals(self, locals):
+  def _register_image_locals(self, locals):
     self.i_locals = locals_imerge(locals, self.cvars['anaconda-version'])
     
     repo = self.getRepo(self.getBaseRepoId())
@@ -122,7 +122,7 @@ class ImageModifyMixin(RepoMixin):
         raise e
     self.l_image = self.i_locals.get('//images/image[@id="%s"]' % self.name)
   
-  def open(self):
+  def _open(self):
     image  = self.i_locals.get('//images/image[@id="%s"]' % self.name)
     path   = self._getpath()
     format = image.get('format/text()')
@@ -134,38 +134,38 @@ class ImageModifyMixin(RepoMixin):
     self.image = img.MakeImage(path, format, zipped)
     self.image.open()
   
-  def close(self):
+  def _close(self):
     self.image.close()
     img.cleanup()
   
-  def modify(self):
+  def _modify(self):
     # sync image to input store
     self.sync_input(what=['ImageModifyMixin', '%s-input-files' % self.name])
     
     # modify image
     self.log(1, "modifying %s" % self.name)
-    self.open()
-    self.generate()
-    self.close()
+    self._open()
+    self._generate()
+    self._close()
     
     # validate output
-    if not self.validate_image():
+    if not self._validate_image():
       raise OutputInvalidError("output files are invalid")
     
     # write metadata
     self.write_metadata()
   
-  def generate(self):
+  def _generate(self):
     self.cvars['%s-changed' % self.name] = True
     if self.imagedir.exists():
-      self.write_directory(self.imagedir)
+      self._write_directory(self.imagedir)
     if self.images_src.exists():
-      self.write_directory(self.images_src)
+      self._write_directory(self.images_src)
   
-  def write_buildstamp(self):
+  def _write_buildstamp(self):
     self.image.write(self.cvars['buildstamp-file'], '/')
   
-  def write_directory(self, dir, dest='/'):
+  def _write_directory(self, dir, dest='/'):
     self.image.write([ file for file in dir.listdir() ], dest)
   
   def _getpath(self):
@@ -182,7 +182,7 @@ class ImageModifyMixin(RepoMixin):
     IMAGE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
     return IMAGE.get('@virtual', 'True') in BOOLEANS_TRUE
   
-  def validate_image(self):
+  def _validate_image(self):
     p = self._getpath()
     if not p.exists():
       return False
@@ -206,7 +206,7 @@ class FileDownloadMixin(RepoMixin):
     
     self.repoid = repoid
     
-  def register_file_locals(self, locals):
+  def _register_file_locals(self, locals):
     self.f_locals = locals_imerge(locals, self.cvars['anaconda-version'])
     paths = []
     for file in self.f_locals.xpath('//files/file'):
@@ -220,7 +220,7 @@ class FileDownloadMixin(RepoMixin):
         self.SOFTWARE_STORE/linfix, id='FileDownloadMixin',
         paths=[self.getRepo(self.repoid).rjoin(rinfix, filename)])
   
-  def download(self):
+  def _download(self):
     self.sync_input(what='FileDownloadMixin')
     
 class RpmNotFoundError(Exception): pass

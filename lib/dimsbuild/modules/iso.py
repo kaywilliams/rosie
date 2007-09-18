@@ -57,7 +57,7 @@ class PkgorderEvent(Event):
     self.dosync = self.config.pathexists('/distro/iso/pkgorder/text()')
     if self.dosync: self.DATA['input'] = [] # huh?
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
     if not self.cvars['iso-enabled']: return
 
@@ -71,10 +71,10 @@ class PkgorderEvent(Event):
       self.pkgorderfile = self.mddir/'pkgorder'
       self.DATA['output'].append(self.pkgorderfile)
   
-  def _run(self):
+  def run(self):
     # changing from iso-enabled true, cleanup old files and metadata
     if self.var_changed_from_value('cvars[\'iso-enabled\']', True):
-      self._clean()
+      self.clean()
     
     if not self.cvars['iso-enabled']: 
       self.write_metadata()
@@ -108,7 +108,7 @@ class PkgorderEvent(Event):
     
     self.write_metadata()
   
-  def _apply(self):
+  def apply(self):
     if self.cvars['iso-enabled']:
       if not self.pkgorderfile.exists():
         raise RuntimeError("Unable to find cached pkgorder at '%s'.  "
@@ -140,10 +140,10 @@ class IsoSetsEvent(Event, ListCompareMixin):
     
     self.output_dir = self.DISTRO_DIR/'output'
 
-  def _validate(self):
-    self.validate('/distro/iso', 'iso.rng')
+  def validate(self):
+    self._validate('/distro/iso', 'iso.rng')
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
     
     self.isodir = self.mddir/'iso'
@@ -155,10 +155,10 @@ class IsoSetsEvent(Event, ListCompareMixin):
                                 'cvars[\'srpms\']',])
     self.DATA['input'].append(self.cvars['pkgorder-file'])
   
-  def _run(self):
+  def run(self):
     # changing from iso-enabled true, cleanup old files and metadata
     if self.var_changed_from_value('cvars[\'iso-enabled\']', True):
-      self._clean()
+      self.clean()
     
     if not self.cvars['iso-enabled']: 
       self.write_metadata()
@@ -194,7 +194,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     
     self.write_metadata()
   
-  def _apply(self):
+  def apply(self):
     # copy iso sets into composed tree
     self.isodir.cp(self.output_dir, recursive=True, link=True)
   

@@ -21,10 +21,10 @@ class ReposMetaEvent(Event):
     
     self.local_repodata = self.METADATA_DIR/'repos'
   
-  def _setup(self):
+  def setup(self):
     self.local_repodata.mkdirs()
   
-  def _apply(self):
+  def apply(self):
     self.cvars['local-repodata'] = self.local_repodata
 
 class RepomdEvent(Event, RepoMixin): #!
@@ -41,12 +41,12 @@ class RepomdEvent(Event, RepoMixin): #!
       'output':    [], # filled later
     }
     
-  def _validate(self):
-    self.validate('/distro/repos', schemafile='repos.rng')
+  def validate(self):
+    self._validate('/distro/repos', schemafile='repos.rng')
     if len(self.config.xpath('/distro/repos/repo[@type="base"]')) != 1:
       self.raiseInvalidConfig("Config file must define one repo with type 'base'")
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
     
     self.repos = {}
@@ -61,7 +61,7 @@ class RepomdEvent(Event, RepoMixin): #!
       self.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'),
                       paths=[repo.rjoin(repo.repodata_path, repo.mdfile)])
   
-  def _run(self):
+  def run(self):
     self.log(0, "processing input repositories")
     
     # sync repodata folders to builddata
@@ -69,7 +69,7 @@ class RepomdEvent(Event, RepoMixin): #!
     
     self.write_metadata()
     
-  def _apply(self):
+  def apply(self):
     self.cvars['repomd-files'] = []
     
     for repo in self.repos.values():
@@ -100,7 +100,7 @@ class RepoContentsEvent(Event, RepoMixin):
       'output':    [], # filled later
     }
     
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
     
     for repo in self.cvars['repos'].values():
@@ -116,14 +116,7 @@ class RepoContentsEvent(Event, RepoMixin):
       
       self.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'), paths=paths)
   
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-  
-  def _check(self):
-    return self.test_diffs()
-  
-  def _run(self):
+  def run(self):
     self.sync_input()
     
     # process available package lists
@@ -144,7 +137,7 @@ class RepoContentsEvent(Event, RepoMixin):
     
     self.write_metadata()
   
-  def _apply(self):
+  def apply(self):
     for repo in self.cvars['repos'].values():
       if not repo.pkgsfile.exists():
         raise RuntimeError("Unable to find cached file at '%s'. Perhaps you"

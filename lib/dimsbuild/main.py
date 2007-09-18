@@ -126,7 +126,7 @@ class Build:
     for e in self.dispatch: e._add_cli(parser)
     
     # raise init and other events prior
-    self.dispatch.run(until='init')
+    self.dispatch.execute(until='init')
   
   def apply_options(self, options):
     "Raise the 'applyopt' event, which plugins/modules can use to apply"
@@ -155,11 +155,11 @@ class Build:
     for e in self.dispatch: e._apply_options(options)
     
     # validate config
-    for e in self.dispatch: e._validate()
+    for e in self.dispatch: e.validate()
   
   def main(self):
     "Build a distribution"
-    self.dispatch.run(until=None)
+    self.dispatch.execute(until=None)
   
   def get_mdlr_events(self):
     "Return a list of the modular events in this dimsbuild instance"

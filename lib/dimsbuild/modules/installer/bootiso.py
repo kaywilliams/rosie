@@ -21,10 +21,10 @@ class BootisoEvent(Event):
       'output': [self.bootiso],
     }
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
   
-  def _run(self):
+  def run(self):
     self.log(0, "generating boot.iso")
     
     isodir = self.SOFTWARE_STORE/'images/isopath'
@@ -46,7 +46,7 @@ class BootisoEvent(Event):
     
     self.write_metadata()
   
-  def _apply(self):
+  def apply(self):
     if not self.bootiso.exists():
       raise RuntimeError, "Unable to find boot.iso at '%s'" % self.bootiso
 

@@ -24,18 +24,18 @@ class ReleaseFilesEvent(Event, ExtractMixin):
       'output': [],
     }
     
-  def _validate(self):
-    self.validate('/distro/installer/release-files', 'release-files.rng')
+  def validate(self):
+    self._validate('/distro/installer/release-files', 'release-files.rng')
   
-  def _setup(self):
-    self.DATA['input'].extend(self.find_rpms())
+  def setup(self):
+    self.DATA['input'].extend(self._find_rpms())
     self.setup_diff(self.DATA)
     
-  def _run(self):
+  def run(self):
     self.log(0, "synchronizing release files")
-    self.extract()
+    self._extract()
 
-  def generate(self, working_dir):
+  def _generate(self, working_dir):
     files = {}
     rtn = []    
     for path in self.config.xpath('/distro/installer/release-files/path', []):
@@ -57,7 +57,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
       self.copy(source, dest, link=True)
     return rtn
   
-  def find_rpms(self):
+  def _find_rpms(self):
     rpmnames = self.config.xpath('/distro/installer/release-files/package/text()',
                                 ['%s-release' %(self.product,)])
     rpmset = set()

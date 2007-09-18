@@ -6,7 +6,7 @@ class IOMixin:
   def __init__(self):
     self._syncinfo = {}
   
-  def _clean(self):
+  def clean(self):
     self.remove_output(all=True)
   
   # former FilesMixin stuff

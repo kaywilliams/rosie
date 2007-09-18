@@ -27,16 +27,16 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     
     FileDownloadMixin.__init__(self, self.getBaseRepoId())
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
-    self.register_file_locals(L_FILES)
+    self._register_file_locals(L_FILES)
     self.setup_sync(self.isolinux_dir, id='IsoLinuxFiles',
                     xpaths=['/distro/installer/isolinux/path'])
   
-  def _run(self):
+  def run(self):
     self.log(0, "synchronizing isolinux files")
     self.remove_output()
-    self.download()
+    self._download()
     self.sync_input(what='IsoLinuxFiles')
     
     # modify the first append line in isolinux.cfg
@@ -57,7 +57,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     
     self.write_metadata()
   
-  def _apply(self):
+  def apply(self):
     for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s'" % file)
@@ -86,22 +86,22 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     
     ImageModifyMixin.__init__(self, 'initrd.img')
   
-  def _error(self, e):
+  def error(self, e):
     try:
-      self.close()
+      self._close()
     except:
       pass
   
-  def _setup(self):
-    ImageModifyMixin._setup(self)
-    self.register_image_locals(L_IMAGES)
+  def setup(self):
+    ImageModifyMixin.setup(self)
+    self._register_image_locals(L_IMAGES)
   
-  def _run(self):
+  def run(self):
     self.log(0, "processing initrd.img")
     self.remove_output(all=True)
-    self.modify()
+    self._modify()
   
-  def _apply(self):
+  def apply(self):
     for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
@@ -111,9 +111,9 @@ class InitrdImageEvent(Event, ImageModifyMixin):
                                 initrd.get('path/text()') / \
                                 'initrd.img'
   
-  def generate(self):
-    ImageModifyMixin.generate(self)
-    self.write_buildstamp()
+  def _generate(self):
+    ImageModifyMixin._generate(self)
+    self._write_buildstamp()
 
 
 EVENTS = {'INSTALLER': [IsolinuxEvent, InitrdImageEvent]}

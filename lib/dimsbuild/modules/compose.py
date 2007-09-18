@@ -12,7 +12,7 @@ class ComposeEvent(Event):
     
     self.composed_tree = self.DISTRO_DIR/'output'
   
-  def _run(self):
+  def run(self):
     self.log(0, "composing output tree")
     self.log(1, "removing old output tree")
     self.composed_tree.rm(recursive=True, force=True)

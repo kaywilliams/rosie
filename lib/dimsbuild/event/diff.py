@@ -6,10 +6,10 @@ class DiffMixin:
     self._diff_handlers = {}
     self._diff_set = {}
   
-  def _clean(self):
+  def clean(self):
     self.clean_metadata()
   
-  def _check(self):
+  def check(self):
     return self.test_diffs()
   
   # former DiffMixin stuff

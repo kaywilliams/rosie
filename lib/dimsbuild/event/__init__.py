@@ -19,22 +19,22 @@ class Event(dispatch.Event, IOMixin, DiffMixin, ValidateMixin):
     ValidateMixin.__init__(self)
   
   # execution methods
-  def run(self):
+  def execute(self):
     ##print 'running %s' % self.id #!
     try:
-      self._setup()
+      self.setup()
       if self.enabled and self._status != False:
         if self._status == True:
-          self._clean()
-        if self._check():
-          self._run()
-      self._apply()
+          self.clean()
+        if self.check():
+          self.run()
+      self.apply()
     except EventExit, e:
       print e
       sys.exit()
     except Exception, e:
-      if hasattr(self, '_error'):
-        self._error(e)
+      if hasattr(self, 'error'):
+        self.error(e)
       ##else:
       traceback.print_exc(file=sys.stderr) #!
       sys.exit(1)
@@ -42,15 +42,15 @@ class Event(dispatch.Event, IOMixin, DiffMixin, ValidateMixin):
   # override these methods to get stuff to actually happen!
   def _add_cli(self, parser): pass
   def _apply_options(self, options): pass
-  def _validate(self): pass
-  def _setup(self): pass
-  def _clean(self):
+  def validate(self): pass
+  def setup(self): pass
+  def clean(self):
     self.log(0, "cleaning %s" % self.id)
-    IOMixin._clean(self)
-    DiffMixin._clean(self)
-  #_check defined in mixins
-  def _run(self): pass
-  def _apply(self): pass
+    IOMixin.clean(self)
+    DiffMixin.clean(self)
+  #def check(self) defined in mixins
+  def run(self): pass
+  def apply(self): pass
   
   # former interface methods
   def log(self, level, msg):    self.logger.log(level, msg)
@@ -96,11 +96,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, ValidateMixin):
     return dir
   SOFTWARE_STORE = property(_get_software_store)
   
-class CvarsDict(dict):
-  def __getitem__(self, key):
-    return self.get(key, None)
-  
-  
+
 class RepoMixin:
   # TODO examine possiblity of defining this in SOFTWARE meta #!
   def getBaseRepoId(self):
@@ -109,6 +105,7 @@ class RepoMixin:
     return self.cvars['repos'].values()
   def getRepo(self, repoid):
     return self.cvars['repos'][repoid]
+
 
 class EventExit:
   "Error an event can raise in order to exit program execution"

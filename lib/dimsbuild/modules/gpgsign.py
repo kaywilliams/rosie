@@ -29,10 +29,10 @@ class GpgSetupEvent(Event, GpgMixin):
       'output':    [],
     }
   
-  def _validate(self):
-    self.validate('/distro/gpgsign', 'gpgsign.rng')
+  def validate(self):
+    self._validate('/distro/gpgsign', 'gpgsign.rng')
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA) 
     
     if not self.cvars['gpgsign-enabled']: return
@@ -51,10 +51,10 @@ class GpgSetupEvent(Event, GpgMixin):
     self.pubkey = self.list_output(what='public')[0]
     self.seckey = self.list_output(what='secret')[0]
   
-  def _run(self):
+  def run(self):
     # changing from gpgsign-enabled true, cleanup old files and metadata
     if self.var_changed_from_value('cvars[\'gpgsign-enabled\']', True):
-      self._clean()
+      self.clean()
     
     if not self.cvars['gpgsign-enabled']:
       self.write_metadata()
@@ -79,7 +79,7 @@ class GpgSetupEvent(Event, GpgMixin):
     
     self.write_metadata()
   
-  def _apply(self):
+  def apply(self):
     if self.cvars['gpgsign-enabled']:
       self.cvars['gpgsign-homedir']    = self.gnupg_dir
       self.cvars['gpgsign-public-key'] = self.pubkey

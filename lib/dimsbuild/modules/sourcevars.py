@@ -26,15 +26,15 @@ class SourceVarsEvent(Event, RepoMixin): #!
       'input':     [],
       'output':    [],
     }
-    
-  def _error(self, e):
+  
+  def error(self, e):
     try:
       self.image.close()
       self.image.cleanup()
     except:
       pass
-
-  def _setup(self):
+  
+  def setup(self):
     self.setup_diff(self.DATA)
     
     initrd_in=self.getRepo(self.getBaseRepoId()).rjoin('isolinux/initrd.img')
@@ -45,10 +45,10 @@ class SourceVarsEvent(Event, RepoMixin): #!
     self.buildstamp_out = self.mddir/'.buildstamp'
     
     self.DATA['output'].append(self.buildstamp_out)
-   
-  def _run(self):
+  
+  def run(self):
     self.log(0, "computing source variables")
-        
+    
     # download input files
     self.sync_input()
     
@@ -62,11 +62,11 @@ class SourceVarsEvent(Event, RepoMixin): #!
     self.image.read('.buildstamp', self.mddir)
     self.image.close()
     img.cleanup()
-
+    
     # update metadata
     self.write_metadata()
-        
-  def _apply(self):
+      
+  def apply(self):
     # parse buildstamp
     locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.cvars['anaconda-version'])
     buildstamp_fmt = locals.get('//buildstamp-format')

@@ -25,33 +25,33 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     
     ImageModifyMixin.__init__(self, 'diskboot.img')
   
-  def _error(self, e):
+  def error(self, e):
     try:
-      self.close()
+      self._close()
     except:
       pass
   
-  def _setup(self):
-    ImageModifyMixin._setup(self)
-    self.register_image_locals(L_IMAGES)
+  def setup(self):
+    ImageModifyMixin.setup(self)
+    self._register_image_locals(L_IMAGES)
 
     self.DATA['input'].extend([
       self.cvars['installer-splash'],
       self.cvars['initrd-file'],        
     ])
-
-  def _run(self):
+  
+  def run(self):
     self.log(0, "preparing diskboot image")
     self.remove_output(all=True)
-    self.modify()
+    self._modify()
   
-  def _apply(self):
+  def apply(self):
     for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
-
-  def generate(self):
-    ImageModifyMixin.generate(self)
+  
+  def _generate(self):
+    ImageModifyMixin._generate(self)
     self.image.write(self.cvars['installer-splash'], '/')
     self.image.write(self.cvars['initrd-file'], '/')
     bootargs = self.config.get('/distro/installer/diskboot.img/boot-args/text()', None)

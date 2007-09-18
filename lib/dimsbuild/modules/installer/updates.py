@@ -22,25 +22,25 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     
     ImageModifyMixin.__init__(self, 'updates.img')
   
-  def _validate(self):
-    self.validate('/distro/installer/updates.img', 'updates.rng')
+  def validate(self):
+    self._validate('/distro/installer/updates.img', 'updates.rng')
   
-  def _error(self, e):
+  def error(self, e):
     try:
-      self.close()
+      self._close()
     except:
       pass
   
-  def _setup(self):
-    ImageModifyMixin._setup(self)
-    self.register_image_locals(L_IMAGES)
+  def setup(self):
+    ImageModifyMixin.setup(self)
+    self._register_image_locals(L_IMAGES)
   
-  def _run(self):
+  def run(self):
     self.log(0, "generating updates.img")
     self.remove_output()
-    self.modify()
+    self._modify()
     
-  def _apply(self):
+  def apply(self):
     for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))

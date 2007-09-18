@@ -39,10 +39,10 @@ class PkglistEvent(Event, RepoMixin):
     }
     self.docopy = self.config.pathexists('/distro/pkglist/text()')
   
-  def _validate(self):
-    self.validate('/distro/pkglist', schemafile='pkglist.rng')
+  def validate(self):
+    self._validate('/distro/pkglist', schemafile='pkglist.rng')
   
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
     
     # setup if copying pkglist
@@ -62,7 +62,7 @@ class PkglistEvent(Event, RepoMixin):
     
     self.DATA['input'].extend(self.rddirs)
   
-  def _run(self):
+  def run(self):
     self.log(0, "resolving pkglist")
     self.remove_output(all=True)
     
@@ -79,7 +79,7 @@ class PkglistEvent(Event, RepoMixin):
     self.log(1, "generating new pkglist")
     if not self.dsdir.exists(): self.dsdir.mkdirs()
       
-    repoconfig = self.create_repoconfig()
+    repoconfig = self._create_repoconfig()
     pkgtups = depsolver.resolve(
       packages = (self.cvars['required-packages'] or []) + \
                  (self.cvars['user-required-packages'] or []),
@@ -110,12 +110,12 @@ class PkglistEvent(Event, RepoMixin):
     
     self.write_metadata()
   
-  def _apply(self):
+  def apply(self):
     if not self.pkglistfile.exists():
       raise RuntimeError("missing package list file: '%s'" % self.pkglistfile)
     self.cvars['pkglist'] = filereader.read(self.pkglistfile)
   
-  def create_repoconfig(self):
+  def _create_repoconfig(self):
     repoconfig = self.TEMP_DIR / 'depsolve.repo'
     if repoconfig.exists():
       repoconfig.remove()

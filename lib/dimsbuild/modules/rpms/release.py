@@ -60,8 +60,8 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
                            requires=['source-vars', 'repos'],
                            conditionally_requires=['gpgsign-public-key'])
     
-  def _setup(self):
-    RpmBuildEvent._setup(self)
+  def setup(self):
+    RpmBuildEvent.setup(self)
 
     self.setColors(prefix='#')    
     # public gpg keys
@@ -86,23 +86,23 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
         
     self.setup_sync(self.build_folder/'eulapy', paths=paths)
   
-  def _run(self):
+  def run(self):
     self.remove_output(all=True)
-    if not self.test_build('True'):
+    if not self._test_build('True'):
       return
-    self.build_rpm()
-    self.add_output()    
+    self._build_rpm()
+    self._add_output()    
     self.write_metadata()
   
-  def _apply(self):
-    if not self.test_build('True'):
+  def apply(self):
+    if not self._test_build('True'):
       return
-    self.check_rpms()
+    self._check_rpms()
     if not self.cvars['custom-rpms-info']:
       self.cvars['custom-rpms-info'] = []      
     self.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
   
-  def generate(self):
+  def _generate(self):
     "Create additional files."
     for type in self.installinfo.keys():
       generator = '_generate_%s_files' % type

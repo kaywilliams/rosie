@@ -28,43 +28,43 @@ class LogosEvent(Event, ExtractMixin):
       'output'   : [],
     }
     
-  def _validate(self):
-    self.validate('/distro/installer/logos', 'logos.rng')
+  def validate(self):
+    self._validate('/distro/installer/logos', 'logos.rng')
   
-  def _setup(self):
+  def setup(self):
     self.locals = locals_imerge(L_LOGOS, self.cvars['anaconda-version'])
     self.format = self.locals.get('//splash-image/format/text()')
     self.file = self.locals.get('//splash-image/file/text()')
-    self.DATA['input'].extend(self.find_rpms())
+    self.DATA['input'].extend(self._find_rpms())
     self.setup_diff(self.DATA)
     
-  def _run(self):
+  def run(self):
     self.log(0, "processing logos")
-    self.extract()
+    self._extract()
   
-  def _apply(self):
+  def apply(self):
     splash = self.SOFTWARE_STORE/'isolinux/splash.%s' % self.format
     if not splash.exists():
       raise RuntimeError("missing file: '%s'" % splash)
-    if not self.validate_splash(splash):
+    if not self._validate_splash(splash):
       raise RuntimeError("'%s' is not a valid '%s' file" %(splash, self.format))
     self.cvars['installer-splash'] = splash
 
-  def generate(self, working_dir):
+  def _generate(self, working_dir):
     "Create the splash image and copy it to the isolinux/ folder"
     output_dir = self.SOFTWARE_STORE/'isolinux'
     if not output_dir.exists():
       output_dir.mkdirs()
     
     # copy images to the product.img/ folder
-    output = self.copy_pixmaps(working_dir)
+    output = self._copy_pixmaps(working_dir)
     
     # create the splash image
-    output.append(self.generate_splash(working_dir))
+    output.append(self._generate_splash(working_dir))
     
     return output
   
-  def generate_splash(self, working_dir):
+  def _generate_splash(self, working_dir):
     splash = self.SOFTWARE_STORE/'isolinux/splash.%s' % self.format
     # convert the syslinux-splash.png to splash.lss and copy it
     # to the isolinux/ folder
@@ -80,7 +80,7 @@ class LogosEvent(Event, ExtractMixin):
                     %(startimage, splash,))
     return splash
   
-  def copy_pixmaps(self, working_dir):
+  def _copy_pixmaps(self, working_dir):
     """ 
     Create the product.img folder that can be used by the product.img
     module.
@@ -99,13 +99,13 @@ class LogosEvent(Event, ExtractMixin):
       pixmaps.append(product_img/img.basename)
     return pixmaps
   
-  def validate_splash(self, splash):
+  def _validate_splash(self, splash):
     if self.format == 'jpg':
       return magic_match(splash) == FILE_TYPE_JPG
     else:
       return magic_match(splash) == FILE_TYPE_LSS
       
-  def find_rpms(self):
+  def _find_rpms(self):
     pkgname = self.config.get('/distro/installer/logos/package/text()',
                               '%s-logos' %(self.product,))
     rpms = P(self.cvars['rpms-directory']).findpaths(

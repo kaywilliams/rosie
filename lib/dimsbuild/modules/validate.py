@@ -23,14 +23,14 @@ class ValidateEvent(Event):
       self.cvars['exit-after-validate'] = True
       self.cvars['validate'] = options.validate
   
-  def _run(self):
+  def run(self):
     self.log(0, "performing config validation")
     if self.cvars.get('validate', 'distro') == 'distro':
       self.log(1, "validating distro.conf")
-      self.validate('/distro/main', schemafile='main.rng', what='distro')
+      self._validate('/distro/main', schemafile='main.rng', what='distro')
     else:
       self.log(1, "validating dimsbuild.conf")
-      self.validate('/dimsbuild', schemafile='dimsbuild.rng', what='dimsbuild')
+      self._validate('/dimsbuild', schemafile='dimsbuild.rng', what='dimsbuild')
   
     if self.cvars.get('exit-after-validate', False):
       self.log(4, "exiting because the '--validate' option was used at command line")

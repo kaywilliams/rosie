@@ -24,7 +24,7 @@ class LocalRepoEvent(Event):
       'output': [],
     }
 
-  def _setup(self):
+  def setup(self):
     self.setup_diff(self.DATA)
 
     self.setup_sync(self.LOCAL_RPMS,  paths=self.cvars['custom-rpms'],  id='LOCAL_RPMS')
@@ -33,11 +33,11 @@ class LocalRepoEvent(Event):
     self.DATA['output'].append(self.LOCAL_RPMS/'repodata')
     self.DATA['output'].append(self.LOCAL_SRPMS/'repodata')    
 
-  def _run(self):
+  def run(self):
     self.log(0, "creating localrepo")
     # remove previous output
     self.remove_output(all=True)
-
+    
     # sync rpms
     backup = self.files_callback.sync_start
     self.files_callback.sync_start = self._print_rpms ## FIXME
@@ -45,31 +45,31 @@ class LocalRepoEvent(Event):
     self.files_callback.sync_start = self._print_srpms ## FIXME
     self.sync_input(copy=True, link=True, what='LOCAL_SRPMS')
     self.files_callback.sync_start = backup
-
+    
     self.log(1, "running createrepo")
     self.log(2, self.LOCAL_RPMS.basename)
-    self.createrepo(self.LOCAL_RPMS)
+    self._createrepo(self.LOCAL_RPMS)
     self.log(2, self.LOCAL_SRPMS.basename)    
-    self.createrepo(self.LOCAL_SRPMS)
-
+    self._createrepo(self.LOCAL_SRPMS)
+    
     self.write_metadata()
-
+  
+  def apply(self):
+    self._populate()
+    self._add_store()
+    self._add_source()
+  
   def _print_rpms(self):  self.logger.log(1, "copying custom rpms")  
   def _print_srpms(self): self.logger.log(1, "copying custom srpms")
     
-  def _apply(self):
-    self.populate()
-    self.add_store()
-    self.add_source()
-
   #----- HELPER METHODS -----#  
-  def createrepo(self, path):
+  def _createrepo(self, path):
     cwd = os.getcwd()
     os.chdir(path)
     shlib.execute('/usr/bin/createrepo -q .')
     os.chdir(cwd)
   
-  def add_store(self):
+  def _add_store(self):
     repo = Repo('localrepo')
     repo.local_path = self.LOCAL_RPMS
     repo.remote_path = self.LOCAL_RPMS
@@ -86,7 +86,7 @@ class LocalRepoEvent(Event):
       self.cvars['repos'] = {}
     self.cvars['repos'][repo.id] = repo
   
-  def add_source(self):
+  def _add_source(self):
     if self.cvars['sources-enabled']:
       repo = Repo('localrepo-sources')
       repo.local_path = self.LOCAL_SRPMS
@@ -99,7 +99,7 @@ class LocalRepoEvent(Event):
         self.cvars['source-repos'] = {}
       self.cvars['source-repos'][repo.id] = repo
   
-  def populate(self):
+  def _populate(self):
     if not self.cvars.has_key('custom-rpms-info'): return
     
     for rpmname, type, requires, obsoletes in self.cvars['custom-rpms-info']:
