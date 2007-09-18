@@ -23,7 +23,7 @@ class RepoFileEvent(Event):
       conditionally_requires = ['gpgsign-public-key'],
     )
   
-    self.repodir = self.METADATA_DIR/'RPMS/rpms-src/release-rpm/etc/yum.repos.d'
+    self.repodir = self.METADATA_DIR/'rpms-src/release-rpm/etc/yum.repos.d'
     self.repofile    = self.repodir/'%s.repo' % self.product
     self.srcrepofile = self.repodir/'source.repo'
     

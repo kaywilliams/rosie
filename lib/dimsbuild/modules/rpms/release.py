@@ -12,11 +12,6 @@ API_VERSION = 5.0
 
 class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
   def __init__(self):
-    RpmBuildEvent.__init__(self,
-      id = 'release-rpm',
-      requires = ['source-vars', 'gpgsign-public-key', 'repos'],
-    )
-
     self.gpg_dir     = P('/etc/pkg/rpm-gpg')
     self.repo_dir    = P('/etc/yum.repos.d')
     self.eula_dir    = P('/usr/share/eula')
@@ -32,17 +27,6 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
     self.doc_dir  = P(self.config.get(relpath % 'doc', None) or \
                     '/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
     
-    self.DATA = {
-      'config':    ['/distro/rpms/release-rpm'],
-      'variables': ['fullname',
-                    'product',
-                    'cvars[\'gpgsign-public-key\']'],
-      'input':     [],
-      'output':    [],
-    }
-    
-  def _setup(self):
-    self.setup_diff(self.DATA)
     installinfo = {
       'gpg'     : (None, self.gpg_dir),
       'repo'    : ('/distro/rpms/release-rpm/yum-repos/path', self.repo_dir),
@@ -54,26 +38,31 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
       'etc'     : (None, self.etc_dir), 
       'eulapy'  : (None, self.eula_dir),
     }
+
+    data = {
+      'config':    ['/distro/rpms/release-rpm'],
+      'variables': ['fullname',
+                    'product',
+                    'cvars[\'gpgsign-public-key\']'],
+      'input':     [],
+      'output':    [],
+    }
+
+    RpmBuildEvent.__init__(self,
+                           '%s-release' % self.product,
+                           '%s release files created by dimsbuild' % self.fullname,
+                           '%s release files' % self.product,
+                           data,
+                           defobsoletes='fedora-release redhat-release centos-release '\
+                           'fedora-release-notes redhat-release-notes centos-release-notes',
+                           installinfo=installinfo,
+                           id='release-rpm',
+                           requires=['source-vars', 'gpgsign-public-key', 'repos'])
     
-    kwargs = {}
-    kwargs['release'] = self.config.get('/distro/rpms/release-rpm/release/text()', '0')
-    
-    kwargs['obsoletes'] = ''
-    if self.config.pathexists('/distro/rpms/release-rpm/obsoletes/package/text()'):
-      kwargs['obsoletes'] += ' '.join(self.config.xpath(
-                             '/distro/rpms/release-rpm/obsoletes/package/text()'))
-    if self.config.get('/distro/rpms/release-rpm/@use-default-set', 'True'):
-      kwargs['obsoletes'] += 'fedora-release redhat-release centos-release '\
-                             'fedora-release-notes redhat-release-notes centos-release-notes'
-    kwargs['provides'] = kwargs['obsoletes']
-    self.register('%s-release' % self.product,
-                  '%s release files created by dimsbuild' % self.fullname,
-                  '%s release files' % self.product,
-                  installinfo=installinfo,
-                  **kwargs)
-    self.setColors(prefix='#')
-    self.add_data()    
-    
+  def _setup(self):
+    RpmBuildEvent._setup(self)
+
+    self.setColors(prefix='#')    
     # public gpg keys
     paths = []
     if self.cvars.get('gpgsign-public-key', None):
@@ -101,6 +90,7 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
     if not self.test_build('True'):
       return
     self.build_rpm()
+    self.add_output()    
     self.write_metadata()
   
   def _apply(self):

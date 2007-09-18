@@ -1,11 +1,8 @@
 from ConfigParser import ConfigParser
 
-import os
-
 from dims import filereader
 from dims import mkrpm
 from dims import pps
-from dims import shlib
 from dims import sync
 from dims import xmltree
 
@@ -16,43 +13,95 @@ from dimsbuild.misc      import locals_imerge
 P = pps.Path
 
 class RpmBuildEvent(Event):
-  def __init__(self, *args, **kwargs):
+  def __init__(self,
+               rpmname, description, summary, data,
+               defobsoletes=None, defprovides=None, defrequires=None,
+               fileslocals=None, installinfo=None, 
+               *args, **kwargs):
     Event.__init__(self, *args, **kwargs)
+
+    self.DATA = data
     
-    self.build_folder = self.METADATA_DIR/'RPMS'/self.id
-    self.srcdir = self.METADATA_DIR/'RPMS'/'rpms-src'/self.id
-    
-    self.LOCAL_REPO  = self.METADATA_DIR/'RPMS/localrepo'
-    self.SOURCES_DIR = self.METADATA_DIR/'RPMS/rpms-src'
-    self.LOCAL_RPMS  = self.LOCAL_REPO/'RPMS'
-    self.LOCAL_SRPMS = self.LOCAL_REPO/'SRPMS'
-    ##self.RPMS_DEST   = self.SOFTWARE_STORE/self.product
-    
-    self.cvars['local-rpms'] = self.LOCAL_RPMS
+    self.description  = description
+    self.rpmname      = rpmname
+    self.summary      = summary
+
+    self.defobsoletes = defobsoletes
+    self.defprovides  = defprovides
+    self.defrequires  = defrequires
+
+    self.installinfo = installinfo
+    self.fileslocals = fileslocals
   
   def _clean(self):
     self.remove_output(all=True)
     self.clean_metadata()
     
-  def _check(self):
-    return self.release == '0' or \
-           not self.mdfile.exists() or \
-           self.test_diffs()
+  def _check(self):    
+    return not self.mdfile.exists() or \
+           self.test_diffs(debug=True)
   
-  def add_data(self):
-    # input added here 
-    # output added in build_rpm, after release number is calculated
+  def _setup(self, **kwargs):
+    self.build_folder = self.mddir/'build'
+
+    self.srcdir = self.cvars['rpms-source']/self.id ## FIXME
+    self.rpmdir = self.mddir/'rpm'
+    
+    self.release = self.config.get('/distro/rpms/%s/release/text()' % self.id, '0')    
+
+    if self.config.get('/distro/rpms/%s/@use-default-set' % self.id, 'True'):
+      self.obsoletes = self.defobsoletes
+    else:
+      self.obsoletes = '' 
+    if self.config.pathexists('/distro/rpms/%s/obsoletes/package/text()' % self.id):
+      self.obsoletes += ' ' + ' '.join(self.config.xpath(
+                                  '/distro/rpms/%s/obsoletes/package/text()' % self.id))
+    self.provides = self.obsoletes
+    if self.defprovides:
+      self.provides += ' ' + self.defprovides    
+
+    if self.defrequires:
+      self.requires = self.defrequires
+    else:
+      self.requires = None
+    if self.config.pathexists('/distro/rpms/%s/requires/package/text()' % self.requires):
+      self.requires += ' ' + ' '.join(self.config.xpath(
+                                 '/distro/rpms/%s/requires/package/text()' % self.requires))
+
+    if self.installinfo:
+      for k,v in self.installinfo.items():
+        xpath, dst = v
+        if xpath:
+          self.setup_sync(self.rpmdir/dst.lstrip('/'), xpaths=[xpath])
+
+    if self.fileslocals:
+      self.fileslocals = locals_imerge(self.fileslocals, self.cvars['anaconda-version'])
+      
+    self.setup_diff(self.DATA)
     if self.srcdir.exists():
       self.DATA['input'].append(self.srcdir)
-  
+    
+    self.arch      = kwargs.get('arch',     'noarch')
+    self.author    = kwargs.get('author',   'dimsbuild')
+    self.fullname  = kwargs.get('fullname', self.fullname)
+    self.version   = kwargs.get('version',  self.version)
+      
   def build_rpm(self):
     self.log(0, "building %s rpm" % self.rpmname)
     self.check_release()
     self.log(1, "release number: %s" % self.release)
     self.build()
     self.save_release()
-    self.add_output()
-  
+
+  def add_output(self):
+    self.DATA['output'].append(self.mddir/'RPMS'/'%s-%s-%s.%s.rpm' % (self.rpmname,
+                                                                      self.version,
+                                                                      self.release,
+                                                                      self.arch))
+    self.DATA['output'].append(self.mddir/'SRPMS'/'%s-%s-%s.src.rpm' % (self.rpmname,
+                                                                        self.version,
+                                                                        self.release))
+    
   def save_release(self):
     rpms_element    = xmltree.uElement('rpms',    parent=self.config.get('/distro'))
     parent_element  = xmltree.uElement(self.id,   parent=rpms_element)
@@ -60,15 +109,6 @@ class RpmBuildEvent(Event):
     
     release_element.text = self.release
     self.config.write(self.config.file)
-
-  def add_output(self):
-    self.DATA['output'].extend([
-      self.build_folder,
-      self.LOCAL_RPMS/ \
-           ('%s-%s-%s.%s.rpm' % (self.rpmname, self.version, self.release, self.arch)),
-      self.LOCAL_SRPMS/ \
-           ('%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release))
-    ])    
 
   def check_release(self):
     if not self.mdfile.exists() or \
@@ -78,13 +118,18 @@ class RpmBuildEvent(Event):
       self.release = str(int(self.release)+1)
   
   def check_rpms(self):
-    rpm = self.LOCAL_RPMS/'%s-%s-%s.%s.rpm' % (self.rpmname, self.version,
+    rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % (self.rpmname, self.version,
                                                self.release, self.arch)
-    srpm = self.LOCAL_SRPMS/'%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release)
+    srpm = self.mddir/'SRPMS/%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release)
     if not rpm.exists():
-      raise RuntimeError("missing rpm: '%s' at '%s'" % (rpm.basename, rpm))
+      raise RuntimeError("missing rpm: '%s' at '%s'" % (rpm.basename, rpm.dirname))
+    else:
+      self.cvars['custom-rpms'].append(rpm)
+      
     if not srpm.exists():
-      raise RuntimeError("missing srpm: '%s' at '%s'" % (srpm.basename, srpm))
+      raise RuntimeError("missing srpm: '%s' at '%s'" % (srpm.basename, srpm.dirname))
+    else:
+      self.cvars['custom-srpms'].append(srpm)
   
   def test_build(self, default):
     tobuild = self.config.get(['/distro/rpms/%s/@enabled' % self.id,
@@ -97,13 +142,6 @@ class RpmBuildEvent(Event):
   def getiscript(self): return None
   def getpscript(self): return None
   
-  def createrepo(self, path=None):
-    path = path or self.LOCAL_REPO
-    cwd = os.getcwd()
-    os.chdir(path)
-    shlib.execute('/usr/bin/createrepo -q .')
-    os.chdir(cwd)
-  
   def build(self):
     self.build_folder.mkdirs()
     self.sync_input()    
@@ -111,39 +149,10 @@ class RpmBuildEvent(Event):
     self.write_spec()
     self.write_manifest()
     mkrpm.build(self.build_folder,
-                self.LOCAL_REPO,
-                keepTemp=True, 
+                self.mddir,
+                createrepo=False,
                 quiet=(self.logger.threshold < 5))
     (self.build_folder/'dist').rm(recursive=True, force=True)
-  
-  def register(self, rpmname, description, summary, fileslocals=None, installinfo=None, **kwargs):
-    self.rpmname = rpmname
-    self.description = description
-    self.summary = summary
-    
-    if fileslocals:
-      self.fileslocals = locals_imerge(fileslocals, self.cvars['anaconda-version'])
-    else:
-      self.fileslocals = None
-    
-    self.arch      = kwargs.get('arch',      'noarch')
-    self.author    = kwargs.get('author',    'dimsbuild')
-    self.fullname  = kwargs.get('fullname',  self.fullname)
-    self.obsoletes = kwargs.get('obsoletes', None)
-    self.provides  = kwargs.get('provides',  None)
-    self.release   = kwargs.get('release',   '0')
-    self.requires  = kwargs.get('requires',  None)
-    self.version   = kwargs.get('version',   self.version)
-    
-    if installinfo:
-      self.installinfo = installinfo
-      xpaths = []
-      for k,v in self.installinfo.items():
-        xpath,_ = v
-        if xpath:
-          self.setup_sync(self.build_folder/k.lstrip('/'), xpaths=[xpath])
-    else:
-      self.installinfo = None
   
   def write_spec(self):
     setupcfg = self.build_folder/'setup.cfg'
@@ -217,28 +226,12 @@ class RpmBuildEvent(Event):
   
   def __getfiles(self):
     sources = {}
-    if self.srcdir.exists():
-      for file in self.srcdir.findpaths(type=pps.constants.TYPE_NOT_DIR):
+    for attr in ['srcdir', 'rpmdir']:
+      for file in getattr(self, attr).findpaths(type=pps.constants.TYPE_NOT_DIR):
         dir = file.tokens[len(self.srcdir.tokens):].dirname
         if not dir.isabs():          dir = P('/'+dir)
         if not sources.has_key(dir): sources[dir] = []
         sources[dir].append(file)
-    if self.installinfo:
-      for k,v in self.installinfo.items():
-        dir = self.build_folder/k
-        k = P(k)
-        if dir.exists():
-          files = [ k/x.tokens[len(dir.tokens):] for x in \
-                    dir.findpaths(type=pps.constants.TYPE_NOT_DIR) ]
-        else:
-          files = []
-        
-        if files:        
-          installpath = P(v[1])
-          if sources.has_key(installpath):
-            sources[installpath].extend(files)
-          else:
-            sources[installpath] = files
     if self.fileslocals:
       for fileinfo in self.fileslocals.xpath('//files/file', []):
         i = fileinfo.get('@id')

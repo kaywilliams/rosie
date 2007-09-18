@@ -20,41 +20,32 @@ API_VERSION = 5.0
 
 class LogosRpmEvent(RpmBuildEvent, ColorMixin):
   def __init__(self):
-    RpmBuildEvent.__init__(self,
-      id = 'logos-rpm',
-      requires = ['source-vars', 'anaconda-version'],
-    )
-    
-    self.DATA = {
+    data = {
       'config': ['/distro/rpms/logos-rpm'],
       'variables': ['fullname', 'product'],
       'output': [],
+      'input':  [],
     }
+    
+    RpmBuildEvent.__init__(self,
+                           '%s-logos' % self.product,                           
+                           'The %s-logos package contains image files which '\
+                           'have been automatically created by dimsbuild and '\
+                           'are specific to %s.' % (self.product, self.fullname),
+                           'Icons and pictures related to %s' % self.fullname,
+                           data,
+                           defobsoletes='fedora-logos centos-logos redhat-logos',
+                           defprovides='system-logos',
+                           fileslocals=L_LOGOS % ((self.product,)*8),
+                           id='logos-rpm',
+                           requires=['source-vars', 'anaconda-version'])
+    
     
   def _validate(self):
     self.validate('/distro/rpms/logos-rpm', 'logos-rpm.rng')
   
   def _setup(self):
-    self.setup_diff(self.DATA)
-    
-    kwargs = {}
-    kwargs['release'] = self.config.get('/distro/rpms/logos-rpm/release/text()', '0')
-    
-    kwargs['obsoletes'] = ''
-    if self.config.pathexists('/distro/rpms/logos-rpm/obsoletes/package/text()'):
-      kwargs['obsoletes'] += ' '.join(self.config.xpath(
-                             '/distro/rpms/logos-rpm/obsoletes/package/text()'))
-    if self.config.get('/distro/rpms/logos-rpm/@use-default-set', 'True'):
-      kwargs['obsoletes'] += 'fedora-logos centos-logos redhat-logos'
-    kwargs['provides'] = kwargs['obsoletes'] + ' system-logos'
-    self.register('%s-logos' % self.product,
-                  'The %s-logos package contains image files which '\
-                  'have been automatically created by dimsbuild and '\
-                  'are specific to %s.' % (self.product, self.fullname),
-                  'Icons and pictures related to %s' % self.fullname,
-                  fileslocals=L_LOGOS % ((self.product,)*8),
-                  **kwargs)
-    self.add_data()
+    RpmBuildEvent._setup(self)
     
     # set the font to use
     available_fonts = (self.SHARE_DIR/'fonts').findpaths(glob='*.ttf')
@@ -75,6 +66,7 @@ class LogosRpmEvent(RpmBuildEvent, ColorMixin):
     if not self.test_build('True'):
       return
     self.build_rpm()
+    self.add_output()    
     self.write_metadata()    
   
   def _apply(self):
