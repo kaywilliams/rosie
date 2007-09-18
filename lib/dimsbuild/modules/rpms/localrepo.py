@@ -56,9 +56,9 @@ class LocalRepoEvent(Event):
   
   def apply(self):
     self._populate()
-    self._add_store()
-    self._add_source()
-  
+    if self.cvars['custom-rpms']: self._add_store()
+    if self.cvars['custom-srpms']: self._add_source()
+
   def _print_rpms(self):  self.logger.log(1, "copying custom rpms")  
   def _print_srpms(self): self.logger.log(1, "copying custom srpms")
     
