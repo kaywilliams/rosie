@@ -32,22 +32,20 @@ class RpmBuildEvent(Event):
 
     self.installinfo = installinfo
     self.fileslocals = fileslocals
-  
-  def _clean(self):
-    self.remove_output(all=True)
-    self.clean_metadata()
-    
-  def _check(self):    
-    return not self.mdfile.exists() or \
-           self.test_diffs(debug=True)
+
+    self.autofile = P(self.config.file).dirname / 'distro.dat'
   
   def _setup(self, **kwargs):
     self.build_folder = self.mddir/'build'
 
     self.srcdir = self.cvars['rpms-source']/self.id ## FIXME
     self.rpmdir = self.mddir/'rpm'
-    
-    self.release = self.config.get('/distro/rpms/%s/release/text()' % self.id, '0')    
+
+    if self.autofile.exists():
+      self.release = xmltree.read(self.autofile).get(
+                     '/distro/rpms/%s/release/text()' % self.id, '0')
+    else:
+      self.release = '0'
 
     if self.config.get('/distro/rpms/%s/@use-default-set' % self.id, 'True'):
       self.obsoletes = self.defobsoletes
@@ -85,6 +83,11 @@ class RpmBuildEvent(Event):
     self.author    = kwargs.get('author',   'dimsbuild')
     self.fullname  = kwargs.get('fullname', self.fullname)
     self.version   = kwargs.get('version',  self.version)
+    
+  def _check(self):    
+    return self.release == '0' or \
+           not self.mdfile.exists() or \
+           self.test_diffs()
       
   def build_rpm(self):
     self.log(0, "building %s rpm" % self.rpmname)
@@ -93,6 +96,9 @@ class RpmBuildEvent(Event):
     self.build()
     self.save_release()
 
+  def _error(self, e):
+    self.build_folder.rm(recursive=True, force=True)
+    
   def add_output(self):
     self.DATA['output'].append(self.mddir/'RPMS'/'%s-%s-%s.%s.rpm' % (self.rpmname,
                                                                       self.version,
@@ -103,19 +109,33 @@ class RpmBuildEvent(Event):
                                                                         self.release))
     
   def save_release(self):
-    rpms_element    = xmltree.uElement('rpms',    parent=self.config.get('/distro'))
+    if self.autofile.exists():
+      root_element = xmltree.read(self.autofile).get('/distro')
+    else:
+      root_element = xmltree.Element('distro')
+      
+    rpms_element    = xmltree.uElement('rpms',    parent=root_element)
     parent_element  = xmltree.uElement(self.id,   parent=rpms_element)
     release_element = xmltree.uElement('release', parent=parent_element)
     
     release_element.text = self.release
-    self.config.write(self.config.file)
+    root_element.write(self.autofile)
 
   def check_release(self):
-    if not self.mdfile.exists() or \
+    if self.release == '0' or  \
+       not self.autofile.exists() or \
+       not self.mdfile.exists() or \
        self.has_changed('input') or \
        self.has_changed('variables') or \
        self.has_changed('config'):
       self.release = str(int(self.release)+1)
+
+  def test_build(self, default):
+    tobuild = self.config.get(['/distro/rpms/%s/@enabled' % self.id,
+                               '/distro/rpms/@enabled'], default)
+    if tobuild == 'default':
+      return default in BOOLEANS_TRUE
+    return tobuild in BOOLEANS_TRUE
   
   def check_rpms(self):
     rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % (self.rpmname, self.version,
@@ -130,14 +150,7 @@ class RpmBuildEvent(Event):
       raise RuntimeError("missing srpm: '%s' at '%s'" % (srpm.basename, srpm.dirname))
     else:
       self.cvars['custom-srpms'].append(srpm)
-  
-  def test_build(self, default):
-    tobuild = self.config.get(['/distro/rpms/%s/@enabled' % self.id,
-                               '/distro/rpms/@enabled'], default)
-    if tobuild == 'default':
-      return default in BOOLEANS_TRUE
-    return tobuild in BOOLEANS_TRUE
-  
+    
   def generate(self):   pass
   def getiscript(self): return None
   def getpscript(self): return None
@@ -156,8 +169,7 @@ class RpmBuildEvent(Event):
   
   def write_spec(self):
     setupcfg = self.build_folder/'setup.cfg'
-    if setupcfg.exists(): return # can happen only if setup.cfg is an input file
-    
+
     spec = ConfigParser()
     spec.add_section('pkg_data')
     spec.add_section('bdist_rpm')
