@@ -22,6 +22,28 @@ class AutocleanEvent(Event):
     
     self.setup_diff(self.DATA)
     self._add_handler(EventHandler(self.DATA['events']))
+    
+    # delete all the folders in the metadata directory that are from events
+    # that aren't running this pass
+    mdfolders = self.METADATA_DIR.listdir()
+    for event in self._getroot():
+      try:
+        mdfolders.remove(self.METADATA_DIR/event.id)
+      except:
+        pass
+    
+    # run list through a whitelist; this will go away once we get rid of
+    # event shared locations (if we do so)
+    # regardless, images-src/rpms-src are definitely going to go
+    for id in ['localrepo', 'repos', 'images-src', 'rpms-src']:
+      try:
+        mdfolders.remove(self.METADATA_DIR/id)
+      except:
+        pass
+    
+    for mdfolder in mdfolders:
+      self.log(3, "removing unused event metadata directory '%s'" % mdfolder.basename)
+      mdfolder.rm(recursive=True, force=True)
   
   def run(self):
     self.log(0, "processing autoclean")
@@ -33,7 +55,7 @@ class AutocleanEvent(Event):
         apply_flowcontrol(self._getroot().get(self.eventinfo[event]), True)
     
     self.write_metadata()
-
+    
   
 EVENTS = {'ALL': [AutocleanEvent]}
 
