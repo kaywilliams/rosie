@@ -3,7 +3,7 @@
   <start>    
     <element name="distro">      
       <optional>
-        <element name="diskboot.img">
+        <element name="diskboot-image">
           <interleave>
             <optional>
               <element name="boot-args"><text/></element>

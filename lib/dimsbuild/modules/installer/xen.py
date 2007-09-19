@@ -20,7 +20,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     self.xen_dir = self.SOFTWARE_STORE/'images/xen'
     
     self.DATA = {
-      'config':    ['/distro/installer/initrd.img/path/text()'],
+      'config':    ['/distro/initrd-image/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
@@ -30,7 +30,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     FileDownloadMixin.__init__(self, self.getBaseRepoId())
   
   def validate(self):
-    self._validate('/distro/installer/initrd.img', 'xen.rng')
+    self._validate('/distro/initrd-image', 'xen.rng')
   
   def error(self, e):
     try:

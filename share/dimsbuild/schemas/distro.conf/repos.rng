@@ -3,30 +3,6 @@
   <start>
     <element name="distro">
       <element name="repos">
-        <!-- DOCBOOK ENTRY -->        
-        <refentry xmlns="">      
-          <refsect1>
-            <title>REPOS</title>
-            <para>
-            The &lt;repos&gt; element contains configuration data regarding the
-            source repositories from which to gather RPMs for the custom distribution.
-            It lists each repository separately, along with any and all information
-            required to download files from it (such as username/password for https
-            locations).
-            </para>
-            <para>
-            There are two types of repositories: 'base' and 'additional', each with
-            correspondng &lt;base&gt; and &lt;additional&gt; elements.  A 'base'
-            repository is named so because it contains several files beyond just RPMs
-            that are useful to other stages of the dimsbuild process, such as a
-            groupfile, stage2 images, and isolinux files.  There can only be one 'base'
-            repository per custom distribution.  All other repositories, if any, fall
-            into the 'additional' category.
-            </para>
-          </refsect1>
-        </refentry>
-        
-        <!-- ELEMENT CONTENTS -->
         <oneOrMore>
           <ref name="element-repo"/>
         </oneOrMore>

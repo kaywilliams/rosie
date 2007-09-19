@@ -110,7 +110,10 @@ class PublishEvent(Event):
       #'input':     [],
       #'output':    [],
     }
-  
+
+  def validate(self):
+    self._validate('/distro/publish', 'publish.rng')
+    
   def setup(self):
     self.setup_diff(self.DATA)
     #for dir in self.cvars['composed-tree'].listdir():

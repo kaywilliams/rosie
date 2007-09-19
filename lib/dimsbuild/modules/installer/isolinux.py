@@ -22,16 +22,19 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
-      'config':    ['/distro/installer/isolinux'],
+      'config':    ['/distro/isolinux'],
     }
     
     FileDownloadMixin.__init__(self, self.getBaseRepoId())
-  
+
+  def validate(self):
+    self._validate('/distro/isolinux', 'isolinux.rng')
+    
   def setup(self):
     self.setup_diff(self.DATA)
     self._register_file_locals(L_FILES)
     self.setup_sync(self.isolinux_dir, id='IsoLinuxFiles',
-                    xpaths=['/distro/installer/isolinux/path'])
+                    xpaths=['/distro/isolinux/path'])
   
   def run(self):
     self.log(0, "synchronizing isolinux files")
@@ -40,7 +43,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     self.sync_input(what='IsoLinuxFiles')
     
     # modify the first append line in isolinux.cfg
-    bootargs = self.config.get('/distro/installer/isolinux/boot-args/text()', None)
+    bootargs = self.config.get('/distro/isolinux/boot-args/text()', None)
     if bootargs:
       cfg = self.isolinux_dir/'isolinux.cfg'
       if not cfg.exists():
@@ -78,7 +81,7 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     )
     
     self.DATA = {
-      'config':    ['/distro/installer/initrd.img/path'],
+      'config':    ['/distro/initrd-image/path'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [] # to be filled later

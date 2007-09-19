@@ -18,13 +18,16 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
      
     self.DATA = {
       'variables': ['cvars[\'anaconda-version\']'],
-      'config':    ['/distro/installer/diskboot.img'],
+      'config':    ['/distro/diskboot-image'],
       'input':     [],
       'output':    [],
     }
     
     ImageModifyMixin.__init__(self, 'diskboot.img')
-  
+
+  def validate(self):
+    self._validate('/distro/diskboot-image', 'diskboot.rng')
+    
   def error(self, e):
     try:
       self._close()
@@ -54,7 +57,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin._generate(self)
     self.image.write(self.cvars['installer-splash'], '/')
     self.image.write(self.cvars['initrd-file'], '/')
-    bootargs = self.config.get('/distro/installer/diskboot.img/boot-args/text()', None)
+    bootargs = self.config.get('/distro/diskboot-image/boot-args/text()', None)
     if bootargs:      
       if not 'syslinux.cfg' in self.image.list():
         raise RuntimeError("syslinux.cfg not found in the diskboot.img")

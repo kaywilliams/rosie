@@ -10,11 +10,11 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
       id = 'updates-image',
       provides = ['updates.img'],
       requires = ['buildstamp-file', 'anaconda-version'],
-      conditionally_requires = ['logos'],
+      conditionally_requires = ['installer-logos'],
     )
     
     self.DATA = {
-      'config':    ['/distro/installer/updates.img/path/text()'],
+      'config':    ['/distro/updates-image/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
@@ -23,7 +23,7 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin.__init__(self, 'updates.img')
   
   def validate(self):
-    self._validate('/distro/installer/updates.img', 'updates.rng')
+    self._validate('/distro/updates-image', 'updates.rng')
   
   def error(self, e):
     try:

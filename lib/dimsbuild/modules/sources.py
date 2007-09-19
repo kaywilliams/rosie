@@ -23,10 +23,10 @@ API_VERSION = 5.0
 
 SRPM_PNVRA_REGEX = re.compile(SRPM_PNVRA)
 
-class SourceReposEvent(Event):
+class SourcesEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'source-repos',
+      id = 'sources',
       provides = ['local-source-repodata',
                   'source-repo-contents',
                   'sources-enabled'],
@@ -111,10 +111,10 @@ class SourceReposEvent(Event):
         repo.readRepoContents(repofile=repo.pkgsfile)
 
 
-class SourcesEvent(Event):
+class SourceReposEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'sources',
+      id = 'source-repos',
       provides = ['srpms'],
       requires = ['rpms', 'source-repo-contents'],
     )

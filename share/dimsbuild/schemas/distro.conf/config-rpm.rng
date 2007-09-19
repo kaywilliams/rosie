@@ -1,13 +1,6 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0" 
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <!-- DOCBOOK ENTRY -->
-    <refentry xmlns="">
-      <refsect1>
-        <title>CONFIG RPM</title>
-        <para>information about the config-rpm element</para>
-      </refsect1>
-    </refentry>
 
     <element name="distro">
       <optional>

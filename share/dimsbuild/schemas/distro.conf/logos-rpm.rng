@@ -1,15 +1,7 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0" 
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <!-- DOCBOOK ENTRY -->
-    <refentry xmlns="">
-      <refsect1>
-        <title>LOGOS RPMS</title>
-        <para>information about the logos-rpm element</para>
-      </refsect1>
-    </refentry>
 
-    <!-- ELEMENT CONTENTS -->
     <element name="distro">
       <optional>
         <element name="logos-rpm">

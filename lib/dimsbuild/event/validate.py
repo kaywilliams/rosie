@@ -36,10 +36,10 @@ class ValidateMixin:
       if not schema.validate(doc):
         why = schema.error_log.last_error.message
         if schemafile is not None:
-          self.raiseInvalidConfig("validation of the %s.conf against the %s failed: %s" \
+          self.raiseInvalidConfig("validation of %s.conf against the %s failed: %s" \
                                   % (self.cvars.get('validate', 'distro'), schemafile, why))
         else:
-          self.raiseInvalidConfig("validation of the %s.conf failed: %s" \
+          self.raiseInvalidConfig("validation of %s.conf failed: %s" \
                                   % (self.cvars.get('validate', 'distro', why)))
     finally:
       os.chdir(cwd)

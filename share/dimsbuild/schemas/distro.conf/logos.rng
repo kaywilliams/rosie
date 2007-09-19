@@ -3,7 +3,7 @@
   <start>
     <element name="distro">
       <optional>
-        <element name="logos">
+        <element name="installer-logos">
           <element name="package"><text/></element>
         </element>
       </optional>

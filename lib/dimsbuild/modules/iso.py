@@ -120,7 +120,7 @@ class PkgorderEvent(Event):
 class IsoSetsEvent(Event, ListCompareMixin):
   def __init__(self):
     Event.__init__(self,
-      id = 'iso-sets',
+      id = 'iso',
       requires = ['anaconda-version', 'pkgorder-file', 'composed-tree'],
       conditionally_requires = ['manifest-changed', 'sources-enabled', 'srpms'],
     )

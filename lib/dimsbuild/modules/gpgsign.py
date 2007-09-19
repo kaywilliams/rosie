@@ -9,7 +9,7 @@ API_VERSION = 5.0
 class GpgSetupEvent(Event, GpgMixin):
   def __init__(self):
     Event.__init__(self,
-      id = 'gpgsign-setup',
+      id = 'gpgsign',
       provides = ['gpgsign-enabled', 'gpgsign-public-key',
                   'gpgsign-homedir', 'gpgsign-passphrase'],
     )

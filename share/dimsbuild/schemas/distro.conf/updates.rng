@@ -2,18 +2,8 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="distro">
-
-      <!-- DOCBOOK ENTRY -->
-      <refentry xmlns="">
-        <refsect1>
-          <title>UPDATES</title>
-          <para>information about the updates.img element</para>
-        </refsect1>
-      </refentry>
-
-      <!-- ELEMENT CONTENTS -->
       <optional>
-        <element name="updates.img">
+        <element name="updates-image">
           <ref name="element-path"/>
         </element>
       </optional>

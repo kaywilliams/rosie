@@ -23,7 +23,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     )
     
     self.DATA = {
-      'config':    ['/distro/installer/product.img/path/text()'],
+      'config':    ['/distro/product-image/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
@@ -32,7 +32,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin.__init__(self, 'product.img')
   
   def validate(self):
-    self._validate('/distro/installer/product.img', 'product.rng')
+    self._validate('/distro/product-image', 'product.rng')
     
   def error(self, e):
     try:

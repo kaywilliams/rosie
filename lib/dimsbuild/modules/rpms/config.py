@@ -9,15 +9,15 @@ API_VERSION = 5.0
 class ConfigRpmEvent(RpmBuildEvent):
   def __init__(self):
     installinfo = {
-      'config' : ('/distro/rpms/config-rpm/config/script/path',
+      'config' : ('/distro/config-rpm/config/script/path',
                   '/usr/lib/%s' % self.product),
-      'support': ('/distro/rpms/config-rpm/config/supporting-files/path',
+      'support': ('/distro/config-rpm/config/supporting-files/path',
                   '/usr/lib/%s' % self.product),
     }
     
     data = {
       'config': [
-        '/distro/rpms/config-rpm',
+        '/distro/config-rpm',
       ],
       'input':  [],
       'output': [],
@@ -34,7 +34,7 @@ class ConfigRpmEvent(RpmBuildEvent):
                            id='config-rpm')
         
   def validate(self):
-    self._validate('/distro/rpms/config-rpm', 'config-rpm.rng')
+    self._validate('/distro/config-rpm', 'config-rpm.rng')
     
   def run(self):
     self.remove_output(all=True)

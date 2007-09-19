@@ -3,7 +3,7 @@
   <start>
     <element name="distro">
       <optional>
-        <element name="product.img">
+        <element name="product-image">
           <zeroOrMore>
             <ref name="element-path-with-dest"/>
           </zeroOrMore>

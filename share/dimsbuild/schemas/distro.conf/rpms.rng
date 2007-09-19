@@ -1,14 +1,6 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0" 
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
 
-  <!-- DOCBOOK ENTRY -->
-  <refentry xmlns="">
-    <refsect1>
-      <title>RPMS</title>
-      <para>information about the rpms element</para>
-    </refsect1>
-  </refentry>
-
   <define name="element-obsoletes">
     <element name="obsoletes">
       <optional>

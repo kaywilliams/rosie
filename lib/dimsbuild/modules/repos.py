@@ -27,10 +27,10 @@ class ReposMetaEvent(Event):
   def apply(self):
     self.cvars['local-repodata'] = self.local_repodata
 
-class RepomdEvent(Event, RepoMixin): #!
+class ReposEvent(Event, RepoMixin): #!
   def __init__(self):
     Event.__init__(self,
-      id = 'repomd',
+      id = 'repos',
       #provides = ['anaconda-version', 'repo-contents', 'local-repodata'],
       provides = ['repomd-files', 'repos'],
     )
@@ -151,7 +151,7 @@ class RepoContentsEvent(Event, RepoMixin):
         self.cvars['anaconda-version'] = get_anaconda_version(repo.pkgsfile)
 
 
-EVENTS = {'MAIN': [ReposMetaEvent], 'REPOS': [RepomdEvent, RepoContentsEvent]}
+EVENTS = {'MAIN': [ReposMetaEvent], 'REPOS': [ReposEvent, RepoContentsEvent]}
 
 
 #------ HELPER FUNCTIONS ------#

@@ -9,7 +9,6 @@ P = pps.Path
 
 API_VERSION = 5.0
 
-
 class ReleaseFilesEvent(Event, ExtractMixin):
   def __init__(self):
     Event.__init__(self,
@@ -19,13 +18,13 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     )
     
     self.DATA = {
-      'config': ['/distro/installer/release-files'],
+      'config': ['/distro/release-files'],
       'input' : [],
       'output': [],
     }
     
   def validate(self):
-    self._validate('/distro/installer/release-files', 'release-files.rng')
+    self._validate('/distro/release-files', 'release-files.rng')
   
   def setup(self):
     self.DATA['input'].extend(self._find_rpms())
@@ -38,11 +37,11 @@ class ReleaseFilesEvent(Event, ExtractMixin):
   def _generate(self, working_dir):
     files = {}
     rtn = []    
-    for path in self.config.xpath('/distro/installer/release-files/path', []):
+    for path in self.config.xpath('/distrorelease-files/path', []):
       source = P(path.text)
       dest = self.SOFTWARE_STORE/path.attrib['dest']
       files[source] = dest
-    if self.config.get('/distro/installer/release-files/include-in-tree/@use-default-set', 'True') \
+    if self.config.get('/distro/release-files/include-in-tree/@use-default-set', 'True') \
            in BOOLEANS_TRUE:
       for default_item in ['eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README',
                            '*-RPM-GPG', 'RPM-GPG-KEY-*', 'RPM-GPG-KEY-beta',
@@ -58,7 +57,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     return rtn
   
   def _find_rpms(self):
-    rpmnames = self.config.xpath('/distro/installer/release-files/package/text()',
+    rpmnames = self.config.xpath('/distro/release-files/package/text()',
                                 ['%s-release' %(self.product,)])
     rpmset = set()
     for rpmname in rpmnames:

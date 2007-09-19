@@ -1,14 +1,7 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0" 
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <!-- DOCBOOK ENTRY -->
-    <refentry xmlns="">
-      <refsect1>
-        <title>DEFAULT THEME RPM</title>
-        <para>information about the default theme rpm element</para>
-      </refsect1>
-    </refentry>
-    
+
     <element name="distro">
       <optional>
         <element name="default-theme-rpm">
