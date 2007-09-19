@@ -12,7 +12,6 @@ __date__    = 'June 26th, 2007'
 import imp
 import sys
 
-from lxml.etree    import Comment
 from rpmUtils.arch import getBaseArch
 
 from dims import dispatch
@@ -27,8 +26,7 @@ from dims.sync import link
 from dimsbuild.callback  import BuildLogger, BuildSyncCallback, FilesCallback
 from dimsbuild.constants import *
 from dimsbuild.event     import Event
-
-from dimsbuild.event.validate import ConfigValidator, MainConfigValidator
+from dimsbuild.validate  import ConfigValidator, MainConfigValidator
 
 P = pps.Path # convenience
 
