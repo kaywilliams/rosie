@@ -12,7 +12,7 @@ class SoftwareMetaEvent(Event):
     )
 
 MODULES = [
-  'software',
+  'download',
   'gpgcheck',
   'gpgsign',
   'createrepo',
