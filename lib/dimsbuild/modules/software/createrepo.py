@@ -28,9 +28,11 @@ class CreaterepoEvent(Event):
     self.cvars['rpms-directory'] = self.SOFTWARE_STORE/self.cvars['base-vars']['product']
 
     if self.cvars['gpgsign-enabled']:
-      self.setup_sync(self.cvars['rpms-directory'], paths=self.cvars['signed-rpms'])
+      self.setup_sync(self.cvars['rpms-directory'], 
+                      paths=self.cvars['signed-rpms'], id='rpms')
     else:
-      self.setup_sync(self.cvars['rpms-directory'], paths=self.cvars['cached-rpms'])
+      self.setup_sync(self.cvars['rpms-directory'], 
+                      paths=self.cvars['cached-rpms'], id='rpms')
   
   def run(self):
     self.log(0, "running createrepo")
@@ -48,10 +50,7 @@ class CreaterepoEvent(Event):
     self.write_metadata()
   
   def apply(self):
-    self.cvars['rpms'] = self.list_output()
+    self.cvars['rpms'] = self.list_output(what='rpms')
 
-  def error(self, e):
-    # why?
-    self.clean()
 
 EVENTS = {'SOFTWARE': [CreaterepoEvent]}
