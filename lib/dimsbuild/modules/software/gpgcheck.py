@@ -1,10 +1,7 @@
-
 from dims import mkrpm
 from dims import shlib
 
-from dims.dispatch import PROPERTY_META
-
-from dimsbuild.event     import Event, RepoMixin #!
+from dimsbuild.event import Event, RepoMixin #!
 
 API_VERSION = 5.0
 
@@ -14,44 +11,44 @@ class GPGCheckEvent(Event, RepoMixin):
       id = 'gpgcheck',
       requires = ['cached-rpms', 'repos'],
     )
-
+    
     self.DATA = {
       'variables': [],
       'input':     [],
       'output':    [],
     }
-    
+  
   def setup(self):
     self.setup_diff(self.DATA)
- 
+    
     self.keys = []     # gpgcheck keys to download
     self.checks = set() # rpms to check
-
+    
     cached = {} # dictionary cached rpms by basename, fullname
     for rpm in self.cvars['cached-rpms']:
       cached[rpm.basename] = rpm
-
+    
     for repo in self.getAllRepos():
       if repo.gpgcheck:
         self.keys.extend(repo.gpgkeys)
         for rpm in [ rpminfo['file'].basename for rpminfo in repo.repoinfo ]:
           if cached.has_key(rpm):
             self.checks.add(cached[rpm])
-
+    
     self.setup_sync(self.mddir, paths=self.keys)    
     self.DATA['variables'].append('checks')
- 
+  
   def run(self):
     self.log(0, "running gpgcheck")
-
+    
     if not self.checks:
-			self.remove_output(all=True) # remove old keys from builddata
-			self.write_metadata()
-			return
-
+      self.remove_output(all=True) # remove old keys from builddata
+      self.write_metadata()
+      return
+    
     self.remove_output() # remove changed keys from builddata
     newkeys = self.sync_input() # sync new keys
-
+    
     homedir = self.mddir/'homedir'
     if newkeys: 
       newchecks = sorted(self.checks)
@@ -63,7 +60,7 @@ class GPGCheckEvent(Event, RepoMixin):
       md, curr = self._diff_handlers['variables'].diffdict['checks']
       if not hasattr(md, '__iter__'): md = set()
       newchecks = sorted(curr.difference(md))
-
+    
     if newchecks: 
       self.log(1, "checking signatures")
       invalids = []
@@ -80,7 +77,7 @@ class GPGCheckEvent(Event, RepoMixin):
       if invalids:
         raise RpmSignatureInvalidError("One or more RPMS failed "\
                                      "GPG key checking: %s" % invalids)
-
+    
     self.DATA['output'].append(homedir)
     self.write_metadata()
 

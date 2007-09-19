@@ -28,7 +28,7 @@ class MainEvent(Event):
     Event.__init__(self,
       id = 'MAIN',
       properties = PROPERTY_META,
-      requires = ['init'],
+      comes_after = ['init'],
       conditionally_comes_after = ['validate', 'clean'],
     )
 

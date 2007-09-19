@@ -14,7 +14,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     Event.__init__(self,
       id = 'release-files',
       requires = ['rpms-directory'],
-      conditionally_requires = ['gpgsign'],
+      conditionally_comes_after = ['gpgsign'],
     )
     
     self.DATA = {

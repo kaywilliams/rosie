@@ -24,7 +24,7 @@ class CompsEvent(Event, RepoMixin):
       id = 'comps',
       provides = ['comps-file', 'required-packages', 'user-required-packages'],
       requires = ['anaconda-version', 'local-repodata'],
-      conditionally_requires = ['RPMS'],
+      conditionally_comes_after = ['RPMS'],
     )
     
     self.comps = Element('comps')

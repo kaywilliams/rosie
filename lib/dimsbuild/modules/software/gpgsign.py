@@ -4,13 +4,12 @@ from dims import mkrpm
 from dims.mkrpm import GpgMixin
 
 from dimsbuild.constants import BOOLEANS_TRUE
-from dimsbuild.event     import Event, RepoMixin
+from dimsbuild.event     import Event
 
 API_VERSION = 5.0
 
 P = pps.Path
 
-#------- EVENTS -------#
 class GpgSetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
@@ -18,7 +17,7 @@ class GpgSetupEvent(Event):
       provides = ['gpgsign-enabled', 'gpgsign-public-key',
                   'gpgsign-secret-key', 'gpgsign-passphrase'],
     )
-    
+  
   def apply(self):
     self.cvars['gpgsign-enabled'] = \
       self.config.pathexists('/distro/gpgsign') and \
@@ -29,6 +28,7 @@ class GpgSetupEvent(Event):
       P(self.config.get('/distro/gpgsign/gpg-secret-key/text()', None))
     self.cvars['gpgsign-passphrase'] = \
       self.config.get('/distro/gpgsign/gpg-passphrase/text()', None)
+
 
 class GPGSignEvent(Event, GpgMixin):
   def __init__(self):
@@ -46,12 +46,12 @@ class GPGSignEvent(Event, GpgMixin):
       'input':     [],
       'output':    [],
     }
-
+  
   def validate(self):
     self.validator.validate('/distro/gpgsign', 'gpgsign.rng')
-
+  
   def setup(self):
-    self.setup_diff(self.DATA) 
+    self.setup_diff(self.DATA)
     
     if not self.cvars['gpgsign-enabled']: return
     
@@ -59,10 +59,10 @@ class GPGSignEvent(Event, GpgMixin):
     self.setup_sync(self.mddir, paths=self.cvars['gpgsign-secret-key'], id='seckey')
     
     self.setup_sync(self.mddir/'rpms', paths=self.cvars['input-rpms'], id='rpms')
-
+  
   def run(self):
     self.log(0, "running gpgsign")
-
+    
     # changing from gpgsign-enabled true, cleanup old files and metadata
     if self.var_changed_from_value('gpgsign_enabled', True):
       self.log(1, "gpgsign disabled - cleaning up")
@@ -71,13 +71,13 @@ class GPGSignEvent(Event, GpgMixin):
     if not self.cvars['gpgsign-enabled']:
       self.write_metadata()
       return
-
+    
     self.remove_output()
     
     self.log(1, "configuring gpg signing")
     # sync keys
     newkeys = self.sync_input(what=['pubkey','seckey'])
-
+    
     # import keys
     gnupg_dir = self.mddir / '.gnupg'
     pubkey = self.list_output(what='pubkey')[0]
@@ -91,11 +91,11 @@ class GPGSignEvent(Event, GpgMixin):
     
     # don't leave secret key lying around
     seckey.remove()
-
+    
     # sync rpms to output folder
     self.log(1, "preparing to sign rpms")
     newrpms = self.sync_input(what='rpms')
-
+    
     # sign rpms
     if self.var_changed_from_value('cvars[\'gpgsign-enabled\']', False) \
        or newkeys:
@@ -112,12 +112,12 @@ class GPGSignEvent(Event, GpgMixin):
         mkrpm.SignRpm(rpm, 
                       homedir=gnupg_dir,
                       passphrase=self.cvars['gpgsign-passphrase'])
-
+    
     self.write_metadata()
   
   def apply(self):
    self.cvars['signed-rpms'] = self.list_output(what='rpms')  
-
+  
   def error(self, e):
     self.clean()
 

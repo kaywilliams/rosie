@@ -18,7 +18,7 @@ class LogosEvent(Event, ExtractMixin):
       id = 'installer-logos',
       provides = ['installer-splash'],
       requires = ['rpms-directory', 'anaconda-version'],
-      conditionally_requires = ['gpgsign'],
+      conditionally_comes_after = ['gpgsign'],
     )
     
     self.DATA = {

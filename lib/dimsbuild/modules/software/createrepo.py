@@ -2,7 +2,7 @@ import os
 
 from dims import shlib
 
-from dimsbuild.event     import Event
+from dimsbuild.event import Event
 
 API_VERSION = 5.0
 
@@ -25,8 +25,8 @@ class CreaterepoEvent(Event):
   def setup(self):
     self.setup_diff(self.DATA)
 
-    self.cvars['rpms-directory'] = self.SOFTWARE_STORE/self.cvars['base-vars']['product']
-
+    self.cvars['rpms-directory'] = self.SOFTWARE_STORE/self.product
+    
     if self.cvars['gpgsign-enabled']:
       self.setup_sync(self.cvars['rpms-directory'], 
                       paths=self.cvars['signed-rpms'], id='rpms')

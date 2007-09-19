@@ -126,7 +126,7 @@ class Build:
     
     # raise init and other events prior
     self.dispatch.execute(until='init')
-
+  
   def apply_options(self, options):
     "Raise the 'applyopt' event, which plugins/modules can use to apply"
     "command-line argument configuration to themselves"
@@ -152,19 +152,19 @@ class Build:
     
     # apply options:
     for e in self.dispatch: e._apply_options(options)
-
+    
     # perform validation, if not specified otherwise
     if not options.no_validate:
       self.validate_configs()
       if options.validate_only:
         sys.exit()
-
+    
   def validate_configs(self):
     Event.logger.log(0, "validating config")
-
+    
     Event.logger.log(1, "dimsbuild.conf")
     Event.mcvalidator.validate('/dimsbuild', schemafile='dimsbuild.rng')
-
+    
     Event.logger.log(1, P(Event.config.file).basename)
     # validate individual sections of distro.conf
     Event.validator.validate('/distro/main', schemafile='main.rng')    
@@ -172,7 +172,7 @@ class Build:
       e.validate()
     # validate top-level elements
     Event.validator.validateElements()
-
+  
   def main(self):
     "Build a distribution"
     self.dispatch.execute(until=None)
@@ -257,12 +257,12 @@ class Build:
     Event.link_handler = link.LinkHandler()
     
     Event.files_callback = FilesCallback(Event.logger)
-
+    
     Event.mcvalidator = MainConfigValidator(Event.SHARE_DIR/'schemas',
                                             Event.mainconfig)
     Event.validator = ConfigValidator(Event.SHARE_DIR/'schemas/distro.conf',
-                                      Event.config,
-                                      Event.errlogger)
+                                      Event.config, Event.errlogger)
+
 
 class CvarsDict(dict):
   def __getitem__(self, key):

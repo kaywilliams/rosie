@@ -19,7 +19,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
       id = 'product-image',
       provides = ['product.img'],
       requires = ['anaconda-version', 'buildstamp-file', 'comps-file'],
-      conditionally_requires = ['logos'],
+      conditionally_comes_after = ['logos'],
     )
     
     self.DATA = {
