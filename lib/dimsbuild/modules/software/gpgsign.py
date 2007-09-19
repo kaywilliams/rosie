@@ -18,6 +18,9 @@ class GpgSetupEvent(Event):
                   'gpgsign-secret-key', 'gpgsign-passphrase'],
     )
   
+  def validate(self):
+    self.validator.validate('/distro/gpgsign', 'gpgsign.rng')
+
   def apply(self):
     self.cvars['gpgsign-enabled'] = \
       self.config.pathexists('/distro/gpgsign') and \
@@ -36,6 +39,7 @@ class GPGSignEvent(Event, GpgMixin):
       id = 'gpgsign',
       requires = ['input-rpms', 'gpgsign-enabled', 'gpgsign-public-key', 
                   'gpgsign-secret-key', 'gpgsign-passphrase'],
+      conditionally_comes_after = ['gpgcheck'],
       provides = ['signed-rpms'],
     )
     
@@ -46,9 +50,6 @@ class GPGSignEvent(Event, GpgMixin):
       'input':     [],
       'output':    [],
     }
-  
-  def validate(self):
-    self.validator.validate('/distro/gpgsign', 'gpgsign.rng')
   
   def setup(self):
     self.setup_diff(self.DATA)
