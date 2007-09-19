@@ -141,7 +141,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     self.output_dir = self.DISTRO_DIR/'output'
 
   def validate(self):
-    self._validate('/distro/iso', 'iso.rng')
+    self.validator.validate('/distro/iso', 'iso.rng')
   
   def setup(self):
     self.setup_diff(self.DATA)

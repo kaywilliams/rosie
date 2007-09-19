@@ -32,7 +32,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin.__init__(self, 'product.img')
   
   def validate(self):
-    self._validate('/distro/product-image', 'product.rng')
+    self.validator.validate('/distro/product-image', 'product.rng')
     
   def error(self, e):
     try:

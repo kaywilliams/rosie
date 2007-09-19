@@ -38,7 +38,7 @@ class CompsEvent(Event, RepoMixin):
     }
   
   def validate(self):
-    self._validate('/distro/comps', 'comps.rng')
+    self.validator.validate('/distro/comps', 'comps.rng')
   
   def setup(self):
     self.setup_diff(self.DATA)

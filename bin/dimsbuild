@@ -22,7 +22,7 @@ from dims.CleanHelpFormatter import CleanHelpFormatter, OptionGroupId
 def main():
   parser = OptionParser("usage: %prog [OPTIONS]", formatter=CleanHelpFormatter())
   parser.add_option('-c', '--distro-conf',
-                    dest='userdistroconfigpath',
+                    dest='distropath',
                     help="specify path to distro.conf file")
   parser.add_option('-v', '--verbose',
                     default=False,
@@ -56,6 +56,16 @@ def main():
                     action='store_true',
                     default=False,
                     help="clear cache of downloaded files before executing")
+  parser.add_option('--no-validate',
+                    dest='no_validate',
+                    action='store_true',
+                    default=False,
+                    help="do not validate the config file(s)")
+  parser.add_option('--validate-only',
+                    dest='validate_only',
+                    default=False,
+                    action='store_true',
+                    help='validate the distro.conf and dimsbuild.conf and exit')
   parser.add_option('--clean',
                     action='callback',
                     dest='clean_events',
@@ -80,17 +90,18 @@ def main():
   
   try:
     preargs = __filter_cmd_args(args,
-                                ['--no-plugins'],
+                                ['--no-plugins', '--no-validate', '--validate-only'],
                                 ['-c', '--distro-conf', '--dimsbuild-conf',
                                  '-l', '-e',
                                  '--lib-path', '--share-path'])
+                                 
   except ValueError:
     parser.print_help()
     sys.exit(1)
   
   opts,_ = parser.parse_args(args=preargs)
 
-  mainconfig, distroconfig = __get_conf(opts.mainconfigpath, opts.userdistroconfigpath, 
+  mainconfig, distroconfig = __get_conf(opts.mainconfigpath, opts.distropath, 
                                           opts.logthresh)
   
   # set up IMPORT_DIRS  
@@ -123,7 +134,6 @@ def main():
   sbuilder.apply_options(options)
   sbuilder.main()
   sys.exit()
-
 
 def append_events_callback(option, opt, value, parser):
   events = []

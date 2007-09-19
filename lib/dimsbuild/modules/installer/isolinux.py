@@ -28,7 +28,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     FileDownloadMixin.__init__(self, self.getBaseRepoId())
 
   def validate(self):
-    self._validate('/distro/isolinux', 'isolinux.rng')
+    self.validator.validate('/distro/isolinux', 'isolinux.rng')
     
   def setup(self):
     self.setup_diff(self.DATA)

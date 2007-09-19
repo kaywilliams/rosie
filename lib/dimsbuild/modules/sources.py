@@ -44,7 +44,7 @@ class SourcesEvent(Event):
     }
   
   def validate(self):
-    self._validate('/distro/sources', 'sources.rng')
+    self.validator.validate('/distro/sources', 'sources.rng')
 
   def setup(self):    
     self.setup_diff(self.DATA)

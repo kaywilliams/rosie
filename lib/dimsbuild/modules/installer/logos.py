@@ -29,7 +29,7 @@ class LogosEvent(Event, ExtractMixin):
     }
     
   def validate(self):
-    self._validate('/distro/installer-logos', 'logos.rng')
+    self.validator.validate('/distro/installer-logos', 'logos.rng')
   
   def setup(self):
     self.locals = locals_imerge(L_LOGOS, self.cvars['anaconda-version'])

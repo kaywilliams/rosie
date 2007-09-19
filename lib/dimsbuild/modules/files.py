@@ -22,7 +22,7 @@ class FilesEvent(Event):
     }
   
   def validate(self):
-    self._validate('/distro/files', 'files.rng')
+    self.validator.validate('/distro/files', 'files.rng')
   
   def setup(self):
     self.setup_diff(self.DATA)

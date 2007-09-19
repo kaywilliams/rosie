@@ -59,6 +59,9 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
                            id='release-rpm',
                            requires=['source-vars', 'repos'],
                            conditionally_requires=['gpgsign-public-key'])
+
+  def validate(self):
+    self.validator.validate('/distro/release-rpm', 'release-rpm.rng')
     
   def setup(self):
     RpmBuildEvent.setup(self)

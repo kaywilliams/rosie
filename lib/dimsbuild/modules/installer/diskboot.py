@@ -26,7 +26,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin.__init__(self, 'diskboot.img')
 
   def validate(self):
-    self._validate('/distro/diskboot-image', 'diskboot.rng')
+    self.validator.validate('/distro/diskboot-image', 'diskboot.rng')
     
   def error(self, e):
     try:

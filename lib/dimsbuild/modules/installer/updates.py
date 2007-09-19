@@ -23,7 +23,7 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin.__init__(self, 'updates.img')
   
   def validate(self):
-    self._validate('/distro/updates-image', 'updates.rng')
+    self.validator.validate('/distro/updates-image', 'updates.rng')
   
   def error(self, e):
     try:

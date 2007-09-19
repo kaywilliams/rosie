@@ -42,7 +42,7 @@ class LogosRpmEvent(RpmBuildEvent, ColorMixin):
     
     
   def validate(self):
-    self._validate('/distro/logos-rpm', 'logos-rpm.rng')
+    self.validator.validate('/distro/logos-rpm', 'logos-rpm.rng')
   
   def setup(self):
     RpmBuildEvent.setup(self)

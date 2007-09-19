@@ -2,11 +2,13 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="dimsbuild">
-      <attribute name="schema-version">
-        <choice>
-          <value type="string">1.0</value>
-        </choice>
-      </attribute>
+      <optional>
+        <attribute name="schema-version">
+          <choice>
+            <value type="string">1.0</value>
+          </choice>
+        </attribute>
+      </optional>
       <interleave>
         <optional>
           <element name="sharepath"><text/></element>

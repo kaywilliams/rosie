@@ -30,7 +30,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     FileDownloadMixin.__init__(self, self.getBaseRepoId())
   
   def validate(self):
-    self._validate('/distro/initrd-image', 'xen.rng')
+    self.validator.validate('/distro/initrd-image', 'xen.rng')
   
   def error(self, e):
     try:

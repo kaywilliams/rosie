@@ -48,7 +48,7 @@ class GPGSignEvent(Event, GpgMixin):
     }
 
   def validate(self):
-    self._validate('/distro/gpgsign', 'gpgsign.rng')
+    self.validator.validate('/distro/gpgsign', 'gpgsign.rng')
 
   def setup(self):
     self.setup_diff(self.DATA) 

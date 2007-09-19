@@ -40,7 +40,7 @@ class PkglistEvent(Event, RepoMixin):
     self.docopy = self.config.pathexists('/distro/pkglist/text()')
   
   def validate(self):
-    self._validate('/distro/pkglist', schemafile='pkglist.rng')
+    self.validator.validate('/distro/pkglist', schemafile='pkglist.rng')
   
   def setup(self):
     self.setup_diff(self.DATA)

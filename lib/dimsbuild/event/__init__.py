@@ -6,9 +6,8 @@ from dims import sync
 
 from dimsbuild.event.diff     import DiffMixin
 from dimsbuild.event.fileio   import IOMixin
-from dimsbuild.event.validate import ValidateMixin
 
-class Event(dispatch.Event, IOMixin, DiffMixin, ValidateMixin):
+class Event(dispatch.Event, IOMixin, DiffMixin):
   """ 
   The Event superclass also has quite a few attributes set up by main.py
   - these attributes are shared across all Event subclasses, but are
@@ -22,7 +21,6 @@ class Event(dispatch.Event, IOMixin, DiffMixin, ValidateMixin):
     
     IOMixin.__init__(self)
     DiffMixin.__init__(self)
-    ValidateMixin.__init__(self)
   
   # execution methods
   def execute(self):

@@ -42,9 +42,9 @@ class ReposEvent(Event, RepoMixin): #!
     }
     
   def validate(self):
-    self._validate('/distro/repos', schemafile='repos.rng')
+    self.validator.validate('/distro/repos', schemafile='repos.rng')
     if len(self.config.xpath('/distro/repos/repo[@type="base"]')) != 1:
-      self.raiseInvalidConfig("Config file must define one repo with type 'base'")
+      self.validator.raiseInvalidConfig("Config file must define one repo with type 'base'")
   
   def setup(self):
     self.setup_diff(self.DATA)

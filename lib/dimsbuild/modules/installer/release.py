@@ -24,7 +24,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     }
     
   def validate(self):
-    self._validate('/distro/release-files', 'release-files.rng')
+    self.validator.validate('/distro/release-files', 'release-files.rng')
   
   def setup(self):
     self.DATA['input'].extend(self._find_rpms())

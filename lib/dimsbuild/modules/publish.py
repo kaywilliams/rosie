@@ -112,7 +112,7 @@ class PublishEvent(Event):
     }
 
   def validate(self):
-    self._validate('/distro/publish', 'publish.rng')
+    self.validator.validate('/distro/publish', 'publish.rng')
     
   def setup(self):
     self.setup_diff(self.DATA)

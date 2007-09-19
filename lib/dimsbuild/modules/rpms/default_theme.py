@@ -28,7 +28,7 @@ class DefaultThemeRpmEvent(RpmBuildEvent):
                            id='default-theme-rpm')
     
   def validate(self):
-    self._validate('/distro/default-theme-rpm', 'default-theme-rpm.rng')
+    self.validator.validate('/distro/default-theme-rpm', 'default-theme-rpm.rng')
 
   def run(self):
     self.remove_output(all=True)
