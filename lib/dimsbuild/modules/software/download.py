@@ -56,7 +56,7 @@ class DownloadEvent(Event, RepoMixin):
     self.log(0, "running download")
 
     self.remove_output()
-    self.sync_input(link=True)
+    self.sync_input()
     self.write_metadata()
     
   def apply(self):
