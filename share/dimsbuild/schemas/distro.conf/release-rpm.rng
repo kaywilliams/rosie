@@ -25,6 +25,16 @@
             </element>
           </optional>              
           <optional>
+            <element name="eula">
+              <optional>
+                <element name="include-in-firstboot">
+                  <ref name="value-boolean"/>
+                </element>
+              </optional>
+              <ref name="element-path"/>
+            </element>
+          </optional>
+          <optional>
             <element name="release-notes">
               <interleave>                                              
                 <optional>
