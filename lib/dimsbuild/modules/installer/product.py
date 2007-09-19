@@ -18,7 +18,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     Event.__init__(self,
       id = 'product-image',
       provides = ['product.img'],
-      requires = ['anaconda-version', 'buildstamp-file'],
+      requires = ['anaconda-version', 'buildstamp-file', 'comps-file'],
       conditionally_requires = ['logos'],
     )
     
@@ -54,7 +54,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     for file in self.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
-      
+  
   def _register_image_locals(self, locals):
     ImageModifyMixin._register_image_locals(self, locals)
     

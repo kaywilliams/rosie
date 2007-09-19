@@ -98,11 +98,11 @@ class CompsEvent(Event, RepoMixin):
     if not self.cvars['comps-file'].exists():
       raise RuntimeError, "Unable to find cached comps file at '%s'. Perhaps you "\
       "are skipping the comps event before it has been allowed to run once?"\
-      % self.comps_out
-    
+      % self.cvars['comps-file']
+        
     # set required packages variable
-    reqpkgs = xmltree.read(self.cvars['comps-file']).xpath('//packagereq/text()')
-    self.cvars['required-packages'] = reqpkgs
+    self.cvars['required-packages'] = \
+      xmltree.read(self.cvars['comps-file']).xpath('//packagereq/text()')
   
   
   #------ COMPS FILE GENERATION FUNCTIONS ------#

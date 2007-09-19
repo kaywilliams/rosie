@@ -9,6 +9,12 @@ from dimsbuild.event.fileio   import IOMixin
 from dimsbuild.event.validate import ValidateMixin
 
 class Event(dispatch.Event, IOMixin, DiffMixin, ValidateMixin):
+  """ 
+  The Event superclass also has quite a few attributes set up by main.py
+  - these attributes are shared across all Event subclasses, but are
+  computed just once.  See make_event_superclass() inside main.py for
+  more details.
+  """
   def __init__(self, id, version=0, *args, **kwargs):
     dispatch.Event.__init__(self, id, *args, **kwargs)
     self.event_version = version #!
