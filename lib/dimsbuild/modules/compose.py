@@ -1,4 +1,5 @@
-from dimsbuild.event import Event
+from dimsbuild.event   import Event
+from dimsbuild.logging import L0, L1
 
 API_VERSION = 5.0
 
@@ -13,11 +14,11 @@ class ComposeEvent(Event):
     self.composed_tree = self.DISTRO_DIR/'output'
   
   def run(self):
-    self.log(0, "composing output tree")
-    self.log(1, "removing old output tree")
+    self.log(0, L0("composing output tree"))
+    self.log(1, L1("removing old output tree"))
     self.composed_tree.rm(recursive=True, force=True)
     
-    self.log(1, "linking output folders")
+    self.log(1, L1("linking output folders"))
     self.composed_tree.mkdirs()
     
     for event in self._getroot():

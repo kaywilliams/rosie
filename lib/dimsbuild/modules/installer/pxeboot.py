@@ -1,4 +1,5 @@
-from dimsbuild.event import Event
+from dimsbuild.event   import Event
+from dimsbuild.logging import L0
 
 API_VERSION = 5.0
 
@@ -24,7 +25,7 @@ class PxebootImagesEvent(Event):
     self.setup_sync(self.pxebootdir, paths=paths)
     
   def run(self):
-    self.log(0, "preparing pxeboot images")
+    self.log(0, L0("preparing pxeboot images"))
     self.remove_output()
     self.sync_input()
     self.write_metadata()

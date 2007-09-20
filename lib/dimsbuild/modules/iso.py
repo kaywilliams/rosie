@@ -9,6 +9,7 @@ from dimsbuild import splittree
 from dimsbuild.callback    import BuildDepsolveCallback
 from dimsbuild.constants   import BOOLEANS_TRUE
 from dimsbuild.event       import Event
+from dimsbuild.logging     import L0, L1, L2, L3
 from dimsbuild.modules.lib import ListCompareMixin
 from dimsbuild.misc        import locals_imerge
 
@@ -80,7 +81,7 @@ class PkgorderEvent(Event):
       self.write_metadata()
       return
     
-    self.log(0, "processing pkgorder file")
+    self.log(0, L0("processing pkgorder file"))
     
     # delete prior pkgorder file, if exists    
     self.remove_output(all=True)
@@ -88,7 +89,7 @@ class PkgorderEvent(Event):
       self.sync_input()
     else:
       # generate pkgorder
-      self.log(1, "generating package ordering")
+      self.log(1, L1("generating package ordering"))
       
       # create yum config needed by pkgorder
       cfg = self.TEMP_DIR/'pkgorder'
@@ -164,7 +165,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
       self.write_metadata()
       return
     
-    self.log(0, "processing iso image(s)")
+    self.log(0, L0("processing iso image(s)"))
     
     oldsets = None
     
@@ -210,7 +211,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
         self.r.remove(newset) # don't create iso tree; it already exists
   
   def _generate_isotree(self, set):
-    self.log(1, "generating iso tree '%s'" % set)
+    self.log(1, L1("generating iso tree '%s'" % set))
     (self.isodir/set).mkdirs()
     (self.splittrees/set).mkdirs()
     
@@ -222,20 +223,20 @@ class IsoSetsEvent(Event, ListCompareMixin):
     splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.cvars['anaconda-version']).get('discinfo')
     splitter.pkgorder = self.cvars['pkgorder-file']
     
-    self.log(2, "splitting trees")
-    self.log(3, "computing layout")
+    self.log(2, L2("splitting trees"))
+    self.log(3, L3("computing layout"))
     splitter.compute_layout()
     splitter.cleanup()
-    self.log(3, "splitting base files")
+    self.log(3, L3("splitting base files"))
     splitter.split_trees()
-    self.log(3, "splitting rpms")
+    self.log(3, L3("splitting rpms"))
     splitter.split_rpms()
-    self.log(3, "splitting srpms")
+    self.log(3, L3("splitting srpms"))
     splitter.split_srpms()
     
     for i in range(1, splitter.numdiscs + 1):
       iso = '%s-disc%d' % (self.product, i)
-      self.log(2, "generating %s.iso" % iso)
+      self.log(2, L2("generating %s.iso" % iso))
       if i == 1: # the first disc needs to be made bootable
         isolinux_path = self.splittrees/set/iso/'isolinux/isolinux.bin'
         i_st = isolinux_path.stat()

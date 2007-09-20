@@ -6,7 +6,8 @@ from dims import xmltree
 
 from dims.configlib import ConfigError
 
-from dimsbuild.event import Event, RepoMixin #!
+from dimsbuild.event   import Event, RepoMixin #!
+from dimsbuild.logging import L0, L1
 
 API_VERSION = 5.0
 
@@ -68,17 +69,17 @@ class CompsEvent(Event, RepoMixin):
                                  self.groupfiles])
   
   def run(self):
-    self.log(0, "processing comps file")
+    self.log(0, L0("processing comps file"))
     
     # delete prior comps file
     self.remove_output(all=True)
     
     if self.comps_supplied: # download comps file   
-      self.log(1, "using comps file '%s'" % self.comps_supplied)
+      self.log(1, L1("using comps file '%s'" % self.comps_supplied))
       self.sync_input()
     
     else: # generate comps file
-      self.log(1, "creating comps file")
+      self.log(1, L1("creating comps file"))
       self._generate_comps()
       self.comps.write(self.comps_out)
       self.comps_out.chmod(0644)

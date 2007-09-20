@@ -4,6 +4,8 @@ import traceback
 from dims import dispatch
 from dims import sync
 
+from dimsbuild.logging import L0
+
 from dimsbuild.event.diff     import DiffMixin
 from dimsbuild.event.fileio   import IOMixin
 
@@ -49,7 +51,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin):
   def validate(self): pass
   def setup(self): pass
   def clean(self):
-    self.log(0, "cleaning %s" % self.id)
+    self.log(4, L0("cleaning %s" % self.id))
     IOMixin.clean(self)
     DiffMixin.clean(self)
   #def check(self) defined in mixins

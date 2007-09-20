@@ -1,7 +1,8 @@
 from dims import mkrpm
 from dims import shlib
 
-from dimsbuild.event import Event, RepoMixin #!
+from dimsbuild.event   import Event, RepoMixin #!
+from dimsbuild.logging import L0, L1, L2
 
 API_VERSION = 5.0
 
@@ -39,7 +40,7 @@ class GPGCheckEvent(Event, RepoMixin):
     self.DATA['variables'].append('checks')
   
   def run(self):
-    self.log(0, "running gpgcheck")
+    self.log(0, L0("running gpgcheck"))
     
     if not self.checks:
       self.remove_output(all=True) # remove old keys from builddata
@@ -62,16 +63,16 @@ class GPGCheckEvent(Event, RepoMixin):
       newchecks = sorted(curr.difference(md))
     
     if newchecks: 
-      self.log(1, "checking signatures")
+      self.log(1, L1("checking signatures"))
       invalids = []
-      self.log(1, "checking rpms")    
+      self.log(1, L1("checking rpms"))
       for rpm in newchecks:
         try:
-          self.logger.write(2, rpm.basename, 40)
+          self.logger.write(2, L2(rpm.basename), 40)
           mkrpm.VerifyRpm(rpm, homedir=homedir, force=True)
-          self.log(None, "OK")
+          self.log(2, "OK")
         except mkrpm.RpmSignatureInvalidError:
-          self.log(None, "INVALID")
+          self.log(2, "INVALID")
           invalids.append(rpm.basename)
       
       if invalids:

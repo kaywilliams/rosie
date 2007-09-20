@@ -10,6 +10,7 @@ from dims.repocreator import YumRepoCreator
 
 from dimsbuild.constants import *
 from dimsbuild.event     import Event
+from dimsbuild.logging   import L0
 
 P = pps.Path
 
@@ -49,7 +50,7 @@ class RepoFileEvent(Event):
       self.clean()
       return
     
-    self.log(0, "generating yum repo file")
+    self.log(0, L0("generating yum repo file"))
     
     self.repofile.dirname.mkdirs()
     
@@ -113,20 +114,27 @@ class PublishEvent(Event):
 
   def validate(self):
     self.validator.validate('/distro/publish', 'publish.rng')
-    
+  
   def setup(self):
     self.setup_diff(self.DATA)
     for dir in self.cvars['composed-tree'].listdir():
       self.setup_sync(self.PUBLISH_DIR, paths=[dir])
+    
+    self._backup_relpath = self.files_callback.relpath
+    self.files_callback.relpath = self.PUBLISH_DIR
   
   def run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
-    self.log(0, "publishing output store")
+    self.log(0, L0("publishing output store"))
     self.remove_output()
     self.PUBLISH_DIR.rm(recursive=True, force=True)
     self.sync_input(copy=True, link=True)
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.PUBLISH_DIR)
     
     self.write_metadata()
+  
+  def apply(self):
+    self.files_callback.relpath = self._backup_relpath
+    del(self._backup_relpath)
 
 EVENTS = {'ALL': [PublishEvent], 'MAIN': [RepoFileEvent]}

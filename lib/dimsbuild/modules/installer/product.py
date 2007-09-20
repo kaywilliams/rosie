@@ -3,8 +3,9 @@ from dims import pps
 from dims import sortlib
 from dims import xmltree
 
-from dimsbuild.event    import Event
-from dimsbuild.misc     import locals_imerge
+from dimsbuild.event   import Event
+from dimsbuild.logging import L0
+from dimsbuild.misc    import locals_imerge
 
 from dimsbuild.modules.installer.lib import ImageModifyMixin
 
@@ -46,7 +47,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     self.DATA['input'].append(self.cvars['buildstamp-file'])
   
   def run(self):
-    self.log(0, "generating product.img")
+    self.log(0, L0("generating product.img"))
     self.remove_output()
     self._modify()
   

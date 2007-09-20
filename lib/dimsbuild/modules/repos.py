@@ -6,8 +6,9 @@ from dims import xmltree
 from dims.dispatch import PROPERTY_META
 from dims.shlib    import execute
 
-from dimsbuild.event     import Event, RepoMixin
-from dimsbuild.repo      import RepoFromXml
+from dimsbuild.event   import Event, RepoMixin
+from dimsbuild.logging import L0, L1, L2
+from dimsbuild.repo    import RepoFromXml
 
 API_VERSION = 5.0
 
@@ -62,7 +63,7 @@ class ReposEvent(Event, RepoMixin): #!
                       paths=[repo.rjoin(repo.repodata_path, repo.mdfile)])
   
   def run(self):
-    self.log(0, "processing input repositories")
+    self.log(0, L0("processing input repositories"))
     
     # sync repodata folders to builddata
     self.sync_input()
@@ -120,13 +121,13 @@ class RepoContentsEvent(Event, RepoMixin):
     self.sync_input()
     
     # process available package lists
-    self.log(1, "reading available packages")    
+    self.log(1, L1("reading available packages"))
     
     for repo in self.cvars['repos'].values():
     
       if self._diff_handlers['input'].diffdict.has_key( #!
         repo.rjoin(repo.repodata_path, 'repodata', repo.primaryfile)):
-        self.log(2, repo.id)
+        self.log(2, L2(repo.id))
         
         # read primary.xml file, store list of pkgs to a file
         repo.readRepoContents()

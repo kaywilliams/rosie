@@ -5,6 +5,7 @@ from dims.mkrpm import GpgMixin
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event
+from dimsbuild.logging   import L0, L1, L2
 
 API_VERSION = 5.0
 
@@ -69,11 +70,11 @@ class GPGSignEvent(Event, GpgMixin):
     self.setup_sync(self.mddir/'rpms', paths=self.cvars['input-rpms'], id='rpms')
   
   def run(self):
-    self.log(0, "running gpgsign")
+    self.log(0, L0("running gpgsign"))
     
     # changing from gpgsign-enabled true, cleanup old files and metadata
     if self.var_changed_from_value('gpgsign_enabled', True):
-      self.log(1, "gpgsign disabled - cleaning up")
+      self.log(1, L1("gpgsign disabled - cleaning up"))
       self.remove_output(all=True)
     
     if not self.cvars['gpgsign-enabled']:
@@ -82,7 +83,7 @@ class GPGSignEvent(Event, GpgMixin):
     
     self.remove_output()
     
-    self.log(1, "configuring gpg signing")
+    self.log(1, L1("configuring gpg signing"))
     # sync keys
     newkeys = self.sync_input(what=['pubkey','seckey'])
     
@@ -101,7 +102,7 @@ class GPGSignEvent(Event, GpgMixin):
     seckey.remove()
     
     # sync rpms to output folder
-    self.log(1, "preparing to sign rpms")
+    self.log(1, L1("preparing to sign rpms"))
     newrpms = self.sync_input(what='rpms')
     
     # sign rpms
@@ -112,11 +113,11 @@ class GPGSignEvent(Event, GpgMixin):
       signrpms = newrpms
     
     if signrpms:
-      self.log(1, "signing rpms")
+      self.log(1, L1("signing rpms"))
       if self.config.get('/distro/gpgsign/gpg-passphrase/text()', None) is None:
         self.cvars['gpgsign-passphrase'] = mkrpm.getPassphrase()
       for rpm in signrpms:
-        self.log(2, rpm.basename)        
+        self.log(2, L2(rpm.basename))
         mkrpm.SignRpm(rpm, 
                       homedir=gnupg_dir,
                       passphrase=self.cvars['gpgsign-passphrase'])

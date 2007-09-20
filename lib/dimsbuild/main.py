@@ -16,16 +16,16 @@ from rpmUtils.arch import getBaseArch
 
 from dims import dispatch
 from dims import pps
-from dims import logger
 from dims.configlib import ConfigError
 
 from dims import sync
 from dims.sync import cache
 from dims.sync import link
 
-from dimsbuild.callback  import BuildLogger, BuildSyncCallback, FilesCallback
+from dimsbuild.callback  import BuildSyncCallback, FilesCallback
 from dimsbuild.constants import *
 from dimsbuild.event     import Event
+from dimsbuild.logging   import BuildLogger, L0, L1, L2
 from dimsbuild.validate  import ConfigValidator, MainConfigValidator
 
 P = pps.Path # convenience
@@ -145,7 +145,7 @@ class Build:
     
     # clear cache, if requested
     if options.clear_cache:
-      Event.logger.log(0, "clearing cache")
+      Event.logger.log(0, L0("clearing cache"))
       cache_dir = P(self.core.cache_handler.cache_dir)
       cache_dir.rm(recursive=True, force=True)
       cache_dir.mkdirs()
@@ -160,12 +160,12 @@ class Build:
         sys.exit()
     
   def validate_configs(self):
-    Event.logger.log(0, "validating config")
+    Event.logger.log(0, L0("validating config"))
     
-    Event.logger.log(1, "dimsbuild.conf")
+    Event.logger.log(1, L1("dimsbuild.conf"))
     Event.mcvalidator.validate('/dimsbuild', schemafile='dimsbuild.rng')
     
-    Event.logger.log(1, P(Event.config.file).basename)
+    Event.logger.log(1, L2(P(Event.config.file).basename))
     # validate individual sections of distro.conf
     Event.validator.validate('/distro/main', schemafile='main.rng')    
     for e in self.dispatch:
@@ -203,7 +203,7 @@ class Build:
     
     # set up loggers
     Event.logger    = BuildLogger(options.logthresh)
-    Event.errlogger = logger.Logger(options.errthresh) # TODO - BuildLogger this #!
+    Event.errlogger = BuildLogger(options.errthresh)
     
     # set up config dirs
     Event.mainconfig = mainconfig
@@ -256,7 +256,7 @@ class Build:
     Event.copy_handler = sync.CopyHandler()
     Event.link_handler = link.LinkHandler()
     
-    Event.files_callback = FilesCallback(Event.logger)
+    Event.files_callback = FilesCallback(Event.logger, Event.DISTRO_DIR)
     
     Event.mcvalidator = MainConfigValidator(Event.SHARE_DIR/'schemas',
                                             Event.mainconfig)

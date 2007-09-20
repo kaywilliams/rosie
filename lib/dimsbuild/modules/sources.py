@@ -16,6 +16,7 @@ from dims import xmltree
 
 from dimsbuild.constants import BOOLEANS_TRUE, RPM_GLOB, SRPM_PNVRA
 from dimsbuild.event     import Event
+from dimsbuild.logging   import L0, L1, L2
 from dimsbuild.repo      import RepoFromXml
 
 P = pps.Path
@@ -66,7 +67,7 @@ class SourcesRepomdEvent(Event):
     if not self.cvars['sources-enabled']:
       self.remove_output(all=True)
       return
-    self.log(0, "processing source repositories")
+    self.log(0, L0("processing source repositories"))
 
     backup = self.files_callback.sync_start
     self.files_callback.sync_start = self._print_nothing
@@ -74,12 +75,12 @@ class SourcesRepomdEvent(Event):
     for repo in self.srcrepos.values():
       self.log(1, repo.id)
       self.sync_input(what='%s-repomd' % repo.id)
-
+    
     self.files_callback.sync_start = backup
-
+  
   def _print_nothing(self):
     pass
-
+  
   def apply(self):
     self.write_metadata()    
     if self.cvars['sources-enabled']:
@@ -130,15 +131,15 @@ class SourcesContentEvent(Event):
       self.remove_output(all=True)
       return
     self.log(0, "downloading information about source packages")
-
+    
     backup = self.files_callback.sync_start
-    self.files_callback.sync_start = self._print_nothing
-
+    self.files_callback.sync_start = lambda: None
+    
     # download primary.xml.gz etc.
     for repo in self.cvars['source-repos'].values():
       self.log(1, repo.id)
       self.sync_input(what='%s-files' % repo.id)
-
+    
     self.files_callback.sync_start = backup
     
     # reading primary.xml.gz files
@@ -161,9 +162,6 @@ class SourcesContentEvent(Event):
                            "has been allowed to run once?" % repo.pkgsfile)
       repo.readRepoContents(repofile=repo.pkgsfile)
 
-  def _print_nothing(self):
-    pass
-      
 
 class SourcesEvent(Event):
   "Downloads source rpms."
@@ -222,7 +220,7 @@ class SourcesEvent(Event):
       self.remove_output(all=True)
       return
     
-    self.log(0, "processing srpms")
+    self.log(0, L0("processing srpms"))
     self.remove_output()
     self.srpmdest.mkdirs()
     self.sync_input()
@@ -239,14 +237,14 @@ class SourcesEvent(Event):
     try:
       return SRPM_PNVRA_REGEX.match(srpm).groups()
     except (AttributeError, IndexError), e:
-      self.errlog(2, "DEBUG: Unable to extract srpm information from name '%s'" % srpm)
+      self.errlog(2, L2("DEBUG: Unable to extract srpm information from name '%s'" % srpm))
       return (None, None, None, None, None)
   
   def _createrepo(self):
     "Run createrepo on the output store"
     pwd = os.getcwd()
     os.chdir(self.srpmdest)
-    self.log(1, "running createrepo")
+    self.log(1, L1("running createrepo"))
     shlib.execute('/usr/bin/createrepo -q .')
     os.chdir(pwd)
 

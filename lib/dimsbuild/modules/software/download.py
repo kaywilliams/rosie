@@ -8,6 +8,7 @@ from dims import pps
 
 from dimsbuild.constants import RPM_PNVRA
 from dimsbuild.event     import Event, RepoMixin #!
+from dimsbuild.logging   import L0, L2
 
 API_VERSION = 5.0
 
@@ -53,7 +54,7 @@ class DownloadEvent(Event, RepoMixin):
     self.setup_sync(self.builddata_dest, paths=self.input_rpms)
  
   def run(self):
-    self.log(0, "running download")
+    self.log(0, L0("running download"))
 
     self.remove_output()
     self.sync_input()
@@ -73,7 +74,7 @@ class DownloadEvent(Event, RepoMixin):
     try:
       return RPM_PNVRA_REGEX.match(rpm).groups()
     except (AttributeError, IndexError), e:
-      self.errlog(2, "DEBUG: Unable to extract rpm information from name '%s'" % rpm)
+      self.errlog(2, L2("DEBUG: Unable to extract rpm information from name '%s'" % rpm))
       return (None, None, None, None, None)
 
 

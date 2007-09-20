@@ -2,9 +2,10 @@ from dims import pps
 from dims import shlib
 
 from dimsbuild.constants import SRPM_REGEX
-from dimsbuild.event import Event
-from dimsbuild.magic import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
-from dimsbuild.misc  import locals_imerge
+from dimsbuild.event     import Event
+from dimsbuild.logging   import L0
+from dimsbuild.magic     import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
+from dimsbuild.misc      import locals_imerge
 
 from dimsbuild.modules.installer.lib import ExtractMixin, RpmNotFoundError
 
@@ -39,7 +40,7 @@ class LogosEvent(Event, ExtractMixin):
     self.setup_diff(self.DATA)
     
   def run(self):
-    self.log(0, "processing logos")
+    self.log(0, L0("processing logos"))
     self._extract()
   
   def apply(self):

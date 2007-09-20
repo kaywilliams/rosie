@@ -1,7 +1,8 @@
 from dims import filereader
 
-from dimsbuild.event import Event
-from dimsbuild.misc  import locals_imerge
+from dimsbuild.event   import Event
+from dimsbuild.logging import L0
+from dimsbuild.misc    import locals_imerge
 
 from dimsbuild.modules.installer.lib import ImageModifyMixin
 
@@ -44,7 +45,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     ])
   
   def run(self):
-    self.log(0, "preparing diskboot image")
+    self.log(0, L0("preparing diskboot image"))
     self.remove_output(all=True)
     self._modify()
   

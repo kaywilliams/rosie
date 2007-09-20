@@ -2,7 +2,8 @@ import os
 
 from dims import filereader
 
-from dimsbuild.event import Event
+from dimsbuild.event   import Event
+from dimsbuild.logging import L0
 
 from dimsbuild.modules.installer.lib import FileDownloadMixin, ImageModifyMixin
 
@@ -37,7 +38,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
                     xpaths=['/distro/isolinux/path'])
   
   def run(self):
-    self.log(0, "synchronizing isolinux files")
+    self.log(0, L0("synchronizing isolinux files"))
     self.remove_output()
     self._download()
     self.sync_input(what='IsoLinuxFiles')
@@ -100,7 +101,7 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     self._register_image_locals(L_IMAGES)
   
   def run(self):
-    self.log(0, "processing initrd.img")
+    self.log(0, L0("processing initrd.img"))
     self.remove_output(all=True)
     self._modify()
   

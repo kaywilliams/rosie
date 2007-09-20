@@ -2,7 +2,8 @@ import os
 
 from dims import shlib
 
-from dimsbuild.event import Event
+from dimsbuild.event   import Event
+from dimsbuild.logging import L0, L1
 
 API_VERSION = 5.0
 
@@ -39,13 +40,13 @@ class CreaterepoEvent(Event):
                       paths=self.cvars['cached-rpms'], id='rpms')
   
   def run(self):
-    self.log(0, "running createrepo")
+    self.log(0, L0("creating repository metadata"))
     
     self.remove_output()
     self.sync_input(copy=True, link=True)
 
     # run createrepo
-    self.log(1, "running createrepo")
+    self.log(1, L1("running createrepo"))
     pwd = os.getcwd()
     os.chdir(self.SOFTWARE_STORE)
     shlib.execute('/usr/bin/createrepo -q -g %s .' % self.cvars['comps-file'])

@@ -4,7 +4,8 @@ files.py
 Includes user-provided files and folders within the distribution folder.
 """
 
-from dimsbuild.event import Event
+from dimsbuild.event   import Event
+from dimsbuild.logging import L0
 
 API_VERSION = 5.0
 
@@ -29,7 +30,7 @@ class FilesEvent(Event):
     self.setup_sync(self.SOFTWARE_STORE, xpaths=['/distro/files/path'])
   
   def run(self):
-    self.log(0, "processing user-provided files")
+    self.log(0, L0("processing user-provided files"))
     # delete altered files
     self.remove_output()
           

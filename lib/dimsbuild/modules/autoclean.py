@@ -1,7 +1,8 @@
 from dims import xmltree
 
-from dimsbuild.event import Event
-from dimsbuild.main  import apply_flowcontrol #!
+from dimsbuild.event   import Event
+from dimsbuild.logging import L0, L2, L3
+from dimsbuild.main    import apply_flowcontrol #!
 
 API_VERSION = 5.0
 
@@ -43,15 +44,15 @@ class AutocleanEvent(Event):
         pass
     
     for mdfolder in mdfolders:
-      self.log(3, "removing unused event metadata directory '%s'" % mdfolder.basename)
+      self.log(3, L3("removing unused event metadata directory '%s'" % mdfolder.basename))
       mdfolder.rm(recursive=True, force=True)
   
   def run(self):
-    self.log(0, "processing autoclean")
+    self.log(0, L0("processing autoclean"))
     for event in self._diff_handlers['events'].diffdict.keys():
       prevver, currver = self._diff_handlers['events'].diffdict[event]
       if prevver and currver:
-        self.log(2, "forcing --clean on %s" % self.eventinfo[event])
+        self.log(2, L2("forcing --clean on %s" % self.eventinfo[event]))
         #! the following is currently illegal
         apply_flowcontrol(self._getroot().get(self.eventinfo[event]), True)
     

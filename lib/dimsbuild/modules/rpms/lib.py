@@ -8,6 +8,7 @@ from dims import xmltree
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event, EventExit
+from dimsbuild.logging   import L0, L1
 from dimsbuild.misc      import locals_imerge
 
 P = pps.Path
@@ -87,9 +88,9 @@ class RpmBuildEvent(Event):
     self.version   = kwargs.get('version',  self.version)
   
   def _build_rpm(self):
-    self.log(0, "building %s rpm" % self.rpmname)
+    self.log(0, L0("building %s rpm" % self.rpmname))
     self._check_release()
-    self.log(1, "release number: %s" % self.release)
+    self.log(1, L1("release number: %s" % self.release))
     self._build()
     self._save_release()
   

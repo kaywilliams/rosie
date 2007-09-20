@@ -10,6 +10,7 @@ from dims import img
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event, RepoMixin #!
 from dimsbuild.locals    import L_BUILDSTAMP_FORMAT, L_IMAGES
+from dimsbuild.logging   import L0
 from dimsbuild.misc      import locals_imerge
 
 API_VERSION = 5.0
@@ -47,7 +48,7 @@ class SourceVarsEvent(Event, RepoMixin): #!
     self.DATA['output'].append(self.buildstamp_out)
   
   def run(self):
-    self.log(0, "computing source variables")
+    self.log(0, L0("computing source variables"))
     
     # download input files
     self.sync_input()

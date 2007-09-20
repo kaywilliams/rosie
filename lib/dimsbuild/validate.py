@@ -101,7 +101,7 @@ class ConfigValidator(ValidateMixin):
     for child in self.config.getroot().iterchildren():
       if child.tag is etree.Comment: continue
       if child not in elements:
-        self.elogger.log(0, "WARNING: unknown element '%s' found in distro.conf" % child.tag)
+        self.elogger.log(2, "WARNING: unknown element '%s' found in distro.conf" % child.tag)
 
 #------ ERRORS ------#
 class InvalidConfigError(StandardError): pass 

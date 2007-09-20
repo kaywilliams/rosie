@@ -1,4 +1,5 @@
-from dimsbuild.event import Event
+from dimsbuild.event   import Event
+from dimsbuild.logging import L0
 
 from dimsbuild.modules.installer.lib import FileDownloadMixin, ImageModifyMixin
 
@@ -45,7 +46,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     self.DATA['input'].append(self.cvars['buildstamp-file'])
     
   def run(self):
-    self.log(0, "preparing xen images")
+    self.log(0, L0("preparing xen images"))
     self.remove_output(all=True)
     self._download()
     self._modify()

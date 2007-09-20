@@ -10,8 +10,10 @@ from dims import sync
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import RepoMixin #!
-from dimsbuild.magic     import match as magic_match
-from dimsbuild.magic     import FILE_TYPE_GZIP, FILE_TYPE_EXT2FS, FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS, FILE_TYPE_FAT
+from dimsbuild.logging   import L1
+from dimsbuild.magic     import (FILE_TYPE_GZIP, FILE_TYPE_EXT2FS,
+                                 FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS,
+                                 FILE_TYPE_FAT, match as magic_match)
 from dimsbuild.misc      import locals_imerge, locals_printf
 
 P = pps.Path
@@ -143,7 +145,7 @@ class ImageModifyMixin(RepoMixin):
     self.sync_input(what=['ImageModifyMixin', '%s-input-files' % self.name])
     
     # modify image
-    self.log(1, "modifying %s" % self.name)
+    self.log(1, L1("modifying %s" % self.name))
     self._open()
     self._generate()
     self._close()

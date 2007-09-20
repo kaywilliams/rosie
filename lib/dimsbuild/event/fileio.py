@@ -114,7 +114,7 @@ class IOMixin:
     cb = cb or self.files_callback
     cb.rm_start()
     
-    rmlist.sort(lambda x,y: cmp(x.basename, y.basename))
+    rmlist.sort()
     dirs = []
     
     # delete the files, whether or not they exist

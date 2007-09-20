@@ -162,7 +162,11 @@ class Timber:
     for rpmnvra in order:
       if not packages.has_key(rpmnvra): continue
       
+      newsize = used
+      
       for file in packages[rpmnvra]:
+        if (discpath/self.product/file).exists(): continue
+        
         size = file.getsize()
         assert size > 0
         newsize = used + size

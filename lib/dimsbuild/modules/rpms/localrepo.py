@@ -2,19 +2,21 @@ import os
 
 from dims import shlib
 
-from dimsbuild.repo  import Repo
-from dimsbuild.event import Event
+from dimsbuild.event   import Event
+from dimsbuild.logging import L0, L1, L2
+from dimsbuild.repo    import Repo
 
 API_VERSION = 5.0
 
 class LocalRepoEvent(Event):
   def __init__(self):
     Event.__init__(self,
-                   id='localrepo',
-                   comes_after=['logos-rpm',
-                                'config-rpm',
-                                'default-theme-rpm',
-                                'release-rpm'])
+      id='localrepo',
+      comes_after=['logos-rpm',
+                   'config-rpm',
+                   'default-theme-rpm',
+                   'release-rpm']
+    )
 
     self.LOCAL_RPMS  = self.mddir/'RPMS'
     self.LOCAL_SRPMS = self.mddir/'SRPMS'
@@ -34,22 +36,22 @@ class LocalRepoEvent(Event):
     self.DATA['output'].append(self.LOCAL_SRPMS/'repodata')    
 
   def run(self):
-    self.log(0, "creating localrepo")
+    self.log(0, L0("creating localrepo"))
     # remove previous output
     self.remove_output(all=True)
     
     # sync rpms
     backup = self.files_callback.sync_start
-    self.files_callback.sync_start = self._print_rpms ## FIXME
+    self.files_callback.sync_start = lambda: self.log(1, L1("copying custom rpms"))
     self.sync_input(copy=True, link=True, what='LOCAL_RPMS')
-    self.files_callback.sync_start = self._print_srpms ## FIXME
+    self.files_callback.sync_start = lambda: self.log(1, L1("copying custom srpms"))
     self.sync_input(copy=True, link=True, what='LOCAL_SRPMS')
     self.files_callback.sync_start = backup
     
-    self.log(1, "running createrepo")
-    self.log(2, self.LOCAL_RPMS.basename)
+    self.log(1, L1("running createrepo"))
+    self.log(2, L2(self.LOCAL_RPMS.basename))
     self._createrepo(self.LOCAL_RPMS)
-    self.log(2, self.LOCAL_SRPMS.basename)    
+    self.log(2, L2(self.LOCAL_SRPMS.basename))
     self._createrepo(self.LOCAL_SRPMS)
     
     self.write_metadata()
@@ -58,10 +60,7 @@ class LocalRepoEvent(Event):
     self._populate()
     if self.cvars['custom-rpms']: self._add_store()
     if self.cvars['custom-srpms']: self._add_source()
-
-  def _print_rpms(self):  self.logger.log(1, "adding custom rpms")  
-  def _print_srpms(self): self.logger.log(1, "adding custom srpms")
-    
+  
   #----- HELPER METHODS -----#  
   def _createrepo(self, path):
     cwd = os.getcwd()

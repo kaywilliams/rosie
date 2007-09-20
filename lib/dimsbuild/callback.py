@@ -7,39 +7,27 @@ Callback classes for dimsbuild
 from dims.sync.cache    import CachedSyncCallback
 from dims.progressbar   import ProgressBar
 
-# format of the various printouts
-LEVEL_0_FORMAT = '%s'
-LEVEL_1_FORMAT = ' * %s'
-LEVEL_2_FORMAT = '   - %s'
-LEVEL_3_FORMAT = '     + %s'
-LEVEL_4_FORMAT = '       o %s'
-
-LEVEL_OTHER_FORMAT = '%s' # format to use if not one of the above
-
-# adjust these as necessary
-LEVEL_MIN = 0
-LEVEL_MAX = 4
-
-MSG_MAXWIDTH = 40
+from dimsbuild.logging import L1, L2, MSG_MAXWIDTH
 
 class FilesCallback:
-  def __init__(self, logger):
+  def __init__(self, logger, relpath):
     self.logger = logger
+    self.relpath = relpath
   
   def rm_start(self):
-    self.logger.log(1, "removing files")
+    self.logger.log(4, L1("removing files"))
   
   def rm(self, fn):
-    self.logger.log(4, fn.basename)
-  
+    self.logger.log(4, L2(fn.relpathfrom(self.relpath)), MSG_MAXWIDTH)
+    
   def rmdir_start(self):
-    self.logger.log(1, "removing empty directories")
+    self.logger.log(4, L1("removing empty directories"))
   
   def rmdir(self, dn):
-    self.logger.log(4, dn.basename)
+    self.logger.log(4, L2(dn.relpathfrom(self.relpath)), MSG_MAXWIDTH)
   
   def sync_start(self):
-    self.logger.log(1, "downloading input files")
+    self.logger.log(1, L1("downloading input files"))
 
 class BuildSyncCallback(CachedSyncCallback):
   def __init__(self, logger):
@@ -55,10 +43,10 @@ class BuildSyncCallback(CachedSyncCallback):
   def mkdir(self, src, dest): pass
   
   def _cache_start(self, size, text):
-    CachedSyncCallback._cache_start(self, size, LEVEL_2_FORMAT % text)
+    CachedSyncCallback._cache_start(self, size, L2(text))
   
   def _cp_start(self, size, text, seek=0.0):
-    CachedSyncCallback._cp_start(self, size=size, text=LEVEL_2_FORMAT % text,
+    CachedSyncCallback._cp_start(self, size=size, text=L2(text),
                                        seek=seek, draw=self.logger.test(3))
   
   def _cp_update(self, amount_read):
@@ -72,11 +60,11 @@ class BuildSyncCallback(CachedSyncCallback):
 
 class BuildDepsolveCallback:
   def __init__(self, logger):
-
     self.logger = logger
     self.loop = 1
     self.count = 0
     self.bar = None
+  
   def pkgAdded(self, pkgtup=None, state=None):
     if self.logger.test(2):
       self.bar.update(self.bar.position+1)
@@ -88,7 +76,7 @@ class BuildDepsolveCallback:
     if self.logger.test(2):
       if self.count == 1: msg = 'loop %d (%d package)'
       else:               msg = 'loop %d (%d packages)'
-      self.bar = ProgressBar(self.count, LEVEL_2_FORMAT % (msg % (self.loop, self.count)))
+      self.bar = ProgressBar(self.count, L2(msg % (self.loop, self.count)))
       self.bar.layout = '[title:width=28] [ratio:width=9] [bar] [percent] [time]'
       self.bar.start()
       self.bar.draw()
@@ -98,48 +86,3 @@ class BuildDepsolveCallback:
     self.loop += 1
   def end(self):
     self.logger.log(2, 'pkglist resolution complete')
-
-
-class BuildLogger:
-  def __init__(self, threshold):
-    self.threshold = int(threshold)
-  
-  def __call__(self, *args, **kwargs): return self.log(*args, **kwargs)
-  
-  def test(self, threshold):
-    return threshold <= self.threshold
-  
-  def write(self, level, msg, width=None):
-    """ 
-    Raw write msg to stdout (trailing newline not appended).  The level
-    argument determines the formatting applied.  If it is between LEVEL_MIN
-    and LEVEL_MAX, it is used as the formatting replacement to the appropriate
-    LEVEL_X_FORMAT string, above; otherwise, it uses LEVEL_OTHER_FORMAT. If,
-    on the other hand, level is None, no formatting is applied.  The width
-    argument determines how wide the string is.  If it is None, no adjustments
-    are applied; if it is a positive integer, the line is padded or truncated
-    to match the specified width.
-    """
-  
-    if not self.test(level): return
-    
-    if width is not None:
-      if width < 4:
-        raise ValueError, "Width must be a positive integer greater than 4 or None"
-      diff = len(msg) - width
-      if diff > 0:
-        msg = msg[:-(diff+4)]
-        msg += '... '
-      else:
-        msg += ' ' * (diff*-1)
-    
-    if level is None:
-      print msg,
-    elif level >= LEVEL_MIN and level <= LEVEL_MAX:
-      print eval('LEVEL_%d_FORMAT' % level) % msg,
-    else:
-      print '[DEBUG]:', LEVEL_OTHER_FORMAT % msg,
-  
-  def log(self, level, msg, maxwidth=None):
-    self.write(level, msg, maxwidth)
-    if self.test(level): print

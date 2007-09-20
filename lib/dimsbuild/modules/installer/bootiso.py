@@ -1,6 +1,7 @@
 from dims import shlib
 
-from dimsbuild.event import Event
+from dimsbuild.event   import Event
+from dimsbuild.logging import L0
 
 API_VERSION = 5.0
 
@@ -25,7 +26,7 @@ class BootisoEvent(Event):
     self.setup_diff(self.DATA)
   
   def run(self):
-    self.log(0, "generating boot.iso")
+    self.log(0, L0("generating boot.iso"))
     
     isodir = self.SOFTWARE_STORE/'images/isopath'
     

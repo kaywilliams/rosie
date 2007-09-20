@@ -1,6 +1,7 @@
 from dims.dispatch import PROPERTY_META, PROPERTY_PROTECTED
 
-from dimsbuild.event import Event
+from dimsbuild.event   import Event
+from dimsbuild.logging import L2
 
 API_VERSION = 5.0
 
@@ -14,13 +15,13 @@ class InitEvent(Event):
   
   def clean(self):
     if self.CACHE_DIR.exists():
-      self.log(2, "cleaning '%s'" % self.CACHE_DIR)
+      self.log(2, L2("cleaning '%s'" % self.CACHE_DIR))
       self.CACHE_DIR.rm(recursive=True)
   
   def run(self):
     for folder in [self.TEMP_DIR, self.METADATA_DIR]:
       if not folder.exists():
-        self.log(2, "Making directory '%s'" % folder)
+        self.log(2, L2("Making directory '%s'" % folder))
         folder.mkdirs()
 
 class MainEvent(Event):

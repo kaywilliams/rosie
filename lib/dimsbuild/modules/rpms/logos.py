@@ -2,6 +2,7 @@ from dims import pps
 from dims import shlib
 
 from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.logging   import L3
 
 from dimsbuild.modules.rpms.lib    import ColorMixin, OutputInvalidError, RpmBuildEvent
 from dimsbuild.modules.rpms.locals import L_LOGOS, GDM_GREETER_THEME, THEME_XML
@@ -97,10 +98,10 @@ class LogosRpmEvent(RpmBuildEvent, ColorMixin):
             image = Image.open(file)
           except IOError:
             # should never happen
-            self.log(4, "file '%s' was not found" % file) 
+            self.errlog(4, L3("file '%s' was not found" % file))
             return False
           if image.size != (w,h):
-            self.log(4, "file '%s' has invalid dimensions" % file)   
+            self.errlog(4, L3("file '%s' has invalid dimensions" % file))
             return False
     return True
   
@@ -131,10 +132,10 @@ class LogosRpmEvent(RpmBuildEvent, ColorMixin):
       
       if l and b:
         if sharedfile.exists():
-          self.log(4, "image '%s' exists in share/" %i)
+          self.log(4, L3("image '%s' exists in share/" %i))
           self.copy(sharedfile, dir)
         else:
-          self.log(4, "creating '%s'" %i)
+          self.log(4, L3("creating '%s'" %i))
           if m and x and y:
             self._generate_image(filename, l, b,
                                  text='%s %s ' %(self.fullname,
@@ -151,7 +152,7 @@ class LogosRpmEvent(RpmBuildEvent, ColorMixin):
         # These files are found in the share/ folder. If they are not
         # found, they are skipped.
         if sharedfile.exists():
-          self.log(4, "file '%s' exists in share/" % i)
+          self.log(4, L3("file '%s' exists in share/" % i))
           self.copy(sharedfile, dir)
         else:
           # required text file not there in shared/ folder, passing for now          

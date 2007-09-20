@@ -1,6 +1,7 @@
 import csv
 
-from dimsbuild.event import Event
+from dimsbuild.event   import Event
+from dimsbuild.logging import L0
 
 API_VERSION = 5.0
 
@@ -33,7 +34,7 @@ class ManifestEvent(Event):
     self.setup_diff(self.DATA)
   
   def run(self):
-    self.log(0, "generating manifest")
+    self.log(0, L0("generating manifest"))
     self.remove_output(all=True)
     
     # set manifest data

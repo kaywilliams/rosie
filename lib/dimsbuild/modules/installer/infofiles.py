@@ -11,9 +11,10 @@ from ConfigParser import ConfigParser
 
 from dims import FormattedFile as ffile
 
-from dimsbuild.event  import Event
-from dimsbuild.locals import L_BUILDSTAMP_FORMAT
-from dimsbuild.misc   import locals_imerge
+from dimsbuild.event   import Event
+from dimsbuild.locals  import L_BUILDSTAMP_FORMAT
+from dimsbuild.logging import L0
+from dimsbuild.misc    import locals_imerge
 
 API_VERSION = 5.0
 
@@ -38,7 +39,7 @@ class DiscinfoEvent(Event):
     self.setup_diff(self.DATA)
   
   def run(self):
-    self.log(0, "generating discinfo")
+    self.log(0, L0("generating discinfo"))
     
     # setup
     locals = locals_imerge(L_DISCINFO_FORMAT, self.cvars['anaconda-version'])
@@ -83,7 +84,7 @@ class TreeinfoEvent(Event):
     self.setup_diff(self.DATA)
   
   def run(self):
-    self.log(0, "generating treeinfo")
+    self.log(0, L0("generating treeinfo"))
     treeinfo = ConfigParser()
     
     # generate treeinfo sections
@@ -145,7 +146,7 @@ class BuildstampEvent(Event):
     
   def run(self):
     "Generate a .buildstamp file."
-    self.log(0, "generating buildstamp")
+    self.log(0, L0("generating buildstamp"))
     
     locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.cvars['anaconda-version'])
     
