@@ -107,8 +107,8 @@ class PublishEvent(Event):
     
     self.DATA =  {
       'variables': ['PUBLISH_DIR'],
-      #'input':     [],
-      #'output':    [],
+      'input':     [],
+      'output':    [],
     }
 
   def validate(self):
@@ -116,17 +116,15 @@ class PublishEvent(Event):
     
   def setup(self):
     self.setup_diff(self.DATA)
-    #for dir in self.cvars['composed-tree'].listdir():
-    #  self.setup_sync(self.PUBLISH_DIR, paths=[dir])
+    for dir in self.cvars['composed-tree'].listdir():
+      self.setup_sync(self.PUBLISH_DIR, paths=[dir])
   
   def run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
     self.log(0, "publishing output store")
-    #self.remove_output()
+    self.remove_output()
     self.PUBLISH_DIR.rm(recursive=True, force=True)
-    #self.sync_input(copy=True, link=True)
-    for dir in (self.DISTRO_DIR/'output').listdir():
-      self.copy(dir, self.PUBLISH_DIR, link=True)
+    self.sync_input(copy=True, link=True)
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.PUBLISH_DIR)
     
     self.write_metadata()

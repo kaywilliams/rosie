@@ -30,4 +30,7 @@ class ComposeEvent(Event):
                                               preserve=True)
   
 
+  def apply(self):
+    self.cvars['composed-tree'] = self.composed_tree
+
 EVENTS = {'ALL': [ComposeEvent]}
