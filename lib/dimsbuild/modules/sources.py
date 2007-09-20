@@ -9,6 +9,7 @@ import re
 import rpm
 import stat
 
+from dims import dispatch
 from dims import pps
 from dims import shlib 
 from dims import xmltree
@@ -23,118 +24,169 @@ API_VERSION = 5.0
 
 SRPM_PNVRA_REGEX = re.compile(SRPM_PNVRA)
 
-class SourcesEvent(Event):
-  def __init__(self):
+
+class SourcesRepomdEvent(Event):
+  "Downloads and reads the repomd.xml for each of the source repositories."
+  def __init__(self):    
     Event.__init__(self,
-      id = 'sources',
-      provides = ['local-source-repodata',
-                  'source-repo-contents',
-                  'sources-enabled'],
-    )
-    
-    self.cvars['sources-enabled'] = \
-       self.config.pathexists('/distro/sources') and \
-       self.config.get('/distro/sources/@enabled', 'True') in BOOLEANS_TRUE
-    
+                   id='source-repomd',
+                   provides=['source-repomd-files', 'source-repos',
+                             'sources-enabled', 'local-source-repodata'])
+
     self.DATA = {
-      'variables': ['cvars[\'sources-enabled\']'],
-      'config':    ['/distro/sources'],
-      'input':     [],
-      'output':    [],
+      'config': ['/distro/sources/repo'],
+      'input':  [],
+      'output': [],
     }
-  
+        
+    self.cvars['sources-enabled'] = self.config.pathexists('/distro/sources') and \
+               self.config.get('/distro/sources/@enabled', 'True') in BOOLEANS_TRUE
+
   def validate(self):
     self.validator.validate('/distro/sources', 'sources.rng')
 
-  def setup(self):    
+  def setup(self):
     self.setup_diff(self.DATA)
     if not self.cvars['sources-enabled']: return
-    
-    self.srcrepos = {}
-    
-    for repoxml in self.config.xpath('/distro/sources/repo'):
-      repo = RepoFromXml(repoxml)
-      repo.local_path = self.mddir/repo.id
-      repo.pkgsfile = self.mddir/'%s.pkgs' % repo.id
-        
-      self.setup_sync(repo.ljoin(repo.repodata_path),
-                      paths=[repo.rjoin(repo.repodata_path,
-                                        'repodata')])
-      self.DATA['output'].append(repo.pkgsfile)
-      
-      self.srcrepos[repo.id] = repo
-      
-      self.DATA['output'].append(repo.ljoin(repo.repodata_path, 'repodata'))
-      self.DATA['output'].append(repo.pkgsfile)
-      self.srcrepos[repo.id] = repo
-  
-  def run(self):
-    # changing from sources-enabled true, cleanup old files and metadata
-    if self.var_changed_from_value('cvars[\'sources-enabled\']', True):
-      self.clean()
 
-    if not self.cvars['sources-enabled']: 
-      self.write_metadata()
+    self.srcrepos = {}    
+    for repoxml in self.config.xpath('/distro/sources/repo'):
+      # create repo object
+      repo = RepoFromXml(repoxml)
+      repo.local_path = self.mddir / repo.id
+      repo.pkgsfile = repo.local_path / 'packages'
+
+      self.srcrepos[repo.id] = repo
+      # add repodata folder as input/output
+      self.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'),
+                      paths=[repo.rjoin(repo.repodata_path, repo.mdfile)],
+                      id='%s-repomd' % repo.id)
+
+  def run(self):
+    if not self.cvars['sources-enabled']:
+      self.remove_output(all=True)
       return
-    
     self.log(0, "processing source repositories")
-    self.sync_input()
+
+    backup = self.files_callback.sync_start
+    self.files_callback.sync_start = self._print_nothing
     
-    self.log(1, "reading available packages")
-    self.repoinfo = {}
     for repo in self.srcrepos.values():
-      self.log(2, repo.id)
-      
-      # read repomd.xml
-      repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')
-      repo.readRepoData(repomd)
-      
-      # read primary.xml
-      repo.readRepoContents()
-      repo.writeRepoContents(repo.pkgsfile)
+      self.log(1, repo.id)
+      self.sync_input(what='%s-repomd' % repo.id)
+
+    self.files_callback.sync_start = backup
+
+  def _print_nothing(self):
+    pass
+
+  def apply(self):
+    self.write_metadata()    
+    if self.cvars['sources-enabled']:
+      self.cvars['local-source-repodata'] = self.mddir
+      if not self.cvars['source-repos']:
+        self.cvars['source-repos'] = {}
+      self.cvars['source-repos'].update(self.srcrepos)
+      self.cvars['source-repomd-files'] = []
+      for repo in self.srcrepos.values():
+        repomd = repo.ljoin(repo.repodata_path, repo.mdfile)
+        if not repomd.exists():
+          raise RuntimeError("Unable to find cached file at '%s'. Perhaps "
+                             "you are skipping the source-repomd event before "
+                             "it has been allowed to run once?" % repomd)
+        self.cvars['source-repomd-files'].append(repomd)
+        repo.readRepoData(xmltree.read(repomd).xpath('//data'))
+
+
+class SourcesContentEvent(Event):
+  "Downloads and reads the primary.xml.gz for each of the source repositories." 
+  def __init__(self):    
+    Event.__init__(self,
+                   id='source-repo-contents',
+                   provides=['source-repo-contents'],
+                   comes_after=['source-repomd'])
+    self.DATA = {
+      'variables': ['cvars[\'sources-enabled\']'],
+      'input':  [],
+      'output': [],
+    }
+
+  def setup(self):
+    self.setup_diff(self.DATA)
+
+    if not self.cvars['sources-enabled']: return
     
-    self.write_metadata() 
+    for repo in self.cvars['source-repos'].values():
+      paths = []      
+      for file in [ repo.groupfile, repo.primaryfile,
+                    repo.filelistsfile, repo.otherfile]:
+        if file:
+          paths.append(repo.rjoin(repo.repodata_path, 'repodata', file))
+      self.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'),
+                      paths=paths, id='%s-files' % repo.id)
+
+  def run(self):
+    if not self.cvars['sources-enabled']:
+      self.remove_output(all=True)
+      return
+    self.log(0, "downloading information about source packages")
+
+    backup = self.files_callback.sync_start
+    self.files_callback.sync_start = self._print_nothing
+
+    # download primary.xml.gz etc.
+    for repo in self.cvars['source-repos'].values():
+      self.log(1, repo.id)
+      self.sync_input(what='%s-files' % repo.id)
+
+    self.files_callback.sync_start = backup
+    
+    # reading primary.xml.gz files
+    self.log(1, "reading available source packages")
+    for repo in self.cvars['source-repos'].values():
+      pxml = repo.rjoin(repo.repodata_path, 'repodata', repo.primaryfile)
+      if self._diff_handlers['input'].diffdict.has_key(pxml):
+        self.log(2, repo.id)
+        repo.readRepoContents()
+        repo.writeRepoContents(repo.pkgsfile)
+        self.DATA['output'].append(repo.pkgsfile)
   
   def apply(self):
-    self.cvars['local-source-repodata'] = self.mddir
-    if self.cvars['sources-enabled']:
-      self.cvars['source-repos'] = self.srcrepos
-      for repo in self.srcrepos.values():
-        repomdfile = repo.ljoin(repo.repodata_path, repo.mdfile)
-        for file in repomdfile, repo.pkgsfile:
-          if not file.exists():
-            raise RuntimeError("Unable to find cached file at '%s'. Perhaps you " \
-                               "are skipping the 'source-repos' event before it has "\
-                               "been allowed to run once?" % file)
-        repomd = xmltree.read(repo.ljoin(repo.repodata_path, repo.mdfile)).xpath('//data')
-        repo.readRepoData(repomd)
-        repo.readRepoContents(repofile=repo.pkgsfile)
+    self.write_metadata()
+    if not self.cvars['sources-enabled']: return
+    for repo in self.cvars['source-repos'].values():
+      if not repo.pkgsfile.exists():
+        raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "
+                           "are skipping the repo-contents event before it "
+                           "has been allowed to run once?" % repo.pkgsfile)
+      repo.readRepoContents(repofile=repo.pkgsfile)
 
+  def _print_nothing(self):
+    pass
+      
 
-class SourceReposEvent(Event):
+class SourcesEvent(Event):
+  "Downloads source rpms."
   def __init__(self):
     Event.__init__(self,
-      id = 'source-repos',
-      provides = ['srpms'],
-      requires = ['rpms', 'source-repo-contents'],
-    )
-      
-    self.srpmdest = self.OUTPUT_DIR/'SRPMS'
-    
-    self.DATA =  {
-      'variables':['cvars[\'sources-enabled\']',
-                   'cvars[\'rpms\']'], 
-      'input':    [],
-      'output':   [],
+                   id='sources',
+                   comes_after=['source-repo-contents'],
+                   provides=['srpms'],
+                   requires=['rpms', 'source-repo-contents'])
+
+    self.srpmdest = self.OUTPUT_DIR / 'SRPMS'
+    self.DATA = {
+      'variables': ['cvars[\'rpms\']',
+                    'cvars[\'sources-enabled\']'],
+      'input':     [],
+      'output':    [],
     }
-    
+
   def setup(self):
-    self.mdsrcrepos = self.cvars['local-source-repodata']    
-    
     self.setup_diff(self.DATA)
-    
+
     if not self.cvars['sources-enabled']: return
-    
+
     # compute the list of SRPMS
     self.ts = rpm.TransactionSet()
     self.ts.setVSFlags(-1)
@@ -149,7 +201,7 @@ class SourceReposEvent(Event):
     
     # setup sync
     paths = []
-    for repo in self._getAllSourceRepos():
+    for repo in self.cvars['source-repos'].values():
       for rpminfo in repo.repoinfo:
         rpmi = rpminfo['file']
         _,n,v,r,a = self._deformat(rpmi)
@@ -164,14 +216,10 @@ class SourceReposEvent(Event):
           paths.append(rpmi)
     
     self.setup_sync(self.srpmdest, paths=paths, id='srpms')
-  
+
   def run(self):
-    # changing from sources-enabled true, cleanup old files and metadata
-    if self.var_changed_from_value('cvars[\'sources-enabled\']', True):
-      self.clean()
-    
-    if not self.cvars['sources-enabled']: 
-      self.write_metadata()
+    if not self.cvars['sources-enabled']:
+      self.remove_output(all=True)
       return
     
     self.log(0, "processing srpms")
@@ -181,17 +229,12 @@ class SourceReposEvent(Event):
     self._createrepo()
     self.DATA['output'].extend(self.list_output(what=['srpms']))
     self.DATA['output'].append(self.srpmdest/'repodata')
-    
-    self.write_metadata()
-  
+
   def apply(self):
+    self.write_metadata()
     if self.cvars['sources-enabled']:
-      self.cvars['srpms'] = self.list_output(what=['srpms'])
-  
-  
-  def _getAllSourceRepos(self):
-    return self.cvars['source-repos'].values()
-  
+      self.cvars['srpms'] = self.list_output(what='srpms')
+   
   def _deformat(self, srpm):
     try:
       return SRPM_PNVRA_REGEX.match(srpm).groups()
@@ -208,4 +251,4 @@ class SourceReposEvent(Event):
     os.chdir(pwd)
 
 
-EVENTS = {'MAIN': [SourceReposEvent, SourcesEvent]}
+EVENTS = {'MAIN': [SourcesRepomdEvent, SourcesContentEvent, SourcesEvent]}

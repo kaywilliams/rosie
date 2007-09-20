@@ -122,8 +122,6 @@ class RepoContentsEvent(Event, RepoMixin):
     # process available package lists
     self.log(1, "reading available packages")    
     
-    self.repoinfo = {}
-    
     for repo in self.cvars['repos'].values():
     
       if self._diff_handlers['input'].diffdict.has_key( #!
@@ -140,9 +138,9 @@ class RepoContentsEvent(Event, RepoMixin):
   def apply(self):
     for repo in self.cvars['repos'].values():
       if not repo.pkgsfile.exists():
-        raise RuntimeError("Unable to find cached file at '%s'. Perhaps you"
-        "are skipping the repo-contents event before it has been allowed to"
-        "run once?" % file)
+        raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "
+        "are skipping the repo-contents event before it has been allowed to "
+        "run once?" % repo.pkgsfile)
       
       repo.readRepoContents(repofile=repo.pkgsfile)
 
