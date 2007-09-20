@@ -18,8 +18,9 @@ class CreaterepoEvent(Event):
     self.cvars['repodata-directory'] = self.SOFTWARE_STORE/'repodata'
     
     self.DATA = {
-      'input':   [],
-      'output':  [self.cvars['repodata-directory']]
+      'variables': ['product'],
+      'input':     [],
+      'output':    [self.cvars['repodata-directory']]
     }
     
   def setup(self):

@@ -18,9 +18,10 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     )
     
     self.DATA = {
-      'config': ['/distro/release-files'],
-      'input' : [],
-      'output': [],
+      'variables': ['product'],
+      'config':    ['/distro/release-files'],
+      'input' :    [],
+      'output':    [],
     }
     
   def validate(self):

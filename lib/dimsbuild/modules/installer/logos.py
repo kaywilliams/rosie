@@ -23,7 +23,7 @@ class LogosEvent(Event, ExtractMixin):
     
     self.DATA = {
       'config'   : ['/distro/installer-logos'],
-      'variables': ['cvars[\'anaconda-version\']'],
+      'variables': ['product', 'cvars[\'anaconda-version\']'],
       'input'    : [],
       'output'   : [],
     }

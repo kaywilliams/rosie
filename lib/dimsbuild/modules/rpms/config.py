@@ -16,6 +16,7 @@ class ConfigRpmEvent(RpmBuildEvent):
     }
     
     data = {
+      'variables': ['product', 'fullname'],
       'config': [
         '/distro/config-rpm',
       ],

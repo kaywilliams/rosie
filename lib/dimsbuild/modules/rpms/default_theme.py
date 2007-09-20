@@ -9,11 +9,10 @@ class DefaultThemeRpmEvent(RpmBuildEvent):
       self.config.get('/distro/default-theme-rpm/theme/text()', self.product)
     
     data = {
-      'config': [
-        '/distro/default-theme-rpm',
-      ],
-      'input' : [],
-      'output': [],
+      'variables': ['product'],
+      'config':    ['/distro/default-theme-rpm'],
+      'input' :    [],
+      'output':    [],
     }
     
     RpmBuildEvent.__init__(self,
