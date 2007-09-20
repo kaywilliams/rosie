@@ -16,7 +16,7 @@ class CreaterepoEvent(Event):
     )
     
     self.cvars['repodata-directory'] = self.SOFTWARE_STORE/'repodata'
-    
+
     self.DATA = {
       'variables': ['product'],
       'input':     [],
@@ -27,6 +27,9 @@ class CreaterepoEvent(Event):
     self.setup_diff(self.DATA)
 
     self.cvars['rpms-directory'] = self.SOFTWARE_STORE/self.product
+
+    if self.cvars['comps-file']:
+      self.DATA['input'].append(self.cvars['comps-file'])
     
     if self.cvars['gpgsign-enabled']:
       self.setup_sync(self.cvars['rpms-directory'], 
