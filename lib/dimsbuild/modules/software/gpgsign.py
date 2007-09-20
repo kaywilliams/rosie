@@ -25,10 +25,17 @@ class GpgSetupEvent(Event):
     self.cvars['gpgsign-enabled'] = \
       self.config.pathexists('/distro/gpgsign') and \
       self.config.get('/distro/gpgsign/@enabled', 'True') in BOOLEANS_TRUE
+
     self.cvars['gpgsign-public-key'] = \
-      P(self.config.get('/distro/gpgsign/gpg-public-key/text()', None))
+      self.config.get('/distro/gpgsign/gpg-public-key/text()', None)
+    if self.cvars['gpgsign-public-key']:
+      P(self.cvars['gpgsign-public-key'])
+
     self.cvars['gpgsign-secret-key'] = \
-      P(self.config.get('/distro/gpgsign/gpg-secret-key/text()', None))
+      self.config.get('/distro/gpgsign/gpg-secret-key/text()', None)
+    if self.cvars['gpgsign-secret-key']:
+      P(self.cvars['gpgsign-secret-key'])
+
     self.cvars['gpgsign-passphrase'] = \
       self.config.get('/distro/gpgsign/gpg-passphrase/text()', None)
 
