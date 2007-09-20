@@ -31,7 +31,7 @@ class CompsEvent(Event, RepoMixin):
     self.header = HEADER_FORMAT % ('1.0', 'UTF-8')
     
     self.DATA = {
-      'variables': ['cvars[\'anaconda-version\']'],
+      'variables': ['fullname', 'cvars[\'anaconda-version\']'],
       'config':    ['/distro/comps'],
       'input':     [],
       'output':    []
@@ -109,29 +109,6 @@ class CompsEvent(Event, RepoMixin):
   def _generate_comps(self):
     mapped, unmapped = self.__map_groups()
     
-    # create base distro group
-    packages = []
-    for pkg in self.config.xpath('/distro/comps/create-new/include/package', []):
-      pkgname = pkg.get('text()')
-      pkgtype = pkg.get('@type', 'mandatory')
-      pkgrequires = pkg.get('@requires', None)
-      packages.append((pkgname, pkgtype, pkgrequires))
-      
-    for pkg in (self.cvars['included-packages'] or []):
-      if type(pkg) == tuple:
-        packages.append(pkg)
-      else:
-        assert isinstance(pkg, str)
-        packages.append((pkg, 'mandatory', None))
-    
-    base = Group(self.product, self.fullname,
-                 'This group includes packages specific to %s' % self.fullname)
-    if len(packages) > 0:
-      self.cvars['user-required-packages'] = [ x[0] for x in packages ]
-      self.comps.getroot().append(base)
-      for pkgname, pkgtype, pkgrequires in packages:
-        self._add_group_package(pkgname, base, pkgrequires, type=pkgtype)
-    
     processed = [] # processed groups
     
     # process groups
@@ -182,6 +159,29 @@ class CompsEvent(Event, RepoMixin):
     if len(unmapped) > 0:
       raise ConfigError, "Unable to resolve all groups in available repos: missing %s" % unmapped
     
+    # add packages to core group
+    packages = []
+    for pkg in self.config.xpath('/distro/comps/create-new/include/package', []):
+      pkgname = pkg.get('text()')
+      pkgtype = pkg.get('@type', 'mandatory')
+      pkgrequires = pkg.get('@requires', None)
+      packages.append((pkgname, pkgtype, pkgrequires))
+      
+    for pkg in (self.cvars['included-packages'] or []):
+      if type(pkg) == tuple:
+        packages.append(pkg)
+      else:
+        assert isinstance(pkg, str)
+        packages.append((pkg, 'mandatory', None))
+    
+    core = self.comps.getroot().get('group[id/text()="core"]')
+
+    if len(packages) > 0:
+      self.cvars['user-required-packages'] = [ x[0] for x in packages ]
+      self.comps.getroot().append(core)
+      for pkgname, pkgtype, pkgrequires in packages:
+        self._add_group_package(pkgname, core, pkgrequires, type=pkgtype)
+
     # check to make sure a 'kernel' pacakge or equivalent exists - kinda icky
     allpkgs = self.comps.get('//packagereq/text()')
     found = False
@@ -191,7 +191,7 @@ class CompsEvent(Event, RepoMixin):
     if not found:
       # base is defined above, it is the base group for the repository
       if len(packages) == 0: self.comps.getroot().insert(0, base) # HAK HAK HAK
-      self._add_group_package('kernel', base, type='mandatory')
+      self._add_group_package('kernel', core, type='mandatory')
     
     # exclude all package in self.exclude
     exclude = self.config.xpath('/distro/comps/create-new/exclude/packages/text()', []) + \
