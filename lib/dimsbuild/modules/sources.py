@@ -66,6 +66,7 @@ class SourcesRepomdEvent(Event):
   def run(self):
     if not self.cvars['sources-enabled']:
       self.remove_output(all=True)
+      self.write_metadata() 
       return
     self.log(0, L0("processing source repositories"))
 
@@ -77,12 +78,13 @@ class SourcesRepomdEvent(Event):
       self.sync_input(what='%s-repomd' % repo.id)
     
     self.files_callback.sync_start = backup
+
+    self.write_metadata() 
   
   def _print_nothing(self):
     pass
   
   def apply(self):
-    self.write_metadata()    
     if self.cvars['sources-enabled']:
       self.cvars['local-source-repodata'] = self.mddir
       if not self.cvars['source-repos']:
@@ -129,6 +131,7 @@ class SourcesContentEvent(Event):
   def run(self):
     if not self.cvars['sources-enabled']:
       self.remove_output(all=True)
+      self.write_metadata()
       return
     self.log(0, "downloading information about source packages")
     
@@ -151,9 +154,10 @@ class SourcesContentEvent(Event):
         repo.readRepoContents()
         repo.writeRepoContents(repo.pkgsfile)
         self.DATA['output'].append(repo.pkgsfile)
+
+    self.write_metadata()
   
   def apply(self):
-    self.write_metadata()
     if not self.cvars['sources-enabled']: return
     for repo in self.cvars['source-repos'].values():
       if not repo.pkgsfile.exists():
@@ -218,6 +222,7 @@ class SourcesEvent(Event):
   def run(self):
     if not self.cvars['sources-enabled']:
       self.remove_output(all=True)
+      self.write_metadata()
       return
     
     self.log(0, L0("processing srpms"))
@@ -227,9 +232,9 @@ class SourcesEvent(Event):
     self._createrepo()
     self.DATA['output'].extend(self.list_output(what=['srpms']))
     self.DATA['output'].append(self.srpmdest/'repodata')
+    self.write_metadata()
 
   def apply(self):
-    self.write_metadata()
     if self.cvars['sources-enabled']:
       self.cvars['srpms'] = self.list_output(what='srpms')
    
