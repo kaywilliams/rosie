@@ -108,12 +108,8 @@ class RepoContentsEvent(Event, RepoMixin):
       repo.pkgsfile = self.cvars['local-repodata']/repo.id/'packages'
       
       paths = []
-      for file in [ repo.groupfile,
-                    repo.primaryfile,
-                    repo.filelistsfile,
-                    repo.otherfile ]:
-        if file:
-          paths.append(repo.rjoin(repo.repodata_path, 'repodata', file))
+      for fileid in repo.datafiles:
+        paths.append(repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles[fileid]))
       
       self.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'), paths=paths)
   
@@ -126,7 +122,7 @@ class RepoContentsEvent(Event, RepoMixin):
     for repo in self.cvars['repos'].values():
     
       if self._diff_handlers['input'].diffdict.has_key( #!
-        repo.rjoin(repo.repodata_path, 'repodata', repo.primaryfile)):
+        repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles['primary'])):
         self.log(2, L2(repo.id))
         
         # read primary.xml file, store list of pkgs to a file

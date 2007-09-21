@@ -232,9 +232,10 @@ class CompsEvent(Event, RepoMixin):
     groupfiles = []
     
     for repo in self.getAllRepos():
-      if repo.groupfile is not None:
+      groupfile = repo.datafiles.get('group', None)
+      if groupfile is not None:
         groupfiles.append((repo.id,
-                           repo.ljoin(repo.repodata_path, 'repodata', repo.groupfile)))
+                           repo.ljoin(repo.repodata_path, 'repodata', groupfile)))
       
     return groupfiles
   

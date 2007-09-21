@@ -121,10 +121,8 @@ class SourcesContentEvent(Event):
     
     for repo in self.cvars['source-repos'].values():
       paths = []      
-      for file in [ repo.groupfile, repo.primaryfile,
-                    repo.filelistsfile, repo.otherfile]:
-        if file:
-          paths.append(repo.rjoin(repo.repodata_path, 'repodata', file))
+      for fileid in repo.datafiles:
+        paths.append(repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles[fileid]))
       self.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'),
                       paths=paths, id='%s-files' % repo.id)
 
@@ -148,7 +146,7 @@ class SourcesContentEvent(Event):
     # reading primary.xml.gz files
     self.log(1, "reading available source packages")
     for repo in self.cvars['source-repos'].values():
-      pxml = repo.rjoin(repo.repodata_path, 'repodata', repo.primaryfile)
+      pxml = repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles['primary'])
       if self._diff_handlers['input'].diffdict.has_key(pxml):
         self.log(2, repo.id)
         repo.readRepoContents()

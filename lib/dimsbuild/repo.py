@@ -30,13 +30,11 @@ class Repo:
     self.exclude = []
     
     self.repodata_path = ''
-    self.groupfile    = None
-    self.primaryfile  = None
-    self.filelistsfile = None
-    self.otherfile    = None
     self.mdfile = 'repodata/repomd.xml'
-    
+    self.datafiles = {}
+
     self.parser = xml.sax.make_parser()
+
   
   def rjoin(self, *args):
     p = self.remote_path
@@ -53,15 +51,12 @@ class Repo:
     for data in repomd:
       repofile = P(data.get('location/@href'))
       filetype = data.get('@type')
-      if   filetype == 'group':     self.groupfile     = repofile.basename
-      elif filetype == 'primary':   self.primaryfile   = repofile.basename
-      elif filetype == 'filelists': self.filelistsfile = repofile.basename
-      elif filetype == 'other':     self.otherfile     = repofile.basename
+      self.datafiles[filetype] = repofile.basename
   
   def readRepoContents(self, repofile=None):
     self.repoinfo = []    
     if repofile is None:
-      pxml = GzipFile(filename=self.ljoin(self.repodata_path, 'repodata', self.primaryfile),
+      pxml = GzipFile(filename=self.ljoin(self.repodata_path, 'repodata', self.datafiles['primary']),
                       mode='rt')
       handler = PrimaryXmlContentHandler()
       self.parser.setContentHandler(handler)
