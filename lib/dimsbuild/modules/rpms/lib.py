@@ -35,6 +35,9 @@ class RpmBuildEvent(Event):
     self.fileslocals = fileslocals
 
     self.autofile = P(self.config.file).dirname / 'distro.dat'
+
+    if not self.DATA.has_key('variables'):  self.DATA['variables'] = []
+    if 'pva' not in self.DATA['variables']: self.DATA['variables'].append('pva')
   
   def error(self, e):
     self.build_folder.rm(recursive=True, force=True)
@@ -44,12 +47,13 @@ class RpmBuildEvent(Event):
     
     self.srcdir = self.cvars['rpms-source']/self.id ## FIXME
     self.rpmdir = self.mddir/'rpm'
+
     if self.autofile.exists():
       self.release = xmltree.read(self.autofile).get(
-                     '/distro/rpms/%s/release/text()' % self.id, '0')
+       '/distro/%s/rpms/%s/release/text()' % (self.pva, self.id), '0')
     else:
       self.release = '0'
-
+      
     if self.config.get('/distro/%s/@use-default-set' % self.id, 'True'):
       self.obsoletes = self.defobsoletes
     else:
@@ -108,8 +112,9 @@ class RpmBuildEvent(Event):
       root_element = xmltree.read(self.autofile).get('/distro')
     else:
       root_element = xmltree.Element('distro')
-      
-    rpms_element    = xmltree.uElement('rpms',    parent=root_element)
+
+    pva_element     = xmltree.uElement(self.pva,  parent=root_element)
+    rpms_element    = xmltree.uElement('rpms',    parent=pva_element)
     parent_element  = xmltree.uElement(self.id,   parent=rpms_element)
     release_element = xmltree.uElement('release', parent=parent_element)
     

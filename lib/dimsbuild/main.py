@@ -165,7 +165,7 @@ class Build:
     Event.logger.log(1, L1("dimsbuild.conf"))
     Event.mcvalidator.validate('/dimsbuild', schemafile='dimsbuild.rng')
     
-    Event.logger.log(1, L2(P(Event.config.file).basename))
+    Event.logger.log(1, L1(P(Event.config.file).basename))
     # validate individual sections of distro.conf
     Event.validator.validate('/distro/main', schemafile='main.rng')    
     for e in self.dispatch:
