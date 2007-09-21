@@ -16,21 +16,21 @@ API_VERSION = 5.0
 class LogosEvent(Event, ExtractMixin):
   def __init__(self):
     Event.__init__(self,
-      id = 'installer-logos',
+      id = 'logos',
       provides = ['installer-splash'],
       requires = ['rpms-directory', 'anaconda-version'],
       conditionally_comes_after = ['gpgsign'],
     )
     
     self.DATA = {
-      'config'   : ['/distro/installer-logos'],
+      'config'   : ['/distro/installer/logos'],
       'variables': ['product', 'cvars[\'anaconda-version\']'],
       'input'    : [],
       'output'   : [],
     }
     
   def validate(self):
-    self.validator.validate('/distro/installer-logos', 'logos.rng')
+    self.validator.validate('/distro/installer/logos', 'logos.rng')
   
   def setup(self):
     self.locals = locals_imerge(L_LOGOS, self.cvars['anaconda-version'])
@@ -107,7 +107,7 @@ class LogosEvent(Event, ExtractMixin):
       return magic_match(splash) == FILE_TYPE_LSS
       
   def _find_rpms(self):
-    pkgname = self.config.get('/distro/installer-logos/package/text()',
+    pkgname = self.config.get('/distro/installer/logos/package/text()',
                               '%s-logos' %(self.product,))
     rpms = P(self.cvars['rpms-directory']).findpaths(
       glob='%s-*-*' % pkgname, nregex=SRPM_REGEX)

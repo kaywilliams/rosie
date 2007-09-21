@@ -97,7 +97,10 @@ class ConfigValidator(ValidateMixin):
     for xpath in self.xpaths:
       element = self.config.get(xpath, None)
       if element is not None:
-        elements.append(element)
+        while element.getparent() != element.getroot():
+          element = element.getparent()
+        if element not in elements:
+          elements.append(element)
     for child in self.config.getroot().iterchildren():
       if child.tag is etree.Comment: continue
       if child not in elements:

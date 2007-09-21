@@ -22,7 +22,7 @@ API_VERSION = 5.0
 class LogosRpmEvent(RpmBuildEvent, ColorMixin):
   def __init__(self):
     data = {
-      'config': ['/distro/logos-rpm'],
+      'config': ['/distro/rpms/logos-rpm'],
       'variables': ['fullname', 'product'],
       'output': [],
       'input':  [],
@@ -43,7 +43,7 @@ class LogosRpmEvent(RpmBuildEvent, ColorMixin):
     
     
   def validate(self):
-    self.validator.validate('/distro/logos-rpm', 'logos-rpm.rng')
+    self.validator.validate('/distro/rpms/logos-rpm', 'logos-rpm.rng')
   
   def setup(self):
     RpmBuildEvent.setup(self)

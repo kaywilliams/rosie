@@ -99,7 +99,7 @@ class ImageModifyMixin(RepoMixin):
     self.setup_diff(self.DATA)
     
     self.setup_sync(self.imagedir,
-                    xpaths=['/distro/%s/path' % self.id],
+                    xpaths=['/distro/installer/%s/path' % self.id],
                     id='%s-input-files' % self.name)
   
   def check(self):

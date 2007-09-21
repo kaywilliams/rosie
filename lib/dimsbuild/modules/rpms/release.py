@@ -19,7 +19,7 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
     self.etc_dir     = P('/etc')
     self.eula_dir    = P('/usr/share/firstboot/modules')
     
-    relpath = P('/distro/release-rpm/release-notes/%s/@install-path')
+    relpath = P('/distro/rpms/release-rpm/release-notes/%s/@install-path')
     self.omf_dir  = P(self.config.get(relpath % 'omf', None) or \
                     '/usr/share/omf/%s-release-notes' % self.product)
     self.html_dir = P(self.config.get(relpath % 'html', None) or \
@@ -29,18 +29,18 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
     
     installinfo = {
       'gpg'     : (None, self.gpg_dir),
-      'repo'    : ('/distro/release-rpm/yum-repos/path', self.repo_dir),
-      'eula'    : ('/distro/release-rpm/eula/path', self.eula_dir),
-      'omf'     : ('/distro/release-rpm/release-notes/omf/path', self.omf_dir),
-      'html'    : ('/distro/release-rpm/release-notes/html/path', self.html_dir),
-      'doc'     : ('/distro/release-rpm/release-notes/doc/path', self.doc_dir),
-      'release' : ('/distro/release-rpm/release-files/path', self.release_dir),
+      'repo'    : ('/distro/rpms/release-rpm/yum-repos/path', self.repo_dir),
+      'eula'    : ('/distro/rpms/release-rpm/eula/path', self.eula_dir),
+      'omf'     : ('/distro/rpms/release-rpm/release-notes/omf/path', self.omf_dir),
+      'html'    : ('/distro/rpms/release-rpm/release-notes/html/path', self.html_dir),
+      'doc'     : ('/distro/rpms/release-rpm/release-notes/doc/path', self.doc_dir),
+      'release' : ('/distro/rpms/release-rpm/release-files/path', self.release_dir),
       'etc'     : (None, self.etc_dir), 
       'eulapy'  : (None, self.eula_dir),
     }
 
     data = {
-      'config':    ['/distro/release-rpm'],
+      'config':    ['/distro/rpms/release-rpm'],
       'variables': ['fullname',
                     'product',
                     'cvars[\'gpgsign-public-key\']'],
@@ -61,7 +61,7 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
                            conditionally_requires=['gpgsign-public-key'])
 
   def validate(self):
-    self.validator.validate('/distro/release-rpm', 'release-rpm.rng')
+    self.validator.validate('/distro/rpms/release-rpm', 'release-rpm.rng')
     
   def setup(self):
     RpmBuildEvent.setup(self)
@@ -80,10 +80,10 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
     # eulapy file
     paths = []
     if self.config.get(
-         '/distro/release-rpm/eula/include-in-firstboot/text()', 'True'
+         '/distro/rpms/release-rpm/eula/include-in-firstboot/text()', 'True'
        ) in BOOLEANS_TRUE:
       if self.config.get(
-           '/distro/release-rpm/eula/path/text()', None
+           '/distro/rpms/release-rpm/eula/path/text()', None
          ) is not None:
         paths.append(self.SHARE_DIR / 'release/eula.py')
         

@@ -54,13 +54,13 @@ class RpmBuildEvent(Event):
     else:
       self.release = '0'
       
-    if self.config.get('/distro/%s/@use-default-set' % self.id, 'True'):
+    if self.config.get('/distro/rpms/%s/@use-default-set' % self.id, 'True'):
       self.obsoletes = self.defobsoletes
     else:
       self.obsoletes = '' 
-    if self.config.pathexists('/distro/%s/obsoletes/package/text()' % self.id):
+    if self.config.pathexists('/distro/rpms/%s/obsoletes/package/text()' % self.id):
       self.obsoletes += ' ' + ' '.join(self.config.xpath(
-                                  '/distro/%s/obsoletes/package/text()' % self.id))
+                                  '/distro/rpms/%s/obsoletes/package/text()' % self.id))
     self.provides = self.obsoletes
     if self.defprovides:
       self.provides += ' ' + self.defprovides    
@@ -69,9 +69,9 @@ class RpmBuildEvent(Event):
       self.requires = self.defrequires
     else:
       self.requires = None
-    if self.config.pathexists('/distro/%s/requires/package/text()' % self.requires):
+    if self.config.pathexists('/distro/rpms/%s/requires/package/text()' % self.requires):
       self.requires += ' ' + ' '.join(self.config.xpath(
-                                 '/distro/%s/requires/package/text()' % self.requires))
+                                 '/distro/rpms/%s/requires/package/text()' % self.requires))
     
     self.setup_diff(self.DATA)
     if self.srcdir.exists():
@@ -131,7 +131,7 @@ class RpmBuildEvent(Event):
       self.release = str(int(self.release)+1)
 
   def _test_build(self, default):
-    tobuild = self.config.get('/distro/%s/@enabled' % self.id, default)
+    tobuild = self.config.get('/distro/rpms/%s/@enabled' % self.id, default)
     if tobuild == 'default':
       return default in BOOLEANS_TRUE
     return tobuild in BOOLEANS_TRUE

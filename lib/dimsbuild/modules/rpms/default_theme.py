@@ -6,11 +6,11 @@ API_VERSION = 5.0
 class DefaultThemeRpmEvent(RpmBuildEvent):
   def __init__(self):    
     self.themename = \
-      self.config.get('/distro/default-theme-rpm/theme/text()', self.product)
+      self.config.get('/distro/rpms/default-theme-rpm/theme/text()', self.product)
     
     data = {
       'variables': ['product'],
-      'config':    ['/distro/default-theme-rpm'],
+      'config':    ['/distro/rpms/default-theme-rpm'],
       'input' :    [],
       'output':    [],
     }
@@ -27,7 +27,7 @@ class DefaultThemeRpmEvent(RpmBuildEvent):
                            id='default-theme-rpm')
     
   def validate(self):
-    self.validator.validate('/distro/default-theme-rpm', 'default-theme-rpm.rng')
+    self.validator.validate('/distro/rpms/default-theme-rpm', 'default-theme-rpm.rng')
 
   def run(self):
     self.remove_output(all=True)
