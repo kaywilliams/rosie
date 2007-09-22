@@ -25,7 +25,7 @@ class PkglistEvent(Event, RepoMixin):
     Event.__init__(self,
       id = 'pkglist',
       provides = ['pkglist'],
-      requires = ['required-packages', 'local-repodata'],
+      requires = ['required-packages', 'repos'],
       conditionally_requires = ['user-required-packages'],
     )
     
@@ -145,6 +145,9 @@ class PkglistEvent(Event, RepoMixin):
     filereader.write(conf, repoconfig)
     return repoconfig
   
+  def error(self, e):
+    self.dsdir.rm(recursive=True, force=True)
+
 
 EVENTS = {'MAIN': [PkglistEvent]}
 
