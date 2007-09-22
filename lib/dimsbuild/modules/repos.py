@@ -12,28 +12,11 @@ from dimsbuild.repo    import RepoFromXml
 
 API_VERSION = 5.0
 
-class ReposMetaEvent(Event):
+class ReposSetupEvent(Event, RepoMixin): #!
   def __init__(self):
     Event.__init__(self,
-      id = 'REPOS',
-      properties = PROPERTY_META,
-      provides = ['local-repodata'],
-    )
-    
-    self.local_repodata = self.METADATA_DIR/'repos'
-  
-  def setup(self):
-    self.local_repodata.mkdirs()
-  
-  def apply(self):
-    self.cvars['local-repodata'] = self.local_repodata
-
-class ReposEvent(Event, RepoMixin): #!
-  def __init__(self):
-    Event.__init__(self,
-      id = 'repos',
-      #provides = ['anaconda-version', 'repo-contents', 'local-repodata'],
-      provides = ['repomd-files', 'repos'],
+      id = 'repos-setup',
+      provides = ['repomd-files'],
     )
     
     self.DATA = {
@@ -49,49 +32,26 @@ class ReposEvent(Event, RepoMixin): #!
   
   def setup(self):
     self.setup_diff(self.DATA)
-    
-    self.repos = {}
-    
+    self.repomd_files = {}
     for repoxml in self.config.xpath('/distro/repos/repo'):
-      # create repo object
       repo = RepoFromXml(repoxml)
-      repo.local_path = self.cvars['local-repodata']/repo.id
-      self.repos[repo.id] = repo
-      
-      # add repodata folder as input/output
-      self.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'),
-                      paths=[repo.rjoin(repo.repodata_path, repo.mdfile)])
+      self.repomd_files[repo.id] = self.METADATA_DIR / self.id / repo.id / repo.mdfile
+      self.setup_sync((self.METADATA_DIR / self.id / repo.id / 'repodata'),
+                       paths=[repo.rjoin(repo.repodata_path, repo.mdfile)])
   
   def run(self):
-    self.log(0, L0("processing input repositories"))
-    
-    # sync repodata folders to builddata
+    self.log(0, L0("downloading repomd files"))
     self.sync_input()
-    
     self.write_metadata()
     
   def apply(self):
-    self.cvars['repomd-files'] = []
-    
-    for repo in self.repos.values():
-      repomdfile = repo.ljoin(repo.repodata_path, repo.mdfile)
-      if not repomdfile.exists():
-        raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "
-        "are skipping the repomd event before it has been allowed to run "
-        "once?" % repomdfile)
-      
-      self.cvars['repomd-files'].append(repomdfile)
-      repomd = xmltree.read(repomdfile).xpath('//data')
-      repo.readRepoData(repomd)
-      
-    self.cvars['repos'] = self.repos
-    
+    self.cvars['repomd-files'] = self.repomd_files  
 
-class RepoContentsEvent(Event, RepoMixin):
+class ReposContentsEvent(Event, RepoMixin):
   def __init__(self):
     Event.__init__(self,
-      id = 'repo-contents',
-      provides = ['anaconda-version', 'repo-contents'],
+      id = 'repos-contents',
+      provides = ['anaconda-version', 'repos'],
       requires = ['repomd-files'],
     )
     
@@ -100,16 +60,25 @@ class RepoContentsEvent(Event, RepoMixin):
       'input':     [], # filled later
       'output':    [], # filled later
     }
+
     
   def setup(self):
     self.setup_diff(self.DATA)
-    
-    for repo in self.cvars['repos'].values():
-      repo.pkgsfile = self.cvars['local-repodata']/repo.id/'packages'
-      
+
+    self.repos = {}
+
+    for repoxml in self.config.xpath('/distro/repos/repo'):
+      # create repo object
+      repo = RepoFromXml(repoxml)
+      repo.local_path = self.mddir/repo.id
+      repo.readRepoData(repomd=xmltree.read(self.cvars['repomd-files'][repo.id]))
+      repo.pkgsfile = self.mddir/repo.id/'packages'
+      self.repos[repo.id] = repo
+ 
       paths = []
       for fileid in repo.datafiles:
         paths.append(repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles[fileid]))
+      paths.append(repo.rjoin(repo.repodata_path, repo.mdfile))
       
       self.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'), paths=paths)
   
@@ -119,7 +88,7 @@ class RepoContentsEvent(Event, RepoMixin):
     # process available package lists
     self.log(1, L1("reading available packages"))
     
-    for repo in self.cvars['repos'].values():
+    for repo in self.repos.values():
     
       if self._diff_handlers['input'].diffdict.has_key( #!
         repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles['primary'])):
@@ -133,7 +102,7 @@ class RepoContentsEvent(Event, RepoMixin):
     self.write_metadata()
   
   def apply(self):
-    for repo in self.cvars['repos'].values():
+    for repo in self.repos.values():
       if not repo.pkgsfile.exists():
         raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "
         "are skipping the repo-contents event before it has been allowed to "
@@ -145,8 +114,9 @@ class RepoContentsEvent(Event, RepoMixin):
       if repo.id == self.getBaseRepoId():
         self.cvars['anaconda-version'] = get_anaconda_version(repo.pkgsfile)
 
+      self.cvars['repos'] = self.repos
 
-EVENTS = {'MAIN': [ReposMetaEvent], 'REPOS': [ReposEvent, RepoContentsEvent]}
+EVENTS = {'MAIN': [ReposSetupEvent, ReposContentsEvent]}
 
 
 #------ HELPER FUNCTIONS ------#
