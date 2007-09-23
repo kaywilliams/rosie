@@ -1,5 +1,6 @@
 import csv
 import xml.sax
+import os
 
 from gzip import GzipFile
 
@@ -46,8 +47,13 @@ class Repo:
     for arg in args: p = p / arg
     return p
   
-  def readRepoData(self, repomd=None):
-    repomd = repomd or xmltree.read(self.ljoin(self.repodata_path, self.mdfile)).xpath('//data')
+  def readRepoData(self, repomd=None, tmpdir=None):
+    tmpdir = P(tmpdir or os.getcwd())
+    if repomd is None: 
+      tmpfile = tmpdir / 'repomd.xml'
+      self.rjoin(self.repodata_path, self.mdfile).cp(tmpdir)
+      repomd = xmltree.read(tmpfile).xpath('//data')
+      tmpfile.rm(force=True) 
     for data in repomd:
       repofile = P(data.get('location/@href'))
       filetype = data.get('@type')

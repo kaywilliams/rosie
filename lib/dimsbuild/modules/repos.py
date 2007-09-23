@@ -12,66 +12,33 @@ from dimsbuild.repo    import RepoFromXml
 
 API_VERSION = 5.0
 
-class ReposSetupEvent(Event, RepoMixin): #!
+class ReposEvent(Event, RepoMixin):
   def __init__(self):
     Event.__init__(self,
-      id = 'repos-setup',
-      provides = ['repomd-files'],
+      id = 'repos',
+      provides = ['anaconda-version', 'repos'],
     )
     
     self.DATA = {
-      'config':    ['/distro/repos/repo'],
+      'config':    ['/distro/repos/repo'], 
       'input':     [], # filled later
       'output':    [], # filled later
     }
-    
+
   def validate(self):
     self.validator.validate('/distro/repos', schemafile='repos.rng')
     if len(self.config.xpath('/distro/repos/repo[@type="base"]')) != 1:
       self.validator.raiseInvalidConfig("Config file must define one repo with type 'base'")
-  
-  def setup(self):
-    self.setup_diff(self.DATA)
-    self.repomd_files = {}
-    for repoxml in self.config.xpath('/distro/repos/repo'):
-      repo = RepoFromXml(repoxml)
-      self.repomd_files[repo.id] = self.METADATA_DIR / self.id / repo.id / repo.mdfile
-      self.setup_sync((self.METADATA_DIR / self.id / repo.id / 'repodata'),
-                       paths=[repo.rjoin(repo.repodata_path, repo.mdfile)])
-  
-  def run(self):
-    self.log(0, L0("downloading repomd files"))
-    self.sync_input()
-    self.write_metadata()
-    
-  def apply(self):
-    self.cvars['repomd-files'] = self.repomd_files  
-
-class ReposContentsEvent(Event, RepoMixin):
-  def __init__(self):
-    Event.__init__(self,
-      id = 'repos-contents',
-      provides = ['anaconda-version', 'repos'],
-      requires = ['repomd-files'],
-    )
-    
-    self.DATA = {
-      'variables': ['cvars[\'repomd-files\']'],
-      'input':     [], # filled later
-      'output':    [], # filled later
-    }
-
     
   def setup(self):
     self.setup_diff(self.DATA)
 
     self.repos = {}
 
-    for repoxml in self.config.xpath('/distro/repos/repo'):
-      # create repo object
-      repo = RepoFromXml(repoxml)
+    for repo in self.config.xpath('/distro/repos/repo'):
+      repo = RepoFromXml(repo)
       repo.local_path = self.mddir/repo.id
-      repo.readRepoData(repomd=xmltree.read(self.cvars['repomd-files'][repo.id]))
+      repo.readRepoData(tmpdir=self.TEMP_DIR)
       repo.pkgsfile = self.mddir/repo.id/'packages'
       self.repos[repo.id] = repo
  
@@ -79,10 +46,11 @@ class ReposContentsEvent(Event, RepoMixin):
       for fileid in repo.datafiles:
         paths.append(repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles[fileid]))
       paths.append(repo.rjoin(repo.repodata_path, repo.mdfile))
-      
       self.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'), paths=paths)
   
   def run(self):
+    self.log(0, L0("running repos event"))
+
     self.sync_input()
     
     # process available package lists
@@ -114,9 +82,9 @@ class ReposContentsEvent(Event, RepoMixin):
       if repo.id == self.getBaseRepoId():
         self.cvars['anaconda-version'] = get_anaconda_version(repo.pkgsfile)
 
-      self.cvars['repos'] = self.repos
+    self.cvars['repos'] = self.repos 
 
-EVENTS = {'MAIN': [ReposSetupEvent, ReposContentsEvent]}
+EVENTS = {'MAIN': [ReposEvent]}
 
 
 #------ HELPER FUNCTIONS ------#
