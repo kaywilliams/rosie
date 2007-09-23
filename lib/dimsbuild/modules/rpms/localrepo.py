@@ -12,10 +12,8 @@ class LocalRepoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id='localrepo',
-      comes_after=['logos-rpm',
-                   'config-rpm',
-                   'default-theme-rpm',
-                   'release-rpm']
+      requires = ['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
+      provides = ['repos', 'source-repos', 'included-packages', 'excluded-packages']
     )
 
     self.LOCAL_RPMS  = self.mddir/'RPMS'
@@ -50,9 +48,9 @@ class LocalRepoEvent(Event):
     
     self.log(1, L1("running createrepo"))
     self.log(2, L2(self.LOCAL_RPMS.basename))
-    self._createrepo(self.LOCAL_RPMS)
+    self._createrepo('localrepo', self.LOCAL_RPMS)
     self.log(2, L2(self.LOCAL_SRPMS.basename))
-    self._createrepo(self.LOCAL_SRPMS)
+    self._createrepo('localrepo-sources', self.LOCAL_SRPMS)
     
     self.write_metadata()
   
@@ -62,11 +60,24 @@ class LocalRepoEvent(Event):
     if self.cvars['custom-srpms']: self._add_source()
   
   #----- HELPER METHODS -----#  
-  def _createrepo(self, path):
+  def _createrepo(self, name, path):
+    # createrepo
     cwd = os.getcwd()
     os.chdir(path)
     shlib.execute('/usr/bin/createrepo -q .')
     os.chdir(cwd)
+
+    # create pkgsfile
+    # TODO consider moving repo creation into setup function to eliminate 
+    # duplicate code between _createrepo and _add_store functions
+    repo = Repo(name)
+    repo.local_path = path
+    repo.remote_path = path
+    repo.pkgsfile = path/'packages'
+    repo.readRepoData()
+    repo.readRepoContents()
+    repo.writeRepoContents(repo.pkgsfile)
+    self.DATA['output'].append(repo.pkgsfile)  
   
   def _add_store(self):
     repo = Repo('localrepo')
@@ -75,12 +86,7 @@ class LocalRepoEvent(Event):
     repo.pkgsfile = self.LOCAL_RPMS/'packages'
     repo.readRepoData()    
     repo.readRepoContents()
-
-    if repo.compareRepoContents(repo.pkgsfile, what='file'):
-      repo.changed = True
-      self.cvars['input-repos-changed'] = True
-      repo.writeRepoContents(repo.pkgsfile)      
-      
+     
     if not self.cvars['repos']:
       self.cvars['repos'] = {}
     self.cvars['repos'][repo.id] = repo

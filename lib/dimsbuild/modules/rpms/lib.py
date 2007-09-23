@@ -19,7 +19,8 @@ class RpmBuildEvent(Event):
                defobsoletes=None, defprovides=None, defrequires=None,
                fileslocals=None, installinfo=None, 
                *args, **kwargs):
-    Event.__init__(self, *args, **kwargs)
+    Event.__init__(self, provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'], 
+                   *args, **kwargs)
 
     self.DATA = data
     

@@ -16,7 +16,10 @@ class ReposEvent(Event, RepoMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'repos',
-      provides = ['anaconda-version', 'repos'],
+      provides = ['anaconda-version', 
+                  'repos',        # provided by repos and localrepo events
+                  'input-repos'   # provided by repos event only, used by release.py
+                  ],
     )
     
     self.DATA = {
