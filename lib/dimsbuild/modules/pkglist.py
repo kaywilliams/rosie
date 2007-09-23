@@ -109,6 +109,7 @@ class PkglistEvent(Event, RepoMixin):
     self.log(1, L1("writing pkglist"))
     filereader.write(pkglist, self.pkglistfile)
     
+    self.DATA['output'].append(self.dsdir)
     self.write_metadata()
   
   def apply(self):
