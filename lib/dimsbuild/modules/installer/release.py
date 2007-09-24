@@ -30,7 +30,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
   
   def setup(self):
     self.DATA['input'].extend(self._find_rpms())
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
     
   def run(self):
     self.log(0, L0("synchronizing release files"))

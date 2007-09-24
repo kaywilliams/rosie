@@ -42,7 +42,7 @@ class CompsEvent(Event, RepoMixin):
     self.validator.validate('/distro/comps', 'comps.rng')
   
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
 
     self.comps_supplied = \
       self.config.get('/distro/comps/use-existing/path/text()', None)
@@ -50,10 +50,10 @@ class CompsEvent(Event, RepoMixin):
     if self.comps_supplied: 
       xpath = '/distro/comps/use-existing/path'
 
-      self.setup_sync(self.mddir, id='comps.xml', xpaths=[xpath])
+      self.io.setup_sync(self.mddir, id='comps.xml', xpaths=[xpath])
 
       # ensure exactly only one item returned above
-      if len(self.list_output(what='comps.xml')) != 1: 
+      if len(self.io.list_output(what='comps.xml')) != 1: 
         raise RuntimeError, "The path specified at '%s' expands to multiple "\
         "items. Only one comps file is allowed." % xpath 
 
@@ -72,11 +72,11 @@ class CompsEvent(Event, RepoMixin):
     self.log(0, L0("processing comps file"))
     
     # delete prior comps file
-    self.remove_output(all=True)
+    self.io.remove_output(all=True)
     
     if self.comps_supplied: # download comps file   
       self.log(1, L1("using comps file '%s'" % self.comps_supplied))
-      self.sync_input()
+      self.io.sync_input()
     
     else: # generate comps file
       self.log(1, L1("creating comps file"))
@@ -86,12 +86,12 @@ class CompsEvent(Event, RepoMixin):
       self.DATA['output'].append(self.comps_out)
     
     # write metadata
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def apply(self):
     # set comps-file control variable
     if self.comps_supplied: 
-      self.cvars['comps-file'] = self.list_output(what='comps.xml')[0]
+      self.cvars['comps-file'] = self.io.list_output(what='comps.xml')[0]
     else:
       self.cvars['comps-file'] = self.comps_out
     

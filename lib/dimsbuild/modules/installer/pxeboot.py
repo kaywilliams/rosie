@@ -20,15 +20,15 @@ class PxebootImagesEvent(Event):
     self.pxebootdir = self.SOFTWARE_STORE/'images/pxeboot'
   
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
     paths = [self.cvars['vmlinuz-file'], self.cvars['initrd-file']]
-    self.setup_sync(self.pxebootdir, paths=paths)
+    self.io.setup_sync(self.pxebootdir, paths=paths)
     
   def run(self):
     self.log(0, L0("preparing pxeboot images"))
-    self.remove_output()
-    self.sync_input()
-    self.write_metadata()
+    self.io.remove_output()
+    self.io.sync_input()
+    self.diff.write_metadata()
   
   def apply(self):
     for file in ['vmlinuz', 'initrd.img']:

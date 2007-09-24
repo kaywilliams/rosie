@@ -25,10 +25,10 @@ class LocalRepoEvent(Event):
     }
 
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
 
-    self.setup_sync(self.LOCAL_RPMS,  paths=self.cvars['custom-rpms'],  id='LOCAL_RPMS')
-    self.setup_sync(self.LOCAL_SRPMS, paths=self.cvars['custom-srpms'], id='LOCAL_SRPMS')
+    self.io.setup_sync(self.LOCAL_RPMS,  paths=self.cvars['custom-rpms'],  id='LOCAL_RPMS')
+    self.io.setup_sync(self.LOCAL_SRPMS, paths=self.cvars['custom-srpms'], id='LOCAL_SRPMS')
 
     self.DATA['output'].append(self.LOCAL_RPMS/'repodata')
     self.DATA['output'].append(self.LOCAL_SRPMS/'repodata')    
@@ -36,14 +36,14 @@ class LocalRepoEvent(Event):
   def run(self):
     self.log(0, L0("creating localrepo"))
     # remove previous output
-    self.remove_output(all=True)
+    self.io.remove_output(all=True)
     
     # sync rpms
     backup = self.files_callback.sync_start
     self.files_callback.sync_start = lambda: self.log(1, L1("copying custom rpms"))
-    self.sync_input(copy=True, link=True, what='LOCAL_RPMS')
+    self.io.sync_input(copy=True, link=True, what='LOCAL_RPMS')
     self.files_callback.sync_start = lambda: self.log(1, L1("copying custom srpms"))
-    self.sync_input(copy=True, link=True, what='LOCAL_SRPMS')
+    self.io.sync_input(copy=True, link=True, what='LOCAL_SRPMS')
     self.files_callback.sync_start = backup
     
     self.log(1, L1("running createrepo"))
@@ -52,7 +52,7 @@ class LocalRepoEvent(Event):
     self.log(2, L2(self.LOCAL_SRPMS.basename))
     self._createrepo('localrepo-sources', self.LOCAL_SRPMS)
     
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def apply(self):
     self._populate()

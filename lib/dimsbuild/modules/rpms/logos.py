@@ -63,11 +63,11 @@ class LogosRpmEvent(RpmBuildEvent, ColorMixin):
     self.hlcolor = int(self.hlcolor, 16)
   
   def run(self):
-    self.remove_output(all=True)
+    self.io.remove_output(all=True)
     if self._test_build('True'):
       self._build_rpm()
       self._add_output()    
-    self.write_metadata()    
+    self.diff.write_metadata()    
   
   def apply(self):
     if not self._test_build('True'):

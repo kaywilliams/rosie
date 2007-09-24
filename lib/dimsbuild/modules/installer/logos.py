@@ -5,7 +5,6 @@ from dimsbuild.constants import SRPM_REGEX
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L0
 from dimsbuild.magic     import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
-from dimsbuild.misc      import locals_imerge
 
 from dimsbuild.modules.installer.lib import ExtractMixin, RpmNotFoundError
 
@@ -33,11 +32,10 @@ class LogosEvent(Event, ExtractMixin):
     self.validator.validate('/distro/installer/logos', 'logos.rng')
   
   def setup(self):
-    self.locals = locals_imerge(L_LOGOS, self.cvars['anaconda-version'])
-    self.format = self.locals.get('//splash-image/format/text()')
-    self.file = self.locals.get('//splash-image/file/text()')
+    self.format = self.locals.logos['splash-image']['format']
+    self.filename = self.locals.logos['splash-image']['filename']
     self.DATA['input'].extend(self._find_rpms())
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
     
   def run(self):
     self.log(0, L0("processing logos"))
@@ -70,9 +68,9 @@ class LogosEvent(Event, ExtractMixin):
     # convert the syslinux-splash.png to splash.lss and copy it
     # to the isolinux/ folder
     try:
-      startimage = working_dir.findpaths(glob=self.file)[0]
+      startimage = working_dir.findpaths(glob=self.filename)[0]
     except IndexError:
-      raise SplashImageNotFound("missing '%s' in logos RPM" % self.file)
+      raise SplashImageNotFound("missing '%s' in logos RPM" % self.filename)
     
     if self.format == 'jpg':
       startimage.cp(splash)
@@ -120,30 +118,6 @@ class LogosEvent(Event, ExtractMixin):
 
 
 EVENTS = {'INSTALLER': [LogosEvent]}
-
-L_LOGOS = ''' 
-<locals>
-  <logos>
-
-    <logo version="0">
-      <splash-image>
-        <format>lss</format>
-        <file>syslinux-splash.png</file>
-      </splash-image>
-    </logo>
-
-    <!-- approx 11.2.0.66-1 - started using a .jpg instead of converting -->
-    <!-- syslinux.png to splash.lss                                      -->
-    <logo version="11.2.0.66-1">
-      <action type="update" path="splash-image">
-        <format>jpg</format>
-        <file>syslinux-vesa-splash.jpg</file>
-      </action>
-    </logo>
-
-  </logos>
-</locals>
-'''
 
 #------ EXCEPTIONS ------#
 class SplashImageNotFound(StandardError): pass

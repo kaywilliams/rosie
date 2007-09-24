@@ -33,40 +33,18 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
       pass
   
   def setup(self):
+    self.image_locals = self.locals.files['installer']['updates.img']
     ImageModifyMixin.setup(self)
-    self._register_image_locals(L_IMAGES)
   
   def run(self):
     self.log(0, L0("generating updates.img"))
-    self.remove_output()
+    self.io.remove_output()
     self._modify()
     
   def apply(self):
-    for file in self.list_output():
+    for file in self.io.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
 
 
 EVENTS = {'INSTALLER': [UpdatesImageEvent]}
-
-#------ LOCALS ------#
-L_IMAGES = ''' 
-<locals>
-  <images-entries>
-    <images version="0">
-      <image id="updates.img" virtual="True">
-        <format>ext2</format>
-        <path>images</path>
-      </image>
-    </images>
-    
-    <!-- 11.1.0.11-1 updates.img format changed to cpio, zipped -->
-    <images version="11.1.0.11-1">
-      <action type="update" path="image[@id='updates.img']">
-        <format>cpio</format>
-        <zipped>True</zipped>
-      </action>
-    </images>
-  </images-entries>
-</locals>
-'''

@@ -25,7 +25,7 @@ class CreaterepoEvent(Event):
     }
     
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
 
     self.cvars['rpms-directory'] = self.SOFTWARE_STORE/self.product
 
@@ -33,17 +33,17 @@ class CreaterepoEvent(Event):
       self.DATA['input'].append(self.cvars['comps-file'])
     
     if self.cvars['gpgsign-enabled']:
-      self.setup_sync(self.cvars['rpms-directory'], 
+      self.io.setup_sync(self.cvars['rpms-directory'], 
                       paths=self.cvars['signed-rpms'], id='rpms')
     else:
-      self.setup_sync(self.cvars['rpms-directory'], 
+      self.io.setup_sync(self.cvars['rpms-directory'], 
                       paths=self.cvars['cached-rpms'], id='rpms')
   
   def run(self):
     self.log(0, L0("creating repository metadata"))
     
-    self.remove_output()
-    self.sync_input(copy=True, link=True)
+    self.io.remove_output()
+    self.io.sync_input(copy=True, link=True)
 
     # run createrepo
     self.log(1, L1("running createrepo"))
@@ -52,10 +52,10 @@ class CreaterepoEvent(Event):
     shlib.execute('/usr/bin/createrepo -q -g %s .' % self.cvars['comps-file'])
     os.chdir(pwd)
     
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def apply(self):
-    self.cvars['rpms'] = self.list_output(what='rpms')
+    self.cvars['rpms'] = self.io.list_output(what='rpms')
 
 
 EVENTS = {'SOFTWARE': [CreaterepoEvent]}

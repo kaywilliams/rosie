@@ -35,7 +35,7 @@ class DownloadEvent(Event, RepoMixin):
     self.builddata_dest = self.mddir/'rpms'
   
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
  
     self.input_rpms = set()  
     for repo in self.getAllRepos():
@@ -51,18 +51,18 @@ class DownloadEvent(Event, RepoMixin):
                               'st_mode':  stat.S_IFREG})
           self.input_rpms.add(rpm)
 
-    self.setup_sync(self.builddata_dest, paths=self.input_rpms)
+    self.io.setup_sync(self.builddata_dest, paths=self.input_rpms)
  
   def run(self):
     self.log(0, L0("running download"))
 
-    self.remove_output()
-    self.sync_input()
-    self.write_metadata()
+    self.io.remove_output()
+    self.io.sync_input()
+    self.diff.write_metadata()
     
   def apply(self):
     self.cvars['input-rpms'] = self.input_rpms
-    self.cvars['cached-rpms'] = self.list_output()
+    self.cvars['cached-rpms'] = self.io.list_output()
   
   def _deformat(self, rpm):
     """ 

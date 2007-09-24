@@ -8,8 +8,9 @@ from dimsbuild.logging import L0
 
 from dimsbuild.event.diff     import DiffMixin
 from dimsbuild.event.fileio   import IOMixin
+from dimsbuild.event.locals   import LocalsMixin
 
-class Event(dispatch.Event, IOMixin, DiffMixin):
+class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
   """ 
   The Event superclass also has quite a few attributes set up by main.py
   - these attributes are shared across all Event subclasses, but are
@@ -23,6 +24,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin):
     
     IOMixin.__init__(self)
     DiffMixin.__init__(self)
+    LocalsMixin.__init__(self)
   
   # execution methods
   def execute(self):

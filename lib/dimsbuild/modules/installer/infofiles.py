@@ -12,9 +12,7 @@ from ConfigParser import ConfigParser
 from dims import FormattedFile as ffile
 
 from dimsbuild.event   import Event
-from dimsbuild.locals  import L_BUILDSTAMP_FORMAT
 from dimsbuild.logging import L0
-from dimsbuild.misc    import locals_imerge
 
 API_VERSION = 5.0
 
@@ -36,16 +34,15 @@ class DiscinfoEvent(Event):
     }
   
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
   
   def run(self):
     self.log(0, L0("generating discinfo"))
     
     # setup
-    locals = locals_imerge(L_DISCINFO_FORMAT, self.cvars['anaconda-version'])
     
     # create empty .discinfo formatted file object
-    discinfo = ffile.XmlToFormattedFile(locals.get('discinfo'))
+    discinfo = ffile.DictToFormattedFile(self.locals.discinfo_fmt)
     
     # get product, fullname, and basearch from cvars
     base_vars = copy.deepcopy(self.cvars['base-vars'])
@@ -61,7 +58,7 @@ class DiscinfoEvent(Event):
   def apply(self):
     if not self.difile.exists():
       raise RuntimeError, "Unable to find .discinfo file at '%s'" % self.difile
-    self.write_metadata()
+    self.diff.write_metadata()
 
 
 class TreeinfoEvent(Event):
@@ -81,7 +78,7 @@ class TreeinfoEvent(Event):
     }
     
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
   
   def run(self):
     self.log(0, L0("generating treeinfo"))
@@ -118,7 +115,7 @@ class TreeinfoEvent(Event):
     tiflo.close()
     self.tifile.chmod(0644)
     
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def apply(self):
     if not self.tifile.exists():
@@ -142,16 +139,13 @@ class BuildstampEvent(Event):
     }
     
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
     
   def run(self):
     "Generate a .buildstamp file."
     self.log(0, L0("generating buildstamp"))
     
-    locals = locals_imerge(L_BUILDSTAMP_FORMAT, self.cvars['anaconda-version'])
-    
-    buildstamp_fmt = locals.get('//buildstamp-format')
-    buildstamp = ffile.XmlToFormattedFile(buildstamp_fmt)
+    buildstamp = ffile.DictToFormattedFile(self.locals.buildstamp_fmt)
     
     base_vars = copy.deepcopy(self.cvars['source-vars'])
     base_vars.update(self.cvars['base-vars'])
@@ -160,7 +154,7 @@ class BuildstampEvent(Event):
     buildstamp.write(self.bsfile, **base_vars)
     self.bsfile.chmod(0644)
     
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def apply(self):
     if not self.bsfile.exists():
@@ -168,63 +162,3 @@ class BuildstampEvent(Event):
     self.cvars['buildstamp-file'] = self.bsfile
 
 EVENTS = {'INSTALLER': [DiscinfoEvent, TreeinfoEvent, BuildstampEvent]}
-
-#------ LOCALS ------#
-L_DISCINFO_FORMAT = ''' 
-<locals>
-  <!-- .discinfo format entries -->
-  <discinfo-entries>
-    <discinfo version="0">
-      <line id="timestamp" position="0">
-        <string-format string="%s">
-          <format>
-            <item>timestamp</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="fullname" position="1">
-        <string-format string="%s">
-          <format>
-            <item>fullname</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="basearch" position="2">
-        <string-format string="%s">
-          <format>
-            <item>basearch</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="discs" position="3">
-        <string-format string="%s">
-          <format>
-            <item>discs</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="base" position="4">
-        <string-format string="%s/base">
-          <format>
-            <item>product</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="rpms" position="5">
-        <string-format string="%s">
-          <format>
-            <item>product</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="pixmaps" position="6">
-        <string-format string="%s/pixmaps">
-          <format>
-            <item>product</item>
-          </format>
-        </string-format>
-      </line>
-    </discinfo>
-  </discinfo-entries>
-</locals>
-'''

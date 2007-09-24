@@ -44,7 +44,7 @@ class SourceReposEvent(Event):
     self.validator.validate('/distro/sources', 'sources.rng')
 
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
 
     if not self.cvars['sources-enabled']: return
  
@@ -56,21 +56,22 @@ class SourceReposEvent(Event):
       repo.readRepoData(tmpdir=self.TEMP_DIR)
       repo.pkgsfile = self.mddir / repo.id / 'packages'
       self.source_repos[repo.id] = repo
-
+      
       paths = []      
       for fileid in repo.datafiles:
         paths.append(repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles[fileid]))
       paths.append(repo.rjoin(repo.repodata_path, repo.mdfile))
-      self.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'),
+      self.io.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'),
                       paths=paths, id='%s-files' % repo.id)
 
   def run(self):
     self.log(0, L0("running source-repos event"))
 
     if not self.cvars['sources-enabled']:
-      self.remove_output(all=True)
-      self.write_metadata()
+      self.io.remove_output(all=True)
+      self.diff.write_metadata()
       return
+    
     self.log(1, L1("downloading information about source packages"))
     
     backup = self.files_callback.sync_start
@@ -79,7 +80,7 @@ class SourceReposEvent(Event):
     # download primary.xml.gz etc.
     for repo in self.source_repos.values():
       self.log(1, L1(repo.id))
-      self.sync_input(what='%s-files' % repo.id)
+      self.io.sync_input(what='%s-files' % repo.id)
     
     self.files_callback.sync_start = backup
     
@@ -87,13 +88,13 @@ class SourceReposEvent(Event):
     self.log(1, L1("reading available source packages"))
     for repo in self.source_repos.values():
       pxml = repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles['primary'])
-      if self._diff_handlers['input'].diffdict.has_key(pxml):
+      if self.diff.handlers['input'].diffdict.has_key(pxml):
         self.log(2, L2(repo.id))
         repo.readRepoContents()
         repo.writeRepoContents(repo.pkgsfile)
         self.DATA['output'].append(repo.pkgsfile)
 
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def apply(self):
     if not self.cvars['sources-enabled']: return
@@ -123,7 +124,7 @@ class SourcesEvent(Event):
     }
 
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
 
     if not self.cvars['sources-enabled']: return
 
@@ -155,28 +156,28 @@ class SourcesEvent(Event):
                                'st_mode':  stat.S_IFREG})
           paths.append(rpmi)
     
-    self.setup_sync(self.srpmdest, paths=paths, id='srpms')
+    self.io.setup_sync(self.srpmdest, paths=paths, id='srpms')
 
   def run(self):
     self.log(0, L0("running sources event"))
  
     if not self.cvars['sources-enabled']:
-      self.remove_output(all=True)
-      self.write_metadata()
+      self.io.remove_output(all=True)
+      self.diff.write_metadata()
       return
     
     self.log(1, L1("processing srpms"))
-    self.remove_output()
+    self.io.remove_output()
     self.srpmdest.mkdirs()
-    self.sync_input()
+    self.io.sync_input()
     self._createrepo()
-    self.DATA['output'].extend(self.list_output(what=['srpms']))
+    self.DATA['output'].extend(self.io.list_output(what=['srpms']))
     self.DATA['output'].append(self.srpmdest/'repodata')
-    self.write_metadata()
+    self.diff.write_metadata()
 
   def apply(self):
     if self.cvars['sources-enabled']:
-      self.cvars['srpms'] = self.list_output(what='srpms')
+      self.cvars['srpms'] = self.io.list_output(what='srpms')
    
   def _deformat(self, srpm):
     try:

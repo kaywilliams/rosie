@@ -44,12 +44,12 @@ class PkglistEvent(Event, RepoMixin):
     self.validator.validate('/distro/pkglist', schemafile='pkglist.rng')
   
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
     
     # setup if copying pkglist
     if self.docopy:
-      self.setup_sync(self.mddir, id='pkglist', xpaths=['/distro/pkglist'])
-      self.pkglistfile = self.list_output(what='pkglist')[0]
+      self.io.setup_sync(self.mddir, id='pkglist', xpaths=['/distro/pkglist'])
+      self.pkglistfile = self.io.list_output(what='pkglist')[0]
       return
 
     # setup if creating pkglist
@@ -65,15 +65,15 @@ class PkglistEvent(Event, RepoMixin):
   
   def run(self):
     self.log(0, L0("resolving pkglist"))
-    self.remove_output(all=True)
+    self.io.remove_output(all=True)
     
     # copy pkglist    
     if self.docopy:
-      self.sync_input()
+      self.io.sync_input()
       self.log(1, L1("reading supplied pkglist file"))
       if self.dsdir.exists():
         self.dsdir.rm(recursive=True)
-      self.write_metadata()
+      self.diff.write_metadata()
       return
     
     # create pkglist
@@ -110,7 +110,7 @@ class PkglistEvent(Event, RepoMixin):
     filereader.write(pkglist, self.pkglistfile)
     
     self.DATA['output'].append(self.dsdir)
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def apply(self):
     if not self.pkglistfile.exists():
@@ -128,7 +128,7 @@ class PkglistEvent(Event, RepoMixin):
       # determine if repodata folder changed
       rddir_changed = False
       for rddir in self.rddirs:
-        for file in self._diff_handlers['input'].diffdict.keys():
+        for file in self.diff.handlers['input'].diffdict.keys():
           if file.startswith(rddir):
             rddir_changed = True
             break

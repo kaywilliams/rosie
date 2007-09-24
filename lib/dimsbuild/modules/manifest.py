@@ -31,11 +31,11 @@ class ManifestEvent(Event):
                        self.output_dir.findpaths() \
                        if i != self.mfile and not i.isdir() ]
     self.DATA['input'].extend(self.filesdata)
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
   
   def run(self):
     self.log(0, L0("generating manifest"))
-    self.remove_output(all=True)
+    self.io.remove_output(all=True)
     
     # set manifest data
     manifest = []
@@ -59,9 +59,9 @@ class ManifestEvent(Event):
     mf.close()
    
     # update metadata
-    self.write_metadata()
-
-def apply(self):
+    self.diff.write_metadata()
+  
+  def apply(self):
     self.cvars['manifest-file'] = self.mfile
 
 EVENTS = {'ALL': [ManifestEvent]}

@@ -74,7 +74,7 @@ class RpmBuildEvent(Event):
       self.requires += ' ' + ' '.join(self.config.xpath(
                                  '/distro/rpms/%s/requires/package/text()' % self.requires))
     
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
     if self.srcdir.exists():
       self.DATA['input'].append(self.srcdir)
 
@@ -82,7 +82,7 @@ class RpmBuildEvent(Event):
       for k,v in self.installinfo.items():
         xpath, dst = v
         if xpath:
-          self.setup_sync(self.rpmdir/dst.lstrip('/'), xpaths=[xpath])
+          self.io.setup_sync(self.rpmdir/dst.lstrip('/'), xpaths=[xpath])
     
     if self.fileslocals:
       self.fileslocals = locals_imerge(self.fileslocals, self.cvars['anaconda-version'])
@@ -157,7 +157,7 @@ class RpmBuildEvent(Event):
   
   def _build(self):
     self.build_folder.mkdirs()
-    self.sync_input()
+    self.io.sync_input()
     self._generate()
     self._write_spec()
     self._write_manifest()

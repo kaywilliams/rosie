@@ -22,8 +22,8 @@ class AutocleanEvent(Event):
       self.eventinfo[event.id] = event.id
       self.DATA['events'].update({event.id: str(event.event_version)})
     
-    self.setup_diff(self.DATA)
-    self._add_handler(EventHandler(self.DATA['events']))
+    self.diff.setup(self.DATA)
+    self.diff.add_handler(EventHandler(self.DATA['events']))
     
     # delete all the folders in the metadata directory that are from events
     # that aren't running this pass
@@ -49,14 +49,14 @@ class AutocleanEvent(Event):
   
   def run(self):
     self.log(0, L0("processing autoclean"))
-    for event in self._diff_handlers['events'].diffdict.keys():
-      prevver, currver = self._diff_handlers['events'].diffdict[event]
+    for event in self.diff.handlers['events'].diffdict.keys():
+      prevver, currver = self.diff.handlers['events'].diffdict[event]
       if prevver and currver:
         self.log(2, L2("forcing --clean on %s" % self.eventinfo[event]))
         #! the following is currently illegal
         apply_flowcontrol(self._getroot().get(self.eventinfo[event]), True)
     
-    self.write_metadata()
+    self.diff.write_metadata()
     
   
 EVENTS = {'ALL': [AutocleanEvent]}

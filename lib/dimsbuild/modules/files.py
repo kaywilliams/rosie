@@ -26,17 +26,17 @@ class FilesEvent(Event):
     self.validator.validate('/distro/files', 'files.rng')
   
   def setup(self):
-    self.setup_diff(self.DATA)
-    self.setup_sync(self.SOFTWARE_STORE, xpaths=['/distro/files/path'])
+    self.diff.setup(self.DATA)
+    self.io.setup_sync(self.SOFTWARE_STORE, xpaths=['/distro/files/path'])
   
   def run(self):
     self.log(0, L0("processing user-provided files"))
     # delete altered files
-    self.remove_output()
+    self.io.remove_output()
           
     # download input files
-    self.sync_input()
+    self.io.sync_input()
     
-    self.write_metadata()
+    self.diff.write_metadata()
 
 EVENTS = {'MAIN': [FilesEvent]}

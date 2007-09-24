@@ -2,65 +2,72 @@ from dims import difftest
 
 class DiffMixin:
   def __init__(self):
-    self._diff_tester = difftest.DiffTest(self.mdfile)
-    self._diff_handlers = {}
-    self._diff_set = {}
+    self.diff = DiffObject(self)
   
   def clean(self):
-    self.clean_metadata()
+    self.diff.clean_metadata()
   
   def check(self):
-    return self.test_diffs()
+    return self.diff.test_diffs()
+
+
+class DiffObject:
+  "Dummy object to contain diff-related functions"
+  def __init__(self, ptr):
+    self.ptr = ptr
+    self.tester = difftest.DiffTest(self.ptr.mdfile)
+    self.handlers = {}
+    self.diff_set = {}
   
   # former DiffMixin stuff
-  def setup_diff(self, data):
+  def setup(self, data):
     if data.has_key('input'):
-      self._add_handler(difftest.InputHandler(data['input']))
+      self.add_handler(difftest.InputHandler(data['input']))
     if data.has_key('output'):
-      self._add_handler(difftest.OutputHandler(data['output']))
+      self.add_handler(difftest.OutputHandler(data['output']))
     if data.has_key('variables'):
-      self._add_handler(difftest.VariablesHandler(data['variables'], self))
+      self.add_handler(difftest.VariablesHandler(data['variables'], self.ptr))
     if data.has_key('config'):
-      self._add_handler(difftest.ConfigHandler(data['config'], self.config))
+      self.add_handler(difftest.ConfigHandler(data['config'], self.ptr.config))
   
-  def _add_handler(self, handler):
-    self._diff_tester.addHandler(handler)
-    self._diff_handlers[handler.name] = handler
+  def add_handler(self, handler):
+    self.tester.addHandler(handler)
+    self.handlers[handler.name] = handler
   
-  def clean_metadata(self):  self._diff_tester.clean_metadata()
-  def read_metadata(self):   self._diff_tester.read_metadata()
-  def write_metadata(self):  self._diff_tester.write_metadata()
+  def clean_metadata(self):  self.tester.clean_metadata()
+  def read_metadata(self):   self.tester.read_metadata()
+  def write_metadata(self):  self.tester.write_metadata()
   
   def test_diffs(self, debug=None):
-    old_dbgval = self._diff_tester.debug
+    old_dbgval = self.tester.debug
     if debug is not None:
-      self._diff_tester.debug = debug
+      self.tester.debug = debug
     
-    for handler in self._diff_handlers.values():
-      self._diff_set[handler.name] = (len(handler.diff()) > 0)
+    for handler in self.handlers.values():
+      self.diff_set[handler.name] = (len(handler.diff()) > 0)
     
-    self._diff_tester.debug = old_dbgval
+    self.tester.debug = old_dbgval
     
-    if len(self._diff_set) > 0:
-      return (True in self._diff_set.values())
+    if len(self.diff_set) > 0:
+      return (True in self.diff_set.values())
     else:
       return True
   
   def has_changed(self, name, err=False):
-    if not self._diff_handlers.has_key(name):
+    if not self.handlers.has_key(name):
       if err:
         raise RuntimeError("Missing %s metadata handler" % name)
       return False
-    if not self._diff_set.has_key(name):
-      self._diff_set[name] = (len(self._diff_handlers[name].diff()) > 0)
-    return self._diff_set[name]
+    if not self.diff_set.has_key(name):
+      self.diff_set[name] = (len(self.handlers[name].diff()) > 0)
+    return self.diff_set[name]
   
   def var_changed_from_value(self, var, value):
-    if not self._diff_handlers['variables']:
+    if not self.handlers['variables']:
       raise RuntimeError("No 'variables' metadata handler")
-    if self._diff_handlers['variables'].diffdict.has_key(var) and \
-       self._diff_handlers['variables'].vars.has_key(var) and \
-       self._diff_handlers['variables'].vars[var] == value:
+    if self.handlers['variables'].diffdict.has_key(var) and \
+       self.handlers['variables'].vars.has_key(var) and \
+       self.handlers['variables'].vars[var] == value:
       return True
     else:
       return False

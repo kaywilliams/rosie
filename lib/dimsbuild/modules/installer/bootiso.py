@@ -23,7 +23,7 @@ class BootisoEvent(Event):
     }
   
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
   
   def run(self):
     self.log(0, L0("generating boot.iso"))
@@ -45,7 +45,7 @@ class BootisoEvent(Event):
     ibin_path.utime((ibin_st.st_atime, ibin_st.st_mtime))
     isodir.rm(recursive=True)
     
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def apply(self):
     if not self.bootiso.exists():

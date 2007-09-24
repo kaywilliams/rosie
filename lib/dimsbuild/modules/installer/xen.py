@@ -40,19 +40,22 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
       pass
   
   def setup(self):
-    ImageModifyMixin.setup(self)
-    self._register_image_locals(L_IMAGES)
-    self._register_file_locals(L_FILES)
     self.DATA['input'].append(self.cvars['buildstamp-file'])
+    self.diff.setup(self.DATA)
     
+    self.image_locals = self.locals.files['xen']['initrd-xen']
+    ImageModifyMixin.setup(self)
+    self.file_locals = self.locals.files['xen']
+    FileDownloadMixin.setup(self)
+  
   def run(self):
     self.log(0, L0("preparing xen images"))
-    self.remove_output(all=True)
+    self.io.remove_output(all=True)
     self._download()
     self._modify()
   
   def apply(self):
-    for file in self.list_output():
+    for file in self.io.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' in '%s'" % (file.basename, file.dirname))
   
@@ -62,36 +65,3 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
 
 
 EVENTS = {'INSTALLER': [XenImagesEvent]}
-
-L_FILES = ''' 
-<locals>
-  <files-entries>
-    <files version="0">
-      <file id="vmlinuz">
-        <path>images/xen</path>
-      </file>
-    </files>
-  </files-entries>
-</locals>
-'''
-
-L_IMAGES = ''' 
-<locals>
-  <images-entries>
-    <images version="0">
-      <image id="initrd.img">
-        <format>ext2</format>
-        <zipped>True</zipped>
-        <path>images/xen</path>
-      </image>
-    </images>
-    
-    <!-- approx 10.2.0.3-1 - initrd.img format changed to cpio -->
-    <images version="10.2.0.3-1">
-      <action type="update" path="image[@id='initrd.img']">
-        <format>cpio</format>
-      </action>
-    </images>
-  </images-entries>
-</locals>
-'''

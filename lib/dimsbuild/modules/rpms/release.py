@@ -75,7 +75,7 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
       for key in repo.gpgkeys:
         paths.append(key)
     
-    self.setup_sync(self.build_folder/'gpg', paths=paths)
+    self.io.setup_sync(self.build_folder/'gpg', paths=paths)
     
     # eulapy file
     paths = []
@@ -87,14 +87,14 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
          ) is not None:
         paths.append(self.SHARE_DIR / 'release/eula.py')
         
-    self.setup_sync(self.build_folder/'eulapy', paths=paths)
+    self.io.setup_sync(self.build_folder/'eulapy', paths=paths)
   
   def run(self):
-    self.remove_output(all=True)
+    self.io.remove_output(all=True)
     if self._test_build('True'):
       self._build_rpm()
       self._add_output()    
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def apply(self):
     if not self._test_build('True'):

@@ -2,11 +2,12 @@ from dims import filereader
 
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0
-from dimsbuild.misc    import locals_imerge
 
 from dimsbuild.modules.installer.lib import ImageModifyMixin
 
+
 API_VERSION = 5.0
+
 
 class DiskbootImageEvent(Event, ImageModifyMixin):
   def __init__(self):
@@ -36,21 +37,23 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
       pass
   
   def setup(self):
-    ImageModifyMixin.setup(self)
-    self._register_image_locals(L_IMAGES)
-
     self.DATA['input'].extend([
       self.cvars['installer-splash'],
       self.cvars['initrd-file'],        
     ])
-  
+    
+    self.diff.setup(self.DATA)
+    
+    self.image_locals = self.locals.files['installer']['diskboot.img']
+    ImageModifyMixin.setup(self)
+    
   def run(self):
     self.log(0, L0("preparing diskboot image"))
-    self.remove_output(all=True)
+    self.io.remove_output(all=True)
     self._modify()
   
   def apply(self):
-    for file in self.list_output():
+    for file in self.io.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
   
@@ -80,17 +83,3 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
       wcopy.remove()
 
 EVENTS = {'INSTALLER': [DiskbootImageEvent]}
-
-#------ LOCALS ------#
-L_IMAGES = ''' 
-<locals>
-  <images-entries>
-    <images version="0">
-      <image id="diskboot.img">
-        <format>fat32</format>
-        <path>images</path>
-      </image>
-    </images>
-  </images-entries>
-</locals>
-'''

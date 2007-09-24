@@ -11,7 +11,6 @@ from dimsbuild.constants   import BOOLEANS_TRUE
 from dimsbuild.event       import Event
 from dimsbuild.logging     import L0, L1, L2, L3
 from dimsbuild.modules.lib import ListCompareMixin
-from dimsbuild.misc        import locals_imerge
 
 API_VERSION = 5.0
 
@@ -59,34 +58,34 @@ class PkgorderEvent(Event):
     if self.dosync: self.DATA['input'] = [] # huh?
   
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
     if not self.cvars['iso-enabled']: return
 
     self.DATA['input'].append(self.cvars['repodata-directory'])
     
     if self.dosync:
-      self.setup_sync(self.mddir, id='pkgorder',
+      self.io.setup_sync(self.mddir, id='pkgorder',
                       xpaths=['/distro/iso/pkgorder'])
-      self.pkgorderfile = self.list_output(what='pkgorder')[0]
+      self.pkgorderfile = self.io.list_output(what='pkgorder')[0]
     else:
       self.pkgorderfile = self.mddir/'pkgorder'
       self.DATA['output'].append(self.pkgorderfile)
   
   def run(self):
     # changing from iso-enabled true, cleanup old files and metadata
-    if self.var_changed_from_value('cvars[\'iso-enabled\']', True):
+    if self.diff.var_changed_from_value('cvars[\'iso-enabled\']', True):
       self.clean()
     
     if not self.cvars['iso-enabled']: 
-      self.write_metadata()
+      self.diff.write_metadata()
       return
     
     self.log(0, L0("processing pkgorder file"))
     
     # delete prior pkgorder file, if exists    
-    self.remove_output(all=True)
+    self.io.remove_output(all=True)
     if self.dosync:
-      self.sync_input()
+      self.io.sync_input()
     else:
       # generate pkgorder
       self.log(1, L1("generating package ordering"))
@@ -107,7 +106,7 @@ class PkgorderEvent(Event):
       # write pkgorder
       pkgorder.write_pkgorder(self.pkgorderfile, pkgtups)      
     
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def apply(self):
     if self.cvars['iso-enabled']:
@@ -145,7 +144,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     self.validator.validate('/distro/iso', 'iso.rng')
   
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
     
     self.isodir = self.mddir/'iso'
     
@@ -158,11 +157,11 @@ class IsoSetsEvent(Event, ListCompareMixin):
   
   def run(self):
     # changing from iso-enabled true, cleanup old files and metadata
-    if self.var_changed_from_value('cvars[\'iso-enabled\']', True):
+    if self.diff.var_changed_from_value('cvars[\'iso-enabled\']', True):
       self.clean()
     
     if not self.cvars['iso-enabled']: 
-      self.write_metadata()
+      self.diff.write_metadata()
       return
     
     self.log(0, L0("processing iso image(s)"))
@@ -170,16 +169,16 @@ class IsoSetsEvent(Event, ListCompareMixin):
     oldsets = None
     
     # remove oldsets if pkgorder file, srpms, or sources-enabled changed
-    if self._diff_handlers['input'].diffdict or \
-       self._diff_handlers['variables'].diffdict.has_key("cvars['srpms']") or \
-       self._diff_handlers['variables'].diffdict.has_key("cvars['sources-enabled']"):
-      self.remove_output(all=True)
+    if self.diff.handlers['input'].diffdict or \
+       self.diff.handlers['variables'].diffdict.has_key("cvars['srpms']") or \
+       self.diff.handlers['variables'].diffdict.has_key("cvars['sources-enabled']"):
+      self.io.remove_output(all=True)
       oldsets = []
     
     # otherwise get oldsets from metadata file
     if oldsets is None:    
       try: 
-        oldsets = self._diff_handlers['config'].cfg['/distro/iso/set/text()']
+        oldsets = self.diff.handlers['config'].cfg['/distro/iso/set/text()']
       except KeyError:
         oldsets = []
     
@@ -193,7 +192,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     
     self.DATA['output'].extend([self.isodir, self.splittrees])
     
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def apply(self):
     # copy iso sets into composed tree
@@ -202,7 +201,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
   def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
     if expanded_set not in self.newsets_expanded:
-      self.remove_output(rmlist=[self.splittrees/set,
+      self.io.remove_output(rmlist=[self.splittrees/set,
                                  self.isodir/set])
     else:
       newset = self.newsets[self.newsets_expanded.index(expanded_set)]
@@ -220,7 +219,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     splitter.u_tree     = self.output_dir/'os'
     splitter.u_src_tree = self.output_dir/'SRPMS'
     splitter.s_tree     = self.splittrees/set
-    splitter.difmt = locals_imerge(L_DISCINFO_FORMAT, self.cvars['anaconda-version']).get('discinfo')
+    splitter.difmt = self.locals.discinfo_fmt
     splitter.pkgorder = self.cvars['pkgorder-file']
     
     self.log(2, L2("splitting trees"))
@@ -256,62 +255,3 @@ class IsoSetsEvent(Event, ListCompareMixin):
   
 
 EVENTS = {'ALL': [IsoMetaEvent], 'ISO': [PkgorderEvent, IsoSetsEvent]}
-
-
-L_DISCINFO_FORMAT = ''' 
-<locals>
-  <discinfo-entries>
-    <discinfo version="0">
-      <line id="timestamp" position="0">
-        <string-format string="%s">
-          <format>
-            <item>timestamp</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="fullname" position="1">
-        <string-format string="%s">
-          <format>
-            <item>fullname</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="basearch" position="2">
-        <string-format string="%s">
-          <format>
-            <item>basearch</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="discs" position="3">
-        <string-format string="%s">
-          <format>
-            <item>discs</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="base" position="4">
-        <string-format string="%s">
-          <format>
-            <item>product</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="rpms" position="5">
-        <string-format string="%s">
-          <format>
-            <item>product</item>
-          </format>
-        </string-format>
-      </line>
-      <line id="pixmaps" position="6">
-        <string-format string="%s">
-          <format>
-            <item>product</item>
-          </format>
-        </string-format>
-      </line>
-    </discinfo>
-  </discinfo-entries>
-</locals>
-'''

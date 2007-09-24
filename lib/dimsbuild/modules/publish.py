@@ -36,12 +36,12 @@ class RepoFileEvent(Event):
     }
 
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
   
   def clean(self):
     self.repofile.rm(force=True)
     self.srcrepofile.rm(force=True)
-    self.clean_metadata()
+    self.diff.clean_metadata()
   
   def run(self):
     # if we're not enabled, clean up and return immediately
@@ -83,7 +83,7 @@ class RepoFileEvent(Event):
                           '/distro/repos')
       rc.createRepoFile()
     
-    self.write_metadata()
+    self.diff.write_metadata()
 
   def _getIpAddress(self, ifname='eth0'):
     # TODO - improve this, its not particularly accurate in some cases
@@ -116,9 +116,9 @@ class PublishEvent(Event):
     self.validator.validate('/distro/publish', 'publish.rng')
   
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
     for dir in self.cvars['composed-tree'].listdir():
-      self.setup_sync(self.PUBLISH_DIR, paths=[dir])
+      self.io.setup_sync(self.PUBLISH_DIR, paths=[dir])
     
     self._backup_relpath = self.files_callback.relpath
     self.files_callback.relpath = self.PUBLISH_DIR
@@ -126,12 +126,12 @@ class PublishEvent(Event):
   def run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
     self.log(0, L0("publishing output store"))
-    self.remove_output()
+    self.io.remove_output()
     self.PUBLISH_DIR.rm(recursive=True, force=True)
-    self.sync_input(copy=True, link=True)
+    self.io.sync_input(copy=True, link=True)
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.PUBLISH_DIR)
     
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def apply(self):
     self.files_callback.relpath = self._backup_relpath

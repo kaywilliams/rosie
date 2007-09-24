@@ -60,37 +60,37 @@ class GPGSignEvent(Event, GpgMixin):
     }
   
   def setup(self):
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
     
     if not self.cvars['gpgsign-enabled']: return
     
-    self.setup_sync(self.mddir, paths=self.cvars['gpgsign-public-key'], id='pubkey')
-    self.setup_sync(self.mddir, paths=self.cvars['gpgsign-secret-key'], id='seckey')
+    self.io.setup_sync(self.mddir, paths=self.cvars['gpgsign-public-key'], id='pubkey')
+    self.io.setup_sync(self.mddir, paths=self.cvars['gpgsign-secret-key'], id='seckey')
     
-    self.setup_sync(self.mddir/'rpms', paths=self.cvars['input-rpms'], id='rpms')
+    self.io.setup_sync(self.mddir/'rpms', paths=self.cvars['input-rpms'], id='rpms')
   
   def run(self):
     self.log(0, L0("running gpgsign"))
     
     # changing from gpgsign-enabled true, cleanup old files and metadata
-    if self.var_changed_from_value('gpgsign_enabled', True):
+    if self.diff.var_changed_from_value('gpgsign_enabled', True):
       self.log(1, L1("gpgsign disabled - cleaning up"))
-      self.remove_output(all=True)
+      self.io.remove_output(all=True)
     
     if not self.cvars['gpgsign-enabled']:
-      self.write_metadata()
+      self.diff.write_metadata()
       return
     
-    self.remove_output()
+    self.io.remove_output()
     
     self.log(1, L1("configuring gpg signing"))
     # sync keys
-    newkeys = self.sync_input(what=['pubkey','seckey'])
+    newkeys = self.io.sync_input(what=['pubkey','seckey'])
     
     # import keys
     gnupg_dir = self.mddir / '.gnupg'
-    pubkey = self.list_output(what='pubkey')[0]
-    seckey = self.list_output(what='seckey')[0]
+    pubkey = self.io.list_output(what='pubkey')[0]
+    seckey = self.io.list_output(what='seckey')[0]
     if newkeys:
       gnupg_dir.rm(recursive=True, force=True)
       gnupg_dir.mkdirs()
@@ -103,12 +103,12 @@ class GPGSignEvent(Event, GpgMixin):
     
     # sync rpms to output folder
     self.log(1, L1("preparing to sign rpms"))
-    newrpms = self.sync_input(what='rpms')
+    newrpms = self.io.sync_input(what='rpms')
     
     # sign rpms
-    if self.var_changed_from_value('cvars[\'gpgsign-enabled\']', False) \
+    if self.diff.var_changed_from_value('cvars[\'gpgsign-enabled\']', False) \
        or newkeys:
-      signrpms = self.list_output(what='rpms')
+      signrpms = self.io.list_output(what='rpms')
     else:
       signrpms = newrpms
     
@@ -122,10 +122,10 @@ class GPGSignEvent(Event, GpgMixin):
                       homedir=gnupg_dir,
                       passphrase=self.cvars['gpgsign-passphrase'])
     
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def apply(self):
-   self.cvars['signed-rpms'] = self.list_output(what='rpms')  
+   self.cvars['signed-rpms'] = self.io.list_output(what='rpms')  
   
   def error(self, e):
     self.clean()

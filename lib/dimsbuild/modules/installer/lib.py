@@ -14,7 +14,6 @@ from dimsbuild.logging   import L1
 from dimsbuild.magic     import (FILE_TYPE_GZIP, FILE_TYPE_EXT2FS,
                                  FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS,
                                  FILE_TYPE_FAT, match as magic_match)
-from dimsbuild.misc      import locals_imerge, locals_printf
 
 P = pps.Path
 
@@ -29,7 +28,7 @@ MAGIC_MAP = {
 
 class ExtractMixin:
   def _extract(self):
-    self.remove_output(all=True)
+    self.io.remove_output(all=True)
     
     # generate output files
     try:
@@ -48,7 +47,7 @@ class ExtractMixin:
       working_dir.rm(recursive=True)
     
     # write metadata
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def _extract_rpm(self, rpmPath, output=P(os.getcwd())):
     """ 
@@ -89,51 +88,43 @@ class ImageModifyMixin(RepoMixin):
     
     self.name = name 
     self.image = None
-    self.i_locals = None
+    self.image_locals = None # this must be set before setup() is called
   
   def setup(self):
+    # input images
+    repo = self.getRepo(self.getBaseRepoId())
+    
+    image_path = self.image_locals['path'] % self.cvars['base-vars']
+    try:
+      self.io.setup_sync((self.SOFTWARE_STORE/image_path).dirname,
+                      id='ImageModifyMixin',
+                      paths=[repo.rjoin(image_path)])
+    except IOError, e:
+      if self.virtual:
+        self.DATA['output'].append(self.SOFTWARE_STORE/image_path)
+      else:
+        raise e
+    
+    # other image input files
     self.images_src = self.METADATA_DIR/'images-src'/self.name
     if self.images_src.exists():
       self.DATA['input'].append(self.images_src)
     
-    self.setup_diff(self.DATA)
+    self.diff.setup(self.DATA)
     
-    self.setup_sync(self.imagedir,
+    self.io.setup_sync(self.imagedir,
                     xpaths=['/distro/installer/%s/path' % self.id],
                     id='%s-input-files' % self.name)
-  
+    
   def check(self):
     return not self._validate_image or \
-           self.test_diffs()
-  
-  def _register_image_locals(self, locals):
-    self.i_locals = locals_imerge(locals, self.cvars['anaconda-version'])
-    
-    repo = self.getRepo(self.getBaseRepoId())
-    
-    image_path = self.i_locals.get('//images/image[@id="%s"]/path' % self.name)
-    image_path = locals_printf(image_path, self.cvars['base-vars'])
-    try:
-      self.setup_sync(self.SOFTWARE_STORE/image_path,
-                      id='ImageModifyMixin',
-                      paths=[repo.rjoin(image_path, self.name)])
-    except IOError, e:
-      if self._isvirtual():
-        self.DATA['output'].append(self.SOFTWARE_STORE/image_path/self.name)
-      else:
-        raise e
-    self.l_image = self.i_locals.get('//images/image[@id="%s"]' % self.name)
+           self.diff.test_diffs()
   
   def _open(self):
-    image  = self.i_locals.get('//images/image[@id="%s"]' % self.name)
-    path   = self._getpath()
-    format = image.get('format/text()')
-    zipped = image.get('zipped/text()', 'False') in BOOLEANS_TRUE
-    
-    if image.attrib.get('virtual', 'False') in BOOLEANS_TRUE:
-      if path.exists(): path.remove() # delete old image
-    path.dirname.mkdirs()
-    self.image = img.MakeImage(path, format, zipped)
+    if self.virtual:
+      if self.path.exists(): self.path.remove() # delete old image
+    self.path.dirname.mkdirs()
+    self.image = img.MakeImage(self.path, self.image_locals['format'], self.zipped)
     self.image.open()
   
   def _close(self):
@@ -142,7 +133,7 @@ class ImageModifyMixin(RepoMixin):
   
   def _modify(self):
     # sync image to input store
-    self.sync_input(what=['ImageModifyMixin', '%s-input-files' % self.name])
+    self.io.sync_input(what=['ImageModifyMixin', '%s-input-files' % self.name])
     
     # modify image
     self.log(1, L1("modifying %s" % self.name))
@@ -155,7 +146,7 @@ class ImageModifyMixin(RepoMixin):
       raise OutputInvalidError("output files are invalid")
     
     # write metadata
-    self.write_metadata()
+    self.diff.write_metadata()
   
   def _generate(self):
     self.cvars['%s-changed' % self.name] = True
@@ -170,30 +161,20 @@ class ImageModifyMixin(RepoMixin):
   def _write_directory(self, dir, dest='/'):
     self.image.write([ file for file in dir.listdir() ], dest)
   
-  def _getpath(self):
-    FILE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
-    return self.SOFTWARE_STORE / \
-           locals_printf(FILE.get('path'), self.cvars['base-vars']) / \
-           self.name
-  
-  def _iszipped(self):
-    IMAGE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
-    return IMAGE.get('zipped/text()', 'False') in BOOLEANS_TRUE
-  
-  def _isvirtual(self):
-    IMAGE = self.i_locals.get('//images/image[@id="%s"]' % self.name)
-    return IMAGE.get('@virtual', 'True') in BOOLEANS_TRUE
+  path    = property(lambda self: self.SOFTWARE_STORE / \
+                                  self.image_locals['path'] % \
+                                  self.cvars['base-vars'])
+  zipped  = property(lambda self: self.image_locals.get('zipped', False))
+  virtual = property(lambda self: self.image_locals.get('virtual', False))
   
   def _validate_image(self):
-    p = self._getpath()
-    if not p.exists():
+    if not self.path.exists():
       return False
     else:
-      if self._iszipped():
-        return magic_match(p) == FILE_TYPE_GZIP
+      if self.zipped:
+        return magic_match(self.path) == FILE_TYPE_GZIP
       else:
-        format = self.l_image.get('format/text()')
-        return magic_match(p) == MAGIC_MAP[format]
+        return magic_match(self.path) == MAGIC_MAP[self.image_locals['format']]
 
 
 class FileDownloadMixin(RepoMixin):
@@ -204,26 +185,23 @@ class FileDownloadMixin(RepoMixin):
   This class should be used to download files besides the images.
   """  
   def __init__(self, repoid):
-    self.f_locals = None
+    self.file_locals = None
     
     self.repoid = repoid
-    
-  def _register_file_locals(self, locals):
-    self.f_locals = locals_imerge(locals, self.cvars['anaconda-version'])
+  
+  def setup(self):
     paths = []
-    for file in self.f_locals.xpath('//files/file'):
-      filename = file.attrib['id']
-      if file.attrib.get('virtual', 'False') in BOOLEANS_TRUE:
-        continue # skip virtual files      
+    for data in self.file_locals.values():
+      if data.get('virtual', False): continue # skip virtual files      
       
-      rinfix = locals_printf(file.get('path'), self.cvars['source-vars'])
-      linfix = locals_printf(file.get('path'), self.cvars['base-vars'])
-      self.setup_sync(
-        self.SOFTWARE_STORE/linfix, id='FileDownloadMixin',
-        paths=[self.getRepo(self.repoid).rjoin(rinfix, filename)])
+      rinfix = data['path'] % self.cvars['source-vars']
+      linfix = data['path'] % self.cvars['base-vars']
+      self.io.setup_sync(
+        (self.SOFTWARE_STORE/linfix).dirname, id='FileDownloadMixin',
+        paths=[self.getRepo(self.repoid).rjoin(rinfix)])
   
   def _download(self):
-    self.sync_input(what='FileDownloadMixin')
+    self.io.sync_input(what='FileDownloadMixin')
     
 class RpmNotFoundError(Exception): pass
 class OutputInvalidError(Exception): pass
