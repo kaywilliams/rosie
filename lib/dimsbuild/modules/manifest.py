@@ -11,8 +11,8 @@ class ManifestEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'manifest',
-      provides = ['manifest-changed'],
       requires = ['composed-tree'],
+      provides = ['manifest-file'],
       comes_after = ['MAIN'],
     )
     
@@ -57,12 +57,11 @@ class ManifestEvent(Event):
     for line in manifest:
       mwriter.writerow(line)
     mf.close()
-    
-    # set global variable
-    self.cvars['manifest-changed'] = True
-    
+   
     # update metadata
     self.write_metadata()
 
+def apply(self):
+    self.cvars['manifest-file'] = self.mfile
 
 EVENTS = {'ALL': [ManifestEvent]}

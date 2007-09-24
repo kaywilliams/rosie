@@ -123,7 +123,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     Event.__init__(self,
       id = 'iso',
       requires = ['anaconda-version', 'pkgorder-file', 'composed-tree'],
-      conditionally_requires = ['manifest-changed', 'sources-enabled', 'srpms'],
+      conditionally_requires = ['manifest-file', 'sources-enabled', 'srpms'],
     )
     ListCompareMixin.__init__(self)
     
