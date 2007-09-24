@@ -31,10 +31,9 @@ class DefaultThemeRpmEvent(RpmBuildEvent):
 
   def run(self):
     self.remove_output(all=True)
-    if not self._test_build('False'):
-      return
-    self._build_rpm()
-    self._add_output()    
+    if self._test_build('False'):
+      self._build_rpm()
+      self._add_output()    
     self.write_metadata()    
   
   def apply(self):
