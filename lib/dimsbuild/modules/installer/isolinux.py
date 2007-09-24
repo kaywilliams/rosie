@@ -6,7 +6,6 @@ from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
 from dimsbuild.modules.installer.lib import FileDownloadMixin, ImageModifyMixin
-from dimsbuild.modules.installer.loc import L_ISOLINUX_FILES, L_INITRD_IMAGE
 
 API_VERSION = 5.0
 
