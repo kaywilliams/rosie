@@ -150,7 +150,7 @@ class PkglistEvent(Event, RepoMixin):
     self.dsdir.rm(recursive=True, force=True)
 
 
-EVENTS = {'MAIN': [PkglistEvent]}
+EVENTS = {'SOFTWARE': [PkglistEvent]}
 
 #------ ERRORS ------#
 class DepSolveError(StandardError): pass

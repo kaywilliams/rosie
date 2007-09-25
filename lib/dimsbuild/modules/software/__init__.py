@@ -9,13 +9,16 @@ class SoftwareMetaEvent(Event):
     Event.__init__(self,
       id = 'SOFTWARE',
       properties = PROPERTY_META,
+      provides = ['os-content'],
     )
 
 MODULES = [
+  'comps',
+  'pkglist',
   'download',
   'gpgcheck',
   'gpgsign',
   'createrepo',
 ]
 
-EVENTS = {'MAIN': [SoftwareMetaEvent]}
+EVENTS = {'OS': [SoftwareMetaEvent]}

@@ -108,7 +108,7 @@ class Build:
     
     ### clean up previous builds
     ##Event.logger.log(2, "Cleaning up previous builds")
-    ##Event.DISTRO_DIR.rm(recursive=True, force=True)
+    ##Event.METADATA_DIR.rm(recursive=True, force=True)
     
     # load all enabled modules, register events, set up dispatcher
     loader = dispatch.Loader(top = AllEvent(), api_ver = API_VERSION)
@@ -236,8 +236,7 @@ class Build:
     Event.CACHE_DIR      = P(mainconfig.get('/dimsbuild/cache/path/text()',
                                             '/var/cache/dimsbuild'))
     Event.TEMP_DIR       = P('/tmp/dimsbuild')
-    Event.DISTRO_DIR     = Event.CACHE_DIR  / base_vars['pva']
-    Event.METADATA_DIR   = Event.DISTRO_DIR / 'builddata'
+    Event.METADATA_DIR    = Event.CACHE_DIR  / base_vars['pva']
     
     if options.sharepath:
       Event.SHARE_DIR = P(options.sharepath).abspath()
@@ -256,7 +255,7 @@ class Build:
     Event.copy_handler = sync.CopyHandler()
     Event.link_handler = link.LinkHandler()
     
-    Event.files_callback = FilesCallback(Event.logger, Event.DISTRO_DIR)
+    Event.files_callback = FilesCallback(Event.logger, Event.METADATA_DIR)
     
     Event.mcvalidator = MainConfigValidator(Event.SHARE_DIR/'schemas',
                                             Event.mainconfig)

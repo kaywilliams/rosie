@@ -22,4 +22,4 @@ MODULES = [
   'release',
 ]
 
-EVENTS = {'MAIN': [RpmsEvent]}
+EVENTS = {'ALL': [RpmsEvent]}

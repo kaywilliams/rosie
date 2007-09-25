@@ -21,6 +21,7 @@ class RepoFileEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'repo-file',
+      provides = ['release-rpm-contents'],
       conditionally_requires = ['gpgsign-public-key'],
     )
   
@@ -97,17 +98,18 @@ class PublishEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish',
-      requires = ['composed-tree'],
-      comes_after = ['MAIN', 'ISO'],
+      requires = ['publish-content'],
     )
     
+    self.cvars['publish-content'] = set()
+
     self.PUBLISH_DIR = \
       P(self.config.get('/distro/publish/local-webroot/text()', '/var/www/html')) / \
         self.config.get('/distro/publish/path-prefix/text()', 'distros') / \
         self.pva
     
     self.DATA =  {
-      'variables': ['PUBLISH_DIR'],
+      'variables': ['PUBLISH_DIR', 'cvars[\'publish-content\']'],
       'input':     [],
       'output':    [],
     }
@@ -117,7 +119,7 @@ class PublishEvent(Event):
   
   def setup(self):
     self.diff.setup(self.DATA)
-    for dir in self.cvars['composed-tree'].listdir():
+    for dir in self.cvars['publish-content']:
       self.io.setup_sync(self.PUBLISH_DIR, paths=[dir])
     
     self._backup_relpath = self.files_callback.relpath
@@ -137,4 +139,4 @@ class PublishEvent(Event):
     self.files_callback.relpath = self._backup_relpath
     del(self._backup_relpath)
 
-EVENTS = {'ALL': [PublishEvent], 'MAIN': [RepoFileEvent]}
+EVENTS = {'ALL': [PublishEvent], 'RPMS': [RepoFileEvent]}

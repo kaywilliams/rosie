@@ -14,6 +14,7 @@ class FilesEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'files',
+      provides = ['os-contents'],
     )
     
     self.DATA =  {
@@ -39,4 +40,4 @@ class FilesEvent(Event):
     
     self.diff.write_metadata()
 
-EVENTS = {'MAIN': [FilesEvent]}
+EVENTS = {'OS': [FilesEvent]}

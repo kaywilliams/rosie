@@ -130,4 +130,4 @@ class GPGSignEvent(Event, GpgMixin):
   def error(self, e):
     self.clean()
 
-EVENTS = {'MAIN': [GpgSetupEvent], 'SOFTWARE': [GPGSignEvent]}
+EVENTS = {'SETUP': [GpgSetupEvent], 'SOFTWARE': [GPGSignEvent]}

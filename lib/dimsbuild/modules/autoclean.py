@@ -11,7 +11,7 @@ class AutocleanEvent(Event):
     Event.__init__(self,
       id = 'autoclean',
       comes_after = ['init'],
-      comes_before = ['MAIN'],
+      comes_before = ['SETUP'],
     )
     
     self.DATA = {'events': {}}

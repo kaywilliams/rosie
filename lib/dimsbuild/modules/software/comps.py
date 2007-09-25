@@ -309,7 +309,7 @@ def Category(name, fullname='', version='0'):
 Element  = xmltree.Element  
 uElement = xmltree.uElement
 
-EVENTS = {'MAIN': [CompsEvent]}
+EVENTS = {'SOFTWARE': [CompsEvent]}
 
 #------ ERRORS ------#
 class CompsError(StandardError): pass

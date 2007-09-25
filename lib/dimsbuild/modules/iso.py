@@ -32,7 +32,6 @@ class IsoMetaEvent(Event):
       id = 'ISO',
       properties = PROPERTY_META,
       provides = ['iso-enabled'],
-      comes_after = ['MAIN'],
     )
     
     self.cvars['iso-enabled'] = self.config.pathexists('/distro/iso') and \
@@ -44,7 +43,7 @@ class PkgorderEvent(Event):
     Event.__init__(self,
       id = 'pkgorder',
       provides = ['pkgorder-file'],
-      requires = ['repodata-directory', 'composed-tree'],
+      requires = ['repodata-directory', 'os-dir'],
     )
     
     self.DATA =  {
@@ -93,7 +92,7 @@ class PkgorderEvent(Event):
       # create yum config needed by pkgorder
       cfg = self.TEMP_DIR/'pkgorder'
       repoid = self.pva
-      filereader.write([YUMCONF % (self.pva, self.pva, self.DISTRO_DIR/'output/os')], cfg)
+      filereader.write([YUMCONF % (self.pva, self.pva, self.cvars['os-dir'])], cfg)
       
       # create pkgorder
       pkgtups = pkgorder.order(config=cfg,
@@ -121,8 +120,9 @@ class IsoSetsEvent(Event, ListCompareMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'iso',
-      requires = ['anaconda-version', 'pkgorder-file', 'composed-tree'],
-      conditionally_requires = ['manifest-file', 'sources-enabled', 'srpms'],
+      provides = ['iso-dir', 'publish-content'],
+      requires = ['anaconda-version', 'pkgorder-file', 'os-dir'],
+      conditionally_requires = ['manifest-file', 'sources-enabled', 'srpms-dir'],
     )
     ListCompareMixin.__init__(self)
     
@@ -138,8 +138,6 @@ class IsoSetsEvent(Event, ListCompareMixin):
       'output':    [],
     }
     
-    self.output_dir = self.DISTRO_DIR/'output'
-
   def validate(self):
     self.validator.validate('/distro/iso', 'iso.rng')
   
@@ -156,6 +154,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     self.DATA['input'].append(self.cvars['pkgorder-file'])
   
   def run(self):
+    self.log(0, L0("running %s event" % self.id))
     # changing from iso-enabled true, cleanup old files and metadata
     if self.diff.var_changed_from_value('cvars[\'iso-enabled\']', True):
       self.clean()
@@ -195,8 +194,10 @@ class IsoSetsEvent(Event, ListCompareMixin):
     self.diff.write_metadata()
   
   def apply(self):
-    # copy iso sets into composed tree
-    self.isodir.cp(self.output_dir, recursive=True, link=True)
+    if self.cvars['iso-enabled']:
+      self.cvars['iso-dir'] = self.isodir
+      try: self.cvars['publish-content'].add(self.isodir)
+      except: pass
   
   def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
@@ -216,8 +217,8 @@ class IsoSetsEvent(Event, ListCompareMixin):
     
     splitter = splittree.Timber(set, dosrc=self.cvars['sources-enabled'])
     splitter.product = self.product
-    splitter.u_tree     = self.output_dir/'os'
-    splitter.u_src_tree = self.output_dir/'SRPMS'
+    splitter.u_tree     = self.cvars['os-dir']
+    splitter.u_src_tree = self.cvars['srpms-dir']
     splitter.s_tree     = self.splittrees/set
     splitter.difmt = self.locals.discinfo_fmt
     splitter.pkgorder = self.cvars['pkgorder-file']

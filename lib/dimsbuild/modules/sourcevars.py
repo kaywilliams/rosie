@@ -70,4 +70,4 @@ class SourceVarsEvent(Event, RepoMixin): #!
     # update source_vars
     self.cvars['source-vars'] = sourcevars
 
-EVENTS = {'MAIN': [SourceVarsEvent]}
+EVENTS = {'SETUP': [SourceVarsEvent]}

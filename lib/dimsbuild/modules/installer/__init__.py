@@ -9,9 +9,10 @@ class InstallerEvent(Event):
     Event.__init__(self,
       id = 'INSTALLER',
       properties = PROPERTY_META,
+      provides = ['os-content'],
     )
   
-EVENTS = {'MAIN': [InstallerEvent]}
+EVENTS = {'OS': [InstallerEvent]}
 
 MODULES = [
   'bootiso',

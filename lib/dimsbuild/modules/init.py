@@ -24,13 +24,14 @@ class InitEvent(Event):
         self.log(2, L2("Making directory '%s'" % folder))
         folder.mkdirs()
 
-class MainEvent(Event):
+class SetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'MAIN',
+      id = 'SETUP',
       properties = PROPERTY_META,
       comes_after = ['init'],
-      conditionally_comes_after = ['validate', 'clean'],
+      conditionally_comes_after = ['validate', 'autoclean'],
     )
 
-EVENTS = {'ALL': [InitEvent, MainEvent]}
+
+EVENTS = {'ALL': [InitEvent, SetupEvent]}

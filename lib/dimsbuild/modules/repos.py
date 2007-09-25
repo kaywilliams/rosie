@@ -87,7 +87,7 @@ class ReposEvent(Event, RepoMixin):
 
     self.cvars['repos'] = self.repos 
 
-EVENTS = {'MAIN': [ReposEvent]}
+EVENTS = {'SETUP': [ReposEvent]}
 
 
 #------ HELPER FUNCTIONS ------#

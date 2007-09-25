@@ -30,7 +30,7 @@ class SourceReposEvent(Event):
   def __init__(self):    
     Event.__init__(self,
                    id='source-repos',
-                   provides=['sources-enabled', 'source-repos'])
+                   provides=['sources-enabled', 'source-repos',])
     self.DATA = {
       'variables': ['cvars[\'sources-enabled\']'],
       'input':  [],
@@ -112,7 +112,7 @@ class SourcesEvent(Event):
   def __init__(self):
     Event.__init__(self,
                    id='sources',
-                   provides=['srpms'],
+                   provides=['srpms', 'srpms-dir', 'publish-content'],
                    requires=['rpms', 'source-repos'])
 
     self.srpmdest = self.OUTPUT_DIR / 'SRPMS'
@@ -178,6 +178,9 @@ class SourcesEvent(Event):
   def apply(self):
     if self.cvars['sources-enabled']:
       self.cvars['srpms'] = self.io.list_output(what='srpms')
+      self.cvars['srpms-dir'] = self.srpmdest
+      try: self.cvars['publish-content'].add(self.srpmdest)
+      except: pass
    
   def _deformat(self, srpm):
     try:
@@ -195,4 +198,4 @@ class SourcesEvent(Event):
     os.chdir(pwd)
 
 
-EVENTS = {'MAIN': [SourceReposEvent, SourcesEvent]}
+EVENTS = {'SETUP': [SourceReposEvent], 'ALL': [SourcesEvent]}
