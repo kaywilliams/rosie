@@ -47,6 +47,7 @@ class GPGCheckEvent(Event, RepoMixin):
       self.diff.write_metadata()
       return
     
+    self.DATA['output'].append(homedir)
     self.io.remove_output() # remove changed keys from builddata
     newkeys = self.io.sync_input() # sync new keys
     
@@ -79,7 +80,6 @@ class GPGCheckEvent(Event, RepoMixin):
         raise RpmSignatureInvalidError("One or more RPMS failed "\
                                      "GPG key checking: %s" % invalids)
     
-    self.DATA['output'].append(homedir)
     self.diff.write_metadata()
 
 EVENTS = {'SOFTWARE': [GPGCheckEvent]}
