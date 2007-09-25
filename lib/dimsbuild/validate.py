@@ -23,22 +23,18 @@ class ValidateMixin:
       try:
         schema = etree.RelaxNG(etree.ElementTree(etree.fromstring(schemacontents)))
       except etree.RelaxNGParseError, e:
-        print e.error_log.last_error
-        why = e.error_log.last_error.message
         if schemafile is not None:
-          raise InvalidSchemaError("%s: %s" %(schemafile, why))
+          raise InvalidSchemaError(schemafile, e.error_log)
         else:
-          raise InvalidSchemaError(why)
+          raise InvalidSchemaError('<string>', e.error_log)
       
       doc = self.getXmlSection(xpath_query)
       if not schema.validate(doc):
-        why = schema.error_log.last_error.message
         if schemafile is not None:
-          self.raiseInvalidConfig("validation of %s against the %s failed: %s"
-                                  % (self.config.file, schemafile, why))
+          raise InvalidConfigError(self.config.file, schema.error_log, schemafile)
         else:
-          self.raiseInvalidConfig("validation of failed: %s" \
-                                  %(self.config.file, why))
+          raise InvalidConfigError(self.config.file, schema.error_log)
+    
     finally:
       os.chdir(cwd)
   
@@ -48,9 +44,6 @@ class ValidateMixin:
       return '\n'.join(filereader.read(schema))
     else:
       raise IOError("missing schema file '%s' at '%s'" % (filename, schema.dirname))
-  
-  def raiseInvalidConfig(self, message):
-    raise InvalidConfigError(message)
   
   def _strip_macro_elements(self, tree):
     for macro in tree.xpath('//macro', []):
@@ -107,6 +100,21 @@ class ConfigValidator(ValidateMixin):
         self.elogger.log(2, "WARNING: unknown element '%s' found in distro.conf" % child.tag)
 
 #------ ERRORS ------#
-class InvalidConfigError(StandardError): pass 
-class InvalidSchemaError(StandardError): pass
-
+class InvalidXmlError(StandardError):
+  def __str__(self):
+    msg = ''
+    for err in self.args[1]: # relaxNG error log object
+      msg += '  line %d: %s\n' % (err.line, err.message)
+    return msg
+class InvalidConfigError(InvalidXmlError):
+  def __str__(self):
+    if len(self.args) == 3:
+      return 'Validation of "%s" against "%s" failed:\n' % \
+        (self.args[0], self.args[2]) + InvalidXmlError.__str__(self)
+    else:
+      return 'Validation of "%s" failed:\n' % self.args[0] + \
+        InvalidXmlError.__str__(self)
+class InvalidSchemaError(InvalidXmlError):
+  def __str__(self):
+    return 'Error parsing schema file "%s":\n' % self.args[0] + \
+      InvalidXmlError.__str__(self)
