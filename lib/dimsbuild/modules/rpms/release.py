@@ -40,10 +40,11 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
     }
 
     data = {
-      'config':    ['/distro/rpms/release-rpm'],
+      'config':    ['/distro/rpms/release-rpm',
+                    '/distro/repos'],
       'variables': ['fullname',
                     'product',
-                    'cvars[\'gpgsign-public-key\']'],
+                    'cvars[\'web-path\']',],
       'input':     [],
       'output':    [],
     }
@@ -59,7 +60,7 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
                            id='release-rpm',
                            requires=['source-vars', 'input-repos'],
                            conditionally_requires=['gpgsign-public-key',
-                                                   'release-rpm-contents'],)
+                                                   'web-path'],)
 
   def validate(self):
     self.validator.validate('/distro/rpms/release-rpm', 'release-rpm.rng')
@@ -151,5 +152,31 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
     filereader.write(release_string+issue_string, dest/'issue')
     filereader.write(release_string+issue_string, dest/'issue.net')
 
+  def _generate_repo_files(self, dest):
+    dest.mkdirs() 
+    self.repofile    = dest/'%s.repo' % self.product
+    self.extra_repofile = dest/'extra.repo'    
+    
+    path = self.cvars['web-path'] / 'os'
+    
+    lines = [ '[%s]' % self.product,
+              'name=%s - %s' % (self.fullname, self.basearch),
+              'baseurl=%s'   % path ]
+    
+    if self.cvars['gpgsign-public-key']:
+      gpgkey = '%s/%s' % (path, P(self.cvars['gpgsign-public-key']).basename)
+      lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
+    else:
+      lines.append('gpgcheck=0')
+    
+    filereader.write(lines, self.repofile)
+    
+    # include source repos too, if requested
+    if self.config.get('/distro/release-rpm/yum-repos/@include-input',
+                       'False') in BOOLEANS_TRUE:
+      rc = YumRepoCreator(self.extra_repofile,
+                          self.config.file,
+                          '/distro/repos')
+      rc.createRepoFile()
 
 EVENTS = {'RPMS': [ReleaseRpmEvent]}

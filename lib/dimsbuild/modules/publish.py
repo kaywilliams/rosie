@@ -17,74 +17,27 @@ P = pps.Path
 API_VERSION = 5.0
 
 
-class RepoFileEvent(Event):
+class PublishSetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'repo-file',
-      provides = ['release-rpm-contents'],
-      conditionally_requires = ['gpgsign-public-key'],
+      id = 'publish-setup',
+      provides = ['web-path', 'publish-path', 'publish-content'],
     )
-  
-    self.repodir = self.METADATA_DIR/'rpms-src/release-rpm/etc/yum.repos.d'
-    self.repofile    = self.repodir/'%s.repo' % self.product
-    self.srcrepofile = self.repodir/'source.repo'
-    
-    self.DATA =  {
-      'config':    ['/distro/publish'],
-      'variables': ['cvars[\'gpgsign-public-key\']',
-                    'product'],
-      'output':    [self.repofile]
-    }
 
-  def setup(self):
-    self.diff.setup(self.DATA)
-  
-  def clean(self):
-    self.repofile.rm(force=True)
-    self.srcrepofile.rm(force=True)
-    self.diff.clean_metadata()
-  
-  def run(self):
-    # if we're not enabled, clean up and return immediately
-    if self.config.get('/distro/publish/repofile/@enabled',
-                       'True') not in BOOLEANS_TRUE:
-      self.clean()
-      return
-    
-    self.log(0, L0("generating yum repo file"))
-    
-    self.repofile.dirname.mkdirs()
-    
-    authority = self.config.get('/distro/publish/remote-webroot/text()', None) or \
-                'http://' + self._getIpAddress()
-    path = P(self.config.get('/distro/publish/path-prefix/text()', 'distros')) / \
-             self.pva/'os'
-    
-    lines = [ '[%s]' % self.product,
-              'name=%s - %s' % (self.fullname, self.basearch),
-              'baseurl=%s/%s' % (authority, path) ]
-    
-    if self.cvars['gpgsign-public-key']:
-      gpgkey = '%s/%s/%s' % (authority,
-                             path,
-                             P(self.cvars['gpgsign-public-key']).basename)
-      lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
-    else:
-      lines.append('gpgcheck=0')
-    
-    filereader.write(lines, self.repofile)
-    
-    # include source repos too, if requested
-    if self.config.get('/distro/publish/repofile/@include-input',
-                       'False') in BOOLEANS_TRUE:
-      self.DATA['output'].append(self.srcrepofile)
-      
-      rc = YumRepoCreator(self.srcrepofile,
-                          self.config.file,
-                          '/distro/repos')
-      rc.createRepoFile()
-    
-    self.diff.write_metadata()
+  def validate(self):
+    self.validator.validate('/distro/publish', 'publish.rng')
+
+  def apply(self):
+    self.cvars['publish-content'] = set()
+    prefix = \
+      P(self.config.get('/distro/publish/path-prefix/text()', 'distros')) / \
+        self.pva
+    self.cvars['web-path'] = \
+      P(self.config.get('/distro/publish/remote-webroot/text()', None) or \
+       'http://' + self._getIpAddress()) / prefix
+    self.cvars['publish-path'] = \
+      P(self.config.get('/distro/publish/local-webroot/text()', '/var/www/html')) / \
+        prefix
 
   def _getIpAddress(self, ifname='eth0'):
     # TODO - improve this, its not particularly accurate in some cases
@@ -98,40 +51,32 @@ class PublishEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish',
-      requires = ['publish-content'],
+      requires = ['publish-path', 'publish-content'],
     )
     
-    self.cvars['publish-content'] = set()
-
-    self.PUBLISH_DIR = \
-      P(self.config.get('/distro/publish/local-webroot/text()', '/var/www/html')) / \
-        self.config.get('/distro/publish/path-prefix/text()', 'distros') / \
-        self.pva
-    
     self.DATA =  {
-      'variables': ['PUBLISH_DIR', 'cvars[\'publish-content\']'],
+      'variables': ['cvars[\'publish-path\']', 
+                    'cvars[\'publish-content\']'],
       'input':     [],
       'output':    [],
     }
-
-  def validate(self):
-    self.validator.validate('/distro/publish', 'publish.rng')
-  
+ 
   def setup(self):
     self.diff.setup(self.DATA)
     for dir in self.cvars['publish-content']:
-      self.io.setup_sync(self.PUBLISH_DIR, paths=[dir])
+      self.io.setup_sync(self.cvars['publish-path'], paths=[dir])
     
     self._backup_relpath = self.files_callback.relpath
-    self.files_callback.relpath = self.PUBLISH_DIR
+    self.files_callback.relpath = self.cvars['publish-path']
   
   def run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
     self.log(0, L0("publishing output store"))
     self.io.remove_output()
-    self.PUBLISH_DIR.rm(recursive=True, force=True)
+    self.cvars['publish-path'].rm(recursive=True, force=True)
     self.io.sync_input(copy=True, link=True)
-    shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' % self.PUBLISH_DIR)
+    shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' \
+                   % self.cvars['publish-path'])
     
     self.diff.write_metadata()
   
@@ -139,4 +84,4 @@ class PublishEvent(Event):
     self.files_callback.relpath = self._backup_relpath
     del(self._backup_relpath)
 
-EVENTS = {'ALL': [PublishEvent], 'RPMS': [RepoFileEvent]}
+EVENTS = {'ALL': [PublishEvent], 'SETUP':[PublishSetupEvent],}
