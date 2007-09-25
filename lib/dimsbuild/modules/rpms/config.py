@@ -36,9 +36,6 @@ class ConfigRpmEvent(RpmBuildEvent):
         
   def validate(self):
     self.validator.validate('/distro/rpms/config-rpm', 'config-rpm.rng')
-    
-  def check(self):
-    return self.diff.test_diffs(debug=True)
 
   def run(self):
     self.io.remove_output(all=True)
