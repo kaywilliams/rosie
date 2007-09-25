@@ -27,15 +27,15 @@ class GpgSetupEvent(Event):
       self.config.pathexists('/distro/gpgsign') and \
       self.config.get('/distro/gpgsign/@enabled', 'True') in BOOLEANS_TRUE
 
-    self.cvars['gpgsign-public-key'] = \
+    pubkey = \
       self.config.get('/distro/gpgsign/gpg-public-key/text()', None)
-    if self.cvars['gpgsign-public-key']:
-      P(self.cvars['gpgsign-public-key'])
+    if pubkey is not None:
+      self.cvars['gpgsign-public-key'] = P(pubkey)
 
-    self.cvars['gpgsign-secret-key'] = \
+    seckey = \
       self.config.get('/distro/gpgsign/gpg-secret-key/text()', None)
-    if self.cvars['gpgsign-secret-key']:
-      P(self.cvars['gpgsign-secret-key'])
+    if seckey is not None:
+      self.cvars['gpgsign-secret-key'] = P(seckey)
 
     self.cvars['gpgsign-passphrase'] = \
       self.config.get('/distro/gpgsign/gpg-passphrase/text()', None)
@@ -70,7 +70,7 @@ class GPGSignEvent(Event, GpgMixin):
     self.io.setup_sync(self.mddir/'rpms', paths=self.cvars['input-rpms'], id='rpms')
   
   def run(self):
-    self.log(0, L0("running gpgsign"))
+    self.log(0, L0("running %s event" % self.id))
     
     # changing from gpgsign-enabled true, cleanup old files and metadata
     if self.diff.var_changed_from_value('gpgsign_enabled', True):
@@ -96,7 +96,7 @@ class GPGSignEvent(Event, GpgMixin):
       gnupg_dir.mkdirs()
       self.import_key(gnupg_dir, pubkey)
       self.import_key(gnupg_dir, seckey)
-      self.DATA['output'].append(gnupg_dir)
+    self.DATA['output'].append(gnupg_dir)
     
     # don't leave secret key lying around
     seckey.remove()
