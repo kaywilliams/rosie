@@ -126,9 +126,9 @@ class RpmBuildEvent(Event):
     if self.release == '0' or  \
        not self.autofile.exists() or \
        not self.mdfile.exists() or \
-       self.has_changed('input') or \
-       self.has_changed('variables') or \
-       self.has_changed('config'):
+       self.diff.has_changed('input') or \
+       self.diff.has_changed('variables') or \
+       self.diff.has_changed('config'):
       self.release = str(int(self.release)+1)
 
   def _test_build(self, default):
