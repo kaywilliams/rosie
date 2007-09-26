@@ -22,7 +22,7 @@ class GPGCheckEvent(Event, RepoMixin):
   def setup(self):
     self.diff.setup(self.DATA)
     
-    self.keys = []     # gpgcheck keys to download
+    self.keys = []      # gpgcheck keys to download
     self.checks = set() # rpms to check
     
     cached = {} # dictionary cached rpms by basename, fullname
@@ -69,7 +69,7 @@ class GPGCheckEvent(Event, RepoMixin):
       self.log(1, L1("checking rpms"))
       for rpm in newchecks:
         try:
-          self.logger.write(2, L2(rpm.basename), 40)
+          self.logger.write(2, L2(rpm.basename+' '), 70)
           mkrpm.VerifyRpm(rpm, homedir=homedir, force=True)
           self.log(2, "OK")
         except mkrpm.RpmSignatureInvalidError:
@@ -77,8 +77,8 @@ class GPGCheckEvent(Event, RepoMixin):
           invalids.append(rpm.basename)
       
       if invalids:
-        raise RpmSignatureInvalidError("One or more RPMS failed "\
-                                     "GPG key checking: %s" % invalids)
+        raise RpmSignatureInvalidError("One or more RPMS failed "
+                                       "GPG key checking: %s" % invalids)
     
     self.diff.write_metadata()
 

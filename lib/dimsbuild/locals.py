@@ -296,7 +296,7 @@ RELEASE_HTML = LocalsDict({
 
 GDM_GREETER_THEME = LocalsDict({
   '0': ''' 
-# This is not really a .desktop file like the rest, but it\'s useful to treat
+# This is not really a .desktop file like the rest, but it's useful to treat
 # it as such
 [GdmGreeterTheme]
 Encoding=UTF-8
@@ -305,7 +305,7 @@ Name=%(fullname)s Theme
 Description=%(fullname)s Theme
 Author=dimsbuild
 Screenshot=background.png
-'''  
+'''
 })
 
 LOGOS_RPM = LocalsDict({

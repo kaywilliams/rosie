@@ -2,7 +2,6 @@ from dims import xmltree
 
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0, L2, L3
-from dimsbuild.main    import apply_flowcontrol #!
 
 API_VERSION = 5.0
 
@@ -19,7 +18,7 @@ class AutocleanEvent(Event):
   
   def setup(self):
     for event in self._getroot():
-      self.eventinfo[event.id] = event.id
+      self.eventinfo[event.id] = event
       self.DATA['events'].update({event.id: str(event.event_version)})
     
     self.diff.setup(self.DATA)
@@ -37,7 +36,7 @@ class AutocleanEvent(Event):
     # run list through a whitelist; this will go away once we get rid of
     # event shared locations (if we do so)
     # regardless, images-src/rpms-src are definitely going to go
-    for id in ['localrepo', 'repos', 'images-src', 'rpms-src']:
+    for id in ['images-src', 'rpms-src']:
       try:
         mdfolders.remove(self.METADATA_DIR/id)
       except:
@@ -49,12 +48,11 @@ class AutocleanEvent(Event):
   
   def run(self):
     self.log(0, L0("processing autoclean"))
-    for event in self.diff.handlers['events'].diffdict.keys():
-      prevver, currver = self.diff.handlers['events'].diffdict[event]
+    for eventid in self.diff.handlers['events'].diffdict.keys():
+      prevver, currver = self.diff.handlers['events'].diffdict[eventid]
       if prevver and currver:
-        self.log(2, L2("forcing --clean on %s" % self.eventinfo[event]))
-        #! the following is currently illegal
-        apply_flowcontrol(self._getroot().get(self.eventinfo[event]), True)
+        self.log(2, L2("forcing --clean on '%s'" % eventid))
+        self.eventinfo[eventid].status = True
     
     self.diff.write_metadata()
     

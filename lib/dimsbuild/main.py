@@ -26,9 +26,10 @@ from dimsbuild.callback  import BuildSyncCallback, FilesCallback
 from dimsbuild.constants import *
 from dimsbuild.event     import Event
 from dimsbuild.logging   import BuildLogger, L0, L1, L2
-from dimsbuild.validate  import ConfigValidator, MainConfigValidator
+from dimsbuild.validate  import (ConfigValidator, MainConfigValidator,
+                                 InvalidConfigError, InvalidSchemaError)
 
-P = pps.Path # convenience
+P = pps.Path # convenience, same is used throughout most modules
 
 # RPMS we need to check for
 # createrepo
@@ -39,7 +40,7 @@ P = pps.Path # convenience
 
 API_VERSION = 5.0
 
-class Build:
+class Build(object):
   """ 
   Primary build class - framework upon which DiMS building is performed
   
@@ -79,17 +80,99 @@ class Build:
     """
     
     # set up import_dirs
+    import_dirs = self._compute_import_dirs(mainconfig, options)
+    
+    # set up list of disabled modules
+    disabled_modules = self._compute_disabled_modules(mainconfig, distroconfig, options)
+    
+    # set up event superclass so that it contains good default values
+    self._seed_event_defaults(options, mainconfig, distroconfig)
+    
+    # load all enabled modules, register events, set up dispatcher
+    loader = dispatch.Loader(top = AllEvent(), api_ver = API_VERSION)
+    loader.ignore = disabled_modules
+    try:
+      self.dispatch = dispatch.Dispatch(
+                        loader.load(import_dirs, prefix='dimsbuild/modules')
+                      )
+    except ImportError, e:
+      Event.errlogger.log(0, L0("Error loading core dimsbuild file: %s" % e))
+      sys.exit(1)
+    
+    # allow events to add their command-line options to the parser
+    for e in self.dispatch: e._add_cli(parser)
+    
+  def apply_options(self, options):
+    "Allow events to apply option results to themselves"
+    # apply --force to events
+    for eventid in options.force_events:
+      e = self.dispatch.get(eventid)
+      if e.test(dispatch.PROPERTY_PROTECTED):
+        Event.errlogger.log(0, L0("Cannot --force protected event '%s'" % eventid))
+        sys.exit(1)
+      e.status = True
+    # apply --skip to events
+    for eventid in options.skip_events:
+      e = self.dispatch.get(eventid)
+      if e.test(dispatch.PROPERTY_PROTECTED):
+        Event.errlogger.log(0, L0("Cannot --skip protected event '%s'" % eventid))
+        sys.exit(1)
+      e.status = False
+    
+    # clear cache, if requested
+    if options.clear_cache:
+      Event.logger.log(0, L0("clearing cache"))
+      cache_dir = P(self.core.cache_handler.cache_dir)
+      cache_dir.rm(recursive=True, force=True)
+      cache_dir.mkdirs()
+    
+    # list events, if requested
+    if options.list_events:
+      self.dispatch.pprint()
+      sys.exit()
+    
+    # perform validation, if not specified otherwise
+    if not options.no_validate:
+      try:
+        self._validate_configs()
+      except InvalidSchemaError, e:
+        Event.errlogger.log(0, L0("Schema file used in validation appears to be invalid"))
+        Event.errlogger.log(0, L0(e))
+        sys.exit(1)
+      except InvalidConfigError, e:
+        Event.errlogger.log(0, L0("Config file validation against given schema failed"))
+        Event.errlogger.log(0, L0(e))
+        sys.exit(1)
+      except Exception, e:
+        Event.errlogger.log(0, L0("Unhandled exception: %s" % e))
+        sys.exit(1)
+      if options.validate_only:
+        sys.exit()
+    
+    # apply options to individual events
+    for e in self.dispatch: e._apply_options(options)
+  
+  def main(self):
+    "Build a distribution"
+    self.dispatch.execute(until=None)
+  
+  def _compute_import_dirs(self, mainconfig, options):
+    "Compute a list of directories to try importing from"
     import_dirs = [ P(x) for x in \
-                         mainconfig.xpath('/dimsbuild/librarypaths/path/text()', [])
-                       ]
+      mainconfig.xpath('/dimsbuild/librarypaths/path/text()', []) ]
+    
     if options.libpath:
       import_dirs.insert(0, P(options.libpath)) # TODO make this a list
     for dir in sys.path:
       if dir not in import_dirs:
         import_dirs.append(P(dir))
     
-    # set up list of disabled modules
+    return import_dirs
+  
+  def _compute_disabled_modules(self, mainconfig, distroconfig, options):
+    "Compute a list of modules dimsbuild should not load"
     disabled_modules = set()
+    disabled_modules.update(options.disabled_modules)
     for k,v in eval_modlist(mainconfig.get('/dimsbuild/modules', None),
                             default=True).items():
       if v in BOOLEANS_FALSE: disabled_modules.add(k)
@@ -103,63 +186,9 @@ class Build:
       if   v in BOOLEANS_FALSE: disabled_modules.add(k)
       elif v in BOOLEANS_TRUE:  disabled_modules.discard(k)
     
-    # set up event superclass so that it contains good default values
-    self.make_event_superclass(options, mainconfig, distroconfig)
-    
-    ### clean up previous builds
-    ##Event.logger.log(2, "Cleaning up previous builds")
-    ##Event.METADATA_DIR.rm(recursive=True, force=True)
-    
-    # load all enabled modules, register events, set up dispatcher
-    loader = dispatch.Loader(top = AllEvent(), api_ver = API_VERSION)
-    loader.ignore = disabled_modules
-    self.dispatch = dispatch.Dispatch(
-                      loader.load(import_dirs, prefix='dimsbuild/modules')
-                    )
-    
-    self.dispatch.pprint() #! debug statement for now
-    self.dispatch.reset() #!
-    ##sys.exit() #!
-    
-    # get everything started
-    for e in self.dispatch: e._add_cli(parser)
-    
-    # raise init and other events prior
-    self.dispatch.execute(until='init')
+    return disabled_modules
   
-  def apply_options(self, options):
-    "Raise the 'applyopt' event, which plugins/modules can use to apply"
-    "command-line argument configuration to themselves"
-    # apply --clean to events
-    for eventid in options.clean_events:
-      e = self.dispatch.get(eventid)
-      if e.test(dispatch.PROPERTY_PROTECTED):
-        raise ValueError("Cannot --clean control-class event '%s'" % eventid)
-      apply_flowcontrol(e, True)
-    # apply --skip to events
-    for eventid in options.skip_events:
-      e = self.dispatch.get(eventid)
-      if e.test(dispatch.PROPERTY_PROTECTED):
-        raise ValueError("Cannot --skip control-class event '%s'" % eventid)
-      apply_flowcontrol(e, False)
-    
-    # clear cache, if requested
-    if options.clear_cache:
-      Event.logger.log(0, L0("clearing cache"))
-      cache_dir = P(self.core.cache_handler.cache_dir)
-      cache_dir.rm(recursive=True, force=True)
-      cache_dir.mkdirs()
-    
-    # apply options:
-    for e in self.dispatch: e._apply_options(options)
-    
-    # perform validation, if not specified otherwise
-    if not options.no_validate:
-      self.validate_configs()
-      if options.validate_only:
-        sys.exit()
-    
-  def validate_configs(self):
+  def _validate_configs(self):
     Event.logger.log(0, L0("validating config"))
     
     Event.logger.log(1, L1("dimsbuild.conf"))
@@ -173,16 +202,7 @@ class Build:
     # validate top-level elements
     Event.validator.validateElements()
   
-  def main(self):
-    "Build a distribution"
-    self.dispatch.execute(until=None)
-  
-  def get_mdlr_events(self):
-    "Return a list of the modular events in this dimsbuild instance"
-    return [ e.id for e in self.dispatch \
-             if not e.test(dispatch.PROPERTY_PROTECTED) ]
-  
-  def make_event_superclass(self, options, mainconfig, distroconfig):
+  def _seed_event_defaults(self, options, mainconfig, distroconfig):
     """ 
     Set up a bunch of variables in the Event superclass that all subclasses
     inherit automatically.
@@ -280,21 +300,6 @@ class AllEvent(Event):
 
 
 #------ UTILITY FUNCTIONS ------#
-def load_module(path):
-  "Load and return the module located at path"
-  dir = path.dirname
-  mod = path.basename.replace('.py', '')
-  try:
-    fp, path, desc = imp.find_module(mod, [dir])
-  except ImportError:
-    return # this isn't a python module, thats ok
-  try:
-    module = imp.load_module(mod, fp, path, desc)
-  except ImportError, e: # provide a more useful message
-    raise ImportError, "Could not load module '%s':\n%s" % (path, e)
-  fp and fp.close()
-  return module
-
 def eval_modlist(mods, default=None):
   "Return a dictionary of modules and their enable status, as found in the"
   "config file"
@@ -313,12 +318,3 @@ def eval_modlist(mods, default=None):
     ret[name] = enabled
   
   return ret
-
-def apply_flowcontrol(e, status):
-  e._status = status
-  
-  # apply to all children if event has the PROPERTY_META property
-  if e.test(dispatch.PROPERTY_META):
-    for child in e.get_children():
-      if not child.test(dispatch.PROPERTY_PROTECTED):
-        apply_flowcontrol(child, status)

@@ -10,6 +10,9 @@ from dimsbuild.event.diff     import DiffMixin
 from dimsbuild.event.fileio   import IOMixin
 from dimsbuild.event.locals   import LocalsMixin
 
+DEBUG = True # this should be enabled for development purposes and
+             # disabled once we go to release
+
 class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
   """ 
   The Event superclass also has quite a few attributes set up by main.py
@@ -25,7 +28,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     IOMixin.__init__(self)
     DiffMixin.__init__(self)
     LocalsMixin.__init__(self)
-  
+    
   # execution methods
   def execute(self):
     ##print 'running %s' % self.id #!
@@ -38,13 +41,15 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
           self.run()
       self.apply()
     except EventExit, e:
-      print e
+      self.log(0, e)
       sys.exit()
     except Exception, e:
       if hasattr(self, 'error'):
         self.error(e)
-      ##else:
-      traceback.print_exc(file=sys.stderr) #!
+      if self.errlogger.test(3) or DEBUG:
+        traceback.print_exc(file=self.errlogger.fo)
+      else:
+        self._log_unhandled_error()
       sys.exit(1)
   
   # override these methods to get stuff to actually happen!
@@ -104,6 +109,25 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     return dir
   SOFTWARE_STORE = property(_get_software_store)
   
+  def _log_unhandled_error(self):
+    self.errlog(0,
+      "An unhandled exception has been generated while processing the "
+      "'%s' event.  The traceback has been recorded in the log "
+      "file.  Please report this error by sending a copy of your log file, "
+      "configuration files, and any other relevant information to "
+      "contact@abodiosoftware.com." % self.id)
+  
+  status = property(lambda self: self._status,
+                    lambda self, status: self._apply_status(status))
+  
+  def _apply_status(self, status):
+    self._status = status
+    # apply to all children if even has PROPERTY_META property
+    if self.test(dispatch.PROPERTY_META):
+      for child in self.get_children():
+        if not child.test(dispatch.PROPERTY_PROTECTED):
+          child._apply_status(status)
+
 
 class RepoMixin:
   # TODO examine possiblity of defining this in SOFTWARE meta #!

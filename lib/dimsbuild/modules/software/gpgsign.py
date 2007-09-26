@@ -21,22 +21,18 @@ class GpgSetupEvent(Event):
   
   def validate(self):
     self.validator.validate('/distro/gpgsign', 'gpgsign.rng')
-
+  
   def apply(self):
     self.cvars['gpgsign-enabled'] = \
       self.config.pathexists('/distro/gpgsign') and \
       self.config.get('/distro/gpgsign/@enabled', 'True') in BOOLEANS_TRUE
-
-    pubkey = \
-      self.config.get('/distro/gpgsign/gpg-public-key/text()', None)
-    if pubkey is not None:
-      self.cvars['gpgsign-public-key'] = P(pubkey)
-
-    seckey = \
-      self.config.get('/distro/gpgsign/gpg-secret-key/text()', None)
-    if seckey is not None:
-      self.cvars['gpgsign-secret-key'] = P(seckey)
-
+    
+    pubkey = self.config.get('/distro/gpgsign/gpg-public-key/text()', None)
+    if pubkey: self.cvars['gpgsign-public-key'] = P(pubkey)
+    
+    seckey = self.config.get('/distro/gpgsign/gpg-secret-key/text()', None)
+    if seckey: self.cvars['gpgsign-secret-key'] = P(seckey)
+    
     self.cvars['gpgsign-passphrase'] = \
       self.config.get('/distro/gpgsign/gpg-passphrase/text()', None)
 

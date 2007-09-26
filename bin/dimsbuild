@@ -10,99 +10,118 @@ import imp
 import os
 import sys
 
-from os.path import join, exists, isdir, expandvars
-from optparse import OptionParser, SUPPRESS_HELP
+from optparse import OptionParser, OptionGroup, SUPPRESS_HELP
 from StringIO import StringIO
 
 from dims import configlib
-from dims import listfmt
+from dims import pps
 
-from dims.CleanHelpFormatter import CleanHelpFormatter, OptionGroupId
+from dims.CleanHelpFormatter import CleanHelpFormatter
+
+P = pps.Path
 
 def main():
   parser = OptionParser("usage: %prog [OPTIONS]", formatter=CleanHelpFormatter())
-  parser.add_option('-c', '--distro-conf',
-                    dest='distropath',
-                    help="specify path to distro.conf file")
-  parser.add_option('-v', '--verbose',
-                    default=False,
-                    action='store_true',
-                    help="enable verbose output (deprecated)")
-  parser.add_option('-l', '--log-level',
-                    dest='logthresh',
-                    default=3,
-                    help="specify the level of verbosity of the output log")
-  parser.add_option('-e', '--errlog-level',
-                    dest='errthresh',
-                    default=1,
-                    help="specify the level of verbosity of the error log")
-  parser.add_option('--no-plugins',
-                    default=True,
-                    action='store_false',
-                    dest='plugins',
-                    help="disable plugins")
-  parser.add_option('--dimsbuild-conf', 
-                    default='/etc/dimsbuild.conf',
-                    dest='mainconfigpath',
-                    help="specify path dimsbuild.conf")
-  parser.add_option('--lib-path', 
-                    dest='libpath',
-                    help="specify directory containing dimsbuild library files")
-  parser.add_option('--share-path',
-                    dest='sharepath',
-                    help="specify directory containing dimsbuild shared files")
+  
   parser.add_option('--clear-cache',
-                    dest='clear_cache',
-                    action='store_true',
-                    default=False,
-                    help="clear cache of downloaded files before executing")
-  parser.add_option('--no-validate',
-                    dest='no_validate',
-                    action='store_true',
-                    default=False,
-                    help="do not validate the config file(s)")
-  parser.add_option('--validate-only',
-                    dest='validate_only',
-                    default=False,
-                    action='store_true',
-                    help='validate the distro.conf and dimsbuild.conf and exit')
-  parser.add_option('--clean',
-                    action='callback',
-                    dest='clean_events',
-                    metavar='EVENT1 [EVENT2 ...]',
-                    default=[],
-                    callback=append_events_callback,
-                    help="specify a list of events that are forced to execute, " + \
-                         "even if normal program execution would ordinarily skip " + \
-                         "them.  See above for the list of accepted events")
-  parser.add_option('--skip',
-                    action='callback',
-                    dest='skip_events',
-                    metavar='EVENT1 [EVENT2 ...]',
-                    default=[],
-                    callback=append_events_callback,
-                    help="specify a list of events that are prevented from " + \
-                         "being executed, even if normal program execution " + \
-                         "would ordinarily run them.  See above for the list " + \
-                         "of accepted events")
+    dest='clear_cache',
+    action='store_true',
+    default=False,
+    help="clear cache of downloaded files before executing")
+  
+  config_group = OptionGroup(parser, "config options")
+  config_group.add_option('-c', '--distro-conf', metavar='PATH',
+    default='distro.conf',
+    dest='distropath',
+    help="specify path to distro.conf file")
+  config_group.add_option('--dimsbuild-conf', metavar='PATH',
+    default='/etc/dimsbuild.conf',
+    dest='mainconfigpath',
+    help="specify path dimsbuild.conf")
+  config_group.add_option('--no-validate',
+    dest='no_validate',
+    action='store_true',
+    default=False,
+    help="do not validate config files")
+  config_group.add_option('--validate-only',
+    dest='validate_only',
+    default=False,
+    action='store_true',
+    help="validate config files and exit")
+  parser.add_option_group(config_group)
+  
+  log_group = OptionGroup(parser, "logging options")
+  log_group.add_option('-l', '--log-level', metavar='N',
+    dest='logthresh',
+    default=3,
+    help="specify the level of verbosity of the output log")
+  log_group.add_option('-e', '--err-level', metavar='N',
+    dest='errthresh',
+    default=1,
+    help="specify the level of verbosity of the error log")
+  parser.add_option_group(log_group)
+  
+  module_group = OptionGroup(parser, "module and library options")
+  module_group.add_option('--lib-path', metavar='PATH',
+    dest='libpath',
+    help="specify directory containing dimsbuild library files")
+  module_group.add_option('--share-path', metavar='PATH',
+    dest='sharepath',
+    help="specify directory containing dimsbuild shared files")
+  module_group.add_option('--disable-module', metavar='MODULE1 [MODULE2 ...]',
+    action='callback',
+    dest='disabled_modules',
+    default=[],
+    callback=__append_cb,
+    help="do not load the specified module(s)")
+  parser.add_option_group(module_group)
+  
+  event_group = OptionGroup(parser, "event control options")
+  event_group.add_option('--force', metavar='EVENT1 [EVENT2 ...]',
+    action='callback',
+    dest='force_events',
+    default=[],
+    callback=__append_cb,
+    help="force one or more events to execute")
+  event_group.add_option('--skip', metavar='EVENT1 [EVENT2 ...]',
+    action='callback',
+    dest='skip_events',
+    default=[],
+    callback=__append_cb,
+    help="skip processing one or more events")
+  event_group.add_option('--list-events',
+    action='store_true',
+    default=False,
+    dest='list_events',
+    help="print out a list of all events and exit")
+  parser.add_option_group(event_group)
   
   args = sys.argv[1:]
   
   try:
     preargs = __filter_cmd_args(args,
-                                ['--no-plugins', '--no-validate', '--validate-only'],
-                                ['-c', '--distro-conf', '--dimsbuild-conf',
-                                 '-l', '-e',
-                                 '--lib-path', '--share-path'])
+      noargopts = ['--no-plugins', '--no-validate', '--validate-only'],
+      argopts   = ['-c', '--distro-conf', '--dimsbuild-conf',
+                   '-l', '--log-level', '-e', '--err-level',
+                   '--disable-module', '--lib-path', '--share-path'])
                                  
   except ValueError:
     parser.print_help()
     sys.exit(1)
   
   opts,_ = parser.parse_args(args=preargs)
-
-  mainconfig, distroconfig = __get_conf(opts.mainconfigpath, opts.distropath, 
+  
+  try:
+    mainconfig, distroconfig = __get_conf(P(opts.mainconfigpath),
+                                          P(opts.distropath),
                                           opts.logthresh)
+  except OSError, e:
+    if '-h' in args or '--help' in args:
+      parser.print_help()
+      sys.exit()
+    else:
+      print e
+      sys.exit(1)
   
   # set up IMPORT_DIRS  
   import_dirs = mainconfig.xpath('/dimsbuild/librarypaths/path/text()', [])
@@ -112,30 +131,29 @@ def main():
   for dir in sys.path:
     if dir not in import_dirs: import_dirs.append(dir)
   sys.path = import_dirs
-  import_dirs = [ join(i, 'dimsbuild') for i in import_dirs ]
+  import_dirs = [ P(i)/'dimsbuild' for i in import_dirs ]
   
   # import dimsbuild from some path in import_dirs
-  fp, path, desc = imp.find_module('main', import_dirs)
-  build = imp.load_module('main', fp, path, desc)
-  fp.close()
+  try:
+    fp, path, desc = imp.find_module('main', import_dirs)
+    build = imp.load_module('main', fp, path, desc)
+    fp.close()
+  except ImportError:
+    print "Unable to load core dimsbuild files"
+    sys.exit(1)
   
-  # initialize our software builder with opts, the result of parsing preargs
-  # we can't apply all options now, because plugins may modify the behavior
+  # initialize our software builder with opts, the result of parsing preargs.
+  # we can't apply all options now because modules may modify the behavior
   # of the parser
   sbuilder = build.Build(opts, parser, mainconfig, distroconfig)
   
-  # calculate the events available to --clean and --skip, and format nicely
-  events = sbuilder.get_mdlr_events()
-  parser.set_description("Valid events for EVENT, below, are: %s." % \
-    listfmt.format(events, pre='\'', post='\'', last='and ', sep=', '))
-  
-  # now apply the real option set to the software builder, and run the main function
+  # now apply the real option set to the software builder and make it go!
   options, args = parser.parse_args()
   sbuilder.apply_options(options)
   sbuilder.main()
   sys.exit()
 
-def append_events_callback(option, opt, value, parser):
+def __append_cb(option, opt, value, parser):
   events = []
   while parser.rargs:
     arg = parser.rargs[0]
@@ -153,33 +171,40 @@ def append_events_callback(option, opt, value, parser):
       if event not in values: values.append(event)
 
 
-def __get_conf(mainconfigpath, distroconfigpath=None, loglevel=1):
-  """Computes the location and reads main and distro configuration files"""
-
-  if exists(mainconfigpath):
-    if loglevel >= 4: print "Reading reading main config file '%s'" % mainconfigpath
-    mainconfig = configlib.read(mainconfigpath)
-  else:
-    if loglevel >= 4: print "No main config file found at '%s'. Using default settings..." % mainconfigpath
-    mainconfig = configlib.read(StringIO('<dimsbuild></dimsbuild>'))
-
-  if distroconfigpath is None: distroconfigpath = 'distro.conf'
-  distroconfigpath = join(os.getcwd(), expandvars(distroconfigpath))
-  if not exists(distroconfigpath):
-    raise OSError, "No config file found at '%s'" % distroconfigpath
+def __get_conf(maincfgpath, distrocfgpath, loglevel=1):
+  "Computes the location and reads main and distro configuration files"
   
-  if loglevel >= 3: print "Reading distro config file '%s'" % distroconfigpath
-  distroconfig = configlib.read(distroconfigpath)
+  if maincfgpath.exists():
+    if loglevel >= 4: print "Reading reading main config file '%s'" % maincfgpath
+    mainconfig = __read_conf(maincfgpath)
+  else:
+    if loglevel >= 4: print "No main config file found at '%s'. Using default settings" % maincfgpath
+    mainconfig = __read_conf(StringIO('<dimsbuild></dimsbuild>'))
+  
+  distrocfgpath = distrocfgpath.expand().abspath()
+  if not distrocfgpath.exists():
+    raise OSError("No config file found at '%s'" % distrocfgpath)
+  
+  if loglevel >= 3: print "Reading distro config file '%s'" % distrocfgpath
+  distroconfig = __read_conf(distrocfgpath)
   
   return mainconfig, distroconfig
-  
+
+def __read_conf(file):
+  try:
+    return configlib.read(file)
+  except configlib.XMLSyntaxError, e:
+    print "Error reading config file '%s'" % file
+    print e, sys.exit(1)
 
 def __filter_cmd_args(args, noargopts, argopts):
-  """Filter args by removing items that are not in noargopts and argopts.
+  """ 
+  Filter args by removing items that are not in noargopts and argopts.
   noargopts is a list of arguments that take no arguments; argopts are
   arguments that do take arguments
-
-  Looks awfully similar to a function that does the same thing in yum"""
+  
+  Looks awfully similar to a function that does the same thing in YUM
+  """
 
   ret = []
   args = list(args) # copy args, this function is destructive
@@ -206,4 +231,4 @@ def __filter_cmd_args(args, noargopts, argopts):
   return ret
 
 
-if __name__ == "__main__": main()
+if __name__ == '__main__': main()
