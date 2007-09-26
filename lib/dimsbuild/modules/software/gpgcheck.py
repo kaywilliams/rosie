@@ -36,7 +36,7 @@ class GPGCheckEvent(Event, RepoMixin):
           if cached.has_key(rpm):
             self.checks.add(cached[rpm])
     
-    self.io.setup_sync(self.mddir, paths=self.keys)    
+    self.io.setup_sync(self.mddir, paths=self.keys, id='keys')    
     self.DATA['variables'].append('checks')
   
   def run(self):
@@ -47,16 +47,16 @@ class GPGCheckEvent(Event, RepoMixin):
       self.diff.write_metadata()
       return
     
+    homedir = self.mddir/'homedir'
     self.DATA['output'].append(homedir)
     self.io.remove_output() # remove changed keys from builddata
     newkeys = self.io.sync_input() # sync new keys
     
-    homedir = self.mddir/'homedir'
     if newkeys: 
       newchecks = sorted(self.checks)
       homedir.rm(force=True, recursive=True)
       homedir.mkdirs()
-      for key in self.io.list_output():
+      for key in self.io.list_output(what='keys'):
         shlib.execute('gpg --homedir %s --import %s' %(homedir,key))
     else: 
       md, curr = self.diff.handlers['variables'].diffdict['checks']
@@ -81,6 +81,9 @@ class GPGCheckEvent(Event, RepoMixin):
                                      "GPG key checking: %s" % invalids)
     
     self.diff.write_metadata()
+
+  def error(self, e):
+    self.clean()
 
 EVENTS = {'SOFTWARE': [GPGCheckEvent]}
 
