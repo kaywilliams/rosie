@@ -13,17 +13,101 @@ from dimsbuild.misc      import locals_imerge
 
 P = pps.Path
 
+class FileDownloadMixin:
+  def __init__(self):
+    self.rpmdir = self.mddir/'rpm'
+
+  def setup(self):
+    for k,v in self.installinfo.items():
+      xpath, dst = v
+      if xpath:
+        self.io.setup_sync(self.rpmdir/dst.lstrip('/'), xpaths=[xpath])
+
+  def _get_files(self):
+    sources = {}
+    for file in self.rpmdir.findpaths(type=pps.constants.TYPE_NOT_DIR):
+        dir = file.tokens[len(self.srcdir.tokens):].dirname
+        if not dir.isabs():          dir = P('/'+dir)
+        if not sources.has_key(dir): sources[dir] = []
+        sources[dir].append(file)
+    return sources
+    
+
+class FileLocalsMixin:
+  def setup(self):
+    newlocals = {}
+    for k,v in self.fileslocals.items():
+      newkey = k % self.cvars['base-vars']
+      newlocals[newkey] = v
+      if newlocals[newkey].has_key('locations'):
+        newlocs = []
+        for loc in newlocals[newkey]['locations']:
+          newlocs.append(loc % self.cvars['base-vars'])
+        newlocals[newkey]['locations'] = newlocs
+    self.fileslocals.clear()
+    self.fileslocals.update(newlocals)
+    del newlocals
+
+  def _get_files(self):
+    sources = {}
+    for id in self.fileslocals.keys():
+      locations = self.fileslocals[id]['locations']
+      file = self.build_folder/id
+      filename = file.basename
+      filedir = file.dirname        
+      for l in [ P(x) for x in locations ]:
+        installname = l.basename
+        installdir = l.dirname
+        if filename != installname:
+          newfile = filedir/installname
+          file.link(newfile)
+          id = newfile
+        if not sources.has_key(installdir): sources[installdir] = []
+        sources[installdir].append(id)
+    return sources
+
+
+class ColorMixin:
+  def setColors(self, be=False, prefix='0x'):    
+    # compute the background and foreground colors to use
+    self.distroname, self.distroversion = self._get_distro_info()
+    try:
+      self.bgcolor, self.textcolor, self.hlcolor = \
+                    IMAGE_COLORS[self.distroname][self.distroversion]
+    except KeyError:
+      self.bgcolor, self.textcolor, self.hlcolor = IMAGE_COLORS['*']['0']
+
+    # if be (big-endian) is True, convert the colors to big-endian
+    if be:
+      self.bgcolor = self.toBigEndian(self.bgcolor)
+      self.textcolor = self.toBigEndian(self.textcolor)
+      self.hlcolor = self.toBigEndian(self.hlcolor)
+
+    if prefix != '0x':
+      self.bgcolor = self.bgcolor.replace('0x', prefix)
+      self.textcolor = self.textcolor.replace('0x', prefix)
+      self.hlcolor = self.textcolor.replace('0x', prefix)
+    
+  def toBigEndian(self, color):
+    if color.startswith('0x'):
+      color = color[2:]
+    color = '%s%s' % ((6-len(color))*'0', color) # prepend zeroes to color
+    return '0x%s%s%s' % (color[4:], color[2:4], color[:2])
+
+  def _get_distro_info(self):
+    fullname = self.cvars['source-vars']['fullname']    
+    version = self.cvars['source-vars']['version']
+    return fullname, version
+    
+  
 class RpmBuildEvent(Event):
   def __init__(self,
-               rpmname, description, summary, data,
+               rpmname, description, summary,
                defobsoletes=None, defprovides=None, defrequires=None,
                fileslocals=None, installinfo=None, 
                *args, **kwargs):
     Event.__init__(self, provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'], 
                    *args, **kwargs)
-
-    self.DATA = data
-    
     self.description  = description
     self.rpmname      = rpmname
     self.summary      = summary
@@ -31,9 +115,6 @@ class RpmBuildEvent(Event):
     self.defobsoletes = defobsoletes
     self.defprovides  = defprovides
     self.defrequires  = defrequires
-    
-    self.installinfo = installinfo
-    self.fileslocals = fileslocals
 
     self.autofile = P(self.config.file).dirname / 'distro.dat'
 
@@ -47,7 +128,6 @@ class RpmBuildEvent(Event):
     self.build_folder = self.mddir/'build'
     
     self.srcdir = self.cvars['rpms-source']/self.id ## FIXME
-    self.rpmdir = self.mddir/'rpm'
 
     if self.autofile.exists():
       self.release = xmltree.read(self.autofile).get(
@@ -77,15 +157,6 @@ class RpmBuildEvent(Event):
     self.diff.setup(self.DATA)
     if self.srcdir.exists():
       self.DATA['input'].append(self.srcdir)
-
-    if self.installinfo:
-      for k,v in self.installinfo.items():
-        xpath, dst = v
-        if xpath:
-          self.io.setup_sync(self.rpmdir/dst.lstrip('/'), xpaths=[xpath])
-    
-    if self.fileslocals:
-      self.fileslocals = locals_imerge(self.fileslocals, self.cvars['anaconda-version'])
         
     self.arch      = kwargs.get('arch',     'noarch')
     self.author    = kwargs.get('author',   'dimsbuild')
@@ -98,6 +169,7 @@ class RpmBuildEvent(Event):
     self.log(1, L1("release number: %s" % self.release))
     self._build()
     self._save_release()
+    self._add_output()
   
   def _add_output(self):
     self.DATA['output'].append(self.mddir/'RPMS'/'%s-%s-%s.%s.rpm' % (self.rpmname,
@@ -157,8 +229,7 @@ class RpmBuildEvent(Event):
   
   def _build(self):
     self.build_folder.mkdirs()
-    self.io.sync_input()
-    self._generate()
+    self._generate()    
     self._write_spec()
     self._write_manifest()
     mkrpm.build(self.build_folder,
@@ -195,7 +266,7 @@ class RpmBuildEvent(Event):
     if iscript: spec.set('bdist_rpm', 'install_script', iscript)
     if pscript: spec.set('bdist_rpm', 'post_install', pscript)
     
-    self.__addfiles(spec)
+    self._add_files(spec)
     
     f = open(setupcfg, 'w')
     spec.write(f)
@@ -209,9 +280,9 @@ class RpmBuildEvent(Event):
                        for x in self.build_folder.findpaths(type=pps.constants.TYPE_NOT_DIR) ] )    
     filereader.write(manifest, self.build_folder/'MANIFEST')
   
-  def __addfiles(self, spec):
+  def _add_files(self, spec):
     # write the list of files to be installed and where they should be installed
-    data_files = self.__getfiles()
+    data_files = self._get_files()
     if not data_files:
       return
     
@@ -236,67 +307,14 @@ class RpmBuildEvent(Event):
     if doc_files:
       spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))    
   
-  def __getfiles(self):
+  def _get_files(self):
     sources = {}
-    for attr in ['srcdir', 'rpmdir']:
-      for file in getattr(self, attr).findpaths(type=pps.constants.TYPE_NOT_DIR):
-        dir = file.tokens[len(self.srcdir.tokens):].dirname
-        if not dir.isabs():          dir = P('/'+dir)
-        if not sources.has_key(dir): sources[dir] = []
-        sources[dir].append(file)
-    if self.fileslocals:
-      for fileinfo in self.fileslocals.xpath('//files/file', []):
-        i = fileinfo.get('@id')
-        l = P(fileinfo.get('location/text()'))
-        file = self.build_folder/i
-        filename = file.basename
-        filedir = file.dirname
-        installname = l.basename
-        installdir = l.dirname
-        if filename != installname:
-          newfile = filedir/installname
-          file.cp(newfile)
-          i = newfile
-        if not sources.has_key(installdir): sources[installdir] = []
-        sources[installdir].append(i)
+    for file in self.srcdir.findpaths(type=pps.constants.TYPE_NOT_DIR):
+      dir = file.tokens[len(self.srcdir.tokens):].dirname
+      if not dir.isabs():          dir = P('/'+dir)
+      if not sources.has_key(dir): sources[dir] = []
+      sources[dir].append(file)
     return sources
-
-
-class ColorMixin:
-  def setColors(self, be=False, prefix='0x'):    
-    # compute the background and foreground colors to use
-    self.distroname, self.distroversion = self._get_distro_info()
-    try:
-      self.bgcolor, self.textcolor, self.hlcolor = \
-                    IMAGE_COLORS[self.distroname][self.distroversion]
-    except KeyError:
-      self.bgcolor, self.textcolor, self.hlcolor = IMAGE_COLORS['*']['0']
-
-    # if be (big-endian) is True, convert the colors to big-endian
-    if be:
-      self.bgcolor = self.toBigEndian(self.bgcolor)
-      self.textcolor = self.toBigEndian(self.textcolor)
-      self.hlcolor = self.toBigEndian(self.hlcolor)
-
-    if prefix != '0x':
-      self.bgcolor = self.bgcolor.replace('0x', prefix)
-      self.textcolor = self.textcolor.replace('0x', prefix)
-      self.hlcolor = self.textcolor.replace('0x', prefix)
-    
-  def toBigEndian(self, color):
-    if color.startswith('0x'):
-      color = color[2:]
-    color = '%s%s' % ((6-len(color))*'0', color) # prepend zeroes to color
-    return '0x%s%s%s' % (color[4:], color[2:4], color[:2])
-
-  def _get_distro_info(self):
-    fullname = self.cvars['source-vars']['fullname']    
-    version = self.cvars['source-vars']['version']
-    return fullname, version
-  
-
-#---------- ERRORS -------------#
-class OutputInvalidError(IOError): pass
 
 
 #---------- GLOBAL VARIABLES --------#

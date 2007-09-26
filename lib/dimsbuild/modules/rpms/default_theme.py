@@ -1,5 +1,4 @@
-from dimsbuild.modules.rpms.lib    import RpmBuildEvent
-from dimsbuild.modules.rpms.locals import SCRIPT
+from dimsbuild.modules.rpms.lib import RpmBuildEvent
 
 API_VERSION = 5.0
 
@@ -8,7 +7,7 @@ class DefaultThemeRpmEvent(RpmBuildEvent):
     self.themename = \
       self.config.get('/distro/rpms/default-theme-rpm/theme/text()', self.product)
     
-    data = {
+    self.DATA = {
       'variables': ['product'],
       'config':    ['/distro/rpms/default-theme-rpm'],
       'input' :    [],
@@ -22,7 +21,6 @@ class DefaultThemeRpmEvent(RpmBuildEvent):
                            'attribute in /usr/share/gdm/defaults.conf to the %s '
                            'theme.' %(self.product, self.themename),
                            'Script to set default gdm graphical theme',
-                           data,
                            defrequires='gdm',
                            id='default-theme-rpm')
     
@@ -33,7 +31,6 @@ class DefaultThemeRpmEvent(RpmBuildEvent):
     self.io.remove_output(all=True)
     if self._test_build('False'):
       self._build_rpm()
-      self._add_output()    
     self.diff.write_metadata()    
   
   def apply(self):
@@ -46,7 +43,7 @@ class DefaultThemeRpmEvent(RpmBuildEvent):
   
   def _getpscript(self):
     f = (self.build_folder/'postinstall.sh').open('w')
-    f.write(SCRIPT % self.themename)
+    f.write(self.locals.default_theme % {'themename': self.themename})
     f.close()
     return 'postinstall.sh'
 

@@ -3,14 +3,13 @@ from dims import pps
 
 from dimsbuild.constants import BOOLEANS_TRUE
 
-from dimsbuild.modules.rpms.lib    import ColorMixin, RpmBuildEvent
-from dimsbuild.modules.rpms.locals import RELEASE_NOTES_HTML
+from dimsbuild.modules.rpms.lib import ColorMixin, FileDownloadMixin, RpmBuildEvent
 
 P = pps.Path
 
 API_VERSION = 5.0
 
-class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
+class ReleaseRpmEvent(RpmBuildEvent, ColorMixin, FileDownloadMixin):
   def __init__(self):
     self.gpg_dir     = P('/etc/pkg/rpm-gpg')
     self.repo_dir    = P('/etc/yum.repos.d')
@@ -27,7 +26,7 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
     self.doc_dir  = P(self.config.get(relpath % 'doc', None) or \
                     '/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
     
-    installinfo = {
+    self.installinfo = {
       'gpg'     : (None, self.gpg_dir),
       'repo'    : ('/distro/rpms/release-rpm/yum-repos/path', self.repo_dir),
       'eula'    : ('/distro/rpms/release-rpm/eula/path', self.eula_dir),
@@ -39,7 +38,7 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
       'eulapy'  : (None, self.eula_dir),
     }
 
-    data = {
+    self.DATA = {
       'config':    ['/distro/rpms/release-rpm',
                     '/distro/repos'],
       'variables': ['fullname',
@@ -53,20 +52,20 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
                            '%s-release' % self.product,
                            '%s release files created by dimsbuild' % self.fullname,
                            '%s release files' % self.product,
-                           data,
                            defobsoletes='fedora-release redhat-release centos-release '\
                            'fedora-release-notes redhat-release-notes centos-release-notes',
-                           installinfo=installinfo,
                            id='release-rpm',
                            requires=['source-vars', 'input-repos'],
                            conditionally_requires=['gpgsign-public-key',
                                                    'web-path'],)
+    FileDownloadMixin.__init__(self)
 
   def validate(self):
     self.validator.validate('/distro/rpms/release-rpm', 'release-rpm.rng')
     
   def setup(self):
     RpmBuildEvent.setup(self)
+    FileDownloadMixin.setup(self)
 
     self.setColors(prefix='#')    
     # public gpg keys
@@ -94,8 +93,8 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
   def run(self):
     self.io.remove_output(all=True)
     if self._test_build('True'):
+      self.io.sync_input()          
       self._build_rpm()
-      self._add_output()    
     self.diff.write_metadata()
   
   def apply(self):
@@ -105,6 +104,12 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
     if not self.cvars['custom-rpms-info']:
       self.cvars['custom-rpms-info'] = []      
     self.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
+
+  def _get_files(self):
+    sources = {}
+    sources.update(RpmBuildEvent._get_files(self))
+    sources.update(FileDownloadMixin._get_files(self))
+    return sources
   
   def _generate(self):
     "Create additional files."
@@ -129,9 +134,9 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin):
       path = dir/('RELEASE-NOTES-%s.html' % locale.getdefaultlocale()[0])
       
       f = path.open('w')
-      f.write(RELEASE_NOTES_HTML %(self.bgcolor,
-                                   self.textcolor,
-                                   self.fullname))
+      f.write(self.locals.release_html % {'bgcolor':   self.bgcolor,
+                                          'textcolor': self.textcolor,
+                                          'fullname':  self.fullname})
       f.close()
       
       index_html = self.build_folder/'html/index.html'

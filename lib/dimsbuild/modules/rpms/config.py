@@ -1,21 +1,21 @@
 from dims import pps
 
-from dimsbuild.modules.rpms.lib import RpmBuildEvent
+from dimsbuild.modules.rpms.lib import FileDownloadMixin, RpmBuildEvent
 
 P = pps.Path
 
 API_VERSION = 5.0
 
-class ConfigRpmEvent(RpmBuildEvent):
+class ConfigRpmEvent(RpmBuildEvent, FileDownloadMixin):
   def __init__(self):
-    installinfo = {
+    self.installinfo = {
       'config' : ('/distro/rpms/config-rpm/config/script/path',
                   '/usr/lib/%s' % self.product),
       'support': ('/distro/rpms/config-rpm/config/supporting-files/path',
                   '/usr/lib/%s' % self.product),
     }
     
-    data = {
+    self.DATA = {
       'variables': ['product', 'fullname'],
       'config': [
         '/distro/rpms/config-rpm',
@@ -30,18 +30,20 @@ class ConfigRpmEvent(RpmBuildEvent):
                            'files for configuring the %s '\
                            'distribution.' %(self.product, self.fullname),
                            '%s configuration script and supporting files' % self.fullname,
-                           installinfo=installinfo,
-                           data=data,
                            id='config-rpm')
+    FileDownloadMixin.__init__(self)
         
   def validate(self):
     self.validator.validate('/distro/rpms/config-rpm', 'config-rpm.rng')
 
+  def setup(self):
+    RpmBuildEvent.setup(self)
+    FileDownloadMixin.setup(self)
+    
   def run(self):
     self.io.remove_output(all=True)
     if self._test_build('True'):
       self._build_rpm()
-      self._add_output()    
     self.diff.write_metadata()    
 
   def apply(self):
@@ -51,6 +53,12 @@ class ConfigRpmEvent(RpmBuildEvent):
     if not self.cvars['custom-rpms-info']:
       self.cvars['custom-rpms-info'] = []      
     self.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
+
+  def _get_files(self):
+    sources = {}
+    sources.update(RpmBuildEvent._get_files(self))
+    sources.update(FileDownloadMixin._get_files(self))
+    return sources
   
   def _test_build(self, default):
     if RpmBuildEvent._test_build(self, default):
