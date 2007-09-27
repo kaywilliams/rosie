@@ -12,9 +12,9 @@ class LocalRepoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id='localrepo',
-      requires = ['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
-      provides = ['repos', 'source-repos', 'included-packages', 'excluded-packages']
-    )
+      comes_after=['logos-rpm', 'default-theme-rpm',
+                  'release-rpm', 'config-rpm'],
+      provides=['repos', 'source-repos', 'included-packages', 'excluded-packages'])
 
     self.LOCAL_RPMS  = self.mddir/'RPMS'
     self.LOCAL_SRPMS = self.mddir/'SRPMS'

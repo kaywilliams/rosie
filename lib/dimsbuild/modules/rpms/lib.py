@@ -15,13 +15,17 @@ P = pps.Path
 
 class FileDownloadMixin:
   def __init__(self):
-    self.rpmdir = self.mddir/'rpm'
+    self.rpmdir = self.mddir/'rpm-input'
 
-  def setup(self):
+  def _setup_download(self):
     for k,v in self.installinfo.items():
       xpath, dst = v
-      if xpath:
-        self.io.setup_sync(self.rpmdir/dst.lstrip('/'), xpaths=[xpath])
+      if xpath:        
+        default_dir = P(dst) / P(self.config.get('%s/@install-path' % xpath, ''))        
+        for item in self.config.xpath('%s/path' % xpath, []):
+          s = P(item.get('text()'))
+          d = default_dir / P(item.get('@install-path', ''))
+          self.io.setup_sync(self.rpmdir / d.lstrip('/'), paths=[s], id=xpath)
 
   def _get_files(self):
     sources = {}
@@ -33,8 +37,11 @@ class FileDownloadMixin:
     return sources
     
 
-class FileLocalsMixin:
-  def setup(self):
+class RpmLocalsMixin:
+  def __init__(self):
+    pass
+  
+  def _setup_locals(self):
     newlocals = {}
     for k,v in self.fileslocals.items():
       newkey = k % self.cvars['base-vars']
@@ -68,9 +75,13 @@ class FileLocalsMixin:
 
 
 class ColorMixin:
+  def __init__(self):
+    pass
+  
   def setColors(self, be=False, prefix='0x'):    
     # compute the background and foreground colors to use
-    self.distroname, self.distroversion = self._get_distro_info()
+    self.distroname = self.cvars['source-vars']['fullname']
+    self.distroversion = self.cvars['source-vars']['version']
     try:
       self.bgcolor, self.textcolor, self.hlcolor = \
                     IMAGE_COLORS[self.distroname][self.distroversion]
@@ -94,20 +105,10 @@ class ColorMixin:
     color = '%s%s' % ((6-len(color))*'0', color) # prepend zeroes to color
     return '0x%s%s%s' % (color[4:], color[2:4], color[:2])
 
-  def _get_distro_info(self):
-    fullname = self.cvars['source-vars']['fullname']    
-    version = self.cvars['source-vars']['version']
-    return fullname, version
     
-  
-class RpmBuildEvent(Event):
-  def __init__(self,
-               rpmname, description, summary,
-               defobsoletes=None, defprovides=None, defrequires=None,
-               fileslocals=None, installinfo=None, 
-               *args, **kwargs):
-    Event.__init__(self, provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'], 
-                   *args, **kwargs)
+class RpmBuildMixin:
+  def __init__(self, rpmname, description, summary,
+               defprovides=None, defobsoletes=None, defrequires=None):
     self.description  = description
     self.rpmname      = rpmname
     self.summary      = summary
@@ -117,14 +118,8 @@ class RpmBuildEvent(Event):
     self.defrequires  = defrequires
 
     self.autofile = P(self.config.file).dirname / 'distro.dat'
-
-    if not self.DATA.has_key('variables'):  self.DATA['variables'] = []
-    if 'pva' not in self.DATA['variables']: self.DATA['variables'].append('pva')
   
-  def error(self, e):
-    self.build_folder.rm(recursive=True, force=True)
-  
-  def setup(self, **kwargs):
+  def _setup_build(self, **kwargs):
     self.build_folder = self.mddir/'build'
     
     self.srcdir = self.cvars['rpms-source']/self.id ## FIXME
@@ -162,7 +157,7 @@ class RpmBuildEvent(Event):
     self.author    = kwargs.get('author',   'dimsbuild')
     self.fullname  = kwargs.get('fullname', self.fullname)
     self.version   = kwargs.get('version',  self.version)
-  
+
   def _build_rpm(self):
     self.log(0, L0("building %s rpm" % self.rpmname))
     self._check_release()

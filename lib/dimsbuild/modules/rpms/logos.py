@@ -2,9 +2,10 @@ from dims import pps
 from dims import shlib
 
 from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.event     import Event 
 from dimsbuild.logging   import L3
 
-from dimsbuild.modules.rpms.lib import ColorMixin, FileLocalsMixin, RpmBuildEvent
+from dimsbuild.modules.rpms.lib import ColorMixin, RpmLocalsMixin, RpmBuildMixin
 
 try:
   import Image
@@ -18,32 +19,38 @@ P = pps.Path
 
 API_VERSION = 5.0
 
-class LogosRpmEvent(RpmBuildEvent, ColorMixin, FileLocalsMixin):
-  def __init__(self):
-    self.DATA = {
-      'config': ['/distro/rpms/logos-rpm'],
-      'variables': ['fullname', 'product'],
-      'output': [],
-      'input':  [],
-    }    
-    RpmBuildEvent.__init__(self,
+class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
+  def __init__(self):    
+    Event.__init__(self, id='logos-rpm',
+                   requires=['source-vars', 'anaconda-version'])    
+    RpmBuildMixin.__init__(self,
                            '%s-logos' % self.product,                           
                            'The %s-logos package contains image files which '\
                            'have been automatically created by dimsbuild and '\
                            'are specific to %s.' % (self.product, self.fullname),
                            'Icons and pictures related to %s' % self.fullname,
                            defobsoletes='fedora-logos centos-logos redhat-logos',
-                           defprovides='system-logos',
-                           id='logos-rpm',
-                           requires=['source-vars', 'anaconda-version'])
+                           defprovides='system-logos')
+    RpmLocalsMixin.__init__(self)
+    ColorMixin.__init__(self)
+
     self.fileslocals = self.locals.logos_rpm
+    self.DATA = {
+      'config': ['/distro/rpms/logos-rpm'],
+      'variables': ['fullname', 'product', 'pva'],
+      'output': [],
+      'input':  [],
+    }    
+
+  def error(self, e):
+    self.build_folder.rm(recursive=True, force=True)
     
   def validate(self):
     self.validator.validate('/distro/rpms/logos-rpm', 'logos-rpm.rng')
   
   def setup(self):
-    RpmBuildEvent.setup(self)
-    FileLocalsMixin.setup(self)
+    self._setup_build()
+    self._setup_locals()
     
     # set the font to use
     available_fonts = (self.SHARE_DIR/'fonts').findpaths(glob='*.ttf')
@@ -76,8 +83,8 @@ class LogosRpmEvent(RpmBuildEvent, ColorMixin, FileLocalsMixin):
 
   def _get_files(self):
     sources = {}
-    sources.update(RpmBuildEvent._get_files(self))
-    sources.update(FileLocalsMixin._get_files(self))
+    sources.update(RpmBuildMixin._get_files(self))
+    sources.update(RpmLocalsMixin._get_files(self))
     return sources
   
   def _generate(self):

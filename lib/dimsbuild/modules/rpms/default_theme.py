@@ -1,29 +1,36 @@
-from dimsbuild.modules.rpms.lib import RpmBuildEvent
+from dimsbuild.event import Event
+
+from dimsbuild.modules.rpms.lib import RpmBuildMixin
 
 API_VERSION = 5.0
 
-class DefaultThemeRpmEvent(RpmBuildEvent):
+class DefaultThemeRpmEvent(Event, RpmBuildMixin):
   def __init__(self):    
     self.themename = \
       self.config.get('/distro/rpms/default-theme-rpm/theme/text()', self.product)
     
     self.DATA = {
-      'variables': ['product'],
+      'variables': ['product', 'pva'],
       'config':    ['/distro/rpms/default-theme-rpm'],
       'input' :    [],
       'output':    [],
     }
-    
-    RpmBuildEvent.__init__(self,
+
+    Event.__init__(self, id='default-theme-rpm')
+    RpmBuildMixin.__init__(self,
                            '%s-default-theme' % self.product,
                            'The %s-default-theme package requires the gdm package. '\
                            'Its sole function is to modify the value of the GraphicalTheme '\
                            'attribute in /usr/share/gdm/defaults.conf to the %s '
                            'theme.' %(self.product, self.themename),
                            'Script to set default gdm graphical theme',
-                           defrequires='gdm',
-                           id='default-theme-rpm')
-    
+                           defrequires='gdm')
+  def error(self, e):
+    self.build_folder.rm(recursive=True, force=True)
+
+  def setup(self):
+    self._setup_build()
+  
   def validate(self):
     self.validator.validate('/distro/rpms/default-theme-rpm', 'default-theme-rpm.rng')
 
@@ -47,5 +54,6 @@ class DefaultThemeRpmEvent(RpmBuildEvent):
     f.write(self.locals.default_theme % {'themename': self.themename})
     f.close()
     return 'postinstall.sh'
+
 
 EVENTS = {'RPMS': [DefaultThemeRpmEvent]}

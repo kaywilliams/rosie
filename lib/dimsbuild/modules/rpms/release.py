@@ -2,70 +2,69 @@ from dims import filereader
 from dims import pps
 
 from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.event     import Event
 
-from dimsbuild.modules.rpms.lib import ColorMixin, FileDownloadMixin, RpmBuildEvent
+from dimsbuild.modules.rpms.lib import ColorMixin, FileDownloadMixin, RpmBuildMixin
 
 P = pps.Path
 
 API_VERSION = 5.0
 
-class ReleaseRpmEvent(RpmBuildEvent, ColorMixin, FileDownloadMixin):
+class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
   def __init__(self):
     self.gpg_dir     = P('/etc/pkg/rpm-gpg')
     self.repo_dir    = P('/etc/yum.repos.d')
     self.eula_dir    = P('/usr/share/eula')
     self.release_dir = P('/usr/share/doc/%s-release-%s' % (self.product, self.version))
     self.etc_dir     = P('/etc')
-    self.eula_dir    = P('/usr/share/firstboot/modules')
-    
-    relpath = P('/distro/rpms/release-rpm/release-notes/%s/@install-path')
-    self.omf_dir  = P(self.config.get(relpath % 'omf', None) or \
-                    '/usr/share/omf/%s-release-notes' % self.product)
-    self.html_dir = P(self.config.get(relpath % 'html', None) or \
-                    '/usr/share/doc/HTML')
-    self.doc_dir  = P(self.config.get(relpath % 'doc', None) or \
-                    '/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
+    self.eulapy_dir  = P('/usr/share/firstboot/modules')
+    self.omf_dir     = P('/usr/share/omf/%s-release-notes' % self.product)
+    self.html_dir    = P('/usr/share/doc/HTML')
+    self.doc_dir     = P('/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
     
     self.installinfo = {
       'gpg'     : (None, self.gpg_dir),
-      'repo'    : ('/distro/rpms/release-rpm/yum-repos/path', self.repo_dir),
-      'eula'    : ('/distro/rpms/release-rpm/eula/path', self.eula_dir),
-      'omf'     : ('/distro/rpms/release-rpm/release-notes/omf/path', self.omf_dir),
-      'html'    : ('/distro/rpms/release-rpm/release-notes/html/path', self.html_dir),
-      'doc'     : ('/distro/rpms/release-rpm/release-notes/doc/path', self.doc_dir),
-      'release' : ('/distro/rpms/release-rpm/release-files/path', self.release_dir),
+      'repo'    : ('/distro/rpms/release-rpm/yum-repos', self.repo_dir),
+      'eula'    : ('/distro/rpms/release-rpm/eula', self.eula_dir),
+      'omf'     : ('/distro/rpms/release-rpm/release-notes/omf', self.omf_dir),
+      'html'    : ('/distro/rpms/release-rpm/release-notes/html', self.html_dir),
+      'doc'     : ('/distro/rpms/release-rpm/release-notes/doc', self.doc_dir),
+      'release' : ('/distro/rpms/release-rpm/release-files', self.release_dir),
       'etc'     : (None, self.etc_dir), 
-      'eulapy'  : (None, self.eula_dir),
+      'eulapy'  : (None, self.eulapy_dir),
     }
 
     self.DATA = {
       'config':    ['/distro/rpms/release-rpm',
                     '/distro/repos'],
-      'variables': ['fullname',
-                    'product',
+      'variables': ['fullname', 'product', 'pva',
                     'cvars[\'web-path\']',],
       'input':     [],
       'output':    [],
     }
 
-    RpmBuildEvent.__init__(self,
+    Event.__init__(self, id='release-rpm',
+                   requires=['source-vars', 'input-repos'],
+                   conditionally_requires=['gpgsign-public-key',
+                                           'web-path'])
+    RpmBuildMixin.__init__(self,
                            '%s-release' % self.product,
                            '%s release files created by dimsbuild' % self.fullname,
                            '%s release files' % self.product,
                            defobsoletes='fedora-release redhat-release centos-release '\
-                           'fedora-release-notes redhat-release-notes centos-release-notes',
-                           id='release-rpm',
-                           requires=['source-vars', 'input-repos'],
-                           conditionally_requires=['gpgsign-public-key',
-                                                   'web-path'],)
+                           'fedora-release-notes redhat-release-notes centos-release-notes')
     FileDownloadMixin.__init__(self)
+    ColorMixin.__init__(self)
+
+  def error(self, e):
+    self.build_folder.rm(recursive=True, force=True)
 
   def validate(self):
     self.validator.validate('/distro/rpms/release-rpm', 'release-rpm.rng')
     
   def setup(self):
-    RpmBuildEvent.setup(self)
-    FileDownloadMixin.setup(self)
+    self._setup_build()
+    self._setup_download()
 
     self.setColors(prefix='#')    
     # public gpg keys
@@ -80,14 +79,11 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin, FileDownloadMixin):
     
     # eulapy file
     paths = []
-    if self.config.get(
-         '/distro/rpms/release-rpm/eula/include-in-firstboot/text()', 'True'
-       ) in BOOLEANS_TRUE:
-      if self.config.get(
-           '/distro/rpms/release-rpm/eula/path/text()', None
-         ) is not None:
-        paths.append(self.SHARE_DIR / 'release/eula.py')
-        
+    include_firstboot = self.config.get('/distro/rpms/release-rpm/eula/include-in-firstboot/text()',
+                                        'True') in BOOLEANS_TRUE
+    eula_provided = self.config.get('/distro/rpms/release-rpm/eula/path/text()', None) is not None
+    if include_firstboot and eula_provided:
+      paths.append(self.SHARE_DIR/'release/eula.py')
     self.io.setup_sync(self.build_folder/'eulapy', paths=paths)
   
   def run(self):
@@ -108,18 +104,14 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin, FileDownloadMixin):
 
   def _get_files(self):
     sources = {}
-    sources.update(RpmBuildEvent._get_files(self))
+    sources.update(RpmBuildMixin._get_files(self))
     sources.update(FileDownloadMixin._get_files(self))
     return sources
   
   def _generate(self):
     "Create additional files."
-    for type in self.installinfo.keys():
-      generator = '_generate_%s_files' % type
-      if hasattr(self, generator):
-        dest = self.build_folder/type
-        getattr(self, generator)(dest)
-    
+    self._generate_etc_files(self.build_folder/'etc')
+    self._generate_repo_files(self.build_folder/'repo')    
     self._verify_release_notes()
   
   def _verify_release_notes(self):
