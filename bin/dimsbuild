@@ -193,7 +193,7 @@ def __get_conf(maincfgpath, distrocfgpath, loglevel=1):
 def __read_conf(file):
   try:
     return configlib.read(file)
-  except configlib.XMLSyntaxError, e:
+  except configlib.XmlSyntaxError, e:
     print "Error reading config file '%s'" % file
     print e, sys.exit(1)
 
