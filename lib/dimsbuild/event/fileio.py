@@ -103,14 +103,13 @@ class IOObject:
         existing = set(self.ptr.mddir.findpaths(mindepth=1, type=TYPE_NOT_DIR))
         for path in existing.difference(expected):
           path.rm(recursive=True, force=True)
-
-      # remove empty dirs
-      dirs = [ d for d in self.ptr.mddir.findpaths(mindepth=1, type=TYPE_DIR) if \
-             not d.findpaths(type=TYPE_NOT_DIR) ]
-      if not dirs: return
-      dirs.reverse()
-      for dir in dirs:
-        dir.removedirs()
+        # remove empty dirs
+        dirs = [ d for d in self.ptr.mddir.findpaths(mindepth=1, type=TYPE_DIR) if \
+               not d.findpaths(type=TYPE_NOT_DIR) ]
+        if not dirs: return
+        dirs.reverse()
+        for dir in dirs:
+          dir.removedirs()
   
   def sync_input(self, cb=None, link=False, what=None, copy=False):
     """ 
