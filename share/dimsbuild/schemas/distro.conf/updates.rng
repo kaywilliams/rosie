@@ -3,8 +3,12 @@
   <start>
     <element name="distro">
       <optional>
-        <element name="updates-image">
-          <ref name="element-path"/>
+        <element name="installer">
+          <optional>
+            <element name="updates-image">
+              <ref name="element-path"/>
+            </element>
+          </optional>
         </element>
       </optional>
     </element>

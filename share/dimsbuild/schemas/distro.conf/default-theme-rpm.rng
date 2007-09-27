@@ -4,20 +4,21 @@
 
     <element name="distro">
       <optional>
-        <element name="default-theme-rpm">
+        <element name="rpms">
           <optional>
-            <attribute name="enabled">
-              <ref name="value-boolean-with-default"/>
-            </attribute>
+            <element name="default-theme-rpm">
+              <optional>
+                <attribute name="enabled">
+                  <ref name="value-boolean-with-default"/>
+                </attribute>
+              </optional>
+              <interleave>
+                <optional>            
+                  <element name="theme"><text/></element>
+                </optional>
+              </interleave>
+            </element>
           </optional>
-          <interleave>
-            <optional>            
-              <element name="theme"><text/></element>
-            </optional>
-            <optional>
-              <element name="release"><text/></element>
-            </optional>
-          </interleave>
         </element>
       </optional>
     </element>

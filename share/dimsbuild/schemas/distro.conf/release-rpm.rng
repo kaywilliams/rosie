@@ -2,88 +2,89 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
 
-  <element name="distro">
-    <optional>
-      <element name="release-rpm">
-        <optional>
-          <attribute name="enabled">
-            <ref name="value-boolean-with-default"/>
-          </attribute>
-        </optional>        
-        <interleave>              
+    <element name="distro">
+      <optional>
+        <element name="rpms">
           <optional>
-            <ref name="element-obsoletes"/>
-          </optional>
-          <optional>
-            <element name="release"><text/></element>
-          </optional>
-          <optional>
-            <element name="release-files">
-              <oneOrMore>
-                <ref name="element-path"/>
-              </oneOrMore>
-            </element>
-          </optional>              
-          <optional>
-            <element name="eula">
+            <element name="release-rpm">
               <optional>
-                <element name="include-in-firstboot">
-                  <ref name="value-boolean"/>
-                </element>
-              </optional>
-              <ref name="element-path"/>
-            </element>
-          </optional>
-          <optional>
-            <element name="release-notes">
-              <interleave>                                              
+                <attribute name="enabled">
+                  <ref name="value-boolean-with-default"/>
+                </attribute>
+              </optional>        
+              <interleave>              
                 <optional>
-                  <element name="omf">
-                    <optional>
-                      <attribute name="install-path"><text/></attribute>
-                    </optional>
+                  <ref name="element-obsoletes"/>
+                </optional>
+                <optional>
+                  <element name="release-files">
                     <oneOrMore>
                       <ref name="element-path"/>
-                    </oneOrMore>                        
+                    </oneOrMore>
                   </element>
-                </optional>                    
+                </optional>              
                 <optional>
-                  <element name="html">
+                  <element name="eula">
                     <optional>
-                      <attribute name="install-path"><text/></attribute>
+                      <element name="include-in-firstboot">
+                        <ref name="value-boolean"/>
+                      </element>
                     </optional>
-                    <oneOrMore>
-                      <ref name="element-path"/>
-                    </oneOrMore>                        
+                    <ref name="element-path"/>
                   </element>
                 </optional>
                 <optional>
-                  <element name="doc">
-                    <optional>
-                      <attribute name="install-path"><text/></attribute>
-                    </optional>
-                    <oneOrMore>
-                      <ref name="element-path"/>
-                    </oneOrMore>                        
+                  <element name="release-notes">
+                    <interleave>                                              
+                      <optional>
+                        <element name="omf">
+                          <optional>
+                            <attribute name="install-path"><text/></attribute>
+                          </optional>
+                          <oneOrMore>
+                            <ref name="element-path-with-install-path"/>
+                          </oneOrMore>                        
+                        </element>
+                      </optional>                    
+                      <optional>
+                        <element name="html">
+                          <optional>
+                            <attribute name="install-path"><text/></attribute>
+                          </optional>
+                          <oneOrMore>
+                            <ref name="element-path-with-install-path"/>
+                          </oneOrMore>                        
+                        </element>
+                      </optional>
+                      <optional>
+                        <element name="doc">
+                          <optional>
+                            <attribute name="install-path"><text/></attribute>
+                          </optional>
+                          <oneOrMore>
+                            <ref name="element-path-with-install-path"/>
+                          </oneOrMore>                        
+                        </element>
+                      </optional>                    
+                    </interleave>
                   </element>
-                </optional>                    
-              </interleave>
-            </element>
-          </optional>              
-          <optional>
-            <element name="yum-repos">
-              <attribute name="include-input">
-                <ref name="value-boolean"/>
-              </attribute>
-              <zeroOrMore>
-                <ref name="element-path"/>
-              </zeroOrMore>
+                </optional>              
+                <optional>
+                  <element name="yum-repos">
+                    <attribute name="include-input">
+                      <ref name="value-boolean"/>
+                    </attribute>
+                    <zeroOrMore>
+                      <ref name="element-path"/>
+                    </zeroOrMore>
+                  </element>
+                </optional>
+              </interleave>            
             </element>
           </optional>
-        </interleave>            
-      </element>
-    </optional>
-  </element>
+        </element>
+      </optional>
+    </element>
   </start>
 
   <include href="rpms.rng"/>

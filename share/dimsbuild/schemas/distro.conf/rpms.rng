@@ -14,5 +14,12 @@
     </element>
   </define>
   
+  <define name="element-path-with-install-path">
+    <element name="path">
+       <optional><attribute name="install-path"/></optional>
+       <text/>
+    </element>
+  </define>
+  
   <include href="lib.rng"/>
 </grammar>

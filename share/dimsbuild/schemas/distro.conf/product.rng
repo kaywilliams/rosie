@@ -3,10 +3,14 @@
   <start>
     <element name="distro">
       <optional>
-        <element name="product-image">
-          <zeroOrMore>
-            <ref name="element-path-with-dest"/>
-          </zeroOrMore>
+        <element name="installer">
+          <optional>
+            <element name="product-image">
+              <zeroOrMore>
+                <ref name="element-path-with-dest"/>
+              </zeroOrMore>
+            </element>
+          </optional>
         </element>
       </optional>
     </element>

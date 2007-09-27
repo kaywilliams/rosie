@@ -4,15 +4,6 @@
     <element name="distro">
       <optional>
         <element name="files">
-          <!-- DOCBOOK ENTRY -->
-          <refentry xmlns="">
-            <refsect1>
-              <title>FILES</title>
-              <para>information about the files element</para>
-            </refsect1>
-          </refentry>
-
-          <!--ELEMENT CONTENTS -->
           <zeroOrMore>
              <ref name="element-path-with-dest"/>
           </zeroOrMore>

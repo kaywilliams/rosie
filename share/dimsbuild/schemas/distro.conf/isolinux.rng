@@ -3,17 +3,21 @@
   <start>    
     <element name="distro">      
       <optional>
-        <element name="isolinux">
-          <interleave>
-            <optional>
-              <element name="boot-args"><text/></element>
-            </optional>
-            <optional>
-              <oneOrMore>
-                <ref name="element-path-with-dest"/>
-              </oneOrMore>
-            </optional>
-          </interleave>
+        <element name="installer">
+          <optional>
+            <element name="isolinux">
+              <interleave>
+                <optional>
+                  <element name="boot-args"><text/></element>
+                </optional>
+                <optional>
+                  <oneOrMore>
+                    <ref name="element-path-with-dest"/>
+                  </oneOrMore>
+                </optional>
+              </interleave>
+            </element>
+          </optional>
         </element>
       </optional>
     </element>

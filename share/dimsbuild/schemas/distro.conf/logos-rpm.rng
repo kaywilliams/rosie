@@ -4,20 +4,21 @@
 
     <element name="distro">
       <optional>
-        <element name="logos-rpm">
+        <element name="rpms">
           <optional>
-            <attribute name="enabled">
-              <ref name="value-boolean-with-default"/>
-            </attribute>
-          </optional>          
-          <interleave>
-            <optional>
-              <element name="release"><text/></element>
-            </optional>            
-            <optional>
-              <ref name="element-obsoletes"/>
-            </optional>
-          </interleave>
+            <element name="logos-rpm">
+              <optional>
+                <attribute name="enabled">
+                  <ref name="value-boolean-with-default"/>
+                </attribute>
+              </optional>          
+              <interleave>
+                <optional>
+                  <ref name="element-obsoletes"/>
+                </optional>
+              </interleave>
+            </element>
+          </optional>
         </element>
       </optional>
     </element>

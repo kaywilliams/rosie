@@ -3,24 +3,28 @@
   <start>
     <element name="distro">
       <optional>
-        <element name="release-files">
+        <element name="installer">
           <optional>
-            <attribute name="use-default-set">
-              <ref name="value-boolean"/>
-            </attribute>
-          </optional>          
-          <interleave>
-            <optional>
-              <oneOrMore>
-                <element name="path"><text/></element>
-              </oneOrMore>
-            </optional>
-            <optional>
-              <oneOrMore>
-                <element name="package"><text/></element>
-              </oneOrMore>
-            </optional>
-          </interleave>
+            <element name="release-files">
+              <optional>
+                <attribute name="use-default-set">
+                  <ref name="value-boolean"/>
+                </attribute>
+              </optional>          
+              <interleave>
+                <optional>
+                  <oneOrMore>
+                    <element name="path"><text/></element>
+                  </oneOrMore>
+                </optional>
+                <optional>
+                  <oneOrMore>
+                    <element name="package"><text/></element>
+                  </oneOrMore>
+                </optional>
+              </interleave>
+            </element>
+          </optional>
         </element>
       </optional>
     </element>

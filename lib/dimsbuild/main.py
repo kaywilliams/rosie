@@ -278,9 +278,9 @@ class Build(object):
     Event.files_callback = FilesCallback(Event.logger, Event.METADATA_DIR)
     
     Event.mcvalidator = MainConfigValidator(Event.SHARE_DIR/'schemas',
-                                            Event.mainconfig)
+                                            Event.mainconfig.file)
     Event.validator = ConfigValidator(Event.SHARE_DIR/'schemas/distro.conf',
-                                      Event.config, Event.errlogger)
+                                      Event.config.file, Event.errlogger)
 
 
 class CvarsDict(dict):
