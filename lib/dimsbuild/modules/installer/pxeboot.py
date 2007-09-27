@@ -26,11 +26,11 @@ class PxebootImagesEvent(Event):
     
   def run(self):
     self.log(0, L0("preparing pxeboot images"))
-    self.io.remove_output()
     self.io.sync_input()
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     for file in ['vmlinuz', 'initrd.img']:
       if not (self.pxebootdir/file).exists():
         raise RuntimeError("Unable to find '%s' in '%s'" % (file, self.pxebootdir))

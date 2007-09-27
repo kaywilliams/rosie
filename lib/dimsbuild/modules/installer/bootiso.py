@@ -9,21 +9,20 @@ class BootisoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'bootiso',
-      requires = ['initrd-file', 'isolinux-files'],
+      requires = ['initrd-file', 'isolinux-dir'],
       conditionally_requires = ['installer-splash',],
     )
     
-    ##self.isolinux_dir = self.SOFTWARE_STORE/'isolinux'
-    self.isolinux_dir = self.METADATA_DIR/'isolinux/output/os/isolinux' #! illegal
     self.bootiso = self.SOFTWARE_STORE/'images/boot.iso'
     
     self.DATA = {
-      'input':  [self.isolinux_dir],
+      'input':  [],
       'output': [self.bootiso],
     }
   
   def setup(self):
     self.diff.setup(self.DATA)
+    self.DATA['input'].append(self.cvars['isolinux-dir'])
   
   def run(self):
     self.log(0, L0("generating boot.iso"))
@@ -31,12 +30,12 @@ class BootisoEvent(Event):
     isodir = self.SOFTWARE_STORE/'images/isopath'
     
     isodir.mkdirs()
-    self.isolinux_dir.cp(isodir, recursive=True, link=True)
+    self.cvars['isolinux-dir'].cp(isodir, recursive=True, link=True)
     
     # apparently mkisofs modifies the mtime of the file it uses as a boot image.
     # to avoid this, we copy the boot image timestamp and overwrite the original
     # when we finish
-    ibin_path = self.isolinux_dir/'isolinux.bin'
+    ibin_path = self.cvars['isolinux-dir']/'isolinux.bin'
     ibin_st = ibin_path.stat()
     
     shlib.execute('mkisofs -o %s -b isolinux/isolinux.bin -c isolinux/boot.cat '
@@ -48,6 +47,7 @@ class BootisoEvent(Event):
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     if not self.bootiso.exists():
       raise RuntimeError, "Unable to find boot.iso at '%s'" % self.bootiso
 

@@ -36,6 +36,9 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     self.log(0, L0("synchronizing release files"))
     self._extract()
 
+  def apply(self):
+    self.io.clean_eventcache()    
+
   def _generate(self, working_dir):
     files = {}
     rtn = []    

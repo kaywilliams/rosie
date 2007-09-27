@@ -72,7 +72,6 @@ class PublishEvent(Event):
   def run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
     self.log(0, L0("publishing output store"))
-    self.io.remove_output()
     self.cvars['publish-path'].rm(recursive=True, force=True)
     self.io.sync_input(copy=True, link=True)
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' \
@@ -81,6 +80,7 @@ class PublishEvent(Event):
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     self.files_callback.relpath = self._backup_relpath
     del(self._backup_relpath)
 

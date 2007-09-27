@@ -43,13 +43,12 @@ class GPGCheckEvent(Event, RepoMixin):
     self.log(0, L0("running gpgcheck"))
     
     if not self.checks:
-      self.io.remove_output(all=True) # remove old keys from builddata
+      self.io.clean_eventcache(all=True) # remove old keys
       self.diff.write_metadata()
       return
     
     homedir = self.mddir/'homedir'
     self.DATA['output'].append(homedir)
-    self.io.remove_output() # remove changed keys from builddata
     newkeys = self.io.sync_input() # sync new keys
     
     if newkeys: 
@@ -81,6 +80,9 @@ class GPGCheckEvent(Event, RepoMixin):
                                        "GPG key checking: %s" % invalids)
     
     self.diff.write_metadata()
+
+  def apply(self):
+    self.io.clean_eventcache()
 
   def error(self, e):
     self.clean()

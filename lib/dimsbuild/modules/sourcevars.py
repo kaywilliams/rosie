@@ -63,6 +63,7 @@ class SourceVarsEvent(Event, RepoMixin): #!
     self.diff.write_metadata()
       
   def apply(self):
+    self.io.clean_eventcache()
     # parse buildstamp
     buildstamp = ffile.DictToFormattedFile(self.locals.buildstamp_fmt)
     sourcevars = buildstamp.read(self.buildstamp_out)

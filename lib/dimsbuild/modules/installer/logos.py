@@ -42,6 +42,7 @@ class LogosEvent(Event, ExtractMixin):
     self._extract()
   
   def apply(self):
+    self.io.clean_eventcache()
     splash = self.SOFTWARE_STORE/'isolinux/splash.%s' % self.format
     if not splash.exists():
       raise RuntimeError("missing file: '%s'" % splash)

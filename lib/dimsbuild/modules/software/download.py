@@ -56,11 +56,11 @@ class DownloadEvent(Event, RepoMixin):
   def run(self):
     self.log(0, L0("running download"))
 
-    self.io.remove_output()
     self.io.sync_input()
     self.diff.write_metadata()
     
   def apply(self):
+    self.io.clean_eventcache()
     self.cvars['input-rpms'] = self.input_rpms
     self.cvars['cached-rpms'] = self.io.list_output()
   

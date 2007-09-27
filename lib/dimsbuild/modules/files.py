@@ -32,12 +32,10 @@ class FilesEvent(Event):
   
   def run(self):
     self.log(0, L0("processing user-provided files"))
-    # delete altered files
-    self.io.remove_output()
-          
-    # download input files
     self.io.sync_input()
-    
     self.diff.write_metadata()
+
+  def apply(self):
+    self.io.clean_eventcache()
 
 EVENTS = {'OS': [FilesEvent]}

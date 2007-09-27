@@ -13,7 +13,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'isolinux',
-      provides = ['vmlinuz-file', 'isolinux-files'],
+      provides = ['vmlinuz-file', 'isolinux-dir'],
       requires = ['anaconda-version', 'source-vars'],
     )
     
@@ -40,7 +40,6 @@ class IsolinuxEvent(Event, FileDownloadMixin):
   
   def run(self):
     self.log(0, L0("synchronizing isolinux files"))
-    self.io.remove_output()
     self._download()
     self.io.sync_input(what='IsoLinuxFiles')
     
@@ -63,10 +62,12 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     for file in self.io.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s'" % file)
     # fix this, this must be doable via list_output
+    self.cvars['isolinux-dir'] = self.isolinux_dir
     self.cvars['vmlinuz-file'] = \
       self.SOFTWARE_STORE/self.file_locals['vmlinuz']['path']
 
@@ -102,10 +103,11 @@ class InitrdImageEvent(Event, ImageModifyMixin):
   
   def run(self):
     self.log(0, L0("processing initrd.img"))
-    self.io.remove_output(all=True)
+    self.io.clean_eventcache(all=True)
     self._modify()
   
   def apply(self):
+    self.io.clean_eventcache()
     for file in self.io.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))

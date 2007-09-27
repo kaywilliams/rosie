@@ -68,7 +68,7 @@ class SourceReposEvent(Event):
     self.log(0, L0("running source-repos event"))
 
     if not self.cvars['sources-enabled']:
-      self.io.remove_output(all=True)
+      self.io.clean_eventcache(all=True)
       self.diff.write_metadata()
       return
     
@@ -97,15 +97,19 @@ class SourceReposEvent(Event):
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     if not self.cvars['sources-enabled']: return
     for repo in self.source_repos.values():
       if not repo.pkgsfile.exists():
         raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "
-                           "are skipping the repo-contents event before it "
-                           "has been allowed to run once?" % repo.pkgsfile)
+                           "are skipping the %s event before it has been allowed "
+                           "to run once?" % (repo.pkgsfile, self.id))
       repo.readRepoContents(repofile=repo.pkgsfile)
 
     self.cvars['source-repos'] = self.source_repos
+
+  def error(self, e):
+    self.clean()
 
 class SourcesEvent(Event):
   "Downloads source rpms."
@@ -162,12 +166,11 @@ class SourcesEvent(Event):
     self.log(0, L0("running sources event"))
  
     if not self.cvars['sources-enabled']:
-      self.io.remove_output(all=True)
+      self.io.clean_eventcache(all=True)
       self.diff.write_metadata()
       return
     
     self.log(1, L1("processing srpms"))
-    self.io.remove_output()
     self.srpmdest.mkdirs()
     self.io.sync_input()
     self._createrepo()
@@ -176,6 +179,7 @@ class SourcesEvent(Event):
     self.diff.write_metadata()
 
   def apply(self):
+    self.io.clean_eventcache()
     if self.cvars['sources-enabled']:
       self.cvars['srpms'] = self.io.list_output(what='srpms')
       self.cvars['srpms-dir'] = self.srpmdest

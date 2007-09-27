@@ -65,7 +65,7 @@ class PkglistEvent(Event, RepoMixin):
   
   def run(self):
     self.log(0, L0("resolving pkglist"))
-    self.io.remove_output(all=True)
+    self.io.clean_eventcache(all=True)
     
     # copy pkglist    
     if self.docopy:
@@ -113,6 +113,7 @@ class PkglistEvent(Event, RepoMixin):
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     if not self.pkglistfile.exists():
       raise RuntimeError("missing package list file: '%s'" % self.pkglistfile)
     self.cvars['pkglist'] = filereader.read(self.pkglistfile)

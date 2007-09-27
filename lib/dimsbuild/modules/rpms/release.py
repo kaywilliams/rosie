@@ -91,13 +91,14 @@ class ReleaseRpmEvent(RpmBuildEvent, ColorMixin, FileDownloadMixin):
     self.io.setup_sync(self.build_folder/'eulapy', paths=paths)
   
   def run(self):
-    self.io.remove_output(all=True)
+    self.io.clean_eventcache(all=True)
     if self._test_build('True'):
       self.io.sync_input()          
       self._build_rpm()
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     if not self._test_build('True'):
       return
     self._check_rpms()

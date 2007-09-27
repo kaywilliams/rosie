@@ -1,14 +1,16 @@
 from dims import pps
+from dims import xmltree
+
+from dims.pps.constants import TYPE_DIR, TYPE_NOT_DIR
 
 P = pps.Path
 
 class IOMixin:
   def __init__(self):
     self.io = IOObject(self)
-  
-  def clean(self):
-    self.io.remove_output(all=True)
 
+  def clean(self):
+    self.io.clean_eventcache(all=True)
 
 class IOObject:
   "Dummy class to contain I/O-related methods"
@@ -79,68 +81,36 @@ class IOObject:
       self.ptr.diff.handlers['output'].odata.append(ofile)
       rtn.append(ofile)
     return rtn
-  
-  def remove_output(self, rmlist=None, all=False, cb=None):
+
+  def clean_eventcache(self, all=False):
     """ 
-    Remove output files.
-    @param all  : If all is True, remove all output files, else remove
-                  the files that have changed.
+    Cleans event cache folder. 
+    @param all  : If all is True, removes all files, else, removes files that 
+                  are not listed in the output section of the event metadata file.
     """
-    if not self.ptr.diff.handlers.has_key('output'): return
-    
-    if rmlist is None:
-      if all:
-        rmlist = self.ptr.diff.handlers['output'].oldoutput.keys()
-      else:
-        rmlist = []
-        # remove previous output files that have been modified
-        # since last run
-        rmlist.extend([ f for f,d in self.ptr.diff.handlers['output'].diffdict.items() if d[0] is not None ])
-        
-        # remove output files from the last time that aren't needed
-        # anymore
-        for oldfile in self.ptr.diff.handlers['output'].oldoutput.keys():
-          found = False
-          
-          for id in self.sync_info.keys():
-            for ds in self.sync_info[id].values():
-              if oldfile in ds:
-                found = True
-                break
-            if found:
-              break
-          
-          if not found and oldfile not in rmlist:
-            rmlist.append(oldfile)
-      
-      rmlist = [ r for r in rmlist if r.exists() ]
-    
-    if not rmlist:
-      return
-    
-    cb = cb or self.ptr.files_callback
-    cb.rm_start()
-    
-    rmlist.sort()
-    dirs = []
-    
-    # delete the files, whether or not they exist
-    for rmitem in rmlist:
-      cb.rm(rmitem)
-      rmitem.rm(recursive=True, force=True)
-      dir = rmitem.dirname
-      if dir not in dirs:
-        dirs.append(dir)
-    
-    dirs = [ d for d in dirs if \
-             not d.findpaths(type=pps.constants.TYPE_NOT_DIR) ]
-    
-    if not dirs: return
-    dirs.reverse()
-    cb.rmdir_start()
-    for dir in dirs:
-      cb.rmdir(dir)
-      dir.removedirs()
+    if all:
+      self.ptr.mddir.listdir(all=True).rm(recursive=True, force=True)
+    else:
+      if self.ptr.diff.handlers.has_key('output'):
+        self.ptr.diff.handlers['output'].clear()
+        root = xmltree.read(self.ptr.mdfile)
+        self.ptr.diff.handlers['output'].mdread(root)
+        expected = set()
+        for path in self.ptr.diff.handlers['output'].oldoutput.keys():
+          for item in path.findpaths(type=TYPE_NOT_DIR):
+            expected.add(item)
+        expected.add(self.ptr.mdfile)
+        existing = set(self.ptr.mddir.findpaths(mindepth=1, type=TYPE_NOT_DIR))
+        for path in existing.difference(expected):
+          path.rm(recursive=True, force=True)
+
+      # remove empty dirs
+      dirs = [ d for d in self.ptr.mddir.findpaths(mindepth=1, type=TYPE_DIR) if \
+             not d.findpaths(type=TYPE_NOT_DIR) ]
+      if not dirs: return
+      dirs.reverse()
+      for dir in dirs:
+        dir.removedirs()
   
   def sync_input(self, cb=None, link=False, what=None, copy=False):
     """ 

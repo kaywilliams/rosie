@@ -28,12 +28,13 @@ class DefaultThemeRpmEvent(RpmBuildEvent):
     self.validator.validate('/distro/rpms/default-theme-rpm', 'default-theme-rpm.rng')
 
   def run(self):
-    self.io.remove_output(all=True)
+    self.io.clean_eventcache(all=True)
     if self._test_build('False'):
       self._build_rpm()
     self.diff.write_metadata()    
   
   def apply(self):
+    self.io.clean_eventcache()
     if not self._test_build('False'):
       return
     self._check_rpms()

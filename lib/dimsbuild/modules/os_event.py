@@ -55,7 +55,6 @@ class OSComposeEvent(Event):
     
     # create composed tree
     self.log(1, L1("composing output tree"))
-    self.io.remove_output()
     backup = self.files_callback.sync_start
     self.files_callback.sync_start = lambda: None
     for event in self.events:
@@ -87,8 +86,9 @@ class OSComposeEvent(Event):
     self.DATA['output'].append(self.mfile)
     
     self.diff.write_metadata()
-  
+
   def apply(self):
+    self.io.clean_eventcache()
     self.cvars['os-dir'] = self.osdir
     try: self.cvars['publish-content'].add(self.osdir)
     except: pass

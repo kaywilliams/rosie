@@ -82,7 +82,7 @@ class PkgorderEvent(Event):
     self.log(0, L0("processing pkgorder file"))
     
     # delete prior pkgorder file, if exists    
-    self.io.remove_output(all=True)
+    self.io.clean_eventcache(all=True)
     if self.dosync:
       self.io.sync_input()
     else:
@@ -108,6 +108,7 @@ class PkgorderEvent(Event):
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     if self.cvars['iso-enabled']:
       if not self.pkgorderfile.exists():
         raise RuntimeError("Unable to find cached pkgorder at '%s'.  "
@@ -128,6 +129,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     
     self.lfn = self._delete_isotree
     self.rfn = self._generate_isotree
+    self.bfn = self._extend_diffdata
     
     self.splittrees = self.mddir/'split-trees'
     
@@ -143,7 +145,6 @@ class IsoSetsEvent(Event, ListCompareMixin):
   
   def setup(self):
     self.diff.setup(self.DATA)
-    
     self.isodir = self.mddir/'iso'
     
     if not self.cvars['iso-enabled']: return
@@ -157,7 +158,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     self.log(0, L0("running %s event" % self.id))
     # changing from iso-enabled true, cleanup old files and metadata
     if self.diff.var_changed_from_value('cvars[\'iso-enabled\']', True):
-      self.clean()
+      self.io.clean_eventcache(all=True)
     
     if not self.cvars['iso-enabled']: 
       self.diff.write_metadata()
@@ -171,7 +172,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     if self.diff.handlers['input'].diffdict or \
        self.diff.handlers['variables'].diffdict.has_key("cvars['srpms']") or \
        self.diff.handlers['variables'].diffdict.has_key("cvars['sources-enabled']"):
-      self.io.remove_output(all=True)
+      self.io.clean_eventcache(all=True)
       oldsets = []
     
     # otherwise get oldsets from metadata file
@@ -188,25 +189,24 @@ class IsoSetsEvent(Event, ListCompareMixin):
       self.newsets_expanded.append(splittree.parse_size(set))
     
     self.compare(oldsets, newsets)
-    
-    self.DATA['output'].extend([self.isodir, self.splittrees])
-    
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     if self.cvars['iso-enabled']:
       self.cvars['iso-dir'] = self.isodir
       try: self.cvars['publish-content'].add(self.isodir)
       except: pass
   
+  def _extend_diffdata(self, set):
+    self.DATA['output'].extend([self.splittrees/set, self.isodir/set])
+
   def _delete_isotree(self, set):
     expanded_set = splittree.parse_size(set)
-    if expanded_set not in self.newsets_expanded:
-      self.io.remove_output(rmlist=[self.splittrees/set,
-                                 self.isodir/set])
-    else:
+    if expanded_set in self.newsets_expanded:
       newset = self.newsets[self.newsets_expanded.index(expanded_set)]
       (self.splittrees/set).rename(self.splittrees/newset)
+      self.DATA['output'].extend([self.splittrees/set, self.isodir/set])      
       if newset in self.r:
         self.r.remove(newset) # don't create iso tree; it already exists
   
@@ -253,6 +253,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
       
       if i == 1: # reset mtimte on isolinux.bin (mkisofs is so misbehaved in this regard)
         isolinux_path.utime((i_st.st_atime, i_st.st_mtime))
-  
+
+    self.DATA['output'].extend([self.splittrees/set, self.isodir/set])  
 
 EVENTS = {'ALL': [IsoMetaEvent], 'ISO': [PkgorderEvent, IsoSetsEvent]}

@@ -28,7 +28,7 @@ MAGIC_MAP = {
 
 class ExtractMixin:
   def _extract(self):
-    self.io.remove_output(all=True)
+    self.io.clean_eventcache(all=True)
     
     # generate output files
     try:

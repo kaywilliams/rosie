@@ -54,8 +54,11 @@ class DiscinfoEvent(Event):
     self.difile.dirname.mkdirs()
     discinfo.write(self.difile, **base_vars)
     self.difile.chmod(0644)
+
+    self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     if not self.difile.exists():
       raise RuntimeError, "Unable to find .discinfo file at '%s'" % self.difile
     self.diff.write_metadata()
@@ -118,6 +121,7 @@ class TreeinfoEvent(Event):
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     if not self.tifile.exists():
       raise RuntimeError, "Unable to find .treeinfo file at '%s'" % self.tifile
 

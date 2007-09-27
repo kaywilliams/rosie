@@ -50,11 +50,12 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
   
   def run(self):
     self.log(0, L0("preparing xen images"))
-    self.io.remove_output(all=True)
+    self.io.clean_eventcache(all=True)
     self._download()
     self._modify()
   
   def apply(self):
+    self.io.clean_eventcache()
     for file in self.io.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' in '%s'" % (file.basename, file.dirname))

@@ -71,13 +71,11 @@ class GPGSignEvent(Event, GpgMixin):
     # changing from gpgsign-enabled true, cleanup old files and metadata
     if self.diff.var_changed_from_value('gpgsign_enabled', True):
       self.log(1, L1("gpgsign disabled - cleaning up"))
-      self.io.remove_output(all=True)
+      self.io.clean_eventcache(all=True)
     
     if not self.cvars['gpgsign-enabled']:
       self.diff.write_metadata()
       return
-    
-    self.io.remove_output()
     
     self.log(1, L1("configuring gpg signing"))
     # sync keys
@@ -121,7 +119,8 @@ class GPGSignEvent(Event, GpgMixin):
     self.diff.write_metadata()
   
   def apply(self):
-   self.cvars['signed-rpms'] = self.io.list_output(what='rpms')  
+    self.io.clean_eventcache()
+    self.cvars['signed-rpms'] = self.io.list_output(what='rpms')  
   
   def error(self, e):
     self.clean()

@@ -36,7 +36,7 @@ class LocalRepoEvent(Event):
   def run(self):
     self.log(0, L0("creating localrepo"))
     # remove previous output
-    self.io.remove_output(all=True)
+    self.io.clean_eventcache(all=True)
     
     # sync rpms
     backup = self.files_callback.sync_start
@@ -55,6 +55,7 @@ class LocalRepoEvent(Event):
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     self._populate()
     if self.cvars['custom-rpms']: self._add_store()
     if self.cvars['custom-srpms']: self._add_source()

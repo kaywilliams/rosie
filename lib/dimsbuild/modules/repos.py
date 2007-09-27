@@ -73,6 +73,7 @@ class ReposEvent(Event, RepoMixin):
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     for repo in self.repos.values():
       if not repo.pkgsfile.exists():
         raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "

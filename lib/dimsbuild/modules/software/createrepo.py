@@ -42,7 +42,6 @@ class CreaterepoEvent(Event):
   def run(self):
     self.log(0, L0("creating repository metadata"))
     
-    self.io.remove_output()
     self.io.sync_input(copy=True, link=True)
 
     # run createrepo
@@ -55,6 +54,7 @@ class CreaterepoEvent(Event):
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     self.cvars['rpms'] = self.io.list_output(what='rpms')
 
 

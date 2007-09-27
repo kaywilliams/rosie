@@ -60,12 +60,13 @@ class LogosRpmEvent(RpmBuildEvent, ColorMixin, FileLocalsMixin):
     self.hlcolor = int(self.hlcolor, 16)
   
   def run(self):
-    self.io.remove_output(all=True)
+    self.io.clean_eventcache(all=True)
     if self._test_build('True'):
       self._build_rpm()
     self.diff.write_metadata()    
   
   def apply(self):
+    self.io.clean_eventcache()
     if not self._test_build('True'):
       return
     self._check_rpms()

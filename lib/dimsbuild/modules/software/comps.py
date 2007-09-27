@@ -71,8 +71,7 @@ class CompsEvent(Event, RepoMixin):
   def run(self):
     self.log(0, L0("processing comps file"))
     
-    # delete prior comps file
-    self.io.remove_output(all=True)
+    self.io.clean_eventcache(all=True)
     
     if self.comps_supplied: # download comps file   
       self.log(1, L1("using comps file '%s'" % self.comps_supplied))
@@ -89,6 +88,7 @@ class CompsEvent(Event, RepoMixin):
     self.diff.write_metadata()
   
   def apply(self):
+    self.io.clean_eventcache()
     # set comps-file control variable
     if self.comps_supplied: 
       self.cvars['comps-file'] = self.io.list_output(what='comps.xml')[0]

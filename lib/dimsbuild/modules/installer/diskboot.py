@@ -49,10 +49,11 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     
   def run(self):
     self.log(0, L0("preparing diskboot image"))
-    self.io.remove_output(all=True)
+    self.io.clean_eventcache(all=True)
     self._modify()
   
   def apply(self):
+    self.io.clean_eventcache()
     for file in self.io.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
