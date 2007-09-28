@@ -10,7 +10,7 @@ class ValidateMixin:
   def __init__(self, schemaspath, configfile):
     self.schemaspath = schemaspath
     self.configfile = configfile
-
+    
     self.config = etree.parse(self.configfile)
     
   def validate(self, xpath_query, schemafile=None, schemacontents=None):
