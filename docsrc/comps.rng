@@ -8,9 +8,11 @@
       </para>
       <programlisting>
 element comps {
-  element create-new { ... }
-  | element use-existing { ... }
-}
+  text|(
+    element groups { ... }?,
+    element include { ... }?,
+    element exclude { ... }?
+)}
       </programlisting>
       <refsection>
         <title>Parents</title>
@@ -23,14 +25,10 @@ element comps {
         dimsbuild to use an already-existing group file, /var/temp/comps.xml.
         </para>
         <programlisting>
-&lt;comps&gt;
-  &lt;use-existing&gt;
-     &lt;path&gt;/var/temp/comps.xml&lt;/comps&gt;
-  &lt;/use-existing&gt;
-&lt;/comps&gt;
+&lt;comps&gt;/var/temp/comps.xml&lt;/comps&gt;
         </programlisting>
         <para>
-        The second indicates that comps should generate a new group file.  The group
+        The second indicates that comps should generate a new file.  The group
         file will have both the 'core' and 'base-x' groups included, the second of
         which must come from the repository with id 'fedora-6'.  Furthermore, the
         group file will include the 'createrepo', 'httpd', and 'sudo' packages, and
@@ -38,43 +36,21 @@ element comps {
         </para>
         <programlisting>
 &lt;comps&gt;
-  &lt;create-new&gt;
-    &lt;groups&gt;
-      &lt;group&gt;core&lt;/group&gt;
-      &lt;group repoid='fedora-6'&gt;base-x&lt;/group&gt;
-    &lt;/groups&gt;
-    &lt;include&gt;
-      &lt;package&gt;createrepo&lt;/package&gt;
-      &lt;package&gt;httpd&lt;/package&gt;
-      &lt;package type='conditional'
-               requires='filesystem'&gt;sudo&lt;/package&gt;
-    &lt;/include&gt;
-    &lt;exclude&gt;
-      &lt;package&gt;vim-minimal&lt;/package&gt;
-    &lt;/exclude&gt;
-  &lt;/create-new&gt;
+  &lt;groups&gt;
+    &lt;group&gt;core&lt;/group&gt;
+    &lt;group repoid='fedora-6'&gt;base-x&lt;/group&gt;
+  &lt;/groups&gt;
+  &lt;include&gt;
+    &lt;package&gt;createrepo&lt;/package&gt;
+    &lt;package&gt;httpd&lt;/package&gt;
+    &lt;package type='conditional'
+             requires='filesystem'&gt;sudo&lt;/package&gt;
+  &lt;/include&gt;
+  &lt;exclude&gt;
+    &lt;package&gt;vim-minimal&lt;/package&gt;
+  &lt;/exclude&gt;
 &lt;/comps&gt;
         </programlisting>
-      </refsection>
-    </refsect2>
-    
-    <!-- create-new -->
-    <refsect2>
-      <title>&lt;create-new&gt;</title>
-      <para>
-      create-new is a container child of the comps element that indicates that
-      dimsbuild should create a new groupfile.
-      </para>
-      <programlisting>
-element create-new {
-  element groups { ... }
-  &amp; element include { ... }?
-  &amp; element exclude { ... }?
-}
-      </programlisting>
-      <refsection>
-        <title>Parents</title>
-        <para>comps</para>
       </refsection>
     </refsect2>
     
@@ -193,25 +169,6 @@ element package {
         <para>See comps for an example of a package element</para>
       </refsection>
     </refsect2>
-    
-    <!-- use-existing -->
-    <refsect2>
-      <title>&lt;use-existing&gt;</title>
-      <para>
-      use-existing is a container child of the comps element that indicates that
-      dimsbuild should use an existing groupfile.  It contains a single path element
-      that points to the groupfile to use.
-      </para>
-      <programlisting>
-element use-existing {
-  element path { ... }
-}
-      </programlisting>
-      <refsection>
-        <title>Parents</title>
-        <para>comps</para>
-      </refsection>
-    </refsect2>
-    
+     
   </refentry>
 </docroot>

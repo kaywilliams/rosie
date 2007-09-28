@@ -5,8 +5,32 @@
       <optional>
         <element name="comps">
           <choice>
-            <ref name="element-create-new"/>
-            <ref name="element-use-existing"/>
+            <text/>
+            <group>
+              <interleave>
+                <optional>
+                  <element name="groups">
+                    <oneOrMore>
+                      <ref name="element-group"/>
+                    </oneOrMore>
+                  </element>
+                </optional>
+                <optional>
+                  <element name="include">
+                    <oneOrMore>
+                      <ref name="element-package"/>
+                    </oneOrMore>
+                  </element>
+                </optional>
+                <optional>
+                  <element name="exclude">
+                    <oneOrMore>
+                      <element name="package"><text/></element>
+                    </oneOrMore>
+                  </element>
+                </optional>
+              </interleave>
+            </group>
           </choice>
         </element>
       </optional>
@@ -14,42 +38,6 @@
   </start>
   
   <include href="lib.rng"/>
-  
-  <define name="element-use-existing">
-    <element name="use-existing">
-      <element name="path"><text/></element>
-    </element>
-  </define>
-  
-  <define name="element-create-new">
-    <element name="create-new">
-      <interleave>
-        <optional>
-          <element name="groups">
-            <oneOrMore>
-              <ref name="element-group"/>
-            </oneOrMore>
-          </element>
-        </optional>
-        
-        <optional>
-          <element name="include">
-            <oneOrMore>
-              <ref name="element-package"/>
-            </oneOrMore>
-          </element>
-        </optional>
-        
-        <optional>
-          <element name="exclude">
-            <oneOrMore>
-              <element name="package"><text/></element>
-            </oneOrMore>
-          </element>
-        </optional>
-      </interleave>
-    </element>
-  </define>
   
   <define name="element-group">
     <element name="group">

@@ -45,10 +45,10 @@ class CompsEvent(Event, RepoMixin):
     self.diff.setup(self.DATA)
 
     self.comps_supplied = \
-      self.config.get('/distro/comps/use-existing/path/text()', None)
+      self.config.get('/distro/comps/text()', None)
 
     if self.comps_supplied: 
-      xpath = '/distro/comps/use-existing/path'
+      xpath = '/distro/comps'
 
       self.io.setup_sync(self.mddir, id='comps.xml', xpaths=[xpath])
 
@@ -133,7 +133,7 @@ class CompsEvent(Event, RepoMixin):
       while len(mapped[groupfileid]) > 0:
         groupid = mapped[groupfileid].pop(0)
         if groupid in processed: continue # skip those we already processed
-        default = self.config.get('/distro/comps/create-new/groups/group[text()="%s"]/@default' % groupid, 'true')
+        default = self.config.get('/distro/comps/groups/group[text()="%s"]/@default' % groupid, 'true')
         self._add_group_by_id(groupid, tree, mapped[groupfileid], default=default)
         processed.append(groupid)
         
@@ -146,7 +146,7 @@ class CompsEvent(Event, RepoMixin):
           i += 1; continue
         try:
           group = tree.get('//group[id/text()="%s"]' % groupid)
-          default = self.config.get('/distro/comps/create-new/groups/group[text()="%s"]/@default' % groupid, 'true')
+          default = self.config.get('/distro/comps/groups/group[text()="%s"]/@default' % groupid, 'true')
           self._add_group_by_id(groupid, tree, unmapped, processed, default=default)
           processed.append(unmapped.pop(i))
           j = len(unmapped)
@@ -162,7 +162,7 @@ class CompsEvent(Event, RepoMixin):
     
     # add packages to core group
     packages = []
-    for pkg in self.config.xpath('/distro/comps/create-new/include/package', []):
+    for pkg in self.config.xpath('/distro/comps/include/package', []):
       pkgname = pkg.get('text()')
       pkgtype = pkg.get('@type', 'mandatory')
       pkgrequires = pkg.get('@requires', None)
@@ -195,7 +195,7 @@ class CompsEvent(Event, RepoMixin):
       self._add_group_package('kernel', core, type='mandatory')
     
     # exclude all package in self.exclude
-    exclude = self.config.xpath('/distro/comps/create-new/exclude/packages/text()', []) + \
+    exclude = self.config.xpath('/distro/comps/exclude/packages/text()', []) + \
               (self.cvars['excluded-packages'] or [])
 
     for pkg in exclude:
@@ -215,7 +215,7 @@ class CompsEvent(Event, RepoMixin):
       mapped[repo.id] = []
     unmapped = []
     
-    for group in self.config.xpath('/distro/comps/create-new/groups/group', []):
+    for group in self.config.xpath('/distro/comps/groups/group', []):
       repo = group.attrib.get('repoid', None)
       if repo is not None:
         try:
