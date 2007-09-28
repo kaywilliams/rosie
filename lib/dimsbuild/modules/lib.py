@@ -49,6 +49,7 @@ class RepoEventMixin:
         remote_path = P(repo.get('path/text()')),
         pkgsfile = self.mddir / repo.get('@id') / 'packages',
         gpgcheck = repo.get('gpgcheck/text()', 'False') in BOOLEANS_TRUE,
+        gpgkeys = [ P(x) for x in repo.xpath('gpgkey/text()', []) ],
         repodata_path = repo.get('repodata-path/text()', ''),
         include = repo.xpath('include/package/text()', []),
         exclude = repo.xpath('exclude/package/text()', [])
@@ -73,12 +74,11 @@ class RepoEventMixin:
 
     self.files_callback.sync_start = backup
 
-  def read_new_packages(self, write=True):
+  def read_new_packages(self):
     for repo in self.repos.values():
       pxml = repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles['primary'])
       if self.diff.handlers['input'].diffdict.has_key(pxml):
         self.log(2, L2(repo.id))
         repo.readRepoContents()
-        if write:
-          repo.writeRepoContents(repo.pkgsfile)
-          self.DATA['output'].append(repo.pkgsfile)
+        repo.writeRepoContents(repo.pkgsfile)
+      self.DATA['output'].append(repo.pkgsfile)
