@@ -12,6 +12,7 @@ class ValidateMixin:
     self.configfile = configfile
     
     self.config = etree.parse(self.configfile)
+    self._strip_macro_elements()
     
   def validate(self, xpath_query, schemafile=None, schemacontents=None):
     if (schemafile is None and schemacontents is None) or \
@@ -66,10 +67,10 @@ class ValidateMixin:
   def getXmlSection(self, query):
     return self.config.xpath(query)
 
-  def _strip_macro_elements(self, tree):
-    for macro in tree.xpath('//macro', []):
-      tree.remove(macro)
-
+  def _strip_macro_elements(self):
+    for macro in self.config.xpath('//macro'):
+      macro.getparent().remove(macro)
+      
 
 class MainConfigValidator(ValidateMixin):
   def __init__(self, schemaspath, configfile):
