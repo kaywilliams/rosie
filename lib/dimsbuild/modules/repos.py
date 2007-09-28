@@ -1,26 +1,25 @@
 import re
 
 from dims import filereader
-from dims import xmltree
 
-from dims.dispatch import PROPERTY_META
-from dims.shlib    import execute
-
-from dimsbuild.event   import Event, RepoMixin
+from dimsbuild.event   import Event
 from dimsbuild.logging import L0, L1, L2
-from dimsbuild.repo    import RepoFromXml
+
+from dimsbuild.modules.lib import RepoEventMixin
 
 API_VERSION = 5.0
 
-class ReposEvent(Event, RepoMixin):
+class ReposEvent(Event, RepoEventMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'repos',
       provides = ['anaconda-version', 
-                  'repos',        # provided by repos and localrepo events
-                  'input-repos'   # provided by repos event only, used by release.py
+                  'repos',         # provided by repos and localrepo events
+                  'input-repos',   # provided by repos event only, used by release.py
+                  'base-repoid',
                   ],
     )
+    RepoEventMixin.__init__(self)    
     
     self.DATA = {
       'config':    ['/distro/repos/repo'], 
@@ -35,40 +34,16 @@ class ReposEvent(Event, RepoMixin):
     
   def setup(self):
     self.diff.setup(self.DATA)
-
-    self.repos = {}
-
-    for repo in self.config.xpath('/distro/repos/repo'):
-      repo = RepoFromXml(repo)
-      repo.local_path = self.mddir/repo.id
-      repo.readRepoData(tmpdir=self.TEMP_DIR)
-      repo.pkgsfile = self.mddir/repo.id/'packages'
-      self.repos[repo.id] = repo
- 
-      paths = []
-      for fileid in repo.datafiles:
-        paths.append(repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles[fileid]))
-      paths.append(repo.rjoin(repo.repodata_path, repo.mdfile))
-      self.io.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'), paths=paths)
+    self.cvars['base-repoid'] = self.config.get('/distro/repos/repo[@type="base"]/@id')
+    self.read_config('/distro/repos/repo')
   
   def run(self):
     self.log(0, L0("running repos event"))
-
-    self.io.sync_input()
+    self.sync_repodata()
     
     # process available package lists
     self.log(1, L1("reading available packages"))
-    
-    for repo in self.repos.values():
-    
-      if self.diff.handlers['input'].diffdict.has_key( #!
-        repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles['primary'])):
-        self.log(2, L2(repo.id))
-        
-        # read primary.xml file, store list of pkgs to a file
-        repo.readRepoContents()
-        repo.writeRepoContents(repo.pkgsfile)
-        self.DATA['output'].append(repo.pkgsfile)
+    self.read_new_packages()
     
     self.diff.write_metadata()
   
@@ -83,7 +58,7 @@ class ReposEvent(Event, RepoMixin):
       repo.readRepoContents(repofile=repo.pkgsfile)
 
       # get anaconda_version, if base repo
-      if repo.id == self.getBaseRepoId():
+      if repo.id == self.cvars['base-repoid']:
         self.cvars['anaconda-version'] = get_anaconda_version(repo.pkgsfile)
 
     self.cvars['repos'] = self.repos 

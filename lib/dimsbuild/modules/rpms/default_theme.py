@@ -16,7 +16,8 @@ class DefaultThemeRpmEvent(Event, RpmBuildMixin):
       'output':    [],
     }
 
-    Event.__init__(self, id='default-theme-rpm')
+    Event.__init__(self, id='default-theme-rpm',
+                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])                   
     RpmBuildMixin.__init__(self,
                            '%s-default-theme' % self.product,
                            'The %s-default-theme package requires the gdm package. '\

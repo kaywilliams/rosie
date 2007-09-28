@@ -2,7 +2,7 @@ from dims import depsolver
 from dims import filereader
 
 from dimsbuild.callback import BuildDepsolveCallback
-from dimsbuild.event    import Event, RepoMixin #!
+from dimsbuild.event    import Event
 from dimsbuild.logging  import L0, L1
 
 API_VERSION = 5.0
@@ -20,7 +20,7 @@ YUMCONF_HEADER = [
   '\n',
 ]
 
-class PkglistEvent(Event, RepoMixin):
+class PkglistEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'pkglist',
@@ -58,7 +58,7 @@ class PkglistEvent(Event, RepoMixin):
     
     self.rddirs = [] # list of repodata dirs across all repos
     
-    for repo in self.getAllRepos():
+    for repo in self.cvars['repos'].values():
       self.rddirs.append(repo.ljoin(repo.repodata_path, 'repodata'))
     
     self.DATA['input'].extend(self.rddirs)
@@ -124,7 +124,7 @@ class PkglistEvent(Event, RepoMixin):
       repoconfig.remove()
     conf = []
     conf.extend(YUMCONF_HEADER)
-    for repo in self.getAllRepos():
+    for repo in self.cvars['repos'].values():
       
       # determine if repodata folder changed
       rddir_changed = False

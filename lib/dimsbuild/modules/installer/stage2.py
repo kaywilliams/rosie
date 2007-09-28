@@ -10,7 +10,7 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
     Event.__init__(self,
       id = 'stage2-images',
       provides = ['stage2'],
-      requires = ['anaconda-version', 'source-vars'],
+      requires = ['anaconda-version', 'source-vars', 'base-repoid'],
     )
     
     self.DATA = {
@@ -18,7 +18,7 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
       'output': [],      
     }
     
-    FileDownloadMixin.__init__(self, self.getBaseRepoId())
+    FileDownloadMixin.__init__(self)
   
   def setup(self):
     self.diff.setup(self.DATA)

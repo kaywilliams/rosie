@@ -9,7 +9,6 @@ from dims import pps
 from dims import sync
 
 from dimsbuild.constants import BOOLEANS_TRUE
-from dimsbuild.event     import RepoMixin #!
 from dimsbuild.logging   import L1
 from dimsbuild.magic     import (FILE_TYPE_GZIP, FILE_TYPE_EXT2FS,
                                  FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS,
@@ -76,10 +75,10 @@ class ExtractMixin:
       dir.rm(recursive=True)
     
 
-class ImageModifyMixin(RepoMixin):
+class ImageModifyMixin:
   """ 
-  Classes that extend this must require 'anaconda-version' and
-  'buildstamp-file.'
+  Classes that extend this must require 'anaconda-version', 
+  'buildstamp-file' and 'base-repoid'.
 
   This class downloads (if the image exists) and modifies it.
   """
@@ -92,7 +91,7 @@ class ImageModifyMixin(RepoMixin):
   
   def setup(self):
     # input images
-    repo = self.getRepo(self.getBaseRepoId())
+    repo = self.cvars['repos'][self.cvars['base-repoid']]
     
     image_path = self.image_locals['path'] % self.cvars['base-vars']
     try:
@@ -177,14 +176,14 @@ class ImageModifyMixin(RepoMixin):
         return magic_match(self.path) == MAGIC_MAP[self.image_locals['format']]
 
 
-class FileDownloadMixin(RepoMixin):
+class FileDownloadMixin:
   """ 
-  Classes that extend this must require 'anaconda-version' and
-  'source-vars'.
+  Classes that extend this must require 'anaconda-version', 
+  'source-vars' and 'base-repoid'.
 
   This class should be used to download files besides the images.
   """  
-  def __init__(self, repoid):
+  def __init__(self, repoid=None):
     self.file_locals = None
     
     self.repoid = repoid
@@ -198,7 +197,7 @@ class FileDownloadMixin(RepoMixin):
       linfix = data['path'] % self.cvars['base-vars']
       self.io.setup_sync(
         (self.SOFTWARE_STORE/linfix).dirname, id='FileDownloadMixin',
-        paths=[self.getRepo(self.repoid).rjoin(rinfix)])
+        paths=[self.cvars['repos'][self.repoid or self.cvars['base-repoid']].rjoin(rinfix)])
   
   def _download(self):
     self.io.sync_input(what='FileDownloadMixin')

@@ -14,7 +14,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     Event.__init__(self,
       id = 'diskboot-image',
       provides = ['diskboot.img'],
-      requires = ['initrd-file', 'buildstamp-file'],
+      requires = ['initrd-file', 'buildstamp-file', 'base-repoid'],
       conditionally_requires = ['installer-splash',],
     )
      

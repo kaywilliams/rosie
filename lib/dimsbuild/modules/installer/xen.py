@@ -15,7 +15,8 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     Event.__init__(self,
       id = 'xen-images',
       provides = ['vmlinuz-xen', 'initrd-xen'],
-      requires = ['anaconda-version', 'initrd-file', 'buildstamp-file'],
+      requires = ['anaconda-version', 'initrd-file',
+                  'buildstamp-file', 'base-repoid'],
     )
     
     self.xen_dir = self.SOFTWARE_STORE/'images/xen'
@@ -28,7 +29,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     }
     
     ImageModifyMixin.__init__(self, 'initrd.img')
-    FileDownloadMixin.__init__(self, self.getBaseRepoId())
+    FileDownloadMixin.__init__(self)
   
   def validate(self):
     self.validator.validate('/distro/installer/initrd-image', 'xen.rng')

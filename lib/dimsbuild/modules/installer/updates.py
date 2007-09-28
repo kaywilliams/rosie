@@ -10,7 +10,7 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     Event.__init__(self,
       id = 'updates-image',
       provides = ['updates.img'],
-      requires = ['buildstamp-file', 'anaconda-version'],
+      requires = ['buildstamp-file', 'anaconda-version', 'base-repoid'],
       conditionally_comes_after = ['installer-logos'],
     )
     

@@ -8,8 +8,36 @@ from dims import pps
 from dims import xmltree
 
 from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.logging   import L1, L2
 
 P = pps.Path
+
+class RepoContainer:
+  def __init__(self):
+    self.repos = {}
+    
+  def add_repo(self, id, **kwargs):
+    repo = Repo(id)
+    if not kwargs.has_key('local_path'):
+      raise KeyError("The 'local_path' attribute is required to build a Repo object")
+    if not kwargs.has_key('remote_path'):
+      raise KeyError("The 'remote_path' attribute is required to build a Repo object")
+    if not kwargs.has_key('pkgsfile'):
+      kwargs['pkgsfile'] = P(kwargs['local_path']) / 'packages'
+    for attr in kwargs.keys():
+      setattr(repo, attr, kwargs[attr])
+    self.repos[repo.id] = repo
+    return repo
+
+  def read_packages(self, write=True, id=None):
+    if id is None: id = self.repos.keys()
+    if not hasattr(id, '__iter__'): id = [id]
+    for i in id:
+      repo = self.repos[i]
+      repo.readRepoData()
+      repo.readRepoContents()
+      if write:
+        repo.writeRepoContents(repo.pkgsfile)
 
 class Repo:
   def __init__(self, id):
@@ -35,7 +63,6 @@ class Repo:
     self.datafiles = {}
 
     self.parser = xml.sax.make_parser()
-
   
   def rjoin(self, *args):
     p = self.remote_path
@@ -150,15 +177,3 @@ class PrimaryXmlContentHandler(xml.sax.ContentHandler):
     if name == 'package':
       self.pkgstart = False
       self.pkgs.append((self.loc, self.size, self.mtime))
-
-#------ FACTORY FUNCTIONS ------#
-def RepoFromXml(xml):
-  repo = Repo(xml.get('@id'))
-  repo.remote_path   = P(xml.get('path/text()'))
-  repo.gpgcheck      = xml.get('gpgcheck/text()', 'False') in BOOLEANS_TRUE
-  repo.gpgkeys       = [ P(path) for path in xml.xpath('gpgkey/text()', []) ]
-  repo.repodata_path = xml.get('repodata-path/text()', '')
-  repo.include       = xml.xpath('include/package/text()', [])
-  repo.exclude       = xml.xpath('exclude/package/text()', [])
-  
-  return repo

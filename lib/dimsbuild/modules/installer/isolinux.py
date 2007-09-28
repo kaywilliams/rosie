@@ -14,7 +14,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     Event.__init__(self,
       id = 'isolinux',
       provides = ['vmlinuz-file', 'isolinux-dir'],
-      requires = ['anaconda-version', 'source-vars'],
+      requires = ['anaconda-version', 'source-vars', 'base-repoid'],
     )
     
     self.isolinux_dir = self.SOFTWARE_STORE/'isolinux' #! not versioned
@@ -26,7 +26,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       'config':    ['/distro/installer/isolinux'],
     }
     
-    FileDownloadMixin.__init__(self, self.getBaseRepoId())
+    FileDownloadMixin.__init__(self)
 
   def validate(self):
     self.validator.validate('/distro/installer/isolinux', 'isolinux.rng')

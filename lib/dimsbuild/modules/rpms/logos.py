@@ -22,7 +22,8 @@ API_VERSION = 5.0
 class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
   def __init__(self):    
     Event.__init__(self, id='logos-rpm',
-                   requires=['source-vars', 'anaconda-version'])    
+                   requires=['source-vars', 'anaconda-version'],
+                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])                   
     RpmBuildMixin.__init__(self,
                            '%s-logos' % self.product,                           
                            'The %s-logos package contains image files which '\

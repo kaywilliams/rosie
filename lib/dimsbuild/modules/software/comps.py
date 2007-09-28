@@ -6,7 +6,7 @@ from dims import xmltree
 
 from dims.configlib import ConfigError
 
-from dimsbuild.event   import Event, RepoMixin #!
+from dimsbuild.event   import Event
 from dimsbuild.logging import L0, L1
 
 API_VERSION = 5.0
@@ -19,12 +19,12 @@ KERNELS = ['kernel', 'kernel-smp', 'kernel-zen', 'kernel-zen0',
            'kernel-BOOT']
 
 
-class CompsEvent(Event, RepoMixin):
+class CompsEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'comps',
       provides = ['comps-file', 'required-packages', 'user-required-packages'],
-      requires = ['anaconda-version', 'repos'],
+      requires = ['anaconda-version', 'repos', 'base-repoid'],
       conditionally_comes_after = ['RPMS'],
     )
     
@@ -122,7 +122,7 @@ class CompsEvent(Event, RepoMixin):
         raise CompsError, "the file '%s' does not exist" % file
       
       # add the 'core' group of the base repo
-      if groupfileid == self.getBaseRepoId():
+      if groupfileid == self.cvars['base-repoid']:
         try:
           self._add_group_by_id('core', tree, mapped[groupfileid])
           processed.append('core')
@@ -154,7 +154,9 @@ class CompsEvent(Event, RepoMixin):
           i += 1
     
     if 'core' not in processed:
-      raise CompsError, "The base repo '%s' does not appear to define a 'core' group in any of its comps.xml files" % self.getBaseRepoId()
+      raise CompsError("The base repo '%s' does not appear "
+                       "to define a 'core' group in any of its "
+                       "comps.xml files" % self.cvars['base-repoid'])
     
     # if any unmapped group wasn't processed, raise an exception
     if len(unmapped) > 0:
@@ -211,7 +213,7 @@ class CompsEvent(Event, RepoMixin):
   
   def __map_groups(self):
     mapped = {}
-    for repo in self.getAllRepos():
+    for repo in self.cvars['repos'].values():
       mapped[repo.id] = []
     unmapped = []
     
@@ -231,7 +233,7 @@ class CompsEvent(Event, RepoMixin):
     "Get a list of all groupfiles in all repositories"
     groupfiles = []
     
-    for repo in self.getAllRepos():
+    for repo in self.cvars['repos'].values():
       groupfile = repo.datafiles.get('group', None)
       if groupfile is not None:
         groupfiles.append((repo.id,

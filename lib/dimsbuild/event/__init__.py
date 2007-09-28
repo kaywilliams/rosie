@@ -143,15 +143,5 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     sys.exit(1)
 
 
-class RepoMixin:
-  # TODO examine possiblity of defining this in SOFTWARE meta #!
-  def getBaseRepoId(self):
-    return self.config.get('/distro/repos/repo[@type="base"]/@id')
-  def getAllRepos(self):
-    return self.cvars['repos'].values()
-  def getRepo(self, repoid):
-    return self.cvars['repos'][repoid]
-
-
 class EventExit:
   "Error an event can raise in order to exit program execution"

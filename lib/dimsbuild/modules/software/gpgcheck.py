@@ -1,12 +1,12 @@
 from dims import mkrpm
 from dims import shlib
 
-from dimsbuild.event   import Event, RepoMixin #!
+from dimsbuild.event   import Event
 from dimsbuild.logging import L0, L1, L2
 
 API_VERSION = 5.0
 
-class GPGCheckEvent(Event, RepoMixin):
+class GPGCheckEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'gpgcheck',
@@ -29,7 +29,7 @@ class GPGCheckEvent(Event, RepoMixin):
     for rpm in self.cvars['cached-rpms']:
       cached[rpm.basename] = rpm
     
-    for repo in self.getAllRepos():
+    for repo in self.cvars['repos'].values():
       if repo.gpgcheck:
         self.keys.extend(repo.gpgkeys)
         for rpm in [ rpminfo['file'].basename for rpminfo in repo.repoinfo ]:

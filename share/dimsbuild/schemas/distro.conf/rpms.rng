@@ -14,9 +14,9 @@
     </element>
   </define>
   
-  <define name="element-path-with-install-path">
+  <define name="element-path-with-install-dest">
     <element name="path">
-       <optional><attribute name="install-path"/></optional>
+       <optional><attribute name="install-dest"/></optional>
        <text/>
     </element>
   </define>

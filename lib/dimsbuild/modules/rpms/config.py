@@ -10,7 +10,8 @@ API_VERSION = 5.0
 
 class ConfigRpmEvent(Event, RpmBuildMixin, FileDownloadMixin):
   def __init__(self):
-    Event.__init__(self, id='config-rpm')
+    Event.__init__(self, id='config-rpm',
+                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])
     RpmBuildMixin.__init__(self,
                            '%s-config' % self.product,
                            'The %s-config provides scripts and supporting '\
@@ -43,13 +44,12 @@ class ConfigRpmEvent(Event, RpmBuildMixin, FileDownloadMixin):
     self._setup_build()
     self._setup_download()
       
-  def run(self):
+  def run(self):    
     self.io.clean_eventcache(all=True)
     if self._test_build('True'):
-      self.io.sync_input()
       self._build_rpm()
     self.diff.write_metadata()    
-
+  
   def apply(self):
     self.io.clean_eventcache()
     if not self._test_build('True'):
@@ -59,6 +59,9 @@ class ConfigRpmEvent(Event, RpmBuildMixin, FileDownloadMixin):
       self.cvars['custom-rpms-info'] = []      
     self.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
 
+  def _generate(self):
+    self.io.sync_input()
+    
   def _get_files(self):
     sources = {}
     sources.update(RpmBuildMixin._get_files(self))

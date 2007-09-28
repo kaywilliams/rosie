@@ -19,18 +19,18 @@
                       <optional>
                         <element name="script">
                           <optional>
-                            <attribute name="install-path"><text/></attribute>
+                            <attribute name="install-dest"><text/></attribute>
                           </optional>
-                          <ref name="element-path-with-install-path"/>
+                          <ref name="element-path-with-install-dest"/>
                         </element>
                       </optional>                                                
                       <optional>
                         <element name="supporting-files">
                           <optional>
-                            <attribute name="install-path"><text/></attribute>
+                            <attribute name="install-dest"><text/></attribute>
                           </optional>
                           <zeroOrMore>
-                            <ref name="element-path-with-install-path"/>
+                            <ref name="element-path-with-install-dest"/>
                           </zeroOrMore>
                         </element>
                       </optional>                  

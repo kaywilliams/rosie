@@ -3,22 +3,21 @@ sourcevars.py
 
 provides information about the source distribution 
 """
-
 from dims import FormattedFile as ffile
 from dims import img
 
 from dimsbuild.constants import BOOLEANS_TRUE
-from dimsbuild.event     import Event, RepoMixin #!
+from dimsbuild.event     import Event
 from dimsbuild.logging   import L0
 
 API_VERSION = 5.0
 
-class SourceVarsEvent(Event, RepoMixin): #!
+class SourceVarsEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'source-vars',
       provides = ['source-vars'],
-      requires = ['anaconda-version'],
+      requires = ['anaconda-version', 'base-repoid'],
     )
     
     self.DATA =  {
@@ -36,7 +35,7 @@ class SourceVarsEvent(Event, RepoMixin): #!
   def setup(self):
     self.diff.setup(self.DATA)
     
-    initrd_in=self.getRepo(self.getBaseRepoId()).rjoin('isolinux/initrd.img')
+    initrd_in=self.cvars['repos'][self.cvars['base-repoid']].rjoin('isolinux/initrd.img')
     
     self.io.setup_sync(self.mddir, id='initrd.img', paths=[initrd_in])
     self.initrd_out = self.io.list_output(what='initrd.img')[0]

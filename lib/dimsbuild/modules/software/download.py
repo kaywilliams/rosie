@@ -7,7 +7,7 @@ from dims import shlib
 from dims import pps
 
 from dimsbuild.constants import RPM_PNVRA
-from dimsbuild.event     import Event, RepoMixin #!
+from dimsbuild.event     import Event
 from dimsbuild.logging   import L0, L2
 
 API_VERSION = 5.0
@@ -16,7 +16,7 @@ P = pps.Path
 
 RPM_PNVRA_REGEX = re.compile(RPM_PNVRA)
 
-class DownloadEvent(Event, RepoMixin):
+class DownloadEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'download',
@@ -38,7 +38,7 @@ class DownloadEvent(Event, RepoMixin):
     self.diff.setup(self.DATA)
  
     self.input_rpms = set()  
-    for repo in self.getAllRepos():
+    for repo in self.cvars['repos'].values():
       for rpminfo in repo.repoinfo:
         rpm = rpminfo['file']
         _,n,v,r,a = self._deformat(rpm)

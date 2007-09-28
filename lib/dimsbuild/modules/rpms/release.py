@@ -45,6 +45,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
 
     Event.__init__(self, id='release-rpm',
                    requires=['source-vars', 'input-repos'],
+                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'],                   
                    conditionally_requires=['gpgsign-public-key',
                                            'web-path'])
     RpmBuildMixin.__init__(self,
@@ -89,7 +90,6 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
   def run(self):
     self.io.clean_eventcache(all=True)
     if self._test_build('True'):
-      self.io.sync_input()          
       self._build_rpm()
     self.diff.write_metadata()
   
@@ -110,6 +110,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
   
   def _generate(self):
     "Create additional files."
+    self.io.sync_input()    
     self._generate_etc_files(self.build_folder/'etc')
     self._generate_repo_files(self.build_folder/'repo')    
     self._verify_release_notes()

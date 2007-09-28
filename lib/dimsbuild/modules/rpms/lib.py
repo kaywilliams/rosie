@@ -21,10 +21,10 @@ class FileDownloadMixin:
     for k,v in self.installinfo.items():
       xpath, dst = v
       if xpath:        
-        default_dir = P(dst) / P(self.config.get('%s/@install-path' % xpath, ''))        
+        default_dir = P(dst) / P(self.config.get('%s/@install-dest' % xpath, ''))        
         for item in self.config.xpath('%s/path' % xpath, []):
           s = P(item.get('text()'))
-          d = default_dir / P(item.get('@install-path', ''))
+          d = default_dir / P(item.get('@install-dest', ''))
           self.io.setup_sync(self.rpmdir / d.lstrip('/'), paths=[s], id=xpath)
 
   def _get_files(self):
