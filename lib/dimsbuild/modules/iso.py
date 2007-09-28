@@ -236,7 +236,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     
     for i in range(1, splitter.numdiscs + 1):
       iso = '%s-disc%d' % (self.product, i)
-      self.log(2, L2("generating %s.iso" % iso))
+      self.log(2, L2("generating '%s/%s.iso'" % (set, iso)))
       if i == 1: # the first disc needs to be made bootable
         isolinux_path = self.splittrees/set/iso/'isolinux/isolinux.bin'
         i_st = isolinux_path.stat()

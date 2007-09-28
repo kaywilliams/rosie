@@ -59,6 +59,10 @@ def main():
     dest='errthresh',
     default=1,
     help="specify the level of verbosity of the error log")
+  log_group.add_option('--log-file', metavar='PATH',
+    dest='logfile',
+    default='/var/log/dimsbuild.log',
+    help="specify a file in which to log output")
   parser.add_option_group(log_group)
   
   module_group = OptionGroup(parser, "module and library options")
@@ -123,7 +127,7 @@ def main():
       print e
       sys.exit(1)
   
-  # set up IMPORT_DIRS  
+  # set up import_dirs
   import_dirs = mainconfig.xpath('/dimsbuild/librarypaths/path/text()', [])
   if opts.libpath: 
     import_dirs.insert(0, opts.libpath)
@@ -138,8 +142,9 @@ def main():
     fp, path, desc = imp.find_module('main', import_dirs)
     build = imp.load_module('main', fp, path, desc)
     fp.close()
-  except ImportError:
+  except ImportError, e:
     print "Unable to load core dimsbuild files"
+    raise #!
     sys.exit(1)
   
   # initialize our software builder with opts, the result of parsing preargs.

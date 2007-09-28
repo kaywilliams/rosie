@@ -1,4 +1,12 @@
+# TODO - switch this to use the python logging module
+# I tried it once, but its more annoying than it seems.  However,
+# it would help out in many issues
+
 import sys
+import textwrap
+import time
+
+from dims import logger
 
 # format of the various printouts
 def LEVEL_0_FORMAT(s): return '%s' % s
@@ -16,40 +24,54 @@ L4 = LEVEL_4_FORMAT
 
 MSG_MAXWIDTH = 75
 
-class BuildLogger:
-  def __init__(self, threshold, fo=sys.stdout):
-    self.threshold = int(threshold)
-    self.fo = fo
+class Logger(logger.Logger):
   
-  def __call__(self, *args, **kwargs):
-    self.log(*args, **kwargs)
-  
-  def test(self, threshold):
-    return threshold <= self.threshold
-  
-  def write(self, level, msg, width=None):
-    """ 
-    Raw write msg to stdout (trailing newline not appended).  The width
-    argument determines how wide the string is.  If it is None, no adjustments
-    are applied; if it is a positive integer, the line is padded or truncated
-    to match the specified width.
-    """
-  
-    if not self.test(level): return
+  def __init__(self, format='%(message)s', timefmt='%Y-%m-%d %X',
+                     fmtvals=None,
+                     *args, **kwargs):
+    logger.Logger.__init__(self, *args, **kwargs)
     
-    if width is not None:
-      if width < 4:
-        raise ValueError("Width must be a positive integer greater than 4 or None")
-      diff = len(msg) - width
-      if diff > 0:
-        msg = msg[:-(diff+4)]
-        msg += '... '
-      else:
-        msg += ' ' * (diff*-1)
-    
-    self.fo.write(msg)
-    self.fo.flush()
+    self._format = format
+    self._timefmt = timefmt
+    self._fmtvals = fmtvals or {}
   
-  def log(self, level, msg, maxwidth=None):
-    self.write(level, msg, maxwidth)
-    self.write(level, '\n')
+  def log(self, level, msg, newline=True, format=None, **kwargs):
+    msg = self.format(str(msg), format, **kwargs)
+    if newline: msg += '\n'
+    self.write(level, msg)
+  
+  def format(self, msg, format=None, **kwargs):
+    d = dict(message=msg, time=time.strftime(self._timefmt), **kwargs)
+    d.update(self._fmtvals)
+    if format: d['message'] = format % d
+    return self._format % d
+  
+  def test(self, priority):
+    if self.threshold is None: return True
+    else: return logger.Logger.test(self, priority)
+
+
+class LogContainer(logger.LogContainer):
+  def log(self, priority, message, **kwargs):
+    for log_obj in self.list:
+      if logger.LogContainer.test(self, priority, message, self.threshold, log_obj):
+        log_obj.log(priority, message, **kwargs)
+  
+  def write(self, priority, message, **kwargs):
+    for log_obj in self.list:
+      if logger.LogContainer.test(self, priority, message, self.threshold, log_obj):
+        log_obj.write(priority, message, **kwargs)
+
+
+def make_log(threshold, logfile):
+  console = Logger(threshold=threshold, file_object=sys.stdout,
+                   format='%(message).75s')
+  logfile = Logger(threshold=None, file_object=open(logfile, 'a+'),
+                   format='%(time)s: %(message)s')
+  
+  container = LogContainer([console, logfile])
+  container.console = console
+  container.logfile = logfile
+  container.test = console.test
+  
+  return container

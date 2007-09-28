@@ -190,7 +190,7 @@ class SourcesEvent(Event):
     try:
       return SRPM_PNVRA_REGEX.match(srpm).groups()
     except (AttributeError, IndexError), e:
-      self.errlog(2, L2("DEBUG: Unable to extract srpm information from name '%s'" % srpm))
+      self.log(2, L2("DEBUG: Unable to extract srpm information from name '%s'" % srpm))
       return (None, None, None, None, None)
   
   def _createrepo(self):

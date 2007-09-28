@@ -74,7 +74,7 @@ class DownloadEvent(Event, RepoMixin):
     try:
       return RPM_PNVRA_REGEX.match(rpm).groups()
     except (AttributeError, IndexError), e:
-      self.errlog(2, L2("DEBUG: Unable to extract rpm information from name '%s'" % rpm))
+      self.log(2, L2("DEBUG: Unable to extract rpm information from name '%s'" % rpm))
       return (None, None, None, None, None)
 
 

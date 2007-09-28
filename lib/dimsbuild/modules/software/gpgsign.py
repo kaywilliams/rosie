@@ -111,7 +111,7 @@ class GPGSignEvent(Event, GpgMixin):
       if self.config.get('/distro/gpgsign/gpg-passphrase/text()', None) is None:
         self.cvars['gpgsign-passphrase'] = mkrpm.getPassphrase()
       for rpm in signrpms:
-        self.log(2, L2(rpm.basename))
+        self.log(2, L2(rpm.relpathfrom(self.mddir)))
         mkrpm.SignRpm(rpm, 
                       homedir=gnupg_dir,
                       passphrase=self.cvars['gpgsign-passphrase'])

@@ -1,3 +1,4 @@
+import errno
 import sys
 import traceback
 
@@ -10,7 +11,7 @@ from dimsbuild.event.diff     import DiffMixin
 from dimsbuild.event.fileio   import IOMixin
 from dimsbuild.event.locals   import LocalsMixin
 
-DEBUG = True # this should be enabled for development purposes and
+DEBUG = False # this should be enabled for development purposes and
              # disabled once we go to release
 
 class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
@@ -29,28 +30,40 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     DiffMixin.__init__(self)
     LocalsMixin.__init__(self)
     
+  status = property(lambda self: self._status,
+                    lambda self, status: self._apply_status(status))
+  
+  def _apply_status(self, status):
+    self._status = status
+    # apply to all children if even has PROPERTY_META property
+    if self.test(dispatch.PROPERTY_META):
+      for child in self.get_children():
+        if not child.test(dispatch.PROPERTY_PROTECTED):
+          child._apply_status(status)
+  
+  forced  = property(lambda self: self.status == True)
+  skipped = property(lambda self: self.status == False)
+  
   # execution methods
   def execute(self):
-    ##print 'running %s' % self.id #!
+    self.log(4, L0('running %s' % self.id))
     try:
+      self.log(5, L0('running %s.setup()' % self.id))
       self.setup()
-      if self.enabled and self._status != False:
-        if self._status == True:
+      if not self.skipped:
+        if self.forced:
+          self.log(5, L0('running %s.clean()' % self.id))
           self.clean()
+        self.log(5, L0('running %s.check()' % self.id))
         if self.check():
+          self.log(5, L0('running %s.run()' % self.id))
           self.run()
+      self.log(5, L0('running %s.apply()' % self.id))
       self.apply()
     except EventExit, e:
-      self.log(0, e)
-      sys.exit()
+      self._handle_EventExit(e)
     except Exception, e:
-      if hasattr(self, 'error'):
-        self.error(e)
-      if self.errlogger.test(3) or DEBUG:
-        traceback.print_exc(file=self.errlogger.fo)
-      else:
-        self._log_unhandled_error()
-      sys.exit(1)
+      self._handle_Exception(e)
   
   # override these methods to get stuff to actually happen!
   def _add_cli(self, parser): pass
@@ -66,8 +79,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
   def apply(self): pass
   
   # former interface methods
-  def log(self, level, msg):    self.logger.log(level, msg)
-  def errlog(self, level, msg): self.errlogger.log(level, msg)
+  def log(self, *args, **kwargs): return self.logger.log(*args, **kwargs)
   
   def cache(self, src, dst, link=False, force=False, **kwargs):
     self.cache_handler.force = force
@@ -109,24 +121,26 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     return dir
   SOFTWARE_STORE = property(_get_software_store)
   
-  def _log_unhandled_error(self):
-    self.errlog(0,
-      "An unhandled exception has been generated while processing the "
-      "'%s' event.  The traceback has been recorded in the log "
-      "file.  Please report this error by sending a copy of your log file, "
-      "configuration files, and any other relevant information to "
-      "contact@abodiosoftware.com." % self.id)
+  #------ ERROR HANDLING ------#
+  def _handle_EventExit(self, e):
+    self.log(0, e)
+    sys.exit()
   
-  status = property(lambda self: self._status,
-                    lambda self, status: self._apply_status(status))
-  
-  def _apply_status(self, status):
-    self._status = status
-    # apply to all children if even has PROPERTY_META property
-    if self.test(dispatch.PROPERTY_META):
-      for child in self.get_children():
-        if not child.test(dispatch.PROPERTY_PROTECTED):
-          child._apply_status(status)
+  def _handle_Exception(self, e):
+    if hasattr(self, 'error'):
+      self.error(e)
+    if self.logger.test(3) or DEBUG:
+      traceback.print_exc(file=self.logger.console.file_object)
+      traceback.print_exc(file=self.logger.logfile.file_object)
+    else:
+      self.log(0,
+        "An unhandled exception has been generated while processing "
+        "the '%s' event.  The traceback has been recorded in the log "
+        "file.  Please report this error by sending a copy of your "
+        "log file, configuration files, and any other relevant "
+        "information to contact@abodiosoftware.com.\n\nError message "
+        "was: %s" % (self.id, e))
+    sys.exit(1)
 
 
 class RepoMixin:

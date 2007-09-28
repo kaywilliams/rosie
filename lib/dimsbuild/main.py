@@ -11,6 +11,7 @@ __date__    = 'June 26th, 2007'
 
 import imp
 import sys
+import time
 
 from rpmUtils.arch import getBaseArch
 
@@ -25,7 +26,7 @@ from dims.sync import link
 from dimsbuild.callback  import BuildSyncCallback, FilesCallback
 from dimsbuild.constants import *
 from dimsbuild.event     import Event
-from dimsbuild.logging   import BuildLogger, L0, L1, L2
+from dimsbuild.logging   import make_log, L0, L1, L2
 from dimsbuild.validate  import (ConfigValidator, MainConfigValidator,
                                  InvalidConfigError, InvalidSchemaError)
 
@@ -96,7 +97,7 @@ class Build(object):
                         loader.load(import_dirs, prefix='dimsbuild/modules')
                       )
     except ImportError, e:
-      Event.errlogger.log(0, L0("Error loading core dimsbuild file: %s" % e))
+      Event.logger.log(0, L0("Error loading core dimsbuild file: %s" % e))
       sys.exit(1)
     
     # allow events to add their command-line options to the parser
@@ -108,14 +109,14 @@ class Build(object):
     for eventid in options.force_events:
       e = self.dispatch.get(eventid)
       if e.test(dispatch.PROPERTY_PROTECTED):
-        Event.errlogger.log(0, L0("Cannot --force protected event '%s'" % eventid))
+        Event.logger.log(0, L0("Cannot --force protected event '%s'" % eventid))
         sys.exit(1)
       e.status = True
     # apply --skip to events
     for eventid in options.skip_events:
       e = self.dispatch.get(eventid)
       if e.test(dispatch.PROPERTY_PROTECTED):
-        Event.errlogger.log(0, L0("Cannot --skip protected event '%s'" % eventid))
+        Event.logger.log(0, L0("Cannot --skip protected event '%s'" % eventid))
         sys.exit(1)
       e.status = False
     
@@ -136,15 +137,15 @@ class Build(object):
       try:
         self._validate_configs()
       except InvalidSchemaError, e:
-        Event.errlogger.log(0, L0("Schema file used in validation appears to be invalid"))
-        Event.errlogger.log(0, L0(e))
+        Event.logger.log(0, L0("Schema file used in validation appears to be invalid"))
+        Event.logger.log(0, L0(e))
         sys.exit(1)
       except InvalidConfigError, e:
-        Event.errlogger.log(0, L0("Config file validation against given schema failed"))
-        Event.errlogger.log(0, L0(e))
+        Event.logger.log(0, L0("Config file validation against given schema failed"))
+        Event.logger.log(0, L0(e))
         sys.exit(1)
       except Exception, e:
-        Event.errlogger.log(0, L0("Unhandled exception: %s" % e))
+        Event.logger.log(0, L0("Unhandled exception: %s" % e))
         sys.exit(1)
       if options.validate_only:
         sys.exit()
@@ -154,7 +155,9 @@ class Build(object):
   
   def main(self):
     "Build a distribution"
+    self._log_header()
     self.dispatch.execute(until=None)
+    self._log_footer()
   
   def _compute_import_dirs(self, mainconfig, options):
     "Compute a list of directories to try importing from"
@@ -222,8 +225,7 @@ class Build(object):
     Event.cvars = CvarsDict()
     
     # set up loggers
-    Event.logger    = BuildLogger(options.logthresh)
-    Event.errlogger = BuildLogger(options.errthresh)
+    Event.logger = make_log(options.logthresh, options.logfile)
     
     # set up config dirs
     Event.mainconfig = mainconfig
@@ -271,7 +273,7 @@ class Build(object):
                             cache_dir = Event.CACHE_DIR / '.cache',
                             cache_max_size = Event.CACHE_MAX_SIZE,
                           )
-    Event.cache_callback = BuildSyncCallback(Event.logger)
+    Event.cache_callback = BuildSyncCallback(Event.logger, Event.METADATA_DIR)
     Event.copy_handler = sync.CopyHandler()
     Event.link_handler = link.LinkHandler()
     
@@ -280,7 +282,14 @@ class Build(object):
     Event.mcvalidator = MainConfigValidator(Event.SHARE_DIR/'schemas',
                                             Event.mainconfig.file)
     Event.validator = ConfigValidator(Event.SHARE_DIR/'schemas/distro.conf',
-                                      Event.config.file, Event.errlogger)
+                                      Event.config, Event.logger)
+  
+  def _log_header(self):
+    Event.logger.logfile.write(0, "\n\n\n")
+    Event.logger.log(0, "Starting build of '%s' at %s" % (Event.fullname, time.strftime('%Y-%m-%d %X')))
+    Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
+  def _log_footer(self):
+    Event.logger.log(0, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
 
 
 class CvarsDict(dict):

@@ -7,7 +7,7 @@ Callback classes for dimsbuild
 from dims.sync.cache    import CachedSyncCallback
 from dims.progressbar   import ProgressBar
 
-from dimsbuild.logging import L1, L2, MSG_MAXWIDTH
+from dimsbuild.logging import L1, L2
 
 class FilesCallback:
   def __init__(self, logger, relpath):
@@ -18,26 +18,27 @@ class FilesCallback:
     self.logger.log(4, L1("removing files"))
   
   def rm(self, fn):
-    self.logger.log(4, L2(fn.relpathfrom(self.relpath)), MSG_MAXWIDTH)
+    self.logger.log(4, L2(fn.relpathfrom(self.relpath)))
     
   def rmdir_start(self):
     self.logger.log(4, L1("removing empty directories"))
   
   def rmdir(self, dn):
-    self.logger.log(4, L2(dn.relpathfrom(self.relpath)), MSG_MAXWIDTH)
+    self.logger.log(4, L2(dn.relpathfrom(self.relpath)))
   
   def sync_start(self):
     self.logger.log(1, L1("downloading input files"))
 
 class BuildSyncCallback(CachedSyncCallback):
-  def __init__(self, logger):
+  def __init__(self, logger, relpath):
     CachedSyncCallback.__init__(self)
     self.logger = logger
+    self.relpath = relpath
   
   # sync callbacks - kinda hackish
   def start(self, src, dest):
     if self.logger.threshold == 2:
-      self.logger.log(2, '%s' % src.basename, MSG_MAXWIDTH)
+      self.logger.log(2, L2(src.relpathfrom(self.relpath)))
   def cp(self, src, dest): pass
   def sync_update(self, src, dest): pass
   def mkdir(self, src, dest): pass
@@ -56,6 +57,8 @@ class BuildSyncCallback(CachedSyncCallback):
   def _cp_end(self, amount_read):
     CachedSyncCallback._cp_end(self, amount_read=amount_read,
                                      draw=self.logger.test(3))
+    if self.logger.test(3):
+      self.logger.logfile.log(3, str(self.bar))
 
 
 class BuildDepsolveCallback:
@@ -82,6 +85,7 @@ class BuildDepsolveCallback:
       self.bar.draw()
   def restartLoop(self):
     if self.logger.test(2):
+      self.logger.logfile.log(2, str(self.bar))
       self.bar.finish()
     self.loop += 1
   def end(self):

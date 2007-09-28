@@ -68,11 +68,11 @@ class GPGCheckEvent(Event, RepoMixin):
       self.log(1, L1("checking rpms"))
       for rpm in newchecks:
         try:
-          self.logger.write(2, L2(rpm.basename+' '), 70)
+          self.log(2, L2(rpm.basename+' '), newline=False, format='%(message)-70.70s')
           mkrpm.VerifyRpm(rpm, homedir=homedir, force=True)
-          self.log(2, "OK")
+          self.logger.write(2, "OK\n")
         except mkrpm.RpmSignatureInvalidError:
-          self.log(2, "INVALID")
+          self.logger.write(2, "INVALID\n")
           invalids.append(rpm.basename)
       
       if invalids:
