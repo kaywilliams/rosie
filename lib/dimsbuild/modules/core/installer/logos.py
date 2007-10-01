@@ -6,7 +6,7 @@ from dimsbuild.event     import Event
 from dimsbuild.logging   import L0
 from dimsbuild.magic     import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
 
-from dimsbuild.modules.installer.lib import ExtractMixin, RpmNotFoundError
+from dimsbuild.modules.lib.installer_lib import ExtractMixin, RpmNotFoundError
 
 P = pps.Path
 
@@ -22,14 +22,14 @@ class LogosEvent(Event, ExtractMixin):
     )
     
     self.DATA = {
-      'config'   : ['/distro/installer/logos'],
+      'config'   : ['/distro/logos'],
       'variables': ['product', 'cvars[\'anaconda-version\']'],
       'input'    : [],
       'output'   : [],
     }
     
   def validate(self):
-    self.validator.validate('/distro/installer/logos', 'logos.rng')
+    self.validator.validate('/distro/logos', 'logos.rng')
   
   def setup(self):
     self.format = self.locals.logos['splash-image']['format']
@@ -106,7 +106,7 @@ class LogosEvent(Event, ExtractMixin):
       return magic_match(splash) == FILE_TYPE_LSS
       
   def _find_rpms(self):
-    pkgname = self.config.get('/distro/installer/logos/package/text()',
+    pkgname = self.config.get('/distro/logos/package/text()',
                               '%s-logos' %(self.product,))
     rpms = P(self.cvars['rpms-directory']).findpaths(
       glob='%s-*-*' % pkgname, nregex=SRPM_REGEX)

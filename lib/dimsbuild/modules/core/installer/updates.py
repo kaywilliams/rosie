@@ -1,7 +1,7 @@
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
-from dimsbuild.modules.installer.lib import ImageModifyMixin
+from dimsbuild.modules.lib.installer_lib import ImageModifyMixin
 
 API_VERSION = 5.0
 
@@ -15,7 +15,7 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     )
     
     self.DATA = {
-      'config':    ['/distro/installer/updates-image/path/text()'],
+      'config':    ['/distro/updates-image/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
@@ -24,7 +24,7 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin.__init__(self, 'updates.img')
   
   def validate(self):
-    self.validator.validate('/distro/installer/updates-image', 'updates.rng')
+    self.validator.validate('/distro/updates-image', 'updates.rng')
   
   def error(self, e):
     try:

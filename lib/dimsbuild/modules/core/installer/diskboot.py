@@ -3,7 +3,7 @@ from dims import filereader
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
-from dimsbuild.modules.installer.lib import ImageModifyMixin
+from dimsbuild.modules.lib.installer_lib import ImageModifyMixin
 
 
 API_VERSION = 5.0
@@ -20,7 +20,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
      
     self.DATA = {
       'variables': ['cvars[\'anaconda-version\']'],
-      'config':    ['/distro/installer/diskboot-image'],
+      'config':    ['/distro/diskboot-image'],
       'input':     [],
       'output':    [],
     }
@@ -28,7 +28,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin.__init__(self, 'diskboot.img')
 
   def validate(self):
-    self.validator.validate('/distro/installer/diskboot-image', 'diskboot.rng')
+    self.validator.validate('/distro/diskboot-image', 'diskboot.rng')
     
   def error(self, e):
     try:
@@ -62,7 +62,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin._generate(self)
     self.image.write(self.cvars['installer-splash'], '/')
     self.image.write(self.cvars['initrd-file'], '/')
-    bootargs = self.config.get('/distro/installer/diskboot-image/boot-args/text()', None)
+    bootargs = self.config.get('/distro/diskboot-image/boot-args/text()', None)
     if bootargs:      
       if not 'syslinux.cfg' in self.image.list():
         raise RuntimeError("syslinux.cfg not found in the diskboot.img")

@@ -1,17 +1,17 @@
 from dimsbuild.event import Event
 
-from dimsbuild.modules.rpms.lib import RpmBuildMixin
+from dimsbuild.modules.lib.rpms_lib import RpmBuildMixin
 
 API_VERSION = 5.0
 
 class DefaultThemeRpmEvent(Event, RpmBuildMixin):
   def __init__(self):    
     self.themename = \
-      self.config.get('/distro/rpms/default-theme-rpm/theme/text()', self.product)
+      self.config.get('/distro/default-theme-rpm/theme/text()', self.product)
     
     self.DATA = {
       'variables': ['product', 'pva'],
-      'config':    ['/distro/rpms/default-theme-rpm'],
+      'config':    ['/distro/default-theme-rpm'],
       'input' :    [],
       'output':    [],
     }
@@ -33,7 +33,7 @@ class DefaultThemeRpmEvent(Event, RpmBuildMixin):
     self._setup_build()
   
   def validate(self):
-    self.validator.validate('/distro/rpms/default-theme-rpm', 'default-theme-rpm.rng')
+    self.validator.validate('/distro/default-theme-rpm', 'default-theme-rpm.rng')
 
   def run(self):
     self.io.clean_eventcache(all=True)

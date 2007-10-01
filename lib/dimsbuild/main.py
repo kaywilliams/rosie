@@ -30,6 +30,8 @@ from dimsbuild.logging   import make_log, L0, L1, L2
 from dimsbuild.validate  import (ConfigValidator, MainConfigValidator,
                                  InvalidConfigError, InvalidSchemaError)
 
+from dimsbuild.event.loader import Loader
+
 P = pps.Path # convenience, same is used throughout most modules
 
 # RPMS we need to check for
@@ -83,15 +85,17 @@ class Build(object):
     # set up import_dirs
     import_dirs = self._compute_import_dirs(mainconfig, options)
     
-    # set up list of disabled modules
-    disabled_modules = self._compute_disabled_modules(mainconfig, distroconfig, options)
+    # set up lists of enabled and disabled modules
+    enabled, disabled = self._compute_modules(distroconfig, options)
     
     # set up event superclass so that it contains good default values
     self._seed_event_defaults(options, mainconfig, distroconfig)
     
     # load all enabled modules, register events, set up dispatcher
-    loader = dispatch.Loader(top = AllEvent(), api_ver = API_VERSION)
-    loader.ignore = disabled_modules
+    loader = Loader(top = AllEvent(), api_ver = API_VERSION)
+    loader.enabled  = enabled
+    loader.disabled = disabled
+    
     try:
       self.dispatch = dispatch.Dispatch(
                         loader.load(import_dirs, prefix='dimsbuild/modules')
@@ -171,24 +175,21 @@ class Build(object):
     
     return import_dirs
   
-  def _compute_disabled_modules(self, mainconfig, distroconfig, options):
+  def _compute_modules(self, distroconfig, options):
     "Compute a list of modules dimsbuild should not load"
-    disabled_modules = set()
-    disabled_modules.update(options.disabled_modules)
-    for k,v in eval_modlist(mainconfig.get('/dimsbuild/modules', None),
-                            default=True).items():
-      if v in BOOLEANS_FALSE: disabled_modules.add(k)
+    enabled  = set(options.enabled_modules)
+    disabled = set(options.disabled_modules)
     
-    disabled_modules.add('__init__') # hack, kinda; this isn't a module
-    disabled_modules.add('lib') # +1; neither is this
+    for module in distroconfig.xpath('/distro/*'):
+      if module.tag == 'main': continue
+      if module.get('@enabled', 'True') in BOOLEANS_TRUE:
+        enabled.add(module.tag)
+      else:
+        disabled.add(module.tag)
     
-    # update with distro-specific config
-    for k,v in eval_modlist(distroconfig.get('/distro/main/modules', None),
-                            default=True).items():
-      if   v in BOOLEANS_FALSE: disabled_modules.add(k)
-      elif v in BOOLEANS_TRUE:  disabled_modules.discard(k)
+    disabled.add('__init__') # hack, kinda; this isn't a module
     
-    return disabled_modules
+    return enabled, disabled
   
   def _validate_configs(self):
     Event.logger.log(0, L0("validating config"))

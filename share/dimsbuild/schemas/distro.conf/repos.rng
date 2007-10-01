@@ -2,14 +2,17 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="distro">
+    
       <element name="repos">
         <oneOrMore>
-          <ref name="element-repo"/>
+        <ref name="element-repo"/>
         </oneOrMore>
+        
         <optional>
-          <ref name="element-exclude"/>
+        <ref name="element-exclude"/>
         </optional>      
       </element>
+    
     </element>
   </start>
   
@@ -18,7 +21,7 @@
   <define name="element-exclude">
     <element name="exclude">
       <oneOrMore>
-        <element name="package"><text/></element>
+      <element name="package"><text/></element>
       </oneOrMore>
     </element>
   </define>

@@ -2,21 +2,27 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="distro">
+      
       <optional>
-        <element name="publish">
-          <interleave>
-            <optional>
-              <element name="remote-webroot"><text/></element>
-            </optional>
-            <optional>
-              <element name="local-webroot"><text/></element>
-            </optional>
-            <optional>
-              <element name="path-prefix"><text/></element>
-            </optional>
-          </interleave>
-        </element>
+      <element name="publish">
+        <interleave>
+        
+        <optional>
+        <element name="remote-webroot"><text/></element>
+        </optional>
+        
+        <optional>
+        <element name="local-webroot"><text/></element>
+        </optional>
+        
+        <optional>
+        <element name="path-prefix"><text/></element>
+        </optional>
+        
+        </interleave>
+      </element>
       </optional>
+      
     </element>
   </start>
   

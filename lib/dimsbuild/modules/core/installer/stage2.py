@@ -1,7 +1,7 @@
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
-from dimsbuild.modules.installer.lib import FileDownloadMixin
+from dimsbuild.modules.lib.installer_lib import FileDownloadMixin
 
 API_VERSION = 5.0
 

@@ -4,12 +4,13 @@
   <define name="element-obsoletes">
     <element name="obsoletes">
       <optional>
-        <attribute name="use-default-set">
-          <ref name="value-boolean"/>
-        </attribute>
+      <attribute name="use-default-set">
+        <ref name="value-boolean"/>
+      </attribute>
       </optional>
+      
       <oneOrMore>
-        <element name="package"><text/></element>
+      <element name="package"><text/></element>
       </oneOrMore>
     </element>
   </define>

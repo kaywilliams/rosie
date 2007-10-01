@@ -2,15 +2,13 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="distro">
+    
       <optional>
-        <element name="installer">
-          <optional>
-            <element name="logos">
-              <element name="package"><text/></element>
-            </element>
-          </optional>
-        </element>
+      <element name="logos">
+        <element name="package"><text/></element>
+      </element>
       </optional>
+    
     </element>
   </start>
 </grammar>

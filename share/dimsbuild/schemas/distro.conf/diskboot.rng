@@ -2,24 +2,23 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>    
     <element name="distro">      
+    
       <optional>
-        <element name="installer">
-          <optional>
-            <element name="diskboot-image">
-              <interleave>
-                <optional>
-                  <element name="boot-args"><text/></element>
-                </optional>
-                <optional>
-                  <oneOrMore>
-                    <ref name="element-path-with-dest"/>
-                  </oneOrMore>
-                </optional>
-              </interleave>
-            </element>
-          </optional>
-        </element>
+      <element name="diskboot-image">
+        <interleave>
+        
+        <optional>
+        <element name="boot-args"><text/></element>
+        </optional>
+        
+        <zeroOrMore>
+        <ref name="element-path-with-dest"/>
+        </zeroOrMore>
+        
+        </interleave>
+      </element>
       </optional>
+      
     </element>
   </start>
   

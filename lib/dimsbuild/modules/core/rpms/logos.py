@@ -5,7 +5,7 @@ from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event 
 from dimsbuild.logging   import L3
 
-from dimsbuild.modules.rpms.lib import ColorMixin, RpmLocalsMixin, RpmBuildMixin
+from dimsbuild.modules.lib.rpms_lib import ColorMixin, RpmLocalsMixin, RpmBuildMixin
 
 try:
   import Image
@@ -37,7 +37,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
 
     self.fileslocals = self.locals.logos_rpm
     self.DATA = {
-      'config': ['/distro/rpms/logos-rpm'],
+      'config': ['/distro/logos-rpm'],
       'variables': ['fullname', 'product', 'pva'],
       'output': [],
       'input':  [],
@@ -47,7 +47,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
     self.build_folder.rm(recursive=True, force=True)
     
   def validate(self):
-    self.validator.validate('/distro/rpms/logos-rpm', 'logos-rpm.rng')
+    self.validator.validate('/distro/logos-rpm', 'logos-rpm.rng')
   
   def setup(self):
     self._setup_build()

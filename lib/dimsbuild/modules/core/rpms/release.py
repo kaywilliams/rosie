@@ -4,7 +4,7 @@ from dims import pps
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event
 
-from dimsbuild.modules.rpms.lib import ColorMixin, FileDownloadMixin, RpmBuildMixin
+from dimsbuild.modules.lib.rpms_lib import ColorMixin, FileDownloadMixin, RpmBuildMixin
 
 P = pps.Path
 
@@ -24,18 +24,18 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
     
     self.installinfo = {
       'gpg'     : (None, self.gpg_dir),
-      'repo'    : ('/distro/rpms/release-rpm/yum-repos', self.repo_dir),
-      'eula'    : ('/distro/rpms/release-rpm/eula', self.eula_dir),
-      'omf'     : ('/distro/rpms/release-rpm/release-notes/omf', self.omf_dir),
-      'html'    : ('/distro/rpms/release-rpm/release-notes/html', self.html_dir),
-      'doc'     : ('/distro/rpms/release-rpm/release-notes/doc', self.doc_dir),
-      'release' : ('/distro/rpms/release-rpm/release-files', self.release_dir),
+      'repo'    : ('/distro/release-rpm/yum-repos', self.repo_dir),
+      'eula'    : ('/distro/release-rpm/eula', self.eula_dir),
+      'omf'     : ('/distro/release-rpm/release-notes/omf', self.omf_dir),
+      'html'    : ('/distro/release-rpm/release-notes/html', self.html_dir),
+      'doc'     : ('/distro/release-rpm/release-notes/doc', self.doc_dir),
+      'release' : ('/distro/release-rpm/release-files', self.release_dir),
       'etc'     : (None, self.etc_dir), 
       'eulapy'  : (None, self.eulapy_dir),
     }
 
     self.DATA = {
-      'config':    ['/distro/rpms/release-rpm',
+      'config':    ['/distro/release-rpm',
                     '/distro/repos'],
       'variables': ['fullname', 'product', 'pva',
                     'cvars[\'web-path\']',],
@@ -61,7 +61,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
     self.build_folder.rm(recursive=True, force=True)
 
   def validate(self):
-    self.validator.validate('/distro/rpms/release-rpm', 'release-rpm.rng')
+    self.validator.validate('/distro/release-rpm', 'release-rpm.rng')
     
   def setup(self):
     self._setup_build()
@@ -80,9 +80,9 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
     
     # eulapy file
     paths = []
-    include_firstboot = self.config.get('/distro/rpms/release-rpm/eula/include-in-firstboot/text()',
+    include_firstboot = self.config.get('/distro/release-rpm/eula/include-in-firstboot/text()',
                                         'True') in BOOLEANS_TRUE
-    eula_provided = self.config.get('/distro/rpms/release-rpm/eula/path/text()', None) is not None
+    eula_provided = self.config.get('/distro/release-rpm/eula/path/text()', None) is not None
     if include_firstboot and eula_provided:
       paths.append(self.SHARE_DIR/'release/eula.py')
     self.io.setup_sync(self.build_folder/'eulapy', paths=paths)

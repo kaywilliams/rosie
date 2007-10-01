@@ -5,7 +5,7 @@ from dims import filereader
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
-from dimsbuild.modules.installer.lib import FileDownloadMixin, ImageModifyMixin
+from dimsbuild.modules.lib.installer_lib import FileDownloadMixin, ImageModifyMixin
 
 API_VERSION = 5.0
 
@@ -23,20 +23,20 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
-      'config':    ['/distro/installer/isolinux'],
+      'config':    ['/distro/isolinux'],
     }
     
     FileDownloadMixin.__init__(self)
 
   def validate(self):
-    self.validator.validate('/distro/installer/isolinux', 'isolinux.rng')
+    self.validator.validate('/distro/isolinux', 'isolinux.rng')
     
   def setup(self):
     self.diff.setup(self.DATA)
     self.file_locals = self.locals.files['isolinux']
     FileDownloadMixin.setup(self)
     self.io.setup_sync(self.isolinux_dir, id='IsoLinuxFiles',
-                    xpaths=['/distro/installer/isolinux/path'])
+                    xpaths=['/distro/isolinux/path'])
   
   def run(self):
     self.log(0, L0("synchronizing isolinux files"))
@@ -44,7 +44,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     self.io.sync_input(what='IsoLinuxFiles')
     
     # modify the first append line in isolinux.cfg
-    bootargs = self.config.get('/distro/installer/isolinux/boot-args/text()', None)
+    bootargs = self.config.get('/distro/isolinux/boot-args/text()', None)
     if bootargs:
       cfg = self.isolinux_dir/'isolinux.cfg'
       if not cfg.exists():
@@ -82,7 +82,7 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     )
     
     self.DATA = {
-      'config':    ['/distro/installer/initrd-image/path'],
+      'config':    ['/distro/initrd-image/path'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [] # to be filled later

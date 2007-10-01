@@ -2,7 +2,7 @@ from dims import pps
 
 from dimsbuild.event import Event
 
-from dimsbuild.modules.rpms.lib import FileDownloadMixin, RpmBuildMixin
+from dimsbuild.modules.lib.rpms_lib import FileDownloadMixin, RpmBuildMixin
 
 P = pps.Path
 
@@ -21,14 +21,14 @@ class ConfigRpmEvent(Event, RpmBuildMixin, FileDownloadMixin):
     FileDownloadMixin.__init__(self)
 
     self.installinfo = {
-      'config' : ('/distro/rpms/config-rpm/config/script', '/usr/lib/%s' % self.product),
-      'support': ('/distro/rpms/config-rpm/config/supporting-files', '/usr/lib/%s' % self.product)
+      'config' : ('/distro/config-rpm/config/script', '/usr/lib/%s' % self.product),
+      'support': ('/distro/config-rpm/config/supporting-files', '/usr/lib/%s' % self.product)
     }
     
     self.DATA = {
       'variables': ['product', 'fullname', 'pva'],
       'config': [
-        '/distro/rpms/config-rpm',
+        '/distro/config-rpm',
       ],
       'input':  [],
       'output': [],
@@ -38,7 +38,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, FileDownloadMixin):
     self.build_folder.rm(recursive=True, force=True)
 
   def validate(self):
-    self.validator.validate('/distro/rpms/config-rpm', 'config-rpm.rng')
+    self.validator.validate('/distro/config-rpm', 'config-rpm.rng')
 
   def setup(self):
     self._setup_build()

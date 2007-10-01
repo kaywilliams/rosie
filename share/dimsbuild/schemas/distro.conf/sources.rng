@@ -2,18 +2,21 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="distro">
+    
       <optional>        
-        <element name="sources">
-          <optional>
-            <attribute name="enabled">
-              <ref name="value-boolean-with-default"/>
-            </attribute>
-          </optional>
-          <oneOrMore>
-            <ref name="element-repo"/>
-          </oneOrMore>
-        </element>
+      <element name="sources">
+        <optional>
+        <attribute name="enabled">
+          <ref name="value-boolean-with-default"/>
+        </attribute>
+        </optional>
+        
+        <oneOrMore>
+        <ref name="element-repo"/>
+        </oneOrMore>
+      </element>
       </optional>
+      
     </element>
   </start>
 

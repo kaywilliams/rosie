@@ -3,24 +3,22 @@
   <start>
 
     <element name="distro">
+    
       <optional>
-        <element name="rpms">
-          <optional>
-            <element name="default-theme-rpm">
-              <optional>
-                <attribute name="enabled">
-                  <ref name="value-boolean-with-default"/>
-                </attribute>
-              </optional>
-              <interleave>
-                <optional>            
-                  <element name="theme"><text/></element>
-                </optional>
-              </interleave>
-            </element>
-          </optional>
-        </element>
+      <element name="default-theme-rpm">
+      
+        <optional>
+        <attribute name="enabled">
+          <ref name="value-boolean-with-default"/>
+        </attribute>
+        </optional>
+        
+        <optional>            
+        <element name="theme"><text/></element>
+        </optional>
+      </element>
       </optional>
+      
     </element>
   </start>
 

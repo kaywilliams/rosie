@@ -98,11 +98,11 @@ class ImageModifyMixin:
       self.io.setup_sync((self.SOFTWARE_STORE/image_path).dirname,
                       id='ImageModifyMixin',
                       paths=[repo.rjoin(image_path)])
-    except IOError, e:
+    except IOError:
       if self.virtual:
         self.DATA['output'].append(self.SOFTWARE_STORE/image_path)
       else:
-        raise e
+        raise
     
     # other image input files
     self.images_src = self.METADATA_DIR/'images-src'/self.name

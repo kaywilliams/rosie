@@ -3,58 +3,67 @@
   <start>
 
     <element name="distro">
+      
       <optional>
-        <element name="rpms">
+      <element name="config-rpm">
+        
+        <optional>
+        <attribute name="enabled">
+          <ref name="value-boolean-with-default"/>
+        </attribute>
+        </optional>
+        
+        <interleave>
+        <optional>
+        <element name="config">
+          
+          <interleave>
           <optional>
-            <element name="config-rpm">
-              <optional>
-                <attribute name="enabled">
-                  <ref name="value-boolean-with-default"/>
-                </attribute>
-              </optional>
-              <interleave>
-                <optional>
-                  <element name="config">               
-                    <interleave>                  
-                      <optional>
-                        <element name="script">
-                          <optional>
-                            <attribute name="install-dest"><text/></attribute>
-                          </optional>
-                          <ref name="element-path-with-install-dest"/>
-                        </element>
-                      </optional>                                                
-                      <optional>
-                        <element name="supporting-files">
-                          <optional>
-                            <attribute name="install-dest"><text/></attribute>
-                          </optional>
-                          <zeroOrMore>
-                            <ref name="element-path-with-install-dest"/>
-                          </zeroOrMore>
-                        </element>
-                      </optional>                  
-                    </interleave>                
-                  </element>
-                </optional>
-                <optional>
-                  <element name="requires">
-                    <zeroOrMore>
-                      <element name="package"><text/></element>                  
-                    </zeroOrMore>                
-                  </element>
-                </optional>
-                <optional>
-                  <element name="obsoletes">
-                    <zeroOrMore>
-                      <element name="package"><text/></element>
-                    </zeroOrMore>                                
-                  </element>
-                </optional>
-              </interleave>
+          <element name="script">
+            
+            <optional>
+            <attribute name="install-dest"><text/></attribute>
+            </optional>
+            
+            <ref name="element-path-with-install-dest"/>
+          </element>
+          </optional>
+          
+          <optional>
+            <element name="supporting-files">
+            
+            <optional>
+            <attribute name="install-dest"><text/></attribute>
+            </optional>
+            
+            <zeroOrMore>
+            <ref name="element-path-with-install-dest"/>
+            </zeroOrMore>
+            
             </element>
           </optional>
+          </interleave>
+        
         </element>
+        </optional>
+        
+        <optional>
+        <element name="requires">
+          <zeroOrMore>
+          <element name="package"><text/></element>                  
+          </zeroOrMore>                
+        </element>
+        </optional>
+        
+        <optional>
+        <element name="obsoletes">
+          <zeroOrMore>
+          <element name="package"><text/></element>
+          </zeroOrMore>                                
+        </element>
+        </optional>
+        </interleave>
+      </element>
       </optional>
     </element>
   </start>

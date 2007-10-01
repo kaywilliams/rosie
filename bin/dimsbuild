@@ -69,6 +69,11 @@ def main():
   module_group.add_option('--share-path', metavar='PATH',
     dest='sharepath',
     help="specify directory containing dimsbuild shared files")
+  module_group.add_option('--enable-module', metavar='MODULE',
+    action='append',
+    dest='enabled_modules',
+    default=[],
+    help="load the specified module (included for config file parity)")
   module_group.add_option('--disable-module', metavar='MODULE',
     action='append',
     dest='disabled_modules',

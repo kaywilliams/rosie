@@ -6,7 +6,7 @@ from dims import xmltree
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
-from dimsbuild.modules.installer.lib import ImageModifyMixin
+from dimsbuild.modules.lib.installer_lib import ImageModifyMixin
 
 P = pps.Path
 
@@ -25,7 +25,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     )
     
     self.DATA = {
-      'config':    ['/distro/installer/product-image/path/text()'],
+      'config':    ['/distro/product-image/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
@@ -34,7 +34,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin.__init__(self, 'product.img')
   
   def validate(self):
-    self.validator.validate('/distro/installer/product-image', 'product.rng')
+    self.validator.validate('/distro/product-image', 'product.rng')
     
   def error(self, e):
     try:

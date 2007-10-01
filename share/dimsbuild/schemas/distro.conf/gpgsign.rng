@@ -2,22 +2,25 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="distro">
+    
       <optional>
-        <element name="gpgsign">
+      <element name="gpgsign">
+        <optional>
+        <attribute name="enabled">
+          <ref name="value-boolean-with-default"/>
+        </attribute>
+        </optional>
+        
+        <interleave>
+          <element name="gpg-public-key"><text/></element>
+          <element name="gpg-secret-key"><text/></element>
           <optional>
-            <attribute name="enabled">
-              <ref name="value-boolean-with-default"/>
-            </attribute>
+          <element name="gpg-passphrase"><text/></element>
           </optional>
-          <interleave>
-            <element name="gpg-public-key"><text/></element>
-            <element name="gpg-secret-key"><text/></element>
-            <optional>
-              <element name="gpg-passphrase"><text/></element>
-            </optional>
-          </interleave>
-        </element>
+        </interleave>
+      </element>
       </optional>
+    
     </element>
   </start>
 

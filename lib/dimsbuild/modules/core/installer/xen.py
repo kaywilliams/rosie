@@ -1,7 +1,7 @@
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
-from dimsbuild.modules.installer.lib import FileDownloadMixin, ImageModifyMixin
+from dimsbuild.modules.lib.installer_lib import FileDownloadMixin, ImageModifyMixin
 
 API_VERSION = 5.0
 
@@ -22,7 +22,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     self.xen_dir = self.SOFTWARE_STORE/'images/xen'
     
     self.DATA = {
-      'config':    ['/distro/installer/initrd-image/path/text()'],
+      'config':    ['/distro/initrd-image/path/text()'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
@@ -32,7 +32,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     FileDownloadMixin.__init__(self)
   
   def validate(self):
-    self.validator.validate('/distro/installer/initrd-image', 'xen.rng')
+    self.validator.validate('/distro/initrd-image', 'xen.rng')
   
   def error(self, e):
     try:

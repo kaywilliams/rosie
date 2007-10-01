@@ -3,15 +3,11 @@
   <start>
     <element name="distro">
       <optional>
-        <element name="installer">
-          <optional>
-            <element name="initrd-image">
-              <oneOrMore>
-                <ref name="element-path-with-dest"/>
-              </oneOrMore>
-            </element>
-          </optional>
-        </element>
+      <element name="initrd-image">
+        <oneOrMore>
+        <ref name="element-path-with-dest"/>
+        </oneOrMore>
+      </element>
       </optional>
     </element>
   </start>

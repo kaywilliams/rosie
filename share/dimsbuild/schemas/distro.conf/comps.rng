@@ -2,37 +2,47 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="distro">
+      
       <optional>
-        <element name="comps">
-          <choice>
-            <text/>
-            <group>
-              <interleave>
-                <optional>
-                  <element name="groups">
-                    <oneOrMore>
-                      <ref name="element-group"/>
-                    </oneOrMore>
-                  </element>
-                </optional>
-                <optional>
-                  <element name="include">
-                    <oneOrMore>
-                      <ref name="element-package"/>
-                    </oneOrMore>
-                  </element>
-                </optional>
-                <optional>
-                  <element name="exclude">
-                    <oneOrMore>
-                      <element name="package"><text/></element>
-                    </oneOrMore>
-                  </element>
-                </optional>
-              </interleave>
-            </group>
-          </choice>
-        </element>
+      <element name="comps">
+        
+        <choice>
+        
+        <text/>
+        
+        <group>
+          
+          <interleave>
+          
+          <optional>
+          <element name="groups">
+            <oneOrMore>
+            <ref name="element-group"/>
+            </oneOrMore>
+          </element>
+          </optional>
+          
+          <optional>
+          <element name="include">
+            <oneOrMore>
+            <ref name="element-package"/>
+            </oneOrMore>
+          </element>
+          </optional>
+          
+          <optional>
+          <element name="exclude">
+            <oneOrMore>
+            <element name="package"><text/></element>
+            </oneOrMore>
+          </element>
+          </optional>
+          
+          </interleave>
+        </group>
+        </choice>
+        
+      </element>
       </optional>
     </element>
   </start>
@@ -41,37 +51,46 @@
   
   <define name="element-group">
     <element name="group">
+      
       <optional>
-        <attribute name="repoid"/>
+      <attribute name="repoid"/>
       </optional>
+      
       <optional>
-        <attribute name="core">
+      <attribute name="core">
+        <ref name="value-boolean"/>
+      </attribute>
+      </optional>
+      
+      <optional>
+      <attribute name="default">
           <ref name="value-boolean"/>
-        </attribute>
+      </attribute>
       </optional>
-      <optional>
-        <attribute name="default">
-          <ref name="value-boolean"/>
-        </attribute>
-      </optional>
+      
       <text/>
+      
     </element>
   </define>
   
   <define name="element-package">
     <element name="package">
+      
       <optional>
-        <attribute name="type">
-          <choice>
-            <value type="string">conditional</value>
-            <value type="string">default</value>
-            <value type="string">optional</value>
-            <value type="string">mandatory</value>
-          </choice>
-        </attribute>
+      <attribute name="type">
+        <choice>
+          <value type="string">conditional</value>
+          <value type="string">default</value>
+          <value type="string">optional</value>
+          <value type="string">mandatory</value>
+        </choice>
+      </attribute>
       </optional>
+      
       <optional><attribute name="requires"/></optional>
+      
       <text/>
+      
     </element>
   </define>
   
