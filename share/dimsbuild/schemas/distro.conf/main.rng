@@ -16,14 +16,6 @@
         </optional>
         
         <optional>
-        <ref name="element-modules"/>
-        </optional>
-        
-        <optional>
-        <ref name="element-plugins"/>
-        </optional>
-        
-        <optional>
         <element name="bug-url"><text/></element>
         </optional>
         
@@ -44,40 +36,4 @@
     </element>
   </define>
 
-  <define name="element-modules">
-    <element name="modules">
-      <optional>
-      <attribute name="default">
-        <ref name="value-boolean"/>
-      </attribute>
-      </optional>
-      
-      <oneOrMore>
-      <element name="module">
-        <attribute name="enabled">
-          <ref name="value-boolean-with-default"/>
-        </attribute>
-        <text/>
-      </element>
-      </oneOrMore>
-      
-    </element>
-  </define>
-  
-  <define name="element-plugins">
-    <element name="plugins">
-      <attribute name="default">
-        <ref name="value-boolean"/>
-      </attribute>
-      
-      <oneOrMore>
-      <element name="plugin">
-        <attribute name="enabled">
-          <ref name="value-boolean-with-default"/>
-        </attribute>
-      </element>
-      </oneOrMore>
-      
-    </element>
-  </define>
 </grammar>

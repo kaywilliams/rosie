@@ -14,12 +14,4 @@ class RpmsEvent(Event):
     self.cvars['custom-rpms']  = []
     self.cvars['custom-srpms'] = []
 
-MODULES = [
-  'config',
-  'default_theme',
-  'localrepo',
-  'logos',
-  'release',
-]
-
 EVENTS = {'ALL': [RpmsEvent]}

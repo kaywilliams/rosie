@@ -16,7 +16,7 @@ from dimsbuild.constants import BOOLEANS_TRUE, SRPM_PNVRA
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L0, L1, L2
 
-from dimsbuild.modules.lib import RepoEventMixin
+from dimsbuild.modules.shared import RepoEventMixin
 
 P = pps.Path
 

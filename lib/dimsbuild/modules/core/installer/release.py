@@ -4,7 +4,7 @@ from dimsbuild.constants import BOOLEANS_TRUE, SRPM_REGEX
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L0
 
-from dimsbuild.modules.lib.installer_lib import ExtractMixin, RpmNotFoundError
+from dimsbuild.modules.shared.installer import ExtractMixin, RpmNotFoundError
 
 P = pps.Path
 

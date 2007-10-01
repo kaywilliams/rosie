@@ -92,16 +92,16 @@ class Build(object):
     self._seed_event_defaults(options, mainconfig, distroconfig)
     
     # load all enabled modules, register events, set up dispatcher
-    loader = Loader(top = AllEvent(), api_ver = API_VERSION)
-    loader.enabled  = enabled
-    loader.disabled = disabled
+    loader = Loader(top = AllEvent(), api_ver = API_VERSION,
+                    enabled = enabled, disabled = disabled)
     
     try:
       self.dispatch = dispatch.Dispatch(
                         loader.load(import_dirs, prefix='dimsbuild/modules')
                       )
     except ImportError, e:
-      Event.logger.log(0, L0("Error loading core dimsbuild file: %s" % e))
+      Event.logger.log(0, L0("Error loading core dimsbuild files: %s" % e))
+      raise #!
       sys.exit(1)
     
     # allow events to add their command-line options to the parser
@@ -182,9 +182,10 @@ class Build(object):
     
     for module in distroconfig.xpath('/distro/*'):
       if module.tag == 'main': continue
-      if module.get('@enabled', 'True') in BOOLEANS_TRUE:
+      if module.get('@enabled', 'True') in BOOLEANS_TRUE and \
+        module.tag not in disabled:
         enabled.add(module.tag)
-      else:
+      elif module.tag not in enabled:
         disabled.add(module.tag)
     
     disabled.add('__init__') # hack, kinda; this isn't a module

@@ -106,7 +106,8 @@ def main():
       noargopts = ['--no-plugins', '--no-validate', '--validate-only'],
       argopts   = ['-c', '--distro-conf', '--dimsbuild-conf',
                    '-l', '--log-level', '-e', '--err-level',
-                   '--disable-module', '--lib-path', '--share-path'])
+                   '--enable-module', '--disable-module',
+                   '--lib-path', '--share-path'])
                                  
   except ValueError:
     parser.print_help()

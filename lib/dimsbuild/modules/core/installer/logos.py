@@ -6,7 +6,7 @@ from dimsbuild.event     import Event
 from dimsbuild.logging   import L0
 from dimsbuild.magic     import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
 
-from dimsbuild.modules.lib.installer_lib import ExtractMixin, RpmNotFoundError
+from dimsbuild.modules.shared.installer import ExtractMixin, RpmNotFoundError
 
 P = pps.Path
 

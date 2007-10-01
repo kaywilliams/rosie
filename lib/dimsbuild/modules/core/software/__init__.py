@@ -12,13 +12,4 @@ class SoftwareMetaEvent(Event):
       provides = ['os-content'],
     )
 
-MODULES = [
-  'comps',
-  'pkglist',
-  'download',
-  'gpgcheck',
-  'gpgsign',
-  'createrepo',
-]
-
 EVENTS = {'OS': [SoftwareMetaEvent]}

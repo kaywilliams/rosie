@@ -13,17 +13,3 @@ class InstallerEvent(Event):
     )
   
 EVENTS = {'OS': [InstallerEvent]}
-
-MODULES = [
-  'bootiso',
-  'diskboot',
-  'infofiles',
-  'logos',
-  'release',
-  'isolinux',
-  'product',
-  'pxeboot',
-  'stage2',
-  'updates',
-  'xen',
-]

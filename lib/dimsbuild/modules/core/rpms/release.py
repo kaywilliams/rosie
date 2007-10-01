@@ -4,7 +4,7 @@ from dims import pps
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event
 
-from dimsbuild.modules.lib.rpms_lib import ColorMixin, FileDownloadMixin, RpmBuildMixin
+from dimsbuild.modules.shared.rpms import ColorMixin, FileDownloadMixin, RpmBuildMixin
 
 P = pps.Path
 

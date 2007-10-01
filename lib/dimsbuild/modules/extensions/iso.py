@@ -10,7 +10,7 @@ from dimsbuild.callback    import BuildDepsolveCallback
 from dimsbuild.constants   import BOOLEANS_TRUE
 from dimsbuild.event       import Event
 from dimsbuild.logging     import L0, L1, L2, L3
-from dimsbuild.modules.lib import ListCompareMixin
+from dimsbuild.modules.shared import ListCompareMixin
 
 API_VERSION = 5.0
 

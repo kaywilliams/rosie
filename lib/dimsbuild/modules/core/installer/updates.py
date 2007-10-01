@@ -1,7 +1,7 @@
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
-from dimsbuild.modules.lib.installer_lib import ImageModifyMixin
+from dimsbuild.modules.shared.installer import ImageModifyMixin
 
 API_VERSION = 5.0
 

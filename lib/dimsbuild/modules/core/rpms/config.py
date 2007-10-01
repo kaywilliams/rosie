@@ -2,7 +2,7 @@ from dims import pps
 
 from dimsbuild.event import Event
 
-from dimsbuild.modules.lib.rpms_lib import FileDownloadMixin, RpmBuildMixin
+from dimsbuild.modules.shared.rpms import FileDownloadMixin, RpmBuildMixin
 
 P = pps.Path
 

@@ -5,7 +5,7 @@ from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event 
 from dimsbuild.logging   import L3
 
-from dimsbuild.modules.lib.rpms_lib import ColorMixin, RpmLocalsMixin, RpmBuildMixin
+from dimsbuild.modules.shared.rpms import ColorMixin, RpmLocalsMixin, RpmBuildMixin
 
 try:
   import Image
