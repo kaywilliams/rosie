@@ -6,8 +6,9 @@ from dims import xmltree
 
 from dims.configlib import ConfigError
 
-from dimsbuild.event   import Event
-from dimsbuild.logging import L0, L1
+from dimsbuild.event     import Event
+from dimsbuild.logging   import L0, L1
+from dimsbuild.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
 
 API_VERSION = 5.0
 
@@ -109,10 +110,10 @@ class CompsEvent(Event):
   #------ COMPS FILE GENERATION FUNCTIONS ------#
   def _generate_comps(self):
     mapped, unmapped = self.__map_groups()
-    
-    processed = [] # processed groups
-    
-    # process groups
+
+    self.groups = {} # dict of grouptrees by groupid)
+       
+    ## build up groups dictionary
     for groupfileid, path in self.groupfiles:
       # read groupfile
       try:
@@ -123,46 +124,50 @@ class CompsEvent(Event):
       
       # add the 'core' group of the base repo
       if groupfileid == self.cvars['base-repoid']:
-        try:
-          self._add_group_by_id('core', tree, mapped[groupfileid])
-          processed.append('core')
-        except IndexError:
-          pass
+        self.groups['core'] = self.__get_grouptree('core', tree, mapped[groupfileid])
       
       # process mapped groups - each MUST be processed or we raise an exception
       while len(mapped[groupfileid]) > 0:
         groupid = mapped[groupfileid].pop(0)
-        if groupid in processed: continue # skip those we already processed
-        default = self.config.get('/distro/comps/groups/group[text()="%s"]/@default' % groupid, 'true')
-        self._add_group_by_id(groupid, tree, mapped[groupfileid], default=default)
-        processed.append(groupid)
-        
+        if self.groups.has_key(groupid): continue
+        self.groups[groupid] = self.__get_grouptree(groupid, tree, mapped[groupfileid])
+   
       # process unmapped groups - these do not need to be processed at each step
       i = 0; j = len(unmapped)
       while i < j:
         groupid = unmapped[i]
-        if groupid in processed:
+        if self.groups.has_key(groupid):
           unmapped.pop(i)
           i += 1; continue
         try:
           group = tree.get('//group[id/text()="%s"]' % groupid)
-          default = self.config.get('/distro/comps/groups/group[text()="%s"]/@default' % groupid, 'true')
-          self._add_group_by_id(groupid, tree, unmapped, processed, default=default)
-          processed.append(unmapped.pop(i))
+          self.groups[groupid] = self.__get_grouptree(groupid, tree, unmapped) 
           j = len(unmapped)
         except IndexError:
           i += 1
-    
-    if 'core' not in processed:
+ 
+    if not self.groups.has_key('core'):
       raise CompsError("The base repo '%s' does not appear "
                        "to define a 'core' group in any of its "
                        "comps.xml files" % self.cvars['base-repoid'])
-    
+
     # if any unmapped group wasn't processed, raise an exception
     if len(unmapped) > 0:
       raise ConfigError, "Unable to resolve all groups in available repos: missing %s" % unmapped
-    
-    # add packages to core group
+
+    ### create comps file
+    ## add core group
+    self.comps.getroot().append(self.groups.pop('core'))
+
+    ## add packages to core group
+    # add packages from groups marked as 'core'
+    core = [groupid for groupid in self.groups.keys() 
+            if self.config.get('/distro/comps/groups/group[text()="%s"]/@core' \
+            % groupid, 'true') in BOOLEANS_TRUE] 
+    for groupid in sorted(core):
+      self._add_group_pkgs(groupid, self.groups[groupid])
+
+    # add packages listed separately in config or included-packages cvar
     packages = []
     for pkg in self.config.xpath('/distro/comps/include/package', []):
       pkgname = pkg.get('text()')
@@ -183,7 +188,7 @@ class CompsEvent(Event):
       self.cvars['user-required-packages'] = [ x[0] for x in packages ]
       self.comps.getroot().append(core)
       for pkgname, pkgtype, pkgrequires in packages:
-        self._add_group_package(pkgname, core, pkgrequires, type=pkgtype)
+        self._add_package(pkgname, core, pkgrequires, type=pkgtype)
 
     # check to make sure a 'kernel' pacakge or equivalent exists - kinda icky
     allpkgs = self.comps.get('//packagereq/text()')
@@ -194,9 +199,16 @@ class CompsEvent(Event):
     if not found:
       # base is defined above, it is the base group for the repository
       if len(packages) == 0: self.comps.getroot().insert(0, base) # HAK HAK HAK
-      self._add_group_package('kernel', core, type='mandatory')
-    
-    # exclude all package in self.exclude
+      self._add_package('kernel', core, type='mandatory')
+
+    ## add stand alone groups
+    noncore = [groupid for groupid in self.groups.keys() 
+               if self.config.get('/distro/comps/groups/group[text()="%s"]/@core' \
+               % groupid, 'true') in BOOLEANS_FALSE] 
+    for groupid in sorted(noncore):
+      self._add_group(groupid, self.groups[groupid])
+  
+    ## exclude all package in self.exclude
     exclude = self.config.xpath('/distro/comps/exclude/packages/text()', []) + \
               (self.cvars['excluded-packages'] or [])
 
@@ -204,12 +216,12 @@ class CompsEvent(Event):
       for match in self.comps.xpath('//packagereq[text()="%s"]' % pkg):
         match.getparent().remove(match)
     
-    # add category
+    ## add category
     cat = Category('Groups', fullname=self.fullname,
                              version=self.cvars['anaconda-version'])
     self.comps.getroot().append(cat)
     for group in self.comps.getroot().xpath('//group/id/text()'):
-      self._add_category_group(group, cat)
+      self._add_category(group, cat)
   
   def __map_groups(self):
     mapped = {}
@@ -240,8 +252,35 @@ class CompsEvent(Event):
                            repo.ljoin(repo.repodata_path, 'repodata', groupfile)))
       
     return groupfiles
-  
-  def _add_group_package(self, package, group, requires=None, type='mandatory'):
+
+  def __get_grouptree(self, groupid, tree, toprocess):
+    "Get an xmltree object for the group, adds groupreqs to the toprocess list"
+    grouptree = tree.get('//group[id/text()="%s"]' % groupid)
+    if grouptree is None:
+      raise CompsError, "Group id '%s' not found in comps file" % groupid
+
+    # process any elements in the <grouplist> element
+    groupreqs = grouptree.xpath('//grouplist/groupreq/text()')
+    for groupreq in groupreqs:
+      if groupreq not in toprocess and not self.groups.has_key(groupreq):
+        toprocess.append(groupreq)
+
+    return grouptree
+
+  def _add_group(self, groupid, grouptree):
+    self.comps.getroot().append(grouptree)
+    default = self.config.get('/distro/comps/groups/group[text()="%s"]/@default' \
+              % groupid, None)
+    # replace the contents of the default element's text node
+    if default is not None:
+      self.comps.getroot().get('group[id/text()="%s"]/default' % groupid).text = default
+
+  def _add_group_pkgs(self, groupid, grouptree):
+    for package in grouptree.xpath('//group[id/text()="%s"]/packagelist/packagereq'\
+                                     % groupid):
+      self.comps.get('group[id/text()="core"]/packagelist').append(package)
+
+  def _add_package(self, package, group, requires=None, type='mandatory'):
     if type not in TYPES:
       raise ValueError, "Invalid type '%s', must be one of %s" % (type, TYPES)
     
@@ -252,24 +291,7 @@ class CompsEvent(Event):
     packagelist = uElement('packagelist', parent=group)
     Element('packagereq', text=package, attrs=attrs, parent=packagelist)
     
-  def _add_group_by_id(self, groupid, tree, toprocess, processed=[], default='true'):
-    group = tree.get('//group[id/text()="%s"]' % groupid)
-    if group is None:
-      raise CompsError, "Group id '%s' not found in comps file" % groupid
-    
-    # append is destructive, so copy() it
-    self.comps.getroot().append(copy.deepcopy(group))
-    
-    # replace the contents of the default element's text node
-    self.comps.getroot().get('group[id/text()="%s"]/default' % groupid).text = default
-    
-    # process any elements in the <grouplist> element
-    groupreqs = tree.xpath('//group[id/text()="%s"]/grouplist/groupreq/text()' % groupid)
-    for groupreq in groupreqs:
-      if groupreq not in toprocess and groupreq not in processed:
-        toprocess.append(groupreq)
-  
-  def _add_category_group(self, group, category, version='0'):
+  def _add_category(self, group, category, version='0'):
     if sortlib.dcompare(self.cvars['anaconda-version'], '10.2.0.14-1') < 0:
       parent = category.get('category/subcategories')
       Element('subcategory', parent=parent, text=group)

@@ -64,25 +64,39 @@ element comps {
       </para>
       <programlisting>
 element group {
-  attribute repoid { text }?,
+  attribute core { text }?,
   attribute default { text }?
+  attribute repoid { text }?,
 }
       </programlisting>
       <refsection>
         <title>Attributes</title>
         <para>group elements have the following attributes:</para>
         <refsection>
-          <title>repoid</title>
+          <title>core</title>
           <para>
-          optional; the id of the repository from which to obtain this group; defaults
-          to None, which means that all repositories are considered
+          optional; if true, packages from the group are appended to the core 
+          group, otherwise the group itself is appended to the comps file.  The 
+          former ensures packages of type 'mandatory' or 'default' are installed 
+          in both manual and kickstart installs. The latter allows the group to be 
+          optionally selected during manual installs, and requires the group to 
+          be listed in the packages section of the kickstart file for kickstart 
+          installs. The default value is true.
           </para>
         </refsection>
         <refsection>
           <title>default</title>
           <para>
-          optional; whether or not packages in this store that are of type 'default'
-          should be included; defaults to 'true'
+          optional; if specified, comps resets the value of the 'default' element 
+          for the group to this value; otherwise it uses the original value.
+          Ignored if the 'core' attribute is set to true.
+          </para>
+        </refsection>
+        <refsection>
+          <title>repoid</title>
+          <para>
+          optional; the id of the repository from which to obtain this group; defaults
+          to None, which means that all repositories are considered
           </para>
         </refsection>
       </refsection>
