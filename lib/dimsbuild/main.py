@@ -123,9 +123,8 @@ class Build(object):
     # clear cache, if requested
     if options.clear_cache:
       Event.logger.log(0, L0("clearing cache"))
-      cache_dir = P(self.core.cache_handler.cache_dir)
-      cache_dir.rm(recursive=True, force=True)
-      cache_dir.mkdirs()
+      Event.cache_handler.cache_dir.rm(recursive=True, force=True)
+      Event.cache_handler.cache_dir.mkdirs()
     
     # list events, if requested
     if options.list_events:

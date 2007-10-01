@@ -53,12 +53,9 @@ def main():
   log_group = OptionGroup(parser, "logging options")
   log_group.add_option('-l', '--log-level', metavar='N',
     dest='logthresh',
+    type='int',
     default=3,
     help="specify the level of verbosity of the output log")
-  log_group.add_option('-e', '--err-level', metavar='N',
-    dest='errthresh',
-    default=1,
-    help="specify the level of verbosity of the error log")
   log_group.add_option('--log-file', metavar='PATH',
     dest='logfile',
     default='/var/log/dimsbuild.log',
@@ -72,26 +69,23 @@ def main():
   module_group.add_option('--share-path', metavar='PATH',
     dest='sharepath',
     help="specify directory containing dimsbuild shared files")
-  module_group.add_option('--disable-module', metavar='MODULE1 [MODULE2 ...]',
-    action='callback',
+  module_group.add_option('--disable-module', metavar='MODULE',
+    action='append',
     dest='disabled_modules',
     default=[],
-    callback=__append_cb,
-    help="do not load the specified module(s)")
+    help="do not load the specified module")
   parser.add_option_group(module_group)
   
   event_group = OptionGroup(parser, "event control options")
-  event_group.add_option('--force', metavar='EVENT1 [EVENT2 ...]',
-    action='callback',
+  event_group.add_option('--force', metavar='EVENT',
+    action='append',
     dest='force_events',
     default=[],
-    callback=__append_cb,
     help="force one or more events to execute")
-  event_group.add_option('--skip', metavar='EVENT1 [EVENT2 ...]',
-    action='callback',
+  event_group.add_option('--skip', metavar='EVENT',
+    action='append',
     dest='skip_events',
     default=[],
-    callback=__append_cb,
     help="skip processing one or more events")
   event_group.add_option('--list-events',
     action='store_true',
@@ -157,24 +151,6 @@ def main():
   sbuilder.apply_options(options)
   sbuilder.main()
   sys.exit()
-
-def __append_cb(option, opt, value, parser):
-  events = []
-  while parser.rargs:
-    arg = parser.rargs[0]
-    if ((arg[:2] == '--' and len(arg) > 2) or
-        (arg[:1] == '-'  and len(arg) > 1 and arg[1] != '-')):
-      break
-    else:
-      events.append(arg)
-      del parser.rargs[0]
-  if not hasattr(parser.values, option.dest):
-    setattr(parser.values, option.dest, events)
-  else:
-    values = getattr(parser.values, option.dest)
-    for event in events:
-      if event not in values: values.append(event)
-
 
 def __get_conf(maincfgpath, distrocfgpath, loglevel=1):
   "Computes the location and reads main and distro configuration files"

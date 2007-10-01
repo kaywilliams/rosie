@@ -65,7 +65,7 @@ class LogContainer(logger.LogContainer):
 
 def make_log(threshold, logfile):
   console = Logger(threshold=threshold, file_object=sys.stdout,
-                   format='%(message).75s')
+                   format='%(message)s')
   logfile = Logger(threshold=None, file_object=open(logfile, 'a+'),
                    format='%(time)s: %(message)s')
   
@@ -73,5 +73,6 @@ def make_log(threshold, logfile):
   container.console = console
   container.logfile = logfile
   container.test = console.test
+  container.threshold = console.threshold
   
   return container

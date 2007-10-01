@@ -66,7 +66,7 @@ class GPGSignEvent(Event, GpgMixin):
     self.io.setup_sync(self.mddir/'rpms', paths=self.cvars['input-rpms'], id='rpms')
   
   def run(self):
-    self.log(0, L0("running %s event" % self.id))
+    self.log(0, L0("running %s" % self.id))
     
     # changing from gpgsign-enabled true, cleanup old files and metadata
     if self.diff.var_changed_from_value('gpgsign_enabled', True):
@@ -111,7 +111,7 @@ class GPGSignEvent(Event, GpgMixin):
       if self.config.get('/distro/gpgsign/gpg-passphrase/text()', None) is None:
         self.cvars['gpgsign-passphrase'] = mkrpm.getPassphrase()
       for rpm in signrpms:
-        self.log(2, L2(rpm.relpathfrom(self.mddir)))
+        self.log(2, L2(rpm.relpathfrom(self.mddir)), format='%(message).75s')
         mkrpm.SignRpm(rpm, 
                       homedir=gnupg_dir,
                       passphrase=self.cvars['gpgsign-passphrase'])

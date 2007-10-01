@@ -11,7 +11,7 @@ from dimsbuild.event.diff     import DiffMixin
 from dimsbuild.event.fileio   import IOMixin
 from dimsbuild.event.locals   import LocalsMixin
 
-DEBUG = False # this should be enabled for development purposes and
+DEBUG = True # this should be enabled for development purposes and
              # disabled once we go to release
 
 class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):

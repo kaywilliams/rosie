@@ -18,13 +18,13 @@ class FilesCallback:
     self.logger.log(4, L1("removing files"))
   
   def rm(self, fn):
-    self.logger.log(4, L2(fn.relpathfrom(self.relpath)))
+    self.logger.log(4, L2(fn.relpathfrom(self.relpath)), format='%(message).75s')
     
   def rmdir_start(self):
     self.logger.log(4, L1("removing empty directories"))
   
   def rmdir(self, dn):
-    self.logger.log(4, L2(dn.relpathfrom(self.relpath)))
+    self.logger.log(4, L2(dn.relpathfrom(self.relpath)), format='%(message).75s')
   
   def sync_start(self):
     self.logger.log(1, L1("downloading input files"))
@@ -34,11 +34,14 @@ class BuildSyncCallback(CachedSyncCallback):
     CachedSyncCallback.__init__(self)
     self.logger = logger
     self.relpath = relpath
+    
+    if not self.logger.test(3):
+      self.bar.fo = None # turn off progressbar output
   
   # sync callbacks - kinda hackish
   def start(self, src, dest):
     if self.logger.threshold == 2:
-      self.logger.log(2, L2(src.relpathfrom(self.relpath)))
+      self.logger.log(2, L2(dest.relpathfrom(self.relpath)/src.basename), format='%(message).75s')
   def cp(self, src, dest): pass
   def sync_update(self, src, dest): pass
   def mkdir(self, src, dest): pass
@@ -47,16 +50,13 @@ class BuildSyncCallback(CachedSyncCallback):
     CachedSyncCallback._cache_start(self, size, L2(text))
   
   def _cp_start(self, size, text, seek=0.0):
-    CachedSyncCallback._cp_start(self, size=size, text=L2(text),
-                                       seek=seek, draw=self.logger.test(3))
+    CachedSyncCallback._cp_start(self, size=size, text=L2(text), seek=seek)
   
   def _cp_update(self, amount_read):
-    CachedSyncCallback._cp_update(self, amount_read=amount_read,
-                                        draw=self.logger.test(3))
-
+    CachedSyncCallback._cp_update(self, amount_read=amount_read)
+  
   def _cp_end(self, amount_read):
-    CachedSyncCallback._cp_end(self, amount_read=amount_read,
-                                     draw=self.logger.test(3))
+    CachedSyncCallback._cp_end(self, amount_read=amount_read)
     if self.logger.test(3):
       self.logger.logfile.log(3, str(self.bar))
 
