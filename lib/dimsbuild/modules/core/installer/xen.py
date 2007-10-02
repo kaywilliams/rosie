@@ -31,9 +31,6 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     ImageModifyMixin.__init__(self, 'initrd.img')
     FileDownloadMixin.__init__(self)
   
-  def validate(self):
-    self.validator.validate('/distro/initrd-image', 'xen.rng')
-  
   def error(self, e):
     try:
       self._close()

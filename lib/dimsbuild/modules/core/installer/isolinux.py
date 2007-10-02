@@ -90,6 +90,9 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     
     ImageModifyMixin.__init__(self, 'initrd.img')
   
+  def validate(self):
+    self.validator.validate('/distro/initrd-image', 'initrd.rng')
+  
   def error(self, e):
     try:
       self._close()
