@@ -5,8 +5,7 @@ import os
 from gzip import GzipFile
 
 from dims import pps
-
-from dims.xml import tree as xmltree
+from dims import xmllib
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.logging   import L1, L2
@@ -80,7 +79,7 @@ class Repo:
     if repomd is None: 
       tmpfile = tmpdir / 'repomd.xml'
       self.rjoin(self.repodata_path, self.mdfile).cp(tmpdir)
-      repomd = xmltree.read(tmpfile).xpath('//data')
+      repomd = xmllib.tree.read(tmpfile).xpath('//data')
       tmpfile.rm(force=True) 
     for data in repomd:
       repofile = P(data.get('location/@href'))

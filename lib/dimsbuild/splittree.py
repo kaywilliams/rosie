@@ -7,8 +7,7 @@ from math import ceil
 
 from dims import FormattedFile as ffile
 from dims import pkgorder
-
-from dims.xml.tree import XmlTreeElement
+from dims import xmllib
 
 from dimsbuild.constants import RPM_GLOB, SRPM_GLOB
 
@@ -54,7 +53,7 @@ class Timber:
     "Create a .discinfo file for disc number in split tree"
     if isinstance(self.difmt, dict):
       discinfo = ffile.DictToFormattedFile(self.difmt)
-    elif isinstance(self.difmt, XmlTreeElement):
+    elif isinstance(self.difmt, xmllib.tree.XmlTreeElement):
       discinfo = ffile.XmlToFormattedFile(self.difmt)
     else:
       raise ValueError, "Unsupported format %s for pkgorder.difmt" % type(self.difmt)

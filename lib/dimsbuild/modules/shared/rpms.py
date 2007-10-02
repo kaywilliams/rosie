@@ -4,8 +4,7 @@ from dims import filereader
 from dims import mkrpm
 from dims import pps
 from dims import sync
-
-from dims.xml import tree as xmltree
+from dims import xmllib
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event, EventExit
@@ -126,7 +125,7 @@ class RpmBuildMixin:
     self.srcdir = self.cvars['rpms-source']/self.id ## FIXME
 
     if self.autofile.exists():
-      self.release = xmltree.read(self.autofile).get(
+      self.release = xmllib.tree.read(self.autofile).get(
        '/distro/%s/rpms/%s/release/text()' % (self.pva, self.id), '0')
     else:
       self.release = '0'
@@ -178,14 +177,14 @@ class RpmBuildMixin:
   
   def _save_release(self):
     if self.autofile.exists():
-      root_element = xmltree.read(self.autofile).get('/distro')
+      root_element = xmllib.tree.read(self.autofile).get('/distro')
     else:
-      root_element = xmltree.Element('distro')
+      root_element = xmllib.tree.Element('distro')
 
-    pva_element     = xmltree.uElement(self.pva,  parent=root_element)
-    rpms_element    = xmltree.uElement('rpms',    parent=pva_element)
-    parent_element  = xmltree.uElement(self.id,   parent=rpms_element)
-    release_element = xmltree.uElement('release', parent=parent_element)
+    pva_element     = xmllib.tree.uElement(self.pva,  parent=root_element)
+    rpms_element    = xmllib.tree.uElement('rpms',    parent=pva_element)
+    parent_element  = xmllib.tree.uElement(self.id,   parent=rpms_element)
+    release_element = xmllib.tree.uElement('release', parent=parent_element)
     
     release_element.text = self.release
     root_element.write(self.autofile)

@@ -1,8 +1,7 @@
 from dims import filereader
 from dims import pps
 from dims import sortlib
-
-from dims.xml import tree as xmltree
+from dims import xmllib
 
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0
@@ -69,7 +68,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     self._write_buildstamp()
   
   def _generate_installclass(self):
-    comps = xmltree.read(self.cvars['comps-file'])
+    comps = xmllib.tree.read(self.cvars['comps-file'])
     groups = comps.xpath('//group/id/text()')
     defgroups = comps.xpath('//group[default/text() = "true"]/id/text()')
     

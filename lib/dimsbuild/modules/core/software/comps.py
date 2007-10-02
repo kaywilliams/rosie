@@ -2,9 +2,7 @@ import copy
 
 from dims import listcompare
 from dims import sortlib
-
-from dims.xml import tree as xmltree
-from dims.xml.config import ConfigError
+from dims import xmllib
 
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L0, L1
@@ -55,8 +53,8 @@ class CompsEvent(Event):
 
       # ensure exactly only one item returned above
       if len(self.io.list_output(what='comps.xml')) != 1: 
-        raise RuntimeError, "The path specified at '%s' expands to multiple "\
-        "items. Only one comps file is allowed." % xpath 
+        raise RuntimeError("The path specified at '%s' expands to multiple "
+                           "items. Only one comps file is allowed." % xpath)
 
     else:
       self.comps_out = self.mddir/'comps.xml'
@@ -98,13 +96,13 @@ class CompsEvent(Event):
     
     # verify comps-file exists
     if not self.cvars['comps-file'].exists():
-      raise RuntimeError, "Unable to find cached comps file at '%s'. Perhaps you "\
-      "are skipping the comps event before it has been allowed to run once?"\
-      % self.cvars['comps-file']
+      raise RuntimeError("Unable to find cached comps file at '%s'. "
+                         "Perhaps you are skipping the comps event before "
+                         "it has been allowed to run once?" % self.cvars['comps-file'])
         
     # set required packages variable
     self.cvars['required-packages'] = \
-      xmltree.read(self.cvars['comps-file']).xpath('//packagereq/text()')
+      xmllib.tree.read(self.cvars['comps-file']).xpath('//packagereq/text()')
   
   
   #------ COMPS FILE GENERATION FUNCTIONS ------#
@@ -117,10 +115,10 @@ class CompsEvent(Event):
     for groupfileid, path in self.groupfiles:
       # read groupfile
       try:
-        tree = xmltree.read(path)
+        tree = xmllib.tree.read(path)
       except ValueError, e:
         print e
-        raise CompsError, "the file '%s' does not exist" % file
+        raise CompsError("the file '%s' does not exist" % file)
       
       # add the 'core' group of the base repo
       if groupfileid == self.cvars['base-repoid']:
@@ -153,7 +151,8 @@ class CompsEvent(Event):
 
     # if any unmapped group wasn't processed, raise an exception
     if len(unmapped) > 0:
-      raise ConfigError, "Unable to resolve all groups in available repos: missing %s" % unmapped
+      raise xmllib.config.ConfigError("Unable to resolve all groups in available "
+                                      "repos: missing %s" % unmapped)
 
     ### create comps file
     ## add core group
@@ -235,7 +234,8 @@ class CompsEvent(Event):
         try:
           mapped[repo].append(group.text)
         except KeyError:
-          raise ConfigError, "Invalid repo '%s' specified in group %s" % (repo, group)
+          raise xmllib.config.ConfigError("Invalid repo '%s' specified in "
+                                          "group %s" % (repo, group))
       else:
         unmapped.append(group.text)
     
@@ -254,10 +254,10 @@ class CompsEvent(Event):
     return groupfiles
 
   def __get_grouptree(self, groupid, tree, toprocess):
-    "Get an xmltree object for the group, adds groupreqs to the toprocess list"
+    "Get an xmllib.tree object for the group, adds groupreqs to the toprocess list"
     grouptree = tree.get('//group[id/text()="%s"]' % groupid)
     if grouptree is None:
-      raise CompsError, "Group id '%s' not found in comps file" % groupid
+      raise CompsError("Group id '%s' not found in comps file" % groupid)
 
     # process any elements in the <grouplist> element
     groupreqs = grouptree.xpath('//grouplist/groupreq/text()')
@@ -282,7 +282,7 @@ class CompsEvent(Event):
 
   def _add_package(self, package, group, requires=None, type='mandatory'):
     if type not in TYPES:
-      raise ValueError, "Invalid type '%s', must be one of %s" % (type, TYPES)
+      raise ValueError("Invalid type '%s', must be one of %s" % (type, TYPES))
     
     attrs = {}
     if requires is not None: attrs['requires'] = requires
@@ -330,8 +330,8 @@ def Category(name, fullname='', version='0'):
   return top
 
 # convenience functions
-Element  = xmltree.Element  
-uElement = xmltree.uElement
+Element  = xmllib.tree.Element  
+uElement = xmllib.tree.uElement
 
 EVENTS = {'SOFTWARE': [CompsEvent]}
 

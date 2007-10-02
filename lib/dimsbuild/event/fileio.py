@@ -1,6 +1,5 @@
 from dims import pps
-
-from dims.xml import tree as xmltree
+from dims import xmllib
 
 from dims.pps.constants import TYPE_DIR, TYPE_NOT_DIR
 
@@ -94,7 +93,7 @@ class IOObject:
     else:
       if self.ptr.diff.handlers.has_key('output'):
         self.ptr.diff.handlers['output'].clear()
-        root = xmltree.read(self.ptr.mdfile)
+        root = xmllib.tree.read(self.ptr.mdfile)
         self.ptr.diff.handlers['output'].mdread(root)
         expected = set()
         for path in self.ptr.diff.handlers['output'].oldoutput.keys():

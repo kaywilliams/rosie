@@ -14,10 +14,9 @@ from optparse import OptionParser, OptionGroup, SUPPRESS_HELP
 from StringIO import StringIO
 
 from dims import pps
+from dims import xmllib
 
 from dims.CleanHelpFormatter import CleanHelpFormatter
-from dims.xml import config
-from dims.xml import tree
 
 P = pps.Path
 
@@ -180,8 +179,8 @@ def __get_conf(maincfgpath, distrocfgpath, loglevel=1):
 
 def __read_conf(file):
   try:
-    return config.read(file)
-  except tree.XmlSyntaxError, e:
+    return xmllib.config.read(file)
+  except xmllib.tree.XmlSyntaxError, e:
     print "Error reading config file '%s': %s" %(file, e)
     sys.exit(1)
 

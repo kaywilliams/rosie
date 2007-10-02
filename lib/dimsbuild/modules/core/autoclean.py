@@ -1,4 +1,4 @@
-from dims.xml import tree as xmltree
+from dims import xmllib
 
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0, L2, L3
@@ -78,14 +78,14 @@ class EventHandler:
       self.events[event.get('@id')] = event.get('version/text()')
   
   def mdwrite(self, root):
-    parent = xmltree.uElement('events', parent=root)
+    parent = xmllib.tree.uElement('events', parent=root)
     
     for k,v in self.diffdict.items():
       try: parent.remove(parent.get('event[@id="%s"]' % k))
       except TypeError: pass
       if v[1] is not None:
-        e = xmltree.Element('event', parent=parent, attrs={'id': k})
-        xmltree.Element('version', parent=e, text=str(v[1]))
+        e = xmllib.tree.Element('event', parent=parent, attrs={'id': k})
+        xmllib.tree.Element('version', parent=e, text=str(v[1]))
   
   def diff(self):    
     for k,v in self.events.items():

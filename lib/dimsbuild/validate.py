@@ -4,14 +4,13 @@ from lxml     import etree
 import copy
 import os
 
-from dims.xml import tree as xmltree
-from dims.xml import config
+from dims import xmllib
 
 class ValidateMixin:
   def __init__(self, schemaspath, configfile):
     self.schemaspath = schemaspath
     self.configfile = configfile
-    self.config = config.read(self.configfile)
+    self.config = xmllib.config.read(self.configfile)
     
   def validate(self, xpath_query, schemafile=None, schemacontents=None):
     if (schemafile is None and schemacontents is None) or \
@@ -52,13 +51,13 @@ class ValidateMixin:
     if not schemafile.exists():
       raise IOError("missing schema file '%s' at '%s'" % (filename, schema.dirname))
 
-    schema = xmltree.read(filename)
+    schema = xmllib.tree.read(filename)
     ## FIXME: xmltree/lxml seems to be losing the xmlns attribute    
     schema.getroot().attrib['xmlns'] = "http://relaxng.org/ns/structure/1.0"
     return str(schema)
   
   def getSchema(self, schemacontents, tag):
-    schema = xmltree.read(StringIO(schemacontents))
+    schema = xmllib.tree.read(StringIO(schemacontents))
     ## FIXME: xmltree/lxml seems to be losing the xmlns attribute
     schema.getroot().attrib['xmlns'] = "http://relaxng.org/ns/structure/1.0"
     return schema
@@ -100,21 +99,21 @@ class ConfigValidator(ValidateMixin):
     tree = schema.get('//element[@name="distro"]')
 
     # add the 'schema-version' attribute to the distro element
-    schemaver = xmltree.Element('attribute',
+    schemaver = xmllib.tree.Element('attribute',
                                 attrs={'name': 'schema-version'})
-    choice = xmltree.Element('choice', parent=schemaver)
-    xmltree.Element('value', parent=choice, text='1.0',
+    choice = xmllib.tree.Element('choice', parent=schemaver)
+    xmllib.tree.Element('value', parent=choice, text='1.0',
                     attrs={'type': 'string'})
     tree.insert(0, schemaver)
 
     
     elemschema = schema.get('//element[@name="%s"]' % tag)
     # add a definition for multiple attributes
-    anyattr = xmltree.Element('define', parent=schema.getroot(),
+    anyattr = xmllib.tree.Element('define', parent=schema.getroot(),
                               attrs={'name': 'attribute-anything'})
-    zom = xmltree.Element('zeroOrMore', parent=anyattr)
-    attr = xmltree.Element('attribute', parent=zom)
-    xmltree.Element('anyName', parent=attr)
+    zom = xmllib.tree.Element('zeroOrMore', parent=anyattr)
+    attr = xmllib.tree.Element('attribute', parent=zom)
+    xmllib.tree.Element('anyName', parent=attr)
     
     count = 0
     while elemschema.getparent().tag != 'start':
@@ -141,24 +140,24 @@ class ConfigValidator(ValidateMixin):
     return schema
   
   def _add_references(self, schema, id):
-    schema.addprevious(xmltree.Element('ref', attrs={'name': id}))
-    schema.addnext(xmltree.Element('ref', attrs={'name': id}))
+    schema.addprevious(xmllib.tree.Element('ref', attrs={'name': id}))
+    schema.addnext(xmllib.tree.Element('ref', attrs={'name': id}))
     
   def _add_definitions(self, schema, id, ignore=None):
     # add a definition for multiple elements
-    anyelem = xmltree.Element('define', parent=schema.getroot(),
+    anyelem = xmllib.tree.Element('define', parent=schema.getroot(),
                               attrs={'name': id})
-    zom = xmltree.Element('zeroOrMore', parent=anyelem)
-    choice = xmltree.Element('choice', parent=zom)
-    text = xmltree.Element('text', parent=choice)
-    elem = xmltree.Element('element', parent=choice)
-    name = xmltree.Element('anyName', parent=elem)
+    zom = xmllib.tree.Element('zeroOrMore', parent=anyelem)
+    choice = xmllib.tree.Element('choice', parent=zom)
+    text = xmllib.tree.Element('text', parent=choice)
+    elem = xmllib.tree.Element('element', parent=choice)
+    name = xmllib.tree.Element('anyName', parent=elem)
     if ignore is not None:
-      exelem = xmltree.Element('except', parent=name)
-      xmltree.Element('name', parent=exelem, text=ignore)                      
-    xmltree.Element('ref', parent=elem,
+      exelem = xmllib.tree.Element('except', parent=name)
+      xmllib.tree.Element('name', parent=exelem, text=ignore)                      
+    xmllib.tree.Element('ref', parent=elem,
                     attrs={'name': 'attribute-anything'})
-    xmltree.Element('ref', parent=elem,
+    xmllib.tree.Element('ref', parent=elem,
                     attrs={'name': id})
 
 #------ ERRORS ------#

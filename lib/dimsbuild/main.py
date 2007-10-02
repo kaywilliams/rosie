@@ -17,12 +17,11 @@ from rpmUtils.arch import getBaseArch
 
 from dims import dispatch
 from dims import pps
+from dims import xmllib
 
 from dims import sync
 from dims.sync import cache
 from dims.sync import link
-
-from dims.xml.config import ConfigError
 
 from dimsbuild.callback  import BuildSyncCallback, FilesCallback
 from dimsbuild.constants import *
@@ -327,7 +326,8 @@ def eval_modlist(mods, default=None):
     if enabled == 'default':
       enabled = mod_default
     if enabled is None:
-      raise ConfigError("Default status requested on '%s', but no default specified" % name)
+      raise xmllib.config.ConfigError("Default status requested on '%s', "
+                                      "but no default specified" % name)
     ret[name] = enabled
   
   return ret

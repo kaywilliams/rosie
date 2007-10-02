@@ -1,13 +1,12 @@
 from StringIO import StringIO
 
-from dims.xml import tree as xmltree
-from dims.xml import imerge
+from dims import xmllib
 
 def locals_imerge(string, ver):
-  tree = xmltree.read(StringIO(string))
-  locals = xmltree.Element('locals')
+  tree = xmllib.tree.read(StringIO(string))
+  locals = xmllib.tree.Element('locals')
   for child in tree.getroot().getchildren():
-    locals.append(imerge.incremental_merge(child, ver))
+    locals.append(xmllib.imerge.incremental_merge(child, ver))
   return locals
 
 def locals_printf(elem, vars):
