@@ -38,7 +38,7 @@ class GPGSignEvent(Event, GpgMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'gpgsign',
-      requires = ['input-rpms', 'gpgsign-public-key', 
+      requires = ['input-rpms', 'gpgsign-public-key',
                   'gpgsign-secret-key', 'gpgsign-passphrase'],
       conditionally_comes_after = ['gpgcheck'],
       provides = ['signed-rpms'],
@@ -94,7 +94,7 @@ class GPGSignEvent(Event, GpgMixin):
         self.cvars['gpgsign-passphrase'] = mkrpm.getPassphrase()
       for rpm in signrpms:
         self.log(2, L2(rpm.relpathfrom(self.mddir)), format='%(message).75s')
-        mkrpm.SignRpm(rpm, 
+        mkrpm.SignRpm(rpm,
                       homedir=gnupg_dir,
                       passphrase=self.cvars['gpgsign-passphrase'])
     
@@ -102,7 +102,7 @@ class GPGSignEvent(Event, GpgMixin):
   
   def apply(self):
     self.io.clean_eventcache()
-    self.cvars['signed-rpms'] = self.io.list_output(what='rpms')  
+    self.cvars['signed-rpms'] = self.io.list_output(what='rpms')
   
   def error(self, e):
     self.clean()

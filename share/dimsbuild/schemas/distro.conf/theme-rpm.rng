@@ -5,7 +5,7 @@
     <element name="distro">
     
       <optional>
-      <element name="default-theme-rpm">
+      <element name="theme-rpm">
       
         <optional>
         <attribute name="enabled">

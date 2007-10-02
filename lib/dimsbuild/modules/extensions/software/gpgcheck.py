@@ -36,7 +36,7 @@ class GpgCheckEvent(Event):
           if cached.has_key(rpm):
             self.checks.add(cached[rpm])
     
-    self.io.setup_sync(self.mddir, paths=self.keys, id='keys')    
+    self.io.setup_sync(self.mddir, paths=self.keys, id='keys')
     self.DATA['variables'].append('checks')
   
   def run(self):
@@ -51,18 +51,18 @@ class GpgCheckEvent(Event):
     self.DATA['output'].append(homedir)
     newkeys = self.io.sync_input() # sync new keys
     
-    if newkeys: 
+    if newkeys:
       newchecks = sorted(self.checks)
       homedir.rm(force=True, recursive=True)
       homedir.mkdirs()
       for key in self.io.list_output(what='keys'):
         shlib.execute('gpg --homedir %s --import %s' %(homedir,key))
-    else: 
+    else:
       md, curr = self.diff.handlers['variables'].diffdict['checks']
       if not hasattr(md, '__iter__'): md = set()
       newchecks = sorted(curr.difference(md))
     
-    if newchecks: 
+    if newchecks:
       self.log(1, L1("checking signatures"))
       invalids = []
       self.log(1, L1("checking rpms"))

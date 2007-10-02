@@ -89,7 +89,7 @@ class PkgorderEvent(Event):
       cfg.remove()
       
       # write pkgorder
-      pkgorder.write_pkgorder(self.pkgorderfile, pkgtups)      
+      pkgorder.write_pkgorder(self.pkgorderfile, pkgtups)
     
     self.diff.write_metadata()
   
@@ -120,7 +120,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     
     self.DATA =  {
       'config':    [],
-      'input':     [], 
+      'input':     [],
       'output':    [],
     }
     
@@ -147,8 +147,8 @@ class IsoSetsEvent(Event, ListCompareMixin):
       oldsets = []
     
     # otherwise get oldsets from metadata file
-    if oldsets is None:    
-      try: 
+    if oldsets is None:
+      try:
         oldsets = self.diff.handlers['config'].cfg['/distro/iso/set/text()']
       except KeyError:
         oldsets = []
@@ -176,7 +176,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     if expanded_set in self.newsets_expanded:
       newset = self.newsets[self.newsets_expanded.index(expanded_set)]
       (self.splittrees/set).rename(self.splittrees/newset)
-      self.DATA['output'].extend([self.splittrees/set, self.isodir/set])      
+      self.DATA['output'].extend([self.splittrees/set, self.isodir/set])
       if newset in self.r:
         self.r.remove(newset) # don't create iso tree; it already exists
   
@@ -224,6 +224,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
       if i == 1: # reset mtimte on isolinux.bin (mkisofs is so misbehaved in this regard)
         isolinux_path.utime((i_st.st_atime, i_st.st_mtime))
 
-    self.DATA['output'].extend([self.splittrees/set, self.isodir/set])  
+    self.DATA['output'].extend([self.splittrees/set, self.isodir/set])
 
 EVENTS = {'ALL': [IsoMetaEvent], 'ISO': [PkgorderEvent, IsoSetsEvent]}
+

@@ -10,7 +10,7 @@ import rpm
 import stat
 
 from dims import pps
-from dims import shlib 
+from dims import shlib
 
 from dimsbuild.constants import BOOLEANS_TRUE, SRPM_PNVRA
 from dimsbuild.event     import Event
@@ -26,7 +26,7 @@ SRPM_PNVRA_REGEX = re.compile(SRPM_PNVRA)
 
 class SourceReposEvent(Event, RepoEventMixin):
   "Downloads and reads the primary.xml.gz for each of the source repositories."
-  def __init__(self):    
+  def __init__(self):
     Event.__init__(self,
                    id='source-repos',
                    provides=['source-repos'])
@@ -108,7 +108,7 @@ class SourcesEvent(Event):
         rpmi = rpminfo['file']
         _,n,v,r,a = self._deformat(rpmi)
         ## assuming the rpm file name to be lower-case 'rpm' suffixed        
-        nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a) 
+        nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a)
         if nvra in srpmset:
           rpmi = P(rpminfo['file'])
           if isinstance(rpmi, pps.path.http.HttpPath): #! bad
