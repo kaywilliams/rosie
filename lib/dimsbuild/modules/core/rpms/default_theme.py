@@ -37,13 +37,13 @@ class DefaultThemeRpmEvent(Event, RpmBuildMixin):
 
   def run(self):
     self.io.clean_eventcache(all=True)
-    if self._test_build('False'):
+    if self._test_build('True'):
       self._build_rpm()
     self.diff.write_metadata()    
   
   def apply(self):
     self.io.clean_eventcache()
-    if not self._test_build('False'):
+    if not self._test_build('True'):
       return
     self._check_rpms()
     if not self.cvars['custom-rpms-info']:
