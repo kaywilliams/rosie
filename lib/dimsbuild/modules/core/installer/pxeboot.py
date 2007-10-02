@@ -14,7 +14,7 @@ class PxebootImagesEvent(Event):
 
     self.DATA = {
       'input':  [],
-      'output': [],      
+      'output': [],
     }
     
     self.pxebootdir = self.SOFTWARE_STORE/'images/pxeboot'

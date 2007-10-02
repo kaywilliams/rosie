@@ -87,7 +87,7 @@ class EventHandler:
         e = xmllib.tree.Element('event', parent=parent, attrs={'id': k})
         xmllib.tree.Element('version', parent=e, text=str(v[1]))
   
-  def diff(self):    
+  def diff(self):
     for k,v in self.events.items():
       if self.data.has_key(k):
         newv = self.data[k]

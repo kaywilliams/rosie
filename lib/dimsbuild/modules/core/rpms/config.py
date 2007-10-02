@@ -42,11 +42,11 @@ class ConfigRpmEvent(Event, RpmBuildMixin, FileDownloadMixin):
     self._setup_build()
     self._setup_download()
       
-  def run(self):    
+  def run(self):
     self.io.clean_eventcache(all=True)
     if self._test_build('True'):
       self._build_rpm()
-    self.diff.write_metadata()    
+    self.diff.write_metadata()
   
   def apply(self):
     self.io.clean_eventcache()
@@ -54,7 +54,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, FileDownloadMixin):
       return
     self._check_rpms()
     if not self.cvars['custom-rpms-info']:
-      self.cvars['custom-rpms-info'] = []      
+      self.cvars['custom-rpms-info'] = []
     self.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
 
   def _generate(self):

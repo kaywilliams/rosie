@@ -73,7 +73,7 @@ class TreeinfoEvent(Event):
     self.tifile = self.SOFTWARE_STORE/'.treeinfo'
     
     self.DATA =  {
-      'variables': ['cvars[\'base-vars\']', 
+      'variables': ['cvars[\'base-vars\']',
                     'cvars[\'product-path\']'],
       'output':    [self.tifile]
     }
@@ -137,7 +137,7 @@ class BuildstampEvent(Event):
       'variables': ['BASE_VARS',
                     'cvars[\'anaconda-version\']',
                     'cvars[\'source-vars\']'],
-      'output':    [self.bsfile],        
+      'output':    [self.bsfile],
     }
     
   def setup(self):

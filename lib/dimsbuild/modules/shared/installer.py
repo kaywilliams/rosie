@@ -85,7 +85,7 @@ class ImageModifyMixin:
   def __init__(self, name):
     self.imagedir = self.mddir/'image'
     
-    self.name = name 
+    self.name = name
     self.image = None
     self.image_locals = None # this must be set before setup() is called
   
@@ -182,7 +182,7 @@ class FileDownloadMixin:
   'source-vars' and 'base-repoid'.
 
   This class should be used to download files besides the images.
-  """  
+  """
   def __init__(self, repoid=None):
     self.file_locals = None
     

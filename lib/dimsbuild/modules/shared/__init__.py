@@ -64,7 +64,7 @@ class RepoEventMixin:
       self.io.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'),
                          paths=paths, id='%s-repodata' % repo.id)
       
-  def sync_repodata(self):    
+  def sync_repodata(self):
     backup = self.files_callback.sync_start
     self.files_callback.sync_start = lambda : None
     

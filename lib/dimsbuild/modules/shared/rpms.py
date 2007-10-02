@@ -20,8 +20,8 @@ class FileDownloadMixin:
   def _setup_download(self):
     for k,v in self.installinfo.items():
       xpath, dst = v
-      if xpath:        
-        default_dir = P(dst) / P(self.config.get('%s/@install-dest' % xpath, ''))        
+      if xpath:
+        default_dir = P(dst) / P(self.config.get('%s/@install-dest' % xpath, ''))
         for item in self.config.xpath('%s/path' % xpath, []):
           s = P(item.get('text()'))
           d = default_dir / P(item.get('@install-dest', ''))
@@ -61,7 +61,7 @@ class RpmLocalsMixin:
       locations = self.fileslocals[id]['locations']
       file = self.build_folder/id
       filename = file.basename
-      filedir = file.dirname        
+      filedir = file.dirname
       for l in [ P(x) for x in locations ]:
         installname = l.basename
         installdir = l.dirname
@@ -78,7 +78,7 @@ class ColorMixin:
   def __init__(self):
     pass
   
-  def setColors(self, be=False, prefix='0x'):    
+  def setColors(self, be=False, prefix='0x'):
     # compute the background and foreground colors to use
     self.distroname = self.cvars['source-vars']['fullname']
     self.distroversion = self.cvars['source-vars']['version']
@@ -133,13 +133,13 @@ class RpmBuildMixin:
     if self.config.get('/distro/rpms/%s/@use-default-set' % self.id, 'True'):
       self.obsoletes = self.defobsoletes
     else:
-      self.obsoletes = '' 
+      self.obsoletes = ''
     if self.config.pathexists('/distro/rpms/%s/obsoletes/package/text()' % self.id):
       self.obsoletes += ' ' + ' '.join(self.config.xpath(
                                   '/distro/rpms/%s/obsoletes/package/text()' % self.id))
     self.provides = self.obsoletes
     if self.defprovides:
-      self.provides += ' ' + self.defprovides    
+      self.provides += ' ' + self.defprovides
     
     if self.defrequires:
       self.requires = self.defrequires
@@ -224,7 +224,7 @@ class RpmBuildMixin:
   
   def _build(self):
     self.build_folder.mkdirs()
-    self._generate()    
+    self._generate()
     self._write_spec()
     self._write_manifest()
     mkrpm.build(self.build_folder,
@@ -265,14 +265,14 @@ class RpmBuildMixin:
     
     f = open(setupcfg, 'w')
     spec.write(f)
-    f.close()    
+    f.close()
   
   def _write_manifest(self):
     manifest = ['setup.py']
     if self.srcdir.exists():
       manifest.extend(self.srcdir.findpaths(type=pps.constants.TYPE_NOT_DIR))
     manifest.extend( [ x.tokens[len(self.build_folder.tokens):] \
-                       for x in self.build_folder.findpaths(type=pps.constants.TYPE_NOT_DIR) ] )    
+                       for x in self.build_folder.findpaths(type=pps.constants.TYPE_NOT_DIR) ] )
     filereader.write(manifest, self.build_folder/'MANIFEST')
   
   def _add_files(self, spec):
@@ -300,7 +300,7 @@ class RpmBuildMixin:
       if installdir.startswith('/usr/share/doc'):
         doc_files.extend([ installdir/x.basename for x in data_files[installdir] ])
     if doc_files:
-      spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))    
+      spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))
   
   def _get_files(self):
     sources = {}
@@ -321,7 +321,7 @@ IMAGE_COLORS = {
     '5.0': ('0x215593', '0xffffff', '0x1e518c'),
   },
   'Fedora Core': {
-    '6': ('0x00254d', '0xffffff', '0x002044'),  
+    '6': ('0x00254d', '0xffffff', '0x002044'),
   },
   'Fedora': {
     '7': ('0x001b52', '0xffffff', '0x1c2959'),

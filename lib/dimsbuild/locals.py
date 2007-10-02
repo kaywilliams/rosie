@@ -365,69 +365,69 @@ LOGOS_RPM = LocalsDict({
     ),
     'kde-splash/BlueCurve/splash_top.png': dict(
       locations=['/usr/share/apps/ksplash/Themes/BlueCurve/splash_top.png'],
-      width=400, height=244 , textmaxwidth=350,
+      width=400, height=244, textmaxwidth=350,
       textvcenter=112, texthcenter=200
     ),
     'firstboot/firstboot-header.png': dict(
       locations=['/usr/share/firstboot/pixmaps/firstboot-header.png'],
-      width=800, height=58 , textmaxwidth=750,
+      width=800, height=58, textmaxwidth=750,
       textvcenter=25, texthcenter=400
     ),
     'firstboot/firstboot-left.png': dict(
       locations=['/usr/share/firstboot/pixmaps/firstboot-left.png'],
-      width=160, height=600 
+      width=160, height=600
     ),
     'firstboot/shadowman-round-48.png': dict(
       locations=['/usr/share/firstboot/pixmaps/shadowman-round-48.png'],
-      width=48, height=48 
+      width=48, height=48
     ),
     'firstboot/splash-small.png': dict(
       locations=['/usr/share/firstboot/pixmaps/splash-small.png'],
-      width=550, height=200 , textmaxwidth=530,
+      width=550, height=200, textmaxwidth=530,
       textvcenter=100, texthcenter=275
     ),
     'firstboot/workstation.png': dict(
       locations=['/usr/share/firstboot/pixmaps/workstation.png'],
-      width=48, height=48 
+      width=48, height=48
     ),
     'gnome-screensaver/lock-dialog-system.glade': dict(
       locations=['/usr/share/gnome-screensaver/lock-dialog-system.glade'],
     ),
     'redhat-pixmaps/rhad.png': dict(
       locations=['/usr/share/pixmaps/redhat/rhad.png'],
-      width=291, height=380 
+      width=291, height=380
     ),
     'redhat-pixmaps/rpm.tif': dict(
       locations=['/usr/share/pixmaps/redhat/rpm.tif'],
-      width=801, height=512 
+      width=801, height=512
     ),
     'redhat-pixmaps/rpmfile-200.png': dict(
       locations=['/usr/share/pixmaps/redhat/rpmfile-200.png'],
-      width=200, height=200 
+      width=200, height=200
     ),
     'redhat-pixmaps/rpmfile-32.png': dict(
       locations=['/usr/share/pixmaps/redhat/rpmfile-32.png'],
-      width=32, height=32 
+      width=32, height=32
     ),
     'redhat-pixmaps/rpmfile-32.xpm': dict(
       locations=['/usr/share/pixmaps/redhat/rpmfile-32.xpm'],
-      width=32, height=32 
+      width=32, height=32
     ),
     'redhat-pixmaps/rpmfile-48.png': dict(
       locations=['/usr/share/pixmaps/redhat/rpmfile-48.png'],
-      width=48, height=48 
+      width=48, height=48
     ),
     'redhat-pixmaps/rpmfile-48.xpm': dict(
       locations=['/usr/share/pixmaps/redhat/rpmfile-48.xpm'],
-      width=48, height=48 
+      width=48, height=48
     ),
     'redhat-pixmaps/rpmfile-64.png': dict(
       locations=['/usr/share/pixmaps/redhat/rpmfile-64.png'],
-      width=64, height=64 
+      width=64, height=64
     ),
     'redhat-pixmaps/rpmfile-64.xpm': dict(
       locations=['/usr/share/pixmaps/redhat/rpmfile-64.xpm'],
-      width=64, height=64 
+      width=64, height=64
     ),
     'gnome-splash/gnome-splash.png': dict(
       locations=['/usr/share/pixmaps/splash/gnome-splash.png'],
@@ -446,7 +446,7 @@ LOGOS_RPM = LocalsDict({
     ),
     'gdm/themes/%(product)s/background.png': dict(
       locations=['/usr/share/gdm/themes/%(product)s/background.png'],
-      width=635, height=480 
+      width=635, height=480
     ),
     'gdm/themes/%(product)s/GdmGreeterTheme.desktop': dict(
       locations=['/usr/share/gdm/themes/%(product)s/GdmGreeterTheme.desktop'],

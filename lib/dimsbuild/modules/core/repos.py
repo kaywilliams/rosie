@@ -14,15 +14,15 @@ class ReposEvent(Event, RepoEventMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'repos',
-      provides = ['anaconda-version', 
+      provides = ['anaconda-version',
                   'repos',         # provided by repos and localrepo events
                   'input-repos',   # provided by repos event only, used by release.py
                   'base-repoid'],
     )
-    RepoEventMixin.__init__(self)    
+    RepoEventMixin.__init__(self)
     
     self.DATA = {
-      'config':    ['/distro/repos/repo'], 
+      'config':    ['/distro/repos/repo'],
       'input':     [], # filled later
       'output':    [], # filled later
     }
@@ -60,7 +60,7 @@ class ReposEvent(Event, RepoEventMixin):
       if repo.id == self.cvars['base-repoid']:
         self.cvars['anaconda-version'] = get_anaconda_version(repo.pkgsfile)
 
-    self.cvars['repos'] = self.repos 
+    self.cvars['repos'] = self.repos
 
 EVENTS = {'SETUP': [ReposEvent]}
 

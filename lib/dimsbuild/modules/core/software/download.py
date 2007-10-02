@@ -37,7 +37,7 @@ class DownloadEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
  
-    self.input_rpms = set()  
+    self.input_rpms = set()
     for repo in self.cvars['repos'].values():
       for rpminfo in repo.repoinfo:
         rpm = rpminfo['file']

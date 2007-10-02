@@ -205,7 +205,7 @@ class Build(object):
     
     Event.logger.log(1, L1(P(Event.config.file).basename))
     # validate individual sections of distro.conf
-    Event.validator.validate('/distro/main', schemafile='main.rng')    
+    Event.validator.validate('/distro/main', schemafile='main.rng')
     for e in self.dispatch:
       e.validate()
     # validate top-level elements
@@ -289,7 +289,7 @@ class Build(object):
                                             Event.mainconfig.file)
     Event.validator = ConfigValidator(Event.SHARE_DIR/'schemas/distro.conf',
                                       Event.config.file)
-    
+  
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
     Event.logger.log(0, "Starting build of '%s' at %s" % (Event.fullname, time.strftime('%Y-%m-%d %X')))
@@ -305,7 +305,7 @@ class CvarsDict(dict):
 
 
 class AllEvent(Event):
-  "Top level event that is the ancestor of all other events.  Changing this "  
+  "Top level event that is the ancestor of all other events.  Changing this "
   "event's version will cause all events to automatically run."
   def __init__(self):
     Event.__init__(self,

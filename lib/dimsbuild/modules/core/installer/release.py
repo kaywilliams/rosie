@@ -37,11 +37,11 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     self._extract()
 
   def apply(self):
-    self.io.clean_eventcache()    
+    self.io.clean_eventcache()
 
   def _generate(self, working_dir):
     files = {}
-    rtn = []    
+    rtn = []
     for path in self.config.xpath('/distro/release-files/path', []):
       source = P(path.text)
       dest = self.SOFTWARE_STORE/path.attrib['dest']

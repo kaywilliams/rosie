@@ -15,7 +15,7 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
     
     self.DATA = {
       'input':  [],
-      'output': [],      
+      'output': [],
     }
     
     FileDownloadMixin.__init__(self)

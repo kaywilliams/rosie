@@ -30,7 +30,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
       'html'    : ('/distro/release-rpm/release-notes/html', self.html_dir),
       'doc'     : ('/distro/release-rpm/release-notes/doc', self.doc_dir),
       'release' : ('/distro/release-rpm/release-files', self.release_dir),
-      'etc'     : (None, self.etc_dir), 
+      'etc'     : (None, self.etc_dir),
       'eulapy'  : (None, self.eulapy_dir),
     }
 
@@ -45,7 +45,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
 
     Event.__init__(self, id='release-rpm',
                    requires=['source-vars', 'input-repos'],
-                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'],                   
+                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
                    conditionally_requires=['gpgsign-public-key',
                                            'web-path'])
     RpmBuildMixin.__init__(self,
@@ -99,7 +99,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
       return
     self._check_rpms()
     if not self.cvars['custom-rpms-info']:
-      self.cvars['custom-rpms-info'] = []      
+      self.cvars['custom-rpms-info'] = []
     self.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
 
   def _get_files(self):
@@ -110,9 +110,9 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
   
   def _generate(self):
     "Create additional files."
-    self.io.sync_input()    
+    self.io.sync_input()
     self._generate_etc_files(self.build_folder/'etc')
-    self._generate_repo_files(self.build_folder/'repo')    
+    self._generate_repo_files(self.build_folder/'repo')
     self._verify_release_notes()
   
   def _verify_release_notes(self):
@@ -152,9 +152,9 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
     filereader.write(release_string+issue_string, dest/'issue.net')
 
   def _generate_repo_files(self, dest):
-    dest.mkdirs() 
+    dest.mkdirs()
     self.repofile    = dest/'%s.repo' % self.product
-    self.extra_repofile = dest/'extra.repo'    
+    self.extra_repofile = dest/'extra.repo'
     
     path = self.cvars['web-path'] / 'os'
     

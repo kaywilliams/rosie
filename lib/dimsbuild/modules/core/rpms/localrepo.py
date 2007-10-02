@@ -80,7 +80,7 @@ class LocalRepoEvent(Event):
       self.cvars['repos']['localrepo'] = self.rc.repos['localrepo']
     if self.cvars['custom-srpms'] and self.cvars['source-repos']:
       self.rc.read_packages(id='localrepo-sources', write=False)
-      if not self.cvars['source-repos']: self.cvars['source-repos'] = {}      
+      if not self.cvars['source-repos']: self.cvars['source-repos'] = {}
       self.cvars['source-repos']['localrepo-sources'] = self.rc.repos['localrepo-sources']
   
   #----- HELPER METHODS -----#  
@@ -96,7 +96,7 @@ class LocalRepoEvent(Event):
     
     for rpmname, type, requires, obsoletes in self.cvars['custom-rpms-info']:
       if not self.cvars['included-packages']:
-        self.cvars['included-packages'] = []        
+        self.cvars['included-packages'] = []
       self.cvars['included-packages'].append((rpmname, type, requires))
       
       if obsoletes:

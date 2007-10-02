@@ -42,7 +42,7 @@ class ValidateMixin:
           if schemafile is not None:
             raise InvalidConfigError(self.configfile, relaxng.error_log, schemafile)
           else:
-            raise InvalidConfigError(self.configfile, relaxng.error_log)    
+            raise InvalidConfigError(self.configfile, relaxng.error_log)
     finally:
       os.chdir(cwd)
   
@@ -63,7 +63,7 @@ class ValidateMixin:
     return schema
 
   def getXmlSection(self, query):
-    return self.config.xpath(query, [])    
+    return self.config.xpath(query, [])
 
 class MainConfigValidator(ValidateMixin):
   def __init__(self, schemaspath, configfile):
@@ -86,7 +86,7 @@ class ConfigValidator(ValidateMixin):
         while element.getparent() != element.getroottree().getroot():
           element = element.getparent()
         if element not in elements:
-          elements.append(element)    
+          elements.append(element)
     for child in self.config.getroot().iterchildren():
       if child.tag is etree.Comment: continue
       if child.tag in disabled: continue
@@ -155,7 +155,7 @@ class ConfigValidator(ValidateMixin):
     name = xmllib.tree.Element('anyName', parent=elem)
     if ignore is not None:
       exelem = xmllib.tree.Element('except', parent=name)
-      xmllib.tree.Element('name', parent=exelem, text=ignore)                      
+      xmllib.tree.Element('name', parent=exelem, text=ignore)
     xmllib.tree.Element('ref', parent=elem,
                         attrs={'name': 'attribute-anything'})
     xmllib.tree.Element('ref', parent=elem,
@@ -164,7 +164,7 @@ class ConfigValidator(ValidateMixin):
 #------ ERRORS ------#
 class InvalidXmlError(StandardError):
   def __str__(self):
-    msg = ''    
+    msg = ''
     for err in self.args[1]: # relaxNG error log object
       msg += '  line %d: %s\n' % (err.line, err.message)
     return msg

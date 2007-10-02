@@ -80,14 +80,14 @@ class Repo:
       tmpfile = tmpdir / 'repomd.xml'
       self.rjoin(self.repodata_path, self.mdfile).cp(tmpdir)
       repomd = xmllib.tree.read(tmpfile).xpath('//data')
-      tmpfile.rm(force=True) 
+      tmpfile.rm(force=True)
     for data in repomd:
       repofile = P(data.get('location/@href'))
       filetype = data.get('@type')
       self.datafiles[filetype] = repofile.basename
   
   def readRepoContents(self, repofile=None):
-    self.repoinfo = []    
+    self.repoinfo = []
     if repofile is None:
       pxml = GzipFile(filename=self.ljoin(self.repodata_path, 'repodata', self.datafiles['primary']),
                       mode='rt')
@@ -111,7 +111,7 @@ class Repo:
           'mtime': int(item['mtime']),
           'size':  int(item['size']),
           'file':  P(item['file']),
-        })      
+        })
       mr.close()
   
   def compareRepoContents(self, oldfile, what=None):
@@ -127,12 +127,12 @@ class Repo:
           'mtime': int(item['mtime']),
           'size':  int(item['size']),
           'file':  item['file'],
-        })      
+        })
       mr.close()
     
     if what is None:
       oldpkgs.sort()
-      newpkgs.sort()    
+      newpkgs.sort()
       return oldpkgs != newpkgs
     else:
       old = [ d[what] for d in oldpkgs ]

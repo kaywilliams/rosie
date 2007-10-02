@@ -36,7 +36,7 @@ class PkglistEvent(Event):
       'config':    ['/distro/pkglist'],
       'variables': ['cvars[\'required-packages\']'],
       'input':     [],
-      'output':    [], 
+      'output':    [],
     }
     self.docopy = self.config.pathexists('/distro/pkglist/text()')
   

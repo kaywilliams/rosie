@@ -46,23 +46,23 @@ class CompsEvent(Event):
     self.comps_supplied = \
       self.config.get('/distro/comps/text()', None)
 
-    if self.comps_supplied: 
+    if self.comps_supplied:
       xpath = '/distro/comps'
 
       self.io.setup_sync(self.mddir, id='comps.xml', xpaths=[xpath])
 
       # ensure exactly only one item returned above
-      if len(self.io.list_output(what='comps.xml')) != 1: 
+      if len(self.io.list_output(what='comps.xml')) != 1:
         raise RuntimeError("The path specified at '%s' expands to multiple "
                            "items.  Only one comps file is allowed." % xpath)
 
     else:
       self.comps_out = self.mddir/'comps.xml'
       self.groupfiles = self.__get_groupfiles()
-
+      
       # track changes in repo/groupfile relationships
-      self.DATA['variables'].append('groupfiles') 
-
+      self.DATA['variables'].append('groupfiles')
+      
       # track file changes
       self.DATA['input'].extend([groupfile for repo,groupfile in
                                  self.groupfiles])
@@ -89,7 +89,7 @@ class CompsEvent(Event):
   def apply(self):
     self.io.clean_eventcache()
     # set comps-file control variable
-    if self.comps_supplied: 
+    if self.comps_supplied:
       self.cvars['comps-file'] = self.io.list_output(what='comps.xml')[0]
     else:
       self.cvars['comps-file'] = self.comps_out
@@ -129,7 +129,7 @@ class CompsEvent(Event):
         groupid = mapped[groupfileid].pop(0)
         if self.groups.has_key(groupid): continue
         self.groups[groupid] = self.__get_grouptree(groupid, tree, mapped[groupfileid])
-   
+      
       # process unmapped groups - these do not need to be processed at each step
       i = 0; j = len(unmapped)
       while i < j:
@@ -160,9 +160,9 @@ class CompsEvent(Event):
 
     # add packages to core group
     # add packages from groups marked as 'core'
-    core = [groupid for groupid in self.groups.keys() 
-            if self.config.get('/distro/comps/groups/group[text()="%s"]/@core' \
-            % groupid, 'true') in BOOLEANS_TRUE] 
+    core = [ groupid for groupid in self.groups.keys()
+             if self.config.get('/distro/comps/groups/group[text()="%s"]/@core' \
+             % groupid, 'true') in BOOLEANS_TRUE ]
     for groupid in sorted(core):
       self._add_group_pkgs(groupid, self.groups[groupid])
 
@@ -182,7 +182,7 @@ class CompsEvent(Event):
         packages.append((pkg, 'mandatory', None))
     
     core = self.comps.getroot().get('group[id/text()="core"]')
-
+    
     if len(packages) > 0:
       self.cvars['user-required-packages'] = [ x[0] for x in packages ]
       self.comps.getroot().append(core)
@@ -201,9 +201,9 @@ class CompsEvent(Event):
       self._add_package('kernel', core, type='mandatory')
 
     # add standalone groups
-    noncore = [groupid for groupid in self.groups.keys() 
+    noncore = [groupid for groupid in self.groups.keys()
                if self.config.get('/distro/comps/groups/group[text()="%s"]/@core' \
-               % groupid, 'true') in BOOLEANS_FALSE] 
+               % groupid, 'true') in BOOLEANS_FALSE]
     for groupid in sorted(noncore):
       self._add_group(groupid, self.groups[groupid])
   
@@ -330,7 +330,7 @@ def Category(name, fullname='', version='0'):
   return top
 
 # convenience functions
-Element  = xmllib.tree.Element  
+Element  = xmllib.tree.Element
 uElement = xmllib.tree.uElement
 
 EVENTS = {'SOFTWARE': [CompsEvent]}

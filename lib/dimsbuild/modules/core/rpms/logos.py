@@ -2,7 +2,7 @@ from dims import pps
 from dims import shlib
 
 from dimsbuild.constants import BOOLEANS_TRUE
-from dimsbuild.event     import Event 
+from dimsbuild.event     import Event
 from dimsbuild.logging   import L3
 
 from dimsbuild.modules.shared.rpms import ColorMixin, RpmLocalsMixin, RpmBuildMixin
@@ -20,12 +20,12 @@ P = pps.Path
 API_VERSION = 5.0
 
 class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
-  def __init__(self):    
+  def __init__(self):
     Event.__init__(self, id='logos-rpm',
                    requires=['source-vars', 'anaconda-version'],
-                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])                   
+                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])
     RpmBuildMixin.__init__(self,
-                           '%s-logos' % self.product,                           
+                           '%s-logos' % self.product,
                            'The %s-logos package contains image files which '\
                            'have been automatically created by dimsbuild and '\
                            'are specific to %s.' % (self.product, self.fullname),
@@ -41,7 +41,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
       'variables': ['fullname', 'product', 'pva'],
       'output': [],
       'input':  [],
-    }    
+    }
 
   def error(self, e):
     self.build_folder.rm(recursive=True, force=True)
@@ -71,7 +71,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
     self.io.clean_eventcache(all=True)
     if self._test_build('True'):
       self._build_rpm()
-    self.diff.write_metadata()    
+    self.diff.write_metadata()
   
   def apply(self):
     self.io.clean_eventcache()
@@ -79,7 +79,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
       return
     self._check_rpms()
     if not self.cvars['custom-rpms-info']:
-      self.cvars['custom-rpms-info'] = []      
+      self.cvars['custom-rpms-info'] = []
     self.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
 
   def _get_files(self):
@@ -192,7 +192,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
     if highlight:
       color = self.hlcolor
     else:
-      color = self.bgcolor      
+      color = self.bgcolor
     im = Image.new('RGB', (width, height), color)
     
     # add text to the image, if specified
@@ -202,7 +202,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
       # if font is None, the text is too long for the image, don't
       # write anything as it will look ugly.
       if font is not None:
-        d = ImageDraw.Draw(im)        
+        d = ImageDraw.Draw(im)
         w, h = font.getsize(text)
         d.text((textcood[0]-(w/2), textcood[1]-(h/2)), text,
                font=font, fill=self.textcolor)

@@ -39,7 +39,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
   def setup(self):
     self.DATA['input'].extend([
       self.cvars['installer-splash'],
-      self.cvars['initrd-file'],        
+      self.cvars['initrd-file'],
     ])
     
     self.diff.setup(self.DATA)
@@ -63,7 +63,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     self.image.write(self.cvars['installer-splash'], '/')
     self.image.write(self.cvars['initrd-file'], '/')
     bootargs = self.config.get('/distro/diskboot-image/boot-args/text()', None)
-    if bootargs:      
+    if bootargs:
       if not 'syslinux.cfg' in self.image.list():
         raise RuntimeError("syslinux.cfg not found in the diskboot.img")
       wcopy = self.TEMP_DIR/'syslinux.cfg'

@@ -48,7 +48,7 @@ class OSComposeEvent(Event):
         if event_output_dir.exists():
           self.events.append(event.id)
           for path in event_output_dir.listdir(all=True):
-            self.io.setup_sync(self.osdir, paths=path, id=event.id)   
+            self.io.setup_sync(self.osdir, paths=path, id=event.id)
   
   def run(self):
     self.log(0, L0("composing output tree"))
