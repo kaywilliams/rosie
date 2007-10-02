@@ -48,7 +48,7 @@ class CreaterepoEvent(Event):
     self.log(1, L1("running createrepo"))
     pwd = os.getcwd()
     os.chdir(self.SOFTWARE_STORE)
-    shlib.execute('/usr/bin/createrepo -q -g %s .' % self.cvars['comps-file'])
+    shlib.execute('/usr/bin/createrepo --update -q -g %s .' % self.cvars['comps-file'])
     os.chdir(pwd)
     
     self.diff.write_metadata()

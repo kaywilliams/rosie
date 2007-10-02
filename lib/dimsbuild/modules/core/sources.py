@@ -168,7 +168,7 @@ class SourcesEvent(Event):
     pwd = os.getcwd()
     os.chdir(self.srpmdest)
     self.log(1, L1("running createrepo"))
-    shlib.execute('/usr/bin/createrepo -q .')
+    shlib.execute('/usr/bin/createrepo --update -q .')
     os.chdir(pwd)
 
 

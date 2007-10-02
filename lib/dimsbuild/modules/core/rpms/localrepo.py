@@ -89,7 +89,7 @@ class LocalRepoEvent(Event):
     # createrepo
     cwd = os.getcwd()
     os.chdir(path)
-    shlib.execute('/usr/bin/createrepo -q .')
+    shlib.execute('/usr/bin/createrepo --update -q .')
     os.chdir(cwd)
   
   def _populate(self):
