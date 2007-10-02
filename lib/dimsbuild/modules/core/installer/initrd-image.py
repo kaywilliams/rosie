@@ -13,35 +13,35 @@ class InitrdImageEvent(Event, ImageModifyMixin):
       requires = ['anaconda-version', 'buildstamp-file'],
       comes_before = ['isolinux'],
     )
-    
+
     self.DATA = {
       'config':    ['/distro/initrd-image/path'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [] # to be filled later
     }
-    
+
     ImageModifyMixin.__init__(self, 'initrd.img')
-  
+
   def validate(self):
     self.validator.validate('/distro/initrd-image', 'initrd.rng')
-  
+
   def error(self, e):
     try:
       self._close()
     except:
       pass
-  
+
   def setup(self):
     self.diff.setup(self.DATA)
     self.image_locals = self.locals.files['isolinux']['initrd.img']
     ImageModifyMixin.setup(self)
-  
+
   def run(self):
     self.log(0, L0("preparing initrd.img"))
     self.io.clean_eventcache(all=True)
     self._modify()
-  
+
   def apply(self):
     self.io.clean_eventcache()
     for file in self.io.list_output():
@@ -50,7 +50,7 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     # fix this, this must be doable via io.list_output
     self.cvars['initrd-file'] = \
       self.SOFTWARE_STORE/self.image_locals['path']
-  
+
   def _generate(self):
     ImageModifyMixin._generate(self)
     self._write_buildstamp()

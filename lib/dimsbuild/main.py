@@ -201,11 +201,11 @@ class Build(object):
     Event.logger.log(0, L0("validating config"))
     
     Event.logger.log(1, L1("dimsbuild.conf"))
-    Event.mcvalidator.validate('/dimsbuild', schemafile='dimsbuild.rng')
+    Event.mcvalidator.validate('/dimsbuild', schema_file='dimsbuild.rng')
     
     Event.logger.log(1, L1(P(Event.config.file).basename))
     # validate individual sections of distro.conf
-    Event.validator.validate('/distro/main', schemafile='main.rng')
+    Event.validator.validate('/distro/main', schema_file='main.rng')
     for e in self.dispatch:
       e.validate()
     # validate top-level elements

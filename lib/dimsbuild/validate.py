@@ -11,12 +11,12 @@ class ValidateMixin:
     self.schemaspath = schemaspath
     self.configfile = configfile
     self.config = xmllib.config.read(self.configfile)
-    
-  def validate(self, xpath_query, schemafile=None, schemacontents=None):
-    if (schemafile is None and schemacontents is None) or \
-           (schemafile is not None and schemacontents is not None):
+
+  def validate(self, xpath_query, schema_file=None, schema_contents=None):
+    if (schema_file is None and schema_contents is None) or \
+           (schema_file is not None and schema_contents is not None):
       raise RuntimeError("either the schema file or the schema contents must be specified")
-    
+
     cwd = os.getcwd()
     os.chdir(self.schemaspath)
     try:
@@ -27,37 +27,36 @@ class ValidateMixin:
         if len(trees) != 1:
           raise InvalidConfigError(self.configfile,
                 "multiple instances of '%s' element found" % trees[0].tag)
-          
-        if schemacontents is None:
-          schemacontents = self.getSchemaContents(schemafile)
-        schema = etree.fromstring(str(self.getSchema(schemacontents, trees[0].tag)))
+        if schema_contents is None:
+          schema_contents = self.readSchema(schema_file)
+        schema_tree = self.massageSchema(schema_contents,
+                                         trees[0].tag,
+                                         schema_file)
+        schema = etree.fromstring(str(schema_tree))
         relaxng = etree.RelaxNG(etree.ElementTree(schema))
       except etree.RelaxNGParseError, e:
-        if schemafile is not None:
-          raise InvalidSchemaError(schemafile, e.error_log)
-        else:
-          raise InvalidSchemaError('<string>', e.error_log)
+        raise InvalidSchemaError(schema_file or '<string>', e.error_log)
       else:
         if not relaxng.validate(self.config):
-          if schemafile is not None:
-            raise InvalidConfigError(self.configfile, relaxng.error_log, schemafile)
+          if schema_file is not None:
+            raise InvalidConfigError(self.configfile, relaxng.error_log, schema_file)
           else:
             raise InvalidConfigError(self.configfile, relaxng.error_log)
     finally:
       os.chdir(cwd)
-  
-  def getSchemaContents(self, filename):
-    schemafile = self.schemaspath / filename
-    if not schemafile.exists():
+
+  def readSchema(self, filename):
+    schema_file = self.schemaspath / filename
+    if not schema_file.exists():
       raise IOError("missing schema file '%s' at '%s'" % (filename, schema.dirname))
 
     schema = xmllib.tree.read(filename)
-    ## FIXME: xmltree/lxml seems to be losing the xmlns attribute    
+    ## FIXME: xmltree/lxml seems to be losing the xmlns attribute
     schema.getroot().attrib['xmlns'] = "http://relaxng.org/ns/structure/1.0"
     return str(schema)
-  
-  def getSchema(self, schemacontents, tag):
-    schema = xmllib.tree.read(StringIO(schemacontents))
+
+  def massageSchema(self, schema_contents, tag, schema_file):
+    schema = xmllib.tree.read(StringIO(schema_contents))
     ## FIXME: xmltree/lxml seems to be losing the xmlns attribute
     schema.getroot().attrib['xmlns'] = "http://relaxng.org/ns/structure/1.0"
     return schema
@@ -95,10 +94,10 @@ class ConfigValidator(ValidateMixin):
                                  " unknown element '%s' found in distro.conf" % \
                                  child.tag)
 
-  def getSchema(self, schemacontents, tag):
-    schema = ValidateMixin.getSchema(self, schemacontents, tag)
+  def massageSchema(self, schema_contents, tag, schema_file):
+    schema = ValidateMixin.massageSchema(self, schema_contents, tag, schema_file)
     tree = schema.get('//element[@name="distro"]')
-    
+
     # add the 'schema-version' attribute to the distro element
     schemaver = xmllib.tree.Element('attribute',
                                     attrs={'name': 'schema-version'})
@@ -106,16 +105,18 @@ class ConfigValidator(ValidateMixin):
     xmllib.tree.Element('value', parent=choice, text='1.0',
                         attrs={'type': 'string'})
     tree.insert(0, schemaver)
-    
-    
+
     elemschema = schema.get('//element[@name="%s"]' % tag)
+    if elemschema is None:
+      raise InvalidSchemaError(schema_file or '<string>',
+      "the schema file doesn't define the %s element" % tag)
     # add a definition for multiple attributes
     anyattr = xmllib.tree.Element('define', parent=schema.getroot(),
                                   attrs={'name': 'attribute-anything'})
     zom = xmllib.tree.Element('zeroOrMore', parent=anyattr)
     attr = xmllib.tree.Element('attribute', parent=zom)
     xmllib.tree.Element('anyName', parent=attr)
-    
+
     count = 0
     while elemschema.getparent().tag != 'start':
       if elemschema.tag == 'element':
@@ -126,7 +127,7 @@ class ConfigValidator(ValidateMixin):
         self._add_definitions(elemschema, id='anything-element-%s' % name,
                               ignore=name)
         self._add_references(elemschema, id='anything-element-%s' % name)
-      
+
       if elemschema.tag == 'optional':
         # delete all <optional> elements, because at this point we know
         # for sure that the element we are validating exists in the
@@ -139,11 +140,11 @@ class ConfigValidator(ValidateMixin):
       else:
         elemschema = elemschema.getparent()
     return schema
-  
+
   def _add_references(self, schema, id):
     schema.addprevious(xmllib.tree.Element('ref', attrs={'name': id}))
     schema.addnext(xmllib.tree.Element('ref', attrs={'name': id}))
-  
+
   def _add_definitions(self, schema, id, ignore=None):
     # add a definition for multiple elements
     anyelem = xmllib.tree.Element('define', parent=schema.getroot(),
@@ -164,6 +165,8 @@ class ConfigValidator(ValidateMixin):
 #------ ERRORS ------#
 class InvalidXmlError(StandardError):
   def __str__(self):
+    if type(self.args[1]) == type(''):
+      return self.args[1]
     msg = ''
     for err in self.args[1]: # relaxNG error log object
       msg += '  line %d: %s\n' % (err.line, err.message)
@@ -174,11 +177,8 @@ class InvalidConfigError(InvalidXmlError):
       return 'Validation of "%s" against "%s" failed:\n' % \
         (self.args[0], self.args[2]) + InvalidXmlError.__str__(self)
     else:
-      if type(self.args[1]) == type(''):
-        return 'Validation of "%s" failed:\n%s' % (self.args[0], self.args[1])
-      else:
-        return 'Validation of "%s" failed:\n' % self.args[0] + \
-               InvalidXmlError.__str__(self)
+      return 'Validation of "%s" failed:\n' % self.args[0] + \
+             InvalidXmlError.__str__(self)
 class InvalidSchemaError(InvalidXmlError):
   def __str__(self):
     return 'Error parsing schema file "%s":\n' % self.args[0] + \

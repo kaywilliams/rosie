@@ -14,33 +14,33 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       provides = ['vmlinuz-file', 'isolinux-dir'],
       requires = ['anaconda-version', 'source-vars', 'base-repoid'],
     )
-    
+
     self.isolinux_dir = self.SOFTWARE_STORE/'isolinux' #! not versioned
-    
+
     self.DATA = {
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
       'config':    ['/distro/isolinux'],
     }
-    
+
     FileDownloadMixin.__init__(self)
 
   def validate(self):
     self.validator.validate('/distro/isolinux', 'isolinux.rng')
-    
+
   def setup(self):
     self.diff.setup(self.DATA)
     self.file_locals = self.locals.files['isolinux']
     FileDownloadMixin.setup(self)
     self.io.setup_sync(self.isolinux_dir, id='IsoLinuxFiles',
                     xpaths=['/distro/isolinux/path'])
-  
+
   def run(self):
     self.log(0, L0("synchronizing isolinux files"))
     self._download()
     self.io.sync_input(what='IsoLinuxFiles')
-    
+
     # modify the first append line in isolinux.cfg
     bootargs = self.config.get('/distro/isolinux/boot-args/text()', None)
     if bootargs:
@@ -48,7 +48,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       if not cfg.exists():
         raise RuntimeError("missing file '%s'" % cfg)
       lines = filereader.read(cfg)
-      
+
       for i, line in enumerate(lines):
         if line.strip().startswith('append'):
           break
@@ -56,9 +56,9 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       value = value.strip() + ' %s' % bootargs.strip()
       lines.insert(i, value)
       filereader.write(lines, cfg)
-    
+
     self.diff.write_metadata()
-  
+
   def apply(self):
     self.io.clean_eventcache()
     for file in self.io.list_output():
@@ -68,6 +68,5 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     self.cvars['isolinux-dir'] = self.isolinux_dir
     self.cvars['vmlinuz-file'] = \
       self.SOFTWARE_STORE/self.file_locals['vmlinuz']['path']
-
 
 EVENTS = {'INSTALLER': [IsolinuxEvent]}

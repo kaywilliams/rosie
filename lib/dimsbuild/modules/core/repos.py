@@ -20,7 +20,7 @@ class ReposEvent(Event, RepoEventMixin):
                   'base-repoid'],
     )
     RepoEventMixin.__init__(self)
-    
+
     self.DATA = {
       'config':    ['/distro/repos/repo'],
       'input':     [], # filled later
@@ -28,32 +28,32 @@ class ReposEvent(Event, RepoEventMixin):
     }
 
   def validate(self):
-    self.validator.validate('/distro/repos', schemafile='repos.rng')
+    self.validator.validate('/distro/repos', schema_file='repos.rng')
     if len(self.config.xpath('/distro/repos/repo[@type="base"]')) != 1:
       raise InvalidConfig(self.config, "Config file must define one repo with type 'base'")
-    
+
   def setup(self):
     self.diff.setup(self.DATA)
     self.cvars['base-repoid'] = self.config.get('/distro/repos/repo[@type="base"]/@id')
     self.read_config('/distro/repos/repo')
-  
+
   def run(self):
     self.log(0, L0("setting up input repositories"))
     self.sync_repodata()
-    
+
     # process available package lists
     self.log(1, L1("reading available packages"))
     self.read_new_packages()
-    
+
     self.diff.write_metadata()
-  
+
   def apply(self):
     self.io.clean_eventcache()
     for repo in self.repos.values():
       if not repo.pkgsfile.exists():
         raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "
         "are skipping repos before it has been allowed to run once?" % repo.pkgsfile)
-      
+
       repo.readRepoContents(repofile=repo.pkgsfile)
 
       # get anaconda_version, if base repo
@@ -69,7 +69,7 @@ EVENTS = {'SETUP': [ReposEvent]}
 def get_anaconda_version(file):
   scan = re.compile('(?:.*/)?anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
   version = None
-  
+
   fl = filereader.read(file)
   for rpm in fl:
     match = scan.match(rpm)
