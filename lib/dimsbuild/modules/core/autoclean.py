@@ -17,6 +17,7 @@ class AutocleanEvent(Event):
     self.eventinfo = {}
   
   def setup(self):
+    self.log(0, L0("performing automatic distribution cleanup"))
     for event in self._getroot():
       self.eventinfo[event.id] = event
       self.DATA['events'].update({event.id: str(event.event_version)})
@@ -43,11 +44,10 @@ class AutocleanEvent(Event):
         pass
     
     for mdfolder in mdfolders:
-      self.log(3, L3("removing unused event metadata directory '%s'" % mdfolder.basename))
+      self.log(4, L3("removing unused event metadata directory '%s'" % mdfolder.basename))
       mdfolder.rm(recursive=True, force=True)
   
   def run(self):
-    self.log(0, L0("performing automatic distribution cleanup"))
     for eventid in self.diff.handlers['events'].diffdict.keys():
       prevver, currver = self.diff.handlers['events'].diffdict[eventid]
       if prevver and currver:
