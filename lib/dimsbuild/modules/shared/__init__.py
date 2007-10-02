@@ -37,7 +37,7 @@ class ListCompareMixin:
       if self.rfn:
         for i in self.r: self.rfn(i)
 
-class RepoEventMixin:  
+class RepoEventMixin:
   def __init__(self):
     self.rc = RepoContainer()
     self.repos = self.rc.repos

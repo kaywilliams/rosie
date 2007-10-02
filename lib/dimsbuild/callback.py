@@ -57,6 +57,7 @@ class BuildSyncCallback(CachedSyncCallback):
   
   def _cp_end(self, amount_read):
     CachedSyncCallback._cp_end(self, amount_read=amount_read)
+    # if we're at log level 3, write the completed bar to the log file
     if self.logger.test(3):
       self.logger.logfile.log(3, str(self.bar))
 
