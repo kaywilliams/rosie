@@ -1,4 +1,4 @@
-from dims import xmltree
+from dims.xml import tree as xmltree
 
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0, L2, L3

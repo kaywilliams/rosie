@@ -4,7 +4,8 @@ from dims import filereader
 from dims import mkrpm
 from dims import pps
 from dims import sync
-from dims import xmltree
+
+from dims.xml import tree as xmltree
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event, EventExit

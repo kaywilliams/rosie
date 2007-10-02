@@ -1,7 +1,7 @@
 from StringIO import StringIO
 
-from dims import xmltree
-from dims import imerge
+from dims.xml import tree as xmltree
+from dims.xml import imerge
 
 def locals_imerge(string, ver):
   tree = xmltree.read(StringIO(string))

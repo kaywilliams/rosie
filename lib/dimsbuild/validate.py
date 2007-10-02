@@ -4,15 +4,14 @@ from lxml     import etree
 import copy
 import os
 
-from dims import xmltree
+from dims.xml import tree as xmltree
+from dims.xml import config
 
 class ValidateMixin:
   def __init__(self, schemaspath, configfile):
     self.schemaspath = schemaspath
     self.configfile = configfile
-    
-    self.config = etree.parse(self.configfile)
-    self._strip_macro_elements()
+    self.config = config.read(self.configfile)
     
   def validate(self, xpath_query, schemafile=None, schemacontents=None):
     if (schemafile is None and schemacontents is None) or \
@@ -65,44 +64,34 @@ class ValidateMixin:
     return schema
 
   def getXmlSection(self, query):
-    return self.config.xpath(query)
-
-  def _strip_macro_elements(self):
-    for macro in self.config.xpath('//macro'):
-      macro.getparent().remove(macro)
-      
+    return self.config.xpath(query, [])    
 
 class MainConfigValidator(ValidateMixin):
   def __init__(self, schemaspath, configfile):
     ValidateMixin.__init__(self, schemaspath, configfile)
-    
 
 class ConfigValidator(ValidateMixin):
   def __init__(self, schemaspath, configfile, elogger):
     ValidateMixin.__init__(self, schemaspath, configfile)
     self.elogger = elogger
-    
-    ## FIXME: adding '/distro/macro' is a hack    
-    self.xpaths = ['/distro/macro']
+    self.xpaths = []
 
   def getXmlSection(self, query):
     self.xpaths.append(query)
     return ValidateMixin.getXmlSection(self, query)
 
-  def validateElements(self):
+  def validateElements(self, disabled):
     elements = []
     for xpath in self.xpaths:
-      try:
-        element = self.config.xpath(xpath)[0]
-      except IndexError:
-        element = None
+      element = self.config.get(xpath, None)
       if element is not None:
         while element.getparent() != element.getroottree().getroot():
           element = element.getparent()
         if element not in elements:
-          elements.append(element)
+          elements.append(element)    
     for child in self.config.getroot().iterchildren():
       if child.tag is etree.Comment: continue
+      if child.tag in disabled: continue
       if child not in elements:
         self.elogger.log(2, "WARNING: unknown element '%s' found in distro.conf" % child.tag)
 
@@ -171,7 +160,6 @@ class ConfigValidator(ValidateMixin):
                     attrs={'name': 'attribute-anything'})
     xmltree.Element('ref', parent=elem,
                     attrs={'name': id})
-
 
 #------ ERRORS ------#
 class InvalidXmlError(StandardError):

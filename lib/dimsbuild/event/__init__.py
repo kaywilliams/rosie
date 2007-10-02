@@ -7,9 +7,9 @@ from dims import sync
 
 from dimsbuild.logging import L0
 
-from dimsbuild.event.diff     import DiffMixin
-from dimsbuild.event.fileio   import IOMixin
-from dimsbuild.event.locals   import LocalsMixin
+from dimsbuild.event.diff   import DiffMixin
+from dimsbuild.event.fileio import IOMixin
+from dimsbuild.event.locals import LocalsMixin
 
 DEBUG = True # this should be enabled for development purposes and
              # disabled once we go to release

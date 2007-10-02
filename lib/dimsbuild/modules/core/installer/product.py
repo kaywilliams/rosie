@@ -1,7 +1,8 @@
 from dims import filereader
 from dims import pps
 from dims import sortlib
-from dims import xmltree
+
+from dims.xml import tree as xmltree
 
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0

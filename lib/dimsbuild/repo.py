@@ -5,7 +5,8 @@ import os
 from gzip import GzipFile
 
 from dims import pps
-from dims import xmltree
+
+from dims.xml import tree as xmltree
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.logging   import L1, L2

@@ -17,11 +17,12 @@ from rpmUtils.arch import getBaseArch
 
 from dims import dispatch
 from dims import pps
-from dims.configlib import ConfigError
 
 from dims import sync
 from dims.sync import cache
 from dims.sync import link
+
+from dims.xml.config import ConfigError
 
 from dimsbuild.callback  import BuildSyncCallback, FilesCallback
 from dimsbuild.constants import *
@@ -99,6 +100,8 @@ class Build(object):
       self.dispatch = dispatch.Dispatch(
                         loader.load(import_dirs, prefix='dimsbuild/modules')
                       )
+      self.disabled_modules = loader.disabled
+      self.enabled_modules = loader.enabled
     except ImportError, e:
       Event.logger.log(0, L0("Error loading core dimsbuild files: %s" % e))
       raise #!
@@ -134,7 +137,7 @@ class Build(object):
     if options.list_events:
       self.dispatch.pprint()
       sys.exit()
-    
+
     # perform validation, if not specified otherwise
     if not options.no_validate:
       try:
@@ -204,7 +207,7 @@ class Build(object):
     for e in self.dispatch:
       e.validate()
     # validate top-level elements
-    Event.validator.validateElements()
+    Event.validator.validateElements(self.disabled_modules)
   
   def _seed_event_defaults(self, options, mainconfig, distroconfig):
     """ 
@@ -256,10 +259,10 @@ class Build(object):
       setattr(Event, k, v)
     
     # set up other directories
-    Event.CACHE_DIR      = P(mainconfig.get('/dimsbuild/cache/path/text()',
-                                            '/var/cache/dimsbuild'))
-    Event.TEMP_DIR       = P('/tmp/dimsbuild')
-    Event.METADATA_DIR    = Event.CACHE_DIR  / base_vars['pva']
+    Event.CACHE_DIR    = P(mainconfig.get('/dimsbuild/cache/path/text()',
+                                          '/var/cache/dimsbuild'))
+    Event.TEMP_DIR     = P('/tmp/dimsbuild')
+    Event.METADATA_DIR = Event.CACHE_DIR  / base_vars['pva']
     
     if options.sharepath:
       Event.SHARE_DIR = P(options.sharepath).abspath()

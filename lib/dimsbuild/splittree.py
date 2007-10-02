@@ -3,12 +3,12 @@ import os
 import re
 import rpm
 
-from math    import ceil
+from math import ceil
 
 from dims import FormattedFile as ffile
 from dims import pkgorder
 
-from dims.xmltree import XmlTreeElement
+from dims.xml.tree import XmlTreeElement
 
 from dimsbuild.constants import RPM_GLOB, SRPM_GLOB
 

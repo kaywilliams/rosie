@@ -1,5 +1,6 @@
 from dims import pps
-from dims import xmltree
+
+from dims.xml import tree as xmltree
 
 from dims.pps.constants import TYPE_DIR, TYPE_NOT_DIR
 

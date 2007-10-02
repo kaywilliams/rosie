@@ -2,9 +2,9 @@ import copy
 
 from dims import listcompare
 from dims import sortlib
-from dims import xmltree
 
-from dims.configlib import ConfigError
+from dims.xml import tree as xmltree
+from dims.xml.config import ConfigError
 
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L0, L1
