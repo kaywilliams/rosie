@@ -285,7 +285,7 @@ class Build(object):
     Event.mcvalidator = MainConfigValidator(Event.SHARE_DIR/'schemas',
                                             Event.mainconfig.file)
     Event.validator = ConfigValidator(Event.SHARE_DIR/'schemas/distro.conf',
-                                      Event.config.file, Event.logger)
+                                      Event.config.file)
   
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")

@@ -70,9 +70,8 @@ class MainConfigValidator(ValidateMixin):
     ValidateMixin.__init__(self, schemaspath, configfile)
 
 class ConfigValidator(ValidateMixin):
-  def __init__(self, schemaspath, configfile, elogger):
+  def __init__(self, schemaspath, configfile):
     ValidateMixin.__init__(self, schemaspath, configfile)
-    self.elogger = elogger
     self.xpaths = []
 
   def getXmlSection(self, query):
@@ -92,7 +91,9 @@ class ConfigValidator(ValidateMixin):
       if child.tag is etree.Comment: continue
       if child.tag in disabled: continue
       if child not in elements:
-        self.elogger.log(2, "WARNING: unknown element '%s' found in distro.conf" % child.tag)
+        raise InvalidConfigError(self.configfile,
+                                 " unknown element '%s' found in distro.conf" % \
+                                 child.tag)
 
   def getSchema(self, schemacontents, tag):
     schema = ValidateMixin.getSchema(self, schemacontents, tag)
