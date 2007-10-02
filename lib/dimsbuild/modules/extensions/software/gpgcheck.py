@@ -40,7 +40,7 @@ class GpgCheckEvent(Event):
     self.DATA['variables'].append('checks')
   
   def run(self):
-    self.log(0, L0("running gpgcheck"))
+    self.log(0, L0("checking GPG keys on packages"))
     
     if not self.checks:
       self.io.clean_eventcache(all=True) # remove old keys

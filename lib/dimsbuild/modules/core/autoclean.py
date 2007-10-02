@@ -47,11 +47,11 @@ class AutocleanEvent(Event):
       mdfolder.rm(recursive=True, force=True)
   
   def run(self):
-    self.log(0, L0("processing autoclean"))
+    self.log(0, L0("performing automatic distribution cleanup"))
     for eventid in self.diff.handlers['events'].diffdict.keys():
       prevver, currver = self.diff.handlers['events'].diffdict[eventid]
       if prevver and currver:
-        self.log(2, L2("forcing --clean on '%s'" % eventid))
+        self.log(2, L2("forcing '%s'" % eventid))
         self.eventinfo[eventid].status = True
     
     self.diff.write_metadata()

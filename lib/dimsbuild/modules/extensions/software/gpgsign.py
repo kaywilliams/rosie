@@ -15,18 +15,15 @@ class GpgSetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'gpgsign-setup',
-      provides = ['gpgsign-enabled', 'gpgsign-public-key',
-                  'gpgsign-secret-key', 'gpgsign-passphrase'],
+      provides = ['gpgsign-public-key',
+                  'gpgsign-secret-key',
+                  'gpgsign-passphrase'],
     )
   
   def validate(self):
     self.validator.validate('/distro/gpgsign', 'gpgsign.rng')
   
   def apply(self):
-    self.cvars['gpgsign-enabled'] = \
-      self.config.pathexists('/distro/gpgsign') and \
-      self.config.get('/distro/gpgsign/@enabled', 'True') in BOOLEANS_TRUE
-    
     pubkey = self.config.get('/distro/gpgsign/gpg-public-key/text()', None)
     if pubkey: self.cvars['gpgsign-public-key'] = P(pubkey)
     
@@ -41,7 +38,7 @@ class GPGSignEvent(Event, GpgMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'gpgsign',
-      requires = ['input-rpms', 'gpgsign-enabled', 'gpgsign-public-key', 
+      requires = ['input-rpms', 'gpgsign-public-key', 
                   'gpgsign-secret-key', 'gpgsign-passphrase'],
       conditionally_comes_after = ['gpgcheck'],
       provides = ['signed-rpms'],
@@ -50,7 +47,6 @@ class GPGSignEvent(Event, GpgMixin):
     GpgMixin.__init__(self)
     
     self.DATA = {
-      'variables': ['cvars[\'gpgsign_enabled\']'],
       'input':     [],
       'output':    [],
     }
@@ -58,25 +54,12 @@ class GPGSignEvent(Event, GpgMixin):
   def setup(self):
     self.diff.setup(self.DATA)
     
-    if not self.cvars['gpgsign-enabled']: return
-    
     self.io.setup_sync(self.mddir, paths=self.cvars['gpgsign-public-key'], id='pubkey')
     self.io.setup_sync(self.mddir, paths=self.cvars['gpgsign-secret-key'], id='seckey')
     
     self.io.setup_sync(self.mddir/'rpms', paths=self.cvars['input-rpms'], id='rpms')
   
   def run(self):
-    self.log(0, L0("running %s" % self.id))
-    
-    # changing from gpgsign-enabled true, cleanup old files and metadata
-    if self.diff.var_changed_from_value('gpgsign_enabled', True):
-      self.log(1, L1("gpgsign disabled - cleaning up"))
-      self.io.clean_eventcache(all=True)
-    
-    if not self.cvars['gpgsign-enabled']:
-      self.diff.write_metadata()
-      return
-    
     self.log(1, L1("configuring gpg signing"))
     # sync keys
     newkeys = self.io.sync_input(what=['pubkey','seckey'])
@@ -100,15 +83,14 @@ class GPGSignEvent(Event, GpgMixin):
     newrpms = self.io.sync_input(what='rpms')
     
     # sign rpms
-    if self.diff.var_changed_from_value('cvars[\'gpgsign-enabled\']', False) \
-       or newkeys:
+    if newkeys:
       signrpms = self.io.list_output(what='rpms')
     else:
       signrpms = newrpms
     
     if signrpms:
       self.log(1, L1("signing rpms"))
-      if self.config.get('/distro/gpgsign/gpg-passphrase/text()', None) is None:
+      if self.cvars['gpgsign-passphrase'] is None:
         self.cvars['gpgsign-passphrase'] = mkrpm.getPassphrase()
       for rpm in signrpms:
         self.log(2, L2(rpm.relpathfrom(self.mddir)), format='%(message).75s')

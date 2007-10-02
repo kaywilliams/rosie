@@ -38,7 +38,7 @@ class LogosEvent(Event, ExtractMixin):
     self.diff.setup(self.DATA)
     
   def run(self):
-    self.log(0, L0("processing logos"))
+    self.log(0, L0("embedding distribution-specific branding images into installer"))
     self._extract()
   
   def apply(self):

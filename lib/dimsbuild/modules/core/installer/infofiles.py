@@ -37,9 +37,7 @@ class DiscinfoEvent(Event):
     self.diff.setup(self.DATA)
   
   def run(self):
-    self.log(0, L0("generating discinfo"))
-    
-    # setup
+    self.log(0, L0("generating .discinfo"))
     
     # create empty .discinfo formatted file object
     discinfo = ffile.DictToFormattedFile(self.locals.discinfo_fmt)
@@ -60,7 +58,7 @@ class DiscinfoEvent(Event):
   def apply(self):
     self.io.clean_eventcache()
     if not self.difile.exists():
-      raise RuntimeError, "Unable to find .discinfo file at '%s'" % self.difile
+      raise RuntimeError("Unable to find .discinfo file at '%s'" % self.difile)
     self.diff.write_metadata()
 
 
@@ -84,7 +82,7 @@ class TreeinfoEvent(Event):
     self.diff.setup(self.DATA)
   
   def run(self):
-    self.log(0, L0("generating treeinfo"))
+    self.log(0, L0("generating .treeinfo"))
     treeinfo = ConfigParser()
     
     # generate treeinfo sections
@@ -123,7 +121,7 @@ class TreeinfoEvent(Event):
   def apply(self):
     self.io.clean_eventcache()
     if not self.tifile.exists():
-      raise RuntimeError, "Unable to find .treeinfo file at '%s'" % self.tifile
+      raise RuntimeError("Unable to find .treeinfo file at '%s'" % self.tifile)
 
 class BuildstampEvent(Event):
   def __init__(self):
@@ -147,7 +145,7 @@ class BuildstampEvent(Event):
     
   def run(self):
     "Generate a .buildstamp file."
-    self.log(0, L0("generating buildstamp"))
+    self.log(0, L0("generating .buildstamp"))
     
     buildstamp = ffile.DictToFormattedFile(self.locals.buildstamp_fmt)
     

@@ -31,12 +31,8 @@ class IsoMetaEvent(Event):
     Event.__init__(self,
       id = 'ISO',
       properties = PROPERTY_META,
-      provides = ['iso-enabled'],
     )
     
-    self.cvars['iso-enabled'] = self.config.pathexists('/distro/iso') and \
-                                self.config.get('/distro/iso/@enabled', 'True') in BOOLEANS_TRUE
-
 
 class PkgorderEvent(Event):
   def __init__(self):
@@ -47,7 +43,6 @@ class PkgorderEvent(Event):
     )
     
     self.DATA =  {
-      'variables': ['cvars[\'iso-enabled\']'],
       'config':    ['/distro/iso/pkgorder'],
       'input':     [],
       'output':    []
@@ -58,8 +53,7 @@ class PkgorderEvent(Event):
   
   def setup(self):
     self.diff.setup(self.DATA)
-    if not self.cvars['iso-enabled']: return
-
+    
     self.DATA['input'].append(self.cvars['repodata-directory'])
     
     if self.dosync:
@@ -71,14 +65,6 @@ class PkgorderEvent(Event):
       self.DATA['output'].append(self.pkgorderfile)
   
   def run(self):
-    # changing from iso-enabled true, cleanup old files and metadata
-    if self.diff.var_changed_from_value('cvars[\'iso-enabled\']', True):
-      self.clean()
-    
-    if not self.cvars['iso-enabled']: 
-      self.diff.write_metadata()
-      return
-    
     self.log(0, L0("processing pkgorder file"))
     
     # delete prior pkgorder file, if exists    
@@ -109,12 +95,11 @@ class PkgorderEvent(Event):
   
   def apply(self):
     self.io.clean_eventcache()
-    if self.cvars['iso-enabled']:
-      if not self.pkgorderfile.exists():
-        raise RuntimeError("Unable to find cached pkgorder at '%s'.  "
-                           "Perhaps you are skipping the pkgorder event "
-                           "before it has been allowed to run once?" % self.pkgorderfile)
-      self.cvars['pkgorder-file'] = self.pkgorderfile
+    if not self.pkgorderfile.exists():
+      raise RuntimeError("Unable to find cached pkgorder at '%s'.  "
+                         "Perhaps you are skipping the pkgorder event "
+                         "before it has been allowed to run once?" % self.pkgorderfile)
+    self.cvars['pkgorder-file'] = self.pkgorderfile
 
 
 class IsoSetsEvent(Event, ListCompareMixin):
@@ -123,7 +108,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
       id = 'iso',
       provides = ['iso-dir', 'publish-content'],
       requires = ['anaconda-version', 'pkgorder-file', 'os-dir'],
-      conditionally_requires = ['manifest-file', 'sources-enabled', 'srpms-dir'],
+      conditionally_requires = ['manifest-file', 'srpms-dir'],
     )
     ListCompareMixin.__init__(self)
     
@@ -134,7 +119,6 @@ class IsoSetsEvent(Event, ListCompareMixin):
     self.splittrees = self.mddir/'split-trees'
     
     self.DATA =  {
-      'variables': ['cvars[\'iso-enabled\']'],
       'config':    [],
       'input':     [], 
       'output':    [],
@@ -147,31 +131,18 @@ class IsoSetsEvent(Event, ListCompareMixin):
     self.diff.setup(self.DATA)
     self.isodir = self.mddir/'iso'
     
-    if not self.cvars['iso-enabled']: return
-    
     self.DATA['config'].extend(['/distro/iso/set/text()',
-                                'cvars[\'sources-enabled\']',
                                 'cvars[\'srpms\']',])
     self.DATA['input'].append(self.cvars['pkgorder-file'])
   
   def run(self):
-    self.log(0, L0("running %s event" % self.id))
-    # changing from iso-enabled true, cleanup old files and metadata
-    if self.diff.var_changed_from_value('cvars[\'iso-enabled\']', True):
-      self.io.clean_eventcache(all=True)
-    
-    if not self.cvars['iso-enabled']: 
-      self.diff.write_metadata()
-      return
-    
     self.log(0, L0("processing iso image(s)"))
     
     oldsets = None
     
-    # remove oldsets if pkgorder file, srpms, or sources-enabled changed
+    # remove oldsets if pkgorder file or srpms changed
     if self.diff.handlers['input'].diffdict or \
-       self.diff.handlers['variables'].diffdict.has_key("cvars['srpms']") or \
-       self.diff.handlers['variables'].diffdict.has_key("cvars['sources-enabled']"):
+       self.diff.handlers['variables'].diffdict.has_key("cvars['srpms']"):
       self.io.clean_eventcache(all=True)
       oldsets = []
     
@@ -193,10 +164,9 @@ class IsoSetsEvent(Event, ListCompareMixin):
   
   def apply(self):
     self.io.clean_eventcache()
-    if self.cvars['iso-enabled']:
-      self.cvars['iso-dir'] = self.isodir
-      try: self.cvars['publish-content'].add(self.isodir)
-      except: pass
+    self.cvars['iso-dir'] = self.isodir
+    try: self.cvars['publish-content'].add(self.isodir)
+    except: pass
   
   def _extend_diffdata(self, set):
     self.DATA['output'].extend([self.splittrees/set, self.isodir/set])
@@ -215,7 +185,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     (self.isodir/set).mkdirs()
     (self.splittrees/set).mkdirs()
     
-    splitter = splittree.Timber(set, dosrc=self.cvars['sources-enabled'])
+    splitter = splittree.Timber(set, dosrc=self.cvars['srpms-dir'] is not None)
     splitter.product = self.product
     splitter.u_tree     = self.cvars['os-dir']
     splitter.u_src_tree = self.cvars['srpms-dir']

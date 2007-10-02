@@ -61,13 +61,3 @@ class DiffObject:
     if not self.diff_set.has_key(name):
       self.diff_set[name] = (len(self.handlers[name].diff()) > 0)
     return self.diff_set[name]
-  
-  def var_changed_from_value(self, var, value):
-    if not self.handlers['variables']:
-      raise RuntimeError("No 'variables' metadata handler")
-    if self.handlers['variables'].diffdict.has_key(var) and \
-       self.handlers['variables'].vars.has_key(var) and \
-       self.handlers['variables'].vars[var] == value:
-      return True
-    else:
-      return False

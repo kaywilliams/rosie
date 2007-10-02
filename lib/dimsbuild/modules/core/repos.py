@@ -2,8 +2,9 @@ import re
 
 from dims import filereader
 
-from dimsbuild.event   import Event
-from dimsbuild.logging import L0, L1, L2
+from dimsbuild.event    import Event
+from dimsbuild.logging  import L0, L1, L2
+from dimsbuild.validate import InvalidConfigError
 
 from dimsbuild.modules.shared import RepoEventMixin
 
@@ -16,8 +17,7 @@ class ReposEvent(Event, RepoEventMixin):
       provides = ['anaconda-version', 
                   'repos',         # provided by repos and localrepo events
                   'input-repos',   # provided by repos event only, used by release.py
-                  'base-repoid',
-                  ],
+                  'base-repoid'],
     )
     RepoEventMixin.__init__(self)    
     
@@ -30,7 +30,7 @@ class ReposEvent(Event, RepoEventMixin):
   def validate(self):
     self.validator.validate('/distro/repos', schemafile='repos.rng')
     if len(self.config.xpath('/distro/repos/repo[@type="base"]')) != 1:
-      self.validator.raiseInvalidConfig("Config file must define one repo with type 'base'")
+      raise InvalidConfig(self.config, "Config file must define one repo with type 'base'")
     
   def setup(self):
     self.diff.setup(self.DATA)
@@ -38,7 +38,7 @@ class ReposEvent(Event, RepoEventMixin):
     self.read_config('/distro/repos/repo')
   
   def run(self):
-    self.log(0, L0("running repos event"))
+    self.log(0, L0("setting up input repositories"))
     self.sync_repodata()
     
     # process available package lists
@@ -52,8 +52,7 @@ class ReposEvent(Event, RepoEventMixin):
     for repo in self.repos.values():
       if not repo.pkgsfile.exists():
         raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "
-        "are skipping the repo-contents event before it has been allowed to "
-        "run once?" % repo.pkgsfile)
+        "are skipping repos before it has been allowed to run once?" % repo.pkgsfile)
       
       repo.readRepoContents(repofile=repo.pkgsfile)
 

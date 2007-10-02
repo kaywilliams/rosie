@@ -13,7 +13,7 @@ class CreaterepoEvent(Event):
       id = 'createrepo',
       provides = ['rpms', 'rpms-directory', 'repodata-directory'],
       requires = ['cached-rpms'],
-      conditionally_requires = ['comps-file', 'gpgsign-enabled', 'signed-rpms'],
+      conditionally_requires = ['comps-file', 'signed-rpms', 'gpgsign-public-key'],
     )
     
     self.cvars['repodata-directory'] = self.SOFTWARE_STORE/'repodata'
@@ -23,21 +23,21 @@ class CreaterepoEvent(Event):
       'input':     [],
       'output':    [self.cvars['repodata-directory']]
     }
-    
+  
   def setup(self):
     self.diff.setup(self.DATA)
-
+    
     self.cvars['rpms-directory'] = self.SOFTWARE_STORE/self.product
-
+    
     if self.cvars['comps-file']:
       self.DATA['input'].append(self.cvars['comps-file'])
     
-    if self.cvars['gpgsign-enabled']:
-      self.io.setup_sync(self.cvars['rpms-directory'], 
-                      paths=self.cvars['signed-rpms'], id='rpms')
+    if self.cvars['gpgsign-public-key']: # if we're signing rpms #!
+      paths = self.cvars['signed-rpms']
     else:
-      self.io.setup_sync(self.cvars['rpms-directory'], 
-                      paths=self.cvars['cached-rpms'], id='rpms')
+      paths = self.cvars['cached-rpms']
+    
+    self.io.setup_sync(self.cvars['rpms-directory'], paths=paths, id='rpms')
   
   def run(self):
     self.log(0, L0("creating repository metadata"))

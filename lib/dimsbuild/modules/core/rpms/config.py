@@ -27,11 +27,9 @@ class ConfigRpmEvent(Event, RpmBuildMixin, FileDownloadMixin):
     
     self.DATA = {
       'variables': ['product', 'fullname', 'pva'],
-      'config': [
-        '/distro/config-rpm',
-      ],
-      'input':  [],
-      'output': [],
+      'config':    ['/distro/config-rpm'],
+      'input':     [],
+      'output':    [],
     }
 
   def error(self, e):

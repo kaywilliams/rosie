@@ -11,8 +11,6 @@ from dimsbuild.event.diff   import DiffMixin
 from dimsbuild.event.fileio import IOMixin
 from dimsbuild.event.locals import LocalsMixin
 
-DEBUG = True # this should be enabled for development purposes and
-             # disabled once we go to release
 
 class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
   """ 
@@ -145,3 +143,6 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
 
 class EventExit:
   "Error an event can raise in order to exit program execution"
+
+
+from dimsbuild.main import DEBUG # imported here to avoid circular ref

@@ -102,7 +102,7 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin.setup(self)
   
   def run(self):
-    self.log(0, L0("processing initrd.img"))
+    self.log(0, L0("preparing initrd.img"))
     self.io.clean_eventcache(all=True)
     self._modify()
   

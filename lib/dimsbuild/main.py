@@ -43,6 +43,8 @@ P = pps.Path # convenience, same is used throughout most modules
 
 API_VERSION = 5.0
 
+DEBUG = True # enable to print tracebacks; disable for 'release mode'
+
 class Build(object):
   """ 
   Primary build class - framework upon which DiMS building is performed
@@ -103,7 +105,7 @@ class Build(object):
       self.enabled_modules = loader.enabled
     except ImportError, e:
       Event.logger.log(0, L0("Error loading core dimsbuild files: %s" % e))
-      raise #!
+      if DEBUG: raise
       sys.exit(1)
     
     # allow events to add their command-line options to the parser
@@ -151,6 +153,7 @@ class Build(object):
         sys.exit(1)
       except Exception, e:
         Event.logger.log(0, L0("Unhandled exception: %s" % e))
+        if DEBUG: raise
         sys.exit(1)
       if options.validate_only:
         sys.exit()
@@ -286,10 +289,11 @@ class Build(object):
                                             Event.mainconfig.file)
     Event.validator = ConfigValidator(Event.SHARE_DIR/'schemas/distro.conf',
                                       Event.config.file)
-  
+    
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
     Event.logger.log(0, "Starting build of '%s' at %s" % (Event.fullname, time.strftime('%Y-%m-%d %X')))
+    Event.logger.log(4, "Loaded modules: %s" % Event.cvars['loaded-modules'])
     Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):
     Event.logger.log(0, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
@@ -309,25 +313,3 @@ class AllEvent(Event):
       version = 0,
       properties = dispatch.PROPERTY_META,
     )
-
-
-#------ UTILITY FUNCTIONS ------#
-def eval_modlist(mods, default=None):
-  "Return a dictionary of modules and their enable status, as found in the"
-  "config file"
-  ret = {}
-  
-  if not mods: return ret
-  
-  mod_default = mods.get('@default', default)
-  for mod in mods.getchildren():
-    name = mod.get('text()')
-    enabled = mod.get('@enabled', default).lower()
-    if enabled == 'default':
-      enabled = mod_default
-    if enabled is None:
-      raise xmllib.config.ConfigError("Default status requested on '%s', "
-                                      "but no default specified" % name)
-    ret[name] = enabled
-  
-  return ret

@@ -32,10 +32,11 @@ class Loader(dispatch.Loader):
   
   def _process_path(self, path, ptype, *args, **kwargs):
     for mod in path.findpaths(nregex='.*/(\..*|.*\.pyc)', mindepth=1):
+      modid = mod.basename.replace('.py', '')
       if ptype == 'default-on':
-        if mod.basename.replace('.py', '') in self.disabled: continue
+        if modid in self.disabled: continue
       elif ptype == 'default-off':
-        if mod.basename.replace('.py', '') not in self.enabled: continue
+        if modid not in self.enabled: continue
       else: raise ValueError(ptype)
       modname = mod.tokens[len(path.tokens):].replace('/', '.').replace('.py', '')
       self._process_module(dispatch.load_modules(modname, path, err=False),

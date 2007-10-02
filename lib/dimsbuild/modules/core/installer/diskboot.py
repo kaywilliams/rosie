@@ -29,7 +29,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
 
   def validate(self):
     self.validator.validate('/distro/diskboot-image', 'diskboot.rng')
-    
+  
   def error(self, e):
     try:
       self._close()

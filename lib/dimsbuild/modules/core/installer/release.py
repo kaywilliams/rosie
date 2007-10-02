@@ -33,7 +33,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     self.diff.setup(self.DATA)
     
   def run(self):
-    self.log(0, L0("synchronizing release files"))
+    self.log(0, L0("synchronizing release files to distribution tree"))
     self._extract()
 
   def apply(self):

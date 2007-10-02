@@ -98,20 +98,20 @@ class ConfigValidator(ValidateMixin):
   def getSchema(self, schemacontents, tag):
     schema = ValidateMixin.getSchema(self, schemacontents, tag)
     tree = schema.get('//element[@name="distro"]')
-
+    
     # add the 'schema-version' attribute to the distro element
     schemaver = xmllib.tree.Element('attribute',
-                                attrs={'name': 'schema-version'})
+                                    attrs={'name': 'schema-version'})
     choice = xmllib.tree.Element('choice', parent=schemaver)
     xmllib.tree.Element('value', parent=choice, text='1.0',
-                    attrs={'type': 'string'})
+                        attrs={'type': 'string'})
     tree.insert(0, schemaver)
-
+    
     
     elemschema = schema.get('//element[@name="%s"]' % tag)
     # add a definition for multiple attributes
     anyattr = xmllib.tree.Element('define', parent=schema.getroot(),
-                              attrs={'name': 'attribute-anything'})
+                                  attrs={'name': 'attribute-anything'})
     zom = xmllib.tree.Element('zeroOrMore', parent=anyattr)
     attr = xmllib.tree.Element('attribute', parent=zom)
     xmllib.tree.Element('anyName', parent=attr)
@@ -126,7 +126,7 @@ class ConfigValidator(ValidateMixin):
         self._add_definitions(elemschema, id='anything-element-%s' % name,
                               ignore=name)
         self._add_references(elemschema, id='anything-element-%s' % name)
-
+      
       if elemschema.tag == 'optional':
         # delete all <optional> elements, because at this point we know
         # for sure that the element we are validating exists in the
@@ -143,7 +143,7 @@ class ConfigValidator(ValidateMixin):
   def _add_references(self, schema, id):
     schema.addprevious(xmllib.tree.Element('ref', attrs={'name': id}))
     schema.addnext(xmllib.tree.Element('ref', attrs={'name': id}))
-    
+  
   def _add_definitions(self, schema, id, ignore=None):
     # add a definition for multiple elements
     anyelem = xmllib.tree.Element('define', parent=schema.getroot(),
@@ -157,9 +157,9 @@ class ConfigValidator(ValidateMixin):
       exelem = xmllib.tree.Element('except', parent=name)
       xmllib.tree.Element('name', parent=exelem, text=ignore)                      
     xmllib.tree.Element('ref', parent=elem,
-                    attrs={'name': 'attribute-anything'})
+                        attrs={'name': 'attribute-anything'})
     xmllib.tree.Element('ref', parent=elem,
-                    attrs={'name': id})
+                        attrs={'name': id})
 
 #------ ERRORS ------#
 class InvalidXmlError(StandardError):

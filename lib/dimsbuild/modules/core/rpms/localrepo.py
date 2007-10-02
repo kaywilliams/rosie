@@ -12,7 +12,6 @@ class LocalRepoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id='localrepo',
-      requires=['sources-enabled'],
       conditionally_requires=['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
       provides=['repos', 'source-repos', 'included-packages', 'excluded-packages']
     )
@@ -48,7 +47,7 @@ class LocalRepoEvent(Event):
     self.DATA['output'].append(self.rc.repos['localrepo-sources'].pkgsfile)
 
   def run(self):
-    self.log(0, L0("creating localrepo"))
+    self.log(0, L0("creating local repository for custom RPMs"))
     # remove previous output
     self.io.clean_eventcache(all=True)
     
@@ -79,7 +78,7 @@ class LocalRepoEvent(Event):
       self.rc.read_packages(id='localrepo', write=False)
       if not self.cvars['repos']: self.cvars['repos'] = {}
       self.cvars['repos']['localrepo'] = self.rc.repos['localrepo']
-    if self.cvars['custom-srpms'] and self.cvars['sources-enabled']:
+    if self.cvars['custom-srpms'] and self.cvars['source-repos']:
       self.rc.read_packages(id='localrepo-sources', write=False)
       if not self.cvars['source-repos']: self.cvars['source-repos'] = {}      
       self.cvars['source-repos']['localrepo-sources'] = self.rc.repos['localrepo-sources']

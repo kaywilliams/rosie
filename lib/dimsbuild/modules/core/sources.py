@@ -29,33 +29,23 @@ class SourceReposEvent(Event, RepoEventMixin):
   def __init__(self):    
     Event.__init__(self,
                    id='source-repos',
-                   provides=['sources-enabled', 'source-repos',])
+                   provides=['source-repos'])
     RepoEventMixin.__init__(self)
     
     self.DATA = {
-      'variables': ['cvars[\'sources-enabled\']'],
       'input':  [],
       'output': [],
     }
-
-    self.cvars['sources-enabled'] = self.config.pathexists('/distro/sources') and \
-               self.config.get('/distro/sources/@enabled', 'True') in BOOLEANS_TRUE
-
+  
   def validate(self):
     self.validator.validate('/distro/sources', 'sources.rng')
-
+  
   def setup(self):
     self.diff.setup(self.DATA)
-    if not self.cvars['sources-enabled']: return
     self.read_config('/distro/sources/repo')
-
+  
   def run(self):
-    self.log(0, L0("running source-repos event"))
-
-    if not self.cvars['sources-enabled']:
-      self.io.clean_eventcache(all=True)
-      self.diff.write_metadata()
-      return
+    self.log(0, L0("setting up input source repositories"))
     
     self.log(1, L1("downloading information about source packages"))
     self.sync_repodata()
@@ -63,21 +53,21 @@ class SourceReposEvent(Event, RepoEventMixin):
     # reading primary.xml.gz files
     self.log(1, L1("reading available source packages"))
     self.read_new_packages()
-
+    
     self.diff.write_metadata()
   
   def apply(self):
     self.io.clean_eventcache()
-    if not self.cvars['sources-enabled']: return
+    
     for repo in self.repos.values():
       if not repo.pkgsfile.exists():
         raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "
-                           "are skipping the %s event before it has been allowed "
+                           "are skipping %s before it has been allowed "
                            "to run once?" % (repo.pkgsfile, self.id))
       repo.readRepoContents(repofile=repo.pkgsfile)
-
+    
     self.cvars['source-repos'] = self.repos
-
+  
   def error(self, e):
     self.clean()
 
@@ -88,20 +78,17 @@ class SourcesEvent(Event):
                    id='sources',
                    provides=['srpms', 'srpms-dir', 'publish-content'],
                    requires=['rpms', 'source-repos'])
-
+    
     self.srpmdest = self.OUTPUT_DIR / 'SRPMS'
     self.DATA = {
-      'variables': ['cvars[\'rpms\']',
-                    'cvars[\'sources-enabled\']'],
+      'variables': ['cvars[\'rpms\']'],
       'input':     [],
       'output':    [],
     }
-
+  
   def setup(self):
     self.diff.setup(self.DATA)
-
-    if not self.cvars['sources-enabled']: return
-
+    
     # compute the list of SRPMS
     self.ts = rpm.TransactionSet()
     self.ts.setVSFlags(-1)
@@ -131,14 +118,9 @@ class SourcesEvent(Event):
           paths.append(rpmi)
     
     self.io.setup_sync(self.srpmdest, paths=paths, id='srpms')
-
+  
   def run(self):
-    self.log(0, L0("running sources event"))
- 
-    if not self.cvars['sources-enabled']:
-      self.io.clean_eventcache(all=True)
-      self.diff.write_metadata()
-      return
+    self.log(0, L0("retrieving source RPMs for distribution RPMs"))
     
     self.log(1, L1("processing srpms"))
     self.srpmdest.mkdirs()
@@ -147,20 +129,19 @@ class SourcesEvent(Event):
     self.DATA['output'].extend(self.io.list_output(what=['srpms']))
     self.DATA['output'].append(self.srpmdest/'repodata')
     self.diff.write_metadata()
-
+  
   def apply(self):
     self.io.clean_eventcache()
-    if self.cvars['sources-enabled']:
-      self.cvars['srpms'] = self.io.list_output(what='srpms')
-      self.cvars['srpms-dir'] = self.srpmdest
-      try: self.cvars['publish-content'].add(self.srpmdest)
-      except: pass
-   
+    self.cvars['srpms'] = self.io.list_output(what='srpms')
+    self.cvars['srpms-dir'] = self.srpmdest
+    try: self.cvars['publish-content'].add(self.srpmdest)
+    except: pass
+  
   def _deformat(self, srpm):
     try:
       return SRPM_PNVRA_REGEX.match(srpm).groups()
     except (AttributeError, IndexError), e:
-      self.log(2, L2("DEBUG: Unable to extract srpm information from name '%s'" % srpm))
+      self.log(4, L2("DEBUG: Unable to extract srpm information from name '%s'" % srpm))
       return (None, None, None, None, None)
   
   def _createrepo(self):

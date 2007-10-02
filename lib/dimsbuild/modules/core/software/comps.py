@@ -54,7 +54,7 @@ class CompsEvent(Event):
       # ensure exactly only one item returned above
       if len(self.io.list_output(what='comps.xml')) != 1: 
         raise RuntimeError("The path specified at '%s' expands to multiple "
-                           "items. Only one comps file is allowed." % xpath)
+                           "items.  Only one comps file is allowed." % xpath)
 
     else:
       self.comps_out = self.mddir/'comps.xml'
@@ -73,11 +73,11 @@ class CompsEvent(Event):
     self.io.clean_eventcache(all=True)
     
     if self.comps_supplied: # download comps file   
-      self.log(1, L1("using comps file '%s'" % self.comps_supplied))
+      self.log(1, L1("using existing comps file '%s'" % self.comps_supplied))
       self.io.sync_input()
     
     else: # generate comps file
-      self.log(1, L1("creating comps file"))
+      self.log(1, L1("creating new comps file"))
       self._generate_comps()
       self.comps.write(self.comps_out)
       self.comps_out.chmod(0644)
@@ -96,8 +96,8 @@ class CompsEvent(Event):
     
     # verify comps-file exists
     if not self.cvars['comps-file'].exists():
-      raise RuntimeError("Unable to find cached comps file at '%s'. "
-                         "Perhaps you are skipping the comps event before "
+      raise RuntimeError("Unable to find cached comps file at '%s'.  "
+                         "Perhaps you are skipping comps before "
                          "it has been allowed to run once?" % self.cvars['comps-file'])
         
     # set required packages variable
@@ -109,7 +109,7 @@ class CompsEvent(Event):
   def _generate_comps(self):
     mapped, unmapped = self.__map_groups()
 
-    self.groups = {} # dict of grouptrees by groupid)
+    self.groups = {} # dict of grouptrees by groupid
        
     ## build up groups dictionary
     for groupfileid, path in self.groupfiles:
@@ -154,11 +154,11 @@ class CompsEvent(Event):
       raise xmllib.config.ConfigError("Unable to resolve all groups in available "
                                       "repos: missing %s" % unmapped)
 
-    ### create comps file
-    ## add core group
+    # create comps file
+    # add core group
     self.comps.getroot().append(self.groups.pop('core'))
 
-    ## add packages to core group
+    # add packages to core group
     # add packages from groups marked as 'core'
     core = [groupid for groupid in self.groups.keys() 
             if self.config.get('/distro/comps/groups/group[text()="%s"]/@core' \
@@ -200,14 +200,14 @@ class CompsEvent(Event):
       if len(packages) == 0: self.comps.getroot().insert(0, base) # HAK HAK HAK
       self._add_package('kernel', core, type='mandatory')
 
-    ## add stand alone groups
+    # add standalone groups
     noncore = [groupid for groupid in self.groups.keys() 
                if self.config.get('/distro/comps/groups/group[text()="%s"]/@core' \
                % groupid, 'true') in BOOLEANS_FALSE] 
     for groupid in sorted(noncore):
       self._add_group(groupid, self.groups[groupid])
   
-    ## exclude all package in self.exclude
+    # exclude all package in self.exclude
     exclude = self.config.xpath('/distro/comps/exclude/packages/text()', []) + \
               (self.cvars['excluded-packages'] or [])
 
@@ -215,7 +215,7 @@ class CompsEvent(Event):
       for match in self.comps.xpath('//packagereq[text()="%s"]' % pkg):
         match.getparent().remove(match)
     
-    ## add category
+    # add category
     cat = Category('Groups', fullname=self.fullname,
                              version=self.cvars['anaconda-version'])
     self.comps.getroot().append(cat)
