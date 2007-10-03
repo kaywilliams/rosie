@@ -11,17 +11,17 @@ class IsolinuxEvent(Event, FileDownloadMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'isolinux',
-      provides = ['vmlinuz-file', 'isolinux-dir'],
+      provides = ['isolinux-files'],
       requires = ['anaconda-version', 'source-vars', 'base-repoid'],
     )
 
     self.isolinux_dir = self.SOFTWARE_STORE/'isolinux' #! not versioned
 
     self.DATA = {
+      'config':    ['/distro/isolinux'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
-      'config':    ['/distro/isolinux'],
     }
 
     FileDownloadMixin.__init__(self)
@@ -33,18 +33,15 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     self.diff.setup(self.DATA)
     self.file_locals = self.locals.files['isolinux']
     FileDownloadMixin.setup(self)
-    self.io.setup_sync(self.isolinux_dir, id='IsoLinuxFiles',
-                    xpaths=['/distro/isolinux/path'])
 
   def run(self):
     self.log(0, L0("synchronizing isolinux files"))
     self._download()
-    self.io.sync_input(what='IsoLinuxFiles')
 
     # modify the first append line in isolinux.cfg
     bootargs = self.config.get('/distro/isolinux/boot-args/text()', None)
     if bootargs:
-      cfg = self.isolinux_dir/'isolinux.cfg'
+      cfg = self.SOFTWARE_STORE/self.file_locals['isolinux.cfg']['path']
       if not cfg.exists():
         raise RuntimeError("missing file '%s'" % cfg)
       lines = filereader.read(cfg)
@@ -64,9 +61,9 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     for file in self.io.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s'" % file)
-    # fix this, this must be doable via list_output
-    self.cvars['isolinux-dir'] = self.isolinux_dir
-    self.cvars['vmlinuz-file'] = \
-      self.SOFTWARE_STORE/self.file_locals['vmlinuz']['path']
+    
+    self.cvars['isolinux-files'] = {}
+    for k,v in self.file_locals.items():
+      self.cvars['isolinux-files'][k] = self.SOFTWARE_STORE/v['path']
 
 EVENTS = {'INSTALLER': [IsolinuxEvent]}

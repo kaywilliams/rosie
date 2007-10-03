@@ -14,8 +14,8 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     Event.__init__(self,
       id = 'diskboot-image',
       provides = ['diskboot.img'],
-      requires = ['initrd-file', 'buildstamp-file', 'base-repoid'],
-      conditionally_requires = ['installer-splash',],
+      requires = ['buildstamp-file', 'base-repoid', 'installer-splash'], #! check installer-splash
+      conditionally_requires = ['diskboot-image-content'],
     )
      
     self.DATA = {
@@ -39,10 +39,8 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
   def setup(self):
     self.DATA['input'].extend([
       self.cvars['installer-splash'],
-      self.cvars['initrd-file'],
+      self.cvars['isolinux-files']['initrd.img'],
     ])
-    
-    self.diff.setup(self.DATA)
     
     self.image_locals = self.locals.files['installer']['diskboot.img']
     ImageModifyMixin.setup(self)
@@ -61,7 +59,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
   def _generate(self):
     ImageModifyMixin._generate(self)
     self.image.write(self.cvars['installer-splash'], '/')
-    self.image.write(self.cvars['initrd-file'], '/')
+    self.image.write(self.cvars['isolinux-files']['initrd.img'], '/')
     bootargs = self.config.get('/distro/diskboot-image/boot-args/text()', None)
     if bootargs:
       if not 'syslinux.cfg' in self.image.list():

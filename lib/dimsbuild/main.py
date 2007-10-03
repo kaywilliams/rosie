@@ -193,7 +193,7 @@ class Build(object):
       elif module.tag not in enabled:
         disabled.add(module.tag)
     
-    disabled.add('__init__') # hack, kinda; this isn't a module
+    disabled.add('__init__') # hack, kinda; these are loaded automatically
     
     return enabled, disabled
   

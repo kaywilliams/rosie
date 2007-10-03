@@ -9,9 +9,10 @@ class InitrdImageEvent(Event, ImageModifyMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'initrd-image',
-      provides = ['initrd-file'],
+      provides = ['isolinux-files'],
       requires = ['anaconda-version', 'buildstamp-file'],
-      comes_before = ['isolinux'],
+      conditionally_requires = ['initrd-image-content'],
+      comes_after = ['isolinux'],
     )
 
     self.DATA = {
@@ -47,9 +48,7 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     for file in self.io.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
-    # fix this, this must be doable via io.list_output
-    self.cvars['initrd-file'] = \
-      self.SOFTWARE_STORE/self.image_locals['path']
+    self.cvars['isolinux-files']['initrd.img'] = self.SOFTWARE_STORE/self.image_locals['path']
 
   def _generate(self):
     ImageModifyMixin._generate(self)

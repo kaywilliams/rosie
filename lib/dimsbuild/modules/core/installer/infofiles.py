@@ -134,7 +134,7 @@ class BuildstampEvent(Event):
     self.bsfile = self.METADATA_DIR/'.buildstamp'
     
     self.DATA = {
-      'variables': ['BASE_VARS',
+      'variables': ['cvars[\'base-vars\']',
                     'cvars[\'anaconda-version\']',
                     'cvars[\'source-vars\']'],
       'output':    [self.bsfile],

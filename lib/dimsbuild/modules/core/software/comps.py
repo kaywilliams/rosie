@@ -68,16 +68,16 @@ class CompsEvent(Event):
                                  self.groupfiles])
   
   def run(self):
-    self.log(0, L0("processing comps file"))
+    self.log(0, L0("processing components file"))
     
     self.io.clean_eventcache(all=True)
     
     if self.comps_supplied: # download comps file   
-      self.log(1, L1("using existing comps file '%s'" % self.comps_supplied))
+      self.log(1, L1("using existing file '%s'" % self.comps_supplied))
       self.io.sync_input()
     
     else: # generate comps file
-      self.log(1, L1("creating new comps file"))
+      self.log(1, L1("creating new file"))
       self._generate_comps()
       self.comps.write(self.comps_out)
       self.comps_out.chmod(0644)

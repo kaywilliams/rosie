@@ -88,16 +88,23 @@ class ImageModifyMixin:
     self.name = name
     self.image = None
     self.image_locals = None # this must be set before setup() is called
+    
+    # dictionary of dest, sourcelist pairs for files to be placed inside
+    # the image
+    self.cvars['%s-content' % self.id] = {}
   
   def setup(self):
     # input images
     repo = self.cvars['repos'][self.cvars['base-repoid']]
     
     image_path = self.image_locals['path'] % self.cvars['base-vars']
+    
+    self.diff.setup(self.DATA)
+    
     try:
       self.io.setup_sync((self.SOFTWARE_STORE/image_path).dirname,
-                      id='ImageModifyMixin',
-                      paths=[repo.rjoin(image_path)])
+                         id='ImageModifyMixin',
+                         paths=[repo.rjoin(image_path)])
     except IOError:
       if self.virtual:
         self.DATA['output'].append(self.SOFTWARE_STORE/image_path)
@@ -105,18 +112,17 @@ class ImageModifyMixin:
         raise
     
     # other image input files
-    self.images_src = self.METADATA_DIR/'images-src'/self.name
-    if self.images_src.exists():
-      self.DATA['input'].append(self.images_src)
-    
-    self.diff.setup(self.DATA)
+    for dst, src in self.cvars['%s-content' % self.id].items():
+      self.io.setup_sync(self.imagedir/dst.lstrip('/'),
+                         paths=src,
+                         id='%s-input-files' % self.name)
     
     self.io.setup_sync(self.imagedir,
-                    xpaths=['/distro/installer/%s/path' % self.id],
-                    id='%s-input-files' % self.name)
-    
+                       xpaths=['/distro/%s/path' % self.id],
+                       id='%s-input-files' % self.name)
+  
   def check(self):
-    return not self._validate_image or \
+    return not self._validate_image() or \
            self.diff.test_diffs()
   
   def _open(self):
@@ -148,11 +154,8 @@ class ImageModifyMixin:
     self.diff.write_metadata()
   
   def _generate(self):
-    self.cvars['%s-changed' % self.name] = True
     if self.imagedir.exists():
       self._write_directory(self.imagedir)
-    if self.images_src.exists():
-      self._write_directory(self.images_src)
   
   def _write_buildstamp(self):
     self.image.write(self.cvars['buildstamp-file'], '/')

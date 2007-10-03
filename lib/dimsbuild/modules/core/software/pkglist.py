@@ -64,20 +64,20 @@ class PkglistEvent(Event):
     self.DATA['input'].extend(self.rddirs)
 
   def run(self):
-    self.log(0, L0("resolving pkglist"))
+    self.log(0, L0("resolving package list"))
     self.io.clean_eventcache(all=True)
 
     # copy pkglist
     if self.docopy:
       self.io.sync_input()
-      self.log(1, L1("reading supplied pkglist file"))
+      self.log(1, L1("reading supplied package list"))
       if self.dsdir.exists():
         self.dsdir.rm(recursive=True)
       self.diff.write_metadata()
       return
 
     # create pkglist
-    self.log(1, L1("generating new pkglist"))
+    self.log(1, L1("generating new package list"))
     if not self.dsdir.exists(): self.dsdir.mkdirs()
 
     repoconfig = self._create_repoconfig()

@@ -32,8 +32,7 @@ class FileDownloadMixin:
     for file in self.rpmdir.findpaths(type=pps.constants.TYPE_NOT_DIR):
         dir = file.tokens[len(self.srcdir.tokens):].dirname
         if not dir.isabs():          dir = P('/'+dir)
-        if not sources.has_key(dir): sources[dir] = []
-        sources[dir].append(file)
+        sources.setdefault(dir, []).append(file)
     return sources
     
 
@@ -69,8 +68,7 @@ class RpmLocalsMixin:
           newfile = filedir/installname
           file.link(newfile)
           id = newfile
-        if not sources.has_key(installdir): sources[installdir] = []
-        sources[installdir].append(id)
+        sources.setdefault(installdir, []).append(id)
     return sources
 
 
@@ -159,9 +157,8 @@ class RpmBuildMixin:
     self.version   = kwargs.get('version',  self.version)
 
   def _build_rpm(self):
-    self.log(0, L0("building %s rpm" % self.rpmname))
     self._check_release()
-    self.log(1, L1("release number: %s" % self.release))
+    self.log(0, L0("building %s-%s-%s.rpm" % (self.rpmname, self.version, self.release)))
     self._build()
     self._save_release()
     self._add_output()
@@ -306,9 +303,8 @@ class RpmBuildMixin:
     sources = {}
     for file in self.srcdir.findpaths(type=pps.constants.TYPE_NOT_DIR):
       dir = file.tokens[len(self.srcdir.tokens):].dirname
-      if not dir.isabs():          dir = P('/'+dir)
-      if not sources.has_key(dir): sources[dir] = []
-      sources[dir].append(file)
+      if not dir.isabs(): dir = P('/'+dir)
+      sources.setdefault(dir, []).append(file)
     return sources
 
 

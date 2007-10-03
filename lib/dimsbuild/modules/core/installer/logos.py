@@ -16,7 +16,7 @@ class LogosEvent(Event, ExtractMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'logos',
-      provides = ['installer-splash'],
+      provides = ['installer-splash', 'product-image-content'],
       requires = ['rpms-directory', 'anaconda-version'],
       conditionally_comes_after = ['gpgsign'],
     )
@@ -49,6 +49,9 @@ class LogosEvent(Event, ExtractMixin):
     if not self._validate_splash(splash):
       raise RuntimeError("'%s' is not a valid '%s' file" %(splash, self.format))
     self.cvars['installer-splash'] = splash
+    
+    self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
+      (self.mddir/'pixmaps').listdir())
 
   def _generate(self, working_dir):
     "Create the splash image and copy it to the isolinux/ folder"
@@ -85,9 +88,8 @@ class LogosEvent(Event, ExtractMixin):
     Create the product.img folder that can be used by the product.img
     module.
     """
-    # link the images from the RPM folder to the pixmaps/ folder in
-    # the folder the product.img event looks in.
-    product_img = self.METADATA_DIR/'images-src/product.img/pixmaps'
+    # link the images from the RPM folder to the pixmaps/ folder 
+    product_img = self.mddir/'pixmaps'
     product_img.mkdirs()
     
     # generate the list of files to use and copy them to the
@@ -95,8 +97,10 @@ class LogosEvent(Event, ExtractMixin):
     pixmaps = []
     for img in working_dir.findpaths(regex='.*usr/share/anaconda/pixmaps*',
                                      type=pps.constants.TYPE_NOT_DIR):
-      self.copy(img, product_img)
-      pixmaps.append(product_img/img.basename)
+      img.cp(product_img, link=True)
+      outfile = product_img/img.basename
+      pixmaps.append(outfile)
+    
     return pixmaps
   
   def _validate_splash(self, splash):

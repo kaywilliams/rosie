@@ -8,9 +8,8 @@ __all__ = ['DISCINFO_FORMAT_LOCALS', 'BUILDSTAMP_FORMAT_LOCALS',
 class LocalsDict(dict):
   def __init__(self, *args, **kwargs):
     dict.__init__(self, *args, **kwargs)
-    if not self.has_key('0'):
-      dict.__setitem__(self, '0', None)
-    
+    self.setdefault('0', None)
+  
   def __getitem__(self, key):
     ret = {}
     for index in sortlib.dsort(self.keys()):
@@ -20,6 +19,12 @@ class LocalsDict(dict):
     return ret
   
 def rupdate(dst, src):
+  """ 
+  Recursive dictionary updater.  Updates nested dictionaries at each level,
+  rather than just at the top level.  Essentially, when calling a.update(b),
+  we first check the contents of both a and b at each index i - if they are
+  both dictionaries, then we call a[i].update(b[i]) instead of a[i] = b[i].
+  """
   if not isinstance(src, dict):
     return src
   for k,v in src.items():
@@ -431,17 +436,17 @@ LOGOS_RPM = LocalsDict({
     ),
     'gnome-splash/gnome-splash.png': dict(
       locations=['/usr/share/pixmaps/splash/gnome-splash.png'],
-      width=503, height=420 , textmaxwidth=450,
+      width=503, height=420, textmaxwidth=450,
       textvcenter=210, texthcenter=250
     ),
     'rhgb/main-file.png': dict(
       locations=['/usr/share/rhgb/main-file.png'],
-      width=320, height=396 , textmaxwidth=320,
+      width=320, height=396, textmaxwidth=320,
       textvcenter=190, texthcenter=160
     ),
     'rhgb/system-file.png': dict(
       locations=['/usr/share/rhgb/system-file.png'],
-      width=183, height=45 , textmaxwidth=150,
+      width=183, height=45, textmaxwidth=150,
       textvcenter=22, texthcenter=90
     ),
     'gdm/themes/%(product)s/background.png': dict(

@@ -21,7 +21,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
       provides = ['product.img'],
       requires = ['anaconda-version', 'buildstamp-file',
                   'comps-file', 'base-repoid'],
-      conditionally_comes_after = ['logos'],
+      conditionally_requires = ['product-image-content'],
     )
     
     self.DATA = {
@@ -43,9 +43,9 @@ class ProductImageEvent(Event, ImageModifyMixin):
       pass
   
   def setup(self):
+    self.DATA['input'].append(self.cvars['buildstamp-file'])
     self.image_locals = self.locals.files['installer']['product.img']
     ImageModifyMixin.setup(self)
-    self.DATA['input'].append(self.cvars['buildstamp-file'])
   
   def run(self):
     self.log(0, L0("generating product.img"))

@@ -84,10 +84,8 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     if link: self.cache_handler.cache_copy_handler = self.link_handler
     else:    self.cache_handler.cache_copy_handler = self.copy_handler
     
-    if not kwargs.has_key('copy_handler'):
-      kwargs['copy_handler'] = self.cache_handler
-    if not kwargs.has_key('callback'):
-      kwargs['callback'] = self.cache_callback
+    kwargs.setdefault('copy_handler', self.cache_handler)
+    kwargs.setdefault('callback', self.cache_callback)
     
     dst.mkdirs()
     sync.sync(src, dst, **kwargs)

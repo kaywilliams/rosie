@@ -51,18 +51,18 @@ class IOObject:
         d = P(item.get('@dest', ''))
         if isinstance(s, pps.path.file.FilePath): #! bad
           s = iprefix / s
-        src = P(s)
-        dst = dst / d.lstrip('/')
-        inputs.append(src)
-        outputs.extend(self._setup_sync(src, dst, id or x))
+        s = P(s)
+        d = dst / d.lstrip('/')
+        inputs.append(s)
+        outputs.extend(self._setup_sync(s, d, id or x))
     
     for s in paths:
       assert isinstance(s, str)
       if isinstance(s, pps.path.file.FilePath): #! bad
         s = iprefix / s
-      src = P(s)
-      inputs.append(src)
-      outputs.extend(self._setup_sync(src, dst, id or s))
+      s = P(s)
+      inputs.append(s)
+      outputs.extend(self._setup_sync(s, dst, id or s))
     
     return inputs, outputs
   
@@ -72,10 +72,7 @@ class IOObject:
     rtn = []
     self.ptr.diff.handlers['input'].idata.append(sourcefile)
     for f in sourcefile.findpaths(type=pps.constants.TYPE_NOT_DIR):
-      if not self.sync_info.has_key(id):
-        self.sync_info[id] = {}
-      if not self.sync_info[id].has_key(f):
-        self.sync_info[id][f] = []
+      self.sync_info.setdefault(id, {}).setdefault(f, [])
       ofile = dstdir / f.tokens[len(sourcefile.tokens)-1:]
       self.sync_info[id][f].append(ofile)
       self.ptr.diff.handlers['output'].odata.append(ofile)

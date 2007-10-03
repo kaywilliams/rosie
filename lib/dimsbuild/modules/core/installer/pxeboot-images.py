@@ -9,7 +9,7 @@ class PxebootImagesEvent(Event):
     Event.__init__(self,
       id = 'pxeboot-images',
       provides = ['pxeboot'],
-      requires = ['vmlinuz-file', 'initrd-file'],
+      requires = ['isolinux-files'],
     )
 
     self.DATA = {
@@ -21,7 +21,8 @@ class PxebootImagesEvent(Event):
   
   def setup(self):
     self.diff.setup(self.DATA)
-    paths = [self.cvars['vmlinuz-file'], self.cvars['initrd-file']]
+    paths = [self.cvars['isolinux-files']['vmlinuz'],
+             self.cvars['isolinux-files']['initrd.img']]
     self.io.setup_sync(self.pxebootdir, paths=paths)
     
   def run(self):

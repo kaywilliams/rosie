@@ -58,6 +58,4 @@ class DiffObject:
       if err:
         raise RuntimeError("Missing %s metadata handler" % name)
       return False
-    if not self.diff_set.has_key(name):
-      self.diff_set[name] = (len(self.handlers[name].diff()) > 0)
-    return self.diff_set[name]
+    return self.diff_set.setdefault(name, len(self.handlers[name].diff()) > 0)

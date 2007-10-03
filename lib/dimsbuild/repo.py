@@ -22,8 +22,7 @@ class RepoContainer:
       raise KeyError("The 'local_path' attribute is required to build a Repo object")
     if not kwargs.has_key('remote_path'):
       raise KeyError("The 'remote_path' attribute is required to build a Repo object")
-    if not kwargs.has_key('pkgsfile'):
-      kwargs['pkgsfile'] = P(kwargs['local_path']) / 'packages'
+    kwargs.setdefault('pkgsfile', P(kwargs['local_path'])/'packages')
     for attr in kwargs.keys():
       setattr(repo, attr, kwargs[attr])
     self.repos[repo.id] = repo

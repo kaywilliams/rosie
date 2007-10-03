@@ -15,8 +15,8 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     Event.__init__(self,
       id = 'xen-images',
       provides = ['vmlinuz-xen', 'initrd-xen'],
-      requires = ['anaconda-version', 'initrd-file',
-                  'buildstamp-file', 'base-repoid'],
+      requires = ['anaconda-version', 'buildstamp-file', 'base-repoid'],
+      conditionally_requires = ['initrd-image-content'],
     )
     
     self.xen_dir = self.SOFTWARE_STORE/'images/xen'
@@ -38,6 +38,10 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
       pass
   
   def setup(self):
+    # fool ImageModifyMixin into using the content of initrd.img for xen's
+    # initrd.img as well
+    self.cvars['xen-images-content'] = self.cvars['initrd-image-content']
+    
     self.DATA['input'].append(self.cvars['buildstamp-file'])
     self.diff.setup(self.DATA)
     
