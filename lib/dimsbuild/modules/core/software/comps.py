@@ -140,6 +140,7 @@ class CompsEvent(Event):
         try:
           group = tree.get('//group[id/text()="%s"]' % groupid)
           self.groups[groupid] = self.__get_grouptree(groupid, tree, unmapped) 
+          unmapped.pop(i)
           j = len(unmapped)
         except IndexError:
           i += 1
