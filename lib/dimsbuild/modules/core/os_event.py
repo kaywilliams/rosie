@@ -51,7 +51,7 @@ class OSComposeEvent(Event):
             self.io.setup_sync(self.osdir, paths=path, id=event.id)
   
   def run(self):
-    self.log(0, L0("composing output tree"))
+    self.log(0, L0("composing os tree"))
     
     # create composed tree
     self.log(1, L1("linking files"))
