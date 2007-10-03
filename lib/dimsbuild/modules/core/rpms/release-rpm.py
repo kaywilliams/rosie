@@ -1,16 +1,18 @@
+import os
+
 from dims import filereader
 from dims import pps
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event
 
-from dimsbuild.modules.shared.rpms import ColorMixin, FileDownloadMixin, RpmBuildMixin
+from dimsbuild.modules.shared.rpms import ColorMixin, InputFilesMixin, RpmBuildMixin
 
 P = pps.Path
 
 API_VERSION = 5.0
 
-class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
+class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
   def __init__(self):
     self.gpg_dir     = P('/etc/pkg/rpm-gpg')
     self.repo_dir    = P('/etc/yum.repos.d')
@@ -21,7 +23,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
     self.omf_dir     = P('/usr/share/omf/%s-release-notes' % self.product)
     self.html_dir    = P('/usr/share/doc/HTML')
     self.doc_dir     = P('/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
-    
+
     self.installinfo = {
       'gpg'     : (None, self.gpg_dir),
       'repo'    : ('/distro/release-rpm/yum-repos', self.repo_dir),
@@ -54,7 +56,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
                            '%s release files' % self.product,
                            defobsoletes='fedora-release redhat-release centos-release '\
                            'fedora-release-notes redhat-release-notes centos-release-notes')
-    FileDownloadMixin.__init__(self)
+    InputFilesMixin.__init__(self)
     ColorMixin.__init__(self)
 
   def error(self, e):
@@ -62,12 +64,12 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
 
   def validate(self):
     self.validator.validate('/distro/release-rpm', 'release-rpm.rng')
-    
+
   def setup(self):
     self._setup_build()
     self._setup_download()
 
-    self.setColors(prefix='#')    
+    self.setColors(prefix='#')
     # public gpg keys
     paths = []
     if self.cvars.get('gpgsign-public-key', None):
@@ -75,9 +77,9 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
     for repo in self.cvars['repos'].values():
       for key in repo.gpgkeys:
         paths.append(key)
-    
+
     self.io.setup_sync(self.build_folder/'gpg', paths=paths)
-    
+
     # eulapy file
     paths = []
     include_firstboot = self.config.get('/distro/release-rpm/eula/include-in-firstboot/text()',
@@ -86,13 +88,13 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
     if include_firstboot and eula_provided:
       paths.append(self.SHARE_DIR/'release/eula.py')
     self.io.setup_sync(self.build_folder/'eulapy', paths=paths)
-  
+
   def run(self):
     self.io.clean_eventcache(all=True)
     if self._test_build('True'):
       self._build_rpm()
     self.diff.write_metadata()
-  
+
   def apply(self):
     self.io.clean_eventcache()
     if not self._test_build('True'):
@@ -105,71 +107,77 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
   def _get_files(self):
     sources = {}
     sources.update(RpmBuildMixin._get_files(self))
-    sources.update(FileDownloadMixin._get_files(self))
+    sources.update(InputFilesMixin._get_files(self))
     return sources
-  
+
   def _generate(self):
     "Create additional files."
     self.io.sync_input()
-    self._generate_etc_files(self.build_folder/'etc')
-    self._generate_repo_files(self.build_folder/'repo')
+    self._generate_etc_files(self.rpmdir/self.etc_dir.lstrip('/'))
+    self._generate_repo_files(self.rpmdir/self.repo_dir.lstrip('/'))
     self._verify_release_notes()
-  
+
   def _verify_release_notes(self):
     "Ensure the presence of RELEASE-NOTES.html and an index.html"
-    rnotes = self.build_folder.findpaths(glob='RELEASE-NOTES*')
+    rnotes = self.rpmdir.findpaths(glob='RELEASE-NOTES*')
     if len(rnotes) == 0:
-      dir = self.build_folder/'html'
-      if not dir.exists():
-        dir.mkdirs()
-      
+      dir = self.rpmdir/self.html_dir.lstrip('/')
+      dir.mkdirs()
+
       # create a default release notes file because none were found.
       import locale
       path = dir/('RELEASE-NOTES-%s.html' % locale.getdefaultlocale()[0])
-      
+
       f = path.open('w')
       f.write(self.locals.release_html % {'bgcolor':   self.bgcolor,
                                           'textcolor': self.textcolor,
                                           'fullname':  self.fullname})
       f.close()
-      
-      index_html = self.build_folder/'html/index.html'
+      os.chmod(path, 0644)
+
+      index_html = dir/'index.html'
       if not index_html.exists():
         path.link(index_html)
-  
+        os.chmod(index_html, 0644)
+
   def _generate_etc_files(self, dest):
     dest.mkdirs()
-    release_string = ['%s %s' %(self.fullname,
-                                self.version)]
+    release_string = ['%s %s' %(self.fullname, self.version)]
     issue_string = ['Kernel \\r on an \\m\n']
-      
+
     # write the product-release and redhat-release files
     filereader.write(release_string, dest/'redhat-release')
     filereader.write(release_string, dest/'%s-release' % self.product)
-    
+
     # write the issue and issue.net files
     filereader.write(release_string+issue_string, dest/'issue')
     filereader.write(release_string+issue_string, dest/'issue.net')
+
+    os.chmod(dest/'redhat-release', 0644)
+    os.chmod(dest/'%s-release' % self.product, 0644)
+    os.chmod(dest/'issue', 0644)
+    os.chmod(dest/'issue.net', 0644)
 
   def _generate_repo_files(self, dest):
     dest.mkdirs()
     self.repofile    = dest/'%s.repo' % self.product
     self.extra_repofile = dest/'extra.repo'
-    
+
     path = self.cvars['web-path'] / 'os'
-    
+
     lines = [ '[%s]' % self.product,
               'name=%s - %s' % (self.fullname, self.basearch),
               'baseurl=%s'   % path ]
-    
+
     if self.cvars['gpgsign-public-key']:
       gpgkey = '%s/%s' % (path, P(self.cvars['gpgsign-public-key']).basename)
       lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
     else:
       lines.append('gpgcheck=0')
-    
+
     filereader.write(lines, self.repofile)
-    
+    os.chmod(self.repofile, 0644)
+
     # include source repos too, if requested
     if self.config.get('/distro/release-rpm/yum-repos/@include-input',
                        'False') in BOOLEANS_TRUE:
@@ -177,5 +185,6 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, FileDownloadMixin):
                           self.config.file,
                           '/distro/repos')
       rc.createRepoFile()
+      os.chmod(self.extra_repofile, 0644)
 
 EVENTS = {'RPMS': [ReleaseRpmEvent]}

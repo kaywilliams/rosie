@@ -5,7 +5,7 @@ from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L3
 
-from dimsbuild.modules.shared.rpms import ColorMixin, RpmLocalsMixin, RpmBuildMixin
+from dimsbuild.modules.shared.rpms import ColorMixin, LocalFilesMixin, RpmBuildMixin
 
 try:
   import Image
@@ -19,7 +19,7 @@ P = pps.Path
 
 API_VERSION = 5.0
 
-class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
+class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
   def __init__(self):
     Event.__init__(self, id='logos-rpm',
                    requires=['source-vars', 'anaconda-version'],
@@ -32,7 +32,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
                            'Icons and pictures related to %s' % self.fullname,
                            defobsoletes='fedora-logos centos-logos redhat-logos',
                            defprovides='system-logos')
-    RpmLocalsMixin.__init__(self)
+    LocalFilesMixin.__init__(self)
     ColorMixin.__init__(self)
 
     self.fileslocals = self.locals.logos_rpm
@@ -45,34 +45,34 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
 
   def error(self, e):
     self.build_folder.rm(recursive=True, force=True)
-    
+
   def validate(self):
     self.validator.validate('/distro/logos-rpm', 'logos-rpm.rng')
-  
+
   def setup(self):
     self._setup_build()
     self._setup_locals()
-    
+
     # set the font to use
     available_fonts = (self.SHARE_DIR/'fonts').findpaths(glob='*.ttf')
     try:
       self.fontfile = available_fonts[0]
     except IndexError:
       raise RuntimeError("Unable to find any font files in share path '%s'" % self.SHARE_DIR)
-    
+
     # convert the colors to big endian because the python-imaging
-    # library uses big-endian colors.    
+    # library uses big-endian colors.
     self.setColors(be=True)
     self.bgcolor = int(self.bgcolor, 16)
     self.textcolor = int(self.textcolor, 16)
     self.hlcolor = int(self.hlcolor, 16)
-  
+
   def run(self):
     self.io.clean_eventcache(all=True)
     if self._test_build('True'):
       self._build_rpm()
     self.diff.write_metadata()
-  
+
   def apply(self):
     self.io.clean_eventcache()
     if not self._test_build('True'):
@@ -85,13 +85,13 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
   def _get_files(self):
     sources = {}
     sources.update(RpmBuildMixin._get_files(self))
-    sources.update(RpmLocalsMixin._get_files(self))
+    sources.update(LocalFilesMixin._get_files(self))
     return sources
-  
+
   def _generate(self):
     self._generate_images()
     self._generate_theme_files()
-  
+
   def _generate_theme_files(self):
     # generate the theme.xml file
     f = (self.build_folder/'gdm/themes' / \
@@ -117,11 +117,11 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
       hcenter  = self.fileslocals[id].get('texthcenter', None)
 
       format = self.fileslocals[id].get('format', 'png')
-      
+
       filename = self.build_folder/id
       destdir  = filename.dirname
       if not destdir.isdir(): destdir.mkdirs()
-      
+
       sharedfile = self.SHARE_DIR/'logos'/id
       if sharedfile.exists():
         self.log(4, L3("file '%s' exists in share/" % id))
@@ -136,14 +136,14 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
                                format=format)
         else:
           self._generate_blank_image(filename, width, height, format=format)
-        
+
     # HACK: to create the splash.xpm file, have to first convert
     # the grub-splash.png to an xpm and then gzip it.
     splash_xpm = self.build_folder/'bootloader/grub-splash.xpm'
     splash_xgz = splash_xpm + '.gz'
     if not splash_xgz.exists():
       splash_png = self.build_folder/'bootloader/grub-splash.png'
-      
+
       # TODO: Find a better way to do this conversion.
       shlib.execute('convert %s %s' %(splash_png, splash_xpm,))
       import gzip
@@ -153,21 +153,21 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
       outfile = gzip.GzipFile(splash_xgz, 'wb')
       outfile.write(data)
       outfile.close()
-  
+
   def _generate_image(self, filename, width, height, text=None,
                       textcood=(10,10), fontsize=52, maxwidth=100,
                       format='png', font=None,
                       highlight=False, gradient=False):
-    """ 
+    """
     Generate an image that is added to the logos RPM and the product.img.
-    
+
     TODO: add support for the gradient parameter.
-    
+
     @param filename   : the name of the file to be generated
     @param width      : the width of the image
     @param height     : the height of the image
     @param text       : the text to be added to the image
-    @param textcood   : coordinates of the center of the text block    
+    @param textcood   : coordinates of the center of the text block
     @param fontsize   : the 'starting' font size of the text on the image
     @param maxwidth   : maximum length of the text block
     @param format     : the format of the image: png, jpeg etc.
@@ -188,13 +188,13 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
         (textwidth, textheight) = font.getsize(text)
         startY = ycood - textheight/2
       return font
-    
+
     if highlight:
       color = self.hlcolor
     else:
       color = self.bgcolor
     im = Image.new('RGB', (width, height), color)
-    
+
     # add text to the image, if specified
     if text:
       if font is None:
@@ -206,11 +206,11 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, RpmLocalsMixin):
         w, h = font.getsize(text)
         d.text((textcood[0]-(w/2), textcood[1]-(h/2)), text,
                font=font, fill=self.textcolor)
-    
+
     # save the image to a file
     im = im.filter(ImageFilter.DETAIL)
     im.save(filename, format=format)
-  
+
   _generate_blank_image = _generate_image
 
 

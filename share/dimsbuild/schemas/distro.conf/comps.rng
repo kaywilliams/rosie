@@ -17,7 +17,7 @@
           <optional>
           <element name="groups">
             <oneOrMore>
-            <ref name="element-group"/>
+              <ref name="element-group"/>
             </oneOrMore>
           </element>
           </optional>

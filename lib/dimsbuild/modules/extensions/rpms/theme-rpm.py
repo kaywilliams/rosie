@@ -8,7 +8,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
   def __init__(self):
     self.themename = \
       self.config.get('/distro/theme-rpm/theme/text()', self.product)
-    
+
     self.DATA = {
       'variables': ['product', 'pva'],
       'config':    ['/distro/theme-rpm'],
@@ -31,7 +31,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
   def setup(self):
     self._setup_build()
-  
+
   def validate(self):
     self.validator.validate('/distro/theme-rpm', 'theme-rpm.rng')
 
@@ -40,7 +40,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     if self._test_build('True'):
       self._build_rpm()
     self.diff.write_metadata()
-  
+
   def apply(self):
     self.io.clean_eventcache()
     if not self._test_build('True'):
@@ -49,7 +49,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     if not self.cvars['custom-rpms-info']:
       self.cvars['custom-rpms-info'] = []
     self.cvars['custom-rpms-info'].append((self.rpmname, 'conditional', 'gdm', self.obsoletes))
-  
+
   def _getpscript(self):
     f = (self.build_folder/'postinstall.sh').open('w')
     f.write(self.locals.default_theme % {'themename': self.themename})

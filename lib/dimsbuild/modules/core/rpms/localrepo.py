@@ -83,7 +83,7 @@ class LocalRepoEvent(Event):
       if not self.cvars['source-repos']: self.cvars['source-repos'] = {}
       self.cvars['source-repos']['localrepo-sources'] = self.rc.repos['localrepo-sources']
   
-  #----- HELPER METHODS -----#  
+  #----- HELPER METHODS -----#
   def _createrepo(self, path):
     # createrepo
     cwd = os.getcwd()

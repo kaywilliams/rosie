@@ -10,7 +10,6 @@ class RpmsEvent(Event):
                    id='RPMS',
                    properties=PROPERTY_META)
 
-    self.cvars['rpms-source']  = self.METADATA_DIR/'rpms-src'
     self.cvars['custom-rpms']  = []
     self.cvars['custom-srpms'] = []
 

@@ -24,14 +24,16 @@ class CompsEvent(Event):
       id = 'comps',
       provides = ['comps-file', 'required-packages', 'user-required-packages'],
       requires = ['anaconda-version', 'repos', 'base-repoid'],
-      conditionally_comes_after = ['RPMS'],
+      conditionally_requires = ['included-packages', 'excluded-packages'],
     )
     
     self.comps = Element('comps')
     self.header = HEADER_FORMAT % ('1.0', 'UTF-8')
     
     self.DATA = {
-      'variables': ['fullname', 'cvars[\'anaconda-version\']'],
+      'variables': ['fullname', 'cvars[\'anaconda-version\']',
+                    'cvars[\'included-packages\']',
+                    'cvars[\'excluded-packages\']'],
       'config':    ['/distro/comps'],
       'input':     [],
       'output':    []
@@ -181,7 +183,6 @@ class CompsEvent(Event):
       else:
         assert isinstance(pkg, str)
         packages.append((pkg, 'mandatory', None))
-    
     core = self.comps.getroot().get('group[id/text()="core"]')
     
     if len(packages) > 0:
