@@ -103,6 +103,12 @@ class Build(object):
                       )
       self.disabled_modules = loader.disabled
       self.enabled_modules = loader.enabled
+      self.module_map = loader.module_map
+      # hack to make sure --force ALL still works #!
+      # or is it a hack?  Perhaps we should use the caps notation for
+      # arbitrary containers of higher level tasks - all installer files,
+      # all software and custom rpms, all publish stuff, etc
+      self.module_map.setdefault('ALL', []).append(self.dispatch._top.id)
     except ImportError, e:
       Event.logger.log(0, L0("Error loading core dimsbuild files: %s" % e))
       if DEBUG: raise
@@ -113,20 +119,15 @@ class Build(object):
     
   def apply_options(self, options):
     "Allow events to apply option results to themselves"
-    # apply --force to events
-    for eventid in options.force_events:
-      e = self.dispatch.get(eventid)
-      if e.test(dispatch.PROPERTY_PROTECTED):
-        Event.logger.log(0, L0("Cannot --force protected event '%s'" % eventid))
-        sys.exit(1)
-      e.status = True
-    # apply --skip to events
-    for eventid in options.skip_events:
-      e = self.dispatch.get(eventid)
-      if e.test(dispatch.PROPERTY_PROTECTED):
-        Event.logger.log(0, L0("Cannot --skip protected event '%s'" % eventid))
-        sys.exit(1)
-      e.status = False
+    # apply --force to modules/events
+    for eventid in self._compute_events(options.force_modules,
+                                        options.force_events):
+      self._set_status(eventid, True, '--force')
+    
+    # apply --skip to modules/events
+    for eventid in self._compute_events(options.skip_modules,
+                                        options.skip_events):
+      self._set_status(eventid, False, '--skip')
     
     # clear cache, if requested
     if options.clear_cache:
@@ -166,6 +167,31 @@ class Build(object):
     self._log_header()
     self.dispatch.execute(until=None)
     self._log_footer()
+  
+  def _compute_events(self, modules, events):
+    r = set() # set of eventids to force
+    for moduleid in modules:
+      try:
+        r.update(self.module_map[moduleid])
+      except KeyError:
+        Event.logger.log(0, L0("Module '%s' does not exist or was not loaded" % moduleid))
+        sys.exit(1)
+    r.update(events)
+    return r
+    
+    for eventid in force:
+      self._set_status(eventid, True, '--force')
+  
+  def _set_status(self, eventid, status, str):
+    try:
+      e = self.dispatch.get(eventid)
+    except dispatch.UnregisteredEventError:
+      Event.logger.log(0, L0("Unregistered event '%s'" % eventid))
+      sys.exit(1)
+    if e.test(dispatch.PROPERTY_PROTECTED):
+      Event.logger.log(0, L0("Cannot %s protected event '%s'" % (str, eventid)))
+      sys.exit(1)
+    e.status = status
   
   def _compute_import_dirs(self, mainconfig, options):
     "Compute a list of directories to try importing from"

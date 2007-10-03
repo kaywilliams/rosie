@@ -82,16 +82,26 @@ def main():
   parser.add_option_group(module_group)
   
   event_group = OptionGroup(parser, "event control options")
-  event_group.add_option('--force', metavar='EVENT',
+  event_group.add_option('--force', metavar='MODULE',
+    action='append',
+    dest='force_modules',
+    default=[],
+    help="force a module's events to execute")
+  event_group.add_option('--skip', metavar='MODULE',
+    action='append',
+    dest='skip_modules',
+    default=[],
+    help="skip execution of a module's events")
+  event_group.add_option('--force-event', metavar='EVENT',
     action='append',
     dest='force_events',
     default=[],
-    help="force one or more events to execute")
-  event_group.add_option('--skip', metavar='EVENT',
+    help=SUPPRESS_HELP)
+  event_group.add_option('--skip-event', metavar='EVENT',
     action='append',
     dest='skip_events',
     default=[],
-    help="skip processing one or more events")
+    help=SUPPRESS_HELP)
   event_group.add_option('--list-events',
     action='store_true',
     default=False,
