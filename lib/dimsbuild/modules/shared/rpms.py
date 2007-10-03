@@ -30,9 +30,9 @@ class FileDownloadMixin:
   def _get_files(self):
     sources = {}
     for file in self.rpmdir.findpaths(type=pps.constants.TYPE_NOT_DIR):
-        dir = file.tokens[len(self.srcdir.tokens):].dirname
-        if not dir.isabs():          dir = P('/'+dir)
-        sources.setdefault(dir, []).append(file)
+      dir = file.relpathfrom(self.rpmdir).dirname
+      if not dir.isabs(): dir = P('/'+dir)
+      sources.setdefault(dir, []).append(file)
     return sources
     
 
@@ -116,12 +116,13 @@ class RpmBuildMixin:
     self.defrequires  = defrequires
 
     self.autofile = P(self.config.file).dirname / 'distro.dat'
+    
+    # dictionary of dest to source list pairs for putting files inside rpms
+    self.cvars['%s-content' % self.id] = {}
   
   def _setup_build(self, **kwargs):
     self.build_folder = self.mddir/'build'
     
-    self.srcdir = self.cvars['rpms-source']/self.id ## FIXME
-
     if self.autofile.exists():
       self.release = xmllib.tree.read(self.autofile).get(
        '/distro/%s/rpms/%s/release/text()' % (self.pva, self.id), '0')
@@ -148,9 +149,11 @@ class RpmBuildMixin:
                                  '/distro/rpms/%s/requires/package/text()' % self.requires))
     
     self.diff.setup(self.DATA)
-    if self.srcdir.exists():
-      self.DATA['input'].append(self.srcdir)
-        
+    for dst, src in self.cvars['%s-content' % self.id].items():
+      self.io.setup_sync(self.rpmsdir/dst.lstrip('/'),
+                         paths=src,
+                         id='%s-input-files' % self.name)
+    
     self.arch      = kwargs.get('arch',     'noarch')
     self.author    = kwargs.get('author',   'dimsbuild')
     self.fullname  = kwargs.get('fullname', self.fullname)
@@ -266,8 +269,7 @@ class RpmBuildMixin:
   
   def _write_manifest(self):
     manifest = ['setup.py']
-    if self.srcdir.exists():
-      manifest.extend(self.srcdir.findpaths(type=pps.constants.TYPE_NOT_DIR))
+    manifest.extend(self.cvars['%s-content' % self.id].values())
     manifest.extend( [ x.tokens[len(self.build_folder.tokens):] \
                        for x in self.build_folder.findpaths(type=pps.constants.TYPE_NOT_DIR) ] )
     filereader.write(manifest, self.build_folder/'MANIFEST')
@@ -301,10 +303,9 @@ class RpmBuildMixin:
   
   def _get_files(self):
     sources = {}
-    for file in self.srcdir.findpaths(type=pps.constants.TYPE_NOT_DIR):
-      dir = file.tokens[len(self.srcdir.tokens):].dirname
-      if not dir.isabs(): dir = P('/'+dir)
-      sources.setdefault(dir, []).append(file)
+    for dst, src in self.cvars['%s-content' % self.id].items():
+      if not dst.isabs(): dst = P('/'+dst)
+      sources.setdefault(dst, []).extend(src)
     return sources
 
 

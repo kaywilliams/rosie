@@ -72,7 +72,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, FileDownloadMixin):
          self.config.get('//config-rpm/obsoletes', None) or \
          self.config.get('//config-rpm/config/script/path/text()', None) or \
          self.config.get('//config-rpm/config/supporting-files/path/text()', None) or \
-         self.srcdir.findpaths():
+         self.cvars['%s-content' % self.id]:
         return True
     return False
   
