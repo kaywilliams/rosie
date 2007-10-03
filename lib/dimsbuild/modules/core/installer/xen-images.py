@@ -49,6 +49,11 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     ImageModifyMixin.setup(self)
     self.file_locals = self.locals.files['xen']
     FileDownloadMixin.setup(self)
+    
+    # add input files from initrd.img
+    self.io.setup_sync(self.imagedir,
+                       xpaths='/distro/initrd-image/path',
+                       id='%s-input-files' % self.name)
   
   def run(self):
     self.log(0, L0("preparing xen images"))

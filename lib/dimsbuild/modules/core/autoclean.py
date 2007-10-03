@@ -37,7 +37,7 @@ class AutocleanEvent(Event):
     # run list through a whitelist; this will go away once we get rid of
     # event shared locations (if we do so)
     # regardless, images-src/rpms-src are definitely going to go
-    for id in ['images-src', 'rpms-src']:
+    for id in ['rpms-src']:
       try:
         mdfolders.remove(self.METADATA_DIR/id)
       except:
