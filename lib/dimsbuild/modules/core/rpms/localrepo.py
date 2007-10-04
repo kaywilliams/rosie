@@ -47,24 +47,25 @@ class LocalRepoEvent(Event):
     self.DATA['output'].append(self.rc.repos['localrepo-sources'].pkgsfile)
 
   def run(self):
-    self.log(0, L0("creating local repository for custom RPMs"))
+    self.log(0, L0("creating local repository for distribution-specific packages"))
     # remove previous output
     self.io.clean_eventcache(all=True)
     
     # sync rpms
+    self.log(1, L1("copying packages"))
     backup = self.files_callback.sync_start
-    self.files_callback.sync_start = lambda : self.log(1, L1("copying custom rpms"))
+    self.files_callback.sync_start = lambda : self.log(4, L1("RPMS"))
     self.io.sync_input(copy=True, link=True, what='LOCAL_RPMS')
-    self.files_callback.sync_start = lambda : self.log(1, L1("copying custom srpms"))
+    self.files_callback.sync_start = lambda : self.log(4, L1("SRPMS"))
     self.io.sync_input(copy=True, link=True, what='LOCAL_SRPMS')
     self.files_callback.sync_start = backup
     
     self.log(1, L1("running createrepo"))
     
-    self.log(2, L2("RPMS"))
+    self.log(4, L2("RPMS"))
     self._createrepo(self.LOCAL_RPMS)
     
-    self.log(2, L2("SRPMS"))
+    self.log(4, L2("SRPMS"))
     self._createrepo(self.LOCAL_SRPMS)
 
     self.rc.read_packages()
