@@ -84,8 +84,6 @@ class GpgCheckEvent(Event):
   def apply(self):
     self.io.clean_eventcache()
 
-  def error(self, e):
-    self.clean()
 
 EVENTS = {'SOFTWARE': [GpgCheckEvent]}
 

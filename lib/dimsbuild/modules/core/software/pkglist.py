@@ -146,9 +146,6 @@ class PkglistEvent(Event):
     filereader.write(conf, repoconfig)
     return repoconfig
 
-  def error(self, e):
-    self.dsdir.rm(recursive=True, force=True)
-
 
 EVENTS = {'SOFTWARE': [PkglistEvent]}
 

@@ -77,6 +77,9 @@ class DownloadEvent(Event):
       self.log(2, L2("DEBUG: Unable to extract rpm information from name '%s'" % rpm))
       return (None, None, None, None, None)
 
+  def error(self, e):
+    # performing a subset of Event.error since sync handles partially downloaded files
+    self.diff.clean_metadata()
 
 EVENTS = {'SOFTWARE': [DownloadEvent]}
 

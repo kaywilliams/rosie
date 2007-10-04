@@ -38,4 +38,8 @@ class FilesEvent(Event):
   def apply(self):
     self.io.clean_eventcache()
 
+  def error(self, e):
+    # performing a subset of Event.error since sync handles partially downloaded files
+    self.diff.clean_metadata()
+
 EVENTS = {'OS': [FilesEvent]}

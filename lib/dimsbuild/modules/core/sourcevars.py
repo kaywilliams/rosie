@@ -26,9 +26,9 @@ class SourceVarsEvent(Event):
     }
   
   def error(self, e):
+    Event.error(e)
     try:
       self.image.close()
-      self.image.cleanup()
     except:
       pass
   

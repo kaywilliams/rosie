@@ -59,9 +59,6 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     InputFilesMixin.__init__(self)
     ColorMixin.__init__(self)
 
-  def error(self, e):
-    self.build_folder.rm(recursive=True, force=True)
-
   def validate(self):
     self.validator.validate('/distro/release-rpm', 'release-rpm.rng')
 

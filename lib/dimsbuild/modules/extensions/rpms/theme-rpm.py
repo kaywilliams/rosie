@@ -26,8 +26,6 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
                            'theme.' %(self.product, self.themename),
                            'Script to set default gdm graphical theme',
                            defrequires='gdm')
-  def error(self, e):
-    self.build_folder.rm(recursive=True, force=True)
 
   def setup(self):
     self._setup_build()

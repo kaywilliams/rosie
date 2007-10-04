@@ -28,6 +28,7 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     self.validator.validate('/distro/initrd-image', 'initrd.rng')
 
   def error(self, e):
+    Event.error(e)
     try:
       self._close()
     except:

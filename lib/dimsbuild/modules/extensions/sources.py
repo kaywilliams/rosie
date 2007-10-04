@@ -67,9 +67,7 @@ class SourceReposEvent(Event, RepoEventMixin):
       repo.readRepoContents(repofile=repo.pkgsfile)
     
     self.cvars['source-repos'] = self.repos
-  
-  def error(self, e):
-    self.clean()
+
 
 class SourcesEvent(Event):
   "Downloads source rpms."

@@ -74,8 +74,9 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     DiffMixin.clean(self)
   #def check(self) defined in mixins
   def run(self): pass
-  def apply(self): pass
-  
+  def apply(self): pass  
+  #def error(self, e) defined IOMixins
+
   # former interface methods
   def log(self, *args, **kwargs): return self.logger.log(*args, **kwargs)
   
@@ -123,8 +124,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     sys.exit()
   
   def _handle_Exception(self, e):
-    if hasattr(self, 'error'):
-      self.error(e)
+    self.error(e)
     traceback.print_exc(file=self.logger.logfile.file_object)
     if self.logger.test(3) or DEBUG:
       traceback.print_exc(file=self.logger.console.file_object)

@@ -12,6 +12,9 @@ class IOMixin:
   def clean(self):
     self.io.clean_eventcache(all=True)
 
+  def error(self, e):
+    self.io.clean_eventcache(all=True)
+
 class IOObject:
   "Dummy class to contain I/O-related methods"
   def __init__(self, ptr):

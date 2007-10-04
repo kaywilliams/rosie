@@ -32,9 +32,6 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       'output':    [],
     }
 
-  def error(self, e):
-    self.build_folder.rm(recursive=True, force=True)
-
   def validate(self):
     self.validator.validate('/distro/config-rpm', 'config-rpm.rng')
 

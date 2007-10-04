@@ -103,8 +103,6 @@ class GPGSignEvent(Event, GpgMixin):
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['signed-rpms'] = self.io.list_output(what='rpms')
-  
-  def error(self, e):
-    self.clean()
+
 
 EVENTS = {'SETUP': [GpgSetupEvent], 'SOFTWARE': [GPGSignEvent]}

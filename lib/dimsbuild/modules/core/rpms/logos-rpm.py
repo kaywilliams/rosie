@@ -43,9 +43,6 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
       'input':  [],
     }
 
-  def error(self, e):
-    self.build_folder.rm(recursive=True, force=True)
-
   def validate(self):
     self.validator.validate('/distro/logos-rpm', 'logos-rpm.rng')
 
