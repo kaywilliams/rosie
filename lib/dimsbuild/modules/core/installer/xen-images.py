@@ -32,7 +32,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     FileDownloadMixin.__init__(self)
   
   def error(self, e):
-    Event.error(e)
+    Event.error(self, e)
     try:
       self._close()
     except:

@@ -27,7 +27,7 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     self.validator.validate('/distro/updates-image', 'updates.rng')
   
   def error(self, e):
-    Event.error(e)
+    Event.error(self, e)
     try:
       self._close()
     except:

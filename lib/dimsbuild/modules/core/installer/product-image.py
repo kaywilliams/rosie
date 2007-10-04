@@ -37,7 +37,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     self.validator.validate('/distro/product-image', 'product.rng')
     
   def error(self, e):
-    Event.error(e)
+    Event.error(self, e)
     try:
       self._close()
     except:
