@@ -20,34 +20,33 @@ class IOObject:
   def __init__(self, ptr):
     self.ptr = ptr
     self.sync_info = {}
-  
+
   # former FilesMixin stuff
   def setup_sync(self, dst, xpaths=[], paths=[], id=None, iprefix=None):
-    """ 
-    Currently, setup_sync() can be called only after diff.setup() is called.
-    This will get fixed once the location of the metadata file can be
-    programmatically determined.
-    
+    """
+    Currently, setup_sync() can be called only after diff.setup() is
+    called.
+
     @param xpaths  : list of xpath queries
     @param paths   : list of paths
     @param iprefix : the prefix to use for relative paths
     @param dst     : the location the files should be synced to
     @param id      : give an id to refer to these input files with. If
                      not specified, it defaults to the xpath query or
-                     the path to the file. 
-    
+                     the path to the file.
+
     @return inputs : [input file, ...]
     @return outputs: [output file, ...]
     """
     iprefix = P(iprefix or P(self.ptr.config.file).dirname)
     dst = P(dst)
-    
+
     if not hasattr(paths,  '__iter__'): paths  = [paths]
     if not hasattr(xpaths, '__iter__'): xpaths = [xpaths]
-    
+
     inputs = []
     outputs = []
-    
+
     for x in xpaths:
       for item in self.ptr.config.xpath(x,[]):
         s = P(item.get('text()'))
@@ -58,7 +57,7 @@ class IOObject:
         d = dst / d.lstrip('/')
         inputs.append(s)
         outputs.extend(self._setup_sync(s, d, id or x))
-    
+
     for s in paths:
       assert isinstance(s, str)
       if isinstance(s, pps.path.file.FilePath): #! bad
@@ -66,9 +65,9 @@ class IOObject:
       s = P(s)
       inputs.append(s)
       outputs.extend(self._setup_sync(s, dst, id or s))
-    
+
     return inputs, outputs
-  
+
   def _setup_sync(self, sourcefile, dstdir, id):
     if not sourcefile.exists():
       raise IOError("missing input file(s) %s" % sourcefile)
@@ -83,15 +82,18 @@ class IOObject:
     return rtn
 
   def clean_eventcache(self, all=False):
-    """ 
-    Cleans event cache folder. 
-    @param all  : If all is True, removes all files, else, removes files that 
-                  are not listed in the output section of the event metadata file.
+    """
+    Cleans event cache folder.
+
+    @param all : If all is True, removes all files, else, removes
+                 files that are not listed in the output section of
+                 the event metadata file.
     """
     if all:
       self.ptr.mddir.listdir(all=True).rm(recursive=True, force=True)
     else:
-      if self.ptr.diff.handlers.has_key('output'):
+      if self.ptr.mdfile.exists() and \
+         self.ptr.diff.handlers.has_key('output'):
         self.ptr.diff.handlers['output'].clear()
         root = xmllib.tree.read(self.ptr.mdfile)
         self.ptr.diff.handlers['output'].mdread(root)
@@ -110,18 +112,18 @@ class IOObject:
         dirs.reverse()
         for dir in dirs:
           dir.removedirs()
-  
+
   def sync_input(self, cb=None, link=False, what=None, copy=False):
-    """ 
+    """
     Sync the input files to their output locations.
-    
+
     @param link : if action is not specified, and link is True the
                   input files are linked to the output location.
     @param what : list of IDs identifying what to download.
     """
     if what is None: what = self.sync_info.keys()
     if not hasattr(what, '__iter__'): what = [what]
-    
+
     sync_items = []
     for id in what:
       if not self.sync_info.has_key(id):
@@ -130,11 +132,11 @@ class IOObject:
         for d in ds:
           if self.ptr.diff.handlers['input'].diffdict.has_key(s) or not d.exists():
             sync_items.append((s,d))
-    
+
     if not sync_items: return
-    
+
     sync_items.sort(lambda x, y: cmp(x[1].basename, y[1].basename))
-    
+
     outputs = []
     cb = cb or self.ptr.files_callback
     cb.sync_start()
@@ -143,15 +145,17 @@ class IOObject:
       else:    self.ptr.cache(s, d.dirname, link=link)
       outputs.append(d)
     return sorted(outputs)
-  
+
   def list_output(self, what=None):
-    """ 
+    """
     list_output(source)
-    
-    Returns the list of output files corresponding to an input file/directory.
-    
-    @param what: a list of IDs of the files for which the output files list is
-                 requested. If None, all output files are returned.
+
+    Returns the list of output files corresponding to an input
+    file/directory.
+
+    @param what: a list of IDs of the files for which the output files
+                 list is requested. If None, all output files are
+                 returned.
     """
     if what is None:
       return self.ptr.diff.handlers['output'].odata
