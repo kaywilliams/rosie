@@ -32,7 +32,7 @@ class BootisoEvent(Event):
     
     isolinuxdir.mkdirs()
     for file in self.cvars['isolinux-files'].values():
-      file.cp(isolinuxdir, link=True)
+      self.copy(file, isolinuxdir, link=True)
     
     # apparently mkisofs modifies the mtime of the file it uses as a boot image.
     # to avoid this, we copy the boot image timestamp and overwrite the original

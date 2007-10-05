@@ -92,13 +92,13 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     kwargs.setdefault('copy_handler', self.cache_handler)
     kwargs.setdefault('callback', self.cache_callback)
     
+    self.copy(src, dst, **kwargs)
+  
+  def copy(self, src, dst, link=False, **kwargs):
+    if link: kwargs.setdefault('copy_handler', self.link_handler)
+    
     dst.mkdirs()
     sync.sync(src, dst, **kwargs)
-  
-  def copy(self, src, dst, link=False):
-    dst.mkdirs()
-    if link: sync.link.sync(src, dst)
-    else:    sync.sync(src, dst)
   
   def _get_mddir(self):
     dir = self.METADATA_DIR/self.id

@@ -314,7 +314,7 @@ class Build(object):
                           )
     Event.cache_callback = BuildSyncCallback(Event.logger, Event.METADATA_DIR)
     Event.copy_handler = sync.CopyHandler()
-    Event.link_handler = link.LinkHandler()
+    Event.link_handler = link.LinkHandler(allow_xdev=True)
     
     Event.files_callback = FilesCallback(Event.logger, Event.METADATA_DIR)
     

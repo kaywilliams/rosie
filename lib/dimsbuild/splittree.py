@@ -9,6 +9,8 @@ from dims import FormattedFile as ffile
 from dims import pkgorder
 from dims import xmllib
 
+from dims.pps.path.error import PathError
+
 from dimsbuild.constants import RPM_GLOB, SRPM_GLOB
 
 TS = rpm.TransactionSet()
@@ -73,7 +75,13 @@ class Timber:
   def link(self, src, dst, files):
     "Link each file in src/[files] to dest/[files]"
     for file in files:
-      (src/file).cp(dst, link=True, recursive=True)
+      try:
+        (src/file).cp(dst, link=True, recursive=True)
+      except PathError, e:
+        if e.errno == 18:
+          (src/file).cp(dst, recursive=True)
+        else:
+          raise
   
   def cleanup(self):
     self.s_tree.glob('%s-disc*' % self.product).rm(recursive=True, force=True)
@@ -112,12 +120,6 @@ class Timber:
   
   def split_trees(self):
     "Split stuff up"
-    #shared = range(self.total_discs - (self.srpm_discs or 0) + 1, self.rpm_discs + 1)
-    
-    ##print self.rpm_disc_map, self.rpm_discs
-    ##print self.srpm_disc_map, self.srpm_discs
-    ##print shared, self.total_discs
-    
     for i in self.rpm_disc_map:
       discpath = self.s_tree/'%s-disc%d' % (self.product, i)
       (discpath/self.product).mkdirs()
@@ -125,7 +127,7 @@ class Timber:
         for file in self.u_tree.findpaths(
             nregex='.*(\..*|.*\.[Rr][Pp][Mm]|(S)?RPMS|%s)$' % self.product,
             mindepth=1, maxdepth=1):
-          file.cp(discpath, link=True, recursive=True)
+          self.link(self.u_tree, discpath, file.basename)
       else:
         self.link(self.u_tree, discpath, self.common_files)
       self.create_discinfo(i)

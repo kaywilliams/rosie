@@ -60,6 +60,10 @@ class BuildSyncCallback(CachedSyncCallback):
     # if we're at log level 3, write the completed bar to the log file
     if self.logger.test(3):
       self.logger.logfile.log(3, str(self.bar))
+  
+  def _link_xdev(self, src, dst):
+    self.logger.log(5, "Attempted invalid cross-device link between '%s' "
+                       "and '%s'; copying instead" % (src, dst))
 
 
 class BuildDepsolveCallback:
