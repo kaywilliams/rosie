@@ -1,6 +1,6 @@
 
-BOOLEANS_TRUE  = ['True', 'true', 'Yes', 'yes', '1']
-BOOLEANS_FALSE = ['False', 'false', 'No', 'no', '0']
+BOOLEANS_TRUE  = ['True', 'true', 'Yes', 'yes', 'On', 'on', '1']
+BOOLEANS_FALSE = ['False', 'false', 'No', 'no', 'Off', 'off', '0']
 
 RPM_GLOB  = '*.[Rr][Pp][Mm]'
 SRPM_GLOB = '*.[Ss][Rr][Cc].[Rr][Pp][Mm]'
