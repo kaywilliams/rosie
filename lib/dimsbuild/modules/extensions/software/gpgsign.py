@@ -20,18 +20,15 @@ class GpgSetupEvent(Event):
                   'gpgsign-passphrase'],
     )
   
-  def validate(self):
-    self.validator.validate('/distro/gpgsign', 'gpgsign.rng')
-  
   def apply(self):
-    pubkey = self.config.get('/distro/gpgsign/gpg-public-key/text()', None)
+    pubkey = self.config.get('gpg-public-key/text()', None)
     if pubkey: self.cvars['gpgsign-public-key'] = P(pubkey)
     
-    seckey = self.config.get('/distro/gpgsign/gpg-secret-key/text()', None)
+    seckey = self.config.get('gpg-secret-key/text()', None)
     if seckey: self.cvars['gpgsign-secret-key'] = P(seckey)
     
     self.cvars['gpgsign-passphrase'] = \
-      self.config.get('/distro/gpgsign/gpg-passphrase/text()', None)
+      self.config.get('gpg-passphrase/text()', None)
 
 
 class GPGSignEvent(Event, GpgMixin):
@@ -105,4 +102,4 @@ class GPGSignEvent(Event, GpgMixin):
     self.cvars['signed-rpms'] = self.io.list_output(what='rpms')
 
 
-EVENTS = {'SETUP': [GpgSetupEvent], 'SOFTWARE': [GPGSignEvent]}
+EVENTS = {'setup': [GpgSetupEvent], 'software': [GPGSignEvent]}

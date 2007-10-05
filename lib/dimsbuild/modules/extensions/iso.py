@@ -43,12 +43,12 @@ class PkgorderEvent(Event):
     )
     
     self.DATA =  {
-      'config':    ['/distro/iso/pkgorder'],
+      'config':    ['pkgorder'],
       'input':     [],
       'output':    []
     }
     
-    self.dosync = self.config.pathexists('/distro/iso/pkgorder/text()')
+    self.dosync = self.config.pathexists('pkgorder/text()')
     if self.dosync: self.DATA['input'] = [] # huh?
   
   def setup(self):
@@ -58,7 +58,7 @@ class PkgorderEvent(Event):
     
     if self.dosync:
       self.io.setup_sync(self.mddir, id='pkgorder',
-                      xpaths=['/distro/iso/pkgorder'])
+                      xpaths=['pkgorder'])
       self.pkgorderfile = self.io.list_output(what='pkgorder')[0]
     else:
       self.pkgorderfile = self.mddir/'pkgorder'
@@ -119,20 +119,16 @@ class IsoSetsEvent(Event, ListCompareMixin):
     self.splittrees = self.mddir/'split-trees'
     
     self.DATA =  {
-      'config':    [],
+      'config':    ['set/text()'],
+      'variables': ['cvars[\'srpms\']'],
       'input':     [],
       'output':    [],
     }
     
-  def validate(self):
-    self.validator.validate('/distro/iso', 'iso.rng')
-  
   def setup(self):
     self.diff.setup(self.DATA)
     self.isodir = self.mddir/'iso'
     
-    self.DATA['config'].extend(['/distro/iso/set/text()',
-                                'cvars[\'srpms\']',])
     self.DATA['input'].append(self.cvars['pkgorder-file'])
   
   def run(self):
@@ -149,11 +145,11 @@ class IsoSetsEvent(Event, ListCompareMixin):
     # otherwise get oldsets from metadata file
     if oldsets is None:
       try:
-        oldsets = self.diff.handlers['config'].cfg['/distro/iso/set/text()']
+        oldsets = self.diff.handlers['config'].cfg['set/text()']
       except KeyError:
         oldsets = []
     
-    newsets = self.config.xpath('/distro/iso/set/text()', [])
+    newsets = self.config.xpath('set/text()', [])
     
     self.newsets_expanded = []
     for set in newsets:
@@ -227,4 +223,3 @@ class IsoSetsEvent(Event, ListCompareMixin):
     self.DATA['output'].extend([self.splittrees/set, self.isodir/set])
 
 EVENTS = {'ALL': [IsoMetaEvent], 'ISO': [PkgorderEvent, IsoSetsEvent]}
-

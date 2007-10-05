@@ -37,4 +37,4 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
         raise RuntimeError("Unable to find file '%s' at '%s'" % (file.basename, file.dirname))
 
 
-EVENTS = {'INSTALLER': [Stage2ImagesEvent]}
+EVENTS = {'installer': [Stage2ImagesEvent]}

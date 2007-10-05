@@ -163,4 +163,4 @@ class BuildstampEvent(Event):
       raise RuntimeError("missing file '%s'" % self.bsfile)
     self.cvars['buildstamp-file'] = self.bsfile
 
-EVENTS = {'INSTALLER': [DiscinfoEvent, TreeinfoEvent, BuildstampEvent]}
+EVENTS = {'installer': [DiscinfoEvent, TreeinfoEvent, BuildstampEvent]}

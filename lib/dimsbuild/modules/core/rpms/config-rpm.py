@@ -19,32 +19,29 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
                            'distribution.' %(self.product, self.fullname),
                            '%s configuration script and supporting files' % self.fullname)
     InputFilesMixin.__init__(self)
-
+    
     self.installinfo = {
-      'config' : ('/distro/config-rpm/config/script', '/usr/lib/%s' % self.product),
-      'support': ('/distro/config-rpm/config/supporting-files', '/usr/lib/%s' % self.product)
+      'config' : ('/config/script', '/usr/lib/%s' % self.product),
+      'support': ('/config/supporting-files', '/usr/lib/%s' % self.product)
     }
-
+    
     self.DATA = {
       'variables': ['product', 'fullname', 'pva'],
-      'config':    ['/distro/config-rpm'],
+      'config':    ['.'],
       'input':     [],
       'output':    [],
     }
-
-  def validate(self):
-    self.validator.validate('/distro/config-rpm', 'config-rpm.rng')
-
+  
   def setup(self):
     self._setup_build()
     self._setup_download()
-
+  
   def run(self):
     self.io.clean_eventcache(all=True)
     if self._test_build('True'):
       self._build_rpm()
     self.diff.write_metadata()
-
+  
   def apply(self):
     self.io.clean_eventcache()
     if not self._test_build('True'):
@@ -53,26 +50,26 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     if not self.cvars['custom-rpms-info']:
       self.cvars['custom-rpms-info'] = []
     self.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
-
+  
   def _generate(self):
     self.io.sync_input()
-
+  
   def _get_files(self):
     sources = {}
     sources.update(RpmBuildMixin._get_files(self))
     sources.update(InputFilesMixin._get_files(self))
     return sources
-
+  
   def _test_build(self, default):
     if RpmBuildMixin._test_build(self, default):
-      if self.config.get('//config-rpm/requires', None) or \
-         self.config.get('//config-rpm/obsoletes', None) or \
-         self.config.get('//config-rpm/config/script/path/text()', None) or \
-         self.config.get('//config-rpm/config/supporting-files/path/text()', None) or \
+      if self.config.get('requires', None) or \
+         self.config.get('obsoletes', None) or \
+         self.config.get('config/script/path/text()', None) or \
+         self.config.get('config/supporting-files/path/text()', None) or \
          self.cvars['%s-content' % self.id]:
         return True
     return False
-
+  
   def _getpscript(self):
     post_install_scripts = self.io.list_output(what=self.installinfo['config'])
     try:
@@ -80,4 +77,4 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     except IndexError:
       return None
 
-EVENTS = {'RPMS': [ConfigRpmEvent]}
+EVENTS = {'rpms': [ConfigRpmEvent]}

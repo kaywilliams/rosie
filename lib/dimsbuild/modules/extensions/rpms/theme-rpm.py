@@ -6,18 +6,19 @@ API_VERSION = 5.0
 
 class ThemeRpmEvent(Event, RpmBuildMixin):
   def __init__(self):
+    Event.__init__(self, id='theme-rpm',
+                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])
+    
     self.themename = \
-      self.config.get('/distro/theme-rpm/theme/text()', self.product)
+      self.config.get('theme/text()', self.product)
 
     self.DATA = {
       'variables': ['product', 'pva'],
-      'config':    ['/distro/theme-rpm'],
+      'config':    ['.'],
       'input' :    [],
       'output':    [],
     }
 
-    Event.__init__(self, id='theme-rpm',
-                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])
     RpmBuildMixin.__init__(self,
                            '%s-theme' % self.product,
                            'The %s-theme package requires the gdm package. '\
@@ -29,9 +30,6 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
   def setup(self):
     self._setup_build()
-
-  def validate(self):
-    self.validator.validate('/distro/theme-rpm', 'theme-rpm.rng')
 
   def run(self):
     self.io.clean_eventcache(all=True)
@@ -55,4 +53,4 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     return 'postinstall.sh'
 
 
-EVENTS = {'RPMS': [ThemeRpmEvent]}
+EVENTS = {'rpms': [ThemeRpmEvent]}

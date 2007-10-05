@@ -22,21 +22,18 @@ class LogosEvent(Event, ExtractMixin):
     )
     
     self.DATA = {
-      'config'   : ['/distro/logos'],
+      'config'   : ['.'],
       'variables': ['product', 'cvars[\'anaconda-version\']'],
       'input'    : [],
       'output'   : [],
     }
     
-  def validate(self):
-    self.validator.validate('/distro/logos', 'logos.rng')
-  
   def setup(self):
     self.format = self.locals.logos['splash-image']['format']
     self.filename = self.locals.logos['splash-image']['filename']
     self.DATA['input'].extend(self._find_rpms())
     self.diff.setup(self.DATA)
-    
+  
   def run(self):
     self.log(0, L0("embedding distribution-specific branding images into installer"))
     self._extract()
@@ -110,8 +107,7 @@ class LogosEvent(Event, ExtractMixin):
       return magic_match(splash) == FILE_TYPE_LSS
       
   def _find_rpms(self):
-    pkgname = self.config.get('/distro/logos/package/text()',
-                              '%s-logos' %(self.product,))
+    pkgname = self.config.get('package/text()', '%s-logos' % self.product)
     rpms = P(self.cvars['rpms-directory']).findpaths(
       glob='%s-*-*' % pkgname, nregex=SRPM_REGEX)
     if len(rpms) == 0:
@@ -122,7 +118,7 @@ class LogosEvent(Event, ExtractMixin):
     return [rpms[0]]
 
 
-EVENTS = {'INSTALLER': [LogosEvent]}
+EVENTS = {'installer': [LogosEvent]}
 
 #------ EXCEPTIONS ------#
 class SplashImageNotFound(StandardError): pass

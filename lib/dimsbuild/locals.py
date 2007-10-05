@@ -181,7 +181,7 @@ class InstallClass(BaseInstallClass):
   showLoginChoice = 1
   showMinimal = 1
 
-  tasks = [("Default", %s), ("Everything", %s)]
+  tasks = [("Default", %(default_groups)s), ("Everything", %(all_groups)s)]
 
   def setInstallData(self, anaconda):
     BaseInstallClass.setInstallData(self, anaconda)
@@ -209,7 +209,7 @@ class InstallClass(BaseInstallClass):
   showLoginChoice = 1
   showMinimal = 1
 
-  tasks = [("Default", %s), ("Everything", %s)]
+  tasks = [("Default", %(default_groups)s), ("Everything", %(all_groups)s)]
 
   def setInstallData(self, anaconda):
     BaseInstallClass.setInstallData(self, anaconda)
@@ -240,7 +240,7 @@ class InstallClass(BaseInstallClass):
   showLoginChoice = 1
   showMinimal = 1
 
-  tasks = [("Default", %s), ("Everything", %s)]
+  tasks = [("Default", %(default_groups)s), ("Everything", %(all_groups)s)]
 
   def setInstallData(self, anaconda):
     BaseInstallClass.setInstallData(self, anaconda)

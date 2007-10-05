@@ -27,10 +27,10 @@ class InitEvent(Event):
 class SetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'SETUP',
+      id = 'setup',
       properties = PROPERTY_META,
       comes_after = ['init'],
-      conditionally_comes_after = ['validate', 'autoclean'],
+      conditionally_comes_after = ['autoclean'],
     )
 
 

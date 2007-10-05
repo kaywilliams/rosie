@@ -58,4 +58,4 @@ class CreaterepoEvent(Event):
     self.cvars['rpms'] = self.io.list_output(what='rpms')
 
 
-EVENTS = {'SOFTWARE': [CreaterepoEvent]}
+EVENTS = {'software': [CreaterepoEvent]}

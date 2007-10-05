@@ -18,26 +18,23 @@ class FilesEvent(Event):
     )
     
     self.DATA =  {
-      'config': ['/distro/files'],
+      'config': ['.'],
       'input':  [],
       'output': [],
     }
   
-  def validate(self):
-    self.validator.validate('/distro/files', 'files.rng')
-  
   def setup(self):
     self.diff.setup(self.DATA)
-    self.io.setup_sync(self.SOFTWARE_STORE, xpaths=['/distro/files/path'])
+    self.io.setup_sync(self.SOFTWARE_STORE, xpaths=['path'])
   
   def run(self):
     self.log(0, L0("processing user-provided files"))
     self.io.sync_input()
     self.diff.write_metadata()
-
+  
   def apply(self):
     self.io.clean_eventcache()
-
+  
   def error(self, e):
     # performing a subset of Event.error since sync handles partially downloaded files
     (self.mddir / '.debug').mkdir()

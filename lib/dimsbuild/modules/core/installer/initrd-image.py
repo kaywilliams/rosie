@@ -16,16 +16,13 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     )
 
     self.DATA = {
-      'config':    ['/distro/initrd-image/path'],
+      'config':    ['.'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [] # to be filled later
     }
 
     ImageModifyMixin.__init__(self, 'initrd.img')
-
-  def validate(self):
-    self.validator.validate('/distro/initrd-image', 'initrd.rng')
 
   def error(self, e):
     Event.error(self, e)
@@ -56,4 +53,4 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     self._write_buildstamp()
 
 
-EVENTS = {'INSTALLER': [InitrdImageEvent]}
+EVENTS = {'installer': [InitrdImageEvent]}

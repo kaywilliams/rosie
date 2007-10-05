@@ -85,7 +85,7 @@ class GpgCheckEvent(Event):
     self.io.clean_eventcache()
 
 
-EVENTS = {'SOFTWARE': [GpgCheckEvent]}
+EVENTS = {'software': [GpgCheckEvent]}
 
 #------ ERRORS ------#
 class RpmSignatureInvalidError(StandardError):

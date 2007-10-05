@@ -82,8 +82,4 @@ class DownloadEvent(Event):
     (self.mddir / '.debug').mkdir()
     self.mdfile.rename(self.mddir/'.debug'/self.mdfile.basename)
 
-EVENTS = {'SOFTWARE': [DownloadEvent]}
-
-#------ ERRORS ------#
-class RpmSignatureInvalidError(StandardError):
-  "Class of exceptions raised when an RPM signature check fails in some way"
+EVENTS = {'software': [DownloadEvent]}

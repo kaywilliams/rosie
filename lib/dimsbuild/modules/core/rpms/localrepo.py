@@ -106,4 +106,4 @@ class LocalRepoEvent(Event):
         self.cvars['excluded-packages'].extend(obsoletes.split())
 
 
-EVENTS = {'RPMS': [LocalRepoEvent]}
+EVENTS = {'rpms': [LocalRepoEvent]}

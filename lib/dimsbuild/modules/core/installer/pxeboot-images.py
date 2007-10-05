@@ -37,4 +37,4 @@ class PxebootImagesEvent(Event):
         raise RuntimeError("Unable to find '%s' in '%s'" % (file, self.pxebootdir))
 
 
-EVENTS = {'INSTALLER': [PxebootImagesEvent]}
+EVENTS = {'installer': [PxebootImagesEvent]}

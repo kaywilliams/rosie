@@ -34,30 +34,27 @@ class CompsEvent(Event):
       'variables': ['fullname', 'cvars[\'anaconda-version\']',
                     'cvars[\'included-packages\']',
                     'cvars[\'excluded-packages\']'],
-      'config':    ['/distro/comps'],
+      'config':    ['.'],
       'input':     [],
       'output':    []
     }
   
-  def validate(self):
-    self.validator.validate('/distro/comps', 'comps.rng')
-  
   def setup(self):
     self.diff.setup(self.DATA)
-
+    
     self.comps_supplied = \
-      self.config.get('/distro/comps/text()', None)
-
+      self.config.get('text()', None)
+    
     if self.comps_supplied:
       xpath = '/distro/comps'
-
+      
       self.io.setup_sync(self.mddir, id='comps.xml', xpaths=[xpath])
-
+      
       # ensure exactly only one item returned above
       if len(self.io.list_output(what='comps.xml')) != 1:
         raise RuntimeError("The path specified at '%s' expands to multiple "
                            "items.  Only one comps file is allowed." % xpath)
-
+    
     else:
       self.comps_out = self.mddir/'comps.xml'
       self.groupfiles = self.__get_groupfiles()
@@ -74,7 +71,7 @@ class CompsEvent(Event):
     
     self.io.clean_eventcache(all=True)
     
-    if self.comps_supplied: # download comps file   
+    if self.comps_supplied: # download comps file
       self.log(1, L1("using existing file '%s'" % self.comps_supplied))
       self.io.sync_input()
     
@@ -101,19 +98,18 @@ class CompsEvent(Event):
       raise RuntimeError("Unable to find cached comps file at '%s'.  "
                          "Perhaps you are skipping comps before "
                          "it has been allowed to run once?" % self.cvars['comps-file'])
-        
+    
     # set required packages variable
     self.cvars['required-packages'] = \
       xmllib.tree.read(self.cvars['comps-file']).xpath('//packagereq/text()')
   
-  
   #------ COMPS FILE GENERATION FUNCTIONS ------#
   def _generate_comps(self):
     mapped, unmapped = self.__map_groups()
-
+    
     self.groups = {} # dict of grouptrees by groupid
-       
-    ## build up groups dictionary
+    
+    # build up groups dictionary
     for groupfileid, path in self.groupfiles:
       # read groupfile
       try:
@@ -146,37 +142,37 @@ class CompsEvent(Event):
           j = len(unmapped)
         except IndexError:
           i += 1
- 
+    
     if not self.groups.has_key('core'):
       raise CompsError("The base repo '%s' does not appear "
                        "to define a 'core' group in any of its "
                        "comps.xml files" % self.cvars['base-repoid'])
-
+    
     # if any unmapped group wasn't processed, raise an exception
     if len(unmapped) > 0:
       raise xmllib.config.ConfigError("Unable to resolve all groups in available "
                                       "repos: missing %s" % unmapped)
-
+    
     # create comps file
     # add core group
     self.comps.getroot().append(self.groups.pop('core'))
-
+    
     # add packages to core group
     # add packages from groups marked as 'core'
     core = [ groupid for groupid in self.groups.keys()
-             if self.config.get('/distro/comps/groups/group[text()="%s"]/@core' \
+             if self.config.get('groups/group[text()="%s"]/@core' \
              % groupid, 'true') in BOOLEANS_TRUE ]
     for groupid in sorted(core):
       self._add_group_pkgs(groupid, self.groups[groupid])
-
+    
     # add packages listed separately in config or included-packages cvar
     packages = []
-    for pkg in self.config.xpath('/distro/comps/include/package', []):
+    for pkg in self.config.xpath('include/package', []):
       pkgname = pkg.get('text()')
       pkgtype = pkg.get('@type', 'mandatory')
       pkgrequires = pkg.get('@requires', None)
       packages.append((pkgname, pkgtype, pkgrequires))
-      
+    
     for pkg in (self.cvars['included-packages'] or []):
       if type(pkg) == tuple:
         packages.append(pkg)
@@ -190,7 +186,7 @@ class CompsEvent(Event):
       self.comps.getroot().append(core)
       for pkgname, pkgtype, pkgrequires in packages:
         self._add_package(pkgname, core, pkgrequires, type=pkgtype)
-
+    
     # check to make sure a 'kernel' pacakge or equivalent exists - kinda icky
     allpkgs = self.comps.get('//packagereq/text()')
     found = False
@@ -198,21 +194,20 @@ class CompsEvent(Event):
       if kernel in allpkgs:
         found = True; break
     if not found:
-      # base is defined above, it is the base group for the repository
-      if len(packages) == 0: self.comps.getroot().insert(0, base) # HAK HAK HAK
+      if len(packages) == 0: self.comps.getroot().insert(0, core) # HAK HAK HAK
       self._add_package('kernel', core, type='mandatory')
-
+    
     # add standalone groups
     noncore = [groupid for groupid in self.groups.keys()
-               if self.config.get('/distro/comps/groups/group[text()="%s"]/@core' \
+               if self.config.get('groups/group[text()="%s"]/@core' \
                % groupid, 'true') in BOOLEANS_FALSE]
     for groupid in sorted(noncore):
       self._add_group(groupid, self.groups[groupid])
-  
+    
     # exclude all package in self.exclude
-    exclude = self.config.xpath('/distro/comps/exclude/packages/text()', []) + \
+    exclude = self.config.xpath('exclude/packages/text()', []) + \
               (self.cvars['excluded-packages'] or [])
-
+    
     for pkg in exclude:
       for match in self.comps.xpath('//packagereq[text()="%s"]' % pkg):
         match.getparent().remove(match)
@@ -230,7 +225,7 @@ class CompsEvent(Event):
       mapped[repo.id] = []
     unmapped = []
     
-    for group in self.config.xpath('/distro/comps/groups/group', []):
+    for group in self.config.xpath('groups/group', []):
       repo = group.attrib.get('repoid', None)
       if repo is not None:
         try:
@@ -252,36 +247,36 @@ class CompsEvent(Event):
       if groupfile is not None:
         groupfiles.append((repo.id,
                            repo.ljoin(repo.repodata_path, 'repodata', groupfile)))
-      
+    
     return groupfiles
-
+  
   def __get_grouptree(self, groupid, tree, toprocess):
     "Get an xmllib.tree object for the group, adds groupreqs to the toprocess list"
     grouptree = tree.get('//group[id/text()="%s"]' % groupid)
     if grouptree is None:
       raise CompsError("Group id '%s' not found in comps file" % groupid)
-
+    
     # process any elements in the <grouplist> element
     groupreqs = grouptree.xpath('//grouplist/groupreq/text()')
     for groupreq in groupreqs:
       if groupreq not in toprocess and not self.groups.has_key(groupreq):
         toprocess.append(groupreq)
-
+    
     return grouptree
-
+  
   def _add_group(self, groupid, grouptree):
     self.comps.getroot().append(grouptree)
-    default = self.config.get('/distro/comps/groups/group[text()="%s"]/@default' \
+    default = self.config.get('groups/group[text()="%s"]/@default' \
               % groupid, None)
     # replace the contents of the default element's text node
     if default is not None:
       self.comps.getroot().get('group[id/text()="%s"]/default' % groupid).text = default
-
+  
   def _add_group_pkgs(self, groupid, grouptree):
     for package in grouptree.xpath('//group[id/text()="%s"]/packagelist/packagereq'\
                                      % groupid):
       self.comps.get('group[id/text()="core"]/packagelist').append(package)
-
+  
   def _add_package(self, package, group, requires=None, type='mandatory'):
     if type not in TYPES:
       raise ValueError("Invalid type '%s', must be one of %s" % (type, TYPES))
@@ -289,10 +284,10 @@ class CompsEvent(Event):
     attrs = {}
     if requires is not None: attrs['requires'] = requires
     attrs['type'] = type
-
+    
     packagelist = uElement('packagelist', parent=group)
     Element('packagereq', text=package, attrs=attrs, parent=packagelist)
-    
+  
   def _add_category(self, group, category, version='0'):
     if sortlib.dcompare(self.cvars['anaconda-version'], '10.2.0.14-1') < 0:
       parent = category.get('category/subcategories')
@@ -335,7 +330,7 @@ def Category(name, fullname='', version='0'):
 Element  = xmllib.tree.Element
 uElement = xmllib.tree.uElement
 
-EVENTS = {'SOFTWARE': [CompsEvent]}
+EVENTS = {'software': [CompsEvent]}
 
 #------ ERRORS ------#
 class CompsError(StandardError): pass

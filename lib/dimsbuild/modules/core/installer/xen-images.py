@@ -22,7 +22,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     self.xen_dir = self.SOFTWARE_STORE/'images/xen'
     
     self.DATA = {
-      'config':    ['/distro/initrd-image/path/text()'],
+      'config':    ['/distro/initrd-image'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
@@ -73,4 +73,4 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     self._write_buildstamp()
 
 
-EVENTS = {'INSTALLER': [XenImagesEvent]}
+EVENTS = {'installer': [XenImagesEvent]}

@@ -4,6 +4,7 @@ import traceback
 
 from dims import dispatch
 from dims import sync
+from dims.xmllib import tree
 
 from dimsbuild.logging import L0
 
@@ -77,7 +78,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     DiffMixin.clean(self)
   #def check(self) defined in mixins
   def run(self): pass
-  def apply(self): pass  
+  def apply(self): pass
   #def error(self, e) defined IOMixins
 
   # former interface methods
@@ -121,6 +122,13 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     return dir
   SOFTWARE_STORE = property(_get_software_store)
   
+  def _get_config(self):
+    try:
+      return self._config.get('/distro/%s' % self.__module__.split('.')[-1])
+    except tree.XmlPathError:
+      return DummyConfig()
+  config = property(_get_config)
+  
   #------ ERROR HANDLING ------#
   def _handle_EventExit(self, e):
     self.log(0, e)
@@ -144,6 +152,25 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
 
 class EventExit:
   "Error an event can raise in order to exit program execution"
+
+class DummyConfig(object):
+  "Dummy config class that matches no xpath queries"
+  def get(self, paths, fallback=tree.NoneObject()):
+    if not isinstance(fallback, tree.NoneObject):
+      return fallback
+    else:
+      raise tree.XmlPathError("None of the specified paths %s "
+                              "were found in the config file" % paths)
+  
+  def xpath(self, paths, fallback=tree.NoneObject()):
+    if not isinstance(fallback, tree.NoneObject):
+      return fallback
+    else:
+      raise tree.XmlPathError("None of the specified paths %s "
+                              "were found in the config file" % paths)
+  
+  def pathexists(self, path):
+    return False
 
 
 from dimsbuild.main import DEBUG # imported here to avoid circular ref

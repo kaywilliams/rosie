@@ -7,7 +7,7 @@ API_VERSION = 5.0
 class SoftwareMetaEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'SOFTWARE',
+      id = 'software',
       properties = PROPERTY_META,
       provides = ['os-content'],
     )

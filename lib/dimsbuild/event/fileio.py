@@ -41,7 +41,7 @@ class IOObject:
     @return inputs : [input file, ...]
     @return outputs: [output file, ...]
     """
-    iprefix = P(iprefix or P(self.ptr.config.file).dirname)
+    iprefix = P(iprefix or P(self.ptr._config.file).dirname)
     dst = P(dst)
 
     if not hasattr(paths,  '__iter__'): paths  = [paths]

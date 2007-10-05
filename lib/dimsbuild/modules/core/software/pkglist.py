@@ -28,45 +28,42 @@ class PkglistEvent(Event):
       requires = ['required-packages', 'repos'],
       conditionally_requires = ['user-required-packages'],
     )
-
+    
     self.dsdir = self.mddir / '.depsolve'
     self.pkglistfile = self.mddir / 'pkglist'
-
+    
     self.DATA = {
-      'config':    ['/distro/pkglist'],
+      'config':    ['.'],
       'variables': ['cvars[\'required-packages\']'],
       'input':     [],
       'output':    [],
     }
-    self.docopy = self.config.pathexists('/distro/pkglist/text()')
-
-  def validate(self):
-    self.validator.validate('/distro/pkglist', schema_file='pkglist.rng')
-
+    self.docopy = self.config.pathexists('text()')
+  
   def setup(self):
     self.diff.setup(self.DATA)
-
+    
     # setup if copying pkglist
     if self.docopy:
-      self.io.setup_sync(self.mddir, id='pkglist', xpaths=['/distro/pkglist'])
+      self.io.setup_sync(self.mddir, id='pkglist', xpaths=['.'])
       self.pkglistfile = self.io.list_output(what='pkglist')[0]
       return
-
+    
     # setup if creating pkglist
     self.pkglistfile = self.mddir / 'pkglist'
     self.DATA['output'].append(self.pkglistfile)
-
+    
     self.rddirs = [] # list of repodata dirs across all repos
-
+    
     for repo in self.cvars['repos'].values():
       self.rddirs.append(repo.ljoin(repo.repodata_path, 'repodata'))
-
+    
     self.DATA['input'].extend(self.rddirs)
-
+  
   def run(self):
     self.log(0, L0("resolving package list"))
     self.io.clean_eventcache(all=True)
-
+    
     # copy pkglist
     if self.docopy:
       self.io.sync_input()
@@ -75,11 +72,11 @@ class PkglistEvent(Event):
         self.dsdir.rm(recursive=True)
       self.diff.write_metadata()
       return
-
+    
     # create pkglist
     self.log(1, L1("generating new package list"))
     if not self.dsdir.exists(): self.dsdir.mkdirs()
-
+    
     repoconfig = self._create_repoconfig()
     pkgtups = depsolver.resolve(
       packages = (self.cvars['required-packages'] or []) + \
@@ -90,7 +87,7 @@ class PkglistEvent(Event):
       callback = BuildDepsolveCallback(self.logger)
     )
     repoconfig.remove()
-
+    
     # verify that final package list contains all user-specified packages
     self.log(1, L1("verifying package list"))
     nlist = [ n for n,_,_,_,_ in pkgtups ] # extract pkg names for checking
@@ -98,26 +95,26 @@ class PkglistEvent(Event):
       if pcheck not in nlist:
         raise DepSolveError("User-specified package '%s' not found in resolved pkglist" % pcheck)
     del nlist
-
+    
     self.log(1, L1("pkglist closure achieved in %d packages" % len(pkgtups)))
-
+    
     pkglist = []
     for n,_,_,v,r in pkgtups:
       pkglist.append('%s-%s-%s' % (n,v,r))
     pkglist.sort()
-
+    
     self.log(1, L1("writing pkglist"))
     filereader.write(pkglist, self.pkglistfile)
-
+    
     self.DATA['output'].append(self.dsdir)
     self.diff.write_metadata()
-
+  
   def apply(self):
     self.io.clean_eventcache()
     if not self.pkglistfile.exists():
       raise RuntimeError("missing package list file: '%s'" % self.pkglistfile)
     self.cvars['pkglist'] = filereader.read(self.pkglistfile)
-
+  
   def _create_repoconfig(self):
     repoconfig = self.TEMP_DIR / 'depsolve.repo'
     if repoconfig.exists():
@@ -132,11 +129,11 @@ class PkglistEvent(Event):
           if file.startswith(rddir):
             rddir_changed = True
             break
-
+      
       if rddir_changed:
         ## HACK: delete a folder's depsolve metadata if it has changed.
         (self.dsdir/repo.id).rm(recursive=True, force=True)
-
+      
       conf.extend([
         '[%s]' % repo.id,
         'name = %s' % repo.id,
@@ -147,7 +144,7 @@ class PkglistEvent(Event):
     return repoconfig
 
 
-EVENTS = {'SOFTWARE': [PkglistEvent]}
+EVENTS = {'software': [PkglistEvent]}
 
 #------ ERRORS ------#
 class DepSolveError(StandardError): pass

@@ -6,11 +6,10 @@ import os
 
 from dims import xmllib
 
-class ValidateMixin:
-  def __init__(self, schemaspath, configfile):
+class BaseConfigValidator:
+  def __init__(self, schemaspath, config):
     self.schemaspath = schemaspath
-    self.configfile = configfile
-    self.config = xmllib.config.read(self.configfile)
+    self.config = config
 
   def validate(self, xpath_query, schema_file=None, schema_contents=None):
     if (schema_file is None and schema_contents is None) or \
@@ -25,7 +24,7 @@ class ValidateMixin:
         if len(trees) == 0:
           return
         if len(trees) != 1:
-          raise InvalidConfigError(self.configfile,
+          raise InvalidConfigError(self.config.file,
                 "multiple instances of '%s' element found" % trees[0].tag)
         if schema_contents is None:
           schema_contents = self.readSchema(schema_file)
@@ -39,16 +38,16 @@ class ValidateMixin:
       else:
         if not relaxng.validate(self.config):
           if schema_file is not None:
-            raise InvalidConfigError(self.configfile, relaxng.error_log, schema_file)
+            raise InvalidConfigError(self.config.getroot().file, relaxng.error_log, schema_file)
           else:
-            raise InvalidConfigError(self.configfile, relaxng.error_log)
+            raise InvalidConfigError(self.config.getroot().file, relaxng.error_log)
     finally:
       os.chdir(cwd)
 
   def readSchema(self, filename):
     schema_file = self.schemaspath / filename
     if not schema_file.exists():
-      raise IOError("missing schema file '%s' at '%s'" % (filename, schema.dirname))
+      raise IOError("missing schema file '%s' at '%s'" % (filename, schema_file.dirname))
 
     schema = xmllib.tree.read(filename)
     ## FIXME: xmltree/lxml seems to be losing the xmlns attribute
@@ -64,18 +63,18 @@ class ValidateMixin:
   def getXmlSection(self, query):
     return self.config.xpath(query, [])
 
-class MainConfigValidator(ValidateMixin):
-  def __init__(self, schemaspath, configfile):
-    ValidateMixin.__init__(self, schemaspath, configfile)
+class MainConfigValidator(BaseConfigValidator):
+  def __init__(self, schemaspath, config):
+    BaseConfigValidator.__init__(self, schemaspath, config)
 
-class ConfigValidator(ValidateMixin):
-  def __init__(self, schemaspath, configfile):
-    ValidateMixin.__init__(self, schemaspath, configfile)
+class ConfigValidator(BaseConfigValidator):
+  def __init__(self, schemaspath, config):
+    BaseConfigValidator.__init__(self, schemaspath, config)
     self.xpaths = []
 
   def getXmlSection(self, query):
     self.xpaths.append(query)
-    return ValidateMixin.getXmlSection(self, query)
+    return BaseConfigValidator.getXmlSection(self, query)
 
   def validateElements(self, disabled):
     elements = []
@@ -90,12 +89,12 @@ class ConfigValidator(ValidateMixin):
       if child.tag is etree.Comment: continue
       if child.tag in disabled: continue
       if child not in elements:
-        raise InvalidConfigError(self.configfile,
+        raise InvalidConfigError(self.config.getroot().file,
                                  " unknown element '%s' found in distro.conf" % \
                                  child.tag)
 
   def massageSchema(self, schema_contents, tag, schema_file):
-    schema = ValidateMixin.massageSchema(self, schema_contents, tag, schema_file)
+    schema = BaseConfigValidator.massageSchema(self, schema_contents, tag, schema_file)
     tree = schema.get('//element[@name="distro"]')
 
     # add the 'schema-version' attribute to the distro element

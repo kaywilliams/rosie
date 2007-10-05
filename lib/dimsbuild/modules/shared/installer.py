@@ -118,7 +118,7 @@ class ImageModifyMixin:
                          id='%s-input-files' % self.name)
     
     self.io.setup_sync(self.imagedir,
-                       xpaths=['/distro/%s/path' % self.id],
+                       xpaths=['path'],
                        id='%s-input-files' % self.name)
   
   def check(self):

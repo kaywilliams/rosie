@@ -16,7 +16,7 @@ class OSMetaEvent(Event):
     Event.__init__(self,
       id = 'OS',
       properties = PROPERTY_META,
-      comes_after = ['SETUP'],
+      comes_after = ['setup'],
     )
 
 class OSComposeEvent(Event):

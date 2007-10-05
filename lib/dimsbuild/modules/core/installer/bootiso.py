@@ -51,4 +51,4 @@ class BootisoEvent(Event):
     if not self.bootiso.exists():
       raise RuntimeError, "Unable to find boot.iso at '%s'" % self.bootiso
 
-EVENTS = {'INSTALLER': [BootisoEvent]}
+EVENTS = {'installer': [BootisoEvent]}

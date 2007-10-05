@@ -122,50 +122,49 @@ class RpmBuildMixin:
     self.defprovides  = defprovides
     self.defrequires  = defrequires
 
-    self.autofile = P(self.config.file + '.dat')
+    self.autofile = P(self._config.file + '.dat')
 
     # dictionary of dest to source list pairs for putting files inside rpms
     self.cvars['%s-content' % self.id] = {}
 
   def _setup_build(self, **kwargs):
     self.build_folder = self.mddir/'build'
-
+    
     if self.autofile.exists():
       self.release = xmllib.tree.read(self.autofile).get(
        '/distro/%s/rpms/%s/release/text()' % (self.pva, self.id), '0')
     else:
       self.release = '0'
-
-    if self.config.get('/distro/rpms/%s/@use-default-set' % self.id, 'True'):
+    
+    if self.config.get('@use-default-set', 'True'):
       self.obsoletes = self.defobsoletes
     else:
       self.obsoletes = ''
-    if self.config.pathexists('/distro/rpms/%s/obsoletes/package/text()' % self.id):
+    if self.config.pathexists('obsoletes/package/text()'):
       self.obsoletes += ' ' + ' '.join(self.config.xpath(
-                                  '/distro/rpms/%s/obsoletes/package/text()' % self.id))
+                                  'obsoletes/package/text()'))
     self.provides = self.obsoletes
     if self.defprovides:
       self.provides += ' ' + self.defprovides
-
+    
     if self.defrequires:
       self.requires = self.defrequires
     else:
       self.requires = None
-    if self.config.pathexists('/distro/rpms/%s/requires/package/text()' % self.requires):
-      self.requires += ' ' + ' '.join(self.config.xpath(
-                                 '/distro/rpms/%s/requires/package/text()' % self.requires))
-
+    if self.config.pathexists('requires/package/text()'):
+      self.requires += ' ' + ' '.join(self.config.xpath('requires/package/text()'))
+    
     self.diff.setup(self.DATA)
     for dst, src in self.cvars['%s-content' % self.id].items():
       self.io.setup_sync(self.rpmsdir/dst.lstrip('/'),
                          paths=src,
                          id='%s-input-files' % self.name)
-
+    
     self.arch      = kwargs.get('arch',     'noarch')
     self.author    = kwargs.get('author',   'dimsbuild')
     self.fullname  = kwargs.get('fullname', self.fullname)
     self.version   = kwargs.get('version',  self.version)
-
+  
   def _build_rpm(self):
     self._check_release()
     self.log(0, L0("building %s-%s-%s.%s.rpm" % (self.rpmname, self.version,
@@ -175,13 +174,13 @@ class RpmBuildMixin:
     self._add_output()
 
   def _add_output(self):
-    self.DATA['output'].append(self.mddir/'RPMS'/'%s-%s-%s.%s.rpm' % (self.rpmname,
+    self.DATA['output'].append(self.mddir/'RPMS/%s-%s-%s.%s.rpm' % (self.rpmname,
+                                                                    self.version,
+                                                                    self.release,
+                                                                    self.arch))
+    self.DATA['output'].append(self.mddir/'SRPMS/%s-%s-%s.src.rpm' % (self.rpmname,
                                                                       self.version,
-                                                                      self.release,
-                                                                      self.arch))
-    self.DATA['output'].append(self.mddir/'SRPMS'/'%s-%s-%s.src.rpm' % (self.rpmname,
-                                                                        self.version,
-                                                                        self.release))
+                                                                      self.release))
 
   def _save_release(self):
     if self.autofile.exists():
@@ -199,7 +198,7 @@ class RpmBuildMixin:
 
     # Bug 72. Make the distro.dat have the same ownership and
     # mode as the distro.conf
-    stat = os.stat(self.config.file)
+    stat = os.stat(self._config.file)
     os.chown(self.autofile, stat.st_uid, stat.st_gid)
     os.chmod(self.autofile, stat.st_mode)
 
@@ -211,13 +210,15 @@ class RpmBuildMixin:
        self.diff.has_changed('variables') or \
        self.diff.has_changed('config'):
       self.release = str(int(self.release)+1)
-
+  
   def _test_build(self, default):
-    tobuild = self.config.get('/distro/rpms/%s/@enabled' % self.id, default)
+    # I imagine this isn't needed, since the module wont be loaded if enabled
+    # is false...
+    tobuild = self.config.get('/%s/@enabled' % self.id, default)
     if tobuild == 'default':
       return default in BOOLEANS_TRUE
     return tobuild in BOOLEANS_TRUE
-
+  
   def _check_rpms(self):
     rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % (self.rpmname, self.version,
                                                self.release, self.arch)

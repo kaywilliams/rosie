@@ -227,16 +227,23 @@ class Build(object):
     Event.logger.log(0, L0("validating config"))
     
     Event.logger.log(1, L1("dimsbuild.conf"))
-    Event.mcvalidator.validate('/dimsbuild', schema_file='dimsbuild.rng')
+    mcvalidator = MainConfigValidator(Event.SHARE_DIR/'schemas', Event.mainconfig)
+    mcvalidator.validate('/dimsbuild', schema_file='dimsbuild.rng')
     
-    Event.logger.log(1, L1(P(Event.config.file).basename))
+    Event.logger.log(1, L1(P(Event._config.file).basename))
     # validate individual sections of distro.conf
-    Event.validator.validate('/distro/main', schema_file='main.rng')
+    validate = ConfigValidator(Event.SHARE_DIR/'schemas/distro.conf', Event._config)
+    validate.validate('/distro/main', 'main.rng')
+    
     for e in self.dispatch:
-      e.validate()
+      validate.config = e.config
+      validate.validate('.', '%s.rng' % e.__module__.split('.')[-1])
+      e.validate() # allow events to validate other things not covered in schema
+    
     # validate top-level elements
-    Event.validator.validateElements(self.disabled_modules)
-  
+    validate.config = Event._config
+    validate.validateElements(self.disabled_modules)
+    
   def _seed_event_defaults(self, options, mainconfig, distroconfig):
     """ 
     Set up a bunch of variables in the Event superclass that all subclasses
@@ -261,7 +268,7 @@ class Build(object):
     
     # set up config dirs
     Event.mainconfig = mainconfig
-    Event.config = distroconfig
+    Event._config = distroconfig
     
     # set up base variables
     Event.cvars['base-vars'] = {}
@@ -269,14 +276,14 @@ class Build(object):
     qstr = '/distro/main/%s/text()'
     base_vars = Event.cvars['base-vars']
     
-    base_vars['product']  = Event.config.get(qstr % 'product')
-    base_vars['version']  = Event.config.get(qstr % 'version')
-    base_vars['release']  = Event.config.get(qstr % 'release', '0')
-    base_vars['arch']     = Event.config.get(qstr % 'arch', 'i686')
+    base_vars['product']  = Event._config.get(qstr % 'product')
+    base_vars['version']  = Event._config.get(qstr % 'version')
+    base_vars['release']  = Event._config.get(qstr % 'release', '0')
+    base_vars['arch']     = Event._config.get(qstr % 'arch', 'i686')
     base_vars['basearch'] = getBaseArch(base_vars['arch'])
-    base_vars['fullname'] = Event.config.get(qstr % 'fullname',
+    base_vars['fullname'] = Event._config.get(qstr % 'fullname',
                             base_vars['product'])
-    base_vars['webloc']   = Event.config.get(qstr % 'bug-url',
+    base_vars['webloc']   = Event._config.get(qstr % 'bug-url',
                             'No bug url provided')
     base_vars['pva']      = '%s-%s-%s' % (base_vars['product'],
                                           base_vars['version'],
@@ -311,11 +318,6 @@ class Build(object):
     
     Event.files_callback = FilesCallback(Event.logger, Event.METADATA_DIR)
     
-    Event.mcvalidator = MainConfigValidator(Event.SHARE_DIR/'schemas',
-                                            Event.mainconfig.file)
-    Event.validator = ConfigValidator(Event.SHARE_DIR/'schemas/distro.conf',
-                                      Event.config.file)
-  
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
     Event.logger.log(0, "Starting build of '%s' at %s" % (Event.fullname, time.strftime('%Y-%m-%d %X')))

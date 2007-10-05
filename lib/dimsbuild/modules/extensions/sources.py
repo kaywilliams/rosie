@@ -33,16 +33,14 @@ class SourceReposEvent(Event, RepoEventMixin):
     RepoEventMixin.__init__(self)
     
     self.DATA = {
+      'config': ['.'],
       'input':  [],
       'output': [],
     }
   
-  def validate(self):
-    self.validator.validate('/distro/sources', 'sources.rng')
-  
   def setup(self):
     self.diff.setup(self.DATA)
-    self.read_config('/distro/sources/repo')
+    self.read_config('repo')
   
   def run(self):
     self.log(0, L0("setting up input source repositories"))
@@ -151,4 +149,4 @@ class SourcesEvent(Event):
     os.chdir(pwd)
 
 
-EVENTS = {'SETUP': [SourceReposEvent], 'ALL': [SourcesEvent]}
+EVENTS = {'setup': [SourceReposEvent], 'ALL': [SourcesEvent]}

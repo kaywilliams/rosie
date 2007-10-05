@@ -26,7 +26,7 @@ class SourceVarsEvent(Event):
     }
   
   def error(self, e):
-    Event.error(e)
+    Event.error(self, e)
     try:
       self.image.close()
     except:
@@ -70,4 +70,4 @@ class SourceVarsEvent(Event):
     # update source_vars
     self.cvars['source-vars'] = sourcevars
 
-EVENTS = {'SETUP': [SourceVarsEvent]}
+EVENTS = {'setup': [SourceVarsEvent]}

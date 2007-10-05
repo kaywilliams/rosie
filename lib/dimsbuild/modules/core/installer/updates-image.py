@@ -15,16 +15,13 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     )
     
     self.DATA = {
-      'config':    ['/distro/updates-image/path/text()'],
+      'config':    ['.'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
     }
     
     ImageModifyMixin.__init__(self, 'updates.img')
-  
-  def validate(self):
-    self.validator.validate('/distro/updates-image', 'updates.rng')
   
   def error(self, e):
     Event.error(self, e)
@@ -48,4 +45,4 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
 
 
-EVENTS = {'INSTALLER': [UpdatesImageEvent]}
+EVENTS = {'installer': [UpdatesImageEvent]}

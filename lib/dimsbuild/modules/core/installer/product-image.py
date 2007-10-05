@@ -25,7 +25,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     )
     
     self.DATA = {
-      'config':    ['/distro/product-image/path/text()'],
+      'config':    ['.'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
@@ -33,9 +33,6 @@ class ProductImageEvent(Event, ImageModifyMixin):
     
     ImageModifyMixin.__init__(self, 'product.img')
   
-  def validate(self):
-    self.validator.validate('/distro/product-image', 'product.rng')
-    
   def error(self, e):
     Event.error(self, e)
     try:
@@ -70,17 +67,13 @@ class ProductImageEvent(Event, ImageModifyMixin):
   
   def _generate_installclass(self):
     comps = xmllib.tree.read(self.cvars['comps-file'])
-    groups = comps.xpath('//group/id/text()')
-    defgroups = comps.xpath('//group[default/text() = "true"]/id/text()')
     
-    # try to perform the replacement; skip if it doesn't work
-    try:
-      installclass = self.locals.installclass % (defgroups, groups)
-    except TypeError:
-      installclass = self.locals.installclass
+    installclass = self.locals.installclass % \
+      dict( all_groups     = comps.xpath('//group/id/text()'),
+            default_groups = comps.xpath('//group[default/text() = "true"]/id/text()') )
     
     self.image.writeflo(filereader.writeFLO(installclass),
                         filename='custom.py', dest='installclasses')
 
 
-EVENTS = {'INSTALLER': [ProductImageEvent]}
+EVENTS = {'installer': [ProductImageEvent]}
