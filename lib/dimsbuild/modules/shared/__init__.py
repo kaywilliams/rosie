@@ -83,6 +83,7 @@ class RepoEventMixin:
       # determine if the repo has a new id
       if self.diff.handlers['variables'].diffdict.has_key('repoids'):
         old,new = self.diff.handlers['variables'].diffdict['repoids']
+        if not hasattr(old, '__iter__'): old = []
         newid = repo.id in set(new).difference(set(old))  
       if self.diff.handlers['input'].diffdict.has_key(pxml) or newid:
         self.log(2, L2(repo.id))
