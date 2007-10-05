@@ -33,9 +33,10 @@ class SourceReposEvent(Event, RepoEventMixin):
     RepoEventMixin.__init__(self)
     
     self.DATA = {
-      'config': ['.'],
-      'input':  [],
-      'output': [],
+      'variables': [],
+      'config':    ['.'],
+      'input':     [],
+      'output':    [],
     }
   
   def setup(self):

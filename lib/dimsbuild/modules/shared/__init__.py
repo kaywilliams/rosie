@@ -63,6 +63,9 @@ class RepoEventMixin:
       paths.append(repo.rjoin(repo.repodata_path, repo.mdfile))
       self.io.setup_sync(repo.ljoin(repo.repodata_path, 'repodata'),
                          paths=paths, id='%s-repodata' % repo.id)
+
+    self.repoids = self.repos.keys()
+    self.DATA['variables'].append('repoids')
       
   def sync_repodata(self):
     backup = self.files_callback.sync_start
@@ -77,7 +80,11 @@ class RepoEventMixin:
   def read_new_packages(self):
     for repo in self.repos.values():
       pxml = repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles['primary'])
-      if self.diff.handlers['input'].diffdict.has_key(pxml):
+      # determine if the repo has a new id
+      if self.diff.handlers['variables'].diffdict.has_key('repoids'):
+        old,new = self.diff.handlers['variables'].diffdict['repoids']
+        newid = repo.id in set(new).difference(set(old))  
+      if self.diff.handlers['input'].diffdict.has_key(pxml) or newid:
         self.log(2, L2(repo.id))
         repo.readRepoContents()
         repo.writeRepoContents(repo.pkgsfile)

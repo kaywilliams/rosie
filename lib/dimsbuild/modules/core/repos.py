@@ -26,6 +26,7 @@ class ReposEvent(Event, RepoEventMixin):
     self.repofile = self.mddir/'extra.repo'
     
     self.DATA = {
+      'variables': [], # filled later
       'config':    ['.'],
       'input':     [],
       'output':    [self.repofile], # more inserted later
