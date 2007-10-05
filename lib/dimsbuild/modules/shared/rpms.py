@@ -150,7 +150,7 @@ class RpmBuildMixin:
     if self.defrequires:
       self.requires = self.defrequires
     else:
-      self.requires = None
+      self.requires = ''
     if self.config.pathexists('requires/package/text()'):
       self.requires += ' ' + ' '.join(self.config.xpath('requires/package/text()'))
     

@@ -81,6 +81,7 @@ class RepoEventMixin:
     for repo in self.repos.values():
       pxml = repo.rjoin(repo.repodata_path, 'repodata', repo.datafiles['primary'])
       # determine if the repo has a new id
+      newid = False
       if self.diff.handlers['variables'].diffdict.has_key('repoids'):
         old,new = self.diff.handlers['variables'].diffdict['repoids']
         if not hasattr(old, '__iter__'): old = []
