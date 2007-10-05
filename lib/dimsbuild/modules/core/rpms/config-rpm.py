@@ -21,8 +21,8 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     InputFilesMixin.__init__(self)
     
     self.installinfo = {
-      'config' : ('/config/script', '/usr/lib/%s' % self.product),
-      'support': ('/config/supporting-files', '/usr/lib/%s' % self.product)
+      'config' : ('config/script', '/usr/lib/%s' % self.product),
+      'support': ('config/supporting-files', '/usr/lib/%s' % self.product)
     }
     
     self.DATA = {

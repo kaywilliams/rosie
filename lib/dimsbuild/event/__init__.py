@@ -126,7 +126,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     try:
       return self._config.get('/distro/%s' % self.__module__.split('.')[-1])
     except tree.XmlPathError:
-      return DummyConfig()
+      return DummyConfig(self._config)
   config = property(_get_config)
   
   #------ ERROR HANDLING ------#
@@ -155,22 +155,38 @@ class EventExit:
 
 class DummyConfig(object):
   "Dummy config class that matches no xpath queries"
+  def __init__(self, config):
+    self.config = config # the config object this is based around
+  
   def get(self, paths, fallback=tree.NoneObject()):
-    if not isinstance(fallback, tree.NoneObject):
-      return fallback
-    else:
-      raise tree.XmlPathError("None of the specified paths %s "
-                              "were found in the config file" % paths)
+    try:
+      return self.xpath(paths)[0]
+    except tree.XmlPathError:
+      if not isinstance(fallback, tree.NoneObject):
+        return fallback
+      else:
+        raise
   
   def xpath(self, paths, fallback=tree.NoneObject()):
-    if not isinstance(fallback, tree.NoneObject):
-      return fallback
-    else:
-      raise tree.XmlPathError("None of the specified paths %s "
-                              "were found in the config file" % paths)
+    if not hasattr(paths, '__iter__'): paths = [paths]
+    result = []
+    for p in paths:
+      if not p.startswith('/'): continue # ignore relative path requests
+      result = self.config.xpath(p)
+      if result: break
+    
+    if not result:
+      if not isinstance(fallback, tree.NoneObject):
+        return fallback
+      else:
+        raise tree.XmlPathError("None of the specified paths %s "
+                                "were found in the config file" % paths)
+    
+    return result
   
   def pathexists(self, path):
-    return False
-
+    if not path.startswith('/'): return False
+    return self.config.pathexists(path)
+  
 
 from dimsbuild.main import DEBUG # imported here to avoid circular ref
