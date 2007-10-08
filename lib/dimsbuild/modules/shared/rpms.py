@@ -129,13 +129,13 @@ class RpmBuildMixin:
 
   def _setup_build(self, **kwargs):
     self.build_folder = self.mddir/'build'
-    
+
     if self.autofile.exists():
       self.release = xmllib.tree.read(self.autofile).get(
        '/distro/%s/rpms/%s/release/text()' % (self.pva, self.id), '0')
     else:
       self.release = '0'
-    
+
     if self.config.get('@use-default-set', 'True'):
       self.obsoletes = self.defobsoletes
     else:
@@ -146,25 +146,25 @@ class RpmBuildMixin:
     self.provides = self.obsoletes
     if self.defprovides:
       self.provides += ' ' + self.defprovides
-    
+
     if self.defrequires:
       self.requires = self.defrequires
     else:
       self.requires = ''
     if self.config.pathexists('requires/package/text()'):
       self.requires += ' ' + ' '.join(self.config.xpath('requires/package/text()'))
-    
+
     self.diff.setup(self.DATA)
     for dst, src in self.cvars['%s-content' % self.id].items():
       self.io.setup_sync(self.rpmsdir/dst.lstrip('/'),
                          paths=src,
                          id='%s-input-files' % self.name)
-    
+
     self.arch      = kwargs.get('arch',     'noarch')
     self.author    = kwargs.get('author',   'dimsbuild')
     self.fullname  = kwargs.get('fullname', self.fullname)
     self.version   = kwargs.get('version',  self.version)
-  
+
   def _build_rpm(self):
     self._check_release()
     self.log(0, L0("building %s-%s-%s.%s.rpm" % (self.rpmname, self.version,
@@ -210,7 +210,7 @@ class RpmBuildMixin:
        self.diff.has_changed('variables') or \
        self.diff.has_changed('config'):
       self.release = str(int(self.release)+1)
-  
+
   def _test_build(self, default):
     # I imagine this isn't needed, since the module wont be loaded if enabled
     # is false...
@@ -218,7 +218,7 @@ class RpmBuildMixin:
     if tobuild == 'default':
       return default in BOOLEANS_TRUE
     return tobuild in BOOLEANS_TRUE
-  
+
   def _check_rpms(self):
     rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % (self.rpmname, self.version,
                                                self.release, self.arch)

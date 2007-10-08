@@ -18,56 +18,56 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
       requires = ['anaconda-version', 'buildstamp-file', 'base-repoid'],
       conditionally_requires = ['initrd-image-content'],
     )
-    
+
     self.xen_dir = self.SOFTWARE_STORE/'images/xen'
-    
+
     self.DATA = {
       'config':    ['/distro/initrd-image'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
     }
-    
+
     ImageModifyMixin.__init__(self, 'initrd.img')
     FileDownloadMixin.__init__(self)
-  
+
   def error(self, e):
     Event.error(self, e)
     try:
       self._close()
     except:
       pass
-  
+
   def setup(self):
     # fool ImageModifyMixin into using the content of initrd.img for xen's
     # initrd.img as well
     self.cvars['xen-images-content'] = self.cvars['initrd-image-content']
-    
+
     self.DATA['input'].append(self.cvars['buildstamp-file'])
     self.diff.setup(self.DATA)
-    
+
     self.image_locals = self.locals.files['xen']['initrd-xen']
     ImageModifyMixin.setup(self)
     self.file_locals = self.locals.files['xen']
     FileDownloadMixin.setup(self)
-    
+
     # add input files from initrd.img
     self.io.setup_sync(self.imagedir,
                        xpaths='/distro/initrd-image/path',
                        id='%s-input-files' % self.name)
-  
+
   def run(self):
     self.log(0, L0("preparing xen images"))
     self.io.clean_eventcache(all=True)
     self._download()
     self._modify()
-  
+
   def apply(self):
     self.io.clean_eventcache()
     for file in self.io.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' in '%s'" % (file.basename, file.dirname))
-  
+
   def _generate(self):
     ImageModifyMixin._generate(self)
     self._write_buildstamp()

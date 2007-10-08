@@ -9,17 +9,17 @@ class LocalsDict(dict):
   def __init__(self, *args, **kwargs):
     dict.__init__(self, *args, **kwargs)
     self.setdefault('0', None)
-  
+
   def __getitem__(self, key):
     ret = {}
     for index in sortlib.dsort(self.keys()):
       if sortlib.dcompare(index, key) <= 0:
         ret = rupdate(ret, dict.__getitem__(self, index))
-    
+
     return ret
-  
+
 def rupdate(dst, src):
-  """ 
+  """
   Recursive dictionary updater.  Updates nested dictionaries at each level,
   rather than just at the top level.  Essentially, when calling a.update(b),
   we first check the contents of both a and b at each index i - if they are
@@ -140,7 +140,7 @@ LOGOS_LOCALS = LocalsDict({
 
 INSTALLCLASS_LOCALS = LocalsDict({
   '0':
-''' 
+'''
 from installclass import BaseInstallClass
 from rhpl.translate import N_
 from constants import *
@@ -166,8 +166,8 @@ class InstallClass(BaseInstallClass):
   def __init__(self, expert):
     BaseInstallClass.__init__(self, expert)
 ''',
-  '11.1.0.7-1': 
-''' 
+  '11.1.0.7-1':
+'''
 from installclass import BaseInstallClass
 from rhpl.translate import N_
 from constants import *
@@ -195,7 +195,7 @@ class InstallClass(BaseInstallClass):
     BaseInstallClass.__init__(self, expert)
 ''',
   '11.1.2.36-1':
-''' 
+'''
 from installclass import BaseInstallClass
 from rhpl.translate import N_
 from constants import *
@@ -223,7 +223,7 @@ class InstallClass(BaseInstallClass):
     BaseInstallClass.__init__(self, expert)
 ''',
   '11.2.0.66-1':
-''' 
+'''
 from installclass import BaseInstallClass
 from rhpl.translate import N_
 from constants import *
@@ -264,7 +264,7 @@ class InstallClass(BaseInstallClass):
 })
 
 DEFAULT_THEME = LocalsDict({
-  '0': ''' 
+  '0': '''
 chmod +w /usr/share/gdm/defaults.conf
 sed -i "s/^GraphicalTheme=[a-zA-Z]*$/GraphicalTheme=%(themename)s/g" /usr/share/gdm/defaults.conf
 chmod -w /usr/share/gdm/defaults.conf
@@ -300,7 +300,7 @@ RELEASE_HTML = LocalsDict({
 })
 
 GDM_GREETER_THEME = LocalsDict({
-  '0': ''' 
+  '0': '''
 # This is not really a .desktop file like the rest, but it's useful to treat
 # it as such
 [GdmGreeterTheme]
@@ -477,7 +477,7 @@ THEME_XML = LocalsDict({
     <normal file="background.png"/>
     <pos x="0" y="0" width="100%" height="-75"/>
   </item>
-  
+
   <item type="rect">
     <normal color="#000000"/>
     <pos x="0" y="-75" width="100%" height="75"/>
