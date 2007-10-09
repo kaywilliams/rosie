@@ -5,11 +5,6 @@ from dimsbuild.modules.shared.installer import FileDownloadMixin, ImageModifyMix
 
 API_VERSION = 5.0
 
-XEN_OUTPUT_FILES = [
-  'images/xen/initrd.img',
-  'images/xen/vmlinuz',
-]
-
 class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
   def __init__(self):
     Event.__init__(self,

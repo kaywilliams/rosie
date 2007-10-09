@@ -127,7 +127,7 @@ class Timber:
         for file in self.u_tree.findpaths(
             nregex='.*(\..*|.*\.[Rr][Pp][Mm]|(S)?RPMS|%s)$' % self.product,
             mindepth=1, maxdepth=1):
-          self.link(self.u_tree, discpath, file.basename)
+          self.link(self.u_tree, discpath, [file.basename])
       else:
         self.link(self.u_tree, discpath, self.common_files)
       self.create_discinfo(i)
