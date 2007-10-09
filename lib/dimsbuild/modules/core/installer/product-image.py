@@ -18,6 +18,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'product-image',
+      version = 1,
       provides = ['product.img'],
       requires = ['anaconda-version', 'buildstamp-file',
                   'comps-file', 'base-repoid'],
