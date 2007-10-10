@@ -9,15 +9,12 @@ from dims import pps
 from dims.depsolver import DepSolver
 
 from dimsbuild.callback  import BuildDepsolveCallback
-from dimsbuild.constants import RPM_PNVRA
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L0, L1
 
 P = pps.Path
 
 API_VERSION = 5.0
-
-RPM_PNVRA_REGEX = re.compile(RPM_PNVRA)
 
 YUMCONF_HEADER = [
   '[main]',
@@ -38,7 +35,6 @@ class PkglistEvent(Event):
       id = 'pkglist',
       provides = ['pkglist'],
       requires = ['required-packages', 'repos'],
-      conditionally_requires = ['custom-rpms']
     )
 
     self.dsdir = self.mddir / '.depsolve'
@@ -46,8 +42,7 @@ class PkglistEvent(Event):
 
     self.DATA = {
       'config':    ['.'],
-      'variables': ['cvars[\'required-packages\']',
-                    'cvars[\'custom-rpms\']'],
+      'variables': ['cvars[\'required-packages\']'],
       'input':     [],
       'output':    [],
     }
@@ -178,14 +173,6 @@ class PkglistEvent(Event):
       if not isinstance(r, difftest.NoneEntry) and \
          not isinstance(r, difftest.NewEntry):
         removed.extend([ x for x in r if x not in a])
-    if diffdict.has_key("cvars['custom-rpms']"):
-      o,n = diffdict["cvars['custom-rpms']"]
-      if not isinstance(o, difftest.NewEntry) and \
-         not isinstance(o, difftest.NoneEntry) and \
-         not isinstance(n, difftest.NewEntry) and \
-         not isinstance(n, difftest.NoneEntry):
-        for rm in [ x for x in o if x not in n ]:
-          removed.append(RPM_PNVRA_REGEX.match(rm).groups()[1])
     for rm in removed:
       if cache.has_key(rm):
         #print rm, "is not needed anymore"
