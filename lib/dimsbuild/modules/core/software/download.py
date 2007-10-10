@@ -25,18 +25,18 @@ class DownloadEvent(Event):
     )
 
     self._validarchs = getArchList(self.arch)
-    
+
     self.DATA = {
       'variables': ['cvars[\'pkglist\']'],
       'input':     [],
       'output':    [],
     }
-    
+
     self.builddata_dest = self.mddir/'rpms'
-  
+
   def setup(self):
     self.diff.setup(self.DATA)
- 
+
     self.input_rpms = set()
     for repo in self.cvars['repos'].values():
       for rpminfo in repo.repoinfo:
@@ -45,29 +45,29 @@ class DownloadEvent(Event):
         nvr = '%s-%s-%s' % (n,v,r)
         if nvr in self.cvars['pkglist'] and a in self._validarchs:
           rpm = P(rpminfo['file'])
-          if isinstance(rpm, pps.path.http.HttpPath): #! bad        
+          if isinstance(rpm, pps.path.http.HttpPath): #! bad
             rpm._update_stat({'st_size':  rpminfo['size'],
                               'st_mtime': rpminfo['mtime'],
                               'st_mode':  stat.S_IFREG})
           self.input_rpms.add(rpm)
 
     self.io.setup_sync(self.builddata_dest, paths=self.input_rpms)
- 
+
   def run(self):
     self.log(0, L0("downloading packages"))
 
     self.io.sync_input()
     self.diff.write_metadata()
-    
+
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['input-rpms'] = self.input_rpms
     self.cvars['cached-rpms'] = self.io.list_output()
-  
+
   def _deformat(self, rpm):
-    """ 
+    """
     p[ath],n[ame],v[ersion],r[elease],a[rch] = _deformat(rpm)
-    
+
     Takes an rpm with an optional path prefix and splits it into its component parts.
     Returns a path, name, version, release, arch tuple.
     """

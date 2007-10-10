@@ -1,16 +1,23 @@
 import pickle
+import re
 import yum
 
 from dims import difftest
 from dims import filereader
+from dims import pps
 
 from dims.depsolver import DepSolver
 
-from dimsbuild.callback import DepsolveCallback
-from dimsbuild.event    import Event
-from dimsbuild.logging  import L0, L1
+from dimsbuild.callback  import BuildDepsolveCallback
+from dimsbuild.constants import RPM_PNVRA
+from dimsbuild.event     import Event
+from dimsbuild.logging   import L0, L1
+
+P = pps.Path
 
 API_VERSION = 5.0
+
+RPM_PNVRA_REGEX = re.compile(RPM_PNVRA)
 
 YUMCONF_HEADER = [
   '[main]',
@@ -31,6 +38,7 @@ class PkglistEvent(Event):
       id = 'pkglist',
       provides = ['pkglist'],
       requires = ['required-packages', 'repos'],
+      conditionally_requires = ['custom-rpms']
     )
 
     self.dsdir = self.mddir / '.depsolve'
@@ -38,7 +46,8 @@ class PkglistEvent(Event):
 
     self.DATA = {
       'config':    ['.'],
-      'variables': ['cvars[\'required-packages\']'],
+      'variables': ['cvars[\'required-packages\']',
+                    'cvars[\'custom-rpms\']'],
       'input':     [],
       'output':    [],
     }
@@ -81,66 +90,25 @@ class PkglistEvent(Event):
     self.log(1, L1("generating new package list"))
     if not self.dsdir.exists(): self.dsdir.mkdirs()
 
-    depsolve_results = {}
-
-    depsolve_file = self.mddir / 'depsolve-results'
-    self.DATA['output'].append(depsolve_file)
-    if depsolve_file.exists():
-      f = open(depsolve_file)
-      depsolve_cache = pickle.load(f)
-      f.close()
-    else:
-      depsolve_cache = {}
-
-    removed = []
-    added = []
-    diffdict = self.diff.handlers['variables'].diffdict
-    if diffdict.has_key("cvars['required-packages']"):
-      r, a = diffdict["cvars['required-packages']"]
-      if not isinstance(r, difftest.NoneEntry) and \
-         not isinstance(r, difftest.NewEntry):
-        removed.extend([ x for x in r if x not in a])
-      if not isinstance(a, difftest.NoneEntry) and \
-         not isinstance(a, difftest.NewEntry):
-        added.extend([ x for x in a ])
-    added.extend([ x for x in self.cvars.get('required-packages', []) \
-                   if x not in added ])
-    self.__massage_cache(depsolve_cache, added, removed)
-
     repoconfig = self._create_repoconfig()
-    solver = DepSolver(config=str(repoconfig),
-                       root=str(self.dsdir),
-                       arch=self.arch)
+    depsolve_file = self.mddir / '.depsolve-results'
+    self.DATA['output'].append(depsolve_file)
+    solver = IDepSolver(depsolve_file,
+                        config=str(repoconfig), root=str(self.dsdir),
+                        arch=self.arch, callback=BuildDepsolveCallback(self.logger))
     solver.setup()
 
-    cust_pkgs = [ x[0] for x in self.cvars.get('custom-rpms-info', []) ]
-    reqd_pkgs = [ x for x in added if x not in cust_pkgs ]
+    self.__update_cache(solver.depsolve_cache)
 
-    callback = DepsolveCallback(self.logger, len(cust_pkgs) + len(reqd_pkgs))
-    # in the case of incremental-depsolving, have to add the custom
-    # rpms before any of the other rpms. This is because, otherwise,
-    # the rpms that are obsoleted by the custom rpms will get brought
-    # down depending on when the custom rpm is added to the package
-    # sack.
-    callback.start()
-    for pkg in cust_pkgs:
-      callback.pkg_added(pkg)
+    todepsolve = self.cvars.get('required-packages', [])
+
+    for package in todepsolve:
       try:
-        self.__depsolve(pkg, solver, depsolve_cache, depsolve_results)
+        solver.install(name=package)
       except yum.Errors.InstallError:
         pass
-    for pkg in reqd_pkgs:
-      callback.pkg_added(pkg)
-      try:
-        self.__depsolve(pkg, solver, depsolve_cache, depsolve_results)
-      except yum.Errors.InstallError:
-        pass
-    callback.finish()
+    solver.resolveDeps()
     repoconfig.remove()
-
-    f = open(depsolve_file, 'w')
-    pickle.dump(depsolve_results, f)
-    f.close()
 
     pkgtups = [ x.pkgtup for x in solver.tsInfo.getMembers() ]
 
@@ -199,17 +167,32 @@ class PkglistEvent(Event):
     filereader.write(conf, repoconfig)
     return repoconfig
 
-  def __massage_cache(self, cache, added, removed):
+  def __update_cache(self, cache):
     """
     Remove items in cache that are not needed anymore.
     """
+    removed = []
+    diffdict = self.diff.handlers['variables'].diffdict
+    if diffdict.has_key("cvars['required-packages']"):
+      r,a = diffdict["cvars['required-packages']"]
+      if not isinstance(r, difftest.NoneEntry) and \
+         not isinstance(r, difftest.NewEntry):
+        removed.extend([ x for x in r if x not in a])
+    if diffdict.has_key("cvars['custom-rpms']"):
+      o,n = diffdict["cvars['custom-rpms']"]
+      if not isinstance(o, difftest.NewEntry) and \
+         not isinstance(o, difftest.NoneEntry) and \
+         not isinstance(n, difftest.NewEntry) and \
+         not isinstance(n, difftest.NoneEntry):
+        for rm in [ x for x in o if x not in n ]:
+          removed.append(RPM_PNVRA_REGEX.match(rm).groups()[1])
     for rm in removed:
       if cache.has_key(rm):
         #print rm, "is not needed anymore"
         cache.pop(rm)
     topop = []
-    for pkg, info in cache.items():
-      for dep in info[1]:
+    for pkg, deps in cache.items():
+      for dep in deps:
         if dep[0] in removed:
           #print dep[0], "is obsolete, removing", pkg
           topop.append(pkg)
@@ -217,35 +200,54 @@ class PkglistEvent(Event):
     for rm in topop:
       cache.pop(rm)
 
-  def __depsolve(self, package, solver, cache, results):
-    """
-    Incremental depsolving, but before actually running depsolve,
-    check cache.
-    """
-    txmbrs = solver.install(name=package)
-    pkgtup = txmbrs[0].pkgtup
-    n,_,_,v,r = pkgtup
 
-    # If the package has been depsolved before, try to skip depsolving
-    # again.  If an error is raised while adding the dependencies to
-    # the package sack, it means that the dependency has changed or is
-    # missing; in this case run depsolve on the package again.
-    depsolve = True
-    if cache.has_key(n) and cache[n][0] == pkgtup:
-      deps = cache[n][1]
-      try:
-        for dep in deps:
-          solver.install(name=dep[0])
-      except yum.Errors.InstallError, e:
-        depsolve = True
-      else:
-        depsolve = False
-        results[n] = (pkgtup, deps)
+class IDepSolver(DepSolver):
+  def __init__(self, cache_file, config='/etc/yum.conf',
+               root='/tmp/depsolver', arch=None, callback=None):
+    DepSolver.__init__(self, config=config, root=root,
+                       arch=arch, callback=callback)
+    self.cache_file = P(cache_file)
+    self.depsolve_cache = {}
 
-    if depsolve:
-      deps = solver.resolveDeps()
-      results[n] = (pkgtup, deps)
+  def setup(self):
+    DepSolver.setup(self)
+    if self.cache_file.exists():
+      f = open(self.cache_file)
+      self.depsolve_cache = pickle.load(f)
+      f.close()
 
+  def resolveDeps(self):
+    "Resolve dependencies on all selected packages and groups."
+    self.initActionTs()
+    if self.dsCallback: self.dsCallback.start()
+    unresolved = self.tsInfo.getMembers()
+    while len(unresolved) > 0:
+      if self.dsCallback: self.dsCallback.tscheck(len(unresolved))
+      toremove = []
+      for txmbr in unresolved:
+        if self.depsolve_cache.has_key(txmbr.pkgtup):
+          try:
+            self.__recursive_install(txmbr.pkgtup)
+          except yum.Errors.InstallError, e:
+            #print e
+            pass
+          else:
+            if self.dsCallback: self.dsCallback.pkgAdded(txmbr.pkgtup)
+            toremove.append(txmbr)
+      for rm in toremove: unresolved.remove(rm)
+      unresolved = self.tsCheck(unresolved)
+      if self.dsCallback: self.dsCallback.restartLoop()
+    self.deps = {}
+    f = open(self.cache_file, 'w')
+    pickle.dump(self.depsolve_results, f)
+    f.close()
+
+  def __recursive_install(self, pkgtup):
+    for dep in self.depsolve_cache.get(pkgtup, []):
+      if not self.tsInfo.exists(dep):
+        self.install(pkgtup=dep)
+        self.__recursive_install(dep)
+      self.depsolve_results.setdefault(pkgtup, []).append(dep)
 
 EVENTS = {'software': [PkglistEvent]}
 
