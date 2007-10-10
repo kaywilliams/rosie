@@ -36,6 +36,11 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     self._setup_build()
     self._setup_download()
 
+  def check(self):
+    return self.release == '0' or \
+           not self.autofile.exists() or \
+           self.diff.test_diffs()
+
   def run(self):
     self.io.clean_eventcache(all=True)
     if self._test_build('True'):

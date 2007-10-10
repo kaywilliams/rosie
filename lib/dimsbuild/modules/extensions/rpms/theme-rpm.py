@@ -8,7 +8,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
   def __init__(self):
     Event.__init__(self, id='theme-rpm',
                    provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])
-    
+
     self.themename = \
       self.config.get('theme/text()', self.product)
 
@@ -30,6 +30,11 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
   def setup(self):
     self._setup_build()
+
+  def check(self):
+    return self.release == '0' or \
+           not self.autofile.exists() or \
+           self.diff.test_diffs()
 
   def run(self):
     self.io.clean_eventcache(all=True)
