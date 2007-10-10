@@ -136,6 +136,10 @@ LOGOS_LOCALS = LocalsDict({
   '11.2.0.66-1': { # no longer converts png to lss
     'splash-image': dict(filename='syslinux-vesa-splash.jpg', format='jpg')
   },
+  '11.3.0.36-1': {
+    'splash-image': dict(filename='syslinux-vesa-splash.jpg', format='png',
+                         output='splash.jpg')
+  }
 })
 
 INSTALLCLASS_LOCALS = LocalsDict({
@@ -418,6 +422,13 @@ LOGOS_RPM = LocalsDict({
       locations=['/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg'],
       width=640, height=480,
       format='jpeg'
+    ),
+  },
+  '11.3.0.36-1': {
+    'anaconda/syslinux-vesa-splash.jpg': dict(
+      locations=['/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg'],
+      width=640, height=480,
+      format='png'
     ),
   }
 })

@@ -1,4 +1,4 @@
-""" 
+"""
 magic.py
 
 Magic number comparisons - verify that a file at least claims to be the
@@ -41,6 +41,7 @@ FILE_TYPE_GPGKEY   = 'application/x-gpg-key'
 FILE_TYPE_LSS      = 'Syslinux SLL16 image data'
 FILE_TYPE_FAT      = 'FAT filesystem'
 FILE_TYPE_JPG      = 'JPEG image data'
+FILE_TYPE_PNG      = 'PNG image data'
 
 #------ MAGIC NUMBERS ------#
 # Dictionary of known magic numbers. Keys are from the list of file types,
@@ -66,6 +67,7 @@ magic = {
   FILE_TYPE_LSS:      [(0,    TYPE_LONG,   ENDIAN_LITTLE, 0x1413f33d)],
   FILE_TYPE_FAT:      [(510,  TYPE_SHORT,  ENDIAN_LITTLE, 43605L)], # 0xAA55
   FILE_TYPE_JPG:      [(0,    TYPE_SHORT,  ENDIAN_BIG,    0xffd8)],
+  FILE_TYPE_PNG:      [(0,    TYPE_STRING, ENDIAN_BIG,    '\x89PNG'),],
 }
 
 
@@ -77,9 +79,9 @@ class MagicNumber:
     self.type = type
     self.endian = endian
     self.value = value
-  
+
   def __str__(self): return self.desc
-  
+
   def match(self, data):
     """Match data against the magic number defined by this class.  Return True
     if data matches, False otherwise."""
@@ -87,7 +89,7 @@ class MagicNumber:
     elif self.type == TYPE_SHORT:  return self._short_match(data)
     elif self.type == TYPE_LONG:   return self._long_match(data)
     else: return None
-  
+
   #------ MATCH HELPER FUNCTIONS ------#
   def _string_match(self, data):
     c = ''; s = ''
@@ -96,12 +98,12 @@ class MagicNumber:
       s = s + c
       [c] = struct.unpack('c', data[self.offset + i])
     return self.value == s
-  
+
   def _short_match(self, data):
     [data] = struct.unpack(self.endian + self.type,
                            data[self.offset : self.offset+LENGTH_SHORT])
     return self.value == data
-  
+
   def _long_match(self, data):
     [data] = struct.unpack(self.endian + self.type,
                            data[self.offset : self.offset+LENGTH_LONG])

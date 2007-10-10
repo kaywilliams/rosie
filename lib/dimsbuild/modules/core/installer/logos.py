@@ -4,7 +4,8 @@ from dims import shlib
 from dimsbuild.constants import SRPM_REGEX
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L0
-from dimsbuild.magic     import FILE_TYPE_JPG, FILE_TYPE_LSS, match as magic_match
+from dimsbuild.magic     import (FILE_TYPE_JPG, FILE_TYPE_LSS, FILE_TYPE_PNG,
+                                 match as magic_match)
 
 from dimsbuild.modules.shared.installer import ExtractMixin, RpmNotFoundError
 
@@ -20,33 +21,37 @@ class LogosEvent(Event, ExtractMixin):
       requires = ['rpms-directory', 'anaconda-version'],
       conditionally_comes_after = ['gpgsign'],
     )
-    
+
     self.DATA = {
       'config'   : ['.'],
       'variables': ['product', 'cvars[\'anaconda-version\']'],
       'input'    : [],
       'output'   : [],
     }
-    
+
   def setup(self):
     self.format = self.locals.logos['splash-image']['format']
     self.filename = self.locals.logos['splash-image']['filename']
+    if self.locals.logos['splash-image'].has_key('output'):
+      self.splash = self.SOFTWARE_STORE/'isolinux/%s' % \
+                    self.locals.logos['splash-image']['output']
+    else:
+      self.splash = self.SOFTWARE_STORE/'isolinux/splash.%s' % self.format
     self.DATA['input'].extend(self._find_rpms())
     self.diff.setup(self.DATA)
-  
+
   def run(self):
     self.log(0, L0("embedding distribution-specific branding images into installer"))
     self._extract()
-  
+
   def apply(self):
     self.io.clean_eventcache()
-    splash = self.SOFTWARE_STORE/'isolinux/splash.%s' % self.format
-    if not splash.exists():
-      raise RuntimeError("missing file: '%s'" % splash)
-    if not self._validate_splash(splash):
-      raise RuntimeError("'%s' is not a valid '%s' file" %(splash, self.format))
-    self.cvars['installer-splash'] = splash
-    
+    if not self.splash.exists():
+      raise RuntimeError("missing file: '%s'" % self.splash)
+    if not self._validate_splash():
+      raise RuntimeError("'%s' is not a valid '%s' file" %(self.splash, self.format))
+    self.cvars['installer-splash'] = self.splash
+
     self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
       (self.mddir/'pixmaps').listdir())
 
@@ -55,40 +60,39 @@ class LogosEvent(Event, ExtractMixin):
     output_dir = self.SOFTWARE_STORE/'isolinux'
     if not output_dir.exists():
       output_dir.mkdirs()
-    
+
     # copy images to the product.img/ folder
     output = self._copy_pixmaps(working_dir)
-    
+
     # create the splash image
-    output.append(self._generate_splash(working_dir))
-    
+    self._generate_splash(working_dir)
+    output.append(self.splash)
+
     return output
-  
+
   def _generate_splash(self, working_dir):
-    splash = self.SOFTWARE_STORE/'isolinux/splash.%s' % self.format
     # convert the syslinux-splash.png to splash.lss and copy it
     # to the isolinux/ folder
     try:
       startimage = working_dir.findpaths(glob=self.filename)[0]
     except IndexError:
       raise SplashImageNotFound("missing '%s' in logos RPM" % self.filename)
-    
-    if self.format == 'jpg':
-      startimage.cp(splash)
-    else:
+
+    if self.format == 'lss':
       shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
-                    %(startimage, splash,))
-    return splash
-  
+                    %(startimage, self.splash))
+    else:
+      startimage.cp(self.splash)
+
   def _copy_pixmaps(self, working_dir):
-    """ 
+    """
     Create the product.img folder that can be used by the product.img
     module.
     """
-    # link the images from the RPM folder to the pixmaps/ folder 
+    # link the images from the RPM folder to the pixmaps/ folder
     product_img = self.mddir/'pixmaps'
     product_img.mkdirs()
-    
+
     # generate the list of files to use and copy them to the
     # product.img folder
     pixmaps = []
@@ -97,15 +101,17 @@ class LogosEvent(Event, ExtractMixin):
       self.copy(img, product_img, link=True)
       outfile = product_img/img.basename
       pixmaps.append(outfile)
-    
+
     return pixmaps
-  
-  def _validate_splash(self, splash):
+
+  def _validate_splash(self):
     if self.format == 'jpg':
-      return magic_match(splash) == FILE_TYPE_JPG
+      return magic_match(self.splash) == FILE_TYPE_JPG
+    elif self.format == 'png':
+      return magic_match(self.splash) == FILE_TYPE_PNG
     else:
-      return magic_match(splash) == FILE_TYPE_LSS
-      
+      return magic_match(self.splash) == FILE_TYPE_LSS
+
   def _find_rpms(self):
     pkgname = self.config.get('package/text()', '%s-logos' % self.product)
     rpms = P(self.cvars['rpms-directory']).findpaths(
