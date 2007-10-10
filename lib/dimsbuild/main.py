@@ -228,7 +228,7 @@ class Build(object):
 
     Event.logger.log(1, L1("dimsbuild.conf"))
     mcvalidator = MainConfigValidator(Event.SHARE_DIR/'schemas', Event.mainconfig)
-    mcvalidator.validate('dimsbuild', 'dimsbuild', schema_file='dimsbuild.rng')
+    mcvalidator.validate('dimsbuild', schema_file='dimsbuild.rng')
 
     # validate individual sections of distro.conf
     Event.logger.log(1, L1(P(Event._config.file).basename))
@@ -238,10 +238,10 @@ class Build(object):
       element_name = e.__module__.split('.')[-1]
       if element_name == 'main':
         validator.config = Event._config
-        validator.validate(element_name, 'main', '%s.rng' % element_name)
+        validator.validate('main', '%s.rng' % element_name)
       else:
         validator.config = e.config
-        validator.validate(element_name, '.', '%s.rng' % element_name)
+        validator.validate('.', '%s.rng' % element_name)
       e.validate() # allow events to validate other things not covered in schema
 
     # verify top-level elements

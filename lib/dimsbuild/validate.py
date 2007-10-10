@@ -12,11 +12,10 @@ class BaseConfigValidator:
     self.config = config
     self.elements = []
 
-  def validate(self, element_name, xpath_query, schema_file=None, schema_contents=None):
+  def validate(self, xpath_query, schema_file=None, schema_contents=None):
     if (schema_file and schema_contents) or \
        (not schema_file and not schema_contents):
       raise RuntimeError("either the schema file or the schema contents must be specified")
-    self.elements.append(element_name)
     if not self.config.pathexists(xpath_query):
       return
     if schema_contents is None:
@@ -30,6 +29,7 @@ class BaseConfigValidator:
     try:
       try:
         tree = self.config.get(xpath_query)
+        self.elements.append(tree.tag)
         schema_tree = self.massage_schema(schema_contents, tree.tag, schema_file)
         schema = etree.fromstring(str(schema_tree))
         relaxng = etree.RelaxNG(etree.ElementTree(schema))
