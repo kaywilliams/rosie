@@ -67,7 +67,6 @@ class BuildSyncCallback(CachedSyncCallback):
 
 
 class BuildDepsolveCallback:
-  ## Not needed anymore; remove?
   def __init__(self, logger):
     self.logger = logger
     self.loop = 1
@@ -95,27 +94,3 @@ class BuildDepsolveCallback:
     self.loop += 1
   def end(self):
     self.logger.log(2, 'pkglist resolution complete')
-
-class DepsolveCallback:
-  def __init__(self, logger, count):
-    self.bar = None
-    self.count = count
-    self.logger = logger
-
-  def start(self):
-    if self.logger.test(2):
-      self.bar = ProgressBar(self.count, '')
-      self.bar.layout = '[title:width=18] [ratio:width=9] [bar:width=38] [percent] [time]'
-      self.bar.start()
-      self.bar.draw()
-
-  def pkg_added(self, package):
-    if self.logger.test(2):
-      self.bar.title = '    - %s' % package
-      self.bar.update(self.bar.position+1)
-      self.bar.draw()
-
-  def finish(self):
-    if self.logger.test(2):
-      self.logger.logfile.log(2, str(self.bar))
-      self.bar.finish()
