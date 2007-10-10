@@ -110,11 +110,13 @@ FILES_LOCALS = LocalsDict({
       'minstg2.img':  dict(path='%(product)s/base/minstg2.img')
     },
   },
-  '11.1.0.11-1': { # updates.img to cpio format
-    'installer': {
-      'updates.img':  dict(format='cpio', zipped=True),
-    },
-  },
+# using ext2 format as anaconda does not supported cpio all cases, i.e. 
+# loadUrlImages() in urlinstall.c
+#  '11.1.0.11-1': { # updates.img to cpio format
+#    'installer': {
+#      'updates.img':  dict(format='cpio', zipped=True),
+#    },
+#  },
   '11.1.0.51-1': { # stage 2 images moved to images/ folder
     'stage2': {
       'stage2.img':   dict(path='images/stage2.img'),
