@@ -27,7 +27,8 @@ class InputFilesMixin:
         for item in self.config.xpath('%s/path' % xpath, []):
           s = P(item.get('text()'))
           d = default_dir / P(item.get('@install-dest', ''))
-          self.io.setup_sync(self.rpmdir / d.lstrip('/'), paths=[s], id=xpath)
+          m = item.get('@mode', None)
+          self.io.setup_sync(self.rpmdir / d.lstrip('/'), paths=[s], id=xpath, defmode=m)
 
   def _get_files(self):
     sources = {}

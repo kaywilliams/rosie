@@ -1,4 +1,4 @@
-<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
 
   <define name="element-obsoletes">
@@ -8,19 +8,24 @@
         <ref name="value-boolean"/>
       </attribute>
       </optional>
-      
+
       <oneOrMore>
       <element name="package"><text/></element>
       </oneOrMore>
     </element>
   </define>
-  
+
   <define name="element-path-with-install-dest">
     <element name="path">
        <optional><attribute name="install-dest"/></optional>
+       <optional>
+         <attribute name="mode">
+           <ref name="value-mode"/>
+         </attribute>
+       </optional>
        <text/>
     </element>
   </define>
-  
+
   <include href="lib.rng"/>
 </grammar>

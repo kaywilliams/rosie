@@ -1,3 +1,5 @@
+import os
+
 from dims import pps
 from dims import xmllib
 
@@ -25,7 +27,7 @@ class IOObject:
     self.sync_info = {}
 
   # former FilesMixin stuff
-  def setup_sync(self, dst, xpaths=[], paths=[], id=None, iprefix=None):
+  def setup_sync(self, dst, xpaths=[], paths=[], id=None, iprefix=None, defmode=None):
     """
     Currently, setup_sync() can be called only after diff.setup() is
     called.
@@ -37,6 +39,7 @@ class IOObject:
     @param id      : give an id to refer to these input files with. If
                      not specified, it defaults to the xpath query or
                      the path to the file.
+    @param defmode : default mode of the file/directory
 
     @return inputs : [input file, ...]
     @return outputs: [output file, ...]
@@ -54,12 +57,13 @@ class IOObject:
       for item in self.ptr.config.xpath(x,[]):
         s = P(item.get('text()'))
         d = P(item.get('@dest', ''))
+        m = item.get('@mode', None) or defmode
         if isinstance(s, pps.path.file.FilePath): #! bad
           s = iprefix / s
         s = P(s)
         d = dst / d.lstrip('/')
         inputs.append(s)
-        outputs.extend(self._setup_sync(s, d, id or x))
+        outputs.extend(self._setup_sync(s, d, id or x, m))
 
     for s in paths:
       assert isinstance(s, str)
@@ -67,11 +71,11 @@ class IOObject:
         s = iprefix / s
       s = P(s)
       inputs.append(s)
-      outputs.extend(self._setup_sync(s, dst, id or s))
+      outputs.extend(self._setup_sync(s, dst, id or s, defmode))
 
     return inputs, outputs
 
-  def _setup_sync(self, sourcefile, dstdir, id):
+  def _setup_sync(self, sourcefile, dstdir, id, mode):
     if not sourcefile.exists():
       raise IOError("missing input file(s) %s" % sourcefile)
     rtn = []
@@ -79,7 +83,7 @@ class IOObject:
     for f in sourcefile.findpaths(type=pps.constants.TYPE_NOT_DIR):
       self.sync_info.setdefault(id, {}).setdefault(f, [])
       ofile = dstdir / f.tokens[len(sourcefile.tokens)-1:]
-      self.sync_info[id][f].append(ofile)
+      self.sync_info[id][f].append((ofile, mode))
       self.ptr.diff.handlers['output'].odata.append(ofile)
       rtn.append(ofile)
     return rtn
@@ -131,11 +135,11 @@ class IOObject:
     for id in what:
       if not self.sync_info.has_key(id):
         continue
-      for s,ds in self.sync_info[id].items():
-        for d in ds:
+      for s,dms in self.sync_info[id].items():
+        for d,m in dms:
           if self.ptr.diff.handlers['input'].diffdict.has_key(s) or not d.exists():
             d.rm(force=True)
-            sync_items.append((s,d))
+            sync_items.append((s,d,m))
 
     if not sync_items: return
 
@@ -144,9 +148,11 @@ class IOObject:
     outputs = []
     cb = cb or self.ptr.files_callback
     cb.sync_start()
-    for s,d in sync_items:
+    for s,d,m in sync_items:
       if copy: self.ptr.copy(s, d.dirname, link=link)
       else:    self.ptr.cache(s, d.dirname, link=link)
+
+      if m: os.chmod(d, int(m, 8))
       outputs.append(d)
     return sorted(outputs)
 
@@ -168,6 +174,6 @@ class IOObject:
     for id in what:
       if not self.sync_info.has_key(id):
         continue
-      for ds in self.sync_info[id].values():
-        rtn.extend(ds)
+      for dms in self.sync_info[id].values():
+        rtn.extend([ d for d,_ in dms ])
     return sorted(rtn)

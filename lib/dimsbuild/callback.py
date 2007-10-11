@@ -71,10 +71,10 @@ class BuildDepsolveCallback:
     self.loop = 1
     self.count = 0
     self.bar = None
-  
+
   def start(self):
     pass
-  
+
   def tscheck(self, unresolved=0):
     self.count = unresolved
     if self.logger.test(2):
@@ -84,17 +84,17 @@ class BuildDepsolveCallback:
                              layout='%(title)-28.28s [%(bar)s] %(ratio)9.9s (%(time-elapsed)s)',
                              throttle=10)
       self.bar.start()
-  
+
   def pkgAdded(self, pkgtup=None, state=None):
     if self.logger.test(2):
       self.bar.status.position += 1
-  
+
   def restartLoop(self):
     if self.logger.test(2):
       self.bar.update(self.bar.status.size)
       self.bar.finish() #!
       self.logger.logfile.log(2, str(self.bar))
     self.loop += 1
-  
+
   def end(self):
     self.logger.log(2, 'pkglist resolution complete')
