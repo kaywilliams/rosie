@@ -134,6 +134,7 @@ class IOObject:
       for s,ds in self.sync_info[id].items():
         for d in ds:
           if self.ptr.diff.handlers['input'].diffdict.has_key(s) or not d.exists():
+            d.rm(force=True)
             sync_items.append((s,d))
 
     if not sync_items: return
