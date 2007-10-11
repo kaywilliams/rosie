@@ -51,15 +51,14 @@ class BuildSyncCallback(CachedSyncCallback):
 
   def _cp_start(self, size, text, seek=0.0):
     CachedSyncCallback._cp_start(self, size=size, text=L2(text), seek=seek)
-
-  def _cp_update(self, amount_read):
-    CachedSyncCallback._cp_update(self, amount_read=amount_read)
-
-  def _cp_end(self, amount_read):
-    CachedSyncCallback._cp_end(self, amount_read=amount_read)
+  
+  def _cache_end(self):
+    self.bar.update(self.bar.status.size)
+    self.bar.finish()
     # if we're at log level 3, write the completed bar to the log file
     if self.logger.test(3):
       self.logger.logfile.log(3, str(self.bar))
+    del self.bar
 
   def _link_xdev(self, src, dst):
     self.logger.log(5, "Attempted invalid cross-device link between '%s' "
@@ -82,7 +81,7 @@ class BuildDepsolveCallback:
       if self.count == 1: msg = 'loop %d (%d package)'
       else:               msg = 'loop %d (%d packages)'
       self.bar = ProgressBar(size=self.count, title=L2(msg % (self.loop, self.count)),
-                             layout='%(title)-28.28s %(ratio)9.9s [%(bar)s] %(time-elapsed)s',
+                             layout='%(title)-28.28s [%(bar)s] %(ratio)9.9s (%(time-elapsed)s)',
                              throttle=10)
       self.bar.start()
   
@@ -92,7 +91,8 @@ class BuildDepsolveCallback:
   
   def restartLoop(self):
     if self.logger.test(2):
-      self.bar.finish()
+      self.bar.update(self.bar.status.size)
+      self.bar.finish() #!
       self.logger.logfile.log(2, str(self.bar))
     self.loop += 1
   
