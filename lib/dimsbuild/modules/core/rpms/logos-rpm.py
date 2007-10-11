@@ -22,7 +22,7 @@ API_VERSION = 5.0
 class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
   def __init__(self):
     Event.__init__(self, id='logos-rpm',
-                   requires=['source-vars', 'anaconda-version'],
+                   requires=['source-vars', 'anaconda-version', 'logos-versions'],
                    provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])
     RpmBuildMixin.__init__(self,
                            '%s-logos' % self.product,
@@ -44,7 +44,11 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
     }
 
   def setup(self):
-    self._setup_build()
+    obsoletes = ' '.join([ '%s %s %s' %(n,e,v)
+                            for n,e,v in self.cvars.get('logos-versions', [])])
+    provides = ' '.join([ 'system-logos %s %s' % (e,v)
+                            for _,e,v in self.cvars.get('logos-versions', [])])
+    self._setup_build(obsoletes=obsoletes, provides=provides)
     self._setup_locals()
 
     # set the font to use

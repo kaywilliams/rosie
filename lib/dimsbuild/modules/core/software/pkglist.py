@@ -1,3 +1,4 @@
+import copy
 import pickle
 import re
 import yum
@@ -93,14 +94,13 @@ class PkglistEvent(Event):
                         arch=self.arch, callback=BuildDepsolveCallback(self.logger))
     solver.setup()
 
-    self.__update_cache(solver.depsolve_cache)
-
-    todepsolve = self.cvars.get('required-packages', [])
+    todepsolve = copy.deepcopy(self.cvars.get('required-packages', []))
+    self.__filter_cache(solver.depsolve_cache, todepsolve)
 
     for package in todepsolve:
       try:
         solver.install(name=package)
-      except yum.Errors.InstallError:
+      except yum.Errors.InstallError, e:
         pass
     solver.resolveDeps()
     repoconfig.remove()
@@ -162,7 +162,7 @@ class PkglistEvent(Event):
     filereader.write(conf, repoconfig)
     return repoconfig
 
-  def __update_cache(self, cache):
+  def __filter_cache(self, cache, todepsolve):
     """
     Remove items in cache that are not needed anymore.
     """
@@ -173,19 +173,31 @@ class PkglistEvent(Event):
       if not isinstance(r, difftest.NoneEntry) and \
          not isinstance(r, difftest.NewEntry):
         removed.extend([ x for x in r if x not in a])
-    for rm in removed:
-      if cache.has_key(rm):
-        #print rm, "is not needed anymore"
-        cache.pop(rm)
+
+    # remove all cached data for packages no longer needed
+    for item in removed:
+      if cache.has_key(item):
+        cache.pop(item)
+
+    # remove cached data for all the packages requiring
+    # the previously-required packages.
     topop = []
     for pkg, deps in cache.items():
       for dep in deps:
         if dep[0] in removed:
-          #print dep[0], "is obsolete, removing", pkg
           topop.append(pkg)
           break
-    for rm in topop:
-      cache.pop(rm)
+
+    # make sure that depsolve is run on packages that needed
+    # previously-required packages.
+    for pkg, deps in cache.items():
+      for dep in deps:
+        if dep in topop:
+          todepsolve.append(dep[0])
+
+    # update the cache by removing stale data
+    for pkg in topop:
+      cache.pop(pkg)
 
 
 class IDepSolver(DepSolver):

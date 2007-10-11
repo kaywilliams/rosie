@@ -143,9 +143,14 @@ class RpmBuildMixin:
     if self.config.pathexists('obsoletes/package/text()'):
       self.obsoletes += ' ' + ' '.join(self.config.xpath(
                                   'obsoletes/package/text()'))
+    if kwargs.has_key('obsoletes'):
+      self.obsoletes += ' ' + kwargs['obsoletes']
+
     self.provides = self.obsoletes
     if self.defprovides:
       self.provides += ' ' + self.defprovides
+    if kwargs.has_key('provides'):
+      self.provides += ' ' + kwargs['provides']
 
     if self.defrequires:
       self.requires = self.defrequires
@@ -153,6 +158,8 @@ class RpmBuildMixin:
       self.requires = ''
     if self.config.pathexists('requires/package/text()'):
       self.requires += ' ' + ' '.join(self.config.xpath('requires/package/text()'))
+    if kwargs.has_key('requires'):
+      self.requires += ' ' + kwargs['requires']
 
     self.diff.setup(self.DATA)
     for dst, src in self.cvars['%s-content' % self.id].items():
