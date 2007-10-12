@@ -70,8 +70,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       if self.config.get('requires', None) or \
          self.config.get('obsoletes', None) or \
          self.config.get('config/script/path/text()', None) or \
-         self.config.get('config/supporting-files/path/text()', None) or \
-         self.cvars['%s-content' % self.id]:
+         self.config.get('config/supporting-files/path/text()', None):
         return True
     return False
 

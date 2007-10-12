@@ -2,11 +2,8 @@ import fcntl
 import socket
 import struct
 
-from dims import filereader
 from dims import pps
 from dims import shlib
-
-from dims.repocreator import YumRepoCreator
 
 from dimsbuild.constants import *
 from dimsbuild.event     import Event
@@ -21,7 +18,7 @@ class PublishSetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish-setup',
-      provides = ['publish-path', 'publish-content', 'repo-files'],
+      provides = ['publish-content', 'publish-path', 'web-path', ],
       conditionally_requires = ['gpgsign-public-key'],
     )
     
@@ -44,27 +41,12 @@ class PublishSetupEvent(Event):
        'http://' + self._getIpAddress()) / prefix
     self.publish_path = \
       P(self.config.get('local-webroot/text()', '/var/www/html')) / \
-        prefix
-  
-  def run(self):
-    # generate a .repo file yum can use to update from this machine
-    lines = [ '[%s]'         % self.product,
-              'name=%s - %s' % (self.fullname, self.basearch),
-              'baseurl=%s'   % (self.web_path/'os') ]
-    
-    if self.cvars['gpgsign-public-key']:
-      gpgkey = self.web_path/P(self.cvars['gpgsign-public-key']).basename
-      lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
-    else:
-      lines.append('gpgcheck=0')
-    
-    filereader.write(lines, self.repofile)
-    self.repofile.chmod(0644)
+        prefix 
   
   def apply(self):
     self.cvars['publish-content'] = set()
     self.cvars['publish-path'] = self.publish_path
-    self.cvars['publish-repo-file'] = self.repofile
+    self.cvars['web-path'] = self.web_path
     
     self.diff.write_metadata()
   

@@ -1,6 +1,8 @@
 from dims import filereader
 from dims import pps
 
+from dims.repocreator import YumRepoCreator
+
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event
 
@@ -36,7 +38,8 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
 
     self.DATA = {
       'config':    ['*'],
-      'variables': ['fullname', 'product', 'pva'],
+      'variables': ['fullname', 'product', 'pva', 'cvars[\'web-path\']',
+                    'cvars[\'gpgsign-public-key\']',],
       'input':     [],
       'output':    [],
     }
@@ -44,7 +47,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     Event.__init__(self, id='release-rpm',
                    requires=['source-vars', 'input-repos'],
                    provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
-                   conditionally_requires=['gpgsign-public-key', 'repo-files'])
+                   conditionally_requires=['web-path', 'gpgsign-public-key',])
     RpmBuildMixin.__init__(self,
                            '%s-release' % self.product,
                            '%s release files created by dimsbuild' % self.fullname,
@@ -100,25 +103,18 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
 
   def _get_files(self):
     sources = {}
-    sources.update(RpmBuildMixin._get_files(self))
     sources.update(InputFilesMixin._get_files(self))
-    sources.update(self._get_repo_files())
-    return sources
-
-  def _get_repo_files(self):
-    sources = {self.repo_dir: []}
-    if self.cvars['publish-repos-file']:
-      sources[self.repo_dir].append(self.cvars['publish-repos-file'])
-    if self.cvars['input-repos-file']:
-      if self.config.get('yum-repos/@include-input',
-                         'True') in BOOLEANS_TRUE:
-        sources[self.repo_dir].append(self.cvars['input-repos-file'])
     return sources
 
   def _generate(self):
     "Create additional files."
     self.io.sync_input()
-    self._generate_etc_files(self.rpmdir/self.etc_dir.lstrip('/'))
+    for type in self.installinfo.keys():
+      _, dir = self.installinfo[type]
+      generator = '_generate_%s_files' % type
+      if hasattr(self, generator):
+        dest = self.rpmdir/dir.lstrip('/')
+        getattr(self, generator)(dest)
     self._verify_release_notes()
 
   def _verify_release_notes(self):
@@ -161,5 +157,29 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     (dest/'%s-release' % self.product).chmod(0644)
     (dest/'issue').chmod(0644)
     (dest/'issue.net').chmod(0644)
+
+  def _generate_repo_files(self, dest):
+    dest.mkdirs() 
+    self.repofile    = dest/'%s.repo' % self.product
+    self.extra_repofile = dest/'extra.repo'    
+    
+    # create repo file for distribution, unless publish disabled
+    if self.cvars['web-path']:
+      path = self.cvars['web-path'] / 'os'
+      lines = [ '[%s]' % self.product,
+                'name=%s - %s' % (self.fullname, self.basearch),
+                'baseurl=%s'   % path ]
+      if self.cvars['gpgsign-public-key']:
+        gpgkey = '%s/%s' % (path, P(self.cvars['gpgsign-public-key']).basename)
+        lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
+      else:
+        lines.append('gpgcheck=0')
+      filereader.write(lines, self.repofile)
+    
+    # create 'extra' repo file for input repos, if requested
+    if self.config.get('yum-repos/@include-input', 'True') in BOOLEANS_TRUE:
+      rc = YumRepoCreator(self.extra_repofile, self._config.file, '/distro/repos')
+      rc.createRepoFile()
+   
 
 EVENTS = {'rpms': [ReleaseRpmEvent]}

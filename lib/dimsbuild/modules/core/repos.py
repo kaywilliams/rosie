@@ -1,7 +1,6 @@
 import re
 
 from dims import filereader
-from dims.repocreator import YumRepoCreator
 
 from dimsbuild.event    import Event
 from dimsbuild.logging  import L0, L1, L2
@@ -18,19 +17,16 @@ class ReposEvent(Event, RepoEventMixin):
       provides = ['anaconda-version',
                   'logos-versions',
                   'repos',         # provided by repos and localrepo events
-                  'input-repos',   # provided by repos event only, used by release.py
-                  'base-repoid',
-                  'repo-files'],
+                  'input-repos',   # provided by repos event only, used by release-rpm
+                  'base-repoid',],
     )
     RepoEventMixin.__init__(self)
-
-    self.repofile = self.mddir/'extra.repo'
 
     self.DATA = {
       'variables': [], # filled later
       'config':    ['.'],
       'input':     [],
-      'output':    [self.repofile], # more inserted later
+      'output':    [],
     }
 
   def validate(self):
@@ -49,11 +45,6 @@ class ReposEvent(Event, RepoEventMixin):
     # process available package lists
     self.log(1, L1("reading available packages"))
     self.read_new_packages()
-
-    # write .repo file
-    rc = YumRepoCreator(self.repofile, self._config.file, '/distro/repos')
-    rc.createRepoFile()
-    self.repofile.chmod(0644)
 
     self.diff.write_metadata()
 
@@ -77,7 +68,6 @@ class ReposEvent(Event, RepoEventMixin):
         self.cvars['anaconda-version'] = get_anaconda_version(repo.pkgsfile)
 
     self.cvars['repos'] = self.repos
-    self.cvars['input-repo-file'] = self.repofile
 
 EVENTS = {'setup': [ReposEvent]}
 

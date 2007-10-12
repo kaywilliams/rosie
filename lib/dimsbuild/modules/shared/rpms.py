@@ -125,9 +125,6 @@ class RpmBuildMixin:
 
     self.autofile = P(self._config.file + '.dat')
 
-    # dictionary of dest to source list pairs for putting files inside rpms
-    self.cvars['%s-content' % self.id] = {}
-
   def _setup_build(self, **kwargs):
     self.build_folder = self.mddir/'build'
 
@@ -163,10 +160,6 @@ class RpmBuildMixin:
       self.requires += ' ' + kwargs['requires']
 
     self.diff.setup(self.DATA)
-    for dst, src in self.cvars['%s-content' % self.id].items():
-      self.io.setup_sync(self.rpmsdir/dst.lstrip('/'),
-                         paths=src,
-                         id='%s-input-files' % self.name)
 
     self.arch      = kwargs.get('arch',     'noarch')
     self.author    = kwargs.get('author',   'dimsbuild')
@@ -292,7 +285,6 @@ class RpmBuildMixin:
 
   def _write_manifest(self):
     manifest = ['setup.py']
-    manifest.extend(self.cvars['%s-content' % self.id].values())
     manifest.extend( [ x.tokens[len(self.build_folder.tokens):] \
                        for x in self.build_folder.findpaths(type=pps.constants.TYPE_NOT_DIR) ] )
     filereader.write(manifest, self.build_folder/'MANIFEST')
@@ -325,11 +317,7 @@ class RpmBuildMixin:
       spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))
 
   def _get_files(self):
-    sources = {}
-    for dst, src in self.cvars['%s-content' % self.id].items():
-      if not dst.isabs(): dst = P('/'+dst)
-      sources.setdefault(dst, []).extend(src)
-    return sources
+    return {}
 
 
 #---------- GLOBAL VARIABLES --------#
