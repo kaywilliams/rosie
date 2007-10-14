@@ -1,8 +1,6 @@
 from dims import filereader
 from dims import pps
 
-from dims.repocreator import YumRepoCreator
-
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event
 
@@ -161,10 +159,9 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
   def _generate_repo_files(self, dest):
     dest.mkdirs() 
     self.repofile    = dest/'%s.repo' % self.product
-    self.extra_repofile = dest/'extra.repo'    
     
-    # create repo file for distribution, unless publish disabled
-    if self.cvars['web-path']:
+    if self.config.get('yum-repos/@create-base', 'True') in BOOLEANS_TRUE \
+      and self.cvars['web-path']:
       path = self.cvars['web-path'] / 'os'
       lines = [ '[%s]' % self.product,
                 'name=%s - %s' % (self.fullname, self.basearch),
@@ -175,11 +172,6 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
       else:
         lines.append('gpgcheck=0')
       filereader.write(lines, self.repofile)
-    
-    # create 'extra' repo file for input repos, if requested
-    if self.config.get('yum-repos/@include-input', 'True') in BOOLEANS_TRUE:
-      rc = YumRepoCreator(self.extra_repofile, self._config.file, '/distro/repos')
-      rc.createRepoFile()
    
 
 EVENTS = {'rpms': [ReleaseRpmEvent]}

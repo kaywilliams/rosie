@@ -82,9 +82,12 @@
 
             <optional>
               <element name="yum-repos">
-                <attribute name="include-input">
-                  <ref name="value-boolean"/>
-                </attribute>
+                <optional>
+                  <attribute name="create-base">
+                    <ref name="value-boolean"/>
+                  </attribute>
+                </optional>
+
                 <zeroOrMore>
                   <ref name="element-path"/>
                 </zeroOrMore>
