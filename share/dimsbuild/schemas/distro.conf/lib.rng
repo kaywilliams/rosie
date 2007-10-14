@@ -46,13 +46,6 @@
           </element>
         </optional>
 
-        <optional>
-          <interleave>
-            <element name="username"><text/></element>
-            <element name="password"><text/></element>
-          </interleave>
-        </optional>
-
       </interleave>
     </element>
   </define>

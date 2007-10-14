@@ -55,7 +55,7 @@ element repodata-path { text }
       The repos element contains configuration data regarding the source repositories
       from which to gather RPMs for the custom distribution.  It lists each
       repository separately, along with any and all information required to download
-      files from it (such as username/password for https locations).
+      files from it.
       </para>
       <para>
       The repos container must contain exactly one repo with type 'base'; this

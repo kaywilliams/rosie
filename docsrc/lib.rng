@@ -49,29 +49,6 @@ element include {
       </refsection>
     </refsect2>
     
-    <!-- password -->
-    <refsect2>
-      <title>&lt;password&gt;</title>
-      <para>
-      A password that dimsbuild can provide to another program in order to access its
-      functionality; for example, repo elements uses passwords to give dimsbuild the
-      necessary authentication information when connecting to secure locations.  Note
-      - use of password elements is always optional and is strongly cautioned, as
-      passwords are stored in plaintext form and easily read by others.
-      </para>
-      <programlisting>
-element password { text }
-      </programlisting>
-      <refsection>
-        <title>Parents</title>
-        <para>gpgsign, repo</para>
-      </refsection>
-      <refsection>
-        <title>See also</title>
-        <para>sign, public, secret</para>
-      </refsection>
-    </refsect2>
-    
     <!-- path -->
     <refsect2>
       <title>&lt;path&gt;</title>
@@ -166,10 +143,6 @@ element repo {
   &amp; element gpgkey { ... }?
   &amp; element gpgcheck { ... }?
   &amp; element repodata-path { ... }?
-  &amp; (
-    element username { ... }
-    &amp; element password { ... }
-  )?
 }
       </programlisting>
       <refsection>
@@ -208,23 +181,6 @@ element repo {
   &lt;gpgcheck&gt;yes&lt;/gpgcheck&gt;
 &lt;/repo&gt;
         </programlisting>
-      </refsection>
-    </refsect2>
-    
-    <!-- username -->
-    <refsect2>
-      <title>&lt;username&gt;</title>
-      <para>
-      A username that dimsbuild can provide to another program in order to access its
-      functionality; for example, the repo element uses the username element to access
-      https locations, if requested.
-      </para>
-      <programlisting>
-element username { text }
-      </programlisting>
-      <refsection>
-        <title>Parents</title>
-        <para>repo</para>
       </refsection>
     </refsect2>
     

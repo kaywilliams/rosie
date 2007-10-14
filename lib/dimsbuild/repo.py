@@ -47,10 +47,7 @@ class Repo:
     
     self.gpgcheck = False
     self.gpgkeys = []
-    
-    self.username = None
-    self.password = None
-    
+ 
     self.pkgsfile = None
     self.repoinfo = []
     
