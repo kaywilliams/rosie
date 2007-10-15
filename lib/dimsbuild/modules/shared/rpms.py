@@ -23,10 +23,10 @@ class InputFilesMixin:
     for k,v in self.installinfo.items():
       xpath, dst = v
       if xpath:
-        default_dir = P(dst) / P(self.config.get('%s/@install-dest' % xpath, ''))
+        default_dir = P(dst) / P(self.config.get('%s/@dest' % xpath, ''))
         for item in self.config.xpath('%s/path' % xpath, []):
           s = P(item.get('text()'))
-          d = default_dir / P(item.get('@install-dest', ''))
+          d = default_dir / P(item.get('@dest', ''))
           m = item.get('@mode', None)
           self.io.setup_sync(self.rpmdir / d.lstrip('/'), paths=[s], id=xpath, defmode=m)
 
@@ -35,7 +35,7 @@ class InputFilesMixin:
     for k,v in self.installinfo.items():
       xpath, install_dir = v
       if xpath:
-        dest = P(self.config.get('%s/@install-dest' % xpath, ''))
+        dest = P(self.config.get('%s/@dest' % xpath, ''))
         install_dir = P(install_dir) / dest
       if not install_dir.isabs(): install_dir = P('/'+install_dir)
       input_dir = self.rpmdir / install_dir.lstrip('/')

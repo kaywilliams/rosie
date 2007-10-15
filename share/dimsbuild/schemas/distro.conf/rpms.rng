@@ -15,17 +15,5 @@
     </element>
   </define>
 
-  <define name="element-path-with-install-dest">
-    <element name="path">
-       <optional><attribute name="install-dest"/></optional>
-       <optional>
-         <attribute name="mode">
-           <ref name="value-mode"/>
-         </attribute>
-       </optional>
-       <text/>
-    </element>
-  </define>
-
   <include href="lib.rng"/>
 </grammar>

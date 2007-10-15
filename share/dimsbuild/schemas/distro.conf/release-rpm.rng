@@ -43,11 +43,11 @@
                   <optional>
                     <element name="omf">
                       <optional>
-                        <attribute name="install-dest"><text/></attribute>
+                        <attribute name="dest"><text/></attribute>
                       </optional>
 
                       <oneOrMore>
-                        <ref name="element-path-with-install-dest"/>
+                        <ref name="element-path-with-dest"/>
                       </oneOrMore>
                     </element>
                   </optional>
@@ -55,11 +55,11 @@
                   <optional>
                     <element name="html">
                       <optional>
-                        <attribute name="install-dest"><text/></attribute>
+                        <attribute name="dest"><text/></attribute>
                       </optional>
 
                       <oneOrMore>
-                        <ref name="element-path-with-install-dest"/>
+                        <ref name="element-path-with-dest"/>
                       </oneOrMore>
                     </element>
                   </optional>
@@ -67,11 +67,11 @@
                   <optional>
                     <element name="doc">
                       <optional>
-                        <attribute name="install-dest"><text/></attribute>
+                        <attribute name="dest"><text/></attribute>
                       </optional>
 
                       <oneOrMore>
-                        <ref name="element-path-with-install-dest"/>
+                        <ref name="element-path-with-dest"/>
                       </oneOrMore>
                     </element>
                   </optional>

@@ -22,10 +22,10 @@
           <element name="script">
             
             <optional>
-            <attribute name="install-dest"><text/></attribute>
+            <attribute name="dest"><text/></attribute>
             </optional>
             
-            <ref name="element-path-with-install-dest"/>
+            <text/>
           </element>
           </optional>
           
@@ -33,11 +33,11 @@
             <element name="supporting-files">
             
             <optional>
-            <attribute name="install-dest"><text/></attribute>
+            <attribute name="dest"><text/></attribute>
             </optional>
             
             <zeroOrMore>
-            <ref name="element-path-with-install-dest"/>
+            <ref name="element-path-with-dest"/>
             </zeroOrMore>
             
             </element>
