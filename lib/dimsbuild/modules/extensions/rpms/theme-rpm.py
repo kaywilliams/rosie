@@ -47,9 +47,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     if not self._test_build('True'):
       return
     self._check_rpms()
-    if not self.cvars['custom-rpms-info']:
-      self.cvars['custom-rpms-info'] = []
-    self.cvars['custom-rpms-info'].append((self.rpmname, 'conditional', 'gdm', self.obsoletes))
+    self.cvars.setdefault('custom-rpms-info', []).append((self.rpmname, 'conditional', 'gdm', self.obsoletes, None))
 
   def _getpscript(self):
     f = (self.build_folder/'postinstall.sh').open('w')

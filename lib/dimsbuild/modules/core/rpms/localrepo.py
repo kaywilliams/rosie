@@ -16,10 +16,10 @@ class LocalRepoEvent(Event):
       provides=['repos', 'source-repos', 'included-packages', 'excluded-packages']
     )
     self.rc = RepoContainer()
-    
+
     self.LOCAL_RPMS  = self.mddir/'RPMS'
     self.LOCAL_SRPMS = self.mddir/'SRPMS'
-        
+
     self.DATA = {
       'input':  [],
       'output': [],
@@ -50,7 +50,7 @@ class LocalRepoEvent(Event):
     self.log(0, L0("creating local repository for distribution-specific packages"))
     # remove previous output
     self.io.clean_eventcache(all=True)
-    
+
     # sync rpms
     self.log(1, L1("copying packages"))
     backup = self.files_callback.sync_start
@@ -59,19 +59,19 @@ class LocalRepoEvent(Event):
     self.files_callback.sync_start = lambda : self.log(4, L1("SRPMS"))
     self.io.sync_input(copy=True, link=True, what='LOCAL_SRPMS')
     self.files_callback.sync_start = backup
-    
-    self.log(1, L1("running createrepo"))
-    
-    self.log(4, L2("RPMS"))
-    self._createrepo(self.LOCAL_RPMS)
-    
-    self.log(4, L2("SRPMS"))
-    self._createrepo(self.LOCAL_SRPMS)
 
-    self.rc.read_packages()
-    
+    self.log(1, L1("running createrepo"))
+    if self.cvars['custom-rpms']:
+      self.log(4, L2("RPMS"))
+      self._createrepo(self.LOCAL_RPMS)
+      self.rc.read_packages(id='localrepo')
+    if self.cvars['custom-srpms']:
+      self.log(4, L2("SRPMS"))
+      self._createrepo(self.LOCAL_SRPMS)
+      self.rc.read_packages(id='localrepo-sources')
+
     self.diff.write_metadata()
-    
+
   def apply(self):
     self.io.clean_eventcache()
     self._populate()
@@ -83,7 +83,7 @@ class LocalRepoEvent(Event):
       self.rc.read_packages(id='localrepo-sources', write=False)
       if not self.cvars['source-repos']: self.cvars['source-repos'] = {}
       self.cvars['source-repos']['localrepo-sources'] = self.rc.repos['localrepo-sources']
-  
+
   #----- HELPER METHODS -----#
   def _createrepo(self, path):
     # createrepo
@@ -91,19 +91,19 @@ class LocalRepoEvent(Event):
     os.chdir(path)
     shlib.execute('/usr/bin/createrepo --update -q .')
     os.chdir(cwd)
-  
+
   def _populate(self):
     if not self.cvars.has_key('custom-rpms-info'): return
-    
-    for rpmname, type, requires, obsoletes in self.cvars['custom-rpms-info']:
-      if not self.cvars['included-packages']:
-        self.cvars['included-packages'] = []
-      self.cvars['included-packages'].append((rpmname, type, requires))
+
+    for rpmname, type, requires, obsoletes, default in \
+        self.cvars['custom-rpms-info']:
+      self.cvars.setdefault('included-packages', []).append((rpmname,
+                                                             type,
+                                                             requires,
+                                                             default))
       
       if obsoletes:
-        if not self.cvars['excluded-packages']:
-          self.cvars['excluded-packages'] = []
-        self.cvars['excluded-packages'].extend(obsoletes.split())
+        self.cvars.setdefault('excluded-packages', []).extend(obsoletes.split())
 
 
 EVENTS = {'rpms': [LocalRepoEvent]}

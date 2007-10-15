@@ -52,9 +52,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     if not self._test_build('True'):
       return
     self._check_rpms()
-    if not self.cvars['custom-rpms-info']:
-      self.cvars['custom-rpms-info'] = []
-    self.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
+    self.cvars.setdefault('custom-rpms-info', []).append((self.rpmname, 'mandatory', None, self.obsoletes, None))
 
   def _generate(self):
     self.io.sync_input()

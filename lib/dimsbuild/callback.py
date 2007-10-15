@@ -92,7 +92,7 @@ class BuildDepsolveCallback:
   def restartLoop(self):
     if self.logger.test(2):
       self.bar.update(self.bar.status.size)
-      self.bar.finish() #!
+      self.bar.finish()
       self.logger.logfile.log(2, str(self.bar))
     self.loop += 1
 

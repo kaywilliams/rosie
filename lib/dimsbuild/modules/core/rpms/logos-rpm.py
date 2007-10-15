@@ -81,9 +81,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
     if not self._test_build('True'):
       return
     self._check_rpms()
-    if not self.cvars['custom-rpms-info']:
-      self.cvars['custom-rpms-info'] = []
-    self.cvars['custom-rpms-info'].append((self.rpmname, 'mandatory', None, self.obsoletes))
+    self.cvars.setdefault('custom-rpms-info', []).append((self.rpmname, 'mandatory', None, self.obsoletes, None))
 
   def _get_files(self):
     sources = {}
