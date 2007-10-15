@@ -35,7 +35,6 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
     LocalFilesMixin.__init__(self)
     ColorMixin.__init__(self)
 
-    self.fileslocals = self.locals.logos_rpm
     self.DATA = {
       'config': ['.'],
       'variables': ['fullname', 'product', 'pva'],
@@ -44,6 +43,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
     }
 
   def setup(self):
+    self.fileslocals = self.locals.logos_rpm
     obsoletes = ' '.join([ '%s %s %s' %(n,e,v)
                             for n,e,v in self.cvars.get('logos-versions', [])])
     provides = ' '.join([ 'system-logos %s %s' % (e,v)
@@ -110,6 +110,8 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
 
   def _generate_images(self):
     for id in self.fileslocals.keys():
+      if id == 'anaconda/syslinux-vesa-splash.jpg':
+        print self.fileslocals[id]
       locations = self.fileslocals[id]['locations']
 
       width  = self.fileslocals[id].get('width', None)

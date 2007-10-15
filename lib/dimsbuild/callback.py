@@ -51,7 +51,7 @@ class BuildSyncCallback(CachedSyncCallback):
 
   def _cp_start(self, size, text, seek=0.0):
     CachedSyncCallback._cp_start(self, size=size, text=L2(text), seek=seek)
-  
+
   def _cache_end(self):
     self.bar.update(self.bar.status.size)
     self.bar.finish()

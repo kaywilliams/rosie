@@ -110,7 +110,7 @@ FILES_LOCALS = LocalsDict({
       'minstg2.img':  dict(path='%(product)s/base/minstg2.img')
     },
   },
-# using ext2 format as anaconda does not supported cpio all cases, i.e. 
+# using ext2 format as anaconda does not supported cpio all cases, i.e.
 # loadUrlImages() in urlinstall.c
 #  '11.1.0.11-1': { # updates.img to cpio format
 #    'installer': {
@@ -146,7 +146,7 @@ LOGOS_LOCALS = LocalsDict({
 
 INSTALLCLASS_LOCALS = LocalsDict({
   '0': # 11.1.0.7-1
-''' 
+'''
 from installclass import BaseInstallClass
 from rhpl.translate import N_
 from constants import *
@@ -177,7 +177,7 @@ class InstallClass(BaseInstallClass):
   def __init__(self, expert):
     BaseInstallClass.__init__(self, expert)
 ''',
-  '11.1.2.36-1': 
+  '11.1.2.36-1':
 '''
 from installclass import BaseInstallClass
 from rhpl.translate import N_

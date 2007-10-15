@@ -157,9 +157,9 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     (dest/'issue.net').chmod(0644)
 
   def _generate_repo_files(self, dest):
-    dest.mkdirs() 
+    dest.mkdirs()
     self.repofile    = dest/'%s.repo' % self.product
-    
+
     if self.config.get('yum-repos/@create-base', 'True') in BOOLEANS_TRUE \
       and self.cvars['web-path']:
       path = self.cvars['web-path'] / 'os'
@@ -172,6 +172,6 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
       else:
         lines.append('gpgcheck=0')
       filereader.write(lines, self.repofile)
-   
+
 
 EVENTS = {'rpms': [ReleaseRpmEvent]}
