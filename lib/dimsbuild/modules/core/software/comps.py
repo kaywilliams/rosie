@@ -75,7 +75,7 @@ class CompsEvent(Event):
     if self.comps_supplied: # download comps file
       self.log(1, L1("using existing file '%s'" % self.comps_supplied))
       self.io.sync_input()
-    
+
     else: # generate comps file
       self.log(1, L1("creating new file"))
       self._generate_comps()
@@ -103,21 +103,21 @@ class CompsEvent(Event):
     # set required packages variable
     self.cvars['required-packages'] = \
       xmllib.tree.read(self.cvars['comps-file']).xpath('//packagereq/text()')
-  
-  
+
+
   #------ COMPS FILE GENERATION METHODS ------#
   def _get_groupfiles(self):
     "Get a list of all groupfiles in all repositories"
     groupfiles = []
-    
+
     # add the base repo first
     repos = [self.cvars['repos'][self.cvars['base-repoid']]]
-    
+
     # now add the rest of the repos
     for repo in self.cvars['repos'].values():
       if repo.id != self.cvars['base-repoid']:
         repos.append(repo)
-    
+
     for repo in repos:
       groupfile = repo.datafiles.get('group', None)
       if groupfile:
@@ -132,7 +132,7 @@ class CompsEvent(Event):
 
     self._groupfiledata = {} # data from group files
     self._groups = {} # groups we're creating
-    
+
     # build up groups dictionary
     for groupfileid, path in self.groupfiles:
       self._process_groupfile(path, groupfileid)
@@ -147,7 +147,7 @@ class CompsEvent(Event):
       for package in data['packages']:
         self._groups[groupid].packagelist.add(
           CompsPackage(**self._process_pkg_xml(package)))
-    
+
     # add packages listed separately in config or included-packages cvar to core
     for pkg in self.config.xpath('include/package', []):
       self._groups['core'].packagelist.add(
@@ -157,32 +157,32 @@ class CompsEvent(Event):
       if not isinstance(pkgtup, tuple):
         pkgtup = (pkgtup, 'mandatory', None, None)
       self._groups['core'].packagelist.add(CompsPackage(*pkgtup))
-    
+
     # make sure a kernel package or equivalent exists
     if not self._groups['core'].packagelist.intersection(KERNELS):
       self._groups['core'].packagelist.add(
         CompsPackage('kernel', type='mandatory'))
-    
+
     # remove excluded packages
     for pkg in self.config.xpath('exclude/package/text()', []) + \
                (self.cvars['excluded-packages'] or []):
       for group in self._groups.values():
         group.packagelist.discard(pkg)
-    
+
     # create a category
     category = CompsCategory('Groups', name=self.fullname,
                              anaconda_version=self.cvars['anaconda-version'],
                              description='Groups in %s' % self.fullname,
                              display_order='99',
                              groups=sorted(self._groups.keys()))
-    
+
     # add groups to comps
     for group in sorted(self._groups.values(), lambda x,y: cmp(x.id, y.id)):
       self.comps.append(group.toXml())
     # add category to comps
     self.comps.append(category.toXml())
-    
-  
+
+
   def _validate_repoids(self):
     "Ensure that the repoids listed actually are defined"
     for group in self.config.xpath('groups/group[@repoid]', []):
@@ -193,7 +193,7 @@ class CompsEvent(Event):
       except KeyError:
         raise CompsError("group '%s' specifies an invalid repoid '%s'; relevant config element is:\n%s" % \
                          (groupid, repoid, group))
-  
+
   def _process_pkg_xml(self, elem):
     "Convert a package in xml form into a package tuple"
     return dict(name     = elem.text,
@@ -207,18 +207,18 @@ class CompsEvent(Event):
       tree = xmllib.tree.read(groupfile)
     except:
       raise CompsError("error reading file '%s'" % groupfile)
-    
+
     if id == self.cvars['base-repoid']:
       self._update_group_content('core', tree)
-    
+
     for groupid in self.config.xpath(
-        'groups/group[not(@repoid) or @repoid="%s"]/text()' % id):
+        'groups/group[not(@repoid) or @repoid="%s"]/text()' % id, []):
       self._update_group_content(groupid, tree)
-  
+
   def _update_group_content(self, groupid, tree):
     "Add the contents of a group in an xml tree to the group dict"
     self._groupfiledata.setdefault(groupid, {})
-    
+
     # add attributes if not already present
     if not self._groupfiledata[groupid].has_key('attrs'):
       if LOCALIZED: q = '//group[id/text()="%s"]/*' % groupid
@@ -227,11 +227,11 @@ class CompsEvent(Event):
         # filtering these in XPath is annoying
         if attr.tag != 'packagelist' and attr.tag != 'id':
           self._groupfiledata[groupid].setdefault('attrs', {})[attr.tag] = attr.text
-    
+
     # add packages
     for pkg in tree.xpath('//group[id/text()="%s"]/packagelist/packagereq' % groupid):
       self._groupfiledata[groupid].setdefault('packages', set()).add(pkg)
-  
+
 
 class CompsPackageSet(set):
   """A set object that allows the user to discard items based on equality (I'm
@@ -252,15 +252,15 @@ class CompsGroup(object):
     self.default     = default
     self.uservisible = uservisible
     self.biarchonly  = biarchonly
-    
+
     self.packagelist = CompsPackageSet(packages or [])
-  
+
   def __str__(self): return str(self.toXml())
-  
+
   def toXml(self):
     group = Element('group')
     Element('id', text=self.id, parent=group)
-    
+
     # add possibly-localized values
     for attr in ['name', 'description']:
       val = getattr(self, attr)
@@ -270,7 +270,7 @@ class CompsGroup(object):
             if   k1 is None: return -1
             elif k2 is None: return 1
             else: return cmp(k1, k2)
-          
+
           for lang in sorted(val.keys(), sort_keys):
             lval = val[lang]
             if lang is None:
@@ -286,12 +286,12 @@ class CompsGroup(object):
     for attr in ['default', 'uservisible', 'biarchonly']:
       if getattr(self, attr):
         Element(attr, text=getattr(self, attr), parent=group)
-    
+
     # add all packages
     packagelist = Element('packagelist', parent=group)
     for package in sorted(self.packagelist, lambda x,y: cmp(x.name, y.name)):
       packagelist.append(package.toXml())
-    
+
     return group
 
 class CompsPackage(object):
@@ -300,9 +300,9 @@ class CompsPackage(object):
     self.type     = type
     self.requires = requires
     self.default  = default
-  
+
   def __str__(self): return str(self.toXml())
-  
+
   def __eq__(self, other):
     if isinstance(other, self.__class__):
       return self.name == other.name
@@ -310,7 +310,7 @@ class CompsPackage(object):
       return self.name == other
     else:
       raise TypeError
-  
+
   def toXml(self):
     attrs = {}
     if self.type:     attrs['type']     = self.type
@@ -327,9 +327,9 @@ class CompsCategory(object):
     self.display_order    = display_order
     self.groups           = groups
     self.anaconda_version = anaconda_version
-  
+
   def __str__(self): return str(self.toXml())
-  
+
   def toXml(self):
     if sortlib.dcompare(self.anaconda_version, '10.2.0.14-1') < 0:
       top = Element('grouphierarchy')
@@ -343,12 +343,12 @@ class CompsCategory(object):
       if self.description:   Element('description',   parent=top, text=self.description)
       if self.display_order: Element('display_order', parent=top, text=self.display_order)
       sub = Element('grouplist', parent=top)
-    
+
     for groupid in self.groups or []:
       sub.append(Element('groupid', text=groupid))
-    
+
     return top
-    
+
 
 
 #------- FACTORY FUNCTIONS -------#

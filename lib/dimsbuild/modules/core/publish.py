@@ -21,18 +21,18 @@ class PublishSetupEvent(Event):
       provides = ['publish-content', 'publish-path', 'web-path', ],
       conditionally_requires = ['gpgsign-public-key'],
     )
-    
+
     self.repofile = self.mddir/'%s.repo' % self.product
-    
+
     self.DATA = {
       'variables': ['cvars[\'base-vars\']', 'cvars[\'gpgsign-public-key\']'],
       'config': ['.'],
       'output': [self.repofile]
     }
-  
+
   def setup(self):
     self.diff.setup(self.DATA)
-    
+
     prefix = \
       P(self.config.get('path-prefix/text()', 'distros')) / \
         self.pva
@@ -41,15 +41,15 @@ class PublishSetupEvent(Event):
        'http://' + self._getIpAddress()) / prefix
     self.publish_path = \
       P(self.config.get('local-webroot/text()', '/var/www/html')) / \
-        prefix 
-  
+        prefix
+
   def apply(self):
     self.cvars['publish-content'] = set()
     self.cvars['publish-path'] = self.publish_path
     self.cvars['web-path'] = self.web_path
-    
+
     self.diff.write_metadata()
-  
+
   def _getIpAddress(self, ifname='eth0'):
     # TODO - improve this, its not particularly accurate in some cases
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -64,22 +64,22 @@ class PublishEvent(Event):
       id = 'publish',
       requires = ['publish-path', 'publish-content'],
     )
-    
+
     self.DATA =  {
-      'variables': ['cvars[\'publish-path\']', 
+      'variables': ['cvars[\'publish-path\']',
                     'cvars[\'publish-content\']'],
       'input':     [],
       'output':    [],
     }
- 
+
   def setup(self):
     self.diff.setup(self.DATA)
     for dir in self.cvars['publish-content']:
       self.io.setup_sync(self.cvars['publish-path'], paths=[dir])
-    
+
     self._backup_relpath = self.files_callback.relpath
     self.files_callback.relpath = self.cvars['publish-path']
-  
+
   def run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
     self.log(0, L0("publishing output store"))
@@ -87,9 +87,9 @@ class PublishEvent(Event):
     self.io.sync_input(copy=True, link=True)
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' \
                    % self.cvars['publish-path'])
-    
+
     self.diff.write_metadata()
-  
+
   def apply(self):
     self.io.clean_eventcache()
     self.files_callback.relpath = self._backup_relpath
