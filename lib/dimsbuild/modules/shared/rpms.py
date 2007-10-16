@@ -22,9 +22,9 @@ class InputFilesMixin:
   def _setup_download(self):
     for k,v in self.installinfo.items():
       xpath, dst = v
-      if xpath:
-        default_dir = P(dst) / P(self.config.get('%s/@dest' % xpath, ''))
-        for item in self.config.xpath('%s/path' % xpath, []):
+      if xpath and self.config.xpath('%s' % xpath, None):
+        default_dir = P(dst) / P(self.config.get(xpath).getparent().get('@dest', ''))
+        for item in self.config.xpath('%s' % xpath, []):
           s = P(item.get('text()'))
           d = default_dir / P(item.get('@dest', ''))
           m = item.get('@mode', None)
@@ -32,15 +32,10 @@ class InputFilesMixin:
 
   def _get_files(self):
     sources = {}
-    for k,v in self.installinfo.items():
-      xpath, install_dir = v
-      if xpath:
-        dest = P(self.config.get('%s/@dest' % xpath, ''))
-        install_dir = P(install_dir) / dest
-      if not install_dir.isabs(): install_dir = P('/'+install_dir)
-      input_dir = self.rpmdir / install_dir.lstrip('/')
-      if input_dir.exists():
-        sources[install_dir] = input_dir.findpaths(type=pps.constants.TYPE_NOT_DIR)
+    for item in self.rpmdir.findpaths(type=pps.constants.TYPE_DIR, mindepth=1):
+      sources[P(item[len(self.rpmdir):])] = item.findpaths(
+                                            type=pps.constants.TYPE_NOT_DIR,
+                                            mindepth=1, maxdepth=1)
     return sources
 
 

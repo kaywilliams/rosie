@@ -24,7 +24,11 @@
             <optional>
             <attribute name="dest"><text/></attribute>
             </optional>
-            
+            <optional>
+            <attribute name="mode">
+	      <ref name='value-mode'/>
+            </attribute>
+            </optional>
             <text/>
           </element>
           </optional>

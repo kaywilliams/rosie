@@ -1,3 +1,4 @@
+from dims import filereader
 from dims import pps
 
 from dimsbuild.event import Event
@@ -22,7 +23,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
 
     self.installinfo = {
       'config' : ('config/script', '/usr/lib/%s' % self.product),
-      'support': ('config/supporting-files', '/usr/lib/%s' % self.product)
+      'support': ('config/supporting-files/path', '/usr/lib/%s' % self.product)
     }
 
     self.DATA = {
@@ -75,7 +76,9 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def _getpscript(self):
     post_install_scripts = self.io.list_output(what=self.installinfo['config'])
     try:
-      return post_install_scripts[0]
+      filereader.write([P(post_install_scripts[0][len(self.rpmdir):]).normpath()], 
+                       self.build_folder/'post-install.sh') 
+      return self.build_folder/'post-install.sh'
     except IndexError:
       return None
 
