@@ -142,12 +142,12 @@ class CompsEvent(Event):
       if not data['packages']:
         raise CompsError("unable to find group definition for '%s' in any groupfile" % gid)
       self._groups[gid] = CompsGroup(gid, **data['attrs'])
-      
+
       # add group's packagereqs to packagelist
       for pkg in data['packages']:
         self._groups[gid].packagelist.add(
           PackageReq(**self._dict_from_xml(pkg)))
-      
+
       # add group's groupreqs to grouplist
       for grp in data['groups']:
         self._groups[gid].grouplist.add(
@@ -217,7 +217,7 @@ class CompsEvent(Event):
       self._update_group_content('core', tree)
 
     for group in self.config.xpath(
-        'groups/group[not(@repoid) or @repoid="%s"]' % id):
+      'groups/group[not(@repoid) or @repoid="%s"]' % id, []):
       # I don't like the following hack - the goal is to allow users to have
       # groups that are installed by default on end machines; the core group
       # is 'special' to anaconda, and is thus always installed, so the packages
@@ -244,7 +244,7 @@ class CompsEvent(Event):
         descdict = self._groupfiledata[dgid]['attrs']['description'] = {}
       else:
         q = '//group[id/text()="%s"]/*[not(@xml:lang)]' % gid
-      
+
       for attr in tree.xpath(q):
         # filtering in XPath is annoying
         if attr.tag == 'name':
@@ -260,7 +260,7 @@ class CompsEvent(Event):
     self._groupfiledata[dgid].setdefault('packages', set())
     for pkg in tree.xpath('//group[id/text()="%s"]/packagelist/packagereq' % gid):
       self._groupfiledata[dgid]['packages'].add(pkg)
-    
+
     # add groups
     self._groupfiledata[dgid].setdefault('groups', set())
     for grp in tree.xpath('//group[id/text()="%s"]/grouplist/groupreq' % gid):
@@ -276,7 +276,7 @@ class CompsReqSet(set):
       if k == item:
         return
     set.add(self, item)
-  
+
   def discard(self, item):
     for k in self:
       if k == item:
@@ -341,7 +341,7 @@ class CompsGroup(object):
       grouplist = Element('grouplist', parent=group)
       for grp in sorted(self.grouplist, lambda x,y: cmp(x.name, y.name)):
         grouplist.append(grp.toXml())
-    
+
     return group
 
 class PackageReq(object):
@@ -371,9 +371,9 @@ class PackageReq(object):
 class GroupReq(object):
   def __init__(self, name):
     self.name     = name
-  
+
   def __str__(self): return str(self.toXml())
-  
+
   def __eq__(self, other):
     if isinstance(other, self.__class__):
       return self.name == other.name
@@ -381,7 +381,7 @@ class GroupReq(object):
       return self.name == other
     else:
       raise TypeError
-  
+
   def toXml(self):
     return Element('groupreq', text=self.name)
 
