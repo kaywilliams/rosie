@@ -12,10 +12,9 @@ API_VERSION = 5.0
 
 HEADER_FORMAT = '<?xml version=\'%s\' encoding=\'%s\'?>'
 
-TYPES = ['mandatory', 'optional', 'conditional', 'default']
-KERNELS = ['kernel', 'kernel-smp', 'kernel-zen', 'kernel-zen0',
-           'kernel-enterprise', 'kernel-hugemem', 'kernel-bigmem',
-           'kernel-BOOT']
+KERNELS = [ 'kernel', 'kernel-smp', 'kernel-zen', 'kernel-zen0',
+            'kernel-enterprise', 'kernel-hugemem', 'kernel-bigmem',
+            'kernel-BOOT' ]
 
 LOCALIZED = False # enable if you want all the various translations in the comps
 
@@ -138,30 +137,36 @@ class CompsEvent(Event):
       self._process_groupfile(path, groupfileid)
 
     # create group objects, add packages to them
-    for groupid, data in self._groupfiledata.items():
+    for gid, data in self._groupfiledata.items():
       # if packages is empty, no group definition was found
       if not data['packages']:
-        raise CompsError("unable to find group definition for '%s' in any groupfile" % groupid)
-      self._groups[groupid] = CompsGroup(groupid, **data['attrs'])
-      # add group's packages to packagelist
-      for package in data['packages']:
-        self._groups[groupid].packagelist.add(
-          CompsPackage(**self._process_pkg_xml(package)))
+        raise CompsError("unable to find group definition for '%s' in any groupfile" % gid)
+      self._groups[gid] = CompsGroup(gid, **data['attrs'])
+      
+      # add group's packagereqs to packagelist
+      for pkg in data['packages']:
+        self._groups[gid].packagelist.add(
+          PackageReq(**self._dict_from_xml(pkg)))
+      
+      # add group's groupreqs to grouplist
+      for grp in data['groups']:
+        self._groups[gid].grouplist.add(
+          GroupReq(grp.text))
 
     # add packages listed separately in config or included-packages cvar to core
     for pkg in self.config.xpath('include/package', []):
       self._groups['core'].packagelist.add(
-        CompsPackage(**self._process_pkg_xml(pkg)))
+        PackageReq(**self._dict_from_xml(pkg)))
 
     for pkgtup in (self.cvars['included-packages'] or []):
       if not isinstance(pkgtup, tuple):
         pkgtup = (pkgtup, 'mandatory', None, None)
-      self._groups['core'].packagelist.add(CompsPackage(*pkgtup))
+      self._groups['core'].packagelist.add(PackageReq(*pkgtup))
 
     # make sure a kernel package or equivalent exists
     if not self._groups['core'].packagelist.intersection(KERNELS):
       self._groups['core'].packagelist.add(
-        CompsPackage('kernel', type='mandatory'))
+        PackageReq('kernel', type='mandatory'))
 
     # remove excluded packages
     for pkg in self.config.xpath('exclude/package/text()', []) + \
@@ -186,18 +191,18 @@ class CompsEvent(Event):
   def _validate_repoids(self):
     "Ensure that the repoids listed actually are defined"
     for group in self.config.xpath('groups/group[@repoid]', []):
-      repoid  = group.get('@repoid')
-      groupid = group.get('text()')
+      rid = group.get('@repoid')
+      gid = group.get('text()')
       try:
-        self.cvars['repos'][repoid]
+        self.cvars['repos'][rid]
       except KeyError:
         raise CompsError("group '%s' specifies an invalid repoid '%s'; relevant config element is:\n%s" % \
-                         (groupid, repoid, group))
+                         (gid, rid, group))
 
-  def _process_pkg_xml(self, elem):
+  def _dict_from_xml(self, elem):
     "Convert a package in xml form into a package tuple"
     return dict(name     = elem.text,
-                type     = elem.get('@type', 'mandatory'),
+                type     = elem.get('@type', None),
                 requires = elem.get('@requires', None),
                 default  = elem.get('@default', None))
 
@@ -211,31 +216,67 @@ class CompsEvent(Event):
     if id == self.cvars['base-repoid']:
       self._update_group_content('core', tree)
 
-    for groupid in self.config.xpath(
-        'groups/group[not(@repoid) or @repoid="%s"]/text()' % id, []):
-      self._update_group_content(groupid, tree)
+    for group in self.config.xpath(
+        'groups/group[not(@repoid) or @repoid="%s"]' % id):
+      # I don't like the following hack - the goal is to allow users to have
+      # groups that are installed by default on end machines; the core group
+      # is 'special' to anaconda, and is thus always installed, so the packages
+      # of these groups are included in core.  I'd rather create a separate
+      # group, mark it as default True, and let users that want to mess with
+      # kickstarts include it themselves (like the rest of the world does),
+      # but the powers that be say otherwise
+      if group.get('@core', 'false') in BOOLEANS_TRUE:
+        self._update_group_content(group.text, tree, dgid='core')
+      else:
+        self._update_group_content(group.text, tree)
 
-  def _update_group_content(self, groupid, tree):
+  def _update_group_content(self, gid, tree, dgid=None):
     "Add the contents of a group in an xml tree to the group dict"
-    self._groupfiledata.setdefault(groupid, {})
+    if not dgid: dgid = gid
+    self._groupfiledata.setdefault(dgid, {})
 
     # add attributes if not already present
-    if not self._groupfiledata[groupid].has_key('attrs'):
-      if LOCALIZED: q = '//group[id/text()="%s"]/*' % groupid
-      else:         q = '//group[id/text()="%s"]/*[not(@xml:lang)]' % groupid
+    if not self._groupfiledata[dgid].has_key('attrs'):
+      self._groupfiledata[dgid]['attrs'] = {}
+      if LOCALIZED:
+        q = '//group[id/text()="%s"]/*' % gid
+        namedict = self._groupfiledata[dgid]['attrs']['name'] = {}
+        descdict = self._groupfiledata[dgid]['attrs']['description'] = {}
+      else:
+        q = '//group[id/text()="%s"]/*[not(@xml:lang)]' % gid
+      
       for attr in tree.xpath(q):
-        # filtering these in XPath is annoying
-        if attr.tag != 'packagelist' and attr.tag != 'id':
-          self._groupfiledata[groupid].setdefault('attrs', {})[attr.tag] = attr.text
+        # filtering in XPath is annoying
+        if attr.tag == 'name':
+          if LOCALIZED: namedict[attr.get('@xml:lang')] = attr.text
+          else: self._groupfiledata[dgid]['attrs']['name'] = attr.text
+        elif attr.tag == 'description':
+          if LOCALIZED: descdict[attr.get('@xml:lang')] = attr.text
+          else: self._groupfiledata[dgid]['attrs']['description'] = attr.text
+        elif attr.tag not in ['packagelist', 'grouplist', 'id']:
+          self._groupfiledata[dgid]['attrs'][attr.tag] = attr.text
 
     # add packages
-    for pkg in tree.xpath('//group[id/text()="%s"]/packagelist/packagereq' % groupid):
-      self._groupfiledata[groupid].setdefault('packages', set()).add(pkg)
+    self._groupfiledata[dgid].setdefault('packages', set())
+    for pkg in tree.xpath('//group[id/text()="%s"]/packagelist/packagereq' % gid):
+      self._groupfiledata[dgid]['packages'].add(pkg)
+    
+    # add groups
+    self._groupfiledata[dgid].setdefault('groups', set())
+    for grp in tree.xpath('//group[id/text()="%s"]/grouplist/groupreq' % gid):
+      self._groupfiledata[dgid]['groups'].add(grp)
+      self._update_group_content(grp.text, tree)
 
-
-class CompsPackageSet(set):
-  """A set object that allows the user to discard items based on equality (I'm
-  not entirely sure how its done normally, but its not on equality"""
+class CompsReqSet(set):
+  """A set object that does manipulation based on __eq__ rather than id()
+  (I'm not entirely sure if this is how its done normally, but its definitely
+  not on equality)"""
+  def add(self, item):
+    for k in self:
+      if k == item:
+        return
+    set.add(self, item)
+  
   def discard(self, item):
     for k in self:
       if k == item:
@@ -244,7 +285,8 @@ class CompsPackageSet(set):
 
 class CompsGroup(object):
   def __init__(self, id, name=None, description=None, default=None,
-                     uservisible=None, biarchonly=None, packages=None):
+                     uservisible=None, biarchonly=None, packages=None,
+                     groups=None):
     # name, description can be a string or a dictionary of lang, string pairs
     self.id          = id
     self.name        = name
@@ -253,7 +295,8 @@ class CompsGroup(object):
     self.uservisible = uservisible
     self.biarchonly  = biarchonly
 
-    self.packagelist = CompsPackageSet(packages or [])
+    self.packagelist = CompsReqSet(packages or [])
+    self.grouplist   = CompsReqSet(groups or [])
 
   def __str__(self): return str(self.toXml())
 
@@ -288,16 +331,23 @@ class CompsGroup(object):
         Element(attr, text=getattr(self, attr), parent=group)
 
     # add all packages
-    packagelist = Element('packagelist', parent=group)
-    for package in sorted(self.packagelist, lambda x,y: cmp(x.name, y.name)):
-      packagelist.append(package.toXml())
+    if self.packagelist:
+      packagelist = Element('packagelist', parent=group)
+      for package in sorted(self.packagelist, lambda x,y: cmp(x.name, y.name)):
+        packagelist.append(package.toXml())
 
+    # add all groups
+    if self.grouplist:
+      grouplist = Element('grouplist', parent=group)
+      for grp in sorted(self.grouplist, lambda x,y: cmp(x.name, y.name)):
+        grouplist.append(grp.toXml())
+    
     return group
 
-class CompsPackage(object):
+class PackageReq(object):
   def __init__(self, name, type=None, requires=None, default=None):
     self.name     = name
-    self.type     = type
+    self.type     = type or 'mandatory'
     self.requires = requires
     self.default  = default
 
@@ -317,6 +367,23 @@ class CompsPackage(object):
     if self.requires: attrs['requires'] = self.requires
     if self.default:  attrs['default']  = self.default
     return Element('packagereq', text=self.name, attrs=attrs)
+
+class GroupReq(object):
+  def __init__(self, name):
+    self.name     = name
+  
+  def __str__(self): return str(self.toXml())
+  
+  def __eq__(self, other):
+    if isinstance(other, self.__class__):
+      return self.name == other.name
+    elif isinstance(other, str):
+      return self.name == other
+    else:
+      raise TypeError
+  
+  def toXml(self):
+    return Element('groupreq', text=self.name)
 
 class CompsCategory(object):
   def __init__(self, id, name=None, description=None, display_order=None,
@@ -344,8 +411,8 @@ class CompsCategory(object):
       if self.display_order: Element('display_order', parent=top, text=self.display_order)
       sub = Element('grouplist', parent=top)
 
-    for groupid in self.groups or []:
-      sub.append(Element('groupid', text=groupid))
+    for gid in self.groups or []:
+      sub.append(Element('groupid', text=gid))
 
     return top
 
