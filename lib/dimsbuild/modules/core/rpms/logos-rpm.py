@@ -108,8 +108,6 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
 
   def _generate_images(self):
     for id in self.fileslocals.keys():
-      if id == 'anaconda/syslinux-vesa-splash.jpg':
-        print self.fileslocals[id]
       locations = self.fileslocals[id]['locations']
 
       width  = self.fileslocals[id].get('width', None)
