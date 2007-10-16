@@ -41,26 +41,13 @@ class CreaterepoEvent(Event):
 
   def run(self):
     self.log(0, L0("creating repository metadata"))
-
     self.io.sync_input(copy=True, link=True)
 
     # run createrepo
     self.log(1, L1("running createrepo"))
     pwd = os.getcwd()
     os.chdir(self.SOFTWARE_STORE)
-
-    update = True
-    for prev, curr in self.diff.handlers['input'].diffdict.values():
-      # HACK: if an RPM has been removed, run createrepo from scratch
-      # because createrepo doesn't remove the metadata for missing
-      # packages in update mode.
-      if curr is None: update = False; break
-    if update:
-      print "updating"
-      shlib.execute('/usr/bin/createrepo --update -q -g %s .' % self.cvars['comps-file'])
-    else:
-      print "from scratch"
-      shlib.execute('/usr/bin/createrepo -q -g %s .' % self.cvars['comps-file'])
+    shlib.execute('/usr/bin/createrepo --update -q -g %s .' % self.cvars['comps-file'])
     os.chdir(pwd)
 
     self.diff.write_metadata()

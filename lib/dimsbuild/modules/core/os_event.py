@@ -26,21 +26,21 @@ class OSComposeEvent(Event):
       provides = ['os-dir', 'publish-content', '.manifest'],
       requires = ['os-content'],
     )
-    
+
     self.osdir = self.mddir / 'output/os'
-    
+
     # put manifest in osdir for use by downstream tools, e.g. installer
     self.mfile = self.osdir / '.manifest'
-    
+
     self.DATA =  {
       'variables': ['osdir', 'mfile'],
       'input':     [],
-      'output':    [],
+      'output':    [self.mfile],
     }
-  
+
   def setup(self):
     self.diff.setup(self.DATA)
-    
+
     self.events = []
     for event in self._getroot():
       if event.id != self.id:
@@ -49,21 +49,21 @@ class OSComposeEvent(Event):
           self.events.append(event.id)
           for path in event_output_dir.listdir(all=True):
             self.io.setup_sync(self.osdir, paths=path, id=event.id)
-  
+
   def run(self):
     self.log(0, L0("composing os tree"))
-    
+
     # create composed tree
     self.log(1, L1("linking files"))
     backup = self.files_callback.sync_start
-    self.files_callback.sync_start = lambda: None
+    self.files_callback.sync_start = lambda : None
     for event in self.events:
       self.io.sync_input(copy=True, link=True, what=event)
     self.files_callback.sync_start = backup
-    
+
     # create manifest file
     self.log(1, L1("creating manifest file"))
-    
+
     manifest = []
     for i in (self.SOFTWARE_STORE).findpaths(nglob=self.mfile,
                                              type=TYPE_NOT_DIR):
@@ -73,24 +73,24 @@ class OSComposeEvent(Event):
         'size':  st.st_size,
         'mtime': st.st_mtime,})
     manifest.sort()
-    
+
     self.mfile.touch()
     mf = self.mfile.open('w')
-    
+
     mwriter = csv.DictWriter(mf, FIELDS, lineterminator='\n')
     for line in manifest:
       mwriter.writerow(line)
-    
+
     mf.close()
-    
-    self.DATA['output'].append(self.mfile)
-    
+
     self.diff.write_metadata()
 
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['os-dir'] = self.osdir
-    try: self.cvars['publish-content'].add(self.osdir)
-    except: pass
+    try:
+      self.cvars['publish-content'].add(self.osdir)
+    except:
+      pass
 
 EVENTS = {'ALL': [OSMetaEvent], 'OS': [OSComposeEvent]}

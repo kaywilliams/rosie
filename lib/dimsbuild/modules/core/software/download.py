@@ -55,7 +55,6 @@ class DownloadEvent(Event):
 
   def run(self):
     self.log(0, L0("downloading packages"))
-
     self.io.sync_input()
     self.diff.write_metadata()
 
