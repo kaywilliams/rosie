@@ -15,7 +15,7 @@ P = pps.Path
 class RepoContainer:
   def __init__(self):
     self.repos = {}
-    
+
   def add_repo(self, id, **kwargs):
     repo = Repo(id)
     if not kwargs.has_key('local_path'):
@@ -41,38 +41,38 @@ class RepoContainer:
 class Repo:
   def __init__(self, id):
     self.id = id
-    
+
     self.remote_path = None
     self.local_path = None
-    
+
     self.gpgcheck = False
     self.gpgkeys = []
- 
+
     self.pkgsfile = None
     self.repoinfo = []
-    
+
     self.include = []
     self.exclude = []
-    
+
     self.repodata_path = ''
     self.mdfile = 'repodata/repomd.xml'
     self.datafiles = {}
 
     self.parser = xml.sax.make_parser()
-  
+
   def rjoin(self, *args):
     p = self.remote_path
     for arg in args: p = p / arg
     return p
-  
+
   def ljoin(self, *args):
     p = self.local_path
     for arg in args: p = p / arg
     return p
-  
+
   def readRepoData(self, repomd=None, tmpdir=None):
     tmpdir = P(tmpdir or os.getcwd())
-    if repomd is None: 
+    if repomd is None:
       tmpfile = tmpdir / 'repomd.xml'
       self.rjoin(self.repodata_path, self.mdfile).cp(tmpdir)
       repomd = xmllib.tree.read(tmpfile).xpath('//data')
@@ -81,7 +81,7 @@ class Repo:
       repofile = P(data.get('location/@href'))
       filetype = data.get('@type')
       self.datafiles[filetype] = repofile.basename
-  
+
   def readRepoContents(self, repofile=None):
     self.repoinfo = []
     if repofile is None:
@@ -91,7 +91,7 @@ class Repo:
       self.parser.setContentHandler(handler)
       self.parser.parse(pxml)
       pxml.close()
-      
+
       for f,s,m in handler.pkgs:
         self.repoinfo.append({
           'file':  self.rjoin(self.repodata_path, f),
@@ -109,12 +109,12 @@ class Repo:
           'file':  P(item['file']),
         })
       mr.close()
-  
+
   def compareRepoContents(self, oldfile, what=None):
     "@param what: the item to compare; one of 'mtime', 'size', or 'file'"
     oldpkgs = []
     newpkgs = self.repoinfo
-    
+
     if oldfile.isfile():
       mr = oldfile.open('r')
       mreader = csv.DictReader(mr, ['file', 'size', 'mtime'], lineterminator='\n')
@@ -125,7 +125,7 @@ class Repo:
           'file':  item['file'],
         })
       mr.close()
-    
+
     if what is None:
       oldpkgs.sort()
       newpkgs.sort()
@@ -136,29 +136,29 @@ class Repo:
       old.sort()
       new.sort()
       return old != new
-  
+
   def writeRepoContents(self, file):
     if file.exists():
       file.rm()
     file.touch()
     mf = file.open('w')
-    mwriter = csv.DictWriter(mf, ['file', 'size', 'mtime'], lineterminator='\n')    
+    mwriter = csv.DictWriter(mf, ['file', 'size', 'mtime'], lineterminator='\n')
     for item in self.repoinfo:
       mwriter.writerow(item)
     mf.close()
-    
+
 
 class PrimaryXmlContentHandler(xml.sax.ContentHandler):
   def __init__(self):
     xml.sax.ContentHandler.__init__(self)
     self.pkgs = []
-    
+
     self.mtime = None
     self.size  = None
     self.loc   = None
-    
+
     self.pkgstart = False
-    
+
   def startElement(self, name, attrs):
     if name == 'package':
       self.pkgstart = True
@@ -168,7 +168,7 @@ class PrimaryXmlContentHandler(xml.sax.ContentHandler):
       self.size = int(attrs.get('package'))
     elif self.pkgstart and name == 'time':
       self.mtime = int(attrs.get('file'))
-  
+
   def endElement(self, name):
     if name == 'package':
       self.pkgstart = False

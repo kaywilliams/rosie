@@ -13,14 +13,14 @@ class ListCompareMixin:
     self.rfn = rfn
     self.bfn = bfn
     self.cb  = cb
-    
+
     self.l = None
     self.r = None
     self.b = None
-  
+
   def compare(self, l1, l2):
     self.l, self.r, self.b = listcompare.compare(l1, l2)
-    
+
     if len(self.b) > 0:
       if self.cb:
         self.cb.notify_both(len(self.b))
@@ -41,7 +41,7 @@ class RepoEventMixin:
   def __init__(self):
     self.rc = RepoContainer()
     self.repos = self.rc.repos
-  
+
   def read_config(self, xpath_query):
     for repo in self.config.xpath(xpath_query):
       repo = self.rc.add_repo(repo.get('@id'),
@@ -66,11 +66,11 @@ class RepoEventMixin:
 
     self.repoids = self.repos.keys()
     self.DATA['variables'].append('repoids')
-      
+
   def sync_repodata(self):
     backup = self.files_callback.sync_start
     self.files_callback.sync_start = lambda : None
-    
+
     for repo in self.repos.values():
       self.log(1, L1(repo.id))
       self.io.sync_input(what='%s-repodata' % repo.id)
@@ -85,7 +85,7 @@ class RepoEventMixin:
       if self.diff.handlers['variables'].diffdict.has_key('repoids'):
         old,new = self.diff.handlers['variables'].diffdict['repoids']
         if not hasattr(old, '__iter__'): old = []
-        newid = repo.id in set(new).difference(set(old))  
+        newid = repo.id in set(new).difference(set(old))
       if self.diff.handlers['input'].diffdict.has_key(pxml) or newid:
         self.log(2, L2(repo.id))
         repo.readRepoContents()

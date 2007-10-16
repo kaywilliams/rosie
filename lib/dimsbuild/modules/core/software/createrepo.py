@@ -15,7 +15,7 @@ class CreaterepoEvent(Event):
       requires = ['cached-rpms'],
       conditionally_requires = ['comps-file', 'signed-rpms', 'gpgsign-public-key'],
     )
-    
+
     self.cvars['repodata-directory'] = self.SOFTWARE_STORE/'repodata'
 
     self.DATA = {
@@ -23,36 +23,48 @@ class CreaterepoEvent(Event):
       'input':     [],
       'output':    [self.cvars['repodata-directory']]
     }
-  
+
   def setup(self):
     self.diff.setup(self.DATA)
-    
+
     self.cvars['rpms-directory'] = self.SOFTWARE_STORE/self.product
-    
+
     if self.cvars['comps-file']:
       self.DATA['input'].append(self.cvars['comps-file'])
-    
+
     if self.cvars['gpgsign-public-key']: # if we're signing rpms #!
       paths = self.cvars['signed-rpms']
     else:
       paths = self.cvars['cached-rpms']
-    
+
     self.io.setup_sync(self.cvars['rpms-directory'], paths=paths, id='rpms')
-  
+
   def run(self):
     self.log(0, L0("creating repository metadata"))
-    
+
     self.io.sync_input(copy=True, link=True)
 
     # run createrepo
     self.log(1, L1("running createrepo"))
     pwd = os.getcwd()
     os.chdir(self.SOFTWARE_STORE)
-    shlib.execute('/usr/bin/createrepo --update -q -g %s .' % self.cvars['comps-file'])
+
+    update = True
+    for prev, curr in self.diff.handlers['input'].diffdict.values():
+      # HACK: if an RPM has been removed, run createrepo from scratch
+      # because createrepo doesn't remove the metadata for missing
+      # packages in update mode.
+      if curr is None: update = False; break
+    if update:
+      print "updating"
+      shlib.execute('/usr/bin/createrepo --update -q -g %s .' % self.cvars['comps-file'])
+    else:
+      print "from scratch"
+      shlib.execute('/usr/bin/createrepo -q -g %s .' % self.cvars['comps-file'])
     os.chdir(pwd)
-    
+
     self.diff.write_metadata()
-  
+
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['rpms'] = self.io.list_output(what='rpms')

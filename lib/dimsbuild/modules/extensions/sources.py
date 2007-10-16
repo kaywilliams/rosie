@@ -1,7 +1,7 @@
-""" 
+"""
 sources.py
 
-downloads srpms 
+downloads srpms
 """
 
 import os
@@ -31,40 +31,40 @@ class SourceReposEvent(Event, RepoEventMixin):
                    id='source-repos',
                    provides=['source-repos'])
     RepoEventMixin.__init__(self)
-    
+
     self.DATA = {
       'variables': [],
       'config':    ['.'],
       'input':     [],
       'output':    [],
     }
-  
+
   def setup(self):
     self.diff.setup(self.DATA)
     self.read_config('repo')
-  
+
   def run(self):
     self.log(0, L0("setting up input source repositories"))
-    
+
     self.log(1, L1("downloading information about source packages"))
     self.sync_repodata()
-    
+
     # reading primary.xml.gz files
     self.log(1, L1("reading available source packages"))
     self.read_new_packages()
-    
+
     self.diff.write_metadata()
-  
+
   def apply(self):
     self.io.clean_eventcache()
-    
+
     for repo in self.repos.values():
       if not repo.pkgsfile.exists():
         raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "
                            "are skipping %s before it has been allowed "
                            "to run once?" % (repo.pkgsfile, self.id))
       repo.readRepoContents(repofile=repo.pkgsfile)
-    
+
     self.cvars['source-repos'] = self.repos
 
 
@@ -75,21 +75,21 @@ class SourcesEvent(Event):
                    id='sources',
                    provides=['srpms', 'srpms-dir', 'publish-content'],
                    requires=['rpms', 'source-repos'])
-    
+
     self.srpmdest = self.OUTPUT_DIR / 'SRPMS'
     self.DATA = {
       'variables': ['cvars[\'rpms\']'],
       'input':     [],
       'output':    [],
     }
-  
+
   def setup(self):
     self.diff.setup(self.DATA)
-    
+
     # compute the list of SRPMS
     self.ts = rpm.TransactionSet()
     self.ts.setVSFlags(-1)
-    
+
     srpmset = set()
     for pkg in self.cvars['rpms']:
       i = os.open(pkg, os.O_RDONLY)
@@ -97,14 +97,14 @@ class SourcesEvent(Event):
       os.close(i)
       srpm = h[rpm.RPMTAG_SOURCERPM]
       srpmset.add(srpm)
-    
+
     # setup sync
     paths = []
     for repo in self.cvars['source-repos'].values():
       for rpminfo in repo.repoinfo:
         rpmi = rpminfo['file']
         _,n,v,r,a = self._deformat(rpmi)
-        ## assuming the rpm file name to be lower-case 'rpm' suffixed        
+        ## assuming the rpm file name to be lower-case 'rpm' suffixed
         nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a)
         if nvra in srpmset:
           rpmi = P(rpminfo['file'])
@@ -113,12 +113,12 @@ class SourcesEvent(Event):
                                'st_mtime': rpminfo['mtime'],
                                'st_mode':  stat.S_IFREG})
           paths.append(rpmi)
-    
+
     self.io.setup_sync(self.srpmdest, paths=paths, id='srpms')
-  
+
   def run(self):
     self.log(0, L0("retrieving source RPMs for distribution RPMs"))
-    
+
     self.log(1, L1("processing srpms"))
     self.srpmdest.mkdirs()
     self.io.sync_input()
@@ -126,27 +126,36 @@ class SourcesEvent(Event):
     self.DATA['output'].extend(self.io.list_output(what=['srpms']))
     self.DATA['output'].append(self.srpmdest/'repodata')
     self.diff.write_metadata()
-  
+
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['srpms'] = self.io.list_output(what='srpms')
     self.cvars['srpms-dir'] = self.srpmdest
     try: self.cvars['publish-content'].add(self.srpmdest)
     except: pass
-  
+
   def _deformat(self, srpm):
     try:
       return SRPM_PNVRA_REGEX.match(srpm).groups()
     except (AttributeError, IndexError), e:
       self.log(4, L2("DEBUG: Unable to extract srpm information from name '%s'" % srpm))
       return (None, None, None, None, None)
-  
+
   def _createrepo(self):
     "Run createrepo on the output store"
     pwd = os.getcwd()
     os.chdir(self.srpmdest)
     self.log(1, L1("running createrepo"))
-    shlib.execute('/usr/bin/createrepo --update -q .')
+    update = True
+    for prev, curr in self.diff.handlers['input'].diffdict.values():
+      # HACK: if an RPM has been removed, run createrepo from scratch
+      # because createrepo doesn't remove the metadata for missing
+      # packages in update mode.
+      if curr is None: update = False; break
+    if update:
+      shlib.execute('/usr/bin/createrepo --update -q .')
+    else:
+      shlib.execute('/usr/bin/createrepo -q .')
     os.chdir(pwd)
 
 

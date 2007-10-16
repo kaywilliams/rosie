@@ -89,7 +89,12 @@ class LocalRepoEvent(Event):
     # createrepo
     cwd = os.getcwd()
     os.chdir(path)
-    shlib.execute('/usr/bin/createrepo --update -q .')
+    # HACK: always run createrepo in non-update mode, because createrepo
+    # in update mode doesn't exactly do what I want it to. If an RPM is
+    # removed run createrepo from scratch. In the case of the localrepo
+    # event, which runs only if a package is removed, always run
+    # createrepo from scratch. Uggh.
+    shlib.execute('/usr/bin/createrepo -q .')
     os.chdir(cwd)
 
   def _populate(self):
@@ -101,7 +106,7 @@ class LocalRepoEvent(Event):
                                                              type,
                                                              requires,
                                                              default))
-      
+
       if obsoletes:
         self.cvars.setdefault('excluded-packages', []).extend(obsoletes.split())
 
