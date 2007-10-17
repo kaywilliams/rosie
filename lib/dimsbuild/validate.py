@@ -7,10 +7,12 @@ import os
 from dims import xmllib
 
 class BaseConfigValidator:
-  def __init__(self, schemas_path, config):
-    self.schemas_path = schemas_path
+  def __init__(self, schema_paths, config):
+    self.schema_paths = schema_paths
     self.config = config
     self.elements = []
+    
+    self.curr_schema = None
 
   def validate(self, xpath_query, schema_file=None, schema_contents=None):
     if (schema_file and schema_contents) or \
@@ -19,13 +21,9 @@ class BaseConfigValidator:
     if not self.config.pathexists(xpath_query):
       return
     if schema_contents is None:
-      try:
-        schema_contents = self.read_schema(schema_file)
-      except IOError, e:
-        # schema doesn't exist
-        return
+      schema_contents = self.read_schema(schema_file)
     cwd = os.getcwd()
-    os.chdir(self.schemas_path)
+    os.chdir(self.curr_schema.dirname)
     try:
       try:
         tree = self.config.get(xpath_query)
@@ -45,10 +43,15 @@ class BaseConfigValidator:
       os.chdir(cwd)
 
   def read_schema(self, filename):
-    schema_file = self.schemas_path / filename
-    if not schema_file.exists():
+    self.curr_schema = None
+    for path in self.schema_paths:
+      schema_file = path/filename
+      if not schema_file.exists():
+        continue
+      self.curr_schema = schema_file
+    if not self.curr_schema:
       raise IOError("missing schema file '%s' at '%s'" % (filename, schema_file.dirname))
-    schema = xmllib.tree.read(schema_file)
+    schema = xmllib.tree.read(self.curr_schema)
     ## FIXME: xmltree/lxml seems to be losing the xmlns attribute
     schema.getroot().attrib['xmlns'] = "http://relaxng.org/ns/structure/1.0"
     return str(schema)
@@ -60,12 +63,12 @@ class BaseConfigValidator:
     return schema
 
 class MainConfigValidator(BaseConfigValidator):
-  def __init__(self, schemas_path, config):
-    BaseConfigValidator.__init__(self, schemas_path, config)
+  def __init__(self, schema_paths, config):
+    BaseConfigValidator.__init__(self, schema_paths, config)
 
 class ConfigValidator(BaseConfigValidator):
-  def __init__(self, schemas_path, config):
-    BaseConfigValidator.__init__(self, schemas_path, config)
+  def __init__(self, schema_paths, config):
+    BaseConfigValidator.__init__(self, schema_paths, config)
 
   def verify_elements(self, disabled):
     processed = []

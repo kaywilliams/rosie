@@ -52,11 +52,13 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
     self._setup_locals()
 
     # set the font to use
-    available_fonts = (self.SHARE_DIR/'fonts').findpaths(glob='*.ttf')
-    try:
-      self.fontfile = available_fonts[0]
-    except IndexError:
-      raise RuntimeError("Unable to find any font files in share path '%s'" % self.SHARE_DIR)
+    self.fontfile = None
+    for path in self.SHARE_DIRS:
+      available_fonts = (path/'fonts').findpaths(glob='*.ttf')
+      if available_fonts:
+        self.fontfile = available_fonts[0]; break
+    if not self.fontfile:
+      raise RuntimeError("Unable to find any font files in share path(s) '%s'" % self.SHARE_DIRS)
 
     # convert the colors to big endian because the python-imaging
     # library uses big-endian colors.
@@ -123,11 +125,14 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
       destdir  = filename.dirname
       if not destdir.isdir(): destdir.mkdirs()
 
-      sharedfile = self.SHARE_DIR/'logos'/id
-      if sharedfile.exists():
-        self.log(4, L3("file '%s' exists in share/" % id))
-        self.copy(sharedfile, destdir)
-      elif width and height:
+      created = False
+      for path in self.SHARE_DIRS:
+        sharedfile = path/'logos'/id
+        if sharedfile.exists():
+          self.log(4, L3("file '%s' exists in share/" % id))
+          self.copy(sharedfile, destdir)
+          created = True; break
+      if not created and width and height:
         self.log(4, L3("creating '%s'" % id))
         if maxwidth and vcenter and hcenter:
           self._generate_image(filename, width, height,

@@ -64,10 +64,14 @@ def main():
   
   module_group = OptionGroup(parser, "module and library options")
   module_group.add_option('--lib-path', metavar='PATH',
+    action='append',
     dest='libpath',
+    default=[],
     help="specify directory containing dimsbuild library files")
   module_group.add_option('--share-path', metavar='PATH',
+    action='append',
     dest='sharepath',
+    default=[],
     help="specify directory containing dimsbuild shared files")
   module_group.add_option('--enable-module', metavar='MODULE',
     action='append',
@@ -139,8 +143,8 @@ def main():
   
   # set up import_dirs
   import_dirs = mainconfig.xpath('/dimsbuild/librarypaths/path/text()', [])
-  if opts.libpath: 
-    import_dirs.insert(0, opts.libpath)
+  if opts.libpath:
+    import_dirs = opts.libpath.extend(import_dirs)
   import_dirs.insert(0, '.') # allow current directory imports to work
   for dir in sys.path:
     if dir not in import_dirs: import_dirs.append(dir)

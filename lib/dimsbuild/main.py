@@ -227,12 +227,14 @@ class Build(object):
     Event.logger.log(0, L0("validating config"))
 
     Event.logger.log(1, L1("dimsbuild.conf"))
-    mcvalidator = MainConfigValidator(Event.SHARE_DIR/'schemas', Event.mainconfig)
-    mcvalidator.validate('dimsbuild', schema_file='dimsbuild.rng')
+    mcvalidator = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
+                                      Event.mainconfig)
+    mcvalidator.validate('/dimsbuild', schema_file='dimsbuild.rng')
 
     # validate individual sections of distro.conf
     Event.logger.log(1, L1(P(Event._config.file).basename))
-    validator = ConfigValidator(Event.SHARE_DIR/'schemas/distro.conf', Event._config)
+    validator = ConfigValidator([ x/'schemas/distro.conf' for x in Event.SHARE_DIRS ],
+                                Event._config)
 
     for e in self.dispatch:
       element_name = e.__module__.split('.')[-1]
@@ -303,11 +305,11 @@ class Build(object):
     Event.TEMP_DIR     = P('/tmp/dimsbuild')
     Event.METADATA_DIR = Event.CACHE_DIR  / base_vars['pva']
 
+    Event.SHARE_DIRS = [ P(x) for x in \
+                         mainconfig.xpath('/dimsbuild/sharepaths/path/text()',
+                                          ['/usr/share/dimsbuild']) ]
     if options.sharepath:
-      Event.SHARE_DIR = P(options.sharepath).abspath()
-    else:
-      Event.SHARE_DIR = P(mainconfig.get('/dimsbuild/sharepath/text()',
-                                         '/usr/share/dimsbuild'))
+      Event.SHARE_DIRS = options.sharepath.extend(Event.SHARE_DIRS)
 
     Event.CACHE_MAX_SIZE = int(mainconfig.get('/dimsbuild/cache/max-size/text()',
                                               30*1024**3))

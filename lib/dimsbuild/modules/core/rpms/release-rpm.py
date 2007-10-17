@@ -76,8 +76,11 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
                                         'True') in BOOLEANS_TRUE
     eula_provided = self.config.get('eula/path/text()', None) is not None
     if include_firstboot and eula_provided:
-      paths.append(self.SHARE_DIR/'release/eula.py')
-    self.io.setup_sync(self.build_folder/'eulapy', paths=paths)
+      for path in self.SHARE_DIRS:
+        path = path/'release/eula.py'
+        if path.exists():
+          paths.append(path); break
+      self.io.setup_sync(self.build_folder/'eulapy', paths=paths)
 
   def check(self):
     return self.release == '0' or \
@@ -106,7 +109,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     "Create additional files."
     self.io.sync_input()
     for type in self.installinfo.keys():
-      _, dir = self.installinfo[type]
+      _, dir, _ = self.installinfo[type]
       generator = '_generate_%s_files' % type
       if hasattr(self, generator):
         dest = self.rpmdir/dir.lstrip('/')
