@@ -64,6 +64,8 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
       self.apply()
     except EventExit, e:
       self._handle_EventExit(e)
+    except KeyboardInterrupt, e:
+      self._handle_KeyboardInterrupt(e)
     except Exception, e:
       self._handle_Exception(e)
 
@@ -133,6 +135,10 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
   def _handle_EventExit(self, e):
     self.log(0, e)
     sys.exit()
+
+  def _handle_KeyboardInterrupt(self, e):
+    self.error(e)
+    raise KeyboardInterrupt
 
   def _handle_Exception(self, e):
     self.error(e)
