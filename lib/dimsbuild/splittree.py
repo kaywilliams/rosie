@@ -39,7 +39,7 @@ class Timber:
     
     # the following must be pps.Path objects
     self.u_tree = None     # unified tree
-    self.u_src_tree = None # uniifed source tree
+    self.u_src_tree = None # unifed source tree
     self.s_tree = None     # split tree
     
     self.rpm_disc_map = None
@@ -125,7 +125,7 @@ class Timber:
       (discpath/self.product).mkdirs()
       if i == 1: # put release files on disc 1
         for file in self.u_tree.findpaths(
-            nregex='.*(\..*|.*\.[Rr][Pp][Mm]|(S)?RPMS|%s)$' % self.product,
+            nregex='.*(\.discinfo|.*\.[Rr][Pp][Mm]|(S)?RPMS|%s)$' % self.product,
             mindepth=1, maxdepth=1):
           self.link(self.u_tree, discpath, [file.basename])
       else:
