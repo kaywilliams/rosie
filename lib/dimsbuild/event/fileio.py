@@ -24,7 +24,8 @@ class IOObject:
   "Dummy class to contain I/O-related methods"
   def __init__(self, ptr):
     self.ptr = ptr
-    self.sync_info = {}
+    self.sync_items = {}
+    self.chmod_items = {}
 
   def setup_sync(self, dst, xpaths=[], paths=[], id=None, iprefix=None, defmode=None):
     """
@@ -80,23 +81,19 @@ class IOObject:
     if dstdir not in self.ptr.diff.handlers['input'].idata:
       self.ptr.diff.handlers['input'].idata.append(sourcefile)
 
-    self.sync_info.setdefault(id, {}).setdefault(sourcefile, set())
-
     rtn = []
-    if sourcefile.isfile():
-      output_file = dstdir / sourcefile.basename
-      self.sync_info.setdefault(id, {}).setdefault(sourcefile, set()).add((output_file, True, mode))
-      self.ptr.diff.handlers['output'].odata.append(output_file)
-      rtn.append(output_file)
-    else:
-      for node in sourcefile.findpaths():
-        output_file = dstdir / node.tokens[len(sourcefile.tokens)-1:]
-        if node.isfile():
-          self.sync_info.setdefault(id, {}).setdefault(node, set()).add((output_file, True, mode))
-          self.ptr.diff.handlers['output'].odata.append(output_file)
-          rtn.append(output_file)
-        else:
-          self.sync_info.setdefault(id, {}).setdefault(node, set()).add((output_file, False, mode))
+    self.sync_items.setdefault(id, set())
+    self.chmod_items.setdefault(id, set())
+    for src in sourcefile.findpaths():
+      output_file = dstdir / src.tokens[len(sourcefile.tokens)-1:]
+      m = mode
+      if m is None and src.stat().st_mode:
+        m = str(oct(src.stat().st_mode & 0777))[1:]
+      self.chmod_items[id].add((output_file, m))
+      if src.isfile():
+        self.sync_items[id].add((src, output_file))
+        self.ptr.diff.handlers['output'].odata.append(output_file)
+        rtn.append(output_file)
     return rtn
 
   def sync_input(self, cb=None, link=False, what=None, copy=False):
@@ -107,23 +104,29 @@ class IOObject:
                   input files are linked to the output location.
     @param what : list of IDs identifying what to download.
     """
-    if what is None: what = self.sync_info.keys()
-    if not hasattr(what, '__iter__'): what = [what]
+    if what is None:
+      what = self.sync_items.keys()
+    elif not hasattr(what, '__iter__'):
+      what = [what]
 
     sync_items = set()
     chmod_items = set()
 
     for id in what:
-      if not self.sync_info.has_key(id):
+      if not self.sync_items.has_key(id):
         continue
-      for src in self.sync_info[id].keys():
-        for file, tosync, mode in self.sync_info[id][src]:
-          if self.ptr.diff.handlers['input'].diffdict.has_key(src) or not file.exists():
-            file.rm(force=True)
-            if tosync:
-              sync_items.add((src, file))
-            if mode:
-              chmod_items.add((file, mode))
+      for src,dst in self.sync_items[id]:
+        if not dst.exists() or \
+               self.ptr.diff.handlers['input'].diffdict.has_key(src) and \
+               src.stat().st_size != dst.stat().st_size or \
+               src.stat().st_mtime != dst.stat().st_mtime:
+          dst.rm(recursive=True, force=True)
+          sync_items.add((src, dst))
+      for dst,mode in self.chmod_items[id]:
+        if mode:
+          if not dst.exists() or dst.stat().st_mode and \
+                 str(oct(dst.stat().st_mode & 0777))[1:] != mode:
+            chmod_items.add((dst, mode))
 
     outputs = []
     if sync_items:
@@ -136,6 +139,7 @@ class IOObject:
         else:    self.ptr.cache(src, dst.dirname, link=link)
         outputs.append(dst)
 
+    if chmod_items:
       for file, mode in chmod_items:
         os.chmod(file, int(mode, 8))
 
@@ -143,18 +147,25 @@ class IOObject:
     # output files the last time around, but are not output files this
     # time around
     complete = True
-    for file in self.list_output():
-      if not file.exists():
-        # if an output file doesn't exist, it means that it will be sync'd
-        # via another sync_input() call in the near-future.
-        complete = False
+    for path in self.list_output():
+      for file in path.findpaths(type=TYPE_NOT_DIR):
+        if not file.exists():
+          # if an output file doesn't exist, it means that it will be sync'd
+          # via another sync_input() call in the near-future.
+          complete = False
+          break
+      if not complete:
         break
     if complete:
-      new_files = set(self.list_output())
+      new_files = set()
       old_files = set()
+      for path in self.list_output():
+        for file in path.findpaths(type=TYPE_NOT_DIR):
+          new_files.add(file.normpath())
       for path in self.ptr.diff.handlers['output'].oldoutput.keys():
         for file in path.findpaths(type=TYPE_NOT_DIR):
-          old_files.add(file)
+          old_files.add(file.normpath())
+
       for obsolete_file in old_files.difference(new_files):
         if obsolete_file.exists():
           obsolete_file.rm(force=True)
@@ -204,16 +215,13 @@ class IOObject:
                  list is requested. If None, all output files are
                  returned.
     """
-    rtn = []
     if what is None:
-      for path in self.ptr.diff.handlers['output'].odata:
-        rtn.extend(path.findpaths(type=TYPE_NOT_DIR))
-    else:
-      if not hasattr(what, '__iter__'): what = [what]
-      for id in what:
-        if not self.sync_info.has_key(id):
-          continue
-        for src in self.sync_info[id].keys():
-          for file,_,_ in self.sync_info[id][src]:
-            rtn.append(file)
+      return self.ptr.diff.handlers['output'].odata
+    if not hasattr(what, '__iter__'): what = [what]
+    rtn = []
+    for id in what:
+      if not self.sync_items.has_key(id):
+        continue
+      for _,d in self.sync_items[id]:
+        rtn.append(d)
     return sorted(rtn)
