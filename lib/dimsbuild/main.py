@@ -199,7 +199,8 @@ class Build(object):
       mainconfig.xpath('/dimsbuild/librarypaths/path/text()', []) ]
 
     if options.libpath:
-      import_dirs.insert(0, P(options.libpath)) # TODO make this a list
+      options.libpath.extend(import_dirs)
+      import_dirs = [ P(x) for x in options.libpath ]
     for dir in sys.path:
       if dir not in import_dirs:
         import_dirs.append(P(dir))
@@ -308,8 +309,10 @@ class Build(object):
     Event.SHARE_DIRS = [ P(x) for x in \
                          mainconfig.xpath('/dimsbuild/sharepaths/path/text()',
                                           ['/usr/share/dimsbuild']) ]
+
     if options.sharepath:
-      Event.SHARE_DIRS = options.sharepath.extend(Event.SHARE_DIRS)
+      options.sharepath.extend(Event.SHARE_DIRS)
+      Event.SHARE_DIRS = [ P(x) for x in options.sharepath ]
 
     Event.CACHE_MAX_SIZE = int(mainconfig.get('/dimsbuild/cache/max-size/text()',
                                               30*1024**3))
