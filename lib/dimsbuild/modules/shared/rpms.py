@@ -21,13 +21,13 @@ class InputFilesMixin:
 
   def _setup_download(self):
     for k,v in self.installinfo.items():
-      xpath, dst = v
+      xpath, dst, defmode = v
       if xpath and self.config.xpath('%s' % xpath, None):
         default_dir = P(dst) / P(self.config.get(xpath).getparent().get('@dest', ''))
         for item in self.config.xpath('%s' % xpath, []):
           s = P(item.get('text()'))
           d = default_dir / P(item.get('@dest', ''))
-          m = item.get('@mode', None)
+          m = item.get('@mode', defmode)
           self.io.setup_sync(self.rpmdir / d.lstrip('/'), paths=[s], id=xpath, defmode=m)
 
   def _get_files(self):

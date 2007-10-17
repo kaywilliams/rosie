@@ -23,15 +23,15 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     self.doc_dir     = P('/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
 
     self.installinfo = {
-      'gpg'     : (None, self.gpg_dir),
-      'repo'    : ('yum-repos/path', self.repo_dir),
-      'eula'    : ('eula/path', self.eula_dir),
-      'omf'     : ('release-notes/omf/path', self.omf_dir),
-      'html'    : ('release-notes/html/path', self.html_dir),
-      'doc'     : ('release-notes/doc/path', self.doc_dir),
-      'release' : ('release-files/path', self.release_dir),
-      'etc'     : (None, self.etc_dir),
-      'eulapy'  : (None, self.eulapy_dir),
+      'gpg'     : (None, self.gpg_dir, None),
+      'repo'    : ('yum-repos/path', self.repo_dir, None),
+      'eula'    : ('eula/path', self.eula_dir, None),
+      'omf'     : ('release-notes/omf/path', self.omf_dir, None),
+      'html'    : ('release-notes/html/path', self.html_dir, None),
+      'doc'     : ('release-notes/doc/path', self.doc_dir, None),
+      'release' : ('release-files/path', self.release_dir, None),
+      'etc'     : (None, self.etc_dir, None),
+      'eulapy'  : (None, self.eulapy_dir, None),
     }
 
     self.DATA = {

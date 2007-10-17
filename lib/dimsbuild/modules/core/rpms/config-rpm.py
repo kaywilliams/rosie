@@ -22,8 +22,8 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     InputFilesMixin.__init__(self)
 
     self.installinfo = {
-      'config' : ('config/script', '/usr/lib/%s' % self.product),
-      'support': ('config/supporting-files/path', '/usr/lib/%s' % self.product)
+      'config' : ('config/script', '/usr/lib/%s' % self.product, '755'),
+      'support': ('config/supporting-files/path', '/usr/lib/%s' % self.product, None)
     }
 
     self.DATA = {
@@ -76,8 +76,8 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def _getpscript(self):
     post_install_scripts = self.io.list_output(what=self.installinfo['config'])
     try:
-      filereader.write([P(post_install_scripts[0][len(self.rpmdir):]).normpath()], 
-                       self.build_folder/'post-install.sh') 
+      filereader.write([P(post_install_scripts[0][len(self.rpmdir):]).normpath()],
+                       self.build_folder/'post-install.sh')
       return self.build_folder/'post-install.sh'
     except IndexError:
       return None
