@@ -15,8 +15,6 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       requires = ['anaconda-version', 'source-vars', 'base-repoid'],
     )
 
-    self.isolinux_dir = self.SOFTWARE_STORE/'isolinux' #! not versioned
-
     self.DATA = {
       'config':    ['.'],
       'variables': ['cvars[\'anaconda-version\']'],
@@ -33,12 +31,17 @@ class IsolinuxEvent(Event, FileDownloadMixin):
   
   def run(self):
     self.log(0, L0("synchronizing isolinux files"))
+
+    # if config has changed, ensure we start with a clean isolinux.cfg
+    cfg = self.SOFTWARE_STORE/self.file_locals['isolinux.cfg']['path']
+    if self.diff.has_changed('config', err=True):
+      cfg.rm(force=True)
+
     self._download()
-    
+
     # modify the first append line in isolinux.cfg
     bootargs = self.config.get('boot-args/text()', None)
     if bootargs:
-      cfg = self.SOFTWARE_STORE/self.file_locals['isolinux.cfg']['path']
       if not cfg.exists():
         raise RuntimeError("missing file '%s'" % cfg)
       lines = filereader.read(cfg)
@@ -50,7 +53,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       value = value.strip() + ' %s' % bootargs.strip()
       lines.insert(i, value)
       filereader.write(lines, cfg)
-    
+
     self.diff.write_metadata()
   
   def apply(self):
