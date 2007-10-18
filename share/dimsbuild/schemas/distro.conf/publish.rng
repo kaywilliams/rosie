@@ -8,7 +8,14 @@
         <interleave>
         
         <optional>
-        <element name="remote-webroot"><text/></element>
+        <element name="remote-webroot">
+        <optional>
+        <attribute name="use-hostname">
+        <ref name="value-boolean-with-default"/>
+        </attribute>
+        </optional>
+        <text/>
+        </element>
         </optional>
         
         <optional>

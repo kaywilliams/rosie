@@ -36,9 +36,10 @@ class PublishSetupEvent(Event):
     prefix = \
       P(self.config.get('path-prefix/text()', 'distros')) / \
         self.pva
-    self.web_path = \
-      P(self.config.get('remote-webroot/text()', None) or \
-       'http://' + self._getIpAddress()) / prefix
+    web_path = \
+      self.config.get('remote-webroot/text()', None) or \
+        P('http://' +  self._get_host()) / prefix
+    self.web_path = P(web_path)
     self.publish_path = \
       P(self.config.get('local-webroot/text()', '/var/www/html')) / \
         prefix
@@ -50,12 +51,15 @@ class PublishSetupEvent(Event):
 
     self.diff.write_metadata()
 
-  def _getIpAddress(self, ifname='eth0'):
-    # TODO - improve this, its not particularly accurate in some cases
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    return socket.inet_ntoa(fcntl.ioctl(s.fileno(),
-                                        0x8915,
-                                        struct.pack('256s', ifname[:15]))[20:24])
+  def _get_host(self, ifname='eth0'):
+    if self.config.get('remote-webroot/@use-hostname', 'False') in BOOLEANS_TRUE:
+      return socket.gethostname()
+    else:
+      # TODO - improve this, its not particularly accurate in some cases
+      s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+      return socket.inet_ntoa(fcntl.ioctl(s.fileno(),
+                                          0x8915,
+                                          struct.pack('256s', ifname[:15]))[20:24])
 
 
 class PublishEvent(Event):

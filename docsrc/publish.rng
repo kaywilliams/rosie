@@ -86,10 +86,10 @@ element publish {
     <refsect2>
       <title>&lt;remote-webroot&gt;</title>
       <para>
-      The remote-webroot element indicates the protocol and hostname of the publishing
-      machine ('authority' being the official term) as seen from other computers that
-      will allow them web access to custom distributions published by the build machine.
-      It contains no directory information; merely the server portion of the url.  When
+      The remote-webroot element indicates the URL address of the publishing
+      machine as seen from other computers that will allow them to access  
+      custom distributions published by the build machine. It contains no 
+      directory information; merely the server portion of the url.  When
       combined with path-prefix, this forms a full URL to allow remote access to
       dimsbuild-created distributions.
       </para>
@@ -104,52 +104,50 @@ element remote-webroot { text }
         <title>See also</title>
         <para>path-prefix</para>
       </refsection>
-    </refsect2>
-    
-    <!-- repofile -->
-    <refsect2>
-      <title>&lt;repofile&gt;</title>
-      <para>
-      The repofile element pertains to the creation of a yum repository definition file
-      that can be used to update machines based off this build.  If repo file creation
-      is enabled (by setting the enabled attribute to 'true'), then dimsbuild generates
-      a .repo file that points to the publish directory on the build machine which can
-      be used by end user machines for updates.
-      </para>
-      <programlisting>
-element repofile {
-  attribute enabled { text }?,
-  attribute include-input { text }?,
-}
-      </programlisting>
       <refsection>
         <title>Attributes</title>
-        <para>repofile elements have the following attributes:</para>
-        <refsection>
-          <title>enabled</title>
-          <para>
-          optional; whether or not to generate a .repo file for the distribution;
-          defaults to 'true'
-          </para>
-        </refsection>
-        <refsection>
-          <title>include-input</title>
-          <para>
-          optional; if enabled, generates a second .repo file pointing to the
-          repositories used as inputs by dimsbuild in creating the final output;
-          defaults to 'false'
-          </para>
-        </refsection>
+        <para>the remote-webroot element has the following attributes:</para>
       </refsection>
       <refsection>
-        <title>Parent</title>
-        <para>publish</para>
+        <title>use-hostname</title>
+        <para>optional; boolean value indicating whether the hostname (e.g.
+        machine1.example.org) should be used in place of the ipaddress 
+        (e.g. 10.10.0.28) for specifying the web address to the build machine; 
+        defaults to 'false'.
       </refsection>
       <refsection>
-        <title>See also</title>
-        <para>release-rpm</para>
+        <title>Examples</title>
+        <para>
+        The following are examples of remote-webroot elements.  In these examples,
+        assume the ipaddress for the build machine is 10.10.0.28 and the hostname
+        is machine1.example.org.
+        </para>
+        <programlisting>
+&lt;remote-webroot use-hostname="false"&gt;&lt;/remote-webroot&gt;
+        </programlisting>
+        <para>
+        In this example, the remote webroot would be calculated as 
+        "http://10.10.0.28"
+        </para>
+        <programlisting>
+&lt;remote-webroot use-hostname="true"&gt;&lt;/remote-webroot&gt;
+        </programlisting>
+        <para>
+        In this example, the remote webroot would be calculated as 
+        "http://machine1.example.org"
+        </para>
+        <programlisting>
+&lt;remote-webroot&gt;http://distros.example.org/&lt;/remote-webroot&gt;
+        </programlisting>
+        <para>
+        In this example, the resulting webroot is independent of the machine
+        used to build the distribution. It is calculated as 
+        "http://distros.example.org"
+        </para>
       </refsection>
     </refsect2>
+    
+
     
   </refentry>
 </docroot>
