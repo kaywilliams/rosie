@@ -107,8 +107,8 @@ class IsoSetsEvent(Event, ListCompareMixin):
     Event.__init__(self,
       id = 'iso',
       provides = ['iso-dir', 'publish-content'],
-      requires = ['anaconda-version', 'pkgorder-file', 'os-dir'],
-      conditionally_requires = ['manifest-file', 'srpms-dir'],
+      requires = ['anaconda-version', 'pkgorder-file', 'manifest-file', 'os-dir'],
+      conditionally_requires = ['srpms-dir'],
     )
     ListCompareMixin.__init__(self)
     
@@ -130,6 +130,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     self.isodir = self.mddir/'iso'
     
     self.DATA['input'].append(self.cvars['pkgorder-file'])
+    self.DATA['input'].append(self.cvars['manifest-file'])
   
   def run(self):
     self.log(0, L0("processing iso image(s)"))

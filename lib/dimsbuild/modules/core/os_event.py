@@ -23,7 +23,10 @@ class OSComposeEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'os-compose',
-      provides = ['os-dir', 'publish-content', '.manifest'],
+
+      # as an optimization iso diffs 'manifest-file' to determine if it should 
+      # run, thus avoiding calculating diffs for all files in osdir
+      provides = ['os-dir', 'publish-content', 'manifest-file'],
       requires = ['os-content'],
     )
 
@@ -88,6 +91,7 @@ class OSComposeEvent(Event):
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['os-dir'] = self.osdir
+    self.cvars['manifest-file'] = self.mfile
     try:
       self.cvars['publish-content'].add(self.osdir)
     except:
