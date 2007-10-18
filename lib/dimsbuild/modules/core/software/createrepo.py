@@ -2,8 +2,9 @@ import os
 
 from dims import shlib
 
-from dimsbuild.event   import Event
-from dimsbuild.logging import L0, L1
+from dimsbuild.constants import RPM_REGEX
+from dimsbuild.event     import Event
+from dimsbuild.logging   import L0, L1
 
 API_VERSION = 5.0
 
@@ -42,6 +43,12 @@ class CreaterepoEvent(Event):
   def run(self):
     self.log(0, L0("creating repository metadata"))
     self.io.sync_input(copy=True, link=True)
+
+    # remove all obsolete RPMs
+    old_files = set(self.cvars['rpms-directory'].findpaths(mindepth=1, regex=RPM_REGEX))
+    new_files = set(self.io.list_output(what='rpms'))
+    for obsolete_file in old_files.difference(new_files):
+      obsolete_file.rm(recursive=True, force=True)
 
     # run createrepo
     self.log(1, L1("running createrepo"))

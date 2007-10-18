@@ -143,33 +143,6 @@ class IOObject:
       for file, mode in chmod_items:
         os.chmod(file, int(mode, 8))
 
-    # if all the files have been sync'd, then remove files that were
-    # output files the last time around, but are not output files this
-    # time around
-    complete = True
-    for path in self.list_output():
-      for file in path.findpaths(type=TYPE_NOT_DIR):
-        if not file.exists():
-          # if an output file doesn't exist, it means that it will be sync'd
-          # via another sync_input() call in the near-future.
-          complete = False
-          break
-      if not complete:
-        break
-    if complete:
-      new_files = set()
-      old_files = set()
-      for path in self.list_output():
-        for file in path.findpaths(type=TYPE_NOT_DIR):
-          new_files.add(file.normpath())
-      for path in self.ptr.diff.handlers['output'].oldoutput.keys():
-        for file in path.findpaths(type=TYPE_NOT_DIR):
-          old_files.add(file.normpath())
-
-      for obsolete_file in old_files.difference(new_files):
-        if obsolete_file.exists():
-          obsolete_file.rm(force=True)
-
     return sorted(outputs)
 
   def clean_eventcache(self, all=False):

@@ -12,7 +12,7 @@ import stat
 from dims import pps
 from dims import shlib
 
-from dimsbuild.constants import BOOLEANS_TRUE, SRPM_PNVRA
+from dimsbuild.constants import BOOLEANS_TRUE, SRPM_PNVRA, SRPM_REGEX
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L0, L1, L2
 
@@ -122,6 +122,14 @@ class SourcesEvent(Event):
     self.log(1, L1("processing srpms"))
     self.srpmdest.mkdirs()
     self.io.sync_input()
+
+    # remove all obsolete SRPMs
+    old_files = set(self.srpmdest.findpaths(mindepth=1, regex=SRPM_REGEX))
+    new_files = set(self.io.list_output(what='srpms'))
+    for obsolete_file in old_files.difference(new_files):
+      obsolete_file.rm(recursive=True, force=True)
+
+    # run createrepo
     self._createrepo()
     self.DATA['output'].extend(self.io.list_output(what=['srpms']))
     self.DATA['output'].append(self.srpmdest/'repodata')
