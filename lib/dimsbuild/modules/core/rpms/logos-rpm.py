@@ -35,10 +35,11 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
     LocalFilesMixin.__init__(self)
     ColorMixin.__init__(self)
 
+    self.build_folder = self.mddir/'build'
     self.DATA = {
       'config': ['.'],
       'variables': ['fullname', 'product', 'pva'],
-      'output': [],
+      'output': [self.build_folder],
       'input':  [],
     }
 

@@ -12,6 +12,19 @@ API_VERSION = 5.0
 
 class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
   def __init__(self):
+    Event.__init__(self, id='release-rpm',
+                   requires=['source-vars', 'input-repos'],
+                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
+                   conditionally_requires=['web-path', 'gpgsign-public-key',])
+    RpmBuildMixin.__init__(self,
+                           '%s-release' % self.product,
+                           '%s release files created by dimsbuild' % self.fullname,
+                           '%s release files' % self.product,
+                           defobsoletes='fedora-release redhat-release centos-release '\
+                           'fedora-release-notes redhat-release-notes centos-release-notes')
+    InputFilesMixin.__init__(self)
+    ColorMixin.__init__(self)
+
     self.gpg_dir     = P('/etc/pkg/rpm-gpg')
     self.repo_dir    = P('/etc/yum.repos.d')
     self.eula_dir    = P('/usr/share/eula')
@@ -21,6 +34,8 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     self.omf_dir     = P('/usr/share/omf/%s-release-notes' % self.product)
     self.html_dir    = P('/usr/share/doc/HTML')
     self.doc_dir     = P('/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
+
+    self.build_folder = self.mddir / 'build'
 
     self.installinfo = {
       'gpg'     : (None, self.gpg_dir, None),
@@ -39,21 +54,8 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
       'variables': ['fullname', 'product', 'pva', 'cvars[\'web-path\']',
                     'cvars[\'gpgsign-public-key\']',],
       'input':     [],
-      'output':    [],
+      'output':    [self.build_folder],
     }
-
-    Event.__init__(self, id='release-rpm',
-                   requires=['source-vars', 'input-repos'],
-                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
-                   conditionally_requires=['web-path', 'gpgsign-public-key',])
-    RpmBuildMixin.__init__(self,
-                           '%s-release' % self.product,
-                           '%s release files created by dimsbuild' % self.fullname,
-                           '%s release files' % self.product,
-                           defobsoletes='fedora-release redhat-release centos-release '\
-                           'fedora-release-notes redhat-release-notes centos-release-notes')
-    InputFilesMixin.__init__(self)
-    ColorMixin.__init__(self)
 
   def setup(self):
     self._setup_build()

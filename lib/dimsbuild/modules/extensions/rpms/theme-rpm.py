@@ -12,11 +12,13 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     self.themename = \
       self.config.get('theme/text()', self.product)
 
+    self.build_folder = self.mddir / 'build'
+
     self.DATA = {
       'variables': ['product', 'pva'],
       'config':    ['.'],
       'input' :    [],
-      'output':    [],
+      'output':    [self.build_folder],
     }
 
     RpmBuildMixin.__init__(self,

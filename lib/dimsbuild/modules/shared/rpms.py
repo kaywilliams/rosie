@@ -121,8 +121,6 @@ class RpmBuildMixin:
     self.autofile = P(self._config.file + '.dat')
 
   def _setup_build(self, **kwargs):
-    self.build_folder = self.mddir/'build'
-
     if self.autofile.exists():
       self.release = xmllib.tree.read(self.autofile).get(
        '/distro/%s/rpms/%s/release/text()' % (self.pva, self.id), '0')
@@ -241,6 +239,7 @@ class RpmBuildMixin:
     mkrpm.build(self.build_folder,
                 self.mddir,
                 createrepo=False,
+                keepTemp=True,
                 quiet=(self.logger.threshold < 5))
     (self.build_folder/'dist').rm(recursive=True, force=True)
 

@@ -21,6 +21,8 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
                            '%s configuration script and supporting files' % self.fullname)
     InputFilesMixin.__init__(self)
 
+    self.build_folder = self.mddir / 'build'
+
     self.installinfo = {
       'config' : ('config/script', '/usr/lib/%s' % self.product, '755'),
       'support': ('config/supporting-files/path', '/usr/lib/%s' % self.product, None)
@@ -30,7 +32,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       'variables': ['product', 'fullname', 'pva'],
       'config':    ['.'],
       'input':     [],
-      'output':    [],
+      'output':    [self.build_folder],
     }
 
   def setup(self):
