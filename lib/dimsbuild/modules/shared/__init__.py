@@ -41,15 +41,23 @@ class RepoEventMixin:
   def __init__(self):
     self.repocontainer = RepoContainer()
 
-  def read_config(self, xpath_query):
-    for repoxml in self.config.xpath(xpath_query):
-      id = repoxml.get('@id')
-      self.repocontainer.add_repo(id)
-      repo = self.repocontainer[id]
-      repo.read_config(repoxml)
-      repo.localurl = self.mddir/id
-      repo.pkgsfile = self.mddir/id/'packages'
-      repo.repodata = repoxml.get('repodata-path/text()', '')
+  def read_config(self, repos=None, files=None):
+    # one or the other of repos or files is required by validation
+    if repos:
+      for repoxml in self.config.xpath(repos, []):
+        id = repoxml.get('@id')
+        self.repocontainer.add_repo(id)
+        repo = self.repocontainer[id]
+        repo.read_config(repoxml)
+        repo.repodata = repoxml.get('repodata-path/text()', '')
+    
+    if files:
+      for filexml in self.config.xpath(files, []):
+        self.repocontainer.read(filexml.text)
+    
+    for repo in self.repocontainer.values():
+      repo.localurl = self.mddir/repo.id
+      repo.pkgsfile = self.mddir/repo.id/'packages'
       
       repo._read_repodata()
 

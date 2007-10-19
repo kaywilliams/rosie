@@ -208,7 +208,7 @@ class Repo(dict):
 
       for f,s,m in handler.pkgs:
         self.repoinfo.append({
-          'file':  self['baseurl']/self.repodata/f,
+          'file':  self.remoteurl/self.repodata/f,
           'size':  s,
           'mtime': m,
           })
@@ -245,7 +245,7 @@ class Repo(dict):
       mwriter.writerow(item)
     mf.close()
   
-  def _get_gpgkeys(self): return self._get_val('gpgkeys', '\n')
+  def _get_gpgkeys(self): return self._get_val('gpgkeys')
   def _get_include(self): return self._get_val('include')
   def _get_exclude(self): return self._get_val('exclude')
   def _get_val(self, key, splitter=None):

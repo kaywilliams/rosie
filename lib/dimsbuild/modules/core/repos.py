@@ -30,13 +30,21 @@ class ReposEvent(Event, RepoEventMixin):
     }
 
   def validate(self):
-    if len(self.config.xpath('repo[@type="base"]')) != 1:
-      raise InvalidConfig(self.config, "Config file must define one repo with type 'base'")
+    if self.config.get('base-repo/text()', None) is None:
+      raise InvalidConfigError(self.config,
+         "Config file must define a 'base-repo' element with the id "
+         "of the base repo to use in dimsbuild processing")
+    if self.config.get('repo', None) is None and \
+       self.config.get('repofile', None) is None:
+      raise InvalidConfigError(self.config,
+         "Config file must specify at least one 'repo' element or "
+         "at least one 'repofile' element as a child to the 'repos' "
+         "element.")
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.cvars['base-repoid'] = self.config.get('repo[@type="base"]/@id')
-    self.read_config('repo')
+    self.cvars['base-repoid'] = self.config.get('base-repo/text()')
+    self.read_config(repos='repo', files='repofile')
 
   def run(self):
     self.log(0, L0("setting up input repositories"))

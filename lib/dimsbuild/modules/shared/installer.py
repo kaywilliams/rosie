@@ -200,7 +200,7 @@ class FileDownloadMixin:
       linfix = data['path'] % self.cvars['base-vars']
       self.io.setup_sync(
         (self.SOFTWARE_STORE/linfix).dirname, id='FileDownloadMixin',
-        paths=[self.cvars['repos'][self.repoid or self.cvars['base-repoid']]['baseurl']/rinfix])
+        paths=[self.cvars['repos'][self.repoid or self.cvars['base-repoid']].remoteurl/rinfix])
   
   def _download(self):
     self.io.sync_input(what='FileDownloadMixin', cache=True)

@@ -4,13 +4,24 @@
     <element name="distro">
     
       <element name="repos">
-        <oneOrMore>
+        <interleave>
+        
+        <zeroOrMore>
         <ref name="element-repo"/>
-        </oneOrMore>
+        </zeroOrMore>
+        
+        <zeroOrMore>
+        <element name="repofile"><text/></element>
+        </zeroOrMore>
         
         <optional>
         <ref name="element-exclude"/>
-        </optional>      
+        </optional>
+        
+        <element name="base-repo"><text/></element>
+        
+        </interleave>
+        
       </element>
     
     </element>
