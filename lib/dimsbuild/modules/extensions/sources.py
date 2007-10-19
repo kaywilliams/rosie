@@ -15,6 +15,7 @@ from dims import shlib
 from dimsbuild.constants import BOOLEANS_TRUE, SRPM_PNVRA, SRPM_REGEX
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L0, L1, L2
+from dimsbuild.validate  import InvalidConfigError
 
 from dimsbuild.modules.shared import RepoEventMixin
 
@@ -38,10 +39,18 @@ class SourceReposEvent(Event, RepoEventMixin):
       'input':     [],
       'output':    [],
     }
-
+  
+  def validate(self):
+    if self.config.get('repo', None) is None and \
+       self.config.get('repofile', None) is None:
+      raise InvalidConfigError(self.config,
+         "Config file must specify at least one 'repo' element or "
+         "at least one 'repofile' element as a child to the 'sources' "
+         "element.")
+  
   def setup(self):
     self.diff.setup(self.DATA)
-    self.read_config('repo')
+    self.read_config(repos='repo', files='repofiles')
 
   def run(self):
     self.log(0, L0("setting up input source repositories"))

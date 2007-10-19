@@ -56,7 +56,7 @@ class PkgorderEvent(Event):
     
     if self.dosync:
       self.io.setup_sync(self.mddir, id='pkgorder',
-                      xpaths=['pkgorder'])
+                         xpaths=['pkgorder'])
       self.pkgorderfile = self.io.list_output(what='pkgorder')[0]
     else:
       self.pkgorderfile = self.mddir/'pkgorder'
