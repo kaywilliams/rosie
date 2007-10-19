@@ -29,7 +29,7 @@ class FilesEvent(Event):
 
   def run(self):
     self.log(0, L0("processing user-provided files"))
-    self.io.sync_input()
+    self.io.sync_input(cache=True)
     self.diff.write_metadata()
 
   def apply(self):

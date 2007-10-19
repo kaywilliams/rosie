@@ -65,7 +65,7 @@ class PkglistEvent(Event):
     self.rddirs = [] # list of repodata dirs across all repos
 
     for repo in self.cvars['repos'].values():
-      self.rddirs.append(repo.ljoin(repo.repodata_path, 'repodata'))
+      self.rddirs.append(repo.localurl/repo.repodata/'repodata')
 
     self.DATA['input'].extend(self.rddirs)
 
@@ -75,7 +75,7 @@ class PkglistEvent(Event):
 
     # copy pkglist
     if self.docopy:
-      self.io.sync_input()
+      self.io.sync_input(cache=True)
       self.log(1, L1("reading supplied package list"))
       if self.dsdir.exists():
         self.dsdir.rm(recursive=True)
@@ -152,13 +152,8 @@ class PkglistEvent(Event):
       if rddir_changed:
         ## HACK: delete a folder's depsolve metadata if it has changed.
         (self.dsdir/repo.id).rm(recursive=True, force=True)
-
-      conf.extend([
-        '[%s]' % repo.id,
-        'name = %s' % repo.id,
-        'baseurl = file://%s' % repo.ljoin(repo.repodata_path),
-        '\n',
-      ])
+      
+      conf.extend(str(repo).split('\n'))
     filereader.write(conf, repoconfig)
     return repoconfig
 

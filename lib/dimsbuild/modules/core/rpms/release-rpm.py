@@ -109,7 +109,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
 
   def _generate(self):
     "Create additional files."
-    self.io.sync_input()
+    self.io.sync_input(cache=True)
     for type in self.installinfo.keys():
       _, dir, _ = self.installinfo[type]
       generator = '_generate_%s_files' % type

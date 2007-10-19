@@ -42,7 +42,7 @@ class CreaterepoEvent(Event):
 
   def run(self):
     self.log(0, L0("creating repository metadata"))
-    self.io.sync_input(copy=True, link=True)
+    self.io.sync_input(link=True)
 
     # remove all obsolete RPMs
     old_files = set(self.cvars['rpms-directory'].findpaths(mindepth=1, regex=RPM_REGEX))

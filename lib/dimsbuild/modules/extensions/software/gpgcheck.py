@@ -49,7 +49,7 @@ class GpgCheckEvent(Event):
     
     homedir = self.mddir/'homedir'
     self.DATA['output'].append(homedir)
-    newkeys = self.io.sync_input() # sync new keys
+    newkeys = self.io.sync_input(cache=True) # sync new keys
     
     if newkeys:
       newchecks = sorted(self.checks)

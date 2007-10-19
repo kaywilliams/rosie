@@ -12,6 +12,21 @@ from dimsbuild.event.diff   import DiffMixin
 from dimsbuild.event.fileio import IOMixin
 from dimsbuild.event.locals import LocalsMixin
 
+# Constant (re)definitions
+CLASS_DEFAULT = dispatch.CLASS_DEFAULT
+CLASS_META    = dispatch.CLASS_META
+
+PROTECT_ENABLE  = dispatch.PROTECT_ENABLE
+PROTECT_DISABLE = dispatch.PROTECT_DISABLE
+PROTECT_SKIP    = 0100
+PROTECT_FORCE   = 0200
+PROTECT_STATUS  = 0700 # protect all changes to Event.status
+PROTECT_ENABLED = 0070 # protect all changes to Event.enabled
+PROTECT_ALL     = PROTECT_STATUS | PROTECT_ENABLED
+
+STATUS_FORCE = True
+STATUS_SKIP  = False
+
 
 class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
   """
@@ -22,8 +37,8 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
   """
   def __init__(self, id, version=0, *args, **kwargs):
     dispatch.Event.__init__(self, id, *args, **kwargs)
-    self.event_version = version #!
-    self._status = None #!
+    self.event_version = version
+    self._status = None
 
     IOMixin.__init__(self)
     DiffMixin.__init__(self)
@@ -33,15 +48,22 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
                     lambda self, status: self._apply_status(status))
 
   def _apply_status(self, status):
+    if not self._check_status(status):
+      raise dispatch.EventProtectionError()
     self._status = status
-    # apply to all children if even has PROPERTY_META property
-    if self.test(dispatch.PROPERTY_META):
+    # apply to all children if even has CLASS_META property
+    if self.test(CLASS_META):
       for child in self.get_children():
-        if not child.test(dispatch.PROPERTY_PROTECTED):
+        if child._check_status(status):
           child._apply_status(status)
 
-  forced  = property(lambda self: self.status == True)
-  skipped = property(lambda self: self.status == False)
+  def _check_status(self, status):
+    "Returns True if status change is ok; False if invalid"
+    return (status == STATUS_FORCE and not self.test(PROTECT_FORCE)) or \
+           (status == STATUS_SKIP  and not self.test(PROTECT_SKIP))
+  
+  forced  = property(lambda self: self.status == STATUS_FORCE)
+  skipped = property(lambda self: self.status == STATUS_SKIP)
 
   # execution methods
   def execute(self):
@@ -96,12 +118,20 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
 
     self.copy(src, dst, **kwargs)
 
-  def copy(self, src, dst, link=False, **kwargs):
-    if link: kwargs.setdefault('copy_handler', self.link_handler)
+  def copy(self, src, dst, **kwargs):
+    kwargs.setdefault('copy_handler', self.copy_handler)
+    kwargs.setdefault('callback', self.copy_callback)
 
     dst.mkdirs()
     sync.sync(src, dst, **kwargs)
 
+  def link(self, src, dst, **kwargs):
+    kwargs.setdefault('copy_handler', self.link_handler)
+    kwargs.setdefault('callback', self.link_callback) # turn off output
+    
+    dst.mkdirs()
+    sync.sync(src, dst, **kwargs)
+  
   def _get_mddir(self):
     dir = self.METADATA_DIR/self.id
     dir.mkdirs()

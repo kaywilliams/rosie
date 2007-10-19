@@ -35,7 +35,7 @@ class SourceVarsEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    initrd_in=self.cvars['repos'][self.cvars['base-repoid']].rjoin('isolinux/initrd.img')
+    initrd_in=self.cvars['repos'][self.cvars['base-repoid']].remoteurl/'isolinux/initrd.img'
 
     self.io.setup_sync(self.mddir, id='initrd.img', paths=[initrd_in])
 
@@ -49,7 +49,7 @@ class SourceVarsEvent(Event):
     self.log(0, L0("computing source variables"))
 
     # download input files
-    self.io.sync_input()
+    self.io.sync_input(cache=True)
 
     # extract buildstamp
     image = self.locals.files['isolinux']['initrd.img']

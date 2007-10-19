@@ -58,7 +58,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     self.cvars.setdefault('custom-rpms-info', []).append((self.rpmname, 'mandatory', None, self.obsoletes, None))
 
   def _generate(self):
-    self.io.sync_input()
+    self.io.sync_input(cache=True)
 
   def _get_files(self):
     sources = {}

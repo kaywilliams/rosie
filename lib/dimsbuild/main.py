@@ -23,9 +23,9 @@ from dims import sync
 from dims.sync import cache
 from dims.sync import link
 
-from dimsbuild.callback  import BuildSyncCallback, FilesCallback
+from dimsbuild.callback  import SyncCallback, CachedSyncCallback, FilesCallback
 from dimsbuild.constants import *
-from dimsbuild.event     import Event
+from dimsbuild.event     import Event, CLASS_META
 from dimsbuild.logging   import make_log, L0, L1, L2
 from dimsbuild.validate  import (ConfigValidator, MainConfigValidator,
                                  InvalidConfigError, InvalidSchemaError)
@@ -188,7 +188,7 @@ class Build(object):
     except dispatch.UnregisteredEventError:
       Event.logger.log(0, L0("Unregistered event '%s'" % eventid))
       sys.exit(1)
-    if e.test(dispatch.PROPERTY_PROTECTED):
+    if not e._check_status(status):
       Event.logger.log(0, L0("Cannot %s protected event '%s'" % (str, eventid)))
       sys.exit(1)
     e.status = status
@@ -321,10 +321,12 @@ class Build(object):
                             cache_dir = Event.CACHE_DIR / '.cache',
                             cache_max_size = Event.CACHE_MAX_SIZE,
                           )
-    Event.cache_callback = BuildSyncCallback(Event.logger, Event.METADATA_DIR)
     Event.copy_handler = sync.CopyHandler()
     Event.link_handler = link.LinkHandler(allow_xdev=True)
 
+    Event.copy_callback  = SyncCallback(Event.logger, Event.METADATA_DIR)
+    Event.cache_callback = CachedSyncCallback(Event.logger, Event.METADATA_DIR)
+    Event.link_callback  = None
     Event.files_callback = FilesCallback(Event.logger, Event.METADATA_DIR)
 
   def _log_header(self):
@@ -348,5 +350,5 @@ class AllEvent(Event):
     Event.__init__(self,
       id = 'ALL',
       version = 0,
-      properties = dispatch.PROPERTY_META,
+      properties = CLASS_META,
     )

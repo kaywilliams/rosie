@@ -96,7 +96,7 @@ class IOObject:
         rtn.append(output_file)
     return rtn
 
-  def sync_input(self, cb=None, link=False, what=None, copy=False):
+  def sync_input(self, cb=None, link=False, what=None, cache=False, **kwargs):
     """
     Sync the input files to their output locations.
 
@@ -135,8 +135,13 @@ class IOObject:
       cb = cb or self.ptr.files_callback
       cb.sync_start()
       for src, dst in sync_items:
-        if copy: self.ptr.copy(src,  dst.dirname, link=link)
-        else:    self.ptr.cache(src, dst.dirname, link=link)
+        # I'd rather handle arg passing a little better
+        if cache:
+          self.ptr.cache(src, dst.dirname, link=link, **kwargs) #!
+        elif link:
+          self.ptr.link(src, dst.dirname, **kwargs) #!
+        else:
+          self.ptr.copy(src, dst.dirname, **kwargs) #!
         outputs.append(dst)
 
     if chmod_items:

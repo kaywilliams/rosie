@@ -58,14 +58,14 @@ class SourceReposEvent(Event, RepoEventMixin):
   def apply(self):
     self.io.clean_eventcache()
 
-    for repo in self.repos.values():
+    for repo in self.repocontainer.values():
       if not repo.pkgsfile.exists():
         raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "
                            "are skipping %s before it has been allowed "
                            "to run once?" % (repo.pkgsfile, self.id))
-      repo.readRepoContents(repofile=repo.pkgsfile)
+      repo._read_repo_content(repofile=repo.pkgsfile)
 
-    self.cvars['source-repos'] = self.repos
+    self.cvars['source-repos'] = self.repocontainer
 
 
 class SourcesEvent(Event):
@@ -121,7 +121,7 @@ class SourcesEvent(Event):
 
     self.log(1, L1("processing srpms"))
     self.srpmdest.mkdirs()
-    self.io.sync_input()
+    self.io.sync_input(cache=True)
 
     # remove all obsolete SRPMs
     old_files = set(self.srpmdest.findpaths(mindepth=1, regex=SRPM_REGEX))

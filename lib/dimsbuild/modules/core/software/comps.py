@@ -73,7 +73,7 @@ class CompsEvent(Event):
 
     if self.comps_supplied: # download comps file
       self.log(1, L1("using existing file '%s'" % self.comps_supplied))
-      self.io.sync_input()
+      self.io.sync_input(cache=True)
 
     else: # generate comps file
       self.log(1, L1("creating new file"))
@@ -121,7 +121,7 @@ class CompsEvent(Event):
       groupfile = repo.datafiles.get('group', None)
       if groupfile:
         groupfiles.append((repo.id,
-                           repo.ljoin(repo.repodata_path, 'repodata', groupfile)))
+                           repo.localurl/repo.repodata/'repodata'/groupfile))
 
     return groupfiles
 

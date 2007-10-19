@@ -50,12 +50,12 @@ class ReposEvent(Event, RepoEventMixin):
 
   def apply(self):
     self.io.clean_eventcache()
-    for repo in self.repos.values():
+    for repo in self.repocontainer.values():
       if not repo.pkgsfile.exists():
         raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "
         "are skipping repos before it has been allowed to run once?" % repo.pkgsfile)
 
-      repo.readRepoContents(repofile=repo.pkgsfile)
+      repo._read_repo_content(repofile=repo.pkgsfile)
 
       # get the logos version, if any in repo
       logos_version = get_logos_version(repo.pkgsfile)
@@ -67,7 +67,7 @@ class ReposEvent(Event, RepoEventMixin):
       if repo.id == self.cvars['base-repoid']:
         self.cvars['anaconda-version'] = get_anaconda_version(repo.pkgsfile)
 
-    self.cvars['repos'] = self.repos
+    self.cvars['repos'] = self.repocontainer
 
 EVENTS = {'setup': [ReposEvent]}
 

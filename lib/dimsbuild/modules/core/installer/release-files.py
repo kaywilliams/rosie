@@ -55,7 +55,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
       dest = files[source]
       if source.isfile() and dest.isdir():
         rtn.append(dest/source.basename)
-      self.copy(source, dest, link=True)
+      self.link(source, dest)
     return rtn
   
   def _find_rpms(self):

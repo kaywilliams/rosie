@@ -131,7 +131,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
         sharedfile = path/'logos'/id
         if sharedfile.exists():
           self.log(4, L3("file '%s' exists in share/" % id))
-          self.copy(sharedfile, destdir)
+          self.copy(sharedfile, destdir, callback=None)
           created = True; break
       if not created and width and height:
         self.log(4, L3("creating '%s'" % id))

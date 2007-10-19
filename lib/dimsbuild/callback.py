@@ -4,7 +4,8 @@ callback.py
 Callback classes for dimsbuild
 """
 
-from dims.sync.cache    import CachedSyncCallback
+from dims.sync.cache    import CachedSyncCallback  as _CachedSyncCallback
+from dims.sync.callback import SyncCallbackMetered as _SyncCallbackMetered
 from dims.progressbar   import ProgressBar
 
 from dimsbuild.logging import L1, L2
@@ -29,9 +30,9 @@ class FilesCallback:
   def sync_start(self):
     self.logger.log(1, L1("downloading input files"))
 
-class BuildSyncCallback(CachedSyncCallback):
+class SyncCallback(_SyncCallbackMetered):
   def __init__(self, logger, relpath):
-    CachedSyncCallback.__init__(self)
+    _SyncCallbackMetered.__init__(self)
     self.logger = logger
     self.relpath = relpath
 
@@ -46,11 +47,21 @@ class BuildSyncCallback(CachedSyncCallback):
   def sync_update(self, src, dest): pass
   def mkdir(self, src, dest): pass
 
-  def _cache_start(self, size, text):
-    CachedSyncCallback._cache_start(self, size, L2(text))
-
   def _cp_start(self, size, text, seek=0.0):
-    CachedSyncCallback._cp_start(self, size=size, text=L2(text), seek=seek)
+    _SyncCallbackMetered._cp_start(self, size=size, text=L2(text), seek=seek)
+
+  def _link_xdev(self, src, dst):
+    self.logger.log(5, "Attempted invalid cross-device link between '%s' "
+                       "and '%s'; copying instead" % (src, dst))
+
+
+class CachedSyncCallback(_CachedSyncCallback, SyncCallback):
+  def __init__(self, logger, relpath):
+    _CachedSyncCallback.__init__(self)
+    SyncCallback.__init__(self, logger, relpath)
+
+  def _cache_start(self, size, text):
+    _CachedSyncCallback._cache_start(self, size, L2(text))
 
   def _cache_end(self):
     self.bar.update(self.bar.status.size)
@@ -58,11 +69,6 @@ class BuildSyncCallback(CachedSyncCallback):
     # if we're at log level 3, write the completed bar to the log file
     if self.logger.test(3):
       self.logger.logfile.log(3, str(self.bar))
-    del self.bar
-
-  def _link_xdev(self, src, dst):
-    self.logger.log(5, "Attempted invalid cross-device link between '%s' "
-                       "and '%s'; copying instead" % (src, dst))
 
 
 class BuildDepsolveCallback:

@@ -27,7 +27,7 @@ class PxebootImagesEvent(Event):
     
   def run(self):
     self.log(0, L0("preparing pxeboot images"))
-    self.io.sync_input()
+    self.io.sync_input(cache=True)
     self.diff.write_metadata()
   
   def apply(self):

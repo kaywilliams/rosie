@@ -98,7 +98,7 @@ class LogosEvent(Event, ExtractMixin):
     pixmaps = []
     for img in working_dir.findpaths(regex='.*usr/share/anaconda/pixmaps*',
                                      type=pps.constants.TYPE_NOT_DIR):
-      self.copy(img, product_img, link=True)
+      self.link(img, product_img)
       outfile = product_img/img.basename
       pixmaps.append(outfile)
 

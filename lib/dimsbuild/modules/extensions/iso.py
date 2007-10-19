@@ -2,13 +2,11 @@ from dims import filereader
 from dims import pkgorder
 from dims import shlib
 
-from dims.dispatch import PROPERTY_META
-
 from dimsbuild import splittree
 
 from dimsbuild.callback    import BuildDepsolveCallback
 from dimsbuild.constants   import BOOLEANS_TRUE
-from dimsbuild.event       import Event
+from dimsbuild.event       import Event, CLASS_META
 from dimsbuild.logging     import L0, L1, L2, L3
 from dimsbuild.modules.shared import ListCompareMixin
 
@@ -30,7 +28,7 @@ class IsoMetaEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'ISO',
-      properties = PROPERTY_META,
+      properties = CLASS_META,
     )
     
 
@@ -70,7 +68,7 @@ class PkgorderEvent(Event):
     # delete prior pkgorder file, if exists    
     self.io.clean_eventcache(all=True)
     if self.dosync:
-      self.io.sync_input()
+      self.io.sync_input(cache=True)
     else:
       # generate pkgorder
       self.log(1, L1("generating package ordering"))

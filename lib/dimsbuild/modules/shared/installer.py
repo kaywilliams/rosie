@@ -104,7 +104,7 @@ class ImageModifyMixin:
     try:
       self.io.setup_sync((self.SOFTWARE_STORE/image_path).dirname,
                          id='ImageModifyMixin',
-                         paths=[repo.rjoin(image_path)])
+                         paths=[repo.remoteurl/image_path])
     except IOError:
       if self.virtual:
         self.DATA['output'].append(self.SOFTWARE_STORE/image_path)
@@ -138,7 +138,7 @@ class ImageModifyMixin:
   
   def _modify(self):
     # sync image to input store
-    self.io.sync_input(what=['ImageModifyMixin', '%s-input-files' % self.name])
+    self.io.sync_input(what=['ImageModifyMixin', '%s-input-files' % self.name], cache=True)
     
     # modify image
     self.log(1, L1("modifying %s" % self.name))
@@ -200,10 +200,10 @@ class FileDownloadMixin:
       linfix = data['path'] % self.cvars['base-vars']
       self.io.setup_sync(
         (self.SOFTWARE_STORE/linfix).dirname, id='FileDownloadMixin',
-        paths=[self.cvars['repos'][self.repoid or self.cvars['base-repoid']].rjoin(rinfix)])
+        paths=[self.cvars['repos'][self.repoid or self.cvars['base-repoid']]['baseurl']/rinfix])
   
   def _download(self):
-    self.io.sync_input(what='FileDownloadMixin')
+    self.io.sync_input(what='FileDownloadMixin', cache=True)
     
 class RpmNotFoundError(Exception): pass
 class OutputInvalidError(Exception): pass

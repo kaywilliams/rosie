@@ -1,10 +1,8 @@
-from dims.dispatch import PROPERTY_META
-
 import csv
 
 from dims.pps.constants import TYPE_NOT_DIR
 
-from dimsbuild.event    import Event
+from dimsbuild.event    import Event, CLASS_META
 from dimsbuild.logging  import L0, L1
 
 API_VERSION = 5.0
@@ -15,7 +13,7 @@ class OSMetaEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'OS',
-      properties = PROPERTY_META,
+      properties = CLASS_META,
       comes_after = ['setup'],
     )
 
@@ -61,7 +59,7 @@ class OSComposeEvent(Event):
     backup = self.files_callback.sync_start
     self.files_callback.sync_start = lambda : None
     for event in self.events:
-      self.io.sync_input(copy=True, link=True, what=event)
+      self.io.sync_input(link=True, what=event)
     self.files_callback.sync_start = backup
 
     # create manifest file

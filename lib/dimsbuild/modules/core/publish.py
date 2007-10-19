@@ -88,7 +88,7 @@ class PublishEvent(Event):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
     self.log(0, L0("publishing output store"))
     self.cvars['publish-path'].rm(recursive=True, force=True)
-    self.io.sync_input(copy=True, link=True)
+    self.io.sync_input(link=True)
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' \
                    % self.cvars['publish-path'])
 
