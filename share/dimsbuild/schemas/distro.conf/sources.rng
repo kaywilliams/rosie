@@ -11,9 +11,17 @@
         </attribute>
         </optional>
         
+        <interleave>
+        
         <oneOrMore>
         <ref name="element-repo"/>
         </oneOrMore>
+        
+        <zeroOrMore>
+        <element name="repofile"><text/></element>
+        </zeroOrMore>
+        
+        </interleave>
       </element>
       </optional>
       
