@@ -50,15 +50,15 @@ class RepoEventMixin:
         repo = self.repocontainer[id]
         repo.read_config(repoxml)
         repo.repodata = repoxml.get('repodata-path/text()', '')
-    
+
     if files:
       for filexml in self.config.xpath(files, []):
         self.repocontainer.read(filexml.text)
-    
+
     for repo in self.repocontainer.values():
       repo.localurl = self.mddir/repo.id
       repo.pkgsfile = self.mddir/repo.id/'packages'
-      
+
       repo._read_repodata()
 
       paths = []

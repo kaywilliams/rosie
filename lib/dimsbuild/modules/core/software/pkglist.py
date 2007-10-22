@@ -152,7 +152,7 @@ class PkglistEvent(Event):
       if rddir_changed:
         ## HACK: delete a folder's depsolve metadata if it has changed.
         (self.dsdir/repo.id).rm(recursive=True, force=True)
-      
+
       conf.extend(str(repo).split('\n'))
     filereader.write(conf, repoconfig)
     return repoconfig

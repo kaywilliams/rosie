@@ -32,22 +32,22 @@ class RepoContainer(dict):
   "Python representation of a yum .repo file"
   def __str__(self):
     s = ''
-    
+
     if self.has_key(DEFAULTSECT):
       s += '[%s]\n' % DEFAULTSECT
       for k,v in self[DEFAULTSECT].items():
         s += '%s%s%s\n' % (k, sep, str(v).replace('\n', '\n' + ' '*(len(k+sep))))
       s += '\n'
-    
+
     for k,v in self.items():
       if k != DEFAULTSECT:
         s += str(v)
-    
+
     return s
-  
+
   def write(self, fp):
     fp.write(self.__str__())
-  
+
   def add_repo(self, id, **kwargs):
     if not self.has_key(id):
       self[id] = Repo({'id': id})
@@ -58,7 +58,7 @@ class RepoContainer(dict):
       id = repo.get('@id')
       self[id] = Repo({'id': id})
       self[id].read_config(repo)
-  
+
   def read(self, filenames):
     if isinstance(filenames, basestring):
       filenames = [filenames]
@@ -72,7 +72,7 @@ class RepoContainer(dict):
       fp.close()
       read_ok.append(filename)
     return read_ok
-  
+
   def readfp(self, fp, filename=None):
     if filename is None:
       try:
@@ -146,7 +146,7 @@ class Repo(dict):
   "Python representation of a repo inside a yum .repo file"
   def __init__(self, *args, **kwargs):
     dict.__init__(self, *args, **kwargs)
-    
+
     self.localurl = None
     self.pkgsfile = None
     self.repodata = ''
@@ -156,10 +156,13 @@ class Repo(dict):
     self.datafiles = {}
 
     self._parser = xml.sax.make_parser()
-  
+
   def __str__(self):
     s = '[%s]\n' % self['id']
     for k,v in self.items():
+      ## Map the 'include' attribute to the 'includepkgs' .repo option
+      if k == 'include':
+        k = 'includepkgs'
       if isinstance(v, pps.path.file.FilePath): #! hack to make sure file:// is prepended
         v = 'file://%s' % v
       s += '%s%s%s\n' % (k, sep, str(v).replace('\n', '\n' + ' '*(len(k+sep))))
@@ -178,12 +181,12 @@ class Repo(dict):
     if tree.pathexists('gpgkey/text()'):
       self['gpgkey'] = '\n'.join(tree.xpath('gpgkey/text()'))
     if tree.pathexists('exclude/package/text()'):
-      self['exclude'] = ' '.join(tree.xpath('exclude/path/text()'))
+      self['exclude'] = ' '.join(tree.xpath('exclude/package/text()'))
     if tree.pathexists('include/package/text()'):
-      self['include'] = ' '.join(tree.xpath('include/path/text()'))
-    
+      self['include'] = ' '.join(tree.xpath('include/package/text()'))
+
     self.repodata = tree.get('repodata-path/text()', '') #!
-  
+
   def update_metadata(self):
     self._read_repodata()
     self._read_repo_content()
@@ -244,7 +247,7 @@ class Repo(dict):
     for item in self.repoinfo:
       mwriter.writerow(item)
     mf.close()
-  
+
   def _get_gpgkeys(self): return self._get_val('gpgkeys')
   def _get_include(self): return self._get_val('include')
   def _get_exclude(self): return self._get_val('exclude')
@@ -253,7 +256,7 @@ class Repo(dict):
       return self[key].split(splitter)
     else:
       return []
-  
+
   # handy properties based on dictionary values
   id = property(lambda self: self['id'])
   remoteurl = property(lambda self: P(self['baseurl']))
