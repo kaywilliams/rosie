@@ -1,5 +1,9 @@
+import os
+import sys
+
 from dims import listcompare
 from dims import pps
+from dims import shlib
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.logging   import L1, L2
@@ -93,3 +97,43 @@ class RepoEventMixin:
         repo._read_repo_content()
         repo.write_repo_content(repo.pkgsfile)
       self.DATA['output'].append(repo.pkgsfile)
+
+class CreateRepoMixin:
+  def __init__(self):
+    pass
+
+  def createrepo(self, path, groupfile=None, pretty=False, update=True, quiet=True):
+    "Run createrepo on the path specified."
+    self.log(1, L1("running createrepo"))
+
+    args = ['/usr/bin/createrepo']
+    if update:
+      args.append('--update')
+    if quiet:
+      args.append('--quiet')
+    if groupfile:
+      args.extend(['--groupfile', groupfile])
+    if pretty:
+      args.append('--pretty')
+    if self.config.get('@database', 'false') in BOOLEANS_TRUE:
+      args.append('--database')
+    else:
+      ## HACK: if not creating sqlite files, delete existing ones (if
+      ## they exist)
+      for bz2 in path.findpaths(glob='*.sqlite.bz2'):
+        bz2.rm()
+    args.append('.')
+
+    cwd = os.getcwd()
+    os.chdir(path)
+    try:
+      shlib.execute(' '.join(args))
+    except shlib.ShExecError, e:
+      self.log(0,
+        "An unhandled exception has occurred while running 'createrepo'. "
+        "in the '%s' event. If the version of createrepo installed on your "
+        "machine is < 0.4.7, then you cannot set the 'database' attribute "
+        "to be 'True' in the config file. \n\nError message was: %s" % (self.id, e))
+      sys.exit(1)
+    os.chdir(cwd)
+

@@ -3,21 +3,19 @@ sources.py
 
 downloads srpms
 """
-
 import os
 import re
 import rpm
 import stat
 
 from dims import pps
-from dims import shlib
 
-from dimsbuild.constants import BOOLEANS_TRUE, SRPM_PNVRA, SRPM_REGEX
+from dimsbuild.constants import SRPM_PNVRA, SRPM_REGEX
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L0, L1, L2
 from dimsbuild.validate  import InvalidConfigError
 
-from dimsbuild.modules.shared import RepoEventMixin
+from dimsbuild.modules.shared import CreateRepoMixin, RepoEventMixin
 
 P = pps.Path
 
@@ -39,7 +37,7 @@ class SourceReposEvent(Event, RepoEventMixin):
       'input':     [],
       'output':    [],
     }
-  
+
   def validate(self):
     if self.config.get('repo', None) is None and \
        self.config.get('repofile', None) is None:
@@ -47,7 +45,7 @@ class SourceReposEvent(Event, RepoEventMixin):
          "Config file must specify at least one 'repo' element or "
          "at least one 'repofile' element as a child to the 'sources' "
          "element.")
-  
+
   def setup(self):
     self.diff.setup(self.DATA)
     self.read_config(repos='repo', files='repofiles')
@@ -77,16 +75,18 @@ class SourceReposEvent(Event, RepoEventMixin):
     self.cvars['source-repos'] = self.repocontainer
 
 
-class SourcesEvent(Event):
+class SourcesEvent(Event, CreateRepoMixin):
   "Downloads source rpms."
   def __init__(self):
     Event.__init__(self,
                    id='sources',
                    provides=['srpms', 'srpms-dir', 'publish-content'],
                    requires=['rpms', 'source-repos'])
+    CreateRepoMixin.__init__(self)
 
     self.srpmdest = self.OUTPUT_DIR / 'SRPMS'
     self.DATA = {
+      'config':    ['.'],
       'variables': ['cvars[\'rpms\']'],
       'input':     [],
       'output':    [],
@@ -139,7 +139,8 @@ class SourcesEvent(Event):
       obsolete_file.rm(recursive=True, force=True)
 
     # run createrepo
-    self._createrepo()
+    self.createrepo(self.srpmdest)
+
     self.DATA['output'].extend(self.io.list_output(what=['srpms']))
     self.DATA['output'].append(self.srpmdest/'repodata')
     self.diff.write_metadata()
@@ -157,14 +158,5 @@ class SourcesEvent(Event):
     except (AttributeError, IndexError), e:
       self.log(4, L2("DEBUG: Unable to extract srpm information from name '%s'" % srpm))
       return (None, None, None, None, None)
-
-  def _createrepo(self):
-    "Run createrepo on the output store"
-    pwd = os.getcwd()
-    os.chdir(self.srpmdest)
-    self.log(1, L1("running createrepo"))
-    shlib.execute('/usr/bin/createrepo --update -q .')
-    os.chdir(pwd)
-
 
 EVENTS = {'setup': [SourceReposEvent], 'ALL': [SourcesEvent]}

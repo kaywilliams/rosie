@@ -1,14 +1,12 @@
-import os
-
-from dims import shlib
-
 from dimsbuild.constants import RPM_REGEX
 from dimsbuild.event     import Event
-from dimsbuild.logging   import L0, L1
+from dimsbuild.logging   import L0
+
+from dimsbuild.modules.shared import CreateRepoMixin
 
 API_VERSION = 5.0
 
-class CreaterepoEvent(Event):
+class CreaterepoEvent(Event, CreateRepoMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'createrepo',
@@ -16,10 +14,12 @@ class CreaterepoEvent(Event):
       requires = ['cached-rpms'],
       conditionally_requires = ['comps-file', 'signed-rpms', 'gpgsign-public-key'],
     )
+    CreateRepoMixin.__init__(self)
 
     self.cvars['repodata-directory'] = self.SOFTWARE_STORE/'repodata'
 
     self.DATA = {
+      'config':    ['.'],
       'variables': ['product'],
       'input':     [],
       'output':    [self.cvars['repodata-directory']]
@@ -51,11 +51,7 @@ class CreaterepoEvent(Event):
       obsolete_file.rm(recursive=True, force=True)
 
     # run createrepo
-    self.log(1, L1("running createrepo"))
-    pwd = os.getcwd()
-    os.chdir(self.SOFTWARE_STORE)
-    shlib.execute('/usr/bin/createrepo --update -q -g %s .' % self.cvars['comps-file'])
-    os.chdir(pwd)
+    self.createrepo(self.SOFTWARE_STORE, groupfile=self.cvars['comps-file'])
 
     self.diff.write_metadata()
 

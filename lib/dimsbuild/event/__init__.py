@@ -61,7 +61,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     "Returns True if status change is ok; False if invalid"
     return (status == STATUS_FORCE and not self.test(PROTECT_FORCE)) or \
            (status == STATUS_SKIP  and not self.test(PROTECT_SKIP))
-  
+
   forced  = property(lambda self: self.status == STATUS_FORCE)
   skipped = property(lambda self: self.status == STATUS_SKIP)
 
@@ -128,10 +128,10 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
   def link(self, src, dst, **kwargs):
     kwargs.setdefault('copy_handler', self.link_handler)
     kwargs.setdefault('callback', self.link_callback) # turn off output
-    
+
     dst.mkdirs()
     sync.sync(src, dst, **kwargs)
-  
+
   def _get_mddir(self):
     dir = self.METADATA_DIR/self.id
     dir.mkdirs()
