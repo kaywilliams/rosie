@@ -130,7 +130,7 @@ class CreateRepoMixin:
       shlib.execute(' '.join(args))
     except shlib.ShExecError, e:
       self.log(0,
-        "An unhandled exception has occurred while running 'createrepo'. "
+        "An unhandled exception has occurred while running 'createrepo' "
         "in the '%s' event. If the version of createrepo installed on your "
         "machine is < 0.4.7, then you cannot set the 'database' attribute "
         "to be 'True' in the config file. \n\nError message was: %s" % (self.id, e))
