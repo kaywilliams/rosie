@@ -142,7 +142,6 @@ element repo {
   &amp; element exclude { ... }?
   &amp; element gpgkey { ... }?
   &amp; element gpgcheck { ... }?
-  &amp; element repodata-path { ... }?
 }
       </programlisting>
       <refsection>

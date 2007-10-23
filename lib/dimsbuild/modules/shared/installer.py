@@ -107,7 +107,7 @@ class ImageModifyMixin:
     try:
       self.io.setup_sync((self.SOFTWARE_STORE/image_path).dirname,
                          id='ImageModifyMixin',
-                         paths=[repo.remoteurl/image_path])
+                         paths=[repo.osdir/image_path])
     except IOError:
       if self.virtual:
         self.DATA['output'].append(self.SOFTWARE_STORE/image_path)
@@ -189,11 +189,9 @@ class FileDownloadMixin:
 
   This class should be used to download files besides the images.
   """
-  def __init__(self, repoid=None):
+  def __init__(self):
     self.file_locals = None
-    
-    self.repoid = repoid
-  
+
   def setup(self):
     paths = []
     for data in self.file_locals.values():
@@ -203,7 +201,7 @@ class FileDownloadMixin:
       linfix = data['path'] % self.cvars['base-vars']
       self.io.setup_sync(
         (self.SOFTWARE_STORE/linfix).dirname, id='FileDownloadMixin',
-        paths=[self.cvars['repos'][self.repoid or self.cvars['base-repoid']].remoteurl/rinfix])
+        paths=[self.cvars['repos'][self.cvars['base-repoid']].osdir/rinfix])
   
   def _download(self):
     self.io.sync_input(what='FileDownloadMixin', cache=True)

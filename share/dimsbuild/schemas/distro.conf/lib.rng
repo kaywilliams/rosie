@@ -15,10 +15,6 @@
       <interleave>
 
         <optional>
-          <element name="repodata-path"><text/></element>
-        </optional>
-
-        <optional>
           <element name="include">
             <oneOrMore>
               <element name="package"><text/></element>

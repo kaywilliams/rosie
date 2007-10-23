@@ -120,8 +120,7 @@ class CompsEvent(Event):
     for repo in repos:
       groupfile = repo.datafiles.get('group', None)
       if groupfile:
-        groupfiles.append((repo.id,
-                           repo.localurl/repo.repodata/'repodata'/groupfile))
+        groupfiles.append((repo.id, repo.localurl/'repodata'/groupfile))
 
     return groupfiles
 

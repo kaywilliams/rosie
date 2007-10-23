@@ -64,7 +64,7 @@ class PkglistEvent(Event):
     self.rddirs = [] # list of repodata dirs across all repos
 
     for repo in self.cvars['repos'].values():
-      self.rddirs.append(repo.localurl/repo.repodata/'repodata')
+      self.rddirs.append(repo.localurl/'repodata')
 
     self.DATA['input'].extend(self.rddirs)
 

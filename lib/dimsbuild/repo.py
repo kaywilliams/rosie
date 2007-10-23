@@ -149,7 +149,6 @@ class Repo(dict):
 
     self.localurl = None
     self.pkgsfile = None
-    self.repodata = ''
     self.mdfile = 'repodata/repomd.xml'
 
     self.repoinfo = []
@@ -185,14 +184,12 @@ class Repo(dict):
     if tree.pathexists('include/package/text()'):
       self['include'] = ' '.join(tree.xpath('include/package/text()'))
 
-    self.repodata = tree.get('repodata-path/text()', '') #!
-
   def update_metadata(self):
     self._read_repodata()
     self._read_repo_content()
 
   def _read_repodata(self):
-    repomd = xmllib.tree.read((self.remoteurl/self.repodata/self.mdfile).open())
+    repomd = xmllib.tree.read((self.remoteurl/self.mdfile).open())
 
     for data in repomd:
       repofile = P(data.get('location/@href'))
@@ -202,7 +199,7 @@ class Repo(dict):
   def _read_repo_content(self, repofile=None):
     self.repoinfo = []
     if not repofile:
-      pxml = GzipFile(filename=self.localurl/self.repodata/'repodata'/self.datafiles['primary'],
+      pxml = GzipFile(filename=self.localurl/'repodata'/self.datafiles['primary'],
                       mode='rt')
       handler = PrimaryXmlContentHandler()
       self._parser.setContentHandler(handler)
@@ -211,7 +208,7 @@ class Repo(dict):
 
       for f,s,m in handler.pkgs:
         self.repoinfo.append({
-          'file':  self.remoteurl/self.repodata/f,
+          'file':  self.remoteurl/f,
           'size':  s,
           'mtime': m,
           })

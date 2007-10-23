@@ -35,7 +35,8 @@ class SourceVarsEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    initrd_in=self.cvars['repos'][self.cvars['base-repoid']].remoteurl/'isolinux/initrd.img'
+    initrd_in=self.cvars['repos'][self.cvars['base-repoid']].osdir/\
+              self.locals.files['isolinux']['initrd.img']['path']
 
     self.io.setup_sync(self.mddir, id='initrd.img', paths=[initrd_in])
 

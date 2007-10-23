@@ -30,24 +30,7 @@ element gpgkey {
         <para>repo</para>
       </refsection>
     </refsect2>
-    
-    <!-- repodata-path -->
-    <refsect2>
-      <title>&lt;repodata-path&gt;</title>
-      <para>
-      repodata-path is a path, relative to a repo's &lt;path&gt; element, where the
-      'repodata' folder of the repository can be found.  This element is optional;
-      if not present, '.' is assumed
-      </para>
-      <programlisting>
-element repodata-path { text }
-      </programlisting>
-      <refsection>
-        <title>Parents</title>
-        <para>repo</para>
-      </refsection>
-    </refsect2>
-    
+
     <!-- repos -->
     <refsect2>
       <title>&lt;repos&gt; (top level)</title>

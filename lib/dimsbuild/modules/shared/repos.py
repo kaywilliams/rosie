@@ -1,3 +1,5 @@
+from dims import pps
+
 from dimsbuild.logging   import L1, L2
 from dimsbuild.repo      import RepoContainer
 
@@ -15,26 +17,40 @@ class RepoEventMixin:
         self.repocontainer.add_repo(id)
         repo = self.repocontainer[id]
         repo.read_config(repoxml)
-        repo.repodata = repoxml.get('repodata-path/text()', '')
-    
+
     if files:
       for filexml in self.config.xpath(files, []):
         self.repocontainer.read(filexml.text)
-    
+
     for repo in self.repocontainer.values():
       repo.localurl = self.mddir/repo.id
       repo.pkgsfile = self.mddir/repo.id/'packages'
-      
+
+      if repo.id == self.cvars['base-repoid']:
+        folder = 'images'
+        args = {'glob': folder, 
+                'type': pps.constants.TYPE_DIR, 
+                'mindepth': 1, 
+                'maxdepth': 1}
+        if repo.remoteurl.findpaths(**args):
+          repo.osdir = repo.remoteurl
+        elif repo.remoteurl.dirname.findpaths(**args):
+          repo.osdir = repo.remoteurl.dirname
+        else: 
+          raise RuntimeError("Unable to find a folder named '%s' at '%s' "
+          "or '%s'. Check the baseurl for the '%s' repo, or specify an alternative "
+          "base-repo, and try again."
+          % (folder, repo.remoteurl, repo.remoteurl.dirname, repo.id))
+
       repo._read_repodata()
 
       paths = []
       for filetype in repo.datafiles.keys():
         paths.append(repo.remoteurl / \
-                     repo.repodata / \
                      'repodata' / \
                      repo.datafiles[filetype])
-      paths.append(repo.remoteurl/repo.repodata/repo.mdfile)
-      self.io.setup_sync(repo.localurl/repo.repodata/'repodata',
+      paths.append(repo.remoteurl/repo.mdfile)
+      self.io.setup_sync(repo.localurl/'repodata',
                          paths=paths, id='%s-repodata' % repo.id)
 
     self.repoids = self.repocontainer.keys()
@@ -47,7 +63,7 @@ class RepoEventMixin:
 
   def read_new_packages(self):
     for repo in self.repocontainer.values():
-      pxml = repo.remoteurl/repo.repodata/'repodata'/repo.datafiles['primary']
+      pxml = repo.remoteurl/'repodata'/repo.datafiles['primary']
       # determine if the repo has a new id
       newid = False
       if self.diff.handlers['variables'].diffdict.has_key('repoids'):
@@ -59,4 +75,3 @@ class RepoEventMixin:
         repo._read_repo_content()
         repo.write_repo_content(repo.pkgsfile)
       self.DATA['output'].append(repo.pkgsfile)
-
