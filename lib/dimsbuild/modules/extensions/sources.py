@@ -139,10 +139,10 @@ class SourcesEvent(Event, CreateRepoMixin):
       obsolete_file.rm(recursive=True, force=True)
 
     # run createrepo
-    self.createrepo(self.srpmdest)
+    repo_files = self.createrepo(self.srpmdest)
+    self.DATA['output'].extend(repo_files)
 
     self.DATA['output'].extend(self.io.list_output(what=['srpms']))
-    self.DATA['output'].append(self.srpmdest/'repodata')
     self.diff.write_metadata()
 
   def apply(self):

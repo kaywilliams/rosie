@@ -22,7 +22,7 @@ class CreaterepoEvent(Event, CreateRepoMixin):
       'config':    ['.'],
       'variables': ['product'],
       'input':     [],
-      'output':    [self.cvars['repodata-directory']]
+      'output':    [],
     }
 
   def setup(self):
@@ -51,7 +51,8 @@ class CreaterepoEvent(Event, CreateRepoMixin):
       obsolete_file.rm(recursive=True, force=True)
 
     # run createrepo
-    self.createrepo(self.SOFTWARE_STORE, groupfile=self.cvars['comps-file'])
+    repo_files = self.createrepo(self.SOFTWARE_STORE, groupfile=self.cvars['comps-file'])
+    self.DATA['output'].extend(repo_files)
 
     self.diff.write_metadata()
 

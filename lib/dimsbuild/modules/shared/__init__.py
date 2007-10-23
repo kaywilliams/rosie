@@ -99,12 +99,27 @@ class RepoEventMixin:
       self.DATA['output'].append(repo.pkgsfile)
 
 class CreateRepoMixin:
+
+  # For now the list of files are hardcoded in the following two
+  # lists. If in the future, the names of the files changes, we can
+  # move them to a local dictionary.
+  XML_FILES = ['repodata/filelists.xml.gz',
+               'repodata/other.xml.gz',
+               'repodata/primary.xml.gz',
+               'repodata/repomd.xml']
+  SQLITE_FILES = ['repodata/filelists.sqlite.bz2',
+                  'repodata/other.sqlite.bz2',
+                  'repodata/primary.sqlite.bz2']
   def __init__(self):
     pass
 
   def createrepo(self, path, groupfile=None, pretty=False, update=True, quiet=True):
     "Run createrepo on the path specified."
     self.log(1, L1("running createrepo"))
+
+    repo_files = []
+    for file in self.XML_FILES:
+      repo_files.append(path / file)
 
     args = ['/usr/bin/createrepo']
     if update:
@@ -113,15 +128,13 @@ class CreateRepoMixin:
       args.append('--quiet')
     if groupfile:
       args.extend(['--groupfile', groupfile])
+      repo_files.append(path / 'repodata'/ groupfile.basename)
     if pretty:
       args.append('--pretty')
     if self.config.get('@database', 'false') in BOOLEANS_TRUE:
       args.append('--database')
-    else:
-      ## HACK: if not creating sqlite files, delete existing ones (if
-      ## they exist)
-      for bz2 in path.findpaths(glob='*.sqlite.bz2'):
-        bz2.rm()
+      for file in self.SQLITE_FILES:
+        repo_files.append(path / file)
     args.append('.')
 
     cwd = os.getcwd()
@@ -136,4 +149,5 @@ class CreateRepoMixin:
         "to be 'True' in the config file. \n\nError message was: %s" % (self.id, e))
       sys.exit(1)
     os.chdir(cwd)
+    return repo_files
 
