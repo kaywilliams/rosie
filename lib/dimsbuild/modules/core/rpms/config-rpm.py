@@ -1,9 +1,8 @@
-from dims import filereader
 from dims import pps
 
 from dimsbuild.event import Event
 
-from dimsbuild.modules.shared.rpms import InputFilesMixin, RpmBuildMixin
+from dimsbuild.modules.shared import InputFilesMixin, RpmBuildMixin
 
 P = pps.Path
 
@@ -78,8 +77,8 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def _getpscript(self):
     post_install_scripts = self.io.list_output(what=self.installinfo['config'])
     try:
-      filereader.write([P(post_install_scripts[0][len(self.rpmdir):]).normpath()],
-                       self.build_folder/'post-install.sh')
+      (self.build_folder/'post-install.sh').write_lines(
+        [ post_install_scripts[0].relpathfrom(self.rpmdir).normpath() ])
       return self.build_folder/'post-install.sh'
     except IndexError:
       return None

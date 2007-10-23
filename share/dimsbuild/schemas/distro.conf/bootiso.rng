@@ -4,18 +4,10 @@
     <element name="distro">      
     
       <optional>
-      <element name="diskboot-image">
-        <interleave>
-        
+      <element name="bootiso">
         <optional>
         <ref name="element-boot-config"/>
         </optional>
-        
-        <zeroOrMore>
-        <ref name="element-path-with-dest"/>
-        </zeroOrMore>
-        
-        </interleave>
       </element>
       </optional>
       

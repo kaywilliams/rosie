@@ -1,9 +1,7 @@
-from dims import filereader
-
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
-from dimsbuild.modules.shared.installer import FileDownloadMixin
+from dimsbuild.modules.shared import FileDownloadMixin
 
 API_VERSION = 5.0
 
@@ -11,7 +9,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'isolinux',
-      provides = ['isolinux-files'],
+      provides = ['isolinux-files', 'boot-config-file'],
       requires = ['anaconda-version', 'source-vars', 'base-repoid'],
     )
 
@@ -32,27 +30,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
   def run(self):
     self.log(0, L0("synchronizing isolinux files"))
 
-    # if config has changed, ensure we start with a clean isolinux.cfg
-    cfg = self.SOFTWARE_STORE/self.file_locals['isolinux.cfg']['path']
-    if self.diff.has_changed('config', err=True):
-      cfg.rm(force=True)
-
     self._download()
-
-    # modify the first append line in isolinux.cfg
-    bootargs = self.config.get('boot-args/text()', None)
-    if bootargs:
-      if not cfg.exists():
-        raise RuntimeError("missing file '%s'" % cfg)
-      lines = filereader.read(cfg)
-      
-      for i, line in enumerate(lines):
-        if line.strip().startswith('append'):
-          break
-      value = lines.pop(i)
-      value = value.strip() + ' %s' % bootargs.strip()
-      lines.insert(i, value)
-      filereader.write(lines, cfg)
 
     self.diff.write_metadata()
   
@@ -65,5 +43,9 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     self.cvars['isolinux-files'] = {}
     for k,v in self.file_locals.items():
       self.cvars['isolinux-files'][k] = self.SOFTWARE_STORE/v['path']
+    
+    self.cvars['boot-config-file'] = \
+      self.SOFTWARE_STORE/self.file_locals['isolinux.cfg']['path']
+
 
 EVENTS = {'installer': [IsolinuxEvent]}

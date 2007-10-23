@@ -1,21 +1,25 @@
-from dims import filereader
+from StringIO import StringIO
+
+from dims import pps
 
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
-from dimsbuild.modules.shared.installer import ImageModifyMixin
+from dimsbuild.modules.shared import ImageModifyMixin, BootConfigMixin
 
+P = pps.Path
 
 API_VERSION = 5.0
 
-
-class DiskbootImageEvent(Event, ImageModifyMixin):
+class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'diskboot-image',
       provides = ['diskboot.img'],
-      requires = ['buildstamp-file', 'base-repoid', 'installer-splash'], #! check installer-splash
-      conditionally_requires = ['diskboot-image-content'],
+      requires = ['buildstamp-file', 'base-repoid', 'installer-splash',
+                  'boot-config-file'], #! check installer-splash
+      conditionally_requires = ['diskboot-image-content', 'web-path',
+                                'boot-args', 'kickstart-file'],
     )
      
     self.DATA = {
@@ -26,13 +30,14 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     }
     
     ImageModifyMixin.__init__(self, 'diskboot.img')
+    BootConfigMixin.__init__(self)
 
   def error(self, e):
-    Event.error(self, e)
     try:
       self._close()
     except:
       pass
+    Event.error(self, e)
   
   def setup(self):
     self.DATA['input'].extend([
@@ -41,6 +46,12 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     ])
     
     self.image_locals = self.locals.files['installer']['diskboot.img']
+    boot_arg_defaults = 'nousbstorage'
+    if self.cvars['web-path']:
+      boot_arg_defaults += ' method=%s/os' % self.cvars['web-path']
+    if self.cvars['kickstart-file']:
+      boot_arg_defaults += ' ks-file:/%s' % self.cvars['kickstart-file']
+    self.bootconfig.setup(defaults=boot_arg_defaults)
     ImageModifyMixin.setup(self)
     
   def run(self):
@@ -58,25 +69,10 @@ class DiskbootImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin._generate(self)
     self.image.write(self.cvars['installer-splash'], '/')
     self.image.write(self.cvars['isolinux-files']['initrd.img'], '/')
-    bootargs = self.config.get('boot-args/text()', None)
-    if bootargs:
-      if not 'syslinux.cfg' in self.image.list():
-        raise RuntimeError("syslinux.cfg not found in the diskboot.img")
-      wcopy = self.TEMP_DIR/'syslinux.cfg'
-      if wcopy.exists():
-        wcopy.remove()
-      
-      self.image.read('syslinux.cfg', self.TEMP_DIR)
-      lines = filereader.read(wcopy)
-      for i, line in enumerate(lines):
-        if line.strip().startswith('append'):
-          break
-      
-      value = lines.pop(i)
-      value = value.strip() + ' ' + bootargs.strip()
-      lines.insert(i, value)
-      filereader.write(lines, wcopy)
-      self.image.write(wcopy, '/')
-      wcopy.remove()
-
+    
+    # hack to modify boot args in syslinux.cfg file
+    for file in self.image.list():
+      if file.basename == 'syslinux.cfg':
+        self.bootconfig.modify(file); break
+    
 EVENTS = {'installer': [DiskbootImageEvent]}

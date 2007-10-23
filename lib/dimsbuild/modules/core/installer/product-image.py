@@ -1,4 +1,5 @@
-from dims import filereader
+from StringIO import StringIO
+
 from dims import pps
 from dims import sortlib
 from dims import xmllib
@@ -6,7 +7,7 @@ from dims import xmllib
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
-from dimsbuild.modules.shared.installer import ImageModifyMixin
+from dimsbuild.modules.shared import ImageModifyMixin
 
 P = pps.Path
 
@@ -35,11 +36,11 @@ class ProductImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin.__init__(self, 'product.img')
   
   def error(self, e):
-    Event.error(self, e)
     try:
       self._close()
     except:
       pass
+    Event.error(self, e)
   
   def setup(self):
     self.DATA['input'].append(self.cvars['buildstamp-file'])
@@ -73,7 +74,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
       dict( all_groups     = comps.xpath('//group/id/text()'),
             default_groups = comps.xpath('//group[default/text() = "true"]/id/text()') )
     
-    self.image.writeflo(filereader.writeFLO(installclass),
+    self.image.writeflo(StringIO(installclass),
                         filename='custom.py', dest='installclasses')
 
 

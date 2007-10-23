@@ -1,10 +1,9 @@
-from dims import filereader
 from dims import pps
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event
 
-from dimsbuild.modules.shared.rpms import ColorMixin, InputFilesMixin, RpmBuildMixin
+from dimsbuild.modules.shared import ColorMixin, InputFilesMixin, RpmBuildMixin
 
 P = pps.Path
 
@@ -147,12 +146,12 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     issue_string = ['Kernel \\r on an \\m\n']
 
     # write the product-release and redhat-release files
-    filereader.write(release_string, dest/'redhat-release')
-    filereader.write(release_string, dest/'%s-release' % self.product)
+    (dest/'redhat-release').write_lines(release_string)
+    (dest/'%s-release' % self.product).write_lines(release_string)
 
     # write the issue and issue.net files
-    filereader.write(release_string+issue_string, dest/'issue')
-    filereader.write(release_string+issue_string, dest/'issue.net')
+    (dest/'issue').write_lines(release_string + issue_string)
+    (dest/'issue.net').write_lines(release_string + issue_string)
 
     (dest/'redhat-release').chmod(0644)
     (dest/'%s-release' % self.product).chmod(0644)
@@ -174,7 +173,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
         lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
       else:
         lines.append('gpgcheck=0')
-      filereader.write(lines, self.repofile)
+      self.repofile.write_lines(lines)
 
 
 EVENTS = {'rpms': [ReleaseRpmEvent]}

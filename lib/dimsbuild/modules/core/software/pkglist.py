@@ -4,7 +4,6 @@ import re
 import yum
 
 from dims import difftest
-from dims import filereader
 from dims import pps
 
 from dims.depsolver import DepSolver
@@ -123,7 +122,7 @@ class PkglistEvent(Event):
     pkglist.sort()
 
     self.log(1, L1("writing pkglist"))
-    filereader.write(pkglist, self.pkglistfile)
+    self.pkglistfile.write_lines(pkglist)
 
     self.DATA['output'].append(self.dsdir)
     self.diff.write_metadata()
@@ -132,7 +131,7 @@ class PkglistEvent(Event):
     self.io.clean_eventcache()
     if not self.pkglistfile.exists():
       raise RuntimeError("missing package list file: '%s'" % self.pkglistfile)
-    self.cvars['pkglist'] = filereader.read(self.pkglistfile)
+    self.cvars['pkglist'] = self.pkglistfile.read_lines()
 
   def _create_repoconfig(self):
     repoconfig = self.TEMP_DIR / 'depsolve.repo'
@@ -154,7 +153,7 @@ class PkglistEvent(Event):
         (self.dsdir/repo.id).rm(recursive=True, force=True)
 
       conf.extend(str(repo).split('\n'))
-    filereader.write(conf, repoconfig)
+    repoconfig.write_lines(conf)
     return repoconfig
 
   def __filter_cache(self, cache, todepsolve):

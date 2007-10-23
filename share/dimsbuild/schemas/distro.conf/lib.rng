@@ -119,5 +119,21 @@
       <data type="ID"/>
     </attribute>
   </define>
+  
+  <!-- boot-config element -->
+  <define name="element-boot-config">
+    <element name="boot-config">
+      <optional>
+      <attribute name="use-defaults">
+        <ref name="value-boolean"/>
+      </attribute>
+      </optional>
+      
+      <interleave>
+      <optional><element name="append-args"><text/></element></optional>
+      <optional><element name="file"><text/></element></optional>
+      </interleave>
+    </element>
+  </define>
 
 </grammar>

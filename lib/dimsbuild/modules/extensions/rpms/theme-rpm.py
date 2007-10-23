@@ -1,6 +1,6 @@
 from dimsbuild.event import Event
 
-from dimsbuild.modules.shared.rpms import RpmBuildMixin
+from dimsbuild.modules.shared import RpmBuildMixin
 
 API_VERSION = 5.0
 

@@ -14,6 +14,9 @@ from dimsbuild.magic     import (FILE_TYPE_GZIP, FILE_TYPE_EXT2FS,
                                  FILE_TYPE_CPIO, FILE_TYPE_SQUASHFS,
                                  FILE_TYPE_FAT, match as magic_match)
 
+__all__ = ['ExtractMixin', 'ImageModifyMixin', 'FileDownloadMixin',
+           'RpmNotFoundError', 'OutputInvalidError']
+
 P = pps.Path
 
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')

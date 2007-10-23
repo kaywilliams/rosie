@@ -1,7 +1,7 @@
 from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
-from dimsbuild.modules.shared.installer import ImageModifyMixin
+from dimsbuild.modules.shared import ImageModifyMixin
 
 API_VERSION = 5.0
 
@@ -24,11 +24,11 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin.__init__(self, 'updates.img')
   
   def error(self, e):
-    Event.error(self, e)
     try:
       self._close()
     except:
       pass
+    Event.error(self, e)
   
   def setup(self):
     self.image_locals = self.locals.files['installer']['updates.img']

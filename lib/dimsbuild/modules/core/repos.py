@@ -1,7 +1,5 @@
 import re
 
-from dims import filereader
-
 from dimsbuild.event    import Event
 from dimsbuild.logging  import L0, L1, L2
 from dimsbuild.validate import InvalidConfigError
@@ -84,7 +82,7 @@ EVENTS = {'setup': [ReposEvent]}
 def get_logos_version(file):
   scan = re.compile('(?:.*/)?(fedora-logos|centos-logos|redhat-logos)'
                     '-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
-  fl = filereader.read(file)
+  fl = file.read_lines()
   for rpm in fl:
     match = scan.match(rpm)
     if match:
@@ -98,7 +96,7 @@ def get_anaconda_version(file):
   scan = re.compile('(?:.*/)?anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
   version = None
 
-  fl = filereader.read(file)
+  fl = file.read_lines()
   for rpm in fl:
     match = scan.match(rpm)
     if match:

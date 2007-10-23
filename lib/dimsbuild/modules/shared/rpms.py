@@ -2,7 +2,6 @@ from ConfigParser import ConfigParser
 
 import os
 
-from dims import filereader
 from dims import mkrpm
 from dims import pps
 from dims import sync
@@ -12,6 +11,8 @@ from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event, EventExit
 from dimsbuild.logging   import L0, L1
 from dimsbuild.misc      import locals_imerge
+
+__all__ = ['InputFilesMixin', 'LocalFilesMixin', 'ColorMixin', 'RpmBuildMixin']
 
 P = pps.Path
 
@@ -281,7 +282,7 @@ class RpmBuildMixin:
     manifest = ['setup.py']
     manifest.extend( [ x.tokens[len(self.build_folder.tokens):] \
                        for x in self.build_folder.findpaths(type=pps.constants.TYPE_NOT_DIR) ] )
-    filereader.write(manifest, self.build_folder/'MANIFEST')
+    (self.build_folder/'MANIFEST').write_lines(manifest)
 
   def _add_files(self, spec):
     # write the list of files to be installed and where they should be installed

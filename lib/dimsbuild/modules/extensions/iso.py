@@ -1,4 +1,3 @@
-from dims import filereader
 from dims import pkgorder
 from dims import shlib
 
@@ -8,7 +7,8 @@ from dimsbuild.callback    import BuildDepsolveCallback
 from dimsbuild.constants   import BOOLEANS_TRUE
 from dimsbuild.event       import Event, CLASS_META
 from dimsbuild.logging     import L0, L1, L2, L3
-from dimsbuild.modules.shared import ListCompareMixin
+
+from dimsbuild.modules.shared import ListCompareMixin, BootConfigMixin
 
 API_VERSION = 5.0
 
@@ -76,7 +76,7 @@ class PkgorderEvent(Event):
       # create yum config needed by pkgorder
       cfg = self.TEMP_DIR/'pkgorder'
       repoid = self.pva
-      filereader.write([YUMCONF % (self.pva, self.pva, self.cvars['os-dir'])], cfg)
+      cfg.write_lines([ YUMCONF % (self.pva, self.pva, self.cvars['os-dir']) ])
       
       # create pkgorder
       pkgtups = pkgorder.order(config=cfg,
@@ -100,15 +100,17 @@ class PkgorderEvent(Event):
     self.cvars['pkgorder-file'] = self.pkgorderfile
 
 
-class IsoSetsEvent(Event, ListCompareMixin):
+class IsoSetsEvent(Event, ListCompareMixin, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'iso',
       provides = ['iso-dir', 'publish-content'],
-      requires = ['anaconda-version', 'pkgorder-file', 'manifest-file', 'os-dir'],
-      conditionally_requires = ['srpms-dir'],
+      requires = ['anaconda-version', 'pkgorder-file', 'manifest-file',
+                  'boot-config-file', 'os-dir'],
+      conditionally_requires = ['srpms-dir', 'kickstart-file', 'boot-args'],
     )
     ListCompareMixin.__init__(self)
+    BootConfigMixin.__init__(self)
     
     self.lfn = self._delete_isotree
     self.rfn = self._generate_isotree
@@ -117,7 +119,7 @@ class IsoSetsEvent(Event, ListCompareMixin):
     self.splittrees = self.mddir/'split-trees'
     
     self.DATA =  {
-      'config':    ['set/text()'],
+      'config':    ['.'],
       'variables': ['cvars[\'srpms\']'],
       'input':     [],
       'output':    [],
@@ -129,6 +131,11 @@ class IsoSetsEvent(Event, ListCompareMixin):
     
     self.DATA['input'].append(self.cvars['pkgorder-file'])
     self.DATA['input'].append(self.cvars['manifest-file'])
+    
+    default_boot_args = 'method=cdrom'
+    if self.cvars['kickstart-file']:
+      default_boot_args += ' ' + self.cvars['kickstart-file']
+    self.bootconfig.setup(defaults=default_boot_args)
   
   def run(self):
     self.log(0, L0("processing iso image(s)"))
@@ -194,6 +201,9 @@ class IsoSetsEvent(Event, ListCompareMixin):
     splitter.cleanup()
     self.log(3, L3("splitting base files"))
     splitter.split_trees()
+    # modify boot args on isolinux.cfg file(s)
+    for cfg in splitter.s_tree.findpaths(glob='isolinux.cfg'):
+      self.bootconfig.modify(cfg)
     self.log(3, L3("splitting rpms"))
     splitter.split_rpms()
     self.log(3, L3("splitting srpms"))

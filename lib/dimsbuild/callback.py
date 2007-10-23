@@ -76,11 +76,20 @@ class BuildDepsolveCallback:
     self.logger = logger
     self.loop = 1
     self.count = 0
+    self.grpcount = 0
+    self.grptotal = 0
     self.bar = None
 
   def start(self):
     pass
 
+  def groupAdded(self, desc):
+    self.loop = 1
+    self.count = 0
+    self.grpcount += 1
+    self.bar = None
+    self.logger.log(2, L1('group %d/%d (%s)' % (self.grpcount, self.grptotal, desc)))
+  
   def tscheck(self, unresolved=0):
     self.count = unresolved
     if self.logger.test(2):
