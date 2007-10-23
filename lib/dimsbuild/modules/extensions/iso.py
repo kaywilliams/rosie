@@ -134,7 +134,7 @@ class IsoSetsEvent(Event, ListCompareMixin, BootConfigMixin):
     
     default_boot_args = 'method=cdrom'
     if self.cvars['kickstart-file']:
-      default_boot_args += ' ' + self.cvars['kickstart-file']
+      default_boot_args += ' ' + 'ks=file:%s' % self.cvars['kickstart-file']
     self.bootconfig.setup(defaults=default_boot_args)
   
   def run(self):

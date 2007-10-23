@@ -50,7 +50,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     if self.cvars['web-path']:
       boot_arg_defaults += ' method=%s/os' % self.cvars['web-path']
     if self.cvars['kickstart-file']:
-      boot_arg_defaults += ' ks-file:/%s' % self.cvars['kickstart-file']
+      boot_arg_defaults += ' ks=file:%s' % self.cvars['kickstart-file']
     self.bootconfig.setup(defaults=boot_arg_defaults)
     ImageModifyMixin.setup(self)
     
