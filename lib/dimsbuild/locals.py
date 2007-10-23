@@ -314,7 +314,8 @@ LOGOS_RPM = LocalsDict({
       width=640, height=480
     ),
     'anaconda/syslinux-splash.png': dict(
-      locations=['/usr/lib/anaconda-runtime/boot/syslinux-splash.png'],
+      locations=['/usr/lib/anaconda-runtime/boot/syslinux-splash.png',
+                 '/usr/share/anaconda/pixmaps/syslinux-splash.png'],
       width=640, height=480, textmaxwidth=600,
       textvcenter=150, texthcenter=320
     ),
