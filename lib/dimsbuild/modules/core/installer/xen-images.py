@@ -11,14 +11,14 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
       id = 'xen-images',
       provides = ['vmlinuz-xen', 'initrd-xen'],
       requires = ['anaconda-version', 'buildstamp-file', 'base-repoid'],
-      conditionally_requires = ['initrd-image-content'],
+      conditionally_requires = ['initrd-image-content', 'kickstart-file', 'ks-path'],
     )
 
     self.xen_dir = self.SOFTWARE_STORE/'images/xen'
 
     self.DATA = {
       'config':    ['/distro/initrd-image'],
-      'variables': ['cvars[\'anaconda-version\']'],
+      'variables': ['cvars[\'anaconda-version\']', 'cvars[\'kickstart-file\']'],
       'input':     [],
       'output':    [],
     }
@@ -66,6 +66,10 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
   def _generate(self):
     ImageModifyMixin._generate(self)
     self._write_buildstamp()
+    
+    # copy kickstart
+    if self.cvars['kickstart-file'] and self.cvars['ks-path']:
+      self.image.write(self.cvars['kickstart-file'], self.cvars['ks-path'].dirname)
 
 
 EVENTS = {'installer': [XenImagesEvent]}

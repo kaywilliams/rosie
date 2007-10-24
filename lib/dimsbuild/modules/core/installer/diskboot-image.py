@@ -19,11 +19,11 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
       requires = ['buildstamp-file', 'base-repoid', 'installer-splash',
                   'boot-config-file'], #! check installer-splash
       conditionally_requires = ['diskboot-image-content', 'web-path',
-                                'boot-args', 'kickstart-file'],
+                                'boot-args', 'ks-path'],
     )
      
     self.DATA = {
-      'variables': ['cvars[\'anaconda-version\']'],
+      'variables': ['cvars[\'anaconda-version\']', 'cvars[\'ks-path\']'],
       'config':    ['.'],
       'input':     [],
       'output':    [],
@@ -49,8 +49,8 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     boot_arg_defaults = 'nousbstorage'
     if self.cvars['web-path']:
       boot_arg_defaults += ' method=%s/os' % self.cvars['web-path']
-    if self.cvars['kickstart-file']:
-      boot_arg_defaults += ' ks=file:%s' % self.cvars['kickstart-file']
+    if self.cvars['ks-path']:
+      boot_arg_defaults += ' ks=file:%s' % self.cvars['ks-path']
     self.bootconfig.setup(defaults=boot_arg_defaults)
     ImageModifyMixin.setup(self)
     

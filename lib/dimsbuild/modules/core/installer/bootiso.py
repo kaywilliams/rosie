@@ -13,7 +13,7 @@ class BootisoEvent(Event, BootConfigMixin):
       id = 'bootiso',
       requires = ['isolinux-files', 'boot-config-file'],
       conditionally_requires = ['installer-splash', 'web-path', 'boot-args',
-                                'kickstart-file'],
+                                'ks-path'],
     )
     
     self.bootiso = self.SOFTWARE_STORE/'images/boot.iso'
@@ -32,8 +32,8 @@ class BootisoEvent(Event, BootConfigMixin):
     boot_arg_defaults = ''
     if self.cvars['web-path']:
       boot_arg_defaults += ' method=%s/os' % self.cvars['web-path']
-    if self.cvars['kickstart-file']: # this one will need adjusting methinks
-      boot_arg_defaults += ' ks=file:%s' % self.cvars['kickstart-file']
+    if self.cvars['ks-path']: # this one will need adjusting methinks
+      boot_arg_defaults += ' ks=file:%s' % self.cvars['ks-path']
     self.bootconfig.setup(defaults=boot_arg_defaults)
   
   def run(self):

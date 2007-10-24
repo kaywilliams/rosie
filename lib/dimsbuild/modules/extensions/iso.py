@@ -107,7 +107,7 @@ class IsoSetsEvent(Event, ListCompareMixin, BootConfigMixin):
       provides = ['iso-dir', 'publish-content'],
       requires = ['anaconda-version', 'pkgorder-file', 'manifest-file',
                   'boot-config-file', 'os-dir'],
-      conditionally_requires = ['srpms-dir', 'kickstart-file', 'boot-args'],
+      conditionally_requires = ['srpms-dir', 'ks-path', 'boot-args'],
     )
     ListCompareMixin.__init__(self)
     BootConfigMixin.__init__(self)
@@ -120,7 +120,7 @@ class IsoSetsEvent(Event, ListCompareMixin, BootConfigMixin):
     
     self.DATA =  {
       'config':    ['.'],
-      'variables': ['cvars[\'srpms\']'],
+      'variables': ['cvars[\'srpms\']', 'cvars[\'ks-path\']'],
       'input':     [],
       'output':    [],
     }
@@ -133,8 +133,8 @@ class IsoSetsEvent(Event, ListCompareMixin, BootConfigMixin):
     self.DATA['input'].append(self.cvars['manifest-file'])
     
     default_boot_args = 'method=cdrom'
-    if self.cvars['kickstart-file']:
-      default_boot_args += ' ' + 'ks=file:%s' % self.cvars['kickstart-file']
+    if self.cvars['ks-path']:
+      default_boot_args += ' ' + 'ks=file:%s' % self.cvars['ks-path']
     self.bootconfig.setup(defaults=default_boot_args)
   
   def run(self):

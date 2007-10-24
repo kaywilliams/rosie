@@ -11,13 +11,13 @@ class InitrdImageEvent(Event, ImageModifyMixin):
       id = 'initrd-image',
       provides = ['isolinux-files'],
       requires = ['anaconda-version', 'buildstamp-file'],
-      conditionally_requires = ['initrd-image-content'],
+      conditionally_requires = ['initrd-image-content', 'kickstart-file', 'ks-path'],
       comes_after = ['isolinux'],
     )
 
     self.DATA = {
       'config':    ['.'],
-      'variables': ['cvars[\'anaconda-version\']'],
+      'variables': ['cvars[\'anaconda-version\']', 'cvars[\'kickstart-file\']'],
       'input':     [],
       'output':    [] # to be filled later
     }
@@ -51,6 +51,10 @@ class InitrdImageEvent(Event, ImageModifyMixin):
   def _generate(self):
     ImageModifyMixin._generate(self)
     self._write_buildstamp()
+    
+    # copy kickstart file
+    if self.cvars['kickstart-file'] and self.cvars['ks-path']:
+      self.image.write(self.cvars['kickstart-file'], self.cvars['ks-path'].dirname)
 
 
 EVENTS = {'installer': [InitrdImageEvent]}
