@@ -431,13 +431,13 @@ LOGOS_RPM = LocalsDict({
       width=503, height=420, textmaxwidth=450,
       textvcenter=210, texthcenter=250
     ),
-    'rhgb/main-file.png': dict(
-      locations=['/usr/share/rhgb/main-file.png'],
+    'rhgb/main-logo.png': dict(
+      locations=['/usr/share/rhgb/main-logo.png'],
       width=320, height=396, textmaxwidth=320,
       textvcenter=190, texthcenter=160
     ),
-    'rhgb/system-file.png': dict(
-      locations=['/usr/share/rhgb/system-file.png'],
+    'rhgb/system-logo.png': dict(
+      locations=['/usr/share/rhgb/system-logo.png'],
       width=183, height=45, textmaxwidth=150,
       textvcenter=22, texthcenter=90
     ),
