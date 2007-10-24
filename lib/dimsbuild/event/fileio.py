@@ -15,7 +15,7 @@ class IOMixin:
     self.io.clean_eventcache(all=True)
 
   def error(self, e):
-    debugdir = self.mddir / '.debug'
+    debugdir = self.mddir / 'debug'
     paths = self.mddir.listdir(all=True)
     debugdir.mkdirs()
     for path in paths: path.rename(debugdir/path.basename)
