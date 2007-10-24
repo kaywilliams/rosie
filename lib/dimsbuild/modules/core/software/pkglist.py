@@ -37,7 +37,7 @@ class PkglistEvent(Event):
       requires = ['required-packages', 'repos'],
     )
 
-    self.dsdir = self.mddir / '.depsolve'
+    self.dsdir = self.mddir / 'depsolve'
     self.pkglistfile = self.mddir / 'pkglist'
 
     self.DATA = {
@@ -59,7 +59,6 @@ class PkglistEvent(Event):
 
     # setup if creating pkglist
     self.pkglistfile = self.mddir / 'pkglist'
-    self.DATA['output'].append(self.pkglistfile)
 
     self.rddirs = [] # list of repodata dirs across all repos
 
@@ -86,8 +85,7 @@ class PkglistEvent(Event):
     if not self.dsdir.exists(): self.dsdir.mkdirs()
 
     repoconfig = self._create_repoconfig()
-    depsolve_file = self.mddir / '.depsolve-results'
-    self.DATA['output'].append(depsolve_file)
+    depsolve_file = self.mddir / 'depsolve-results'
     solver = IDepSolver(depsolve_file,
                         config=str(repoconfig), root=str(self.dsdir),
                         arch=self.arch, callback=BuildDepsolveCallback(self.logger))
@@ -102,7 +100,6 @@ class PkglistEvent(Event):
       except yum.Errors.InstallError, e:
         pass
     solver.resolveDeps()
-    repoconfig.remove()
 
     pkgtups = [ x.pkgtup for x in solver.tsInfo.getMembers() ]
 
@@ -124,7 +121,8 @@ class PkglistEvent(Event):
     self.log(1, L1("writing pkglist"))
     self.pkglistfile.write_lines(pkglist)
 
-    self.DATA['output'].append(self.dsdir)
+    self.DATA['output'].extend([self.dsdir, self.pkglistfile, depsolve_file, 
+                                repoconfig])
     self.diff.write_metadata()
 
   def apply(self):
@@ -134,7 +132,7 @@ class PkglistEvent(Event):
     self.cvars['pkglist'] = self.pkglistfile.read_lines()
 
   def _create_repoconfig(self):
-    repoconfig = self.TEMP_DIR / 'depsolve.repo'
+    repoconfig = self.mddir / 'depsolve.repo'
     if repoconfig.exists():
       repoconfig.remove()
     conf = []
