@@ -1,5 +1,21 @@
 <docroot>
   <refentry>
+    <!-- base-repo -->
+    <refsect2>
+      <title>&lt;base-repo&gt;</title>
+      <para>Todo - Add description and example.
+      </para>
+      <programlisting>
+element base-repo {
+  text
+}
+      </programlisting>
+      <refsection>
+        <title>Parents</title>
+        <para>repos</para>
+      </refsection>
+    </refsect2>
+
     <!-- gpgkey -->
     <refsect2>
       <title>&lt;gpgkey&gt;</title>
@@ -41,15 +57,15 @@ element gpgkey {
       files from it.
       </para>
       <para>
-      The repos container must contain exactly one repo with type 'base'; this
-      indicates that this repository should be used as the source for several other
-      important distribution files, including group files, stage 2 images, and
-      isolinux files.  There can be any number of any other type of repo.
+      The repos container must contain one base-repo element and one or more repo 
+      elements.  The base-repo element contains the id of the reposistory to be used 
+      as the source for several other important distribution files, including group files, 
+      stage 2 images, and isolinux files.  
       </para>
       <programlisting>
 element repos {
-  element repo { attribute type { 'base' } ... }
-  element repo { ... }*
+  element base-repo { example-repo }
+  element repo { attribute id { 'example-repo' } ... }*
 }
       </programlisting>
       <refsection>

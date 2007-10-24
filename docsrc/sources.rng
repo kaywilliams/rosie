@@ -45,10 +45,10 @@ element source {
 &lt;sources enabled='true'&gt;
   &lt;macro id='root'&gt;http://redhat.download.fedoraproject.org&lt;macro&gt;
   &lt;repo id='fedora-base-src'&gt;
-    &lt;path&gt;%{root}/pub/fedora/linux/core/6/source/SRPMS&lt;/path&gt;
+    &lt;baseurl&gt;%{root}/pub/fedora/linux/core/6/source/SRPMS&lt;/baseurl&gt;
   &lt;/repo&gt;
   &lt;repo id='fedora-extras-src'&gt;
-    &lt;path&gt;%{root}/pub/fedora/linux/extras/6/SRPMS&lt;/path&gt;
+    &lt;baseurl&gt;%{root}/pub/fedora/linux/extras/6/SRPMS&lt;/baseurl&gt;
   &lt;/repo&gt;
 &lt;/sources&gt;
         </programlisting>

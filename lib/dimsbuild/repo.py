@@ -159,9 +159,6 @@ class Repo(dict):
   def __str__(self):
     s = '[%s]\n' % self['id']
     for k,v in self.items():
-      ## Map the 'include' attribute to the 'includepkgs' .repo option
-      if k == 'include':
-        k = 'includepkgs'
       if isinstance(v, pps.path.file.FilePath): #! hack to make sure file:// is prepended
         v = 'file://%s' % v
       s += '%s%s%s\n' % (k, sep, str(v).replace('\n', '\n' + ' '*(len(k+sep))))
@@ -174,15 +171,15 @@ class Repo(dict):
     # this baseurl stuff will have to be addressed when we work on supporting
     # mirrorgroups and multiple baseurls
     ##self['baseurl'] = '\n'.join(tree.xpath('path/text()'))
-    self['baseurl'] = P(tree.get('path/text()')) #!
+    self['baseurl'] = P(tree.get('baseurl/text()')) #!
     if tree.pathexists('gpgcheck/text()'):
       self['gpgcheck'] = tree.get('gpgcheck/text()')
     if tree.pathexists('gpgkey/text()'):
       self['gpgkey'] = '\n'.join(tree.xpath('gpgkey/text()'))
     if tree.pathexists('exclude/package/text()'):
       self['exclude'] = ' '.join(tree.xpath('exclude/package/text()'))
-    if tree.pathexists('include/package/text()'):
-      self['include'] = ' '.join(tree.xpath('include/package/text()'))
+    if tree.pathexists('includepkgs/package/text()'):
+      self['includepkgs'] = ' '.join(tree.xpath('includepkgs/package/text()'))
 
   def update_metadata(self):
     self._read_repodata()

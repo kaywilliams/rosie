@@ -1,5 +1,24 @@
 <docroot>
   <refentry>
+    <!-- baseurl -->
+    <refsect2>
+      <title>&lt;baseurl&gt;</title>
+      <para>The baseurl element is used inside of repo elements and accepts the
+      same values as path elements.
+      </para>
+      <programlisting>
+element baseurl {  text  }
+      </programlisting>
+      <refsection>
+        <title>Parents</title>
+        <para>repo</para>
+      </refsection>
+      <refsection>
+        <title>See also</title>
+        <para>path, repo, repos, sources</para>
+      </refsection>
+    </refsect2>
+
     <!-- exclude -->
     <refsect2>
       <title>&lt;exclude&gt;</title>
@@ -136,9 +155,8 @@ element path {
       <programlisting>
 element repo {
   attribute id { text },
-  attribute type { text }?,
-  element path { ... }
-  &amp; element include { ... }?
+  element baseurl { ... }
+  &amp; element includepkgs { ... }?
   &amp; element exclude { ... }?
   &amp; element gpgkey { ... }?
   &amp; element gpgcheck { ... }?
@@ -150,17 +168,10 @@ element repo {
       </refsection>
       <refsection>
         <title>Attributes</title>
-        <para>package elements have the following attributes:</para>
+        <para>repo elements have the following attributes:</para>
         <refsection>
           <title>id</title>
           <para>a unique id representing this repo in the config file</para>
-        </refsection>
-        <refsection>
-          <title>type</title>
-          <para>
-          optional; a classification for this repo, allowing multiple repos to be
-          grouped together; defaults to the empty string
-          </para>
         </refsection>
       </refsection>
       <refsection>
@@ -173,7 +184,7 @@ element repo {
         <programlisting>
 &lt;repo id='example-fedora-repo'&gt;
   &lt;macro id='root'&gt;http://redhat.download.fedoraproject.org&lt;macro&gt;
-  &lt;path&gt;%{root}/pub/fedora/linux/core/6/i386/os/&lt;/path&gt;
+  &lt;baseurl&gt;%{root}/pub/fedora/linux/core/6/i386/os/&lt;/baseurl&gt;
   &lt;gpgkey&gt;
     %{root}/pub/fedora/linux/core/6/i386/os/RPM-GPG-KEY-fedora
   &lt;/gpgkey&gt;

@@ -6,16 +6,12 @@
     <element name="repo">
       <ref name="attribute-id"/>
 
-      <optional>
-        <attribute name="type"><text/></attribute>
-      </optional>
-
-      <element name="path"><text/></element>
+      <element name="baseurl"><text/></element>
 
       <interleave>
 
         <optional>
-          <element name="include">
+          <element name="includepkgs">
             <oneOrMore>
               <element name="package"><text/></element>
             </oneOrMore>
