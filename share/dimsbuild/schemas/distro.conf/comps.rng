@@ -23,10 +23,18 @@
           </optional>
           
           <optional>
-          <element name="include">
-            <oneOrMore>
-            <ref name="element-package"/>
-            </oneOrMore>
+          <element name="core">
+            <interleave>
+
+              <zeroOrMore>
+              <ref name="element-package"/>
+              </zeroOrMore>
+
+              <zeroOrMore>
+                <ref name="element-group"/>
+              </zeroOrMore>
+
+           </interleave>
           </element>
           </optional>
           

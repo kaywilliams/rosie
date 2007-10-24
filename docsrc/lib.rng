@@ -36,22 +36,22 @@ element exclude {
       </programlisting>
       <refsection>
         <title>Parents</title>
-        <para>create-new, repo</para>
+        <para>comps, repo</para>
       </refsection>
       <refsection>
         <title>See also</title>
-        <para>comps, include</para>
+        <para>comps, repos, repo, includepkgs</para>
       </refsection>
     </refsect2>
     
-    <!-- include -->
+    <!-- includepkgs -->
     <refsect2>
-      <title>&lt;include&gt;</title>
+      <title>&lt;includepkgs&gt;</title>
       <para>
-      include is a container for package elements.  It indicates packages that should
-      be explicitly included in a distribution.  For example, you can include one or
-      more single packages in a distribution by using an include node inside a comps
-      element.
+      includepkgs is a container for package elements.  It indicates packages that should
+      be included from a repository.  For example, if only one package is specified in
+      includepkgs, then that is the *only* package dimsbuild will see from the repository
+      when dependency solving.
       </para>
       <programlisting>
 element include {
@@ -60,11 +60,11 @@ element include {
       </programlisting>
       <refsection>
         <title>Parents</title>
-        <para>create-new</para>
+        <para>comps</para>
       </refsection>
       <refsection>
         <title>See also</title>
-        <para>comps, exclude</para>
+        <para>repo, exclude</para>
       </refsection>
     </refsect2>
     

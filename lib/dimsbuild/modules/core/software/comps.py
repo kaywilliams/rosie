@@ -153,7 +153,7 @@ class CompsEvent(Event):
           GroupReq(grp.text))
 
     # add packages listed separately in config or included-packages cvar to core
-    for pkg in self.config.xpath('include/package', []):
+    for pkg in self.config.xpath('core/package', []):
       self._groups['core'].packagelist.add(
         PackageReq(**self._dict_from_xml(pkg)))
 
@@ -189,7 +189,11 @@ class CompsEvent(Event):
 
   def _validate_repoids(self):
     "Ensure that the repoids listed actually are defined"
-    for group in self.config.xpath('groups/group[@repoid]', []):
+    groups = []
+    groups.extend(self.config.xpath('core/group[@repoid]', []))
+    groups.extend(self.config.xpath('groups/group[@repoid]', []))
+
+    for group in groups:
       rid = group.get('@repoid')
       gid = group.get('text()')
       try:
@@ -216,7 +220,7 @@ class CompsEvent(Event):
       self._update_group_content('core', tree)
 
     for group in self.config.xpath(
-      'groups/group[not(@repoid) or @repoid="%s"]' % id, []):
+      'core/group[not(@repoid) or @repoid="%s"]' % id, []):
       # I don't like the following hack - the goal is to allow users to have
       # groups that are installed by default on end machines; the core group
       # is 'special' to anaconda, and is thus always installed, so the packages
@@ -224,9 +228,9 @@ class CompsEvent(Event):
       # group, mark it as default True, and let users that want to mess with
       # kickstarts include it themselves (like the rest of the world does),
       # but the powers that be say otherwise
-      if group.get('@core', 'false') in BOOLEANS_TRUE:
-        self._update_group_content(group.text, tree, dgid='core')
-      else:
+      self._update_group_content(group.text, tree, dgid='core')
+    for group in self.config.xpath(
+      'groups/group[not(@repoid) or @repoid="%s"]' % id, []):
         self._update_group_content(group.text, tree)
 
   def _update_group_content(self, gid, tree, dgid=None):

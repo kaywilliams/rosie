@@ -9,8 +9,8 @@
       <programlisting>
 element comps {
   text|(
+    element core { ... }?,
     element groups { ... }?,
-    element include { ... }?,
     element exclude { ... }?
 )}
       </programlisting>
@@ -29,23 +29,24 @@ element comps {
         </programlisting>
         <para>
         The second indicates that comps should generate a new file.  The group
-        file will have both the 'core' and 'base-x' groups included, the second of
-        which must come from the repository with id 'fedora-6'.  Furthermore, the
-        group file will include the 'createrepo', 'httpd', and 'sudo' packages, and
+        file will have the 'core', 'base' and 'base-x' groups included. The 'core' 
+        group is included by default. The 'base-x' group must come from the 
+        repository with id 'fedora-6'.  Furthermore, the core group will include 
+        the 'createrepo', 'httpd', and 'sudo' packages, and
         excludes the 'vim-minimal' package.
         </para>
         <programlisting>
 &lt;comps&gt;
   &lt;groups&gt;
-    &lt;group&gt;core&lt;/group&gt;
+    &lt;group&gt;base&lt;/group&gt;
     &lt;group repoid='fedora-6'&gt;base-x&lt;/group&gt;
   &lt;/groups&gt;
-  &lt;include&gt;
+  &lt;core&gt;
     &lt;package&gt;createrepo&lt;/package&gt;
     &lt;package&gt;httpd&lt;/package&gt;
     &lt;package type='conditional'
              requires='filesystem'&gt;sudo&lt;/package&gt;
-  &lt;/include&gt;
+  &lt;/core&gt;
   &lt;exclude&gt;
     &lt;package&gt;vim-minimal&lt;/package&gt;
   &lt;/exclude&gt;
@@ -53,7 +54,34 @@ element comps {
         </programlisting>
       </refsection>
     </refsect2>
-    
+
+    <!-- core -->
+    <refsect2>
+      <title>&lt;core&gt;</title>
+      <para>
+      optional; core is a container for package and group elements.  It is used to 
+      determine packages to be added to the core group of the groupfile generated 
+      by the comps event. If a package is specified, it is added to the core element. 
+      If a group is specified, packages listed within the group are added to the core
+      element. Anaconda installs packages in the core group by default in both 
+      kickstart and non-kickstart installations.
+      </para>
+      <programlisting>
+element groups {
+  element package { ... }+
+  element group { ... }+
+}
+      </programlisting>
+      <refsection>
+        <title>Parents</title>
+        <para>comps</para>
+      </refsection>
+      <refsection>
+        <title>See also</title>
+        <para>comps, groups, exclude</para>
+      </refsection>
+    </refsect2>    
+
     <!-- group -->
     <refsect2>
       <title>&lt;group&gt;</title>
@@ -64,7 +92,6 @@ element comps {
       </para>
       <programlisting>
 element group {
-  attribute core { text }?,
   attribute default { text }?
   attribute repoid { text }?,
 }
@@ -73,23 +100,10 @@ element group {
         <title>Attributes</title>
         <para>group elements have the following attributes:</para>
         <refsection>
-          <title>core</title>
-          <para>
-          optional; if true, packages from the group are appended to the core 
-          group, otherwise the group itself is appended to the comps file.  The 
-          former ensures packages of type 'mandatory' or 'default' are installed 
-          in both manual and kickstart installs. The latter allows the group to be 
-          optionally selected during manual installs, and requires the group to 
-          be listed in the packages section of the kickstart file for kickstart 
-          installs. The default value is true.
-          </para>
-        </refsection>
-        <refsection>
           <title>default</title>
           <para>
           optional; if specified, comps resets the value of the 'default' element 
           for the group to this value; otherwise it uses the original value.
-          Ignored if the 'core' attribute is set to true.
           </para>
         </refsection>
         <refsection>
@@ -176,7 +190,7 @@ element package {
       </refsection>
       <refsection>
         <title>Parents</title>
-        <para>include, exclude</para>
+        <para>core, exclude</para>
       </refsection>
       <refsection>
         <title>Examples</title>
