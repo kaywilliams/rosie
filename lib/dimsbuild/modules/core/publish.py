@@ -5,6 +5,7 @@ import struct
 from dims import pps
 from dims import shlib
 
+from dimsbuild.callback  import FilesCallback
 from dimsbuild.constants import *
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L0
@@ -12,6 +13,9 @@ from dimsbuild.logging   import L0
 P = pps.Path
 
 API_VERSION = 5.0
+
+class PublishFilesCallback(FilesCallback):
+  def sync_start(self): pass
 
 
 class PublishSetupEvent(Event):
@@ -81,14 +85,14 @@ class PublishEvent(Event):
     for dir in self.cvars['publish-content']:
       self.io.setup_sync(self.cvars['publish-path'], paths=[dir])
 
-    self._backup_relpath = self.files_callback.relpath
-    self.files_callback.relpath = self.cvars['publish-path']
-
   def run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
     self.log(0, L0("publishing output store"))
     self.cvars['publish-path'].rm(recursive=True, force=True)
-    self.io.sync_input(link=True)
+    
+    self.io.sync_input(link=True,
+      cb=PublishFilesCallback(self.logger, self.cvars['publish-path']))
+    
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' \
                    % self.cvars['publish-path'])
 
@@ -96,7 +100,5 @@ class PublishEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
-    self.files_callback.relpath = self._backup_relpath
-    del(self._backup_relpath)
 
 EVENTS = {'ALL': [PublishEvent], 'setup':[PublishSetupEvent],}

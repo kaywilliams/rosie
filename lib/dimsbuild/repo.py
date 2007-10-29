@@ -8,6 +8,8 @@ from gzip import GzipFile
 from dims import pps
 from dims import xmllib
 
+from dimsbuild.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
+
 sep = ' = ' # the separator between key and value
 
 DEFAULTSECT = 'main'
@@ -26,6 +28,9 @@ OPTCRE = re.compile(
   r'(?P<value>.*)$'            # everything up to eol
 )
 
+NSMAP = {'repo': 'http://linux.duke.edu/metadata/repo',
+         'common': 'http://linux.duke.edu/metadata/common'}
+
 P = pps.Path
 
 class RepoContainer(dict):
@@ -36,6 +41,8 @@ class RepoContainer(dict):
     if self.has_key(DEFAULTSECT):
       s += '[%s]\n' % DEFAULTSECT
       for k,v in self[DEFAULTSECT].items():
+        if   v in BOOLEANS_TRUE:  v = '1'
+        elif v in BOOLEANS_FALSE: v = '0'
         s += '%s%s%s\n' % (k, sep, str(v).replace('\n', '\n' + ' '*(len(k+sep))))
       s += '\n'
 
@@ -161,6 +168,8 @@ class Repo(dict):
     for k,v in self.items():
       if isinstance(v, pps.path.file.FilePath): #! hack to make sure file:// is prepended
         v = 'file://%s' % v
+      if   v in BOOLEANS_TRUE:  v = '1'
+      elif v in BOOLEANS_FALSE: v = '0'
       s += '%s%s%s\n' % (k, sep, str(v).replace('\n', '\n' + ' '*(len(k+sep))))
     s += '\n'
     return s
@@ -189,7 +198,7 @@ class Repo(dict):
     repomd = xmllib.tree.read((self.remoteurl/self.mdfile).open())
 
     for data in repomd:
-      repofile = P(data.get('location/@href'))
+      repofile = P(data.get('repo:location/@href', namespaces=NSMAP))
       filetype = data.get('@type')
       self.datafiles[filetype] = repofile.basename
 
