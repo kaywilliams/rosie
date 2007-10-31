@@ -1,4 +1,3 @@
-import re
 import stat
 
 from rpmUtils.arch import getArchList
@@ -6,15 +5,14 @@ from rpmUtils.arch import getArchList
 from dims import shlib
 from dims import pps
 
-from dimsbuild.constants import RPM_PNVRA
+from dimsbuild.constants import RPM_PNVRA_REGEX
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L0, L2
 
 API_VERSION = 5.0
+EVENTS = {'software': ['DownloadEvent']}
 
 P = pps.Path
-
-RPM_PNVRA_REGEX = re.compile(RPM_PNVRA)
 
 class DownloadEvent(Event):
   def __init__(self):
@@ -45,15 +43,14 @@ class DownloadEvent(Event):
         rpm = rpminfo['file']
         _,n,v,r,a = self._deformat(rpm)
         nvr = '%s-%s-%s' % (n,v,r)
-        if nvr in self.cvars['pkglist'] and nvr not in processed and \
+        if nvr in self.cvars['pkglist'] and (nvr,a) not in processed and \
            a in self._validarchs:
-          rpm = P(rpminfo['file'])
           if isinstance(rpm, pps.path.http.HttpPath): #! bad
             rpm._update_stat({'st_size':  rpminfo['size'],
                               'st_mtime': rpminfo['mtime'],
                               'st_mode':  stat.S_IFREG})
           self.input_rpms.add(rpm)
-          processed.append(nvr)
+          processed.append((nvr,a))
 
     self.io.setup_sync(self.builddata_dest, paths=self.input_rpms)
 
@@ -82,8 +79,6 @@ class DownloadEvent(Event):
 
   def error(self, e):
     # performing a subset of Event.error since sync handles partially downloaded files
-    (self.mddir / '.debug').mkdir()
+    (self.mddir / 'debug').mkdir()
     if self.mdfile.exists():
-      self.mdfile.rename(self.mddir/'.debug'/self.mdfile.basename)
-
-EVENTS = {'software': [DownloadEvent]}
+      self.mdfile.rename(self.mddir/'debug'/self.mdfile.basename)

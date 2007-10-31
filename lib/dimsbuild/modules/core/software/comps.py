@@ -9,6 +9,7 @@ from dimsbuild.logging   import L0, L1
 from dimsbuild.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
 
 API_VERSION = 5.0
+EVENTS = {'software': ['CompsEvent']}
 
 HEADER_FORMAT = '<?xml version=\'%s\' encoding=\'%s\'?>'
 
@@ -425,8 +426,6 @@ class CompsCategory(object):
 # convenience functions
 Element  = xmllib.tree.Element
 uElement = xmllib.tree.uElement
-
-EVENTS = {'software': [CompsEvent]}
 
 #------ ERRORS ------#
 class CompsError(StandardError): pass

@@ -11,6 +11,7 @@ from dimsbuild.event     import Event
 from dimsbuild.logging   import L0
 
 API_VERSION = 5.0
+EVENTS = {'setup': ['SourceVarsEvent']}
 
 class SourceVarsEvent(Event):
   def __init__(self):
@@ -71,5 +72,3 @@ class SourceVarsEvent(Event):
 
     # update source_vars
     self.cvars['source-vars'] = sourcevars
-
-EVENTS = {'setup': [SourceVarsEvent]}

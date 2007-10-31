@@ -9,11 +9,14 @@ __author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
 __version__ = '3.0'
 __date__    = 'June 26th, 2007'
 
+DEBUG = True # enable to print tracebacks; disable for 'release mode'
+
 import imp
 import sys
 import time
 
 from rpmUtils.arch import getBaseArch
+from StringIO      import StringIO
 
 from dims import dispatch
 from dims import pps
@@ -43,8 +46,6 @@ P = pps.Path # convenience, same is used throughout most modules
 
 API_VERSION = 5.0
 
-DEBUG = True # enable to print tracebacks; disable for 'release mode'
-
 class Build(object):
   """
   Primary build class - framework upon which DiMS building is performed
@@ -64,7 +65,7 @@ class Build(object):
   the build process.
   """
 
-  def __init__(self, options, parser, mainconfig, distroconfig):
+  def __init__(self, options, parser):
     """
     Initialize a Build object
 
@@ -73,17 +74,17 @@ class Build(object):
                arguments encountered during command line parsing
       parser:  the OptionParser.OptionParser instance used to parse these
                command line arguments
-      mainconfig: the configlib.Config object created by parsing the main
-               program   configuration   file,    normally   located   at
-               '/etc/dimsbuild/dimsbuild.conf'
-      distroconfig: the  configlib.Config  object created by parsing  the
-               distribution-specific configuraiton file, normally located
-               at '/etc/dimsbuild/<distro>/distro.conf'
 
     These parameters are normally passed in from the command-line handler
     ('/usr/bin/dimsbuild')
     """
-
+    # set up loger
+    self.logger = make_log(options.logthresh, options.logfile)
+    
+    # set up configs
+    mainconfig, distroconfig = self._get_config(P(options.mainconfigpath),
+                                                P(options.distropath))
+    
     # set up import_dirs
     import_dirs = self._compute_import_dirs(mainconfig, options)
 
@@ -116,9 +117,14 @@ class Build(object):
 
     # allow events to add their command-line options to the parser
     for e in self.dispatch: e._add_cli(parser)
-
+    
   def apply_options(self, options):
     "Allow events to apply option results to themselves"
+    # print for help if specified with -h/--help
+    if options.print_help:
+      parser.print_help()
+      sys.exit()
+
     # apply --force to modules/events
     for eventid in self._compute_events(options.force_modules,
                                         options.force_events):
@@ -168,6 +174,27 @@ class Build(object):
     self.dispatch.execute(until=None)
     self._log_footer()
 
+  def _get_config(self, mcp, dcp):
+    try:
+      if mcp.exists():
+        self.logger.log(4, "Reading main config file '%s'" % mcp)
+        mc = xmllib.config.read(mcp)
+      else:
+        self.logger.log(4, "No main config file found at '%s'. Using default settings" % mcp)
+        mc = xmllib.config.read(StringIO('<dimsbuild/>'))
+      
+      dcp = dcp.expand().abspath()
+      if not dcp.exists():
+        raise xmllib.config.ConfigError("No config file found at '%s'" % dcp)
+      
+      self.logger.log(3, "Reading distro config file '%s'" % dcp)
+      dc = xmllib.config.read(dcp)
+    except xmllib.tree.XmlSyntaxError, e:
+      self.logger.log(0, "Error reading config file: %s" % e)
+      raise
+    
+    return mc, dc
+  
   def _compute_events(self, modules, events):
     r = set() # set of eventids to force
     for moduleid in modules:
@@ -271,7 +298,7 @@ class Build(object):
     Event.cvars = CvarsDict()
 
     # set up loggers
-    Event.logger = make_log(options.logthresh, options.logfile)
+    Event.logger = self.logger
 
     # set up config dirs
     Event.mainconfig = mainconfig

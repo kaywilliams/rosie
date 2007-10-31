@@ -15,6 +15,7 @@ from dimsbuild.logging   import L0, L1
 P = pps.Path
 
 API_VERSION = 5.0
+EVENTS = {'software': ['PkglistEvent']}
 
 YUMCONF_HEADER = [
   '[main]',
@@ -240,7 +241,6 @@ class IDepSolver(DepSolver):
         self.__recursive_install(dep)
       self.depsolve_results.setdefault(pkgtup, []).append(dep)
 
-EVENTS = {'software': [PkglistEvent]}
 
 #------ ERRORS ------#
 class DepSolveError(StandardError): pass

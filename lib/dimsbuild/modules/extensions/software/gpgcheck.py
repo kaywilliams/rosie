@@ -5,6 +5,7 @@ from dimsbuild.event   import Event
 from dimsbuild.logging import L0, L1, L2
 
 API_VERSION = 5.0
+EVENTS = {'software': ['GpgCheckEvent']}
 
 class GpgCheckEvent(Event):
   def __init__(self):
@@ -84,8 +85,6 @@ class GpgCheckEvent(Event):
   def apply(self):
     self.io.clean_eventcache()
 
-
-EVENTS = {'software': [GpgCheckEvent]}
 
 #------ ERRORS ------#
 class RpmSignatureInvalidError(StandardError):

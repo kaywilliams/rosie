@@ -15,8 +15,7 @@ class RepoEventMixin:
       for repoxml in self.config.xpath(repos, []):
         id = repoxml.get('@id')
         self.repocontainer.add_repo(id)
-        repo = self.repocontainer[id]
-        repo.read_config(repoxml)
+        self.repocontainer[id].read_config(repoxml)
 
     if files:
       for filexml in self.config.xpath(files, []):
@@ -28,15 +27,15 @@ class RepoEventMixin:
 
       if repo.id == self.cvars['base-repoid']:
         folder = 'images'
-        args = {'glob': folder, 
-                'type': pps.constants.TYPE_DIR, 
-                'mindepth': 1, 
+        args = {'glob': folder,
+                'type': pps.constants.TYPE_DIR,
+                'mindepth': 1,
                 'maxdepth': 1}
         if repo.remoteurl.findpaths(**args):
           repo.osdir = repo.remoteurl
         elif repo.remoteurl.dirname.findpaths(**args):
           repo.osdir = repo.remoteurl.dirname
-        else: 
+        else:
           raise RuntimeError("Unable to find a folder named '%s' at '%s' "
           "or '%s'. Check the baseurl for the '%s' repo, or specify an alternative "
           "base-repo, and try again."

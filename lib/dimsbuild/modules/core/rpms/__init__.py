@@ -1,6 +1,7 @@
 from dimsbuild.event import Event, CLASS_META
 
 API_VERSION = 5.0
+EVENTS = {'software': ['RpmsEvent']}
 
 class RpmsEvent(Event):
   def __init__(self):
@@ -10,5 +11,3 @@ class RpmsEvent(Event):
 
     self.cvars['custom-rpms']  = []
     self.cvars['custom-srpms'] = []
-
-EVENTS = {'software': [RpmsEvent]}

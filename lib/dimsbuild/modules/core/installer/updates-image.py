@@ -4,6 +4,7 @@ from dimsbuild.logging import L0
 from dimsbuild.modules.shared import ImageModifyMixin
 
 API_VERSION = 5.0
+EVENTS = {'installer': ['UpdatesImageEvent']}
 
 class UpdatesImageEvent(Event, ImageModifyMixin):
   def __init__(self):
@@ -43,6 +44,3 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     for file in self.io.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))
-
-
-EVENTS = {'installer': [UpdatesImageEvent]}

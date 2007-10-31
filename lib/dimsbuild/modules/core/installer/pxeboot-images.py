@@ -2,7 +2,7 @@ from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
 API_VERSION = 5.0
-
+EVENTS = {'installer': ['PxebootImagesEvent']}
 
 class PxebootImagesEvent(Event):
   def __init__(self):
@@ -35,6 +35,3 @@ class PxebootImagesEvent(Event):
     for file in ['vmlinuz', 'initrd.img']:
       if not (self.pxebootdir/file).exists():
         raise RuntimeError("Unable to find '%s' in '%s'" % (file, self.pxebootdir))
-
-
-EVENTS = {'installer': [PxebootImagesEvent]}

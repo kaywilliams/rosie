@@ -8,6 +8,7 @@ from dimsbuild.modules.shared import ColorMixin, InputFilesMixin, RpmBuildMixin
 P = pps.Path
 
 API_VERSION = 5.0
+EVENTS = {'rpms': ['ReleaseRpmEvent']}
 
 class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
   def __init__(self):
@@ -174,6 +175,3 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
       else:
         lines.append('gpgcheck=0')
       self.repofile.write_lines(lines)
-
-
-EVENTS = {'rpms': [ReleaseRpmEvent]}

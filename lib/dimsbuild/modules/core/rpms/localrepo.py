@@ -7,6 +7,7 @@ from dimsbuild.logging import L0, L1, L2
 from dimsbuild.repo    import RepoContainer
 
 API_VERSION = 5.0
+EVENTS = {'rpms': ['LocalRepoEvent']}
 
 class LocalRepoEvent(Event):
   def __init__(self):
@@ -108,6 +109,3 @@ class LocalRepoEvent(Event):
 
       if obsoletes:
         self.cvars.setdefault('excluded-packages', []).extend(obsoletes.split())
-
-
-EVENTS = {'rpms': [LocalRepoEvent]}

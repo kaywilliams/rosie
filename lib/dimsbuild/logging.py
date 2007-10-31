@@ -63,15 +63,19 @@ class LogContainer(logger.LogContainer):
         log_obj.write(priority, message, **kwargs)
 
 
-def make_log(threshold, logfile):
+def make_log(threshold, logfile=None):
+  container = LogContainer()
   console = Logger(threshold=threshold, file_object=sys.stdout,
                    format='%(message)s')
-  logfile = Logger(threshold=None, file_object=open(logfile, 'a+'),
-                   format='%(time)s: %(message)s')
-  
-  container = LogContainer([console, logfile])
+  container.list.append(console)
   container.console = console
-  container.logfile = logfile
+  
+  if logfile:
+    logfile = Logger(threshold=None, file_object=open(logfile, 'a+'),
+                     format='%(time)s: %(message)s')
+    container.list.append(logfile)
+    container.logfile = logfile
+  
   container.test = console.test
   container.threshold = console.threshold
   

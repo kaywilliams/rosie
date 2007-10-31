@@ -13,6 +13,7 @@ from dimsbuild.logging   import L0
 P = pps.Path
 
 API_VERSION = 5.0
+EVENTS = {'ALL': ['PublishEvent'], 'setup': ['PublishSetupEvent']}
 
 class PublishFilesCallback(FilesCallback):
   def sync_start(self): pass
@@ -100,5 +101,3 @@ class PublishEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
-
-EVENTS = {'ALL': [PublishEvent], 'setup':[PublishSetupEvent],}

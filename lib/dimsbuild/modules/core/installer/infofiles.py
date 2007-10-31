@@ -15,7 +15,7 @@ from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
 API_VERSION = 5.0
-
+EVENTS = {'installer': ['DiscinfoEvent', 'TreeinfoEvent', 'BuildstampEvent']}
 
 class DiscinfoEvent(Event):
   def __init__(self):
@@ -162,5 +162,3 @@ class BuildstampEvent(Event):
     if not self.bsfile.exists():
       raise RuntimeError("missing file '%s'" % self.bsfile)
     self.cvars['buildstamp-file'] = self.bsfile
-
-EVENTS = {'installer': [DiscinfoEvent, TreeinfoEvent, BuildstampEvent]}

@@ -4,6 +4,7 @@ from dimsbuild.logging import L0
 from dimsbuild.modules.shared import FileDownloadMixin
 
 API_VERSION = 5.0
+EVENTS = {'installer': ['Stage2ImagesEvent']}
 
 class Stage2ImagesEvent(Event, FileDownloadMixin):
   def __init__(self):
@@ -35,6 +36,3 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
     for file in self.io.list_output():
       if not file.exists():
         raise RuntimeError("Unable to find file '%s' at '%s'" % (file.basename, file.dirname))
-
-
-EVENTS = {'installer': [Stage2ImagesEvent]}

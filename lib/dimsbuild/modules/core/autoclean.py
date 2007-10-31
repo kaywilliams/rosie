@@ -4,6 +4,7 @@ from dimsbuild.event   import Event
 from dimsbuild.logging import L0, L2, L3
 
 API_VERSION = 5.0
+EVENTS = {'ALL': ['AutocleanEvent']}
 
 class AutocleanEvent(Event):
   def __init__(self):
@@ -48,9 +49,6 @@ class AutocleanEvent(Event):
     self.diff.write_metadata()
     
   
-EVENTS = {'ALL': [AutocleanEvent]}
-
-
 #------ METADATA HANDLER ------#
 class EventHandler:
   def __init__(self, data):

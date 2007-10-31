@@ -5,6 +5,7 @@ from dimsbuild.logging   import L0
 from dimsbuild.modules.shared import CreateRepoMixin
 
 API_VERSION = 5.0
+EVENTS = {'software': ['CreaterepoEvent']}
 
 class CreaterepoEvent(Event, CreateRepoMixin):
   def __init__(self):
@@ -59,6 +60,3 @@ class CreaterepoEvent(Event, CreateRepoMixin):
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['rpms'] = self.io.list_output(what='rpms')
-
-
-EVENTS = {'software': [CreaterepoEvent]}

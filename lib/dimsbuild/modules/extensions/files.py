@@ -8,7 +8,7 @@ from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
 API_VERSION = 5.0
-
+EVENTS = {'OS': ['FilesEvent']}
 
 class FilesEvent(Event):
   def __init__(self):
@@ -38,7 +38,5 @@ class FilesEvent(Event):
   def error(self, e):
     # performing a subset of Event.error since sync handles partially downloaded files
     if self.mdfile.exists():
-      (self.mddir / '.debug').mkdir()
-      self.mdfile.rename(self.mddir/'.debug'/self.mdfile.basename)
-
-EVENTS = {'OS': [FilesEvent]}
+      (self.mddir / 'debug').mkdir()
+      self.mdfile.rename(self.mddir/'debug'/self.mdfile.basename)

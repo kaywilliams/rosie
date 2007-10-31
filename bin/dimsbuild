@@ -21,8 +21,15 @@ from dims.CleanHelpFormatter import CleanHelpFormatter
 P = pps.Path
 
 def main():
-  parser = OptionParser("usage: %prog [OPTIONS]", formatter=CleanHelpFormatter())
+  parser = OptionParser("usage: %prog [OPTIONS]",
+                        formatter=CleanHelpFormatter(),
+                        add_help_option=False)
   
+  parser.add_option('-h', '--help',
+    dest='print_help',
+    action='store_true',
+    default=False,
+    help="show this help message and exit")
   parser.add_option('--clear-cache',
     dest='clear_cache',
     action='store_true',
@@ -117,9 +124,9 @@ def main():
   
   try:
     preargs = __filter_cmd_args(args,
-      noargopts = ['--no-plugins', '--no-validate', '--validate-only'],
+      noargopts = ['-h', '--help'],
       argopts   = ['-c', '--distro-conf', '--dimsbuild-conf',
-                   '-l', '--log-level', '-e', '--err-level',
+                   '-l', '--log-level', '--log-file',
                    '--enable-module', '--disable-module',
                    '--lib-path', '--share-path'])
                                  
@@ -129,34 +136,9 @@ def main():
   
   opts,_ = parser.parse_args(args=preargs)
   
+  # import dimsbuild from some path in sys.path
   try:
-    mainconfig, distroconfig = __get_conf(P(opts.mainconfigpath),
-                                          P(opts.distropath),
-                                          opts.logthresh)
-  except OSError, e:
-    if '-h' in args or '--help' in args:
-      parser.print_help()
-      sys.exit()
-    else:
-      print e
-      sys.exit(1)
-  
-  # set up import_dirs
-  import_dirs = mainconfig.xpath('/dimsbuild/librarypaths/path/text()', [])
-  if opts.libpath:
-    opts.libpath.extend(import_dirs)
-    import_dirs = opts.libpath
-  import_dirs.insert(0, '.') # allow current directory imports to work
-  for dir in sys.path:
-    if dir not in import_dirs: import_dirs.append(dir)
-  sys.path = import_dirs
-  import_dirs = [ P(i)/'dimsbuild' for i in import_dirs ]
-  
-  # import dimsbuild from some path in import_dirs
-  try:
-    fp, path, desc = imp.find_module('main', import_dirs)
-    build = imp.load_module('main', fp, path, desc)
-    fp.close()
+    import dimsbuild.main
   except ImportError, e:
     print "Unable to load core dimsbuild files"
     raise #!
@@ -165,39 +147,13 @@ def main():
   # initialize our software builder with opts, the result of parsing preargs.
   # we can't apply all options now because modules may modify the behavior
   # of the parser
-  sbuilder = build.Build(opts, parser, mainconfig, distroconfig)
+  sbuilder = dimsbuild.main.Build(opts, parser)
   
   # now apply the real option set to the software builder and make it go!
   options, args = parser.parse_args()
   sbuilder.apply_options(options)
   sbuilder.main()
   sys.exit()
-
-def __get_conf(maincfgpath, distrocfgpath, loglevel=1):
-  "Computes the location and reads main and distro configuration files"
-  
-  if maincfgpath.exists():
-    if loglevel >= 4: print "Reading reading main config file '%s'" % maincfgpath
-    mainconfig = __read_conf(maincfgpath)
-  else:
-    if loglevel >= 4: print "No main config file found at '%s'. Using default settings" % maincfgpath
-    mainconfig = __read_conf(StringIO('<dimsbuild></dimsbuild>'))
-  
-  distrocfgpath = distrocfgpath.expand().abspath()
-  if not distrocfgpath.exists():
-    raise OSError("No config file found at '%s'" % distrocfgpath)
-  
-  if loglevel >= 3: print "Reading distro config file '%s'" % distrocfgpath
-  distroconfig = __read_conf(distrocfgpath)
-  
-  return mainconfig, distroconfig
-
-def __read_conf(file):
-  try:
-    return xmllib.config.read(file)
-  except xmllib.tree.XmlSyntaxError, e:
-    print "Error reading config file '%s': %s" %(file, e)
-    sys.exit(1)
 
 def __filter_cmd_args(args, noargopts, argopts):
   """ 

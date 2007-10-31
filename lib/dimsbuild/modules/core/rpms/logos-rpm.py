@@ -18,6 +18,7 @@ except ImportError:
 P = pps.Path
 
 API_VERSION = 5.0
+EVENTS = {'rpms': ['LogosRpmEvent']}
 
 class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
   def __init__(self):
@@ -219,6 +220,3 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
     im.save(filename, format=format)
 
   _generate_blank_image = _generate_image
-
-
-EVENTS = {'rpms': [LogosRpmEvent]}

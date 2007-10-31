@@ -6,6 +6,7 @@ from dimsbuild.logging import L0
 from dimsbuild.modules.shared import BootConfigMixin
 
 API_VERSION = 5.0
+EVENTS = {'installer': ['BootisoEvent']}
 
 class BootisoEvent(Event, BootConfigMixin):
   def __init__(self):
@@ -66,5 +67,3 @@ class BootisoEvent(Event, BootConfigMixin):
     self.io.clean_eventcache()
     if not self.bootiso.exists():
       raise RuntimeError, "Unable to find boot.iso at '%s'" % self.bootiso
-
-EVENTS = {'installer': [BootisoEvent]}

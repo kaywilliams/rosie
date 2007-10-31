@@ -6,6 +6,7 @@ from dimsbuild.event    import Event, CLASS_META
 from dimsbuild.logging  import L0, L1
 
 API_VERSION = 5.0
+EVENTS = {'ALL': ['OSMetaEvent'], 'OS': ['OSComposeEvent']}
 
 FIELDS = ['file', 'size', 'mtime']
 
@@ -94,5 +95,3 @@ class OSComposeEvent(Event):
       self.cvars['publish-content'].add(self.osdir)
     except:
       pass
-
-EVENTS = {'ALL': [OSMetaEvent], 'OS': [OSComposeEvent]}

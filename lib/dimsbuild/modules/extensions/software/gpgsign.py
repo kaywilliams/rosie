@@ -8,6 +8,7 @@ from dimsbuild.event     import Event
 from dimsbuild.logging   import L0, L1, L2
 
 API_VERSION = 5.0
+EVENTS = {'setup': ['GpgSetupEvent'], 'software': ['GPGSignEvent']}
 
 P = pps.Path
 
@@ -100,6 +101,3 @@ class GPGSignEvent(Event, GpgMixin):
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['signed-rpms'] = self.io.list_output(what='rpms')
-
-
-EVENTS = {'setup': [GpgSetupEvent], 'software': [GPGSignEvent]}

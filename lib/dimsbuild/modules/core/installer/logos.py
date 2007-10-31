@@ -12,6 +12,7 @@ from dimsbuild.modules.shared import ExtractMixin, RpmNotFoundError
 P = pps.Path
 
 API_VERSION = 5.0
+EVENTS = {'installer': ['LogosEvent']}
 
 class LogosEvent(Event, ExtractMixin):
   def __init__(self):
@@ -123,8 +124,6 @@ class LogosEvent(Event, ExtractMixin):
         raise RpmNotFoundError("missing logo RPM")
     return [rpms[0]]
 
-
-EVENTS = {'installer': [LogosEvent]}
 
 #------ EXCEPTIONS ------#
 class SplashImageNotFound(StandardError): pass

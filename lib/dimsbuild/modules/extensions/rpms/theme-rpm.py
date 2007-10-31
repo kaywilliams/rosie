@@ -3,6 +3,7 @@ from dimsbuild.event import Event
 from dimsbuild.modules.shared import RpmBuildMixin
 
 API_VERSION = 5.0
+EVENTS = {'rpms': ['ThemeRpmEvent']}
 
 class ThemeRpmEvent(Event, RpmBuildMixin):
   def __init__(self):
@@ -56,6 +57,3 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     f.write(self.locals.default_theme % {'themename': self.themename})
     f.close()
     return 'postinstall.sh'
-
-
-EVENTS = {'rpms': [ThemeRpmEvent]}

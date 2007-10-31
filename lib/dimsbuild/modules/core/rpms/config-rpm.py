@@ -7,6 +7,7 @@ from dimsbuild.modules.shared import InputFilesMixin, RpmBuildMixin
 P = pps.Path
 
 API_VERSION = 5.0
+EVENTS = {'rpms': ['ConfigRpmEvent']}
 
 class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def __init__(self):
@@ -82,5 +83,3 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       return self.build_folder/'post-install.sh'
     except IndexError:
       return None
-
-EVENTS = {'rpms': [ConfigRpmEvent]}

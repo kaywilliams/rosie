@@ -1,6 +1,7 @@
 from dimsbuild.event import Event, CLASS_META
 
 API_VERSION = 5.0
+EVENTS = {'OS': ['InstallerEvent']}
 
 class InstallerEvent(Event):
   def __init__(self):
@@ -9,5 +10,3 @@ class InstallerEvent(Event):
       properties = CLASS_META,
       provides = ['os-content'],
     )
-  
-EVENTS = {'OS': [InstallerEvent]}

@@ -13,7 +13,7 @@ P = pps.Path
 
 
 API_VERSION = 5.0
-
+EVENTS = {'installer': ['ProductImageEvent']}
 
 class ProductImageEvent(Event, ImageModifyMixin):
   def __init__(self):
@@ -76,6 +76,3 @@ class ProductImageEvent(Event, ImageModifyMixin):
     
     self.image.writeflo(StringIO(installclass),
                         filename='custom.py', dest='installclasses')
-
-
-EVENTS = {'installer': [ProductImageEvent]}

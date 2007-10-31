@@ -4,6 +4,7 @@ from dimsbuild.event   import Event
 from dimsbuild.logging import L0
 
 API_VERSION = '5.0'
+EVENTS = {'installer': ['KickstartEvent']}
 
 class KickstartEvent(Event):
   def __init__(self):
@@ -30,6 +31,3 @@ class KickstartEvent(Event):
   def apply(self):
     self.cvars['kickstart-file'] = self.io.list_output(what='kickstart-file')[0]
     self.cvars['ks-path'] = pps.Path('/%s' % self.cvars['kickstart-file'].basename)
-
-
-EVENTS = {'installer': [KickstartEvent]}

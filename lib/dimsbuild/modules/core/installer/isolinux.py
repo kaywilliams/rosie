@@ -4,6 +4,7 @@ from dimsbuild.logging import L0
 from dimsbuild.modules.shared import FileDownloadMixin
 
 API_VERSION = 5.0
+EVENTS = {'installer': ['IsolinuxEvent']}
 
 class IsolinuxEvent(Event, FileDownloadMixin):
   def __init__(self):
@@ -46,6 +47,3 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     
     self.cvars['boot-config-file'] = \
       self.SOFTWARE_STORE/self.file_locals['isolinux.cfg']['path']
-
-
-EVENTS = {'installer': [IsolinuxEvent]}

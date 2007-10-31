@@ -4,6 +4,7 @@ from dimsbuild.logging import L0
 from dimsbuild.modules.shared import FileDownloadMixin, ImageModifyMixin
 
 API_VERSION = 5.0
+EVENTS = {'installer': ['XenImagesEvent']}
 
 class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
   def __init__(self):
@@ -70,6 +71,3 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     # copy kickstart
     if self.cvars['kickstart-file'] and self.cvars['ks-path']:
       self.image.write(self.cvars['kickstart-file'], self.cvars['ks-path'].dirname)
-
-
-EVENTS = {'installer': [XenImagesEvent]}

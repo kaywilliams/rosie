@@ -4,6 +4,7 @@ from dimsbuild.logging import L0
 from dimsbuild.modules.shared import ImageModifyMixin
 
 API_VERSION = 5.0
+EVENTS = {'installer': ['InitrdImageEvent']}
 
 class InitrdImageEvent(Event, ImageModifyMixin):
   def __init__(self):
@@ -55,6 +56,3 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     # copy kickstart file
     if self.cvars['kickstart-file'] and self.cvars['ks-path']:
       self.image.write(self.cvars['kickstart-file'], self.cvars['ks-path'].dirname)
-
-
-EVENTS = {'installer': [InitrdImageEvent]}

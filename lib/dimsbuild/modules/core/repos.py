@@ -7,6 +7,7 @@ from dimsbuild.validate import InvalidConfigError
 from dimsbuild.modules.shared import RepoEventMixin
 
 API_VERSION = 5.0
+EVENTS = {'setup': ['ReposEvent']}
 
 class ReposEvent(Event, RepoEventMixin):
   def __init__(self):
@@ -74,8 +75,6 @@ class ReposEvent(Event, RepoEventMixin):
         self.cvars['anaconda-version'] = get_anaconda_version(repo.pkgsfile)
 
     self.cvars['repos'] = self.repocontainer
-
-EVENTS = {'setup': [ReposEvent]}
 
 
 #------ HELPER FUNCTIONS ------#

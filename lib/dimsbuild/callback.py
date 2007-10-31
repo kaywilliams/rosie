@@ -37,7 +37,7 @@ class SyncCallback(_SyncCallbackMetered):
     self.relpath = relpath
 
     if not self.logger.test(3):
-      self.bar._fo = None # turn off progressbar output
+      self.enabled = False # turn off progressbar output
 
   # sync callbacks - kinda hackish
   def start(self, src, dest):

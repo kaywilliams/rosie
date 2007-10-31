@@ -2,6 +2,7 @@ from dimsbuild.event   import Event, CLASS_META, PROTECT_SKIP, PROTECT_ENABLED
 from dimsbuild.logging import L1
 
 API_VERSION = 5.0
+EVENTS = {'ALL': ['InitEvent', 'SetupEvent']}
 
 class InitEvent(Event):
   def __init__(self):
@@ -30,6 +31,3 @@ class SetupEvent(Event):
       comes_after = ['init'],
       conditionally_comes_after = ['autoclean'],
     )
-
-
-EVENTS = {'ALL': [InitEvent, SetupEvent]}

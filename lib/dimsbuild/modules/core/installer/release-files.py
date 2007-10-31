@@ -9,6 +9,7 @@ from dimsbuild.modules.shared import ExtractMixin, RpmNotFoundError
 P = pps.Path
 
 API_VERSION = 5.0
+EVENTS = {'installer': ['ReleaseFilesEvent']}
 
 class ReleaseFilesEvent(Event, ExtractMixin):
   def __init__(self):
@@ -76,6 +77,3 @@ class ReleaseFilesEvent(Event, ExtractMixin):
         if len(rpmset) == 0:
           raise RpmNotFoundError("missing release RPM(s)")
     return rpmset
-
-
-EVENTS = {'installer': [ReleaseFilesEvent]}

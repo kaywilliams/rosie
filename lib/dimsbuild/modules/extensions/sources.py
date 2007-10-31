@@ -4,13 +4,12 @@ sources.py
 downloads srpms
 """
 import os
-import re
 import rpm
 import stat
 
 from dims import pps
 
-from dimsbuild.constants import SRPM_PNVRA, SRPM_REGEX
+from dimsbuild.constants import SRPM_PNVRA_REGEX, SRPM_REGEX
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L0, L1, L2
 from dimsbuild.validate  import InvalidConfigError
@@ -20,8 +19,7 @@ from dimsbuild.modules.shared import CreateRepoMixin, RepoEventMixin
 P = pps.Path
 
 API_VERSION = 5.0
-
-SRPM_PNVRA_REGEX = re.compile(SRPM_PNVRA)
+EVENTS = {'setup': ['SourceReposEvent'], 'ALL': ['SourcesEvent']}
 
 class SourceReposEvent(Event, RepoEventMixin):
   "Downloads and reads the primary.xml.gz for each of the source repositories."
@@ -158,5 +156,3 @@ class SourcesEvent(Event, CreateRepoMixin):
     except (AttributeError, IndexError), e:
       self.log(4, L2("DEBUG: Unable to extract srpm information from name '%s'" % srpm))
       return (None, None, None, None, None)
-
-EVENTS = {'setup': [SourceReposEvent], 'ALL': [SourcesEvent]}

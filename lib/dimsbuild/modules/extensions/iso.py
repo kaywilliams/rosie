@@ -11,6 +11,7 @@ from dimsbuild.logging     import L0, L1, L2, L3
 from dimsbuild.modules.shared import ListCompareMixin, BootConfigMixin
 
 API_VERSION = 5.0
+EVENTS = {'ALL': ['IsoMetaEvent'], 'ISO': ['PkgorderEvent', 'IsoSetsEvent']}
 
 YUMCONF = ''' 
 [main]
@@ -230,5 +231,3 @@ class IsoSetsEvent(Event, ListCompareMixin, BootConfigMixin):
         isolinux_path.utime((i_st.st_atime, i_st.st_mtime))
 
     self.DATA['output'].extend([self.splittrees/set, self.isodir/set])
-
-EVENTS = {'ALL': [IsoMetaEvent], 'ISO': [PkgorderEvent, IsoSetsEvent]}
