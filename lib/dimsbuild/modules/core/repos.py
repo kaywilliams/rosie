@@ -15,6 +15,7 @@ class ReposEvent(Event, RepoEventMixin):
       id = 'repos',
       provides = ['anaconda-version',
                   'logos-versions',
+                  'release-versions',
                   'repos',         # provided by repos and localrepo events
                   'input-repos',   # provided by repos event only, used by release-rpm
                   'base-repoid',],
@@ -64,22 +65,31 @@ class ReposEvent(Event, RepoEventMixin):
 
       repo._read_repo_content(repofile=repo.pkgsfile)
 
-      # get the logos version, if any in repo
-      logos_version = get_logos_version(repo.pkgsfile)
-      if logos_version is not None:
-        name, version = logos_version
-        self.cvars.setdefault('logos-versions', []).append((name, '==', version))
-
       # get anaconda_version, if base repo
       if repo.id == self.cvars['base-repoid']:
-        self.cvars['anaconda-version'] = get_anaconda_version(repo.pkgsfile)
+        anaconda_version = get_package_version(['anaconda'], repo.pkgsfile)
+        if anaconda_version is not None:
+          name, version = anaconda_version
+          self.cvars['anaconda-version'] = version
+        else:
+          raise ValueError("unable to compute anaconda version from distro metadata")
+
+      # get logos and release versions, if any in repo
+      pkgs = {'logos-versions': ['fedora-logos', 'centos-logos', 'redhat-logos'],
+              'release-versions': ['fedora-release', 'centos-release', 'redhat-release']}
+
+      for pkg in pkgs: 
+        pkg_version = get_package_version(pkgs[pkg], repo.pkgsfile)
+        if pkg_version is not None:
+          name, version = pkg_version
+          self.cvars.setdefault(pkg, []).append((name, '==', version))
 
     self.cvars['repos'] = self.repocontainer
 
 
 #------ HELPER FUNCTIONS ------#
-def get_logos_version(file):
-  scan = re.compile('(?:.*/)?(fedora-logos|centos-logos|redhat-logos)'
+def get_package_version(names, file):
+  scan = re.compile('(?:.*/)?(' + "|".join(names) + ')'
                     '-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
   fl = file.read_lines()
   for rpm in fl:
@@ -91,23 +101,6 @@ def get_logos_version(file):
         pass
   return None
 
-def get_anaconda_version(file):
-  scan = re.compile('(?:.*/)?anaconda-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
-  version = None
-
-  fl = file.read_lines()
-  for rpm in fl:
-    match = scan.match(rpm)
-    if match:
-      try:
-        version = match.groups()[0]
-      except (AttributeError, IndexError), e:
-        pass
-      break
-  if version is not None:
-    return version
-  else:
-    raise ValueError("unable to compute anaconda version from distro metadata")
 
 #------ ERRORS ------#
 class RepoNotFoundError(StandardError): pass

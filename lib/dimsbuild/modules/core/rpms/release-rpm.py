@@ -13,7 +13,7 @@ EVENTS = {'rpms': ['ReleaseRpmEvent']}
 class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
   def __init__(self):
     Event.__init__(self, id='release-rpm',
-                   requires=['source-vars', 'input-repos'],
+                   requires=['source-vars', 'input-repos', 'release-versions'],
                    provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
                    conditionally_requires=['web-path', 'gpgsign-public-key',])
     RpmBuildMixin.__init__(self,
@@ -58,7 +58,13 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     }
 
   def setup(self):
-    self._setup_build()
+    obsoletes = ' '.join([ '%s %s %s' %(n,e,v)
+                            for n,e,v in self.cvars.get('release-versions', [])])
+    provides = ' '.join([ '%s %s %s' % (n,e,v)
+                            for _,e,v in self.cvars.get('release-versions', [])]) 
+    provides += ' ' + ' '.join([ 'redhat-release %s %s' % (e,v)
+                            for _,e,v in self.cvars.get('release-versions', [])])
+    self._setup_build(obsoletes=obsoletes, provides=provides)
     self._setup_download()
 
     self.setColors(prefix='#')
