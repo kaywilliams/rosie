@@ -65,12 +65,6 @@
       </optional>
       
       <optional>
-      <attribute name="core">
-        <ref name="value-boolean"/>
-      </attribute>
-      </optional>
-      
-      <optional>
       <attribute name="default">
           <ref name="value-boolean"/>
       </attribute>
