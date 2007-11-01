@@ -13,7 +13,7 @@ class CreateRepoMixin:
   # For now the list of files are hardcoded in the following two
   # lists. If in the future, the names of the files changes, we can
   # move them to a local dictionary.
-  XML_FILES = ['repodata/filelists.xml.gz'o,
+  XML_FILES = ['repodata/filelists.xml.gz',
                'repodata/other.xml.gz',
                'repodata/primary.xml.gz',
                'repodata/repomd.xml']
