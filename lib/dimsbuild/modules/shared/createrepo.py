@@ -1,7 +1,7 @@
 import os
 import sys
 
-from dims import shlib
+from dims import execlib
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.logging   import L1
@@ -13,7 +13,7 @@ class CreateRepoMixin:
   # For now the list of files are hardcoded in the following two
   # lists. If in the future, the names of the files changes, we can
   # move them to a local dictionary.
-  XML_FILES = ['repodata/filelists.xml.gz',
+  XML_FILES = ['repodata/filelists.xml.gz'o,
                'repodata/other.xml.gz',
                'repodata/primary.xml.gz',
                'repodata/repomd.xml']
@@ -50,8 +50,8 @@ class CreateRepoMixin:
     cwd = os.getcwd()
     os.chdir(path)
     try:
-      shlib.execute(' '.join(args))
-    except shlib.ShExecError, e:
+      execlib.execute(' '.join(args))
+    except execlib.ExecuteError, e:
       self.log(0,
         "An unhandled exception has occurred while running 'createrepo' "
         "in the '%s' event. If the version of createrepo installed on your "
