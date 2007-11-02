@@ -17,7 +17,10 @@ class VerifyObject(unittest.TestCase):
     self.ptr = ptr
     self.logger = self.ptr.logger
     self.method_prefix = 'verify_'
-  
+
+  def shortDescription(self):
+    return self._testMethodDoc.split('\n')[0].strip() or None
+
   def unittest(self):
     methods = [] # list of methods to run
     for attr in dir(self.ptr):
