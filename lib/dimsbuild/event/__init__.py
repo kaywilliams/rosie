@@ -6,7 +6,7 @@ from dims import dispatch
 from dims import sync
 from dims.xmllib import tree
 
-from dimsbuild.logging import L0
+from dimsbuild.logging import L0, L1
 
 from dimsbuild.event.diff   import DiffMixin
 from dimsbuild.event.fileio import IOMixin
@@ -67,7 +67,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
 
   # execution methods
   def execute(self):
-    self.log(4, L0('running %s' % self.id))
+    self.log(1, L0('%s' % self.id))
     try:
       if (self.mddir/'debug').exists():
         self.log(5, L0('removing %s/debug folder' % self.mddir))

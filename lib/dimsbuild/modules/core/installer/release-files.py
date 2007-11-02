@@ -2,7 +2,6 @@ from dims import pps
 
 from dimsbuild.constants import BOOLEANS_TRUE, SRPM_REGEX
 from dimsbuild.event     import Event
-from dimsbuild.logging   import L0
 
 from dimsbuild.modules.shared import ExtractMixin, RpmNotFoundError
 
@@ -31,7 +30,6 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     self.diff.setup(self.DATA)
     
   def run(self):
-    self.log(0, L0("synchronizing release files to distribution tree"))
     self._extract()
 
   def apply(self):

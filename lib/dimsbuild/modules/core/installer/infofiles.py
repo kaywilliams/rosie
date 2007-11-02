@@ -12,7 +12,6 @@ from ConfigParser import ConfigParser
 from dims import FormattedFile as ffile
 
 from dimsbuild.event   import Event
-from dimsbuild.logging import L0
 
 API_VERSION = 5.0
 EVENTS = {'installer': ['DiscinfoEvent', 'TreeinfoEvent', 'BuildstampEvent']}
@@ -37,8 +36,6 @@ class DiscinfoEvent(Event):
     self.diff.setup(self.DATA)
   
   def run(self):
-    self.log(0, L0("generating .discinfo"))
-    
     # create empty .discinfo formatted file object
     discinfo = ffile.DictToFormattedFile(self.locals.discinfo_fmt)
     
@@ -82,7 +79,6 @@ class TreeinfoEvent(Event):
     self.diff.setup(self.DATA)
   
   def run(self):
-    self.log(0, L0("generating .treeinfo"))
     treeinfo = ConfigParser()
     
     # generate treeinfo sections
@@ -145,7 +141,6 @@ class BuildstampEvent(Event):
     
   def run(self):
     "Generate a .buildstamp file."
-    self.log(0, L0("generating .buildstamp"))
     
     buildstamp = ffile.DictToFormattedFile(self.locals.buildstamp_fmt)
     

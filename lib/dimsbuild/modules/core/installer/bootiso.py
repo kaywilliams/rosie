@@ -1,7 +1,6 @@
 from dims import shlib
 
 from dimsbuild.event   import Event
-from dimsbuild.logging import L0
 
 from dimsbuild.modules.shared import BootConfigMixin
 
@@ -38,8 +37,6 @@ class BootisoEvent(Event, BootConfigMixin):
     self.bootconfig.setup(defaults=boot_arg_defaults)
   
   def run(self):
-    self.log(0, L0("generating boot.iso"))
-    
     isodir = self.SOFTWARE_STORE/'images/isopath'
     isolinuxdir = isodir/'isolinux'
     

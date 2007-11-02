@@ -1,6 +1,5 @@
 from dimsbuild.constants import RPM_REGEX
 from dimsbuild.event     import Event
-from dimsbuild.logging   import L0
 
 from dimsbuild.modules.shared import CreateRepoMixin
 
@@ -42,7 +41,6 @@ class CreaterepoEvent(Event, CreateRepoMixin):
     self.io.setup_sync(self.cvars['rpms-directory'], paths=paths, id='rpms')
 
   def run(self):
-    self.log(0, L0("creating repository metadata"))
     self.io.sync_input(link=True)
 
     # remove all obsolete RPMs

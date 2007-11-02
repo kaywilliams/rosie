@@ -3,7 +3,6 @@ from StringIO import StringIO
 from dims import pps
 
 from dimsbuild.event   import Event
-from dimsbuild.logging import L0
 
 from dimsbuild.modules.shared import ImageModifyMixin, BootConfigMixin
 
@@ -56,7 +55,6 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     ImageModifyMixin.setup(self)
     
   def run(self):
-    self.log(0, L0("preparing diskboot image"))
     self.io.clean_eventcache(all=True)
     self._modify()
   

@@ -11,7 +11,7 @@ from dims import pps
 
 from dimsbuild.constants import SRPM_PNVRA_REGEX, SRPM_REGEX
 from dimsbuild.event     import Event
-from dimsbuild.logging   import L0, L1, L2
+from dimsbuild.logging   import L1, L2
 from dimsbuild.validate  import InvalidConfigError
 
 from dimsbuild.modules.shared import CreateRepoMixin, RepoEventMixin
@@ -49,8 +49,6 @@ class SourceReposEvent(Event, RepoEventMixin):
     self.read_config(repos='repo', files='repofiles')
 
   def run(self):
-    self.log(0, L0("setting up input source repositories"))
-
     self.log(1, L1("downloading information about source packages"))
     self.sync_repodata()
 
@@ -124,8 +122,6 @@ class SourcesEvent(Event, CreateRepoMixin):
     self.io.setup_sync(self.srpmdest, paths=paths, id='srpms')
 
   def run(self):
-    self.log(0, L0("retrieving source RPMs for distribution RPMs"))
-
     self.log(1, L1("processing srpms"))
     self.srpmdest.mkdirs()
     self.io.sync_input(cache=True)

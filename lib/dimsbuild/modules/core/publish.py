@@ -8,7 +8,7 @@ from dims import shlib
 from dimsbuild.callback  import FilesCallback
 from dimsbuild.constants import *
 from dimsbuild.event     import Event
-from dimsbuild.logging   import L0
+from dimsbuild.logging   import L1
 
 P = pps.Path
 
@@ -88,7 +88,7 @@ class PublishEvent(Event):
 
   def run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
-    self.log(0, L0("publishing output store"))
+    self.log(1, L1("publishing to %s" % self.cvars['publish-path']))
     self.cvars['publish-path'].rm(recursive=True, force=True)
     
     self.io.sync_input(link=True,

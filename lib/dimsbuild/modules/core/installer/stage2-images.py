@@ -1,5 +1,4 @@
 from dimsbuild.event   import Event
-from dimsbuild.logging import L0
 
 from dimsbuild.modules.shared import FileDownloadMixin
 
@@ -27,7 +26,6 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
     FileDownloadMixin.setup(self)
   
   def run(self):
-    self.log(0, L0("synchronizing stage2 images"))
     self._download()
     self.diff.write_metadata()
   

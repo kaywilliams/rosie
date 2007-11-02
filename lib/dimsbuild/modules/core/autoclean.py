@@ -1,7 +1,7 @@
 from dims import xmllib
 
 from dimsbuild.event   import Event
-from dimsbuild.logging import L0, L2, L3
+from dimsbuild.logging import L2, L3
 
 API_VERSION = 5.0
 EVENTS = {'ALL': ['AutocleanEvent']}
@@ -18,7 +18,6 @@ class AutocleanEvent(Event):
     self.eventinfo = {}
   
   def setup(self):
-    self.log(0, L0("performing automatic distribution cleanup"))
     for event in self._getroot():
       self.eventinfo[event.id] = event
       self.DATA['events'].update({event.id: str(event.event_version)})

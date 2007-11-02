@@ -3,7 +3,6 @@ from dims import shlib
 
 from dimsbuild.constants import SRPM_REGEX
 from dimsbuild.event     import Event
-from dimsbuild.logging   import L0
 from dimsbuild.magic     import (FILE_TYPE_JPG, FILE_TYPE_LSS, FILE_TYPE_PNG,
                                  match as magic_match)
 
@@ -42,7 +41,6 @@ class LogosEvent(Event, ExtractMixin):
     self.diff.setup(self.DATA)
 
   def run(self):
-    self.log(0, L0("embedding distribution-specific branding images into installer"))
     self._extract()
 
   def apply(self):

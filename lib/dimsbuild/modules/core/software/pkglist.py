@@ -10,7 +10,7 @@ from dims.depsolver import DepSolver
 
 from dimsbuild.callback  import BuildDepsolveCallback
 from dimsbuild.event     import Event
-from dimsbuild.logging   import L0, L1
+from dimsbuild.logging   import L1
 
 P = pps.Path
 
@@ -69,7 +69,6 @@ class PkglistEvent(Event):
     self.DATA['input'].extend(self.rddirs)
 
   def run(self):
-    self.log(0, L0("resolving package list"))
     self.io.clean_eventcache()
 
     # copy pkglist

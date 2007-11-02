@@ -6,7 +6,7 @@ from dimsbuild import splittree
 from dimsbuild.callback    import BuildDepsolveCallback
 from dimsbuild.constants   import BOOLEANS_TRUE
 from dimsbuild.event       import Event, CLASS_META
-from dimsbuild.logging     import L0, L1, L2, L3
+from dimsbuild.logging     import L1, L2, L3
 
 from dimsbuild.modules.shared import ListCompareMixin, BootConfigMixin
 
@@ -63,9 +63,7 @@ class PkgorderEvent(Event):
       self.pkgorderfile = self.mddir/'pkgorder'
       self.DATA['output'].append(self.pkgorderfile)
   
-  def run(self):
-    self.log(0, L0("processing pkgorder file"))
-    
+  def run(self):  
     # delete prior pkgorder file, if exists    
     self.io.clean_eventcache(all=True)
     if self.dosync:
@@ -139,8 +137,6 @@ class IsoSetsEvent(Event, ListCompareMixin, BootConfigMixin):
     self.bootconfig.setup(defaults=default_boot_args)
   
   def run(self):
-    self.log(0, L0("processing iso image(s)"))
-    
     oldsets = None
     
     # remove oldsets if pkgorder file or srpms changed

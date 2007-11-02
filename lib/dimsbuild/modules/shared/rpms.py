@@ -9,7 +9,7 @@ from dims import xmllib
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event, EventExit
-from dimsbuild.logging   import L0, L1
+from dimsbuild.logging   import L1
 from dimsbuild.misc      import locals_imerge
 
 __all__ = ['InputFilesMixin', 'LocalFilesMixin', 'ColorMixin', 'RpmBuildMixin']
@@ -162,8 +162,6 @@ class RpmBuildMixin:
 
   def _build_rpm(self):
     self._check_release()
-    self.log(0, L0("building %s-%s-%s.%s.rpm" % (self.rpmname, self.version,
-                                                 self.release, self.arch)))
     self._build()
     self._save_release()
     self._add_output()
@@ -237,6 +235,8 @@ class RpmBuildMixin:
     self._generate()
     self._write_spec()
     self._write_manifest()
+    self.log(1, L1("building %s-%s-%s.%s.rpm" % (self.rpmname, self.version,
+                                                 self.release, self.arch)))
     mkrpm.build(self.build_folder,
                 self.mddir,
                 createrepo=False,

@@ -5,7 +5,7 @@ from dims import sortlib
 from dims import xmllib
 
 from dimsbuild.event     import Event
-from dimsbuild.logging   import L0, L1
+from dimsbuild.logging   import L1
 from dimsbuild.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
 
 API_VERSION = 5.0
@@ -68,8 +68,6 @@ class CompsEvent(Event):
                                  self.groupfiles])
 
   def run(self):
-    self.log(0, L0("processing components file"))
-
     self.io.clean_eventcache(all=True)
 
     if self.comps_supplied: # download comps file

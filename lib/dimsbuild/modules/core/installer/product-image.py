@@ -5,7 +5,6 @@ from dims import sortlib
 from dims import xmllib
 
 from dimsbuild.event   import Event
-from dimsbuild.logging import L0
 
 from dimsbuild.modules.shared import ImageModifyMixin
 
@@ -48,7 +47,6 @@ class ProductImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin.setup(self)
   
   def run(self):
-    self.log(0, L0("generating product.img"))
     self._modify()
   
   def apply(self):

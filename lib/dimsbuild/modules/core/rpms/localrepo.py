@@ -3,7 +3,7 @@ import os
 from dims import shlib
 
 from dimsbuild.event   import Event
-from dimsbuild.logging import L0, L1, L2
+from dimsbuild.logging import L1, L2
 from dimsbuild.repo    import RepoContainer
 
 API_VERSION = 5.0
@@ -51,7 +51,6 @@ class LocalRepoEvent(Event):
     self.cvars.setdefault('source-repos', {})
 
   def run(self):
-    self.log(0, L0("creating local repository for distribution-specific packages"))
     # remove previous output
     self.io.clean_eventcache(all=True)
 

@@ -5,7 +5,6 @@ Includes user-provided files and folders within the distribution folder.
 """
 
 from dimsbuild.event   import Event
-from dimsbuild.logging import L0
 
 API_VERSION = 5.0
 EVENTS = {'OS': ['FilesEvent']}
@@ -28,7 +27,6 @@ class FilesEvent(Event):
     self.io.setup_sync(self.SOFTWARE_STORE, xpaths=['path'])
 
   def run(self):
-    self.log(0, L0("processing user-provided files"))
     self.io.sync_input(cache=True)
     self.diff.write_metadata()
 

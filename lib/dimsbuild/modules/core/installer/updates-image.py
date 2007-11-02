@@ -1,5 +1,4 @@
 from dimsbuild.event   import Event
-from dimsbuild.logging import L0
 
 from dimsbuild.modules.shared import ImageModifyMixin
 
@@ -36,7 +35,6 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin.setup(self)
   
   def run(self):
-    self.log(0, L0("generating updates.img"))
     self._modify()
     
   def apply(self):

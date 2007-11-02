@@ -5,7 +5,7 @@ from dims.mkrpm import GpgMixin
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event
-from dimsbuild.logging   import L0, L1, L2
+from dimsbuild.logging   import L1, L2
 
 API_VERSION = 5.0
 EVENTS = {'setup': ['GpgSetupEvent'], 'software': ['GPGSignEvent']}

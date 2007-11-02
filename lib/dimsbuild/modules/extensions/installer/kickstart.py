@@ -1,7 +1,6 @@
 from dims import pps
 
 from dimsbuild.event   import Event
-from dimsbuild.logging import L0
 
 API_VERSION = '5.0'
 EVENTS = {'installer': ['KickstartEvent']}
@@ -24,7 +23,6 @@ class KickstartEvent(Event):
     self.io.setup_sync(self.mddir, id='kickstart-file', xpaths=['.'])
   
   def run(self):
-    self.log(0, L0("synchronizing kickstart file"))
     self.io.sync_input(cache=True)
     self.diff.write_metadata()
   

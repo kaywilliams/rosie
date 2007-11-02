@@ -3,7 +3,7 @@ import csv
 from dims.pps.constants import TYPE_NOT_DIR
 
 from dimsbuild.event    import Event, CLASS_META
-from dimsbuild.logging  import L0, L1
+from dimsbuild.logging  import L1
 
 API_VERSION = 5.0
 EVENTS = {'ALL': ['OSMetaEvent'], 'OS': ['OSComposeEvent']}
@@ -53,8 +53,6 @@ class OSComposeEvent(Event):
             self.io.setup_sync(self.osdir, paths=path, id=event.id)
 
   def run(self):
-    self.log(0, L0("composing os tree"))
-
     # create composed tree
     self.log(1, L1("linking files"))
     backup = self.files_callback.sync_start

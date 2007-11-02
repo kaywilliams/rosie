@@ -2,7 +2,7 @@ from dims import mkrpm
 from dims import shlib
 
 from dimsbuild.event   import Event
-from dimsbuild.logging import L0, L1, L2
+from dimsbuild.logging import L1, L2
 
 API_VERSION = 5.0
 EVENTS = {'software': ['GpgCheckEvent']}
@@ -40,9 +40,7 @@ class GpgCheckEvent(Event):
     self.io.setup_sync(self.mddir, paths=self.keys, id='keys')
     self.DATA['variables'].append('checks')
   
-  def run(self):
-    self.log(0, L0("checking GPG keys on packages"))
-    
+  def run(self):   
     if not self.checks:
       self.io.clean_eventcache(all=True) # remove old keys
       self.diff.write_metadata()

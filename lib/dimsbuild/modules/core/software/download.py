@@ -7,7 +7,7 @@ from dims import pps
 
 from dimsbuild.constants import RPM_PNVRA_REGEX
 from dimsbuild.event     import Event
-from dimsbuild.logging   import L0, L2
+from dimsbuild.logging   import L2
 
 API_VERSION = 5.0
 EVENTS = {'software': ['DownloadEvent']}
@@ -55,7 +55,6 @@ class DownloadEvent(Event):
     self.io.setup_sync(self.builddata_dest, paths=self.input_rpms)
 
   def run(self):
-    self.log(0, L0("downloading packages"))
     self.io.sync_input(link=True, cache=True)
     self.diff.write_metadata()
 

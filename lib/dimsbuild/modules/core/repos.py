@@ -1,7 +1,7 @@
 import re
 
 from dimsbuild.event    import Event
-from dimsbuild.logging  import L0, L1, L2
+from dimsbuild.logging  import L1, L2
 from dimsbuild.validate import InvalidConfigError
 
 from dimsbuild.modules.shared import RepoEventMixin
@@ -47,7 +47,6 @@ class ReposEvent(Event, RepoEventMixin):
     self.read_config(repos='repo', files='repofile')
 
   def run(self):
-    self.log(0, L0("setting up input repositories"))
     self.sync_repodata()
 
     # process available package lists

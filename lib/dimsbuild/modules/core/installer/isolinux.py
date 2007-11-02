@@ -1,5 +1,4 @@
 from dimsbuild.event   import Event
-from dimsbuild.logging import L0
 
 from dimsbuild.modules.shared import FileDownloadMixin
 
@@ -29,10 +28,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     FileDownloadMixin.setup(self)
   
   def run(self):
-    self.log(0, L0("synchronizing isolinux files"))
-
     self._download()
-
     self.diff.write_metadata()
   
   def apply(self):

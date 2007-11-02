@@ -8,7 +8,6 @@ from dims import img
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event
-from dimsbuild.logging   import L0
 
 API_VERSION = 5.0
 EVENTS = {'setup': ['SourceVarsEvent']}
@@ -48,8 +47,6 @@ class SourceVarsEvent(Event):
     self.DATA['output'].append(self.buildstamp_out)
 
   def run(self):
-    self.log(0, L0("computing source variables"))
-
     # download input files
     self.io.sync_input(cache=True)
 
