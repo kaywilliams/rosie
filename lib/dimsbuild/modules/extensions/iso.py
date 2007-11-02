@@ -92,11 +92,12 @@ class PkgorderEvent(Event):
   
   def apply(self):
     self.io.clean_eventcache()
-    if not self.pkgorderfile.exists():
-      raise RuntimeError("Unable to find cached pkgorder at '%s'.  "
-                         "Perhaps you are skipping the pkgorder event "
-                         "before it has been allowed to run once?" % self.pkgorderfile)
     self.cvars['pkgorder-file'] = self.pkgorderfile
+  
+  def verify_pkgorder_exists(self):
+    "verify pkgorder file exists"
+    self.verifier.failUnless(self.pkgorderfile.exists(),
+      "unable to find pkgorder file at '%s'" % self.pkgorderfile)
 
 
 class IsoSetsEvent(Event, ListCompareMixin, BootConfigMixin):

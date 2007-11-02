@@ -11,6 +11,7 @@ from dimsbuild.logging import L0, L1
 from dimsbuild.event.diff   import DiffMixin
 from dimsbuild.event.fileio import IOMixin
 from dimsbuild.event.locals import LocalsMixin
+from dimsbuild.event.verify import VerifyMixin
 
 # Constant (re)definitions
 CLASS_DEFAULT = dispatch.CLASS_DEFAULT
@@ -28,7 +29,7 @@ STATUS_FORCE = True
 STATUS_SKIP  = False
 
 
-class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
+class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   """
   The Event superclass also has quite a few attributes set up by main.py
   - these attributes are shared across all Event subclasses, but are
@@ -43,6 +44,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
     IOMixin.__init__(self)
     DiffMixin.__init__(self)
     LocalsMixin.__init__(self)
+    VerifyMixin.__init__(self)
 
   status = property(lambda self: self._status,
                     lambda self, status: self._apply_status(status))
@@ -84,6 +86,8 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin):
           self.run()
       self.log(5, L0('running %s.apply()' % self.id))
       self.apply()
+      self.log(5, L0('running %s.verify()' % self.id))
+      self.verify()
     except EventExit, e:
       self._handle_EventExit(e)
     except KeyboardInterrupt, e:

@@ -216,15 +216,19 @@ class RpmBuildMixin:
     rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % (self.rpmname, self.version,
                                                self.release, self.arch)
     srpm = self.mddir/'SRPMS/%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release)
-    if not rpm.exists():
-      raise RuntimeError("missing rpm: '%s' at '%s'" % (rpm.basename, rpm.dirname))
-    else:
-      self.cvars['custom-rpms'].append(rpm)
+    self.cvars['custom-rpms'].append(rpm)
+    self.cvars['custom-srpms'].append(srpm)
 
-    if not srpm.exists():
-      raise RuntimeError("missing srpm: '%s' at '%s'" % (srpm.basename, srpm.dirname))
-    else:
-      self.cvars['custom-srpms'].append(srpm)
+  def verify_rpm_exists(self):
+    "rpm exists"
+    rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % (self.rpmname, self.version,
+                                               self.release, self.arch)
+    self.verifier.failUnless(rpm.exists(), "unable to find rpm at '%s'" % rpm)
+  
+  def verify_srpm_exists(self):
+    "srpm exists"
+    srpm = self.mddir/'SRPMS/%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release)
+    self.verifier.failUnless(srpm.exists(), "unable to find srpm at '%s'" % srpm)
 
   def _generate(self):   pass
   def _getiscript(self): return None

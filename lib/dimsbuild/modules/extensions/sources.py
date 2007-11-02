@@ -62,13 +62,14 @@ class SourceReposEvent(Event, RepoEventMixin):
     self.io.clean_eventcache()
 
     for repo in self.repocontainer.values():
-      if not repo.pkgsfile.exists():
-        raise RuntimeError("Unable to find cached file at '%s'. Perhaps you "
-                           "are skipping %s before it has been allowed "
-                           "to run once?" % (repo.pkgsfile, self.id))
       repo._read_repo_content(repofile=repo.pkgsfile)
 
     self.cvars['source-repos'] = self.repocontainer
+  
+  def verify_pkgsfiles_exist(self):
+    for repo in self.repocontainer.values():
+      self.failUnless(repo.pkgsfile.exists(),
+        "unable to find pkgsfile at '%s'" % repo.pkgsfile)
 
 
 class SourcesEvent(Event, CreateRepoMixin):

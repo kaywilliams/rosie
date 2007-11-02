@@ -128,6 +128,14 @@ class ImageModifyMixin:
     return not self._validate_image() or \
            self.diff.test_diffs()
   
+  def apply(self):
+    self.io.clean_eventcache()
+  
+  def verify_output_exists(self):
+    "verify all output exists"
+    for file in self.io.list_output():
+      self.verifier.failUnless(file.exists(), "unabled to find file '%s" % file)
+  
   def _open(self):
     if self.virtual:
       if self.path.exists(): self.path.remove() # delete old image
@@ -202,6 +210,14 @@ class FileDownloadMixin:
       self.io.setup_sync(
         (self.SOFTWARE_STORE/linfix).dirname, id='FileDownloadMixin',
         paths=[self.cvars['repos'][self.cvars['base-repoid']].osdir/rinfix])
+  
+  def apply(self):
+    self.io.clean_eventcache()
+  
+  def verify_output_exists(self):
+    "verify all output exists"
+    for file in self.io.list_output():
+      self.verifier.failUnless(file.exists(), "unabled to find file '%s" % file)
   
   def _download(self):
     self.io.sync_input(what='FileDownloadMixin', cache=True)

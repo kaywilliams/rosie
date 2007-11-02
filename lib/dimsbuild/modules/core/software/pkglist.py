@@ -127,9 +127,12 @@ class PkglistEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
-    if not self.pkglistfile.exists():
-      raise RuntimeError("missing package list file: '%s'" % self.pkglistfile)
     self.cvars['pkglist'] = self.pkglistfile.read_lines()
+  
+  def verify_pkglistfile_exists(self):
+    "pkglist file exists"
+    self.verifier.failUnless(self.pkglistfile.exists(),
+      "missing package list file '%s'" % self.pkglistfile)
 
   def _create_repoconfig(self):
     repoconfig = self.mddir / 'depsolve.repo'

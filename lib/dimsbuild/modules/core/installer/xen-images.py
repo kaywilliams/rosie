@@ -58,9 +58,6 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
 
   def apply(self):
     self.io.clean_eventcache()
-    for file in self.io.list_output():
-      if not file.exists():
-        raise RuntimeError("Unable to find '%s' in '%s'" % (file.basename, file.dirname))
 
   def _generate(self):
     ImageModifyMixin._generate(self)

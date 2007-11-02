@@ -33,9 +33,6 @@ class IsolinuxEvent(Event, FileDownloadMixin):
   
   def apply(self):
     self.io.clean_eventcache()
-    for file in self.io.list_output():
-      if not file.exists():
-        raise RuntimeError("Unable to find '%s'" % file)
     
     self.cvars['isolinux-files'] = {}
     for k,v in self.file_locals.items():

@@ -51,11 +51,6 @@ class CompsEvent(Event):
 
       self.io.setup_sync(self.mddir, id='comps.xml', xpaths=[xpath])
 
-      # ensure exactly only one item returned above
-      if len(self.io.list_output(what='comps.xml')) != 1:
-        raise RuntimeError("The path specified at '%s' expands to multiple "
-                           "items.  Only one comps file is allowed." % xpath)
-
     else:
       self.comps_out = self.mddir/'comps.xml'
       self.groupfiles = self._get_groupfiles()
@@ -92,15 +87,20 @@ class CompsEvent(Event):
     else:
       self.cvars['comps-file'] = self.comps_out
 
-    # verify comps-file exists
-    if not self.cvars['comps-file'].exists():
-      raise RuntimeError("Unable to find cached comps file at '%s'.  "
-                         "Perhaps you are skipping comps before "
-                         "it has been allowed to run once?" % self.cvars['comps-file'])
-
     # set required packages variable
     self.cvars['required-packages'] = \
       xmllib.tree.read(self.cvars['comps-file']).xpath('//packagereq/text()')
+  
+  # output verification
+  def verify_comps_xpath(self):
+    "user-specifed comps xpath query"
+    self.verifier.failUnless(len(self.io.list_output(what='comps.xml')) < 2,
+      "more than one user-specified comps file; using the first one only")
+
+  def verify_cvar_comps_file(self):
+    "cvars['comps-file'] exists"
+    self.verifier.failUnless(self.cvars['comps-file'].exists(),
+      "unable to find comps.xml file at '%s'" % self.cvars['comps-file'])
 
 
   #------ COMPS FILE GENERATION METHODS ------#

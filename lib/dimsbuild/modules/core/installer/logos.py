@@ -45,14 +45,20 @@ class LogosEvent(Event, ExtractMixin):
 
   def apply(self):
     self.io.clean_eventcache()
-    if not self.splash.exists():
-      raise RuntimeError("missing file: '%s'" % self.splash)
-    if not self._validate_splash():
-      raise RuntimeError("'%s' is not a valid '%s' file" %(self.splash, self.format))
+    
     self.cvars['installer-splash'] = self.splash
-
     self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
       (self.mddir/'pixmaps').listdir())
+
+  def verify_splash_exists(self):
+    "splash image exists"
+    self.verifier.failUnless(self.splash.exists(),
+      "missing file: '%s'" % self.splash)
+  
+  def verify_splash_valid(self):
+    "splash image is valid"
+    self.verifier.failUnless(self._validate_splash(),
+      "'%s' is not a valid %s file" % (self.splash, self.format))
 
   def _generate(self, working_dir):
     "Create the splash image and copy it to the isolinux/ folder"

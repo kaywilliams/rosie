@@ -54,9 +54,11 @@ class DiscinfoEvent(Event):
   
   def apply(self):
     self.io.clean_eventcache()
-    if not self.difile.exists():
-      raise RuntimeError("Unable to find .discinfo file at '%s'" % self.difile)
-    self.diff.write_metadata()
+  
+  def verify_discinfo_file_exists(self):
+    ".discinfo file exists"
+    self.verifier.failUnless(self.difile.exists(),
+      "unable to find .discinfo file at '%s'" % self.difile)
 
 
 class TreeinfoEvent(Event):
@@ -116,8 +118,11 @@ class TreeinfoEvent(Event):
   
   def apply(self):
     self.io.clean_eventcache()
-    if not self.tifile.exists():
-      raise RuntimeError("Unable to find .treeinfo file at '%s'" % self.tifile)
+  
+  def verify_treeinfo_file_exists(self):
+    ".treeinfo file exists"
+    self.verifier.failUnless(self.tifile.exists(),
+      "unable to find .treeinfo file at '%s'" % self.tifile)
 
 class BuildstampEvent(Event):
   def __init__(self):
@@ -154,6 +159,9 @@ class BuildstampEvent(Event):
     self.diff.write_metadata()
   
   def apply(self):
-    if not self.bsfile.exists():
-      raise RuntimeError("missing file '%s'" % self.bsfile)
     self.cvars['buildstamp-file'] = self.bsfile
+  
+  def verify_buildstamp_file_exists(self):
+    ".buildstamp file exists"
+    self.verifier.failUnless(self.bsfile.exists(),
+      "unable to find .buildstamp file at '%s'" % self.bsfile)

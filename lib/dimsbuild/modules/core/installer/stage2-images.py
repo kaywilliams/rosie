@@ -28,9 +28,3 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
   def run(self):
     self._download()
     self.diff.write_metadata()
-  
-  def apply(self):
-    self.io.clean_eventcache()
-    for file in self.io.list_output():
-      if not file.exists():
-        raise RuntimeError("Unable to find file '%s' at '%s'" % (file.basename, file.dirname))

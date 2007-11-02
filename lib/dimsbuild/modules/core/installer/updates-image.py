@@ -36,9 +36,3 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
   
   def run(self):
     self._modify()
-    
-  def apply(self):
-    self.io.clean_eventcache()
-    for file in self.io.list_output():
-      if not file.exists():
-        raise RuntimeError("Unable to find '%s' at '%s'" % (file.basename, file.dirname))

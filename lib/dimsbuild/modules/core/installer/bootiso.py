@@ -60,7 +60,7 @@ class BootisoEvent(Event, BootConfigMixin):
     
     self.diff.write_metadata()
   
-  def apply(self):
-    self.io.clean_eventcache()
-    if not self.bootiso.exists():
-      raise RuntimeError, "Unable to find boot.iso at '%s'" % self.bootiso
+  def verify_bootiso_exists(self):
+    "boot.iso exists"
+    self.verifier.failUnless(self.bootiso.exists(),
+      "unable to find boot.iso at '%s'" % self.bootiso)
