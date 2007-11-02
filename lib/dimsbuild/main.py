@@ -226,8 +226,7 @@ class Build(object):
       mainconfig.xpath('/dimsbuild/librarypaths/path/text()', []) ]
 
     if options.libpath:
-      options.libpath.extend(import_dirs)
-      import_dirs = [ P(x) for x in options.libpath ]
+      import_dirs = [ P(x) for x in options.libpath ] + import_dirs
     for dir in sys.path:
       if dir not in import_dirs:
         import_dirs.append(P(dir))

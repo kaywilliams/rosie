@@ -93,9 +93,8 @@ class BuildDepsolveCallback:
   def tscheck(self, unresolved=0):
     self.count = unresolved
     if self.logger.test(2):
-      if self.count == 1: msg = 'loop %d (%d package)'
-      else:               msg = 'loop %d (%d packages)'
-      self.bar = ProgressBar(size=self.count, title=L2(msg % (self.loop, self.count)),
+      msg = 'loop %d (%d package%s)' % (self.loop, self.count, self.count != 1 and 's' or '')
+      self.bar = ProgressBar(size=self.count, title=L2(msg),
                              layout='%(title)-28.28s [%(bar)s] %(ratio)9.9s (%(time-elapsed)s)',
                              throttle=10)
       self.bar.start()

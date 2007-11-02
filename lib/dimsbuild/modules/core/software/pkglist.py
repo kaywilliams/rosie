@@ -35,7 +35,7 @@ class PkglistEvent(Event):
     Event.__init__(self,
       id = 'pkglist',
       provides = ['pkglist'],
-      requires = ['required-packages', 'repos'],
+      requires = ['required-packages', 'repos', 'user-required-packages'],
     )
 
     self.dsdir = self.mddir / 'depsolve'
@@ -122,7 +122,7 @@ class PkglistEvent(Event):
     self.log(1, L1("writing pkglist"))
     self.pkglistfile.write_lines(pkglist)
 
-    self.DATA['output'].extend([self.dsdir, self.pkglistfile, depsolve_file, 
+    self.DATA['output'].extend([self.dsdir, self.pkglistfile, depsolve_file,
                                 repoconfig])
     self.diff.write_metadata()
 
@@ -204,7 +204,7 @@ class IDepSolver(DepSolver):
   def setup(self):
     DepSolver.setup(self)
     if self.cache_file.exists():
-      f = open(self.cache_file)
+      f = self.cache_file.open()
       self.depsolve_cache = pickle.load(f)
       f.close()
 
@@ -230,7 +230,7 @@ class IDepSolver(DepSolver):
       unresolved = self.tsCheck(unresolved)
       if self.dsCallback: self.dsCallback.restartLoop()
     self.deps = {}
-    f = open(self.cache_file, 'w')
+    f = self.cache_file.open('w')
     pickle.dump(self.depsolve_results, f)
     f.close()
 
