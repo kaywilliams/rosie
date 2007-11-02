@@ -7,7 +7,7 @@ __all__ = ['RepoEventMixin']
 
 class RepoEventMixin:
   def __init__(self):
-    self.repocontainer = RepoContainer()
+    self.repocontainer = RepoContainer(self)
 
   def read_config(self, repos=None, files=None):
     # one or the other of repos or files is required by validation

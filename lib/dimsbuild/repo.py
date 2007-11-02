@@ -34,6 +34,9 @@ NSMAP = {'repo': 'http://linux.duke.edu/metadata/repo',
 P = pps.Path
 
 class RepoContainer(dict):
+  def __init__(self, ptr):
+    self.ptr = ptr
+
   "Python representation of a yum .repo file"
   def __str__(self):
     s = ''
@@ -71,10 +74,10 @@ class RepoContainer(dict):
       filenames = [filenames]
     read_ok = []
     for filename in filenames:
-      try:
-        fp = open(filename)
-      except IOError:
-        continue
+      filename = P(filename)
+      if isinstance(filename, pps.path.file.FilePath): #! bad
+        filename = (P(self.ptr._config.file).dirname / filename).normpath()
+      fp = open(filename)
       self._read(fp, filename)
       fp.close()
       read_ok.append(filename)

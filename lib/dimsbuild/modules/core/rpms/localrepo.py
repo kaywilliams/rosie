@@ -16,7 +16,7 @@ class LocalRepoEvent(Event):
       conditionally_requires=['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
       provides=['repos', 'source-repos', 'included-packages', 'excluded-packages']
     )
-    self.rc = RepoContainer()
+    self.rc = RepoContainer(self)
 
     self.LOCAL_RPMS  = self.mddir/'RPMS'
     self.LOCAL_SRPMS = self.mddir/'SRPMS'
