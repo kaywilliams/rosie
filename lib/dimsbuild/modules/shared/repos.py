@@ -24,7 +24,7 @@ class RepoEventMixin:
     for repo in self.repocontainer.values():
       for key in repo.keys():
         for yumvar in ['$releasever', '$arch', '$basearch', '$YUM']:
-          if repo[key].find(yumvar):
+          if not repo[key].find(yumvar) == -1:
             raise ValueError("The definition for repository '%s' contains "
             "yum variable '%s' in the '%s' element. Yum variables (e.g. "
             "$releasever, $arch, $basearch, and $YUM0 - $YUM9) are ambiguous "
