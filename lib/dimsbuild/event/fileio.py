@@ -150,7 +150,7 @@ class IOObject:
 
     return sorted(outputs)
 
-  def clean_eventcache(self, all=False):
+  def clean_eventcache(self, all=False, cb=None):
     """
     Cleans event cache folder.
 
@@ -172,15 +172,23 @@ class IOObject:
             expected.add(item)
         expected.add(self.ptr.mdfile)
         existing = set(self.ptr.mddir.findpaths(mindepth=1, type=TYPE_NOT_DIR))
-        for path in existing.difference(expected):
-          path.rm(recursive=True, force=True)
-        # remove empty dirs
+
+        cb = cb or self.ptr.files_callback
+        obsolete_files = existing.difference(expected)
+        if obsolete_files:
+          cb.rm_start()
+          for path in obsolete_files:
+            cb.rm(path)
+            path.rm(recursive=True, force=True)
+
         dirs = [ d for d in self.ptr.mddir.findpaths(mindepth=1, type=TYPE_DIR) if \
-               not d.findpaths(type=TYPE_NOT_DIR) ]
-        if not dirs: return
-        dirs.reverse()
-        for dir in dirs:
-          dir.removedirs()
+                 not d.findpaths(type=TYPE_NOT_DIR) ]
+        if dirs:
+          cb.rmdir_start()
+          dirs.reverse()
+          for dir in dirs:
+            cb.rmdir(dir)
+            dir.removedirs()
 
   def list_output(self, what=None):
     """

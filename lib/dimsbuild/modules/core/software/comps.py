@@ -90,10 +90,10 @@ class CompsEvent(Event):
     # set required packages variable
     self.cvars['required-packages'] = \
       xmllib.tree.read(self.cvars['comps-file']).xpath('//packagereq/text()')
-  
+
   # output verification
   def verify_comps_xpath(self):
-    "user-specifed comps xpath query"
+    "user-specified comps xpath query"
     self.verifier.failUnless(len(self.io.list_output(what='comps.xml')) < 2,
       "more than one user-specified comps file; using the first one only")
 

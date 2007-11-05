@@ -71,16 +71,18 @@ class ReposEvent(Event, RepoEventMixin):
 
       # get logos and release versions, if any in repo
       pkgs = {'logos-versions': ['fedora-logos', 'centos-logos', 'redhat-logos'],
-              'release-versions': ['fedora-release', 'centos-release', 'redhat-release']}
+              'release-versions': ['fedora-release', 'centos-release', 'redhat-release',
+                                   'fedora-release-notes', 'centos-release-notes',
+                                   'redhat-release-notes']}
 
-      for pkg in pkgs: 
+      for pkg in pkgs:
         pkg_version = get_package_version(pkgs[pkg], repo.pkgsfile)
         if pkg_version is not None:
           name, version = pkg_version
           self.cvars.setdefault(pkg, []).append((name, '==', version))
 
     self.cvars['repos'] = self.repocontainer
-  
+
   def verify_pkgsfiles_exist(self):
     "verify all pkgsfiles exist"
     for repo in self.repocontainer.values():
