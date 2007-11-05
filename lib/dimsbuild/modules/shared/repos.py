@@ -22,6 +22,18 @@ class RepoEventMixin:
         self.repocontainer.read(filexml.text)
 
     for repo in self.repocontainer.values():
+      for key in repo.keys():
+        for yumvar in ['$releasever', '$arch', '$basearch', '$YUM']:
+          if repo[key].find(yumvar):
+            raise ValueError("The definition for repository '%s' contains "
+            "yum variable '%s' in the '%s' element. Yum variables (e.g. "
+            "$releasever, $arch, $basearch, and $YUM0 - $YUM9) are ambiguous "
+            "in the distribution build context. For example, should $releasever "
+            "be the release number of the machine you are building on, the "
+            "distribution you are building, or base repository you are using? "
+            "Replace yum variables with fixed values and try again."
+            % (repo.id, yumvar, key))
+
       repo.localurl = self.mddir/repo.id
       repo.pkgsfile = self.mddir/repo.id/'packages'
 
