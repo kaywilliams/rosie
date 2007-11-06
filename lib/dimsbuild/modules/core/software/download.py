@@ -15,7 +15,13 @@ EVENTS = {'software': ['DownloadEvent']}
 P = pps.Path
 
 class RepoFilesCallback(FilesCallback):
-  def sync_start(self): pass
+  def __init__(self, logger, relpath, repo):
+    self.logger = logger
+    self.relpath = relpath
+    self.repo = repo
+
+  def sync_start(self): 
+    self.logger.log(1, L1("downloading packages - '%s'" % self.repo))
 
 class DownloadEvent(Event):
   def __init__(self):
@@ -60,9 +66,8 @@ class DownloadEvent(Event):
 
   def run(self):
     for repo in self.cvars['repos'].values():
-      self.log(1, L1("downloading packages - '%s'" % repo.id))
       self.io.sync_input(link=True, cache=True, what=repo.id,
-                         cb=RepoFilesCallback(self.logger, self.mddir))
+                         cb=RepoFilesCallback(self.logger, self.mddir, repo.id))
     self.diff.write_metadata()
 
   def apply(self):
