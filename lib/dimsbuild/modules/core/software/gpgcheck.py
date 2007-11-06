@@ -65,9 +65,6 @@ class GpgCheckEvent(Event):
       self.DATA['variables'].append('rpms')
       self.DATA['variables'].append('gpgkeys')
 
-  def check(self):
-    self.diff.test_diffs(debug=True)
-
   def run(self):   
     if not self.rpms:
       self.io.clean_eventcache(all=True) # remove old keys
