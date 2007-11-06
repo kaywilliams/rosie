@@ -67,8 +67,9 @@ class SourceReposEvent(Event, RepoEventMixin):
     self.cvars['source-repos'] = self.repocontainer
 
   def verify_pkgsfiles_exist(self):
+    "verify all pkgsfiles exist"
     for repo in self.repocontainer.values():
-      self.failUnless(repo.pkgsfile.exists(),
+      self.verifier.failUnless(repo.pkgsfile.exists(),
         "unable to find pkgsfile at '%s'" % repo.pkgsfile)
 
 
