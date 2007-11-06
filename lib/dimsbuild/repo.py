@@ -254,7 +254,7 @@ class Repo(dict):
       mwriter.writerow(item)
     mf.close()
 
-  def _get_gpgkeys(self): return self._get_val('gpgkeys')
+  def _get_gpgkeys(self): return self._get_val('gpgkey')
   def _get_include(self): return self._get_val('include')
   def _get_exclude(self): return self._get_val('exclude')
   def _get_val(self, key, splitter=None):

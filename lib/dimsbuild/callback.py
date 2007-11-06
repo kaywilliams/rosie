@@ -32,7 +32,8 @@ class FilesCallback:
 
 class SyncCallback(_SyncCallbackMetered):
   def __init__(self, logger, relpath):
-    _SyncCallbackMetered.__init__(self)
+    _SyncCallbackMetered.__init__(self, layout='%(title)-28.28s [%(bar)s] '
+                                               '%(curvalue)9.9sB (%(time-elapsed)s)')
     self.logger = logger
     self.relpath = relpath
 
