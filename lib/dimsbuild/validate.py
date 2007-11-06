@@ -32,7 +32,7 @@ class BaseConfigValidator:
         schema = etree.fromstring(str(schema_tree))
         relaxng = etree.RelaxNG(etree.ElementTree(schema))
       except etree.RelaxNGParseError, e:
-        raise InvalidSchemaError(schema_file or '<string>', e.error_log)
+        raise InvalidSchemaError(self.curr_schema or '<string>', e.error_log)
       else:
         if not relaxng.validate(tree):
           if schema_file:

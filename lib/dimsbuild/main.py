@@ -82,11 +82,11 @@ class Build(object):
 
     # set up loger
     self.logger = make_log(options.logthresh, options.logfile)
-    
+
     # set up configs
     mainconfig, distroconfig = self._get_config(P(options.mainconfigpath),
                                                 P(options.distropath))
-    
+
     # set up import_dirs
     import_dirs = self._compute_import_dirs(mainconfig, options)
 
@@ -119,7 +119,7 @@ class Build(object):
 
     # allow events to add their command-line options to the parser
     for e in self.dispatch: e._add_cli(parser)
-    
+
   def apply_options(self, options):
     "Allow events to apply option results to themselves"
     # print for help if specified with -h/--help
@@ -184,19 +184,19 @@ class Build(object):
       else:
         self.logger.log(4, "No main config file found at '%s'. Using default settings" % mcp)
         mc = xmllib.config.read(StringIO('<dimsbuild/>'))
-      
+
       dcp = dcp.expand().abspath()
       if not dcp.exists():
         raise xmllib.config.ConfigError("No config file found at '%s'" % dcp)
-      
+
       self.logger.log(3, "Reading distro config file '%s'" % dcp)
       dc = xmllib.config.read(dcp)
     except xmllib.tree.XmlSyntaxError, e:
       self.logger.log(0, "Error reading config file: %s" % e)
       raise
-    
+
     return mc, dc
-  
+
   def _compute_events(self, modules, events):
     r = set() # set of eventids to force
     for moduleid in modules:
