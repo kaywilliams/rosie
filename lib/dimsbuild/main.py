@@ -78,6 +78,8 @@ class Build(object):
     These parameters are normally passed in from the command-line handler
     ('/usr/bin/dimsbuild')
     """
+    self.parser = parser
+
     # set up loger
     self.logger = make_log(options.logthresh, options.logfile)
     
@@ -122,7 +124,7 @@ class Build(object):
     "Allow events to apply option results to themselves"
     # print for help if specified with -h/--help
     if options.print_help:
-      parser.print_help()
+      self.parser.print_help()
       sys.exit()
 
     # apply --force to modules/events
