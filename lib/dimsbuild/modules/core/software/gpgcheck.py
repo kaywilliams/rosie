@@ -20,6 +20,7 @@ class GpgCheckEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'gpgcheck',
+      version = '1',
       requires = ['cached-rpms', 'repos'],
     )
     
@@ -40,12 +41,12 @@ class GpgCheckEvent(Event):
       cached[rpm.basename] = rpm
     
     for repo in self.cvars['repos'].values():
-      rpms = set()
+      rpms = []
       if repo.has_key('gpgcheck') and repo['gpgcheck'] in BOOLEANS_TRUE:
         self.keys.extend(repo.gpgkeys)
         for rpm in [ P(rpminfo['file']).basename for rpminfo in repo.repoinfo ]:
           if cached.has_key(rpm):
-            rpms.add(cached[rpm])
+            rpms.append(cached[rpm])
       if rpms:
         self.checks[repo.id] = sorted(rpms)
 
@@ -71,7 +72,7 @@ class GpgCheckEvent(Event):
         shlib.execute('gpg --homedir %s --import %s' %(homedir,key))
     else:
       md, curr = self.diff.handlers['variables'].diffdict['checks']
-      if not hasattr(md, '__iter__'): md = set()
+      if not hasattr(md, '__iter__'): md = {}
       newchecks = {}
       for repo in curr.keys():
         if md.has_key(repo): 
