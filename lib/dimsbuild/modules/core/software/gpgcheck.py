@@ -13,7 +13,7 @@ API_VERSION = 5.0
 EVENTS = {'software': ['GpgCheckEvent']}
 
 class GPGFilesCallback(FilesCallback):
-  def sync_start(self): 
+  def sync_start(self):
     self.logger.log(1, L1("downloading gpgkeys"))
 
 class GpgCheckEvent(Event):
@@ -23,23 +23,23 @@ class GpgCheckEvent(Event):
       version = '1',
       requires = ['cached-rpms', 'repos'],
     )
-    
+
     self.DATA = {
       'variables': [],
       'input':     [],
       'output':    [],
     }
-  
+
   def setup(self):
     self.diff.setup(self.DATA)
-    
+
     self.keys = []   # gpgcheck keys to download
     self.checks = {} # rpms to check
-    
+
     cached = {} # dictionary cached rpms by basename, fullname
     for rpm in self.cvars['cached-rpms']:
       cached[rpm.basename] = rpm
-    
+
     for repo in self.cvars['repos'].values():
       rpms = []
       if repo.has_key('gpgcheck') and repo['gpgcheck'] in BOOLEANS_TRUE:
@@ -52,18 +52,18 @@ class GpgCheckEvent(Event):
 
     self.io.setup_sync(self.mddir, paths=self.keys, id='keys')
     self.DATA['variables'].append('checks')
-  
-  def run(self):   
+
+  def run(self):
     if not self.checks:
       self.io.clean_eventcache(all=True) # remove old keys
       self.diff.write_metadata()
       return
-    
+
     homedir = self.mddir/'homedir'
     self.DATA['output'].append(homedir)
-    newkeys = self.io.sync_input(cache=True,  
-                                 cb=GPGFilesCallback(self.logger, self.mddir)) 
-    
+    newkeys = self.io.sync_input(cache=True,
+                                 cb=GPGFilesCallback(self.logger, self.mddir))
+
     if newkeys:
       newchecks = self.checks
       homedir.rm(force=True, recursive=True)
@@ -75,11 +75,11 @@ class GpgCheckEvent(Event):
       if not hasattr(md, '__iter__'): md = {}
       newchecks = {}
       for repo in curr.keys():
-        if md.has_key(repo): 
+        if md.has_key(repo):
           newrpms = sorted(set(curr[repo]).difference(set(md[repo])))
-        if newrpms: 
+        if newrpms:
           newchecks[repo] = newrpms
-    
+
     if newchecks:
       invalids = []
       for repo in newchecks.keys():
@@ -92,11 +92,11 @@ class GpgCheckEvent(Event):
           except mkrpm.RpmSignatureInvalidError:
             self.logger.write(2, "INVALID\n")
             invalids.append(rpm.basename)
-      
+
       if invalids:
         raise RpmSignatureInvalidError("One or more RPMS failed "
                                        "GPG key checking: %s" % invalids)
-    
+
     self.diff.write_metadata()
 
   def apply(self):

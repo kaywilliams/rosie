@@ -2,7 +2,6 @@ import stat
 
 from rpmUtils.arch import getArchList
 
-from dims import shlib
 from dims import pps
 
 from dimsbuild.constants import RPM_PNVRA_REGEX

@@ -11,7 +11,7 @@ class BaseConfigValidator:
     self.schema_paths = schema_paths
     self.config = config
     self.elements = []
-    
+
     self.curr_schema = None
 
   def validate(self, xpath_query, schema_file=None, schema_contents=None):
