@@ -69,7 +69,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
 
   # execution methods
   def execute(self):
-    self.log(1, L0('%s' % self.id))
+    self.log(5, L0('*** %s event ***' % self.id))
     try:
       if (self.mddir/'debug').exists():
         self.log(5, L0('removing %s/debug folder' % self.mddir))
@@ -83,6 +83,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
         self.log(5, L0('running %s.check()' % self.id))
         if self.check():
           self.log(5, L0('running %s.run()' % self.id))
+          self.log(1, L0('%s' % self.id))
           self.run()
       self.log(5, L0('running %s.apply()' % self.id))
       self.apply()
@@ -104,7 +105,10 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     self.log(4, L0("cleaning %s" % self.id))
     IOMixin.clean(self)
     DiffMixin.clean(self)
-  #def check(self) defined in mixins
+  # note that in the default case check returns false and run is not executed
+  def check(self):
+    if DiffMixin.check(self): return True
+    else: return False
   def run(self): pass
   def apply(self): pass
   #def error(self, e) defined IOMixins

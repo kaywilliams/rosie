@@ -17,10 +17,10 @@ class InitEvent(Event):
       self.log(2, L1("cleaning '%s'" % self.METADATA_DIR))
       self.METADATA_DIR.rm(recursive=True)
   
-  def run(self):
+  def apply(self):
     for folder in [self.TEMP_DIR, self.METADATA_DIR]:
       if not folder.exists():
-        self.log(2, L1("Making directory '%s'" % folder))
+        self.log(2, L1("making directory '%s'" % folder))
         folder.mkdirs()
 
 class SetupEvent(Event):
