@@ -75,7 +75,7 @@ class IOObject:
 
     return inputs, outputs
 
-  def _setup_sync(self, sourcefile, dstdir, id, mode):
+  def _setup_sync(self, sourcefile, dstdir, id,  defmode):
     if not sourcefile.exists():
       raise IOError("missing input file(s) %s" % sourcefile)
     if dstdir not in self.ptr.diff.handlers['input'].idata:
@@ -86,10 +86,12 @@ class IOObject:
     self.chmod_items.setdefault(id, set())
     for src in sourcefile.findpaths():
       output_file = dstdir / src.tokens[len(sourcefile.tokens)-1:]
-      m = mode
-      if m is None and src.stat().st_mode:
-        m = str(oct(src.stat().st_mode & 0777))[1:]
-      self.chmod_items[id].add((output_file, m))
+      mode = defmode
+      if mode is None:
+        newmode = src.stat().st_mode
+        if newmode:
+          mode = str(oct(newmode & 0777))[1:]
+      self.chmod_items[id].add((output_file, mode))
       if src.isfile():
         self.sync_items[id].add((src, output_file))
         self.ptr.diff.handlers['output'].odata.append(output_file)

@@ -65,7 +65,7 @@ class SourceReposEvent(Event, RepoEventMixin):
       repo._read_repo_content(repofile=repo.pkgsfile)
 
     self.cvars['source-repos'] = self.repocontainer
-  
+
   def verify_pkgsfiles_exist(self):
     for repo in self.repocontainer.values():
       self.failUnless(repo.pkgsfile.exists(),
@@ -117,7 +117,7 @@ class SourcesEvent(Event, CreateRepoMixin):
           if isinstance(rpmi, pps.path.http.HttpPath): #! bad
             rpmi._update_stat({'st_size':  rpminfo['size'],
                                'st_mtime': rpminfo['mtime'],
-                               'st_mode':  stat.S_IFREG})
+                               'st_mode':  (stat.S_IFREG | 0644)})
           paths.append(rpmi)
 
     self.io.setup_sync(self.srpmdest, paths=paths, id='srpms')
