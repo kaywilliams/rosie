@@ -94,6 +94,7 @@ class TreeinfoEvent(Event):
     treeinfo.set('general', 'packagedir', self.cvars['product-path'])
     treeinfo.set('general', 'arch',       self.basearch)
     
+    # this probably needs to be versioned
     imgsect = 'images-%s' % self.basearch
     treeinfo.add_section(imgsect)
     treeinfo.set(imgsect, 'kernel',       'images/pxeboot/vmlinux')

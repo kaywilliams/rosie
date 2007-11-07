@@ -31,7 +31,7 @@ class BuildTestResult(unittest.TestResult):
     unittest.TestResult.addFailure(self, test, err)
     self.logger.write(4, 'FAIL\n')
     if self.logger.threshold <= 3: # display warning on log level 3 and below
-      self.logger.log(0, 'Warning: %s' % err[1].message)
+      self.logger.log(1, 'Warning: %s' % err[1].message)
     self.warnings.append(err[1]) # append AssertionError to warning list
 
   def printErrors(self):

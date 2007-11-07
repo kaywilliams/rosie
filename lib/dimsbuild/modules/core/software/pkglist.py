@@ -127,8 +127,11 @@ class PkglistEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
-    self.cvars['pkglist'] = self.pkglistfile.read_lines()
-
+    try:
+      self.cvars['pkglist'] = self.pkglistfile.read_lines()
+    except:
+      pass # handled by verification below
+  
   def verify_pkglistfile_exists(self):
     "pkglist file exists"
     self.verifier.failUnless(self.pkglistfile.exists(),
@@ -228,8 +231,7 @@ class IDepSolver(DepSolver):
           else:
             if self.dsCallback: self.dsCallback.pkgAdded(txmbr.pkgtup)
             toremove.append(txmbr)
-      for rm in toremove:
-        unresolved.remove(rm)
+      for rm in toremove: unresolved.remove(rm)
       unresolved = self.tsCheck(unresolved)
       if self.dsCallback: self.dsCallback.restartLoop()
     self.deps = {}

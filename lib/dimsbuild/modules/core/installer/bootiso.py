@@ -32,7 +32,7 @@ class BootisoEvent(Event, BootConfigMixin):
     boot_arg_defaults = ''
     if self.cvars['web-path']:
       boot_arg_defaults += ' method=%s/os' % self.cvars['web-path']
-    if self.cvars['ks-path']: # this one will need adjusting methinks
+    if self.cvars['ks-path']:
       boot_arg_defaults += ' ks=file:%s' % self.cvars['ks-path']
     self.bootconfig.setup(defaults=boot_arg_defaults)
   

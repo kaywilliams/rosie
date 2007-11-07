@@ -59,19 +59,19 @@ class ReleaseFilesEvent(Event, ExtractMixin):
   
   def _find_rpms(self):
     rpmnames = self.config.xpath('package/text()',
-                                ['%s-release' %(self.product,)])
+                                 [ '%s-release' % self.product ])
     rpmset = set()
     for rpmname in rpmnames:
       for rpm in self.cvars['rpms-directory'].findpaths(
           glob='%s-*-*' % rpmname, nregex=SRPM_REGEX):
         rpmset.add(rpm)
     
-    if len(rpmset) == 0:
+    if not rpmset:
       for glob in ['*-release-*-[a-zA-Z0-9]*.[Rr][Pp][Mm]',
                    '*-release-notes-*-*']:
         for rpm in self.cvars['rpms-directory'].findpaths(
             glob=glob, nregex=SRPM_REGEX):
           rpmset.add(rpm)
-        if len(rpmset) == 0:
+        if not rpmset:
           raise RpmNotFoundError("missing release RPM(s)")
     return rpmset

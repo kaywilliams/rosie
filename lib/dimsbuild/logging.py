@@ -75,6 +75,8 @@ def make_log(threshold, logfile=None):
                      format='%(time)s: %(message)s')
     container.list.append(logfile)
     container.logfile = logfile
+  else:
+    container.logfile = None
   
   container.test = console.test
   container.threshold = console.threshold

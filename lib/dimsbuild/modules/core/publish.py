@@ -23,14 +23,13 @@ class PublishSetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish-setup',
-      provides = ['publish-content', 'publish-path', 'web-path', ],
-      conditionally_requires = ['gpgsign-public-key'],
+      provides = ['publish-content', 'publish-path', 'web-path'],
     )
 
     self.repofile = self.mddir/'%s.repo' % self.product
 
     self.DATA = {
-      'variables': ['cvars[\'base-vars\']', 'cvars[\'gpgsign-public-key\']'],
+      'variables': ['cvars[\'base-vars\']'],
       'config': ['.'],
       'output': [self.repofile]
     }
@@ -39,15 +38,13 @@ class PublishSetupEvent(Event):
     self.diff.setup(self.DATA)
 
     prefix = \
-      P(self.config.get('path-prefix/text()', 'distros')) / \
-        self.pva
+      P(self.config.get('path-prefix/text()', 'distros')) / self.pva
     web_path = \
       self.config.get('remote-webroot/text()', None) or \
         P('http://' +  self._get_host()) / prefix
     self.web_path = P(web_path)
     self.publish_path = \
-      P(self.config.get('local-webroot/text()', '/var/www/html')) / \
-        prefix
+      P(self.config.get('local-webroot/text()', '/var/www/html')) / prefix
 
   def apply(self):
     self.cvars['publish-content'] = set()

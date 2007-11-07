@@ -17,7 +17,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
       id = 'diskboot-image',
       provides = ['diskboot.img'],
       requires = ['buildstamp-file', 'base-repoid', 'installer-splash',
-                  'boot-config-file'], #! check installer-splash
+                  'boot-config-file'],
       conditionally_requires = ['diskboot-image-content', 'web-path',
                                 'boot-args', 'ks-path'],
     )

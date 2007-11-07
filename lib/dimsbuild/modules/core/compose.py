@@ -2,40 +2,34 @@ import csv
 
 from dims.pps.constants import TYPE_NOT_DIR
 
-from dimsbuild.event    import Event, CLASS_META
+from dimsbuild.callback import FilesCallback
+from dimsbuild.event    import Event
 from dimsbuild.logging  import L1
 
 API_VERSION = 5.0
-EVENTS = {'ALL': ['OSMetaEvent'], 'OS': ['OSComposeEvent']}
+EVENTS = {'OS': ['ComposeEvent']}
 
 FIELDS = ['file', 'size', 'mtime']
 
-class OSMetaEvent(Event):
-  def __init__(self):
-    Event.__init__(self,
-      id = 'OS',
-      properties = CLASS_META,
-      comes_after = ['setup'],
-    )
+class ComposeCallback(FilesCallback):
+  def sync_start(self): pass
 
-class OSComposeEvent(Event):
+class ComposeEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'os-compose',
+      id = 'compose',
 
       # as an optimization iso diffs 'manifest-file' to determine if it should 
-      # run, thus avoiding calculating diffs for all files in osdir
+      # run, thus avoiding calculating diffs for all files in SOFTWARE_STORE
       provides = ['os-dir', 'publish-content', 'manifest-file'],
       requires = ['os-content'],
     )
 
-    self.osdir = self.mddir / 'output/os'
-
-    # put manifest in osdir for use by downstream tools, e.g. installer
-    self.mfile = self.osdir / '.manifest'
+    # put manifest in SOFTWARE_STORE for use by downstream tools, e.g. installer
+    self.mfile = self.SOFTWARE_STORE / '.manifest'
 
     self.DATA =  {
-      'variables': ['osdir', 'mfile'],
+      'variables': ['mfile'],
       'input':     [],
       'output':    [self.mfile],
     }
@@ -50,16 +44,14 @@ class OSComposeEvent(Event):
         if event_output_dir.exists():
           self.events.append(event.id)
           for path in event_output_dir.listdir(all=True):
-            self.io.setup_sync(self.osdir, paths=path, id=event.id)
+            self.io.setup_sync(self.SOFTWARE_STORE, paths=path, id=event.id)
 
   def run(self):
     # create composed tree
     self.log(1, L1("linking files"))
-    backup = self.files_callback.sync_start
-    self.files_callback.sync_start = lambda : None
     for event in self.events:
-      self.io.sync_input(link=True, what=event)
-    self.files_callback.sync_start = backup
+      self.io.sync_input(link=True, what=event,
+                         cb=ComposeCallback(self.logger, self.METADATA_DIR))
 
     # create manifest file
     self.log(1, L1("creating manifest file"))
@@ -69,9 +61,9 @@ class OSComposeEvent(Event):
                                              type=TYPE_NOT_DIR):
       st = i.stat()
       manifest.append({
-        'file':  i[len(self.SOFTWARE_STORE)+1:],
+        'file':  i.relpathfrom(self.SOFTWARE_STORE),
         'size':  st.st_size,
-        'mtime': st.st_mtime,})
+        'mtime': st.st_mtime})
     manifest.sort()
 
     self.mfile.touch()
@@ -87,9 +79,6 @@ class OSComposeEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
-    self.cvars['os-dir'] = self.osdir
+    self.cvars['os-dir'] = self.SOFTWARE_STORE
     self.cvars['manifest-file'] = self.mfile
-    try:
-      self.cvars['publish-content'].add(self.osdir)
-    except:
-      pass
+    self.cvars.setdefault('publish-content', set()).add(self.SOFTWARE_STORE)

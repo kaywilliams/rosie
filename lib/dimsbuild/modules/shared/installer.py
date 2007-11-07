@@ -125,8 +125,7 @@ class ImageModifyMixin:
                        id='%s-input-files' % self.name)
   
   def check(self):
-    return not self._validate_image() or \
-           self.diff.test_diffs()
+    return self.diff.test_diffs()
   
   def apply(self):
     self.io.clean_eventcache()
@@ -157,10 +156,6 @@ class ImageModifyMixin:
     self._generate()
     self._close()
     
-    # validate output
-    if not self._validate_image():
-      raise OutputInvalidError("output files are invalid")
-    
     # write metadata
     self.diff.write_metadata()
   
@@ -180,14 +175,14 @@ class ImageModifyMixin:
   zipped  = property(lambda self: self.image_locals.get('zipped', False))
   virtual = property(lambda self: self.image_locals.get('virtual', False))
   
-  def _validate_image(self):
-    if not self.path.exists():
-      return False
+  def verify_image(self):
+    self.failUnless(self.path.exists(), "'%s' does not exist" % self.path)
+    if self.zipped:
+      self.failUnless(magic_match(self.path) == FILE_TYPE_GZIP,
+                      "expected gzipped image file")
     else:
-      if self.zipped:
-        return magic_match(self.path) == FILE_TYPE_GZIP
-      else:
-        return magic_match(self.path) == MAGIC_MAP[self.image_locals['format']]
+      self.failUnless(magic_match(self.path) == MAGIC_MAP[self.image_locals['format']],
+                      "expected %s image format" % self.image_locals['format'])
 
 
 class FileDownloadMixin:
