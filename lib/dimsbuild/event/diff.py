@@ -51,7 +51,7 @@ class DiffObject:
     if len(self.diff_set) > 0:
       return (True in self.diff_set.values())
     else:
-      return False
+      return True
 
   def has_changed(self, name, err=False):
     if not self.handlers.has_key(name):

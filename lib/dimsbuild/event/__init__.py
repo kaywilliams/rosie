@@ -40,7 +40,6 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     dispatch.Event.__init__(self, id, *args, **kwargs)
     self.event_version = version
     self._status = None
-    self._run = False # indicates when run() is called #! hack for testing?
 
     IOMixin.__init__(self)
     DiffMixin.__init__(self)
@@ -54,7 +53,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     if not self._check_status(status):
       raise dispatch.EventProtectionError()
     self._status = status
-    # apply to all children if event has CLASS_META property
+    # apply to all children if even has CLASS_META property
     if self.test(CLASS_META):
       for child in self.get_children():
         if child._check_status(status):
@@ -63,15 +62,14 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   def _check_status(self, status):
     "Returns True if status change is ok; False if invalid"
     return (status == STATUS_FORCE and not self.test(PROTECT_FORCE)) or \
-           (status == STATUS_SKIP  and not self.test(PROTECT_SKIP)) or \
-           (status is None)
+           (status == STATUS_SKIP  and not self.test(PROTECT_SKIP))
 
   forced  = property(lambda self: self.status == STATUS_FORCE)
   skipped = property(lambda self: self.status == STATUS_SKIP)
 
   # execution methods
   def execute(self):
-    self.log(1, L0('%s' % self.id))
+    self.log(5, L0('*** %s event ***' % self.id))
     try:
       if (self.mddir/'debug').exists():
         self.log(5, L0('removing %s/debug folder' % self.mddir))
@@ -85,8 +83,8 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
         self.log(5, L0('running %s.check()' % self.id))
         if self.check():
           self.log(5, L0('running %s.run()' % self.id))
+          self.log(1, L0('%s' % self.id))
           self.run()
-          self._run = True #!
       self.log(5, L0('running %s.apply()' % self.id))
       self.apply()
       self.log(5, L0('running %s.verify()' % self.id))
@@ -179,8 +177,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
 
   def _handle_Exception(self, e):
     self.error(e)
-    if self.logger.logfile:
-      traceback.print_exc(file=self.logger.logfile.file_object)
+    traceback.print_exc(file=self.logger.logfile.file_object)
     if self.logger.test(3) or DEBUG:
       traceback.print_exc(file=self.logger.console.file_object)
     else:
