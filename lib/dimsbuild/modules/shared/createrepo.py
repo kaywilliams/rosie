@@ -1,7 +1,9 @@
 import os
+import rpm
 import sys
 
 from dims import execlib
+from dims import sortlib
 
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.logging   import L1
@@ -32,7 +34,7 @@ class CreateRepoMixin:
       repo_files.append(path / file)
 
     args = ['/usr/bin/createrepo']
-    if update:
+    if update and CAN_UPDATE:
       args.append('--update')
     if quiet:
       args.append('--quiet')
@@ -60,3 +62,39 @@ class CreateRepoMixin:
       sys.exit(1)
     os.chdir(cwd)
     return repo_files
+
+def RpmPackageVersion(name):
+  ts = rpm.TransactionSet()
+  mi = ts.dbMatch(rpm.RPMTAG_NAME, name)
+  if mi.count() == 0:
+    return False
+  pkg = mi.next()
+  del ts
+  return pkg['version']
+
+def CommandLineVersion(name, flag='--version'):
+  try:
+    version = execlib.execute('%s %s' % (name, flag))[0]
+  except:
+    raise
+  else:
+    return version
+
+# figure out if createrepo can accept the '--update' flag
+CAN_UPDATE = True
+try:
+  binary_version = CommandLineVersion('createrepo')
+except (execlib.ExecuteError, IndexError), e:
+  raise ImportError("missing 'createrepo' package")
+else:
+  check_version = sortlib.dcompare(binary_version, '0.4.9')
+  if check_version == -1:
+    # can't accept '--update'
+    CAN_UPDATE = False
+  elif check_version == 0:
+    # need to check rpm version
+    rpm_version = RpmPackageVersion('createrepo')
+    if sortlib.dcompare(rpm_version, '0.4.10') == -1:
+      CAN_UPDATE = False
+  else:
+    pass
