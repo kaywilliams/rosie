@@ -1,7 +1,7 @@
-""" 
+"""
 infofiles.py
 
-generates distribution information files: .discinfo, .treeinfo, and .buildstamp 
+generates distribution information files: .discinfo, .treeinfo, and .buildstamp
 """
 
 import copy
@@ -23,38 +23,38 @@ class DiscinfoEvent(Event):
       provides = ['.discinfo'],
       requires = ['anaconda-version'],
     )
-    
+
     self.difile = self.SOFTWARE_STORE/'.discinfo'
-    
+
     self.DATA =  {
       'variables': ['cvars[\'base-vars\']',
                     'cvars[\'anaconda-version\']'],
       'output':    [self.difile]
     }
-  
+
   def setup(self):
     self.diff.setup(self.DATA)
-  
+
   def run(self):
     # create empty .discinfo formatted file object
     discinfo = ffile.DictToFormattedFile(self.locals.discinfo_fmt)
-    
+
     # get product, fullname, and basearch from cvars
     base_vars = copy.deepcopy(self.cvars['base-vars'])
-    
+
     # add timestamp and discs using defaults to match anaconda makestamp.py
     base_vars.update({'timestamp': str(time.time()), 'discs': '1'})
-    
+
     # write .discinfo
     self.difile.dirname.mkdirs()
     discinfo.write(self.difile, **base_vars)
     self.difile.chmod(0644)
 
     self.diff.write_metadata()
-  
+
   def apply(self):
     self.io.clean_eventcache()
-  
+
   def verify_discinfo_file_exists(self):
     ".discinfo file exists"
     self.verifier.failUnless(self.difile.exists(),
@@ -68,21 +68,21 @@ class TreeinfoEvent(Event):
       provides = ['.treeinfo'],
       requires = ['anaconda-version'],
     )
-    
+
     self.tifile = self.SOFTWARE_STORE/'.treeinfo'
-    
+
     self.DATA =  {
       'variables': ['cvars[\'base-vars\']',
                     'cvars[\'product-path\']'],
       'output':    [self.tifile]
     }
-    
+
   def setup(self):
     self.diff.setup(self.DATA)
-  
+
   def run(self):
     treeinfo = ConfigParser()
-    
+
     # generate treeinfo sections
     treeinfo.add_section('general')
     treeinfo.set('general', 'family',     self.product)
@@ -93,7 +93,7 @@ class TreeinfoEvent(Event):
     treeinfo.set('general', 'discnum',    '1')
     treeinfo.set('general', 'packagedir', self.cvars['product-path'])
     treeinfo.set('general', 'arch',       self.basearch)
-    
+
     # this probably needs to be versioned
     imgsect = 'images-%s' % self.basearch
     treeinfo.add_section(imgsect)
@@ -101,11 +101,11 @@ class TreeinfoEvent(Event):
     treeinfo.set(imgsect, 'initrd',       'images/pxeboot/initrd.img')
     treeinfo.set(imgsect, 'boot.iso',     'images/boot.ixo')
     treeinfo.set(imgsect, 'diskboot.img', 'images/diskboot.img')
-    
+
     treeinfo.add_section('images-xen')
     treeinfo.set('images-xen', 'kernel', 'images/xen/vmlinuz')
     treeinfo.set('images-xen', 'initrd', 'images/xen/initrd.img')
-    
+
     # write .treeinfo
     self.tifile.dirname.mkdirs()
     if not self.tifile.exists():
@@ -114,12 +114,12 @@ class TreeinfoEvent(Event):
     treeinfo.write(tiflo)
     tiflo.close()
     self.tifile.chmod(0644)
-    
+
     self.diff.write_metadata()
-  
+
   def apply(self):
     self.io.clean_eventcache()
-  
+
   def verify_treeinfo_file_exists(self):
     ".treeinfo file exists"
     self.verifier.failUnless(self.tifile.exists(),
@@ -132,36 +132,36 @@ class BuildstampEvent(Event):
       provides = ['buildstamp-file'],
       requires = ['anaconda-version', 'source-vars'],
     )
-    
+
     self.bsfile = self.mddir/'.buildstamp'
-    
+
     self.DATA = {
       'variables': ['cvars[\'base-vars\']',
                     'cvars[\'anaconda-version\']',
                     'cvars[\'source-vars\']'],
       'output':    [self.bsfile],
     }
-    
+
   def setup(self):
     self.diff.setup(self.DATA)
-    
+
   def run(self):
     "Generate a .buildstamp file."
-    
+
     buildstamp = ffile.DictToFormattedFile(self.locals.buildstamp_fmt)
-    
+
     base_vars = copy.deepcopy(self.cvars['source-vars'])
     base_vars.update(self.cvars['base-vars'])
-    
+
     self.bsfile.dirname.mkdirs()
     buildstamp.write(self.bsfile, **base_vars)
     self.bsfile.chmod(0644)
-    
+
     self.diff.write_metadata()
-  
+
   def apply(self):
     self.cvars['buildstamp-file'] = self.bsfile
-  
+
   def verify_buildstamp_file_exists(self):
     ".buildstamp file exists"
     self.verifier.failUnless(self.bsfile.exists(),

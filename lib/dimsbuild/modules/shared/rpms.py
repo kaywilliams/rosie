@@ -224,7 +224,7 @@ class RpmBuildMixin:
     rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % (self.rpmname, self.version,
                                                self.release, self.arch)
     self.verifier.failUnless(rpm.exists(), "unable to find rpm at '%s'" % rpm)
-  
+
   def verify_srpm_exists(self):
     "srpm exists"
     srpm = self.mddir/'SRPMS/%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release)

@@ -45,7 +45,7 @@ class LogosEvent(Event, ExtractMixin):
 
   def apply(self):
     self.io.clean_eventcache()
-    
+
     self.cvars['installer-splash'] = self.splash
     self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
       (self.mddir/'pixmaps').listdir())
@@ -54,7 +54,7 @@ class LogosEvent(Event, ExtractMixin):
     "splash image exists"
     self.verifier.failUnless(self.splash.exists(),
       "missing file: '%s'" % self.splash)
-  
+
   def verify_splash_valid(self):
     "splash image is valid"
     self.verifier.failUnless(self._validate_splash(),

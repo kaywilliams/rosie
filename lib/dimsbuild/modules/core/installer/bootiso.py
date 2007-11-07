@@ -15,17 +15,17 @@ class BootisoEvent(Event, BootConfigMixin):
       conditionally_requires = ['installer-splash', 'web-path', 'boot-args',
                                 'ks-path'],
     )
-    
+
     self.bootiso = self.SOFTWARE_STORE/'images/boot.iso'
-    
+
     self.DATA = {
       'config': ['.'],
       'input':  [],
       'output': [self.bootiso],
     }
-    
+
     BootConfigMixin.__init__(self)
-  
+
   def setup(self):
     self.diff.setup(self.DATA)
     self.DATA['input'].extend(self.cvars['isolinux-files'].values())
@@ -35,19 +35,19 @@ class BootisoEvent(Event, BootConfigMixin):
     if self.cvars['ks-path']:
       boot_arg_defaults += ' ks=file:%s' % self.cvars['ks-path']
     self.bootconfig.setup(defaults=boot_arg_defaults)
-  
+
   def run(self):
     isodir = self.SOFTWARE_STORE/'images/isopath'
     isolinuxdir = isodir/'isolinux'
-    
+
     isolinuxdir.mkdirs()
     for file in self.cvars['isolinux-files'].values():
       self.link(file, isolinuxdir)
-    
+
     # modify isolinux.cfg
     self.bootconfig.modify(
       isodir/self.locals.files['isolinux']['isolinux.cfg']['path'])
-    
+
     # apparently mkisofs modifies the mtime of the file it uses as a boot image.
     # to avoid this, we copy the boot image timestamp and overwrite the original
     # when we finish
@@ -57,9 +57,9 @@ class BootisoEvent(Event, BootConfigMixin):
                   % (self.bootiso, self.product, isodir))
     self.cvars['isolinux-files']['isolinux.bin'].utime((ibin_st.st_atime, ibin_st.st_mtime))
     isodir.rm(recursive=True)
-    
+
     self.diff.write_metadata()
-  
+
   def verify_bootiso_exists(self):
     "boot.iso exists"
     self.verifier.failUnless(self.bootiso.exists(),
