@@ -63,11 +63,13 @@ class CreateRepoMixin:
     os.chdir(cwd)
     return repo_files
 
+class RpmNotFoundError(IOError): pass
+
 def RpmPackageVersion(name):
   ts = rpm.TransactionSet()
   mi = ts.dbMatch(rpm.RPMTAG_NAME, name)
   if mi.count() == 0:
-    return False
+    raise RpmNotFoundError("package '%s' was not found in the RPM database" % name)
   pkg = mi.next()
   del ts
   return pkg['version']
@@ -93,8 +95,11 @@ else:
     CAN_UPDATE = False
   elif check_version == 0:
     # need to check rpm version
-    rpm_version = RpmPackageVersion('createrepo')
-    if sortlib.dcompare(rpm_version, '0.4.10') == -1:
+    try:
+      rpm_version = RpmPackageVersion('createrepo')
+      if sortlib.dcompare(rpm_version, '0.4.10') == -1:
+        CAN_UPDATE = False
+    except RpmNotFoundError:
       CAN_UPDATE = False
   else:
     pass
