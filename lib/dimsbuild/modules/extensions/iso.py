@@ -63,7 +63,7 @@ class PkgorderEvent(Event):
       self.pkgorderfile = self.mddir/'pkgorder'
       self.DATA['output'].append(self.pkgorderfile)
   
-  def run(self):  
+  def run(self):
     # delete prior pkgorder file, if exists    
     self.io.clean_eventcache(all=True)
     if self.dosync:
@@ -132,9 +132,8 @@ class IsoSetsEvent(Event, ListCompareMixin, BootConfigMixin):
     self.DATA['input'].append(self.cvars['pkgorder-file'])
     self.DATA['input'].append(self.cvars['manifest-file'])
     
-    default_boot_args = 'method=cdrom'
-    if self.cvars['ks-path']:
-      default_boot_args += ' ' + 'ks=file:%s' % self.cvars['ks-path']
+    default_boot_args = ['method=cdrom']
+    self.bootconfig._process_ks(default_boot_args)
     self.bootconfig.setup(defaults=default_boot_args)
   
   def run(self):

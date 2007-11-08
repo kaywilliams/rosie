@@ -7,7 +7,7 @@ from dimsbuild.verify  import BuildTestResult
 class VerifyMixin:
   def __init__(self):
     self.verifier = VerifyObject(self)
-  
+
   def verify(self):
     self.verifier.unittest()
 
@@ -17,7 +17,10 @@ class VerifyObject(unittest.TestCase):
     self.ptr = ptr
     self.logger = self.ptr.logger
     self.method_prefix = 'verify_'
-  
+
+  def shortDescription(self):
+    return (self._testMethodDoc or '').split('\n')[0].strip() or None
+
   def unittest(self):
     methods = [] # list of methods to run
     for attr in dir(self.ptr):
@@ -30,13 +33,13 @@ class VerifyObject(unittest.TestCase):
     
     if methods:
       self.logger.log(4, L1("running verification methods"))
-      
+
       starttime = time.time()
       
       for method in methods:
         self._testMethodName = method.__name__
         self._testMethodDoc  = method.__doc__
-        
+
         result.startTest(self)
         try:
           ok = False
@@ -53,12 +56,12 @@ class VerifyObject(unittest.TestCase):
             result.addSuccess(self)
         finally:
           result.stopTest(self)
-      
+
       elapsedtime = time.time() - starttime
-      
+
       self.logger.log(4, L2("ran %d test%s in %.3fs" %
         (result.testsRun, result.testsRun != 1 and 's' or '', elapsedtime)))
-      
+
       if not result.wasSuccessful():
         self.logger.log(4, L2("FAILED("), newline=False)
         failed, errored = len(result.failures), len(result.errors)

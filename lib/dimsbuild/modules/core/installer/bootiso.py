@@ -29,11 +29,9 @@ class BootisoEvent(Event, BootConfigMixin):
   def setup(self):
     self.diff.setup(self.DATA)
     self.DATA['input'].extend(self.cvars['isolinux-files'].values())
-    boot_arg_defaults = ''
-    if self.cvars['web-path']:
-      boot_arg_defaults += ' method=%s/os' % self.cvars['web-path']
-    if self.cvars['ks-path']:
-      boot_arg_defaults += ' ks=file:%s' % self.cvars['ks-path']
+    boot_arg_defaults = []
+    self.bootconfig._process_method(boot_arg_defaults)
+    self.bootconfig._process_ks(boot_arg_defaults)
     self.bootconfig.setup(defaults=boot_arg_defaults)
 
   def run(self):

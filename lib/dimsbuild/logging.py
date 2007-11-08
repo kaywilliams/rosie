@@ -63,8 +63,15 @@ class LogContainer(logger.LogContainer):
         log_obj.write(priority, message, **kwargs)
 
 
+class NullLogger(logger.Logger):
+  def __init__(self, *args, **kwargs):
+    logger.Logger.__init__(self, *args, **kwargs)
+    self.file_object = self # tricksy, kind of hackish
+  def write(self, *args, **kwargs): pass
+  def log(self, *args, **kwargs): pass
+
 def make_log(threshold, logfile=None):
-  container = LogContainer()
+  container = LogContainer([])
   console = Logger(threshold=threshold, file_object=sys.stdout,
                    format='%(message)s')
   container.list.append(console)
@@ -76,7 +83,7 @@ def make_log(threshold, logfile=None):
     container.list.append(logfile)
     container.logfile = logfile
   else:
-    container.logfile = None
+    container.logfile = NullLogger()
   
   container.test = console.test
   container.threshold = console.threshold

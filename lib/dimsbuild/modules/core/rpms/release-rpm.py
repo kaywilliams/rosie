@@ -61,7 +61,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     obsoletes = ' '.join([ '%s %s %s' %(n,e,v)
                             for n,e,v in self.cvars.get('release-versions', [])])
     provides = ' '.join([ '%s %s %s' % (n,e,v)
-                            for _,e,v in self.cvars.get('release-versions', [])]) 
+                            for _,e,v in self.cvars.get('release-versions', [])])
     provides += ' ' + ' '.join([ 'redhat-release %s %s' % (e,v)
                             for _,e,v in self.cvars.get('release-versions', [])])
     self._setup_build(obsoletes=obsoletes, provides=provides)
@@ -93,7 +93,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
   def check(self):
     return self.release == '0' or \
            not self.autofile.exists() or \
-           self.diff.test_diffs()
+           self.diff.test_diffs(debug=True)
 
   def run(self):
     self.io.clean_eventcache(all=True)

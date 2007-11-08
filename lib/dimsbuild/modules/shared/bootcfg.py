@@ -17,21 +17,21 @@ class BootConfigDummy(object):
     self._macros = {}
   
   def setup(self, defaults=None):
-    self.boot_args = self.ptr.config.get('boot-config/append-args/text()', '')
+    self.boot_args = self.ptr.config.get('boot-config/append-args/text()', '').split()
     if defaults:
-      for karg in defaults.split():
+      for karg in defaults:
         self._macros['%%{%s}' % karg.split('=')[0]] = karg
       if self.ptr.config.get('boot-config/@use-defaults', 'True') in BOOLEANS_TRUE:
-        self.boot_args += ' ' + defaults
+        self.boot_args.extend(defaults)
     if self.ptr.cvars['boot-args']:
-      self.boot_args += ' ' + self.cvars['boot-args']
+      self.boot_args.append(self.cvars['boot-args'].split())
     
-    self.boot_args = self._expand_macros(self.boot_args)
+    self.boot_args = [ self._expand_macros(x) for x in self.boot_args ]
   
   def modify(self, dst):
     if not self.boot_args: return
     
-    boot_args = self._expand_macros(self.boot_args)
+    boot_args = [ self._expand_macros(x) for x in self.boot_args ]
     
     config = P(self.ptr.config.get('boot-config/file/text()',
                self.ptr.cvars['boot-config-file']))
@@ -46,7 +46,7 @@ class BootConfigDummy(object):
         if   not _label: continue
         elif len(tokens) < 2: continue
         elif tokens[1] == '-': continue
-        lines[i] = '%s %s' % (lines[i].rstrip(), boot_args.strip())
+        lines[i] = '%s %s' % (lines[i].rstrip(), ' '.join(boot_args))
     
     dst.remove()
     dst.write_lines(lines)
@@ -55,3 +55,11 @@ class BootConfigDummy(object):
     for k,v in self._macros.items():
       s = s.replace(k, v)
     return s
+  
+  def _process_method(self, args):
+    if self.ptr.cvars['web-path']:
+      args.append('method=%s/os' % self.ptr.cvars['web-path'])
+  
+  def _process_ks(self, args):
+    if self.ptr.cvars['ks-path']:
+      args.append('ks=file:%s' % self.ptr.cvars['ks-path'])

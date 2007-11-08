@@ -221,6 +221,8 @@ class CompsEvent(Event):
     if id == self.cvars['base-repoid']:
       self._update_group_content('core', tree)
 
+    # we can't currently catch repoids that do not have corresponding group
+    # files...
     for group in self.config.xpath(
       'core/group[not(@repoid) or @repoid="%s"]' % id, []):
       # I don't like the following hack - the goal is to allow users to have

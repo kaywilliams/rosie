@@ -69,8 +69,7 @@ class CachedSyncCallback(_CachedSyncCallback, SyncCallback):
     self.bar.finish()
     # if we're at log level 3, write the completed bar to the log file
     if self.logger.test(3):
-      if self.logger.logfile:
-        self.logger.logfile.log(3, str(self.bar))
+      self.logger.logfile.log(3, str(self.bar))
 
 
 class BuildDepsolveCallback:

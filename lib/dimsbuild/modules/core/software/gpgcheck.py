@@ -18,7 +18,7 @@ class GPGFilesCallback(FilesCallback):
     self.relpath = relpath
     self.repo = repo
 
-  def sync_start(self): 
+  def sync_start(self):
     self.logger.log(1, L1("downloading gpgkeys - '%s'" % self.repo))
 
 class GpgCheckEvent(Event):
@@ -59,13 +59,13 @@ class GpgCheckEvent(Event):
       if rpms:
         self.rpms[repo.id] = sorted(rpms)
 
-    if self.rpms:
-      for repo in self.gpgkeys.keys():
-        self.io.setup_sync(self.mddir/repo, paths=self.gpgkeys[repo], id=repo)
-      self.DATA['variables'].append('rpms')
-      self.DATA['variables'].append('gpgkeys')
-
-  def run(self):   
+    #if self.rpms:
+    for repo in self.gpgkeys.keys():
+      self.io.setup_sync(self.mddir/repo, paths=self.gpgkeys[repo], id=repo)
+    self.DATA['variables'].append('rpms')
+    self.DATA['variables'].append('gpgkeys')
+  
+  def run(self):
     if not self.rpms:
       self.io.clean_eventcache(all=True) # remove old keys
       self.diff.write_metadata()

@@ -46,11 +46,9 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     ])
     
     self.image_locals = self.locals.files['installer']['diskboot.img']
-    boot_arg_defaults = 'nousbstorage'
-    if self.cvars['web-path']:
-      boot_arg_defaults += ' method=%s/os' % self.cvars['web-path']
-    if self.cvars['ks-path']:
-      boot_arg_defaults += ' ks=file:%s' % self.cvars['ks-path']
+    boot_arg_defaults = ['nousbstorage']
+    self.bootconfig._process_method(boot_arg_defaults)
+    self.bootconfig._process_ks(boot_arg_defaults)
     self.bootconfig.setup(defaults=boot_arg_defaults)
     ImageModifyMixin.setup(self)
     
