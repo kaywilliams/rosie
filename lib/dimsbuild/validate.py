@@ -36,7 +36,7 @@ class BaseConfigValidator:
       else:
         if not relaxng.validate(tree):
           if schema_file:
-            raise InvalidConfigError(self.config.getroot().file, relaxng.error_log, schema_file)
+            raise InvalidConfigError(self.config.getroot().file, relaxng.error_log, self.curr_schema)
           else:
             raise InvalidConfigError(self.config.getroot().file, relaxng.error_log)
     finally:
