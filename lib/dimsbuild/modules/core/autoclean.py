@@ -37,7 +37,7 @@ class AutocleanEvent(Event):
     for mdfolder in mdfolders:
       self.log(4, L3("removing unused event metadata directory '%s'" % mdfolder.basename))
       mdfolder.rm(recursive=True, force=True)
-  
+
   def run(self):
     for eventid in self.diff.handlers['events'].diffdict.keys():
       prevver, currver = self.diff.handlers['events'].diffdict[eventid]
@@ -67,14 +67,11 @@ class EventHandler:
   
   def mdwrite(self, root):
     parent = xmllib.tree.uElement('events', parent=root)
-    
-    for k,v in self.diffdict.items():
-      try: parent.remove(parent.get('event[@id="%s"]' % k))
-      except TypeError: pass
-      if v[1] is not None:
-        e = xmllib.tree.Element('event', parent=parent, attrs={'id': k})
-        xmllib.tree.Element('version', parent=e, text=str(v[1]))
-  
+ 
+    for k,v in self.data.items():
+      e = xmllib.tree.Element('event', parent=parent, attrs={'id': k})
+      xmllib.tree.Element('version', parent=e, text=str(v))       
+
   def diff(self):
     for k,v in self.events.items():
       if self.data.has_key(k):
