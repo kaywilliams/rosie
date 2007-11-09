@@ -10,6 +10,7 @@ class InitEvent(Event):
       id = 'init',
       properties = PROTECT_SKIP | PROTECT_ENABLED,
       provides = ['option-parser'],
+      suppress_run_message = True
     )
   
   def clean(self):
@@ -35,6 +36,7 @@ class SetupEvent(Event):
       properties = CLASS_META,
       comes_after = ['init'],
       conditionally_comes_after = ['autoclean'],
+      suppress_run_message = True
     )
 
 class OSMetaEvent(Event):
@@ -43,5 +45,6 @@ class OSMetaEvent(Event):
       id = 'OS',
       properties = CLASS_META,
       comes_after = ['setup'],
+      suppress_run_message = True
     )
 

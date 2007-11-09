@@ -36,9 +36,10 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   computed just once.  See make_event_superclass() inside main.py for
   more details.
   """
-  def __init__(self, id, version=0, *args, **kwargs):
+  def __init__(self, id, version=0, suppress_run_message=False, *args, **kwargs):
     dispatch.Event.__init__(self, id, *args, **kwargs)
     self.event_version = version
+    self.suppress_run_message = suppress_run_message
     self._status = None
 
     IOMixin.__init__(self)
@@ -83,7 +84,8 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
         self.log(5, L0('running %s.check()' % self.id))
         if self.check():
           self.log(5, L0('running %s.run()' % self.id))
-          self.log(1, L0('%s' % self.id))
+          if not self.suppress_run_message:
+            self.log(1, L0('%s' % self.id))
           self.run()
       self.log(5, L0('running %s.apply()' % self.id))
       self.apply()

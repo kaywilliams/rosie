@@ -378,4 +378,5 @@ class AllEvent(Event):
       id = 'ALL',
       version = 0,
       properties = CLASS_META,
+      suppress_run_message = True
     )

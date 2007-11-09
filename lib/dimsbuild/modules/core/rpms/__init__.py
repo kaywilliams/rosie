@@ -7,7 +7,9 @@ class RpmsEvent(Event):
   def __init__(self):
     Event.__init__(self,
                    id='rpms',
-                   properties=CLASS_META)
+                   properties=CLASS_META,
+                   suppress_run_message = True
+                   )
 
     self.cvars['custom-rpms']  = []
     self.cvars['custom-srpms'] = []

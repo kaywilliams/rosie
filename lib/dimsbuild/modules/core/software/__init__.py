@@ -9,4 +9,5 @@ class SoftwareMetaEvent(Event):
       id = 'software',
       properties = CLASS_META,
       provides = ['os-content'],
+      suppress_run_message = True
     )
