@@ -1,0 +1,200 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<comps>
+  <group>
+    <id>example-fedora</id>
+    <name>Example Fedora 6</name>
+    <description>This group includes packages specific to Example Fedora 6</description>
+    <default>true</default>
+    <uservisible>false</uservisible>
+    <biarchonly>false</biarchonly>
+    <packagelist>
+      <packagereq type="mandatory">createrepo</packagereq>
+      <packagereq type="mandatory">httpd</packagereq>
+      <packagereq type="mandatory">kernel</packagereq>
+    </packagelist>
+  </group>
+  <group>
+    <id>core</id>
+    <name>Core</name>
+    <name xml:lang="af">Kern</name>
+    <name xml:lang="am"/>
+    <name xml:lang="ar"/>
+    <name xml:lang="as"/>
+    <name xml:lang="be"/>
+    <name xml:lang="bg"/>
+    <name xml:lang="bn">কোর (Core)</name>
+    <name xml:lang="bn_IN"/>
+    <name xml:lang="ca">Nucli</name>
+    <name xml:lang="cs">Jádro</name>
+    <name xml:lang="cy">Craidd</name>
+    <name xml:lang="da">Grundlæggende</name>
+    <name xml:lang="de">Kern</name>
+    <name xml:lang="el"/>
+    <name xml:lang="en_GB">Core</name>
+    <name xml:lang="es">Núcleo</name>
+    <name xml:lang="et">Tuum</name>
+    <name xml:lang="fa"/>
+    <name xml:lang="fi">Keskeiset</name>
+    <name xml:lang="fr">Core</name>
+    <name xml:lang="gl">Núcleo</name>
+    <name xml:lang="gu"/>
+    <name xml:lang="hi"/>
+    <name xml:lang="hr">Jezgra</name>
+    <name xml:lang="hu">Mag</name>
+    <name xml:lang="id">Inti</name>
+    <name xml:lang="is">Lágmarkskerfi</name>
+    <name xml:lang="it">Principale</name>
+    <name xml:lang="ja"/>
+    <name xml:lang="ka"/>
+    <name xml:lang="kn"/>
+    <name xml:lang="ko"/>
+    <name xml:lang="lv">Pamatsistēma</name>
+    <name xml:lang="mk"/>
+    <name xml:lang="ml"/>
+    <name xml:lang="mr"/>
+    <name xml:lang="ms">Teras</name>
+    <name xml:lang="nb">Kjerne</name>
+    <name xml:lang="nl">Kern</name>
+    <name xml:lang="no">Kjerne</name>
+    <name xml:lang="nso">Bogare</name>
+    <name xml:lang="or"/>
+    <name xml:lang="pa"/>
+    <name xml:lang="pl">Rdzeń</name>
+    <name xml:lang="pt">Núcleo</name>
+    <name xml:lang="pt_BR">Núcleo</name>
+    <name xml:lang="ru"/>
+    <name xml:lang="sk">Jadro</name>
+    <name xml:lang="sl">Jedro</name>
+    <name xml:lang="sr"/>
+    <name xml:lang="sr@Latn">Srž</name>
+    <name xml:lang="sv">Grund</name>
+    <name xml:lang="ta"/>
+    <name xml:lang="te"/>
+    <name xml:lang="th"/>
+    <name xml:lang="tr">Çekirdek</name>
+    <name xml:lang="uk"/>
+    <name xml:lang="ur"/>
+    <name xml:lang="vi">Lõi</name>
+    <name xml:lang="zh_CN"/>
+    <name xml:lang="zh_TW"/>
+    <name xml:lang="zu">Okuyikhona</name>
+    <description>Smallest possible installation</description>
+    <description xml:lang="af">Kleinste moontlike installasie</description>
+    <description xml:lang="am"/>
+    <description xml:lang="ar"/>
+    <description xml:lang="as"/>
+    <description xml:lang="be"/>
+    <description xml:lang="bg"/>
+    <description xml:lang="bn"/>
+    <description xml:lang="bn_IN"/>
+    <description xml:lang="ca">La instal·lació més petita possible</description>
+    <description xml:lang="cs">Nejmenší možná instalace</description>
+    <description xml:lang="cy">Arsefydliad lleiaf posib</description>
+    <description xml:lang="da">Mindst mulige installation</description>
+    <description xml:lang="de">Kleinstmögliche Installation</description>
+    <description xml:lang="el"/>
+    <description xml:lang="en_GB">Smallest possible installation</description>
+    <description xml:lang="es">Instalación lo más pequeña posible</description>
+    <description xml:lang="et">Väikseim võimalik installatsioon</description>
+    <description xml:lang="fa"/>
+    <description xml:lang="fi">Pienin mahdollinen asennus</description>
+    <description xml:lang="fr">Plus petite installation possible</description>
+    <description xml:lang="gu"/>
+    <description xml:lang="hi"/>
+    <description xml:lang="hr">Najmanja moguća instalacija</description>
+    <description xml:lang="hu">Minimális telepítés</description>
+    <description xml:lang="id">Instalasi sekecil mungkin</description>
+    <description xml:lang="is">Lágmarks uppsetning</description>
+    <description xml:lang="it">Installazione minima</description>
+    <description xml:lang="ja"/>
+    <description xml:lang="ka"/>
+    <description xml:lang="kn"/>
+    <description xml:lang="ko"/>
+    <description xml:lang="lv">Vismazākā iespējamā instalācija</description>
+    <description xml:lang="mk"/>
+    <description xml:lang="ml"/>
+    <description xml:lang="mr"/>
+    <description xml:lang="ms">Pemasangan sekecil mungkin</description>
+    <description xml:lang="nb">Minste mulige installering</description>
+    <description xml:lang="nl">Kleinst mogelijke installatie</description>
+    <description xml:lang="no">Minste mulige installering</description>
+    <description xml:lang="nso">Go tsenya mo go kgonegago go gonyenyane kudu</description>
+    <description xml:lang="or"/>
+    <description xml:lang="pa"/>
+    <description xml:lang="pl">Najmniejsza możliwa instalacja</description>
+    <description xml:lang="pt">A mais pequena instalação possível</description>
+    <description xml:lang="pt_BR">A menor instalação possível</description>
+    <description xml:lang="ru"/>
+    <description xml:lang="sk">Najmenšia možná inštalácia</description>
+    <description xml:lang="sl">Najmanjša možna namestitev</description>
+    <description xml:lang="sr"/>
+    <description xml:lang="sr@Latn">Najmanja moguća instalacija</description>
+    <description xml:lang="sv">Minsta möjliga installation</description>
+    <description xml:lang="ta"/>
+    <description xml:lang="te"/>
+    <description xml:lang="th"/>
+    <description xml:lang="tr">Olası en küçük kurulum</description>
+    <description xml:lang="uk"/>
+    <description xml:lang="ur"/>
+    <description xml:lang="vi">Cài đặt nhỏ tối thiểu</description>
+    <description xml:lang="zh_CN"/>
+    <description xml:lang="zh_TW"/>
+    <description xml:lang="zu">Ukufakwa okuncane</description>
+    <default>true</default>
+    <uservisible>false</uservisible>
+    <packagelist>
+      <packagereq type="mandatory">SysVinit</packagereq>
+      <packagereq type="mandatory">authconfig</packagereq>
+      <packagereq type="mandatory">basesystem</packagereq>
+      <packagereq type="mandatory">bash</packagereq>
+      <packagereq type="mandatory">coreutils</packagereq>
+      <packagereq type="mandatory">cpio</packagereq>
+      <packagereq type="mandatory">e2fsprogs</packagereq>
+      <packagereq type="mandatory">ed</packagereq>
+      <packagereq type="default">elilo</packagereq>
+      <packagereq type="mandatory">fedora-logos</packagereq>
+      <packagereq type="mandatory">fedora-release</packagereq>
+      <packagereq type="mandatory">file</packagereq>
+      <packagereq type="mandatory">filesystem</packagereq>
+      <packagereq type="mandatory">glibc</packagereq>
+      <packagereq type="default">grub</packagereq>
+      <packagereq type="mandatory">hdparm</packagereq>
+      <packagereq type="mandatory">initscripts</packagereq>
+      <packagereq type="mandatory">iproute</packagereq>
+      <packagereq type="mandatory">iprutils</packagereq>
+      <packagereq type="mandatory">iputils</packagereq>
+      <packagereq type="mandatory">kbd</packagereq>
+      <packagereq type="mandatory">kudzu</packagereq>
+      <packagereq type="mandatory">libgcc</packagereq>
+      <packagereq type="mandatory">libtermcap</packagereq>
+      <packagereq type="mandatory">passwd</packagereq>
+      <packagereq type="mandatory">policycoreutils</packagereq>
+      <packagereq type="default">ppc64-utils</packagereq>
+      <packagereq type="mandatory">prelink</packagereq>
+      <packagereq type="mandatory">procps</packagereq>
+      <packagereq type="mandatory">readline</packagereq>
+      <packagereq type="mandatory">rootfiles</packagereq>
+      <packagereq type="mandatory">rpm</packagereq>
+      <packagereq type="default">s390utils</packagereq>
+      <packagereq type="mandatory">selinux-policy-targeted</packagereq>
+      <packagereq type="mandatory">setserial</packagereq>
+      <packagereq type="mandatory">setup</packagereq>
+      <packagereq type="mandatory">shadow-utils</packagereq>
+      <packagereq type="mandatory">sysklogd</packagereq>
+      <packagereq type="mandatory">termcap</packagereq>
+      <packagereq type="mandatory">util-linux</packagereq>
+      <packagereq type="mandatory">vim-minimal</packagereq>
+      <packagereq type="default">yaboot</packagereq>
+    </packagelist>
+  </group>
+  <category>
+    <id>Groups</id>
+    <name>Groups</name>
+    <description>Groups in Example Fedora 6</description>
+    <display_order>99</display_order>
+    <grouplist>
+      <groupid>example-fedora</groupid>
+      <groupid>core</groupid>
+    </grouplist>
+  </category>
+</comps>
