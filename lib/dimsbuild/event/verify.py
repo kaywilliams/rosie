@@ -18,9 +18,6 @@ class VerifyObject(unittest.TestCase):
     self.logger = self.ptr.logger
     self.method_prefix = 'verify_'
 
-  def shortDescription(self):
-    return (self._testMethodDoc or '').split('\n')[0].strip() or None
-
   def unittest(self):
     methods = [] # list of methods to run
     for attr in dir(self.ptr):
@@ -37,25 +34,24 @@ class VerifyObject(unittest.TestCase):
       starttime = time.time()
       
       for method in methods:
-        self._testMethodName = method.__name__
-        self._testMethodDoc  = method.__doc__
+        fntest = unittest.FunctionTestCase(method)
 
-        result.startTest(self)
+        result.startTest(fntest)
         try:
           ok = False
           try:
             method()
             ok = True
           except self.failureException:
-            result.addFailure(self, self._exc_info())
+            result.addFailure(fntest, fntest._exc_info())
           except KeyboardInterrupt:
             raise
           except:
-            result.addError(self, self._exc_info())
+            result.addError(fntest, fntest._exc_info())
           if ok:
-            result.addSuccess(self)
+            result.addSuccess(fntest)
         finally:
-          result.stopTest(self)
+          result.stopTest(fntest)
 
       elapsedtime = time.time() - starttime
 
