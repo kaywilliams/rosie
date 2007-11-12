@@ -93,7 +93,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
   def check(self):
     return self.release == '0' or \
            not self.autofile.exists() or \
-           self.diff.test_diffs(debug=True)
+           self.diff.test_diffs()
 
   def run(self):
     self.io.clean_eventcache(all=True)
