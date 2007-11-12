@@ -63,13 +63,15 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   def _check_status(self, status):
     "Returns True if status change is ok; False if invalid"
     return (status == STATUS_FORCE and not self.test(PROTECT_FORCE)) or \
-           (status == STATUS_SKIP  and not self.test(PROTECT_SKIP))
+           (status == STATUS_SKIP  and not self.test(PROTECT_SKIP)) or \
+           (status is None)
 
   forced  = property(lambda self: self.status == STATUS_FORCE)
   skipped = property(lambda self: self.status == STATUS_SKIP)
 
   # execution methods
   def execute(self):
+    self._run = False #! hack to get testing to work
     self.log(5, L0('*** %s event ***' % self.id))
     try:
       if (self.mddir/'debug').exists():
@@ -87,6 +89,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
           if not self.suppress_run_message:
             self.log(1, L0('%s' % self.id))
           self.run()
+          self._run = True #! hack to get testing to work
       self.log(5, L0('running %s.apply()' % self.id))
       self.apply()
       self.log(5, L0('running %s.verify()' % self.id))

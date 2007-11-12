@@ -2,7 +2,7 @@ from dims import pps
 
 import unittest
 
-from origin import EventTest
+from test import EventTest
 
 #------ FileDownloadMixin ------#
 class FDMTest_Files(EventTest):

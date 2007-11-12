@@ -1,6 +1,6 @@
 import unittest
 
-from origin import EventTest
+from test import EventTest
 
 class CoreEventTest00(EventTest):
   "Event.verify() raises an AssertionError if --skip'd first"

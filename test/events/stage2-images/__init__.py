@@ -1,10 +1,10 @@
 import copy
 import unittest
 
-from origin import EventTest
+from test import EventTest
 
-from origin.events.core import make_suite as core_make_suite
-from origin.events.mixins import fdm_make_suite
+from test.events.core import make_suite as core_make_suite
+from test.events.mixins import fdm_make_suite
 
 eventid = 'stage2-images'
 

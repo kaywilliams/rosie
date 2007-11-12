@@ -1,11 +1,11 @@
 import copy
 import unittest
 
-from origin import EventTest
+from test import EventTest
 
-from origin.events.core import make_suite as core_make_suite
-from origin.events.mixins import (ImageModifyMixinTestCase, imm_make_suite,
-                                  BootConfigMixinTestCase)
+from test.events.core import make_suite as core_make_suite
+from test.events.mixins import (ImageModifyMixinTestCase, imm_make_suite,
+                                BootConfigMixinTestCase)
 
 eventid = 'diskboot-image'
 
