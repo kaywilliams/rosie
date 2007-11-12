@@ -28,13 +28,13 @@ class BootConfigDummy(object):
     
     self.boot_args = [ self._expand_macros(x) for x in self.boot_args ]
   
-  def modify(self, dst):
+  def modify(self, dst, cfgfile=None):
     if not self.boot_args: return
     
     boot_args = [ self._expand_macros(x) for x in self.boot_args ]
     
     config = P(self.ptr.config.get('boot-config/file/text()',
-               self.ptr.cvars['boot-config-file']))
+               cfgfile or self.ptr.cvars['boot-config-file']))
     lines = config.read_lines()
     _label = False # have we seen a label line yet?
     

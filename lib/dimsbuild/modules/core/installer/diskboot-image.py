@@ -64,4 +64,4 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     # hack to modify boot args in syslinux.cfg file
     for file in self.image.list():
       if file.basename == 'syslinux.cfg':
-        self.bootconfig.modify(file); break
+        self.bootconfig.modify(file, cfgfile=file); break

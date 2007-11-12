@@ -30,6 +30,8 @@ YUMCONF_HEADER = [
   '\n',
 ]
 
+NVR_REGEX = re.compile('(.+)-([^-]+)-([^-]+)')
+
 class PkglistEvent(Event):
   def __init__(self):
     Event.__init__(self,
@@ -103,14 +105,6 @@ class PkglistEvent(Event):
 
     pkgtups = [ x.pkgtup for x in solver.tsInfo.getMembers() ]
 
-    self.log(1, L1("verifying package list"))
-    # extract pkg names for checking
-    nlist = [ n for n,_,_,_,_ in pkgtups ]
-    for pcheck in self.cvars.get('user-required-packages', []):
-      if pcheck not in nlist:
-        raise DepSolveError("User-specified package '%s' not found in resolved pkglist" % pcheck)
-    del nlist
-
     self.log(1, L1("pkglist closure achieved in %d packages" % len(pkgtups)))
 
     pkglist = []
@@ -136,6 +130,18 @@ class PkglistEvent(Event):
     "pkglist file exists"
     self.verifier.failUnless(self.pkglistfile.exists(),
       "missing package list file '%s'" % self.pkglistfile)
+
+  def verify_pkglist_content(self):
+    "pkglist contains all required packages"
+    pkglist = [ NVR_REGEX.match(x).groups()[0] for x in self.cvars['pkglist'] ]
+    missing = []
+    for pkg in self.cvars['required-packages']:
+      if pkg not in pkglist:
+        missing.append(pkg)
+    
+    self.verifier.failUnless(len(missing) == 0,
+      "missing package%s in package list: %s" % \
+        (len(missing) != 1 and 's' or '', missing))
 
   def _create_repoconfig(self):
     repoconfig = self.mddir / 'depsolve.repo'

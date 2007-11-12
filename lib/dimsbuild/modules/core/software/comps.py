@@ -11,11 +11,26 @@ from dimsbuild.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
 API_VERSION = 5.0
 EVENTS = {'software': ['CompsEvent']}
 
-HEADER_FORMAT = '<?xml version=\'%s\' encoding=\'%s\'?>'
-
+# list of all currently-known kernel package equivalents
 KERNELS = [ 'kernel', 'kernel-smp', 'kernel-zen', 'kernel-zen0',
             'kernel-enterprise', 'kernel-hugemem', 'kernel-bigmem',
             'kernel-BOOT' ]
+
+# dictionary of architectures to arch-specific packages
+ARCH_PKGS = {
+  'i386': ['grub'],
+  'ppc':  ['iprutils', 'ppc64-utils', 'yaboot'],
+  's390': ['elilo', 's390utils'],
+}
+
+def build_arch_set(basearch):
+  "Build a list of arch-specific packages that should _not_ be included for "
+  "a given basearch."
+  s = set()
+  for k,v in ARCH_PKGS.items():
+    if basearch != k:
+      s.update(v)
+  return s
 
 LOCALIZED = False # enable if you want all the various translations in the comps
 
@@ -29,7 +44,6 @@ class CompsEvent(Event):
     )
 
     self.comps = Element('comps')
-    self.header = HEADER_FORMAT % ('1.0', 'UTF-8')
 
     self.DATA = {
       'variables': ['fullname', 'cvars[\'anaconda-version\']',
@@ -170,8 +184,9 @@ class CompsEvent(Event):
         PackageReq('kernel', type='mandatory'))
 
     # remove excluded packages
-    for pkg in self.config.xpath('exclude/package/text()', []) + \
-               (self.cvars['excluded-packages'] or []):
+    for pkg in ( self.config.xpath('exclude/package/text()', []) +
+                 (self.cvars['excluded-packages'] or []) +
+                 list(build_arch_set(self.basearch)) ): # exclude all pkgs not for this arch
       for group in self._groups.values():
         group.packagelist.discard(pkg)
 
@@ -195,6 +210,8 @@ class CompsEvent(Event):
     groups.extend(self.config.xpath('core/group[@repoid]', []))
     groups.extend(self.config.xpath('groups/group[@repoid]', []))
 
+    repo_groupfiles = [ x for x,_ in self.groupfiles ]
+
     for group in groups:
       rid = group.get('@repoid')
       gid = group.get('text()')
@@ -203,6 +220,11 @@ class CompsEvent(Event):
       except KeyError:
         raise CompsError("group '%s' specifies an invalid repoid '%s'; relevant config element is:\n%s" % \
                          (gid, rid, group))
+    
+      if rid not in repo_groupfiles:
+        raise CompsError("group '%s' specifies a repoid '%s' that doesn't have its own groupfile" % \
+                         (gid, rid))
+        
 
   def _dict_from_xml(self, elem):
     "Convert a package in xml form into a package tuple"
@@ -221,8 +243,6 @@ class CompsEvent(Event):
     if id == self.cvars['base-repoid']:
       self._update_group_content('core', tree)
 
-    # we can't currently catch repoids that do not have corresponding group
-    # files...
     for group in self.config.xpath(
       'core/group[not(@repoid) or @repoid="%s"]' % id, []):
       # I don't like the following hack - the goal is to allow users to have
@@ -422,7 +442,6 @@ class CompsCategory(object):
       sub.append(Element('groupid', text=gid))
 
     return top
-
 
 
 #------- FACTORY FUNCTIONS -------#

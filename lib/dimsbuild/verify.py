@@ -26,6 +26,8 @@ class BuildTestResult(unittest.TestResult):
   def addError(self, test, err):
     unittest.TestResult.addError(self, test, err)
     self.logger.write(4, 'ERROR\n')
+    if self.logger.threshold <= 3: # display warning on log level 3 and below
+      self.logger.log(1, 'Warning: there was an error in one of the verification methods: %s' % err[1])
 
   def addFailure(self, test, err):
     unittest.TestResult.addFailure(self, test, err)
