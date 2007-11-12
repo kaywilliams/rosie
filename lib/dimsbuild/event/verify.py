@@ -25,14 +25,14 @@ class VerifyObject(unittest.TestCase):
       method = getattr(self.ptr, attr)
       if not callable(method): continue
       methods.append(method)
-    
+
     result = BuildTestResult(self.logger)
-    
+
     if methods:
       self.logger.log(4, L1("running verification methods"))
 
       starttime = time.time()
-      
+
       for method in methods:
         fntest = unittest.FunctionTestCase(method)
 
@@ -43,11 +43,11 @@ class VerifyObject(unittest.TestCase):
             method()
             ok = True
           except self.failureException:
-            result.addFailure(fntest, fntest._exc_info())
+            result.addFailure(fntest, self._exc_info())
           except KeyboardInterrupt:
             raise
           except:
-            result.addError(fntest, fntest._exc_info())
+            result.addError(fntest, self._exc_info())
           if ok:
             result.addSuccess(fntest)
         finally:
@@ -70,5 +70,16 @@ class VerifyObject(unittest.TestCase):
         result.printErrors()
       else:
         self.logger.log(4, L2("all tests succeeded"))
-  
+
     return result
+
+  def _exc_info(self):
+    """
+    Return a version of sys.exc_info() with the traceback frame
+    minimised; usually the top level of the traceback frame is not
+    needed.
+    """
+    exctype, excvalue, tb = sys.exc_info()
+    if sys.platform[:4] == 'java': ## tracebacks look different in Jython
+      return (exctype, excvalue, tb)
+    return (exctype, excvalue, tb)
