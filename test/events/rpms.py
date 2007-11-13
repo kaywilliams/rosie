@@ -11,6 +11,16 @@ from test import EventTest
 
 P = pps.Path
 
+FLAGS_MAP = {
+  0: '',
+  rpm.RPMSENSE_EQUAL: '=',
+  rpm.RPMSENSE_LESS: '<',
+  rpm.RPMSENSE_GREATER: '>',
+  rpm.RPMSENSE_EQUAL | rpm.RPMSENSE_LESS: '<=',
+  rpm.RPMSENSE_EQUAL | rpm.RPMSENSE_GREATER: '>=',
+}
+
+
 #-------- SUPER (ABSTRACT) CLASSES ----------#
 class RpmEventTest(EventTest):
   def __init__(self, eventid, conf):
@@ -99,6 +109,37 @@ class RpmBuildMixinTestCase(RpmEventTest):
     return None
   rpm_header = property(_get_rpmheader)
 
+  def _get_provides(self):
+    return self._get_deps(rpm.RPMTAG_PROVIDENAME,
+                          rpm.RPMTAG_PROVIDEFLAGS,
+                          rpm.RPMTAG_PROVIDEVERSION)
+
+  def _get_obsoletes(self):
+    return self._get_deps(rpm.RPMTAG_OBSOLETENAME,
+                          rpm.RPMTAG_OBSOLETEFLAGS,
+                          rpm.RPMTAG_OBSOLETEVERSION)
+
+  def _get_requires(self):
+    return self._get_deps(rpm.RPMTAG_REQUIRENAME,
+                          rpm.RPMTAG_REQUIREFLAGS,
+                          rpm.RPMTAG_REQUIREVERSION)
+
+  def _get_deps(self, namestag, flagstag, versionstag):
+    names = self.rpm_header[namestag]
+    flags = self.rpm_header[flagstag]
+    versions = self.rpm_header[versionstag]
+    self.failUnless(len(names) == len(flags) == len(versions))
+    deps = []
+    for i in xrange(len(names)):
+      name = names[i]
+      flag = flags[i]
+      version = versions[i]
+      if name.startswith('config(') or name.startswith('rpmlib('):
+        continue
+      dep = '%s %s %s' % (name, FLAGS_MAP[flag], version)
+      deps.append(dep.strip())
+    return deps
+
   def check_header(self):
     for tag, rpmval, reqval in [('name', rpm.RPMTAG_NAME, 'rpmname'),
                                 ('arch', rpm.RPMTAG_ARCH, 'arch'),
@@ -108,7 +149,24 @@ class RpmBuildMixinTestCase(RpmEventTest):
       observed = self.rpm_header[rpmval]
       self.failUnless(observed == expected, "rpm %s incorrect: it is '%s', it should be '%s'" % \
                       (tag, observed, expected))
-    ## FIXME: do some magickery for obsoletes, provides and requires
+
+    observed_provides = self._get_provides()
+    for dep in self.event.provides:
+      dep = dep.replace('==', '=') # for consistency
+      self.failUnless(dep in observed_provides,
+                      "provision '%s' not actually provided" % dep)
+
+    observed_requires = self._get_requires()
+    for dep in self.event.requires:
+      dep = dep.replace('==', '=') # for consistency
+      self.failUnless(dep in observed_requires,
+                      "requirement '%s' not actually required" % dep)
+
+    observed_obsoletes = self._get_obsoletes()
+    for dep in self.event.obsoletes:
+      dep = dep.replace('==', '=') # for consistency
+      self.failUnless(dep in observed_obsoletes,
+                      "obsoleted '%s' not actually obsoleted" % dep)
 
 class RpmCvarsTestCase(RpmEventTest):
   def __init__(self, eventid, conf):
