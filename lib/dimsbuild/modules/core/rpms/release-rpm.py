@@ -20,8 +20,8 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
                            '%s-release' % self.product,
                            '%s release files created by dimsbuild' % self.fullname,
                            '%s release files' % self.product,
-                           defobsoletes='fedora-release redhat-release centos-release '\
-                           'fedora-release-notes redhat-release-notes centos-release-notes')
+                           defobsoletes=['fedora-release', 'redhat-release', 'centos-release',
+                           'fedora-release-notes', 'redhat-release-notes', 'centos-release-notes'])
     InputFilesMixin.__init__(self)
     ColorMixin.__init__(self)
 
@@ -58,12 +58,12 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     }
 
   def setup(self):
-    obsoletes = ' '.join([ '%s %s %s' %(n,e,v)
-                            for n,e,v in self.cvars.get('release-versions', [])])
-    provides = ' '.join([ '%s %s %s' % (n,e,v)
-                            for _,e,v in self.cvars.get('release-versions', [])])
-    provides += ' ' + ' '.join([ 'redhat-release %s %s' % (e,v)
-                            for _,e,v in self.cvars.get('release-versions', [])])
+    obsoletes = [ '%s %s %s' %(n,e,v)
+                  for n,e,v in self.cvars.get('release-versions', [])]
+    provides = [ '%s %s %s' % (n,e,v)
+                 for _,e,v in self.cvars.get('release-versions', [])]
+    provides.extend( [ 'redhat-release %s %s' % (e,v)
+                       for _,e,v in self.cvars.get('release-versions', [])])
     self._setup_build(obsoletes=obsoletes, provides=provides)
     self._setup_download()
 

@@ -29,7 +29,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
                            'attribute in /usr/share/gdm/defaults.conf to the %s '
                            'theme.' %(self.product, self.themename),
                            'Script to set default gdm graphical theme',
-                           defrequires='gdm')
+                           defrequires=['gdm'])
 
   def setup(self):
     self._setup_build()

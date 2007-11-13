@@ -31,8 +31,8 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
                            'have been automatically created by dimsbuild and '\
                            'are specific to %s.' % (self.product, self.fullname),
                            'Icons and pictures related to %s' % self.fullname,
-                           defobsoletes='fedora-logos centos-logos redhat-logos',
-                           defprovides='system-logos')
+                           defobsoletes=['fedora-logos', 'centos-logos', 'redhat-logos'],
+                           defprovides=['system-logos'])
     LocalFilesMixin.__init__(self)
     ColorMixin.__init__(self)
 
@@ -46,10 +46,10 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
 
   def setup(self):
     self.fileslocals = self.locals.logos_rpm
-    obsoletes = ' '.join([ '%s %s %s' %(n,e,v)
-                            for n,e,v in self.cvars.get('logos-versions', [])])
-    provides = ' '.join([ 'system-logos %s %s' % (e,v)
-                            for _,e,v in self.cvars.get('logos-versions', [])])
+    obsoletes = [ '%s %s %s' %(n,e,v)
+                  for n,e,v in self.cvars.get('logos-versions', [])]
+    provides = [ 'system-logos %s %s' % (e,v)
+                 for _,e,v in self.cvars.get('logos-versions', [])]
     self._setup_build(obsoletes=obsoletes, provides=provides)
     self._setup_locals()
 

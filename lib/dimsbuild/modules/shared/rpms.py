@@ -131,27 +131,26 @@ class RpmBuildMixin:
     if self.config.get('@use-default-set', 'True'):
       self.obsoletes = self.defobsoletes
     else:
-      self.obsoletes = ''
+      self.obsoletes = []
     if self.config.pathexists('obsoletes/package/text()'):
-      self.obsoletes += ' ' + ' '.join(self.config.xpath(
-                                  'obsoletes/package/text()'))
+      self.obsoletes.extend(self.config.xpath('obsoletes/package/text()', []))
     if kwargs.has_key('obsoletes'):
-      self.obsoletes += ' ' + kwargs['obsoletes']
+      self.obsoletes.extend(kwargs['obsoletes'])
 
-    self.provides = self.obsoletes
+    self.provides = [ x for x in self.obsoletes ]
     if self.defprovides:
-      self.provides += ' ' + self.defprovides
+      self.provides.extend(self.defprovides)
     if kwargs.has_key('provides'):
-      self.provides += ' ' + kwargs['provides']
+      self.provides.extend(kwargs['provides'])
 
     if self.defrequires:
       self.requires = self.defrequires
     else:
-      self.requires = ''
+      self.requires = []
     if self.config.pathexists('requires/package/text()'):
-      self.requires += ' ' + ' '.join(self.config.xpath('requires/package/text()'))
+      self.requires.extend(self.config.xpath('requires/package/text()', []))
     if kwargs.has_key('requires'):
-      self.requires += ' ' + kwargs['requires']
+      self.requires.extend(kwargs['requires'])
 
     self.diff.setup(self.DATA)
 
@@ -267,9 +266,9 @@ class RpmBuildMixin:
 
     spec.set('bdist_rpm', 'release', self.release)
 
-    if self.provides:  spec.set('bdist_rpm', 'provides',  self.provides)
-    if self.requires:  spec.set('bdist_rpm', 'requires',  self.requires)
-    if self.obsoletes: spec.set('bdist_rpm', 'obsoletes', self.obsoletes)
+    if self.provides:  spec.set('bdist_rpm', 'provides',  ' '.join(self.provides))
+    if self.requires:  spec.set('bdist_rpm', 'requires',  ' '.join(self.requires))
+    if self.obsoletes: spec.set('bdist_rpm', 'obsoletes', ' '.join(self.obsoletes))
 
     iscript = self._getiscript()
     pscript = self._getpscript()

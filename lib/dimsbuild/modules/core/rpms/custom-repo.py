@@ -12,7 +12,7 @@ EVENTS = {'rpms': ['CustomRepoEvent']}
 class CustomRepoEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      
+
       id='custom-repo',
       conditionally_requires=['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
       provides=['repos', 'source-repos', 'included-packages', 'excluded-packages']
@@ -47,7 +47,7 @@ class CustomRepoEvent(Event):
     self.rc['custom-repo-sources'].localurl = self.CUSTOM_SRPMS
     self.rc['custom-repo-sources'].pkgsfile = self.CUSTOM_SRPMS/'packages'
     self.DATA['output'].append(self.rc['custom-repo-sources'].pkgsfile)
-    
+
     self.cvars.setdefault('repos', {})
     self.cvars.setdefault('source-repos', {})
 
@@ -108,4 +108,4 @@ class CustomRepoEvent(Event):
                                                              default))
 
       if obsoletes:
-        self.cvars.setdefault('excluded-packages', []).extend(obsoletes.split())
+        self.cvars.setdefault('excluded-packages', []).extend(obsoletes)
