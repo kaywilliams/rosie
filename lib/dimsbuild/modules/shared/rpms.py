@@ -332,6 +332,7 @@ IMAGE_COLORS = {
   },
   'Fedora': {
     '7': ('0x001b52', '0xffffff', '0x1c2959'),
+    '8': ('0x204b69', '0xffffff', '0x466e92'),
   },
   'Red Hat Enterprise Linux Server': {
     '5': ('0x781e1d', '0xffffff', '0x581715'),
