@@ -9,7 +9,7 @@ from test.events.rpms import RpmBuildMixinTestCase, InputFilesMixinTestCase, Rpm
 
 eventid = 'release-rpm'
 
-class Test_ReleaseRpmLocals(InputFilesMixinTestCase):
+class Test_ReleaseRpmInputs(InputFilesMixinTestCase):
   def __init__(self, conf):
     InputFilesMixinTestCase.__init__(self, eventid, conf)
 
@@ -41,8 +41,6 @@ class Test_ReleaseRpmBuild(RpmBuildMixinTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
     self.check_header()
-    self.failUnless((self.event.rpmname, 'mandatory', None, self.event.obsoletes, None) in
-                    self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 class Test_ReleaseRpmCvars1(RpmCvarsTestCase):
@@ -83,7 +81,7 @@ class Test_ReleaseRpmCvars2(RpmCvarsTestCase):
 def make_suite(conf):
   suite = unittest.TestSuite()
   suite.addTest(core_make_suite(eventid, conf))
-  suite.addTest(Test_ReleaseRpmLocals(conf))
+  suite.addTest(Test_ReleaseRpmInputs(conf))
   suite.addTest(Test_ReleaseRpmBuild(conf))
   suite.addTest(Test_ReleaseRpmCvars1(conf))
   suite.addTest(Test_ReleaseRpmCvars2(conf))
