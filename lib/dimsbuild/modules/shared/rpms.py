@@ -110,7 +110,7 @@ class ColorMixin:
 
 class RpmBuildMixin:
   def __init__(self, rpmname, description, summary,
-               defprovides=None, defobsoletes=None, defrequires=None):
+               defprovides=[], defobsoletes=[], defrequires=[]):
     self.description  = description
     self.rpmname      = rpmname
     self.summary      = summary
