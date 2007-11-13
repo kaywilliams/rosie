@@ -16,22 +16,6 @@ KERNELS = [ 'kernel', 'kernel-smp', 'kernel-zen', 'kernel-zen0',
             'kernel-enterprise', 'kernel-hugemem', 'kernel-bigmem',
             'kernel-BOOT' ]
 
-# dictionary of architectures to arch-specific packages
-ARCH_PKGS = {
-  'i386': ['grub'],
-  'ppc':  ['iprutils', 'ppc64-utils', 'yaboot'],
-  's390': ['elilo', 's390utils'],
-}
-
-def build_arch_set(basearch):
-  "Build a list of arch-specific packages that should _not_ be included for "
-  "a given basearch."
-  s = set()
-  for k,v in ARCH_PKGS.items():
-    if basearch != k:
-      s.update(v)
-  return s
-
 LOCALIZED = False # enable if you want all the various translations in the comps
 
 class CompsEvent(Event):
@@ -107,7 +91,11 @@ class CompsEvent(Event):
          xmllib.tree.read(self.cvars['comps-file']).xpath('//packagereq/text()')
     except:
       pass # handled via verification below
-  
+
+    # set user required packages variable
+    self.cvars['user-required-packages'] = \
+         self.config.xpath('core/package/text()', [])
+ 
   # output verification
   def verify_comps_xpath(self):
     "user-specifed comps xpath query"
@@ -185,8 +173,7 @@ class CompsEvent(Event):
 
     # remove excluded packages
     for pkg in ( self.config.xpath('exclude/package/text()', []) +
-                 (self.cvars['excluded-packages'] or []) +
-                 list(build_arch_set(self.basearch)) ): # exclude all pkgs not for this arch
+                 (self.cvars['excluded-packages'] or []) ): 
       for group in self._groups.values():
         group.packagelist.discard(pkg)
 

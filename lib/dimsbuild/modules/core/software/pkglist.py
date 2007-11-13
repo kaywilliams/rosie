@@ -132,10 +132,10 @@ class PkglistEvent(Event):
       "missing package list file '%s'" % self.pkglistfile)
 
   def verify_pkglist_content(self):
-    "pkglist contains all required packages"
+    "pkglist contains user required packages"
     pkglist = [ NVR_REGEX.match(x).groups()[0] for x in self.cvars['pkglist'] ]
     missing = []
-    for pkg in self.cvars['required-packages']:
+    for pkg in self.cvars['user-required-packages']:
       if pkg not in pkglist:
         missing.append(pkg)
     
