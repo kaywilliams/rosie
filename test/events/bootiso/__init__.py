@@ -1,35 +1,27 @@
-import copy
 import unittest
+
+from dims.img import MakeImage
 
 from test import EventTest
 
 from test.events.core import make_suite as core_make_suite
-from test.events.mixins import (ImageModifyMixinTestCase, imm_make_suite,
-                                BootConfigMixinTestCase)
+from test.events.mixins import BootConfigMixinTestCase
 
-eventid = 'diskboot-image'
+eventid = 'bootiso'
 
-class DiskbootImageEventTest(ImageModifyMixinTestCase, BootConfigMixinTestCase):
+class BootisoEventTest(BootConfigMixinTestCase):
   def __init__(self, conf):
-    ImageModifyMixinTestCase.__init__(self, eventid, conf)
+    BootConfigMixinTestCase.__init__(self, eventid, conf)
+    self.default_args = []
+    self.image = None
     
-    self.default_args = ['nousbstorage']
-  
   def setUp(self):
-    ImageModifyMixinTestCase.setUp(self)
+    BootConfigMixinTestCase.setUp(self)
+    self.image = MakeImage(self.event.bootiso, 'iso')
     self.clean_event_md()
   
-  
-class Test_CvarContent(DiskbootImageEventTest):
-  "cvars['installer-splash'], cvars['isolinux-files'] included"
-  def runTest(self):
-    self.tb.dispatch.execute(until=eventid)
-    
-    self.check_file_in_image(self.event.cvars['installer-splash'].basename)
-    self.check_file_in_image(self.event.cvars['isolinux-files']['initrd.img'].basename)
-
-class Test_BootArgsDefault(DiskbootImageEventTest):
-  "default boot args and config-specified args in syslinux.cfg"
+class Test_BootArgsDefault(BootisoEventTest):
+  "default boot args and config-specified args in isolinux.cfg"
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
     
@@ -38,27 +30,27 @@ class Test_BootArgsDefault(DiskbootImageEventTest):
     self._append_ks_arg(args)
     self._append_config_args(args)
     
-    self.event.image.open()
+    self.image.open('r')
     try:
-      labels = self.get_boot_args(self.event.image.list().fnmatch('syslinux.cfg')[0])
+      labels = self.get_boot_args(self.image.list().fnmatch('isolinux.cfg')[0])
       self.check_boot_args(labels, self.default_args)
       self.check_boot_args(labels, self.event.bootconfig._expand_macros(
         self.event.config.get('boot-config/append-args/text()', '')).split())
     finally:
-      self.event.image.close()
+      self.image.close()
 
-class Test_BootArgsNoDefault(DiskbootImageEventTest):
+class Test_BootArgsNoDefault(BootisoEventTest):
   "macro usage with non-default boot args"
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
     
-    self.event.image.open()
+    self.image.open('r')
     try:
-      labels = self.get_boot_args(self.event.image.list().fnmatch('syslinux.cfg')[0])
+      labels = self.get_boot_args(self.image.list().fnmatch('isolinux.cfg')[0])
       self.check_boot_args(labels, self.event.bootconfig._expand_macros(
         self.event.config.get('boot-config/append-args/text()', '')).split())
     finally:
-      self.event.image.close()
+      self.image.close()
 
 
 def make_suite(confdir):
@@ -67,8 +59,6 @@ def make_suite(confdir):
   
   suite = unittest.TestSuite()
   suite.addTest(core_make_suite(eventid, dconf))
-  suite.addTest(imm_make_suite(eventid, dconf, 'path'))
-  suite.addTest(Test_CvarContent(dconf))
   suite.addTest(Test_BootArgsDefault(dconf))
   suite.addTest(Test_BootArgsNoDefault(ndconf))
   return suite

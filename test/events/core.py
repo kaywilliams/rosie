@@ -16,7 +16,8 @@ class CoreEventTest00(EventTest):
     self.tb.dispatch.execute(until=self.event.id)
     self.failIf(self.event._run)
     if self.event.provides:
-      self.failUnless(not self.event.verifier.unittest().wasSuccessful())
+      result = self.event.verifier.unittest()
+      self.failIf(result.wasSuccessful())
 
 class CoreEventTest01(EventTest):
   "Event.run() executes if neither --force nor --skip specified"
@@ -31,7 +32,8 @@ class CoreEventTest01(EventTest):
   def runTest(self):
     self.tb.dispatch.execute(until=self.event.id)
     self.failUnless(self.event._run)
-    self.failUnless(self.event.verifier.unittest().wasSuccessful())
+    result = self.event.verifier.unittest()
+    self.failUnless(result.wasSuccessful(), result._strErrors())
 
 class CoreEventTest02(EventTest):
   "Event.run() does not execute after a successful run"
@@ -45,7 +47,8 @@ class CoreEventTest02(EventTest):
   def runTest(self):
     self.tb.dispatch.execute(until=self.event.id)
     self.failIf(self.event._run)
-    self.failUnless(self.event.verifier.unittest().wasSuccessful())
+    result = self.event.verifier.unittest()
+    self.failUnless(result.wasSuccessful(), result._strErrors())
 
 class CoreEventTest03(EventTest):
   "Event.run() executes with --force"
@@ -59,7 +62,8 @@ class CoreEventTest03(EventTest):
   def runTest(self):
     self.tb.dispatch.execute(until=self.event.id)
     self.failUnless(self.event._run)
-    self.failUnless(self.event.verifier.unittest().wasSuccessful())
+    result = self.event.verifier.unittest()
+    self.failUnless(result.wasSuccessful(), result._strErrors())
 
 class CoreEventTest04(EventTest):
   "Event.run() does not execute with --skip"
@@ -73,7 +77,8 @@ class CoreEventTest04(EventTest):
   def runTest(self):
     self.tb.dispatch.execute(until=self.event.id)
     self.failIf(self.event._run)
-    self.failUnless(self.event.verifier.unittest().wasSuccessful())
+    result = self.event.verifier.unittest()
+    self.failUnless(result.wasSuccessful(), result._strErrors())
 
 
 def make_suite(eventid, conf):

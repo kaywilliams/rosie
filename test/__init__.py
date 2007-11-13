@@ -66,6 +66,10 @@ class EventTest(unittest.TestCase):
   def clean_event_md(self, event=None):
     (event or self.event).mddir.rm(recursive=True, force=True)
 
+  def failIfExists(self, path):
+    self.failIf(pps.Path(path).exists(), "'%s' exists" % path)
+  def failUnlessExists(self, path):
+    self.failUnless(pps.Path(path).exists(), "'%s' does not exist " % path)
 
 def main():
   import imp

@@ -38,12 +38,14 @@ class BuildTestResult(unittest.TestResult):
 
   def printErrors(self):
     self.logger.log(4, '')
-    self.printErrorList('ERROR', self.errors)
-    self.printErrorList('FAIL', self.failures)
-
-  def printErrorList(self, flavor, errors):
-    for test, err in errors:
-      self.logger.log(4, self.separator1)
-      self.logger.log(4, '%s: %s' % (flavor, self.getDescription(test)))
-      self.logger.log(4, self.separator2)
-      self.logger.log(4, "%s" % err)
+    self.logger.log(4, self._strErrors())
+  
+  def _strErrors(self):
+    s = ''
+    for flavor, errors in [('ERROR', self.errors), ('FAIL', self.failures)]:
+      for test, err in errors:
+        s += '%s\n' % self.separator1
+        s += '%s: %s\n' % (flavor, self.getDescription(test))
+        s += '%s\n' % self.separator2
+        s += '%s' % err
+    return s

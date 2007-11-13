@@ -2,6 +2,8 @@ import sys
 import time
 import unittest
 
+from dims import pps
+
 from dimsbuild.logging import L1, L2
 from dimsbuild.verify  import BuildTestResult
 
@@ -18,6 +20,11 @@ class VerifyObject(unittest.TestCase):
     self.ptr = ptr
     self.logger = self.ptr.logger
     self.method_prefix = 'verify_'
+
+  def failIfExists(self, path):
+    self.failIf(pps.Path(path).exists(), "'%s' exists" % path)
+  def failUnlessExists(self, path):
+    self.failUnless(pps.Path(path).exists(), "'%s' does not exist " % path)
 
   def unittest(self):
     methods = [] # list of methods to run

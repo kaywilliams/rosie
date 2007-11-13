@@ -14,7 +14,7 @@ class FDMTest_Files(EventTest):
     self.tb.dispatch.execute(until=self.eventid)
     
     for file in self.event.io.list_output():
-      self.failUnless(file.exists()) # need to check for virtual?
+      self.failUnlessExists(file) # need to check for virtual?
 
 def fdm_make_suite(eventid, conf):
   suite = unittest.TestSuite()
@@ -120,7 +120,7 @@ class BootConfigMixinTestCase(EventTest):
         continue
       else:
         for arg in args:
-          self.failUnless(arg in label)
+          self.failUnless(arg in label, "'%s' not in '%s'" % (arg, label))
 
 
 if __name__ == '__main__':

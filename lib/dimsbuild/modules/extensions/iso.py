@@ -167,6 +167,24 @@ class IsoSetsEvent(Event, ListCompareMixin, BootConfigMixin):
     try: self.cvars['publish-content'].add(self.isodir)
     except: pass
   
+  def verify_iso_sets(self):
+    "each split tree has a corresponding iso with valid size"
+    for s in self.config.xpath('set/text()', []):
+      splitdir = self.splittrees/s
+      isodir   = self.isodir/s
+      self.verifier.failUnlessExists(splitdir)
+      self.verifier.failUnlessExists(isodir)
+      
+      split_sets = [ x.basename for x in splitdir.listdir() ]
+      iso_sets   = [ x.basename.replace('.iso', '') for x in isodir.listdir() ]
+      diff_set   = set(split_sets).symmetric_difference(iso_sets)
+      self.verifier.failIf(diff_set, "iso and split tree sets differ: %s" % diff_set)
+      
+      for iso in isodir.listdir():
+        isosize = iso.stat().st_size
+        self.verifier.failIf(splittree.parse_size(s) < isosize,
+                             "size of '%s' (%d) > %s" % (iso, isosize, s))
+  
   def _extend_diffdata(self, set):
     self.DATA['output'].extend([self.splittrees/set, self.isodir/set])
 
@@ -215,7 +233,7 @@ class IsoSetsEvent(Event, ListCompareMixin, BootConfigMixin):
         bootargs = '-b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table'
       else:
         bootargs = ''
-      shlib.execute('mkisofs %s -UJRTV "%s" -o %s.iso %s' % \
+      shlib.execute('mkisofs %s -UJRTV "%s" -o "%s.iso" "%s"' % \
          (bootargs,
           '%s %s %s disc %d' % \
             (self.product, self.version, self.release, i),
@@ -223,7 +241,7 @@ class IsoSetsEvent(Event, ListCompareMixin, BootConfigMixin):
           self.splittrees/set/iso),
         verbose=True)
       
-      if i == 1: # reset mtimte on isolinux.bin (mkisofs is so misbehaved in this regard)
+      if i == 1: # reset mtime on isolinux.bin (mkisofs is so misbehaved in this regard)
         isolinux_path.utime((i_st.st_atime, i_st.st_mtime))
 
     self.DATA['output'].extend([self.splittrees/set, self.isodir/set])
