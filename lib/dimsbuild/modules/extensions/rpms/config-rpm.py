@@ -46,14 +46,11 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
 
   def run(self):
     self.io.clean_eventcache(all=True)
-    if self._test_build('True'):
-      self._build_rpm()
+    self._build_rpm()
     self.diff.write_metadata()
 
   def apply(self):
     self.io.clean_eventcache()
-    if not self._test_build('True'):
-      return
     self._check_rpms()
     self.cvars.setdefault('custom-rpms-info', []).append((self.rpmname, 'mandatory', None, self.obsoletes, None))
 
@@ -65,15 +62,6 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     sources.update(RpmBuildMixin._get_files(self))
     sources.update(InputFilesMixin._get_files(self))
     return sources
-
-  def _test_build(self, default):
-    if RpmBuildMixin._test_build(self, default):
-      if self.config.get('requires', None) or \
-         self.config.get('obsoletes', None) or \
-         self.config.get('config/script/path/text()', None) or \
-         self.config.get('config/supporting-files/path/text()', None):
-        return True
-    return False
 
   def _getpscript(self):
     post_install_scripts = self.io.list_output(what=self.installinfo['config'])

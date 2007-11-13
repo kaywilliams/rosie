@@ -188,8 +188,8 @@ class RpmBuildMixin:
     release_element.text = self.release
     root_element.write(self.autofile)
 
-    # Bug 72. Make the distro.dat have the same ownership and
-    # mode as the distro.conf
+    # set the mode and ownership of distro.conf.dat and distro.conf to
+    # be the same.
     stat = os.stat(self._config.file)
     os.chown(self.autofile, stat.st_uid, stat.st_gid)
     os.chmod(self.autofile, stat.st_mode)
@@ -202,14 +202,6 @@ class RpmBuildMixin:
        self.diff.has_changed('variables') or \
        self.diff.has_changed('config'):
       self.release = str(int(self.release)+1)
-
-  def _test_build(self, default):
-    # I imagine this isn't needed, since the module wont be loaded if enabled
-    # is false...
-    tobuild = self.config.get('/%s/@enabled' % self.id, default)
-    if tobuild == 'default':
-      return default in BOOLEANS_TRUE
-    return tobuild in BOOLEANS_TRUE
 
   def _check_rpms(self):
     rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % (self.rpmname, self.version,

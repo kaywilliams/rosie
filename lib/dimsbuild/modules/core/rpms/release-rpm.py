@@ -97,14 +97,11 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
 
   def run(self):
     self.io.clean_eventcache(all=True)
-    if self._test_build('True'):
-      self._build_rpm()
+    self._build_rpm()
     self.diff.write_metadata()
 
   def apply(self):
     self.io.clean_eventcache()
-    if not self._test_build('True'):
-      return
     self._check_rpms()
     self.cvars.setdefault('custom-rpms-info', []).append((self.rpmname, 'mandatory', None, self.obsoletes, None))
 
