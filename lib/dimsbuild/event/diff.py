@@ -39,6 +39,9 @@ class DiffObject:
   def write_metadata(self):  self.tester.write_metadata()
 
   def test_diffs(self, debug=None):
+    # if we don't use difftest for stuff, just return True
+    if not self.handlers: return True
+    
     old_dbgval = self.tester.debug
     if debug is not None:
       self.tester.debug = debug
@@ -48,10 +51,7 @@ class DiffObject:
 
     self.tester.debug = old_dbgval
 
-    if len(self.diff_set) > 0:
-      return (True in self.diff_set.values())
-    else:
-      return True
+    return (True in self.diff_set.values())
 
   def has_changed(self, name, err=False):
     if not self.handlers.has_key(name):

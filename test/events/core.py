@@ -2,81 +2,84 @@ import unittest
 
 from test import EventTest
 
-class CoreEventTest00(EventTest):
+class CoreEventTest(EventTest):
+  pass
+
+class CoreEventTest00(CoreEventTest):
   "Event.verify() raises an AssertionError if --skip'd first"
   def __init__(self, eventid, conf):
-    EventTest.__init__(self, eventid, conf)
+    CoreEventTest.__init__(self, eventid, conf)
   
   def setUp(self):
-    EventTest.setUp(self)
+    CoreEventTest.setUp(self)
     self.event.status = False
     self.clean_event_md()
   
   def runTest(self):
-    self.tb.dispatch.execute(until=self.event.id)
-    self.failIf(self.event._run)
+    self.execute_predecessors(self.event)
+    self.failIfRuns(self.event)
     if self.event.provides:
       result = self.event.verifier.unittest()
       self.failIf(result.wasSuccessful())
 
-class CoreEventTest01(EventTest):
+class CoreEventTest01(CoreEventTest):
   "Event.run() executes if neither --force nor --skip specified"
   def __init__(self, eventid, conf):
-    EventTest.__init__(self, eventid, conf)
+    CoreEventTest.__init__(self, eventid, conf)
   
   def setUp(self):
-    EventTest.setUp(self)
+    CoreEventTest.setUp(self)
     self.event.status = None
     self.clean_event_md()
   
   def runTest(self):
-    self.tb.dispatch.execute(until=self.event.id)
-    self.failUnless(self.event._run)
+    self.execute_predecessors(self.event)
+    self.failUnlessRuns(self.event)
     result = self.event.verifier.unittest()
     self.failUnless(result.wasSuccessful(), result._strErrors())
 
-class CoreEventTest02(EventTest):
+class CoreEventTest02(CoreEventTest):
   "Event.run() does not execute after a successful run"
   def __init__(self, eventid, conf):
-    EventTest.__init__(self, eventid, conf)
+    CoreEventTest.__init__(self, eventid, conf)
   
   def setUp(self):
-    EventTest.setUp(self)
+    CoreEventTest.setUp(self)
     self.event.status = None
   
   def runTest(self):
-    self.tb.dispatch.execute(until=self.event.id)
-    self.failIf(self.event._run)
+    self.execute_predecessors(self.event)
+    self.failIfRuns(self.event)
     result = self.event.verifier.unittest()
     self.failUnless(result.wasSuccessful(), result._strErrors())
 
-class CoreEventTest03(EventTest):
+class CoreEventTest03(CoreEventTest):
   "Event.run() executes with --force"
   def __init__(self, eventid, conf):
-    EventTest.__init__(self, eventid, conf)
+    CoreEventTest.__init__(self, eventid, conf)
   
   def setUp(self):
-    EventTest.setUp(self)
+    CoreEventTest.setUp(self)
     self.event.status = True
   
   def runTest(self):
-    self.tb.dispatch.execute(until=self.event.id)
-    self.failUnless(self.event._run)
+    self.execute_predecessors(self.event)
+    self.failUnlessRuns(self.event)
     result = self.event.verifier.unittest()
     self.failUnless(result.wasSuccessful(), result._strErrors())
 
-class CoreEventTest04(EventTest):
+class CoreEventTest04(CoreEventTest):
   "Event.run() does not execute with --skip"
   def __init__(self, eventid, conf):
-    EventTest.__init__(self, eventid, conf)
+    CoreEventTest.__init__(self, eventid, conf)
   
   def setUp(self):
-    EventTest.setUp(self)
+    CoreEventTest.setUp(self)
     self.event.status = False
   
   def runTest(self):
-    self.tb.dispatch.execute(until=self.event.id)
-    self.failIf(self.event._run)
+    self.execute_predecessors(self.event)
+    self.failIfRuns(self.event)
     result = self.event.verifier.unittest()
     self.failUnless(result.wasSuccessful(), result._strErrors())
 

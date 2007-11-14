@@ -13,7 +13,7 @@ class ProductImageEventTest(ImageModifyMixinTestCase):
     ImageModifyMixinTestCase.__init__(self, eventid, conf)
   
   def setUp(self):
-    EventTest.setUp(self)
+    ImageModifyMixinTestCase.setUp(self)
     self.clean_event_md()
   
   

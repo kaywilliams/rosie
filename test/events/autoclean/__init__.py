@@ -19,15 +19,14 @@ class AutocleanEventTest10(AutocleanEventTest):
   def setUp(self):
     AutocleanEventTest.setUp(self)
     self.non_meta_event = self.event._getroot().get(non_meta_event)
-    
     self.non_meta_event.event_version = 0
     
     self.clean_event_md(self.non_meta_event)
     self.clean_event_md()
   
   def runTest(self):
-    self.tb.dispatch.execute(until=self.non_meta_event.id)
-    self.failUnless(self.non_meta_event._run)
+    self.execute_predecessors(self.non_meta_event)
+    self.failUnlessRuns(self.non_meta_event)
 
 class AutocleanEventTest11(AutocleanEventTest):
   "Event.run() executes on Event.event_version change"
@@ -37,12 +36,11 @@ class AutocleanEventTest11(AutocleanEventTest):
   def setUp(self):
     AutocleanEventTest.setUp(self)
     self.non_meta_event = self.event._getroot().get(non_meta_event)
-    
     self.non_meta_event.event_version = 1
     
   def runTest(self):
-    self.tb.dispatch.execute(until=self.non_meta_event.id)
-    self.failUnless(self.non_meta_event._run)
+    self.execute_predecessors(self.non_meta_event)
+    self.failUnlessRuns(self.non_meta_event)
 
 class AutocleanEventTest12(AutocleanEventTest):
   "Event.run() does not execute when Event.event_version unchanged"
@@ -52,12 +50,11 @@ class AutocleanEventTest12(AutocleanEventTest):
   def setUp(self):
     AutocleanEventTest.setUp(self)
     self.non_meta_event = self.event._getroot().get(non_meta_event)
-    
     self.non_meta_event.event_version = 1
     
   def runTest(self):
-    self.tb.dispatch.execute(until=self.non_meta_event.id)
-    self.failIf(self.non_meta_event._run)
+    self.execute_predecessors(self.non_meta_event)
+    self.failIfRuns(self.non_meta_event)
 
 class AutocleanEventTest13(AutocleanEventTest):
   "standard run (meta events)"
@@ -67,7 +64,6 @@ class AutocleanEventTest13(AutocleanEventTest):
   def setUp(self):
     AutocleanEventTest.setUp(self)
     self.meta_event = self.event._getroot().get(meta_event)
-    
     self.meta_event.event_version = 0
     
     self.clean_event_md(self.meta_event)
@@ -76,9 +72,9 @@ class AutocleanEventTest13(AutocleanEventTest):
     self.clean_event_md()
     
   def runTest(self):
-    self.tb.dispatch.execute(until=self.meta_event.lastchild.id)
+    self.execute_predecessors(self.meta_event)
     for event in [self.meta_event] + self.meta_event.get_children():
-      self.failUnless(event._run)
+      self.failUnlessRuns(event)
 
 class AutocleanEventTest14(AutocleanEventTest):
   "Event.run() executes on Event.event_version change (and all children)"
@@ -88,13 +84,12 @@ class AutocleanEventTest14(AutocleanEventTest):
   def setUp(self):
     AutocleanEventTest.setUp(self)
     self.meta_event = self.event._getroot().get(meta_event)
-    
     self.meta_event.event_version = 1
   
   def runTest(self):
-    self.tb.dispatch.execute(until=self.meta_event.lastchild.id)
+    self.execute_predecessors(self.meta_event)
     for event in [self.meta_event] + self.meta_event.get_children():
-      self.failUnless(event.status == True)
+      self.failUnlessRuns(event)
 
 class AutocleanEventTest15(AutocleanEventTest):
   "Event.run() does not execute when Event.event_version unchanged (and all children)"
@@ -104,13 +99,12 @@ class AutocleanEventTest15(AutocleanEventTest):
   def setUp(self):
     AutocleanEventTest.setUp(self)
     self.meta_event = self.event._getroot().get(meta_event)
-    
     self.meta_event.event_version = 1
   
   def runTest(self):
-    self.tb.dispatch.execute(until=self.meta_event.lastchild.id)
+    self.execute_predecessors(self.meta_event)
     for event in [self.meta_event] + self.meta_event.get_children():
-      self.failUnless(event.status is None)
+      self.failIfRuns(event)
 
 
 def make_suite(conf):
@@ -128,7 +122,6 @@ def main():
   import dims.pps
   runner = unittest.TextTestRunner(verbosity=2)
   
-  #suite = make_suite(dims.pps.Path('%s.conf' % eventid).abspath())
   suite = make_suite(dims.pps.Path(__file__).dirname/'%s.conf' % eventid)
   
   runner.stream.writeln("testing event '%s'" % eventid)

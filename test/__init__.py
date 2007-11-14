@@ -62,14 +62,46 @@ class EventTest(unittest.TestCase):
     del self.event
   
   def clean_all_md(self):
-    self.event.METADATA_DIR.rm(recursive=True, force=True)
+    for event in self.event.getroot():
+      self.clean_event_md(event)
   def clean_event_md(self, event=None):
-    (event or self.event).mddir.rm(recursive=True, force=True)
+    (event or self.event).mddir.listdir().rm(recursive=True)
+
+  def execute_predecessors(self, event):
+    "run all events prior to this event"
+    previous = event.get_previous()
+    if previous:
+      self.tb.dispatch.execute(until=previous)
 
   def failIfExists(self, path):
     self.failIf(pps.Path(path).exists(), "'%s' exists" % path)
   def failUnlessExists(self, path):
     self.failUnless(pps.Path(path).exists(), "'%s' does not exist " % path)
+  
+  def failIfRuns(self, event):
+    ran = self._runEvent(event)
+    if event.diff.handlers: # only events with diff handlers are subject
+      diffs = {}
+      for id, handler in event.diff.handlers.items():
+        if handler.diffdict: diffs[id] = handler.diffdict
+      self.failIf(ran, "'%s' event ran:\n%s" % (event.id, diffs))
+  def failUnlessRuns(self, event):
+    self.failUnless(self._runEvent(event), "'%s' event did not run" % event.id)
+  
+  def _runEvent(self, event):
+    "paired down duplicate of Event.execute()"
+    ran = False
+    event.setup()
+    if not event.skipped:
+      if event.forced:
+        event.clean()
+      if event.check():
+        event.run()
+        ran = True
+    event.apply()
+    event.verify()
+    return ran
+    
 
 def main():
   import imp

@@ -71,7 +71,6 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
 
   # execution methods
   def execute(self):
-    self._run = False #! hack to get testing to work
     self.log(5, L0('*** %s event ***' % self.id))
     try:
       if (self.mddir/'debug').exists():
@@ -89,7 +88,6 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
           if not self.suppress_run_message:
             self.log(1, L0('%s' % self.id))
           self.run()
-          self._run = True #! hack to get testing to work
       self.log(5, L0('running %s.apply()' % self.id))
       self.apply()
       self.log(5, L0('running %s.verify()' % self.id))

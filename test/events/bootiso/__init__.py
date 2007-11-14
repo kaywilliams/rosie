@@ -14,60 +14,59 @@ class BootisoEventTest(BootConfigMixinTestCase):
     BootConfigMixinTestCase.__init__(self, eventid, conf)
     self.default_args = []
     self.image = None
+    self.do_defaults = True
     
   def setUp(self):
     BootConfigMixinTestCase.setUp(self)
     self.image = MakeImage(self.event.bootiso, 'iso')
+    self._append_method_arg(self.default_args)
+    self._append_ks_arg(self.default_args)
     self.clean_event_md()
   
+  def runTest(self):
+    self.tb.dispatch.execute(until=eventid)
+    
+    self.testArgs(self.image, filename='isolinux.cfg', defaults=self.do_defaults)
+
+
 class Test_BootArgsDefault(BootisoEventTest):
   "default boot args and config-specified args in isolinux.cfg"
-  def runTest(self):
-    self.tb.dispatch.execute(until=eventid)
-    
-    args = self.default_args
-    self._append_method_arg(args)
-    self._append_ks_arg(args)
-    self._append_config_args(args)
-    
-    self.image.open('r')
-    try:
-      labels = self.get_boot_args(self.image.list().fnmatch('isolinux.cfg')[0])
-      self.check_boot_args(labels, self.default_args)
-      self.check_boot_args(labels, self.event.bootconfig._expand_macros(
-        self.event.config.get('boot-config/append-args/text()', '')).split())
-    finally:
-      self.image.close()
+  def setUp(self):
+    BootisoEventTest.setUp(self)
+    self.event.config.get('boot-config').attrib['use-defaults'] = 'true'
+    self.do_defaults = True
 
-class Test_BootArgsNoDefault(BootisoEventTest):
-  "macro usage with non-default boot args"
-  def runTest(self):
-    self.tb.dispatch.execute(until=eventid)
-    
-    self.image.open('r')
-    try:
-      labels = self.get_boot_args(self.image.list().fnmatch('isolinux.cfg')[0])
-      self.check_boot_args(labels, self.event.bootconfig._expand_macros(
-        self.event.config.get('boot-config/append-args/text()', '')).split())
-    finally:
-      self.image.close()
-
-
-def make_suite(confdir):
-  dconf = confdir/'default.conf'
-  ndconf = confdir/'nodefault.conf'
   
+class Test_BootArgsNoDefault(BootisoEventTest):
+  "default boot args not included"
+  def setUp(self):
+    BootisoEventTest.setUp(self)
+    self.event.config.get('boot-config').attrib['use-defaults'] = 'false'
+    self.do_defaults = False
+  
+
+class Test_BootArgsMacros(BootisoEventTest):
+  "macro usage with non-default boot args"
+  def setUp(self):
+    BootisoEventTest.setUp(self)
+    self.event.config.get('boot-config').attrib['use-defaults'] = 'false'
+    self.event.config.get('boot-config/append-args').text += ' %{method} %{ks}'
+    self.do_defaults = False
+
+
+def make_suite(conf):
   suite = unittest.TestSuite()
-  suite.addTest(core_make_suite(eventid, dconf))
-  suite.addTest(Test_BootArgsDefault(dconf))
-  suite.addTest(Test_BootArgsNoDefault(ndconf))
+  suite.addTest(core_make_suite(eventid, conf))
+  suite.addTest(Test_BootArgsDefault(conf))
+  suite.addTest(Test_BootArgsNoDefault(conf))
+  suite.addTest(Test_BootArgsMacros(conf))
   return suite
 
 def main():
   import dims.pps
   runner = unittest.TextTestRunner(verbosity=2)
   
-  suite = make_suite(dims.pps.Path(__file__).dirname)
+  suite = make_suite(dims.pps.Path(__file__).dirname/'%s.conf' % eventid)
   
   runner.stream.writeln("testing event '%s'" % eventid)
   runner.run(suite)

@@ -1,12 +1,12 @@
 import unittest
 
-from dims.img import MakeImage
+from dims.img           import MakeImage
+from dims.xmllib.config import Element
 
 from dimsbuild.splittree import parse_size
 
-from test import EventTest
-
-from test.events.core import make_suite as core_make_suite
+from test               import EventTest
+from test.events.core   import make_suite as core_make_suite
 from test.events.mixins import BootConfigMixinTestCase
 
 eventid = 'iso'
@@ -16,6 +16,19 @@ class IsoEventTest(BootConfigMixinTestCase):
     BootConfigMixinTestCase.__init__(self, eventid, conf)
     self.default_args = ['method=cdrom']
     self.image = None
+    self.do_defaults = True
+  
+  def setUp(self):
+    BootConfigMixinTestCase.setUp(self)
+    self._append_ks_arg(self.default_args)
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=eventid)
+    
+    for s in self.event.isodir.listdir():
+      image = MakeImage(s/'%s-disc1.iso' % self.event.product, 'iso')
+      self.testArgs(image, filename='isolinux.cfg', defaults=self.do_defaults)
+
 
 class Test_SizeParser(unittest.TestCase):
   "splittree.parse_size() checks"
@@ -60,73 +73,54 @@ class Test_IsoContent(EventTest):
         
         self.failIf(not split_set.issubset(image_set), # ignore TRANS.TBL, etc
                     split_set.difference(image_set))
-      
+
+class Test_SetsChanged(IsoEventTest):
+  "iso sets change"
+  def setUp(self):
+    IsoEventTest.setUp(self)
+    self.event.config.get('set[text()="CD"]').text = '640MB'
+    self.event.config.append(Element('set', text='101MB'))
 
 class Test_BootArgsDefault(IsoEventTest):
   "default boot args and config-specified args in isolinux.cfg"
-  def _append_method_arg(self, args):
-    args.append('method=cdrom')
+  def setUp(self):
+    IsoEventTest.setUp(self)
+    self.event.config.get('boot-config').attrib['use-default'] = 'true'
+    self.do_defaults = True
   
-  def runTest(self):
-    self.tb.dispatch.execute(until=eventid)
-    
-    args = self.default_args
-    self._append_method_arg(args)
-    self._append_ks_arg(args)
-    self._append_config_args(args)
-    
-    for s in self.event.isodir.listdir():
-      if not s.isdir(): continue
-      
-      image = MakeImage(s/'%s-disc1.iso' % self.event.product, 'iso')
-      image.open('r')
-      try:
-        labels = self.get_boot_args(image.list().fnmatch('isolinux.cfg')[0])
-        self.check_boot_args(labels, self.default_args)
-        self.check_boot_args(labels, self.event.bootconfig._expand_macros(
-          self.event.config.get('boot-config/append-args/text()', '')).split())
-      finally:
-        image.close()
-
 class Test_BootArgsNoDefault(IsoEventTest):
+  "default boot args not included"
+  def setUp(self):
+    IsoEventTest.setUp(self)
+    self.event.config.get('boot-config').attrib['use-default'] = 'false'
+    self.do_defaults = False
+  
+
+class Test_BootArgsMacros(IsoEventTest):
   "macro usage with non-default boot args"
   def setUp(self):
     IsoEventTest.setUp(self)
-    self.clean_event_md()
+    self.event.config.get('boot-config').attrib['use-default'] = 'false'
+    self.event.config.get('boot-config/append-args').text += ' %{method} %{ks}'
+    self.do_defaults = False
   
-  def runTest(self):
-    self.tb.dispatch.execute(until=eventid)
-    
-    for s in self.event.isodir.listdir():
-      if not s.isdir(): continue
-      
-      image = MakeImage(s/'%s-disc1.iso' % self.event.product, 'iso')
-      image.open('r')
-      try:
-        labels = self.get_boot_args(image.list().fnmatch('isolinux.cfg')[0])
-        self.check_boot_args(labels, self.event.bootconfig._expand_macros(
-          self.event.config.get('boot-config/append-args/text()', '')).split())
-      finally:
-        image.close()
 
-
-def make_suite(confdir):
-  dconf = confdir/'default.conf'
-  ndconf = confdir/'nodefault.conf'
-  
+def make_suite(conf):
   suite = unittest.TestSuite()
-  suite.addTest(core_make_suite(eventid, dconf))
+  suite.addTest(core_make_suite(eventid, conf))
   suite.addTest(Test_SizeParser())
-  suite.addTest(Test_IsoContent(dconf))
-  suite.addTest(Test_BootArgsDefault(dconf))
-  suite.addTest(Test_BootArgsNoDefault(ndconf))
+  suite.addTest(Test_IsoContent(conf))
+  suite.addTest(Test_SetsChanged(conf))
+  suite.addTest(Test_BootArgsDefault(conf))
+  suite.addTest(Test_BootArgsNoDefault(conf))
+  suite.addTest(Test_BootArgsMacros(conf))
   return suite
 
 def main():
   import dims.pps
   runner = unittest.TextTestRunner(verbosity=2)
   
-  suite = make_suite(dims.pps.Path(__file__).dirname)
+  suite = make_suite(dims.pps.Path(__file__).dirname/'%s.conf' % eventid)
   
   runner.stream.writeln("testing event '%s'" % eventid)
   runner.run(suite)

@@ -22,7 +22,7 @@
     </core>
     <groups>
       <group>base</group>
-      <group repoid="fedora-6-updates">printing</group>
+      <group repoid="fedora-6-base">printing</group>
     </groups>
   </comps>
 </distro>

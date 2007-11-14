@@ -128,15 +128,14 @@ class Test_GroupsByRepo(CompsEventTest):
   "comps generated, group included from specific repo"
   def __init__(self, confdir):
     CompsEventTest.__init__(self, eventid, confdir/'conf.groups-by-repo')
-    self.included_groups = ['core', 'base']
+    self.included_groups = ['core', 'base', 'printing']
   
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
     
     self.check_all(self.read_comps())
     
-    # still need to check 'core' came from 'fedora-6-base' and 'printing' #!
-    # came from 'fedora-6-updates' #!
+    # still need to check 'core' and 'printing' came from 'fedora-6-base' #!
 
 class Test_MultipleGroupfiles(CompsEventTest):
   "comps generated, multiple repositories with groupfiles"
@@ -154,7 +153,7 @@ class Test_MultipleGroupfiles(CompsEventTest):
 
 def make_suite(confdir):
   suite = unittest.TestSuite()
-  ##suite.addTest(core_make_suite(eventid, confdir/'%s.conf.10' % eventid))
+  suite.addTest(core_make_suite(eventid, confdir/'conf.supplied'))
   suite.addTest(Test_Supplied(confdir))
   suite.addTest(Test_IncludePackages(confdir))
   suite.addTest(Test_IncludeCoreGroups(confdir))
