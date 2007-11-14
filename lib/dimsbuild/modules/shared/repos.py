@@ -3,6 +3,7 @@ from dims import pps
 from dimsbuild.callback  import FilesCallback
 from dimsbuild.logging   import L1, L2
 from dimsbuild.repo      import RepoContainer
+from dimsbuild.constants import BOOLEANS_FALSE
 
 __all__ = ['RepoEventMixin']
 
@@ -26,6 +27,11 @@ class RepoEventMixin:
         self.repocontainer.read(filexml.text)
 
     for repo in self.repocontainer.values():
+      # remove repo if disabled in repofile
+      if repo.has_key('enabled') and repo['enabled'] in BOOLEANS_FALSE:
+        self.repocontainer.pop(repo.id)
+        continue
+
       for key in repo.keys():
         for yumvar in ['$releasever', '$arch', '$basearch', '$YUM']:
           if not repo[key].find(yumvar) == -1:
