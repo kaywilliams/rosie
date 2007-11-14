@@ -82,7 +82,8 @@ class GpgCheckEvent(Event):
       # add all rpms from the repo to check list
       if self.diff.handlers['variables'].diffdict.has_key('gpgkeys'):
         md, curr = self.diff.handlers['variables'].diffdict['gpgkeys']
-        if not hasattr(md, '__iter__'): md = {repo: []}
+        if not hasattr(md, '__iter__') or not md.has_key(repo): 
+          md = {repo: []}
         if set(curr[repo]).difference(set(md[repo])):
           newrpms = self.rpms[repo]
           homedir.rm(force=True, recursive=True)
