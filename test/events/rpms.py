@@ -134,9 +134,14 @@ class RpmBuildMixinTestCase(RpmEventTest):
       name = names[i]
       flag = flags[i]
       version = versions[i]
-      if name.startswith('config(') or name.startswith('rpmlib('):
+      if name.startswith('config(') or name.startswith('rpmlib(') or \
+         name.startswith('/'):
         continue
-      dep = '%s %s %s' % (name, FLAGS_MAP[flag], version)
+      try:
+        dep = '%s %s %s' % (name, FLAGS_MAP[flag], version)
+      except KeyError:
+        raise KeyError("Unknown sense '%d' used for package '%s' (version=%s)"
+                       % (flag, name, version))
       deps.append(dep.strip())
     return deps
 
