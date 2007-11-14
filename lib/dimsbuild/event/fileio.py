@@ -119,9 +119,8 @@ class IOObject:
         continue
       for src,dst in self.sync_items[id]:
         if not dst.exists() or \
-               self.ptr.diff.handlers['input'].diffdict.has_key(src) and \
-               src.stat().st_size != dst.stat().st_size or \
-               src.stat().st_mtime != dst.stat().st_mtime:
+               self.ptr.diff.handlers['input'].diffdict.has_key(src) or \
+               self.ptr.diff.handlers['output'].diffdict.has_key(dst):
           dst.rm(recursive=True, force=True)
           sync_items.add((src, dst))
       for dst,mode in self.chmod_items[id]:
