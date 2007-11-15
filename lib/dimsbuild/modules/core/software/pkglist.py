@@ -125,7 +125,7 @@ class PkglistEvent(Event):
       self.cvars['pkglist'] = self.pkglistfile.read_lines()
     except:
       pass # handled by verification below
-  
+
   def verify_pkglistfile_exists(self):
     "pkglist file exists"
     self.verifier.failUnless(self.pkglistfile.exists(),
@@ -138,7 +138,7 @@ class PkglistEvent(Event):
     for pkg in self.cvars['user-required-packages']:
       if pkg not in pkglist:
         missing.append(pkg)
-    
+
     self.verifier.failUnless(len(missing) == 0,
       "missing package%s in package list: %s" % \
         (len(missing) != 1 and 's' or '', missing))
