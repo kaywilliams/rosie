@@ -3,13 +3,13 @@ import unittest
 from dims               import pps
 from dims.xmllib.config import Element
 
-from test import EventTest
+from test import EventTestCase
 
 #------ FileDownloadMixin ------#
-class FDMTest_Files(EventTest):
+class FDMTest_Files(EventTestCase):
   "all files downloaded successfully"
   def __init__(self, eventid, conf):
-    EventTest.__init__(self, eventid, conf)
+    EventTestCase.__init__(self, eventid, conf)
   
   def runTest(self):
     self.tb.dispatch.execute(until=self.eventid)
@@ -29,13 +29,13 @@ import time
 starttime = time.time()
 files = ['infile', 'infile2', '/tmp/outfile']
 
-class ImageModifyMixinTestCase(EventTest):
+class ImageModifyMixinTestCase(EventTestCase):
   def __init__(self, eventid, conf):
-    EventTest.__init__(self, eventid, conf)
+    EventTestCase.__init__(self, eventid, conf)
     self.image_content = None
   
   def setUp(self):
-    EventTest.setUp(self)
+    EventTestCase.setUp(self)
     self.clean_event_md()
     
     # touch input files
@@ -101,7 +101,7 @@ def imm_make_suite(eventid, conf, xpath=None):
 
 
 #------ BootConfigMixin ------#
-class BootConfigMixinTestCase(EventTest):
+class BootConfigMixinTestCase(EventTestCase):
   def _append_method_arg(self, args):
     if self.event.cvars['web-path']:
       args.append('method=%s/os' % self.event.cvars['web-path'])

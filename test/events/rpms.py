@@ -7,7 +7,7 @@ from rpmUtils import miscutils
 from dims import img
 from dims import pps
 
-from test import EventTest
+from test import EventTestCase
 
 P = pps.Path
 
@@ -22,9 +22,9 @@ FLAGS_MAP = {
 
 
 #-------- SUPER (ABSTRACT) CLASSES ----------#
-class RpmEventTest(EventTest):
+class RpmEventTestCase(EventTestCase):
   def __init__(self, eventid, conf):
-    EventTest.__init__(self, eventid, conf)
+    EventTestCase.__init__(self, eventid, conf)
 
   def _get_rpmpath(self):
     return self.event.METADATA_DIR / \
@@ -41,7 +41,7 @@ class RpmEventTest(EventTest):
   srpm_path = property(_get_srpmpath)
 
   def setUp(self):
-    EventTest.setUp(self)
+    EventTestCase.setUp(self)
 
 class ExtractMixin(object):
   def __init__(self):
@@ -66,9 +66,9 @@ class ExtractMixin(object):
   img_path = property(_get_imgpath)
 
 #-------- TEST CASES --------#
-class InputFilesMixinTestCase(RpmEventTest, ExtractMixin):
+class InputFilesMixinTestCase(RpmEventTestCase, ExtractMixin):
   def __init__(self, eventid, conf):
-    RpmEventTest.__init__(self, eventid, conf)
+    RpmEventTestCase.__init__(self, eventid, conf)
     ExtractMixin.__init__(self)
 
   def check_inputs(self):
@@ -79,9 +79,9 @@ class InputFilesMixinTestCase(RpmEventTest, ExtractMixin):
           self.failUnless(file.exists(), "missing %s" % file)
           self.failUnless(self.img_path / file.lstrip('/'))
 
-class LocalFilesMixinTestCase(RpmEventTest, ExtractMixin):
+class LocalFilesMixinTestCase(RpmEventTestCase, ExtractMixin):
   def __init__(self, eventid, conf):
-    RpmEventTest.__init__(self, eventid, conf)
+    RpmEventTestCase.__init__(self, eventid, conf)
     ExtractMixin.__init__(self)
 
   def check_locals(self):
@@ -91,9 +91,9 @@ class LocalFilesMixinTestCase(RpmEventTest, ExtractMixin):
       for l in [ P(x) for x in self.event.fileslocals[id]['locations']]:
         self.failUnless((self.img_path / l.lstrip('/')).exists())
 
-class RpmBuildMixinTestCase(RpmEventTest):
+class RpmBuildMixinTestCase(RpmEventTestCase):
   def __init__(self, eventid, conf):
-    RpmEventTest.__init__(self, eventid, conf)
+    RpmEventTestCase.__init__(self, eventid, conf)
 
   def _get_rpmheader(self):
     if self.event._run:
@@ -173,9 +173,9 @@ class RpmBuildMixinTestCase(RpmEventTest):
       self.failUnless(dep in observed_obsoletes,
                       "obsoleted '%s' not actually obsoleted" % dep)
 
-class RpmCvarsTestCase(RpmEventTest):
+class RpmCvarsTestCase(RpmEventTestCase):
   def __init__(self, eventid, conf):
-    RpmEventTest.__init__(self, eventid, conf)
+    RpmEventTestCase.__init__(self, eventid, conf)
 
   def check_cvars(self):
     self.failUnless(self.rpm_path in self.event.cvars['custom-rpms'])

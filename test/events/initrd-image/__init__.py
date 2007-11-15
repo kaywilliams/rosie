@@ -2,14 +2,14 @@ import unittest
 
 from dims import pps
 
-from test import EventTest
+from test import EventTestCase, EventTestRunner
 
-from test.events.core   import make_core_suite
+from test.events        import make_core_suite
 from test.events.mixins import ImageModifyMixinTestCase, imm_make_suite
 
 eventid = 'initrd-image'
 
-class InitrdImageEventTest(ImageModifyMixinTestCase):
+class InitrdImageEventTestCase(ImageModifyMixinTestCase):
   def __init__(self, conf):
     ImageModifyMixinTestCase.__init__(self, eventid, conf)
   
@@ -18,10 +18,10 @@ class InitrdImageEventTest(ImageModifyMixinTestCase):
     self.clean_event_md()
   
   
-class Test_Kickstart(InitrdImageEventTest):
+class Test_Kickstart(InitrdImageEventTestCase):
   "kickstart file included"
   def setUp(self):
-    InitrdImageEventTest.setUp(self)
+    InitrdImageEventTestCase.setUp(self)
     self.ksfile = self.event.config.getroot().file.abspath().dirname/'ks.cfg'
     self.ksfile.touch()
     self.kspath = pps.Path('/kickstarts/ks1.cfg')
@@ -33,7 +33,7 @@ class Test_Kickstart(InitrdImageEventTest):
     self.check_file_in_image(self.kspath.dirname/self.ksfile.basename)
   
   def tearDown(self):
-    InitrdImageEventTest.tearDown(self)
+    InitrdImageEventTestCase.tearDown(self)
     self.ksfile.remove()
 
 
@@ -44,14 +44,14 @@ def make_suite(conf):
   suite.addTest(Test_Kickstart(conf))
   return suite
 
-def main():
+def main(suite=None):
   import dims.pps
-  runner = unittest.TextTestRunner(verbosity=2)
-  
-  suite = make_suite(dims.pps.Path(__file__).dirname/'%s.conf' % eventid)
-  
-  runner.stream.writeln("testing event '%s'" % eventid)
-  runner.run(suite)
+  config = dims.pps.Path(__file__).dirname/'%s.conf' % eventid
+  if suite:
+    suite.addTest(make_suite(config))
+  else:
+    runner = EventTestRunner()
+    runner.run(make_suite(config))
 
 
 if __name__ == '__main__':

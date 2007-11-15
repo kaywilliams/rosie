@@ -1,14 +1,14 @@
 import copy
 import unittest
 
-from test import EventTest
+from test import EventTestCase, EventTestRunner
 
-from test.events.core   import make_core_suite
+from test.events        import make_core_suite
 from test.events.mixins import ImageModifyMixinTestCase, imm_make_suite
 
 eventid = 'product-image'
 
-class ProductImageEventTest(ImageModifyMixinTestCase):
+class ProductImageEventTestCase(ImageModifyMixinTestCase):
   def __init__(self, conf):
     ImageModifyMixinTestCase.__init__(self, eventid, conf)
   
@@ -17,7 +17,7 @@ class ProductImageEventTest(ImageModifyMixinTestCase):
     self.clean_event_md()
   
   
-class Test_Installclasses(ProductImageEventTest):
+class Test_Installclasses(ProductImageEventTestCase):
   "at least one installclass is included"
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
@@ -35,14 +35,14 @@ def make_suite(conf):
   suite.addTest(Test_Installclasses(conf))
   return suite
 
-def main():
+def main(suite=None):
   import dims.pps
-  runner = unittest.TextTestRunner(verbosity=2)
-  
-  suite = make_suite(dims.pps.Path(__file__).dirname/'%s.conf' % eventid)
-  
-  runner.stream.writeln("testing event '%s'" % eventid)
-  runner.run(suite)
+  config = dims.pps.Path(__file__).dirname/'%s.conf' % eventid
+  if suite:
+    suite.addTest(make_suite(config))
+  else:
+    runner = EventTestRunner()
+    runner.run(make_suite(config))
 
 
 if __name__ == '__main__':

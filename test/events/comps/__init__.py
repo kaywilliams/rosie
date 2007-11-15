@@ -4,21 +4,21 @@ from dims import xmllib
 
 from dimsbuild.modules.core.software.comps import KERNELS
 
-from test import EventTest
+from test import EventTestCase, EventTestRunner
 
-from test.events.core import make_core_suite
+from test.events import make_core_suite
 
 eventid = 'comps'
 
-class CompsEventTest(EventTest):
+class CompsEventTestCase(EventTestCase):
   def __init__(self, eventid, conf):
-    EventTest.__init__(self, eventid, conf)
+    EventTestCase.__init__(self, eventid, conf)
     self.included_groups = []
     self.included_pkgs = []
     self.excluded_pkgs = []
   
   def setUp(self):
-    EventTest.setUp(self)
+    EventTestCase.setUp(self)
     self.clean_event_md()
   
   def read_comps(self):
@@ -53,10 +53,10 @@ class CompsEventTest(EventTest):
     for pkg in self.excluded_pkgs:
       self.failIf(pkg in pkgs)
   
-class Test_Supplied(CompsEventTest):
+class Test_Supplied(CompsEventTestCase):
   "comps supplied"
   def __init__(self, confdir):
-    CompsEventTest.__init__(self, eventid, confdir/'conf.supplied')
+    CompsEventTestCase.__init__(self, eventid, confdir/'conf.supplied')
     self.confdir = confdir
   
   def runTest(self):
@@ -66,10 +66,10 @@ class Test_Supplied(CompsEventTest):
     
     self.failUnlessEqual(comps_in, comps_out)
 
-class Test_IncludePackages(CompsEventTest):
+class Test_IncludePackages(CompsEventTestCase):
   "comps generated, groups included in core, kernel unlisted"
   def __init__(self, confdir):
-    CompsEventTest.__init__(self, eventid, confdir/'conf.include-packages')
+    CompsEventTestCase.__init__(self, eventid, confdir/'conf.include-packages')
     self.included_groups = ['core']
   
   def runTest(self):
@@ -81,15 +81,15 @@ class Test_IncludePackages(CompsEventTest):
     
     # still need to check that all base pkgs ended up in core group #!
 
-class Test_IncludeCoreGroups(CompsEventTest):
+class Test_IncludeCoreGroups(CompsEventTestCase):
   "comps generated, packages included in core"
   def __init__(self, confdir):
-    CompsEventTest.__init__(self, eventid, confdir/'conf.include-core-groups')
+    CompsEventTestCase.__init__(self, eventid, confdir/'conf.include-core-groups')
     self.included_groups = ['core']
     self.included_pkgs = ['createrepo', 'httpd', 'kde', 'xcalc']
   
   def setUp(self):
-    CompsEventTest.setUp(self)
+    CompsEventTestCase.setUp(self)
     self.event.cvars['included-packages'] = ['kde', 'xcalc']
   
   def runTest(self):
@@ -97,10 +97,10 @@ class Test_IncludeCoreGroups(CompsEventTest):
     
     self.check_all(self.read_comps())
 
-class Test_IncludeGroups(CompsEventTest):
+class Test_IncludeGroups(CompsEventTestCase):
   "comps generated, groups included"
   def __init__(self, confdir):
-    CompsEventTest.__init__(self, eventid, confdir/'conf.include-groups')
+    CompsEventTestCase.__init__(self, eventid, confdir/'conf.include-groups')
     self.included_groups = ['core', 'base', 'printing']
   
   def runTest(self):
@@ -108,15 +108,15 @@ class Test_IncludeGroups(CompsEventTest):
     
     self.check_all(self.read_comps())
 
-class Test_ExcludePackages(CompsEventTest):
+class Test_ExcludePackages(CompsEventTestCase):
   "comps generated, packages excluded"
   def __init__(self, confdir):
-    CompsEventTest.__init__(self, eventid, confdir/'conf.exclude-packages')
+    CompsEventTestCase.__init__(self, eventid, confdir/'conf.exclude-packages')
     self.included_groups = ['core']
     self.excluded_pkgs = ['cpio', 'kudzu', 'passwd', 'setup']
   
   def setUp(self):
-    CompsEventTest.setUp(self)
+    CompsEventTestCase.setUp(self)
     self.event.cvars['excluded-packages'] = ['passwd', 'setup']
   
   def runTest(self):
@@ -124,10 +124,10 @@ class Test_ExcludePackages(CompsEventTest):
     
     self.check_all(self.read_comps())
 
-class Test_GroupsByRepo(CompsEventTest):
+class Test_GroupsByRepo(CompsEventTestCase):
   "comps generated, group included from specific repo"
   def __init__(self, confdir):
-    CompsEventTest.__init__(self, eventid, confdir/'conf.groups-by-repo')
+    CompsEventTestCase.__init__(self, eventid, confdir/'conf.groups-by-repo')
     self.included_groups = ['core', 'base', 'printing']
   
   def runTest(self):
@@ -137,10 +137,10 @@ class Test_GroupsByRepo(CompsEventTest):
     
     # still need to check 'core' and 'printing' came from 'fedora-6-base' #!
 
-class Test_MultipleGroupfiles(CompsEventTest):
+class Test_MultipleGroupfiles(CompsEventTestCase):
   "comps generated, multiple repositories with groupfiles"
   def __init__(self, confdir):
-    CompsEventTest.__init__(self, eventid, confdir/'conf.multiple-groupfiles')
+    CompsEventTestCase.__init__(self, eventid, confdir/'conf.multiple-groupfiles')
     self.included_groups = ['core', 'base-x']
   
   def runTest(self):
@@ -163,14 +163,14 @@ def make_suite(confdir):
   suite.addTest(Test_MultipleGroupfiles(confdir))
   return suite
 
-def main():
+def main(suite=None):
   import dims.pps
-  runner = unittest.TextTestRunner(verbosity=2)
-  
-  suite = make_suite(dims.pps.Path(__file__).dirname)
-  
-  runner.stream.writeln("testing event '%s'" % eventid)
-  runner.run(suite)
+  config = dims.pps.Path(__file__).dirname
+  if suite:
+    suite.addTest(make_suite(config))
+  else:
+    runner = EventTestRunner()
+    runner.run(make_suite(config))
 
 
 if __name__ == '__main__':

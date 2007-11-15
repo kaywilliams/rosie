@@ -2,9 +2,9 @@ import unittest
 
 from dims import pps
 
-from test import EventTest
+from test import EventTestCase, EventTestRunner
 
-from test.events.core import make_core_suite
+from test.events      import make_core_suite
 from test.events.rpms import RpmBuildMixinTestCase, InputFilesMixinTestCase, RpmCvarsTestCase
 
 eventid = 'release-rpm'
@@ -87,15 +87,15 @@ def make_suite(conf):
   suite.addTest(Test_ReleaseRpmCvars2(conf))
   return suite
 
-def main():
+def main(suite=None):
   import dims.pps
-  runner = unittest.TextTestRunner(verbosity=2)
+  config = dims.pps.Path(__file__).dirname/'%s.conf' % eventid
+  if suite:
+    suite.addTest(make_suite(config))
+  else:
+    runner = EventTestRunner()
+    runner.run(make_suite(config))
 
-  #suite = make_suite(dims.pps.Path('%s.conf' % eventid).abspath())
-  suite = make_suite(dims.pps.Path(__file__).dirname/'%s.conf' % eventid)
-
-  runner.stream.writeln("testing event '%s'" % eventid)
-  runner.run(suite)
 
 if __name__ == '__main__':
   main()

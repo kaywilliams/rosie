@@ -1,9 +1,8 @@
 import copy
 import unittest
 
-from test import EventTest
-
-from test.events.core   import make_core_suite
+from test               import EventTestRunner
+from test.events        import make_core_suite
 from test.events.mixins import ImageModifyMixinTestCase, imm_make_suite
 
 eventid = 'updates-image'
@@ -14,14 +13,14 @@ def make_suite(conf):
   suite.addTest(imm_make_suite(eventid, conf, 'path'))
   return suite
 
-def main():
+def main(suite=None):
   import dims.pps
-  runner = unittest.TextTestRunner(verbosity=2)
-  
-  suite = make_suite(dims.pps.Path(__file__).dirname/'%s.conf' % eventid)
-  
-  runner.stream.writeln("testing event '%s'" % eventid)
-  runner.run(suite)
+  config = dims.pps.Path(__file__).dirname/'%s.conf' % eventid
+  if suite:
+    suite.addTest(make_suite(config))
+  else:
+    runner = EventTestRunner()
+    runner.run(make_suite(config))
 
 
 if __name__ == '__main__':

@@ -1,21 +1,21 @@
 import unittest
 
-from test import EventTest
+from test import EventTestCase, EventTestRunner
 
-from test.events.core import make_core_suite
+from test.events import make_core_suite
 
 eventid = 'autoclean'
 non_meta_event = 'comps'
 meta_event = 'setup'
 
-class AutocleanEventTest(EventTest):
+class AutocleanEventTestCase(EventTestCase):
   def __init__(self, conf):
-    EventTest.__init__(self, eventid, conf)
+    EventTestCase.__init__(self, eventid, conf)
 
-class Test_NonMeta(AutocleanEventTest):
+class Test_NonMeta(AutocleanEventTestCase):
   "standard run (non-meta events)"
   def setUp(self):
-    AutocleanEventTest.setUp(self)
+    AutocleanEventTestCase.setUp(self)
     self.non_meta_event = self.event._getroot().get(non_meta_event)
     self.non_meta_event.event_version = 0
     
@@ -26,10 +26,10 @@ class Test_NonMeta(AutocleanEventTest):
     self.execute_predecessors(self.non_meta_event)
     self.failUnlessRuns(self.non_meta_event)
 
-class Test_NonMetaVersion(AutocleanEventTest):
+class Test_NonMetaVersion(AutocleanEventTestCase):
   "Event.run() executes on Event.event_version change"
   def setUp(self):
-    AutocleanEventTest.setUp(self)
+    AutocleanEventTestCase.setUp(self)
     self.non_meta_event = self.event._getroot().get(non_meta_event)
     self.non_meta_event.event_version = 1
     
@@ -37,10 +37,10 @@ class Test_NonMetaVersion(AutocleanEventTest):
     self.execute_predecessors(self.non_meta_event)
     self.failUnlessRuns(self.non_meta_event)
 
-class Test_NonMetaNoVersion(AutocleanEventTest):
+class Test_NonMetaNoVersion(AutocleanEventTestCase):
   "Event.run() does not execute when Event.event_version unchanged"
   def setUp(self):
-    AutocleanEventTest.setUp(self)
+    AutocleanEventTestCase.setUp(self)
     self.non_meta_event = self.event._getroot().get(non_meta_event)
     self.non_meta_event.event_version = 1
     
@@ -48,10 +48,10 @@ class Test_NonMetaNoVersion(AutocleanEventTest):
     self.execute_predecessors(self.non_meta_event)
     self.failIfRuns(self.non_meta_event)
 
-class Test_Meta(AutocleanEventTest):
+class Test_Meta(AutocleanEventTestCase):
   "standard run (meta events)"
   def setUp(self):
-    AutocleanEventTest.setUp(self)
+    AutocleanEventTestCase.setUp(self)
     self.meta_event = self.event._getroot().get(meta_event)
     self.meta_event.event_version = 0
     
@@ -65,10 +65,10 @@ class Test_Meta(AutocleanEventTest):
     for event in [self.meta_event] + self.meta_event.get_children():
       self.failUnlessRuns(event)
 
-class Test_MetaVersion(AutocleanEventTest):
+class Test_MetaVersion(AutocleanEventTestCase):
   "Event.run() executes on Event.event_version change (and all children)"
   def setUp(self):
-    AutocleanEventTest.setUp(self)
+    AutocleanEventTestCase.setUp(self)
     self.meta_event = self.event._getroot().get(meta_event)
     self.meta_event.event_version = 1
   
@@ -77,10 +77,10 @@ class Test_MetaVersion(AutocleanEventTest):
     for event in [self.meta_event] + self.meta_event.get_children():
       self.failUnlessRuns(event)
 
-class Test_MetaNoVersion(AutocleanEventTest):
+class Test_MetaNoVersion(AutocleanEventTestCase):
   "Event.run() does not execute when Event.event_version unchanged (and all children)"
   def setUp(self):
-    AutocleanEventTest.setUp(self)
+    AutocleanEventTestCase.setUp(self)
     self.meta_event = self.event._getroot().get(meta_event)
     self.meta_event.event_version = 1
   
@@ -89,10 +89,10 @@ class Test_MetaNoVersion(AutocleanEventTest):
     for event in [self.meta_event] + self.meta_event.get_children():
       self.failIfRuns(event)
 
-class Test_RemoveDisabled(AutocleanEventTest):
+class Test_RemoveDisabled(AutocleanEventTestCase):
   "remove disabled event directories"
   def setUp(self):
-    AutocleanEventTest.setUp(self)
+    AutocleanEventTestCase.setUp(self)
     self.test_dir = self.event.METADATA_DIR/'test_disabled_event'
     self.test_dir.mkdirs()
   
@@ -116,14 +116,14 @@ def make_suite(conf):
   suite.addTest(Test_RemoveDisabled(conf))
   return suite
 
-def main():
+def main(suite=None):
   import dims.pps
-  runner = unittest.TextTestRunner(verbosity=2)
-  
-  suite = make_suite(dims.pps.Path(__file__).dirname/'%s.conf' % eventid)
-  
-  runner.stream.writeln("testing event '%s'" % eventid)
-  runner.run(suite)
+  config = dims.pps.Path(__file__).dirname/'%s.conf' % eventid
+  if suite:
+    suite.addTest(make_suite(config))
+  else:
+    runner = EventTestRunner()
+    runner.run(make_suite(config))
   
 
 if __name__ == '__main__':

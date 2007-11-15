@@ -2,14 +2,14 @@ import unittest
 
 from dims.img import MakeImage
 
-from test import EventTest
+from test import EventTestCase, EventTestRunner
 
-from test.events.core   import make_core_suite
+from test.events        import make_core_suite
 from test.events.mixins import BootConfigMixinTestCase
 
 eventid = 'bootiso'
 
-class BootisoEventTest(BootConfigMixinTestCase):
+class BootisoEventTestCase(BootConfigMixinTestCase):
   def __init__(self, conf):
     BootConfigMixinTestCase.__init__(self, eventid, conf)
     self.default_args = []
@@ -29,26 +29,26 @@ class BootisoEventTest(BootConfigMixinTestCase):
     self.testArgs(self.image, filename='isolinux.cfg', defaults=self.do_defaults)
 
 
-class Test_BootArgsDefault(BootisoEventTest):
+class Test_BootArgsDefault(BootisoEventTestCase):
   "default boot args and config-specified args in isolinux.cfg"
   def setUp(self):
-    BootisoEventTest.setUp(self)
+    BootisoEventTestCase.setUp(self)
     self.event.config.get('boot-config').attrib['use-defaults'] = 'true'
     self.do_defaults = True
 
   
-class Test_BootArgsNoDefault(BootisoEventTest):
+class Test_BootArgsNoDefault(BootisoEventTestCase):
   "default boot args not included"
   def setUp(self):
-    BootisoEventTest.setUp(self)
+    BootisoEventTestCase.setUp(self)
     self.event.config.get('boot-config').attrib['use-defaults'] = 'false'
     self.do_defaults = False
   
 
-class Test_BootArgsMacros(BootisoEventTest):
+class Test_BootArgsMacros(BootisoEventTestCase):
   "macro usage with non-default boot args"
   def setUp(self):
-    BootisoEventTest.setUp(self)
+    BootisoEventTestCase.setUp(self)
     self.event.config.get('boot-config').attrib['use-defaults'] = 'false'
     self.event.config.get('boot-config/append-args').text += ' %{method} %{ks}'
     self.do_defaults = False
@@ -62,14 +62,14 @@ def make_suite(conf):
   suite.addTest(Test_BootArgsMacros(conf))
   return suite
 
-def main():
+def main(suite=None):
   import dims.pps
-  runner = unittest.TextTestRunner(verbosity=2)
-  
-  suite = make_suite(dims.pps.Path(__file__).dirname/'%s.conf' % eventid)
-  
-  runner.stream.writeln("testing event '%s'" % eventid)
-  runner.run(suite)
+  config = dims.pps.Path(__file__).dirname/'%s.conf' % eventid
+  if suite:
+    suite.addTest(make_suite(config))
+  else:
+    runner = EventTestRunner()
+    runner.run(make_suite(config))
 
 
 if __name__ == '__main__':

@@ -5,13 +5,13 @@ from dims.xmllib.config import Element
 
 from dimsbuild.splittree import parse_size
 
-from test               import EventTest
-from test.events.core   import make_core_suite, make_extension_suite
+from test               import EventTestCase, EventTestRunner
+from test.events        import make_core_suite, make_extension_suite
 from test.events.mixins import BootConfigMixinTestCase
 
 eventid = 'iso'
 
-class IsoEventTest(BootConfigMixinTestCase):
+class IsoEventTestCase(BootConfigMixinTestCase):
   def __init__(self, conf):
     BootConfigMixinTestCase.__init__(self, eventid, conf)
     self.default_args = ['method=cdrom']
@@ -34,6 +34,7 @@ class Test_SizeParser(unittest.TestCase):
   "splittree.parse_size() checks"
   def __init__(self):
     unittest.TestCase.__init__(self)
+    self.eventid = eventid
     self._testMethodDoc = self.__class__.__doc__
   
   def runTest(self):
@@ -49,10 +50,10 @@ class Test_SizeParser(unittest.TestCase):
     self.failUnlessEqual(parse_size('DVD'),    parse_size('4.7GB'))
     self.failUnlessEqual(parse_size('100 mb'), parse_size('100MB'))
 
-class Test_IsoContent(EventTest):
+class Test_IsoContent(EventTestCase):
   "iso content matches split tree content"
   def __init__(self, conf):
-    EventTest.__init__(self, eventid, conf)
+    EventTestCase.__init__(self, eventid, conf)
   
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
@@ -74,32 +75,32 @@ class Test_IsoContent(EventTest):
         self.failIf(not split_set.issubset(image_set), # ignore TRANS.TBL, etc
                     split_set.difference(image_set))
 
-class Test_SetsChanged(IsoEventTest):
+class Test_SetsChanged(IsoEventTestCase):
   "iso sets change"
   def setUp(self):
-    IsoEventTest.setUp(self)
+    IsoEventTestCase.setUp(self)
     self.event.config.get('set[text()="CD"]').text = '640MB'
     self.event.config.append(Element('set', text='101MB'))
 
-class Test_BootArgsDefault(IsoEventTest):
+class Test_BootArgsDefault(IsoEventTestCase):
   "default boot args and config-specified args in isolinux.cfg"
   def setUp(self):
-    IsoEventTest.setUp(self)
+    IsoEventTestCase.setUp(self)
     self.event.config.get('boot-config').attrib['use-default'] = 'true'
     self.do_defaults = True
   
-class Test_BootArgsNoDefault(IsoEventTest):
+class Test_BootArgsNoDefault(IsoEventTestCase):
   "default boot args not included"
   def setUp(self):
-    IsoEventTest.setUp(self)
+    IsoEventTestCase.setUp(self)
     self.event.config.get('boot-config').attrib['use-default'] = 'false'
     self.do_defaults = False
   
 
-class Test_BootArgsMacros(IsoEventTest):
+class Test_BootArgsMacros(IsoEventTestCase):
   "macro usage with non-default boot args"
   def setUp(self):
-    IsoEventTest.setUp(self)
+    IsoEventTestCase.setUp(self)
     self.event.config.get('boot-config').attrib['use-default'] = 'false'
     self.event.config.get('boot-config/append-args').text += ' %{method} %{ks}'
     self.do_defaults = False
@@ -117,14 +118,14 @@ def make_suite(conf):
   suite.addTest(Test_BootArgsMacros(conf))
   return suite
 
-def main():
+def main(suite=None):
   import dims.pps
-  runner = unittest.TextTestRunner(verbosity=2)
-  
-  suite = make_suite(dims.pps.Path(__file__).dirname/'%s.conf' % eventid)
-  
-  runner.stream.writeln("testing event '%s'" % eventid)
-  runner.run(suite)
+  config = dims.pps.Path(__file__).dirname/'%s.conf' % eventid
+  if suite:
+    suite.addTest(make_suite(config))
+  else:
+    runner = EventTestRunner()
+    runner.run(make_suite(config))
 
 
 if __name__ == '__main__':
