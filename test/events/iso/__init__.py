@@ -6,7 +6,7 @@ from dims.xmllib.config import Element
 from dimsbuild.splittree import parse_size
 
 from test               import EventTest
-from test.events.core   import make_suite as core_make_suite
+from test.events.core   import make_core_suite, make_extension_suite
 from test.events.mixins import BootConfigMixinTestCase
 
 eventid = 'iso'
@@ -107,7 +107,8 @@ class Test_BootArgsMacros(IsoEventTest):
 
 def make_suite(conf):
   suite = unittest.TestSuite()
-  suite.addTest(core_make_suite(eventid, conf))
+  suite.addTest(make_core_suite(eventid, conf))
+  suite.addTest(make_extension_suite(eventid, conf))
   suite.addTest(Test_SizeParser())
   suite.addTest(Test_IsoContent(conf))
   suite.addTest(Test_SetsChanged(conf))

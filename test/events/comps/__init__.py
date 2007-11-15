@@ -6,7 +6,7 @@ from dimsbuild.modules.core.software.comps import KERNELS
 
 from test import EventTest
 
-from test.events.core import make_suite as core_make_suite
+from test.events.core import make_core_suite
 
 eventid = 'comps'
 
@@ -153,7 +153,7 @@ class Test_MultipleGroupfiles(CompsEventTest):
 
 def make_suite(confdir):
   suite = unittest.TestSuite()
-  suite.addTest(core_make_suite(eventid, confdir/'conf.supplied'))
+  suite.addTest(make_core_suite(eventid, confdir/'conf.supplied'))
   suite.addTest(Test_Supplied(confdir))
   suite.addTest(Test_IncludePackages(confdir))
   suite.addTest(Test_IncludeCoreGroups(confdir))

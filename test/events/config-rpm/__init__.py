@@ -4,7 +4,7 @@ from dims import pps
 
 from test import EventTest
 
-from test.events.core import make_suite as core_make_suite
+from test.events.core import make_core_suite
 from test.events.rpms import RpmBuildMixinTestCase, InputFilesMixinTestCase, RpmCvarsTestCase
 
 eventid = 'config-rpm'
@@ -84,7 +84,7 @@ class Test_ConfigRpmCvars2(RpmCvarsTestCase):
 
 def make_suite(conf):
   suite = unittest.TestSuite()
-  suite.addTest(core_make_suite(eventid, conf))
+  suite.addTest(make_core_suite(eventid, conf))
   suite.addTest(Test_ConfigRpmInputs(conf))
   suite.addTest(Test_ConfigRpmBuild(conf))
   suite.addTest(Test_ConfigRpmCvars1(conf))

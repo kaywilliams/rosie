@@ -1,6 +1,6 @@
 import unittest
 
-from test import EventTest
+from test import EventTest, TestBuild
 
 class CoreEventTest(EventTest):
   pass
@@ -84,13 +84,43 @@ class CoreEventTest04(CoreEventTest):
     self.failUnless(result.wasSuccessful(), result._strErrors())
 
 
-def make_suite(eventid, conf):
+class ExtensionEventTest(EventTest):
+  def setUp(self):
+    self.tb = TestBuild(self.conf, self.options, self.parser)
+    # do not try to set up self.event cuz it may not exist
+
+class ExtensionEventTest00(ExtensionEventTest):
+  "disabling module removes output"
+  def setUp(self):
+    self.options.disabled_modules.append(self.eventid)
+    ExtensionEventTest.setUp(self)
+  
+  def runTest(self):
+    self.tb.dispatch.execute(until='autoclean')
+    self.failIfExists(self.tb.dispatch._top.METADATA_DIR/self.eventid)
+
+class ExtensionEventTest01(ExtensionEventTest):
+  "renabling module regenerates output"
+  def setUp(self):
+    self.options.disabled_modules.remove(self.eventid)
+    ExtensionEventTest.setUp(self)
+  
+  def runTest(self):
+    self.failUnlessExists(self.tb.dispatch._top.METADATA_DIR/self.eventid)
+
+def make_core_suite(eventid, conf):
   suite = unittest.TestSuite()
   suite.addTest(CoreEventTest00(eventid, conf))
   suite.addTest(CoreEventTest01(eventid, conf))
   suite.addTest(CoreEventTest02(eventid, conf))
   suite.addTest(CoreEventTest03(eventid, conf))
   suite.addTest(CoreEventTest04(eventid, conf))
+  return suite
+
+def make_extension_suite(eventid, conf):
+  suite = unittest.TestSuite()
+  suite.addTest(ExtensionEventTest00(eventid, conf))
+  suite.addTest(ExtensionEventTest01(eventid, conf))
   return suite
 
 if __name__ == '__main__':

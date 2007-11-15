@@ -1,14 +1,15 @@
-import copy
 import unittest
+
+from dims import pps
 
 from test import EventTest
 
 from test.events.core   import make_core_suite
 from test.events.mixins import ImageModifyMixinTestCase, imm_make_suite
 
-eventid = 'product-image'
+eventid = 'initrd-image'
 
-class ProductImageEventTest(ImageModifyMixinTestCase):
+class InitrdImageEventTest(ImageModifyMixinTestCase):
   def __init__(self, conf):
     ImageModifyMixinTestCase.__init__(self, eventid, conf)
   
@@ -17,22 +18,30 @@ class ProductImageEventTest(ImageModifyMixinTestCase):
     self.clean_event_md()
   
   
-class Test_Installclasses(ProductImageEventTest):
-  "at least one installclass is included"
+class Test_Kickstart(InitrdImageEventTest):
+  "kickstart file included"
+  def setUp(self):
+    InitrdImageEventTest.setUp(self)
+    self.ksfile = self.event.config.getroot().file.abspath().dirname/'ks.cfg'
+    self.ksfile.touch()
+    self.kspath = pps.Path('/kickstarts/ks1.cfg')
+    self.event.cvars['kickstart-file'] = self.ksfile
+    self.event.cvars['ks-path'] = self.kspath
+  
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
-    
-    # copy content; rematch() and fnmatch() are in-place
-    self.populate_image_content()
-    image_content = copy.copy(self.image_content)
-    self.failUnless(image_content.rematch('^installclasses').fnmatch('*.py'))
+    self.check_file_in_image(self.kspath.dirname/self.ksfile.basename)
+  
+  def tearDown(self):
+    InitrdImageEventTest.tearDown(self)
+    self.ksfile.remove()
 
 
 def make_suite(conf):
   suite = unittest.TestSuite()
   suite.addTest(make_core_suite(eventid, conf))
   suite.addTest(imm_make_suite(eventid, conf, 'path'))
-  suite.addTest(Test_Installclasses(conf))
+  suite.addTest(Test_Kickstart(conf))
   return suite
 
 def main():

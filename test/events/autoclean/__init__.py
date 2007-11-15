@@ -2,20 +2,18 @@ import unittest
 
 from test import EventTest
 
-from test.events.core import make_suite as core_make_suite
+from test.events.core import make_core_suite
 
 eventid = 'autoclean'
 non_meta_event = 'comps'
 meta_event = 'setup'
 
 class AutocleanEventTest(EventTest):
-  pass
-
-class AutocleanEventTest10(AutocleanEventTest):
-  "standard run (non-meta events)"
   def __init__(self, conf):
-    AutocleanEventTest.__init__(self, eventid, conf)
-  
+    EventTest.__init__(self, eventid, conf)
+
+class Test_NonMeta(AutocleanEventTest):
+  "standard run (non-meta events)"
   def setUp(self):
     AutocleanEventTest.setUp(self)
     self.non_meta_event = self.event._getroot().get(non_meta_event)
@@ -28,11 +26,8 @@ class AutocleanEventTest10(AutocleanEventTest):
     self.execute_predecessors(self.non_meta_event)
     self.failUnlessRuns(self.non_meta_event)
 
-class AutocleanEventTest11(AutocleanEventTest):
+class Test_NonMetaVersion(AutocleanEventTest):
   "Event.run() executes on Event.event_version change"
-  def __init__(self, conf):
-    AutocleanEventTest.__init__(self, eventid, conf)
-  
   def setUp(self):
     AutocleanEventTest.setUp(self)
     self.non_meta_event = self.event._getroot().get(non_meta_event)
@@ -42,11 +37,8 @@ class AutocleanEventTest11(AutocleanEventTest):
     self.execute_predecessors(self.non_meta_event)
     self.failUnlessRuns(self.non_meta_event)
 
-class AutocleanEventTest12(AutocleanEventTest):
+class Test_NonMetaNoVersion(AutocleanEventTest):
   "Event.run() does not execute when Event.event_version unchanged"
-  def __init__(self, conf):
-    AutocleanEventTest.__init__(self, eventid, conf)
-  
   def setUp(self):
     AutocleanEventTest.setUp(self)
     self.non_meta_event = self.event._getroot().get(non_meta_event)
@@ -56,11 +48,8 @@ class AutocleanEventTest12(AutocleanEventTest):
     self.execute_predecessors(self.non_meta_event)
     self.failIfRuns(self.non_meta_event)
 
-class AutocleanEventTest13(AutocleanEventTest):
+class Test_Meta(AutocleanEventTest):
   "standard run (meta events)"
-  def __init__(self, conf):
-    AutocleanEventTest.__init__(self, eventid, conf)
-  
   def setUp(self):
     AutocleanEventTest.setUp(self)
     self.meta_event = self.event._getroot().get(meta_event)
@@ -76,11 +65,8 @@ class AutocleanEventTest13(AutocleanEventTest):
     for event in [self.meta_event] + self.meta_event.get_children():
       self.failUnlessRuns(event)
 
-class AutocleanEventTest14(AutocleanEventTest):
+class Test_MetaVersion(AutocleanEventTest):
   "Event.run() executes on Event.event_version change (and all children)"
-  def __init__(self, conf):
-    AutocleanEventTest.__init__(self, eventid, conf)
-  
   def setUp(self):
     AutocleanEventTest.setUp(self)
     self.meta_event = self.event._getroot().get(meta_event)
@@ -91,11 +77,8 @@ class AutocleanEventTest14(AutocleanEventTest):
     for event in [self.meta_event] + self.meta_event.get_children():
       self.failUnlessRuns(event)
 
-class AutocleanEventTest15(AutocleanEventTest):
+class Test_MetaNoVersion(AutocleanEventTest):
   "Event.run() does not execute when Event.event_version unchanged (and all children)"
-  def __init__(self, conf):
-    AutocleanEventTest.__init__(self, eventid, conf)
-  
   def setUp(self):
     AutocleanEventTest.setUp(self)
     self.meta_event = self.event._getroot().get(meta_event)
@@ -106,16 +89,31 @@ class AutocleanEventTest15(AutocleanEventTest):
     for event in [self.meta_event] + self.meta_event.get_children():
       self.failIfRuns(event)
 
+class Test_RemoveDisabled(AutocleanEventTest):
+  "remove disabled event directories"
+  def setUp(self):
+    AutocleanEventTest.setUp(self)
+    self.test_dir = self.event.METADATA_DIR/'test_disabled_event'
+    self.test_dir.mkdirs()
+  
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.event)
+    self.failIfExists(self.test_dir)
+  
+  def tearDown(self):
+    if self.test_dir.exists(): self.test_dir.remove()
+
 
 def make_suite(conf):
   suite = unittest.TestSuite()
-  suite.addTest(core_make_suite(eventid, conf))
-  suite.addTest(AutocleanEventTest10(conf))
-  suite.addTest(AutocleanEventTest11(conf))
-  suite.addTest(AutocleanEventTest12(conf))
-  suite.addTest(AutocleanEventTest13(conf))
-  suite.addTest(AutocleanEventTest14(conf))
-  suite.addTest(AutocleanEventTest15(conf))
+  suite.addTest(make_core_suite(eventid, conf))
+  suite.addTest(Test_NonMeta(conf))
+  suite.addTest(Test_NonMetaVersion(conf))
+  suite.addTest(Test_NonMetaNoVersion(conf))
+  suite.addTest(Test_Meta(conf))
+  suite.addTest(Test_MetaVersion(conf))
+  suite.addTest(Test_MetaNoVersion(conf))
+  suite.addTest(Test_RemoveDisabled(conf))
   return suite
 
 def main():

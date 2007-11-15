@@ -3,14 +3,14 @@ import unittest
 
 from test import EventTest
 
-from test.events.core import make_suite as core_make_suite
+from test.events.core   import make_core_suite
 from test.events.mixins import ImageModifyMixinTestCase, imm_make_suite
 
 eventid = 'updates-image'
 
 def make_suite(conf):
   suite = unittest.TestSuite()
-  suite.addTest(core_make_suite(eventid, conf))
+  suite.addTest(make_core_suite(eventid, conf))
   suite.addTest(imm_make_suite(eventid, conf, 'path'))
   return suite
 

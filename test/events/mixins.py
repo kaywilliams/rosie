@@ -66,7 +66,7 @@ class ImageModifyMixinTestCase(EventTest):
   def check_file_in_image(self, file):
     self.populate_image_content()
     self.failUnless(file.lstrip('/') in self.image_content,
-                    '%s not in %s' % (file.lstrip('/'), self.image_content))
+                    "'%s' not in %s" % (file.lstrip('/'), self.image_content))
 
 class IMMTest_Content(ImageModifyMixinTestCase):
   "image content included in final image"

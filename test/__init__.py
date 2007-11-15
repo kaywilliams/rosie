@@ -65,7 +65,7 @@ class EventTest(unittest.TestCase):
     for event in self.event.getroot():
       self.clean_event_md(event)
   def clean_event_md(self, event=None):
-    (event or self.event).mddir.listdir().rm(recursive=True)
+    (event or self.event).mddir.listdir(all=True).rm(recursive=True)
 
   def execute_predecessors(self, event):
     "run all events prior to this event"
