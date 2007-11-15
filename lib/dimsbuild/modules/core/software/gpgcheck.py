@@ -28,16 +28,16 @@ class GpgCheckEvent(Event):
       version = '0',
       requires = ['cached-rpms', 'repos'],
     )
-    
+
     self.DATA = {
       'variables': [],
       'input':     [],
       'output':    [],
     }
-  
+
   def setup(self):
     self.diff.setup(self.DATA)
-    
+
     self.gpgkeys = {}  # keys to download
     self.rpms = {}    # rpms to check
 
@@ -64,7 +64,7 @@ class GpgCheckEvent(Event):
       self.io.setup_sync(self.mddir/repo, paths=self.gpgkeys[repo], id=repo)
     self.DATA['variables'].append('rpms')
     self.DATA['variables'].append('gpgkeys')
-  
+
   def run(self):
     if not self.rpms:
       self.io.clean_eventcache(all=True) # remove old keys
@@ -76,13 +76,13 @@ class GpgCheckEvent(Event):
       homedir = self.mddir/repo/'homedir'
       self.DATA['output'].append(homedir)
       self.io.sync_input(cache=True, what=repo,
-                         cb=GPGFilesCallback(self.logger, self.mddir, repo)) 
+                         cb=GPGFilesCallback(self.logger, self.mddir, repo))
 
-      # if gpgkeys have changed for this repo, (re)create homedir and 
+      # if gpgkeys have changed for this repo, (re)create homedir and
       # add all rpms from the repo to check list
       if self.diff.handlers['variables'].diffdict.has_key('gpgkeys'):
         md, curr = self.diff.handlers['variables'].diffdict['gpgkeys']
-        if not hasattr(md, '__iter__') or not md.has_key(repo): 
+        if not hasattr(md, '__iter__') or not md.has_key(repo):
           md = {repo: []}
         if set(curr[repo]).difference(set(md[repo])):
           newrpms = self.rpms[repo]
@@ -96,9 +96,9 @@ class GpgCheckEvent(Event):
         if self.diff.handlers['variables'].diffdict.has_key('rpms'):
           md, curr = self.diff.handlers['variables'].diffdict['rpms']
           if not hasattr(md, '__iter__'): md = {}
-          if md.has_key(repo): 
+          if md.has_key(repo):
             newrpms = sorted(set(curr[repo]).difference(set(md[repo])))
-    
+
       # if we found rpms to check in the above tests, check them now
       if newrpms:
         invalids = []
@@ -106,7 +106,7 @@ class GpgCheckEvent(Event):
         for rpm in newrpms:
           try:
             self.log(2, L2(rpm.basename+' '), newline=False, format='%(message)-70.70s')
-            mkrpm.VerifyRpm(rpm, homedir=homedir, force=True)
+            mkrpm.VerifyRpm(rpm, homedir=homedir)
             self.logger.write(2, "OK\n")
           except mkrpm.RpmSignatureInvalidError:
             self.logger.write(2, "INVALID\n")
