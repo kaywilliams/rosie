@@ -59,8 +59,7 @@ class GpgCheckEvent(Event):
       if rpms:
         self.rpms[repo.id] = sorted(rpms)
 
-    #if self.rpms:
-    for repo in self.gpgkeys.keys():
+    for repo in self.rpms.keys():
       self.io.setup_sync(self.mddir/repo, paths=self.gpgkeys[repo], id=repo)
     self.DATA['variables'].append('rpms')
     self.DATA['variables'].append('gpgkeys')
@@ -71,7 +70,7 @@ class GpgCheckEvent(Event):
       self.diff.write_metadata()
       return
 
-    for repo in self.gpgkeys.keys():
+    for repo in self.rpms.keys():
       newrpms = []
       homedir = self.mddir/repo/'homedir'
       self.DATA['output'].append(homedir)
