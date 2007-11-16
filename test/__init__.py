@@ -1,4 +1,3 @@
-import copy
 import optparse
 import os
 import time
@@ -200,3 +199,30 @@ class EventTestLogger(logger.Logger):
     d = dict(message=msg, eventid=self._eventid, **kwargs)
     if format: d['message'] = format % d
     return self._format % d
+
+
+def main():
+  import imp
+  
+  runner = EventTestRunner()
+  suite = unittest.TestSuite()
+  
+  for event in pps.Path('events').findpaths(mindepth=1, maxdepth=1, type=pps.constants.TYPE_DIR):
+    fp = None
+    try:
+      try:
+        fp,p,d = imp.find_module(event.basename, [event.dirname])
+      except ImportError:
+        continue
+      mod = imp.load_module('test-%s' % event.basename, fp, p, d)
+    finally:
+      fp and fp.close()
+    
+    mod.main(suite=suite)
+    del mod
+  
+  runner.run(suite)
+
+if __name__ == '__main__':
+  # test everything
+  main()

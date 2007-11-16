@@ -5,9 +5,9 @@ from dims.xmllib.config import Element
 
 from dimsbuild.splittree import parse_size
 
-from test               import EventTestCase, EventTestRunner
-from test.events        import make_core_suite, make_extension_suite
-from test.events.mixins import BootConfigMixinTestCase
+from test        import EventTestCase, EventTestRunner
+from test.core   import make_core_suite, make_extension_suite
+from test.mixins import BootConfigMixinTestCase
 
 eventid = 'iso'
 
@@ -124,8 +124,7 @@ def main(suite=None):
   if suite:
     suite.addTest(make_suite(config))
   else:
-    runner = EventTestRunner()
-    runner.run(make_suite(config))
+    EventTestRunner().run(make_suite(config))
 
 
 if __name__ == '__main__':

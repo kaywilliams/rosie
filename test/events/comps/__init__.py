@@ -4,9 +4,8 @@ from dims import xmllib
 
 from dimsbuild.modules.core.software.comps import KERNELS
 
-from test import EventTestCase, EventTestRunner
-
-from test.events import make_core_suite
+from test      import EventTestCase, EventTestRunner
+from test.core import make_core_suite
 
 eventid = 'comps'
 
@@ -169,8 +168,7 @@ def main(suite=None):
   if suite:
     suite.addTest(make_suite(config))
   else:
-    runner = EventTestRunner()
-    runner.run(make_suite(config))
+    EventTestRunner().run(make_suite(config))
 
 
 if __name__ == '__main__':

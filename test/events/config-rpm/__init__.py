@@ -2,9 +2,9 @@ import unittest
 
 from dims import pps
 
-from test             import EventTestRunner
-from test.events      import make_core_suite
-from test.events.rpms import RpmBuildMixinTestCase, InputFilesMixinTestCase, RpmCvarsTestCase
+from test      import EventTestRunner
+from test.core import make_core_suite
+from test.rpms import RpmBuildMixinTestCase, InputFilesMixinTestCase, RpmCvarsTestCase
 
 eventid = 'config-rpm'
 
@@ -96,8 +96,7 @@ def main(suite=None):
   if suite:
     suite.addTest(make_suite(config))
   else:
-    runner = EventTestRunner()
-    runner.run(make_suite(config))
+    EventTestRunner().run(make_suite(config))
 
 
 if __name__ == '__main__':

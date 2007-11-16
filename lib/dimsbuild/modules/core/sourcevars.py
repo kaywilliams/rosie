@@ -65,7 +65,12 @@ class SourceVarsEvent(Event):
     self.io.clean_eventcache()
     # parse buildstamp
     buildstamp = ffile.DictToFormattedFile(self.locals.buildstamp_fmt)
-    sourcevars = buildstamp.read(self.buildstamp_out)
+    # update source vars
+    try:
+      self.cvars['source-vars'] = buildstamp.read(self.buildstamp_out)
+    except:
+      pass # caught by verification
 
-    # update source_vars
-    self.cvars['source-vars'] = sourcevars
+  def verify_buildstamp_file(self):
+    "verify buildstamp file exists"
+    self.verifier.failUnlessExists(self.buildstamp_out)

@@ -1,13 +1,18 @@
 import unittest
 
-from test      import EventTestRunner
-from test.core import make_core_suite
+from test      import EventTestCase, EventTestRunner
+from test.core import make_core_suite, make_extension_suite
 
-eventid = 'setup'
+eventid = 'ISO'
+
+class IsoMetaTestCase(EventTestCase):
+  def __init__(self, conf):
+    EventTestCase.__init__(self, eventid, conf)
 
 def make_suite(conf):
   suite = unittest.TestSuite()
   suite.addTest(make_core_suite(eventid, conf))
+  suite.addTest(make_extension_suite(eventid, conf))
   return suite
 
 def main(suite=None):

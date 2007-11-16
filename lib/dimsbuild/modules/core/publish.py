@@ -26,12 +26,9 @@ class PublishSetupEvent(Event):
       provides = ['publish-content', 'publish-path', 'web-path'],
     )
 
-    self.repofile = self.mddir/'%s.repo' % self.product
-
     self.DATA = {
       'variables': ['cvars[\'base-vars\']'],
       'config': ['.'],
-      'output': [self.repofile]
     }
 
   def setup(self):

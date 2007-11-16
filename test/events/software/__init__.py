@@ -1,9 +1,13 @@
 import unittest
 
-from test      import EventTestRunner
+from test      import EventTestCase, EventTestRunner
 from test.core import make_core_suite
 
-eventid = 'setup'
+eventid = 'software'
+
+class SoftwareTestCase(EventTestCase):
+  def __init__(self, conf):
+    EventTestCase.__init__(self, eventid, conf)
 
 def make_suite(conf):
   suite = unittest.TestSuite()
@@ -17,7 +21,7 @@ def main(suite=None):
     suite.addTest(make_suite(config))
   else:
     EventTestRunner().run(make_suite(config))
-  
+
 
 if __name__ == '__main__':
   main()

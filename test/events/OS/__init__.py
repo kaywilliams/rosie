@@ -1,9 +1,13 @@
 import unittest
 
-from test      import EventTestRunner
+from test      import EventTestCase, EventTestRunner
 from test.core import make_core_suite
 
-eventid = 'setup'
+eventid = 'OS'
+
+class OSTestCase(EventTestCase):
+  def __init__(self, conf):
+    EventTestCase.__init__(self, eventid, conf)
 
 def make_suite(conf):
   suite = unittest.TestSuite()

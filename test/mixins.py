@@ -148,11 +148,3 @@ class BootConfigMixinTestCase(EventTestCase):
       else:
         for arg in args:
           self.failUnless(arg in label, "'%s' not in '%s'" % (arg, label))
-
-
-if __name__ == '__main__':
-  eventid = 'product-image'
-  runner = unittest.TextTestRunner(verbosity=2)
-  
-  runner.stream.writeln("testing event '%s'" % eventid)
-  runner.run(IMMTest_Content(eventid, '%s/%s.conf' % (eventid, eventid)))
