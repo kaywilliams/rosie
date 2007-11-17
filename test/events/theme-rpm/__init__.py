@@ -3,7 +3,7 @@ import unittest
 from dims import pps
 
 from test      import EventTestRunner
-from test.core import make_core_suite
+from test.core import make_core_suite, make_extension_suite
 from test.rpms import RpmBuildMixinTestCase, RpmCvarsTestCase
 
 eventid = 'theme-rpm'
@@ -65,6 +65,7 @@ class Test_ThemeRpmCvars2(RpmCvarsTestCase):
 def make_suite(conf):
   suite = unittest.TestSuite()
   suite.addTest(make_core_suite(eventid, conf))
+  suite.addTest(make_extension_suite(eventid, conf))
   suite.addTest(Test_ThemeRpmBuild(conf))
   suite.addTest(Test_ThemeRpmCvars1(conf))
   suite.addTest(Test_ThemeRpmCvars2(conf))

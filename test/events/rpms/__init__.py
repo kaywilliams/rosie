@@ -21,7 +21,7 @@ def main(suite=None):
     suite.addTest(make_suite(config))
   else:
     EventTestRunner().run(make_suite(config))
-  
+
 
 if __name__ == '__main__':
   main()

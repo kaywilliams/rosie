@@ -48,7 +48,7 @@ class ExtractMixin(object):
     pass
 
   def _get_imgpath(self):
-    if self.event._run:
+    if self.rpm_path.exists():
       if extracts.has_key(self.rpm_path):
         return extracts[self.rpm_path]
       working_dir = P(tempfile.mkdtemp())
@@ -96,7 +96,7 @@ class RpmBuildMixinTestCase(RpmEventTestCase):
     RpmEventTestCase.__init__(self, eventid, conf)
 
   def _get_rpmheader(self):
-    if self.event._run:
+    if self.rpm_path.exists():
       if headers.has_key(self.rpm_path):
         return headers[self.rpm_path]
       ts = rpm.TransactionSet()
