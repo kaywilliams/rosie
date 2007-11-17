@@ -6,6 +6,8 @@ import os
 
 from dims import xmllib
 
+NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
+
 class BaseConfigValidator:
   def __init__(self, schema_paths, config):
     self.schema_paths = schema_paths
@@ -20,46 +22,55 @@ class BaseConfigValidator:
       raise RuntimeError("either the schema file or the schema contents must be specified")
     if not self.config.pathexists(xpath_query):
       return
-    if schema_contents is None:
-      schema_contents = self.read_schema(schema_file)
-    cwd = os.getcwd()
-    os.chdir(self.curr_schema.dirname)
+    tree = self.config.get(xpath_query)
+    self.elements.append(tree.tag)
+    if schema_contents:
+      self.validate_with_string(schema_contents, tree)
+    else:
+      self.validate_with_file(schema_file, tree)
+
+  def validate_with_string(self, schema_contents, tree):
+    schema = etree.fromstring(schema_contents, base_url=self.config.filename.dirname)
+    schema_treeself.massage_schema(schema, tree.tag)
+    self.relaxng(schema_tree, tree)
+
+  def validate_with_file(self, schema_file, tree):
+    self.curr_schema = None
+    for path in self.schema_paths:
+      file = path/schema_file
+      if file.exists():
+        break
+    self.curr_schema = file
+    if not self.curr_schema:
+      raise IOError("missing schema file '%s' at '%s'" % (file, file.dirname))
+    schema_tree = self._read_schema(tree.tag)
     try:
-      try:
-        tree = self.config.get(xpath_query)
-        self.elements.append(tree.tag)
-        schema_tree = self.massage_schema(schema_contents, tree.tag, schema_file)
-        schema = etree.fromstring(str(schema_tree))
-        relaxng = etree.RelaxNG(etree.ElementTree(schema))
-      except etree.RelaxNGParseError, e:
-        raise InvalidSchemaError(self.curr_schema or '<string>', e.error_log)
-      else:
-        if not relaxng.validate(tree):
-          if schema_file:
-            raise InvalidConfigError(self.config.getroot().file, relaxng.error_log, self.curr_schema)
-          else:
-            raise InvalidConfigError(self.config.getroot().file, relaxng.error_log)
+      cwd = os.getcwd()
+      os.chdir(self.curr_schema.dirname)
+      self.relaxng(schema_tree, tree)
     finally:
       os.chdir(cwd)
 
-  def read_schema(self, filename):
-    self.curr_schema = None
-    for path in self.schema_paths:
-      schema_file = path/filename
-      if not schema_file.exists():
-        continue
-      self.curr_schema = schema_file
-    if not self.curr_schema:
-      raise IOError("missing schema file '%s' at '%s'" % (filename, schema_file.dirname))
-    schema = xmllib.tree.read(self.curr_schema)
-    ## FIXME: xmltree/lxml seems to be losing the xmlns attribute
-    schema.getroot().attrib['xmlns'] = "http://relaxng.org/ns/structure/1.0"
-    return str(schema)
+  def relaxng(self, schema_tree, tree):
+    try:
+      relaxng = etree.RelaxNG(schema_tree)
+    except etree.RelaxNGParseError, e:
+      raise InvalidSchemaError(self.curr_schema or '<string>', e.error_log)
+    else:
+      if not relaxng.validate(tree):
+        raise InvalidConfigError(self.config.getroot().file, relaxng.error_log,
+                                 self.curr_schema or '<string>', tree.tostring(lineno=True))
 
-  def massage_schema(self, schema_contents, tag, schema_file):
-    schema = xmllib.tree.read(StringIO(schema_contents))
-    ## FIXME: xmltree/lxml seems to be losing the xmlns attribute
-    schema.getroot().attrib['xmlns'] = "http://relaxng.org/ns/structure/1.0"
+  def _read_schema(self, tag):
+    cwd = os.getcwd()
+    os.chdir(self.curr_schema.dirname)
+    try:
+      schema = xmllib.tree.read(self.curr_schema.basename)
+    finally:
+      os.chdir(cwd)
+    return self.massage_schema(schema, tag)
+
+  def massage_schema(self, schema, tag):
     return schema
 
 class MainConfigValidator(BaseConfigValidator):
@@ -84,19 +95,19 @@ class ConfigValidator(BaseConfigValidator):
                                  "found " % child.tag)
       processed.append(child.tag)
 
-  def massage_schema(self, schema_contents, tag, schema_file):
-    schema = BaseConfigValidator.massage_schema(self, schema_contents, tag, schema_file)
-    distro_defn = schema.get('//element[@name="distro"]')
+  def massage_schema(self, schema, tag):
+    schema = BaseConfigValidator.massage_schema(self, schema, tag)
+    distro_defn = schema.get('//rng:element[@name="distro"]', namespaces=NSMAP)
     start_elem  = distro_defn.getparent()
     for defn in distro_defn.iterchildren():
-      if defn.tag == 'optional':
-        for child in defn.iterchildren():
-          start_elem.append(child)
-          child.parent = start_elem
-      else:
-        start_elem.append(defn)
-        defn.parent = start_elem
-    start_elem.remove(start_elem.get('element[@name="distro"]'))
+      start_elem.append(defn)
+      defn.parent = start_elem
+    start_elem.remove(start_elem.get('rng:element[@name="distro"]', namespaces=NSMAP))
+    for opt_elem in start_elem.xpath('rng:optional', fallback=[], namespaces=NSMAP):
+      for child in opt_elem.iterchildren():
+        start_elem.append(child)
+        child.parent = start_elem
+      start_elem.remove(opt_elem)
     return schema
 
 #------ ERRORS ------#
@@ -110,6 +121,9 @@ class InvalidXmlError(StandardError):
     return msg
 class InvalidConfigError(InvalidXmlError):
   def __str__(self):
+    if len(self.args) == 4:
+      return 'Validation of "%s" against "%s" failed. The invalid section is:\n%s\n' % \
+        (self.args[0], self.args[2], self.args[3]) + InvalidXmlError.__str__(self)
     if len(self.args) == 3:
       return 'Validation of "%s" against "%s" failed:\n' % \
         (self.args[0], self.args[2]) + InvalidXmlError.__str__(self)
