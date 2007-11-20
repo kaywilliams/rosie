@@ -52,7 +52,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     self.DATA = {
       'config':    ['*'],
       'variables': ['fullname', 'product', 'pva', 'cvars[\'web-path\']',
-                    'cvars[\'gpgsign-public-key\']',],
+                    'cvars[\'gpgsign-public-key\']', 'rpm_release',],
       'input':     [],
       'output':    [self.build_folder],
     }

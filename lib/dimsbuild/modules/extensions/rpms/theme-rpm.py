@@ -16,7 +16,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     self.build_folder = self.mddir / 'build'
 
     self.DATA = {
-      'variables': ['product', 'pva'],
+      'variables': ['product', 'pva', 'rpm_release'],
       'config':    ['.'],
       'input' :    [],
       'output':    [self.build_folder],

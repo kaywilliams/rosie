@@ -29,7 +29,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     }
 
     self.DATA = {
-      'variables': ['product', 'fullname', 'pva'],
+      'variables': ['product', 'fullname', 'pva', 'rpm_release'],
       'config':    ['.'],
       'input':     [],
       'output':    [self.build_folder],
