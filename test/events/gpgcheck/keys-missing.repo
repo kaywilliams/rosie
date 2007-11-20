@@ -1,0 +1,11 @@
+[fedora-8-installer]
+name=fedora 8 installer repo
+baseurl=http://www.abodiosoftware.com/open_software/fedora/releases/8/Fedora/i386/os/
+enabled=1
+gpgcheck=1
+
+[fedora-8-everything]
+name=fedora 8 everything repo
+baseurl=http://www.abodiosoftware.com/open_software/fedora/releases/8/Everything/i386/os/
+enabled=1
+gpgcheck=1

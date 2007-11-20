@@ -31,35 +31,35 @@ class TestBuild(Build):
   def __init__(self, conf, *args, **kwargs):
     self.conf = conf
     Build.__init__(self, *args, **kwargs)
-  
+
   def _get_config(self, options):
     return xmllib.config.read(StringIO('<dimsbuild/>')), \
            xmllib.config.read(self.conf)
-  
+
 
 class EventTestCase(unittest.TestCase):
   def __init__(self, eventid, conf):
     self.eventid = eventid
     self.conf = conf
-    
+
     self.event = None
     unittest.TestCase.__init__(self)
-    
+
     self.options = optparse.Values(defaults=opt_defaults)
     self.parser = None
-    
+
     self.tb = None
-    
+
     self._testMethodDoc = self.__class__.__doc__
-  
+
   def setUp(self):
     self.tb = TestBuild(self.conf, self.options, self.parser)
     self.event = self.tb.dispatch._top.get(self.eventid)
-  
+
   def tearDown(self):
     del self.tb
     del self.event
-  
+
   def clean_all_md(self):
     for event in self.event.getroot():
       self.clean_event_md(event)
@@ -76,7 +76,7 @@ class EventTestCase(unittest.TestCase):
     self.failIf(pps.Path(path).exists(), "'%s' exists" % path)
   def failUnlessExists(self, path):
     self.failUnless(pps.Path(path).exists(), "'%s' does not exist " % path)
-  
+
   def failIfRuns(self, event):
     ran = self._runEvent(event)
     if event.diff.handlers: # only events with diff handlers are subject
@@ -86,7 +86,10 @@ class EventTestCase(unittest.TestCase):
       self.failIf(ran, "'%s' event ran:\n%s" % (event.id, diffs))
   def failUnlessRuns(self, event):
     self.failUnless(self._runEvent(event), "'%s' event did not run" % event.id)
-  
+
+  def failUnlessRaises(self, exception, event):
+    unittest.TestCase.failUnlessRaises(self, exception, self._runEvent, event)
+
   def _runEvent(self, event):
     "paired down duplicate of Event.execute()"
     ran = False
@@ -108,23 +111,23 @@ class EventTestCaseDummy(unittest.TestCase):
 class EventTestRunner:
   def __init__(self, threshold=1):
     self.logger = EventTestLogger('blah', threshold=1)
-  
+
   def run(self, test):
     result = EventTestResult(self.logger)
-    
+
     starttime = time.time()
     test(result)
     stoptime = time.time()
-    
+
     if result.failures or result.errors:
-      self.logger.log(1, '\n\nERROR/FAILURE SUMMRY')
+      self.logger.log(1, '\n\nERROR/FAILURE SUMMARY')
       result.printErrors()
-    
+
     self.logger.log(1, result.separator2)
     self.logger.log(1, "ran %d test%s in %.3fs" %
       (result.testsRun, result.testsRun != 1 and 's' or '', stoptime-starttime))
     self.logger.write(1, '\n')
-    
+
     if not result.wasSuccessful():
       self.logger.write(1, 'FAILED (')
       failed, errored = len(result.failures), len(result.errors)
@@ -141,12 +144,12 @@ class EventTestRunner:
 class EventTestResult(unittest.TestResult):
   separator1 = '='*70
   separator2 = '-'*70
-  
+
   def __init__(self, logger):
     unittest.TestResult.__init__(self)
-    
+
     self.logger = logger
-  
+
   def startTest(self, test):
     unittest.TestResult.startTest(self, test)
     if isinstance(test, EventTestCaseDummy):
@@ -155,27 +158,27 @@ class EventTestResult(unittest.TestResult):
       self.logger._eventid = test.eventid
       self.logger.log(1, test.shortDescription() or str(test), newline=False, format='[%(eventid)s] %(message)s')
       self.logger.write(1, ' ... ')
-  
+
   def addSuccess(self, test):
     unittest.TestResult.addSuccess(self, test)
     if not isinstance(test, EventTestCaseDummy):
       self.logger.write(1, 'ok\n')
-  
+
   def addError(self, test, err):
     unittest.TestResult.addError(self, test, err)
     if not isinstance(test, EventTestCaseDummy):
       self.logger.write(1, 'ERROR\n')
-  
+
   def addFailure(self, test, err):
     unittest.TestResult.addFailure(self, test, err)
     if not isinstance(test, EventTestCaseDummy):
       self.logger.write(1, 'FAIL\n')
-  
+
   def printErrors(self):
     self.logger.write(1, '\n')
     self.printErrorList('ERROR', self.errors)
     self.printErrorList('FAIL',  self.failures)
-  
+
   def printErrorList(self, flavor, errors):
     for test, err in errors:
       self.logger.log(1, self.separator1)
@@ -186,15 +189,15 @@ class EventTestResult(unittest.TestResult):
 class EventTestLogger(logger.Logger):
   def __init__(self, eventid, format='%(message)s', *args, **kwargs):
     logger.Logger.__init__(self, *args, **kwargs)
-    
+
     self._format = format
     self._eventid = eventid
-  
+
   def log(self, level, msg, newline=True, format=None, **kwargs):
     msg = self.format(str(msg), format, **kwargs)
     if newline: msg += '\n'
     self.write(level, msg)
-  
+
   def format(self, msg, format=None, **kwargs):
     d = dict(message=msg, eventid=self._eventid, **kwargs)
     if format: d['message'] = format % d
@@ -203,10 +206,10 @@ class EventTestLogger(logger.Logger):
 
 def main():
   import imp
-  
+
   runner = EventTestRunner()
   suite = unittest.TestSuite()
-  
+
   for event in pps.Path('events').findpaths(mindepth=1, maxdepth=1, type=pps.constants.TYPE_DIR):
     fp = None
     try:
@@ -217,10 +220,10 @@ def main():
       mod = imp.load_module('test-%s' % event.basename, fp, p, d)
     finally:
       fp and fp.close()
-    
+
     mod.main(suite=suite)
     del mod
-  
+
   runner.run(suite)
 
 if __name__ == '__main__':
