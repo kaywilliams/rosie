@@ -31,8 +31,8 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
                            'have been automatically created by dimsbuild and '\
                            'are specific to %s.' % (self.product, self.fullname),
                            'Icons and pictures related to %s' % self.fullname,
-                           defobsoletes=['fedora-logos', 'centos-logos', 'redhat-logos'],
-                           defprovides=['system-logos'])
+                           default_obsoletes=['fedora-logos', 'centos-logos', 'redhat-logos'],
+                           default_provides=['system-logos'])
     LocalFilesMixin.__init__(self)
     ColorMixin.__init__(self)
 
@@ -70,7 +70,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
     self.hlcolor = int(self.hlcolor, 16)
 
   def check(self):
-    return self.release == '0' or \
+    return self.rpm_release == '0' or \
            not self.autofile.exists() or \
            self.diff.test_diffs()
 
@@ -82,7 +82,9 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
   def apply(self):
     self.io.clean_eventcache()
     self._check_rpms()
-    self.cvars.setdefault('custom-rpms-info', []).append((self.rpmname, 'mandatory', None, self.obsoletes, None))
+    self.cvars.setdefault('custom-rpms-info', []).append(
+      (self.rpm_name, 'mandatory', None, self.rpm_obsoletes, None)
+    )
 
   def _get_files(self):
     sources = {}

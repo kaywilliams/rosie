@@ -40,7 +40,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     self._setup_download()
 
   def check(self):
-    return self.release == '0' or \
+    return self.rpm_release == '0' or \
            not self.autofile.exists() or \
            self.diff.test_diffs()
 
@@ -52,7 +52,9 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def apply(self):
     self.io.clean_eventcache()
     self._check_rpms()
-    self.cvars.setdefault('custom-rpms-info', []).append((self.rpmname, 'mandatory', None, self.obsoletes, None))
+    self.cvars.setdefault('custom-rpms-info', []).append(
+      (self.rpm_name, 'mandatory', None, self.rpm_obsoletes, None)
+    )
 
   def _generate(self):
     self.io.sync_input(cache=True)
@@ -67,7 +69,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     post_install_scripts = self.io.list_output(what=self.installinfo['config'])
     try:
       (self.build_folder/'post-install.sh').write_lines(
-        [ post_install_scripts[0].relpathfrom(self.rpmdir).normpath() ])
+        [ post_install_scripts[0].relpathfrom(self.rpm_dir).normpath() ])
       return self.build_folder/'post-install.sh'
     except IndexError:
       return None

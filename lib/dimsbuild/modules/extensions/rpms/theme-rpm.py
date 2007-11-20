@@ -29,13 +29,13 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
                            'attribute in /usr/share/gdm/defaults.conf to the %s '
                            'theme.' %(self.product, self.themename),
                            'Script to set default gdm graphical theme',
-                           defrequires=['gdm'])
+                           default_requires=['gdm'])
 
   def setup(self):
     self._setup_build()
 
   def check(self):
-    return self.release == '0' or \
+    return self.rpm_release == '0' or \
            not self.autofile.exists() or \
            self.diff.test_diffs()
 
@@ -47,7 +47,9 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
   def apply(self):
     self.io.clean_eventcache()
     self._check_rpms()
-    self.cvars.setdefault('custom-rpms-info', []).append((self.rpmname, 'conditional', 'gdm', self.obsoletes, None))
+    self.cvars.setdefault('custom-rpms-info', []).append(
+      (self.rpm_name, 'conditional', 'gdm', self.rpm_obsoletes, None)
+    )
 
   def _getpscript(self):
     f = (self.build_folder/'postinstall.sh').open('w')
