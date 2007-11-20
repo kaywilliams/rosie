@@ -78,9 +78,11 @@ class Build(object):
     These parameters are normally passed in from the command-line handler
     ('/usr/bin/dimsbuild')
     """
+    self.parser = parser
+
     # set up loger
     self.logger = make_log(options.logthresh, options.logfile)
-    
+
     # set up configs
     mainconfig, distroconfig = self._get_config(options)
     
@@ -110,18 +112,18 @@ class Build(object):
       # all software and custom rpms, all publish stuff, etc
       self.module_map.setdefault('ALL', []).append(self.dispatch._top.id)
     except ImportError, e:
-      self.logger.log(0, L0("Error loading core dimsbuild files: %s" % e))
+      Event.logger.log(0, L0("Error loading core dimsbuild files: %s" % e))
       if DEBUG: raise
       sys.exit(1)
 
     # allow events to add their command-line options to the parser
     for e in self.dispatch: e._add_cli(parser)
-    
+
   def apply_options(self, options):
     "Allow events to apply option results to themselves"
     # print for help if specified with -h/--help
     if options.print_help:
-      parser.print_help()
+      self.parser.print_help()
       sys.exit()
 
     # apply --force to modules/events
@@ -136,7 +138,7 @@ class Build(object):
 
     # clear cache, if requested
     if options.clear_cache:
-      self.logger.log(0, L0("clearing cache"))
+      Event.logger.log(0, L0("clearing cache"))
       Event.cache_handler.cache_dir.rm(recursive=True, force=True)
       Event.cache_handler.cache_dir.mkdirs()
 
@@ -150,15 +152,15 @@ class Build(object):
       try:
         self._validate_configs()
       except InvalidSchemaError, e:
-        self.logger.log(0, L0("Schema file used in validation appears to be invalid"))
-        self.logger.log(0, L0(e))
+        Event.logger.log(0, L0("Schema file used in validation appears to be invalid"))
+        Event.logger.log(0, L0(e))
         sys.exit(1)
       except InvalidConfigError, e:
-        self.logger.log(0, L0("Config file validation against given schema failed"))
-        self.logger.log(0, L0(e))
+        Event.logger.log(0, L0("Config file validation against given schema failed"))
+        Event.logger.log(0, L0(e))
         sys.exit(1)
       except Exception, e:
-        self.logger.log(0, L0("Unhandled exception: %s" % e))
+        Event.logger.log(0, L0("Unhandled exception: %s" % e))
         if DEBUG: raise
         sys.exit(1)
       if options.validate_only:
@@ -183,26 +185,26 @@ class Build(object):
       else:
         self.logger.log(4, "No main config file found at '%s'. Using default settings" % mcp)
         mc = xmllib.config.read(StringIO('<dimsbuild/>'))
-      
+
       dcp = dcp.expand().abspath()
       if not dcp.exists():
         raise xmllib.config.ConfigError("No config file found at '%s'" % dcp)
-      
+
       self.logger.log(3, "Reading distro config file '%s'" % dcp)
       dc = xmllib.config.read(dcp)
     except xmllib.tree.XmlSyntaxError, e:
       self.logger.log(0, "Error reading config file: %s" % e)
       raise
-    
+
     return mc, dc
-  
+
   def _compute_events(self, modules, events):
     r = set() # set of eventids to force
     for moduleid in modules:
       try:
         r.update(self.module_map[moduleid])
       except KeyError:
-        self.logger.log(0, L0("Module '%s' does not exist or was not loaded" % moduleid))
+        Event.logger.log(0, L0("Module '%s' does not exist or was not loaded" % moduleid))
         sys.exit(1)
     r.update(events)
     return r
@@ -214,10 +216,10 @@ class Build(object):
     try:
       e = self.dispatch.get(eventid)
     except dispatch.UnregisteredEventError:
-      self.logger.log(0, L0("Unregistered event '%s'" % eventid))
+      Event.logger.log(0, L0("Unregistered event '%s'" % eventid))
       sys.exit(1)
     if not e._check_status(status):
-      self.logger.log(0, L0("Cannot %s protected event '%s'" % (str, eventid)))
+      Event.logger.log(0, L0("Cannot %s protected event '%s'" % (str, eventid)))
       sys.exit(1)
     e.status = status
 
@@ -252,15 +254,15 @@ class Build(object):
     return enabled, disabled
 
   def _validate_configs(self):
-    self.logger.log(0, L0("validating config"))
+    Event.logger.log(0, L0("validating config"))
 
-    self.logger.log(1, L1("dimsbuild.conf"))
+    Event.logger.log(1, L1("dimsbuild.conf"))
     mcvalidator = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
                                       Event.mainconfig)
     mcvalidator.validate('/dimsbuild', schema_file='dimsbuild.rng')
 
     # validate individual sections of distro.conf
-    self.logger.log(1, L1(P(Event._config.file).basename))
+    Event.logger.log(1, L1(P(Event._config.file).basename))
     validator = ConfigValidator([ x/'schemas/distro.conf' for x in Event.SHARE_DIRS ],
                                 Event._config)
 
@@ -357,12 +359,12 @@ class Build(object):
     Event.files_callback = FilesCallback(Event.logger, Event.METADATA_DIR)
 
   def _log_header(self):
-    self.logger.logfile.write(0, "\n\n\n")
-    self.logger.log(0, "Starting build of '%s' at %s" % (Event.fullname, time.strftime('%Y-%m-%d %X')))
-    self.logger.log(4, "Loaded modules: %s" % Event.cvars['loaded-modules'])
-    self.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
+    Event.logger.logfile.write(0, "\n\n\n")
+    Event.logger.log(0, "Starting build of '%s %s %s' at %s" % (Event.fullname, Event.version, Event.basearch, time.strftime('%Y-%m-%d %X')))
+    Event.logger.log(4, "Loaded modules: %s" % Event.cvars['loaded-modules'])
+    Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):
-    self.logger.log(0, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
+    Event.logger.log(0, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
 
 
 class CvarsDict(dict):
