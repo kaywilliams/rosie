@@ -211,6 +211,8 @@ class IDepSolverHandler(object):
            not package in processed:
       processed.append(package)
       best_package = providefunc((package, None, None))
+      if best_package is None:
+        return False
       if best_package.pkgtup != self.cache_mapping[package]:
         return False
       for dep in cache[self.cache_mapping[package]]:
