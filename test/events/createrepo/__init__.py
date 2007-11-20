@@ -38,6 +38,10 @@ class Test_SignedRpms(CreaterepoEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
     # no need to test anything specifically; if we get this far we succeeded
+  
+  def tearDown(self):
+    CreaterepoEventTestCase.tearDown(self)
+    self.options.enabled_modules.remove('gpgsign')
 
 def make_suite(conf):
   suite = unittest.TestSuite()

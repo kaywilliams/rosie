@@ -61,7 +61,7 @@ class IOObject:
         if isinstance(s, pps.path.file.FilePath): #! bad
           s = iprefix / s
         s = P(s)
-        d = dst / d.lstrip('/')
+        d = dst // d
         inputs.append(s)
         outputs.extend(self._setup_sync(s, d, id or x, m))
 
@@ -86,12 +86,8 @@ class IOObject:
     self.chmod_items.setdefault(id, set())
     for src in sourcefile.findpaths():
       output_file = dstdir / src.tokens[len(sourcefile.tokens)-1:]
-      mode = defmode
-      if mode is None:
-        newmode = src.stat().st_mode
-        if newmode:
-          mode = str(oct(newmode & 0777))[1:]
-      self.chmod_items[id].add((output_file, mode))
+      self.chmod_items[id].add( (output_file,
+                                 int(defmode or src.stat().st_mode & 0777)) )
       if src.isfile():
         self.sync_items[id].add((src, output_file))
         self.ptr.diff.handlers['output'].odata.append(output_file)
@@ -124,10 +120,7 @@ class IOObject:
           dst.rm(recursive=True, force=True)
           sync_items.add((src, dst))
       for dst,mode in self.chmod_items[id]:
-        if mode:
-          if not dst.exists() or dst.stat().st_mode and \
-                 str(oct(dst.stat().st_mode & 0777))[1:] != mode:
-            chmod_items.add((dst, mode))
+        chmod_items.add((dst, mode))
 
     outputs = []
     if sync_items:
@@ -145,9 +138,7 @@ class IOObject:
           self.ptr.copy(src, dst.dirname, **kwargs) #!
         outputs.append(dst)
 
-    if chmod_items:
-      for file, mode in chmod_items:
-        os.chmod(file, int(mode, 8))
+    for file, mode in chmod_items: file.chmod(mode)
 
     return sorted(outputs)
 

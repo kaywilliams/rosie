@@ -1,14 +1,10 @@
 import unittest
 
-from dims import pps
-from dims import xmllib
-
 from test import EventTestCase, EventTestRunner
+
 from test.core import make_core_suite
 
 eventid = 'pkglist'
-
-P = pps.Path
 
 class PkglistEventTestCase(EventTestCase):
   def __init__(self, conf, clean):
@@ -98,24 +94,12 @@ class Test_PkglistBug86_2(PkglistEventTestCase):
     PkglistEventTestCase.setUp(self)
     self.clean_event_md(self.event._getroot().get('release-rpm'))
 
-class Test_Supplied(EventTestCase):
-  def __init__(self, conf):
-    EventTestCase.__init__(self, eventid, conf)
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=eventid)
-    pkglist_in  = P(xmllib.tree.read(self.conf).get('/distro/pkglist/text()')).read_lines()
-    pkglist_out = self.event.cvars['pkglist']
-    self.failUnlessEqual(sorted(pkglist_in), sorted(pkglist_out))
-
 def make_suite(confdir):
   suite = unittest.TestSuite()
   config1 = confdir / 'bug84.conf'
   config2 = confdir / 'bug85.conf'
   config3 = confdir / 'bug86.conf'
-  config4 = confdir / 'supplied.conf'
 
-  # core tests
   suite.addTest(make_core_suite(eventid, config1))
 
   # test bug 84
@@ -131,9 +115,6 @@ def make_suite(confdir):
   # test bug 86
   suite.addTest(Test_PkglistBug86_1(config3))
   suite.addTest(Test_PkglistBug86_2(config3))
-
-  # pkglist supplied
-  suite.addTest(Test_Supplied(config4))
 
   return suite
 

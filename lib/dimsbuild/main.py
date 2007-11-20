@@ -45,6 +45,7 @@ P = pps.Path # convenience, same is used throughout most modules
 # python-setuptools
 
 API_VERSION = 5.0
+LOCK = P('/var/run/dimsbuild.pid')
 
 class Build(object):
   """
@@ -172,7 +173,11 @@ class Build(object):
   def main(self):
     "Build a distribution"
     self._log_header()
-    self.dispatch.execute(until=None)
+    self._lock()
+    try:
+      self.dispatch.execute(until=None)
+    finally:
+      self._unlock()
     self._log_footer()
 
   def _get_config(self, options):
@@ -365,7 +370,20 @@ class Build(object):
     Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):
     Event.logger.log(0, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
-
+  
+  # def locking methods
+  def _lock(self):
+    if LOCK.exists():
+      try:
+        pid = int(LOCK.read_lines()[0])
+        if pid != os.getpid():
+          raise RuntimeError("there is already an instance of dimsbuild running (pid %d)" % pid)
+      except:
+        LOCK.remove()
+    LOCK.touch()
+    LOCK.write_lines([str(os.getpid())])
+  def _unlock(self):
+    if LOCK.exists(): LOCK.remove()
 
 class CvarsDict(dict):
   def __getitem__(self, key):

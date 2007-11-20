@@ -18,7 +18,7 @@ P = pps.Path
 
 class InputFilesMixin:
   def __init__(self):
-    self.rpm_dir = self.mddir/'rpm-input'
+    self.rpmdir = self.mddir/'rpm-input'
 
   def _setup_download(self):
     for k,v in self.installinfo.items():
@@ -29,15 +29,14 @@ class InputFilesMixin:
           s = P(item.get('text()'))
           d = default_dir / P(item.get('@dest', ''))
           m = item.get('@mode', defmode)
-          self.io.setup_sync(self.rpm_dir / d.lstrip('/'), paths=[s], id=xpath, defmode=m)
+          self.io.setup_sync(self.rpmdir // d, paths=[s], id=xpath, defmode=m)
 
   def _get_files(self):
     sources = {}
-    for item in self.rpm_dir.findpaths(type=pps.constants.TYPE_DIR, mindepth=1):
-      sources[P(item[len(self.rpm_dir):])] = item.findpaths(
-        type=pps.constants.TYPE_NOT_DIR,
-        mindepth=1, maxdepth=1
-      )
+    for item in self.rpmdir.findpaths(type=pps.constants.TYPE_DIR, mindepth=1):
+      sources[P(item[len(self.rpmdir):])] = item.findpaths(
+                                            type=pps.constants.TYPE_NOT_DIR,
+                                            mindepth=1, maxdepth=1)
     return sources
 
 
@@ -110,53 +109,55 @@ class ColorMixin:
 
 
 class RpmBuildMixin:
-  def __init__(self, rpm_name, rpm_desc, rpm_summary,
-               default_provides=[], default_obsoletes=[], default_requires=[]):
-    self.rpm_desc = rpm_desc
-    self.rpm_name = rpm_name
-    self.rpm_summary = rpm_summary
-    self.default_obsoletes = default_obsoletes
-    self.default_provides = default_provides
-    self.default_requires = default_requires
+  def __init__(self, rpmname, description, summary,
+               defprovides=[], defobsoletes=[], defrequires=[]):
+    self.description  = description
+    self.rpmname      = rpmname
+    self.summary      = summary
+
+    self.defobsoletes = defobsoletes
+    self.defprovides  = defprovides
+    self.defrequires  = defrequires
+
     self.autofile = P(self._config.file + '.dat')
 
   def _setup_build(self, **kwargs):
     if self.autofile.exists():
-      self.rpm_release = xmllib.tree.read(self.autofile).get(
+      self.release = xmllib.tree.read(self.autofile).get(
        '/distro/%s/rpms/%s/release/text()' % (self.pva, self.id), '0')
     else:
-      self.rpm_release = '0'
+      self.release = '0'
 
     if self.config.get('@use-default-set', 'True'):
-      self.rpm_obsoletes = self.default_obsoletes
+      self.obsoletes = self.defobsoletes
     else:
-      self.rpm_obsoletes = []
+      self.obsoletes = []
     if self.config.pathexists('obsoletes/package/text()'):
-      self.rpm_obsoletes.extend(self.config.xpath('obsoletes/package/text()', []))
+      self.obsoletes.extend(self.config.xpath('obsoletes/package/text()', []))
     if kwargs.has_key('obsoletes'):
-      self.rpm_obsoletes.extend(kwargs['obsoletes'])
+      self.obsoletes.extend(kwargs['obsoletes'])
 
-    self.rpm_provides = [ x for x in self.rpm_obsoletes ]
-    if self.default_provides:
-      self.rpm_provides.extend(self.default_provides)
+    self.provides = [ x for x in self.obsoletes ]
+    if self.defprovides:
+      self.provides.extend(self.defprovides)
     if kwargs.has_key('provides'):
-      self.rpm_provides.extend(kwargs['provides'])
+      self.provides.extend(kwargs['provides'])
 
-    if self.default_requires:
-      self.rpm_requires = self.default_requires
+    if self.defrequires:
+      self.requires = self.defrequires
     else:
-      self.rpm_requires = []
+      self.requires = []
     if self.config.pathexists('requires/package/text()'):
-      self.rpm_requires.extend(self.config.xpath('requires/package/text()', []))
+      self.requires.extend(self.config.xpath('requires/package/text()', []))
     if kwargs.has_key('requires'):
-      self.rpm_requires.extend(kwargs['requires'])
+      self.requires.extend(kwargs['requires'])
 
     self.diff.setup(self.DATA)
 
-    self.rpm_arch      = kwargs.get('arch', 'noarch')
-    self.rpm_author    = kwargs.get('author', 'dimsbuild')
-    self.rpm_fullname  = kwargs.get('fullname', self.fullname)
-    self.rpm_version   = kwargs.get('version', self.version)
+    self.arch      = kwargs.get('arch',     'noarch')
+    self.author    = kwargs.get('author',   'dimsbuild')
+    self.fullname  = kwargs.get('fullname', self.fullname)
+    self.varsion   = kwargs.get('version', self.cvars['source-vars']['version'])
 
   def _build_rpm(self):
     self._check_release()
@@ -165,10 +166,13 @@ class RpmBuildMixin:
     self._add_output()
 
   def _add_output(self):
-    self.DATA['output'].append(self.mddir/'RPMS/%s-%s-%s.%s.rpm' % \
-                               (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch))
-    self.DATA['output'].append(self.mddir/'SRPMS/%s-%s-%s.src.rpm' % \
-                               (self.rpm_name, self.rpm_version, self.rpm_release))
+    self.DATA['output'].append(self.mddir/'RPMS/%s-%s-%s.%s.rpm' % (self.rpmname,
+                                                                    self.version,
+                                                                    self.release,
+                                                                    self.arch))
+    self.DATA['output'].append(self.mddir/'SRPMS/%s-%s-%s.src.rpm' % (self.rpmname,
+                                                                      self.version,
+                                                                      self.release))
 
   def _save_release(self):
     if self.autofile.exists():
@@ -176,12 +180,12 @@ class RpmBuildMixin:
     else:
       root_element = xmllib.tree.Element('distro')
 
-    pva_element = xmllib.tree.uElement(self.pva, parent=root_element)
-    rpms_element = xmllib.tree.uElement('rpms', parent=pva_element)
-    parent_element = xmllib.tree.uElement(self.id, parent=rpms_element)
+    pva_element     = xmllib.tree.uElement(self.pva,  parent=root_element)
+    rpms_element    = xmllib.tree.uElement('rpms',    parent=pva_element)
+    parent_element  = xmllib.tree.uElement(self.id,   parent=rpms_element)
     release_element = xmllib.tree.uElement('release', parent=parent_element)
 
-    release_element.text = self.rpm_release
+    release_element.text = self.release
     root_element.write(self.autofile)
 
     # set the mode and ownership of distro.conf.dat and distro.conf to
@@ -191,32 +195,30 @@ class RpmBuildMixin:
     os.chmod(self.autofile, stat.st_mode)
 
   def _check_release(self):
-    if self.rpm_release == '0' or  \
-           not self.autofile.exists() or \
-           not self.mdfile.exists() or \
-           self.diff.has_changed('input') or \
-           self.diff.has_changed('variables') or \
-           self.diff.has_changed('config'):
-      self.rpm_release = str(int(self.rpm_release)+1)
+    if self.release == '0' or  \
+       not self.autofile.exists() or \
+       not self.mdfile.exists() or \
+       self.diff.has_changed('input') or \
+       self.diff.has_changed('variables') or \
+       self.diff.has_changed('config'):
+      self.release = str(int(self.release)+1)
 
   def _check_rpms(self):
-    rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % \
-          (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch)
-    srpm = self.mddir/'SRPMS/%s-%s-%s.src.rpm' % \
-           (self.rpm_name, self.rpm_version, self.rpm_release)
+    rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % (self.rpmname, self.version,
+                                               self.release, self.arch)
+    srpm = self.mddir/'SRPMS/%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release)
     self.cvars['custom-rpms'].append(rpm)
     self.cvars['custom-srpms'].append(srpm)
 
   def verify_rpm_exists(self):
     "rpm exists"
-    rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % \
-          (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch)
+    rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % (self.rpmname, self.version,
+                                               self.release, self.arch)
     self.verifier.failUnless(rpm.exists(), "unable to find rpm at '%s'" % rpm)
 
   def verify_srpm_exists(self):
     "srpm exists"
-    srpm = self.mddir/'SRPMS/%s-%s-%s.src.rpm' % \
-           (self.rpm_name, self.rpm_version, self.rpm_release)
+    srpm = self.mddir/'SRPMS/%s-%s-%s.src.rpm' % (self.rpmname, self.version, self.release)
     self.verifier.failUnless(srpm.exists(), "unable to find srpm at '%s'" % srpm)
 
   def _generate(self):   pass
@@ -228,10 +230,13 @@ class RpmBuildMixin:
     self._generate()
     self._write_spec()
     self._write_manifest()
-    self.log(1, L1("building %s-%s-%s.%s.rpm" % \
-                   (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch)))
-    mkrpm.build(self.build_folder, self.mddir, createrepo=False,
-                keepTemp=True, quiet=(self.logger.threshold < 5))
+    self.log(1, L1("building %s-%s-%s.%s.rpm" % (self.rpmname, self.version,
+                                                 self.release, self.arch)))
+    mkrpm.build(self.build_folder,
+                self.mddir,
+                createrepo=False,
+                keepTemp=True,
+                quiet=(self.logger.threshold < 5))
     (self.build_folder/'dist').rm(recursive=True, force=True)
 
   def _write_spec(self):
@@ -241,31 +246,26 @@ class RpmBuildMixin:
     spec.add_section('pkg_data')
     spec.add_section('bdist_rpm')
 
-    spec.set('pkg_data', 'name', self.rpm_name)
-    spec.set('pkg_data', 'long_description', self.rpm_desc)
-    spec.set('pkg_data', 'description', self.rpm_summary)
+    spec.set('pkg_data', 'name',             self.rpmname)
+    spec.set('pkg_data', 'long_description', self.description)
+    spec.set('pkg_data', 'description',      self.summary)
 
-    spec.set('pkg_data', 'author', self.rpm_author)
-    spec.set('pkg_data', 'version', self.rpm_version)
+    spec.set('pkg_data', 'author',   self.author)
+    spec.set('pkg_data', 'version',  self.version)
 
-    spec.set('bdist_rpm', 'force_arch', self.rpm_arch)
-    spec.set('bdist_rpm', 'distribution_name', self.rpm_fullname)
+    spec.set('bdist_rpm', 'force_arch',        self.arch)
+    spec.set('bdist_rpm', 'distribution_name', self.fullname)
 
-    spec.set('bdist_rpm', 'release', self.rpm_release)
+    spec.set('bdist_rpm', 'release', self.release)
 
-    if self.rpm_provides:
-      spec.set('bdist_rpm', 'provides',  ' '.join(self.rpm_provides))
-    if self.rpm_requires:
-      spec.set('bdist_rpm', 'requires',  ' '.join(self.rpm_requires))
-    if self.rpm_obsoletes:
-      spec.set('bdist_rpm', 'obsoletes', ' '.join(self.rpm_obsoletes))
+    if self.provides:  spec.set('bdist_rpm', 'provides',  ' '.join(self.provides))
+    if self.requires:  spec.set('bdist_rpm', 'requires',  ' '.join(self.requires))
+    if self.obsoletes: spec.set('bdist_rpm', 'obsoletes', ' '.join(self.obsoletes))
 
     iscript = self._getiscript()
     pscript = self._getpscript()
-    if iscript:
-      spec.set('bdist_rpm', 'install_script', iscript)
-    if pscript:
-      spec.set('bdist_rpm', 'post_install', pscript)
+    if iscript: spec.set('bdist_rpm', 'install_script', iscript)
+    if pscript: spec.set('bdist_rpm', 'post_install', pscript)
 
     self._add_files(spec)
 

@@ -30,9 +30,14 @@ class GpgSetupEvent(Event):
     
     self.cvars['gpgsign-passphrase'] = \
       self.config.get('gpg-passphrase/text()', None)
+  
+  def verify_cvars(self):
+    "public and secret key cvars defined"
+    self.failUnless(self.cvars['gpgsign-public-key'])
+    self.failUnless(self.cvars['gpgsign-secret-key'])
 
 
-class GPGSignEvent(Event, GpgMixin):
+class GPGSignEvent(GpgMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'gpgsign',
