@@ -89,11 +89,18 @@ class PkglistEvent(Event):
     repoconfig = self._create_repoconfig()
     depsolve_file = self.mddir / 'depsolve-results'
     todepsolve = copy.deepcopy(self.cvars.get('required-packages', []))
-    solver = IDepSolver(depsolve_file,
+
+    removed_items = []
+    diffdict = self.diff.handlers['variables'].diffdict
+    if diffdict.has_key("cvars['required-packages']"):
+      r,a = diffdict["cvars['required-packages']"]
+      if not isinstance(r, difftest.NoneEntry) and \
+             not isinstance(r, difftest.NewEntry):
+        removed_items.extend([ x for x in r if x not in a])
+
+    solver = IDepSolver(depsolve_file, todepsolve, removed_items,
                         config=str(repoconfig), root=str(self.dsdir),
-                        arch=self.arch, callback=BuildDepsolveCallback(self.logger),
-                        handler=IDepSolverHandler(todepsolve,
-                                                  self.diff.handlers['variables'].diffdict))
+                        arch=self.arch, callback=BuildDepsolveCallback(self.logger))
     solver.setup()
 
     for package in todepsolve:
@@ -166,81 +173,15 @@ class PkglistEvent(Event):
     repoconfig.write_lines(conf)
     return repoconfig
 
-class IDepSolverHandler(object):
-  def __init__(self, todepsolve, variables_diff):
-    self.todepsolve = todepsolve
-    self.variables_diff = variables_diff
-    self.cache_mapping = {}
-    self.removed = []
-
-  def update_cache(self, solver):
-    """
-    Remove items in cache that are not needed anymore.
-    """
-    new_cache = {}
-    cache = solver.depsolve_cache
-
-    diffdict = self.variables_diff
-    if diffdict.has_key("cvars['required-packages']"):
-      r,a = diffdict["cvars['required-packages']"]
-      if not isinstance(r, difftest.NoneEntry) and \
-             not isinstance(r, difftest.NewEntry):
-        self.removed.extend([ x for x in r if x not in a])
-
-    for pkg in cache:
-      self.cache_mapping[pkg[0]] = pkg
-
-    for item in self.todepsolve:
-      if self._recursive_check(cache, item, [], solver._provideToPkg):
-        self._recursive_add(cache, new_cache, item)
-
-    cache.clear()
-    cache.update(new_cache)
-
-  def _recursive_check(self, cache, package, processed, providefunc):
-    """
-    Check to see whether any package brought down by a required
-    package requires a package that is a previously-required
-    package. Return False in this case. Also, return False if the
-    package we are about to add is older than the one found in
-    input repositories.
-    """
-    if package in self.removed:
-      return False
-    if self.cache_mapping.has_key(package) and \
-           not package in processed:
-      processed.append(package)
-      best_package = providefunc((package, None, None))
-      if best_package is None:
-        return False
-      if best_package.pkgtup != self.cache_mapping[package]:
-        return False
-      for dep in cache[self.cache_mapping[package]]:
-        if not self._recursive_check(cache, dep[0], processed, providefunc):
-          return False
-    return True
-
-  def _recursive_add(self, cache, new_cache, package):
-    """
-    Should be called iff _recursive_check() returns True. The
-    _recursive_check() function will return True only if none of the
-    package parameter's dependencies are in the list of
-    previously-required packages.
-    """
-    if self.cache_mapping.has_key(package) and \
-           not new_cache.has_key(self.cache_mapping[package]):
-      new_cache[self.cache_mapping[package]] = cache[self.cache_mapping[package]]
-      for dep in new_cache[self.cache_mapping[package]]:
-        self._recursive_add(cache, new_cache, dep[0])
-
 class IDepSolver(DepSolver):
-  def __init__(self, cache_file, config='/etc/yum.conf',
-               root='/tmp/depsolver', arch=None, callback=None, handler=None):
+  def __init__(self, cache_file, todepsolve, removed_items, config='/etc/yum.conf',
+               root='/tmp/depsolver', arch=None, callback=None):
     DepSolver.__init__(self, config=config, root=root,
                        arch=arch, callback=callback)
     self.cache_file = P(cache_file)
     self.depsolve_cache = {}
-    self.handler = handler
+    self.removed_items = removed_items
+    self.todepsolve = todepsolve
 
   def setup(self):
     DepSolver.setup(self)
@@ -248,8 +189,7 @@ class IDepSolver(DepSolver):
       f = self.cache_file.open()
       self.depsolve_cache = pickle.load(f)
       f.close()
-    if self.handler:
-      self.handler.update_cache(self)
+    self.update_cache()
 
   def resolveDeps(self):
     "Resolve dependencies on all selected packages and groups."
@@ -257,33 +197,92 @@ class IDepSolver(DepSolver):
     if self.dsCallback: self.dsCallback.start()
     unresolved = self.tsInfo.getMembers()
     while len(unresolved) > 0:
-      if self.dsCallback: self.dsCallback.tscheck(len(unresolved))
-      toremove = []
-      for txmbr in unresolved:
-        if self.depsolve_cache.has_key(txmbr.pkgtup):
-          try:
-            self.__recursive_install(txmbr.pkgtup)
-          except yum.Errors.InstallError, e:
-            #print e
-            pass
-          else:
-            if self.dsCallback: self.dsCallback.pkgAdded(txmbr.pkgtup)
-            toremove.append(txmbr)
-      for rm in toremove: unresolved.remove(rm)
+      if self.dsCallback:
+        self.dsCallback.tscheck(len(unresolved))
+      self.recursive_install(unresolved)
       unresolved = self.tsCheck(unresolved)
-      if self.dsCallback: self.dsCallback.restartLoop()
+      if self.dsCallback:
+        self.dsCallback.restartLoop()
     self.deps = {}
     f = self.cache_file.open('w')
     pickle.dump(self.depsolve_results, f)
     f.close()
 
-  def __recursive_install(self, pkgtup):
+  def recursive_install(self, unresolved):
+    installed = []
+    for txmbr in unresolved:
+      if self.depsolve_cache.has_key(txmbr.pkgtup):
+        try:
+          self._recursive_install(txmbr.pkgtup)
+        except yum.Errors.InstallError, e:
+          #print e
+          pass
+        else:
+          if self.dsCallback:
+            self.dsCallback.pkgAdded(txmbr.pkgtup)
+          installed.append(txmbr)
+    for item in installed:
+      unresolved.remove(item)
+
+  def _recursive_install(self, pkgtup):
     for dep in self.depsolve_cache.get(pkgtup, []):
       if not self.tsInfo.exists(dep):
         txmbrs = self.install(pkgtup=dep)
-        self.__recursive_install(dep)
+        self._recursive_install(dep)
       self.depsolve_results.setdefault(pkgtup, []).append(dep)
 
+  def update_cache(self):
+    """
+    Remove items in cache that are not needed anymore.
+    """
+    new_cache = {}
+    cache_mapping = {}
+
+    for pkg in self.depsolve_cache:
+      cache_mapping[pkg[0]] = pkg
+
+    for item in self.todepsolve:
+      if self._recursive_check(item, [], cache_mapping):
+        self._recursive_add(new_cache, item, cache_mapping)
+
+    self.depsolve_cache.clear()
+    self.depsolve_cache.update(new_cache)
+
+  def _recursive_check(self, package, processed, cache_mapping):
+    """
+    Check to see whether any package brought down by a required
+    package requires a package that is a previously-required
+    package. Return False in this case. Also, return False if the
+    package we are about to add is older than the one found in
+    input repositories.
+    """
+    if package in self.removed_items:
+      return False
+    if cache_mapping.has_key(package) and \
+           not package in processed:
+      processed.append(package)
+      best_package = self._provideToPkg((package, None, None))
+      if best_package is None:
+        return False
+      if best_package.pkgtup != cache_mapping[package]:
+        return False
+      for dep in self.depsolve_cache[cache_mapping[package]]:
+        if not self._recursive_check(dep[0], processed, cache_mapping):
+          return False
+    return True
+
+  def _recursive_add(self, new_cache, package, cache_mapping):
+    """
+    Should be called iff _recursive_check() returns True. The
+    _recursive_check() function will return True only if none of the
+    package parameter's dependencies are in the list of
+    previously-required packages.
+    """
+    if cache_mapping.has_key(package) and \
+           not new_cache.has_key(cache_mapping[package]):
+      new_cache[cache_mapping[package]] = self.depsolve_cache[cache_mapping[package]]
+      for dep in new_cache[cache_mapping[package]]:
+        self._recursive_add(new_cache, dep[0], cache_mapping)
 
 #------ ERRORS ------#
 class DepSolveError(StandardError): pass
