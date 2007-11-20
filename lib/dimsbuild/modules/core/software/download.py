@@ -20,7 +20,7 @@ class RepoFilesCallback(FilesCallback):
     self.relpath = relpath
     self.repo = repo
 
-  def sync_start(self): 
+  def sync_start(self):
     self.logger.log(1, L1("downloading packages - '%s'" % self.repo))
 
 class DownloadEvent(Event):
