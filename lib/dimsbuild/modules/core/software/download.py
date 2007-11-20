@@ -27,7 +27,7 @@ class DownloadEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'download',
-      provides = ['input-rpms', 'cached-rpms'],
+      provides = ['cached-rpms', 'rpms-by-repoid'],
       requires = ['pkglist', 'repos'],
     )
 
@@ -44,10 +44,10 @@ class DownloadEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.input_rpms = set()
+    self.cvars['rpms-by-repoid'] = {}
     processed = []
     for repo in self.cvars['repos'].values():
-      rpms = []
+      rpms = {}
       for rpminfo in repo.repoinfo:
         rpm = rpminfo['file']
         _,n,v,r,a = self._deformat(rpm)
@@ -59,10 +59,12 @@ class DownloadEvent(Event):
             rpm._update_stat({'st_size':  rpminfo['size'],
                               'st_mtime': rpminfo['mtime'],
                               'st_mode':  (stat.S_IFREG | 0644)})
-          self.input_rpms.add(rpm)
-          rpms.append(rpm)
+          rpms[rpm.basename] = rpm
           processed.append((nvr,a))
-      self.io.setup_sync(self.builddata_dest, paths=rpms, id=repo.id)
+      self.io.setup_sync(self.builddata_dest, paths=rpms.values(), id=repo.id)
+      if rpms:
+        self.cvars['rpms-by-repoid'][repo.id] = \
+          sorted([self.builddata_dest/rpm for rpm in rpms.keys()])
 
   def run(self):
     for repo in self.cvars['repos'].values():
@@ -72,7 +74,6 @@ class DownloadEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
-    self.cvars['input-rpms'] = self.input_rpms
     self.cvars['cached-rpms'] = self.io.list_output()
 
   def _deformat(self, rpm):

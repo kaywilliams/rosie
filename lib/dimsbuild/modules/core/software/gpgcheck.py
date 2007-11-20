@@ -26,7 +26,7 @@ class GpgCheckEvent(Event):
     Event.__init__(self,
       id = 'gpgcheck',
       version = '0',
-      requires = ['cached-rpms', 'repos'],
+      requires = ['rpms-by-repoid', 'repos'],
     )
 
     self.DATA = {
@@ -41,25 +41,16 @@ class GpgCheckEvent(Event):
     self.gpgkeys = {}  # keys to download
     self.rpms = {}    # rpms to check
 
-    cached = {} # dictionary cached rpms by basename, fullname
-    for rpm in self.cvars['cached-rpms']:
-      cached[rpm.basename] = rpm
-
     for repo in self.cvars['repos'].values():
-      rpms = []
       if repo.has_key('gpgcheck') and repo['gpgcheck'] in BOOLEANS_TRUE:
-        if repo.gpgkeys:
+        if repo.gpgkeys and self.cvars['rpms-by-repoid'].has_key(repo.id):
           self.gpgkeys[repo.id] = repo.gpgkeys
+          self.rpms[repo.id] = self.cvars['rpms-by-repoid'][repo.id]
         else:
           raise RuntimeError("GPGcheck enabled for '%s' repository, but no keys "
           "provided." % repo.id)
-        for rpm in [ P(rpminfo['file']).basename for rpminfo in repo.repoinfo ]:
-          if cached.has_key(rpm):
-            rpms.append(cached[rpm])
-      if rpms:
-        self.rpms[repo.id] = sorted(rpms)
 
-    for repo in self.rpms.keys():
+    for repo in self.gpgkeys.keys():
       self.io.setup_sync(self.mddir/repo, paths=self.gpgkeys[repo], id=repo)
     self.DATA['variables'].append('rpms')
     self.DATA['variables'].append('gpgkeys')
@@ -70,7 +61,7 @@ class GpgCheckEvent(Event):
       self.diff.write_metadata()
       return
 
-    for repo in self.rpms.keys():
+    for repo in sorted(self.rpms.keys()):
       newrpms = []
       homedir = self.mddir/repo/'homedir'
       self.DATA['output'].append(homedir)
