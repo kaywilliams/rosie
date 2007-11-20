@@ -36,7 +36,7 @@ class GPGSignEvent(Event, GpgMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'gpgsign',
-      requires = ['input-rpms', 'gpgsign-public-key',
+      requires = ['cached-rpms', 'gpgsign-public-key',
                   'gpgsign-secret-key', 'gpgsign-passphrase'],
       conditionally_comes_after = ['gpgcheck'],
       provides = ['signed-rpms'],
@@ -55,7 +55,7 @@ class GPGSignEvent(Event, GpgMixin):
     self.io.setup_sync(self.mddir, paths=self.cvars['gpgsign-public-key'], id='pubkey')
     self.io.setup_sync(self.mddir, paths=self.cvars['gpgsign-secret-key'], id='seckey')
     
-    self.io.setup_sync(self.mddir/'rpms', paths=self.cvars['input-rpms'], id='rpms')
+    self.io.setup_sync(self.mddir/'rpms', paths=self.cvars['cached-rpms'], id='rpms')
   
   def run(self):
     self.log(1, L1("configuring gpg signing"))
