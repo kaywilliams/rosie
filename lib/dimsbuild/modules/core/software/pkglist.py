@@ -1,5 +1,5 @@
+import cPickle as pickle
 import copy
-import pickle
 import re
 import yum
 
