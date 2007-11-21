@@ -12,7 +12,7 @@ EVENTS = {'rpms': ['ReleaseRpmEvent']}
 
 class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
   def __init__(self):
-    Event.__init__(self, id='release-rpm',
+    Event.__init__(self, id='release-rpm', version=1,
                    requires=['source-vars', 'input-repos', 'release-versions'],
                    provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
                    conditionally_requires=['web-path', 'gpgsign-public-key',])

@@ -11,7 +11,7 @@ EVENTS = {'rpms': ['ConfigRpmEvent']}
 
 class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def __init__(self):
-    Event.__init__(self, id='config-rpm',
+    Event.__init__(self, id='config-rpm', version=1,
                    provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])
     RpmBuildMixin.__init__(self,
                            '%s-config' % self.product,

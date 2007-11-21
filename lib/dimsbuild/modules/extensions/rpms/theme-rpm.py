@@ -7,7 +7,7 @@ EVENTS = {'rpms': ['ThemeRpmEvent']}
 
 class ThemeRpmEvent(Event, RpmBuildMixin):
   def __init__(self):
-    Event.__init__(self, id='theme-rpm',
+    Event.__init__(self, id='theme-rpm', version=1,
                    provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])
 
     self.themename = \
