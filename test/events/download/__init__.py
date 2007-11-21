@@ -28,17 +28,20 @@ class Test_AddedPackageDownloaded(DownloadEventTestCase):
   def setUp(self):
     DownloadEventTestCase.setUp(self)
     comps = xmllib.tree.Element('comps', self.event._config)
-    core  = xmllib.tree.Element('core', comps)
-    httpd = xmllib.tree.Element('package', core, text='httpd')
+    core = xmllib.tree.Element('core', comps)
+    pkg1 = xmllib.tree.Element('package', core, text='package1')
+    pkg2 = xmllib.tree.Element('package', core, text='package2')
 
   def runTest(self):
     DownloadEventTestCase.runTest(self)
-    found = False
+    found1 = False
+    found2 = False
     for package in self.event.io.list_output():
-      if self.event._deformat(package)[1] == 'httpd':
-        found = True
-        break
-    self.failUnless(found)
+      if self.event._deformat(package)[1] == 'package1':
+        found1 = True
+      if self.event._deformat(package)[1] == 'package2':
+        found2 = True
+    self.failUnless(found1 and found2)
 
 class Test_RemovedPackageDeleted(DownloadEventTestCase):
   "Test that the previously-added 'httpd' package is removed"
@@ -52,7 +55,8 @@ class Test_RemovedPackageDeleted(DownloadEventTestCase):
     # add a package, then remove it
     self.tb.dispatch.execute(until=eventid)
     for package in self.event.io.list_output():
-      self.failIf(self.event._deformat(package)[1] == 'httpd')
+      pkgname = self.event._deformat(package)[1]
+      self.failIf(pkgname == 'package1' or pkgname == 'package2')
 
 def make_suite(conf):
   suite = unittest.TestSuite()
