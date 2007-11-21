@@ -42,8 +42,9 @@ class GpgCheckEvent(Event):
     self.rpms = {}    # rpms to check
 
     for repo in self.cvars['repos'].values():
-      if repo.has_key('gpgcheck') and repo['gpgcheck'] in BOOLEANS_TRUE:
-        if repo.gpgkeys and self.cvars['rpms-by-repoid'].has_key(repo.id):
+      if self.cvars['rpms-by-repoid'].has_key(repo.id) and \
+         repo.has_key('gpgcheck') and repo['gpgcheck'] in BOOLEANS_TRUE:
+        if repo.gpgkeys:
           self.gpgkeys[repo.id] = repo.gpgkeys
           self.rpms[repo.id] = self.cvars['rpms-by-repoid'][repo.id]
         else:
