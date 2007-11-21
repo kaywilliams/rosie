@@ -225,15 +225,15 @@ class Build(object):
 
   def _compute_import_dirs(self, mainconfig, options):
     "Compute a list of directories to try importing from"
-    import_dirs = [ P(x) for x in \
+    import_dirs = [ P(x).expand() for x in \
       mainconfig.xpath('/dimsbuild/librarypaths/path/text()', []) ]
 
     if options.libpath:
-      import_dirs = [ P(x) for x in options.libpath ] + import_dirs
+      import_dirs = [ P(x).expand() for x in options.libpath ] + import_dirs
     for dir in sys.path:
       if dir not in import_dirs:
         import_dirs.append(P(dir))
-
+ 
     return import_dirs
 
   def _compute_modules(self, distroconfig, options):
@@ -335,13 +335,13 @@ class Build(object):
     Event.TEMP_DIR     = P('/tmp/dimsbuild')
     Event.METADATA_DIR = Event.CACHE_DIR  / base_vars['pva']
 
-    Event.SHARE_DIRS = [ P(x) for x in \
+    Event.SHARE_DIRS = [ P(x).expand() for x in \
                          mainconfig.xpath('/dimsbuild/sharepaths/path/text()',
                                           ['/usr/share/dimsbuild']) ]
 
     if options.sharepath:
       options.sharepath.extend(Event.SHARE_DIRS)
-      Event.SHARE_DIRS = [ P(x) for x in options.sharepath ]
+      Event.SHARE_DIRS = [ P(x).expand() for x in options.sharepath ]
 
     Event.CACHE_MAX_SIZE = int(mainconfig.get('/dimsbuild/cache/max-size/text()',
                                               30*1024**3))
