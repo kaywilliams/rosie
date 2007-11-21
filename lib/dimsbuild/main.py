@@ -12,6 +12,7 @@ __date__    = 'June 26th, 2007'
 DEBUG = True # enable to print tracebacks; disable for 'release mode'
 
 import imp
+import os
 import sys
 import time
 
