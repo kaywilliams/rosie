@@ -15,7 +15,7 @@ class Test_GpgKeysNotProvided(EventTestCase):
 
 def make_suite(confdir):
   suite = unittest.TestSuite()
-  suite.addTest(make_core_suite(confdir / 'keys-present.conf'))
+  suite.addTest(make_core_suite(eventid, confdir / 'keys-present.conf'))
   suite.addTest(Test_GpgKeysNotProvided(confdir / 'keys-missing.conf'))
   return suite
 
