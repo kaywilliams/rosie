@@ -68,6 +68,20 @@ class Test_ArchChanges(DownloadEventTestCase):
     DownloadEventTestCase.setUp(self)
     xmllib.tree.Element('arch', self.event._config.get('/distro/main'), text='i386')
 
+class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
+  def __init__(self, conf):
+    DownloadEventTestCase.__init__(self, conf)
+
+  def runTest(self):
+    DownloadEventTestCase.runTest(self)
+    # if the length of cvars['cached-rpms'] is equal to the length of
+    # packages in cvars['rpms-by-repoid'], then we know for sure that
+    # we are downloading a package from exactly one repository.
+    numpkgs = 0
+    for id in self.event.cvars['rpms-by-repoid']:
+      numpkgs += len(self.event.cvars['rpms-by-repoid'][id])
+    self.failUnless(len(self.event.cvars['cached-rpms']) == numpkgs)
+
 def make_suite(conf):
   suite = unittest.TestSuite()
   suite.addTest(make_core_suite(eventid, conf))
@@ -75,6 +89,7 @@ def make_suite(conf):
   suite.addTest(Test_AddedPackageDownloaded(conf))
   suite.addTest(Test_RemovedPackageDeleted(conf))
   suite.addTest(Test_ArchChanges(conf))
+  suite.addTest(Test_MultipleReposWithSamePackage(conf))
   return suite
 
 def main(suite=None):

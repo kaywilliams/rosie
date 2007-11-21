@@ -15,4 +15,12 @@
       <force-arch>noarch</force-arch>
     </package>
   </repo>
+  <repo id="repo2">
+    <package>
+      <name>package1</name>
+      <version>1.0</version>
+      <release>1</release>
+      <force-arch>noarch</force-arch>
+    </package>
+  </repo>
 </build-repos>
