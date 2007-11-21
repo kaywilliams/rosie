@@ -17,9 +17,11 @@ class DownloadEventTestCase(EventTestCase):
       self.failUnlessExists(rpm)
 
 class Test_PackagesDownloaded(DownloadEventTestCase):
+  "Test to see that all packages are downloaded."
   pass
 
 class Test_AddedPackageDownloaded(DownloadEventTestCase):
+  "Test that the 'httpd' package is downloaded."
   def __init__(self, conf):
     DownloadEventTestCase.__init__(self, conf)
 
@@ -39,6 +41,7 @@ class Test_AddedPackageDownloaded(DownloadEventTestCase):
     self.failUnless(found)
 
 class Test_RemovedPackageDeleted(DownloadEventTestCase):
+  "Test that the previously-added 'httpd' package is removed"
   def __init__(self, conf):
     DownloadEventTestCase.__init__(self, conf)
 
@@ -69,4 +72,3 @@ def main(suite=None):
 
 if __name__ == '__main__':
   main()
-
