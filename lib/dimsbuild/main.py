@@ -194,7 +194,12 @@ class Build(object):
 
       dcp = dcp.expand().abspath()
       if not dcp.exists():
-        raise xmllib.config.ConfigError("No config file found at '%s'" % dcp)
+        # print for help if specified with -h/--help
+        if options.print_help:
+          self.parser.print_help()
+          sys.exit()
+        else:
+          raise xmllib.config.ConfigError("No config file found at '%s'" % dcp)
 
       self.logger.log(3, "Reading distro config file '%s'" % dcp)
       dc = xmllib.config.read(dcp)
@@ -313,33 +318,26 @@ class Build(object):
     Event._config = distroconfig
 
     # set up base variables
-    Event.cvars['base-vars'] = {}
-
+    bv = Event.cvars['base-vars'] = {}
     qstr = '/distro/main/%s/text()'
-    base_vars = Event.cvars['base-vars']
 
-    base_vars['product']  = Event._config.get(qstr % 'product')
-    base_vars['version']  = Event._config.get(qstr % 'version')
-    base_vars['release']  = Event._config.get(qstr % 'release', '0')
-    base_vars['arch']     = Event._config.get(qstr % 'arch', 'i686')
-    base_vars['basearch'] = getBaseArch(base_vars['arch'])
-    base_vars['fullname'] = Event._config.get(qstr % 'fullname',
-                            base_vars['product'])
-    base_vars['webloc']   = Event._config.get(qstr % 'bug-url',
-                            'No bug url provided')
-    base_vars['pva']      = '%s-%s-%s' % (base_vars['product'],
-                                          base_vars['version'],
-                                          base_vars['basearch'])
-    base_vars['product-path'] = base_vars['product']
+    bv['product']  = Event._config.get(qstr % 'product')
+    bv['version']  = Event._config.get(qstr % 'version')
+    bv['arch']     = Event._config.get(qstr % 'arch', 'i686')
+    bv['basearch'] = getBaseArch(bv['arch'])
+    bv['fullname'] = Event._config.get(qstr % 'fullname', bv['product'])
+    bv['webloc']   = Event._config.get(qstr % 'bug-url', 'No bug url provided')
+    bv['pva']      = '%(product)s-%(version)s-%(basearch)s' % bv
+    bv['product-path'] = bv['product']
 
-    for k,v in base_vars.items():
+    for k,v in bv.items():
       setattr(Event, k, v)
 
     # set up other directories
     Event.CACHE_DIR    = P(mainconfig.get('/dimsbuild/cache/path/text()',
                                           '/var/cache/dimsbuild'))
     Event.TEMP_DIR     = P('/tmp/dimsbuild')
-    Event.METADATA_DIR = Event.CACHE_DIR  / base_vars['pva']
+    Event.METADATA_DIR = Event.CACHE_DIR  / bv['pva']
 
     Event.SHARE_DIRS = [ P(x).expand() for x in \
                          mainconfig.xpath('/dimsbuild/sharepaths/path/text()',

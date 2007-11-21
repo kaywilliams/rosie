@@ -29,15 +29,15 @@ class RpmEventTestCase(EventTestCase):
   def _get_rpmpath(self):
     return self.event.METADATA_DIR / \
            "%s/RPMS/%s-%s-%s.%s.rpm" % (self.eventid, self.event.rpm_name,
-                                        self.event.rpm_version, self.event.rpm_release,
-                                        self.event.rpm_arch)
+                                        self.event.version, self.event.release,
+                                        self.event.arch)
     return None
   rpm_path = property(_get_rpmpath)
 
   def _get_srpmpath(self):
     return self.event.METADATA_DIR / \
            "%s/SRPMS/%s-%s-%s.src.rpm" % (self.eventid, self.event.rpm_name,
-                                          self.event.rpm_version, self.event.rpm_release)
+                                          self.event.version, self.event.release)
   srpm_path = property(_get_srpmpath)
 
   def setUp(self):
@@ -156,19 +156,19 @@ class RpmBuildMixinTestCase(RpmEventTestCase):
                       (tag, observed, expected))
 
     observed_provides = self._get_provides()
-    for dep in self.event.rpm_provides:
+    for dep in self.event.provides:
       dep = dep.replace('==', '=') # for consistency
       self.failUnless(dep in observed_provides,
                       "provision '%s' not actually provided" % dep)
 
     observed_requires = self._get_requires()
-    for dep in self.event.rpm_requires:
+    for dep in self.event.requires:
       dep = dep.replace('==', '=') # for consistency
       self.failUnless(dep in observed_requires,
                       "requirement '%s' not actually required" % dep)
 
     observed_obsoletes = self._get_obsoletes()
-    for dep in self.event.rpm_obsoletes:
+    for dep in self.event.obsoletes:
       dep = dep.replace('==', '=') # for consistency
       self.failUnless(dep in observed_obsoletes,
                       "obsoleted '%s' not actually obsoleted" % dep)

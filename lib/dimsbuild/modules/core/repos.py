@@ -82,6 +82,10 @@ class ReposEvent(Event, RepoEventMixin):
           self.cvars.setdefault(pkg, []).append((name, '==', version))
 
     self.cvars['repos'] = self.repocontainer
+    
+    if self.cvars['base-repoid'] not in self.repocontainer.keys():
+      raise ValueError("Base repo id '%s' not found in any repo definition or "
+                       "repo file given in config" % self.cvars['base-repoid'])
 
   def verify_pkgsfiles_exist(self):
     "verify all pkgsfiles exist"

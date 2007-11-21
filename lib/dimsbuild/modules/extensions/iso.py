@@ -235,8 +235,8 @@ class IsoSetsEvent(Event, ListCompareMixin, BootConfigMixin):
         bootargs = ''
       shlib.execute('mkisofs %s -UJRTV "%s" -o "%s.iso" "%s"' % \
          (bootargs,
-          '%s %s %s disc %d' % \
-            (self.product, self.version, self.release, i),
+          '%s %s disc %d' % \
+            (self.product, self.version, i),
           self.isodir/set/iso,
           self.splittrees/set/iso),
         verbose=True)

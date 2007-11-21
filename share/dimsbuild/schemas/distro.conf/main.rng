@@ -5,13 +5,15 @@
       <element name="main">
         <interleave>
           <element name="product"><text/></element>
-          <element name="version"><text/></element>
           <element name="fullname"><text/></element>
           <optional>
-            <ref name="element-arch"/>
+          <element name="version"><text/></element>
           </optional>
           <optional>
-            <element name="bug-url"><text/></element>
+          <ref name="element-arch"/>
+          </optional>
+          <optional>
+          <element name="bug-url"><text/></element>
           </optional>
         </interleave>
       </element>
