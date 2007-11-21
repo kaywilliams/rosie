@@ -15,6 +15,8 @@ class DownloadEventTestCase(EventTestCase):
     self.tb.dispatch.execute(until=eventid)
     for rpm in self.event.io.list_output():
       self.failUnlessExists(rpm)
+      _,_,_,_,a = self.event._deformat(rpm)
+      self.failUnless(a in self.event._validarchs)
 
 class Test_PackagesDownloaded(DownloadEventTestCase):
   "Test to see that all packages are downloaded."
@@ -58,12 +60,21 @@ class Test_RemovedPackageDeleted(DownloadEventTestCase):
       pkgname = self.event._deformat(package)[1]
       self.failIf(pkgname == 'package1' or pkgname == 'package2')
 
+class Test_ArchChanges(DownloadEventTestCase):
+  def __init__(self, conf):
+    DownloadEventTestCase.__init__(self, conf)
+
+  def setUp(self):
+    DownloadEventTestCase.setUp(self)
+    xmllib.tree.Element('arch', self.event._config.get('/distro/main'), text='i386')
+
 def make_suite(conf):
   suite = unittest.TestSuite()
   suite.addTest(make_core_suite(eventid, conf))
   suite.addTest(Test_PackagesDownloaded(conf))
   suite.addTest(Test_AddedPackageDownloaded(conf))
   suite.addTest(Test_RemovedPackageDeleted(conf))
+  suite.addTest(Test_ArchChanges(conf))
   return suite
 
 def main(suite=None):
