@@ -40,7 +40,8 @@ class Test_ThemeRpmCvars1(RpmCvarsTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
     self.check_cvars()
-    self.failUnless((self.event.rpmname, 'conditional', 'gdm', self.event.obsoletes, None) in
+    self.failUnless((self.event.rpm_name, 'conditional', 'gdm',
+                     self.event.rpm_obsoletes, None) in
                     self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
@@ -58,7 +59,8 @@ class Test_ThemeRpmCvars2(RpmCvarsTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
     self.check_cvars()
-    self.failUnless((self.event.rpmname, 'conditional', 'gdm', self.event.obsoletes, None) in
+    self.failUnless((self.event.rpm_name, 'conditional', 'gdm',
+                     self.event.rpm_obsoletes, None) in
                     self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 

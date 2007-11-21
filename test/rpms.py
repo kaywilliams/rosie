@@ -28,16 +28,16 @@ class RpmEventTestCase(EventTestCase):
 
   def _get_rpmpath(self):
     return self.event.METADATA_DIR / \
-           "%s/RPMS/%s-%s-%s.%s.rpm" % (self.eventid, self.event.rpmname,
-                                        self.event.version, self.event.release,
-                                        self.event.arch)
+           "%s/RPMS/%s-%s-%s.%s.rpm" % (self.eventid, self.event.rpm_name,
+                                        self.event.rpm_version, self.event.rpm_release,
+                                        self.event.rpm_arch)
     return None
   rpm_path = property(_get_rpmpath)
 
   def _get_srpmpath(self):
     return self.event.METADATA_DIR / \
-           "%s/SRPMS/%s-%s-%s.src.rpm" % (self.eventid, self.event.rpmname,
-                                          self.event.version, self.event.release)
+           "%s/SRPMS/%s-%s-%s.src.rpm" % (self.eventid, self.event.rpm_name,
+                                          self.event.rpm_version, self.event.rpm_release)
   srpm_path = property(_get_srpmpath)
 
   def setUp(self):
@@ -146,29 +146,29 @@ class RpmBuildMixinTestCase(RpmEventTestCase):
     return deps
 
   def check_header(self):
-    for tag, rpmval, reqval in [('name', rpm.RPMTAG_NAME, 'rpmname'),
-                                ('arch', rpm.RPMTAG_ARCH, 'arch'),
-                                ('version', rpm.RPMTAG_VERSION, 'version'),
-                                ('release', rpm.RPMTAG_RELEASE, 'release')]:
+    for tag, rpmval, reqval in [('name', rpm.RPMTAG_NAME, 'rpm_name'),
+                                ('arch', rpm.RPMTAG_ARCH, 'rpm_arch'),
+                                ('version', rpm.RPMTAG_VERSION, 'rpm_version'),
+                                ('release', rpm.RPMTAG_RELEASE, 'rpm_release')]:
       expected = getattr(self.event, reqval)
       observed = self.rpm_header[rpmval]
       self.failUnless(observed == expected, "rpm %s incorrect: it is '%s', it should be '%s'" % \
                       (tag, observed, expected))
 
     observed_provides = self._get_provides()
-    for dep in self.event.provides:
+    for dep in self.event.rpm_provides:
       dep = dep.replace('==', '=') # for consistency
       self.failUnless(dep in observed_provides,
                       "provision '%s' not actually provided" % dep)
 
     observed_requires = self._get_requires()
-    for dep in self.event.requires:
+    for dep in self.event.rpm_requires:
       dep = dep.replace('==', '=') # for consistency
       self.failUnless(dep in observed_requires,
                       "requirement '%s' not actually required" % dep)
 
     observed_obsoletes = self._get_obsoletes()
-    for dep in self.event.obsoletes:
+    for dep in self.event.rpm_obsoletes:
       dep = dep.replace('==', '=') # for consistency
       self.failUnless(dep in observed_obsoletes,
                       "obsoleted '%s' not actually obsoleted" % dep)

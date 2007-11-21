@@ -56,7 +56,8 @@ class Test_LogosRpmCvars1(RpmCvarsTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
     self.check_cvars()
-    self.failUnless((self.event.rpmname, 'mandatory', None, self.event.obsoletes, None) in
+    self.failUnless((self.event.rpm_name, 'mandatory', None,
+                     self.event.rpm_obsoletes, None) in
                     self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
@@ -73,7 +74,8 @@ class Test_LogosRpmCvars2(RpmCvarsTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
     self.check_cvars()
-    self.failUnless((self.event.rpmname, 'mandatory', None, self.event.obsoletes, None) in
+    self.failUnless((self.event.rpm_name, 'mandatory', None,
+                     self.event.rpm_obsoletes, None) in
                     self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
