@@ -16,6 +16,7 @@ class GpgSetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'gpgsign-setup',
+      suppress_run_message = True,
       provides = ['gpgsign-public-key',
                   'gpgsign-secret-key',
                   'gpgsign-passphrase'],
@@ -33,8 +34,8 @@ class GpgSetupEvent(Event):
   
   def verify_cvars(self):
     "public and secret key cvars defined"
-    self.failUnless(self.cvars['gpgsign-public-key'])
-    self.failUnless(self.cvars['gpgsign-secret-key'])
+    self.verifier.failUnless(self.cvars['gpgsign-public-key'])
+    self.verifier.failUnless(self.cvars['gpgsign-secret-key'])
 
 
 class GPGSignEvent(GpgMixin, Event):
