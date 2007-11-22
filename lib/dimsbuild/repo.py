@@ -142,7 +142,7 @@ class RepoContainer(dict):
             # allow empty values
             if optval == '""':
               optval = ''
-            cursect[optname] = optval
+            cursect[optname.rstrip()] = optval
           else:
             # a non-fatal parsing error
             if not e: e = ParsingError(fpname)
