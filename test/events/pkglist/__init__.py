@@ -118,11 +118,11 @@ class Test_PackageAdded(PkglistEventTestCase):
                         text='pkglist-test-repos1.repo')
     comps = xmllib.tree.Element('comps', self.event._config.getroot())
     core = xmllib.tree.Element('core', comps)
-    pkg1 = xmllib.tree.Element('package', core, 'pkglist-test')
+    pkg1 = xmllib.tree.Element('package', core, 'pkglist-test-repo1')
 
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
-    self.failUnless('package1-1.0-1' in self.event.cvars['pkglist'])
+    self.failUnless('pkglist-test-repo1-1.0-1' in self.event.cvars['pkglist'])
 
 class Test_ObsoletedPackage(PkglistEventTestCase):
   def __init__(self, conf):
@@ -136,12 +136,12 @@ class Test_ObsoletedPackage(PkglistEventTestCase):
                         text='pkglist-test-repos2.repo')
     comps = xmllib.tree.Element('comps', self.event._config.getroot())
     core = xmllib.tree.Element('core', comps)
-    pkg1 = xmllib.tree.Element('package', core, 'pkglist-test')
+    pkg1 = xmllib.tree.Element('package', core, 'pkglist-test-repo2')
 
   def runTest(self):
     self.tb.dispatch.execute(until=eventid)
-    self.failUnless('package2-1.0-1' in self.event.cvars['pkglist'])
-    self.failIf('package1-1.0-1' in self.event.cvars['pkglist'])
+    self.failUnless('pkglist-test-repo2-1.0-1' in self.event.cvars['pkglist'])
+    self.failIf('pkglist-test-repo1-1.0-1' in self.event.cvars['pkglist'])
 
 def make_suite(confdir):
   suite = unittest.TestSuite()
@@ -152,26 +152,26 @@ def make_suite(confdir):
   config5 = confdir / 'pkglist.conf'
 
   # core tests
-  #suite.addTest(make_core_suite(eventid, config1))
+  suite.addTest(make_core_suite(eventid, config1))
 
   # test bug 84
-  #suite.addTest(Test_PkglistBug84_1(config1))
-  #suite.addTest(Test_PkglistBug84_2(config1))
-  #suite.addTest(Test_PkglistBug84_3(config1))
+  suite.addTest(Test_PkglistBug84_1(config1))
+  suite.addTest(Test_PkglistBug84_2(config1))
+  suite.addTest(Test_PkglistBug84_3(config1))
 
   # test bug 85
-  #suite.addTest(Test_PkglistBug85_1(config2))
-  #suite.addTest(Test_PkglistBug85_2(config2))
-  #suite.addTest(Test_PkglistBug85_3(config2))
+  suite.addTest(Test_PkglistBug85_1(config2))
+  suite.addTest(Test_PkglistBug85_2(config2))
+  suite.addTest(Test_PkglistBug85_3(config2))
 
   # test bug 86
-  #suite.addTest(Test_PkglistBug86_1(config3))
-  #suite.addTest(Test_PkglistBug86_2(config3))
+  suite.addTest(Test_PkglistBug86_1(config3))
+  suite.addTest(Test_PkglistBug86_2(config3))
 
   # pkglist supplied
-  #suite.addTest(Test_Supplied(config4))
+  suite.addTest(Test_Supplied(config4))
 
-  # package added
+  # package added and obsoleted
   suite.addTest(Test_PackageAdded(config5))
   suite.addTest(Test_ObsoletedPackage(config5))
 
