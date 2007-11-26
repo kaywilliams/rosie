@@ -108,123 +108,39 @@ class Test_Supplied(EventTestCase):
     pkglist_out = self.event.cvars['pkglist']
     self.failUnlessEqual(sorted(pkglist_in), sorted(pkglist_out))
 
-class Test_PackageAdded(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, True)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
-    xmllib.tree.Element('repofile', self.event._config.get('repos'),
-                        text='pkglist-test-repos1.repo')
-    comps = xmllib.tree.Element('comps', self.event._config.getroot())
-    core = xmllib.tree.Element('core', comps)
-    pkg1 = xmllib.tree.Element('package', core, 'pkglist-test-package1')
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=eventid)
-    self.failUnless('pkglist-test-package1-1.0-1' in self.event.cvars['pkglist'])
-
-class Test_ObsoletedPackage(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, False)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
-    xmllib.tree.Element('repofile', self.event._config.get('repos'),
-                        text='pkglist-test-repos1.repo')
-    xmllib.tree.Element('repofile', self.event._config.get('repos'),
-                        text='pkglist-test-repos2.repo')
-    comps = xmllib.tree.Element('comps', self.event._config.getroot())
-    core = xmllib.tree.Element('core', comps)
-    pkg1 = xmllib.tree.Element('package', core, 'pkglist-test-package2')
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=eventid)
-    self.failUnless('pkglist-test-package2-1.0-1' in self.event.cvars['pkglist'])
-    self.failIf('pkglist-test-package1-1.0-1' in self.event.cvars['pkglist'])
-
-class Test_RemovedPackage(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, False)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=eventid)
-    self.failIf('pkglist-test-package2-1.0-1' in self.event.cvars['pkglist'])
-
-class Test_ExclusivePackage_1(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, False)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
-    xmllib.tree.Element('repofile', self.event._config.get('repos'),
-                        text='pkglist-test-repos3.repo')
-    comps = xmllib.tree.Element('comps', self.event._config.getroot())
-    core = xmllib.tree.Element('core', comps)
-    pkg1 = xmllib.tree.Element('package', core, 'pkglist-test-package3')
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=eventid)
-    self.failUnless('pkglist-test-package3-1.0-1' in self.event.cvars['pkglist'])
-    self.failUnless('pkglist-test-package4-1.0-1' in self.event.cvars['pkglist'])
-
-class Test_ExclusivePackage_2(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, False)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=eventid)
-    self.failIf('pkglist-test-package3-1.0-1' in self.event.cvars['pkglist'])
-    self.failIf('pkglist-test-package4-1.0-1' in self.event.cvars['pkglist'])
-
-
 def make_suite(confdir):
   suite = unittest.TestSuite()
   config1 = confdir / 'bug84.conf'
   config2 = confdir / 'bug85.conf'
   config3 = confdir / 'bug86.conf'
   config4 = confdir / 'supplied.conf'
-  config5 = confdir / 'pkglist.conf'
 
-#   # core tests
-#   suite.addTest(make_core_suite(eventid, config1))
+  # core tests
+  suite.addTest(make_core_suite(eventid, config1))
 
-#   # test bug 84
-#   suite.addTest(Test_PkglistBug84_1(config1))
-#   suite.addTest(Test_PkglistBug84_2(config1))
-#   suite.addTest(Test_PkglistBug84_3(config1))
+  # test bug 84
+  suite.addTest(Test_PkglistBug84_1(config1))
+  suite.addTest(Test_PkglistBug84_2(config1))
+  suite.addTest(Test_PkglistBug84_3(config1))
 
-#   # test bug 85
-#   suite.addTest(Test_PkglistBug85_1(config2))
-#   suite.addTest(Test_PkglistBug85_2(config2))
-#   suite.addTest(Test_PkglistBug85_3(config2))
+  # test bug 85
+  suite.addTest(Test_PkglistBug85_1(config2))
+  suite.addTest(Test_PkglistBug85_2(config2))
+  suite.addTest(Test_PkglistBug85_3(config2))
 
-#   # test bug 86
-#   suite.addTest(Test_PkglistBug86_1(config3))
-#   suite.addTest(Test_PkglistBug86_2(config3))
+  # test bug 86
+  suite.addTest(Test_PkglistBug86_1(config3))
+  suite.addTest(Test_PkglistBug86_2(config3))
 
-#   # pkglist supplied
-#   suite.addTest(Test_Supplied(config4))
+  # pkglist supplied
+  suite.addTest(Test_Supplied(config4))
 
-#   # package added, obsoleted, and removed
-#   suite.addTest(Test_PackageAdded(config5))
-#   suite.addTest(Test_ObsoletedPackage(config5))
-#   suite.addTest(Test_RemovedPackage(config5))
-
-  # add package that requires a package nothing else requires,
-  # then remove it.
-  suite.addTest(Test_ExclusivePackage_1(config5))
-  suite.addTest(Test_ExclusivePackage_2(config5))
   return suite
+
 
 def main(suite=None):
   import dims.pps
+  
   confdir = dims.pps.Path(__file__).dirname
   if suite:
     suite.addTest(make_suite(confdir))
@@ -232,5 +148,6 @@ def main(suite=None):
     runner = EventTestRunner()
     runner.run(make_suite(confdir))
 
+  
 if __name__ == '__main__':
   main()

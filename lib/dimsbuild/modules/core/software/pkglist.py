@@ -112,6 +112,7 @@ class PkglistEvent(Event):
     solver.resolveDeps()
 
     pkgtups = [ x.pkgtup for x in solver.tsInfo.getMembers() ]
+    solver.teardown()
 
     self.log(1, L1("pkglist closure achieved in %d packages" % len(pkgtups)))
 

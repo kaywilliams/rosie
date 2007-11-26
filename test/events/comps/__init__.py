@@ -164,12 +164,12 @@ def make_suite(confdir):
 
 def main(suite=None):
   import dims.pps
+  
   config = dims.pps.Path(__file__).dirname
   if suite:
     suite.addTest(make_suite(config))
   else:
     EventTestRunner().run(make_suite(config))
-
-
+  
 if __name__ == '__main__':
   main()
