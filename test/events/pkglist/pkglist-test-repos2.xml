@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<build-repos>
+  <repo id="repo2">
+    <package>
+      <name>repo2-package1</name>
+      <version>1.0</version>
+      <release>1</release>
+      <obsoletes>repo1-package1 repo1-package1 == 1.0-1 pkglist-test-provision == 1.0</obsoletes>
+      <provides>repo1-package1 repo1-package1 == 1.0 pkglist-test-provision == 1.0</provides>
+      <force-arch>noarch</force-arch>
+    </package>
+  </repo>
+</build-repos>
