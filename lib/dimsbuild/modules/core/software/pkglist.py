@@ -8,9 +8,9 @@ from dims import pps
 
 from dims.depsolver import DepSolver
 
-from dimsbuild.callback  import BuildDepsolveCallback
-from dimsbuild.event     import Event
-from dimsbuild.logging   import L1
+from dimsbuild.callback import BuildDepsolveCallback
+from dimsbuild.event    import Event
+from dimsbuild.logging  import L1
 
 P = pps.Path
 
