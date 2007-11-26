@@ -3,13 +3,7 @@
   <start>
     <element name="distro">
       <optional>
-        <element name="createrepo">
-          <optional>
-            <attribute name="database">
-              <ref name="value-boolean"/>
-            </attribute>
-          </optional>
-        </element>
+        <element name="createrepo"/>
       </optional>
     </element>
   </start>

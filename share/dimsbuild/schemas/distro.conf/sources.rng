@@ -6,11 +6,6 @@
       <optional>
         <element name="sources">
           <optional>
-            <attribute name="database">
-              <ref name="value-boolean"/>
-            </attribute>
-          </optional>
-          <optional>
             <attribute name="enabled">
               <ref name="value-boolean-with-default"/>
             </attribute>

@@ -25,7 +25,8 @@ class CreateRepoMixin:
   def __init__(self):
     pass
 
-  def createrepo(self, path, groupfile=None, pretty=False, update=True, quiet=True):
+  def createrepo(self, path, groupfile=None, pretty=False,
+                 update=True, quiet=True, database=True):
     "Run createrepo on the path specified."
     self.log(1, L1("running createrepo"))
 
@@ -34,7 +35,7 @@ class CreateRepoMixin:
       repo_files.append(path / file)
 
     args = ['/usr/bin/createrepo']
-    if update and CAN_UPDATE:
+    if update and UPDATE_ALLOWED:
       args.append('--update')
     if quiet:
       args.append('--quiet')
@@ -43,7 +44,7 @@ class CreateRepoMixin:
       repo_files.append(path / 'repodata'/ groupfile.basename)
     if pretty:
       args.append('--pretty')
-    if self.config.get('@database', 'false') in BOOLEANS_TRUE:
+    if database and DATABASE_ALLOWED:
       args.append('--database')
       for file in self.SQLITE_FILES:
         repo_files.append(path / file)
@@ -82,8 +83,10 @@ def CommandLineVersion(name, flag='--version'):
   else:
     return version
 
-# figure out if createrepo can accept the '--update' flag
-CAN_UPDATE = True
+# figure out if createrepo can accept the '--update' and '--database'
+# flags
+UPDATE_ALLOWED = True
+DATABASE_ALLOWED = True
 try:
   binary_version = CommandLineVersion('createrepo')
 except (execlib.ExecuteError, IndexError), e:
@@ -92,14 +95,19 @@ else:
   check_version = sortlib.dcompare(binary_version, '0.4.9')
   if check_version == -1:
     # can't accept '--update'
-    CAN_UPDATE = False
+    UPDATE_ALLOWED = False
   elif check_version == 0:
-    # need to check rpm version
+    # need to check rpm version because createrepo RPMs 0.4.9 and
+    # 0.4.10, both report their createrepo version as
+    # 0.4.9. Createrepo RPM 0.4.10 supports '--update'.
     try:
       rpm_version = RpmPackageVersion('createrepo')
       if sortlib.dcompare(rpm_version, '0.4.10') == -1:
-        CAN_UPDATE = False
+        UPDATE_ALLOWED = False
     except RpmNotFoundError:
-      CAN_UPDATE = False
-  else:
-    pass
+      UPDATE_ALLOWED = False
+
+  check_version = sortlib.dcompare(binary_version, '0.4.7')
+  if check_version == -1:
+    # can't accept '--database' flag
+    DATABASE_ALLOWED = False
