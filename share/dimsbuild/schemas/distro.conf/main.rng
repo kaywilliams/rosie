@@ -15,6 +15,9 @@
           <optional>
           <element name="bug-url"><text/></element>
           </optional>
+          <optional>
+            <element name="product-path"><text/></element>
+          </optional>
         </interleave>
       </element>
     </element>

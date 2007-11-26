@@ -44,9 +44,9 @@ DISCINFO_FORMAT_LOCALS = LocalsDict({
     'fullname':  dict(index=1, string='%(fullname)s'),
     'basearch':  dict(index=2, string='%(basearch)s'),
     'discs':     dict(index=3, string='%(discs)s'),
-    'base':      dict(index=4, string='%(product)s/base'),
-    'rpms':      dict(index=5, string='%(product)s/RPMS'),
-    'pixmaps':   dict(index=6, string='%(product)s/pixmaps'),
+    'base':      dict(index=4, string='%(product-path)s/base'),
+    'rpms':      dict(index=5, string='%(product-path)s'),
+    'pixmaps':   dict(index=6, string='%(product-path)s/pixmaps'),
   },
 })
 

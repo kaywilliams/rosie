@@ -229,6 +229,22 @@ element product { text }
         <para>main</para>
       </refsection>
     </refsect2>
+
+    <!-- product-path -->
+    <refsect2>
+      <title>&lt;product-path&gt;</title>
+      <para>
+      Optional. The folder name within the distribution tree where dimsbuild 
+      will place packages. Defaults to "Packages".
+      </para>
+      <programlisting>
+element product { text }
+      </programlisting>
+      <refsection>
+        <title>Parents</title>
+        <para>main</para>
+      </refsection>
+    </refsect2>
     
     <!-- version -->
     <refsect2>

@@ -22,6 +22,7 @@ class DiscinfoEvent(Event):
       id = 'discinfo',
       provides = ['.discinfo'],
       requires = ['anaconda-version'],
+      version = 1
     )
 
     self.difile = self.SOFTWARE_STORE/'.discinfo'
@@ -67,13 +68,13 @@ class TreeinfoEvent(Event):
       id = 'treeinfo',
       provides = ['.treeinfo'],
       requires = ['anaconda-version'],
+      version = 1,
     )
 
     self.tifile = self.SOFTWARE_STORE/'.treeinfo'
 
     self.DATA =  {
-      'variables': ['cvars[\'base-vars\']',
-                    'cvars[\'product-path\']'],
+      'variables': ['cvars[\'base-vars\']'],
       'output':    [self.tifile]
     }
 
@@ -91,7 +92,7 @@ class TreeinfoEvent(Event):
     treeinfo.set('general', 'totaldiscs', '1')
     treeinfo.set('general', 'version',    self.version)
     treeinfo.set('general', 'discnum',    '1')
-    treeinfo.set('general', 'packagedir', self.cvars['product-path'])
+    treeinfo.set('general', 'packagedir', self.cvars['base-vars']['product-path'])
     treeinfo.set('general', 'arch',       self.basearch)
 
     # this probably needs to be versioned
