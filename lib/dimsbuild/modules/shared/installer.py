@@ -147,6 +147,9 @@ class ImageModifyMixin:
     img.cleanup()
   
   def _modify(self):
+    # remove old modified image
+    if self.path.exists(): self.path.remove()
+
     # sync image to input store
     self.io.sync_input(what=['ImageModifyMixin', '%s-input-files' % self.name], cache=True)
     

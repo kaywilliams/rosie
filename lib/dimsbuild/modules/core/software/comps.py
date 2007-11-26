@@ -16,8 +16,6 @@ KERNELS = [ 'kernel', 'kernel-smp', 'kernel-zen', 'kernel-zen0',
             'kernel-enterprise', 'kernel-hugemem', 'kernel-bigmem',
             'kernel-BOOT' ]
 
-LOCALIZED = False # enable if you want all the various translations in the comps
-
 class CompsEvent(Event):
   def __init__(self):
     Event.__init__(self,
@@ -40,6 +38,9 @@ class CompsEvent(Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
+
+    self.include_localizations = \
+      self.config.get('@include-localized-strings', 'False') in BOOLEANS_TRUE
 
     self.comps_supplied = \
       self.config.get('text()', None)
@@ -252,7 +253,7 @@ class CompsEvent(Event):
     # add attributes if not already present
     if not self._groupfiledata[dgid].has_key('attrs'):
       self._groupfiledata[dgid]['attrs'] = {}
-      if LOCALIZED:
+      if self.include_localizations:
         q = '//group[id/text()="%s"]/*' % gid
         namedict = self._groupfiledata[dgid]['attrs']['name'] = {}
         descdict = self._groupfiledata[dgid]['attrs']['description'] = {}
@@ -262,11 +263,15 @@ class CompsEvent(Event):
       for attr in tree.xpath(q):
         # filtering in XPath is annoying
         if attr.tag == 'name':
-          if LOCALIZED: namedict[attr.get('@xml:lang')] = attr.text
-          else: self._groupfiledata[dgid]['attrs']['name'] = attr.text
+          if self.include_localizations:
+            namedict[attr.get('@xml:lang')] = attr.text
+          else:
+            self._groupfiledata[dgid]['attrs']['name'] = attr.text
         elif attr.tag == 'description':
-          if LOCALIZED: descdict[attr.get('@xml:lang')] = attr.text
-          else: self._groupfiledata[dgid]['attrs']['description'] = attr.text
+          if self.include_localizations:
+            descdict[attr.get('@xml:lang')] = attr.text
+          else:
+            self._groupfiledata[dgid]['attrs']['description'] = attr.text
         elif attr.tag not in ['packagelist', 'grouplist', 'id']:
           self._groupfiledata[dgid]['attrs'][attr.tag] = attr.text
 

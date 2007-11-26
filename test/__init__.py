@@ -1,5 +1,6 @@
 import optparse
 import os
+import sys
 import time
 import unittest
 
@@ -119,7 +120,8 @@ class EventTestCaseDummy(unittest.TestCase):
 
 class EventTestRunner:
   def __init__(self, threshold=1):
-    self.logger = EventTestLogger('blah', threshold=1)
+    ##self.logger = EventTestLogger('blah', threshold=1)
+    self.logger = make_logger(threshold)
 
   def run(self, test):
     result = EventTestResult(self.logger)
@@ -195,22 +197,33 @@ class EventTestResult(unittest.TestResult):
       self.logger.log(1, self.separator2)
       self.logger.log(1, str(err))
 
-class EventTestLogger(logger.Logger):
-  def __init__(self, eventid, format='%(message)s', *args, **kwargs):
-    logger.Logger.__init__(self, *args, **kwargs)
-
+class EventTestLogContainer(logger.LogContainer):
+  def __init__(self, list=None, threshold=None, default=1, format='%(message)s',):
+    logger.LogContainer.__init__(self, list or [], threshold, default)
     self._format = format
-    self._eventid = eventid
-
-  def log(self, level, msg, newline=True, format=None, **kwargs):
+    self._eventid = None
+  
+  def log(self, level, msg, format=None, newline=True, **kwargs):
     msg = self.format(str(msg), format, **kwargs)
     if newline: msg += '\n'
     self.write(level, msg)
+  
+  def write(self, level, msg, **kwargs):
+    for log_obj in self.list:
+      log_obj.write(level, msg, **kwargs)
 
   def format(self, msg, format=None, **kwargs):
     d = dict(message=msg, eventid=self._eventid, **kwargs)
     if format: d['message'] = format % d
     return self._format % d
+
+
+LOGFILE = open('test.log', 'w+')
+
+def make_logger(threshold):
+  console = logger.Logger(threshold=threshold, file_object=sys.stdout)
+  logfile = logger.Logger(threshold=threshold, file_object=LOGFILE)
+  return EventTestLogContainer([console, logfile])
 
 
 def main():
@@ -234,6 +247,81 @@ def main():
     del mod
 
   runner.run(suite)
+
+def main2():
+  import imp
+  
+  logger = EventTestLogger('blah', threshold=1)
+  result_sum = EventTestResult(logger)
+  
+  starttime = time.time()
+  
+  for event in pps.Path('events').findpaths(mindepth=1, maxdepth=1, type=pps.constants.TYPE_DIR):
+    fp = None
+    try:
+      try:
+        fp,p,d = imp.find_module(event.basename, [event.dirname])
+      except ImportError:
+        continue
+      mod = imp.load_module('test-%s' % event.basename, fp, p, d)
+    finally:
+      fp and fp.close()
+    
+    suite = unittest.TestSuite()
+    result = EventTestResult(logger)
+    
+    mod.main(suite=suite)
+    
+    suite(result)
+    
+    result_sum.failures.extend(result.failures)
+    result_sum.errors.extend(result.errors)
+    result_sum.testsRun += result.testsRun
+    
+    del suite
+    del result
+  
+  stoptime = time.time()
+
+  if result_sum.failures or result_sum.errors:
+    logger.log(1, '\n\nERROR/FAILURE SUMMARY')
+    result_sum.printErrors()
+
+  logger.log(1, result_sum.separator2)
+  logger.log(1, "ran %d test%s in %.3fs" %
+    (result_sum.testsRun, result_sum.testsRun != 1 and 's' or '', stoptime-starttime))
+  logger.write(1, '\n')
+
+  if not result_sum.wasSuccessful():
+    logger.write(1, 'FAILED (')
+    failed, errored = len(result_sum.failures), len(result_sum.errors)
+    if failed:
+      logger.write(1, 'failures=%d' % failed)
+    if errored:
+      if failed: logger.write(1, ', ')
+      logger.write(1, 'errors=%d' % errored)
+    logger.write(1, ')\n')
+  else:
+    logger.write(1, 'OK\n')
+  return result_sum
+
+
+def main3():
+  import imp
+
+  for event in pps.Path('events').findpaths(mindepth=1, maxdepth=1, type=pps.constants.TYPE_DIR):
+    fp = None
+    try:
+      try:
+        fp,p,d = imp.find_module(event.basename, [event.dirname])
+      except ImportError:
+        continue
+      mod = imp.load_module('test-%s' % event.basename, fp, p, d)
+    finally:
+      fp and fp.close()
+
+    mod.main()
+
 
 if __name__ == '__main__':
   # test everything

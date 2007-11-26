@@ -96,7 +96,7 @@ class BuildDepsolveCallback:
     if self.logger.test(2):
       msg = 'loop %d (%d package%s)' % (self.loop, self.count, self.count != 1 and 's' or '')
       self.bar = ProgressBar(size=self.count, title=L2(msg),
-                             layout='%(title)-28.28s [%(bar)s] %(ratio)9.9s (%(time-elapsed)s)',
+                             layout='%(title)-28.28s [%(bar)s] %(ratio)10.10s (%(time-elapsed)s)',
                              throttle=10)
       self.bar.start()
 
@@ -113,3 +113,32 @@ class BuildDepsolveCallback:
 
   def end(self):
     self.logger.log(2, 'pkglist resolution complete')
+
+
+class GpgCallback:
+  def __init__(self, logger):
+    self.logger = logger
+    self.bar = None
+
+  def start(self):
+    pass
+
+  def repoCheck(self, repo, unchecked=0):
+    if self.logger.test(2):
+      self.bar = ProgressBar(size=unchecked, title=L2(''),
+                             layout='%(title)-28.28s [%(bar)s] %(ratio)10.10s (%(time-elapsed)s)')
+      self.bar.start()
+
+  def pkgChecked(self, pkgname):
+    if self.logger.test(2):
+      self.bar.status.position += 1
+      self.bar.tags['title'] = L2(pkgname)
+
+  def endRepo(self):
+    if self.logger.test(2):
+      self.bar.update(self.bar.status.size)
+      self.bar.finish()
+      self.logger.logfile.log(2, str(self.bar))
+
+  def end(self):
+    pass

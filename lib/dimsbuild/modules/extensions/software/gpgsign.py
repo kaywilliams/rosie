@@ -3,6 +3,7 @@ from dims import mkrpm
 
 from dims.mkrpm import GpgMixin
 
+from dimsbuild.callback  import GpgCallback
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L1, L2
@@ -20,6 +21,7 @@ class GpgSetupEvent(Event):
       provides = ['gpgsign-public-key',
                   'gpgsign-secret-key',
                   'gpgsign-passphrase'],
+      suppress_run_message = True,
     )
   
   def apply(self):
@@ -29,8 +31,8 @@ class GpgSetupEvent(Event):
     seckey = self.config.get('gpg-secret-key/text()', None)
     if seckey: self.cvars['gpgsign-secret-key'] = P(seckey)
     
-    self.cvars['gpgsign-passphrase'] = \
-      self.config.get('gpg-passphrase/text()', None)
+    if self.config.pathexists('gpg-passphrase'):
+      self.cvars['gpgsign-passphrase'] = self.config.get('gpg-passphrase/text()', '')
   
   def verify_cvars(self):
     "public and secret key cvars defined"
@@ -47,6 +49,8 @@ class GPGSignEvent(GpgMixin, Event):
       conditionally_comes_after = ['gpgcheck'],
       provides = ['signed-rpms'],
     )
+    
+    self.gpgsign_cb = GpgCallback(self.logger)
     
     GpgMixin.__init__(self)
     
@@ -94,13 +98,17 @@ class GPGSignEvent(GpgMixin, Event):
     
     if signrpms:
       self.log(1, L1("signing rpms"))
+      self.gpgsign_cb.start()
       if self.cvars['gpgsign-passphrase'] is None:
         self.cvars['gpgsign-passphrase'] = mkrpm.getPassphrase()
+      self.gpgsign_cb.repoCheck(None, len(signrpms))
       for rpm in signrpms:
-        self.log(2, L2(rpm.relpathfrom(self.mddir)), format='%(message).75s')
         mkrpm.SignRpm(rpm,
                       homedir=gnupg_dir,
                       passphrase=self.cvars['gpgsign-passphrase'])
+        self.gpgsign_cb.pkgChecked(rpm.basename)
+      self.gpgsign_cb.endRepo()
+      self.gpgsign_cb.end()
     
     self.diff.write_metadata()
   

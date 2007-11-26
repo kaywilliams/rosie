@@ -30,6 +30,7 @@ class IsoMetaEvent(Event):
     Event.__init__(self,
       id = 'ISO',
       properties = CLASS_META,
+      suppress_run_message = True,
     )
     
 

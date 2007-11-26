@@ -6,6 +6,12 @@
       <optional>
       <element name="comps">
         
+        <optional>
+        <attribute name="include-localized-strings">
+          <ref name="value-boolean"/>
+        </attribute>
+        </optional>
+        
         <choice>
         
         <text/>
@@ -66,7 +72,7 @@
       
       <optional>
       <attribute name="default">
-          <ref name="value-boolean"/>
+        <ref name="value-boolean"/>
       </attribute>
       </optional>
       

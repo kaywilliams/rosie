@@ -94,8 +94,9 @@ class PkglistEvent(Event):
     diffdict = self.diff.handlers['variables'].diffdict
     if diffdict.has_key("cvars['required-packages']"):
       r,a = diffdict["cvars['required-packages']"]
-      if not isinstance(r, difftest.NoneEntry) and \
-             not isinstance(r, difftest.NewEntry):
+      if ( r is not None and
+           not isinstance(r, difftest.NoneEntry) and
+           not isinstance(r, difftest.NewEntry) ):
         removed_items.extend([ x for x in r if x not in a])
 
     solver = IDepSolver(depsolve_file, todepsolve, removed_items,

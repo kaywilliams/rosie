@@ -5,7 +5,7 @@ from dims import pps
 from dimsbuild.event   import Event
 from dimsbuild.logging import L1, L2
 from dimsbuild.constants import BOOLEANS_TRUE
-from dimsbuild.callback import FilesCallback
+from dimsbuild.callback import FilesCallback, GpgCallback
 
 P = pps.Path
 
@@ -34,6 +34,8 @@ class GpgCheckEvent(Event):
       'input':     [],
       'output':    [],
     }
+    
+    self.gpgcheck_cb = GpgCallback(self.logger)
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -48,8 +50,8 @@ class GpgCheckEvent(Event):
           self.gpgkeys[repo.id] = repo.gpgkeys
           self.rpms[repo.id] = self.cvars['rpms-by-repoid'][repo.id]
         else:
-          raise RuntimeError("GPGcheck enabled for '%s' repository, but no keys "
-          "provided." % repo.id)
+          raise RuntimeError("GPGcheck enabled for '%s' repository, but no "
+                             "keys provided." % repo.id)
 
     for repo in self.gpgkeys.keys():
       self.io.setup_sync(self.mddir/repo, paths=self.gpgkeys[repo], id=repo)
@@ -62,6 +64,7 @@ class GpgCheckEvent(Event):
       self.diff.write_metadata()
       return
 
+    self.gpgcheck_cb.start()
     for repo in sorted(self.rpms.keys()):
       newrpms = []
       homedir = self.mddir/repo/'homedir'
@@ -94,19 +97,20 @@ class GpgCheckEvent(Event):
       if newrpms:
         invalids = []
         self.log(1, L1("checking rpms - '%s'" % repo))
+        self.gpgcheck_cb.repoCheck(repo, len(newrpms))
         for rpm in newrpms:
           try:
-            self.log(2, L2(rpm.basename+' '), newline=False, format='%(message)-70.70s')
             mkrpm.VerifyRpm(rpm, homedir=homedir)
-            self.logger.write(2, "OK\n")
           except mkrpm.RpmSignatureInvalidError:
-            self.logger.write(2, "INVALID\n")
             invalids.append(rpm.basename)
+          self.gpgcheck_cb.pkgChecked(rpm.basename)
 
         if invalids:
           raise RpmSignatureInvalidError("One or more RPMS failed "
                                          "GPG key checking: %s" % invalids)
+        self.gpgcheck_cb.endRepo()
 
+    self.gpgcheck_cb.end()
     self.diff.write_metadata()
 
   def apply(self):
