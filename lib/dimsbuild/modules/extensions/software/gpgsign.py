@@ -21,7 +21,6 @@ class GpgSetupEvent(Event):
       provides = ['gpgsign-public-key',
                   'gpgsign-secret-key',
                   'gpgsign-passphrase'],
-      suppress_run_message = True,
     )
   
   def apply(self):
