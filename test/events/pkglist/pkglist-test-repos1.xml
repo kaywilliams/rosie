@@ -2,7 +2,7 @@
 <build-repos>
   <repo id="repo1">
     <package>
-      <name>pkglist-test-repo1</name>
+      <name>pkglist-test-package1</name>
       <version>1.0</version>
       <release>1</release>
       <force-arch>noarch</force-arch>

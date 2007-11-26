@@ -2,11 +2,11 @@
 <build-repos>
   <repo id="repo2">
     <package>
-      <name>pkglist-test-repo2</name>
+      <name>pkglist-test-package2</name>
       <version>1.0</version>
       <release>1</release>
-      <obsoletes>pkglist-test-repo1</obsoletes>
-      <provides>pkglist-test-repo1</provides>
+      <obsoletes>pkglist-test-package1</obsoletes>
+      <provides>pkglist-test-package1</provides>
       <force-arch>noarch</force-arch>
     </package>
   </repo>
