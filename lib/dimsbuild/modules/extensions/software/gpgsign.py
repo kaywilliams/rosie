@@ -97,7 +97,10 @@ class GpgSignEvent(GpgMixin, Event):
       self.log(1, L1("signing rpms"))
       self.gpgsign_cb.start()
       if self.cvars['gpgsign-passphrase'] is None:
-        self.cvars['gpgsign-passphrase'] = mkrpm.getPassphrase()
+        while True:
+          self.cvars['gpgsign-passphrase'] = mkrpm.getPassphrase()
+          if mkrpm.VerifyPassphrase(gnupg_dir, self.cvars['gpgsign-passphrase']):
+            break
       self.gpgsign_cb.repoCheck(None, len(signrpms))
       for rpm in signrpms:
         mkrpm.SignRpm(rpm,
