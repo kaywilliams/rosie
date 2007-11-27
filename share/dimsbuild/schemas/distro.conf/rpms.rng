@@ -3,13 +3,13 @@
 
   <define name="element-obsoletes">
     <zeroOrMore>
-      <element name="obsolete"><text/></element>
+      <element name="obsoletes"><text/></element>
     </zeroOrMore>
   </define>
 
   <define name="element-requires">
     <zeroOrMore>
-      <element name="require"><text/></element>
+      <element name="requires"><text/></element>
     </zeroOrMore>
   </define>
 

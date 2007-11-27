@@ -134,8 +134,8 @@ class RpmBuildMixin:
       self.rpm_obsoletes = self.default_obsoletes
     else:
       self.rpm_obsoletes = []
-    if self.config.pathexists('obsolete/text()'):
-      self.rpm_obsoletes.extend(self.config.xpath('obsolete/text()', []))
+    if self.config.pathexists('obsoletes/text()'):
+      self.rpm_obsoletes.extend(self.config.xpath('obsoletes/text()', []))
     if kwargs.has_key('obsoletes'):
       self.rpm_obsoletes.extend(kwargs['obsoletes'])
 
@@ -149,8 +149,8 @@ class RpmBuildMixin:
       self.rpm_requires = self.default_requires
     else:
       self.rpm_requires = []
-    if self.config.pathexists('require/text()'):
-      self.rpm_requires.extend(self.config.xpath('require/text()', []))
+    if self.config.pathexists('requires/text()'):
+      self.rpm_requires.extend(self.config.xpath('requires/text()', []))
     if kwargs.has_key('requires'):
       self.rpm_requires.extend(kwargs['requires'])
 
