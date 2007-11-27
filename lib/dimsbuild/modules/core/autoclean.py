@@ -1,7 +1,7 @@
 from dims import xmllib
 
 from dimsbuild.event   import Event
-from dimsbuild.logging import L2, L3
+from dimsbuild.logging import L1, L2
 
 API_VERSION = 5.0
 EVENTS = {'ALL': ['AutocleanEvent']}
@@ -35,14 +35,14 @@ class AutocleanEvent(Event):
         pass
     
     for mdfolder in mdfolders:
-      self.log(4, L3("removing unused event metadata directory '%s'" % mdfolder.basename))
+      self.log(4, L2("removing unused event metadata directory '%s'" % mdfolder.basename))
       mdfolder.rm(recursive=True, force=True)
 
   def run(self):
     for eventid in self.diff.handlers['events'].diffdict.keys():
       prevver, currver = self.diff.handlers['events'].diffdict[eventid]
       if prevver and currver:
-        self.log(2, L2("forcing '%s'" % eventid))
+        self.log(2, L1("forcing '%s'" % eventid))
         self.eventinfo[eventid].status = True
     
     self.diff.write_metadata()
@@ -70,7 +70,7 @@ class EventHandler:
  
     for k,v in self.data.items():
       e = xmllib.tree.Element('event', parent=parent, attrs={'id': k})
-      xmllib.tree.Element('version', parent=e, text=str(v))       
+      xmllib.tree.Element('version', parent=e, text=str(v))
 
   def diff(self):
     for k,v in self.events.items():

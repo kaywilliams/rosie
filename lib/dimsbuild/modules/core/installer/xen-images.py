@@ -52,7 +52,6 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
                        id='%s-input-files' % self.name)
 
   def run(self):
-    self.io.clean_eventcache(all=True)
     self._download()
     self._modify()
 

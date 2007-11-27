@@ -151,7 +151,7 @@ class IOObject:
                  the event metadata file.
     """
     if all:
-      self.ptr.mddir.listdir(all=True).rm(recursive=True, force=True)
+      self.ptr.mddir.listdir(all=True).rm(recursive=True)
     else:
       if self.ptr.mdfile.exists() and \
          self.ptr.diff.handlers.has_key('output'):

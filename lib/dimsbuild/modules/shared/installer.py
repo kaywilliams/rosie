@@ -66,7 +66,7 @@ class ExtractMixin:
       filename = dir/'rpm.cpio'
       
       # sync the RPM down to the temporary directory
-      sync.sync(rpmPath, dir) #! fix me
+      sync.sync(rpmPath, dir) #! fix me (dont use sync)
       rpmFile = dir/rpmPath.basename
       
       rpm2cpio(os.open(rpmFile, os.O_RDONLY), filename.open('w+'))
@@ -147,8 +147,8 @@ class ImageModifyMixin:
     img.cleanup()
   
   def _modify(self):
-    # remove old modified image
-    if self.path.exists(): self.path.remove()
+    # remove old modified image, modified image inputs
+    self.io.clean_eventcache(all=True)
 
     # sync image to input store
     self.io.sync_input(what=['ImageModifyMixin', '%s-input-files' % self.name], cache=True)

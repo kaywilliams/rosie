@@ -53,7 +53,6 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     ImageModifyMixin.setup(self)
     
   def run(self):
-    self.io.clean_eventcache(all=True)
     self._modify()
   
   def _generate(self):
