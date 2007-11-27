@@ -86,8 +86,8 @@ class IOObject:
     self.chmod_items.setdefault(id, set())
     for src in sourcefile.findpaths():
       output_file = dstdir / src.tokens[len(sourcefile.tokens)-1:]
-      self.chmod_items[id].add( (output_file,
-                                 int(defmode or src.stat().st_mode & 0777)) )
+      self.chmod_items[id].add((output_file,
+                                int(defmode or oct(src.stat().st_mode & 0777), 8)))
       if src.isfile():
         self.sync_items[id].add((src, output_file))
         self.ptr.diff.handlers['output'].odata.append(output_file)
