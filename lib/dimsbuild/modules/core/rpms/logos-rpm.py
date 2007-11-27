@@ -22,7 +22,7 @@ EVENTS = {'rpms': ['LogosRpmEvent']}
 
 class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
   def __init__(self):
-    Event.__init__(self, id='logos-rpm', version=1,
+    Event.__init__(self, id='logos-rpm', version=2,
                    requires=['source-vars', 'anaconda-version', 'logos-versions'],
                    provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])
     RpmBuildMixin.__init__(self,

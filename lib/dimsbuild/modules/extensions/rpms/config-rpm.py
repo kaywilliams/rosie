@@ -1,6 +1,7 @@
 from dims import pps
 
-from dimsbuild.event import Event
+from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.event     import Event
 
 from dimsbuild.modules.shared import InputFilesMixin, RpmBuildMixin
 
@@ -11,7 +12,7 @@ EVENTS = {'rpms': ['ConfigRpmEvent']}
 
 class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def __init__(self):
-    Event.__init__(self, id='config-rpm', version=1,
+    Event.__init__(self, id='config-rpm', version=2,
                    provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])
     RpmBuildMixin.__init__(self,
                            '%s-config' % self.product,
@@ -24,8 +25,8 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     self.build_folder = self.mddir / 'build'
 
     self.installinfo = {
-      'config' : ('config/script', '/usr/lib/%s' % self.product, '755'),
-      'support': ('config/supporting-files/path', '/usr/lib/%s' % self.product, None)
+      'config-files' : ('script', '/usr/lib/%s' % self.product, '755'),
+      'support-files': ('file', '/usr/lib/%s' % self.product, None)
     }
 
     self.DATA = {
@@ -66,10 +67,13 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     return sources
 
   def _getpscript(self):
-    post_install_scripts = self.io.list_output(what=self.installinfo['config'])
-    try:
-      (self.build_folder/'post-install.sh').write_lines(
-        [ post_install_scripts[0].relpathfrom(self.rpm_dir).normpath() ])
-      return self.build_folder/'post-install.sh'
-    except IndexError:
-      return None
+    post_install_scripts = self.io.list_output(what='config-files')
+    print post_install_scripts
+    if post_install_scripts:
+      script = self.build_folder / 'post-install.sh'
+      script.write_lines(
+        [ '/%s' % x.relpathfrom(self.rpm_dir).normpath() \
+          for x in post_install_scripts ]
+      )
+      return script
+    return None
