@@ -26,21 +26,21 @@ class InputFilesMixin:
   def _setup_download(self):
     for k,v in self.installinfo.items():
       xpath, dst, defmode = v
-      if xpath and self.config.xpath('%s' % xpath, None):
+      if xpath and self.config.pathexists(xpath):
         default_dir = P(dst) / P(self.config.get(xpath).getparent().get('@dest', ''))
-        for item in self.config.xpath('%s' % xpath, []):
+        for item in self.config.xpath(xpath, []):
           s = P(item.get('text()'))
           d = default_dir / P(item.get('@dest', ''))
           m = item.get('@mode', defmode)
-          self.io.setup_sync(self.rpm_dir // d, paths=[s], id=xpath, defmode=m)
+          self.io.setup_sync(self.rpm_dir // d, paths=[s], id=k, defmode=m)
 
   def _get_files(self):
     sources = {}
     for item in self.rpm_dir.findpaths(type=pps.constants.TYPE_DIR, mindepth=1):
-      sources[P(item[len(self.rpm_dir):])] = item.findpaths(
-        type=pps.constants.TYPE_NOT_DIR,
-        mindepth=1, maxdepth=1
-      )
+      files = item.findpaths(type=pps.constants.TYPE_NOT_DIR,
+                             mindepth=1, maxdepth=1)
+      if files:
+        sources[P(item[len(self.rpm_dir):])] = files
     return sources
 
 
@@ -134,8 +134,8 @@ class RpmBuildMixin:
       self.rpm_obsoletes = self.default_obsoletes
     else:
       self.rpm_obsoletes = []
-    if self.config.pathexists('obsoletes/package/text()'):
-      self.rpm_obsoletes.extend(self.config.xpath('obsoletes/package/text()', []))
+    if self.config.pathexists('obsolete/text()'):
+      self.rpm_obsoletes.extend(self.config.xpath('obsolete/text()', []))
     if kwargs.has_key('obsoletes'):
       self.rpm_obsoletes.extend(kwargs['obsoletes'])
 
@@ -149,16 +149,16 @@ class RpmBuildMixin:
       self.rpm_requires = self.default_requires
     else:
       self.rpm_requires = []
-    if self.config.pathexists('requires/package/text()'):
-      self.rpm_requires.extend(self.config.xpath('requires/package/text()', []))
+    if self.config.pathexists('require/text()'):
+      self.rpm_requires.extend(self.config.xpath('require/text()', []))
     if kwargs.has_key('requires'):
       self.rpm_requires.extend(kwargs['requires'])
 
     self.diff.setup(self.DATA)
 
-    self.rpm_arch      = kwargs.get('arch',     'noarch')
-    self.rpm_author    = kwargs.get('author',   'dimsbuild')
-    self.rpm_fullname  = kwargs.get('fullname', self.fullname)
+    self.rpm_arch = kwargs.get('arch', 'noarch')
+    self.rpm_author = kwargs.get('author', 'dimsbuild')
+    self.rpm_fullname = kwargs.get('fullname', self.fullname)
     if kwargs.has_key('version'):
       self.rpm_version = kwargs['version']
     else:
