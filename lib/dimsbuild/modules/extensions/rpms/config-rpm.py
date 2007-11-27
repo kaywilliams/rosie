@@ -68,7 +68,6 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
 
   def _getpscript(self):
     post_install_scripts = self.io.list_output(what='config-files')
-    print post_install_scripts
     if post_install_scripts:
       script = self.build_folder / 'post-install.sh'
       script.write_lines(
