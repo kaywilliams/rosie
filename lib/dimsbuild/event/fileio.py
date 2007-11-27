@@ -82,14 +82,14 @@ class IOObject:
       self.ptr.diff.handlers['input'].idata.append(sourcefile)
 
     rtn = []
-    self.sync_items.setdefault(id, set())
-    self.chmod_items.setdefault(id, set())
+    self.sync_items.setdefault(id, [])
+    self.chmod_items.setdefault(id, [])
     for src in sourcefile.findpaths():
       output_file = dstdir / src.tokens[len(sourcefile.tokens)-1:]
-      self.chmod_items[id].add((output_file,
-                                int(defmode or oct(src.stat().st_mode & 0777), 8)))
+      self.chmod_items[id].append((output_file,
+                                   int(defmode or oct(src.stat().st_mode & 0777), 8)))
       if src.isfile():
-        self.sync_items[id].add((src, output_file))
+        self.sync_items[id].append((src, output_file))
         self.ptr.diff.handlers['output'].odata.append(output_file)
         rtn.append(output_file)
     return rtn
@@ -182,7 +182,7 @@ class IOObject:
             cb.rmdir(dir)
             dir.removedirs()
 
-  def list_output(self, what=None):
+  def list_output(self, what=None, sort=True):
     """
     list_output(source)
 
@@ -202,4 +202,7 @@ class IOObject:
         continue
       for _,d in self.sync_items[id]:
         rtn.append(d)
-    return sorted(rtn)
+    if sort:
+      return sorted(rtn)
+    else:
+      return rtn
