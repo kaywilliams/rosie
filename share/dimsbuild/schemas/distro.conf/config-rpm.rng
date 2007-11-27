@@ -21,8 +21,6 @@
               <ref name="value-mode"/>
             </attribute>
             </optional>
-            <optional>
-            </optional>
             <text/>
           </element>
           </zeroOrMore>
