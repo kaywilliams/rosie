@@ -68,6 +68,7 @@ class GpgSignEvent(GpgMixin, Event):
 
   def run(self):
     self.log(1, L1("configuring gpg signing"))
+
     # sync keys
     newkeys = self.io.sync_input(what=['pubkey','seckey'], cache=True)
 
@@ -81,9 +82,6 @@ class GpgSignEvent(GpgMixin, Event):
       self.import_key(gnupg_dir, pubkey)
       self.import_key(gnupg_dir, seckey)
     self.DATA['output'].append(gnupg_dir)
-
-    # don't leave secret key lying around
-    seckey.remove()
 
     # sync rpms to output folder
     self.log(1, L1("preparing to sign rpms"))

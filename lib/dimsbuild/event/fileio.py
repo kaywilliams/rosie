@@ -125,7 +125,6 @@ class IOObject:
     outputs = []
     if sync_items:
       sync_items = sorted(sync_items, cmp=lambda x, y: cmp(x[1].basename, y[1].basename))
-
       cb = cb or self.ptr.files_callback
       cb.sync_start()
       for src, dst in sync_items:
@@ -138,7 +137,8 @@ class IOObject:
           self.ptr.copy(src, dst.dirname, **kwargs) #!
         outputs.append(dst)
 
-    for file, mode in chmod_items: file.chmod(mode)
+    for file, mode in chmod_items:
+      file.chmod(mode)
 
     return sorted(outputs)
 
