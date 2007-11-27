@@ -100,5 +100,4 @@ def main(suite=None):
   else:
     EventTestRunner().run(make_suite(config))
 
-if __name__ == '__main__':
-  main()
+if __name__ == '__main__': main()
