@@ -2,17 +2,15 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
 
   <define name="element-obsoletes">
-    <element name="obsoletes">
-      <optional>
-      <attribute name="use-default-set">
-        <ref name="value-boolean"/>
-      </attribute>
-      </optional>
+    <zeroOrMore>
+      <element name="obsolete"><text/></element>
+    </zeroOrMore>
+  </define>
 
-      <oneOrMore>
-      <element name="package"><text/></element>
-      </oneOrMore>
-    </element>
+  <define name="element-requires">
+    <zeroOrMore>
+      <element name="require"><text/></element>
+    </zeroOrMore>
   </define>
 
   <include href="lib.rng"/>

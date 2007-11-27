@@ -1,71 +1,46 @@
-<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
 
     <element name="distro">
-      
       <optional>
       <element name="config-rpm">
-        
         <optional>
         <attribute name="enabled">
           <ref name="value-boolean-with-default"/>
         </attribute>
         </optional>
-        
         <interleave>
-        <optional>
-        <element name="config">
-          
-          <interleave>
-          <optional>
+          <zeroOrMore>
           <element name="script">
-            
             <optional>
-            <attribute name="dest"><text/></attribute>
+            <attribute name="dest"/>
             </optional>
             <optional>
             <attribute name="mode">
-	      <ref name='value-mode'/>
+              <ref name="value-mode"/>
+            </attribute>
+            </optional>
+            <optional>
+            </optional>
+            <text/>
+          </element>
+          </zeroOrMore>
+          <zeroOrMore>
+          <element name="file">
+            <optional>
+            <attribute name="dest"/>
+            </optional>
+            <optional>
+            <attribute name="mode">
+              <ref name="value-mode"/>
             </attribute>
             </optional>
             <text/>
           </element>
-          </optional>
-          
-          <optional>
-            <element name="supporting-files">
-            
-            <optional>
-            <attribute name="dest"><text/></attribute>
-            </optional>
-            
-            <zeroOrMore>
-            <ref name="element-path-with-dest"/>
-            </zeroOrMore>
-            
-            </element>
-          </optional>
-          </interleave>
-        
-        </element>
-        </optional>
-        
-        <optional>
-        <element name="requires">
-          <zeroOrMore>
-          <element name="package"><text/></element>                  
-          </zeroOrMore>                
-        </element>
-        </optional>
-        
-        <optional>
-        <element name="obsoletes">
-          <zeroOrMore>
-          <element name="package"><text/></element>
-          </zeroOrMore>                                
-        </element>
-        </optional>
+          </zeroOrMore>
+          <ref name="element-obsoletes"/>
+          <ref name="element-requires"/>
         </interleave>
       </element>
       </optional>

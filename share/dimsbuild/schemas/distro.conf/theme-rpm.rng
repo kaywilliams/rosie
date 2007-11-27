@@ -1,24 +1,24 @@
-<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
 
     <element name="distro">
-    
+
       <optional>
       <element name="theme-rpm">
-      
+
         <optional>
         <attribute name="enabled">
           <ref name="value-boolean-with-default"/>
         </attribute>
         </optional>
-        
-        <optional>            
+
+        <optional>
         <element name="theme"><text/></element>
         </optional>
       </element>
       </optional>
-      
+
     </element>
   </start>
 
