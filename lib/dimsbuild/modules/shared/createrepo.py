@@ -1,3 +1,4 @@
+import errno
 import os
 import rpm
 import sys
@@ -9,6 +10,8 @@ from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.logging   import L1
 
 __all__ = ['CreateRepoMixin']
+
+CREATEREPO_ATTEMPTS = 2
 
 class CreateRepoMixin:
 
@@ -35,7 +38,7 @@ class CreateRepoMixin:
       repo_files.append(path / file)
 
     args = ['/usr/bin/createrepo']
-    if update and UPDATE_ALLOWED:
+    if update and (path/'repodata').exists() and UPDATE_ALLOWED:
       args.append('--update')
     if quiet:
       args.append('--quiet')
@@ -52,13 +55,23 @@ class CreateRepoMixin:
 
     cwd = os.getcwd()
     os.chdir(path)
-    try:
-      execlib.execute(' '.join(args))
-    except execlib.ExecuteError, e:
-      self.log(0,
-        "An unhandled exception has occurred while running 'createrepo' "
-        "in the '%s' event.\n\nError message was: %s" % (self.id, e))
-      sys.exit(1)
+
+    count = 1
+    while True:
+      try:
+        execlib.execute(' '.join(args))
+      except execlib.ExecuteError, e:
+        if count == CREATEREPO_ATTEMPTS or \
+            e.errno != errno.EAGAIN or e.errno != errno.EWOULDBLOCK:
+          self.log(0,
+            "An unhandled exception has occurred while running 'createrepo' "
+            "in the '%s' event.\n\nError message was: %s" % (self.id, e))
+          sys.exit(1)
+        # over here iff e.errno == EAGAIN or e.errno == EWOULDBLOCK
+        count = count + 1
+      else:
+        break
+
     os.chdir(cwd)
     return repo_files
 
