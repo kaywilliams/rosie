@@ -281,7 +281,7 @@ class CompsEvent(Event):
     #  * if default = default, group.default = value from groupfile
     #  * if default = None,    group.default = true
     default = self.config.get('groups/group[text()="%s"]/@default' % gid, None)
-    if default
+    if default:
       if default != 'default':
         self._groupfiledata[dgid]['attrs']['default'] = default
     else:
