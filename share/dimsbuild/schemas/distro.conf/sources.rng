@@ -4,25 +4,24 @@
     <element name="distro">
 
       <optional>
-        <element name="sources">
-          <optional>
-            <attribute name="enabled">
-              <ref name="value-boolean-with-default"/>
-            </attribute>
-          </optional>
+      <element name="sources">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
 
-          <interleave>
+        <interleave>
 
-            <oneOrMore>
-              <ref name="element-repo"/>
-            </oneOrMore>
+        <oneOrMore>
+        <ref name="element-repo"/>
+        </oneOrMore>
 
-            <zeroOrMore>
-              <element name="repofile"><text/></element>
-            </zeroOrMore>
+        <zeroOrMore>
+        <element name="repofile"><text/></element>
+        </zeroOrMore>
 
-          </interleave>
-        </element>
+        </interleave>
+
+      </element>
       </optional>
 
     </element>

@@ -5,6 +5,10 @@
 
       <optional>
         <element name="files">
+          <optional>
+          <attribute name="enabled"><ref name="value-boolean"/></attribute>
+          </optional>
+
           <zeroOrMore>
             <ref name="element-path-with-dest"/>
           </zeroOrMore>

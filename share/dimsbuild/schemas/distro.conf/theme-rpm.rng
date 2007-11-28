@@ -8,9 +8,7 @@
       <element name="theme-rpm">
 
         <optional>
-        <attribute name="enabled">
-          <ref name="value-boolean-with-default"/>
-        </attribute>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
         <optional>

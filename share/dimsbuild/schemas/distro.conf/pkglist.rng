@@ -4,7 +4,12 @@
     <element name="distro">
     
       <optional>
-      <element name="pkglist"><text/></element>
+      <element name="pkglist">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+        <text/>
+      </element>
       </optional>
     
     </element>

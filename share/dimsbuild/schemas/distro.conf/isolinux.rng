@@ -5,14 +5,18 @@
       
       <optional>
         <element name="isolinux">
+          <optional>
+          <attribute name="enabled"><ref name="value-boolean"/></attribute>
+          </optional>
+
           <interleave>
             
             <optional>
-              <element name="boot-args"><text/></element>
+            <element name="boot-args"><text/></element>
             </optional>
             
             <zeroOrMore>
-              <ref name="element-path-with-dest"/>
+            <ref name="element-path-with-dest"/>
             </zeroOrMore>
             
           </interleave>

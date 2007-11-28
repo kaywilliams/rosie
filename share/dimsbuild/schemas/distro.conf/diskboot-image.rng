@@ -2,9 +2,12 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>    
     <element name="distro">      
-    
       <optional>
       <element name="diskboot-image">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+        
         <interleave>
         
         <optional>

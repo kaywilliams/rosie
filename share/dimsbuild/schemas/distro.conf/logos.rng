@@ -5,6 +5,10 @@
     
       <optional>
       <element name="logos">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+
         <element name="package"><text/></element>
       </element>
       </optional>

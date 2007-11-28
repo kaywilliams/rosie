@@ -4,6 +4,10 @@
     <element name="distro">
     
       <element name="repos">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+
         <interleave>
         
         <zeroOrMore>

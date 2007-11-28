@@ -102,8 +102,11 @@ element group {
         <refsection>
           <title>default</title>
           <para>
-          optional; if specified, comps resets the value of the 'default' element 
-          for the group to this value; otherwise it uses the original value.
+          optional; possible values include boolean values and 'default'; if
+          specified and a boolean value, comps resets the value of the 'default'
+          element for the group to this value; if specified and 'default', comps
+          leaves the values of the 'default' element of this group unchanged;
+          otherwise, it sets the value to 'true'
           </para>
         </refsection>
         <refsection>

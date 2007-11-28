@@ -6,9 +6,7 @@
       <optional>
       <element name="config-rpm">
         <optional>
-        <attribute name="enabled">
-          <ref name="value-boolean-with-default"/>
-        </attribute>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
         <interleave>
           <zeroOrMore>

@@ -276,9 +276,16 @@ class CompsEvent(Event):
           self._groupfiledata[dgid]['attrs'][attr.tag] = attr.text
 
     # set the default value, if given
+    #  * if default = true,    group.default = true
+    #  * if default = false,   group.default = false
+    #  * if default = default, group.default = value from groupfile
+    #  * if default = None,    group.default = true
     default = self.config.get('groups/group[text()="%s"]/@default' % gid, None)
-    if default:
-      self._groupfiledata[dgid]['attrs']['default'] = default
+    if default
+      if default != 'default':
+        self._groupfiledata[dgid]['attrs']['default'] = default
+    else:
+      self._groupfiledata[dgid]['attrs']['default'] = 'true'
 
     # add packages
     self._groupfiledata[dgid].setdefault('packages', set())

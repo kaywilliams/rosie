@@ -5,13 +5,17 @@
       
       <optional>
       <element name="publish">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+
         <interleave>
         
         <optional>
         <element name="remote-webroot">
         <optional>
         <attribute name="use-hostname">
-        <ref name="value-boolean-with-default"/>
+          <ref name="value-boolean"/>
         </attribute>
         </optional>
         <text/>

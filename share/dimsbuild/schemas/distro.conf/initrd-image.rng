@@ -4,6 +4,10 @@
     <element name="distro">
       <optional>
       <element name="initrd-image">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+
         <oneOrMore>
         <ref name="element-path-with-dest"/>
         </oneOrMore>

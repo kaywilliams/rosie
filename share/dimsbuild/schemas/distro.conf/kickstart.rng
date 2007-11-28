@@ -4,7 +4,12 @@
     <element name="distro">      
     
       <optional>
-      <element name="kickstart"><text/></element>
+      <element name="kickstart">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+        <text/>
+      </element>
       </optional>
       
     </element>

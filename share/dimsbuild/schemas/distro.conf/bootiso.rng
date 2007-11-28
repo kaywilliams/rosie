@@ -6,6 +6,9 @@
       <optional>
       <element name="bootiso">
         <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+        <optional>
         <ref name="element-boot-config"/>
         </optional>
       </element>
