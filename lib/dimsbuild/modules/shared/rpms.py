@@ -1,7 +1,3 @@
-__author__  = 'Uday Prakash <uprakash@abodiosoftware.com>'
-__version__ = '1.0'
-__date__    = 'November 27, 2007'
-
 from ConfigParser import ConfigParser
 
 import os
