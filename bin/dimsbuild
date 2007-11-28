@@ -44,7 +44,7 @@ def main():
   config_group.add_option('--dimsbuild-conf', metavar='PATH',
     default='/etc/dimsbuild.conf',
     dest='mainconfigpath',
-    help="specify path dimsbuild.conf")
+    help="specify path to a main config file")
   config_group.add_option('--no-validate',
     dest='no_validate',
     action='store_true',

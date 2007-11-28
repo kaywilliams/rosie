@@ -5,3 +5,5 @@ syntax: glob
 
 syntax: regexp
 .*\#.*\#$
+test/modules/[^/]+/repo[0-9]+.*
+test/modules/[^/]+/[^/]+-test-repos[0-9]*\.repo
