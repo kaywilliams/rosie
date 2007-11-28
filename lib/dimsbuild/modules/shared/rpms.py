@@ -127,6 +127,11 @@ class RpmBuildMixin:
     self.default_requires = default_requires
     self.autofile = P(self._config.file + '.dat')
 
+    # RPM build variables
+    self.bdist_base = self.mddir / 'rpm-base'
+    self.rpm_base = self.bdist_base / 'rpm'
+    self.dist_dir = self.bdist_base / 'dist'
+
   def _setup_build(self, **kwargs):
     if self.autofile.exists():
       self.rpm_release = xmllib.tree.read(self.autofile).get(
@@ -245,8 +250,9 @@ class RpmBuildMixin:
     self.log(1, L1("building %s-%s-%s.%s.rpm" % \
                    (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch)))
     mkrpm.build(self.build_folder, self.mddir, createrepo=False,
-                keepTemp=True, quiet=(self.logger.threshold < 5))
-    (self.build_folder/'dist').rm(recursive=True, force=True)
+                bdist_base=self.bdist_base, rpm_base=self.rpm_base,
+                dist_dir=self.dist_dir, keep_source=True,
+                quiet=(self.logger.threshold < 5))
 
   def _write_spec(self):
     setupcfg = self.build_folder/'setup.cfg'
