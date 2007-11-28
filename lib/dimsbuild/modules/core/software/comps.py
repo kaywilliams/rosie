@@ -275,6 +275,11 @@ class CompsEvent(Event):
         elif attr.tag not in ['packagelist', 'grouplist', 'id']:
           self._groupfiledata[dgid]['attrs'][attr.tag] = attr.text
 
+    # set the default value, if given
+    default = self.config.get('groups/group[text()="%s"]/@default' % gid, None)
+    if default:
+      self._groupfiledata[dgid]['attrs']['default'] = default
+
     # add packages
     self._groupfiledata[dgid].setdefault('packages', set())
     for pkg in tree.xpath('//group[id/text()="%s"]/packagelist/packagereq' % gid):

@@ -130,6 +130,19 @@ class Test_MultipleGroupfiles(CompsEventTestCase):
     # still need to check that 'base-x' contains all packages listed in #!
     # both 'fedora-6-base' and 'livna' groupfiles in 'base-x' group #!
 
+class Test_GroupDefaults(CompsEventTestCase):
+  # bug 106
+  "comps generated, group defaults set appropriately"
+  def runTest(self):
+    self.tb.dispatch.execute(until='comps')
+    
+    comps = self.read_comps()
+    
+    for group in ['web-server', 'printing']:
+      self.failUnlessEqual(
+        comps.get('/comps/group[id/text()="%s"]/default/text()' % group),
+        self.event.config.get('groups/group[text()="%s"]/@default' % group))
+
 def make_suite():
   confdir = pps.Path(__file__).dirname
   suite = unittest.TestSuite()
@@ -142,5 +155,6 @@ def make_suite():
   suite.addTest(Test_ExcludePackages(confdir/'conf.exclude-packages'))
   suite.addTest(Test_GroupsByRepo(confdir/'conf.groups-by-repo'))
   suite.addTest(Test_MultipleGroupfiles(confdir/'conf.multiple-groupfiles'))
+  suite.addTest(Test_GroupDefaults(confdir/'conf.group-defaults'))
   
   return suite
