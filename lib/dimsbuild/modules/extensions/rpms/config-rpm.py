@@ -36,6 +36,8 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       'output':    [self.build_folder],
     }
 
+    self.auto_script = None
+
   def setup(self):
     self._setup_build()
     self._setup_download()
@@ -60,6 +62,17 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def _generate(self):
     self.io.sync_input(cache=True)
 
+    # generate auto-config file
+    config_scripts = self.io.list_output(what='config-files', sort=False)
+    if config_scripts:
+      self.auto_script = self.rpm_dir / 'usr/lib/%s/auto.sh' % self.product
+      self.auto_script.write_lines(
+        [ '/%s' % x.relpathfrom(self.rpm_dir).normpath() \
+          for x in config_scripts ]
+      )
+      self.auto_script.chmod(0755)
+      self.DATA['output'].append(self.auto_script)
+
   def _get_files(self):
     sources = {}
     sources.update(RpmBuildMixin._get_files(self))
@@ -67,12 +80,10 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     return sources
 
   def _getpscript(self):
-    post_install_scripts = self.io.list_output(what='config-files', sort=False)
-    if post_install_scripts:
-      script = self.build_folder / 'post-install.sh'
-      script.write_lines(
-        [ '/%s' % x.relpathfrom(self.rpm_dir).normpath() \
-          for x in post_install_scripts ]
-      )
-      return script
+    if self.auto_script:
+      post_install = self.build_folder / 'post-install.sh'
+      post_install.write_lines([
+        '/%s' % self.auto_script.relpathfrom(self.rpm_dir).normpath()
+      ])
+      return post_install
     return None
