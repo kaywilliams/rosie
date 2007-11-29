@@ -1,10 +1,9 @@
+from dims import magic
 from dims import pps
 from dims import shlib
 
 from dimsbuild.constants import SRPM_REGEX
 from dimsbuild.event     import Event
-from dimsbuild.magic     import (FILE_TYPE_JPG, FILE_TYPE_LSS, FILE_TYPE_PNG,
-                                 match as magic_match)
 
 from dimsbuild.modules.shared import ExtractMixin, RpmNotFoundError
 
@@ -111,11 +110,11 @@ class LogosEvent(Event, ExtractMixin):
 
   def _validate_splash(self):
     if self.format == 'jpg':
-      return magic_match(self.splash) == FILE_TYPE_JPG
+      return magic.match(self.splash) == magic.FILE_TYPE_JPG
     elif self.format == 'png':
-      return magic_match(self.splash) == FILE_TYPE_PNG
+      return magic.match(self.splash) == magic.FILE_TYPE_PNG
     else:
-      return magic_match(self.splash) == FILE_TYPE_LSS
+      return magic.match(self.splash) == magic.FILE_TYPE_LSS
 
   def _find_rpms(self):
     pkgname = self.config.get('package/text()', '%s-logos' % self.product)

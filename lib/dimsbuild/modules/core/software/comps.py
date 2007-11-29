@@ -174,7 +174,7 @@ class CompsEvent(Event):
 
     # remove excluded packages
     for pkg in ( self.config.xpath('exclude/package/text()', []) +
-                 (self.cvars['excluded-packages'] or []) ): 
+                 (self.cvars['excluded-packages'] or []) ):
       for group in self._groups.values():
         group.packagelist.discard(pkg)
 

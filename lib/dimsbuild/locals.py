@@ -1,3 +1,14 @@
+"""
+locals.py
+
+Locals data for dimsbuild
+
+This file contains a number of anaconda version-specific data for various
+parts of the dimsbuild process.  All information is stored in nested
+LocalsDict objects.  See LocalsDict, below, for details on how it differs from
+the standard dict object.
+"""
+
 from dims import sortlib
 
 __all__ = ['DISCINFO_FORMAT_LOCALS', 'BUILDSTAMP_FORMAT_LOCALS',
@@ -6,9 +17,45 @@ __all__ = ['DISCINFO_FORMAT_LOCALS', 'BUILDSTAMP_FORMAT_LOCALS',
            'LOGOS_RPM', 'THEME_XML']
 
 class LocalsDict(dict):
+  """
+  A LocalsDict is a subclass of dict with a specialized key lookup system
+  that aids the specific requirements of the dimsbuild locals system.
+  
+  Problem
+  Certain properties of anaconda-based distributions vary depending on the
+  anaconda version, such as image file location and format or discinfo file
+  internal format.  While starting at a specific anaconda version, these
+  particular properties may persist for a number of subsequent anaconda
+  versions without changing.  In a traditional dictionary, encoding this
+  would not only require a great deal of space, but would be very error prone,
+  as any changes would have to potentially be applied to multiple places.
+  
+  Solution
+  Instead of dictionary keys referring to a single point in anaconda's
+  development cycle, a given key refers to all revisions from itself until
+  the next highest key.  That is, in a LocalsDict with the keys '0', '1.5',
+  and '4.0', any key request that sorts between '1.5' and '4.0' would return
+  the value stored at '1.5'.  Thus, with this optimization, the developer
+  need only create key, value pairs for anaconda versions where the relevant
+  property in question changed in some way; all other versions can be ignored.
+  
+  LocalsDict uses sortlib for sorting of keys; as such, keys should consist
+  of one or more integers separated by decimals ('.').  Sorting occurs exactly
+  how one would logically expect rpm version numbers to sort (4.0 > 3.0.0,
+  4.1 > 4.0.1, etc).  See sortlib.py for a full discussion of how indexes are
+  sorted.
+  
+  Subsequent keys after the first provide updates to the values in previous
+  keys; in the above example, then, the value returned by LocalsDict['4.0']
+  would be the result of first updating LocalsDict['0'] with LocalsDict['1.5'],
+  and then updating that result with LocalsDict['4.0'].  Updates are done
+  recursively; that is, each level of the dictionary is updated, rather than
+  just the topmost level.  In order to delete a given key, value pair, set
+  a key's value to REMOVE.
+  """
   def __init__(self, *args, **kwargs):
     dict.__init__(self, *args, **kwargs)
-    self.setdefault('0', None)
+    self.setdefault('0', REMOVE)
 
   def __getitem__(self, key):
     ret = {}
@@ -31,13 +78,18 @@ def rupdate(dst, src):
     if isinstance(v, dict):
       rdst = dst.setdefault(k, {})
       rupdate(rdst, v)
-    elif v is None:
+    elif v is REMOVE:
       if dst.has_key(k): del(dst[k])
     else:
       dst[k] = v
   return dst
 
+class RemoveObject: pass
 
+REMOVE = RemoveObject()
+
+
+#------ LOCALS DATA ------#
 DISCINFO_FORMAT_LOCALS = LocalsDict({
   '0': {
     'timestamp': dict(index=0, string='%(timestamp)s'),
@@ -105,12 +157,12 @@ FILES_LOCALS = LocalsDict({
   },
   '10.89.1.1': { # netstg2, hdstg2 combined into minstg2
     'stage2': {
-      'netstg2.img':  None,
-      'hdstg2.img':   None,
+      'netstg2.img':  REMOVE,
+      'hdstg2.img':   REMOVE,
       'minstg2.img':  dict(path='%(product)s/base/minstg2.img')
     },
   },
-# using ext2 format as anaconda does not supported cpio all cases, i.e.
+# using ext2 format as anaconda does not support cpio in all cases, i.e.
 # loadUrlImages() in urlinstall.c
 #  '11.1.0.11-1': { # updates.img to cpio format
 #    'installer': {
@@ -125,7 +177,7 @@ FILES_LOCALS = LocalsDict({
   },
   '11.2.0.66-1': { # removed memtest, added vesamenu.c32
     'isolinux': {
-      'memtest':      None,
+      'memtest':      REMOVE,
       'vesamenu.c32': dict(path='isolinux/vesamenu.c32'),
     },
   },

@@ -11,7 +11,6 @@ from dims import xmllib
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event, EventExit
 from dimsbuild.logging   import L1
-from dimsbuild.misc      import locals_imerge
 
 __all__ = ['InputFilesMixin', 'LocalFilesMixin', 'ColorMixin', 'RpmBuildMixin']
 

@@ -97,7 +97,7 @@ class GpgCheckEvent(Event):
       if newrpms:
         invalids = []
         self.log(1, L1("checking rpms - '%s'" % repo))
-        self.gpgcheck_cb.repoCheck(repo, len(newrpms))
+        self.gpgcheck_cb.repoCheck(len(newrpms))
         for rpm in newrpms:
           try:
             mkrpm.VerifyRpm(rpm, homedir=homedir)
