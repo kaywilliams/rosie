@@ -54,9 +54,8 @@ class Build(object):
 
   Build consists mostly of variable values  and a dispatch object,  which
   is responsible  for calling  module events  in order to perform various
-  build tasks.  It also contains two loggers for printing out information
-  to  the screen,  as well  as a  cache manager  for handling  caching of
-  remote repository files.
+  build tasks.  It also contains a logger for printing out information to
+  the screen.
 
   The  build  object  is  responsible for  loading  and initializing  all
   program  modules  and  plugins.   It  also  applies  configuration  and
@@ -71,7 +70,7 @@ class Build(object):
     """
     Initialize a Build object
 
-    Accepts four parameters:
+    Accepts two parameters:
       options: an  optparse.Options  object  with  the  command  line
                arguments encountered during command line parsing
       parser:  the optparse.OptionParser instance used to parse these
@@ -106,8 +105,8 @@ class Build(object):
                         loader.load(import_dirs, prefix='dimsbuild/modules')
                       )
       self.disabled_modules = loader.disabled
-      self.enabled_modules = loader.enabled
-      self.module_map = loader.module_map
+      self.enabled_modules  = loader.enabled
+      self.module_map       = loader.module_map
       # hack to make sure --force ALL still works #!
       # or is it a hack?  Perhaps we should use the caps notation for
       # arbitrary containers of higher level tasks - all installer files,
@@ -127,6 +126,10 @@ class Build(object):
     if options.print_help:
       self.parser.print_help()
       sys.exit()
+    # list events, if requested
+    if options.list_events:
+      self.dispatch.pprint()
+      sys.exit()
 
     # apply --force to modules/events
     for eventid in self._compute_events(options.force_modules,
@@ -141,13 +144,7 @@ class Build(object):
     # clear cache, if requested
     if options.clear_cache:
       Event.logger.log(0, L0("clearing cache"))
-      Event.cache_handler.cache_dir.rm(recursive=True, force=True)
-      Event.cache_handler.cache_dir.mkdirs()
-
-    # list events, if requested
-    if options.list_events:
-      self.dispatch.pprint()
-      sys.exit()
+      Event.cache_handler.cache_dir.listdir(all=True).rm(recursive=True)
 
     # perform validation, if not specified otherwise
     if not options.no_validate:
@@ -182,6 +179,7 @@ class Build(object):
     self._log_footer()
 
   def _get_config(self, options):
+    "Gets the main config and distro configs based on option values"
     mcp = P(options.mainconfigpath)
     dcp = P(options.distropath)
     try:

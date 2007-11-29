@@ -1,6 +1,5 @@
 from ConfigParser import ConfigParser
 
-import os
 import re
 
 from dims import mkrpm
@@ -200,9 +199,9 @@ class RpmBuildMixin:
 
     # set the mode and ownership of distro.conf.dat and distro.conf to
     # be the same.
-    stat = os.stat(self._config.file)
-    os.chown(self.autofile, stat.st_uid, stat.st_gid)
-    os.chmod(self.autofile, stat.st_mode)
+    stat = self._config.file.stat()
+    self.autofile.chown(stat.st_uid, stat.st_gid)
+    self.autofile.chmod(stat.st_mode)
 
   def _check_release(self):
     if self.rpm_release == '0' or  \

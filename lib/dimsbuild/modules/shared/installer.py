@@ -131,7 +131,7 @@ class ImageModifyMixin:
   def verify_output_exists(self):
     "verify all output exists"
     for file in self.io.list_output():
-      self.verifier.failUnless(file.exists(), "unabled to find file '%s" % file)
+      self.verifier.failUnless(file.exists(), "unabled to find file '%s'" % file)
 
   def _open(self):
     if self.virtual:
