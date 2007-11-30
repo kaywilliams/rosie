@@ -89,28 +89,21 @@ class PkglistEvent(Event):
     repoconfig = self._create_repoconfig()
     depsolve_file = self.mddir / 'depsolve-results'
     todepsolve = copy.deepcopy(self.cvars.get('required-packages', []))
-
+    user_required = copy.deepcopy(self.cvars.get('user-required-packages', []))
     removed_items = []
     diffdict = self.diff.handlers['variables'].diffdict
     if diffdict.has_key("cvars['required-packages']"):
-      r,a = diffdict["cvars['required-packages']"]
-      if ( r is not None and
-           not isinstance(r, difftest.NoneEntry) and
-           not isinstance(r, difftest.NewEntry) ):
-        removed_items.extend([ x for x in r if x not in a])
+      prev, curr = diffdict["cvars['required-packages']"]
+      if ( prev is not None and
+           not isinstance(prev, difftest.NoneEntry) and
+           not isinstance(prev, difftest.NewEntry) ):
+        removed_items.extend([ x for x in prev if x not in curr ])
 
-    solver = IDepSolver(depsolve_file, todepsolve, removed_items,
+    solver = IDepSolver(depsolve_file, todepsolve, removed_items, user_required,
                         config=str(repoconfig), root=str(self.dsdir),
                         arch=self.arch, callback=BuildDepsolveCallback(self.logger))
     solver.setup()
-
-    for package in todepsolve:
-      try:
-        solver.install(name=package)
-      except yum.Errors.InstallError, e:
-        pass
     solver.resolveDeps()
-
     pkgtups = [ x.pkgtup for x in solver.tsInfo.getMembers() ]
     solver.teardown()
 
@@ -127,6 +120,7 @@ class PkglistEvent(Event):
     self.DATA['output'].extend([self.dsdir, self.pkglistfile, depsolve_file,
                                 repoconfig])
     self.diff.write_metadata()
+    solver = None
 
   def apply(self):
     self.io.clean_eventcache()
@@ -139,18 +133,6 @@ class PkglistEvent(Event):
     "pkglist file exists"
     self.verifier.failUnless(self.pkglistfile.exists(),
       "missing package list file '%s'" % self.pkglistfile)
-
-  def verify_pkglist_content(self):
-    "pkglist contains user required packages"
-    pkglist = [ NVR_REGEX.match(x).groups()[0] for x in self.cvars['pkglist'] ]
-    missing = []
-    for pkg in self.cvars['user-required-packages']:
-      if pkg not in pkglist:
-        missing.append(pkg)
-
-    self.verifier.failUnless(len(missing) == 0,
-      "missing package%s in package list: %s" % \
-        (len(missing) != 1 and 's' or '', missing))
 
   def _create_repoconfig(self):
     repoconfig = self.mddir / 'depsolve.repo'
@@ -175,15 +157,19 @@ class PkglistEvent(Event):
     repoconfig.write_lines(conf)
     return repoconfig
 
+
 class IDepSolver(DepSolver):
-  def __init__(self, cache_file, todepsolve, removed_items, config='/etc/yum.conf',
-               root='/tmp/depsolver', arch=None, callback=None):
+  def __init__(self, cache_file, todepsolve, removed_items, user_required,
+               config='/etc/yum.conf', root='/tmp/depsolver', arch=None, callback=None):
     DepSolver.__init__(self, config=config, root=root,
                        arch=arch, callback=callback)
     self.cache_file = P(cache_file)
+    self.depsolve_results = {}
     self.depsolve_cache = {}
     self.removed_items = removed_items
+    self.user_required = user_required
     self.todepsolve = todepsolve
+    self.unresolved = set()
 
   def setup(self):
     DepSolver.setup(self)
@@ -191,17 +177,26 @@ class IDepSolver(DepSolver):
       f = self.cache_file.open()
       self.depsolve_cache = pickle.load(f)
       f.close()
-    self.update_cache()
+    self.filterCache()
+    for package in self.todepsolve:
+      try:
+        txmbrs = self.install(name=package)
+        for po in txmbrs:
+          self.unresolved.add((po, package))
+          self.depsolve_results.setdefault(package, set()).add(po.pkgtup)
+      except yum.Errors.InstallError, e:
+        if package in self.user_required:
+          raise DepSolveError("User required package '%s' not found" % package)
 
   def resolveDeps(self):
     "Resolve dependencies on all selected packages and groups."
     self.initActionTs()
     if self.dsCallback: self.dsCallback.start()
-    unresolved = self.tsInfo.getMembers()
+    unresolved = self.unresolved
     while len(unresolved) > 0:
       if self.dsCallback:
         self.dsCallback.tscheck(len(unresolved))
-      self.recursive_install(unresolved)
+      self.installFromCache(unresolved)
       unresolved = self.tsCheck(unresolved)
       if self.dsCallback:
         self.dsCallback.restartLoop()
@@ -210,81 +205,111 @@ class IDepSolver(DepSolver):
     pickle.dump(self.depsolve_results, f)
     f.close()
 
-  def recursive_install(self, unresolved):
-    installed = []
-    for txmbr in unresolved:
-      if self.depsolve_cache.has_key(txmbr.pkgtup):
-        try:
-          self._recursive_install(txmbr.pkgtup)
-        except yum.Errors.InstallError, e:
-          #print e
-          pass
+  def tsCheck(self, tocheck):
+    "Attempt to resolve dependencies on items in tocheck."
+    unresolved = set()
+    for txmbr, pkgname in tocheck:
+      self.depsolve_results[txmbr.name] = set()
+
+      # some kind of speed optimization
+      if txmbr.name == 'redhat-lsb' and len(tocheck) > 2:
+        unresolved.add((txmbr, pkgname))
+        continue
+
+      if self.dsCallback:
+        self.dsCallback.pkgAdded(txmbr.po.pkgtup)
+
+      if txmbr.output_state not in yum.constants.TS_INSTALL_STATES:
+        continue
+
+      # get requires and provides for transaction member
+      reqs = txmbr.po.returnPrco('requires')
+      provs = txmbr.po.returnPrco('provides')
+
+      # process each requires
+      for req in reqs:
+        # skip rpmlib and config requires
+        if req[0].startswith('rpmlib(') or req[0].startswith('config('):
+          continue
+
+        # skip circular requires/provides
+        if req in provs:
+          continue
+
+        # figure out a package that provides the necessary capability
+        dep = self.findBestPackageByNfv(req)
+        if dep is None:
+          #raise DepSolveError("Unresolvable dependency %s for package %s"
+          #                    % (str(req), txmbr.name))
+          continue
+
+        self.depsolve_results[txmbr.name].add(dep.pkgtup)
+        self.depsolve_results.setdefault(pkgname, set()).add(dep.pkgtup)
+
+        # skip circular requires/provides, again
+        if txmbr.name == dep.name:
+          continue
+
+        if self.tsInfo.exists(dep.pkgtup):
+          # provider already exists in transaction info, get it
+          pkgs = self.tsInfo.getMembers(pkgtup=dep.pkgtup)
+          member = self.bestPackagesFromList(pkgs, arch=self.arch)[0]
+          self.depsolve_results.setdefault(pkgname, set()).update(
+            self.depsolve_results.get(dep.name, set())
+          )
         else:
-          if self.dsCallback:
-            self.dsCallback.pkgAdded(txmbr.pkgtup)
-          installed.append(txmbr)
+          # select provider and add it to list of unresolved items
+          member = self.tsInfo.addInstall(dep)
+          unresolved.add((member, pkgname))
+
+        # perform dependency mapping
+        found = False
+        for dependspo in txmbr.depends_on:
+          if member.po == dependspo:
+            found = True; break
+        if not found:
+          txmbr.setAsDep(member.po)
+
+    # return list of new, unresolved packages
+    return unresolved
+
+  def teardown(self):
+    DepSolver.teardown(self)
+    self.depsolve_results = None
+    self.depsolve_cache = None
+    self.unresolved = None
+
+  def installFromCache(self, unresolved):
+    installed = []
+    for txmbr, pkgname in unresolved:
+      if self.depsolve_cache.has_key(pkgname):
+        for pkgtup in self.depsolve_cache[pkgname]:
+          self.install(pkgtup=pkgtup)
+          self.depsolve_results.setdefault(pkgname, set()).add(pkgtup)
+        if self.dsCallback:
+          self.dsCallback.pkgAdded(txmbr.pkgtup)
+        installed.append((txmbr, pkgname))
     for item in installed:
       unresolved.remove(item)
 
-  def _recursive_install(self, pkgtup):
-    for dep in self.depsolve_cache.get(pkgtup, []):
-      if not self.tsInfo.exists(dep):
-        txmbrs = self.install(pkgtup=dep)
-        self._recursive_install(dep)
-      self.depsolve_results.setdefault(pkgtup, []).append(dep)
-
-  def update_cache(self):
+  def filterCache(self):
     """
     Remove items in cache that are not needed anymore.
     """
-    new_cache = {}
-    cache_mapping = {}
+    for package in self.removed_items:
+      if self.depsolve_cache.has_key(package):
+        self.depsolve_cache.pop(package)
 
-    for pkg in self.depsolve_cache:
-      cache_mapping[pkg[0]] = pkg
+    stale_data = set()
+    for package, deps in self.depsolve_cache.items():
+      for dep in deps:
+        best_package = self.findBestPackageByName(dep[0])
+        if best_package is None or \
+            best_package.pkgtup != dep:
+          stale_data.add(package)
 
-    for item in self.todepsolve:
-      if self._recursive_check(item, [], cache_mapping):
-        self._recursive_add(new_cache, item, cache_mapping)
-
-    self.depsolve_cache.clear()
-    self.depsolve_cache.update(new_cache)
-
-  def _recursive_check(self, package, processed, cache_mapping):
-    """
-    Check to see whether any package brought down by a required
-    package requires a package that is a previously-required
-    package. Return False in this case. Also, return False if the
-    package we are about to add is older than the one found in
-    input repositories.
-    """
-    if package in self.removed_items:
-      return False
-    if cache_mapping.has_key(package) and \
-           not package in processed:
-      processed.append(package)
-      best_package = self._provideToPkg((package, None, None))
-      if best_package is None:
-        return False
-      if best_package.pkgtup != cache_mapping[package]:
-        return False
-      for dep in self.depsolve_cache[cache_mapping[package]]:
-        if not self._recursive_check(dep[0], processed, cache_mapping):
-          return False
-    return True
-
-  def _recursive_add(self, new_cache, package, cache_mapping):
-    """
-    Should be called iff _recursive_check() returns True. The
-    _recursive_check() function will return True only if none of the
-    package parameter's dependencies are in the list of
-    previously-required packages.
-    """
-    if cache_mapping.has_key(package) and \
-           not new_cache.has_key(cache_mapping[package]):
-      new_cache[cache_mapping[package]] = self.depsolve_cache[cache_mapping[package]]
-      for dep in new_cache[cache_mapping[package]]:
-        self._recursive_add(new_cache, dep[0], cache_mapping)
+    for item in stale_data:
+      self.depsolve_cache.pop(item)
 
 #------ ERRORS ------#
-class DepSolveError(StandardError): pass
+class DepSolveError(Exception): pass
