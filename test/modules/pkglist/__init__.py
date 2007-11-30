@@ -9,8 +9,12 @@ from test.core import make_core_suite
 P = pps.Path
 
 class PkglistEventTestCase(EventTestCase):
-  def __init__(self, conf, clean):
+
+  PKGLIST_COUNT = {}
+
+  def __init__(self, conf, caseid, clean=False):
     EventTestCase.__init__(self, 'pkglist', conf)
+    self.caseid = caseid
     self.clean = clean
 
   def setUp(self):
@@ -23,26 +27,14 @@ class PkglistEventTestCase(EventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
-    count1 = len(self.event.cvars['pkglist'])
-    self.reset()
-    self.tb.dispatch.execute(until='pkglist')
-    count2 = len(self.event.cvars['pkglist'])
-    self.failUnless(count1 == count2)
+    self.PKGLIST_COUNT[self.caseid] = len(self.event.cvars['pkglist'])
 
-  def reset(self):
-    self.tb.dispatch.prev()
-    self.clean_event_md()
-    self.event.DATA = {
-      'config':    ['.'],
-      'variables': ['cvars[\'required-packages\']'],
-      'input':     [],
-      'output':    [],
-    }
-    self.event.cvars.pop('pkglist')
+  def getPkglistCount(self, caseid):
+    return self.PKGLIST_COUNT.get(caseid)
 
 class Test_PkglistBug84_1(PkglistEventTestCase):
   def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, True)
+    PkglistEventTestCase.__init__(self, conf, 'bug84_1', True)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
@@ -50,19 +42,26 @@ class Test_PkglistBug84_1(PkglistEventTestCase):
 
 class Test_PkglistBug84_2(PkglistEventTestCase):
   def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, False)
+    PkglistEventTestCase.__init__(self, conf, 'bug84_2', False)
 
 class Test_PkglistBug84_3(PkglistEventTestCase):
   def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, False)
+    PkglistEventTestCase.__init__(self, conf, 'bug84_3', False)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
     self.event._config.remove(self.event._config.get('/distro/comps'))
 
+  def runTest(self):
+    PkglistEventTestCase.runTest(self)
+    count1 = self.getPkglistCount('bug84_1')
+    count2 = self.getPkglistCount('bug84_3')
+    self.failUnless(count1 == count2,
+      "incremental depsolve: %d, forced depsolve: %d" % (count1, count2))
+
 class Test_PkglistBug85_1(PkglistEventTestCase):
   def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, True)
+    PkglistEventTestCase.__init__(self, conf, 'bug85_1', True)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
@@ -72,11 +71,11 @@ class Test_PkglistBug85_1(PkglistEventTestCase):
 
 class Test_PkglistBug85_2(PkglistEventTestCase):
   def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, False)
+    PkglistEventTestCase.__init__(self, conf, 'bug85_2', False)
 
 class Test_PkglistBug85_3(PkglistEventTestCase):
   def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, False)
+    PkglistEventTestCase.__init__(self, conf, 'bug85_3', False)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
@@ -84,17 +83,71 @@ class Test_PkglistBug85_3(PkglistEventTestCase):
       self.event._config.get('/distro/repos/repo[@id="fedora-updates"]')
     )
 
+  def runTest(self):
+    PkglistEventTestCase.runTest(self)
+    count1 = self.getPkglistCount('bug85_1')
+    count2 = self.getPkglistCount('bug85_3')
+    self.failUnless(count1 == count2)
+
 class Test_PkglistBug86_1(PkglistEventTestCase):
+  def __init__(self, conf):
+    PkglistEventTestCase.__init__(self, conf, 'bug86_1', True)
+
+class Test_PkglistBug86_2(PkglistEventTestCase):
+  def __init__(self, conf):
+    PkglistEventTestCase.__init__(self, conf, 'bug86_2', False)
+
+  def setUp(self):
+    PkglistEventTestCase.setUp(self)
+    self.clean_event_md(self.event._getroot().get('release-rpm'))
+
+  def runTest(self):
+    PkglistEventTestCase.runTest(self)
+    count1 = self.getPkglistCount('bug86_1')
+    count2 = self.getPkglistCount('bug86_2')
+    self.failUnless(count1 == count2)
+
+class Test_PkglistBug108_1(PkglistEventTestCase):
   def __init__(self, conf):
     PkglistEventTestCase.__init__(self, conf, True)
 
-class Test_PkglistBug86_2(PkglistEventTestCase):
+  def setUp(self):
+    PkglistEventTestCase.setUp(self)
+    self.event._config.get('/distro/repos').remove(
+      self.event._config.get('/distro/repos/repo[@id="updates"]')
+    )
+
+  def runTest(self):
+    self.tb.dispatch.execute(until='pkglist')
+    found_gaim = False
+    found_pidgin = False
+    for package in self.event.cvars['pkglist']:
+      if package.startswith('gaim'):
+        found_gaim = True
+      if package.startswith('pidgin'):
+        found_pidgin = True
+
+    self.failUnless(found_gaim)
+    self.failIf(found_pidgin)
+
+class Test_PkglistBug108_2(PkglistEventTestCase):
   def __init__(self, conf):
     PkglistEventTestCase.__init__(self, conf, False)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
-    self.clean_event_md(self.event._getroot().get('release-rpm'))
+
+  def runTest(self):
+    self.tb.dispatch.execute(until='pkglist')
+    found_gaim = False
+    found_pidgin = False
+    for package in self.event.cvars['pkglist']:
+      if package.startswith('gaim'):
+        found_gaim = True
+      if package.startswith('pidgin'):
+        found_pidgin = True
+    self.failUnless(found_pidgin)
+    self.failIf(found_gaim)
 
 class Test_Supplied(EventTestCase):
   def __init__(self, conf):
@@ -185,40 +238,53 @@ class Test_ExclusivePackage_2(PkglistEventTestCase):
 def make_suite():
   confdir = pps.Path(__file__).dirname
   suite = unittest.TestSuite()
-  config1 = confdir / 'bug84.conf'
-  config2 = confdir / 'bug85.conf'
-  config3 = confdir / 'bug86.conf'
-  config4 = confdir / 'supplied.conf'
-  config5 = confdir / 'pkglist.conf'
 
   # core tests
-  suite.addTest(make_core_suite('pkglist', config1))
+  suite.addTest(make_core_suite('pkglist', confdir / 'pkglist.conf'))
 
-  # test bug 84
-  suite.addTest(Test_PkglistBug84_1(config1))
-  suite.addTest(Test_PkglistBug84_2(config1))
-  suite.addTest(Test_PkglistBug84_3(config1))
+  # bug 84
+  config = confdir / 'bug84.conf'
+  bug84 = unittest.TestSuite()
+  bug84.addTest(Test_PkglistBug84_1(config))
+  bug84.addTest(Test_PkglistBug84_2(config))
+  bug84.addTest(Test_PkglistBug84_3(config))
+  suite.addTest(bug84)
 
-  # test bug 85
-  suite.addTest(Test_PkglistBug85_1(config2))
-  suite.addTest(Test_PkglistBug85_2(config2))
-  suite.addTest(Test_PkglistBug85_3(config2))
+  # bug 85
+  config = confdir / 'bug85.conf'
+  bug85 = unittest.TestSuite()
+  bug85.addTest(Test_PkglistBug85_1(config))
+  bug85.addTest(Test_PkglistBug85_2(config))
+  bug85.addTest(Test_PkglistBug85_3(config))
+  suite.addTest(bug85)
 
-  # test bug 86
-  suite.addTest(Test_PkglistBug86_1(config3))
-  suite.addTest(Test_PkglistBug86_2(config3))
+  # bug 86
+  config = confdir / 'bug86.conf'
+  bug86 = unittest.TestSuite()
+  bug86.addTest(Test_PkglistBug86_1(config))
+  bug86.addTest(Test_PkglistBug86_2(config))
+  suite.addTest(bug86)
+
+  # bug 108
+  config = confdir / 'bug108.conf'
+  bug108 = unittest.TestSuite()
+  bug108.addTest(Test_PkglistBug108_1(config))
+  bug108.addTest(Test_PkglistBug108_2(config))
+  suite.addTest(bug108)
 
   # pkglist supplied
-  suite.addTest(Test_Supplied(config4))
+  config = confdir / 'supplied.conf'
+  suite.addTest(Test_Supplied(config))
 
+  config = confdir / 'pkglist.conf'
   # package added, obsoleted, and removed
-  suite.addTest(Test_PackageAdded(config5))
-  suite.addTest(Test_ObsoletedPackage(config5))
-  suite.addTest(Test_RemovedPackage(config5))
+  suite.addTest(Test_PackageAdded(config))
+  suite.addTest(Test_ObsoletedPackage(config))
+  suite.addTest(Test_RemovedPackage(config))
 
   # add package that requires a package nothing else requires,
   # then remove it.
-  suite.addTest(Test_ExclusivePackage_1(config5))
-  suite.addTest(Test_ExclusivePackage_2(config5))
+  suite.addTest(Test_ExclusivePackage_1(config))
+  suite.addTest(Test_ExclusivePackage_2(config))
 
   return suite
