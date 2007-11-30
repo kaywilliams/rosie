@@ -20,10 +20,10 @@ P = pps.Path
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')
 
 MAGIC_MAP = {
-  'ext2': magic.FILE_TYPE_EXT2FS,
-  'cpio': magic.FILE_TYPE_CPIO,
+  'ext2':     magic.FILE_TYPE_EXT2FS,
+  'cpio':     magic.FILE_TYPE_CPIO,
   'squashfs': magic.FILE_TYPE_SQUASHFS,
-  'fat32': magic.FILE_TYPE_FAT,
+  'fat32':    magic.FILE_TYPE_FAT,
 }
 
 class ExtractMixin:
@@ -81,7 +81,7 @@ class ImageModifyMixin:
   Classes that extend this must require 'anaconda-version',
   'buildstamp-file' and 'base-repoid'.
 
-  This class downloads (if the image exists) and modifies it.
+  This class downloads and modifies images.
   """
   def __init__(self, name):
     self.imagedir = self.mddir/'image'
@@ -193,7 +193,7 @@ class FileDownloadMixin:
   Classes that extend this must require 'anaconda-version',
   'source-vars' and 'base-repoid'.
 
-  This class should be used to download files besides the images.
+  This class downloads files to a directory of your chosing.
   """
   def __init__(self):
     self.file_locals = None
