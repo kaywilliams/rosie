@@ -63,13 +63,18 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     self.io.sync_input(cache=True)
 
     # generate auto-config file
-    config_scripts = self.io.list_output(what='config-files', sort=False)
+    config_scripts = []
+    xpath, dstdir, _ = self.installinfo['config-files']
+    if self.config.pathexists(xpath):
+      for item in self.config.xpath(xpath, []):
+        src = P(item.get('text()'))
+        dst = P(dstdir) / P(item.get('@dest', ''))
+        for file in src.findpaths(type=pps.constants.TYPE_NOT_DIR):
+          config_scripts.append((dst / file.tokens[len(src.tokens)-1:]).normpath())
+
     if config_scripts:
       self.auto_script = self.rpm_dir / 'usr/lib/%s/auto.sh' % self.product
-      self.auto_script.write_lines(
-        [ '/%s' % x.relpathfrom(self.rpm_dir).normpath() \
-          for x in config_scripts ]
-      )
+      self.auto_script.write_lines(config_scripts)
       self.auto_script.chmod(0755)
       self.DATA['output'].append(self.auto_script)
 
