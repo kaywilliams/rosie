@@ -85,16 +85,16 @@ class Build(object):
     self.logger = make_log(options.logthresh, options.logfile)
 
     # set up configs
-    mainconfig, distroconfig = self._get_config(options)
-    
+    self._get_config(options)
+
     # set up import_dirs
-    import_dirs = self._compute_import_dirs(mainconfig, options)
+    import_dirs = self._compute_import_dirs(options)
 
     # set up lists of enabled and disabled modules
-    enabled, disabled = self._compute_modules(distroconfig, options)
+    enabled, disabled = self._compute_modules(options)
 
     # set up event superclass so that it contains good default values
-    self._seed_event_defaults(options, mainconfig, distroconfig)
+    self._seed_event_defaults(options)
 
     # load all enabled modules, register events, set up dispatcher
     loader = Loader(top = AllEvent(), api_ver = API_VERSION,
@@ -179,7 +179,15 @@ class Build(object):
     self._log_footer()
 
   def _get_config(self, options):
-    "Gets the main config and distro configs based on option values"
+    """
+    Gets the main config and distro configs based on option values.  Main
+    config file is optional; if not found, merely uses a set of default
+    values.  Distro config is required, except in the event that the '-h' or
+    '--help' argument was given on the command line, in which case the distro
+    config file can be omitted or not exist.  (This previous allowance is so
+    that a user can type `dimsbuild -h` on the command line without giving
+    the '-c' option.)
+    """
     mcp = P(options.mainconfigpath)
     dcp = P(options.distropath)
     try:
@@ -205,23 +213,39 @@ class Build(object):
       self.logger.log(0, "Error reading config file: %s" % e)
       raise
 
-    return mc, dc
+    self.mainconfig = mc
+    self.distroconfig = dc
 
-  def _compute_events(self, modules, events):
+  def _compute_events(self, modules=None, events=None):
+    """
+    Compute the set of events contained in the list of modules and events
+    given as arguments.  (Used to --force or --skip all events requested by
+    the command line arguments of the same name.)
+    
+    modules : a list of module ids
+    events  : a list of event ids
+    """
     r = set() # set of eventids to force
-    for moduleid in modules:
+    for moduleid in modules or []:
       try:
         r.update(self.module_map[moduleid])
       except KeyError:
         Event.logger.log(0, L0("Module '%s' does not exist or was not loaded" % moduleid))
         sys.exit(1)
-    r.update(events)
+    r.update(events or [])
     return r
 
-    for eventid in force:
-      self._set_status(eventid, True, '--force')
-
   def _set_status(self, eventid, status, str):
+    """
+    Helper method to set the status of an event (--force/--skip)
+    
+    eventid : the id of the event
+    status  : the value to set Event.status to (True for --force, False for
+              --skip, None for default)
+    str     : a string identifying the action being performed; used only
+              for logging purposes (typically '--force' when status is True,
+              '--skip' when status is False)
+    """
     try:
       e = self.dispatch.get(eventid)
     except dispatch.UnregisteredEventError:
@@ -232,10 +256,15 @@ class Build(object):
       sys.exit(1)
     e.status = status
 
-  def _compute_import_dirs(self, mainconfig, options):
-    "Compute a list of directories to try importing from"
+  def _compute_import_dirs(self, options):
+    """
+    Compute a list of directories to try importing from
+    
+    options    : an optparse.Values instance containing the result of parsing
+                 command line options
+    """
     import_dirs = [ P(x).expand() for x in \
-      mainconfig.xpath('/dimsbuild/librarypaths/path/text()', []) ]
+      self.mainconfig.xpath('/dimsbuild/librarypaths/path/text()', []) ]
 
     if options.libpath:
       import_dirs = [ P(x).expand() for x in options.libpath ] + import_dirs
@@ -245,12 +274,17 @@ class Build(object):
  
     return import_dirs
 
-  def _compute_modules(self, distroconfig, options):
-    "Compute a list of modules dimsbuild should not load"
+  def _compute_modules(self, options):
+    """
+    Compute a list of modules dimsbuild should not load
+    
+    options      : an optparse.Values instance containing the result of
+                   parsing command line options
+    """
     enabled  = set(options.enabled_modules)
     disabled = set(options.disabled_modules)
 
-    for module in distroconfig.xpath('/distro/*'):
+    for module in self.distroconfig.xpath('/distro/*'):
       if module.tag == 'main': continue
       if module.get('@enabled', 'True') in BOOLEANS_TRUE and \
         module.tag not in disabled:
@@ -263,17 +297,18 @@ class Build(object):
     return enabled, disabled
 
   def _validate_configs(self):
+    "Validate main config and distro config"
     Event.logger.log(0, L0("validating config"))
 
     Event.logger.log(1, L1("dimsbuild.conf"))
     mcvalidator = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
-                                      Event.mainconfig)
+                                      self.mainconfig)
     mcvalidator.validate('/dimsbuild', schema_file='dimsbuild.rng')
 
     # validate individual sections of distro.conf
     Event.logger.log(1, L1(P(Event._config.file).basename))
     validator = ConfigValidator([ x/'schemas/distro.conf' for x in Event.SHARE_DIRS ],
-                                Event._config)
+                                self.distroconfig)
 
     for e in self.dispatch:
       element_name = e.__module__.split('.')[-1]
@@ -289,20 +324,13 @@ class Build(object):
     validator.config = Event._config
     validator.verify_elements(self.disabled_modules)
 
-  def _seed_event_defaults(self, options, mainconfig, distroconfig):
+  def _seed_event_defaults(self, options):
     """
     Set up a bunch of variables in the Event superclass that all subclasses
     inherit automatically.
 
-    Accepts four parameters:
-      options: an  OptionParser.Options  object  with  the  command  line
-               arguments encountered during command line parsing
-      mainconfig: the configlib.Config object created by parsing the main
-               program   configuration   file,    normally   located   at
-               '/etc/dimsbuild/dimsbuild.conf'
-      distroconfig: the  configlib.Config  object created by parsing  the
-               distribution-specific configuraiton file, normally located
-               at '/etc/dimsbuild/<distro>/distro.conf'
+    options: an  OptionParser.Options  object  with  the  command  line
+             arguments encountered during command line parsing
     """
     # Event.cvars is a list of program 'control variables' - modules can use
     # this to communicate between themselves as necessary
@@ -312,8 +340,8 @@ class Build(object):
     Event.logger = self.logger
 
     # set up config dirs
-    Event.mainconfig = mainconfig
-    Event._config = distroconfig
+    Event.mainconfig = self.mainconfig
+    Event._config    = self.distroconfig
 
     # set up base variables
     bv = Event.cvars['base-vars'] = {}
@@ -332,21 +360,21 @@ class Build(object):
       setattr(Event, k, v)
 
     # set up other directories
-    Event.CACHE_DIR    = P(mainconfig.get('/dimsbuild/cache/path/text()',
-                                          '/var/cache/dimsbuild'))
+    Event.CACHE_DIR    = P(self.mainconfig.get('/dimsbuild/cache/path/text()',
+                                               '/var/cache/dimsbuild'))
     Event.TEMP_DIR     = P('/tmp/dimsbuild')
     Event.METADATA_DIR = Event.CACHE_DIR  / bv['pva']
 
     Event.SHARE_DIRS = [ P(x).expand() for x in \
-                         mainconfig.xpath('/dimsbuild/sharepaths/path/text()',
-                                          ['/usr/share/dimsbuild']) ]
+                         self.mainconfig.xpath('/dimsbuild/sharepaths/path/text()',
+                                               ['/usr/share/dimsbuild']) ]
 
     if options.sharepath:
       options.sharepath.extend(Event.SHARE_DIRS)
       Event.SHARE_DIRS = [ P(x).expand() for x in options.sharepath ]
 
-    Event.CACHE_MAX_SIZE = int(mainconfig.get('/dimsbuild/cache/max-size/text()',
-                                              30*1024**3))
+    Event.CACHE_MAX_SIZE = \
+      int(self.mainconfig.get('/dimsbuild/cache/max-size/text()', 30*1024**3))
 
     Event.cache_handler = cache.CachedSyncHandler(
                             cache_dir = Event.CACHE_DIR / '.cache',

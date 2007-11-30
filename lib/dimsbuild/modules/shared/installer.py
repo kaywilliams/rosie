@@ -144,9 +144,10 @@ class ImageModifyMixin:
     self.image.close()
     img.cleanup()
 
-  def _modify(self):
-    # remove old modified image, modified image inputs
-    self.io.clean_eventcache(all=True)
+  def _modify(self, clean=True):
+    if clean: # hack to allow stuff to not be cleaned in some cases
+      # remove old modified image, modified image inputs
+      self.io.clean_eventcache(all=True)
 
     # sync image to input store
     self.io.sync_input(what=['ImageModifyMixin', '%s-input-files' % self.name], cache=True)
@@ -170,9 +171,9 @@ class ImageModifyMixin:
   def _write_directory(self, dir, dest='/'):
     self.image.write([ file for file in dir.listdir() ], dest)
 
-  path    = property(lambda self: self.SOFTWARE_STORE / \
-                                  self.image_locals['path'] % \
-                                  self.cvars['base-vars'])
+  path    = property(lambda self: ( self.SOFTWARE_STORE /
+                                    self.image_locals['path'] %
+                                    self.cvars['base-vars']) )
   zipped  = property(lambda self: self.image_locals.get('zipped', False))
   virtual = property(lambda self: self.image_locals.get('virtual', False))
 

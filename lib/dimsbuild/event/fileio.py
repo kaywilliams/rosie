@@ -78,19 +78,20 @@ class IOObject:
   def _setup_sync(self, sourcefile, dstdir, id,  defmode):
     if not sourcefile.exists():
       raise IOError("missing input file(s) %s" % sourcefile)
-    if dstdir not in self.ptr.diff.handlers['input'].idata:
+    if sourcefile not in self.ptr.diff.handlers['input'].idata:
       self.ptr.diff.handlers['input'].idata.append(sourcefile)
 
     rtn = []
-    self.sync_items.setdefault(id, [])
-    self.chmod_items.setdefault(id, [])
+    self.sync_items.setdefault(id, set())
+    self.chmod_items.setdefault(id, set())
     for src in sourcefile.findpaths():
-      output_file = dstdir / src.tokens[len(sourcefile.tokens)-1:]
-      self.chmod_items[id].append((output_file,
-        int(defmode or oct((src.stat().st_mode & 0777) or 0644), 8)))
+      output_file = (dstdir / src.tokens[len(sourcefile.tokens)-1:]).normpath()
+      self.chmod_items[id].add((output_file,
+          int(defmode or oct((src.stat().st_mode & 0777) or 0644), 8)))
       if src.isfile():
-        self.sync_items[id].append((src, output_file))
-        self.ptr.diff.handlers['output'].odata.append(output_file)
+        self.sync_items[id].add((src.normpath(), output_file))
+        if output_file not in self.ptr.diff.handlers['output'].odata:
+          self.ptr.diff.handlers['output'].odata.append(output_file)
         rtn.append(output_file)
     return rtn
 

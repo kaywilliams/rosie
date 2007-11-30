@@ -52,8 +52,9 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
                        id='%s-input-files' % self.name)
 
   def run(self):
+    self.io.clean_eventcache(all=True)
     self._download()
-    self._modify()
+    self._modify(clean=False)
 
   def apply(self):
     self.io.clean_eventcache()
@@ -61,7 +62,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
   def _generate(self):
     ImageModifyMixin._generate(self)
     self._write_buildstamp()
-    
+
     # copy kickstart
     if self.cvars['kickstart-file'] and self.cvars['ks-path']:
       self.image.write(self.cvars['kickstart-file'], self.cvars['ks-path'].dirname)

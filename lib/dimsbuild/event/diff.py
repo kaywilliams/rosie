@@ -21,13 +21,13 @@ class DiffObject:
 
   # former DiffMixin stuff
   def setup(self, data):
-    if data.has_key('input'):
+    if data.has_key('input') and not self.handlers.has_key('input'):
       self.add_handler(difftest.InputHandler(data['input']))
-    if data.has_key('output'):
+    if data.has_key('output') and not self.handlers.has_key('output'):
       self.add_handler(difftest.OutputHandler(data['output']))
-    if data.has_key('variables'):
+    if data.has_key('variables') and not self.handlers.has_key('variables'):
       self.add_handler(difftest.VariablesHandler(data['variables'], self.ptr))
-    if data.has_key('config'):
+    if data.has_key('config') and not self.handlers.has_key('config'):
       self.add_handler(difftest.ConfigHandler(data['config'], self.ptr.config))
 
   def add_handler(self, handler):
@@ -41,7 +41,7 @@ class DiffObject:
   def test_diffs(self, debug=None):
     # if we don't use difftest for stuff, just return True
     if not self.handlers: return True
-    
+
     old_dbgval = self.tester.debug
     if debug is not None:
       self.tester.debug = debug
