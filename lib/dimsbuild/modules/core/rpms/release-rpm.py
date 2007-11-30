@@ -3,14 +3,14 @@ from dims import pps
 from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event
 
-from dimsbuild.modules.shared import ColorMixin, InputFilesMixin, RpmBuildMixin
+from dimsbuild.modules.shared import InputFilesMixin, RpmBuildMixin
 
 P = pps.Path
 
 API_VERSION = 5.0
 EVENTS = {'rpms': ['ReleaseRpmEvent']}
 
-class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
+class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def __init__(self):
     Event.__init__(self, id='release-rpm', version=2,
                    requires=['source-vars', 'input-repos', 'release-versions'],
@@ -20,20 +20,20 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
                            '%s-release' % self.product,
                            '%s release files created by dimsbuild' % self.fullname,
                            '%s release files' % self.product,
-                           defobsoletes=['fedora-release', 'redhat-release', 'centos-release',
-                           'fedora-release-notes', 'redhat-release-notes', 'centos-release-notes'])
+                           default_obsoletes=['fedora-release', 'redhat-release',
+                             'centos-release', 'fedora-release-notes',
+                             'redhat-release-notes', 'centos-release-notes'])
     InputFilesMixin.__init__(self)
-    ColorMixin.__init__(self)
 
-    self.gpg_dir     = P('/etc/pkg/rpm-gpg')
-    self.repo_dir    = P('/etc/yum.repos.d')
-    self.eula_dir    = P('/usr/share/eula')
+    self.doc_dir = P('/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
+    self.etc_dir = P('/etc')
+    self.eula_dir = P('/usr/share/eula')
+    self.eulapy_dir = P('/usr/share/firstboot/modules')
+    self.gpg_dir = P('/etc/pkg/rpm-gpg')
+    self.html_dir = P('/usr/share/doc/HTML')
+    self.omf_dir = P('/usr/share/omf/%s-release-notes' % self.product)
     self.release_dir = P('/usr/share/doc/%s-release-%s' % (self.product, self.version))
-    self.etc_dir     = P('/etc')
-    self.eulapy_dir  = P('/usr/share/firstboot/modules')
-    self.omf_dir     = P('/usr/share/omf/%s-release-notes' % self.product)
-    self.html_dir    = P('/usr/share/doc/HTML')
-    self.doc_dir     = P('/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
+    self.repo_dir = P('/etc/yum.repos.d')
 
     self.build_folder = self.mddir / 'build'
 
@@ -52,7 +52,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     self.DATA = {
       'config':    ['*'],
       'variables': ['fullname', 'product', 'pva', 'cvars[\'web-path\']',
-                    'cvars[\'gpgsign-public-key\']',],
+                    'cvars[\'gpgsign-public-key\']', 'rpm_release',],
       'input':     [],
       'output':    [self.build_folder],
     }
@@ -67,7 +67,6 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
     self._setup_build(obsoletes=obsoletes, provides=provides)
     self._setup_download()
 
-    self.setColors(prefix='#')
     # public gpg keys
     paths = []
     if self.cvars.get('gpgsign-public-key', None):
@@ -91,7 +90,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
       self.io.setup_sync(self.build_folder/'eulapy', paths=paths)
 
   def check(self):
-    return self.release == '0' or \
+    return self.rpm_release == '0' or \
            not self.autofile.exists() or \
            self.diff.test_diffs()
 
@@ -103,7 +102,9 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
   def apply(self):
     self.io.clean_eventcache()
     self._check_rpms()
-    self.cvars.setdefault('custom-rpms-info', []).append((self.rpmname, 'mandatory', None, self.obsoletes, None))
+    self.cvars.setdefault('custom-rpms-info', []).append(
+      (self.rpm_name, 'mandatory', None, self.rpm_obsoletes, None)
+    )
 
   def _get_files(self):
     sources = {}
@@ -117,15 +118,15 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
       _, dir, _ = self.installinfo[type]
       generator = '_generate_%s_files' % type
       if hasattr(self, generator):
-        dest = self.rpmdir // dir
+        dest = self.rpm_dir//dir
         getattr(self, generator)(dest)
     self._verify_release_notes()
 
   def _verify_release_notes(self):
     "Ensure the presence of RELEASE-NOTES.html and an index.html"
-    rnotes = self.rpmdir.findpaths(glob='RELEASE-NOTES*')
+    rnotes = self.rpm_dir.findpaths(glob='RELEASE-NOTES*')
     if len(rnotes) == 0:
-      dir = self.rpmdir // self.html_dir
+      dir = self.rpm_dir//self.html_dir
       dir.mkdirs()
 
       # create a default release notes file because none were found.
@@ -133,9 +134,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
       path = dir/('RELEASE-NOTES-%s.html' % locale.getdefaultlocale()[0])
 
       f = path.open('w')
-      f.write(self.locals.release_html % {'bgcolor':   self.bgcolor,
-                                          'textcolor': self.textcolor,
-                                          'fullname':  self.fullname})
+      f.write(self.locals.release_html)
       f.close()
       path.chmod(0644)
 
@@ -164,10 +163,10 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
 
   def _generate_repo_files(self, dest):
     dest.mkdirs()
-    self.repofile    = dest/'%s.repo' % self.product
+    repofile = dest/'%s.repo' % self.product
 
     if self.config.get('yum-repos/@create-base', 'True') in BOOLEANS_TRUE \
-      and self.cvars['web-path']:
+           and self.cvars['web-path']:
       path = self.cvars['web-path'] / 'os'
       lines = [ '[%s]' % self.product,
                 'name=%s - %s' % (self.fullname, self.basearch),
@@ -177,4 +176,4 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, ColorMixin, InputFilesMixin):
         lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
       else:
         lines.append('gpgcheck=0')
-      self.repofile.write_lines(lines)
+      repofile.write_lines(lines)

@@ -315,31 +315,7 @@ chmod -w /usr/share/gdm/defaults.conf
 })
 
 RELEASE_HTML = LocalsDict({
-  '0': '''<html>
-  <head>
-  <style type="text/css">
-  <!--
-  body {
-    background-color: %(bgcolor)s;
-    color: %(textcolor)s;
-    font-family: sans-serif;
-  }
-  .center {
-    text-align: center;
-  }
-  p {
-    margin-top: 20%%;
-  }
-  -->
-  </style>
-  </head>
-  <body>
-  <h1>
-    <p class="center">Welcome to %(fullname)s!</p>
-  </h1>
-  </body>
-</html>
-'''
+  '0': '''<html/>\n''',
 })
 
 GDM_GREETER_THEME = LocalsDict({
