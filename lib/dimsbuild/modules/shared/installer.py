@@ -144,10 +144,17 @@ class ImageModifyMixin:
     self.image.close()
     img.cleanup()
 
-  def _modify(self, clean=True):
-    if clean: # hack to allow stuff to not be cleaned in some cases
-      # remove old modified image, modified image inputs
-      self.io.clean_eventcache(all=True)
+  def _modify(self):
+    # remove current image
+    if self.path.exists(): self.path.remove()
+
+    # clean up former output files
+    toclean = set(self.mddir.findpaths(type=pps.constants.TYPE_NOT_DIR)).difference(
+                  self.io.list_output())
+    toclean = set([ x for x in toclean if x.startswith(self.imagedir) ])
+    for file in toclean:
+      file.remove()
+      file.dirname.removedirs()
 
     # sync image to input store
     self.io.sync_input(what=['ImageModifyMixin', '%s-input-files' % self.name], cache=True)
