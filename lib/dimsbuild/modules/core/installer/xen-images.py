@@ -9,6 +9,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'xen-images',
+      version = 1,
       provides = ['vmlinuz-xen', 'initrd-xen'],
       requires = ['anaconda-version', 'buildstamp-file', 'base-repoid'],
       conditionally_requires = ['initrd-image-content', 'kickstart-file', 'ks-path'],
