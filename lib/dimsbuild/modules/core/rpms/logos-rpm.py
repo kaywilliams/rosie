@@ -39,7 +39,10 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
     self.build_folder = self.mddir/'build'
     self.DATA = {
       'config': ['.'],
-      'variables': ['fullname', 'product', 'pva', 'rpm_release'],
+      'variables': ['fullname', 'product', 'pva', 'rpm_release', 
+                    'cvars[\'anaconda-version\']', 
+                    'cvars[\'base-vars\'][\'fullname\']',
+                    'cvars[\'base-vars\'][\'version\']',],
       'output': [self.build_folder],
       'input':  [],
     }
