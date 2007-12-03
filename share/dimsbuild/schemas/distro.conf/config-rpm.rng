@@ -27,12 +27,20 @@
             <optional>
             <attribute name="dest"/>
             </optional>
+
             <optional>
             <attribute name="mode">
               <ref name="value-mode"/>
             </attribute>
             </optional>
-            <text/>
+
+            <optional>
+            <attribute name="noreplace">
+              <ref name="value-boolean"/>
+            </attribute>
+            </optional>
+
+             <text/>
           </element>
           </zeroOrMore>
           <ref name="element-obsoletes"/>

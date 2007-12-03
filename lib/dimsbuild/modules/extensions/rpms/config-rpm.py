@@ -92,3 +92,42 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       ])
       return post_install
     return None
+
+  def _add_files(self, spec):
+    # write the list of files to be installed and where they should be installed
+    data_files = self._get_files()
+    if not data_files:
+      return
+
+    value = []
+    for installdir, files in data_files.items():
+      value.append('%s : %s' %(installdir, ', '.join(files)))
+    spec.set('pkg_data', 'data_files', '\n\t'.join(value))
+
+    # mark config files
+    config = []
+    noreplace = []
+    xpath, dstdir, _ = self.installinfo['support-files']
+    if self.config.pathexists(xpath):
+      for item in self.config.xpath(xpath, []):
+        src = P(item.get('text()'))
+        dst = P(dstdir) / P(item.get('@dest', ''))
+        nrp = item.get('@noreplace', 'False')
+        for file in src.findpaths(type=pps.constants.TYPE_NOT_DIR):
+          if nrp in BOOLEANS_TRUE:
+            noreplace.append((dst / file.tokens[len(src.tokens)-1:]).normpath())
+          else:
+            config.append((dst / file.tokens[len(src.tokens)-1:]).normpath())
+
+    if config:
+      spec.set('bdist_rpm', 'config_files', '\n\t'.join(config))
+    if noreplace:
+      spec.set('bdist_rpm', 'config_files_noreplace', '\n\t'.join(noreplace))
+
+    # mark files to be installed in '/usr/share/doc' as doc files
+    doc_files = []
+    for installdir in data_files.keys():
+      if installdir.startswith('/usr/share/doc'):
+        doc_files.extend([ installdir/x.basename for x in data_files[installdir] ])
+    if doc_files:
+      spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))
