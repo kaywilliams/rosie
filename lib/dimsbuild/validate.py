@@ -87,8 +87,13 @@ class ConfigValidator(BaseConfigValidator):
       if child.tag is etree.Comment: continue
       if child.tag in disabled: continue
       if child.tag not in self.elements:
-        raise InvalidConfigError(self.config.getroot().file,
-                                 " unknown element '%s' found" % child.tag)
+        if child.tag == 'include':
+          raise InvalidConfigError(self.config.getroot().file,
+          "Unknown element '%s' found. Perhaps you need to include an XInclude\nnamespace declaration, e.g. xmlns:xi=\"http://www.w3.org/2001/XInclude\",\nin your config file:\n%s" % (child.tag, child))
+        else:
+          raise InvalidConfigError(self.config.getroot().file,
+                                   " unknown element '%s' found:\n%s"
+                                   % (child.tag, child))
       if child.tag in processed:
         raise InvalidConfigError(self.config.getroot().file,
                                  " multiple instances of the '%s' element "
