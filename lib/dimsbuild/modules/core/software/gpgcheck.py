@@ -107,7 +107,7 @@ class GpgCheckEvent(Event):
 
         if invalids:
           raise RpmSignatureInvalidError("One or more RPMS failed "
-                                         "GPG key checking: %s" % invalids)
+                                         "GPG key checking:\n * %s" % '\n * '.join(invalids))
         self.gpgcheck_cb.endRepo()
 
     self.gpgcheck_cb.end()
