@@ -155,6 +155,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
       splash_png = self.build_folder/'bootloader/grub-splash.png'
 
       # TODO: Find a better way to do this conversion.
+      # Note: ImageMagick rpm provides the convert utility used below
       shlib.execute('convert %s %s' %(splash_png, splash_xpm,))
       import gzip
       infile = file(splash_xpm, 'rb')
