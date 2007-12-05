@@ -34,11 +34,6 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
   def setup(self):
     self._setup_build()
 
-  def check(self):
-    return self.rpm_release == '0' or \
-           not self.autofile.exists() or \
-           self.diff.test_diffs()
-
   def run(self):
     self.io.clean_eventcache(all=True)
     self._build_rpm()

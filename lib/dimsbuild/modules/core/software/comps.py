@@ -43,12 +43,10 @@ class CompsEvent(Event):
       self.config.get('@include-localized-strings', 'False') in BOOLEANS_TRUE
 
     self.comps_supplied = \
-      self.config.get('text()', None)
+      self.config.get('text()', '').strip()
 
     if self.comps_supplied:
-      xpath = '/distro/comps'
-
-      self.io.setup_sync(self.mddir, id='comps.xml', xpaths=[xpath])
+      self.io.setup_sync(self.mddir, id='comps.xml', xpaths=['/distro/comps'])
 
     else:
       self.comps_out = self.mddir/'comps.xml'

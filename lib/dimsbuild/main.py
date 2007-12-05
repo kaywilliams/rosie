@@ -221,7 +221,7 @@ class Build(object):
     Compute the set of events contained in the list of modules and events
     given as arguments.  (Used to --force or --skip all events requested by
     the command line arguments of the same name.)
-    
+
     modules : a list of module ids
     events  : a list of event ids
     """
@@ -238,7 +238,7 @@ class Build(object):
   def _set_status(self, eventid, status, str):
     """
     Helper method to set the status of an event (--force/--skip)
-    
+
     eventid : the id of the event
     status  : the value to set Event.status to (True for --force, False for
               --skip, None for default)
@@ -259,7 +259,7 @@ class Build(object):
   def _compute_import_dirs(self, options):
     """
     Compute a list of directories to try importing from
-    
+
     options    : an optparse.Values instance containing the result of parsing
                  command line options
     """
@@ -271,13 +271,13 @@ class Build(object):
     for dir in sys.path:
       if dir not in import_dirs:
         import_dirs.append(P(dir))
- 
+
     return import_dirs
 
   def _compute_modules(self, options):
     """
     Compute a list of modules dimsbuild should not load
-    
+
     options      : an optparse.Values instance containing the result of
                    parsing command line options
     """
@@ -395,7 +395,7 @@ class Build(object):
     Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):
     Event.logger.log(0, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
-  
+
   # def locking methods
   def _lock(self):
     if LOCK.exists():

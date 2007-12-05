@@ -72,11 +72,6 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
     self.textcolor = int(self.textcolor, 16)
     self.hlcolor = int(self.hlcolor, 16)
 
-  def check(self):
-    return self.rpm_release == '0' or \
-           not self.autofile.exists() or \
-           self.diff.test_diffs()
-
   def run(self):
     self.io.clean_eventcache(all=True)
     self._build_rpm()

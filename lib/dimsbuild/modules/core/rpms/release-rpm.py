@@ -50,7 +50,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     }
 
     self.DATA = {
-      'config':    ['*'],
+      'config':    ['.'],
       'variables': ['fullname', 'product', 'pva', 'cvars[\'web-path\']',
                     'cvars[\'gpgsign-public-key\']', 'rpm_release',],
       'input':     [],
@@ -88,11 +88,6 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
         if path.exists():
           paths.append(path); break
       self.io.setup_sync(self.build_folder/'eulapy', paths=paths)
-
-  def check(self):
-    return self.rpm_release == '0' or \
-           not self.autofile.exists() or \
-           self.diff.test_diffs()
 
   def run(self):
     self.io.clean_eventcache(all=True)

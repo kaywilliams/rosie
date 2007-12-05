@@ -126,6 +126,11 @@ class RpmBuildMixin:
     self.rpm_base = self.bdist_base / 'rpm'
     self.dist_dir = self.bdist_base / 'dist'
 
+  def check(self):
+    return self.rpm_release == '0' or \
+           not self.autofile.exists() or \
+           self.diff.test_diffs()
+
   def _setup_build(self, **kwargs):
     if self.autofile.exists():
       self.rpm_release = xmllib.tree.read(self.autofile).get(
