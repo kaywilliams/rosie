@@ -68,16 +68,12 @@ class SourceVarsEvent(Event):
     # update source vars
     try:
       self.cvars['source-vars'] = buildstamp.read(self.buildstamp_out)
-      if not self.version:
-        self.version = self.cvars['base-vars']['version'] = \
-          self.cvars['source-vars']['version']
-        self.pva = self.cvars['base-vars']['pva'] = \
-          '%(product)s-%(version)s-%(basearch)s' % self.cvars['base-vars']
     except:
       pass # caught by verification
 
   def verify_buildstamp_file(self):
     "verify buildstamp file exists"
     self.verifier.failUnlessExists(self.buildstamp_out)
+  def verify_source_vars(self):
+    "verify source-vars cvar"
     self.verifier.failUnless(self.cvars['source-vars'])
-    self.verifier.failUnless(self.version)
