@@ -29,7 +29,6 @@ class BootConfigDummy(object):
     self.boot_args = [ self._expand_macros(x) for x in self.boot_args ]
 
   def modify(self, dst, cfgfile=None):
-    if not self.boot_args: return
 
     boot_args = [ self._expand_macros(x) for x in self.boot_args ]
 
@@ -41,14 +40,15 @@ class BootConfigDummy(object):
     for i in range(0, len(lines)):
       tokens = lines[i].strip().split()
       if not tokens: continue
+      if tokens[0] == 'menu' and tokens[1] == 'title':
+        lines[i] = 'menu title Welcome to %s' % self.ptr.fullname
+      if not boot_args: continue
       if   tokens[0] == 'label': _label = True
       elif tokens[0] == 'append':
         if   not _label: continue
         elif len(tokens) < 2: continue
         elif tokens[1] == '-': continue
         lines[i] = '%s %s' % (lines[i].rstrip(), ' '.join(boot_args))
-      elif tokens[0] == 'menu' and tokens[1] == 'title':
-        lines[i] = 'menu title Welcome to %s' % self.ptr.fullname
 
     dst.remove()
     dst.write_lines(lines)
