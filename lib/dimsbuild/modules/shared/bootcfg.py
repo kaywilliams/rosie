@@ -48,7 +48,7 @@ class BootConfigDummy(object):
         elif tokens[1] == '-': continue
         lines[i] = '%s %s' % (lines[i].rstrip(), ' '.join(boot_args))
       elif tokens[0] == 'menu' and tokens[1] == 'title':
-        lines[i] = 'Welcome to %s' % self.ptr.fullname
+        lines[i] = 'menu title Welcome to %s' % self.ptr.fullname
 
     dst.remove()
     dst.write_lines(lines)

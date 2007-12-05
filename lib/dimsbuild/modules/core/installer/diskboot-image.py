@@ -15,6 +15,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'diskboot-image',
+      version = 1,
       provides = ['diskboot.img'],
       requires = ['buildstamp-file', 'base-repoid', 'installer-splash',
                   'boot-config-file'],
