@@ -200,7 +200,6 @@ class BuildDepsolveCallback:
   def run(self):
     self.logger.log(2, "running transaction")
 
-
 class GpgCallback:
   """
   Callback class for gpg operations, including checking and signing of rpms.
