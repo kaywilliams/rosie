@@ -310,8 +310,10 @@ class Build(object):
     validator = ConfigValidator([ x/'schemas/distro.conf' for x in Event.SHARE_DIRS ],
                                 self.distroconfig.file)
 
+    # validate the main section
     validator.validate('main', schema_file='main.rng')
 
+    # validate all event top-level sections
     validated = [] # list of already-validated modules (so we don't revalidate)
     for e in self.dispatch:
       element_name = e.__module__.split('.')[-1]
