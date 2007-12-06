@@ -60,7 +60,7 @@ class SyncCallback(_SyncCallbackMetered):
   Identical to sync.callback.SyncCallbackMetered except in the following ways:
    * L2 transformation is applied to the 'text' argument (bar 'title')
    * at log level 1 and below, no output is generated
-   * at log level 2, only the L2 transformation of the 'test' argument is
+   * at log level 2, only the L2 transformation of the 'text' argument is
      displayed
    * at log level 3 and above, output is normal
    * attempting to link across devices generates a log message at log level 5
