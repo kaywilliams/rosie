@@ -48,7 +48,7 @@ class FilesCallback:
     self.logger.log(4, L2(dn.relpathfrom(self.relpath)), format='%(message).75s')
 
   def sync_start(self):
-    self.logger.log(1, L1("downloading input files"))
+    self.logger.log(1, L1("downloading files"))
 
 class SyncCallback(_SyncCallbackMetered):
   """
