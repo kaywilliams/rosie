@@ -9,9 +9,10 @@ from dims import xmllib
 NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
 
 class BaseConfigValidator:
-  def __init__(self, schema_paths, config):
+  def __init__(self, schema_paths, config_path):
     self.schema_paths = schema_paths
-    self.config = config
+    self.config = xmllib.tree.read(config_path)
+    xmllib.config.expand_macros(self.config)
     self.elements = []
 
     self.curr_schema = None
@@ -74,14 +75,14 @@ class BaseConfigValidator:
     return schema
 
 class MainConfigValidator(BaseConfigValidator):
-  def __init__(self, schema_paths, config):
-    BaseConfigValidator.__init__(self, schema_paths, config)
+  def __init__(self, schema_paths, config_path):
+    BaseConfigValidator.__init__(self, schema_paths, config_path)
 
 class ConfigValidator(BaseConfigValidator):
   def __init__(self, schema_paths, config_path):
     config = xmllib.tree.read(config_path)
     xmllib.config.expand_macros(config)
-    BaseConfigValidator.__init__(self, schema_paths, config)
+    BaseConfigValidator.__init__(self, schema_paths, config_path)
 
   def verify_elements(self, disabled):
     processed = []

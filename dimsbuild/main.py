@@ -302,7 +302,7 @@ class Build(object):
 
     Event.logger.log(1, L1("dimsbuild.conf"))
     mcvalidator = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
-                                      self.mainconfig)
+                                      self.mainconfig.file)
     mcvalidator.validate('/dimsbuild', schema_file='dimsbuild.rng')
 
     # validate individual sections of distro.conf
@@ -310,13 +310,13 @@ class Build(object):
     validator = ConfigValidator([ x/'schemas/distro.conf' for x in Event.SHARE_DIRS ],
                                 self.distroconfig.file)
 
-    validator.validate('main', 'main.rng')
+    validator.validate('main', schema_file='main.rng')
 
     validated = [] # list of already-validated modules (so we don't revalidate)
     for e in self.dispatch:
       element_name = e.__module__.split('.')[-1]
       if element_name in validated: continue # don't re-validate
-      validator.validate(element_name, '%s.rng' % element_name)
+      validator.validate(element_name, schema_file='%s.rng' % element_name)
       e.validate() # allow events to validate other things not covered in schema
       validated.append(element_name)
 
