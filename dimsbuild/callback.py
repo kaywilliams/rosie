@@ -56,7 +56,7 @@ class SyncCallback(_SyncCallbackMetered):
   performed by Event.sync() and Event.cache().  To maintain visual consistency,
   this class should also be passed as the 'callback' argument to any sync.sync()
   calls made (though it is suggested that Event.sync() be used instead).
-  
+
   Identical to sync.callback.SyncCallbackMetered except in the following ways:
    * L2 transformation is applied to the 'text' argument (bar 'title')
    * at log level 1 and below, no output is generated
@@ -65,7 +65,7 @@ class SyncCallback(_SyncCallbackMetered):
    * at log level 3 and above, output is normal
    * attempting to link across devices generates a log message at log level 5
      and above
-  
+
   See sync/callback.py for documentation on the callback methods themselves.
   """
   def __init__(self, logger, relpath):
@@ -237,6 +237,7 @@ class GpgCallback:
     logfile
     """
     if self.logger.test(2):
+      self.bar.tags['title'] = L2('done')
       self.bar.update(self.bar.status.size)
       self.bar.finish()
       self.logger.logfile.log(2, str(self.bar))
