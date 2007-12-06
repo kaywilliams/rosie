@@ -42,8 +42,7 @@ class CompsEvent(Event):
     self.include_localizations = \
       self.config.get('@include-localized-strings', 'False') in BOOLEANS_TRUE
 
-    self.comps_supplied = \
-      self.config.get('text()', '').strip()
+    self.comps_supplied = self.config.get('text()')
 
     if self.comps_supplied:
       self.io.setup_sync(self.mddir, id='comps.xml', xpaths=['/distro/comps'])

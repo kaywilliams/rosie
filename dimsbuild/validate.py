@@ -31,7 +31,7 @@ class BaseConfigValidator:
 
   def validate_with_string(self, schema_contents, tree):
     schema = etree.fromstring(schema_contents, base_url=self.config.filename.dirname)
-    schema_treeself.massage_schema(schema, tree.tag)
+    schema_tree = self.massage_schema(schema, tree.tag)
     self.relaxng(schema_tree, tree)
 
   def validate_with_file(self, schema_file, tree):
@@ -78,7 +78,9 @@ class MainConfigValidator(BaseConfigValidator):
     BaseConfigValidator.__init__(self, schema_paths, config)
 
 class ConfigValidator(BaseConfigValidator):
-  def __init__(self, schema_paths, config):
+  def __init__(self, schema_paths, config_path):
+    config = xmllib.tree.read(config_path)
+    xmllib.config.expand_macros(config)
     BaseConfigValidator.__init__(self, schema_paths, config)
 
   def verify_elements(self, disabled):
@@ -118,7 +120,7 @@ class ConfigValidator(BaseConfigValidator):
 #------ ERRORS ------#
 class InvalidXmlError(StandardError):
   def __str__(self):
-    if type(self.args[1]) == type(''):
+    if isinstance(self.args[1], str):
       return self.args[1]
     msg = ''
     for err in self.args[1]: # relaxNG error log object

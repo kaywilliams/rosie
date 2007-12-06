@@ -308,17 +308,17 @@ class Build(object):
     # validate individual sections of distro.conf
     Event.logger.log(1, L1(P(Event._config.file).basename))
     validator = ConfigValidator([ x/'schemas/distro.conf' for x in Event.SHARE_DIRS ],
-                                self.distroconfig)
+                                self.distroconfig.file)
 
+    validator.validate('main', 'main.rng')
+
+    validated = [] # list of already-validated modules (so we don't revalidate)
     for e in self.dispatch:
       element_name = e.__module__.split('.')[-1]
-      if element_name == 'main':
-        validator.config = Event._config
-        validator.validate('main', '%s.rng' % element_name)
-      else:
-        validator.config = e.config
-        validator.validate('.', '%s.rng' % element_name)
+      if element_name in validated: continue # don't re-validate
+      validator.validate(element_name, '%s.rng' % element_name)
       e.validate() # allow events to validate other things not covered in schema
+      validated.append(element_name)
 
     # verify top-level elements
     validator.config = Event._config
