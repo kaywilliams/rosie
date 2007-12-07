@@ -20,7 +20,7 @@ class LocalsDict(dict):
   """
   A LocalsDict is a subclass of dict with a specialized key lookup system
   that aids the specific requirements of the dimsbuild locals system.
-  
+
   Problem
   Certain properties of anaconda-based distributions vary depending on the
   anaconda version, such as image file location and format or discinfo file
@@ -29,7 +29,7 @@ class LocalsDict(dict):
   versions without changing.  In a traditional dictionary, encoding this
   would not only require a great deal of space, but would be very error prone,
   as any changes would have to potentially be applied to multiple places.
-  
+
   Solution
   Instead of dictionary keys referring to a single point in anaconda's
   development cycle, a given key refers to all revisions from itself until
@@ -38,13 +38,13 @@ class LocalsDict(dict):
   the value stored at '1.5'.  Thus, with this optimization, the developer
   need only create key, value pairs for anaconda versions where the relevant
   property in question changed in some way; all other versions can be ignored.
-  
+
   LocalsDict uses sortlib for sorting of keys; as such, keys should consist
   of one or more integers separated by decimals ('.').  Sorting occurs exactly
   how one would logically expect rpm version numbers to sort (4.0 > 3.0.0,
   4.1 > 4.0.1, etc).  See sortlib.py for a full discussion of how indexes are
   sorted.
-  
+
   Subsequent keys after the first provide updates to the values in previous
   keys; in the above example, then, the value returned by LocalsDict['4.0']
   would be the result of first updating LocalsDict['0'] with LocalsDict['1.5'],
