@@ -5,7 +5,6 @@ import struct
 from dims import pps
 from dims import shlib
 
-from dimsbuild.callback  import FilesCallback
 from dimsbuild.constants import *
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L1
@@ -14,10 +13,6 @@ P = pps.Path
 
 API_VERSION = 5.0
 EVENTS = {'ALL': ['PublishEvent'], 'setup': ['PublishSetupEvent']}
-
-class PublishFilesCallback(FilesCallback):
-  def sync_start(self): pass
-
 
 class PublishSetupEvent(Event):
   def __init__(self):
@@ -85,8 +80,7 @@ class PublishEvent(Event):
     self.log(1, L1("publishing to '%s'" % self.cvars['publish-path']))
     self.cvars['publish-path'].rm(recursive=True, force=True)
     
-    self.io.sync_input(link=True,
-      cb=PublishFilesCallback(self.logger, self.cvars['publish-path']))
+    self.io.sync_input(link=True, text=None)
     
     shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' \
                    % self.cvars['publish-path'])

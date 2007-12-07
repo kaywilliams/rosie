@@ -1,14 +1,10 @@
 from dims import pps
 
-from dimsbuild.callback  import FilesCallback
 from dimsbuild.logging   import L1, L2
 from dimsbuild.repo      import RepoContainer
 from dimsbuild.constants import BOOLEANS_FALSE
 
 __all__ = ['RepoEventMixin']
-
-class RepoFilesCallback(FilesCallback):
-  def sync_start(self): pass
 
 class RepoEventMixin:
   def __init__(self):
@@ -81,7 +77,7 @@ class RepoEventMixin:
     for repo in self.repocontainer.values():
       self.log(1, L1("downloading repodata - '%s'" % repo.id))
       self.io.sync_input(what='%s-repodata' % repo.id, cache=True, 
-                         cb=RepoFilesCallback(self.logger, self.mddir))
+                         text=None)
 
   def read_new_packages(self):
     for repo in self.repocontainer.values():

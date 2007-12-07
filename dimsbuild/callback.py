@@ -19,8 +19,7 @@ LAYOUT_SYNC     = '%(title)-28.28s [%(bar)s] %(curvalue)9.9sB (%(time-elapsed)s)
 LAYOUT_DEPSOLVE = '%(title)-28.28s [%(bar)s] %(ratio)10.10s (%(time-elapsed)s)'
 LAYOUT_GPG      = '%(title)-28.28s [%(bar)s] %(ratio)10.10s (%(time-elapsed)s)'
 
-
-class FilesCallback:
+class LinkCallback(_SyncCallbackMetered):
   """
   Companion callback class to Event.io.*() methods; this class displays
   messages related to file retrieval and cleanup in the event metadata
@@ -35,6 +34,7 @@ class FilesCallback:
     self.logger = logger
     self.relpath = relpath
 
+  # fileio methods
   def rm_start(self):
     self.logger.log(4, L1("removing files"))
 
@@ -47,10 +47,24 @@ class FilesCallback:
   def rmdir(self, dn):
     self.logger.log(4, L2(dn.relpathfrom(self.relpath)), format='%(message).75s')
 
-  def sync_start(self):
-    self.logger.log(1, L1("downloading files"))
+  def sync_start(self, text='downloading files', **kwargs):
+    if text:
+      self.logger.log(1, L1(text))
 
-class SyncCallback(_SyncCallbackMetered):
+  def sync_end(self): pass
+
+  # sync methods, stubbed out since default for link is to display nothing
+  def start(      self, *args, **kwargs): pass
+  def cp(         self, *args, **kwargs): pass
+  def sync_update(self, *args, **kwargs): pass
+  def mkdir(      self, *args, **kwargs): pass
+  def _cp_start(  self, *args, **kwargs): pass
+  def _cp_end(    self, *args, **kwargs): pass
+  def _link_xdev(self, src, dst):
+    self.logger.log(5, "Attempted invalid cross-device link between '%s' "
+                       "and '%s'; copying instead" % (src, dst))
+
+class SyncCallback(LinkCallback):
   """
   Callback class for all file synchronization operations, including those
   performed by Event.sync() and Event.cache().  To maintain visual consistency,
@@ -72,7 +86,7 @@ class SyncCallback(_SyncCallbackMetered):
     """
     logger  : the logger object to which output should be written
     relpath : the relative path from which file display should begin; in most
-              casess, this should be set to the event's metadata directory
+              cases, this should be set to the event's metadata directory
     """
     _SyncCallbackMetered.__init__(self, layout=LAYOUT_SYNC)
     self.logger = logger
@@ -84,9 +98,6 @@ class SyncCallback(_SyncCallbackMetered):
   def start(self, src, dest):
     if self.logger.threshold == 2:
       self.logger.log(2, L2(dest.relpathfrom(self.relpath)/src.basename), format='%(message).75s')
-  def cp(self, src, dest): pass
-  def sync_update(self, src, dest): pass
-  def mkdir(self, src, dest): pass
 
   def _cp_start(self, size, text, seek=0.0):
     _SyncCallbackMetered._cp_start(self, size=size, text=L2(text), seek=seek)
@@ -126,6 +137,57 @@ class CachedSyncCallback(_CachedSyncCallback, SyncCallback):
     # if we're at log level 3, write the completed bar to the log file
     if self.logger.test(3):
       self.logger.logfile.log(3, str(self.bar))
+
+class SyncCallbackCompressed(SyncCallback):
+  """
+  Callback class for file synchronization operations. Differs from SyncCallback, 
+  which it extends, in that it provides a compressed display - a single progress 
+  bar.
+  """
+  def __init__(self, logger, relpath):
+    """
+    logger  : the logger object to which output should be written
+    relpath : the relative path from which file display should begin; in most
+              cases, this should be set to the event's metadata directory
+    """
+    SyncCallback.__init__(self, logger=logger, relpath=relpath)
+    self.logger = logger
+    self.relpath = relpath
+
+  def start(self, *args, **kwargs): pass
+  def sync_start(self, text='downloading files', count=None): 
+    """
+    At log level 1 and below, do nothing
+    At log level 2 and above, create a progress bar and start it.
+    
+    total : the 'size' of the progress bar (number of rpms)
+    """
+    SyncCallback.sync_start(self, text=text, count=count)
+    if self.logger.test(2):
+      self.bar = ProgressBar(size=count, title=L2(''), layout=LAYOUT_GPG)
+      self.bar.start()
+
+  def _cp_start(self, size, text, seek=0.0):
+    """
+    At log level 1 and below, do nothing
+    At log level 2 and above, update the progress bar's position
+    """
+    if self.logger.test(2):
+      self.bar.tags['title'] = L2(text)
+      self.bar.status.position += 1
+  def _cp_update(self, amount_read): pass
+  def _cp_end(self, amount_read): pass
+  def sync_end(self):
+    """
+    At log level 1 and below, do nothing
+    At log level 2 and above, finish off the progress bar and write it to the
+    logfile
+    """
+    if self.logger.test(2):
+      self.bar.tags['title'] = L2('done')
+      self.bar.update(self.bar.status.size)
+      self.bar.finish()
+      self.logger.logfile.log(2, str(self.bar))
 
 # note - the following two classes could probably be combined together
 # if we tried hard enough

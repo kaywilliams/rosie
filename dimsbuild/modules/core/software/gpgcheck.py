@@ -5,21 +5,12 @@ from dims import pps
 from dimsbuild.event   import Event
 from dimsbuild.logging import L1, L2
 from dimsbuild.constants import BOOLEANS_TRUE
-from dimsbuild.callback import FilesCallback, GpgCallback
+from dimsbuild.callback import GpgCallback
 
 P = pps.Path
 
 API_VERSION = 5.0
 EVENTS = {'software': ['GpgCheckEvent']}
-
-class GPGFilesCallback(FilesCallback):
-  def __init__(self, logger, relpath, repo):
-    self.logger = logger
-    self.relpath = relpath
-    self.repo = repo
-
-  def sync_start(self):
-    self.logger.log(1, L1("downloading gpgkeys - '%s'" % self.repo))
 
 class GpgCheckEvent(Event):
   def __init__(self):
@@ -70,7 +61,7 @@ class GpgCheckEvent(Event):
       homedir = self.mddir/repo/'homedir'
       self.DATA['output'].append(homedir)
       self.io.sync_input(cache=True, what=repo,
-                         cb=GPGFilesCallback(self.logger, self.mddir, repo))
+                         text="downloading gpgkeys - '%s'" % repo)
 
       # if gpgkeys have changed for this repo, (re)create homedir and
       # add all rpms from the repo to check list

@@ -57,12 +57,10 @@ class CustomRepoEvent(Event):
 
     # sync rpms
     self.log(1, L1("copying packages"))
-    backup = self.files_callback.sync_start
-    self.files_callback.sync_start = lambda : self.log(4, L1("RPMS"))
-    self.io.sync_input(link=True, what='CUSTOM_RPMS')
-    self.files_callback.sync_start = lambda : self.log(4, L1("SRPMS"))
-    self.io.sync_input(link=True, what='CUSTOM_SRPMS')
-    self.files_callback.sync_start = backup
+    self.io.sync_input(link=True, what='CUSTOM_RPMS', 
+                       text=self.log(4, L2("RPMS")))
+    self.io.sync_input(link=True, what='CUSTOM_SRPMS', 
+                       text=self.log(4, L2("SRPMS")))
 
     self.log(1, L1("running createrepo"))
     if self.cvars['custom-rpms']:

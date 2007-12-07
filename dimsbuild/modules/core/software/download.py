@@ -4,7 +4,6 @@ from rpmUtils.arch import getArchList
 
 from dims import pps
 
-from dimsbuild.callback  import FilesCallback
 from dimsbuild.constants import RPM_PNVRA_REGEX
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L1, L2
@@ -13,15 +12,6 @@ API_VERSION = 5.0
 EVENTS = {'software': ['DownloadEvent']}
 
 P = pps.Path
-
-class RepoFilesCallback(FilesCallback):
-  def __init__(self, logger, relpath, repo):
-    self.logger = logger
-    self.relpath = relpath
-    self.repo = repo
-
-  def sync_start(self):
-    self.logger.log(1, L1("downloading packages - '%s'" % self.repo))
 
 class DownloadEvent(Event):
   def __init__(self):
@@ -69,7 +59,7 @@ class DownloadEvent(Event):
   def run(self):
     for repo in self.cvars['repos'].values():
       self.io.sync_input(link=True, cache=True, what=repo.id,
-                         cb=RepoFilesCallback(self.logger, self.mddir, repo.id))
+                         text=("downloading packages - '%s'" % repo.id))
     self.diff.write_metadata()
 
   def apply(self):

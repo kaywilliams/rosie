@@ -95,13 +95,15 @@ class IOObject:
         rtn.append(output_file)
     return rtn
 
-  def sync_input(self, cb=None, link=False, what=None, cache=False, **kwargs):
+  def sync_input(self, callback=None, link=False, what=None,
+                 cache=False, text='downloading files', **kwargs):
     """
     Sync the input files to their output locations.
 
     @param link : if action is not specified, and link is True the
                   input files are linked to the output location.
     @param what : list of IDs identifying what to download.
+    @param text : text to display prior to beginning sync operation.
     """
     if what is None:
       what = self.sync_items.keys()
@@ -126,24 +128,31 @@ class IOObject:
     outputs = []
     if sync_items:
       sync_items = sorted(sync_items, cmp=lambda x, y: cmp(x[1].basename, y[1].basename))
-      cb = cb or self.ptr.files_callback
-      cb.sync_start()
+      if callback: cb = callback
+      elif cache:  cb = self.ptr.cache_callback
+      elif link:   cb = self.ptr.link_callback
+      else:        cb = self.ptr.copy_callback
+      # perhaps sync_start and sync_end callbacks could be pushed into lower 
+      # level functions, then we wouldn't have to figure out the default 
+      # callback in both places
+      cb.sync_start(text=text, count=len(sync_items))
       for src, dst in sync_items:
         # I'd rather handle arg passing a little better
         if cache:
-          self.ptr.cache(src, dst.dirname, link=link, **kwargs) #!
+          self.ptr.cache(src, dst.dirname, link=link, callback=cb, **kwargs) #!
         elif link:
-          self.ptr.link(src, dst.dirname, **kwargs) #!
+          self.ptr.link(src, dst.dirname, callback=cb, **kwargs) #!
         else:
-          self.ptr.copy(src, dst.dirname, **kwargs) #!
+          self.ptr.copy(src, dst.dirname, callback=cb, **kwargs) #!
         outputs.append(dst)
+      cb.sync_end()
 
     for file, mode in chmod_items:
       file.chmod(mode)
 
     return sorted(outputs)
 
-  def clean_eventcache(self, all=False, cb=None):
+  def clean_eventcache(self, all=False, callback=None):
     """
     Cleans event cache folder.
 
@@ -166,7 +175,7 @@ class IOObject:
         expected.add(self.ptr.mdfile)
         existing = set(self.ptr.mddir.findpaths(mindepth=1, type=TYPE_NOT_DIR))
 
-        cb = cb or self.ptr.files_callback
+        cb = callback or self.ptr.copy_callback
         obsolete_files = existing.difference(expected)
         if obsolete_files:
           cb.rm_start()

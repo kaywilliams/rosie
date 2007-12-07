@@ -4,9 +4,8 @@ from dims import mkrpm
 from dims.mkrpm import GpgMixin
 from dims.progressbar   import ProgressBar
 
-from dimsbuild.callback  import GpgCallback, FilesCallback, SyncCallback,\
-                                LAYOUT_GPG
-from dimsbuild.constants import BOOLEANS_TRUE
+from dimsbuild.callback  import GpgCallback, SyncCallback, LAYOUT_GPG
+from dimsbuild.constants import BOOLEANS_TRUE, RPM_REGEX
 from dimsbuild.event     import Event
 from dimsbuild.logging   import L1, L2
 
@@ -14,61 +13,6 @@ API_VERSION = 5.0
 EVENTS = {'setup': ['GpgSetupEvent'], 'software': ['GpgSignEvent']}
 
 P = pps.Path
-
-class GpgSignFilesCallback(FilesCallback):
-  def sync_start(self): pass
-
-class GpgSignSyncCallback(SyncCallback):
-  """
-  Callback class for gpgsign file copy. Displays a single progress bar for all
-  files as they are copied.
-  """
-  def __init__(self, logger, relpath):
-    """
-    logger  : the logger object to which output should be written
-    relpath : the relative path from which file display should begin; in most
-              casess, this should be set to the event's metadata directory
-    """
-    SyncCallback.__init__(self, logger=logger, relpath=relpath)
-    self.logger = logger
-    self.relpath = relpath
-
-  def startcopy(self, total): 
-
-    """
-    At log level 1 and below, do nothing
-    At log level 2 and above, create a progress bar and start it.
-    
-    total : the 'size' of the progress bar (number of rpms)
-    """
-    if self.logger.test(2):
-      self.bar = ProgressBar(size=total, title=L2(''), layout=LAYOUT_GPG)
-      self.bar.start()
-      self.bar.tags['title'] = L2('copying rpms')
-  def cp(self, src, dest): pass
-  def sync_update(self, src, dest): pass
-  def mkdir(self, src, dest): pass
-  def _cp_start(self, size, text, seek=0.0):
-    """
-    At log level 1 and below, do nothing
-    At log level 2 and above, update the progress bar's position
-    """
-    if self.logger.test(2):
-      self.bar.tags['title'] = L2(text)
-      self.bar.status.position += 1
-  def _cp_update(self, amount_read): pass
-  def _cp_end(self, amount_read): pass
-  def endcopy(self):
-    """
-    At log level 1 and below, do nothing
-    At log level 2 and above, finish off the progress bar and write it to the
-    logfile
-    """
-    if self.logger.test(2):
-      self.bar.tags['title'] = L2('done')
-      self.bar.update(self.bar.status.size)
-      self.bar.finish()
-      self.logger.logfile.log(2, str(self.bar))
 
 class GpgSetupEvent(Event):
   def __init__(self):
@@ -127,9 +71,8 @@ class GpgSignEvent(GpgMixin, Event):
 
   def run(self):
     # sync keys
-    self.log(1, L1("downloading keys"))
     newkeys = self.io.sync_input(what=['pubkey','seckey'], cache=True,
-              cb=GpgSignFilesCallback(self.logger, self.mddir/'rpms'))
+              text='downloading keys')
 
     # import keys
     gnupg_dir = self.mddir / '.gnupg'
@@ -143,13 +86,8 @@ class GpgSignEvent(GpgMixin, Event):
     self.DATA['output'].append(gnupg_dir)
 
     # sync rpms to output folder
-    self.log(1, L1("copying rpms"))
-    copy_callback = GpgSignSyncCallback(self.logger, self.mddir/'rpms')
-    copy_callback.startcopy(len(self.io.list_output(what='rpms')))
-    newrpms = self.io.sync_input(what='rpms',  
-              cb=GpgSignFilesCallback(self.logger, self.mddir/'rpms'),
-              callback=copy_callback)
-    copy_callback.endcopy()
+    newrpms = self.io.sync_input(what='rpms', text='copying rpms',
+              callback=self.copy_callback_compressed)
 
     # sign rpms
     if newkeys:

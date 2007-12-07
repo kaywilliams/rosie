@@ -2,7 +2,6 @@ import csv
 
 from dims.pps.constants import TYPE_NOT_DIR
 
-from dimsbuild.callback import FilesCallback
 from dimsbuild.event    import Event
 from dimsbuild.logging  import L1
 
@@ -10,9 +9,6 @@ API_VERSION = 5.0
 EVENTS = {'OS': ['ComposeEvent']}
 
 FIELDS = ['file', 'size', 'mtime']
-
-class ComposeCallback(FilesCallback):
-  def sync_start(self): pass
 
 class ComposeEvent(Event):
   def __init__(self):
@@ -51,7 +47,7 @@ class ComposeEvent(Event):
     self.log(1, L1("linking files"))
     for event in self.events:
       self.io.sync_input(link=True, what=event,
-                         cb=ComposeCallback(self.logger, self.METADATA_DIR))
+                         text=None)
 
     # create manifest file
     self.log(1, L1("creating manifest file"))

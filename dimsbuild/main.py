@@ -27,7 +27,8 @@ from dims import sync
 from dims.sync import cache
 from dims.sync import link
 
-from dimsbuild.callback  import SyncCallback, CachedSyncCallback, FilesCallback
+from dimsbuild.callback  import (SyncCallback, CachedSyncCallback, LinkCallback,
+                                 SyncCallbackCompressed)
 from dimsbuild.constants import *
 from dimsbuild.event     import Event, CLASS_META
 from dimsbuild.logging   import make_log, L0, L1, L2
@@ -387,8 +388,9 @@ class Build(object):
 
     Event.copy_callback  = SyncCallback(Event.logger, Event.METADATA_DIR)
     Event.cache_callback = CachedSyncCallback(Event.logger, Event.METADATA_DIR)
-    Event.link_callback  = None
-    Event.files_callback = FilesCallback(Event.logger, Event.METADATA_DIR)
+    Event.link_callback  = LinkCallback(Event.logger, Event.METADATA_DIR)
+    Event.copy_callback_compressed = SyncCallbackCompressed(
+                                     Event.logger, Event.METADATA_DIR)
 
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
