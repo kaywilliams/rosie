@@ -51,13 +51,16 @@ class LogosEvent(Event, ExtractMixin):
 
   def verify_splash_exists(self):
     "splash image exists"
-    self.verifier.failUnless(self.splash.exists(),
-      "missing file: '%s'" % self.splash)
+    self.verifier.failUnlessExists(self.splash.exists())
 
   def verify_splash_valid(self):
     "splash image is valid"
     self.verifier.failUnless(self._validate_splash(),
       "'%s' is not a valid %s file" % (self.splash, self.format))
+
+  def verify_pixmaps_exist(self):
+    "pixmaps folder populated"
+    self.verifier.failUnlessExists(self.mddir/'pixmaps')
 
   def _generate(self, working_dir):
     "Create the splash image and copy it to the isolinux/ folder"

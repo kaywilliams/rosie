@@ -202,11 +202,12 @@ class RpmBuildMixin:
     release_element.text = self.rpm_release
     root_element.write(self.autofile)
 
-    # set the mode and ownership of distro.conf.dat and distro.conf to
-    # be the same.
-    stat = self._config.file.stat()
-    self.autofile.chown(stat.st_uid, stat.st_gid)
-    self.autofile.chmod(stat.st_mode)
+    if self._config.file.exists():
+      # set the mode and ownership of distro.conf.dat and distro.conf to
+      # be the same.
+      stat = self._config.file.stat()
+      self.autofile.chown(stat.st_uid, stat.st_gid)
+      self.autofile.chmod(stat.st_mode)
 
   def _check_release(self):
     if self.rpm_release == '0' or  \

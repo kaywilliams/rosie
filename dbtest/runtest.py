@@ -37,7 +37,7 @@ def make_logger(threshold):
 def parse_cmd_args():
   parser = optparse.OptionParser("usage: %prog [OPTIONS]",
                                  formatter=CleanHelpFormatter())
-  
+
   parser.add_option('--skip', metavar='MODULEID',
     dest='skip_test',
     action='append',
@@ -53,9 +53,9 @@ def parse_cmd_args():
     dest='sharepath',
     action='append',
     help='specify directory containing dimsbuild share files')
-  
+
   parser.set_defaults(**opt_defaults)
-  
+
   return parser.parse_args(sys.argv[1:])
 
 def main():
@@ -63,7 +63,7 @@ def main():
 
   options, args = parse_cmd_args()
   EventTestCase.options = options
-  
+
   runner = EventTestRunner()
   suite = unittest.TestSuite()
 
@@ -74,10 +74,10 @@ def main():
     mod = imp.load_module('test-%s' % testpath.dirname.basename, fp, p, d)
   finally:
     fp and fp.close()
-  
+
   suite.addTest(mod.make_suite())
 
   runner.run(suite)
-  
+
 
 if __name__ == '__main__': main()

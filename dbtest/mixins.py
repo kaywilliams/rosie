@@ -40,7 +40,7 @@ class ImageModifyMixinTestCase(EventTestCase):
 
     # touch input files
     for file in files:
-      ifilename = self.event.config.getroot().file.abspath().dirname/file
+      ifilename = self.event._config.file.abspath().dirname/file
       ifilename.touch()
       ifilename.utime((starttime, starttime)) # make sure start times match
 

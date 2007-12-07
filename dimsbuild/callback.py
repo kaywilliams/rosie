@@ -140,34 +140,26 @@ class CachedSyncCallback(_CachedSyncCallback, SyncCallback):
 
 class SyncCallbackCompressed(SyncCallback):
   """
-  Callback class for file synchronization operations. Differs from SyncCallback, 
-  which it extends, in that it provides a compressed display - a single progress 
+  Callback class for file synchronization operations. Differs from SyncCallback,
+  which it extends, in that it provides a compressed display - a single progress
   bar.
   """
-  def __init__(self, logger, relpath):
-    """
-    logger  : the logger object to which output should be written
-    relpath : the relative path from which file display should begin; in most
-              cases, this should be set to the event's metadata directory
-    """
-    SyncCallback.__init__(self, logger=logger, relpath=relpath)
-    self.logger = logger
-    self.relpath = relpath
-
   def start(self, *args, **kwargs): pass
-  def sync_start(self, text='downloading files', count=None): 
+  def sync_start(self, text='downloading files', count=None):
     """
     At log level 1 and below, do nothing
     At log level 2 and above, create a progress bar and start it.
-    
-    total : the 'size' of the progress bar (number of rpms)
+
+    count : the 'size' of the progress bar (number of rpms)
     """
     SyncCallback.sync_start(self, text=text, count=count)
     if self.logger.test(2):
       self.bar = ProgressBar(size=count, title=L2(''), layout=LAYOUT_GPG)
       self.bar.start()
 
-  def _cp_start(self, size, text, seek=0.0):
+  def _cp_start(self, size, text, seek=0.0): pass
+  def _cp_update(self, amount_read): pass
+  def _cp_end(self, amount_read):
     """
     At log level 1 and below, do nothing
     At log level 2 and above, update the progress bar's position
@@ -175,8 +167,7 @@ class SyncCallbackCompressed(SyncCallback):
     if self.logger.test(2):
       self.bar.tags['title'] = L2(text)
       self.bar.status.position += 1
-  def _cp_update(self, amount_read): pass
-  def _cp_end(self, amount_read): pass
+
   def sync_end(self):
     """
     At log level 1 and below, do nothing
