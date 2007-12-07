@@ -8,16 +8,13 @@ from dbtest import EventTestCase
 #------ FileDownloadMixin ------#
 class FDMTest_Files(EventTestCase):
   "all files downloaded successfully"
-  def __init__(self, eventid, conf):
-    EventTestCase.__init__(self, eventid, conf)
-
   def runTest(self):
     self.tb.dispatch.execute(until=self.eventid)
 
     for file in self.event.io.list_output():
       self.failUnlessExists(file) # need to check for virtual?
 
-def fdm_make_suite(eventid, conf):
+def fdm_make_suite(eventid, conf=None):
   suite = unittest.TestSuite()
   suite.addTest(FDMTest_Files(eventid, conf))
   return suite
@@ -30,11 +27,13 @@ starttime = time.time()
 files = ['infile', 'infile2', '/tmp/outfile']
 
 class ImageModifyMixinTestCase(EventTestCase):
-  def __init__(self, eventid, conf):
+  def __init__(self, eventid, conf=None):
     EventTestCase.__init__(self, eventid, conf)
     self.image_content = None
 
   def setUp(self):
+    if not self.conf.pathexists(self.eventid):
+      self.conf.append(Element(self.eventid))
     EventTestCase.setUp(self)
     self.clean_event_md()
 
@@ -81,7 +80,7 @@ class IMMTest_Content(ImageModifyMixinTestCase):
 
 class IMMTest_ConfigPaths(ImageModifyMixinTestCase):
   "all config-based paths included in final image"
-  def __init__(self, eventid, conf, path_xpath=None):
+  def __init__(self, eventid, conf=None, path_xpath=None):
     ImageModifyMixinTestCase.__init__(self, eventid, conf)
     self.path_xpath = path_xpath or 'path'
 
@@ -93,7 +92,7 @@ class IMMTest_ConfigPaths(ImageModifyMixinTestCase):
       file = dest/pps.Path(path.text).basename
       self.check_file_in_image(file)
 
-def imm_make_suite(eventid, conf, xpath=None):
+def imm_make_suite(eventid, conf=None, xpath=None):
   suite = unittest.TestSuite()
   suite.addTest(IMMTest_Content(eventid, conf))
   suite.addTest(IMMTest_ConfigPaths(eventid, conf, xpath))

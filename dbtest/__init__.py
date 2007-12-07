@@ -11,6 +11,8 @@ from dims import xmllib
 
 from dimsbuild.main import Build
 
+from dbtest.config import make_default_config, add_config_section
+
 
 class TestBuild(Build):
   def __init__(self, conf, *args, **kwargs):
@@ -24,13 +26,26 @@ class TestBuild(Build):
     else:
       self.mainconfig = xmllib.config.read(StringIO('<dimsbuild/>'))
 
-    self.distroconfig = xmllib.config.read(self.conf)
+    self.distroconfig = self.conf
 
 
 class EventTestCase(unittest.TestCase):
-  def __init__(self, eventid, conf):
+  def __init__(self, eventid, conf=None):
     self.eventid = eventid
-    self.conf = conf
+
+    self.conf = conf or make_default_config(eventid)
+    if hasattr(self, '_conf'): # can be either a string or a list of strings
+      if isinstance(self._conf, str):
+        add_config_section(self.conf, self._conf)
+      else:
+        for sect in self._conf:
+          add_config_section(self.conf, sect)
+    # make sure an appropriate config section exists
+    # bah, this is by eventid, not modid like it should be
+    if not self.conf.pathexists(eventid):
+      add_config_section(self.conf, '<%s enabled="true"/>' % eventid)
+    # pretend we read from a config file in the modules directory
+    self.conf.file = pps.Path(__file__).dirname/'modules/%s' % eventid
 
     self.event = None
     unittest.TestCase.__init__(self)
@@ -98,6 +113,27 @@ class EventTestCase(unittest.TestCase):
 class EventTestCaseDummy(unittest.TestCase):
   "'unittest' for printing out stuff without actually testing"
   def runTest(self): pass
+
+class ModuleTestSuite(unittest.TestSuite):
+  "test suite with some custom setup/teardown code"
+  separator1 = '='*70
+  separator2 = '-'*70
+
+  def __init__(self, modid, tests=()):
+    unittest.TestSuite.__init__(self, tests)
+    self.modid = modid
+
+  def setUp(self):
+    pass
+
+  def tearDown(self):
+    (pps.Path(__file__).dirname/'modules').listdir('*.dat').rm()
+
+  def run(self, result):
+    self.setUp()
+    ret = unittest.TestSuite.run(self, result)
+    self.tearDown()
+    return ret
 
 class EventTestRunner:
   def __init__(self, threshold=1):
@@ -211,8 +247,9 @@ def make_logger(threshold):
 def make_suite():
   suite = unittest.TestSuite()
 
-  for module in pps.Path('modules').findpaths(mindepth=1, maxdepth=1,
-                                              type=pps.constants.TYPE_DIR):
+  for module in pps.Path('modules').findpaths(mindepth=1, maxdepth=1):
+    if module.basename == '__init__.py': continue
+    module = module.replace('.py', '')
     fp = None
     try:
       try:

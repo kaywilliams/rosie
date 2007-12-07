@@ -23,9 +23,6 @@ FLAGS_MAP = {
 
 #-------- SUPER (ABSTRACT) CLASSES ----------#
 class RpmEventTestCase(EventTestCase):
-  def __init__(self, eventid, conf):
-    EventTestCase.__init__(self, eventid, conf)
-
   def _get_rpmpath(self):
     return self.event.METADATA_DIR / \
            "%s/RPMS/%s-%s-%s.%s.rpm" % (self.eventid, self.event.rpm_name,
@@ -44,9 +41,6 @@ class RpmEventTestCase(EventTestCase):
     EventTestCase.setUp(self)
 
 class ExtractMixin(object):
-  def __init__(self):
-    pass
-
   def _get_imgpath(self):
     if self.rpm_path.exists():
       if extracts.has_key(self.rpm_path):
@@ -67,10 +61,6 @@ class ExtractMixin(object):
 
 #-------- TEST CASES --------#
 class InputFilesMixinTestCase(RpmEventTestCase, ExtractMixin):
-  def __init__(self, eventid, conf):
-    RpmEventTestCase.__init__(self, eventid, conf)
-    ExtractMixin.__init__(self)
-
   def check_inputs(self):
     for k,v in self.event.installinfo.items():
       xpath, dst, defmode = v
@@ -80,10 +70,6 @@ class InputFilesMixinTestCase(RpmEventTestCase, ExtractMixin):
           self.failUnless(self.img_path / file.lstrip('/'))
 
 class LocalFilesMixinTestCase(RpmEventTestCase, ExtractMixin):
-  def __init__(self, eventid, conf):
-    RpmEventTestCase.__init__(self, eventid, conf)
-    ExtractMixin.__init__(self)
-
   def check_locals(self):
     for id in self.event.fileslocals.keys():
       file = self.event.build_folder / id
@@ -92,9 +78,6 @@ class LocalFilesMixinTestCase(RpmEventTestCase, ExtractMixin):
         self.failUnless((self.img_path / l.lstrip('/')).exists())
 
 class RpmBuildMixinTestCase(RpmEventTestCase):
-  def __init__(self, eventid, conf):
-    RpmEventTestCase.__init__(self, eventid, conf)
-
   def _get_rpmheader(self):
     if self.rpm_path.exists():
       if headers.has_key(self.rpm_path):
@@ -174,9 +157,6 @@ class RpmBuildMixinTestCase(RpmEventTestCase):
                       "obsoleted '%s' not actually obsoleted" % dep)
 
 class RpmCvarsTestCase(RpmEventTestCase):
-  def __init__(self, eventid, conf):
-    RpmEventTestCase.__init__(self, eventid, conf)
-
   def check_cvars(self):
     self.failUnless(self.rpm_path in self.event.cvars['custom-rpms'])
     self.failUnless(self.srpm_path in self.event.cvars['custom-srpms'])

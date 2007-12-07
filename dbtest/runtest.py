@@ -6,8 +6,6 @@ from dims import pps
 
 from dims.CleanHelpFormatter import CleanHelpFormatter
 
-from dbtest import EventTestLogContainer, EventTestRunner, EventTestCase
-
 opt_defaults = dict(
   logthresh = 0,
   logfile = None,
@@ -62,6 +60,11 @@ def main():
   import imp
 
   options, args = parse_cmd_args()
+
+  sys.path = options.libpath + sys.path
+
+  from dbtest import EventTestLogContainer, EventTestRunner, EventTestCase
+
   EventTestCase.options = options
 
   runner = EventTestRunner()
@@ -69,7 +72,17 @@ def main():
 
   fp = None
   try:
-    testpath = pps.Path(args[0].replace('.py', '')).abspath()
+    if len(args) > 0:
+      testpath = pps.Path(args[0])
+      if not testpath.isabs() and testpath.tokens[0] != 'modules':
+        testpath = 'modules'/testpath # __rdiv__ is so cool
+    else:
+      testpath = pps.Path(__file__).dirname
+    testpath = testpath.abspath()
+    if testpath.isdir():
+      testpath = testpath/'__init__.py' # get the init.py inside it
+    if testpath.endswith('.py'):
+      testpath = testpath.replace('.py', '') # remove .py cuz imp doesn't like it
     fp,p,d = imp.find_module(testpath.basename, [testpath.dirname])
     mod = imp.load_module('test-%s' % testpath.dirname.basename, fp, p, d)
   finally:

@@ -20,9 +20,6 @@ class CoreEventTestCase(EventTestCase):
 
 class CoreEventTestCase00(CoreEventTestCase):
   "Event.verify() might raise an AssertionError if --skip'd first"
-  def __init__(self, eventid, conf):
-    CoreEventTestCase.__init__(self, eventid, conf)
-
   def setUp(self):
     CoreEventTestCase.setUp(self)
     self.event.status = False
@@ -36,9 +33,6 @@ class CoreEventTestCase00(CoreEventTestCase):
 
 class CoreEventTestCase01(CoreEventTestCase):
   "Event.run() executes if neither --force nor --skip specified"
-  def __init__(self, eventid, conf):
-    CoreEventTestCase.__init__(self, eventid, conf)
-
   def setUp(self):
     CoreEventTestCase.setUp(self)
     self.event.status = None
@@ -52,9 +46,6 @@ class CoreEventTestCase01(CoreEventTestCase):
 
 class CoreEventTestCase02(CoreEventTestCase):
   "Event.run() does not execute after a successful run"
-  def __init__(self, eventid, conf):
-    CoreEventTestCase.__init__(self, eventid, conf)
-
   def setUp(self):
     CoreEventTestCase.setUp(self)
     self.event.status = None
@@ -67,9 +58,6 @@ class CoreEventTestCase02(CoreEventTestCase):
 
 class CoreEventTestCase03(CoreEventTestCase):
   "Event.run() executes with --force"
-  def __init__(self, eventid, conf):
-    CoreEventTestCase.__init__(self, eventid, conf)
-
   def setUp(self):
     CoreEventTestCase.setUp(self)
     self.event.status = True
@@ -82,9 +70,6 @@ class CoreEventTestCase03(CoreEventTestCase):
 
 class CoreEventTestCase04(CoreEventTestCase):
   "Event.run() does not execute with --skip"
-  def __init__(self, eventid, conf):
-    CoreEventTestCase.__init__(self, eventid, conf)
-
   def setUp(self):
     CoreEventTestCase.setUp(self)
     self.event.status = False
@@ -120,7 +105,7 @@ class ExtensionEventTestCase01(ExtensionEventTestCase):
   def runTest(self):
     self.failUnlessExists(self.tb.dispatch._top.METADATA_DIR/self.eventid)
 
-def make_core_suite(eventid, conf):
+def make_core_suite(eventid, conf=None):
   suite = unittest.TestSuite()
   suite.addTest(EventTestCaseHeader(eventid)) # hack to get a pretty header
   suite.addTest(CoreEventTestCase00(eventid, conf))
@@ -130,35 +115,9 @@ def make_core_suite(eventid, conf):
   suite.addTest(CoreEventTestCase04(eventid, conf))
   return suite
 
-def make_extension_suite(eventid, conf):
+def make_extension_suite(eventid, conf=None):
   suite = unittest.TestSuite()
+  suite.addTest(make_core_suite(eventid, conf))
   suite.addTest(ExtensionEventTestCase00(eventid, conf))
   suite.addTest(ExtensionEventTestCase01(eventid, conf))
   return suite
-
-
-def main():
-  import imp
-
-  runner = EventTestRunner()
-  suite = unittest.TestSuite()
-
-  for event in pps.Path('.').findpaths(mindepth=1, maxdepth=1, type=pps.constants.TYPE_DIR):
-    fp = None
-    try:
-      try:
-        fp,p,d = imp.find_module(event.basename, [event.dirname])
-      except ImportError:
-        continue
-      mod = imp.load_module('test-%s' % event.basename, fp, p, d)
-    finally:
-      fp and fp.close()
-
-    mod.main(suite=suite)
-    del mod
-
-  runner.run(suite)
-
-if __name__ == '__main__':
-  # test everything
-  main()
