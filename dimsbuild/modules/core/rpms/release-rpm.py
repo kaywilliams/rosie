@@ -8,21 +8,29 @@ from dimsbuild.modules.shared import InputFilesMixin, RpmBuildMixin
 P = pps.Path
 
 API_VERSION = 5.0
+
 EVENTS = {'rpms': ['ReleaseRpmEvent']}
 
 class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def __init__(self):
-    Event.__init__(self, id='release-rpm', version=3,
-                   requires=['input-repos', 'release-versions'],
-                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
-                   conditionally_requires=['web-path', 'gpgsign-public-key',])
+    Event.__init__(self,
+      id = 'release-rpm',
+      version = 3,
+      requires = ['input-repos', 'release-versions'],
+      provides = ['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
+      conditionally_requires = ['web-path', 'gpgsign-public-key']
+    )
+
     RpmBuildMixin.__init__(self,
-                           '%s-release' % self.product,
-                           '%s release files created by dimsbuild' % self.fullname,
-                           '%s release files' % self.product,
-                           default_obsoletes=['fedora-release', 'redhat-release',
-                             'centos-release', 'fedora-release-notes',
-                             'redhat-release-notes', 'centos-release-notes'])
+      '%s-release' % self.product,
+      '%s release files created by dimsbuild' % self.fullname,
+      '%s release files' % self.product,
+      default_obsoletes = ['fedora-release', 'redhat-release',
+        'centos-release', 'fedora-release-notes',
+        'redhat-release-notes', 'centos-release-notes'
+      ]
+    )
+
     InputFilesMixin.__init__(self)
 
     self.doc_dir = P('/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
@@ -34,8 +42,6 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     self.omf_dir = P('/usr/share/omf/%s-release-notes' % self.product)
     self.release_dir = P('/usr/share/doc/%s-release-%s' % (self.product, self.version))
     self.repo_dir = P('/etc/yum.repos.d')
-
-    self.build_folder = self.mddir / 'build'
 
     self.installinfo = {
       'gpg'     : (None, self.gpg_dir, None),
@@ -101,11 +107,6 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       (self.rpm_name, 'mandatory', None, self.rpm_obsoletes, None)
     )
 
-  def _get_files(self):
-    sources = {}
-    sources.update(InputFilesMixin._get_files(self))
-    return sources
-
   def _generate(self):
     "Create additional files."
     self.io.sync_input(cache=True)
@@ -116,6 +117,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
         dest = self.rpm_dir//dir
         getattr(self, generator)(dest)
     self._verify_release_notes()
+    self._update_data_files()
 
   def _verify_release_notes(self):
     "Ensure the presence of RELEASE-NOTES.html and an index.html"

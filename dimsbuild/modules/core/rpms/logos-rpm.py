@@ -15,6 +15,7 @@ except ImportError:
 P = pps.Path
 
 API_VERSION = 5.0
+
 EVENTS = {'rpms': ['LogosRpmEvent']}
 
 class LogosRpmEvent(Event, RpmBuildMixin):
@@ -36,7 +37,6 @@ class LogosRpmEvent(Event, RpmBuildMixin):
       default_provides = ['system-logos']
     )
 
-    self.build_folder = self.mddir / 'build'
     self.DATA = {
       'config': ['.'],
       'variables': ['fullname', 'product', 'pva', 'rpm_release',
@@ -46,8 +46,6 @@ class LogosRpmEvent(Event, RpmBuildMixin):
       'output': [self.build_folder],
       'input':  [],
     }
-
-    self.logos_info = {}
 
   def setup(self):
     obsoletes = [ '%s %s %s' %(n,e,v)
@@ -89,12 +87,6 @@ class LogosRpmEvent(Event, RpmBuildMixin):
       (self.rpm_name, 'mandatory', None, self.rpm_obsoletes, None)
     )
 
-  def _get_files(self):
-    sources = {}
-    sources.update(RpmBuildMixin._get_files(self))
-    sources.update(self.logos_info)
-    return sources
-
   def _generate(self):
     self._copy_images()
 
@@ -107,29 +99,10 @@ class LogosRpmEvent(Event, RpmBuildMixin):
         pass
       else:
         install_dir = P('/%s' % relpath).dirname
-        self.logos_info.setdefault(install_dir, []).append(
+        self.data_files.setdefault(install_dir, []).append(
           dest.relpathfrom(self.build_folder)
         )
       self.copy(image_file, dest.dirname)
 
-  def _add_files(self, spec):
-    # write the list of files to be installed and where they should be installed
-    data_files = self._get_files()
-    if not data_files:
-      return
-
-    value = []
-    for installdir, files in data_files.items():
-      value.append('%s : %s' %(installdir, ', '.join(files)))
-    spec.set('pkg_data', 'data_files', '\n\t'.join(value))
-
-    # mark files to be installed in '/etc' as config files
-    config_files = []
-    for installdir in data_files.keys():
-      if installdir.startswith('/etc'): # config files
-        config_files.extend([ installdir/x.basename for x in data_files[installdir] ])
-    if config_files:
-      spec.set('bdist_rpm', 'config_files', '\n\t'.join(config_files))
-
+  def _add_doc_files(self, spec):
     spec.set('bdist_rpm', 'doc_files', 'COPYING')
-

@@ -11,13 +11,17 @@ from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event, EventExit
 from dimsbuild.logging   import L1
 
-__all__ = ['InputFilesMixin', 'LocalFilesMixin', 'ColorMixin', 'RpmBuildMixin']
+__all__ = ['InputFilesMixin', 'LocalFilesMixin', 'RpmBuildMixin']
 
 P = pps.Path
 
 VER_X_REGEX = re.compile('[^0-9]*([0-9]+).*')
 
 class InputFilesMixin:
+  """
+  Mixin that can be used to setup the download and get list of data
+  files that are sync'd.
+  """
   def __init__(self):
     self.rpm_dir = self.mddir/'rpm-input'
 
@@ -32,17 +36,19 @@ class InputFilesMixin:
           m = item.get('@mode', defmode)
           self.io.setup_sync(self.rpm_dir // d, paths=[s], id=k, defmode=m)
 
-  def _get_files(self):
-    sources = {}
+  def _update_data_files(self):
     for item in self.rpm_dir.findpaths(type=pps.constants.TYPE_DIR, mindepth=1):
       files = item.findpaths(type=pps.constants.TYPE_NOT_DIR,
                              mindepth=1, maxdepth=1)
       if files:
-        sources[P(item[len(self.rpm_dir):])] = files
-    return sources
+        self.data_files.setdefault(P(item[len(self.rpm_dir):]), []).extend(files)
 
 
 class LocalFilesMixin:
+  """
+  Mixin that can be used to setup the locals and get the list of data files
+  that are generated using locals data.
+  """
   def __init__(self):
     pass
 
@@ -60,8 +66,7 @@ class LocalFilesMixin:
     self.fileslocals.update(newlocals)
     del newlocals
 
-  def _get_files(self):
-    sources = {}
+  def _update_data_files(self):
     for id in self.fileslocals.keys():
       locations = self.fileslocals[id]['locations']
       file = self.build_folder/id
@@ -74,40 +79,7 @@ class LocalFilesMixin:
           newfile = filedir/installname
           file.link(newfile)
           id = newfile
-        sources.setdefault(installdir, []).append(id)
-    return sources
-
-
-class ColorMixin:
-  def __init__(self):
-    pass
-
-  def setColors(self, be=False, prefix='0x'):
-    # compute the background and foreground colors to use
-    self.distroname = self.cvars['source-vars']['fullname']
-    self.distroversion = self.cvars['source-vars']['version']
-    try:
-      self.bgcolor, self.textcolor, self.hlcolor = \
-                    IMAGE_COLORS[self.distroname][self.distroversion]
-    except KeyError:
-      self.bgcolor, self.textcolor, self.hlcolor = IMAGE_COLORS['*']['0']
-
-    # if be (big-endian) is True, convert the colors to big-endian
-    if be:
-      self.bgcolor = self.toBigEndian(self.bgcolor)
-      self.textcolor = self.toBigEndian(self.textcolor)
-      self.hlcolor = self.toBigEndian(self.hlcolor)
-
-    if prefix != '0x':
-      self.bgcolor = self.bgcolor.replace('0x', prefix)
-      self.textcolor = self.textcolor.replace('0x', prefix)
-      self.hlcolor = self.textcolor.replace('0x', prefix)
-
-  def toBigEndian(self, color):
-    if color.startswith('0x'):
-      color = color[2:]
-    color = '%s%s' % ((6-len(color))*'0', color) # prepend zeroes to color
-    return '0x%s%s%s' % (color[4:], color[2:4], color[:2])
+        self.data_files.setdefault(installdir, []).append(id)
 
 
 class RpmBuildMixin:
@@ -123,9 +95,13 @@ class RpmBuildMixin:
     self.autofile = P(self._config.file + '.dat')
 
     # RPM build variables
+    self.build_folder = self.mddir / 'build'
     self.bdist_base = self.mddir / 'rpm-base'
     self.rpm_base = self.bdist_base / 'rpm'
     self.dist_dir = self.bdist_base / 'dist'
+
+    # %files
+    self.data_files = {}
 
   def check(self):
     return self.rpm_release == '0' or \
@@ -288,7 +264,9 @@ class RpmBuildMixin:
     if pscript:
       spec.set('bdist_rpm', 'post_install', pscript)
 
-    self._add_files(spec)
+    self._add_data_files(spec)
+    self._add_config_files(spec)
+    self._add_doc_files(spec)
 
     f = open(setupcfg, 'w')
     spec.write(f)
@@ -300,35 +278,32 @@ class RpmBuildMixin:
                        for x in self.build_folder.findpaths(type=pps.constants.TYPE_NOT_DIR) ] )
     (self.build_folder/'MANIFEST').write_lines(manifest)
 
-  def _add_files(self, spec):
-    # write the list of files to be installed and where they should be installed
-    data_files = self._get_files()
-    if not data_files:
-      return
+  def _add_data_files(self, spec):
+    data_files = []
+    for installdir, files in self.data_files.items():
+      data_files.append('%s : %s' %(installdir, ', '.join(files)))
+    if data_files:
+      spec.set('pkg_data', 'data_files', '\n\t'.join(data_files))
 
-    value = []
-    for installdir, files in data_files.items():
-      value.append('%s : %s' %(installdir, ', '.join(files)))
-    spec.set('pkg_data', 'data_files', '\n\t'.join(value))
-
-    # mark files to be installed in '/etc' as config files
+  def _add_config_files(self, spec):
     config_files = []
-    for installdir in data_files.keys():
+    for installdir in self.data_files.keys():
       if installdir.startswith('/etc'): # config files
-        config_files.extend([ installdir/x.basename for x in data_files[installdir] ])
+        config_files.extend([
+          installdir/x.basename for x in self.data_files[installdir]
+        ])
     if config_files:
       spec.set('bdist_rpm', 'config_files', '\n\t'.join(config_files))
 
-    # mark files to be installed in '/usr/share/doc' as doc files
+  def _add_doc_files(self, spec):
     doc_files = []
-    for installdir in data_files.keys():
+    for installdir in self.data_files.keys():
       if installdir.startswith('/usr/share/doc'):
-        doc_files.extend([ installdir/x.basename for x in data_files[installdir] ])
+        doc_files.extend([
+          installdir/x.basename for x in self.data_files[installdir]
+        ])
     if doc_files:
       spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))
-
-  def _get_files(self):
-    return {}
 
 
 #---------- GLOBAL VARIABLES --------#

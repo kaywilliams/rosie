@@ -7,15 +7,15 @@ from dimsbuild.logging import L1, L2
 from dimsbuild.repo    import RepoContainer
 
 API_VERSION = 5.0
+
 EVENTS = {'rpms': ['CustomRepoEvent']}
 
 class CustomRepoEvent(Event):
   def __init__(self):
     Event.__init__(self,
-
-      id='custom-repo',
-      conditionally_requires=['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
-      provides=['repos', 'source-repos', 'included-packages', 'excluded-packages']
+      id = 'custom-repo',
+      conditionally_requires = ['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
+      provides = ['repos', 'source-repos', 'included-packages', 'excluded-packages']
     )
     self.rc = RepoContainer(self)
 
@@ -43,7 +43,11 @@ class CustomRepoEvent(Event):
     self.rc['custom-repo'].pkgsfile = self.CUSTOM_RPMS/'packages'
     self.DATA['output'].append(self.rc['custom-repo'].pkgsfile)
 
-    self.rc.add_repo('custom-repo-sources', name='custom-repo-sources', baseurl=self.CUSTOM_SRPMS)
+    self.rc.add_repo(
+      'custom-repo-sources',
+      name = 'custom-repo-sources',
+      baseurl = self.CUSTOM_SRPMS
+    )
     self.rc['custom-repo-sources'].localurl = self.CUSTOM_SRPMS
     self.rc['custom-repo-sources'].pkgsfile = self.CUSTOM_SRPMS/'packages'
     self.DATA['output'].append(self.rc['custom-repo-sources'].pkgsfile)

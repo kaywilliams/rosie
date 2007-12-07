@@ -8,21 +8,25 @@ from dimsbuild.modules.shared import InputFilesMixin, RpmBuildMixin
 P = pps.Path
 
 API_VERSION = 5.0
+
 EVENTS = {'rpms': ['ConfigRpmEvent']}
 
 class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def __init__(self):
-    Event.__init__(self, id='config-rpm', version=2,
-                   provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])
-    RpmBuildMixin.__init__(self,
-                           '%s-config' % self.product,
-                           'The %s-config provides scripts and supporting '\
-                           'files for configuring the %s '\
-                           'distribution.' %(self.product, self.fullname),
-                           '%s configuration script and supporting files' % self.fullname)
-    InputFilesMixin.__init__(self)
+    Event.__init__(self,
+      id = 'config-rpm',
+      version = 2,
+      provides = ['custom-rpms', 'custom-srpms', 'custom-rpms-info']
+    )
 
-    self.build_folder = self.mddir / 'build'
+    RpmBuildMixin.__init__(self,
+      '%s-config' % self.product,
+      "The %s-config provides scripts and supporting files for configuring "
+      "the %s distribution." %(self.product, self.fullname),
+      "%s configuration script and supporting files" % self.fullname
+    )
+
+    InputFilesMixin.__init__(self)
 
     self.installinfo = {
       'config-files' : ('script', '/usr/lib/%s' % self.product, '755'),
@@ -73,11 +77,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       self.auto_script.chmod(0755)
       self.DATA['output'].append(self.auto_script)
 
-  def _get_files(self):
-    sources = {}
-    sources.update(RpmBuildMixin._get_files(self))
-    sources.update(InputFilesMixin._get_files(self))
-    return sources
+    self._update_data_files()
 
   def _getpscript(self):
     if self.auto_script:
@@ -88,18 +88,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       return post_install
     return None
 
-  def _add_files(self, spec):
-    # write the list of files to be installed and where they should be installed
-    data_files = self._get_files()
-    if not data_files:
-      return
-
-    value = []
-    for installdir, files in data_files.items():
-      value.append('%s : %s' %(installdir, ', '.join(files)))
-    spec.set('pkg_data', 'data_files', '\n\t'.join(value))
-
-    # mark config files
+  def _add_config_files(self, spec):
     config = []
     noreplace = []
     xpath, dstdir, _ = self.installinfo['support-files']
@@ -118,11 +107,3 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       spec.set('bdist_rpm', 'config_files', '\n\t'.join(config))
     if noreplace:
       spec.set('bdist_rpm', 'config_files_noreplace', '\n\t'.join(noreplace))
-
-    # mark files to be installed in '/usr/share/doc' as doc files
-    doc_files = []
-    for installdir in data_files.keys():
-      if installdir.startswith('/usr/share/doc'):
-        doc_files.extend([ installdir/x.basename for x in data_files[installdir] ])
-    if doc_files:
-      spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))
