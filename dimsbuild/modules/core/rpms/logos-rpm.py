@@ -77,7 +77,6 @@ class LogosRpmEvent(Event, RpmBuildMixin):
   def run(self):
     self.io.clean_eventcache(all=True)
     self._build_rpm()
-    self.DATA['output'].append(self.bdist_base) #!
     self.diff.write_metadata()
 
   def apply(self):
@@ -92,17 +91,31 @@ class LogosRpmEvent(Event, RpmBuildMixin):
 
   def _copy_images(self):
     for image_file in self.logos_dir.findpaths(type=pps.constants.TYPE_NOT_DIR):
-      relpath = image_file.relpathfrom(self.logos_dir)
-      dest = self.build_folder // relpath
-      if image_file.basename == 'COPYING':
-        ## HACK: find a better way to do this
-        pass
+      basename = image_file.basename
+
+      if self.locals.logos_rpm.has_key(basename):
+        output_format = self.locals.logos_rpm[basename]['output_format']
+        output_locations = self.locals.logos_rpm[basename]['output_locations']
+        for output_location in [ P(x) for x in output_locations ] :
+          install_dir = output_location.dirname
+          file_name = self.build_folder // output_location
+          file_name.dirname.mkdirs()
+          Image.open(image_file).save(file_name, format=output_format)
+          self.data_files.setdefault(install_dir, []).append(
+            file_name.relpathfrom(self.build_folder)
+          )
       else:
+        relpath = image_file.relpathfrom(self.logos_dir)
+        dest = self.build_folder // relpath
         install_dir = P('/%s' % relpath).dirname
-        self.data_files.setdefault(install_dir, []).append(
-          dest.relpathfrom(self.build_folder)
-        )
-      self.copy(image_file, dest.dirname)
+        if basename == 'COPYING':
+          ## HACK: find a better way to do this
+          pass
+        else:
+          self.data_files.setdefault(install_dir, []).append(
+            dest.relpathfrom(self.build_folder)
+          )
+        self.copy(image_file, dest.dirname)
 
   def _add_doc_files(self, spec):
     spec.set('bdist_rpm', 'doc_files', 'COPYING')

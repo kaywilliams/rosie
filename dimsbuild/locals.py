@@ -334,164 +334,24 @@ Screenshot=background.png
 
 LOGOS_RPM = LocalsDict({
   '0': {
-    'bootloader/grub-splash.xpm.gz': dict(
-      locations=['/boot/grub/splash.xpm.gz']
-    ),
-    'bootloader/grub-splash.png': dict(
-      locations=['/boot/grub/splash.png'],
-      width=640, height=480
-    ),
-    'anaconda/syslinux-splash.png': dict(
-      locations=['/usr/lib/anaconda-runtime/boot/syslinux-splash.png',
-                 '/usr/share/anaconda/pixmaps/syslinux-splash.png'],
-      width=640, height=480, textmaxwidth=600,
-      textvcenter=150, texthcenter=320
-    ),
-    'anaconda/splashtolss.sh': dict(
-      locations=['/usr/lib/anaconda-runtime/splashtolss.sh']
-    ),
-    'anaconda/anaconda_header.png': dict(
-      locations=['/usr/share/anaconda/pixmaps/anaconda_header.png'],
-      width=800, height=89, textmaxwidth=750,
-      textvcenter=45, texthcenter=400
-    ),
-    'anaconda/progress_first-lowres.png': dict(
-      locations=['/usr/share/anaconda/pixmaps/progress_first-lowres.png'],
-      width=350, height=224, textmaxwidth=300,
-      textvcenter=112, texthcenter=175
-    ),
-    'anaconda/progress_first.png': dict(
-      locations=['/usr/share/anaconda/pixmaps/progress_first.png'],
-      width=507, height=325, textmaxwidth=450,
-      textvcenter=150, texthcenter=250
-    ),
-    'anaconda/splash.png': dict(
-      locations=['/usr/share/anaconda/pixmaps/splash.png'],
-      width=507, height=388, textmaxwidth=450,
-      textvcenter=194, texthcenter=250
-    ),
-    'kde-splash/BlueCurve/Theme.rc': dict(
-      locations=['/usr/share/apps/ksplash/Themes/BlueCurve/Theme.rc']
-    ),
-    'kde-splash/BlueCurve/splash_active_bar.png': dict(
-      locations=['/usr/share/apps/ksplash/Themes/BlueCurve/splash_active_bar.png'],
-      width=400, height=61, textmaxwidth=350,
-      textvcenter=30, texthcenter=200
-    ),
-    'kde-splash/BlueCurve/splash_bottom.png': dict(
-      locations=['/usr/share/apps/ksplash/Themes/BlueCurve/splash_bottom.png'],
-      width=400, height=16, textmaxwidth=350,
-      textvcenter=8, texthcenter=200
-    ),
-    'kde-splash/BlueCurve/splash_inactive_bar.png' : dict(
-      locations=['/usr/share/apps/ksplash/Themes/BlueCurve/splash_inactive_bar.png'],
-      width=400, height=61, textmaxwidth=350,
-      textvcenter=30, texthcenter=200
-    ),
-    'kde-splash/BlueCurve/splash_top.png': dict(
-      locations=['/usr/share/apps/ksplash/Themes/BlueCurve/splash_top.png'],
-      width=400, height=244, textmaxwidth=350,
-      textvcenter=112, texthcenter=200
-    ),
-    'firstboot/firstboot-header.png': dict(
-      locations=['/usr/share/firstboot/pixmaps/firstboot-header.png'],
-      width=800, height=58, textmaxwidth=750,
-      textvcenter=25, texthcenter=400
-    ),
-    'firstboot/firstboot-left.png': dict(
-      locations=['/usr/share/firstboot/pixmaps/firstboot-left.png'],
-      width=160, height=600
-    ),
-    'firstboot/shadowman-round-48.png': dict(
-      locations=['/usr/share/firstboot/pixmaps/shadowman-round-48.png'],
-      width=48, height=48
-    ),
-    'firstboot/splash-small.png': dict(
-      locations=['/usr/share/firstboot/pixmaps/splash-small.png'],
-      width=550, height=200, textmaxwidth=530,
-      textvcenter=100, texthcenter=275
-    ),
-    'firstboot/workstation.png': dict(
-      locations=['/usr/share/firstboot/pixmaps/workstation.png'],
-      width=48, height=48
-    ),
-    'gnome-screensaver/lock-dialog-system.glade': dict(
-      locations=['/usr/share/gnome-screensaver/lock-dialog-system.glade'],
-    ),
-    'redhat-pixmaps/rhad.png': dict(
-      locations=['/usr/share/pixmaps/redhat/rhad.png'],
-      width=291, height=380
-    ),
-    'redhat-pixmaps/rpm.tif': dict(
-      locations=['/usr/share/pixmaps/redhat/rpm.tif'],
-      width=801, height=512
-    ),
-    'redhat-pixmaps/rpmfile-200.png': dict(
-      locations=['/usr/share/pixmaps/redhat/rpmfile-200.png'],
-      width=200, height=200
-    ),
-    'redhat-pixmaps/rpmfile-32.png': dict(
-      locations=['/usr/share/pixmaps/redhat/rpmfile-32.png'],
-      width=32, height=32
-    ),
-    'redhat-pixmaps/rpmfile-32.xpm': dict(
-      locations=['/usr/share/pixmaps/redhat/rpmfile-32.xpm'],
-      width=32, height=32
-    ),
-    'redhat-pixmaps/rpmfile-48.png': dict(
-      locations=['/usr/share/pixmaps/redhat/rpmfile-48.png'],
-      width=48, height=48
-    ),
-    'redhat-pixmaps/rpmfile-48.xpm': dict(
-      locations=['/usr/share/pixmaps/redhat/rpmfile-48.xpm'],
-      width=48, height=48
-    ),
-    'redhat-pixmaps/rpmfile-64.png': dict(
-      locations=['/usr/share/pixmaps/redhat/rpmfile-64.png'],
-      width=64, height=64
-    ),
-    'redhat-pixmaps/rpmfile-64.xpm': dict(
-      locations=['/usr/share/pixmaps/redhat/rpmfile-64.xpm'],
-      width=64, height=64
-    ),
-    'gnome-splash/gnome-splash.png': dict(
-      locations=['/usr/share/pixmaps/splash/gnome-splash.png'],
-      width=503, height=420, textmaxwidth=450,
-      textvcenter=210, texthcenter=250
-    ),
-    'rhgb/main-logo.png': dict(
-      locations=['/usr/share/rhgb/main-logo.png'],
-      width=320, height=396, textmaxwidth=320,
-      textvcenter=190, texthcenter=160
-    ),
-    'rhgb/system-logo.png': dict(
-      locations=['/usr/share/rhgb/system-logo.png'],
-      width=183, height=45, textmaxwidth=150,
-      textvcenter=22, texthcenter=90
-    ),
-    'gdm/themes/%(product)s/background.png': dict(
-      locations=['/usr/share/gdm/themes/%(product)s/background.png'],
-      width=635, height=480
-    ),
-    'gdm/themes/%(product)s/GdmGreeterTheme.desktop': dict(
-      locations=['/usr/share/gdm/themes/%(product)s/GdmGreeterTheme.desktop'],
-    ),
-    'gdm/themes/%(product)s/%(product)s.xml': dict(
-      locations=['/usr/share/gdm/themes/%(product)s/%(product)s.xml'],
+    'syslinux-vesa-splash.jpg': dict(
+      output_format = 'png',
+      output_locations = [
+        '/usr/lib/anaconda-runtime/boot/syslinux-splash.png',
+        '/usr/share/anaconda/pixmaps/syslinux-splash.png'
+      ]
     ),
   },
   '11.2.0.66-1': {
-    'anaconda/syslinux-vesa-splash.jpg': dict(
-      locations=['/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg'],
-      width=640, height=480,
-      format='jpeg'
-    ),
+    'syslinux-vesa-splash.jpg': dict(
+      output_format = 'jpg',
+      output_locations = ['/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg'],
+     ),
   },
   '11.3.0.36-1': {
-    'anaconda/syslinux-vesa-splash.jpg': dict(
-      locations=['/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg'],
-      width=640, height=480,
-      format='png'
+    'syslinux-vesa-splash.jpg': dict(
+      output_format = 'png',
+      output_locations = ['/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg'],
     ),
   }
 })
