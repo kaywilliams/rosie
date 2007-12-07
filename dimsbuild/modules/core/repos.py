@@ -96,8 +96,7 @@ class ReposEvent(Event, RepoEventMixin):
 
 #------ HELPER FUNCTIONS ------#
 def get_package_version(names, file):
-  scan = re.compile('(?:.*/)?(' + "|".join(names) + ')'
-                    '-([\d\.]+-[\d\.]+)\..*\.[Rr][Pp][Mm]')
+  scan = re.compile('(?:.*/)?(' + "|".join(names) + ')-(.*)(\..*\..*$)')
   fl = file.read_lines()
   for rpm in fl:
     match = scan.match(rpm)
@@ -111,3 +110,4 @@ def get_package_version(names, file):
 
 #------ ERRORS ------#
 class RepoNotFoundError(StandardError): pass
+

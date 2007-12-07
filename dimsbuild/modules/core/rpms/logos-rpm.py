@@ -22,7 +22,7 @@ EVENTS = {'rpms': ['LogosRpmEvent']}
 
 class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
   def __init__(self):
-    Event.__init__(self, id='logos-rpm', version=2,
+    Event.__init__(self, id='logos-rpm', version=3,
                    requires=['source-vars', 'anaconda-version', 'logos-versions'],
                    provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info'])
     RpmBuildMixin.__init__(self,
@@ -31,7 +31,6 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
                            'have been automatically created by dimsbuild and '\
                            'are specific to %s.' % (self.product, self.fullname),
                            'Icons and pictures related to %s' % self.fullname,
-                           default_obsoletes=['fedora-logos', 'centos-logos', 'redhat-logos'],
                            default_provides=['system-logos'])
     LocalFilesMixin.__init__(self)
     ColorMixin.__init__(self)
@@ -218,3 +217,4 @@ class LogosRpmEvent(Event, RpmBuildMixin, ColorMixin, LocalFilesMixin):
     im.save(filename, format=format)
 
   _generate_blank_image = _generate_image
+
