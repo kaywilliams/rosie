@@ -87,7 +87,8 @@ class Test_PkglistBug85_3(PkglistEventTestCase):
     PkglistEventTestCase.runTest(self)
     count1 = self.getPkglistCount('bug85_1')
     count2 = self.getPkglistCount('bug85_3')
-    self.failUnless(count1 == count2)
+    self.failUnless(count1 == count2, "bug85_1: %d packages; bug85_3: %d packages" % \
+                    (count1, count2))
 
 class Test_PkglistBug86_1(PkglistEventTestCase):
   def __init__(self, conf):
@@ -109,7 +110,7 @@ class Test_PkglistBug86_2(PkglistEventTestCase):
 
 class Test_PkglistBug108_1(PkglistEventTestCase):
   def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, True)
+    PkglistEventTestCase.__init__(self, conf, 'bug108_1', True)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
@@ -121,18 +122,21 @@ class Test_PkglistBug108_1(PkglistEventTestCase):
     self.tb.dispatch.execute(until='pkglist')
     found_gaim = False
     found_pidgin = False
+    found_libpurple = False
     for package in self.event.cvars['pkglist']:
       if package.startswith('gaim'):
         found_gaim = True
       if package.startswith('pidgin'):
         found_pidgin = True
+      if package.startswith('libpurple'):
+        found_libpurple = True
 
     self.failUnless(found_gaim)
-    self.failIf(found_pidgin)
+    self.failIf(found_pidgin or found_libpurple)
 
 class Test_PkglistBug108_2(PkglistEventTestCase):
   def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, False)
+    PkglistEventTestCase.__init__(self, conf, 'bug108_2', False)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
@@ -141,27 +145,32 @@ class Test_PkglistBug108_2(PkglistEventTestCase):
     self.tb.dispatch.execute(until='pkglist')
     found_gaim = False
     found_pidgin = False
+    found_libpurple = False
     for package in self.event.cvars['pkglist']:
       if package.startswith('gaim'):
         found_gaim = True
       if package.startswith('pidgin'):
         found_pidgin = True
-    self.failUnless(found_pidgin)
+      if package.startswith('libpurple'):
+        found_libpurple = True
+
+    self.failUnless(found_pidgin or found_libpurple)
     self.failIf(found_gaim)
 
 class Test_Supplied(EventTestCase):
   def __init__(self, conf):
     EventTestCase.__init__(self, 'pkglist', conf)
+    self.working_dir = P(conf.dirname)
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
-    pkglist_in  = P(xmllib.tree.read(self.conf).get('/distro/pkglist/text()')).read_lines()
+    pkglist_in  = (self.working_dir / self.event.config.get('text()')).read_lines()
     pkglist_out = self.event.cvars['pkglist']
     self.failUnlessEqual(sorted(pkglist_in), sorted(pkglist_out))
 
 class Test_PackageAdded(PkglistEventTestCase):
   def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, True)
+    PkglistEventTestCase.__init__(self, conf, 'pkgadded', True)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
@@ -177,7 +186,7 @@ class Test_PackageAdded(PkglistEventTestCase):
 
 class Test_ObsoletedPackage(PkglistEventTestCase):
   def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, False)
+    PkglistEventTestCase.__init__(self, conf, 'pkgobsoleted', False)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
@@ -196,7 +205,7 @@ class Test_ObsoletedPackage(PkglistEventTestCase):
 
 class Test_RemovedPackage(PkglistEventTestCase):
   def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, False)
+    PkglistEventTestCase.__init__(self, conf, 'pkgremoved', False)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
@@ -207,7 +216,7 @@ class Test_RemovedPackage(PkglistEventTestCase):
 
 class Test_ExclusivePackage_1(PkglistEventTestCase):
   def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, False)
+    PkglistEventTestCase.__init__(self, conf, 'exclusive_1', False)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
@@ -224,7 +233,7 @@ class Test_ExclusivePackage_1(PkglistEventTestCase):
 
 class Test_ExclusivePackage_2(PkglistEventTestCase):
   def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, False)
+    PkglistEventTestCase.__init__(self, conf, 'exclusive_2', False)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
