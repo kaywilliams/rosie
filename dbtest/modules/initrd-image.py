@@ -1,12 +1,11 @@
-import unittest
-
 from dims import pps
 
+from dbtest        import ModuleTestSuite
 from dbtest.core   import make_core_suite
 from dbtest.mixins import ImageModifyMixinTestCase, imm_make_suite
 
 class InitrdImageEventTestCase(ImageModifyMixinTestCase):
-  def __init__(self, conf):
+  def __init__(self, conf=None):
     ImageModifyMixinTestCase.__init__(self, 'initrd-image', conf)
 
   def setUp(self):
@@ -34,11 +33,10 @@ class Test_Kickstart(InitrdImageEventTestCase):
 
 
 def make_suite():
-  conf = pps.Path(__file__).dirname/'initrd-image.conf'
-  suite = unittest.TestSuite()
+  suite = ModuleTestSuite('initrd-image')
 
-  suite.addTest(make_core_suite('initrd-image', conf))
-  suite.addTest(imm_make_suite('initrd-image', conf, 'path'))
-  suite.addTest(Test_Kickstart(conf))
+  suite.addTest(make_core_suite('initrd-image'))
+  suite.addTest(imm_make_suite('initrd-image', xpath='path'))
+  suite.addTest(Test_Kickstart())
 
   return suite

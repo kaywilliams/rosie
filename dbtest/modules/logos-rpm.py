@@ -1,14 +1,13 @@
-import unittest
-
-from dims import pps
-
+from dbtest      import EventTestCase, ModuleTestSuite
 from dbtest.core import make_core_suite
 from dbtest.rpms import RpmBuildMixinTestCase, LocalFilesMixinTestCase, RpmCvarsTestCase
 
-class Test_LogosRpmLocals(LocalFilesMixinTestCase):
-  def __init__(self, conf):
-    LocalFilesMixinTestCase.__init__(self, 'logos-rpm', conf)
+class LogosRpmTestCase(EventTestCase):
+  _conf = """<logos-rpm enabled="true"/>"""
+  def __init__(self, conf=None):
+    EventTestCase.__init__(self, 'logos-rpm', conf)
 
+class Test_LogosRpmLocals(LocalFilesMixinTestCase, LogosRpmTestCase):
   def setUp(self):
     LocalFilesMixinTestCase.setUp(self)
     self.clean_event_md()
@@ -23,10 +22,7 @@ class Test_LogosRpmLocals(LocalFilesMixinTestCase):
     self.check_locals()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_LogosRpmBuild(RpmBuildMixinTestCase):
-  def __init__(self, conf):
-    RpmBuildMixinTestCase.__init__(self, 'logos-rpm', conf)
-
+class Test_LogosRpmBuild(RpmBuildMixinTestCase, LogosRpmTestCase):
   def setUp(self):
     RpmBuildMixinTestCase.setUp(self)
     self.clean_event_md()
@@ -39,10 +35,7 @@ class Test_LogosRpmBuild(RpmBuildMixinTestCase):
     self.check_header()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_LogosRpmCvars1(RpmCvarsTestCase):
-  def __init__(self, conf):
-    RpmCvarsTestCase.__init__(self, 'logos-rpm', conf)
-
+class Test_LogosRpmCvars1(RpmCvarsTestCase, LogosRpmTestCase):
   def setUp(self):
     RpmCvarsTestCase.setUp(self)
     self.clean_event_md()
@@ -58,10 +51,7 @@ class Test_LogosRpmCvars1(RpmCvarsTestCase):
                     self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_LogosRpmCvars2(RpmCvarsTestCase):
-  def __init__(self, conf):
-    RpmCvarsTestCase.__init__(self, 'logos-rpm', conf)
-
+class Test_LogosRpmCvars2(RpmCvarsTestCase, LogosRpmTestCase):
   def setUp(self):
     RpmCvarsTestCase.setUp(self)
 
@@ -77,13 +67,12 @@ class Test_LogosRpmCvars2(RpmCvarsTestCase):
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 def make_suite():
-  conf = pps.Path(__file__).dirname/'logos-rpm.conf'
-  suite = unittest.TestSuite()
+  suite = ModuleTestSuite('logos-rpm')
 
-  suite.addTest(make_core_suite('logos-rpm', conf))
-  suite.addTest(Test_LogosRpmLocals(conf))
-  suite.addTest(Test_LogosRpmBuild(conf))
-  suite.addTest(Test_LogosRpmCvars1(conf))
-  suite.addTest(Test_LogosRpmCvars2(conf))
+  suite.addTest(make_core_suite('logos-rpm'))
+  suite.addTest(Test_LogosRpmLocals())
+  suite.addTest(Test_LogosRpmBuild())
+  suite.addTest(Test_LogosRpmCvars1())
+  suite.addTest(Test_LogosRpmCvars2())
 
   return suite

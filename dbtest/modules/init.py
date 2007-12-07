@@ -2,6 +2,7 @@ import unittest
 
 from dims import pps
 
+from dbtest      import ModuleTestSuite
 from dbtest.core import make_core_suite
 
 #------ init ------#
@@ -12,16 +13,15 @@ from dbtest.core import make_core_suite
 
 
 def make_suite():
-  confdir = pps.Path(__file__).dirname
-  suite = unittest.TestSuite()
+  suite = ModuleTestSuite('init')
 
   # init
-  suite.addTest(make_core_suite('init', confdir/'init.conf'))
+  suite.addTest(make_core_suite('init'))
 
   # setup
-  suite.addTest(make_core_suite('setup', confdir/'setup.conf'))
+  suite.addTest(make_core_suite('setup'))
 
   # OS
-  suite.addTest(make_core_suite('OS', confdir/'OS.conf'))
+  suite.addTest(make_core_suite('OS'))
 
   return suite

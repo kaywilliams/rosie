@@ -1,16 +1,14 @@
-import unittest
-
 from dims import pps
 from dims import xmllib
 
 from dimsbuild.modules.core.software.comps import KERNELS
 
-from dbtest      import EventTestCase
+from dbtest      import EventTestCase, ModuleTestSuite
 from dbtest.core import make_core_suite
 
 class CompsEventTestCase(EventTestCase):
-  def __init__(self, conf):
-    EventTestCase.__init__(self, 'comps', conf)
+  def __init__(self):
+    EventTestCase.__init__(self, 'comps')
     self.included_groups = []
     self.included_pkgs = []
     self.excluded_pkgs = []
@@ -53,18 +51,25 @@ class CompsEventTestCase(EventTestCase):
 
 class Test_Supplied(CompsEventTestCase):
   "comps supplied"
-  def __init__(self, conf):
-    CompsEventTestCase.__init__(self, conf)
+  _conf = "<comps>comps/comps.xml</comps>" # location needs adjustment when config moves
 
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
-    comps_in  = xmllib.tree.read(self.conf.dirname/'comps.xml')
+    comps_in  = xmllib.tree.read(pps.Path(__file__).dirname/'comps.xml')
     comps_out = self.read_comps()
 
     self.failUnlessEqual(comps_in, comps_out)
 
 class Test_IncludePackages(CompsEventTestCase):
   "comps generated, groups included in core, kernel unlisted"
+  _conf = \
+  """<comps>
+    <core>
+      <group>core</group>
+      <group>base</group>
+    </core>
+  </comps>"""
+
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
 
@@ -77,6 +82,15 @@ class Test_IncludePackages(CompsEventTestCase):
 
 class Test_IncludeCoreGroups(CompsEventTestCase):
   "comps generated, packages included in core"
+  _conf = \
+  """<comps>
+    <core>
+      <group>core</group>
+      <package>createrepo</package>
+      <package>httpd</package>
+    </core>
+  </comps>"""
+
   def setUp(self):
     CompsEventTestCase.setUp(self)
     self.event.cvars['included-packages'] = ['kde', 'xcalc']
@@ -90,6 +104,14 @@ class Test_IncludeCoreGroups(CompsEventTestCase):
 
 class Test_IncludeGroups(CompsEventTestCase):
   "comps generated, groups included"
+  _conf = \
+  """<comps>
+    <groups>
+      <group>base</group>
+      <group>printing</group>
+    </groups>
+  </comps>"""
+
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
 
@@ -98,6 +120,14 @@ class Test_IncludeGroups(CompsEventTestCase):
 
 class Test_ExcludePackages(CompsEventTestCase):
   "comps generated, packages excluded"
+  _conf = \
+  """<comps>
+    <exclude>
+      <package>cpio</package>
+      <package>kudzu</package>
+    </exclude>
+  </comps>"""
+
   def setUp(self):
     CompsEventTestCase.setUp(self)
     self.event.cvars['excluded-packages'] = ['passwd', 'setup']
@@ -111,6 +141,17 @@ class Test_ExcludePackages(CompsEventTestCase):
 
 class Test_GroupsByRepo(CompsEventTestCase):
   "comps generated, group included from specific repo"
+  _conf = \
+  """<comps>
+    <core>
+      <group repoid="fedora-6-base">core</group>
+    </core>
+    <groups>
+      <group>base</group>
+      <group repoid="fedora-6-base">printing</group>
+    </groups>
+  </comps>"""
+
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
 
@@ -121,6 +162,16 @@ class Test_GroupsByRepo(CompsEventTestCase):
 
 class Test_MultipleGroupfiles(CompsEventTestCase):
   "comps generated, multiple repositories with groupfiles"
+  _conf = \
+  """<comps>
+    <core>
+      <group repooid="fedora-6-base">core</groups>
+    </core>
+    <groups>
+      <group>base-x</group>
+    </groups>
+  </comps>"""
+
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
 
@@ -133,6 +184,15 @@ class Test_MultipleGroupfiles(CompsEventTestCase):
 class Test_GroupDefaults(CompsEventTestCase):
   # bug 106
   "comps generated, group defaults set appropriately"
+  _conf = \
+  """<comps>
+    <groups>
+      <group>base</group>
+      <group default="true">web-server</group>
+      <group default="false">printing</group>
+    </groups>
+  </comps>"""
+
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
 
@@ -143,18 +203,19 @@ class Test_GroupDefaults(CompsEventTestCase):
         comps.get('/comps/group[id/text()="%s"]/default/text()' % group),
         self.event.config.get('groups/group[text()="%s"]/@default' % group))
 
-def make_suite():
-  confdir = pps.Path(__file__).dirname
-  suite = unittest.TestSuite()
+    # still need to test 'default' for both 'true' and 'false' #!
 
-  suite.addTest(make_core_suite('comps', confdir/'conf.supplied'))
-  suite.addTest(Test_Supplied(confdir/'conf.supplied'))
-  suite.addTest(Test_IncludePackages(confdir/'conf.include-packages'))
-  suite.addTest(Test_IncludeCoreGroups(confdir/'conf.include-core-groups'))
-  suite.addTest(Test_IncludeGroups(confdir/'conf.include-groups'))
-  suite.addTest(Test_ExcludePackages(confdir/'conf.exclude-packages'))
-  suite.addTest(Test_GroupsByRepo(confdir/'conf.groups-by-repo'))
-  suite.addTest(Test_MultipleGroupfiles(confdir/'conf.multiple-groupfiles'))
-  suite.addTest(Test_GroupDefaults(confdir/'conf.group-defaults'))
+def make_suite():
+  suite = ModuleTestSuite('comps')
+
+  suite.addTest(make_core_suite('comps'))
+  suite.addTest(Test_Supplied())
+  suite.addTest(Test_IncludePackages())
+  suite.addTest(Test_IncludeCoreGroups())
+  suite.addTest(Test_IncludeGroups())
+  suite.addTest(Test_ExcludePackages())
+  suite.addTest(Test_GroupsByRepo())
+  ##suite.addTest(Test_MultipleGroupfiles())
+  suite.addTest(Test_GroupDefaults())
 
   return suite

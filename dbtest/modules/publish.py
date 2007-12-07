@@ -1,15 +1,11 @@
-import unittest
-
-from dims import pps
-
+from dbtest      import ModuleTestSuite
 from dbtest.core import make_core_suite
 
 def make_suite():
-  confdir = pps.Path(__file__).dirname
-  suite = unittest.TestSuite()
+  suite = ModuleTestSuite('publish')
 
   # publish-setup
-  suite.addTest(make_core_suite('publish-setup', confdir/'publish-setup.conf'))
+  suite.addTest(make_core_suite('publish-setup'))
 
   #publish
 

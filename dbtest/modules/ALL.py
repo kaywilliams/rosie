@@ -1,13 +1,8 @@
-import unittest
-
-from dims import pps
-
+from dbtest      import ModuleTestSuite
 from dbtest.core import make_core_suite
 
 def make_suite():
-  conf = pps.Path(__file__).dirname/'ALL.conf'
-  suite = unittest.TestSuite()
-
-  suite.addTest(make_core_suite('ALL', conf))
+  suite = ModuleTestSuite('ALL')
+  suite.addTest(make_core_suite('ALL'))
 
   return suite

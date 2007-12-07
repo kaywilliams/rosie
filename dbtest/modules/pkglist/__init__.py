@@ -247,6 +247,7 @@ class Test_ExclusivePackage_2(PkglistEventTestCase):
 def make_suite():
   confdir = pps.Path(__file__).dirname
   suite = unittest.TestSuite()
+  return suite #!
 
   # core tests
   suite.addTest(make_core_suite('pkglist', confdir / 'pkglist.conf'))

@@ -1,18 +1,13 @@
-import unittest
-
-from dims import pps
-
-from dbtest      import EventTestCase
+from dbtest      import EventTestCase, ModuleTestSuite
 from dbtest.core import make_core_suite
 
 class RpmsTestCase(EventTestCase):
-  def __init__(self, conf):
+  def __init__(self, conf=None):
     EventTestCase.__init__(self, 'rpms', conf)
 
 def make_suite():
-  conf = pps.Path(__file__).dirname/'rpms.conf'
-  suite = unittest.TestSuite()
+  suite = ModuleTestSuite('rpms')
 
-  suite.addTest(make_core_suite('rpms', conf))
+  suite.addTest(make_core_suite('rpms'))
 
   return suite

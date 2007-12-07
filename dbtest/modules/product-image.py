@@ -1,14 +1,11 @@
 import copy
-import unittest
 
-from dims import pps
-
-from dbtest        import EventTestCase
+from dbtest        import EventTestCase, ModuleTestSuite
 from dbtest.core   import make_core_suite
 from dbtest.mixins import ImageModifyMixinTestCase, imm_make_suite
 
 class ProductImageEventTestCase(ImageModifyMixinTestCase):
-  def __init__(self, conf):
+  def __init__(self, conf=None):
     ImageModifyMixinTestCase.__init__(self, 'product-image', conf)
 
   def setUp(self):
@@ -28,11 +25,10 @@ class Test_Installclasses(ProductImageEventTestCase):
 
 
 def make_suite():
-  conf = pps.Path(__file__).dirname/'product-image.conf'
-  suite = unittest.TestSuite()
+  suite = ModuleTestSuite('product-image')
 
-  suite.addTest(make_core_suite('product-image', conf))
-  suite.addTest(imm_make_suite('product-image', conf, 'path'))
-  suite.addTest(Test_Installclasses(conf))
+  suite.addTest(make_core_suite('product-image'))
+  suite.addTest(imm_make_suite('product-image', xpath='path'))
+  suite.addTest(Test_Installclasses())
 
   return suite

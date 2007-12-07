@@ -1,15 +1,11 @@
-import unittest
-
-from dims import pps
-
-from dbtest      import EventTestCase
-from dbtest.core import make_core_suite
+from dbtest         import EventTestCase, ModuleTestSuite
+from dbtest.core    import make_core_suite
 
 non_meta_event = 'comps'
 meta_event = 'setup'
 
 class AutocleanEventTestCase(EventTestCase):
-  def __init__(self, conf):
+  def __init__(self, conf=None):
     EventTestCase.__init__(self, 'autoclean', conf)
 
 class Test_NonMeta(AutocleanEventTestCase):
@@ -105,17 +101,16 @@ class Test_RemoveDisabled(AutocleanEventTestCase):
 
 
 def make_suite():
-  conf = pps.Path(__file__).dirname/'autoclean.conf'
+  suite = ModuleTestSuite('autoclean')
 
   # autoclean
-  suite = unittest.TestSuite()
-  suite.addTest(make_core_suite('autoclean', conf))
-  suite.addTest(Test_NonMeta(conf))
-  suite.addTest(Test_NonMetaVersion(conf))
-  suite.addTest(Test_NonMetaNoVersion(conf))
-  suite.addTest(Test_Meta(conf))
-  suite.addTest(Test_MetaVersion(conf))
-  suite.addTest(Test_MetaNoVersion(conf))
-  suite.addTest(Test_RemoveDisabled(conf))
+  suite.addTest(make_core_suite('autoclean'))
+  suite.addTest(Test_NonMeta())
+  suite.addTest(Test_NonMetaVersion())
+  suite.addTest(Test_NonMetaNoVersion())
+  suite.addTest(Test_Meta())
+  suite.addTest(Test_MetaVersion())
+  suite.addTest(Test_MetaNoVersion())
+  suite.addTest(Test_RemoveDisabled())
 
   return suite

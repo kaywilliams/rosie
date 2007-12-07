@@ -1,15 +1,14 @@
-import unittest
-
-from dims import pps
-
+from dbtest      import EventTestCase, ModuleTestSuite
 from dbtest.core import make_core_suite
 from dbtest.rpms import (RpmBuildMixinTestCase, InputFilesMixinTestCase,
-                         RpmCvarsTestCase, ExtractMixin, RpmEventTestCase)
+                           RpmCvarsTestCase, ExtractMixin, RpmEventTestCase)
 
-class Test_ReleaseRpmInputs(InputFilesMixinTestCase):
-  def __init__(self, conf):
-    InputFilesMixinTestCase.__init__(self, 'release-rpm', conf)
+class ReleaseRpmTestCase(EventTestCase):
+  _conf = """<release-rpm enabled="true"/>"""
+  def __init__(self, conf=None):
+    EventTestCase.__init__(self, 'release-rpm', conf)
 
+class Test_ReleaseRpmInputs(InputFilesMixinTestCase, ReleaseRpmTestCase):
   def setUp(self):
     InputFilesMixinTestCase.setUp(self)
     self.clean_event_md()
@@ -24,10 +23,7 @@ class Test_ReleaseRpmInputs(InputFilesMixinTestCase):
     self.check_inputs()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ReleaseRpmBuild(RpmBuildMixinTestCase):
-  def __init__(self, conf):
-    RpmBuildMixinTestCase.__init__(self, 'release-rpm', conf)
-
+class Test_ReleaseRpmBuild(RpmBuildMixinTestCase, ReleaseRpmTestCase):
   def setUp(self):
     RpmBuildMixinTestCase.setUp(self)
     self.clean_event_md()
@@ -37,10 +33,7 @@ class Test_ReleaseRpmBuild(RpmBuildMixinTestCase):
     self.check_header()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ReleaseRpmCvars1(RpmCvarsTestCase):
-  def __init__(self, conf):
-    RpmCvarsTestCase.__init__(self, 'release-rpm', conf)
-
+class Test_ReleaseRpmCvars1(RpmCvarsTestCase, ReleaseRpmTestCase):
   def setUp(self):
     RpmCvarsTestCase.setUp(self)
     self.clean_event_md()
@@ -53,10 +46,7 @@ class Test_ReleaseRpmCvars1(RpmCvarsTestCase):
                     self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ReleaseRpmCvars2(RpmCvarsTestCase):
-  def __init__(self, conf):
-    RpmCvarsTestCase.__init__(self, 'release-rpm', conf)
-
+class Test_ReleaseRpmCvars2(RpmCvarsTestCase, ReleaseRpmTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='release-rpm')
     self.check_cvars()
@@ -65,11 +55,7 @@ class Test_ReleaseRpmCvars2(RpmCvarsTestCase):
                     self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_RNotesExistence(RpmEventTestCase, ExtractMixin):
-  def __init__(self, conf):
-    RpmEventTestCase.__init__(self, 'release-rpm', conf)
-    ExtractMixin.__init__(self)
-
+class Test_RNotesExistence(RpmEventTestCase, ExtractMixin, ReleaseRpmTestCase):
   def tearDown(self):
     if self.img_path:
       self.img_path.rm(recursive=True, force=True)
@@ -82,14 +68,13 @@ class Test_RNotesExistence(RpmEventTestCase, ExtractMixin):
     self.failIf(len(rnotes) == 0)
 
 def make_suite():
-  conf = pps.Path(__file__).dirname/'release-rpm.conf'
-  suite = unittest.TestSuite()
+  suite = ModuleTestSuite('release-rpm')
 
-  suite.addTest(make_core_suite('release-rpm', conf))
-  suite.addTest(Test_ReleaseRpmInputs(conf))
-  suite.addTest(Test_ReleaseRpmBuild(conf))
-  suite.addTest(Test_ReleaseRpmCvars1(conf))
-  suite.addTest(Test_ReleaseRpmCvars2(conf))
-  suite.addTest(Test_RNotesExistence(conf))
+  suite.addTest(make_core_suite('release-rpm'))
+  suite.addTest(Test_ReleaseRpmInputs())
+  suite.addTest(Test_ReleaseRpmBuild())
+  suite.addTest(Test_ReleaseRpmCvars1())
+  suite.addTest(Test_ReleaseRpmCvars2())
+  suite.addTest(Test_RNotesExistence())
 
   return suite

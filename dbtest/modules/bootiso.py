@@ -1,14 +1,13 @@
-import unittest
-
 from dims     import pps
 from dims.img import MakeImage
 
+from dbtest        import ModuleTestSuite
 from dbtest.core   import make_core_suite
 from dbtest.mixins import BootConfigMixinTestCase
 
 class BootisoEventTestCase(BootConfigMixinTestCase):
-  def __init__(self, conf):
-    BootConfigMixinTestCase.__init__(self, 'bootiso', conf)
+  def __init__(self):
+    BootConfigMixinTestCase.__init__(self, 'bootiso')
     self.default_args = []
     self.image = None
     self.do_defaults = True
@@ -28,14 +27,27 @@ class BootisoEventTestCase(BootConfigMixinTestCase):
 
 class Test_BootArgsDefault(BootisoEventTestCase):
   "default boot args and config-specified args in isolinux.cfg"
+  _conf = \
+  """<bootiso>
+    <boot-config use-defaults="true">
+      <append-args>ro root=LABEL=/</append-args>
+    </boot-config>
+  </bootiso>"""
+
   def setUp(self):
     BootisoEventTestCase.setUp(self)
-    self.event.config.get('boot-config').attrib['use-defaults'] = 'true'
     self.do_defaults = True
 
 
 class Test_BootArgsNoDefault(BootisoEventTestCase):
   "default boot args not included"
+  _conf = \
+  """<bootiso>
+    <boot-config use-defaults="false">
+      <append-args>ro root=LABEL=/</append-args>
+    </boot-config>
+  </bootiso>"""
+
   def setUp(self):
     BootisoEventTestCase.setUp(self)
     self.event.config.get('boot-config').attrib['use-defaults'] = 'false'
@@ -44,21 +56,25 @@ class Test_BootArgsNoDefault(BootisoEventTestCase):
 
 class Test_BootArgsMacros(BootisoEventTestCase):
   "macro usage with non-default boot args"
+  _conf = \
+  """<bootiso>
+    <boot-config use-defaults="false">
+      <append-args>ro root=LABEL=/ %{method} %{ks}</append-args>
+    </boot-config>
+  </bootiso>"""
+
   def setUp(self):
     BootisoEventTestCase.setUp(self)
-    self.event.config.get('boot-config').attrib['use-defaults'] = 'false'
-    self.event.config.get('boot-config/append-args').text += ' %{method} %{ks}'
     self.do_defaults = False
 
 
 def make_suite():
-  conf = pps.Path(__file__).dirname/'bootiso.conf'
-  suite = unittest.TestSuite()
+  suite = ModuleTestSuite('bootiso')
 
   # bootiso
-  suite.addTest(make_core_suite('bootiso', conf))
-  suite.addTest(Test_BootArgsDefault(conf))
-  suite.addTest(Test_BootArgsNoDefault(conf))
-  suite.addTest(Test_BootArgsMacros(conf))
+  suite.addTest(make_core_suite('bootiso'))
+  suite.addTest(Test_BootArgsDefault())
+  suite.addTest(Test_BootArgsNoDefault())
+  suite.addTest(Test_BootArgsMacros())
 
   return suite

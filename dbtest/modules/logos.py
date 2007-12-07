@@ -1,10 +1,9 @@
-import unittest
-
 from dims import pps
 from dims import xmllib
 
-from dbtest      import EventTestCase
-from dbtest.core import make_core_suite
+from dbtest        import EventTestCase, ModuleTestSuite
+from dbtest.config import make_default_config
+from dbtest.core   import make_core_suite
 
 class Test_LogosEvent_Default(EventTestCase):
   def __init__(self, conf):
@@ -33,21 +32,20 @@ class Test_LogosEvent_Custom(EventTestCase):
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 def make_suite():
-  confdir = pps.Path(__file__).dirname
-  suite = unittest.TestSuite()
+  suite = ModuleTestSuite('logos')
 
-  suite.addTest(make_core_suite('logos', confdir/'fedora6.conf'))
+  suite.addTest(make_core_suite('logos', make_default_config('logos')))
 
-  suite.addTest(Test_LogosEvent_Default(confdir/'fedora6.conf'))
-  suite.addTest(Test_LogosEvent_Default(confdir/'fedora7.conf'))
-  suite.addTest(Test_LogosEvent_Default(confdir/'fedora8.conf'))
-  suite.addTest(Test_LogosEvent_Default(confdir/'centos5.conf'))
-  suite.addTest(Test_LogosEvent_Default(confdir/'redhat5.conf'))
+  suite.addTest(Test_LogosEvent_Default(make_default_config('logos', 'fedora-6')))
+  suite.addTest(Test_LogosEvent_Default(make_default_config('logos', 'fedora-7')))
+  suite.addTest(Test_LogosEvent_Default(make_default_config('logos', 'fedora-8')))
+  suite.addTest(Test_LogosEvent_Default(make_default_config('logos', 'centos-5')))
+  suite.addTest(Test_LogosEvent_Default(make_default_config('logos', 'redhat-5')))
 
-  suite.addTest(Test_LogosEvent_Custom(confdir/'fedora6.conf'))
-  suite.addTest(Test_LogosEvent_Custom(confdir/'fedora7.conf'))
-  suite.addTest(Test_LogosEvent_Custom(confdir/'fedora8.conf'))
-  suite.addTest(Test_LogosEvent_Custom(confdir/'centos5.conf'))
-  suite.addTest(Test_LogosEvent_Custom(confdir/'redhat5.conf'))
+  suite.addTest(Test_LogosEvent_Custom(make_default_config('logos', 'fedora-6')))
+  suite.addTest(Test_LogosEvent_Custom(make_default_config('logos', 'fedora-7')))
+  suite.addTest(Test_LogosEvent_Custom(make_default_config('logos', 'fedora-8')))
+  suite.addTest(Test_LogosEvent_Custom(make_default_config('logos', 'centos-5')))
+  suite.addTest(Test_LogosEvent_Custom(make_default_config('logos', 'redhat-5')))
 
   return suite

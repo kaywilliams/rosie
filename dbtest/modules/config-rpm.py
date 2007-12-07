@@ -1,14 +1,19 @@
-import unittest
-
 from dims import pps
 
+from dbtest      import EventTestCase, ModuleTestSuite
 from dbtest.core import make_core_suite, make_extension_suite
-from dbtest.rpms import RpmBuildMixinTestCase, InputFilesMixinTestCase, RpmCvarsTestCase
+from dbtest.rpms import ( RpmBuildMixinTestCase, InputFilesMixinTestCase,
+                          RpmCvarsTestCase )
 
-class Test_ConfigRpmInputs(InputFilesMixinTestCase):
-  def __init__(self, conf):
-    InputFilesMixinTestCase.__init__(self, 'config-rpm', conf)
+class ConfigRpmTestCase(EventTestCase):
+  _conf = """<config-rpm enabled="true">
+    <requires>yum</requires>
+    <requires>createrepo</requires>
+  </config-rpm>"""
+  def __init__(self, conf=None):
+    EventTestCase.__init__(self, 'config-rpm', conf)
 
+class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmTestCase):
   def setUp(self):
     InputFilesMixinTestCase.setUp(self)
     self.clean_event_md()
@@ -24,10 +29,7 @@ class Test_ConfigRpmInputs(InputFilesMixinTestCase):
     self.check_inputs()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ConfigRpmBuild(RpmBuildMixinTestCase):
-  def __init__(self, conf):
-    RpmBuildMixinTestCase.__init__(self, 'config-rpm', conf)
-
+class Test_ConfigRpmBuild(RpmBuildMixinTestCase, ConfigRpmTestCase):
   def setUp(self):
     RpmBuildMixinTestCase.setUp(self)
     self.clean_event_md()
@@ -41,10 +43,7 @@ class Test_ConfigRpmBuild(RpmBuildMixinTestCase):
     self.check_header()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ConfigRpmCvars1(RpmCvarsTestCase):
-  def __init__(self, conf):
-    RpmCvarsTestCase.__init__(self, 'config-rpm', conf)
-
+class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmTestCase):
   def setUp(self):
     RpmCvarsTestCase.setUp(self)
     self.clean_event_md()
@@ -61,10 +60,7 @@ class Test_ConfigRpmCvars1(RpmCvarsTestCase):
                     self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ConfigRpmCvars2(RpmCvarsTestCase):
-  def __init__(self, conf):
-    RpmCvarsTestCase.__init__(self, 'config-rpm', conf)
-
+class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmTestCase):
   def setUp(self):
     RpmCvarsTestCase.setUp(self)
     self.event.status = True
@@ -81,14 +77,12 @@ class Test_ConfigRpmCvars2(RpmCvarsTestCase):
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 def make_suite():
-  conf = pps.Path(__file__).dirname/'config-rpm.conf'
-  suite = unittest.TestSuite()
+  suite = ModuleTestSuite('config-rpm')
 
-  suite.addTest(make_core_suite('config-rpm', conf))
-  suite.addTest(make_extension_suite('config-rpm', conf))
-  suite.addTest(Test_ConfigRpmInputs(conf))
-  suite.addTest(Test_ConfigRpmBuild(conf))
-  suite.addTest(Test_ConfigRpmCvars1(conf))
-  suite.addTest(Test_ConfigRpmCvars2(conf))
+  suite.addTest(make_extension_suite('config-rpm'))
+  suite.addTest(Test_ConfigRpmInputs())
+  suite.addTest(Test_ConfigRpmBuild())
+  suite.addTest(Test_ConfigRpmCvars1())
+  suite.addTest(Test_ConfigRpmCvars2())
 
   return suite

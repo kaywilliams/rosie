@@ -1,16 +1,11 @@
-import copy
-import unittest
-
-from dims import pps
-
+from dbtest        import ModuleTestSuite
 from dbtest.core   import make_core_suite
 from dbtest.mixins import fdm_make_suite
 
 def make_suite():
-  conf = pps.Path(__file__).dirname/'stage2-images.conf'
-  suite = unittest.TestSuite()
+  suite = ModuleTestSuite('stage2-images')
 
-  suite.addTest(make_core_suite('stage2-images', conf))
-  suite.addTest(fdm_make_suite('stage2-images', conf))
+  suite.addTest(make_core_suite('stage2-images'))
+  suite.addTest(fdm_make_suite('stage2-images'))
 
   return suite

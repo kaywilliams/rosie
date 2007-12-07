@@ -1,14 +1,13 @@
-import unittest
-
-from dims import pps
-
+from dbtest      import EventTestCase, ModuleTestSuite
 from dbtest.core import make_core_suite, make_extension_suite
 from dbtest.rpms import RpmBuildMixinTestCase, RpmCvarsTestCase
 
-class Test_ThemeRpmBuild(RpmBuildMixinTestCase):
-  def __init__(self, conf):
-    RpmBuildMixinTestCase.__init__(self, 'theme-rpm', conf)
+class ThemeRpmTestCase(EventTestCase):
+  _conf = """<theme-rpm enabled="true"/>"""
+  def __init__(self, conf=None):
+    EventTestCase.__init__(self, 'theme-rpm', conf)
 
+class Test_ThemeRpmBuild(RpmBuildMixinTestCase, ThemeRpmTestCase):
   def setUp(self):
     RpmBuildMixinTestCase.setUp(self)
     self.clean_event_md()
@@ -22,10 +21,7 @@ class Test_ThemeRpmBuild(RpmBuildMixinTestCase):
     self.check_header()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ThemeRpmCvars1(RpmCvarsTestCase):
-  def __init__(self, conf):
-    RpmCvarsTestCase.__init__(self, 'theme-rpm', conf)
-
+class Test_ThemeRpmCvars1(RpmCvarsTestCase, ThemeRpmTestCase):
   def setUp(self):
     RpmCvarsTestCase.setUp(self)
     self.clean_event_md()
@@ -42,10 +38,7 @@ class Test_ThemeRpmCvars1(RpmCvarsTestCase):
                     self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ThemeRpmCvars2(RpmCvarsTestCase):
-  def __init__(self, conf):
-    RpmCvarsTestCase.__init__(self, 'theme-rpm', conf)
-
+class Test_ThemeRpmCvars2(RpmCvarsTestCase, ThemeRpmTestCase):
   def setUp(self):
     RpmCvarsTestCase.setUp(self)
     self.event.status = True
@@ -62,13 +55,11 @@ class Test_ThemeRpmCvars2(RpmCvarsTestCase):
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 def make_suite():
-  conf = pps.Path(__file__).dirname/'theme-rpm.conf'
-  suite = unittest.TestSuite()
+  suite = ModuleTestSuite('theme-rpm')
 
-  suite.addTest(make_core_suite('theme-rpm', conf))
-  suite.addTest(make_extension_suite('theme-rpm', conf))
-  suite.addTest(Test_ThemeRpmBuild(conf))
-  suite.addTest(Test_ThemeRpmCvars1(conf))
-  suite.addTest(Test_ThemeRpmCvars2(conf))
+  suite.addTest(make_extension_suite('theme-rpm'))
+  suite.addTest(Test_ThemeRpmBuild())
+  suite.addTest(Test_ThemeRpmCvars1())
+  suite.addTest(Test_ThemeRpmCvars2())
 
   return suite
