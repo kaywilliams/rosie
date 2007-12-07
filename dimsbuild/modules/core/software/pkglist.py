@@ -5,7 +5,6 @@ import yum
 
 from dims import difftest
 from dims import pps
-from dims import depsolver #!
 
 from dims.depsolver import DepSolver
 
@@ -70,6 +69,7 @@ class PkglistEvent(Event):
       self.rddirs.append(repo.localurl/'repodata')
 
     self.DATA['input'].extend(self.rddirs)
+    self.DATA['variables'].append('rddirs')
 
   def run(self):
     self.io.clean_eventcache()
@@ -88,11 +88,11 @@ class PkglistEvent(Event):
     if not self.dsdir.exists():
       self.dsdir.mkdirs()
 
+    repos_modified = self._repos_modified()
     repoconfig = self._create_repoconfig()
     required_packages = self.cvars.get('required-packages', [])
     user_required = self.cvars.get('user-required-packages', [])
 
-    toinstall = []
     toremove = []
     diffdict = self.diff.handlers['variables'].diffdict
     if diffdict.has_key("cvars['required-packages']"):
@@ -107,13 +107,12 @@ class PkglistEvent(Event):
         curr = []
       if prev:
         toremove.extend([ (x, None, None) for x in prev if x not in curr ])
-      if curr:
-        toinstall.extend([ (x, None, None) for x in curr if x not in prev ])
 
     depsolve_results = self.mddir / 'depsolve-results'
     solver = IDepsolver(repoconfig, self.dsdir, self.arch, depsolve_results,
+                        required_packages, user_required, toremove,
                         BuildDepsolveCallback(self.logger))
-    solver.setup(required_packages, user_required, toremove, toinstall)
+    solver.setup(diffdict.has_key('rddirs'))
     solver.resolveDeps()
     solver.runTransaction()
 
@@ -146,12 +145,8 @@ class PkglistEvent(Event):
     self.verifier.failUnless(self.pkglistfile.exists(),
       "missing package list file '%s'" % self.pkglistfile)
 
-  def _create_repoconfig(self):
-    repoconfig = self.mddir / 'depsolve.repo'
-    if repoconfig.exists():
-      repoconfig.remove()
-    conf = []
-    conf.extend(YUMCONF_HEADER)
+  def _repos_modified(self):
+    changed = False
     for repo in self.cvars['repos'].values():
       # determine if repodata folder changed
       rddir_changed = False
@@ -160,49 +155,63 @@ class PkglistEvent(Event):
           if file.startswith(rddir):
             rddir_changed = True
             break
-
+        if rddir_changed:
+          break
       if rddir_changed:
         ## HACK: delete a folder's depsolve metadata if it has changed.
         (self.dsdir/repo.id).rm(recursive=True, force=True)
+        changed = True
+    return changed
 
+  def _create_repoconfig(self):
+    repoconfig = self.mddir / 'depsolve.repo'
+    if repoconfig.exists():
+      repoconfig.remove()
+    conf = []
+    conf.extend(YUMCONF_HEADER)
+    for repo in self.cvars['repos'].values():
       conf.extend(str(repo).split('\n'))
     repoconfig.write_lines(conf)
     return repoconfig
 
 class IDepsolver(DepSolver):
-  def __init__(self, config, root, arch, depsolve_results, callback):
+  def __init__(self, config, root, arch, depsolve_results,
+               reqpkgs, userreqs, toremove, callback):
     DepSolver.__init__(self, config=str(config), root=str(root),
                        arch=arch, callback=callback)
     self.depsolve_results = depsolve_results
+    self.reqpkgs = reqpkgs
+    self.userreqs = userreqs
+    self.toremove = toremove
 
-  def setup(self, required_packages, user_required, toremove, toinstall):
+  def setup(self, force=False):
+    """
+    Set up the dependency-solving process.
+
+    @param required_packages : list of required packages
+    @param user_required     : list of packages that absolutely need to be
+                               there in the resolved transaction set.
+    @param toremove          : list of packages that should not be there in the
+                               transaction set
+    @param force             : do not populate the depsolve process
+    """
     DepSolver.setup(self)
-    if not toremove:
+    if not self.toremove and not force:
       self.populateRpmDB()
 
-    for n,v,r in toremove:
+    for n,v,r in self.toremove:
       self.remove(name=n, version=v, release=r)
-    for n,v,r in toinstall:
+    for name in self.reqpkgs:
       try:
-        self.install(name=n, version=v, release=r)
+        self.install(name=name)
       except yum.Errors.InstallError, e:
-        if n in user_required:
+        if name in self.userreqs:
           raise
         else:
           pass
-    updates_available = self.update()
-    if updates_available or toremove:
+    updates_available = self.update() # update everything
+    if updates_available:
       self.resetRpmDB()
-      for package in required_packages:
-        if package in toinstall:
-          continue
-        try:
-          self.install(name=package)
-        except yum.Errors.InstallError, e:
-          if package in user_required:
-            raise
-          else:
-            pass
 
   def resetRpmDB(self):
     self.rpmdb = None
