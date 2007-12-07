@@ -111,11 +111,12 @@ class ColorMixin:
 
 
 class RpmBuildMixin:
-  def __init__(self, rpm_name, rpm_desc, rpm_summary,
+  def __init__(self, rpm_name, rpm_desc, rpm_summary, rpm_license='UNKNOWN',
                default_provides=[], default_obsoletes=[], default_requires=[]):
     self.rpm_desc = rpm_desc
     self.rpm_name = rpm_name
     self.rpm_summary = rpm_summary
+    self.rpm_license = rpm_license
     self.default_obsoletes = default_obsoletes
     self.default_provides = default_provides
     self.default_requires = default_requires
@@ -264,7 +265,7 @@ class RpmBuildMixin:
     spec.set('pkg_data', 'name', self.rpm_name)
     spec.set('pkg_data', 'long_description', self.rpm_desc)
     spec.set('pkg_data', 'description', self.rpm_summary)
-
+    spec.set('pkg_data', 'license', self.rpm_license)
     spec.set('pkg_data', 'author', self.rpm_author)
     spec.set('pkg_data', 'version', self.rpm_version)
 
