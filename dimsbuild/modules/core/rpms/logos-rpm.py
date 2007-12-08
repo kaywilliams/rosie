@@ -8,7 +8,6 @@ try:
   import Image
   import ImageDraw
   import ImageFont
-  import ImageFilter
 except ImportError:
   raise ImportError("missing 'python-imaging' RPM")
 
@@ -41,6 +40,7 @@ class LogosRpmEvent(Event, RpmBuildMixin):
       'config': ['.'],
       'variables': ['fullname', 'product', 'pva', 'rpm_release',
                     'cvars[\'anaconda-version\']',
+                    'cvars[\'base-vars\'][\'copyright\']',
                     'cvars[\'base-vars\'][\'fullname\']',
                     'cvars[\'base-vars\'][\'version\']',],
       'output': [self.build_folder],
@@ -87,35 +87,59 @@ class LogosRpmEvent(Event, RpmBuildMixin):
     )
 
   def _generate(self):
-    self._copy_images()
-
-  def _copy_images(self):
     for image_file in self.logos_dir.findpaths(type=pps.constants.TYPE_NOT_DIR):
       basename = image_file.basename
+      relpath = image_file.relpathfrom(self.logos_dir)
 
       if self.locals.logos_rpm.has_key(basename):
-        output_format = self.locals.logos_rpm[basename]['output_format']
-        output_locations = self.locals.logos_rpm[basename]['output_locations']
-        for output_location in [ P(x) for x in output_locations ] :
-          install_dir = output_location.dirname
-          file_name = self.build_folder // output_location
-          file_name.dirname.mkdirs()
-          Image.open(image_file).save(file_name, format=output_format)
-          self.data_files.setdefault(install_dir, []).append(
-            file_name.relpathfrom(self.build_folder)
-          )
+        file_dict = self.locals.logos_rpm[basename]
       else:
-        relpath = image_file.relpathfrom(self.logos_dir)
-        dest = self.build_folder // relpath
-        install_dir = P('/%s' % relpath).dirname
-        if basename == 'COPYING':
-          ## HACK: find a better way to do this
-          pass
-        else:
-          self.data_files.setdefault(install_dir, []).append(
+        file_dict = {}
+
+      output_format = file_dict.get('output_format', None)
+      output_locations = file_dict.get('output_locations', ['/%s' % relpath])
+      text_string = file_dict.get('text', '') % self.cvars['base-vars']
+      text_coords = file_dict.get('text_coords', None)
+      font_color  = file_dict.get('font_color', 'black')
+      font_size   = file_dict.get('font_size', None)
+
+      if basename == 'COPYING':
+        ## HACK: special-casing COPYING; find a better way to do this
+        self.copy(image_file, self.build_folder)
+      else:
+        for output_location in [ P(x) for x in output_locations ] :
+          dest = self.build_folder // output_location
+          dest.dirname.mkdirs()
+          if text_string:
+            self._generate_image(image_file, dest, text_string, font_size,
+                                 format=output_format, text_coords=text_coords,
+                                 font_color=font_color)
+          elif output_format is not None:
+            Image.open(image_file).save(dest, format=output_format)
+          else:
+            self.copy(image_file, dest.dirname)
+
+          self.data_files.setdefault(output_location.dirname, []).append(
             dest.relpathfrom(self.build_folder)
           )
-        self.copy(image_file, dest.dirname)
+
+  def _generate_image(self, start_file, end_file, text, font_size,
+                      format='png', text_coords=None, font_color='black'):
+    im = Image.open(start_file)
+
+    if text:
+      if text_coords is None:
+        width, height = im.size
+        text_coords = (width/2, height/2)
+      if font_size is None:
+        font_size = 52
+
+      draw, handler = ImageDraw.getdraw(im)
+      font = handler.Font(font_color, self.font_file, size=font_size)
+      w, h = draw.textsize(text, font)
+      draw.text((text_coords[0]-(w/2), text_coords[1]-(h/2)), text, font)
+
+    im.save(end_file, format=format)
 
   def _add_doc_files(self, spec):
     spec.set('bdist_rpm', 'doc_files', 'COPYING')

@@ -341,6 +341,28 @@ LOGOS_RPM = LocalsDict({
         '/usr/share/anaconda/pixmaps/syslinux-splash.png'
       ]
     ),
+    'anaconda_header.png': dict(
+      text = '%(fullname)s %(version)s',
+      font_color = 'black',
+    ),
+    'progress_first-lowres.png': dict(
+      text = '%(copyright)s',
+      font_size = 10,
+      font_color = 'black',
+      text_coords = (170, 195),
+    ),
+    'progress_first.png': dict(
+      text = '%(copyright)s',
+      font_size = 10,
+      font_color = 'black',
+      text_coords = (250, 270),
+    ),
+    'splash.png': dict(
+      text= '%(copyright)s',
+      font_size = 10,
+      font_color = 'black',
+      text_coords = (250, 270),
+    ),
   },
   '11.2.0.66-1': {
     'syslinux-vesa-splash.jpg': dict(
