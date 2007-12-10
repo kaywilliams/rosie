@@ -56,9 +56,9 @@ class LinkCallback(_SyncCallbackMetered):
   # sync methods, stubbed out since default for link is to display nothing
   def start(      self, *args, **kwargs): pass
   def cp(         self, *args, **kwargs): pass
-  def sync_update(self, *args, **kwargs): pass
   def mkdir(      self, *args, **kwargs): pass
   def _cp_start(  self, *args, **kwargs): pass
+  def _cp_update( self, *args, **kwargs): pass
   def _cp_end(    self, *args, **kwargs): pass
   def _link_xdev(self, src, dst):
     self.logger.log(5, "Attempted invalid cross-device link between '%s' "
@@ -101,6 +101,12 @@ class SyncCallback(LinkCallback):
 
   def _cp_start(self, size, text, seek=0.0):
     _SyncCallbackMetered._cp_start(self, size=size, text=L2(text), seek=seek)
+
+  def _cp_update(self, amount_read): 
+    _SyncCallbackMetered._cp_update(self, amount_read)
+
+  def _cp_end(self, amount_read): 
+    _SyncCallbackMetered._cp_end(self, amount_read)
 
   def _link_xdev(self, src, dst):
     self.logger.log(5, "Attempted invalid cross-device link between '%s' "
