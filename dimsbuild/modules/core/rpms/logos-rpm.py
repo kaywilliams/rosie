@@ -32,7 +32,6 @@ class LogosRpmEvent(Event, RpmBuildMixin):
       "created by dimsbuild and are specific to %s." % (self.product, self.fullname),
       "Icons and pictures related to %s" % self.fullname,
       rpm_license = 'GPLv2',
-      default_obsoletes = ['fedora-logos', 'centos-logos', 'redhat-logos'],
       default_provides = ['system-logos']
     )
 
