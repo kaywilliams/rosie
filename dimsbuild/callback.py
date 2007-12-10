@@ -163,7 +163,14 @@ class SyncCallbackCompressed(SyncCallback):
       self.bar = ProgressBar(size=count, title=L2(''), layout=LAYOUT_GPG)
       self.bar.start()
 
-  def _cp_start(self, size, text, seek=0.0): pass
+  def _cp_start(self, size, text, seek=0.0):
+    """
+    At log level 1 and below, do nothing
+    At log level 2 and above, update the progress bar's title
+    """
+    if self.logger.test(2):
+      self.bar.tags['title'] = L2(text)
+
   def _cp_update(self, amount_read): pass
   def _cp_end(self, amount_read):
     """
@@ -171,7 +178,6 @@ class SyncCallbackCompressed(SyncCallback):
     At log level 2 and above, update the progress bar's position
     """
     if self.logger.test(2):
-      self.bar.tags['title'] = L2(text)
       self.bar.status.position += 1
 
   def sync_end(self):
