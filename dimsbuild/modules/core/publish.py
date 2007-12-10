@@ -22,7 +22,7 @@ class PublishSetupEvent(Event):
     )
 
     self.DATA = {
-      'variables': ['cvars[\'base-vars\']'],
+      'variables': ['pva'],
       'config': ['.'],
     }
 
