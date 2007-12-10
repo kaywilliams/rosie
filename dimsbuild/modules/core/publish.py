@@ -49,7 +49,7 @@ class PublishSetupEvent(Event):
     if self.config.get('remote-webroot/@use-hostname', 'False') in BOOLEANS_TRUE:
       return socket.gethostname()
     else:
-      # TODO - improve this, its not particularly accurate in some cases
+      # TODO - improve this, it's not particularly accurate in some cases
       s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
       return socket.inet_ntoa(fcntl.ioctl(s.fileno(),
                                           0x8915,
@@ -82,8 +82,8 @@ class PublishEvent(Event):
 
     self.io.sync_input(link=True, text=None)
 
-    shlib.execute('chcon -R root:object_r:httpd_sys_content_t %s' \
-                   % self.cvars['publish-path'])
+    shlib.execute('chcon -R --type=httpd_sys_content_t %s' \
+                    % self.cvars['publish-path'])
 
     self.diff.write_metadata()
 
