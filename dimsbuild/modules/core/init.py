@@ -12,18 +12,18 @@ class InitEvent(Event):
       provides = ['option-parser'],
       suppress_run_message = True
     )
-  
+
   def clean(self):
     if self.METADATA_DIR.exists():
       self.log(2, L1("cleaning '%s'" % self.METADATA_DIR))
       self.METADATA_DIR.rm(recursive=True)
-  
-  def run(self):
+
+  def apply(self):
     for folder in [self.TEMP_DIR, self.METADATA_DIR]:
       if not folder.exists():
-        self.log(2, L1("Making directory '%s'" % folder))
+        self.log(2, L1("making directory '%s'" % folder))
         folder.mkdirs()
-  
+
   def verify_directories_exist(self):
     "output directories exist"
     for folder in [self.TEMP_DIR, self.METADATA_DIR]:
@@ -47,4 +47,3 @@ class OSMetaEvent(Event):
       comes_after = ['setup'],
       suppress_run_message = True
     )
-
