@@ -310,12 +310,15 @@ class Build(object):
       element_name = e.__module__.split('.')[-1]
       if element_name in validated: continue # don't re-validate
       validator.validate(element_name, schema_file='%s.rng' % element_name)
-      e.validate() # allow events to validate other things not covered in schema
       validated.append(element_name)
 
     # verify top-level elements
     validator.config = Event._config
     validator.verify_elements(self.disabled_modules)
+
+    # allow events to validate other things not covered in schema
+    for e in self.dispatch:
+      e.validate()
 
   def _seed_event_defaults(self, options):
     """

@@ -1,5 +1,4 @@
-from StringIO import StringIO
-from lxml     import etree
+from lxml import etree
 
 import copy
 import os
@@ -18,33 +17,44 @@ class BaseConfigValidator:
     self.curr_schema = None
 
   def validate(self, xpath_query, schema_file=None, schema_contents=None):
-    if (schema_file and schema_contents) or \
-       (not schema_file and not schema_contents):
-      raise RuntimeError("either the schema file or the schema contents must be specified")
-    if not self.config.pathexists(xpath_query):
-      return
+    if schema_file and schema_contents:
+      raise IOError("The 'schema_file' and the 'schema_contents' parameters "\
+                    "are mutually exclusive.")
+    if schema_file is None and schema_contents is None:
+      raise IOError("Either the 'schema_file' or the 'schema_contents' parameter "\
+                    "should be provided.")
+    self.elements.append(xpath_query.lstrip('/'))
     tree = self.config.get(xpath_query)
-    self.elements.append(tree.tag)
     if schema_contents:
-      self.validate_with_string(schema_contents, tree)
+      self.validate_with_string(schema_contents, tree, self.elements[-1])
     else:
-      self.validate_with_file(schema_file, tree)
+      self.validate_with_file(schema_file, tree, self.elements[-1])
 
-  def validate_with_string(self, schema_contents, tree):
-    schema = etree.fromstring(schema_contents, base_url=self.config.filename.dirname)
-    schema_tree = self.massage_schema(schema, tree.tag)
+  def validate_with_string(self, schema_contents, tree, tag):
+    schema = etree.fromstring(schema_contents, base_url=self.config.file.dirname)
+    if tree is None:
+      self.check_required(schema, tag)
+      return
+    schema_tree = self.massage_schema(schema, tag)
     self.relaxng(schema_tree, tree)
 
-  def validate_with_file(self, schema_file, tree):
+  def validate_with_file(self, schema_file, tree, tag):
     self.curr_schema = None
+    file = None
     for path in self.schema_paths:
       file = path/schema_file
       if file.exists():
         break
+      else:
+        file = None
+    if not file:
+      return # no schema file
     self.curr_schema = file
-    if not self.curr_schema:
-      raise IOError("missing schema file '%s' at '%s'" % (file, file.dirname))
-    schema_tree = self._read_schema(tree.tag)
+    schema = self._read_schema()
+    if tree is None:
+      self.check_required(schema, tag)
+      return
+    schema_tree = self.massage_schema(schema, tag)
     try:
       cwd = os.getcwd()
       os.chdir(self.curr_schema.dirname)
@@ -62,17 +72,25 @@ class BaseConfigValidator:
         raise InvalidConfigError(self.config.getroot().file, relaxng.error_log,
                                  self.curr_schema or '<string>', tree.tostring(lineno=True))
 
-  def _read_schema(self, tag):
+  def _read_schema(self):
     cwd = os.getcwd()
     os.chdir(self.curr_schema.dirname)
     try:
       schema = xmllib.tree.read(self.curr_schema.basename)
     finally:
       os.chdir(cwd)
-    return self.massage_schema(schema, tag)
+    return schema
 
   def massage_schema(self, schema, tag):
     return schema
+
+  def check_required(self, schema, tag):
+    distro_defn = schema.get('//rng:element[@name="distro"]', namespaces=NSMAP)
+    if distro_defn is not None:
+      optional = distro_defn.get('rng:optional', namespaces=NSMAP)
+      if optional is None:
+        raise InvalidConfigError(self.config.getroot().file,
+                                 "Missing required element: '%s'" % tag)
 
 class MainConfigValidator(BaseConfigValidator):
   def __init__(self, schema_paths, config_path):
@@ -90,13 +108,9 @@ class ConfigValidator(BaseConfigValidator):
       if child.tag is etree.Comment: continue
       if child.tag in disabled: continue
       if child.tag not in self.elements:
-        if child.tag == 'include':
-          raise InvalidConfigError(self.config.getroot().file,
-          "Unknown element '%s' found. Perhaps you need to include an XInclude\nnamespace declaration, e.g. xmlns:xi=\"http://www.w3.org/2001/XInclude\",\nin your config file:\n%s" % (child.tag, child))
-        else:
-          raise InvalidConfigError(self.config.getroot().file,
-                                   " unknown element '%s' found:\n%s"
-                                   % (child.tag, child))
+        raise InvalidConfigError(self.config.getroot().file,
+                                 " unknown element '%s' found:\n%s"
+                                 % (child.tag, child.tostring(lineno=True)))
       if child.tag in processed:
         raise InvalidConfigError(self.config.getroot().file,
                                  " multiple instances of the '%s' element "
