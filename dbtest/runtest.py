@@ -70,27 +70,30 @@ def main():
   runner = EventTestRunner()
   suite = unittest.TestSuite()
 
-  fp = None
-  try:
-    if len(args) > 0:
-      testpath = pps.Path(args[0])
-      if not testpath.isabs() and testpath.tokens[0] != 'modules':
-        testpath = 'modules'/testpath # __rdiv__ is so cool
-    else:
-      testpath = pps.Path(__file__).dirname
-    testpath = testpath.abspath()
-    if testpath.isdir():
-      testpath = testpath/'__init__.py' # get the init.py inside it
-    if testpath.endswith('.py'):
-      testpath = testpath.replace('.py', '') # remove .py cuz imp doesn't like it
-    fp,p,d = imp.find_module(testpath.basename, [testpath.dirname])
-    mod = imp.load_module('test-%s' % testpath.dirname.basename, fp, p, d)
-  finally:
-    fp and fp.close()
-
-  suite.addTest(mod.make_suite())
+  if not args:
+    args = [ pps.Path(__file__).abspath().dirname/'__init__.py' ]
+  for arg in args:
+    testpath = _testpath_normalize(arg)
+    fp = None
+    try:
+      fp,p,d = imp.find_module(testpath.basename, [testpath.dirname])
+      mod = imp.load_module('test-%s' % testpath.dirname.basename, fp, p, d)
+      suite.addTest(mod.make_suite())
+    finally:
+      fp and fp.close()
 
   runner.run(suite)
+
+def _testpath_normalize(path):
+  path = pps.Path(path)
+  if not path.isabs() and path.tokens[0] != 'modules':
+    path = 'modules'/path # __rdiv__ is so cool
+  path = path.abspath()
+  if path.isdir():
+    path = path/'__init__.py' # get the __init__.py inside the dir
+  if path.endswith('.py'):
+    path = path.replace('.py', '') # imp doesn't like .pys
+  return path
 
 
 if __name__ == '__main__': main()

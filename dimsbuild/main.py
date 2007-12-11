@@ -67,15 +67,16 @@ class Build(object):
   the build process.
   """
 
-  def __init__(self, options, parser):
+  def __init__(self, options, arguments, parser):
     """
     Initialize a Build object
 
     Accepts two parameters:
-      options: an  optparse.Options  object  with  the  command  line
-               arguments encountered during command line parsing
-      parser:  the optparse.OptionParser instance used to parse these
-               command line arguments
+      options:   an  optparse.Options  object  with  the  command  line
+                 arguments encountered during command line parsing
+      arguments: a list of arguments not processed by the parser
+      parser:    the optparse.OptionParser instance used to parse these
+                 command line arguments
 
     These parameters are normally passed in from the command-line handler
     ('/usr/bin/dimsbuild')
@@ -86,7 +87,7 @@ class Build(object):
     self.logger = make_log(options.logthresh, options.logfile)
 
     # set up configs
-    self._get_config(options)
+    self._get_config(options, arguments)
 
     # set up import_dirs
     import_dirs = self._compute_import_dirs(options)
@@ -179,7 +180,7 @@ class Build(object):
       self._unlock()
     self._log_footer()
 
-  def _get_config(self, options):
+  def _get_config(self, options, arguments):
     """
     Gets the main config and distro configs based on option values.  Main
     config file is optional; if not found, merely uses a set of default
@@ -190,7 +191,7 @@ class Build(object):
     the '-c' option.)
     """
     mcp = P(options.mainconfigpath)
-    dcp = P(options.distropath)
+    dcp = P(arguments[0])
     try:
       if mcp and mcp.exists():
         self.logger.log(4, "Reading main config file '%s'" % mcp)
@@ -204,7 +205,7 @@ class Build(object):
         # print for help if specified with -h/--help
         if options.print_help:
           self.parser.print_help()
-          sys.exit()
+          sys.exit(1)
         else:
           raise xmllib.config.ConfigError("No config file found at '%s'" % dcp)
 

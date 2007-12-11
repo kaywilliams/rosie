@@ -83,7 +83,7 @@ class CoreEventTestCase04(CoreEventTestCase):
 
 class ExtensionEventTestCase(EventTestCase):
   def setUp(self):
-    self.tb = TestBuild(self.conf, self.options, self.parser)
+    self.tb = TestBuild(self.conf, self.options, [], self.parser)
     # do not try to set up self.event cuz it may not exist
 
 class ExtensionEventTestCase00(ExtensionEventTestCase):

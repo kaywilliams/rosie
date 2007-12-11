@@ -21,10 +21,13 @@ from dims.CleanHelpFormatter import CleanHelpFormatter
 P = pps.Path
 
 def main():
-  parser = OptionParser("usage: %prog [OPTIONS]",
+  parser = OptionParser("usage: %prog [OPTIONS] DISTROFILE",
                         formatter=CleanHelpFormatter(),
-                        add_help_option=False)
-  
+                        add_help_option=False,
+                        description="build the distribution defined in the "
+                                    "distro file located at DISTROFILE"
+                        )
+
   parser.add_option('-h', '--help',
     dest='print_help',
     action='store_true',
@@ -35,12 +38,12 @@ def main():
     action='store_true',
     default=False,
     help="clear cache of downloaded files before executing")
-  
+
   config_group = OptionGroup(parser, "config options")
-  config_group.add_option('-c', '--distro-conf', metavar='PATH',
-    default='distro.conf',
-    dest='distropath',
-    help="specify path to distro.conf file")
+  #config_group.add_option('-c', '--distro-conf', metavar='PATH',
+  #  default='distro.conf',
+  #  dest='distropath',
+  #  help="specify path to distro.conf file")
   config_group.add_option('--dimsbuild-conf', metavar='PATH',
     default='/etc/dimsbuild.conf',
     dest='mainconfigpath',
@@ -56,7 +59,7 @@ def main():
     action='store_true',
     help="validate config files and exit")
   parser.add_option_group(config_group)
-  
+
   log_group = OptionGroup(parser, "logging options")
   log_group.add_option('-l', '--log-level', metavar='N',
     dest='logthresh',
@@ -68,7 +71,7 @@ def main():
     default='/var/log/dimsbuild.log',
     help="specify a file in which to log output")
   parser.add_option_group(log_group)
-  
+
   module_group = OptionGroup(parser, "module and library options")
   module_group.add_option('--lib-path', metavar='PATH',
     action='append',
@@ -91,7 +94,7 @@ def main():
     default=[],
     help="do not load the specified module")
   parser.add_option_group(module_group)
-  
+
   event_group = OptionGroup(parser, "event control options")
   event_group.add_option('--force', metavar='MODULE',
     action='append',
@@ -119,23 +122,28 @@ def main():
     dest='list_events',
     help="print out a list of all events and exit")
   parser.add_option_group(event_group)
-  
+
   args = sys.argv[1:]
-  
+
   try:
-    preargs = __filter_cmd_args(args,
+    preargs = _filter_cmd_args(args,
       noargopts = ['-h', '--help'],
       argopts   = ['-c', '--distro-conf', '--dimsbuild-conf',
                    '-l', '--log-level', '--log-file',
                    '--enable-module', '--disable-module',
-                   '--lib-path', '--share-path'])
-                                 
+                   '--lib-path', '--share-path'],
+      keepargs = True)
+
   except ValueError:
     parser.print_help()
     sys.exit(1)
-  
-  opts,_ = parser.parse_args(args=preargs)
-  
+
+  opts,args = parser.parse_args(args=preargs)
+
+  if len(args) != 1:
+    parser.print_help()
+    sys.exit(1)
+
   # import dimsbuild from some path in sys.path
   try:
     import dimsbuild.main
@@ -143,23 +151,24 @@ def main():
     print "Unable to load core dimsbuild files"
     raise #!
     sys.exit(1)
-  
+
   # initialize our software builder with opts, the result of parsing preargs.
   # we can't apply all options now because modules may modify the behavior
   # of the parser
-  sbuilder = dimsbuild.main.Build(opts, parser)
-  
+  sbuilder = dimsbuild.main.Build(opts, args, parser)
+
   # now apply the real option set to the software builder and make it go!
   options, args = parser.parse_args()
   sbuilder.apply_options(options)
   sbuilder.main()
   sys.exit()
 
-def __filter_cmd_args(args, noargopts, argopts):
+def _filter_cmd_args(args, noargopts, argopts, keepargs=False):
   """ 
   Filter args by removing items that are not in noargopts and argopts.
   noargopts is a list of arguments that take no arguments; argopts are
-  arguments that do take arguments
+  arguments that do take arguments.  If keepargs is True, keep arguments
+  that do not start with '-'; otherwise, they are discarded.
   
   Looks awfully similar to a function that does the same thing in YUM
   """
@@ -169,6 +178,9 @@ def __filter_cmd_args(args, noargopts, argopts):
 
   while len(args) > 0:
     a = args.pop(0)
+    if not a.startswith('-'): # not an option
+      if keepargs:
+        ret.append(a)
     if '=' in a:         # 'arg=value' style
       opt,_ = a.split('=', 1)
       if opt in argopts:

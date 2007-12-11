@@ -19,7 +19,7 @@ class TestBuild(Build):
     self.conf = conf
     Build.__init__(self, *args, **kwargs)
 
-  def _get_config(self, options):
+  def _get_config(self, options, arguments):
     mcf = pps.Path(options.mainconfigpath or '/etc/dimsbuild.conf')
     if mcf.exists():
       self.mainconfig = xmllib.config.read(mcf)
@@ -57,7 +57,7 @@ class EventTestCase(unittest.TestCase):
     self._testMethodDoc = self.__class__.__doc__
 
   def setUp(self):
-    self.tb = TestBuild(self.conf, self.options, self.parser)
+    self.tb = TestBuild(self.conf, self.options, [], self.parser)
     self.event = self.tb.dispatch._top.get(self.eventid)
     self.tb._lock()
 
