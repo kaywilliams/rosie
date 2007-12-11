@@ -192,7 +192,7 @@ class IOObject:
             cb.rmdir(dir)
             dir.removedirs()
 
-  def list_output(self, what=None, sort=True):
+  def list_output(self, what=None):
     """
     list_output(source)
 
@@ -212,7 +212,4 @@ class IOObject:
         continue
       for _,d in self.sync_items[id]:
         rtn.append(d)
-    if sort:
-      return sorted(rtn)
-    else:
-      return rtn
+    return sorted(rtn)
