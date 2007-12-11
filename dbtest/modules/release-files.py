@@ -89,25 +89,19 @@ def make_suite():
 
   suite.addTest(make_core_suite('release-files'))
 
-  for distro in [ 'fedora-6',
-                  'fedora-7',
-                  'fedora-8',
-                  'centos-5',
-                  'redhat-5', ]:
+  # default run
+  suite.addTest(Test_ReleaseFiles(make_default_config('release-files'), 'True'))
+  suite.addTest(Test_ReleaseFiles(make_default_config('release-files'), 'False'))
 
-    # default run
-    suite.addTest(Test_ReleaseFiles(make_default_config('release-files', distro), 'True'))
-    suite.addTest(Test_ReleaseFiles(make_default_config('release-files', distro), 'False'))
+  # execution with modification of 'use-default-set' attribute
+  suite.addTest(Test_ReleaseFilesWithDefaultSet(make_default_config('release-files'), 'True'))
+  suite.addTest(Test_ReleaseFilesWithDefaultSet(make_default_config('release-files'), 'False'))
 
-    # execution with modification of 'use-default-set' attribute
-    suite.addTest(Test_ReleaseFilesWithDefaultSet(make_default_config('release-files', distro), 'True'))
-    suite.addTest(Test_ReleaseFilesWithDefaultSet(make_default_config('release-files', distro), 'False'))
+  # execution with <path/> element
+  suite.addTest(Test_ReleaseFilesWithInputFiles(make_default_config('release-files'), 'True'))
+  suite.addTest(Test_ReleaseFilesWithInputFiles(make_default_config('release-files'), 'False'))
 
-    # execution with <path/> element
-    suite.addTest(Test_ReleaseFilesWithInputFiles(make_default_config('release-files', distro), 'True'))
-    suite.addTest(Test_ReleaseFilesWithInputFiles(make_default_config('release-files', distro), 'False'))
-
-    # execution with <package/> element
-    suite.addTest(Test_ReleaseFilesWithPackageElement(make_default_config('release-files', distro)))
+  # execution with <package/> element
+  suite.addTest(Test_ReleaseFilesWithPackageElement(make_default_config('release-files')))
 
   return suite
