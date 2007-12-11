@@ -1,7 +1,7 @@
 from dbtest      import EventTestCase, ModuleTestSuite
 from dbtest.core import make_core_suite
 
-class CustomRepoTestCase(EventTestCase):
+class ComposeTestCase(EventTestCase):
   def __init__(self, conf=None):
     EventTestCase.__init__(self, 'compose', conf)
 

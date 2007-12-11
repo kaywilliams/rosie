@@ -167,7 +167,7 @@ def make_suite():
   suite.addTest(make_extension_suite('ISO', isoconf))
 
   # pkgorder
-  # TODO
+  suite.addTest(make_extension_suite('pkgorder', isoconf))
 
   # iso
   suite.addTest(make_extension_suite('iso', isoconf))
