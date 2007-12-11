@@ -23,16 +23,10 @@ P = pps.Path
 def main():
   parser = OptionParser("usage: %prog [OPTIONS] DISTROFILE",
                         formatter=CleanHelpFormatter(),
-                        add_help_option=False,
                         description="build the distribution defined in the "
                                     "distro file located at DISTROFILE"
                         )
 
-  parser.add_option('-h', '--help',
-    dest='print_help',
-    action='store_true',
-    default=False,
-    help="show this help message and exit")
   parser.add_option('--clear-cache',
     dest='clear_cache',
     action='store_true',
@@ -40,24 +34,20 @@ def main():
     help="clear cache of downloaded files before executing")
 
   config_group = OptionGroup(parser, "config options")
-  #config_group.add_option('-c', '--distro-conf', metavar='PATH',
-  #  default='distro.conf',
-  #  dest='distropath',
-  #  help="specify path to distro.conf file")
-  config_group.add_option('--dimsbuild-conf', metavar='PATH',
+  config_group.add_option('-c', '--config', metavar='PATH',
     default='/etc/dimsbuild.conf',
     dest='mainconfigpath',
-    help="specify path to a main config file")
+    help="specify path to the config file")
   config_group.add_option('--no-validate',
     dest='no_validate',
     action='store_true',
     default=False,
-    help="do not validate config files")
+    help="do not validate config/definition files")
   config_group.add_option('--validate-only',
     dest='validate_only',
     default=False,
     action='store_true',
-    help="validate config files and exit")
+    help="validate config/definition files and exit")
   parser.add_option_group(config_group)
 
   log_group = OptionGroup(parser, "logging options")
@@ -87,7 +77,7 @@ def main():
     action='append',
     dest='enabled_modules',
     default=[],
-    help="load the specified module (included for config file parity)")
+    help="load the specified module") # included for config file parity
   module_group.add_option('--disable-module', metavar='MODULE',
     action='append',
     dest='disabled_modules',
@@ -123,24 +113,10 @@ def main():
     help="print out a list of all events and exit")
   parser.add_option_group(event_group)
 
-  args = sys.argv[1:]
-
-  try:
-    preargs = _filter_cmd_args(args,
-      noargopts = ['-h', '--help'],
-      argopts   = ['-c', '--distro-conf', '--dimsbuild-conf',
-                   '-l', '--log-level', '--log-file',
-                   '--enable-module', '--disable-module',
-                   '--lib-path', '--share-path'],
-      keepargs = True)
-
-  except ValueError:
-    parser.print_help()
-    sys.exit(1)
-
-  opts,args = parser.parse_args(args=preargs)
+  opts,args = parser.parse_args(args=sys.argv[1:])
 
   if len(args) != 1:
+    print "Invalid number of arguments (expecting 1, got %d)" % len(args)
     parser.print_help()
     sys.exit(1)
 
@@ -152,53 +128,10 @@ def main():
     raise #!
     sys.exit(1)
 
-  # initialize our software builder with opts, the result of parsing preargs.
-  # we can't apply all options now because modules may modify the behavior
-  # of the parser
+  # initialize our software builder with opts and make it go!
   sbuilder = dimsbuild.main.Build(opts, args, parser)
-
-  # now apply the real option set to the software builder and make it go!
-  options, args = parser.parse_args()
-  sbuilder.apply_options(options)
   sbuilder.main()
   sys.exit()
-
-def _filter_cmd_args(args, noargopts, argopts, keepargs=False):
-  """ 
-  Filter args by removing items that are not in noargopts and argopts.
-  noargopts is a list of arguments that take no arguments; argopts are
-  arguments that do take arguments.  If keepargs is True, keep arguments
-  that do not start with '-'; otherwise, they are discarded.
-  
-  Looks awfully similar to a function that does the same thing in YUM
-  """
-
-  ret = []
-  args = list(args) # copy args, this function is destructive
-
-  while len(args) > 0:
-    a = args.pop(0)
-    if not a.startswith('-'): # not an option
-      if keepargs:
-        ret.append(a)
-    if '=' in a:         # 'arg=value' style
-      opt,_ = a.split('=', 1)
-      if opt in argopts:
-        ret.append(a)
-    elif a in noargopts: # 'arg' style
-      ret.append(a)
-    elif a in argopts:   # 'arg value' style
-      if len(args) < 1:
-        raise ValueError
-      next = args.pop(0)
-      if next.startswith('-'):
-        raise ValueError
-      ret.extend([a,next])
-    else:                # 'argvalue' style
-      for opt in argopts:
-        if len(opt) == 2 and a.startswith(opt):
-          ret.append(a)
-  return ret
 
 
 if __name__ == '__main__': main()

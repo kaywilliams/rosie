@@ -119,15 +119,6 @@ class Build(object):
       if DEBUG: raise
       sys.exit(1)
 
-    # allow events to add their command-line options to the parser
-    for e in self.dispatch: e._add_cli(parser)
-
-  def apply_options(self, options):
-    "Allow events to apply option results to themselves"
-    # print for help if specified with -h/--help
-    if options.print_help:
-      self.parser.print_help()
-      sys.exit()
     # list events, if requested
     if options.list_events:
       self.dispatch.pprint()
@@ -167,8 +158,6 @@ class Build(object):
       if options.validate_only:
         sys.exit()
 
-    # apply options to individual events
-    for e in self.dispatch: e._apply_options(options)
 
   def main(self):
     "Build a distribution"
