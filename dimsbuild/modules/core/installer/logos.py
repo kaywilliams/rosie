@@ -51,7 +51,7 @@ class LogosEvent(Event, ExtractMixin):
 
   def verify_splash_exists(self):
     "splash image exists"
-    self.verifier.failUnlessExists(self.splash.exists())
+    self.verifier.failUnlessExists(self.splash)
 
   def verify_splash_valid(self):
     "splash image is valid"
