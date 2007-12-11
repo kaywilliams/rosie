@@ -20,4 +20,3 @@ class LocalsObject:
   release_html   = property(lambda self: RELEASE_HTML[self.ver])
   gdm_greeter    = property(lambda self: GDM_GREETER_THEME[self.ver])
   logos_rpm      = property(lambda self: LOGOS_RPM[self.ver])
-  theme_xml      = property(lambda self: THEME_XML[self.ver])
