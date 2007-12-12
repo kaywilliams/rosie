@@ -366,7 +366,7 @@ LOGOS_RPM = LocalsDict({
   },
   '11.2.0.66-1': {
     'syslinux-vesa-splash.jpg': dict(
-      output_format = 'jpg',
+      output_format = 'jpeg',
       output_locations = ['/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg'],
      ),
   },
