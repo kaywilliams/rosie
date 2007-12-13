@@ -1,26 +1,11 @@
 from dbtest      import EventTestCase, ModuleTestSuite
 from dbtest.core import make_core_suite
-from dbtest.rpms import RpmBuildMixinTestCase, LocalFilesMixinTestCase, RpmCvarsTestCase
+from dbtest.rpms import RpmBuildMixinTestCase, RpmCvarsTestCase
 
 class LogosRpmTestCase(EventTestCase):
   _conf = """<logos-rpm enabled="true"/>"""
   def __init__(self, conf=None):
     EventTestCase.__init__(self, 'logos-rpm', conf)
-
-class Test_LogosRpmLocals(LocalFilesMixinTestCase, LogosRpmTestCase):
-  def setUp(self):
-    LocalFilesMixinTestCase.setUp(self)
-    self.clean_event_md()
-
-  def tearDown(self):
-    if self.img_path:
-      self.img_path.rm(recursive=True, force=True)
-    LocalFilesMixinTestCase.tearDown(self)
-
-  def runTest(self):
-    self.tb.dispatch.execute(until='logos-rpm')
-    self.check_locals()
-    self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 class Test_LogosRpmBuild(RpmBuildMixinTestCase, LogosRpmTestCase):
   def setUp(self):
