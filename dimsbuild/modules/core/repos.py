@@ -59,7 +59,10 @@ class ReposEvent(Event, RepoEventMixin):
   def apply(self):
     self.io.clean_eventcache()
     for repo in self.repocontainer.values():
-      repo._read_repo_content(repofile=repo.pkgsfile)
+      try: # hack
+        repo._read_repo_content(repofile=repo.pkgsfile)
+      except:
+        continue
 
       # get anaconda_version, if base repo
       if repo.id == self.cvars['base-repoid']:
@@ -83,7 +86,7 @@ class ReposEvent(Event, RepoEventMixin):
           self.cvars.setdefault(pkg, []).append((name, '==', version))
 
     self.cvars['repos'] = self.repocontainer
-    
+
     if self.cvars['base-repoid'] not in self.repocontainer.keys():
       raise ValueError("Base repo id '%s' not found in any repo definition or "
                        "repo file given in config" % self.cvars['base-repoid'])
@@ -91,8 +94,21 @@ class ReposEvent(Event, RepoEventMixin):
   def verify_pkgsfiles_exist(self):
     "verify all pkgsfiles exist"
     for repo in self.repocontainer.values():
-      self.verifier.failUnless(repo.pkgsfile.exists(),
-        "unable to find repo pkgsfile at '%s'" % repo.pkgsfile)
+      self.verifier.failUnlessExists(repo.pkgsfile)
+
+  def verify_repodata(self):
+    "repodata exists"
+    for repo in self.repocontainer.values():
+      self.verifier.failUnlessExists(repo.localurl / repo.mdfile)
+      self.verifier.failUnlessExists(repo.localurl /
+                                     'repodata' /
+                                     repo.datafiles['primary'])
+
+  def verify_cvars(self):
+    "verify cvars are set"
+    self.verifier.failUnless(self.cvars['anaconda-version'])
+    self.verifier.failUnless(self.cvars['repos'])
+    self.verifier.failUnless(self.cvars['base-repoid'])
 
 
 #------ HELPER FUNCTIONS ------#

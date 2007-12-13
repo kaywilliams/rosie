@@ -46,7 +46,7 @@ class InitrdImageEvent(Event, ImageModifyMixin):
   def _generate(self):
     ImageModifyMixin._generate(self)
     self._write_buildstamp()
-    
+
     # copy kickstart file
     if self.cvars['kickstart-file'] and self.cvars['ks-path']:
       self.image.write(self.cvars['kickstart-file'], self.cvars['ks-path'].dirname)

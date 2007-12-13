@@ -4,6 +4,7 @@ from dims               import pps
 from dims.xmllib.config import Element
 
 from dbtest import EventTestCase
+from dbtest.config import add_config_section
 
 #------ FileDownloadMixin ------#
 class FDMTest_Files(EventTestCase):
@@ -21,11 +22,6 @@ def fdm_make_suite(eventid, conf=None):
 
 
 #------ ImageModifyMixin ------#
-import time
-
-starttime = time.time()
-files = ['infile', 'infile2', '/tmp/outfile']
-
 class ImageModifyMixinTestCase(EventTestCase):
   def __init__(self, eventid, conf=None):
     EventTestCase.__init__(self, eventid, conf)
@@ -38,10 +34,7 @@ class ImageModifyMixinTestCase(EventTestCase):
     self.clean_event_md()
 
     # touch input files
-    for file in files:
-      ifilename = self.event._config.file.abspath().dirname/file
-      ifilename.touch()
-      ifilename.utime((starttime, starttime)) # make sure start times match
+    touch_input_files(self.event._config.file.abspath().dirname)
 
     # add config entries
     a = {'dest': '/infiles'}
@@ -50,9 +43,7 @@ class ImageModifyMixinTestCase(EventTestCase):
     Element('path', text='infile2', parent=self.event.config, attrs=a)
 
   def tearDown(self):
-    for file in files:
-      ifilename = self.event.config.getroot().file.abspath().dirname/file
-      ifilename.remove()
+    remove_input_files(self.event._config.file.abspath().dirname)
 
   def populate_image_content(self):
     if self.image_content is not None: return
@@ -147,3 +138,20 @@ class BootConfigMixinTestCase(EventTestCase):
       else:
         for arg in args:
           self.failUnless(arg in label, "'%s' not in '%s'" % (arg, label))
+
+
+# input file creation function
+import time
+
+starttime = time.time()
+files = ['infile', 'infile2', '/tmp/outfile']
+
+def touch_input_files(dir):
+  for file in files:
+    ifilename = dir/file
+    ifilename.touch()
+    ifilename.utime((starttime, starttime)) # make sure start times match
+
+def remove_input_files(dir):
+  for file in files:
+    (dir/file).remove()

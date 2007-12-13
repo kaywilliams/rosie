@@ -20,6 +20,11 @@ class IOMixin:
     debugdir.mkdirs()
     for path in paths: path.rename(debugdir/path.basename)
 
+  def verify_output_exists(self):
+    "all output files exist"
+    for file in self.io.list_output():
+      self.verifier.failUnlessExists(file)
+
 class IOObject:
   "Dummy class to contain I/O-related methods"
   def __init__(self, ptr):
@@ -203,6 +208,7 @@ class IOObject:
                  list is requested. If None, all output files are
                  returned.
     """
+    if not self.ptr.diff.handlers.has_key('output'): return []
     if what is None:
       return self.ptr.diff.handlers['output'].odata
     if not hasattr(what, '__iter__'): what = [what]

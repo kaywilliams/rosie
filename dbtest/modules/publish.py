@@ -7,7 +7,7 @@ def make_suite():
   # publish-setup
   suite.addTest(make_core_suite('publish-setup'))
 
-  #publish
+  # publish
   suite.addTest(make_core_suite('publish'))
 
   return suite

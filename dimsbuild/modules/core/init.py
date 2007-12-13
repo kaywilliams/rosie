@@ -1,4 +1,4 @@
-from dimsbuild.event   import Event, CLASS_META, PROTECT_SKIP, PROTECT_ENABLED
+from dimsbuild.event   import Event, CLASS_META
 from dimsbuild.logging import L1
 
 API_VERSION = 5.0
@@ -8,7 +8,6 @@ class InitEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'init',
-      properties = PROTECT_SKIP | PROTECT_ENABLED,
       provides = ['option-parser'],
       suppress_run_message = True
     )

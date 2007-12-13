@@ -60,5 +60,4 @@ class BootisoEvent(Event, BootConfigMixin):
 
   def verify_bootiso_exists(self):
     "boot.iso exists"
-    self.verifier.failUnless(self.bootiso.exists(),
-      "unable to find boot.iso at '%s'" % self.bootiso)
+    self.verifier.failUnlessExists(self.bootiso)

@@ -58,8 +58,7 @@ class DiscinfoEvent(Event):
 
   def verify_discinfo_file_exists(self):
     ".discinfo file exists"
-    self.verifier.failUnless(self.difile.exists(),
-      "unable to find .discinfo file at '%s'" % self.difile)
+    self.verifier.failUnlessExists(self.difile)
 
 
 class TreeinfoEvent(Event):
@@ -123,8 +122,8 @@ class TreeinfoEvent(Event):
 
   def verify_treeinfo_file_exists(self):
     ".treeinfo file exists"
-    self.verifier.failUnless(self.tifile.exists(),
-      "unable to find .treeinfo file at '%s'" % self.tifile)
+    self.verifier.failUnlessExists(self.tifile)
+
 
 class BuildstampEvent(Event):
   def __init__(self):
@@ -165,5 +164,4 @@ class BuildstampEvent(Event):
 
   def verify_buildstamp_file_exists(self):
     ".buildstamp file exists"
-    self.verifier.failUnless(self.bsfile.exists(),
-      "unable to find .buildstamp file at '%s'" % self.bsfile)
+    self.verifier.failUnlessExists(self.bsfile)

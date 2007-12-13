@@ -182,7 +182,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     self.error(e)
     traceback.print_exc(file=self.logger.logfile.file_object)
     if self.logger.test(3) or DEBUG:
-      traceback.print_exc(file=self.logger.console.file_object)
+      raise
     else:
       self.log(0,
         "An unhandled exception has been generated while processing "

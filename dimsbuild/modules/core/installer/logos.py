@@ -46,8 +46,9 @@ class LogosEvent(Event, ExtractMixin):
     self.io.clean_eventcache()
 
     self.cvars['installer-splash'] = self.splash
-    self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
-      (self.mddir/'pixmaps').listdir())
+    if (self.mddir/'pixmaps').exists(): # caught by verification
+      self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
+        (self.mddir/'pixmaps').listdir())
 
   def verify_splash_exists(self):
     "splash image exists"

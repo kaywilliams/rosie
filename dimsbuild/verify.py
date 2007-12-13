@@ -39,7 +39,7 @@ class BuildTestResult(unittest.TestResult):
   def printErrors(self):
     self.logger.log(4, '')
     self.logger.log(4, self._strErrors())
-  
+
   def _strErrors(self):
     s = ''
     for flavor, errors in [('ERROR', self.errors), ('FAIL', self.failures)]:

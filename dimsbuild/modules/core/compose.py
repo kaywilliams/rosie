@@ -78,3 +78,12 @@ class ComposeEvent(Event):
     self.cvars['os-dir'] = self.SOFTWARE_STORE
     self.cvars['manifest-file'] = self.mfile
     self.cvars.setdefault('publish-content', set()).add(self.SOFTWARE_STORE)
+
+  def verify_manifest_exists(self):
+    "manifest file exists"
+    self.verifier.failUnlessExists(self.mfile)
+
+  def verify_cvars(self):
+    "verify cvars are set"
+    self.verifier.failUnless(self.cvars['os-dir'])
+    self.verifier.failUnless(self.cvars['manifest-file'])

@@ -17,7 +17,7 @@ def make_suite():
   </sources>''')
   suite = ModuleTestSuite('sources')
 
-  suite.addTest(make_extension_suite('source-repos', sourcesconf))
-  suite.addTest(make_extension_suite('sources', sourcesconf))
+  suite.addTest(make_extension_suite('source-repos', sourcesconf, 'sources'))
+  suite.addTest(make_extension_suite('sources', sourcesconf, 'sources'))
 
   return suite

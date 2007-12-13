@@ -91,6 +91,14 @@ class CustomRepoEvent(Event):
       self.cvars['source-repos']['custom-repo-sources'] = \
         self.rc['custom-repo-sources']
 
+  def verify_repodata(self):
+    "repodata exists"
+    customrepo = self.rc['custom-repo']
+    self.verifier.failUnlessExists(customrepo.localurl / customrepo.mdfile)
+    self.verifier.failUnlessExists(customrepo.localurl /
+                                   'repodata' /
+                                   customrepo.datafiles['primary'])
+
   #----- HELPER METHODS -----#
   def _createrepo(self, path):
     # createrepo
@@ -104,10 +112,8 @@ class CustomRepoEvent(Event):
 
     for rpmname, type, requires, obsoletes, default in \
         self.cvars['custom-rpms-info']:
-      self.cvars.setdefault('included-packages', []).append((rpmname,
-                                                             type,
-                                                             requires,
-                                                             default))
+      (self.cvars.setdefault('included-packages', set())
+         .add((rpmname, type, requires, default)))
 
       if obsoletes:
-        self.cvars.setdefault('excluded-packages', []).extend(obsoletes)
+        self.cvars.setdefault('excluded-packages', set()).update(obsoletes)

@@ -142,8 +142,7 @@ class PkglistEvent(Event):
 
   def verify_pkglistfile_exists(self):
     "pkglist file exists"
-    self.verifier.failUnless(self.pkglistfile.exists(),
-      "missing package list file '%s'" % self.pkglistfile)
+    self.verifier.failUnlessExists(self.pkglistfile)
 
   def _repos_modified(self):
     changed = False

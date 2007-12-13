@@ -21,7 +21,7 @@ class LogosRpmEvent(Event, RpmBuildMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'logos-rpm',
-      version = 3,
+      version = 5,
       requires = ['source-vars', 'anaconda-version', 'logos-versions'],
       provides = ['custom-rpms', 'custom-srpms', 'custom-rpms-info']
     )
@@ -37,7 +37,7 @@ class LogosRpmEvent(Event, RpmBuildMixin):
 
     self.DATA = {
       'config': ['.'],
-      'variables': ['pva', 'fullname', 'copyright', 'rpm_release', 
+      'variables': ['pva', 'fullname', 'copyright', 'rpm_release',
                     'cvars[\'anaconda-version\']',],
       'output': [self.build_folder],
       'input':  [],
@@ -49,16 +49,6 @@ class LogosRpmEvent(Event, RpmBuildMixin):
     provides = [ 'system-logos %s %s' % (e,v)
                  for _,e,v in self.cvars.get('logos-versions', [])]
     self._setup_build(obsoletes=obsoletes, provides=provides)
-
-    # set the font to use
-    self.font_file = None
-    for path in self.SHARE_DIRS:
-      available_fonts = (path/'fonts').findpaths(glob='*.ttf')
-      if available_fonts:
-        self.font_file = available_fonts[0]; break
-    if not self.font_file:
-      raise RuntimeError("Unable to find any font files in share path(s) '%s'" % \
-                         self.SHARE_DIRS)
 
     # find the logos/ directory to use
     self.logos_dir = None
@@ -94,10 +84,7 @@ class LogosRpmEvent(Event, RpmBuildMixin):
 
       output_format = file_dict.get('output_format', None)
       output_locations = file_dict.get('output_locations', ['/%s' % relpath])
-      text_string = file_dict.get('text', '') % self.cvars['base-vars']
-      text_coords = file_dict.get('text_coords', None)
-      font_color  = file_dict.get('font_color', 'black')
-      font_size   = file_dict.get('font_size', None)
+      strings = file_dict.get('strings', None)
 
       if basename == 'COPYING':
         ## HACK: special-casing COPYING; find a better way to do this
@@ -106,10 +93,25 @@ class LogosRpmEvent(Event, RpmBuildMixin):
         for output_location in [ P(x) for x in output_locations ] :
           dest = self.build_folder // output_location
           dest.dirname.mkdirs()
-          if text_string:
-            self._generate_image(image_file, dest, text_string, font_size,
-                                 format=output_format, text_coords=text_coords,
-                                 font_color=font_color)
+          if strings:
+            im = Image.open(image_file)
+            for i in strings:
+              text_string    = i.get('text', '') % self.cvars['base-vars']
+              halign         = i.get('halign', 'center')
+              text_coords    = i.get('text_coords', None)
+              text_max_width = i.get('text_max_width', None)
+              font_color     = i.get('font_color', 'black')
+              font_size      = i.get('font_size', None)
+              font_size_min  = i.get('font_size_min', None)
+              font_path      = self._get_font_path(i.get('font', 
+                                                         'DejaVuLGCSans.ttf'))
+
+              self._generate_image(im, text_string, halign, font_size, 
+                                   font_size_min, font_path, text_coords,
+                                   text_max_width, font_color)
+
+            im.save(dest, format=(output_format or 'png'))
+
           elif output_format is not None:
             Image.open(image_file).save(dest, format=output_format)
           else:
@@ -119,23 +121,45 @@ class LogosRpmEvent(Event, RpmBuildMixin):
             dest.relpathfrom(self.build_folder)
           )
 
-  def _generate_image(self, start_file, end_file, text, font_size,
-                      format='png', text_coords=None, font_color='black'):
-    im = Image.open(start_file)
+  def _get_font_path(self, font):
+    """
+    Given a font file name, returns the full path to the font located in one
+    of the share directories"
+    """
+    for path in self.SHARE_DIRS:
+      available_fonts = (path/'fonts').findpaths(glob=font)
+      if available_fonts:
+        font_path = available_fonts[0]; break
+      if not font_path:
+        raise RuntimeError("Unable to find font file '%s' in share path(s) "
+                           "'%s'" %  font_path, self.SHARE_DIRS)
 
-    if text:
-      if text_coords is None:
-        width, height = im.size
-        text_coords = (width/2, height/2)
-      if font_size is None:
-        font_size = 52
+    return font_path
 
-      draw, handler = ImageDraw.getdraw(im)
-      font = handler.Font(font_color, self.font_file, size=font_size)
+  def _generate_image(self, im, text, halign, font_size, font_size_min, font_path,
+                      text_coords, text_max_width, font_color):
+
+    if text_coords is None:
+      width, height = im.size
+      text_coords = (width/2, height/2)
+    if font_size is None:
+      font_size = 52
+
+    draw, handler = ImageDraw.getdraw(im)
+    while font_size >= (font_size_min or font_size):
+      font = handler.Font(font_color, font_path, size=font_size)
       w, h = draw.textsize(text, font)
-      draw.text((text_coords[0]-(w/2), text_coords[1]-(h/2)), text, font)
+      if w <= (text_max_width or im.size[0]):
+        break
+      else:
+        font_size -= 1
 
-    im.save(end_file, format=format)
+    if halign == 'center':
+      draw.text((text_coords[0]-(w/2), text_coords[1]-(h/2)), text, font)
+    elif halign == 'right':
+      draw.text((text_coords[0]-w, text_coords[1]-(h/2)), text, font)
+
+    return im
 
   def _add_doc_files(self, spec):
     spec.set('bdist_rpm', 'doc_files', 'COPYING')

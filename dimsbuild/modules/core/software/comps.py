@@ -93,7 +93,7 @@ class CompsEvent(Event):
     # set user required packages variable
     self.cvars['user-required-packages'] = \
          self.config.xpath('core/package/text()', [])
- 
+
   # output verification
   def verify_comps_xpath(self):
     "user-specifed comps xpath query"
@@ -171,7 +171,7 @@ class CompsEvent(Event):
 
     # remove excluded packages
     for pkg in ( self.config.xpath('exclude/package/text()', []) +
-                 (self.cvars['excluded-packages'] or []) ):
+                 (list(self.cvars['excluded-packages']) or []) ):
       for group in self._groups.values():
         group.packagelist.discard(pkg)
 

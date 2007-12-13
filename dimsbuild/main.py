@@ -191,12 +191,7 @@ class Build(object):
 
       dcp = dcp.expand().abspath()
       if not dcp.exists():
-        # print for help if specified with -h/--help
-        if options.print_help:
-          self.parser.print_help()
-          sys.exit(1)
-        else:
-          raise xmllib.config.ConfigError("No config file found at '%s'" % dcp)
+        raise xmllib.config.ConfigError("No config file found at '%s'" % dcp)
 
       self.logger.log(3, "Reading distro config file '%s'" % dcp)
       dc = xmllib.config.read(dcp)

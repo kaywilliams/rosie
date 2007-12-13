@@ -59,6 +59,6 @@ class CreaterepoEvent(Event, CreateRepoMixin):
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['rpms'] = self.io.list_output(what='rpms')
-  
+
   def verify_repodata_directory(self):
     self.verifier.failUnlessExists(self.cvars['repodata-directory'])

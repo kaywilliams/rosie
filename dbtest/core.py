@@ -82,6 +82,10 @@ class CoreEventTestCase04(CoreEventTestCase):
 
 
 class ExtensionEventTestCase(EventTestCase):
+  def __init__(self, eventid, conf=None, moduleid=None):
+    EventTestCase.__init__(self, eventid, conf)
+    self.moduleid = moduleid or self.eventid
+
   def setUp(self):
     self.tb = TestBuild(self.conf, self.options, [], self.parser)
     # do not try to set up self.event cuz it may not exist
@@ -89,7 +93,7 @@ class ExtensionEventTestCase(EventTestCase):
 class ExtensionEventTestCase00(ExtensionEventTestCase):
   "disabling module removes output"
   def setUp(self):
-    self.options.disabled_modules.append(self.eventid)
+    self.options.disabled_modules.append(self.moduleid)
     ExtensionEventTestCase.setUp(self)
 
   def runTest(self):
@@ -99,7 +103,7 @@ class ExtensionEventTestCase00(ExtensionEventTestCase):
 class ExtensionEventTestCase01(ExtensionEventTestCase):
   "renabling module regenerates output"
   def setUp(self):
-    self.options.disabled_modules.remove(self.eventid)
+    self.options.disabled_modules.remove(self.moduleid)
     ExtensionEventTestCase.setUp(self)
 
   def runTest(self):
@@ -115,9 +119,9 @@ def make_core_suite(eventid, conf=None):
   suite.addTest(CoreEventTestCase04(eventid, conf))
   return suite
 
-def make_extension_suite(eventid, conf=None):
+def make_extension_suite(eventid, conf=None, moduleid=None):
   suite = unittest.TestSuite()
   suite.addTest(make_core_suite(eventid, conf))
-  suite.addTest(ExtensionEventTestCase00(eventid, conf))
-  suite.addTest(ExtensionEventTestCase01(eventid, conf))
+  suite.addTest(ExtensionEventTestCase00(eventid, conf, moduleid))
+  suite.addTest(ExtensionEventTestCase01(eventid, conf, moduleid))
   return suite

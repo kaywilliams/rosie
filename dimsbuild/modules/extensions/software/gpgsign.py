@@ -119,3 +119,9 @@ class GpgSignEvent(GpgMixin, Event):
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['signed-rpms'] = self.io.list_output(what='rpms')
+
+  def verify_gpgkeys_signed(self):
+    "gpgkeys exist and were signed"
+    for file in self.io.list_output(what='rpms'):
+      self.verifier.failUnlessExists(file)
+    # TODO: check that keys are actually signed

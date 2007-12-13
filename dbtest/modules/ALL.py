@@ -1,4 +1,4 @@
-from dbtest      import ModuleTestSuite
+from dbtest      import EventTestCase, ModuleTestSuite
 from dbtest.core import make_core_suite
 
 def make_suite():

@@ -25,14 +25,14 @@ class GpgCheckEvent(Event):
       'input':     [],
       'output':    [],
     }
-    
+
     self.gpgcheck_cb = GpgCallback(self.logger)
 
   def setup(self):
     self.diff.setup(self.DATA)
 
     self.gpgkeys = {}  # keys to download
-    self.rpms = {}    # rpms to check
+    self.rpms = {}     # rpms to check
 
     for repo in self.cvars['repos'].values():
       if self.cvars['rpms-by-repoid'].has_key(repo.id) and \
@@ -106,7 +106,6 @@ class GpgCheckEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
-
 
 #------ ERRORS ------#
 class RpmSignatureInvalidError(StandardError):

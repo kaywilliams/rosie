@@ -93,7 +93,7 @@ class Test_IncludeCoreGroups(CompsEventTestCase):
 
   def setUp(self):
     CompsEventTestCase.setUp(self)
-    self.event.cvars['included-packages'] = ['kde', 'xcalc']
+    self.event.cvars['included-packages'] = set(['kde', 'xcalc'])
 
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
@@ -130,7 +130,7 @@ class Test_ExcludePackages(CompsEventTestCase):
 
   def setUp(self):
     CompsEventTestCase.setUp(self)
-    self.event.cvars['excluded-packages'] = ['passwd', 'setup']
+    self.event.cvars['excluded-packages'] = set(['passwd', 'setup'])
 
   def runTest(self):
     self.tb.dispatch.execute(until='comps')

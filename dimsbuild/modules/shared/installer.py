@@ -128,11 +128,6 @@ class ImageModifyMixin:
   def apply(self):
     self.io.clean_eventcache()
 
-  def verify_output_exists(self):
-    "verify all output exists"
-    for file in self.io.list_output():
-      self.verifier.failUnless(file.exists(), "unabled to find file '%s'" % file)
-
   def _open(self):
     if self.virtual:
       if self.path.exists(): self.path.remove() # delete old image
@@ -186,7 +181,7 @@ class ImageModifyMixin:
 
   def verify_image(self):
     "verify image existence."
-    self.verifier.failUnless(self.path.exists(), "'%s' does not exist" % self.path)
+    self.verifier.failUnlessExists(self.path)
     if self.zipped:
       self.verifier.failUnless(magic.match(self.path) == magic.FILE_TYPE_GZIP,
                                "expected gzipped image file")
@@ -218,11 +213,6 @@ class FileDownloadMixin:
 
   def apply(self):
     self.io.clean_eventcache()
-
-  def verify_output_exists(self):
-    "verify all output exists"
-    for file in self.io.list_output():
-      self.verifier.failUnless(file.exists(), "unabled to find file '%s" % file)
 
   def _download(self):
     self.io.sync_input(what='FileDownloadMixin', cache=True)

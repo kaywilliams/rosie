@@ -164,13 +164,13 @@ def make_suite():
   suite = ModuleTestSuite('iso')
 
   # ISO
-  suite.addTest(make_extension_suite('ISO', isoconf))
+  suite.addTest(make_extension_suite('ISO', isoconf, 'iso'))
 
   # pkgorder
-  suite.addTest(make_extension_suite('pkgorder', isoconf))
+  suite.addTest(make_extension_suite('pkgorder', isoconf, 'iso'))
 
   # iso
-  suite.addTest(make_extension_suite('iso', isoconf))
+  suite.addTest(make_extension_suite('iso', isoconf, 'iso'))
   suite.addTest(Test_SizeParser())
   suite.addTest(Test_IsoContent())
   suite.addTest(Test_SetsChanged())
