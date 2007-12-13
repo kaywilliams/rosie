@@ -213,10 +213,6 @@ class IDepsolver(DepSolver):
     if updates_available:
       self.resetRpmDB()
 
-  def resetRpmDB(self):
-    self.rpmdb = None
-    DepSolver.doRpmDBSetup(self)
-
   def populateRpmDB(self):
     if self.depsolve_results.exists():
       for n,a,e,v,r in pickle.load(self.depsolve_results.open('r')):
