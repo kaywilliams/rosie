@@ -55,7 +55,6 @@ def make_suite():
   suite = ModuleTestSuite('logos-rpm')
 
   suite.addTest(make_core_suite('logos-rpm'))
-  suite.addTest(Test_LogosRpmLocals())
   suite.addTest(Test_LogosRpmBuild())
   suite.addTest(Test_LogosRpmCvars1())
   suite.addTest(Test_LogosRpmCvars2())
