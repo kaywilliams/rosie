@@ -161,13 +161,3 @@ class LogosRpmEvent(Event, RpmBuildMixin):
       draw.text((text_coords[0]-w, text_coords[1]-(h/2)), text, font)
 
     return im
-
-  def _add_doc_files(self, spec):
-    doc_files = ['COPYING']
-    for installdir in self.data_files.keys():
-      if installdir.startswith('/usr/share/doc'):
-        doc_files.extend([
-          installdir/x.basename for x in self.data_files[installdir]
-        ])
-    if doc_files:
-      spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))
