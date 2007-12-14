@@ -81,7 +81,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       for key in repo.gpgkeys:
         paths.append(key)
 
-    self.io.setup_sync(self.build_folder/'gpg', paths=paths)
+    self.io.setup_sync(self.rpm_dir//self.gpg_dir, paths=paths)
 
     # eulapy file
     paths = []
@@ -93,7 +93,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
         path = path/'release/eula.py'
         if path.exists():
           paths.append(path); break
-      self.io.setup_sync(self.build_folder/'eulapy', paths=paths)
+      self.io.setup_sync(self.build_folder//self.eulapy_dir, paths=paths)
 
   def run(self):
     self.io.clean_eventcache(all=True)
