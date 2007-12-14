@@ -12,7 +12,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
     Event.__init__(self,
       id = 'theme-rpm',
-      version = 1,
+      version = 2,
       provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info']
     )
 

@@ -15,7 +15,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'config-rpm',
-      version = 2,
+      version = 3,
       provides = ['custom-rpms', 'custom-srpms', 'custom-rpms-info']
     )
 
