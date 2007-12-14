@@ -335,6 +335,9 @@ Screenshot=background.png
 LOGOS_RPM = LocalsDict({
   '0': {
     'syslinux-vesa-splash.jpg': dict(
+      modify = dict(
+        background_color = 'black',
+      ),
       output_format = 'png',
       output_locations = [
         '/usr/lib/anaconda-runtime/boot/syslinux-splash.png',

@@ -87,6 +87,7 @@ class LogosRpmEvent(Event, RpmBuildMixin):
       output_format = file_dict.get('output_format', None)
       output_locations = file_dict.get('output_locations', ['/%s' % relpath])
       strings = file_dict.get('strings', None)
+      modify = file_dict.get('modify', None)
 
       if basename == 'COPYING':
         ## HACK: special-casing COPYING; find a better way to do this
@@ -95,7 +96,12 @@ class LogosRpmEvent(Event, RpmBuildMixin):
         for output_location in [ P(x) for x in output_locations ] :
           dest = self.build_folder // output_location
           dest.dirname.mkdirs()
-          if strings:
+          if modify:
+            background_color = modify.get('background_color', 'black')
+            im_in = Image.open(image_file)
+            im_out = Image.new('RGB', im_in.size, background_color)
+            im_out.save(dest, format=output_format)
+          elif strings:
             im = Image.open(image_file)
             for i in strings:
               text_string    = i.get('text', '') % self.cvars['base-vars']
@@ -113,7 +119,6 @@ class LogosRpmEvent(Event, RpmBuildMixin):
                                    text_max_width, font_color)
 
             im.save(dest, format=(output_format or 'png'))
-
           elif output_format is not None:
             Image.open(image_file).save(dest, format=output_format)
           else:
@@ -135,7 +140,6 @@ class LogosRpmEvent(Event, RpmBuildMixin):
 
   def _generate_image(self, im, text, halign, font_size, font_size_min, font_path,
                       text_coords, text_max_width, font_color):
-
     if text_coords is None:
       width, height = im.size
       text_coords = (width/2, height/2)
