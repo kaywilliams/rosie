@@ -264,7 +264,7 @@ class RpmBuildMixin:
   def _add_doc_files(self, spec):
     doc_files = ['README']
     if (self.build_folder / 'COPYING').exists():
-      doc_files = ['COPYING']
+      doc_files.append('COPYING')
     for installdir in self.data_files.keys():
       if installdir.startswith('/usr/share/doc'):
         doc_files.extend([
