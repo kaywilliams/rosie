@@ -81,7 +81,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       for key in repo.gpgkeys:
         paths.append(key)
 
-    self.io.setup_sync(self.rpm_dir//self.gpg_dir, paths=paths)
+    self.io.setup_sync(self.build_folder//self.gpg_dir, paths=paths)
 
     # eulapy file
     paths = []
@@ -116,18 +116,15 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       _, dir, _ = self.installinfo[type]
       generator = '_generate_%s_files' % type
       if hasattr(self, generator):
-        dest = self.rpm_dir//dir
+        dest = self.build_folder//dir
         getattr(self, generator)(dest)
     self._verify_release_notes()
 
-    RpmBuildMixin._update_data_files(self)
-    InputFilesMixin._update_data_files(self)
-
   def _verify_release_notes(self):
     "Ensure the presence of RELEASE-NOTES.html and an index.html"
-    rnotes = self.rpm_dir.findpaths(glob='RELEASE-NOTES*')
+    rnotes = self.build_folder.findpaths(glob='RELEASE-NOTES*')
     if len(rnotes) == 0:
-      dir = self.rpm_dir//self.html_dir
+      dir = self.build_folder//self.html_dir
       dir.mkdirs()
 
       # create a default release notes file because none were found.

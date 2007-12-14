@@ -40,10 +40,6 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     self._build_rpm()
     self.diff.write_metadata()
 
-  def _generate(self):
-    RpmBuildMixin._generate(self)
-    RpmBuildMixin._update_data_files(self)
-
   def apply(self):
     self.io.clean_eventcache()
     self._check_rpms()

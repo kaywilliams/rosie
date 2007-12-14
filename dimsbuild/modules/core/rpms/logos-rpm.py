@@ -119,12 +119,10 @@ class LogosRpmEvent(Event, RpmBuildMixin):
           else:
             self.copy(image_file, dest.dirname)
 
-    RpmBuildMixin._update_data_files(self)
-
   def _get_font_path(self, font):
     """
     Given a font file name, returns the full path to the font located in one
-    of the share directories"
+    of the share directories
     """
     for path in self.SHARE_DIRS:
       available_fonts = (path/'fonts').findpaths(glob=font)
@@ -133,7 +131,6 @@ class LogosRpmEvent(Event, RpmBuildMixin):
       if not font_path:
         raise RuntimeError("Unable to find font file '%s' in share path(s) "
                            "'%s'" %  font_path, self.SHARE_DIRS)
-
     return font_path
 
   def _generate_image(self, im, text, halign, font_size, font_size_min, font_path,

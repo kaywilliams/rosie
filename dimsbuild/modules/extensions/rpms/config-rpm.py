@@ -74,19 +74,16 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
           config_scripts.append((dst / file.tokens[len(src.tokens)-1:]).normpath())
 
     if config_scripts:
-      self.auto_script = self.rpm_dir / 'usr/lib/%s/auto.sh' % self.product
+      self.auto_script = self.build_folder / 'usr/lib/%s/auto.sh' % self.product
       self.auto_script.write_lines(config_scripts)
       self.auto_script.chmod(0755)
       self.DATA['output'].append(self.auto_script)
-
-    RpmBuildMixin._update_data_files(self)
-    InputFilesMixin._update_data_files(self)
 
   def _getpscript(self):
     if self.auto_script:
       post_install = self.build_folder / 'post-install.sh'
       post_install.write_lines([
-        '/%s' % self.auto_script.relpathfrom(self.rpm_dir).normpath()
+        '/%s' % self.auto_script.relpathfrom(self.build_folder).normpath()
       ])
       return post_install
     return None

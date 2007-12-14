@@ -11,7 +11,7 @@ from dimsbuild.constants import BOOLEANS_TRUE
 from dimsbuild.event     import Event, EventExit
 from dimsbuild.logging   import L1
 
-__all__ = ['InputFilesMixin', 'LocalFilesMixin', 'RpmBuildMixin']
+__all__ = ['InputFilesMixin', 'RpmBuildMixin']
 
 P = pps.Path
 
@@ -23,7 +23,7 @@ class InputFilesMixin:
   files that are sync'd.
   """
   def __init__(self):
-    self.rpm_dir = self.mddir/'rpm-input'
+    pass
 
   def _setup_download(self):
     for k,v in self.installinfo.items():
@@ -34,53 +34,7 @@ class InputFilesMixin:
           s = P(item.get('text()'))
           d = default_dir / P(item.get('@dest', ''))
           m = item.get('@mode', defmode)
-          self.io.setup_sync(self.rpm_dir // d, paths=[s], id=k, defmode=m)
-
-  def _update_data_files(self):
-    for item in self.rpm_dir.findpaths(type=pps.constants.TYPE_DIR, mindepth=1):
-      files = item.findpaths(type=pps.constants.TYPE_NOT_DIR,
-                             mindepth=1, maxdepth=1)
-      if files:
-        self.data_files.setdefault(P(item[len(self.rpm_dir):]), []).extend(files)
-
-
-class LocalFilesMixin:
-  """
-  Mixin that can be used to setup the locals and get the list of data files
-  that are generated using locals data.
-  """
-  def __init__(self):
-    pass
-
-  def _setup_locals(self):
-    newlocals = {}
-    for k,v in self.fileslocals.items():
-      newkey = k % self.cvars['base-vars']
-      newlocals[newkey] = v
-      if newlocals[newkey].has_key('locations'):
-        newlocs = []
-        for loc in newlocals[newkey]['locations']:
-          newlocs.append(loc % self.cvars['base-vars'])
-        newlocals[newkey]['locations'] = newlocs
-    self.fileslocals.clear()
-    self.fileslocals.update(newlocals)
-    del newlocals
-
-  def _update_data_files(self):
-    for id in self.fileslocals.keys():
-      locations = self.fileslocals[id]['locations']
-      file = self.build_folder/id
-      filename = file.basename
-      filedir = file.dirname
-      for l in [ P(x) for x in locations ]:
-        installname = l.basename
-        installdir = l.dirname
-        if filename != installname:
-          newfile = filedir/installname
-          file.link(newfile)
-          id = newfile
-        self.data_files.setdefault(installdir, []).append(id)
-
+          self.io.setup_sync(self.build_folder // d, paths=[s], id=k, defmode=m)
 
 class RpmBuildMixin:
   def __init__(self, rpm_name, rpm_desc, rpm_summary, rpm_license='UNKNOWN',
@@ -100,8 +54,15 @@ class RpmBuildMixin:
     self.rpm_base = self.bdist_base / 'rpm'
     self.dist_dir = self.bdist_base / 'dist'
 
-    # %files
-    self.data_files = {}
+  def _get_data_files(self):
+    data_files = {}
+    for item in self.build_folder.findpaths(type=pps.constants.TYPE_DIR, mindepth=1):
+      files = item.findpaths(type=pps.constants.TYPE_NOT_DIR,
+                             mindepth=1, maxdepth=1)
+      if files:
+        data_files.setdefault(P(item[len(self.build_folder):]), []).extend(files)
+    return data_files
+  data_files = property(_get_data_files)
 
   def check(self):
     return self.rpm_release == '0' or \
@@ -309,14 +270,6 @@ class RpmBuildMixin:
         ])
     if doc_files:
       spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))
-
-  def _update_data_files(self):
-    for item in self.build_folder.findpaths(type=pps.constants.TYPE_DIR, mindepth=1):
-      files = item.findpaths(type=pps.constants.TYPE_NOT_DIR,
-                             mindepth=1, maxdepth=1)
-      if files:
-        self.data_files.setdefault(P(item[len(self.build_folder):]), []).extend(files)
-
 
 #---------- GLOBAL VARIABLES --------#
 # each element for a distro's version, e.g. redhat/5, is a 3-tuple:
