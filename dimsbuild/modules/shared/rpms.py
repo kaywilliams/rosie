@@ -215,7 +215,12 @@ class RpmBuildMixin:
            (self.rpm_name, self.rpm_version, self.rpm_release)
     self.verifier.failUnless(srpm.exists(), "unable to find srpm at '%s'" % srpm)
 
-  def _generate(self):   pass
+  def _generate(self):
+    # generate doc file
+    doc_file = self.build_folder / 'usr/share/doc/%s/README' % self.rpm_name
+    doc_file.dirname.mkdirs()
+    doc_file.write_text(self.rpm_desc)
+
   def _getiscript(self): return None
   def _getpscript(self): return None
 

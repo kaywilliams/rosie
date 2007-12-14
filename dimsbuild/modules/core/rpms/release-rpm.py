@@ -108,7 +108,9 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     )
 
   def _generate(self):
-    "Create additional files."
+    "Generate additional files."
+    RpmBuildMixin._generate(self)
+
     self.io.sync_input(cache=True)
     for type in self.installinfo.keys():
       _, dir, _ = self.installinfo[type]

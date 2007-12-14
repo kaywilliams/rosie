@@ -73,6 +73,8 @@ class LogosRpmEvent(Event, RpmBuildMixin):
     )
 
   def _generate(self):
+    RpmBuildMixin._generate(self)
+
     for image_file in self.logos_dir.findpaths(type=pps.constants.TYPE_NOT_DIR):
       basename = image_file.basename
       relpath = image_file.relpathfrom(self.logos_dir)
@@ -160,4 +162,11 @@ class LogosRpmEvent(Event, RpmBuildMixin):
     return im
 
   def _add_doc_files(self, spec):
-    spec.set('bdist_rpm', 'doc_files', 'COPYING')
+    doc_files = ['COPYING']
+    for installdir in self.data_files.keys():
+      if installdir.startswith('/usr/share/doc'):
+        doc_files.extend([
+          installdir/x.basename for x in self.data_files[installdir]
+        ])
+    if doc_files:
+      spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))

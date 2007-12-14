@@ -41,11 +41,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     self.diff.write_metadata()
 
   def _generate(self):
-    # generate doc file
-    doc_file = self.build_folder / 'usr/share/doc/%s-theme/README' % self.product
-    doc_file.dirname.mkdirs()
-    doc_file.write_text(self.rpm_desc)
-
+    RpmBuildMixin._generate(self)
     RpmBuildMixin._update_data_files(self)
 
   def apply(self):
