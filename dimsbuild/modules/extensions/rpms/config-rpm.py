@@ -77,7 +77,13 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       self.auto_script.chmod(0755)
       self.DATA['output'].append(self.auto_script)
 
-    self._update_data_files()
+    # generate doc file
+    doc_file = self.build_folder / 'usr/share/doc/%s-config/README' % self.product
+    doc_file.dirname.mkdirs()
+    doc_file.write_text(self.rpm_desc)
+
+    RpmBuildMixin._update_data_files(self)
+    InputFilesMixin._update_data_files(self)
 
   def _getpscript(self):
     if self.auto_script:

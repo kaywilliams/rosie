@@ -117,7 +117,9 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
         dest = self.rpm_dir//dir
         getattr(self, generator)(dest)
     self._verify_release_notes()
-    self._update_data_files()
+
+    RpmBuildMixin._update_data_files(self)
+    InputFilesMixin._update_data_files(self)
 
   def _verify_release_notes(self):
     "Ensure the presence of RELEASE-NOTES.html and an index.html"

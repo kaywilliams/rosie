@@ -103,10 +103,10 @@ class LogosRpmEvent(Event, RpmBuildMixin):
               font_color     = i.get('font_color', 'black')
               font_size      = i.get('font_size', None)
               font_size_min  = i.get('font_size_min', None)
-              font_path      = self._get_font_path(i.get('font', 
+              font_path      = self._get_font_path(i.get('font',
                                                          'DejaVuLGCSans.ttf'))
 
-              self._generate_image(im, text_string, halign, font_size, 
+              self._generate_image(im, text_string, halign, font_size,
                                    font_size_min, font_path, text_coords,
                                    text_max_width, font_color)
 
@@ -117,9 +117,7 @@ class LogosRpmEvent(Event, RpmBuildMixin):
           else:
             self.copy(image_file, dest.dirname)
 
-          self.data_files.setdefault(output_location.dirname, []).append(
-            dest.relpathfrom(self.build_folder)
-          )
+    RpmBuildMixin._update_data_files(self)
 
   def _get_font_path(self, font):
     """

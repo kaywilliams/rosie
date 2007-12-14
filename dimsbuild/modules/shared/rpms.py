@@ -305,6 +305,13 @@ class RpmBuildMixin:
     if doc_files:
       spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))
 
+  def _update_data_files(self):
+    for item in self.build_folder.findpaths(type=pps.constants.TYPE_DIR, mindepth=1):
+      files = item.findpaths(type=pps.constants.TYPE_NOT_DIR,
+                             mindepth=1, maxdepth=1)
+      if files:
+        self.data_files.setdefault(P(item[len(self.build_folder):]), []).extend(files)
+
 
 #---------- GLOBAL VARIABLES --------#
 # each element for a distro's version, e.g. redhat/5, is a 3-tuple:
