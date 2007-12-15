@@ -38,14 +38,14 @@ class InputFilesMixin:
 
 class RpmBuildMixin:
   def __init__(self, rpm_name, rpm_desc, rpm_summary, rpm_license='UNKNOWN',
-               default_provides=[], default_obsoletes=[], default_requires=[]):
+               default_provides=None, default_obsoletes=None, default_requires=None):
     self.rpm_desc = rpm_desc
     self.rpm_name = rpm_name
     self.rpm_summary = rpm_summary
     self.rpm_license = rpm_license
-    self.default_obsoletes = default_obsoletes
-    self.default_provides = default_provides
-    self.default_requires = default_requires
+    self.default_obsoletes = default_obsoletes or []
+    self.default_provides = default_provides or []
+    self.default_requires = default_requires or []
     self.autofile = P(self._config.file + '.dat')
 
     # RPM build variables
@@ -53,6 +53,10 @@ class RpmBuildMixin:
     self.bdist_base = self.mddir / 'rpm-base'
     self.rpm_base = self.bdist_base / 'rpm'
     self.dist_dir = self.bdist_base / 'dist'
+
+    self.rpm_obsoletes = None
+    self.rpm_provides = None
+    self.rpm_requires = None
 
   def _get_data_files(self):
     data_files = {}
