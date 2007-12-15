@@ -182,6 +182,7 @@ class IDepsolver(DepSolver):
     self.reqpkgs = reqpkgs
     self.userreqs = userreqs
     self.toremove = toremove
+    self.reqpkgs.sort()
 
   def setup(self, force=False):
     """
