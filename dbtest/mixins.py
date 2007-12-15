@@ -3,11 +3,10 @@ import unittest
 from dims               import pps
 from dims.xmllib.config import Element
 
-from dbtest import EventTestCase
-from dbtest.config import add_config_section
+from dbtest import decorate
 
 #------ FileDownloadMixin ------#
-class FDMTest_Files(EventTestCase):
+class FDMTest_Files:
   "all files downloaded successfully"
   def runTest(self):
     self.tb.dispatch.execute(until=self.eventid)
@@ -15,22 +14,31 @@ class FDMTest_Files(EventTestCase):
     for file in self.event.io.list_output():
       self.failUnlessExists(file) # need to check for virtual?
 
-def fdm_make_suite(eventid, conf=None):
+def FDMTest_Files(self):
+  self._testMethodDoc = "all files downloaded successfully"
+
+  def runTest(): # this test is probably unnecessary, as all events do this now
+    self.tb.dispatch.execute(until=self.eventid)
+
+    for file in self.event.io.list_output():
+      self.failUnlessExists(file)
+
+  self.runTest = runTest
+
+  return self
+
+def fdm_make_suite(TestCase, conf=None):
   suite = unittest.TestSuite()
-  suite.addTest(FDMTest_Files(eventid, conf))
+  suite.addTest(FDMTest_Files(TestCase(conf)))
   return suite
 
 
 #------ ImageModifyMixin ------#
-class ImageModifyMixinTestCase(EventTestCase):
-  def __init__(self, eventid, conf=None):
-    EventTestCase.__init__(self, eventid, conf)
+class ImageModifyMixinTestCase:
+  def __init__(self):
     self.image_content = None
 
   def setUp(self):
-    if not self.conf.pathexists(self.eventid):
-      self.conf.append(Element(self.eventid))
-    EventTestCase.setUp(self)
     self.clean_event_md()
 
     # touch input files
@@ -58,9 +66,10 @@ class ImageModifyMixinTestCase(EventTestCase):
     self.failUnless(file.lstrip('/') in self.image_content,
                     "'%s' not in %s" % (file.lstrip('/'), self.image_content))
 
-class IMMTest_Content(ImageModifyMixinTestCase):
-  "image content included in final image"
-  def runTest(self):
+def IMMTest_Content(self):
+  self._testMethodDoc = "image content included in final image"
+
+  def runTest():
     self.tb.dispatch.execute(until=self.eventid)
 
     for dst, src in (self.event.cvars['%s-content' % self.event.id] or {}).items():
@@ -69,13 +78,16 @@ class IMMTest_Content(ImageModifyMixinTestCase):
       for s in src:
         self.check_file_in_image(dst/s.basename)
 
-class IMMTest_ConfigPaths(ImageModifyMixinTestCase):
-  "all config-based paths included in final image"
-  def __init__(self, eventid, conf=None, path_xpath=None):
-    ImageModifyMixinTestCase.__init__(self, eventid, conf)
-    self.path_xpath = path_xpath or 'path'
+  self.runTest = runTest
 
-  def runTest(self):
+  return self
+
+def IMMTest_ConfigPaths(self, path_xpath):
+  self._testMethodDoc = "all config-based paths included in final image"
+
+  self.path_xpath = path_xpath or 'path'
+
+  def runTest():
     self.tb.dispatch.execute(until=self.event.id)
 
     for path in self.event.config.xpath(self.path_xpath):
@@ -83,15 +95,19 @@ class IMMTest_ConfigPaths(ImageModifyMixinTestCase):
       file = dest/pps.Path(path.text).basename
       self.check_file_in_image(file)
 
-def imm_make_suite(eventid, conf=None, xpath=None):
+  self.runTest = runTest
+
+  return self
+
+def imm_make_suite(TestCase, conf=None, xpath=None):
   suite = unittest.TestSuite()
-  suite.addTest(IMMTest_Content(eventid, conf))
-  suite.addTest(IMMTest_ConfigPaths(eventid, conf, xpath))
+  suite.addTest(IMMTest_Content(TestCase(conf)))
+  suite.addTest(IMMTest_ConfigPaths(TestCase(conf), xpath))
   return suite
 
 
 #------ BootConfigMixin ------#
-class BootConfigMixinTestCase(EventTestCase):
+class BootConfigMixinTestCase:
   def _append_method_arg(self, args):
     if self.event.cvars['web-path']:
       args.append('method=%s/os' % self.event.cvars['web-path'])

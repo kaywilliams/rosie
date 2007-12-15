@@ -1,18 +1,26 @@
 from dims import pps
 
-from dbtest        import ModuleTestSuite
+from dbtest        import EventTestCase, ModuleTestSuite
 from dbtest.core   import make_core_suite
 from dbtest.mixins import (ImageModifyMixinTestCase, imm_make_suite,
                            BootConfigMixinTestCase)
 
-class DiskbootImageEventTestCase(ImageModifyMixinTestCase, BootConfigMixinTestCase):
+class DiskbootImageEventTestCase(EventTestCase):
+  moduleid = 'diskboot-image'
+  eventid  = 'diskboot-image'
+
+class _DiskbootImageEventTestCase(ImageModifyMixinTestCase,
+                                  BootConfigMixinTestCase,
+                                  DiskbootImageEventTestCase):
   def __init__(self, conf=None):
-    ImageModifyMixinTestCase.__init__(self, 'diskboot-image', conf)
+    DiskbootImageEventTestCase.__init__(self, conf)
+    ImageModifyMixinTestCase.__init__(self)
 
     self.default_args = ['nousbstorage']
     self.do_defaults = True
 
   def setUp(self):
+    DiskbootImageEventTestCase.setUp(self)
     ImageModifyMixinTestCase.setUp(self)
     self._append_method_arg(self.default_args)
     self._append_ks_arg(self.default_args)
@@ -23,7 +31,7 @@ class DiskbootImageEventTestCase(ImageModifyMixinTestCase, BootConfigMixinTestCa
     self.testArgs(self.event.image, filename='syslinux.cfg', defaults=self.do_defaults)
 
 
-class Test_CvarContent(DiskbootImageEventTestCase):
+class Test_CvarContent(_DiskbootImageEventTestCase):
   "cvars['installer-splash'], cvars['isolinux-files'] included"
   _conf = \
   """<diskboot-image>
@@ -38,7 +46,7 @@ class Test_CvarContent(DiskbootImageEventTestCase):
     self.check_file_in_image(self.event.cvars['installer-splash'].basename)
     self.check_file_in_image(self.event.cvars['isolinux-files']['initrd.img'].basename)
 
-class Test_BootArgsDefault(DiskbootImageEventTestCase):
+class Test_BootArgsDefault(_DiskbootImageEventTestCase):
   "default boot args and config-specified args in syslinux.cfg"
   _conf = \
   """<diskboot-image>
@@ -48,10 +56,10 @@ class Test_BootArgsDefault(DiskbootImageEventTestCase):
   </diskboot-image>"""
 
   def setUp(self):
-    DiskbootImageEventTestCase.setUp(self)
+    _DiskbootImageEventTestCase.setUp(self)
     self.do_defaults = True
 
-class Test_BootArgsNoDefault(DiskbootImageEventTestCase):
+class Test_BootArgsNoDefault(_DiskbootImageEventTestCase):
   "default boot args not included"
   _conf = \
   """<diskboot-image>
@@ -61,10 +69,10 @@ class Test_BootArgsNoDefault(DiskbootImageEventTestCase):
   </diskboot-image>"""
 
   def setUp(self):
-    DiskbootImageEventTestCase.setUp(self)
+    _DiskbootImageEventTestCase.setUp(self)
     self.do_defaults = False
 
-class Test_BootArgsMacros(DiskbootImageEventTestCase):
+class Test_BootArgsMacros(_DiskbootImageEventTestCase):
   "macro usage with non-default boot args"
   _conf = \
   """<diskboot-image>
@@ -74,15 +82,15 @@ class Test_BootArgsMacros(DiskbootImageEventTestCase):
   </diskboot-image>"""
 
   def setUp(self):
-    DiskbootImageEventTestCase.setUp(self)
+    _DiskbootImageEventTestCase.setUp(self)
     self.do_defaults = False
 
 
 def make_suite():
   suite = ModuleTestSuite('diskboot-image')
 
-  suite.addTest(make_core_suite('diskboot-image'))
-  suite.addTest(imm_make_suite('diskboot-image', xpath='path'))
+  suite.addTest(make_core_suite(DiskbootImageEventTestCase))
+  suite.addTest(imm_make_suite(_DiskbootImageEventTestCase, xpath='path'))
   suite.addTest(Test_CvarContent())
   suite.addTest(Test_BootArgsDefault())
   suite.addTest(Test_BootArgsNoDefault())

@@ -1,12 +1,12 @@
-from dbtest         import EventTestCase, ModuleTestSuite
-from dbtest.core    import make_core_suite
+from dbtest       import EventTestCase, ModuleTestSuite
+from dbtest.core  import make_core_suite
 
 non_meta_event = 'comps'
 meta_event = 'setup'
 
 class AutocleanEventTestCase(EventTestCase):
-  def __init__(self, conf=None):
-    EventTestCase.__init__(self, 'autoclean', conf)
+  moduleid = 'autoclean'
+  eventid  = 'autoclean'
 
 class Test_NonMeta(AutocleanEventTestCase):
   "standard run (non-meta events)"
@@ -104,7 +104,7 @@ def make_suite():
   suite = ModuleTestSuite('autoclean')
 
   # autoclean
-  suite.addTest(make_core_suite('autoclean'))
+  suite.addTest(make_core_suite(AutocleanEventTestCase))
   suite.addTest(Test_NonMeta())
   suite.addTest(Test_NonMetaVersion())
   suite.addTest(Test_NonMetaNoVersion())

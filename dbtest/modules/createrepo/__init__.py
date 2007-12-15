@@ -8,8 +8,8 @@ from dbtest.core import make_core_suite
 
 
 class CreaterepoEventTestCase(EventTestCase):
-  def __init__(self, conf=None):
-    EventTestCase.__init__(self, 'createrepo', conf)
+  moduleid = 'createrepo'
+  eventid  = 'createrepo'
 
 
 class Test_CompsFile(CreaterepoEventTestCase):
@@ -35,7 +35,7 @@ class Test_SignedRpms(CreaterepoEventTestCase):
 def make_suite():
   suite = ModuleTestSuite('createrepo')
 
-  suite.addTest(make_core_suite('createrepo'))
+  suite.addTest(make_core_suite(CreaterepoEventTestCase))
   suite.addTest(Test_CompsFile())
   suite.addTest(Test_SignedRpms())
 

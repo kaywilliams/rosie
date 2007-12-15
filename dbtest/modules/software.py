@@ -1,13 +1,13 @@
 from dbtest      import EventTestCase, ModuleTestSuite
 from dbtest.core import make_core_suite
 
-class SoftwareTestCase(EventTestCase):
-  def __init__(self, conf=None):
-    EventTestCase.__init__(self, 'software', conf)
+class SoftwareEventTestCase(EventTestCase):
+  moduleid = 'software'
+  eventid  = 'software'
 
 def make_suite():
   suite = ModuleTestSuite('software')
 
-  suite.addTest(make_core_suite('software'))
+  suite.addTest(make_core_suite(SoftwareEventTestCase))
 
   return suite

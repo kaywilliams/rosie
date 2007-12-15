@@ -5,52 +5,46 @@ from dbtest.core import make_core_suite, make_extension_suite
 from dbtest.rpms import ( RpmBuildMixinTestCase, InputFilesMixinTestCase,
                           RpmCvarsTestCase )
 
-class ConfigRpmTestCase(EventTestCase):
+class ConfigRpmEventTestCase(EventTestCase):
+  moduleid = 'config-rpm'
+  eventid  = 'config-rpm'
   _conf = """<config-rpm enabled="true">
     <requires>yum</requires>
     <requires>createrepo</requires>
   </config-rpm>"""
-  def __init__(self, conf=None):
-    EventTestCase.__init__(self, 'config-rpm', conf)
 
-class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmTestCase):
+class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmEventTestCase):
   def setUp(self):
-    InputFilesMixinTestCase.setUp(self)
+    ConfigRpmEventTestCase.setUp(self)
     self.clean_event_md()
     self.event.status = True
 
   def tearDown(self):
     if self.img_path:
       self.img_path.rm(recursive=True, force=True)
-    InputFilesMixinTestCase.tearDown(self)
+    ConfigRpmEventTestCase.tearDown(self)
 
   def runTest(self):
     self.tb.dispatch.execute(until='config-rpm')
     self.check_inputs()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ConfigRpmBuild(RpmBuildMixinTestCase, ConfigRpmTestCase):
+class Test_ConfigRpmBuild(RpmBuildMixinTestCase, ConfigRpmEventTestCase):
   def setUp(self):
-    RpmBuildMixinTestCase.setUp(self)
+    ConfigRpmEventTestCase.setUp(self)
     self.clean_event_md()
     self.event.status = True
-
-  def tearDown(self):
-    RpmBuildMixinTestCase.tearDown(self)
 
   def runTest(self):
     self.tb.dispatch.execute(until='config-rpm')
     self.check_header()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmTestCase):
+class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmEventTestCase):
   def setUp(self):
-    RpmCvarsTestCase.setUp(self)
+    ConfigRpmEventTestCase.setUp(self)
     self.clean_event_md()
     self.event.status = True
-
-  def tearDown(self):
-    RpmCvarsTestCase.tearDown(self)
 
   def runTest(self):
     self.tb.dispatch.execute(until='config-rpm')
@@ -60,13 +54,10 @@ class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmTestCase):
                     self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmTestCase):
+class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
   def setUp(self):
-    RpmCvarsTestCase.setUp(self)
+    ConfigRpmEventTestCase.setUp(self)
     self.event.status = True
-
-  def tearDown(self):
-    RpmCvarsTestCase.tearDown(self)
 
   def runTest(self):
     self.tb.dispatch.execute(until='config-rpm')
@@ -79,7 +70,7 @@ class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmTestCase):
 def make_suite():
   suite = ModuleTestSuite('config-rpm')
 
-  suite.addTest(make_extension_suite('config-rpm'))
+  suite.addTest(make_extension_suite(ConfigRpmEventTestCase))
   suite.addTest(Test_ConfigRpmInputs())
   suite.addTest(Test_ConfigRpmBuild())
   suite.addTest(Test_ConfigRpmCvars1())

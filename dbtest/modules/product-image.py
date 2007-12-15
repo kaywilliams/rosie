@@ -4,16 +4,22 @@ from dbtest        import EventTestCase, ModuleTestSuite
 from dbtest.core   import make_core_suite
 from dbtest.mixins import ImageModifyMixinTestCase, imm_make_suite
 
-class ProductImageEventTestCase(ImageModifyMixinTestCase):
+class ProductImageEventTestCase(EventTestCase):
+  moduleid = 'product-image'
+  eventid  = 'product-image'
+
+class _ProductImageEventTestCase(ImageModifyMixinTestCase,
+                                 ProductImageEventTestCase):
   def __init__(self, conf=None):
-    ImageModifyMixinTestCase.__init__(self, 'product-image', conf)
+    ProductImageEventTestCase.__init__(self, conf)
+    ImageModifyMixinTestCase.__init__(self)
 
   def setUp(self):
+    ProductImageEventTestCase.setUp(self)
     ImageModifyMixinTestCase.setUp(self)
     self.clean_event_md()
 
-
-class Test_Installclasses(ProductImageEventTestCase):
+class Test_Installclasses(_ProductImageEventTestCase):
   "at least one installclass is included"
   def runTest(self):
     self.tb.dispatch.execute(until='product-image')
@@ -27,8 +33,8 @@ class Test_Installclasses(ProductImageEventTestCase):
 def make_suite():
   suite = ModuleTestSuite('product-image')
 
-  suite.addTest(make_core_suite('product-image'))
-  suite.addTest(imm_make_suite('product-image', xpath='path'))
+  suite.addTest(make_core_suite(ProductImageEventTestCase))
+  suite.addTest(imm_make_suite(_ProductImageEventTestCase, xpath='path'))
   suite.addTest(Test_Installclasses())
 
   return suite

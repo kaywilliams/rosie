@@ -7,14 +7,18 @@ from dbtest      import EventTestCase, ModuleTestSuite
 from dbtest.core import make_core_suite
 
 class CompsEventTestCase(EventTestCase):
-  def __init__(self):
-    EventTestCase.__init__(self, 'comps')
+  moduleid = 'comps'
+  eventid  = 'comps'
+
+class _CompsEventTestCase(CompsEventTestCase):
+  def __init__(self, conf=None):
+    CompsEventTestCase.__init__(self, conf)
     self.included_groups = []
     self.included_pkgs = []
     self.excluded_pkgs = []
 
   def setUp(self):
-    EventTestCase.setUp(self)
+    CompsEventTestCase.setUp(self)
     self.clean_event_md()
 
   def read_comps(self):
@@ -49,7 +53,7 @@ class CompsEventTestCase(EventTestCase):
     for pkg in self.excluded_pkgs:
       self.failIf(pkg in pkgs)
 
-class Test_Supplied(CompsEventTestCase):
+class Test_Supplied(_CompsEventTestCase):
   "comps supplied"
   _conf = "<comps>comps/comps.xml</comps>" # location needs adjustment when config moves
 
@@ -60,7 +64,7 @@ class Test_Supplied(CompsEventTestCase):
 
     self.failUnlessEqual(comps_in, comps_out)
 
-class Test_IncludePackages(CompsEventTestCase):
+class Test_IncludePackages(_CompsEventTestCase):
   "comps generated, groups included in core, kernel unlisted"
   _conf = \
   """<comps>
@@ -80,7 +84,7 @@ class Test_IncludePackages(CompsEventTestCase):
 
     # still need to check that all base pkgs ended up in core group #!
 
-class Test_IncludeCoreGroups(CompsEventTestCase):
+class Test_IncludeCoreGroups(_CompsEventTestCase):
   "comps generated, packages included in core"
   _conf = \
   """<comps>
@@ -92,7 +96,7 @@ class Test_IncludeCoreGroups(CompsEventTestCase):
   </comps>"""
 
   def setUp(self):
-    CompsEventTestCase.setUp(self)
+    _CompsEventTestCase.setUp(self)
     self.event.cvars['included-packages'] = set(['kde', 'xcalc'])
 
   def runTest(self):
@@ -102,7 +106,7 @@ class Test_IncludeCoreGroups(CompsEventTestCase):
     self.included_pkgs = ['createrepo', 'httpd', 'kde', 'xcalc']
     self.check_all(self.read_comps())
 
-class Test_IncludeGroups(CompsEventTestCase):
+class Test_IncludeGroups(_CompsEventTestCase):
   "comps generated, groups included"
   _conf = \
   """<comps>
@@ -118,7 +122,7 @@ class Test_IncludeGroups(CompsEventTestCase):
     self.included_groups = ['core', 'base', 'printing']
     self.check_all(self.read_comps())
 
-class Test_ExcludePackages(CompsEventTestCase):
+class Test_ExcludePackages(_CompsEventTestCase):
   "comps generated, packages excluded"
   _conf = \
   """<comps>
@@ -129,7 +133,7 @@ class Test_ExcludePackages(CompsEventTestCase):
   </comps>"""
 
   def setUp(self):
-    CompsEventTestCase.setUp(self)
+    _CompsEventTestCase.setUp(self)
     self.event.cvars['excluded-packages'] = set(['passwd', 'setup'])
 
   def runTest(self):
@@ -139,7 +143,7 @@ class Test_ExcludePackages(CompsEventTestCase):
     self.excluded_pkgs = ['cpio', 'kudzu', 'passwd', 'setup']
     self.check_all(self.read_comps())
 
-class Test_GroupsByRepo(CompsEventTestCase):
+class Test_GroupsByRepo(_CompsEventTestCase):
   "comps generated, group included from specific repo"
   _conf = \
   """<comps>
@@ -160,7 +164,7 @@ class Test_GroupsByRepo(CompsEventTestCase):
 
     # still need to check 'core' and 'printing' came from 'fedora-6-base' #!
 
-class Test_MultipleGroupfiles(CompsEventTestCase):
+class Test_MultipleGroupfiles(_CompsEventTestCase):
   "comps generated, multiple repositories with groupfiles"
   _conf = \
   """<comps>
@@ -181,7 +185,7 @@ class Test_MultipleGroupfiles(CompsEventTestCase):
     # still need to check that 'base-x' contains all packages listed in #!
     # both 'fedora-6-base' and 'livna' groupfiles in 'base-x' group #!
 
-class Test_GroupDefaults(CompsEventTestCase):
+class Test_GroupDefaults(_CompsEventTestCase):
   # bug 106
   "comps generated, group defaults set appropriately"
   _conf = \
@@ -208,7 +212,7 @@ class Test_GroupDefaults(CompsEventTestCase):
 def make_suite():
   suite = ModuleTestSuite('comps')
 
-  suite.addTest(make_core_suite('comps'))
+  suite.addTest(make_core_suite(CompsEventTestCase))
   suite.addTest(Test_Supplied())
   suite.addTest(Test_IncludePackages())
   suite.addTest(Test_IncludeCoreGroups())

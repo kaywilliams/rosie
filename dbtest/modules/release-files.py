@@ -1,107 +1,93 @@
-import time
-
-from dims import pps
-from dims import xmllib
-
 from dbtest        import EventTestCase, ModuleTestSuite
-from dbtest.config import make_default_config
 from dbtest.core   import make_core_suite
+from dbtest.mixins import touch_input_files, remove_input_files
 
-files = ['input1', 'input2', 'input3']
-starttime = time.time()
 
 class ReleaseFilesEventTestCase(EventTestCase):
+  moduleid = 'release-files'
+  eventid  = 'release-files'
   _conf = """<release-rpm enabled="true"/>"""
   def __init__(self, conf=None, enabled='True'):
-    EventTestCase.__init__(self, 'release-files', conf)
+    EventTestCase.__init__(self, conf)
     self.enabled = enabled
 
+class _ReleaseFilesEventTestCase(ReleaseFilesEventTestCase):
   def setUp(self):
     EventTestCase.setUp(self)
     self.clean_event_md()
     self.conf.get('release-rpm').attrib['enabled'] = self.enabled
 
     # touch input files
-    for file in files:
-      ifilename = self.event._config.file.abspath().dirname/file
-      ifilename.touch()
-      ifilename.utime((starttime, starttime)) # make sure start times match
+    touch_input_files(self.event._config.file.abspath().dirname)
 
   def runTest(self):
     self.tb.dispatch.execute(until='publish')
 
   def tearDown(self):
-    for file in files:
-      ifilename = self.event._config.file.abspath().dirname/file
-      ifilename.remove()
+    remove_input_files(self.event._config.file.abspath().dirname)
+    ReleaseFilesEventTestCase.tearDown(self)
 
-class Test_ReleaseFiles(ReleaseFilesEventTestCase):
-  _conf = [ ReleaseFilesEventTestCase._conf,
+
+class Test_ReleaseFiles(_ReleaseFilesEventTestCase):
+  _conf = [ _ReleaseFilesEventTestCase._conf,
   """<release-files enabled="true"/>"""
   ]
 
-class Test_ReleaseFilesWithDefaultSet(ReleaseFilesEventTestCase):
-  _conf = [ ReleaseFilesEventTestCase._conf,
+class Test_ReleaseFilesWithDefaultSet(_ReleaseFilesEventTestCase):
+  _conf = [ _ReleaseFilesEventTestCase._conf,
   """<release-files>
     <include-in-tree use-default-set="true"/>
   </release-files>"""
   ]
 
-class Test_ReleaseFilesWithDefaultSet(ReleaseFilesEventTestCase):
-  _conf = [ ReleaseFilesEventTestCase._conf,
+class Test_ReleaseFilesWithDefaultSet(_ReleaseFilesEventTestCase):
+  _conf = [ _ReleaseFilesEventTestCase._conf,
   """<release-files>
     <include-in-tree use-default-set="false"/>
   </release-files>"""
   ]
 
-class Test_ReleaseFilesWithInputFiles(ReleaseFilesEventTestCase):
-  _conf = [ ReleaseFilesEventTestCase._conf,
+class Test_ReleaseFilesWithInputFiles(_ReleaseFilesEventTestCase):
+  _conf = [ _ReleaseFilesEventTestCase._conf,
   """<release-files>
-    <path>input1</path>
-    <path dest="dir1/dir2">input2</path>
-    <path dest="dir3">input3</path>
+    <path>/tmp/outfile</path>
+    <path dest="/infiles">infile</path>
+    <path dest="/infiles">infile2</path>
   </release-files>"""
   ]
 
-  def runTest(self):
-    ReleaseFilesEventTestCase.runTest(self)
-    for file in [ self.event.SOFTWARE_STORE / 'input1',
-                  self.event.SOFTWARE_STORE / 'dir1/dir2/input2',
-                  self.event.SOFTWARE_STORE / 'dir3/input3']:
-      self.failUnlessExists(file)
-
-class Test_ReleaseFilesWithPackageElement(ReleaseFilesEventTestCase):
-  _conf = [ ReleaseFilesEventTestCase._conf,
+class Test_ReleaseFilesWithPackageElement(_ReleaseFilesEventTestCase):
+  _conf = [ _ReleaseFilesEventTestCase._conf,
   """<release-files enabled="true">
     <package></package>
   </release-files>"""
   ]
 
-  def __init__(self, conf):
-    ReleaseFilesEventTestCase.__init__(self, conf, 'True')
+  def __init__(self, conf=None):
+    _ReleaseFilesEventTestCase.__init__(self, conf, 'True')
 
   def setUp(self):
-    ReleaseFilesEventTestCase.setUp(self)
+    _ReleaseFilesEventTestCase.setUp(self)
     self.conf.get('release-files/package').text = '%s-release' % self.event.product
 
 def make_suite():
   suite = ModuleTestSuite('release-files')
 
-  suite.addTest(make_core_suite('release-files'))
+  suite.addTest(make_core_suite(ReleaseFilesEventTestCase))
 
   # default run
-  suite.addTest(Test_ReleaseFiles(make_default_config('release-files'), 'True'))
-  suite.addTest(Test_ReleaseFiles(make_default_config('release-files'), 'False'))
+  suite.addTest(Test_ReleaseFiles(enabled='True'))
+  suite.addTest(Test_ReleaseFiles(enabled='False'))
 
   # execution with modification of 'use-default-set' attribute
-  suite.addTest(Test_ReleaseFilesWithDefaultSet(make_default_config('release-files'), 'True'))
-  suite.addTest(Test_ReleaseFilesWithDefaultSet(make_default_config('release-files'), 'False'))
+  suite.addTest(Test_ReleaseFilesWithDefaultSet(enabled='True'))
+  suite.addTest(Test_ReleaseFilesWithDefaultSet(enabled='False'))
 
   # execution with <path/> element
-  suite.addTest(Test_ReleaseFilesWithInputFiles(make_default_config('release-files'), 'True'))
-  suite.addTest(Test_ReleaseFilesWithInputFiles(make_default_config('release-files'), 'False'))
+  suite.addTest(Test_ReleaseFilesWithInputFiles(enabled='True'))
+  suite.addTest(Test_ReleaseFilesWithInputFiles(enabled='False'))
 
   # execution with <package/> element
-  suite.addTest(Test_ReleaseFilesWithPackageElement(make_default_config('release-files')))
+  suite.addTest(Test_ReleaseFilesWithPackageElement())
 
   return suite

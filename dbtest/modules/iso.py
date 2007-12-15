@@ -7,37 +7,43 @@ from dims.xmllib.config import Element
 from dimsbuild.splittree import parse_size
 
 from dbtest        import EventTestCase, ModuleTestSuite
-from dbtest.config import make_default_config, add_config_section
 from dbtest.core   import make_core_suite, make_extension_suite
 from dbtest.mixins import BootConfigMixinTestCase
 
 #------ ISO ------#
+class ISOEventTestCase(EventTestCase):
+  moduleid = 'iso'
+  eventid  = 'ISO'
+  _conf = """<iso><set>CD</set></iso>"""
 
 #------ pkgorder ------#
+class PkgorderEventTestCase(EventTestCase):
+  moduleid = 'iso'
+  eventid  = 'pkgorder'
+  _conf = """<iso><set>CD</set></iso>"""
 
 #------ iso ------#
 class IsoEventTestCase(EventTestCase):
-  _conf = \
-  """<iso>
+  moduleid = 'iso'
+  eventid  = 'iso'
+  _conf = """<iso>
     <boot-config>
       <append-args>ro root=LABEL=/</append-args>
     </boot-config>
     <set>CD</set>
     <set>400 MB</set>
   </iso>"""
-  def __init__(self, conf=None):
-    EventTestCase.__init__(self, 'iso', conf)
 
 
-class IsoEventBootConfigTestCase(IsoEventTestCase, BootConfigMixinTestCase):
+class IsoEventBootConfigTestCase(BootConfigMixinTestCase, IsoEventTestCase):
   def __init__(self, conf=None):
-    BootConfigMixinTestCase.__init__(self, 'iso', conf)
+    IsoEventTestCase.__init__(self, conf)
     self.default_args = ['method=cdrom']
     self.image = None
     self.do_defaults = True
 
   def setUp(self):
-    BootConfigMixinTestCase.setUp(self)
+    IsoEventTestCase.setUp(self)
     self._append_ks_arg(self.default_args)
 
   def runTest(self):
@@ -50,6 +56,7 @@ class IsoEventBootConfigTestCase(IsoEventTestCase, BootConfigMixinTestCase):
 
 class Test_SizeParser(unittest.TestCase):
   "splittree.parse_size() checks"
+  # this probably technically belongs elsewhere, in another unittest
   def __init__(self):
     unittest.TestCase.__init__(self)
     self.eventid = 'iso'
@@ -158,19 +165,16 @@ class Test_BootArgsMacros(IsoEventBootConfigTestCase):
 
 
 def make_suite():
-  isoconf = make_default_config('iso')
-  add_config_section(isoconf, '<iso><set>CD</set></iso>')
-
   suite = ModuleTestSuite('iso')
 
   # ISO
-  suite.addTest(make_extension_suite('ISO', isoconf, 'iso'))
+  suite.addTest(make_extension_suite(ISOEventTestCase))
 
   # pkgorder
-  suite.addTest(make_extension_suite('pkgorder', isoconf, 'iso'))
+  suite.addTest(make_extension_suite(PkgorderEventTestCase))
 
   # iso
-  suite.addTest(make_extension_suite('iso', isoconf, 'iso'))
+  suite.addTest(make_extension_suite(IsoEventTestCase))
   suite.addTest(Test_SizeParser())
   suite.addTest(Test_IsoContent())
   suite.addTest(Test_SetsChanged())

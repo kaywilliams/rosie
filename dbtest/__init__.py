@@ -30,10 +30,8 @@ class TestBuild(Build):
 
 
 class EventTestCase(unittest.TestCase):
-  def __init__(self, eventid, conf=None):
-    self.eventid = eventid
-
-    self.conf = conf or make_default_config(eventid)
+  def __init__(self, conf=None):
+    self.conf = conf or make_default_config(self.moduleid)
     if hasattr(self, '_conf'): # can be either a string or a list of strings
       if isinstance(self._conf, str):
         add_config_section(self.conf, self._conf)
@@ -41,11 +39,10 @@ class EventTestCase(unittest.TestCase):
         for sect in self._conf:
           add_config_section(self.conf, sect)
     # make sure an appropriate config section exists
-    # bah, this is by eventid, not modid like it should be
-    if not self.conf.pathexists(eventid):
-      add_config_section(self.conf, '<%s enabled="true"/>' % eventid)
+    if not self.conf.pathexists(self.moduleid):
+      add_config_section(self.conf, '<%s enabled="true"/>' % self.moduleid)
     # pretend we read from a config file in the modules directory
-    self.conf.file = pps.Path(__file__).dirname/'modules/%s' % eventid
+    self.conf.file = pps.Path(__file__).dirname/'modules/%s' % self.moduleid
 
     self.event = None
     unittest.TestCase.__init__(self)
@@ -58,8 +55,10 @@ class EventTestCase(unittest.TestCase):
 
   def setUp(self):
     self.tb = TestBuild(self.conf, self.options, [], self.parser)
-    self.event = self.tb.dispatch._top.get(self.eventid)
+    self.event = self.tb.dispatch._top.get(self.eventid, None)
     self.tb._lock()
+
+  def runTest(self): pass
 
   def tearDown(self):
     self.tb._unlock()
@@ -263,3 +262,13 @@ def make_suite():
     suite.addTest(mod.make_suite())
 
   return suite
+
+def decorate(testcase, method, prefn=None, postfn=None):
+  orig = getattr(testcase, method)
+
+  def decorated(*args, **kwargs):
+    prefn and prefn()
+    orig(*args, **kwargs)
+    postfn and postfn()
+
+  setattr(testcase, method, decorated)

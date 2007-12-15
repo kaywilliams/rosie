@@ -67,9 +67,6 @@ class CustomRepoEvent(Event):
         pass
       self.DATA['output'].append(self.rc[self.csid].pkgsfile)
 
-    #self.cvars.setdefault('repos', {})
-    #self.cvars.setdefault('source-repos', {})
-
   def run(self):
     # remove previous output
     self.io.clean_eventcache(all=True)

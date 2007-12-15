@@ -7,8 +7,6 @@ from rpmUtils import miscutils
 from dims import img
 from dims import pps
 
-from dbtest import EventTestCase
-
 P = pps.Path
 
 FLAGS_MAP = {
@@ -22,7 +20,7 @@ FLAGS_MAP = {
 
 
 #-------- SUPER (ABSTRACT) CLASSES ----------#
-class RpmEventTestCase(EventTestCase):
+class RpmEventTestCase:
   def _get_rpmpath(self):
     return self.event.METADATA_DIR / \
            "%s/RPMS/%s-%s-%s.%s.rpm" % (self.eventid, self.event.rpm_name,
@@ -37,8 +35,6 @@ class RpmEventTestCase(EventTestCase):
                                           self.event.version, self.event.release)
   srpm_path = property(_get_srpmpath)
 
-  def setUp(self):
-    EventTestCase.setUp(self)
 
 class ExtractMixin(object):
   def _get_imgpath(self):

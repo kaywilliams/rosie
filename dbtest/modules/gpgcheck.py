@@ -1,25 +1,7 @@
 from dbtest      import EventTestCase, ModuleTestSuite, config
 from dbtest.core import make_core_suite
 
-class Test_GpgKeysNotProvided(EventTestCase):
-  def __init__(self, conf):
-    EventTestCase.__init__(self, 'gpgcheck', conf)
-
-  def runTest(self):
-    self.execute_predecessors(self.event)
-    self.failUnlessRaises(RuntimeError, self.event)
-
-def make_suite():
-  suite = ModuleTestSuite('gpgcheck')
-
-  suite.addTest(make_core_suite('gpgcheck', _make_conf(keys=True)))
-  suite.addTest(Test_GpgKeysNotProvided(_make_conf(keys=False)))
-
-  return suite
-
-def _make_conf(basedistro='fedora-8', keys=True):
-  distro = config._make_distro()
-  distro.append(config.make_main('gpgcheck'))
+def _make_conf(basedistro='fedora-6', keys=True):
   if keys:
     keyroot = config.REPOS['%s-base' % basedistro]['baseurl']
     repo = config._make_repo('%s-base' % basedistro, enabled='1', gpgcheck='1',
@@ -32,6 +14,26 @@ def _make_conf(basedistro='fedora-8', keys=True):
   else:
     repo = config._make_repo('%s-base' % basedistro, enabled='1', gpgcheck='1')
 
-  distro.append(config.make_repos(basedistro, [repo]))
+  # hack, shouldn't have to convert back to string
+  return str(config.make_repos(basedistro, [repo]))
 
-  return distro
+class GpgcheckEventTestCase(EventTestCase):
+  moduleid = 'gpgcheck'
+  eventid  = 'gpgcheck'
+  _conf = _make_conf()
+
+class Test_GpgKeysNotProvided(GpgcheckEventTestCase):
+  "raises RuntimeError when no keys are provided"
+  _conf = _make_conf(keys=False)
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(RuntimeError, self.event)
+
+def make_suite():
+  suite = ModuleTestSuite('gpgcheck')
+
+  suite.addTest(make_core_suite(GpgcheckEventTestCase))
+  suite.addTest(Test_GpgKeysNotProvided())
+
+  return suite

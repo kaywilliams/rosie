@@ -2,7 +2,7 @@ import unittest
 
 from dims import pps
 
-from dbtest import EventTestCase, TestBuild, EventTestRunner, EventTestCaseDummy
+from dbtest import EventTestCase, TestBuild, EventTestRunner, EventTestCaseDummy, decorate
 
 class EventTestCaseHeader(EventTestCaseDummy):
   separator1 = '=' * 70
@@ -15,113 +15,130 @@ class EventTestCaseHeader(EventTestCaseDummy):
     return '\n'.join(['', self.separator1,
                       "testing event '%s'" % self.eventid, self.separator2])
 
-class CoreEventTestCase(EventTestCase):
-  pass
+def make_core_suite(TestCase, conf=None):
+  suite = unittest.TestSuite()
+  suite.addTest(EventTestCaseHeader(TestCase.eventid)) # hack to get a pretty header
+  suite.addTest(CoreEventTestCase00(TestCase(conf)))
+  suite.addTest(CoreEventTestCase01(TestCase(conf)))
+  suite.addTest(CoreEventTestCase02(TestCase(conf)))
+  suite.addTest(CoreEventTestCase03(TestCase(conf)))
+  suite.addTest(CoreEventTestCase04(TestCase(conf)))
+  return suite
 
-class CoreEventTestCase00(CoreEventTestCase):
-  "Event.verify() might raise an AssertionError if --skip'd first"
-  def setUp(self):
-    CoreEventTestCase.setUp(self)
+def make_extension_suite(TestCase, conf=None):
+  suite = unittest.TestSuite()
+  suite.addTest(make_core_suite(TestCase, conf))
+  suite.addTest(ExtensionEventTestCase00(TestCase(conf)))
+  suite.addTest(ExtensionEventTestCase01(TestCase(conf)))
+  return suite
+
+
+def CoreEventTestCase00(self):
+  self._testMethodDoc = "Event.verify() might raise an AssertionError if --skip'd first"
+
+  def post_setup():
     self.event.status = False
     self.clean_event_md()
 
-  def runTest(self):
+  def runTest():
     self.execute_predecessors(self.event)
     self.failIfRuns(self.event)
     if self.event.diff.handlers.has_key('output'):
       self.failIf(self.event.verifier.unittest().wasSuccessful())
 
-class CoreEventTestCase01(CoreEventTestCase):
-  "Event.run() executes if neither --force nor --skip specified"
-  def setUp(self):
-    CoreEventTestCase.setUp(self)
+  decorate(self, 'setUp', postfn=post_setup)
+  self.runTest = runTest
+  return self
+
+def CoreEventTestCase01(self):
+  self._testMethodDoc = "Event.run() executes if neither --force nor --skip specified"
+
+  def post_setup():
     self.event.status = None
     self.clean_event_md()
 
-  def runTest(self):
+  def runTest():
     self.execute_predecessors(self.event)
     self.failUnlessRuns(self.event)
     result = self.event.verifier.unittest()
     self.failUnless(result.wasSuccessful(), result._strErrors())
 
-class CoreEventTestCase02(CoreEventTestCase):
-  "Event.run() does not execute after a successful run"
-  def setUp(self):
-    CoreEventTestCase.setUp(self)
+  decorate(self, 'setUp', postfn=post_setup)
+  self.runTest = runTest
+  return self
+
+def CoreEventTestCase02(self):
+  self._testMethodDoc = "Event.run() does not execute after a successful run"
+
+  def post_setup():
     self.event.status = None
 
-  def runTest(self):
+  def runTest():
     self.execute_predecessors(self.event)
     self.failIfRuns(self.event)
     result = self.event.verifier.unittest()
     self.failUnless(result.wasSuccessful(), result._strErrors())
 
-class CoreEventTestCase03(CoreEventTestCase):
-  "Event.run() executes with --force"
-  def setUp(self):
-    CoreEventTestCase.setUp(self)
+  decorate(self, 'setUp', postfn=post_setup)
+  self.runTest = runTest
+  return self
+
+def CoreEventTestCase03(self):
+  self._testMethodDoc = "Event.run() executes with --force"
+
+  def post_setup():
     self.event.status = True
 
-  def runTest(self):
+  def runTest():
     self.execute_predecessors(self.event)
     self.failUnlessRuns(self.event)
     result = self.event.verifier.unittest()
     self.failUnless(result.wasSuccessful(), result._strErrors())
 
-class CoreEventTestCase04(CoreEventTestCase):
-  "Event.run() does not execute with --skip"
-  def setUp(self):
-    CoreEventTestCase.setUp(self)
+  decorate(self, 'setUp', postfn=post_setup)
+  self.runTest = runTest
+  return self
+
+def CoreEventTestCase04(self):
+  self._testMethodDoc = "Event.run() does not execute with --skip"
+
+  def post_setup():
     self.event.status = False
 
-  def runTest(self):
+  def runTest():
     self.execute_predecessors(self.event)
     self.failIfRuns(self.event)
     result = self.event.verifier.unittest()
     self.failUnless(result.wasSuccessful(), result._strErrors())
 
+  decorate(self, 'setUp', postfn=post_setup)
+  self.runTest = runTest
+  return self
 
-class ExtensionEventTestCase(EventTestCase):
-  def __init__(self, eventid, conf=None, moduleid=None):
-    EventTestCase.__init__(self, eventid, conf)
-    self.moduleid = moduleid or self.eventid
 
-  def setUp(self):
-    self.tb = TestBuild(self.conf, self.options, [], self.parser)
-    # do not try to set up self.event cuz it may not exist
+def ExtensionEventTestCase00(self):
+  self._testMethodDoc = "disabling module removes output"
 
-class ExtensionEventTestCase00(ExtensionEventTestCase):
-  "disabling module removes output"
-  def setUp(self):
+  def pre_setup():
     self.options.disabled_modules.append(self.moduleid)
-    ExtensionEventTestCase.setUp(self)
 
-  def runTest(self):
+  def runTest():
     self.tb.dispatch.execute(until='autoclean')
     self.failIfExists(self.tb.dispatch._top.METADATA_DIR/self.eventid)
 
-class ExtensionEventTestCase01(ExtensionEventTestCase):
-  "renabling module regenerates output"
-  def setUp(self):
-    self.options.disabled_modules.remove(self.moduleid)
-    ExtensionEventTestCase.setUp(self)
+  decorate(self, 'setUp', prefn=pre_setup)
+  self.runTest = runTest
+  return self
 
-  def runTest(self):
+def ExtensionEventTestCase01(self):
+  self._testMethodDoc = "reenabling module regenerates output"
+
+  def pre_setup():
+    self.options.disabled_modules.remove(self.moduleid)
+
+  def runTest():
     self.failUnlessExists(self.tb.dispatch._top.METADATA_DIR/self.eventid)
 
-def make_core_suite(eventid, conf=None):
-  suite = unittest.TestSuite()
-  suite.addTest(EventTestCaseHeader(eventid)) # hack to get a pretty header
-  suite.addTest(CoreEventTestCase00(eventid, conf))
-  suite.addTest(CoreEventTestCase01(eventid, conf))
-  suite.addTest(CoreEventTestCase02(eventid, conf))
-  suite.addTest(CoreEventTestCase03(eventid, conf))
-  suite.addTest(CoreEventTestCase04(eventid, conf))
-  return suite
-
-def make_extension_suite(eventid, conf=None, moduleid=None):
-  suite = unittest.TestSuite()
-  suite.addTest(make_core_suite(eventid, conf))
-  suite.addTest(ExtensionEventTestCase00(eventid, conf, moduleid))
-  suite.addTest(ExtensionEventTestCase01(eventid, conf, moduleid))
-  return suite
+  decorate(self, 'setUp', prefn=pre_setup)
+  self.runTest = runTest
+  return self
