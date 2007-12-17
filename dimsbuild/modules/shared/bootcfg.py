@@ -41,7 +41,7 @@ class BootConfigDummy(object):
       tokens = lines[i].strip().split()
       if not tokens: continue
       if tokens[0] == 'menu' and tokens[1] == 'title':
-        lines[i] = 'menu title Welcome to %s' % self.ptr.fullname
+        lines[i] = 'menu title Welcome to %s!' % self.ptr.fullname
       if not boot_args: continue
       if   tokens[0] == 'label': _label = True
       elif tokens[0] == 'append':
