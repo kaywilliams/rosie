@@ -23,6 +23,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     RpmBuildMixin.__init__(self,
       '%s-theme' % self.product,
       "Set up the theme of the machine",
+      "Theme files related to %s" % self.fullname,
     )
 
     self.DATA = {
@@ -69,6 +70,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
   def _set_custom_theme(self):
     self.gdm_custom = self.build_folder / 'etc/gdm/custom.conf'
+    self.gdm_custom.dirname.mkdirs()
     self.gdm_custom.write_lines([
       '[greeter]',
       'GraphicalTheme=%s' % self.themename,
