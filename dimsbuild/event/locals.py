@@ -16,7 +16,5 @@ class LocalsObject:
   discinfo_fmt   = property(lambda self: DISCINFO_FORMAT_LOCALS[self.ver])
   logos          = property(lambda self: LOGOS_LOCALS[self.ver])
   installclass   = property(lambda self: INSTALLCLASS_LOCALS[self.ver])
-  default_theme  = property(lambda self: DEFAULT_THEME[self.ver])
   release_html   = property(lambda self: RELEASE_HTML[self.ver])
-  gdm_greeter    = property(lambda self: GDM_GREETER_THEME[self.ver])
   logos_rpm      = property(lambda self: LOGOS_RPM[self.ver])

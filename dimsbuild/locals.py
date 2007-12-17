@@ -13,8 +13,7 @@ from dims import sortlib
 
 __all__ = ['DISCINFO_FORMAT_LOCALS', 'BUILDSTAMP_FORMAT_LOCALS',
            'FILES_LOCALS', 'LOGOS_LOCALS', 'INSTALLCLASS_LOCALS',
-           'DEFAULT_THEME', 'RELEASE_HTML', 'GDM_GREETER_THEME',
-           'LOGOS_RPM']
+           'RELEASE_HTML', 'LOGOS_RPM']
 
 class LocalsDict(dict):
   """
@@ -306,30 +305,8 @@ class InstallClass(BaseInstallClass):
 ''',
 })
 
-DEFAULT_THEME = LocalsDict({
-  '0': '''
-chmod +w /usr/share/gdm/defaults.conf
-sed -i "s/^GraphicalTheme=[a-zA-Z]*$/GraphicalTheme=%(themename)s/g" /usr/share/gdm/defaults.conf
-chmod -w /usr/share/gdm/defaults.conf
-'''
-})
-
 RELEASE_HTML = LocalsDict({
   '0': '''<html/>\n''',
-})
-
-GDM_GREETER_THEME = LocalsDict({
-  '0': '''
-# This is not really a .desktop file like the rest, but it's useful to treat
-# it as such
-[GdmGreeterTheme]
-Encoding=UTF-8
-Greeter=%(product)s.xml
-Name=%(fullname)s Theme
-Description=%(fullname)s Theme
-Author=dimsbuild
-Screenshot=background.png
-'''
 })
 
 LOGOS_RPM = LocalsDict({
