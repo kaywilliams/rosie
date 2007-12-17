@@ -22,11 +22,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
     RpmBuildMixin.__init__(self,
       '%s-theme' % self.product,
-      "The %s-theme package requires the gdm package. Its sole function is "
-      "to modify the value of the GraphicalTheme attribute in "
-      "/usr/share/gdm/defaults.conf to the %s theme." %(self.product, self.themename),
-      "Script to set default gdm graphical theme",
-      default_requires = ['gdm']
+      "Set up the theme of the machine",
     )
 
     self.DATA = {
@@ -64,12 +60,19 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
   def _generate(self):
     RpmBuildMixin._generate(self)
-
+    self._set_custom_theme()
     for image_file in self.theme_dir.findpaths(type=pps.constants.TYPE_NOT_DIR):
       relpath = image_file.relpathfrom(self.theme_dir)
       dest = self.build_folder / relpath
       dest.dirname.mkdirs()
       self.copy(image_file, dest.dirname)
+
+  def _set_custom_theme(self):
+    self.gdm_custom = self.build_folder / 'etc/gdm/custom.conf'
+    self.gdm_custom.write_lines([
+      '[greeter]',
+      'GraphicalTheme=%s' % self.themename,
+    ])
 
   def _getiscript(self):
     symlinks=['default.jpg','default.png','default-wide.png','default-5_4.png']
@@ -87,9 +90,3 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
         'echo %%{_datadir}/backgrounds/images/%s >> INSTALLED_FILES' % i],
         append=True,)
     return scriptfile
-
-  def _getpscript(self):
-    f = (self.build_folder/'postinstall.sh').open('w')
-    f.write(self.locals.default_theme % {'themename': self.themename})
-    f.close()
-    return 'postinstall.sh'
