@@ -24,7 +24,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
       '%s-theme' % self.product,
       "Set up the theme of the machine",
       "Theme files related to %s" % self.fullname,
-      default_requires = ['coreutils'] # coreutils provides /bin/cp
+      default_requires = ['coreutils']
     )
 
     self.DATA = {
@@ -82,8 +82,8 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     install_dir  = '/%s' % self.custom_theme.relpathfrom(self.build_folder)
     post_install.write_lines([
      'CUSTOM_CONF=/etc/gdm/custom.conf',
-     'if [ -e $CUSTOM_CONF ]; then mv $CUSTOM_CONF $CUSTOM_CONF.bak; fi',
-     'cp /usr/share/%s/custom.conf $CUSTOM_CONF' % install_dir,
+     'if [ -e $CUSTOM_CONF ]; then /bin/mv $CUSTOM_CONF $CUSTOM_CONF.bak; fi',
+     '/bin/cp %s $CUSTOM_CONF' % install_dir,
     ])
     return post_install
 
