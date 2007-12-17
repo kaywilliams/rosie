@@ -6,10 +6,10 @@ class Stage2ImagesEventTestCase(EventTestCase):
   moduleid = 'stage2-images'
   eventid  = 'stage2-images'
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('stage2-images')
 
-  suite.addTest(make_core_suite(Stage2ImagesEventTestCase))
-  suite.addTest(fdm_make_suite(Stage2ImagesEventTestCase))
+  suite.addTest(make_core_suite(Stage2ImagesEventTestCase, basedistro))
+  suite.addTest(fdm_make_suite(Stage2ImagesEventTestCase, basedistro))
 
   return suite

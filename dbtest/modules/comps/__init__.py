@@ -11,8 +11,8 @@ class CompsEventTestCase(EventTestCase):
   eventid  = 'comps'
 
 class _CompsEventTestCase(CompsEventTestCase):
-  def __init__(self, conf=None):
-    CompsEventTestCase.__init__(self, conf)
+  def __init__(self, basedistro='fedora-6', conf=None):
+    CompsEventTestCase.__init__(self, basedistro, conf)
     self.included_groups = []
     self.included_pkgs = []
     self.excluded_pkgs = []
@@ -209,17 +209,17 @@ class Test_GroupDefaults(_CompsEventTestCase):
 
     # still need to test 'default' for both 'true' and 'false' #!
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('comps')
 
-  suite.addTest(make_core_suite(CompsEventTestCase))
-  suite.addTest(Test_Supplied())
-  suite.addTest(Test_IncludePackages())
-  suite.addTest(Test_IncludeCoreGroups())
-  suite.addTest(Test_IncludeGroups())
-  suite.addTest(Test_ExcludePackages())
-  suite.addTest(Test_GroupsByRepo())
-  ##suite.addTest(Test_MultipleGroupfiles())
-  suite.addTest(Test_GroupDefaults())
+  suite.addTest(make_core_suite(CompsEventTestCase, basedistro))
+  suite.addTest(Test_Supplied(basedistro))
+  suite.addTest(Test_IncludePackages(basedistro))
+  suite.addTest(Test_IncludeCoreGroups(basedistro))
+  suite.addTest(Test_IncludeGroups(basedistro))
+  suite.addTest(Test_ExcludePackages(basedistro))
+  suite.addTest(Test_GroupsByRepo(basedistro))
+  ##suite.addTest(Test_MultipleGroupfiles(basedistro))
+  suite.addTest(Test_GroupDefaults(basedistro))
 
   return suite

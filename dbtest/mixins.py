@@ -27,9 +27,9 @@ def FDMTest_Files(self):
 
   return self
 
-def fdm_make_suite(TestCase, conf=None):
+def fdm_make_suite(TestCase, basedistro, conf=None):
   suite = unittest.TestSuite()
-  suite.addTest(FDMTest_Files(TestCase(conf)))
+  suite.addTest(FDMTest_Files(TestCase(basedistro, conf)))
   return suite
 
 
@@ -99,10 +99,10 @@ def IMMTest_ConfigPaths(self, path_xpath):
 
   return self
 
-def imm_make_suite(TestCase, conf=None, xpath=None):
+def imm_make_suite(TestCase, basedistro, conf=None, xpath=None):
   suite = unittest.TestSuite()
-  suite.addTest(IMMTest_Content(TestCase(conf)))
-  suite.addTest(IMMTest_ConfigPaths(TestCase(conf), xpath))
+  suite.addTest(IMMTest_Content(TestCase(basedistro, conf)))
+  suite.addTest(IMMTest_ConfigPaths(TestCase(basedistro, conf), xpath))
   return suite
 
 

@@ -1,5 +1,5 @@
-from dbtest      import EventTestCase, ModuleTestSuite
-from dbtest.core import make_extension_suite
+from dbtest        import EventTestCase, ModuleTestSuite
+from dbtest.core   import make_extension_suite
 from dbtest.mixins import touch_input_files, remove_input_files
 
 class FilesEventTestCase(EventTestCase):
@@ -21,9 +21,9 @@ class FilesEventTestCase(EventTestCase):
       remove_input_files(self.event._config.file.abspath().dirname)
     EventTestCase.tearDown(self)
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('files')
 
-  suite.addTest(make_extension_suite(FilesEventTestCase))
+  suite.addTest(make_extension_suite(FilesEventTestCase, basedistro))
 
   return suite

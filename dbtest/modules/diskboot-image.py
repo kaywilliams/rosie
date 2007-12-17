@@ -12,8 +12,8 @@ class DiskbootImageEventTestCase(EventTestCase):
 class _DiskbootImageEventTestCase(ImageModifyMixinTestCase,
                                   BootConfigMixinTestCase,
                                   DiskbootImageEventTestCase):
-  def __init__(self, conf=None):
-    DiskbootImageEventTestCase.__init__(self, conf)
+  def __init__(self, basedistro='fedora-6', conf=None):
+    DiskbootImageEventTestCase.__init__(self, basedistro, conf)
     ImageModifyMixinTestCase.__init__(self)
 
     self.default_args = ['nousbstorage']
@@ -86,14 +86,14 @@ class Test_BootArgsMacros(_DiskbootImageEventTestCase):
     self.do_defaults = False
 
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('diskboot-image')
 
-  suite.addTest(make_core_suite(DiskbootImageEventTestCase))
-  suite.addTest(imm_make_suite(_DiskbootImageEventTestCase, xpath='path'))
-  suite.addTest(Test_CvarContent())
-  suite.addTest(Test_BootArgsDefault())
-  suite.addTest(Test_BootArgsNoDefault())
-  suite.addTest(Test_BootArgsMacros())
+  suite.addTest(make_core_suite(DiskbootImageEventTestCase, basedistro))
+  suite.addTest(imm_make_suite(_DiskbootImageEventTestCase, basedistro, xpath='path'))
+  suite.addTest(Test_CvarContent(basedistro))
+  suite.addTest(Test_BootArgsDefault(basedistro))
+  suite.addTest(Test_BootArgsNoDefault(basedistro))
+  suite.addTest(Test_BootArgsMacros(basedistro))
 
   return suite

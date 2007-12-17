@@ -10,8 +10,8 @@ class ProductImageEventTestCase(EventTestCase):
 
 class _ProductImageEventTestCase(ImageModifyMixinTestCase,
                                  ProductImageEventTestCase):
-  def __init__(self, conf=None):
-    ProductImageEventTestCase.__init__(self, conf)
+  def __init__(self, basedistro, conf=None):
+    ProductImageEventTestCase.__init__(self, basedistro, conf)
     ImageModifyMixinTestCase.__init__(self)
 
   def setUp(self):
@@ -30,11 +30,11 @@ class Test_Installclasses(_ProductImageEventTestCase):
     self.failUnless(image_content.rematch('^installclasses').fnmatch('*.py'))
 
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('product-image')
 
-  suite.addTest(make_core_suite(ProductImageEventTestCase))
-  suite.addTest(imm_make_suite(_ProductImageEventTestCase, xpath='path'))
-  suite.addTest(Test_Installclasses())
+  suite.addTest(make_core_suite(ProductImageEventTestCase, basedistro))
+  suite.addTest(imm_make_suite(_ProductImageEventTestCase, basedistro, xpath='path'))
+  suite.addTest(Test_Installclasses(basedistro))
 
   return suite

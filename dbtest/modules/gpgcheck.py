@@ -30,10 +30,10 @@ class Test_GpgKeysNotProvided(GpgcheckEventTestCase):
     self.execute_predecessors(self.event)
     self.failUnlessRaises(RuntimeError, self.event)
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('gpgcheck')
 
-  suite.addTest(make_core_suite(GpgcheckEventTestCase))
-  suite.addTest(Test_GpgKeysNotProvided())
+  suite.addTest(make_core_suite(GpgcheckEventTestCase, basedistro))
+  suite.addTest(Test_GpgKeysNotProvided(basedistro))
 
   return suite

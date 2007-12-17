@@ -8,18 +8,18 @@ class UpdatesImageEventTestCase(EventTestCase):
 
 class _UpdatesImageEventTestCase(ImageModifyMixinTestCase,
                                  UpdatesImageEventTestCase):
-  def __init__(self, conf=None):
-    UpdatesImageEventTestCase.__init__(self, conf)
+  def __init__(self, basedistro, conf=None):
+    UpdatesImageEventTestCase.__init__(self, basedistro, conf)
     ImageModifyMixinTestCase.__init__(self)
 
   def setUp(self):
     UpdatesImageEventTestCase.setUp(self)
     ImageModifyMixinTestCase.setUp(self)
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('updates-image')
 
-  suite.addTest(make_core_suite(UpdatesImageEventTestCase))
-  suite.addTest(imm_make_suite(_UpdatesImageEventTestCase, xpath='path'))
+  suite.addTest(make_core_suite(UpdatesImageEventTestCase, basedistro))
+  suite.addTest(imm_make_suite(_UpdatesImageEventTestCase, basedistro, xpath='path'))
 
   return suite

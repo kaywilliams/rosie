@@ -5,9 +5,9 @@ class RpmsTestCase(EventTestCase):
   moduleid = 'rpms'
   eventid  = 'rpms'
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('rpms')
 
-  suite.addTest(make_core_suite(RpmsTestCase))
+  suite.addTest(make_core_suite(RpmsTestCase, basedistro))
 
   return suite

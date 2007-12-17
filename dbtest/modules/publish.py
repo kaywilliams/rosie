@@ -11,13 +11,13 @@ class PublishEventTestCase(EventTestCase):
 
 # TODO - figure out a way to delete the published directories after we're done
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('publish')
 
   # publish-setup
-  suite.addTest(make_core_suite(PublishSetupEventTestCase))
+  suite.addTest(make_core_suite(PublishSetupEventTestCase, basedistro))
 
   # publish
-  suite.addTest(make_core_suite(PublishEventTestCase))
+  suite.addTest(make_core_suite(PublishEventTestCase, basedistro))
 
   return suite

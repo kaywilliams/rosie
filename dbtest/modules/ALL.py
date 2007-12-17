@@ -5,8 +5,8 @@ class AllEventTestCase(EventTestCase):
   moduleid = 'ALL'
   eventid  = 'ALL'
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('ALL')
-  suite.addTest(make_core_suite(AllEventTestCase))
+  suite.addTest(make_core_suite(AllEventTestCase, basedistro))
 
   return suite

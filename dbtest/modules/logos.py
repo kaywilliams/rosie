@@ -29,21 +29,11 @@ class Test_LogosEvent_Custom(LogosEventTestCase):
     self.tb.dispatch.execute(until='logos')
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('logos')
 
-  suite.addTest(make_core_suite(LogosEventTestCase))
-
-  suite.addTest(Test_LogosEvent_Default(make_default_config('logos', 'fedora-6')))
-  suite.addTest(Test_LogosEvent_Default(make_default_config('logos', 'fedora-7')))
-  suite.addTest(Test_LogosEvent_Default(make_default_config('logos', 'fedora-8')))
-  suite.addTest(Test_LogosEvent_Default(make_default_config('logos', 'centos-5')))
-  suite.addTest(Test_LogosEvent_Default(make_default_config('logos', 'redhat-5')))
-
-  suite.addTest(Test_LogosEvent_Custom(make_default_config('logos', 'fedora-6')))
-  suite.addTest(Test_LogosEvent_Custom(make_default_config('logos', 'fedora-7')))
-  suite.addTest(Test_LogosEvent_Custom(make_default_config('logos', 'fedora-8')))
-  suite.addTest(Test_LogosEvent_Custom(make_default_config('logos', 'centos-5')))
-  suite.addTest(Test_LogosEvent_Custom(make_default_config('logos', 'redhat-5')))
+  suite.addTest(make_core_suite(LogosEventTestCase, basedistro))
+  suite.addTest(Test_LogosEvent_Default(basedistro))
+  suite.addTest(Test_LogosEvent_Custom(basedistro))
 
   return suite

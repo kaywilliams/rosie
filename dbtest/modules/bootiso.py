@@ -10,8 +10,8 @@ class BootisoEventTestCase(EventTestCase):
   eventid  = 'bootiso'
 
 class _BootisoEventTestCase(BootConfigMixinTestCase, BootisoEventTestCase):
-  def __init__(self, conf=None):
-    EventTestCase.__init__(self, conf)
+  def __init__(self, basedistro='fedora-6', conf=None):
+    EventTestCase.__init__(self, basedistro, conf)
     self.default_args = []
     self.image = None
     self.do_defaults = True
@@ -72,13 +72,13 @@ class Test_BootArgsMacros(_BootisoEventTestCase):
     self.do_defaults = False
 
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('bootiso')
 
   # bootiso
-  suite.addTest(make_core_suite(BootisoEventTestCase))
-  suite.addTest(Test_BootArgsDefault())
-  suite.addTest(Test_BootArgsNoDefault())
-  suite.addTest(Test_BootArgsMacros())
+  suite.addTest(make_core_suite(BootisoEventTestCase, basedistro))
+  suite.addTest(Test_BootArgsDefault(basedistro))
+  suite.addTest(Test_BootArgsNoDefault(basedistro))
+  suite.addTest(Test_BootArgsMacros(basedistro))
 
   return suite

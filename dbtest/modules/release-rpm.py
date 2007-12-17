@@ -67,14 +67,14 @@ class Test_RNotesExistence(RpmEventTestCase, ExtractMixin, ReleaseRpmEventTestCa
     rnotes = self.img_path.findpaths(glob='RELEASE-NOTES*')
     self.failIf(len(rnotes) == 0)
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('release-rpm')
 
-  suite.addTest(make_core_suite(ReleaseRpmEventTestCase))
-  suite.addTest(Test_ReleaseRpmInputs())
-  suite.addTest(Test_ReleaseRpmBuild())
-  suite.addTest(Test_ReleaseRpmCvars1())
-  suite.addTest(Test_ReleaseRpmCvars2())
-  suite.addTest(Test_RNotesExistence())
+  suite.addTest(make_core_suite(ReleaseRpmEventTestCase, basedistro))
+  suite.addTest(Test_ReleaseRpmInputs(basedistro))
+  suite.addTest(Test_ReleaseRpmBuild(basedistro))
+  suite.addTest(Test_ReleaseRpmCvars1(basedistro))
+  suite.addTest(Test_ReleaseRpmCvars2(basedistro))
+  suite.addTest(Test_RNotesExistence(basedistro))
 
   return suite

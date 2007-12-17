@@ -42,12 +42,12 @@ class Test_LogosRpmCvars2(RpmCvarsTestCase, LogosRpmEventTestCase):
                     self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('logos-rpm')
 
-  suite.addTest(make_core_suite(LogosRpmEventTestCase))
-  suite.addTest(Test_LogosRpmBuild())
-  suite.addTest(Test_LogosRpmCvars1())
-  suite.addTest(Test_LogosRpmCvars2())
+  suite.addTest(make_core_suite(LogosRpmEventTestCase, basedistro))
+  suite.addTest(Test_LogosRpmBuild(basedistro))
+  suite.addTest(Test_LogosRpmCvars1(basedistro))
+  suite.addTest(Test_LogosRpmCvars2(basedistro))
 
   return suite

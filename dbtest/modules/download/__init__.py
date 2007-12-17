@@ -7,8 +7,11 @@ from dbtest      import EventTestCase
 from dbtest.core import make_core_suite
 
 class DownloadEventTestCase(EventTestCase):
-  def __init__(self, conf):
-    EventTestCase.__init__(self, 'download', conf)
+  moduleid = 'download'
+  eventid  = 'download'
+
+  def __init__(self, basedistro, conf=None):
+    EventTestCase.__init__(self, basedistro, conf)
 
   def runTest(self):
     self.tb.dispatch.execute(until='download')
@@ -23,9 +26,6 @@ class Test_PackagesDownloaded(DownloadEventTestCase):
 
 class Test_AddedPackageDownloaded(DownloadEventTestCase):
   "Test that the 'httpd' package is downloaded."
-  def __init__(self, conf):
-    DownloadEventTestCase.__init__(self, conf)
-
   def setUp(self):
     DownloadEventTestCase.setUp(self)
     comps = xmllib.tree.Element('comps', self.event._config)
@@ -46,9 +46,6 @@ class Test_AddedPackageDownloaded(DownloadEventTestCase):
 
 class Test_RemovedPackageDeleted(DownloadEventTestCase):
   "Test that the previously-added 'httpd' package is removed"
-  def __init__(self, conf):
-    DownloadEventTestCase.__init__(self, conf)
-
   def setUp(self):
     DownloadEventTestCase.setUp(self)
 
@@ -60,17 +57,11 @@ class Test_RemovedPackageDeleted(DownloadEventTestCase):
       self.failIf(pkgname == 'package1' or pkgname == 'package2')
 
 class Test_ArchChanges(DownloadEventTestCase):
-  def __init__(self, conf):
-    DownloadEventTestCase.__init__(self, conf)
-
   def setUp(self):
     DownloadEventTestCase.setUp(self)
     xmllib.tree.Element('arch', self.event._config.get('/distro/main'), text='i386')
 
 class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
-  def __init__(self, conf):
-    DownloadEventTestCase.__init__(self, conf)
-
   def runTest(self):
     DownloadEventTestCase.runTest(self)
     # if the length of cvars['cached-rpms'] is equal to the length of
@@ -81,7 +72,7 @@ class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
       numpkgs += len(self.event.cvars['rpms-by-repoid'][id])
     self.failUnless(len(self.event.cvars['cached-rpms']) == numpkgs)
 
-def make_suite():
+def make_suite(basedistro):
   conf = pps.Path(__file__).dirname/'f8.conf'
   suite = unittest.TestSuite()
   return suite #!

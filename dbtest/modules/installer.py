@@ -5,9 +5,9 @@ class InstallerEventTestCase(EventTestCase):
   moduleid = 'installer'
   eventid  = 'installer'
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('installer')
 
-  suite.addTest(make_core_suite(InstallerEventTestCase))
+  suite.addTest(make_core_suite(InstallerEventTestCase, basedistro))
 
   return suite

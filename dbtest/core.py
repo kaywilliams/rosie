@@ -15,21 +15,21 @@ class EventTestCaseHeader(EventTestCaseDummy):
     return '\n'.join(['', self.separator1,
                       "testing event '%s'" % self.eventid, self.separator2])
 
-def make_core_suite(TestCase, conf=None):
+def make_core_suite(TestCase, basedistro='fedora-6', conf=None):
   suite = unittest.TestSuite()
   suite.addTest(EventTestCaseHeader(TestCase.eventid)) # hack to get a pretty header
-  suite.addTest(CoreEventTestCase00(TestCase(conf)))
-  suite.addTest(CoreEventTestCase01(TestCase(conf)))
-  suite.addTest(CoreEventTestCase02(TestCase(conf)))
-  suite.addTest(CoreEventTestCase03(TestCase(conf)))
-  suite.addTest(CoreEventTestCase04(TestCase(conf)))
+  suite.addTest(CoreEventTestCase00(TestCase(basedistro, conf)))
+  suite.addTest(CoreEventTestCase01(TestCase(basedistro, conf)))
+  suite.addTest(CoreEventTestCase02(TestCase(basedistro, conf)))
+  suite.addTest(CoreEventTestCase03(TestCase(basedistro, conf)))
+  suite.addTest(CoreEventTestCase04(TestCase(basedistro, conf)))
   return suite
 
-def make_extension_suite(TestCase, conf=None):
+def make_extension_suite(TestCase, basedistro='fedora-6', conf=None):
   suite = unittest.TestSuite()
-  suite.addTest(make_core_suite(TestCase, conf))
-  suite.addTest(ExtensionEventTestCase00(TestCase(conf)))
-  suite.addTest(ExtensionEventTestCase01(TestCase(conf)))
+  suite.addTest(make_core_suite(TestCase, basedistro, conf))
+  suite.addTest(ExtensionEventTestCase00(TestCase(basedistro, conf)))
+  suite.addTest(ExtensionEventTestCase01(TestCase(basedistro, conf)))
   return suite
 
 

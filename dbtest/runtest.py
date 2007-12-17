@@ -37,6 +37,10 @@ def parse_cmd_args():
   parser = optparse.OptionParser("usage: %prog [OPTIONS]",
                                  formatter=CleanHelpFormatter())
 
+  parser.add_option('-d', '--base-distro', metavar='DISTRO',
+    dest='basedistro',
+    default='fedora-6',
+    help='select the distribution to test')
   parser.add_option('--skip', metavar='MODULEID',
     dest='skip_test',
     action='append',
@@ -79,7 +83,7 @@ def main():
     try:
       fp,p,d = imp.find_module(testpath.basename, [testpath.dirname])
       mod = imp.load_module('test-%s' % testpath.dirname.basename, fp, p, d)
-      suite.addTest(mod.make_suite())
+      suite.addTest(mod.make_suite(basedistro=options.basedistro))
     finally:
       fp and fp.close()
 

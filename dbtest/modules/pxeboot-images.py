@@ -5,9 +5,9 @@ class PxebootImagesEventTestCase(EventTestCase):
   moduleid = 'pxeboot-images'
   eventid  = 'pxeboot-images'
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('pxeboot-images')
 
-  suite.addTest(make_core_suite(PxebootImagesEventTestCase))
+  suite.addTest(make_core_suite(PxebootImagesEventTestCase, basedistro))
 
   return suite

@@ -14,12 +14,16 @@ def make_repos(distro, repodefs=[]):
     repos.append(repo)
   return repos
 
-def make_main(eventid, fullname=None, product=None, version=None):
+def make_main(eventid, **kwargs):
   "make a <main> top level element"
   main = config.Element('main')
-  config.Element('fullname', parent=main, text=fullname or '%s event test' % eventid)
-  config.Element('product',  parent=main, text=product  or 'test-%s' % eventid)
-  config.Element('version',  parent=main, text=version  or '0')
+
+  kwargs.setdefault('fullname', '%s event test' % eventid)
+  kwargs.setdefault('product',  'test-%s' % eventid)
+  kwargs.setdefault('version',  '0')
+
+  for k,v in kwargs.items():
+    config.Element(k, text=v, parent=main)
   return main
 
 def make_default_config(eventid, basedistro='fedora-6'):

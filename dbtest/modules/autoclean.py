@@ -1,5 +1,5 @@
-from dbtest       import EventTestCase, ModuleTestSuite
-from dbtest.core  import make_core_suite
+from dbtest      import EventTestCase, ModuleTestSuite
+from dbtest.core import make_core_suite
 
 non_meta_event = 'comps'
 meta_event = 'setup'
@@ -100,17 +100,17 @@ class Test_RemoveDisabled(AutocleanEventTestCase):
     if self.test_dir.exists(): self.test_dir.remove()
 
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('autoclean')
 
   # autoclean
-  suite.addTest(make_core_suite(AutocleanEventTestCase))
-  suite.addTest(Test_NonMeta())
-  suite.addTest(Test_NonMetaVersion())
-  suite.addTest(Test_NonMetaNoVersion())
-  suite.addTest(Test_Meta())
-  suite.addTest(Test_MetaVersion())
-  suite.addTest(Test_MetaNoVersion())
-  suite.addTest(Test_RemoveDisabled())
+  suite.addTest(make_core_suite(AutocleanEventTestCase, basedistro))
+  suite.addTest(Test_NonMeta(basedistro))
+  suite.addTest(Test_NonMetaVersion(basedistro))
+  suite.addTest(Test_NonMetaNoVersion(basedistro))
+  suite.addTest(Test_Meta(basedistro))
+  suite.addTest(Test_MetaVersion(basedistro))
+  suite.addTest(Test_MetaNoVersion(basedistro))
+  suite.addTest(Test_RemoveDisabled(basedistro))
 
   return suite

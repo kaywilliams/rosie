@@ -5,9 +5,9 @@ class SourceVarsEventTestCase(EventTestCase):
   moduleid = 'sourcevars'
   eventid  = 'source-vars'
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('sourcevars')
 
-  suite.addTest(make_core_suite(SourceVarsEventTestCase))
+  suite.addTest(make_core_suite(SourceVarsEventTestCase, basedistro))
 
   return suite

@@ -30,8 +30,8 @@ class TestBuild(Build):
 
 
 class EventTestCase(unittest.TestCase):
-  def __init__(self, conf=None):
-    self.conf = conf or make_default_config(self.moduleid)
+  def __init__(self, basedistro='fedora-6', conf=None):
+    self.conf = conf or make_default_config(self.moduleid, basedistro)
     if hasattr(self, '_conf'): # can be either a string or a list of strings
       if isinstance(self._conf, str):
         add_config_section(self.conf, self._conf)
@@ -243,7 +243,7 @@ def make_logger(threshold):
   logfile = logger.Logger(threshold=threshold, file_object=LOGFILE)
   return EventTestLogContainer([console, logfile])
 
-def make_suite():
+def make_suite(basedistro):
   suite = unittest.TestSuite()
 
   for module in pps.Path('modules').findpaths(mindepth=1, maxdepth=1):
@@ -259,7 +259,7 @@ def make_suite():
     finally:
       fp and fp.close()
 
-    suite.addTest(mod.make_suite())
+    suite.addTest(mod.make_suite(basedistro))
 
   return suite
 

@@ -45,12 +45,12 @@ class Test_ThemeRpmCvars2(RpmCvarsTestCase, ThemeRpmEventTestCase):
                     self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('theme-rpm')
 
-  suite.addTest(make_extension_suite(ThemeRpmEventTestCase))
-  suite.addTest(Test_ThemeRpmBuild())
-  suite.addTest(Test_ThemeRpmCvars1())
-  suite.addTest(Test_ThemeRpmCvars2())
+  suite.addTest(make_extension_suite(ThemeRpmEventTestCase, basedistro))
+  suite.addTest(Test_ThemeRpmBuild(basedistro))
+  suite.addTest(Test_ThemeRpmCvars1(basedistro))
+  suite.addTest(Test_ThemeRpmCvars2(basedistro))
 
   return suite

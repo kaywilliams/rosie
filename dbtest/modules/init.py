@@ -17,16 +17,16 @@ class OSEventTestCase(EventTestCase):
   eventid  = 'OS'
 
 
-def make_suite():
+def make_suite(basedistro):
   suite = ModuleTestSuite('init')
 
   # init
-  suite.addTest(make_core_suite(InitEventTestCase))
+  suite.addTest(make_core_suite(InitEventTestCase, basedistro))
 
   # setup
-  suite.addTest(make_core_suite(SetupEventTestCase))
+  suite.addTest(make_core_suite(SetupEventTestCase, basedistro))
 
   # OS
-  suite.addTest(make_core_suite(OSEventTestCase))
+  suite.addTest(make_core_suite(OSEventTestCase, basedistro))
 
   return suite
