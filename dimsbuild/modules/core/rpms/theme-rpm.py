@@ -24,6 +24,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
       '%s-theme' % self.product,
       "Set up the theme of the machine",
       "Theme files related to %s" % self.fullname,
+      default_requires = ['coreutils'] # coreutils provides /bin/cp
     )
 
     self.DATA = {
@@ -32,6 +33,8 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
       'input' :    [],
       'output':    [self.build_folder],
     }
+
+    self.custom_theme = self.build_folder / 'usr/share/%s/custom.conf' % self.rpm_name
 
   def setup(self):
     self._setup_build()
@@ -61,20 +64,28 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
   def _generate(self):
     RpmBuildMixin._generate(self)
-    self._set_custom_theme()
+    self._generate_custom_theme()
     for image_file in self.theme_dir.findpaths(type=pps.constants.TYPE_NOT_DIR):
       relpath = image_file.relpathfrom(self.theme_dir)
       dest = self.build_folder / relpath
       dest.dirname.mkdirs()
       self.copy(image_file, dest.dirname)
 
-  def _set_custom_theme(self):
-    self.gdm_custom = self.build_folder / 'etc/gdm/custom.conf'
-    self.gdm_custom.dirname.mkdirs()
-    self.gdm_custom.write_lines([
-      '[greeter]',
-      'GraphicalTheme=%s' % self.themename,
+  def _generate_custom_theme(self):
+    self.custom_theme.dirname.mkdirs()
+    self.custom_theme.write_text(
+      self.locals.gdm_custom_theme % {'themename': self.themename}
+    )
+
+  def _getpscript(self):
+    post_install = self.build_folder / 'post-install'
+    install_dir  = '/%s' % self.custom_theme.relpathfrom(self.build_folder)
+    post_install.write_lines([
+     'CUSTOM_CONF=/etc/gdm/custom.conf',
+     'if [ -e $CUSTOM_CONF ]; then mv $CUSTOM_CONF $CUSTOM_CONF.bak; fi',
+     'cp /usr/share/%s/custom.conf $CUSTOM_CONF' % install_dir,
     ])
+    return post_install
 
   def _getiscript(self):
     symlinks=['default.jpg','default.png','default-wide.png','default-5_4.png']
