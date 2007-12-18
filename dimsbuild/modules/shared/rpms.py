@@ -23,7 +23,7 @@ class InputFilesMixin:
   files that are sync'd.
   """
   def __init__(self):
-    pass
+    self.handled_attributes = ['mode', 'dest']
 
   def _setup_download(self):
     for k,v in self.installinfo.items():
@@ -34,7 +34,19 @@ class InputFilesMixin:
           s = P(item.get('text()'))
           d = default_dir / P(item.get('@dest', ''))
           m = item.get('@mode', defmode)
-          self.io.setup_sync(self.build_folder // d, paths=[s], id=k, defmode=m)
+          id = self._get_download_id(k)
+          self.io.setup_sync(self.build_folder // d, paths=[s], id=id, defmode=m)
+          attribs = []
+          for attr in item.attrib:
+            if attr not in self.handled_attributes:
+              attribs.append(attr)
+          self._handle_attributes(id, item, attribs)
+
+  def _get_download_id(self, type):
+    return type
+
+  def _handle_attributes(self, id, item, attribs):
+    pass
 
 class RpmBuildMixin:
   def __init__(self, rpm_name, rpm_desc, rpm_summary, rpm_license='UNKNOWN',

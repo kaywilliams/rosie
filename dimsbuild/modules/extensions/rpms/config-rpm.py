@@ -41,6 +41,9 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     }
 
     self.auto_script = None
+    self.noreplace_ids = []
+    self.config_count = 0
+    self.support_count = 0
 
   def setup(self):
     self._setup_build()
@@ -58,6 +61,23 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       (self.rpm_name, 'mandatory', None, self.rpm_obsoletes, None)
     )
 
+  def _get_download_id(self, type):
+    if type == 'config-files':
+      rtn = 'config-files-%d' % self.config_count
+      self.config_count += 1
+    elif type == 'support-files':
+      rtn = 'support-files-%d' % self.support_count
+      self.support_count += 1
+    else:
+      raise RuntimeError("unknown type: '%s'" % type)
+    return rtn
+
+  def _handle_attributes(self, id, element, attribs):
+    if 'noreplace' in attribs:
+      noreplace = element.get('@noreplace', 'False')
+      if noreplace in BOOLEANS_TRUE:
+        self.noreplace_ids.append(id)
+
   def _generate(self):
     RpmBuildMixin._generate(self)
 
@@ -65,19 +85,13 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
 
     # generate auto-config file
     config_scripts = []
-    xpath, dstdir, _ = self.installinfo['config-files']
-    if self.config.pathexists(xpath):
-      for item in self.config.xpath(xpath, []):
-        src = P(item.get('text()'))
-        dst = P(dstdir) / P(item.get('@dest', ''))
-        for file in src.findpaths(type=pps.constants.TYPE_NOT_DIR):
-          config_scripts.append((dst / file.tokens[len(src.tokens)-1:]).normpath())
+    for id in [ 'config-files-%d' % i for i in xrange(self.config_count) ]:
+      config_scripts.extend(self.io.list_output(id))
 
     if config_scripts:
       self.auto_script = self.build_folder / 'usr/lib/%s/auto.sh' % self.product
       self.auto_script.write_lines(config_scripts)
       self.auto_script.chmod(0755)
-      self.DATA['output'].append(self.auto_script)
 
   def _getpscript(self):
     if self.auto_script:
@@ -91,18 +105,12 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def _add_config_files(self, spec):
     config = []
     noreplace = []
-    xpath, dstdir, _ = self.installinfo['support-files']
-    if self.config.pathexists(xpath):
-      for item in self.config.xpath(xpath, []):
-        src = P(item.get('text()'))
-        dst = P(dstdir) / P(item.get('@dest', ''))
-        nrp = item.get('@noreplace', 'False')
-        for file in src.findpaths(type=pps.constants.TYPE_NOT_DIR):
-          if nrp in BOOLEANS_TRUE:
-            noreplace.append((dst / file.tokens[len(src.tokens)-1:]).normpath())
-          else:
-            config.append((dst / file.tokens[len(src.tokens)-1:]).normpath())
-
+    for id in [ 'support-files-%d' % i for i in xrange(self.support_count) ]:
+      files = ['/%s' % x.relpathfrom(self.build_folder) for x in self.io.list_output(id)]
+      if id in self.noreplace_ids:
+        noreplace.extend(files)
+      else:
+        config.extend(files)
     if config:
       spec.set('bdist_rpm', 'config_files', '\n\t'.join(config))
     if noreplace:
