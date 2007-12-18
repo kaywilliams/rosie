@@ -198,8 +198,11 @@ class RpmBuildMixin:
     doc_file.dirname.mkdirs()
     doc_file.write_text(self.rpm_desc)
 
-  def _getiscript(self): return None
-  def _getpscript(self): return None
+  def _get_install_script(self): return None
+  def _get_post_install_script(self): return None
+  def _get_triggerin(self): return None
+  def _get_triggerun(self): return None
+  def _get_triggerpostun(self): return None
 
   def _build(self):
     self.build_folder.mkdirs()
@@ -239,13 +242,22 @@ class RpmBuildMixin:
     if self.rpm_obsoletes:
       spec.set('bdist_rpm', 'obsoletes', ' '.join(self.rpm_obsoletes))
 
-    iscript = self._getiscript()
-    pscript = self._getpscript()
+    iscript = self._get_install_script()
+    pscript = self._get_post_install_script()
     if iscript:
       spec.set('bdist_rpm', 'install_script', iscript)
     if pscript:
       spec.set('bdist_rpm', 'post_install', pscript)
 
+    triggerin = self._get_triggerin()
+    triggerun = self._get_triggerun()
+    triggerpostun = self._get_triggerpostun()
+    if triggerin:
+      spec.set('bdist_rpm', 'triggerin', '\n\t'.join(triggerin))
+    if triggerun:
+      spec.set('bdist_rpm', 'triggerun', '\n\t'.join(triggerun))
+    if triggerpostun:
+      spec.set('bdist_rpm', 'triggerpostun', '\n\t'.join(triggerpostun))
     self._add_data_files(spec)
     self._add_config_files(spec)
     self._add_doc_files(spec)

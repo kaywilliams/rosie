@@ -93,7 +93,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       self.auto_script.write_lines(config_scripts)
       self.auto_script.chmod(0755)
 
-  def _getpscript(self):
+  def _get_post_install_script(self):
     if self.auto_script:
       post_install = self.build_folder / 'post-install.sh'
       post_install.write_lines([

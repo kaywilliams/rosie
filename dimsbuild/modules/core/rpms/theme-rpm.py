@@ -53,6 +53,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
   def run(self):
     self.io.clean_eventcache(all=True)
     self._build_rpm()
+    self.DATA['output'].append(self.bdist_base)
     self.diff.write_metadata()
 
   def apply(self):
@@ -77,18 +78,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
       self.locals.gdm_custom_theme % {'themename': self.themename}
     )
 
-  def _getpscript(self):
-    post_install = self.build_folder / 'post-install'
-    install_dir  = '/%s' % self.custom_theme.relpathfrom(self.build_folder)
-    post_install.write_lines([
-     'CUSTOM_CONF=/etc/gdm/custom.conf',
-     'if [ -e $CUSTOM_CONF ]; then /bin/mv $CUSTOM_CONF $CUSTOM_CONF.bak; fi',
-     'if [ ! -d /etc/gdm ]; then /bin/mkdir -p /etc/gdm; fi',
-     '/bin/cp %s $CUSTOM_CONF' % install_dir,
-    ])
-    return post_install
-
-  def _getiscript(self):
+  def _get_install_script(self):
     symlinks=['default.jpg','default.png','default-wide.png','default-5_4.png']
     linklines = ['ln -sf ../infinity/2-infinity-day.png %s' % i for i in symlinks]
 
@@ -104,3 +94,17 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
         'echo %%{_datadir}/backgrounds/images/%s >> INSTALLED_FILES' % i],
         append=True,)
     return scriptfile
+
+  def _get_triggerin(self):
+    target = 'gdm'
+    gdm_install_trigger = self.build_folder / 'gdm-install-trigger.sh'
+    custom_conf  = '/%s' % self.custom_theme.relpathfrom(self.build_folder)
+    gdm_install_trigger.write_lines([
+     'CUSTOM_CONF_DIR=%{_sysconfdir}/gdm',
+     'CUSTOM_CONF=$CUSTOM_CONF_DIR/custom.conf',
+     'if [ -e $CUSTOM_CONF -a ! -e $CUSTOM_CONF.theme-save ]; then',
+     '  %{__mv} $CUSTOM_CONF $CUSTOM_CONF.theme-save',
+     '  %%{__cp} %s $CUSTOM_CONF' % custom_conf,
+     'fi',
+    ])
+    return ['%s:%s' % (target, gdm_install_trigger)]
