@@ -11,7 +11,6 @@ class SourceReposEventTestCase(EventTestCase):
   def __init__(self, basedistro, conf=None):
     self._conf = _make_source_repos(basedistro)
     EventTestCase.__init__(self, basedistro, conf)
-    print self.conf
 
 class SourcesEventTestCase(EventTestCase):
   moduleid = 'sources'
@@ -62,12 +61,12 @@ SOURCE_REPOS = {
     'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/core/updates/6/SRPMS/',
   },
   # fedora 7
+  #'fedora-7-base-source': {
+  #  'name': 'fedora-7-base-source',
+  #  'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/releases/7/Fedora/source/SRPMS/',
+  #},
   'fedora-7-base-source': {
     'name': 'fedora-7-base-source',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/releases/7/Fedora/source/SRPMS/',
-  },
-  'fedora-7-everything-source': {
-    'name': 'fedora-7-everything-source',
     'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/releases/7/Everything/source/SRPMS/',
   },
   'fedora-7-updates-source': {
@@ -75,12 +74,12 @@ SOURCE_REPOS = {
     'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/updates/7/SRPMS/',
   },
   # fedora 8
+  #'fedora-8-base-source': {
+  #  'name': 'fedora-8-base-source',
+  #  'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/releases/8/Fedora/source/SRPMS/',
+  #},
   'fedora-8-base-source': {
     'name': 'fedora-8-base-source',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/releases/8/Fedora/source/SRPMS/',
-  },
-  'fedora-8-everything-source': {
-    'name': 'fedora-8-everything-source',
     'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/releases/8/Everything/source/SRPMS/',
   },
   'fedora-8-updates-source': {
@@ -92,10 +91,10 @@ SOURCE_REPOS = {
   # centos 5
   'centos-5-base-source': {
     'name': 'centos-5-base-source',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/centos/5.0/os/SRPMS/',
+    'baseurl': 'http://www.abodiosoftware.com/open_software/centos/5/os/SRPMS/',
   },
   'centos-5-updates-source': {
     'name': 'centos-5-updates-source',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/centos/5.0/updates/SRPMS/',
+    'baseurl': 'http://www.abodiosoftware.com/open_software/centos/5/updates/SRPMS/',
   },
 }

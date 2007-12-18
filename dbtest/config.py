@@ -112,6 +112,6 @@ REPOS = {
   # centos 5
   'centos-5-base': {
     'name': 'centos-5-base',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/centos/5.0/os/i386/'
+    'baseurl': 'http://www.abodiosoftware.com/open_software/centos/5/os/i386/'
   },
 }

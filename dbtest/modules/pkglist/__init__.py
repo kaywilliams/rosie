@@ -244,7 +244,7 @@ class Test_ExclusivePackage_2(PkglistEventTestCase):
     self.failIf('pkglist-test-package4-1.0-1' in self.event.cvars['pkglist'])
 
 
-def make_suite():
+def make_suite(basedistro):
   confdir = pps.Path(__file__).dirname
   suite = unittest.TestSuite()
   return suite #!

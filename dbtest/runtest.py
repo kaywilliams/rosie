@@ -31,7 +31,7 @@ LOGFILE = open('test.log', 'w+')
 def make_logger(threshold):
   console = logger.Logger(threshold=threshold, file_object=sys.stdout)
   logfile = logger.Logger(threshold=threshold, file_object=LOGFILE)
-  return EventTestLogContainer([console, logfile])
+  return dbtest.EventTestLogContainer([console, logfile])
 
 def parse_cmd_args():
   parser = optparse.OptionParser("usage: %prog [OPTIONS]",
@@ -41,6 +41,10 @@ def parse_cmd_args():
     dest='basedistro',
     default='fedora-6',
     help='select the distribution to test')
+  parser.add_option('-b', '--build-root', metavar='DIRECTORY',
+    dest='buildroot',
+    default='/tmp/dbtest',
+    help='choose the location where builds should be performed')
   parser.add_option('--skip', metavar='MODULEID',
     dest='skip_test',
     action='append',
@@ -68,11 +72,16 @@ def main():
 
   sys.path = options.libpath + sys.path
 
-  from dbtest import EventTestLogContainer, EventTestRunner, EventTestCase
+  import dbtest
 
-  EventTestCase.options = options
+  dbtest.BUILD_ROOT = pps.Path(options.buildroot)
+  dbtest.EventTestCase.options = options
 
-  runner = EventTestRunner()
+  # save the build root folder if it already exists and contains something
+  preserve_build_root = ( dbtest.BUILD_ROOT.exists() and
+                          dbtest.BUILD_ROOT.listdir(all=True) )
+
+  runner = dbtest.EventTestRunner()
   suite = unittest.TestSuite()
 
   if not args:
@@ -87,7 +96,11 @@ def main():
     finally:
       fp and fp.close()
 
-  runner.run(suite)
+  try:
+    runner.run(suite)
+  finally:
+    if not preserve_build_root:
+      dbtest.BUILD_ROOT.rm(recursive=True, force=True)
 
 def _testpath_normalize(path):
   path = pps.Path(path)

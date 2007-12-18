@@ -9,7 +9,10 @@ class PublishEventTestCase(EventTestCase):
   moduleid = 'publish'
   eventid  = 'publish'
 
-# TODO - figure out a way to delete the published directories after we're done
+  def tearDown(self):
+    # 'register' publish_path for deletion upon test completion
+    self.output.append(self.event.cvars['publish-path'])
+    EventTestCase.tearDown(self)
 
 def make_suite(basedistro):
   suite = ModuleTestSuite('publish')

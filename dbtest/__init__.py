@@ -13,6 +13,7 @@ from dimsbuild.main import Build
 
 from dbtest.config import make_default_config, add_config_section
 
+BUILD_ROOT = '/tmp/dbtest' # location builds are performed
 
 class TestBuild(Build):
   def __init__(self, conf, *args, **kwargs):
@@ -25,6 +26,10 @@ class TestBuild(Build):
       self.mainconfig = xmllib.config.read(mcf)
     else:
       self.mainconfig = xmllib.config.read(StringIO('<dimsbuild/>'))
+
+    # set the cache dir
+    p = xmllib.config.uElement('cache', parent=self.mainconfig)
+    xmllib.config.uElement('path', parent=p).text = BUILD_ROOT
 
     self.distroconfig = self.conf
 
@@ -50,6 +55,7 @@ class EventTestCase(unittest.TestCase):
     self.parser = None
 
     self.tb = None
+    self.output = []
 
     self._testMethodDoc = self.__class__.__doc__
 
@@ -61,9 +67,11 @@ class EventTestCase(unittest.TestCase):
   def runTest(self): pass
 
   def tearDown(self):
+    self.output.append(self.event.METADATA_DIR)
     self.tb._unlock()
     del self.tb
     del self.event
+    del self.conf
 
   def clean_all_md(self):
     for event in self.event.getroot():
@@ -122,17 +130,30 @@ class ModuleTestSuite(unittest.TestSuite):
     unittest.TestSuite.__init__(self, tests)
     self.modid = modid
 
+    self.output = [] # hack to ensure we can remove all output
+
   def setUp(self):
     pass
 
   def tearDown(self):
     (pps.Path(__file__).dirname/'modules').listdir('*.dat').rm()
+    for dir in self.output:
+      dir.rm(recursive=True, force=True)
 
   def run(self, result):
     self.setUp()
-    ret = unittest.TestSuite.run(self, result)
-    self.tearDown()
-    return ret
+    try:
+      for test in self._tests:
+        if result.shouldStop:
+          break
+        test(result)
+        try:
+          self.output.extend(test.output)
+        except:
+          pass
+      return result
+    finally:
+      self.tearDown()
 
 class EventTestRunner:
   def __init__(self, threshold=1):
@@ -229,6 +250,7 @@ class EventTestLogContainer(logger.LogContainer):
   def write(self, level, msg, **kwargs):
     for log_obj in self.list:
       log_obj.write(level, msg, **kwargs)
+      log_obj.file_object.flush()
 
   def format(self, msg, format=None, **kwargs):
     d = dict(message=msg, eventid=self._eventid, **kwargs)

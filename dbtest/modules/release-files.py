@@ -20,9 +20,6 @@ class _ReleaseFilesEventTestCase(ReleaseFilesEventTestCase):
     # touch input files
     touch_input_files(self.event._config.file.abspath().dirname)
 
-  def runTest(self):
-    self.tb.dispatch.execute(until='publish')
-
   def tearDown(self):
     remove_input_files(self.event._config.file.abspath().dirname)
     ReleaseFilesEventTestCase.tearDown(self)

@@ -15,8 +15,25 @@ class EventTestCaseHeader(EventTestCaseDummy):
     return '\n'.join(['', self.separator1,
                       "testing event '%s'" % self.eventid, self.separator2])
 
-def make_core_suite(TestCase, basedistro='fedora-6', conf=None):
-  suite = unittest.TestSuite()
+class CoreTestSuite(unittest.TestSuite):
+  def __init__(self, tests=()):
+    unittest.TestSuite.__init__(self, tests)
+    self.output = []
+
+  def run(self, result):
+    for test in self._tests:
+      if result.shouldStop:
+        break
+      test(result)
+      try:
+        self.output.extend(test.output)
+      except:
+        pass
+    return result
+
+
+def make_core_suite(TestCase, basedistro, conf=None):
+  suite = CoreTestSuite()
   suite.addTest(EventTestCaseHeader(TestCase.eventid)) # hack to get a pretty header
   suite.addTest(CoreEventTestCase00(TestCase(basedistro, conf)))
   suite.addTest(CoreEventTestCase01(TestCase(basedistro, conf)))
@@ -25,8 +42,8 @@ def make_core_suite(TestCase, basedistro='fedora-6', conf=None):
   suite.addTest(CoreEventTestCase04(TestCase(basedistro, conf)))
   return suite
 
-def make_extension_suite(TestCase, basedistro='fedora-6', conf=None):
-  suite = unittest.TestSuite()
+def make_extension_suite(TestCase, basedistro, conf=None):
+  suite = CoreTestSuite()
   suite.addTest(make_core_suite(TestCase, basedistro, conf))
   suite.addTest(ExtensionEventTestCase00(TestCase(basedistro, conf)))
   suite.addTest(ExtensionEventTestCase01(TestCase(basedistro, conf)))
@@ -126,8 +143,14 @@ def ExtensionEventTestCase00(self):
     self.tb.dispatch.execute(until='autoclean')
     self.failIfExists(self.tb.dispatch._top.METADATA_DIR/self.eventid)
 
+  def tearDown(): # don't try to append METADATA_DIR to output
+    self.tb._unlock()
+    del self.tb
+    del self.event
+
   decorate(self, 'setUp', prefn=pre_setup)
   self.runTest = runTest
+  self.tearDown = tearDown
   return self
 
 def ExtensionEventTestCase01(self):

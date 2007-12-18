@@ -134,6 +134,8 @@ class PkglistEvent(Event):
     self.diff.write_metadata()
     solver.teardown()
 
+    solver.teardown() # stop memory leak
+
   def apply(self):
     self.io.clean_eventcache()
     try:
