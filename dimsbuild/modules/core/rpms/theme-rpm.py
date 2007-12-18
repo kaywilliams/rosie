@@ -83,6 +83,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     post_install.write_lines([
      'CUSTOM_CONF=/etc/gdm/custom.conf',
      'if [ -e $CUSTOM_CONF ]; then /bin/mv $CUSTOM_CONF $CUSTOM_CONF.bak; fi',
+     'if [ ! -d /etc/gdm ]; then /bin/mkdir -p /etc/gdm; fi',
      '/bin/cp %s $CUSTOM_CONF' % install_dir,
     ])
     return post_install
