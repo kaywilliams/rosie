@@ -73,7 +73,7 @@ class TreeinfoEvent(Event):
     self.tifile = self.SOFTWARE_STORE/'.treeinfo'
 
     self.DATA =  {
-      'variables': ['cvars[\'base-vars\']'],
+      'variables': ['product', 'version', 'productpath', 'basearch'],
       'output':    [self.tifile]
     }
 
@@ -136,7 +136,7 @@ class BuildstampEvent(Event):
     self.bsfile = self.mddir/'.buildstamp'
 
     self.DATA = {
-      'variables': ['cvars[\'base-vars\']',
+      'variables': ['fullname', 'version', 'product', 'basearch', 'webloc',
                     'cvars[\'anaconda-version\']',
                     'cvars[\'source-vars\']'],
       'output':    [self.bsfile],
