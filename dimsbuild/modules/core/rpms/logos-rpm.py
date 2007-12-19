@@ -91,7 +91,7 @@ class LogosRpmEvent(Event, RpmBuildMixin):
 
       if basename == 'COPYING':
         ## HACK: special-casing COPYING; find a better way to do this
-        self.copy(image_file, self.build_folder)
+        self.link(image_file, self.build_folder)
       else:
         for output_location in [ P(x) for x in output_locations ] :
           dest = self.build_folder // output_location
@@ -122,7 +122,7 @@ class LogosRpmEvent(Event, RpmBuildMixin):
           elif output_format is not None:
             Image.open(image_file).save(dest, format=output_format)
           else:
-            self.copy(image_file, dest.dirname)
+            self.link(image_file, dest.dirname)
 
   def _get_font_path(self, font):
     """

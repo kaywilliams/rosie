@@ -16,7 +16,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
     Event.__init__(self,
       id = 'theme-rpm',
-      version = 2,
+      version = 3,
       provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info']
     )
 
@@ -70,7 +70,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
       relpath = image_file.relpathfrom(self.theme_dir)
       dest = self.build_folder / relpath
       dest.dirname.mkdirs()
-      self.copy(image_file, dest.dirname)
+      self.link(image_file, dest.dirname)
 
   def _generate_custom_theme(self):
     self.custom_theme.dirname.mkdirs()
