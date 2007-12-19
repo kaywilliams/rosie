@@ -132,6 +132,7 @@ class PkglistEvent(Event):
     self.DATA['output'].extend([self.dsdir, self.pkglistfile,
                                 repoconfig, depsolve_results])
     self.diff.write_metadata()
+    solver.teardown()
 
   def apply(self):
     self.io.clean_eventcache()
