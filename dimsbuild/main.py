@@ -345,7 +345,7 @@ class Build(object):
     bv['fullname'] = Event._config.get(qstr % 'fullname', bv['product'])
     bv['webloc']   = Event._config.get(qstr % 'bug-url', 'No bug url provided')
     bv['pva']      = '%(product)s-%(version)s-%(basearch)s' % bv
-    bv['product-path'] = Event._config.get(qstr % 'product-path', 'Packages')
+    bv['productpath'] = Event._config.get(qstr % 'product-path', 'Packages')
     bv['copyright'] = Event._config.get(qstr % 'copyright', '')
 
     for k,v in bv.items():

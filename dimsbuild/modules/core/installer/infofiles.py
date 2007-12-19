@@ -28,7 +28,7 @@ class DiscinfoEvent(Event):
     self.difile = self.SOFTWARE_STORE/'.discinfo'
 
     self.DATA =  {
-      'variables': ['cvars[\'base-vars\']',
+      'variables': ['fullname', 'basearch', 'productpath', 
                     'cvars[\'anaconda-version\']'],
       'output':    [self.difile]
     }
@@ -91,7 +91,7 @@ class TreeinfoEvent(Event):
     treeinfo.set('general', 'totaldiscs', '1')
     treeinfo.set('general', 'version',    self.version)
     treeinfo.set('general', 'discnum',    '1')
-    treeinfo.set('general', 'packagedir', self.cvars['base-vars']['product-path'])
+    treeinfo.set('general', 'packagedir', self.productpath)
     treeinfo.set('general', 'arch',       self.basearch)
 
     # this probably needs to be versioned
