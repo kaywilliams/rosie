@@ -10,6 +10,9 @@ P = pps.Path
 API_VERSION = 5.0
 EVENTS = {'installer': ['ReleaseFilesEvent']}
 
+DEFAULT_SET = ['eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README*',
+               '*-RPM-GPG', 'RPM-GPG-KEY*', 'RELEASE-NOTES*']
+
 class ReleaseFilesEvent(Event, ExtractMixin):
   def __init__(self):
     Event.__init__(self,
@@ -31,22 +34,26 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     self.io.setup_sync(self.SOFTWARE_STORE, xpaths=['path'], id='release-files-input')
 
   def run(self):
+    self.cvars.setdefault('release-files', [])
     self._extract()
 
   def apply(self):
+    existing = []
+    for item in DEFAULT_SET:
+      existing.extend(self.SOFTWARE_STORE.listdir(glob=item))
+    if existing:
+      self.cvars.setdefault('release-files', []).extend(existing)
     self.io.clean_eventcache()
 
   def _generate(self, working_dir):
     self.io.sync_input(link=True, cache=False, what='release-files-input')
     rtn = []
-    if self.config.get('include-in-tree/@use-default-set', 'True') \
-           in BOOLEANS_TRUE:
-      for default_item in ['eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README',
-                           '*-RPM-GPG', 'RPM-GPG-KEY-*', 'RPM-GPG-KEY-beta',
-                           'README-BURNING-ISOS-en_US.txt', 'RELEASE-NOTES-en_US.html']:
-        for item in working_dir.findpaths(glob=default_item):
-          self.link(item, self.SOFTWARE_STORE)
-          rtn.append(self.SOFTWARE_STORE / item.basename)
+    if self.config.get('@use-default-set', 'True') in BOOLEANS_TRUE:
+      for item in DEFAULT_SET:
+        for file in working_dir.findpaths(glob=item):
+          self.link(file, self.SOFTWARE_STORE)
+          rtn.append(self.SOFTWARE_STORE / file.basename)
+    self.cvars['release-files'].extend(rtn)
     return rtn
 
   def _find_rpms(self):
@@ -67,3 +74,8 @@ class ReleaseFilesEvent(Event, ExtractMixin):
         if not rpmset:
           raise RpmNotFoundError("missing release RPM(s)")
     return rpmset
+
+  def verify_cvars(self):
+    "verify all cvars exist"
+    self.verifier.failUnless(self.cvars['release-files'] is not None,
+      "'release-files' event generated no content")

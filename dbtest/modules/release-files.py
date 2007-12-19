@@ -1,4 +1,5 @@
 from dbtest        import EventTestCase, ModuleTestSuite
+from dbtest.config import add_config_section
 from dbtest.core   import make_core_suite
 from dbtest.mixins import touch_input_files, remove_input_files
 
@@ -6,7 +7,8 @@ from dbtest.mixins import touch_input_files, remove_input_files
 class ReleaseFilesEventTestCase(EventTestCase):
   moduleid = 'release-files'
   eventid  = 'release-files'
-  _conf = """<release-rpm enabled="true"/>"""
+  _conf = """<release-files/>"""
+
   def __init__(self, basedistro, conf=None, enabled='True'):
     EventTestCase.__init__(self, basedistro, conf)
     self.enabled = enabled
@@ -15,10 +17,13 @@ class _ReleaseFilesEventTestCase(ReleaseFilesEventTestCase):
   def setUp(self):
     EventTestCase.setUp(self)
     self.clean_event_md()
-    self.conf.get('release-rpm').attrib['enabled'] = self.enabled
+    add_config_section(self.conf, "<release-rpm enabled='%s'/>" % self.enabled)
 
     # touch input files
     touch_input_files(self.event._config.file.abspath().dirname)
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.eventid)
 
   def tearDown(self):
     remove_input_files(self.event._config.file.abspath().dirname)
@@ -26,39 +31,26 @@ class _ReleaseFilesEventTestCase(ReleaseFilesEventTestCase):
 
 
 class Test_ReleaseFiles(_ReleaseFilesEventTestCase):
-  _conf = [ _ReleaseFilesEventTestCase._conf,
-  """<release-files enabled="true"/>"""
-  ]
+  _conf = """<release-files enabled="true"/>"""
 
 class Test_ReleaseFilesWithDefaultSet(_ReleaseFilesEventTestCase):
-  _conf = [ _ReleaseFilesEventTestCase._conf,
-  """<release-files>
-    <include-in-tree use-default-set="true"/>
-  </release-files>"""
-  ]
+  _conf = """<release-files use-default-set="true"/>"""
 
 class Test_ReleaseFilesWithDefaultSet(_ReleaseFilesEventTestCase):
-  _conf = [ _ReleaseFilesEventTestCase._conf,
-  """<release-files>
-    <include-in-tree use-default-set="false"/>
-  </release-files>"""
-  ]
+  _conf = """<release-files use-default-set="false"/>"""
 
 class Test_ReleaseFilesWithInputFiles(_ReleaseFilesEventTestCase):
-  _conf = [ _ReleaseFilesEventTestCase._conf,
-  """<release-files>
+  _conf = """<release-files>
     <path>/tmp/outfile</path>
     <path dest="/infiles">infile</path>
     <path dest="/infiles">infile2</path>
   </release-files>"""
-  ]
 
 class Test_ReleaseFilesWithPackageElement(_ReleaseFilesEventTestCase):
-  _conf = [ _ReleaseFilesEventTestCase._conf,
-  """<release-files enabled="true">
+  _conf = """<release-files>
     <package></package>
   </release-files>"""
-  ]
+  # this test doesn't actually do anything because package is empty...
 
   def __init__(self, basedistro, conf=None):
     _ReleaseFilesEventTestCase.__init__(self, basedistro, conf, 'True')
