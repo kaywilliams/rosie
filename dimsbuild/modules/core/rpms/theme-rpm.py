@@ -24,6 +24,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
       '%s-theme' % self.product,
       "Set up the theme of the machine",
       "Theme files related to %s" % self.fullname,
+      rpm_license = 'GPLv2',
       default_requires = ['coreutils']
     )
 
@@ -79,12 +80,12 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
   def _get_install_script(self):
     symlinks=['default.jpg','default.png','default-wide.png','default-5_4.png']
-    linklines = ['ln -sf ../infinity/2-infinity-day.png %s' % i for i in symlinks]
+    linklines = ['ln -sf ../spin/2-spin-day.png %s' % i for i in symlinks]
 
     scriptfile = self.build_folder / 'install.sh'
     scriptfile.write_lines([
       'python setup.py install --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES',
-      '# create links to infinity background images',
+      '# create links to spin background images',
       'mkdir -p $RPM_BUILD_ROOT%{_datadir}/backgrounds/images',
       '(cd $RPM_BUILD_ROOT%{_datadir}/backgrounds/images;' +
            '; '.join(linklines) + ')',])
