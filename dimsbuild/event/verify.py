@@ -20,6 +20,8 @@ class VerifyObject(unittest.TestCase):
     self.ptr = ptr
     self.logger = self.ptr.logger
     self.method_prefix = 'verify_'
+    self._testMethodName = None
+    self._testMethodDoc = None
 
   def failIfExists(self, path):
     self.failIf(pps.Path(path).exists(), "'%s' exists" % path)

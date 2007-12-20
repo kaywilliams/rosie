@@ -11,7 +11,7 @@ class CompsEventTestCase(EventTestCase):
   eventid  = 'comps'
 
 class _CompsEventTestCase(CompsEventTestCase):
-  def __init__(self, basedistro='fedora-6', conf=None):
+  def __init__(self, basedistro, conf=None):
     CompsEventTestCase.__init__(self, basedistro, conf)
     self.included_groups = []
     self.included_pkgs = []

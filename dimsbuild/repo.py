@@ -214,6 +214,8 @@ class Repo(dict):
       self._parser.setContentHandler(handler)
       self._parser.parse(pxml)
       pxml.close()
+      pxml.filename = None # memory leak somehow?
+      del pxml
 
       for f,s,m in handler.pkgs:
         self.repoinfo.append({

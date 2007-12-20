@@ -102,6 +102,7 @@ def main():
     if not preserve_build_root:
       dbtest.BUILD_ROOT.rm(recursive=True, force=True)
 
+
 def _testpath_normalize(path):
   path = pps.Path(path)
   if not path.isabs() and path.tokens[0] != 'modules':
