@@ -1,9 +1,11 @@
+from StringIO import StringIO
+
 import unittest
 
 from dims import pps
 from dims import xmllib
 
-from dbtest      import EventTestCase
+from dbtest      import EventTestCase, ModuleTestSuite, config
 from dbtest.core import make_core_suite
 
 class DownloadEventTestCase(EventTestCase):
@@ -11,7 +13,15 @@ class DownloadEventTestCase(EventTestCase):
   eventid  = 'download'
 
   def __init__(self, basedistro, conf=None):
-    EventTestCase.__init__(self, basedistro, conf)
+    EventTestCase.__init__(self, basedistro, conf=conf)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro),
+         config._make_repo('%s-updates' % basedistro),
+         xmllib.config.read(StringIO('<repofile>download/download-test-repos.repo</repofile>'))]
+      )
+    )
 
   def runTest(self):
     self.tb.dispatch.execute(until='download')
@@ -25,13 +35,15 @@ class Test_PackagesDownloaded(DownloadEventTestCase):
   pass
 
 class Test_AddedPackageDownloaded(DownloadEventTestCase):
-  "Test that the 'httpd' package is downloaded."
-  def setUp(self):
-    DownloadEventTestCase.setUp(self)
-    comps = xmllib.tree.Element('comps', self.event._config)
-    core = xmllib.tree.Element('core', comps)
-    pkg1 = xmllib.tree.Element('package', core, text='package1')
-    pkg2 = xmllib.tree.Element('package', core, text='package2')
+  "Test that the packages in <comps> are downloaded."
+  _conf = """
+  <comps>
+    <core>
+      <package>package1</package>
+      <package>package2</package>
+    </core>
+  </comps>
+  """
 
   def runTest(self):
     DownloadEventTestCase.runTest(self)
@@ -45,10 +57,7 @@ class Test_AddedPackageDownloaded(DownloadEventTestCase):
     self.failUnless(found1 and found2)
 
 class Test_RemovedPackageDeleted(DownloadEventTestCase):
-  "Test that the previously-added 'httpd' package is removed"
-  def setUp(self):
-    DownloadEventTestCase.setUp(self)
-
+  "Test that the previously-downloaded packages are removed"
   def runTest(self):
     # add a package, then remove it
     self.tb.dispatch.execute(until='download')
@@ -57,11 +66,13 @@ class Test_RemovedPackageDeleted(DownloadEventTestCase):
       self.failIf(pkgname == 'package1' or pkgname == 'package2')
 
 class Test_ArchChanges(DownloadEventTestCase):
-  def setUp(self):
-    DownloadEventTestCase.setUp(self)
-    xmllib.tree.Element('arch', self.event._config.get('/distro/main'), text='i386')
+  "Test arch changes in <main/>"
+  def __init__(self, basedistro):
+    DownloadEventTestCase.__init__(self, basedistro)
+    xmllib.tree.uElement('arch', self.conf.get('/distro/main'), text='i386')
 
 class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
+  "Test multiple repos with the same package."
   def runTest(self):
     DownloadEventTestCase.runTest(self)
     # if the length of cvars['cached-rpms'] is equal to the length of
@@ -73,15 +84,11 @@ class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
     self.failUnless(len(self.event.cvars['cached-rpms']) == numpkgs)
 
 def make_suite(basedistro):
-  conf = pps.Path(__file__).dirname/'f8.conf'
-  suite = unittest.TestSuite()
-  return suite #!
-
-  suite.addTest(make_core_suite('download', conf))
-  suite.addTest(Test_PackagesDownloaded(conf))
-  suite.addTest(Test_AddedPackageDownloaded(conf))
-  suite.addTest(Test_RemovedPackageDeleted(conf))
-  suite.addTest(Test_ArchChanges(conf))
-  suite.addTest(Test_MultipleReposWithSamePackage(conf))
-
+  suite = ModuleTestSuite('download')
+  suite.addTest(make_core_suite(DownloadEventTestCase, basedistro))
+  suite.addTest(Test_PackagesDownloaded(basedistro))
+  suite.addTest(Test_AddedPackageDownloaded(basedistro))
+  suite.addTest(Test_RemovedPackageDeleted(basedistro))
+  suite.addTest(Test_ArchChanges(basedistro))
+  suite.addTest(Test_MultipleReposWithSamePackage(basedistro))
   return suite
