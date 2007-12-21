@@ -194,8 +194,7 @@ class RpmBuildMixin:
 
   def _generate(self):
     # generate doc file
-    doc_file = self.build_folder / 'usr/share/doc/%s-%s/README' % (self.rpm_name,
-                                                                   self.rpm_version)
+    doc_file = self.build_folder / 'README'
     doc_file.dirname.mkdirs()
     doc_file.write_text(self.rpm_desc)
 
@@ -291,7 +290,7 @@ class RpmBuildMixin:
       spec.set('bdist_rpm', 'config_files', '\n\t'.join(config_files))
 
   def _add_doc_files(self, spec):
-    doc_files = []
+    doc_files = ['README']
     if (self.build_folder / 'COPYING').exists():
       doc_files.append('COPYING')
     for installdir in self.data_files.keys():
