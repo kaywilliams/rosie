@@ -1,19 +1,27 @@
+from StringIO import StringIO
+
 import unittest
 
 from dims import pps
 from dims import xmllib
 
-from dbtest      import EventTestCase
+from dbtest      import EventTestCase, ModuleTestSuite, config
 from dbtest.core import make_core_suite
 
 P = pps.Path
 
+class DummyPkglistEventTestCase(EventTestCase):
+  moduleid = 'pkglist'
+  eventid  = 'pkglist'
+
 class PkglistEventTestCase(EventTestCase):
+  moduleid = 'pkglist'
+  eventid  = 'pkglist'
 
   PKGLIST_COUNT = {}
 
-  def __init__(self, conf, caseid, clean=False):
-    EventTestCase.__init__(self, 'pkglist', conf)
+  def __init__(self, caseid, basedistro, clean=False):
+    EventTestCase.__init__(self, basedistro=basedistro)
     self.caseid = caseid
     self.clean = clean
 
@@ -33,24 +41,44 @@ class PkglistEventTestCase(EventTestCase):
     return self.PKGLIST_COUNT.get(caseid)
 
 class Test_PkglistBug84_1(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'bug84_1', True)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
-    self.event._config.remove(self.event._config.get('/distro/comps'))
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'bug84_1', basedistro, True)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro)]
+      )
+    )
 
 class Test_PkglistBug84_2(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'bug84_2', False)
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'bug84_2', basedistro, False)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro)]
+      )
+    )
+    config.add_config_section(
+      self.conf,
+      """
+      <comps>
+        <core>
+          <group>base</group>
+        </core>
+      </comps>
+      """
+    )
 
 class Test_PkglistBug84_3(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'bug84_3', False)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
-    self.event._config.remove(self.event._config.get('/distro/comps'))
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'bug84_3', basedistro, False)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro)]
+      )
+    )
 
   def runTest(self):
     PkglistEventTestCase.runTest(self)
@@ -60,27 +88,34 @@ class Test_PkglistBug84_3(PkglistEventTestCase):
       "incremental depsolve: %d, forced depsolve: %d" % (count1, count2))
 
 class Test_PkglistBug85_1(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'bug85_1', True)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
-    self.event._config.get('/distro/repos').remove(
-      self.event._config.get('/distro/repos/repo[@id="fedora-updates"]')
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'bug85_1', basedistro, True)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro)]
+      )
     )
 
 class Test_PkglistBug85_2(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'bug85_2', False)
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'bug85_2', basedistro, False)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro),
+         config._make_repo('%s-updates' % basedistro)]
+      )
+    )
 
 class Test_PkglistBug85_3(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'bug85_3', False)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
-    self.event._config.get('/distro/repos').remove(
-      self.event._config.get('/distro/repos/repo[@id="fedora-updates"]')
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'bug85_3', basedistro, False)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro)]
+      )
     )
 
   def runTest(self):
@@ -91,12 +126,26 @@ class Test_PkglistBug85_3(PkglistEventTestCase):
                     (count1, count2))
 
 class Test_PkglistBug86_1(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'bug86_1', True)
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'bug86_1', basedistro, True)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro),
+         config._make_repo('%s-updates' % basedistro)]
+      )
+    )
 
 class Test_PkglistBug86_2(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'bug86_2', False)
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'bug86_2', basedistro, True)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro),
+         config._make_repo('%s-updates' % basedistro)]
+      )
+    )
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
@@ -106,16 +155,27 @@ class Test_PkglistBug86_2(PkglistEventTestCase):
     PkglistEventTestCase.runTest(self)
     count1 = self.getPkglistCount('bug86_1')
     count2 = self.getPkglistCount('bug86_2')
-    self.failUnless(count1 == count2)
+    self.failUnless(count1 == count2, "bug86_1: %d packages; bug86_2: %d packages" % \
+                      (count1, count2))
 
 class Test_PkglistBug108_1(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'bug108_1', True)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
-    self.event._config.get('/distro/repos').remove(
-      self.event._config.get('/distro/repos/repo[@id="updates"]')
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'bug108_1', basedistro, True)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro)]
+      )
+    )
+    config.add_config_section(
+      self.conf,
+      """
+      <comps>
+        <core>
+          <package>gaim</package>
+        </core>
+      </comps>
+      """
     )
 
   def runTest(self):
@@ -135,11 +195,25 @@ class Test_PkglistBug108_1(PkglistEventTestCase):
     self.failIf(found_pidgin or found_libpurple)
 
 class Test_PkglistBug108_2(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'bug108_2', False)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'bug108_2', basedistro, False)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro),
+         config._make_repo('%s-updates' % basedistro)]
+      )
+    )
+    config.add_config_section(
+      self.conf,
+      """
+      <comps>
+        <core>
+          <package>gaim</package>
+        </core>
+      </comps>
+      """
+    )
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
@@ -157,46 +231,68 @@ class Test_PkglistBug108_2(PkglistEventTestCase):
     self.failUnless(found_pidgin or found_libpurple)
     self.failIf(found_gaim)
 
-class Test_Supplied(EventTestCase):
-  def __init__(self, conf):
-    EventTestCase.__init__(self, 'pkglist', conf)
-    self.working_dir = P(conf.dirname)
+class Test_Supplied(DummyPkglistEventTestCase):
+  "pkglist supplied"
+  _conf = "<pkglist>pkglist/pkglist</pkglist>"
+
+  def __init__(self, basedistro):
+    EventTestCase.__init__(self, basedistro=basedistro)
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
-    pkglist_in  = (self.working_dir / self.event.config.get('text()')).read_lines()
+    pkglist_in  = (pps.Path(__file__).dirname.dirname /
+                   self.event.config.get('text()')).read_lines()
     pkglist_out = self.event.cvars['pkglist']
     self.failUnlessEqual(sorted(pkglist_in), sorted(pkglist_out))
 
 class Test_PackageAdded(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'pkgadded', True)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
-    xmllib.tree.Element('repofile', self.event._config.get('repos'),
-                        text='pkglist-test-repos1.repo')
-    comps = xmllib.tree.Element('comps', self.event._config.getroot())
-    core = xmllib.tree.Element('core', comps)
-    pkg1 = xmllib.tree.Element('package', core, 'pkglist-test-package1')
+  "added package"
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'pkgadded', basedistro, True)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro),
+         xmllib.config.read(StringIO("<repofile>pkglist/pkglist-test-repos1.repo</repofile>"))]
+      )
+    )
+    config.add_config_section(
+      self.conf,
+      """
+      <comps>
+        <core>
+          <package>pkglist-test-package1</package>
+        </core>
+      </comps>
+      """
+    )
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
     self.failUnless('pkglist-test-package1-1.0-1' in self.event.cvars['pkglist'])
 
 class Test_ObsoletedPackage(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'pkgobsoleted', False)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
-    xmllib.tree.Element('repofile', self.event._config.get('repos'),
-                        text='pkglist-test-repos1.repo')
-    xmllib.tree.Element('repofile', self.event._config.get('repos'),
-                        text='pkglist-test-repos2.repo')
-    comps = xmllib.tree.Element('comps', self.event._config.getroot())
-    core = xmllib.tree.Element('core', comps)
-    pkg1 = xmllib.tree.Element('package', core, 'pkglist-test-package2')
+  "obsoleted package"
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'pkgobsoleted', basedistro, False)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro),
+         xmllib.config.read(StringIO("<repofile>pkglist/pkglist-test-repos1.repo</repofile>")),
+         xmllib.config.read(StringIO("<repofile>pkglist/pkglist-test-repos2.repo</repofile>"))]
+      )
+    )
+    config.add_config_section(
+      self.conf,
+      """
+      <comps>
+        <core>
+          <package>pkglist-test-package2</package>
+        </core>
+      </comps>
+      """
+    )
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
@@ -204,27 +300,35 @@ class Test_ObsoletedPackage(PkglistEventTestCase):
     self.failIf('pkglist-test-package1-1.0-1' in self.event.cvars['pkglist'])
 
 class Test_RemovedPackage(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'pkgremoved', False)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
+  "removed package"
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'pkgremoved', basedistro, False)
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
     self.failIf('pkglist-test-package2-1.0-1' in self.event.cvars['pkglist'])
 
 class Test_ExclusivePackage_1(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'exclusive_1', False)
-
-  def setUp(self):
-    PkglistEventTestCase.setUp(self)
-    xmllib.tree.Element('repofile', self.event._config.get('repos'),
-                        text='pkglist-test-repos3.repo')
-    comps = xmllib.tree.Element('comps', self.event._config.getroot())
-    core = xmllib.tree.Element('core', comps)
-    pkg1 = xmllib.tree.Element('package', core, 'pkglist-test-package3')
+  "test-package required only by another test-package"
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'exclusive_1', basedistro, False)
+    config.add_config_section(
+      self.conf,
+      config.make_repos(basedistro,
+        [config._make_repo('%s-base' % basedistro),
+         xmllib.config.read(StringIO("<repofile>pkglist/pkglist-test-repos3.repo</repofile>"))]
+      )
+    )
+    config.add_config_section(
+      self.conf,
+      """
+      <comps>
+        <core>
+          <package>pkglist-test-package3</package>
+        </core>
+      </comps>
+      """
+    )
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
@@ -232,8 +336,9 @@ class Test_ExclusivePackage_1(PkglistEventTestCase):
     self.failUnless('pkglist-test-package4-1.0-1' in self.event.cvars['pkglist'])
 
 class Test_ExclusivePackage_2(PkglistEventTestCase):
-  def __init__(self, conf):
-    PkglistEventTestCase.__init__(self, conf, 'exclusive_2', False)
+  "package not required by anything else not in pkglist"
+  def __init__(self, basedistro):
+    PkglistEventTestCase.__init__(self, 'exclusive_2', basedistro, False)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
@@ -243,58 +348,50 @@ class Test_ExclusivePackage_2(PkglistEventTestCase):
     self.failIf('pkglist-test-package3-1.0-1' in self.event.cvars['pkglist'])
     self.failIf('pkglist-test-package4-1.0-1' in self.event.cvars['pkglist'])
 
-
 def make_suite(basedistro):
-  confdir = pps.Path(__file__).dirname
-  suite = unittest.TestSuite()
-  return suite #!
+  suite = ModuleTestSuite('pkglist')
 
   # core tests
-  suite.addTest(make_core_suite('pkglist', confdir / 'pkglist.conf'))
+  suite.addTest(make_core_suite(DummyPkglistEventTestCase, basedistro))
 
   # bug 84
-  config = confdir / 'bug84.conf'
-  bug84 = unittest.TestSuite()
-  bug84.addTest(Test_PkglistBug84_1(config))
-  bug84.addTest(Test_PkglistBug84_2(config))
-  bug84.addTest(Test_PkglistBug84_3(config))
+  bug84 = ModuleTestSuite('pkglist')
+  bug84.addTest(Test_PkglistBug84_1(basedistro))
+  bug84.addTest(Test_PkglistBug84_2(basedistro))
+  bug84.addTest(Test_PkglistBug84_3(basedistro))
   suite.addTest(bug84)
 
   # bug 85
-  config = confdir / 'bug85.conf'
-  bug85 = unittest.TestSuite()
-  bug85.addTest(Test_PkglistBug85_1(config))
-  bug85.addTest(Test_PkglistBug85_2(config))
-  bug85.addTest(Test_PkglistBug85_3(config))
+  bug85 = ModuleTestSuite('pkglist')
+  bug85.addTest(Test_PkglistBug85_1(basedistro))
+  bug85.addTest(Test_PkglistBug85_2(basedistro))
+  bug85.addTest(Test_PkglistBug85_3(basedistro))
   suite.addTest(bug85)
 
   # bug 86
-  config = confdir / 'bug86.conf'
-  bug86 = unittest.TestSuite()
-  bug86.addTest(Test_PkglistBug86_1(config))
-  bug86.addTest(Test_PkglistBug86_2(config))
+  bug86 = ModuleTestSuite('pkglist')
+  bug86.addTest(Test_PkglistBug86_1(basedistro))
+  bug86.addTest(Test_PkglistBug86_2(basedistro))
   suite.addTest(bug86)
 
-  # bug 108
-  config = confdir / 'bug108.conf'
-  bug108 = unittest.TestSuite()
-  bug108.addTest(Test_PkglistBug108_1(config))
-  bug108.addTest(Test_PkglistBug108_2(config))
-  suite.addTest(bug108)
+  # bug 108; for centos-5 base distro only
+  if basedistro == 'centos-5':
+    bug108 = ModuleTestSuite('pkglist')
+    bug108.addTest(Test_PkglistBug108_1('centos-5'))
+    bug108.addTest(Test_PkglistBug108_2('centos-5'))
+    suite.addTest(bug108)
 
   # pkglist supplied
-  config = confdir / 'supplied.conf'
-  suite.addTest(Test_Supplied(config))
+  suite.addTest(Test_Supplied(basedistro))
 
-  config = confdir / 'pkglist.conf'
   # package added, obsoleted, and removed
-  suite.addTest(Test_PackageAdded(config))
-  suite.addTest(Test_ObsoletedPackage(config))
-  suite.addTest(Test_RemovedPackage(config))
+  suite.addTest(Test_PackageAdded(basedistro))
+  suite.addTest(Test_ObsoletedPackage(basedistro))
+  suite.addTest(Test_RemovedPackage(basedistro))
 
   # add package that requires a package nothing else requires,
   # then remove it.
-  suite.addTest(Test_ExclusivePackage_1(config))
-  suite.addTest(Test_ExclusivePackage_2(config))
+  suite.addTest(Test_ExclusivePackage_1(basedistro))
+  suite.addTest(Test_ExclusivePackage_2(basedistro))
 
   return suite
