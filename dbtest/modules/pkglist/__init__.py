@@ -41,6 +41,7 @@ class PkglistEventTestCase(EventTestCase):
     return self.PKGLIST_COUNT.get(caseid)
 
 class Test_PkglistBug84_1(PkglistEventTestCase):
+  "running pkglist without base group"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug84_1', basedistro, True)
     config.add_config_section(
@@ -51,6 +52,7 @@ class Test_PkglistBug84_1(PkglistEventTestCase):
     )
 
 class Test_PkglistBug84_2(PkglistEventTestCase):
+  "running pkglist with base group"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug84_2', basedistro, False)
     config.add_config_section(
@@ -71,6 +73,7 @@ class Test_PkglistBug84_2(PkglistEventTestCase):
     )
 
 class Test_PkglistBug84_3(PkglistEventTestCase):
+  "running pkglist without base group but with pkglist metadata"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug84_3', basedistro, False)
     config.add_config_section(
@@ -88,6 +91,7 @@ class Test_PkglistBug84_3(PkglistEventTestCase):
       "incremental depsolve: %d, forced depsolve: %d" % (count1, count2))
 
 class Test_PkglistBug85_1(PkglistEventTestCase):
+  "running pkglist without updates repo"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug85_1', basedistro, True)
     config.add_config_section(
@@ -98,6 +102,7 @@ class Test_PkglistBug85_1(PkglistEventTestCase):
     )
 
 class Test_PkglistBug85_2(PkglistEventTestCase):
+  "running pkglist with updates repo"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug85_2', basedistro, False)
     config.add_config_section(
@@ -109,6 +114,7 @@ class Test_PkglistBug85_2(PkglistEventTestCase):
     )
 
 class Test_PkglistBug85_3(PkglistEventTestCase):
+  "running pkglist without updates but with pkglist metadata"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug85_3', basedistro, False)
     config.add_config_section(
@@ -126,6 +132,7 @@ class Test_PkglistBug85_3(PkglistEventTestCase):
                     (count1, count2))
 
 class Test_PkglistBug86_1(PkglistEventTestCase):
+  "pkglist without release-rpm forced"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug86_1', basedistro, True)
     config.add_config_section(
@@ -137,6 +144,7 @@ class Test_PkglistBug86_1(PkglistEventTestCase):
     )
 
 class Test_PkglistBug86_2(PkglistEventTestCase):
+  "pkglist with release-rpm forced"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug86_2', basedistro, True)
     config.add_config_section(
@@ -159,6 +167,7 @@ class Test_PkglistBug86_2(PkglistEventTestCase):
                       (count1, count2))
 
 class Test_PkglistBug108_1(PkglistEventTestCase):
+  "without updates repo 'gaim' should be in pkglist"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug108_1', basedistro, True)
     config.add_config_section(
@@ -195,6 +204,7 @@ class Test_PkglistBug108_1(PkglistEventTestCase):
     self.failIf(found_pidgin or found_libpurple)
 
 class Test_PkglistBug108_2(PkglistEventTestCase):
+  "with updates repo 'pidgin' or 'libpurple' should be in pkglist"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug108_2', basedistro, False)
     config.add_config_section(
