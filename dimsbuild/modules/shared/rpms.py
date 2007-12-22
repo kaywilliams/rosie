@@ -49,7 +49,7 @@ class InputFilesMixin:
     pass
 
 class RpmBuildMixin:
-  def __init__(self, rpm_name, rpm_desc, rpm_summary, rpm_license='UNKNOWN',
+  def __init__(self, rpm_name, rpm_desc, rpm_summary, rpm_license=None,
                default_provides=None, default_obsoletes=None, default_requires=None):
     self.rpm_desc = rpm_desc
     self.rpm_name = rpm_name
@@ -226,9 +226,11 @@ class RpmBuildMixin:
     spec.set('pkg_data', 'name', self.rpm_name)
     spec.set('pkg_data', 'long_description', self.rpm_desc)
     spec.set('pkg_data', 'description', self.rpm_summary)
-    spec.set('pkg_data', 'license', self.rpm_license)
     spec.set('pkg_data', 'author', self.rpm_author)
     spec.set('pkg_data', 'version', self.rpm_version)
+
+    if self.rpm_license is not None:
+      spec.set('pkg_data', 'license', self.rpm_license)
 
     spec.set('bdist_rpm', 'force_arch', self.rpm_arch)
     spec.set('bdist_rpm', 'distribution_name', self.rpm_fullname)
