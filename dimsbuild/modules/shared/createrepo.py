@@ -1,6 +1,5 @@
 import errno
 import os
-import rpm
 import sys
 
 from dims import execlib
@@ -78,14 +77,12 @@ class CreateRepoMixin:
 class RpmNotFoundError(IOError): pass
 
 def RpmPackageVersion(name):
-  ts = rpm.TransactionSet()
-  mi = ts.dbMatch(rpm.RPMTAG_NAME, name)
-  if mi.count() == 0:
-    raise RpmNotFoundError("package '%s' was not found in the RPM database" % name)
-  pkg = mi.next()
-  del ts
-  del mi
-  return pkg['version']
+  try:
+    version = execlib.execute('rpm -q --queryformat="%%{version}" %s' % name)[0]
+  except:
+    raise
+  else:
+    return version
 
 def CommandLineVersion(name, flag='--version'):
   try:
