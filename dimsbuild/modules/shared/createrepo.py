@@ -84,6 +84,7 @@ def RpmPackageVersion(name):
     raise RpmNotFoundError("package '%s' was not found in the RPM database" % name)
   pkg = mi.next()
   del ts
+  del mi
   return pkg['version']
 
 def CommandLineVersion(name, flag='--version'):
