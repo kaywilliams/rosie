@@ -29,6 +29,6 @@ that eat up valuable time.
 See main.py for information on more specific implementation details.
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
+__author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
 __version__ = '3.0'
 __date__    = 'March 8th, 2007'

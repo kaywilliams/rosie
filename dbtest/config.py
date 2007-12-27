@@ -72,50 +72,50 @@ REPOS = {
   # fedora 6
   'fedora-6-base': {
     'name': 'fedora-6-base',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/core/6/i386/os/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/core/6/i386/os/',
   },
   'fedora-6-updates': {
     'name': 'fedora-6-updates',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/core/updates/6/i386/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/core/updates/6/i386/',
   },
   # fedora 7
   'fedora-7-base': {
     'name': 'fedora-7-base',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/releases/7/Fedora/i386/os/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/7/Fedora/i386/os/',
   },
   'fedora-7-updates': {
     'name': 'fedora-7-updates',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/updates/7/i386/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/updates/7/i386/',
   },
   'fedora-7-everything': {
     'name': 'fedora-7-everything',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/releases/7/Everything/i386/os/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/7/Everything/i386/os/',
   },
   # fedora 8
   'fedora-8-base': {
     'name': 'fedora-8-base',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/releases/8/Fedora/i386/os/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/8/Fedora/i386/os/',
   },
   'fedora-8-updates': {
     'name': 'fedora-8-updates',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/updates/8/i386/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/updates/8/i386/',
   },
   'fedora-8-everything': {
     'name': 'fedora-8-everything',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/fedora/releases/8/Everything/i386/os',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/8/Everything/i386/os',
   },
   # redhat 5
   'redhat-5-base': {
     'name': 'redhat-5-base',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/redhat/5/os/Server/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/redhat/5/os/Server/',
   },
   # centos 5
   'centos-5-base': {
     'name': 'centos-5-base',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/centos/5/os/i386/'
+    'baseurl': 'http://www.renditionsoftware.com/open_software/centos/5/os/i386/'
   },
   'centos-5-updates': {
     'name': 'centos-5-updates',
-    'baseurl': 'http://www.abodiosoftware.com/open_software/centos/5/updates/i386/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/centos/5/updates/i386/',
   }
 }

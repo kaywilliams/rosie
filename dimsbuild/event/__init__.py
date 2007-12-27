@@ -189,7 +189,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
         "the '%s' event.  The traceback has been recorded in the log "
         "file.  Please report this error by sending a copy of your "
         "log file, configuration files, and any other relevant "
-        "information to contact@abodiosoftware.com.\n\nError message "
+        "information to contact@renditionsoftware.com.\n\nError message "
         "was: %s" % (self.id, e))
     sys.exit(1)
 

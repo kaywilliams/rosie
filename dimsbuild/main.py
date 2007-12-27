@@ -5,7 +5,7 @@ Python script defining the Build class, the primary controller for the
 Distribution Management System (DiMS).
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@abodiosoftware.com>'
+__author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
 __version__ = '3.0'
 __date__    = 'June 26th, 2007'
 
