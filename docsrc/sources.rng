@@ -1,6 +1,6 @@
 <docroot>
   <refentry>
-  
+
     <!-- source -->
     <refsect2>
       <title>&lt;source&gt; (top level)</title>
@@ -24,7 +24,7 @@ element source {
           defaults to 'true'
           </para>
           <para>
-          If enabled, dimsbuild will include the necessary SRPMs to correspond to the
+          If enabled, spin will include the necessary SRPMs to correspond to the
           list of RPMs in the distribution; if it is disabled, any SRPMs will be removed
           from existing output.
           </para>
@@ -54,6 +54,6 @@ element source {
         </programlisting>
       </refsection>
     </refsect2>
-    
+
   </refentry>
 </docroot>

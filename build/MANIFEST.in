@@ -2,5 +2,4 @@ include setup.*
 include bin/*
 recursive-include lib *.py
 recursive-include share/doc *
-recursive-include share/dimsbuild * 
-recursive-include conf *
+recursive-include share/spin *

@@ -43,14 +43,14 @@ element exclude {
         <para>comps, repos, repo, includepkgs</para>
       </refsection>
     </refsect2>
-    
+
     <!-- includepkgs -->
     <refsect2>
       <title>&lt;includepkgs&gt;</title>
       <para>
       includepkgs is a container for package elements.  It indicates packages that should
       be included from a repository.  For example, if only one package is specified in
-      includepkgs, then that is the *only* package dimsbuild will see from the repository
+      includepkgs, then that is the *only* package spin will see from the repository
       when dependency solving.
       </para>
       <programlisting>
@@ -67,14 +67,14 @@ element include {
         <para>repo, exclude</para>
       </refsection>
     </refsect2>
-    
+
     <!-- path -->
     <refsect2>
       <title>&lt;path&gt;</title>
       <para>
       A valid URI utilizing one of the following supported protocols: file, http,
       and https.  If no protocol is specified, 'file' is typically assumed.  If the
-      path is relative instead of absolute, dimsbuild assumes a relative file path
+      path is relative instead of absolute, spin assumes a relative file path
       to ...somewhere...
       </para>
       <programlisting>
@@ -90,7 +90,7 @@ element path {
           <title>dest</title>
           <para>
           optional; some path elements are used as both a source and a destination;
-          for these cases, the dest attribute tells dimsbuild where to put the file
+          for these cases, the dest attribute tells spin where to put the file
           or directory; events that do not use dest ignore it; defaults to '/'
           </para>
           <para>
@@ -137,20 +137,20 @@ element path {
 &lt;path dest='/var/cache'&gt;/var/cache/profiles&lt;/path&gt;
         </programlisting>
         <para>
-        This is a path that includes a dest attribute.  If dimsbuild copies this file
+        This is a path that includes a dest attribute.  If spin copies this file
         somewhere, it will have 'var/cache' appended to the destination before copying.
         </para>
       </refsection>
     </refsect2>
-    
+
     <!-- repo -->
     <refsect2>
       <title>&lt;repo&gt;</title>
       <para>
       repo elements represent a local or remote repository that can be used by
-      dimsbuild as a source for input files, including rpms, stage2 images, kernels
+      spin as a source for input files, including rpms, stage2 images, kernels
       and initrds, and other files.  They contain a number of nodes that define all
-      the characteristics of a repository for dimsbuild's use.
+      the characteristics of a repository for spin's use.
       </para>
       <programlisting>
 element repo {
@@ -193,6 +193,6 @@ element repo {
         </programlisting>
       </refsection>
     </refsect2>
-    
+
   </refentry>
 </docroot>

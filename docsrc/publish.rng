@@ -1,6 +1,6 @@
 <docroot>
   <refentry>
-    
+
     <!-- local-webroot -->
     <refsect2>
       <title>&lt;local-webroot&gt;</title>
@@ -22,7 +22,7 @@ element local-webroot { text }
         <para>path-prefix</para>
       </refsection>
     </refsect2>
-    
+
     <!-- path-prefix -->
     <refsect2>
       <title>&lt;path-prefix&gt;</title>
@@ -44,13 +44,13 @@ element path-prefix { text }
         <para>local-webroot, remote-webroot</para>
       </refsection>
     </refsect2>
-    
+
     <!-- publish -->
     <refsect2>
       <title>&lt;publish&gt; (top level)</title>
       <para>
       The publish section contains data relevant to 'publishing' the distribution
-      created by dimsbuild to a web-accessible location on the build machine.
+      created by spin to a web-accessible location on the build machine.
       </para>
       <programlisting>
 element publish {
@@ -75,23 +75,23 @@ element publish {
 &lt;/publish&gt;
         </programlisting>
         <para>
-        The above config section instructs dimsbuild to publish the distribution it
+        The above config section instructs spin to publish the distribution it
         creates to '/var/www/html/software/custom_distros'.  Other computers can then
         access the distribution by navigating to 'http://www.example.com/software/custom_distros'
         </para>
       </refsection>
     </refsect2>
-    
+
     <!-- remote-webroot -->
     <refsect2>
       <title>&lt;remote-webroot&gt;</title>
       <para>
       The remote-webroot element indicates the URL address of the publishing
-      machine as seen from other computers that will allow them to access  
-      custom distributions published by the build machine. It contains no 
+      machine as seen from other computers that will allow them to access
+      custom distributions published by the build machine. It contains no
       directory information; merely the server portion of the url.  When
       combined with path-prefix, this forms a full URL to allow remote access to
-      dimsbuild-created distributions.
+      spin-created distributions.
       </para>
       <programlisting>
 element remote-webroot { text }
@@ -111,8 +111,8 @@ element remote-webroot { text }
       <refsection>
         <title>use-hostname</title>
         <para>optional; boolean value indicating whether the hostname (e.g.
-        machine1.example.org) should be used in place of the ipaddress 
-        (e.g. 10.10.0.28) for specifying the web address to the build machine; 
+        machine1.example.org) should be used in place of the ipaddress
+        (e.g. 10.10.0.28) for specifying the web address to the build machine;
         defaults to 'false'.
       </refsection>
       <refsection>
@@ -126,14 +126,14 @@ element remote-webroot { text }
 &lt;remote-webroot use-hostname="false"&gt;&lt;/remote-webroot&gt;
         </programlisting>
         <para>
-        In this example, the remote webroot would be calculated as 
+        In this example, the remote webroot would be calculated as
         "http://10.10.0.28"
         </para>
         <programlisting>
 &lt;remote-webroot use-hostname="true"&gt;&lt;/remote-webroot&gt;
         </programlisting>
         <para>
-        In this example, the remote webroot would be calculated as 
+        In this example, the remote webroot would be calculated as
         "http://machine1.example.org"
         </para>
         <programlisting>
@@ -141,13 +141,13 @@ element remote-webroot { text }
         </programlisting>
         <para>
         In this example, the resulting webroot is independent of the machine
-        used to build the distribution. It is calculated as 
+        used to build the distribution. It is calculated as
         "http://distros.example.org"
         </para>
       </refsection>
     </refsect2>
-    
 
-    
+
+
   </refentry>
 </docroot>

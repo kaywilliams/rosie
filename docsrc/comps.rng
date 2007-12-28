@@ -22,16 +22,16 @@ element comps {
         <title>Examples</title>
         <para>
         The following are two examples of comps elements.  The first instructs
-        dimsbuild to use an already-existing group file, /var/temp/comps.xml.
+        spin to use an already-existing group file, /var/temp/comps.xml.
         </para>
         <programlisting>
 &lt;comps&gt;/var/temp/comps.xml&lt;/comps&gt;
         </programlisting>
         <para>
         The second indicates that comps should generate a new file.  The group
-        file will have the 'core', 'base' and 'base-x' groups included. The 'core' 
-        group is included by default. The 'base-x' group must come from the 
-        repository with id 'fedora-6'.  Furthermore, the core group will include 
+        file will have the 'core', 'base' and 'base-x' groups included. The 'core'
+        group is included by default. The 'base-x' group must come from the
+        repository with id 'fedora-6'.  Furthermore, the core group will include
         the 'createrepo', 'httpd', and 'sudo' packages, and
         excludes the 'vim-minimal' package.
         </para>
@@ -59,11 +59,11 @@ element comps {
     <refsect2>
       <title>&lt;core&gt;</title>
       <para>
-      optional; core is a container for package and group elements.  It is used to 
-      determine packages to be added to the core group of the groupfile generated 
-      by the comps event. If a package is specified, it is added to the core element. 
+      optional; core is a container for package and group elements.  It is used to
+      determine packages to be added to the core group of the groupfile generated
+      by the comps event. If a package is specified, it is added to the core element.
       If a group is specified, packages listed within the group are added to the core
-      element. Anaconda installs packages in the core group by default in both 
+      element. Anaconda installs packages in the core group by default in both
       kickstart and non-kickstart installations.
       </para>
       <programlisting>
@@ -80,7 +80,7 @@ element groups {
         <title>See also</title>
         <para>comps, groups, exclude</para>
       </refsection>
-    </refsect2>    
+    </refsect2>
 
     <!-- group -->
     <refsect2>
@@ -128,7 +128,7 @@ element group {
         </para>
       </refsection>
     </refsect2>
-    
+
     <!-- groups -->
     <refsect2>
       <title>&lt;groups&gt;</title>
@@ -150,7 +150,7 @@ element groups {
         <para>comps</para>
       </refsection>
     </refsect2>
-    
+
     <!-- package -->
     <refsect2>
       <title>&lt;package&gt;</title>
@@ -170,7 +170,7 @@ element package {
         <refsection>
           <title>type</title>
           <para>
-          optional; one of 'conditional', 'default', 'optional', or 'mandatory'; 
+          optional; one of 'conditional', 'default', 'optional', or 'mandatory';
           controls the behavior of anaconda when installing packages onto the end
           user system; defaults to 'mandatory'
           </para>
@@ -200,6 +200,6 @@ element package {
         <para>See comps for an example of a package element</para>
       </refsection>
     </refsect2>
-     
+
   </refentry>
 </docroot>

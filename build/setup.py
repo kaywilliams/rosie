@@ -9,19 +9,19 @@ config = ConfigParser()
 config.read('setup.cfg')
 
 class Parser:
-    
+
     required = ['name', 'version', 'long_description', 'description',
                 'license', 'author', 'author_email', 'url']
     optional = ['maintainer', 'maintainer_email', 'package_dir',
                 'packages', 'scripts', 'py_modules', 'package_data',
                 'data_files', 'classifiers']
-    
+
     package_section = 'pkg_data'
-    
+
     def __init__(self):
         if not config.has_section(self.package_section):
             raise RuntimeError("pkg_data section with the name, version etc. not found")
-        
+
     def parse(self):
         attrs = {
             'cmdclass': {
@@ -29,7 +29,7 @@ class Parser:
                 'install': install,
             }
         }
-        
+
         for option in self.required:
             value = self._get_value(option, required=True)
             attrs[option] = value
@@ -38,16 +38,16 @@ class Parser:
             if value:
                 attrs[option] = value
         return attrs
-    
+
     def _get_value(self, option, required=False):
-        try:            
+        try:
             value = config.get(self.package_section, option)
             formatter = '_format_%s' %(option,)
             if hasattr(self, formatter):
                 method = getattr(self, formatter)
                 return method(value.strip())
             else:
-                return value            
+                return value
         except NoOptionError:
             if required:
                 raise
@@ -59,7 +59,7 @@ class Parser:
         # assumed that the writer went through the trouble of making
         # sure that there are at most 80 characters in a
         # line. Otherwise, the line is split at @param.width
-        # characters and returned.        
+        # characters and returned.
         if value.find('\n') != -1:
             return value
         else:
@@ -67,10 +67,10 @@ class Parser:
             lines = [ value[width*i:width*(i+1)] \
                       for i in xrange(int(math.ceil(1.*len(value)/width))) ]
             return '\n'.join(lines)
-    
-    def _format_data_files(self, value):        
+
+    def _format_data_files(self, value):
         return self._format_as_dict(value, multiple=True, aslist=True)
-    
+
     def _format_package_data(self, value):
         return self._format_as_dict(value, multiple=True)
 
@@ -115,7 +115,7 @@ class bdist_rpm(_bdist_rpm):
         ('config-files=', None, "files that will be added as configuration files"),
         ('doc-dirs=', None, "directories to be added as documentation directories"),
     ])
-    
+
     def initialize_options(self):
         _bdist_rpm.initialize_options(self)
         self.config_files = None
@@ -135,15 +135,15 @@ class bdist_rpm(_bdist_rpm):
         # fix BuildRoot tag
         self.__update(f, 'BuildRoot',
                       'BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)')
-        
+
         # get rid of vendor tag
         self.__update(f, 'Vendor', replacement=None)
 
         # make setup quiet
         self.__update(f, '%setup', replacement='%setup -q')
-        
+
         # make sure that the first thing done in the %install section
-        # is cleaning out the RPM_BUILD_ROOT        
+        # is cleaning out the RPM_BUILD_ROOT
         idx = f.index('%install')
         if f[idx+1] != 'rm -rf $RPM_BUILD_ROOT':
             f.insert(idx+1, 'rm -rf $RPM_BUILD_ROOT')
@@ -154,33 +154,33 @@ class bdist_rpm(_bdist_rpm):
 
         # distutils adds all the doc files on one line, rpmbuild fails
         # on it. If there are more than one doc files specified, break
-        # them up into individual lines.        
+        # them up into individual lines.
         if self.doc_files and len(self.doc_files) > 1:
             self.__modify_section(f, '%doc', '%doc', self.doc_files, remove=True)
 
         if self.doc_dirs:
             self.__modify_section(f, '%files', '%docdir', self.doc_dirs, offset=2)
-        
+
         return f
-                                 
+
     def __update(self, specfile, id, replacement=None):
         present = False
         for i,x in enumerate(specfile):
             if x.startswith(id): present = True; break
-            
+
         if present:
             specfile.pop(i)
             if replacement is not None: specfile.insert(i, replacement)
-    
+
     def __modify_section(self, specfile, tag, descriptive, value, remove=False, offset=0):
         for i,l in enumerate(specfile):
             if l.startswith(tag): break
         if remove: specfile.pop(i)
-        i += offset        
+        i += offset
         for x in value:
             specfile.insert(i, ''.join([descriptive, ' ', x]))
 
-            
+
 # A bug in distutils causes rpmbuild to fail if optimize is set to
 # False. This class takes care of that.  If this fix is not there,
 # rpmbuild dies.
@@ -191,19 +191,19 @@ class install(_install):
 
     def get_outputs (self):
         # Assemble the outputs of all the sub-commands.
-        
+
         # HACK ALERT: I have to do this because bdist_rpm is insanely
         # stupid about byte-compiled and optimized python code :(.
         try:
             config_files = self.distribution.get_option_dict('bdist_rpm')['config_files'][1].split()
         except KeyError:
             config_files = None
-            
-        outputs = []        
+
+        outputs = []
         for cmd_name in self.get_sub_commands():
             cmd = self.get_finalized_command(cmd_name)
             # Add the contents of cmd.get_outputs(), ensuring that
-            # outputs doesn't contain duplicate entries            
+            # outputs doesn't contain duplicate entries
             for filename in cmd.get_outputs():
                 if filename not in outputs:
                     outputs.append(filename)

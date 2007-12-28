@@ -8,29 +8,29 @@ import sys
 
 from optparse import OptionParser
 
-from dims import xmltree
+from rendition import xmltree
 
-from dims.CleanHelpFormatter import CleanHelpFormatter
-from dims.docbook            import GENERATORS, ManualGenerator, filterCmdArgs, getGenerator
+from rendition.CleanHelpFormatter import CleanHelpFormatter
+from rendition.docbook            import GENERATORS, ManualGenerator, filterCmdArgs, getGenerator
 
-class DbManualGenerator(ManualGenerator):
+class SpinManualGenerator(ManualGenerator):
   def __init__(self):
     ManualGenerator.__init__(self)
 
   def modify(self, tree):
     refentry = tree.get('/docbook/refentry', None)
-    if refentry is not None:      
+    if refentry is not None:
       config = xmltree.Element('refsect1', parent=refentry)
       title = xmltree.Element('title', parent=config, text='CONFIG ELEMENTS')
       xmltree.Element('para', parent=config,
         text='Detailed below is a comprehensive list of XML elements available '
-             'in the dimsbuild config file.')
+             'in the spin config file.')
       refsect2s = refentry.xpath('/docbook/refentry/refsect2', [])
       refsect2s.sort(lambda x,y: cmp(x.get('title/text()'), y.get('title/text()')))
       for refsect2 in refsect2s:
         refsect2.parent = config
         config.append(refsect2)
-  
+
 def main():
   # TODO: add support for generators besides manpages
   parser = OptionParser("%prog [OPTIONS]", formatter=CleanHelpFormatter(),
@@ -52,13 +52,13 @@ def main():
     sys.exit(1)
 
   opts,_ = parser.parse_args(args=preargs)
-  g = getGenerator(opts.what, newgenerators={'manpage': DbManualGenerator})()
+  g = getGenerator(opts.what, newgenerators={'manpage': SpinManualGenerator})()
 
-  # add the generator-specific options 
+  # add the generator-specific options
   g.addOptions(parser)
   options, args = parser.parse_args()
   g.applyOptions(options)
-  
+
   g.generate()
 
 if __name__ == '__main__':

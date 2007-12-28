@@ -1,6 +1,6 @@
 <docroot>
   <refentry>
-    
+
     <!-- gpg-public-key -->
     <refsect2>
       <title>&lt;gpg-public-key&gt;</title>
@@ -20,7 +20,7 @@ element gpg-public-key { text }
         <para>gpg-secret-key, gpg-passphrase</para>
       </refsection>
     </refsect2>
-    
+
     <!-- gpg-secret-key -->
     <refsect2>
       <title>&lt;gpg-secret-key&gt;</title>
@@ -40,13 +40,13 @@ element gpg-secret-key { text }
         <para>gpg-public-key, gpg-password</para>
       </refsection>
     </refsect2>
-    
+
     <!-- gpg-passphrase -->
     <refsect2>
       <title>&lt;gpg-passphrase&gt;</title>
       <para>
       Optional element for use by gpgsign in providing a passphrase to gpg when signing
-      RPMs.  If this element is not present, dimsbuild will prompt the user for the
+      RPMs.  If this element is not present, spin will prompt the user for the
       passphrase before continuing.  Note - use of this element is discouraged in most
       cases, as it stores your gpg passphrase in plaintext mode.
       </para>
@@ -58,7 +58,7 @@ element gpg-passphrase { text }
         <para>gpgsign</para>
       </refsection>
     </refsect2>
-    
+
     <!-- gpgsign -->
     <refsect2>
       <title>&lt;gpgsign&gt; (top level)</title>
@@ -98,7 +98,7 @@ element gpgsign {
       <refsection>
         <title>Examples</title>
         <para>
-        The following gpgsign element will cause dimsbuild to sign each RPM that is
+        The following gpgsign element will cause spin to sign each RPM that is
         included in the custom distribution it generates by utilizing the GPG keys
         that are specified in the public and secret elements.
         </para>
@@ -106,10 +106,10 @@ element gpgsign {
 &lt;gpgsign enabled='true'&gt;
   &lt;gpg-public-key&gt;/var/gpg/public-key-export&lt;/gpg-public-key&gt;
   &lt;gpg-secret-key&gt;/var/gpg/secret-key-export&lt;/gpg-secret-key&gt;
-&lt;/gpgsign&gt;        
+&lt;/gpgsign&gt;
         </programlisting>
       </refsection>
     </refsect2>
-    
+
   </refentry>
 </docroot>
