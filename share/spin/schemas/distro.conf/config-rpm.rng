@@ -1,0 +1,56 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+
+    <element name="distro">
+      <optional>
+      <element name="config-rpm">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+        <interleave>
+          <zeroOrMore>
+          <element name="script">
+            <optional>
+            <attribute name="dest"/>
+            </optional>
+            <optional>
+            <attribute name="mode">
+              <ref name="value-mode"/>
+            </attribute>
+            </optional>
+            <text/>
+          </element>
+          </zeroOrMore>
+          <zeroOrMore>
+          <element name="file">
+            <optional>
+            <attribute name="dest"/>
+            </optional>
+
+            <optional>
+            <attribute name="mode">
+              <ref name="value-mode"/>
+            </attribute>
+            </optional>
+
+            <optional>
+            <attribute name="noreplace">
+              <ref name="value-boolean"/>
+            </attribute>
+            </optional>
+
+             <text/>
+          </element>
+          </zeroOrMore>
+          <ref name="element-obsoletes"/>
+          <ref name="element-requires"/>
+        </interleave>
+      </element>
+      </optional>
+    </element>
+  </start>
+
+  <include href="rpms.rng"/>
+
+</grammar>

@@ -1,0 +1,29 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>    
+    <element name="distro">      
+      <optional>
+      <element name="diskboot-image">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+        
+        <interleave>
+        
+        <optional>
+        <ref name="element-boot-config"/>
+        </optional>
+        
+        <zeroOrMore>
+        <ref name="element-path-with-dest"/>
+        </zeroOrMore>
+        
+        </interleave>
+      </element>
+      </optional>
+      
+    </element>
+  </start>
+  
+  <include href="lib.rng"/>
+</grammar>

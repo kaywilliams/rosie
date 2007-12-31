@@ -1,0 +1,131 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <!-- a repo element -->
+  <define name="element-repo">
+    <element name="repo">
+      <ref name="attribute-id"/>
+
+      <element name="baseurl"><text/></element>
+
+      <interleave>
+
+        <optional>
+          <element name="includepkgs">
+            <oneOrMore>
+              <element name="package"><text/></element>
+            </oneOrMore>
+          </element>
+        </optional>
+
+        <optional>
+          <element name="exclude">
+            <oneOrMore>
+              <element name="package"><text/></element>
+            </oneOrMore>
+          </element>
+        </optional>
+
+        <optional>
+          <oneOrMore>
+            <element name="gpgkey"><text/></element>
+          </oneOrMore>
+        </optional>
+
+        <optional>
+          <element name="gpgcheck">
+            <ref name="value-boolean"/>
+          </element>
+        </optional>
+
+      </interleave>
+    </element>
+  </define>
+
+  <!-- boolean values -->
+  <define name="value-boolean">
+    <choice>
+      <ref name="value-boolean-true"/>
+      <ref name="value-boolean-false"/>
+    </choice>
+  </define>
+
+  <define name="value-boolean-with-default">
+    <choice>
+      <ref name="value-boolean-true"/>
+      <ref name="value-boolean-false"/>
+      <ref name="value-default"/>
+    </choice>
+  </define>
+
+  <define name="value-boolean-true">
+    <data type="token">
+      <param name="pattern">[Yy]es|[Tt]rue|[Oo]n|1</param>
+    </data>
+  </define>
+
+  <define name="value-boolean-false">
+    <data type="token">
+      <param name="pattern">[Nn]o|[Ff]alse|[Oo]ff|0</param>
+    </data>
+  </define>
+
+  <define name="value-default">
+    <data type="token">
+      <param name="pattern">[Dd]efault</param>
+    </data>
+  </define>
+
+  <define name="value-mode">
+    <data type="token">
+      <param name="pattern">[0-7][0-7][0-7]</param>
+    </data>
+  </define>
+
+  <define name="element-path">
+    <element name="path">
+      <optional>
+        <attribute name="mode">
+          <ref name="value-mode"/>
+        </attribute>
+      </optional>
+      <text/>
+    </element>
+  </define>
+
+  <define name="element-path-with-dest">
+    <element name="path">
+      <optional>
+        <attribute name="mode">
+          <ref name="value-mode"/>
+        </attribute>
+      </optional>
+      <optional><attribute name="dest"/></optional>
+      <text/>
+    </element>
+  </define>
+
+  <!-- id attribute -->
+  <define name="attribute-id">
+    <attribute name="id">
+      <data type="ID"/>
+    </attribute>
+  </define>
+  
+  <!-- boot-config element -->
+  <define name="element-boot-config">
+    <element name="boot-config">
+      <optional>
+      <attribute name="use-defaults">
+        <ref name="value-boolean"/>
+      </attribute>
+      </optional>
+      
+      <interleave>
+      <optional><element name="append-args"><text/></element></optional>
+      <optional><element name="file"><text/></element></optional>
+      </interleave>
+    </element>
+  </define>
+
+</grammar>

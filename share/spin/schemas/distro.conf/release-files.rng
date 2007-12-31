@@ -1,0 +1,35 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="distro">
+    
+      <optional>
+      <element name="release-files">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+
+        <optional>
+        <attribute name="use-default-set">
+          <ref name="value-boolean"/>
+        </attribute>
+        </optional>
+        
+        <interleave>
+        
+        <zeroOrMore>
+        <element name="path"><text/></element>
+        </zeroOrMore>
+        
+        <zeroOrMore>
+        <element name="package"><text/></element>
+        </zeroOrMore>
+        
+        </interleave>
+      </element>
+      </optional>
+    
+    </element>
+  </start>
+  <include href="lib.rng"/>
+</grammar>

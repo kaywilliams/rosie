@@ -1,0 +1,20 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="distro">
+      <optional>
+      <element name="initrd-image">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+
+        <oneOrMore>
+        <ref name="element-path-with-dest"/>
+        </oneOrMore>
+      </element>
+      </optional>
+    </element>
+  </start>
+  
+  <include href="lib.rng"/>
+</grammar>

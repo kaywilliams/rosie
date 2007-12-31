@@ -1,0 +1,17 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <define name="element-obsoletes">
+    <zeroOrMore>
+      <element name="obsoletes"><text/></element>
+    </zeroOrMore>
+  </define>
+
+  <define name="element-requires">
+    <zeroOrMore>
+      <element name="requires"><text/></element>
+    </zeroOrMore>
+  </define>
+
+  <include href="lib.rng"/>
+</grammar>
