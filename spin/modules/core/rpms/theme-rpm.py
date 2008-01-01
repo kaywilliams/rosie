@@ -54,7 +54,6 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
   def run(self):
     self.io.clean_eventcache(all=True)
     self._build_rpm()
-    self.DATA['output'].append(self.bdist_base)
     self.diff.write_metadata()
 
   def apply(self):
