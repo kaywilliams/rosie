@@ -91,7 +91,6 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
             '%s:%s' % (target2, script2)]
 
   def _get_gdm_install_trigger(self):
-    target = 'gdm'
     gdm_install_trigger = self.build_folder / 'gdm-install-trigger.sh'
     custom_conf  = '/%s' % self.custom_theme.relpathfrom(self.build_folder)
     gdm_install_trigger.write_lines([
@@ -102,31 +101,30 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
      '  %%{__cp} %s $CUSTOM_CONF' % custom_conf,
      'fi',
     ])
-    return target, gdm_install_trigger
+    return 'gdm', gdm_install_trigger
 
   def _get_gconf_install_trigger(self):
-    target = 'GConf2'
     gconf_install_trigger = self.build_folder / 'gconf-install-trigger.sh'
     gconf_install_trigger.write_lines([
       'conf_file=%{_sysconfdir}/gconf/gconf.xml.defaults/%gconf-tree.xml',
-      '%{__mv} $conf_file $conf_file.theme-save',
+      'if [ ! -e $conf_file.theme-save ]; then',
+      '  %{__cp} $conf_file $conf_file.theme-save',
+      'fi',
       'sed -i "s/\/usr\/share\/backgrounds\/images\/default.jpg/\/usr\/share\/backgrounds\/spin\/2-spin-day.png/g" $conf_file',
       'sed -i "s/\/usr\/share\/backgrounds\/infinity\/infinity.xml/\/usr\/share\/backgrounds\/spin\/spin.xml/g" $conf_file',
     ])
-    return target, gconf_install_trigger
+    return 'GConf2', gconf_install_trigger
 
   def _get_gdm_uninstall_trigger(self):
-    target = 'gdm'
     gdm_uninstall_trigger = self.build_folder / 'gdm-uninstall-trigger.sh'
     gdm_uninstall_trigger.write_lines([
       'rm -f %{_sysconfdir}/gdm/custom.conf.theme-save'
     ])
-    return target, gdm_uninstall_trigger
+    return 'gdm', gdm_uninstall_trigger
 
   def _get_gconf_uninstall_trigger(self):
-    trigger = 'GConf2'
     gconf_uninstall_trigger = self.build_folder / 'gconf-uninstall-trigger.sh'
     gconf_uninstall_trigger.write_lines([
       'rm -f %{_sysconfdir}/gconf/gconf.xml.defaults/%gconf-tree.xml.theme-save'
     ])
-    return trigger, gconf_uninstall_trigger
+    return 'GConf2', gconf_uninstall_trigger
