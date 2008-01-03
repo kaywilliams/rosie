@@ -80,13 +80,13 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
   def _get_triggerin(self):
     target1, script1 = self._get_gdm_install_trigger()
-    target2, script2 = self._get_gconf_install_trigger()
+    target2, script2 = self._get_background_install_trigger()
     return ['%s:%s' % (target1, script1),
             '%s:%s' % (target2, script2)]
 
-  def _get_triggerpostun(self):
+  def _get_triggerun(self):
     target1, script1 = self._get_gdm_uninstall_trigger()
-    target2, script2 = self._get_gconf_uninstall_trigger()
+    target2, script2 = self._get_background_uninstall_trigger()
     return ['%s:%s' % (target1, script1),
             '%s:%s' % (target2, script2)]
 
@@ -103,17 +103,29 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     ])
     return 'gdm', gdm_install_trigger
 
-  def _get_gconf_install_trigger(self):
-    gconf_install_trigger = self.build_folder / 'gconf-install-trigger.sh'
-    gconf_install_trigger.write_lines([
-      'conf_file=%{_sysconfdir}/gconf/gconf.xml.defaults/%gconf-tree.xml',
-      'if [ ! -e $conf_file.theme-save ]; then',
-      '  %{__cp} $conf_file $conf_file.theme-save',
-      'fi',
-      'sed -i "s/\/usr\/share\/backgrounds\/images\/default.jpg/\/usr\/share\/backgrounds\/spin\/2-spin-day.png/g" $conf_file',
-      'sed -i "s/\/usr\/share\/backgrounds\/infinity\/infinity.xml/\/usr\/share\/backgrounds\/spin\/spin.xml/g" $conf_file',
-    ])
-    return 'GConf2', gconf_install_trigger
+  def _get_background_install_trigger(self):
+    bg_install_trigger = self.build_folder / 'bg-install-trigger.sh'
+    lines = ['bg_folder=%{_datadir}/usr/share/backgrounds']
+    for file in ['default.jpg', 'default-5_4.jpg',
+                 'default-dual.jpg', 'default-wide.jpg']:
+      lines.extend([
+        'if [ ! -e $bg_folder/images/%s.theme-save ]; then' % file,
+        '  %%{__mv} $bg_folder/images/%s $bg_folder/images/%s.theme-save' % (file, file),
+        '  %%{__cp} $bg_folder/spin/2-spin-day.png $bg_folder/images/%s' % file,
+        'fi',
+      ])
+
+    for dir, xml in [('infinity', 'infinity.xml')]:
+      lines.extend([
+        'if [ -d $bg_folder/%s ]; then' % dir,
+        '  %%{__mv} $bg_folder/%s $bg_folder/%s.theme-save' % (dir, dir),
+        '  %%{__ln_s} $bg_folder/spin $bg_folder/%s' % dir,
+        '  %%{__ln_s} $bg_folder/spin/spin.xml $bg_folder/spin/%s' % xml,
+        'fi',
+      ])
+
+    bg_install_trigger.write_lines(lines)
+    return 'desktop-backgrounds-basic', bg_install_trigger
 
   def _get_gdm_uninstall_trigger(self):
     gdm_uninstall_trigger = self.build_folder / 'gdm-uninstall-trigger.sh'
@@ -122,9 +134,27 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
     ])
     return 'gdm', gdm_uninstall_trigger
 
-  def _get_gconf_uninstall_trigger(self):
-    gconf_uninstall_trigger = self.build_folder / 'gconf-uninstall-trigger.sh'
-    gconf_uninstall_trigger.write_lines([
-      'rm -f %{_sysconfdir}/gconf/gconf.xml.defaults/%gconf-tree.xml.theme-save'
-    ])
-    return 'GConf2', gconf_uninstall_trigger
+  def _get_background_uninstall_trigger(self):
+    bg_uninstall_trigger = self.build_folder / 'bg-uninstall-trigger.sh'
+    lines = ['bg_folder=%{_datadir}/usr/share/backgrounds']
+    for file in ['default.jpg', 'default-5_4.jpg',
+                 'default-dual.jpg', 'default-wide.jpg']:
+      lines.extend([
+        'if [ -e $bg_folder/images/%s.theme-save ]; then' % file,
+        '  %%{__rm} -f $bg_folder/images/%s' % file,
+        '  %%{__mv} $bg_folder/images/%s.theme-save $bg_folder/images/%s' % (file, file),
+        'fi',
+      ])
+
+    for dir, xml in [('infinity', 'infinity.xml')]:
+      lines.extend([
+        'if [ -d $bg_folder/%s.theme-save ]; then' % dir,
+        '  %%{__rm} -f $bg_folder/images/%s' % dir,
+        '  %%{__rm} -f $bg_folder/spin/%s' % xml,
+        '  %%{__mv} $bg_folder/%s.theme-save $bg_folder/%s' % (dir, dir),
+        'fi',
+      ])
+
+    bg_uninstall_trigger.write_lines(lines)
+    return 'desktop-backgrounds-basic', bg_uninstall_trigger
+
