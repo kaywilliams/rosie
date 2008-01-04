@@ -105,11 +105,11 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
   def _get_background_install_trigger(self):
     bg_install_trigger = self.build_folder / 'bg-install-trigger.sh'
-    lines = ['bg_folder=%{_datadir}/usr/share/backgrounds']
-    for file in ['default.jpg', 'default-5_4.jpg',
-                 'default-dual.jpg', 'default-wide.jpg']:
+    lines = ['bg_folder=%{_datadir}/backgrounds']
+    for file in ['default.jpg', 'default.png',
+                 'default-5_4.png', 'default-wide.png']:
       lines.extend([
-        'if [ ! -e $bg_folder/images/%s.theme-save ]; then' % file,
+        'if [ ! -e $bg_folder/images/%s.theme-save -a -e $bg_folder/images/%s ]; then' % (file, file),
         '  %%{__mv} $bg_folder/images/%s $bg_folder/images/%s.theme-save' % (file, file),
         '  %%{__cp} $bg_folder/spin/2-spin-day.png $bg_folder/images/%s' % file,
         'fi',
@@ -117,7 +117,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
     for dir, xml in [('infinity', 'infinity.xml')]:
       lines.extend([
-        'if [ -d $bg_folder/%s ]; then' % dir,
+        'if [ -d $bg_folder/%s -a ! -d $bg_folder/%s.theme-save ]; then' % (dir, dir),
         '  %%{__mv} $bg_folder/%s $bg_folder/%s.theme-save' % (dir, dir),
         '  %%{__ln_s} $bg_folder/spin $bg_folder/%s' % dir,
         '  %%{__ln_s} $bg_folder/spin/spin.xml $bg_folder/spin/%s' % xml,
@@ -136,20 +136,18 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
   def _get_background_uninstall_trigger(self):
     bg_uninstall_trigger = self.build_folder / 'bg-uninstall-trigger.sh'
-    lines = ['bg_folder=%{_datadir}/usr/share/backgrounds']
-    for file in ['default.jpg', 'default-5_4.jpg',
-                 'default-dual.jpg', 'default-wide.jpg']:
+    lines = ['bg_folder=%{_datadir}/backgrounds']
+    for file in ['default.jpg', 'default.png',
+                 'default-5_4.png', 'default-wide.png']:
       lines.extend([
-        'if [ -e $bg_folder/images/%s.theme-save ]; then' % file,
-        '  %%{__rm} -f $bg_folder/images/%s' % file,
-        '  %%{__mv} $bg_folder/images/%s.theme-save $bg_folder/images/%s' % (file, file),
-        'fi',
+        '%%{__rm} -f $bg_folder/images/%s' % file,
+        '%%{__mv} $bg_folder/images/%s.theme-save $bg_folder/images/%s' % (file, file),
       ])
 
     for dir, xml in [('infinity', 'infinity.xml')]:
       lines.extend([
         'if [ -d $bg_folder/%s.theme-save ]; then' % dir,
-        '  %%{__rm} -f $bg_folder/images/%s' % dir,
+        '  %%{__rm} -f $bg_folder/%s' % dir,
         '  %%{__rm} -f $bg_folder/spin/%s' % xml,
         '  %%{__mv} $bg_folder/%s.theme-save $bg_folder/%s' % (dir, dir),
         'fi',
