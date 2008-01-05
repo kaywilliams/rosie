@@ -10,7 +10,15 @@ from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 from spin.logging   import L1
 
-__all__ = ['InputFilesMixin', 'RpmBuildMixin']
+try:
+  import Image
+  import ImageColor
+  import ImageDraw
+  import ImageFont
+except ImportError:
+  raise ImportError("missing 'python-imaging' module")
+
+__all__ = ['InputFilesMixin', 'RpmBuildMixin', 'ImagesCreator']
 
 P = pps.Path
 
@@ -302,25 +310,141 @@ class RpmBuildMixin:
     if doc_files:
       spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))
 
+
+class ImagesCreator(object):
+  def __init__(self):
+    pass
+
+  def copy_images(self, shared_dir):
+    found = False
+    for path in self.SHARE_DIRS:
+      logos_dir = path / 'logos'
+      if logos_dir.exists():
+        found = True
+        for src in logos_dir.findpaths(type=pps.constants.TYPE_NOT_DIR):
+          dst = self.build_folder / src.relpathfrom(logos_dir)
+          dst.dirname.mkdirs()
+          self.link(src, dst.dirname)
+    if not found:
+      raise RuntimeError("Unable to file %s/ directory in share path(s) '%s'" % \
+                         (shared_dir, self.SHARE_DIRS))
+
+  def create_images(self, image_locals):
+    self._set_colors()
+    for file_name, properties in image_locals.items():
+      output_locations = properties.get('output_locations', [file_name])
+      for location in output_locations:
+        self._create_image(self.build_folder // location,
+                           properties['width'],
+                           properties['height'],
+                           properties.get('start_color', self.start_color),
+                           properties.get('end_color', self.end_color),
+                           properties['format'],
+                           strings=properties.get('strings', None))
+
+  def _create_image(self, file_name, width, height,
+                    start_color, end_color, format, strings=None):
+    # start and end heights of trapezoid from the bottom of the image
+    trap_end = height/4
+    trap_start = height/5
+
+    img = Image.new('RGB', (width, height), 'white')
+    draw = ImageDraw.Draw(img)
+
+    # 1. draw the vertical gradient
+    start_r, start_g, start_b = ImageColor.getrgb(start_color)
+    end_r, end_g, end_b = ImageColor.getrgb(end_color)
+    dr = (end_r - start_r)/float(width)
+    dg = (end_g - start_g)/float(width)
+    db = (end_b - start_b)/float(width)
+    r, g, b = start_r, start_g, start_b
+
+    for i in xrange(width):
+        draw.line((i, 0, i, height), fill=(int(r), int(g), int(b)))
+        r, g, b = r+dr, g+dg, b+db
+
+    # 2. draw the trapezoid at the bottom
+    draw.polygon((0, height-trap_start,
+                  width, height-trap_end,
+                  width, height,
+                  0, height),
+                 fill=end_color)
+
+    if strings:
+      for i in strings:
+        text_string    = i.get('text', '') % self.cvars['base-vars']
+        halign         = i.get('halign', 'center')
+        text_coords    = i.get('text_coords', (img.size[0]/2, img.size[1]/2))
+        text_max_width = i.get('text_max_width', img.size[0])
+        font_color     = i.get('font_color', 'black')
+        font_size      = i.get('font_size', 52)
+        font_size_min  = i.get('font_size_min', None)
+        font_path      = self._get_font_path(i.get('font',
+                                                   'DejaVuLGCSans.ttf'))
+        draw, handler = ImageDraw.getdraw(img)
+        while True:
+          font = handler.Font(font_color, font_path, size=font_size)
+          w, h = draw.textsize(text_string, font)
+          if w <= (text_max_width or im.size[0]):
+            break
+          else:
+            font_size -= 1
+          if font_size < (font_size_min or font_size):
+            break
+
+        if halign == 'center':
+          draw.text((text_coords[0]-(w/2), text_coords[1]-(h/2)),
+                    text_string, font)
+        elif halign == 'right':
+          draw.text((text_coords[0]-w, text_coords[1]-(h/2)),
+                    text_string, font)
+
+    file_name.dirname.mkdirs()
+    img.save(file_name, format=format)
+
+  def _set_colors(self):
+    source_name = self.cvars['source-vars']['fullname']
+    source_version = self.cvars['source-vars']['version']
+    try:
+      self.start_color = IMAGE_COLORS[source_name][source_version][0]
+      self.end_color = IMAGE_COLORS[source_name][source_version][2]
+    except:
+      self.start_color = IMAGE_COLORS['*']['0'][0]
+      self.end_color = IMAGE_COLORS['*']['0'][2]
+
+  def _get_font_path(self, font):
+    """
+    Given a font file name, returns the full path to the font located in one
+    of the share directories
+    """
+    for path in self.SHARE_DIRS:
+      available_fonts = (path/'fonts').findpaths(glob=font)
+      if available_fonts:
+        font_path = available_fonts[0]; break
+      if not font_path:
+        raise RuntimeError("Unable to find font file '%s' in share path(s) "
+                           "'%s'" %  font_path, self.SHARE_DIRS)
+    return font_path
+
 #---------- GLOBAL VARIABLES --------#
 # each element for a distro's version, e.g. redhat/5, is a 3-tuple:
 # (background color, font color, highlight color). To add an entry,
 # look at the rhgb SRPM and copy the values from splash.c.
 IMAGE_COLORS = {
   'CentOS': {
-    '5.0': ('0x215593', '0xffffff', '0x1e518c'),
+    '5.0': ('#215593', '#ffffff', '#1e518c'),
   },
   'Fedora Core': {
-    '6': ('0x00254d', '0xffffff', '0x002044'),
+    '6': ('#00254d', '#ffffff', '#002044'),
   },
   'Fedora': {
-    '7': ('0x001b52', '0xffffff', '0x1c2959'),
-    '8': ('0x204b69', '0xffffff', '0x466e92'),
+    '7': ('#001b52', '#ffffff', '#1c2959'),
+    '8': ('#204b69', '#ffffff', '#466e92'),
   },
   'Red Hat Enterprise Linux Server': {
-    '5': ('0x781e1d', '0xffffff', '0x581715'),
+    '5': ('#781e1d', '#ffffff', '#581715'),
   },
   '*': {
-    '0': ('0x00254d', '0xffffff', '0x002044'),
+    '0': ('#00254d', '#ffffff', '#002044'),
   }
 }

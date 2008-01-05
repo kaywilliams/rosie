@@ -2,7 +2,7 @@ from rendition import pps
 
 from spin.event import Event
 
-from spin.modules.shared import RpmBuildMixin
+from spin.modules.shared import RpmBuildMixin, ImagesCreator
 
 P = pps.Path
 
@@ -10,7 +10,7 @@ API_VERSION = 5.0
 
 EVENTS = {'rpms': ['ThemeRpmEvent']}
 
-class ThemeRpmEvent(Event, RpmBuildMixin):
+class ThemeRpmEvent(Event, RpmBuildMixin, ImagesCreator):
   def __init__(self):
     self.themename = self.config.get('theme/text()', 'Spin')
 
@@ -28,6 +28,8 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
       default_requires = ['coreutils']
     )
 
+    ImagesCreator.__init__(self)
+
     self.DATA = {
       'variables': ['product', 'pva', 'rpm_release'],
       'config':    ['.'],
@@ -39,17 +41,6 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
 
   def setup(self):
     self._setup_build()
-
-    # find the themes/ directory to use
-    ## TODO - make this a shared function that both logos and themes rpms use
-    self.theme_dir = None
-    for path in self.SHARE_DIRS:
-      theme_dir = path / 'theme'
-      if theme_dir.exists():
-        self.theme_dir = theme_dir
-    if self.theme_dir is None:
-      raise RuntimeError("Unable to find themes/ directory in share path(s) '%s'" % \
-                         self.SHARE_DIRS)
 
   def run(self):
     self.io.clean_eventcache(all=True)
@@ -66,11 +57,8 @@ class ThemeRpmEvent(Event, RpmBuildMixin):
   def _generate(self):
     RpmBuildMixin._generate(self)
     self._generate_custom_theme()
-    for image_file in self.theme_dir.findpaths(type=pps.constants.TYPE_NOT_DIR):
-      relpath = image_file.relpathfrom(self.theme_dir)
-      dest = self.build_folder / relpath
-      dest.dirname.mkdirs()
-      self.link(image_file, dest.dirname)
+    self.create_images(self.locals.theme_files)
+    self.copy_images('theme')
 
   def _generate_custom_theme(self):
     self.custom_theme.dirname.mkdirs()
