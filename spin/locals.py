@@ -448,27 +448,27 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
         )
       ]
     ),
-    '/usr/share/apps/ksplash/Themes/FedoraInfinity/Preview.png': dict(
+    '/usr/share/apps/ksplash/Themes/Spin/Preview.png': dict(
       height = 332,
       width  = 399,
       format = 'PNG',
     ),
-    '/usr/share/apps/ksplash/Themes/FedoraInfinity/splash_active_bar.png': dict(
+    '/usr/share/apps/ksplash/Themes/Spin/splash_active_bar.png': dict(
       height = 64,
       width  = 400,
       format = 'PNG',
     ),
-    '/usr/share/apps/ksplash/Themes/FedoraInfinity/splash_bottom.png': dict(
+    '/usr/share/apps/ksplash/Themes/Spin/splash_bottom.png': dict(
       height = 19,
       width  = 400,
       format = 'PNG',
     ),
-    '/usr/share/apps/ksplash/Themes/FedoraInfinity/splash_inactive_bar.png': dict(
+    '/usr/share/apps/ksplash/Themes/Spin/splash_inactive_bar.png': dict(
       height = 64,
       width  = 400,
       format = 'PNG',
     ),
-    '/usr/share/apps/ksplash/Themes/FedoraInfinity/splash_top.png': dict(
+    '/usr/share/apps/ksplash/Themes/Spin/splash_top.png': dict(
       height = 248,
       width  = 400,
       format = 'PNG',
