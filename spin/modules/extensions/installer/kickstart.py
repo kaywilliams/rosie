@@ -9,6 +9,7 @@ class KickstartEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'kickstart',
+      version = 1,
       provides = ['kickstart-file', 'ks-path', 'initrd-image-content'],
     )
 
