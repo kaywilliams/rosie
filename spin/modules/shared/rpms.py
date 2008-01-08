@@ -326,12 +326,23 @@ class ImagesCreator(object):
     if not found:
       raise RuntimeError("Unable to find %s/ directory in share path(s) '%s'" % \
                          (shared_dir, self.SHARE_DIRS))
+    fullname = self.cvars['source-vars']['fullname']
+    version = self.cvars['source-vars']['version']
     try:
-      fullname = self.cvars['source-vars']['fullname']
-      version = self.cvars['source-vars']['version']
       self.hue_diff = HUE_DIFF[fullname][version]
     except KeyError:
-      self.hue_diff = HUE_DIFF['*']['0']
+      # See if the version of the input distribution is a bugfix
+      # version, and if it is, use the hue difference for the main
+      # release.
+      found = False
+      if HUE_DIFF.has_key(fullname):
+        for ver in HUE_DIFF[fullname]:
+          if version.startswith(ver):
+            found = True
+            self.hue_diff = HUE_DIFF[fullname][ver]
+            break
+      if not found:
+        self.hue_diff = HUE_DIFF['*']['0']
     self.base_image = self._create_base_image()
 
   def _copy_static_images(self):
@@ -441,7 +452,7 @@ class ImagesCreator(object):
 # hue of the base image in the shared folder.
 HUE_DIFF = {
   'CentOS': {
-    '5.0': 210,
+    '5': 210,
   },
   'Fedora Core': {
     '6': 200,
