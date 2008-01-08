@@ -312,7 +312,7 @@ RELEASE_HTML = LocalsDict({
 
 THEME_RPM_FILES_LOCALS = LocalsDict({
   '0': {
-    '/usr/share/apps/kdm/themes/spin/background.png': dict(
+    '/usr/share/apps/kdm/themes/Spin/background.png': dict(
       height = 1600,
       width  = 2560,
       format = 'PNG',
