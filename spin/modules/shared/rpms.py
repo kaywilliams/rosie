@@ -1,5 +1,6 @@
 from ConfigParser import ConfigParser
 
+import colorsys
 import re
 
 from rendition import mkrpm
@@ -315,60 +316,45 @@ class ImagesCreator(object):
   def __init__(self):
     pass
 
-  def copy_images(self, shared_dir):
+  def _setup_image_creation(self, shared_dir):
     found = False
     for path in self.SHARE_DIRS:
-      logos_dir = path / 'logos'
-      if logos_dir.exists():
+      self.images_dir = path / shared_dir
+      if self.images_dir.exists():
         found = True
-        for src in logos_dir.findpaths(type=pps.constants.TYPE_NOT_DIR):
-          dst = self.build_folder / src.relpathfrom(logos_dir)
-          dst.dirname.mkdirs()
-          self.link(src, dst.dirname)
+        break
     if not found:
-      raise RuntimeError("Unable to file %s/ directory in share path(s) '%s'" % \
+      raise RuntimeError("Unable to find %s/ directory in share path(s) '%s'" % \
                          (shared_dir, self.SHARE_DIRS))
+    try:
+      fullname = self.cvars['source-vars']['fullname']
+      version = self.cvars['source-vars']['version']
+      self.hue_diff = HUE_DIFF[fullname][version]
+    except KeyError:
+      self.hue_diff = HUE_DIFF[fullname][version]
+    self.base_image = self._create_base_image()
 
-  def create_images(self, image_locals):
-    self._set_colors()
+  def _copy_static_images(self):
+    for src in self.images_dir.findpaths(type=pps.constants.TYPE_NOT_DIR):
+      if src == self.images_dir / 'baseimage.jpg':
+        ## HACK: have to not copy 'baseimage.jpg'; find a better way
+        continue
+      dst = self.build_folder / src.relpathfrom(self.images_dir)
+      dst.dirname.mkdirs()
+      self.link(src, dst.dirname)
+
+  def _create_dynamic_images(self, image_locals):
     for file_name, properties in image_locals.items():
       output_locations = properties.get('output_locations', [file_name])
       for location in output_locations:
         self._create_image(self.build_folder // location,
                            properties['width'],
                            properties['height'],
-                           properties.get('start_color', self.start_color),
-                           properties.get('end_color', self.end_color),
                            properties['format'],
                            strings=properties.get('strings', None))
 
-  def _create_image(self, file_name, width, height,
-                    start_color, end_color, format, strings=None):
-    # start and end heights of trapezoid from the bottom of the image
-    trap_end = height/4
-    trap_start = height/5
-
-    img = Image.new('RGB', (width, height), 'white')
-    draw = ImageDraw.Draw(img)
-
-    # 1. draw the vertical gradient
-    start_r, start_g, start_b = ImageColor.getrgb(start_color)
-    end_r, end_g, end_b = ImageColor.getrgb(end_color)
-    dr = (end_r - start_r)/float(width)
-    dg = (end_g - start_g)/float(width)
-    db = (end_b - start_b)/float(width)
-    r, g, b = start_r, start_g, start_b
-
-    for i in xrange(width):
-        draw.line((i, 0, i, height), fill=(int(r), int(g), int(b)))
-        r, g, b = r+dr, g+dg, b+db
-
-    # 2. draw the trapezoid at the bottom
-    draw.polygon((0, height-trap_start,
-                  width, height-trap_end,
-                  width, height,
-                  0, height),
-                 fill=end_color)
+  def _create_image(self, file_name, width, height, format, strings=None):
+    img = self.base_image.resize((width, height))
 
     if strings:
       for i in strings:
@@ -402,16 +388,6 @@ class ImagesCreator(object):
     file_name.dirname.mkdirs()
     img.save(file_name, format=format)
 
-  def _set_colors(self):
-    source_name = self.cvars['source-vars']['fullname']
-    source_version = self.cvars['source-vars']['version']
-    try:
-      self.start_color = IMAGE_COLORS[source_name][source_version][0]
-      self.end_color = IMAGE_COLORS[source_name][source_version][2]
-    except:
-      self.start_color = IMAGE_COLORS['*']['0'][0]
-      self.end_color = IMAGE_COLORS['*']['0'][2]
-
   def _get_font_path(self, font):
     """
     Given a font file name, returns the full path to the font located in one
@@ -426,25 +402,58 @@ class ImagesCreator(object):
                            "'%s'" %  font_path, self.SHARE_DIRS)
     return font_path
 
+  def _create_base_image(self):
+    input_image = self.images_dir / 'baseimage.jpg'
+
+    img = Image.open(input_image)
+    imo = Image.new('RGB', img.size)
+
+    rgb_to_hsv_mapping = {}
+    hsv_to_rgb_mapping = {}
+
+    input = img.getdata()
+    output = []
+    for rgb in input:
+        if not rgb_to_hsv_mapping.has_key(rgb):
+            rgb_to_hsv_mapping[rgb] = self._rgb_to_hsv(*rgb)
+
+    for hsv in rgb_to_hsv_mapping.values():
+        h, s, v = hsv
+        h = ((h*360 + self.hue_diff) % 360) / 360.
+        hsv_to_rgb_mapping[hsv] = self._hsv_to_rgb(h, s, v)
+
+    for rgb in input:
+        hsv = rgb_to_hsv_mapping[rgb]
+        rgb = hsv_to_rgb_mapping[hsv]
+        output.append(rgb)
+    imo.putdata(output)
+    return imo
+
+  def _rgb_to_hsv(self, r, g, b):
+    return colorsys.rgb_to_hsv(r/255., g/255., b/255.)
+
+  def _hsv_to_rgb(self, h, s, v):
+    r, g, b = colorsys.hsv_to_rgb(h, s, v)
+    return int(r*255), int(g*255), int(b*255)
+
 #---------- GLOBAL VARIABLES --------#
-# each element for a distro's version, e.g. redhat/5, is a 3-tuple:
-# (background color, font color, highlight color). To add an entry,
-# look at the rhgb SRPM and copy the values from splash.c.
-IMAGE_COLORS = {
+# each element for a distro's version, e.g. redhat/5, maps to the difference to the
+# hue of the base image in the shared folder.
+HUE_DIFF = {
   'CentOS': {
-    '5.0': ('#215593', '#ffffff', '#1e518c'),
+    '5.0': 210,
   },
   'Fedora Core': {
-    '6': ('#00254d', '#ffffff', '#002044'),
+    '6': 200,
   },
   'Fedora': {
-    '7': ('#001b52', '#ffffff', '#1c2959'),
-    '8': ('#204b69', '#ffffff', '#466e92'),
+    '7': 220,
+    '8': 210,
   },
   'Red Hat Enterprise Linux Server': {
-    '5': ('#781e1d', '#ffffff', '#581715'),
+    '5': 0,
   },
   '*': {
-    '0': ('#00254d', '#ffffff', '#002044'),
+    '0': 0,
   }
 }
