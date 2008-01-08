@@ -331,7 +331,7 @@ class ImagesCreator(object):
       version = self.cvars['source-vars']['version']
       self.hue_diff = HUE_DIFF[fullname][version]
     except KeyError:
-      self.hue_diff = HUE_DIFF[fullname][version]
+      self.hue_diff = HUE_DIFF['*']['0']
     self.base_image = self._create_base_image()
 
   def _copy_static_images(self):
