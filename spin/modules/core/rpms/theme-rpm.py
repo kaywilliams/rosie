@@ -143,4 +143,3 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesCreator):
 
     bg_uninstall_trigger.write_lines(lines)
     return 'desktop-backgrounds-basic', bg_uninstall_trigger
-

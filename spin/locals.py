@@ -373,14 +373,36 @@ THEME_RPM_FILES_LOCALS = LocalsDict({
 LOGOS_RPM_FILES_LOCALS = LocalsDict({
   '0': {
     '/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg': dict(
-      start_color = 'black',
-      end_color = 'black',
       height = 480,
       width  = 640,
       format = 'PNG',
       output_locations = [
         '/usr/lib/anaconda-runtime/boot/syslinux-splash.png',
         '/usr/share/anaconda/pixmaps/syslinux-splash.png'
+      ],
+      strings = [
+        dict(
+          text = '%(fullname)s',
+          font = 'DejaVuLGCSans-Bold.ttf',
+          font_size = 14,
+          font_size_min = 8,
+          font_color = 'white',
+          text_coords = (570, 440),
+          text_max_width = 140,
+        ),
+        dict(
+          text = 'Version %(version)s',
+          halign = 'right',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (590, 455),
+        ),
+        dict(
+          text = '%(copyright)s',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (320, 470),
+        )
       ]
     ),
     '/usr/share/anaconda/pixmaps/anaconda_header.png': dict(
@@ -394,15 +416,15 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
           font_size = 18,
           font_size_min = 8,
           font_color = 'white',
-          text_coords = (138, 22),
-          text_max_width = 230
+          text_coords = (400, 38),
+          text_max_width = 700
         ),
         dict(
           text = 'Version %(version)s',
           halign = 'right',
           font_size = 9,
           font_color = 'white',
-          text_coords = (255, 52),
+          text_coords = (720, 65),
         )
       ]
     ),
@@ -412,11 +434,26 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       format = 'PNG',
       strings = [
         dict(
-          text = '%(copyright)s',
-          font = 'DejaVuLGCSans-ExtraLight.ttf',
-          font_size = 9,
+          text = '%(fullname)s',
+          font = 'DejaVuLGCSans-Bold.ttf',
+          font_size = 14,
+          font_size_min = 8,
           font_color = 'white',
-          text_coords = (170, 215),
+          text_coords = (280, 185),
+          text_max_width = 140,
+        ),
+        dict(
+          text = 'Version %(version)s',
+          halign = 'right',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (300, 200),
+        ),
+        dict(
+          text = '%(copyright)s',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (175, 215),
         )
       ]
     ),
@@ -426,11 +463,26 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       format = 'PNG',
       strings = [
         dict(
-          text = '%(copyright)s',
-          font = 'DejaVuLGCSans-ExtraLight.ttf',
-          font_size = 9,
+          text = '%(fullname)s',
+          font = 'DejaVuLGCSans-Bold.ttf',
+          font_size = 18,
+          font_size_min = 8,
           font_color = 'white',
-          text_coords = (170, 215),
+          text_coords = (400, 265),
+          text_max_width = 140,
+        ),
+        dict(
+          text = 'Version %(version)s',
+          halign = 'right',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (420, 280),
+        ),
+        dict(
+          text = '%(copyright)s',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (250, 315),
         )
       ]
     ),
@@ -440,11 +492,26 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       format = 'PNG',
       strings = [
         dict(
-          text= '%(copyright)s',
-          font = 'DejaVuLGCSans-ExtraLight.ttf',
-          font_size = 9,
+          text = '%(fullname)s',
+          font = 'DejaVuLGCSans-Bold.ttf',
+          font_size = 18,
+          font_size_min = 8,
           font_color = 'white',
-          text_coords = (250, 280),
+          text_coords = (400, 265),
+          text_max_width = 140,
+        ),
+        dict(
+          text = 'Version %(version)s',
+          halign = 'right',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (420, 280),
+        ),
+        dict(
+          text = '%(copyright)s',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (250, 315),
         )
       ]
     ),
@@ -452,6 +519,30 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       height = 332,
       width  = 399,
       format = 'PNG',
+      strings = [
+        dict(
+          text = '%(fullname)s',
+          font = 'DejaVuLGCSans-Bold.ttf',
+          font_size = 14,
+          font_size_min = 8,
+          font_color = 'white',
+          text_coords = (329, 292),
+          text_max_width = 140,
+        ),
+        dict(
+          text = 'Version %(version)s',
+          halign = 'right',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (349, 307),
+        ),
+        dict(
+          text = '%(copyright)s',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (200, 322),
+        )
+      ]
     ),
     '/usr/share/apps/ksplash/Themes/Spin/splash_active_bar.png': dict(
       height = 64,
@@ -472,6 +563,30 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       height = 248,
       width  = 400,
       format = 'PNG',
+      strings = [
+        dict(
+          text = '%(fullname)s',
+          font = 'DejaVuLGCSans-Bold.ttf',
+          font_size = 14,
+          font_size_min = 8,
+          font_color = 'white',
+          text_coords = (330, 208),
+          text_max_width = 140,
+        ),
+        dict(
+          text = 'Version %(version)s',
+          halign = 'right',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (350, 223),
+        ),
+        dict(
+          text = '%(copyright)s',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (200, 238),
+        )
+      ]
     ),
     '/usr/share/firstboot/pixmaps/firstboot-left.png': dict(
       height = 600,
@@ -482,6 +597,30 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       height = 259,
       width  = 364,
       format = 'PNG',
+      strings = [
+        dict(
+          text = '%(fullname)s',
+          font = 'DejaVuLGCSans-Bold.ttf',
+          font_size = 14,
+          font_size_min = 8,
+          font_color = 'white',
+          text_coords = (294, 219),
+          text_max_width = 140,
+        ),
+        dict(
+          text = 'Version %(version)s',
+          halign = 'right',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (314, 234),
+        ),
+        dict(
+          text = '%(copyright)s',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (182, 249),
+        )
+      ]
     ),
     '/usr/share/pixmaps/poweredby.png': dict(
       height = 31,
@@ -492,11 +631,88 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       height = 293,
       width  = 420,
       format = 'PNG',
+      strings = [
+        dict(
+          text = '%(fullname)s',
+          font = 'DejaVuLGCSans-Bold.ttf',
+          font_size = 14,
+          font_size_min = 8,
+          font_color = 'white',
+          text_coords = (350, 253),
+          text_max_width = 140,
+        ),
+        dict(
+          text = 'Version %(version)s',
+          halign = 'right',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (370, 268),
+        ),
+        dict(
+          text = '%(copyright)s',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (210, 283),
+        )
+      ]
     ),
     '/usr/share/rhgb/main-logo.png': dict(
       height = 399,
       width  = 799,
       format = 'PNG',
+      strings = [
+        dict(
+          text = '%(fullname)s',
+          font = 'DejaVuLGCSans-Bold.ttf',
+          font_size = 14,
+          font_size_min = 8,
+          font_color = 'white',
+          text_coords = (729, 359),
+          text_max_width = 140,
+        ),
+        dict(
+          text = 'Version %(version)s',
+          halign = 'right',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (749, 374),
+        ),
+        dict(
+          text = '%(copyright)s',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (400, 389),
+        )
+      ]
+    ),
+    '/boot/grub/grub-splash.png': dict(
+      height = 480,
+      width  = 640,
+      format = 'PNG',
+      strings = [
+        dict(
+          text = '%(fullname)s',
+          font = 'DejaVuLGCSans-Bold.ttf',
+          font_size = 14,
+          font_size_min = 8,
+          font_color = 'white',
+          text_coords = (570, 440),
+          text_max_width = 140,
+        ),
+        dict(
+          text = 'Version %(version)s',
+          halign = 'right',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (590, 455),
+        ),
+        dict(
+          text = '%(copyright)s',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (320, 470),
+        )
+      ]
     ),
   },
   '11.2.0.66-1': {
@@ -504,6 +720,7 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       height = 480,
       width  = 640,
       format = 'JPEG',
+      output_locations = ['/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg']
     )
   },
   '11.3.0.36-1': {
@@ -511,8 +728,9 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       height = 480,
       width  = 640,
       format = 'PNG',
+      output_locations = ['/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg']
     )
-  }
+  },
 })
 
 GDM_CUSTOM_THEME = LocalsDict({
