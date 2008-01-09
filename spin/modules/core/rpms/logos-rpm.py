@@ -1,3 +1,6 @@
+import gzip
+
+from rendition import shlib
 from rendition import pps
 
 from spin.event import Event
@@ -44,16 +47,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
     provides = [ 'system-logos %s %s' % (e,v)
                  for _,e,v in self.cvars.get('logos-versions', [])]
     self._setup_build(obsoletes=obsoletes, provides=provides)
-
-    # find the logos/ directory to use
-    self.logos_dir = None
-    for path in self.SHARE_DIRS:
-      logos_dir = path / 'logos'
-      if logos_dir.exists():
-        self.logos_dir = logos_dir
-    if self.logos_dir is None:
-      raise RuntimeError("Unable to find logos/ directory in share path(s) '%s'" % \
-                         self.SHARE_DIRS)
+    self._setup_image_creation('logos')
 
   def run(self):
     self.io.clean_eventcache(all=True)
@@ -69,43 +63,20 @@ class LogosRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
 
   def _generate(self):
     RpmBuildMixin._generate(self)
-    self.create_images(self.locals.logos_files)
-    self.copy_images('logos')
+    self._create_dynamic_images(self.locals.logos_files)
+    self._copy_static_images()
+    self._create_grub_splash_xpm()
 
-  def _get_font_path(self, font):
-    """
-    Given a font file name, returns the full path to the font located in one
-    of the share directories
-    """
-    for path in self.SHARE_DIRS:
-      available_fonts = (path/'fonts').findpaths(glob=font)
-      if available_fonts:
-        font_path = available_fonts[0]; break
-      if not font_path:
-        raise RuntimeError("Unable to find font file '%s' in share path(s) "
-                           "'%s'" %  font_path, self.SHARE_DIRS)
-    return font_path
-
-  def _generate_image(self, im, text, halign, font_size, font_size_min, font_path,
-                      text_coords, text_max_width, font_color):
-    if text_coords is None:
-      width, height = im.size
-      text_coords = (width/2, height/2)
-    if font_size is None:
-      font_size = 52
-
-    draw, handler = ImageDraw.getdraw(im)
-    while font_size >= (font_size_min or font_size):
-      font = handler.Font(font_color, font_path, size=font_size)
-      w, h = draw.textsize(text, font)
-      if w <= (text_max_width or im.size[0]):
-        break
-      else:
-        font_size -= 1
-
-    if halign == 'center':
-      draw.text((text_coords[0]-(w/2), text_coords[1]-(h/2)), text, font)
-    elif halign == 'right':
-      draw.text((text_coords[0]-w, text_coords[1]-(h/2)), text, font)
-
-    return im
+  def _create_grub_splash_xpm(self):
+    # HACK: to create the splash.xpm file, have to first convert
+    # the grub-splash.png to an xpm and then gzip it.
+    splash_xpm = self.build_folder / 'boot/grub/grub-splash.xpm'
+    splash_xgz = self.build_folder / 'boot/grub/grub-splash.xpm.gz'
+    splash_png = self.build_folder / 'boot/grub/grub-splash.png'
+    shlib.execute('convert %s %s' %(splash_png, splash_xpm))
+    infile = file(splash_xpm, 'rb')
+    data = infile.read()
+    infile.close()
+    outfile = gzip.GzipFile(splash_xgz, 'wb')
+    outfile.write(data)
+    outfile.close()
