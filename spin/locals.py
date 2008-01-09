@@ -321,6 +321,7 @@ THEME_RPM_FILES_LOCALS = LocalsDict({
       height = 520,
       width  = 680,
       format = 'PNG',
+      base_image = 'innerbackground.png',
     ),
     '/usr/share/apps/kdm/themes/Spin/screenshot.png': dict(
       height = 768,
@@ -356,6 +357,7 @@ THEME_RPM_FILES_LOCALS = LocalsDict({
       height = 520,
       width  = 680,
       format = 'PNG',
+      base_image = 'innerbackground.png',
     ),
     '/usr/share/gdm/themes/Spin/screenshot.png': dict(
       height = 768,

@@ -7,19 +7,16 @@ from rendition import mkrpm
 from rendition import pps
 from rendition import xmllib
 
-from spin.constants import BOOLEANS_TRUE
-from spin.event     import Event
-from spin.logging   import L1
+from spin.event   import Event
+from spin.logging import L1
 
 try:
   import Image
-  import ImageColor
   import ImageDraw
-  import ImageFont
 except ImportError:
   raise ImportError("missing 'python-imaging' module")
 
-__all__ = ['InputFilesMixin', 'RpmBuildMixin', 'ImagesCreator']
+__all__ = ['InputFilesMixin', 'RpmBuildMixin', 'ImagesGenerator']
 
 P = pps.Path
 
@@ -312,44 +309,43 @@ class RpmBuildMixin:
       spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))
 
 
-class ImagesCreator(object):
+class ImagesGenerator(object):
   def __init__(self):
-    pass
+    self.images_dir = None
 
   def _setup_image_creation(self, shared_dir):
-    found = False
+    found_images_dir = False
     for path in self.SHARE_DIRS:
-      self.images_dir = path / shared_dir
-      if self.images_dir.exists():
-        found = True
-        break
-    if not found:
+      images_dir = path / shared_dir
+      if images_dir.exists() and self.images_dir is None:
+        self.images_dir = images_dir
+        found_images_dir = True
+    if not found_images_dir:
       raise RuntimeError("Unable to find %s/ directory in share path(s) '%s'" % \
                          (shared_dir, self.SHARE_DIRS))
+
     fullname = self.cvars['source-vars']['fullname']
     version = self.cvars['source-vars']['version']
     try:
-      self.hue_diff = HUE_DIFF[fullname][version]
+      self.hue_info = HUE_INFO[fullname][version]
     except KeyError:
       # See if the version of the input distribution is a bugfix
       # version, and if it is, use the hue difference for the main
       # release.
       found = False
-      if HUE_DIFF.has_key(fullname):
-        for ver in HUE_DIFF[fullname]:
+      if HUE_INFO.has_key(fullname):
+        for ver in HUE_INFO[fullname]:
           if version.startswith(ver):
             found = True
-            self.hue_diff = HUE_DIFF[fullname][ver]
+            self.hue_info = HUE_INFO[fullname][ver]
             break
       if not found:
-        self.hue_diff = HUE_DIFF['*']['0']
-    self.base_image = self._create_base_image()
+        self.hue_info = HUE_INFO['*']['0']
+
+    self.base_image = self._create_base_image('baseimage.png')
 
   def _copy_static_images(self):
     for src in self.images_dir.findpaths(type=pps.constants.TYPE_NOT_DIR):
-      if src == self.images_dir / 'baseimage.jpg':
-        ## HACK: have to not copy 'baseimage.jpg'; find a better way
-        continue
       dst = self.build_folder / src.relpathfrom(self.images_dir)
       dst.dirname.mkdirs()
       self.link(src, dst.dirname)
@@ -358,14 +354,22 @@ class ImagesCreator(object):
     for file_name, properties in image_locals.items():
       output_locations = properties.get('output_locations', [file_name])
       for location in output_locations:
-        self._create_image(self.build_folder // location,
-                           properties['width'],
-                           properties['height'],
-                           properties['format'],
-                           strings=properties.get('strings', None))
+        self._create_image(
+          self.build_folder // location,
+          properties['width'],
+          properties['height'],
+          properties['format'],
+          strings = properties.get('strings', None),
+          base_image = properties.get('base_image', None)
+        )
 
-  def _create_image(self, file_name, width, height, format, strings=None):
-    img = self.base_image.resize((width, height))
+  def _create_image(self, file_name, width, height, format,
+                    strings=None, base_image=None):
+    if base_image is not None:
+      img = self._create_base_image(base_image)
+      img.resize((width, height))
+    else:
+      img = self.base_image.resize((width, height))
 
     if strings:
       for i in strings:
@@ -413,30 +417,36 @@ class ImagesCreator(object):
                            "'%s'" %  font_path, self.SHARE_DIRS)
     return font_path
 
-  def _create_base_image(self):
-    input_image = self.images_dir / 'baseimage.jpg'
+  def _create_base_image(self, file_name):
+    input_image = None
+    for path in self.SHARE_DIRS:
+      input_image = path / 'static' / file_name
+      if input_image.exists():
+        break
+      else:
+        input_image = None
+    if input_image is None:
+      raise RuntimeError("Unable to find static base image '%s' in share path(s) '%s'" % \
+                         (file_name, self.SHARE_DIRS))
 
     img = Image.open(input_image)
-    imo = Image.new('RGB', img.size)
+    imo = Image.new(img.mode, img.size)
 
-    rgb_to_hsv_mapping = {}
-    hsv_to_rgb_mapping = {}
-
+    color_mapping = {}
     input = img.getdata()
     output = []
-    for rgb in input:
-        if not rgb_to_hsv_mapping.has_key(rgb):
-            rgb_to_hsv_mapping[rgb] = self._rgb_to_hsv(*rgb)
+    for rgba in input:
+      if not color_mapping.has_key(rgba):
+        h, s, v = self._rgb_to_hsv(*rgba[:3])
+        h = self.hue_info / 360.
+        r, g, b = self._hsv_to_rgb(h, s, v)
 
-    for hsv in rgb_to_hsv_mapping.values():
-        h, s, v = hsv
-        h = ((h*360 + self.hue_diff) % 360) / 360.
-        hsv_to_rgb_mapping[hsv] = self._hsv_to_rgb(h, s, v)
+        # maintain RGBA-ness, if input image mode is RGBA
+        color_mapping[rgba] = (r, g, b) + tuple(rgba[3:])
 
-    for rgb in input:
-        hsv = rgb_to_hsv_mapping[rgb]
-        rgb = hsv_to_rgb_mapping[hsv]
-        output.append(rgb)
+      new_rgba = color_mapping[rgba]
+      output.append(new_rgba)
+
     imo.putdata(output)
     return imo
 
@@ -450,16 +460,16 @@ class ImagesCreator(object):
 #---------- GLOBAL VARIABLES --------#
 # each element for a distro's version, e.g. redhat/5, maps to the difference to the
 # hue of the base image in the shared folder.
-HUE_DIFF = {
+HUE_INFO = {
   'CentOS': {
-    '5': 210,
+    '5': 213,
   },
   'Fedora Core': {
-    '6': 200,
+    '6': 212,
   },
   'Fedora': {
     '7': 220,
-    '8': 210,
+    '8': 205,
   },
   'Red Hat Enterprise Linux Server': {
     '5': 0,

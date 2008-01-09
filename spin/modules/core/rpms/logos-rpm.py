@@ -2,7 +2,7 @@ from rendition import pps
 
 from spin.event import Event
 
-from spin.modules.shared import RpmBuildMixin, ImagesCreator
+from spin.modules.shared import RpmBuildMixin, ImagesGenerator
 
 P = pps.Path
 
@@ -10,7 +10,7 @@ API_VERSION = 5.0
 
 EVENTS = {'rpms': ['LogosRpmEvent']}
 
-class LogosRpmEvent(Event, RpmBuildMixin, ImagesCreator):
+class LogosRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
   def __init__(self):
     Event.__init__(self,
       id = 'logos-rpm',
@@ -28,7 +28,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ImagesCreator):
       default_provides = ['system-logos']
     )
 
-    ImagesCreator.__init__(self)
+    ImagesGenerator.__init__(self)
 
     self.DATA = {
       'config': ['.'],

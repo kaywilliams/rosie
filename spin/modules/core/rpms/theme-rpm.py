@@ -2,7 +2,7 @@ from rendition import pps
 
 from spin.event import Event
 
-from spin.modules.shared import RpmBuildMixin, ImagesCreator
+from spin.modules.shared import RpmBuildMixin, ImagesGenerator
 
 P = pps.Path
 
@@ -10,7 +10,7 @@ API_VERSION = 5.0
 
 EVENTS = {'rpms': ['ThemeRpmEvent']}
 
-class ThemeRpmEvent(Event, RpmBuildMixin, ImagesCreator):
+class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
   def __init__(self):
     self.themename = self.config.get('theme/text()', 'Spin')
 
@@ -28,7 +28,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesCreator):
       default_requires = ['coreutils']
     )
 
-    ImagesCreator.__init__(self)
+    ImagesGenerator.__init__(self)
 
     self.DATA = {
       'variables': ['product', 'pva', 'rpm_release'],
