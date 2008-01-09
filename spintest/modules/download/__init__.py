@@ -2,11 +2,11 @@ from StringIO import StringIO
 
 import unittest
 
-from rendition import pps
-from rendition import xmllib
+from dims import pps
+from dims import xmllib
 
-from spintest      import EventTestCase, ModuleTestSuite, config
-from spintest.core import make_core_suite
+from dbtest      import EventTestCase, ModuleTestSuite, config
+from dbtest.core import make_core_suite
 
 class DownloadEventTestCase(EventTestCase):
   moduleid = 'download'
