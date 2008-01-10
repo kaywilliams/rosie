@@ -39,8 +39,9 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     # initrd.img as well
     self.cvars['xen-images-content'] = self.cvars['initrd-image-content']
 
-    self.DATA['input'].extend([self.cvars['buildstamp-file'], 
-                               self.cvars['kickstart-file']])
+    self.DATA['input'].append(self.cvars['buildstamp-file'])
+    if self.cvars['kickstart-file']:
+      self.DATA['input'].append(self.cvars['kickstart-file'])
     self.diff.setup(self.DATA)
 
     self.image_locals = self.locals.files['xen']['initrd-xen']
