@@ -2,11 +2,11 @@ from StringIO import StringIO
 
 import unittest
 
-from dims import pps
-from dims import xmllib
+from rendition import pps
+from rendition import xmllib
 
-from dbtest      import EventTestCase, ModuleTestSuite, config
-from dbtest.core import make_core_suite
+from spintest      import EventTestCase, ModuleTestSuite, config, _run_make
+from spintest.core import make_core_suite
 
 class DownloadEventTestCase(EventTestCase):
   moduleid = 'download'
@@ -84,6 +84,7 @@ class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
     self.failUnless(len(self.event.cvars['cached-rpms']) == numpkgs)
 
 def make_suite(basedistro):
+  _run_make(pps.Path(__file__).dirname)
   suite = ModuleTestSuite('download')
   suite.addTest(make_core_suite(DownloadEventTestCase, basedistro))
   suite.addTest(Test_PackagesDownloaded(basedistro))

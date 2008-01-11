@@ -62,6 +62,11 @@ def parse_cmd_args():
     dest='sharepath',
     action='append',
     help='specify directory containing spin share files')
+  parser.add_option('-l', '--log-level', metavar='N',
+    default=2,
+    type='int',
+    dest='testloglevel',
+    help='specify the level of verbosity of the output log')
 
   parser.set_defaults(**opt_defaults)
 
@@ -83,7 +88,7 @@ def main():
   preserve_build_root = ( spintest.BUILD_ROOT.exists() and
                           spintest.BUILD_ROOT.listdir(all=True) )
 
-  runner = spintest.EventTestRunner()
+  runner = spintest.EventTestRunner(options.testloglevel)
   suite = unittest.TestSuite()
 
   if not args:
@@ -98,11 +103,19 @@ def main():
     finally:
       fp and fp.close()
 
+  result = None
   try:
-    runner.run(suite)
+    result = runner.run(suite)
   finally:
     if not preserve_build_root:
       spintest.BUILD_ROOT.rm(recursive=True, force=True)
+
+  if not result: # some sort of exception in the testing logic (can't currently happen)
+    sys.exit(2)
+  elif not result.wasSuccessful(): # not all tests succeeded
+    sys.exit(1)
+  else: # everything ok
+    sys.exit(0)
 
 
 def _testpath_normalize(path):
