@@ -36,8 +36,8 @@ fi
 
 # testing
 cd ~/spin/spintest
-##for basedistro in redhat-5 centos-5 fedora-6 fedora-7 fedora-8; do
-for basedistro in fedora-6; do #!
+for basedistro in redhat-5 centos-5 fedora-6 fedora-7 fedora-8; do
+  echo Testing base distro $basedistro...
   python runtest.py --base-distro $basedistro \
                     --share-path ~/spin/share/spin \
                     --log-level 1

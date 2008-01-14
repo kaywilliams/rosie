@@ -10,4 +10,6 @@ i=$(( `date +%-j` % $num_tests )) # mod of the day of the year
 slave=${tests[$i]}
 
 # run tests
-##ssh $slave ~/spin/spintest/scripts/slave-test.sh
+xm unpause $slave
+ssh root@$slave /root/runtest.sh
+xm pause $slave
