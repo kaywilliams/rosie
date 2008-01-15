@@ -20,6 +20,7 @@ from StringIO      import StringIO
 
 from rendition import dispatch
 from rendition import pps
+from rendition import si
 from rendition import xmllib
 
 from rendition import sync
@@ -370,7 +371,7 @@ class Build(object):
       Event.SHARE_DIRS = [ P(x).expand() for x in options.sharepath ]
 
     Event.CACHE_MAX_SIZE = \
-      int(self.mainconfig.get('/spin/cache/max-size/text()', 30*1024**3))
+      si.parse(self.mainconfig.get('/spin/cache/max-size/text()', '30GiB'))
 
     Event.cache_handler = cache.CachedSyncHandler(
                             cache_dir = Event.CACHE_DIR / '.cache',
