@@ -17,9 +17,9 @@ class DownloadEventTestCase(EventTestCase):
 
     config.add_config_section(self.conf,
       config.make_repos(basedistro,
-        config._make_repo('%s-base' % basedistro),
-        config._make_repo('%s-updates' % basedistro),
-        xmllib.config.read(StringIO('<repofile>download/download-test-repos.repo</repofile>'))
+        [config._make_repo('%s-base' % basedistro),
+         config._make_repo('%s-updates' % basedistro),
+         xmllib.config.read(StringIO('<repofile>download/download-test-repos.repo</repofile>'))]
       )
     )
 

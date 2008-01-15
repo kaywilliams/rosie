@@ -50,7 +50,7 @@ def add_config_section(cfg, section):
 def _make_distro():
   return config.Element('distro', attrs={'schema-version': '1.0'})
 
-def _make_repo(id, **kwargs):
+def _make_repo(id, arch='i386', **kwargs):
   "construct a repo, either from data in REPOS, below, or from kwargs"
   if id in REPOS.keys():
     d = copy.copy(REPOS[id])
@@ -65,7 +65,7 @@ def _make_repo(id, **kwargs):
 
   repo = config.Element('repo', attrs={'id': id})
   for k,v in d.items():
-    config.Element(k, text=v, parent=repo)
+    config.Element(k, text=v % {'arch': arch}, parent=repo)
 
   return repo
 
@@ -73,50 +73,50 @@ REPOS = {
   # fedora 6
   'fedora-6-base': {
     'name': 'fedora-6-base',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/core/6/i386/os/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/core/6/%(arch)s/os/',
   },
   'fedora-6-updates': {
     'name': 'fedora-6-updates',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/core/updates/6/i386/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/core/updates/6/%(arch)s/',
   },
   # fedora 7
   'fedora-7-base': {
     'name': 'fedora-7-base',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/7/Fedora/i386/os/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/7/Fedora/%(arch)s/os/',
   },
   'fedora-7-updates': {
     'name': 'fedora-7-updates',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/updates/7/i386/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/updates/7/%(arch)s/',
   },
   'fedora-7-everything': {
     'name': 'fedora-7-everything',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/7/Everything/i386/os/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/7/Everything/%(arch)s/os/',
   },
   # fedora 8
   'fedora-8-base': {
     'name': 'fedora-8-base',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/8/Fedora/i386/os/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/8/Fedora/%(arch)s/os/',
   },
   'fedora-8-updates': {
     'name': 'fedora-8-updates',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/updates/8/i386/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/updates/8/%(arch)s/',
   },
   'fedora-8-everything': {
     'name': 'fedora-8-everything',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/8/Everything/i386/os',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/8/Everything/%(arch)s/os',
   },
   # redhat 5
   'redhat-5-base': {
     'name': 'redhat-5-base',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/redhat/5/os/Server/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/redhat/5/os/%(arch)s/Server/',
   },
   # centos 5
   'centos-5-base': {
     'name': 'centos-5-base',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/centos/5/os/i386/'
+    'baseurl': 'http://www.renditionsoftware.com/open_software/centos/5/os/%(arch)s/'
   },
   'centos-5-updates': {
     'name': 'centos-5-updates',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/centos/5/updates/i386/',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/centos/5/updates/%(arch)s/',
   }
 }
