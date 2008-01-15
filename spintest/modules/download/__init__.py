@@ -18,7 +18,7 @@ class DownloadEventTestCase(EventTestCase):
     repos = []
     repos.append(config._make_repo('%s-base' % basedistro))
 
-    try: repos.append(config._make_repo('%s-updates' % basedistro)
+    try: repos.append(config._make_repo('%s-updates' % basedistro))
     except ValueError: pass # not all base distros have updates
 
     repos.append(xmllib.config.read(
