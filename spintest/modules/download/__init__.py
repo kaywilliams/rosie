@@ -15,16 +15,13 @@ class DownloadEventTestCase(EventTestCase):
   def __init__(self, basedistro, conf=None):
     EventTestCase.__init__(self, basedistro, conf=conf)
 
-    repos = []
-    repos.append(config._make_repo('%s-base' % basedistro))
-
-    try: repos.append(config._make_repo('%s-updates' % basedistro))
-    except ValueError: pass # not all base distros have updates
-
-    repos.append(xmllib.config.read(
-      StringIO('<repofile>download/download-test-repos.repo</repofile>')))
-
-    config.add_config_section(self.conf, config.make_repos(basedistro, repos))
+    config.add_config_section(self.conf,
+      config.make_repos(basedistro,
+        config._make_repo('%s-base' % basedistro),
+        config._make_repo('%s-updates' % basedistro),
+        xmllib.config.read(StringIO('<repofile>download/download-test-repos.repo</repofile>')
+      )
+    )
 
   def runTest(self):
     self.tb.dispatch.execute(until='download')
