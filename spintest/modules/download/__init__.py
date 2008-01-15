@@ -19,7 +19,7 @@ class DownloadEventTestCase(EventTestCase):
       config.make_repos(basedistro,
         config._make_repo('%s-base' % basedistro),
         config._make_repo('%s-updates' % basedistro),
-        xmllib.config.read(StringIO('<repofile>download/download-test-repos.repo</repofile>')
+        xmllib.config.read(StringIO('<repofile>download/download-test-repos.repo</repofile>'))
       )
     )
 
