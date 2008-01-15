@@ -225,16 +225,16 @@ class EventTestResult(unittest.TestResult):
       self.logger.write(2, 'FAIL\n')
 
   def printErrors(self):
-    self.logger.write(2, '\n')
+    self.logger.write(1, '\n')
     self.printErrorList('ERROR', self.errors)
     self.printErrorList('FAIL',  self.failures)
 
   def printErrorList(self, flavor, errors):
     for test, err in errors:
-      self.logger.log(2, self.separator1)
-      self.logger.log(2, '[%s] %s: %s' % (test.eventid, flavor, test.shortDescription() or test))
-      self.logger.log(2, self.separator2)
-      self.logger.log(2, str(err))
+      self.logger.log(1, self.separator1)
+      self.logger.log(1, '[%s] %s: %s' % (test.eventid, flavor, test.shortDescription() or test))
+      self.logger.log(1, self.separator2)
+      self.logger.log(1, str(err))
 
 
 class EventTestLogContainer(logger.LogContainer):
