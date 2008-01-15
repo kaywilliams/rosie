@@ -203,6 +203,7 @@ class RpmBuildMixin:
     doc_file.dirname.mkdirs()
     doc_file.write_text(self.rpm_desc)
 
+  def _get_ghost_files(self): return None
   def _get_install_script(self): return None
   def _get_post_install_script(self): return None
   def _get_triggerin(self): return None
@@ -265,6 +266,11 @@ class RpmBuildMixin:
       spec.set('bdist_rpm', 'triggerun', '\n\t'.join(triggerun))
     if triggerpostun:
       spec.set('bdist_rpm', 'triggerpostun', '\n\t'.join(triggerpostun))
+
+    ghost_files = self._get_ghost_files()
+    if ghost_files:
+      spec.set('bdist_rpm', 'ghost_files', '\n\t'.join(ghost_files))
+
     self._add_data_files(spec)
     self._add_config_files(spec)
     self._add_doc_files(spec)
