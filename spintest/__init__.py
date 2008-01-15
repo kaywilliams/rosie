@@ -264,7 +264,7 @@ LOGFILE = open('test.log', 'w+')
 
 def make_logger(threshold):
   console = logger.Logger(threshold=threshold, file_object=sys.stdout)
-  logfile = logger.Logger(threshold=threshold, file_object=LOGFILE)
+  logfile = logger.Logger(threshold=2, file_object=LOGFILE) #! write eventhing to file
   return EventTestLogContainer([console, logfile])
 
 def make_suite(basedistro):
