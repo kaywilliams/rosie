@@ -1,18 +1,10 @@
+import cPickle
 import re
 import yum
 
 from rendition import pps
-from rendition import xmllib
 
 from rendition.depsolver import Depsolver
-
-NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
-                        '-'
-                        '(?P<version>.+)' # rpm version
-                        '-'
-                        '(?P<release>.+)' # rpm release
-                        '\.'
-                        '(?P<arch>.+)')   # rpm architecture
 
 class IDepsolver(Depsolver):
   def __init__(self, config, root, arch, callback,
@@ -36,8 +28,9 @@ class IDepsolver(Depsolver):
     Depsolver.setup(self)
 
     if self.cached_file.exists():
-      tree = xmllib.config.read(self.cached_file)
-      self.cached_items = xmllib.serialize.unserialize(tree)
+      f = self.cached_file.open('r')
+      self.cached_items = cPickle.load(f)
+      f.close()
       toremove = set()
       for pkgtup, deps in self.cached_items.items():
         for tup in [pkgtup] + deps:
@@ -169,4 +162,6 @@ class IDepsolver(Depsolver):
       self.install(po=po)
 
     self.resolveDeps()
-    xmllib.serialize.serialize(self.resolved_deps).write(self.cached_file)
+    f = self.cached_file.open('w')
+    cPickle.dump(self.resolved_deps, f)
+    f.close()
