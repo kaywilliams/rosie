@@ -36,7 +36,8 @@ class LogosRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
     self.DATA = {
       'config': ['.'],
       'variables': ['pva', 'fullname', 'copyright', 'rpm_release',
-                    'cvars[\'anaconda-version\']',],
+                    'cvars[\'anaconda-version\']',
+                    'cvars[\'logos-versions\']'],
       'output': [self.build_folder],
       'input':  [],
     }
