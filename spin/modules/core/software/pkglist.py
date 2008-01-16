@@ -1,10 +1,11 @@
-import yum
+import re
 
 from rendition import difftest
 
-from spin.callback import BuildDepsolveCallback
-from spin.event    import Event
-from spin.logging  import L1
+from spin.callback  import BuildDepsolveCallback
+from spin.constants import KERNELS
+from spin.event     import Event
+from spin.logging   import L1
 
 from spin.modules.shared.idepsolve import IDepsolver
 
@@ -23,6 +24,14 @@ YUMCONF_HEADER = [
   'reposdir=/'
   '\n',
 ]
+
+NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
+                        '-'
+                        '(?P<version>.+)' # rpm version
+                        '-'
+                        '(?P<release>.+)' # rpm release
+                        '\.'
+                        '(?P<arch>.+)')   # rpm architecture
 
 class PkglistEvent(Event):
   def __init__(self):
@@ -80,7 +89,7 @@ class PkglistEvent(Event):
     if not self.dsdir.exists():
       self.dsdir.mkdirs()
 
-    repos_modified = self._repos_modified()
+    self._verify_repos()
     repoconfig = self._create_repoconfig()
     required_packages = self.cvars.get('required-packages', [])
     user_required = self.cvars.get('user-required-packages', [])
@@ -114,7 +123,6 @@ class PkglistEvent(Event):
     solver.getPackageObjects()
 
     pkgtups = [ x.pkgtup for x in solver.polist ]
-
     self.log(1, L1("pkglist closure achieved in %d packages" % len(pkgtups)))
 
     pkglist = []
@@ -127,9 +135,6 @@ class PkglistEvent(Event):
 
     self.DATA['output'].extend([self.dsdir, self.pkglistfile, repoconfig])
     self.diff.write_metadata()
-    solver.teardown()
-
-    solver.teardown() # stop memory leak
 
   def apply(self):
     self.io.clean_eventcache()
@@ -142,8 +147,20 @@ class PkglistEvent(Event):
     "pkglist file exists"
     self.verifier.failUnlessExists(self.pkglistfile)
 
-  def _repos_modified(self):
-    changed = False
+  def verify_kernel_arch(self):
+    "kernel arch matches arch in config"
+    if self.arch in ['i386', 'i586', 'i686']:
+      aliases = ['i386', 'i586', 'i686']
+    if self.arch in ['x86_64']:
+      aliases = ['x86_64']
+    for pkg in self.cvars['pkglist']:
+      n,v,r,a = NVRA_REGEX.match(pkg).groups()
+      if n in KERNELS:
+        self.verifier.failUnless(a in aliases,
+          "the arch of kernel package '%s-%s-%s.%s' is not in '%s'" % \
+          (n, v, r, a, aliases))
+
+  def _verify_repos(self):
     for repo in self.cvars['repos'].values():
       # determine if repodata folder changed
       rddir_changed = False
@@ -157,8 +174,6 @@ class PkglistEvent(Event):
       if rddir_changed:
         ## HACK: delete a folder's depsolve metadata if it has changed.
         (self.dsdir/repo.id).rm(recursive=True, force=True)
-        changed = True
-    return changed
 
   def _create_repoconfig(self):
     repoconfig = self.mddir / 'depsolve.repo'
