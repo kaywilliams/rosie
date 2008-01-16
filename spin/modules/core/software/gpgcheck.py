@@ -1,0 +1,112 @@
+from rendition import mkrpm
+from rendition import shlib
+from rendition import pps
+
+from spin.event   import Event
+from spin.logging import L1, L2
+from spin.constants import BOOLEANS_TRUE
+from spin.callback import GpgCallback
+
+P = pps.Path
+
+API_VERSION = 5.0
+EVENTS = {'software': ['GpgCheckEvent']}
+
+class GpgCheckEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'gpgcheck',
+      version = 1,
+      requires = ['rpms-by-repoid', 'repos'],
+    )
+
+    self.DATA = {
+      'variables': [],
+      'input':     [],
+      'output':    [],
+    }
+
+    self.gpgcheck_cb = GpgCallback(self.logger)
+
+  def setup(self):
+    self.diff.setup(self.DATA)
+
+    self.gpgkeys = {}  # keys to download
+    self.rpms = {}     # rpms to check
+
+    for repo in self.cvars['repos'].values():
+      if self.cvars['rpms-by-repoid'].has_key(repo.id) and \
+         repo.has_key('gpgcheck') and repo['gpgcheck'] in BOOLEANS_TRUE:
+        if repo.gpgkeys:
+          self.gpgkeys[repo.id] = repo.gpgkeys
+          self.rpms[repo.id] = self.cvars['rpms-by-repoid'][repo.id]
+        else:
+          raise RuntimeError("GPGcheck enabled for '%s' repository, but no "
+                             "keys provided." % repo.id)
+
+    for repo in self.gpgkeys.keys():
+      self.io.setup_sync(self.mddir/repo, paths=self.gpgkeys[repo], id=repo)
+    self.DATA['variables'].append('rpms')
+    self.DATA['variables'].append('gpgkeys')
+
+  def run(self):
+    if not self.rpms:
+      self.io.clean_eventcache(all=True) # remove old keys
+      self.diff.write_metadata()
+      return
+
+    self.gpgcheck_cb.start()
+    for repo in sorted(self.rpms.keys()):
+      newrpms = []
+      homedir = self.mddir/repo/'homedir'
+      self.DATA['output'].append(homedir)
+      self.io.sync_input(cache=True, what=repo,
+                         text="downloading gpgkeys - '%s'" % repo)
+
+      # if gpgkeys have changed for this repo, (re)create homedir and
+      # add all rpms from the repo to check list
+      if self.diff.handlers['variables'].diffdict.has_key('gpgkeys'):
+        md, curr = self.diff.handlers['variables'].diffdict['gpgkeys']
+        if not hasattr(md, '__iter__') or not md.has_key(repo):
+          md = {repo: []}
+        if set(curr[repo]).difference(set(md[repo])):
+          newrpms = self.rpms[repo]
+          homedir.rm(force=True, recursive=True)
+          homedir.mkdirs()
+          for key in self.io.list_output(what=repo):
+            shlib.execute('gpg --homedir %s --import %s' %(homedir,key))
+
+      # if new rpms have been added from this repo, add them to check list
+      else:
+        if self.diff.handlers['variables'].diffdict.has_key('rpms'):
+          md, curr = self.diff.handlers['variables'].diffdict['rpms']
+          if not hasattr(md, '__iter__'): md = {}
+          if md.has_key(repo):
+            newrpms = sorted(set(curr[repo]).difference(set(md[repo])))
+
+      # if we found rpms to check in the above tests, check them now
+      if newrpms:
+        invalids = []
+        self.log(1, L1("checking rpms - '%s'" % repo))
+        self.gpgcheck_cb.repoCheck(len(newrpms))
+        for rpm in newrpms:
+          try:
+            mkrpm.VerifyRpm(rpm, homedir=homedir)
+          except mkrpm.RpmSignatureInvalidError:
+            invalids.append(rpm.basename)
+          self.gpgcheck_cb.pkgChecked(rpm.basename)
+
+        if invalids:
+          raise RpmSignatureInvalidError("One or more RPMS failed "
+                                         "GPG key checking:\n * %s" % '\n * '.join(invalids))
+        self.gpgcheck_cb.endRepo()
+
+    self.gpgcheck_cb.end()
+    self.diff.write_metadata()
+
+  def apply(self):
+    self.io.clean_eventcache()
+
+#------ ERRORS ------#
+class RpmSignatureInvalidError(StandardError):
+  "Class of exceptions raised when an RPM signature check fails in some way"
