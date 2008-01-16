@@ -102,10 +102,10 @@ class SyncCallback(LinkCallback):
   def _cp_start(self, size, text, seek=0.0):
     _SyncCallbackMetered._cp_start(self, size=size, text=L2(text), seek=seek)
 
-  def _cp_update(self, amount_read): 
+  def _cp_update(self, amount_read):
     _SyncCallbackMetered._cp_update(self, amount_read)
 
-  def _cp_end(self, amount_read): 
+  def _cp_end(self, amount_read):
     _SyncCallbackMetered._cp_end(self, amount_read)
 
   def _link_xdev(self, src, dst):
