@@ -41,7 +41,7 @@ class PkglistEventTestCase(EventTestCase):
     return self.PKGLIST_COUNT.get(caseid)
 
 class Test_PkglistBug84_1(PkglistEventTestCase):
-  "running pkglist without base group"
+  "without base group"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug84_1', basedistro, True)
     config.add_config_section(
@@ -52,7 +52,7 @@ class Test_PkglistBug84_1(PkglistEventTestCase):
     )
 
 class Test_PkglistBug84_2(PkglistEventTestCase):
-  "running pkglist with base group"
+  "with base group"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug84_2', basedistro, False)
     config.add_config_section(
@@ -73,7 +73,7 @@ class Test_PkglistBug84_2(PkglistEventTestCase):
     )
 
 class Test_PkglistBug84_3(PkglistEventTestCase):
-  "running pkglist without base group but with pkglist metadata"
+  "without base group but with pkglist metadata"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug84_3', basedistro, False)
     config.add_config_section(
@@ -91,7 +91,7 @@ class Test_PkglistBug84_3(PkglistEventTestCase):
       "incremental depsolve: %d, forced depsolve: %d" % (count1, count2))
 
 class Test_PkglistBug85_1(PkglistEventTestCase):
-  "running pkglist without updates repo"
+  "without updates repo"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug85_1', basedistro, True)
     config.add_config_section(
@@ -102,7 +102,7 @@ class Test_PkglistBug85_1(PkglistEventTestCase):
     )
 
 class Test_PkglistBug85_2(PkglistEventTestCase):
-  "running pkglist with updates repo"
+  "with updates repo"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug85_2', basedistro, False)
     config.add_config_section(
@@ -114,7 +114,7 @@ class Test_PkglistBug85_2(PkglistEventTestCase):
     )
 
 class Test_PkglistBug85_3(PkglistEventTestCase):
-  "running pkglist without updates but with pkglist metadata"
+  "without updates but with pkglist metadata"
   def __init__(self, basedistro):
     PkglistEventTestCase.__init__(self, 'bug85_3', basedistro, False)
     config.add_config_section(
@@ -279,7 +279,7 @@ class Test_PackageAdded(PkglistEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
-    self.failUnless('pkglist-test-package1-1.0-1' in self.event.cvars['pkglist'])
+    self.failUnless('pkglist-test-package1-1.0-1.noarch' in self.event.cvars['pkglist'])
 
 class Test_ObsoletedPackage(PkglistEventTestCase):
   "obsoleted package"
@@ -306,8 +306,8 @@ class Test_ObsoletedPackage(PkglistEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
-    self.failUnless('pkglist-test-package2-1.0-1' in self.event.cvars['pkglist'])
-    self.failIf('pkglist-test-package1-1.0-1' in self.event.cvars['pkglist'])
+    self.failUnless('pkglist-test-package2-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failIf('pkglist-test-package1-1.0-1.noarch' in self.event.cvars['pkglist'])
 
 class Test_RemovedPackage(PkglistEventTestCase):
   "removed package"
@@ -316,7 +316,7 @@ class Test_RemovedPackage(PkglistEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
-    self.failIf('pkglist-test-package2-1.0-1' in self.event.cvars['pkglist'])
+    self.failIf('pkglist-test-package2-1.0-1.noarch' in self.event.cvars['pkglist'])
 
 class Test_ExclusivePackage_1(PkglistEventTestCase):
   "test-package required only by another test-package"
@@ -342,8 +342,8 @@ class Test_ExclusivePackage_1(PkglistEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
-    self.failUnless('pkglist-test-package3-1.0-1' in self.event.cvars['pkglist'])
-    self.failUnless('pkglist-test-package4-1.0-1' in self.event.cvars['pkglist'])
+    self.failUnless('pkglist-test-package3-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failUnless('pkglist-test-package4-1.0-1.noarch' in self.event.cvars['pkglist'])
 
 class Test_ExclusivePackage_2(PkglistEventTestCase):
   "package not required by anything else not in pkglist"
@@ -355,8 +355,8 @@ class Test_ExclusivePackage_2(PkglistEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
-    self.failIf('pkglist-test-package3-1.0-1' in self.event.cvars['pkglist'])
-    self.failIf('pkglist-test-package4-1.0-1' in self.event.cvars['pkglist'])
+    self.failIf('pkglist-test-package3-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failIf('pkglist-test-package4-1.0-1.noarch' in self.event.cvars['pkglist'])
 
 def make_suite(basedistro):
   _run_make(P(__file__).dirname)

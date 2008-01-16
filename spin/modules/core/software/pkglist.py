@@ -1,17 +1,12 @@
-import cPickle as pickle
-import copy
-import re
 import yum
 
-from rendition import depsolver
 from rendition import difftest
-from rendition import pps
 
 from spin.callback import BuildDepsolveCallback
 from spin.event    import Event
 from spin.logging  import L1
 
-P = pps.Path
+from spin.modules.shared.idepsolve import IDepsolver
 
 API_VERSION = 5.0
 EVENTS = {'software': ['PkglistEvent']}
@@ -28,8 +23,6 @@ YUMCONF_HEADER = [
   'reposdir=/'
   '\n',
 ]
-
-NVR_REGEX = re.compile('(.+)-([^-]+)-([^-]+)')
 
 class PkglistEvent(Event):
   def __init__(self):
@@ -87,23 +80,46 @@ class PkglistEvent(Event):
     if not self.dsdir.exists():
       self.dsdir.mkdirs()
 
-    self._verify_repos()
+    repos_modified = self._repos_modified()
     repoconfig = self._create_repoconfig()
     required_packages = self.cvars.get('required-packages', [])
     user_required = self.cvars.get('user-required-packages', [])
 
-    pkgtups = depsolver.resolve(packages=required_packages,
-                                required=user_required,
-                                config=str(repoconfig),
-                                root=str(self.dsdir),
-                                arch=self.arch,
-                                callback=BuildDepsolveCallback(self.logger))
+    toremove = []
+    diffdict = self.diff.handlers['variables'].diffdict
+    if diffdict.has_key("cvars['required-packages']"):
+      prev, curr = diffdict["cvars['required-packages']"]
+      if prev is None or \
+           isinstance(prev, difftest.NewEntry) or \
+           isinstance(prev, difftest.NoneEntry):
+        prev = []
+      if curr is None or \
+           isinstance(curr, difftest.NewEntry) or \
+           isinstance(curr, difftest.NoneEntry):
+        curr = []
+      if prev:
+        toremove.extend([ x for x in prev if x not in curr ])
+
+    solver = IDepsolver(
+               repoconfig,
+               self.dsdir,
+               self.arch,
+               BuildDepsolveCallback(self.logger),
+               self.pkglistfile,
+               user_required,
+               required_packages,
+               toremove
+             )
+    solver.setup()
+    solver.getPackageObjects()
+
+    pkgtups = [ x.pkgtup for x in solver.polist ]
 
     self.log(1, L1("pkglist closure achieved in %d packages" % len(pkgtups)))
 
     pkglist = []
-    for n,_,_,v,r in pkgtups:
-      pkglist.append('%s-%s-%s' % (n,v,r))
+    for n,a,_,v,r in pkgtups:
+      pkglist.append('%s-%s-%s.%s' % (n,v,r,a))
     pkglist.sort()
 
     self.log(1, L1("writing pkglist"))
@@ -111,6 +127,9 @@ class PkglistEvent(Event):
 
     self.DATA['output'].extend([self.dsdir, self.pkglistfile, repoconfig])
     self.diff.write_metadata()
+    solver.teardown()
+
+    solver.teardown() # stop memory leak
 
   def apply(self):
     self.io.clean_eventcache()
@@ -123,7 +142,8 @@ class PkglistEvent(Event):
     "pkglist file exists"
     self.verifier.failUnlessExists(self.pkglistfile)
 
-  def _verify_repos(self):
+  def _repos_modified(self):
+    changed = False
     for repo in self.cvars['repos'].values():
       # determine if repodata folder changed
       rddir_changed = False
@@ -137,6 +157,8 @@ class PkglistEvent(Event):
       if rddir_changed:
         ## HACK: delete a folder's depsolve metadata if it has changed.
         (self.dsdir/repo.id).rm(recursive=True, force=True)
+        changed = True
+    return changed
 
   def _create_repoconfig(self):
     repoconfig = self.mddir / 'depsolve.repo'
