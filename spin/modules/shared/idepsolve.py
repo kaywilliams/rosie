@@ -137,7 +137,7 @@ class IDepsolver(Depsolver):
       bestpo = self.getBestAvailablePackage(name=package)
       if instpo is None:
         if bestpo is None and package in self.user_reqs:
-          raise yum.Errors.InstallError("No package to install %s" % package)
+          raise yum.Errors.InstallError("No packages provide '%s'" % package)
         elif bestpo is not None:
           self.installPackage(po=bestpo)
 
