@@ -11,7 +11,7 @@ def make_repos(distro, repodefs=[]):
   repos = config.Element('repos')
   repos.append(config.Element('base-repo', text='%s-base' % distro))
   for repo in repodefs:
-    if not repo: continue
+    if repo is None: continue
     repos.append(repo)
   return repos
 
