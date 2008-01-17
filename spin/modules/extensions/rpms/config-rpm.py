@@ -26,12 +26,10 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       "%s configuration script and supporting files" % self.fullname
     )
 
-    InputFilesMixin.__init__(self)
-
-    self.installinfo = {
+    InputFilesMixin.__init__(self, {
       'config-files' : ('script', '/usr/lib/%s' % self.product, '755', True),
       'support-files': ('file', '/usr/share/%s/files' % self.product, None, False)
-    }
+    })
 
     self.DATA = {
       'variables': ['product', 'fullname', 'pva', 'rpm_release'],
@@ -102,7 +100,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       for id in self.support_ids:
         for support_file in self.io.list_output(id):
           src = P('/%s') % support_file.relpathfrom(self.build_folder).normpath()
-          dst = P('/%s') % src.relpathfrom(self.installinfo['support-files'][1]).normpath()
+          dst = P('/%s') % src.relpathfrom(self.install_info['support-files'][1]).normpath()
           dir = dst.dirname
           lines.extend([
             'if [ -e %s ]; then' % dst,
@@ -126,7 +124,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       for id in self.support_ids:
         for support_file in self.io.list_output(id):
           src = P('/%s') % support_file.relpathfrom(self.build_folder).normpath()
-          dst = P('/%s') % src.relpathfrom(self.installinfo['support-files'][1]).normpath()
+          dst = P('/%s') % src.relpathfrom(self.install_info['support-files'][1]).normpath()
           lines.extend([
             'if [ -e %s.config-save ]; then' % dst,
             '  %%{__mv} -f %s.config-save %s' % (dst, dst),

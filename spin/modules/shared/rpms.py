@@ -27,11 +27,11 @@ class InputFilesMixin:
   Mixin that can be used to setup the download and get list of data
   files that are sync'd.
   """
-  def __init__(self):
-    pass
+  def __init__(self, install_info):
+    self.install_info = install_info
 
   def _setup_download(self):
-    for k,v in self.installinfo.items():
+    for k,v in self.install_info.items():
       xpath, dst, defmode, absolute = v
 
       if xpath and self.config.pathexists(xpath):
