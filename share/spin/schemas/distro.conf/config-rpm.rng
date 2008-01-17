@@ -9,6 +9,7 @@
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
         <interleave>
+
           <zeroOrMore>
           <element name="script">
             <optional>
@@ -22,29 +23,25 @@
             <text/>
           </element>
           </zeroOrMore>
+
           <zeroOrMore>
           <element name="file">
             <optional>
             <attribute name="dest"/>
             </optional>
-
             <optional>
             <attribute name="mode">
               <ref name="value-mode"/>
             </attribute>
             </optional>
-
-            <optional>
-            <attribute name="noreplace">
-              <ref name="value-boolean"/>
-            </attribute>
-            </optional>
-
-             <text/>
+            <text/>
           </element>
           </zeroOrMore>
+
           <ref name="element-obsoletes"/>
+
           <ref name="element-requires"/>
+
         </interleave>
       </element>
       </optional>

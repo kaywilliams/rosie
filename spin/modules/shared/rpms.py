@@ -28,23 +28,30 @@ class InputFilesMixin:
   files that are sync'd.
   """
   def __init__(self):
-    self.handled_attributes = ['mode', 'dest']
+    pass
 
   def _setup_download(self):
     for k,v in self.installinfo.items():
-      xpath, dst, defmode = v
+      if len(v) == 3:
+        xpath, dst, defmode = v
+        absolute = True
+      else:
+        xpath, dst, defmode, absolute = v
+
       if xpath and self.config.pathexists(xpath):
         default_dir = P(dst) / P(self.config.get(xpath).getparent().get('@dest', ''))
         for item in self.config.xpath(xpath, []):
           s = P(item.get('text()'))
-          d = default_dir / P(item.get('@dest', ''))
+          if absolute:
+            d = default_dir / P(item.get('@dest', ''))
+          else:
+            d = default_dir // P(item.get('@dest', ''))
           m = item.get('@mode', defmode)
           id = self._get_download_id(k)
           self.io.setup_sync(self.build_folder // d, paths=[s], id=id, defmode=m)
           attribs = []
           for attr in item.attrib:
-            if attr not in self.handled_attributes:
-              attribs.append(attr)
+            attribs.append(attr)
           self._handle_attributes(id, item, attribs)
 
   def _get_download_id(self, type):
@@ -203,13 +210,6 @@ class RpmBuildMixin:
     doc_file.dirname.mkdirs()
     doc_file.write_text(self.rpm_desc)
 
-  def _get_ghost_files(self): return None
-  def _get_install_script(self): return None
-  def _get_post_install_script(self): return None
-  def _get_triggerin(self): return None
-  def _get_triggerun(self): return None
-  def _get_triggerpostun(self): return None
-
   def _build(self):
     self.build_folder.mkdirs()
     self._generate()
@@ -250,20 +250,43 @@ class RpmBuildMixin:
     if self.rpm_obsoletes:
       spec.set('bdist_rpm', 'obsoletes', ' '.join(self.rpm_obsoletes))
 
-    iscript = self._get_install_script()
-    pscript = self._get_post_install_script()
-    if iscript:
-      spec.set('bdist_rpm', 'install_script', iscript)
-    if pscript:
-      spec.set('bdist_rpm', 'post_install', pscript)
+    build_script = self._get_build_script()
+    if build_script:
+      spec.set('bdist_rpm', 'build_script', build_script)
+
+    clean_script = self._get_clean_script()
+    if clean_script:
+      spec.set('bdist_rpm', 'clean_script', clean_script)
+
+    install_script = self._get_install_script()
+    if install_script:
+      spec.set('bdist_rpm', 'install_script', install_script)
+
+    post_install_script = self._get_post_install_script()
+    if post_install_script:
+      spec.set('bdist_rpm', 'post_install', post_install_script)
+
+    pre_uninstall_script = self._get_pre_uninstall_script()
+    if pre_uninstall_script:
+      spec.set('bdist_rpm', 'pre_uninstall', pre_uninstall_script)
+
+    post_uninstall_script = self._get_post_uninstall_script()
+    if post_uninstall_script:
+      spec.set('bdist_rpm', 'post_uninstall', post_uninstall_script)
+
+    verify_script = self._get_verify_script()
+    if verify_script:
+      spec.set('bdist_rpm', 'verify_script', verify_script)
 
     triggerin = self._get_triggerin()
-    triggerun = self._get_triggerun()
-    triggerpostun = self._get_triggerpostun()
     if triggerin:
       spec.set('bdist_rpm', 'triggerin', '\n\t'.join(triggerin))
+
+    triggerun = self._get_triggerun()
     if triggerun:
       spec.set('bdist_rpm', 'triggerun', '\n\t'.join(triggerun))
+
+    triggerpostun = self._get_triggerpostun()
     if triggerpostun:
       spec.set('bdist_rpm', 'triggerpostun', '\n\t'.join(triggerpostun))
 
@@ -314,6 +337,34 @@ class RpmBuildMixin:
     if doc_files:
       spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))
 
+  def _get_ghost_files(self):
+    return None
+
+  def _get_build_script(self):
+    return None
+  def _get_clean_script(self):
+    return None
+  def _get_install_script(self):
+    return None
+  def _get_post_install_script(self):
+    return None
+  def _get_post_uninstall_script(self):
+    return None
+  def _get_pre_install_script(self):
+    return None
+  def _get_pre_uninstall_script(self):
+    return None
+  def _get_prep_script(self):
+    return None
+  def _get_verify_script(self):
+    return None
+
+  def _get_triggerin(self):
+    return None
+  def _get_triggerun(self):
+    return None
+  def _get_triggerpostun(self):
+    return None
 
 class ImagesGenerator(object):
   def __init__(self):
