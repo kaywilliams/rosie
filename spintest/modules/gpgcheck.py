@@ -3,16 +3,9 @@ from spintest.core import make_core_suite
 
 def _make_conf(basedistro='fedora-6', keys=True):
   if keys:
-    keyroot = config.REPOS['%s-base' % basedistro]['baseurl']
-    repo = config._make_repo('%s-base' % basedistro, enabled='1', gpgcheck='1',
-             gpgkey='\n'.join(['%s/RPM-GPG-KEY' % keyroot,
-                               '%s/RPM-GPG-KEY-beta' % keyroot,
-                               '%s/RPM-GPG-KEY-fedora' % keyroot,
-                               '%s/RPM-GPG-KEY-fedora-rawhide' % keyroot,
-                               '%s/RPM-GPG-KEY-fedora-test' % keyroot,
-                               '%s/RPM-GPG-KEY-rawhide' % keyroot]))
-  else:
     repo = config._make_repo('%s-base' % basedistro, enabled='1', gpgcheck='1')
+  else:
+    repo = config._make_repo('%s-base' % basedistro, enabled='1', gpgcheck='1', gpgkey='')
 
   # hack, shouldn't have to convert back to string
   return str(config.make_repos(basedistro, [repo]))

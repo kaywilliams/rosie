@@ -158,7 +158,6 @@ class Test_GroupsByRepo(_CompsEventTestCase):
   def __init__(self, basedistro, arch, conf=None):
     self._conf = self._conf % {'basedistro': basedistro}
     _CompsEventTestCase.__init__(self, basedistro, arch, conf)
-    print self.conf
 
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
