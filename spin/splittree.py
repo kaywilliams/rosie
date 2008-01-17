@@ -23,6 +23,7 @@ SIZE_ALIASES = {
 }
 
 def parse_size(s):
+  s = s.upper()
   if s in SIZE_ALIASES: s = SIZE_ALIASES[s]
   return si.parse(s)
 
