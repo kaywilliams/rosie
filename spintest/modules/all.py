@@ -2,11 +2,11 @@ from spintest      import EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite
 
 class AllEventTestCase(EventTestCase):
-  moduleid = 'ALL'
-  eventid  = 'ALL'
+  moduleid = 'all'
+  eventid  = 'all'
 
 def make_suite(basedistro, arch):
-  suite = ModuleTestSuite('ALL')
+  suite = ModuleTestSuite('all')
   suite.addTest(make_core_suite(AllEventTestCase, basedistro, arch))
 
   return suite

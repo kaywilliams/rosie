@@ -11,12 +11,6 @@ from spintest        import EventTestCase, ModuleTestSuite
 from spintest.core   import make_core_suite, make_extension_suite
 from spintest.mixins import BootConfigMixinTestCase
 
-#------ ISO ------#
-class ISOEventTestCase(EventTestCase):
-  moduleid = 'iso'
-  eventid  = 'ISO'
-  _conf = """<iso><set>CD</set></iso>"""
-
 #------ pkgorder ------#
 class PkgorderEventTestCase(EventTestCase):
   moduleid = 'iso'
@@ -167,9 +161,6 @@ class Test_BootArgsMacros(IsoEventBootConfigTestCase):
 
 def make_suite(basedistro, arch):
   suite = ModuleTestSuite('iso')
-
-  # ISO
-  suite.addTest(make_extension_suite(ISOEventTestCase, basedistro, arch))
 
   # pkgorder
   suite.addTest(make_extension_suite(PkgorderEventTestCase, basedistro, arch))

@@ -11,10 +11,10 @@ class SetupEventTestCase(EventTestCase):
   moduleid = 'init'
   eventid  = 'setup'
 
-#------ OS ------#
+#------ os ------#
 class OSEventTestCase(EventTestCase):
   moduleid = 'init'
-  eventid  = 'OS'
+  eventid  = 'os'
 
 
 def make_suite(basedistro, arch):
@@ -26,7 +26,7 @@ def make_suite(basedistro, arch):
   # setup
   suite.addTest(make_core_suite(SetupEventTestCase, basedistro, arch))
 
-  # OS
+  # os
   suite.addTest(make_core_suite(OSEventTestCase, basedistro, arch))
 
   return suite

@@ -2,7 +2,7 @@ from spin.event   import Event, CLASS_META
 from spin.logging import L1
 
 API_VERSION = 5.0
-EVENTS = {'ALL': ['InitEvent', 'SetupEvent', 'OSMetaEvent']}
+EVENTS = {'all': ['InitEvent', 'SetupEvent', 'OSMetaEvent']}
 
 class InitEvent(Event):
   def __init__(self):
@@ -41,7 +41,7 @@ class SetupEvent(Event):
 class OSMetaEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'OS',
+      id = 'os',
       properties = CLASS_META,
       comes_after = ['setup'],
       suppress_run_message = True

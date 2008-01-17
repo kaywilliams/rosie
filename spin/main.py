@@ -113,11 +113,11 @@ class Build(object):
       self.disabled_modules = loader.disabled
       self.enabled_modules  = loader.enabled
       self.module_map       = loader.module_map
-      # hack to make sure --force ALL still works #!
-      # or is it a hack?  Perhaps we should use the caps notation for
+      # hack to make sure '--force all' still works #!
+      # or is it a hack?  Perhaps we should consider adding 
       # arbitrary containers of higher level tasks - all installer files,
       # all software and custom rpms, all publish stuff, etc
-      self.module_map.setdefault('ALL', []).append(self.dispatch._top.id)
+      self.module_map.setdefault('all', []).append(self.dispatch._top.id)
     except ImportError, e:
       Event.logger.log(0, L0("Error loading core spin files: %s" % e))
       if DEBUG: raise
@@ -418,7 +418,7 @@ class AllEvent(Event):
   "event's version will cause all events to automatically run."
   def __init__(self):
     Event.__init__(self,
-      id = 'ALL',
+      id = 'all',
       version = 0,
       properties = CLASS_META,
       suppress_run_message = True

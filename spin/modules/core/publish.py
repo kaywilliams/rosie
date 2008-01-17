@@ -12,7 +12,7 @@ from spin.logging   import L1
 P = pps.Path
 
 API_VERSION = 5.0
-EVENTS = {'ALL': ['PublishEvent'], 'setup': ['PublishSetupEvent']}
+EVENTS = {'all': ['PublishEvent'], 'setup': ['PublishSetupEvent']}
 
 class PublishSetupEvent(Event):
   def __init__(self):
