@@ -44,15 +44,15 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     self.repo_dir = P('/etc/yum.repos.d')
 
     self.installinfo = {
-      'gpg'     : (None, self.gpg_dir, None),
-      'repo'    : ('yum-repos/path', self.repo_dir, None),
-      'eula'    : ('eula/path', self.eula_dir, None),
-      'omf'     : ('release-notes/omf/path', self.omf_dir, None),
-      'html'    : ('release-notes/html/path', self.html_dir, None),
-      'doc'     : ('release-notes/doc/path', self.doc_dir, None),
-      'release' : ('release-files/path', self.release_dir, None),
-      'etc'     : (None, self.etc_dir, None),
-      'eulapy'  : (None, self.eulapy_dir, None),
+      'gpg'     : (None, self.gpg_dir, None, True),
+      'repo'    : ('yum-repos/path', self.repo_dir, None, True),
+      'eula'    : ('eula/path', self.eula_dir, None, True),
+      'omf'     : ('release-notes/omf/path', self.omf_dir, None, True),
+      'html'    : ('release-notes/html/path', self.html_dir, None, True),
+      'doc'     : ('release-notes/doc/path', self.doc_dir, None, True),
+      'release' : ('release-files/path', self.release_dir, None, True),
+      'etc'     : (None, self.etc_dir, None, True),
+      'eulapy'  : (None, self.eulapy_dir, None, True),
     }
 
     self.DATA = {
@@ -114,7 +114,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
 
     self.io.sync_input(cache=True)
     for type in self.installinfo.keys():
-      _, dir, _ = self.installinfo[type]
+      _, dir, _, _ = self.installinfo[type]
       generator = '_generate_%s_files' % type
       if hasattr(self, generator):
         dest = self.build_folder//dir

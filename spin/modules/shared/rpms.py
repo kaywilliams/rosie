@@ -32,11 +32,7 @@ class InputFilesMixin:
 
   def _setup_download(self):
     for k,v in self.installinfo.items():
-      if len(v) == 3:
-        xpath, dst, defmode = v
-        absolute = True
-      else:
-        xpath, dst, defmode, absolute = v
+      xpath, dst, defmode, absolute = v
 
       if xpath and self.config.pathexists(xpath):
         default_dir = P(dst) / P(self.config.get(xpath).getparent().get('@dest', ''))

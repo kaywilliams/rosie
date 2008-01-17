@@ -29,7 +29,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     InputFilesMixin.__init__(self)
 
     self.installinfo = {
-      'config-files' : ('script', '/usr/lib/%s' % self.product, '755'),
+      'config-files' : ('script', '/usr/lib/%s' % self.product, '755', True),
       'support-files': ('file', '/usr/share/%s/files' % self.product, None, False)
     }
 
