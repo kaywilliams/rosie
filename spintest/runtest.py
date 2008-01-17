@@ -43,6 +43,10 @@ def parse_cmd_args():
     dest='basedistro',
     default='fedora-6',
     help='select the distribution to test')
+  parser.add_option('-a', '--base-arch', metavar='ARCH',
+    dest='basearch',
+    default='i386',
+    help='select the arch of the distribution to test')
   parser.add_option('-b', '--build-root', metavar='DIRECTORY',
     dest='buildroot',
     default='/tmp/spintest',
@@ -99,7 +103,8 @@ def main():
     try:
       fp,p,d = imp.find_module(testpath.basename, [testpath.dirname])
       mod = imp.load_module('test-%s' % testpath.dirname.basename, fp, p, d)
-      suite.addTest(mod.make_suite(basedistro=options.basedistro))
+      suite.addTest(mod.make_suite(basedistro=options.basedistro,
+                                   arch=options.basearch))
     finally:
       fp and fp.close()
 

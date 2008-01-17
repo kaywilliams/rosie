@@ -8,22 +8,22 @@ from spintest.core   import make_extension_suite
 class SourceReposEventTestCase(EventTestCase):
   moduleid = 'sources'
   eventid  = 'source-repos'
-  def __init__(self, basedistro, conf=None):
+  def __init__(self, basedistro, arch, conf=None):
     self._conf = _make_source_repos(basedistro)
-    EventTestCase.__init__(self, basedistro, conf)
+    EventTestCase.__init__(self, basedistro, arch, conf)
 
 class SourcesEventTestCase(EventTestCase):
   moduleid = 'sources'
   eventid  = 'sources'
-  def __init__(self, basedistro, conf=None):
+  def __init__(self, basedistro, arch, conf=None):
     self._conf = _make_source_repos(basedistro)
-    EventTestCase.__init__(self, basedistro, conf)
+    EventTestCase.__init__(self, basedistro, arch, conf)
 
-def make_suite(basedistro):
+def make_suite(basedistro, arch):
   suite = ModuleTestSuite('sources')
 
-  suite.addTest(make_extension_suite(SourceReposEventTestCase, basedistro))
-  suite.addTest(make_extension_suite(SourcesEventTestCase, basedistro))
+  suite.addTest(make_extension_suite(SourceReposEventTestCase, basedistro, arch))
+  suite.addTest(make_extension_suite(SourcesEventTestCase, basedistro, arch))
 
   return suite
 
@@ -89,7 +89,7 @@ SOURCE_REPOS = {
   # redhat 5
   'redhat-5-base-source': {
     'name': 'redhat-5-base-source',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/redhat/5/os/SRPMS',
+    'baseurl': 'http://www.renditionsoftware.com/open_software/redhat/5/os/SRPMS/',
   },
   # centos 5
   'centos-5-base-source': {

@@ -12,13 +12,13 @@ class DownloadEventTestCase(EventTestCase):
   moduleid = 'download'
   eventid  = 'download'
 
-  def __init__(self, basedistro, conf=None):
-    EventTestCase.__init__(self, basedistro, conf=conf)
+  def __init__(self, basedistro, arch, conf=None):
+    EventTestCase.__init__(self, basedistro, arch, conf=conf)
 
     config.add_config_section(self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro),
-         config._make_repo('%s-updates' % basedistro),
+        [config._make_repo('%s-base' % basedistro, arch),
+         config._make_repo('%s-updates' % basedistro, arch),
          xmllib.config.read(StringIO('<repofile>download/download-test-repos.repo</repofile>'))]
       )
     )
@@ -67,8 +67,8 @@ class Test_RemovedPackageDeleted(DownloadEventTestCase):
 
 class Test_ArchChanges(DownloadEventTestCase):
   "Test arch changes in <main/>"
-  def __init__(self, basedistro):
-    DownloadEventTestCase.__init__(self, basedistro)
+  def __init__(self, basedistro, arch):
+    DownloadEventTestCase.__init__(self, basedistro, arch)
     xmllib.tree.uElement('arch', self.conf.get('/distro/main'), text='i386')
 
 class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
@@ -83,13 +83,16 @@ class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
       numpkgs += len(self.event.cvars['rpms-by-repoid'][id])
     self.failUnless(len(self.event.cvars['cached-rpms']) == numpkgs)
 
-def make_suite(basedistro):
+def make_suite(basedistro, arch):
   _run_make(pps.Path(__file__).dirname)
+
   suite = ModuleTestSuite('download')
-  suite.addTest(make_core_suite(DownloadEventTestCase, basedistro))
-  suite.addTest(Test_PackagesDownloaded(basedistro))
-  suite.addTest(Test_AddedPackageDownloaded(basedistro))
-  suite.addTest(Test_RemovedPackageDeleted(basedistro))
-  suite.addTest(Test_ArchChanges(basedistro))
-  suite.addTest(Test_MultipleReposWithSamePackage(basedistro))
+
+  suite.addTest(make_core_suite(DownloadEventTestCase, basedistro, arch))
+  suite.addTest(Test_PackagesDownloaded(basedistro, arch))
+  suite.addTest(Test_AddedPackageDownloaded(basedistro, arch))
+  suite.addTest(Test_RemovedPackageDeleted(basedistro, arch))
+  suite.addTest(Test_ArchChanges(basedistro, arch))
+  suite.addTest(Test_MultipleReposWithSamePackage(basedistro, arch))
+
   return suite

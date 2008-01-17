@@ -20,8 +20,8 @@ class PkglistEventTestCase(EventTestCase):
 
   PKGLIST_COUNT = {}
 
-  def __init__(self, caseid, basedistro, clean=False):
-    EventTestCase.__init__(self, basedistro=basedistro)
+  def __init__(self, basedistro, arch, conf=None, caseid=None, clean=False):
+    EventTestCase.__init__(self, basedistro, arch, conf)
     self.caseid = caseid
     self.clean = clean
 
@@ -42,23 +42,23 @@ class PkglistEventTestCase(EventTestCase):
 
 class Test_PkglistBug84_1(PkglistEventTestCase):
   "without base group"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'bug84_1', basedistro, True)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug84_1', True)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro)]
+        [config._make_repo('%s-base' % basedistro, arch)]
       )
     )
 
 class Test_PkglistBug84_2(PkglistEventTestCase):
   "with base group"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'bug84_2', basedistro, False)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug84_2', False)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro)]
+        [config._make_repo('%s-base' % basedistro, arch)]
       )
     )
     config.add_config_section(
@@ -74,12 +74,12 @@ class Test_PkglistBug84_2(PkglistEventTestCase):
 
 class Test_PkglistBug84_3(PkglistEventTestCase):
   "without base group but with pkglist metadata"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'bug84_3', basedistro, False)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug84_3', False)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro)]
+        [config._make_repo('%s-base' % basedistro, arch)]
       )
     )
 
@@ -92,35 +92,35 @@ class Test_PkglistBug84_3(PkglistEventTestCase):
 
 class Test_PkglistBug85_1(PkglistEventTestCase):
   "without updates repo"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'bug85_1', basedistro, True)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug85_1', True)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro)]
+        [config._make_repo('%s-base' % basedistro, arch)]
       )
     )
 
 class Test_PkglistBug85_2(PkglistEventTestCase):
   "with updates repo"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'bug85_2', basedistro, False)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug85_2', False)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro),
-         config._make_repo('%s-updates' % basedistro)]
+        [config._make_repo('%s-base' % basedistro, arch),
+         config._make_repo('%s-updates' % basedistro, arch)]
       )
     )
 
 class Test_PkglistBug85_3(PkglistEventTestCase):
   "without updates but with pkglist metadata"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'bug85_3', basedistro, False)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug85_3', False)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro)]
+        [config._make_repo('%s-base' % basedistro, arch)]
       )
     )
 
@@ -133,25 +133,25 @@ class Test_PkglistBug85_3(PkglistEventTestCase):
 
 class Test_PkglistBug86_1(PkglistEventTestCase):
   "pkglist without release-rpm forced"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'bug86_1', basedistro, True)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug86_1', True)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro),
-         config._make_repo('%s-updates' % basedistro)]
+        [config._make_repo('%s-base' % basedistro, arch),
+         config._make_repo('%s-updates' % basedistro, arch)]
       )
     )
 
 class Test_PkglistBug86_2(PkglistEventTestCase):
   "pkglist with release-rpm forced"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'bug86_2', basedistro, True)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug86_2', True)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro),
-         config._make_repo('%s-updates' % basedistro)]
+        [config._make_repo('%s-base' % basedistro, arch),
+         config._make_repo('%s-updates' % basedistro, arch)]
       )
     )
 
@@ -168,12 +168,12 @@ class Test_PkglistBug86_2(PkglistEventTestCase):
 
 class Test_PkglistBug108_1(PkglistEventTestCase):
   "without updates repo 'gaim' should be in pkglist"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'bug108_1', basedistro, True)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug108_1', True)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro)]
+        [config._make_repo('%s-base' % basedistro, arch)]
       )
     )
     config.add_config_section(
@@ -205,13 +205,13 @@ class Test_PkglistBug108_1(PkglistEventTestCase):
 
 class Test_PkglistBug108_2(PkglistEventTestCase):
   "with updates repo 'pidgin' or 'libpurple' should be in pkglist"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'bug108_2', basedistro, False)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug108_2', False)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro),
-         config._make_repo('%s-updates' % basedistro)]
+        [config._make_repo('%s-base' % basedistro, arch),
+         config._make_repo('%s-updates' % basedistro, arch)]
       )
     )
     config.add_config_section(
@@ -245,9 +245,6 @@ class Test_Supplied(DummyPkglistEventTestCase):
   "pkglist supplied"
   _conf = "<pkglist>pkglist/pkglist</pkglist>"
 
-  def __init__(self, basedistro):
-    EventTestCase.__init__(self, basedistro=basedistro)
-
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
     pkglist_in  = (pps.Path(__file__).dirname.dirname /
@@ -257,12 +254,12 @@ class Test_Supplied(DummyPkglistEventTestCase):
 
 class Test_PackageAdded(PkglistEventTestCase):
   "added package"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'pkgadded', basedistro, True)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'pkgadded', True)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro),
+        [config._make_repo('%s-base' % basedistro, arch),
          xmllib.config.read(StringIO("<repofile>pkglist/pkglist-test-repos1.repo</repofile>"))]
       )
     )
@@ -283,12 +280,12 @@ class Test_PackageAdded(PkglistEventTestCase):
 
 class Test_ObsoletedPackage(PkglistEventTestCase):
   "obsoleted package"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'pkgobsoleted', basedistro, False)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'pkgobsoleted', False)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro),
+        [config._make_repo('%s-base' % basedistro, arch),
          xmllib.config.read(StringIO("<repofile>pkglist/pkglist-test-repos1.repo</repofile>")),
          xmllib.config.read(StringIO("<repofile>pkglist/pkglist-test-repos2.repo</repofile>"))]
       )
@@ -311,8 +308,8 @@ class Test_ObsoletedPackage(PkglistEventTestCase):
 
 class Test_RemovedPackage(PkglistEventTestCase):
   "removed package"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'pkgremoved', basedistro, False)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'pkgremoved', False)
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
@@ -320,12 +317,12 @@ class Test_RemovedPackage(PkglistEventTestCase):
 
 class Test_ExclusivePackage_1(PkglistEventTestCase):
   "test-package required only by another test-package"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'exclusive_1', basedistro, False)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'exclusive_1', False)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro),
+        [config._make_repo('%s-base' % basedistro, arch),
          xmllib.config.read(StringIO("<repofile>pkglist/pkglist-test-repos3.repo</repofile>"))]
       )
     )
@@ -347,8 +344,8 @@ class Test_ExclusivePackage_1(PkglistEventTestCase):
 
 class Test_ExclusivePackage_2(PkglistEventTestCase):
   "package not required by anything else not in pkglist"
-  def __init__(self, basedistro):
-    PkglistEventTestCase.__init__(self, 'exclusive_2', basedistro, False)
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'exclusive_2', False)
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
@@ -358,52 +355,52 @@ class Test_ExclusivePackage_2(PkglistEventTestCase):
     self.failIf('pkglist-test-package3-1.0-1.noarch' in self.event.cvars['pkglist'])
     self.failIf('pkglist-test-package4-1.0-1.noarch' in self.event.cvars['pkglist'])
 
-def make_suite(basedistro):
+def make_suite(basedistro, arch):
   _run_make(P(__file__).dirname)
 
   suite = ModuleTestSuite('pkglist')
 
   # core tests
-  suite.addTest(make_core_suite(DummyPkglistEventTestCase, basedistro))
+  suite.addTest(make_core_suite(DummyPkglistEventTestCase, basedistro, arch))
 
   # bug 84
   bug84 = ModuleTestSuite('pkglist')
-  bug84.addTest(Test_PkglistBug84_1(basedistro))
-  bug84.addTest(Test_PkglistBug84_2(basedistro))
-  bug84.addTest(Test_PkglistBug84_3(basedistro))
+  bug84.addTest(Test_PkglistBug84_1(basedistro, arch))
+  bug84.addTest(Test_PkglistBug84_2(basedistro, arch))
+  bug84.addTest(Test_PkglistBug84_3(basedistro, arch))
   suite.addTest(bug84)
 
   # bug 85
   bug85 = ModuleTestSuite('pkglist')
-  bug85.addTest(Test_PkglistBug85_1(basedistro))
-  bug85.addTest(Test_PkglistBug85_2(basedistro))
-  bug85.addTest(Test_PkglistBug85_3(basedistro))
+  bug85.addTest(Test_PkglistBug85_1(basedistro, arch))
+  bug85.addTest(Test_PkglistBug85_2(basedistro, arch))
+  bug85.addTest(Test_PkglistBug85_3(basedistro, arch))
   suite.addTest(bug85)
 
   # bug 86
   bug86 = ModuleTestSuite('pkglist')
-  bug86.addTest(Test_PkglistBug86_1(basedistro))
-  bug86.addTest(Test_PkglistBug86_2(basedistro))
+  bug86.addTest(Test_PkglistBug86_1(basedistro, arch))
+  bug86.addTest(Test_PkglistBug86_2(basedistro, arch))
   suite.addTest(bug86)
 
   # bug 108; for centos-5 base distro only
   if basedistro == 'centos-5':
     bug108 = ModuleTestSuite('pkglist')
-    bug108.addTest(Test_PkglistBug108_1('centos-5'))
-    bug108.addTest(Test_PkglistBug108_2('centos-5'))
+    bug108.addTest(Test_PkglistBug108_1(basedistro, arch))
+    bug108.addTest(Test_PkglistBug108_2(basedistro, arch))
     suite.addTest(bug108)
 
   # pkglist supplied
-  suite.addTest(Test_Supplied(basedistro))
+  suite.addTest(Test_Supplied(basedistro, arch))
 
   # package added, obsoleted, and removed
-  suite.addTest(Test_PackageAdded(basedistro))
-  suite.addTest(Test_ObsoletedPackage(basedistro))
-  suite.addTest(Test_RemovedPackage(basedistro))
+  suite.addTest(Test_PackageAdded(basedistro, arch))
+  suite.addTest(Test_ObsoletedPackage(basedistro, arch))
+  suite.addTest(Test_RemovedPackage(basedistro, arch))
 
   # add package that requires a package nothing else requires,
   # then remove it.
-  suite.addTest(Test_ExclusivePackage_1(basedistro))
-  suite.addTest(Test_ExclusivePackage_2(basedistro))
+  suite.addTest(Test_ExclusivePackage_1(basedistro, arch))
+  suite.addTest(Test_ExclusivePackage_2(basedistro, arch))
 
   return suite

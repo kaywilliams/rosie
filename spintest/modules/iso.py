@@ -5,6 +5,8 @@ from rendition.img           import MakeImage
 from rendition.xmllib.config import Element
 from rendition import si
 
+from spin.splittree import parse_size
+
 from spintest        import EventTestCase, ModuleTestSuite
 from spintest.core   import make_core_suite, make_extension_suite
 from spintest.mixins import BootConfigMixinTestCase
@@ -35,8 +37,8 @@ class IsoEventTestCase(EventTestCase):
 
 
 class IsoEventBootConfigTestCase(BootConfigMixinTestCase, IsoEventTestCase):
-  def __init__(self, basedistro, conf=None):
-    IsoEventTestCase.__init__(self, basedistro, conf)
+  def __init__(self, basedistro, arch, conf=None):
+    IsoEventTestCase.__init__(self, basedistro, arch, conf)
     self.default_args = ['method=cdrom']
     self.image = None
     self.do_defaults = True
@@ -54,7 +56,7 @@ class IsoEventBootConfigTestCase(BootConfigMixinTestCase, IsoEventTestCase):
 
 
 class Test_SizeParser(unittest.TestCase):
-  "si.parse() checks"
+  "splittree.parse_size() checks"
   # this probably technically belongs elsewhere, in another unittest
   def __init__(self):
     unittest.TestCase.__init__(self)
@@ -62,17 +64,17 @@ class Test_SizeParser(unittest.TestCase):
     self._testMethodDoc = self.__class__.__doc__
 
   def runTest(self):
-    self.failUnlessEqual(si.parse('100'),    100 * (1000**0))
-    self.failUnlessEqual(si.parse('100b'),   100 * (1000**0))
-    self.failUnlessEqual(si.parse('100k'),   100 * (1000**1))
-    self.failUnlessEqual(si.parse('100ki'),  100 * (1024**1))
-    self.failUnlessEqual(si.parse('100M'),   100 * (1000**2))
-    self.failUnlessEqual(si.parse('100Mi'),  100 * (1024**2))
-    self.failUnlessEqual(si.parse('100G'),   100 * (1000**3))
-    self.failUnlessEqual(si.parse('100Gi'),  100 * (1024**3))
-    #self.failUnlessEqual(si.parse('CD'),     si.parse('640MB'))
-    #self.failUnlessEqual(si.parse('DVD'),    si.parse('4.7GB'))
-    self.failUnlessEqual(si.parse('100 mb'), si.parse('100MB'))
+    self.failUnlessEqual(parse_size('100'),   si.parse('100'))
+    self.failUnlessEqual(parse_size('100b'),  si.parse('100b'))
+    self.failUnlessEqual(parse_size('100k'),  si.parse('100k'))
+    self.failUnlessEqual(parse_size('100ki'), si.parse('100ki'))
+    self.failUnlessEqual(parse_size('100M'),  si.parse('100M'))
+    self.failUnlessEqual(parse_size('100Mi'), si.parse('100Mi'))
+    self.failUnlessEqual(parse_size('100G'),  si.parse('100G'))
+    self.failUnlessEqual(parse_size('100Gi'), si.parse('100Gi'))
+    self.failUnlessEqual(parse_size('CD'),    si.parse('640MB'))
+    self.failUnlessEqual(parse_size('DVD'),   si.parse('4.7GB'))
+    self.failUnlessEqual(parse_size('100 mb'), parse_size('100MB'))
 
 class Test_IsoContent(IsoEventTestCase):
   "iso content matches split tree content"
@@ -163,21 +165,21 @@ class Test_BootArgsMacros(IsoEventBootConfigTestCase):
     self.do_defaults = False
 
 
-def make_suite(basedistro):
+def make_suite(basedistro, arch):
   suite = ModuleTestSuite('iso')
 
   # ISO
-  suite.addTest(make_extension_suite(ISOEventTestCase, basedistro))
+  suite.addTest(make_extension_suite(ISOEventTestCase, basedistro, arch))
 
   # pkgorder
-  suite.addTest(make_extension_suite(PkgorderEventTestCase, basedistro))
+  suite.addTest(make_extension_suite(PkgorderEventTestCase, basedistro, arch))
 
   # iso
-  suite.addTest(make_extension_suite(IsoEventTestCase, basedistro))
+  suite.addTest(make_extension_suite(IsoEventTestCase, basedistro, arch))
   suite.addTest(Test_SizeParser())
-  suite.addTest(Test_IsoContent(basedistro))
-  suite.addTest(Test_SetsChanged(basedistro))
-  suite.addTest(Test_BootArgsDefault(basedistro))
-  suite.addTest(Test_BootArgsNoDefault(basedistro))
-  suite.addTest(Test_BootArgsMacros(basedistro))
+  suite.addTest(Test_IsoContent(basedistro, arch))
+  suite.addTest(Test_SetsChanged(basedistro, arch))
+  suite.addTest(Test_BootArgsDefault(basedistro, arch))
+  suite.addTest(Test_BootArgsNoDefault(basedistro, arch))
+  suite.addTest(Test_BootArgsMacros(basedistro, arch))
   return suite

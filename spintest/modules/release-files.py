@@ -9,8 +9,8 @@ class ReleaseFilesEventTestCase(EventTestCase):
   eventid  = 'release-files'
   _conf = """<release-files/>"""
 
-  def __init__(self, basedistro, conf=None, enabled='True'):
-    EventTestCase.__init__(self, basedistro, conf)
+  def __init__(self, basedistro, arch, conf=None, enabled='True'):
+    EventTestCase.__init__(self, basedistro, arch, conf)
     self.enabled = enabled
 
 class _ReleaseFilesEventTestCase(ReleaseFilesEventTestCase):
@@ -52,31 +52,31 @@ class Test_ReleaseFilesWithPackageElement(_ReleaseFilesEventTestCase):
   </release-files>"""
   # this test doesn't actually do anything because package is empty...
 
-  def __init__(self, basedistro, conf=None):
-    _ReleaseFilesEventTestCase.__init__(self, basedistro, conf, 'True')
+  def __init__(self, basedistro, arch, conf=None):
+    _ReleaseFilesEventTestCase.__init__(self, basedistro, arch, conf, 'True')
 
   def setUp(self):
     _ReleaseFilesEventTestCase.setUp(self)
     self.conf.get('release-files/package').text = '%s-release' % self.event.product
 
-def make_suite(basedistro):
+def make_suite(basedistro, arch):
   suite = ModuleTestSuite('release-files')
 
-  suite.addTest(make_core_suite(ReleaseFilesEventTestCase, basedistro))
+  suite.addTest(make_core_suite(ReleaseFilesEventTestCase, basedistro, arch))
 
   # default run
-  suite.addTest(Test_ReleaseFiles(basedistro, enabled='True'))
-  suite.addTest(Test_ReleaseFiles(basedistro, enabled='False'))
+  suite.addTest(Test_ReleaseFiles(basedistro, arch, enabled='True'))
+  suite.addTest(Test_ReleaseFiles(basedistro, arch, enabled='False'))
 
   # execution with modification of 'use-default-set' attribute
-  suite.addTest(Test_ReleaseFilesWithDefaultSet(basedistro, enabled='True'))
-  suite.addTest(Test_ReleaseFilesWithDefaultSet(basedistro, enabled='False'))
+  suite.addTest(Test_ReleaseFilesWithDefaultSet(basedistro, arch, enabled='True'))
+  suite.addTest(Test_ReleaseFilesWithDefaultSet(basedistro, arch, enabled='False'))
 
   # execution with <path/> element
-  suite.addTest(Test_ReleaseFilesWithInputFiles(basedistro, enabled='True'))
-  suite.addTest(Test_ReleaseFilesWithInputFiles(basedistro, enabled='False'))
+  suite.addTest(Test_ReleaseFilesWithInputFiles(basedistro, arch, enabled='True'))
+  suite.addTest(Test_ReleaseFilesWithInputFiles(basedistro, arch, enabled='False'))
 
   # execution with <package/> element
-  suite.addTest(Test_ReleaseFilesWithPackageElement(basedistro))
+  suite.addTest(Test_ReleaseFilesWithPackageElement(basedistro, arch))
 
   return suite

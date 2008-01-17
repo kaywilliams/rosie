@@ -15,26 +15,27 @@ def make_repos(distro, repodefs=[]):
     repos.append(repo)
   return repos
 
-def make_main(eventid, **kwargs):
+def make_main(eventid, arch, **kwargs):
   "make a <main> top level element"
   main = config.Element('main')
 
   kwargs.setdefault('fullname', '%s event test' % eventid)
   kwargs.setdefault('product',  'test-%s' % eventid)
   kwargs.setdefault('version',  '0')
+  kwargs.setdefault('arch', arch)
 
   for k,v in kwargs.items():
     config.Element(k, text=v, parent=main)
   return main
 
-def make_default_config(eventid, basedistro='fedora-6'):
+def make_default_config(eventid, basedistro='fedora-6', arch='i386'):
   "create a default config file"
   # make top level element
   distro = _make_distro()
   # make main element and append
-  distro.append(make_main(eventid))
+  distro.append(make_main(eventid, arch))
   # make repos element
-  baserepo = _make_repo('%s-base' % basedistro)
+  baserepo = _make_repo('%s-base' % basedistro, arch)
   distro.append(make_repos(basedistro, [baserepo]))
 
   distro.file = '' # hack to get rpm building working
