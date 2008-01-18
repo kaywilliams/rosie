@@ -1,5 +1,4 @@
 import cPickle
-import re
 import yum
 
 from rendition import pps
@@ -20,8 +19,8 @@ def resolve(packages=None, required=None, remove=None, pkglist=None,
              callback = callback
            )
   solver.setup()
-  solver.getPackageObjects()
-  pkgtups = [ x.pkgtup for x in solver.polist ]
+  pos = solver.getPackageObjects()
+  pkgtups = [ po.pkgtup for po in pos ]
   solver.teardown()
   return pkgtups
 
@@ -192,7 +191,10 @@ class IDepsolver(Depsolver):
     for po in self.installed_packages.values():
       self.install(po=po)
 
-    self.resolveDeps()
+    pos = self.resolveDeps()
+
     f = self.cached_file.open('w')
     cPickle.dump(self.resolved_deps, f)
     f.close()
+
+    return pos
