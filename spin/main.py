@@ -343,9 +343,15 @@ class Build(object):
     bv = Event.cvars['base-vars'] = {}
     qstr = '/distro/main/%s/text()'
 
+    ## HACK: perform some hackery to get the arch set up
+    ## correctly. Following what pungi does.
+    arch = Event._config.get(qstr % 'arch', 'i686')
+    if arch == 'i386':
+      arch = 'athlon'
+    bv['arch'] = arch
+
     bv['product']  = Event._config.get(qstr % 'product')
     bv['version']  = Event._config.get(qstr % 'version')
-    bv['arch']     = Event._config.get(qstr % 'arch', 'i686')
     bv['basearch'] = getBaseArch(bv['arch'])
     bv['fullname'] = Event._config.get(qstr % 'fullname', bv['product'])
     bv['webloc']   = Event._config.get(qstr % 'bug-url', 'No bug url provided')
