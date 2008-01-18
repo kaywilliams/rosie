@@ -6,22 +6,43 @@ from rendition import pps
 
 from rendition.depsolver import Depsolver
 
+def resolve(packages=None, required=None, remove=None, pkglist=None,
+            config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
+            callback=None):
+  solver = IDepsolver(
+             packages = packages,
+             required = required,
+             remove = remove,
+             pkglist = pkglist,
+             config = config,
+             root = root,
+             arch = arch,
+             callback = callback
+           )
+  solver.setup()
+  solver.getPackageObjects()
+  pkgtups = [ x.pkgtup for x in solver.polist ]
+  solver.teardown()
+  return pkgtups
+
 class IDepsolver(Depsolver):
-  def __init__(self, config, root, arch, callback,
-               pkglist, user_reqs, install_packages, remove_packages):
+  def __init__(self, packages=None, required=None, remove=None, pkglist=None,
+               config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
+               callback=None):
     Depsolver.__init__(self,
-      install_packages = install_packages,
       config = str(config),
       root = str(root),
       arch = arch,
       callback = callback
     )
+    self.install_packages = packages
     self.pkglist = pps.Path(pkglist)
-    self.user_reqs = user_reqs
-    self.remove_packages = remove_packages
+    self.required = required
+    self.remove_packages = remove
+
     self.installed_packages = {}
 
-    self.cached_file = root / 'cache'
+    self.cached_file = pps.Path(root) / 'cache'
     self.cached_items = {}
 
   def setup(self, force=False):
@@ -140,7 +161,7 @@ class IDepsolver(Depsolver):
       instpo = self.getInstalledPackage(name=package)
       bestpo = self.getBestAvailablePackage(name=package)
       if instpo is None:
-        if bestpo is None and package in self.user_reqs:
+        if bestpo is None and package in self.required:
           raise yum.Errors.InstallError("No packages provide '%s'" % package)
         elif bestpo is not None:
           self.installPackage(po=bestpo)

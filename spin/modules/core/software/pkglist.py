@@ -1,6 +1,7 @@
 import re
 import rpmUtils.arch
 
+from rendition import depsolver
 from rendition import difftest
 
 from spin.callback  import BuildDepsolveCallback
@@ -8,7 +9,7 @@ from spin.constants import KERNELS
 from spin.event     import Event
 from spin.logging   import L1
 
-from spin.modules.shared.idepsolve import IDepsolver
+from spin.modules.shared import idepsolve
 
 API_VERSION = 5.0
 EVENTS = {'software': ['PkglistEvent']}
@@ -33,6 +34,8 @@ NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
                         '(?P<release>.+)' # rpm release
                         '\.'
                         '(?P<arch>.+)')   # rpm architecture
+
+INCREMENTAL_DEPSOLVE = True
 
 class PkglistEvent(Event):
   def __init__(self):
@@ -102,35 +105,34 @@ class PkglistEvent(Event):
     required_packages = self.cvars.get('required-packages', [])
     user_required = self.cvars.get('user-required-packages', [])
 
-    toremove = []
-    diffdict = self.diff.handlers['variables'].diffdict
-    if diffdict.has_key("cvars['required-packages']"):
-      prev, curr = diffdict["cvars['required-packages']"]
-      if prev is None or \
-           isinstance(prev, difftest.NewEntry) or \
-           isinstance(prev, difftest.NoneEntry):
-        prev = []
-      if curr is None or \
-           isinstance(curr, difftest.NewEntry) or \
-           isinstance(curr, difftest.NoneEntry):
-        curr = []
-      if prev:
-        toremove.extend([ x for x in prev if x not in curr ])
+    if INCREMENTAL_DEPSOLVE:
+      toremove = []
+      diffdict = self.diff.handlers['variables'].diffdict
+      if diffdict.has_key("cvars['required-packages']"):
+        prev, curr = diffdict["cvars['required-packages']"]
+        if prev is None or \
+              isinstance(prev, difftest.NewEntry) or \
+              isinstance(prev, difftest.NoneEntry):
+          prev = []
+        if prev:
+          toremove.extend([ x for x in prev if x not in curr ])
 
-    solver = IDepsolver(
-               repoconfig,
-               self.dsdir,
-               self.yumarch,
-               BuildDepsolveCallback(self.logger),
-               self.pkglistfile,
-               user_required,
-               required_packages,
-               toremove
-             )
-    solver.setup()
-    solver.getPackageObjects()
+      pkgtups = idepsolve.resolve(packages = required_packages,
+                                  required = user_required,
+                                  remove = toremove,
+                                  pkglist = self.pkglistfile,
+                                  config = str(repoconfig),
+                                  root = str(self.dsdir),
+                                  arch = self.yumarch,
+                                  callback = BuildDepsolveCallback(self.logger))
+    else:
+      pkgtups = depsolver.resolve(packages = required_packages,
+                                  required = user_required,
+                                  config = str(repoconfig),
+                                  root = str(self.dsdir),
+                                  arch = self.yumarch,
+                                  callback = BuildDepsolveCallback(self.logger))
 
-    pkgtups = [ x.pkgtup for x in solver.polist ]
     self.log(1, L1("pkglist closure achieved in %d packages" % len(pkgtups)))
 
     pkglist = []
