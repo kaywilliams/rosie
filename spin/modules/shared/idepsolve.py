@@ -53,19 +53,23 @@ class IDepsolver(Depsolver):
   def getBestAvailablePackage(self, name=None, ver=None, rel=None, arch=None, epoch=None):
     pkgs = self.pkgSack.searchNevra(name=name, ver=ver, rel=rel,
                                     arch=arch, epoch=epoch)
+
     if pkgs:
       pkgSack = yum.packageSack.ListPackageSack(pkgs)
-      pkgs = pkgSack.returnNewestByName()
-      del pkgSack
+    else:
+      pkgSack = self.whatProvides(name, 'EQ', (epoch, ver, rel))
 
-      pkgbyname = {}
-      for pkg in pkgs:
-        pkgbyname.setdefault(pkg.name, []).append(pkg)
+    pkgs = pkgSack.returnNewestByName()
+    del pkgSack
 
-      lst = []
-      for pkgs in pkgbyname.values():
-        lst.extend(self.bestPackagesFromList(pkgs))
-      pkgs = lst
+    pkgbyname = {}
+    for pkg in pkgs:
+      pkgbyname.setdefault(pkg.name, []).append(pkg)
+
+    lst = []
+    for pkgs in pkgbyname.values():
+      lst.extend(self.bestPackagesFromList(pkgs))
+    pkgs = lst
 
     if pkgs:
       po = pkgs[0]
@@ -148,7 +152,13 @@ class IDepsolver(Depsolver):
       if ( (len(what_requires) == 0 or
             (len(what_requires) == 1 and what_requires[0] == pkgtup)) and
            pkgtup[0] not in self.install_packages ):
-        self.removePackages(pkgtups=[pkgtup])
+        required = False
+        for prov in po.provides:
+          if prov[0] in self.install_packages:
+            required = True
+            break
+        if not required:
+          self.removePackages(pkgtups=[pkgtup])
         continue
 
       bestpo = self.getBestAvailablePackage(name=pkgtup[0])
