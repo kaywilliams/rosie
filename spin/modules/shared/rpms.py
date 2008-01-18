@@ -420,6 +420,8 @@ class ImagesGenerator(object):
           base_image = properties.get('base_image', None)
         )
 
+    self.base_image = None
+
   def _create_image(self, file_name, width, height, format,
                     strings=None, base_image=None):
     if base_image is not None:
