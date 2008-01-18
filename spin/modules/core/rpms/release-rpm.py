@@ -162,7 +162,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     dest.mkdirs()
     repofile = dest/'%s.repo' % self.product
 
-    if self.config.get('yum-repos/@create-base', 'True') in BOOLEANS_TRUE \
+    if self.config.get('yum-repos/@include-distro', 'True') in BOOLEANS_TRUE \
            and self.cvars['web-path']:
       path = self.cvars['web-path'] / 'os'
       lines = [ '[%s]' % self.product,

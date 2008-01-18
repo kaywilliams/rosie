@@ -83,7 +83,7 @@
           <optional>
           <element name="yum-repos">
             <optional>
-              <attribute name="create-base">
+              <attribute name="include-distro">
                 <ref name="value-boolean"/>
               </attribute>
             </optional>
