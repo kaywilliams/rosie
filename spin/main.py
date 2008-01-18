@@ -347,9 +347,12 @@ class Build(object):
     ## correctly. Following what pungi does.
     arch = Event._config.get(qstr % 'arch', 'i686')
     if arch == 'i386':
-      arch = 'athlon'
-    bv['arch'] = arch
+      yumarch = 'athlon'
+    else:
+      yumarch = arch
 
+    bv['arch']     = arch
+    bv['yumarch']  = yumarch
     bv['product']  = Event._config.get(qstr % 'product')
     bv['version']  = Event._config.get(qstr % 'version')
     bv['basearch'] = getBaseArch(bv['arch'])

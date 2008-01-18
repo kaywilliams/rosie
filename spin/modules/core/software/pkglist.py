@@ -112,7 +112,7 @@ class PkglistEvent(Event):
     solver = IDepsolver(
                repoconfig,
                self.dsdir,
-               self.arch,
+               self.yumarch,
                BuildDepsolveCallback(self.logger),
                self.pkglistfile,
                user_required,
@@ -149,16 +149,12 @@ class PkglistEvent(Event):
 
   def verify_kernel_arch(self):
     "kernel arch matches arch in config"
-    if self.arch in ['i386', 'i586', 'i686']:
-      aliases = ['i386', 'i586', 'i686']
-    if self.arch in ['x86_64']:
-      aliases = ['x86_64']
     for pkg in self.cvars['pkglist']:
       n,v,r,a = NVRA_REGEX.match(pkg).groups()
       if n in KERNELS:
-        self.verifier.failUnless(a in aliases,
-          "the arch of kernel package '%s-%s-%s.%s' is not in '%s'" % \
-          (n, v, r, a, aliases))
+        self.verifier.failUnless(a == self.arch,
+          "the arch of kernel package '%s-%s-%s.%s' does not match desired arch '%s'" % \
+          (n, v, r, a, self.arch))
 
   def _verify_repos(self):
     for repo in self.cvars['repos'].values():
