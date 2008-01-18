@@ -72,6 +72,7 @@ class IOObject:
 
     for s in paths:
       assert isinstance(s, str)
+      s = P(s)
       if isinstance(s, pps.path.file.FilePath): #! bad
         s = iprefix / s
       f = s.basename
