@@ -38,13 +38,16 @@ class InputFilesMixin:
         default_dir = P(dst) / P(self.config.get(xpath).getparent().get('@dest', ''))
         for item in self.config.xpath(xpath, []):
           s = P(item.get('text()'))
-          if absolute:
-            d = default_dir / P(item.get('@dest', ''))
-          else:
-            d = default_dir // P(item.get('@dest', ''))
+          if isinstance(s, pps.path.file.FilePath): #! bad, see event/fileio.py
+            s = self._config.file.dirname / s
+          if absolute: d = default_dir /  P(item.get('@dest', ''))
+          else:        d = default_dir // P(item.get('@dest', ''))
+          f = item.get('@filename', s.basename)
           m = item.get('@mode', defmode)
           id = self._get_download_id(k)
-          self.io.setup_sync(self.build_folder // d, paths=[s], id=id, defmode=m)
+
+          self.io._setup_sync(s, self.build_folder // d, f, id or s, defmode)
+
           attribs = []
           for attr in item.attrib:
             attribs.append(attr)

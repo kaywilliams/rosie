@@ -72,8 +72,8 @@ class PublishEvent(Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    for dir in self.cvars['publish-content']:
-      self.io.setup_sync(self.cvars['publish-path'], paths=[dir])
+    self.io.setup_sync(self.cvars['publish-path'],
+                       paths=self.cvars['publish-content'])
 
   # overriding Event method to remove publish-path which is outside the mddir
   # this is a hack, better would be to generalize clean_eventcache
@@ -87,6 +87,7 @@ class PublishEvent(Event):
     self.log(1, L1("publishing to '%s'" % self.cvars['publish-path']))
 
     # using link w/strict rather than io.sync to remove files outside the mddir
+    self.cvars['publish-path'].mkdirs()
     for path in self.cvars['publish-content']:
       self.link(path, self.cvars['publish-path'], strict=True)
 

@@ -132,14 +132,14 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     kwargs.setdefault('copy_handler', self.copy_handler)
     kwargs.setdefault('callback', self.copy_callback)
 
-    dst.mkdirs()
+    dst.dirname.mkdirs()
     sync.sync(src, dst, **kwargs)
 
   def link(self, src, dst, **kwargs):
     kwargs.setdefault('copy_handler', self.link_handler)
     kwargs.setdefault('callback', self.link_callback) # turn off output
 
-    dst.mkdirs()
+    dst.dirname.mkdirs()
     sync.sync(src, dst, **kwargs)
 
   def _get_mddir(self):
