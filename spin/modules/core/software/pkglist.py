@@ -53,6 +53,8 @@ class PkglistEvent(Event):
     }
     self.docopy = self.config.pathexists('text()')
 
+    self.yumarch = None
+
   def setup(self):
     self.diff.setup(self.DATA)
 
@@ -61,6 +63,11 @@ class PkglistEvent(Event):
       self.io.setup_sync(self.mddir, id='pkglist', xpaths=['.'])
       self.pkglistfile = self.io.list_output(what='pkglist')[0]
       return
+
+    if self.arch == 'i386':
+      self.yumarch = 'athlon'
+    else:
+      self.yumarch = self.arch
 
     # setup if creating pkglist
     self.pkglistfile = self.mddir / 'pkglist'

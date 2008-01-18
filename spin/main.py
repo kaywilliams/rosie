@@ -343,16 +343,7 @@ class Build(object):
     bv = Event.cvars['base-vars'] = {}
     qstr = '/distro/main/%s/text()'
 
-    ## HACK: perform some hackery to get the arch set up
-    ## correctly. Following what pungi does.
-    arch = Event._config.get(qstr % 'arch', 'i686')
-    if arch == 'i386':
-      yumarch = 'athlon'
-    else:
-      yumarch = arch
-
-    bv['arch']     = arch
-    bv['yumarch']  = yumarch
+    bv['arch']     = Event._config.get(qstr % 'arch', 'i686')
     bv['product']  = Event._config.get(qstr % 'product')
     bv['version']  = Event._config.get(qstr % 'version')
     bv['basearch'] = getBaseArch(bv['arch'])
