@@ -190,6 +190,6 @@ class PkglistEvent(Event):
     conf = []
     conf.extend(YUMCONF_HEADER)
     for repo in self.cvars['repos'].values():
-      conf.extend(str(repo).split('\n'))
+      conf.extend(str(repo).splitlines())
     repoconfig.write_lines(conf)
     return repoconfig
