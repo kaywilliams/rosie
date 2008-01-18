@@ -1,4 +1,5 @@
 import re
+import rpmUtils.arch
 
 from rendition import difftest
 
@@ -149,12 +150,16 @@ class PkglistEvent(Event):
 
   def verify_kernel_arch(self):
     "kernel arch matches arch in config"
+    if self.arch == 'i386':
+      aliases = rpmUtils.arch.getArchList('athlon')
+    else:
+      aliases = [self.arch]
     for pkg in self.cvars['pkglist']:
       n,v,r,a = NVRA_REGEX.match(pkg).groups()
       if n in KERNELS:
-        self.verifier.failUnless(a == self.arch,
-          "the arch of kernel package '%s-%s-%s.%s' does not match desired arch '%s'" % \
-          (n, v, r, a, self.arch))
+        self.verifier.failUnless(a in aliases,
+          "the arch of kernel package '%s' does not match desired arch '%s'" % \
+          (pkg, self.arch))
 
   def _verify_repos(self):
     for repo in self.cvars['repos'].values():
