@@ -65,14 +65,6 @@ class InputFilesMixinTestCase(RpmEventTestCase, ExtractMixin):
           self.failUnless(file.exists(), "missing %s" % file)
           self.failUnlessExists(self.img_path // file)
 
-class LocalFilesMixinTestCase(RpmEventTestCase, ExtractMixin):
-  def check_locals(self):
-    for id in self.event.fileslocals.keys():
-      file = self.event.build_folder / id
-      self.failUnless(file.exists(), "missing %s" % file)
-      for l in [ P(x) for x in self.event.fileslocals[id]['locations']]:
-        self.failUnless((self.img_path / l.lstrip('/')).exists())
-
 class RpmBuildMixinTestCase(RpmEventTestCase):
   def _get_rpmheader(self):
     if self.rpm_path.exists():
