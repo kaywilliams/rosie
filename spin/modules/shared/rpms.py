@@ -29,6 +29,7 @@ class InputFilesMixin:
   """
   def __init__(self, install_info):
     self.install_info = install_info
+    self.ids = set()
 
   def _setup_download(self):
     for k,v in self.install_info.items():
@@ -45,6 +46,7 @@ class InputFilesMixin:
           f = item.get('@filename', s.basename)
           m = item.get('@mode', defmode)
           id = self._get_download_id(k)
+          self.ids.add(id)
 
           self.io._setup_sync(s, self.build_folder // d, f, id or s, defmode)
 
