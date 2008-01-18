@@ -30,8 +30,11 @@
   <define name="element-arch">
     <element name="arch">
       <choice>
+        <value type="string">i386</value>
+        <value type="string">i486</value>
         <value type="string">i586</value>
         <value type="string">i686</value>
+        <value type="string">athlon</value>
         <value type="string">x86_64</value>
       </choice>
     </element>
