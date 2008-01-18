@@ -166,47 +166,10 @@ class Test_PkglistBug86_2(PkglistEventTestCase):
     self.failUnless(count1 == count2, "bug86_1: %d packages; bug86_2: %d packages" % \
                       (count1, count2))
 
-class Test_PkglistBug108_1(PkglistEventTestCase):
-  "without updates repo 'gaim' should be in pkglist"
+class Test_PkglistBug108(PkglistEventTestCase):
+  "'pidgin' or 'libpurple' should be in pkglist"
   def __init__(self, basedistro, arch, conf=None):
-    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug108_1', True)
-    config.add_config_section(
-      self.conf,
-      config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro, arch)]
-      )
-    )
-    config.add_config_section(
-      self.conf,
-      """
-      <comps>
-        <core>
-          <package>gaim</package>
-        </core>
-      </comps>
-      """
-    )
-
-  def runTest(self):
-    self.tb.dispatch.execute(until='pkglist')
-    found_gaim = False
-    found_pidgin = False
-    found_libpurple = False
-    for package in self.event.cvars['pkglist']:
-      if package.startswith('gaim'):
-        found_gaim = True
-      if package.startswith('pidgin'):
-        found_pidgin = True
-      if package.startswith('libpurple'):
-        found_libpurple = True
-
-    self.failUnless(found_gaim)
-    self.failIf(found_pidgin or found_libpurple)
-
-class Test_PkglistBug108_2(PkglistEventTestCase):
-  "with updates repo 'pidgin' or 'libpurple' should be in pkglist"
-  def __init__(self, basedistro, arch, conf=None):
-    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug108_2', False)
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug108', False)
     config.add_config_section(
       self.conf,
       config.make_repos(basedistro,
@@ -386,8 +349,7 @@ def make_suite(basedistro, arch):
   # bug 108; for centos-5 base distro only
   if basedistro == 'centos-5':
     bug108 = ModuleTestSuite('pkglist')
-    bug108.addTest(Test_PkglistBug108_1(basedistro, arch))
-    bug108.addTest(Test_PkglistBug108_2(basedistro, arch))
+    bug108.addTest(Test_PkglistBug108(basedistro, arch))
     suite.addTest(bug108)
 
   # pkglist supplied
