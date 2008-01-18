@@ -395,8 +395,6 @@ class ImagesGenerator(object):
       if not found:
         self.hue_info = HUE_INFO['*']['0']
 
-    self.base_image = self._create_base_image('baseimage.png')
-
   def _copy_static_images(self):
     for src in self.images_dir.findpaths(type=pps.constants.TYPE_NOT_DIR):
       dst = self.build_folder / src.relpathfrom(self.images_dir)
@@ -404,7 +402,10 @@ class ImagesGenerator(object):
       self.link(src, dst.dirname)
 
   def _create_dynamic_images(self, image_locals):
-    for file_name, properties in image_locals.items():
+    self.base_image = self._create_base_image('baseimage.png')
+
+    for file_name in image_locals:
+      properties = image_locals[file_name]
       output_locations = properties.get('output_locations', [file_name])
       for location in output_locations:
         self._create_image(
