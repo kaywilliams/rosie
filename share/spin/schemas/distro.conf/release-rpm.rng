@@ -88,6 +88,12 @@
               </attribute>
             </optional>
 
+            <optional>
+              <attribute name="include-input">
+                <ref name="value-boolean"/>
+              </attribute>
+            </optional>
+
             <zeroOrMore>
             <ref name="element-path"/>
             </zeroOrMore>

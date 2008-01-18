@@ -15,7 +15,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'release-rpm',
-      version = 4,
+      version = .9,
       requires = ['input-repos', 'release-versions'],
       provides = ['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
       conditionally_requires = ['web-path', 'gpgsign-public-key']
@@ -56,8 +56,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     self.DATA = {
       'config':    ['.'],
       'variables': ['fullname', 'product', 'pva', 'cvars[\'web-path\']',
-                    'cvars[\'gpgsign-public-key\']', 'rpm_release',
-                    'cvars[\'release-versions\']'],
+                    'rpm_release', 'cvars[\'release-versions\']'],
       'input':     [],
       'output':    [self.build_folder],
     }
@@ -76,10 +75,10 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     paths = []
     if self.cvars.get('gpgsign-public-key', None):
       paths.append(self.cvars.get('gpgsign-public-key'))
-    for repo in self.cvars['repos'].values():
-      for key in repo.gpgkeys:
-        paths.append(key)
-
+    else:
+      for repo in self.cvars['repos'].values():
+        for key in repo.gpgkeys:
+          paths.append(key)
     self.io.setup_sync(self.build_folder//self.gpg_dir, paths=paths)
 
     # eulapy file
@@ -93,6 +92,10 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
         if path.exists():
           paths.append(path); break
       self.io.setup_sync(self.build_folder//self.eulapy_dir, paths=paths)
+
+    # yum-repos
+    if self.config.get('yum-repos/@include-input', 'True') in BOOLEANS_TRUE:
+      self.DATA['variables'].append('cvars[\'repos\']')
 
   def run(self):
     self.io.clean_eventcache(all=True)
@@ -173,4 +176,10 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
         lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
       else:
         lines.append('gpgcheck=0')
+      lines.append('\n')
+      repofile.write_lines(lines)
+
+    if self.config.get('yum-repos/@include-input', 'True') in BOOLEANS_TRUE:
+      for repo in self.cvars['repos'].values():
+        lines.extend(str(repo).splitlines())
       repofile.write_lines(lines)
