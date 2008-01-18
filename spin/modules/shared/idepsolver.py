@@ -51,7 +51,6 @@ class IDepsolver(Depsolver):
       f = self.cached_file.open('r')
       self.cached_items = cPickle.load(f)
       f.close()
-      toremove = set()
       for pkgtup, deps in self.cached_items.items():
         for tup in [pkgtup] + deps:
           if self.installed_packages.has_key(tup):
@@ -59,8 +58,7 @@ class IDepsolver(Depsolver):
           try:
             self.installed_packages[tup] = self.getPackageObject(tup)
           except yum.Errors.DepError:
-            toremove.add(pkgtup)
-      self.removePackages(pkgtups=list(toremove))
+            self.removePackages(pkgtup=pkgtup)
 
   def getInstalledPackage(self, name=None, ver=None, rel=None, arch=None, epoch=None):
     for pkgtup_i in self.installed_packages:
@@ -103,11 +101,10 @@ class IDepsolver(Depsolver):
       return po
     return None
 
-  def getDeps(self, pos=None, pkgtups=None):
+  def getDeps(self, pkgtup):
     processed = {}
-    if pos is not None:
-      pkgtups = [ po.pkgtup for po in pos if po is not None ]
     rtn = set()
+    pkgtups = [pkgtup]
     while pkgtups:
       pkgtup = pkgtups.pop()
       processed[pkgtup] = None
@@ -118,21 +115,20 @@ class IDepsolver(Depsolver):
             pkgtups.append(x)
     return list(rtn)
 
-  def whatRequires(self, pos=None, pkgtups=None):
-    if pkgtups is None:
-      pkgtups = [ po.pkgtup for po in pos if po is not None ]
+  def whatRequires(self, po=None, pkgtup=None):
+    if pkgtup is None:
+      pkgtup = po.pkgtup
     rtnlist = set()
-    for pkgtup, deps in self.cached_items.items():
-      for x in pkgtups:
-        if x in deps:
-          rtnlist.add(x)
+    for tup, deps in self.cached_items.items():
+      if pkgtup in deps:
+        rtnlist.add(tup)
     return list(rtnlist)
 
-  def removePackages(self, pos=None, pkgtups=None):
-    if pkgtups is None:
-      pkgtups = self.getDeps(pos=pos)
+  def removePackages(self, po=None, pkgtup=None):
+    if pkgtup is None:
+      pkgtups = self.getDeps(po.pkgtup)
     else:
-      pkgtups = self.getDeps(pkgtups=pkgtups)
+      pkgtups = self.getDeps(pkgtup)
 
     for pkgtup in pkgtups:
       if self.installed_packages.has_key(pkgtup):
@@ -148,12 +144,10 @@ class IDepsolver(Depsolver):
 
   def getPackageObjects(self):
     # handle obsolete packages
-    pos = []
     for pkg in self.remove_packages:
       po = self.getInstalledPackage(name=pkg)
       if po is not None:
-        pos.append(po)
-    self.removePackages(pos=pos)
+        self.removePackages(po=po)
 
     # handle new packages
     for package in self.install_packages:
@@ -168,30 +162,31 @@ class IDepsolver(Depsolver):
     # handle packages to be removed, updated
     deps = [ (pkgtup, po) for pkgtup, po in self.installed_packages.items() ]
     for pkgtup, po in deps:
-      what_requires = self.whatRequires(pkgtups=[pkgtup])
-      if ( (len(what_requires) == 0 or
-            (len(what_requires) == 1 and what_requires[0] == pkgtup)) and
-           pkgtup[0] not in self.install_packages ):
-        required = False
-        for prov in po.provides:
-          if prov[0] in self.install_packages:
-            required = True
-            break
-        if not required:
-          self.removePackages(pkgtups=[pkgtup])
+      what_requires = self.whatRequires(pkgtup=pkgtup)
+      required = False
+      if len(what_requires) > 1 or \
+         len(what_requires) == 1 and what_requires[0] != pkgtup or \
+         pkgtup[0] in self.install_packages:
+        required = True
+      for prov in po.provides:
+        # if a package provides something that's required, don't remove
+        if prov[0] in self.install_packages:
+          required = True
+          break
+      if not required:
+        self.removePackages(pkgtup=pkgtup)
         continue
-
       bestpo = self.getBestAvailablePackage(name=pkgtup[0])
       if po is None:
-        self.removePackages(pkgtups=[pkgtup])
+        self.removePackages(pkgtup=pkgtup)
       if bestpo is not None and po is not None and bestpo != po:
-        self.removePackages(pos=[po])
+        self.removePackages(po=po)
         self.installPackage(po=bestpo)
 
     for po in self.installed_packages.values():
       self.install(po=po)
 
-    pos = self.resolveDeps()
+    pos = Depsolver.getPackageObjects(self)
 
     f = self.cached_file.open('w')
     cPickle.dump(self.resolved_deps, f)
