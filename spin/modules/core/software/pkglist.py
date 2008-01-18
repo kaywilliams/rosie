@@ -9,7 +9,7 @@ from spin.constants import KERNELS
 from spin.event     import Event
 from spin.logging   import L1
 
-from spin.modules.shared import idepsolve
+from spin.modules.shared import idepsolver
 
 API_VERSION = 5.0
 EVENTS = {'software': ['PkglistEvent']}
@@ -117,14 +117,14 @@ class PkglistEvent(Event):
         if prev:
           toremove.extend([ x for x in prev if x not in curr ])
 
-      pkgtups = idepsolve.resolve(packages = required_packages,
-                                  required = user_required,
-                                  remove = toremove,
-                                  pkglist = self.pkglistfile,
-                                  config = str(repoconfig),
-                                  root = str(self.dsdir),
-                                  arch = self.yumarch,
-                                  callback = BuildDepsolveCallback(self.logger))
+      pkgtups = idepsolver.resolve(packages = required_packages,
+                                   required = user_required,
+                                   remove = toremove,
+                                   pkglist = self.pkglistfile,
+                                   config = str(repoconfig),
+                                   root = str(self.dsdir),
+                                   arch = self.yumarch,
+                                   callback = BuildDepsolveCallback(self.logger))
     else:
       pkgtups = depsolver.resolve(packages = required_packages,
                                   required = user_required,
