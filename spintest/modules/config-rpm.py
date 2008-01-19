@@ -16,6 +16,14 @@ class ConfigRpmEventTestCase(EventTestCase):
 class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmEventTestCase):
   def __init__(self, basedistro, arch, conf=None):
     ConfigRpmEventTestCase.__init__(self, basedistro, arch, conf=conf)
+
+    self.working_dir = BUILD_ROOT
+    self.file1 = pps.Path('%s/file1' % self.working_dir)
+    self.file2 = pps.Path('%s/file2' % self.working_dir)
+    self.file3 = pps.Path('%s/file3' % self.working_dir)
+    self.script1 = pps.Path('%s/script1' % self.working_dir)
+    self.script2 = pps.Path('%s/script2' % self.working_dir)
+
     config.add_config_section(
       self.conf,
       """
@@ -26,23 +34,16 @@ class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmEventTestCase):
         <script>%s/script1</script>
         <script dest="/usr/bin">%s/script2</script>
       </config-rpm>
-      """ %(BUILD_ROOT, BUILD_ROOT, BUILD_ROOT, BUILD_ROOT, BUILD_ROOT)
+      """ % ((self.working_dir,)*5)
     )
 
-    self.file1 = pps.Path('%s/file1' % BUILD_ROOT)
-    self.file2 = pps.Path('%s/file2' % BUILD_ROOT)
-    self.file3 = pps.Path('%s/file3' % BUILD_ROOT)
-
-    self.script1 = pps.Path('%s/script1' % BUILD_ROOT)
-    self.script2 = pps.Path('%s/script2' % BUILD_ROOT)
-
   def setUp(self):
+    ConfigRpmEventTestCase.setUp(self)
     self.file1.touch()
     self.file2.touch()
     self.file3.touch()
     self.script1.touch()
     self.script2.touch()
-    ConfigRpmEventTestCase.setUp(self)
     self.clean_event_md()
     self.event.status = True
 
