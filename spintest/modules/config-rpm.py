@@ -1,6 +1,6 @@
 from rendition import pps
 
-from spintest      import EventTestCase, ModuleTestSuite
+from spintest      import BUILD_ROOT, EventTestCase, ModuleTestSuite, config
 from spintest.core import make_core_suite, make_extension_suite
 from spintest.rpms import ( RpmBuildMixinTestCase, InputFilesMixinTestCase,
                             RpmCvarsTestCase )
@@ -14,7 +14,34 @@ class ConfigRpmEventTestCase(EventTestCase):
   </config-rpm>"""
 
 class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmEventTestCase):
+  def __init__(self, basedistro, arch, conf=None):
+    ConfigRpmEventTestCase.__init__(self, basedistro, arch, conf=conf)
+    config.add_config_section(
+      self.conf,
+      """
+      <config-rpm enabled="true">
+        <file>%s/file1</file>
+        <file dest="/etc/testdir">%s/file2</file>
+        <file filename="filename">%s/file3</file>
+        <script>%s/script1</script>
+        <script dest="/usr/bin">%s/script2</script>
+      </config-rpm>
+      """ %(BUILD_ROOT, BUILD_ROOT, BUILD_ROOT, BUILD_ROOT, BUILD_ROOT)
+    )
+
+    self.file1 = pps.Path('%s/file1' % BUILD_ROOT)
+    self.file2 = pps.Path('%s/file2' % BUILD_ROOT)
+    self.file3 = pps.Path('%s/file3' % BUILD_ROOT)
+
+    self.script1 = pps.Path('%s/script1' % BUILD_ROOT)
+    self.script2 = pps.Path('%s/script2' % BUILD_ROOT)
+
   def setUp(self):
+    self.file1.touch()
+    self.file2.touch()
+    self.file3.touch()
+    self.script1.touch()
+    self.script2.touch()
     ConfigRpmEventTestCase.setUp(self)
     self.clean_event_md()
     self.event.status = True
@@ -23,6 +50,11 @@ class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmEventTestCase):
     if self.img_path:
       self.img_path.rm(recursive=True, force=True)
     ConfigRpmEventTestCase.tearDown(self)
+    self.file1.rm(force=True)
+    self.file2.rm(force=True)
+    self.file3.rm(force=True)
+    self.script1.rm(force=True)
+    self.script2.rm(force=True)
 
   def runTest(self):
     self.tb.dispatch.execute(until='config-rpm')
@@ -70,10 +102,10 @@ class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
 def make_suite(basedistro, arch):
   suite = ModuleTestSuite('config-rpm')
 
-  suite.addTest(make_extension_suite(ConfigRpmEventTestCase, basedistro, arch))
+  #suite.addTest(make_extension_suite(ConfigRpmEventTestCase, basedistro, arch))
   suite.addTest(Test_ConfigRpmInputs(basedistro, arch))
-  suite.addTest(Test_ConfigRpmBuild(basedistro, arch))
-  suite.addTest(Test_ConfigRpmCvars1(basedistro, arch))
-  suite.addTest(Test_ConfigRpmCvars2(basedistro, arch))
+  #suite.addTest(Test_ConfigRpmBuild(basedistro, arch))
+  #suite.addTest(Test_ConfigRpmCvars1(basedistro, arch))
+  #suite.addTest(Test_ConfigRpmCvars2(basedistro, arch))
 
   return suite

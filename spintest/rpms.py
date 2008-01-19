@@ -59,9 +59,9 @@ class ExtractMixin(object):
 class InputFilesMixinTestCase(RpmEventTestCase, ExtractMixin):
   def check_inputs(self):
     for id in self.event.ids:
-      for file in self.event.io.list_output(id=id):
-        self.failUnless(file.exists(), "missing %s" % file)
-        self.failUnlessExists(self.img_path // file)
+      for file in self.event.io.list_output(what=id):
+        self.failUnlessExists(file)
+        self.failUnlessExists(self.img_path / file.relpathfrom(self.event.build_folder))
 
 class RpmBuildMixinTestCase(RpmEventTestCase):
   def _get_rpmheader(self):
