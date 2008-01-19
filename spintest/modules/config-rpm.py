@@ -102,10 +102,10 @@ class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
 def make_suite(basedistro, arch):
   suite = ModuleTestSuite('config-rpm')
 
-  #suite.addTest(make_extension_suite(ConfigRpmEventTestCase, basedistro, arch))
+  suite.addTest(make_extension_suite(ConfigRpmEventTestCase, basedistro, arch))
   suite.addTest(Test_ConfigRpmInputs(basedistro, arch))
-  #suite.addTest(Test_ConfigRpmBuild(basedistro, arch))
-  #suite.addTest(Test_ConfigRpmCvars1(basedistro, arch))
-  #suite.addTest(Test_ConfigRpmCvars2(basedistro, arch))
+  suite.addTest(Test_ConfigRpmBuild(basedistro, arch))
+  suite.addTest(Test_ConfigRpmCvars1(basedistro, arch))
+  suite.addTest(Test_ConfigRpmCvars2(basedistro, arch))
 
   return suite
