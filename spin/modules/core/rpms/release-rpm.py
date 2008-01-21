@@ -87,10 +87,15 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
                                         'True') in BOOLEANS_TRUE
     eula_provided = self.config.get('eula/path/text()', None) is not None
     if include_firstboot and eula_provided:
+      found = False
       for path in self.SHARE_DIRS:
         path = path/'release/eula.py'
         if path.exists():
-          paths.append(path); break
+          paths.append(path)
+          found = True
+          break
+      if not found:
+        raise RuntimeError("release/eula.py not found in %s" % self.SHARE_DIRS)
       self.io.setup_sync(self.build_folder//self.eulapy_dir, paths=paths)
 
     # yum-repos
