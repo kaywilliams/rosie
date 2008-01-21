@@ -78,6 +78,16 @@ class IDepsolver(Depsolver):
       pkgSack = self.whatProvides(name, 'EQ', (epoch, ver, rel))
 
     pkgs = pkgSack.returnNewestByName()
+
+    # yum version 3.0.1 returns a list of lists in returnNewestByName()
+    pkgsflat = []
+    for pkg in pkgs:
+      if type(pkg) == type([]):
+        pkgsflat.extend(pkg)
+      else:
+        pkgsflat.append(pkg)
+    pkgs = pkgsflat
+
     del pkgSack
 
     pkgbyname = {}
