@@ -40,6 +40,7 @@ class IOObject(object):
     """
     if isinstance(src, pps.path.file.FilePath): #! bad
       src = (prefix or self.ptr._config.file.dirname) / src
+    src = src.normpath()
 
     if not src.exists():
       raise IOError("missing input file '%s'" % src)

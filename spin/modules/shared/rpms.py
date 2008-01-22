@@ -40,7 +40,7 @@ class InputFilesMixin:
           s,d,f,m = self.io._process_path_xml(item, relpath=default_dir,
                                              absolute=absolute, mode=mode)
           if isinstance(s, pps.path.file.FilePath): #! bad, see event/fileio.py
-            s = (self._config.file.dirname / s).normpath()
+            s = self._config.file.dirname / s
 
           id = self._get_download_id(k)
 
