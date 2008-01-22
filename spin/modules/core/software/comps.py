@@ -20,9 +20,7 @@ class CompsEvent(Event):
     self.comps = Element('comps')
 
     self.DATA = {
-      'variables': ['fullname', 'cvars[\'anaconda-version\']',
-                    'cvars[\'included-packages\']',
-                    'cvars[\'excluded-packages\']'],
+      'variables': ['fullname', 'cvars[\'anaconda-version\']'],
       'config':    ['.'],
       'input':     [],
       'output':    []
@@ -49,6 +47,10 @@ class CompsEvent(Event):
       # track file changes
       self.DATA['input'].extend([groupfile for repo,groupfile in
                                  self.groupfiles])
+
+    for i in ['included-packages', 'excluded-packages']:
+      if not self.cvars.has_key(i): self.cvars[i] = []
+      self.DATA['variables'].append('cvars[\'%s\']' % i)
 
   def run(self):
     self.io.clean_eventcache(all=True)
