@@ -64,8 +64,8 @@ class GpgSignEvent(GpgMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.io.add_fpaths(self.cvars['gpgsign-public-key'], self.mddir, id='pubkey')
-    self.io.add_fpaths(self.cvars['gpgsign-secret-key'], self.mddir, id='seckey')
+    self.io.add_fpath(self.cvars['gpgsign-public-key'], self.mddir, id='pubkey')
+    self.io.add_fpath(self.cvars['gpgsign-secret-key'], self.mddir, id='seckey')
 
     self.io.add_fpaths(self.cvars['cached-rpms'], self.mddir/'rpms', id='rpms')
 
