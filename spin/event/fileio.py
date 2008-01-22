@@ -74,6 +74,7 @@ class IOObject(object):
 
   def add_xpaths(self, xpaths, *args, **kwargs):
     "Add multiple xpaths at once; calls add_xpath on each element in xpaths"
+    if not hasattr(xpaths, '__iter__'): raise TypeError(type(fpaths))
     for xpath in xpaths:
       self.add_xpath(xpath, dst, *args, **kwargs)
 
@@ -88,6 +89,7 @@ class IOObject(object):
 
   def add_fpaths(self, fpaths, *args, **kwargs):
     "Add multiple fpaths at once; calls add_fpath on each element in fpaths"
+    if not hasattr(fpaths, '__iter__'): raise TypeError(type(fpaths))
     for fpath in fpaths:
       self.add_fpath(fpath, *args, **kwargs)
 
