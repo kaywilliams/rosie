@@ -63,7 +63,7 @@ class PkglistEvent(Event):
 
     # setup if copying pkglist
     if self.docopy:
-      self.io.setup_sync(self.mddir, id='pkglist', xpaths=['.'])
+      self.io.add_xpath('.', self.mddir, id='pkglist')
       self.pkglistfile = self.io.list_output(what='pkglist')[0]
       return
 

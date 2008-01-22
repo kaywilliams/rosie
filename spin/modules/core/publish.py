@@ -72,8 +72,7 @@ class PublishEvent(Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.io.setup_sync(self.cvars['publish-path'],
-                       paths=self.cvars['publish-content'])
+    self.io.add_fpaths(self.cvars['publish-content'], self.cvars['publish-path'])
 
   # overriding Event method to remove publish-path which is outside the mddir
   # this is a hack, better would be to generalize clean_eventcache

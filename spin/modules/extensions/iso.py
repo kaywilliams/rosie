@@ -48,8 +48,7 @@ class PkgorderEvent(Event):
     self.DATA['input'].append(self.cvars['repodata-directory'])
 
     if self.dosync:
-      self.io.setup_sync(self.mddir, id='pkgorder',
-                         xpaths=['pkgorder'])
+      self.io.add_xpath('pkgorder', self.mddir, id='pkgorder')
       self.pkgorderfile = self.io.list_output(what='pkgorder')[0]
     else:
       self.pkgorderfile = self.mddir/'pkgorder'

@@ -39,15 +39,14 @@ class ComposeEvent(Event):
         event_output_dir = self.METADATA_DIR/event.id/'output/os'
         if event_output_dir.exists():
           self.events.append(event.id)
-          for path in event_output_dir.listdir(all=True):
-            self.io.setup_sync(self.SOFTWARE_STORE, paths=path, id=event.id)
+          self.io.add_fpaths(event_output_dir.listdir(all=True),
+                             self.SOFTWARE_STORE, id=event.id)
 
   def run(self):
     # create composed tree
     self.log(1, L1("linking files"))
     for event in self.events:
-      self.io.sync_input(link=True, what=event,
-                         text=None)
+      self.io.sync_input(link=True, what=event, text=None)
 
     # create manifest file
     self.log(1, L1("creating manifest file"))

@@ -1,9 +1,7 @@
-import os
-
 from rendition import pps
 from rendition import xmllib
 
-from rendition.pps.constants import TYPE_DIR, TYPE_NOT_DIR
+from rendition.pps.constants import *
 
 P = pps.Path
 
@@ -16,208 +14,199 @@ class IOMixin:
 
   def error(self, e):
     debugdir = self.mddir / 'debug'
-    paths = self.mddir.listdir(all=True)
     debugdir.mkdirs()
-    for path in paths: path.rename(debugdir/path.basename)
+    for path in self.mddir.listdir(all=True, nglob='debug'):
+      path.rename(debugdir/path.basename)
 
   def verify_output_exists(self):
     "all output files exist"
     for file in self.io.list_output():
       self.verifier.failUnlessExists(file)
 
-class IOObject:
-  "Dummy class to contain I/O-related methods"
+class IOObject(object):
   def __init__(self, ptr):
     self.ptr = ptr
-    self.sync_items = {}
-    self.chmod_items = {}
+    self.data = {}
 
-  def setup_sync(self, dst, xpaths=[], paths=[], id=None, iprefix=None, defmode=None):
+  def add_item(self, src, dst, id=None, mode=None, prefix=None):
     """
-    Currently, setup_sync() can be called only after diff.setup() is
-    called.
+    Add a source, destination pair to the list of possible files to be synced.
 
-    @param xpaths  : list of xpath queries
-    @param paths   : list of paths
-    @param iprefix : the prefix to use for relative paths
-    @param dst     : the location the files should be synced to
-    @param id      : give an id to refer to these input files with. If
-                     not specified, it defaults to the xpath query or
-                     the path to the file.
-    @param defmode : default mode of the file/directory
-
-    @return inputs : [input file, ...]
-    @return outputs: [output file, ...]
+    @param src    : the full path, including file basename, of the source
+    @param dst    : the full path, including file basename, of the destination
+    @param id     : an identifier for this particular file; need not be unique
+    @param mode   : default mode to assign to files
+    @param prefix : the prefix to be prepended to relative paths
     """
-    iprefix = P(iprefix or P(self.ptr._config.file).dirname)
-    dst = P(dst)
+    if isinstance(src, pps.path.file.FilePath): #! bad
+      src = (prefix or self.ptr._config.file.dirname) / src
 
-    if not hasattr(paths,  '__iter__'): paths  = [paths]
-    if not hasattr(xpaths, '__iter__'): xpaths = [xpaths]
+    if not src.exists():
+      raise IOError("missing input file '%s'" % src)
 
-    inputs = []
-    outputs = []
+    if src not in self.ptr.diff.handlers['input'].idata:
+      self.ptr.diff.handlers['input'].idata.append(src)
 
-    for x in xpaths:
-      for item in self.ptr.config.xpath(x,[]):
-        s = P(item.get('text()'))
-        if isinstance(s, pps.path.file.FilePath): #! bad
-          s = iprefix / s
-        d = dst // P(item.get('@dest', ''))
-        f = item.get('@filename', s.basename)
-        m = item.get('@mode', defmode)
+    for s in src.findpaths():
+      s = s.normpath()
+      if not s.isfile(): continue
 
-        inputs.append(s)
-        outputs.extend(self._setup_sync(s, d, f, id or x, m))
+      out  = (dst/s.relpathfrom(src)).normpath()
+      m = int(mode or oct((s.stat().st_mode & 0777) or 0644), 8)
 
-    for s in paths:
-      assert isinstance(s, str)
-      s = P(s)
-      if isinstance(s, pps.path.file.FilePath): #! bad
-        s = iprefix / s
-      f = s.basename
+      if out not in self.ptr.diff.handlers['output'].odata:
+        self.ptr.diff.handlers['output'].odata.append(out)
 
-      inputs.append(s)
-      outputs.extend(self._setup_sync(s, dst, f, id or s, defmode))
+      self.data.setdefault(id, set())
+      self.data[id].add(TransactionData(s, out, m))
 
-    return inputs, outputs
-
-  def _setup_sync(self, sourcefile, dstdir, filename, id,  defmode):
-    if not sourcefile.exists():
-      raise IOError("missing input file(s) %s" % sourcefile)
-    if sourcefile not in self.ptr.diff.handlers['input'].idata:
-      self.ptr.diff.handlers['input'].idata.append(sourcefile)
-
-    rtn = []
-    self.sync_items.setdefault(id, set())
-    self.chmod_items.setdefault(id, set())
-    for src in sourcefile.findpaths():
-      output_file = (dstdir/filename/src.relpathfrom(sourcefile)).normpath()
-      self.chmod_items[id].add((output_file,
-          int(defmode or oct((src.stat().st_mode & 0777) or 0644), 8)))
-      if src.isfile():
-        self.sync_items[id].add((src.normpath(), output_file))
-        if output_file not in self.ptr.diff.handlers['output'].odata:
-          self.ptr.diff.handlers['output'].odata.append(output_file)
-        rtn.append(output_file)
-    return rtn
-
-  def sync_input(self, callback=None, link=False, what=None,
-                 cache=False, text='downloading files', **kwargs):
+  def add_xpath(self, xpath, dst, id=None, mode=None, prefix=None):
     """
-    Sync the input files to their output locations.
-
-    @param link : if action is not specified, and link is True the
-                  input files are linked to the output location.
-    @param what : list of IDs identifying what to download.
-    @param text : text to display prior to beginning sync operation.
+    @param xpath : xpath query into the config file that contains zero or
+                   more path elements to add to the possible input list
     """
-    if what is None:
-      what = self.sync_items.keys()
-    elif not hasattr(what, '__iter__'):
-      what = [what]
+    if not id: id = xpath
+    for item in self.ptr.config.xpath(xpath, []):
+      s,d,f,m = self._process_path_xml(item, mode=mode)
 
-    sync_items = set()
-    chmod_items = set()
+      self.add_item(s, dst//d/f, id=id, mode=m, prefix=prefix)
 
-    for id in what:
-      if not self.sync_items.has_key(id):
-        continue
-      for src,dst in self.sync_items[id]:
-        if not dst.exists() or \
-               self.ptr.diff.handlers['input'].diffdict.has_key(src) or \
-               self.ptr.diff.handlers['output'].diffdict.has_key(dst):
-          dst.rm(recursive=True, force=True)
-          sync_items.add((src, dst))
-      for dst,mode in self.chmod_items[id]:
-        chmod_items.add((dst, mode))
+  def add_xpaths(self, xpaths, *args, **kwargs):
+    "Add multiple xpaths at once; calls add_xpath on each element in xpaths"
+    for xpath in xpaths:
+      self.add_xpath(xpath, dst, *args, **kwargs)
 
-    outputs = []
-    if sync_items:
-      sync_items = sorted(sync_items, cmp=lambda x, y: cmp(x[1].basename, y[1].basename))
-      if callback: cb = callback
-      elif cache:  cb = self.ptr.cache_callback
-      elif link:   cb = self.ptr.link_callback
-      else:        cb = self.ptr.copy_callback
-      # perhaps sync_start and sync_end callbacks could be pushed into lower 
-      # level functions, then we wouldn't have to figure out the default 
-      # callback in both places
-      cb.sync_start(text=text, count=len(sync_items))
-      for src, dst in sync_items:
-        # I'd rather handle arg passing a little better
-        if cache:
-          self.ptr.cache(src, dst, link=link, callback=cb, **kwargs) #!
-        elif link:
-          self.ptr.link(src, dst, callback=cb, **kwargs) #!
-        else:
-          self.ptr.copy(src, dst, callback=cb, **kwargs) #!
-        outputs.append(dst)
+  def add_fpath(self, fpath, dst, id=None, mode=None, prefix=None):
+    """
+    @param fpath : file path pointing to an existing file (all pps path
+                   types are supported)
+    """
+    if not id: id = fpath
+    fpath = P(fpath)
+    self.add_item(fpath, dst/fpath.basename, id=id, mode=mode, prefix=prefix)
+
+  def add_fpaths(self, fpaths, *args, **kwargs):
+    "Add multiple fpaths at once; calls add_fpath on each element in fpaths"
+    for fpath in fpaths:
+      self.add_fpath(fpath, *args, **kwargs)
+
+  def sync_input(self, callback=None, link=False, cache=False, what=None,
+                       text='downloading files', **kwargs):
+    """
+    Sync input files to output locations.
+
+    @param callback : SyncCallback instance to use as callback
+    @param link     : link files instead of copying
+    @param cache    : cache files to cache directory before copying
+    @param what     : list of ids to be copied (see add_item, above)
+    @param text     : text to be passed to callback object as the 'header'
+    @param kwargs   : extra arguments to be passed to sync
+    """
+    output = []
+
+    if cache:
+      sync = self.ptr.cache;  cb = callback or self.ptr.cache_callback
+    elif link:
+      sync = self.ptr.link;   cb = callback or self.ptr.link_callback
+    else:
+      sync = self.ptr.copy;   cb = callback or self.ptr.copy_callback
+
+    # add item to transaction if input or output file has changed, or if
+    # output file does not exist; sort on source basename
+    tx = sorted([ t for t in self._filter_data(what=what) if
+                  t.src in self.ptr.diff.handlers['input'].diffdict or
+                  t.dst in self.ptr.diff.handlers['output'].diffdict or
+                  not t.dst.exists() ],
+                cmp=lambda x,y: cmp(x.src.basename, y.src.basename))
+
+    if tx:
+      cb.sync_start(text=text, count=len(tx))
+      for item in tx:
+        item.dst.rm(recursive=True, force=True)
+        sync(item.src, item.dst, link=link, callback=cb, **kwargs)
+        item.dst.chmod(item.mode)
+        output.append(item.dst)
       cb.sync_end()
 
-    for file, mode in chmod_items:
-      file.chmod(mode)
-
-    return sorted(outputs)
+    return output
 
   def clean_eventcache(self, all=False, callback=None):
     """
-    Cleans event cache folder.
+    Clean event cache folder
 
-    @param all : If all is True, removes all files, else, removes
-                 files that are not listed in the output section of
-                 the event metadata file.
+    @param all      : if True, entire event metadata folder is removed; else,
+                      removes all files in the metadata folder that are not
+                      listed as output in the event metadata file
+    @param callback : callback class to be used for file removal
     """
+    cb = callback or self.ptr.copy_callback
+
     if all:
       self.ptr.mddir.listdir(all=True).rm(recursive=True)
     else:
-      if self.ptr.mdfile.exists() and \
-         self.ptr.diff.handlers.has_key('output'):
+      if self.ptr.mdfile.exists() and self.ptr.diff.handlers.has_key('output'):
         self.ptr.diff.handlers['output'].clear()
+
         root = xmllib.tree.read(self.ptr.mdfile)
         self.ptr.diff.handlers['output'].mdread(root)
-        expected = set()
-        for path in self.ptr.diff.handlers['output'].oldoutput.keys():
-          for item in path.findpaths(type=TYPE_NOT_DIR):
-            expected.add(item)
+
+        expected = set(self.ptr.diff.handlers['output'].oldoutput.keys())
         expected.add(self.ptr.mdfile)
         existing = set(self.ptr.mddir.findpaths(mindepth=1, type=TYPE_NOT_DIR))
 
-        cb = callback or self.ptr.copy_callback
-        obsolete_files = existing.difference(expected)
-        if obsolete_files:
+        obsolete = existing.difference(expected)
+        if obsolete:
           cb.rm_start()
-          for path in obsolete_files:
+          for path in obsolete:
             cb.rm(path)
-            path.rm(recursive=True, force=True)
+            path.rm(recursive=True)
 
-        dirs = [ d for d in self.ptr.mddir.findpaths(mindepth=1, type=TYPE_DIR) if \
-                 not d.findpaths(type=TYPE_NOT_DIR) ]
+        dirs = [ d for d in
+                 self.ptr.mddir.findpaths(mindepth=1, type=TYPE_DIR)
+                 if not d.listdir(all=True) ]
         if dirs:
           cb.rmdir_start()
-          dirs.reverse()
           for dir in dirs:
             cb.rmdir(dir)
             dir.removedirs()
 
   def list_output(self, what=None):
     """
-    list_output(source)
-
-    Returns the list of output files corresponding to an input
-    file/directory.
-
-    @param what: a list of IDs of the files for which the output files
-                 list is requested. If None, all output files are
-                 returned.
+    Return a list of output files, or a subset based on the ids specified in what
     """
-    if not self.ptr.diff.handlers.has_key('output'): return []
+    return sorted([ item.dst for item in self._filter_data(what=what) ])
+
+  def _filter_data(self, what=None):
+    "process 'what' arguments uniformly"
     if what is None:
-      return self.ptr.diff.handlers['output'].odata
-    if not hasattr(what, '__iter__'): what = [what]
-    rtn = []
+      what = self.data.keys()
+    elif not hasattr(what, '__iter__'):
+      what = [what]
+
+    ret = []
     for id in what:
-      if not self.sync_items.has_key(id):
-        continue
-      for _,d in self.sync_items[id]:
-        rtn.append(d)
-    return sorted(rtn)
+      if not self.data.has_key(id): continue
+      for item in self.data[id]: ret.append(item)
+
+    return ret
+
+  def _process_path_xml(self, item, relpath=None, absolute=False, mode=None):
+    "compute src, dst, filename, and mode from <path> elements"
+    s = P(item.get('text()'))
+    d = P(item.get('@dest', ''))
+    f = item.get('@filename', s.basename)
+    m = item.get('@mode', mode)
+
+    if relpath:
+      if absolute: d = relpath / d
+      else:        d = relpath // d
+
+    return s,d,f,m
+
+
+class TransactionData(object):
+  "Simple struct to hold src, dst, mode"
+  def __init__(self, src, dst, mode):
+    self.src  = src
+    self.dst  = dst
+    self.mode = mode

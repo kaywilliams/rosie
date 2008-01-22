@@ -52,7 +52,7 @@ class DownloadEvent(Event):
                               'st_mode':  (stat.S_IFREG | 0644)})
           rpms[rpm.basename] = rpm
           processed.append(nvra)
-      self.io.setup_sync(self.builddata_dest, paths=rpms.values(), id=repo.id)
+      self.io.add_fpaths(rpms.values(), self.builddata_dest, id=repo.id)
       if rpms:
         self.cvars['rpms-by-repoid'][repo.id] = \
           sorted([self.builddata_dest/rpm for rpm in rpms.keys()])

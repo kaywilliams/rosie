@@ -13,13 +13,12 @@
           <zeroOrMore>
           <element name="script">
             <optional>
-            <attribute name="dest"/>
-            </optional>
-            <optional>
             <attribute name="mode">
               <ref name="value-mode"/>
             </attribute>
             </optional>
+            <optional><attribute name="dest"/></optional>
+            <optional><attribute name="filename"/></optional>
             <text/>
           </element>
           </zeroOrMore>

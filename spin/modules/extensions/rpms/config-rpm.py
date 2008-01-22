@@ -83,10 +83,12 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     # generate auto-config file
     config_scripts = []
     for id in [ 'config-files-%d' % i for i in xrange(self.config_count) ]:
-      config_scripts.extend(self.io.list_output(id))
+      for path in self.io.list_output(id):
+        config_scripts.append('/' / path.relpathfrom(self.build_folder))
 
     if config_scripts:
       self.auto_script = self.build_folder / 'usr/lib/%s/auto.sh' % self.product
+      self.auto_script.dirname.mkdirs()
       self.auto_script.write_lines(config_scripts)
       self.auto_script.chmod(0755)
 

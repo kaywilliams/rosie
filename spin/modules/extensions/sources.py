@@ -120,7 +120,6 @@ class SourcesEvent(Event, CreateRepoMixin):
       srpmset.add(srpm)
 
     # setup sync
-    paths = []
     for repo in self.cvars['source-repos'].values():
       for rpminfo in repo.repoinfo:
         rpmi = rpminfo['file']
@@ -133,9 +132,7 @@ class SourcesEvent(Event, CreateRepoMixin):
             rpmi._update_stat({'st_size':  rpminfo['size'],
                                'st_mtime': rpminfo['mtime'],
                                'st_mode':  (stat.S_IFREG | 0644)})
-          paths.append(rpmi)
-
-    self.io.setup_sync(self.srpmdest, paths=paths, id='srpms')
+          self.io.add_fpath(rpmi, self.srpmdest, id='srpms')
 
   def run(self):
     self.log(1, L1("processing srpms"))

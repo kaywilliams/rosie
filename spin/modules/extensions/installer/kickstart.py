@@ -21,7 +21,7 @@ class KickstartEvent(Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.io.setup_sync(self.SOFTWARE_STORE, id='kickstart-file', xpaths=['.'])
+    self.io.add_xpath('.', self.SOFTWARE_STORE, id='kickstart-file')
 
   def run(self):
     self.io.sync_input(cache=True)

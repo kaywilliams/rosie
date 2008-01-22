@@ -29,26 +29,22 @@ class InputFilesMixin:
   """
   def __init__(self, install_info):
     self.install_info = install_info
-    self.ids = set()
 
   def _setup_download(self):
     for k,v in self.install_info.items():
-      xpath, dst, defmode, absolute = v
+      xpath, dst, mode, absolute = v
 
       if xpath and self.config.pathexists(xpath):
         default_dir = P(dst) / P(self.config.get(xpath).getparent().get('@dest', ''))
         for item in self.config.xpath(xpath, []):
-          s = P(item.get('text()'))
+          s,d,f,m = self.io._process_path_xml(item, relpath=default_dir,
+                                             absolute=absolute, mode=mode)
           if isinstance(s, pps.path.file.FilePath): #! bad, see event/fileio.py
             s = self._config.file.dirname / s
-          if absolute: d = default_dir /  P(item.get('@dest', ''))
-          else:        d = default_dir // P(item.get('@dest', ''))
-          f = item.get('@filename', s.basename)
-          m = item.get('@mode', defmode)
-          id = self._get_download_id(k)
-          self.ids.add(id)
 
-          self.io._setup_sync(s, self.build_folder // d, f, id or s, defmode)
+          id = self._get_download_id(k)
+
+          self.io.add_item(s, self.build_folder//d/f, id=id or s, mode=m)
 
           attribs = []
           for attr in item.attrib:
@@ -206,7 +202,10 @@ class RpmBuildMixin:
     self.verifier.failUnless(srpm.exists(), "unable to find srpm at '%s'" % srpm)
 
   def _generate(self):
-    pass
+    # generate doc file
+    doc_file = self.build_folder / 'README'
+    doc_file.dirname.mkdirs()
+    doc_file.write_text(self.rpm_desc)
 
   def _build(self):
     self.build_folder.mkdirs()
@@ -324,7 +323,7 @@ class RpmBuildMixin:
       spec.set('bdist_rpm', 'config_files', '\n\t'.join(config_files))
 
   def _add_doc_files(self, spec):
-    doc_files = []
+    doc_files = ['README']
     if (self.build_folder / 'COPYING').exists():
       doc_files.append('COPYING')
     for installdir in self.data_files.keys():
@@ -418,8 +417,6 @@ class ImagesGenerator(object):
           strings = properties.get('strings', None),
           base_image = properties.get('base_image', None)
         )
-
-    self.base_image = None
 
   def _create_image(self, file_name, width, height, format,
                     strings=None, base_image=None):

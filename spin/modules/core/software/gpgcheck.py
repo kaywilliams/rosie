@@ -45,7 +45,7 @@ class GpgCheckEvent(Event):
                              "keys provided." % repo.id)
 
     for repo in self.gpgkeys.keys():
-      self.io.setup_sync(self.mddir/repo, paths=self.gpgkeys[repo], id=repo)
+      self.io.add_fpaths(self.gpgkeys[repo], self.mddir/repo, id=repo)
     self.DATA['variables'].append('rpms')
     self.DATA['variables'].append('gpgkeys')
 

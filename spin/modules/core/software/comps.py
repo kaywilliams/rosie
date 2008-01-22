@@ -35,7 +35,7 @@ class CompsEvent(Event):
     self.comps_supplied = self.config.get('text()', False)
 
     if self.comps_supplied:
-      self.io.setup_sync(self.mddir, id='comps.xml', xpaths=['/distro/comps'])
+      self.io.add_xpath('/distro/comps', self.mddir, id='comps.xml')
 
     else:
       self.comps_out = self.mddir/'comps.xml'

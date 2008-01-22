@@ -50,9 +50,8 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     FileDownloadMixin.setup(self)
 
     # add input files from initrd.img
-    self.io.setup_sync(self.imagedir,
-                       xpaths='/distro/initrd-image/path',
-                       id='%s-input-files' % self.name)
+    self.io.add_xpath('/distro/initrd-image/path', self.imagedir,
+                      id='%s-input-files' % self.name)
 
   def run(self):
     self._download()

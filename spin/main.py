@@ -28,12 +28,12 @@ from rendition.sync import cache
 from rendition.sync import link
 
 from spin.callback  import (SyncCallback, CachedSyncCallback, LinkCallback,
-                                 SyncCallbackCompressed)
+                            SyncCallbackCompressed)
 from spin.constants import *
 from spin.event     import Event, CLASS_META
 from spin.logging   import make_log, L0, L1, L2
 from spin.validate  import (ConfigValidator, MainConfigValidator,
-                                 InvalidConfigError, InvalidSchemaError)
+                            InvalidConfigError, InvalidSchemaError)
 
 from spin.event.loader import Loader
 

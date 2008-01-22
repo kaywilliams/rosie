@@ -72,31 +72,23 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     self._setup_download()
 
     # public gpg keys
-    paths = []
     if self.cvars.get('gpgsign-public-key', None):
-      paths.append(self.cvars.get('gpgsign-public-key'))
+      self.io.add_fpath(self.cvars.get('gpgsign-public-key'),
+                        self.build_folder//self.gpg_dir)
     else:
       for repo in self.cvars['repos'].values():
-        for key in repo.gpgkeys:
-          paths.append(key)
-    self.io.setup_sync(self.build_folder//self.gpg_dir, paths=paths)
+        self.io.add_fpaths(repo.gpgkeys, self.build_folder//self.gpg_dir)
 
     # eulapy file
-    paths = []
     include_firstboot = self.config.get('eula/include-in-firstboot/text()',
                                         'True') in BOOLEANS_TRUE
     eula_provided = self.config.get('eula/path/text()', None) is not None
     if include_firstboot and eula_provided:
-      found = False
       for path in self.SHARE_DIRS:
         path = path/'release/eula.py'
         if path.exists():
-          paths.append(path)
-          found = True
+          self.io.add_fpath(path, self.build_folder//self.eulapy_dir)
           break
-      if not found:
-        raise RuntimeError("release/eula.py not found in %s" % self.SHARE_DIRS)
-      self.io.setup_sync(self.build_folder//self.eulapy_dir, paths=paths)
 
     # yum-repos
     if self.config.get('yum-repos/@include-input', 'True') in BOOLEANS_TRUE:
