@@ -27,8 +27,8 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     )
 
     InputFilesMixin.__init__(self, {
-      'config-files' : ('script', '/usr/lib/%s' % self.product, '755', True),
-      'support-files': ('file', '/usr/share/%s/files' % self.product, None, False)
+      'scripts' : ('script', '/usr/lib/%s' % self.product, '755', True),
+      'files': ('file', '/usr/share/%s/files' % self.product, None, False)
     })
 
     self.DATA = {
@@ -39,8 +39,8 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     }
 
     self.auto_script = None
-    self.config_count = 0
-    self.support_count = 0
+    self.script_count = 0
+    self.files_count = 0
 
     self.support_ids = []
 
@@ -61,12 +61,12 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     )
 
   def _get_download_id(self, type):
-    if type == 'config-files':
-      rtn = 'config-files-%d' % self.config_count
-      self.config_count += 1
-    elif type == 'support-files':
-      rtn = 'support-files-%d' % self.support_count
-      self.support_count += 1
+    if type == 'scripts':
+      rtn = 'scripts-%d' % self.script_count
+      self.script_count += 1
+    elif type == 'files':
+      rtn = 'files-%d' % self.files_count
+      self.files_count += 1
     else:
       raise RuntimeError("unknown type: '%s'" % type)
     return rtn
@@ -82,7 +82,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
 
     # generate auto-config file
     config_scripts = []
-    for id in [ 'config-files-%d' % i for i in xrange(self.config_count) ]:
+    for id in [ 'scripts-%d' % i for i in xrange(self.script_count) ]:
       for path in self.io.list_output(id):
         config_scripts.append('/' / path.relpathfrom(self.build_folder))
 
@@ -102,7 +102,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       for id in self.support_ids:
         for support_file in self.io.list_output(id):
           src = P('/%s') % support_file.relpathfrom(self.build_folder).normpath()
-          dst = P('/%s') % src.relpathfrom(self.install_info['support-files'][1]).normpath()
+          dst = P('/%s') % src.relpathfrom(self.install_info['files'][1]).normpath()
           dir = dst.dirname
           lines.extend([
             'if [ -e %s ]; then' % dst,
@@ -126,7 +126,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       for id in self.support_ids:
         for support_file in self.io.list_output(id):
           src = P('/%s') % support_file.relpathfrom(self.build_folder).normpath()
-          dst = P('/%s') % src.relpathfrom(self.install_info['support-files'][1]).normpath()
+          dst = P('/%s') % src.relpathfrom(self.install_info['files'][1]).normpath()
           lines.extend([
             'if [ -e %s.config-save ]; then' % dst,
             '  %%{__mv} -f %s.config-save %s' % (dst, dst),
