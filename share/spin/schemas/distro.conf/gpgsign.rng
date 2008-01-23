@@ -10,10 +10,10 @@
         </optional>
         
         <interleave>
-          <element name="gpg-public-key"><text/></element>
-          <element name="gpg-secret-key"><text/></element>
+          <element name="public-key"><text/></element>
+          <element name="secret-key"><text/></element>
           <optional>
-          <element name="gpg-passphrase"><text/></element>
+          <element name="passphrase"><text/></element>
           </optional>
         </interleave>
       </element>

@@ -22,9 +22,9 @@ class Test_CompsFile(CreaterepoEventTestCase):
 class Test_SignedRpms(CreaterepoEventTestCase):
   "uses signed rpms when gpgsign is enabled"
   _conf = """<gpgsign>
-    <gpg-public-key>%s</gpg-public-key>
-    <gpg-secret-key>%s</gpg-secret-key>
-    <gpg-passphrase></gpg-passphrase>
+    <public-key>%s</public-key>
+    <secret-key>%s</secret-key>
+    <passphrase></passphrase>
   </gpgsign>""" % (pps.Path(__file__).dirname.abspath()/'RPM-GPG-KEY-test',
                    pps.Path(__file__).dirname.abspath()/'RPM-GPG-SEC-KEY-test')
 

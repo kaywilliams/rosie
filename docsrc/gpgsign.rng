@@ -1,15 +1,15 @@
 <docroot>
   <refentry>
 
-    <!-- gpg-public-key -->
+    <!-- public-key -->
     <refsect2>
-      <title>&lt;gpg-public-key&gt;</title>
+      <title>&lt;public-key&gt;</title>
       <para>
       Element describing to gpgsign where to find an exported RPM GPG public key that
       can be used to sign RPMs.
       </para>
       <programlisting>
-element gpg-public-key { text }
+element public-key { text }
       </programlisting>
       <refsection>
         <title>Parents</title>
@@ -17,19 +17,19 @@ element gpg-public-key { text }
       </refsection>
       <refsection>
         <title>See also</title>
-        <para>gpg-secret-key, gpg-passphrase</para>
+        <para>secret-key, passphrase</para>
       </refsection>
     </refsect2>
 
-    <!-- gpg-secret-key -->
+    <!-- secret-key -->
     <refsect2>
-      <title>&lt;gpg-secret-key&gt;</title>
+      <title>&lt;secret-key&gt;</title>
       <para>
       Element describing to gpgsign where to find an exported RPM GPG secret key that
       can be used to sign RPMs.
       </para>
       <programlisting>
-element gpg-secret-key { text }
+element secret-key { text }
       </programlisting>
       <refsection>
         <title>Parents</title>
@@ -37,13 +37,13 @@ element gpg-secret-key { text }
       </refsection>
       <refsection>
         <title>See also</title>
-        <para>gpg-public-key, gpg-password</para>
+        <para>public-key, password</para>
       </refsection>
     </refsect2>
 
-    <!-- gpg-passphrase -->
+    <!-- passphrase -->
     <refsect2>
-      <title>&lt;gpg-passphrase&gt;</title>
+      <title>&lt;passphrase&gt;</title>
       <para>
       Optional element for use by gpgsign in providing a passphrase to gpg when signing
       RPMs.  If this element is not present, spin will prompt the user for the
@@ -51,7 +51,7 @@ element gpg-secret-key { text }
       cases, as it stores your gpg passphrase in plaintext mode.
       </para>
       <programlisting>
-element gpg-passphrase { text }
+element passphrase { text }
       </programlisting>
       <refsection>
         <title>Parents</title>
@@ -69,9 +69,9 @@ element gpg-passphrase { text }
 element gpgsign {
   attribute enabled { ... }
   &amp; (
-    element gpg-public-key { ... }
-    &amp; element gpg-secret-key { ... }
-    &amp; element gpg-passphrase { ... }?
+    element public-key { ... }
+    &amp; element secret-key { ... }
+    &amp; element passphrase { ... }?
   )?
 }
       </programlisting>
@@ -104,8 +104,8 @@ element gpgsign {
         </para>
         <programlisting>
 &lt;gpgsign enabled='true'&gt;
-  &lt;gpg-public-key&gt;/var/gpg/public-key-export&lt;/gpg-public-key&gt;
-  &lt;gpg-secret-key&gt;/var/gpg/secret-key-export&lt;/gpg-secret-key&gt;
+  &lt;public-key&gt;/var/gpg/gpg-public-key-export&lt;/public-key&gt;
+  &lt;secret-key&gt;/var/gpg/gpg-secret-key-export&lt;/secret-key&gt;
 &lt;/gpgsign&gt;
         </programlisting>
       </refsection>

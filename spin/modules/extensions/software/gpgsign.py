@@ -25,14 +25,14 @@ class GpgSetupEvent(Event):
     )
 
   def apply(self):
-    pubkey = self.config.get('gpg-public-key/text()', None)
+    pubkey = self.config.get('public-key/text()', None)
     if pubkey: self.cvars['gpgsign-public-key'] = P(pubkey)
 
-    seckey = self.config.get('gpg-secret-key/text()', None)
+    seckey = self.config.get('secret-key/text()', None)
     if seckey: self.cvars['gpgsign-secret-key'] = P(seckey)
 
-    if self.config.pathexists('gpg-passphrase'):
-      pw = self.config.get('gpg-passphrase/text()', '')
+    if self.config.pathexists('passphrase'):
+      pw = self.config.get('passphrase/text()', '')
       if pw is None: pw = '' # config.get returns None if empty
       self.cvars['gpgsign-passphrase'] = pw
 

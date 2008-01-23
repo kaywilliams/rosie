@@ -7,9 +7,9 @@ class GpgsignTestCase(EventTestCase):
   moduleid = 'gpgsign'
   eventid  = 'gpgsign'
   _conf = """<gpgsign>
-    <gpg-public-key>%s</gpg-public-key>
-    <gpg-secret-key>%s</gpg-secret-key>
-    <gpg-passphrase></gpg-passphrase>
+    <public-key>%s</public-key>
+    <secret-key>%s</secret-key>
+    <passphrase></passphrase>
   </gpgsign>""" % (pps.Path(__file__).abspath().dirname/'RPM-GPG-KEY-test',
                    pps.Path(__file__).abspath().dirname/'RPM-GPG-SEC-KEY-test')
 
