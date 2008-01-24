@@ -56,8 +56,6 @@ class PkglistEvent(Event):
     }
     self.docopy = self.config.pathexists('text()')
 
-    self.yumarch = None
-
   def setup(self):
     self.diff.setup(self.DATA)
 
@@ -66,11 +64,6 @@ class PkglistEvent(Event):
       self.io.add_xpath('.', self.mddir, id='pkglist')
       self.pkglistfile = self.io.list_output(what='pkglist')[0]
       return
-
-    if self.arch == 'i386':
-      self.yumarch = 'athlon'
-    else:
-      self.yumarch = self.arch
 
     # setup if creating pkglist
     self.pkglistfile = self.mddir / 'pkglist'
@@ -123,14 +116,14 @@ class PkglistEvent(Event):
                                    pkglist = self.pkglistfile,
                                    config = str(repoconfig),
                                    root = str(self.dsdir),
-                                   arch = self.yumarch,
+                                   arch = self.arch,
                                    callback = BuildDepsolveCallback(self.logger))
     else:
       pkgtups = depsolver.resolve(packages = required_packages,
                                   required = user_required,
                                   config = str(repoconfig),
                                   root = str(self.dsdir),
-                                  arch = self.yumarch,
+                                  arch = self.arch,
                                   callback = BuildDepsolveCallback(self.logger))
 
     self.log(1, L1("pkglist closure achieved in %d packages" % len(pkgtups)))
@@ -159,16 +152,16 @@ class PkglistEvent(Event):
 
   def verify_kernel_arch(self):
     "kernel arch matches arch in config"
-    if self.arch == 'i386':
-      aliases = rpmUtils.arch.getArchList('athlon')
-    else:
-      aliases = [self.arch]
+    matched = False
     for pkg in self.cvars['pkglist']:
       n,v,r,a = NVRA_REGEX.match(pkg).groups()
-      if n in KERNELS:
-        self.verifier.failUnless(a in aliases,
-          "the arch of kernel package '%s' does not match desired arch '%s'" % \
-          (pkg, self.arch))
+      if n not in KERNELS: continue
+      self.verifier.failUnlessEqual(rpmUtils.arch.getBaseArch(a), self.basearch,
+        "the base arch of kernel package '%s' does not match the specified "
+        "base arch '%s'" % (pkg, self.basearch))
+      matched = True
+
+    self.verifier.failUnless(matched, "no kernel package found")
 
   def _verify_repos(self):
     for repo in self.cvars['repos'].values():
@@ -177,12 +170,9 @@ class PkglistEvent(Event):
       for rddir in self.rddirs:
         for file in self.diff.handlers['input'].diffdict.keys():
           if file.startswith(rddir):
-            rddir_changed = True
-            break
-        if rddir_changed:
-          break
+            rddir_changed = True; break
+        if rddir_changed: break
       if rddir_changed:
-        ## HACK: delete a folder's depsolve metadata if it has changed.
         (self.dsdir/repo.id).rm(recursive=True, force=True)
 
   def _create_repoconfig(self):

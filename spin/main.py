@@ -53,6 +53,9 @@ DEFAULT_TEMP_DIR = P('/tmp/spin')
 DEFAULT_CACHE_DIR = P('/var/cache/spin')
 DEFAULT_SHARE_DIR = P('/usr/share/spin')
 
+# map our supported archs to the highest arch in that arch 'class'
+ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
+
 class Build(object):
   """
   Primary build class - framework upon which a custom spin is generated
@@ -343,7 +346,7 @@ class Build(object):
     bv = Event.cvars['base-vars'] = {}
     qstr = '/distro/main/%s/text()'
 
-    bv['arch']     = Event._config.get(qstr % 'arch', 'i686')
+    bv['arch']     = ARCH_MAP[Event._config.get(qstr % 'arch', 'i386')]
     bv['product']  = Event._config.get(qstr % 'product')
     bv['version']  = Event._config.get(qstr % 'version')
     bv['basearch'] = getBaseArch(bv['arch'])

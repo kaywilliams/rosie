@@ -71,6 +71,11 @@ def parse_cmd_args():
     type='int',
     dest='testloglevel',
     help='specify the level of verbosity of the output log')
+  parser.add_option('--clear-cache',
+    dest='clear_cache',
+    default=False,
+    action='store_true',
+    help='clear cache before testing')
 
   parser.set_defaults(**opt_defaults)
 
@@ -90,7 +95,8 @@ def main():
 
   # save the build root folder if it already exists and contains something
   preserve_build_root = ( spintest.BUILD_ROOT.exists() and
-                          spintest.BUILD_ROOT.listdir(all=True) )
+                          spintest.BUILD_ROOT.listdir(all=True) and
+                          not options.clear_cache )
 
   runner = spintest.EventTestRunner(options.testloglevel)
   suite = unittest.TestSuite()
