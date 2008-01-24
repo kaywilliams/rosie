@@ -488,6 +488,35 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
         )
       ]
     ),
+    '/usr/share/anaconda/pixmaps/rnotes/welcome.png': dict(
+      height = 325,
+      width  = 500,
+      format = 'PNG',
+      strings = [
+        dict(
+          text = '%(fullname)s',
+          font = 'DejaVuLGCSans-Bold.ttf',
+          font_size = 18,
+          font_size_min = 8,
+          font_color = 'white',
+          text_coords = (400, 265),
+          text_max_width = 140,
+        ),
+        dict(
+          text = 'Version %(version)s',
+          halign = 'right',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (420, 280),
+        ),
+        dict(
+          text = '%(copyright)s',
+          font_size = 7,
+          font_color = 'white',
+          text_coords = (250, 315),
+        )
+      ]
+    ),
     '/usr/share/anaconda/pixmaps/splash.png': dict(
       height = 325,
       width  = 500,
