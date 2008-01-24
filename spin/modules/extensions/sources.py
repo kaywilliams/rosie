@@ -46,7 +46,7 @@ class SourceReposEvent(Event, RepoEventMixin):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.read_config(repos='repo', files='repofiles')
+    self.read_config(repos='repo', files='repofile')
 
   def run(self):
     self.log(1, L1("downloading information about source packages"))

@@ -11,9 +11,9 @@
 
         <interleave>
 
-        <oneOrMore>
+        <zeroOrMore>
         <ref name="element-repo"/>
-        </oneOrMore>
+        </zeroOrMore>
 
         <zeroOrMore>
         <element name="repofile"><text/></element>
