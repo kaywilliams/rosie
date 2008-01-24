@@ -23,7 +23,8 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       '%s-config' % self.product,
       "The %s-config provides scripts and supporting files for configuring "
       "the %s distribution." %(self.product, self.fullname),
-      "%s configuration script and supporting files" % self.fullname
+      "%s configuration script and supporting files" % self.fullname,
+      default_requires = ['coreutils']
     )
 
     InputFilesMixin.__init__(self, {
