@@ -71,11 +71,11 @@ def parse_cmd_args():
     type='int',
     dest='testloglevel',
     help='specify the level of verbosity of the output log')
-  parser.add_option('--clear-cache',
-    dest='clear_cache',
-    default=False,
-    action='store_true',
-    help='clear cache before testing')
+  parser.add_option('--no-clear-cache',
+    dest='clear_test_cache',
+    default=True,
+    action='store_false',
+    help='don\'t clear event cache when done testing')
 
   parser.set_defaults(**opt_defaults)
 
@@ -92,11 +92,6 @@ def main():
 
   spintest.BUILD_ROOT = pps.Path(options.buildroot)
   spintest.EventTestCase.options = options
-
-  # save the build root folder if it already exists and contains something
-  preserve_build_root = ( spintest.BUILD_ROOT.exists() and
-                          spintest.BUILD_ROOT.listdir(all=True) and
-                          not options.clear_cache )
 
   runner = spintest.EventTestRunner(options.testloglevel)
   suite = unittest.TestSuite()
@@ -118,7 +113,7 @@ def main():
   try:
     result = runner.run(suite)
   finally:
-    if not preserve_build_root:
+    if options.clear_test_cache:
       spintest.BUILD_ROOT.rm(recursive=True, force=True)
 
   if not result: # some sort of exception in the testing logic (can't currently happen)
