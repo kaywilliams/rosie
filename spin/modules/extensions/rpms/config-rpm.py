@@ -107,7 +107,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
           dir = dst.dirname
           lines.extend([
             'if [ -e %s ]; then' % dst,
-            '  %%{__mv} %s %s.config-save' % (dst, dst),
+            '  %%{__mv} %s %s.rpmsave' % (dst, dst),
             'fi',
             'if [ ! -d %s ]; then' % dir,
             '  %%{__mkdir} -p %s' % dir,
@@ -130,8 +130,8 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
           src = P('/%s') % support_file.relpathfrom(self.build_folder).normpath()
           dst = P('/%s') % src.relpathfrom(self.install_info['files'][1]).normpath()
           lines.extend([
-            '  if [ -e %s.config-save ]; then' % dst,
-            '    %%{__mv} -f %s.config-save %s' % (dst, dst),
+            '  if [ -e %s.rpmsave ]; then' % dst,
+            '    %%{__mv} -f %s.rpmsave %s' % (dst, dst),
             '  else',
             '    %%{__rm} -f %s' % dst,
             '  fi',

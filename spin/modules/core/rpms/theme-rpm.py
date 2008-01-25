@@ -86,8 +86,8 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
     gdm_install_trigger.write_lines([
       'CUSTOM_CONF_DIR=%{_sysconfdir}/gdm',
       'CUSTOM_CONF=$CUSTOM_CONF_DIR/custom.conf',
-      'if [ -e $CUSTOM_CONF -a ! -e $CUSTOM_CONF.theme-save ]; then',
-      '  %{__mv} $CUSTOM_CONF $CUSTOM_CONF.theme-save',
+      'if [ -e $CUSTOM_CONF -a ! -e $CUSTOM_CONF.rpmsave ]; then',
+      '  %{__mv} $CUSTOM_CONF $CUSTOM_CONF.rpmsave',
       '  %%{__cp} %s $CUSTOM_CONF' % custom_conf,
       'fi',
     ])
@@ -99,16 +99,16 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
     for file in ['default.jpg', 'default.png',
                  'default-5_4.png', 'default-wide.png']:
       lines.extend([
-        'if [ ! -e $bg_folder/images/%s.theme-save -a -e $bg_folder/images/%s ]; then' % (file, file),
-        '  %%{__mv} $bg_folder/images/%s $bg_folder/images/%s.theme-save' % (file, file),
+        'if [ ! -e $bg_folder/images/%s.rpmsave -a -e $bg_folder/images/%s ]; then' % (file, file),
+        '  %%{__mv} $bg_folder/images/%s $bg_folder/images/%s.rpmsave' % (file, file),
         '  %%{__cp} $bg_folder/spin/2-spin-day.png $bg_folder/images/%s' % file,
         'fi',
       ])
 
     for dir, xml in self.themes_info:
       lines.extend([
-        'if [ -d $bg_folder/%s -a ! -d $bg_folder/%s.theme-save ]; then' % (dir, dir),
-        '  %%{__mv} $bg_folder/%s $bg_folder/%s.theme-save' % (dir, dir),
+        'if [ -d $bg_folder/%s -a ! -d $bg_folder/%s.rpmsave ]; then' % (dir, dir),
+        '  %%{__mv} $bg_folder/%s $bg_folder/%s.rpmsave' % (dir, dir),
         '  %%{__ln_s} $bg_folder/spin $bg_folder/%s' % dir,
         '  %%{__ln_s} $bg_folder/spin/spin.xml $bg_folder/spin/%s' % xml,
         'fi',
@@ -121,7 +121,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
     gdm_uninstall_trigger = self.build_folder / 'gdm-uninstall-trigger.sh'
     gdm_uninstall_trigger.write_lines([
       '[ $2 = 1 ] || exit 0',
-      'rm -f %{_sysconfdir}/gdm/custom.conf.theme-save'
+      'rm -f %{_sysconfdir}/gdm/custom.conf.rpmsave'
     ])
     return 'gdm', gdm_uninstall_trigger
 
@@ -133,15 +133,15 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
                  'default-5_4.png', 'default-wide.png']:
       lines.extend([
         '%%{__rm} -f $bg_folder/images/%s' % file,
-        '%%{__mv} $bg_folder/images/%s.theme-save $bg_folder/images/%s' % (file, file),
+        '%%{__mv} $bg_folder/images/%s.rpmsave $bg_folder/images/%s' % (file, file),
       ])
 
     for dir, xml in self.themes_info:
       lines.extend([
-        'if [ -d $bg_folder/%s.theme-save ]; then' % dir,
+        'if [ -d $bg_folder/%s.rpmsave ]; then' % dir,
         '  %%{__rm} -f $bg_folder/%s' % dir,
         '  %%{__rm} -f $bg_folder/spin/%s' % xml,
-        '  %%{__mv} $bg_folder/%s.theme-save $bg_folder/%s' % (dir, dir),
+        '  %%{__mv} $bg_folder/%s.rpmsave $bg_folder/%s' % (dir, dir),
         'fi',
       ])
 
