@@ -16,7 +16,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
 
     Event.__init__(self,
       id = 'theme-rpm',
-      version = '0.9',
+      version = '0.91',
       provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info']
     )
 
@@ -40,6 +40,8 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
     self.custom_theme = self.build_folder / 'usr/share/%s/custom.conf' % self.rpm_name
 
     self.themes_info = [('infinity', 'infinity.xml')]
+    self.backgrounds = ['default.jpg', 'default.png',
+                        'default-5_4.png', 'default-wide.png']
 
   def setup(self):
     self._setup_build()
@@ -84,66 +86,67 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
     gdm_install_trigger = self.build_folder / 'gdm-install-trigger.sh'
     custom_conf  = '/%s' % self.custom_theme.relpathfrom(self.build_folder)
     gdm_install_trigger.write_lines([
-      'CUSTOM_CONF_DIR=%{_sysconfdir}/gdm',
-      'CUSTOM_CONF=$CUSTOM_CONF_DIR/custom.conf',
-      'if [ -e $CUSTOM_CONF -a ! -e $CUSTOM_CONF.rpmsave ]; then',
-      '  %{__mv} $CUSTOM_CONF $CUSTOM_CONF.rpmsave',
-      '  %%{__cp} %s $CUSTOM_CONF' % custom_conf,
-      'fi',
+      'THEME_CUSTOM_CONF=%s' % custom_conf,
+      'CUSTOM_CONF=%{_sysconfdir}/gdm/custom.conf',
+      '%{__mv} $CUSTOM_CONF $CUSTOM_CONF.rpmsave',
+      '%{__cp} $THEME_CUSTOM_CONF $CUSTOM_CONF'
     ])
     return 'gdm', gdm_install_trigger
 
   def _get_background_install_trigger(self):
     bg_install_trigger = self.build_folder / 'bg-install-trigger.sh'
-    lines = ['bg_folder=%{_datadir}/backgrounds']
-    for file in ['default.jpg', 'default.png',
-                 'default-5_4.png', 'default-wide.png']:
+    lines = ['BACKGROUNDS=%{_datadir}/backgrounds']
+    for file in self.backgrounds:
       lines.extend([
-        'if [ ! -e $bg_folder/images/%s.rpmsave -a -e $bg_folder/images/%s ]; then' % (file, file),
-        '  %%{__mv} $bg_folder/images/%s $bg_folder/images/%s.rpmsave' % (file, file),
-        '  %%{__cp} $bg_folder/spin/2-spin-day.png $bg_folder/images/%s' % file,
-        'fi',
+        '%%{__mv} $BACKGROUNDS/images/%s $BACKGROUNDS/images/%s.rpmsave' % (file, file),
+        '%%{__cp} $BACKGROUNDS/spin/2-spin-day.png $BACKGROUNDS/images/%s' % file,
       ])
 
     for dir, xml in self.themes_info:
       lines.extend([
-        'if [ -d $bg_folder/%s -a ! -d $bg_folder/%s.rpmsave ]; then' % (dir, dir),
-        '  %%{__mv} $bg_folder/%s $bg_folder/%s.rpmsave' % (dir, dir),
-        '  %%{__ln_s} $bg_folder/spin $bg_folder/%s' % dir,
-        '  %%{__ln_s} $bg_folder/spin/spin.xml $bg_folder/spin/%s' % xml,
+        'if [ -d $BACKGROUNDS/%s ]; then' % dir,
+        '  if [ -d $BACKGROUNDS/%s.rpmsave ]; then' % dir,
+        '    %%{__rm} -rf $BACKGROUNDS/%s.rpmsave' % dir,
+        '  fi',
+        '  %%{__mv} $BACKGROUNDS/%s $BACKGROUNDS/%s.rpmsave' % (dir, dir),
+        '  %%{__ln_s} $BACKGROUNDS/spin $BACKGROUND/%s' % dir,
+        '  if [ ! -e $BACKGROUNDS/spin/%s ]; then' % xml,
+        '    %%{__ln_s} $BACKGROUNDS/spin/spin.xml $BACKGROUNDS/spin/%s' % xml,
+        '  fi',
         'fi',
       ])
-
     bg_install_trigger.write_lines(lines)
     return 'desktop-backgrounds-basic', bg_install_trigger
 
   def _get_gdm_uninstall_trigger(self):
     gdm_uninstall_trigger = self.build_folder / 'gdm-uninstall-trigger.sh'
     gdm_uninstall_trigger.write_lines([
-      '[ $2 = 1 ] || exit 0',
-      'rm -f %{_sysconfdir}/gdm/custom.conf.rpmsave'
+      'if [ "$1" -eq "0" -o "$2" -eq "0" ]; then',
+      '  rm -f %{_sysconfdir}/gdm/custom.conf.rpmsave',
+      'fi'
     ])
     return 'gdm', gdm_uninstall_trigger
 
   def _get_background_uninstall_trigger(self):
     bg_uninstall_trigger = self.build_folder / 'bg-uninstall-trigger.sh'
-    lines = ['bg_folder=%{_datadir}/backgrounds']
-    lines.append('[ $2 = 1 ] || exit 0')
-    for file in ['default.jpg', 'default.png',
-                 'default-5_4.png', 'default-wide.png']:
+    lines = [
+      'if [ "$1" -eq "0" -o "$2" -eq "0" ]; then',
+      '  BACKGROUNDS=%{_datadir}/backgrounds']
+    for file in self.backgrounds:
       lines.extend([
-        '%%{__rm} -f $bg_folder/images/%s' % file,
-        '%%{__mv} $bg_folder/images/%s.rpmsave $bg_folder/images/%s' % (file, file),
+        '  if [ -e $BACKGROUNDS/images/%s.rpmsave ]; then' % file,
+        '    %%{__rm} $BACKGROUNDS/images/%s.rpmsave' % file,
+        '  fi',
       ])
 
     for dir, xml in self.themes_info:
       lines.extend([
-        'if [ -d $bg_folder/%s.rpmsave ]; then' % dir,
-        '  %%{__rm} -f $bg_folder/%s' % dir,
-        '  %%{__rm} -f $bg_folder/spin/%s' % xml,
-        '  %%{__mv} $bg_folder/%s.rpmsave $bg_folder/%s' % (dir, dir),
-        'fi',
+        '  if [ -d $BACKGROUNDS/%s.rpmsave ]; then' % dir,
+        '    %%{__rm} -rf $BACKGROUNDS/%s.rpmsave' % dir,
+        '    %%{__rm} -f $BACKGROUNDS/spin/%s' % xml,
+        '  fi'
       ])
+    lines.append('fi')
 
     bg_uninstall_trigger.write_lines(lines)
     return 'desktop-backgrounds-basic', bg_uninstall_trigger
