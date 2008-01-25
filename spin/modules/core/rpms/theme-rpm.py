@@ -96,10 +96,13 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
   def _get_background_install_trigger(self):
     bg_install_trigger = self.build_folder / 'bg-install-trigger.sh'
     lines = ['BACKGROUNDS=%{_datadir}/backgrounds']
+
     for file in self.backgrounds:
       lines.extend([
-        '%%{__mv} $BACKGROUNDS/images/%s $BACKGROUNDS/images/%s.rpmsave' % (file, file),
-        '%%{__cp} $BACKGROUNDS/spin/2-spin-day.png $BACKGROUNDS/images/%s' % file,
+        'if [ -e $BACKGROUNDS/images/%s ]; then' % file,
+        '  %%{__mv} $BACKGROUNDS/images/%s $BACKGROUNDS/images/%s.rpmsave' % (file, file),
+        '  %%{__cp} $BACKGROUNDS/spin/2-spin-day.png $BACKGROUNDS/images/%s' % file,
+        'fi'
       ])
 
     for dir, xml in self.themes_info:
