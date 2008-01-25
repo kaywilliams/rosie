@@ -124,17 +124,19 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def _get_post_uninstall_script(self):
     lines = []
     if self.support_ids:
+      lines.append('if [ "$1" == "0" ]; then')
       for id in self.support_ids:
         for support_file in self.io.list_output(id):
           src = P('/%s') % support_file.relpathfrom(self.build_folder).normpath()
           dst = P('/%s') % src.relpathfrom(self.install_info['files'][1]).normpath()
           lines.extend([
-            'if [ -e %s.config-save ]; then' % dst,
-            '  %%{__mv} -f %s.config-save %s' % (dst, dst),
-            'else',
-            '  %%{__rm} -f %s' % dst,
-            'fi',
+            '  if [ -e %s.config-save ]; then' % dst,
+            '    %%{__mv} -f %s.config-save %s' % (dst, dst),
+            '  else',
+            '    %%{__rm} -f %s' % dst,
+            '  fi',
           ])
+      lines.append('fi')
 
     if lines:
       post_uninstall = self.build_folder / 'post-uninstall.sh'
