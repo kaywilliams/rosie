@@ -39,6 +39,8 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
 
     self.custom_theme = self.build_folder / 'usr/share/%s/custom.conf' % self.rpm_name
 
+    self.themes_info = [('infinity', 'infinity.xml')]
+
   def setup(self):
     self._setup_build()
 
@@ -82,12 +84,12 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
     gdm_install_trigger = self.build_folder / 'gdm-install-trigger.sh'
     custom_conf  = '/%s' % self.custom_theme.relpathfrom(self.build_folder)
     gdm_install_trigger.write_lines([
-     'CUSTOM_CONF_DIR=%{_sysconfdir}/gdm',
-     'CUSTOM_CONF=$CUSTOM_CONF_DIR/custom.conf',
-     'if [ -e $CUSTOM_CONF -a ! -e $CUSTOM_CONF.theme-save ]; then',
-     '  %{__mv} $CUSTOM_CONF $CUSTOM_CONF.theme-save',
-     '  %%{__cp} %s $CUSTOM_CONF' % custom_conf,
-     'fi',
+      'CUSTOM_CONF_DIR=%{_sysconfdir}/gdm',
+      'CUSTOM_CONF=$CUSTOM_CONF_DIR/custom.conf',
+      'if [ -e $CUSTOM_CONF -a ! -e $CUSTOM_CONF.theme-save ]; then',
+      '  %{__mv} $CUSTOM_CONF $CUSTOM_CONF.theme-save',
+      '  %%{__cp} %s $CUSTOM_CONF' % custom_conf,
+      'fi',
     ])
     return 'gdm', gdm_install_trigger
 
@@ -103,7 +105,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
         'fi',
       ])
 
-    for dir, xml in [('infinity', 'infinity.xml')]:
+    for dir, xml in self.themes_info:
       lines.extend([
         'if [ -d $bg_folder/%s -a ! -d $bg_folder/%s.theme-save ]; then' % (dir, dir),
         '  %%{__mv} $bg_folder/%s $bg_folder/%s.theme-save' % (dir, dir),
@@ -118,6 +120,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
   def _get_gdm_uninstall_trigger(self):
     gdm_uninstall_trigger = self.build_folder / 'gdm-uninstall-trigger.sh'
     gdm_uninstall_trigger.write_lines([
+      '[ $2 = 1 ] || exit 0',
       'rm -f %{_sysconfdir}/gdm/custom.conf.theme-save'
     ])
     return 'gdm', gdm_uninstall_trigger
@@ -125,6 +128,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
   def _get_background_uninstall_trigger(self):
     bg_uninstall_trigger = self.build_folder / 'bg-uninstall-trigger.sh'
     lines = ['bg_folder=%{_datadir}/backgrounds']
+    lines.append('[ $2 = 1 ] || exit 0')
     for file in ['default.jpg', 'default.png',
                  'default-5_4.png', 'default-wide.png']:
       lines.extend([
@@ -132,7 +136,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
         '%%{__mv} $bg_folder/images/%s.theme-save $bg_folder/images/%s' % (file, file),
       ])
 
-    for dir, xml in [('infinity', 'infinity.xml')]:
+    for dir, xml in self.themes_info:
       lines.extend([
         'if [ -d $bg_folder/%s.theme-save ]; then' % dir,
         '  %%{__rm} -f $bg_folder/%s' % dir,
