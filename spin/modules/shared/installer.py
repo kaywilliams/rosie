@@ -30,12 +30,12 @@ class ExtractMixin:
   def _extract(self):
     self.io.clean_eventcache(all=True)
 
+    # get input - extract RPMs
+    # create temporary directory for rpms, gets deleted once done
+    working_dir = P(tempfile.mkdtemp(dir=self.TEMP_DIR))
+
     # generate output files
     try:
-      # get input - extract RPMs
-      # create temporary directory for rpms, gets deleted once done
-      working_dir = P(tempfile.mkdtemp(dir=self.TEMP_DIR))
-
       for rpmname in self._find_rpms():
         self._extract_rpm(rpmname, working_dir)
 
