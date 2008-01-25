@@ -17,7 +17,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
   def __init__(self):
     Event.__init__(self,
       id = 'logos-rpm',
-      version = 7,
+      version = '0.9',
       requires = ['source-vars', 'anaconda-version', 'logos-versions'],
       provides = ['custom-rpms', 'custom-srpms', 'custom-rpms-info']
     )

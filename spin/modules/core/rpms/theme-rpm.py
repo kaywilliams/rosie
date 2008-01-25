@@ -16,7 +16,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
 
     Event.__init__(self,
       id = 'theme-rpm',
-      version = 4,
+      version = '0.9',
       provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info']
     )
 
