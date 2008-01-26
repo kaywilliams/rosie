@@ -15,9 +15,9 @@ from rendition.progressbar   import ProgressBar
 from spin.logging import L1, L2
 
 # progressbar layouts - see progressbar.py for other tags
-LAYOUT_SYNC     = '%(title)-28.28s [%(bar)s] %(curvalue)9.9sB (%(time-elapsed)s)'
-LAYOUT_DEPSOLVE = '%(title)-28.28s [%(bar)s] %(ratio)10.10s (%(time-elapsed)s)'
-LAYOUT_GPG      = '%(title)-28.28s [%(bar)s] %(ratio)10.10s (%(time-elapsed)s)'
+LAYOUT_SYNC      = '%(title)-28.28s [%(bar)s] %(curvalue)9.9sB (%(time-elapsed)s)'
+LAYOUT_DEPSOLVE  = '%(title)-28.28s [%(bar)s] %(ratio)10.10s (%(time-elapsed)s)'
+LAYOUT_GPG       = '%(title)-28.28s [%(bar)s] %(ratio)10.10s (%(time-elapsed)s)'
 
 class LinkCallback(_SyncCallbackMetered):
   """
@@ -311,3 +311,27 @@ class GpgCallback:
 
   def end(self):
     pass
+
+class IDepsolverCallback(object):
+  def __init__(self, logger):
+    self.logger = logger
+    self.bar = None
+
+  def start(self, message, amount):
+    self.logger.log(3, L1(message))
+    if self.logger.test(3):
+      self.bar = ProgressBar(size=amount, layout=LAYOUT_DEPSOLVE, title=L2(''))
+      self.bar.start()
+
+  def increment(self, title):
+    if self.logger.test(3):
+      self.bar.tags['title'] = L2(title)
+      self.bar.status.position += 1
+
+  def end(self):
+    if self.logger.test(3):
+      self.bar.tags['title'] = L2('done')
+      self.bar.update(self.bar.status.size)
+      self.bar.finish()
+      self.logger.logfile.log(2, str(self.bar))
+      self.bar = None

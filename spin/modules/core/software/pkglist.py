@@ -89,7 +89,6 @@ class PkglistEvent(Event):
       return
 
     # create pkglist
-    self.log(1, L1("generating new package list"))
     if not self.dsdir.exists():
       self.dsdir.mkdirs()
 
@@ -117,8 +116,10 @@ class PkglistEvent(Event):
                                    config = str(repoconfig),
                                    root = str(self.dsdir),
                                    arch = self.arch,
-                                   callback = BuildDepsolveCallback(self.logger))
+                                   callback = BuildDepsolveCallback(self.logger),
+                                   logger = self.logger)
     else:
+      self.log(1, L1("generating new package list"))
       pkgtups = depsolver.resolve(packages = required_packages,
                                   required = user_required,
                                   config = str(repoconfig),
