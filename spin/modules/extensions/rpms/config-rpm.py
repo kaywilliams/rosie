@@ -15,7 +15,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'config-rpm',
-      version = '0.9',
+      version = '0.91',
       provides = ['custom-rpms', 'custom-srpms', 'custom-rpms-info']
     )
 
@@ -24,7 +24,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       "The %s-config provides scripts and supporting files for configuring "
       "the %s distribution." %(self.product, self.fullname),
       "%s configuration script and supporting files" % self.fullname,
-      default_requires = ['coreutils']
+      default_requires = ['coreutils', 'policycoreutils']
     )
 
     InputFilesMixin.__init__(self, {
@@ -112,7 +112,8 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
             'if [ ! -d %s ]; then' % dir,
             '  %%{__mkdir} -p %s' % dir,
             'fi',
-            '%%{__mv} %s %s' % (src, dst)
+            '%%{__mv} %s %s' % (src, dst),
+            '/sbin/restorecon %s' % dst,
           ])
 
     if lines:
