@@ -76,49 +76,6 @@ class IDepsolver(Depsolver):
         return self.installed_packages[pkgtup_i]
     return None
 
-  def getBestAvailablePackage(self, name=None, ver=None, rel=None, arch=None, epoch=None):
-    pkgs = self.pkgSack.searchNevra(name=name, ver=ver, rel=rel,
-                                    arch=arch, epoch=epoch)
-
-    if pkgs:
-      pkgSack = yum.packageSack.ListPackageSack(pkgs)
-    else:
-      pkgSack = self.whatProvides(name, 'EQ', (epoch, ver, rel))
-
-    pkgs = pkgSack.returnNewestByName()
-
-    # yum version 3.0.1 returns a list of lists in returnNewestByName()
-    pkgsflat = []
-    for pkg in pkgs:
-      if type(pkg) == type([]):
-        pkgsflat.extend(pkg)
-      else:
-        pkgsflat.append(pkg)
-    pkgs = pkgsflat
-
-    del pkgSack
-
-    pkgbyname = {}
-    for pkg in pkgs:
-      pkgbyname.setdefault(pkg.name, []).append(pkg)
-
-    lst = []
-    for pkgs in pkgbyname.values():
-      lst.extend(self.bestPackagesFromList(pkgs))
-    pkgs = lst
-
-    if pkgs:
-      po = pkgs[0]
-      if self.tsInfo.exists(pkgtup=po.pkgtup):
-        return self.tsInfo.getMembers(pkgtup=po.pkgtup)[0]
-      thispkgobsdict = self.up.checkForObsolete([po.pkgtup])
-      if thispkgobsdict.has_key(po.pkgtup):
-        obsoleting = thispkgobsdict[po.pkgtup][0]
-        obsoleting_pkg = self.getPackageObject(obsoleting)
-        return obsoleting_pkg
-      return po
-    return None
-
   def getDeps(self, pkgtup):
     processed = {}
     rtn = set()
