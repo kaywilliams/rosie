@@ -251,7 +251,7 @@ class CompsEvent(Event):
       else:
         q = '//group[id/text()="%s"]/*[not(@xml:lang)]' % gid
 
-      for attr in tree.xpath(q):
+      for attr in tree.xpath(q, []):
         # filtering in XPath is annoying
         if attr.tag == 'name':
           if self.include_localizations:
