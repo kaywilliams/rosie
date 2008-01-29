@@ -11,21 +11,13 @@
       </optional>
 
       <interleave>
-        <optional>
-        <element name="sharepaths">
-          <oneOrMore>
-            <element name="path"><text/></element>
-          </oneOrMore>
-        </element>
-        </optional>
+        <zeroOrMore>
+        <element name="share-path"><text/></element>
+        </zeroOrMore>
 
-        <optional>
-        <element name="librarypaths">
-          <oneOrMore>
-            <element name="path"><text/></element>
-          </oneOrMore>
-        </element>
-        </optional>
+        <zeroOrMore>
+        <element name="library-path"><text/></element>
+        </zeroOrMore>
 
         <optional>
         <element name="modules">
@@ -33,7 +25,7 @@
           <element name="module">
             <optional>
             <attribute name="enabled">
-              <ref name="spin-boolean"/>
+              <ref name="value-boolean"/>
             </attribute>
             </optional>
             <text/>
@@ -54,7 +46,7 @@
     </element>
   </start>
 
-  <define name="spin-boolean">
+  <define name="value-boolean">
     <choice>
       <value type="string">True</value>
       <value type="string">False</value>

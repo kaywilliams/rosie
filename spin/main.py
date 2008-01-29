@@ -258,7 +258,7 @@ class Build(object):
                  command line options
     """
     import_dirs = [ P(x).expand() for x in \
-      self.mainconfig.xpath('/spin/librarypaths/path/text()', []) ]
+      self.mainconfig.xpath('/spin/library-path/text()', []) ]
 
     if options.libpath:
       import_dirs = [ P(x).expand() for x in options.libpath ] + import_dirs
@@ -373,7 +373,7 @@ class Build(object):
     Event.METADATA_DIR = Event.CACHE_DIR  / bv['pva']
 
     Event.SHARE_DIRS = [ P(x).expand() for x in \
-                         self.mainconfig.xpath('/spin/sharepaths/path/text()',
+                         self.mainconfig.xpath('/spin/share-path/text()',
                                                [DEFAULT_SHARE_DIR]) ]
 
     if options.sharepath:
