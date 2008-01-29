@@ -270,7 +270,8 @@ class Build(object):
 
   def _compute_modules(self, options):
     """
-    Compute a list of modules spin should not load
+    Compute a list of modules spin should not load.  Disabling takes priorty
+    over enabling.
 
     options      : an optparse.Values instance containing the result of
                    parsing command line options
@@ -278,13 +279,19 @@ class Build(object):
     enabled  = set(options.enabled_modules)
     disabled = set(options.disabled_modules)
 
+    # enable/disable modules from distro config
     for module in self.distroconfig.xpath('/distro/*'):
-      if module.tag == 'main': continue
-      if module.get('@enabled', 'True') in BOOLEANS_TRUE and \
-        module.tag not in disabled:
-        enabled.add(module.tag)
-      elif module.tag not in enabled:
+      if module.tag == 'main': continue # main isn't a module
+      if module.get('@enabled', 'True') in BOOLEANS_FALSE:
         disabled.add(module.tag)
+      else:
+        enabled.add(module.tag)
+
+    # enable/disable modules from main config
+    for module in self.mainconfig.xpath('/spin/modules/module', []):
+      if module.get('@enabled', 'True') in BOOLEANS_FALSE:
+        disabled.add(module.text)
+      # don't add modules to enabled list if they're not disabled
 
     disabled.add('__init__') # hack, kinda; these are loaded automatically
 
