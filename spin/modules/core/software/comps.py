@@ -87,8 +87,6 @@ class CompsEvent(Event):
     # set user required packages variable
     self.cvars['user-required-packages'] = \
          self.config.xpath('core/package/text()', [])
-    import sys #!
-    sys.exit() #!
 
   # output verification
   def verify_comps_xpath(self):
