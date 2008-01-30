@@ -1,0 +1,20 @@
+<distro schema-version="1.0">
+  <main>
+    <fullname>Example</fullname>
+    <product>example</product>
+    <version>f7</version>
+  </main>
+  <repos>
+    <macro id="root">http://www.renditionsoftware.com/open_software/</macro>
+    <base-repo>base</base-repo>
+    <repo id="base">
+      <baseurl>%{root}fedora/releases/7/Fedora/i386/os/</baseurl>
+    </repo>
+    <repo id="everything">
+      <baseurl>%{root}fedora/releases/7/Everything/i386/os/</baseurl>
+    </repo>
+    <repo id="updates">
+      <baseurl>%{root}fedora/updates/7/i386/</baseurl>
+    </repo>
+  </repos>
+</distro>
