@@ -10,7 +10,7 @@ API_VERSION = 5.0
 
 EVENTS = {'rpms': ['ThemeRpmEvent']}
 
-class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
+class ThemeRpmEvent(RpmBuildMixin, Event, ImagesGenerator):
   def __init__(self):
     self.themename = self.config.get('theme/text()', 'Spin')
 

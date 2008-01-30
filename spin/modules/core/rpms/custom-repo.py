@@ -32,20 +32,21 @@ class CustomRepoEvent(Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
+
     if self.cvars['custom-rpms-data']:
       for id in self.cvars['custom-rpms-data'].keys():
-        self.io.add_fpaths(self.cvars['custom-rpms-data'][id]['rpm-path'],
-                           self.CUSTOM_RPMS, id='custom-rpms')
-        self.io.add_fpaths(self.cvars['custom-rpms-data'][id]['srpm-path'],
-                           self.CUSTOM_SRPMS, id='custom-rpms')
+        self.io.add_fpath(self.cvars['custom-rpms-data'][id]['rpm-path'],
+                          self.CUSTOM_RPMS, id='custom-rpms')
+        self.io.add_fpath(self.cvars['custom-rpms-data'][id]['srpm-path'],
+                          self.CUSTOM_SRPMS, id='custom-rpms')
 
       self.rc.add_repo(self.cid, name=self.cid, baseurl=self.CUSTOM_RPMS)
       self.rc[self.cid].localurl = self.CUSTOM_RPMS
       self.rc[self.cid].pkgsfile = self.CUSTOM_RPMS/'packages'
 
       self.rc.add_repo(self.csid, name=self.csid, baseurl=self.CUSTOM_SRPMS)
-      self.rc[self.cid].localurl = self.CUSTOM_SRPMS
-      self.rc[self.cid].pkgsfile = self.CUSTOM_SRPMS/'packages'
+      self.rc[self.csid].localurl = self.CUSTOM_SRPMS
+      self.rc[self.csid].pkgsfile = self.CUSTOM_SRPMS/'packages'
 
       self.DATA['output'].append(self.CUSTOM_RPMS/'repodata')
       self.DATA['output'].append(self.CUSTOM_SRPMS/'repodata')
@@ -136,6 +137,6 @@ class CustomRepoEvent(Event):
       rpm_name  = self.cvars['custom-rpms-data'][id]['rpm-name']
       obsoletes = self.cvars['custom-rpms-data'][id]['rpm-obsoletes']
       (self.cvars.setdefault('included-packages', set())
-         .add((rpmname, type, requires, default)))
+         .add((rpm_name, type, requires, default)))
       if obsoletes:
         self.cvars.setdefault('excluded-packages', set()).update(obsoletes)

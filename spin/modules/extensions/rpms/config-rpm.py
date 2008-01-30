@@ -11,7 +11,7 @@ API_VERSION = 5.0
 
 EVENTS = {'rpms': ['ConfigRpmEvent']}
 
-class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
+class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'config-rpm',

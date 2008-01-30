@@ -11,4 +11,4 @@ class RpmsEvent(Event):
                    suppress_run_message = True
                    )
 
-    self.cvars['custom-rpm-data'] = {}
+    self.cvars['custom-rpms-data'] = {}

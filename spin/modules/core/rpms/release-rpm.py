@@ -11,7 +11,7 @@ API_VERSION = 5.0
 
 EVENTS = {'rpms': ['ReleaseRpmEvent']}
 
-class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
+class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'release-rpm',

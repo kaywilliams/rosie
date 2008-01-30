@@ -13,7 +13,7 @@ API_VERSION = 5.0
 
 EVENTS = {'rpms': ['LogosRpmEvent']}
 
-class LogosRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
+class LogosRpmEvent(RpmBuildMixin, Event, ImagesGenerator):
   def __init__(self):
     Event.__init__(self,
       id = 'logos-rpm',

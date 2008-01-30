@@ -142,21 +142,23 @@ class RpmBuildMixin:
 
   def verify_rpm_exists(self):
     "rpm exists"
-    self.verifier.failUnless(self.rpm_path.exists(), "unable to find rpm at '%s'" % rpm)
+    self.verifier.failUnless(self.rpm_path.exists(),
+                             "unable to find rpm at '%s'" % str(self.rpm_path))
 
   def verify_srpm_exists(self):
     "srpm exists"
-    self.verifier.failUnless(self.srpm_path.exists(), "unable to find srpm at '%s'" % srpm)
+    self.verifier.failUnless(self.srpm_path.exists(),
+                             "unable to find srpm at '%s'" % str(self.srpm_path))
 
   #------------- PROPERTIES --------------#
   def _get_rpm_path(self):
     return self.mddir/'RPMS/%s-%s-%s.%s.rpm' % \
-           (self.rpm_name, self.rpm_version, self.rpm_release)
+           (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch)
   rpm_path = property(_get_rpm_path)
 
   def _get_srpm_path(self):
     return self.mddir/'SRPMS/%s-%s-%s.src.rpm' % \
-           (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch)
+           (self.rpm_name, self.rpm_version, self.rpm_release)
   srpm_path = property(_get_srpm_path)
 
   def _get_data_files(self):
