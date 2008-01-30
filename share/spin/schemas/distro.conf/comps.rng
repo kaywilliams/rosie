@@ -23,29 +23,12 @@
           
           <interleave>
           
-          <optional>
-          <element name="groups">
-            <oneOrMore>
-              <ref name="element-group"/>
-            </oneOrMore>
-          </element>
-          </optional>
-          
-          <optional>
-          <element name="core">
-            <interleave>
-
-              <zeroOrMore>
-              <ref name="element-package"/>
-              </zeroOrMore>
-
-              <zeroOrMore>
-                <ref name="element-group"/>
-              </zeroOrMore>
-
-           </interleave>
-          </element>
-          </optional>
+          <zeroOrMore>
+          <ref name="element-group"/>
+          </zeroOrMore>
+          <zeroOrMore>
+          <ref name="element-package"/>
+          </zeroOrMore>
           
           <optional>
           <element name="exclude">

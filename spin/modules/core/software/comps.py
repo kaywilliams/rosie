@@ -86,7 +86,7 @@ class CompsEvent(Event):
 
     # set user required packages variable
     self.cvars['user-required-packages'] = \
-         self.config.xpath('core/package/text()', [])
+      self.config.xpath('package/text()', [])
 
   # output verification
   def verify_comps_xpath(self):
@@ -125,7 +125,6 @@ class CompsEvent(Event):
     self._validate_repoids()
 
     self._groupfiledata = {} # data from group files
-    self._groupmap = {'core': ['core']} # map of original group to final group(s)
     self._groups = {} # groups we're creating
 
     # build up groups dictionary
@@ -138,19 +137,18 @@ class CompsEvent(Event):
       if not data['packages']:
         raise CompsError("unable to find group definition for '%s' in any groupfile" % gid)
 
-      for dgid in self._groupmap[gid]:
-        dg = self._groups.setdefault(dgid, CompsGroup(dgid, **data['attrs']))
+      dg = self._groups.setdefault(gid, CompsGroup(gid, **data['attrs']))
 
-        # add group's packagereqs to packagelist
-        for pkg in data['packages']:
-          dg.packagelist.add(PackageReq(**self._dict_from_xml(pkg)))
+      # add group's packagereqs to packagelist
+      for pkg in data['packages']:
+        dg.packagelist.add(PackageReq(**self._dict_from_xml(pkg)))
 
-        # add group's groupreqs to grouplist
-        for grp in data['groups']:
-          dg.grouplist.add(GroupReq(grp.text))
+      # add group's groupreqs to grouplist
+      for grp in data['groups']:
+        dg.grouplist.add(GroupReq(grp.text))
 
     # add packages listed separately in config or included-packages cvar to core
-    for pkg in self.config.xpath('core/package', []):
+    for pkg in self.config.xpath('package', []):
       self._groups['core'].packagelist.add(
         PackageReq(**self._dict_from_xml(pkg)))
 
@@ -186,13 +184,9 @@ class CompsEvent(Event):
 
   def _validate_repoids(self):
     "Ensure that the repoids listed actually are defined"
-    groups = []
-    groups.extend(self.config.xpath('core/group[@repoid]', []))
-    groups.extend(self.config.xpath('groups/group[@repoid]', []))
-
     repo_groupfiles = [ x for x,_ in self.groupfiles ]
 
-    for group in groups:
+    for group in self.config.xpath('group[@repoid]', []):
       rid = group.get('@repoid')
       gid = group.get('text()')
       try:
@@ -220,36 +214,26 @@ class CompsEvent(Event):
     except:
       raise CompsError("error reading file '%s'" % groupfile)
 
+    # automatically include the 'core' group from the base repo
     if id == self.cvars['base-repoid']:
       self._update_group_content('core', tree)
 
+    # add any other groups specified
     for group in self.config.xpath(
-      'core/group[not(@repoid) or @repoid="%s"]' % id, []):
-      # I don't like the following hack - the goal is to allow users to have
-      # groups that are installed by default on end machines; the core group
-      # is 'special' to anaconda, and is thus always installed, so the packages
-      # of these groups are included in core.  I'd rather create a separate
-      # group, mark it as default True, and let users that want to mess with
-      # kickstarts include it themselves (like the rest of the world does),
-      # but the powers that be say otherwise
+      'group[not(@repoid) or @repoid="%s"]' % id, []):
       self._update_group_content(group.text, tree)
-      self._groupmap.setdefault(group.text, []).append('core')
-    for group in self.config.xpath(
-      'groups/group[not(@repoid) or @repoid="%s"]' % id, []):
-      self._update_group_content(group.text, tree)
-      self._groupmap.setdefault(group.text, []).append(group.text)
 
   def _update_group_content(self, gid, tree):
     "Add the contents of a group in an xml tree to the group dict"
-    self._groupfiledata.setdefault(gid, {})
+    G = self._groupfiledata.setdefault(gid, {})
 
     # add attributes if not already present
-    if not self._groupfiledata[gid].has_key('attrs'):
-      self._groupfiledata[gid]['attrs'] = {}
+    if not G.has_key('attrs'):
+      G['attrs'] = {}
       if self.include_localizations:
         q = '//group[id/text()="%s"]/*' % gid
-        namedict = self._groupfiledata[gid]['attrs']['name'] = {}
-        descdict = self._groupfiledata[gid]['attrs']['description'] = {}
+        namedict = G['attrs']['name'] = {}
+        descdict = G['attrs']['description'] = {}
       else:
         q = '//group[id/text()="%s"]/*[not(@xml:lang)]' % gid
 
@@ -259,36 +243,36 @@ class CompsEvent(Event):
           if self.include_localizations:
             namedict[attr.get('@xml:lang')] = attr.text
           else:
-            self._groupfiledata[gid]['attrs']['name'] = attr.text
+            G['attrs']['name'] = attr.text
         elif attr.tag == 'description':
           if self.include_localizations:
             descdict[attr.get('@xml:lang')] = attr.text
           else:
-            self._groupfiledata[gid]['attrs']['description'] = attr.text
+            G['attrs']['description'] = attr.text
         elif attr.tag not in ['packagelist', 'grouplist', 'id']:
-          self._groupfiledata[gid]['attrs'][attr.tag] = attr.text
+          G['attrs'][attr.tag] = attr.text
 
     # set the default value, if given
     #  * if default = true,    group.default = true
     #  * if default = false,   group.default = false
     #  * if default = default, group.default = value from groupfile
     #  * if default = None,    group.default = true
-    default = self.config.get('groups/group[text()="%s"]/@default' % gid, None)
+    default = self.config.get('group[text()="%s"]/@default' % gid, None)
     if default:
       if default != 'default':
-        self._groupfiledata[gid]['attrs']['default'] = default
+        G['attrs']['default'] = default
     else:
-      self._groupfiledata[gid]['attrs']['default'] = 'true'
+      G['attrs']['default'] = 'true'
 
     # add packages
-    self._groupfiledata[gid].setdefault('packages', set())
+    G.setdefault('packages', set())
     for pkg in tree.xpath('//group[id/text()="%s"]/packagelist/packagereq' % gid, []):
-      self._groupfiledata[gid]['packages'].add(pkg)
+      G['packages'].add(pkg)
 
     # add groups
-    self._groupfiledata[gid].setdefault('groups', set())
+    G.setdefault('groups', set())
     for grp in tree.xpath('//group[id/text()="%s"]/grouplist/groupreq' % gid, []):
-      self._groupfiledata[gid]['groups'].add(grp)
+      G['groups'].add(grp)
       self._update_group_content(grp.text, tree)
 
 class CompsReqSet(set):
