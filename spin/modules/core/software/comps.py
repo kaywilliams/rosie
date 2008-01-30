@@ -87,6 +87,8 @@ class CompsEvent(Event):
     # set user required packages variable
     self.cvars['user-required-packages'] = \
          self.config.xpath('core/package/text()', [])
+    import sys #!
+    sys.exit() #!
 
   # output verification
   def verify_comps_xpath(self):
@@ -125,6 +127,7 @@ class CompsEvent(Event):
     self._validate_repoids()
 
     self._groupfiledata = {} # data from group files
+    self._groupmap = {} # map of original group to final group(s)
     self._groups = {} # groups we're creating
 
     # build up groups dictionary
@@ -136,17 +139,17 @@ class CompsEvent(Event):
       # if packages is empty, no group definition was found
       if not data['packages']:
         raise CompsError("unable to find group definition for '%s' in any groupfile" % gid)
-      self._groups[gid] = CompsGroup(gid, **data['attrs'])
 
-      # add group's packagereqs to packagelist
-      for pkg in data['packages']:
-        self._groups[gid].packagelist.add(
-          PackageReq(**self._dict_from_xml(pkg)))
+      for dgid in self._groupmap[gid]:
+        dg = self._groups.setdefault(dgid, CompsGroup(dgid, **data['attrs']))
 
-      # add group's groupreqs to grouplist
-      for grp in data['groups']:
-        self._groups[gid].grouplist.add(
-          GroupReq(grp.text))
+        # add group's packagereqs to packagelist
+        for pkg in data['packages']:
+          dg.packagelist.add(PackageReq(**self._dict_from_xml(pkg)))
+
+        # add group's groupreqs to grouplist
+        for grp in data['groups']:
+          dg.grouplist.add(GroupReq(grp.text))
 
     # add packages listed separately in config or included-packages cvar to core
     for pkg in self.config.xpath('core/package', []):
@@ -231,23 +234,24 @@ class CompsEvent(Event):
       # group, mark it as default True, and let users that want to mess with
       # kickstarts include it themselves (like the rest of the world does),
       # but the powers that be say otherwise
-      self._update_group_content(group.text, tree, dgid='core')
+      self._update_group_content(group.text, tree)
+      self._groupmap.setdefault(group.text, []).append('core')
     for group in self.config.xpath(
       'groups/group[not(@repoid) or @repoid="%s"]' % id, []):
-        self._update_group_content(group.text, tree)
+      self._update_group_content(group.text, tree)
+      self._groupmap.setdefault(group.text, []).append(group.text)
 
-  def _update_group_content(self, gid, tree, dgid=None):
+  def _update_group_content(self, gid, tree):
     "Add the contents of a group in an xml tree to the group dict"
-    if not dgid: dgid = gid
-    self._groupfiledata.setdefault(dgid, {})
+    self._groupfiledata.setdefault(gid, {})
 
     # add attributes if not already present
-    if not self._groupfiledata[dgid].has_key('attrs'):
-      self._groupfiledata[dgid]['attrs'] = {}
+    if not self._groupfiledata[gid].has_key('attrs'):
+      self._groupfiledata[gid]['attrs'] = {}
       if self.include_localizations:
         q = '//group[id/text()="%s"]/*' % gid
-        namedict = self._groupfiledata[dgid]['attrs']['name'] = {}
-        descdict = self._groupfiledata[dgid]['attrs']['description'] = {}
+        namedict = self._groupfiledata[gid]['attrs']['name'] = {}
+        descdict = self._groupfiledata[gid]['attrs']['description'] = {}
       else:
         q = '//group[id/text()="%s"]/*[not(@xml:lang)]' % gid
 
@@ -257,14 +261,14 @@ class CompsEvent(Event):
           if self.include_localizations:
             namedict[attr.get('@xml:lang')] = attr.text
           else:
-            self._groupfiledata[dgid]['attrs']['name'] = attr.text
+            self._groupfiledata[gid]['attrs']['name'] = attr.text
         elif attr.tag == 'description':
           if self.include_localizations:
             descdict[attr.get('@xml:lang')] = attr.text
           else:
-            self._groupfiledata[dgid]['attrs']['description'] = attr.text
+            self._groupfiledata[gid]['attrs']['description'] = attr.text
         elif attr.tag not in ['packagelist', 'grouplist', 'id']:
-          self._groupfiledata[dgid]['attrs'][attr.tag] = attr.text
+          self._groupfiledata[gid]['attrs'][attr.tag] = attr.text
 
     # set the default value, if given
     #  * if default = true,    group.default = true
@@ -274,19 +278,19 @@ class CompsEvent(Event):
     default = self.config.get('groups/group[text()="%s"]/@default' % gid, None)
     if default:
       if default != 'default':
-        self._groupfiledata[dgid]['attrs']['default'] = default
+        self._groupfiledata[gid]['attrs']['default'] = default
     else:
-      self._groupfiledata[dgid]['attrs']['default'] = 'true'
+      self._groupfiledata[gid]['attrs']['default'] = 'true'
 
     # add packages
-    self._groupfiledata[dgid].setdefault('packages', set())
+    self._groupfiledata[gid].setdefault('packages', set())
     for pkg in tree.xpath('//group[id/text()="%s"]/packagelist/packagereq' % gid, []):
-      self._groupfiledata[dgid]['packages'].add(pkg)
+      self._groupfiledata[gid]['packages'].add(pkg)
 
     # add groups
-    self._groupfiledata[dgid].setdefault('groups', set())
+    self._groupfiledata[gid].setdefault('groups', set())
     for grp in tree.xpath('//group[id/text()="%s"]/grouplist/groupreq' % gid, []):
-      self._groupfiledata[dgid]['groups'].add(grp)
+      self._groupfiledata[gid]['groups'].add(grp)
       self._update_group_content(grp.text, tree)
 
 class CompsReqSet(set):
