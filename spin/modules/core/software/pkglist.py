@@ -77,8 +77,6 @@ class PkglistEvent(Event):
     self.DATA['variables'].append('rddirs')
 
   def run(self):
-    self.io.clean_eventcache()
-
     # copy pkglist
     if self.docopy:
       self.io.sync_input(cache=True)
