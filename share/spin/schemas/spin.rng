@@ -19,20 +19,9 @@
         <element name="library-path"><text/></element>
         </zeroOrMore>
 
-        <optional>
-        <element name="modules">
-          <oneOrMore>
-          <element name="module">
-            <optional>
-            <attribute name="enabled">
-              <ref name="value-boolean"/>
-            </attribute>
-            </optional>
-            <text/>
-          </element>
-          </oneOrMore>
-        </element>
-        </optional>
+        <zeroOrMore>
+        <element name="disable-module"><text/></element>
+        </zeroOrMore>
 
         <optional>
         <element name="cache">

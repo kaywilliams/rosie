@@ -66,9 +66,8 @@ class Build(object):
   the screen.
 
   The  build  object  is  responsible for  loading  and initializing  all
-  program  modules  and  plugins.   It  also  applies  configuration  and
-  command-line arguments to its own internal variables as well as the its
-  dispatcher.
+  program  modules.   It  also  applies  configuration  and command-line 
+  arguments to its own internal variables as well as the its dispatcher.
 
   See dispatch.py  for more information on the role of the  dispatcher in
   the build process.
@@ -287,11 +286,9 @@ class Build(object):
       else:
         enabled.add(module.tag)
 
-    # enable/disable modules from main config
-    for module in self.mainconfig.xpath('/spin/modules/module', []):
-      if module.get('@enabled', 'True') in BOOLEANS_FALSE:
-        disabled.add(module.text)
-      # don't add modules to enabled list if they're not disabled
+    # disable modules from main config
+    for module in self.mainconfig.xpath('/spin/disable-module', []):
+      disabled.add(module.text)
 
     disabled.add('__init__') # hack, kinda; these are loaded automatically
 

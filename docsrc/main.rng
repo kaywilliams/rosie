@@ -74,7 +74,7 @@ element fullname { text }
       <para>
       The main section is where a number of distribution-wide settings are defined.
       such as product name, version, and release number, the name of the distribution
-      provider, and the list of enabled and disabled spin modules and plugins.
+      provider, and the list of enabled and disabled spin modules.
       </para>
       <programlisting>
 element main {
@@ -84,7 +84,6 @@ element main {
   &amp; element arch { ... }?
   &amp; element publishpath { ... }?
   &amp; element modules { ... }?
-  &amp; element plugins { ... }?
   &amp; element bug-url { ... }?
 }
       </programlisting>
@@ -115,8 +114,7 @@ element main {
       <para>
       modules is a container for module elements, which control which modules should
       be loaded and used by spin.  If a module is not listed, it will be loaded
-      by default (as opposed to plugins, which are never loaded unless otherwise
-      specified).
+      by default.
       </para>
       <programlisting>
 element modules {
@@ -153,56 +151,6 @@ element modules {
   &lt;module enabled='default'&gt;publish&lt;/module&gt;
   &lt;module enabled='false'&gt;rpms&lt;/module&gt;
   &lt;module&gt;installer&lt;/module&gt;
-&lt;/modules&gt;
-        </programlisting>
-      </refsection>
-    </refsect2>
-
-    <!-- plugins -->
-    <refsect2>
-      <title>&lt;plugins&gt;</title>
-      <para>
-      plugins is a container for plugin elements, which control which plugins should
-      be loaded and used by spin.  If a plugin is not listed, it will not be
-      loaded by default (as opposed to modules, which are always loaded unless otherwise
-      specified).
-      </para>
-      <programlisting>
-element plugins {
-  element plugin { ... }+
-}
-      </programlisting>
-      <refsection>
-        <title>Attributes</title>
-        <para>plugins elements have the following attributes</para>
-        <refsection>
-          <title>default</title>
-          <para>
-          optional; boolean value that controls the behavior of child nodes that set
-          their 'enabled' attribute to 'default'; defaults to 'false'
-          </para>
-        </refsection>
-      </refsection>
-      <refsection>
-        <title>Parents</title>
-        <para>main</para>
-      </refsection>
-      <refsection>
-        <title>Examples</title>
-        <para>
-        In the following example, only the 'srpmcheck' plugin is loaded, while the
-        'autoreleaseinc', 'svnrelease', and 'metadatasave' plugins are not.  Note how
-        'autoreleaseinc' uses the value specified in the default attribute of the
-        plugins element, and that 'metadatasave' doesn't load because it does not
-        specify otherwise.  Were default to be changed to 'true', 'autoreleaseinc'
-        would then load, but 'metadatasave' still would not.
-        </para>
-        <programlisting>
-&lt;modules default='false'&gt;
-  &lt;module enabled='true'&gt;srpmcheck&lt;/module&gt;
-  &lt;module enabled='default'&gt;autoreleaseinc&lt;/module&gt;
-  &lt;module enabled='false'&gt;svnrelease&lt;/module&gt;
-  &lt;module&gt;metadatasave&lt;/module&gt;
 &lt;/modules&gt;
         </programlisting>
       </refsection>
