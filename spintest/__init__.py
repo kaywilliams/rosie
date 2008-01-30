@@ -64,7 +64,13 @@ class EventTestCase(unittest.TestCase):
   def setUp(self):
     self.tb = TestBuild(self.conf, self.options, [], self.parser)
     self.event = self.tb.dispatch._top.get(self.eventid, None)
-    self.tb._lock()
+    try:
+      self.tb._lock()
+    except RuntimeError:
+      print "unable to lock (currently running pid is %s)" % pps.Path('/var/run/spin.pid').read_text()
+      print "current event: '%s'" % self.event.id
+      print "test case: %s" % self._testMethodDoct
+      print "continuing anyway"
 
   def runTest(self): pass
 
