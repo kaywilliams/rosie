@@ -125,7 +125,7 @@ class CompsEvent(Event):
     self._validate_repoids()
 
     self._groupfiledata = {} # data from group files
-    self._groupmap = {} # map of original group to final group(s)
+    self._groupmap = {'core': ['core']} # map of original group to final group(s)
     self._groups = {} # groups we're creating
 
     # build up groups dictionary
