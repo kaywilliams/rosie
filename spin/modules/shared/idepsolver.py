@@ -63,8 +63,12 @@ class IDepsolver(Depsolver):
             continue
           try:
             self.installed_packages[tup] = self.getPackageObject(tup)
-          except yum.Errors.DepError:
-            self.remove_packages.append(pkgtup[0])
+          except yum.Errors.DepError, e:
+            # If one of the deps is missing, remove that dep.  This
+            # will cause all the packages requiring this dep to get
+            # depsolve'd but the other deps will not be "lost."
+            if tup[0] not in self.remove_packages:
+              self.remove_packages.append(tup[0])
 
   def getInstalledPackage(self, name=None, ver=None, rel=None, arch=None, epoch=None):
     for pkgtup_i in self.installed_packages:
@@ -110,7 +114,7 @@ class IDepsolver(Depsolver):
     for po in self.installed_packages.values():
       self.install(po=po)
 
-    # build a list of TransctionMember objects that need to have their
+    # build a list of TransactionMember objects that need to have their
     # dependencies resolved.
     unresolved = []
     for txmbr in self.tsInfo.getMembers():
