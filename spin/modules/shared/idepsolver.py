@@ -49,7 +49,7 @@ class IDepsolver(Depsolver):
 
     self.logger = logger
 
-  def setup(self, force=False):
+  def setup(self):
     Depsolver.setup(self)
 
     if self.cached_file.exists():
@@ -88,20 +88,8 @@ class IDepsolver(Depsolver):
             pkgtups.append(x)
     return list(rtn)
 
-  def whatRequires(self, po=None, pkgtup=None):
-    if pkgtup is None:
-      pkgtup = po.pkgtup
-    rtnlist = set()
-    for tup, deps in self.cached_items.items():
-      if pkgtup in deps:
-        rtnlist.add(tup)
-    return list(rtnlist)
-
-  def removePackages(self, po=None, pkgtup=None):
-    if pkgtup is None:
-      pkgtups = self.getDeps(po.pkgtup)
-    else:
-      pkgtups = self.getDeps(pkgtup)
+  def removePackages(self, pkgtup):
+    pkgtups = self.getDeps(pkgtup)
 
     for pkgtup in pkgtups:
       if self.installed_packages.has_key(pkgtup):
@@ -109,10 +97,7 @@ class IDepsolver(Depsolver):
       if self.cached_items.has_key(pkgtup):
         self.cached_items.pop(pkgtup)
 
-  def installPackage(self, name=None, po=None):
-    if name is None and po is None:
-      raise yum.Errors.InstallError("nothing specified to install")
-    po = po or self.getBestAvailablePackage(name=name)
+  def installPackage(self, po):
     self.installed_packages[po.pkgtup] = po
 
   def getPackageObjects(self):
@@ -173,7 +158,7 @@ class IDepsolver(Depsolver):
       if remcb: remcb.increment(pkg)
       po = self.getInstalledPackage(name=pkg)
       if po is not None:
-        self.removePackages(po=po)
+        self.removePackages(po.pkgtup)
     if remcb: remcb.end()
 
   def iinstall(self):
@@ -192,7 +177,7 @@ class IDepsolver(Depsolver):
         if bestpo is None and package in self.required:
           raise yum.Errors.InstallError("No packages provide '%s'" % package)
         elif bestpo is not None:
-          self.installPackage(po=bestpo)
+          self.installPackage(bestpo)
           self.new_packages[bestpo] = None
     if inscb: inscb.end()
 
@@ -210,8 +195,8 @@ class IDepsolver(Depsolver):
       if updcb: updcb.increment(pkgtup[0])
       bestpo = self.getBestAvailablePackage(name=pkgtup[0])
       if po is None:
-        self.removePackages(pkgtup=pkgtup)
+        self.removePackages(pkgtup)
       if bestpo is not None and po is not None and bestpo != po:
-        self.removePackages(po=po)
-        self.installPackage(po=bestpo)
+        self.removePackages(po.pkgtup)
+        self.installPackage(bestpo)
     if updcb: updcb.end()
