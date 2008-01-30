@@ -20,8 +20,8 @@ class _ProductImageEventTestCase(ImageModifyMixinTestCase,
     self.clean_event_md()
 
   def tearDown(self):
-    ProductImageEventTestCase.tearDown(self)
     ImageModifyMixinTestCase.tearDown(self)
+    ProductImageEventTestCase.tearDown(self)
 
 class Test_Installclasses(_ProductImageEventTestCase):
   "at least one installclass is included"

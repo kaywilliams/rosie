@@ -31,8 +31,8 @@ class _DiskbootImageEventTestCase(ImageModifyMixinTestCase,
     self.testArgs(self.event.image, filename='syslinux.cfg', defaults=self.do_defaults)
 
   def tearDown(self):
-    DiskbootImageEventTestCase.tearDown(self)
     ImageModifyMixinTestCase.tearDown(self)
+    DiskbootImageEventTestCase.tearDown(self)
 
 
 class Test_CvarContent(_DiskbootImageEventTestCase):

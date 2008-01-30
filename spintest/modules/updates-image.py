@@ -17,8 +17,8 @@ class _UpdatesImageEventTestCase(ImageModifyMixinTestCase,
     ImageModifyMixinTestCase.setUp(self)
 
   def tearDown(self):
-    UpdatesImageEventTestCase.tearDown(self)
     ImageModifyMixinTestCase.tearDown(self)
+    UpdatesImageEventTestCase.tearDown(self)
 
 def make_suite(basedistro, arch):
   suite = ModuleTestSuite('updates-image')
