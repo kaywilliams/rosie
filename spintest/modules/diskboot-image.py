@@ -30,6 +30,10 @@ class _DiskbootImageEventTestCase(ImageModifyMixinTestCase,
     self.tb.dispatch.execute(until='diskboot-image')
     self.testArgs(self.event.image, filename='syslinux.cfg', defaults=self.do_defaults)
 
+  def tearDown(self):
+    DiskbootImageEventTestCase.tearDown(self)
+    ImageModifyMixinTestCase.tearDown(self)
+
 
 class Test_CvarContent(_DiskbootImageEventTestCase):
   "cvars['installer-splash'], cvars['isolinux-files'] included"
