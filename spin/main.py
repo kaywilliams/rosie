@@ -404,17 +404,14 @@ class Build(object):
   def _log_footer(self):
     Event.logger.log(0, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
 
-  # def locking methods
+  # locking methods
   def _lock(self):
     if LOCK.exists():
-      try:
-        pid = int(LOCK.read_lines()[0])
-        if pid != os.getpid():
-          raise RuntimeError("there is already an instance of spin running (pid %d)" % pid)
-      except:
-        LOCK.remove()
-    LOCK.touch()
-    LOCK.write_lines([str(os.getpid())])
+      pid = int(LOCK.read_lines()[0])
+      if pid != os.getpid():
+        raise RuntimeError("there is already an instance of spin running (pid %d)" % pid)
+    else:
+      LOCK.write_lines([str(os.getpid())])
   def _unlock(self):
     if LOCK.exists(): LOCK.remove()
 
