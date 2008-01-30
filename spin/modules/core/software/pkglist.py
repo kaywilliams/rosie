@@ -110,7 +110,6 @@ class PkglistEvent(Event):
       pkgtups = idepsolver.resolve(packages = required_packages,
                                    required = user_required,
                                    remove = toremove,
-                                   pkglist = self.pkglistfile,
                                    config = str(repoconfig),
                                    root = str(self.dsdir),
                                    arch = self.arch,

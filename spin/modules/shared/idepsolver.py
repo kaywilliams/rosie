@@ -8,14 +8,13 @@ from rendition.depsolver import Depsolver
 from spin.callback import IDepsolverCallback
 from spin.logging  import L1
 
-def resolve(packages=None, required=None, remove=None, pkglist=None,
+def resolve(packages=None, required=None, remove=None,
             config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
             callback=None, logger=None):
   solver = IDepsolver(
              packages = packages,
              required = required,
              remove = remove,
-             pkglist = pkglist,
              config = config,
              root = root,
              arch = arch,
@@ -29,7 +28,7 @@ def resolve(packages=None, required=None, remove=None, pkglist=None,
   return pkgtups
 
 class IDepsolver(Depsolver):
-  def __init__(self, packages=None, required=None, remove=None, pkglist=None,
+  def __init__(self, packages=None, required=None, remove=None,
                config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
                callback=None, logger=None):
     Depsolver.__init__(self,
@@ -39,7 +38,6 @@ class IDepsolver(Depsolver):
       callback = callback
     )
     self.install_packages = packages
-    self.pkglist = pps.Path(pkglist)
     self.required = required
     self.remove_packages = remove
 
@@ -185,7 +183,7 @@ class IDepsolver(Depsolver):
     if self.logger: inscb = IDepsolverCallback(self.logger)
     else:           inscb = None
 
-    if inscb: inscb.start("checking packages to install", len(self.install_packages))
+    if inscb: inscb.start("searching for required packages", len(self.install_packages))
     for package in self.install_packages:
       if inscb: inscb.increment(package)
       instpo = self.getInstalledPackage(name=package)
@@ -207,23 +205,9 @@ class IDepsolver(Depsolver):
     if self.logger: updcb = IDepsolverCallback(self.logger)
     else:           updcb = None
 
-    if updcb: updcb.start("checking packages to update", len(deps))
+    if updcb: updcb.start("searching for updates", len(deps))
     for pkgtup, po in deps:
       if updcb: updcb.increment(pkgtup[0])
-      what_requires = self.whatRequires(pkgtup=pkgtup)
-      required = False
-      if ( len(what_requires) > 1 or
-           len(what_requires) == 1 and what_requires[0] != pkgtup or
-           pkgtup[0] in self.install_packages ):
-        required = True
-      for prov in po.provides:
-        # if a package provides something that's required, don't remove
-        if prov[0] in self.install_packages:
-          required = True
-          break
-      if not required:
-        self.removePackages(pkgtup=pkgtup)
-        continue
       bestpo = self.getBestAvailablePackage(name=pkgtup[0])
       if po is None:
         self.removePackages(pkgtup=pkgtup)
