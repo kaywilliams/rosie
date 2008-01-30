@@ -17,7 +17,7 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
     Event.__init__(self,
       id = 'theme-rpm',
       version = '0.91',
-      provides=['custom-rpms', 'custom-srpms', 'custom-rpms-info']
+      provides=['custom-rpms-data']
     )
 
     RpmBuildMixin.__init__(self,
@@ -25,7 +25,9 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
       "Set up the theme of the machine",
       "Theme files related to %s" % self.fullname,
       rpm_license = 'GPLv2',
-      default_requires = ['coreutils']
+      default_requires = ['coreutils'],
+      packagereq_type = 'conditional',
+      packagereq_requires = 'gdm'
     )
 
     ImagesGenerator.__init__(self)
@@ -45,24 +47,13 @@ class ThemeRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
 
   def setup(self):
     self._setup_build()
-
-  def run(self):
-    self.io.clean_eventcache(all=True)
-    self._build_rpm()
-    self.diff.write_metadata()
-
-  def apply(self):
-    self.io.clean_eventcache()
-    self._check_rpms()
-    self.cvars.setdefault('custom-rpms-info', []).append(
-      (self.rpm_name, 'conditional', 'gdm', self.rpm_obsoletes, None)
-    )
+    self._setup_image_creation('theme')
 
   def _generate(self):
     RpmBuildMixin._generate(self)
     self._generate_custom_theme()
-    self.create_images(self.locals.theme_files)
-    self.copy_images('theme')
+    self._create_dynamic_images(self.locals.theme_files)
+    self._copy_static_images()
 
   def _generate_custom_theme(self):
     self.custom_theme.dirname.mkdirs()

@@ -19,7 +19,7 @@ class LogosRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
       id = 'logos-rpm',
       version = '0.9',
       requires = ['source-vars', 'anaconda-version', 'logos-versions'],
-      provides = ['custom-rpms', 'custom-srpms', 'custom-rpms-info']
+      provides = ['custom-rpms-data']
     )
 
     RpmBuildMixin.__init__(self,
@@ -49,18 +49,6 @@ class LogosRpmEvent(Event, RpmBuildMixin, ImagesGenerator):
                  for _,e,v in self.cvars.get('logos-versions', [])]
     self._setup_build(obsoletes=obsoletes, provides=provides)
     self._setup_image_creation('logos')
-
-  def run(self):
-    self.io.clean_eventcache(all=True)
-    self._build_rpm()
-    self.diff.write_metadata()
-
-  def apply(self):
-    self.io.clean_eventcache()
-    self._check_rpms()
-    self.cvars.setdefault('custom-rpms-info', []).append(
-      (self.rpm_name, 'mandatory', None, self.rpm_obsoletes, None)
-    )
 
   def _generate(self):
     RpmBuildMixin._generate(self)

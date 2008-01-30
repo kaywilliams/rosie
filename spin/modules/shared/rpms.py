@@ -29,6 +29,7 @@ class InputFilesMixin:
   """
   def __init__(self, install_info):
     self.install_info = install_info
+    self.ids = set()
 
   def _setup_download(self):
     for k,v in self.install_info.items():
@@ -43,6 +44,7 @@ class InputFilesMixin:
             s = self._config.file.dirname / s
 
           id = self._get_download_id(k)
+          self.ids.add(id)
 
           self.io.add_item(s, self.build_folder//d/f, id=id or s, mode=m)
 
@@ -59,14 +61,22 @@ class InputFilesMixin:
 
 class RpmBuildMixin:
   def __init__(self, rpm_name, rpm_desc, rpm_summary, rpm_license=None,
-               default_provides=None, default_obsoletes=None, default_requires=None):
+               default_provides=None, default_obsoletes=None, default_requires=None,
+               packagereq_type='mandatory', packagereq_default=None,
+               packagereq_requires=None):
     self.rpm_desc = rpm_desc
     self.rpm_name = rpm_name
     self.rpm_summary = rpm_summary
     self.rpm_license = rpm_license
+
     self.default_obsoletes = default_obsoletes or []
     self.default_provides = default_provides or []
     self.default_requires = default_requires or []
+
+    self.packagereq_type = packagereq_type
+    self.packagereq_default = packagereq_default
+    self.packagereq_requires = packagereq_requires
+
     self.autofile = P(self._config.file + '.dat')
 
     # RPM build variables
@@ -79,6 +89,76 @@ class RpmBuildMixin:
     self.rpm_provides = None
     self.rpm_requires = None
 
+  #---------------- EVENT METHODS -----------------#
+  def check(self):
+    return self.rpm_release == '0' or \
+           not self.autofile.exists() or \
+           self.diff.test_diffs()
+
+  def setup(self):
+    self._setup_build()
+
+  def run(self):
+    self.io.clean_eventcache(all=True)
+
+    self._check_release()
+
+    self.build_folder.mkdirs()
+    self._generate()
+    self._write_spec()
+    self._write_manifest()
+
+    self.log(1, L1("building %s-%s-%s.%s.rpm" % \
+                   (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch)))
+    mkrpm.build(self.build_folder, self.mddir, createrepo=False,
+                bdist_base=self.bdist_base, rpm_base=self.rpm_base,
+                dist_dir=self.dist_dir, keep_source=True,
+                quiet=(self.logger.threshold < 5))
+
+    self._save_release()
+
+    self.DATA['output'].append(self.rpm_path)
+    self.DATA['output'].append(self.srpm_path)
+
+    self.diff.write_metadata()
+
+  def apply(self):
+    self.io.clean_eventcache()
+    custom_rpm_data = {}
+
+    custom_rpm_data['packagereq-default'] = self.packagereq_default
+    custom_rpm_data['packagereq-requires'] = self.packagereq_requires
+    custom_rpm_data['packagereq-type'] = self.packagereq_type
+
+    custom_rpm_data['rpm-name'] = self.rpm_name
+    custom_rpm_data['rpm-obsoletes'] = self.rpm_obsoletes
+    custom_rpm_data['rpm-provides'] = self.rpm_provides
+    custom_rpm_data['rpm-requires'] = self.rpm_requires
+
+    custom_rpm_data['rpm-path'] = self.rpm_path
+    custom_rpm_data['srpm-path'] = self.srpm_path
+
+    self.cvars['custom-rpms-data'][self.id] = custom_rpm_data
+
+  def verify_rpm_exists(self):
+    "rpm exists"
+    self.verifier.failUnless(self.rpm_path.exists(), "unable to find rpm at '%s'" % rpm)
+
+  def verify_srpm_exists(self):
+    "srpm exists"
+    self.verifier.failUnless(self.srpm_path.exists(), "unable to find srpm at '%s'" % srpm)
+
+  #------------- PROPERTIES --------------#
+  def _get_rpm_path(self):
+    return self.mddir/'RPMS/%s-%s-%s.%s.rpm' % \
+           (self.rpm_name, self.rpm_version, self.rpm_release)
+  rpm_path = property(_get_rpm_path)
+
+  def _get_srpm_path(self):
+    return self.mddir/'SRPMS/%s-%s-%s.src.rpm' % \
+           (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch)
+  srpm_path = property(_get_srpm_path)
+
   def _get_data_files(self):
     data_files = {}
     for item in self.build_folder.findpaths(type=pps.constants.TYPE_DIR, mindepth=1):
@@ -89,11 +169,7 @@ class RpmBuildMixin:
     return data_files
   data_files = property(_get_data_files)
 
-  def check(self):
-    return self.rpm_release == '0' or \
-           not self.autofile.exists() or \
-           self.diff.test_diffs()
-
+  #--------- RPM BUILD HELPER METHODS ---------#
   def _setup_build(self, **kwargs):
     if self.autofile.exists():
       self.rpm_release = xmllib.config.read(self.autofile).get(
@@ -139,18 +215,6 @@ class RpmBuildMixin:
       else:
         raise ValueError("Invalid version string; must contain at least one integer")
 
-  def _build_rpm(self):
-    self._check_release()
-    self._build()
-    self._save_release()
-    self._add_output()
-
-  def _add_output(self):
-    self.DATA['output'].append(self.mddir/'RPMS/%s-%s-%s.%s.rpm' % \
-                               (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch))
-    self.DATA['output'].append(self.mddir/'SRPMS/%s-%s-%s.src.rpm' % \
-                               (self.rpm_name, self.rpm_version, self.rpm_release))
-
   def _save_release(self):
     if self.autofile.exists():
       root_element = xmllib.config.read(self.autofile).get('/distro')
@@ -180,44 +244,6 @@ class RpmBuildMixin:
            self.diff.has_changed('variables') or \
            self.diff.has_changed('config'):
       self.rpm_release = str(int(self.rpm_release)+1)
-
-  def _check_rpms(self):
-    rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % \
-          (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch)
-    srpm = self.mddir/'SRPMS/%s-%s-%s.src.rpm' % \
-           (self.rpm_name, self.rpm_version, self.rpm_release)
-    self.cvars['custom-rpms'].append(rpm)
-    self.cvars['custom-srpms'].append(srpm)
-
-  def verify_rpm_exists(self):
-    "rpm exists"
-    rpm = self.mddir/'RPMS/%s-%s-%s.%s.rpm' % \
-          (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch)
-    self.verifier.failUnless(rpm.exists(), "unable to find rpm at '%s'" % rpm)
-
-  def verify_srpm_exists(self):
-    "srpm exists"
-    srpm = self.mddir/'SRPMS/%s-%s-%s.src.rpm' % \
-           (self.rpm_name, self.rpm_version, self.rpm_release)
-    self.verifier.failUnless(srpm.exists(), "unable to find srpm at '%s'" % srpm)
-
-  def _generate(self):
-    # generate doc file
-    doc_file = self.build_folder / 'README'
-    doc_file.dirname.mkdirs()
-    doc_file.write_text(self.rpm_desc)
-
-  def _build(self):
-    self.build_folder.mkdirs()
-    self._generate()
-    self._write_spec()
-    self._write_manifest()
-    self.log(1, L1("building %s-%s-%s.%s.rpm" % \
-                   (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch)))
-    mkrpm.build(self.build_folder, self.mddir, createrepo=False,
-                bdist_base=self.bdist_base, rpm_base=self.rpm_base,
-                dist_dir=self.dist_dir, keep_source=True,
-                quiet=(self.logger.threshold < 5))
 
   def _write_spec(self):
     setupcfg = self.build_folder/'setup.cfg'
@@ -323,7 +349,7 @@ class RpmBuildMixin:
       spec.set('bdist_rpm', 'config_files', '\n\t'.join(config_files))
 
   def _add_doc_files(self, spec):
-    doc_files = ['README']
+    doc_files = []
     if (self.build_folder / 'COPYING').exists():
       doc_files.append('COPYING')
     for installdir in self.data_files.keys():
@@ -333,6 +359,10 @@ class RpmBuildMixin:
         ])
     if doc_files:
       spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))
+
+  #----------- OPTIONAL METHODS --------#
+  def _generate(self):
+    pass
 
   def _get_ghost_files(self):
     return None
@@ -417,6 +447,8 @@ class ImagesGenerator(object):
           strings = properties.get('strings', None),
           base_image = properties.get('base_image', None)
         )
+
+    self.base_image = None
 
   def _create_image(self, file_name, width, height, format,
                     strings=None, base_image=None):

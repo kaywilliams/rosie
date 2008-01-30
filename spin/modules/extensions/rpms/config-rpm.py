@@ -16,7 +16,7 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     Event.__init__(self,
       id = 'config-rpm',
       version = '0.91',
-      provides = ['custom-rpms', 'custom-srpms', 'custom-rpms-info']
+      provides = ['custom-rpms-data']
     )
 
     RpmBuildMixin.__init__(self,
@@ -48,18 +48,6 @@ class ConfigRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
   def setup(self):
     self._setup_build()
     self._setup_download()
-
-  def run(self):
-    self.io.clean_eventcache(all=True)
-    self._build_rpm()
-    self.diff.write_metadata()
-
-  def apply(self):
-    self.io.clean_eventcache()
-    self._check_rpms()
-    self.cvars.setdefault('custom-rpms-info', []).append(
-      (self.rpm_name, 'mandatory', None, self.rpm_obsoletes, None)
-    )
 
   def _get_download_id(self, type):
     if type == 'scripts':

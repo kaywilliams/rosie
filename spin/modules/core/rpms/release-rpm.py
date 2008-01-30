@@ -17,7 +17,7 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
       id = 'release-rpm',
       version = '0.9',
       requires = ['input-repos', 'release-versions'],
-      provides = ['custom-rpms', 'custom-srpms', 'custom-rpms-info'],
+      provides = ['custom-rpms-data'],
       conditionally_requires = ['web-path', 'gpgsign-public-key']
     )
 
@@ -93,18 +93,6 @@ class ReleaseRpmEvent(Event, RpmBuildMixin, InputFilesMixin):
     # yum-repos
     if self.config.get('yum-repos/@include-input', 'True') in BOOLEANS_TRUE:
       self.DATA['variables'].append('cvars[\'repos\']')
-
-  def run(self):
-    self.io.clean_eventcache(all=True)
-    self._build_rpm()
-    self.diff.write_metadata()
-
-  def apply(self):
-    self.io.clean_eventcache()
-    self._check_rpms()
-    self.cvars.setdefault('custom-rpms-info', []).append(
-      (self.rpm_name, 'mandatory', None, self.rpm_obsoletes, None)
-    )
 
   def _generate(self):
     "Generate additional files."
