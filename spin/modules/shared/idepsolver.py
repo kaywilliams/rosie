@@ -110,12 +110,13 @@ class IDepsolver(Depsolver):
     self.iupdate()
 
     self.logger.log(1, L1("generating new package list"))
-
     for po in self.installed_packages.values():
       self.install(po=po)
 
-    # build a list of TransactionMember objects that need to have their
-    # dependencies resolved.
+    # build a list of TransactionMember objects that need to have
+    # their dependencies resolved. They are added to the list of
+    # 'unresolved' packages if they have one or more their deps
+    # missing, or have no deps at all.
     unresolved = []
     for txmbr in self.tsInfo.getMembers():
       resolved = True
@@ -131,13 +132,13 @@ class IDepsolver(Depsolver):
         unresolved.append(txmbr)
       else:
         # if dependencies are resolved, add to Depsolver.final_pkgobjs
-        # and add entry in Depsolver.resolved_deps, so that the data is
-        # cached for the next time
+        # and add entry in Depsolver.resolved_deps, so that the data
+        # is cached for the next time pkglist is run.
         try:
           self.resolved_deps[txmbr.po.pkgtup] = self.cached_items[txmbr.po.pkgtup]
         except KeyError:
-          # should never happen, but you never know :(. If exception is raised
-          # don't mark package as resolved
+          # should never happen, but you never know :(. If exception
+          # is raised don't mark package as resolved.
           pass
         else:
           self.final_pkgobjs[txmbr.po] = None
