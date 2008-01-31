@@ -19,52 +19,38 @@ element baseurl {  text  }
       </refsection>
     </refsect2>
 
-    <!-- exclude -->
+    <!-- exclude-package -->
     <refsect2>
-      <title>&lt;exclude&gt;</title>
+      <title>&lt;exclude-package&gt;</title>
       <para>
-      exclude is a container for package elements.  It indicates packages that should
-      be explicitly excluded from some operation, even if they would normally be
-      included in some other way.  For example, the comps element uses exclude to
-      list packages that shouldn't be included in the required packages list, even if
-      they are included in one of the groups it contains.
+      optional exclude indicates a package that should be explicitly excluded from some operation, even if they would normally be included in some other way.  For example, the comps element uses exclude-package to list packages that shouldn't be included in the required packages list, even if they are included in one of the groups it contains.
       </para>
-      <programlisting>
-element exclude {
-  element package { ... }+
-}
-      </programlisting>
       <refsection>
         <title>Parents</title>
-        <para>comps, repo</para>
+        <para>comps, repos, repo</para>
       </refsection>
       <refsection>
         <title>See also</title>
-        <para>comps, repos, repo, includepkgs</para>
+        <para>comps, repos, repo</para>
       </refsection>
     </refsect2>
 
-    <!-- includepkgs -->
+    <!-- include-package -->
     <refsect2>
-      <title>&lt;includepkgs&gt;</title>
+      <title>&lt;include-package&gt;</title>
       <para>
-      includepkgs is a container for package elements.  It indicates packages that should
-      be included from a repository.  For example, if only one package is specified in
-      includepkgs, then that is the *only* package spin will see from the repository
-      when dependency solving.
+      include-package indicates a package that should be included from a 
+      repository.  For example, if only one include-package element is 
+      specified, then the package it lists is the *only* package spin will 
+      see from the repository when dependency solving.
       </para>
-      <programlisting>
-element include {
-  element package { ... }+
-}
-      </programlisting>
       <refsection>
         <title>Parents</title>
-        <para>comps</para>
+        <para>repo</para>
       </refsection>
       <refsection>
         <title>See also</title>
-        <para>repo, exclude</para>
+        <para>exclude-package</para>
       </refsection>
     </refsect2>
 
@@ -156,10 +142,10 @@ element path {
 element repo {
   attribute id { text },
   element baseurl { ... }
-  &amp; element includepkgs { ... }?
-  &amp; element exclude { ... }?
+  &amp; element exclude-package { ... }?
   &amp; element gpgkey { ... }?
   &amp; element gpgcheck { ... }?
+  &amp; element include-package { ... }?
 }
       </programlisting>
       <refsection>

@@ -20,9 +20,9 @@ element base-repo {
     <refsect2>
       <title>&lt;gpgkey&gt;</title>
       <para>
-      Some RPMs are signed with a gpgkey, allowing end users to validate their
-      contents.  The gpgkey element points to an exported RPM GPG public key that
-      can be used to validate a repository's RPMs.
+      optional; Some RPMs are signed with a gpgkey, allowing end users to 
+      validate their contents.  The gpgkey element points to an exported RPM 
+      GPG public key that can be used to validate a repository's RPMs.
       </para>
       <programlisting>
 element gpgkey {
@@ -66,6 +66,7 @@ element gpgkey {
 element repos {
   element base-repo { example-repo }
   element repo { attribute id { 'example-repo' } ... }*
+  element exclude-package { package-name }
 }
       </programlisting>
       <refsection>

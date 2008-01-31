@@ -30,7 +30,7 @@
           <ref name="element-package"/>
           </zeroOrMore>
           <zeroOrMore>
-          <element name="exclude-package"><text/></element>
+          <ref name="element-exclude-package"/>
           </zeroOrMore>
           
           </interleave>

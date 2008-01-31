@@ -10,27 +10,17 @@
 
       <interleave>
 
-        <optional>
-          <element name="includepkgs">
-            <oneOrMore>
-              <element name="package"><text/></element>
-            </oneOrMore>
-          </element>
-        </optional>
+        <zeroOrMore>
+          <element name="include-package"><text/></element>
+        </zeroOrMore>
 
-        <optional>
-          <element name="exclude">
-            <oneOrMore>
-              <element name="package"><text/></element>
-            </oneOrMore>
-          </element>
-        </optional>
+        <zeroOrMore>
+        <ref name="element-exclude-package"/>
+        </zeroOrMore>
 
-        <optional>
-          <oneOrMore>
-            <element name="gpgkey"><text/></element>
-          </oneOrMore>
-        </optional>
+        <zeroOrMore>
+          <element name="gpgkey"><text/></element>
+        </zeroOrMore>
 
         <optional>
           <element name="gpgcheck">
@@ -39,6 +29,13 @@
         </optional>
 
       </interleave>
+    </element>
+  </define>
+
+  <!-- exclude-package element-->
+  <define name="element-exclude-package">
+    <element name="exclude-package">
+      <text/>
     </element>
   </define>
 

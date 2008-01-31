@@ -18,9 +18,9 @@
         <element name="repofile"><text/></element>
         </zeroOrMore>
         
-        <optional>
-        <ref name="element-exclude"/>
-        </optional>
+        <zeroOrMore>
+        <ref name="element-exclude-package"/>
+        </zeroOrMore>
         
         <element name="base-repo"><text/></element>
         
@@ -32,13 +32,5 @@
   </start>
   
   <include href="lib.rng"/>
-  
-  <define name="element-exclude">
-    <element name="exclude">
-      <oneOrMore>
-      <element name="package"><text/></element>
-      </oneOrMore>
-    </element>
-  </define>
-  
+    
 </grammar>
