@@ -126,10 +126,8 @@ class Test_ExcludePackages(_CompsEventTestCase):
   "comps generated, packages excluded"
   _conf = \
   """<comps>
-    <exclude>
-      <package>cpio</package>
-      <package>kudzu</package>
-    </exclude>
+    <exclude-package>cpio</exclude-package>
+    <exclude-package>kudzu</exclude-package>
   </comps>"""
 
   def setUp(self):
