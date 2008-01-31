@@ -1,10 +1,10 @@
-from dims import pps
-from dims import xmllib
+from rendition import pps
+from rendition import xmllib
 
-from dimsbuild.modules.core.software.comps import KERNELS
+from spin.modules.core.software.comps import KERNELS
 
-from dbtest      import EventTestCase, ModuleTestSuite
-from dbtest.core import make_core_suite
+from spintest      import EventTestCase, ModuleTestSuite
+from spintest.core import make_core_suite
 
 class CompsEventTestCase(EventTestCase):
   moduleid = 'comps'
@@ -68,10 +68,8 @@ class Test_IncludePackages(_CompsEventTestCase):
   "comps generated, groups included in core, kernel unlisted"
   _conf = \
   """<comps>
-    <core>
-      <group>core</group>
-      <group>base</group>
-    </core>
+    <group>core</group>
+    <group>base</group>
   </comps>"""
 
   def runTest(self):
@@ -79,20 +77,16 @@ class Test_IncludePackages(_CompsEventTestCase):
 
     comps = self.read_comps()
 
-    self.included_groups = ['core']
+    self.included_groups = ['core', 'base']
     self.check_all(comps)
-
-    # still need to check that all base pkgs ended up in core group #!
 
 class Test_IncludeCoreGroups(_CompsEventTestCase):
   "comps generated, packages included in core"
   _conf = \
   """<comps>
-    <core>
-      <group>core</group>
-      <package>createrepo</package>
-      <package>httpd</package>
-    </core>
+    <group>core</group>
+    <package>createrepo</package>
+    <package>httpd</package>
   </comps>"""
 
   def setUp(self):
@@ -110,10 +104,8 @@ class Test_IncludeGroups(_CompsEventTestCase):
   "comps generated, groups included"
   _conf = \
   """<comps>
-    <groups>
-      <group>base</group>
-      <group>printing</group>
-    </groups>
+    <group>base</group>
+    <group>printing</group>
   </comps>"""
 
   def runTest(self):
@@ -145,13 +137,9 @@ class Test_GroupsByRepo(_CompsEventTestCase):
   "comps generated, group included from specific repo"
   _conf = \
   """<comps>
-    <core>
-      <group repoid="%(basedistro)s-base">core</group>
-    </core>
-    <groups>
-      <group>base</group>
-      <group repoid="%(basedistro)s-base">printing</group>
-    </groups>
+    <group repoid="%(basedistro)s-base">core</group>
+    <group>base</group>
+    <group repoid="%(basedistro)s-base">printing</group>
   </comps>"""
   def __init__(self, basedistro, arch, conf=None):
     self._conf = self._conf % {'basedistro': basedistro}
@@ -163,18 +151,14 @@ class Test_GroupsByRepo(_CompsEventTestCase):
     self.included_groups = ['core', 'base', 'printing']
     self.check_all(self.read_comps())
 
-    # still need to check 'core' and 'printing' came from 'fedora-6-base' #!
+    # still need to check 'core' and 'printing' came from '$basedistro-base' #!
 
 class Test_MultipleGroupfiles(_CompsEventTestCase):
   "comps generated, multiple repositories with groupfiles"
   _conf = \
   """<comps>
-    <core>
-      <group repooid="%(basedistro)s-base">core</groups>
-    </core>
-    <groups>
-      <group>base-x</group>
-    </groups>
+    <group repooid="%(basedistro)s-base">core</groups>
+    <group>base-x</group>
   </comps>"""
   def __init__(self, basedistro, arch, conf=None):
     self._conf = self._conf % {'basedistro': basedistro}
@@ -187,18 +171,16 @@ class Test_MultipleGroupfiles(_CompsEventTestCase):
     self.check_all(self.read_comps())
 
     # still need to check that 'base-x' contains all packages listed in #!
-    # both 'fedora-6-base' and 'livna' groupfiles in 'base-x' group #!
+    # both '$basedistro-base' and 'livna' groupfiles in 'base-x' group #!
 
 class Test_GroupDefaults(_CompsEventTestCase):
   # bug 106
   "comps generated, group defaults set appropriately"
   _conf = \
   """<comps>
-    <groups>
-      <group>base</group>
-      <group default="true">web-server</group>
-      <group default="false">printing</group>
-    </groups>
+    <group>base</group>
+    <group default="true">web-server</group>
+    <group default="false">printing</group>
   </comps>"""
 
   def runTest(self):
@@ -209,7 +191,7 @@ class Test_GroupDefaults(_CompsEventTestCase):
     for group in ['web-server', 'printing']:
       self.failUnlessEqual(
         comps.get('/comps/group[id/text()="%s"]/default/text()' % group),
-        self.event.config.get('groups/group[text()="%s"]/@default' % group))
+        self.event.config.get('group[text()="%s"]/@default' % group))
 
     # still need to test 'default' for both 'true' and 'false' #!
 

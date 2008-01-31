@@ -53,6 +53,10 @@ class Test_PkglistBug84_1(PkglistEventTestCase):
 
 class Test_PkglistBug84_2(PkglistEventTestCase):
   "with base group"
+  _conf = """<comps>
+    <group>base</group>
+  </comps>"""
+
   def __init__(self, basedistro, arch, conf=None):
     PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug84_2', False)
     config.add_config_section(
@@ -60,16 +64,6 @@ class Test_PkglistBug84_2(PkglistEventTestCase):
       config.make_repos(basedistro,
         [config._make_repo('%s-base' % basedistro, arch)]
       )
-    )
-    config.add_config_section(
-      self.conf,
-      """
-      <comps>
-        <core>
-          <group>base</group>
-        </core>
-      </comps>
-      """
     )
 
 class Test_PkglistBug84_3(PkglistEventTestCase):
@@ -168,6 +162,10 @@ class Test_PkglistBug86_2(PkglistEventTestCase):
 
 class Test_PkglistBug108(PkglistEventTestCase):
   "'pidgin' or 'libpurple' should be in pkglist"
+  _conf = """<comps>
+    <package>gaim</package>
+  </comps>"""
+
   def __init__(self, basedistro, arch, conf=None):
     PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug108', False)
     config.add_config_section(
@@ -176,16 +174,6 @@ class Test_PkglistBug108(PkglistEventTestCase):
         [config._make_repo('%s-base' % basedistro, arch),
          config._make_repo('%s-updates' % basedistro, arch)]
       )
-    )
-    config.add_config_section(
-      self.conf,
-      """
-      <comps>
-        <core>
-          <package>gaim</package>
-        </core>
-      </comps>
-      """
     )
 
   def runTest(self):
@@ -217,6 +205,10 @@ class Test_Supplied(DummyPkglistEventTestCase):
 
 class Test_PackageAdded(PkglistEventTestCase):
   "added package"
+  _conf = """<comps>
+    <package>pkglist-test-package1</package>
+  </comps>"""
+
   def __init__(self, basedistro, arch, conf=None):
     PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'pkgadded', True)
     config.add_config_section(
@@ -226,16 +218,6 @@ class Test_PackageAdded(PkglistEventTestCase):
          xmllib.config.read(StringIO("<repofile>pkglist/pkglist-test-repos1.repo</repofile>"))]
       )
     )
-    config.add_config_section(
-      self.conf,
-      """
-      <comps>
-        <core>
-          <package>pkglist-test-package1</package>
-        </core>
-      </comps>
-      """
-    )
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
@@ -243,6 +225,10 @@ class Test_PackageAdded(PkglistEventTestCase):
 
 class Test_ObsoletedPackage(PkglistEventTestCase):
   "obsoleted package"
+  _conf = """<comps>
+    <package>pkglist-test-package2</package>
+  </comps>"""
+
   def __init__(self, basedistro, arch, conf=None):
     PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'pkgobsoleted', False)
     config.add_config_section(
@@ -252,16 +238,6 @@ class Test_ObsoletedPackage(PkglistEventTestCase):
          xmllib.config.read(StringIO("<repofile>pkglist/pkglist-test-repos1.repo</repofile>")),
          xmllib.config.read(StringIO("<repofile>pkglist/pkglist-test-repos2.repo</repofile>"))]
       )
-    )
-    config.add_config_section(
-      self.conf,
-      """
-      <comps>
-        <core>
-          <package>pkglist-test-package2</package>
-        </core>
-      </comps>
-      """
     )
 
   def runTest(self):
@@ -280,6 +256,10 @@ class Test_RemovedPackage(PkglistEventTestCase):
 
 class Test_ExclusivePackage_1(PkglistEventTestCase):
   "test-package required only by another test-package"
+  _conf = """<comps>
+    <package>pkglist-test-package3</package>
+  </comps>"""
+
   def __init__(self, basedistro, arch, conf=None):
     PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'exclusive_1', False)
     config.add_config_section(
@@ -288,16 +268,6 @@ class Test_ExclusivePackage_1(PkglistEventTestCase):
         [config._make_repo('%s-base' % basedistro, arch),
          xmllib.config.read(StringIO("<repofile>pkglist/pkglist-test-repos3.repo</repofile>"))]
       )
-    )
-    config.add_config_section(
-      self.conf,
-      """
-      <comps>
-        <core>
-          <package>pkglist-test-package3</package>
-        </core>
-      </comps>
-      """
     )
 
   def runTest(self):

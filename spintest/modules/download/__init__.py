@@ -36,14 +36,10 @@ class Test_PackagesDownloaded(DownloadEventTestCase):
 
 class Test_AddedPackageDownloaded(DownloadEventTestCase):
   "Test that the packages in <comps> are downloaded."
-  _conf = """
-  <comps>
-    <core>
-      <package>package1</package>
-      <package>package2</package>
-    </core>
-  </comps>
-  """
+  _conf = """<comps>
+    <package>package1</package>
+    <package>package2</package>
+  </comps>"""
 
   def runTest(self):
     DownloadEventTestCase.runTest(self)
