@@ -29,14 +29,9 @@
           <zeroOrMore>
           <ref name="element-package"/>
           </zeroOrMore>
-          
-          <optional>
-          <element name="exclude">
-            <oneOrMore>
-            <element name="package"><text/></element>
-            </oneOrMore>
-          </element>
-          </optional>
+          <zeroOrMore>
+          <element name="exclude-package"><text/></element>
+          </zeroOrMore>
           
           </interleave>
         </group>

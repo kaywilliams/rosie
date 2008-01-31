@@ -163,7 +163,7 @@ class CompsEvent(Event):
         PackageReq('kernel', type='mandatory'))
 
     # remove excluded packages
-    for pkg in ( self.config.xpath('exclude/package/text()', []) +
+    for pkg in ( self.config.xpath('exclude-package/text()', []) +
                  (list(self.cvars['excluded-packages']) or []) ):
       for group in self._groups.values():
         group.packagelist.discard(pkg)
