@@ -1,7 +1,7 @@
 from spintest      import BUILD_ROOT, EventTestCase, ModuleTestSuite, config
 from spintest.core import make_core_suite
 from spintest.rpms import (RpmBuildMixinTestCase, InputFilesMixinTestCase,
-                         RpmCvarsTestCase, ExtractMixin, RpmEventTestCase)
+                           RpmCvarsTestCase, ExtractMixin)
 
 class ReleaseRpmEventTestCase(EventTestCase):
   moduleid = 'release-rpm'
@@ -92,21 +92,15 @@ class Test_ReleaseRpmCvars1(RpmCvarsTestCase, ReleaseRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='release-rpm')
     self.check_cvars()
-    self.failUnless((self.event.rpm_name, 'mandatory', None,
-                     self.event.rpm_obsoletes, None) in
-                    self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 class Test_ReleaseRpmCvars2(RpmCvarsTestCase, ReleaseRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='release-rpm')
     self.check_cvars()
-    self.failUnless((self.event.rpm_name, 'mandatory', None,
-                     self.event.rpm_obsoletes, None) in
-                    self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_RNotesExistence(RpmEventTestCase, ExtractMixin, ReleaseRpmEventTestCase):
+class Test_RNotesExistence(ExtractMixin, ReleaseRpmEventTestCase):
   def tearDown(self):
     if self.img_path:
       self.img_path.rm(recursive=True, force=True)

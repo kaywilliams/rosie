@@ -18,61 +18,44 @@ FLAGS_MAP = {
   rpm.RPMSENSE_EQUAL | rpm.RPMSENSE_GREATER: '>=',
 }
 
-
 #-------- SUPER (ABSTRACT) CLASSES ----------#
-class RpmEventTestCase:
-  def _get_rpmpath(self):
-    return self.event.METADATA_DIR / \
-           "%s/RPMS/%s-%s-%s.%s.rpm" % (self.eventid, self.event.rpm_name,
-                                        self.event.version, self.event.release,
-                                        self.event.arch)
-    return None
-  rpm_path = property(_get_rpmpath)
-
-  def _get_srpmpath(self):
-    return self.event.METADATA_DIR / \
-           "%s/SRPMS/%s-%s-%s.src.rpm" % (self.eventid, self.event.rpm_name,
-                                          self.event.version, self.event.release)
-  srpm_path = property(_get_srpmpath)
-
-
 class ExtractMixin(object):
   def _get_imgpath(self):
-    if self.rpm_path.exists():
-      if extracts.has_key(self.rpm_path):
-        return extracts[self.rpm_path]
+    if self.event.rpm_path.exists():
+      if extracts.has_key(self.event.rpm_path):
+        return extracts[self.event.rpm_path]
       working_dir = P(tempfile.mkdtemp())
       img_path = P(tempfile.mkdtemp())
       try:
         filename = working_dir / 'rpm.cpio'
-        miscutils.rpm2cpio(os.open(self.rpm_path, os.O_RDONLY), filename.open('w+'))
+        miscutils.rpm2cpio(os.open(self.event.rpm_path, os.O_RDONLY), filename.open('w+'))
         cpio = img.MakeImage(filename, 'cpio')
         cpio.open(point=img_path)
       finally:
         working_dir.rm(recursive=True, force=True)
-      extracts[self.rpm_path] = img_path
+      extracts[self.event.rpm_path] = img_path
       return img_path
     return None
   img_path = property(_get_imgpath)
 
 #-------- TEST CASES --------#
-class InputFilesMixinTestCase(RpmEventTestCase, ExtractMixin):
+class InputFilesMixinTestCase(ExtractMixin):
   def check_inputs(self):
     for id in self.event.ids:
       for file in self.event.io.list_output(what=id):
         self.failUnlessExists(file)
         self.failUnlessExists(self.img_path / file.relpathfrom(self.event.build_folder))
 
-class RpmBuildMixinTestCase(RpmEventTestCase):
+class RpmBuildMixinTestCase(object):
   def _get_rpmheader(self):
-    if self.rpm_path.exists():
-      if headers.has_key(self.rpm_path):
-        return headers[self.rpm_path]
+    if self.event.rpm_path.exists():
+      if headers.has_key(self.event.rpm_path):
+        return headers[self.event.rpm_path]
       ts = rpm.TransactionSet()
-      fdno = os.open(self.rpm_path, os.O_RDONLY)
+      fdno = os.open(self.event.rpm_path, os.O_RDONLY)
       rpm_header = ts.hdrFromFdno(fdno)
       os.close(fdno)
-      headers[self.rpm_path] = rpm_header
+      headers[self.event.rpm_path] = rpm_header
       del ts
       return rpm_header
     return None
@@ -125,27 +108,35 @@ class RpmBuildMixinTestCase(RpmEventTestCase):
                       (tag, observed, expected))
 
     observed_provides = self._get_provides()
-    for dep in self.event.provides:
+    for dep in self.event.rpm_provides:
       dep = dep.replace('==', '=') # for consistency
       self.failUnless(dep in observed_provides,
                       "provision '%s' not actually provided" % dep)
 
     observed_requires = self._get_requires()
-    for dep in self.event.requires:
+    for dep in self.event.rpm_requires:
       dep = dep.replace('==', '=') # for consistency
       self.failUnless(dep in observed_requires,
                       "requirement '%s' not actually required" % dep)
 
     observed_obsoletes = self._get_obsoletes()
-    for dep in self.event.obsoletes:
+    for dep in self.event.rpm_obsoletes:
       dep = dep.replace('==', '=') # for consistency
       self.failUnless(dep in observed_obsoletes,
                       "obsoleted '%s' not actually obsoleted" % dep)
 
-class RpmCvarsTestCase(RpmEventTestCase):
+class RpmCvarsTestCase(object):
   def check_cvars(self):
-    self.failUnless(self.rpm_path in self.event.cvars['custom-rpms'])
-    self.failUnless(self.srpm_path in self.event.cvars['custom-srpms'])
+    cvars = self.event.cvars['custom-rpms-data'][self.event.id]
+    self.failUnless(self.event.packagereq_default == cvars['packagereq-default'])
+    self.failUnless(self.event.packagereq_requires == cvars['packagereq-requires'])
+    self.failUnless(self.event.packagereq_type == cvars['packagereq-type'])
+    self.failUnless(self.event.rpm_name == cvars['rpm-name'])
+    self.failUnless(self.event.rpm_obsoletes == cvars['rpm-obsoletes'])
+    self.failUnless(self.event.rpm_provides == cvars['rpm-provides'])
+    self.failUnless(self.event.rpm_requires == cvars['rpm-requires'])
+    self.failUnless(self.event.rpm_path == cvars['rpm-path'])
+    self.failUnless(self.event.srpm_path == cvars['srpm-path'])
 
 headers = {}
 extracts = {}

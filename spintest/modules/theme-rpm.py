@@ -27,9 +27,6 @@ class Test_ThemeRpmCvars1(RpmCvarsTestCase, ThemeRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='theme-rpm')
     self.check_cvars()
-    self.failUnless((self.event.rpm_name, 'conditional', 'gdm',
-                     self.event.rpm_obsoletes, None) in
-                    self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 class Test_ThemeRpmCvars2(RpmCvarsTestCase, ThemeRpmEventTestCase):
@@ -40,9 +37,6 @@ class Test_ThemeRpmCvars2(RpmCvarsTestCase, ThemeRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='theme-rpm')
     self.check_cvars()
-    self.failUnless((self.event.rpm_name, 'conditional', 'gdm',
-                     self.event.rpm_obsoletes, None) in
-                    self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 def make_suite(basedistro, arch):

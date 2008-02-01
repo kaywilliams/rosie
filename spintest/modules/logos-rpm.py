@@ -25,9 +25,6 @@ class Test_LogosRpmCvars1(RpmCvarsTestCase, LogosRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='logos-rpm')
     self.check_cvars()
-    self.failUnless((self.event.rpm_name, 'mandatory', None,
-                     self.event.rpm_obsoletes, None) in
-                    self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 class Test_LogosRpmCvars2(RpmCvarsTestCase, LogosRpmEventTestCase):
@@ -37,9 +34,6 @@ class Test_LogosRpmCvars2(RpmCvarsTestCase, LogosRpmEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='logos-rpm')
     self.check_cvars()
-    self.failUnless((self.event.rpm_name, 'mandatory', None,
-                     self.event.rpm_obsoletes, None) in
-                    self.event.cvars['custom-rpms-info'])
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 def make_suite(basedistro, arch):
