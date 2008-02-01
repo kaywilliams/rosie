@@ -8,13 +8,13 @@ from rendition.depsolver import Depsolver
 from spin.callback import IDepsolverCallback
 from spin.logging  import L1
 
-def resolve(packages=None, required=None, remove=None,
+def resolve(all_packages=None, old_packages=None, required=None,
             config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
             callback=None, logger=None):
   solver = IDepsolver(
-             packages = packages,
+             all_packages = all_packages,
+             old_packages = old_packages,
              required = required,
-             remove = remove,
              config = config,
              root = root,
              arch = arch,
@@ -28,7 +28,7 @@ def resolve(packages=None, required=None, remove=None,
   return pkgtups
 
 class IDepsolver(Depsolver):
-  def __init__(self, packages=None, required=None, remove=None,
+  def __init__(self, all_packages=None, old_packages=None, required=None,
                config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
                callback=None, logger=None):
     Depsolver.__init__(self,
@@ -37,12 +37,12 @@ class IDepsolver(Depsolver):
       arch = arch,
       callback = callback
     )
-    self.install_packages = packages
-    self.required = required
-    self.remove_packages = remove
+    self.all_packages = all_packages
+    self.old_packages = old_packages
+    self.required     = required
 
-    self.installed_packages = {}
     self.new_packages = {}
+    self.installed_packages = {}
 
     self.cached_file = pps.Path(root) / 'cache'
     self.cached_items = {}
@@ -67,8 +67,8 @@ class IDepsolver(Depsolver):
             # If one of the deps is missing, remove that dep.  This
             # will cause all the packages requiring this dep to get
             # depsolve'd but the other deps will not be "lost."
-            if tup[0] not in self.remove_packages:
-              self.remove_packages.append(tup[0])
+            if tup[0] not in self.old_packages:
+              self.old_packages.append(tup[0])
 
   def getInstalledPackage(self, name=None, ver=None, rel=None, arch=None, epoch=None):
     for pkgtup_i in self.installed_packages:
@@ -93,13 +93,15 @@ class IDepsolver(Depsolver):
     return list(rtn)
 
   def removePackages(self, pkgtup):
+    removed = []
     pkgtups = self.getDeps(pkgtup)
-
     for pkgtup in pkgtups:
+      removed.append(pkgtup)
       if self.installed_packages.has_key(pkgtup):
-        self.installed_packages.pop(pkgtup)
+        del self.installed_packages[pkgtup]
       if self.cached_items.has_key(pkgtup):
-        self.cached_items.pop(pkgtup)
+        del self.cached_items[pkgtup]
+    return removed
 
   def installPackage(self, po):
     self.installed_packages[po.pkgtup] = po
@@ -153,28 +155,29 @@ class IDepsolver(Depsolver):
 
   def iremove(self):
     # handle obsolete packages
-    if not self.remove_packages: return
+    if not self.old_packages: return
 
     if self.logger: remcb = IDepsolverCallback(self.logger)
     else:           remcb = None
 
-    if remcb: remcb.start("removing packages", len(self.remove_packages))
-    for pkg in self.remove_packages:
+    if remcb: remcb.start("removing packages", len(self.old_packages))
+    for pkg in self.old_packages:
       if remcb: remcb.increment(pkg)
-      po = self.getInstalledPackage(name=pkg)
-      if po is not None:
-        self.removePackages(po.pkgtup)
+      for pkgtup in self.cached_items.keys():
+        if pkgtup[0] == pkg:
+          break
+      self.removePackages(pkgtup)
     if remcb: remcb.end()
 
   def iinstall(self):
     # handle new packages
-    if not self.install_packages: return
+    if not self.all_packages: return
 
     if self.logger: inscb = IDepsolverCallback(self.logger)
     else:           inscb = None
 
-    if inscb: inscb.start("searching for required packages", len(self.install_packages))
-    for package in self.install_packages:
+    if inscb: inscb.start("looking for required packages", len(self.all_packages))
+    for package in self.all_packages:
       if inscb: inscb.increment(package)
       instpo = self.getInstalledPackage(name=package)
       bestpo = self.getBestAvailablePackage(name=package)
@@ -187,21 +190,23 @@ class IDepsolver(Depsolver):
     if inscb: inscb.end()
 
   def iupdate(self):
-    deps = [ (pkgtup, po)
-             for pkgtup, po in self.installed_packages.items()
-             if not self.new_packages.has_key(po) ]
-    if not deps: return
+    if not self.installed_packages: return
 
     if self.logger: updcb = IDepsolverCallback(self.logger)
     else:           updcb = None
 
-    if updcb: updcb.start("searching for updates", len(deps))
-    for pkgtup, po in deps:
+    if updcb: updcb.start("looking for updates", len(self.installed_packages))
+    removed = []
+    for pkgtup, po in self.installed_packages.items():
       if updcb: updcb.increment(pkgtup[0])
+      if self.new_packages.has_key(po):
+        continue
+      if pkgtup in removed:
+        continue
       bestpo = self.getBestAvailablePackage(name=pkgtup[0])
       if po is None:
-        self.removePackages(pkgtup)
+        removed.extend(self.removePackages(pkgtup))
       if bestpo is not None and po is not None and bestpo != po:
-        self.removePackages(po.pkgtup)
+        removed.extend(self.removePackages(po.pkgtup))
         self.installPackage(bestpo)
     if updcb: updcb.end()

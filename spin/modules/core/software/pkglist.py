@@ -96,20 +96,20 @@ class PkglistEvent(Event):
     user_required = self.cvars.get('user-required-packages', [])
 
     if INCREMENTAL_DEPSOLVE:
-      toremove = []
+      old_packages = []
       diffdict = self.diff.handlers['variables'].diffdict
       if diffdict.has_key("cvars['required-packages']"):
         prev, curr = diffdict["cvars['required-packages']"]
-        if prev is None or \
-              isinstance(prev, difftest.NewEntry) or \
-              isinstance(prev, difftest.NoneEntry):
+        if ( prev is None or
+             isinstance(prev, difftest.NewEntry) or
+             isinstance(prev, difftest.NoneEntry) ):
           prev = []
         if prev:
-          toremove.extend([ x for x in prev if x not in curr ])
+          old_packages.extend([ x for x in prev if x not in curr ])
 
-      pkgtups = idepsolver.resolve(packages = required_packages,
+      pkgtups = idepsolver.resolve(all_packages = required_packages,
+                                   old_packages = old_packages,
                                    required = user_required,
-                                   remove = toremove,
                                    config = str(repoconfig),
                                    root = str(self.dsdir),
                                    arch = self.arch,
