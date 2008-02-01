@@ -9,8 +9,9 @@
       </para>
       <programlisting>
 element iso {
-  attribute enabled { ... }
-  | element sets { ... }
+  attribute enabled { ... },
+  element pkgorder { ... }?
+  &amp; element set { ... }*
 }
       </programlisting>
       <refsection>
@@ -48,7 +49,7 @@ element iso {
       </refsection>
       <refsection>
         <title>See also</title>
-        <para>sets</para>
+        <para>set</para>
       </refsection>
     </refsect2>
 
@@ -56,7 +57,7 @@ element iso {
     <refsect2>
       <title>&lt;pkgorder&gt;</title>
       <para>
-      Optional element providing a path to a package order file. The file must be
+      optional; provides a path to a package order file. The file must be
       in the format produced by the Anaconda pkgorder script and consumable by the
       Anaconda splittree script; if not provided, spin creates a package order
       file using standard values.
@@ -95,7 +96,7 @@ element pkgorder { text }
       set elements are used by spin to determine the size of an iso set to
       generate.  The output trees are automatically split so that each iso is smaller
       than the specified size.  Sizes are indicated by a number in bytes, a number
-      followed by a size indicator ('K', 'M', or 'G', optionally followed by a 'B'),
+      followed by an ordinal ('K', 'M', 'G', etc., optionally followed by a 'B'),
       or one of the reserved values 'CD' and 'DVD' (which map to '640MB' and '4.7GB',
       respectively).  Size indicators and reserved values are case-insensitive.
       </para>
@@ -109,7 +110,7 @@ element set { text }
       </programlisting>
       <refsection>
         <title>Restrictions</title>
-        <para>The size given for the set must be larger than 100 MB.</para>
+        <para>The size given for the set must be larger than 100 MiB.</para>
       </refsection>
       <refsection>
         <title>Parents</title>

@@ -23,15 +23,22 @@ element baseurl {  text  }
     <refsect2>
       <title>&lt;exclude-package&gt;</title>
       <para>
-      optional exclude indicates a package that should be explicitly excluded from some operation, even if they would normally be included in some other way.  For example, the comps element uses exclude-package to list packages that shouldn't be included in the required packages list, even if they are included in one of the groups it contains.
+      exclude-package indicates a package that should be explicitly excluded
+      from some operation, even if it would normally be included in some other
+      way.  For example, the comps element uses exclude-package to list
+      packages that shouldn't be included in the required packages list, even
+      if they are included in one of the groups it contains.
       </para>
+      <programlisting>
+element exclude-package { text }
+      </programlisting>
       <refsection>
         <title>Parents</title>
-        <para>comps, repos, repo</para>
+        <para>comps, repo</para>
       </refsection>
       <refsection>
         <title>See also</title>
-        <para>comps, repos, repo</para>
+        <para>comps, repos, repo, includepkgs</para>
       </refsection>
     </refsect2>
 
@@ -39,18 +46,21 @@ element baseurl {  text  }
     <refsect2>
       <title>&lt;include-package&gt;</title>
       <para>
-      include-package indicates a package that should be included from a 
-      repository.  For example, if only one include-package element is 
-      specified, then the package it lists is the *only* package spin will 
-      see from the repository when dependency solving.
+      include-package indicates packages that should be included from a
+      repository.  For example, if only one package is specified via an
+      include-package, then that is the *only* package spin will see from the
+      repository when dependency solving.
       </para>
+      <programlisting>
+element include-package { text }
+      </programlisting>
       <refsection>
         <title>Parents</title>
-        <para>repo</para>
+        <para>comps</para>
       </refsection>
       <refsection>
         <title>See also</title>
-        <para>exclude-package</para>
+        <para>repo, exclude</para>
       </refsection>
     </refsect2>
 
@@ -66,6 +76,8 @@ element baseurl {  text  }
       <programlisting>
 element path {
   attribute dest { text }?,
+  attribute mode { text }?,
+  attribute filename { text }?,
   text
 }
       </programlisting>
@@ -83,6 +95,20 @@ element path {
           Any path specified (including the default) will have all leading '/'
           characters stripped to ensure proper joining - to treat the destination
           specified as an absolute path, join it with the string '/'.
+          </para>
+        </refsection>
+        <refsection>
+          <title>mode</title>
+          <para>
+          optional; controls the mode of the file in the destination; defaults
+          to '644'
+          </para>
+        </refsection>
+        <refsection>
+          <title>filename</title>
+          <para>
+          optional; sets the filename (basename) of the file in the destination;
+          defaults to the basename of the source file.
           </para>
         </refsection>
       </refsection>
@@ -142,10 +168,10 @@ element path {
 element repo {
   attribute id { text },
   element baseurl { ... }
-  &amp; element exclude-package { ... }?
+  &amp; element include-package { ... }*
+  &amp; element exclude-package { ... }*
   &amp; element gpgkey { ... }?
   &amp; element gpgcheck { ... }?
-  &amp; element include-package { ... }?
 }
       </programlisting>
       <refsection>
