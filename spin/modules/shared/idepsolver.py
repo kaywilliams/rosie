@@ -67,7 +67,7 @@ class IDepsolver(Depsolver):
             # If one of the deps is missing, remove that dep.  This
             # will cause all the packages requiring this dep to get
             # depsolve'd but the other deps will not be "lost."
-            if tup[0] not in self.old_packages:
+            if tup[0] not in self.old_packages and tup[0] not in self.all_packages:
               self.old_packages.append(tup[0])
 
   def getInstalledPackage(self, name=None, ver=None, rel=None, arch=None, epoch=None):
@@ -92,7 +92,28 @@ class IDepsolver(Depsolver):
             pkgtups.append(x)
     return list(rtn)
 
-  def removePackages(self, pkgtup):
+  def removePackages(self, pkgtup, isupdated=False):
+    if ( isupdated and self.cached_items.has_key(pkgtup) ):
+      instpos = {}
+      bestpos = {}
+      deps = set([pkgtup] + self.cached_items[pkgtup])
+      for dep in deps:
+        n,a,e,v,r = dep
+        instpo = self.getInstalledPackage(name=n, arch=a, epoch=e, ver=v, rel=r)
+        bestpo = self.getBestAvailablePackage(name=n)
+        if instpo:
+          instpos[instpo] = None
+        if bestpo:
+          bestpos[bestpo] = None
+      if instpos == bestpos:
+        # all the requires of the package are the same, just delete it and
+        # none of its deps
+        if self.installed_packages.has_key(pkgtup):
+          del self.installed_packages[pkgtup]
+        if self.cached_items.has_key(pkgtup):
+          del self.cached_items[pkgtup]
+        return [pkgtup]
+
     removed = []
     pkgtups = self.getDeps(pkgtup)
     for pkgtup in pkgtups:
@@ -204,9 +225,8 @@ class IDepsolver(Depsolver):
       if pkgtup in removed:
         continue
       bestpo = self.getBestAvailablePackage(name=pkgtup[0])
-      if po is None:
-        removed.extend(self.removePackages(pkgtup))
-      if bestpo is not None and po is not None and bestpo != po:
-        removed.extend(self.removePackages(po.pkgtup))
+      if ( po is None and bestpo is not None or
+           bestpo is not None and po is not None and bestpo != po ):
+        removed.extend(self.removePackages(po.pkgtup, isupdated=True))
         self.installPackage(bestpo)
     if updcb: updcb.end()
