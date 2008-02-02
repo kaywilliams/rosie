@@ -410,8 +410,8 @@ class ImagesGenerator(object):
       raise RuntimeError("Unable to find %s/ directory in share path(s) '%s'" % \
                          (shared_dir, self.SHARE_DIRS))
 
-    fullname = self.cvars['source-vars']['fullname']
-    version = self.cvars['source-vars']['version']
+    fullname = self.cvars['base-info']['fullname']
+    version = self.cvars['base-info']['version']
     try:
       self.hue_info = HUE_INFO[fullname][version]
     except KeyError:

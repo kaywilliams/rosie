@@ -1,22 +1,23 @@
 """
-sourcevars.py
+base-info.py
 
-provides information about the source distribution
+provides information about the base distribution
 """
 from rendition import FormattedFile as ffile
 from rendition import img
 
 from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
+from spin.logging   import L1
 
 API_VERSION = 5.0
-EVENTS = {'setup': ['SourceVarsEvent']}
+EVENTS = {'setup': ['BaseInfoEvent']}
 
-class SourceVarsEvent(Event):
+class BaseInfoEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'source-vars',
-      provides = ['source-vars'],
+      id = 'base-info',
+      provides = ['base-info'],
       requires = ['anaconda-version', 'base-repoid'],
     )
 
@@ -39,16 +40,15 @@ class SourceVarsEvent(Event):
               self.locals.files['isolinux']['initrd.img']['path']
 
     self.io.add_fpath(initrd_in, self.mddir, id='initrd.img')
-
     self.initrd_out = self.io.list_output(what='initrd.img')[0]
-
     self.buildstamp_out = self.mddir/'.buildstamp'
-
     self.DATA['output'].append(self.buildstamp_out)
 
   def run(self):
-    # download input files
-    self.io.sync_input(cache=True)
+    self.log(2, L1("reading buildstamp file from base repository"))
+
+    # download initrd.img
+    self.io.sync_input(cache=True, callback=Event.link_callback, text=None)
 
     # extract buildstamp
     image = self.locals.files['isolinux']['initrd.img']
@@ -65,15 +65,15 @@ class SourceVarsEvent(Event):
     self.io.clean_eventcache()
     # parse buildstamp
     buildstamp = ffile.DictToFormattedFile(self.locals.buildstamp_fmt)
-    # update source vars
+    # update base vars
     try:
-      self.cvars['source-vars'] = buildstamp.read(self.buildstamp_out)
+      self.cvars['base-info'] = buildstamp.read(self.buildstamp_out)
     except:
       pass # caught by verification
 
   def verify_buildstamp_file(self):
     "verify buildstamp file exists"
     self.verifier.failUnlessExists(self.buildstamp_out)
-  def verify_source_vars(self):
-    "verify source-vars cvar"
-    self.verifier.failUnless(self.cvars['source-vars'])
+  def verify_base_vars(self):
+    "verify base-info cvar"
+    self.verifier.failUnless(self.cvars['base-info'])

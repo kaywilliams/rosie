@@ -131,7 +131,7 @@ class BuildstampEvent(Event):
       id = 'buildstamp',
       version = 1,
       provides = ['buildstamp-file'],
-      requires = ['anaconda-version', 'source-vars'],
+      requires = ['anaconda-version', 'base-info'],
     )
 
     self.bsfile = self.mddir/'.buildstamp'
@@ -139,7 +139,7 @@ class BuildstampEvent(Event):
     self.DATA = {
       'variables': ['fullname', 'version', 'product', 'basearch', 'webloc',
                     'cvars[\'anaconda-version\']',
-                    'cvars[\'source-vars\']'],
+                    'cvars[\'base-info\']'],
       'output':    [self.bsfile],
     }
 
@@ -151,7 +151,7 @@ class BuildstampEvent(Event):
 
     buildstamp = ffile.DictToFormattedFile(self.locals.buildstamp_fmt)
 
-    distro_vars = copy.deepcopy(self.cvars['source-vars'])
+    distro_vars = copy.deepcopy(self.cvars['base-info'])
     distro_vars.update(self.cvars['distro-info'])
 
     self.bsfile.dirname.mkdirs()

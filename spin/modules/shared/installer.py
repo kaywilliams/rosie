@@ -188,7 +188,7 @@ class ImageModifyMixin:
 class FileDownloadMixin:
   """
   Classes that extend this must require 'anaconda-version',
-  'source-vars' and 'base-repoid'.
+  'base-info' and 'base-repoid'.
 
   This class downloads files to a directory of your chosing.
   """
@@ -200,7 +200,7 @@ class FileDownloadMixin:
     for data in self.file_locals.values():
       if data.get('virtual', False): continue # skip virtual files
 
-      rinfix = data['path'] % self.cvars['source-vars']
+      rinfix = data['path'] % self.cvars['base-info']
       linfix = data['path'] % self.cvars['distro-info']
       self.io.add_fpath(self.cvars['repos'][self.cvars['base-repoid']].osdir/rinfix,
                         (self.SOFTWARE_STORE/linfix).dirname,
