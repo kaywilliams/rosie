@@ -41,14 +41,14 @@ class DiscinfoEvent(Event):
     discinfo = ffile.DictToFormattedFile(self.locals.discinfo_fmt)
 
     # get product, fullname, and basearch from cvars
-    base_vars = copy.deepcopy(self.cvars['base-vars'])
+    distro_vars = copy.deepcopy(self.cvars['distro-info'])
 
     # add timestamp and discs using defaults to match anaconda makestamp.py
-    base_vars.update({'timestamp': str(time.time()), 'discs': '1'})
+    distro_vars.update({'timestamp': str(time.time()), 'discs': '1'})
 
     # write .discinfo
     self.difile.dirname.mkdirs()
-    discinfo.write(self.difile, **base_vars)
+    discinfo.write(self.difile, **distro_vars)
     self.difile.chmod(0644)
 
     self.diff.write_metadata()
@@ -151,11 +151,11 @@ class BuildstampEvent(Event):
 
     buildstamp = ffile.DictToFormattedFile(self.locals.buildstamp_fmt)
 
-    base_vars = copy.deepcopy(self.cvars['source-vars'])
-    base_vars.update(self.cvars['base-vars'])
+    distro_vars = copy.deepcopy(self.cvars['source-vars'])
+    distro_vars.update(self.cvars['distro-info'])
 
     self.bsfile.dirname.mkdirs()
-    buildstamp.write(self.bsfile, **base_vars)
+    buildstamp.write(self.bsfile, **distro_vars)
     self.bsfile.chmod(0644)
 
     self.diff.write_metadata()

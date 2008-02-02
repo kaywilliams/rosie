@@ -462,7 +462,7 @@ class ImagesGenerator(object):
 
     if strings:
       for i in strings:
-        text_string    = i.get('text', '') % self.cvars['base-vars']
+        text_string    = i.get('text', '') % self.cvars['distro-info']
         halign         = i.get('halign', 'center')
         text_coords    = i.get('text_coords', (img.size[0]/2, img.size[1]/2))
         text_max_width = i.get('text_max_width', img.size[0])

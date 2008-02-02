@@ -347,27 +347,27 @@ class Build(object):
     Event._config    = self.distroconfig
 
     # set up base variables
-    bv = Event.cvars['base-vars'] = {}
+    di = Event.cvars['distro-info'] = {}
     qstr = '/distro/main/%s/text()'
 
-    bv['arch']     = ARCH_MAP[Event._config.get(qstr % 'arch', 'i386')]
-    bv['product']  = Event._config.get(qstr % 'product')
-    bv['version']  = Event._config.get(qstr % 'version')
-    bv['basearch'] = getBaseArch(bv['arch'])
-    bv['fullname'] = Event._config.get(qstr % 'fullname', bv['product'])
-    bv['webloc']   = Event._config.get(qstr % 'bug-url', 'No bug url provided')
-    bv['pva']      = '%(product)s-%(version)s-%(basearch)s' % bv
-    bv['productpath'] = Event._config.get(qstr % 'product-path', 'Packages')
-    bv['copyright'] = Event._config.get(qstr % 'copyright', '')
+    di['arch']     = ARCH_MAP[Event._config.get(qstr % 'arch', 'i386')]
+    di['product']  = Event._config.get(qstr % 'product')
+    di['version']  = Event._config.get(qstr % 'version')
+    di['basearch'] = getBaseArch(di['arch'])
+    di['fullname'] = Event._config.get(qstr % 'fullname', di['product'])
+    di['webloc']   = Event._config.get(qstr % 'bug-url', 'No bug url provided')
+    di['pva']      = '%(product)s-%(version)s-%(basearch)s' % di
+    di['productpath'] = Event._config.get(qstr % 'product-path', 'Packages')
+    di['copyright'] = Event._config.get(qstr % 'copyright', '')
 
-    for k,v in bv.items():
+    for k,v in di.items():
       setattr(Event, k, v)
 
     # set up other directories
     Event.CACHE_DIR    = P(self.mainconfig.get('/spin/cache/path/text()',
                                                DEFAULT_CACHE_DIR))
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
-    Event.METADATA_DIR = Event.CACHE_DIR  / bv['pva']
+    Event.METADATA_DIR = Event.CACHE_DIR  / di['pva']
 
     Event.SHARE_DIRS = [ P(x).expand() for x in \
                          self.mainconfig.xpath('/spin/share-path/text()',

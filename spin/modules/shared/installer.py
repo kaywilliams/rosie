@@ -98,7 +98,7 @@ class ImageModifyMixin:
     # input images
     repo = self.cvars['repos'][self.cvars['base-repoid']]
 
-    image_path = self.image_locals['path'] % self.cvars['base-vars']
+    image_path = self.image_locals['path'] % self.cvars['distro-info']
 
     self.diff.setup(self.DATA)
 
@@ -170,7 +170,7 @@ class ImageModifyMixin:
 
   path    = property(lambda self: ( self.SOFTWARE_STORE /
                                     self.image_locals['path'] %
-                                    self.cvars['base-vars']) )
+                                    self.cvars['distro-info']) )
   zipped  = property(lambda self: self.image_locals.get('zipped', False))
   virtual = property(lambda self: self.image_locals.get('virtual', False))
 
@@ -201,7 +201,7 @@ class FileDownloadMixin:
       if data.get('virtual', False): continue # skip virtual files
 
       rinfix = data['path'] % self.cvars['source-vars']
-      linfix = data['path'] % self.cvars['base-vars']
+      linfix = data['path'] % self.cvars['distro-info']
       self.io.add_fpath(self.cvars['repos'][self.cvars['base-repoid']].osdir/rinfix,
                         (self.SOFTWARE_STORE/linfix).dirname,
                         id='FileDownloadMixin')
