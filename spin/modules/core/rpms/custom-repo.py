@@ -15,7 +15,8 @@ class CustomRepoEvent(Event):
     Event.__init__(self,
       id = 'custom-repo',
       conditionally_requires = ['custom-rpms-data'],
-      provides = ['repos', 'source-repos', 'included-packages', 'excluded-packages']
+      provides = ['repos', 'source-repos', 'comps-included-packages', 
+                  'comps-excluded-packages']
     )
     self.rc = RepoContainer(self)
 
@@ -136,7 +137,7 @@ class CustomRepoEvent(Event):
       type      = self.cvars['custom-rpms-data'][id]['packagereq-type']
       rpm_name  = self.cvars['custom-rpms-data'][id]['rpm-name']
       obsoletes = self.cvars['custom-rpms-data'][id]['rpm-obsoletes']
-      (self.cvars.setdefault('included-packages', set())
+      (self.cvars.setdefault('comps-included-packages', set())
          .add((rpm_name, type, requires, default)))
       if obsoletes:
-        self.cvars.setdefault('excluded-packages', set()).update(obsoletes)
+        self.cvars.setdefault('comps-excluded-packages', set()).update(obsoletes)

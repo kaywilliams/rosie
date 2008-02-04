@@ -14,7 +14,7 @@ class CompsEvent(Event):
       id = 'comps',
       provides = ['comps-file', 'required-packages', 'user-required-packages'],
       requires = ['anaconda-version', 'repos', 'base-repoid'],
-      conditionally_requires = ['included-packages', 'excluded-packages'],
+      conditionally_requires = ['comps-included-packages', 'comps-excluded-packages'],
     )
 
     self.comps = Element('comps')
@@ -48,7 +48,7 @@ class CompsEvent(Event):
       self.DATA['input'].extend([groupfile for repo,groupfile in
                                  self.groupfiles])
 
-    for i in ['included-packages', 'excluded-packages']:
+    for i in ['comps-included-packages', 'comps-excluded-packages']:
       if not self.cvars.has_key(i): self.cvars[i] = []
       self.DATA['variables'].append('cvars[\'%s\']' % i)
 
@@ -152,7 +152,7 @@ class CompsEvent(Event):
       self._groups['core'].packagelist.add(
         PackageReq(**self._dict_from_xml(pkg)))
 
-    for pkgtup in (self.cvars['included-packages'] or []):
+    for pkgtup in (self.cvars['comps-included-packages'] or []):
       if not isinstance(pkgtup, tuple):
         pkgtup = (pkgtup, 'mandatory', None, None)
       self._groups['core'].packagelist.add(PackageReq(*pkgtup))
@@ -164,7 +164,7 @@ class CompsEvent(Event):
 
     # remove excluded packages
     for pkg in ( self.config.xpath('exclude-package/text()', []) +
-                 (list(self.cvars['excluded-packages']) or []) ):
+                 (list(self.cvars['comps-excluded-packages']) or []) ):
       for group in self._groups.values():
         group.packagelist.discard(pkg)
 

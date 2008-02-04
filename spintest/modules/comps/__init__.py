@@ -124,7 +124,7 @@ class Test_ExcludePackages(_CompsEventTestCase):
 
   def setUp(self):
     _CompsEventTestCase.setUp(self)
-    self.event.cvars['excluded-packages'] = set(['passwd', 'setup'])
+    self.event.cvars['comps-excluded-packages'] = set(['passwd', 'setup'])
 
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
