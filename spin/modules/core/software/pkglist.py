@@ -43,6 +43,7 @@ class PkglistEvent(Event):
       id = 'pkglist',
       provides = ['pkglist'],
       requires = ['required-packages', 'repos', 'user-required-packages'],
+      conditionally_requires = ['pkglist-excluded-packages'],
     )
 
     self.dsdir = self.mddir / 'depsolve'
@@ -179,6 +180,9 @@ class PkglistEvent(Event):
       repoconfig.remove()
     conf = []
     conf.extend(YUMCONF_HEADER)
+    if self.cvars['pkglist-excluded-packages']:
+      line = 'exclude=' + ' '.join(self.cvars['pkglist-excluded-packages'])
+      conf.append(line)
     for repo in self.cvars['repos'].values():
       conf.extend(str(repo).splitlines())
     repoconfig.write_lines(conf)
