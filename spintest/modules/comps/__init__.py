@@ -91,7 +91,7 @@ class Test_IncludeCoreGroups(_CompsEventTestCase):
 
   def setUp(self):
     _CompsEventTestCase.setUp(self)
-    self.event.cvars['included-packages'] = set(['kde', 'xcalc'])
+    self.event.cvars['comps-included-packages'] = set(['kde', 'xcalc'])
 
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
