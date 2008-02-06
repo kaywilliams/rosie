@@ -137,7 +137,12 @@ class CompsEvent(Event):
       if not data['packages']:
         raise CompsError("unable to find group definition for '%s' in any groupfile" % gid)
 
-      dg = self._groups.setdefault(gid, CompsGroup(gid, **data['attrs']))
+      try: #!
+        dg = self._groups.setdefault(gid, CompsGroup(gid, **data['attrs']))
+      except TypeError, e: #!
+        # figure out what is causing that pesky error #!
+        print gid, data['attrs'] #!
+        raise #!
 
       # add group's packagereqs to packagelist
       for pkg in data['packages']:
