@@ -456,9 +456,9 @@ class ImagesGenerator(object):
                     strings=None, base_image=None):
     if base_image is not None:
       img = self._create_base_image(base_image)
-      img.resize((width, height))
+      img.resize((width, height), Image.ANTIALIAS)
     else:
-      img = self.base_image.resize((width, height))
+      img = self.base_image.resize((width, height), Image.ANTIALIAS)
 
     if strings:
       for i in strings:
