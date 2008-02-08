@@ -13,6 +13,7 @@ from spin.logging import L1
 try:
   import Image
   import ImageDraw
+  import ImageFont
 except ImportError:
   raise ImportError("missing 'python-imaging' module")
 
@@ -471,23 +472,26 @@ class ImagesGenerator(object):
         font_size_min  = i.get('font_size_min', None)
         font_path      = self._get_font_path(i.get('font',
                                                    'DejaVuLGCSans.ttf'))
-        draw, handler = ImageDraw.getdraw(img)
-        while True:
-          font = handler.Font(font_color, font_path, size=font_size)
-          w, h = draw.textsize(text_string, font)
-          if w <= (text_max_width or im.size[0]):
-            break
-          else:
-            font_size -= 1
-          if font_size < (font_size_min or font_size):
-            break
+        draw = ImageDraw.Draw(img)
+        font = ImageFont.truetype(font_path, font_size)
+        w, h = draw.textsize(text_string, font)
+        if font_size_min:
+          while True:
+            w, h = draw.textsize(text_string, font)
+            if w <= (text_max_width or im.size[0]):
+              break
+            else:
+              font_size -= 1
+            if font_size < font_size_min:
+              break
+            font = ImageFont.truetype(font_path, font_size)
 
         if halign == 'center':
           draw.text((text_coords[0]-(w/2), text_coords[1]-(h/2)),
-                    text_string, font)
+                    text_string, font=font, fill=font_color)
         elif halign == 'right':
           draw.text((text_coords[0]-w, text_coords[1]-(h/2)),
-                    text_string, font)
+                    text_string, font=font, fill=font_color)
 
     file_name.dirname.mkdirs()
     img.save(file_name, format=format)
