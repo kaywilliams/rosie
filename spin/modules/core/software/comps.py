@@ -234,7 +234,9 @@ class CompsEvent(Event):
 
     # add attributes if not already present
     if not G.has_key('attrs'):
-      G['attrs'] = {}
+      ##G['attrs'] = {}
+      G['attrs'] = FilteredDict() #!
+      G['attrs'].filter.append('packagereq') #!
       if self.include_localizations:
         q = '//group[id/text()="%s"]/*' % gid
         namedict = G['attrs']['name'] = {}
@@ -437,3 +439,16 @@ uElement = xmllib.config.uElement
 
 #------ ERRORS ------#
 class CompsError(StandardError): pass
+
+
+#---- DEBUG ----# #!
+class FilteredDict(dict):
+  def __init__(self, *args, **kwargs):
+    dict.__init__(self, *args, **kwargs)
+    self.filter = []
+  def __setitem__(self, k, v):
+    if k in self.filter:
+      raise KeyError("Disallowed key '%s'; value was '%s'" % (k, v))
+    else:
+      dict.__setitem__(self, k, v)
+#---- END DEBUG ----# #!
