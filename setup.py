@@ -1,6 +1,5 @@
 from distutils.core import setup
 
-import glob
 import os
 
 def get_data_files(directory):
