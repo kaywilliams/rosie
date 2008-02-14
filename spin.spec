@@ -12,13 +12,17 @@ Source0:   %{name}-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
 
-##BuildRequires:
+BuildRequires: python-devel
 
-##Requires:
-
-##Provides:
-
-##Conflicts:
+Requires: ImageMagick
+Requires: anaconda-runtime
+Requires: createrepo
+Requires: python-imaging
+Requires: python-lxml
+Requires: python-setuptools
+Requires: rendition-common
+Requires: syslinux
+Requires: yum
 
 %description
 The spin package contains the necessary shared server applications to build
@@ -45,6 +49,7 @@ and run a Spin-managed distribution.
 %doc INSTALL
 %doc README
 %doc NEWS
+%doc share/doc/examples
 %{python_sitelib}/spin
 %{_datadir}/spin
 %{_bindir}/spin
