@@ -1,5 +1,0 @@
-include setup.*
-include bin/*
-recursive-include lib *.py
-recursive-include share/doc *
-recursive-include share/spin *
