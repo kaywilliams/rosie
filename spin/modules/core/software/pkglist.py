@@ -23,7 +23,7 @@ YUMCONF_HEADER = [
   'gpgcheck=0',
   'tolerant=1',
   'exactarch=1',
-  'reposdir=/'
+  'reposdir=/',
   '\n',
 ]
 
@@ -69,12 +69,12 @@ class PkglistEvent(Event):
     # setup if creating pkglist
     self.pkglistfile = self.mddir / 'pkglist'
 
-    self.rddirs = [] # list of repodata dirs across all repos
+    self.rddirs = {} # list of repodata dirs across all repos
 
     for repo in self.cvars['repos'].values():
-      self.rddirs.append(repo.localurl/'repodata')
+      self.rddirs[repo.id] = repo.localurl / 'repodata'
 
-    self.DATA['input'].extend(self.rddirs)
+    self.DATA['input'].extend(self.rddirs.values())
     self.DATA['variables'].append('rddirs')
 
   def run(self):
@@ -163,16 +163,11 @@ class PkglistEvent(Event):
     self.verifier.failUnless(matched, "no kernel package found")
 
   def _verify_repos(self):
-    for repo in self.cvars['repos'].values():
-      # determine if repodata folder changed
-      rddir_changed = False
-      for rddir in self.rddirs:
-        for file in self.diff.handlers['input'].diffdict.keys():
-          if file.startswith(rddir):
-            rddir_changed = True; break
-        if rddir_changed: break
-      if rddir_changed:
-        (self.dsdir/repo.id).rm(recursive=True, force=True)
+    for repoid, rddir in self.rddirs.items():
+      for file in self.diff.handlers['input'].diffdict.keys():
+        if file.startswith(rddir):
+          (self.dsdir/repoid).rm(recursive=True, force=True)
+          break
 
   def _create_repoconfig(self):
     repoconfig = self.mddir / 'depsolve.repo'
