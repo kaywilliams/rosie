@@ -192,6 +192,59 @@ class Test_PkglistBug108(PkglistEventTestCase):
     self.failUnless(found_pidgin or found_libpurple)
     self.failIf(found_gaim)
 
+class Test_PkglistBug163_1(PkglistEventTestCase):
+  "newer package is not the required package"
+  _conf = """
+    <repos>
+    <macro id="root">http://www.renditionsoftware.com/open_software/</macro>
+    <base-repo>base</base-repo>
+    <repo id="base">
+      <baseurl>%{root}fedora/releases/test/9-Alpha/Fedora/i386/os/</baseurl>
+    </repo>
+    <repo id="everything">
+      <baseurl>%{root}fedora/releases/8/Everything/i386/os/</baseurl>
+    </repo>
+    <repo id="updates">
+      <baseurl>%{root}fedora/updates/testing/8/i386</baseurl>
+      <exclude-package>beagle*</exclude-package>
+    </repo>
+  </repos>
+  """
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug163_1', True)
+
+class Test_PkglistBug163_2(PkglistEventTestCase):
+  "updates not brought down blindly"
+  _conf = """
+    <repos>
+    <macro id="root">http://www.renditionsoftware.com/open_software/</macro>
+    <base-repo>base</base-repo>
+    <repo id="base">
+      <baseurl>%{root}fedora/releases/test/9-Alpha/Fedora/i386/os/</baseurl>
+    </repo>
+    <repo id="everything">
+      <baseurl>%{root}fedora/releases/8/Everything/i386/os/</baseurl>
+    </repo>
+    <repo id="updates">
+      <baseurl>%{root}fedora/updates/testing/8/i386</baseurl>
+      <exclude-package>beagle*</exclude-package>
+    </repo>
+  </repos>
+  """
+  def __init__(self, basedistro, arch, conf=None):
+    PkglistEventTestCase.__init__(self, basedistro, arch, conf, 'bug163_2', False)
+
+  def setUp(self):
+    PkglistEventTestCase.setUp(self)
+    self.clean_event_md(self.event._getroot().get('release-rpm'))
+
+  def runTest(self):
+    PkglistEventTestCase.runTest(self)
+    count1 = self.getPkglistCount('bug163_1')
+    count2 = self.getPkglistCount('bug163_2')
+    self.failUnless(count1 == count2, "bug163_1: %d packages; bug163_2: %d packages" % \
+                      (count1, count2))
+
 class Test_Supplied(DummyPkglistEventTestCase):
   "pkglist supplied"
   _conf = "<pkglist>pkglist/pkglist</pkglist>"
@@ -321,6 +374,12 @@ def make_suite(basedistro, arch):
     bug108 = ModuleTestSuite('pkglist')
     bug108.addTest(Test_PkglistBug108(basedistro, arch))
     suite.addTest(bug108)
+
+  # bug 163
+  bug163 = ModuleTestSuite('pkglist')
+  bug163.addTest(Test_PkglistBug163_1(basedistro, arch))
+  bug163.addTest(Test_PkglistBug163_2(basedistro, arch))
+  suite.addTest(bug163)
 
   # pkglist supplied
   suite.addTest(Test_Supplied(basedistro, arch))
