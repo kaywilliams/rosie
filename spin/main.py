@@ -10,6 +10,7 @@ __date__    = 'June 26th, 2007'
 
 DEBUG = True # enable to print tracebacks; disable for 'release mode'
 
+import errno
 import imp
 import os
 import sys
@@ -403,12 +404,31 @@ class Build(object):
 
   # locking methods
   def _lock(self):
+    mypid = os.getpid()
     if LOCK.exists():
-      pid = int(LOCK.read_lines()[0])
-      if pid != os.getpid():
-        raise RuntimeError("there is already an instance of spin running (pid %d)" % pid)
-    else:
-      LOCK.write_lines([str(os.getpid())])
+      try:
+        pid = int(LOCK.read_lines()[0])
+      except ValueError, e:
+        # bogus data
+        self._unlock()
+      else:
+        if pid == mypid:
+          return
+        try:
+          os.kill(pid, 0)
+        except OSError, e:
+          if e[0] == errno.ESRCH:
+            # the pid doesn't exist
+            self._unlock()
+          else:
+            # don't know what happened
+            raise RuntimeError("unable to check if pid %d is active" % pid)
+        else:
+          raise RuntimeError("there is already an instance of spin running (pid %d)" % pid)
+    if not LOCK.dirname.exists():
+      LOCK.dirname.mkdirs()
+    LOCK.write_lines([str(mypid)])
+
   def _unlock(self):
     if LOCK.exists(): LOCK.remove()
 
