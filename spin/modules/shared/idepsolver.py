@@ -58,7 +58,7 @@ class IDepsolver(Depsolver):
       self.cached_items = cPickle.load(f)
       f.close()
       for pkgtup, deps in self.cached_items.items():
-        for tup in [pkgtup] + deps:
+        for tup in [pkgtup] + deps.values():
           if self.installed_packages.has_key(tup):
             continue
           try:
@@ -87,7 +87,7 @@ class IDepsolver(Depsolver):
       processed[pkgtup] = None
       rtn.add(pkgtup)
       if self.cached_items.has_key(pkgtup):
-        for x in self.cached_items[pkgtup]:
+        for x in self.cached_items[pkgtup].values():
           if not processed.has_key(x):
             pkgtups.append(x)
     return list(rtn)
@@ -96,7 +96,7 @@ class IDepsolver(Depsolver):
     if ( isupdated and self.cached_items.has_key(pkgtup) ):
       instpos = {}
       bestpos = {}
-      deps = set([pkgtup] + self.cached_items[pkgtup])
+      deps = set([pkgtup] + self.cached_items[pkgtup].values())
       for dep in deps:
         n,a,e,v,r = dep
         instpo = self.getInstalledPackage(name=n, arch=a, epoch=e, ver=v, rel=r)
@@ -144,7 +144,7 @@ class IDepsolver(Depsolver):
     for txmbr in self.tsInfo.getMembers():
       resolved = True
       if self.cached_items.has_key(txmbr.po.pkgtup):
-        for dep in self.cached_items[txmbr.po.pkgtup]:
+        for dep in self.cached_items[txmbr.po.pkgtup].values():
           if not self.tsInfo.exists(pkgtup=dep):
             resolved = False
             break
@@ -225,8 +225,34 @@ class IDepsolver(Depsolver):
       if pkgtup in removed:
         continue
       bestpo = self.getBestAvailablePackage(name=pkgtup[0])
-      if ( po is None and bestpo is not None or
-           bestpo is not None and po is not None and bestpo != po ):
-        removed.extend(self.removePackages(po.pkgtup, isupdated=True))
-        self.installPackage(bestpo)
+      if po and bestpo and po != bestpo:
+
+        # make sure that all the packages requiring the old package
+        # can now require the new package seamlessly. First, we check
+        # all the packages that require the old package, and make a
+        # note of what it is about the old package that the package
+        # requires. Then we check to make sure that the new package
+        # provides that same exact thing. If it doesn't, then the new
+        # package cannot replace the old package.
+        requirements = []
+        for deps in self.cached_items.values():
+          for req, dep in deps.items():
+            if dep == po.pkgtup:
+              requirements.append(req)
+        required = False
+        for req in requirements:
+          if req not in bestpo.provides:
+            if req[0].startswith('/') and req[0] in bestpo.filelist:
+              # check to see if the requirement is a file and that the file
+              # is in the new package as well
+              continue
+            required = True
+            break
+        if required:
+          continue
+
+        if po:
+          removed.extend(self.removePackages(po.pkgtup, isupdated=True))
+        if bestpo:
+          self.installPackage(bestpo)
     if updcb: updcb.end()
