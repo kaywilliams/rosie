@@ -3,11 +3,12 @@ SPECFILE := $(PKGNAME).spec
 VERSION := $(shell awk '/Version:/ { print $$2 }' $(SPECFILE))
 RELEASE := $(shell awk '/Release:/ { print $$2 }' $(SPECFILE))
 
+DOCS = docsrc
+
 all: build
 
 depend: build docs
 
-DOCS= docsrc
 docs:
 	for doc in $(DOCS); do make -C $$doc; done
 
@@ -21,6 +22,7 @@ install:
 		exit 1; \
 	fi
 	python setup.py install -O1 --skip-build --root $(DESTDIR)
+	for doc in $(DOCS); do make -C $$doc DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
 
 tag:
 	@hg tag -m "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)" $(PKGNAME)-$(VERSION)-$(RELEASE)

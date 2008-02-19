@@ -53,5 +53,7 @@ and run a Spin-managed distribution.
 %{python_sitelib}/spin
 %{_datadir}/spin
 %{_bindir}/spin
+%{_mandir}/man5/spin.conf.5.gz
+%{_mandir}/man5/distro.conf.5.gz
 
 %changelog
