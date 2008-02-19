@@ -6,7 +6,7 @@
     </refmeta>
     <refnamediv>
       <refname>spin.conf</refname> <!-- defines name of the output file -->
-      <refpurpose>configuration file for spin(8)</refpurpose>
+      <refpurpose>configuration file for spin</refpurpose>
     </refnamediv>
     <refsynopsisdiv>
       <title>SYNOPSIS</title>
