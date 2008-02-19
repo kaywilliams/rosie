@@ -27,7 +27,7 @@ def get_packages(directory):
     return all_results
 
 setup(name = 'spin',
-      version = '1.0',
+      version = '0.0',
       description = 'The Spin Package builds customized distributions',
       author = 'Daniel Musgrave',
       author_email = 'dmusgrave@renditionsoftware.com',
