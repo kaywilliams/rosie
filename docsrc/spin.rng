@@ -29,7 +29,7 @@
       distribution configuration file (distro.conf). For example, if 'iso' is 
       listed as a disabled module, it will not be loaded, even if the distro.conf 
       contains an iso element such as the following, 
-      '&lt;iso&gt;&lt;set&gt;dvd&lt;/dvd&gt&lt;/iso&gt;'
+      '&lt;iso&gt;&lt;set&gt;dvd&lt;/dvd&gt;&lt;/iso&gt;'
       </para>
       <programlisting>
 element spin {
