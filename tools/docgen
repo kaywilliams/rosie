@@ -8,21 +8,23 @@ import sys
 
 from optparse import OptionParser
 
-from rendition import xmltree
+from rendition import xmllib
 
 from rendition.CleanHelpFormatter import CleanHelpFormatter
-from rendition.docbook            import GENERATORS, ManualGenerator, filterCmdArgs, getGenerator
+from rendition.docbook            import (GENERATORS, ManualGenerator,
+                                          filterCmdArgs, getGenerator)
 
 class SpinManualGenerator(ManualGenerator):
   def __init__(self):
     ManualGenerator.__init__(self)
 
-  def modify(self, tree):
-    refentry = tree.get('/docbook/refentry', None)
+  def check(self):
+    ManualGenerator.check(self)
+    refentry = self.master_xml.get('/docbook/refentry', None)
     if refentry is not None:
-      config = xmltree.Element('refsect1', parent=refentry)
-      title = xmltree.Element('title', parent=config, text='CONFIG ELEMENTS')
-      xmltree.Element('para', parent=config,
+      config = xmllib.tree.Element('refsect1', parent=refentry)
+      title = xmllib.tree.Element('title', parent=config, text='CONFIG ELEMENTS')
+      xmllib.tree.Element('para', parent=config,
         text='Detailed below is a comprehensive list of XML elements available '
              'in the spin config file.')
       refsect2s = refentry.xpath('/docbook/refentry/refsect2', [])
