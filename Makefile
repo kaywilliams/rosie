@@ -7,7 +7,9 @@ all: build
 
 depend: build docs
 
+DOCS= docsrc
 docs:
+	for doc in $(DOCS); do make -C $$doc; done
 
 build:
 	python setup.py build
