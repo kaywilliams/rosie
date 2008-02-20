@@ -44,6 +44,7 @@ class PkglistEvent(Event):
       provides = ['pkglist'],
       requires = ['required-packages', 'repos', 'user-required-packages'],
       conditionally_requires = ['pkglist-excluded-packages'],
+      version = '0.1',
     )
 
     self.dsdir = self.mddir / 'depsolve'
