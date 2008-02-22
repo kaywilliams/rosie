@@ -274,7 +274,11 @@ class CompsEvent(Event):
           else:
             G['attrs']['description'] = attr.text
         elif attr.tag not in ['packagelist', 'grouplist', 'id']:
-          G['attrs'][attr.tag] = attr.text
+          try: #!
+            G['attrs'][attr.tag] = attr.text
+          except KeyError: #!
+            print tree #!
+            raise #!
 
     # set the default value, if given
     #  * if default = true,    group.default = true
