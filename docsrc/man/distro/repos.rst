@@ -2,7 +2,7 @@
 -----------
 
 Todo - Add description and example.
-      
+
 
 ::
 
@@ -19,8 +19,9 @@ repos
 <exclude-package>
 -----------------
 
-optional; used to identify a package to exclude both when generating the comps file and when resolving dependencies to generate the package list. Takes the name of an RPM as the text value.
-      
+optional; used to identify a package to exclude both when generating
+the comps file and when resolving dependencies to generate the package
+list. Takes the name of an RPM as the text value.
 
 ::
 
@@ -37,9 +38,8 @@ repos
 <gpgkey>
 --------
 
-
-optional; Some RPMs are signed with a gpgkey, allowing end users to 
-validate their contents.  The gpgkey element points to an exported RPM 
+optional; Some RPMs are signed with a gpgkey, allowing end users to
+validate their contents.  The gpgkey element points to an exported RPM
 GPG public key that can be used to validate a repository's RPMs.
 
 
@@ -56,7 +56,8 @@ Attributes
 
 gpgkey elements have the following attributes:
 
-*check* 
+check
++++++
 
 optional; boolean value indicating whether or not to actually check the
 RPMs against this key; defaults to 'false'

@@ -93,7 +93,8 @@ Attributes
 
 gpgsign elements have the following attributes:
 
-*enabled* 
+enabled
++++++++
 
 optional; boolean value indicating whether this event is active or not;
 defaults to 'true'

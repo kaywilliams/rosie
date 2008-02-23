@@ -24,7 +24,8 @@ Attributes
 
 iso elements have the following attributes:
 
-*enabled* 
+enabled
++++++++
 
 optional; boolean value controlling whether this event is enabled; defaults
 to 'true'

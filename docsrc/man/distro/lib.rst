@@ -2,8 +2,7 @@
 ---------
 
 The baseurl element is used inside of repo elements and accepts the
-      same values as path elements.
-      
+same values as path elements.
 
 ::
 
@@ -96,7 +95,8 @@ Attributes
 
 path elements have the following attributes:
 
-*dest* 
+dest
+++++
 
 optional; some path elements are used as both a source and a destination;
 for these cases, the dest attribute tells spin where to put the file
@@ -109,13 +109,14 @@ characters stripped to ensure proper joining - to treat the destination
 specified as an absolute path, join it with the string '/'.
 
 
-*mode* 
+mode
+++++
 
 optional; controls the mode of the file in the destination; defaults
 to '644'
 
-
-*filename* 
+filename
+++++++++
 
 optional; sets the filename (basename) of the file in the destination;
 defaults to the basename of the source file.
@@ -208,7 +209,8 @@ Attributes
 
 repo elements have the following attributes:
 
-*id* 
+id
+++
 a unique id representing this repo in the config file
 
 Examples

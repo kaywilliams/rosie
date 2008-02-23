@@ -27,7 +27,8 @@ spin to use an already-existing group file, /var/temp/comps.xml.
 
 ::
 
-	<comps>/var/temp/comps.xml</comps>
+         <comps>/var/temp/comps.xml</comps>
+
 
 The second indicates that comps should generate a new file.  The group
 file will have the 'core', 'base' and 'base-x' groups included. The 'core'
@@ -91,7 +92,8 @@ Attributes
 
 group elements have the following attributes:
 
-*default*
+default
++++++++
 
 optional; possible values include boolean values and 'default'; if
 specified and a boolean value, comps resets the value of the 'default'
@@ -100,7 +102,9 @@ leaves the values of the 'default' element of this group unchanged;
 otherwise, it sets the value to 'true'
 
 
-*repoid*
+repoid
+++++++
+
 
 optional; the id of the repository from which to obtain this group; defaults
 to None, which means that all repositories are considered
@@ -136,7 +140,8 @@ Attributes
 
 package elements have the following attributes:
 
-*type*
+type
+++++
 
 optional; one of 'conditional', 'default', 'optional', or 'mandatory';
 controls the behavior of anaconda when installing packages onto the end
@@ -149,7 +154,8 @@ attribute set to true.  'optional' pacakges are installed if at install time
 the user chooses to install all group packages instead of just the default
 set.  'mandatory' packages are always installed.
 
-*requires*
+requires
+++++++++
 
 required if type is 'conditional', ignored otherwise; indicates to which RPM
 this package should be conditionally linked

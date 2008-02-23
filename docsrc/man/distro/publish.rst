@@ -124,13 +124,12 @@ Attributes
 the remote-webroot element has the following attributes:
 
 use-hostname
-************
+++++++++++++
 
 optional; boolean value indicating whether the hostname (e.g.
-        machine1.example.org) should be used in place of the ipaddress
-        (e.g. 10.10.0.28) for specifying the web address to the build machine;
-        defaults to 'false'.
-        
+machine1.example.org) should be used in place of the ipaddress
+(e.g. 10.10.0.28) for specifying the web address to the build machine;
+defaults to 'false'.
 
 Examples
 ********
