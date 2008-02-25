@@ -1,5 +1,6 @@
 MANGEN = ./tools/rst2man.py
 GZIP = gzip
+
 all: spin.conf.5.gz distro.conf.5.gz
 
 spin.conf.5.gz:
