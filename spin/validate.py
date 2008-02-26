@@ -19,6 +19,7 @@ from lxml import etree
 
 import copy
 import os
+import types
 
 from rendition import xmllib
 
@@ -152,8 +153,9 @@ class ConfigValidator(BaseConfigValidator):
 #------ ERRORS ------#
 class InvalidXmlError(StandardError):
   def __str__(self):
-    if isinstance(self.args[1], str):
-      return self.args[1]
+    for string_type in types.StringTypes:
+      if isinstance(self.args[1], string_type):
+        return self.args[1]
     msg = ''
     for err in self.args[1]: # relaxNG error log object
       msg += '  line %d: %s\n' % (err.line, err.message)
