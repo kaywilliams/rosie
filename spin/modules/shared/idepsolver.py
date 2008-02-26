@@ -70,7 +70,6 @@ class IDepsolver(Depsolver):
     Depsolver.setup(self)
 
     if self.cached_file.exists():
-      self.logger.log(3, L1("reading cached data"))
       f = self.cached_file.open('r')
       self.cached_items = cPickle.load(f)
       f.close()
@@ -145,11 +144,16 @@ class IDepsolver(Depsolver):
     self.installed_packages[po.pkgtup] = po
 
   def getPackageObjects(self):
+    if self.logger: inscb = IDepsolverCallback(self.logger)
+    else:           inscb = None
+
+    if inscb: inscb.start("checking for package changes")
     self.iremove()
     self.iinstall()
     self.iupdate()
+    if inscb: inscb.end()
 
-    self.logger.log(1, L1("generating new package list"))
+    self.logger.log(1, L1("resolving package dependencies"))
     for po in self.installed_packages.values():
       self.install(po=po)
 
@@ -195,28 +199,17 @@ class IDepsolver(Depsolver):
     # handle obsolete packages
     if not self.old_packages: return
 
-    if self.logger: remcb = IDepsolverCallback(self.logger)
-    else:           remcb = None
-
-    if remcb: remcb.start("removing packages", len(self.old_packages))
     for pkg in self.old_packages:
-      if remcb: remcb.increment(pkg)
       for pkgtup in self.cached_items.keys():
         if pkgtup[0] == pkg:
           break
       self.removePackages(pkgtup)
-    if remcb: remcb.end()
 
   def iinstall(self):
     # handle new packages
     if not self.all_packages: return
 
-    if self.logger: inscb = IDepsolverCallback(self.logger)
-    else:           inscb = None
-
-    if inscb: inscb.start("looking for required packages", len(self.all_packages))
     for package in self.all_packages:
-      if inscb: inscb.increment(package)
       instpo = self.getInstalledPackage(name=package)
       bestpo = self.getBestAvailablePackage(name=package)
       if instpo is None:
@@ -225,18 +218,12 @@ class IDepsolver(Depsolver):
         elif bestpo is not None:
           self.installPackage(bestpo)
           self.new_packages[bestpo] = None
-    if inscb: inscb.end()
 
   def iupdate(self):
     if not self.installed_packages: return
 
-    if self.logger: updcb = IDepsolverCallback(self.logger)
-    else:           updcb = None
-
-    if updcb: updcb.start("looking for updates", len(self.installed_packages))
     removed = []
     for pkgtup, po in self.installed_packages.items():
-      if updcb: updcb.increment(pkgtup[0])
       if self.new_packages.has_key(po):
         continue
       if pkgtup in removed:
@@ -272,4 +259,3 @@ class IDepsolver(Depsolver):
           removed.extend(self.removePackages(po.pkgtup, isupdated=True))
         if bestpo:
           self.installPackage(bestpo)
-    if updcb: updcb.end()

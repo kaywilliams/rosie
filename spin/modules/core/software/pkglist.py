@@ -135,7 +135,7 @@ class PkglistEvent(Event):
                                    callback = BuildDepsolveCallback(self.logger),
                                    logger = self.logger)
     else:
-      self.log(1, L1("generating new package list"))
+      self.log(1, L1("resolving package dependencies"))
       pkgtups = depsolver.resolve(packages = required_packages,
                                   required = user_required,
                                   config = str(repoconfig),
