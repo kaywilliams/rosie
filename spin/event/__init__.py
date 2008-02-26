@@ -90,9 +90,6 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   def execute(self):
     self.log(5, L0('*** %s event ***' % self.id))
     try:
-      if (self.mddir/'debug').exists():
-        self.log(5, L0('removing %s/debug folder' % self.mddir))
-        (self.mddir/'debug').rm(recursive=True, force=True)
       self.log(5, L0('running %s.setup()' % self.id))
       if self.skipped:
         self.setup()

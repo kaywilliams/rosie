@@ -99,6 +99,7 @@ class DownloadEvent(Event):
 
   def error(self, e):
     # performing a subset of Event.error since sync handles partially downloaded files
-    (self.mddir / 'debug').mkdir()
     if self.mdfile.exists():
-      self.mdfile.rename(self.mddir/'debug'/self.mdfile.basename)
+      debugdir=(self.mddir + '.debug')
+      debugdir.mkdir()
+      self.mdfile.rename(debugdir / self.mdfile.basename)

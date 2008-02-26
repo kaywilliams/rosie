@@ -30,10 +30,8 @@ class IOMixin:
     self.io.clean_eventcache(all=True)
 
   def error(self, e):
-    debugdir = self.mddir / 'debug'
-    debugdir.mkdirs()
-    for path in self.mddir.listdir(all=True, nglob='debug'):
-      path.rename(debugdir/path.basename)
+    debugdir = self.mddir + '.debug'
+    self.mddir.rename(debugdir)
 
   def verify_output_exists(self):
     "all output files exist"
