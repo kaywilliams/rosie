@@ -112,20 +112,11 @@ class PublishEvent(Event):
       if path.basename not in [x.basename for x in self.cvars['publish-content']]:
         path.rm(recursive=True, force=True)
 
-    enabled = self._is_selinux_enabled()
-    if enabled:
+    if self.cvars['selinux-enabled']:
       shlib.execute('chcon -R --type=httpd_sys_content_t %s' \
                     % self.cvars['publish-path'])
 
     self.diff.write_metadata()
-
-  def _is_selinux_enabled(self):
-    executable = pps.Path('/usr/bin/getenforce')
-    if executable.exists():
-      return shlib.execute(executable)[0] != 'Disabled'
-    # if /usr/sbin/getenforce doesn't exist, selinux cannot be enabled
-    # because it is not installed.
-    return False
 
   def apply(self):
     self.io.clean_eventcache()

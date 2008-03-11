@@ -38,6 +38,7 @@ from StringIO      import StringIO
 
 from rendition import dispatch
 from rendition import pps
+from rendition import shlib
 from rendition import si
 from rendition import xmllib
 
@@ -410,6 +411,12 @@ class Build(object):
     Event.link_callback  = LinkCallback(Event.logger, Event.METADATA_DIR)
     Event.copy_callback_compressed = SyncCallbackCompressed(
                                      Event.logger, Event.METADATA_DIR)
+
+    selinux_enabled = False
+    getenforce = P('/usr/sbin/getenforce')
+    if getenforce.exists():
+      selinux_enabled = shlib.execute(getenforce)[0] != 'Disabled'
+    Event.cvars['selinux-enabled'] = selinux_enabled
 
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
