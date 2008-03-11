@@ -46,7 +46,7 @@ excludes the 'vim-minimal' package.
 	  <package>httpd</package>
 	  <package type='conditional'
 	              requires='filesystem'>sudo</package>
-	  <exclude-package>vim-minimal</package>
+	  <exclude-package>vim-minimal</exclude-package>
 	</comps>
 
 
