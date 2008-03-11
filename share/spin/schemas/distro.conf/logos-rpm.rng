@@ -5,20 +5,30 @@
     <element name="distro">
 
       <optional>
-      <element name="logos-rpm">
+        <element name="logos-rpm">
 
-        <optional>
-        <attribute name="enabled"><ref name="value-boolean"/></attribute>
-        </optional>
-        <optional>
-        <attribute name="use-default-obsoletes">
-          <ref name="value-boolean"/>
-        </attribute>
-        </optional>
+          <optional>
+            <attribute name="enabled"><ref name="value-boolean"/></attribute>
+          </optional>
+          <optional>
+            <attribute name="use-default-obsoletes">
+              <ref name="value-boolean"/>
+            </attribute>
+          </optional>
 
-        <ref name="element-obsoletes"/>
+          <interleave>
+            <ref name="element-obsoletes"/>
+            <optional>
+              <element name="write-text">
+                <ref name="value-boolean"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="logos-path"><text/></element>
+            </optional>
+          </interleave>
 
-      </element>
+        </element>
       </optional>
     </element>
   </start>
