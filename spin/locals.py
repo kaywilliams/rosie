@@ -30,8 +30,7 @@ from rendition import sortlib
 
 __all__ = ['DISCINFO_FORMAT_LOCALS', 'BUILDSTAMP_FORMAT_LOCALS',
            'FILES_LOCALS', 'LOGOS_LOCALS', 'INSTALLCLASS_LOCALS',
-           'RELEASE_HTML', 'GDM_CUSTOM_THEME',
-           'LOGOS_RPM_FILES_LOCALS', 'THEME_RPM_FILES_LOCALS']
+           'RELEASE_HTML', 'GDM_CUSTOM_THEME', 'LOGOS_RPM_FILES_LOCALS']
 
 class LocalsDict(dict):
   """
@@ -327,78 +326,70 @@ RELEASE_HTML = LocalsDict({
   '0': '''<html/>\n''',
 })
 
-THEME_RPM_FILES_LOCALS = LocalsDict({
-  '0': {
-    '/usr/share/apps/kdm/themes/Spin/background.png': dict(
-      height = 1600,
-      width  = 2560,
-      format = 'PNG',
-    ),
-    '/usr/share/apps/kdm/themes/Spin/innerbackground.png': dict(
-      height = 520,
-      width  = 680,
-      format = 'PNG',
-      base_image = 'innerbackground.png',
-    ),
-    '/usr/share/apps/kdm/themes/Spin/screenshot.png': dict(
-      height = 768,
-      width  = 1024,
-      format = 'PNG',
-    ),
-    '/usr/share/backgrounds/spin/1-spin-sunrise.png': dict(
-      height = 1200,
-      width  = 1920,
-      format = 'PNG',
-    ),
-    '/usr/share/backgrounds/spin/2-spin-day.png': dict(
-      height = 1200,
-      width  = 1920,
-      format = 'PNG',
-    ),
-    '/usr/share/backgrounds/spin/3-spin-sunset.png': dict(
-      height = 1200,
-      width  = 1920,
-      format = 'PNG',
-    ),
-    '/usr/share/backgrounds/spin/4-spin-night.png': dict(
-      height = 1200,
-      width  = 1920,
-      format = 'PNG',
-    ),
-    '/usr/share/gdm/themes/Spin/background.png': dict(
-      height = 1600,
-      width  = 2560,
-      format = 'PNG',
-    ),
-    '/usr/share/gdm/themes/Spin/innerbackground.png': dict(
-      height = 520,
-      width  = 680,
-      format = 'PNG',
-      base_image = 'innerbackground.png',
-    ),
-    '/usr/share/gdm/themes/Spin/screenshot.png': dict(
-      height = 768,
-      width  = 1024,
-      format = 'PNG',
-    ),
-    '/usr/share/gnome-screensaver/lock-dialog-system.png': dict(
-      height = 314,
-      width  = 400,
-      format = 'PNG',
-    ),
-  },
-})
-
 LOGOS_RPM_FILES_LOCALS = LocalsDict({
   '0': {
-    '/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg': dict(
-      height = 480,
-      width  = 640,
-      format = 'PNG',
-      output_locations = [
-        '/usr/lib/anaconda-runtime/boot/syslinux-splash.png',
-        '/usr/share/anaconda/pixmaps/syslinux-splash.png'
-      ],
+    '/usr/share/apps/kdm/themes/Spin/background.png' : dict(
+      xwindow_type = 'kde',
+    ),
+    '/usr/share/apps/kdm/themes/Spin/innerbackground.png': dict(
+      xwindow_type = 'kde',
+    ),
+    '/usr/share/apps/kdm/themes/Spin/screenshot.png': dict(
+      xwindow_type = 'kde',
+    ),
+    '/usr/share/backgrounds/spin/1-spin-sunrise.png': dict(
+      xwindow_type = 'gnome',
+    ),
+    '/usr/share/backgrounds/spin/2-spin-day.png': dict(
+      xwindow_type = 'gnome',
+    ),
+    '/usr/share/backgrounds/spin/3-spin-sunset.png': dict(
+      xwindow_type = 'gnome',
+    ),
+    '/usr/share/backgrounds/spin/4-spin-night.png': dict(
+      xwindow_type = 'gnome',
+    ),
+    '/usr/share/gdm/themes/Spin/background.png': dict(
+      xwindow_type = 'gnome',
+    ),
+    '/usr/share/gdm/themes/Spin/innerbackground.png': dict(
+      xwindow_type = 'gnome',
+    ),
+    '/usr/share/gdm/themes/Spin/screenshot.png': dict(
+      xwindow_type = 'gnome',
+    ),
+    '/usr/share/gnome-screensaver/lock-dialog-system.png': dict(
+      xwindow_type = 'gnome',
+    ),
+    '/usr/lib/anaconda-runtime/boot/syslinux-splash.png': dict(
+      xwindow_type = 'required',
+      strings = [
+        dict(
+          text = '%(fullname)s',
+          font = 'DejaVuLGCSans-Bold.ttf',
+          font_size = 14,
+          font_size_min = 9,
+          font_color = 'white',
+          text_coords = (500, 360),
+          text_max_width = 140,
+        ),
+        dict(
+          text = 'Version %(version)s',
+          halign = 'right',
+          font_size = 9,
+          font_color = 'white',
+          text_coords = (540, 375),
+        ),
+        dict(
+          text = '%(copyright)s',
+          font_size = 9,
+          font_color = '#9d9d9d',
+          text_coords = (320, 470),
+        )
+      ]
+    ),
+    '/usr/share/anaconda/pixmaps/syslinux-splash.png': dict(
+      xwindow_type = 'required',
       strings = [
         dict(
           text = '%(fullname)s',
@@ -425,9 +416,7 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       ]
     ),
     '/usr/share/anaconda/pixmaps/anaconda_header.png': dict(
-      height = 88,
-      width  = 800,
-      format = 'PNG',
+      xwindow_type = 'required',
       strings = [
         dict(
           text = '%(fullname)s',
@@ -448,9 +437,7 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       ]
     ),
     '/usr/share/anaconda/pixmaps/progress_first-lowres.png': dict(
-      height = 225,
-      width  = 350,
-      format = 'PNG',
+      xwindow_type = 'required',
       strings = [
         dict(
           text = '%(fullname)s',
@@ -477,9 +464,7 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       ]
     ),
     '/usr/share/anaconda/pixmaps/progress_first.png': dict(
-      height = 325,
-      width  = 500,
-      format = 'PNG',
+      xwindow_type = 'required',
       strings = [
         dict(
           text = '%(fullname)s',
@@ -506,9 +491,7 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       ]
     ),
     '/usr/share/anaconda/pixmaps/rnotes/welcome.png': dict(
-      height = 325,
-      width  = 500,
-      format = 'PNG',
+      xwindow_type = 'required',
       strings = [
         dict(
           text = '%(fullname)s',
@@ -535,9 +518,7 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       ]
     ),
     '/usr/share/anaconda/pixmaps/splash.png': dict(
-      height = 325,
-      width  = 500,
-      format = 'PNG',
+      xwindow_type = 'required',
       strings = [
         dict(
           text = '%(fullname)s',
@@ -564,9 +545,7 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       ]
     ),
     '/usr/share/apps/ksplash/Themes/Spin/Preview.png': dict(
-      height = 332,
-      width  = 399,
-      format = 'PNG',
+      xwindow_type = 'kde',
       strings = [
         dict(
           text = '%(fullname)s',
@@ -593,24 +572,16 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       ]
     ),
     '/usr/share/apps/ksplash/Themes/Spin/splash_active_bar.png': dict(
-      height = 64,
-      width  = 400,
-      format = 'PNG',
+      xwindow_type = 'kde',
     ),
     '/usr/share/apps/ksplash/Themes/Spin/splash_bottom.png': dict(
-      height = 19,
-      width  = 400,
-      format = 'PNG',
+      xwindow_type = 'kde',
     ),
     '/usr/share/apps/ksplash/Themes/Spin/splash_inactive_bar.png': dict(
-      height = 64,
-      width  = 400,
-      format = 'PNG',
+      xwindow_type = 'kde',
     ),
     '/usr/share/apps/ksplash/Themes/Spin/splash_top.png': dict(
-      height = 248,
-      width  = 400,
-      format = 'PNG',
+      xwindow_type = 'kde',
       strings = [
         dict(
           text = '%(fullname)s',
@@ -637,14 +608,10 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       ]
     ),
     '/usr/share/firstboot/pixmaps/firstboot-left.png': dict(
-      height = 600,
-      width  = 160,
-      format = 'PNG',
+      xwindow_type = 'required',
     ),
     '/usr/share/firstboot/pixmaps/splash-small.png': dict(
-      height = 259,
-      width  = 364,
-      format = 'PNG',
+      xwindow_type = 'required',
       strings = [
         dict(
           text = '%(fullname)s',
@@ -671,14 +638,10 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       ]
     ),
     '/usr/share/pixmaps/poweredby.png': dict(
-      height = 31,
-      width  = 88,
-      format = 'PNG',
+      xwindow_type = 'required',
     ),
     '/usr/share/pixmaps/splash/gnome-splash.png': dict(
-      height = 293,
-      width  = 420,
-      format = 'PNG',
+      xwindow_type = 'gnome',
       strings = [
         dict(
           text = '%(fullname)s',
@@ -705,9 +668,7 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       ]
     ),
     '/usr/share/rhgb/main-logo.png': dict(
-      height = 399,
-      width  = 799,
-      format = 'PNG',
+      xwindow_type = 'required',
       strings = [
         dict(
           text = '%(fullname)s',
@@ -734,9 +695,7 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
       ]
     ),
     '/boot/grub/grub-splash.png': dict(
-      height = 480,
-      width  = 640,
-      format = 'PNG',
+      xwindow_type = 'required',
       strings = [
         dict(
           text = '%(fullname)s',
@@ -765,19 +724,13 @@ LOGOS_RPM_FILES_LOCALS = LocalsDict({
   },
   '11.2.0.66-1': {
     '/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg': dict(
-      height = 480,
-      width  = 640,
-      format = 'JPEG',
-      output_locations = ['/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg']
-    )
+      xwindow_type = 'required',
+    ),
   },
   '11.3.0.36-1': {
     '/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg': dict(
-      height = 480,
-      width  = 640,
-      format = 'PNG',
-      output_locations = ['/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg']
-    )
+      xwindow_type = 'required',
+    ),
   },
 })
 

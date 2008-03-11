@@ -228,11 +228,15 @@ class LogosHandler(object):
           self.ptr.copy(src, dst.dirname)
 
   def copy_distro_images(self):
+    required_xwindow = self.ptr.config.get('include-xwindows-art/text()', 'all').lower()
+    xwindow_types = XWINDOW_MAPPING[required_xwindow]
     for file_name in self.ptr.locals.logos_files:
-      src = self._find_share_directory(file_name) // file_name
-      dst = self.ptr.build_folder // file_name
-      dst.dirname.mkdirs()
-      self.ptr.copy(src, dst.dirname)
+      xwindow_type = self.ptr.locals.logos_files[file_name].get('xwindow_type', 'required')
+      if xwindow_type in xwindow_types:
+        src = self._find_share_directory(file_name) // file_name
+        dst = self.ptr.build_folder // file_name
+        dst.dirname.mkdirs()
+        self.ptr.copy(src, dst.dirname)
 
   def write_text(self):
     for file_name in self.ptr.locals.logos_files:
@@ -293,6 +297,15 @@ class LogosHandler(object):
         return directory
     raise IOError("Unable to find '%s' in share path(s) '%s'" % \
                   (file, self.shared_dirs))
+
+
+#----- GLOBAL VARIABLES -----#
+XWINDOW_MAPPING = {
+  'all':   ['gnome', 'kde', 'required'],
+  'gnome': ['gnome', 'required'],
+  'kde':   ['kde', 'required'],
+  'none':  ['required'],
+}
 
 FOLDER_MAPPING = {
   'CentOS': {

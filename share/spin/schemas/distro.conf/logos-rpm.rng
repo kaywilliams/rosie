@@ -26,6 +26,11 @@
             <optional>
               <element name="logos-path"><text/></element>
             </optional>
+            <optional>
+              <element name="include-xwindows-art">
+                <ref name="value-xwindows-types"/>
+              </element>
+            </optional>
           </interleave>
 
         </element>
@@ -33,5 +38,10 @@
     </element>
   </start>
 
+  <define name="value-xwindows-types">
+    <data type="token">
+      <param name="pattern">[Aa]ll|[Gg]nome|GNOME|[Kk]de|KDE|[Nn]one</param>
+    </data>
+  </define>
   <include href="rpms.rng"/>
 </grammar>
