@@ -217,7 +217,7 @@ class LogosHandler(object):
       self.shared_dirs.append(dir / self.subfolder / self.bdfolder)
 
     if supplied:
-      self.shared_dirs.insert(0, supplied)
+      self.shared_dirs.insert(0, P(supplied))
 
   def copy_common_images(self):
     for folder in [ x / 'common' for x in self.ptr.SHARE_DIRS ]:
