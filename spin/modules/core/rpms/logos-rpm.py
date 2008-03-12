@@ -135,8 +135,10 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     bg_triggerin = self.build_folder / 'bg-triggerin.sh'
     triggerin_lines = [
       'BACKGROUNDS=/usr/share/backgrounds',
-      'for default in `ls -1 $BACKGROUNDS/images/default* &> /dev/null || echo default.jpg`; do',
-      '  %{__mv} $default $default.rpmsave',
+      'for default in `ls -1 $BACKGROUNDS/images/default* &> /dev/null || echo $BACKGROUNDS/images/default.jpg`; do',
+      '  if [ -e $default ]; then ',
+      '    %{__mv} $default $default.rpmsave',
+      '  fi',
       '  %{__ln_s} $BACKGROUNDS/spin/2-spin-day.png $default',
       'done',
     ]
