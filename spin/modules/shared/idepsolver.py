@@ -16,6 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 import cPickle
+import rpmUtils
 import yum
 
 from rendition import pps
@@ -238,10 +239,17 @@ class IDepsolver(Depsolver):
         # requires. Then we check to make sure that the new package
         # provides that same exact thing. If it doesn't, then the new
         # package cannot replace the old package.
+        if pkgtup[0] == 'dbus-x11':
+          DEBUG = True
+        else:
+          DEBUG = False
+
         requirements = []
-        for deps in self.cached_items.values():
+        for package, deps in self.cached_items.items():
           for req, dep in deps.items():
             if dep == po.pkgtup:
+              if DEBUG:
+                print "REQUIREMENT FOR", package, ":", req
               requirements.append(req)
         required = False
         for req in requirements:
@@ -250,9 +258,34 @@ class IDepsolver(Depsolver):
               # check to see if the requirement is a file and that the file
               # is in the new package as well
               continue
+            if req[0] == pkgtup[0]:
+              try:
+                flag = rpmUtils.miscutils.flagToString(req[1])
+              except TypeError:
+                flag = req[1]
+              if flag is None:
+                continue
+
+              newpo_evr = (bestpo.pkgtup[2], bestpo.pkgtup[3], bestpo.pkgtup[4])
+              reqpo_evr = req[2]
+              evr_check = rpmUtils.miscutils.compareEVR(reqpo_evr, newpo_evr)
+              if flag == 'LT' and evr_check > 0:
+                continue
+              if flag == 'LE' and evr_check >= 0:
+                continue
+              if flag == 'EQ' and evr_check == 0:
+                continue
+              if flag == 'GE' and evr_check <= 0:
+                continue
+              if flag == 'GT' and evr_check < 0:
+                continue
+            if DEBUG:
+              print "REQUIREMENT NOT FOUND:", req
             required = True
             break
         if required:
+          if DEBUG:
+            print po
           continue
 
         if po:
