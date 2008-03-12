@@ -239,11 +239,6 @@ class IDepsolver(Depsolver):
         # requires. Then we check to make sure that the new package
         # provides that same exact thing. If it doesn't, then the new
         # package cannot replace the old package.
-        if pkgtup[0] == 'dbus-x11':
-          DEBUG = True
-        else:
-          DEBUG = False
-
         requirements = []
         for package, deps in self.cached_items.items():
           for req, dep in deps.items():
@@ -259,13 +254,12 @@ class IDepsolver(Depsolver):
               # is in the new package as well
               continue
             if req[0] == pkgtup[0]:
-              try:
-                flag = rpmUtils.miscutils.flagToString(req[1])
-              except TypeError:
-                flag = req[1]
-              if flag is None:
+              if req[1] is None:
                 continue
-
+              if type(req[1]) != type(''):
+                flag = rpmUtils.miscutils.flagToString(req[1])
+              else:
+                flag = req[1]
               newpo_evr = (bestpo.pkgtup[2], bestpo.pkgtup[3], bestpo.pkgtup[4])
               reqpo_evr = req[2]
               evr_check = rpmUtils.miscutils.compareEVR(reqpo_evr, newpo_evr)
@@ -279,13 +273,9 @@ class IDepsolver(Depsolver):
                 continue
               if flag == 'GT' and evr_check < 0:
                 continue
-            if DEBUG:
-              print "REQUIREMENT NOT FOUND:", req
             required = True
             break
         if required:
-          if DEBUG:
-            print po
           continue
 
         if po:
