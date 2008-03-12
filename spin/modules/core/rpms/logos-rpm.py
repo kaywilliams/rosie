@@ -53,7 +53,8 @@ class LogosRpmEvent(RpmBuildMixin, Event):
       "created by spin and are specific to %s." % (self.product, self.fullname),
       "Icons and pictures related to %s" % self.fullname,
       rpm_license = 'GPLv2',
-      default_provides = ['system-logos']
+      default_provides = ['system-logos'],
+      default_requires = ['coreutils']
     )
 
     self.logos_handler = LogosHandler(self, 'logos')
@@ -94,7 +95,8 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     custom_theme = self.build_folder / 'usr/share/%s/custom.conf' % self.rpm_name
     custom_theme.dirname.mkdirs()
     custom_theme.write_text(
-      self.locals.gdm_custom_theme % {'themename': self.config.get('theme/text()', 'Spin')}
+      self.locals.gdm_custom_theme % \
+      {'themename': self.config.get('theme/text()', 'Spin')}
     )
 
   def _get_triggerin(self):
@@ -133,7 +135,7 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     bg_triggerin = self.build_folder / 'bg-triggerin.sh'
     triggerin_lines = [
       'BACKGROUNDS=/usr/share/backgrounds',
-      'for default in `ls -1 $BACKGROUNDS/images/default*`; do',
+      'for default in `ls -1 $BACKGROUNDS/images/default* &> /dev/null || echo default.jpg`; do',
       '  %{__mv} $default $default.rpmsave',
       '  %{__ln_s} $BACKGROUNDS/spin/2-spin-day.png $default',
       'done',
@@ -190,7 +192,7 @@ class LogosRpmEvent(RpmBuildMixin, Event):
 class LogosHandler(object):
   def __init__(self, ptr, subfolder):
     self.ptr = ptr
-    self.subfolder = subfolder
+    self.subfolder = P(subfolder)
     self.bdfolder = None
     self.shared_dirs = []
 
@@ -220,12 +222,13 @@ class LogosHandler(object):
       self.shared_dirs.insert(0, P(supplied))
 
   def copy_common_images(self):
-    for folder in [ x / 'common' for x in self.ptr.SHARE_DIRS ]:
+    subtree = self.subfolder / 'common'
+    for folder in [ x / subtree for x in self.ptr.SHARE_DIRS ]:
       for src in folder.findpaths(type=pps.constants.TYPE_NOT_DIR):
-        dst = self.ptr.build_folder / src.relpathfrom(folder)
+        dst = self.ptr.build_folder // src.relpathfrom(folder)
         if not dst.exists():
           dst.dirname.mkdirs()
-          self.ptr.copy(src, dst.dirname)
+          self.ptr.copy(src, dst.dirname, callback=None)
 
   def copy_distro_images(self):
     required_xwindow = self.ptr.config.get('include-xwindows-art/text()', 'all').lower()
@@ -236,7 +239,7 @@ class LogosHandler(object):
         src = self._find_share_directory(file_name) // file_name
         dst = self.ptr.build_folder // file_name
         dst.dirname.mkdirs()
-        self.ptr.copy(src, dst.dirname)
+        self.ptr.copy(src, dst.dirname, callback=None)
 
   def write_text(self):
     for file_name in self.ptr.locals.logos_files:
@@ -296,7 +299,7 @@ class LogosHandler(object):
       if (directory // file).exists():
         return directory
     raise IOError("Unable to find '%s' in share path(s) '%s'" % \
-                  (file, self.shared_dirs))
+                  (file[1:], self.shared_dirs))
 
 
 #----- GLOBAL VARIABLES -----#

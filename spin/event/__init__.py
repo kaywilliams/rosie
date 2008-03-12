@@ -129,7 +129,6 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   def apply(self): pass
   #def error(self, e) defined IOMixins
 
-  # former interface methods
   def log(self, *args, **kwargs): return self.logger.log(*args, **kwargs)
 
   def cache(self, src, dst, link=False, force=False, **kwargs):
