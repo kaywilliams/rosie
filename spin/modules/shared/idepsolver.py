@@ -243,8 +243,6 @@ class IDepsolver(Depsolver):
         for package, deps in self.cached_items.items():
           for req, dep in deps.items():
             if dep == po.pkgtup:
-              if DEBUG:
-                print "REQUIREMENT FOR", package, ":", req
               requirements.append(req)
         required = False
         for req in requirements:
