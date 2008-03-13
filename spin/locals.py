@@ -800,7 +800,7 @@ GDM_CUSTOM_THEME = LocalsDict({
 
 [greeter]
 GraphicalTheme=%(themename)s
-
+Browser=true
 
 [chooser]
 
