@@ -42,7 +42,7 @@ class LogosRpmEvent(RpmBuildMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'logos-rpm',
-      version = '0.93',
+      version = '0.94',
       requires = ['base-info', 'anaconda-version', 'logos-versions'],
       provides = ['custom-rpms-data']
     )
@@ -84,8 +84,8 @@ class LogosRpmEvent(RpmBuildMixin, Event):
 
   def _generate(self):
     RpmBuildMixin._generate(self)
-    self.logos_handler.copy_common_images()
     self.logos_handler.copy_distro_images()
+    self.logos_handler.copy_common_images()
     self._create_grub_splash_xpm()
     self._generate_custom_theme()
     if self.config.get('write-text/text()', 'True') in BOOLEANS_TRUE:
@@ -195,14 +195,15 @@ class LogosHandler(object):
   def __init__(self, ptr, subfolder):
     self.ptr = ptr
     self.subfolder = P(subfolder)
-    self.bdfolder = None
-    self.shared_dirs = []
+
+    self.distro_dirs = []
+    self.common_dirs = []
 
   def setup_handler(self, supplied):
     fullname = self.ptr.cvars['base-info']['fullname']
     version  = self.ptr.cvars['base-info']['version']
     try:
-      self.bdfolder = FOLDER_MAPPING[fullname][version]
+      bdfolder = FOLDER_MAPPING[fullname][version]
     except KeyError:
       # See if the version of the input distribution is a bugfix
       found = False
@@ -210,22 +211,22 @@ class LogosHandler(object):
         for ver in FOLDER_MAPPING[fullname]:
           if version.startswith(ver):
             found = True
-            self.bdfolder = FOLDER_MAPPING[fullname][ver]
+            bdfolder = FOLDER_MAPPING[fullname][ver]
             break
       if not found:
         # if not one of the "officially" supported distros, default
         # to something
-        self.bdfolder = FOLDER_MAPPING['*']['0']
+        bdfolder = FOLDER_MAPPING['*']['0']
 
     for dir in self.ptr.SHARE_DIRS:
-      self.shared_dirs.append(dir / self.subfolder / self.bdfolder)
+      self.distro_dirs.append(dir / self.subfolder / bdfolder)
+      self.common_dirs.append(dir / self.subfolder / 'common')
 
     if supplied:
-      self.shared_dirs.insert(0, P(supplied))
+      self.distro_dirs.insert(0, P(supplied))
 
   def copy_common_images(self):
-    subtree = self.subfolder / 'common'
-    for folder in [ x / subtree for x in self.ptr.SHARE_DIRS ]:
+    for folder in self.common_dirs:
       for src in folder.findpaths(type=pps.constants.TYPE_NOT_DIR):
         dst = self.ptr.build_folder // src.relpathfrom(folder)
         if not dst.exists():
@@ -297,11 +298,11 @@ class LogosHandler(object):
     return font_path
 
   def _find_share_directory(self, file):
-    for directory in self.shared_dirs:
+    for directory in self.distro_dirs:
       if (directory // file).exists():
         return directory
     raise IOError("Unable to find '%s' in share path(s) '%s'" % \
-                  (file[1:], self.shared_dirs))
+                  (file[1:], self.distro_dirs))
 
 
 #----- GLOBAL VARIABLES -----#
