@@ -213,7 +213,7 @@ class Test_PkglistBug163_1(PkglistEventTestCase):
   "newer package is not the required package"
   _conf = """
     <repos>
-    <macro id="root">http://www.renditionsoftware.com/open_software/</macro>
+    <macro id="root">http://www.renditionsoftware.com/mirrors/</macro>
     <base-repo>base</base-repo>
     <repo id="base">
       <baseurl>%{root}fedora/releases/test/9-Alpha/Fedora/i386/os/</baseurl>
@@ -234,7 +234,7 @@ class Test_PkglistBug163_2(PkglistEventTestCase):
   "updates not brought down blindly"
   _conf = """
     <repos>
-    <macro id="root">http://www.renditionsoftware.com/open_software/</macro>
+    <macro id="root">http://www.renditionsoftware.com/mirrors/</macro>
     <base-repo>base</base-repo>
     <repo id="base">
       <baseurl>%{root}fedora/releases/test/9-Alpha/Fedora/i386/os/</baseurl>

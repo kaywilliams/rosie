@@ -71,50 +71,50 @@ SOURCE_REPOS = {
   # fedora 6
   'fedora-6-base-source': {
     'name': 'fedora-6-base-source',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/core/6/source/SRPMS/'
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/core/6/source/SRPMS/'
   },
   'fedora-6-updates-source': {
     'name': 'fedora-6-updates-source',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/core/updates/6/SRPMS/',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/core/updates/6/SRPMS/',
   },
   # fedora 7
   #'fedora-7-base-source': {
   #  'name': 'fedora-7-base-source',
-  #  'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/7/Fedora/source/SRPMS/',
+  #  'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/releases/7/Fedora/source/SRPMS/',
   #},
   'fedora-7-base-source': {
     'name': 'fedora-7-base-source',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/7/Everything/source/SRPMS/',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/releases/7/Everything/source/SRPMS/',
   },
   'fedora-7-updates-source': {
     'name': 'fedora-7-updates-source',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/updates/7/SRPMS/',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/updates/7/SRPMS/',
   },
   # fedora 8
   #'fedora-8-base-source': {
   #  'name': 'fedora-8-base-source',
-  #  'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/8/Fedora/source/SRPMS/',
+  #  'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/releases/8/Fedora/source/SRPMS/',
   #},
   'fedora-8-base-source': {
     'name': 'fedora-8-base-source',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/8/Everything/source/SRPMS/',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/releases/8/Everything/source/SRPMS/',
   },
   'fedora-8-updates-source': {
     'name': 'fedora-8-updates-source',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/updates/8/SRPMS/',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/updates/8/SRPMS/',
   },
   # redhat 5
   'redhat-5-base-source': {
     'name': 'redhat-5-base-source',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/redhat/5/os/SRPMS/',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/redhat/5/os/SRPMS/',
   },
   # centos 5
   'centos-5-base-source': {
     'name': 'centos-5-base-source',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/centos/5/os/SRPMS/',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/centos/5/os/SRPMS/',
   },
   'centos-5-updates-source': {
     'name': 'centos-5-updates-source',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/centos/5/updates/SRPMS/',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/centos/5/updates/SRPMS/',
   },
 }

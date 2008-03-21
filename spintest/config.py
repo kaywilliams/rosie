@@ -91,61 +91,61 @@ REPOS = {
   # fedora 6
   'fedora-6-base': {
     'name': 'fedora-6-base',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/core/6/%(arch)s/os/',
-    'gpgkey':  'http://www.renditionsoftware.com/open_software/fedora/core/6/%(arch)s/os/RPM-GPG-KEY-fedora',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/core/6/%(arch)s/os/',
+    'gpgkey':  'http://www.renditionsoftware.com/mirrors/fedora/core/6/%(arch)s/os/RPM-GPG-KEY-fedora',
   },
   'fedora-6-updates': {
     'name': 'fedora-6-updates',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/core/updates/6/%(arch)s/',
-    'gpgkey':  'http://www.renditionsoftware.com/open_software/fedora/core/6/%(arch)s/os/RPM-GPG-KEY-fedora',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/core/updates/6/%(arch)s/',
+    'gpgkey':  'http://www.renditionsoftware.com/mirrors/fedora/core/6/%(arch)s/os/RPM-GPG-KEY-fedora',
   },
   # fedora 7
   'fedora-7-base': {
     'name': 'fedora-7-base',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/7/Fedora/%(arch)s/os/',
-    'gpgkey':  'http://www.renditionsoftware.com/open_software/fedora/releases/7/Fedora/%(arch)s/os/RPM-GPG-KEY-fedora',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/releases/7/Fedora/%(arch)s/os/',
+    'gpgkey':  'http://www.renditionsoftware.com/mirrors/fedora/releases/7/Fedora/%(arch)s/os/RPM-GPG-KEY-fedora',
   },
   'fedora-7-updates': {
     'name': 'fedora-7-updates',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/updates/7/%(arch)s/',
-    'gpgkey':  'http://www.renditionsoftware.com/open_software/fedora/releases/7/Fedora/%(arch)s/os/RPM-GPG-KEY-fedora',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/updates/7/%(arch)s/',
+    'gpgkey':  'http://www.renditionsoftware.com/mirrors/fedora/releases/7/Fedora/%(arch)s/os/RPM-GPG-KEY-fedora',
   },
   'fedora-7-everything': {
     'name': 'fedora-7-everything',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/7/Everything/%(arch)s/os/',
-    'gpgkey':  'http://www.renditionsoftware.com/open_software/fedora/releases/7/Fedora/%(arch)s/os/RPM-GPG-KEY-fedora',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/releases/7/Everything/%(arch)s/os/',
+    'gpgkey':  'http://www.renditionsoftware.com/mirrors/fedora/releases/7/Fedora/%(arch)s/os/RPM-GPG-KEY-fedora',
   },
   # fedora 8
   'fedora-8-base': {
     'name': 'fedora-8-base',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/8/Fedora/%(arch)s/os/',
-    'gpgkey':  'http://www.renditionsoftware.com/open_software/fedora/releases/8/Fedora/%(arch)s/os/RPM-GPG-KEY-fedora',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/releases/8/Fedora/%(arch)s/os/',
+    'gpgkey':  'http://www.renditionsoftware.com/mirrors/fedora/releases/8/Fedora/%(arch)s/os/RPM-GPG-KEY-fedora',
   },
   'fedora-8-updates': {
     'name': 'fedora-8-updates',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/updates/8/%(arch)s/',
-    'gpgkey':  'http://www.renditionsoftware.com/open_software/fedora/releases/8/Fedora/%(arch)s/os/RPM-GPG-KEY-fedora',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/updates/8/%(arch)s/',
+    'gpgkey':  'http://www.renditionsoftware.com/mirrors/fedora/releases/8/Fedora/%(arch)s/os/RPM-GPG-KEY-fedora',
   },
   'fedora-8-everything': {
     'name': 'fedora-8-everything',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/fedora/releases/8/Everything/%(arch)s/os',
-    'gpgkey':  'http://www.renditionsoftware.com/open_software/fedora/releases/8/Fedora/%(arch)s/os/RPM-GPG-KEY-fedora',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/releases/8/Everything/%(arch)s/os',
+    'gpgkey':  'http://www.renditionsoftware.com/mirrors/fedora/releases/8/Fedora/%(arch)s/os/RPM-GPG-KEY-fedora',
   },
   # redhat 5
   'redhat-5-base': {
     'name': 'redhat-5-base',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/redhat/5/os/%(arch)s/Server/',
-    'gpgkey':  'http://www.renditionsoftware.com/open_software/redhat/5/os/%(arch)s/RPM-GPG-KEY-redhat-release',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/redhat/5/os/%(arch)s/Server/',
+    'gpgkey':  'http://www.renditionsoftware.com/mirrors/redhat/5/os/%(arch)s/RPM-GPG-KEY-redhat-release',
   },
   # centos 5
   'centos-5-base': {
     'name': 'centos-5-base',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/centos/5/os/%(arch)s/',
-    'gpgkey':  'http://www.renditionsoftware.com/open_software/centos/5/os/%(arch)s/RPM-GPG-KEY-CentOS-5',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/centos/5/os/%(arch)s/',
+    'gpgkey':  'http://www.renditionsoftware.com/mirrors/centos/5/os/%(arch)s/RPM-GPG-KEY-CentOS-5',
   },
   'centos-5-updates': {
     'name': 'centos-5-updates',
-    'baseurl': 'http://www.renditionsoftware.com/open_software/centos/5/updates/%(arch)s/',
-    'gpgkey':  'http://www.renditionsoftware.com/open_software/centos/5/os/%(arch)s/RPM-GPG-KEY-CentOS-5',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/centos/5/updates/%(arch)s/',
+    'gpgkey':  'http://www.renditionsoftware.com/mirrors/centos/5/os/%(arch)s/RPM-GPG-KEY-CentOS-5',
   }
 }
