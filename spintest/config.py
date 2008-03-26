@@ -134,8 +134,8 @@ REPOS = {
   # redhat 5
   'redhat-5-base': {
     'name': 'redhat-5-base',
-    'baseurl': 'http://www.renditionsoftware.com/mirrors/redhat/5/os/%(arch)s/Server/',
-    'gpgkey':  'http://www.renditionsoftware.com/mirrors/redhat/5/os/%(arch)s/RPM-GPG-KEY-redhat-release',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/redhat/linux/enterprise/5Server/en/os/%(arch)s/Server/',
+    'gpgkey':  'http://www.renditionsoftware.com/mirrors/redhat/linux/enterprise/5Server/en/os/%(arch)s/RPM-GPG-KEY-redhat-release',
   },
   # centos 5
   'centos-5-base': {
