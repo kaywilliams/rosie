@@ -50,6 +50,7 @@ class InitrdImageEvent(Event, ImageModifyMixin):
 
   def setup(self):
     self.diff.setup(self.DATA)
+    self.DATA['input'].append(self.cvars['buildstamp-file'])
     if self.cvars['kickstart-file']:
       self.DATA['input'].append(self.cvars['kickstart-file'])
     self.image_locals = self.locals.files['isolinux']['initrd.img']
