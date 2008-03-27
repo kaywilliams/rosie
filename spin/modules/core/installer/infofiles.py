@@ -61,7 +61,7 @@ class DiscinfoEvent(Event):
     distro_vars = copy.deepcopy(self.cvars['distro-info'])
 
     # add timestamp and discs using defaults to match anaconda makestamp.py
-    distro_vars.update({'timestamp': str(time.time()), 'discs': '1'})
+    distro_vars.update({'timestamp': str(time.time()), 'discs': 'ALL'})
 
     # write .discinfo
     self.difile.dirname.mkdirs()
