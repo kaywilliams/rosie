@@ -106,7 +106,7 @@ SOURCE_REPOS = {
   # redhat 5
   'redhat-5-base-source': {
     'name': 'redhat-5-base-source',
-    'baseurl': 'http://www.renditionsoftware.com/mirrors/redhat/5/os/SRPMS/',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/redhat/linux/enterprise/5server/en/os/SRPMS/',
   },
   # centos 5
   'centos-5-base-source': {
