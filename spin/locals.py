@@ -116,6 +116,11 @@ DISCINFO_FORMAT_LOCALS = LocalsDict({
     'rpms':      dict(index=5, string='%(productpath)s'),
     'pixmaps':   dict(index=6, string='%(productpath)s/pixmaps'),
   },
+  '11.4.0.55': {
+    'base':      REMOVE,
+    'rpms':      REMOVE,
+    'pixmaps':   REMOVE,
+  },
 })
 
 BUILDSTAMP_FORMAT_LOCALS = LocalsDict({
