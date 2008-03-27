@@ -323,6 +323,7 @@ FOLDER_MAPPING = {
   'Fedora': {
     '7': 'f7',
     '8': 'f8',
+    '9': 'f8',
   },
   'Red Hat Enterprise Linux Server': {
     '5': 'r5',
