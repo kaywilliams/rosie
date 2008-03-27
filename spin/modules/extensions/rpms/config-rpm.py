@@ -36,6 +36,9 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       provides = ['custom-rpms-data']
     )
 
+    self.scriptdir = '/usr/lib/%s' % self.product
+    self.filedir   = '/usr/share/%s/files' % self.product
+
     RpmBuildMixin.__init__(self,
       '%s-config' % self.product,
       "The %s-config provides scripts and supporting files for configuring "
@@ -45,8 +48,8 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     )
 
     InputFilesMixin.__init__(self, {
-      'scripts' : ('script', '/usr/lib/%s' % self.product, '755', True),
-      'files': ('file', '/usr/share/%s/files' % self.product, None, False)
+      'scripts' : ('script', self.scriptdir, '755', True),
+      'files': ('file', self.filedir, None, False)
     })
 
     self.DATA = {
@@ -95,6 +98,8 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     if config_scripts:
       self.auto_script = self.build_folder / 'usr/lib/%s/auto.sh' % self.product
       self.auto_script.dirname.mkdirs()
+      self.auto_script.write_lines(['export CFGRPM_SCRIPTS=%s' % self.scriptdir])
+      self.auto_script.write_lines(['export CFGRPM_FILES=%s' % self.filedir])
       self.auto_script.write_lines(config_scripts)
       self.auto_script.chmod(0755)
 
