@@ -102,6 +102,15 @@ class PublishEvent(Event):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
     self.log(1, L1("publishing to '%s'" % self.cvars['publish-path']))
 
+    # remove input diffs from output folder prior to sync since sync doesn't 
+    # (currently) support replacing newer timestamp files with older ones
+    diffs = self.diff.handlers['input'].diffdict.keys()
+    if diffs:
+      for diff in diffs:
+        for i in self.cvars['publish-content']:
+          if diff.startswith(i):
+            (self.cvars['publish-path'] / diff.relpathfrom(i.dirname)).rm(force=True)
+
     # using link w/strict rather than io.sync to remove files outside the mddir
     self.cvars['publish-path'].mkdirs()
     for path in self.cvars['publish-content']:
