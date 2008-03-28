@@ -98,8 +98,8 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     if config_scripts:
       self.auto_script = self.build_folder / 'usr/lib/%s/auto.sh' % self.product
       self.auto_script.dirname.mkdirs()
-      self.auto_script.write_lines(['export CFGRPM_SCRIPTS=%s' % self.scriptdir])
-      self.auto_script.write_lines(['export CFGRPM_FILES=%s' % self.filedir])
+      self.auto_script.write_lines(['export CFGRPM_SCRIPTS=%s' % self.scriptdir,
+                                    'export CFGRPM_FILES=%s' % self.filedir])
       self.auto_script.write_lines(config_scripts)
       self.auto_script.chmod(0755)
 
