@@ -254,7 +254,7 @@ class IDepsolver(Depsolver):
             if req[0] == pkgtup[0]:
               if req[1] is None:
                 continue
-              if type(req[1]) != type(''):
+              if not (isinstance(req[1], str) or isinstance(req[1], unicode)):
                 flag = rpmUtils.miscutils.flagToString(req[1])
               else:
                 flag = req[1]
