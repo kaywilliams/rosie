@@ -53,8 +53,8 @@ class BaseInfoEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    initrd_in=self.cvars['repos'][self.cvars['base-repoid']].osdir/\
-              self.locals.files['isolinux']['initrd.img']['path']
+    initrd_in=( self.cvars['repos'][self.cvars['base-repoid']].osdir /
+                self.locals.L_FILES['isolinux']['initrd.img']['path'] )
 
     self.io.add_fpath(initrd_in, self.mddir, id='initrd.img')
     self.initrd_out = self.io.list_output(what='initrd.img')[0]
@@ -68,7 +68,7 @@ class BaseInfoEvent(Event):
     self.io.sync_input(cache=True, callback=Event.link_callback, text=None)
 
     # extract buildstamp
-    image = self.locals.files['isolinux']['initrd.img']
+    image = self.locals.L_FILES['isolinux']['initrd.img']
     self.image = img.MakeImage(self.initrd_out, image['format'], image.get('zipped', False))
     self.image.open('r')
     self.image.read('.buildstamp', self.mddir)
@@ -81,7 +81,7 @@ class BaseInfoEvent(Event):
   def apply(self):
     self.io.clean_eventcache()
     # parse buildstamp
-    buildstamp = ffile.DictToFormattedFile(self.locals.buildstamp_fmt)
+    buildstamp = ffile.DictToFormattedFile(self.locals.L_BUILDSTAMP_FORMAT)
     # update base vars
     try:
       self.cvars['base-info'] = buildstamp.read(self.buildstamp_out)

@@ -59,7 +59,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
 
   def setup(self):
     self.DATA['input'].append(self.cvars['buildstamp-file'])
-    self.image_locals = self.locals.files['installer']['product.img']
+    self.image_locals = self.locals.L_FILES['installer']['product.img']
     ImageModifyMixin.setup(self)
 
   def run(self):
@@ -78,7 +78,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
   def _generate_installclass(self):
     comps = xmllib.tree.read(self.cvars['comps-file'])
 
-    installclass = self.locals.installclass % \
+    installclass = self.locals.L_INSTALLCLASS % \
       dict( all_groups     = comps.xpath('//group/id/text()'),
             default_groups = comps.xpath('//group[default/text() = "true"]/id/text()') )
 

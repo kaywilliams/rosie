@@ -28,12 +28,18 @@ class LocalsObject:
 
   ver = property(lambda self: self.ptr.cvars['anaconda-version'])
 
-  files            = property(lambda self: L_FILES[self.ver])
-  buildstamp_fmt   = property(lambda self: L_BUILDSTAMP_FORMAT[self.ver])
-  discinfo_fmt     = property(lambda self: L_DISCINFO_FORMAT[self.ver])
-  treeinfo_fmt     = property(lambda self: L_TREEINFO_FORMAT[self.ver])
-  logos            = property(lambda self: L_LOGOS[self.ver])
-  installclass     = property(lambda self: L_INSTALLCLASS[self.ver])
-  release_html     = property(lambda self: L_RELEASE_HTML[self.ver])
-  gdm_custom_theme = property(lambda self: L_GDM_CUSTOM_THEME[self.ver])
-  logos_files      = property(lambda self: L_LOGOS_RPM_FILES[self.ver])
+  L_FILES             = property(lambda self: L_FILES[self.ver])
+  L_BUILDSTAMP_FORMAT = property(lambda self: L_BUILDSTAMP_FORMAT[self.ver])
+  L_DISCINFO_FORMAT   = property(lambda self: L_DISCINFO_FORMAT[self.ver])
+  L_TREEINFO_FORMAT   = property(lambda self: L_TREEINFO_FORMAT[self.ver])
+  L_LOGOS             = property(lambda self: L_LOGOS[self.ver])
+  L_INSTALLCLASS      = property(lambda self: L_INSTALLCLASS[self.ver])
+  L_RELEASE_HTML      = property(lambda self: L_RELEASE_HTML[self.ver])
+  L_GDM_CUSTOM_THEME  = property(lambda self: L_GDM_CUSTOM_THEME[self.ver])
+  L_LOGOS_RPM_FILES   = property(lambda self: L_LOGOS_RPM_FILES[self.ver])
+
+# set up locals.L_* variables from local data
+#for (attr, value) in globals().items():
+#  if attr.startswith('L_'):
+#    setattr(LocalsObject, attr, property(lambda self: value[self.ver]))
+

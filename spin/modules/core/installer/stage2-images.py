@@ -39,7 +39,7 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.file_locals = self.locals.files['stage2']
+    self.file_locals = self.locals.L_FILES['stage2']
     FileDownloadMixin.setup(self)
 
   def run(self):

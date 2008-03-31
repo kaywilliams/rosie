@@ -136,7 +136,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       path = dir/('RELEASE-NOTES-%s.html' % locale.getdefaultlocale()[0])
 
       f = path.open('w')
-      f.write(self.locals.release_html)
+      f.write(self.locals.L_RELEASE_HTML)
       f.close()
       path.chmod(0644)
 

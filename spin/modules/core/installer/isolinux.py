@@ -46,7 +46,7 @@ class IsolinuxEvent(Event, FileDownloadMixin, BootConfigMixin):
     boot_arg_defaults = []
     self.bootconfig._process_ks(boot_arg_defaults)
     self.bootconfig.setup(defaults=boot_arg_defaults)
-    self.file_locals = self.locals.files['isolinux']
+    self.file_locals = self.locals.L_FILES['isolinux']
     FileDownloadMixin.setup(self)
 
   def run(self):

@@ -32,21 +32,21 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'diskboot-image',
-      version = 2,
+      version = 1,
       provides = ['diskboot.img'],
       requires = ['buildstamp-file', 'base-repoid', 'installer-splash',
                   'isolinux-files'],
-      conditionally_requires = ['diskboot-image-content', 'web-path', 
+      conditionally_requires = ['diskboot-image-content', 'web-path',
                                 'boot-args', 'ks-path'],
     )
-     
+
     self.DATA = {
       'variables': ['cvars[\'anaconda-version\']', 'cvars[\'ks-path\']'],
       'config':    ['.'],
       'input':     [],
       'output':    [],
     }
-    
+
     ImageModifyMixin.__init__(self, 'diskboot.img')
     BootConfigMixin.__init__(self)
 
@@ -56,25 +56,25 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     except:
       pass
     Event.error(self, e)
-  
+
   def setup(self):
     self.DATA['input'].extend([
       self.cvars['installer-splash'],
       self.cvars['isolinux-files']['initrd.img'],
     ])
-    
-    self.image_locals = self.locals.files['installer']['diskboot.img']
+
+    self.image_locals = self.locals.L_FILES['installer']['diskboot.img']
     self.bootconfig.setup(defaults=['nousbstorage'], include_method=True, include_ks=True)
     ImageModifyMixin.setup(self)
-    
+
   def run(self):
     self._modify()
-  
+
   def _generate(self):
     ImageModifyMixin._generate(self)
     self.image.write(self.cvars['installer-splash'], '/')
     self.image.write(self.cvars['isolinux-files']['initrd.img'], '/')
-    
+
     # hack to modify boot args in syslinux.cfg file
     for file in self.image.list():
       if file.basename == 'syslinux.cfg':

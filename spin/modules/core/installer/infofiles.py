@@ -54,7 +54,7 @@ class DiscinfoEvent(Event):
 
   def run(self):
     # create empty .discinfo formatted file object
-    discinfo = ffile.DictToFormattedFile(self.locals.discinfo_fmt)
+    discinfo = ffile.DictToFormattedFile(self.locals.L_DISCINFO_FORMAT)
 
     # get product, fullname, and basearch from cvars
     distro_vars = copy.deepcopy(self.cvars['distro-info'])
@@ -104,9 +104,9 @@ class TreeinfoEvent(Event):
     vars.update({'timestamp': str(time.time())})
 
     # generate .treeinfo lines
-    for section in sort_keys(self.locals.treeinfo_fmt):
+    for section in sort_keys(self.locals.L_TREEINFO_FORMAT):
       lines.append('[%s]' % section % vars)
-      content = self.locals.treeinfo_fmt[section]['content']
+      content = self.locals.L_TREEINFO_FORMAT[section]['content']
       for item in sort_keys(content):
         lines.append('%s = %s' % (item % vars, content[item]['value'] % vars))
       lines.append('')
@@ -152,7 +152,7 @@ class BuildstampEvent(Event):
   def run(self):
     "Generate a .buildstamp file."
 
-    buildstamp = ffile.DictToFormattedFile(self.locals.buildstamp_fmt)
+    buildstamp = ffile.DictToFormattedFile(self.locals.L_BUILDSTAMP_FORMAT)
 
     distro_vars = copy.deepcopy(self.cvars['base-info'])
     distro_vars.update(self.cvars['distro-info'])

@@ -61,9 +61,9 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
       self.DATA['input'].append(self.cvars['kickstart-file'])
     self.diff.setup(self.DATA)
 
-    self.image_locals = self.locals.files['xen']['initrd-xen']
+    self.image_locals = self.locals.L_FILES['xen']['initrd-xen']
     ImageModifyMixin.setup(self)
-    self.file_locals = self.locals.files['xen']
+    self.file_locals = self.locals.L_FILES['xen']
     FileDownloadMixin.setup(self)
 
     # add input files from initrd.img

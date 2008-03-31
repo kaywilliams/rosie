@@ -46,11 +46,11 @@ class LogosEvent(Event, ExtractMixin):
     }
 
   def setup(self):
-    self.format = self.locals.logos['splash-image']['format']
-    self.filename = self.locals.logos['splash-image']['filename']
-    if self.locals.logos['splash-image'].has_key('output'):
+    self.format   = self.locals.L_LOGOS['splash-image']['format']
+    self.filename = self.locals.L_LOGOS['splash-image']['filename']
+    if self.locals.L_LOGOS['splash-image'].has_key('output'):
       self.splash = self.SOFTWARE_STORE/'isolinux/%s' % \
-                    self.locals.logos['splash-image']['output']
+                    self.locals.L_LOGOS['splash-image']['output']
     else:
       self.splash = self.SOFTWARE_STORE/'isolinux/splash.%s' % self.format
     self.DATA['input'].extend(self._find_rpms())

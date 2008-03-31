@@ -58,7 +58,7 @@ class BootisoEvent(Event, BootConfigMixin):
 
     # modify isolinux.cfg
     self.bootconfig.modify(
-      isodir/self.locals.files['isolinux']['isolinux.cfg']['path'])
+      isodir/self.locals.L_FILES['isolinux']['isolinux.cfg']['path'])
 
     # apparently mkisofs modifies the mtime of the file it uses as a boot image.
     # to avoid this, we copy the boot image timestamp and overwrite the original

@@ -48,7 +48,7 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     Event.error(self, e)
 
   def setup(self):
-    self.image_locals = self.locals.files['installer']['updates.img']
+    self.image_locals = self.locals.L_FILES['installer']['updates.img']
     ImageModifyMixin.setup(self)
 
   def run(self):
