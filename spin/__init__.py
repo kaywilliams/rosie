@@ -31,7 +31,7 @@ Modular-style system allows easy customization of the build process.  It is
 simple to enable or disable entire modules by adding or removing them from a
 modules/ directory, or by making an entry in the configuration file.  It is
 also easy to extend the basic spin system by writing your own modules that
-implement the spin module interface.  
+implement the spin module interface.
 
 Support for multiple platform builds - spin is capable of building a
 distribution based on any version of anaconda from 10.x onward depending on

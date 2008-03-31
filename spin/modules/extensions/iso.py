@@ -139,9 +139,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     self.DATA['input'].append(self.cvars['pkgorder-file'])
     self.DATA['input'].append(self.cvars['manifest-file'])
 
-    default_boot_args = ['method=cdrom']
-    self.bootconfig._process_ks(default_boot_args)
-    self.bootconfig.setup(defaults=default_boot_args)
+    self.bootconfig.setup(defaults=['method=cdrom'], include_ks=True)
 
   def run(self):
     oldsets = None

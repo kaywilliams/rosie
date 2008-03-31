@@ -24,11 +24,10 @@ generates distribution information files: .discinfo, .treeinfo, and .buildstamp
 import copy
 import time
 
-from ConfigParser import ConfigParser
-
 from rendition import FormattedFile as ffile
 
-from spin.event   import Event
+from spin.event  import Event
+from spin.locals import sort_keys
 
 API_VERSION = 5.0
 EVENTS = {'installer': ['DiscinfoEvent', 'TreeinfoEvent', 'BuildstampEvent']}
@@ -98,38 +97,25 @@ class TreeinfoEvent(Event):
     self.diff.setup(self.DATA)
 
   def run(self):
-    treeinfo = ConfigParser()
+    lines = []
 
-    # generate treeinfo sections
-    treeinfo.add_section('general')
-    treeinfo.set('general', 'family',     self.product)
-    treeinfo.set('general', 'timestamp',  time.time())
-    treeinfo.set('general', 'variant',    self.product)
-    treeinfo.set('general', 'totaldiscs', '1')
-    treeinfo.set('general', 'version',    self.version)
-    treeinfo.set('general', 'discnum',    '1')
-    treeinfo.set('general', 'packagedir', self.productpath)
-    treeinfo.set('general', 'arch',       self.basearch)
+    # add timestamp to base vars (doesn't have to match .discinfo's timestamp)
+    vars = copy.deepcopy(self.cvars['distro-info'])
+    vars.update({'timestamp': str(time.time())})
 
-    # this probably needs to be versioned
-    imgsect = 'images-%s' % self.basearch
-    treeinfo.add_section(imgsect)
-    treeinfo.set(imgsect, 'kernel',       'images/pxeboot/vmlinux')
-    treeinfo.set(imgsect, 'initrd',       'images/pxeboot/initrd.img')
-    treeinfo.set(imgsect, 'boot.iso',     'images/boot.ixo')
-    treeinfo.set(imgsect, 'diskboot.img', 'images/diskboot.img')
-
-    treeinfo.add_section('images-xen')
-    treeinfo.set('images-xen', 'kernel', 'images/xen/vmlinuz')
-    treeinfo.set('images-xen', 'initrd', 'images/xen/initrd.img')
+    # generate .treeinfo lines
+    for section in sort_keys(self.locals.treeinfo_fmt):
+      lines.append('[%s]' % section % vars)
+      content = self.locals.treeinfo_fmt[section]['content']
+      for item in sort_keys(content):
+        lines.append('%s = %s' % (item % vars, content[item]['value'] % vars))
+      lines.append('')
 
     # write .treeinfo
     self.tifile.dirname.mkdirs()
     if not self.tifile.exists():
       self.tifile.touch()
-    tiflo = self.tifile.open('w')
-    treeinfo.write(tiflo)
-    tiflo.close()
+    self.tifile.write_lines(lines)
     self.tifile.chmod(0644)
 
     self.diff.write_metadata()

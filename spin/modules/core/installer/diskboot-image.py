@@ -64,10 +64,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     ])
     
     self.image_locals = self.locals.files['installer']['diskboot.img']
-    boot_arg_defaults = ['nousbstorage']
-    self.bootconfig._process_method(boot_arg_defaults)
-    self.bootconfig._process_ks(boot_arg_defaults)
-    self.bootconfig.setup(defaults=boot_arg_defaults)
+    self.bootconfig.setup(defaults=['nousbstorage'], include_method=True, include_ks=True)
     ImageModifyMixin.setup(self)
     
   def run(self):

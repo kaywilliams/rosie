@@ -33,13 +33,20 @@ class BootConfigDummy(object):
     self.boot_args = None
     self._macros = {}
 
-  def setup(self, defaults=None):
+  def setup(self, defaults=None, include_method=False, include_ks=False):
     self.boot_args = self.ptr.config.get('boot-config/append-args/text()', '').split()
-    if defaults:
-      for karg in defaults:
-        self._macros['%%{%s}' % karg.split('=')[0]] = karg
-      if self.ptr.config.get('boot-config/@use-defaults', 'True') in BOOLEANS_TRUE:
-        self.boot_args.extend(defaults)
+
+    args = defaults or []
+
+    if include_method: self._process_method(args)
+    if include_ks:     self._process_ks(args)
+
+    for karg in args:
+      self._macros['%%{%s}' % karg.split('=')[0]] = karg
+
+    if self.ptr.config.get('boot-config/@use-defaults', 'True') in BOOLEANS_TRUE:
+      self.boot_args.extend(args)
+
     if self.ptr.cvars['boot-args']:
       self.boot_args.append(self.cvars['boot-args'].split())
 
