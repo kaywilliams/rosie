@@ -39,7 +39,7 @@ class LocalsObject:
   L_LOGOS_RPM_FILES   = property(lambda self: L_LOGOS_RPM_FILES[self.ver])
 
 # set up locals.L_* variables from local data
-#for (attr, value) in globals().items():
+#for attr in globals().keys():
 #  if attr.startswith('L_'):
-#    setattr(LocalsObject, attr, property(lambda self: value[self.ver]))
+#    setattr(LocalsObject, attr, property(lambda self: globals()[attr][self.ver]))
 

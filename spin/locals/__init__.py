@@ -130,7 +130,7 @@ for file in pps.Path(__file__).dirname.listdir('*.py').filter('__init__.py'):
   fp = None
   try:
     fp,p,d = imp.find_module(modname, [file.dirname])
-    module = imp.load_module(modname, fp, p, d)
+    module = imp.load_module('l_'+modname, fp, p, d) # avoid name clobbering
     # add locals to global namespace
     for attr in module.__all__:
       globals()[attr] = getattr(module, attr)
