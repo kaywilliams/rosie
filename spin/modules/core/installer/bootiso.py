@@ -29,8 +29,7 @@ class BootisoEvent(Event, BootConfigMixin):
     Event.__init__(self,
       id = 'bootiso',
       requires = ['isolinux-files', 'boot-config-file'],
-      conditionally_requires = ['installer-splash', 'web-path', 'boot-args',
-                                'ks-path'],
+      conditionally_requires = ['web-path', 'boot-args', 'ks-path'],
     )
 
     self.bootiso = self.SOFTWARE_STORE/'images/boot.iso'

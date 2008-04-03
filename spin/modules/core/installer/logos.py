@@ -33,7 +33,7 @@ class LogosEvent(Event, ExtractMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'logos',
-      provides = ['installer-splash', 'product-image-content'],
+      provides = ['isolinux-files', 'product-image-content'],
       requires = ['rpms-directory', 'anaconda-version'],
       conditionally_comes_after = ['gpgsign'],
     )
@@ -62,7 +62,7 @@ class LogosEvent(Event, ExtractMixin):
   def apply(self):
     self.io.clean_eventcache()
 
-    self.cvars['installer-splash'] = self.splash
+    self.cvars['isolinux-files']['installer-splash'] = self.splash
     if (self.mddir/'pixmaps').exists(): # caught by verification
       self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
         (self.mddir/'pixmaps').listdir())

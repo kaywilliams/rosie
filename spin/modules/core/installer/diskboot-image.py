@@ -34,8 +34,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
       id = 'diskboot-image',
       version = 1,
       provides = ['diskboot.img'],
-      requires = ['buildstamp-file', 'base-repoid', 'installer-splash',
-                  'isolinux-files'],
+      requires = ['buildstamp-file', 'base-repoid', 'isolinux-files'],
       conditionally_requires = ['diskboot-image-content', 'web-path',
                                 'boot-args', 'ks-path'],
     )
@@ -59,7 +58,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
 
   def setup(self):
     self.DATA['input'].extend([
-      self.cvars['installer-splash'],
+      self.cvars['isolinux-files']['installer-splash'],
       self.cvars['isolinux-files']['initrd.img'],
     ])
 
@@ -72,7 +71,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
 
   def _generate(self):
     ImageModifyMixin._generate(self)
-    self.image.write(self.cvars['installer-splash'], '/')
+    self.image.write(self.cvars['isolinux-files']['installer-splash'], '/')
     self.image.write(self.cvars['isolinux-files']['initrd.img'], '/')
 
     # hack to modify boot args in syslinux.cfg file
