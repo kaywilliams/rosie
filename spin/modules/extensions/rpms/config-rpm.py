@@ -101,7 +101,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       self.auto_script.dirname.mkdirs()
       self.auto_script.write_lines(['export CFGRPM_SCRIPTS=%s' % self.scriptdir,
                                     'export CFGRPM_FILES=%s' % self.filedir])
-      self.auto_script.write_lines(config_scripts)
+      self.auto_script.write_lines(config_scripts, append=True)
       self.auto_script.chmod(0755)
 
   def _get_post_install_script(self):
@@ -113,8 +113,8 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     if self.file_ids:
       for id in self.file_ids:
         for support_file in self.io.list_output(id):
-          src = P('/%s') % support_file.relpathfrom(self.build_folder).normpath()
-          dst = P('/%s') % src.relpathfrom(self.install_info['files'][1]).normpath()
+          src = '/' / support_file.relpathfrom(self.build_folder)
+          dst = '/' / src.relpathfrom(self.install_info['files'][1])
           dir = dst.dirname
           lines.extend([
             'if [ -e %s ]; then' % dst,
@@ -155,4 +155,3 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       post_uninstall.write_lines(lines)
       return post_uninstall
     return None
-

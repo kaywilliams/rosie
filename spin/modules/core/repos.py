@@ -17,6 +17,8 @@
 #
 import re
 
+from rendition.versort import Version
+
 from spin.event    import Event
 from spin.logging  import L1, L2
 from spin.validate import InvalidConfigError
@@ -89,7 +91,7 @@ class ReposEvent(Event, RepoEventMixin):
         anaconda_version = get_package_version(['anaconda'], repo.pkgsfile)
         if anaconda_version is not None:
           name, version = anaconda_version
-          self.cvars['anaconda-version'] = version
+          self.cvars['anaconda-version'] = Version(version)
         else:
           raise ValueError("unable to compute anaconda version from distro metadata")
 

@@ -20,7 +20,8 @@ import os
 import sys
 
 from rendition import execlib
-from rendition import sortlib
+
+from rendition.versort import Version
 
 from spin.constants import BOOLEANS_TRUE
 from spin.logging   import L1
@@ -94,20 +95,11 @@ class CreateRepoMixin:
 class RpmNotFoundError(IOError): pass
 
 def RpmPackageVersion(name):
-  try:
-    version = execlib.execute('rpm -q --queryformat="%%{version}" %s' % name)[0]
-  except:
-    raise
-  else:
-    return version
+  return Version(
+    execlib.execute('rpm -q --queryformat="%%{version}" %s' % name)[0])
 
 def CommandLineVersion(name, flag='--version'):
-  try:
-    version = execlib.execute('%s %s' % (name, flag))[0]
-  except:
-    raise
-  else:
-    return version
+  return Version(execlib.execute('%s %s' % (name, flag))[0])
 
 # figure out if createrepo can accept the '--update' and '--database'
 # flags
@@ -118,22 +110,18 @@ try:
 except (execlib.ExecuteError, IndexError), e:
   raise ImportError("missing 'createrepo' package")
 else:
-  check_version = sortlib.dcompare(binary_version, '0.4.9')
-  if check_version == -1:
+  if binary_version < '0.4.9':
     # can't accept '--update'
     UPDATE_ALLOWED = False
-  elif check_version == 0:
+  elif binary_version == '0.4.9':
     # need to check rpm version because createrepo RPMs 0.4.9 and
     # 0.4.10, both report their createrepo version as
     # 0.4.9. Createrepo RPM 0.4.10 supports '--update'.
     try:
-      rpm_version = RpmPackageVersion('createrepo')
-      if sortlib.dcompare(rpm_version, '0.4.10') == -1:
+      if RpmPackageVersion('createrepo') < '0.4.10':
         UPDATE_ALLOWED = False
     except RpmNotFoundError:
       UPDATE_ALLOWED = False
 
-  check_version = sortlib.dcompare(binary_version, '0.4.7')
-  if check_version == -1:
-    # can't accept '--database' flag
+  if binary_version < '0.4.7':
     DATABASE_ALLOWED = False

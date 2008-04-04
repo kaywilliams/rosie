@@ -29,7 +29,7 @@ the standard dict object.
 import imp
 
 from rendition import pps
-from rendition import sortlib
+from rendition import versort
 
 # local data imports happen at bottom to avoid circular refs
 
@@ -62,10 +62,10 @@ class LocalsDict(dict):
   need only create key, value pairs for anaconda versions where the relevant
   property in question changed in some way; all other versions can be ignored.
 
-  LocalsDict uses sortlib for sorting of keys; as such, keys should consist
+  LocalsDict uses versort for sorting of keys; as such, keys should consist
   of one or more integers separated by decimals ('.').  Sorting occurs exactly
   how one would logically expect rpm version numbers to sort (4.0 > 3.0.0,
-  4.1 > 4.0.1, etc).  See sortlib.py for a full discussion of how indexes are
+  4.1 > 4.0.1, etc).  See versort.py for a full discussion of how indexes are
   sorted.
 
   Subsequent keys after the first provide updates to the values in previous
@@ -82,9 +82,9 @@ class LocalsDict(dict):
 
   def __getitem__(self, key):
     ret = {}
-    for index in sortlib.dsort(self.keys()):
-      if sortlib.dcompare(index, key) <= 0:
-        ret = rupdate(ret, dict.__getitem__(self, index))
+    for index in versort.sort(self.keys()):
+      if index <= key:
+        ret = rupdate(ret, dict.__getitem__(self, str(index)))
 
     return ret
 

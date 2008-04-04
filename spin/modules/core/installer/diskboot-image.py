@@ -19,7 +19,7 @@ from StringIO import StringIO
 
 from rendition import pps
 
-from spin.event   import Event
+from spin.event import Event
 
 from spin.modules.shared import ImageModifyMixin, BootConfigMixin
 
@@ -57,6 +57,9 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     Event.error(self, e)
 
   def setup(self):
+    if self.cvars['anaconda-version'] >= '11.4.0.40':
+      return # don't make diskboot image after this revision
+
     self.DATA['input'].extend([
       self.cvars['isolinux-files']['installer-splash'],
       self.cvars['isolinux-files']['initrd.img'],
@@ -67,9 +70,15 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     ImageModifyMixin.setup(self)
 
   def run(self):
+    if self.cvars['anaconda-version'] >= '11.4.0.40':
+      return # don't make diskboot image after this revision
+
     self._modify()
 
   def _generate(self):
+    if self.cvars['anaconda-version'] >= '11.4.0.40':
+      return # don't make diskboot image after this revision
+
     ImageModifyMixin._generate(self)
     self.image.write(self.cvars['isolinux-files']['installer-splash'], '/')
     self.image.write(self.cvars['isolinux-files']['initrd.img'], '/')

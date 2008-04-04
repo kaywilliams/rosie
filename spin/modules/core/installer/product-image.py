@@ -18,7 +18,6 @@
 from StringIO import StringIO
 
 from rendition import pps
-from rendition import sortlib
 from rendition import xmllib
 
 from spin.event   import Event

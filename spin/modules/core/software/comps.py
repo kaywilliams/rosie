@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from rendition import sortlib
 from rendition import xmllib
 
 from spin.event     import Event
@@ -434,7 +433,7 @@ class CompsCategory(object):
   def __str__(self): return str(self.toXml())
 
   def toXml(self):
-    if sortlib.dcompare(self.anaconda_version, '10.2.0.14-1') < 0:
+    if self.anaconda_version < '10.2.0.14-1':
       top = Element('grouphierarchy')
       cat = Element('category', parent=top)
       Element('name', parent=cat, text=self.id)
