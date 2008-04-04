@@ -62,6 +62,7 @@ class LogosEvent(Event, ExtractMixin):
   def apply(self):
     self.io.clean_eventcache()
 
+    self.cvars.setdefault('isolinux-files', {})
     self.cvars['isolinux-files']['installer-splash'] = self.splash
     if (self.mddir/'pixmaps').exists(): # caught by verification
       self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(

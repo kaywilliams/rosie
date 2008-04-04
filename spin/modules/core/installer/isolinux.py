@@ -59,7 +59,7 @@ class IsolinuxEvent(Event, FileDownloadMixin, BootConfigMixin):
   def apply(self):
     self.io.clean_eventcache()
 
-    self.cvars['isolinux-files'] = {}
+    self.cvars.setdefault('isolinux-files', {})
     for k,v in self.file_locals.items():
       self.cvars['isolinux-files'][k] = self.SOFTWARE_STORE/v['path']
 
