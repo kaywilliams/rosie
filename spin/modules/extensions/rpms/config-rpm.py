@@ -106,8 +106,6 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
 
   def _get_post_install_script(self):
     lines = []
-    if self.auto_script:
-      lines.append('/%s' % self.auto_script.relpathfrom(self.build_folder).normpath())
 
     # move support files as needed
     if self.file_ids:
@@ -127,6 +125,10 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
             '/sbin/restorecon %s' % dst,
           ])
 
+    # add auto script, if present
+    if self.auto_script:
+      lines.append('/' / self.auto_script.relpathfrom(self.build_folder))
+
     if lines:
       post_install = self.build_folder / 'post-install.sh'
       post_install.write_lines(lines)
@@ -139,8 +141,8 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       lines.append('if [ "$1" == "0" ]; then')
       for id in self.file_ids:
         for support_file in self.io.list_output(id):
-          src = P('/%s') % support_file.relpathfrom(self.build_folder).normpath()
-          dst = P('/%s') % src.relpathfrom(self.install_info['files'][1]).normpath()
+          src = '/' / support_file.relpathfrom(self.build_folder)
+          dst = '/' / src.relpathfrom(self.install_info['files'][1])
           lines.extend([
             '  if [ -e %s.rpmsave ]; then' % dst,
             '    %%{__mv} -f %s.rpmsave %s' % (dst, dst),
