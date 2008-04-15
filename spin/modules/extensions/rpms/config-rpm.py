@@ -63,7 +63,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     self.script_count = 0
     self.files_count = 0
 
-    self.support_ids = []
+    self.file_ids = []
 
   def setup(self):
     self._setup_build()
@@ -77,12 +77,13 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       rtn = 'files-%d' % self.files_count
       self.files_count += 1
     else:
+      # should never happen
       raise RuntimeError("unknown type: '%s'" % type)
     return rtn
 
-  def _handle_attributes(self, id, item, attribs):
-    if 'dest' in attribs:
-      self.support_ids.append(id)
+  def _handle_attributes(self, id, item):
+    if 'dest' in item.attrib and item.attrib.get('dest').startswith('/'):
+      self.file_ids.append(id)
 
   def _generate(self):
     RpmBuildMixin._generate(self)
@@ -109,8 +110,8 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       lines.append('/%s' % self.auto_script.relpathfrom(self.build_folder).normpath())
 
     # move support files as needed
-    if self.support_ids:
-      for id in self.support_ids:
+    if self.file_ids:
+      for id in self.file_ids:
         for support_file in self.io.list_output(id):
           src = P('/%s') % support_file.relpathfrom(self.build_folder).normpath()
           dst = P('/%s') % src.relpathfrom(self.install_info['files'][1]).normpath()
@@ -134,9 +135,9 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
 
   def _get_post_uninstall_script(self):
     lines = []
-    if self.support_ids:
+    if self.file_ids:
       lines.append('if [ "$1" == "0" ]; then')
-      for id in self.support_ids:
+      for id in self.file_ids:
         for support_file in self.io.list_output(id):
           src = P('/%s') % support_file.relpathfrom(self.build_folder).normpath()
           dst = P('/%s') % src.relpathfrom(self.install_info['files'][1]).normpath()
