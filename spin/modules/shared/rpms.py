@@ -71,7 +71,7 @@ class InputFilesMixin:
   def _get_download_id(self, type):
     return type
 
-  def _handle_attributes(self, id, item, attribs):
+  def _handle_attributes(self, id, item):
     pass
 
 class RpmBuildMixin:
