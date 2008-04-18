@@ -84,8 +84,7 @@ class LogosRpmEvent(RpmBuildMixin, Event):
 
   def _generate(self):
     RpmBuildMixin._generate(self)
-    self.logos_handler.copy_distro_images()
-    self.logos_handler.copy_common_images()
+    self.logos_handler.generate_logos()
     self._create_grub_splash_xpm()
     self._generate_custom_theme()
     if self.config.get('write-text/text()', 'True') in BOOLEANS_TRUE:
@@ -191,6 +190,7 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     outfile.write(data)
     outfile.close()
 
+
 class LogosHandler(object):
   def __init__(self, ptr, subfolder):
     self.ptr = ptr
@@ -199,11 +199,15 @@ class LogosHandler(object):
     self.distro_dirs = []
     self.common_dirs = []
 
+    self.fallback = None
+    self.start_color = None
+    self.end_color = None
+
   def setup_handler(self, supplied):
     fullname = self.ptr.cvars['base-info']['fullname']
     version  = self.ptr.cvars['base-info']['version']
     try:
-      bdfolder = FOLDER_MAPPING[fullname][version]
+      info = FOLDER_MAPPING[fullname][version]
     except KeyError:
       # See if the version of the input distribution is a bugfix
       found = False
@@ -211,21 +215,44 @@ class LogosHandler(object):
         for ver in FOLDER_MAPPING[fullname]:
           if version.startswith(ver):
             found = True
-            bdfolder = FOLDER_MAPPING[fullname][ver]
+            info = FOLDER_MAPPING[fullname][ver]
             break
       if not found:
         # if not one of the "officially" supported distros, default
         # to something
-        bdfolder = FOLDER_MAPPING['*']['0']
+        info = FOLDER_MAPPING['*']['0']
+
+    bdfolder = info['folder']
+
+    self.start_color = info['start_color']
+    self.end_color = info['end_color']
 
     for dir in self.ptr.SHARE_DIRS:
-      self.distro_dirs.append(dir / self.subfolder / bdfolder)
-      self.common_dirs.append(dir / self.subfolder / 'common')
+      distro_dir = dir / self.subfolder / bdfolder
+      common_dir = dir / self.subfolder / 'common'
+      if self.fallback is None:
+        fallback = dir / self.subfolder / 'fallback'
+        if fallback.exists():
+          self.fallback = fallback
+      if distro_dir.exists():
+        self.distro_dirs.append(distro_dir)
+      if common_dir.exists():
+        self.common_dirs.append(common_dir)
+
+    if self.fallback is None:
+      raise RuntimeError("Missing 'fallback' directory in shared logos' directories")
 
     if supplied:
       self.distro_dirs.insert(0, P(supplied))
 
-  def copy_common_images(self):
+  def generate_logos(self):
+    """
+    Generate or copy images that need to be in the RPM.
+    """
+    self._handle_distro_images()
+    self._handle_common_images()
+
+  def _handle_common_images(self):
     for folder in self.common_dirs:
       for src in folder.findpaths(type=pps.constants.TYPE_NOT_DIR):
         dst = self.ptr.build_folder // src.relpathfrom(folder)
@@ -233,16 +260,30 @@ class LogosHandler(object):
           dst.dirname.mkdirs()
           self.ptr.copy(src, dst.dirname, callback=None)
 
-  def copy_distro_images(self):
+  def _handle_distro_images(self):
     required_xwindow = self.ptr.config.get('include-xwindows-art/text()', 'all').lower()
     xwindow_types = XWINDOW_MAPPING[required_xwindow]
     for file_name in self.ptr.locals.L_LOGOS_RPM_FILES:
       xwindow_type = self.ptr.locals.L_LOGOS_RPM_FILES[file_name].get('xwindow_type', 'required')
+      format = self.ptr.locals.L_LOGOS_RPM_FILES[file_name].get('format', 'PNG')
       if xwindow_type in xwindow_types:
-        src = self._find_share_directory(file_name) // file_name
+        src = self._find_file(file_name)
         dst = self.ptr.build_folder // file_name
         dst.dirname.mkdirs()
-        self.ptr.copy(src, dst.dirname, callback=None)
+        if src is None:
+          # create image
+          src = self.fallback // file_name
+          swoosh = Image.open(src)
+          img = Image.new('RGBA', swoosh.size)
+          grd = ImageGradient(img)
+          grd.draw_gradient(self.start_color, self.end_color)
+          img.paste(swoosh, mask=swoosh)
+          img = img.filter(ImageFilter.SMOOTH_MORE)
+          img = img.filter(ImageFilter.BLUR)
+          img.save(dst, format=format)
+        else:
+          # copy image
+          self.ptr.copy(src, dst.dirname, callback=None)
 
   def write_text(self):
     for file_name in self.ptr.locals.L_LOGOS_RPM_FILES:
@@ -297,12 +338,40 @@ class LogosHandler(object):
                            "'%s'" %  font_path, self.ptr.SHARE_DIRS)
     return font_path
 
-  def _find_share_directory(self, file):
+  def _find_file(self, file):
     for directory in self.distro_dirs:
-      if (directory // file).exists():
-        return directory
-    raise IOError("Unable to find '%s' in share path(s) '%s'" % \
-                  (file[1:], self.distro_dirs))
+      path = directory // file
+      if path.exists():
+        return path
+    return None
+
+
+class ImageGradient(object):
+  def __init__(self, im):
+    self.im = im
+    self.width, self.height = im.size
+
+  def draw_gradient(self, start_color, end_color):
+    draw = ImageDraw.Draw(self.im)
+
+    if type(start_color) == type(()):
+      start_r, start_g, start_b = start_color
+    else:
+      start_r, start_g, start_b = ImageColor.getrgb(start_color)
+
+    if type(end_color) == type(()):
+      end_r, end_g, end_b = end_color
+    else:
+      end_r, end_g, end_b = ImageColor.getrgb(end_color)
+
+    dr = (end_r - start_r)/float(self.width)
+    dg = (end_g - start_g)/float(self.width)
+    db = (end_b - start_b)/float(self.width)
+
+    r, g, b = start_r, start_g, start_b
+    for i in xrange(self.width):
+      draw.line((i, 0, i, self.height), fill=(int(r), int(g), int(b)))
+      r, g, b = r+dr, g+dg, b+db
 
 
 #----- GLOBAL VARIABLES -----#
@@ -315,21 +384,47 @@ XWINDOW_MAPPING = {
 
 FOLDER_MAPPING = {
   'CentOS': {
-    '5': 'c5'
+    '5': {
+      'folder': 'c5',
+      'start_color': (),
+      'end_color': (),
+    }
   },
   'Fedora Core': {
-    '6': 'f6'
+    '6': {
+      'folder':'f6',
+      'start_color': (),
+      'end_color': (),
   },
   'Fedora': {
-    '7': 'f7',
-    '8': 'f8',
-    '9': 'f8',
+    '7': {
+      'folder': 'f7',
+      'start_color': (),
+      'end_color': (),
+    },
+    '8': {
+      'folder': 'f8',
+      'start_color': (),
+      'end_color': ()
+    },
+    '9': {
+      'folder': 'f8',
+      'start_color': (),
+      'end_color': ()
+    },
   },
   'Red Hat Enterprise Linux Server': {
-    '5': 'r5',
+    '5': {
+      'folder': 'r5',
+      'start_color': (),
+      'end_color': ()
+    }
   },
   '*': { # default
-    '0': 'r5',
+    '0': {
+      'folder': 'r5',
+      'start_color': (),
+      'end_color': ()
+    }
   }
 }
-
