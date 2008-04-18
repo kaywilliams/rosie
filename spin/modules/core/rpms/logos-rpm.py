@@ -207,20 +207,20 @@ class LogosHandler(object):
     fullname = self.ptr.cvars['base-info']['fullname']
     version  = self.ptr.cvars['base-info']['version']
     try:
-      info = FOLDER_MAPPING[fullname][version]
+      info = DISTRO_INFO[fullname][version]
     except KeyError:
       # See if the version of the input distribution is a bugfix
       found = False
-      if FOLDER_MAPPING.has_key(fullname):
-        for ver in FOLDER_MAPPING[fullname]:
+      if DISTRO_INFO.has_key(fullname):
+        for ver in DISTRO_INFO[fullname]:
           if version.startswith(ver):
             found = True
-            info = FOLDER_MAPPING[fullname][ver]
+            info = DISTRO_INFO[fullname][ver]
             break
       if not found:
         # if not one of the "officially" supported distros, default
         # to something
-        info = FOLDER_MAPPING['*']['0']
+        info = DISTRO_INFO['*']['0']
 
     bdfolder = info['folder']
 
@@ -251,6 +251,11 @@ class LogosHandler(object):
     """
     self._handle_distro_images()
     self._handle_common_images()
+    for folder in [ x / self.subfolder for x in self.ptr.SHARE_DIRS ]:
+      license = folder / 'COPYING'
+      if license.exists():
+        self.ptr.copy(license, self.ptr.build_folder, callback=None)
+        break
 
   def _handle_common_images(self):
     for folder in self.common_dirs:
@@ -382,7 +387,7 @@ XWINDOW_MAPPING = {
   'none':  ['required'],
 }
 
-FOLDER_MAPPING = {
+DISTRO_INFO = {
   'CentOS': {
     '5': {
       'folder': 'c5',
@@ -395,6 +400,7 @@ FOLDER_MAPPING = {
       'folder':'f6',
       'start_color': (),
       'end_color': (),
+    }
   },
   'Fedora': {
     '7': {
