@@ -98,6 +98,11 @@ class DistroSpecificHandler(LogosRpmFileHandler):
   def __init__(self, ptr, paths, write_text):
     LogosRpmFileHandler.__init__(self, ptr, paths, write_text=write_text)
 
+  def generate_file(self, id, src, dst):
+    if dst.exists():
+      return
+    LogosRpmFileHandler.generate_file(self, id, src, dst)
+
 
 class FallbackHandler(LogosRpmFileHandler):
   def __init__(self, ptr, paths, start_color, end_color, write_text):
@@ -106,6 +111,8 @@ class FallbackHandler(LogosRpmFileHandler):
     self.end_color = end_color
 
   def generate_file(self, id, src, dst):
+    if dst.exists():
+      return
     format = self.ptr.locals.L_LOGOS_RPM_FILES.get(id, {}).get('format', 'PNG')
 
     foreground = Image.open(src)
