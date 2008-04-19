@@ -121,7 +121,7 @@ class FallbackHandler(LogosRpmFileHandler):
     gradient = ImageGradient(background)
     gradient.draw_gradient(self.start_color, self.end_color)
 
-    background.paste(foreground)
+    background.paste(foreground, mask=foreground)
     background = background.filter(ImageFilter.SMOOTH_MORE)
     background = background.filter(ImageFilter.BLUR)
     background.save(dst, format=format)
