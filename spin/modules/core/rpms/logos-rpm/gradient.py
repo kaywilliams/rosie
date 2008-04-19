@@ -1,3 +1,9 @@
+try:
+  import ImageColor
+  import ImageDraw
+except:
+    raise ImportError("missing 'python-imaging' module")
+
 API_VERSION = 5.0
 
 class ImageGradient(object):
