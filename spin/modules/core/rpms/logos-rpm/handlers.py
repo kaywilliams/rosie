@@ -30,8 +30,6 @@ from gradient import ImageGradient
 __all__ = ['UserSpecifiedHandler', 'DistroSpecificHandler',
            'FallbackHandler', 'CommonFilesHandler']
 
-API_VERSION = 5.0
-
 class LogosRpmFileHandler(object):
   def __init__(self, ptr, paths, write_text=False, check_id=True):
     self.ptr = ptr

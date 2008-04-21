@@ -21,8 +21,6 @@ try:
 except:
     raise ImportError("missing 'python-imaging' module")
 
-API_VERSION = 5.0
-
 class ImageGradient(object):
   def __init__(self, im):
     self.im = im
