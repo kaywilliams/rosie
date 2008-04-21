@@ -33,16 +33,19 @@ __all__ = ['UserSpecifiedHandler', 'DistroSpecificHandler',
 API_VERSION = 5.0
 
 class LogosRpmFileHandler(object):
-  def __init__(self, ptr, paths, write_text=False):
+  def __init__(self, ptr, paths, write_text=False, check_id=True):
     self.ptr = ptr
     self.paths = paths
     self.write_text = write_text
+    self.check_id = check_id
 
   def generate(self):
     for path in self.paths:
       for src in path.findpaths(type=pps.constants.TYPE_NOT_DIR):
-        dst = self.ptr.build_folder // src.relpathfrom(path)
         id  = pps.Path('/') // src.relpathfrom(path)
+        if self.check_id and not self.ptr.locals.L_LOGOS_RPM_FILES.has_key(id):
+          continue
+        dst = self.ptr.build_folder // src.relpathfrom(path)
         self.generate_file(id, src, dst)
         if self.write_text:
           self.add_text(id, dst)
@@ -108,7 +111,7 @@ class LogosRpmFileHandler(object):
 
 class UserSpecifiedHandler(LogosRpmFileHandler):
   def __init__(self, ptr, paths):
-    LogosRpmFileHandler.__init__(self, ptr, paths)
+    LogosRpmFileHandler.__init__(self, ptr, paths, check_id=False)
 
 
 class DistroSpecificHandler(LogosRpmFileHandler):
@@ -149,6 +152,7 @@ class CommonFilesHandler(LogosRpmFileHandler):
     LogosRpmFileHandler.__init__(self, ptr, paths)
 
   def generate_file(self, id, src, dst):
-    if not dst.exists():
-      dst.dirname.mkdirs()
-      self.ptr.copy(src, dst.dirname, callback=None)
+    if dst.exists():
+      return
+    dst.dirname.mkdirs()
+    self.ptr.copy(src, dst.dirname, callback=None)
