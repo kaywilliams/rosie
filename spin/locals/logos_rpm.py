@@ -18,6 +18,16 @@ L_LOGOS_RPM_FILES = LocalsDict({
     ),
     '/usr/share/backgrounds/spin/4-spin-night.png': dict(
     ),
+    '/usr/share/backgrounds/spin/default.jpg': dict(
+    ),
+    '/usr/share/backgrounds/spin/default-5_4.jpg': dict(
+    ),
+    '/usr/share/backgrounds/spin/default-dual.jpg': dict(
+    ),
+    '/usr/share/backgrounds/spin/default-dual-wide.jpg': dict(
+    ),
+    '/usr/share/backgrounds/spin/default-dual.jpg': dict(
+    ),
     '/usr/share/gdm/themes/Spin/background.png': dict(
     ),
     '/usr/share/gdm/themes/Spin/innerbackground.png': dict(
