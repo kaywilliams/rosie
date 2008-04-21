@@ -17,8 +17,6 @@
 #
 __all__ = ['XWINDOW_MAPPING', 'DISTRO_INFO']
 
-API_VERSION = 5.0
-
 XWINDOW_MAPPING = {
   'all':   ['gnome', 'kde', 'required'],
   'gnome': ['gnome', 'required'],
@@ -62,8 +60,8 @@ DISTRO_INFO = {
   'Red Hat Enterprise Linux Server': {
     '5': {
       'folder': 'r5',
-      'start_color': (120, 30, 29),
-      'end_color': (88, 23, 21)
+      'start_color': (88, 23, 21),
+      'end_color': (120, 30, 29)
     }
   },
   '*': { # default
