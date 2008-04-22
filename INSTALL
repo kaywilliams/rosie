@@ -1,0 +1,62 @@
+===============
+Installing Spin
+===============
+
+
+Requirements
+============
+
+The following packages are needed for Spin to run:
+
+* ImageMagick
+* anaconda-runtime
+* createrepo
+* python
+* python-imaging
+* python-lxml
+* python-setuptools
+* rendition-common
+* syslinux
+* yum
+
+
+Installation
+============
+
+*Currently, there are no spin and rendition-common RPMs available, so*
+*you cannot install Spin. Read, the README file for information*
+*regarding running Spin from its sources.*
+
+YUM
+---
+
+Create a .repo file in /etc/yum.repos.d/ that contains the following
+
+::
+
+        [spin-repo]
+        name = spin-repo
+        baseurl = http://repo/containing/spin/and/dependencies
+        enabled = 1
+
+
+Then type the following at the command line
+
+::
+
+        $$ yum install spin
+
+
+RPM
+---
+
+Download the RPM from http://path/to/spin/rpm and save it at a
+convenient location. Also, download all the RPMs required by
+Spin. Then at the command line, type the following
+
+::
+
+        $$ rpm -i ImageMagick-<version>-<release>.<arch>.rpm
+        ... (install other dependencies)
+        $$ rpm -i spin-<version>-<release>.<arch>.rpm
+
