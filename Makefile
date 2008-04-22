@@ -5,7 +5,12 @@ RELEASE := $(shell awk '/Release:/ { print $$2 }' $(SPECFILE))
 
 DOCS = docsrc
 
+.PHONY: all clean depend docs build install tag changelog archive packages bumpver
+
 all: build
+
+clean:
+	@rm -rf build/
 
 depend: build docs
 
