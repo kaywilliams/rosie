@@ -1,0 +1,95 @@
+<distro xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <main>
+    <version>c5</version>
+  </main>
+
+  <!-- Change the macros below to point to local mirrors -->
+
+  <macro id="centos">http://mirror.centos.org</macro>
+  <macro id="epel">http://download.fedora.redhat.com/pub/epel</macro>
+  <macro id="fedora">http://download.fedora.redhat.com/pub/fedora/linux</macro>
+
+  <!-- Centos 5 -->
+
+  <repos id="c5-i386">
+    <xi:include xpointer="xpointer(/distro//macro)"/>
+    <base-repo>c5-base-i386</base-repo>
+    <repo id="c5-base-i386"><baseurl>%{centos}/centos-5/5/os/i386</baseurl></repo>
+    <repo id="c5-updates-i386"><baseurl>%{centos}/centos-5/5/updates/i386</baseurl></repo>
+    <repo id="epel-5-i386"><baseurl>%{epel}/5/i386</baseurl></repo>
+  </repos>
+
+  <repos id="c5-x86_64">
+    <xi:include xpointer="xpointer(/distro//macro)"/>
+    <base-repo>c5-base-x86_64</base-repo>
+    <repo id="c5-base-x86_64"><baseurl>%{centos}/centos-5/5/os/x86_64</baseurl></repo>
+    <repo id="c5-updates-x86_64"><baseurl>%{centos}/centos-5/5/updates/x86_64</baseurl></repo>
+    <repo id="epel5-x86_64"><baseurl>%{epel}/5/x86_64</baseurl></repo>    
+  </repos>
+
+  <sources id="c5-source">
+    <xi:include xpointer="xpointer(/distro//macro)"/>
+    <repo id="c5-base-source"><baseurl>%{centos}/centos-5/5/os/SRPMS/</baseurl></repo>
+    <repo id="c5-updates-source"><baseurl>%{centos}/centos-5/5/os/SRPMS/</baseurl></repo>
+    <repo id="epel5-source"><baseurl>%{epel}/5/SRPMS/</baseurl></repo>
+  </sources> 
+
+  <!-- Fedora 8 -->
+
+  <repos id="f8-i386">
+    <xi:include xpointer="xpointer(/distro//macro)"/>
+    <base-repo>f8-i386</base-repo>
+    <repo id="f8-i386"><baseurl>%{fedora}/releases/8/Fedora/i386/os</baseurl></repo>
+    <repo id="f8-everything-i386"><baseurl>%{fedora}/releases/8/Everything/i386/os</baseurl></repo>
+    <repo id="f8-updates-i386"><baseurl>%{fedora}/updates/8/i386</baseurl></repo>
+  </repos>
+
+  <repos id="f8-x86_64">
+    <xi:include xpointer="xpointer(/distro//macro)"/>
+    <base-repo>f8-x86_64</base-repo>
+    <repo id="f8-x86_64"><baseurl>%{fedora}/releases/8/Fedora/x86_64/os</baseurl></repo>
+    <repo id="f8-everything-x86_64"><baseurl>%{fedora}/releases/8/Everything/x86_64/os</baseurl></repo>
+    <repo id="f8-updates-x86_64"><baseurl>%{fedora}/updates/8/x86_64</baseurl></repo>   
+  </repos>
+
+  <sources id="f8-source">
+    <xi:include xpointer="xpointer(/distro//macro)"/>
+    <!-- issue: no repodata folder in releases/8/Fedora/source/SRPMS -->
+    <repo id="f8-source"><baseurl>%{fedora}/releases/8/Fedora/source/SRPMS</baseurl></repo>
+    <repo id="f8-everything-source"><baseurl>%{fedora}/releases/8/Everything/source/SRPMS</baseurl></repo>
+    <repo id="f8-updates-source"><baseurl>%{fedora}/updates/8/source/SRPMS</baseurl></repo> 
+  </sources> 
+
+  <!-- Fedora 9 -->
+
+  <repos id="f9-i386">
+    <xi:include xpointer="xpointer(/distro//macro)"/>
+    <base-repo>f9-i386</base-repo>
+    <repo id="f9-i386"><baseurl>%{fedora}/releases/test/9-Preview/Fedora/i386/os</baseurl></repo>
+    <!--
+    <repo id="f9-everything-i386"><baseurl>%{fedora}/releases/9/Everything/i386/os</baseurl></repo>
+    <repo id="f9-updates-i386"><baseurl>%{fedora}/updates/9/i386</baseurl></repo>
+    -->
+  </repos>
+
+  <repos id="f9-x86_64">
+    <xi:include xpointer="xpointer(/distro//macro)"/>
+    <base-repo>f9-x86_64</base-repo>
+    <repo id="f9-x86_64"><baseurl>%{fedora}/releases/test/9-Preview/Fedora/x86_64/os</baseurl></repo>
+    <!--
+    <repo id="f9-everything-x86_64"><baseurl>%{fedora}/releases/9/Everything/x86_64/os</baseurl></repo>
+    <repo id="f9-updates-x86_64"><baseurl>%{fedora}/updates/9/x86_64</baseurl></repo>
+    -->
+  </repos>
+
+  <sources id="f9-source">
+    <xi:include xpointer="xpointer(/distro//macro)"/>
+    <repo id="f9-source"><baseurl>%{fedora}/releases/test/9-Preview/Fedora/source/SRPMS</baseurl></repo>
+    <!--
+    <repo id="f9-everything-source"><baseurl>%{fedora}/releases/9/Everything/source/SRPMS</baseurl></repo>
+    <repo id="f9-updates-source"><baseurl>%{fedora}/updates/9/source/SRPMS</baseurl></repo>
+    -->
+  </sources> 
+
+</distro>
