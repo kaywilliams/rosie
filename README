@@ -1,0 +1,122 @@
+Running Spin From Sources
+=========================
+
+To run Spin from sources, make sure you have all its dependencies
+installed. For more information regarding Spin's dependencies, read
+the INSTALL file.
+
+For this example, we will assume that the working directory is
+SPIN_RUN.
+
+1. Clone **spin** repository
+----------------------------
+
+::
+
+        $$ cd $SPIN_RUN
+        $$ hg clone https://www.renditionsoftware.com/hg/public/spin
+        $$ hg clone https://www.renditionsoftware.com/hg/public/rendition-common
+
+
+In your ~/.bashrc file, add the following line
+
+::
+
+        export PYTHONPATH=$SPIN_RUN/rendition-common:$PYTHONPATH
+
+
+and then at the command line
+
+::
+
+        source ~/.bashrc
+
+
+2. Creating the Spin configuration file
+---------------------------------------
+
+Create a file called **/etc/spin.conf** and add the following lines to
+it
+
+::
+
+        <spin>
+                <library-path>$SPIN_RUN/spin</library-path>
+                <share-path>$SPIN_RUN/spin/share/spin</share-path>
+        </spin>
+
+
+3. Creating the Distribution definition file
+--------------------------------------------
+
+3.1 Scenario
+~~~~~~~~~~~~
+
+You are a company's system administrator, and the company has been
+changing all its desktops to Fedora 9. A typical employee of the
+company needs a computer that lets him surf the internet. He doesn't
+care about how he gets to a browser as long as he knows about it and
+gets to use the internet. You know that every so often, you will be
+called to fix this employee's computer, so you need a fast way to get
+to the terminal and type away at the command prompt to figure out, and
+hopefully fix, the problem.
+
+3.2 Research
+~~~~~~~~~~~~
+
+You do some research and read Fedora 9's comps.xml and find out that
+the following groups and packages satisfy your needs.
+
+3.2.1 Groups
+^^^^^^^^^^^^
+base, base-x, core, graphical-internet, gnome-desktop
+
+3.2.2 Packages
+^^^^^^^^^^^^^^
+nautilus-open-terminal
+
+3.3 Putting things together
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You are now ready to put together your custom distribution's
+definition file.
+
+The easiest way to accomplish this is to copy distribution definition
+file's from $SPIN_RUN/share/doc/examples/fedora9.distro and save it
+somewhere else. Let's call this file DISTRO_FILE. Now, open
+DISTRO_FILE.
+
+*Aside*. The Spin Distribution Definition file, allows you to use
+XIncludes and XPaths as you would in regular XML files.
+
+Add a ``<comps>`` element as a child of the ``<distro>`` element and
+add the following to it
+
+::
+
+
+        <group>base</group>
+        <group>base-x</group>
+        <group>core</group>
+        <group>graphical-internet</group>
+        <group>gnome-desktop</group>
+        <package>nautilus-open-terminal</package>
+
+
+s
+
+4. Running Spin
+---------------
+
+To run Spin, type the following at the command line
+
+::
+
+        $SPIN_RUN/bin/spin custom.distro
+
+
+5. Use Custom Distribution
+--------------------------
+
+
+
