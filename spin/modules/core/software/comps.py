@@ -320,15 +320,16 @@ class CompsReqSet(set):
 
 class CompsGroup(object):
   def __init__(self, id, name=None, description=None, default=None,
-                     uservisible=None, biarchonly=None, packages=None,
-                     groups=None):
+                     uservisible=None, biarchonly=None, display_order=None, 
+                     packages=None, groups=None):
     # name, description can be a string or a dictionary of lang, string pairs
-    self.id          = id
-    self.name        = name
-    self.description = description
-    self.default     = default
-    self.uservisible = uservisible
-    self.biarchonly  = biarchonly
+    self.id            = id
+    self.name          = name
+    self.description   = description
+    self.default       = default
+    self.uservisible   = uservisible
+    self.biarchonly    = biarchonly
+    self.display_order = display_order
 
     self.packagelist = CompsReqSet(packages or [])
     self.grouplist   = CompsReqSet(groups or [])
@@ -361,7 +362,7 @@ class CompsGroup(object):
         else:
           Element(attr, text=val, parent=group)
     # add non-localized values
-    for attr in ['default', 'uservisible', 'biarchonly']:
+    for attr in ['default', 'uservisible', 'biarchonly', 'display_order']:
       if getattr(self, attr):
         Element(attr, text=getattr(self, attr), parent=group)
 
