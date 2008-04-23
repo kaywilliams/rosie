@@ -3,12 +3,12 @@ Running Spin From Sources
 
 To run Spin from sources, make sure you have all its dependencies
 installed. For more information regarding Spin's dependencies, read
-the INSTALL file.
+the ``INSTALL`` file.
 
 For this example, we will assume that the working directory is
-SPIN_RUN.
+``SPIN_RUN``.
 
-1. Clone **spin** repository
+1. Clone **Spin** repository
 ----------------------------
 
 ::
@@ -18,7 +18,7 @@ SPIN_RUN.
         $$ hg clone https://www.renditionsoftware.com/hg/public/rendition-common
 
 
-In your ~/.bashrc file, add the following line
+In your ``~/.bashrc`` file, add the following line
 
 ::
 
@@ -35,7 +35,7 @@ and then at the command line
 2. Creating the Spin configuration file
 ---------------------------------------
 
-Create a file called **/etc/spin.conf** and add the following lines to
+Create a file called ``/etc/spin.conf`` and add the following lines to
 it
 
 ::
@@ -45,9 +45,11 @@ it
                 <share-path>$SPIN_RUN/spin/share/spin</share-path>
         </spin>
 
+You can also look at ``$SPIN_RUN/spin/share/doc/examples/spin.conf`` for
+more options.
 
-3. Creating the Distribution definition file
---------------------------------------------
+3. Example
+----------
 
 3.1 Scenario
 ~~~~~~~~~~~~
@@ -64,7 +66,7 @@ hopefully fix, the problem.
 3.2 Research
 ~~~~~~~~~~~~
 
-You do some research and read Fedora 9's comps.xml and find out that
+You do some research and read Fedora 9's ``comps.xml`` and find out that
 the following groups and packages satisfy your needs.
 
 3.2.1 Groups
@@ -75,22 +77,40 @@ base, base-x, core, graphical-internet, gnome-desktop
 ^^^^^^^^^^^^^^
 nautilus-open-terminal
 
-3.3 Putting things together
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3.3 The Distribution Definition File
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You are now ready to put together your custom distribution's
 definition file.
 
-The easiest way to accomplish this is to copy distribution definition
-file's from $SPIN_RUN/share/doc/examples/fedora9.distro and save it
-somewhere else. Let's call this file DISTRO_FILE. Now, open
-DISTRO_FILE.
+Let's start with creating a folder for distribution-related
+files. Let's call this directory ``DISTRO_DIR``.
+
+Copy ``$SPIN_RUN/share/doc/example/repos`` and
+``$SPIN_RUN/share/doc/example/minimal.distro`` to ``$DISTRO_DIR``. Rename
+``minimal.distro`` to ``fedora9.distro``.
 
 *Aside*. The Spin Distribution Definition file, allows you to use
 XIncludes and XPaths as you would in regular XML files.
 
-Add a ``<comps>`` element as a child of the ``<distro>`` element and
-add the following to it
+Open ``$DISTRO_DIR/repos``. You will notice that there are macros for
+Fedora and CentOS mirrors.
+
+A macro element has the following signature
+
+::
+
+        <macro id="MACRO_ID">MACRO_VALUE</macro>
+
+
+A macro can then be references as ``%{MACRO_ID}`` anywhere in the
+file. Feel free to modify the value of the macros to a mirror that is
+closer to you.
+
+Next up, let's modify the ``$DISTRO_DIR/fedora9.repo`` file. We know,
+through our research, the groups and packages we want in our
+distribution. To accomplish this, add a ``<comps>`` element as a child
+of the ``<distro>`` element and add the following to it
 
 ::
 
@@ -112,11 +132,19 @@ To run Spin, type the following at the command line
 
 ::
 
-        $SPIN_RUN/bin/spin custom.distro
+        $SPIN_RUN/bin/spin $DISTRO_DIR/fedora9.distro
 
 
-5. Use Custom Distribution
---------------------------
+5. Using the Custom Distribution
+--------------------------------
 
+The Spin-created distribution can be found at
+``/var/www/html/distros``.
+
+6. More Options
+---------------
+
+To check out other things that you can do with Spin, read the files in
+``$SPIN_RUN/docsrc`` folder.
 
 
