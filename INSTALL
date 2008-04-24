@@ -16,6 +16,7 @@ The following packages are needed for Spin to run:
 * python-lxml
 * python-setuptools
 * rendition-common
+* rpm-build
 * syslinux
 * yum
 
