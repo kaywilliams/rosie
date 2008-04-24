@@ -22,7 +22,7 @@ In your ``~/.bashrc`` file, add the following line
 
 ::
 
-        export PYTHONPATH=$SPIN_RUN/rendition-common:$PYTHONPATH
+        export PYTHONPATH=$SPIN_RUN/rendition-common:$SPIN_RUN/spin:$PYTHONPATH
 
 
 and then at the command line
@@ -41,7 +41,6 @@ it
 ::
 
         <spin>
-                <library-path>$SPIN_RUN/spin</library-path>
                 <share-path>$SPIN_RUN/spin/share/spin</share-path>
         </spin>
 
