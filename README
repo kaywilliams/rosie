@@ -57,24 +57,17 @@ You are a company's system administrator, and the company has been
 changing all its desktops to Fedora 9. A typical employee of the
 company needs a computer that lets him surf the internet. He doesn't
 care about how he gets to a browser as long as he knows about it and
-gets to use the internet. You know that every so often, you will be
-called to fix this employee's computer, so you need a fast way to get
-to the terminal and type away at the command prompt to figure out, and
-hopefully fix, the problem.
+gets to use the internet.
 
 3.2 Research
 ~~~~~~~~~~~~
 
 You do some research and read Fedora 9's ``comps.xml`` and find out that
-the following groups and packages satisfy your needs.
+the following group satisfy your needs.
 
 3.2.1 Groups
 ^^^^^^^^^^^^
 base, base-x, core, graphical-internet, gnome-desktop
-
-3.2.2 Packages
-^^^^^^^^^^^^^^
-nautilus-open-terminal
 
 3.3 The Distribution Definition File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -119,10 +112,7 @@ of the ``<distro>`` element and add the following to it
         <group>core</group>
         <group>graphical-internet</group>
         <group>gnome-desktop</group>
-        <package>nautilus-open-terminal</package>
 
-
-s
 
 4. Running Spin
 ---------------
