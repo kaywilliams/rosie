@@ -82,26 +82,7 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     self._generate_custom_theme()
 
   def _setup_handlers(self):
-    required_xwindow = self.config.get('include-xwindows-art/text()', 'all').lower()
-    xwindow_types = XWINDOW_MAPPING[required_xwindow]
-
-    fullname = self.cvars['base-info']['fullname']
-    version  = self.cvars['base-info']['version']
-    try:
-      info = DISTRO_INFO[fullname][version]
-    except KeyError:
-      # See if the version of the input distribution is a bugfix
-      found = False
-      if DISTRO_INFO.has_key(fullname):
-        for ver in DISTRO_INFO[fullname]:
-          if version.startswith(ver):
-            found = True
-            info = DISTRO_INFO[fullname][ver]
-            break
-      if not found:
-        # if not one of the "officially" supported distros, default
-        # to something
-        info = DISTRO_INFO['*']['0']
+    info = self._get_distro_info()
 
     # setup user-specified handler
     supplied_logos = self.config.get('logos-path/text()', None)
@@ -109,26 +90,7 @@ class LogosRpmEvent(RpmBuildMixin, Event):
       self.DATA['input'].append(supplied_logos)
       self.handlers.append(UserSpecifiedHandler(self, [supplied_logos]))
 
-    # setup distro-specific, common files, and fallback handlers
-    distro_paths = []
-    common_paths = []
-    fallback_paths = []
-    for shared_dir in [ x / 'logos' for x in self.SHARE_DIRS ]:
-      distro = shared_dir / 'distros' / info['folder']
-      common = shared_dir / 'common'
-      fallback = shared_dir / 'fallback'
-      for paths, folder in [(distro_paths, distro),
-                            (common_paths, common),
-                            (fallback_paths, fallback)]:
-        required = folder / 'required'
-        gnome = folder / 'gnome'
-        kde = folder / 'kde'
-        if required.exists():
-          paths.append(required)
-        if 'gnome' in xwindow_types and gnome.exists():
-          paths.append(gnome)
-        if 'kde' in xwindow_types and kde.exists():
-          paths.append(kde)
+    distro_paths, common_paths, fallback_paths = self._get_handler_paths(info['folder'])
 
     write_text = self.config.get('write-text/text()', 'True') in BOOLEANS_TRUE
     if distro_paths:
@@ -242,3 +204,50 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     outfile = gzip.GzipFile(splash_xgz, 'wb')
     outfile.write(data)
     outfile.close()
+
+  def _get_distro_info(self):
+    fullname = self.cvars['base-info']['fullname']
+    version  = self.cvars['base-info']['version']
+    try:
+      info = DISTRO_INFO[fullname][version]
+    except KeyError:
+      # See if the version of the input distribution is a bugfix
+      found = False
+      if DISTRO_INFO.has_key(fullname):
+        for ver in DISTRO_INFO[fullname]:
+          if version.startswith(ver):
+            found = True
+            info = DISTRO_INFO[fullname][ver]
+            break
+      if not found:
+        # if not one of the "officially" supported distros, default
+        # to something
+        info = DISTRO_INFO['*']['0']
+    return info
+
+  def _get_handler_paths(self, distro_folder):
+    # setup distro-specific, common files, and fallback handlers
+    required_xwindow = self.config.get('include-xwindows-art/text()', 'all').lower()
+    xwindow_types = XWINDOW_MAPPING[required_xwindow]
+
+    distro_paths = []
+    common_paths = []
+    fallback_paths = []
+    for shared_dir in [ x / 'logos' for x in self.SHARE_DIRS ]:
+      distro = shared_dir / 'distros' / distro_folder
+      common = shared_dir / 'common'
+      fallback = shared_dir / 'fallback'
+      for paths, folder in [(distro_paths, distro),
+                            (common_paths, common),
+                            (fallback_paths, fallback)]:
+        required = folder / 'required'
+        gnome = folder / 'gnome'
+        kde = folder / 'kde'
+        if required.exists():
+          paths.append(required)
+        if 'gnome' in xwindow_types and gnome.exists():
+          paths.append(gnome)
+        if 'kde' in xwindow_types and kde.exists():
+          paths.append(kde)
+    return distro_paths, common_paths, fallback_paths
+
