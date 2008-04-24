@@ -147,7 +147,7 @@ class FallbackHandler(LogosRpmFileHandler):
 
 class CommonFilesHandler(LogosRpmFileHandler):
   def __init__(self, ptr, paths):
-    LogosRpmFileHandler.__init__(self, ptr, paths)
+    LogosRpmFileHandler.__init__(self, ptr, paths, check_id=False)
 
   def generate_file(self, id, src, dst):
     if dst.exists():
