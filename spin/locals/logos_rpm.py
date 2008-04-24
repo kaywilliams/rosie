@@ -10,14 +10,6 @@ L_LOGOS_RPM_FILES = LocalsDict({
     ),
     '/usr/share/apps/kdm/themes/Spin/screenshot.png': dict(
     ),
-    '/usr/share/backgrounds/spin/1-spin-sunrise.png': dict(
-    ),
-    '/usr/share/backgrounds/spin/2-spin-day.png': dict(
-    ),
-    '/usr/share/backgrounds/spin/3-spin-sunset.png': dict(
-    ),
-    '/usr/share/backgrounds/spin/4-spin-night.png': dict(
-    ),
     '/usr/share/backgrounds/spin/default.jpg': dict(
     ),
     '/usr/share/backgrounds/spin/default-5_4.jpg': dict(

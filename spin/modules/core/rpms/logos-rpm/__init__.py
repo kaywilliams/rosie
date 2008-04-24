@@ -111,6 +111,27 @@ class LogosRpmEvent(RpmBuildMixin, Event):
       {'themename': self.config.get('theme/text()', 'Spin')}
     )
 
+  def _get_post_install_script(self):
+    post_install = self.build_folder / 'post-install.sh'
+    post_install.write_lines([
+      'SPIN_BACKGROUNDS="1-spin-sunrise.png 2-spin-day.png 3-spin-sunset.png 4-spin-night.png"',
+      'DEFAULT=/usr/share/backgrounds/spin/default.jpg',
+      'for file in $SPIN_BACKGROUNDS; do',
+      '  %{__ln_s} $DEFAULT /usr/share/backgrounds/spin/$file',
+      'done'
+    ])
+    return post_install
+
+  def _get_post_uninstall_script(self):
+    post_uninstall = self.build_folder / 'post-uninstall.sh'
+    post_uninstall.write_lines([
+      'SPIN_BACKGROUNDS="1-spin-sunrise.png 2-spin-day.png 3-spin-sunset.png 4-spin-night.png"',
+      'for file in $SPIN_BACKGROUNDS; do',
+      '  %{__rm} -f /usr/share/backgrounds/spin/$file',
+      'done'
+    ])
+    return post_uninstall
+
   def _get_triggerin(self):
     target1, script1 = self._get_gdm_install_trigger()
     target2, script2 = self._get_background_install_trigger()
