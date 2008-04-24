@@ -12,6 +12,7 @@ The following packages are needed for Spin to run:
 * anaconda-runtime
 * createrepo
 * python
+* python-devel
 * python-imaging
 * python-lxml
 * python-setuptools
