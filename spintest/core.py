@@ -57,6 +57,7 @@ def make_core_suite(TestCase, basedistro, arch, conf=None):
   suite.addTest(CoreEventTestCase02(TestCase(basedistro, arch, conf)))
   suite.addTest(CoreEventTestCase03(TestCase(basedistro, arch, conf)))
   suite.addTest(CoreEventTestCase04(TestCase(basedistro, arch, conf)))
+  suite.addTest(CoreEventTestCase05(TestCase(basedistro, arch, conf)))
   return suite
 
 def make_extension_suite(TestCase, basedistro, arch, conf=None):
@@ -149,6 +150,17 @@ def CoreEventTestCase04(self):
   self.runTest = runTest
   return self
 
+def CoreEventTestCase05(self):
+  self._testMethodDoc = "Event.verify_*() methods are successful"
+
+  def runTest():
+    self.tb.dispatch.execute(until=self.event.id)
+    result = self.event.verifier.unittest()
+    self.failUnless(result.wasSuccessful(), result._strErrors())
+
+  decorate(self, 'setUp')
+  self.runTest = runTest
+  return self
 
 def ExtensionEventTestCase00(self):
   self._testMethodDoc = "disabling module removes output"
