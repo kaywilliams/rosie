@@ -64,7 +64,8 @@ class LogosRpmEvent(RpmBuildMixin, Event):
       'input':  [],
     }
 
-    self.themes_info = [('infinity', 'infinity.xml')]
+    self.themes_info = [('infinity', 'infinity.xml'),
+                        ('waves', 'waves.xml')]
 
   def setup(self):
     obsoletes = [ '%s %s %s' %(n,e,v)
