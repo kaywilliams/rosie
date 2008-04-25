@@ -82,28 +82,6 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     self._create_grub_splash_xpm()
     self._generate_custom_theme()
 
-  def _setup_handlers(self):
-    info = self._get_distro_info()
-
-    # setup user-specified handler
-    supplied_logos = self.config.get('logos-path/text()', None)
-    if supplied_logos:
-      self.DATA['input'].append(supplied_logos)
-      self.handlers.append(UserSpecifiedHandler(self, [supplied_logos]))
-
-    distro_paths, common_paths, fallback_paths = self._get_handler_paths(info['folder'])
-
-    write_text = self.config.get('write-text/text()', 'True') in BOOLEANS_TRUE
-    if distro_paths:
-      self.handlers.append(DistroSpecificHandler(self, distro_paths, write_text))
-    if common_paths:
-      self.handlers.append(CommonFilesHandler(self, common_paths))
-    if fallback_paths:
-      self.handlers.append(FallbackHandler(self, fallback_paths,
-                                           info['start_color'],
-                                           info['end_color'],
-                                           write_text))
-
   def _generate_custom_theme(self):
     custom_theme = self.build_folder / 'usr/share/%s/custom.conf' % self.rpm_name
     custom_theme.dirname.mkdirs()
@@ -226,6 +204,33 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     outfile = gzip.GzipFile(splash_xgz, 'wb')
     outfile.write(data)
     outfile.close()
+
+  def _setup_handlers(self):
+    info = self._get_distro_info()
+
+    supplied_logos = self.config.get('logos-path/text()', None)
+    distro_paths, common_paths, fallback_paths = self._get_handler_paths(info['folder'])
+
+    if ( not supplied_logos and
+         not distro_paths and
+         not common_paths and
+         not fallback_paths ):
+      raise RuntimeError("No files found in share directories '%s' that are to be "
+                         "installed by the logos RPM" % self.SHARE_DIRS)
+
+    write_text = self.config.get('write-text/text()', 'True') in BOOLEANS_TRUE
+    if supplied_logos:
+      self.DATA['input'].append(supplied_logos)
+      self.handlers.append(UserSpecifiedHandler(self, [supplied_logos]))
+    if distro_paths:
+      self.handlers.append(DistroSpecificHandler(self, distro_paths, write_text))
+    if common_paths:
+      self.handlers.append(CommonFilesHandler(self, common_paths))
+    if fallback_paths:
+      self.handlers.append(FallbackHandler(self, fallback_paths,
+                                           info['start_color'],
+                                           info['end_color'],
+                                           write_text))
 
   def _get_distro_info(self):
     fullname = self.cvars['base-info']['fullname']
