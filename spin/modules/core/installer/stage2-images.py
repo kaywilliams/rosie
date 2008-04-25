@@ -44,4 +44,3 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
 
   def run(self):
     self._download()
-    self.diff.write_metadata()

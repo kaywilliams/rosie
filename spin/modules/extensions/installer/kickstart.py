@@ -42,7 +42,6 @@ class KickstartEvent(Event):
 
   def run(self):
     self.io.sync_input(cache=True)
-    self.diff.write_metadata()
 
   def apply(self):
     self.cvars['kickstart-file'] = self.io.list_output(what='kickstart-file')[0]

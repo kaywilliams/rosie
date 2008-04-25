@@ -102,7 +102,6 @@ class PkglistEvent(Event):
       self.log(1, L1("reading supplied package list"))
       if self.dsdir.exists():
         self.dsdir.rm(recursive=True)
-      self.diff.write_metadata()
       return
 
     # create pkglist
@@ -154,7 +153,6 @@ class PkglistEvent(Event):
     self.pkglistfile.write_lines(pkglist)
 
     self.DATA['output'].extend([self.dsdir, self.pkglistfile, repoconfig])
-    self.diff.write_metadata()
 
   def apply(self):
     self.io.clean_eventcache()

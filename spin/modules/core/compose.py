@@ -87,8 +87,6 @@ class ComposeEvent(Event):
 
     mf.close()
 
-    self.diff.write_metadata()
-
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['os-dir'] = self.SOFTWARE_STORE

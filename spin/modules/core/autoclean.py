@@ -62,8 +62,6 @@ class AutocleanEvent(Event):
         self.log(2, L1("forcing '%s'" % eventid))
         self.eventinfo[eventid].status = True
 
-    self.diff.write_metadata()
-
 
 #------ METADATA HANDLER ------#
 class EventHandler:

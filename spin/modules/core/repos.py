@@ -76,8 +76,6 @@ class ReposEvent(Event, RepoEventMixin):
     self.log(1, L1("reading available packages"))
     self.read_new_packages()
 
-    self.diff.write_metadata()
-
   def apply(self):
     self.io.clean_eventcache()
     for repo in self.repocontainer.values():

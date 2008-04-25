@@ -42,7 +42,6 @@ class PxebootImagesEvent(Event):
 
   def run(self):
     self.io.sync_input(cache=True)
-    self.diff.write_metadata()
 
   def apply(self):
     self.io.clean_eventcache()

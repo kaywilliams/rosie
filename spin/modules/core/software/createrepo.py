@@ -70,8 +70,6 @@ class CreaterepoEvent(Event, CreateRepoMixin):
     repo_files = self.createrepo(self.SOFTWARE_STORE, groupfile=self.cvars['comps-file'])
     self.DATA['output'].extend(repo_files)
 
-    self.diff.write_metadata()
-
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['rpms'] = self.io.list_output(what='rpms')

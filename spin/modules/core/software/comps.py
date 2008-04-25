@@ -82,9 +82,6 @@ class CompsEvent(Event):
       self.comps_out.chmod(0644)
       self.DATA['output'].append(self.comps_out)
 
-    # write metadata
-    self.diff.write_metadata()
-
   def apply(self):
     self.io.clean_eventcache()
     # set comps-file control variable

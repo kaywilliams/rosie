@@ -54,7 +54,6 @@ class IsolinuxEvent(Event, FileDownloadMixin, BootConfigMixin):
     self.bootconfig.modify(
       self.SOFTWARE_STORE/self.file_locals['isolinux.cfg']['path'],
       self.SOFTWARE_STORE/self.file_locals['isolinux.cfg']['path'])
-    self.diff.write_metadata()
 
   def apply(self):
     self.io.clean_eventcache()

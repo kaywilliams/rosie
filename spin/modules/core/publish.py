@@ -60,8 +60,6 @@ class PublishSetupEvent(Event):
     self.cvars['publish-path'] = self.publish_path
     self.cvars['web-path'] = self.web_path
 
-    self.diff.write_metadata()
-
   def _get_host(self, ifname='eth0'):
     if self.config.get('remote-webroot/@use-hostname', 'False') in BOOLEANS_TRUE:
       return socket.gethostname()
@@ -124,8 +122,6 @@ class PublishEvent(Event):
     if self.cvars['selinux-enabled']:
       shlib.execute('chcon -R --type=httpd_sys_content_t %s' \
                     % self.cvars['publish-path'])
-
-    self.diff.write_metadata()
 
   def apply(self):
     self.io.clean_eventcache()

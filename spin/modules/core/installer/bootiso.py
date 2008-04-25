@@ -71,8 +71,6 @@ class BootisoEvent(Event, BootConfigMixin):
     ibin.utime((ibin_st.st_atime, ibin_st.st_mtime))
     isodir.rm(recursive=True)
 
-    self.diff.write_metadata()
-
   def verify_bootiso_exists(self):
     "boot.iso exists"
     self.verifier.failUnlessExists(self.bootiso)

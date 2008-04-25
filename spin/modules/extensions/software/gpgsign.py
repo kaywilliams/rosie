@@ -129,8 +129,6 @@ class GpgSignEvent(GpgMixin, Event):
       self.gpgsign_cb.endRepo()
       self.gpgsign_cb.end()
 
-    self.diff.write_metadata()
-
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['signed-rpms'] = self.io.list_output(what='rpms')

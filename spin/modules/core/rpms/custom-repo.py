@@ -32,7 +32,7 @@ class CustomRepoEvent(Event):
     Event.__init__(self,
       id = 'custom-repo',
       conditionally_requires = ['custom-rpms-data'],
-      provides = ['repos', 'source-repos', 'comps-included-packages', 
+      provides = ['repos', 'source-repos', 'comps-included-packages',
                   'comps-excluded-packages']
     )
     self.rc = RepoContainer(self)
@@ -102,8 +102,6 @@ class CustomRepoEvent(Event):
       self._createrepo(self.CUSTOM_SRPMS)
       self.rc[self.csid].update_metadata()
       self.rc[self.csid].write_repo_content(self.rc[self.csid].pkgsfile)
-
-    self.diff.write_metadata()
 
   def apply(self):
     self.io.clean_eventcache()

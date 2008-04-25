@@ -75,9 +75,6 @@ class BaseInfoEvent(Event):
     self.image.close()
     img.cleanup()
 
-    # update metadata
-    self.diff.write_metadata()
-
   def apply(self):
     self.io.clean_eventcache()
     # parse buildstamp

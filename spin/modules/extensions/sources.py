@@ -73,8 +73,6 @@ class SourceReposEvent(Event, RepoEventMixin):
     self.log(1, L1("reading available source packages"))
     self.read_new_packages()
 
-    self.diff.write_metadata()
-
   def apply(self):
     self.io.clean_eventcache()
 
@@ -167,7 +165,6 @@ class SourcesEvent(Event, CreateRepoMixin):
     self.DATA['output'].extend(repo_files)
 
     self.DATA['output'].extend(self.io.list_output(what=['srpms']))
-    self.diff.write_metadata()
 
   def apply(self):
     self.io.clean_eventcache()

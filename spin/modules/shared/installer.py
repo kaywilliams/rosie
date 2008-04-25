@@ -63,9 +63,6 @@ class ExtractMixin:
     finally:
       working_dir.rm(recursive=True)
 
-    # write metadata
-    self.diff.write_metadata()
-
   def _extract_rpm(self, rpmPath, output=P(os.getcwd())):
     """
     Extract the contents of the RPM file specified by rpmPath to
@@ -171,9 +168,6 @@ class ImageModifyMixin:
     self._open()
     self._generate()
     self._close()
-
-    # write metadata
-    self.diff.write_metadata()
 
   def _generate(self):
     if self.imagedir.exists():

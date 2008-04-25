@@ -135,8 +135,6 @@ class RpmBuildMixin:
     self.DATA['output'].append(self.rpm_path)
     self.DATA['output'].append(self.srpm_path)
 
-    self.diff.write_metadata()
-
   def apply(self):
     self.io.clean_eventcache()
     custom_rpm_data = {}

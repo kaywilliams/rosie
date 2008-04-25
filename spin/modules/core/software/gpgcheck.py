@@ -69,7 +69,6 @@ class GpgCheckEvent(Event):
   def run(self):
     if not self.rpms:
       self.io.clean_eventcache(all=True) # remove old keys
-      self.diff.write_metadata()
       return
 
     self.gpgcheck_cb.start()
@@ -119,7 +118,6 @@ class GpgCheckEvent(Event):
         self.gpgcheck_cb.endRepo()
 
     self.gpgcheck_cb.end()
-    self.diff.write_metadata()
 
   def apply(self):
     self.io.clean_eventcache()

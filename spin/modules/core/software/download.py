@@ -78,7 +78,6 @@ class DownloadEvent(Event):
     for repo in self.cvars['repos'].values():
       self.io.sync_input(link=True, cache=True, what=repo.id,
                          text=("downloading packages - '%s'" % repo.id))
-    self.diff.write_metadata()
 
   def apply(self):
     self.io.clean_eventcache()

@@ -96,8 +96,6 @@ class PkgorderEvent(Event):
       # write pkgorder
       pkgorder.write_pkgorder(self.pkgorderfile, pkgtups)
 
-    self.diff.write_metadata()
-
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['pkgorder-file'] = self.pkgorderfile
@@ -164,7 +162,6 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
       self.newsets_expanded.append(splittree.parse_size(set))
 
     self.compare(oldsets, newsets)
-    self.diff.write_metadata()
 
   def apply(self):
     self.io.clean_eventcache()

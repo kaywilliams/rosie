@@ -67,8 +67,6 @@ class DiscinfoEvent(Event):
     discinfo.write(self.difile, **distro_vars)
     self.difile.chmod(0644)
 
-    self.diff.write_metadata()
-
   def apply(self):
     self.io.clean_eventcache()
 
@@ -118,8 +116,6 @@ class TreeinfoEvent(Event):
     self.tifile.write_lines(lines)
     self.tifile.chmod(0644)
 
-    self.diff.write_metadata()
-
   def apply(self):
     self.io.clean_eventcache()
 
@@ -160,8 +156,6 @@ class BuildstampEvent(Event):
     self.bsfile.dirname.mkdirs()
     buildstamp.write(self.bsfile, **distro_vars)
     self.bsfile.chmod(0644)
-
-    self.diff.write_metadata()
 
   def apply(self):
     self.cvars['buildstamp-file'] = self.bsfile
