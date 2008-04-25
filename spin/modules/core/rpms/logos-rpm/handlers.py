@@ -128,12 +128,17 @@ class FallbackHandler(LogosRpmFileHandler):
     self.start_color = start_color
     self.end_color = end_color
 
+    self._cache = {}
+
   def generate_file(self, id, src, dst):
     if dst.exists():
       return
     format = self.ptr.locals.L_LOGOS_RPM_FILES.get(id, {}).get('format', 'PNG')
-
     foreground = Image.open(src)
+
+    if self._cache.has_key(foreground.size):
+      Image.open(self._cache[foreground.size]).save(dst, format=format)
+      return
     background = Image.new('RGBA', foreground.size)
 
     gradient = ImageGradient(background)
@@ -143,6 +148,7 @@ class FallbackHandler(LogosRpmFileHandler):
     background = background.filter(ImageFilter.SMOOTH_MORE)
     background = background.filter(ImageFilter.BLUR)
     background.save(dst, format=format)
+    self._cache[foreground.size] = dst
 
 
 class CommonFilesHandler(LogosRpmFileHandler):
