@@ -18,10 +18,13 @@ BuildRequires: python-docutils
 Requires: ImageMagick
 Requires: anaconda-runtime
 Requires: createrepo
+Requires: netpbm-progs
+Requires: python-devel
 Requires: python-imaging
 Requires: python-lxml
 Requires: python-setuptools
 Requires: rendition-common
+Requires: rpm-build
 Requires: syslinux
 Requires: yum
 
