@@ -31,6 +31,9 @@ class DiffMixin:
   def check(self):
     return self.diff.test_diffs()
 
+  def postrun(self):
+    self.diff.write_metadata()
+
 
 class DiffObject:
   "Dummy object to contain diff-related functions"
