@@ -104,6 +104,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
           if not self.suppress_run_message:
             self.log(1, L0('%s' % self.id))
           self.run()
+          self.postrun()
       self.log(5, L0('running %s.apply()' % self.id))
       self.apply()
       self.log(5, L0('running %s.verify()' % self.id))
@@ -126,6 +127,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     DiffMixin.clean(self)
   #def check(self) defined in mixins
   def run(self): pass
+  #def postrun(self) defined in DiffMixin
   def apply(self): pass
   #def error(self, e) defined IOMixins
 
