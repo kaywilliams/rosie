@@ -104,7 +104,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
           if not self.suppress_run_message:
             self.log(1, L0('%s' % self.id))
           self.run()
-          self.postrun()
+          self.postrun() ## FIXME: this is ugly
       self.log(5, L0('running %s.apply()' % self.id))
       self.apply()
       self.log(5, L0('running %s.verify()' % self.id))
