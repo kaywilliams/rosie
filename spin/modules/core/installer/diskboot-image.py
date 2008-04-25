@@ -75,6 +75,12 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
 
     self._modify()
 
+  def verify_image(self):
+    "verify image existence."
+    if self.cvars['anaconda-version'] >= '11.4.0.40':
+      return # don't make diskboot image after this revision
+    ImageModifyMixin.verify_image(self)
+
   def _generate(self):
     if self.cvars['anaconda-version'] >= '11.4.0.40':
       return # don't make diskboot image after this revision
