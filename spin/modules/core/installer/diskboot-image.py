@@ -69,10 +69,12 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     self.bootconfig.setup(defaults=['nousbstorage'], include_method=True, include_ks=True)
     ImageModifyMixin.setup(self)
 
-  def run(self):
+  def check(self):
     if self.cvars['anaconda-version'] >= '11.4.0.40':
-      return # don't make diskboot image after this revision
+      return False # don't make diskboot image after this revision
+    return self.diff.test_diffs()
 
+  def run(self):
     self._modify()
 
   def verify_image(self):
