@@ -125,7 +125,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
 
     self.DATA =  {
       'config':    ['.'],
-      'variables': ['cvars[\'srpms\']', 'cvars[\'ks-path\']'],
+      'variables': ['cvars[\'srpms\']'],
       'input':     [],
       'output':    [],
     }

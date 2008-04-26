@@ -54,6 +54,8 @@ class BootConfigDummy(object):
 
   def modify(self, dst, cfgfile=None):
 
+    #FIXME: Also need to remove arguments on on diffs
+
     boot_args = [ self._expand_macros(x) for x in self.boot_args ]
 
     config = P(self.ptr.config.get('boot-config/file/text()',
@@ -83,9 +85,11 @@ class BootConfigDummy(object):
     return s
 
   def _process_method(self, args):
+    self.ptr.DATA['variables'].append('cvars[\'web-path\']')
     if self.ptr.cvars['web-path']:
       args.append('method=%s/os' % self.ptr.cvars['web-path'])
 
   def _process_ks(self, args):
+    self.ptr.DATA['variables'].append('cvars[\'ks-path\']')
     if self.ptr.cvars['ks-path']:
       args.append('ks=file:%s' % self.ptr.cvars['ks-path'])

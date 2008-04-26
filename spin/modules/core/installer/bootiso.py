@@ -29,15 +29,16 @@ class BootisoEvent(Event, BootConfigMixin):
     Event.__init__(self,
       id = 'bootiso',
       requires = ['isolinux-files', 'boot-config-file'],
-      conditionally_requires = ['web-path', 'boot-args', 'ks-path'],
+      conditionally_requires = ['web-path', 'boot-args'],
     )
 
     self.bootiso = self.SOFTWARE_STORE/'images/boot.iso'
 
     self.DATA = {
-      'config': ['.'],
-      'input':  [],
-      'output': [self.bootiso],
+      'variables': [],
+      'config':    ['.'],
+      'input':     [],
+      'output':    [self.bootiso],
     }
 
     BootConfigMixin.__init__(self)
@@ -45,7 +46,7 @@ class BootisoEvent(Event, BootConfigMixin):
   def setup(self):
     self.diff.setup(self.DATA)
     self.DATA['input'].extend(self.cvars['isolinux-files'].values())
-    self.bootconfig.setup(include_method=True, include_ks=True)
+    self.bootconfig.setup(include_method=True)
 
   def run(self):
     isodir = self.SOFTWARE_STORE/'images/isopath'

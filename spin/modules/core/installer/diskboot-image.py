@@ -40,7 +40,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     )
 
     self.DATA = {
-      'variables': ['cvars[\'anaconda-version\']', 'cvars[\'ks-path\']'],
+      'variables': ['cvars[\'anaconda-version\']'],
       'config':    ['.'],
       'input':     [],
       'output':    [],
