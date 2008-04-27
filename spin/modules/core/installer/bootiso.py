@@ -28,6 +28,7 @@ class BootisoEvent(Event, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'bootiso',
+      version = 1,
       requires = ['isolinux-files', 'boot-config-file'],
       conditionally_requires = ['web-path', 'boot-args'],
     )
