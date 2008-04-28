@@ -216,7 +216,7 @@ class Test_PkglistBug163_1(PkglistEventTestCase):
     <macro id="root">http://www.renditionsoftware.com/mirrors/</macro>
     <base-repo>base</base-repo>
     <repo id="base">
-      <baseurl>%{root}fedora/releases/test/9-Alpha/Fedora/i386/os/</baseurl>
+      <baseurl>%{root}fedora/releases/test/9-Preview/Fedora/i386/os/</baseurl>
     </repo>
     <repo id="everything">
       <baseurl>%{root}fedora/releases/8/Everything/i386/os/</baseurl>
@@ -237,7 +237,7 @@ class Test_PkglistBug163_2(PkglistEventTestCase):
     <macro id="root">http://www.renditionsoftware.com/mirrors/</macro>
     <base-repo>base</base-repo>
     <repo id="base">
-      <baseurl>%{root}fedora/releases/test/9-Alpha/Fedora/i386/os/</baseurl>
+      <baseurl>%{root}fedora/releases/test/9-Preview/Fedora/i386/os/</baseurl>
     </repo>
     <repo id="everything">
       <baseurl>%{root}fedora/releases/8/Everything/i386/os/</baseurl>
