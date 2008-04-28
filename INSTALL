@@ -2,6 +2,7 @@
 Installing Spin
 ===============
 
+This document covers Spin requirements, installation, and getting started.
 
 Requirements
 ============
@@ -22,44 +23,141 @@ The following packages are needed for Spin to run:
 * syslinux
 * yum
 
+Note: Some of the packages (e.g. python-lxml) can be found in the Extra Packages
+for Enterprise Linux (EPEL) or Fedora Everything RPM repositories.
+
 
 Installation
 ============
 
-*Currently, there are no spin and rendition-common RPMs available, so*
-*you cannot install Spin. Read, the README file for information*
-*regarding running Spin from its sources.*
-
-YUM
----
-
-Create a .repo file in /etc/yum.repos.d/ that contains the following
-
-::
-
-        [spin-repo]
-        name = spin-repo
-        baseurl = http://repo/containing/spin/and/dependencies
-        enabled = 1
+Spin RPMs will be coming soon.  In the meantime, this document describes how you
+can obtain Spin and run it directly from source code.
 
 
-Then type the following at the command line
+In the following instructions, we assume that the working directory is
+``SPIN_RUN``.
+
+1. Clone **Spin** source code repositories
+------------------------------------------
 
 ::
 
-        $$ yum install spin
+  $$ cd $SPIN_RUN
+  $$ hg clone https://www.renditionsoftware.com/hg/public/spin
+  $$ hg clone https://www.renditionsoftware.com/hg/public/rendition-common
 
 
-RPM
----
-
-Download the RPM from http://path/to/spin/rpm and save it at a
-convenient location. Also, download all the RPMs required by
-Spin. Then at the command line, type the following
+In your ``~/.bashrc`` file, add the following line
 
 ::
 
-        $$ rpm -i ImageMagick-<version>-<release>.<arch>.rpm
-        ... (install other dependencies)
-        $$ rpm -i spin-<version>-<release>.<arch>.rpm
+  export PYTHONPATH=$SPIN_RUN/rendition-common:$SPIN_RUN/spin:$PYTHONPATH
+
+
+and then at the command line
+
+::
+
+  $$ source ~/.bashrc
+
+
+2. Create the Spin configuration file
+-------------------------------------
+
+Create a file called ``/etc/spin.conf`` and add the following lines:
+
+::
+
+  <spin>
+    <share-path>$SPIN_RUN/spin/share/spin</share-path>
+  </spin>
+
+Alternatively, you can copy ``$SPIN_RUN/spin/share/doc/examples/spin.conf`` 
+to the /etc folder as a starting point and modify the share-path.
+
+3. Install Spin dependencies
+----------------------------
+
+Install packages listed above under `Requirements`. 
+
+::
+
+  $$ yum install (dependencies listed above)  
+
+
+Getting Started
+===============
+
+1. Create a Distribution Definition File (.distro)
+--------------------------------------------------
+
+Spin includes some example files to help you get started. Copy these files to
+a new folder, called ``DISTRO_DIR`` below.  While you are experimenting, you 
+will most likely want DISTRO_DIR to be in your home folder. Later you will want
+to maintain your .distro and related files using a Source Code Management 
+system such as CVS, SVN, git, or the like.
+
+::
+
+  $$ mkdir $DISTRO_DIR
+  $$ cp $SPIN_RUN/share/doc/example/repos $DISTRO_DIR
+  $$ cp $SPIN_RUN/share/doc/example/example.distro $DISTRO_DIR
+  $$ cd $DISTRO_DIR
+
+
+Now you can open and modify the repos and example.distro files. 
+
+The repos file contains URLs to common package repository mirror locations. 
+For best performance, open this file and modify the macro elements to point to 
+local package mirrors.
+
+::
+
+  <!-- Change the macros below to point to local mirrors -->
+
+  <macro id="centos">http://mirror.centos.org/centos-5</macro>
+  <macro id="epel">http://download.fedora.redhat.com/pub/epel</macro>
+  <macro id="fedora">http://download.fedora.redhat.com/pub/fedora/linux</macro>
+ 
+
+The example.distro file describes details of your distribution, including name, 
+version, packages to include, package repositories to use, etc. As an experiment, 
+modify this file to create a distribution based on CentOS 5 x86_64 by setting 
+the main and repos sections of the file to contain the following:
+
+::
+
+  <main>
+    <fullname>Example</fullname>
+    <product>example</product>
+    <version>c5</version>
+    <arch>x86_64</arch>
+  </main>
+
+  <repos>
+    <xi:include href="repos" xpointer="xpointer(/distro/repos[@id='c5-x86_64']/*)"/>
+  </repos>
+
+
+2. Running Spin
+---------------
+
+To run Spin, type the following at the command line:
+
+::
+
+        $SPIN_RUN/bin/spin $DISTRO_DIR/example.distro
+
+
+3. Using the Custom Distribution
+--------------------------------
+
+Your new custom Linux distribution can be found at ``/var/www/html/distros``.  
+Enjoy!
+
+
+4. Questions/Comments/Issues
+----------------------------
+
+Send email to ``spin@renditionsoftware.com``.
 
