@@ -137,6 +137,7 @@ class EventTestCase(unittest.TestCase):
         event.clean()
       if event.check():
         event.run()
+        event.postrun()
         ran = True
     event.apply()
     event.verify()
