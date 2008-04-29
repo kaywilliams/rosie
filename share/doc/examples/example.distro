@@ -1,0 +1,252 @@
+<!-- The following is a sample distribution definition file.  Some of the
+     most 'interesting' possible configuration values have been highlighted;
+     this is by no means a comprehensive list of available options.  See
+     user documentation for a more complete discussion of modules and their
+     configuration.
+
+     BOOLEAN VALUES
+
+     The following string values can be used anywhere where a boolean value
+     is accepted:
+
+       True:  True, true, Yes, yes, On, on, 1
+       False: False, false, No, no, Off, off, 0
+
+     Some booleans also accept a default value:
+
+       Default: Default, default
+
+     TOP LEVEL ELEMENTS
+
+     Each top-level element, below, corresponds to a spin module of the
+     same name.  Top level elements can have a single optional 'enabled'
+     attribute, which, if false, disables processing of the event entirely.
+     If not present, the default behavior depends on the module's class
+     (see below).
+
+     For example, to disable the diskboot-image module, add the following to
+     your config file:
+
+       <diskboot-image enabled="false"/>
+
+     Not all supported top-level elements are listed in this sample distro
+     definition.
+
+
+     MODULE CLASSES
+
+     There are two classes of modules - core and extension.  Core modules
+     define events that are generally considered to be requisite for a final
+     distro to be complete - generating a comps file, downloading packages,
+     and creating installer images, for example.  Extension modules, on the
+     other hand, are additional features that are not necessarily required
+     but that add extra output to the distro; iso generation and including a
+     kickstart file, for example.
+
+     Core modules are all enabled by default; meaning they will be loaded
+     and the events they define will run whether or not a corresponding top
+     level element appears in the distro definition file.  Extension modules,
+     on the other hand, are disabled by default and must be explicitly loaded
+     by putting an appropriate top level element in the definition file.  For
+     example, in order to load the iso module to generate iso images, add the
+     following to your config file.
+
+       <iso enabled="true">
+         ...
+       </iso>
+
+     The extension modules that are listed in this sample distro definition
+     have their enabled attribute set to false; all other modules are core.
+
+     FILE PATHS
+
+     In general, any file path in the distro definition can take the form of
+     a local path ('/var/www/html' or 'file:///var/www/html') or a remote
+     path accessible via http(s) ('http://www.example.com/file').  https
+     user/password pairs can be specified in the URL or read from a prompt
+     on the command line.
+
+     Most path elements accept optional 'dest' and 'filename' attributes
+     that control the final location of the file in question.  Dest refers
+     to the directory into which the file will be placed; it does not have
+     to exist.  The default value of dest depends on the context of the path
+     element in question.  If not specified, filename assumes the basename
+     of the source file.
+
+     DEFAULTS
+
+     Where possible, default values have been explicitly given and then
+     commented out.  Not all commented values are defaults, however, and
+     many defaults for the more advanced features of Spin have been left
+     out for the sake of clarity.
+-->
+
+<!-- Distribution definitions have support for using the w3 XInclude
+     standard.  If this functionality is desired, include the following
+     attribute in the <distro> section:
+
+     xmlns:xi="http://www.w3.org/2001/XInclude" -->
+<distro xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <!-- All distro definitions need to contain a <main> section.  The main
+       section primarily deals with global distribution options like name,
+       architecture, etc. -->
+  <main>
+    <!-- Human readable string representing distro -->
+    <fullname>Example Distribution</fullname>
+
+    <!-- Unique, unix filename chars only, used as distro identifier -->
+    <product>example</product>
+
+    <!-- Version of the distro -->
+    <version>f9</version>
+
+    <!-- Arch to build for; supported archs are currently i386 and x86_64 -->
+    <arch>i386</arch>
+
+    <!-- Name of the folder containing RPMs in the distro tree -->
+    <!--<product-path>Packages</product-path>-->
+
+  </main>
+
+  <!-- The repos module is responsible for reading repository metadata for
+       determining the available packages for a distribution. -->
+  <repos>
+    <!-- Repos can be specified in two ways - a path to a yum.conf-style
+         file or in an XML format, described below.  Both can be specified
+         at the same time, if desired.  -->
+    <!--<repofile>/path/to/repofile</repofile>-->
+    <!--<repo id="base"><baseurl>http://mirror/path/to/repo</baseurl></repo>-->
+
+    <!-- Exactly one of the specified repos must be identified by id as the
+         'base repo' for the distro; this repo must have a groupfile and
+         the various installation files/images (stage2.img, isolinux.cfg,
+         etc) for the distribution. -->
+    <!--<base-repo>base</base-repo>-->
+
+    <!-- <exclude-package> and <include-package> elements as children of
+         <repo> elements have the same effect as 'exclude' and 'includepkgs'
+         in yum.conf files. <exclude-package> elements as children of the
+         <repos> element will exclude packages from the entire distro. 
+         Each exclude or include element should contain one package.-->
+    <!--<exclude-package>tcpdump</exclude-package>-->
+    <!--<repo id="base">
+      <baseurl>http://mirror/path/to/repo</baseurl>
+      <exclude-package>tcpdump</exclude-package>
+    </repo>-->
+
+    <!-- There currently is no support for the 'mirrorlist' element nor can
+         standard yum $release, $version, etc. variables be used; however, 
+         these will both be coming shortly. -->
+
+    <!-- this XInclude refers to repos defined in the 'repos' file -->
+    <xi:include href="repos" xpointer="xpointer(/distro/repos[@id='f9-i386']/*)"/>
+  </repos>
+
+  <!-- The <comps> module is what computes and creates the group definitions
+       for the distribution. -->
+  <comps>
+    <!-- Include groups and packages in the distro by listing them in <group>
+         and <package> elements, respectively. -->
+    <group>core</group>
+    <!--<package>bash</package>-->
+
+    <!-- Exclude packages by using <exclude-package> elements.  Note that
+         this just excludes them from the groupfile, not from the entire
+         distribution -->
+    <!--<exclude-package>tcpdump</exclude-package>-->
+
+    <!-- Alternately, include a path to an existing groupfile -->
+    <!--/path/to/comps.xml-->
+  </comps>
+
+  <!-- The config-rpm module allows developers to run arbitrary install
+       scripts and to copy customized configuration files onto machines
+       using the distribution -->
+  <config-rpm enabled="false">
+    <!-- <script> elements specify scripts to be run in the post install
+         section of the config rpm.  They are executed in the order they
+         are specified here. -->
+    <!--<script>/path/to/script1</script>-->
+
+    <!-- <file> elements can be used to install arbitrary files onto machines
+         that use the distro, even if these files are 'owned' by another
+         RPM.  Use the dest attribute to control their final destination. -->
+    <!--<file>/path/to/file1</file>-->
+    <!--<file dest="/some/dest">/path/to/file2</file>-->
+
+    <!-- If a script has some requirements on another package, it should
+         be listed in a <requires> element -->
+    <!--<requires>python</requires>-->
+  </config-rpm>
+
+  <!-- The release-rpm module creates an RPM containing release-related files,
+       such as readme files, eulas, and yum repos. -->
+  <release-rpm>
+    <!-- Set 'include-input' to false to not include the source repos in the
+         final distribution's repo set -->
+    <!-- Set 'include-repos' to false to not include a repository pointing to
+         the build machine's published distribution -->
+    <!--<yum-repos include-input="true" include-repos="true"/>-->
+  </release-rpm>
+
+  <!-- The gpgsign module allows RPMs to be signed by the specified gpg key -->
+  <gpgsign enabled="false">
+    <!--<public-key>/path/to/public/key</public-key>-->
+    <!--<secret-key>/path/to/secret/key</secret-key>-->
+    <!-- The passphrase is optional; if not present, will prompt -->
+    <!--<passphrase>SECRET</passphrase>-->
+  </gpgsign>
+
+  <!-- The files module allows arbitrary files to be included in the distro -->
+  <files enabled="false">
+    <!-- Include paths to files with <path> elements -->
+    <!--<path>/path/to/file1</path>-->
+    <!--<path>/path/to/file2</path>-->
+  </files>
+
+  <!-- The sources module downloads and includes SRPMs in the distro tree -->
+  <sources enabled="false">
+    <!-- The content of the sources module is the same as that of the repos
+         module, except that <base-repo> is not required (and the repos should
+         point to SRPM repositories, rather than RPMs) -->
+    <xi:include href="repos" xpointer="xpointer(/distro/sources[@id='f9-source']/*)"/>
+  </sources>  
+
+  <!-- The product-image module creates a product.img with any distro-
+       specific customizations (such as branding) -->
+  <product-image>
+    <!--<path>/path/to/file1<path>-->
+    <!--<path>/path/to/file2<path>-->
+  </product-image>
+
+  <!-- The updates-image module creates an updates.img with any distro
+       specific customizations to installer code -->
+  <updates-image/>
+    <!--<path>/path/to/file1<path>-->
+    <!--<path>/path/to/file2<path>-->
+  </updates-image>
+
+  <!-- The initrd-image modul allows arbitrary files to be included in the
+       initrd.img for the distro -->
+  <initrd-image>
+    <!--<path>/path/to/file1<path>-->
+    <!--<path>/path/to/file2<path>-->
+  </initrd-image>
+
+  <!-- The kickstart module handles putting a kickstart into a distro,
+       including modifying of kernel arguments -->
+  <kickstart enabled="false">
+    <!--/path/to/kickstart-->
+  </kickstart>
+
+  <!-- The iso module controls generation of ISO images -->
+  <iso enabled="false">
+    <!-- Each <set> element defines a size to use for the ISO.  'CD' and
+         'DVD' are allowed, as are suffixes like 'M' and 'GB'.  Multiple
+         sets can be specified, if desired. -->
+    <set>640M</set>
+    <!--<set>DVD</set>-->
+  </iso>
+
+</distro>
