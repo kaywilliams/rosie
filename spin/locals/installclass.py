@@ -3,7 +3,7 @@ from spin.locals import LocalsDict, REMOVE
 __all__ = ['L_INSTALLCLASS']
 
 L_INSTALLCLASS = LocalsDict({
-  '0': # 11.1.0.7-1
+  "anaconda-0": # 11.1.0.7-1
 '''
 from installclass import BaseInstallClass
 from rhpl.translate import N_
@@ -36,7 +36,7 @@ class InstallClass(BaseInstallClass):
     BaseInstallClass.__init__(self, expert)
 '''
 ,
-  '11.1.2.36-1':
+  "anaconda-11.1.2.36-1":
 '''
 from installclass import BaseInstallClass
 from rhpl.translate import N_
@@ -69,7 +69,7 @@ class InstallClass(BaseInstallClass):
     BaseInstallClass.__init__(self, expert)
 '''
 ,
-  '11.2.0.66-1':
+  "anaconda-11.2.0.66-1":
 '''
 from installclass import BaseInstallClass
 from rhpl.translate import N_

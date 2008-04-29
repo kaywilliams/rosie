@@ -3,7 +3,7 @@ from spin.locals import LocalsDict, REMOVE
 __all__ = ['L_GDM_CUSTOM_THEME']
 
 L_GDM_CUSTOM_THEME = LocalsDict({
-  '0': '''
+  "anaconda-0": '''
 # GDM Custom Configuration file.
 #
 # This file is the appropriate place for specifying your customizations to the

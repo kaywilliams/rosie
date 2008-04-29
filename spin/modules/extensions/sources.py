@@ -31,7 +31,7 @@ from spin.event     import Event
 from spin.logging   import L1, L2
 from spin.validate  import InvalidConfigError
 
-from spin.modules.shared import CreateRepoMixin, RepoEventMixin
+from spin.modules.shared import CreaterepoMixin, RepoEventMixin
 
 P = pps.Path
 
@@ -102,14 +102,14 @@ class SourceReposEvent(Event, RepoEventMixin):
     self.verifier.failUnless(self.cvars['source-repos'])
 
 
-class SourcesEvent(Event, CreateRepoMixin):
+class SourcesEvent(Event, CreaterepoMixin):
   "Downloads source rpms."
   def __init__(self):
     Event.__init__(self,
                    id='sources',
                    provides=['srpms', 'srpms-dir', 'publish-content'],
                    requires=['rpms', 'source-repos'])
-    CreateRepoMixin.__init__(self)
+    CreaterepoMixin.__init__(self)
 
     self.srpmdest = self.OUTPUT_DIR / 'SRPMS'
     self.DATA = {

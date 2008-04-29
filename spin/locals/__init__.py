@@ -76,9 +76,6 @@ class LocalsDict(dict):
   just the topmost level.  In order to delete a given key, value pair, set
   a key's value to REMOVE.
   """
-  def __init__(self, *args, **kwargs):
-    dict.__init__(self, *args, **kwargs)
-    self.setdefault('0', REMOVE)
 
   def __getitem__(self, key):
     ret = {}
@@ -125,16 +122,12 @@ def _icmp(a,b,i='index'):
 
 
 # local data imports
-for file in pps.Path(__file__).dirname.listdir('*.py').filter('__init__.py'):
-  modname = file.basename.replace('.py', '')
-  fp = None
-  try:
-    fp,p,d = imp.find_module(modname, [file.dirname])
-    module = imp.load_module('l_'+modname, fp, p, d) # avoid name clobbering
-    # add locals to global namespace
-    for attr in module.__all__:
-      globals()[attr] = getattr(module, attr)
-    # add to __all__
-    __all__.append(attr)
-  finally:
-    fp and fp.close()
+for modfile in pps.Path(__file__).dirname.listdir('*.py').filter('__init__.py'):
+  modname = 'l_'+modfile.basename.replace('.py', '')
+  module = imp.load_source(modname, modfile)
+
+  # add locals to global namespace
+  for attr in module.__all__:
+    globals()[attr] = getattr(module, attr)
+  # add to __all__
+  __all__.append(attr)

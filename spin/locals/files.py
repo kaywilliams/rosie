@@ -3,7 +3,7 @@ from spin.locals import LocalsDict, REMOVE
 __all__ = ['L_FILES']
 
 L_FILES = LocalsDict({
-  '0': {
+  "anaconda-0": {
     'isolinux': { # isolinux files
       'boot.msg':     dict(path='isolinux/boot.msg'),
       'general.msg':  dict(path='isolinux/general.msg'),
@@ -31,7 +31,7 @@ L_FILES = LocalsDict({
       'initrd-xen':   dict(path='images/xen/initrd.img', format='ext2', zipped=True),
     },
   },
-  '10.2.0.3-1': { # initrd images to cpio format
+  "anaconda-10.2.0.3-1": { # initrd images to cpio format
     'isolinux': {
       'initrd.img':   dict(format='cpio'),
     },
@@ -39,7 +39,7 @@ L_FILES = LocalsDict({
       'initrd-xen':   dict(format='cpio'),
     },
   },
-  '10.89.1.1': { # netstg2, hdstg2 combined into minstg2
+  "anaconda-10.89.1.1": { # netstg2, hdstg2 combined into minstg2
     'stage2': {
       'netstg2.img':  REMOVE,
       'hdstg2.img':   REMOVE,
@@ -48,18 +48,18 @@ L_FILES = LocalsDict({
   },
 # using ext2 format as anaconda does not support cpio in all cases, i.e.
 # loadUrlImages() in urlinstall.c
-#  '11.1.0.11-1': { # updates.img to cpio format
+#  "anaconda-11.1.0.11-1": { # updates.img to cpio format
 #    'installer': {
 #      'updates.img':  dict(format='cpio', zipped=True),
 #    },
 #  },
-  '11.1.0.51-1': { # stage 2 images moved to images/ folder
+  "anaconda-11.1.0.51-1": { # stage 2 images moved to images/ folder
     'stage2': {
       'stage2.img':   dict(path='images/stage2.img'),
       'minstg2.img':  dict(path='images/minstg2.img'),
     },
   },
-  '11.2.0.66-1': { # removed memtest, added vesamenu.c32
+  "anaconda-11.2.0.66-1": { # removed memtest, added vesamenu.c32
     'isolinux': {
       'memtest':      REMOVE,
       'vesamenu.c32': dict(path='isolinux/vesamenu.c32'),

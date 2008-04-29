@@ -3,7 +3,7 @@ from spin.locals import LocalsDict, REMOVE
 __all__ = ['L_DISCINFO_FORMAT']
 
 L_DISCINFO_FORMAT = LocalsDict({
-  '0': {
+  "anaconda-0": {
     'timestamp': dict(index=0, string='%(timestamp)s'),
     'fullname':  dict(index=1, string='%(fullname)s'),
     'basearch':  dict(index=2, string='%(basearch)s'),
@@ -12,7 +12,7 @@ L_DISCINFO_FORMAT = LocalsDict({
     'rpms':      dict(index=5, string='%(productpath)s'),
     'pixmaps':   dict(index=6, string='%(productpath)s/pixmaps'),
   },
-  '11.4.0.55': {
+  "anaconda-11.4.0.55": {
     'base':      REMOVE,
     'rpms':      REMOVE,
     'pixmaps':   REMOVE,

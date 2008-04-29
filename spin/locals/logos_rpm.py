@@ -3,7 +3,7 @@ from spin.locals import LocalsDict, REMOVE
 __all__ = ['L_LOGOS_RPM_FILES']
 
 L_LOGOS_RPM_FILES = LocalsDict({
-  '0': {
+  "anaconda-0": {
     '/usr/share/apps/kdm/themes/Spin/background.png' : dict(
     ),
     '/usr/share/apps/kdm/themes/Spin/innerbackground.png': dict(
@@ -371,12 +371,12 @@ L_LOGOS_RPM_FILES = LocalsDict({
       ]
     ),
   },
-  '11.2.0.66-1': {
+  "anaconda-11.2.0.66-1": {
     '/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg': dict(
       format='JPEG',
     ),
   },
-  '11.3.0.36-1': {
+  "anaconda-11.3.0.36-1": {
     '/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg': dict(
       format='PNG'
     ),

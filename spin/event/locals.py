@@ -26,20 +26,20 @@ class LocalsObject:
   def __init__(self, ptr):
     self.ptr = ptr
 
-  ver = property(lambda self: self.ptr.cvars['anaconda-version'])
+  anaconda_ver   = property(lambda self: 'anaconda-%s'   % self.ptr.cvars['anaconda-version'])
+  createrepo_ver = property(lambda self: 'createrepo-%s' % self.ptr.cvars['createrepo-version'])
 
-  L_FILES             = property(lambda self: L_FILES[self.ver])
-  L_BUILDSTAMP_FORMAT = property(lambda self: L_BUILDSTAMP_FORMAT[self.ver])
-  L_DISCINFO_FORMAT   = property(lambda self: L_DISCINFO_FORMAT[self.ver])
-  L_TREEINFO_FORMAT   = property(lambda self: L_TREEINFO_FORMAT[self.ver])
-  L_LOGOS             = property(lambda self: L_LOGOS[self.ver])
-  L_INSTALLCLASS      = property(lambda self: L_INSTALLCLASS[self.ver])
-  L_RELEASE_HTML      = property(lambda self: L_RELEASE_HTML[self.ver])
-  L_GDM_CUSTOM_THEME  = property(lambda self: L_GDM_CUSTOM_THEME[self.ver])
-  L_LOGOS_RPM_FILES   = property(lambda self: L_LOGOS_RPM_FILES[self.ver])
+  # anaconda-version based
+  L_FILES             = property(lambda self: L_FILES[self.anaconda_ver])
+  #L_BUILDINSTALL      = property(lambda self: L_BUILDINSTALL[self.anaconda_ver])
+  L_BUILDSTAMP_FORMAT = property(lambda self: L_BUILDSTAMP_FORMAT[self.anaconda_ver])
+  L_DISCINFO_FORMAT   = property(lambda self: L_DISCINFO_FORMAT[self.anaconda_ver])
+  L_TREEINFO_FORMAT   = property(lambda self: L_TREEINFO_FORMAT[self.anaconda_ver])
+  L_LOGOS             = property(lambda self: L_LOGOS[self.anaconda_ver])
+  L_INSTALLCLASS      = property(lambda self: L_INSTALLCLASS[self.anaconda_ver])
+  L_RELEASE_HTML      = property(lambda self: L_RELEASE_HTML[self.anaconda_ver])
+  L_GDM_CUSTOM_THEME  = property(lambda self: L_GDM_CUSTOM_THEME[self.anaconda_ver])
+  L_LOGOS_RPM_FILES   = property(lambda self: L_LOGOS_RPM_FILES[self.anaconda_ver])
 
-# set up locals.L_* variables from local data
-#for attr in globals().keys():
-#  if attr.startswith('L_'):
-#    setattr(LocalsObject, attr, property(lambda self: globals()[attr][self.ver]))
-
+  # createrepo-version based
+  L_CREATEREPO        = property(lambda self: L_CREATEREPO[self.createrepo_ver])

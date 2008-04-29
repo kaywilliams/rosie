@@ -3,7 +3,7 @@ from spin.locals import LocalsDict, REMOVE
 __all__ = ['L_TREEINFO_FORMAT']
 
 L_TREEINFO_FORMAT = LocalsDict({
-  '0': {
+  "anaconda-0": {
     'general': { # general section
       'index': 0,
       'content': {
@@ -41,7 +41,7 @@ L_TREEINFO_FORMAT = LocalsDict({
       },
     },
   },
-  '11.4.0.36': { # don't include packagedir anymore
+  "anaconda-11.4.0.36": { # don't include packagedir anymore
     'general': {
       'content': {
         'packagedir':   REMOVE,
@@ -49,7 +49,7 @@ L_TREEINFO_FORMAT = LocalsDict({
       },
     },
   },
-  '11.4.0.40': { # don't include diskboot.img anymore
+  "anaconda-11.4.0.40": { # don't include diskboot.img anymore
     'images-%(basearch)s': {
       'content': {
         'diskboot.img': REMOVE,
