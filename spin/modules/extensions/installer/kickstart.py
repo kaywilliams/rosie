@@ -19,7 +19,7 @@ from rendition import pps
 
 from spin.event   import Event
 
-API_VERSION = '5.0'
+API_VERSION = 5.0
 EVENTS = {'installer': ['KickstartEvent']}
 
 class KickstartEvent(Event):
