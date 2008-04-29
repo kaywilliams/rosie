@@ -205,12 +205,12 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     (self.splittrees/set).mkdirs()
 
     splitter = splittree.Timber(set, dosrc=self.cvars['srpms-dir'] is not None)
-    splitter.product = self.product
+    splitter.product    = self.product
     splitter.u_tree     = self.cvars['os-dir']
     splitter.u_src_tree = self.cvars['srpms-dir']
     splitter.s_tree     = self.splittrees/set
-    splitter.difmt = self.locals.L_DISCINFO_FORMAT
-    splitter.pkgorder = self.cvars['pkgorder-file']
+    splitter.difmt      = self.locals.L_DISCINFO_FORMAT
+    splitter.pkgorder   = self.cvars['pkgorder-file']
 
     self.log(2, L2("splitting trees"))
     self.log(3, L3("computing layout"))

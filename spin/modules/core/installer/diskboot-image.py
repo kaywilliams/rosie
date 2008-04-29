@@ -92,6 +92,6 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     self.image.write(self.cvars['isolinux-files']['initrd.img'], '/')
 
     # hack to modify boot args in syslinux.cfg file
-    for file in self.image.list():
-      if file.basename == 'syslinux.cfg':
-        self.bootconfig.modify(file, cfgfile=file); break
+    for fn in self.image.list():
+      if fn.basename == 'syslinux.cfg':
+        self.bootconfig.modify(fn, cfgfile=fn); break

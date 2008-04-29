@@ -17,7 +17,7 @@
 #
 from rendition import shlib
 
-from spin.event   import Event
+from spin.event import Event
 
 from spin.modules.shared import BootConfigMixin
 
@@ -29,17 +29,18 @@ class BootisoEvent(Event, BootConfigMixin):
     Event.__init__(self,
       id = 'bootiso',
       version = 1,
-      requires = ['isolinux-files', 'boot-config-file'],
+      requires = ['isolinux-files', 'boot-config-file', 'stage2-images'],
+      # stage2 is a pseudo requirement, only in later anaconda versions does it apply
       conditionally_requires = ['web-path', 'boot-args'],
     )
 
     self.bootiso = self.SOFTWARE_STORE/'images/boot.iso'
 
     self.DATA = {
-      'variables': [],
       'config':    ['.'],
       'input':     [],
       'output':    [self.bootiso],
+      'variables': ['cvars[\'anaconda-version\']'],
     }
 
     BootConfigMixin.__init__(self)
@@ -47,19 +48,26 @@ class BootisoEvent(Event, BootConfigMixin):
   def setup(self):
     self.diff.setup(self.DATA)
     self.DATA['input'].extend(self.cvars['isolinux-files'].values())
-    self.bootconfig.setup(include_method=True)
+    self.bootconfig.setup(include_method=True, include_ks=True)
 
   def run(self):
     isodir = self.SOFTWARE_STORE/'images/isopath'
     isolinuxdir = isodir/'isolinux'
+    imagesdir   = isodir/'images'
 
     isolinuxdir.mkdirs()
-    for file in self.cvars['isolinux-files'].values():
-      self.link(file, isolinuxdir)
+    for fn in self.cvars['isolinux-files'].values():
+      if fn.basename == 'isolinux.cfg':
+        # copy and modify isolinux.cfg
+        self.copy(fn, isolinuxdir)
+        self.bootconfig.modify(isolinuxdir/fn.basename)
+      else:
+        # link other files
+        self.link(fn, isolinuxdir)
 
-    # modify isolinux.cfg
-    self.bootconfig.modify(
-      isodir/self.locals.L_FILES['isolinux']['isolinux.cfg']['path'])
+    # hack - until we have time to do this better
+    if self.cvars['anaconda-version'] >= '11.4.0.40':
+      self.link(self.cvars['stage2-images']['stage2.img'], imagesdir)
 
     # apparently mkisofs modifies the mtime of the file it uses as a boot image.
     # to avoid this, we copy the boot image timestamp and overwrite the original

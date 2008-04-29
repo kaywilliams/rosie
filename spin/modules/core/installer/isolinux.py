@@ -17,12 +17,12 @@
 #
 from spin.event   import Event
 
-from spin.modules.shared import FileDownloadMixin, BootConfigMixin
+from spin.modules.shared import FileDownloadMixin
 
 API_VERSION = 5.0
 EVENTS = {'installer': ['IsolinuxEvent']}
 
-class IsolinuxEvent(Event, FileDownloadMixin, BootConfigMixin):
+class IsolinuxEvent(Event, FileDownloadMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'isolinux',
@@ -39,24 +39,14 @@ class IsolinuxEvent(Event, FileDownloadMixin, BootConfigMixin):
     }
 
     FileDownloadMixin.__init__(self)
-    BootConfigMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)
-    boot_arg_defaults = []
-    self.bootconfig.setup(defaults=boot_arg_defaults, include_ks=True)
     self.file_locals = self.locals.L_FILES['isolinux']
     FileDownloadMixin.setup(self)
 
   def run(self):
-    # HACK - Forcing all files to be removed before redownloading
-    # This allows isolinux.cfg to start fresh
-    # Better would be for bootcfg to remove obsolete arguments
-    self.io.clean_eventcache(all=True)
     self._download()
-    self.bootconfig.modify(
-      self.SOFTWARE_STORE/self.file_locals['isolinux.cfg']['path'],
-      self.SOFTWARE_STORE/self.file_locals['isolinux.cfg']['path'])
 
   def apply(self):
     self.io.clean_eventcache()
