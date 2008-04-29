@@ -26,18 +26,18 @@ import time
 from rendition import logger
 
 # format of the various printouts
-def LEVEL_0_FORMAT(s): return '%s' % s
-def LEVEL_1_FORMAT(s): return ' * %s' % s
-def LEVEL_2_FORMAT(s): return '   - %s' % s
-def LEVEL_3_FORMAT(s): return '     + %s' % s
-def LEVEL_4_FORMAT(s): return '       o %s' % s
+FORMAT_L0 = '%s'
+FORMAT_L1 = ' * %s'
+FORMAT_L2 = '   - %s'
+FORMAT_L3 = '     + %s'
+FORMAT_L4 = '       o %s'
 
-# convenience for imports/usage
-L0 = LEVEL_0_FORMAT
-L1 = LEVEL_1_FORMAT
-L2 = LEVEL_2_FORMAT
-L3 = LEVEL_3_FORMAT
-L4 = LEVEL_4_FORMAT
+# and some functions that apply these formats
+def L0(s): return FORMAT_L0 % s
+def L1(s): return FORMAT_L1 % s
+def L2(s): return FORMAT_L2 % s
+def L3(s): return FORMAT_L3 % s
+def L4(s): return FORMAT_L4 % s
 
 MSG_MAXWIDTH = 75
 
