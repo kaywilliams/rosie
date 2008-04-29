@@ -53,7 +53,6 @@ class BootisoEvent(Event, BootConfigMixin):
   def run(self):
     isodir = self.SOFTWARE_STORE/'images/isopath'
     isolinuxdir = isodir/'isolinux'
-    imagesdir   = isodir/'images'
 
     isolinuxdir.mkdirs()
     for fn in self.cvars['isolinux-files'].values():
@@ -67,6 +66,8 @@ class BootisoEvent(Event, BootConfigMixin):
 
     # hack - until we have time to do this better
     if self.cvars['anaconda-version'] >= '11.4.0.40':
+      imagesdir   = isodir/'images'
+      imagesdir.mkdirs()
       self.link(self.cvars['stage2-images']['stage2.img'], imagesdir)
 
     # apparently mkisofs modifies the mtime of the file it uses as a boot image.
