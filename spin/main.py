@@ -134,11 +134,13 @@ class Build(object):
       self.disabled_modules = loader.disabled
       self.enabled_modules  = loader.enabled
       self.module_map       = loader.module_map
-      # hack to make sure '--force all' still works #!
-      # or is it a hack?  Perhaps we should consider adding 
-      # arbitrary containers of higher level tasks - all installer files,
-      # all software and custom rpms, all publish stuff, etc
-      self.module_map.setdefault('all', []).append(self.dispatch._top.id)
+
+      # add module mappings for pseudo events
+      for event in self.dispatch._top:
+        if len(event.get_children()) > 0:
+          self.module_map.setdefault(event.id, []).extend(
+            [ e.id for e in event.get_children() ] )
+
     except ImportError, e:
       Event.logger.log(0, L0("Error loading core spin files: %s" % e))
       if DEBUG: raise

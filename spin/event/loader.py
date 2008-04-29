@@ -48,9 +48,16 @@ class Loader(dispatch.Loader):
   def _process_path(self, path, default, *args, **kwargs):
     for mod in path.findpaths(nregex='.*/(\..*|.*\.pyc|.*\.pyo)', mindepth=1):
       modid = mod.basename.replace('.py', '')
-      if modid in self.disabled: continue # disabled events
       if not default and modid not in self.enabled: continue # default-off events
 
       modname = mod.tokens[len(path.tokens):].replace('/', '.').replace('.py', '')
+
+      # don't load disabled events
+      skip = False
+      for modtoken in modname.split('.'):
+        if modtoken in self.disabled:
+          skip = True; break
+      if skip: continue
+
       self._process_module(dispatch.load_modules(modname, path, err=False),
                            path, *args, **kwargs)
