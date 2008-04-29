@@ -1,8 +1,8 @@
-<!-- The following is a sample distribution definition file.  Some of the
-     most 'interesting' possible configuration values have been highlighted;
+<!-- The following is a sample distribution definition (.distro) file.  Some of
+     the most 'interesting' possible configuration values have been highlighted;
      this is by no means a comprehensive list of available options.  See
-     user documentation for a more complete discussion of modules and their
-     configuration.
+     user documentation (not yet available) for a more complete discussion of 
+     modules and their configuration.
 
      BOOLEAN VALUES
 
@@ -20,14 +20,14 @@
 
      Each top-level element, below, corresponds to a spin module of the
      same name.  Top level elements can have a single optional 'enabled'
-     attribute, which, if false, disables processing of the event entirely.
+     attribute, which, if false, disables processing of the module entirely.
      If not present, the default behavior depends on the module's class
      (see below).
 
-     For example, to disable the diskboot-image module, add the following to
+     For example, to disable the gpgcheck module, add the following to
      your config file:
 
-       <diskboot-image enabled="false"/>
+       <gpgcheck enabled="false"/>
 
      Not all supported top-level elements are listed in this sample distro
      definition.
@@ -51,7 +51,7 @@
      example, in order to load the iso module to generate iso images, add the
      following to your config file.
 
-       <iso enabled="true">
+       <iso>
          ...
        </iso>
 
@@ -81,9 +81,9 @@
      out for the sake of clarity.
 -->
 
-<!-- Distribution definitions have support for using the w3 XInclude
-     standard.  If this functionality is desired, include the following
-     attribute in the <distro> section:
+<!-- Distro files have support for using the w3 XInclude standard.  If this 
+     functionality is desired, include the following attribute in the <distro> 
+     section:
 
      xmlns:xi="http://www.w3.org/2001/XInclude" -->
 <distro xmlns:xi="http://www.w3.org/2001/XInclude">
@@ -136,8 +136,7 @@
     </repo>-->
 
     <!-- There currently is no support for the 'mirrorlist' element nor can
-         standard yum $release, $version, etc. variables be used; however, 
-         these will both be coming shortly. -->
+         standard yum $release, $version, etc. variables be used -->
 
     <!-- this XInclude refers to repos defined in the 'repos' file -->
     <xi:include href="repos" xpointer="xpointer(/distro/repos[@id='f9-i386']/*)"/>
@@ -147,7 +146,8 @@
        for the distribution. -->
   <comps>
     <!-- Include groups and packages in the distro by listing them in <group>
-         and <package> elements, respectively. -->
+         and <package> elements, respectively. Each group or package must
+         be listed in a separate element -->
     <group>core</group>
     <!--<package>bash</package>-->
 
@@ -235,7 +235,8 @@
   </initrd-image>
 
   <!-- The kickstart module handles putting a kickstart into a distro,
-       including modifying of kernel arguments -->
+       including embedding the kickstart into the initrd.img image and modifying
+       the kernel boot arguments for diskboot.img, boot.iso and cd/dvd images-->
   <kickstart enabled="false">
     <!--/path/to/kickstart-->
   </kickstart>
@@ -243,8 +244,8 @@
   <!-- The iso module controls generation of ISO images -->
   <iso enabled="false">
     <!-- Each <set> element defines a size to use for the ISO.  'CD' and
-         'DVD' are allowed, as are suffixes like 'M' and 'GB'.  Multiple
-         sets can be specified, if desired. -->
+         'DVD' are allowed, as are suffixes like 'M' and 'GB'. All text can be
+         in either upper or lower case. Multiple sets can be specified. -->
     <set>640M</set>
     <!--<set>DVD</set>-->
   </iso>
