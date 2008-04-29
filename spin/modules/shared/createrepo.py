@@ -31,7 +31,8 @@ CREATEREPO_ATTEMPTS = 2
 
 class CreaterepoMixin:
   def __init__(self):
-    self.cvars['createrepo-version'] = RpmPackageVersion('createrepo')
+    self.cvars['createrepo-version'] = Version(
+      execlib.execute('rpm -q --queryformat="%%{version}" createrepo')[0])
 
   def createrepo(self, path, groupfile=None, pretty=False,
                  update=True, quiet=True, database=True):
@@ -87,31 +88,3 @@ class RpmNotFoundError(IOError): pass
 def RpmPackageVersion(name):
   return Version(
     execlib.execute('rpm -q --queryformat="%%{version}" %s' % name)[0])
-
-#def CommandLineVersion(name, flag='--version'):
-#  return Version(execlib.execute('%s %s' % (name, flag))[0])
-#
-# figure out if createrepo can accept the '--update' and '--database'
-# flags
-#UPDATE_ALLOWED = True
-#DATABASE_ALLOWED = True
-#try:
-#  binary_version = CommandLineVersion('createrepo')
-#except (execlib.ExecuteError, IndexError), e:
-#  raise ImportError("missing 'createrepo' package")
-#else:
-#  if binary_version < '0.4.9':
-#    # can't accept '--update'
-#    UPDATE_ALLOWED = False
-#  elif binary_version == '0.4.9':
-#    # need to check rpm version because createrepo RPMs 0.4.9 and
-#    # 0.4.10, both report their createrepo version as
-#    # 0.4.9. Createrepo RPM 0.4.10 supports '--update'.
-#    try:
-#      if RpmPackageVersion('createrepo') < '0.4.10':
-#        UPDATE_ALLOWED = False
-#    except RpmNotFoundError:
-#      UPDATE_ALLOWED = False
-#
-#  if binary_version < '0.4.7':
-#    DATABASE_ALLOWED = False
