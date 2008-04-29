@@ -184,8 +184,12 @@ class Repo(dict):
     self._parser = xml.sax.make_parser()
 
   def __str__(self):
+    return self.tostring()
+
+  def tostring(self, remote=False):
     s = '[%s]\n' % self['id']
     for k,v in self.items():
+      if not remote and k == 'baseurl': v = self.localurl
       if isinstance(v, pps.path.file.FilePath): #! hack to make sure file:// is prepended
         v = 'file://%s' % v
       if   v in BOOLEANS_TRUE:  v = '1'
