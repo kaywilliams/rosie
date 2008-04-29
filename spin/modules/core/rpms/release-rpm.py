@@ -167,21 +167,24 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     dest.mkdirs()
     repofile = dest/'%s.repo' % self.product
 
+    lines = []
+
     if self.config.get('yum-repos/@include-distro', 'True') in BOOLEANS_TRUE \
            and self.cvars['web-path']:
       path = self.cvars['web-path'] / 'os'
-      lines = [ '[%s]' % self.product,
-                'name=%s - %s' % (self.fullname, self.basearch),
-                'baseurl=%s'   % path ]
+      lines.extend([ '[%s]' % self.product,
+                     'name=%s - %s' % (self.fullname, self.basearch),
+                     'baseurl=%s'   % path ])
       if self.cvars['gpgsign-public-key']:
         gpgkey = '%s/%s' % (path, P(self.cvars['gpgsign-public-key']).basename)
         lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
       else:
         lines.append('gpgcheck=0')
       lines.append('\n')
-      repofile.write_lines(lines)
 
     if self.config.get('yum-repos/@include-input', 'True') in BOOLEANS_TRUE:
       for repo in self.cvars['repos'].values():
         lines.extend(str(repo).splitlines())
+
+    if len(lines) > 0:
       repofile.write_lines(lines)
