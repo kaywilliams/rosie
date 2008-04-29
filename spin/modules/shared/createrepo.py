@@ -32,7 +32,7 @@ CREATEREPO_ATTEMPTS = 2
 class CreaterepoMixin:
   def __init__(self):
     self.cvars['createrepo-version'] = Version(
-      execlib.execute('rpm -q --queryformat="%%{version}" createrepo')[0])
+      execlib.execute('rpm -q --queryformat="%{version}" createrepo')[0])
 
   def createrepo(self, path, groupfile=None, pretty=False,
                  update=True, quiet=True, database=True):
