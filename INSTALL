@@ -78,7 +78,8 @@ to the /etc folder as a starting point and modify the share-path.
 3. Install Spin dependencies
 ----------------------------
 
-Install packages listed above under `Requirements`. 
+Install packages listed above under `Requirements`. Note that yum must be run
+as the root user.
 
 ::
 
@@ -142,7 +143,9 @@ the main and repos sections of the file to contain the following:
 2. Running Spin
 ---------------
 
-To run Spin, type the following at the command line:
+To run Spin, type the following at the command line. Note that Spin must be run
+as the root system user; this is required because Spin mounts and modifies
+installation images.
 
 ::
 
