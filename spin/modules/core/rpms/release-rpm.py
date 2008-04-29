@@ -184,7 +184,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
 
     if self.config.get('yum-repos/@include-input', 'True') in BOOLEANS_TRUE:
       for repo in self.cvars['repos'].values():
-        lines.extend(str(repo).splitlines())
+        lines.extend(repo.tostring(remote=True).splitlines())
 
     if len(lines) > 0:
       repofile.write_lines(lines)
