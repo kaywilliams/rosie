@@ -1,9 +1,5 @@
 <distro xmlns:xi="http://www.w3.org/2001/XInclude">
 
-  <main>
-    <version>c5</version>
-  </main>
-
   <!-- Change the macros below to point to local mirrors -->
 
   <macro id="centos">http://mirror.centos.org/centos-5</macro>
