@@ -26,6 +26,9 @@ class LocalsObject:
   def __init__(self, ptr):
     self.ptr = ptr
 
+  base_name = property(lambda self: self.ptr.cvars['base-info']['fullname'])
+  base_ver  = property(lambda self: self.ptr.cvars['base-info']['version'])
+
   anaconda_ver   = property(lambda self: 'anaconda-%s'   % self.ptr.cvars['anaconda-version'])
   createrepo_ver = property(lambda self: 'createrepo-%s' % self.ptr.cvars['createrepo-version'])
 
@@ -43,3 +46,6 @@ class LocalsObject:
 
   # createrepo-version based
   L_CREATEREPO        = property(lambda self: L_CREATEREPO[self.createrepo_ver])
+
+  # input distribution and version based
+  L_LOGOS_RPM_INFO    = property(lambda self: L_LOGOS_RPM_INFO[self.base_name][self.base_ver])
