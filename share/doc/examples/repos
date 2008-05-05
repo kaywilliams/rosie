@@ -15,11 +15,13 @@
     <repo id="base">
       <baseurl>%{centos}/5/os/i386</baseurl>
       <gpgkey>%{centos}/5/os/i386/RPM-GPG-KEY-CentOS-5</gpgkey>
+      <gpgkey>%{centos}/5/os/i386/RPM-GPG-KEY-beta</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
     <repo id="updates">
       <baseurl>%{centos}/5/updates/i386</baseurl>
       <gpgkey>%{centos}/5/os/i386/RPM-GPG-KEY-CentOS-5</gpgkey>
+      <gpgkey>%{centos}/5/os/i386/RPM-GPG-KEY-beta</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
     <repo id="epel">
@@ -35,11 +37,13 @@
     <repo id="base">
       <baseurl>%{centos}/5/os/x86_64</baseurl>
       <gpgkey>%{centos}/5/os/x86_64/RPM-GPG-KEY-CentOS-5</gpgkey>
+      <gpgkey>%{centos}/5/os/x86_64/RPM-GPG-KEY-beta</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
     <repo id="updates">
       <baseurl>%{centos}/5/updates/x86_64</baseurl>
       <gpgkey>%{centos}/5/os/x86_64/RPM-GPG-KEY-CentOS-5</gpgkey>
+      <gpgkey>%{centos}/5/os/x86_64/RPM-GPG-KEY-beta</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
     <repo id="epel">
@@ -70,16 +74,31 @@
     <repo id="base">
       <baseurl>%{fedora}/releases/7/Fedora/i386/os</baseurl>
       <gpgkey>%{fedora}/releases/7/Fedora/i386/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/i386/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/i386/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/i386/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/i386/os/RPM-GPG-KEY-fedora-test</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/i386/os/RPM-GPG-KEY-rawhide</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
     <repo id="everything">
       <baseurl>%{fedora}/releases/7/Everything/i386/os</baseurl>
       <gpgkey>%{fedora}/releases/7/Everything/i386/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Everything/i386/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Everything/i386/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Everything/i386/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Everything/i386/os/RPM-GPG-KEY-fedora-test</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Everything/i386/os/RPM-GPG-KEY-rawhide</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
     <repo id="updates">
       <baseurl>%{fedora}/updates/7/i386</baseurl>
       <gpgkey>%{fedora}/releases/7/Fedora/i386/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/i386/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/i386/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/i386/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/i386/os/RPM-GPG-KEY-fedora-test</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/i386/os/RPM-GPG-KEY-rawhide</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
   </repos>
@@ -90,16 +109,31 @@
     <repo id="base">
       <baseurl>%{fedora}/releases/7/Fedora/x86_64/os</baseurl>
       <gpgkey>%{fedora}/releases/7/Fedora/x86_64/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/x86_64/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/x86_64/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/x86_64/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/x86_64/os/RPM-GPG-KEY-fedora-test</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/x86_64/os/RPM-GPG-KEY-rawhide</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
     <repo id="everything">
       <baseurl>%{fedora}/releases/7/Everything/x86_64/os</baseurl>
       <gpgkey>%{fedora}/releases/7/Everything/x86_64/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Everything/x86_64/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Everything/x86_64/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Everything/x86_64/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Everything/x86_64/os/RPM-GPG-KEY-fedora-test</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Everything/x86_64/os/RPM-GPG-KEY-rawhide</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
     <repo id="updates">
       <baseurl>%{fedora}/updates/7/x86_64</baseurl>
       <gpgkey>%{fedora}/releases/7/Fedora/x86_64/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/x86_64/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/x86_64/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/x86_64/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/x86_64/os/RPM-GPG-KEY-fedora-test</gpgkey>
+      <gpgkey>%{fedora}/releases/7/Fedora/x86_64/os/RPM-GPG-KEY-rawhide</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>   
   </repos>
@@ -125,16 +159,31 @@
     <repo id="base">
       <baseurl>%{fedora}/releases/8/Fedora/i386/os</baseurl>
       <gpgkey>%{fedora}/releases/8/Fedora/i386/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/i386/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/i386/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/i386/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/i386/os/RPM-GPG-KEY-fedora-test</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/i386/os/RPM-GPG-KEY-rawhide</gpgkey>      
       <gpgcheck>on</gpgcheck>
     </repo>
     <repo id="everything">
       <baseurl>%{fedora}/releases/8/Everything/i386/os</baseurl>
       <gpgkey>%{fedora}/releases/8/Everything/i386/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Everything/i386/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Everything/i386/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Everything/i386/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Everything/i386/os/RPM-GPG-KEY-fedora-test</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Everything/i386/os/RPM-GPG-KEY-rawhide</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
     <repo id="updates">
       <baseurl>%{fedora}/updates/8/i386</baseurl>
       <gpgkey>%{fedora}/releases/8/Fedora/i386/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/i386/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/i386/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/i386/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/i386/os/RPM-GPG-KEY-fedora-test</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/i386/os/RPM-GPG-KEY-rawhide</gpgkey> 
       <gpgcheck>on</gpgcheck>
     </repo>
   </repos>
@@ -145,16 +194,31 @@
     <repo id="base">
       <baseurl>%{fedora}/releases/8/Fedora/x86_64/os</baseurl>
       <gpgkey>%{fedora}/releases/8/Fedora/x86_64/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/x86_64/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/x86_64/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/x86_64/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/x86_64/os/RPM-GPG-KEY-fedora-test</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/x86_64/os/RPM-GPG-KEY-rawhide</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
     <repo id="everything">
       <baseurl>%{fedora}/releases/8/Everything/x86_64/os</baseurl>
       <gpgkey>%{fedora}/releases/8/Everything/x86_64/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Everything/x86_64/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Everything/x86_64/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Everything/x86_64/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Everything/x86_64/os/RPM-GPG-KEY-fedora-test</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Everything/x86_64/os/RPM-GPG-KEY-rawhide</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
     <repo id="updates">
       <baseurl>%{fedora}/updates/8/x86_64</baseurl>
       <gpgkey>%{fedora}/releases/8/Fedora/x86_64/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/x86_64/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/x86_64/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/x86_64/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/x86_64/os/RPM-GPG-KEY-fedora-test</gpgkey>
+      <gpgkey>%{fedora}/releases/8/Fedora/x86_64/os/RPM-GPG-KEY-rawhide</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
   </repos>
@@ -241,6 +305,11 @@
     <base-repo>base</base-repo>
     <repo id="base">
       <baseurl>%{development}/development/i386/os</baseurl>
+      <gpgkey>%{development}/development/i386/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{development}/development/i386/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{development}/development/i386/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{development}/development/i386/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{development}/development/i386/os/RPM-GPG-KEY-fedora-test</gpgkey>
       <gpgkey>%{development}/development/i386/os/RPM-GPG-KEY-rawhide</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
@@ -251,6 +320,11 @@
     <base-repo>base</base-repo>
     <repo id="base">
       <baseurl>%{development}/development/x86_64/os</baseurl>
+      <gpgkey>%{development}/development/x86_64/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{development}/development/x86_64/os/RPM-GPG-KEY-beta</gpgkey>
+      <gpgkey>%{development}/development/x86_64/os/RPM-GPG-KEY-fedora</gpgkey>
+      <gpgkey>%{development}/development/x86_64/os/RPM-GPG-KEY-fedora-rawhide</gpgkey>
+      <gpgkey>%{development}/development/x86_64/os/RPM-GPG-KEY-fedora-test</gpgkey>
       <gpgkey>%{development}/development/x86_64/os/RPM-GPG-KEY-rawhide</gpgkey>
       <gpgcheck>on</gpgcheck>
     </repo>
