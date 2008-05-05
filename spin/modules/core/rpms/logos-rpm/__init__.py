@@ -91,105 +91,38 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     )
 
   def _get_post_install_script(self):
+    if not self.distro_info.has_key('post-install'):
+      return None
     post_install = self.build_folder / 'post-install.sh'
-    post_install.write_lines([
-      'SPIN_BACKGROUNDS="1-spin-sunrise.png 2-spin-day.png 3-spin-sunset.png 4-spin-night.png"',
-      'DEFAULT=/usr/share/backgrounds/spin/default.jpg',
-      'for file in $SPIN_BACKGROUNDS; do',
-      '  %{__ln_s} $DEFAULT /usr/share/backgrounds/spin/$file',
-      'done'
-    ])
+    post_install.write_text(self.distro_info['post-install'])
     return post_install
 
   def _get_post_uninstall_script(self):
+    if not self.distro_info.has_key('post-uninstall'):
+      return None
     post_uninstall = self.build_folder / 'post-uninstall.sh'
-    post_uninstall.write_lines([
-      'SPIN_BACKGROUNDS="1-spin-sunrise.png 2-spin-day.png 3-spin-sunset.png 4-spin-night.png"',
-      'for file in $SPIN_BACKGROUNDS; do',
-      '  %{__rm} -f /usr/share/backgrounds/spin/$file',
-      'done'
-    ])
+    post_uninstall.write_text(self.distro_info['post-uninstall'])
     return post_uninstall
 
   def _get_triggerin(self):
-    target1, script1 = self._get_gdm_install_trigger()
-    target2, script2 = self._get_background_install_trigger()
-    return ['%s:%s' % (target1, script1),
-            '%s:%s' % (target2, script2)]
+    if not self.distro_info.has_key('triggerin'):
+      return None
+    rtn = []
+    for target, content in self.distro_info['triggerin'].items():
+      script = self.build_folder / '%s-triggerin.sh' % target
+      script.write_text(content % {'rpm_name': self.rpm_name})
+      rtn.append('%s:%s' % (target, script))
+    return rtn
 
   def _get_triggerun(self):
-    target1, script1 = self._get_gdm_uninstall_trigger()
-    target2, script2 = self._get_background_uninstall_trigger()
-    return ['%s:%s' % (target1, script1),
-            '%s:%s' % (target2, script2)]
-
-  def _get_gdm_install_trigger(self):
-    gdm_triggerin = self.build_folder / 'gdm-triggerin.sh'
-    gdm_triggerin.write_lines([
-      'CUSTOM_CONF=%{_sysconfdir}/gdm/custom.conf',
-      'THEME_CONF=/usr/share/%s/custom.conf' % self.rpm_name,
-      '%{__mv} -f $CUSTOM_CONF $CUSTOM_CONF.rpmsave',
-      '%{__cp} $THEME_CONF $CUSTOM_CONF',
-    ])
-    return 'gdm', gdm_triggerin
-
-  def _get_gdm_uninstall_trigger(self):
-    gdm_triggerun = self.build_folder / 'gdm-triggerun.sh'
-    gdm_triggerun.write_lines([
-      'CUSTOM_CONF=%{_sysconfdir}/gdm/custom.conf',
-      'if [ "$2" -eq "0" -o "$1" -eq "0" ]; then',
-      '  %{__rm} -f $CUSTOM_CONF.rpmsave',
-      'fi',
-    ])
-    return 'gdm', gdm_triggerun
-
-  def _get_background_install_trigger(self):
-    bg_triggerin = self.build_folder / 'bg-triggerin.sh'
-    triggerin_lines = [
-      'BACKGROUNDS=/usr/share/backgrounds',
-      'DEFAULTS="default-5_4.jpg default-dual.jpg default-dual-wide.jpg default.jpg default-wide.jpg"',
-      'for default in $DEFAULTS; do',
-      '  file=$BACKGROUNDS/images/$default',
-      '  if [ -e $file ]; then',
-      '    %{__mv} $file $file.rpmsave',
-      '    %{__ln_s} $BACKGROUNDS/spin/$default $file',
-      '  fi',
-      'done',
-    ]
-    for dir, xml in self.themes_info:
-      triggerin_lines.extend([
-        'if [ -e $BACKGROUNDS/%s ]; then' % dir,
-        '  %%{__mv} $BACKGROUNDS/%s $BACKGROUNDS/%s.rpmsave' % (dir, dir),
-        '  %%{__ln_s} $BACKGROUNDS/spin $BACKGROUNDS/%s' % dir,
-        '  if [ ! -e $BACKGROUNDS/spin/%s ]; then' % xml,
-        '    %%{__ln_s} $BACKGROUNDS/spin/spin.xml $BACKGROUNDS/spin/%s' % xml,
-        '  fi',
-        'fi'
-       ])
-    bg_triggerin.write_lines(triggerin_lines)
-    return 'desktop-backgrounds-basic', bg_triggerin
-
-  def _get_background_uninstall_trigger(self):
-    bg_triggerun = self.build_folder / 'bg-triggerun.sh'
-    triggerun_lines = [
-      'BACKGROUNDS=/usr/share/backgrounds',
-      'if [ "$2" -eq "0" -o "$1" -eq "0" ]; then',
-      '  for default in `ls -1 $BACKGROUNDS/images/default* | grep -v "rpmsave"`; do',
-      '    %{__rm} -f $default',
-      '    %{__mv} -f $default.rpmsave $default',
-      '  done',
-    ]
-
-    for dir, xml in self.themes_info:
-      triggerun_lines.extend([
-        '  %%{__rm} -rf $BACKGROUNDS/%s' % dir,
-        '  %%{__mv} -f $BACKGROUNDS/%s.rpmsave $BACKGROUNDS/%s' % (dir, dir),
-        '  %%{__rm} -f $BACKGROUNDS/spin/%s' % xml,
-      ])
-
-    triggerun_lines.append('fi')
-    bg_triggerun.write_lines(triggerun_lines)
-    return 'desktop-backgrounds-basic', bg_triggerun
+    if not self.distro_info.has_key('triggerun'):
+      return None
+    rtn = []
+    for target, content in self.distro_info['triggerun'].items():
+      script = self.build_folder / '%s-triggerun.sh' % target
+      script.write_text(content % {'rpm_name': self.rpm_name})
+      rtn.append('%s:%s' % (target, script))
+    return rtn
 
   def _create_grub_splash_xpm(self):
     # HACK: to create the splash.xpm file, have to first convert
@@ -206,11 +139,9 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     outfile.close()
 
   def _setup_handlers(self):
-    info = self._get_distro_info()
-
     supplied_logos = self.config.get('logos-path/text()', None)
-    distro_paths, common_paths, fallback_paths = self._get_handler_paths(info['folder'])
-
+    distro_paths, common_paths, fallback_paths = \
+                  self._get_handler_paths(self.distro_info['folder'])
     if ( not supplied_logos and
          not distro_paths and
          not common_paths and
@@ -228,29 +159,32 @@ class LogosRpmEvent(RpmBuildMixin, Event):
       self.handlers.append(CommonFilesHandler(self, common_paths))
     if fallback_paths:
       self.handlers.append(FallbackHandler(self, fallback_paths,
-                                           info['start_color'],
-                                           info['end_color'],
+                                           self.distro_info['start_color'],
+                                           self.distro_info['end_color'],
                                            write_text))
 
   def _get_distro_info(self):
-    fullname = self.cvars['base-info']['fullname']
-    version  = self.cvars['base-info']['version']
+    if hasattr(self, '_distro_info'):
+      return self._distro_info
     try:
-      info = DISTRO_INFO[fullname][version]
+      self._distro_info = self.locals.L_LOGOS_RPM_INFO
     except KeyError:
+      fullname = self.cvars['base-info']['fullname']
+      version  = self.cvars['base-info']['version']
       # See if the version of the input distribution is a bugfix
       found = False
-      if DISTRO_INFO.has_key(fullname):
-        for ver in DISTRO_INFO[fullname]:
+      if self.locals.L_LOGOS_RPM_INFO.has_key(fullname):
+        for ver in self.locals.L_LOGOS_RPM_INFO[fullname]:
           if version.startswith(ver):
             found = True
-            info = DISTRO_INFO[fullname][ver]
+            self._distro_info = self.locals.L_LOGOS_RPM_INFO[fullname][ver]
             break
       if not found:
         # if not one of the "officially" supported distros, default
         # to something
-        info = DISTRO_INFO['*']['0']
-    return info
+        self._distro_info = self.locals.L_LOGOS_RPM_INFO['*']['0']
+    return self._distro_info
+  distro_info = property(_get_distro_info)
 
   def _get_handler_paths(self, distro_folder):
     # setup distro-specific, common files, and fallback handlers
