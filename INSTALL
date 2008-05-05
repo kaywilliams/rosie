@@ -7,6 +7,9 @@ This document covers Spin requirements, installation, and getting started.
 Requirements
 ============
 
+Spin has been tested on systems running Red Hat Enterprise Linux 5, CentOS 5,
+and Fedora versions 7, 8 and 9.
+
 The following packages are needed for Spin to run:
 
 * ImageMagick
