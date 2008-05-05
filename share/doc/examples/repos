@@ -16,6 +16,7 @@
       <baseurl>%{centos}/5/os/i386</baseurl>
       <gpgkey>%{centos}/5/os/i386/RPM-GPG-KEY-CentOS-5</gpgkey>
       <gpgkey>%{centos}/5/os/i386/RPM-GPG-KEY-beta</gpgkey>
+      <exclude>nautilus-sendto*</exclude><!--http://bugs.centos.org/view.php?id=2483-->
       <gpgcheck>on</gpgcheck>
     </repo>
     <repo id="updates">
