@@ -82,7 +82,6 @@ class LocalsDict(dict):
     for index in versort.sort(self.keys()):
       if index <= key:
         ret = rupdate(ret, dict.__getitem__(self, str(index)))
-
     return ret
 
 def rupdate(dst, src):
@@ -129,5 +128,5 @@ for modfile in pps.Path(__file__).dirname.listdir('*.py').filter('__init__.py'):
   # add locals to global namespace
   for attr in module.__all__:
     globals()[attr] = getattr(module, attr)
-  # add to __all__
-  __all__.append(attr)
+    # add to __all__
+    __all__.append(attr)
