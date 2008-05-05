@@ -226,9 +226,10 @@ class RpmBuildMixin:
     else:
       vermatch = VER_X_REGEX.match(self.version)
       if vermatch:
+        # for interop with 3rd party repofiles that use $releasever
         self.rpm_version = vermatch.group(1)
       else:
-        raise ValueError("Invalid version string; must contain at least one integer")
+        self.rpm_version = self.version
 
   def _save_release(self):
     if self.autofile.exists():
