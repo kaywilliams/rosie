@@ -137,13 +137,12 @@ class SourcesEvent(Event, CreaterepoMixin):
     # setup sync
     for repo in self.cvars['source-repos'].values():
       for rpminfo in repo.repoinfo:
-        rpmi = rpminfo['file']
+        rpmi = repo.remoteurl//rpminfo['file']
         _,n,v,r,a = self._deformat(rpmi)
         ## assuming the rpm file name to be lower-case 'rpm' suffixed
         nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a)
         if nvra in srpmset:
-          rpmi = P(rpminfo['file'])
-          if isinstance(rpmi, pps.path.http.HttpPath): #! bad
+          if hasattr(rpmi, '_update_stat'):
             rpmi._update_stat({'st_size':  rpminfo['size'],
                                'st_mtime': rpminfo['mtime'],
                                'st_mode':  (stat.S_IFREG | 0644)})

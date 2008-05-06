@@ -57,13 +57,12 @@ class DownloadEvent(Event):
     for repo in self.cvars['repos'].values():
       rpms = {}
       for rpminfo in repo.repoinfo:
-        rpm = rpminfo['file']
+        rpm = repo.remoteurl//rpminfo['file']
         _,n,v,r,a = self._deformat(rpm)
         nvra = '%s-%s-%s.%s' % (n,v,r,a)
         if nvra in self.cvars['pkglist'] and nvra not in processed and \
              a in self._validarchs:
-          rpm = P(rpm)
-          if isinstance(rpm, pps.path.http.HttpPath): #! bad
+          if hasattr(rpm, '_update_stat'):
             rpm._update_stat({'st_size':  rpminfo['size'],
                               'st_mtime': rpminfo['mtime'],
                               'st_mode':  (stat.S_IFREG | 0644)})
@@ -72,7 +71,7 @@ class DownloadEvent(Event):
       self.io.add_fpaths(rpms.values(), self.builddata_dest, id=repo.id)
       if rpms:
         self.cvars['rpms-by-repoid'][repo.id] = \
-          sorted([self.builddata_dest/rpm for rpm in rpms.keys()])
+          sorted([self.builddata_dest//rpm for rpm in rpms.keys()])
 
   def run(self):
     for repo in self.cvars['repos'].values():

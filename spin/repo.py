@@ -25,6 +25,8 @@ from gzip import GzipFile
 from rendition import pps
 from rendition import xmllib
 
+from rendition.pps import MirrorGroup
+
 from spin.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
 
 sep = ' = ' # the separator between key and value
@@ -47,6 +49,8 @@ OPTCRE = re.compile(
 
 NSMAP = {'repo': 'http://linux.duke.edu/metadata/repo',
          'common': 'http://linux.duke.edu/metadata/common'}
+
+CSVORDER = ['file', 'size', 'mtime'] # order of values in repo csv files
 
 P = pps.Path
 
@@ -91,9 +95,8 @@ class RepoContainer(dict):
       filenames = [filenames]
     read_ok = []
     for filename in filenames:
-      filename = P(filename)
-      if isinstance(filename, pps.path.file.FilePath): #! bad
-        filename = (P(self.ptr._config.file).dirname / filename).normpath()
+      # http paths are absolute and will wipe out _config.file
+      filename = P(self.ptr._config.file).dirname / filename
       fp = open(filename)
       self._read(fp, filename)
       fp.close()
@@ -174,9 +177,10 @@ class Repo(dict):
   def __init__(self, *args, **kwargs):
     dict.__init__(self, *args, **kwargs)
 
-    self.localurl = None
-    self.pkgsfile = None
-    self.mdfile = 'repodata/repomd.xml'
+    self.localurl   = None
+    self._remoteurl = None
+    self.pkgsfile   = None
+    self.mdfile     = 'repodata/repomd.xml'
 
     self.repoinfo = []
     self.datafiles = {}
@@ -189,9 +193,18 @@ class Repo(dict):
   def tostring(self, remote=False):
     s = '[%s]\n' % self['id']
     for k,v in self.items():
-      if not remote and k == 'baseurl': v = self.localurl
-      if isinstance(v, pps.path.file.FilePath): #! hack to make sure file:// is prepended
-        v = 'file://%s' % v
+      if not remote:
+        if k == 'baseurl':
+          v = self.localurl
+        elif k == 'mirrorlist':
+          if not self.has_key('baseurl'):
+            k = 'baseurl' # convert mirrorlists into baseurls for local repos
+            v = self.localurl
+          else:
+            continue
+      # make sure files appear in a format YUM can understand
+      if isinstance(v, pps.path.BasePath):
+        v = v.touri()
       if   v in BOOLEANS_TRUE:  v = '1'
       elif v in BOOLEANS_FALSE: v = '0'
       s += '%s%s%s\n' % (k, sep, str(v).replace('\n', '\n' + ' '*(len(k+sep))))
@@ -201,10 +214,10 @@ class Repo(dict):
   def read_config(self, tree):
     self['id'] = tree.get('@id')
     self['name'] = tree.get('name/text()', self['id'])
-    # this baseurl stuff will have to be addressed when we work on supporting
-    # mirrorgroups and multiple baseurls
-    ##self['baseurl'] = '\n'.join(tree.xpath('path/text()'))
-    self['baseurl'] = P(tree.get('baseurl/text()')) #!
+    if tree.pathexists('baseurl/text()'):
+      self['baseurl'] = '\n'.join(tree.xpath('baseurl/text()'))
+    if tree.pathexists('mirrorlist/text()'):
+      self['mirrorlist'] = tree.get('mirrorlist/text()')
     if tree.pathexists('gpgcheck/text()'):
       self['gpgcheck'] = tree.get('gpgcheck/text()')
     if tree.pathexists('gpgkey/text()'):
@@ -217,6 +230,30 @@ class Repo(dict):
   def update_metadata(self):
     self._read_repodata()
     self._read_repo_content()
+
+  @property
+  def remoteurl(self):
+    if not self._remoteurl:
+      # set up self.remoteurl as a MirrorGroupPath for mirrored syncing
+      if not self.has_key('baseurl') and not self.has_key('mirrorlist'):
+        raise ValueError("Each repo must specify at least one baseurl or mirrorlist")
+
+      urls = []
+      if self.has_key('baseurl'):
+        urls.extend(self['baseurl'].split())
+        if not self.has_key('mirrorlist'):
+          mgpath = urls[0] # first baseurl serves as the mirror group key
+      if self.has_key('mirrorlist'):
+        mgpath = P(self['mirrorlist'])
+        urls.extend(mgpath.read_lines())
+
+      if mgpath.startswith('file://'):
+        mgpath = mgpath[7:] # remove file prefix, causes problems atm
+
+      self._remoteurl = MirrorGroup.MirrorGroupPath(mgpath)
+      self._remoteurl._mirrorgroup = MirrorGroup.MirrorGroup(urls)
+
+    return self._remoteurl
 
   def _read_repodata(self):
     repomd = xmllib.tree.read((self.remoteurl/self.mdfile).open())
@@ -239,11 +276,7 @@ class Repo(dict):
       del pxml
 
       for f,s,m in handler.pkgs:
-        self.repoinfo.append({
-          'file':  self.remoteurl/f,
-          'size':  s,
-          'mtime': m,
-          })
+        self.repoinfo.append(dict(file=f, size=s, mtime=m))
       self.repoinfo.sort()
 
     else:
@@ -272,26 +305,20 @@ class Repo(dict):
     if file.exists(): file.rm()
     file.touch()
     mf = file.open('w')
-    mwriter = csv.DictWriter(mf, ['file', 'size', 'mtime'], lineterminator='\n')
+    mwriter = csv.DictWriter(mf, CSVORDER, lineterminator='\n')
     for item in self.repoinfo:
       mwriter.writerow(item)
     mf.close()
 
-  def _get_gpgkeys(self): return self._get_val('gpgkey')
-  def _get_include(self): return self._get_val('include')
-  def _get_exclude(self): return self._get_val('exclude')
-  def _get_val(self, key, splitter=None):
-    if self.has_key(key):
-      return self[key].split(splitter)
-    else:
-      return []
+  @property
+  def gpgkeys(self): return self.get('gpgkey', '').split()
+  @property
+  def include(self): return self.get('include', '').split()
+  @property
+  def exclude(self): return self.get('exclude', '').split()
 
   # handy properties based on dictionary values
   id = property(lambda self: self['id'])
-  remoteurl = property(lambda self: P(self['baseurl']))
-  gpgkeys = property(_get_gpgkeys)
-  include = property(_get_include)
-  exclude = property(_get_exclude)
 
 
 class PrimaryXmlContentHandler(xml.sax.ContentHandler):
@@ -324,13 +351,11 @@ class PrimaryXmlContentHandler(xml.sax.ContentHandler):
 def make_repoinfo(file):
   repoinfo = []
   mr = file.open('r')
-  mreader = csv.DictReader(mr, ['file', 'size', 'mtime'], lineterminator='\n')
+  mreader = csv.DictReader(mr, CSVORDER, lineterminator='\n')
   for item in mreader:
-    repoinfo.append({
-      'mtime': int(item['mtime']),
-      'size':  int(item['size']),
-      'file':  item['file'],
-    })
+    repoinfo.append(dict(file  = item['file'],
+                         size  = int(item['size']),
+                         mtime = int(item['mtime'])))
   mr.close()
   return repoinfo
 

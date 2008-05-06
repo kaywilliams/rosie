@@ -103,7 +103,7 @@ class CompsEvent(Event):
 
   # output verification
   def verify_comps_xpath(self):
-    "user-specifed comps xpath query"
+    "user-specified comps xpath query"
     self.verifier.failUnless(len(self.io.list_output(what='comps.xml')) < 2,
       "more than one user-specified comps file; using the first one only")
 
@@ -273,7 +273,7 @@ class CompsEvent(Event):
           try: #!
             G['attrs'][attr.tag] = attr.text
           except KeyError: #!
-            ##print tree #!
+            #print tree #!
             raise #!
 
     # set the default value, if given

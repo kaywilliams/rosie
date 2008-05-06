@@ -58,8 +58,8 @@ class InputFilesMixin:
         for item in self.config.xpath(xpath, []):
           s,d,f,m = self.io._process_path_xml(item, relpath=default_dir,
                                               absolute=absolute, mode=mode)
-          if isinstance(s, pps.path.file.FilePath): #! bad, see event/fileio.py
-            s = self._config.file.dirname / s
+          # http paths are absolute and will wipe out this join
+          s = self._config.file.dirname / s
 
           id = self._get_download_id(k)
           self.ids.add(id)

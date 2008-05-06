@@ -53,9 +53,8 @@ class IOObject(object):
     @param mode   : default mode to assign to files
     @param prefix : the prefix to be prepended to relative paths
     """
-    if isinstance(src, pps.path.file.FilePath): #! bad
-      src = (prefix or self.ptr._config.file.dirname) / src
-    src = src.normpath()
+    # absolute paths will not be affected by this join
+    src = ((prefix or self.ptr._config.file.dirname) / src).normpath()
 
     if not src.exists():
       raise IOError("missing input file '%s'" % src)
@@ -100,7 +99,7 @@ class IOObject(object):
     """
     if not id: id = fpath
     fpath = P(fpath)
-    self.add_item(fpath, dst/fpath.basename, id=id, mode=mode, prefix=prefix)
+    self.add_item(fpath, dst//fpath.basename, id=id, mode=mode, prefix=prefix)
 
   def add_fpaths(self, fpaths, *args, **kwargs):
     "Add multiple fpaths at once; calls add_fpath on each element in fpaths"
@@ -228,3 +227,4 @@ class TransactionData(object):
     self.src  = src
     self.dst  = dst
     self.mode = mode
+

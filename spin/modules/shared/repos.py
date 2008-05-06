@@ -92,7 +92,7 @@ class RepoEventMixin:
 
   def sync_repodata(self):
     for repo in self.repocontainer.values():
-      self.io.sync_input(what='%s-repodata' % repo.id, cache=True, 
+      self.io.sync_input(what='%s-repodata' % repo.id, cache=True,
                          text=("downloading repodata - '%s'" % repo.id))
 
   def read_new_packages(self):
