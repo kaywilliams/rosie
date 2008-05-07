@@ -32,7 +32,7 @@ class ReposEvent(Event, RepoEventMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'repos',
-      version = 1,
+      version = 2,
       provides = ['anaconda-version',
                   'logos-versions',
                   'release-versions',
