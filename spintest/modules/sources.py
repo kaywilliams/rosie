@@ -104,7 +104,7 @@ SOURCE_REPOS = {
     'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/updates/8/SRPMS/',
   },
   # fedora devel
-  'fedora-devel-source': {
+  'fedora-devel-base-source': {
     'name': 'fedora-devel-source',
     'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/development/source/SRPMS/',
   },

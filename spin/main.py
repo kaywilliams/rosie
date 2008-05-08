@@ -108,7 +108,7 @@ class Build(object):
     """
     self.parser = parser
 
-    # set up loger
+    # set up logger
     self.logger = make_log(options.logthresh, options.logfile)
 
     # set up configs
@@ -417,7 +417,10 @@ class Build(object):
     selinux_enabled = False
     getenforce = P('/usr/sbin/getenforce')
     if getenforce.exists():
-      selinux_enabled = shlib.execute(getenforce)[0] != 'Disabled'
+      try:
+        selinux_enabled = shlib.execute(getenforce)[0] != 'Disabled'
+      except:
+        pass
     Event.cvars['selinux-enabled'] = selinux_enabled
 
   def _log_header(self):
