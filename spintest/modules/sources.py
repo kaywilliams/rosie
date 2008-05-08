@@ -103,6 +103,11 @@ SOURCE_REPOS = {
     'name': 'fedora-8-updates-source',
     'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/updates/8/SRPMS/',
   },
+  # fedora devel
+  'fedora-devel-source': {
+    'name': 'fedora-devel-source',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/development/source/SRPMS/',
+  },
   # redhat 5
   'redhat-5-base-source': {
     'name': 'redhat-5-base-source',

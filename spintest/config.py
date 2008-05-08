@@ -131,6 +131,12 @@ REPOS = {
     'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/releases/8/Everything/%(arch)s/os',
     'gpgkey':  'http://www.renditionsoftware.com/mirrors/fedora/releases/8/Fedora/%(arch)s/os/RPM-GPG-KEY-fedora',
   },
+  # fedora devel
+  'fedora-devel-base': {
+    'name': 'fedora-devel-base',
+    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/development/%(arch)s/os/',
+    'gpgkey':  'http://www.renditionsoftware.com/mirrors/fedora/development/%(arch)s/os/RPM-GPG-KEY-fedora',
+  },
   # redhat 5
   'redhat-5-base': {
     'name': 'redhat-5-base',
