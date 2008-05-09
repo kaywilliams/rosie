@@ -56,8 +56,6 @@ from spin.validate  import (ConfigValidator, MainConfigValidator,
 
 from spin.event.loader import Loader
 
-P = pps.Path # convenience, same is used throughout most modules
-
 # RPMS we need to check for
 # createrepo
 # anaconda-runtime
@@ -66,11 +64,11 @@ P = pps.Path # convenience, same is used throughout most modules
 # python-setuptools
 
 API_VERSION = 5.0
-LOCK = P('/var/run/spin.pid')
+LOCK = pps.path('/var/run/spin.pid')
 
-DEFAULT_TEMP_DIR = P('/tmp/spin')
-DEFAULT_CACHE_DIR = P('/var/cache/spin')
-DEFAULT_SHARE_DIR = P('/usr/share/spin')
+DEFAULT_TEMP_DIR = pps.path('/tmp/spin')
+DEFAULT_CACHE_DIR = pps.path('/var/cache/spin')
+DEFAULT_SHARE_DIR = pps.path('/usr/share/spin')
 
 # map our supported archs to the highest arch in that arch 'class'
 ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
@@ -207,8 +205,8 @@ class Build(object):
     that a user can type `spin -h` on the command line without giving
     the '-c' option.)
     """
-    mcp = P(options.mainconfigpath)
-    dcp = P(arguments[0])
+    mcp = pps.path(options.mainconfigpath)
+    dcp = pps.path(arguments[0])
     try:
       if mcp and mcp.exists():
         self.logger.log(4, "Reading main config file '%s'" % mcp)
@@ -277,14 +275,14 @@ class Build(object):
     options    : an optparse.Values instance containing the result of parsing
                  command line options
     """
-    import_dirs = [ P(x).expand() for x in \
+    import_dirs = [ pps.path(x).expand() for x in \
       self.mainconfig.xpath('/spin/library-path/text()', []) ]
 
     if options.libpath:
-      import_dirs = [ P(x).expand() for x in options.libpath ] + import_dirs
+      import_dirs = [ pps.path(x).expand() for x in options.libpath ] + import_dirs
     for dir in sys.path:
       if dir not in import_dirs:
-        import_dirs.append(P(dir))
+        import_dirs.append(pps.path(dir))
 
     return import_dirs
 
@@ -325,7 +323,7 @@ class Build(object):
     mcvalidator.validate('/spin', schema_file='spin.rng')
 
     # validate individual sections of distro.conf
-    Event.logger.log(1, L1(P(Event._config.file).basename))
+    Event.logger.log(1, L1(pps.path(Event._config.file).basename))
     validator = ConfigValidator([ x/'schemas/distro.conf' for x in Event.SHARE_DIRS ],
                                 self.distroconfig.file)
 
@@ -385,18 +383,18 @@ class Build(object):
       setattr(Event, k, v)
 
     # set up other directories
-    Event.CACHE_DIR    = P(self.mainconfig.get('/spin/cache/path/text()',
+    Event.CACHE_DIR    = pps.path(self.mainconfig.get('/spin/cache/path/text()',
                                                DEFAULT_CACHE_DIR))
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
     Event.METADATA_DIR = Event.CACHE_DIR  / di['pva']
 
-    Event.SHARE_DIRS = [ P(x).expand() for x in \
+    Event.SHARE_DIRS = [ pps.path(x).expand() for x in \
                          self.mainconfig.xpath('/spin/share-path/text()',
                                                [DEFAULT_SHARE_DIR]) ]
 
     if options.sharepath:
       options.sharepath.extend(Event.SHARE_DIRS)
-      Event.SHARE_DIRS = [ P(x).expand() for x in options.sharepath ]
+      Event.SHARE_DIRS = [ pps.path(x).expand() for x in options.sharepath ]
 
     Event.CACHE_MAX_SIZE = \
       si.parse(self.mainconfig.get('/spin/cache/max-size/text()', '30GiB'))
@@ -415,7 +413,7 @@ class Build(object):
                                      Event.logger, Event.METADATA_DIR)
 
     selinux_enabled = False
-    getenforce = P('/usr/sbin/getenforce')
+    getenforce = pps.path('/usr/sbin/getenforce')
     if getenforce.exists():
       try:
         selinux_enabled = shlib.execute(getenforce)[0] != 'Disabled'

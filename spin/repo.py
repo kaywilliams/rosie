@@ -25,8 +25,6 @@ from gzip import GzipFile
 from rendition import pps
 from rendition import xmllib
 
-from rendition.pps import MirrorGroup
-
 from spin.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
 
 sep = ' = ' # the separator between key and value
@@ -51,8 +49,6 @@ NSMAP = {'repo': 'http://linux.duke.edu/metadata/repo',
          'common': 'http://linux.duke.edu/metadata/common'}
 
 CSVORDER = ['file', 'size', 'mtime'] # order of values in repo csv files
-
-P = pps.Path
 
 class RepoContainer(dict):
   def __init__(self, ptr):
@@ -96,7 +92,7 @@ class RepoContainer(dict):
     read_ok = []
     for filename in filenames:
       # http paths are absolute and will wipe out _config.file
-      filename = P(self.ptr._config.file).dirname / filename
+      filename = pps.path(self.ptr._config.file).dirname / filename
       fp = open(filename)
       self._read(fp, filename)
       fp.close()
@@ -203,7 +199,7 @@ class Repo(dict):
           else:
             continue
       # make sure files appear in a format YUM can understand
-      if isinstance(v, pps.path.BasePath):
+      if isinstance(v, pps.Path.BasePath):
         v = v.touri()
       if   v in BOOLEANS_TRUE:  v = '1'
       elif v in BOOLEANS_FALSE: v = '0'
@@ -242,16 +238,15 @@ class Repo(dict):
       if self.has_key('baseurl'):
         urls.extend(self['baseurl'].split())
         if not self.has_key('mirrorlist'):
-          mgpath = urls[0] # first baseurl serves as the mirror group key
+          # use the first url as the mirror group key
+          self._remoteurl = pps.path('mirror:%s::/' % urls[0])
+          # create and save a mirrorgroup to the cache
+          pps.Path.mirror.mgcache[str(self._remoteurl)] = pps.lib.mirror.MirrorGroup(urls)
       if self.has_key('mirrorlist'):
-        mgpath = P(self['mirrorlist'])
-        urls.extend(mgpath.read_lines())
-
-      if mgpath.startswith('file://'):
-        mgpath = mgpath[7:] # remove file prefix, causes problems atm
-
-      self._remoteurl = MirrorGroup.MirrorGroupPath(mgpath)
-      self._remoteurl._mirrorgroup = MirrorGroup.MirrorGroup(urls)
+        self._remoteurl = pps.path('mirror:%s::/' % self['mirrorlist'])
+        # insert baseurls into mirrorgroup first
+        for url in reversed(urls):
+          self._remoteurl.mirrorgroup.insert(0,[url,True])
 
     return self._remoteurl
 
@@ -259,7 +254,7 @@ class Repo(dict):
     repomd = xmllib.tree.read((self.remoteurl/self.mdfile).open())
 
     for data in repomd:
-      repofile = P(data.get('repo:location/@href', namespaces=NSMAP))
+      repofile = pps.path(data.get('repo:location/@href', namespaces=NSMAP))
       filetype = data.get('@type')
       self.datafiles[filetype] = repofile.basename
 

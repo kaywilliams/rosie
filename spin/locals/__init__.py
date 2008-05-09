@@ -121,7 +121,7 @@ def _icmp(a,b,i='index'):
 
 
 # local data imports
-for modfile in pps.Path(__file__).dirname.listdir('*.py').filter('__init__.py'):
+for modfile in pps.path(__file__).dirname.listdir('*.py').filter('__init__.py'):
   modname = 'l_'+modfile.basename.replace('.py', '')
   module = imp.load_source(modname, modfile)
 

@@ -41,9 +41,9 @@ class VerifyObject(unittest.TestCase):
     self._testMethodDoc = None
 
   def failIfExists(self, path):
-    self.failIf(pps.Path(path).exists(), "'%s' exists" % path)
+    self.failIf(pps.path(path).exists(), "'%s' exists" % path)
   def failUnlessExists(self, path):
-    self.failUnless(pps.Path(path).exists(), "'%s' does not exist " % path)
+    self.failUnless(pps.path(path).exists(), "'%s' does not exist " % path)
 
   def unittest(self):
     methods = [] # list of methods to run

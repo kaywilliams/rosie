@@ -24,8 +24,6 @@ from spin.event     import Event
 
 from spin.modules.shared import ExtractMixin, RpmNotFoundError
 
-P = pps.Path
-
 API_VERSION = 5.0
 EVENTS = {'installer': ['LogosEvent']}
 
@@ -141,10 +139,10 @@ class LogosEvent(Event, ExtractMixin):
 
   def _find_rpms(self):
     pkgname = self.config.get('package/text()', '%s-logos' % self.product)
-    rpms = P(self.cvars['rpms-directory']).findpaths(
+    rpms = pps.path(self.cvars['rpms-directory']).findpaths(
       glob='%s-*-*' % pkgname, nregex=SRPM_REGEX)
     if len(rpms) == 0:
-      rpms = P(self.cvars['rpms-directory']).findpaths(
+      rpms = pps.path(self.cvars['rpms-directory']).findpaths(
         glob='*-logos-*-*', nregex=SRPM_REGEX)
       if len(rpms) == 0:
         raise RpmNotFoundError("missing logo RPM")

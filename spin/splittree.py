@@ -27,7 +27,7 @@ from rendition import pkgorder
 from rendition import si
 from rendition import xmllib
 
-from rendition.pps.path.error import PathError
+from rendition.pps.Path.error import PathError
 
 from spin.constants import RPM_GLOB, SRPM_GLOB
 

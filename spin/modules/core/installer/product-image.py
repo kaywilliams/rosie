@@ -24,9 +24,6 @@ from spin.event   import Event
 
 from spin.modules.shared import ImageModifyMixin
 
-P = pps.Path
-
-
 API_VERSION = 5.0
 EVENTS = {'installer': ['ProductImageEvent']}
 
@@ -68,7 +65,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     ImageModifyMixin._generate(self)
 
     # generate installclasses if none exist
-    if len((P(self.image.handler._mount)/'installclasses').findpaths(glob='*.py')) == 0:
+    if len((pps.path(self.image.handler._mount)/'installclasses').findpaths(glob='*.py')) == 0:
       self._generate_installclass()
 
     # write the buildstamp file to the image

@@ -26,8 +26,6 @@ from spin.constants import *
 from spin.event     import Event
 from spin.logging   import L1
 
-P = pps.Path
-
 API_VERSION = 5.0
 EVENTS = {'all': ['PublishEvent'], 'setup': ['PublishSetupEvent']}
 
@@ -47,13 +45,13 @@ class PublishSetupEvent(Event):
     self.diff.setup(self.DATA)
 
     prefix = \
-      P(self.config.get('path-prefix/text()', 'distros')) / self.pva
+      pps.path(self.config.get('path-prefix/text()', 'distros')) / self.pva
     web_path = \
       self.config.get('remote-webroot/text()', None) or \
-        P('http://' +  self._get_host()) / prefix
-    self.web_path = P(web_path)
+        pps.path('http://' +  self._get_host()) / prefix
+    self.web_path = pps.path(web_path)
     self.publish_path = \
-      P(self.config.get('local-webroot/text()', '/var/www/html')) / prefix
+      pps.path(self.config.get('local-webroot/text()', '/var/www/html')) / prefix
 
   def apply(self):
     self.cvars['publish-content'] = set()

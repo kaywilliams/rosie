@@ -18,7 +18,6 @@
 import gzip
 
 from rendition import shlib
-from rendition import pps
 
 from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
@@ -27,8 +26,6 @@ from spin.modules.shared import RpmBuildMixin
 
 from constants import *
 from handlers  import *
-
-P = pps.Path
 
 API_VERSION = 5.0
 

@@ -27,16 +27,7 @@ from rendition import xmllib
 from spin.event   import Event
 from spin.logging import L1
 
-try:
-  import Image
-  import ImageDraw
-  import ImageFont
-except ImportError:
-  raise ImportError("missing 'python-imaging' module")
-
-__all__ = ['InputFilesMixin', 'RpmBuildMixin', 'ImagesGenerator']
-
-P = pps.Path
+__all__ = ['InputFilesMixin', 'RpmBuildMixin']
 
 VER_X_REGEX = re.compile('[^0-9]*([0-9]+).*')
 
@@ -54,7 +45,7 @@ class InputFilesMixin:
       xpath, dst, mode, absolute = v
 
       if xpath and self.config.pathexists(xpath):
-        default_dir = P(dst) / P(self.config.get(xpath).getparent().get('@dest', ''))
+        default_dir = pps.path(dst) / self.config.get(xpath).getparent().get('@dest', '')
         for item in self.config.xpath(xpath, []):
           s,d,f,m = self.io._process_path_xml(item, relpath=default_dir,
                                               absolute=absolute, mode=mode)
@@ -92,7 +83,7 @@ class RpmBuildMixin:
     self.packagereq_default = packagereq_default
     self.packagereq_requires = packagereq_requires
 
-    self.autofile = P(self._config.file + '.dat')
+    self.autofile = pps.path(self._config.file + '.dat')
 
     # RPM build variables
     self.build_folder = self.mddir / 'build'
@@ -180,7 +171,7 @@ class RpmBuildMixin:
       files = item.findpaths(type=pps.constants.TYPE_NOT_DIR,
                              mindepth=1, maxdepth=1)
       if files:
-        data_files.setdefault(P(item[len(self.build_folder):]), []).extend(files)
+        data_files.setdefault(pps.path(item[len(self.build_folder):]), []).extend(files)
     return data_files
   data_files = property(_get_data_files)
 
@@ -343,7 +334,7 @@ class RpmBuildMixin:
 
   def _write_manifest(self):
     manifest = ['setup.py']
-    manifest.extend( [ x.tokens[len(self.build_folder.tokens):] \
+    manifest.extend( [ x.splitall()[len(self.build_folder.splitall()):] \
                        for x in self.build_folder.findpaths(type=pps.constants.TYPE_NOT_DIR) ] )
     (self.build_folder/'MANIFEST').write_lines(manifest)
 
@@ -408,179 +399,3 @@ class RpmBuildMixin:
     return None
   def _get_triggerpostun(self):
     return None
-
-class ImagesGenerator(object):
-  def __init__(self):
-    self.images_dir = None
-
-  def _setup_image_creation(self, shared_dir):
-    found_images_dir = False
-    for path in self.SHARE_DIRS:
-      images_dir = path / shared_dir
-      if images_dir.exists() and self.images_dir is None:
-        self.images_dir = images_dir
-        found_images_dir = True
-    if not found_images_dir:
-      raise RuntimeError("Unable to find %s/ directory in share path(s) '%s'" % \
-                         (shared_dir, self.SHARE_DIRS))
-
-    fullname = self.cvars['base-info']['fullname']
-    version = self.cvars['base-info']['version']
-    try:
-      self.hue_info = HUE_INFO[fullname][version]
-    except KeyError:
-      # See if the version of the input distribution is a bugfix
-      # version, and if it is, use the hue difference for the main
-      # release.
-      found = False
-      if HUE_INFO.has_key(fullname):
-        for ver in HUE_INFO[fullname]:
-          if version.startswith(ver):
-            found = True
-            self.hue_info = HUE_INFO[fullname][ver]
-            break
-      if not found:
-        self.hue_info = HUE_INFO['*']['0']
-
-  def _copy_static_images(self):
-    for src in self.images_dir.findpaths(type=pps.constants.TYPE_NOT_DIR):
-      dst = self.build_folder / src.relpathfrom(self.images_dir)
-      dst.dirname.mkdirs()
-      self.link(src, dst.dirname)
-
-  def _create_dynamic_images(self, image_locals):
-    self.base_image = self._create_base_image('baseimage.png')
-
-    for file_name in image_locals:
-      properties = image_locals[file_name]
-      output_locations = properties.get('output_locations', [file_name])
-      for location in output_locations:
-        self._create_image(
-          self.build_folder // location,
-          properties['width'],
-          properties['height'],
-          properties['format'],
-          strings = properties.get('strings', None),
-          base_image = properties.get('base_image', None)
-        )
-
-    self.base_image = None
-
-  def _create_image(self, file_name, width, height, format,
-                    strings=None, base_image=None):
-    if base_image is not None:
-      img = self._create_base_image(base_image)
-      img.resize((width, height), Image.ANTIALIAS)
-    else:
-      img = self.base_image.resize((width, height), Image.ANTIALIAS)
-
-    if strings:
-      for i in strings:
-        text_string    = i.get('text', '') % self.cvars['distro-info']
-        halign         = i.get('halign', 'center')
-        text_coords    = i.get('text_coords', (img.size[0]/2, img.size[1]/2))
-        text_max_width = i.get('text_max_width', img.size[0])
-        font_color     = i.get('font_color', 'black')
-        font_size      = i.get('font_size', 52)
-        font_size_min  = i.get('font_size_min', None)
-        font_path      = self._get_font_path(i.get('font',
-                                                   'DejaVuLGCSans.ttf'))
-        draw = ImageDraw.Draw(img)
-        font = ImageFont.truetype(font_path, font_size)
-        w, h = draw.textsize(text_string, font)
-        if font_size_min:
-          while True:
-            w, h = draw.textsize(text_string, font)
-            if w <= (text_max_width or im.size[0]):
-              break
-            else:
-              font_size -= 1
-            if font_size < font_size_min:
-              break
-            font = ImageFont.truetype(font_path, font_size)
-
-        if halign == 'center':
-          draw.text((text_coords[0]-(w/2), text_coords[1]-(h/2)),
-                    text_string, font=font, fill=font_color)
-        elif halign == 'right':
-          draw.text((text_coords[0]-w, text_coords[1]-(h/2)),
-                    text_string, font=font, fill=font_color)
-
-    file_name.dirname.mkdirs()
-    img.save(file_name, format=format)
-
-  def _get_font_path(self, font):
-    """
-    Given a font file name, returns the full path to the font located in one
-    of the share directories
-    """
-    for path in self.SHARE_DIRS:
-      available_fonts = (path/'fonts').findpaths(glob=font)
-      if available_fonts:
-        font_path = available_fonts[0]; break
-      if not font_path:
-        raise RuntimeError("Unable to find font file '%s' in share path(s) "
-                           "'%s'" %  font_path, self.SHARE_DIRS)
-    return font_path
-
-  def _create_base_image(self, file_name):
-    input_image = None
-    for path in self.SHARE_DIRS:
-      input_image = path / 'static' / file_name
-      if input_image.exists():
-        break
-      else:
-        input_image = None
-    if input_image is None:
-      raise RuntimeError("Unable to find static base image '%s' in share path(s) '%s'" % \
-                         (file_name, self.SHARE_DIRS))
-
-    img = Image.open(input_image)
-    imo = Image.new(img.mode, img.size)
-
-    color_mapping = {}
-    input = img.getdata()
-    output = []
-    for rgba in input:
-      if not color_mapping.has_key(rgba):
-        h, s, v = self._rgb_to_hsv(*rgba[:3])
-        h = self.hue_info / 360.
-        r, g, b = self._hsv_to_rgb(h, s, v)
-
-        # maintain RGBA-ness, if input image mode is RGBA
-        color_mapping[rgba] = (r, g, b) + tuple(rgba[3:])
-
-      new_rgba = color_mapping[rgba]
-      output.append(new_rgba)
-
-    imo.putdata(output)
-    return imo
-
-  def _rgb_to_hsv(self, r, g, b):
-    return colorsys.rgb_to_hsv(r/255., g/255., b/255.)
-
-  def _hsv_to_rgb(self, h, s, v):
-    r, g, b = colorsys.hsv_to_rgb(h, s, v)
-    return int(r*255), int(g*255), int(b*255)
-
-#---------- GLOBAL VARIABLES --------#
-# each element for a distro's version, e.g. redhat/5, maps to the difference to the
-# hue of the base image in the shared folder.
-HUE_INFO = {
-  'CentOS': {
-    '5': 213,
-  },
-  'Fedora Core': {
-    '6': 212,
-  },
-  'Fedora': {
-    '7': 220,
-    '8': 205,
-  },
-  'Red Hat Enterprise Linux Server': {
-    '5': 0,
-  },
-  '*': {
-    '0': 0,
-  }
-}

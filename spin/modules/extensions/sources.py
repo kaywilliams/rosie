@@ -24,16 +24,12 @@ import os
 import rpm
 import stat
 
-from rendition import pps
-
 from spin.constants import SRPM_PNVRA_REGEX, SRPM_REGEX
 from spin.event     import Event
 from spin.logging   import L1, L2
 from spin.validate  import InvalidConfigError
 
 from spin.modules.shared import CreaterepoMixin, RepoEventMixin
-
-P = pps.Path
 
 API_VERSION = 5.0
 EVENTS = {'setup': ['SourceReposEvent'], 'all': ['SourcesEvent']}

@@ -45,7 +45,7 @@ class KickstartEvent(Event):
 
   def apply(self):
     self.cvars['kickstart-file'] = self.io.list_output(what='kickstart-file')[0]
-    self.cvars['ks-path'] = pps.Path('/%s' % self.cvars['kickstart-file'].basename)
+    self.cvars['ks-path'] = pps.path('/%s' % self.cvars['kickstart-file'].basename)
 
   def verify_cvars(self):
     "cvars are set"

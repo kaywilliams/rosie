@@ -19,16 +19,12 @@ import stat
 
 from rpmUtils.arch import getArchList
 
-from rendition import pps
-
 from spin.constants import RPM_PNVRA_REGEX
 from spin.event     import Event
 from spin.logging   import L1, L2
 
 API_VERSION = 5.0
 EVENTS = {'software': ['DownloadEvent']}
-
-P = pps.Path
 
 class DownloadEvent(Event):
   def __init__(self):

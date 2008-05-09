@@ -22,8 +22,6 @@ from spin.event     import Event
 
 from spin.modules.shared import InputFilesMixin, RpmBuildMixin
 
-P = pps.Path
-
 API_VERSION = 5.0
 
 EVENTS = {'rpms': ['ReleaseRpmEvent']}
@@ -48,15 +46,15 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       ]
     )
 
-    self.doc_dir = P('/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
-    self.etc_dir = P('/etc')
-    self.eula_dir = P('/usr/share/eula')
-    self.eulapy_dir = P('/usr/share/firstboot/modules')
-    self.gpg_dir = P('/etc/pkg/rpm-gpg')
-    self.html_dir = P('/usr/share/doc/HTML')
-    self.omf_dir = P('/usr/share/omf/%s-release-notes' % self.product)
-    self.release_dir = P('/usr/share/doc/%s-release-%s' % (self.product, self.version))
-    self.repo_dir = P('/etc/yum.repos.d')
+    self.doc_dir    = pps.path('/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
+    self.etc_dir    = pps.path('/etc')
+    self.eula_dir   = pps.path('/usr/share/eula')
+    self.eulapy_dir = pps.path('/usr/share/firstboot/modules')
+    self.gpg_dir    = pps.path('/etc/pkg/rpm-gpg')
+    self.html_dir   = pps.path('/usr/share/doc/HTML')
+    self.omf_dir    = pps.path('/usr/share/omf/%s-release-notes' % self.product)
+    self.release_dir = pps.path('/usr/share/doc/%s-release-%s' % (self.product, self.version))
+    self.repo_dir   = pps.path('/etc/yum.repos.d')
 
     InputFilesMixin.__init__(self, {
       'gpg'     : (None, self.gpg_dir, None, True),
@@ -176,7 +174,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
                      'name=%s - %s' % (self.fullname, self.basearch),
                      'baseurl=%s'   % path ])
       if self.cvars['gpgsign-public-key']:
-        gpgkey = '%s/%s' % (path, P(self.cvars['gpgsign-public-key']).basename)
+        gpgkey = '%s/%s' % (path, pps.path(self.cvars['gpgsign-public-key']).basename)
         lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
       else:
         lines.append('gpgcheck=0')

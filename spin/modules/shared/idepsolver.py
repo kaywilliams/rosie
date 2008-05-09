@@ -62,7 +62,7 @@ class IDepsolver(Depsolver):
     self.new_packages = {}
     self.installed_packages = {}
 
-    self.cached_file = pps.Path(root) / 'cache'
+    self.cached_file = pps.path(root) / 'cache'
     self.cached_items = {}
 
     self.logger = logger

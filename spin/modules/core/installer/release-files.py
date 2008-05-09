@@ -15,14 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from rendition import pps
-
 from spin.constants import BOOLEANS_TRUE, SRPM_REGEX
 from spin.event     import Event
 
 from spin.modules.shared import ExtractMixin, RpmNotFoundError
-
-P = pps.Path
 
 API_VERSION = 5.0
 EVENTS = {'installer': ['ReleaseFilesEvent']}

@@ -21,8 +21,6 @@ from rendition.xmllib.config import Macro
 
 from spin.constants import BOOLEANS_TRUE
 
-P = pps.Path
-
 class BootConfigMixin(object):
   def __init__(self):
     self.bootconfig = BootConfigDummy(self)
@@ -58,7 +56,7 @@ class BootConfigDummy(object):
 
     boot_args = [ self._expand_macros(x) for x in self.boot_args ]
 
-    config = P(self.ptr.config.get('boot-config/file/text()',
+    config = pps.path(self.ptr.config.get('boot-config/file/text()',
                cfgfile or self.ptr.cvars['boot-config-file']))
     lines = config.read_lines()
     _label = False # have we seen a label line yet?

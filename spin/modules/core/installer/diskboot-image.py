@@ -17,13 +17,9 @@
 #
 from StringIO import StringIO
 
-from rendition import pps
-
 from spin.event import Event
 
 from spin.modules.shared import ImageModifyMixin, BootConfigMixin
-
-P = pps.Path
 
 API_VERSION = 5.0
 EVENTS = {'installer': ['DiskbootImageEvent']}

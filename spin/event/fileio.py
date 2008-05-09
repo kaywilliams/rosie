@@ -20,8 +20,6 @@ from rendition import xmllib
 
 from rendition.pps.constants import *
 
-P = pps.Path
-
 class IOMixin:
   def __init__(self):
     self.io = IOObject(self)
@@ -98,7 +96,7 @@ class IOObject(object):
                    types are supported)
     """
     if not id: id = fpath
-    fpath = P(fpath)
+    fpath = pps.path(fpath)
     self.add_item(fpath, dst//fpath.basename, id=id, mode=mode, prefix=prefix)
 
   def add_fpaths(self, fpaths, *args, **kwargs):
@@ -209,8 +207,8 @@ class IOObject(object):
 
   def _process_path_xml(self, item, relpath=None, absolute=False, mode=None):
     "compute src, dst, filename, and mode from <path> elements"
-    s = P(item.get('text()'))
-    d = P(item.get('@dest', ''))
+    s = pps.path(item.get('text()'))
+    d = pps.path(item.get('@dest', ''))
     f = item.get('@filename', s.basename)
     m = item.get('@mode', mode)
 

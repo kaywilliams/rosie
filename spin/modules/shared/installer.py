@@ -32,8 +32,6 @@ from spin.logging   import L1
 __all__ = ['ExtractMixin', 'ImageModifyMixin', 'FileDownloadMixin',
            'RpmNotFoundError', 'OutputInvalidError']
 
-P = pps.Path
-
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')
 
 MAGIC_MAP = {
@@ -49,7 +47,7 @@ class ExtractMixin:
 
     # get input - extract RPMs
     # create temporary directory for rpms, gets deleted once done
-    working_dir = P(tempfile.mkdtemp(dir=self.TEMP_DIR))
+    working_dir = pps.path(tempfile.mkdtemp(dir=self.TEMP_DIR))
 
     # generate output files
     try:
@@ -63,7 +61,7 @@ class ExtractMixin:
     finally:
       working_dir.rm(recursive=True)
 
-  def _extract_rpm(self, rpmPath, output=P(os.getcwd())):
+  def _extract_rpm(self, rpmPath, output=pps.path(os.getcwd())):
     """
     Extract the contents of the RPM file specified by rpmPath to
     the output location. The rpmPath parameter can use globbing.
@@ -73,7 +71,7 @@ class ExtractMixin:
                      contents
     """
     # create temporary directory for rpm contents
-    dir = P(tempfile.mkdtemp(dir=self.TEMP_DIR))
+    dir = pps.path(tempfile.mkdtemp(dir=self.TEMP_DIR))
     try:
       filename = dir/'rpm.cpio'
 

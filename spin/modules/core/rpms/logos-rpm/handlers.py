@@ -40,7 +40,7 @@ class LogosRpmFileHandler(object):
   def generate(self):
     for path in self.paths:
       for src in path.findpaths(type=pps.constants.TYPE_NOT_DIR):
-        id  = pps.Path('/') // src.relpathfrom(path)
+        id  = pps.path('/') // src.relpathfrom(path)
         if self.check_id and not self.ptr.locals.L_LOGOS_RPM_FILES.has_key(id):
           continue
         dst = self.ptr.build_folder // src.relpathfrom(path)

@@ -29,8 +29,6 @@ from spin.logging   import L1, L2
 API_VERSION = 5.0
 EVENTS = {'setup': ['GpgSetupEvent'], 'software': ['GpgSignEvent']}
 
-P = pps.Path
-
 class GpgSetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
@@ -43,10 +41,10 @@ class GpgSetupEvent(Event):
 
   def apply(self):
     pubkey = self.config.get('public-key/text()', None)
-    if pubkey: self.cvars['gpgsign-public-key'] = P(pubkey)
+    if pubkey: self.cvars['gpgsign-public-key'] = pps.path(pubkey)
 
     seckey = self.config.get('secret-key/text()', None)
-    if seckey: self.cvars['gpgsign-secret-key'] = P(seckey)
+    if seckey: self.cvars['gpgsign-secret-key'] = pps.path(seckey)
 
     if self.config.pathexists('passphrase'):
       pw = self.config.get('passphrase/text()', '')

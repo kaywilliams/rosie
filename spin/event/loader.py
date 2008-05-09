@@ -34,11 +34,11 @@ class Loader(dispatch.Loader):
 
     # process default-on events
     for path in paths:
-      self._process_path(pps.Path(path)/prefix/'core', True, *args, **kwargs)
+      self._process_path(pps.path(path)/prefix/'core', True, *args, **kwargs)
 
     # process default-off events
     for path in paths:
-      self._process_path(pps.Path(path)/prefix/'extensions', False, *args, **kwargs)
+      self._process_path(pps.path(path)/prefix/'extensions', False, *args, **kwargs)
 
     os.chdir(oldcwd)
 
@@ -50,7 +50,7 @@ class Loader(dispatch.Loader):
       modid = mod.basename.replace('.py', '')
       if not default and modid not in self.enabled: continue # default-off events
 
-      modname = mod.tokens[len(path.tokens):].replace('/', '.').replace('.py', '')
+      modname = mod.splitall()[len(path.splitall()):].replace('/', '.').replace('.py', '')
 
       # don't load disabled events
       skip = False
