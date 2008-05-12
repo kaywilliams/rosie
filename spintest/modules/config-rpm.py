@@ -35,11 +35,11 @@ class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmEventTestCase):
     ConfigRpmEventTestCase.__init__(self, basedistro, arch, conf=conf)
 
     self.working_dir = BUILD_ROOT
-    self.file1 = pps.Path('%s/file1' % self.working_dir)
-    self.file2 = pps.Path('%s/file2' % self.working_dir)
-    self.file3 = pps.Path('%s/file3' % self.working_dir)
-    self.script1 = pps.Path('%s/script1' % self.working_dir)
-    self.script2 = pps.Path('%s/script2' % self.working_dir)
+    self.file1 = pps.path('%s/file1' % self.working_dir)
+    self.file2 = pps.path('%s/file2' % self.working_dir)
+    self.file3 = pps.path('%s/file3' % self.working_dir)
+    self.script1 = pps.path('%s/script1' % self.working_dir)
+    self.script2 = pps.path('%s/script2' % self.working_dir)
 
     config.add_config_section(
       self.conf,

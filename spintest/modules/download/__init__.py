@@ -97,7 +97,7 @@ class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
     self.failUnless(len(self.event.cvars['cached-rpms']) == numpkgs)
 
 def make_suite(basedistro, arch):
-  _run_make(pps.Path(__file__).dirname)
+  _run_make(pps.path(__file__).dirname)
 
   suite = ModuleTestSuite('download')
 

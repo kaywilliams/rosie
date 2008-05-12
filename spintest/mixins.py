@@ -89,7 +89,7 @@ def IMMTest_Content(self):
     self.tb.dispatch.execute(until=self.eventid)
 
     for dst, src in (self.event.cvars['%s-content' % self.event.id] or {}).items():
-      dst = pps.Path(dst)
+      dst = pps.path(dst)
       self.check_file_in_image(dst)
       for s in src:
         self.check_file_in_image(dst/s.basename)
@@ -107,8 +107,8 @@ def IMMTest_ConfigPaths(self, path_xpath):
     self.tb.dispatch.execute(until=self.event.id)
 
     for path in self.event.config.xpath(self.path_xpath):
-      dest = pps.Path(path.attrib.get('dest', '/'))
-      file = dest/pps.Path(path.text).basename
+      dest = pps.path(path.attrib.get('dest', '/'))
+      file = dest/pps.path(path.text).basename
       self.check_file_in_image(file)
 
   self.runTest = runTest

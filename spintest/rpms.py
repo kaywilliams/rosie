@@ -24,8 +24,6 @@ from rpmUtils import miscutils
 from rendition import img
 from rendition import pps
 
-P = pps.Path
-
 FLAGS_MAP = {
   0: '',
   rpm.RPMSENSE_EQUAL: '=',
@@ -41,8 +39,8 @@ class ExtractMixin(object):
     if self.event.rpm_path.exists():
       if extracts.has_key(self.event.rpm_path):
         return extracts[self.event.rpm_path]
-      working_dir = P(tempfile.mkdtemp())
-      img_path = P(tempfile.mkdtemp())
+      working_dir = pps.path(tempfile.mkdtemp())
+      img_path = pps.path(tempfile.mkdtemp())
       try:
         filename = working_dir / 'rpm.cpio'
         miscutils.rpm2cpio(os.open(self.event.rpm_path, os.O_RDONLY), filename.open('w+'))

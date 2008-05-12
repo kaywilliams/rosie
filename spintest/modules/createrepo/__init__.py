@@ -42,8 +42,8 @@ class Test_SignedRpms(CreaterepoEventTestCase):
     <public-key>%s</public-key>
     <secret-key>%s</secret-key>
     <passphrase></passphrase>
-  </gpgsign>""" % (pps.Path(__file__).dirname.abspath()/'RPM-GPG-KEY-test',
-                   pps.Path(__file__).dirname.abspath()/'RPM-GPG-SEC-KEY-test')
+  </gpgsign>""" % (pps.path(__file__).dirname.abspath()/'RPM-GPG-KEY-test',
+                   pps.path(__file__).dirname.abspath()/'RPM-GPG-SEC-KEY-test')
 
   def runTest(self):
     self.tb.dispatch.execute(until='createrepo')

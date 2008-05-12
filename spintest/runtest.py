@@ -107,14 +107,14 @@ def main():
 
   import spintest
 
-  spintest.BUILD_ROOT = pps.Path(options.buildroot)
+  spintest.BUILD_ROOT = pps.path(options.buildroot)
   spintest.EventTestCase.options = options
 
   runner = spintest.EventTestRunner(options.testloglevel)
   suite = unittest.TestSuite()
 
   if not args:
-    args = [ pps.Path(__file__).abspath().dirname/'__init__.py' ]
+    args = [ pps.path(__file__).abspath().dirname/'__init__.py' ]
   for arg in args:
     testpath = _testpath_normalize(arg)
     fp = None
@@ -142,7 +142,7 @@ def main():
 
 
 def _testpath_normalize(path):
-  path = pps.Path(path)
+  path = pps.path(path)
   if not path.isabs() and path.splitall()[0] != 'modules':
     path = 'modules'/path # __rdiv__ is so cool
   path = path.abspath()

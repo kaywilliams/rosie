@@ -40,7 +40,7 @@ class TestBuild(Build):
     Build.__init__(self, *args, **kwargs)
 
   def _get_config(self, options, arguments):
-    mcf = pps.Path(options.mainconfigpath or '/etc/spin.conf')
+    mcf = pps.path(options.mainconfigpath or '/etc/spin.conf')
     if mcf.exists():
       self.mainconfig = xmllib.config.read(mcf)
     else:
@@ -66,7 +66,7 @@ class EventTestCase(unittest.TestCase):
     if not self.conf.pathexists(self.moduleid):
       add_config_section(self.conf, '<%s enabled="true"/>' % self.moduleid)
     # pretend we read from a config file in the modules directory
-    self.conf.file = pps.Path(__file__).dirname/'modules/%s' % self.moduleid
+    self.conf.file = pps.path(__file__).dirname/'modules/%s' % self.moduleid
 
     self.event = None
     unittest.TestCase.__init__(self)
@@ -84,7 +84,7 @@ class EventTestCase(unittest.TestCase):
     try:
       self.tb._lock()
     except RuntimeError:
-      print "unable to lock (currently running pid is %s)" % pps.Path('/var/run/spin.pid').read_text().strip()
+      print "unable to lock (currently running pid is %s)" % pps.path('/var/run/spin.pid').read_text().strip()
       print "current event: '%s'" % self.event.id
       print "test case: %s" % self._testMethodDoc
       print "continuing anyway"
@@ -111,9 +111,9 @@ class EventTestCase(unittest.TestCase):
       self.tb.dispatch.execute(until=previous)
 
   def failIfExists(self, path):
-    self.failIf(pps.Path(path).exists(), "'%s' exists" % path)
+    self.failIf(pps.path(path).exists(), "'%s' exists" % path)
   def failUnlessExists(self, path):
-    self.failUnless(pps.Path(path).exists(), "'%s' does not exist " % path)
+    self.failUnless(pps.path(path).exists(), "'%s' does not exist " % path)
 
   def failIfRuns(self, event):
     ran = self._runEvent(event)
@@ -162,7 +162,7 @@ class ModuleTestSuite(unittest.TestSuite):
     pass
 
   def tearDown(self):
-    (pps.Path(__file__).dirname/'modules').listdir('*.dat').rm()
+    (pps.path(__file__).dirname/'modules').listdir('*.dat').rm()
     for dir in self.output:
       dir.rm(recursive=True, force=True)
 
@@ -294,7 +294,7 @@ def make_logger(threshold):
 def make_suite(basedistro, arch='i386'):
   suite = unittest.TestSuite()
 
-  for module in pps.Path('modules').findpaths(mindepth=1, maxdepth=1):
+  for module in pps.path('modules').findpaths(mindepth=1, maxdepth=1):
     if module.basename == '__init__.py': continue
     module = module.replace('.py', '')
     fp = None

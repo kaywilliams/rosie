@@ -25,8 +25,6 @@ from rendition import xmllib
 from spintest      import EventTestCase, ModuleTestSuite, config, _run_make
 from spintest.core import make_core_suite
 
-P = pps.Path
-
 class DummyPkglistEventTestCase(EventTestCase):
   moduleid = 'pkglist'
   eventid  = 'pkglist'
@@ -268,7 +266,7 @@ class Test_Supplied(DummyPkglistEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
-    pkglist_in  = (pps.Path(__file__).dirname.dirname /
+    pkglist_in  = (pps.path(__file__).dirname.dirname /
                    self.event.config.get('text()')).read_lines()
     pkglist_out = self.event.cvars['pkglist']
     self.failUnlessEqual(sorted(pkglist_in), sorted(pkglist_out))
@@ -359,7 +357,7 @@ class Test_ExclusivePackage_2(PkglistEventTestCase):
     self.failIf('pkglist-test-package4-1.0-1.noarch' in self.event.cvars['pkglist'])
 
 def make_suite(basedistro, arch):
-  _run_make(P(__file__).dirname)
+  _run_make(pps.path(__file__).dirname)
 
   suite = ModuleTestSuite('pkglist')
 

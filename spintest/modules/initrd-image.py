@@ -47,7 +47,7 @@ class Test_Kickstart(_InitrdImageEventTestCase):
     _InitrdImageEventTestCase.setUp(self)
     self.ksfile = self.event.config.getroot().file.abspath().dirname/'ks.cfg'
     self.ksfile.touch()
-    self.kspath = pps.Path('/kickstarts/ks1.cfg')
+    self.kspath = pps.path('/kickstarts/ks1.cfg')
     self.event.cvars['kickstart-file'] = self.ksfile
     self.event.cvars['ks-path'] = self.kspath
 
