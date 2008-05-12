@@ -143,7 +143,7 @@ def main():
 
 def _testpath_normalize(path):
   path = pps.Path(path)
-  if not path.isabs() and path.splitall()[1] != 'modules': #! splitall()[0] of relative path is '.'
+  if not path.isabs() and path.splitall()[0] != 'modules':
     path = 'modules'/path # __rdiv__ is so cool
   path = path.abspath()
   if path.isdir():
