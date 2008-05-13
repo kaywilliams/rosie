@@ -6,27 +6,27 @@
     <element name="repo">
       <ref name="attribute-id"/>
 
+      <interleave>
+      <element name="name"><text/></element>
       <element name="baseurl"><text/></element>
 
-      <interleave>
+      <zeroOrMore>
+      <element name="include-package"><text/></element>
+      </zeroOrMore>
 
-        <zeroOrMore>
-          <element name="include-package"><text/></element>
-        </zeroOrMore>
+      <zeroOrMore>
+      <ref name="element-exclude-package"/>
+      </zeroOrMore>
 
-        <zeroOrMore>
-        <ref name="element-exclude-package"/>
-        </zeroOrMore>
+      <zeroOrMore>
+      <element name="gpgkey"><text/></element>
+      </zeroOrMore>
 
-        <zeroOrMore>
-          <element name="gpgkey"><text/></element>
-        </zeroOrMore>
-
-        <optional>
-          <element name="gpgcheck">
-            <ref name="value-boolean"/>
-          </element>
-        </optional>
+      <optional>
+      <element name="gpgcheck">
+        <ref name="value-boolean"/>
+      </element>
+      </optional>
 
       </interleave>
     </element>

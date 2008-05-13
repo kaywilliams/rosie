@@ -18,35 +18,40 @@
 import os
 
 from rendition import shlib
+from rendition import repo
 
 from spin.event   import Event
 from spin.logging import L1, L2
-from spin.repo    import RepoContainer
+
+from spin.modules.shared import SpinRepo, RepoEventMixin
 
 API_VERSION = 5.0
 
 EVENTS = {'rpms': ['CustomRepoEvent']}
 
-class CustomRepoEvent(Event):
+class CustomRepoEvent(RepoEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'custom-repo',
       conditionally_requires = ['custom-rpms-data'],
-      provides = ['repos', 'source-repos', 'comps-included-packages',
+      provides = ['repos', 'source-repos',
+                  'comps-included-packages',
                   'comps-excluded-packages']
     )
-    self.rc = RepoContainer(self)
-
-    self.CUSTOM_RPMS  = self.mddir/'RPMS'
-    self.CUSTOM_SRPMS = self.mddir/'SRPMS'
 
     self.cid =  'custom-repo'
     self.csid = 'custom-repo-sources'
 
+    self.CUSTOM_RPMS  = self.mddir/self.cid
+    self.CUSTOM_SRPMS = self.mddir/self.csid
+
     self.DATA = {
       'input':  [],
       'output': [],
+      'variables': [],
     }
+
+    RepoEventMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -58,26 +63,15 @@ class CustomRepoEvent(Event):
         self.io.add_fpath(self.cvars['custom-rpms-data'][id]['srpm-path'],
                           self.CUSTOM_SRPMS, id='custom-rpms')
 
-      self.rc.add_repo(self.cid, name=self.cid, baseurl=self.CUSTOM_RPMS)
-      self.rc[self.cid].localurl = self.CUSTOM_RPMS
-      self.rc[self.cid].pkgsfile = self.CUSTOM_RPMS/'packages'
+      custom_rpms = SpinRepo(id=self.cid, name=self.cid, baseurl=self.CUSTOM_RPMS)
 
-      self.rc.add_repo(self.csid, name=self.csid, baseurl=self.CUSTOM_SRPMS)
-      self.rc[self.csid].localurl = self.CUSTOM_SRPMS
-      self.rc[self.csid].pkgsfile = self.CUSTOM_SRPMS/'packages'
+      custom_srpms = SpinRepo(id=self.csid, name=self.csid, baseurl=self.CUSTOM_SRPMS)
 
-      self.DATA['output'].append(self.CUSTOM_RPMS/'repodata')
-      self.DATA['output'].append(self.CUSTOM_SRPMS/'repodata')
-      try:
-        self.rc[self.cid].update_metadata()
-      except:
-        pass
-      try:
-        self.rc[self.csid].update_metadata()
-      except:
-        pass
-      self.DATA['output'].append(self.rc[self.cid].pkgsfile)
-      self.DATA['output'].append(self.rc[self.csid].pkgsfile)
+      self.setup_repos('packages', distro=None, version=None,
+                       updates = {self.cid:  custom_rpms,
+                                  self.csid: custom_srpms},
+                       read_md=False) # don't try to read repomd.xml (doesn't exist yet)
+
 
   def run(self):
     # remove previous output
@@ -93,47 +87,36 @@ class CustomRepoEvent(Event):
 
     self.log(1, L1("running createrepo"))
     if self.cvars['custom-rpms-data']:
-      self.log(4, L2("RPMS"))
-      self._createrepo(self.CUSTOM_RPMS)
-      self.rc[self.cid].update_metadata()
-      self.rc[self.cid].write_repo_content(self.rc[self.cid].pkgsfile)
-
-      self.log(4, L2("SRPMS"))
-      self._createrepo(self.CUSTOM_SRPMS)
-      self.rc[self.csid].update_metadata()
-      self.rc[self.csid].write_repo_content(self.rc[self.csid].pkgsfile)
+      for repo in self.repos.values():
+        self.log(4, L2(repo.id))
+        self._createrepo(repo.localurl)
+        repo.read_repomd()
+        repo.read_repocontent_from_xml()
+        repo.write_repocontent_csv(repo.pkgsfile)
+        self.DATA['output'].append(repo.localurl/'repodata')
+        self.DATA['output'].append(repo.pkgsfile)
 
   def apply(self):
     self.io.clean_eventcache()
     self._populate()
     if self.cvars['custom-rpms-data']:
-      try: # hack
-        self.rc[self.cid].update_metadata()
-      except:
-        pass
-      self.cvars['repos'][self.cid] = self.rc[self.cid]
+      self.repos[self.cid].read_repocontent_csv(self.repos[self.cid].pkgsfile)
+      self.cvars['repos'].add_repo(self.repos[self.cid])
 
       if self.cvars['source-repos']:
-        try: # hack
-          self.rc[self.csid].update_metadata()
-        except:
-          pass
-        self.cvars['source-repos'][self.csid] = self.rc[self.csid]
+        self.repos[self.csid].read_repocontent_csv(self.repos[self.csid].pkgsfile)
+        self.cvars['source-repos'].add_repo(self.repos[self.csid])
 
   def verify_repodata(self):
     "repodata exists"
     if self.cvars['custom-rpms']:
-      customrepo = self.rc[self.cid]
-      self.verifier.failUnlessExists(customrepo.localurl / customrepo.mdfile)
-      self.verifier.failUnlessExists(customrepo.localurl /
-                                     'repodata' /
-                                     customrepo.datafiles['primary'])
+      customrepo = self.repos[self.cid]
+      self.verifier.failUnlessExists(customrepo.url / customrepo.repomd)
+      self.verifier.failUnlessExists(customrepo.url / customrepo.datafiles['primary'])
     if self.cvars['custom-srpms']:
-      customrepo = self.rc[self.csid]
-      self.verifier.failUnlessExists(customrepo.localurl / customrepo.mdfile)
-      self.verifier.failUnlessExists(customrepo.localurl /
-                                     'repodata' /
-                                     customrepo.datafiles['primary'])
+      customrepo = self.repos[self.csid]
+      self.verifier.failUnlessExists(customrepo.url / customrepo.repomd)
+      self.verifier.failUnlessExists(customrepo.url / customrepo.datafiles['primary'])
 
   #----- HELPER METHODS -----#
   def _createrepo(self, path):

@@ -31,7 +31,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     Event.__init__(self,
       id = 'release-rpm',
       version = '0.9',
-      requires = ['input-repos', 'release-versions'],
+      requires = ['release-versions', 'input-repos'],
       provides = ['custom-rpms-data'],
       conditionally_requires = ['web-path', 'gpgsign-public-key']
     )
@@ -182,7 +182,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
 
     if self.config.get('yum-repos/@include-input', 'True') in BOOLEANS_TRUE:
       for repo in self.cvars['repos'].values():
-        lines.extend(repo.tostring(remote=True).splitlines())
+        lines.extend(repo.lines(pretty=True))
 
     if len(lines) > 0:
       repofile.write_lines(lines)

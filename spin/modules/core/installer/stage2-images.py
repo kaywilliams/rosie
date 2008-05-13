@@ -27,7 +27,7 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
     Event.__init__(self,
       id = 'stage2-images',
       provides = ['stage2-images'],
-      requires = ['anaconda-version', 'base-info', 'base-repoid'],
+      requires = ['anaconda-version', 'base-info', 'installer-repo'],
     )
 
     self.DATA = {

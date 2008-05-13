@@ -153,6 +153,9 @@ class LogContainer(logger.LogContainer):
       if logger.LogContainer.test(self, priority, message, self.threshold, log_obj):
         log_obj.write(priority, message, **kwargs)
 
+  def error(self, message): # for yum compat
+    return self.log(0, message)
+
 
 class NullLogger(logger.Logger):
   """

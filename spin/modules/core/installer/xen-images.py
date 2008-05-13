@@ -28,7 +28,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
       id = 'xen-images',
       version = 2,
       provides = ['vmlinuz-xen', 'initrd-xen'],
-      requires = ['anaconda-version', 'buildstamp-file', 'base-repoid'],
+      requires = ['anaconda-version', 'buildstamp-file', 'installer-repo'],
       conditionally_requires = ['initrd-image-content', 'kickstart-file', 'ks-path'],
     )
 

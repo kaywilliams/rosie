@@ -30,7 +30,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
       id = 'diskboot-image',
       version = 1,
       provides = ['diskboot.img'],
-      requires = ['buildstamp-file', 'base-repoid', 'isolinux-files'],
+      requires = ['buildstamp-file', 'installer-repo', 'isolinux-files'],
       conditionally_requires = ['diskboot-image-content', 'web-path',
                                 'boot-args', 'ks-path'],
     )

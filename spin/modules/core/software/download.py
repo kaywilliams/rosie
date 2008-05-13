@@ -52,8 +52,8 @@ class DownloadEvent(Event):
 
     for repo in self.cvars['repos'].values():
       rpms = {}
-      for rpminfo in repo.repoinfo:
-        rpm = repo.remoteurl//rpminfo['file']
+      for rpminfo in repo.repocontent:
+        rpm = repo.url//rpminfo['file']
         _,n,v,r,a = self._deformat(rpm)
         nvra = '%s-%s-%s.%s' % (n,v,r,a)
         if nvra in self.cvars['pkglist'] and nvra not in processed and \

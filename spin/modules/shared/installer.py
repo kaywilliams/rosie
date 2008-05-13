@@ -89,12 +89,9 @@ class ExtractMixin:
 
 
 class ImageModifyMixin:
-  """
-  Classes that extend this must require 'anaconda-version',
-  'buildstamp-file' and 'base-repoid'.
-
-  This class downloads and modifies images.
-  """
+  "This class downloads and modifies images"
+  # Classes that extend this must require 'anaconda-version',
+  # 'buildstamp-file' and 'installer-repo'.
   def __init__(self, name):
     self.imagedir = self.mddir/'image'
 
@@ -108,14 +105,14 @@ class ImageModifyMixin:
 
   def setup(self):
     # input images
-    repo = self.cvars['repos'][self.cvars['base-repoid']]
+    repo = self.cvars['installer-repo']
 
     image_path = self.image_locals['path'] % self.cvars['distro-info']
 
     self.diff.setup(self.DATA)
 
     try:
-      self.io.add_fpath(repo.osdir/image_path,
+      self.io.add_fpath(repo.url/image_path,
                         (self.SOFTWARE_STORE/image_path).dirname,
                         id='ImageModifyMixin')
     except IOError:
@@ -195,12 +192,9 @@ class ImageModifyMixin:
 
 
 class FileDownloadMixin:
-  """
-  Classes that extend this must require 'anaconda-version',
-  'base-info' and 'base-repoid'.
-
-  This class downloads files to a directory of your chosing.
-  """
+  "This class downloads files to a directory of your chosing"
+  # Classes that extend this must require 'anaconda-version',
+  # 'base-info' and 'installer-repo'.
   def __init__(self):
     self.file_locals = None
 
@@ -211,7 +205,7 @@ class FileDownloadMixin:
 
       rinfix = data['path'] % self.cvars['base-info']
       linfix = data['path'] % self.cvars['distro-info']
-      self.io.add_fpath(self.cvars['repos'][self.cvars['base-repoid']].osdir/rinfix,
+      self.io.add_fpath(self.cvars['installer-repo'].url/rinfix,
                         (self.SOFTWARE_STORE/linfix).dirname,
                         id='FileDownloadMixin')
 

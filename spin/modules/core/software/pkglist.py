@@ -195,6 +195,7 @@ class PkglistEvent(Event):
       line = 'exclude=' + ' '.join(self.cvars['pkglist-excluded-packages'])
       conf.append(line)
     for repo in self.cvars['repos'].values():
-      conf.extend(str(repo).splitlines())
+      conf.extend(repo.lines(pretty=True, baseurl=repo.localurl, mirrorlist=None))
+      conf.append('\n')
     repoconfig.write_lines(conf)
     return repoconfig

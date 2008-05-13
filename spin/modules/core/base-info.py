@@ -22,25 +22,56 @@ provides information about the base distribution
 """
 from rendition import FormattedFile as ffile
 from rendition import img
+from rendition import repo
+from rendition import versort
 
 from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 from spin.logging   import L1
+from spin.validate  import InvalidConfigError
 
 API_VERSION = 5.0
-EVENTS = {'setup': ['BaseInfoEvent']}
+EVENTS = {'setup': ['BaseDistroEvent', 'BaseInfoEvent']}
+
+class BaseDistroEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'base-distro',
+      provides = [ 'base-distro-name',
+                   'base-distro-version',
+                   'base-distro-baseurl',
+                   'base-distro-mirrorlist' ],
+      suppress_run_message = True,
+    )
+
+    self.DATA = {
+      'input': [],
+      'output': [],
+      'config': ['.'],
+    }
+
+  def apply(self):
+    # set cvars
+    self.cvars['base-distro-name']    = self.config.get('distro/text()', None)
+    self.cvars['base-distro-version'] = self.config.get('version/text()', None)
+    self.cvars['base-distro-baseurl'] = self.config.get('baseurl-prefix/text()', None)
+    self.cvars['base-distro-mirrorlist'] = self.config.get('mirrorlist-prefix/text()', None)
+
+  # don't verify base-distro-* cvars; they may be None
+
 
 class BaseInfoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'base-info',
+      requires = ['anaconda-version', 'installer-repo'],
       provides = ['base-info'],
-      requires = ['anaconda-version', 'base-repoid'],
     )
 
-    self.DATA =  {
+    self.DATA = {
       'input':     [],
       'output':    [],
+      'variables': ['cvars[\'anaconda-version\']'],
     }
 
   def error(self, e):
@@ -53,7 +84,7 @@ class BaseInfoEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    initrd_in=( self.cvars['repos'][self.cvars['base-repoid']].osdir /
+    initrd_in=( self.cvars['installer-repo'].url /
                 self.locals.L_FILES['isolinux']['initrd.img']['path'] )
 
     self.io.add_fpath(initrd_in, self.mddir, id='initrd.img')
@@ -65,7 +96,8 @@ class BaseInfoEvent(Event):
     self.log(2, L1("reading buildstamp file from base repository"))
 
     # download initrd.img
-    self.io.sync_input(cache=True, callback=Event.link_callback, text=None)
+    self.io.sync_input(cache=True, callback=Event.link_callback,
+                       text=None, what='initrd.img')
 
     # extract buildstamp
     image = self.locals.L_FILES['isolinux']['initrd.img']
@@ -77,17 +109,15 @@ class BaseInfoEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
+
     # parse buildstamp
     buildstamp = ffile.DictToFormattedFile(self.locals.L_BUILDSTAMP_FORMAT)
     # update base vars
-    try:
-      self.cvars['base-info'] = buildstamp.read(self.buildstamp_out)
-    except:
-      pass # caught by verification
+    self.cvars['base-info'] = buildstamp.read(self.buildstamp_out)
 
   def verify_buildstamp_file(self):
     "verify buildstamp file exists"
     self.verifier.failUnlessExists(self.buildstamp_out)
-  def verify_base_vars(self):
-    "verify base-info cvar"
+  def verify_cvars(self):
+    "verify cvars exist"
     self.verifier.failUnless(self.cvars['base-info'])

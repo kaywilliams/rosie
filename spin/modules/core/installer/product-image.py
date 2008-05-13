@@ -33,7 +33,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
       id = 'product-image',
       provides = ['product.img'],
       requires = ['anaconda-version', 'buildstamp-file',
-                  'comps-file', 'base-repoid'],
+                  'comps-file', 'installer-repo'],
       conditionally_requires = ['product-image-content'],
     )
 

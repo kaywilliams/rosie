@@ -27,7 +27,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     Event.__init__(self,
       id = 'isolinux',
       provides = ['isolinux-files', 'boot-config-file'],
-      requires = ['anaconda-version', 'base-info', 'base-repoid'],
+      requires = ['anaconda-version', 'base-info', 'installer-repo'],
       conditionally_requires = ['ks-path', 'boot-args'],
     )
 

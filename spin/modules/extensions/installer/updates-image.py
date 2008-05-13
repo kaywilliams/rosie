@@ -27,7 +27,7 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     Event.__init__(self,
       id = 'updates-image',
       provides = ['updates.img'],
-      requires = ['anaconda-version', 'base-repoid'],
+      requires = ['anaconda-version', 'installer-repo'],
       conditionally_requires = ['updates-image-content'],
     )
 

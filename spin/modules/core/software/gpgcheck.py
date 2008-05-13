@@ -50,9 +50,9 @@ class GpgCheckEvent(Event):
 
     for repo in self.cvars['repos'].values():
       if self.cvars['rpms-by-repoid'].has_key(repo.id) and \
-         repo.has_key('gpgcheck') and repo['gpgcheck'] in BOOLEANS_TRUE:
-        if repo.gpgkeys:
-          self.gpgkeys[repo.id] = repo.gpgkeys
+         repo.gpgcheck in BOOLEANS_TRUE:
+        if repo.gpgkey:
+          self.gpgkeys[repo.id] = repo.gpgkey
           self.rpms[repo.id] = self.cvars['rpms-by-repoid'][repo.id]
         else:
           raise RuntimeError("GPGcheck enabled for '%s' repository, but no "

@@ -39,7 +39,7 @@ class SourceReposEvent(Event, RepoEventMixin):
   def __init__(self):
     Event.__init__(self,
                    id='source-repos',
-                   provides=['source-repos'])
+                   provides=['source-repos', 'source-repos'])
     RepoEventMixin.__init__(self)
 
     self.DATA = {
@@ -72,13 +72,15 @@ class SourceReposEvent(Event, RepoEventMixin):
   def apply(self):
     self.io.clean_eventcache()
 
-    for repo in self.repocontainer.values():
+    self.make_local_repos()
+
+    for repo in self.localrepos.values():
       try: # hack, errors caught by validator
-        repo._read_repo_content(repofile=repo.pkgsfile)
+        repo.read_repocontent()
       except:
         continue
 
-    self.cvars['source-repos'] = self.repocontainer
+    self.cvars['source-repos']  = self.repos
 
   def verify_pkgsfiles_exist(self):
     "verify all pkgsfiles exist"
@@ -88,10 +90,8 @@ class SourceReposEvent(Event, RepoEventMixin):
   def verify_repodata(self):
     "verify repodata exists"
     for repo in self.repocontainer.values():
-      self.verifier.failUnlessExists(repo.localurl / repo.mdfile)
-      self.verifier.failUnlessExists(repo.localurl /
-                                     'repodata' /
-                                     repo.datafiles['primary'])
+      self.verifier.failUnlessExists(repo.url / repo.mdfile)
+      self.verifier.failUnlessExists(repo.url / repo.datafiles['primary'])
 
   def verify_cvars(self):
     "verify cvars are set"
@@ -132,8 +132,8 @@ class SourcesEvent(Event, CreaterepoMixin):
 
     # setup sync
     for repo in self.cvars['source-repos'].values():
-      for rpminfo in repo.repoinfo:
-        rpmi = repo.remoteurl//rpminfo['file']
+      for rpminfo in repo.repocontent:
+        rpmi = repo.url//rpminfo['file']
         _,n,v,r,a = self._deformat(rpmi)
         ## assuming the rpm file name to be lower-case 'rpm' suffixed
         nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a)

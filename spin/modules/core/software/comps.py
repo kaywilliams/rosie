@@ -29,7 +29,7 @@ class CompsEvent(Event):
     Event.__init__(self,
       id = 'comps',
       provides = ['comps-file', 'required-packages', 'user-required-packages'],
-      requires = ['anaconda-version', 'repos', 'base-repoid'],
+      requires = ['anaconda-version', 'repos'],
       conditionally_requires = ['comps-included-packages', 'comps-excluded-packages'],
     )
 
@@ -118,18 +118,10 @@ class CompsEvent(Event):
     "Get a list of all groupfiles in all repositories"
     groupfiles = []
 
-    # add the base repo first
-    repos = [self.cvars['repos'][self.cvars['base-repoid']]]
-
-    # now add the rest of the repos
     for repo in self.cvars['repos'].values():
-      if repo.id != self.cvars['base-repoid']:
-        repos.append(repo)
-
-    for repo in repos:
       groupfile = repo.datafiles.get('group', None)
       if groupfile:
-        groupfiles.append((repo.id, repo.localurl/'repodata'/groupfile))
+        groupfiles.append((repo.id, repo.localurl/groupfile))
 
     return groupfiles
 
@@ -229,11 +221,11 @@ class CompsEvent(Event):
     "Process a groupfile, adding the requested groups to the groups dict"
     try:
       tree = xmllib.config.read(groupfile)
-    except:
+    except Exception, e:
       raise CompsError("error reading file '%s'" % groupfile)
 
     # automatically include the 'core' group from the base repo
-    if id == self.cvars['base-repoid']:
+    if id == self.cvars['installer-repo'].id:
       self._update_group_content('core', tree)
 
     # add any other groups specified

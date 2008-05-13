@@ -15,97 +15,123 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+
+import re
+
 from rendition import pps
 
 from spin.logging   import L1, L2
-from spin.repo      import RepoContainer
 from spin.constants import BOOLEANS_FALSE
 
-__all__ = ['RepoEventMixin']
+from rendition.repo      import ReposFromXml, ReposFromFile, getDefaultRepos
+from rendition.repo.Repo import YumRepo, RepoContainer
+
+__all__ = ['RepoEventMixin', 'SpinRepo']
+
+
+class SpinRepo(YumRepo):
+  def __init__(self, **kwargs):
+    YumRepo.__init__(self, **kwargs)
+    self.localurl = None
+
+  @property
+  def pkgsfile(self):
+    return self.localurl/'packages'
+
+  def get_rpm_version(self, names):
+    scan = re.compile('(?:.*/)?(' + '|'.join(names) + ')-(.*)(\..*\..*$)')
+    if not self.pkgsfile.exists():
+      raise RuntimeError("Unable to compute package version for '%s': "
+                         "pkgsfile '%s' does not exist."
+                         % (names, self.pkgsfile))
+    for rpm in self.pkgsfile.read_lines():
+      match = scan.match(rpm)
+      if match:
+        try:
+          return match.groups()[0:2]
+        except (AttributeError, IndexError):
+          pass
+    return (None, None)
 
 class RepoEventMixin:
   def __init__(self):
-    self.repocontainer = RepoContainer(self)
+    self.repos = RepoContainer()
 
-  def read_config(self, repos=None, files=None):
-    # one or the other of repos or files is required by validation
-    if repos:
-      for repoxml in self.config.xpath(repos, []):
-        id = repoxml.get('@id')
-        self.repocontainer.add_repo(id)
-        self.repocontainer[id].read_config(repoxml)
+  def setup_repos(self, type, distro, version,
+                        baseurl=None, mirrorlist=None,
+                        baseurl_prefix=None, mirrorlist_prefix=None,
+                        updates=None, read_md=True, cls=SpinRepo):
+    repos = RepoContainer()
+    if distro and version:
+      # get one of the default distro/version RepoContainers
+      try:
+        repos.add_repos(getDefaultRepos(type, distro, version,
+                                        arch=self.basearch,
+                                        baseurl_prefix=baseurl_prefix,
+                                        mirrorlist_prefix=mirrorlist_prefix,
+                                        cls=cls)
+                        or {})
+      except KeyError:
+        raise ValueError("Unknown default distro-version combo '%s-%s'" % (distro, version))
+    if not repos and (baseurl or mirrorlist):
+      repos.add_repo(cls(id=type, name=id, baseurl=baseurl, mirrorlist=mirrorlist))
 
-    if files:
-      for filexml in self.config.xpath(files, []):
-        self.repocontainer.read(filexml.text)
+    # update default values
+    repos.add_repos(updates or {})
 
-    for repo in self.repocontainer.values():
+    assert repos # make sure we got at least one repo out of that mess
+
+    for repo in repos.values():
       # remove repo if disabled in repofile
-      if repo.has_key('enabled') and repo['enabled'] in BOOLEANS_FALSE:
-        self.repocontainer.pop(repo.id)
+      if hasattr(repo, 'enabled') and repo.enabled in BOOLEANS_FALSE:
+        del remoterepos[repo.id]
         continue
 
-      for key in repo.keys():
-        for yumvar in ['$releasever', '$arch', '$basearch', '$YUM']:
-          if not repo[key].find(yumvar) == -1:
-            raise ValueError("The definition for repository '%s' contains "
-            "yum variable '%s' in the '%s' element. Yum variables (e.g. "
-            "$releasever, $arch, $basearch, and $YUM0 - $YUM9) are ambiguous "
-            "in the distribution build context. For example, should $releasever "
-            "be the release number of the machine you are building on, the "
-            "distribution you are building, or base repository you are using? "
-            "Replace yum variables with fixed values and try again."
-            % (repo.id, yumvar, key))
-
+      # set pkgsfile
       repo.localurl = self.mddir/repo.id
-      repo.pkgsfile = self.mddir/repo.id/'packages'
 
-      if repo.id == self.cvars['base-repoid']:
-        folder = 'images'
-        args = {'glob': folder,
-                'type': pps.constants.TYPE_DIR,
-                'mindepth': 1,
-                'maxdepth': 1}
-        if repo.remoteurl.findpaths(**args):
-          repo.osdir = repo.remoteurl
-        elif repo.remoteurl.dirname.findpaths(**args):
-          repo.osdir = repo.remoteurl.dirname
-        else:
-          raise RuntimeError("Unable to find a folder named '%s' at '%s' "
-          "or '%s'. Check the baseurl for the '%s' repo, or specify an alternative "
-          "base-repo, and try again."
-          % (folder, repo.remoteurl, repo.remoteurl.dirname, repo.id))
+      if read_md:
+        # read metadata
+        repo.read_repomd()
 
-      repo._read_repodata()
+        # add metadata to io sync
+        paths = []
+        for f in repo.datafiles.values():
+          paths.append(repo.url / f)
+        self.io.add_fpaths(paths, self.mddir/repo.id/'repodata',
+                           id='%s-repodata' % repo.id)
 
-      paths = []
-      for filetype in repo.datafiles.keys():
-        paths.append(repo.remoteurl / \
-                     'repodata' / \
-                     repo.datafiles[filetype])
-      paths.append(repo.remoteurl/repo.mdfile)
-      self.io.add_fpaths(paths, repo.localurl/'repodata',
-                         id='%s-repodata' % repo.id)
-
-    self.repoids = self.repocontainer.keys()
+    self.repoids = repos.keys()
     self.DATA['variables'].append('repoids')
 
+    self.repos.add_repos(repos)
+    return self.repos
+
   def sync_repodata(self):
-    for repo in self.repocontainer.values():
+    for repo in self.repos.values():
       self.io.sync_input(what='%s-repodata' % repo.id, cache=True,
                          text=("downloading repodata - '%s'" % repo.id))
 
-  def read_new_packages(self):
-    for repo in self.repocontainer.values():
-      pxml = repo.remoteurl/'repodata'/repo.datafiles['primary']
-      # determine if the repo has a new id
-      newid = False
-      if self.diff.handlers['variables'].diffdict.has_key('repoids'):
-        old,new = self.diff.handlers['variables'].diffdict['repoids']
-        if not hasattr(old, '__iter__'): old = []
-        newid = repo.id in set(new).difference(set(old))
-      if self.diff.handlers['input'].diffdict.has_key(pxml) or newid:
+  def read_packages(self):
+    # compute the set of old and new repos
+    if self.diff.handlers['variables'].diffdict.has_key('repoids'):
+      prev,curr = self.diff.handlers['variables'].diffdict['repoids']
+      if not isinstance(prev, list): prev = [] # ugly hack; NewEntry not iterable
+      newids = set(curr).difference(prev)
+    else:
+      newids = set()
+
+    for repo in self.repos.values():
+      if not repo.localurl:
+        raise RuntimeError("localurl not set for repo '%s' (run self.setup_repos() first?)" % (repo.id))
+
+      pxml = repo.localurl//repo.datafiles['primary']
+
+      # if the input primary.xml has changed or if the repo id wasn't in the
+      # previous run
+      if self.diff.handlers['input'].diffdict.has_key(pxml) or \
+         repo.id in newids:
         self.log(2, L2(repo.id))
-        repo._read_repo_content()
-        repo.write_repo_content(repo.pkgsfile)
-      self.DATA['output'].append(repo.pkgsfile)
+        repo.read_repocontent_from_xml(repo.localurl)
+        repo.write_repocontent_csv(repo.pkgsfile)
+        self.DATA['output'].append(repo.pkgsfile) # add pkgsfile to output
