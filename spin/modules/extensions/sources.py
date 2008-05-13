@@ -39,7 +39,7 @@ class SourceReposEvent(Event, RepoEventMixin):
   def __init__(self):
     Event.__init__(self,
                    id='source-repos',
-                   provides=['source-repos', 'source-repos'])
+                   provides=['source-repos'])
     RepoEventMixin.__init__(self)
 
     self.DATA = {
@@ -80,7 +80,7 @@ class SourceReposEvent(Event, RepoEventMixin):
       except:
         continue
 
-    self.cvars['source-repos']  = self.repos
+    self.cvars['source-repos'] = self.repos
 
   def verify_pkgsfiles_exist(self):
     "verify all pkgsfiles exist"

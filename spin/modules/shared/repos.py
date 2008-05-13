@@ -24,7 +24,7 @@ from spin.logging   import L1, L2
 from spin.constants import BOOLEANS_FALSE
 
 from rendition.repo      import ReposFromXml, ReposFromFile, getDefaultRepos
-from rendition.repo.Repo import YumRepo, RepoContainer
+from rendition.repo.repo import YumRepo, RepoContainer
 
 __all__ = ['RepoEventMixin', 'SpinRepo']
 

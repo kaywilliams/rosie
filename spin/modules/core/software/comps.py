@@ -225,8 +225,7 @@ class CompsEvent(Event):
       raise CompsError("error reading file '%s'" % groupfile)
 
     # automatically include the 'core' group from the base repo
-    if id == self.cvars['installer-repo'].id:
-      self._update_group_content('core', tree)
+    ## figure out what to do here; this doesn't make sense anymore
 
     # add any other groups specified
     for group in self.config.xpath(
