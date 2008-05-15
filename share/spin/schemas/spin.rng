@@ -23,6 +23,14 @@
         <element name="disable-module"><text/></element>
         </zeroOrMore>
 
+        <zeroOrMore>
+        <element name="enable-module"><text/></element>
+        </zeroOrMore>
+
+        <optional>
+        <element name="log-file"><text/></element>
+        </optional>
+
         <optional>
         <element name="cache">
           <interleave>
@@ -34,18 +42,5 @@
       </interleave>
     </element>
   </start>
-
-  <define name="value-boolean">
-    <choice>
-      <value type="string">True</value>
-      <value type="string">False</value>
-      <value type="string">yes</value>
-      <value type="string">no</value>
-      <value type="boolean">0</value>
-      <value type="boolean">1</value>
-      <value type="boolean">false</value>
-      <value type="boolean">true</value>
-    </choice>
-  </define>
 
 </grammar>

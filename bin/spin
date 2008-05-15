@@ -75,7 +75,7 @@ def main():
     help="specify the level of verbosity of the output log")
   log_group.add_option('--log-file', metavar='PATH',
     dest='logfile',
-    default='/var/log/spin.log',
+    default=None,
     help="specify a file in which to log output")
   parser.add_option_group(log_group)
 

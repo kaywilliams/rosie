@@ -69,6 +69,7 @@ LOCK = pps.path('/var/run/spin.pid')
 DEFAULT_TEMP_DIR = pps.path('/tmp/spin')
 DEFAULT_CACHE_DIR = pps.path('/var/cache/spin')
 DEFAULT_SHARE_DIR = pps.path('/usr/share/spin')
+DEFAULT_LOG_FILE = pps.path('/var/log/spin.log')
 
 # map our supported archs to the highest arch in that arch 'class'
 ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
@@ -83,7 +84,7 @@ class Build(object):
   the screen.
 
   The  build  object  is  responsible for  loading  and initializing  all
-  program  modules.   It  also  applies  configuration  and command-line 
+  program  modules.   It  also  applies  configuration  and  command-line
   arguments to its own internal variables as well as the its dispatcher.
 
   See dispatch.py  for more information on the role of the  dispatcher in
@@ -106,11 +107,18 @@ class Build(object):
     """
     self.parser = parser
 
-    # set up logger
-    self.logger = make_log(options.logthresh, options.logfile)
+    # set up temporary logger - console only
+    self.logger = make_log(options.logthresh)
 
     # set up configs
     self._get_config(options, arguments)
+
+    # set up real logger - console and file
+    self.logger = make_log(options.logthresh,
+                    options.logfile
+                    or self.distroconfig.get('/distro/main/log-file/text()', None)
+                    or self.mainconfig.get('/spin/log-file/text()', None)
+                    or DEFAULT_LOG_FILE)
 
     # set up import_dirs
     import_dirs = self._compute_import_dirs(options)
