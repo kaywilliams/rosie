@@ -31,13 +31,13 @@ class PublishEventTestCase(EventTestCase):
     self.output.append(self.event.cvars['publish-path'])
     EventTestCase.tearDown(self)
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('publish')
 
   # publish-setup
-  suite.addTest(make_core_suite(PublishSetupEventTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(PublishSetupEventTestCase, distro, version, arch))
 
   # publish
-  suite.addTest(make_core_suite(PublishEventTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(PublishEventTestCase, distro, version, arch))
 
   return suite

@@ -34,16 +34,16 @@ class OSEventTestCase(EventTestCase):
   eventid  = 'os'
 
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('init')
 
   # init
-  suite.addTest(make_core_suite(InitEventTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(InitEventTestCase, distro, version, arch))
 
   # setup
-  suite.addTest(make_core_suite(SetupEventTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(SetupEventTestCase, distro, version, arch))
 
   # os
-  suite.addTest(make_core_suite(OSEventTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(OSEventTestCase, distro, version, arch))
 
   return suite

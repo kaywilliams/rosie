@@ -33,7 +33,7 @@ class CustomRepoEvent(RepoEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'custom-repo',
-      conditionally_requires = ['custom-rpms-data'],
+      conditionally_requires = ['custom-rpms-data', 'base-info-distro'],
       provides = ['repos', 'source-repos',
                   'comps-included-packages',
                   'comps-excluded-packages']
@@ -63,15 +63,12 @@ class CustomRepoEvent(RepoEventMixin, Event):
         self.io.add_fpath(self.cvars['custom-rpms-data'][id]['srpm-path'],
                           self.CUSTOM_SRPMS, id='custom-rpms')
 
-      custom_rpms = SpinRepo(id=self.cid, name=self.cid, baseurl=self.CUSTOM_RPMS)
-
+      custom_rpms  = SpinRepo(id=self.cid,  name=self.cid,  baseurl=self.CUSTOM_RPMS)
       custom_srpms = SpinRepo(id=self.csid, name=self.csid, baseurl=self.CUSTOM_SRPMS)
 
-      self.setup_repos('packages', distro=None, version=None,
+      self.setup_repos('packages', defaults=False,
                        updates = {self.cid:  custom_rpms,
-                                  self.csid: custom_srpms},
-                       read_md=False) # don't try to read repomd.xml (doesn't exist yet)
-
+                                  self.csid: custom_srpms})
 
   def run(self):
     # remove previous output
@@ -91,8 +88,8 @@ class CustomRepoEvent(RepoEventMixin, Event):
         self.log(4, L2(repo.id))
         self._createrepo(repo.localurl)
         repo.read_repomd()
-        repo.read_repocontent_from_xml()
-        repo.write_repocontent_csv(repo.pkgsfile)
+        repo.repocontent.update(repo.localurl/repo.datafiles['primary'])
+        repo.repocontent.write(repo.pkgsfile)
         self.DATA['output'].append(repo.localurl/'repodata')
         self.DATA['output'].append(repo.pkgsfile)
 
@@ -100,11 +97,15 @@ class CustomRepoEvent(RepoEventMixin, Event):
     self.io.clean_eventcache()
     self._populate()
     if self.cvars['custom-rpms-data']:
-      self.repos[self.cid].read_repocontent_csv(self.repos[self.cid].pkgsfile)
+      try:
+        self.repos[self.cid].repocontent.read(self.repos[self.cid].pkgsfile)
+      except Exception, e:
+        raise RuntimeError(str(e))
+
       self.cvars['repos'].add_repo(self.repos[self.cid])
 
       if self.cvars['source-repos']:
-        self.repos[self.csid].read_repocontent_csv(self.repos[self.csid].pkgsfile)
+        self.repos[self.csid].repocontent.read(self.repos[self.csid].pkgsfile)
         self.cvars['source-repos'].add_repo(self.repos[self.csid])
 
   def verify_repodata(self):

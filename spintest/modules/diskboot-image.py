@@ -29,8 +29,8 @@ class DiskbootImageEventTestCase(EventTestCase):
 class _DiskbootImageEventTestCase(ImageModifyMixinTestCase,
                                   BootConfigMixinTestCase,
                                   DiskbootImageEventTestCase):
-  def __init__(self, basedistro, arch, conf=None):
-    DiskbootImageEventTestCase.__init__(self, basedistro, arch, conf)
+  def __init__(self, distro, version, arch, conf=None):
+    DiskbootImageEventTestCase.__init__(self, distro, version, arch, conf)
     ImageModifyMixinTestCase.__init__(self)
 
     self.default_args = ['nousbstorage']
@@ -107,14 +107,14 @@ class Test_BootArgsMacros(_DiskbootImageEventTestCase):
     self.do_defaults = False
 
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('diskboot-image')
 
-  suite.addTest(make_core_suite(DiskbootImageEventTestCase, basedistro, arch))
-  suite.addTest(imm_make_suite(_DiskbootImageEventTestCase, basedistro, arch, xpath='path'))
-  suite.addTest(Test_CvarContent(basedistro, arch))
-  suite.addTest(Test_BootArgsDefault(basedistro, arch))
-  suite.addTest(Test_BootArgsNoDefault(basedistro, arch))
-  suite.addTest(Test_BootArgsMacros(basedistro, arch))
+  suite.addTest(make_core_suite(DiskbootImageEventTestCase, distro, version, arch))
+  suite.addTest(imm_make_suite(_DiskbootImageEventTestCase, distro, version, arch, xpath='path'))
+  suite.addTest(Test_CvarContent(distro, version, arch))
+  suite.addTest(Test_BootArgsDefault(distro, version, arch))
+  suite.addTest(Test_BootArgsNoDefault(distro, version, arch))
+  suite.addTest(Test_BootArgsMacros(distro, version, arch))
 
   return suite

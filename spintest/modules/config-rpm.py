@@ -17,7 +17,7 @@
 #
 from rendition import pps
 
-from spintest      import BUILD_ROOT, EventTestCase, ModuleTestSuite, config
+from spintest      import BUILD_ROOT, EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite, make_extension_suite
 from spintest.rpms import ( RpmBuildMixinTestCase, InputFilesMixinTestCase,
                             RpmCvarsTestCase )
@@ -31,8 +31,8 @@ class ConfigRpmEventTestCase(EventTestCase):
   </config-rpm>"""
 
 class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmEventTestCase):
-  def __init__(self, basedistro, arch, conf=None):
-    ConfigRpmEventTestCase.__init__(self, basedistro, arch, conf=conf)
+  def __init__(self, distro, version, arch, conf=None):
+    ConfigRpmEventTestCase.__init__(self, distro, version, arch, conf=conf)
 
     self.working_dir = BUILD_ROOT
     self.file1 = pps.path('%s/file1' % self.working_dir)
@@ -41,18 +41,16 @@ class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmEventTestCase):
     self.script1 = pps.path('%s/script1' % self.working_dir)
     self.script2 = pps.path('%s/script2' % self.working_dir)
 
-    config.add_config_section(
-      self.conf,
+    self._add_config(
       """
       <config-rpm enabled="true">
-        <file>%s/file1</file>
-        <file dest="/etc/testdir">%s/file2</file>
-        <file filename="filename">%s/file3</file>
-        <script>%s/script1</script>
-        <script dest="/usr/bin">%s/script2</script>
+        <file>%(working-dir)s/file1</file>
+        <file dest="/etc/testdir">%(working-dir)s/file2</file>
+        <file filename="filename">%(working-dir)s/file3</file>
+        <script>%(working-dir)s/script1</script>
+        <script dest="/usr/bin">%(working-dir)s/script2</script>
       </config-rpm>
-      """ % ((self.working_dir,)*5)
-    )
+      """ % {'working-dir': self.working_dir})
 
   def setUp(self):
     ConfigRpmEventTestCase.setUp(self)
@@ -111,13 +109,13 @@ class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
     self.check_cvars()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('config-rpm')
 
-  suite.addTest(make_extension_suite(ConfigRpmEventTestCase, basedistro, arch))
-  suite.addTest(Test_ConfigRpmInputs(basedistro, arch))
-  suite.addTest(Test_ConfigRpmBuild(basedistro, arch))
-  suite.addTest(Test_ConfigRpmCvars1(basedistro, arch))
-  suite.addTest(Test_ConfigRpmCvars2(basedistro, arch))
+  suite.addTest(make_extension_suite(ConfigRpmEventTestCase, distro, version, arch))
+  suite.addTest(Test_ConfigRpmInputs(distro, version, arch))
+  suite.addTest(Test_ConfigRpmBuild(distro, version, arch))
+  suite.addTest(Test_ConfigRpmCvars1(distro, version, arch))
+  suite.addTest(Test_ConfigRpmCvars2(distro, version, arch))
 
   return suite

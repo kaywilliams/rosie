@@ -244,12 +244,12 @@ class RpmBuildMixin:
       self.autofile.chmod(stat.st_mode)
 
   def _check_release(self):
-    if self.rpm_release == '0' or  \
-           not self.autofile.exists() or \
-           not self.mdfile.exists() or \
-           self.diff.has_changed('input') or \
-           self.diff.has_changed('variables') or \
-           self.diff.has_changed('config'):
+    if ( self.rpm_release == '0' or
+         not self.autofile.exists() or
+         not self.mdfile.exists() or
+         self.diff.input.difference() or
+         self.diff.variables.difference() or
+         self.diff.config.difference() ):
       self.rpm_release = str(int(self.rpm_release)+1)
 
   def _write_spec(self):

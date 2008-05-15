@@ -1,0 +1,37 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="distro">
+
+      <optional>
+        <element name="base">
+          <optional>
+          <attribute name="enabled"><ref name="value-boolean"/></attribute>
+          </optional>
+
+          <interleave>
+
+          <optional>
+          <interleave>
+          <element name='distro'><text/></element>
+          <element name='version'><text/></element>
+          </interleave>
+          </optional>
+
+          <optional
+          <element name='baseurl-prefix'><text/></element>
+          </optional>
+
+          <optional
+          <element name='mirrorlist-prefix'><text/></element>
+          </optional>
+
+          </interleave>
+
+        </element>
+      </optional>
+
+    </element>
+  </start>
+
+</grammar>

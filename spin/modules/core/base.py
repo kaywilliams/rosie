@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 """
-base-info.py
+base.py
 
 provides information about the base distribution
 """
@@ -37,10 +37,7 @@ class BaseDistroEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'base-distro',
-      provides = [ 'base-distro-name',
-                   'base-distro-version',
-                   'base-distro-baseurl',
-                   'base-distro-mirrorlist' ],
+      provides = [ 'base-info', 'base-info-distro' ],
       suppress_run_message = True,
     )
 
@@ -52,10 +49,11 @@ class BaseDistroEvent(Event):
 
   def apply(self):
     # set cvars
-    self.cvars['base-distro-name']    = self.config.get('distro/text()', None)
-    self.cvars['base-distro-version'] = self.config.get('version/text()', None)
-    self.cvars['base-distro-baseurl'] = self.config.get('baseurl-prefix/text()', None)
-    self.cvars['base-distro-mirrorlist'] = self.config.get('mirrorlist-prefix/text()', None)
+    self.cvars.setdefault('base-info', {})
+    self.cvars['base-info']['product'] = self.config.get('distro/text()', None)
+    self.cvars['base-info']['version'] = self.config.get('version/text()', None)
+    self.cvars['base-info']['baseurl-prefix'] = self.config.get('baseurl-prefix/text()', None)
+    self.cvars['base-info']['mirrorlist-prefix'] = self.config.get('mirrorlist-prefix/text()', None)
 
   # don't verify base-distro-* cvars; they may be None
 
@@ -112,8 +110,12 @@ class BaseInfoEvent(Event):
 
     # parse buildstamp
     buildstamp = ffile.DictToFormattedFile(self.locals.L_BUILDSTAMP_FORMAT)
+
     # update base vars
-    self.cvars['base-info'] = buildstamp.read(self.buildstamp_out)
+    try:
+      self.cvars.setdefault('base-info', {}).update(buildstamp.read(self.buildstamp_out))
+    except Exception, e:
+      raise RuntimeError(str(e))
 
   def verify_buildstamp_file(self):
     "verify buildstamp file exists"

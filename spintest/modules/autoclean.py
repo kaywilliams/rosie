@@ -117,17 +117,17 @@ class Test_RemoveDisabled(AutocleanEventTestCase):
     if self.test_dir.exists(): self.test_dir.remove()
 
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('autoclean')
 
   # autoclean
-  suite.addTest(make_core_suite(AutocleanEventTestCase, basedistro, arch))
-  suite.addTest(Test_NonMeta(basedistro, arch))
-  suite.addTest(Test_NonMetaVersion(basedistro, arch))
-  suite.addTest(Test_NonMetaNoVersion(basedistro, arch))
-  suite.addTest(Test_Meta(basedistro, arch))
-  suite.addTest(Test_MetaVersion(basedistro, arch))
-  suite.addTest(Test_MetaNoVersion(basedistro, arch))
-  suite.addTest(Test_RemoveDisabled(basedistro, arch))
+  suite.addTest(make_core_suite(AutocleanEventTestCase, distro, version, arch))
+  suite.addTest(Test_NonMeta(distro, version, arch))
+  suite.addTest(Test_NonMetaVersion(distro, version, arch))
+  suite.addTest(Test_NonMetaNoVersion(distro, version, arch))
+  suite.addTest(Test_Meta(distro, version, arch))
+  suite.addTest(Test_MetaVersion(distro, version, arch))
+  suite.addTest(Test_MetaNoVersion(distro, version, arch))
+  suite.addTest(Test_RemoveDisabled(distro, version, arch))
 
   return suite

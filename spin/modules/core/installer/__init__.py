@@ -16,6 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 from rendition import repo
+from rendition import versort
 
 from spin.event import Event, CLASS_META
 
@@ -38,17 +39,12 @@ class InstallerSetupEvent(RepoEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'installer-setup',
-      provides = [ 'installer-repo', ],
-      conditionally_requires = [ 'base-distro-name',
-                                 'base-distro-version',
-                                 'base-distro-baseurl',
-                                 'base-distro-mirrorlist' ],
+      provides = [ 'installer-repo', 'anaconda-version-supplied'],
+      conditionally_requires = [ 'base-info-distro' ],
       suppress_run_message = True,
     )
 
     self.DATA = {
-      'input': [],
-      'output': [],
       'variables': [],
       'config': ['.'],
     }
@@ -58,21 +54,23 @@ class InstallerSetupEvent(RepoEventMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    args   = ['installer']
-    kwargs = dict(cls=repo.IORepo, read_md=False)
+    addrepos = repo.RepoContainer()
+    if self.config.pathexists('baseurl') or \
+       self.config.pathexists('mirrorlist'):
+      r = repo.IORepo(id='installer', name='installer')
+      if self.config.pathexists('baseurl'): # not baseurl/text()
+        r['baseurl'] = self.config.get('baseurl/text()', None)
+      if self.config.pathexists('mirrorlist'): # not mirrorlist/text()
+        r['mirrorlist'] = self.config.get('mirrorlist/text()', None)
+      addrepos.add_repo(r)
 
-    if self.config.pathexists('baseurl/text()') or \
-       self.config.pathexists('mirrorlist/text()'):
-      args.extend([None, None]) # set distro and version to none
-      kwargs.update({'baseurl':    self.config.get('baseurl/text()', None),
-                     'mirrorlist': self.config.get('mirrorlist/text()', None)})
-    else:
-      args.extend([self.cvars['base-distro-name'],
-                   self.cvars['base-distro-version']])
-      kwargs.update({'baseurl_prefix':    self.cvars['base-distro-baseurl'],
-                     'mirrorlist_prefix': self.cvars['base-distro-mirrorlist']})
+    self.setup_repos('installer', cls=repo.IORepo, updates=addrepos)
+    # don't call self.read_repodata() b/c installer repos don't necessarily
+    # have repodata (and we don't use it regardless)
 
-    self.setup_repos(*args, **kwargs)
+    self.anaconda_version = self.config.get('anaconda-version/text()', None)
+    if self.anaconda_version is not None:
+      self.anaconda_version = versort.Version(self.anaconda_version)
 
   def run(self):
     pass
@@ -80,7 +78,9 @@ class InstallerSetupEvent(RepoEventMixin, Event):
   def apply(self):
     # set cvars
     self.cvars['installer-repo'] = self.repos['installer']
+    self.cvars['anaconda-version-supplied'] = self.anaconda_version
 
   def verify_cvars(self):
     "verify cvars exist"
     self.verifier.failUnless(self.cvars['installer-repo'])
+    # don't check anaconda-version-supplied, may be none

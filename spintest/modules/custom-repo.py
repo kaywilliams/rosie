@@ -22,9 +22,17 @@ class CustomRepoTestCase(EventTestCase):
   moduleid = 'custom-repo'
   eventid  = 'custom-repo'
 
-def make_suite(basedistro, arch):
+class Test_NoDefaults(CustomRepoTestCase):
+  "defaults are not added to custom repo list"
+  def runTest(self):
+    self.failIf('base'       in self.event.repos)
+    self.failIf('everything' in self.event.repos)
+    self.failIf('updates'    in self.event.repos)
+
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('custom-repo')
 
-  suite.addTest(make_core_suite(CustomRepoTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(CustomRepoTestCase, distro, version, arch))
+  suite.addTest(Test_NoDefaults(distro, version, arch))
 
   return suite

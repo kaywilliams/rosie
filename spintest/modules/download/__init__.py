@@ -22,23 +22,26 @@ import unittest
 from rendition import pps
 from rendition import xmllib
 
-from spintest      import EventTestCase, ModuleTestSuite, config, _run_make
+from spintest      import EventTestCase, ModuleTestSuite, _run_make
 from spintest.core import make_core_suite
 
 class DownloadEventTestCase(EventTestCase):
   moduleid = 'download'
   eventid  = 'download'
 
-  def __init__(self, basedistro, arch, conf=None):
-    EventTestCase.__init__(self, basedistro, arch, conf=conf)
+  def _make_repos_config(self):
+    repos = xmllib.config.Element('repos')
 
-    config.add_config_section(self.conf,
-      config.make_repos(basedistro,
-        [config._make_repo('%s-base' % basedistro, arch),
-         config._make_repo('%s-updates' % basedistro, arch),
-         xmllib.config.read(StringIO('<repofile>download/download-test-repos.repo</repofile>'))]
-      )
-    )
+    for repoid in ['base', 'updates']:
+      # remove the mirrorlist for each repo
+      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
+      xmllib.config.Element('mirrorlist', parent=repo)
+      xmllib.config.Element('gpgkey', parent=repo)
+      xmllib.config.Element('gpgcheck', text='no', parent=repo)
+
+    xmllib.config.Element('repofile', text='download/download-test-repos.repo', parent=repos)
+
+    return repos
 
   def runTest(self):
     self.tb.dispatch.execute(until='download')
@@ -48,11 +51,11 @@ class DownloadEventTestCase(EventTestCase):
       self.failUnless(a in self.event._validarchs)
 
 class Test_PackagesDownloaded(DownloadEventTestCase):
-  "Test to see that all packages are downloaded."
+  "Test to see that all packages are downloaded"
   pass
 
 class Test_AddedPackageDownloaded(DownloadEventTestCase):
-  "Test that the packages in <comps> are downloaded."
+  "Test that the packages in <comps> are downloaded"
   _conf = """<comps>
     <package>package1</package>
     <package>package2</package>
@@ -80,8 +83,8 @@ class Test_RemovedPackageDeleted(DownloadEventTestCase):
 
 class Test_ArchChanges(DownloadEventTestCase):
   "Test arch changes in <main/>"
-  def __init__(self, basedistro, arch):
-    DownloadEventTestCase.__init__(self, basedistro, arch)
+  def __init__(self, distro, version, arch):
+    DownloadEventTestCase.__init__(self, distro, version, arch)
     xmllib.tree.uElement('arch', self.conf.get('/distro/main'), text='i386')
 
 class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
@@ -96,16 +99,16 @@ class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
       numpkgs += len(self.event.cvars['rpms-by-repoid'][id])
     self.failUnless(len(self.event.cvars['cached-rpms']) == numpkgs)
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   _run_make(pps.path(__file__).dirname)
 
   suite = ModuleTestSuite('download')
 
-  suite.addTest(make_core_suite(DownloadEventTestCase, basedistro, arch))
-  suite.addTest(Test_PackagesDownloaded(basedistro, arch))
-  suite.addTest(Test_AddedPackageDownloaded(basedistro, arch))
-  suite.addTest(Test_RemovedPackageDeleted(basedistro, arch))
-  suite.addTest(Test_ArchChanges(basedistro, arch))
-  suite.addTest(Test_MultipleReposWithSamePackage(basedistro, arch))
+  suite.addTest(make_core_suite(DownloadEventTestCase, distro, version, arch))
+  suite.addTest(Test_PackagesDownloaded(distro, version, arch))
+  suite.addTest(Test_AddedPackageDownloaded(distro, version, arch))
+  suite.addTest(Test_RemovedPackageDeleted(distro, version, arch))
+  suite.addTest(Test_ArchChanges(distro, version, arch))
+  suite.addTest(Test_MultipleReposWithSamePackage(distro, version, arch))
 
   return suite

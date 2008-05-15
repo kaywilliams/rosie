@@ -22,9 +22,61 @@ class ReposEventTestCase(EventTestCase):
   moduleid = 'repos'
   eventid  = 'repos'
 
-def make_suite(basedistro, arch):
+class Test_NoBase(ReposEventTestCase):
+  "without base-info and repos sections, raises RuntimeError"
+  _conf = ["<base/>","<repos/>"]
+
+  def runTest(self):
+    try:
+      self.tb.dispatch.execute(until='repos')
+      # we actually get a runtime error earlier than repos (installer, atm)
+    except RuntimeError:
+      return
+    # if we don't raise a runtime error, we have to fail
+    self.fail()
+    ##self.failUnlessRaises(RuntimeError, self.event)
+
+class Test_RepoDefaults(ReposEventTestCase):
+  "defaults defined in repos section are used"
+  _conf = """<repos>
+    <repo id="base">
+      <baseurl>/nonexistant/path</baseurl>
+      <mirrorlist/>
+    </repo>
+    <repo id="updates">
+      <gpgcheck>no</gpgcheck>
+    </repo>
+    <repo id="everything">
+      <enabled>no</enabled>
+    </repo>
+    <repo id="new">
+      <baseurl>/nonexistant/path</baseurl>
+    </repo>
+  </repos>
+  """
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    try:
+      self.tb.dispatch.execute(until='repos') # this will raise an exception
+    except:
+      pass
+
+    # make sure we have the right repos to start wtih
+    self.failUnless(self.event.repos.has_key('base'))
+    self.failUnless(self.event.repos.has_key('updates'))
+    self.failUnless(self.event.repos.has_key('new'))
+    self.failIf(self.event.repos.has_key('everything'))
+
+    self.failUnless(self.event.repos['base'].baseurl[0].equivpath('/nonexistant/path'))
+    self.failUnless(self.event.repos['base'].mirrorlist is None)
+    self.failUnlessEqual(self.event.repos['updates'].gpgcheck, 'no')
+
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('repos')
 
-  suite.addTest(make_core_suite(ReposEventTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(ReposEventTestCase, distro, version, arch))
+  suite.addTest(Test_NoBase(distro, version, arch))
+  suite.addTest(Test_RepoDefaults(distro, version, arch))
 
   return suite

@@ -18,13 +18,18 @@
 from spintest      import EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite
 
+class BaseDistroEventTestCase(EventTestCase):
+  moduleid = 'base'
+  eventid  = 'base-distro'
+
 class BaseInfoEventTestCase(EventTestCase):
-  moduleid = 'base-info'
+  moduleid = 'base'
   eventid  = 'base-info'
 
-def make_suite(basedistro, arch):
-  suite = ModuleTestSuite('base-info')
+def make_suite(distro, version, arch):
+  suite = ModuleTestSuite('base')
 
-  suite.addTest(make_core_suite(BaseInfoEventTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(BaseDistroEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(BaseInfoEventTestCase, distro, version, arch))
 
   return suite

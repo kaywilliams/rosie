@@ -53,12 +53,12 @@ class Test_LogosRpmCvars2(RpmCvarsTestCase, LogosRpmEventTestCase):
     self.check_cvars()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('logos-rpm')
 
-  suite.addTest(make_core_suite(LogosRpmEventTestCase, basedistro, arch))
-  suite.addTest(Test_LogosRpmBuild(basedistro, arch))
-  suite.addTest(Test_LogosRpmCvars1(basedistro, arch))
-  suite.addTest(Test_LogosRpmCvars2(basedistro, arch))
+  suite.addTest(make_core_suite(LogosRpmEventTestCase, distro, version, arch))
+  suite.addTest(Test_LogosRpmBuild(distro, version, arch))
+  suite.addTest(Test_LogosRpmCvars1(distro, version, arch))
+  suite.addTest(Test_LogosRpmCvars2(distro, version, arch))
 
   return suite

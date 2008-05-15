@@ -23,10 +23,10 @@ class IsolinuxTestCase(EventTestCase):
   moduleid = 'isolinux'
   eventid  = 'isolinux'
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('isolinux')
 
-  suite.addTest(make_core_suite(IsolinuxTestCase, basedistro, arch))
-  suite.addTest(fdm_make_suite(IsolinuxTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(IsolinuxTestCase, distro, version, arch))
+  suite.addTest(fdm_make_suite(IsolinuxTestCase, distro, version, arch))
 
   return suite

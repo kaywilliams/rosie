@@ -19,7 +19,6 @@ from rendition import pps
 from rendition import xmllib
 
 from spintest        import EventTestCase, ModuleTestSuite
-from spintest.config import make_default_config
 from spintest.core   import make_core_suite
 
 class LogosEventTestCase(EventTestCase):
@@ -46,11 +45,11 @@ class Test_LogosEvent_Custom(LogosEventTestCase):
     self.tb.dispatch.execute(until='logos')
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('logos')
 
-  suite.addTest(make_core_suite(LogosEventTestCase, basedistro, arch))
-  suite.addTest(Test_LogosEvent_Default(basedistro, arch))
-  suite.addTest(Test_LogosEvent_Custom(basedistro, arch))
+  suite.addTest(make_core_suite(LogosEventTestCase, distro, version, arch))
+  suite.addTest(Test_LogosEvent_Default(distro, version, arch))
+  suite.addTest(Test_LogosEvent_Custom(distro, version, arch))
 
   return suite

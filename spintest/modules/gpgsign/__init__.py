@@ -30,9 +30,9 @@ class GpgsignTestCase(EventTestCase):
   </gpgsign>""" % (pps.path(__file__).abspath().dirname/'RPM-GPG-KEY-test',
                    pps.path(__file__).abspath().dirname/'RPM-GPG-SEC-KEY-test')
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('gpgsign')
 
-  suite.addTest(make_extension_suite(GpgsignTestCase, basedistro, arch))
+  suite.addTest(make_extension_suite(GpgsignTestCase, distro, version, arch))
 
   return suite

@@ -28,8 +28,8 @@ class CompsEventTestCase(EventTestCase):
   eventid  = 'comps'
 
 class _CompsEventTestCase(CompsEventTestCase):
-  def __init__(self, basedistro, arch, conf=None):
-    CompsEventTestCase.__init__(self, basedistro, arch, conf)
+  def __init__(self, distro, version, arch, conf=None):
+    CompsEventTestCase.__init__(self, distro, version, arch, conf)
     self.included_groups = []
     self.included_pkgs = []
     self.excluded_pkgs = []
@@ -154,13 +154,10 @@ class Test_GroupsByRepo(_CompsEventTestCase):
   "comps generated, group included from specific repo"
   _conf = \
   """<comps>
-    <group repoid="%(basedistro)s-base">core</group>
+    <group repoid="base">core</group>
     <group>base</group>
-    <group repoid="%(basedistro)s-base">printing</group>
+    <group repoid="base">printing</group>
   </comps>"""
-  def __init__(self, basedistro, arch, conf=None):
-    self._conf = self._conf % {'basedistro': basedistro}
-    _CompsEventTestCase.__init__(self, basedistro, arch, conf)
 
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
@@ -168,18 +165,15 @@ class Test_GroupsByRepo(_CompsEventTestCase):
     self.included_groups = ['core', 'base', 'printing']
     self.check_all(self.read_comps())
 
-    # still need to check 'core' and 'printing' came from '$basedistro-base' #!
+    # still need to check 'core' and 'printing' came from 'base' #!
 
 class Test_MultipleGroupfiles(_CompsEventTestCase):
   "comps generated, multiple repositories with groupfiles"
   _conf = \
   """<comps>
-    <group repooid="%(basedistro)s-base">core</groups>
+    <group repoid="base">core</groups>
     <group>base-x</group>
   </comps>"""
-  def __init__(self, basedistro, arch, conf=None):
-    self._conf = self._conf % {'basedistro': basedistro}
-    _CompsEventTestCase.__init__(self, basedistro, arch, conf)
 
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
@@ -188,7 +182,7 @@ class Test_MultipleGroupfiles(_CompsEventTestCase):
     self.check_all(self.read_comps())
 
     # still need to check that 'base-x' contains all packages listed in #!
-    # both '$basedistro-base' and 'livna' groupfiles in 'base-x' group #!
+    # both 'base' and 'livna' groupfiles in 'base-x' group #!
 
 class Test_GroupDefaults(_CompsEventTestCase):
   # bug 106
@@ -212,17 +206,17 @@ class Test_GroupDefaults(_CompsEventTestCase):
 
     # still need to test 'default' for both 'true' and 'false' #!
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('comps')
 
-  suite.addTest(make_core_suite(CompsEventTestCase, basedistro, arch))
-  suite.addTest(Test_Supplied(basedistro, arch))
-  suite.addTest(Test_IncludePackages(basedistro, arch))
-  suite.addTest(Test_IncludeCoreGroups(basedistro, arch))
-  suite.addTest(Test_IncludeGroups(basedistro, arch))
-  suite.addTest(Test_ExcludePackages(basedistro, arch))
-  suite.addTest(Test_GroupsByRepo(basedistro, arch))
-  ##suite.addTest(Test_MultipleGroupfiles(basedistro, arch))
-  suite.addTest(Test_GroupDefaults(basedistro, arch))
+  suite.addTest(make_core_suite(CompsEventTestCase, distro, version, arch))
+  suite.addTest(Test_Supplied(distro, version, arch))
+  suite.addTest(Test_IncludePackages(distro, version, arch))
+  suite.addTest(Test_IncludeCoreGroups(distro, version, arch))
+  suite.addTest(Test_IncludeGroups(distro, version, arch))
+  suite.addTest(Test_ExcludePackages(distro, version, arch))
+  suite.addTest(Test_GroupsByRepo(distro, version, arch))
+  ##suite.addTest(Test_MultipleGroupfiles(distro, version, arch))
+  suite.addTest(Test_GroupDefaults(distro, version, arch))
 
   return suite

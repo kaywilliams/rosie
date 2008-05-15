@@ -56,10 +56,14 @@ def parse_cmd_args():
   parser = optparse.OptionParser("usage: %prog [OPTIONS]",
                                  formatter=CleanHelpFormatter())
 
-  parser.add_option('-d', '--base-distro', metavar='DISTRO',
-    dest='basedistro',
-    default='fedora-6',
+  parser.add_option('-d', '--distro', metavar='DISTRO',
+    dest='distro',
+    default='fedora',
     help='select the distribution to test')
+  parser.add_option('-f', '--version', metavar='VERSION',
+    dest='version',
+    default='8',
+    help='select the version to test')
   parser.add_option('-a', '--base-arch', metavar='ARCH',
     dest='basearch',
     default='i386',
@@ -121,7 +125,8 @@ def main():
     try:
       fp,p,d = imp.find_module(testpath.basename, [testpath.dirname])
       mod = imp.load_module('test-%s' % testpath.dirname.basename, fp, p, d)
-      suite.addTest(mod.make_suite(basedistro=options.basedistro,
+      suite.addTest(mod.make_suite(distro=options.distro,
+                                   version=options.version,
                                    arch=options.basearch))
     finally:
       fp and fp.close()

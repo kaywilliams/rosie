@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from spintest      import BUILD_ROOT, EventTestCase, ModuleTestSuite, config
+from spintest      import BUILD_ROOT, EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite
 from spintest.rpms import (RpmBuildMixinTestCase, InputFilesMixinTestCase,
                            RpmCvarsTestCase, ExtractMixin)
@@ -26,38 +26,36 @@ class ReleaseRpmEventTestCase(EventTestCase):
   _conf = """<release-rpm enabled="true"/>"""
 
 class Test_ReleaseRpmInputs(InputFilesMixinTestCase, ReleaseRpmEventTestCase):
-  def __init__(self, basedistro, arch, conf=None):
-    ReleaseRpmEventTestCase.__init__(self, basedistro, arch, conf=conf)
+  def __init__(self, distro, version, arch, conf=None):
+    ReleaseRpmEventTestCase.__init__(self, distro, version, arch, conf=conf)
 
     self.working_dir = BUILD_ROOT
-    config.add_config_section(
-      self.conf,
+    self._add_config(
       """
       <release-rpm enabled="true">
         <release-files>
-          <path>%s/file1</path>
+          <path>%(working-dir)s/file1</path>
         </release-files>
         <eula>
           <include-in-firstboot>true</include-in-firstboot>
-          <path>%s/eula.en_US</path>
+          <path>%(working-dir)s/eula.en_US</path>
         </eula>
         <release-notes>
           <omf>
-            <path dest="/usr/share/omf">%s/omf1</path>
+            <path dest="/usr/share/omf">%(working-dir)s/omf1</path>
           </omf>
           <html>
-            <path dest="/usr/share/html">%s/html1</path>
+            <path dest="/usr/share/html">%(working-dir)s/html1</path>
           </html>
           <doc>
-            <path dest="/usr/share/doc">%s/doc1</path>
+            <path dest="/usr/share/doc">%(working-dir)s/doc1</path>
           </doc>
         </release-notes>
         <yum-repos>
-          <path>%s/repo1</path>
+          <path>%(working-dir)s/repo1</path>
         </yum-repos>
       </release-rpm>
-      """ % ((self.working_dir,)*6)
-    )
+      """ % {'working-dir': self.working_dir})
     self.file1 = self.working_dir / 'file1'
     self.eula = self.working_dir / 'eula.en_US'
     self.omf1 = self.working_dir / 'omf1'
@@ -129,14 +127,14 @@ class Test_RNotesExistence(ExtractMixin, ReleaseRpmEventTestCase):
     rnotes = self.img_path.findpaths(glob='RELEASE-NOTES*')
     self.failIf(len(rnotes) == 0)
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('release-rpm')
 
-  suite.addTest(make_core_suite(ReleaseRpmEventTestCase, basedistro, arch))
-  suite.addTest(Test_ReleaseRpmInputs(basedistro, arch))
-  suite.addTest(Test_ReleaseRpmBuild(basedistro, arch))
-  suite.addTest(Test_ReleaseRpmCvars1(basedistro, arch))
-  suite.addTest(Test_ReleaseRpmCvars2(basedistro, arch))
-  suite.addTest(Test_RNotesExistence(basedistro, arch))
+  suite.addTest(make_core_suite(ReleaseRpmEventTestCase, distro, version, arch))
+  suite.addTest(Test_ReleaseRpmInputs(distro, version, arch))
+  suite.addTest(Test_ReleaseRpmBuild(distro, version, arch))
+  suite.addTest(Test_ReleaseRpmCvars1(distro, version, arch))
+  suite.addTest(Test_ReleaseRpmCvars2(distro, version, arch))
+  suite.addTest(Test_RNotesExistence(distro, version, arch))
 
   return suite

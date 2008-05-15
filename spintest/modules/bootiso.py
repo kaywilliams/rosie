@@ -27,8 +27,8 @@ class BootisoEventTestCase(EventTestCase):
   eventid  = 'bootiso'
 
 class _BootisoEventTestCase(BootConfigMixinTestCase, BootisoEventTestCase):
-  def __init__(self, basedistro, arch, conf=None):
-    EventTestCase.__init__(self, basedistro, arch, conf)
+  def __init__(self, distro, version, arch, conf=None):
+    EventTestCase.__init__(self, distro, version, arch, conf)
     self.default_args = []
     self.image = None
     self.do_defaults = True
@@ -89,13 +89,13 @@ class Test_BootArgsMacros(_BootisoEventTestCase):
     self.do_defaults = False
 
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('bootiso')
 
   # bootiso
-  suite.addTest(make_core_suite(BootisoEventTestCase, basedistro, arch))
-  suite.addTest(Test_BootArgsDefault(basedistro, arch))
-  suite.addTest(Test_BootArgsNoDefault(basedistro, arch))
-  suite.addTest(Test_BootArgsMacros(basedistro, arch))
+  suite.addTest(make_core_suite(BootisoEventTestCase, distro, version, arch))
+  suite.addTest(Test_BootArgsDefault(distro, version, arch))
+  suite.addTest(Test_BootArgsNoDefault(distro, version, arch))
+  suite.addTest(Test_BootArgsMacros(distro, version, arch))
 
   return suite

@@ -49,11 +49,11 @@ class Test_SignedRpms(CreaterepoEventTestCase):
     self.tb.dispatch.execute(until='createrepo')
     # no need to test anything specifically; if we get this far we succeeded
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('createrepo')
 
-  suite.addTest(make_core_suite(CreaterepoEventTestCase, basedistro, arch))
-  suite.addTest(Test_CompsFile(basedistro, arch))
-  suite.addTest(Test_SignedRpms(basedistro, arch))
+  suite.addTest(make_core_suite(CreaterepoEventTestCase, distro, version, arch))
+  suite.addTest(Test_CompsFile(distro, version, arch))
+  suite.addTest(Test_SignedRpms(distro, version, arch))
 
   return suite

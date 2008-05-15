@@ -15,39 +15,49 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from spintest      import EventTestCase, ModuleTestSuite, config
+from rendition import xmllib
+
+from spintest import EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite
-
-def _make_conf(basedistro='fedora-6', keys=True):
-  if keys:
-    repo = config._make_repo('%s-base' % basedistro, enabled='1', gpgcheck='1')
-  else:
-    repo = config._make_repo('%s-base' % basedistro, enabled='1', gpgcheck='1', gpgkey='')
-
-  # hack, shouldn't have to convert back to string
-  return str(config.make_repos(basedistro, [repo]))
 
 class GpgcheckEventTestCase(EventTestCase):
   moduleid = 'gpgcheck'
-  eventid  = 'gpgcheck'
-  def __init__(self, basedistro, arch, conf=None):
-    self._conf = _make_conf(basedistro)
-    EventTestCase.__init__(self, basedistro, arch, conf)
+  eventid = 'gpgcheck'
+
+  def _make_repos_config(self):
+    repos = xmllib.config.Element('repos')
+
+    for repoid in ['base', 'everything', 'updates']:
+      # remove the mirrorlist for each repo
+      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
+      xmllib.config.Element('mirrorlist', parent=repo)
+      # don't delete the gpgkey/gpgcheck elements like other test cases
+
+    return repos
+
 
 class Test_GpgKeysNotProvided(GpgcheckEventTestCase):
   "raises RuntimeError when no keys are provided"
-  def __init__(self, basedistro, arch, conf=None):
-    self._conf = _make_conf(basedistro, keys=False)
-    EventTestCase.__init__(self, basedistro, arch, conf)
-
   def runTest(self):
     self.execute_predecessors(self.event)
     self.failUnlessRaises(RuntimeError, self.event)
 
-def make_suite(basedistro, arch):
+  def _make_repos_config(self):
+    repos = xmllib.config.Element('repos')
+
+    for repoid in ['base', 'everything', 'updates']:
+      # remove the mirrorlist for each repo
+      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
+      xmllib.config.Element('mirrorlist', parent=repo)
+      xmllib.config.Element('gpgkey', parent=repo)
+      # don't delete the gpgcheck elements like other test cases
+
+    return repos
+
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('gpgcheck')
 
-  suite.addTest(make_core_suite(GpgcheckEventTestCase, basedistro, arch))
-  suite.addTest(Test_GpgKeysNotProvided(basedistro, arch))
+  suite.addTest(make_core_suite(GpgcheckEventTestCase, distro, version, arch))
+  suite.addTest(Test_GpgKeysNotProvided(distro, version, arch))
 
   return suite

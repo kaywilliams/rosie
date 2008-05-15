@@ -34,9 +34,9 @@ class KickstartEventTestCase(EventTestCase):
       remove_input_files(self.event._config.file.abspath().dirname)
     EventTestCase.tearDown(self)
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('kickstart')
 
-  suite.addTest(make_extension_suite(KickstartEventTestCase, basedistro, arch))
+  suite.addTest(make_extension_suite(KickstartEventTestCase, distro, version, arch))
 
   return suite

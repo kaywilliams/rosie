@@ -171,8 +171,8 @@ class ImageModifyMixin:
   def _write_buildstamp(self):
     self.image.write(self.cvars['buildstamp-file'], '/')
 
-  def _write_directory(self, dir, dest='/'):
-    self.image.write([ file for file in dir.listdir() ], dest)
+  def _write_directory(self, dir, dst='/'):
+    self.image.write([ f for f in dir.listdir() ], dst)
 
   path    = property(lambda self: ( self.SOFTWARE_STORE /
                                     self.image_locals['path'] %

@@ -22,9 +22,9 @@ class SoftwareEventTestCase(EventTestCase):
   moduleid = 'software'
   eventid  = 'software'
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('software')
 
-  suite.addTest(make_core_suite(SoftwareEventTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(SoftwareEventTestCase, distro, version, arch))
 
   return suite

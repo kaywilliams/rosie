@@ -23,9 +23,9 @@ class ComposeTestCase(EventTestCase):
   eventid  = 'compose'
 
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('compose')
 
-  suite.addTest(make_core_suite(ComposeTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(ComposeTestCase, distro, version, arch))
 
   return suite

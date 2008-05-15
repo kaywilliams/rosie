@@ -38,9 +38,9 @@ class FilesEventTestCase(EventTestCase):
       remove_input_files(self.event._config.file.abspath().dirname)
     EventTestCase.tearDown(self)
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('files')
 
-  suite.addTest(make_extension_suite(FilesEventTestCase, basedistro, arch))
+  suite.addTest(make_extension_suite(FilesEventTestCase, distro, version, arch))
 
   return suite

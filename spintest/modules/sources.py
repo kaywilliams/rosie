@@ -25,101 +25,49 @@ from spintest.core   import make_extension_suite
 class SourceReposEventTestCase(EventTestCase):
   moduleid = 'sources'
   eventid  = 'source-repos'
-  def __init__(self, basedistro, arch, conf=None):
-    self._conf = _make_source_repos(basedistro)
-    EventTestCase.__init__(self, basedistro, arch, conf)
+  def __init__(self, distro, version, arch, conf=None):
+    EventTestCase.__init__(self, distro, version, arch, conf)
+
+class Test_NoBase(SourceReposEventTestCase):
+  "without base-info and repos sections, raises RuntimeError"
+  _conf = ["<base/>","<source enabled='true'/>"]
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(RuntimeError, self.event)
+
 
 class SourcesEventTestCase(EventTestCase):
   moduleid = 'sources'
   eventid  = 'sources'
-  def __init__(self, basedistro, arch, conf=None):
-    self._conf = _make_source_repos(basedistro)
-    EventTestCase.__init__(self, basedistro, arch, conf)
+  def __init__(self, distro, version, arch, conf=None):
+    EventTestCase.__init__(self, distro, version, arch, conf)
 
-def make_suite(basedistro, arch):
+  def _make_default_config(self):
+    top = EventTestCase._make_default_config(self)
+
+    src = self._make_source_repos_config()
+    if src: top.append(src)
+
+    return top
+
+  def _make_source_repos_config(self):
+    repos = config.Element('sources', attrs={'enabled': 'true'})
+
+    for repoid in ['base-source', 'everything-source', 'updates-source']:
+      repo = config.Element('repo', attrs={'id': repoid}, parent=repos)
+      config.Element('mirrorlist', parent=repo)
+      config.Element('gpgkey', parent=repo)
+      config.Element('gpgcheck', text='no', parent=repo)
+
+    return repos
+
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('sources')
 
-  suite.addTest(make_extension_suite(SourceReposEventTestCase, basedistro, arch))
-  suite.addTest(make_extension_suite(SourcesEventTestCase, basedistro, arch))
+  # disabling source test cases until Uday deals with the no repodata situation
+  ##suite.addTest(make_extension_suite(SourceReposEventTestCase, distro, version, arch))
+  ##suite.addTest(Test_NoBase(distro, version, arch))
+  ##suite.addTest(make_extension_suite(SourcesEventTestCase, distro, version, arch))
 
   return suite
-
-def _make_source_repos(distro):
-  srcrepos = config.Element('sources')
-  srcrepos.append(_make_repo('%s-base-source' % distro))
-  return str(srcrepos) # hack, this has to be a string
-
-def _make_repo(id, **kwargs):
-  if id in SOURCE_REPOS.keys():
-    d = copy.copy(SOURCE_REPOS[id]) # destructive
-  else:
-    d = {}
-
-  d.update(kwargs)
-
-  for k in ['baseurl']:
-    if not d.has_key(k):
-      raise ValueError("Missing key '%s' for repo '%s'" % (k, id))
-
-  repo = config.Element('repo', attrs={'id': id})
-  for k,v in d.items():
-    config.Element(k, text=v, parent=repo)
-
-  return repo
-
-SOURCE_REPOS = {
-  # fedora 6
-  'fedora-6-base-source': {
-    'name': 'fedora-6-base-source',
-    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/core/6/source/SRPMS/'
-  },
-  'fedora-6-updates-source': {
-    'name': 'fedora-6-updates-source',
-    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/core/updates/6/SRPMS/',
-  },
-  # fedora 7
-  #'fedora-7-base-source': {
-  #  'name': 'fedora-7-base-source',
-  #  'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/releases/7/Fedora/source/SRPMS/',
-  #},
-  'fedora-7-base-source': {
-    'name': 'fedora-7-base-source',
-    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/releases/7/Everything/source/SRPMS/',
-  },
-  'fedora-7-updates-source': {
-    'name': 'fedora-7-updates-source',
-    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/updates/7/SRPMS/',
-  },
-  # fedora 8
-  #'fedora-8-base-source': {
-  #  'name': 'fedora-8-base-source',
-  #  'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/releases/8/Fedora/source/SRPMS/',
-  #},
-  'fedora-8-base-source': {
-    'name': 'fedora-8-base-source',
-    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/releases/8/Everything/source/SRPMS/',
-  },
-  'fedora-8-updates-source': {
-    'name': 'fedora-8-updates-source',
-    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/updates/8/SRPMS/',
-  },
-  # fedora devel
-  'fedora-devel-base-source': {
-    'name': 'fedora-devel-source',
-    'baseurl': 'http://www.renditionsoftware.com/mirrors/fedora/development/source/SRPMS/',
-  },
-  # redhat 5
-  'redhat-5-base-source': {
-    'name': 'redhat-5-base-source',
-    'baseurl': 'http://www.renditionsoftware.com/mirrors/redhat/linux/enterprise/5Server/en/os/SRPMS/',
-  },
-  # centos 5
-  'centos-5-base-source': {
-    'name': 'centos-5-base-source',
-    'baseurl': 'http://www.renditionsoftware.com/mirrors/centos/5/os/SRPMS/',
-  },
-  'centos-5-updates-source': {
-    'name': 'centos-5-updates-source',
-    'baseurl': 'http://www.renditionsoftware.com/mirrors/centos/5/updates/SRPMS/',
-  },
-}

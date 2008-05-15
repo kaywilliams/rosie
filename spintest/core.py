@@ -49,27 +49,27 @@ class CoreTestSuite(unittest.TestSuite):
     return result
 
 
-def make_core_suite(TestCase, basedistro, arch, conf=None):
+def make_core_suite(TestCase, distro, version, arch, conf=None):
   suite = CoreTestSuite()
   suite.addTest(EventTestCaseHeader(TestCase.eventid)) # hack to get a pretty header
-  suite.addTest(CoreEventTestCase00(TestCase(basedistro, arch, conf)))
-  suite.addTest(CoreEventTestCase01(TestCase(basedistro, arch, conf)))
-  suite.addTest(CoreEventTestCase02(TestCase(basedistro, arch, conf)))
-  suite.addTest(CoreEventTestCase03(TestCase(basedistro, arch, conf)))
-  suite.addTest(CoreEventTestCase04(TestCase(basedistro, arch, conf)))
-  suite.addTest(CoreEventTestCase05(TestCase(basedistro, arch, conf)))
+  suite.addTest(CoreEventTestCase00(TestCase(distro, version, arch, conf)))
+  suite.addTest(CoreEventTestCase01(TestCase(distro, version, arch, conf)))
+  suite.addTest(CoreEventTestCase02(TestCase(distro, version, arch, conf)))
+  suite.addTest(CoreEventTestCase03(TestCase(distro, version, arch, conf)))
+  suite.addTest(CoreEventTestCase04(TestCase(distro, version, arch, conf)))
+  suite.addTest(CoreEventTestCase05(TestCase(distro, version, arch, conf)))
   return suite
 
-def make_extension_suite(TestCase, basedistro, arch, conf=None):
+def make_extension_suite(TestCase, distro, version, arch, conf=None):
   suite = CoreTestSuite()
-  suite.addTest(make_core_suite(TestCase, basedistro, arch, conf))
-  suite.addTest(ExtensionEventTestCase00(TestCase(basedistro, arch, conf)))
-  suite.addTest(ExtensionEventTestCase01(TestCase(basedistro, arch, conf)))
+  suite.addTest(make_core_suite(TestCase, distro, version, arch, conf))
+  suite.addTest(ExtensionEventTestCase00(TestCase(distro, version, arch, conf)))
+  suite.addTest(ExtensionEventTestCase01(TestCase(distro, version, arch, conf)))
   return suite
 
 
 def CoreEventTestCase00(self):
-  self._testMethodDoc = "Event.verify() might raise an AssertionError if --skip'd first"
+  self._testMethodDoc = "Event.verify() might raise an error if --skip'd first"
 
   def post_setup():
     self.event.status = False
@@ -77,7 +77,10 @@ def CoreEventTestCase00(self):
 
   def runTest():
     self.execute_predecessors(self.event)
-    self.failIfRuns(self.event)
+    try:
+      self.failIfRuns(self.event)
+    except (AssertionError, RuntimeError), e:
+      pass
     if self.event.diff.handlers.has_key('output'):
       self.failIf(self.event.verifier.unittest().wasSuccessful())
 

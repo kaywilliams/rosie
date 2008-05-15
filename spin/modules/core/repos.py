@@ -41,13 +41,17 @@ class ReposEvent(RepoEventMixin, Event):
                   'input-repos', # ugly solution to cycle in release-rpm, custom-repo
                   'comps-excluded-packages',
                   'pkglist-excluded-packages'],
-      conditionally_requires = ['base-distro-name',
-                                'base-distro-version'],
+      conditionally_requires = ['base-info-distro',
+                                'anaconda-version-supplied'],
     )
     RepoEventMixin.__init__(self)
 
     self.DATA = {
-      'variables': [], # filled later by read_config
+      'variables': ['cvars[\'base-info\'][\'product\']',
+                    'cvars[\'base-info\'][\'version\']',
+                    'cvars[\'base-info\'][\'baseurl-prefix\']',
+                    'cvars[\'base-info\'][\'mirrorlist-prefix\']'],
+                    # more later from self.setup_repos()
       'config':    ['.'],
       'input':     [],
       'output':    [],
@@ -70,14 +74,11 @@ class ReposEvent(RepoEventMixin, Event):
     if self.config.pathexists('.'):
       addrepos.add_repos(ReposFromXml(self.config.get('.'), cls=SpinRepo))
     for filexml in self.config.xpath('repofile', []):
-      addrepos.add_repos(ReposFromFile(filexml.text, cls=SpinRepo))
+      addrepos.add_repos(ReposFromFile(self._config.file.dirname / filexml.text,
+                                       cls=SpinRepo))
 
-    self.setup_repos('packages',
-                     updates    = addrepos,
-                     distro     = self.cvars['base-distro-name'],
-                     version    = self.cvars['base-distro-version'],
-                     baseurl_prefix    = self.cvars['base-distro-baseurl'],
-                     mirrorlist_prefix = self.cvars['base-distro-mirrorlist'])
+    self.setup_repos('packages', updates=addrepos)
+    self.read_repodata()
 
   def run(self):
     self.sync_repodata()
@@ -92,23 +93,14 @@ class ReposEvent(RepoEventMixin, Event):
     anaconda_version = None
 
     for repo in self.repos.values():
-      repo.localurl = self.mddir/repo.id
-
       # read repocontent
-      repo.read_repocontent_csv(repo.pkgsfile)
+      try:
+        repo.repocontent.read(repo.pkgsfile)
+      except Exception, e:
+        raise RuntimeError(str(e))
 
       # get logos and release versions, if any in repo
-      pkgs = { 'logos-versions':   [ 'fedora-logos',
-                                     'centos-logos',
-                                     'redhat-logos' ],
-               'release-versions': [ 'fedora-release',
-                                     'centos-release',
-                                     'redhat-release',
-                                     'fedora-release-notes',
-                                     'centos-release-notes',
-                                     'redhat-release-notes' ] }
-
-      for pkgid,allpkgs in pkgs.items():
+      for pkgid,allpkgs in RPMDATA.items(): # see below
         n,v = repo.get_rpm_version(allpkgs)
         if n is not None and v is not None:
           self.cvars.setdefault(pkgid, []).append((n,'==',v))
@@ -119,10 +111,13 @@ class ReposEvent(RepoEventMixin, Event):
         if not anaconda_version or v > anaconda_version:
           anaconda_version = v
 
-    if not anaconda_version:
-      raise RuntimeError("Unable to compute anaconda version from distro metadata")
+    if not anaconda_version and not self.cvars['anaconda-version-supplied']:
+      raise RuntimeError("Unable to find the 'anaconda' package in any "
+                         "specified repository, and 'anaconda-version' "
+                         "not given in <installer>")
     else:
-      self.cvars['anaconda-version'] = anaconda_version
+      self.cvars['anaconda-version'] = \
+        self.cvars['anaconda-version-supplied'] or anaconda_version
 
     self.cvars['repos']  = self.repos
 
@@ -130,6 +125,7 @@ class ReposEvent(RepoEventMixin, Event):
     global_excludes = self.config.xpath('exclude-package/text()', [])
     self.cvars.setdefault('comps-excluded-packages', set()).update(global_excludes)
     self.cvars.setdefault('pkglist-excluded-packages', set()).update(global_excludes)
+
 
   def verify_pkgsfiles_exist(self):
     "verify all pkgsfiles exist"
@@ -150,3 +146,15 @@ class ReposEvent(RepoEventMixin, Event):
 
 #------ ERRORS ------#
 class RepoNotFoundError(StandardError): pass
+
+#------ LOCALS ------#
+# maps an rpm type to the names of rpms for the 'category'
+RPMDATA = { 'logos-versions':   [ 'fedora-logos',
+                                  'centos-logos',
+                                  'redhat-logos' ],
+            'release-versions': [ 'fedora-release',
+                                  'centos-release',
+                                  'redhat-release',
+                                  'fedora-release-notes',
+                                  'centos-release-notes',
+                                  'redhat-release-notes' ] }

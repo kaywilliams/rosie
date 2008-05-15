@@ -30,16 +30,16 @@ class TreeinfoEventTestCase(EventTestCase):
   moduleid = 'infofiles'
   eventid  = 'treeinfo'
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('infofiles')
 
   # buildstamp
-  suite.addTest(make_core_suite(BuildstampEventTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(BuildstampEventTestCase, distro, version, arch))
 
   # discinfo
-  suite.addTest(make_core_suite(DiscinfoEventTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(DiscinfoEventTestCase, distro, version, arch))
 
   # treeinfo
-  suite.addTest(make_core_suite(TreeinfoEventTestCase, basedistro, arch))
+  suite.addTest(make_core_suite(TreeinfoEventTestCase, distro, version, arch))
 
   return suite

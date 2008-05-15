@@ -48,8 +48,8 @@ class IsoEventTestCase(EventTestCase):
 
 
 class IsoEventBootConfigTestCase(BootConfigMixinTestCase, IsoEventTestCase):
-  def __init__(self, basedistro, arch, conf=None):
-    IsoEventTestCase.__init__(self, basedistro, arch, conf)
+  def __init__(self, distro, version, arch, conf=None):
+    IsoEventTestCase.__init__(self, distro, version, arch, conf)
     self.default_args = ['method=cdrom']
     self.image = None
     self.do_defaults = True
@@ -176,18 +176,18 @@ class Test_BootArgsMacros(IsoEventBootConfigTestCase):
     self.do_defaults = False
 
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('iso')
 
   # pkgorder
-  suite.addTest(make_extension_suite(PkgorderEventTestCase, basedistro, arch))
+  suite.addTest(make_extension_suite(PkgorderEventTestCase, distro, version, arch))
 
   # iso
-  suite.addTest(make_extension_suite(IsoEventTestCase, basedistro, arch))
+  suite.addTest(make_extension_suite(IsoEventTestCase, distro, version, arch))
   suite.addTest(Test_SizeParser())
-  suite.addTest(Test_IsoContent(basedistro, arch))
-  suite.addTest(Test_SetsChanged(basedistro, arch))
-  suite.addTest(Test_BootArgsDefault(basedistro, arch))
-  suite.addTest(Test_BootArgsNoDefault(basedistro, arch))
-  suite.addTest(Test_BootArgsMacros(basedistro, arch))
+  suite.addTest(Test_IsoContent(distro, version, arch))
+  suite.addTest(Test_SetsChanged(distro, version, arch))
+  suite.addTest(Test_BootArgsDefault(distro, version, arch))
+  suite.addTest(Test_BootArgsNoDefault(distro, version, arch))
+  suite.addTest(Test_BootArgsMacros(distro, version, arch))
   return suite

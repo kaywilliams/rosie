@@ -25,8 +25,8 @@ class UpdatesImageEventTestCase(EventTestCase):
 
 class _UpdatesImageEventTestCase(ImageModifyMixinTestCase,
                                  UpdatesImageEventTestCase):
-  def __init__(self, basedistro, arch, conf=None):
-    UpdatesImageEventTestCase.__init__(self, basedistro, arch, conf)
+  def __init__(self, distro, version, arch, conf=None):
+    UpdatesImageEventTestCase.__init__(self, distro, version, arch, conf)
     ImageModifyMixinTestCase.__init__(self)
 
   def setUp(self):
@@ -37,10 +37,10 @@ class _UpdatesImageEventTestCase(ImageModifyMixinTestCase,
     ImageModifyMixinTestCase.tearDown(self)
     UpdatesImageEventTestCase.tearDown(self)
 
-def make_suite(basedistro, arch):
+def make_suite(distro, version, arch):
   suite = ModuleTestSuite('updates-image')
 
-  suite.addTest(make_core_suite(UpdatesImageEventTestCase, basedistro, arch))
-  suite.addTest(imm_make_suite(_UpdatesImageEventTestCase, basedistro, arch, xpath='path'))
+  suite.addTest(make_core_suite(UpdatesImageEventTestCase, distro, version, arch))
+  suite.addTest(imm_make_suite(_UpdatesImageEventTestCase, distro, version, arch, xpath='path'))
 
   return suite

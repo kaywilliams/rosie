@@ -24,12 +24,14 @@ import os
 import rpm
 import stat
 
+from rendition.repo import RepoContainer, ReposFromFile, ReposFromXml
+
 from spin.constants import SRPM_PNVRA_REGEX, SRPM_REGEX
 from spin.event     import Event
 from spin.logging   import L1, L2
 from spin.validate  import InvalidConfigError
 
-from spin.modules.shared import CreaterepoMixin, RepoEventMixin
+from spin.modules.shared import CreaterepoMixin, RepoEventMixin, SpinRepo
 
 API_VERSION = 5.0
 EVENTS = {'setup': ['SourceReposEvent'], 'all': ['SourcesEvent']}
@@ -38,8 +40,11 @@ class SourceReposEvent(Event, RepoEventMixin):
   "Downloads and reads the primary.xml.gz for each of the source repositories."
   def __init__(self):
     Event.__init__(self,
-                   id='source-repos',
-                   provides=['source-repos'])
+      id='source-repos',
+      provides=['source-repos'],
+      conditionally_requires = ['base-info-distro']
+    )
+
     RepoEventMixin.__init__(self)
 
     self.DATA = {
@@ -59,7 +64,16 @@ class SourceReposEvent(Event, RepoEventMixin):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.read_config(repos='repo', files='repofile')
+
+    addrepos = RepoContainer()
+    if self.config.pathexists('.'):
+      addrepos.add_repos(ReposFromXml(self.config.get('.'), cls=SpinRepo))
+    for filexml in self.config.xpath('repofile', []):
+      addrepos.add_repos(ReposFromFile(self._config.file.dirname / filexml.text,
+                                       cls=SpinRepo))
+
+    self.setup_repos('source', updates=addrepos)
+    self.read_repodata()
 
   def run(self):
     self.log(1, L1("downloading information about source packages"))
@@ -67,29 +81,27 @@ class SourceReposEvent(Event, RepoEventMixin):
 
     # reading primary.xml.gz files
     self.log(1, L1("reading available source packages"))
-    self.read_new_packages()
+    self.read_packages()
 
   def apply(self):
     self.io.clean_eventcache()
 
-    self.make_local_repos()
-
-    for repo in self.localrepos.values():
-      try: # hack, errors caught by validator
-        repo.read_repocontent()
-      except:
-        continue
+    for repo in self.repos.values():
+      try:
+        repo.repocontent.read(repo.pkgsfile)
+      except Exception, e:
+        raise RuntimeError(str(e))
 
     self.cvars['source-repos'] = self.repos
 
   def verify_pkgsfiles_exist(self):
     "verify all pkgsfiles exist"
-    for repo in self.repocontainer.values():
+    for repo in self.repos.values():
       self.verifier.failUnlessExists(repo.pkgsfile)
 
   def verify_repodata(self):
     "verify repodata exists"
-    for repo in self.repocontainer.values():
+    for repo in self.repos.values():
       self.verifier.failUnlessExists(repo.url / repo.mdfile)
       self.verifier.failUnlessExists(repo.url / repo.datafiles['primary'])
 
@@ -139,9 +151,9 @@ class SourcesEvent(Event, CreaterepoMixin):
         nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a)
         if nvra in srpmset:
           if hasattr(rpmi, '_update_stat'):
-            rpmi._update_stat({'st_size':  rpminfo['size'],
-                               'st_mtime': rpminfo['mtime'],
-                               'st_mode':  (stat.S_IFREG | 0644)})
+            rpmi._update_stat(st_size  = rpminfo['size'],
+                              st_mtime = rpminfo['mtime'],
+                              st_mode  = (stat.S_IFREG | 0644))
           self.io.add_fpath(rpmi, self.srpmdest, id='srpms')
 
   def run(self):

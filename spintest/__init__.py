@@ -25,12 +25,12 @@ from StringIO import StringIO
 
 from rendition import logger
 from rendition import pps
+from rendition import repo
 from rendition import shlib
-from rendition import xmllib
+
+from rendition.xmllib import config
 
 from spin.main import Build
-
-from spintest.config import make_default_config, add_config_section
 
 BUILD_ROOT = '/tmp/spintest' # location builds are performed
 
@@ -42,29 +42,28 @@ class TestBuild(Build):
   def _get_config(self, options, arguments):
     mcf = pps.path(options.mainconfigpath or '/etc/spin.conf')
     if mcf.exists():
-      self.mainconfig = xmllib.config.read(mcf)
+      self.mainconfig = config.read(mcf)
     else:
-      self.mainconfig = xmllib.config.read(StringIO('<spin/>'))
+      self.mainconfig = config.read(StringIO('<spin/>'))
 
     # set the cache dir
-    p = xmllib.config.uElement('cache', parent=self.mainconfig)
-    xmllib.config.uElement('path', parent=p).text = BUILD_ROOT
+    p = config.uElement('cache', parent=self.mainconfig)
+    config.uElement('path', parent=p).text = BUILD_ROOT
 
     self.distroconfig = self.conf
 
 
 class EventTestCase(unittest.TestCase):
-  def __init__(self, basedistro='fedora-6', arch='i386', conf=None):
-    self.conf = conf or make_default_config(self.moduleid, basedistro, arch)
-    if hasattr(self, '_conf'): # can be either a string or a list of strings
-      if isinstance(self._conf, str):
-        add_config_section(self.conf, self._conf)
-      else:
-        for sect in self._conf:
-          add_config_section(self.conf, sect)
+  def __init__(self, distro, version, arch='i386', conf=None):
+    self.distro = distro
+    self.version = version
+    self.arch = arch
+
+    self.conf = conf or self._make_default_config()
+
     # make sure an appropriate config section exists
     if not self.conf.pathexists(self.moduleid):
-      add_config_section(self.conf, '<%s enabled="true"/>' % self.moduleid)
+      self._add_config('<%s enabled="true"/>' % self.moduleid)
     # pretend we read from a config file in the modules directory
     self.conf.file = pps.path(__file__).dirname/'modules/%s' % self.moduleid
 
@@ -78,6 +77,79 @@ class EventTestCase(unittest.TestCase):
 
     self._testMethodDoc = self.__class__.__doc__
 
+  # config setup
+  def _make_default_config(self):
+    top = config.Element('distro', attrs={'schema-version': '1.0'})
+
+    main = self._make_main_config()
+    if main is not None: top.append(main)
+
+    base = self._make_base_config()
+    if base is not None: top.append(base)
+
+    repos = self._make_repos_config()
+    if repos is not None: top.append(repos)
+
+    installer = self._make_installer_config()
+    if installer is not None: top.append(installer)
+
+    self.conf = top
+
+    if hasattr(self, '_conf'): # string or list of strings
+      if isinstance(self._conf, basestring):
+        self._conf = [self._conf]
+      for cfg in self._conf:
+        self._add_config(cfg)
+
+    return self.conf
+
+  # subclass the following methods to change the default config we make; should
+  # return config.ConfigElement object or None
+
+  def _make_main_config(self):
+    main = config.Element('main')
+
+    config.Element('fullname', text='%s event test' % self.moduleid, parent=main)
+    config.Element('product',  text='test-%s' % self.moduleid, parent=main)
+    config.Element('version',  text='0', parent=main)
+    config.Element('arch',     text=self.arch, parent=main)
+
+    return main
+
+  def _make_base_config(self):
+    base = config.Element('base')
+
+    config.Element('distro',  text=self.distro,  parent=base)
+    config.Element('version', text=self.version, parent=base)
+    config.Element('baseurl-prefix', parent=base,
+      text='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+
+    return base
+
+  def _make_repos_config(self):
+    repos = config.Element('repos')
+
+    for repoid in ['base', 'everything', 'updates']:
+      # remove the mirrorlist for each repo
+      repo = config.Element('repo', attrs={'id': repoid}, parent=repos)
+      config.Element('mirrorlist', parent=repo)
+      config.Element('gpgkey', parent=repo)
+      config.Element('gpgcheck', text='no', parent=repo)
+
+    return repos
+
+  def _make_installer_config(self):
+    installer = config.Element('installer')
+    config.Element('mirrorlist', parent=installer)
+    return installer
+
+  def _add_config(self, section):
+    sect = config.read(StringIO(section))
+    for old in self.conf.xpath(sect.tag, []):
+      self.conf.remove(old)
+    self.conf.append(sect)
+
+  # test suite methods
   def setUp(self):
     self.tb = TestBuild(self.conf, self.options, [], self.parser)
     self.event = self.tb.dispatch._top.get(self.eventid, None)
@@ -98,6 +170,7 @@ class EventTestCase(unittest.TestCase):
     del self.event
     del self.conf
 
+  # helper methods
   def clean_all_md(self):
     for event in self.event.getroot():
       self.clean_event_md(event)
@@ -291,7 +364,7 @@ def make_logger(threshold):
   logfile = logger.Logger(threshold=2, file_object=LOGFILE) #! write eventhing to file
   return EventTestLogContainer([console, logfile])
 
-def make_suite(basedistro, arch='i386'):
+def make_suite(distro, version, arch='i386'):
   suite = unittest.TestSuite()
 
   for module in pps.path('modules').findpaths(mindepth=1, maxdepth=1):
@@ -307,7 +380,7 @@ def make_suite(basedistro, arch='i386'):
     finally:
       fp and fp.close()
 
-    suite.addTest(mod.make_suite(basedistro, arch))
+    suite.addTest(mod.make_suite(distro, version, arch))
 
   return suite
 
