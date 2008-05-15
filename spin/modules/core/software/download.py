@@ -59,9 +59,9 @@ class DownloadEvent(Event):
         if nvra in self.cvars['pkglist'] and nvra not in processed and \
              a in self._validarchs:
           if hasattr(rpm, '_update_stat'):
-            rpm._update_stat({'st_size':  rpminfo['size'],
-                              'st_mtime': rpminfo['mtime'],
-                              'st_mode':  (stat.S_IFREG | 0644)})
+            rpm._update_stat(st_size  = rpminfo['size'],
+                             st_mtime = rpminfo['mtime'],
+                             st_mode  = (stat.S_IFREG | 0644))
           rpms[rpm.basename] = rpm
           processed.append(nvra)
       self.io.add_fpaths(rpms.values(), self.builddata_dest, id=repo.id)
