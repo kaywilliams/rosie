@@ -313,7 +313,9 @@ class Build(object):
       else:
         enabled.add(module.tag)
 
-    # disable modules from main config
+    # enable/disable modules from main config
+    for module in self.mainconfig.xpath('/spin/enable-module', []):
+      enabled.add(module.text)
     for module in self.mainconfig.xpath('/spin/disable-module', []):
       disabled.add(module.text)
 
