@@ -143,15 +143,15 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     oldsets = None
 
     # remove oldsets if pkgorder file or srpms changed
-    if self.diff.handlers['input'].diffdict or \
-       self.diff.handlers['variables'].diffdict.has_key("cvars['srpms']"):
+    if self.diff.input.difference() or \
+       self.diff.variables.difference("cvars['srpms']"):
       self.io.clean_eventcache(all=True)
       oldsets = []
 
     # otherwise get oldsets from metadata file
     if oldsets is None:
       try:
-        oldsets = self.diff.handlers['config'].cfg['set/text()']
+        oldsets = self.diff.config.cfg['set/text()']
       except KeyError:
         oldsets = []
 
