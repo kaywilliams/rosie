@@ -57,13 +57,17 @@ class LinkCallback(_SyncCallbackMetered):
     self.logger.log(4, L1("removing files"))
 
   def rm(self, fn):
-    self.logger.log(4, L2(fn.relpathfrom(self.relpath)), format='%(message).75s')
+    if fn.isabs():
+      fn = fn.relpathfrom(self.relpath)
+    self.logger.log(4, L2(fn), format='%(message).75s')
 
   def rmdir_start(self):
     self.logger.log(4, L1("removing empty directories"))
 
   def rmdir(self, dn):
-    self.logger.log(4, L2(dn.relpathfrom(self.relpath)), format='%(message).75s')
+    if dn.isabs():
+      dn = dn.relpathfrom(self.relpath)
+    self.logger.log(4, L2(dn), format='%(message).75s')
 
   def sync_start(self, text='downloading files', **kwargs):
     if text:
