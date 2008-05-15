@@ -41,22 +41,27 @@ class DiffObject:
     self.ptr = ptr
     self.tester = difftest.DiffTest(self.ptr.mdfile)
     self.handlers = {}
-    self.diff_set = {}
+
+    self.config = None
+    self.output = None
+    self.input = None
+    self.variables = None
 
   # former DiffMixin stuff
   def setup(self, data):
-    if data.has_key('input') and not self.handlers.has_key('input'):
+    if data.has_key('input') and not self.input:
       self.add_handler(difftest.InputHandler(data['input']))
-    if data.has_key('output') and not self.handlers.has_key('output'):
+    if data.has_key('output') and not self.output:
       self.add_handler(difftest.OutputHandler(data['output']))
-    if data.has_key('variables') and not self.handlers.has_key('variables'):
+    if data.has_key('variables') and not self.variables:
       self.add_handler(difftest.VariablesHandler(data['variables'], self.ptr))
-    if data.has_key('config') and not self.handlers.has_key('config'):
+    if data.has_key('config') and not self.config:
       self.add_handler(difftest.ConfigHandler(data['config'], self.ptr.config))
 
   def add_handler(self, handler):
     self.tester.addHandler(handler)
     self.handlers[handler.name] = handler
+    setattr(self, handler.name, handler)
 
   def clean_metadata(self):  self.tester.clean_metadata()
   def read_metadata(self):   self.tester.read_metadata()
@@ -71,15 +76,10 @@ class DiffObject:
       self.tester.debug = debug
 
     for handler in self.handlers.values():
-      self.diff_set[handler.name] = (len(handler.diff()) > 0)
+      handler.diff()
 
     self.tester.debug = old_dbgval
 
-    return (True in self.diff_set.values())
-
-  def has_changed(self, name, err=False):
-    if not self.handlers.has_key(name):
-      if err:
-        raise RuntimeError("Missing %s metadata handler" % name)
-      return False
-    return self.diff_set.setdefault(name, len(self.handlers[name].diff()) > 0)
+    for handler in self.handlers.values():
+      if handler.difference(): return True
+    return False

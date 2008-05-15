@@ -57,8 +57,8 @@ class IOObject(object):
     if not src.exists():
       raise IOError("missing input file '%s'" % src)
 
-    if src not in self.ptr.diff.handlers['input'].idata:
-      self.ptr.diff.handlers['input'].idata.append(src)
+    if src not in self.ptr.diff.input.idata:
+      self.ptr.diff.input.idata.append(src)
 
     for s in src.findpaths():
       s = s.normpath()
@@ -67,8 +67,8 @@ class IOObject(object):
       out  = (dst/s.relpathfrom(src)).normpath()
       m = int(mode or oct((s.stat().st_mode & 0777) or 0644), 8)
 
-      if out not in self.ptr.diff.handlers['output'].odata:
-        self.ptr.diff.handlers['output'].odata.append(out)
+      if out not in self.ptr.diff.output.odata:
+        self.ptr.diff.output.odata.append(out)
 
       self.data.setdefault(id, set())
       self.data[id].add(TransactionData(s, out, m))
@@ -82,7 +82,7 @@ class IOObject(object):
     for item in self.ptr.config.xpath(xpath, []):
       s,d,f,m = self._process_path_xml(item, mode=mode)
 
-      self.add_item(s, dst//d/f, id=id, mode=m, prefix=prefix)
+      self.add_item(s, dst//d/f, id=id, mode=m or mode, prefix=prefix)
 
   def add_xpaths(self, xpaths, *args, **kwargs):
     "Add multiple xpaths at once; calls add_xpath on each element in xpaths"
@@ -129,8 +129,8 @@ class IOObject(object):
     # add item to transaction if input or output file has changed, or if
     # output file does not exist; sort on source basename
     tx = sorted([ t for t in self._filter_data(what=what) if
-                  t.src in self.ptr.diff.handlers['input'].diffdict or
-                  t.dst in self.ptr.diff.handlers['output'].diffdict or
+                  self.ptr.diff.input.difference(t.src) or
+                  self.ptr.diff.output.difference(t.dst) or
                   not t.dst.exists() ],
                 cmp=lambda x,y: cmp(x.src.basename, y.src.basename))
 
@@ -159,13 +159,13 @@ class IOObject(object):
     if all:
       self.ptr.mddir.listdir(all=True).rm(recursive=True)
     else:
-      if self.ptr.mdfile.exists() and self.ptr.diff.handlers.has_key('output'):
-        self.ptr.diff.handlers['output'].clear()
+      if self.ptr.mdfile.exists() and self.ptr.diff.output:
+        self.ptr.diff.output.clear()
 
         root = xmllib.tree.read(self.ptr.mdfile)
-        self.ptr.diff.handlers['output'].mdread(root)
+        self.ptr.diff.output.mdread(root)
 
-        expected = set(self.ptr.diff.handlers['output'].oldoutput.keys())
+        expected = set(self.ptr.diff.output.oldoutput.keys())
         expected.add(self.ptr.mdfile)
         existing = set(self.ptr.mddir.findpaths(mindepth=1, type=TYPE_NOT_DIR))
 
@@ -226,3 +226,5 @@ class TransactionData(object):
     self.dst  = dst
     self.mode = mode
 
+  def __str__(self):  return str((self.src, self.dst, self.mode))
+  def __repr__(self): return '%s(%s)' % (self.__class__.__name__, self.__str__())
