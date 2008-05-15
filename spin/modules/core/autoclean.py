@@ -17,6 +17,8 @@
 #
 from rendition import xmllib
 
+from rendition.difftest.handlers import DiffHandler
+
 from spin.event   import Event
 from spin.logging import L1, L2
 
@@ -56,21 +58,22 @@ class AutocleanEvent(Event):
       mdfolder.rm(recursive=True, force=True)
 
   def run(self):
-    for eventid in self.diff.handlers['events'].diffdict.keys():
-      prevver, currver = self.diff.handlers['events'].diffdict[eventid]
+    for eventid, difftup in self.diff.events.difference().items():
+      prevver, currver = difftup
       if prevver and currver:
         self.log(2, L1("forcing '%s'" % eventid))
         self.eventinfo[eventid].status = True
 
 
 #------ METADATA HANDLER ------#
-class EventHandler:
+class EventHandler(DiffHandler):
   def __init__(self, data):
     self.name = 'events'
 
     self.data = data
     self.events = {}
-    self.diffdict = {}
+
+    DiffHandler.__init__(self)
 
   def clear(self):
     self.events.clear()

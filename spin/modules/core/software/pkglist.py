@@ -115,9 +115,9 @@ class PkglistEvent(Event):
 
     if INCREMENTAL_DEPSOLVE:
       old_packages = []
-      diffdict = self.diff.handlers['variables'].diffdict
-      if diffdict.has_key("cvars['required-packages']"):
-        prev, curr = diffdict["cvars['required-packages']"]
+      difftup = self.diff.variables.difference('cvars[\'required-packages\']')
+      if difftup:
+        prev, curr = difftup
         if ( prev is None or
              isinstance(prev, difftest.NewEntry) or
              isinstance(prev, difftest.NoneEntry) ):
@@ -158,8 +158,8 @@ class PkglistEvent(Event):
     self.io.clean_eventcache()
     try:
       self.cvars['pkglist'] = self.pkglistfile.read_lines()
-    except:
-      pass # handled by verification below
+    except Exception, e:
+      raise RuntimeError(str(e))
 
   def verify_pkglistfile_exists(self):
     "pkglist file exists"
@@ -180,7 +180,7 @@ class PkglistEvent(Event):
 
   def _verify_repos(self):
     for repoid, rddir in self.rddirs.items():
-      for file in self.diff.handlers['input'].diffdict.keys():
+      for file in self.diff.input.difference().keys():
         if file.startswith(rddir):
           (self.dsdir/repoid).rm(recursive=True, force=True)
           break

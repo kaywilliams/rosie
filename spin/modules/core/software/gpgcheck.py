@@ -78,8 +78,9 @@ class GpgCheckEvent(Event):
 
       # if gpgkeys have changed for this repo, (re)create homedir and
       # add all rpms from the repo to check list
-      if self.diff.handlers['variables'].diffdict.has_key('gpgkeys'):
-        md, curr = self.diff.handlers['variables'].diffdict['gpgkeys']
+      difftup = self.diff.variables.difference('gpgkeys')
+      if difftup:
+        md, curr = difftup
         if not hasattr(md, '__iter__') or not md.has_key(repo):
           md = {repo: []}
         if set(curr[repo]).difference(set(md[repo])):
@@ -91,8 +92,9 @@ class GpgCheckEvent(Event):
 
       # if new rpms have been added from this repo, add them to check list
       else:
-        if self.diff.handlers['variables'].diffdict.has_key('rpms'):
-          md, curr = self.diff.handlers['variables'].diffdict['rpms']
+        difftup = self.diff.variables.difference('rpms')
+        if difftup:
+          md, curr = difftup
           if not hasattr(md, '__iter__'): md = {}
           if md.has_key(repo):
             newrpms = sorted(set(curr[repo]).difference(set(md[repo])))

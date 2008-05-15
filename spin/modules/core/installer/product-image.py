@@ -79,4 +79,4 @@ class ProductImageEvent(Event, ImageModifyMixin):
             default_groups = comps.xpath('//group[default/text() = "true"]/id/text()') )
 
     self.image.writeflo(StringIO(installclass),
-                        filename='custom.py', dest='installclasses')
+                        filename='custom.py', dst='installclasses')

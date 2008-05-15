@@ -100,12 +100,10 @@ class PublishEvent(Event):
 
     # remove input diffs from output folder prior to sync since sync doesn't 
     # (currently) support replacing newer timestamp files with older ones
-    diffs = self.diff.handlers['input'].diffdict.keys()
-    if diffs:
-      for diff in diffs:
-        for i in self.cvars['publish-content']:
-          if diff.startswith(i):
-            (self.cvars['publish-path'] / diff.relpathfrom(i.dirname)).rm(force=True)
+    for diff in self.diff.input.difference().keys():
+      for i in self.cvars['publish-content']:
+        if diff.startswith(i):
+          (self.cvars['publish-path'] / diff.relpathfrom(i.dirname)).rm(force=True)
 
     # using link w/strict rather than io.sync to remove files outside the mddir
     self.cvars['publish-path'].mkdirs()

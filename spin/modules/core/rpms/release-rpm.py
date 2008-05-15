@@ -87,12 +87,12 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     self._setup_download()
 
     # public gpg keys
-    if self.cvars.get('gpgsign-public-key', None):
+    if self.cvars['gpgsign-public-key']:
       self.io.add_fpath(self.cvars.get('gpgsign-public-key'),
                         self.build_folder//self.gpg_dir)
     else:
       for repo in self.cvars['repos'].values():
-        self.io.add_fpaths(repo.gpgkeys, self.build_folder//self.gpg_dir)
+        self.io.add_fpaths(repo.gpgkey, self.build_folder//self.gpg_dir)
 
     # eulapy file
     include_firstboot = self.config.get('eula/include-in-firstboot/text()',
