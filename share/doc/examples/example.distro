@@ -109,20 +109,35 @@
 
   </main>
 
+  <!-- The base module allows the user to select from a set of supported
+       base distributions that become the basis for the new distro.  Each
+       base distribution predefines a number of repositories that are used
+       automatically by repos, installer, and sources.  Currently supported
+       base distributions are centos 5, fedora 7, and fedora 8 -->
+  <base>
+    <name>fedora</name>
+    <version>8</version>
+    <!-- If there is a specific location from which package, installer, and
+         source mirroring should occur, the baseurl-prefix can be set to
+         replace the default for that distro. -->
+    <!--<baseurl-prefix>http://www.example.com/path/to/fedora/mirrors/</baseurl-prefix>-->
+  </base>
+
   <!-- The repos module is responsible for reading repository metadata for
-       determining the available packages for a distribution. -->
+       determining the available packages for a distribution.  This section
+       is optional when using the base module. -->
   <repos>
     <!-- Repos can be specified in two ways - a path to a yum.conf-style
          file or in an XML format, described below.  Both can be specified
-         at the same time, if desired.  -->
+         at the same time, if desired. -->
     <!--<repofile>/path/to/repofile</repofile>-->
     <!--<repo id="base"><baseurl>http://mirror/path/to/repo</baseurl></repo>-->
 
-    <!-- Exactly one of the specified repos must be identified by id as the
-         'base repo' for the distro; this repo must have a groupfile and
-         the various installation files/images (stage2.img, isolinux.cfg,
-         etc) for the distribution. -->
-    <!--<base-repo>base</base-repo>-->
+    <!-- The data inside repos defined here will overwrite the defaults
+         returned by the information in the base module, above, if the given
+         repo has the same id.  For example, to turn off gpgkey checking for
+         the 'everything' repo: -->
+    <!--<repo id="everything"><gpgcheck>no</gpgcheck></repo>
 
     <!-- <exclude-package> and <include-package> elements as children of
          <repo> elements have the same effect as 'exclude' and 'includepkgs'
@@ -134,13 +149,13 @@
       <baseurl>http://mirror/path/to/repo</baseurl>
       <exclude-package>tcpdump</exclude-package>
     </repo>-->
-
-    <!-- There currently is no support for the 'mirrorlist' element nor can
-         standard yum $release, $version, etc. variables be used -->
-
-    <!-- this XInclude refers to repos defined in the 'repos' file -->
-    <xi:include href="repos" xpointer="xpointer(/distro/repos[@id='f9-i386']/*)"/>
   </repos>
+
+
+  <!-- The installer module defines the location where installation files
+       and images (stage2.img, isolinux.cfg, etc) are located.  This section
+       is optional when using the base module. -->
+  <!--<installer/>-->
 
   <!-- The <comps> module is what computes and creates the group definitions
        for the distribution. -->
@@ -208,9 +223,10 @@
   <!-- The sources module downloads and includes SRPMs in the distro tree -->
   <sources enabled="false">
     <!-- The content of the sources module is the same as that of the repos
-         module, except that <base-repo> is not required (and the repos should
-         point to SRPM repositories, rather than RPMs) -->
-    <xi:include href="repos" xpointer="xpointer(/distro/sources[@id='f9-source']/*)"/>
+         module, except that repos should point to SRPM repositories, rather
+         than RPMs).  Like in the repos module, when using the base module,
+         it is unnecessary to define actual repos her, unless default values
+         need to be changed or additional non-default repos are needed -->
   </sources>  
 
   <!-- The product-image module creates a product.img with any distro-
