@@ -115,7 +115,7 @@
        automatically by repos, installer, and sources.  Currently supported
        base distributions are centos 5, fedora 7, and fedora 8 -->
   <base>
-    <name>fedora</name>
+    <distro>fedora</distro>
     <version>8</version>
     <!-- If there is a specific location from which package, installer, and
          source mirroring should occur, the baseurl-prefix can be set to
