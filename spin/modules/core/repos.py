@@ -41,17 +41,13 @@ class ReposEvent(RepoEventMixin, Event):
                   'input-repos', # ugly solution to cycle in release-rpm, custom-repo
                   'comps-excluded-packages',
                   'pkglist-excluded-packages'],
-      conditionally_requires = ['base-info-distro',
+      conditionally_requires = ['base-distro',
                                 'anaconda-version-supplied'],
     )
     RepoEventMixin.__init__(self)
 
     self.DATA = {
-      'variables': ['cvars[\'base-info\'][\'product\']',
-                    'cvars[\'base-info\'][\'version\']',
-                    'cvars[\'base-info\'][\'baseurl-prefix\']',
-                    'cvars[\'base-info\'][\'mirrorlist-prefix\']'],
-                    # more later from self.setup_repos()
+      'variables': [], #more later from self.setup_repos()
       'config':    ['.'],
       'input':     [],
       'output':    [],

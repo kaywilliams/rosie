@@ -23,17 +23,19 @@ from rendition import repo
 from spin.event   import Event
 from spin.logging import L1, L2
 
-from spin.modules.shared import SpinRepo, RepoEventMixin
+from spin.modules.shared import SpinRepo
+
+from rendition.repo.repo import RepoContainer
 
 API_VERSION = 5.0
 
 EVENTS = {'rpms': ['CustomRepoEvent']}
 
-class CustomRepoEvent(RepoEventMixin, Event):
+class CustomRepoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'custom-repo',
-      conditionally_requires = ['custom-rpms-data', 'base-info-distro'],
+      conditionally_requires = ['custom-rpms-data'],
       provides = ['repos', 'source-repos',
                   'comps-included-packages',
                   'comps-excluded-packages']
@@ -51,7 +53,7 @@ class CustomRepoEvent(RepoEventMixin, Event):
       'variables': [],
     }
 
-    RepoEventMixin.__init__(self)
+    self.repos = RepoContainer()
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -66,9 +68,8 @@ class CustomRepoEvent(RepoEventMixin, Event):
       custom_rpms  = SpinRepo(id=self.cid,  name=self.cid,  baseurl=self.CUSTOM_RPMS)
       custom_srpms = SpinRepo(id=self.csid, name=self.csid, baseurl=self.CUSTOM_SRPMS)
 
-      self.setup_repos('packages', defaults=False,
-                       updates = {self.cid:  custom_rpms,
-                                  self.csid: custom_srpms})
+      self._setup_repos('packages', updates = {self.cid:  custom_rpms,
+                                               self.csid: custom_srpms})
 
   def run(self):
     # remove previous output
@@ -140,3 +141,25 @@ class CustomRepoEvent(RepoEventMixin, Event):
          .add((rpm_name, type, requires, default)))
       if obsoletes:
         self.cvars.setdefault('comps-excluded-packages', set()).update(obsoletes)
+        
+  def _setup_repos(self, type, updates=None, cls=SpinRepo):
+
+    repos = RepoContainer()
+
+    # update default values
+    repos.add_repos(updates or {})
+
+    for repo in repos.values():
+      # set pkgsfile
+      repo.localurl = self.mddir/repo.id
+
+    # make sure we got at least one repo out of that mess
+    if not len(repos) > 0:
+      raise RuntimeError(
+        "Got no repos out of .setup_repos() for repo type '%s'" % type)
+
+    self.repoids = repos.keys()
+
+    self.repos.add_repos(repos)
+    return self.repos
+

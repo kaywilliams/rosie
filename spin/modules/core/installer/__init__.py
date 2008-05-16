@@ -40,7 +40,7 @@ class InstallerSetupEvent(RepoEventMixin, Event):
     Event.__init__(self,
       id = 'installer-setup',
       provides = [ 'installer-repo', 'anaconda-version-supplied'],
-      conditionally_requires = [ 'base-info-distro' ],
+      conditionally_requires = [ 'base-distro' ],
       suppress_run_message = True,
     )
 

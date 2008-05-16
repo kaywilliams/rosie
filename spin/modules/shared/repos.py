@@ -70,7 +70,7 @@ class RepoEventMixin:
 
   def setup_repos(self, type, distro=None, version=None,
                         baseurl_prefix=None, mirrorlist_prefix=None,
-                        updates=None, defaults=True, cls=SpinRepo):
+                        updates=None, cls=SpinRepo):
     """
     Populates self.repos with Repo objects from the specified defaults
     combined with any desired updates.  Also sets repo.localurl for each
@@ -93,19 +93,18 @@ class RepoEventMixin:
               with the same id as those returned by getDefaultRepos() will
               update the value of its elements; those with differing values
               will create new repos entirely; optional
-    defaults: whether to include default repos; optional
     cls     : the class of repo to use in creating default repos; optional
     """
     # set up arg defaults
-    distro  = distro  or self.cvars['base-info']['product']
-    version = version or self.cvars['base-info']['version']
+    distro  = distro  or self.cvars['base-distro']['distro']
+    version = version or self.cvars['base-distro']['version']
     baseurl_prefix    = baseurl_prefix    or \
-                        self.cvars['base-info']['baseurl-prefix']
+                        self.cvars['base-distro']['baseurl-prefix']
     mirrorlist_prefix = mirrorlist_prefix or \
-                        self.cvars['base-info']['mirrorlist-prefix']
+                        self.cvars['base-distro']['mirrorlist-prefix']
 
     repos = RepoContainer()
-    if distro and version and defaults:
+    if distro and version:
       # get one of the default distro/version RepoContainers
       try:
         repos.add_repos(getDefaultRepos(type, distro, version,
@@ -135,7 +134,11 @@ class RepoEventMixin:
         "Got no repos out of .setup_repos() for repo type '%s'" % type)
 
     self.repoids = repos.keys()
-    self.DATA['variables'].append('repoids')
+    self.DATA['variables'].extend(['repoids',
+                                   'cvars[\'base-distro\'][\'distro\']',
+                                   'cvars[\'base-distro\'][\'version\']',
+                                   'cvars[\'base-distro\'][\'baseurl-prefix\']',
+                                   'cvars[\'base-distro\'][\'mirrorlist-prefix\']'])
 
     self.repos.add_repos(repos)
     return self.repos

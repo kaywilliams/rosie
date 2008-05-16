@@ -42,7 +42,7 @@ class SourceReposEvent(Event, RepoEventMixin):
     Event.__init__(self,
       id='source-repos',
       provides=['source-repos'],
-      conditionally_requires = ['base-info-distro']
+      conditionally_requires = ['base-distro']
     )
 
     RepoEventMixin.__init__(self)

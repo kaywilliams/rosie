@@ -37,7 +37,7 @@ class BaseDistroEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'base-distro',
-      provides = [ 'base-info', 'base-info-distro' ],
+      provides = [ 'base-distro' ],
       suppress_run_message = True,
     )
 
@@ -49,11 +49,11 @@ class BaseDistroEvent(Event):
 
   def apply(self):
     # set cvars
-    self.cvars.setdefault('base-info', {})
-    self.cvars['base-info']['product'] = self.config.get('distro/text()', None)
-    self.cvars['base-info']['version'] = self.config.get('version/text()', None)
-    self.cvars['base-info']['baseurl-prefix'] = self.config.get('baseurl-prefix/text()', None)
-    self.cvars['base-info']['mirrorlist-prefix'] = self.config.get('mirrorlist-prefix/text()', None)
+    self.cvars.setdefault('base-distro', {})
+    self.cvars['base-distro']['distro'] = self.config.get('distro/text()', None)
+    self.cvars['base-distro']['version'] = self.config.get('version/text()', None)
+    self.cvars['base-distro']['baseurl-prefix'] = self.config.get('baseurl-prefix/text()', None)
+    self.cvars['base-distro']['mirrorlist-prefix'] = self.config.get('mirrorlist-prefix/text()', None)
 
   # don't verify base-distro-* cvars; they may be None
 
