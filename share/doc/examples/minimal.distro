@@ -6,13 +6,16 @@
   <main>
     <fullname>Example</fullname>
     <product>example</product>
-    <version>f9</version>
+    <version>c5</version>
     <arch>i386</arch>
   </main>
 
-  <repos>
-    <xi:include href="repos" xpointer="xpointer(/distro/repos[@id='f9-i386']/*)"/>
-  </repos>
+  <base>
+    <distro>centos</distro>
+    <version>5</version>
+    <!--<baseurl-prefix>http://www.my.org/centos</baseurl-prefix>-->
+    <!--<baseurl-prefix>http://www.my.org/pub/fedora/linux</baseurl-prefix>-->
+  </base>
   
   <!--
   <comps>
@@ -30,10 +33,6 @@
     <requires>other-package</requires>
   </config-rpm>
 
-  <sources>
-    <xi:include href="repos" xpointer="xpointer(/distro/sources[@id='f9-source']/*)"/>
-  </sources>  
-  
   <iso>
     <set>dvd</set>
     <set>cd</set>

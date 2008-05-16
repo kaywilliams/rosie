@@ -133,13 +133,20 @@ the main and repos sections of the file to contain the following:
   <main>
     <fullname>Example</fullname>
     <product>example</product>
-    <version>c5</version>
+    <version>f9</version>
     <arch>x86_64</arch>
   </main>
 
-  <repos>
-    <xi:include href="repos" xpointer="xpointer(/distro/repos[@id='c5-x86_64']/*)"/>
-  </repos>
+  <base>
+    <distro>fedora</distro>
+    <version>9</version>
+    <!--<baseurl-prefix>http://www.my.org/centos</baseurl-prefix>-->
+    <!--<baseurl-prefix>http://www.my.org/pub/fedora/linux</baseurl-prefix>-->
+  </base>
+
+Spin will automatically locate and download files using public mirror locations. 
+Change and uncomment the baseurl-prefix to point to a local mirror, if one is 
+available, for improved performance.
 
 
 2. Running Spin
@@ -151,7 +158,7 @@ installation images.
 
 ::
 
-        $SPIN_RUN/bin/spin $DISTRO_DIR/example.distro
+        $SPIN_RUN/bin/spin $DISTRO_DIR/minimal.distro
 
 
 3. Using the Custom Distribution
