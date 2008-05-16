@@ -18,11 +18,11 @@
           </interleave>
           </optional>
 
-          <optional
+          <optional>
           <element name='baseurl-prefix'><text/></element>
           </optional>
 
-          <optional
+          <optional>
           <element name='mirrorlist-prefix'><text/></element>
           </optional>
 
@@ -34,4 +34,5 @@
     </element>
   </start>
 
+  <include href="lib.rng"/>
 </grammar>
