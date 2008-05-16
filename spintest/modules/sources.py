@@ -66,8 +66,8 @@ def make_suite(distro, version, arch):
   suite = ModuleTestSuite('sources')
 
   # disabling source test cases until Uday deals with the no repodata situation
-  ##suite.addTest(make_extension_suite(SourceReposEventTestCase, distro, version, arch))
-  ##suite.addTest(Test_NoBase(distro, version, arch))
-  ##suite.addTest(make_extension_suite(SourcesEventTestCase, distro, version, arch))
+  suite.addTest(make_extension_suite(SourceReposEventTestCase, distro, version, arch))
+  suite.addTest(Test_NoBase(distro, version, arch))
+  suite.addTest(make_extension_suite(SourcesEventTestCase, distro, version, arch))
 
   return suite
