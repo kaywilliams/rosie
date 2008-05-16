@@ -87,23 +87,13 @@ class SourceReposEvent(Event, RepoEventMixin):
     self.io.clean_eventcache()
 
     for repo in self.repos.values():
-      try:
-        repo.repocontent.read(repo.pkgsfile)
-      except Exception, e:
-        raise RuntimeError(str(e))
+      if repo.pkgsfile.exists():
+        try:
+          repo.repocontent.read(repo.pkgsfile)
+        except Exception, e:
+          raise RuntimeError(str(e))
 
     self.cvars['source-repos'] = self.repos
-
-  def verify_pkgsfiles_exist(self):
-    "verify all pkgsfiles exist"
-    for repo in self.repos.values():
-      self.verifier.failUnlessExists(repo.pkgsfile)
-
-  def verify_repodata(self):
-    "verify repodata exists"
-    for repo in self.repos.values():
-      self.verifier.failUnlessExists(repo.url / repo.mdfile)
-      self.verifier.failUnlessExists(repo.url / repo.datafiles['primary'])
 
   def verify_cvars(self):
     "verify cvars are set"

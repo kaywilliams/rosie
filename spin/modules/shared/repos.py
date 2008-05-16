@@ -155,9 +155,11 @@ class RepoEventMixin:
     .sync_repodata(), below, to copy down all repository metadata.
     """
     for repo in self.repos.values():
-      # read metadata
-      repo.read_repomd()
-
+      try:
+        # read metadata
+        repo.read_repomd()
+      except pps.Path.error.PathError, e:
+        continue
       # add metadata to io sync
       self.io.add_fpaths([ repo.url/f for f in repo.datafiles.values() ],
                          self.mddir/repo.id/'repodata',
@@ -197,7 +199,10 @@ class RepoEventMixin:
       newids = set()
 
     for repo in self.repos.values():
-      pxml = repo.localurl//repo.datafiles['primary']
+      try:
+        pxml = repo.localurl//repo.datafiles['primary']
+      except KeyError, e: # KeyError raised if no repodata/ folder exists
+        continue
 
       # if the input primary.xml has changed or if the repo id wasn't in the
       # previous run
