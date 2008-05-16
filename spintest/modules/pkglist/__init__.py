@@ -68,11 +68,12 @@ class PkglistEventTestCase(EventTestCase):
     return repos
 
 class Test_PkglistBug84_1(PkglistEventTestCase):
-  "without base group"
+  "Bug 84 #1: Force 'pkglist' without base group"
   caseid = 'bug84_1'
   clean  =  True
 
 class Test_PkglistBug84_2(PkglistEventTestCase):
+  "Bug 84 #2: Run 'pkglist' with base group"
   "with base group"
   _conf = """<comps>
     <group>base</group>
@@ -80,7 +81,7 @@ class Test_PkglistBug84_2(PkglistEventTestCase):
   caseid = 'bug84_2'
 
 class Test_PkglistBug84_3(PkglistEventTestCase):
-  "without base group but with pkglist metadata"
+  "Bug 84 #3: Run 'pkglist' without base group"
   caseid = 'bug84_3'
 
   def runTest(self):
@@ -91,17 +92,17 @@ class Test_PkglistBug84_3(PkglistEventTestCase):
       "incremental depsolve: %d, forced depsolve: %d" % (count1, count2))
 
 class Test_PkglistBug85_1(PkglistEventTestCase):
-  "without updates repo"
+  "Bug 85 #1: Force 'pkglist' without updates repository"
   caseid = 'bug85_1'
   clean  = True
 
 class Test_PkglistBug85_2(PkglistEventTestCase):
-  "with updates repo"
+  "Bug 85 #2: Run 'pkglist' with updates repository"
   caseid = 'bug85_2'
   repos = ['base', 'updates']
 
 class Test_PkglistBug85_3(PkglistEventTestCase):
-  "without updates but with pkglist metadata"
+  "Bug 85 #3: Run 'pkglist' without updates repository"
   caseid = 'bug85_3'
 
   def runTest(self):
@@ -112,13 +113,13 @@ class Test_PkglistBug85_3(PkglistEventTestCase):
                     (count1, count2))
 
 class Test_PkglistBug86_1(PkglistEventTestCase):
-  "pkglist without release-rpm forced"
+  "Bug 86 #1: Force 'pkglist' without 'release-rpm' forced"
   caseid = 'bug86_1'
   clean  = True
   repos = ['base', 'updates']
 
 class Test_PkglistBug86_2(PkglistEventTestCase):
-  "pkglist with release-rpm forced"
+  "Bug 86 #2: Force 'pkglist' with 'release-rpm' events"
   caseid = 'bug86_2'
   clean  = True
   repos = ['base', 'updates']
@@ -135,7 +136,7 @@ class Test_PkglistBug86_2(PkglistEventTestCase):
                       (count1, count2))
 
 class Test_PkglistBug108(PkglistEventTestCase):
-  "'pidgin' or 'libpurple' should be in pkglist"
+  "Bug 108: 'pidgin' or 'libpurple' should be in pkglist (CentOS5-only test)"
   _conf = """<comps>
     <package>gaim</package>
   </comps>"""
@@ -160,60 +161,49 @@ class Test_PkglistBug108(PkglistEventTestCase):
     self.failIf(found_gaim)
 
 class Test_PkglistBug163_1(PkglistEventTestCase):
-  "newer package is not the required package"
-  _conf = [
-  """<repos>
-    <macro id="root">http://www.renditionsoftware.com/mirrors/</macro>
-    <repo id="base">
-      <baseurl>%{root}fedora/releases/test/9-Preview/Fedora/i386/os/</baseurl>
-    </repo>
-    <repo id="everything">
-      <baseurl>%{root}fedora/releases/8/Everything/i386/os/</baseurl>
-    </repo>
-    <repo id="updates">
-      <baseurl>%{root}fedora/updates/testing/8/i386</baseurl>
-      <exclude-package>beagle*</exclude-package>
-    </repo>
-  </repos>
-  """
-  ,
-  "<base-info/>"
-  ,
-  """<installer>
-    <anaconda-version>11.3.0.50</anaconda-version>
-    <baseurl>http://www.renditionsoftware.com/mirrors/fedora/releases/8/Fedora/i386/os/</baseurl>
-  </installer>"""
-  ]
+  "Bug 163 #1: Newer package is not the desired package"
+  _conf = """<comps>
+    <package>pkglist-bug163-req</package>
+  </comps>"""
   caseid = 'bug163_1'
   clean  = True
 
+  def _make_repos_config(self):
+    repos = xmllib.config.Element('repos')
+
+    for repoid in self.repos:
+      # remove the mirrorlist for each repo
+      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
+      xmllib.config.Element('mirrorlist', parent=repo)
+
+    repos.append(xmllib.config.Element('repofile',
+                 text='pkglist/pkglist-test-repos4.repo'))
+    return repos
+
+  def runTest(self):
+    PkglistEventTestCase.runTest(self)
+    self.failUnless('pkglist-bug163-prov-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failIf('pkglist-bug163-prov-2.0-1.noarch' in self.event.cvars['pkglist'])
+
 class Test_PkglistBug163_2(PkglistEventTestCase):
-  "updates not brought down blindly"
-  _conf = [
-  """<repos>
-    <macro id="root">http://www.renditionsoftware.com/mirrors/</macro>
-    <repo id="base">
-      <baseurl>%{root}fedora/releases/test/9-Preview/Fedora/i386/os/</baseurl>
-    </repo>
-    <repo id="everything">
-      <baseurl>%{root}fedora/releases/8/Everything/i386/os/</baseurl>
-    </repo>
-    <repo id="updates">
-      <baseurl>%{root}fedora/updates/testing/8/i386</baseurl>
-      <exclude-package>beagle*</exclude-package>
-    </repo>
-  </repos>
-  """
-  ,
-  "<base-info/>"
-  ,
-  """<installer>
-    <anaconda-version>11.3.0.50</anaconda-version>
-    <baseurl>http://www.renditionsoftware.com/mirrors/fedora/releases/8/Fedora/i386/os/</baseurl>
-  </installer>"""
-  ]
+  "Bug 163 #2: Newer package is not brought down when 'release-rpm' is forced"
+  _conf = """<comps>
+    <package>pkglist-bug163-req</package>
+  </comps>"""
   caseid = 'bug163_2'
   clean  = False
+
+  def _make_repos_config(self):
+    repos = xmllib.config.Element('repos')
+
+    for repoid in self.repos:
+      # remove the mirrorlist for each repo
+      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
+      xmllib.config.Element('mirrorlist', parent=repo)
+
+    repos.append(xmllib.config.Element('repofile',
+                 text='pkglist/pkglist-test-repos4.repo'))
+    return repos
 
   def setUp(self):
     PkglistEventTestCase.setUp(self)
@@ -225,9 +215,11 @@ class Test_PkglistBug163_2(PkglistEventTestCase):
     count2 = self.getPkglistCount('bug163_2')
     self.failUnless(count1 == count2, "bug163_1: %d packages; bug163_2: %d packages" % \
                       (count1, count2))
+    self.failUnless('pkglist-bug163-prov-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failIf('pkglist-bug163-prov-2.0-1.noarch' in self.event.cvars['pkglist'])
 
 class Test_Supplied(DummyPkglistEventTestCase):
-  "pkglist supplied"
+  "Package list file is supplied"
   _conf = "<pkglist>pkglist/pkglist</pkglist>"
 
   def runTest(self):
@@ -238,7 +230,7 @@ class Test_Supplied(DummyPkglistEventTestCase):
     self.failUnlessEqual(sorted(pkglist_in), sorted(pkglist_out))
 
 class Test_PackageAdded(PkglistEventTestCase):
-  "added package"
+  "Misc. Test #1: Package Added"
   _conf = """<comps>
     <package>pkglist-test-package1</package>
   </comps>"""
@@ -263,7 +255,7 @@ class Test_PackageAdded(PkglistEventTestCase):
     self.failUnless('pkglist-test-package1-1.0-1.noarch' in self.event.cvars['pkglist'])
 
 class Test_ObsoletedPackage(PkglistEventTestCase):
-  "obsoleted package"
+  "Misc. Test #2: Package obsoleted"
   _conf = """<comps>
     <package>pkglist-test-package2</package>
   </comps>"""
@@ -291,7 +283,7 @@ class Test_ObsoletedPackage(PkglistEventTestCase):
     self.failIf('pkglist-test-package1-1.0-1.noarch' in self.event.cvars['pkglist'])
 
 class Test_RemovedPackage(PkglistEventTestCase):
-  "removed package"
+  "Misc. Test #3: Package removed"
   caseid = 'pkgremoved'
 
   def runTest(self):
@@ -299,7 +291,7 @@ class Test_RemovedPackage(PkglistEventTestCase):
     self.failIf('pkglist-test-package2-1.0-1.noarch' in self.event.cvars['pkglist'])
 
 class Test_ExclusivePackage_1(PkglistEventTestCase):
-  "test-package required only by another test-package"
+  "Misc. Test #4: A package is required by only one other package..."
   _conf = """<comps>
     <package>pkglist-test-package3</package>
   </comps>"""
@@ -324,7 +316,7 @@ class Test_ExclusivePackage_1(PkglistEventTestCase):
     self.failUnless('pkglist-test-package4-1.0-1.noarch' in self.event.cvars['pkglist'])
 
 class Test_ExclusivePackage_2(PkglistEventTestCase):
-  "package not required by anything else not in pkglist"
+  "Misc. Test #4 (contd.): ...and it should go away now"
   caseid = 'exclusive_2'
 
   def setUp(self):

@@ -103,30 +103,23 @@ system such as CVS, SVN, git, or the like.
 ::
 
   $$ mkdir $DISTRO_DIR
-  $$ cp $SPIN_RUN/share/doc/example/repos $DISTRO_DIR
-  $$ cp $SPIN_RUN/share/doc/example/example.distro $DISTRO_DIR
+  $$ cd $SPIN_RUN/share/doc/example/
+  $$ cp minimal.distro example.distro $DISTRO_DIR
   $$ cd $DISTRO_DIR
 
 
-Now you can open and modify the repos and example.distro files. 
+Now you can open and modify the minimal.distro and example.distro files. 
 
-The repos file contains URLs to common package repository mirror locations. 
-For best performance, open this file and modify the macro elements to point to 
-local package mirrors.
+Distribution definition files (distrofiles or .distro files) define your 
+distribution, including name, version, packages to include, the base distribution
+to use (e.g. CentOS 5, Fedora 9), etc. Minimal.distro is an abbreviated 
+distrofile showing common options. Example.distro is a commented distrofile 
+containing an overview of general concepts, and descriptions of many elements 
+and their usage.
 
-::
-
-  <!-- Change the macros below to point to local mirrors -->
-
-  <macro id="centos">http://mirror.centos.org/centos-5</macro>
-  <macro id="epel">http://download.fedora.redhat.com/pub/epel</macro>
-  <macro id="fedora">http://download.fedora.redhat.com/pub/fedora/linux</macro>
- 
-
-The example.distro file describes details of your distribution, including name, 
-version, packages to include, package repositories to use, etc. As an experiment, 
-modify this file to create a distribution based on CentOS 5 x86_64 by setting 
-the main and repos sections of the file to contain the following:
+As an experiment, modify the minimial.distro file to create a distribution 
+based on Fedora 9 x86_64 by modifying the main and base sections of the file to 
+contain the following:
 
 ::
 
