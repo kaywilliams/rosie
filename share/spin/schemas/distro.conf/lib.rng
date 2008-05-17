@@ -11,7 +11,9 @@
       <element name="name"><text/></element>
       </optional>
 
+      <optional>
       <element name="baseurl"><text/></element>
+      </optional>
 
       <zeroOrMore>
       <element name="include-package"><text/></element>
