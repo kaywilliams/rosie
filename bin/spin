@@ -31,7 +31,6 @@ from optparse import OptionParser, OptionGroup, SUPPRESS_HELP
 from StringIO import StringIO
 
 from rendition import pps
-from rendition import xmllib
 
 from rendition.CleanHelpFormatter import CleanHelpFormatter
 
