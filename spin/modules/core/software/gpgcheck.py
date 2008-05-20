@@ -107,8 +107,8 @@ class GpgCheckEvent(Event):
         for rpm in newrpms:
           try:
             mkrpm.VerifyRpm(rpm, homedir=homedir)
-          except mkrpm.RpmSignatureInvalidError:
-            invalids.append(rpm.basename)
+          except mkrpm.RpmSignatureInvalidError, e:
+            invalids.append("%s - invalid signature tags: %s" % (rpm.basename, e.invalid_tags))
           self.gpgcheck_cb.pkgChecked(rpm.basename)
 
         if invalids:
