@@ -129,12 +129,17 @@ class EventTestCase(unittest.TestCase):
   def _make_repos_config(self):
     repos = config.Element('repos')
 
-    for repoid in ['base', 'everything', 'updates']:
+    for repoid in ['base', 'updates']:
       # remove the mirrorlist for each repo
       repo = config.Element('repo', attrs={'id': repoid}, parent=repos)
       config.Element('mirrorlist', parent=repo)
       config.Element('gpgkey', parent=repo)
       config.Element('gpgcheck', text='no', parent=repo)
+
+    for repoid in ['everything']:
+      # disable each repo
+      repo = config.Element('repo', attrs={'id': repoid}, parent=repos)
+      config.Element('enabled', text='no', parent=repo)
 
     return repos
 
