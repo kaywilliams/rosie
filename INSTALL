@@ -103,7 +103,7 @@ system such as CVS, SVN, git, or the like.
 ::
 
   $$ mkdir $DISTRO_DIR
-  $$ cd $SPIN_RUN/share/doc/example/
+  $$ cd $SPIN_RUN/spin/share/doc/example/
   $$ cp minimal.distro example.distro $DISTRO_DIR
   $$ cd $DISTRO_DIR
 
