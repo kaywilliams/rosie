@@ -17,13 +17,11 @@
     <!--<baseurl-prefix>http://www.my.org/pub/fedora/linux</baseurl-prefix>-->
   </base>
   
-  <!--
   <comps>
-    <group>base</group>
-    <package>httpd</package>
-    <package>mysql</package>
+    <group>core</group>
   </comps>
-  
+
+  <!--  
   <kickstart>path/to/ks.cfg</kickstart>
   
   <config-rpm>
