@@ -1,11 +1,11 @@
-<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="distro">
-      
+
       <optional>
       <element name="comps">
-        
+
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
@@ -14,15 +14,15 @@
           <ref name="value-boolean"/>
         </attribute>
         </optional>
-        
+
         <choice>
-        
+
         <text/>
-        
+
         <group>
-          
+
           <interleave>
-          
+
           <zeroOrMore>
           <ref name="element-group"/>
           </zeroOrMore>
@@ -32,39 +32,39 @@
           <zeroOrMore>
           <ref name="element-exclude-package"/>
           </zeroOrMore>
-          
+
           </interleave>
         </group>
         </choice>
-        
+
       </element>
       </optional>
     </element>
   </start>
-  
+
   <include href="lib.rng"/>
-  
+
   <define name="element-group">
     <element name="group">
-      
+
       <optional>
       <attribute name="repoid"/>
       </optional>
-      
+
       <optional>
       <attribute name="default">
         <ref name="value-boolean-with-default"/>
       </attribute>
       </optional>
-      
+
       <text/>
-      
+
     </element>
   </define>
-  
+
   <define name="element-package">
     <element name="package">
-      
+
       <optional>
       <attribute name="type">
         <choice>
@@ -75,12 +75,12 @@
         </choice>
       </attribute>
       </optional>
-      
+
       <optional><attribute name="requires"/></optional>
-      
+
       <text/>
-      
+
     </element>
   </define>
-  
+
 </grammar>

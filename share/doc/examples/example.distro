@@ -1,7 +1,7 @@
 <!-- The following is a sample distribution definition (.distro) file.  Some of
      the most 'interesting' possible configuration values have been highlighted;
      this is by no means a comprehensive list of available options.  See
-     user documentation (not yet available) for a more complete discussion of 
+     user documentation (not yet available) for a more complete discussion of
      modules and their configuration.
 
      BOOLEAN VALUES
@@ -81,8 +81,8 @@
      out for the sake of clarity.
 -->
 
-<!-- Distro files have support for using the w3 XInclude standard.  If this 
-     functionality is desired, include the following attribute in the <distro> 
+<!-- Distro files have support for using the w3 XInclude standard.  If this
+     functionality is desired, include the following attribute in the <distro>
      section:
 
      xmlns:xi="http://www.w3.org/2001/XInclude" -->
@@ -142,7 +142,7 @@
     <!-- <exclude-package> and <include-package> elements as children of
          <repo> elements have the same effect as 'exclude' and 'includepkgs'
          in yum.conf files. <exclude-package> elements as children of the
-         <repos> element will exclude packages from the entire distro. 
+         <repos> element will exclude packages from the entire distro.
          Each exclude or include element should contain one package.-->
     <!--<exclude-package>tcpdump</exclude-package>-->
     <!--<repo id="base">
@@ -227,7 +227,7 @@
          than RPMs).  Like in the repos module, when using the base module,
          it is unnecessary to define actual repos her, unless default values
          need to be changed or additional non-default repos are needed -->
-  </sources>  
+  </sources>
 
   <!-- The product-image module creates a product.img with any distro-
        specific customizations (such as branding) -->

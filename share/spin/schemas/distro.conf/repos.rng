@@ -1,16 +1,16 @@
-<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="distro">
 
-      <optional>    
+      <optional>
       <element name="repos">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
         <interleave>
-          
+
         <zeroOrMore>
         <ref name="element-exclude-package"/>
         </zeroOrMore>
@@ -18,19 +18,19 @@
         <zeroOrMore>
         <ref name="element-repo"/>
         </zeroOrMore>
-        
+
         <zeroOrMore>
         <element name="repofile"><text/></element>
         </zeroOrMore>
-               
+
         </interleave>
-        
+
       </element>
       </optional>
-    
+
     </element>
   </start>
-  
+
   <include href="lib.rng"/>
-    
+
 </grammar>

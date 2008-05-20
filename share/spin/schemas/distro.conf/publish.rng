@@ -1,8 +1,8 @@
-<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="distro">
-      
+
       <optional>
       <element name="publish">
         <optional>
@@ -10,7 +10,7 @@
         </optional>
 
         <interleave>
-        
+
         <optional>
         <element name="remote-webroot">
         <optional>
@@ -21,21 +21,21 @@
         <text/>
         </element>
         </optional>
-        
+
         <optional>
         <element name="local-webroot"><text/></element>
         </optional>
-        
+
         <optional>
         <element name="path-prefix"><text/></element>
         </optional>
-        
+
         </interleave>
       </element>
       </optional>
-      
+
     </element>
   </start>
-  
+
   <include href="lib.rng"/>
 </grammar>

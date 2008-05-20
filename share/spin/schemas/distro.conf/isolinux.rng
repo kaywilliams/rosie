@@ -1,8 +1,8 @@
-<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
-  <start>    
+  <start>
     <element name="distro">
-      
+
       <optional>
         <element name="isolinux">
           <optional>
@@ -10,20 +10,20 @@
           </optional>
 
           <interleave>
-            
+
             <optional>
             <element name="boot-args"><text/></element>
             </optional>
-            
+
             <zeroOrMore>
             <ref name="element-path-with-dest"/>
             </zeroOrMore>
-            
+
           </interleave>
         </element>
       </optional>
     </element>
   </start>
-  
+
   <include href="lib.rng"/>
 </grammar>
