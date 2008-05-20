@@ -75,6 +75,11 @@ class ReposEvent(RepoEventMixin, Event):
 
     self.setup_repos('packages', updates=addrepos)
     self.read_repodata()
+    for repo in self.repos.values():
+      try:
+        (repo.url//'repodata').exists()
+      except OSError, e:
+        raise RuntimeError(str(e))
 
   def run(self):
     self.sync_repodata()
@@ -121,7 +126,6 @@ class ReposEvent(RepoEventMixin, Event):
     global_excludes = self.config.xpath('exclude-package/text()', [])
     self.cvars.setdefault('comps-excluded-packages', set()).update(global_excludes)
     self.cvars.setdefault('pkglist-excluded-packages', set()).update(global_excludes)
-
 
   def verify_pkgsfiles_exist(self):
     "verify all pkgsfiles exist"
