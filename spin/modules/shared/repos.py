@@ -159,6 +159,8 @@ class RepoEventMixin:
         # read metadata
         repo.read_repomd()
       except pps.Path.error.PathError, e:
+        if not repo.url.exists():
+          raise RuntimeError("Missing repository: '%s'" % repo.url)
         continue
       # add metadata to io sync
       self.io.add_fpaths([ repo.url/f for f in repo.datafiles.values() ],
@@ -171,7 +173,7 @@ class RepoEventMixin:
     cache.
 
     This method should typically be called in Event.run(); it must be
-    preceded by a call to .read_repomd(), above.
+    preceded by a call to .read_repodata(), above.
     """
     for repo in self.repos.values():
       self.io.sync_input(what='%s-repodata' % repo.id, cache=True,
