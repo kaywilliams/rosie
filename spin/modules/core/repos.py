@@ -53,14 +53,6 @@ class ReposEvent(RepoEventMixin, Event):
       'output':    [],
     }
 
-  def validate(self):
-    if self.config.pathexists('.') and \
-       self.config.get('repo', None) is None and \
-       self.config.get('repofile', None) is None:
-      raise InvalidConfigError(self.config,
-         "Config file must specify at least one 'repo' element or "
-         "at least one 'repofile' element as a child to the 'repos' "
-         "element.")
 
   def setup(self):
     self.diff.setup(self.DATA)
