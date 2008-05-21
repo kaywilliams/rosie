@@ -29,7 +29,7 @@ class BaseConfigValidator:
   def __init__(self, schema_paths, config_path):
     self.schema_paths = schema_paths
     self.config = xmllib.tree.read(config_path)
-    xmllib.config.expand_macros(self.config)
+    xmllib.macros.expand_macros(self.config)
     self.elements = []
 
     self.curr_schema = None
@@ -117,7 +117,7 @@ class MainConfigValidator(BaseConfigValidator):
 class ConfigValidator(BaseConfigValidator):
   def __init__(self, schema_paths, config_path):
     config = xmllib.tree.read(config_path)
-    xmllib.config.expand_macros(config)
+    xmllib.macros.expand_macros(config)
     BaseConfigValidator.__init__(self, schema_paths, config_path)
 
   def verify_elements(self, disabled):

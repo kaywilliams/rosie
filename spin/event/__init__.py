@@ -21,7 +21,7 @@ import traceback
 
 from rendition import dispatch
 from rendition import sync
-from rendition.xmllib import tree
+from rendition import xmllib
 
 from spin.logging import L0, L1
 
@@ -182,7 +182,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   def _get_config(self):
     try:
       return self._config.get('/distro/%s' % self.__module__.split('.')[-1])
-    except tree.XmlPathError:
+    except xmllib.errors.XmlPathError:
       return DummyConfig(self._config)
   config = property(_get_config)
 
@@ -219,16 +219,16 @@ class DummyConfig(object):
   def __init__(self, config):
     self.config = config # the config object this is based around
 
-  def get(self, paths, fallback=tree.NoneObject()):
+  def get(self, paths, fallback=xmllib.tree.NoneObject()):
     try:
       return self.xpath(paths)[0]
-    except tree.XmlPathError:
-      if not isinstance(fallback, tree.NoneObject):
+    except xmllib.errors.XmlPathError:
+      if not isinstance(fallback, xmllib.tree.NoneObject):
         return fallback
       else:
         raise
 
-  def xpath(self, paths, fallback=tree.NoneObject()):
+  def xpath(self, paths, fallback=xmllib.tree.NoneObject()):
     if not hasattr(paths, '__iter__'): paths = [paths]
     result = []
     for p in paths:
@@ -237,11 +237,11 @@ class DummyConfig(object):
       if result: break
 
     if not result:
-      if not isinstance(fallback, tree.NoneObject):
+      if not isinstance(fallback, xmllib.tree.NoneObject):
         return fallback
       else:
-        raise tree.XmlPathError("None of the specified paths %s "
-                                "were found in the config file" % paths)
+        raise xmllib.errors.XmlPathError("None of the specified paths %s "
+                                         "were found in the config file" % paths)
 
     return result
 

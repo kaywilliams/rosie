@@ -225,11 +225,11 @@ class Build(object):
 
       dcp = dcp.expand().abspath()
       if not dcp.exists():
-        raise xmllib.config.ConfigError("No config file found at '%s'" % dcp)
+        raise xmllib.errors.ConfigError("No config file found at '%s'" % dcp)
 
       self.logger.log(3, "Reading distro config file '%s'" % dcp)
       dc = xmllib.config.read(dcp)
-    except xmllib.tree.XmlSyntaxError, e:
+    except xmllib.errors.XmlSyntaxError, e:
       self.logger.log(0, "Error reading config file: %s" % e)
       raise
 
