@@ -28,8 +28,8 @@ NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
 class BaseConfigValidator:
   def __init__(self, schema_paths, config_path):
     self.schema_paths = schema_paths
-    self.config = xmllib.tree.read(config_path)
-    xmllib.macros.expand_macros(self.config)
+    self.config = xmllib.tree.read(config_path, xincluder=xmllib.xinclude.MacroXInclude())
+    #xmllib.macros.expand_macros(self.config)
     self.elements = []
 
     self.curr_schema = None
@@ -116,8 +116,8 @@ class MainConfigValidator(BaseConfigValidator):
 
 class ConfigValidator(BaseConfigValidator):
   def __init__(self, schema_paths, config_path):
-    config = xmllib.tree.read(config_path)
-    xmllib.macros.expand_macros(config)
+    config = xmllib.tree.read(config_path, xincluder=xmllib.xinclude.MacroXInclude())
+    #xmllib.macros.expand_macros(config)
     BaseConfigValidator.__init__(self, schema_paths, config_path)
 
   def verify_elements(self, disabled):
