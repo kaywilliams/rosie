@@ -232,7 +232,7 @@ class CompsEvent(Event):
     try:
       tree = xmllib.config.read(groupfile)
     except Exception, e:
-      raise CompsError("error reading file '%s'" % groupfile)
+      raise CompsError("error reading file '%s': %s" % (groupfile, e))
 
     # add any other groups specified
     for group in self.config.xpath(

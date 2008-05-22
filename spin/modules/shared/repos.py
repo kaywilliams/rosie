@@ -28,11 +28,15 @@ from rendition.repo.repo import YumRepo, RepoContainer
 
 __all__ = ['RepoEventMixin', 'SpinRepo']
 
+mirrorgroups = {} # keep track of all the mirrorgroups we use to check reuse
 
 class SpinRepo(YumRepo):
+  keyfilter = ['id', 'systemid']
+
   def __init__(self, **kwargs):
     YumRepo.__init__(self, **kwargs)
     self.localurl = None
+    self._systemid = None # system id, for redhat mirrors
 
   @property
   def pkgsfile(self):
@@ -63,6 +67,14 @@ class SpinRepo(YumRepo):
         except (AttributeError, IndexError):
           pass
     return (None, None)
+
+  def _xform_uri(self, p):
+    p = pps.path(p)
+    if isinstance(p, pps.Path.rhn.RhnPath):
+      p._systemid = self.get('systemid')
+    else:
+      p = YumRepo._xform_uri(self, p)
+    return p
 
 class RepoEventMixin:
   def __init__(self):
@@ -132,6 +144,22 @@ class RepoEventMixin:
     if not len(repos) > 0:
       raise RuntimeError(
         "Got no repos out of .setup_repos() for repo type '%s'" % type)
+
+    # warn if multiple repos use the same mirrorlist and different baseurls
+    global mirrorgroups
+    for repo in repos.values():
+      if not repo.mirrorlist: continue
+      ( mirrorgroups.setdefault(repo.mirrorlist, {})
+                    .setdefault(tuple(repo.baseurl), [])
+                    .append(repo.id) )
+    for mg,baseurls in mirrorgroups.items():
+      if len(baseurls) > 1:
+        r = []
+        for baseurl in baseurls.values():
+          r.extend(baseurl)
+        self.logger.log(1, "Warning: the repos %s use the same "
+          "mirrorlist, '%s', but have different baseurls; this can "
+          "result in unexpected behavior." % (r, mg))
 
     self.repoids = repos.keys()
     self.DATA['variables'].extend(['repoids',

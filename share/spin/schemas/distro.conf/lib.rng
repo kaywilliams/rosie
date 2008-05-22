@@ -15,6 +15,14 @@
       <element name="baseurl"><text/></element>
       </optional>
 
+      <optional>
+      <element name="mirrorlist"><text/></element>
+      </optional>
+
+      <optional>
+      <element name="systemid"><text/></element>
+      </optional>
+
       <zeroOrMore>
       <element name="include-package"><text/></element>
       </zeroOrMore>

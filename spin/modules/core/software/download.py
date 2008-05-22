@@ -16,6 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 import stat
+import time
 
 from rpmUtils.arch import getArchList
 
@@ -52,6 +53,7 @@ class DownloadEvent(Event):
 
     for repo in self.cvars['repos'].values():
       rpms = {}
+      now = time.time()
       for rpminfo in repo.repocontent:
         rpm = repo.url//rpminfo['file']
         _,n,v,r,a = self._deformat(rpm)
@@ -61,9 +63,11 @@ class DownloadEvent(Event):
           if hasattr(rpm, '_update_stat'):
             rpm._update_stat(st_size  = rpminfo['size'],
                              st_mtime = rpminfo['mtime'],
-                             st_mode  = (stat.S_IFREG | 0644))
+                             st_mode  = (stat.S_IFREG | 0644),
+                             st_atime = now)
           rpms[rpm.basename] = rpm
           processed.append(nvra)
+
       self.io.add_fpaths(rpms.values(), self.builddata_dest, id=repo.id)
       if rpms:
         self.cvars['rpms-by-repoid'][repo.id] = \

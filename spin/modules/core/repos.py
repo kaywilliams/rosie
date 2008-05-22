@@ -22,7 +22,6 @@ from rendition.versort import Version
 
 from spin.event    import Event
 from spin.logging  import L1, L2
-from spin.validate import InvalidConfigError
 
 from spin.modules.shared import RepoEventMixin, SpinRepo
 

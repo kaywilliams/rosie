@@ -23,6 +23,7 @@ downloads srpms
 import os
 import rpm
 import stat
+import time
 
 from rendition.repo import RepoContainer, ReposFromFile, ReposFromXml
 
@@ -126,6 +127,7 @@ class SourcesEvent(Event, CreaterepoMixin):
 
     # setup sync
     for repo in self.cvars['source-repos'].values():
+      now = time.time()
       for rpminfo in repo.repocontent:
         rpmi = repo.url//rpminfo['file']
         _,n,v,r,a = self._deformat(rpmi)
@@ -135,7 +137,8 @@ class SourcesEvent(Event, CreaterepoMixin):
           if hasattr(rpmi, '_update_stat'):
             rpmi._update_stat(st_size  = rpminfo['size'],
                               st_mtime = rpminfo['mtime'],
-                              st_mode  = (stat.S_IFREG | 0644))
+                              st_mode  = (stat.S_IFREG | 0644),
+                              st_atime = now)
           self.io.add_fpath(rpmi, self.srpmdest, id='srpms')
 
   def run(self):
