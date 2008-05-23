@@ -30,14 +30,7 @@ class DownloadEventTestCase(EventTestCase):
   eventid  = 'download'
 
   def _make_repos_config(self):
-    repos = xmllib.config.Element('repos')
-
-    for repoid in ['base', 'updates']:
-      # remove the mirrorlist for each repo
-      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
-      xmllib.config.Element('mirrorlist', parent=repo)
-      xmllib.config.Element('gpgkey', parent=repo)
-      xmllib.config.Element('gpgcheck', text='no', parent=repo)
+    repos = EventTestCase._make_repos_config(self)
 
     xmllib.config.Element('repofile', text='download/download-test-repos.repo', parent=repos)
 

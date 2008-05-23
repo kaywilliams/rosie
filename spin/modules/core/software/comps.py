@@ -271,7 +271,7 @@ class CompsEvent(Event):
           try: #!
             G['attrs'][attr.tag] = attr.text
           except KeyError: #!
-            #print tree #!
+            ##print tree #!
             raise #!
 
     # set the default value, if given

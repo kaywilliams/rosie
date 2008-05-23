@@ -117,6 +117,9 @@ class EventTestCase(unittest.TestCase):
     return main
 
   def _make_base_config(self):
+    if self.distro == 'redhat' and self.version == '5Server':
+      return None
+
     base = config.Element('base')
 
     config.Element('distro',  text=self.distro,  parent=base)
@@ -129,23 +132,38 @@ class EventTestCase(unittest.TestCase):
   def _make_repos_config(self):
     repos = config.Element('repos')
 
-    for repoid in ['base', 'updates']:
-      # remove the mirrorlist for each repo
-      repo = config.Element('repo', attrs={'id': repoid}, parent=repos)
-      config.Element('mirrorlist', parent=repo)
-      config.Element('gpgkey', parent=repo)
-      config.Element('gpgcheck', text='no', parent=repo)
+    if self.distro == 'redhat' and self.version == '5Server':
+      base = config.Element('repo', attrs={'id': 'base'}, parent=repos)
+      config.Element('baseurl', parent=base,
+        text='http://www.renditionsoftware.com/mirrors/redhat/'
+             'enterprise/5Server/en/os/i386/Server')
+      config.Element('name', text='base', parent=base)
 
-    for repoid in ['everything']:
-      # disable each repo
-      repo = config.Element('repo', attrs={'id': repoid}, parent=repos)
-      config.Element('enabled', text='no', parent=repo)
+    else:
+
+      for repoid in ['base']:
+        # remove the mirrorlist for each repo
+        repo = config.Element('repo', attrs={'id': repoid}, parent=repos)
+        config.Element('mirrorlist', parent=repo)
+        config.Element('gpgkey', parent=repo)
+        config.Element('gpgcheck', text='no', parent=repo)
+
+      for repoid in ['everything', 'updates']:
+        # disable each repo
+        repo = config.Element('repo', attrs={'id': repoid}, parent=repos)
+        config.Element('enabled', text='no', parent=repo)
 
     return repos
 
   def _make_installer_config(self):
     installer = config.Element('installer')
-    config.Element('mirrorlist', parent=installer)
+    if self.distro == 'redhat' and self.version == '5Server':
+      config.Element('baseurl', parent=installer,
+        text = 'http://www.renditionsoftware.com/mirrors/redhat/'
+               'enterprise/5Server/en/os/i386/')
+    else:
+      config.Element('mirrorlist', parent=installer)
+
     return installer
 
   def _add_config(self, section):

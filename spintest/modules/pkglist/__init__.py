@@ -58,12 +58,36 @@ class PkglistEventTestCase(EventTestCase):
   def _make_repos_config(self):
     repos = xmllib.config.Element('repos')
 
-    for repoid in self.repos:
-      # remove the mirrorlist for each repo
-      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
-      xmllib.config.Element('mirrorlist', parent=repo)
-      xmllib.config.Element('gpgkey', parent=repo)
-      xmllib.config.Element('gpgcheck', text='no', parent=repo)
+    if self.distro == 'redhat' and self.version == '5Server':
+      if 'base' in self.repos:
+        # base repo
+        base = xmllib.config.Element('repo', attrs={'id': 'base'}, parent=repos)
+        xmllib.config.Element('baseurl', parent=base,
+          text='http://www.renditionsoftware.com/mirrors/redhat/'
+               'enterprise/5Server/en/os/i386/Server')
+        xmllib.config.Element('name', text='base', parent=base)
+
+      if 'updates' in self.repos:
+        # updates repo
+        updates = xmllib.config.Element('repo', attrs={'id': 'updates'}, parent=repos)
+        xmllib.config.Element('baseurl', parent=updates,
+                      text='rhns:///rhel-i386-server-5')
+        xmllib.config.Element('name', text='updates', parent=updates)
+        xmllib.config.Element('systemid', text='/etc/sysconfig/rhn/systemid', parent=updates)
+
+    else:
+
+      for repoid in ['base', 'updates', 'everything']:
+        if repoid in self.repos:
+          # remove the mirrorlist for each repo
+          repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
+          xmllib.config.Element('mirrorlist', parent=repo)
+          xmllib.config.Element('gpgkey', parent=repo)
+          xmllib.config.Element('gpgcheck', text='no', parent=repo)
+        else:
+          # disable each repo
+          repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
+          xmllib.config.Element('enabled', text='no', parent=repo)
 
     return repos
 
@@ -169,12 +193,7 @@ class Test_PkglistBug163_1(PkglistEventTestCase):
   clean  = True
 
   def _make_repos_config(self):
-    repos = xmllib.config.Element('repos')
-
-    for repoid in self.repos:
-      # remove the mirrorlist for each repo
-      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
-      xmllib.config.Element('mirrorlist', parent=repo)
+    repos = PkglistEventTestCase._make_repos_config(self)
 
     repos.append(xmllib.config.Element('repofile',
                  text='pkglist/pkglist-test-repos4.repo'))
@@ -194,12 +213,7 @@ class Test_PkglistBug163_2(PkglistEventTestCase):
   clean  = False
 
   def _make_repos_config(self):
-    repos = xmllib.config.Element('repos')
-
-    for repoid in self.repos:
-      # remove the mirrorlist for each repo
-      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
-      xmllib.config.Element('mirrorlist', parent=repo)
+    repos = PkglistEventTestCase._make_repos_config(self)
 
     repos.append(xmllib.config.Element('repofile',
                  text='pkglist/pkglist-test-repos4.repo'))
@@ -238,12 +252,7 @@ class Test_PackageAdded(PkglistEventTestCase):
   clean  = True
 
   def _make_repos_config(self):
-    repos = xmllib.config.Element('repos')
-
-    for repoid in self.repos:
-      # remove the mirrorlist for each repo
-      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
-      xmllib.config.Element('mirrorlist', parent=repo)
+    repos = PkglistEventTestCase._make_repos_config(self)
 
     repos.append(xmllib.config.Element('repofile',
                  text='pkglist/pkglist-test-repos1.repo'))
@@ -263,12 +272,7 @@ class Test_ObsoletedPackage(PkglistEventTestCase):
   caseid = 'pkgobsoleted'
 
   def _make_repos_config(self):
-    repos = xmllib.config.Element('repos')
-
-    for repoid in self.repos:
-      # remove the mirrorlist for each repo
-      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
-      xmllib.config.Element('mirrorlist', parent=repo)
+    repos = PkglistEventTestCase._make_repos_config(self)
 
     repos.append(xmllib.config.Element('repofile',
                  text='pkglist/pkglist-test-repos1.repo'))
@@ -298,12 +302,7 @@ class Test_ExclusivePackage_1(PkglistEventTestCase):
   caseid = 'exclusive_1'
 
   def _make_repos_config(self):
-    repos = xmllib.config.Element('repos')
-
-    for repoid in self.repos:
-      # remove the mirrorlist for each repo
-      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
-      xmllib.config.Element('mirrorlist', parent=repo)
+    repos = PkglistEventTestCase._make_repos_config(self)
 
     repos.append(xmllib.config.Element('repofile',
                  text='pkglist/pkglist-test-repos3.repo'))

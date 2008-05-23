@@ -1,6 +1,6 @@
-all: repos
+all: download-test-repos.repo
 
-repos:
+download-test-repos.repo: download-test-repos.xml
 	buildrepos --config-file download-test-repos.xml \
 	--repo-file download-test-repos.repo
 

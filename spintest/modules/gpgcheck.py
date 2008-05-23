@@ -25,13 +25,12 @@ class GpgcheckEventTestCase(EventTestCase):
   eventid = 'gpgcheck'
 
   def _make_repos_config(self):
-    repos = xmllib.config.Element('repos')
+    repos = EventTestCase._make_repos_config(self)
 
-    for repoid in ['base', 'everything', 'updates']:
-      # remove the mirrorlist for each repo
-      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
-      xmllib.config.Element('mirrorlist', parent=repo)
-      # don't delete the gpgkey/gpgcheck elements like other test cases
+    # don't overwrite gpgkey and gpgcheck defaults
+    for xpath in ['//gpgkey', '//gpgcheck']:
+      for item in repos.xpath(xpath, []):
+        item.getparent().remove(item)
 
     return repos
 
@@ -43,14 +42,12 @@ class Test_GpgKeysNotProvided(GpgcheckEventTestCase):
     self.failUnlessRaises(RuntimeError, self.event)
 
   def _make_repos_config(self):
-    repos = xmllib.config.Element('repos')
+    repos = EventTestCase._make_repos_config(self)
 
-    for repoid in ['base', 'everything', 'updates']:
-      # remove the mirrorlist for each repo
-      repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
-      xmllib.config.Element('mirrorlist', parent=repo)
-      xmllib.config.Element('gpgkey', parent=repo)
-      # don't delete the gpgcheck elements like other test cases
+    # don't overwrite gpgcheck defaults
+    for xpath in ['//gpgcheck']:
+      for item in repos.xpath(xpath, []):
+        item.getparent().remove(item)
 
     return repos
 
