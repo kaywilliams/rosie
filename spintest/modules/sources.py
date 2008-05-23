@@ -22,26 +22,8 @@ from rendition.xmllib import config
 from spintest        import EventTestCase, ModuleTestSuite
 from spintest.core   import make_extension_suite
 
-class SourceReposEventTestCase(EventTestCase):
+class SourceEventTestCase(EventTestCase):
   moduleid = 'sources'
-  eventid  = 'source-repos'
-  def __init__(self, distro, version, arch, conf=None):
-    EventTestCase.__init__(self, distro, version, arch, conf)
-
-class Test_NoBase(SourceReposEventTestCase):
-  "without base-info and repos sections, raises RuntimeError"
-  _conf = ["<base/>","<source enabled='true'/>"]
-
-  def runTest(self):
-    self.execute_predecessors(self.event)
-    self.failUnlessRaises(RuntimeError, self.event)
-
-
-class SourcesEventTestCase(EventTestCase):
-  moduleid = 'sources'
-  eventid  = 'sources'
-  def __init__(self, distro, version, arch, conf=None):
-    EventTestCase.__init__(self, distro, version, arch, conf)
 
   def _make_default_config(self):
     top = EventTestCase._make_default_config(self)
@@ -54,13 +36,43 @@ class SourcesEventTestCase(EventTestCase):
   def _make_source_repos_config(self):
     repos = config.Element('sources', attrs={'enabled': 'true'})
 
-    for repoid in ['base-source', 'everything-source', 'updates-source']:
-      repo = config.Element('repo', attrs={'id': repoid}, parent=repos)
-      config.Element('mirrorlist', parent=repo)
-      config.Element('gpgkey', parent=repo)
-      config.Element('gpgcheck', text='no', parent=repo)
+    if self.distro == 'redhat' and self.version == '5Server':
+      repo = config.Element('repo', attrs={'id': 'base-source'}, parent=repos)
+      config.Element('baseurl', parent=repo,
+        text='http://www.renditionsoftware.com/mirrors/redhat/'
+             'enterprise/5Server/en/os/SRPMS/')
+
+    else:
+
+      for repoid in ['base-source']:
+        repo = config.Element('repo', attrs={'id': repoid}, parent=repos)
+        config.Element('mirrorlist', parent=repo)
+        config.Element('gpgkey', parent=repo)
+        config.Element('gpgcheck', text='no', parent=repo)
+
+      for repoid in ['everything-source', 'updates-source']:
+        # disable each repo
+        repo = config.Element('repo', attrs={'id': repoid}, parent=repos)
+        config.Element('enabled', text='no', parent=repo)
 
     return repos
+
+
+
+class SourceReposEventTestCase(SourceEventTestCase):
+  eventid  = 'source-repos'
+
+class Test_NoBase(SourceReposEventTestCase):
+  "without base-info and repos sections, raises RuntimeError"
+  _conf = ["<base/>","<source enabled='true'/>"]
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(RuntimeError, self.event)
+
+
+class SourcesEventTestCase(SourceEventTestCase):
+  eventid  = 'sources'
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('sources')

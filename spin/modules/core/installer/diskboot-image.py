@@ -56,10 +56,9 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     if self.cvars['anaconda-version'] >= '11.4.0.40':
       return # don't make diskboot image after this revision
 
-    self.DATA['input'].extend([
-      self.cvars['isolinux-files']['installer-splash'],
-      self.cvars['isolinux-files']['initrd.img'],
-    ])
+    self.DATA['input'].append(self.cvars['isolinux-files']['initrd.img'])
+    if self.cvars['isolinux-files']['installer-splash'].exists():
+      self.DATA['input'].append(self.cvars['isolinux-files']['installer-splash'])
 
     self.image_locals = self.locals.L_FILES['installer']['diskboot.img']
     self.bootconfig.setup(defaults=['nousbstorage'], include_method=True, include_ks=True)
@@ -84,7 +83,8 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
       return # don't make diskboot image after this revision
 
     ImageModifyMixin._generate(self)
-    self.image.write(self.cvars['isolinux-files']['installer-splash'], '/')
+    if self.cvars['isolinux-files']['installer-splash'].exists():
+      self.image.write(self.cvars['isolinux-files']['installer-splash'], '/')
     self.image.write(self.cvars['isolinux-files']['initrd.img'], '/')
 
     # hack to modify boot args in syslinux.cfg file

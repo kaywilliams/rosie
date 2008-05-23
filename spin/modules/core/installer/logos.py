@@ -43,6 +43,8 @@ class LogosEvent(Event, ExtractMixin):
       'output'   : [],
     }
 
+    self.dorun = True # whether to run or not
+
   def setup(self):
     self.format   = self.locals.L_LOGOS['splash-image']['format']
     self.filename = self.locals.L_LOGOS['splash-image']['filename']
@@ -51,8 +53,15 @@ class LogosEvent(Event, ExtractMixin):
                     self.locals.L_LOGOS['splash-image']['output']
     else:
       self.splash = self.SOFTWARE_STORE/'isolinux/splash.%s' % self.format
-    self.DATA['input'].extend(self._find_rpms())
+    rpm = self._find_rpms()
+    if not rpm:
+      self.dorun = False
+    else:
+      self.DATA['input'].extend(rpm)
     self.diff.setup(self.DATA)
+
+  def check(self):
+    return self.dorun and Event.check(self)
 
   def run(self):
     self._extract()
@@ -66,18 +75,18 @@ class LogosEvent(Event, ExtractMixin):
       self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
         (self.mddir/'pixmaps').listdir())
 
-  def verify_splash_exists(self):
-    "splash image exists"
-    self.verifier.failUnlessExists(self.splash)
+  #def verify_splash_exists(self):
+  #  "splash image exists"
+  #  self.verifier.failUnlessExists(self.splash)
 
-  def verify_splash_valid(self):
-    "splash image is valid"
-    self.verifier.failUnless(self._validate_splash(),
-      "'%s' is not a valid %s file" % (self.splash, self.format))
+  #def verify_splash_valid(self):
+  #  "splash image is valid"
+  #  self.verifier.failUnless(self._validate_splash(),
+  #    "'%s' is not a valid %s file" % (self.splash, self.format))
 
-  def verify_pixmaps_exist(self):
-    "pixmaps folder populated"
-    self.verifier.failUnlessExists(self.mddir/'pixmaps')
+  #def verify_pixmaps_exist(self):
+  #  "pixmaps folder populated"
+  #  self.verifier.failUnlessExists(self.mddir/'pixmaps')
 
   def _generate(self, working_dir):
     "Create the splash image and copy it to the isolinux/ folder"
@@ -139,13 +148,13 @@ class LogosEvent(Event, ExtractMixin):
 
   def _find_rpms(self):
     pkgname = self.config.get('package/text()', '%s-logos' % self.product)
-    rpms = pps.path(self.cvars['rpms-directory']).findpaths(
+    rpms = self.cvars['rpms-directory'].findpaths(
       glob='%s-*-*' % pkgname, nregex=SRPM_REGEX)
     if len(rpms) == 0:
-      rpms = pps.path(self.cvars['rpms-directory']).findpaths(
+      rpms = self.cvars['rpms-directory'].findpaths(
         glob='*-logos-*-*', nregex=SRPM_REGEX)
       if len(rpms) == 0:
-        raise RpmNotFoundError("missing logo RPM")
+        return None
     return [rpms[0]]
 
 
