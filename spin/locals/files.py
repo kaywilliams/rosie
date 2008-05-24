@@ -22,9 +22,9 @@ L_FILES = LocalsDict({
       'diskboot.img': dict(path='images/diskboot.img', format='fat32'),
     },
     'stage2': { # stage2 images
-      'stage2.img':   dict(path='%(product)s/base/stage2.img'),
-      'netstg2.img':  dict(path='%(product)s/base/netstg2.img'),
-      'hdstg2.img':   dict(path='%(product)s/base/hdstg2.img'),
+      'stage2.img':   dict(path='%(name)s/base/stage2.img'),
+      'netstg2.img':  dict(path='%(name)s/base/netstg2.img'),
+      'hdstg2.img':   dict(path='%(name)s/base/hdstg2.img'),
     },
     'xen': { # xen images
       'vmlinuz-xen':  dict(path='images/xen/vmlinuz'),
@@ -43,7 +43,7 @@ L_FILES = LocalsDict({
     'stage2': {
       'netstg2.img':  REMOVE,
       'hdstg2.img':   REMOVE,
-      'minstg2.img':  dict(path='%(product)s/base/minstg2.img')
+      'minstg2.img':  dict(path='%(name)s/base/minstg2.img')
     },
   },
 # using ext2 format as anaconda does not support cpio in all cases, i.e.

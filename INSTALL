@@ -125,9 +125,10 @@ contain the following:
 
   <main>
     <fullname>Example</fullname>
-    <product>example</product>
-    <version>f9</version>
-    <arch>x86_64</arch>
+    <name>example</name>
+    <base-name>fedora</base-name>
+    <base-version>f9</base-version>
+    <base-arch>x86_64</base-arch>
   </main>
 
   <base>

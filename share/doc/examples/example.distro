@@ -96,7 +96,7 @@
     <fullname>Example Distribution</fullname>
 
     <!-- Unique, unix filename chars only, used as distro identifier -->
-    <product>example</product>
+    <name>example</name>
 
     <!-- Version of the distro -->
     <version>f9</version>
@@ -105,7 +105,7 @@
     <arch>i386</arch>
 
     <!-- Name of the folder containing RPMs in the distro tree -->
-    <!--<product-path>Packages</product-path>-->
+    <!--<package-path>Packages</package-path>-->
 
   </main>
 

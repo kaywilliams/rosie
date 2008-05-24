@@ -37,7 +37,7 @@ class CreaterepoEvent(Event, CreaterepoMixin):
 
     self.DATA = {
       'config':    ['.'],
-      'variables': ['productpath'],
+      'variables': ['packagepath'],
       'input':     [],
       'output':    [],
     }
@@ -45,7 +45,7 @@ class CreaterepoEvent(Event, CreaterepoMixin):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.cvars['rpms-directory'] = self.SOFTWARE_STORE//self.productpath
+    self.cvars['rpms-directory'] = self.SOFTWARE_STORE//self.packagepath
 
     if self.cvars['comps-file']:
       self.DATA['input'].append(self.cvars['comps-file'])

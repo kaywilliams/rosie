@@ -37,23 +37,23 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     )
 
     RpmBuildMixin.__init__(self,
-      '%s-release' % self.product,
+      '%s-release' % self.name,
       '%s release files created by spin' % self.fullname,
-      '%s release files' % self.product,
+      '%s release files' % self.name,
       default_obsoletes = ['fedora-release', 'redhat-release',
         'centos-release', 'fedora-release-notes',
         'redhat-release-notes', 'centos-release-notes'
       ]
     )
 
-    self.doc_dir    = pps.path('/usr/share/doc/%s-release-notes-%s' % (self.product, self.version))
+    self.doc_dir    = pps.path('/usr/share/doc/%s-release-notes-%s' % (self.name, self.version))
     self.etc_dir    = pps.path('/etc')
     self.eula_dir   = pps.path('/usr/share/eula')
     self.eulapy_dir = pps.path('/usr/share/firstboot/modules')
     self.gpg_dir    = pps.path('/etc/pkg/rpm-gpg')
     self.html_dir   = pps.path('/usr/share/doc/HTML')
-    self.omf_dir    = pps.path('/usr/share/omf/%s-release-notes' % self.product)
-    self.release_dir = pps.path('/usr/share/doc/%s-release-%s' % (self.product, self.version))
+    self.omf_dir    = pps.path('/usr/share/omf/%s-release-notes' % self.name)
+    self.release_dir = pps.path('/usr/share/doc/%s-release-%s' % (self.name, self.version))
     self.repo_dir   = pps.path('/etc/yum.repos.d')
 
     InputFilesMixin.__init__(self, {
@@ -70,7 +70,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
 
     self.DATA = {
       'config':    ['.'],
-      'variables': ['fullname', 'product', 'pva', 'cvars[\'web-path\']',
+      'variables': ['fullname', 'name', 'distroid', 'cvars[\'web-path\']',
                     'rpm_release', 'cvars[\'release-versions\']'],
       'input':     [],
       'output':    [self.build_folder],
@@ -151,29 +151,29 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     release_string = ['%s %s' %(self.fullname, self.version)]
     issue_string = ['Kernel \\r on an \\m\n']
 
-    # write the product-release and redhat-release files
+    # write the distro-release and redhat-release files
     (dest/'redhat-release').write_lines(release_string)
-    (dest/'%s-release' % self.product).write_lines(release_string)
+    (dest/'%s-release' % self.name).write_lines(release_string)
 
     # write the issue and issue.net files
     (dest/'issue').write_lines(release_string + issue_string)
     (dest/'issue.net').write_lines(release_string + issue_string)
 
     (dest/'redhat-release').chmod(0644)
-    (dest/'%s-release' % self.product).chmod(0644)
+    (dest/'%s-release' % self.name).chmod(0644)
     (dest/'issue').chmod(0644)
     (dest/'issue.net').chmod(0644)
 
   def _generate_repo_files(self, dest):
     dest.mkdirs()
-    repofile = dest/'%s.repo' % self.product
+    repofile = dest/'%s.repo' % self.name
 
     lines = []
 
     if self.config.get('yum-repos/@include-distro', 'True') in BOOLEANS_TRUE \
            and self.cvars['web-path']:
       path = self.cvars['web-path'] / 'os'
-      lines.extend([ '[%s]' % self.product,
+      lines.extend([ '[%s]' % self.name,
                      'name=%s - %s' % (self.fullname, self.basearch),
                      'baseurl=%s'   % path ])
       if self.cvars['gpgsign-public-key']:

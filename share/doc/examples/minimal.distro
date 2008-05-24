@@ -5,16 +5,15 @@
 
   <main>
     <fullname>Example</fullname>
-    <product>example</product>
-    <version>c5</version>
-    <arch>i386</arch>
+    <name>example</name>
+    <base-name>centos</base-name>
+    <base-version>5</base-version>
+    <base-arch>i386</base-arch>
   </main>
 
   <base>
     <distro>centos</distro>
     <version>5</version>
-    <!--<baseurl-prefix>http://www.my.org/centos</baseurl-prefix>-->
-    <!--<baseurl-prefix>http://www.my.org/pub/fedora/linux</baseurl-prefix>-->
   </base>
   
   <comps>

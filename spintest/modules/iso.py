@@ -62,7 +62,7 @@ class IsoEventBootConfigTestCase(BootConfigMixinTestCase, IsoEventTestCase):
     self.tb.dispatch.execute(until='iso')
 
     for s in self.event.isodir.listdir():
-      image = MakeImage(s/'%s-disc1.iso' % self.event.product, 'iso')
+      image = MakeImage(s/'%s-disc1.iso' % self.event.name, 'iso')
       self.testArgs(image, filename='isolinux.cfg', defaults=self.do_defaults)
 
 

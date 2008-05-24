@@ -73,7 +73,7 @@ class Test_ReleaseFilesWithPackageElement(_ReleaseFilesEventTestCase):
 
   def setUp(self):
     _ReleaseFilesEventTestCase.setUp(self)
-    self.conf.get('release-files/package').text = '%s-release' % self.event.product
+    self.conf.get('release-files/package').text = '%s-release' % self.event.name
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('release-files')

@@ -38,7 +38,7 @@ class LogosEvent(Event, ExtractMixin):
 
     self.DATA = {
       'config'   : ['.'],
-      'variables': ['product', 'cvars[\'anaconda-version\']'],
+      'variables': ['name', 'cvars[\'anaconda-version\']'],
       'input'    : [],
       'output'   : [],
     }
@@ -147,7 +147,7 @@ class LogosEvent(Event, ExtractMixin):
       return magic.match(self.splash) == magic.FILE_TYPE_LSS
 
   def _find_rpms(self):
-    pkgname = self.config.get('package/text()', '%s-logos' % self.product)
+    pkgname = self.config.get('package/text()', '%s-logos' % self.name)
     rpms = self.cvars['rpms-directory'].findpaths(
       glob='%s-*-*' % pkgname, nregex=SRPM_REGEX)
     if len(rpms) == 0:

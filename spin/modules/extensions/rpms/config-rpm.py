@@ -32,13 +32,13 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       provides = ['custom-rpms-data']
     )
 
-    self.scriptdir = '/usr/lib/%s' % self.product
-    self.filedir   = '/usr/share/%s/files' % self.product
+    self.scriptdir = '/usr/lib/%s' % self.name
+    self.filedir   = '/usr/share/%s/files' % self.name
 
     RpmBuildMixin.__init__(self,
-      '%s-config' % self.product,
+      '%s-config' % self.name,
       "The %s-config provides scripts and supporting files for configuring "
-      "the %s distribution." %(self.product, self.fullname),
+      "the %s distribution." %(self.name, self.fullname),
       "%s configuration script and supporting files" % self.fullname,
       default_requires = ['coreutils', 'policycoreutils']
     )
@@ -49,7 +49,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     })
 
     self.DATA = {
-      'variables': ['product', 'fullname', 'pva', 'rpm_release'],
+      'variables': ['name', 'fullname', 'distroid', 'rpm_release'],
       'config':    ['.'],
       'input':     [],
       'output':    [self.build_folder],
@@ -93,7 +93,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
         config_scripts.append('/' / path.relpathfrom(self.build_folder))
 
     if config_scripts:
-      self.auto_script = self.build_folder / 'usr/lib/%s/auto.sh' % self.product
+      self.auto_script = self.build_folder / 'usr/lib/%s/auto.sh' % self.name
       self.auto_script.dirname.mkdirs()
       self.auto_script.write_lines(['export CFGRPM_SCRIPTS=%s' % self.scriptdir,
                                     'export CFGRPM_FILES=%s' % self.filedir])

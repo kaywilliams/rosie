@@ -82,8 +82,8 @@ class PkgorderEvent(Event):
 
       # create yum config needed by pkgorder
       cfg = self.TEMP_DIR/'pkgorder'
-      repoid = self.pva
-      cfg.write_lines([ YUMCONF % (self.pva, self.pva, self.cvars['os-dir']) ])
+      repoid = self.distroid
+      cfg.write_lines([ YUMCONF % (self.distroid, self.distroid, self.cvars['os-dir']) ])
 
       # create pkgorder
       pkgtups = pkgorder.order(config=cfg,
@@ -205,7 +205,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     (self.splittrees/set).mkdirs()
 
     splitter = splittree.Timber(set, dosrc=self.cvars['srpms-dir'] is not None)
-    splitter.product    = self.product
+    splitter.name       = self.name
     splitter.u_tree     = self.cvars['os-dir']
     splitter.u_src_tree = self.cvars['srpms-dir']
     splitter.s_tree     = self.splittrees/set
@@ -227,7 +227,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     splitter.split_srpms()
 
     for i in range(1, splitter.numdiscs + 1):
-      iso = '%s-disc%d' % (self.product, i)
+      iso = '%s-disc%d' % (self.name, i)
       self.log(2, L2("generating '%s/%s.iso'" % (set, iso)))
       if i == 1: # the first disc needs to be made bootable
         isolinux_path = self.splittrees/set/iso/'isolinux/isolinux.bin'
@@ -238,7 +238,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
       shlib.execute('mkisofs %s -UJRTV "%s" -o "%s.iso" "%s"' % \
          (bootargs,
           '%s %s disc %d' % \
-            (self.product, self.version, i),
+            (self.name, self.version, i),
           self.isodir/set/iso,
           self.splittrees/set/iso),
         verbose=True)
