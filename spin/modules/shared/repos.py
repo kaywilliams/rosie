@@ -70,9 +70,12 @@ class SpinRepo(YumRepo):
 
   def _xform_uri(self, p):
     p = pps.path(p)
-    if isinstance(p, pps.Path.rhn.RhnPath):
-      p._systemid = self.get('systemid')
-    else:
+    try: 
+      if isinstance(p, pps.Path.rhn.RhnPath):
+        p._systemid = self.get('systemid')
+      else:
+        p = YumRepo._xform_uri(self, p)
+    except (AttributeError):
       p = YumRepo._xform_uri(self, p)
     return p
 
