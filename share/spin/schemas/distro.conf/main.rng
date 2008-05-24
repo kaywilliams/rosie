@@ -5,17 +5,18 @@
       <element name="main">
         <interleave>
           <element name="name"><text/></element>
-          <choice>
-            <group>
-              <!--e.g. 'centos'-->
-              <element name="base-name"><text/></element>
-              <element name="base-version"><text/></element>
-              <optional>
-              <ref name="element-base-arch"/>
-              </optional>
-            </group>
-            <element name="distroid"><text/></element>
-          </choice>
+          <optional>
+          <element name="base-name"><text/></element>
+          </optional>
+          <optional>
+          <element name="base-version"><text/></element>
+          </optional>
+          <optional>
+          <ref name="element-base-arch"/>
+          </optional>
+          <optional>
+          <element name="distroid"><text/></element>
+          </optional>
           <optional>
           <element name="fullname"><text/></element>
           </optional>

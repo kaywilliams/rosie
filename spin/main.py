@@ -381,13 +381,18 @@ class Build(object):
     qstr = '/distro/main/%s/text()'
 
     di['name']  = Event._config.get(qstr % 'name')
-    di['base-name']= Event._config.get(qstr % 'base-name')
+    di['base-name']= Event._config.get(qstr % 'base-name', '')
     di['base-version']= Event._config.get(qstr % 'base-version', '')
     di['arch']  = ARCH_MAP[Event._config.get(qstr % 'base-arch', 'i386')]
     di['basearch'] = getBaseArch(di['arch'])
-    di['distroid'] = Event._config.get(qstr % 'distroid', 
-                       '%(name)s-%(base-name)s-%(base-version)s-%(basearch)s' % di)
-    di['version']  = Event._config.get(qstr % 'version', di['base-version'])
+    di['distroid'] = Event._config.get(qstr % 'distroid', '')
+    if not di['distroid']:
+      if di['base-name'] and di['base-version']:
+        di['distroid'] = '%(name)s-%(base-name)s-%(base-version)s-%(basearch)s' % di
+      else:
+        raise RuntimeError("Please specify either 'base-name' and 'base-version' "
+                           "or 'distroid' in the 'main' section of the .distro file.")
+    di['version'] = Event._config.get(qstr % 'version', di['base-version'])
     if not di['version']:
       raise RuntimeError("Please specify either 'base-version' or 'version' in "
                          "the 'main' section of the .distro file.")

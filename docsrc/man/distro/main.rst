@@ -110,11 +110,11 @@ such as the new distributions name and fullname.
         element main {
           element name { ... }
           & element fullname { ... }?
-          & (element base-version { ... }?
+          & element base-version { ... }?
           & element base-name { ... }?
-          & element base-arch { ... }?)|
+          & element base-arch { ... }?
           & element distroid { ... }?
-          & element version { ... }
+          & element version { ... }?
           & element package-path { ... }?
           & element copyright { ... }?
           & element bug-url { ... }?
