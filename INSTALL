@@ -45,8 +45,8 @@ In the following instructions, we assume that the working directory is
 ::
 
   $$ cd $SPIN_RUN
-  $$ hg clone https://www.renditionsoftware.com/hg/public/spin
-  $$ hg clone https://www.renditionsoftware.com/hg/public/rendition-common
+  $$ hg clone https://www.renditionsoftware.com/hg/public/spin spin
+  $$ hg clone https://www.renditionsoftware.com/hg/public/rendition-common rendition-common
 
 
 In your ``~/.bashrc`` file, add the following line
