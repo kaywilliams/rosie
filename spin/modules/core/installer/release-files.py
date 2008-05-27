@@ -40,15 +40,21 @@ class ReleaseFilesEvent(Event, ExtractMixin):
       'input' :    [],
       'output':    [],
     }
+    self.doextract = True
 
   def setup(self):
-    self.DATA['input'].extend(self._find_rpms())
-    self.diff.setup(self.DATA)
+    rpms = self._find_rpms()
+    if rpms is not None:
+      self.DATA['input'].extend(rpms)
+    else:
+      self.doextract = False
     self.io.add_xpath('path', self.SOFTWARE_STORE, id='release-files-input')
+    self.diff.setup(self.DATA)
 
   def run(self):
     self.cvars.setdefault('release-files', [])
-    self._extract()
+    if self.doextract: self._extract()
+    self.io.sync_input(link=True, cache=False, what='release-files-input')
 
   def apply(self):
     existing = []
@@ -59,7 +65,6 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     self.io.clean_eventcache()
 
   def _generate(self, working_dir):
-    self.io.sync_input(link=True, cache=False, what='release-files-input')
     rtn = []
     if self.config.get('@use-default-set', 'True') in BOOLEANS_TRUE:
       for item in DEFAULT_SET:
@@ -85,7 +90,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
             glob=glob, nregex=SRPM_REGEX):
           rpmset.add(rpm)
         if not rpmset:
-          raise RpmNotFoundError("missing release RPM(s)")
+          return None
     return rpmset
 
   def verify_cvars(self):
