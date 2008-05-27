@@ -4,22 +4,33 @@
     <element name="distro">
       <element name="main">
         <interleave>
-          <element name="product"><text/></element>
+          <element name="name"><text/></element>
+          <optional>
+          <element name="base-name"><text/></element>
+          </optional>
+          <optional>
+          <element name="base-version"><text/></element>
+          </optional>
+          <optional>
+          <ref name="element-base-arch"/>
+          </optional>
+          <optional>
+          <element name="distroid"><text/></element>
+          </optional>
+          <optional>
           <element name="fullname"><text/></element>
+          </optional>
           <optional>
           <element name="version"><text/></element>
           </optional>
           <optional>
-          <ref name="element-arch"/>
+          <element name="package-path"><text/></element>
           </optional>
           <optional>
           <element name="bug-url"><text/></element>
           </optional>
           <optional>
           <element name="copyright"><text/></element>
-          </optional>
-          <optional>
-          <element name="product-path"><text/></element>
           </optional>
           <optional>
           <element name="log-file"><text/></element>
@@ -30,8 +41,8 @@
   </start>
   <include href="lib.rng"/>
 
-  <define name="element-arch">
-    <element name="arch">
+  <define name="element-base-arch">
+    <element name="base-arch">
       <choice>
         <value type="string">i386</value>
         <value type="string">x86_64</value>

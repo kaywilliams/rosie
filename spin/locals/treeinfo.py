@@ -7,13 +7,13 @@ L_TREEINFO_FORMAT = LocalsDict({
     'general': { # general section
       'index': 0,
       'content': {
-        'family':       dict(index=0, value='%(product)s'),
+        'family':       dict(index=0, value='%(name)s'),
         'timestamp':    dict(index=1, value='%(timestamp)s'),
-        'variant':      dict(index=2, value='%(product)s'),
+        'variant':      dict(index=2, value='%(name)s'),
         'totaldiscs':   dict(index=3, value='1'),
         'version':      dict(index=4, value='%(version)s'),
         'discnum':      dict(index=5, value='1'),
-        'packagedir':   dict(index=6, value='%(productpath)s'),
+        'packagedir':   dict(index=6, value='%(packagepath)s'),
         'arch':         dict(index=7, value='%(arch)s'),
       },
     },

@@ -44,7 +44,7 @@ class DiscinfoEvent(Event):
     self.difile = self.SOFTWARE_STORE/'.discinfo'
 
     self.DATA =  {
-      'variables': ['fullname', 'basearch', 'productpath',
+      'variables': ['fullname', 'basearch', 'packagepath',
                     'cvars[\'anaconda-version\']'],
       'output':    [self.difile]
     }
@@ -56,7 +56,7 @@ class DiscinfoEvent(Event):
     # create empty .discinfo formatted file object
     discinfo = ffile.DictToFormattedFile(self.locals.L_DISCINFO_FORMAT)
 
-    # get product, fullname, and basearch from cvars
+    # get name, fullname, and basearch from cvars
     distro_vars = copy.deepcopy(self.cvars['distro-info'])
 
     # add timestamp and discs using defaults to match anaconda makestamp.py
@@ -87,7 +87,7 @@ class TreeinfoEvent(Event):
     self.tifile = self.SOFTWARE_STORE/'.treeinfo'
 
     self.DATA =  {
-      'variables': ['product', 'version', 'productpath', 'basearch'],
+      'variables': ['name', 'version', 'packagepath', 'basearch'],
       'output':    [self.tifile]
     }
 
@@ -136,7 +136,7 @@ class BuildstampEvent(Event):
     self.bsfile = self.mddir/'.buildstamp'
 
     self.DATA = {
-      'variables': ['fullname', 'version', 'product', 'basearch', 'webloc',
+      'variables': ['fullname', 'version', 'name', 'basearch', 'webloc',
                     'cvars[\'anaconda-version\']',
                     'cvars[\'base-info\']'],
       'output':    [self.bsfile],

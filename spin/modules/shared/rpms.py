@@ -179,7 +179,7 @@ class RpmBuildMixin:
   def _setup_build(self, **kwargs):
     if self.autofile.exists():
       self.rpm_release = xmllib.config.read(self.autofile).get(
-       '/distro/%s/rpms/%s/release/text()' % (self.pva, self.id), '0')
+       '/distro/%s/rpms/%s/release/text()' % (self.distroid, self.id), '0')
     else:
       self.rpm_release = '0'
 
@@ -228,8 +228,8 @@ class RpmBuildMixin:
     else:
       root_element = xmllib.config.Element('distro')
 
-    pva_element = xmllib.config.uElement(self.pva, parent=root_element)
-    rpms_element = xmllib.config.uElement('rpms', parent=pva_element)
+    distroid_element = xmllib.config.uElement(self.distroid, parent=root_element)
+    rpms_element = xmllib.config.uElement('rpms', parent=distroid_element)
     parent_element = xmllib.config.uElement(self.id, parent=rpms_element)
     release_element = xmllib.config.uElement('release', parent=parent_element)
 

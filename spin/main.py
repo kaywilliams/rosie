@@ -189,6 +189,7 @@ class Build(object):
         if DEBUG: raise
         sys.exit(1)
       if options.validate_only:
+        print self.distroconfig
         sys.exit()
 
 
@@ -379,14 +380,25 @@ class Build(object):
     di = Event.cvars['distro-info'] = {}
     qstr = '/distro/main/%s/text()'
 
-    di['arch']     = ARCH_MAP[Event._config.get(qstr % 'arch', 'i386')]
-    di['product']  = Event._config.get(qstr % 'product')
-    di['version']  = Event._config.get(qstr % 'version')
+    di['name']  = Event._config.get(qstr % 'name')
+    di['base-name']= Event._config.get(qstr % 'base-name', '')
+    di['base-version']= Event._config.get(qstr % 'base-version', '')
+    di['arch']  = ARCH_MAP[Event._config.get(qstr % 'base-arch', 'i386')]
     di['basearch'] = getBaseArch(di['arch'])
-    di['fullname'] = Event._config.get(qstr % 'fullname', di['product'])
+    di['distroid'] = Event._config.get(qstr % 'distroid', '')
+    if not di['distroid']:
+      if di['base-name'] and di['base-version']:
+        di['distroid'] = '%(name)s-%(base-name)s-%(base-version)s-%(basearch)s' % di
+      else:
+        raise RuntimeError("Please specify either 'base-name' and 'base-version' "
+                           "or 'distroid' in the 'main' section of the .distro file.")
+    di['version'] = Event._config.get(qstr % 'version', di['base-version'])
+    if not di['version']:
+      raise RuntimeError("Please specify either 'base-version' or 'version' in "
+                         "the 'main' section of the .distro file.")
+    di['fullname'] = Event._config.get(qstr % 'fullname', di['name'])
+    di['packagepath'] = Event._config.get(qstr % 'package-path', 'Packages')
     di['webloc']   = Event._config.get(qstr % 'bug-url', 'No bug url provided')
-    di['pva']      = '%(product)s-%(version)s-%(basearch)s' % di
-    di['productpath'] = Event._config.get(qstr % 'product-path', 'Packages')
     di['copyright'] = Event._config.get(qstr % 'copyright', '')
 
     for k,v in di.items():
@@ -396,7 +408,7 @@ class Build(object):
     Event.CACHE_DIR    = pps.path(self.mainconfig.get('/spin/cache/path/text()',
                                                DEFAULT_CACHE_DIR))
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
-    Event.METADATA_DIR = Event.CACHE_DIR  / di['pva']
+    Event.METADATA_DIR = Event.CACHE_DIR  / di['distroid']
 
     Event.SHARE_DIRS = [ pps.path(x).expand() for x in \
                          self.mainconfig.xpath('/spin/share-path/text()',
@@ -433,7 +445,7 @@ class Build(object):
 
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
-    Event.logger.log(0, "Starting build of '%s %s %s' at %s" % (Event.fullname, Event.version, Event.basearch, time.strftime('%Y-%m-%d %X')))
+    Event.logger.log(0, "Starting build of '%s' at %s" % (Event.distroid, time.strftime('%Y-%m-%d %X')))
     Event.logger.log(4, "Loaded modules: %s" % Event.cvars['loaded-modules'])
     Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):

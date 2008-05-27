@@ -78,7 +78,7 @@ class BootisoEvent(Event, BootConfigMixin):
     shlib.execute('mkisofs -o %s -b isolinux/isolinux.bin '
                   '-c isolinux/boot.cat -no-emul-boot -boot-load-size 4 '
                   '-boot-info-table -RJTV "%s" %s' \
-                  % (self.bootiso, self.product, isodir))
+                  % (self.bootiso, self.name, isodir))
     ibin.utime((ibin_st.st_atime, ibin_st.st_mtime))
     isodir.rm(recursive=True)
 

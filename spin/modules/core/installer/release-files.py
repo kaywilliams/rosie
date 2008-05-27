@@ -35,7 +35,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     )
 
     self.DATA = {
-      'variables': ['product'],
+      'variables': ['name'],
       'config':    ['.'],
       'input' :    [],
       'output':    [],
@@ -71,7 +71,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
 
   def _find_rpms(self):
     rpmnames = self.config.xpath('package/text()',
-                                 [ '%s-release' % self.product ])
+                                 [ '%s-release' % self.name ])
     rpmset = set()
     for rpmname in rpmnames:
       for rpm in self.cvars['rpms-directory'].findpaths(

@@ -54,7 +54,7 @@ class Timber:
     self.dosrc = dosrc
     self.comps = si.parse('10MiB')
     self.reserve = 0
-    self.product = None
+    self.name = None
     self.pkgorder = None
 
     # the following must be pps.Path objects
@@ -88,7 +88,7 @@ class Timber:
     vars = copy.copy(self.discinfo_vars)
     vars['discs'] = str(discnumber)
     discinfo.write(
-      self.s_tree/'%s-disc%d' % (self.product, discnumber)/'.discinfo',
+      self.s_tree/'%s-disc%d' % (self.name, discnumber)/'.discinfo',
       **vars
     )
 
@@ -104,7 +104,7 @@ class Timber:
           raise
 
   def cleanup(self):
-    self.s_tree.glob('%s-disc*' % self.product).rm(recursive=True, force=True)
+    self.s_tree.glob('%s-disc*' % self.name).rm(recursive=True, force=True)
 
   def compute_layout(self):
     srpm_nregex = '.*\.[Ss][Rr][Cc]\.[Rr][Pp][Mm]'
@@ -141,11 +141,11 @@ class Timber:
   def split_trees(self):
     "Split stuff up"
     for i in self.rpm_disc_map:
-      discpath = self.s_tree/'%s-disc%d' % (self.product, i)
-      (discpath/self.product).mkdirs()
+      discpath = self.s_tree/'%s-disc%d' % (self.name, i)
+      (discpath/self.name).mkdirs()
       if i == 1: # put release files on disc 1
         for file in self.u_tree.findpaths(
-            nregex='.*(\.discinfo|.*\.[Rr][Pp][Mm]|(S)?RPMS|%s)$' % self.product,
+            nregex='.*(\.discinfo|.*\.[Rr][Pp][Mm]|(S)?RPMS|%s)$' % self.name,
             mindepth=1, maxdepth=1):
           self.link(self.u_tree, discpath, [file.basename])
       else:
@@ -154,14 +154,14 @@ class Timber:
 
     if self.dosrc:
       for i in self.srpm_disc_map:
-        discpath = self.s_tree/'%s-disc%d' % (self.product, i)
+        discpath = self.s_tree/'%s-disc%d' % (self.name, i)
         (discpath/'SRPMS').mkdirs()
         self.link(self.u_tree, discpath, self.common_files)
         self.create_discinfo(i)
 
   def split_rpms(self):
     packages = {}
-    pkgdir = self.u_tree/self.product
+    pkgdir = self.u_tree/self.name
 
     for rpm in pkgdir.findpaths(glob='*.[Rr][Pp][Mm]'):
       size = rpm.getsize()
@@ -177,7 +177,7 @@ class Timber:
       order[i] = pkgtup_to_nvra(order[i])
 
     disc = self.rpm_disc_map[0]
-    discpath = self.s_tree/'%s-disc%d' % (self.product, disc)
+    discpath = self.s_tree/'%s-disc%d' % (self.name, disc)
 
     used = discpath.findpaths().getsize()
     for rpmnvra in order:
@@ -186,7 +186,7 @@ class Timber:
       newsize = used
 
       for file in packages[rpmnvra]:
-        if (discpath/self.product/file).exists(): continue
+        if (discpath/self.name/file).exists(): continue
 
         size = file.getsize()
         assert size > 0
@@ -200,15 +200,15 @@ class Timber:
           try:
             nextdisc = self.rpm_disc_map.index(disc+1)
             disc = self.rpm_disc_map[nextdisc]
-            discpath = self.s_tree/'%s-disc%d' % (self.product, disc)
-            self.link(pkgdir, discpath/self.product, [file])
+            discpath = self.s_tree/'%s-disc%d' % (self.name, disc)
+            self.link(pkgdir, discpath/self.name, [file])
           except (IndexError, ValueError):
             disc = disc - 1
             print 'DEBUG: overflow from disc %d onto disc %d' % (disc+1, disc)
             print 'DEBUG: newsize: %d maxsize: %d' % (newsize, maxsize)
             continue
         else:
-          self.link(pkgdir, discpath/self.product, [file])
+          self.link(pkgdir, discpath/self.name, [file])
       used = newsize
 
   def split_srpms(self):
@@ -223,7 +223,7 @@ class Timber:
     sizes = []
     for disc in self.srpm_disc_map:
       sizes.append(
-        [ (self.s_tree/'%s-disc%d' % (self.product, disc)).findpaths().getsize(),
+        [ (self.s_tree/'%s-disc%d' % (self.name, disc)).findpaths().getsize(),
           disc ]
       )
     sizes.sort()
@@ -231,7 +231,7 @@ class Timber:
     # add srpm to the smallest source tree
     for srpm in srpms:
       (self.u_src_tree/srpm).link(self.s_tree/'%s-disc%d/SRPMS/%s' % \
-        (self.product, sizes[0][1], srpm.basename))
+        (self.name, sizes[0][1], srpm.basename))
       sizes[0][0] += srpm.getsize()
       sizes.sort()
 

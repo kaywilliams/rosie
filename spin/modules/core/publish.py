@@ -37,7 +37,7 @@ class PublishSetupEvent(Event):
     )
 
     self.DATA = {
-      'variables': ['pva'],
+      'variables': ['distroid'],
       'config': ['.'],
     }
 
@@ -45,7 +45,7 @@ class PublishSetupEvent(Event):
     self.diff.setup(self.DATA)
 
     prefix = \
-      pps.path(self.config.get('path-prefix/text()', 'distros')) / self.pva
+      pps.path(self.config.get('path-prefix/text()', 'distros')) / self.distroid
     web_path = \
       self.config.get('remote-webroot/text()', None) or \
         pps.path('http://' +  self._get_host()) / prefix

@@ -41,9 +41,9 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     )
 
     RpmBuildMixin.__init__(self,
-      '%s-logos' % self.product,
+      '%s-logos' % self.name,
       "The %s-logos package contains image files which have been automatically "
-      "created by spin and are specific to %s." % (self.product, self.fullname),
+      "created by spin and are specific to %s." % (self.name, self.fullname),
       "Icons and pictures related to %s" % self.fullname,
       rpm_license = 'GPLv2',
       default_provides = ['system-logos'],
@@ -54,7 +54,7 @@ class LogosRpmEvent(RpmBuildMixin, Event):
 
     self.DATA = {
       'config': ['.'],
-      'variables': ['pva', 'fullname', 'copyright', 'rpm_release',
+      'variables': ['distroid', 'fullname', 'copyright', 'rpm_release',
                     'cvars[\'anaconda-version\']',
                     'cvars[\'logos-versions\']'],
       'output': [self.build_folder],
