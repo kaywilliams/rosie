@@ -21,6 +21,7 @@ from rendition import shlib
 
 from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
+from spin.locals    import L_LOGOS_RPM_INFO
 
 from spin.modules.shared import RpmBuildMixin
 
@@ -170,16 +171,16 @@ class LogosRpmEvent(RpmBuildMixin, Event):
       version  = self.cvars['base-info']['version']
       # See if the version of the input distribution is a bugfix
       found = False
-      if self.locals.L_LOGOS_RPM_INFO.has_key(fullname):
-        for ver in self.locals.L_LOGOS_RPM_INFO[fullname]:
+      if L_LOGOS_RPM_INFO.has_key(fullname):
+        for ver in L_LOGOS_RPM_INFO[fullname]:
           if version.startswith(ver):
             found = True
-            self._distro_info = self.locals.L_LOGOS_RPM_INFO[fullname][ver]
+            self._distro_info = L_LOGOS_RPM_INFO[fullname][ver]
             break
       if not found:
         # if not one of the "officially" supported distros, default
         # to something
-        self._distro_info = self.locals.L_LOGOS_RPM_INFO['*']['0']
+        self._distro_info = L_LOGOS_RPM_INFO['*']['0']
     return self._distro_info
   distro_info = property(_get_distro_info)
 
