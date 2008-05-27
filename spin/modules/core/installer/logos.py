@@ -31,7 +31,7 @@ class LogosEvent(Event, ExtractMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'logos',
-      provides = ['isolinux-files', 'product-image-content'],
+      provides = ['installer-splash', 'product-image-content'],
       requires = ['rpms-directory', 'anaconda-version'],
       conditionally_comes_after = ['gpgsign'],
     )
@@ -43,21 +43,23 @@ class LogosEvent(Event, ExtractMixin):
       'output'   : [],
     }
 
-    self.dorun = True # whether to run or not
+    self.dorun  = True # whether to run or not
+    self.splash = None
 
   def setup(self):
-    self.format   = self.locals.L_LOGOS['splash-image']['format']
-    self.filename = self.locals.L_LOGOS['splash-image']['filename']
-    if self.locals.L_LOGOS['splash-image'].has_key('output'):
-      self.splash = self.SOFTWARE_STORE/'isolinux/%s' % \
-                    self.locals.L_LOGOS['splash-image']['output']
-    else:
-      self.splash = self.SOFTWARE_STORE/'isolinux/splash.%s' % self.format
     rpm = self._find_rpms()
     if not rpm:
       self.dorun = False
     else:
       self.DATA['input'].extend(rpm)
+      self.format   = self.locals.L_LOGOS['splash-image']['format']
+      self.filename = self.locals.L_LOGOS['splash-image']['filename']
+      self.output   = self.locals.L_LOGOS['splash-image'].get(
+                        'output', 'splash.%s' % self.format
+                      )
+      self.splash   = self.mddir / self.output
+      self.DATA['output'].append(self.splash)
+
     self.diff.setup(self.DATA)
 
   def check(self):
@@ -68,25 +70,26 @@ class LogosEvent(Event, ExtractMixin):
 
   def apply(self):
     self.io.clean_eventcache()
-
-    self.cvars.setdefault('isolinux-files', {})
-    self.cvars['isolinux-files']['installer-splash'] = self.splash
+    self.cvars['installer-splash'] = self.splash
     if (self.mddir/'pixmaps').exists(): # caught by verification
       self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
         (self.mddir/'pixmaps').listdir())
 
-  #def verify_splash_exists(self):
-  #  "splash image exists"
-  #  self.verifier.failUnlessExists(self.splash)
+  def verify(self):
+    if self.dorun: Event.verify(self)
 
-  #def verify_splash_valid(self):
-  #  "splash image is valid"
-  #  self.verifier.failUnless(self._validate_splash(),
-  #    "'%s' is not a valid %s file" % (self.splash, self.format))
+  def verify_splash_exists(self):
+    "splash image exists"
+    self.verifier.failUnlessExists(self.splash)
 
-  #def verify_pixmaps_exist(self):
-  #  "pixmaps folder populated"
-  #  self.verifier.failUnlessExists(self.mddir/'pixmaps')
+  def verify_splash_valid(self):
+    "splash image is valid"
+    self.verifier.failUnless(self._validate_splash(),
+      "'%s' is not a valid %s file" % (self.splash, self.format))
+
+  def verify_pixmaps_exist(self):
+    "pixmaps folder populated"
+    self.verifier.failUnlessExists(self.mddir/'pixmaps')
 
   def _generate(self, working_dir):
     "Create the splash image and copy it to the isolinux/ folder"

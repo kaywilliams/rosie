@@ -30,7 +30,8 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
       id = 'diskboot-image',
       version = 1,
       provides = ['diskboot.img'],
-      requires = ['buildstamp-file', 'installer-repo', 'isolinux-files'],
+      requires = ['buildstamp-file', 'installer-repo',
+                  'isolinux-files', 'installer-splash'],
       conditionally_requires = ['diskboot-image-content', 'web-path',
                                 'boot-args', 'ks-path'],
     )
@@ -57,8 +58,9 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
       return # don't make diskboot image after this revision
 
     self.DATA['input'].append(self.cvars['isolinux-files']['initrd.img'])
-    if self.cvars['isolinux-files']['installer-splash'].exists():
-      self.DATA['input'].append(self.cvars['isolinux-files']['installer-splash'])
+    if ( self.cvars['installer-splash'] is not None and
+         self.cvars['installer-splash'].exists() ):
+      self.DATA['input'].append(self.cvars['installer-splash'])
 
     self.image_locals = self.locals.L_FILES['installer']['diskboot.img']
     self.bootconfig.setup(defaults=['nousbstorage'], include_method=True, include_ks=True)
@@ -83,8 +85,9 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
       return # don't make diskboot image after this revision
 
     ImageModifyMixin._generate(self)
-    if self.cvars['isolinux-files']['installer-splash'].exists():
-      self.image.write(self.cvars['isolinux-files']['installer-splash'], '/')
+    if ( self.cvars['installer-splash'] is not None and
+         self.cvars['installer-splash'].exists() ):
+      self.image.write(self.cvars['installer-splash'], '/')
     self.image.write(self.cvars['isolinux-files']['initrd.img'], '/')
 
     # hack to modify boot args in syslinux.cfg file

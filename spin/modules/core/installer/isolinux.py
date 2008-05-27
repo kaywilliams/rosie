@@ -28,7 +28,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       id = 'isolinux',
       provides = ['isolinux-files', 'boot-config-file'],
       requires = ['anaconda-version', 'base-info', 'installer-repo'],
-      conditionally_requires = ['ks-path', 'boot-args'],
+      conditionally_requires = ['ks-path', 'boot-args', 'installer-splash'],
     )
 
     self.DATA = {
@@ -43,6 +43,11 @@ class IsolinuxEvent(Event, FileDownloadMixin):
   def setup(self):
     self.diff.setup(self.DATA)
     self.file_locals = self.locals.L_FILES['isolinux']
+    if self.cvars.get('installer-splash', None) is not None:
+      self.io.add_fpath(self.cvars['installer-splash'],
+                        self.SOFTWARE_STORE/'isolinux',
+                        id='FileDownloadMixin')
+      self.file_locals.pop(self.cvars['installer-splash'].basename)
     FileDownloadMixin.setup(self)
 
   def run(self):

@@ -14,6 +14,7 @@ L_FILES = LocalsDict({
       'options.msg':  dict(path='isolinux/options.msg'),
       'param.msg':    dict(path='isolinux/param.msg'),
       'rescue.msg':   dict(path='isolinux/rescue.msg'),
+      'splash.lss':   dict(path='isolinux/splash.lss'),
       'vmlinuz':      dict(path='isolinux/vmlinuz'),
     },
     'installer': { # installer images
@@ -61,8 +62,16 @@ L_FILES = LocalsDict({
   },
   "anaconda-11.2.0.66-1": { # removed memtest, added vesamenu.c32
     'isolinux': {
-      'memtest':      REMOVE,
-      'vesamenu.c32': dict(path='isolinux/vesamenu.c32'),
+      'memtest':                  REMOVE,
+      'splash.lss':               REMOVE,
+      'syslinux-vesa-splash.jpg': dict(path='isolinux/syslinux-vesa-splash.jpg'),
+      'vesamenu.c32':             dict(path='isolinux/vesamenu.c32'),
+    },
+  },
+  "anaconda-11.3.0.36-1": { # renamed syslinux-vesa-splash.jpg to splash.jpg
+    'isolinux': {
+      'splash.jpg':               dict(path='isolinux/splash.jpg'),
+      'syslinux-vesa-splash.jpg': REMOVE,
     },
   },
 })
