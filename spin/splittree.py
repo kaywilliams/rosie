@@ -27,6 +27,8 @@ from rendition import pkgorder
 from rendition import si
 from rendition import xmllib
 
+from rendition.sync import link
+
 from rendition.pps.Path.error import PathError
 
 from spin.constants import RPM_GLOB, SRPM_GLOB
@@ -62,6 +64,8 @@ class Timber:
     self.u_src_tree = None # unifed source tree
     self.s_tree = None     # split tree
 
+    self.product_path = None # path to rpms, relative to u_tree
+
     self.rpm_disc_map = None
     self.srpm_disc_map = None
 
@@ -92,17 +96,6 @@ class Timber:
       **vars
     )
 
-  def link(self, src, dst, files):
-    "Link each file in src/[files] to dest/[files]"
-    for file in files:
-      try:
-        (src/file).cp(dst, link=True, recursive=True)
-      except PathError, e:
-        if e.errno == 18:
-          (src/file).cp(dst, recursive=True)
-        else:
-          raise
-
   def cleanup(self):
     self.s_tree.glob('%s-disc*' % self.name).rm(recursive=True, force=True)
 
@@ -130,7 +123,6 @@ class Timber:
     self.numdiscs = nrpmdiscs + nsrpmdiscs
 
   def __consume_discs(self, size):
-
     i_size = 0
     num_discs = 0
     while i_size < size:
@@ -145,52 +137,47 @@ class Timber:
       (discpath/self.name).mkdirs()
       if i == 1: # put release files on disc 1
         for file in self.u_tree.findpaths(
-            nregex='.*(\.discinfo|.*\.[Rr][Pp][Mm]|(S)?RPMS|%s)$' % self.name,
+            nregex='.*/(\.[^/]+|.+\.[Rr][Pp][Mm]|(S)?RPMS|%s)$' % self.product_path,
             mindepth=1, maxdepth=1):
-          self.link(self.u_tree, discpath, [file.basename])
+          link.sync(file, discpath, allow_xdev=True)
       else:
-        self.link(self.u_tree, discpath, self.common_files)
+        for file in self.common_files:
+          link.sync(file, discpath, allow_xdev=True)
       self.create_discinfo(i)
 
     if self.dosrc:
       for i in self.srpm_disc_map:
         discpath = self.s_tree/'%s-disc%d' % (self.name, i)
         (discpath/'SRPMS').mkdirs()
-        self.link(self.u_tree, discpath, self.common_files)
+        for file in self.common_files:
+          link.sync(file, discpath, allow_xdev=True)
         self.create_discinfo(i)
 
   def split_rpms(self):
     packages = {}
-    pkgdir = self.u_tree/self.name
+    pkgdir = self.u_tree/self.product_path
 
     for rpm in pkgdir.findpaths(glob='*.[Rr][Pp][Mm]'):
-      size = rpm.getsize()
-      pkgnvra = nvra(rpm)
+      packages.setdefault(nvra(rpm), []).append(rpm)
 
-      if packages.has_key(pkgnvra):
-        packages[pkgnvra].append(rpm)
-      else:
-        packages[pkgnvra] = [rpm]
-
-    order = pkgorder.parse_pkgorder(self.pkgorder)
-    for i in range(0, len(order)):
-      order[i] = pkgtup_to_nvra(order[i])
+    order = [ pkgtup_to_nvra(x) for x in
+              pkgorder.parse_pkgorder(self.pkgorder) ]
 
     disc = self.rpm_disc_map[0]
     discpath = self.s_tree/'%s-disc%d' % (self.name, disc)
 
-    used = discpath.findpaths().getsize()
+    (discpath/self.product_path).mkdirs()
+
+    used = discpath.du(bytes=True)
     for rpmnvra in order:
       if not packages.has_key(rpmnvra): continue
 
       newsize = used
 
       for file in packages[rpmnvra]:
-        if (discpath/self.name/file).exists(): continue
+        if (discpath/self.product_path/file.basename).exists(): continue
 
-        size = file.getsize()
-        assert size > 0
-        newsize = used + size
+        newsize = used + file.getsize()
 
         if disc == 1: maxsize = self.discsize - self.comps - self.reserve
         else:         maxsize = self.discsize
@@ -199,16 +186,19 @@ class Timber:
           # move to the next disc
           try:
             nextdisc = self.rpm_disc_map.index(disc+1)
-            disc = self.rpm_disc_map[nextdisc]
+            disc     = self.rpm_disc_map[nextdisc]
             discpath = self.s_tree/'%s-disc%d' % (self.name, disc)
-            self.link(pkgdir, discpath/self.name, [file])
+            (discpath/self.product_path).mkdirs()
+            used = discpath.du(bytes=True)
+            link.sync(file, discpath/self.product_path, allow_xdev=True)
+            newsize = used + file.getsize()
           except (IndexError, ValueError):
             disc = disc - 1
             print 'DEBUG: overflow from disc %d onto disc %d' % (disc+1, disc)
             print 'DEBUG: newsize: %d maxsize: %d' % (newsize, maxsize)
             continue
         else:
-          self.link(pkgdir, discpath/self.name, [file])
+          link.sync(file, discpath/self.product_path, allow_xdev=True)
       used = newsize
 
   def split_srpms(self):
@@ -226,12 +216,12 @@ class Timber:
         [ (self.s_tree/'%s-disc%d' % (self.name, disc)).findpaths().getsize(),
           disc ]
       )
+      (self.s_tree/'%s-disc-%d/SRPMS' % (self.name, disc)).mkdirs()
     sizes.sort()
 
     # add srpm to the smallest source tree
     for srpm in srpms:
-      (self.u_src_tree/srpm).link(self.s_tree/'%s-disc%d/SRPMS/%s' % \
-        (self.name, sizes[0][1], srpm.basename))
+      link.sync(srpm, self.s_tree/'%s-disc%d/SRPMS' % (self.name, sizes[0][1]))
       sizes[0][0] += srpm.getsize()
       sizes.sort()
 

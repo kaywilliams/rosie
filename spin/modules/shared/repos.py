@@ -143,6 +143,12 @@ class RepoEventMixin:
       # set pkgsfile
       repo.localurl = self.mddir/repo.id
 
+      # set $yumvars
+      v = self.cvars['distro-info']['base-version']
+      if v: repo.vars['$releasever'] = v
+      v = self.cvars['distro-info']['basearch']
+      if v: repo.vars['$basearch'] = v
+
     # make sure we got at least one repo out of that mess
     if not len(repos) > 0:
       raise RuntimeError(

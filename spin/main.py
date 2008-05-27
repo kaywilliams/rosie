@@ -326,20 +326,37 @@ class Build(object):
 
   def _validate_configs(self):
     "Validate main config and distro config"
-    Event.logger.log(0, L0("validating config"))
+    self.logger.log(0, L0("validating config"))
 
-    Event.logger.log(1, L1("spin.conf"))
+    self.logger.log(1, L1("spin.conf"))
     mcvalidator = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
                                       self.mainconfig.file)
     mcvalidator.validate('/spin', schema_file='spin.rng')
 
     # validate individual sections of distro.conf
-    Event.logger.log(1, L1(pps.path(Event._config.file).basename))
+    self.logger.log(1, L1(pps.path(self.distroconfig.file).basename))
     validator = ConfigValidator([ x/'schemas/distro.conf' for x in Event.SHARE_DIRS ],
                                 self.distroconfig.file)
 
     # validate the main section
     validator.validate('main', schema_file='main.rng')
+
+    qfmt = '/distro/main/%s/text()'
+
+    # make sure either base-name and base-version or distroid elements exist
+    if not ( ( self.distroconfig.get(qfmt % 'base-name', None) and
+               self.distroconfig.get(qfmt % 'base-version', None) ) or
+             self.distroconfig.get(  qfmt % 'distroid', None) ):
+      raise InvalidConfigError(self.distroconfig.file,
+        "Either 'base-name' and 'base-version' or 'distroid' elements "
+        "must be specified in the <main> section.")
+
+    # make sure one of version and base-version exist
+    if ( not self.distroconfig.get(qfmt % 'version', None) and
+         not self.distroconfig.get(qfmt % 'base-version', None) ):
+      raise InvalidConfigError(self.distroconfig.file,
+        "Either 'base-version' or 'version' must be specified in the "
+        "<main> section.")
 
     # validate all event top-level sections
     validated = [] # list of already-validated modules (so we don't revalidate)
@@ -380,26 +397,21 @@ class Build(object):
     di = Event.cvars['distro-info'] = {}
     qstr = '/distro/main/%s/text()'
 
-    di['name']  = Event._config.get(qstr % 'name')
-    di['base-name']= Event._config.get(qstr % 'base-name', '')
-    di['base-version']= Event._config.get(qstr % 'base-version', '')
-    di['arch']  = ARCH_MAP[Event._config.get(qstr % 'base-arch', 'i386')]
-    di['basearch'] = getBaseArch(di['arch'])
-    di['distroid'] = Event._config.get(qstr % 'distroid', '')
-    if not di['distroid']:
-      if di['base-name'] and di['base-version']:
-        di['distroid'] = '%(name)s-%(base-name)s-%(base-version)s-%(basearch)s' % di
-      else:
-        raise RuntimeError("Please specify either 'base-name' and 'base-version' "
-                           "or 'distroid' in the 'main' section of the .distro file.")
-    di['version'] = Event._config.get(qstr % 'version', di['base-version'])
-    if not di['version']:
-      raise RuntimeError("Please specify either 'base-version' or 'version' in "
-                         "the 'main' section of the .distro file.")
-    di['fullname'] = Event._config.get(qstr % 'fullname', di['name'])
-    di['packagepath'] = Event._config.get(qstr % 'package-path', 'Packages')
-    di['webloc']   = Event._config.get(qstr % 'bug-url', 'No bug url provided')
-    di['copyright'] = Event._config.get(qstr % 'copyright', '')
+    di['name']         = Event._config.get(qstr % 'name', '')
+    di['base-name']    = Event._config.get(qstr % 'base-name', '')
+    di['base-version'] = Event._config.get(qstr % 'base-version', '')
+    di['arch']         = ARCH_MAP[Event._config.get(qstr % 'base-arch', 'i386')]
+    di['basearch']     = getBaseArch(di['arch'])
+    di['distroid']     = Event._config.get(qstr % 'distroid',
+                          '%s-%s-%s-%s' % (di['name'],
+                                           di.get('base-name'),
+                                           di.get('base-version'),
+                                           di['basearch']))
+    di['version']      = Event._config.get(qstr % 'version', di.get('base-version'))
+    di['fullname']     = Event._config.get(qstr % 'fullname', di['name'])
+    di['packagepath']  = Event._config.get(qstr % 'package-path', 'Packages')
+    di['webloc']       = Event._config.get(qstr % 'bug-url', 'No bug url provided')
+    di['copyright']    = Event._config.get(qstr % 'copyright', '')
 
     for k,v in di.items():
       setattr(Event, k, v)
@@ -423,8 +435,7 @@ class Build(object):
 
     Event.cache_handler = cache.CachedSyncHandler(
                             cache_dir = Event.CACHE_DIR / '.cache',
-                            cache_max_size = Event.CACHE_MAX_SIZE,
-                          )
+                            cache_max_size = Event.CACHE_MAX_SIZE)
     Event.copy_handler = sync.CopyHandler()
     Event.link_handler = link.LinkHandler(allow_xdev=True)
 
@@ -435,12 +446,10 @@ class Build(object):
                                      Event.logger, Event.METADATA_DIR)
 
     selinux_enabled = False
-    getenforce = pps.path('/usr/sbin/getenforce')
-    if getenforce.exists():
-      try:
-        selinux_enabled = shlib.execute(getenforce)[0] != 'Disabled'
-      except:
-        pass
+    try:
+      selinux_enabled = shlib.execute('/usr/sbin/getenforce')[0] != 'Disabled'
+    except:
+      pass
     Event.cvars['selinux-enabled'] = selinux_enabled
 
   def _log_header(self):
