@@ -27,30 +27,36 @@ from rendition import pps
 
 from gradient import ImageGradient
 
-__all__ = ['UserSpecifiedHandler', 'DistroSpecificHandler',
-           'FallbackHandler', 'CommonFilesHandler']
+__all__ = [
+  'CommonFilesHandler',
+  'DistroFilesHandler',
+  'SuppliedFilesHandler',
+]
 
-class LogosRpmFileHandler(object):
-  def __init__(self, ptr, paths, write_text=False, check_id=True):
+class LogosRpmFilesHandler(object):
+  def __init__(self, ptr, paths, write_text=False):
     self.ptr = ptr
     self.paths = paths
     self.write_text = write_text
-    self.check_id = check_id
 
   def generate(self):
     for path in self.paths:
       for src in path.findpaths(type=pps.constants.TYPE_NOT_DIR):
         id  = pps.path('/') // src.relpathfrom(path)
-        if self.check_id and not self.ptr.locals.L_LOGOS_RPM_FILES.has_key(id):
-          continue
+        if not self._check_id(id): continue
         dst = self.ptr.build_folder // src.relpathfrom(path)
-        self.generate_file(id, src, dst)
-        if self.write_text:
-          self.add_text(id, dst)
+        self._generate_file(src, dst)
+        if ( self.write_text and
+             self.ptr.locals.L_LOGOS_RPM_FILES.has_key(id) ):
+          self._add_text(id, dst)
 
-  def add_text(self, id, file):
-    if not self.ptr.locals.L_LOGOS_RPM_FILES.has_key(id):
-      return
+  def _generate_file(self, id, src, dst):
+    raise NotImplementedError()
+
+  def _check_id(self, id):
+    return True
+
+  def _add_text(self, id, file):
     strings = self.ptr.locals.L_LOGOS_RPM_FILES[id].get('strings', None)
     if strings:
       src = self.ptr.build_folder // id
@@ -63,8 +69,10 @@ class LogosRpmFileHandler(object):
         font_color     = i.get('font_color', 'black')
         font_size      = i.get('font_size', 52)
         font_size_min  = i.get('font_size_min', None)
-        font_path      = self._get_font_path(i.get('font',
-                                                   'DejaVuLGCSans.ttf'))
+        font_path      = self._get_font_path(i.get('font', 'DejaVuLGCSans.ttf'))
+
+        if font_path is None: continue
+
         draw = ImageDraw.Draw(img)
         font = ImageFont.truetype(font_path, font_size)
         w, h = draw.textsize(text_string, font)
@@ -91,72 +99,68 @@ class LogosRpmFileHandler(object):
   def _get_font_path(self, font):
     """
     Given a font file name, returns the full path to the font located in one
-    of the share directories
+    of the share directories. Returns None if font file is not found.
     """
+    font_path = None
     for path in self.ptr.SHARE_DIRS:
       available_fonts = (path/'fonts').findpaths(glob=font)
       if available_fonts:
-        font_path = available_fonts[0]; break
-      if not font_path:
-        raise RuntimeError("Unable to find font file '%s' in share path(s) "
-                           "'%s'" %  font_path, self.ptr.SHARE_DIRS)
+        font_path = available_fonts[0]
+        break
     return font_path
 
-  def generate_file(self, id, src, dst):
+
+class SuppliedFilesHandler(LogosRpmFilesHandler):
+  def __init__(self, ptr, paths, write_text):
+    LogosRpmFilesHandler.__init__(self, ptr, paths, write_text=write_text)
+
+  def _generate_file(self, src, dst):
     dst.dirname.mkdirs()
     self.ptr.copy(src, dst.dirname, callback=None)
 
 
-class UserSpecifiedHandler(LogosRpmFileHandler):
+class CommonFilesHandler(LogosRpmFilesHandler):
   def __init__(self, ptr, paths):
-    LogosRpmFileHandler.__init__(self, ptr, paths, check_id=False)
+    LogosRpmFilesHandler.__init__(self, ptr, paths)
+
+  def _generate_file(self, src, dst):
+    if dst.exists(): return
+    dst.dirname.mkdirs()
+    self.ptr.copy(src, dst.dirname, callback=None)
 
 
-class DistroSpecificHandler(LogosRpmFileHandler):
-  def __init__(self, ptr, paths, write_text):
-    LogosRpmFileHandler.__init__(self, ptr, paths, write_text=write_text)
+class DistroFilesHandler(LogosRpmFilesHandler):
+  def __init__(self, ptr, paths, write_text, xwindow_types, start_color, end_color):
+    LogosRpmFilesHandler.__init__(self, ptr, paths, write_text=write_text)
+    self.xwindow_types = xwindow_types
+    self.start_color   = start_color
+    self.end_color     = end_color
 
-  def generate_file(self, id, src, dst):
-    if dst.exists():
-      return
-    LogosRpmFileHandler.generate_file(self, id, src, dst)
+  def generate(self):
+    if self.paths: LogosRpmFilesHandler.generate(self)
+    for id in self.ptr.locals.L_LOGOS_RPM_FILES:
+      file = self.ptr.build_folder // id
+      xwt = self.ptr.locals.L_LOGOS_RPM_FILES[id]['xwindow_type']
+      if not file.exists() and xwt in self.xwindow_types:
+        # generate image because not found in any shared folder
+        width  = self.ptr.locals.L_LOGOS_RPM_FILES[id]['image_width']
+        height = self.ptr.locals.L_LOGOS_RPM_FILES[id]['image_height']
+        format = self.ptr.locals.L_LOGOS_RPM_FILES[id].get('image_format', 'PNG')
 
+        img = Image.new('RGBA', (width, height))
+        grd = ImageGradient(img)
+        grd.draw_gradient(self.start_color, self.end_color)
+        file.dirname.mkdirs()
+        img.save(file, format=format)
 
-class FallbackHandler(LogosRpmFileHandler):
-  def __init__(self, ptr, paths, start_color, end_color, write_text):
-    LogosRpmFileHandler.__init__(self, ptr, paths, write_text=write_text)
-    self.start_color = start_color
-    self.end_color = end_color
+        if self.write_text: self._add_text(id, file)
 
-    self._cache = {}
+  def _check_id(self, id):
+    if not self.ptr.locals.L_LOGOS_RPM_FILES.has_key(id): return False
+    xwt = self.ptr.locals.L_LOGOS_RPM_FILES[id].get('xwindow_type', 'required')
+    return xwt in self.xwindow_types
 
-  def generate_file(self, id, src, dst):
-    if dst.exists():
-      return
-    format = self.ptr.locals.L_LOGOS_RPM_FILES.get(id, {}).get('format', 'PNG')
-    foreground = Image.open(src)
-
-    if self._cache.has_key(foreground.size):
-      Image.open(self._cache[foreground.size]).save(dst, format=format)
-      return
-    background = Image.new('RGBA', foreground.size)
-
-    gradient = ImageGradient(background)
-    gradient.draw_gradient(self.start_color, self.end_color)
-
-    background.paste(foreground, mask=foreground)
-    background = background.filter(ImageFilter.SMOOTH_MORE)
-    background = background.filter(ImageFilter.BLUR)
-    background.save(dst, format=format)
-    self._cache[foreground.size] = dst
-
-
-class CommonFilesHandler(LogosRpmFileHandler):
-  def __init__(self, ptr, paths):
-    LogosRpmFileHandler.__init__(self, ptr, paths, check_id=False)
-
-  def generate_file(self, id, src, dst):
-    if dst.exists():
-      return
+  def _generate_file(self, src, dst):
+    if dst.exists(): return
     dst.dirname.mkdirs()
     self.ptr.copy(src, dst.dirname, callback=None)

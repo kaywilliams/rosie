@@ -138,28 +138,21 @@ class LogosRpmEvent(RpmBuildMixin, Event):
 
   def _setup_handlers(self):
     supplied_logos = self.config.get('logos-path/text()', None)
-    distro_paths, common_paths, fallback_paths = \
-                  self._get_handler_paths(self.distro_info['folder'])
-    if ( not supplied_logos and
-         not distro_paths and
-         not common_paths and
-         not fallback_paths ):
-      raise RuntimeError("No files found in share directories '%s' that are to be "
-                         "installed by the logos RPM" % self.SHARE_DIRS)
+    distro_paths, common_paths = self._get_handler_paths(self.distro_info['folder'])
 
-    write_text = self.config.get('write-text/text()', 'True') in BOOLEANS_TRUE
+    required_xwindow = self.config.get('include-xwindows-art/text()', 'all').lower()
+    xwindow_types    = XWINDOW_MAPPING[required_xwindow]
+    write_text       = self.config.get('write-text/text()', 'True') in BOOLEANS_TRUE
+
     if supplied_logos:
       self.DATA['input'].append(supplied_logos)
-      self.handlers.append(UserSpecifiedHandler(self, [supplied_logos]))
-    if distro_paths:
-      self.handlers.append(DistroSpecificHandler(self, distro_paths, write_text))
+      self.handlers.append(SuppliedFilesHandler(self, [supplied_logos], write_text))
     if common_paths:
       self.handlers.append(CommonFilesHandler(self, common_paths))
-    if fallback_paths:
-      self.handlers.append(FallbackHandler(self, fallback_paths,
-                                           self.distro_info['start_color'],
-                                           self.distro_info['end_color'],
-                                           write_text))
+    self.handlers.append(DistroFilesHandler(self, distro_paths,
+                                            write_text, xwindow_types,
+                                            self.distro_info['start_color'],
+                                            self.distro_info['end_color']))
 
   def _get_distro_info(self):
     if hasattr(self, '_distro_info'):
@@ -186,27 +179,11 @@ class LogosRpmEvent(RpmBuildMixin, Event):
 
   def _get_handler_paths(self, distro_folder):
     # setup distro-specific, common files, and fallback handlers
-    required_xwindow = self.config.get('include-xwindows-art/text()', 'all').lower()
-    xwindow_types = XWINDOW_MAPPING[required_xwindow]
-
     distro_paths = []
     common_paths = []
-    fallback_paths = []
     for shared_dir in [ x / 'logos' for x in self.SHARE_DIRS ]:
       distro = shared_dir / 'distros' / distro_folder
       common = shared_dir / 'common'
-      fallback = shared_dir / 'fallback'
-      for paths, folder in [(distro_paths, distro),
-                            (common_paths, common),
-                            (fallback_paths, fallback)]:
-        required = folder / 'required'
-        gnome = folder / 'gnome'
-        kde = folder / 'kde'
-        if required.exists():
-          paths.append(required)
-        if 'gnome' in xwindow_types and gnome.exists():
-          paths.append(gnome)
-        if 'kde' in xwindow_types and kde.exists():
-          paths.append(kde)
-    return distro_paths, common_paths, fallback_paths
-
+      if distro.exists(): distro_paths.append(distro)
+      if common.exists(): common_paths.append(common)
+    return distro_paths, common_paths
