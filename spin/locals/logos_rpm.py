@@ -480,9 +480,9 @@ L_LOGOS_RPM_FILES = LocalsDict({
 })
 
 DEFAULT_INFO = {
-  'folder': 'redhat5',
-  'start_color': (120, 30, 29),
-  'end_color': (88, 23, 21),
+  'folder': 'centos5',
+  'start_color': (33, 85, 147),
+  'end_color': (30, 81, 140),
   'triggerin': {
     'gdm': '''CUSTOM_CONF=%%{_sysconfdir}/gdm/custom.conf
 THEME_CONF=/usr/share/%(rpm_name)s/custom.conf
@@ -520,15 +520,7 @@ fi
 L_LOGOS_RPM_INFO = {
   'Fedora': LocalsDict({
     '0': DEFAULT_INFO,
-    '7': {
-      'folder': 'fedora7',
-      'start_color': (0, 27, 82),
-      'end_color': (28, 41, 89),
-    },
     '8': {
-      'folder': 'fedora8',
-      'start_color': (32, 75, 105),
-      'end_color': (70, 110, 146),
       'post-install': '''SPIN_BACKGROUNDS="1-spin-sunrise.png 2-spin-day.png 3-spin-sunset.png 4-spin-night.png"
 DEFAULT=/usr/share/backgrounds/spin/default.jpg
 for file in $SPIN_BACKGROUNDS; do
@@ -613,17 +605,17 @@ fi
   }),
   'CentOS': LocalsDict({
     '0': DEFAULT_INFO,
-    '5': {
-      'folder': 'centos5',
-      'start_color': (33, 85, 147),
-      'end_color': (30, 81, 140),
-    },
   }),
   'Fedora Core': LocalsDict({
     '0': DEFAULT_INFO,
   }),
   'Red Hat Enterprise Linux Server': LocalsDict({
     '0': DEFAULT_INFO,
+    '5': {
+      'folder': 'redhat5',
+      'start_color': (120, 30, 29),
+      'end_color': (88, 23, 21),
+    },
   }),
   '*': LocalsDict({
     '0': DEFAULT_INFO,
