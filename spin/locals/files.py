@@ -62,16 +62,10 @@ L_FILES = LocalsDict({
   },
   "anaconda-11.2.0.66-1": { # removed memtest, added vesamenu.c32
     'isolinux': {
-      'memtest':                  REMOVE,
-      'splash.lss':               REMOVE,
-      'syslinux-vesa-splash.jpg': dict(path='isolinux/syslinux-vesa-splash.jpg'),
-      'vesamenu.c32':             dict(path='isolinux/vesamenu.c32'),
-    },
-  },
-  "anaconda-11.3.0.36-1": { # renamed syslinux-vesa-splash.jpg to splash.jpg
-    'isolinux': {
-      'splash.jpg':               dict(path='isolinux/splash.jpg'),
-      'syslinux-vesa-splash.jpg': REMOVE,
+      'memtest':      REMOVE,
+      'splash.lss':   REMOVE,
+      'splash.jpg':   dict(path='isolinux/splash.jpg'),
+      'vesamenu.c32': dict(path='isolinux/vesamenu.c32'),
     },
   },
 })

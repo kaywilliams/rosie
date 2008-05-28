@@ -44,6 +44,10 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     self.diff.setup(self.DATA)
     self.file_locals = self.locals.L_FILES['isolinux']
     if self.cvars.get('installer-splash', None) is not None:
+      ## HACK: adding the 'installer-splash' file with the id
+      ## 'FileDownloadMixin' is a pretty big hack. It is done just so
+      ## that everything after the setup() method is the same as
+      ## before.
       self.io.add_fpath(self.cvars['installer-splash'],
                         self.SOFTWARE_STORE/'isolinux',
                         id='FileDownloadMixin')
