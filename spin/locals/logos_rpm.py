@@ -466,7 +466,7 @@ L_LOGOS_RPM_FILES = LocalsDict({
       xwindow_type = 'required',
       image_width  = 640,
       image_height = 480,
-      format='JPEG',
+      image_format = 'JPEG',
     ),
   },
   "anaconda-11.3.0.36-1": {
@@ -474,7 +474,7 @@ L_LOGOS_RPM_FILES = LocalsDict({
       xwindow_type = 'required',
       image_width  = 640,
       image_height = 480,
-      format='PNG',
+      image_format = 'PNG',
     ),
   },
 })
