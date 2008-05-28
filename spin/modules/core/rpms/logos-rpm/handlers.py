@@ -142,7 +142,6 @@ class DistroFilesHandler(LogosRpmFilesHandler):
       file = self.ptr.build_folder // id
       xwt = self.ptr.locals.L_LOGOS_RPM_FILES[id]['xwindow_type']
       if not file.exists() and xwt in self.xwindow_types:
-        print "generating", file
         # generate image because not found in any shared folder
         width  = self.ptr.locals.L_LOGOS_RPM_FILES[id]['image_width']
         height = self.ptr.locals.L_LOGOS_RPM_FILES[id]['image_height']
