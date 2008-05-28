@@ -621,11 +621,6 @@ fi
   }),
   'Fedora Core': LocalsDict({
     '0': DEFAULT_INFO,
-    '6': {
-      'folder': 'fedora6',
-      'start_color': (0, 37, 77),
-      'end_color': (0, 32, 68),
-    },
   }),
   'Red Hat Enterprise Linux Server': LocalsDict({
     '0': DEFAULT_INFO,
