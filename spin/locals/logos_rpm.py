@@ -480,7 +480,7 @@ L_LOGOS_RPM_FILES = LocalsDict({
 })
 
 DEFAULT_INFO = {
-  'folder': 'r5',
+  'folder': 'redhat5',
   'start_color': (120, 30, 29),
   'end_color': (88, 23, 21),
   'triggerin': {
@@ -521,12 +521,12 @@ L_LOGOS_RPM_INFO = {
   'Fedora': LocalsDict({
     '0': DEFAULT_INFO,
     '7': {
-      'folder': 'f7',
+      'folder': 'fedora7',
       'start_color': (0, 27, 82),
       'end_color': (28, 41, 89),
     },
     '8': {
-      'folder': 'f8',
+      'folder': 'fedora8',
       'start_color': (32, 75, 105),
       'end_color': (70, 110, 146),
       'post-install': '''SPIN_BACKGROUNDS="1-spin-sunrise.png 2-spin-day.png 3-spin-sunset.png 4-spin-night.png"
@@ -574,8 +574,7 @@ fi
       },
     },
     '9': {
-      ## UPDATEME
-      'folder': 'f8',
+      'folder': 'fedora9',
       'start_color': (32, 75, 105),
       'end_color': (70, 110, 146),
       'triggerin': {
@@ -615,7 +614,7 @@ fi
   'CentOS': LocalsDict({
     '0': DEFAULT_INFO,
     '5': {
-      'folder': 'c5',
+      'folder': 'centos5',
       'start_color': (33, 85, 147),
       'end_color': (30, 81, 140),
     },
@@ -623,7 +622,7 @@ fi
   'Fedora Core': LocalsDict({
     '0': DEFAULT_INFO,
     '6': {
-      'folder': 'f6',
+      'folder': 'fedora6',
       'start_color': (0, 37, 77),
       'end_color': (0, 32, 68),
     },

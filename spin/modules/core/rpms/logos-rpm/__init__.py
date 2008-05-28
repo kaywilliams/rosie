@@ -181,9 +181,11 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     # setup distro-specific, common files, and fallback handlers
     distro_paths = []
     common_paths = []
-    for shared_dir in [ x / 'logos' for x in self.SHARE_DIRS ]:
+    for shared_dir in [ x / 'logos-rpm' for x in self.SHARE_DIRS ]:
       distro = shared_dir / 'distros' / distro_folder
       common = shared_dir / 'common'
+      print distro
+      print common
       if distro.exists(): distro_paths.append(distro)
       if common.exists(): common_paths.append(common)
     return distro_paths, common_paths

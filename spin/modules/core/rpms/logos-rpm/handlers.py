@@ -103,7 +103,7 @@ class LogosRpmFilesHandler(object):
     """
     font_path = None
     for path in self.ptr.SHARE_DIRS:
-      available_fonts = (path/'fonts').findpaths(glob=font)
+      available_fonts = (path/'logos-rpm/fonts').findpaths(glob=font)
       if available_fonts:
         font_path = available_fonts[0]
         break
@@ -142,6 +142,7 @@ class DistroFilesHandler(LogosRpmFilesHandler):
       file = self.ptr.build_folder // id
       xwt = self.ptr.locals.L_LOGOS_RPM_FILES[id]['xwindow_type']
       if not file.exists() and xwt in self.xwindow_types:
+        print "generating", file
         # generate image because not found in any shared folder
         width  = self.ptr.locals.L_LOGOS_RPM_FILES[id]['image_width']
         height = self.ptr.locals.L_LOGOS_RPM_FILES[id]['image_height']
