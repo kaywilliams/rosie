@@ -64,7 +64,7 @@ class Test_CvarContent(_DiskbootImageEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='diskboot-image')
 
-    self.check_file_in_image(self.event.cvars['isolinux-files']['installer-splash'].basename)
+    self.check_file_in_image(self.event.cvars['installer-splash'].basename)
     self.check_file_in_image(self.event.cvars['isolinux-files']['initrd.img'].basename)
 
 class Test_BootArgsDefault(_DiskbootImageEventTestCase):
