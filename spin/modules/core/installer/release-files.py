@@ -48,8 +48,8 @@ class ReleaseFilesEvent(Event, ExtractMixin):
       self.DATA['input'].extend(rpms)
     else:
       self.doextract = False
-    self.io.add_xpath('path', self.SOFTWARE_STORE, id='release-files-input')
     self.diff.setup(self.DATA)
+    self.io.add_xpath('path', self.SOFTWARE_STORE, id='release-files-input')
 
   def run(self):
     self.cvars.setdefault('release-files', [])
