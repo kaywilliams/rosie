@@ -57,57 +57,62 @@ class LogosRpmFilesHandler(object):
     return True
 
   def _add_text(self, id, file):
+    if not id in self.ptr.locals.L_LOGOS_RPM_FILES:
+      return
     strings = self.ptr.locals.L_LOGOS_RPM_FILES[id].get('strings', None)
-    if strings:
-      src = self.ptr.build_folder // id
-      img = Image.open(src)
-      for i in strings:
-        text_string    = i.get('text', '') % self.ptr.cvars['distro-info']
-        halign         = i.get('halign', 'center')
-        text_coords    = i.get('text_coords', (img.size[0]/2, img.size[1]/2))
-        text_max_width = i.get('text_max_width', img.size[0])
-        font_color     = i.get('font_color', 'black')
-        font_size      = i.get('font_size', 52)
-        font_size_min  = i.get('font_size_min', None)
-        font_path      = self._get_font_path(i.get('font', 'DejaVuLGCSans.ttf'))
+    if strings is None:
+      return
+    src = self.ptr.build_folder // id
+    img = Image.open(src)
+    draw = ImageDraw.Draw(img)
+    for i in strings:
+      text_string    = i.get('text', '') % self.ptr.cvars['distro-info']
+      halign         = i.get('halign', 'center')
+      text_coords    = i.get('text_coords', (img.size[0]/2, img.size[1]/2))
+      text_max_width = i.get('text_max_width', img.size[0])
+      font_color     = i.get('font_color', 'black')
+      font_size      = i.get('font_size', 52)
+      font_size_min  = i.get('font_size_min', None)
+      font_face      = i.get('font', 'DejaVuLGCSans.ttf')
 
-        if font_path is None: continue
+      if font_face not in self.fonts:
+        continue
+      else:
+        font_path = self.fonts[font_face]
 
-        draw = ImageDraw.Draw(img)
-        font = ImageFont.truetype(font_path, font_size)
-        w, h = draw.textsize(text_string, font)
-        if font_size_min:
-          while True:
-            w, h = draw.textsize(text_string, font)
-            if w <= (text_max_width or im.size[0]):
-              break
-            else:
-              font_size -= 1
-            if font_size < font_size_min:
-              break
-            font = ImageFont.truetype(font_path, font_size)
+      font = ImageFont.truetype(font_path, font_size)
+      w, h = draw.textsize(text_string, font=font)
+      if font_size_min is not None:
+        while True:
+          if w <= (text_max_width or im.size[0]):
+            break
+          else:
+            font_size -= 1
+          if font_size < font_size_min:
+            break
+          font = ImageFont.truetype(font_path, font_size)
+          w, h = draw.textsize(text_string, font=font)
 
-        if halign == 'center':
-          draw.text((text_coords[0]-(w/2), text_coords[1]-(h/2)),
-                    text_string, font=font, fill=font_color)
-        elif halign == 'right':
-          draw.text((text_coords[0]-w, text_coords[1]-(h/2)),
-                    text_string, font=font, fill=font_color)
+      if halign == 'center':
+        draw.text((text_coords[0]-(w/2), text_coords[1]-(h/2)),
+                  text_string, font=font, fill=font_color)
+      elif halign == 'right':
+        draw.text((text_coords[0]-w, text_coords[1]-(h/2)),
+                  text_string, font=font, fill=font_color)
 
-      img.save(src, format=img.format)
+    del draw
+    img.save(src, format=img.format)
 
-  def _get_font_path(self, font):
-    """
-    Given a font file name, returns the full path to the font located in one
-    of the share directories. Returns None if font file is not found.
-    """
-    font_path = None
+  def _get_fonts(self):
+    if hasattr(self, '_fonts'):
+      return self._fonts
+    self._fonts = {}
     for path in self.ptr.SHARE_DIRS:
-      available_fonts = (path/'logos-rpm/fonts').findpaths(glob=font)
-      if available_fonts:
-        font_path = available_fonts[0]
-        break
-    return font_path
+      fonts = (path / 'logos-rpm/fonts').findpaths()
+      for font in fonts:
+        self._fonts[font.basename] = font
+    return self._fonts
+  fonts = property(_get_fonts)
 
 
 class SuppliedFilesHandler(LogosRpmFilesHandler):
