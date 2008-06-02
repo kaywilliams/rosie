@@ -70,7 +70,7 @@ class LogosRpmFilesHandler(object):
       halign         = i.get('halign', 'center')
       text_coords    = i.get('text_coords', (img.size[0]/2, img.size[1]/2))
       text_max_width = i.get('text_max_width', img.size[0])
-      font_color     = i.get('font_color', 'black')
+      font_color     = i.get('font_color', None)
       font_size      = i.get('font_size', 52)
       font_size_min  = i.get('font_size_min', None)
       font_face      = i.get('font', 'DejaVuLGCSans.ttf')
@@ -79,6 +79,13 @@ class LogosRpmFilesHandler(object):
         continue
       else:
         font_path = self.fonts[font_face]
+
+      if font_color is None:
+        if img.palette is not None:
+          ## limited color palette image, look at locals for color
+          font_color = self.ptr.distro_info['limited_palette_font_color']
+        else:
+          font_color = 'black'
 
       font = ImageFont.truetype(font_path, font_size)
       w, h = draw.textsize(text_string, font=font)
