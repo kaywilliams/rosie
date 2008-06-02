@@ -93,15 +93,15 @@ def main():
     action='append',
     dest='enabled_modules',
     default=[],
-    help="load the specified module") # included for config file parity
+    help=SUPPRESS_HELP)
   module_group.add_option('--disable-module', metavar='MODULE',
     action='append',
     dest='disabled_modules',
     default=[],
-    help="do not load the specified module")
+    help=SUPPRESS_HELP)
   parser.add_option_group(module_group)
 
-  event_group = OptionGroup(parser, "event control options")
+  event_group = OptionGroup(parser, "module control options")
   event_group.add_option('--force', metavar='MODULE',
     action='append',
     dest='force_modules',
@@ -126,7 +126,7 @@ def main():
     action='store_true',
     default=False,
     dest='list_events',
-    help="print out a list of all events and exit")
+    help=SUPPRESS_HELP)
   parser.add_option_group(event_group)
 
   opts,args = parser.parse_args(args=sys.argv[1:])

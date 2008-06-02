@@ -285,7 +285,7 @@ class Build(object):
                  command line options
     """
     import_dirs = [ pps.path(x).expand() for x in \
-      self.mainconfig.xpath('/spin/library-path/text()', []) ]
+      self.mainconfig.xpath('/spin/lib-path/text()', []) ]
 
     if options.libpath:
       import_dirs = [ pps.path(x).expand() for x in options.libpath ] + import_dirs
@@ -326,15 +326,15 @@ class Build(object):
 
   def _validate_configs(self):
     "Validate main config and distro config"
-    self.logger.log(0, L0("validating config"))
+    self.logger.log(1, L0("validating config"))
 
-    self.logger.log(1, L1("spin.conf"))
+    self.logger.log(4, L1("spin.conf"))
     mcvalidator = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
                                       self.mainconfig.file)
     mcvalidator.validate('/spin', schema_file='spin.rng')
 
     # validate individual sections of distro.conf
-    self.logger.log(1, L1(pps.path(self.distroconfig.file).basename))
+    self.logger.log(4, L1(pps.path(self.distroconfig.file).basename))
     validator = ConfigValidator([ x/'schemas/distro.conf' for x in Event.SHARE_DIRS ],
                                 self.distroconfig.file)
 
@@ -454,11 +454,11 @@ class Build(object):
 
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
-    Event.logger.log(0, "Starting build of '%s' at %s" % (Event.distroid, time.strftime('%Y-%m-%d %X')))
+    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.distroid, time.strftime('%Y-%m-%d %X')))
     Event.logger.log(4, "Loaded modules: %s" % Event.cvars['loaded-modules'])
     Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):
-    Event.logger.log(0, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
+    Event.logger.log(1, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
 
   # locking methods
   def _lock(self):
