@@ -23,6 +23,10 @@
       <element name="systemid"><text/></element>
       </optional>
 
+      <optional>
+      <element name="enabled"><text/></element>
+      </optional>
+
       <zeroOrMore>
       <element name="include-package"><text/></element>
       </zeroOrMore>

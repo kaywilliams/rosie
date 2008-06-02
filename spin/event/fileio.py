@@ -41,6 +41,13 @@ class IOObject(object):
     self.ptr = ptr
     self.data = {}
 
+  def compute_dst(self, src, dst):
+    r = []
+    for s in src.findpaths():
+      if not s.isfile(): continue
+      r.append((s, (dst/s.relpathfrom(src)).normpath()))
+    return r
+
   def add_item(self, src, dst, id=None, mode=None, prefix=None):
     """
     Add a source, destination pair to the list of possible files to be synced.
@@ -60,18 +67,13 @@ class IOObject(object):
     if src not in self.ptr.diff.input.idata:
       self.ptr.diff.input.idata.append(src)
 
-    for s in src.findpaths():
-      s = s.normpath()
-      if not s.isfile(): continue
-
-      out  = (dst/s.relpathfrom(src)).normpath()
+    for s,d in self.compute_dst(src, dst):
       m = int(mode or oct((s.stat().st_mode & 0777) or 0644), 8)
 
-      if out not in self.ptr.diff.output.odata:
-        self.ptr.diff.output.odata.append(out)
+      if d not in self.ptr.diff.output.odata:
+        self.ptr.diff.output.odata.append(d)
 
-      self.data.setdefault(id, set())
-      self.data[id].add(TransactionData(s, out, m))
+      self.data.setdefault(id, set()).add(TransactionData(s,d,m))
 
   def add_xpath(self, xpath, dst, id=None, mode=None, prefix=None):
     """
@@ -106,7 +108,8 @@ class IOObject(object):
       self.add_fpath(fpath, *args, **kwargs)
 
   def sync_input(self, callback=None, link=False, cache=False, what=None,
-                       text='downloading files', **kwargs):
+                       text='downloading files', updatefn=None,
+                       **kwargs):
     """
     Sync input files to output locations.
 
@@ -115,16 +118,17 @@ class IOObject(object):
     @param cache    : cache files to cache directory before copying
     @param what     : list of ids to be copied (see add_item, above)
     @param text     : text to be passed to callback object as the 'header'
+    @param updatefn : the updatefn to pass to sync for file comparison
     @param kwargs   : extra arguments to be passed to sync
     """
     output = []
 
     if cache:
-      sync = self.ptr.cache;  cb = callback or self.ptr.cache_callback
+      syncfn = self.ptr.cache; cb = callback or self.ptr.cache_callback
     elif link:
-      sync = self.ptr.link;   cb = callback or self.ptr.link_callback
+      syncfn = self.ptr.link;  cb = callback or self.ptr.link_callback
     else:
-      sync = self.ptr.copy;   cb = callback or self.ptr.copy_callback
+      syncfn = self.ptr.copy;  cb = callback or self.ptr.copy_callback
 
     # add item to transaction if input or output file has changed, or if
     # output file does not exist; sort on source basename
@@ -138,7 +142,8 @@ class IOObject(object):
       cb.sync_start(text=text, count=len(tx))
       for item in tx:
         item.dst.rm(recursive=True, force=True)
-        sync(item.src, item.dst, link=link, callback=cb, **kwargs)
+        syncfn(item.src, item.dst, link=link, callback=cb, updatefn=updatefn,
+                                   **kwargs)
         item.dst.chmod(item.mode)
         output.append(item.dst)
       cb.sync_end()

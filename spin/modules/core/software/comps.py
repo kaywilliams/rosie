@@ -119,9 +119,8 @@ class CompsEvent(Event):
     groupfiles = []
 
     for repo in self.cvars['repos'].values():
-      groupfile = repo.datafiles.get('group', None)
-      if groupfile:
-        groupfiles.append((repo.id, repo.localurl/groupfile))
+      for gf in repo.datafiles.get('group', []):
+        groupfiles.append((repo.id, repo.localurl/gf))
 
     return groupfiles
 

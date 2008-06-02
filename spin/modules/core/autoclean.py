@@ -34,11 +34,9 @@ class AutocleanEvent(Event):
     )
 
     self.DATA = {'events': {}}
-    self.eventinfo = {}
 
   def setup(self):
     for event in self._getroot():
-      self.eventinfo[event.id] = event
       self.DATA['events'].update({event.id: str(event.event_version)})
 
     self.diff.setup(self.DATA)
@@ -62,7 +60,7 @@ class AutocleanEvent(Event):
       prevver, currver = difftup
       if prevver and currver:
         self.log(2, L1("forcing '%s'" % eventid))
-        self.eventinfo[eventid].status = True
+        self._getroot().get(eventid).status = True
 
 
 #------ METADATA HANDLER ------#

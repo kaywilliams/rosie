@@ -53,8 +53,8 @@ class GpgSetupEvent(Event):
 
   def verify_cvars(self):
     "public and secret key cvars defined"
-    self.verifier.failUnless(self.cvars['gpgsign-public-key'])
-    self.verifier.failUnless(self.cvars['gpgsign-secret-key'])
+    self.verifier.failUnlessSet('gpgsign-public-key')
+    self.verifier.failUnlessSet('gpgsign-secret-key')
 
 
 class GpgSignEvent(GpgMixin, Event):

@@ -100,7 +100,7 @@ class Timber:
     self.s_tree.glob('%s-disc*' % self.name).rm(recursive=True, force=True)
 
   def compute_layout(self):
-    srpm_nregex = '.*\.[Ss][Rr][Cc]\.[Rr][Pp][Mm]'
+    srpm_nregex = '(?i).*\.src\.rpm'
 
     # rpms
     totalsize = self.u_tree.findpaths(nregex=srpm_nregex).getsize()

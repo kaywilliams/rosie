@@ -32,7 +32,7 @@ from spin.event     import Event
 from spin.logging   import L1, L2
 from spin.validate  import InvalidConfigError
 
-from spin.modules.shared import CreaterepoMixin, RepoEventMixin, SpinRepo
+from spin.modules.shared import CreaterepoMixin, RepoEventMixin, SpinRepoGroup
 
 API_VERSION = 5.0
 EVENTS = {'setup': ['SourceReposEvent'], 'all': ['SourcesEvent']}
@@ -43,7 +43,7 @@ class SourceReposEvent(Event, RepoEventMixin):
     Event.__init__(self,
       id='source-repos',
       provides=['source-repos'],
-      conditionally_requires = ['base-distro']
+      requires=['input-repos']
     )
 
     RepoEventMixin.__init__(self)
@@ -58,14 +58,14 @@ class SourceReposEvent(Event, RepoEventMixin):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    addrepos = RepoContainer()
+    updates = RepoContainer()
     if self.config.pathexists('.'):
-      addrepos.add_repos(ReposFromXml(self.config.get('.'), cls=SpinRepo))
+      updates.add_repos(ReposFromXml(self.config.get('.'), cls=SpinRepoGroup))
     for filexml in self.config.xpath('repofile', []):
-      addrepos.add_repos(ReposFromFile(self._config.file.dirname / filexml.text,
-                                       cls=SpinRepo))
+      updates.add_repos(ReposFromFile(self._config.file.dirname/filexml.text,
+                                      cls=SpinRepoGroup))
 
-    self.setup_repos('source', updates=addrepos)
+    self.setup_repos(updates)
     self.read_repodata()
 
   def run(self):
@@ -86,12 +86,12 @@ class SourceReposEvent(Event, RepoEventMixin):
         except Exception, e:
           raise RuntimeError(str(e))
 
+    # set up cvars
     self.cvars['source-repos'] = self.repos
 
   def verify_cvars(self):
     "verify cvars are set"
-    self.verifier.failUnless(self.cvars['source-repos'])
-
+    self.verifier.failUnlessSet('source-repos')
 
 class SourcesEvent(Event, CreaterepoMixin):
   "Downloads source rpms."
@@ -126,30 +126,37 @@ class SourcesEvent(Event, CreaterepoMixin):
       srpmset.add(srpm)
 
     # setup sync
+    processed_srpmset = set()
     for repo in self.cvars['source-repos'].values():
       now = time.time()
       for rpminfo in repo.repocontent:
         rpmi = repo.url//rpminfo['file']
         _,n,v,r,a = self._deformat(rpmi)
         ## assuming the rpm file name to be lower-case 'rpm' suffixed
-        nvra = '%s-%s-%s.%s.rpm' %(n,v,r,a)
+        nvra = '%s-%s-%s.%s.rpm' % (n,v,r,a)
         if nvra in srpmset:
           if hasattr(rpmi, '_update_stat'):
             rpmi._update_stat(st_size  = rpminfo['size'],
                               st_mtime = rpminfo['mtime'],
                               st_mode  = (stat.S_IFREG | 0644),
                               st_atime = now)
-          self.io.add_fpath(rpmi, self.srpmdest, id='srpms')
+          processed_srpmset.add(nvra)
+          self.io.add_fpath(rpmi, self.srpmdest, id=repo.id)
+
+    if srpmset != processed_srpmset:
+      raise RuntimeError("The following SRPMs were not found in any "
+                         "input repo:\n%s" % sorted(srpmset - processed_srpmset))
 
   def run(self):
     self.log(1, L1("processing srpms"))
-    self.srpmdest.mkdirs()
-    self.io.sync_input(cache=True)
+    for repo in self.cvars['source-repos'].values():
+      self.io.sync_input(cache=True, what=repo.id,
+                         text=('downloading source packages - %s' % repo.id))
 
     # remove all obsolete SRPMs
     old_files = set(self.srpmdest.findpaths(mindepth=1, regex=SRPM_REGEX))
-    new_files = set(self.io.list_output(what='srpms'))
-    for obsolete_file in old_files.difference(new_files):
+    new_files = set(self.io.list_output())
+    for obsolete_file in (old_files - new_files):
       obsolete_file.rm(recursive=True, force=True)
 
     # run createrepo
@@ -171,3 +178,10 @@ class SourcesEvent(Event, CreaterepoMixin):
     except (AttributeError, IndexError), e:
       self.log(4, L2("DEBUG: Unable to extract srpm information from name '%s'" % srpm))
       return (None, None, None, None, None)
+
+  def error(self, e):
+    # performing a subset of Event.error since sync handles partially downloaded files
+    if self.mdfile.exists():
+      debugdir = (self.mddir + '.debug')
+      debugdir.mkdir()
+      self.mdfile.rename(debugdir/self.mdfile.basename)

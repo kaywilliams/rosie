@@ -23,7 +23,7 @@ from rendition import repo
 from spin.event   import Event
 from spin.logging import L1, L2
 
-from spin.modules.shared import SpinRepo
+from spin.modules.shared import SpinRepoGroup
 
 from rendition.repo.repo import RepoContainer
 
@@ -66,8 +66,10 @@ class CustomRepoEvent(Event):
         self.io.add_fpath(self.cvars['custom-rpms-data'][id]['srpm-path'],
                           self.CUSTOM_SRPMS, id='custom-rpms')
 
-      custom_rpms  = SpinRepo(id=self.cid,  name=self.cid,  baseurl=self.CUSTOM_RPMS)
-      custom_srpms = SpinRepo(id=self.csid, name=self.csid, baseurl=self.CUSTOM_SRPMS)
+      custom_rpms  = SpinRepoGroup(id=self.cid, name=self.cid,
+                                   baseurl=self.CUSTOM_RPMS)
+      custom_srpms = SpinRepoGroup(id=self.csid, name=self.csid,
+                                   baseurl=self.CUSTOM_SRPMS)
 
       self._setup_repos('packages', updates = {self.cid:  custom_rpms,
                                                self.csid: custom_srpms})
@@ -90,7 +92,7 @@ class CustomRepoEvent(Event):
         self.log(4, L2(repo.id))
         self._createrepo(repo.localurl)
         repo.read_repomd()
-        repo.repocontent.update(repo.localurl/repo.datafiles['primary'])
+        repo.repocontent.update(repo.datafiles['primary'])
         repo.repocontent.write(repo.pkgsfile)
         self.DATA['output'].append(repo.localurl/'repodata')
         self.DATA['output'].append(repo.pkgsfile)
@@ -114,11 +116,11 @@ class CustomRepoEvent(Event):
     "repodata exists"
     if self.cvars['custom-rpms']:
       customrepo = self.repos[self.cid]
-      self.verifier.failUnlessExists(customrepo.url / customrepo.repomd)
+      self.verifier.failUnlessExists(customrepo.url / customrepo.repomdfile)
       self.verifier.failUnlessExists(customrepo.url / customrepo.datafiles['primary'])
     if self.cvars['custom-srpms']:
       customrepo = self.repos[self.csid]
-      self.verifier.failUnlessExists(customrepo.url / customrepo.repomd)
+      self.verifier.failUnlessExists(customrepo.url / customrepo.repomdfile)
       self.verifier.failUnlessExists(customrepo.url / customrepo.datafiles['primary'])
 
   #----- HELPER METHODS -----#
@@ -142,8 +144,8 @@ class CustomRepoEvent(Event):
          .add((rpm_name, type, requires, default)))
       if obsoletes:
         self.cvars.setdefault('comps-excluded-packages', set()).update(obsoletes)
-        
-  def _setup_repos(self, type, updates=None, cls=SpinRepo):
+
+  def _setup_repos(self, type, updates=None):
 
     repos = RepoContainer()
 

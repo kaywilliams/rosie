@@ -95,5 +95,4 @@ class ReleaseFilesEvent(Event, ExtractMixin):
 
   def verify_cvars(self):
     "verify all cvars exist"
-    self.verifier.failUnless(self.cvars['release-files'] is not None,
-      "'release-files' event generated no content")
+    self.verifier.failUnlessSet('release-files')

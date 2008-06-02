@@ -30,32 +30,7 @@ from spin.event     import Event
 from spin.logging   import L1
 
 API_VERSION = 5.0
-EVENTS = {'setup': ['BaseDistroEvent', 'BaseInfoEvent']}
-
-class BaseDistroEvent(Event):
-  def __init__(self):
-    Event.__init__(self,
-      id = 'base-distro',
-      provides = [ 'base-distro' ],
-      suppress_run_message = True,
-    )
-
-    self.DATA = {
-      'input': [],
-      'output': [],
-      'config': ['.'],
-    }
-
-  def apply(self):
-    # set cvars
-    self.cvars.setdefault('base-distro', {})
-    self.cvars['base-distro']['distro'] = self.config.get('distro/text()', None)
-    self.cvars['base-distro']['version'] = self.config.get('version/text()', None)
-    self.cvars['base-distro']['baseurl-prefix'] = self.config.get('baseurl-prefix/text()', None)
-    self.cvars['base-distro']['mirrorlist-prefix'] = self.config.get('mirrorlist-prefix/text()', None)
-
-  # don't verify base-distro-* cvars; they may be None
-
+EVENTS = {'setup': ['BaseInfoEvent']}
 
 class BaseInfoEvent(Event):
   def __init__(self):
@@ -121,4 +96,4 @@ class BaseInfoEvent(Event):
     self.verifier.failUnlessExists(self.buildstamp_out)
   def verify_cvars(self):
     "verify cvars exist"
-    self.verifier.failUnless(self.cvars['base-info'])
+    self.verifier.failUnlessSet('base-info')

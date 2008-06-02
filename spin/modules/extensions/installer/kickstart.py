@@ -49,4 +49,4 @@ class KickstartEvent(Event):
 
   def verify_cvars(self):
     "cvars are set"
-    self.verifier.failUnless(self.cvars['ks-path'])
+    self.verifier.failUnlessSet('ks-path')

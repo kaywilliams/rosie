@@ -17,18 +17,26 @@
 #
 
 import re
+import sha
+import time
 
 from rendition import pps
+from rendition import xmllib
+
+from rendition.pps.constants import TYPE_DIR
 
 from spin.logging   import L1, L2
 from spin.constants import BOOLEANS_FALSE
 
-from rendition.repo      import ReposFromXml, ReposFromFile, getDefaultRepos
-from rendition.repo.repo import YumRepo, RepoContainer
+from rendition.repo          import ReposFromXml, ReposFromFile, getDefaultRepos
+from rendition.repo.repo     import YumRepo, RepoContainer, NSMAP
+from rendition.repo.defaults import TYPE_ALL
 
-__all__ = ['RepoEventMixin', 'SpinRepo']
+__all__ = ['RepoEventMixin', 'SpinRepo', 'SpinRepoGroup']
 
-mirrorgroups = {} # keep track of all the mirrorgroups we use to check reuse
+# list of folders that don't contain repodata folders for sure
+NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
+                 'stylesheet-images']
 
 class SpinRepo(YumRepo):
   keyfilter = ['id', 'systemid']
@@ -70,7 +78,7 @@ class SpinRepo(YumRepo):
 
   def _xform_uri(self, p):
     p = pps.path(p)
-    try: 
+    try:
       if isinstance(p, pps.Path.rhn.RhnPath):
         p._systemid = self.get('systemid')
       else:
@@ -79,130 +87,188 @@ class SpinRepo(YumRepo):
       p = YumRepo._xform_uri(self, p)
     return p
 
+class SpinRepoGroup(SpinRepo):
+  def __init__(self, **kwargs):
+    SpinRepo.__init__(self, **kwargs)
+
+    self._repos = RepoContainer()
+    self.has_installer_files = False
+
+  def _populate_repos(self):
+    "Find all the repos we contain and classify ourself"
+    updates = {}
+    for k,v in self.items():
+      if k not in ['id', 'baseurl']:
+        updates[k] = v
+
+    # get directory listing so we can figure out information about this repo
+    # find all subrepos
+    repos = []
+    if (self.url/'repodata/repomd.xml').exists():
+      R = SpinRepo(baseurl=self['baseurl'], id=self.id, **updates)
+      R._relpath = pps.path('.')
+      self._repos.add_repo(R)
+    else:
+      for d in self.url.findpaths(type=TYPE_DIR, mindepth=1, maxdepth=1,
+                                  nglob=NOT_REPO_GLOB):
+        if (d/'repodata/repomd.xml').exists():
+          R = SpinRepo(baseurl='\n'.join([ x/d.basename for x in self.baseurl ]),
+                       id='%s-%s' % (self.id, d.basename), **updates)
+          R._relpath = d.basename
+          self._repos.add_repo(R)
+
+    # set up $yumvar replacement for all subrepos
+    for R in self._repos.values():
+      R.vars = self.vars
+
+    # classify this repo - does it have installer files?
+    if (self.url/'images').exists() and (self.url/'isolinux').exists():
+      self.has_installer_files = True
+
+
+  def __str__(self):
+    return self.tostring(pretty=True)
+
+  def tostring(self, **kwargs):
+    return self._repos.tostring(**kwargs)
+
+  def lines(self, **kwargs):
+    l = []
+    baseurl = kwargs.get('baseurl')
+    for repo in self._repos.values():
+      # hack to make sure baseurls are transformed correctly
+      if baseurl: kwargs['baseurl'] = (baseurl/repo._relpath).normpath()
+      l.extend(repo.lines(**kwargs))
+    return l
+
+  def read_repomd(self):
+    if len(self._repos) == 0:
+      self._populate_repos()
+
+    for R in self._repos.values():
+      R.read_repomd()
+      for k,v in R.datafiles.items():
+        self.datafiles.setdefault(k, []).append(R._relpath/v)
+
+
 class RepoEventMixin:
   def __init__(self):
     self.repos = RepoContainer()
+    self._src_csums = {} # map of filename,checksum pairs
+    self._dst_csums = {} # ""
+    self.DATA['repodata'] = {}
 
-  def setup_repos(self, type, distro=None, version=None,
-                        baseurl_prefix=None, mirrorlist_prefix=None,
-                        updates=None, cls=SpinRepo):
+  def setup_repos(self, repos=None):
     """
     Populates self.repos with Repo objects from the specified defaults
-    combined with any desired updates.  Also sets repo.localurl for each
-    repo it creates.  Doesn't include repos that are disabled.  Handles
-    setting up self.DATA['variables'] for repoids.  Returns the created
-    RepoContainer (self.repos).
+    combined with any desired updates.  Doesn't include repos that are
+    disabled.  Handles setting up self.DATA['variables'] for repoids.
+    Returns the created RepoContainer (self.repos).
 
     This method should typically be called in Event.setup()
 
-    type    : the type of repos to get using getDefaultRepos(); one of
-              'installer', 'packages', or 'source'
-    distro  : the distribution name to pass to getDefaultRepos()
-    version : the version to pass to getDefaultRepos()
-    baseurl_prefix : the prefix to prepend to the default baseurls returned
-              by getDefaultRepos(); optional
-    mirrorlist_prefix : the prefix to prepend to the default mirrorlists
-              returned by getDefaultRepos(); optional
-    updates : a RepoContainer or dictionary containing Repos to use as
-              updates to the defaults returned by getDefaultRepos().  Repos
-              with the same id as those returned by getDefaultRepos() will
-              update the value of its elements; those with differing values
-              will create new repos entirely; optional
-    cls     : the class of repo to use in creating default repos; optional
+    repos  : a RepoContainer or dictionary containing Repos to use
     """
-    # set up arg defaults
-    distro  = distro  or self.cvars['base-distro']['distro']
-    version = version or self.cvars['base-distro']['version']
-    baseurl_prefix    = baseurl_prefix    or \
-                        self.cvars['base-distro']['baseurl-prefix']
-    mirrorlist_prefix = mirrorlist_prefix or \
-                        self.cvars['base-distro']['mirrorlist-prefix']
 
-    repos = RepoContainer()
-    if distro and version:
-      # get one of the default distro/version RepoContainers
-      try:
-        repos.add_repos(getDefaultRepos(type, distro, version,
-                                        arch=self.basearch,
-                                        baseurl_prefix=baseurl_prefix,
-                                        mirrorlist_prefix=mirrorlist_prefix,
-                                        cls=cls)
-                        or {})
-      except KeyError:
-        raise ValueError("Unknown default distro-version combo '%s-%s'" % (distro, version))
+    self.log(4, L1("adding repos"))
+    for id,R in repos.items():
+      self.log(4, L2(id))
+      self.repos.add_repo(R)
 
-    # update default values
-    repos.add_repos(updates or {})
-
-    for repo in repos.values():
-      # remove repo if disabled in repofile
+    for repo in self.repos.values():
+      # remove disabled repos
       if hasattr(repo, 'enabled') and repo.enabled in BOOLEANS_FALSE:
-        del repos[repo.id]
+        self.log(5, L1("Removing disabled repo '%s'" % repo.id))
+        del self.repos[repo.id]
         continue
 
-      # set pkgsfile
-      repo.localurl = self.mddir/repo.id
-
       # set $yumvars
-      v = self.cvars['distro-info']['base-version']
-      if v: repo.vars['$releasever'] = v
-      v = self.cvars['distro-info']['basearch']
-      if v: repo.vars['$basearch'] = v
+      repo.vars['$releasever'] = self.config.get('releasever/text()', self.version)
+      repo.vars['$basearch']   = self.config.get('basearch/text()',   self.basearch)
 
     # make sure we got at least one repo out of that mess
-    if not len(repos) > 0:
-      raise RuntimeError(
-        "Got no repos out of .setup_repos() for repo type '%s'" % type)
+    if not len(self.repos) > 0:
+      ## TODO - improve this message, check for at least (exactly?) one install type, etc
+      raise RuntimeError("Got no repos out of .setup_repos()")
 
     # warn if multiple repos use the same mirrorlist and different baseurls
-    global mirrorgroups
-    for repo in repos.values():
+    mirrorgroups = {}
+    for repo in self.repos.values():
       if not repo.mirrorlist: continue
       ( mirrorgroups.setdefault(repo.mirrorlist, {})
                     .setdefault(tuple(repo.baseurl), [])
                     .append(repo.id) )
     for mg,baseurls in mirrorgroups.items():
-      if len(baseurls) > 1:
+      if len(baseurls.keys()) > 1:
         r = []
         for baseurl in baseurls.values():
           r.extend(baseurl)
-        self.logger.log(1, "Warning: the repos %s use the same "
-          "mirrorlist, '%s', but have different baseurls; this can "
-          "result in unexpected behavior." % (r, mg))
+        self.log(1, "Warning: the repos %s use the same mirrorlist, "
+          "'%s', but have different baseurls; this can result in"
+          "unexpected behavior." % (r, mg))
 
-    self.repoids = repos.keys()
-    self.DATA['variables'].extend(['repoids',
-                                   'cvars[\'base-distro\'][\'distro\']',
-                                   'cvars[\'base-distro\'][\'version\']',
-                                   'cvars[\'base-distro\'][\'baseurl-prefix\']',
-                                   'cvars[\'base-distro\'][\'mirrorlist-prefix\']'])
+    self.repoids = self.repos.keys()
+    self.DATA['variables'].append('repoids')
 
-    self.repos.add_repos(repos)
     return self.repos
 
   def read_repodata(self):
     """
     Reads repository metadata and sets up the necessary IO data structures
     so that repodata can be synced with .sync_repodata(), below.  Sets
-    up each repo's .datafiles dictionary and populates self.DATA['input']
-    and self.DATA['output'] with these files.
+    up each repo's .datafiles dictionary, populates self.DATA['input']
+    and self.DATA['output'] with these files, and sets .localurl.
 
     This method should typically be called in Event.setup(), after
     .setup_repos().  It is only necessary to call this if you want to use
     .sync_repodata(), below, to copy down all repository metadata.
     """
+    self.log(4, L1("reading repository metadata"))
     for repo in self.repos.values():
-      try:
-        # read metadata
-        repo.read_repomd()
-      except pps.Path.error.PathError, e:
-        if not repo.url.exists():
-          raise RuntimeError("Missing repository: '%s'" % repo.url)
-        continue
+      self.log(4, L2(repo.id))
+      # set localurl
+      repo.localurl = self.mddir/repo.id
+      # read metadata
+      repo.read_repomd()
+
       # add metadata to io sync
-      self.io.add_fpaths([ repo.url/f for f in repo.datafiles.values() ],
-                         self.mddir/repo.id/'repodata',
-                         id='%s-repodata' % repo.id)
+      for f in repo.datafiles.values():
+        if isinstance(f, basestring): f = [f]
+        for fn in f:
+          self.io.add_fpath(repo.url/fn,
+                            self.mddir/repo.id/fn.dirname,
+                            id='%s-repodata' % repo.id)
+
+    # populate self._src_csums, self._dst_csums
+    #self._compute_checksums()
+    self.DATA['repodata'] = self._src_csums
+    self.diff.add_handler(RepodataHandler(self.DATA['repodata']))
+
+  def _compute_checksums(self):
+    for repo in self.repos.values():
+      for r in repo._repos.values():
+        # handles all checksums other than repomd.xml
+        # compute source checksums from downloaded repomd.xml
+        for datatype in r.repomd.xpath('//repo:data', namespaces=NSMAP):
+          self._src_csums[r.url/r.datafiles[datatype.get('@type')]] = \
+            datatype.get('repo:checksum/text()', namespaces=NSMAP)
+
+        # compute destination checksums from repomd.xml on disk, if exists
+        repomd = (self.mddir/r.id/r._relpath/r.datafiles['metadata']).normpath()
+        if repomd.exists():
+          repomdxml = xmllib.tree.read(repomd)
+          for datatype in repomdxml.xpath('//repo:data', namespaces=NSMAP):
+            self._dst_csums[self.mddir/r.id/r._relpath/r.datafiles[datatype.get('@type')]] = \
+              datatype.get('repo:checksum/text()', namespaces=NSMAP)
+
+        # put something for repomd.xml into *_CSUM_DATA
+        self._src_csums[r.url/r.datafiles['metadata']] = \
+          sorted(r.repomd.xpath('//repo:data/repo:checksum/text()',
+                                namespaces=NSMAP))
+        if repomd.exists():
+          self._dst_csums[self.mddir/r.id/r._relpath/r.datafiles['metadata']] = \
+            sorted(repomdxml.xpath('//repo:data/repo:checksum/text()',
+                                   namespaces=NSMAP))
 
   def sync_repodata(self):
     """
@@ -212,7 +278,17 @@ class RepoEventMixin:
     This method should typically be called in Event.run(); it must be
     preceded by a call to .read_repodata(), above.
     """
+
+    def updatefn(src, dst):
+      # it is an error for a src csum to not exist, but not for dst csums
+      if self._src_sums[src] != self._dst_csums.get(dst):
+        return 0
+      else:
+        return -1
+
     for repo in self.repos.values():
+      # explicitly create directory for repos that don't have repodata
+      (self.mddir/repo.id).mkdirs()
       self.io.sync_input(what='%s-repodata' % repo.id, cache=True,
                          text=("downloading repodata - '%s'" % repo.id))
 
@@ -238,16 +314,62 @@ class RepoEventMixin:
       newids = set()
 
     for repo in self.repos.values():
-      try:
-        pxml = repo.localurl//repo.datafiles['primary']
-      except KeyError, e: # KeyError raised if no repodata/ folder exists
-        continue
 
-      # if the input primary.xml has changed or if the repo id wasn't in the
-      # previous run
-      if repo.id in newids or self.diff.input.difference(pxml):
+      # run if any primary xml has changed...
+      doupdate = False
+      for pxml in repo.datafiles['primary']:
+        if self.diff.input.difference(repo.localurl//pxml):
+          doupdate = True; break
+
+      # ...or if this repo is new, or if its pkgsfile doesnt exist
+      if ( repo.id in newids or not repo.pkgsfile.exists() or doupdate ):
         self.log(2, L2(repo.id))
-        repo.repocontent.update(pxml)
+        repo.repocontent.clear()
+        for pxml in repo.datafiles['primary']:
+          repo.repocontent.update(pxml, clear=False)
         repo.repocontent.write(repo.pkgsfile)
 
       self.DATA['output'].append(repo.pkgsfile) # add pkgsfile to output
+
+from rendition.difftest import DiffHandler
+from rendition import xmllib
+
+class RepodataHandler(DiffHandler):
+  def __init__(self, data):
+    self.name = 'repodata'
+
+    self.data = data
+    self.mdfiles = {}
+
+    DiffHandler.__init__(self)
+
+  def clear(self):
+    self.mdfiles.clear()
+    self.diffdict.clear()
+
+  def mdread(self, metadata):
+    for mdfile in metadata.xpath('/metadata/repodata/mdfile'):
+      self.mdfiles[mdfile.get('@filename')] = mdfile.text
+
+  def mdwrite(self, root):
+    parent = xmllib.config.uElement('repodata', parent=root)
+
+    for k,v in self.data.items():
+      xmllib.config.Element('mdfile', parent=parent,
+                            attrs={'@filename': k}, text=v)
+
+  def diff(self):
+    for k,v in self.mdfiles.items():
+      if self.data.has_key(k):
+        newv = self.data[k]
+        if v != newv:
+          self.diffdict[k] = (v, newv)
+      else:
+        self.diffdict[k] = (v, None)
+
+    for k,v in self.data.items():
+      if not self.mdfiles.has_key(k):
+        self.diffdict[k] = (None, v)
+
+    if self.diffdict: self.dprint(self.diffdict)
+    return self.diffdict

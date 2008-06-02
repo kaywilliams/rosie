@@ -139,23 +139,23 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     else:    self.cache_handler.cache_copy_handler = self.copy_handler
 
     kwargs.setdefault('copy_handler', self.cache_handler)
-    kwargs.setdefault('callback', self.cache_callback)
+    kwargs.setdefault('callback',     self.cache_callback)
 
     self.copy(src, dst, **kwargs)
 
-  def copy(self, src, dst, link=False, **kwargs):
+  def copy(self, src, dst, link=False, updatefn=None, **kwargs):
     kwargs.setdefault('copy_handler', self.copy_handler)
-    kwargs.setdefault('callback', self.copy_callback)
+    kwargs.setdefault('callback',     self.copy_callback)
 
     dst.dirname.mkdirs()
-    sync.sync(src, dst, **kwargs)
+    sync.sync(src, dst, updatefn=updatefn or sync.mirror_updatefn, **kwargs)
 
-  def link(self, src, dst, link=False, **kwargs):
+  def link(self, src, dst, link=False, updatefn=None, **kwargs):
     kwargs.setdefault('copy_handler', self.link_handler)
-    kwargs.setdefault('callback', self.link_callback) # turn off output
+    kwargs.setdefault('callback',     self.link_callback) # turn off output
 
     dst.dirname.mkdirs()
-    sync.sync(src, dst, **kwargs)
+    sync.sync(src, dst, updatefn=updatefn or sync.mirror_updatefn, **kwargs)
 
   def _get_mddir(self):
     dir = self.METADATA_DIR/self.id

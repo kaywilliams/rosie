@@ -91,7 +91,7 @@ class ExtractMixin:
 class ImageModifyMixin:
   "This class downloads and modifies images"
   # Classes that extend this must require 'anaconda-version',
-  # 'buildstamp-file' and 'installer-repo'.
+  # 'installer-repo', and 'buildstamp-file'
   def __init__(self, name):
     self.imagedir = self.mddir/'image'
 

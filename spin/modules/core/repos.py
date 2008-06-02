@@ -20,10 +20,11 @@ import re
 from rendition.repo    import ReposFromXml, ReposFromFile, RepoContainer
 from rendition.versort import Version
 
-from spin.event    import Event
-from spin.logging  import L1, L2
+from spin.constants import BOOLEANS_FALSE
+from spin.event     import Event
+from spin.logging   import L1, L2
 
-from spin.modules.shared import RepoEventMixin, SpinRepo
+from spin.modules.shared import RepoEventMixin, SpinRepoGroup
 
 API_VERSION = 5.0
 EVENTS = {'setup': ['ReposEvent']}
@@ -37,16 +38,17 @@ class ReposEvent(RepoEventMixin, Event):
                   'logos-versions',
                   'release-versions',
                   'repos',
+                  'repos', 'installer-repo',
                   'input-repos', # ugly solution to cycle in release-rpm, custom-repo
                   'comps-excluded-packages',
                   'pkglist-excluded-packages'],
-      conditionally_requires = ['base-distro',
-                                'anaconda-version-supplied'],
+      conditionally_requires = ['anaconda-version-supplied'],
     )
+
     RepoEventMixin.__init__(self)
 
     self.DATA = {
-      'variables': [], #more later from self.setup_repos()
+      'variables': [], # stuff added in .setup_repos()
       'config':    ['.'],
       'input':     [],
       'output':    [],
@@ -56,21 +58,16 @@ class ReposEvent(RepoEventMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    # additional repos to include with defaults, if any
-    addrepos = RepoContainer()
+    updates  = RepoContainer()
     if self.config.pathexists('.'):
-      addrepos.add_repos(ReposFromXml(self.config.get('.'), cls=SpinRepo))
+      updates.add_repos(
+        ReposFromXml(self.config.get('.'), cls=SpinRepoGroup))
     for filexml in self.config.xpath('repofile', []):
-      addrepos.add_repos(ReposFromFile(self._config.file.dirname / filexml.text,
-                                       cls=SpinRepo))
+      updates.add_repos(ReposFromFile(self._config.file.dirname/filexml.text,
+                                      cls=SpinRepoGroup))
 
-    self.setup_repos('packages', updates=addrepos)
+    self.setup_repos(updates)
     self.read_repodata()
-    for repo in self.repos.values():
-      try:
-        (repo.url//'repodata').exists()
-      except OSError, e:
-        raise RuntimeError(str(e))
 
   def run(self):
     self.sync_repodata()
@@ -103,15 +100,26 @@ class ReposEvent(RepoEventMixin, Event):
         if not anaconda_version or v > anaconda_version:
           anaconda_version = v
 
-    if not anaconda_version and not self.cvars['anaconda-version-supplied']:
+    self.cvars['anaconda-version'] = \
+      self.cvars['anaconda-version-supplied'] or anaconda_version
+    if not self.cvars['anaconda-version']:
       raise RuntimeError("Unable to find the 'anaconda' package in any "
                          "specified repository, and 'anaconda-version' "
                          "not given in <installer>")
-    else:
-      self.cvars['anaconda-version'] = \
-        self.cvars['anaconda-version-supplied'] or anaconda_version
 
-    self.cvars['repos']  = self.repos
+    # set up the installer repo
+    for repo in self.repos.values():
+      if repo.has_installer_files:
+        self.cvars['installer-repo'] = repo
+        break
+
+    if not self.cvars['installer-repo']:
+      raise RuntimeError("Unable to find 'isolinux/' and 'images/' "
+                         "folders inside any given repository.")
+
+    # set up cvars
+    self.cvars['repos']   = self.repos
+    self.cvars['repoids'] = self.repoids
 
     # globally excluded packages
     global_excludes = self.config.xpath('exclude-package/text()', [])
@@ -125,14 +133,16 @@ class ReposEvent(RepoEventMixin, Event):
 
   def verify_repodata(self):
     "repodata exists"
-    for repo in self.repos.values():
-      self.verifier.failUnlessExists(repo.localurl / repo.repomd)
-      self.verifier.failUnlessExists(repo.localurl / repo.datafiles['primary'])
+    for repogroup in self.repos.values():
+      for repo in repogroup._repos.values():
+        for fn in repo.datafiles.values():
+          self.verifier.failUnlessExists(repogroup.localurl/repo._relpath/fn)
 
   def verify_cvars(self):
     "verify cvars are set"
-    self.verifier.failUnless(self.cvars['repos'])
-    self.verifier.failUnless(self.cvars['anaconda-version'])
+    self.verifier.failUnlessSet('repos')
+    self.verifier.failUnlessSet('anaconda-version')
+    self.verifier.failUnlessSet('installer-repo')
 
 
 #------ ERRORS ------#

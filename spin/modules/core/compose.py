@@ -99,5 +99,5 @@ class ComposeEvent(Event):
 
   def verify_cvars(self):
     "verify cvars are set"
-    self.verifier.failUnless(self.cvars['os-dir'])
-    self.verifier.failUnless(self.cvars['manifest-file'])
+    self.verifier.failUnlessSet('os-dir')
+    self.verifier.failUnlessSet('manifest-file')

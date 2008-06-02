@@ -40,6 +40,8 @@ class VerifyObject(unittest.TestCase):
     self._testMethodName = None
     self._testMethodDoc = None
 
+  def failUnlessSet(self, cvar):
+    self.failUnless(self.ptr.cvars[cvar] is not None, "'%s' cvar not set" % cvar)
   def failIfExists(self, path):
     self.failIf(pps.path(path).exists(), "'%s' exists" % path)
   def failUnlessExists(self, path):

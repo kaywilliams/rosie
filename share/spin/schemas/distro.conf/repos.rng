@@ -11,6 +11,13 @@
 
         <interleave>
 
+        <optional>
+        <element name="releasever"><text/></element>
+        </optional>
+        <optional>
+        <element name="basearch"><text/></element>
+        </optional>
+
         <zeroOrMore>
         <ref name="element-exclude-package"/>
         </zeroOrMore>

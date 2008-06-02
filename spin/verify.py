@@ -44,7 +44,7 @@ class BuildTestResult(unittest.TestResult):
     unittest.TestResult.addError(self, test, err)
     self.logger.write(5, 'ERROR\n')
     if self.logger.threshold <= 3: # display warning on log level 3 and below
-      self.logger.log(1, 'Warning: there was an error in one of the verification methods: %s' % err[1])
+      self.logger.log(1, 'Warning: there was an error in the verification method for test %s: %s' % (test, err[1]))
 
   def addFailure(self, test, err):
     unittest.TestResult.addFailure(self, test, err)
@@ -53,7 +53,7 @@ class BuildTestResult(unittest.TestResult):
       #python 2.5
       #self.logger.log(1, 'Warning: %s' % err[1].message)
       #python 2.4 compatible
-      self.logger.log(1, 'Warning: %s' % err[1])
+      self.logger.log(1, 'Warning: %s: %s' % (test, err[1]))
     self.warnings.append(err[1]) # append AssertionError to warning list
 
   def printErrors(self):

@@ -20,8 +20,6 @@ from rendition import versort
 
 from spin.event import Event, CLASS_META
 
-from spin.modules.shared import RepoEventMixin
-
 API_VERSION = 5.0
 
 EVENTS = {'os': ['InstallerEvent'], 'setup': ['InstallerSetupEvent']}
@@ -35,12 +33,11 @@ class InstallerEvent(Event):
       suppress_run_message = True,
     )
 
-class InstallerSetupEvent(RepoEventMixin, Event):
+class InstallerSetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'installer-setup',
-      provides = [ 'installer-repo', 'anaconda-version-supplied'],
-      conditionally_requires = [ 'base-distro' ],
+      provides = ['anaconda-version-supplied'],
       suppress_run_message = True,
     )
 
@@ -49,24 +46,8 @@ class InstallerSetupEvent(RepoEventMixin, Event):
       'config': ['.'],
     }
 
-    RepoEventMixin.__init__(self)
-
   def setup(self):
     self.diff.setup(self.DATA)
-
-    addrepos = repo.RepoContainer()
-    if self.config.pathexists('baseurl') or \
-       self.config.pathexists('mirrorlist'):
-      r = repo.IORepo(id='installer', name='installer')
-      if self.config.pathexists('baseurl'): # not baseurl/text()
-        r['baseurl'] = self.config.get('baseurl/text()', None)
-      if self.config.pathexists('mirrorlist'): # not mirrorlist/text()
-        r['mirrorlist'] = self.config.get('mirrorlist/text()', None)
-      addrepos.add_repo(r)
-
-    self.setup_repos('installer', cls=repo.IORepo, updates=addrepos)
-    # don't call self.read_repodata() b/c installer repos don't necessarily
-    # have repodata (and we don't use it regardless)
 
     self.anaconda_version = self.config.get('anaconda-version/text()', None)
     if self.anaconda_version is not None:
@@ -77,10 +58,4 @@ class InstallerSetupEvent(RepoEventMixin, Event):
 
   def apply(self):
     # set cvars
-    self.cvars['installer-repo'] = self.repos['installer']
     self.cvars['anaconda-version-supplied'] = self.anaconda_version
-
-  def verify_cvars(self):
-    "verify cvars exist"
-    self.verifier.failUnless(self.cvars['installer-repo'])
-    # don't check anaconda-version-supplied, may be none
