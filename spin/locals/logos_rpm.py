@@ -487,7 +487,6 @@ DEFAULT_INFO = {
   'folder': 'centos5',
   'start_color': (33, 85, 147),
   'end_color': (30, 81, 140),
-  'limited_palette_font_color': 8,
   'triggerin': {
     'gdm': '''CUSTOM_CONF=%%{_sysconfdir}/gdm/custom.conf
 THEME_CONF=/usr/share/%(rpm_name)s/custom.conf
@@ -593,7 +592,6 @@ fi
       'folder': 'fedora9',
       'start_color': (32, 75, 105),
       'end_color': (70, 110, 146),
-      'limited_palette_font_color': 13,
       'triggerin': {
         'desktop-backgrounds-basic': '''BACKGROUNDS=/usr/share/backgrounds
 DEFAULTS="default-5_4.jpg default-dual.jpg default-dual-wide.jpg default.jpg default-wide.jpg"
@@ -640,7 +638,6 @@ fi
       'folder': 'redhat5',
       'start_color': (120, 30, 29),
       'end_color': (88, 23, 21),
-      'limited_palette_font_color': 0,
     },
   }),
   '*': LocalsDict({

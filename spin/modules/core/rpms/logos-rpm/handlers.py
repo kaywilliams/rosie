@@ -66,14 +66,15 @@ class LogosRpmFilesHandler(object):
     img = Image.open(src)
     draw = ImageDraw.Draw(img)
     for i in strings:
-      text_string    = i.get('text', '') % self.ptr.cvars['distro-info']
-      halign         = i.get('halign', 'center')
-      text_coords    = i.get('text_coords', (img.size[0]/2, img.size[1]/2))
-      text_max_width = i.get('text_max_width', img.size[0])
-      font_color     = i.get('font_color', None)
-      font_size      = i.get('font_size', 52)
-      font_size_min  = i.get('font_size_min', None)
-      font_face      = i.get('font', 'DejaVuLGCSans.ttf')
+      text_string     = i.get('text', '') % self.ptr.cvars['distro-info']
+      halign          = i.get('halign', 'center')
+      text_coords     = i.get('text_coords', (img.size[0]/2, img.size[1]/2))
+      text_max_width  = i.get('text_max_width', img.size[0])
+      font_color      = i.get('font_color', None)
+      font_size       = i.get('font_size', 52)
+      font_size_min   = i.get('font_size_min', None)
+      font_face       = i.get('font', 'DejaVuLGCSans.ttf')
+      limited_palette = i.get('limited_palette', 16)
 
       if font_face not in self.fonts:
         continue
@@ -82,8 +83,15 @@ class LogosRpmFilesHandler(object):
 
       if font_color is None:
         if img.palette is not None:
-          ## limited color palette image, look at locals for color
-          font_color = self.ptr.distro_info['limited_palette_font_color']
+          assert len(img.palette.palette) == (limited_palette*3)
+          for i in xrange(limited_palette*3):
+            if ( img.palette.palette[i] == '\xff' and
+                 img.palette.palette[i+1] == '\xff' and
+                 img.palette.palette[i+2] == '\xff'):
+              font_color = i/3
+              break
+            i += 2
+          assert font_color is not None, "the color 'white' not in palette of %s" % src
         else:
           font_color = 'black'
 
