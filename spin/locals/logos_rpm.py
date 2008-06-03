@@ -566,7 +566,7 @@ for default in $DEFAULTS; do
   fi
 done
 if [ -e $BACKGROUNDS/infinity ]; then
-  %%{__mv} $BACKGROUNDS/infinity $BACKGROUNDS/infinity.rpmsave,
+  %%{__mv} $BACKGROUNDS/infinity $BACKGROUNDS/infinity.rpmsave
   %%{__ln_s} $BACKGROUNDS/spin $BACKGROUNDS/infinity
   if [ ! -e $BACKGROUNDS/spin/infinity.xml ]; then
     %%{__ln_s} $BACKGROUNDS/spin/spin.xml $BACKGROUNDS/spin/infinity.xml
