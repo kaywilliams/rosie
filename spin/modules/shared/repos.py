@@ -23,6 +23,8 @@ import time
 from rendition import pps
 from rendition import xmllib
 
+from rendition.difftest.filesdiff import DiffTuple
+
 from rendition.pps.constants import TYPE_DIR
 
 from spin.logging   import L1, L2
@@ -156,7 +158,6 @@ class RepoEventMixin:
     self.repos = RepoContainer()
     self._src_csums = {} # map of filename,checksum pairs
     self._dst_csums = {} # ""
-    self.DATA['repodata'] = {}
 
   def setup_repos(self, repos=None):
     """
@@ -223,6 +224,10 @@ class RepoEventMixin:
     .setup_repos().  It is only necessary to call this if you want to use
     .sync_repodata(), below, to copy down all repository metadata.
     """
+    # set the DiffTuple type to ReposDiffTuple to handle the case when repodata
+    # mtimes are -1
+    self.diff.input.tupcls = ReposDiffTuple
+
     self.log(4, L1("reading repository metadata"))
     for repo in self.repos.values():
       self.log(4, L2(repo.id))
@@ -241,8 +246,6 @@ class RepoEventMixin:
 
     # populate self._src_csums, self._dst_csums
     #self._compute_checksums()
-    self.DATA['repodata'] = self._src_csums
-    self.diff.add_handler(RepodataHandler(self.DATA['repodata']))
 
   def _compute_checksums(self):
     for repo in self.repos.values():
@@ -331,45 +334,14 @@ class RepoEventMixin:
 
       self.DATA['output'].append(repo.pkgsfile) # add pkgsfile to output
 
-from rendition.difftest import DiffHandler
-from rendition import xmllib
+class ReposDiffTuple(DiffTuple):
+  attrs = DiffTuple.attrs + [('csum', str)]
 
-class RepodataHandler(DiffHandler):
-  def __init__(self, data):
-    self.name = 'repodata'
+  def __init__(self, path=None):
+    DiffTuple.__init__(self, path)
 
-    self.data = data
-    self.mdfiles = {}
+    self.csum = None
 
-    DiffHandler.__init__(self)
-
-  def clear(self):
-    self.mdfiles.clear()
-    self.diffdict.clear()
-
-  def mdread(self, metadata):
-    for mdfile in metadata.xpath('/metadata/repodata/mdfile'):
-      self.mdfiles[mdfile.get('@filename')] = mdfile.text
-
-  def mdwrite(self, root):
-    parent = xmllib.config.uElement('repodata', parent=root)
-
-    for k,v in self.data.items():
-      xmllib.config.Element('mdfile', parent=parent,
-                            attrs={'@filename': k}, text=v)
-
-  def diff(self):
-    for k,v in self.mdfiles.items():
-      if self.data.has_key(k):
-        newv = self.data[k]
-        if v != newv:
-          self.diffdict[k] = (v, newv)
-      else:
-        self.diffdict[k] = (v, None)
-
-    for k,v in self.data.items():
-      if not self.mdfiles.has_key(k):
-        self.diffdict[k] = (None, v)
-
-    if self.diffdict: self.dprint(self.diffdict)
-    return self.diffdict
+    if self.mtime == -1:
+      # if mtime is -1, the path must exist, so we don't need try/except
+      self.csum = self.path.shasum()

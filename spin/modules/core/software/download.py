@@ -60,11 +60,11 @@ class DownloadEvent(Event):
         nvra = '%s-%s-%s.%s' % (n,v,r,a)
         if nvra in self.cvars['pkglist'] and nvra not in processed and \
              a in self._validarchs:
-          if hasattr(rpm, '_update_stat'):
-            rpm._update_stat(st_size  = rpminfo['size'],
-                             st_mtime = rpminfo['mtime'],
-                             st_mode  = (stat.S_IFREG | 0644),
-                             st_atime = now)
+          rpm.stat(populate=False).update(
+            st_size  = rpminfo['size'],
+            st_mtime = rpminfo['mtime'],
+            st_mode  = (stat.S_IFREG | 0644),
+            st_atime = now)
           rpms[rpm.basename] = rpm
           processed.append(nvra)
 

@@ -75,6 +75,8 @@ class DiffObject:
     if debug is not None:
       self.tester.debug = debug
 
+    self.read_metadata()
+
     for handler in self.handlers.values():
       handler.diff()
 

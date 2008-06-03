@@ -213,23 +213,23 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     splitter.difmt      = self.locals.L_DISCINFO_FORMAT
     splitter.pkgorder   = self.cvars['pkgorder-file']
 
-    self.log(2, L2("splitting trees"))
-    self.log(3, L3("computing layout"))
+    self.log(3, L2("splitting trees"))
+    self.log(4, L3("computing layout"))
     splitter.compute_layout()
     splitter.cleanup()
-    self.log(3, L3("splitting base files"))
+    self.log(4, L3("splitting base files"))
     splitter.split_trees()
     # modify boot args on isolinux.cfg file(s)
     for cfg in splitter.s_tree.findpaths(glob='isolinux.cfg'):
       self.bootconfig.modify(cfg)
-    self.log(3, L3("splitting rpms"))
+    self.log(4, L3("splitting rpms"))
     splitter.split_rpms()
-    self.log(3, L3("splitting srpms"))
+    self.log(4, L3("splitting srpms"))
     splitter.split_srpms()
 
     for i in range(1, splitter.numdiscs + 1):
       iso = '%s-disc%d' % (self.name, i)
-      self.log(2, L2("generating '%s/%s.iso'" % (set, iso)))
+      self.log(3, L2("generating '%s/%s.iso'" % (set, iso)))
       if i == 1: # the first disc needs to be made bootable
         isolinux_path = self.splittrees/set/iso/'isolinux/isolinux.bin'
         i_st = isolinux_path.stat()

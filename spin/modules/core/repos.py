@@ -54,7 +54,6 @@ class ReposEvent(RepoEventMixin, Event):
       'output':    [],
     }
 
-
   def setup(self):
     self.diff.setup(self.DATA)
 

@@ -135,11 +135,11 @@ class SourcesEvent(Event, CreaterepoMixin):
         ## assuming the rpm file name to be lower-case 'rpm' suffixed
         nvra = '%s-%s-%s.%s.rpm' % (n,v,r,a)
         if nvra in srpmset:
-          if hasattr(rpmi, '_update_stat'):
-            rpmi._update_stat(st_size  = rpminfo['size'],
-                              st_mtime = rpminfo['mtime'],
-                              st_mode  = (stat.S_IFREG | 0644),
-                              st_atime = now)
+          rpmi.stat(populate=False).update(
+            st_size  = rpminfo['size'],
+            st_mtime = rpminfo['mtime'],
+            st_mode  = (stat.S_IFREG | 0644),
+            st_atime = now)
           processed_srpmset.add(nvra)
           self.io.add_fpath(rpmi, self.srpmdest, id=repo.id)
 
