@@ -16,7 +16,7 @@
         </zeroOrMore>
 
         <zeroOrMore>
-        <element name="library-path"><text/></element>
+        <element name="lib-path"><text/></element>
         </zeroOrMore>
 
         <zeroOrMore>
