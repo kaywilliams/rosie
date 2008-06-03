@@ -439,6 +439,10 @@ L_LOGOS_RPM_FILES = LocalsDict({
   },
   "anaconda-11.2.0.66-1": {
     '/usr/lib/anaconda-runtime/boot/syslinux-splash.png': REMOVE,
+    '/usr/share/anaconda/pixmaps/syslinux-splash.png': dict(
+      image_width  = 640,
+      image_height = 480,
+    ),
     '/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg': dict(
       xwindow_type = 'required',
       image_width  = 640,
