@@ -430,8 +430,10 @@ class Build(object):
       options.sharepath.extend(Event.SHARE_DIRS)
       Event.SHARE_DIRS = [ pps.path(x).expand() for x in options.sharepath ]
 
-    Event.CACHE_MAX_SIZE = \
-      si.parse(self.mainconfig.get('/spin/cache/max-size/text()', '30GiB'))
+    cache_max_size = self.mainconfig.get('/spin/cache/max-size/text()', '30GiB')
+    if cache_max_size.isdigit():
+      cache_max_size = '%sGiB' % cache_max_size
+    Event.CACHE_MAX_SIZE = si.parse(cache_max_size)
 
     Event.cache_handler = cache.CachedSyncHandler(
                             cache_dir = Event.CACHE_DIR / '.cache',
