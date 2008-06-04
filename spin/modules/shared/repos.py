@@ -237,41 +237,40 @@ class RepoEventMixin:
       repo.read_repomd()
 
       # add metadata to io sync
-      for f in repo.datafiles.values():
-        if isinstance(f, basestring): f = [f]
-        for fn in f:
-          self.io.add_fpath(repo.url/fn,
-                            self.mddir/repo.id/fn.dirname,
-                            id='%s-repodata' % repo.id)
-
-    # populate self._src_csums, self._dst_csums
-    #self._compute_checksums()
-
-  def _compute_checksums(self):
-    for repo in self.repos.values():
       for r in repo._repos.values():
-        # handles all checksums other than repomd.xml
-        # compute source checksums from downloaded repomd.xml
-        for datatype in r.repomd.xpath('//repo:data', namespaces=NSMAP):
-          self._src_csums[r.url/r.datafiles[datatype.get('@type')]] = \
-            datatype.get('repo:checksum/text()', namespaces=NSMAP)
+        # first handle all repomd files except repomd.xml
+        for k,v in r.datafiles.items():
+          if k == 'metadata': continue # skip repomd.xml; handle later
+          # prepopulate the checksum so we don't have to compute it later
+          csum = r.repomd.get('repo:data[@type="%s"]/repo:checksum/text()' % k,
+                              namespaces=NSMAP)
+          pps.lib.CACHE.setdefault((r.url/v).normpath(), {}).setdefault('shasum', csum)
+
+        # now handle repomd.xml
+        src_csums = r.repomd.xpath('//repo:data/repo:checksum/text()',
+                                   namespaces=NSMAP)
 
         # compute destination checksums from repomd.xml on disk, if exists
-        repomd = (self.mddir/r.id/r._relpath/r.datafiles['metadata']).normpath()
-        if repomd.exists():
-          repomdxml = xmllib.tree.read(repomd)
-          for datatype in repomdxml.xpath('//repo:data', namespaces=NSMAP):
-            self._dst_csums[self.mddir/r.id/r._relpath/r.datafiles[datatype.get('@type')]] = \
-              datatype.get('repo:checksum/text()', namespaces=NSMAP)
+        dst_csums = []
+        dst_repomd = self.mddir/repo.id/r._relpath/r.repomdfile
+        if dst_repomd.exists():
+          repomdxml = xmllib.tree.read(dst_repomd)
+          dst_csums = repomdxml.xpath('//repo:data/repo:checksum/text()',
+                                      namespaces=NSMAP)
 
-        # put something for repomd.xml into *_CSUM_DATA
-        self._src_csums[r.url/r.datafiles['metadata']] = \
-          sorted(r.repomd.xpath('//repo:data/repo:checksum/text()',
-                                namespaces=NSMAP))
-        if repomd.exists():
-          self._dst_csums[self.mddir/r.id/r._relpath/r.datafiles['metadata']] = \
-            sorted(repomdxml.xpath('//repo:data/repo:checksum/text()',
-                                   namespaces=NSMAP))
+        # if destination file exists and is the same as the source, set its
+        # mtime to be the same so that it isn't redownloaded
+        if src_csums == dst_csums and dst_repomd.exists():
+          mtime = dst_repomd.stat().st_mtime
+        else:
+          mtime = time.time()
+        (r.url/r.repomdfile).stat(populate=False).update(st_mtime=mtime)
+
+        # finally, set up the sync process
+        for k,v in r.datafiles.items():
+          self.io.add_fpath(r.url/v, self.mddir/repo.id/r._relpath/v.dirname,
+                            id='%s-repodata' % repo.id)
+
 
   def sync_repodata(self):
     """
@@ -281,13 +280,6 @@ class RepoEventMixin:
     This method should typically be called in Event.run(); it must be
     preceded by a call to .read_repodata(), above.
     """
-
-    def updatefn(src, dst):
-      # it is an error for a src csum to not exist, but not for dst csums
-      if self._src_sums[src] != self._dst_csums.get(dst):
-        return 0
-      else:
-        return -1
 
     for repo in self.repos.values():
       # explicitly create directory for repos that don't have repodata
@@ -342,6 +334,7 @@ class ReposDiffTuple(DiffTuple):
 
     self.csum = None
 
-    if self.mtime == -1:
+    # hack so we don't end up downloading repomd.xml 3 times...
+    if self.mtime == -1 and self.path.basename != 'repomd.xml':
       # if mtime is -1, the path must exist, so we don't need try/except
       self.csum = self.path.shasum()
