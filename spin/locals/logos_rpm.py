@@ -417,7 +417,6 @@ L_LOGOS_RPM_FILES = LocalsDict({
           font = 'DejaVuLGCSans-Bold.ttf',
           font_size = 14,
           font_size_min = 9,
-          font_color = 'white',
           text_coords = (450, 360),
           text_max_width = 140,
         ),
@@ -425,13 +424,11 @@ L_LOGOS_RPM_FILES = LocalsDict({
           text = 'Version %(version)s',
           halign = 'right',
           font_size = 9,
-          font_color = 'white',
           text_coords = (490, 375),
         ),
         dict(
           text = '%(copyright)s',
           font_size = 9,
-          font_color = '#9d9d9d',
           text_coords = (320, 470),
         )
       ]
@@ -488,6 +485,15 @@ DEFAULT_INFO = {
   'start_color': (33, 85, 147),
   'end_color': (30, 81, 140),
   'triggerin': {
+    'kdebase': '''KSPLASHRC=/usr/share/config/ksplashrc
+if [ -e $KSPLASHRC -a ! -e $KSPLASHRC.rpmsave ]; then
+  %%{__mv} -f $KSPLASHRC $KSPLASHRC.rpmsave
+fi
+cat > $KSPLASHRC <<EOF
+[KSplash]
+Theme=Spin
+EOF
+''',
     'gdm': '''CUSTOM_CONF=%%{_sysconfdir}/gdm/custom.conf
 THEME_CONF=/usr/share/%(rpm_name)s/custom.conf
 %%{__mv} -f $CUSTOM_CONF $CUSTOM_CONF.rpmsave
@@ -516,6 +522,14 @@ fi
 ''',
   },
   'triggerun': {
+    'kdebase': '''KSPLASHRC=/usr/share/config/ksplashrc
+if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
+  if [ -e $KSPLASHRC.rpmsave ]; then
+    %%{__rm} -f $KSPLASHRC
+    %%{__mv} $KSPLASHRC.rpmsave $KSPLASHRC
+  fi
+fi
+''',
     'gdm': '''CUSTOM_CONF=%%{_sysconfdir}/gdm/custom.conf
 if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
   %%{__rm} -f $CUSTOM_CONF.rpmsave
