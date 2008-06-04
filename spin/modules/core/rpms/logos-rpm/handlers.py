@@ -93,7 +93,7 @@ class LogosRpmFilesHandler(object):
             i += 2
           assert font_color is not None, "the color 'white' not in palette of %s" % src
         else:
-          font_color = 'black'
+          font_color = 'white'
 
       font = ImageFont.truetype(font_path, font_size)
       w, h = draw.textsize(text_string, font=font)
