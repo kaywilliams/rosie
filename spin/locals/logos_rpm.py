@@ -67,59 +67,39 @@ L_LOGOS_RPM_FILES = LocalsDict({
     '/usr/lib/anaconda-runtime/boot/syslinux-splash.png': dict(
       xwindow_type = 'required',
       image_width  = 640,
-      image_height = 480,
+      image_height = 300,
       strings = [
         dict(
           text = '%(fullname)s',
           font = 'DejaVuLGCSans-Bold.ttf',
           font_size = 14,
-          font_size_min = 9,
-          font_color = 'white',
-          text_coords = (500, 360),
+          text_coords = (320, 10),
           text_max_width = 140,
         ),
         dict(
           text = 'Version %(version)s',
-          halign = 'right',
-          font_size = 9,
-          font_color = 'white',
-          text_coords = (540, 375),
+          font_size = 12,
+          text_coords = (320, 30),
         ),
-        dict(
-          text = '%(copyright)s',
-          font_size = 9,
-          font_color = '#9d9d9d',
-          text_coords = (320, 470),
-        )
       ]
     ),
     '/usr/share/anaconda/pixmaps/syslinux-splash.png': dict(
       xwindow_type = 'required',
       image_width  = 640,
-      image_height = 480,
+      image_height = 300,
       strings = [
         dict(
           text = '%(fullname)s',
           font = 'DejaVuLGCSans-Bold.ttf',
           font_size = 14,
-          font_size_min = 9,
-          font_color = 'white',
-          text_coords = (500, 360),
+          text_coords = (320, 10),
           text_max_width = 140,
         ),
         dict(
           text = 'Version %(version)s',
-          halign = 'right',
-          font_size = 9,
-          font_color = 'white',
-          text_coords = (540, 375),
+          font_size = 12,
+          text_coords = (320, 30),
         ),
-        dict(
-          text = '%(copyright)s',
-          font_size = 9,
-          font_color = '#9d9d9d',
-          text_coords = (320, 470),
-        )
       ]
     ),
     '/usr/share/anaconda/pixmaps/anaconda_header.png': dict(
@@ -133,7 +113,7 @@ L_LOGOS_RPM_FILES = LocalsDict({
           font_size = 18,
           font_size_min = 9,
           font_color = 'white',
-          text_coords = (380, 38),
+          text_coords = (400, 38),
           text_max_width = 700
         ),
         dict(
@@ -148,23 +128,22 @@ L_LOGOS_RPM_FILES = LocalsDict({
     '/usr/share/anaconda/pixmaps/progress_first-lowres.png': dict(
       xwindow_type = 'required',
       image_width  = 350,
-      image_height = 225,
+      image_height = 224,
       strings = [
         dict(
           text = '%(fullname)s',
           font = 'DejaVuLGCSans-Bold.ttf',
-          font_size = 14,
+          font_size = 18,
           font_size_min = 9,
           font_color = 'white',
-          text_coords = (250, 165),
-          text_max_width = 140,
+          text_coords = (100, 180),
+          text_max_width = 180,
         ),
         dict(
           text = 'Version %(version)s',
-          halign = 'right',
           font_size = 9,
           font_color = 'white',
-          text_coords = (270, 180),
+          text_coords = (210, 110),
         ),
         dict(
           text = '%(copyright)s',
@@ -176,8 +155,8 @@ L_LOGOS_RPM_FILES = LocalsDict({
     ),
     '/usr/share/anaconda/pixmaps/progress_first.png': dict(
       xwindow_type = 'required',
-      image_width  = 500,
-      image_height = 325,
+      image_width  = 443,
+      image_height = 284,
       strings = [
         dict(
           text = '%(fullname)s',
@@ -185,28 +164,27 @@ L_LOGOS_RPM_FILES = LocalsDict({
           font_size = 18,
           font_size_min = 9,
           font_color = 'white',
-          text_coords = (380, 265),
-          text_max_width = 140,
+          text_coords = (170, 240),
+          text_max_width = 320,
         ),
         dict(
           text = 'Version %(version)s',
-          halign = 'right',
-          font_size = 9,
+          font_size = 12,
           font_color = 'white',
-          text_coords = (420, 280),
+          text_coords = (290, 140),
         ),
         dict(
           text = '%(copyright)s',
           font_size = 9,
           font_color = '#9d9d9d',
-          text_coords = (250, 315),
+          text_coords = (220, 270),
         )
       ]
     ),
     '/usr/share/anaconda/pixmaps/rnotes/welcome.png': dict(
       xwindow_type = 'required',
-      image_width  = 500,
-      image_height = 325,
+      image_width  = 600,
+      image_height = 284,
       strings = [
         dict(
           text = '%(fullname)s',
@@ -214,28 +192,27 @@ L_LOGOS_RPM_FILES = LocalsDict({
           font_size = 18,
           font_size_min = 9,
           font_color = 'white',
-          text_coords = (380, 265),
-          text_max_width = 140,
+          text_coords = (180, 240),
+          text_max_width = 350,
         ),
         dict(
           text = 'Version %(version)s',
-          halign = 'right',
-          font_size = 9,
+          font_size = 11,
           font_color = 'white',
-          text_coords = (420, 280),
+          text_coords = (420, 140),
         ),
         dict(
           text = '%(copyright)s',
           font_size = 9,
           font_color = '#9d9d9d',
-          text_coords = (250, 315),
+          text_coords = (300, 265),
         )
       ]
     ),
     '/usr/share/anaconda/pixmaps/splash.png': dict(
       xwindow_type = 'required',
-      image_width  = 500,
-      image_height = 325,
+      image_width  = 600,
+      image_height = 284,
       strings = [
         dict(
           text = '%(fullname)s',
@@ -243,21 +220,20 @@ L_LOGOS_RPM_FILES = LocalsDict({
           font_size = 18,
           font_size_min = 9,
           font_color = 'white',
-          text_coords = (380, 265),
-          text_max_width = 140,
+          text_coords = (180, 240),
+          text_max_width = 350,
         ),
         dict(
           text = 'Version %(version)s',
-          halign = 'right',
-          font_size = 9,
+          font_size = 11,
           font_color = 'white',
-          text_coords = (420, 280),
+          text_coords = (420, 140),
         ),
         dict(
           text = '%(copyright)s',
           font_size = 9,
           font_color = '#9d9d9d',
-          text_coords = (250, 315),
+          text_coords = (300, 265),
         )
       ]
     ),
@@ -462,11 +438,39 @@ L_LOGOS_RPM_FILES = LocalsDict({
     ),
   },
   "anaconda-11.2.0.66-1": {
+    '/usr/lib/anaconda-runtime/boot/syslinux-splash.png': REMOVE,
+    '/usr/share/anaconda/pixmaps/syslinux-splash.png': dict(
+      image_width  = 640,
+      image_height = 480,
+    ),
     '/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg': dict(
       xwindow_type = 'required',
       image_width  = 640,
       image_height = 480,
       image_format = 'JPEG',
+      strings = [
+        dict(
+          text = '%(fullname)s',
+          font = 'DejaVuLGCSans-Bold.ttf',
+          font_size = 14,
+          font_color = 'white',
+          text_coords = (500, 180),
+          text_max_width = 140,
+        ),
+        dict(
+          text = 'Version %(version)s',
+          halign = 'right',
+          font_size = 12,
+          font_color = 'white',
+          text_coords = (540, 195),
+        ),
+        dict(
+          text = '%(copyright)s',
+          font_size = 9,
+          font_color = '#9d9d9d',
+          text_coords = (320, 290),
+        )
+      ],
     ),
   },
   "anaconda-11.3.0.36-1": {
@@ -499,6 +503,17 @@ for default in $DEFAULTS; do
   fi
 done
 ''',
+    'rhgb': '''RHGB_FOLDER=/usr/share/rhgb
+if [ -e $RHGB_FOLDER/large-computer.png ]; then
+  if [ ! -e $RHGB_FOLDER/large-computer.png.rpmsave ]; then
+    %%{__mv} $RHGB_FOLDER/large-computer.png $RHGB_FOLDER/large-computer.png.rpmsave
+  fi
+  if [ -e $RHGB_FOLDER/large-computer.png ]; then
+    %%{__rm} -f $RHGB_FOLDER/large-computer.png
+  fi
+  %%{__ln_s} $RHGB_FOLDER/main-logo.png $RHGB_FOLDER/large-computer.png
+fi
+''',
   },
   'triggerun': {
     'gdm': '''CUSTOM_CONF=%%{_sysconfdir}/gdm/custom.conf
@@ -512,6 +527,14 @@ if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
     %%{__rm} -f $default
     %%{__mv} -f $default.rpmsave $default
   done
+fi
+''',
+    'rhgb': '''RHGB_FOLDER=/usr/share/rhgb
+if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
+  if [ -e $RHGB_FOLDER/large-computer.png.rpmsave ]; then
+    %%{__rm} -f $RHGB_FOLDER/large-computer.png
+    %%{__mv} $RHGB_FOLDER/large-computer.png.rpmsave $RHGB_FOLDER/large-computer.png
+  fi
 fi
 ''',
   },
@@ -534,7 +557,7 @@ done
 ''',
       'triggerin': {
         'desktop-backgrounds-basic': '''BACKGROUNDS=/usr/share/backgrounds
-DEFAULTS="default-5_4.jpg default-dual.jpg default-dual-wide.jpg default.jpg default-wide.jpg"
+DEFAULTS="default-5_4.png default.jpg default.png default-wide.png"
 for default in $DEFAULTS; do
   file=$BACKGROUNDS/images/$default
   if [ -e $file ]; then
@@ -543,7 +566,7 @@ for default in $DEFAULTS; do
   fi
 done
 if [ -e $BACKGROUNDS/infinity ]; then
-  %%{__mv} $BACKGROUNDS/infinity $BACKGROUNDS/infinity.rpmsave,
+  %%{__mv} $BACKGROUNDS/infinity $BACKGROUNDS/infinity.rpmsave
   %%{__ln_s} $BACKGROUNDS/spin $BACKGROUNDS/infinity
   if [ ! -e $BACKGROUNDS/spin/infinity.xml ]; then
     %%{__ln_s} $BACKGROUNDS/spin/spin.xml $BACKGROUNDS/spin/infinity.xml
@@ -570,8 +593,9 @@ fi
       'start_color': (32, 75, 105),
       'end_color': (70, 110, 146),
       'triggerin': {
-        'desktop-backgrounds-basic': '''BACKGROUNDS=/usr/share/backgrounds
-DEFAULTS="default-5_4.jpg default-dual.jpg default-dual-wide.jpg default.jpg default-wide.jpg"
+        'desktop-backgrounds-basic': REMOVE,
+        'desktop-backgrounds-compat': '''BACKGROUNDS=/usr/share/backgrounds
+DEFAULTS="default.jpg default.png default-wide.png default-5_4.png"
 for default in $DEFAULTS; do
   file=$BACKGROUNDS/images/$default
   if [ -e $file ]; then
@@ -579,6 +603,11 @@ for default in $DEFAULTS; do
     %%{__ln_s} $BACKGROUNDS/spin/$default $file
   fi
 done
+default=$BACKGROUNDS/default.png
+if [ -e $default ]; then
+  %%{__mv} $default $default.rpmsave
+  %%{__ln_s} $BACKGROUNDS/spin/default.jpg $default
+fi
 if [ -e $BACKGROUNDS/waves ]; then
   %%{__mv} $BACKGROUNDS/waves $BACKGROUNDS/waves.rpmsave,
   %%{__ln_s} $BACKGROUNDS/spin $BACKGROUNDS/waves
@@ -589,12 +618,18 @@ fi
 '''
       },
       'triggerun': {
-        'desktop-backgrounds-basic': '''BACKGROUNDS=/usr/share/backgrounds
+        'desktop-backgrounds-basic': REMOVE,
+        'desktop-backgrounds-compat': '''BACKGROUNDS=/usr/share/backgrounds
 if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
   for default in `ls -1 $BACKGROUNDS/images/default* | grep -v "rpmsave"`; do
     %%{__rm} -f $default
     %%{__mv} -f $default.rpmsave $default
   done
+  default=$BACKGROUNDS/default.png
+  if [ -e $default.rpmsave ]; then
+    %%{__rm} -f $default
+    %%{__mv} -f $default.rpmsave $default
+  fi
   %%{__rm} -rf $BACKGROUNDS/waves
   %%{__mv} -f $BACKGROUNDS/waves.rpmsave $BACKGROUNDS/waves
   %%{__rm} -f $BACKGROUNDS/spin/waves.xml
