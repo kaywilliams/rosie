@@ -66,8 +66,6 @@ class Test_GpgKeysNotProvided(GpgcheckEventTestCase):
     for item in repos.xpath('//gpgkey', []):
       item.getparent().remove(item)
 
-    print repos
-
     return repos
 
 def make_suite(distro, version, arch):
