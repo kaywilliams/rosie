@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+from rendition import repo
 from rendition import xmllib
 
 from spintest import EventTestCase, ModuleTestSuite
@@ -25,12 +26,29 @@ class GpgcheckEventTestCase(EventTestCase):
   eventid = 'gpgcheck'
 
   def _make_repos_config(self):
-    repos = EventTestCase._make_repos_config(self)
+    repos = xmllib.config.Element('repos')
 
-    # don't overwrite gpgkey and gpgcheck defaults
-    for xpath in ['//gpgkey', '//gpgcheck']:
-      for item in repos.xpath(xpath, []):
-        item.getparent().remove(item)
+    if self.distro == 'redhat' and self.version == '5Server':
+      base = xmllib.config.Element('repo', attrs={'id': 'base'}, parent=repos)
+      xmllib.config.Element('baseurl', parent=base,
+        text='http://www.renditionsoftware.com/mirrors/redhat/'
+             'enterprise/5Server/en/os/i386/Server')
+      xmllib.config.Element('name', text='base', parent=base)
+      xmllib.config.Element('gpgcheck', text='yes', parent=base)
+      xmllib.config.Element('gpgkey', parent=base,
+                     text='http://www.renditionsoftware.com/mirrors/redhat/'
+                          'enterprise/5Server/en/os/i386/RPM-GPG-KEY-redhat-release')
+
+    else:
+
+      base = repo.getDefaultRepoById('base', distro=self.distro,
+                                             version=self.version,
+                                             arch=self.arch,
+                                             include_baseurl=True,
+                                             baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+      base.update({'mirrorlist': None})
+
+      repos.append(base.toxml())    # don't overwrite gpgkey and gpgcheck defaults
 
     return repos
 
@@ -42,12 +60,13 @@ class Test_GpgKeysNotProvided(GpgcheckEventTestCase):
     self.failUnlessRaises(RuntimeError, self.event)
 
   def _make_repos_config(self):
-    repos = EventTestCase._make_repos_config(self)
+    repos = GpgcheckEventTestCase._make_repos_config(self)
 
     # don't overwrite gpgcheck defaults
-    for xpath in ['//gpgcheck']:
-      for item in repos.xpath(xpath, []):
-        item.getparent().remove(item)
+    for item in repos.xpath('//gpgkey', []):
+      item.getparent().remove(item)
+
+    print repos
 
     return repos
 

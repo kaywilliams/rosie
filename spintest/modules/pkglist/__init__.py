@@ -20,6 +20,7 @@ from StringIO import StringIO
 import unittest
 
 from rendition import pps
+from rendition import repo
 from rendition import xmllib
 
 from spintest      import EventTestCase, ModuleTestSuite, _run_make
@@ -79,15 +80,13 @@ class PkglistEventTestCase(EventTestCase):
 
       for repoid in ['base', 'updates', 'everything']:
         if repoid in self.repos:
-          # remove the mirrorlist for each repo
-          repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
-          xmllib.config.Element('mirrorlist', parent=repo)
-          xmllib.config.Element('gpgkey', parent=repo)
-          xmllib.config.Element('gpgcheck', text='no', parent=repo)
-        else:
-          # disable each repo
-          repo = xmllib.config.Element('repo', attrs={'id': repoid}, parent=repos)
-          xmllib.config.Element('enabled', text='no', parent=repo)
+          r = repo.getDefaultRepoById(repoid, distro=self.distro,
+                                              version=self.version,
+                                              arch=self.arch,
+                                              include_baseurl=True,
+                                              baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+          r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
+          repos.append(r.toxml())
 
     return repos
 

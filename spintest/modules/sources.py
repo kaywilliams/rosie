@@ -17,6 +17,7 @@
 #
 import copy
 
+from rendition import repo
 from rendition.xmllib import config
 
 from spintest        import EventTestCase, ModuleTestSuite
@@ -37,23 +38,21 @@ class SourceEventTestCase(EventTestCase):
     repos = config.Element('sources', attrs={'enabled': 'true'})
 
     if self.distro == 'redhat' and self.version == '5Server':
-      repo = config.Element('repo', attrs={'id': 'base-source'}, parent=repos)
-      config.Element('baseurl', parent=repo,
+      r = config.Element('repo', attrs={'id': 'base-source'}, parent=repos)
+      config.Element('baseurl', parent=r,
         text='http://www.renditionsoftware.com/mirrors/redhat/'
              'enterprise/5Server/en/os/SRPMS/')
 
     else:
 
-      for repoid in ['base-source']:
-        repo = config.Element('repo', attrs={'id': repoid}, parent=repos)
-        config.Element('mirrorlist', parent=repo)
-        config.Element('gpgkey', parent=repo)
-        config.Element('gpgcheck', text='no', parent=repo)
+      r = repo.getDefaultRepoById('base-source', distro=self.distro,
+                                                 version=self.version,
+                                                 arch=self.arch,
+                                                 include_baseurl=True,
+                                                 baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+      r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
 
-      for repoid in ['everything-source', 'updates-source']:
-        # disable each repo
-        repo = config.Element('repo', attrs={'id': repoid}, parent=repos)
-        config.Element('enabled', text='no', parent=repo)
+      repos.append(r.toxml())
 
     return repos
 
@@ -62,14 +61,6 @@ class SourceEventTestCase(EventTestCase):
 class SourceReposEventTestCase(SourceEventTestCase):
   eventid  = 'source-repos'
 
-class Test_NoBase(SourceReposEventTestCase):
-  "without base-info and repos sections, raises RuntimeError"
-  _conf = ["<base/>","<source enabled='true'/>"]
-
-  def runTest(self):
-    self.execute_predecessors(self.event)
-    self.failUnlessRaises(RuntimeError, self.event)
-
 
 class SourcesEventTestCase(SourceEventTestCase):
   eventid  = 'sources'
@@ -77,9 +68,10 @@ class SourcesEventTestCase(SourceEventTestCase):
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('sources')
 
-  # disabling source test cases until Uday deals with the no repodata situation
+  # source-repos
   suite.addTest(make_extension_suite(SourceReposEventTestCase, distro, version, arch))
-  suite.addTest(Test_NoBase(distro, version, arch))
+
+  # sources
   suite.addTest(make_extension_suite(SourcesEventTestCase, distro, version, arch))
 
   return suite
