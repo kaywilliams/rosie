@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from rendition.xmllib import config
+from rendition.rxml import config
 
 from spintest      import EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite

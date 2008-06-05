@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 from rendition import pps
-from rendition import xmllib
+from rendition import rxml
 
 from rendition.pps.constants import *
 
@@ -167,7 +167,7 @@ class IOObject(object):
       if self.ptr.mdfile.exists() and self.ptr.diff.output:
         self.ptr.diff.output.clear()
 
-        root = xmllib.tree.read(self.ptr.mdfile)
+        root = rxml.tree.read(self.ptr.mdfile)
         self.ptr.diff.output.mdread(root)
 
         expected = set(self.ptr.diff.output.oldoutput.keys())

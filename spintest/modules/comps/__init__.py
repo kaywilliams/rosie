@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 from rendition import pps
-from rendition import xmllib
+from rendition import rxml
 
 from spin.modules.core.software.comps import KERNELS
 
@@ -39,7 +39,7 @@ class _CompsEventTestCase(CompsEventTestCase):
     self.clean_event_md()
 
   def read_comps(self):
-    return xmllib.tree.read(self.event.cvars['comps-file'])
+    return rxml.tree.read(self.event.cvars['comps-file'])
 
   def check_all(self, comps):
     self.check_core(comps)
@@ -76,7 +76,7 @@ class Test_Supplied(_CompsEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
-    comps_in  = xmllib.tree.read(pps.path(__file__).dirname/'comps.xml')
+    comps_in  = rxml.tree.read(pps.path(__file__).dirname/'comps.xml')
     comps_out = self.read_comps()
 
     self.failUnlessEqual(comps_in, comps_out)

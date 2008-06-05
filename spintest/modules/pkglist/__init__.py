@@ -21,7 +21,7 @@ import unittest
 
 from rendition import pps
 from rendition import repo
-from rendition import xmllib
+from rendition import rxml
 
 from spintest      import EventTestCase, ModuleTestSuite, _run_make
 from spintest.core import make_core_suite
@@ -57,24 +57,24 @@ class PkglistEventTestCase(EventTestCase):
     return self.PKGLIST_COUNT.get(caseid)
 
   def _make_repos_config(self):
-    repos = xmllib.config.Element('repos')
+    repos = rxml.config.Element('repos')
 
     if self.distro == 'redhat' and self.version == '5Server':
       if 'base' in self.repos:
         # base repo
-        base = xmllib.config.Element('repo', attrs={'id': 'base'}, parent=repos)
-        xmllib.config.Element('baseurl', parent=base,
-          text='http://www.renditionsoftware.com/mirrors/redhat/'
-               'enterprise/5Server/en/os/i386/Server')
-        xmllib.config.Element('name', text='base', parent=base)
+        base = rxml.config.Element('repo', attrs={'id': 'base'}, parent=repos)
+        rxml.config.Element('baseurl', parent=base,
+                            text='http://www.renditionsoftware.com/mirrors/redhat/'
+                            'enterprise/5Server/en/os/i386/Server')
+        rxml.config.Element('name', text='base', parent=base)
 
       if 'updates' in self.repos:
         # updates repo
-        updates = xmllib.config.Element('repo', attrs={'id': 'updates'}, parent=repos)
-        xmllib.config.Element('baseurl', parent=updates,
-                      text='rhns:///rhel-i386-server-5')
-        xmllib.config.Element('name', text='updates', parent=updates)
-        xmllib.config.Element('systemid', text='/etc/sysconfig/rhn/systemid', parent=updates)
+        updates = rxml.config.Element('repo', attrs={'id': 'updates'}, parent=repos)
+        rxml.config.Element('baseurl', parent=updates,
+                            text='rhns:///rhel-i386-server-5')
+        rxml.config.Element('name', text='updates', parent=updates)
+        rxml.config.Element('systemid', text='/etc/sysconfig/rhn/systemid', parent=updates)
 
     else:
 
@@ -194,7 +194,7 @@ class Test_PkglistBug163_1(PkglistEventTestCase):
   def _make_repos_config(self):
     repos = PkglistEventTestCase._make_repos_config(self)
 
-    repos.append(xmllib.config.Element('repofile',
+    repos.append(rxml.config.Element('repofile',
                  text='pkglist/pkglist-test-repos4.repo'))
     return repos
 
@@ -214,7 +214,7 @@ class Test_PkglistBug163_2(PkglistEventTestCase):
   def _make_repos_config(self):
     repos = PkglistEventTestCase._make_repos_config(self)
 
-    repos.append(xmllib.config.Element('repofile',
+    repos.append(rxml.config.Element('repofile',
                  text='pkglist/pkglist-test-repos4.repo'))
     return repos
 
@@ -253,7 +253,7 @@ class Test_PackageAdded(PkglistEventTestCase):
   def _make_repos_config(self):
     repos = PkglistEventTestCase._make_repos_config(self)
 
-    repos.append(xmllib.config.Element('repofile',
+    repos.append(rxml.config.Element('repofile',
                  text='pkglist/pkglist-test-repos1.repo'))
 
     return repos
@@ -273,9 +273,9 @@ class Test_ObsoletedPackage(PkglistEventTestCase):
   def _make_repos_config(self):
     repos = PkglistEventTestCase._make_repos_config(self)
 
-    repos.append(xmllib.config.Element('repofile',
+    repos.append(rxml.config.Element('repofile',
                  text='pkglist/pkglist-test-repos1.repo'))
-    repos.append(xmllib.config.Element('repofile',
+    repos.append(rxml.config.Element('repofile',
                  text='pkglist/pkglist-test-repos2.repo'))
 
     return repos
@@ -303,7 +303,7 @@ class Test_ExclusivePackage_1(PkglistEventTestCase):
   def _make_repos_config(self):
     repos = PkglistEventTestCase._make_repos_config(self)
 
-    repos.append(xmllib.config.Element('repofile',
+    repos.append(rxml.config.Element('repofile',
                  text='pkglist/pkglist-test-repos3.repo'))
 
     return repos

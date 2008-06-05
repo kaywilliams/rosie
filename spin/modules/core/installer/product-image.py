@@ -18,7 +18,7 @@
 from StringIO import StringIO
 
 from rendition import pps
-from rendition import xmllib
+from rendition import rxml
 
 from spin.event   import Event
 
@@ -72,7 +72,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     self._write_buildstamp()
 
   def _generate_installclass(self):
-    comps = xmllib.tree.read(self.cvars['comps-file'])
+    comps = rxml.tree.read(self.cvars['comps-file'])
 
     installclass = self.locals.L_INSTALLCLASS % \
       dict( all_groups     = comps.xpath('//group/id/text()'),

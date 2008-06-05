@@ -21,7 +21,7 @@ import sha
 import time
 
 from rendition import pps
-from rendition import xmllib
+from rendition import rxml
 
 from rendition.difftest.filesdiff import DiffTuple
 
@@ -254,7 +254,7 @@ class RepoEventMixin:
         dst_csums = []
         dst_repomd = self.mddir/repo.id/r._relpath/r.repomdfile
         if dst_repomd.exists():
-          repomdxml = xmllib.tree.read(dst_repomd)
+          repomdxml = rxml.tree.read(dst_repomd)
           dst_csums = repomdxml.xpath('//repo:data/repo:checksum/text()',
                                       namespaces=NSMAP)
 

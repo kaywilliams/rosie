@@ -38,9 +38,9 @@ from StringIO      import StringIO
 
 from rendition import dispatch
 from rendition import pps
+from rendition import rxml
 from rendition import shlib
 from rendition import si
-from rendition import xmllib
 
 from rendition import sync
 from rendition.sync import cache
@@ -219,18 +219,18 @@ class Build(object):
     try:
       if mcp and mcp.exists():
         self.logger.log(4, "Reading main config file '%s'" % mcp)
-        mc = xmllib.config.read(mcp)
+        mc = rxml.config.read(mcp)
       else:
         self.logger.log(4, "No main config file found at '%s'. Using default settings" % mcp)
-        mc = xmllib.config.read(StringIO('<spin/>'))
+        mc = rxml.config.read(StringIO('<spin/>'))
 
       dcp = dcp.expand().abspath()
       if not dcp.exists():
-        raise xmllib.errors.ConfigError("No config file found at '%s'" % dcp)
+        raise rxml.errors.ConfigError("No config file found at '%s'" % dcp)
 
       self.logger.log(3, "Reading distro config file '%s'" % dcp)
-      dc = xmllib.config.read(dcp)
-    except xmllib.errors.XmlSyntaxError, e:
+      dc = rxml.config.read(dcp)
+    except rxml.errors.XmlSyntaxError, e:
       self.logger.log(0, "Error reading config file: %s" % e)
       raise
 

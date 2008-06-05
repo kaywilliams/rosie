@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from rendition import xmllib
+from rendition import rxml
 
 from rendition.difftest.handlers import DiffHandler
 
@@ -82,11 +82,11 @@ class EventHandler(DiffHandler):
       self.events[event.get('@id')] = event.get('version/text()')
 
   def mdwrite(self, root):
-    parent = xmllib.config.uElement('events', parent=root)
+    parent = rxml.config.uElement('events', parent=root)
 
     for k,v in self.data.items():
-      e = xmllib.config.Element('event', parent=parent, attrs={'id': k})
-      xmllib.config.Element('version', parent=e, text=str(v))
+      e = rxml.config.Element('event', parent=parent, attrs={'id': k})
+      rxml.config.Element('version', parent=e, text=str(v))
 
   def diff(self):
     for k,v in self.events.items():

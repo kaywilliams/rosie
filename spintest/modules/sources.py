@@ -18,7 +18,7 @@
 import copy
 
 from rendition import repo
-from rendition.xmllib import config
+from rendition.rxml import config
 
 from spintest        import EventTestCase, ModuleTestSuite
 from spintest.core   import make_extension_suite

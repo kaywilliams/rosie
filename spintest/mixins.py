@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 from rendition               import pps
-from rendition.xmllib.config import Element
+from rendition.rxml.config import Element
 
 from spintest import decorate
 from spintest.core import CoreTestSuite
