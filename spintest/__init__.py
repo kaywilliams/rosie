@@ -103,11 +103,10 @@ class EventTestCase(unittest.TestCase):
   def _make_main_config(self):
     main = config.Element('main')
 
-    config.Element('fullname',     text='%s event test' % self.moduleid, parent=main)
-    config.Element('name',         text='test-%s' % self.moduleid, parent=main)
-    config.Element('base-name',    text=self.distro, parent=main)
-    config.Element('base-version', text=self.version, parent=main)
-    config.Element('base-arch',    text=self.arch, parent=main)
+    config.Element('fullname', text='%s event test' % self.moduleid, parent=main)
+    config.Element('name',     text='test-%s' % self.moduleid, parent=main)
+    config.Element('version',  text=self.version, parent=main)
+    config.Element('arch',     text=self.arch, parent=main)
 
     return main
 
