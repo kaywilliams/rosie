@@ -21,6 +21,7 @@ The following packages are needed for Spin to run:
 * python-setuptools
 * rendition-common
 * rpm-build
+* spin-logos-rpm
 * syslinux
 * yum
 

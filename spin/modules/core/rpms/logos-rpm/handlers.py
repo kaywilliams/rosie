@@ -156,25 +156,6 @@ class DistroFilesHandler(LogosRpmFilesHandler):
     self.start_color   = start_color
     self.end_color     = end_color
 
-  def generate(self):
-    if self.paths: LogosRpmFilesHandler.generate(self)
-    for id in self.ptr.locals.L_LOGOS_RPM_FILES:
-      file = self.ptr.build_folder // id
-      xwt = self.ptr.locals.L_LOGOS_RPM_FILES[id]['xwindow_type']
-      if not file.exists() and xwt in self.xwindow_types:
-        # generate image because not found in any shared folder
-        width  = self.ptr.locals.L_LOGOS_RPM_FILES[id]['image_width']
-        height = self.ptr.locals.L_LOGOS_RPM_FILES[id]['image_height']
-        format = self.ptr.locals.L_LOGOS_RPM_FILES[id].get('image_format', 'PNG')
-
-        img = Image.new('RGBA', (width, height))
-        grd = ImageGradient(img)
-        grd.draw_gradient(self.start_color, self.end_color)
-        file.dirname.mkdirs()
-        img.save(file, format=format)
-
-        if self.write_text: self._add_text(id, file)
-
   def _check_id(self, id):
     if not self.ptr.locals.L_LOGOS_RPM_FILES.has_key(id): return True
     xwt = self.ptr.locals.L_LOGOS_RPM_FILES[id].get('xwindow_type', 'required')

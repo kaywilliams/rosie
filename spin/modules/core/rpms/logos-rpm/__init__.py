@@ -74,6 +74,10 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     RpmBuildMixin._generate(self)
     for handler in self.handlers:
       handler.generate()
+    print self.data_files
+    if len(self.data_files) == 0:
+      raise RuntimeError("No images found in any the share paths '%s' to use "\
+                         "in the logos RPM." % self.SHARE_DIRS)
     self._generate_custom_theme()
 
   def _generate_custom_theme(self):
