@@ -109,12 +109,10 @@ such as the new distributions name and fullname.
 
         element main {
           element name { ... }
-          & element fullname { ... }?
-          & element base-version { ... }?
-          & element base-name { ... }?
-          & element base-arch { ... }?
-          & element distroid { ... }?
           & element version { ... }?
+          & element arch { ... }?
+          & element fullname { ... }?
+          & element distroid { ... }?
           & element package-path { ... }?
           & element copyright { ... }?
           & element bug-url { ... }?
@@ -137,9 +135,8 @@ The following is an example main element:
         <main>
           <name>example</name>
           <fullname>Example Distro</fullname>
-          <base-name>Fedora</base-name>
-          <base-version>9</base-version>
-          <base-arch>i386</base-arch>
+          <version>9</version>
+          <arch>i386</arch>
         </main>
 
 
