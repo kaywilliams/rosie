@@ -407,7 +407,7 @@ L_LOGOS_RPM_FILES = LocalsDict({
         )
       ]
     ),
-    '/boot/grub/grub-splash.png': dict(
+    '/boot/grub/splash.png': dict(
       xwindow_type = 'required',
       image_width  = 640,
       image_height = 480,
