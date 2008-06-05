@@ -17,7 +17,7 @@
 #
 from rendition import pps
 
-from rendition.xmllib.macros import Macro
+from rendition.rxml.macros import Macro
 
 from spin.constants import BOOLEANS_TRUE
 

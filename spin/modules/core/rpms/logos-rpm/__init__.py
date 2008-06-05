@@ -74,7 +74,6 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     RpmBuildMixin._generate(self)
     for handler in self.handlers:
       handler.generate()
-    self._create_grub_splash_xpm()
     self._generate_custom_theme()
 
   def _generate_custom_theme(self):
@@ -118,20 +117,6 @@ class LogosRpmEvent(RpmBuildMixin, Event):
       script.write_text(content % {'rpm_name': self.rpm_name})
       rtn.append('%s:%s' % (target, script))
     return rtn
-
-  def _create_grub_splash_xpm(self):
-    # HACK: to create the splash.xpm file, have to first convert
-    # the grub-splash.png to an xpm and then gzip it.
-    splash_xpm = self.build_folder / 'boot/grub/splash.xpm'
-    splash_xgz = self.build_folder / 'boot/grub/splash.xpm.gz'
-    splash_png = self.build_folder / 'boot/grub/splash.png'
-    shlib.execute('convert %s %s' %(splash_png, splash_xpm))
-    infile = file(splash_xpm, 'rb')
-    data = infile.read()
-    infile.close()
-    outfile = gzip.GzipFile(splash_xgz, 'wb')
-    outfile.write(data)
-    outfile.close()
 
   def _setup_handlers(self):
     supplied_logos = self.config.get('logos-path/text()', None)

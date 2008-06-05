@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 from rendition import repo
-from rendition import xmllib
+from rendition import rxml
 
 from spintest import EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite
@@ -26,17 +26,17 @@ class GpgcheckEventTestCase(EventTestCase):
   eventid = 'gpgcheck'
 
   def _make_repos_config(self):
-    repos = xmllib.config.Element('repos')
+    repos = rxml.config.Element('repos')
 
     if self.distro == 'redhat' and self.version == '5Server':
-      base = xmllib.config.Element('repo', attrs={'id': 'base'}, parent=repos)
-      xmllib.config.Element('baseurl', parent=base,
-        text='http://www.renditionsoftware.com/mirrors/redhat/'
-             'enterprise/5Server/en/os/i386/Server')
-      xmllib.config.Element('name', text='base', parent=base)
-      xmllib.config.Element('gpgcheck', text='yes', parent=base)
-      xmllib.config.Element('gpgkey', parent=base,
-                     text='http://www.renditionsoftware.com/mirrors/redhat/'
+      base = rxml.config.Element('repo', attrs={'id': 'base'}, parent=repos)
+      rxml.config.Element('baseurl', parent=base,
+                          text='http://www.renditionsoftware.com/mirrors/redhat/'
+                          'enterprise/5Server/en/os/i386/Server')
+      rxml.config.Element('name', text='base', parent=base)
+      rxml.config.Element('gpgcheck', text='yes', parent=base)
+      rxml.config.Element('gpgkey', parent=base,
+                          text='http://www.renditionsoftware.com/mirrors/redhat/'
                           'enterprise/5Server/en/os/i386/RPM-GPG-KEY-redhat-release')
 
     else:

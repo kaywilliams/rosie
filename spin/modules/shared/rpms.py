@@ -22,7 +22,7 @@ import re
 
 from rendition import mkrpm
 from rendition import pps
-from rendition import xmllib
+from rendition import rxml
 
 from spin.event   import Event
 from spin.logging import L1
@@ -178,7 +178,7 @@ class RpmBuildMixin:
   #--------- RPM BUILD HELPER METHODS ---------#
   def _setup_build(self, **kwargs):
     if self.autofile.exists():
-      self.rpm_release = xmllib.config.read(self.autofile).get(
+      self.rpm_release = rxml.config.read(self.autofile).get(
        '/distro/%s/rpms/%s/release/text()' % (self.distroid, self.id), '0')
     else:
       self.rpm_release = '0'
@@ -224,14 +224,14 @@ class RpmBuildMixin:
 
   def _save_release(self):
     if self.autofile.exists():
-      root_element = xmllib.config.read(self.autofile).get('/distro')
+      root_element = rxml.config.read(self.autofile).get('/distro')
     else:
-      root_element = xmllib.config.Element('distro')
+      root_element = rxml.config.Element('distro')
 
-    distroid_element = xmllib.config.uElement(self.distroid, parent=root_element)
-    rpms_element = xmllib.config.uElement('rpms', parent=distroid_element)
-    parent_element = xmllib.config.uElement(self.id, parent=rpms_element)
-    release_element = xmllib.config.uElement('release', parent=parent_element)
+    distroid_element = rxml.config.uElement(self.distroid, parent=root_element)
+    rpms_element = rxml.config.uElement('rpms', parent=distroid_element)
+    parent_element = rxml.config.uElement(self.id, parent=rpms_element)
+    release_element = rxml.config.uElement('release', parent=parent_element)
 
     release_element.text = self.rpm_release
     root_element.write(self.autofile)

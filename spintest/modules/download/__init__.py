@@ -20,7 +20,7 @@ from StringIO import StringIO
 import unittest
 
 from rendition import pps
-from rendition import xmllib
+from rendition import rxml
 
 from spintest      import EventTestCase, ModuleTestSuite, _run_make
 from spintest.core import make_core_suite
@@ -32,7 +32,7 @@ class DownloadEventTestCase(EventTestCase):
   def _make_repos_config(self):
     repos = EventTestCase._make_repos_config(self)
 
-    xmllib.config.Element('repofile', text='download/download-test-repos.repo', parent=repos)
+    rxml.config.Element('repofile', text='download/download-test-repos.repo', parent=repos)
 
     return repos
 
@@ -78,7 +78,7 @@ class Test_ArchChanges(DownloadEventTestCase):
   "Test arch changes in <main/>"
   def __init__(self, distro, version, arch):
     DownloadEventTestCase.__init__(self, distro, version, arch)
-    xmllib.tree.uElement('arch', self.conf.get('/distro/main'), text='i386')
+    rxml.tree.uElement('arch', self.conf.get('/distro/main'), text='i386')
 
 class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
   "Test multiple repos with the same package."

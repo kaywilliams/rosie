@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 from rendition import pps
-from rendition import xmllib
+from rendition import rxml
 
 from spintest        import EventTestCase, ModuleTestSuite
 from spintest.core   import make_core_suite
@@ -29,7 +29,7 @@ class Test_LogosEvent_Default(LogosEventTestCase):
   def setUp(self):
     EventTestCase.setUp(self)
     self.clean_event_md()
-    xmllib.tree.Element('logos-rpm', self.event._config, attrs={'enabled': 'False'})
+    rxml.tree.Element('logos-rpm', self.event._config, attrs={'enabled': 'False'})
 
   def runTest(self):
     self.tb.dispatch.execute(until='logos')
@@ -39,7 +39,7 @@ class Test_LogosEvent_Custom(LogosEventTestCase):
   def setUp(self):
     EventTestCase.setUp(self)
     self.clean_event_md()
-    xmllib.tree.Element('logos-rpm', self.event._config, attrs={'enabled': 'True'})
+    rxml.tree.Element('logos-rpm', self.event._config, attrs={'enabled': 'True'})
 
   def runTest(self):
     self.tb.dispatch.execute(until='logos')

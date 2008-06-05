@@ -24,8 +24,8 @@ from math import ceil
 
 from rendition import FormattedFile as ffile
 from rendition import pkgorder
+from rendition import rxml
 from rendition import si
-from rendition import xmllib
 
 from rendition.sync import link
 
@@ -79,7 +79,7 @@ class Timber:
     "Create a .discinfo file for disc number in split tree"
     if isinstance(self.difmt, dict):
       discinfo = ffile.DictToFormattedFile(self.difmt)
-    elif isinstance(self.difmt, xmllib.tree.XmlTreeElement):
+    elif isinstance(self.difmt, rxml.tree.XmlTreeElement):
       discinfo = ffile.XmlToFormattedFile(self.difmt)
     else:
       raise ValueError, "Unsupported format %s for pkgorder.difmt" % type(self.difmt)

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from rendition import xmllib
+from rendition import rxml
 
 from spin.event     import Event
 from spin.logging   import L1
@@ -93,7 +93,7 @@ class CompsEvent(Event):
     # set required packages variable
     try:
       self.cvars['required-packages'] = \
-         xmllib.config.read(self.cvars['comps-file']).xpath('//packagereq/text()')
+         rxml.config.read(self.cvars['comps-file']).xpath('//packagereq/text()')
     except Exception, e:
       raise RuntimeError(str(e))
 
@@ -229,7 +229,7 @@ class CompsEvent(Event):
   def _process_groupfile(self, groupfile, id=None):
     "Process a groupfile, adding the requested groups to the groups dict"
     try:
-      tree = xmllib.config.read(groupfile)
+      tree = rxml.config.read(groupfile)
     except Exception, e:
       raise CompsError("error reading file '%s': %s" % (groupfile, e))
 
@@ -449,8 +449,8 @@ class CompsCategory(object):
 
 #------- FACTORY FUNCTIONS -------#
 # convenience functions
-Element  = xmllib.config.Element
-uElement = xmllib.config.uElement
+Element  = rxml.config.Element
+uElement = rxml.config.uElement
 
 #------ ERRORS ------#
 class CompsError(StandardError): pass

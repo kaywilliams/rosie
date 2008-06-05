@@ -18,8 +18,8 @@
 import unittest
 
 from rendition import pps
-from rendition.img           import MakeImage
-from rendition.xmllib.config import Element
+from rendition.img         import MakeImage
+from rendition.rxml.config import Element
 from rendition import si
 
 from spin.splittree import parse_size

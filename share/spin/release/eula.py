@@ -26,7 +26,7 @@ import os
 
 ##
 ## I18N
-## 
+##
 import gettext
 gettext.bindtextdomain ("firstboot", "/usr/share/locale")
 gettext.textdomain ("firstboot")
@@ -79,7 +79,7 @@ class childWindow:
         for line in lines:
             textBuffer.insert(iter, line)
         textView.set_buffer(textBuffer)
-            
+
         self.okButton = gtk.RadioButton(None, (_("_Yes, I agree to the License Agreement")))
         self.noButton = gtk.RadioButton(self.okButton, (_("N_o, I do not agree")))
         self.noButton.set_active(True)
@@ -87,7 +87,7 @@ class childWindow:
         internalVBox.pack_start(textSW, True)
         internalVBox.pack_start(self.okButton, False)
         internalVBox.pack_start(self.noButton, False)
-        
+
         self.vbox.pack_start(internalVBox, True, 5)
         return self.vbox, title_pix, msg
 
@@ -96,7 +96,7 @@ class childWindow:
             return 0
         else:
             dlg = gtk.MessageDialog(None, 0, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE,
-                                    (_("Do you want to reread or reconsider the Licence Agreement?  " 
+                                    (_("Do you want to reread or reconsider the Licence Agreement?  "
                                        "If not, please shut down the computer and remove this "
                                        "product from your system. ")))
 
@@ -118,4 +118,3 @@ class childWindow:
 
                 os.system("/sbin/halt")
                 return None
-                

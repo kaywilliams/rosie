@@ -20,15 +20,14 @@ from lxml import etree
 import copy
 import os
 
-from rendition import xmllib
+from rendition import rxml
 
 NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
 
 class BaseConfigValidator:
   def __init__(self, schema_paths, config_path):
     self.schema_paths = schema_paths
-    self.config = xmllib.tree.read(config_path, xincluder=xmllib.xinclude.MacroXInclude())
-    #xmllib.macros.expand_macros(self.config)
+    self.config = rxml.tree.read(config_path, xincluder=rxml.xinclude.MacroXInclude())
     self.elements = []
 
     self.curr_schema = None
@@ -93,7 +92,7 @@ class BaseConfigValidator:
     cwd = os.getcwd()
     os.chdir(self.curr_schema.dirname)
     try:
-      schema = xmllib.tree.read(self.curr_schema.basename)
+      schema = rxml.tree.read(self.curr_schema.basename)
     finally:
       os.chdir(cwd)
     return schema
@@ -115,8 +114,7 @@ class MainConfigValidator(BaseConfigValidator):
 
 class ConfigValidator(BaseConfigValidator):
   def __init__(self, schema_paths, config_path):
-    config = xmllib.tree.read(config_path, xincluder=xmllib.xinclude.MacroXInclude())
-    #xmllib.macros.expand_macros(config)
+    config = rxml.tree.read(config_path, xincluder=rxml.xinclude.MacroXInclude())
     BaseConfigValidator.__init__(self, schema_paths, config_path)
 
   def verify_elements(self, disabled):

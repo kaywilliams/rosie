@@ -28,7 +28,7 @@ from rendition import pps
 from rendition import repo
 from rendition import shlib
 
-from rendition.xmllib import config
+from rendition.rxml import config
 
 from spin.main import Build
 

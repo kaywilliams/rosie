@@ -19,7 +19,7 @@ from rendition import difftest
 
 # add support for serialization of versort classes
 from rendition.versort.serialize import VersionXmlSerializer
-difftest.xmllib.serialize.SERIALIZERS.insert(0, VersionXmlSerializer())
+difftest.rxml.serialize.SERIALIZERS.insert(0, VersionXmlSerializer())
 
 class DiffMixin:
   def __init__(self):
