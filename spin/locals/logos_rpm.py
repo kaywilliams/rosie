@@ -407,32 +407,6 @@ L_LOGOS_RPM_FILES = LocalsDict({
         )
       ]
     ),
-    '/boot/grub/splash.png': dict(
-      xwindow_type = 'required',
-      image_width  = 640,
-      image_height = 480,
-      strings = [
-        dict(
-          text = '%(fullname)s',
-          font = 'DejaVuLGCSans-Bold.ttf',
-          font_size = 14,
-          font_size_min = 9,
-          text_coords = (450, 360),
-          text_max_width = 140,
-        ),
-        dict(
-          text = 'Version %(version)s',
-          halign = 'right',
-          font_size = 9,
-          text_coords = (490, 375),
-        ),
-        dict(
-          text = '%(copyright)s',
-          font_size = 9,
-          text_coords = (320, 470),
-        )
-      ]
-    ),
   },
   "anaconda-11.2.0.66-1": {
     '/usr/lib/anaconda-runtime/boot/syslinux-splash.png': REMOVE,

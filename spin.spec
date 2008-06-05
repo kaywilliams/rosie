@@ -15,7 +15,6 @@ BuildArch: noarch
 BuildRequires: python-devel
 BuildRequires: python-docutils
 
-Requires: ImageMagick
 Requires: createrepo
 Requires: netpbm-progs
 Requires: python-devel

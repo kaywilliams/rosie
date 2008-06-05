@@ -176,7 +176,7 @@ class DistroFilesHandler(LogosRpmFilesHandler):
         if self.write_text: self._add_text(id, file)
 
   def _check_id(self, id):
-    if not self.ptr.locals.L_LOGOS_RPM_FILES.has_key(id): return False
+    if not self.ptr.locals.L_LOGOS_RPM_FILES.has_key(id): return True
     xwt = self.ptr.locals.L_LOGOS_RPM_FILES[id].get('xwindow_type', 'required')
     return xwt in self.xwindow_types
 
