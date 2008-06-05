@@ -19,11 +19,6 @@
           <interleave>
             <ref name="element-obsoletes"/>
             <optional>
-              <element name="write-text">
-                <ref name="value-boolean"/>
-              </element>
-            </optional>
-            <optional>
               <element name="logos-path"><text/></element>
             </optional>
             <optional>

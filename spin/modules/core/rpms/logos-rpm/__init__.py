@@ -131,7 +131,8 @@ class LogosRpmEvent(RpmBuildMixin, Event):
 
     if supplied_logos:
       self.DATA['input'].append(supplied_logos)
-      self.handlers.append(SuppliedFilesHandler(self, [supplied_logos], write_text))
+      ## FIXME: not writing text to user-specified images
+      self.handlers.append(SuppliedFilesHandler(self, [supplied_logos], False))
     if common_paths:
       self.handlers.append(CommonFilesHandler(self, common_paths))
     self.handlers.append(DistroFilesHandler(self, distro_paths,
