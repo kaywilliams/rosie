@@ -5,23 +5,16 @@
       <element name="main">
         <interleave>
           <element name="name"><text/></element>
+          <element name="version"><text/></element>
+
           <optional>
-          <element name="base-name"><text/></element>
+          <ref name="element-arch"/>
           </optional>
           <optional>
-          <element name="base-version"><text/></element>
-          </optional>
-          <optional>
-          <ref name="element-base-arch"/>
-          </optional>
-          <optional>
-          <element name="distroid"><text/></element>
+          <element name="id"><text/></element>
           </optional>
           <optional>
           <element name="fullname"><text/></element>
-          </optional>
-          <optional>
-          <element name="version"><text/></element>
           </optional>
           <optional>
           <element name="package-path"><text/></element>
@@ -35,14 +28,15 @@
           <optional>
           <element name="log-file"><text/></element>
           </optional>
+
         </interleave>
       </element>
     </element>
   </start>
   <include href="lib.rng"/>
 
-  <define name="element-base-arch">
-    <element name="base-arch">
+  <define name="element-arch">
+    <element name="arch">
       <choice>
         <value type="string">i386</value>
         <value type="string">x86_64</value>

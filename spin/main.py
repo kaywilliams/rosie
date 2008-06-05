@@ -114,11 +114,11 @@ class Build(object):
     self._get_config(options, arguments)
 
     # set up real logger - console and file
-    self.logger = make_log(options.logthresh,
-                    options.logfile
-                    or self.distroconfig.get('/distro/main/log-file/text()', None)
-                    or self.mainconfig.get('/spin/log-file/text()', None)
-                    or DEFAULT_LOG_FILE)
+    logfile = pps.path(options.logfile
+              or self.distroconfig.get('/distro/main/log-file/text()', None)
+              or self.mainconfig.get('/spin/log-file/text()', None)
+              or DEFAULT_LOG_FILE).expand().abspath()
+    self.logger = make_log(options.logthresh, logfile)
 
     # set up import_dirs
     import_dirs = self._compute_import_dirs(options)
@@ -214,8 +214,8 @@ class Build(object):
     that a user can type `spin -h` on the command line without giving
     the '-c' option.)
     """
-    mcp = pps.path(options.mainconfigpath)
-    dcp = pps.path(arguments[0])
+    mcp = pps.path(options.mainconfigpath).expand().abspath()
+    dcp = pps.path(arguments[0]).expand().abspath()
     try:
       if mcp and mcp.exists():
         self.logger.log(4, "Reading main config file '%s'" % mcp)
@@ -224,7 +224,6 @@ class Build(object):
         self.logger.log(4, "No main config file found at '%s'. Using default settings" % mcp)
         mc = rxml.config.read(StringIO('<spin/>'))
 
-      dcp = dcp.expand().abspath()
       if not dcp.exists():
         raise rxml.errors.ConfigError("No config file found at '%s'" % dcp)
 
@@ -284,11 +283,11 @@ class Build(object):
     options    : an optparse.Values instance containing the result of parsing
                  command line options
     """
-    import_dirs = [ pps.path(x).expand() for x in \
+    import_dirs = [ pps.path(x).expand().abspath() for x in \
       self.mainconfig.xpath('/spin/lib-path/text()', []) ]
 
     if options.libpath:
-      import_dirs = [ pps.path(x).expand() for x in options.libpath ] + import_dirs
+      import_dirs = [ pps.path(x).expand().abspath() for x in options.libpath ] + import_dirs
     for dir in sys.path:
       if dir not in import_dirs:
         import_dirs.append(pps.path(dir))
@@ -326,7 +325,7 @@ class Build(object):
 
   def _validate_configs(self):
     "Validate main config and distro config"
-    self.logger.log(1, L0("validating config"))
+    self.logger.log(2, L0("validating config"))
 
     self.logger.log(4, L1("spin.conf"))
     mcvalidator = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
@@ -337,26 +336,6 @@ class Build(object):
     self.logger.log(4, L1(pps.path(self.distroconfig.file).basename))
     validator = ConfigValidator([ x/'schemas/distro.conf' for x in Event.SHARE_DIRS ],
                                 self.distroconfig.file)
-
-    # validate the main section
-    validator.validate('main', schema_file='main.rng')
-
-    qfmt = '/distro/main/%s/text()'
-
-    # make sure either base-name and base-version or distroid elements exist
-    if not ( ( self.distroconfig.get(qfmt % 'base-name', None) and
-               self.distroconfig.get(qfmt % 'base-version', None) ) or
-             self.distroconfig.get(  qfmt % 'distroid', None) ):
-      raise InvalidConfigError(self.distroconfig.file,
-        "Either 'base-name' and 'base-version' or 'distroid' elements "
-        "must be specified in the <main> section.")
-
-    # make sure one of version and base-version exist
-    if ( not self.distroconfig.get(qfmt % 'version', None) and
-         not self.distroconfig.get(qfmt % 'base-version', None) ):
-      raise InvalidConfigError(self.distroconfig.file,
-        "Either 'base-version' or 'version' must be specified in the "
-        "<main> section.")
 
     # validate all event top-level sections
     validated = [] # list of already-validated modules (so we don't revalidate)
@@ -397,17 +376,14 @@ class Build(object):
     di = Event.cvars['distro-info'] = {}
     qstr = '/distro/main/%s/text()'
 
-    di['name']         = Event._config.get(qstr % 'name', '')
-    di['base-name']    = Event._config.get(qstr % 'base-name', '')
-    di['base-version'] = Event._config.get(qstr % 'base-version', '')
-    di['arch']         = ARCH_MAP[Event._config.get(qstr % 'base-arch', 'i386')]
+    di['name']         = Event._config.get(qstr % 'name')
+    di['version']      = Event._config.get(qstr % 'version')
+    di['arch']         = ARCH_MAP[Event._config.get(qstr % 'arch', 'i386')]
     di['basearch']     = getBaseArch(di['arch'])
-    di['distroid']     = Event._config.get(qstr % 'distroid',
-                          '%s-%s-%s-%s' % (di['name'],
-                                           di.get('base-name'),
-                                           di.get('base-version'),
-                                           di['basearch']))
-    di['version']      = Event._config.get(qstr % 'version', di.get('base-version'))
+    di['distroid']     = Event._config.get(qstr % 'id',
+                          '%s-%s-%s' % (di['name'],
+                                        di['version'],
+                                        di['basearch']))
     di['fullname']     = Event._config.get(qstr % 'fullname', di['name'])
     di['packagepath']  = Event._config.get(qstr % 'package-path', 'Packages')
     di['webloc']       = Event._config.get(qstr % 'bug-url', 'No bug url provided')
@@ -418,17 +394,17 @@ class Build(object):
 
     # set up other directories
     Event.CACHE_DIR    = pps.path(self.mainconfig.get('/spin/cache/path/text()',
-                                               DEFAULT_CACHE_DIR))
+                                                      DEFAULT_CACHE_DIR)).expand().abspath()
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
     Event.METADATA_DIR = Event.CACHE_DIR  / di['distroid']
 
-    Event.SHARE_DIRS = [ pps.path(x).expand() for x in \
+    Event.SHARE_DIRS = [ pps.path(x).expand().abspath() for x in \
                          self.mainconfig.xpath('/spin/share-path/text()',
                                                [DEFAULT_SHARE_DIR]) ]
 
     if options.sharepath:
       options.sharepath.extend(Event.SHARE_DIRS)
-      Event.SHARE_DIRS = [ pps.path(x).expand() for x in options.sharepath ]
+      Event.SHARE_DIRS = [ pps.path(x).expand().abspath() for x in options.sharepath ]
 
     cache_max_size = self.mainconfig.get('/spin/cache/max-size/text()', '30GiB')
     if cache_max_size.isdigit():
