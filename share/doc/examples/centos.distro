@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<distro xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <!-- Minimal distribution based on Centos 5. See example.distro for more options -->
+
+  <main>
+    <fullname>Example System</fullname>
+    <name>example</name>
+    <version>5</version>
+    <arch>i386</arch>
+  </main>
+
+  <comps>
+    <group repoid='base'>core</group>
+  </comps>
+
+  <repos>
+    <!-- See www.centos.org for a list of public mirrors -->
+    <macro id="mirror">http://mirror.centos.org/centos</macro>
+    <repo id="base">
+      <baseurl>%{mirror}/$releasever/os/$basearch/</baseurl>
+      <gpgkey>%{mirror}/$releasever/os/$basearch/RPM-GPG-KEY-CentOS-$releasever</gpgkey>
+    </repo>
+    <repo id="updates">
+      <baseurl>%{mirror}/$releasever/updates/$basearch/</baseurl>
+      <gpgkey>%{mirror}/$releasever/os/$basearch/RPM-GPG-KEY-CentOS-$releasever</gpgkey>
+    </repo>
+  </repos>
+
+</distro>

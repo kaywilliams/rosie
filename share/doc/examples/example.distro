@@ -99,7 +99,7 @@
     <name>example</name>
 
     <!-- Version of the distro -->
-    <version>f9</version>
+    <version>9</version>
 
     <!-- Arch to build for; supported archs are currently i386 and x86_64 -->
     <arch>i386</arch>
@@ -108,20 +108,6 @@
     <!--<package-path>Packages</package-path>-->
 
   </main>
-
-  <!-- The base module allows the user to select from a set of supported
-       base distributions that become the basis for the new distro.  Each
-       base distribution predefines a number of repositories that are used
-       automatically by repos, installer, and sources.  Currently supported
-       base distributions are centos 5, fedora 7, and fedora 8 -->
-  <base>
-    <distro>fedora</distro>
-    <version>8</version>
-    <!-- If there is a specific location from which package, installer, and
-         source mirroring should occur, the baseurl-prefix can be set to
-         replace the default for that distro. -->
-    <!--<baseurl-prefix>http://www.example.com/path/to/fedora/mirrors/</baseurl-prefix>-->
-  </base>
 
   <!-- The repos module is responsible for reading repository metadata for
        determining the available packages for a distribution.  This section
@@ -137,7 +123,7 @@
          returned by the information in the base module, above, if the given
          repo has the same id.  For example, to turn off gpgkey checking for
          the 'everything' repo: -->
-    <!--<repo id="everything"><gpgcheck>no</gpgcheck></repo>
+    <!--<repo id="everything"><gpgcheck>no</gpgcheck></repo>-->
 
     <!-- <exclude-package> and <include-package> elements as children of
          <repo> elements have the same effect as 'exclude' and 'includepkgs'
@@ -238,11 +224,11 @@
 
   <!-- The updates-image module creates an updates.img with any distro
        specific customizations to installer code -->
-  <updates-image/>
+  <updates-image>
     <!--<path>/path/to/file1<path>-->
     <!--<path>/path/to/file2<path>-->
   </updates-image>
-
+  
   <!-- The initrd-image modul allows arbitrary files to be included in the
        initrd.img for the distro -->
   <initrd-image>

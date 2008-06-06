@@ -72,6 +72,7 @@ Create a file called ``/etc/spin.conf`` and add the following lines:
 
   <spin>
     <share-path>$SPIN_RUN/spin/share/spin</share-path>
+    <disable-module>logos-rpm</disable-module> <!--temporary workaround-->
   </spin>
 
 Alternatively, you can copy ``$SPIN_RUN/spin/share/doc/examples/spin.conf`` 
@@ -98,50 +99,24 @@ Spin includes some example files to help you get started. Copy these files to
 a new folder, called ``DISTRO_DIR`` below.  While you are experimenting, you 
 will most likely want DISTRO_DIR to be in your home folder. Later you will want
 to maintain your .distro and related files using a Source Code Management 
-system such as CVS, SVN, git, or the like.
+system such as CVS, Subversion, Mercurial or Git.
 
 ::
 
   $$ mkdir $DISTRO_DIR
   $$ cd $SPIN_RUN/spin/share/doc/example/
-  $$ cp minimal.distro example.distro $DISTRO_DIR
+  $$ cp fedora.distro centos.distro example.distro $DISTRO_DIR
   $$ cd $DISTRO_DIR
 
 
-Now you can open and modify the minimal.distro and example.distro files. 
+Now you can open and modify the fedora.distro and centos.distro files. 
 
 Distribution definition files (distrofiles or .distro files) define your 
-distribution, including name, version, packages to include, the base distribution
-to use (e.g. CentOS 5, Fedora 9), etc. Minimal.distro is an abbreviated 
-distrofile showing common options. Example.distro is a commented distrofile 
-containing an overview of general concepts, and descriptions of many elements 
-and their usage.
-
-As an experiment, modify the minimial.distro file to create a distribution 
-based on Fedora 9 x86_64 by modifying the main and base sections of the file to 
-contain the following:
-
-::
-
-  <main>
-    <fullname>Example</fullname>
-    <name>example</name>
-    <base-name>fedora</base-name>
-    <base-version>f9</base-version>
-    <base-arch>x86_64</base-arch>
-  </main>
-
-  <base>
-    <distro>fedora</distro>
-    <version>9</version>
-    <!--<baseurl-prefix>http://www.my.org/centos</baseurl-prefix>-->
-    <!--<baseurl-prefix>http://www.my.org/pub/fedora/linux</baseurl-prefix>-->
-  </base>
-
-Spin will automatically locate and download files using public mirror locations. 
-Change and uncomment the baseurl-prefix to point to a local mirror, if one is 
-available, for improved performance.
-
+distribution, including name, version, packages to include, and package
+repositories to use (e.g. CentOS 5, Fedora 9), etc. The fedora.distro and 
+centos.distro files are abbreviated distrofiles showing common options. 
+Example.distro is a commented distrofile containing an overview of general 
+concepts, and descriptions of many elements and their usage.
 
 2. Running Spin
 ---------------
@@ -152,14 +127,13 @@ installation images.
 
 ::
 
-        $SPIN_RUN/bin/spin $DISTRO_DIR/minimal.distro
+        $SPIN_RUN/bin/spin $DISTRO_DIR/centos.distro
 
 
 3. Using the Custom Distribution
 --------------------------------
 
-Your new custom Linux distribution can be found at ``/var/www/html/distros``.  
-Enjoy!
+Your new distribution can be found at ``/var/www/html/distros``.  Enjoy!
 
 
 4. Questions/Comments/Issues

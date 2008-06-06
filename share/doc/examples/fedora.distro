@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<distro xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <!-- Minimal distribution based on Fedora 9. See example.distro for more options -->
+
+  <main>
+    <fullname>Example System</fullname>
+    <name>Example</name>
+    <version>9</version>
+    <arch>i386</arch>
+  </main>
+
+  <comps>
+    <group repoid='base'>core</group>
+  </comps>
+
+  <repos>
+    <!-- See mirrors.fedoraproject.org for a list of public mirrors -->
+    <macro id="mirror">http://download.fedora.redhat.com/pub/fedora/linux</macro>
+    <repo id='base'>
+      <baseurl>%{mirror}/releases/$releasever/Fedora/$basearch/os/</baseurl>
+      <gpgkey>%{mirror}/releases/$releasever/Fedora/$basearch/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{mirror}/releases/$releasever/Fedora/$basearch/os/RPM-GPG-KEY-fedora</gpgkey>
+    </repo>
+    <repo id="everything">
+      <baseurl>%{mirror}/releases/$releasever/Everything/$basearch/os/</baseurl>
+      <gpgkey>%{mirror}/releases/$releasever/Fedora/$basearch/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{mirror}/releases/$releasever/Fedora/$basearch/os/RPM-GPG-KEY-fedora</gpgkey>
+    </repo>
+    <repo id="updates">
+      <baseurl>%{mirror}/updates/$releasever/$basearch/</baseurl>
+      <gpgkey>%{mirror}/releases/$releasever/Fedora/$basearch/os/RPM-GPG-KEY</gpgkey>
+      <gpgkey>%{mirror}/releases/$releasever/Fedora/$basearch/os/RPM-GPG-KEY-fedora</gpgkey>
+    </repo>
+  </repos>
+
+</distro>
