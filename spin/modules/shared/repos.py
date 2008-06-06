@@ -93,29 +93,37 @@ class SpinRepoGroup(SpinRepo):
   def __init__(self, **kwargs):
     SpinRepo.__init__(self, **kwargs)
 
-    self._repos = RepoContainer()
+    self._repos = None
     self.has_installer_files = False
 
   def _populate_repos(self):
     "Find all the repos we contain and classify ourself"
-    updates = {}
-    for k,v in self.items():
-      if k not in ['id', 'baseurl']:
-        updates[k] = v
 
     # get directory listing so we can figure out information about this repo
     # find all subrepos
     repos = []
     if (self.url/'repodata/repomd.xml').exists():
-      R = SpinRepo(baseurl=self['baseurl'], id=self.id, **updates)
+      updates = {}
+      for k,v in self.items():
+        if k not in ['id']:
+          updates[k] = v
+      R = SpinRepo(id=self.id, **updates)
       R._relpath = pps.path('.')
       self._repos.add_repo(R)
     else:
       for d in self.url.findpaths(type=TYPE_DIR, mindepth=1, maxdepth=1,
                                   nglob=NOT_REPO_GLOB):
         if (d/'repodata/repomd.xml').exists():
-          R = SpinRepo(baseurl='\n'.join([ x/d.basename for x in self.baseurl ]),
-                       id='%s-%s' % (self.id, d.basename), **updates)
+          updates = {}
+          for k,v in self.items():
+            if k not in ['id', 'mirrorlist', 'baseurl']:
+              updates[k] = v
+          # it doesn't make sense for a subrepo to have a mirrorlist; however,
+          # we can fake it by converting all the mirror items into a baseurl
+          # list!
+          updates['baseurl'] = \
+            '\n'.join([ x/d.basename for x,e in self.url.mirrorgroup if e ])
+          R = SpinRepo(id='%s-%s' % (self.id, d.basename), **updates)
           R._relpath = d.basename
           self._repos.add_repo(R)
 
@@ -136,16 +144,12 @@ class SpinRepoGroup(SpinRepo):
 
   def lines(self, **kwargs):
     l = []
-    baseurl = kwargs.get('baseurl')
     for repo in self._repos.values():
-      # hack to make sure baseurls are transformed correctly
-      if baseurl: kwargs['baseurl'] = (baseurl/repo._relpath).normpath()
       l.extend(repo.lines(**kwargs))
     return l
 
   def read_repomd(self):
-    if len(self._repos) == 0:
-      self._populate_repos()
+    if self._repos is None: self._populate_repos()
 
     for R in self._repos.values():
       R.read_repomd()
