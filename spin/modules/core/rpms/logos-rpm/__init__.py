@@ -17,6 +17,7 @@
 #
 import gzip
 
+from rendition import listfmt
 from rendition import shlib
 
 from spin.constants import BOOLEANS_TRUE
@@ -75,8 +76,9 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     for handler in self.handlers:
       handler.generate()
     if len(self.data_files) == 0:
-      raise RuntimeError("No images found in any the share paths '%s' to use "\
-                         "in the logos RPM." % self.SHARE_DIRS)
+      raise RuntimeError("No images found in any share path: %s" %
+                         listfmt.format(self.SHARE_DIRS,
+                           pre='\'', post='\'', sep=', ', last=', '))
     self._generate_custom_theme()
 
   def _generate_custom_theme(self):

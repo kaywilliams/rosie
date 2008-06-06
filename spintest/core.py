@@ -17,9 +17,7 @@
 #
 import unittest
 
-from rendition import pps
-
-from spintest import EventTestCase, TestBuild, EventTestRunner, EventTestCaseDummy, decorate
+from spintest import EventTestCaseDummy, decorate
 
 class EventTestCaseHeader(EventTestCaseDummy):
   separator1 = '=' * 70

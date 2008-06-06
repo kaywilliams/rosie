@@ -398,17 +398,18 @@ class Build(object):
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
     Event.METADATA_DIR = Event.CACHE_DIR  / di['distroid']
 
-    Event.SHARE_DIRS = [ pps.path(x).expand().abspath() for x in \
-                         self.mainconfig.xpath('/spin/share-path/text()',
-                                               [DEFAULT_SHARE_DIR]) ]
+    sharedirs = [ DEFAULT_SHARE_DIR ]
+    sharedirs.extend(reversed([ pps.path(x).expand().abspath()
+      for x in self.mainconfig.xpath('/spin/share-path/text()', []) ]))
+    sharedirs.extend(reversed([ pps.path(x).expand().abspath()
+      for x in options.sharepath ]))
 
-    if options.sharepath:
-      options.sharepath.extend(Event.SHARE_DIRS)
-      Event.SHARE_DIRS = [ pps.path(x).expand().abspath() for x in options.sharepath ]
+    # reverse the order so we get cli options, then config, then defaults
+    Event.SHARE_DIRS = [ x for x in reversed(sharedirs) ]
 
     cache_max_size = self.mainconfig.get('/spin/cache/max-size/text()', '30GiB')
     if cache_max_size.isdigit():
-      cache_max_size = '%sGiB' % cache_max_size
+      cache_max_size = '%dGiB' % cache_max_size
     Event.CACHE_MAX_SIZE = si.parse(cache_max_size)
 
     Event.cache_handler = cache.CachedSyncHandler(
