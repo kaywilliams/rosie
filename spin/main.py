@@ -409,7 +409,7 @@ class Build(object):
 
     cache_max_size = self.mainconfig.get('/spin/cache/max-size/text()', '30GiB')
     if cache_max_size.isdigit():
-      cache_max_size = '%dGiB' % cache_max_size
+      cache_max_size = '%sGiB' % cache_max_size
     Event.CACHE_MAX_SIZE = si.parse(cache_max_size)
 
     Event.cache_handler = cache.CachedSyncHandler(
