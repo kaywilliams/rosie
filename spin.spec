@@ -1,8 +1,6 @@
-%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
-
 Name:    spin
 Version: 0.0
-Release: 1
+Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
 License:   GPLv2+
@@ -44,7 +42,7 @@ and run a Spin-managed distribution.
 %clean
 %{__rm} -rf %{buildroot}
 
-%files
+%files -f INSTALLED_FILES
 %defattr(-,root,root,-)
 %doc COPYING
 %doc ChangeLog
@@ -53,8 +51,6 @@ and run a Spin-managed distribution.
 %doc README
 %doc NEWS
 %doc share/doc/examples
-%{python_sitelib}/spin
-%{_datadir}/spin
 %{_bindir}/spin
 %{_mandir}/man5/spin.conf.5.gz
 %{_mandir}/man5/distro.conf.5.gz
