@@ -1,6 +1,6 @@
 ============================
 Distribution Definition File
-===========================
+============================
 
 -----------------------------------------
 configuration file for spin distributions
