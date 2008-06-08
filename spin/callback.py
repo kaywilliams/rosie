@@ -305,7 +305,7 @@ class GpgCallback(callback.RpmSignCallback):
     """
     logger  : the logger object to which output should be written
     """
-    callback.RpmSignCallback(self)
+    callback.RpmSignCallback.__init__(self)
     self.logger = logger
     self.bar = None
 
