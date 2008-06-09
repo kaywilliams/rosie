@@ -165,4 +165,3 @@ class CustomRepoEvent(Event):
 
     self.repos.add_repos(repos)
     return self.repos
-

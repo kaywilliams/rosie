@@ -98,6 +98,7 @@ class SpinRepoGroup(SpinRepo):
 
   def _populate_repos(self):
     "Find all the repos we contain and classify ourself"
+    self._repos = RepoContainer()
 
     # get directory listing so we can figure out information about this repo
     # find all subrepos
@@ -140,22 +141,28 @@ class SpinRepoGroup(SpinRepo):
     return self.tostring(pretty=True)
 
   def tostring(self, **kwargs):
-    return self._repos.tostring(**kwargs)
+    return self.subrepos.tostring(**kwargs)
 
   def lines(self, **kwargs):
+    baseurls = [ pps.path(x) for x in (kwargs.get('baseurl') or '').split() ]
     l = []
-    for repo in self._repos.values():
+    for repo in self.subrepos.values():
+      if baseurls:
+        kwargs['baseurl'] = '\n'.join([ b/repo._relpath for b in baseurls ])
       l.extend(repo.lines(**kwargs))
     return l
 
   def read_repomd(self):
-    if self._repos is None: self._populate_repos()
-
-    for R in self._repos.values():
+    for R in self.subrepos.values():
       R.read_repomd()
       for k,v in R.datafiles.items():
         self.datafiles.setdefault(k, []).append(R._relpath/v)
 
+  @property
+  def subrepos(self):
+    if not self._repos:
+      self._populate_repos()
+    return self._repos
 
 class RepoEventMixin:
   def __init__(self):
@@ -241,7 +248,7 @@ class RepoEventMixin:
       repo.read_repomd()
 
       # add metadata to io sync
-      for r in repo._repos.values():
+      for r in repo.subrepos.values():
         # first handle all repomd files except repomd.xml
         for k,v in r.datafiles.items():
           if k == 'metadata': continue # skip repomd.xml; handle later

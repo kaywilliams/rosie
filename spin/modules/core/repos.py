@@ -133,7 +133,7 @@ class ReposEvent(RepoEventMixin, Event):
   def verify_repodata(self):
     "repodata exists"
     for repogroup in self.repos.values():
-      for repo in repogroup._repos.values():
+      for repo in repogroup.subrepos.values():
         for fn in repo.datafiles.values():
           self.verifier.failUnlessExists(repogroup.localurl/repo._relpath/fn)
 
