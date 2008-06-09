@@ -18,8 +18,8 @@
 from rendition import pps
 from rendition import mkrpm
 
-from rendition.mkrpm import GpgMixin
-from rendition.progressbar   import ProgressBar
+from rendition.mkrpm       import GpgMixin
+from rendition.progressbar import ProgressBar
 
 from spin.callback  import GpgCallback, SyncCallback, LAYOUT_GPG
 from spin.constants import BOOLEANS_TRUE, RPM_REGEX
@@ -112,20 +112,13 @@ class GpgSignEvent(GpgMixin, Event):
 
     if signrpms:
       self.log(1, L1("signing rpms"))
-      self.gpgsign_cb.start()
       if self.cvars['gpgsign-passphrase'] is None:
         while True:
           self.cvars['gpgsign-passphrase'] = mkrpm.getPassphrase()
-          if mkrpm.VerifyPassphrase(gnupg_dir, self.cvars['gpgsign-passphrase']):
+          if mkrpm.verifyPassphrase(gnupg_dir, self.cvars['gpgsign-passphrase']):
             break
-      self.gpgsign_cb.repoCheck(len(signrpms))
-      for rpm in signrpms:
-        mkrpm.SignRpm(rpm,
-                      homedir=gnupg_dir,
-                      passphrase=self.cvars['gpgsign-passphrase'])
-        self.gpgsign_cb.pkgChecked(rpm.basename)
-      self.gpgsign_cb.endRepo()
-      self.gpgsign_cb.end()
+      mkrpm.signRpms(signrpms, homedir=gnupg_dir, passphrase=self.cvars['gpgsign-passphrase'],
+                     callback=self.gpgsign_cb, working_dir=self.TEMP_DIR)
 
   def apply(self):
     self.io.clean_eventcache()

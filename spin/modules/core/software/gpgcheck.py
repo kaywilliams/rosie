@@ -18,10 +18,10 @@
 from rendition import mkrpm
 from rendition import shlib
 
-from spin.event   import Event
-from spin.logging import L1, L2
+from spin.callback  import GpgCallback
 from spin.constants import BOOLEANS_TRUE
-from spin.callback import GpgCallback
+from spin.event     import Event
+from spin.logging   import L1, L2
 
 API_VERSION = 5.0
 EVENTS = {'software': ['GpgCheckEvent']}
@@ -68,7 +68,6 @@ class GpgCheckEvent(Event):
       self.io.clean_eventcache(all=True) # remove old keys
       return
 
-    self.gpgcheck_cb.start()
     for repo in sorted(self.rpms.keys()):
       newrpms = []
       homedir = self.mddir/repo/'homedir'
@@ -101,22 +100,13 @@ class GpgCheckEvent(Event):
 
       # if we found rpms to check in the above tests, check them now
       if newrpms:
-        invalids = []
         self.log(1, L1("checking rpms - '%s'" % repo))
-        self.gpgcheck_cb.repoCheck(len(newrpms))
-        for rpm in newrpms:
-          try:
-            mkrpm.VerifyRpm(rpm, homedir=homedir)
-          except mkrpm.RpmSignatureInvalidError, e:
-            invalids.append("%s - invalid signature tags: %s" % (rpm.basename, e.invalid_tags))
-          self.gpgcheck_cb.pkgChecked(rpm.basename)
-
+        invalids = mkrpm.verifyRpms(newrpms, homedir=homedir,
+                                    callback=self.gpgcheck_cb,
+                                    working_dir=self.TEMP_DIR)
         if invalids:
           raise RpmSignatureInvalidError("One or more RPMS failed "
                                          "GPG key checking:\n * %s" % '\n * '.join(invalids))
-        self.gpgcheck_cb.endRepo()
-
-    self.gpgcheck_cb.end()
 
   def apply(self):
     self.io.clean_eventcache()

@@ -25,9 +25,10 @@ progress information back to the user.  Many make use of progressbar.py to
 display this data in a compact, easy-to-read format.
 """
 
+from rendition.mkrpm         import callback
+from rendition.progressbar   import ProgressBar
 from rendition.sync.cache    import CachedSyncCallback  as _CachedSyncCallback
 from rendition.sync.callback import SyncCallbackMetered as _SyncCallbackMetered
-from rendition.progressbar   import ProgressBar
 
 from spin.logging import L1, L2
 
@@ -294,7 +295,7 @@ class BuildDepsolveCallback:
       self.bar.finish()
       self.logger.logfile.log(2, str(self.bar))
 
-class GpgCallback:
+class GpgCallback(callback.RpmSignCallback):
   """
   Callback class for gpg operations, including checking and signing of rpms.
   Displays a single progressbar with a changing title to indicate the current
@@ -304,13 +305,11 @@ class GpgCallback:
     """
     logger  : the logger object to which output should be written
     """
+    callback.RpmSignCallback.__init__(self)
     self.logger = logger
     self.bar = None
 
-  def start(self):
-    pass
-
-  def repoCheck(self, unchecked=0):
+  def start(self, unchecked=0):
     """
     At log level 1 and below, do nothing
     At log level 2 and above, create a progress bar and start it.
@@ -321,7 +320,7 @@ class GpgCallback:
       self.bar = ProgressBar(size=unchecked, title=L2(''), layout=LAYOUT_GPG)
       self.bar.start()
 
-  def pkgChecked(self, pkgname):
+  def processed(self, pkgname):
     """
     At log level 1 and below, do nothing
     At log level 2 and above, update the progress bar's position and title
@@ -332,7 +331,7 @@ class GpgCallback:
       self.bar.status.position += 1
       self.bar.tags['title'] = L2(pkgname)
 
-  def endRepo(self):
+  def end(self):
     """
     At log level 1 and below, do nothing
     At log level 2 and above, finish off the progress bar and write it to the
@@ -343,9 +342,7 @@ class GpgCallback:
       self.bar.update(self.bar.status.size)
       self.bar.finish()
       self.logger.logfile.log(2, str(self.bar))
-
-  def end(self):
-    pass
+      del self.bar
 
 class IDepsolverCallback(object):
   def __init__(self, logger):
