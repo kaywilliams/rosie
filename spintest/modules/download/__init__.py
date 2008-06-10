@@ -68,8 +68,9 @@ class Test_AddedPackageDownloaded(DownloadEventTestCase):
 class Test_RemovedPackageDeleted(DownloadEventTestCase):
   "Test that the previously-downloaded packages are removed"
   def runTest(self):
-    # add a package, then remove it
-    self.tb.dispatch.execute(until='download')
+    # added a package in previous test case, which should now be
+    # removed
+    DownloadEventTestCase.runTest(self)
     for package in self.event.io.list_output():
       pkgname = self.event._deformat(package)[1]
       self.failIf(pkgname == 'package1' or pkgname == 'package2')

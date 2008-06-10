@@ -102,7 +102,8 @@ class LogosEvent(Event, ExtractMixin):
 
     # create the splash image
     self._generate_splash(working_dir)
-    output.append(self.splash)
+    if self.splash is not None:
+      output.append(self.splash)
 
     return output
 
@@ -112,7 +113,7 @@ class LogosEvent(Event, ExtractMixin):
     try:
       startimage = working_dir.findpaths(glob=self.filename)[0]
     except IndexError:
-      raise SplashImageNotFound("missing '%s' in logos RPM" % self.filename)
+      return
 
     if self.format == 'lss':
       shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
@@ -142,6 +143,8 @@ class LogosEvent(Event, ExtractMixin):
     return pixmaps
 
   def _validate_splash(self):
+    if self.splash is None:
+      return
     if self.format == 'jpg':
       return magic.match(self.splash) == magic.FILE_TYPE_JPG
     elif self.format == 'png':
@@ -159,7 +162,3 @@ class LogosEvent(Event, ExtractMixin):
       if len(rpms) == 0:
         return None
     return [rpms[0]]
-
-
-#------ EXCEPTIONS ------#
-class SplashImageNotFound(StandardError): pass
