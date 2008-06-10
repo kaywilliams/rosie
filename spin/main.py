@@ -34,7 +34,6 @@ import sys
 import time
 
 from rpmUtils.arch import getBaseArch
-from StringIO      import StringIO
 
 from rendition import dispatch
 from rendition import pps
@@ -222,7 +221,7 @@ class Build(object):
         mc = rxml.config.read(mcp)
       else:
         self.logger.log(4, "No main config file found at '%s'. Using default settings" % mcp)
-        mc = rxml.config.read(StringIO('<spin/>'))
+        mc = rxml.config.fromstring('<spin/>')
 
       if not dcp.exists():
         raise rxml.errors.ConfigError("No config file found at '%s'" % dcp)

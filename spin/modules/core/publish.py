@@ -34,6 +34,7 @@ class PublishSetupEvent(Event):
     Event.__init__(self,
       id = 'publish-setup',
       provides = ['publish-content', 'publish-path', 'web-path'],
+      suppress_run_message=True,
     )
 
     self.DATA = {

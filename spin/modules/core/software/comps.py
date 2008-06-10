@@ -141,12 +141,7 @@ class CompsEvent(Event):
       if not data['packages']:
         raise CompsError("unable to find group definition for '%s' in any groupfile" % gid)
 
-      try: #!
-        dg = self._groups.setdefault(gid, CompsGroup(gid, **data['attrs']))
-      except TypeError, e: #!
-        # figure out what is causing that pesky error #!
-        print gid, data['attrs'] #!
-        raise #!
+      dg = self._groups.setdefault(gid, CompsGroup(gid, **data['attrs']))
 
       # add group's packagereqs to packagelist
       for pkg in data['packages']:
@@ -244,9 +239,7 @@ class CompsEvent(Event):
 
     # add attributes if not already present
     if not G.has_key('attrs'):
-      ##G['attrs'] = {}
-      G['attrs'] = FilteredDict() #!
-      G['attrs'].filter.append('packagereq') #!
+      G['attrs'] = {}
       if self.include_localizations:
         q = '//group[id/text()="%s"]/*' % gid
         namedict = G['attrs']['name'] = {}
@@ -267,11 +260,7 @@ class CompsEvent(Event):
           else:
             G['attrs']['description'] = attr.text
         elif attr.tag not in ['packagelist', 'grouplist', 'id']:
-          try: #!
-            G['attrs'][attr.tag] = attr.text
-          except KeyError: #!
-            ##print tree #!
-            raise #!
+          G['attrs'][attr.tag] = attr.text
 
     # set the default value, if given
     #  * if default = true,    group.default = true
@@ -454,16 +443,3 @@ uElement = rxml.config.uElement
 
 #------ ERRORS ------#
 class CompsError(StandardError): pass
-
-
-#---- DEBUG ----# #!
-class FilteredDict(dict):
-  def __init__(self, *args, **kwargs):
-    dict.__init__(self, *args, **kwargs)
-    self.filter = []
-  def __setitem__(self, k, v):
-    if k in self.filter:
-      raise KeyError("Disallowed key '%s'; value was '%s'" % (k, v))
-    else:
-      dict.__setitem__(self, k, v)
-#---- END DEBUG ----# #!

@@ -204,7 +204,7 @@ class IDepsolver(Depsolver):
       for pkgtup in self.cached_items.keys():
         if pkgtup[0] == pkg:
           break
-      self.removePackages(pkgtup)
+        self.removePackages(pkgtup)
 
   def iinstall(self):
     # handle new packages
