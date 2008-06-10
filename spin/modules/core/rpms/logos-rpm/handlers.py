@@ -44,7 +44,7 @@ class LogosRpmFilesHandler(object):
       for src in path.findpaths(type=pps.constants.TYPE_NOT_DIR):
         id  = pps.path('/') // src.relpathfrom(path)
         if not self._check_id(id): continue
-        dst = self.ptr.build_folder // src.relpathfrom(path)
+        dst = self.ptr.rpm.build_folder // src.relpathfrom(path)
         self._generate_file(src, dst)
         if ( self.write_text and
              self.ptr.locals.L_LOGOS_RPM_FILES.has_key(id) ):
@@ -62,7 +62,7 @@ class LogosRpmFilesHandler(object):
     strings = self.ptr.locals.L_LOGOS_RPM_FILES[id].get('strings', None)
     if strings is None:
       return
-    src = self.ptr.build_folder // id
+    src = self.ptr.rpm.build_folder // id
     img = Image.open(src)
     draw = ImageDraw.Draw(img)
     for i in strings:

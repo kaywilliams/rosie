@@ -40,21 +40,20 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       '%s-release' % self.name,
       '%s release files created by spin' % self.fullname,
       '%s release files' % self.name,
-      default_obsoletes = ['fedora-release', 'redhat-release',
-        'centos-release', 'fedora-release-notes',
-        'redhat-release-notes', 'centos-release-notes'
-      ]
+      obsoletes = ['fedora-release', 'redhat-release',
+                   'centos-release', 'fedora-release-notes',
+                   'redhat-release-notes', 'centos-release-notes']
     )
 
-    self.doc_dir    = pps.path('/usr/share/doc/%s-release-notes-%s' % (self.name, self.version))
-    self.etc_dir    = pps.path('/etc')
-    self.eula_dir   = pps.path('/usr/share/eula')
-    self.eulapy_dir = pps.path('/usr/share/firstboot/modules')
-    self.gpg_dir    = pps.path('/etc/pkg/rpm-gpg')
-    self.html_dir   = pps.path('/usr/share/doc/HTML')
-    self.omf_dir    = pps.path('/usr/share/omf/%s-release-notes' % self.name)
+    self.doc_dir     = pps.path('/usr/share/doc/%s-release-notes-%s' % (self.name, self.version))
+    self.etc_dir     = pps.path('/etc')
+    self.eula_dir    = pps.path('/usr/share/eula')
+    self.eulapy_dir  = pps.path('/usr/share/firstboot/modules')
+    self.gpg_dir     = pps.path('/etc/pkg/rpm-gpg')
+    self.html_dir    = pps.path('/usr/share/doc/HTML')
+    self.omf_dir     = pps.path('/usr/share/omf/%s-release-notes' % self.name)
     self.release_dir = pps.path('/usr/share/doc/%s-release-%s' % (self.name, self.version))
-    self.repo_dir   = pps.path('/etc/yum.repos.d')
+    self.repo_dir    = pps.path('/etc/yum.repos.d')
 
     InputFilesMixin.__init__(self, {
       'gpg'     : (None, self.gpg_dir, None, True),
@@ -71,9 +70,9 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     self.DATA = {
       'config':    ['.'],
       'variables': ['fullname', 'name', 'distroid', 'cvars[\'web-path\']',
-                    'rpm_release', 'cvars[\'release-versions\']'],
+                    'rpm.release', 'cvars[\'release-versions\']'],
       'input':     [],
-      'output':    [self.build_folder],
+      'output':    [self.rpm.build_folder],
     }
 
   def setup(self):
@@ -83,16 +82,16 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
                  for _,e,v in self.cvars.get('release-versions', [])]
     provides.extend( [ 'redhat-release %s %s' % (e,v)
                        for _,e,v in self.cvars.get('release-versions', [])])
-    self._setup_build(obsoletes=obsoletes, provides=provides)
+    self.rpm.setup_build(obsoletes=obsoletes, provides=provides)
     self._setup_download()
 
     # public gpg keys
     if self.cvars['gpgsign-public-key']:
       self.io.add_fpath(self.cvars.get('gpgsign-public-key'),
-                        self.build_folder//self.gpg_dir)
+                        self.rpm.build_folder//self.gpg_dir)
     else:
       for repo in self.cvars['repos'].values():
-        self.io.add_fpaths(repo.gpgkey, self.build_folder//self.gpg_dir)
+        self.io.add_fpaths(repo.gpgkey, self.rpm.build_folder//self.gpg_dir)
 
     # eulapy file
     include_firstboot = self.config.get('eula/include-in-firstboot/text()',
@@ -103,7 +102,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       for path in self.SHARE_DIRS:
         path = path/'release/eula.py'
         if path.exists():
-          self.io.add_fpath(path, self.build_folder//self.eulapy_dir)
+          self.io.add_fpath(path, self.rpm.build_folder//self.eulapy_dir)
           found = True; break
       if not found:
         raise RuntimeError("release/eula.py not found in %s" % self.SHARE_DIRS)
@@ -112,24 +111,23 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     if self.config.get('yum-repos/@include-input', 'True') in BOOLEANS_TRUE:
       self.DATA['variables'].append('cvars[\'repos\']')
 
-  def _generate(self):
+  def generate(self):
     "Generate additional files."
-    RpmBuildMixin._generate(self)
+    RpmBuildMixin.generate(self)
 
     self.io.sync_input(cache=True)
     for type in self.install_info.keys():
       _, dir, _, _ = self.install_info[type]
       generator = '_generate_%s_files' % type
       if hasattr(self, generator):
-        dest = self.build_folder//dir
-        getattr(self, generator)(dest)
+        getattr(self, generator)(self.rpm.build_folder//dir)
     self._verify_release_notes()
 
   def _verify_release_notes(self):
     "Ensure the presence of RELEASE-NOTES.html and an index.html"
-    rnotes = self.build_folder.findpaths(glob='RELEASE-NOTES*')
+    rnotes = self.rpm.build_folder.findpaths(glob='RELEASE-NOTES*')
     if len(rnotes) == 0:
-      dir = self.build_folder//self.html_dir
+      dir = self.rpm.build_folder//self.html_dir
       dir.mkdirs()
 
       # create a default release notes file because none were found.

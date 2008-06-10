@@ -24,8 +24,9 @@ from rendition import mkrpm
 from rendition import pps
 from rendition import rxml
 
-from spin.event   import Event
-from spin.logging import L1
+from spin.constants import BOOLEANS_TRUE
+from spin.event     import Event
+from spin.logging   import L1
 
 __all__ = ['InputFilesMixin', 'RpmBuildMixin']
 
@@ -66,336 +67,305 @@ class InputFilesMixin:
     pass
 
 class RpmBuildMixin:
-  def __init__(self, rpm_name, rpm_desc, rpm_summary, rpm_license=None,
-               default_provides=None, default_obsoletes=None, default_requires=None,
-               packagereq_type='mandatory', packagereq_default=None,
-               packagereq_requires=None):
-    self.rpm_desc = rpm_desc
-    self.rpm_name = rpm_name
-    self.rpm_summary = rpm_summary
-    self.rpm_license = rpm_license
+  def __init__(self, *args, **kwargs):
+    self.rpm = RpmBuildObject(self, *args,**kwargs)
 
-    self.default_obsoletes = default_obsoletes or []
-    self.default_provides = default_provides or []
-    self.default_requires = default_requires or []
-
-    self.packagereq_type = packagereq_type
-    self.packagereq_default = packagereq_default
-    self.packagereq_requires = packagereq_requires
-
-    self.autofile = pps.path(self._config.file + '.dat')
-
-    # RPM build variables
-    self.build_folder = self.mddir / 'build'
-    self.bdist_base = self.mddir / 'rpm-base'
-    self.rpm_base = self.bdist_base / 'rpm'
-    self.dist_dir = self.bdist_base / 'dist'
-
-    self.rpm_obsoletes = None
-    self.rpm_provides = None
-    self.rpm_requires = None
-
-  #---------------- EVENT METHODS -----------------#
   def check(self):
-    return self.rpm_release == '0' or \
-           not self.autofile.exists() or \
+    return self.rpm.release == '0' or \
+           not self.rpm.autofile.exists() or \
            self.diff.test_diffs()
 
   def setup(self):
-    self._setup_build()
+    self.rpm._setup_build()
 
   def run(self):
     self.io.clean_eventcache(all=True)
 
-    self._check_release()
+    R = self.rpm
 
-    self.build_folder.mkdirs()
-    self._generate()
-    self._write_spec()
-    self._write_manifest()
+    R.check_release()
+
+    R.build_folder.mkdirs()
+    self.generate()
+    R.write_spec()
+    R.write_manifest()
 
     self.log(1, L1("building %s-%s-%s.%s.rpm" % \
-                   (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch)))
-    mkrpm.build(self.build_folder, self.mddir, createrepo=False,
-                bdist_base=self.bdist_base, rpm_base=self.rpm_base,
-                dist_dir=self.dist_dir, keep_source=True,
+                   (R.name, R.version, R.release, R.arch)))
+    mkrpm.build(R.build_folder, self.mddir, createrepo=False,
+                bdist_base=R.bdist_base, rpm_base=R.rpm_base,
+                dist_dir=R.dist_dir, keep_source=True,
                 quiet=(self.logger.threshold < 5))
 
-    self._save_release()
+    R.save_release()
 
-    self.DATA['output'].append(self.rpm_path)
-    self.DATA['output'].append(self.srpm_path)
+    self.DATA['output'].append(R.rpm_path)
+    self.DATA['output'].append(R.srpm_path)
 
   def apply(self):
     self.io.clean_eventcache()
+
+    R = self.rpm
+
     custom_rpm_data = {}
 
-    custom_rpm_data['packagereq-default'] = self.packagereq_default
-    custom_rpm_data['packagereq-requires'] = self.packagereq_requires
-    custom_rpm_data['packagereq-type'] = self.packagereq_type
+    custom_rpm_data['packagereq-default']  = R.packagereq_default
+    custom_rpm_data['packagereq-requires'] = R.packagereq_requires
+    custom_rpm_data['packagereq-type']     = R.packagereq_type
 
-    custom_rpm_data['rpm-name'] = self.rpm_name
-    custom_rpm_data['rpm-obsoletes'] = self.rpm_obsoletes
-    custom_rpm_data['rpm-provides'] = self.rpm_provides
-    custom_rpm_data['rpm-requires'] = self.rpm_requires
+    custom_rpm_data['rpm-name']      = R.name
+    custom_rpm_data['rpm-obsoletes'] = R.obsoletes
+    custom_rpm_data['rpm-provides']  = R.provides
+    custom_rpm_data['rpm-requires']  = R.requires
 
-    custom_rpm_data['rpm-path'] = self.rpm_path
-    custom_rpm_data['srpm-path'] = self.srpm_path
+    custom_rpm_data['rpm-path']  = R.rpm_path
+    custom_rpm_data['srpm-path'] = R.srpm_path
 
     self.cvars['custom-rpms-data'][self.id] = custom_rpm_data
 
   def verify_rpm_exists(self):
     "rpm exists"
-    self.verifier.failUnless(self.rpm_path.exists(),
-                             "unable to find rpm at '%s'" % str(self.rpm_path))
+    self.verifier.failUnlessExists(self.rpm.rpm_path)
 
   def verify_srpm_exists(self):
     "srpm exists"
-    self.verifier.failUnless(self.srpm_path.exists(),
-                             "unable to find srpm at '%s'" % str(self.srpm_path))
+    self.verifier.failUnlessExists(self.rpm.srpm_path)
+
+  #----------- OPTIONAL METHODS --------#
+  def generate(self):
+    pass
+
+  # determine what files are ghost
+  def get_ghost_files(self): return None
+
+  # rpm scripts
+  def get_build(self):        return None
+  def get_clean(self):        return None
+  def get_install(self):      return None
+  def get_post(self):         return None
+  def get_postun(self):       return None
+  def get_pre(self):          return None
+  def get_prep(self):         return None
+  def get_preun(self):        return None
+  def get_verifyscript(self): return None
+
+  # trigger scripts
+  def get_triggerin(self):     return None
+  def get_triggerpostun(self): return None
+  def get_triggerun(self):     return None
+
+
+class RpmBuildObject:
+  def __init__(self, ptr, name, desc, summary, license=None,
+               provides=None, obsoletes=None, requires=None,
+               packagereq_type='mandatory', packagereq_default=None,
+               packagereq_requires=None):
+    self.ptr = ptr
+
+    self.desc    = desc
+    self.name    = name
+    self.summary = summary
+    self.license = license
+
+    self.obsoletes = obsoletes or []
+    self.requires  = requires  or []
+    self.provides  = provides  or []
+
+    if self.ptr.config.get('@use-default-set', 'True') not in BOOLEANS_TRUE:
+      self.obsoletes = []
+
+    self.packagereq_type     = packagereq_type
+    self.packagereq_default  = packagereq_default
+    self.packagereq_requires = packagereq_requires
+
+    self.autofile = self.ptr._config.file + '.dat'
+
+    # RPM build variables
+    self.build_folder = self.ptr.mddir / 'build'
+    self.bdist_base   = self.ptr.mddir / 'rpm-base'
+    self.rpm_base     = self.bdist_base / 'rpm'
+    self.dist_dir     = self.bdist_base / 'dist'
 
   #------------- PROPERTIES --------------#
-  def _get_rpm_path(self):
-    return self.mddir/'RPMS/%s-%s-%s.%s.rpm' % \
-           (self.rpm_name, self.rpm_version, self.rpm_release, self.rpm_arch)
-  rpm_path = property(_get_rpm_path)
+  @property
+  def rpm_path(self):
+    return self.ptr.mddir/'RPMS/%s-%s-%s.%s.rpm' % \
+             (self.name, self.version, self.release, self.arch)
 
-  def _get_srpm_path(self):
-    return self.mddir/'SRPMS/%s-%s-%s.src.rpm' % \
-           (self.rpm_name, self.rpm_version, self.rpm_release)
-  srpm_path = property(_get_srpm_path)
+  @property
+  def srpm_path(self):
+    return self.ptr.mddir/'SRPMS/%s-%s-%s.src.rpm' % \
+           (self.name, self.version, self.release)
 
-  def _get_data_files(self):
+  @property
+  def data_files(self):
     data_files = {}
     for item in self.build_folder.findpaths(type=pps.constants.TYPE_DIR, mindepth=1):
       files = item.findpaths(type=pps.constants.TYPE_NOT_DIR,
                              mindepth=1, maxdepth=1)
       if files:
-        data_files.setdefault(pps.path(item[len(self.build_folder):]), []).extend(files)
+        data_files.setdefault('/'/item.relpathfrom(self.build_folder), []).extend(files)
     return data_files
-  data_files = property(_get_data_files)
 
   #--------- RPM BUILD HELPER METHODS ---------#
-  def _setup_build(self, **kwargs):
+  def setup_build(self, **kwargs):
     if self.autofile.exists():
-      self.rpm_release = rxml.config.read(self.autofile).get(
-       '/distro/%s/rpms/%s/release/text()' % (self.distroid, self.id), '0')
+      self.release = rxml.config.read(self.autofile).get(
+       '/distro/%s/rpms/%s/release/text()' %
+       (self.ptr.distroid, self.ptr.id), '0')
     else:
-      self.rpm_release = '0'
+      self.release = '0'
 
-    if self.config.get('@use-default-set', 'True'):
-      self.rpm_obsoletes = self.default_obsoletes
-    else:
-      self.rpm_obsoletes = []
-    if self.config.pathexists('obsoletes/text()'):
-      self.rpm_obsoletes.extend(self.config.xpath('obsoletes/text()', []))
-    if kwargs.has_key('obsoletes'):
-      self.rpm_obsoletes.extend(kwargs['obsoletes'])
+    self.obsoletes.extend(self.ptr.config.xpath('obsoletes/text()', []))
+    self.obsoletes.extend(kwargs.get('obsoletes', []))
 
-    self.rpm_provides = [ x for x in self.rpm_obsoletes ]
-    if self.default_provides:
-      self.rpm_provides.extend(self.default_provides)
-    if kwargs.has_key('provides'):
-      self.rpm_provides.extend(kwargs['provides'])
+    self.provides.extend([ x for x in self.obsoletes ])
+    self.requires.extend(self.ptr.config.xpath('provides/text()', []))
+    self.provides.extend(kwargs.get('provides', []))
 
-    if self.default_requires:
-      self.rpm_requires = self.default_requires
-    else:
-      self.rpm_requires = []
-    if self.config.pathexists('requires/text()'):
-      self.rpm_requires.extend(self.config.xpath('requires/text()', []))
-    if kwargs.has_key('requires'):
-      self.rpm_requires.extend(kwargs['requires'])
+    self.requires.extend(self.ptr.config.xpath('requires/text()', []))
+    self.requires.extend(kwargs.get('requires', []))
 
-    self.diff.setup(self.DATA)
+    self.ptr.diff.setup(self.ptr.DATA)
 
-    self.rpm_arch = kwargs.get('arch', 'noarch')
-    self.rpm_author = kwargs.get('author', 'spin')
-    self.rpm_fullname = kwargs.get('fullname', self.fullname)
+    self.arch     = kwargs.get('arch',     'noarch')
+    self.author   = kwargs.get('author',   'spin')
+    self.fullname = kwargs.get('fullname', self.ptr.fullname)
     if kwargs.has_key('version'):
-      self.rpm_version = kwargs['version']
+      self.version = kwargs['version']
     else:
-      vermatch = VER_X_REGEX.match(self.version)
+      vermatch = VER_X_REGEX.match(self.ptr.version)
       if vermatch:
         # for interop with 3rd party repofiles that use $releasever
-        self.rpm_version = vermatch.group(1)
+        self.version = vermatch.group(1)
       else:
-        self.rpm_version = self.version
+        self.version = self.ptr.version
 
-  def _save_release(self):
+  def save_release(self):
     if self.autofile.exists():
-      root_element = rxml.config.read(self.autofile).get('/distro')
+      root = rxml.config.read(self.autofile).get('/distro')
     else:
-      root_element = rxml.config.Element('distro')
+      root = rxml.config.Element('distro')
 
-    distroid_element = rxml.config.uElement(self.distroid, parent=root_element)
-    rpms_element = rxml.config.uElement('rpms', parent=distroid_element)
-    parent_element = rxml.config.uElement(self.id, parent=rpms_element)
-    release_element = rxml.config.uElement('release', parent=parent_element)
+    distroid = rxml.config.uElement(self.ptr.distroid, parent=root)
+    rpms     = rxml.config.uElement('rpms', parent=distroid)
+    parent   = rxml.config.uElement(self.ptr.id, parent=rpms)
+    release  = rxml.config.uElement('release', parent=parent, text=self.release)
 
-    release_element.text = self.rpm_release
-    root_element.write(self.autofile)
+    root.write(self.autofile)
 
-    if self._config.file.exists():
+    if self.ptr._config.file.exists():
       # set the mode and ownership of distro.conf.dat and distro.conf to
       # be the same.
-      stat = self._config.file.stat()
-      self.autofile.chown(stat.st_uid, stat.st_gid)
-      self.autofile.chmod(stat.st_mode)
+      st = self.ptr._config.file.stat()
+      self.autofile.chown(st.st_uid, st.st_gid)
+      self.autofile.chmod(st.st_mode)
 
-  def _check_release(self):
-    if ( self.rpm_release == '0' or
+  def check_release(self):
+    if ( self.release == '0' or
          not self.autofile.exists() or
-         not self.mdfile.exists() or
-         self.diff.input.difference() or
-         self.diff.variables.difference() or
-         self.diff.config.difference() ):
-      self.rpm_release = str(int(self.rpm_release)+1)
+         not self.ptr.mdfile.exists() or
+         self.ptr.diff.input.difference() or
+         self.ptr.diff.variables.difference() or
+         self.ptr.diff.config.difference() ):
+      self.release = str(int(self.release)+1)
 
-  def _write_spec(self):
+  def write_spec(self):
     setupcfg = self.build_folder/'setup.cfg'
 
     spec = ConfigParser()
-    spec.add_section('pkg_data')
-    spec.add_section('bdist_rpm')
 
-    spec.set('pkg_data', 'name', self.rpm_name)
-    spec.set('pkg_data', 'long_description', self.rpm_desc)
-    spec.set('pkg_data', 'description', self.rpm_summary)
-    spec.set('pkg_data', 'author', self.rpm_author)
-    spec.set('pkg_data', 'version', self.rpm_version)
+    # pkg_data section
+    P = 'pkg_data'
+    spec.add_section(P)
 
-    if self.rpm_license is not None:
-      spec.set('pkg_data', 'license', self.rpm_license)
+    spec.set(P, 'name',             self.name)
+    spec.set(P, 'long_description', self.desc)
+    spec.set(P, 'description',      self.summary)
+    spec.set(P, 'author',           self.author)
+    spec.set(P, 'version',          self.version)
 
-    spec.set('bdist_rpm', 'force_arch', self.rpm_arch)
-    spec.set('bdist_rpm', 'distribution_name', self.rpm_fullname)
+    if self.license: spec.set(P, 'license', self.license)
 
-    spec.set('bdist_rpm', 'release', self.rpm_release)
+    # bdist_rpm section
+    B = 'bdist_rpm'
+    spec.add_section(B)
 
-    if self.rpm_provides:
-      spec.set('bdist_rpm', 'provides',  ' '.join(self.rpm_provides))
-    if self.rpm_requires:
-      spec.set('bdist_rpm', 'requires',  ' '.join(self.rpm_requires))
-    if self.rpm_obsoletes:
-      spec.set('bdist_rpm', 'obsoletes', ' '.join(self.rpm_obsoletes))
+    spec.set(B, 'force_arch',        self.arch)
+    spec.set(B, 'distribution_name', self.fullname)
+    spec.set(B, 'release',           self.release)
 
-    build_script = self._get_build_script()
-    if build_script:
-      spec.set('bdist_rpm', 'build_script', build_script)
+    if self.provides:  spec.set(B, 'provides',  ' '.join(self.provides))
+    if self.requires:  spec.set(B, 'requires',  ' '.join(self.requires))
+    if self.obsoletes: spec.set(B, 'obsoletes', ' '.join(self.obsoletes))
 
-    clean_script = self._get_clean_script()
-    if clean_script:
-      spec.set('bdist_rpm', 'clean_script', clean_script)
+    # get the various script types
+    build   = self.ptr.get_build()
+    clean   = self.ptr.get_clean()
+    install = self.ptr.get_install()
+    post    = self.ptr.get_post()
+    postun  = self.ptr.get_postun()
+    pre     = self.ptr.get_pre()
+    prep    = self.ptr.get_prep()
+    preun   = self.ptr.get_preun()
+    verify  = self.ptr.get_verifyscript()
 
-    install_script = self._get_install_script()
-    if install_script:
-      spec.set('bdist_rpm', 'install_script', install_script)
+    trig_in     = self.ptr.get_triggerin()
+    trig_postun = self.ptr.get_triggerpostun()
+    trig_un     = self.ptr.get_triggerun()
 
-    post_install_script = self._get_post_install_script()
-    if post_install_script:
-      spec.set('bdist_rpm', 'post_install', post_install_script)
+    ghost = self.ptr.get_ghost_files()
 
-    pre_uninstall_script = self._get_pre_uninstall_script()
-    if pre_uninstall_script:
-      spec.set('bdist_rpm', 'pre_uninstall', pre_uninstall_script)
+    # add to bdist_rpm
+    if build:   spec.set(B, 'build_script',   build)
+    if clean:   spec.set(B, 'clean_script',   clean)
+    if install: spec.set(B, 'install_script', install)
+    if post:    spec.set(B, 'post_install',   post)
+    if postun:  spec.set(B, 'post_uninstall', postun)
+    if pre:     spec.set(B, 'pre_install',    pre)
+    if prep:    spec.set(B, 'prep_script',    prep)
+    if preun:   spec.set(B, 'pre_uninstall',  preun)
+    if verify:  spec.set(B, 'verify_script',  verify)
 
-    post_uninstall_script = self._get_post_uninstall_script()
-    if post_uninstall_script:
-      spec.set('bdist_rpm', 'post_uninstall', post_uninstall_script)
+    if trig_in:     spec.set(B, 'triggerin',     '\n\t'.join(trig_in))
+    if trig_postun: spec.set(B, 'triggerpostun', '\n\t'.join(trig_postun))
+    if trig_un:     spec.set(B, 'triggerun',     '\n\t'.join(trig_un))
 
-    verify_script = self._get_verify_script()
-    if verify_script:
-      spec.set('bdist_rpm', 'verify_script', verify_script)
+    if ghost: spec.set(B, 'ghost_files', '\n\t'.join(ghost))
 
-    triggerin = self._get_triggerin()
-    if triggerin:
-      spec.set('bdist_rpm', 'triggerin', '\n\t'.join(triggerin))
-
-    triggerun = self._get_triggerun()
-    if triggerun:
-      spec.set('bdist_rpm', 'triggerun', '\n\t'.join(triggerun))
-
-    triggerpostun = self._get_triggerpostun()
-    if triggerpostun:
-      spec.set('bdist_rpm', 'triggerpostun', '\n\t'.join(triggerpostun))
-
-    ghost_files = self._get_ghost_files()
-    if ghost_files:
-      spec.set('bdist_rpm', 'ghost_files', '\n\t'.join(ghost_files))
-
-    self._add_data_files(spec)
-    self._add_config_files(spec)
-    self._add_doc_files(spec)
+    self.add_data_files(spec)
+    self.add_config_files(spec)
+    self.add_doc_files(spec)
 
     f = open(setupcfg, 'w')
     spec.write(f)
     f.close()
 
-  def _write_manifest(self):
+  def write_manifest(self):
     manifest = ['setup.py']
-    manifest.extend( [ x.splitall()[len(self.build_folder.splitall()):] \
-                       for x in self.build_folder.findpaths(type=pps.constants.TYPE_NOT_DIR) ] )
+    manifest.extend( [ x.relpathfrom(self.build_folder) for x in
+                       self.build_folder.findpaths(
+                         type=pps.constants.TYPE_NOT_DIR) ])
     (self.build_folder/'MANIFEST').write_lines(manifest)
 
-  def _add_data_files(self, spec):
-    data_files = []
-    for installdir, files in self.data_files.items():
-      data_files.append('%s : %s' %(installdir, ', '.join(files)))
-    if data_files:
-      spec.set('pkg_data', 'data_files', '\n\t'.join(data_files))
+  def add_data_files(self, spec):
+    data = []
+    for dir, files in self.data_files.items():
+      data.append('%s : %s' % (dir, ', '.join(files)))
+    if data: spec.set('pkg_data', 'data_files', '\n\t'.join(data))
 
-  def _add_config_files(self, spec):
-    config_files = []
-    for installdir in self.data_files.keys():
-      if installdir.startswith('/etc'): # config files
-        config_files.extend([
-          installdir/x.basename for x in self.data_files[installdir]
-        ])
-    if config_files:
-      spec.set('bdist_rpm', 'config_files', '\n\t'.join(config_files))
+  def add_config_files(self, spec):
+    cfg = []
+    for dir,files in self.data_files.items():
+      if dir.startswith('/etc'): # config files
+        cfg.extend([ dir/x.basename for x in files ])
+    if cfg: spec.set('bdist_rpm', 'config_files', '\n\t'.join(cfg))
 
-  def _add_doc_files(self, spec):
-    doc_files = []
+  def add_doc_files(self, spec):
+    doc = []
     if (self.build_folder / 'COPYING').exists():
-      doc_files.append('COPYING')
-    for installdir in self.data_files.keys():
-      if installdir.startswith('/usr/share/doc'):
-        doc_files.extend([
-          installdir/x.basename for x in self.data_files[installdir]
-        ])
-    if doc_files:
-      spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc_files))
-
-  #----------- OPTIONAL METHODS --------#
-  def _generate(self):
-    pass
-
-  def _get_ghost_files(self):
-    return None
-
-  def _get_build_script(self):
-    return None
-  def _get_clean_script(self):
-    return None
-  def _get_install_script(self):
-    return None
-  def _get_post_install_script(self):
-    return None
-  def _get_post_uninstall_script(self):
-    return None
-  def _get_pre_install_script(self):
-    return None
-  def _get_pre_uninstall_script(self):
-    return None
-  def _get_prep_script(self):
-    return None
-  def _get_verify_script(self):
-    return None
-
-  def _get_triggerin(self):
-    return None
-  def _get_triggerun(self):
-    return None
-  def _get_triggerpostun(self):
-    return None
+      doc.append('COPYING')
+    for dir,files in self.data_files.items():
+      if dir.startswith('/usr/share/doc'):
+        doc.extend([ dir/x.basename for x in files ])
+    if doc: spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc))

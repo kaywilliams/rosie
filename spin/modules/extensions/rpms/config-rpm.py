@@ -40,7 +40,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       "The %s-config provides scripts and supporting files for configuring "
       "the %s distribution." %(self.name, self.fullname),
       "%s configuration script and supporting files" % self.fullname,
-      default_requires = ['coreutils', 'policycoreutils']
+      requires = ['coreutils', 'policycoreutils']
     )
 
     InputFilesMixin.__init__(self, {
@@ -49,10 +49,10 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     })
 
     self.DATA = {
-      'variables': ['name', 'fullname', 'distroid', 'rpm_release'],
+      'variables': ['name', 'fullname', 'distroid', 'rpm.release'],
       'config':    ['.'],
       'input':     [],
-      'output':    [self.build_folder],
+      'output':    [self.rpm.build_folder],
     }
 
     self.auto_script = None
@@ -62,7 +62,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     self.file_ids = []
 
   def setup(self):
-    self._setup_build()
+    self.rpm.setup_build()
     self._setup_download()
 
   def _get_download_id(self, type):
@@ -81,8 +81,8 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     if 'dest' in item.attrib and item.attrib.get('dest').startswith('/'):
       self.file_ids.append(id)
 
-  def _generate(self):
-    RpmBuildMixin._generate(self)
+  def generate(self):
+    RpmBuildMixin.generate(self)
 
     self.io.sync_input(cache=True)
 
@@ -90,24 +90,24 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     config_scripts = []
     for id in [ 'scripts-%d' % i for i in xrange(self.script_count) ]:
       for path in self.io.list_output(id):
-        config_scripts.append('/' / path.relpathfrom(self.build_folder))
+        config_scripts.append('/' / path.relpathfrom(self.rpm.build_folder))
 
     if config_scripts:
-      self.auto_script = self.build_folder / 'usr/lib/%s/auto.sh' % self.name
+      self.auto_script = self.rpm.build_folder / 'usr/lib/%s/auto.sh' % self.name
       self.auto_script.dirname.mkdirs()
       self.auto_script.write_lines(['export CFGRPM_SCRIPTS=%s' % self.scriptdir,
                                     'export CFGRPM_FILES=%s' % self.filedir])
       self.auto_script.write_lines(config_scripts, append=True)
       self.auto_script.chmod(0755)
 
-  def _get_post_install_script(self):
+  def get_post(self):
     lines = []
 
     # move support files as needed
     if self.file_ids:
       for id in self.file_ids:
         for support_file in self.io.list_output(id):
-          src = '/' / support_file.relpathfrom(self.build_folder)
+          src = '/' / support_file.relpathfrom(self.rpm.build_folder)
           dst = '/' / src.relpathfrom(self.install_info['files'][1])
           dir = dst.dirname
           lines.extend([
@@ -123,21 +123,21 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
 
     # add auto script, if present
     if self.auto_script:
-      lines.append('/' / self.auto_script.relpathfrom(self.build_folder))
+      lines.append('/' / self.auto_script.relpathfrom(self.rpm.build_folder))
 
     if lines:
-      post_install = self.build_folder / 'post-install.sh'
+      post_install = self.rpm.build_folder / 'post-install.sh'
       post_install.write_lines(lines)
       return post_install
     return None
 
-  def _get_post_uninstall_script(self):
+  def get_postun(self):
     lines = []
     if self.file_ids:
       lines.append('if [ "$1" == "0" ]; then')
       for id in self.file_ids:
         for support_file in self.io.list_output(id):
-          src = '/' / support_file.relpathfrom(self.build_folder)
+          src = '/' / support_file.relpathfrom(self.rpm.build_folder)
           dst = '/' / src.relpathfrom(self.install_info['files'][1])
           lines.extend([
             '  if [ -e %s.rpmsave ]; then' % dst,
@@ -149,7 +149,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       lines.append('fi')
 
     if lines:
-      post_uninstall = self.build_folder / 'post-uninstall.sh'
+      post_uninstall = self.rpm.build_folder / 'post-uninstall.sh'
       post_uninstall.write_lines(lines)
       return post_uninstall
     return None
