@@ -120,7 +120,8 @@ class Build(object):
     if not logfile.isdir(): 
       self.logger = make_log(options.logthresh, logfile)
     else:
-      raise RuntimeError("The specified log-file '%s' is a directory, expecting path to a file." % logfile)
+      raise RuntimeError("The specified log-file '%s' is a directory, expecting "
+                         "path to a file." % logfile)
 
     # set up import_dirs
     import_dirs = self._compute_import_dirs(options)
