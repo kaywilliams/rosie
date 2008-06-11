@@ -366,8 +366,8 @@ class RpmBuildObject:
   def add_data_files(self, spec, section):
     data = []
     for dir, files in self.data_files.items():
-      data.append('%s : %s' % (dir, ', '.join(files)))
-    if data: spec.set(section, 'data_files', '\n\t'.join(data))
+      data.append('\t%s : %s' % (dir, ', '.join(files)))
+    if data: spec.set(section, 'data_files', '\n'.join(data))
 
   def add_config_files(self, spec, section):
     cfg = []
