@@ -56,7 +56,7 @@ class InputFilesMixin:
           id = self._get_download_id(k)
           self.ids.add(id)
 
-          self.io.add_item(s, self.build_folder//d/f, id=id or s, mode=m)
+          self.io.add_item(s, self.rpm.build_folder//d/f, id=id or s, mode=m)
 
           self._handle_attributes(id, item)
 
