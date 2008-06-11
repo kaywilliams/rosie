@@ -36,19 +36,19 @@ FLAGS_MAP = {
 #-------- SUPER (ABSTRACT) CLASSES ----------#
 class ExtractMixin(object):
   def _get_imgpath(self):
-    if self.event.rpm_path.exists():
-      if extracts.has_key(self.event.rpm_path):
-        return extracts[self.event.rpm_path]
+    if self.event.rpm.rpm_path.exists():
+      if extracts.has_key(self.event.rpm.rpm_path):
+        return extracts[self.event.rpm.rpm_path]
       working_dir = pps.path(tempfile.mkdtemp())
       img_path = pps.path(tempfile.mkdtemp())
       try:
         filename = working_dir / 'rpm.cpio'
-        miscutils.rpm2cpio(os.open(self.event.rpm_path, os.O_RDONLY), filename.open('w+'))
+        miscutils.rpm2cpio(os.open(self.event.rpm.rpm_path, os.O_RDONLY), filename.open('w+'))
         cpio = img.MakeImage(filename, 'cpio')
         cpio.open(point=img_path)
       finally:
         working_dir.rm(recursive=True, force=True)
-      extracts[self.event.rpm_path] = img_path
+      extracts[self.event.rpm.rpm_path] = img_path
       return img_path
     return None
   img_path = property(_get_imgpath)
@@ -59,18 +59,18 @@ class InputFilesMixinTestCase(ExtractMixin):
     for id in self.event.ids:
       for file in self.event.io.list_output(what=id):
         self.failUnlessExists(file)
-        self.failUnlessExists(self.img_path / file.relpathfrom(self.event.build_folder))
+        self.failUnlessExists(self.img_path / file.relpathfrom(self.event.rpm.build_folder))
 
 class RpmBuildMixinTestCase(object):
   def _get_rpmheader(self):
-    if self.event.rpm_path.exists():
-      if headers.has_key(self.event.rpm_path):
-        return headers[self.event.rpm_path]
+    if self.event.rpm.rpm_path.exists():
+      if headers.has_key(self.event.rpm.rpm_path):
+        return headers[self.event.rpm.rpm_path]
       ts = rpm.TransactionSet()
-      fdno = os.open(self.event.rpm_path, os.O_RDONLY)
+      fdno = os.open(self.event.rpm.rpm_path, os.O_RDONLY)
       rpm_header = ts.hdrFromFdno(fdno)
       os.close(fdno)
-      headers[self.event.rpm_path] = rpm_header
+      headers[self.event.rpm.rpm_path] = rpm_header
       del ts
       return rpm_header
     return None
@@ -113,29 +113,29 @@ class RpmBuildMixinTestCase(object):
     return deps
 
   def check_header(self):
-    for tag, rpmval, reqval in [('name', rpm.RPMTAG_NAME, 'rpm_name'),
-                                ('arch', rpm.RPMTAG_ARCH, 'rpm_arch'),
-                                ('version', rpm.RPMTAG_VERSION, 'rpm_version'),
-                                ('release', rpm.RPMTAG_RELEASE, 'rpm_release')]:
-      expected = getattr(self.event, reqval)
+    for tag, rpmval, reqval in [('name', rpm.RPMTAG_NAME, 'name'),
+                                ('arch', rpm.RPMTAG_ARCH, 'arch'),
+                                ('version', rpm.RPMTAG_VERSION, 'version'),
+                                ('release', rpm.RPMTAG_RELEASE, 'release')]:
+      expected = getattr(self.event.rpm, reqval)
       observed = self.rpm_header[rpmval]
       self.failUnless(observed == expected, "rpm %s incorrect: it is '%s', it should be '%s'" % \
                       (tag, observed, expected))
 
     observed_provides = self._get_provides()
-    for dep in self.event.rpm_provides:
+    for dep in self.event.rpm.provides:
       dep = dep.replace('==', '=') # for consistency
       self.failUnless(dep in observed_provides,
                       "provision '%s' not actually provided" % dep)
 
     observed_requires = self._get_requires()
-    for dep in self.event.rpm_requires:
+    for dep in self.event.rpm.requires:
       dep = dep.replace('==', '=') # for consistency
       self.failUnless(dep in observed_requires,
                       "requirement '%s' not actually required" % dep)
 
     observed_obsoletes = self._get_obsoletes()
-    for dep in self.event.rpm_obsoletes:
+    for dep in self.event.rpm.obsoletes:
       dep = dep.replace('==', '=') # for consistency
       self.failUnless(dep in observed_obsoletes,
                       "obsoleted '%s' not actually obsoleted" % dep)
@@ -143,15 +143,15 @@ class RpmBuildMixinTestCase(object):
 class RpmCvarsTestCase(object):
   def check_cvars(self):
     cvars = self.event.cvars['custom-rpms-data'][self.event.id]
-    self.failUnless(self.event.packagereq_default == cvars['packagereq-default'])
-    self.failUnless(self.event.packagereq_requires == cvars['packagereq-requires'])
-    self.failUnless(self.event.packagereq_type == cvars['packagereq-type'])
-    self.failUnless(self.event.rpm_name == cvars['rpm-name'])
-    self.failUnless(self.event.rpm_obsoletes == cvars['rpm-obsoletes'])
-    self.failUnless(self.event.rpm_provides == cvars['rpm-provides'])
-    self.failUnless(self.event.rpm_requires == cvars['rpm-requires'])
-    self.failUnless(self.event.rpm_path == cvars['rpm-path'])
-    self.failUnless(self.event.srpm_path == cvars['srpm-path'])
+    self.failUnless(self.event.rpm.packagereq_default == cvars['packagereq-default'])
+    self.failUnless(self.event.rpm.packagereq_requires == cvars['packagereq-requires'])
+    self.failUnless(self.event.rpm.packagereq_type == cvars['packagereq-type'])
+    self.failUnless(self.event.rpm.name == cvars['rpm-name'])
+    self.failUnless(self.event.rpm.obsoletes == cvars['rpm-obsoletes'])
+    self.failUnless(self.event.rpm.provides == cvars['rpm-provides'])
+    self.failUnless(self.event.rpm.requires == cvars['rpm-requires'])
+    self.failUnless(self.event.rpm.rpm_path == cvars['rpm-path'])
+    self.failUnless(self.event.rpm.srpm_path == cvars['srpm-path'])
 
 headers = {}
 extracts = {}
