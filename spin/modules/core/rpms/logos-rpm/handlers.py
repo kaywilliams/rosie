@@ -107,7 +107,6 @@ class LogosRpmFilesHandler(object):
             break
           font = ImageFont.truetype(font_path, font_size)
           w, h = draw.textsize(text_string, font=font)
-
       if halign == 'center':
         draw.text((text_coords[0]-(w/2), text_coords[1]-(h/2)),
                   text_string, font=font, fill=font_color)
