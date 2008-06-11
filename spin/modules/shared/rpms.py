@@ -150,9 +150,7 @@ class RpmBuildMixin:
   def get_verifyscript(self): return None
 
   # trigger scripts
-  def get_triggerin(self):     return None
-  def get_triggerpostun(self): return None
-  def get_triggerun(self):     return None
+  def get_triggers(self):     return None
 
 
 class RpmBuildObject:
@@ -275,17 +273,17 @@ class RpmBuildObject:
 
     spec = ConfigParser()
 
-    # pkg_data section
-    P = 'pkg_data'
-    spec.add_section(P)
+    # metadata section
+    M = 'metadata'
+    spec.add_section(M)
 
-    spec.set(P, 'name',             self.name)
-    spec.set(P, 'long_description', self.desc)
-    spec.set(P, 'description',      self.summary)
-    spec.set(P, 'author',           self.author)
-    spec.set(P, 'version',          self.version)
+    spec.set(M, 'name',             self.name)
+    spec.set(M, 'long_description', self.desc)
+    spec.set(M, 'description',      self.summary)
+    spec.set(M, 'author',           self.author)
+    spec.set(M, 'version',          self.version)
 
-    if self.license: spec.set(P, 'license', self.license)
+    if self.license: spec.set(M, 'license', self.license)
 
     # bdist_rpm section
     B = 'bdist_rpm'
@@ -310,9 +308,7 @@ class RpmBuildObject:
     preun   = self.ptr.get_preun()
     verify  = self.ptr.get_verifyscript()
 
-    trig_in     = self.ptr.get_triggerin()
-    trig_postun = self.ptr.get_triggerpostun()
-    trig_un     = self.ptr.get_triggerun()
+    triggers = self.ptr.get_triggers()
 
     ghost = self.ptr.get_ghost_files()
 
@@ -327,15 +323,34 @@ class RpmBuildObject:
     if preun:   spec.set(B, 'pre_uninstall',  preun)
     if verify:  spec.set(B, 'verify_script',  verify)
 
-    if trig_in:     spec.set(B, 'triggerin',     '\n\t'.join(trig_in))
-    if trig_postun: spec.set(B, 'triggerpostun', '\n\t'.join(trig_postun))
-    if trig_un:     spec.set(B, 'triggerun',     '\n\t'.join(trig_un))
+    if triggers:
+      spec.set(B, 'trigger_dir', self.build_folder)
+      spec.set(B, 'triggers', ' '.join(triggers.keys()))
+      for id, info in triggers.iteritems():
+        trigger = info.get('trigger', id)
+        trigin  = info.get('triggerin_script', None)
+        trigun  = info.get('triggerun_script', None)
+        trigpun = info.get('triggerpostun_script', None)
+        flags   = info.get('flags', None)
+
+        lines = ['[%s]' % id, 'trigger = %s' % trigger]
+        if trigin  : lines.append('triggerin_script = %s' % trigin)
+        if trigin  : lines.append('triggerun_script = %s' % trigun)
+        if trigpun : lines.append('triggerpostun_script = %s' % trigpun)
+        if flags   : lines.append('flags = %s' % flags)
+
+        (self.build_folder / '%s.cfg' % id).write_lines(lines)
 
     if ghost: spec.set(B, 'ghost_files', '\n\t'.join(ghost))
 
-    self.add_data_files(spec)
-    self.add_config_files(spec)
-    self.add_doc_files(spec)
+    # distribution related data
+    D = 'distribution'
+    spec.add_section(D)
+
+    self.add_data_files(spec, D)
+    self.add_config_files(spec, B)
+    self.add_doc_files(spec, B)
+
 
     f = open(setupcfg, 'w')
     spec.write(f)
@@ -348,24 +363,24 @@ class RpmBuildObject:
                          type=pps.constants.TYPE_NOT_DIR) ])
     (self.build_folder/'MANIFEST').write_lines(manifest)
 
-  def add_data_files(self, spec):
+  def add_data_files(self, spec, section):
     data = []
     for dir, files in self.data_files.items():
       data.append('%s : %s' % (dir, ', '.join(files)))
-    if data: spec.set('pkg_data', 'data_files', '\n\t'.join(data))
+    if data: spec.set(section, 'data_files', '\n\t'.join(data))
 
-  def add_config_files(self, spec):
+  def add_config_files(self, spec, section):
     cfg = []
     for dir,files in self.data_files.items():
       if dir.startswith('/etc'): # config files
         cfg.extend([ dir/x.basename for x in files ])
-    if cfg: spec.set('bdist_rpm', 'config_files', '\n\t'.join(cfg))
+    if cfg: spec.set(section, 'config_files', '\n\t'.join(cfg))
 
-  def add_doc_files(self, spec):
+  def add_doc_files(self, spec, section):
     doc = []
     if (self.build_folder / 'COPYING').exists():
       doc.append('COPYING')
     for dir,files in self.data_files.items():
       if dir.startswith('/usr/share/doc'):
         doc.extend([ dir/x.basename for x in files ])
-    if doc: spec.set('bdist_rpm', 'doc_files', '\n\t'.join(doc))
+    if doc: spec.set(section, 'doc_files', '\n\t'.join(doc))

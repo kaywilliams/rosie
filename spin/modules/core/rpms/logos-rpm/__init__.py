@@ -105,25 +105,27 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     post_uninstall.write_text(self.distro_info['post-uninstall'])
     return post_uninstall
 
-  def get_triggerin(self):
+  def get_triggers(self):
+    rtn = {}
+    self.get_triggerin(rtn)
+    self.get_triggerun(rtn)
+    return rtn
+
+  def get_triggerin(self, rtn):
     if not self.distro_info.has_key('triggerin'):
       return None
-    rtn = []
     for target, content in self.distro_info['triggerin'].items():
       script = self.rpm.build_folder / '%s-triggerin.sh' % target
       script.write_text(content % {'rpm_name': self.rpm.name})
-      rtn.append('%s:%s' % (target, script))
-    return rtn
+      rtn.setdefault(target, {})['triggerin_script'] = script
 
-  def get_triggerun(self):
+  def get_triggerun(self, rtn):
     if not self.distro_info.has_key('triggerun'):
       return None
-    rtn = []
     for target, content in self.distro_info['triggerun'].items():
       script = self.rpm.build_folder / '%s-triggerun.sh' % target
       script.write_text(content % {'rpm_name': self.rpm.name})
-      rtn.append('%s:%s' % (target, script))
-    return rtn
+      rtn.setdefault(target, {})['triggerun_script'] = script
 
   def _setup_handlers(self):
     supplied_logos = self.config.get('logos-path/text()', None)
