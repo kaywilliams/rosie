@@ -97,7 +97,7 @@ def CoreEventTestCase01(self):
     self.execute_predecessors(self.event)
     self.failUnlessRuns(self.event)
     result = self.event.verifier.unittest()
-    self.failUnless(result.wasSuccessful(), result._strErrors())
+    self.failUnless(result.wasSuccessful(), '\n'+result._strErrors())
 
   decorate(self, 'setUp', postfn=post_setup)
   self.runTest = runTest
@@ -113,7 +113,7 @@ def CoreEventTestCase02(self):
     self.execute_predecessors(self.event)
     self.failIfRuns(self.event)
     result = self.event.verifier.unittest()
-    self.failUnless(result.wasSuccessful(), result._strErrors())
+    self.failUnless(result.wasSuccessful(), '\n'+result._strErrors())
 
   decorate(self, 'setUp', postfn=post_setup)
   self.runTest = runTest
@@ -129,7 +129,7 @@ def CoreEventTestCase03(self):
     self.execute_predecessors(self.event)
     self.failUnlessRuns(self.event)
     result = self.event.verifier.unittest()
-    self.failUnless(result.wasSuccessful(), result._strErrors())
+    self.failUnless(result.wasSuccessful(), '\n'+result._strErrors())
 
   decorate(self, 'setUp', postfn=post_setup)
   self.runTest = runTest
@@ -145,7 +145,7 @@ def CoreEventTestCase04(self):
     self.execute_predecessors(self.event)
     self.failIfRuns(self.event)
     result = self.event.verifier.unittest()
-    self.failUnless(result.wasSuccessful(), result._strErrors())
+    self.failUnless(result.wasSuccessful(), '\n'+result._strErrors())
 
   decorate(self, 'setUp', postfn=post_setup)
   self.runTest = runTest
@@ -157,7 +157,7 @@ def CoreEventTestCase05(self):
   def runTest():
     self.tb.dispatch.execute(until=self.event.id)
     result = self.event.verifier.unittest()
-    self.failUnless(result.wasSuccessful(), result._strErrors())
+    self.failUnless(result.wasSuccessful(), '\n'+result._strErrors())
 
   decorate(self, 'setUp')
   self.runTest = runTest
