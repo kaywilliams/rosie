@@ -18,16 +18,19 @@
     <!-- See mirrors.fedoraproject.org for a list of public mirrors -->
     <macro id="mirror">http://download.fedora.redhat.com/pub/fedora/linux</macro>
     <repo id='base'>
+      <name>Fedora $releasever - $basearch - Base</name>
       <baseurl>%{mirror}/releases/$releasever/Fedora/$basearch/os/</baseurl>
       <gpgkey>%{mirror}/releases/$releasever/Fedora/$basearch/os/RPM-GPG-KEY</gpgkey>
       <gpgkey>%{mirror}/releases/$releasever/Fedora/$basearch/os/RPM-GPG-KEY-fedora</gpgkey>
     </repo>
     <repo id="everything">
+      <name>Fedora $releasever - $basearch - Everything</name>
       <baseurl>%{mirror}/releases/$releasever/Everything/$basearch/os/</baseurl>
       <gpgkey>%{mirror}/releases/$releasever/Fedora/$basearch/os/RPM-GPG-KEY</gpgkey>
       <gpgkey>%{mirror}/releases/$releasever/Fedora/$basearch/os/RPM-GPG-KEY-fedora</gpgkey>
     </repo>
     <repo id="updates">
+      <name>Fedora $releasever - $basearch - Updates</name>
       <baseurl>%{mirror}/updates/$releasever/$basearch/</baseurl>
       <gpgkey>%{mirror}/releases/$releasever/Fedora/$basearch/os/RPM-GPG-KEY</gpgkey>
       <gpgkey>%{mirror}/releases/$releasever/Fedora/$basearch/os/RPM-GPG-KEY-fedora</gpgkey>
