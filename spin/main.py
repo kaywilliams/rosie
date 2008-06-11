@@ -117,7 +117,10 @@ class Build(object):
               or self.distroconfig.get('/distro/main/log-file/text()', None)
               or self.mainconfig.get('/spin/log-file/text()', None)
               or DEFAULT_LOG_FILE).expand().abspath()
-    self.logger = make_log(options.logthresh, logfile)
+    if not logfile.isdir(): 
+      self.logger = make_log(options.logthresh, logfile)
+    else:
+      raise RuntimeError("The specified log-file '%s' is a directory, expecting path to a file." % logfile)
 
     # set up import_dirs
     import_dirs = self._compute_import_dirs(options)
