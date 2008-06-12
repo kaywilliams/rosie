@@ -28,7 +28,7 @@ class BootisoEvent(Event, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'bootiso',
-      version = 1,
+      version = '0.1',
       requires = ['isolinux-files', 'boot-config-file', 'stage2-images'],
       # stage2 is a pseudo requirement, only in later anaconda versions does it apply
       conditionally_requires = ['web-path', 'boot-args'],
