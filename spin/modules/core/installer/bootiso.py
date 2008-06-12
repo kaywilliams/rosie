@@ -28,9 +28,8 @@ class BootisoEvent(Event, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'bootiso',
-      version = '0.1',
-      requires = ['isolinux-files', 'boot-config-file', 'stage2-images'],
-      # stage2 is a pseudo requirement, only in later anaconda versions does it apply
+      version = '0.2',
+      requires = ['isolinux-files', 'boot-config-file'],
       conditionally_requires = ['web-path', 'boot-args'],
     )
 
@@ -63,12 +62,6 @@ class BootisoEvent(Event, BootConfigMixin):
       else:
         # link other files
         self.link(fn, isolinuxdir)
-
-    # hack - until we have time to do this better
-    if self.cvars['anaconda-version'] >= '11.4.0.40':
-      imagesdir   = isodir/'images'
-      imagesdir.mkdirs()
-      self.link(self.cvars['stage2-images']['stage2.img'], imagesdir)
 
     # apparently mkisofs modifies the mtime of the file it uses as a boot image.
     # to avoid this, we copy the boot image timestamp and overwrite the original
