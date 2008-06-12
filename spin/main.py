@@ -410,9 +410,9 @@ class Build(object):
     # reverse the order so we get cli options, then config, then defaults
     Event.SHARE_DIRS = [ x for x in reversed(sharedirs) ]
 
-    cache_max_size = self.mainconfig.get('/spin/cache/max-size/text()', '30GiB')
+    cache_max_size = self.mainconfig.get('/spin/cache/max-size/text()', '30GB')
     if cache_max_size.isdigit():
-      cache_max_size = '%sGiB' % cache_max_size
+      cache_max_size = '%sGB' % cache_max_size
     Event.CACHE_MAX_SIZE = si.parse(cache_max_size)
 
     Event.cache_handler = cache.CachedSyncHandler(
