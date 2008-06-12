@@ -63,6 +63,8 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     self.cvars.setdefault('isolinux-files', {})
     for k,v in self.file_locals.items():
       self.cvars['isolinux-files'][k] = self.SOFTWARE_STORE/v['path']
-
+    if self.cvars.get('installer-splash', None) is not None:
+      splash_image = self.cvars['installer-splash']
+      self.cvars['isolinux-files'][splash_image.basename] = splash_image
     self.cvars['boot-config-file'] = \
       self.SOFTWARE_STORE/self.file_locals['isolinux.cfg']['path']
