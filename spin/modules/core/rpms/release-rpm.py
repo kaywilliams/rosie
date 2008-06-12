@@ -30,7 +30,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'release-rpm',
-      version = '0.9',
+      version = '0.91',
       requires = ['release-versions', 'input-repos'],
       provides = ['custom-rpms-data'],
       conditionally_requires = ['web-path', 'gpgsign-public-key']
