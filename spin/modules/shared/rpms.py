@@ -28,7 +28,7 @@ from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 from spin.logging   import L1
 
-__all__ = ['InputFilesMixin', 'RpmBuildMixin']
+__all__ = ['InputFilesMixin', 'RpmBuildMixin', 'Trigger', 'TriggerContainer']
 
 VER_X_REGEX = re.compile('[^0-9]*([0-9]+).*')
 
@@ -324,22 +324,23 @@ class RpmBuildObject:
     if verify:  spec.set(B, 'verify_script',  verify)
 
     if triggers:
-      spec.set(B, 'trigger_dir', self.build_folder)
-      spec.set(B, 'triggers', ' '.join(triggers.keys()))
-      for id, info in triggers.iteritems():
-        trigger = info.get('trigger', id)
-        trigin  = info.get('triggerin_script', None)
-        trigun  = info.get('triggerun_script', None)
-        trigpun = info.get('triggerpostun_script', None)
-        flags   = info.get('flags', None)
+      trigcfg = self.build_folder / 'triggers.cfg'
 
-        lines = ['[%s]' % id, 'trigger = %s' % trigger]
-        if trigin  : lines.append('triggerin_script = %s' % trigin)
-        if trigin  : lines.append('triggerun_script = %s' % trigun)
-        if trigpun : lines.append('triggerpostun_script = %s' % trigpun)
-        if flags   : lines.append('flags = %s' % flags)
+      ## convert *_text tags to *_script tags
+      for trigger in triggers:
+        for tag in ['triggerin', 'triggerun', 'triggerpostun']:
+          script_tag = '%s_script' % tag
+          text_tag   = '%s_text' % tag
+          if text_tag in trigger:
+            file = trigger.get(script_tag, None)
+            if file is None:
+              file = self.build_folder / '%s-%s.sh' % (trigger.id, tag)
+              trigger[script_tag] = file
+            file.write_text(trigger[text_tag], append=True)
+            trigger.pop(text_tag)
 
-        (self.build_folder / '%s.cfg' % id).write_lines(lines)
+      triggers.write_config(trigcfg)
+      spec.set(B, 'trigger_configs', trigcfg)
 
     if ghost: spec.set(B, 'ghost_files', '\n\t'.join(ghost))
 
@@ -350,7 +351,6 @@ class RpmBuildObject:
     self.add_data_files(spec, D)
     self.add_config_files(spec, B)
     self.add_doc_files(spec, B)
-
 
     f = open(setupcfg, 'w')
     spec.write(f)
@@ -384,3 +384,57 @@ class RpmBuildObject:
       if dir.startswith('/usr/share/doc'):
         doc.extend([ dir/x.basename for x in files ])
     if doc: spec.set(section, 'doc_files', '\n\t'.join(doc))
+
+
+class TriggerContainer(list):
+  def __init__(self, iterable=None):
+    iterable = iterable or []
+    self.check(iterable)
+    list.__init__(self, iterable)
+
+  def write_config(self, file):
+    lines = []
+    for trigger in self:
+      lines.append(str(trigger))
+      lines.append('')
+    file.write_lines(lines)
+
+  def extend(self, item):
+    self.check(item)
+    list.extend(self, item)
+
+  def append(self, item):
+    self.check(item)
+    list.append(self, item)
+
+  def insert(self, index, item):
+    self.check(item)
+    list.insert(self, index, item)
+
+  def check(self, item):
+    if not hasattr(item, '__iter__'):
+      item = [item]
+    if isinstance(item, Trigger):
+      return
+    for x in item:
+      if not isinstance(x, Trigger):
+        raise Exception("Trying to add non-Trigger object '%s' to TriggerContainer" % x)
+
+
+class Trigger(dict):
+  def __init__(self, id, **kwargs):
+    self.id = id
+    dict.__init__(self, **kwargs)
+
+  def __str__(self):
+    lines = ['[%s]' % self.id]
+    if 'triggerid' not in self:
+      lines.append('triggerid = %s' % self.id)
+    for key, value in self.iteritems():
+      if hasattr(value, '__iter__'):
+        val = '\n\t'.join(value)
+        lines.append('%s = %s' % (key, val.strip('\n')))
+      else:
+        lines.append('%s = %s' % (key, value))
+    return '\n'.join(lines)
+

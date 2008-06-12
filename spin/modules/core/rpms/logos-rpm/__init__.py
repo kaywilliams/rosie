@@ -24,7 +24,7 @@ from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 from spin.locals    import L_LOGOS_RPM_INFO
 
-from spin.modules.shared import RpmBuildMixin
+from spin.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
 
 from constants import *
 from handlers  import *
@@ -106,16 +106,16 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     return post_uninstall
 
   def get_triggers(self):
-    rtn = {}
+    triggers = TriggerContainer()
     for target, content in self.distro_info.get('triggerin', {}).items():
       script = self.rpm.build_folder / '%s-triggerin.sh' % target
       script.write_text(content % {'rpm_name': self.rpm.name})
-      rtn.setdefault(target, {})['triggerin_script'] = script
+      triggers.append(Trigger(target, triggerin_script=script))
     for target, content in self.distro_info.get('triggerun', {}).items():
       script = self.rpm.build_folder / '%s-triggerun.sh' % target
       script.write_text(content % {'rpm_name': self.rpm.name})
-      rtn.setdefault(target, {})['triggerun_script'] = script
-    return rtn
+      triggers.append(Trigger(target, triggerun_script=script))
+    return triggers
 
   def _setup_handlers(self):
     supplied_logos = self.config.get('logos-path/text()', None)
