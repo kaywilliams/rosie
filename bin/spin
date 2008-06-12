@@ -51,7 +51,7 @@ def main():
 
   config_group = OptionGroup(parser, "config options")
   config_group.add_option('-c', '--config', metavar='PATH',
-    default='/etc/spin.conf',
+    default='/etc/spin/spin.conf',
     dest='mainconfigpath',
     help="specify path to the config file")
   config_group.add_option('--no-validate',
