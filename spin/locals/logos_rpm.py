@@ -424,7 +424,6 @@ L_LOGOS_RPM_FILES = LocalsDict({
           text = '%(fullname)s',
           font = 'DejaVuLGCSans-Bold.ttf',
           font_size = 14,
-          font_color = 'white',
           text_coords = (500, 180),
           text_max_width = 140,
         ),
@@ -432,13 +431,11 @@ L_LOGOS_RPM_FILES = LocalsDict({
           text = 'Version %(version)s',
           halign = 'right',
           font_size = 12,
-          font_color = 'white',
           text_coords = (540, 195),
         ),
         dict(
           text = '%(copyright)s',
           font_size = 9,
-          font_color = '#9d9d9d',
           text_coords = (320, 290),
         )
       ],
