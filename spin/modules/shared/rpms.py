@@ -325,20 +325,6 @@ class RpmBuildObject:
 
     if triggers:
       trigcfg = self.build_folder / 'triggers.cfg'
-
-      ## convert *_text tags to *_script tags
-      for trigger in triggers:
-        for tag in ['triggerin', 'triggerun', 'triggerpostun']:
-          script_tag = '%s_script' % tag
-          text_tag   = '%s_text' % tag
-          if text_tag in trigger:
-            file = trigger.get(script_tag, None)
-            if file is None:
-              file = self.build_folder / '%s-%s.sh' % (trigger.id, tag)
-              trigger[script_tag] = file
-            file.write_text(trigger[text_tag], append=True)
-            trigger.pop(text_tag)
-
       triggers.write_config(trigcfg)
       spec.set(B, 'trigger_configs', trigcfg)
 
@@ -437,4 +423,3 @@ class Trigger(dict):
       else:
         lines.append('%s = %s' % (key, value))
     return '\n'.join(lines)
-

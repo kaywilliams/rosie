@@ -110,11 +110,11 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     for target, content in self.distro_info.get('triggerin', {}).items():
       script = self.rpm.build_folder / '%s-triggerin.sh' % target
       script.write_text(content % {'rpm_name': self.rpm.name})
-      triggers.append(Trigger(target, triggerin_script=script))
+      triggers.append(Trigger(target, triggerin_scripts=[script]))
     for target, content in self.distro_info.get('triggerun', {}).items():
       script = self.rpm.build_folder / '%s-triggerun.sh' % target
       script.write_text(content % {'rpm_name': self.rpm.name})
-      triggers.append(Trigger(target, triggerun_script=script))
+      triggers.append(Trigger(target, triggerun_scripts=[script]))
     return triggers
 
   def _setup_handlers(self):
