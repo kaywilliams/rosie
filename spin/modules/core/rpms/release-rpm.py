@@ -20,20 +20,19 @@ from rendition import pps
 from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 
-from spin.modules.shared import InputFilesMixin, RpmBuildMixin
+from spin.modules.shared import RpmBuildMixin
 
 API_VERSION = 5.0
 
 EVENTS = {'rpms': ['ReleaseRpmEvent']}
 
-class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
+class ReleaseRpmEvent(RpmBuildMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'release-rpm',
       version = '0.91',
       requires = ['release-versions', 'input-repos'],
       provides = ['custom-rpms-data'],
-      conditionally_requires = ['web-path', 'gpgsign-public-key']
     )
 
     RpmBuildMixin.__init__(self,
@@ -45,53 +44,39 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
                    'redhat-release-notes', 'centos-release-notes']
     )
 
-    self.doc_dir     = pps.path('/usr/share/doc/%s-release-notes-%s' % (self.name, self.version))
-    self.etc_dir     = pps.path('/etc')
-    self.eula_dir    = pps.path('/usr/share/eula')
-    self.eulapy_dir  = pps.path('/usr/share/firstboot/modules')
-    self.gpg_dir     = pps.path('/etc/pkg/rpm-gpg')
-    self.html_dir    = pps.path('/usr/share/doc/HTML')
-    self.omf_dir     = pps.path('/usr/share/omf/%s-release-notes' % self.name)
-    self.release_dir = pps.path('/usr/share/doc/%s-release-%s' % (self.name, self.version))
-    self.repo_dir    = pps.path('/etc/yum.repos.d')
-
-    InputFilesMixin.__init__(self, {
-      'gpg'     : (None, self.gpg_dir, None, True),
-      'repo'    : ('yum-repos/path', self.repo_dir, None, True),
-      'eula'    : ('eula/path', self.eula_dir, None, True),
-      'omf'     : ('release-notes/omf/path', self.omf_dir, None, True),
-      'html'    : ('release-notes/html/path', self.html_dir, None, True),
-      'doc'     : ('release-notes/doc/path', self.doc_dir, None, True),
-      'release' : ('release-files/path', self.release_dir, None, True),
-      'etc'     : (None, self.etc_dir, None, True),
-      'eulapy'  : (None, self.eulapy_dir, None, True),
-    })
+    d = self.rpm.build_folder
+    self.filetypes = {
+      'eula'    : d/'usr/share/eula',
+      'omf'     : d/'usr/share/omf/%s-release-notes' % self.name,
+      'html'    : d/'usr/share/doc/HTML',
+      'doc'     : d/'usr/share/doc/%s-release-notes-%s' % (self.name, self.version),
+      'release' : d/'usr/share/doc/%s-release-%s' % (self.name, self.version),
+      'etc'     : d/'etc',
+      'eulapy'  : d/'usr/share/firstboot/modules',
+    }
 
     self.DATA = {
       'config':    ['.'],
-      'variables': ['fullname', 'name', 'distroid', 'cvars[\'web-path\']',
-                    'rpm.release', 'cvars[\'release-versions\']'],
+      'variables': ['fullname', 'name', 'rpm.release',
+                    'cvars[\'release-versions\']'],
       'input':     [],
       'output':    [self.rpm.build_folder],
     }
 
   def setup(self):
-    obsoletes = [ '%s %s %s' %(n,e,v)
+    obsoletes = [ '%s %s %s' % (n,e,v)
                   for n,e,v in self.cvars.get('release-versions', [])]
-    provides = [ '%s %s %s' % (n,e,v)
-                 for _,e,v in self.cvars.get('release-versions', [])]
+    provides  = [ '%s %s %s' % (n,e,v)
+                  for n,e,v in self.cvars.get('release-versions', [])]
     provides.extend( [ 'redhat-release %s %s' % (e,v)
                        for _,e,v in self.cvars.get('release-versions', [])])
     self.rpm.setup_build(obsoletes=obsoletes, provides=provides)
-    self._setup_download()
 
-    # public gpg keys
-    if self.cvars['gpgsign-public-key']:
-      self.io.add_fpath(self.cvars.get('gpgsign-public-key'),
-                        self.rpm.build_folder//self.gpg_dir)
-    else:
-      for repo in self.cvars['repos'].values():
-        self.io.add_fpaths(repo.gpgkey, self.rpm.build_folder//self.gpg_dir)
+    self.io.add_xpath('eula/path',               self.filetypes['eula'])
+    self.io.add_xpath('release-notes/omf/path',  self.filetypes['omf'])
+    self.io.add_xpath('release-notes/html/path', self.filetypes['html'])
+    self.io.add_xpath('release-notes/doc/path',  self.filetypes['doc'])
+    self.io.add_xpath('release-files/path',      self.filetypes['release'])
 
     # eulapy file
     include_firstboot = self.config.get('eula/include-in-firstboot/text()',
@@ -102,51 +87,46 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       for path in self.SHARE_DIRS:
         path = path/'release/eula.py'
         if path.exists():
-          self.io.add_fpath(path, self.rpm.build_folder//self.eulapy_dir)
+          self.io.add_fpath(path, self.filetypes['eulapy'])
           found = True; break
       if not found:
         raise RuntimeError("release/eula.py not found in %s" % self.SHARE_DIRS)
-
-    # yum-repos
-    if self.config.get('yum-repos/@include-input', 'True') in BOOLEANS_TRUE:
-      self.DATA['variables'].append('cvars[\'repos\']')
 
   def generate(self):
     "Generate additional files."
     RpmBuildMixin.generate(self)
 
     self.io.sync_input(cache=True)
-    for type in self.install_info.keys():
-      _, dir, _, _ = self.install_info[type]
-      generator = '_generate_%s_files' % type
+    for filetype,dir in self.filetypes.items():
+      generator = '_generate_%s_files' % filetype
       if hasattr(self, generator):
-        getattr(self, generator)(self.rpm.build_folder//dir)
+        getattr(self, generator)(dir)
     self._verify_release_notes()
 
   def _verify_release_notes(self):
     "Ensure the presence of RELEASE-NOTES.html and an index.html"
     rnotes = self.rpm.build_folder.findpaths(glob='RELEASE-NOTES*')
     if len(rnotes) == 0:
-      dir = self.rpm.build_folder//self.html_dir
-      dir.mkdirs()
+      self.filetypes['html'].mkdirs()
 
       # create a default release notes file because none were found.
       import locale
-      path = dir/('RELEASE-NOTES-%s.html' % locale.getdefaultlocale()[0])
+      path = self.filetypes['html']/'RELEASE-NOTES-%s.html' % \
+        locale.getdefaultlocale()[0]
 
       f = path.open('w')
       f.write(self.locals.L_RELEASE_HTML)
       f.close()
       path.chmod(0644)
 
-      index_html = dir/'index.html'
+      index_html = self.filetypes['html']/'index.html'
       if not index_html.exists():
         path.link(index_html)
         index_html.chmod(0644)
 
   def _generate_etc_files(self, dest):
     dest.mkdirs()
-    release_string = ['%s %s' %(self.fullname, self.version)]
+    release_string = ['%s %s' % (self.fullname, self.version)]
     issue_string = ['Kernel \\r on an \\m\n']
 
     # write the distro-release and redhat-release files
@@ -161,29 +141,3 @@ class ReleaseRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
     (dest/'%s-release' % self.name).chmod(0644)
     (dest/'issue').chmod(0644)
     (dest/'issue.net').chmod(0644)
-
-  def _generate_repo_files(self, dest):
-    dest.mkdirs()
-    repofile = dest/'%s.repo' % self.name
-
-    lines = []
-
-    if self.config.get('yum-repos/@include-distro', 'True') in BOOLEANS_TRUE \
-           and self.cvars['web-path']:
-      path = self.cvars['web-path'] / 'os'
-      lines.extend([ '[%s]' % self.name,
-                     'name=%s - %s' % (self.fullname, self.basearch),
-                     'baseurl=%s'   % path ])
-      if self.cvars['gpgsign-public-key']:
-        gpgkey = '%s/%s' % (path, pps.path(self.cvars['gpgsign-public-key']).basename)
-        lines.extend(['gpgcheck=1', 'gpgkey=%s' % gpgkey])
-      else:
-        lines.append('gpgcheck=0')
-      lines.append('\n')
-
-    if self.config.get('yum-repos/@include-input', 'True') in BOOLEANS_TRUE:
-      for repo in self.cvars['repos'].values():
-        lines.extend(repo.lines(pretty=True))
-
-    if len(lines) > 0:
-      repofile.write_lines(lines)

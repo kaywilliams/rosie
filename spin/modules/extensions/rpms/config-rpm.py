@@ -15,38 +15,41 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+from rendition import pps
+
 from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
+from spin.validate  import InvalidConfigError
 
-from spin.modules.shared import InputFilesMixin, RpmBuildMixin
+from spin.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
+
+import md5
 
 API_VERSION = 5.0
 
 EVENTS = {'rpms': ['ConfigRpmEvent']}
 
-class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
+class ConfigRpmEvent(RpmBuildMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'config-rpm',
       version = '0.92',
-      provides = ['custom-rpms-data']
+      provides = ['custom-rpms-data'],
+      requires = ['input-repos'],
+      conditionally_requires = ['web-path', 'gpgsign-public-key'],
     )
-
-    self.scriptdir = '/usr/lib/%s' % self.name
-    self.filedir   = '/usr/share/%s/files' % self.name
 
     RpmBuildMixin.__init__(self,
       '%s-config' % self.name,
       "The %s-config provides scripts and supporting files for configuring "
-      "the %s distribution." %(self.name, self.fullname),
+      "the %s distribution." % (self.name, self.fullname),
       "%s configuration script and supporting files" % self.fullname,
       requires = ['coreutils', 'policycoreutils']
     )
 
-    InputFilesMixin.__init__(self, {
-      'scripts' : ('script', self.scriptdir, '755', True),
-      'files': ('file', self.filedir, None, False)
-    })
+    self.scriptdir   = self.rpm.build_folder/'scripts'
+    self.filedir     = self.rpm.build_folder/'files'
+    self.filerelpath = pps.path('usr/share/%s/files' % self.name)
 
     self.DATA = {
       'variables': ['name', 'fullname', 'distroid', 'rpm.release'],
@@ -55,101 +58,228 @@ class ConfigRpmEvent(RpmBuildMixin, Event, InputFilesMixin):
       'output':    [self.rpm.build_folder],
     }
 
-    self.auto_script = None
-    self.script_count = 0
-    self.files_count = 0
-
-    self.file_ids = []
+  def validate(self):
+    for file in self.config.xpath('file', []):
+      # if using raw output mode, a filename must be specified; otherwise,
+      # we don't know what to name the file
+      if file.get('@content', None) and not file.get('@filename', None):
+        raise InvalidConfigError(self.config.getroot().file,
+          "'raw' content type specified without accompying 'filename' "
+          "attribute:\n %s" % file)
 
   def setup(self):
     self.rpm.setup_build()
-    self._setup_download()
 
-  def _get_download_id(self, type):
-    if type == 'scripts':
-      rtn = 'scripts-%d' % self.script_count
-      self.script_count += 1
-    elif type == 'files':
-      rtn = 'files-%d' % self.files_count
-      self.files_count += 1
-    else:
-      # should never happen
-      raise RuntimeError("unknown type: '%s'" % type)
-    return rtn
+    self.scriptdir.mkdirs()
+    self.filedir.mkdirs()
 
-  def _handle_attributes(self, id, item):
-    if 'dest' in item.attrib and item.attrib.get('dest').startswith('/'):
-      self.file_ids.append(id)
+    for file in self.config.xpath('file', []):
+      text = file.text
+      if file.get('@content', 'filename') == 'raw':
+        # if the content is 'raw', write the raw string to a file and set
+        # text to that value
+        fn = self.filedir/file.get('@filename')
+        if not fn.exists() or fn.md5sum() != md5.new(text).hexdigest():
+          fn.write_text(text)
+        text = fn
+
+      self.io.add_fpath(text, ( self.rpm.build_folder //
+                                self.filerelpath //
+                                file.get('@dest',
+                                         '/usr/share/%s/files' % self.name) ),
+                              id = 'file',
+                              mode = file.get('@mode', None))
+
+
+    if self.cvars['gpgsign-public-key']:
+      # also include the gpg key in the config-rpm
+      self.io.add_fpath(self.cvars['gpgsign-public-key'],
+                        self.rpm.build_folder/'etc/pkg/rpm-gpg')
 
   def generate(self):
-    RpmBuildMixin.generate(self)
-
+    self._generate_repofile()
     self.io.sync_input(cache=True)
 
-    # generate auto-config file
-    config_scripts = []
-    for id in [ 'scripts-%d' % i for i in xrange(self.script_count) ]:
-      for path in self.io.list_output(id):
-        config_scripts.append('/' / path.relpathfrom(self.rpm.build_folder))
+  def _generate_repofile(self):
+    repofile = ( self.rpm.build_folder/'etc/yum.repos.d/%s.repo' % self.name )
 
-    if config_scripts:
-      self.auto_script = self.rpm.build_folder / 'usr/lib/%s/auto.sh' % self.name
-      self.auto_script.dirname.mkdirs()
-      self.auto_script.write_lines(['export CFGRPM_SCRIPTS=%s' % self.scriptdir,
-                                    'export CFGRPM_FILES=%s' % self.filedir])
-      self.auto_script.write_lines(config_scripts, append=True)
-      self.auto_script.chmod(0755)
-
-  def get_post(self):
     lines = []
+
+    # include a repo pointing to the published distro
+    if self.config.get('repofile/@distro', 'True') in BOOLEANS_TRUE:
+      lines.extend([ '[%s]' % self.name,
+                     'name      = %s - %s' % (self.fullname, self.basearch),
+                     'baseurl   = %s' % (self.cvars['web-path']/'os') ])
+      # if we signed the rpms we use, include the gpgkey check in the repofile
+      if self.cvars['gpgsign-public-key']:
+        lines.extend(['gpgcheck = 1',
+                      'gpgkey   = %s' % ('/etc/pkg/rpm-gpg' /
+                         self.cvars['gpgsign-public-key'].basename)])
+      else:
+        lines.append('gpgcheck = 0')
+      lines.append('')
+
+    # include the given list of repoids, either a space separated list of
+    # repoids or '*', which means all repoids, all from the <repos> section
+    repoids = self.config.get('repofile/@repoids', '*').strip()
+    if repoids:
+      if repoids == '*':
+        repoids = self.cvars['repos'].keys()
+      else:
+        repoids = repoids.split()
+
+      for repoid in repoids:
+        if repoid in self.cvars['repos']:
+          lines.extend(self.cvars['repos'][repoid].lines(pretty=True))
+          lines.append('')
+        else:
+          raise RuntimeError("Invalid repoid '%s'; valid repoids are %s"
+                             % (repoid, self.cvars['repos'].keys()))
+
+      self.DATA['variables'].append('cvars[\'repos\']')
+
+    if len(lines) > 0:
+      repofile.dirname.mkdirs()
+      repofile.write_lines(lines)
+
+      self.DATA['output'].append(repofile)
+
+  def get_pre(self):
+    return self._make_script(self._process_script('pre'), 'pre')
+  def get_post(self):
+    scripts = [self._mk_post()]
+    scripts.extend(self._process_script('post'))
+    return self._make_script(scripts, 'post')
+  def get_preun(self):
+    return self._make_script(self._process_script('preun'), 'preun')
+  def get_postun(self):
+    scripts = self._process_script('postun')
+    scripts.append(self._mk_postun())
+    return self._make_script(scripts, 'postun')
+  def get_verifyscript(self):
+    return self._make_script(self._process_script('verifyscript'), 'verifyscript')
+
+  def get_triggers(self):
+    triggers = TriggerContainer()
+
+    for elem in self.config.xpath('trigger', []):
+      key   = elem.get('@package')
+      id    = elem.get('@type')
+      inter = elem.get('@interpreter', None)
+      text  = elem.get('text()', None)
+
+      if elem.get('@content', 'filename') == 'raw':
+        # if the content is 'raw', write the raw string to a file and set
+        # text to that value
+        script = self.scriptdir/'triggerin-%s' % key
+        if not text.endswith('\n'): text += '\n' # make sure it ends in a newline
+        script.write_text(text)
+        text = script
+
+      flags = []
+      if inter:
+        flags.extend(['-p', inter])
+
+      assert id in ['triggerin', 'triggerun', 'triggerpostun']
+      t = Trigger(key)
+      t[id+'_scripts'] = [text]
+      if flags: t[id+'_flags'] = ' '.join(flags)
+      triggers.append(t)
+
+    return triggers
+
+  def _mk_post(self):
+    """Makes a post scriptlet that installs each <file> to the given
+    destination, backing up any existing files to .rpmsave"""
+    script = ''
 
     # move support files as needed
-    if self.file_ids:
-      for id in self.file_ids:
-        for support_file in self.io.list_output(id):
-          src = '/' / support_file.relpathfrom(self.rpm.build_folder)
-          dst = '/' / src.relpathfrom(self.install_info['files'][1])
-          dir = dst.dirname
-          lines.extend([
-            'if [ -e %s ]; then' % dst,
-            '  %%{__mv} %s %s.rpmsave' % (dst, dst),
-            'fi',
-            'if [ ! -d %s ]; then' % dir,
-            '  %%{__mkdir} -p %s' % dir,
-            'fi',
-            '%%{__mv} %s %s' % (src, dst),
-            '/sbin/restorecon %s' % dst,
-          ])
+    sources = []
+    for support_file in self.io.list_output('file'):
+      src = '/' / support_file.relpathfrom(self.rpm.build_folder)
+      dst = '/' / src.relpathfrom('/' / self.filerelpath)
+      sources.append(dst)
 
-    # add auto script, if present
-    if self.auto_script:
-      lines.append('/' / self.auto_script.relpathfrom(self.rpm.build_folder))
+    script += 'file="%s"' % '\n      '.join(sources)
+    script += '\ns=%s\n' % ('/' / self.filerelpath)
 
-    if lines:
-      post_install = self.rpm.build_folder / 'post-install.sh'
-      post_install.write_lines(lines)
-      return post_install
-    return None
+    script += '\n'.join([
+      '',
+      'for f in $file; do',
+      '  if [ -e $f ]; then',
+      '    %{__mv} $f $f.rpmsave',
+      '  fi',
+      '  if [ ! -d `dirname $f` ]; then',
+      '    %{__mkdir} -p `dirname $f`',
+      '  fi',
+      '  %{__mv} $s/$f $f',
+      '  /sbin/restorecon $f',
+      'done',
+      '', ])
 
-  def get_postun(self):
-    lines = []
-    if self.file_ids:
-      lines.append('if [ "$1" == "0" ]; then')
-      for id in self.file_ids:
-        for support_file in self.io.list_output(id):
-          src = '/' / support_file.relpathfrom(self.rpm.build_folder)
-          dst = '/' / src.relpathfrom(self.install_info['files'][1])
-          lines.extend([
-            '  if [ -e %s.rpmsave ]; then' % dst,
-            '    %%{__mv} -f %s.rpmsave %s' % (dst, dst),
-            '  else',
-            '    %%{__rm} -f %s' % dst,
-            '  fi',
-          ])
-      lines.append('fi')
+    return script
 
-    if lines:
-      post_uninstall = self.rpm.build_folder / 'post-uninstall.sh'
-      post_uninstall.write_lines(lines)
-      return post_uninstall
-    return None
+  def _mk_postun(self):
+    """Makes a postun scriptlet that uninstalls each <file> and restores
+    backups from .rpmsave, if present."""
+    script = ''
+
+    script += 'if "$1" == "0"; then\n'
+
+    sources = []
+    for support_file in self.io.list_output('file'):
+      src = '/' / support_file.relpathfrom(self.rpm.build_folder)
+      dst = '/' / src.relpathfrom('/' / self.filerelpath)
+
+      sources.append(dst)
+
+    script += '\n  file="%s"' % '\n        '.join(sources)
+
+    script += '\n'.join([
+        '',
+        '  for f in $file; do',
+        '    if [ -e $f.rpmsave ]; then',
+        '      %{__mv} -f $f.rpmsave $f',
+        '    else',
+        '      %{__rm} -f $f',
+        '    fi',
+        '  done',
+        '',
+      ])
+    script += '\nfi\n'
+
+    return script
+
+  def _process_script(self, script_type):
+    """Returns a list of pps paths and strings; pps path items should be
+    read to obtain script content, while strings should be interpreted as
+    raw script content themselves (intended for use with _make_script(),
+    below."""
+    scripts = []
+
+    for elem in self.config.xpath('script[@type="%s"]' % script_type, []):
+      if elem.get('@content', 'filename') == 'raw':
+        scripts.append(elem.text)
+      else:
+        scripts.append(pps.path(elem.text))
+
+    return scripts
+
+  def _make_script(self, iterable, id):
+    """For each item in the iterable, if it is a pps path, read the file and
+    concat it onto the script; otherwise, concat the string onto the script"""
+    script = ''
+
+    for item in iterable:
+      if isinstance(item, pps.Path.BasePath):
+        script += item.read_text() + '\n'
+      else:
+        assert isinstance(item, basestring)
+        script += item + '\n'
+
+    if script:
+      self.scriptdir.mkdirs()
+      (self.scriptdir/id).write_text(script)
+      return self.scriptdir/id
+    else:
+      return None

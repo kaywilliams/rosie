@@ -28,43 +28,9 @@ from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 from spin.logging   import L1
 
-__all__ = ['InputFilesMixin', 'RpmBuildMixin', 'Trigger', 'TriggerContainer']
+__all__ = ['RpmBuildMixin', 'Trigger', 'TriggerContainer']
 
 VER_X_REGEX = re.compile('[^0-9]*([0-9]+).*')
-
-class InputFilesMixin:
-  """
-  Mixin that can be used to setup the download and get list of data
-  files that are sync'd.
-  """
-  def __init__(self, install_info):
-    self.install_info = install_info
-    self.ids = set()
-
-  def _setup_download(self):
-    for k,v in self.install_info.items():
-      xpath, dst, mode, absolute = v
-
-      if xpath and self.config.pathexists(xpath):
-        default_dir = pps.path(dst) / self.config.get(xpath).getparent().get('@dest', '')
-        for item in self.config.xpath(xpath, []):
-          s,d,f,m = self.io._process_path_xml(item, relpath=default_dir,
-                                              absolute=absolute, mode=mode)
-          # http paths are absolute and will wipe out this join
-          s = self._config.file.dirname / s
-
-          id = self._get_download_id(k)
-          self.ids.add(id)
-
-          self.io.add_item(s, self.rpm.build_folder//d/f, id=id or s, mode=m)
-
-          self._handle_attributes(id, item)
-
-  def _get_download_id(self, type):
-    return type
-
-  def _handle_attributes(self, id, item):
-    pass
 
 class RpmBuildMixin:
   def __init__(self, *args, **kwargs):
@@ -76,10 +42,10 @@ class RpmBuildMixin:
            self.diff.test_diffs()
 
   def setup(self):
-    self.rpm._setup_build()
+    self.rpm.setup_build()
 
   def run(self):
-    self.io.clean_eventcache(all=True)
+    self.io.clean_eventcache()
 
     R = self.rpm
 
@@ -198,11 +164,14 @@ class RpmBuildObject:
   @property
   def data_files(self):
     data_files = {}
-    for item in self.build_folder.findpaths(type=pps.constants.TYPE_DIR, mindepth=1):
+    for item in self.build_folder.findpaths(type=pps.constants.TYPE_DIR,
+                                            nglob=['files','scripts'],
+                                            mindepth=1):
       files = item.findpaths(type=pps.constants.TYPE_NOT_DIR,
                              mindepth=1, maxdepth=1)
+
       if files:
-        data_files.setdefault('/'/item.relpathfrom(self.build_folder), []).extend(files)
+        data_files.setdefault('/' / item.relpathfrom(self.build_folder), []).extend(files)
     return data_files
 
   #--------- RPM BUILD HELPER METHODS ---------#
@@ -404,7 +373,7 @@ class TriggerContainer(list):
       return
     for x in item:
       if not isinstance(x, Trigger):
-        raise Exception("Trying to add non-Trigger object '%s' to TriggerContainer" % x)
+        raise TypeError("Trying to add non-Trigger object '%s' to TriggerContainer" % x)
 
 
 class Trigger(dict):
