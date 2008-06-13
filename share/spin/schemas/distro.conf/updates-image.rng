@@ -8,7 +8,9 @@
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
-        <ref name="element-path"/>
+        <zeroOrMore>
+        <element name="path"><ref name="content-path-with-dest"/></element>
+        </zeroOrMore>
       </element>
       </optional>
     </element>

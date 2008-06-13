@@ -17,90 +17,40 @@
 
         <interleave>
 
-          <optional>
-          <element name="release-files">
-            <oneOrMore>
-              <ref name="element-path"/>
-            </oneOrMore>
-          </element>
-          </optional>
-
-          <optional>
-          <element name="eula">
-            <optional>
-            <element name="include-in-firstboot">
-              <ref name="value-boolean"/>
+          <zeroOrMore>
+            <element name="files">
+              <ref name="content-path-with-dest"/>
             </element>
-            </optional>
-            <ref name="element-path"/>
-          </element>
-          </optional>
+          </zeroOrMore>
 
-          <optional>
-          <element name="release-notes">
-            <interleave>
-
+          <zeroOrMore>
+            <element name="eula">
+              <ref name="content-path-with-dest"/>
               <optional>
-              <element name="omf">
-                <optional>
-                <attribute name="dest"><text/></attribute>
-                </optional>
-
-                <oneOrMore>
-                <ref name="element-path-with-dest"/>
-                </oneOrMore>
-              </element>
-              </optional>
-
-              <optional>
-              <element name="html">
-                <optional>
-                <attribute name="dest"><text/></attribute>
-                </optional>
-
-                <oneOrMore>
-                <ref name="element-path-with-dest"/>
-                </oneOrMore>
-              </element>
-              </optional>
-
-              <optional>
-              <element name="doc">
-                <optional>
-                <attribute name="dest"><text/></attribute>
-                </optional>
-
-                <oneOrMore>
-                <ref name="element-path-with-dest"/>
-                </oneOrMore>
-              </element>
-              </optional>
-
-            </interleave>
-          </element>
-          </optional>
-
-          <optional>
-          <element name="yum-repos">
-            <optional>
-              <attribute name="include-distro">
+              <attribute name="include-in-firstboot">
                 <ref name="value-boolean"/>
               </attribute>
-            </optional>
+              </optional>
+            </element>
+          </zeroOrMore>
 
-            <optional>
-              <attribute name="include-input">
-                <ref name="value-boolean"/>
-              </attribute>
-            </optional>
+          <zeroOrMore>
+            <element name="omf">
+              <ref name="content-path-with-dest"/>
+            </element>
+          </zeroOrMore>
 
-            <zeroOrMore>
-            <ref name="element-path"/>
-            </zeroOrMore>
-          </element>
-          </optional>
+          <zeroOrMore>
+            <element name="html">
+              <ref name="content-path-with-dest"/>
+            </element>
+          </zeroOrMore>
 
-          <ref name="element-obsoletes"/>
+          <zeroOrMore>
+            <element name="doc">
+              <ref name="content-path-with-dest"/>
+            </element>
+          </zeroOrMore>
 
         </interleave>
       </element>
@@ -109,4 +59,6 @@
   </start>
 
   <include href="rpms.rng"/>
+  <include href="lib.rng"/>
+
 </grammar>

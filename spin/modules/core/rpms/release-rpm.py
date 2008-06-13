@@ -72,17 +72,18 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
                        for _,e,v in self.cvars.get('release-versions', [])])
     self.rpm.setup_build(obsoletes=obsoletes, provides=provides)
 
-    self.io.add_xpath('eula/path',               self.filetypes['eula'])
-    self.io.add_xpath('release-notes/omf/path',  self.filetypes['omf'])
-    self.io.add_xpath('release-notes/html/path', self.filetypes['html'])
-    self.io.add_xpath('release-notes/doc/path',  self.filetypes['doc'])
-    self.io.add_xpath('release-files/path',      self.filetypes['release'])
+    self.io.add_xpath('eula',  self.filetypes['eula'])
+    self.io.add_xpath('omf',   self.filetypes['omf'])
+    self.io.add_xpath('html',  self.filetypes['html'])
+    self.io.add_xpath('doc',   self.filetypes['doc'])
+    self.io.add_xpath('files', self.filetypes['release'])
 
     # eulapy file
-    include_firstboot = self.config.get('eula/include-in-firstboot/text()',
+    include_firstboot = self.config.get('eula/@include-in-firstboot',
                                         'True') in BOOLEANS_TRUE
-    eula_provided = self.config.get('eula/path/text()', None) is not None
-    if include_firstboot and eula_provided:
+    if ( self.config.get('eula/@include-in-firstboot', 'True')
+           in BOOLEANS_TRUE and
+         self.config.pathexists('eula') ):
       found = False
       for path in self.SHARE_DIRS:
         path = path/'release/eula.py'

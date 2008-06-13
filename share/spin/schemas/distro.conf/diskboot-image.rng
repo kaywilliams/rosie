@@ -15,7 +15,7 @@
         </optional>
 
         <zeroOrMore>
-        <ref name="element-path-with-dest"/>
+        <element name="path"><ref name="content-path-with-dest"/></element>
         </zeroOrMore>
 
         </interleave>

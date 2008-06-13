@@ -96,28 +96,19 @@
     </data>
   </define>
 
-  <define name="element-path">
-    <element name="path">
-      <optional>
-        <attribute name="mode">
-          <ref name="value-mode"/>
-        </attribute>
-      </optional>
-      <text/>
-    </element>
+  <define name="content-path">
+    <optional>
+    <attribute name="mode">
+      <ref name="value-mode"/>
+    </attribute>
+    </optional>
+    <text/>
   </define>
 
-  <define name="element-path-with-dest">
-    <element name="path">
-      <optional>
-        <attribute name="mode">
-          <ref name="value-mode"/>
-        </attribute>
-      </optional>
-      <optional><attribute name="dest"/></optional>
-      <optional><attribute name="filename"/></optional>
-      <text/>
-    </element>
+  <define name="content-path-with-dest">
+    <ref name="content-path"/>
+    <optional><attribute name="dest"/></optional>
+    <optional><attribute name="filename"/></optional>
   </define>
 
   <!-- id attribute -->

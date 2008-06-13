@@ -9,7 +9,7 @@
         </optional>
 
         <oneOrMore>
-        <ref name="element-path-with-dest"/>
+        <element name="path"><ref name="content-path-with-dest"/></element>
         </oneOrMore>
       </element>
       </optional>
