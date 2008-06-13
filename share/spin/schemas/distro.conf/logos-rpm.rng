@@ -38,5 +38,6 @@
       <param name="pattern">[Aa]ll|[Gg]nome|GNOME|[Kk]de|KDE|[Nn]one</param>
     </data>
   </define>
+  <include href="lib.rng"/>
   <include href="rpms.rng"/>
 </grammar>
