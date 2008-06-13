@@ -30,6 +30,7 @@ DEBUG = True # enable to print tracebacks; disable for 'release mode'
 import errno
 import imp
 import os
+import re
 import sys
 import time
 
@@ -72,6 +73,9 @@ DEFAULT_LOG_FILE = pps.path('/var/log/spin.log')
 
 # map our supported archs to the highest arch in that arch 'class'
 ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
+
+# the following chars are allowed in filenames...
+FILENAME_REGEX = re.compile('^[a-zA-Z0-9_\-\.]+$')
 
 class Build(object):
   """
@@ -394,6 +398,14 @@ class Build(object):
 
     for k,v in di.items():
       setattr(Event, k, v)
+
+    # validate name, version, and distroid to ensure they don't have
+    # invalid characters
+    for check in ['name', 'version', 'distroid']:
+      if not FILENAME_REGEX.match(di[check]):
+        raise RuntimeError("Invalid value for '%s' element in <main>; "
+          "accepted characters are a-z, A-Z, 0-9, _, ., and -."
+          % di[check])
 
     # set up other directories
     Event.CACHE_DIR    = pps.path(self.mainconfig.get('/spin/cache/path/text()',
