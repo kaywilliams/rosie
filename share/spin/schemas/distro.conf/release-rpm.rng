@@ -58,6 +58,7 @@
     </element>
   </start>
 
+  <include href="lib.rng"/>
   <include href="rpms.rng"/>
   <include href="lib.rng"/>
 
