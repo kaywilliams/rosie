@@ -18,7 +18,7 @@
 from rendition import pps
 
 from spintest      import BUILD_ROOT, EventTestCase, ModuleTestSuite
-from spintest.core import make_core_suite, make_extension_suite
+from spintest.core import make_core_suite
 from spintest.rpms import RpmBuildMixinTestCase, RpmCvarsTestCase
 
 class ConfigRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
@@ -113,7 +113,7 @@ class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('config-rpm')
 
-  suite.addTest(make_extension_suite(ConfigRpmEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(ConfigRpmEventTestCase, distro, version, arch))
   suite.addTest(Test_ConfigRpmInputs(distro, version, arch))
   suite.addTest(Test_ConfigRpmBuild(distro, version, arch))
   suite.addTest(Test_ConfigRpmCvars1(distro, version, arch))
