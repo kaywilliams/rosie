@@ -47,10 +47,9 @@ class PublishSetupEvent(Event):
 
     prefix = \
       pps.path(self.config.get('path-prefix/text()', 'distros')) / self.distroid
-    web_path = \
-      self.config.get('remote-webroot/text()', None) or \
-        pps.path('http://' +  self._get_host()) / prefix
-    self.web_path = pps.path(web_path)
+    self.web_path = \
+      pps.path(self.config.get('remote-webroot/text()',
+                               'http://' + self._get_host())) / prefix
     self.publish_path = \
       pps.path(self.config.get('local-webroot/text()', '/var/www/html')) / prefix
 
