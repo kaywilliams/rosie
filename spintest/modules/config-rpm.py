@@ -19,10 +19,9 @@ from rendition import pps
 
 from spintest      import BUILD_ROOT, EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite, make_extension_suite
-from spintest.rpms import ( RpmBuildMixinTestCase, InputFilesMixinTestCase,
-                            RpmCvarsTestCase )
+from spintest.rpms import RpmBuildMixinTestCase, RpmCvarsTestCase
 
-class ConfigRpmEventTestCase(EventTestCase):
+class ConfigRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
   moduleid = 'config-rpm'
   eventid  = 'config-rpm'
   _conf = """<config-rpm enabled="true">
@@ -30,25 +29,29 @@ class ConfigRpmEventTestCase(EventTestCase):
     <requires>createrepo</requires>
   </config-rpm>"""
 
-class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmEventTestCase):
+class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
   def __init__(self, distro, version, arch, conf=None):
     ConfigRpmEventTestCase.__init__(self, distro, version, arch, conf=conf)
 
     self.working_dir = BUILD_ROOT
     self.file1 = pps.path('%s/file1' % self.working_dir)
     self.file2 = pps.path('%s/file2' % self.working_dir)
-    self.file3 = pps.path('%s/file3' % self.working_dir)
     self.script1 = pps.path('%s/script1' % self.working_dir)
     self.script2 = pps.path('%s/script2' % self.working_dir)
 
     self._add_config(
       """
       <config-rpm enabled="true">
-        <file>%(working-dir)s/file1</file>
-        <file dest="/etc/testdir">%(working-dir)s/file2</file>
-        <file filename="filename">%(working-dir)s/file3</file>
-        <script>%(working-dir)s/script1</script>
-        <script dest="/usr/bin">%(working-dir)s/script2</script>
+        <file dest="/etc/testdir">%(working-dir)s/file1</file>
+        <file dest="/etc/testdir" filename="filename">%(working-dir)s/file2</file>
+        <script type="post">%(working-dir)s/script1</script>
+        <script type="pre">%(working-dir)s/script1</script>
+        <script type="preun">%(working-dir)s/script1</script>
+        <script type="postun">%(working-dir)s/script1</script>
+        <script type="verifyscript">%(working-dir)s/script1</script>
+        <trigger package="bash" type="triggerin">%(working-dir)s/script1</trigger>
+        <trigger package="bash" type="triggerun">%(working-dir)s/script1</trigger>
+        <trigger package="python" type="triggerpostun" interpreter="/bin/python">%(working-dir)s/script1</trigger>
       </config-rpm>
       """ % {'working-dir': self.working_dir})
 
@@ -56,7 +59,6 @@ class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmEventTestCase):
     ConfigRpmEventTestCase.setUp(self)
     self.file1.touch()
     self.file2.touch()
-    self.file3.touch()
     self.script1.touch()
     self.script2.touch()
     self.clean_event_md()
@@ -68,7 +70,6 @@ class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmEventTestCase):
     ConfigRpmEventTestCase.tearDown(self)
     self.file1.rm(force=True)
     self.file2.rm(force=True)
-    self.file3.rm(force=True)
     self.script1.rm(force=True)
     self.script2.rm(force=True)
 
@@ -77,7 +78,7 @@ class Test_ConfigRpmInputs(InputFilesMixinTestCase, ConfigRpmEventTestCase):
     self.check_inputs()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ConfigRpmBuild(RpmBuildMixinTestCase, ConfigRpmEventTestCase):
+class Test_ConfigRpmBuild(ConfigRpmEventTestCase):
   def setUp(self):
     ConfigRpmEventTestCase.setUp(self)
     self.clean_event_md()

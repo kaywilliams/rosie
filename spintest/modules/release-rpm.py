@@ -17,15 +17,14 @@
 #
 from spintest      import BUILD_ROOT, EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite
-from spintest.rpms import (RpmBuildMixinTestCase, InputFilesMixinTestCase,
-                           RpmCvarsTestCase, ExtractMixin)
+from spintest.rpms import RpmBuildMixinTestCase, RpmCvarsTestCase
 
-class ReleaseRpmEventTestCase(EventTestCase):
+class ReleaseRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
   moduleid = 'release-rpm'
   eventid  = 'release-rpm'
   _conf = """<release-rpm enabled="true"/>"""
 
-class Test_ReleaseRpmInputs(InputFilesMixinTestCase, ReleaseRpmEventTestCase):
+class Test_ReleaseRpmInputs(ReleaseRpmEventTestCase):
   def __init__(self, distro, version, arch, conf=None):
     ReleaseRpmEventTestCase.__init__(self, distro, version, arch, conf=conf)
 
@@ -51,17 +50,13 @@ class Test_ReleaseRpmInputs(InputFilesMixinTestCase, ReleaseRpmEventTestCase):
             <path dest="/usr/share/doc">%(working-dir)s/doc1</path>
           </doc>
         </release-notes>
-        <yum-repos>
-          <path>%(working-dir)s/repo1</path>
-        </yum-repos>
       </release-rpm>
       """ % {'working-dir': self.working_dir})
     self.file1 = self.working_dir / 'file1'
-    self.eula = self.working_dir / 'eula.en_US'
-    self.omf1 = self.working_dir / 'omf1'
+    self.eula  = self.working_dir / 'eula.en_US'
+    self.omf1  = self.working_dir / 'omf1'
     self.html1 = self.working_dir / 'html1'
-    self.doc1 = self.working_dir / 'doc1'
-    self.repo1 = self.working_dir / 'repo1'
+    self.doc1  = self.working_dir / 'doc1'
 
   def setUp(self):
     ReleaseRpmEventTestCase.setUp(self)
@@ -71,7 +66,6 @@ class Test_ReleaseRpmInputs(InputFilesMixinTestCase, ReleaseRpmEventTestCase):
     self.omf1.touch()
     self.html1.touch()
     self.doc1.touch()
-    self.repo1.touch()
 
   def tearDown(self):
     if self.img_path:
@@ -82,14 +76,13 @@ class Test_ReleaseRpmInputs(InputFilesMixinTestCase, ReleaseRpmEventTestCase):
     self.omf1.rm(force=True)
     self.html1.rm(force=True)
     self.doc1.rm(force=True)
-    self.repo1.rm(force=True)
 
   def runTest(self):
     self.tb.dispatch.execute(until='release-rpm')
     self.check_inputs()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ReleaseRpmBuild(RpmBuildMixinTestCase, ReleaseRpmEventTestCase):
+class Test_ReleaseRpmBuild(ReleaseRpmEventTestCase):
   def setUp(self):
     ReleaseRpmEventTestCase.setUp(self)
     self.clean_event_md()
@@ -115,7 +108,7 @@ class Test_ReleaseRpmCvars2(RpmCvarsTestCase, ReleaseRpmEventTestCase):
     self.check_cvars()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_RNotesExistence(ExtractMixin, ReleaseRpmEventTestCase):
+class Test_RNotesExistence(ReleaseRpmEventTestCase):
   def tearDown(self):
     if self.img_path:
       self.img_path.rm(recursive=True, force=True)

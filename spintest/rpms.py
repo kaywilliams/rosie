@@ -33,9 +33,24 @@ FLAGS_MAP = {
   rpm.RPMSENSE_EQUAL | rpm.RPMSENSE_GREATER: '>=',
 }
 
-#-------- SUPER (ABSTRACT) CLASSES ----------#
-class ExtractMixin(object):
-  def _get_imgpath(self):
+#-------- TEST CASES --------#
+class RpmBuildMixinTestCase(object):
+  @property
+  def rpm_header(self):
+    if self.event.rpm.rpm_path.exists():
+      if headers.has_key(self.event.rpm.rpm_path):
+        return headers[self.event.rpm.rpm_path]
+      ts = rpm.TransactionSet()
+      fdno = os.open(self.event.rpm.rpm_path, os.O_RDONLY)
+      rpm_header = ts.hdrFromFdno(fdno)
+      os.close(fdno)
+      headers[self.event.rpm.rpm_path] = rpm_header
+      del ts
+      return rpm_header
+    return None
+
+  @property
+  def img_path(self):
     if self.event.rpm.rpm_path.exists():
       if extracts.has_key(self.event.rpm.rpm_path):
         return extracts[self.event.rpm.rpm_path]
@@ -51,30 +66,11 @@ class ExtractMixin(object):
       extracts[self.event.rpm.rpm_path] = img_path
       return img_path
     return None
-  img_path = property(_get_imgpath)
 
-#-------- TEST CASES --------#
-class InputFilesMixinTestCase(ExtractMixin):
   def check_inputs(self):
-    for id in self.event.ids:
-      for file in self.event.io.list_output(what=id):
-        self.failUnlessExists(file)
-        self.failUnlessExists(self.img_path / file.relpathfrom(self.event.rpm.build_folder))
-
-class RpmBuildMixinTestCase(object):
-  def _get_rpmheader(self):
-    if self.event.rpm.rpm_path.exists():
-      if headers.has_key(self.event.rpm.rpm_path):
-        return headers[self.event.rpm.rpm_path]
-      ts = rpm.TransactionSet()
-      fdno = os.open(self.event.rpm.rpm_path, os.O_RDONLY)
-      rpm_header = ts.hdrFromFdno(fdno)
-      os.close(fdno)
-      headers[self.event.rpm.rpm_path] = rpm_header
-      del ts
-      return rpm_header
-    return None
-  rpm_header = property(_get_rpmheader)
+    for file in self.event.io.list_output():
+      self.failUnlessExists(file)
+      self.failUnlessExists(self.img_path / file.relpathfrom(self.event.rpm.build_folder))
 
   def _get_provides(self):
     return self._get_deps(rpm.RPMTAG_PROVIDENAME,
