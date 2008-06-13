@@ -13,5 +13,4 @@
     </zeroOrMore>
   </define>
 
-  <include href="lib.rng"/>
 </grammar>
