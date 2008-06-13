@@ -52,6 +52,8 @@
             </element>
           </zeroOrMore>
 
+          <ref name="element-obsoletes"/>
+
         </interleave>
       </element>
     </optional>
