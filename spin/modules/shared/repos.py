@@ -128,6 +128,9 @@ class SpinRepoGroup(SpinRepo):
           R._relpath = d.basename
           self._repos.add_repo(R)
 
+    if len(self._repos) == 0:
+      raise RuntimeError("Unable to find repodata or subrepos for repo '%s'" % self.id)
+
     # set up $yumvar replacement for all subrepos
     for R in self._repos.values():
       R.vars = self.vars
