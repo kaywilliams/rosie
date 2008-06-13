@@ -108,5 +108,6 @@
     </element>
   </start>
 
+  <include href="lib.rng"/>
   <include href="rpms.rng"/>
 </grammar>
