@@ -261,11 +261,12 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
       if elem.get('@content', 'filename') == 'raw':
         scripts.append(elem.text)
       else:
-        scripts.append(pps.path(elem.text))
+        scripts.append(self._config.file.dirname / elem.text)
 
     return scripts
 
   def _make_script(self, iterable, id):
+
     """For each item in the iterable, if it is a pps path, read the file and
     concat it onto the script; otherwise, concat the string onto the script"""
     script = ''
