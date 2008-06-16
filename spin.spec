@@ -10,6 +10,9 @@ Source0:   %{name}-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
 
+BuildRequires: docbook-style-xsl
+BuildRequires: gzip
+BuildRequires: libxslt
 BuildRequires: python-devel
 BuildRequires: python-docutils
 
