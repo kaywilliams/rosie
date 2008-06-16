@@ -403,9 +403,9 @@ class Build(object):
     # invalid characters
     for check in ['name', 'version', 'distroid']:
       if not FILENAME_REGEX.match(di[check]):
-        raise RuntimeError("Invalid value for '%s' element in <main>; "
+        raise RuntimeError("Invalid value '%s' for <%s> element in <main>; "
           "accepted characters are a-z, A-Z, 0-9, _, ., and -."
-          % di[check])
+          % (di[check], check))
 
     # set up other directories
     Event.CACHE_DIR    = pps.path(self.mainconfig.get('/spin/cache/path/text()',
