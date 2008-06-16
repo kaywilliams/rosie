@@ -204,8 +204,7 @@ class RepoEventMixin:
 
     # make sure we got at least one repo out of that mess
     if not len(self.repos) > 0:
-      ## TODO - improve this message, check for at least (exactly?) one install type, etc
-      raise RuntimeError("Got no repos out of .setup_repos()")
+      raise RuntimeError("No enabled repos in <%s>" % self.id)
 
     # warn if multiple repos use the same mirrorlist and different baseurls
     mirrorgroups = {}

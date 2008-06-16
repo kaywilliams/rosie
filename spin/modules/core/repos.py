@@ -23,6 +23,7 @@ from rendition.versort import Version
 from spin.constants import BOOLEANS_FALSE
 from spin.event     import Event
 from spin.logging   import L1, L2
+from spin.validate  import InvalidConfigError
 
 from spin.modules.shared import RepoEventMixin, SpinRepoGroup
 
@@ -53,6 +54,12 @@ class ReposEvent(RepoEventMixin, Event):
       'input':     [],
       'output':    [],
     }
+
+  def validate(self):
+    # repos config must contain at least one repo or repofile
+    if not self.config.xpath('repo', []) and not self.config.xpath('repofile', []):
+        raise InvalidConfigError(self.config.getroot().file,
+          "<repos> must contain at least one <repo> or <repofile> element")
 
   def setup(self):
     self.diff.setup(self.DATA)
