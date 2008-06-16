@@ -119,7 +119,7 @@ class LogosRpmEvent(RpmBuildMixin, Event):
 
   def _setup_handlers(self):
     supplied_logos = self.config.get('logos-path/text()', None)
-    distro_paths, common_paths = self._get_handler_paths(self.distro_info['folder'])
+    distro_paths   = self._get_handler_paths(self.distro_info['folder'])
 
     required_xwindow = self.config.get('include-xwindows-art/text()', 'all').lower()
     xwindow_types    = XWINDOW_MAPPING[required_xwindow]
@@ -129,8 +129,7 @@ class LogosRpmEvent(RpmBuildMixin, Event):
       self.DATA['input'].append(supplied_logos)
       ## FIXME: not writing text to user-specified images
       self.handlers.append(SuppliedFilesHandler(self, [supplied_logos], False))
-    if common_paths:
-      self.handlers.append(CommonFilesHandler(self, common_paths))
+
     self.handlers.append(DistroFilesHandler(self, distro_paths,
                                             write_text, xwindow_types,
                                             self.distro_info['start_color'],
@@ -139,13 +138,10 @@ class LogosRpmEvent(RpmBuildMixin, Event):
   def _get_handler_paths(self, distro_folder):
     # setup distro-specific, common files, and fallback handlers
     distro_paths = []
-    common_paths = []
     for shared_dir in [ x / 'logos-rpm' for x in self.SHARE_DIRS ]:
       distro = shared_dir / 'distros' / distro_folder
-      common = shared_dir / 'common'
       if distro.exists(): distro_paths.append(distro)
-      if common.exists(): common_paths.append(common)
-    return distro_paths, common_paths
+    return distro_paths
 
   @property
   def distro_info(self):
