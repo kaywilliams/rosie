@@ -532,6 +532,9 @@ L_LOGOS_RPM_INFO = {
       'post-install': '''SPIN_BACKGROUNDS="1-spin-sunrise.png 2-spin-day.png 3-spin-sunset.png 4-spin-night.png"
 DEFAULT=/usr/share/backgrounds/spin/default.jpg
 for file in $SPIN_BACKGROUNDS; do
+  if [ -e /usr/share/backgrounds/spin/$file ]; then
+    %{__rm} -f /usr/share/backgrounds/spin/$file
+  fi
   %{__ln_s} $DEFAULT /usr/share/backgrounds/spin/$file
 done
 ''',
@@ -578,7 +581,6 @@ fi
       'start_color': (32, 75, 105),
       'end_color': (70, 110, 146),
       'triggerin': {
-        'desktop-backgrounds-basic': REMOVE,
         'desktop-backgrounds-compat': '''BACKGROUNDS=/usr/share/backgrounds
 DEFAULTS="default.jpg default.png default-wide.png default-5_4.png"
 for default in $DEFAULTS; do
@@ -587,23 +589,24 @@ for default in $DEFAULTS; do
     %%{__mv} $file $file.rpmsave
     %%{__ln_s} $BACKGROUNDS/spin/$default $file
   fi
-done
 default=$BACKGROUNDS/default.png
 if [ -e $default ]; then
   %%{__mv} $default $default.rpmsave
   %%{__ln_s} $BACKGROUNDS/spin/default.jpg $default
 fi
+done
+''',
+        'desktop-backgrounds-basic': '''BACKGROUNDS=/usr/share/backgrounds
 if [ -e $BACKGROUNDS/waves ]; then
-  %%{__mv} $BACKGROUNDS/waves $BACKGROUNDS/waves.rpmsave,
+  %%{__mv} $BACKGROUNDS/waves $BACKGROUNDS/waves.rpmsave
   %%{__ln_s} $BACKGROUNDS/spin $BACKGROUNDS/waves
   if [ ! -e $BACKGROUNDS/spin/waves.xml ]; then
     %%{__ln_s} $BACKGROUNDS/spin/spin.xml $BACKGROUNDS/spin/waves.xml
   fi
 fi
-'''
+''',
       },
       'triggerun': {
-        'desktop-backgrounds-basic': REMOVE,
         'desktop-backgrounds-compat': '''BACKGROUNDS=/usr/share/backgrounds
 if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
   for default in `ls -1 $BACKGROUNDS/images/default* | grep -v "rpmsave"`; do
@@ -615,6 +618,10 @@ if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
     %%{__rm} -f $default
     %%{__mv} -f $default.rpmsave $default
   fi
+fi
+''',
+        'desktop-backgrounds-basic': '''BACKGROUNDS=/usr/share/backgrounds
+if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
   %%{__rm} -rf $BACKGROUNDS/waves
   %%{__mv} -f $BACKGROUNDS/waves.rpmsave $BACKGROUNDS/waves
   %%{__rm} -f $BACKGROUNDS/spin/waves.xml
