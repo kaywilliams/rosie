@@ -55,6 +55,12 @@ class SourceReposEvent(Event, RepoEventMixin):
       'output':    [],
     }
 
+  def validate(self):
+    # repos config must contain at least one repo or repofile
+    if not self.config.xpath('repo', []) and not self.config.xpath('repofile', []):
+        raise InvalidConfigError(self.config.getroot().file,
+          "<sources> must contain at least one <repo> or <repofile> element")
+
   def setup(self):
     self.diff.setup(self.DATA)
 
