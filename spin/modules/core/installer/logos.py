@@ -72,6 +72,7 @@ class LogosEvent(Event, ExtractMixin):
     self.io.clean_eventcache()
     self.cvars['installer-splash'] = self.splash
     if (self.mddir/'pixmaps').exists(): # caught by verification
+      self.cvars.setdefault('product-image-content', {})
       self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
         (self.mddir/'pixmaps').listdir())
 
