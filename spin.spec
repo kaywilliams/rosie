@@ -56,7 +56,6 @@ and run a Spin-managed distribution.
 %doc share/doc/examples
 %exclude /usr/share/spin/release/eula.pyc
 %exclude /usr/share/spin/release/eula.pyo
-%{_bindir}/spin
 %{_mandir}/man5/spin.conf.5.gz
 %{_mandir}/man5/distro.conf.5.gz
 %{_mandir}/man1/spin.1.gz
