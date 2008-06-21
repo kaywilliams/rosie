@@ -29,8 +29,6 @@ install:
 		exit 1; \
 	fi
 	python setup.py install -O1 --skip-build --root $(DESTDIR) --record=INSTALLED_FILES
-	echo /usr/share/spin/release/eula.pyc >> INSTALLED_FILES
-	echo /usr/share/spin/release/eula.pyo >> INSTALLED_FILES
 	for doc in $(DOCS); do make -C $$doc DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
 
 tag:
