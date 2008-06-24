@@ -47,7 +47,7 @@ class LogosRpmFilesHandler(object):
         dst = self.ptr.rpm.build_folder // src.relpathfrom(path)
         self._generate_file(src, dst)
         if ( self.write_text and
-             self.ptr.locals.L_LOGOS_RPM_FILES.has_key(id) ):
+             self.ptr.locals.L_LOGOS_RPM_TEXT.has_key(id) ):
           self._add_text(id, dst)
 
   def _generate_file(self, id, src, dst):
@@ -57,9 +57,9 @@ class LogosRpmFilesHandler(object):
     return True
 
   def _add_text(self, id, file):
-    if not id in self.ptr.locals.L_LOGOS_RPM_FILES:
+    if not id in self.ptr.locals.L_LOGOS_RPM_TEXT:
       return
-    strings = self.ptr.locals.L_LOGOS_RPM_FILES[id].get('strings', None)
+    strings = self.ptr.locals.L_LOGOS_RPM_TEXT[id].get('strings', None)
     if strings is None:
       return
     src = self.ptr.rpm.build_folder // id
@@ -156,8 +156,8 @@ class DistroFilesHandler(LogosRpmFilesHandler):
     self.end_color     = end_color
 
   def _check_id(self, id):
-    if not self.ptr.locals.L_LOGOS_RPM_FILES.has_key(id): return True
-    xwt = self.ptr.locals.L_LOGOS_RPM_FILES[id].get('xwindow_type', 'required')
+    if not self.ptr.locals.L_LOGOS_RPM_TEXT.has_key(id): return True
+    xwt = self.ptr.locals.L_LOGOS_RPM_TEXT[id].get('xwindow_type', 'required')
     return xwt in self.xwindow_types
 
   def _generate_file(self, src, dst):

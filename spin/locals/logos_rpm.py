@@ -6,8 +6,9 @@ DEFAULT_DISTRO_INFO = {
   'folder': 'centos5',
   'start_color': (33, 85, 147),
   'end_color': (30, 81, 140),
-  'triggerin': {
-    'kdebase': '''KSPLASHRC=/usr/share/config/ksplashrc
+  'triggers': {
+    'kdebase': {
+      'triggerin': '''KSPLASHRC=/usr/share/config/ksplashrc
 if [ -e $KSPLASHRC -a ! -e $KSPLASHRC.rpmsave ]; then
   %%{__mv} -f $KSPLASHRC $KSPLASHRC.rpmsave
 fi
@@ -16,12 +17,29 @@ cat > $KSPLASHRC <<EOF
 Theme=Spin
 EOF
 ''',
-    'gdm': '''CUSTOM_CONF=%%{_sysconfdir}/gdm/custom.conf
+      'triggerun': '''KSPLASHRC=/usr/share/config/ksplashrc
+if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
+  if [ -e $KSPLASHRC.rpmsave ]; then
+    %%{__rm} -f $KSPLASHRC
+    %%{__mv} $KSPLASHRC.rpmsave $KSPLASHRC
+  fi
+fi
+''',
+    },
+    'gdm': {
+      'triggerin': '''CUSTOM_CONF=%%{_sysconfdir}/gdm/custom.conf
 THEME_CONF=/usr/share/%(rpm_name)s/custom.conf
 %%{__mv} -f $CUSTOM_CONF $CUSTOM_CONF.rpmsave
 %%{__cp} $THEME_CONF $CUSTOM_CONF
 ''',
-    'desktop-backgrounds-basic': '''BACKGROUNDS=/usr/share/backgrounds
+      'triggerun': '''CUSTOM_CONF=%%{_sysconfdir}/gdm/custom.conf
+if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
+  %%{__rm} -f $CUSTOM_CONF.rpmsave
+fi
+''',
+    },
+    'desktop-backgrounds-basic': {
+      'triggerin': '''BACKGROUNDS=/usr/share/backgrounds
 DEFAULTS="default-5_4.jpg default-dual.jpg default-dual-wide.jpg default.jpg default-wide.jpg"
 for default in $DEFAULTS; do
   file=$BACKGROUNDS/images/$default
@@ -31,7 +49,17 @@ for default in $DEFAULTS; do
   fi
 done
 ''',
-    'rhgb': '''RHGB_FOLDER=/usr/share/rhgb
+      'triggerun': '''BACKGROUNDS=/usr/share/backgrounds
+if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
+  for default in `ls -1 $BACKGROUNDS/images/default* | grep -v "rpmsave"`; do
+    %%{__rm} -f $default
+    %%{__mv} -f $default.rpmsave $default
+  done
+fi
+''',
+    },
+    'rhgb': {
+      'triggerin': '''RHGB_FOLDER=/usr/share/rhgb
 if [ -e $RHGB_FOLDER/large-computer.png ]; then
   if [ ! -e $RHGB_FOLDER/large-computer.png.rpmsave ]; then
     %%{__mv} $RHGB_FOLDER/large-computer.png $RHGB_FOLDER/large-computer.png.rpmsave
@@ -42,30 +70,7 @@ if [ -e $RHGB_FOLDER/large-computer.png ]; then
   %%{__ln_s} $RHGB_FOLDER/main-logo.png $RHGB_FOLDER/large-computer.png
 fi
 ''',
-  },
-  'triggerun': {
-    'kdebase': '''KSPLASHRC=/usr/share/config/ksplashrc
-if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
-  if [ -e $KSPLASHRC.rpmsave ]; then
-    %%{__rm} -f $KSPLASHRC
-    %%{__mv} $KSPLASHRC.rpmsave $KSPLASHRC
-  fi
-fi
-''',
-    'gdm': '''CUSTOM_CONF=%%{_sysconfdir}/gdm/custom.conf
-if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
-  %%{__rm} -f $CUSTOM_CONF.rpmsave
-fi
-''',
-    'desktop-backgrounds-basic': '''BACKGROUNDS=/usr/share/backgrounds
-if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
-  for default in `ls -1 $BACKGROUNDS/images/default* | grep -v "rpmsave"`; do
-    %%{__rm} -f $default
-    %%{__mv} -f $default.rpmsave $default
-  done
-fi
-''',
-    'rhgb': '''RHGB_FOLDER=/usr/share/rhgb
+      'triggerun': '''RHGB_FOLDER=/usr/share/rhgb
 if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
   if [ -e $RHGB_FOLDER/large-computer.png.rpmsave ]; then
     %%{__rm} -f $RHGB_FOLDER/large-computer.png
@@ -73,6 +78,7 @@ if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
   fi
 fi
 ''',
+    },
   },
 }
 
@@ -94,8 +100,9 @@ for file in $SPIN_BACKGROUNDS; do
   %{__rm} -f /usr/share/backgrounds/spin/$file
 done
 ''',
-      'triggerin': {
-        'desktop-backgrounds-basic': '''BACKGROUNDS=/usr/share/backgrounds
+      'triggers': {
+        'desktop-backgrounds-basic': {
+          'triggerin': '''BACKGROUNDS=/usr/share/backgrounds
 DEFAULTS="default-5_4.png default.jpg default.png default-wide.png"
 for default in $DEFAULTS; do
   file=$BACKGROUNDS/images/$default
@@ -111,10 +118,8 @@ if [ -e $BACKGROUNDS/infinity ]; then
     %%{__ln_s} $BACKGROUNDS/spin/spin.xml $BACKGROUNDS/spin/infinity.xml
   fi
 fi
-'''
-      },
-      'triggerun': {
-        'desktop-backgrounds-basic': '''BACKGROUNDS=/usr/share/backgrounds
+''',
+      'triggerun': '''BACKGROUNDS=/usr/share/backgrounds
 if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
   for default in `ls -1 $BACKGROUNDS/images/default* | grep -v "rpmsave"`; do
     %%{__rm} -f $default
@@ -125,14 +130,16 @@ if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
   %%{__rm} -f $BACKGROUNDS/spin/infinity.xml
 fi
 ''',
+        },
       },
     },
     '9': {
       'folder': 'fedora9',
       'start_color': (32, 75, 105),
       'end_color': (70, 110, 146),
-      'triggerin': {
-        'desktop-backgrounds-compat': '''BACKGROUNDS=/usr/share/backgrounds
+      'triggers': {
+        'desktop-backgrounds-compat': {
+          'triggerin': '''BACKGROUNDS=/usr/share/backgrounds
 DEFAULTS="default.jpg default.png default-wide.png default-5_4.png"
 for default in $DEFAULTS; do
   file=$BACKGROUNDS/images/$default
@@ -147,21 +154,7 @@ if [ -e $default ]; then
 fi
 done
 ''',
-        'desktop-backgrounds-basic': '''BACKGROUNDS=/usr/share/backgrounds
-if [ -e $BACKGROUNDS/waves -a ! -e $BACKGROUNDS/waves.rpmsave ]; then
-  %%{__mv} $BACKGROUNDS/waves $BACKGROUNDS/waves.rpmsave
-  %%{__ln_s} $BACKGROUNDS/spin $BACKGROUNDS/waves
-  if [ ! -e $BACKGROUNDS/spin/waves.xml ]; then
-    %%{__ln_s} $BACKGROUNDS/spin/spin.xml $BACKGROUNDS/spin/waves.xml
-  fi
-  for wave in `ls -1 $BACKGROUNDS/waves.rpmsave | grep png`; do
-    %%{__ln_s} $BACKGROUNDS/spin/default.png $BACKGROUNDS/waves/$wave
-  done
-fi
-''',
-      },
-      'triggerun': {
-        'desktop-backgrounds-compat': '''BACKGROUNDS=/usr/share/backgrounds
+          'triggerun': '''BACKGROUNDS=/usr/share/backgrounds
 if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
   for default in `ls -1 $BACKGROUNDS/images/default* | grep -v "rpmsave"`; do
     %%{__rm} -f $default
@@ -174,13 +167,28 @@ if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
   fi
 fi
 ''',
-        'desktop-backgrounds-basic': '''BACKGROUNDS=/usr/share/backgrounds
+        },
+        'desktop-backgrounds-basic': {
+          'triggerin': '''BACKGROUNDS=/usr/share/backgrounds
+if [ -e $BACKGROUNDS/waves -a ! -e $BACKGROUNDS/waves.rpmsave ]; then
+  %%{__mv} $BACKGROUNDS/waves $BACKGROUNDS/waves.rpmsave
+  %%{__ln_s} $BACKGROUNDS/spin $BACKGROUNDS/waves
+  if [ ! -e $BACKGROUNDS/spin/waves.xml ]; then
+    %%{__ln_s} $BACKGROUNDS/spin/spin.xml $BACKGROUNDS/spin/waves.xml
+  fi
+  for wave in `ls -1 $BACKGROUNDS/waves.rpmsave | grep png`; do
+    %%{__ln_s} $BACKGROUNDS/spin/default.png $BACKGROUNDS/waves/$wave
+  done
+fi
+''',
+          'triggerun': '''BACKGROUNDS=/usr/share/backgrounds
 if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
   %%{__rm} -rf $BACKGROUNDS/waves
   %%{__mv} -f $BACKGROUNDS/waves.rpmsave $BACKGROUNDS/waves
   %%{__rm} -f $BACKGROUNDS/spin/waves.xml
 fi
 ''',
+        },
       },
     },
   }),
