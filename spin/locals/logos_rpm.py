@@ -597,12 +597,15 @@ fi
 done
 ''',
         'desktop-backgrounds-basic': '''BACKGROUNDS=/usr/share/backgrounds
-if [ -e $BACKGROUNDS/waves ]; then
+if [ -e $BACKGROUNDS/waves -a ! -e $BACKGROUNDS/waves.rpmsave ]; then
   %%{__mv} $BACKGROUNDS/waves $BACKGROUNDS/waves.rpmsave
   %%{__ln_s} $BACKGROUNDS/spin $BACKGROUNDS/waves
   if [ ! -e $BACKGROUNDS/spin/waves.xml ]; then
     %%{__ln_s} $BACKGROUNDS/spin/spin.xml $BACKGROUNDS/spin/waves.xml
   fi
+  for wave in `ls -1 $BACKGROUNDS/waves.rpmsave | grep png`; do
+    %%{__ln_s} $BACKGROUNDS/spin/default.png $BACKGROUNDS/waves/$wave
+  done
 fi
 ''',
       },
