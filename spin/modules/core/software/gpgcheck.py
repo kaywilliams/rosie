@@ -24,12 +24,13 @@ from spin.event     import Event
 from spin.logging   import L1, L2
 
 API_VERSION = 5.0
-EVENTS = {'software': ['GpgCheckEvent']}
+EVENTS = ['GpgCheckEvent']
 
 class GpgCheckEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'gpgcheck',
+      parentid = 'software',
       version = 1,
       requires = ['rpms-by-repoid', 'repos'],
     )

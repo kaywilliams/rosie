@@ -31,12 +31,13 @@ from handlers  import *
 
 API_VERSION = 5.0
 
-EVENTS = {'rpms': ['LogosRpmEvent']}
+EVENTS = ['LogosRpmEvent']
 
 class LogosRpmEvent(RpmBuildMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'logos-rpm',
+      parentid = 'rpms',
       version = '1.0',
       requires = ['base-info', 'anaconda-version', 'logos-versions'],
       provides = ['custom-rpms-data']

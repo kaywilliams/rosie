@@ -20,12 +20,13 @@ from spin.event   import Event
 from spin.modules.shared import FileDownloadMixin
 
 API_VERSION = 5.0
-EVENTS = {'installer': ['Stage2ImagesEvent']}
+EVENTS = ['Stage2ImagesEvent']
 
 class Stage2ImagesEvent(Event, FileDownloadMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'stage2-images',
+      parentid = 'installer',
       provides = ['stage2-images'],
       requires = ['anaconda-version', 'base-info', 'installer-repo'],
     )

@@ -22,12 +22,13 @@ from spin.event import Event
 from spin.modules.shared import BootConfigMixin
 
 API_VERSION = 5.0
-EVENTS = {'installer': ['BootisoEvent']}
+EVENTS = ['BootisoEvent']
 
 class BootisoEvent(Event, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'bootiso',
+      parentid = 'installer',
       version = '0.2',
       requires = ['isolinux-files', 'boot-config-file'],
       conditionally_requires = ['web-path', 'boot-args'],

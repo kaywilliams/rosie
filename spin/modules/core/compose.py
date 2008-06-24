@@ -23,7 +23,7 @@ from spin.event    import Event
 from spin.logging  import L1
 
 API_VERSION = 5.0
-EVENTS = {'os': ['ComposeEvent']}
+EVENTS = ['ComposeEvent']
 
 FIELDS = ['file', 'size', 'mtime']
 
@@ -31,7 +31,7 @@ class ComposeEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'compose',
-
+      parentid = 'os',
       # as an optimization iso diffs 'manifest-file' to determine if it should
       # run, thus avoiding calculating diffs for all files in SOFTWARE_STORE
       provides = ['os-dir', 'publish-content', 'manifest-file'],

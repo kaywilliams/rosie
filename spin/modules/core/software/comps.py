@@ -22,12 +22,13 @@ from spin.logging   import L1
 from spin.constants import BOOLEANS_TRUE, KERNELS
 
 API_VERSION = 5.0
-EVENTS = {'software': ['CompsEvent']}
+EVENTS = ['CompsEvent']
 
 class CompsEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'comps',
+      parentid = 'software',
       provides = ['comps-file', 'required-packages', 'user-required-packages'],
       requires = ['anaconda-version', 'repos'],
       conditionally_requires = ['comps-included-packages', 'comps-excluded-packages'],

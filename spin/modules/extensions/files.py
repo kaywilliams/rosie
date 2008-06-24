@@ -24,12 +24,13 @@ Includes user-provided files and folders within the distribution folder.
 from spin.event   import Event
 
 API_VERSION = 5.0
-EVENTS = {'os': ['FilesEvent']}
+EVENTS = ['FilesEvent']
 
 class FilesEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'files',
+      parentid = 'os',
       provides = ['os-contents'],
     )
 

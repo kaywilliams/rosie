@@ -22,12 +22,13 @@ from spin.event import Event
 from spin.modules.shared import ImageModifyMixin, BootConfigMixin
 
 API_VERSION = 5.0
-EVENTS = {'installer': ['DiskbootImageEvent']}
+EVENTS = ['DiskbootImageEvent']
 
 class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'diskboot-image',
+      parentid = 'installer',
       version = 1,
       provides = ['diskboot.img'],
       requires = ['buildstamp-file', 'installer-repo', 'isolinux-files'],

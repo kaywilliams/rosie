@@ -21,7 +21,7 @@ from spin.event     import Event
 from spin.modules.shared import ExtractMixin, RpmNotFoundError
 
 API_VERSION = 5.0
-EVENTS = {'installer': ['ReleaseFilesEvent']}
+EVENTS = ['ReleaseFilesEvent']
 
 DEFAULT_SET = ['eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README*',
                '*-RPM-GPG', 'RPM-GPG-KEY*', 'RELEASE-NOTES*']
@@ -30,6 +30,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'release-files',
+      parentid = 'installer',
       requires = ['rpms-directory'],
       conditionally_comes_after = ['gpgsign'],
     )

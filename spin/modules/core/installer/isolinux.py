@@ -20,12 +20,13 @@ from spin.event   import Event
 from spin.modules.shared import FileDownloadMixin
 
 API_VERSION = 5.0
-EVENTS = {'installer': ['IsolinuxEvent']}
+EVENTS = ['IsolinuxEvent']
 
 class IsolinuxEvent(Event, FileDownloadMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'isolinux',
+      parentid = 'installer',
       provides = ['isolinux-files', 'boot-config-file'],
       requires = ['anaconda-version', 'base-info', 'installer-repo'],
       conditionally_requires = ['ks-path', 'boot-args', 'installer-splash'],

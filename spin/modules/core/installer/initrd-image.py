@@ -20,12 +20,13 @@ from spin.event   import Event
 from spin.modules.shared import ImageModifyMixin
 
 API_VERSION = 5.0
-EVENTS = {'installer': ['InitrdImageEvent']}
+EVENTS = ['InitrdImageEvent']
 
 class InitrdImageEvent(Event, ImageModifyMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'initrd-image',
+      parentid = 'installer',
       provides = ['isolinux-files'],
       requires = ['anaconda-version', 'buildstamp-file'],
       conditionally_requires = ['initrd-image-content', 'kickstart-file', 'ks-path'],

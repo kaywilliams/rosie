@@ -35,13 +35,14 @@ from spin.validate  import InvalidConfigError
 from spin.modules.shared import CreaterepoMixin, RepoEventMixin, SpinRepoGroup
 
 API_VERSION = 5.0
-EVENTS = {'setup': ['SourceReposEvent'], 'all': ['SourcesEvent']}
+EVENTS = ['SourceReposEvent', 'SourcesEvent']
 
 class SourceReposEvent(Event, RepoEventMixin):
   "Downloads and reads the primary.xml.gz for each of the source repositories."
   def __init__(self):
     Event.__init__(self,
       id='source-repos',
+      parentid = 'setup',
       provides=['source-repos'],
       requires=['input-repos']
     )
@@ -103,9 +104,11 @@ class SourcesEvent(Event, CreaterepoMixin):
   "Downloads source rpms."
   def __init__(self):
     Event.__init__(self,
-                   id='sources',
-                   provides=['srpms', 'srpms-dir', 'publish-content'],
-                   requires=['rpms', 'source-repos'])
+      id = 'sources',
+      parentid = 'all',
+      provides = ['srpms', 'srpms-dir', 'publish-content'],
+      requires = ['rpms', 'source-repos']
+    )
     CreaterepoMixin.__init__(self)
 
     self.srpmdest = self.OUTPUT_DIR / 'SRPMS'

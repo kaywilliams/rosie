@@ -30,12 +30,13 @@ from spin.event  import Event
 from spin.locals import sort_keys
 
 API_VERSION = 5.0
-EVENTS = {'installer': ['DiscinfoEvent', 'TreeinfoEvent', 'BuildstampEvent']}
+EVENTS = ['DiscinfoEvent', 'TreeinfoEvent', 'BuildstampEvent']
 
 class DiscinfoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'discinfo',
+      parentid = 'installer',
       provides = ['.discinfo'],
       requires = ['anaconda-version'],
       version = 1
@@ -79,6 +80,7 @@ class TreeinfoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'treeinfo',
+      parentid = 'installer',
       provides = ['.treeinfo'],
       requires = ['anaconda-version'],
       version = 1,
@@ -128,6 +130,7 @@ class BuildstampEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'buildstamp',
+      parentid = 'installer',
       version = 1,
       provides = ['buildstamp-file'],
       requires = ['anaconda-version', 'base-info'],

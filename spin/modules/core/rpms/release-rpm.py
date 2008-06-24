@@ -24,12 +24,13 @@ from spin.modules.shared import RpmBuildMixin
 
 API_VERSION = 5.0
 
-EVENTS = {'rpms': ['ReleaseRpmEvent']}
+EVENTS = ['ReleaseRpmEvent']
 
 class ReleaseRpmEvent(RpmBuildMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'release-rpm',
+      parentid = 'rpms',
       version = '0.91',
       requires = ['release-versions', 'input-repos'],
       provides = ['custom-rpms-data'],

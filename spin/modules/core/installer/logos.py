@@ -25,12 +25,13 @@ from spin.event     import Event
 from spin.modules.shared import ExtractMixin, RpmNotFoundError
 
 API_VERSION = 5.0
-EVENTS = {'installer': ['LogosEvent']}
+EVENTS = ['LogosEvent']
 
 class LogosEvent(Event, ExtractMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'logos',
+      parentid = 'installer',
       provides = ['installer-splash', 'product-image-content'],
       requires = ['rpms-directory', 'anaconda-version'],
       conditionally_comes_after = ['gpgsign'],

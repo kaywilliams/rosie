@@ -25,12 +25,13 @@ from spin.event     import Event
 from spin.logging   import L1, L2
 
 API_VERSION = 5.0
-EVENTS = {'software': ['DownloadEvent']}
+EVENTS = ['DownloadEvent']
 
 class DownloadEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'download',
+      parentid = 'software',
       provides = ['cached-rpms', 'rpms-by-repoid'],
       requires = ['pkglist', 'repos'],
     )

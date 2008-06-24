@@ -27,12 +27,13 @@ import md5
 
 API_VERSION = 5.0
 
-EVENTS = {'rpms': ['ConfigRpmEvent']}
+EVENTS = ['ConfigRpmEvent']
 
 class ConfigRpmEvent(RpmBuildMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'config-rpm',
+      parentid = 'rpms',
       version = '0.93',
       provides = ['custom-rpms-data'],
       requires = ['input-repos'],

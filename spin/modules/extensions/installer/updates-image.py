@@ -20,12 +20,13 @@ from spin.event   import Event
 from spin.modules.shared import ImageModifyMixin
 
 API_VERSION = 5.0
-EVENTS = {'installer': ['UpdatesImageEvent']}
+EVENTS = ['UpdatesImageEvent']
 
 class UpdatesImageEvent(Event, ImageModifyMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'updates-image',
+      parentid = 'installer',
       provides = ['updates.img'],
       requires = ['anaconda-version', 'installer-repo'],
       conditionally_requires = ['updates-image-content'],
