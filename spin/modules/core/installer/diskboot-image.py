@@ -21,8 +21,10 @@ from spin.event import Event
 
 from spin.modules.shared import ImageModifyMixin, BootConfigMixin
 
-API_VERSION = 5.0
-EVENTS = ['DiskbootImageEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['DiskbootImageEvent'],
+}
 
 class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
   def __init__(self):
@@ -42,7 +44,6 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
       'input':     [],
       'output':    [],
     }
-
     ImageModifyMixin.__init__(self, 'diskboot.img')
     BootConfigMixin.__init__(self)
 

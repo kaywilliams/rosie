@@ -27,8 +27,10 @@ from spin.logging     import L1, L2, L3
 
 from spin.modules.shared import ListCompareMixin, BootConfigMixin
 
-API_VERSION = 5.0
-EVENTS = ['PkgorderEvent', 'IsoEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['PkgorderEvent', 'IsoEvent'],
+}
 
 YUMCONF = '''
 [main]

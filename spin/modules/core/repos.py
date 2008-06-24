@@ -27,8 +27,10 @@ from spin.validate  import InvalidConfigError
 
 from spin.modules.shared import RepoEventMixin, SpinRepoGroup
 
-API_VERSION = 5.0
-EVENTS = ['ReposEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['ReposEvent'],
+}
 
 class ReposEvent(RepoEventMixin, Event):
   def __init__(self):

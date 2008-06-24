@@ -26,8 +26,10 @@ from spin.constants import BOOLEANS_TRUE, RPM_REGEX
 from spin.event     import Event
 from spin.logging   import L1, L2
 
-API_VERSION = 5.0
-EVENTS = ['GpgSetupEvent', 'GpgSignEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['GpgSetupEvent', 'GpgSignEvent'],
+}
 
 class GpgSetupEvent(Event):
   def __init__(self):

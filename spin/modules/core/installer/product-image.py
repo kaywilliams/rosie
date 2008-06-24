@@ -24,8 +24,10 @@ from spin.event   import Event
 
 from spin.modules.shared import ImageModifyMixin
 
-API_VERSION = 5.0
-EVENTS = ['ProductImageEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['ProductImageEvent'],
+}
 
 class ProductImageEvent(Event, ImageModifyMixin):
   def __init__(self):

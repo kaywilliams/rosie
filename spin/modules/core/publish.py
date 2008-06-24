@@ -26,8 +26,10 @@ from spin.constants import *
 from spin.event     import Event
 from spin.logging   import L1
 
-API_VERSION = 5.0
-EVENTS = ['PublishSetupEvent', 'PublishEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['PublishSetupEvent', 'PublishEvent'],
+}
 
 class PublishSetupEvent(Event):
   def __init__(self):

@@ -20,9 +20,10 @@ from rendition import versort
 
 from spin.event import Event, CLASS_META
 
-API_VERSION = 5.0
-
-EVENTS = ['InstallerEvent', 'InstallerSetupEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['InstallerEvent', 'InstallerSetupEvent'],
+}
 
 class InstallerEvent(Event):
   def __init__(self):

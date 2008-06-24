@@ -24,8 +24,10 @@ from spin.event     import Event
 
 from spin.modules.shared import ExtractMixin, RpmNotFoundError
 
-API_VERSION = 5.0
-EVENTS = ['LogosEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['LogosEvent'],
+}
 
 class LogosEvent(Event, ExtractMixin):
   def __init__(self):

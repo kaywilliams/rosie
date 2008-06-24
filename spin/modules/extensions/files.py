@@ -23,8 +23,10 @@ Includes user-provided files and folders within the distribution folder.
 
 from spin.event   import Event
 
-API_VERSION = 5.0
-EVENTS = ['FilesEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'event's: ['FilesEvent'],
+}
 
 class FilesEvent(Event):
   def __init__(self):

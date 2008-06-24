@@ -34,8 +34,10 @@ from spin.validate  import InvalidConfigError
 
 from spin.modules.shared import CreaterepoMixin, RepoEventMixin, SpinRepoGroup
 
-API_VERSION = 5.0
-EVENTS = ['SourceReposEvent', 'SourcesEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['SourceReposEvent', 'SourcesEvent'],
+}
 
 class SourceReposEvent(Event, RepoEventMixin):
   "Downloads and reads the primary.xml.gz for each of the source repositories."

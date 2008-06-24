@@ -17,8 +17,10 @@
 #
 from spin.event import Event, CLASS_META
 
-API_VERSION = 5.0
-EVENTS = ['RpmsEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['RpmsEvent'],
+}
 
 class RpmsEvent(Event):
   def __init__(self):

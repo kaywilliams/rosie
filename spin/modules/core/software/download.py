@@ -24,8 +24,10 @@ from spin.constants import RPM_PNVRA_REGEX
 from spin.event     import Event
 from spin.logging   import L1, L2
 
-API_VERSION = 5.0
-EVENTS = ['DownloadEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['DownloadEvent'],
+}
 
 class DownloadEvent(Event):
   def __init__(self):

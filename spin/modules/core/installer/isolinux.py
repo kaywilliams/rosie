@@ -19,8 +19,10 @@ from spin.event   import Event
 
 from spin.modules.shared import FileDownloadMixin
 
-API_VERSION = 5.0
-EVENTS = ['IsolinuxEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['IsolinuxEvent'],
+}
 
 class IsolinuxEvent(Event, FileDownloadMixin):
   def __init__(self):

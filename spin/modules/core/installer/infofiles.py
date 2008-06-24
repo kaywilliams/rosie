@@ -29,8 +29,10 @@ from rendition import FormattedFile as ffile
 from spin.event  import Event
 from spin.locals import sort_keys
 
-API_VERSION = 5.0
-EVENTS = ['DiscinfoEvent', 'TreeinfoEvent', 'BuildstampEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['DiscinfoEvent', 'TreeinfoEvent', 'BuildstampEvent'],
+}
 
 class DiscinfoEvent(Event):
   def __init__(self):

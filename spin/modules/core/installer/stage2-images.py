@@ -19,8 +19,10 @@ from spin.event   import Event
 
 from spin.modules.shared import FileDownloadMixin
 
-API_VERSION = 5.0
-EVENTS = ['Stage2ImagesEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['Stage2ImagesEvent'],
+}
 
 class Stage2ImagesEvent(Event, FileDownloadMixin):
   def __init__(self):

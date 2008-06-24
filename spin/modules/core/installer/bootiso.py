@@ -21,8 +21,10 @@ from spin.event import Event
 
 from spin.modules.shared import BootConfigMixin
 
-API_VERSION = 5.0
-EVENTS = ['BootisoEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['BootisoEvent'],
+}
 
 class BootisoEvent(Event, BootConfigMixin):
   def __init__(self):

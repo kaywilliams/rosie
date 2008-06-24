@@ -28,8 +28,10 @@ from spin.logging   import L1
 
 from spin.modules.shared import idepsolver
 
-API_VERSION = 5.0
-EVENTS = ['PkglistEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['PkglistEvent'],
+}
 
 YUMCONF_HEADER = [
   '[main]',

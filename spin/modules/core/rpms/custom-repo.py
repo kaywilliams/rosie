@@ -27,9 +27,10 @@ from spin.modules.shared import SpinRepoGroup
 
 from rendition.repo.repo import RepoContainer
 
-API_VERSION = 5.0
-
-EVENTS = ['CustomRepoEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['CustomRepoEvent'],
+}
 
 class CustomRepoEvent(Event):
   def __init__(self):

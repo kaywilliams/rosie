@@ -17,8 +17,10 @@
 #
 from spin.event   import Event
 
-API_VERSION = 5.0
-EVENTS = ['PxebootImagesEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['PxebootImagesEvent'],
+}
 
 class PxebootImagesEvent(Event):
   def __init__(self):

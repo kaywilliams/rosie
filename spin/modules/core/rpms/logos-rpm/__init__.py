@@ -29,9 +29,10 @@ from spin.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
 from constants import *
 from handlers  import *
 
-API_VERSION = 5.0
-
-EVENTS = ['LogosRpmEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['LogosRpmEvent'],
+}
 
 class LogosRpmEvent(RpmBuildMixin, Event):
   def __init__(self):

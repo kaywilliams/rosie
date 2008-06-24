@@ -19,8 +19,10 @@ from rendition import pps
 
 from spin.event   import Event
 
-API_VERSION = 5.0
-EVENTS = ['KickstartEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['KickstartEvent'],
+}
 
 class KickstartEvent(Event):
   def __init__(self):

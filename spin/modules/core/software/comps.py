@@ -21,8 +21,10 @@ from spin.event     import Event
 from spin.logging   import L1
 from spin.constants import BOOLEANS_TRUE, KERNELS
 
-API_VERSION = 5.0
-EVENTS = ['CompsEvent']
+MODULE_INFO = {
+  'api': 5.0,
+  'events': ['CompsEvent'],
+}
 
 class CompsEvent(Event):
   def __init__(self):
