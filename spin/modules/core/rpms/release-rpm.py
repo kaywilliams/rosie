@@ -30,7 +30,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'release-rpm',
-      version = '0.92',
+      version = '0.91',
       requires = ['release-versions', 'input-repos'],
       provides = ['custom-rpms-data'],
     )
@@ -39,9 +39,8 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
       '%s-release' % self.name,
       '%s release files created by spin' % self.fullname,
       '%s release files' % self.name,
-      obsoletes = ['fedora-release', 'redhat-release',
-                   'centos-release', 'fedora-release-notes',
-                   'redhat-release-notes', 'centos-release-notes']
+      obsoletes = ['fedora-release', 'redhat-release', 'centos-release',
+                   'fedora-release-notes', 'redhat-release-notes', 'centos-release-notes']
     )
 
     d = self.rpm.build_folder
@@ -79,8 +78,6 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
     self.io.add_xpath('files', self.filetypes['release'])
 
     # eulapy file
-    include_firstboot = self.config.get('eula/@include-in-firstboot',
-                                        'True') in BOOLEANS_TRUE
     if ( self.config.get('eula/@include-in-firstboot', 'True')
            in BOOLEANS_TRUE and
          self.config.pathexists('eula') ):
