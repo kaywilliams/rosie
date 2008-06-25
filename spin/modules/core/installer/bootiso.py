@@ -21,10 +21,12 @@ from spin.event import Event
 
 from spin.modules.shared import BootConfigMixin
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['BootisoEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['BootisoEvent'],
+  description = 'creates a boot.iso for starting installations of distribution',
+  group       = 'installer',
+)
 
 class BootisoEvent(Event, BootConfigMixin):
   def __init__(self):

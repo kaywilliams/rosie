@@ -17,10 +17,11 @@
 #
 from spin.event import Event, CLASS_META
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['SoftwareMetaEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['SoftwareMetaEvent'],
+  description = 'performs software package-related tasks',
+)
 
 class SoftwareMetaEvent(Event):
   def __init__(self):

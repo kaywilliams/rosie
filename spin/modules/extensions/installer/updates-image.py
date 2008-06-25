@@ -19,10 +19,12 @@ from spin.event   import Event
 
 from spin.modules.shared import ImageModifyMixin
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['UpdatesImageEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['UpdatesImageEvent'],
+  description = 'create the updates.img used during anaconda install',
+  group       = 'installer',
+)
 
 class UpdatesImageEvent(Event, ImageModifyMixin):
   def __init__(self):

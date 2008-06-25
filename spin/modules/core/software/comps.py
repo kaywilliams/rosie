@@ -21,10 +21,12 @@ from spin.event     import Event
 from spin.logging   import L1
 from spin.constants import BOOLEANS_TRUE, KERNELS
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['CompsEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['CompsEvent'],
+  description = 'create a customized groupfile (comps.xml) for the distribution',
+  group       = 'software',
+)
 
 class CompsEvent(Event):
   def __init__(self):

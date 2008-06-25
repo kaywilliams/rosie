@@ -57,4 +57,6 @@ class Loader(dispatch.Loader):
           skip = True; break
       if skip: continue
 
-      self.modules[modid] = dispatch.load_modules(modname, path, err=False)
+      m = dispatch.load_modules(modname, path, err=False)
+      if hasattr(m, 'MODULE_INFO'):
+        self.modules[modid] = m

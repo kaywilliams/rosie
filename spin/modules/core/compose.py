@@ -22,10 +22,11 @@ from rendition.pps.constants import TYPE_NOT_DIR
 from spin.event    import Event
 from spin.logging  import L1
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['ComposeEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['ComposeEvent'],
+  description = None,
+)
 
 FIELDS = ['file', 'size', 'mtime']
 

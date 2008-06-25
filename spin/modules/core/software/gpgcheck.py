@@ -23,10 +23,12 @@ from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 from spin.logging   import L1, L2
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['GpgCheckEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['GpgCheckEvent'],
+  description = 'check GPG keys of input RPMs',
+  group       = 'software',
+)
 
 class GpgCheckEvent(Event):
   def __init__(self):

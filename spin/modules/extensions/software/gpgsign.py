@@ -26,10 +26,12 @@ from spin.constants import BOOLEANS_TRUE, RPM_REGEX
 from spin.event     import Event
 from spin.logging   import L1, L2
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['GpgSetupEvent', 'GpgSignEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['GpgSetupEvent', 'GpgSignEvent'],
+  description = 'sign distribution RPMs with a given GPG key',
+  group       = 'software',
+)
 
 class GpgSetupEvent(Event):
   def __init__(self):

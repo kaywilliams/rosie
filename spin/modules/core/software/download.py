@@ -24,10 +24,12 @@ from spin.constants import RPM_PNVRA_REGEX
 from spin.event     import Event
 from spin.logging   import L1, L2
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['DownloadEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['DownloadEvent'],
+  description = 'downloads RPMs to use in the distribution',
+  group       = 'software',
+)
 
 class DownloadEvent(Event):
   def __init__(self):

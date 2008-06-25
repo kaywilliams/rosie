@@ -20,10 +20,12 @@ from spin.event     import Event
 
 from spin.modules.shared import ExtractMixin, RpmNotFoundError
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['ReleaseFilesEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['ReleaseFilesEvent'],
+  description = 'include files as \'release files\'',
+  groups      = 'installer',
+)
 
 DEFAULT_SET = ['eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README*',
                '*-RPM-GPG', 'RPM-GPG-KEY*', 'RELEASE-NOTES*']

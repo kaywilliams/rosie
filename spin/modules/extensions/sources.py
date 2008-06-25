@@ -34,19 +34,20 @@ from spin.validate  import InvalidConfigError
 
 from spin.modules.shared import CreaterepoMixin, RepoEventMixin, SpinRepoGroup
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['SourceReposEvent', 'SourcesEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['SourceReposEvent', 'SourcesEvent'],
+  description = 'include source RPMs in the installation tree',
+)
 
 class SourceReposEvent(Event, RepoEventMixin):
   "Downloads and reads the primary.xml.gz for each of the source repositories."
   def __init__(self):
     Event.__init__(self,
-      id='source-repos',
+      id = 'source-repos',
       parentid = 'setup',
-      provides=['source-repos'],
-      requires=['input-repos']
+      provides = ['source-repos'],
+      requires = ['input-repos']
     )
 
     RepoEventMixin.__init__(self)

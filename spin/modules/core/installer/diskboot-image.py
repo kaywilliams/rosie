@@ -21,10 +21,12 @@ from spin.event import Event
 
 from spin.modules.shared import ImageModifyMixin, BootConfigMixin
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['DiskbootImageEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['DiskbootImageEvent'],
+  description = 'create a diskboot.img for the distribution',
+  group       = 'installer',
+)
 
 class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
   def __init__(self):

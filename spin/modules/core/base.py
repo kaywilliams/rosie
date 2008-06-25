@@ -29,10 +29,11 @@ from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 from spin.logging   import L1
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['BaseInfoEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['BaseInfoEvent'],
+  description = None,
+)
 
 class BaseInfoEvent(Event):
   def __init__(self):

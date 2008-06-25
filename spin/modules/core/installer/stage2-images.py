@@ -19,10 +19,12 @@ from spin.event   import Event
 
 from spin.modules.shared import FileDownloadMixin
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['Stage2ImagesEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['Stage2ImagesEvent'],
+  description = 'creates the stage2 image used during anaconda install',
+  group       = 'installer',
+)
 
 class Stage2ImagesEvent(Event, FileDownloadMixin):
   def __init__(self):

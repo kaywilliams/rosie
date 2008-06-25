@@ -20,10 +20,12 @@ from spin.event     import Event
 
 from spin.modules.shared import CreaterepoMixin
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['CreaterepoEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['CreaterepoEvent'],
+  description = None,
+  group       = 'createrepo',
+)
 
 class CreaterepoEvent(Event, CreaterepoMixin):
   def __init__(self):

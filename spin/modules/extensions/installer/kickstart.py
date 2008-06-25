@@ -19,10 +19,12 @@ from rendition import pps
 
 from spin.event   import Event
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['KickstartEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['KickstartEvent'],
+  description = 'include a customized kickstart',
+  group       = 'installer',
+)
 
 class KickstartEvent(Event):
   def __init__(self):

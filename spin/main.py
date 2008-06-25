@@ -32,11 +32,13 @@ import imp
 import os
 import re
 import sys
+import textwrap
 import time
 
 from rpmUtils.arch import getBaseArch
 
 from rendition import dispatch
+from rendition import listfmt
 from rendition import pps
 from rendition import rxml
 from rendition import shlib
@@ -149,15 +151,24 @@ class Build(object):
       self.module_map       = loader.module_map
 
       # add module mappings for pseudo events
-      for event in self.dispatch._top:
-        if len(event.get_children()) > 0:
-          self.module_map.setdefault(event.id, []).extend(
-            [ e.id for e in event.get_children() ] )
+      modgrps = {'all': []}
+      for modid, module in loader.modules.items():
+        self.module_map.setdefault('all', []).extend(self.module_map[modid])
+        grp = module.MODULE_INFO.get('group')
+        if grp:
+          if module.MODULE_INFO.get('description') is not None:
+            modgrps.setdefault(grp, []).append(modid)
+          self.module_map.setdefault(grp, []).extend(self.module_map[modid])
 
     except ImportError, e:
       Event.logger.log(0, L0("Error loading core spin files: %s" % e))
       if DEBUG: raise
       sys.exit(1)
+
+    # list modules, if requested
+    if options.list_modules:
+      self._pprint_modules(loader, modgrps)
+      sys.exit()
 
     # list events, if requested
     if options.list_events:
@@ -445,6 +456,40 @@ class Build(object):
     except:
       pass
     Event.cvars['selinux-enabled'] = selinux_enabled
+
+  def _pprint_modules(self, loader, modgrps):
+    longest = 0
+    sep = ' : '
+    for modid in loader.modules:
+      longest = max(longest, len(modid))
+    s = '%%-%ds' % longest
+
+    print "\nModule groups:"
+    print "="*70
+    lfmt = listfmt.ListFormatter(start='modules : ', sep=', ')
+    twrp1 = textwrap.TextWrapper(subsequent_indent = ' '*(longest+len(sep)))
+    twrp2 = textwrap.TextWrapper(initial_indent    = ' '*(longest+len(sep)),
+                                 subsequent_indent = ' '*(longest+len(sep)))
+    for grp in sorted(modgrps.keys()):
+      if loader.modules.has_key(grp):
+        if loader.modules[grp].MODULE_INFO.get('description') is None:
+          continue
+        r = (s % grp, sep, loader.modules[grp].MODULE_INFO.get('description', ''))
+      else:
+        r = (s % grp, '', '')
+      print twrp1.fill('%s%s%s' % r)
+      print twrp2.fill(lfmt.format(sorted(modgrps[grp])))
+
+    print "\nModules:"
+    print "="*70
+    for modid in sorted([ x for x in loader.modules if x not in modgrps.keys() ]):
+      if loader.modules.has_key(modid):
+        if loader.modules[modid].MODULE_INFO.get('description') is None:
+          continue
+        r = (s % modid, sep, loader.modules[modid].MODULE_INFO.get('description', ''))
+      else:
+        r = (s % modid, '', '')
+      print twrp1.fill('%s%s%s' % r)
 
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")

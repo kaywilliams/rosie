@@ -28,10 +28,12 @@ from spin.logging   import L1
 
 from spin.modules.shared import idepsolver
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['PkglistEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['PkglistEvent'],
+  description = 'performs RPM dependency solving on selected packages',
+  group       = 'software',
+)
 
 YUMCONF_HEADER = [
   '[main]',

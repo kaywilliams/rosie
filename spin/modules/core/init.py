@@ -18,10 +18,11 @@
 from spin.event   import Event, CLASS_META
 from spin.logging import L1
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['InitEvent', 'SetupEvent', 'OSMetaEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['InitEvent', 'SetupEvent', 'OSMetaEvent'],
+  description = None,
+)
 
 class InitEvent(Event):
   def __init__(self):

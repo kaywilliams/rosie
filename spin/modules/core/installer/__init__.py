@@ -20,10 +20,11 @@ from rendition import versort
 
 from spin.event import Event, CLASS_META
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['InstallerEvent', 'InstallerSetupEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['InstallerEvent', 'InstallerSetupEvent'],
+  description = 'creates or modifies anaconda install images',
+)
 
 class InstallerEvent(Event):
   def __init__(self):

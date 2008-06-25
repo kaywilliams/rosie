@@ -17,10 +17,12 @@
 #
 from spin.event   import Event
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['PxebootImagesEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['PxebootImagesEvent'],
+  description = 'include pxeboot images for distribution',
+  group       = 'installer',
+)
 
 class PxebootImagesEvent(Event):
   def __init__(self):

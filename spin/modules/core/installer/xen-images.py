@@ -19,10 +19,12 @@ from spin.event   import Event
 
 from spin.modules.shared import FileDownloadMixin, ImageModifyMixin
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['XenImagesEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['XenImagesEvent'],
+  description = 'includes kernel and initrd images for xen installations',
+  group       = 'installer',
+)
 
 class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
   def __init__(self):

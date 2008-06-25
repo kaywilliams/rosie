@@ -22,11 +22,11 @@ from rendition.difftest.handlers import DiffHandler
 from spin.event   import Event
 from spin.logging import L1, L2
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['AutocleanEvent'],
-  'description': 'performs cleanup of module output based on input conditions',
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['AutocleanEvent'],
+  description = None,
+)
 
 class AutocleanEvent(Event):
   def __init__(self):

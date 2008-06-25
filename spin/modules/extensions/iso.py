@@ -27,10 +27,11 @@ from spin.logging     import L1, L2, L3
 
 from spin.modules.shared import ListCompareMixin, BootConfigMixin
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['PkgorderEvent', 'IsoEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['PkgorderEvent', 'IsoEvent'],
+  description = 'generate one or more isos of the install tree',
+)
 
 YUMCONF = '''
 [main]

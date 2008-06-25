@@ -22,10 +22,12 @@ from spin.event     import Event
 
 from spin.modules.shared import RpmBuildMixin
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['ReleaseRpmEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['ReleaseRpmEvent'],
+  description = 'creates an RPM containing various release files',
+  group       = 'rpms',
+)
 
 class ReleaseRpmEvent(RpmBuildMixin, Event):
   def __init__(self):

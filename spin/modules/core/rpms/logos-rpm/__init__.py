@@ -29,10 +29,12 @@ from spin.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
 from constants import *
 from handlers  import *
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['LogosRpmEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['LogosRpmEvent'],
+  description = 'replace default logos with customized images',
+  group       = 'rpms',
+)
 
 class LogosRpmEvent(RpmBuildMixin, Event):
   def __init__(self):

@@ -25,10 +25,12 @@ from spin.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
 
 import md5
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['ConfigRpmEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['ConfigRpmEvent'],
+  description = 'creates an RPM containing customized configuration and scripts',
+  group       = 'rpms',
+)
 
 class ConfigRpmEvent(RpmBuildMixin, Event):
   def __init__(self):

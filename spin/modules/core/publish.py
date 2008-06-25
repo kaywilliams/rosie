@@ -26,10 +26,11 @@ from spin.constants import *
 from spin.event     import Event
 from spin.logging   import L1
 
-MODULE_INFO = {
-  'api': 5.0,
-  'events': ['PublishSetupEvent', 'PublishEvent'],
-}
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['PublishSetupEvent', 'PublishEvent'],
+  description = 'publish distribution output to another location',
+)
 
 class PublishSetupEvent(Event):
   def __init__(self):
