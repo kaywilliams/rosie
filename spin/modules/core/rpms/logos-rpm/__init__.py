@@ -41,7 +41,7 @@ class LogosRpmEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'logos-rpm',
       parentid = 'rpms',
-      version = '1.0',
+      version = '0.1.0',
       requires = ['base-info', 'anaconda-version', 'logos-versions'],
       provides = ['custom-rpms-data']
     )
@@ -116,12 +116,12 @@ class LogosRpmEvent(RpmBuildMixin, Event):
       triggerin = self.distro_info['triggers'][triggerid].get('triggerin', None)
       if triggerin is not None:
         script = self.rpm.build_folder / '%s-triggerin.sh' % triggerid
-        script.write_text(triggerin)
+        script.write_text(triggerin % {'rpm_name': self.rpm.name})
         trigger.setdefault('triggerin_scripts', []).append(script)
       triggerun = self.distro_info['triggers'][triggerid].get('triggerun', None)
       if triggerun is not None:
         script = self.rpm.build_folder / '%s-triggerun.sh' % triggerid
-        script.write_text(triggerun)
+        script.write_text(triggerun % {'rpm_name': self.rpm.name})
         trigger.setdefault('triggerun_scripts', []).append(script)
       triggers.append(trigger)
     return triggers
