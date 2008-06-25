@@ -315,23 +315,21 @@ class RepoEventMixin:
     """
     # compute the set of old and new repos
     difftup = self.diff.variables.difference('repoids')
+    newids = set()
     if difftup:
       prev,curr = difftup
       if not isinstance(prev, list): prev = [] # ugly hack; NewEntry not iterable
       newids = set(curr).difference(prev)
-    else:
-      newids = set()
 
     for repo in self.repos.values():
+      doupdate = repo.id in newids or not repo.pkgsfile.exists()
+      if not doupdate:
+        for pxml in repo.datafiles['primary']:
+          if self.diff.input.difference((repo.url//pxml).normpath()):
+            doupdate = True
+            break
 
-      # run if any primary xml has changed...
-      doupdate = False
-      for pxml in repo.datafiles['primary']:
-        if self.diff.input.difference(repo.localurl//pxml):
-          doupdate = True; break
-
-      # ...or if this repo is new, or if its pkgsfile doesnt exist
-      if ( repo.id in newids or not repo.pkgsfile.exists() or doupdate ):
+      if doupdate:
         self.log(2, L2(repo.id))
         repo.repocontent.clear()
         for pxml in repo.datafiles['primary']:
