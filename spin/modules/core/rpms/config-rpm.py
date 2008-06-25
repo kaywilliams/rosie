@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+from StringIO import StringIO
+
 from rendition import pps
 
 from spin.constants import BOOLEANS_TRUE
@@ -76,6 +78,12 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
 
     self.scriptdir.mkdirs()
     self.filedir.mkdirs()
+
+    # add all scripts as input so if they change, we rerun
+    for script in self.config.xpath('script',  []) + \
+                  self.config.xpath('trigger', []):
+      if script.get('@content', 'filename') != 'raw':
+        self.DATA['input'].append(script.text)
 
     for file in self.config.xpath('file', []):
       text = file.text
@@ -277,7 +285,20 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
 
     for item in iterable:
       if isinstance(item, pps.Path.BasePath):
-        script += item.read_text() + '\n'
+        self.copy_callback.start(item, '')
+        fsrc = item.open('rb')
+        fdst = StringIO()
+        self.copy_callback._cp_start(item.stat().st_size, item.basename)
+        read = 0
+        while True:
+          buf = fsrc.read(16*1024)
+          if not buf: break
+          fdst.write(buf)
+          read += len(buf)
+          self.copy_callback._cp_update(read)
+        self.copy_callback._cp_end(read)
+
+        script += fdst.read() + '\n'
       else:
         assert isinstance(item, basestring)
         script += item + '\n'
