@@ -38,7 +38,7 @@ class ReposEvent(RepoEventMixin, Event):
     Event.__init__(self,
       id = 'repos',
       parentid = 'setup',
-      version = 2,
+      version = 3,
       provides = ['anaconda-version',
                   'logos-versions',
                   'release-versions',

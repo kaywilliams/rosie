@@ -54,29 +54,35 @@ class DownloadEvent(Event):
     self.diff.setup(self.DATA)
 
     self.cvars['rpms-by-repoid'] = {}
-    processed = []
 
+    rpmset = set()
+    for pkg in self.cvars['pkglist']:
+      rpmset.add('%s.rpm' % pkg)
+
+    processed_rpmset = set()
     for repo in self.cvars['repos'].values():
-      rpms = {}
       now = time.time()
       for rpminfo in repo.repocontent:
         rpm = repo.url//rpminfo['file']
-        _,n,v,r,a = self._deformat(rpm)
-        nvra = '%s-%s-%s.%s' % (n,v,r,a)
-        if nvra in self.cvars['pkglist'] and nvra not in processed and \
-             a in self._validarchs:
+        _,_,_,_,a = self._deformat(rpm)
+        if ( rpm.basename in rpmset and
+             rpm.basename not in processed_rpmset and
+             a in self._validarchs ):
           rpm.stat(populate=False).update(
             st_size  = rpminfo['size'],
             st_mtime = rpminfo['mtime'],
             st_mode  = (stat.S_IFREG | 0644),
             st_atime = now)
-          rpms[rpm.basename] = rpm
-          processed.append(nvra)
+          processed_rpmset.add(rpm.basename)
+          self.io.add_fpath(rpm, self.builddata_dest, id=repo.id)
+          self.cvars['rpms-by-repoid'].setdefault(repo.id, []).append(
+            self.builddata_dest // rpm.basename)
+      if repo.id in self.cvars['rpms-by-repoid']:
+        self.cvars['rpms-by-repoid'][repo.id].sort()
 
-      self.io.add_fpaths(rpms.values(), self.builddata_dest, id=repo.id)
-      if rpms:
-        self.cvars['rpms-by-repoid'][repo.id] = \
-          sorted([self.builddata_dest//rpm for rpm in rpms.keys()])
+    if rpmset != processed_rpmset:
+      raise RuntimeError("The following RPMs were not found in any "
+                         "input repos:\n%s" % sorted(rpmset - processed_rpmset))
 
   def run(self):
     for repo in self.cvars['repos'].values():

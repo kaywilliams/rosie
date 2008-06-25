@@ -22,7 +22,7 @@ from rendition import shlib
 
 from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
-from spin.locals    import L_LOGOS_RPM_INFO
+from spin.locals    import L_LOGOS_RPM_DISTRO_INFO
 
 from spin.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
 
@@ -111,14 +111,19 @@ class LogosRpmEvent(RpmBuildMixin, Event):
 
   def get_triggers(self):
     triggers = TriggerContainer()
-    for target, content in self.distro_info.get('triggerin', {}).items():
-      script = self.rpm.build_folder / '%s-triggerin.sh' % target
-      script.write_text(content % {'rpm_name': self.rpm.name})
-      triggers.append(Trigger(target, triggerin_scripts=[script]))
-    for target, content in self.distro_info.get('triggerun', {}).items():
-      script = self.rpm.build_folder / '%s-triggerun.sh' % target
-      script.write_text(content % {'rpm_name': self.rpm.name})
-      triggers.append(Trigger(target, triggerun_scripts=[script]))
+    for triggerid in self.distro_info.get('triggers', {}):
+      trigger = Trigger(triggerid)
+      triggerin = self.distro_info['triggers'][triggerid].get('triggerin', None)
+      if triggerin is not None:
+        script = self.rpm.build_folder / '%s-triggerin.sh' % triggerid
+        script.write_text(triggerin)
+        trigger.setdefault('triggerin_scripts', []).append(script)
+      triggerun = self.distro_info['triggers'][triggerid].get('triggerun', None)
+      if triggerun is not None:
+        script = self.rpm.build_folder / '%s-triggerun.sh' % triggerid
+        script.write_text(triggerun)
+        trigger.setdefault('triggerun_scripts', []).append(script)
+      triggers.append(trigger)
     return triggers
 
   def _setup_handlers(self):
@@ -151,17 +156,17 @@ class LogosRpmEvent(RpmBuildMixin, Event):
   def distro_info(self):
     if not self._distro_info:
       try:
-        self._distro_info = self.locals.L_LOGOS_RPM_INFO
+        self._distro_info = self.locals.L_LOGOS_RPM_DISTRO_INFO
       except KeyError:
         fullname = self.cvars['base-info']['fullname']
         version  = self.cvars['base-info']['version']
         # See if the version of the input distribution is a bugfix
         found = False
-        if L_LOGOS_RPM_INFO.has_key(fullname):
+        if L_LOGOS_RPM_DISTRO_INFO.has_key(fullname):
           for ver in L_LOGOS_RPM_INFO[fullname]:
             if version.startswith(ver):
               found = True
-              self._distro_info = L_LOGOS_RPM_INFO[fullname][ver]
+              self._distro_info = L_LOGOS_RPM_DISTRO_INFO[fullname][ver]
               break
         if not found:
           # if not one of the "officially" supported distros, default
