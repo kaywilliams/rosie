@@ -27,12 +27,13 @@ from spin.event     import Event
 from spin.logging   import L1, L2
 
 API_VERSION = 5.0
-EVENTS = {'setup': ['GpgSetupEvent'], 'software': ['GpgSignEvent']}
+EVENTS = ['GpgSetupEvent', 'GpgSignEvent']
 
 class GpgSetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'gpgsign-setup',
+      parentid = 'setup',
       suppress_run_message = True,
       provides = ['gpgsign-public-key',
                   'gpgsign-secret-key',
@@ -61,6 +62,7 @@ class GpgSignEvent(GpgMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'gpgsign',
+      parentid = 'software',
       requires = ['cached-rpms', 'gpgsign-public-key',
                   'gpgsign-secret-key', 'gpgsign-passphrase'],
       conditionally_comes_after = ['gpgcheck'],

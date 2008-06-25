@@ -29,7 +29,7 @@ from spin.logging   import L1
 from spin.modules.shared import idepsolver
 
 API_VERSION = 5.0
-EVENTS = {'software': ['PkglistEvent']}
+EVENTS = ['PkglistEvent']
 
 YUMCONF_HEADER = [
   '[main]',
@@ -58,6 +58,7 @@ class PkglistEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'pkglist',
+      parentid = 'software',
       provides = ['pkglist'],
       requires = ['required-packages', 'repos', 'user-required-packages'],
       conditionally_requires = ['pkglist-excluded-packages'],

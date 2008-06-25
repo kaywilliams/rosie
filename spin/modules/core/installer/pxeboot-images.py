@@ -18,12 +18,13 @@
 from spin.event   import Event
 
 API_VERSION = 5.0
-EVENTS = {'installer': ['PxebootImagesEvent']}
+EVENTS = ['PxebootImagesEvent']
 
 class PxebootImagesEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'pxeboot-images',
+      parentid = 'installer',
       provides = ['pxeboot'],
       requires = ['isolinux-files'],
     )

@@ -29,12 +29,13 @@ from rendition.repo.repo import RepoContainer
 
 API_VERSION = 5.0
 
-EVENTS = {'rpms': ['CustomRepoEvent']}
+EVENTS = ['CustomRepoEvent']
 
 class CustomRepoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'custom-repo',
+      parentid = 'rpms',
       version = 1,
       conditionally_requires = ['custom-rpms-data'],
       provides = ['repos', 'source-repos',

@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import os
-
 from rendition import dispatch
 from rendition import pps
 
@@ -28,29 +26,29 @@ class Loader(dispatch.Loader):
     self.disabled = disabled or []
 
   def load(self, paths, prefix='', *args, **kwargs):
-    oldcwd = os.getcwd()
-
-    if not hasattr(paths, '__iter__'): paths = [paths]
+    if isinstance(paths, basestring): paths = [paths]
+    paths = [ pps.path(p) for p in paths ]
 
     # process default-on events
-    for path in paths:
-      self._process_path(pps.path(path)/prefix/'core', True, *args, **kwargs)
+    for p in paths:
+      self._process_path(p/prefix/'core', True)
 
     # process default-off events
-    for path in paths:
-      self._process_path(pps.path(path)/prefix/'extensions', False, *args, **kwargs)
+    for p in paths:
+      self._process_path(p/prefix/'extensions', False)
 
-    os.chdir(oldcwd)
+    for mod in self.modules.values():
+      self._process_module(mod, *args, **kwargs)
 
     self._resolve_events()
     return self.top
 
-  def _process_path(self, path, default, *args, **kwargs):
+  def _process_path(self, path, default):
     for mod in path.findpaths(nregex='.*/(\..*|.*\.pyc|.*\.pyo)', mindepth=1):
-      modid = mod.basename.replace('.py', '')
+      modid = str(mod.basename.replace('.py', ''))
       if not default and modid not in self.enabled: continue # default-off events
 
-      modname = mod.splitall()[len(path.splitall()):].replace('/', '.').replace('.py', '')
+      modname = mod.relpathfrom(path).replace('/', '.').replace('.py', '')
 
       # don't load disabled events
       skip = False
@@ -59,5 +57,4 @@ class Loader(dispatch.Loader):
           skip = True; break
       if skip: continue
 
-      self._process_module(dispatch.load_modules(modname, path, err=False),
-                           path, *args, **kwargs)
+      self.modules[modid] = dispatch.load_modules(modname, path, err=False)

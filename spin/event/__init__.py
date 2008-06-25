@@ -53,10 +53,12 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   computed just once.  See make_event_superclass() inside main.py for
   more details.
   """
-  def __init__(self, id, version=0, suppress_run_message=False, *args, **kwargs):
+  def __init__(self, id, version=0, suppress_run_message=False, parentid=None,
+                         *args, **kwargs):
     dispatch.Event.__init__(self, id, *args, **kwargs)
     self.event_version = version
     self.suppress_run_message = suppress_run_message
+    self.parentid = parentid
     self._status = None
 
     IOMixin.__init__(self)
@@ -129,7 +131,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   def run(self): pass
   #def postrun(self) defined in DiffMixin
   def apply(self): pass
-  #def error(self, e) defined IOMixins
+  #def error(self, e) defined IOMixin
 
   def log(self, *args, **kwargs): return self.logger.log(*args, **kwargs)
 
@@ -157,34 +159,34 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     dst.dirname.mkdirs()
     sync.sync(src, dst, updatefn=updatefn or sync.mirror_updatefn, **kwargs)
 
-  def _get_mddir(self):
+  @property
+  def mddir(self):
     dir = self.METADATA_DIR/self.id
     dir.mkdirs()
     return dir
-  mddir = property(_get_mddir)
 
-  def _get_mdfile(self):
+  @property
+  def mdfile(self):
     return self.mddir/'%s.md' % self.id
-  mdfile = property(_get_mdfile)
 
-  def _get_output_dir(self):
+  @property
+  def OUTPUT_DIR(self):
     dir = self.METADATA_DIR/self.id/'output'
     dir.mkdirs()
     return dir
-  OUTPUT_DIR = property(_get_output_dir)
 
-  def _get_software_store(self):
+  @property
+  def SOFTWARE_STORE(self):
     dir = self.METADATA_DIR/self.id/'output/os'
     dir.mkdirs()
     return dir
-  SOFTWARE_STORE = property(_get_software_store)
 
-  def _get_config(self):
+  @property
+  def config(self):
     try:
       return self._config.get('/distro/%s' % self.__module__.split('.')[-1])
     except rxml.errors.XmlPathError:
       return DummyConfig(self._config)
-  config = property(_get_config)
 
   #------ ERROR HANDLING ------#
   def _handle_EventExit(self, e):

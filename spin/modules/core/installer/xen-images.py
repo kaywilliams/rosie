@@ -20,12 +20,13 @@ from spin.event   import Event
 from spin.modules.shared import FileDownloadMixin, ImageModifyMixin
 
 API_VERSION = 5.0
-EVENTS = {'installer': ['XenImagesEvent']}
+EVENTS = ['XenImagesEvent']
 
 class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'xen-images',
+      parentid = 'installer',
       version = 2,
       provides = ['vmlinuz-xen', 'initrd-xen'],
       requires = ['anaconda-version', 'buildstamp-file', 'installer-repo'],

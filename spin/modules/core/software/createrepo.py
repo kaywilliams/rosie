@@ -21,12 +21,13 @@ from spin.event     import Event
 from spin.modules.shared import CreaterepoMixin
 
 API_VERSION = 5.0
-EVENTS = {'software': ['CreaterepoEvent']}
+EVENTS = ['CreaterepoEvent']
 
 class CreaterepoEvent(Event, CreaterepoMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'createrepo',
+      parentid = 'software',
       provides = ['rpms', 'rpms-directory', 'repodata-directory'],
       requires = ['cached-rpms'],
       conditionally_requires = ['comps-file', 'signed-rpms', 'gpgsign-public-key'],

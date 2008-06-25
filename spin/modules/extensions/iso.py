@@ -28,7 +28,7 @@ from spin.logging     import L1, L2, L3
 from spin.modules.shared import ListCompareMixin, BootConfigMixin
 
 API_VERSION = 5.0
-EVENTS = {'all': ['PkgorderEvent', 'IsoEvent']}
+EVENTS = ['PkgorderEvent', 'IsoEvent']
 
 YUMCONF = '''
 [main]
@@ -46,6 +46,7 @@ class PkgorderEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'pkgorder',
+      parentid = 'all',
       provides = ['pkgorder-file'],
       requires = ['repodata-directory', 'os-dir'],
     )
@@ -109,6 +110,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'iso',
+      parentid = 'all',
       provides = ['iso-dir', 'publish-content'],
       requires = ['anaconda-version', 'pkgorder-file', 'manifest-file',
                   'boot-config-file', 'os-dir'],

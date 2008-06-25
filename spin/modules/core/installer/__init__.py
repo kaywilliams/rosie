@@ -22,12 +22,13 @@ from spin.event import Event, CLASS_META
 
 API_VERSION = 5.0
 
-EVENTS = {'os': ['InstallerEvent'], 'setup': ['InstallerSetupEvent']}
+EVENTS = ['InstallerEvent', 'InstallerSetupEvent']
 
 class InstallerEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'installer',
+      parentid = 'os',
       properties = CLASS_META,
       provides = ['os-content'],
       suppress_run_message = True,
@@ -37,6 +38,7 @@ class InstallerSetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'installer-setup',
+      parentid = 'setup',
       provides = ['anaconda-version-supplied'],
       suppress_run_message = True,
     )

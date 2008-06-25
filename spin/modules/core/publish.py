@@ -27,12 +27,13 @@ from spin.event     import Event
 from spin.logging   import L1
 
 API_VERSION = 5.0
-EVENTS = {'all': ['PublishEvent'], 'setup': ['PublishSetupEvent']}
+EVENTS = ['PublishSetupEvent', 'PublishEvent']
 
 class PublishSetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish-setup',
+      parentid = 'setup',
       provides = ['publish-content', 'publish-path', 'web-path'],
       suppress_run_message=True,
     )
@@ -73,6 +74,7 @@ class PublishEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish',
+      parentid = 'all',
       requires = ['publish-path', 'publish-content'],
     )
 

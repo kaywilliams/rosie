@@ -23,13 +23,14 @@ from spin.event   import Event
 from spin.logging import L1, L2
 
 API_VERSION = 5.0
-EVENTS = {'all': ['AutocleanEvent']}
+EVENTS = ['AutocleanEvent']
 
 class AutocleanEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'autoclean',
-      comes_after = ['init'],
+      parentid = 'all',
+      comes_after  = ['init'],
       comes_before = ['setup'],
     )
 

@@ -28,12 +28,13 @@ from spin.validate  import InvalidConfigError
 from spin.modules.shared import RepoEventMixin, SpinRepoGroup
 
 API_VERSION = 5.0
-EVENTS = {'setup': ['ReposEvent']}
+EVENTS = ['ReposEvent']
 
 class ReposEvent(RepoEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'repos',
+      parentid = 'setup',
       version = 2,
       provides = ['anaconda-version',
                   'logos-versions',

@@ -20,12 +20,13 @@ from rendition import pps
 from spin.event   import Event
 
 API_VERSION = 5.0
-EVENTS = {'installer': ['KickstartEvent']}
+EVENTS = ['KickstartEvent']
 
 class KickstartEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'kickstart',
+      parentid = 'installer',
       version = 1,
       provides = ['kickstart-file', 'ks-path', 'initrd-image-content'],
     )
