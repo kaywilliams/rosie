@@ -29,7 +29,7 @@ from spin.logging   import L1, L2
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['GpgSetupEvent', 'GpgSignEvent'],
-  description = 'sign distribution RPMs with a given GPG key',
+  description = 'gpgsigns pkglist RPMs',
   group       = 'software',
 )
 

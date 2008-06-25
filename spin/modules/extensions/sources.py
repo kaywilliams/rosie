@@ -37,7 +37,7 @@ from spin.modules.shared import CreaterepoMixin, RepoEventMixin, SpinRepoGroup
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['SourceReposEvent', 'SourcesEvent'],
-  description = 'include source RPMs in the installation tree',
+  description = 'creates a source RPMs folder',
 )
 
 class SourceReposEvent(Event, RepoEventMixin):

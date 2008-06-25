@@ -29,7 +29,7 @@ from spin.logging   import L1
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PublishSetupEvent', 'PublishEvent'],
-  description = 'publish distribution output to another location',
+  description = 'links distribution output to a publish location',
 )
 
 class PublishSetupEvent(Event):

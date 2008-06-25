@@ -31,7 +31,7 @@ from spin.modules.shared import idepsolver
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PkglistEvent'],
-  description = 'performs RPM dependency solving on selected packages',
+  description = 'depsolves comps.xml to create a package list',
   group       = 'software',
 )
 

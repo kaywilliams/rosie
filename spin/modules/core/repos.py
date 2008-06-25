@@ -30,7 +30,7 @@ from spin.modules.shared import RepoEventMixin, SpinRepoGroup
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['ReposEvent'],
-  description = 'creates and populates software repositories for input',
+  description = 'downloads input repository metadata',
 )
 
 class ReposEvent(RepoEventMixin, Event):

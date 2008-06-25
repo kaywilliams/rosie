@@ -23,7 +23,7 @@ from spin.modules.shared import ExtractMixin, RpmNotFoundError
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['ReleaseFilesEvent'],
-  description = 'include files as \'release files\'',
+  description = 'copies files from a release RPM to the install tree',
   groups      = 'installer',
 )
 

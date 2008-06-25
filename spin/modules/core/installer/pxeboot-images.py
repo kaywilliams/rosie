@@ -20,7 +20,7 @@ from spin.event   import Event
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PxebootImagesEvent'],
-  description = 'include pxeboot images for distribution',
+  description = 'creates a pxeboot folder',
   group       = 'installer',
 )
 

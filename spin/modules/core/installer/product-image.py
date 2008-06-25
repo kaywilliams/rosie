@@ -27,7 +27,7 @@ from spin.modules.shared import ImageModifyMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['ProductImageEvent'],
-  description = 'creates a product.img for use during anaconda install',
+  description = 'creates a product.img file',
   group       = 'installer',
 )
 

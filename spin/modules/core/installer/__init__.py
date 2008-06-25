@@ -23,7 +23,7 @@ from spin.event import Event, CLASS_META
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['InstallerEvent', 'InstallerSetupEvent'],
-  description = 'creates or modifies anaconda install images',
+  description = 'modules that create core install images',
 )
 
 class InstallerEvent(Event):
