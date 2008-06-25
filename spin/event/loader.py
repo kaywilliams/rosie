@@ -19,11 +19,15 @@ from rendition import dispatch
 from rendition import pps
 
 class Loader(dispatch.Loader):
-  def __init__(self, enabled=None, disabled=None, *args, **kwargs):
+  def __init__(self, enabled=None, disabled=None, load_extensions=False,
+                     *args, **kwargs):
     dispatch.Loader.__init__(self, *args, **kwargs)
 
     self.enabled  = enabled  or []
     self.disabled = disabled or []
+    # if load_extensions is true, extension modules are loaded even without
+    # an associated config section or through being explicitly enabled
+    self.load_extensions = load_extensions
 
   def load(self, paths, prefix='', *args, **kwargs):
     if isinstance(paths, basestring): paths = [paths]
@@ -35,7 +39,7 @@ class Loader(dispatch.Loader):
 
     # process default-off events
     for p in paths:
-      self._process_path(p/prefix/'extensions', False)
+      self._process_path(p/prefix/'extensions', self.load_extensions)
 
     for mod in self.modules.values():
       self._process_module(mod, *args, **kwargs)

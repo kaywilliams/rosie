@@ -123,7 +123,7 @@ class Build(object):
               or self.distroconfig.get('/distro/main/log-file/text()', None)
               or self.mainconfig.get('/spin/log-file/text()', None)
               or DEFAULT_LOG_FILE).expand().abspath()
-    if not logfile.isdir(): 
+    if not logfile.isdir():
       self.logger = make_log(options.logthresh, logfile)
     else:
       raise RuntimeError("The specified log-file '%s' is a directory, expecting "
@@ -138,9 +138,17 @@ class Build(object):
     # set up event superclass so that it contains good default values
     self._seed_event_defaults(options)
 
+    load_extensions = False
+    if options.list_modules:
+      # remove all disabled modules - we want to see them all
+      disabled = ['__init__']
+      # load all extension modules explicitly
+      load_extensions = True
+
     # load all enabled modules, register events, set up dispatcher
     loader = Loader(top = AllEvent(), api_ver = API_VERSION,
-                    enabled = enabled, disabled = disabled)
+                    enabled = enabled, disabled = disabled,
+                    load_extensions = load_extensions)
 
     try:
       self.dispatch = dispatch.Dispatch(
@@ -151,13 +159,10 @@ class Build(object):
       self.module_map       = loader.module_map
 
       # add module mappings for pseudo events
-      modgrps = {'all': []}
       for modid, module in loader.modules.items():
         self.module_map.setdefault('all', []).extend(self.module_map[modid])
         grp = module.MODULE_INFO.get('group')
         if grp:
-          if module.MODULE_INFO.get('description') is not None:
-            modgrps.setdefault(grp, []).append(modid)
           self.module_map.setdefault(grp, []).extend(self.module_map[modid])
 
     except ImportError, e:
@@ -167,7 +172,7 @@ class Build(object):
 
     # list modules, if requested
     if options.list_modules:
-      self._pprint_modules(loader, modgrps)
+      self._pprint_modules(loader)
       sys.exit()
 
     # list events, if requested
@@ -457,7 +462,13 @@ class Build(object):
       pass
     Event.cvars['selinux-enabled'] = selinux_enabled
 
-  def _pprint_modules(self, loader, modgrps):
+  def _pprint_modules(self, loader):
+    modgrps = {'all': []}
+    for modid, module in loader.modules.items():
+      grp = module.MODULE_INFO.get('group')
+      if grp and module.MODULE_INFO.get('description') is not None:
+        modgrps.setdefault(grp, []).append(modid)
+
     longest = 0
     sep = ' : '
     for modid in loader.modules:
@@ -466,19 +477,21 @@ class Build(object):
 
     print "\nModule groups:"
     print "="*70
-    lfmt = listfmt.ListFormatter(start='modules : ', sep=', ')
-    twrp1 = textwrap.TextWrapper(subsequent_indent = ' '*(longest+len(sep)))
-    twrp2 = textwrap.TextWrapper(initial_indent    = ' '*(longest+len(sep)),
-                                 subsequent_indent = ' '*(longest+len(sep)))
+    lfmt = listfmt.ListFormatter(start='includes ', sep=', ', last=' and ', end=' modules')
+    twrp = textwrap.TextWrapper(subsequent_indent = ' '*(longest+len(sep)))
+
     for grp in sorted(modgrps.keys()):
       if loader.modules.has_key(grp):
         if loader.modules[grp].MODULE_INFO.get('description') is None:
           continue
-        r = (s % grp, sep, loader.modules[grp].MODULE_INFO.get('description', ''))
+        if len(modgrps[grp]) > 0:
+          r = (s % grp, sep, loader.modules[grp].MODULE_INFO.get('description', '') +
+                             '; '+lfmt.format(sorted(modgrps[grp])))
+        else:
+          r = (s % grp, sep, loader.modules[grp].MODULE_INFO.get('description', ''))
       else:
         r = (s % grp, '', '')
-      print twrp1.fill('%s%s%s' % r)
-      print twrp2.fill(lfmt.format(sorted(modgrps[grp])))
+      print twrp.fill('%s%s%s' % r)
 
     print "\nModules:"
     print "="*70
@@ -489,7 +502,7 @@ class Build(object):
         r = (s % modid, sep, loader.modules[modid].MODULE_INFO.get('description', ''))
       else:
         r = (s % modid, '', '')
-      print twrp1.fill('%s%s%s' % r)
+      print twrp.fill('%s%s%s' % r)
 
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
