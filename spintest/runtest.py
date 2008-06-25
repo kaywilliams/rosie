@@ -38,6 +38,7 @@ opt_defaults = dict(
   mainconfigpath = None, # new
   enabled_modules  = [],
   disabled_modules = [],
+  list_modules = False,
   list_events = False,
   no_validate = True,
   clear_cache = False,
