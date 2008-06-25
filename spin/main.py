@@ -480,6 +480,9 @@ class Build(object):
     lfmt = listfmt.ListFormatter(start='includes ', sep=', ', last=' and ', end=' modules')
     twrp = textwrap.TextWrapper(subsequent_indent = ' '*(longest+len(sep)))
 
+    r = (s % 'all', sep, '<all modules description>')
+    print twrp.fill('%s%s%s' % r)
+
     for grp in sorted(modgrps.keys()):
       if loader.modules.has_key(grp):
         if loader.modules[grp].MODULE_INFO.get('description') is None:
@@ -490,7 +493,7 @@ class Build(object):
         else:
           r = (s % grp, sep, loader.modules[grp].MODULE_INFO.get('description', ''))
       else:
-        r = (s % grp, '', '')
+        continue
       print twrp.fill('%s%s%s' % r)
 
     print "\nModules:"
