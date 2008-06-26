@@ -15,6 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+
+try:
+  import Image
+except ImportError:
+  raise ImportError("missing 'python-imaging' package")
+
 from rendition import magic
 from rendition import pps
 from rendition import shlib
@@ -116,13 +122,12 @@ class LogosEvent(Event, ExtractMixin):
       startimage = working_dir.findpaths(glob=self.filename)[0]
     except IndexError:
       return
-
     if self.format == 'lss':
       # convert png to lss
       shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
                     %(startimage, self.splash))
     else:
-      startimage.cp(self.splash)
+      Image.open(startimage).save(self.splash, format=self.format)
 
   def _copy_pixmaps(self, working_dir):
     """

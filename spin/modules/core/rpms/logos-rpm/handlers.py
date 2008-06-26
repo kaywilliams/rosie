@@ -21,7 +21,7 @@ try:
   import ImageFilter
   import ImageFont
 except:
-    raise ImportError("missing 'python-imaging' module")
+    raise ImportError("missing 'python-imaging' package")
 
 from rendition import pps
 

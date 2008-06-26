@@ -82,9 +82,16 @@ fi
   },
 }
 
+FEDORA_DISTRO_INFO = DEFAULT_DISTRO_INFO.copy()
+FEDORA_DISTRO_INFO.update({
+  'folder': 'fedora9',
+  'start_color': (32, 75, 105),
+  'end_color': (70, 110, 146),
+})
+
 L_LOGOS_RPM_DISTRO_INFO = {
   'Fedora': LocalsDict({
-    '0': DEFAULT_DISTRO_INFO,
+    '0': FEDORA_DISTRO_INFO,
     '8': {
       'post-install': '''SPIN_BACKGROUNDS="1-spin-sunrise.png 2-spin-day.png 3-spin-sunset.png 4-spin-night.png"
 DEFAULT=/usr/share/backgrounds/spin/default.jpg
@@ -134,9 +141,6 @@ fi
       },
     },
     '9': {
-      'folder': 'fedora9',
-      'start_color': (32, 75, 105),
-      'end_color': (70, 110, 146),
       'triggers': {
         'desktop-backgrounds-compat': {
           'triggerin': '''BACKGROUNDS=/usr/share/backgrounds
