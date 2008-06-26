@@ -8,11 +8,13 @@
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
-
+        <optional>
         <element name="package"><text/></element>
+        </optional>
       </element>
       </optional>
 
     </element>
   </start>
+  <include href="lib.rng"/>
 </grammar>
