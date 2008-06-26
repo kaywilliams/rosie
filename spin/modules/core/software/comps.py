@@ -24,7 +24,7 @@ from spin.constants import BOOLEANS_TRUE, KERNELS
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['CompsEvent'],
-  description = 'create a customized groupfile (comps.xml) for the distribution',
+  description = 'creates a comps.xml file',
   group       = 'software',
 )
 

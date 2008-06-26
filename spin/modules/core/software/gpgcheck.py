@@ -26,7 +26,7 @@ from spin.logging   import L1, L2
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['GpgCheckEvent'],
-  description = 'check GPG keys of input RPMs',
+  description = 'gpgchecks pkglist RPMs',
   group       = 'software',
 )
 

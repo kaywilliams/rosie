@@ -24,7 +24,7 @@ from spin.modules.shared import BootConfigMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['BootisoEvent'],
-  description = 'creates a boot.iso for starting installations of distribution',
+  description = 'creates an installer boot.iso file',
   group       = 'installer',
 )
 

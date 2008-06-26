@@ -30,7 +30,7 @@ import md5
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['ConfigRpmEvent'],
-  description = 'creates an RPM containing customized configuration and scripts',
+  description = 'creates a distribution configuration RPM',
   group       = 'rpms',
 )
 

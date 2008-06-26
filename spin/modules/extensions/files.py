@@ -26,7 +26,7 @@ from spin.event   import Event
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['FilesEvent'],
-  description = 'include arbitrary files in the distribution tree',
+  description = 'includes arbitrary files in the install tree',
 )
 
 class FilesEvent(Event):

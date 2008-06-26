@@ -30,7 +30,7 @@ from spin.modules.shared import ListCompareMixin, BootConfigMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PkgorderEvent', 'IsoEvent'],
-  description = 'generate one or more isos of the install tree',
+  description = 'generates CD/DVD install images',
 )
 
 YUMCONF = '''

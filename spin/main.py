@@ -477,10 +477,10 @@ class Build(object):
 
     print "\nModule groups:"
     print "="*70
-    lfmt = listfmt.ListFormatter(start='includes ', sep=', ', last=' and ', end=' modules')
+    lfmt = listfmt.ListFormatter(start='including ', sep=', ', last=' and ', end=' modules')
     twrp = textwrap.TextWrapper(subsequent_indent = ' '*(longest+len(sep)))
 
-    r = (s % 'all', sep, '<all modules description>')
+    r = (s % 'all', sep, 'all modules')
     print twrp.fill('%s%s%s' % r)
 
     for grp in sorted(modgrps.keys()):
@@ -489,7 +489,7 @@ class Build(object):
           continue
         if len(modgrps[grp]) > 0:
           r = (s % grp, sep, loader.modules[grp].MODULE_INFO.get('description', '') +
-                             '; '+lfmt.format(sorted(modgrps[grp])))
+                             ', '+lfmt.format(sorted(modgrps[grp])))
         else:
           r = (s % grp, sep, loader.modules[grp].MODULE_INFO.get('description', ''))
       else:

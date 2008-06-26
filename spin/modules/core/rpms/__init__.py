@@ -20,7 +20,7 @@ from spin.event import Event, CLASS_META
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['RpmsEvent'],
-  description = 'builds customized RPMs for the distribution',
+  description = 'modules that create RPMs',
 )
 
 class RpmsEvent(Event):

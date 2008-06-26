@@ -20,7 +20,7 @@ from spin.event import Event, CLASS_META
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['SoftwareMetaEvent'],
-  description = 'performs software package-related tasks',
+  description = 'modules that create a software repository',
 )
 
 class SoftwareMetaEvent(Event):

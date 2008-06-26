@@ -27,7 +27,7 @@ from spin.logging   import L1, L2
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['DownloadEvent'],
-  description = 'downloads RPMs to use in the distribution',
+  description = 'downloads pkglist RPMs',
   group       = 'software',
 )
 

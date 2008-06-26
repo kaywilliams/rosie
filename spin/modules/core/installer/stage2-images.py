@@ -22,7 +22,7 @@ from spin.modules.shared import FileDownloadMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['Stage2ImagesEvent'],
-  description = 'creates the stage2 image used during anaconda install',
+  description = 'downloads installer stage2 image(s)',
   group       = 'installer',
 )
 

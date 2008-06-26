@@ -32,7 +32,7 @@ from handlers  import *
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['LogosRpmEvent'],
-  description = 'replace default logos with customized images',
+  description = 'creates a distribution logos RPM',
   group       = 'rpms',
 )
 
