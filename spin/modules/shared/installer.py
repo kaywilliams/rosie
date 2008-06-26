@@ -51,8 +51,8 @@ class ExtractMixin:
 
     # generate output files
     try:
-      for rpmname in self._find_rpms():
-        self._extract_rpm(rpmname, working_dir)
+      for rpm in self.rpms:
+        self._extract_rpm(rpm, working_dir)
 
       # need to modify self.data, so that the metadata written has all
       # the files created. Otherwise, self.data['output'] will be
