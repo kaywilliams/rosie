@@ -170,22 +170,61 @@ fi
         },
         'desktop-backgrounds-basic': {
           'triggerin': '''BACKGROUNDS=/usr/share/backgrounds
-if [ -e $BACKGROUNDS/waves -a ! -e $BACKGROUNDS/waves.rpmsave ]; then
+if [ ! -e $BACKGROUNDS/waves.rpmsave ]; then
   %%{__mv} $BACKGROUNDS/waves $BACKGROUNDS/waves.rpmsave
   %%{__ln_s} $BACKGROUNDS/spin $BACKGROUNDS/waves
   if [ ! -e $BACKGROUNDS/spin/waves.xml ]; then
     %%{__ln_s} $BACKGROUNDS/spin/spin.xml $BACKGROUNDS/spin/waves.xml
   fi
-  for wave in `ls -1 $BACKGROUNDS/waves.rpmsave | grep png`; do
-    %%{__ln_s} $BACKGROUNDS/spin/default.png $BACKGROUNDS/waves/$wave
-  done
 fi
+for wave in `ls -1 $BACKGROUNDS/waves.rpmsave | grep png`; do
+  if [ ! -e $BACKGROUNDS/waves/$wave ]; then
+    %%{__ln_s} $BACKGROUNDS/spin/default.png $BACKGROUNDS/waves/$wave
+  fi
+done
 ''',
           'triggerun': '''BACKGROUNDS=/usr/share/backgrounds
 if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
-  %%{__rm} -rf $BACKGROUNDS/waves
-  %%{__mv} -f $BACKGROUNDS/waves.rpmsave $BACKGROUNDS/waves
-  %%{__rm} -f $BACKGROUNDS/spin/waves.xml
+  if [ -e $BACKGROUNDS/waves.rpmsave ]; then
+    for wave in `ls -1 $BACKGROUNDS/waves.rpmsave | grep png`; do
+      %%{__rm} -f $BACKGROUNDS/waves/$wave
+    done
+    %%{__rm} -f $BACKGROUNDS/waves
+    %%{__mv} -f $BACKGROUNDS/waves.rpmsave $BACKGROUNDS/waves
+    %%{__rm} -f $BACKGROUNDS/spin/waves.xml
+  fi
+fi
+''',
+        },
+        'kde-settings': {
+          'triggerin': '''CONFIG_DIR=/usr/share/kde-settings/kde-profile/default/share/config
+if [ ! -e $CONFIG_DIR/ksplashrc.rpmsave ]; then
+  %%{__cp} $CONFIG_DIR/ksplashrc $CONFIG_DIR/ksplashrc.rpmsave
+fi
+%%{__sed} -i 's|FedoraWaves|Spin|g' $CONFIG_DIR/ksplashrc
+''',
+          'triggerun': '''CONFIG_DIR=/usr/share/kde-settings/kde-profile/default/share/config
+if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
+  if [ -e $CONFIG_DIR/ksplashrc.rpmsave ]; then
+    %%{__rm} -f $CONFIG_DIR/ksplashrc
+    %%{__mv} -f $CONFIG_DIR/ksplashrc.rpmsave $CONFIG_DIR/ksplashrc
+  fi
+fi
+''',
+        },
+        'kde-settings-kdm': {
+          'triggerin': '''CONFIG_DIR=/etc/kde/kdm
+if [ ! -e $CONFIG_DIR/kdmrc.rpmsave ]; then
+  %%{__cp} $CONFIG_DIR/kdmrc $CONFIG_DIR/kdmrc.rpmsave
+fi
+%%{__sed} -i 's|FedoraWaves|Spin|g' $CONFIG_DIR/kdmrc
+''',
+          'triggerun': '''CONFIG_DIR=/etc/kde/kdm
+if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
+  if [ -e $CONGIG_DIR/kdmrc.rpmsave ]; then
+    %%{__rm} -f $CONFIG_DIR/kdmrc
+    %%{__mv} -f $CONFIG_DIR/kdmrc.rpmsave $CONFIG_DIR/kdmrc
+  fi
 fi
 ''',
         },
