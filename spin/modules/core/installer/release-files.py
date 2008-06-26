@@ -45,20 +45,18 @@ class ReleaseFilesEvent(Event, ExtractMixin):
       'input' :    [],
       'output':    [],
     }
-    self.doextract = True
+    self.rpms = None
 
   def setup(self):
-    rpms = self._find_rpms()
-    if rpms is not None:
-      self.DATA['input'].extend(rpms)
-    else:
-      self.doextract = False
+    self.rpms = self._find_rpms()
+    if self.rpms is not None:
+      self.DATA['input'].extend(self.rpms)
     self.diff.setup(self.DATA)
     self.io.add_xpath('path', self.SOFTWARE_STORE, id='release-files-input')
 
   def run(self):
     self.cvars.setdefault('release-files', [])
-    if self.doextract: self._extract()
+    if self.rpms: self._extract()
     self.io.sync_input(link=True, cache=False, what='release-files-input')
 
   def apply(self):
@@ -80,8 +78,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     return rtn
 
   def _find_rpms(self):
-    rpmnames = self.config.xpath('package/text()',
-                                 [ '%s-release' % self.name ])
+    rpmnames = self.config.xpath('package/text()', [ '%s-release' % self.name ])
     rpmset = set()
     for rpmname in rpmnames:
       for rpm in self.cvars['rpms-directory'].findpaths(
@@ -92,7 +89,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
       for glob in ['*-release-*-[a-zA-Z0-9]*.[Rr][Pp][Mm]',
                    '*-release-notes-*-*']:
         for rpm in self.cvars['rpms-directory'].findpaths(
-            glob=glob, nregex=SRPM_REGEX):
+            glob=glob, nglob='*%s-*' % self.name, nregex=SRPM_REGEX):
           rpmset.add(rpm)
         if not rpmset:
           return None
