@@ -26,20 +26,20 @@ class LogosEventTestCase(EventTestCase):
   eventid  = 'logos'
 
 class Test_LogosEvent_Default(LogosEventTestCase):
+  "logos-rpm event disabled"
+  _conf = "<logos-rpm enabled='False'/>"
   def setUp(self):
     EventTestCase.setUp(self)
-    self.clean_event_md()
-    rxml.tree.Element('logos-rpm', self.event._config, attrs={'enabled': 'False'})
 
   def runTest(self):
     self.tb.dispatch.execute(until='logos')
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 class Test_LogosEvent_Custom(LogosEventTestCase):
+  "logos-rpm event enabled"
+  _conf = "<logos-rpm enabled='True'/>"
   def setUp(self):
     EventTestCase.setUp(self)
-    self.clean_event_md()
-    rxml.tree.Element('logos-rpm', self.event._config, attrs={'enabled': 'True'})
 
   def runTest(self):
     self.tb.dispatch.execute(until='logos')
@@ -47,9 +47,7 @@ class Test_LogosEvent_Custom(LogosEventTestCase):
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('logos')
-
   suite.addTest(make_core_suite(LogosEventTestCase, distro, version, arch))
   suite.addTest(Test_LogosEvent_Default(distro, version, arch))
   suite.addTest(Test_LogosEvent_Custom(distro, version, arch))
-
   return suite
