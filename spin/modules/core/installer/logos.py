@@ -48,15 +48,13 @@ class LogosEvent(Event, ExtractMixin):
       'output'   : [],
     }
 
-    self.dorun  = True # whether to run or not
     self.splash = None
+    self.rpms   = None
 
   def setup(self):
-    rpm = self._find_rpms()
-    if not rpm:
-      self.dorun = False
-    else:
-      self.DATA['input'].extend(rpm)
+    self.rpms = self._find_rpms()
+    if self.rpms:
+      self.DATA['input'].extend(self.rpms)
       self.format   = self.locals.L_LOGOS['splash-image']['format']
       self.filename = self.locals.L_LOGOS['splash-image']['filename']
       self.output   = self.locals.L_LOGOS['splash-image'].get(
@@ -68,7 +66,7 @@ class LogosEvent(Event, ExtractMixin):
     self.diff.setup(self.DATA)
 
   def check(self):
-    return self.dorun and Event.check(self)
+    return self.rpms and Event.check(self)
 
   def run(self):
     self._extract()
@@ -81,21 +79,21 @@ class LogosEvent(Event, ExtractMixin):
       self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
         (self.mddir/'pixmaps').listdir())
 
-  def verify(self):
-    if self.dorun: Event.verify(self)
-
   def verify_splash_exists(self):
     "splash image exists"
-    self.verifier.failUnlessExists(self.splash)
+    if self.rpms:
+      self.verifier.failUnlessExists(self.splash)
 
   def verify_splash_valid(self):
     "splash image is valid"
-    self.verifier.failUnless(self._validate_splash(),
-      "'%s' is not a valid %s file" % (self.splash, self.format))
+    if self.rpms:
+      self.verifier.failUnless(self._validate_splash(),
+        "'%s' is not a valid %s file" % (self.splash, self.format))
 
   def verify_pixmaps_exist(self):
     "pixmaps folder populated"
-    self.verifier.failUnlessExists(self.mddir/'pixmaps')
+    if self.rpms:
+      self.verifier.failUnlessExists(self.mddir/'pixmaps')
 
   def _generate(self, working_dir):
     "Create the splash image and copy it to the isolinux/ folder"
@@ -114,14 +112,13 @@ class LogosEvent(Event, ExtractMixin):
     return output
 
   def _generate_splash(self, working_dir):
-    # convert the syslinux-splash.png to splash.lss and copy it
-    # to the isolinux/ folder
     try:
       startimage = working_dir.findpaths(glob=self.filename)[0]
     except IndexError:
       return
 
     if self.format == 'lss':
+      # convert png to lss
       shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
                     %(startimage, self.splash))
     else:
@@ -164,7 +161,7 @@ class LogosEvent(Event, ExtractMixin):
       glob='%s-*-*' % pkgname, nregex=SRPM_REGEX)
     if len(rpms) == 0:
       rpms = self.cvars['rpms-directory'].findpaths(
-        glob='*-logos-*-*', nregex=SRPM_REGEX)
+        glob='*-logos-*-*', nglob='*%s-*' % self.name, nregex=SRPM_REGEX)
       if len(rpms) == 0:
         return None
     return [rpms[0]]
