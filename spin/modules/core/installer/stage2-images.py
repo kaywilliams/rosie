@@ -22,7 +22,7 @@ from spin.modules.shared import FileDownloadMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['Stage2ImagesEvent'],
-  description = 'downloads installer stage2 image(s)',
+  description = 'downloads stage2 image(s)',
   group       = 'installer',
 )
 

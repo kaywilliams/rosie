@@ -25,7 +25,7 @@ from spin.modules.shared import RpmBuildMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['ReleaseRpmEvent'],
-  description = 'creates a distribution release RPM',
+  description = 'creates a release RPM',
   group       = 'rpms',
 )
 

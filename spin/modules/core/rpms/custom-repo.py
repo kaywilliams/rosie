@@ -30,7 +30,7 @@ from rendition.repo.repo import RepoContainer
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['CustomRepoEvent'],
-  description = None,
+  description = 'creates repository metadata distribution-specific RPMs',
   group       = 'rpms',
 )
 

@@ -32,7 +32,7 @@ from handlers  import *
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['LogosRpmEvent'],
-  description = 'creates a distribution logos RPM',
+  description = 'creates a logos RPM',
   group       = 'rpms',
 )
 

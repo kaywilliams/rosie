@@ -33,7 +33,7 @@ from spin.modules.shared import ExtractMixin, RpmNotFoundError
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['LogosEvent'],
-  description = 'copies files from a logos RPM for use by product.img',
+  description = 'extracts files from a logos RPM for use by product-image',
   group       = 'installer',
 )
 

@@ -22,7 +22,7 @@ from spin.event   import Event
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['KickstartEvent'],
-  description = 'downloads a kickstart file for use in initrd.img',
+  description = 'downloads a default kickstart file',
   group       = 'installer',
 )
 

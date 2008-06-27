@@ -25,7 +25,7 @@ from spin.logging import L1, L2
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['AutocleanEvent'],
-  description = None,
+  description = 'cleans the cache when modules are disabled or updated',
 )
 
 class AutocleanEvent(Event):

@@ -463,7 +463,9 @@ class Build(object):
     Event.cvars['selinux-enabled'] = selinux_enabled
 
   def _pprint_modules(self, loader):
-    modgrps = {'all': []}
+    width = 74
+
+    modgrps = {}
     for modid, module in loader.modules.items():
       grp = module.MODULE_INFO.get('group')
       if grp and module.MODULE_INFO.get('description') is not None:
@@ -475,30 +477,39 @@ class Build(object):
       longest = max(longest, len(modid))
     s = '%%-%ds' % longest
 
-    print "\nModule groups:"
-    print "="*70
     lfmt = listfmt.ListFormatter(start='including ', sep=', ', last=' and ', end=' modules')
-    twrp = textwrap.TextWrapper(subsequent_indent = ' '*(longest+len(sep)))
+    twrp = textwrap.TextWrapper(subsequent_indent = ' '*(longest+len(sep)), width=width)
 
-    r = (s % 'all', sep, 'all modules')
-    print twrp.fill('%s%s%s' % r)
+    print "\nFollowing is a list of modules by group:"
 
     for grp in sorted(modgrps.keys()):
       if loader.modules.has_key(grp):
         if loader.modules[grp].MODULE_INFO.get('description') is None:
           continue
-        if len(modgrps[grp]) > 0:
-          r = (s % grp, sep, loader.modules[grp].MODULE_INFO.get('description', '') +
-                             ', '+lfmt.format(sorted(modgrps[grp])))
-        else:
-          r = (s % grp, sep, loader.modules[grp].MODULE_INFO.get('description', ''))
+        r = (s % grp, sep, loader.modules[grp].MODULE_INFO.get('description', ''))
       else:
         continue
+      print ""
       print twrp.fill('%s%s%s' % r)
+      print "="*width
 
-    print "\nModules:"
-    print "="*70
-    for modid in sorted([ x for x in loader.modules if x not in modgrps.keys() ]):
+      for modid in sorted(modgrps[grp]):
+        if loader.modules.has_key(modid):
+          if loader.modules[modid].MODULE_INFO.get('description') is None:
+            continue
+          r = (s % modid, sep, loader.modules[modid].MODULE_INFO.get('description', ''))
+        else:
+          r = (s % modid, '', '')
+        print twrp.fill('%s%s%s' % r)
+        
+    r = (s % 'none', sep, 'modules not associated with a group')
+    print ""
+    print twrp.fill('%s%s%s' % r)
+    print "="*width
+    r = (s % 'none', sep, 'modules not associated with a group')
+    for modid in sorted([ x for x in loader.modules if 
+                              x not in modgrps.keys() and 
+                              not loader.modules[x].MODULE_INFO.get('group')]):
       if loader.modules.has_key(modid):
         if loader.modules[modid].MODULE_INFO.get('description') is None:
           continue

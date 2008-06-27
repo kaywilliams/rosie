@@ -22,7 +22,7 @@ from spin.modules.shared import FileDownloadMixin, ImageModifyMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['XenImagesEvent'],
-  description = 'includes installer xen kernel and initrd images',
+  description = 'includes xen kernel and initrd images',
   group       = 'installer',
 )
 

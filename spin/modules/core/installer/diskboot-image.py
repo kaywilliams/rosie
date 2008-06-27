@@ -24,7 +24,7 @@ from spin.modules.shared import ImageModifyMixin, BootConfigMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['DiskbootImageEvent'],
-  description = 'creates an installer diskboot.img file',
+  description = 'creates a diskboot.img file',
   group       = 'installer',
 )
 

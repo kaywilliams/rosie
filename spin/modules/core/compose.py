@@ -25,7 +25,7 @@ from spin.logging  import L1
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['ComposeEvent'],
-  description = None,
+  description = 'creates an os folder',
 )
 
 FIELDS = ['file', 'size', 'mtime']

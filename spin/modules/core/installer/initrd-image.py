@@ -22,7 +22,7 @@ from spin.modules.shared import ImageModifyMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['InitrdImageEvent'],
-  description = 'creates an install initrd.img file',
+  description = 'creates an initrd.img file',
   group       = 'installer',
 )
 

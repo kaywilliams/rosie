@@ -32,7 +32,7 @@ from spin.logging   import L1
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['BaseInfoEvent'],
-  description = None,
+  description = 'reads the .buildstamp file from the base distribution',
 )
 
 class BaseInfoEvent(Event):

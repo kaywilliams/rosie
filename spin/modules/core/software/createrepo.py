@@ -23,8 +23,8 @@ from spin.modules.shared import CreaterepoMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['CreaterepoEvent'],
-  description = None,
-  group       = 'createrepo',
+  description = 'creates repository metadata for pkglist RPMS',
+  group       = 'software',
 )
 
 class CreaterepoEvent(Event, CreaterepoMixin):

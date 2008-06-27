@@ -22,7 +22,7 @@ from spin.modules.shared import FileDownloadMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['IsolinuxEvent'],
-  description = None,
+  description = 'creates an isolinux folder',
   group       = 'installer',
 )
 

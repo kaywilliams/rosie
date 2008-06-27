@@ -21,7 +21,7 @@ from spin.logging import L1
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['InitEvent', 'SetupEvent', 'OSMetaEvent'],
-  description = None,
+  description = 'creates temporary and cache folders',
 )
 
 class InitEvent(Event):

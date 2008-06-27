@@ -32,7 +32,7 @@ from spin.locals import sort_keys
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['DiscinfoEvent', 'TreeinfoEvent', 'BuildstampEvent'],
-  description = None,
+  description = 'creates .buildstamp, .treeinfo, and .discinfo files',
   group       = 'installer',
 )
 

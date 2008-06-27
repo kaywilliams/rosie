@@ -23,8 +23,8 @@ from spin.modules.shared import ExtractMixin, RpmNotFoundError
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['ReleaseFilesEvent'],
-  description = 'copies files from a release RPM to the install tree',
-  groups      = 'installer',
+  description = 'extracts files from a release RPM to the os folder',
+  group       = 'installer',
 )
 
 DEFAULT_SET = ['eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README*',
