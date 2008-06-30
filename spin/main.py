@@ -355,9 +355,9 @@ class Build(object):
                                       self.mainconfig.file)
     mcvalidator.validate('/spin', schema_file='spin.rng')
 
-    # validate individual sections of distro.conf
+    # validate individual sections of the distrodef file
     self.logger.log(4, L1(pps.path(self.distroconfig.file).basename))
-    validator = ConfigValidator([ x/'schemas/distro.conf' for x in Event.SHARE_DIRS ],
+    validator = ConfigValidator([ x/'schemas/distro' for x in Event.SHARE_DIRS ],
                                 self.distroconfig.file)
 
     # validate all event top-level sections

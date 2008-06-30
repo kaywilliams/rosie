@@ -222,8 +222,7 @@ class RpmBuildObject:
     root.write(self.autofile)
 
     if self.ptr._config.file.exists():
-      # set the mode and ownership of distro.conf.dat and distro.conf to
-      # be the same.
+      # set the mode and ownership of .dat file to match distroconfig.
       st = self.ptr._config.file.stat()
       self.autofile.chown(st.st_uid, st.st_gid)
       self.autofile.chmod(st.st_mode)
