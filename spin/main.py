@@ -39,6 +39,7 @@ from rpmUtils.arch import getBaseArch
 
 from rendition import dispatch
 from rendition import listfmt
+from rendition import lock
 from rendition import pps
 from rendition import rxml
 from rendition import shlib
@@ -66,7 +67,6 @@ from spin.event.loader import Loader
 # python-setuptools
 
 API_VERSION = 5.0
-LOCK = pps.path('/var/run/spin.pid')
 
 DEFAULT_TEMP_DIR = pps.path('/tmp/spin')
 DEFAULT_CACHE_DIR = pps.path('/var/cache/spin')
@@ -110,6 +110,8 @@ class Build(object):
     These parameters are normally passed in from the command-line handler
     ('/usr/bin/spin')
     """
+    self._lock = lock.Lock('spin.pid')
+
     self.parser = parser
 
     # set up temporary logger - console only
@@ -123,11 +125,9 @@ class Build(object):
               or self.distroconfig.get('/distro/main/log-file/text()', None)
               or self.mainconfig.get('/spin/log-file/text()', None)
               or DEFAULT_LOG_FILE).expand().abspath()
-    if not logfile.isdir():
-      self.logger = make_log(options.logthresh, logfile)
-    else:
-      raise RuntimeError("The specified log-file '%s' is a directory, expecting "
-                         "path to a file." % logfile)
+    if logfile.isdir():
+      raise RuntimeError("Cannot open '%s' for writing; is a directory" % logfile)
+    self.logger = make_log(options.logthresh, logfile)
 
     # set up import_dirs
     import_dirs = self._compute_import_dirs(options)
@@ -218,14 +218,18 @@ class Build(object):
 
   def main(self):
     "Build a distribution"
-    self._log_header()
-    self._lock()
-    try:
-      self.dispatch.execute(until=None)
-    finally:
-      self._unlock()
-    DEFAULT_TEMP_DIR.rm(recursive=True, force=True) # clean up temp dir
-    self._log_footer()
+    if self._lock.acquire():
+      self._log_header()
+      try:
+        self.dispatch.execute(until=None)
+      finally:
+        self._lock.release()
+      DEFAULT_TEMP_DIR.rm(recursive=True, force=True) # clean up temp dir
+      self._log_footer()
+    else:
+      self.logger.log(0, L0("Another instance of spin (pid %d) is already "
+                            "running" % self._lock._readlock()[0]))
+      sys.exit()
 
   def _get_config(self, options, arguments):
     """
@@ -526,35 +530,6 @@ class Build(object):
   def _log_footer(self):
     Event.logger.log(1, "Build complete at %s" % time.strftime('%Y-%m-%d %X'))
 
-  # locking methods
-  def _lock(self):
-    mypid = os.getpid()
-    if LOCK.exists():
-      try:
-        pid = int(LOCK.read_lines()[0])
-      except ValueError, e:
-        # bogus data
-        self._unlock()
-      else:
-        if pid == mypid:
-          return
-        try:
-          os.kill(pid, 0)
-        except OSError, e:
-          if e[0] == errno.ESRCH:
-            # the pid doesn't exist
-            self._unlock()
-          else:
-            # don't know what happened
-            raise RuntimeError("unable to check if pid %d is active" % pid)
-        else:
-          raise RuntimeError("there is already an instance of spin running (pid %d)" % pid)
-    if not LOCK.dirname.exists():
-      LOCK.dirname.mkdirs()
-    LOCK.write_lines([str(mypid)])
-
-  def _unlock(self):
-    if LOCK.exists(): LOCK.remove()
 
 class CvarsDict(dict):
   def __getitem__(self, key):
