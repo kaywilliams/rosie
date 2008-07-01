@@ -100,7 +100,8 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
                                 file.get('@dest',
                                          '/usr/share/%s/files' % self.name) ),
                               id = 'file',
-                              mode = file.get('@mode', None))
+                              mode = file.get('@mode', None),
+                              filename = file.get('@filename', None))
 
 
     if self.cvars['gpgsign-public-key']:

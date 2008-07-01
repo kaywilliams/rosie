@@ -95,14 +95,16 @@ class IOObject(object):
     for xpath in xpaths:
       self.add_xpath(xpath, dst, *args, **kwargs)
 
-  def add_fpath(self, fpath, dst, id=None, mode=None, prefix=None):
+  def add_fpath(self, fpath, dst, id=None, mode=None, prefix=None,
+                                  filename=None):
     """
     @param fpath : file path pointing to an existing file (all pps path
                    types are supported)
     """
     if not id: id = fpath
     fpath = pps.path(fpath)
-    self.add_item(fpath, dst//fpath.basename, id=id, mode=mode, prefix=prefix)
+    self.add_item(fpath, dst//(filename or fpath.basename),
+                  id=id, mode=mode, prefix=prefix)
 
   def add_fpaths(self, fpaths, *args, **kwargs):
     "Add multiple fpaths at once; calls add_fpath on each element in fpaths"

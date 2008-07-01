@@ -183,7 +183,7 @@ class RepoEventMixin:
 
     This method should typically be called in Event.setup()
 
-    repos  : a RepoContainer or dictionary containing Repos to use
+    repos : a RepoContainer or dictionary containing Repos to use
     """
 
     self.log(4, L1("adding repos"))
