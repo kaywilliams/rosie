@@ -174,7 +174,7 @@ def ExtensionEventTestCase00(self):
     self.failIfExists(self.tb.dispatch._top.METADATA_DIR/self.eventid)
 
   def tearDown(): # don't try to append METADATA_DIR to output
-    self.tb._unlock()
+    self.tb.lock.release()
     del self.tb
     del self.event
 
