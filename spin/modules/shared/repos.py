@@ -89,6 +89,28 @@ class SpinRepo(YumRepo):
       p = YumRepo._xform_uri(self, p)
     return p
 
+class RhnSpinRepo(SpinRepo):
+  # redhat's RHN repos are very annoying in that they have inconsitent
+  # metadata at times.  This class aims to account for this instability
+
+  EMPTY_FILE_CSUM = 'da39a3ee5e6b4b0d3255bfef95601890afd80709'
+  MAX_TRIES = 5 # number of times to try redownloading repomd
+
+  def read_repomd(self):
+    i = 0; consistent = False
+    while i < self.MAX_TRIES:
+      SpinRepo.read_repomd(self)
+      if self.EMPTY_FILE_CSUM not in \
+        self.repomd.xpath('//repo:data/repo:checksum/text()',
+                          namespaces=NSMAP):
+        consistent = True; break
+      i += 1
+    if not consistent:
+      raise RuntimeError("Unable to obtain consistent value for one "
+                         "or more checksums in repo '%s' after %d tries"
+                         % (self.id, self.MAX_TRIES))
+
+
 class SpinRepoGroup(SpinRepo):
   def __init__(self, **kwargs):
     SpinRepo.__init__(self, **kwargs)
@@ -100,6 +122,12 @@ class SpinRepoGroup(SpinRepo):
     "Find all the repos we contain and classify ourself"
     self._repos = RepoContainer()
 
+    # need special handling for rhn paths
+    if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
+      cls = RhnSpinRepo
+    else:
+      cls = SpinRepo
+
     # get directory listing so we can figure out information about this repo
     # find all subrepos
     repos = []
@@ -108,7 +136,7 @@ class SpinRepoGroup(SpinRepo):
       for k,v in self.items():
         if k not in ['id']:
           updates[k] = v
-      R = SpinRepo(id=self.id, **updates)
+      R = cls(id=self.id, **updates)
       R._relpath = pps.path('.')
       self._repos.add_repo(R)
     else:
@@ -124,12 +152,12 @@ class SpinRepoGroup(SpinRepo):
           # list!
           updates['baseurl'] = \
             '\n'.join([ x/d.basename for x,e in self.url.mirrorgroup if e ])
-          R = SpinRepo(id='%s-%s' % (self.id, d.basename), **updates)
+          R = cls(id='%s-%s' % (self.id, d.basename), **updates)
           R._relpath = d.basename
           self._repos.add_repo(R)
 
     if len(self._repos) == 0:
-      raise RuntimeError("Unable to find repodata folder for repo '%s' at '%s'" 
+      raise RuntimeError("Unable to find repodata folder for repo '%s' at '%s'"
                           % (self.id, self.url.realm))
 
     # set up $yumvar replacement for all subrepos
@@ -171,8 +199,6 @@ class SpinRepoGroup(SpinRepo):
 class RepoEventMixin:
   def __init__(self):
     self.repos = RepoContainer()
-    self._src_csums = {} # map of filename,checksum pairs
-    self._dst_csums = {} # ""
 
   def setup_repos(self, repos=None):
     """
@@ -258,33 +284,45 @@ class RepoEventMixin:
           # prepopulate the checksum so we don't have to compute it later
           csum = r.repomd.get('repo:data[@type="%s"]/repo:checksum/text()' % k,
                               namespaces=NSMAP)
-          pps.lib.CACHE.setdefault((r.url/v).normpath(), {}).setdefault('shasum', csum)
+          ( pps.lib.CACHE.setdefault((r.url/v).normpath(), {})
+                         .setdefault('shasum', csum) )
 
         # now handle repomd.xml
         src_csums = r.repomd.xpath('//repo:data/repo:checksum/text()',
                                    namespaces=NSMAP)
 
+        dst_repomd = self.mddir/repo.id/r._relpath/r.repomdfile
+        # get the cached file location and check there as well - the output
+        # file might not exist due to errors, etc
+        csh_repomd = (self.cache_handler.cache_dir /
+                      self.cache_handler._gen_hash((r.url/r.repomdfile).normpath()))
+
+        if dst_repomd.exists():
+          repomdfile = dst_repomd
+        elif csh_repomd.exists():
+          repomdfile = csh_repomd
+        else:
+          repomdfile = None
+
         # compute destination checksums from repomd.xml on disk, if exists
         dst_csums = []
-        dst_repomd = self.mddir/repo.id/r._relpath/r.repomdfile
-        if dst_repomd.exists():
-          repomdxml = rxml.tree.read(dst_repomd)
+        if repomdfile is not None:
+          repomdxml = rxml.tree.read(repomdfile)
           dst_csums = repomdxml.xpath('//repo:data/repo:checksum/text()',
                                       namespaces=NSMAP)
 
         # if destination file exists and is the same as the source, set its
         # mtime to be the same so that it isn't redownloaded
-        if src_csums == dst_csums and dst_repomd.exists():
-          mtime = dst_repomd.stat().st_mtime
+        if src_csums == dst_csums and repomdfile is not None:
+          mtime = repomdfile.stat().st_mtime
         else:
           mtime = time.time()
-        (r.url/r.repomdfile).stat(populate=False).update(st_mtime=mtime)
 
         # finally, set up the sync process
         for k,v in r.datafiles.items():
           self.io.add_fpath(r.url/v, self.mddir/repo.id/r._relpath/v.dirname,
                             id='%s-repodata' % repo.id)
-
+          (r.url/v).stat().update(st_mtime=mtime)
 
   def sync_repodata(self):
     """
