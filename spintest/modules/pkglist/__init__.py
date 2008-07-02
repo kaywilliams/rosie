@@ -59,34 +59,15 @@ class PkglistEventTestCase(EventTestCase):
   def _make_repos_config(self):
     repos = rxml.config.Element('repos')
 
-    if self.distro == 'redhat' and self.version == '5Server':
-      if 'base' in self.repos:
-        # base repo
-        base = rxml.config.Element('repo', attrs={'id': 'base'}, parent=repos)
-        rxml.config.Element('baseurl', parent=base,
-                            text='http://www.renditionsoftware.com/mirrors/redhat/'
-                            'enterprise/5Server/en/os/i386/Server')
-        rxml.config.Element('name', text='base', parent=base)
-
-      if 'updates' in self.repos:
-        # updates repo
-        updates = rxml.config.Element('repo', attrs={'id': 'updates'}, parent=repos)
-        rxml.config.Element('baseurl', parent=updates,
-                            text='rhns:///rhel-i386-server-5')
-        rxml.config.Element('name', text='updates', parent=updates)
-        rxml.config.Element('systemid', text='/etc/sysconfig/rhn/systemid', parent=updates)
-
-    else:
-
-      for repoid in ['base', 'updates', 'everything']:
-        if repoid in self.repos:
-          r = repo.getDefaultRepoById(repoid, distro=self.distro,
-                                              version=self.version,
-                                              arch=self.arch,
-                                              include_baseurl=True,
-                                              baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
-          r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
-          repos.append(r.toxml())
+    for repoid in ['base', 'updates', 'everything']:
+      if repoid in self.repos:
+        r = repo.getDefaultRepoById(repoid, distro=self.distro,
+                                            version=self.version,
+                                            arch=self.arch,
+                                            include_baseurl=True,
+                                            baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+        r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
+        repos.append(r.toxml())
 
     return repos
 

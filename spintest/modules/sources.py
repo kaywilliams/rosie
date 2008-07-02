@@ -37,22 +37,14 @@ class SourceEventTestCase(EventTestCase):
   def _make_source_repos_config(self):
     repos = config.Element('sources', attrs={'enabled': 'true'})
 
-    if self.distro == 'redhat' and self.version == '5Server':
-      r = config.Element('repo', attrs={'id': 'base-source'}, parent=repos)
-      config.Element('baseurl', parent=r,
-        text='http://www.renditionsoftware.com/mirrors/redhat/'
-             'enterprise/5Server/en/os/SRPMS/')
+    r = repo.getDefaultRepoById('base-source', distro=self.distro,
+                                               version=self.version,
+                                               arch=self.arch,
+                                               include_baseurl=True,
+                                               baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+    r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
 
-    else:
-
-      r = repo.getDefaultRepoById('base-source', distro=self.distro,
-                                                 version=self.version,
-                                                 arch=self.arch,
-                                                 include_baseurl=True,
-                                                 baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
-      r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
-
-      repos.append(r.toxml())
+    repos.append(r.toxml())
 
     return repos
 

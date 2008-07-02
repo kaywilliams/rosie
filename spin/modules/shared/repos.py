@@ -219,7 +219,7 @@ class RepoEventMixin:
 
     for repo in self.repos.values():
       # remove disabled repos
-      if hasattr(repo, 'enabled') and repo.enabled in BOOLEANS_FALSE:
+      if not repo.enabled:
         self.log(5, L1("Removing disabled repo '%s'" % repo.id))
         del self.repos[repo.id]
         continue

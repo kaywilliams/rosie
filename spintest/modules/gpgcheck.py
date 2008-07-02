@@ -28,27 +28,14 @@ class GpgcheckEventTestCase(EventTestCase):
   def _make_repos_config(self):
     repos = rxml.config.Element('repos')
 
-    if self.distro == 'redhat' and self.version == '5Server':
-      base = rxml.config.Element('repo', attrs={'id': 'base'}, parent=repos)
-      rxml.config.Element('baseurl', parent=base,
-                          text='http://www.renditionsoftware.com/mirrors/redhat/'
-                          'enterprise/5Server/en/os/i386/Server')
-      rxml.config.Element('name', text='base', parent=base)
-      rxml.config.Element('gpgcheck', text='yes', parent=base)
-      rxml.config.Element('gpgkey', parent=base,
-                          text='http://www.renditionsoftware.com/mirrors/redhat/'
-                          'enterprise/5Server/en/os/i386/RPM-GPG-KEY-redhat-release')
+    base = repo.getDefaultRepoById('base', distro=self.distro,
+                                           version=self.version,
+                                           arch=self.arch,
+                                           include_baseurl=True,
+                                           baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+    base.update({'mirrorlist': None})
 
-    else:
-
-      base = repo.getDefaultRepoById('base', distro=self.distro,
-                                             version=self.version,
-                                             arch=self.arch,
-                                             include_baseurl=True,
-                                             baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
-      base.update({'mirrorlist': None})
-
-      repos.append(base.toxml())    # don't overwrite gpgkey and gpgcheck defaults
+    repos.append(base.toxml()) # don't overwrite gpgkey and gpgcheck defaults
 
     return repos
 
