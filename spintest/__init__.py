@@ -143,9 +143,7 @@ class EventTestCase(unittest.TestCase):
   def setUp(self):
     self.tb = TestBuild(self.conf, self.options, [], self.parser)
     self.event = self.tb.dispatch._top.get(self.eventid, None)
-    try:
-      self.tb._lock()
-    except RuntimeError:
+    if not self.tb._lock.acquire():
       print "unable to lock (currently running pid is %s)" % pps.path('/var/run/spin.pid').read_text().strip()
       print "current event: '%s'" % self.event.id
       print "test case: %s" % self._testMethodDoc
@@ -155,7 +153,7 @@ class EventTestCase(unittest.TestCase):
 
   def tearDown(self):
     self.output.append(self.event.METADATA_DIR)
-    self.tb._unlock()
+    self.tb._lock.release()
     del self.tb
     del self.event
     del self.conf
