@@ -123,10 +123,12 @@ class SpinRepoGroup(SpinRepo):
     self._repos = RepoContainer()
 
     # need special handling for rhn paths
-    if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
-      cls = RhnSpinRepo
-    else:
-      cls = SpinRepo
+    cls = SpinRepo
+    try:
+      if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
+        cls = RhnSpinRepo
+    except AttributeError:
+      pass
 
     # get directory listing so we can figure out information about this repo
     # find all subrepos
