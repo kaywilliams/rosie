@@ -3,9 +3,8 @@ from spin.locals import LocalsDict, REMOVE
 __all__ = ['L_LOGOS_RPM_DISTRO_INFO']
 
 DEFAULT_DISTRO_INFO = {
-  'folder': 'centos5',
-  'start_color': (33, 85, 147),
-  'end_color': (30, 81, 140),
+  'distroid': 'centos5',
+  'background': (33, 85, 147),
   'triggers': {
     'kdebase': {
       'triggerin': '''KSPLASHRC=/usr/share/config/ksplashrc
@@ -84,9 +83,8 @@ fi
 
 FEDORA_DISTRO_INFO = DEFAULT_DISTRO_INFO.copy()
 FEDORA_DISTRO_INFO.update({
-  'folder': 'fedora9',
-  'start_color': (32, 75, 105),
-  'end_color': (70, 110, 146),
+  'distroid': 'fedora9',
+  'background': (32, 75, 105),
 })
 
 L_LOGOS_RPM_DISTRO_INFO = {
@@ -244,9 +242,8 @@ fi
   'Red Hat Enterprise Linux Server': LocalsDict({
     '0': DEFAULT_DISTRO_INFO,
     '5': {
-      'folder': 'redhat5',
-      'start_color': (120, 30, 29),
-      'end_color': (88, 23, 21),
+      'distroid': 'redhat5',
+      'background': (120, 30, 29),
     },
   }),
   '*': LocalsDict({

@@ -76,7 +76,6 @@ class LocalsDict(dict):
   just the topmost level.  In order to delete a given key, value pair, set
   a key's value to REMOVE.
   """
-
   def __getitem__(self, key):
     ret = {}
     for index in versort.sort(self.keys()):

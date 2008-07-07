@@ -1,0 +1,139 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="logos-rpm">
+      <interleave>
+        <zeroOrMore>
+          <ref name="element-image"/>
+        </zeroOrMore>
+        <optional>
+          <element name="precedence"><text/></element>
+        </optional>
+        <optional>
+          <ref name="element-defaults"/>
+        </optional>
+      </interleave>
+    </element>
+  </start>
+
+  <define name="element-defaults">
+    <interleave>
+      <ref name="element-image-write-text"/>
+      <ref name="element-dimensions"/>
+      <ref name="element-background"/>
+      <ref name="element-format"/>
+      <ref name="element-font"/>
+    </interleave>
+  </define>
+
+  <define name="element-image">
+    <attribute name="dest"><text/></attribute>
+    <optional>
+      <attribute name="anaconda-version"><text/></attribute>
+    </optional>
+    <optional>
+      <attribute name="xwindow-type">
+        <data type="token">
+          <param name="pattern">[Rr]equired|[Gg]nome|GNOME|[Kk]de|KDE</param>
+        </data>
+      </attribute>
+    </optional>
+    <choice>
+      <ref name="element-image-remove"/>
+      <ref name="element-image-create"/>
+      <ref name="element-image-copy"/>
+    </choice>
+  </define>
+
+  <define name="element-image-remove">
+    <element name="remove">
+      <ref name="value-boolean">
+    </element>
+  </define>
+
+  <define name="element-image-create">
+    <interleave>
+      <ref name="element-image-write-text"/>
+      <ref name="element-dimensions"/>
+      <ref name="element-background"/>
+      <ref name="element-format"/>
+    </interleave>
+  </define>
+
+  <define name="element-image-copy">
+    <interleave>
+      <ref name="element-image-write-text"/>
+      <element name="source">
+        <interleave>
+          <element name="path"><text/></element>
+        </interleave>
+      </element>
+    </interleave>
+  </define>
+
+  <define name="element-image-write-text">
+    <interleave>
+      <ref name="element-font"/>
+      <optional>
+        <element name="font-min-size"><text/></element>
+      </optional>
+      <optional>
+        <element name="font-size"><text/></element>
+      </optional>
+      <optional>
+        <element name="text"><text/></element>
+      </optional>
+      <optional>
+        <element name="text-max-width"><data type="unsignedInt"></data></element>
+      </optional>
+      <optional>
+        <element name="x-position"><data type="unsignedInt"/></element>
+        <element name="y-position"><data type="unsignedInt"/></element>
+      </optional>
+    </interleave>
+  </define>
+
+  <define name="element-font">
+    <optional>
+      <element name="font"><text/></element>
+    </optional>
+  </define>
+
+  <define name="element-format">
+    <optional>
+      <element name="format">
+        <ref name="value-image-formats"/>
+      </element>
+    </optional>
+  </define>
+
+  <define name="element-background">
+    <optional>
+      <element name="background">
+        <ref name="value-hexcolor"/>
+      </element>
+    </optional>
+  </define>
+
+  <define name="element-dimensions">
+    <optional>
+      <element name="width"><data type="unsignedInt"/></element>
+      <element name="height"><data type="unsignedInt"/></element>
+    </optional>
+  </define>
+
+  <define name="value-hexcolor">
+    <data type="token">
+      <param name="pattern">#[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]</param>
+    </data>
+  </define>
+
+  <define name="value-image-formats">
+    <data type="token">
+      <param name="pattern">JPEG|jpeg|PNG|png</param>
+    </data>
+  </define>
+
+  <include href="../distro.conf/lib.rng">
+</grammar>
+
