@@ -153,14 +153,14 @@
         <font>fonts/DejaVuLGCSans-Bold.ttf</font>
         <font-size>18</font-size>
         <text-max-width>180</text-max-width>
-        <font-size-min>9</font-size-min>
+        <font-min-size>9</font-min-size>
         <text>%{fullname}</text>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
       </string>
       <string>
         <x-position>210</x-position>
         <y-position>110</y-position>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
         <font-size>9</font-size>
         <text>Version %{version}</text>
       </string>
@@ -192,14 +192,14 @@
         <font>fonts/DejaVuLGCSans-Bold.ttf</font>
         <font-size>18</font-size>
         <text-max-width>320</text-max-width>
-        <font-size-min>9</font-size-min>
+        <font-min-size>9</font-min-size>
         <text>%{fullname}</text>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
       </string>
       <string>
         <x-position>290</x-position>
         <y-position>140</y-position>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
         <font-size>12</font-size>
         <text>Version %{version}</text>
       </string>
@@ -232,14 +232,14 @@
         <font>fonts/DejaVuLGCSans-Bold.ttf</font>
         <font-size>18</font-size>
         <text-max-width>350</text-max-width>
-        <font-size-min>9</font-size-min>
+        <font-min-size>9</font-min-size>
         <text>%{fullname}</text>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
       </string>
       <string>
         <x-position>420</x-position>
         <y-position>140</y-position>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
         <font-size>11</font-size>
         <text>Version %{version}</text>
       </string>
@@ -265,14 +265,14 @@
         <font>fonts/DejaVuLGCSans-Bold.ttf</font>
         <font-size>14</font-size>
         <text-max-width>140</text-max-width>
-        <font-size-min>9</font-size-min>
+        <font-min-size>9</font-min-size>
         <text>%{fullname}</text>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
       </string>
       <string>
         <x-position>320</x-position>
         <y-position>238</y-position>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
         <font-size>9</font-size>
         <text>Version %{version}</text>
       </string>
@@ -350,14 +350,14 @@
         <font>fonts/DejaVuLGCSans-Bold.ttf</font>
         <font-size>14</font-size>
         <text-max-width>140</text-max-width>
-        <font-size-min>9</font-size-min>
+        <font-min-size>9</font-min-size>
         <text>%{fullname}</text>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
       </string>
       <string>
         <x-position>274</x-position>
         <y-position>194</y-position>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
         <font-size>9</font-size>
         <text>Version %{version}</text>
       </string>
@@ -395,14 +395,14 @@
         <font>fonts/DejaVuLGCSans-Bold.ttf</font>
         <font-size>18</font-size>
         <text-max-width>350</text-max-width>
-        <font-size-min>9</font-size-min>
+        <font-min-size>9</font-min-size>
         <text>%{fullname}</text>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
       </string>
       <string>
         <x-position>420</x-position>
         <y-position>140</y-position>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
         <font-size>11</font-size>
         <text>Version %{version}</text>
       </string>
@@ -427,14 +427,14 @@
         <font>fonts/DejaVuLGCSans-Bold.ttf</font>
         <font-size>18</font-size>
         <text-max-width>700</text-max-width>
-        <font-size-min>9</font-size-min>
+        <font-min-size>9</font-min-size>
         <text>%{fullname}</text>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
       </string>
       <string>
         <x-position>720</x-position>
         <y-position>65</y-position>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
         <font-size>9</font-size>
         <text>Version %{version}</text>
       </string>
@@ -495,14 +495,14 @@
         <font>fonts/DejaVuLGCSans-Bold.ttf</font>
         <font-size>14</font-size>
         <text-max-width>140</text-max-width>
-        <font-size-min>9</font-size-min>
+        <font-min-size>9</font-min-size>
         <text>%{fullname}</text>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
       </string>
       <string>
         <x-position>679</x-position>
         <y-position>319</y-position>
-        <font-color>white</font-color>
+        <font-color>#ffffff</font-color>
         <font-size>9</font-size>
         <text>Version %{version}</text>
       </string>

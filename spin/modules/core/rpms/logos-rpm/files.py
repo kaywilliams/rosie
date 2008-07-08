@@ -31,6 +31,7 @@ from rendition import rxml
 from rendition import versort
 
 from spin.constants import BOOLEANS_TRUE
+from spin.validate  import BaseConfigValidator
 
 import config
 
@@ -57,7 +58,7 @@ class FilesHandlerObject(object):
     if self._schema_file: return self._schema
     schema_file = None
     for path in self.ptr.SHARE_DIRS:
-      spath = path / 'schemas/logos-rpm/schema.rng'
+      spath = path / 'schemas/logos-rpm/config.rng'
       if spath.exists():
         schema_file = spath; break
     self._schema = schema_file
@@ -166,5 +167,6 @@ class FilesHandlerObject(object):
   def validate_tree(self, tree):
     if self.schema_file is None:
       return
-    ## TODO: else validate
-
+    validator = BaseConfigValidator([self.schema_file.dirname],
+                                    tree.getroot().file)
+    validator.validate('/logos-rpm', schema_file=self.schema_file.basename)
