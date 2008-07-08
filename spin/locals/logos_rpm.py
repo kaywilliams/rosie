@@ -170,6 +170,22 @@ if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
 fi
 ''',
         },
+        'firstboot': {
+          'triggerin': '''THEME_DIR=/usr/share/firstboot/themes
+if [ ! -e $THEME_DIR/default.rpmsave ]; then
+  %%{__mv} $THEME_DIR/default $THEME_DIR/default.rpmsave
+  %%{__ln_s} $THEME_DIR/spin $THEME_DIR/default
+fi
+''',
+          'triggerun': '''THEME_DIR=/usr/share/firstboot/themes
+if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
+  if [ -e $THEME_DIR/default.rpmsave ]; then
+    %%{__rm} -f $THEME_DIR/default
+    %%{__mv} $THEME_DIR/default.rpmsave $THEME_DIR/default
+  fi
+fi
+''',
+        },
         'desktop-backgrounds-basic': {
           'triggerin': '''BACKGROUNDS=/usr/share/backgrounds
 if [ ! -e $BACKGROUNDS/waves.rpmsave ]; then
