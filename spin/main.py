@@ -505,14 +505,14 @@ class Build(object):
         else:
           r = (s % modid, '', '')
         print twrp.fill('%s%s%s' % r)
-        
+
     r = (s % 'none', sep, 'modules not associated with a group')
     print ""
     print twrp.fill('%s%s%s' % r)
     print "="*width
     r = (s % 'none', sep, 'modules not associated with a group')
-    for modid in sorted([ x for x in loader.modules if 
-                              x not in modgrps.keys() and 
+    for modid in sorted([ x for x in loader.modules if
+                              x not in modgrps.keys() and
                               not loader.modules[x].MODULE_INFO.get('group')]):
       if loader.modules.has_key(modid):
         if loader.modules[modid].MODULE_INFO.get('description') is None:

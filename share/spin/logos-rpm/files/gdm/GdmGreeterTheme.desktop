@@ -1,0 +1,7 @@
+[GdmGreeterTheme]
+Greeter=SpinGDM.xml
+Name=Spin
+Description=Spin KDM skin. Modified version of Avio by Tobias Oelgarte. Design by Martin Sourada, Nicu Buculei, and Steven Garrity. KDM port by Kevin Kofler.
+Author=Tobias Oelgarte, modified by Máirín Duffy, ported to KDM by Kevin Kofler
+Copyright=2007
+Screenshot=screenshot.png

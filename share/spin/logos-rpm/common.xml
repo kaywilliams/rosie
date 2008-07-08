@@ -1,0 +1,656 @@
+<logos-rpm xmlns:xi="http://www.w3.org/2001/XInclude">
+  <precedence>0</precedence>
+
+  <defaults>
+    <font>fonts/DejaVuLGCSans.ttf</font>
+  </defaults>
+
+  <xi:include href="icons.xml" xpointer="xpointer(/logos-rpm/*)"/>
+
+  <file dest="/usr/share/apps/kdisplay/color-schemes/Spin.kcsrc"
+        xwindow-type="kde">
+    <path>files/kdisplay/Spin.kcsrc</path>
+  </file>
+  <file dest="/usr/share/apps/kdisplay/color-schemes/SpinKDM.kcsrc"
+        xwindow-type="kde">
+    <path>files/kdisplay/SpinKDM.kcsrc</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/GdmGreeterTheme.desktop"
+        xwindow-type="kde">
+    <path>files/kdm/GdmGreeterTheme.desktop</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/SpinKDM.xml"
+        xwindow-type="kde">
+    <path>files/kdm/SpinKDM.xml</path>
+  </file>
+  <file dest="/usr/share/apps/ksplash/Themes/Spin/Theme.rc"
+        xwindow-type="kde">
+    <path>files/ksplash/Theme.rc</path>
+  </file>
+  <file dest="/usr/share/backgrounds/spin/desktop-backgrounds-spin.xml">
+    <path>files/backgrounds/desktop-backgrounds-spin.xml</path>
+  </file>
+  <file dest="/usr/share/backgrounds/spin/spin.xml">
+    <path>files/backgrounds/spin.xml</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/GdmGreeterTheme.desktop">
+    <path>files/gdm/GdmGreeterTheme.desktop</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/SpinGDM.xml">
+    <path>files/gdm/SpinGDM.xml</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/Spin.gtkrc">
+    <path>files/gdm/Spin.gtkrc</path>
+  </file>
+  <file dest="/usr/share/gnome-background-properties/desktop-backgrounds-spin.xml"
+        xwindow-type="gnome">
+    <path>files/gnome-background-properties/desktop-backgrounds-spin.xml</path>
+  </file>
+  <file dest="/usr/share/gnome-screensaver/lock-dialog-system.glade"
+        xwindow-type="gnome">
+    <path>files/gnome-screensaver/lock-dialog-system.glade</path>
+  </file>
+  <file dest="/usr/share/gnome-screensaver/lock-dialog-system.gtkrc"
+        xwindow-type="gnome">
+    <path>files/gnome-screensaver/lock-dialog-system.gtkrc</path>
+  </file>
+  <file dest="/usr/share/apps/kdisplay/color-schemes/Spin.kcsrc"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdisplay/color-schemes/SpinKDM.kcsrc"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/GdmGreeterTheme.desktop"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/SpinKDM.xml"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/ksplash/Themes/Spin/Theme.rc"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdisplay/color-schemes/Spin.kcsrc"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <path>files/kdisplay/Spin.kcsrc</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdisplay/color-schemes/SpinKDM.kcsrc"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <path>files/kdisplay/SpinKDM.kcsrc</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/GdmGreeterTheme.desktop"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <path>files/kdm/GdmGreeterTheme.desktop</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/SpinKDM.xml"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <path>files/kdm/SpinKDM.xml</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/ksplash/Themes/Spin/Theme.rc"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <path>files/ksplash/Theme.rc</path>
+  </file>
+
+  <image dest="/usr/share/backgrounds/spin/default-dual-wide.jpg"
+        xwindow-type="gnome">
+    <create>
+      <width>2560</width>
+      <height>960</height>
+    </create>
+  </image>
+  <image dest="/usr/share/apps/kdm/themes/Spin/screenshot.png"
+        xwindow-type="kde">
+    <create>
+      <width>1024</width>
+      <height>768</height>
+    </create>
+  </image>
+  <image dest="/usr/share/apps/ksplash/Themes/Spin/screenshot.png"
+        xwindow-type="kde">
+    <create>
+      <width>1024</width>
+      <height>768</height>
+    </create>
+  </image>
+  <image dest="/usr/share/backgrounds/spin/default.jpg"
+        xwindow-type="gnome">
+    <create>
+      <width>1600</width>
+      <height>1200</height>
+    </create>
+  </image>
+  <image dest="/usr/share/gnome-screensaver/lock-dialog-system.png"
+        xwindow-type="gnome">
+    <create>
+      <width>400</width>
+      <height>314</height>
+    </create>
+  </image>
+  <image dest="/usr/share/anaconda/pixmaps/progress_first-lowres.png"
+        xwindow-type="required">
+    <create>
+      <width>350</width>
+      <height>224</height>
+    </create>
+    <strings>
+      <string>
+        <x-position>100</x-position>
+        <y-position>180</y-position>
+        <font>fonts/DejaVuLGCSans-Bold.ttf</font>
+        <font-size>18</font-size>
+        <text-max-width>180</text-max-width>
+        <font-min-size>9</font-min-size>
+        <text>%{fullname}</text>
+        <font-color>#ffffff</font-color>
+      </string>
+      <string>
+        <x-position>210</x-position>
+        <y-position>110</y-position>
+        <font-color>#ffffff</font-color>
+        <font-size>9</font-size>
+        <text>Version %{version}</text>
+      </string>
+      <string>
+        <x-position>175</x-position>
+        <y-position>215</y-position>
+        <font-color>#9d9d9d</font-color>
+        <font-size>9</font-size>
+        <text>%{copyright}</text>
+      </string>
+    </strings>
+  </image>
+  <image dest="/usr/share/gdm/themes/Spin/innerbackground.png">
+    <create>
+      <width>680</width>
+      <height>520</height>
+    </create>
+  </image>
+  <image dest="/usr/share/anaconda/pixmaps/progress_first.png"
+        xwindow-type="required">
+    <create>
+      <width>443</width>
+      <height>284</height>
+    </create>
+    <strings>
+      <string>
+        <x-position>170</x-position>
+        <y-position>240</y-position>
+        <font>fonts/DejaVuLGCSans-Bold.ttf</font>
+        <font-size>18</font-size>
+        <text-max-width>320</text-max-width>
+        <font-min-size>9</font-min-size>
+        <text>%{fullname}</text>
+        <font-color>#ffffff</font-color>
+      </string>
+      <string>
+        <x-position>290</x-position>
+        <y-position>140</y-position>
+        <font-color>#ffffff</font-color>
+        <font-size>12</font-size>
+        <text>Version %{version}</text>
+      </string>
+      <string>
+        <x-position>220</x-position>
+        <y-position>270</y-position>
+        <font-color>#9d9d9d</font-color>
+        <font-size>9</font-size>
+        <text>%{copyright}</text>
+      </string>
+    </strings>
+  </image>
+  <image dest="/usr/share/apps/kdm/themes/Spin/innerbackground.png"
+        xwindow-type="kde">
+    <create>
+      <width>680</width>
+      <height>520</height>
+    </create>
+  </image>
+  <image dest="/usr/share/anaconda/pixmaps/splash.png"
+        xwindow-type="required">
+    <create>
+      <width>600</width>
+      <height>284</height>
+    </create>
+    <strings>
+      <string>
+        <x-position>180</x-position>
+        <y-position>240</y-position>
+        <font>fonts/DejaVuLGCSans-Bold.ttf</font>
+        <font-size>18</font-size>
+        <text-max-width>350</text-max-width>
+        <font-min-size>9</font-min-size>
+        <text>%{fullname}</text>
+        <font-color>#ffffff</font-color>
+      </string>
+      <string>
+        <x-position>420</x-position>
+        <y-position>140</y-position>
+        <font-color>#ffffff</font-color>
+        <font-size>11</font-size>
+        <text>Version %{version}</text>
+      </string>
+      <string>
+        <x-position>300</x-position>
+        <y-position>265</y-position>
+        <font-color>#9d9d9d</font-color>
+        <font-size>9</font-size>
+        <text>%{copyright}</text>
+      </string>
+    </strings>
+  </image>
+  <image dest="/usr/share/pixmaps/splash/gnome-splash.png"
+        xwindow-type="gnome">
+    <create>
+      <width>420</width>
+      <height>293</height>
+    </create>
+    <strings>
+      <string>
+        <x-position>300</x-position>
+        <y-position>213</y-position>
+        <font>fonts/DejaVuLGCSans-Bold.ttf</font>
+        <font-size>14</font-size>
+        <text-max-width>140</text-max-width>
+        <font-min-size>9</font-min-size>
+        <text>%{fullname}</text>
+        <font-color>#ffffff</font-color>
+      </string>
+      <string>
+        <x-position>320</x-position>
+        <y-position>238</y-position>
+        <font-color>#ffffff</font-color>
+        <font-size>9</font-size>
+        <text>Version %{version}</text>
+      </string>
+      <string>
+        <x-position>210</x-position>
+        <y-position>283</y-position>
+        <font-color>#9d9d9d</font-color>
+        <font-size>9</font-size>
+        <text>%{copyright}</text>
+      </string>
+    </strings>
+  </image>
+  <image dest="/usr/share/gdm/themes/Spin/screenshot.png">
+    <create>
+      <width>1024</width>
+      <height>768</height>
+    </create>
+  </image>
+  <image dest="/usr/share/backgrounds/spin/default-5_4.jpg">
+    <create>
+      <width>1280</width>
+      <height>1024</height>
+    </create>
+  </image>
+  <image dest="/usr/share/gdm/themes/Spin/background.png">
+    <create>
+      <width>2560</width>
+      <height>1600</height>
+    </create>
+  </image>
+  <image dest="/usr/share/backgrounds/spin/default-dual.jpg">
+    <create>
+      <width>2560</width>
+      <height>1240</height>
+    </create>
+  </image>
+  <image dest="/usr/lib/anaconda-runtime/boot/syslinux-splash.png">
+    <create>
+      <width>640</width>
+      <height>300</height>
+    </create>
+    <strings>
+      <string>
+        <text-max-width>140</text-max-width>
+        <x-position>320</x-position>
+        <y-position>10</y-position>
+        <font>fonts/DejaVuLGCSans-Bold.ttf</font>
+        <font-size>14</font-size>
+        <text>%{fullname}</text>
+      </string>
+      <string>
+        <x-position>320</x-position>
+        <y-position>30</y-position>
+        <font-size>12</font-size>
+        <text>Version %{version}</text>
+      </string>
+    </strings>
+  </image>
+  <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_bottom.png"
+        xwindow-type="kde">
+    <create>
+      <width>400</width>
+      <height>19</height>
+    </create>
+  </image>
+  <image dest="/usr/share/firstboot/pixmaps/splash-small.png">
+    <create>
+      <width>364</width>
+      <height>259</height>
+    </create>
+    <strings>
+      <string>
+        <x-position>254</x-position>
+        <y-position>179</y-position>
+        <font>fonts/DejaVuLGCSans-Bold.ttf</font>
+        <font-size>14</font-size>
+        <text-max-width>140</text-max-width>
+        <font-min-size>9</font-min-size>
+        <text>%{fullname}</text>
+        <font-color>#ffffff</font-color>
+      </string>
+      <string>
+        <x-position>274</x-position>
+        <y-position>194</y-position>
+        <font-color>#ffffff</font-color>
+        <font-size>9</font-size>
+        <text>Version %{version}</text>
+      </string>
+      <string>
+        <x-position>182</x-position>
+        <y-position>249</y-position>
+        <font-color>#9d9d9d</font-color>
+        <font-size>9</font-size>
+        <text>%{copyright}</text>
+      </string>
+    </strings>
+  </image>
+  <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_inactive_bar.png"
+        xwindow-type="kde">
+    <create>
+      <width>400</width>
+      <height>64</height>
+    </create>
+  </image>
+  <image dest="/usr/share/firstboot/pixmaps/firstboot-left.png">
+    <create>
+      <width>160</width>
+      <height>600</height>
+    </create>
+  </image>
+  <image dest="/usr/share/anaconda/pixmaps/rnotes/welcome.png">
+    <create>
+      <width>600</width>
+      <height>284</height>
+    </create>
+    <strings>
+      <string>
+        <x-position>180</x-position>
+        <y-position>240</y-position>
+        <font>fonts/DejaVuLGCSans-Bold.ttf</font>
+        <font-size>18</font-size>
+        <text-max-width>350</text-max-width>
+        <font-min-size>9</font-min-size>
+        <text>%{fullname}</text>
+        <font-color>#ffffff</font-color>
+      </string>
+      <string>
+        <x-position>420</x-position>
+        <y-position>140</y-position>
+        <font-color>#ffffff</font-color>
+        <font-size>11</font-size>
+        <text>Version %{version}</text>
+      </string>
+      <string>
+        <x-position>300</x-position>
+        <y-position>265</y-position>
+        <font-color>#9d9d9d</font-color>
+        <font-size>9</font-size>
+        <text>%{copyright}</text>
+      </string>
+    </strings>
+  </image>
+  <image dest="/usr/share/anaconda/pixmaps/anaconda_header.png">
+    <create>
+      <width>800</width>
+      <height>88</height>
+    </create>
+    <strings>
+      <string>
+        <x-position>400</x-position>
+        <y-position>38</y-position>
+        <font>fonts/DejaVuLGCSans-Bold.ttf</font>
+        <font-size>18</font-size>
+        <text-max-width>700</text-max-width>
+        <font-min-size>9</font-min-size>
+        <text>%{fullname}</text>
+        <font-color>#ffffff</font-color>
+      </string>
+      <string>
+        <x-position>720</x-position>
+        <y-position>65</y-position>
+        <font-color>#ffffff</font-color>
+        <font-size>9</font-size>
+        <text>Version %{version}</text>
+      </string>
+    </strings>
+  </image>
+  <image dest="/usr/share/anaconda/pixmaps/syslinux-splash.png">
+    <create>
+      <width>640</width>
+      <height>300</height>
+    </create>
+    <strings>
+      <string>
+        <text-max-width>140</text-max-width>
+        <x-position>320</x-position>
+        <y-position>10</y-position>
+        <font>fonts/DejaVuLGCSans-Bold.ttf</font>
+        <font-size>14</font-size>
+        <text>%{fullname}</text>
+      </string>
+      <string>
+        <x-position>320</x-position>
+        <y-position>30</y-position>
+        <font-size>12</font-size>
+        <text>Version %{version}</text>
+      </string>
+    </strings>
+  </image>
+  <image dest="/usr/share/apps/kdm/themes/Spin/background.png"
+        xwindow-type="kde">
+    <create>
+      <width>2560</width>
+      <height>1600</height>
+    </create>
+  </image>
+  <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_active_bar.png"
+        xwindow-type="kde">
+    <create>
+      <width>400</width>
+      <height>64</height>
+    </create>
+  </image>
+  <image dest="/usr/share/backgrounds/spin/default-wide.jpg"
+        xwindow-type="gnome">
+    <create>
+      <width>1680</width>
+      <height>1050</height>
+    </create>
+  </image>
+  <image dest="/usr/share/rhgb/main-logo.png">
+    <create>
+      <width>799</width>
+      <height>399</height>
+    </create>
+    <strings>
+      <string>
+        <x-position>659</x-position>
+        <y-position>299</y-position>
+        <font>fonts/DejaVuLGCSans-Bold.ttf</font>
+        <font-size>14</font-size>
+        <text-max-width>140</text-max-width>
+        <font-min-size>9</font-min-size>
+        <text>%{fullname}</text>
+        <font-color>#ffffff</font-color>
+      </string>
+      <string>
+        <x-position>679</x-position>
+        <y-position>319</y-position>
+        <font-color>#ffffff</font-color>
+        <font-size>9</font-size>
+        <text>Version %{version}</text>
+      </string>
+      <string>
+        <x-position>400</x-position>
+        <y-position>389</y-position>
+        <font-color>#9d9d9d</font-color>
+        <font-size>9</font-size>
+        <text>%{copyright}</text>
+      </string>
+    </strings>
+  </image>
+  <image dest="/usr/lib/anaconda-runtime/boot/syslinux-splash.png"
+        anaconda-version="11.2.0.66-1">
+    <remove>True</remove>
+  </image>
+  <image dest="/usr/share/anaconda/pixmaps/syslinux-splash.png"
+        anaconda-version="11.2.0.66-1">
+    <create>
+      <width>640</width>
+      <height>480</height>
+    </create>
+  </image>
+  <image dest="/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg"
+        anaconda-version="11.2.0.66-1">
+    <create>
+      <width>640</width>
+      <height>480</height>
+      <format>jpeg</format>
+    </create>
+    <strings>
+      <string>
+        <x-position>500</x-position>
+        <y-position>180</y-position>
+        <font>fonts/DejaVuLGCSans-Bold.ttf</font>
+        <font-size>14</font-size>
+        <text-max-width>140</text-max-width>
+        <text>%{fullname}</text>
+      </string>
+      <string>
+        <x-position>540</x-position>
+        <y-position>195</y-position>
+        <font-size>12</font-size>
+        <text>Version %{version}</text>
+      </string>
+      <string>
+        <x-position>320</x-position>
+        <y-position>290</y-position>
+        <font-size>9</font-size>
+        <text>%{copyright}</text>
+      </string>
+    </strings>
+  </image>
+  <image dest="/usr/lib/anaconda-runtime/syslinux-vesa-splash.jpg"
+        anaconda-version="11.3.0.36-1">
+    <create>
+      <width>640</width>
+      <height>480</height>
+      <format>png</format>
+    </create>
+    <strings>
+      <string>
+        <x-position>500</x-position>
+        <y-position>180</y-position>
+        <font>fonts/DejaVuLGCSans-Bold.ttf</font>
+        <font-size>14</font-size>
+        <text-max-width>140</text-max-width>
+        <text>%{fullname}</text>
+      </string>
+      <string>
+        <x-position>540</x-position>
+        <y-position>195</y-position>
+        <font-size>12</font-size>
+        <text>Version %{version}</text>
+      </string>
+      <string>
+        <x-position>320</x-position>
+        <y-position>290</y-position>
+        <font-size>9</font-size>
+        <text>%{copyright}</text>
+      </string>
+    </strings>
+  </image>
+  <image dest="/usr/share/apps/kdm/themes/Spin/background.png"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <remove>True</remove>
+  </image>
+  <image dest="/usr/share/apps/kdm/themes/Spin/innerbackground.png"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <remove>True</remove>
+  </image>
+  <image dest="/usr/share/apps/kdm/themes/Spin/screenshot.png"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <remove>True</remove>
+  </image>
+  <image dest="/usr/share/apps/ksplash/Themes/Spin/screenshot.png"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <remove>True</remove>
+  </image>
+  <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_active_bar.png"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <remove>True</remove>
+  </image>
+  <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_bottom.png"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <remove>True</remove>
+  </image>
+  <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_inactive_bar.png"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <remove>True</remove>
+  </image>
+  <image dest="/usr/share/kde4/apps/kdm/themes/Spin/screenshot.png"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <create>
+      <width>1024</width>
+      <height>768</height>
+    </create>
+  </image>
+  <image dest="/usr/share/kde4/apps/kdm/themes/Spin/innerbackground.png"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <create>
+      <width>680</width>
+      <height>520</height>
+    </create>
+  </image>
+  <image dest="/usr/share/kde4/apps/ksplash/Themes/Spin/splash_bottom.png"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <create>
+      <width>400</width>
+      <height>19</height>
+    </create>
+  </image>
+  <image dest="/usr/share/kde4/apps/ksplash/Themes/Spin/splash_inactive_bar.png"
+        xwindow-type="kde"
+        anaconda-version="11.3.0.36-1">
+    <create>
+      <width>400</width>
+      <height>64</height>
+    </create>
+  </image>
+</logos-rpm>

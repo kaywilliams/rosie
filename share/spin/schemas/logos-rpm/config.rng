@@ -1,0 +1,182 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="logos-rpm">
+    <interleave>
+    <zeroOrMore>
+      <ref name="element-image"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="element-file"/>
+    </zeroOrMore>
+    <optional>
+      <element name="precedence"><text/></element>
+    </optional>
+    <optional>
+      <ref name="element-defaults"/>
+    </optional>
+    </interleave>
+    </element>
+  </start>
+
+  <define name="element-image">
+  <element name="image">
+    <ref name="attribute-common"/>
+    <choice>
+      <ref name="element-file-remove"/>
+      <ref name="element-image-copy-or-create"/>
+    </choice>
+  </element>
+  </define>
+
+  <define name="element-file">
+  <element name="file">
+    <ref name="attribute-common"/>
+    <choice>
+      <ref name="element-file-remove"/>
+      <ref name="element-file-copy"/>
+    </choice>
+  </element>
+  </define>
+
+  <define name="element-defaults">
+  <element name="defaults">
+    <ref name="element-dimensions"/>
+    <ref name="element-font"/>
+    <ref name="element-background"/>
+    <ref name="element-format"/>
+  </element>
+  </define>
+
+  <define name="attribute-common">
+    <attribute name="dest"><text/></attribute>
+    <optional>
+      <attribute name="anaconda-version"><text/></attribute>
+    </optional>
+    <optional>
+      <attribute name="xwindow-type">
+        <data type="token">
+        <param name="pattern">[Rr]equired|[Gg]nome|GNOME|[Kk]de|KDE</param>
+        </data>
+      </attribute>
+    </optional>
+  </define>
+
+  <define name="element-image-copy-or-create">
+  <interleave>
+    <ref name="element-image-write-text"/>
+    <choice>
+      <ref name="element-image-copy"/>
+      <ref name="element-image-create"/>
+    </choice>
+  </interleave>
+  </define>
+
+  <define name="element-file-remove">
+  <element name="remove">
+    <ref name="value-boolean"/>
+  </element>
+  </define>
+
+  <define name="element-file-copy">
+    <element name="path"><text/></element>
+  </define>
+
+  <define name="element-image-create">
+  <element name="create">
+    <interleave>
+      <ref name="element-dimensions"/>
+      <ref name="element-background"/>
+      <ref name="element-format"/>
+    </interleave>
+  </element>
+  </define>
+
+  <define name="element-image-copy">
+  <element name="source">
+    <ref name="element-file-copy"/>
+  </element>
+  </define>
+
+  <define name="element-image-write-text">
+  <optional>
+  <element name="strings">
+  <oneOrMore>
+    <element name="string">
+    <interleave>
+      <ref name="element-font"/>
+      <optional>
+        <element name="font-min-size"><text/></element>
+      </optional>
+      <optional>
+        <element name="font-size"><text/></element>
+      </optional>
+      <optional>
+        <element name="text"><text/></element>
+      </optional>
+      <optional>
+        <element name="text-max-width"><data type="unsignedInt"></data></element>
+      </optional>
+      <optional>
+        <element name="x-position"><data type="unsignedInt"/></element>
+        <element name="y-position"><data type="unsignedInt"/></element>
+      </optional>
+      <optional>
+        <element name="limited-palette"><data type="unsignedInt"></data></element>
+      </optional>
+      <optional>
+        <element name="font-color">
+          <ref name="value-hexcolor"/>
+        </element>
+      </optional>
+    </interleave>
+    </element>
+  </oneOrMore>
+  </element>
+  </optional>
+  </define>
+
+  <define name="element-font">
+  <optional>
+    <element name="font"><text/></element>
+  </optional>
+  </define>
+
+  <define name="element-format">
+  <optional>
+  <element name="format">
+    <ref name="value-image-formats"/>
+  </element>
+  </optional>
+  </define>
+
+  <define name="element-background">
+  <optional>
+  <element name="background">
+    <ref name="value-hexcolor"/>
+  </element>
+  </optional>
+  </define>
+
+  <define name="element-dimensions">
+  <optional>
+    <element name="width"><data type="unsignedInt"/></element>
+    <element name="height"><data type="unsignedInt"/></element>
+  </optional>
+  </define>
+
+  <define name="value-hexcolor">
+    <data type="token">
+    <param name="pattern">#[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]</param>
+    </data>
+  </define>
+
+  <define name="value-image-formats">
+    <data type="token">
+    <param name="pattern">JPEG|jpeg|PNG|png</param>
+    </data>
+  </define>
+
+  <include href="../distro/lib.rng"/>
+</grammar>
+

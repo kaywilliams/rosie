@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE greeter SYSTEM 'greeter.dtd'>
+
+<greeter>
+  <!-- background -->
+  <item type="pixmap">
+    <pos x="0" y="0" width="100%" height="100%" anchor="nw"/>
+    <normal file="background.png"/>
+  </item>
+
+  <!-- innerbackground -->
+  <item type="pixmap">
+    <pos x="50%" y="50%" width="680" height="520" anchor="c"/>
+    <normal file="innerbackground.png"/>
+    <box orientation="vertical" spacing="5" xpadding="50" ypadding="50">
+      <item type="rect">
+        <pos width="100%" height="30"/>
+        <!--<normal color="#ff0000"/>-->
+        <fixed>
+          <!-- welcome-label -->
+          <item type="label">
+            <pos x="5" y="50%" anchor="w"/>
+            <normal font="DejaVu Sans Bold 14" color="#ffffff"/>
+            <stock type="welcome-label"/>
+          </item>
+          <!-- clock -->
+          <item type="label" id="clock">
+            <pos x="-5" y="50%" anchor="e"/>
+            <normal font="DejaVu Sans 10" color="#ffffff"/>
+            <text>%c</text>
+          </item>
+        </fixed>
+      </item>
+      <item type="rect">
+        <!--<normal color="#009900"/>-->
+        <pos width="100%" height="350"/>
+        <box orientation="horizontal" spacing="20" xpadding="5" ypadding="10">
+          <item type="rect" id="userlist">
+            <pos x="0" y="0" width="275" height="305" anchor="nw"/>
+            <color iconcolor="#5a819d" labelcolor="#5a819d"/>
+          </item>
+          <item type="rect">
+            <pos x="0" y="0" width="275" height="330" anchor="nw"/>
+            <!--<normal color="#6688ff"/>-->
+            <fixed>
+              <item type="rect">
+                <pos x="0" y="0" width="100%" height="50" anchor="nw"/>
+                <box spacing="5" orientation="horizontal">
+                  <item type="rect">
+                    <pos y="40%" x="100%" width="box" height="box" anchor="e"/>
+                    <box xpadding="0" ypadding="0" spacing="0" orientation="vertical" homogeneous="false">
+                      <item type="label">
+                        <pos anchor="ne" x="100%"/>
+                        <normal font="DejaVu Sans Bold 10" color="#ffffff"/>
+                        <stock type="username-label"/>
+                      </item>
+                      <item type="rect">
+                        <pos y="0" x="0" width="100%" height="9" anchor="nw"/>
+                      </item>
+                      <item type="label">
+                        <pos anchor="ne" x="100%"/>
+                        <normal font="DejaVu Sans Bold 10" color="#ffffff"/>
+                        <stock type="password-label"/>
+                      </item>
+                    </box>
+                  </item>
+                  <item type="rect">
+                    <normal color="#FF80FF" alpha="0.0"/>
+                    <pos y="40%" x="48%" width="box" height="box" anchor="e"/>
+                    <box orientation="vertical" xpadding="0" ypadding="0" spacing="2">
+                      <item type="entry" id="user-entry">
+                        <pos anchor="n" x="100%" height="20" width="200"/>
+                      </item>
+                      <item type="entry" id="pw-entry">
+                        <pos anchor="n" x="100%" height="20" width="200"/>
+                      </item>
+                    </box>
+                  </item>
+                </box>
+              </item>
+
+              <item type="rect">
+                <pos x="0" y="55" width="100%" height="60" anchor="nw"/>
+                <!--<normal color="#9900ff"/>-->
+                <box orientation="vertical" spacing="10" xpadding="0" ypadding="5">
+
+
+                  <!-- pam-message -->
+                  <item type="label" id="pam-message">
+                    <pos x="50%" y="50%" width="100%" height="box" anchor="c"/>
+                    <normal color="#ffffff" font="DejaVu Sans 9"/>
+                    <text></text>
+                  </item>
+
+                  <!-- caps-lock-warning-->
+                  <item type="label" id="caps-lock-warning">
+                    <pos x="50%" y="50%" width="100%" height="box" anchor="c"/>
+                    <normal color="#ffffff" font="DejaVu Sans 9"/>
+                    <stock type="caps-lock-warning"/>
+                  </item>
+
+
+                  <!-- timed-label -->
+                  <item type="label" id="timed-label">
+                    <pos x="50%" y="50%" width="100%" height="box" anchor="c"/>
+                    <show type="timed"/>
+                    <normal color="#ffffff" font="DejaVu Sans 9"/>
+                    <stock type="timed-label"/>
+                  </item>
+                </box>
+              </item>
+              <item type="rect">
+                <pos x="0" y="160" width="100%" height="220" anchor="nw"/>
+                <!--<normal color="#99aaff"/>-->
+                <box orientation="vertical" spacing="0" xpadding="2" ypadding="2">
+
+                  <!-- session_button -->
+                  <item type="rect" id="session_button" button="true">
+                    <pos x="0" y="0" width="100%" height="box" anchor="nw"/>
+                    <box>
+                      <item type="pixmap">
+                        <pos height="box" width="100%"/>
+                        <normal file="selection.png"/>
+                        <prelight file="selection-prelight.png"/>
+                        <active file="selection-active.png"/>
+                        <box spacing="5" xpadding="3" ypadding="2" orientation="horizontal">
+                          <item type="pixmap">
+                            <pos y="50%" width="24" height="24" anchor="w"/>
+                            <normal file="session.png"/>
+                            <prelight file="session-prelight.png"/>
+                            <active file="session-active.png"/>
+                          </item>
+                          <item type="label">
+                            <pos y="50%" width="150" height="20" anchor="w"/>
+                            <normal color="#f0f0f0" font="DejaVu Sans Bold 10"/>
+                            <prelight color="#ffffff" font="DejaVu Sans Bold 10"/>
+                            <active color="#ffffff" font="DejaVu Sans Bold 10"/>
+                            <stock type="session"/>
+                          </item>
+                        </box>
+                      </item>
+                    </box>
+                  </item>
+                  <!-- line -->
+                  <item type="rect">
+                    <pos x="0" y="0" width="box" height="box" anchor="nw"/>
+                    <box xpadding="0" ypadding="3">
+                      <item type="pixmap">
+                        <pos x="0" y="50%" width="265" height="2" anchor="w"/>
+                        <normal file="line.png" />
+                      </item>
+                    </box>
+                  </item>
+                  <!-- system button -->
+                  <item type="rect" id="system_button" button="true">
+                    <pos x="0" y="0" width="100%" height="box" anchor="nw"/>
+                    <box>
+                      <item type="pixmap">
+                        <pos height="box" width="100%"/>
+                        <normal file="selection.png"/>
+                        <prelight file="selection-prelight.png"/>
+                        <active file="selection-active.png"/>
+                        <box spacing="5" xpadding="3" ypadding="2" orientation="horizontal">
+                          <item type="pixmap">
+                            <pos y="50%" width="24" height="24" anchor="w"/>
+                            <normal file="halt.png"/>
+                            <prelight file="halt-prelight.png"/>
+                            <active file="halt-active.png"/>
+                          </item>
+                          <item type="label">
+                            <pos y="50%" width="150" height="20" anchor="w"/>
+                            <normal color="#f0f0f0" font="DejaVu Sans Bold 10"/>
+                            <prelight color="#ffffff" font="DejaVu Sans Bold 10"/>
+                            <active color="#ffffff" font="DejaVu Sans Bold 10"/>
+                            <stock type="system"/>
+                          </item>
+                        </box>
+                      </item>
+                    </box>
+
+                  </item>
+
+                </box>
+              </item>
+            </fixed>
+
+          </item>
+
+        </box>
+      </item>
+
+
+
+      <!-- pam-error -->
+
+      <item type="rect">
+        <pos width="580" height="30"/>
+        <box>
+          <item type="label" id="pam-error">
+            <pos x="50%" y="20%" width="100%" height="100%" anchor="c"/>
+            <normal color="#ffffff" font="DejaVu Sans 11"/>
+            <text></text>
+          </item>
+
+        </box>
+      </item>
+    </box>
+  </item>
+</greeter>

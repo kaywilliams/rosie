@@ -1,0 +1,350 @@
+<logos-rpm>
+  <file dest="/usr/share/gdm/themes/Spin/icons" xwindow-type="gnome">
+    <path>icons/icons</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/disconnect-active.png" xwindow-type="gnome">
+    <path>icons/disconnect-active.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/disconnect-prelight.png" xwindow-type="gnome">
+    <path>icons/disconnect-prelight.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/disconnect.png" xwindow-type="gnome">
+    <path>icons/disconnect.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/halt-active.png" xwindow-type="gnome">
+    <path>icons/halt-active.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/halt-prelight.png" xwindow-type="gnome">
+    <path>icons/halt-prelight.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/halt.png" xwindow-type="gnome">
+    <path>icons/halt.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/language-active.png" xwindow-type="gnome">
+    <path>icons/language-active.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/language-prelight.png" xwindow-type="gnome">
+    <path>icons/language-prelight.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/language.png" xwindow-type="gnome">
+    <path>icons/language.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/line.png" xwindow-type="gnome">
+    <path>icons/line.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/quit-active.png" xwindow-type="gnome">
+    <path>icons/quit-active.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/quit-prelight.png" xwindow-type="gnome">
+    <path>icons/quit-prelight.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/quit.png" xwindow-type="gnome">
+    <path>icons/quit.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/reboot-active.png" xwindow-type="gnome">
+    <path>icons/reboot-active.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/reboot-prelight.png" xwindow-type="gnome">
+    <path>icons/reboot-prelight.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/reboot.png" xwindow-type="gnome">
+    <path>icons/reboot.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/selection-active.png" xwindow-type="gnome">
+    <path>icons/selection-active.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/selection-prelight.png" xwindow-type="gnome">
+    <path>icons/selection-prelight.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/selection.png" xwindow-type="gnome">
+    <path>icons/selection.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/session-active.png" xwindow-type="gnome">
+    <path>icons/session-active.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/session-prelight.png" xwindow-type="gnome">
+    <path>icons/session-prelight.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/session.png" xwindow-type="gnome">
+    <path>icons/session.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/suspend-active.png" xwindow-type="gnome">
+    <path>icons/suspend-active.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/suspend-prelight.png" xwindow-type="gnome">
+    <path>icons/suspend-prelight.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/suspend.png" xwindow-type="gnome">
+    <path>icons/suspend.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/system-active.png" xwindow-type="gnome">
+    <path>icons/system-active.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/system-prelight.png" xwindow-type="gnome">
+    <path>icons/system-prelight.png</path>
+  </file>
+  <file dest="/usr/share/gdm/themes/Spin/system.png" xwindow-type="gnome">
+    <path>icons/system.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/icons" xwindow-type="kde">
+    <path>icons/icons</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/disconnect-active.png" xwindow-type="kde">
+    <path>icons/disconnect-active.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/disconnect-prelight.png" xwindow-type="kde">
+    <path>icons/disconnect-prelight.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/disconnect.png" xwindow-type="kde">
+    <path>icons/disconnect.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/halt-active.png" xwindow-type="kde">
+    <path>icons/halt-active.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/halt-prelight.png" xwindow-type="kde">
+    <path>icons/halt-prelight.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/halt.png" xwindow-type="kde">
+    <path>icons/halt.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/language-active.png" xwindow-type="kde">
+    <path>icons/language-active.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/language-prelight.png" xwindow-type="kde">
+    <path>icons/language-prelight.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/language.png" xwindow-type="kde">
+    <path>icons/language.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/line.png" xwindow-type="kde">
+    <path>icons/line.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/quit-active.png" xwindow-type="kde">
+    <path>icons/quit-active.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/quit-prelight.png" xwindow-type="kde">
+    <path>icons/quit-prelight.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/quit.png" xwindow-type="kde">
+    <path>icons/quit.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/reboot-active.png" xwindow-type="kde">
+    <path>icons/reboot-active.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/reboot-prelight.png" xwindow-type="kde">
+    <path>icons/reboot-prelight.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/reboot.png" xwindow-type="kde">
+    <path>icons/reboot.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/selection-active.png" xwindow-type="kde">
+    <path>icons/selection-active.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/selection-prelight.png" xwindow-type="kde">
+    <path>icons/selection-prelight.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/selection.png" xwindow-type="kde">
+    <path>icons/selection.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/session-active.png" xwindow-type="kde">
+    <path>icons/session-active.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/session-prelight.png" xwindow-type="kde">
+    <path>icons/session-prelight.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/session.png" xwindow-type="kde">
+    <path>icons/session.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/suspend-active.png" xwindow-type="kde">
+    <path>icons/suspend-active.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/suspend-prelight.png" xwindow-type="kde">
+    <path>icons/suspend-prelight.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/suspend.png" xwindow-type="kde">
+    <path>icons/suspend.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/system-active.png" xwindow-type="kde">
+    <path>icons/system-active.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/system-prelight.png" xwindow-type="kde">
+    <path>icons/system-prelight.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/system.png" xwindow-type="kde">
+    <path>icons/system.png</path>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/icons" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/disconnect-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/disconnect-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/disconnect.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/halt-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/halt-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/halt.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/language-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/language-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/language.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/line.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/quit-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/quit-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/quit.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/reboot-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/reboot-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/reboot.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/selection-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/selection-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/selection.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/session-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/session-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/session.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/suspend-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/suspend-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/suspend.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/system-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/system-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/apps/kdm/themes/Spin/system.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <remove>True</remove>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/icons" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/icons</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/disconnect-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/disconnect-active.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/disconnect-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/disconnect-prelight.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/disconnect.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/disconnect.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/halt-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/halt-active.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/halt-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/halt-prelight.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/halt.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/halt.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/language-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/language-active.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/language-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/language-prelight.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/language.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/language.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/line.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/line.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/quit-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/quit-active.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/quit-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/quit-prelight.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/quit.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/quit.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/reboot-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/reboot-active.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/reboot-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/reboot-prelight.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/reboot.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/reboot.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/selection-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/selection-active.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/selection-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/selection-prelight.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/selection.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/selection.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/session-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/session-active.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/session-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/session-prelight.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/session.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/session.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/suspend-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/suspend-active.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/suspend-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/suspend-prelight.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/suspend.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/suspend.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/system-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/system-active.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/system-prelight.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/system-prelight.png</path>
+  </file>
+  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/system.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
+    <path>icons/system.png</path>
+  </file>
+</logos-rpm>
