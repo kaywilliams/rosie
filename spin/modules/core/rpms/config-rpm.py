@@ -237,7 +237,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     backups from .rpmsave, if present."""
     script = ''
 
-    script += 'if "$1" == "0"; then\n'
+    script += 'if [ "$1" == "0" ]; then\n'
 
     sources = []
     for support_file in self.io.list_output('file'):
