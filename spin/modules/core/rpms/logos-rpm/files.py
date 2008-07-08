@@ -114,19 +114,20 @@ class FilesHandlerObject(object):
         self.add_text(dst, info.get('strings', None))
 
   def add_text(self, image, strings):
-    if strings is None: return
+    if strings is None:
+      return
     img = Image.open(image)
     draw = ImageDraw.Draw(img)
     for i in strings:
       text_string     = i.get('text', '') % self.ptr.cvars['distro-info']
-      halign          = i.get('halign', 'center')
-      text_coords     = i.get('text_coords', (img.size[0]/2, img.size[1]/2))
-      text_max_width  = i.get('text_max_width', img.size[0])
-      font_color      = i.get('font_color', None)
-      font_size       = i.get('font_size', 52)
-      font_size_min   = i.get('font_size_min', None)
+      text_coords     = (i.get('x-position', img.size[0]/2),
+                         i.get('y-position', img.size[1]/2))
+      text_max_width  = i.get('text-max-width', img.size[0])
+      font_color      = i.get('font-color', None)
+      font_size       = i.get('font-size', 52)
+      font_min_size   = i.get('font-min-size', None)
       font_path       = i.get('font')
-      limited_palette = i.get('limited_palette', 16)
+      limited_palette = i.get('limited-palette', 16)
 
       if font_color is None:
         if img.palette is not None:
@@ -144,22 +145,18 @@ class FilesHandlerObject(object):
 
       font = ImageFont.truetype(font_path, font_size)
       w, h = draw.textsize(text_string, font=font)
-      if font_size_min is not None:
+      if font_min_size is not None:
         while True:
           if w <= (text_max_width or im.size[0]):
             break
           else:
             font_size -= 1
-          if font_size < font_size_min:
+          if font_size < font_min_size:
             break
           font = ImageFont.truetype(font_path, font_size)
           w, h = draw.textsize(text_string, font=font)
-      if halign == 'center':
-        draw.text((text_coords[0]-(w/2), text_coords[1]-(h/2)),
-                  text_string, font=font, fill=font_color)
-      elif halign == 'right':
-        draw.text((text_coords[0]-w, text_coords[1]-(h/2)),
-                  text_string, font=font, fill=font_color)
+      draw.text((text_coords[0]-(w/2), text_coords[1]-(h/2)),
+                text_string, font=font, fill=font_color)
 
     del draw
     img.save(image, format=img.format)

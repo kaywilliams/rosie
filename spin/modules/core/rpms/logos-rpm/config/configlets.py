@@ -49,9 +49,9 @@ class ImageConfiglet(Configlet):
                     'x-position', 'y-position']:
         if text_info.get(toint, None) is not None:
           text_info[toint] = int(text_info[toint])
-
-      if text_info.get('font', None) is not None:
-        text_info['font'] = self.parent_dir / text_info['font']
+      font = text_info.get('font', self.get('font', None))
+      if font is not None:
+        text_info['font'] = self.parent_dir / font
       strings.append(text_info)
     self['strings'] = strings
 
@@ -70,6 +70,7 @@ class CreateImageConfiglet(ImageConfiglet):
     ImageConfiglet.__init__(self, element, parent_dir, precedence, **kwargs)
 
   def read(self):
+    ImageConfiglet.read(self)
     for child in ['width', 'height', 'background', 'format']:
       value = self.element.get('create/%s/text()' % child, None)
       if value is not None:
@@ -84,6 +85,7 @@ class CopyImageConfiglet(ImageConfiglet):
     ImageConfiglet.__init__(self, element, parent_dir, precedence, **kwargs)
 
   def read(self):
+    ImageConfiglet.read(self)
     self['source'] = self.parent_dir / self.element.get('source/path/text()')
 
 registered_configlets = {}
