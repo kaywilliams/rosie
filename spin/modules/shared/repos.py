@@ -128,6 +128,10 @@ class SpinRepoGroup(SpinRepo):
       if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
         cls = RhnSpinRepo
     except AttributeError:
+      if self.url.realm.startswith('rhn://') or \
+         self.url.realm.startswith('rhns://'):
+        raise ValueError("RHN path support not enabled - please install "
+                         "the 'rhnlib' and 'rhn-client-tools' packages.")
       pass
 
     # get directory listing so we can figure out information about this repo
