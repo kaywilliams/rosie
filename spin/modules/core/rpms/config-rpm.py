@@ -39,7 +39,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config-rpm',
       parentid = 'rpms',
-      version = '0.94',
+      version = '0.95',
       provides = ['custom-rpms-data'],
       requires = ['input-repos'],
       conditionally_requires = ['web-path', 'gpgsign-public-key'],
