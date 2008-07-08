@@ -39,7 +39,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config-rpm',
       parentid = 'rpms',
-      version = '0.93',
+      version = '0.94',
       provides = ['custom-rpms-data'],
       requires = ['input-repos'],
       conditionally_requires = ['web-path', 'gpgsign-public-key'],
@@ -107,7 +107,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     if self.cvars['gpgsign-public-key']:
       # also include the gpg key in the config-rpm
       self.io.add_fpath(self.cvars['gpgsign-public-key'],
-                        self.rpm.build_folder/'etc/pkg/rpm-gpg')
+                        self.rpm.build_folder/'etc/pki/rpm-gpg')
 
   def generate(self):
     self._generate_repofile()
