@@ -114,7 +114,7 @@ class FilesHandlerObject(object):
         self.add_text(dst, info.get('strings', None))
 
   def add_text(self, image, strings):
-    if strings is None:
+    if not strings:
       return
     img = Image.open(image)
     draw = ImageDraw.Draw(img)
