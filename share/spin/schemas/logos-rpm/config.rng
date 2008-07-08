@@ -122,6 +122,9 @@
         <element name="y-position"><data type="unsignedInt"/></element>
       </optional>
       <optional>
+        <element name="limited-palette"><data type="unsignedInt"></data></element>
+      </optional>
+      <optional>
         <element name="font-color">
           <ref name="value-hexcolor"/>
         </element>
