@@ -68,7 +68,7 @@ and then at the command line
 2. Create the Spin configuration file
 -------------------------------------
 
-Create a file called ``/etc/spin.conf`` and add the following lines:
+Create a file called ``/etc/spin/spin.conf`` and add the following lines:
 
 ::
 
