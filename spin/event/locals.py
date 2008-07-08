@@ -42,7 +42,6 @@ class LocalsObject:
   L_INSTALLCLASS      = property(lambda self: L_INSTALLCLASS[self.anaconda_ver])
   L_RELEASE_HTML      = property(lambda self: L_RELEASE_HTML[self.anaconda_ver])
   L_GDM_CUSTOM_THEME  = property(lambda self: L_GDM_CUSTOM_THEME[self.anaconda_ver])
-  L_LOGOS_RPM_TEXT    = property(lambda self: L_LOGOS_RPM_TEXT[self.anaconda_ver])
 
   # createrepo-version based
   L_CREATEREPO        = property(lambda self: L_CREATEREPO[self.createrepo_ver])
