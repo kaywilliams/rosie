@@ -3,7 +3,6 @@
   <start>
     <element name="distro">
 
-      <optional>
       <element name="comps">
 
         <optional>
@@ -38,7 +37,6 @@
         </choice>
 
       </element>
-      </optional>
     </element>
   </start>
 
