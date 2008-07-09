@@ -3,7 +3,6 @@
   <start>
     <element name="distro">
 
-      <optional>
       <element name="repos">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
@@ -33,7 +32,6 @@
         </interleave>
 
       </element>
-      </optional>
 
     </element>
   </start>
