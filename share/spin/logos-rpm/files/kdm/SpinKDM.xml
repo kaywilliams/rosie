@@ -38,7 +38,7 @@
         <box orientation="horizontal" spacing="20" xpadding="5" ypadding="10">
           <item type="rect" id="userlist">
             <pos x="0" y="0" width="275" height="305" anchor="nw"/>
-            <color iconcolor="#5a819d" labelcolor="#5a819d"/>
+            <color iconcolor="#ffffff" labelcolor="#ffffff"/>
           </item>
           <item type="rect">
             <pos x="0" y="0" width="275" height="330" anchor="nw"/>
