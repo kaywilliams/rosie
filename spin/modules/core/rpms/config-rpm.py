@@ -299,6 +299,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
           self.copy_callback._cp_update(read)
         self.copy_callback._cp_end(read)
 
+        fdst.seek(0)
         script += fdst.read() + '\n'
       else:
         assert isinstance(item, basestring)
