@@ -7,7 +7,6 @@
           <element name="name"><text/></element>
           <element name="version"><text/></element>
 
-          <optional>
           <ref name="element-arch"/>
           </optional>
           <optional>
@@ -27,7 +26,6 @@
           </optional>
           <optional>
           <element name="log-file"><text/></element>
-          </optional>
 
         </interleave>
       </element>
