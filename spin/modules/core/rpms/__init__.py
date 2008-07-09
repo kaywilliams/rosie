@@ -27,7 +27,7 @@ class RpmsEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'rpms',
-      parentid = 'software',
+      parentid = 'os',
       properties = CLASS_META,
       suppress_run_message = True
     )
