@@ -63,7 +63,7 @@ def parse_cmd_args():
     help='select the distribution to test')
   parser.add_option('-f', '--version', metavar='VERSION',
     dest='version',
-    default='8',
+    default='9',
     help='select the version to test')
   parser.add_option('-a', '--arch', metavar='ARCH',
     dest='basearch',
