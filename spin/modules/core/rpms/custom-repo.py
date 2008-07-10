@@ -71,7 +71,7 @@ class CustomRepoEvent(Event):
                           self.CUSTOM_SRPMS, id='custom-rpms')
 
       custom_rpms  = SpinRepoGroup(id=self.cid, name=self.cid,
-                                   baseurl=self.CUSTOM_RPMS)
+                                   baseurl=self.CUSTOM_RPMS, gpgcheck='no')
       custom_srpms = SpinRepoGroup(id=self.csid, name=self.csid,
                                    baseurl=self.CUSTOM_SRPMS)
 
