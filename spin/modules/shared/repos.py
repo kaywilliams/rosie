@@ -28,7 +28,7 @@ from rendition.difftest.filesdiff import DiffTuple
 from rendition.pps.constants import TYPE_DIR
 
 from spin.logging   import L1, L2
-from spin.constants import BOOLEANS_FALSE
+from spin.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
 
 from rendition.repo          import ReposFromXml, ReposFromFile, getDefaultRepos
 from rendition.repo.repo     import YumRepo, RepoContainer, NSMAP
@@ -47,6 +47,16 @@ class SpinRepo(YumRepo):
     YumRepo.__init__(self, **kwargs)
     self.localurl = None
     self._systemid = None # system id, for redhat mirrors
+
+  def _boolparse(self, s):
+    if s in BOOLEANS_FALSE:
+      return False
+    elif s in BOOLEANS_TRUE:
+      return True
+    elif s is None:
+      return None
+    else:
+      raise ValueError('invalid boolean value')
 
   @property
   def pkgsfile(self):
