@@ -27,6 +27,11 @@ The following packages are needed for Spin to run:
 * syslinux
 * yum
 
+These additional packages are needed for downloading packages via RHN 
+
+* rhn-client-tools
+* rhnlib
+
 Note: Some of the packages (e.g. python-lxml) can be found in the Extra Packages
 for Enterprise Linux (EPEL) or Fedora Everything RPM repositories.
 
