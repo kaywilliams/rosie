@@ -19,7 +19,6 @@ from rendition import mkrpm
 from rendition import shlib
 
 from spin.callback  import GpgCallback
-from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 from spin.logging   import L1, L2
 
@@ -54,8 +53,7 @@ class GpgCheckEvent(Event):
     self.rpms = {}     # rpms to check
 
     for repo in self.cvars['repos'].values():
-      if self.cvars['rpms-by-repoid'].has_key(repo.id) and \
-         repo.gpgcheck in BOOLEANS_TRUE:
+      if self.cvars['rpms-by-repoid'].has_key(repo.id) and repo.gpgcheck:
         if repo.gpgkey:
           self.gpgkeys[repo.id] = repo.gpgkey
           self.rpms[repo.id] = self.cvars['rpms-by-repoid'][repo.id]
