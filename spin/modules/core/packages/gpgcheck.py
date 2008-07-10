@@ -27,14 +27,14 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['GpgCheckEvent'],
   description = 'gpgchecks pkglist RPMs',
-  group       = 'software',
+  group       = 'packages',
 )
 
 class GpgCheckEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'gpgcheck',
-      parentid = 'software',
+      parentid = 'packages',
       version = 1,
       requires = ['rpms-by-repoid', 'repos'],
     )

@@ -24,14 +24,14 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['CreaterepoEvent'],
   description = 'creates repository metadata for pkglist RPMS',
-  group       = 'software',
+  group       = 'packages',
 )
 
 class CreaterepoEvent(Event, CreaterepoMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'createrepo',
-      parentid = 'software',
+      parentid = 'packages',
       provides = ['rpms', 'rpms-directory', 'repodata-directory'],
       requires = ['cached-rpms'],
       conditionally_requires = ['comps-file', 'signed-rpms', 'gpgsign-public-key'],

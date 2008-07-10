@@ -32,7 +32,7 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PkglistEvent'],
   description = 'depsolves comps.xml to create a package list',
-  group       = 'software',
+  group       = 'packages',
 )
 
 YUMCONF_HEADER = [
@@ -62,7 +62,7 @@ class PkglistEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'pkglist',
-      parentid = 'software',
+      parentid = 'packages',
       provides = ['pkglist'],
       requires = ['required-packages', 'repos', 'user-required-packages'],
       conditionally_requires = ['pkglist-excluded-packages'],

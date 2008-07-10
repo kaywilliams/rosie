@@ -30,7 +30,7 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['GpgSetupEvent', 'GpgSignEvent'],
   description = 'gpgsigns pkglist RPMs',
-  group       = 'software',
+  group       = 'packages',
 )
 
 class GpgSetupEvent(Event):
@@ -66,7 +66,7 @@ class GpgSignEvent(GpgMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'gpgsign',
-      parentid = 'software',
+      parentid = 'packages',
       requires = ['cached-rpms', 'gpgsign-public-key',
                   'gpgsign-secret-key', 'gpgsign-passphrase'],
       conditionally_comes_after = ['gpgcheck'],

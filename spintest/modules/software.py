@@ -18,13 +18,13 @@
 from spintest      import EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite
 
-class SoftwareEventTestCase(EventTestCase):
-  moduleid = 'software'
-  eventid  = 'software'
+class PackagesEventTestCase(EventTestCase):
+  moduleid = 'packages'
+  eventid  = 'packages'
 
 def make_suite(distro, version, arch):
-  suite = ModuleTestSuite('software')
+  suite = ModuleTestSuite('packages')
 
-  suite.addTest(make_core_suite(SoftwareEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(PackagesEventTestCase, distro, version, arch))
 
   return suite

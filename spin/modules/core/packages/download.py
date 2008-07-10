@@ -28,14 +28,14 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['DownloadEvent'],
   description = 'downloads pkglist RPMs',
-  group       = 'software',
+  group       = 'packages',
 )
 
 class DownloadEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'download',
-      parentid = 'software',
+      parentid = 'packages',
       provides = ['cached-rpms', 'rpms-by-repoid'],
       requires = ['pkglist', 'repos'],
     )

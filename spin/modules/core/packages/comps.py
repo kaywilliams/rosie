@@ -25,14 +25,14 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['CompsEvent'],
   description = 'creates a comps.xml file',
-  group       = 'software',
+  group       = 'packages',
 )
 
 class CompsEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'comps',
-      parentid = 'software',
+      parentid = 'packages',
       provides = ['comps-file', 'required-packages', 'user-required-packages'],
       requires = ['anaconda-version', 'repos'],
       conditionally_requires = ['comps-included-packages', 'comps-excluded-packages'],

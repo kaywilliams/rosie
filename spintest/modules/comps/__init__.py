@@ -18,7 +18,7 @@
 from rendition import pps
 from rendition import rxml
 
-from spin.modules.core.software.comps import KERNELS
+from spin.modules.core.packages.comps import KERNELS
 
 from spintest      import EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite

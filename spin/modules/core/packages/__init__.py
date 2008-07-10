@@ -19,14 +19,14 @@ from spin.event import Event, CLASS_META
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['SoftwareMetaEvent'],
-  description = 'modules that create a software repository',
+  events      = ['PackagesMetaEvent'],
+  description = 'modules that create a package repository',
 )
 
-class SoftwareMetaEvent(Event):
+class PackagesMetaEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'software',
+      id = 'packages',
       parentid = 'os',
       properties = CLASS_META,
       provides = ['os-content'],
