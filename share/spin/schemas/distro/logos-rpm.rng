@@ -39,5 +39,5 @@
     </data>
   </define>
   <include href="lib.rng"/>
-  <include href="rpms.rng"/>
+  <include href="rpmbuild.rng"/>
 </grammar>

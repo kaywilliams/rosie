@@ -60,7 +60,7 @@
     </element>
   </start>
 
-  <include href="rpms.rng"/>
+  <include href="rpmbuild.rng"/>
   <include href="lib.rng"/>
 
 </grammar>
