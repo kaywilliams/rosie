@@ -64,7 +64,6 @@ class RpmBuildMixin:
                 quiet=(self.logger.threshold < 5))
 
     R.save_release()
-
     self.DATA['output'].append(R.rpm_path)
     self.DATA['output'].append(R.srpm_path)
 
@@ -146,9 +145,9 @@ class RpmBuildObject:
 
     # RPM build variables
     self.build_folder = self.ptr.mddir / 'build'
-    self.bdist_base   = self.ptr.mddir / 'rpm-base'
-    self.rpm_base     = self.bdist_base / 'rpm'
-    self.dist_dir     = self.bdist_base / 'dist'
+    self.bdist_base   = self.build_folder / 'rpm-base'
+    self.rpm_base     = self.build_folder / 'rpm'
+    self.dist_dir     = self.build_folder / 'dist'
 
   #------------- PROPERTIES --------------#
   @property
