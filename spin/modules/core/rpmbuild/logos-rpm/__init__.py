@@ -32,17 +32,17 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['LogosRpmEvent'],
   description = 'creates a logos RPM',
-  group       = 'rpms',
+  group       = 'rpmbuild',
 )
 
 class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'logos-rpm',
-      parentid = 'rpms',
+      parentid = 'rpmbuild',
       version = '0.1.2',
       requires = ['base-info', 'anaconda-version', 'logos-versions'],
-      provides = ['custom-rpms-data']
+      provides = ['rpmbuild-data']
     )
 
     RpmBuildMixin.__init__(self,

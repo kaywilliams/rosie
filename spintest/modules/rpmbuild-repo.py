@@ -15,21 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from spin.event import Event, CLASS_META
+from spintest      import EventTestCase, ModuleTestSuite
+from spintest.core import make_core_suite
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['RpmsEvent'],
-  description = 'modules that create distribution-specific RPMs',
-)
+class RpmbuildRepoTestCase(EventTestCase):
+  moduleid = 'rpmbuild-repo'
+  eventid  = 'rpmbuild-repo'
 
-class RpmsEvent(Event):
-  def __init__(self):
-    Event.__init__(self,
-      id = 'rpms',
-      parentid = 'os',
-      properties = CLASS_META,
-      suppress_run_message = True
-    )
+class Test_NoDefaults(RpmbuildRepoTestCase):
+  "defaults are not added to rpmbuild repo list"
+  def runTest(self):
+    self.failIf('base'       in self.event.repos)
+    self.failIf('everything' in self.event.repos)
+    self.failIf('updates'    in self.event.repos)
 
-    self.cvars['custom-rpms-data'] = {}
+def make_suite(distro, version, arch):
+  suite = ModuleTestSuite('rpmbuild-repo')
+
+  suite.addTest(make_core_suite(RpmbuildRepoTestCase, distro, version, arch))
+  suite.addTest(Test_NoDefaults(distro, version, arch))
+
+  return suite

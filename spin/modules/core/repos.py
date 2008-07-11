@@ -44,7 +44,7 @@ class ReposEvent(RepoEventMixin, Event):
                   'release-versions',
                   'repos',
                   'repos', 'installer-repo',
-                  'input-repos', # ugly solution to cycle in release-rpm, custom-repo
+                  'input-repos', # ugly solution to cycle in release-rpm, rpmbuild-repo
                   'comps-excluded-packages',
                   'pkglist-excluded-packages'],
       conditionally_requires = ['anaconda-version-supplied'],

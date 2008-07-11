@@ -31,16 +31,16 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['ConfigRpmEvent'],
   description = 'creates a configuration RPM',
-  group       = 'rpms',
+  group       = 'rpmbuild',
 )
 
 class ConfigRpmEvent(RpmBuildMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'config-rpm',
-      parentid = 'rpms',
+      parentid = 'rpmbuild',
       version = '0.96',
-      provides = ['custom-rpms-data'],
+      provides = ['rpmbuild-data'],
       requires = ['input-repos'],
       conditionally_requires = ['web-path', 'gpgsign-public-key'],
     )

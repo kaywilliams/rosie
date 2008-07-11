@@ -73,21 +73,21 @@ class RpmBuildMixin:
 
     R = self.rpm
 
-    custom_rpm_data = {}
+    rpmbuild_data = {}
 
-    custom_rpm_data['packagereq-default']  = R.packagereq_default
-    custom_rpm_data['packagereq-requires'] = R.packagereq_requires
-    custom_rpm_data['packagereq-type']     = R.packagereq_type
+    rpmbuild_data['packagereq-default']  = R.packagereq_default
+    rpmbuild_data['packagereq-requires'] = R.packagereq_requires
+    rpmbuild_data['packagereq-type']     = R.packagereq_type
 
-    custom_rpm_data['rpm-name']      = R.name
-    custom_rpm_data['rpm-obsoletes'] = R.obsoletes
-    custom_rpm_data['rpm-provides']  = R.provides
-    custom_rpm_data['rpm-requires']  = R.requires
+    rpmbuild_data['rpm-name']      = R.name
+    rpmbuild_data['rpm-obsoletes'] = R.obsoletes
+    rpmbuild_data['rpm-provides']  = R.provides
+    rpmbuild_data['rpm-requires']  = R.requires
 
-    custom_rpm_data['rpm-path']  = R.rpm_path
-    custom_rpm_data['srpm-path'] = R.srpm_path
+    rpmbuild_data['rpm-path']  = R.rpm_path
+    rpmbuild_data['srpm-path'] = R.srpm_path
 
-    self.cvars['custom-rpms-data'][self.id] = custom_rpm_data
+    self.cvars['rpmbuild-data'][self.id] = rpmbuild_data
 
   def verify_rpm_exists(self):
     "rpm exists"

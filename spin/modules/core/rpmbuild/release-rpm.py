@@ -26,17 +26,17 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['ReleaseRpmEvent'],
   description = 'creates a release RPM',
-  group       = 'rpms',
+  group       = 'rpmbuild',
 )
 
 class ReleaseRpmEvent(RpmBuildMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'release-rpm',
-      parentid = 'rpms',
+      parentid = 'rpmbuild',
       version = '0.91',
       requires = ['release-versions', 'input-repos'],
-      provides = ['custom-rpms-data'],
+      provides = ['rpmbuild-data'],
     )
 
     RpmBuildMixin.__init__(self,
@@ -67,6 +67,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
     }
 
   def setup(self):
+
     obsoletes = [ '%s %s %s' % (n,e,v)
                   for n,e,v in self.cvars.get('release-versions', [])]
     provides  = [ '%s %s %s' % (n,e,v)
@@ -92,7 +93,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
           self.io.add_fpath(path, self.filetypes['eulapy'])
           found = True; break
       if not found:
-        raise RuntimeError("release/eula.py not found in %s" % self.SHARE_DIRS)
+        raise RuntimeError("release/eula.py not found in %s" % ', '.join(self.SHARE_DIRS))
 
   def generate(self):
     "Generate additional files."

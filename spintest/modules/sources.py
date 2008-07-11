@@ -30,7 +30,7 @@ class SourceEventTestCase(EventTestCase):
     top = EventTestCase._make_default_config(self)
 
     src = self._make_source_repos_config()
-    if src: top.append(src)
+    if src is not None: top.append(src)
 
     return top
 

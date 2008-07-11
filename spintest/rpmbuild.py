@@ -138,7 +138,7 @@ class RpmBuildMixinTestCase(object):
 
 class RpmCvarsTestCase(object):
   def check_cvars(self):
-    cvars = self.event.cvars['custom-rpms-data'][self.event.id]
+    cvars = self.event.cvars['rpmbuild-data'][self.event.id]
     self.failUnless(self.event.rpm.packagereq_default == cvars['packagereq-default'])
     self.failUnless(self.event.rpm.packagereq_requires == cvars['packagereq-requires'])
     self.failUnless(self.event.rpm.packagereq_type == cvars['packagereq-type'])

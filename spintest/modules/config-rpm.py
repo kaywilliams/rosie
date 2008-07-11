@@ -17,9 +17,9 @@
 #
 from rendition import pps
 
-from spintest      import BUILD_ROOT, EventTestCase, ModuleTestSuite
-from spintest.core import make_core_suite
-from spintest.rpms import RpmBuildMixinTestCase, RpmCvarsTestCase
+from spintest          import BUILD_ROOT, EventTestCase, ModuleTestSuite
+from spintest.core     import make_core_suite
+from spintest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
 
 class ConfigRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
   moduleid = 'config-rpm'

@@ -29,28 +29,28 @@ from rendition.repo.repo import RepoContainer
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['CustomRepoEvent'],
-  description = 'creates repository metadata distribution-specific RPMs',
-  group       = 'rpms',
+  events      = ['RpmbuildRepoEvent'],
+  description = 'creates repository metadata for rpmbuild RPMs',
+  group       = 'rpmbuild',
 )
 
-class CustomRepoEvent(Event):
+class RpmbuildRepoEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'custom-repo',
-      parentid = 'rpms',
+      id = 'rpmbuild-repo',
+      parentid = 'rpmbuild',
       version = 1,
-      conditionally_requires = ['custom-rpms-data'],
+      conditionally_requires = ['rpmbuild-data'],
       provides = ['repos', 'source-repos',
                   'comps-included-packages',
                   'comps-excluded-packages']
     )
 
-    self.cid =  'custom-repo'
-    self.csid = 'custom-repo-sources'
+    self.cid =  'rpmbuild-repo'
+    self.csid = 'rpmbuild-repo-sources'
 
-    self.CUSTOM_RPMS  = self.mddir/self.cid
-    self.CUSTOM_SRPMS = self.mddir/self.csid
+    self.RPMBUILD_RPMS  = self.mddir/self.cid
+    self.RPMBUILD_SRPMS = self.mddir/self.csid
 
     self.DATA = {
       'input':  [],
@@ -63,20 +63,20 @@ class CustomRepoEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    if self.cvars['custom-rpms-data']:
-      for id in self.cvars['custom-rpms-data'].keys():
-        self.io.add_fpath(self.cvars['custom-rpms-data'][id]['rpm-path'],
-                          self.CUSTOM_RPMS, id='custom-rpms')
-        self.io.add_fpath(self.cvars['custom-rpms-data'][id]['srpm-path'],
-                          self.CUSTOM_SRPMS, id='custom-rpms')
+    if self.cvars['rpmbuild-data']:
+      for id in self.cvars['rpmbuild-data'].keys():
+        self.io.add_fpath(self.cvars['rpmbuild-data'][id]['rpm-path'],
+                          self.RPMBUILD_RPMS, id='rpmbuild-rpms')
+        self.io.add_fpath(self.cvars['rpmbuild-data'][id]['srpm-path'],
+                          self.RPMBUILD_SRPMS, id='rpmbuild-srpms')
 
-      custom_rpms  = SpinRepoGroup(id=self.cid, name=self.cid,
-                                   baseurl=self.CUSTOM_RPMS, gpgcheck='no')
-      custom_srpms = SpinRepoGroup(id=self.csid, name=self.csid,
-                                   baseurl=self.CUSTOM_SRPMS)
+      rpmbuild_rpms  = SpinRepoGroup(id=self.cid, name=self.cid,
+                                   baseurl=self.RPMBUILD_RPMS, gpgcheck='no')
+      rpmbuild_srpms = SpinRepoGroup(id=self.csid, name=self.csid,
+                                   baseurl=self.RPMBUILD_SRPMS)
 
-      self._setup_repos('packages', updates = {self.cid:  custom_rpms,
-                                               self.csid: custom_srpms})
+      self._setup_repos('packages', updates = {self.cid:  rpmbuild_rpms,
+                                               self.csid: rpmbuild_srpms})
 
   def run(self):
     # remove previous output
@@ -84,14 +84,14 @@ class CustomRepoEvent(Event):
 
     # sync rpms
     self.log(1, L1("copying packages"))
-    if self.cvars['custom-rpms-data']:
-      self.io.sync_input(link=True, what='custom-rpms',
+    if self.cvars['rpmbuild-data']:
+      self.io.sync_input(link=True, what='rpmbuild-rpms',
                          text=self.log(4, L2("RPMS")))
-      self.io.sync_input(link=True, what='custom-srpms',
+      self.io.sync_input(link=True, what='rpmbuild-srpms',
                          text=self.log(4, L2("SRPMS")))
 
     self.log(1, L1("running createrepo"))
-    if self.cvars['custom-rpms-data']:
+    if self.cvars['rpmbuild-data']:
       for repo in self.repos.values():
         self.log(4, L2(repo.id))
         self._createrepo(repo.localurl)
@@ -104,7 +104,7 @@ class CustomRepoEvent(Event):
   def apply(self):
     self.io.clean_eventcache()
     self._populate()
-    if self.cvars['custom-rpms-data']:
+    if self.cvars['rpmbuild-data']:
       try:
         self.repos[self.cid].repocontent.read(self.repos[self.cid].pkgsfile)
       except Exception, e:
@@ -118,14 +118,14 @@ class CustomRepoEvent(Event):
 
   def verify_repodata(self):
     "repodata exists"
-    if self.cvars['custom-rpms']:
-      customrepo = self.repos[self.cid]
-      self.verifier.failUnlessExists(customrepo.url / customrepo.repomdfile)
-      self.verifier.failUnlessExists(customrepo.url / customrepo.datafiles['primary'])
-    if self.cvars['custom-srpms']:
-      customrepo = self.repos[self.csid]
-      self.verifier.failUnlessExists(customrepo.url / customrepo.repomdfile)
-      self.verifier.failUnlessExists(customrepo.url / customrepo.datafiles['primary'])
+    if self.cvars['rpmbuild-rpms']:
+      rpmbuildrepo = self.repos[self.cid]
+      self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.repomdfile)
+      self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.datafiles['primary'])
+    if self.cvars['rpmbuild-srpms']:
+      rpmbuildrepo = self.repos[self.csid]
+      self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.repomdfile)
+      self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.datafiles['primary'])
 
   #----- HELPER METHODS -----#
   def _createrepo(self, path):
@@ -136,14 +136,14 @@ class CustomRepoEvent(Event):
     os.chdir(cwd)
 
   def _populate(self):
-    if not self.cvars.has_key('custom-rpms-data'): return
+    if not self.cvars.has_key('rpmbuild-data'): return
 
-    for id in self.cvars['custom-rpms-data'].keys():
-      default   = self.cvars['custom-rpms-data'][id]['packagereq-default']
-      requires  = self.cvars['custom-rpms-data'][id]['packagereq-requires']
-      type      = self.cvars['custom-rpms-data'][id]['packagereq-type']
-      rpm_name  = self.cvars['custom-rpms-data'][id]['rpm-name']
-      obsoletes = self.cvars['custom-rpms-data'][id]['rpm-obsoletes']
+    for id in self.cvars['rpmbuild-data'].keys():
+      default   = self.cvars['rpmbuild-data'][id]['packagereq-default']
+      requires  = self.cvars['rpmbuild-data'][id]['packagereq-requires']
+      type      = self.cvars['rpmbuild-data'][id]['packagereq-type']
+      rpm_name  = self.cvars['rpmbuild-data'][id]['rpm-name']
+      obsoletes = self.cvars['rpmbuild-data'][id]['rpm-obsoletes']
       (self.cvars.setdefault('comps-included-packages', set())
          .add((rpm_name, type, requires, default)))
       if obsoletes:

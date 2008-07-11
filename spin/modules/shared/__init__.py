@@ -22,7 +22,7 @@ from spin.modules.shared.createrepo import *
 from spin.modules.shared.installer  import *
 from spin.modules.shared.idepsolver import *
 from spin.modules.shared.repos      import *
-from spin.modules.shared.rpms       import *
+from spin.modules.shared.rpmbuild   import *
 
 class ListCompareMixin:
   def __init__(self, lfn=None, rfn=None, bfn=None, cb=None):

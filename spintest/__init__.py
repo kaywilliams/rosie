@@ -40,7 +40,7 @@ class TestBuild(Build):
     Build.__init__(self, *args, **kwargs)
 
   def _get_config(self, options, arguments):
-    mcf = pps.path(options.mainconfigpath or '/etc/spin.conf')
+    mcf = pps.path(options.mainconfigpath or '/etc/spin/spin.conf')
     if mcf.exists():
       self.mainconfig = config.read(mcf)
     else:
