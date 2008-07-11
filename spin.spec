@@ -47,6 +47,7 @@ and run a Spin-managed distribution.
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root,-)
+%config(noreplace) %{_sysconfdir}/logrotate.d/spin
 %doc COPYING
 %doc ChangeLog
 %doc AUTHORS

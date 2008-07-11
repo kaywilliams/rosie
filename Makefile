@@ -3,21 +3,21 @@ SPECFILE := $(PKGNAME).spec
 VERSION := $(shell awk '/Version:/ { print $$2 }' $(SPECFILE))
 RELEASE := $(shell awk '/Release:/ { print $$2 }' $(SPECFILE) | sed -e 's|%{?dist}||g')
 
-DOCS = docsrc
+SUBDIRS = docsrc etc
 
 BUILDARGS =
 
-.PHONY: all clean depend docs build install tag changelog archive srpm bumpver
+.PHONY: all clean depend subdirs build install tag changelog archive srpm bumpver
 
 all: build
 
 clean:
 	@rm -rf build/
 
-depend: build docs
+depend: build subdirs
 
-docs:
-	for doc in $(DOCS); do make -C $$doc; done
+subdirs:
+	for dir in $(SUBDIRS); do make -C $$dir; done
 
 build:
 	python setup.py build
@@ -29,7 +29,9 @@ install:
 		exit 1; \
 	fi
 	python setup.py install -O1 --skip-build --root $(DESTDIR) --record=INSTALLED_FILES
-	for doc in $(DOCS); do make -C $$doc DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
+	for dir in $(SUBDIRS); do make -C $$dir DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
+	install -dm 755 $(DESTDIR)/etc/logrotate.d
+	install -pm 644 etc/logrotate.d/spin $(DESTDIR)/etc/logrotate.d/spin
 
 tag:
 	@hg tag -m "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)" $(PKGNAME)-$(VERSION)-$(RELEASE)
