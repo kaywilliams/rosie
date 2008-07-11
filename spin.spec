@@ -1,5 +1,5 @@
 Name:    spin
-Version: 0.0
+Version: 0.8.0
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
