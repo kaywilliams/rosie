@@ -16,16 +16,15 @@
 
   <repos>
     <!-- See www.centos.org for a list of public mirrors -->
-    <macro id="mirror">http://mirror.centos.org/centos</macro>
     <repo id="base">
       <name>CentOS-$releasever - Base</name>
-      <baseurl>%{mirror}/$releasever/os/$basearch/</baseurl>
-      <gpgkey>%{mirror}/$releasever/os/$basearch/RPM-GPG-KEY-CentOS-$releasever</gpgkey>
+      <baseurl>http://mirror.centos.org/centos/$releasever/os/$basearch/</baseurl>
+      <gpgkey>http://mirror.centos.org/centos/$releasever/os/$basearch/RPM-GPG-KEY-CentOS-$releasever</gpgkey>
     </repo>
     <repo id="updates">
       <name>CentOS-$releasever - Updates</name>
-      <baseurl>%{mirror}/$releasever/updates/$basearch/</baseurl>
-      <gpgkey>%{mirror}/$releasever/os/$basearch/RPM-GPG-KEY-CentOS-$releasever</gpgkey>
+      <baseurl>http://mirror.centos.org/centos/$releasever/updates/$basearch/</baseurl>
+      <gpgkey>http://mirror.centos.org/centos/$releasever/os/$basearch/RPM-GPG-KEY-CentOS-$releasever</gpgkey>
     </repo>
   </repos>
 
