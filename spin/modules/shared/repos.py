@@ -92,7 +92,9 @@ class SpinRepo(YumRepo):
     p = pps.path(p)
     try:
       if isinstance(p, pps.Path.rhn.RhnPath):
-        p._systemid = self.get('systemid')
+        p.systemid = pps.path(self.get('systemid'))
+        if p.systemid:
+          p.systemid = p.systemid.realpath()
       else:
         p = YumRepo._xform_uri(self, p)
     except (AttributeError):

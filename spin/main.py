@@ -263,6 +263,9 @@ class Build(object):
     self.mainconfig = mc
     self.distroconfig = dc
 
+    # change working dir to config dir so relative paths expand properly
+    os.chdir(dcp.dirname)
+
   def _compute_events(self, modules=None, events=None):
     """
     Compute the set of events contained in the list of modules and events
