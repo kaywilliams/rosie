@@ -64,14 +64,6 @@
     </choice>
   </define>
 
-  <define name="value-boolean-with-default">
-    <choice>
-      <ref name="value-boolean-true"/>
-      <ref name="value-boolean-false"/>
-      <ref name="value-default"/>
-    </choice>
-  </define>
-
   <define name="value-boolean-true">
     <data type="token">
       <param name="pattern">[Yy]es|[Tt]rue|[Oo]n|1</param>
@@ -81,12 +73,6 @@
   <define name="value-boolean-false">
     <data type="token">
       <param name="pattern">[Nn]o|[Ff]alse|[Oo]ff|0</param>
-    </data>
-  </define>
-
-  <define name="value-default">
-    <data type="token">
-      <param name="pattern">[Dd]efault</param>
     </data>
   </define>
 
