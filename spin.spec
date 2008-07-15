@@ -62,7 +62,7 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
-* Tue Jul 15 2008  - 0.8.2-1
+* Tue Jul 15 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.2-1
 - Tagged as spin-0.8.1-1 (kwilliams)
 - spin-0.8.1-1.noarch built. (kwilliams)
 
