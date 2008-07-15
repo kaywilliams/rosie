@@ -41,14 +41,8 @@ changelog:
 	@hg log --style changelog > ChangeLog
 
 archive:
-	@rm -f ChangeLog
-	@make changelog
-	@mkdir -p $(PKGNAME)-$(VERSION)/
-	@cp -f ChangeLog $(PKGNAME)-$(VERSION)/
 	@hg archive -t tar --prefix=$(PKGNAME)-$(VERSION) $(PKGNAME)-$(VERSION).tar
-	@tar --append -f $(PKGNAME)-$(VERSION).tar $(PKGNAME)-$(VERSION)
 	@gzip $(PKGNAME)-$(VERSION).tar
-	@rm -rf $(PKGNAME)-$(VERSION)
 
 srpm: archive
 	@rpmbuild $(BUILDARGS) -ts $(PKGNAME)-$(VERSION).tar.gz  || exit 1
@@ -66,3 +60,4 @@ bumpver:
 	mv $(SPECFILE).new $(SPECFILE); rm -f speclog; \
 	sed -i "s/Version: $(VERSION)/Version: $$NEWVERSION/" $(SPECFILE); \
 	sed -i "s/version = '$(VERSION)'/version = '"$$NEWVERSION"'/" setup.py
+	@make changelog
