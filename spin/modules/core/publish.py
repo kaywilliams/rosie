@@ -32,6 +32,9 @@ MODULE_INFO = dict(
   description = 'links distribution output to a publish location',
 )
 
+TYPE_DIR = pps.constants.TYPE_DIR
+TYPE_NOT_DIR = pps.constants.TYPE_NOT_DIR
+
 class PublishSetupEvent(Event):
   def __init__(self):
     Event.__init__(self,
@@ -103,22 +106,10 @@ class PublishEvent(Event):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
     self.log(1, L1("publishing to '%s'" % self.cvars['publish-path']))
 
-    # remove input diffs from output folder prior to sync since sync doesn't 
-    # (currently) support replacing newer timestamp files with older ones
-    for diff in self.diff.input.difference().keys():
-      for i in self.cvars['publish-content']:
-        if diff.startswith(i):
-          (self.cvars['publish-path'] / diff.relpathfrom(i.dirname)).rm(force=True)
-
     # using link w/strict rather than io.sync to remove files outside the mddir
     self.cvars['publish-path'].mkdirs()
     for path in self.cvars['publish-content']:
       self.link(path, self.cvars['publish-path'], strict=True)
-
-    # clean-up obsolete/extraneous item at the root publish dir
-    for path in self.cvars['publish-path'].findpaths(mindepth=1, maxdepth=1):
-      if path.basename not in [x.basename for x in self.cvars['publish-content']]:
-        path.rm(recursive=True, force=True)
 
     if self.cvars['selinux-enabled']:
       shlib.execute('chcon -R --type=httpd_sys_content_t %s' \
@@ -126,3 +117,16 @@ class PublishEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
+    expected = set(self.diff.output.oldoutput.keys())
+    existing = set(self.cvars['publish-path'].findpaths(
+                 mindepth=1, type=TYPE_NOT_DIR))
+
+    # delete files in publish path no longer needed
+    for path in existing.difference(expected):
+      path.rm()
+
+    # delete empty directories in publish path
+    for dir in [ d for d in
+                 self.cvars['publish-path'].findpaths(mindepth=1, type=TYPE_DIR)
+                 if not d.listdir(all=True) ]:
+      dir.removedirs()
