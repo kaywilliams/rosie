@@ -17,8 +17,6 @@
 #
 from rendition import pps
 
-from rendition.rxml.macros import Macro
-
 class BootConfigMixin(object):
   def __init__(self):
     self.bootconfig = BootConfigDummy(self)
