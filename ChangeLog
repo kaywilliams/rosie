@@ -1,3 +1,33 @@
+2008-07-15  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* Makefile:
+	ChangeLog updated as part of `make bumpver'
+	[5b67ae96f5e2] [tip]
+
+	* .hgtags, ChangeLog, setup.py, spin.spec:
+	Reverted to 0.8.2-1
+	[645eb1934ff4]
+
+	* .hgtags:
+	Tagged as spin-0.8.3-1
+	[561501abdb33]
+
+2008-07-15  spinmaster  <spinmaster>
+
+	* ChangeLog:
+	Built package spin-0.8.3-1.noarch.
+	[4080f646a30a]
+
+	* setup.py, spin.spec:
+	Bumped version to spin-0.8.3-1.noarch.
+	[b7827b296f29]
+
+2008-07-15  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin.spec:
+	Adding user name and email address to changelog.
+	[f7427fbe4ed6]
+
 2008-07-15  root  <root@localhost.localdomain>
 
 	* .hgtags:
