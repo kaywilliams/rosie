@@ -1,8 +1,20 @@
+2008-07-15  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.3-1
+	[108fc163c298] [tip]
+
+2008-07-15  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.3-1.noarch.
+	[d23175dd6d34] [spin-0.8.3-1]
+
 2008-07-15  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* Makefile:
 	ChangeLog updated as part of `make bumpver'
-	[5b67ae96f5e2] [tip]
+	[5b67ae96f5e2]
 
 	* .hgtags, ChangeLog, setup.py, spin.spec:
 	Reverted to 0.8.2-1

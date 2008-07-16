@@ -1,5 +1,5 @@
 Name:    spin
-Version: 0.8.3
+Version: 0.8.4
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
@@ -62,6 +62,10 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Tue Jul 15 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.4-1
+- Tagged as spin-0.8.3-1 (kwilliams)
+- Bumped version to spin-0.8.3-1.noarch. (spinmaster)
+
 * Tue Jul 15 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.3-1
 - ChangeLog updated as part of `make bumpver' (uprakash)
 - Reverted to 0.8.2-1 (uprakash)
