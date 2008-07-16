@@ -19,7 +19,7 @@ from rendition import rxml
 
 from spin.event     import Event
 from spin.logging   import L1
-from spin.constants import BOOLEANS_TRUE, KERNELS
+from spin.constants import KERNELS
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -51,7 +51,7 @@ class CompsEvent(Event):
     self.diff.setup(self.DATA)
 
     self.include_localizations = \
-      self.config.get('@include-localized-strings', 'False') in BOOLEANS_TRUE
+      self.config.getbool('@include-localized-strings', 'False')
 
     self.comps_supplied = self.config.get('text()', False)
 

@@ -17,7 +17,6 @@
 #
 from rendition import pps
 
-from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 
 from spin.modules.shared import RpmBuildMixin
@@ -83,8 +82,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
     self.io.add_xpath('files', self.filetypes['release'])
 
     # eulapy file
-    if ( self.config.get('eula/@include-in-firstboot', 'True')
-           in BOOLEANS_TRUE and
+    if ( self.config.getbool('eula/@include-in-firstboot', 'True') and
          self.config.pathexists('eula') ):
       found = False
       for path in self.SHARE_DIRS:

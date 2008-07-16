@@ -251,5 +251,16 @@ class DummyConfig(object):
     if not path.startswith('/'): return False
     return self.config.pathexists(path)
 
+  def getbool(self, path, fallback=rxml.tree.NoneObject()):
+    return rxml.config._make_boolean(self.get(path, fallback=fallback))
+
+  def getbools(self, path, fallback=rxml.tree.NoneObject()):
+    return [ rxml.config._make_boolean(x) for x in self.xpath(path, fallback=fallback) ]
+
+  def getpath(self, path, fallback=rxml.tree.NoneObject()):
+    return rxml.config._make_path(self.get(path, fallback=fallback))
+
+  def getpaths(self, path, fallback=rxml.tree.NoneObject()):
+    return [ rxml.config._make_path(x) for x in self.xpath(path, fallback=fallback) ]
 
 from spin.main import DEBUG # imported here to avoid circular ref

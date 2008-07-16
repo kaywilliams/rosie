@@ -26,7 +26,6 @@ from rendition import magic
 from rendition import pps
 from rendition import sync
 
-from spin.constants import BOOLEANS_TRUE
 from spin.logging   import L1
 
 __all__ = ['ExtractMixin', 'ImageModifyMixin', 'FileDownloadMixin',

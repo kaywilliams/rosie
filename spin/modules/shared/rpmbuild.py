@@ -24,7 +24,6 @@ from rendition import mkrpm
 from rendition import pps
 from rendition import rxml
 
-from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 from spin.logging   import L1
 
@@ -134,7 +133,7 @@ class RpmBuildObject:
     self.requires  = requires  or []
     self.provides  = provides  or []
 
-    if self.ptr.config.get('@use-default-set', 'True') not in BOOLEANS_TRUE:
+    if not self.ptr.config.getbool('@use-default-set', 'True'):
       self.obsoletes = []
 
     self.packagereq_type     = packagereq_type

@@ -20,10 +20,9 @@ from rendition import shlib
 
 from spin import splittree
 
-from spin.callback    import BuildDepsolveCallback
-from spin.constants   import BOOLEANS_TRUE
-from spin.event       import Event, CLASS_META
-from spin.logging     import L1, L2, L3
+from spin.callback import BuildDepsolveCallback
+from spin.event    import Event, CLASS_META
+from spin.logging  import L1, L2, L3
 
 from spin.modules.shared import ListCompareMixin, BootConfigMixin
 

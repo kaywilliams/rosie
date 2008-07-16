@@ -30,7 +30,6 @@ from rendition import pps
 from rendition import rxml
 from rendition import versort
 
-from spin.constants import BOOLEANS_TRUE
 from spin.validate  import BaseConfigValidator
 
 import config
@@ -89,7 +88,7 @@ class FilesHandlerObject(object):
     return self._files
 
   def setup(self):
-    self.write_text   = self.ptr.config.get('write-text/text()', 'True') in BOOLEANS_TRUE
+    self.write_text   = self.ptr.config.getbool('write-text', 'True')
     required_window   = self.ptr.config.get('include-xwindows-art/text()', 'all').lower()
     self.xwindow_type = XWINDOW_MAPPING[required_window]
 

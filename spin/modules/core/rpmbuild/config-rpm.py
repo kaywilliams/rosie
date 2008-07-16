@@ -19,7 +19,6 @@ from StringIO import StringIO
 
 from rendition import pps
 
-from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 from spin.validate  import InvalidConfigError
 
@@ -119,7 +118,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     lines = []
 
     # include a repo pointing to the published distro
-    if self.config.get('repofile/@distro', 'True') in BOOLEANS_TRUE:
+    if self.config.getbool('repofile/@distro', 'True'):
       lines.extend([ '[%s]' % self.name,
                      'name      = %s - %s' % (self.fullname, self.basearch),
                      'baseurl   = %s' % (self.cvars['web-path']/'os') ])

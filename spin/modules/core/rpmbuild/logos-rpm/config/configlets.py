@@ -18,8 +18,6 @@
 from rendition import pps
 from rendition import versort
 
-from spin.constants import BOOLEANS_TRUE
-
 class Configlet(dict):
   def __init__(self, element, parent_dir, precedence, **kwargs):
     self.element    = element
@@ -62,7 +60,7 @@ class CopyConfiglet(Configlet):
 
 class RemoveConfiglet(Configlet):
   def __init__(self, element, parent_dir, precedence, **kwargs):
-    kwargs.update({'remove': element.get('remove/text()', 'False') in BOOLEANS_TRUE})
+    kwargs.update({'remove': element.getbool('remove', 'False')})
     Configlet.__init__(self, element, parent_dir, precedence, **kwargs)
 
 class CreateImageConfiglet(ImageConfiglet):

@@ -71,8 +71,8 @@ class SourceReposEvent(Event, RepoEventMixin):
     updates = RepoContainer()
     if self.config.pathexists('.'):
       updates.add_repos(ReposFromXml(self.config.get('.'), cls=SpinRepoGroup))
-    for filexml in self.config.xpath('repofile', []):
-      updates.add_repos(ReposFromFile(self._config.file.dirname/filexml.text,
+    for filexml in self.config.xpath('repofile/text()', []):
+      updates.add_repos(ReposFromFile(self._config.file.dirname/filexml,
                                       cls=SpinRepoGroup))
 
     self.setup_repos(updates)

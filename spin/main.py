@@ -122,8 +122,8 @@ class Build(object):
 
     # set up real logger - console and file
     logfile = pps.path(options.logfile
-              or self.distroconfig.get('/distro/main/log-file/text()', None)
-              or self.mainconfig.get('/spin/log-file/text()', None)
+              or self.distroconfig.getpath('/distro/main/log-file', None)
+              or self.mainconfig.getpath('/spin/log-file', None)
               or DEFAULT_LOG_FILE).expand().abspath()
     if logfile.isdir():
       raise RuntimeError("Cannot open '%s' for writing; is a directory" % logfile)
@@ -313,8 +313,8 @@ class Build(object):
     options    : an optparse.Values instance containing the result of parsing
                  command line options
     """
-    import_dirs = [ pps.path(x).expand().abspath() for x in \
-      self.mainconfig.xpath('/spin/lib-path/text()', []) ]
+    import_dirs = [ x.expand().abspath() for x in \
+      self.mainconfig.getpaths('/spin/lib-path', []) ]
 
     if options.libpath:
       import_dirs = [ pps.path(x).expand().abspath() for x in options.libpath ] + import_dirs
@@ -338,7 +338,7 @@ class Build(object):
     # enable/disable modules from distro config
     for module in self.distroconfig.xpath('/distro/*'):
       if module.tag == 'main': continue # main isn't a module
-      if module.get('@enabled', 'True') in BOOLEANS_FALSE:
+      if not module.getbool('@enabled', 'True'):
         disabled.add(module.tag)
       else:
         enabled.add(module.tag)
@@ -431,14 +431,14 @@ class Build(object):
           % (di[check], check))
 
     # set up other directories
-    Event.CACHE_DIR    = pps.path(self.mainconfig.get('/spin/cache/path/text()',
-                                                      DEFAULT_CACHE_DIR)).expand().abspath()
+    Event.CACHE_DIR    = self.mainconfig.getpath('/spin/cache/path',
+                           DEFAULT_CACHE_DIR).expand().abspath()
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
     Event.METADATA_DIR = Event.CACHE_DIR  / di['distroid']
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
-    sharedirs.extend(reversed([ pps.path(x).expand().abspath()
-      for x in self.mainconfig.xpath('/spin/share-path/text()', []) ]))
+    sharedirs.extend(reversed([ x.expand().abspath()
+      for x in self.mainconfig.getpaths('/spin/share-path', []) ]))
     sharedirs.extend(reversed([ pps.path(x).expand().abspath()
       for x in options.sharepath ]))
 

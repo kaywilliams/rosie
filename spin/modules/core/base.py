@@ -25,7 +25,6 @@ from rendition import img
 from rendition import repo
 from rendition import versort
 
-from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 from spin.logging   import L1
 

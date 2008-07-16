@@ -20,7 +20,6 @@ import re
 from rendition.repo    import ReposFromXml, ReposFromFile, RepoContainer
 from rendition.versort import Version
 
-from spin.constants import BOOLEANS_FALSE
 from spin.event     import Event
 from spin.logging   import L1, L2
 from spin.validate  import InvalidConfigError
@@ -72,8 +71,8 @@ class ReposEvent(RepoEventMixin, Event):
     if self.config.pathexists('.'):
       updates.add_repos(
         ReposFromXml(self.config.get('.'), cls=SpinRepoGroup))
-    for filexml in self.config.xpath('repofile', []):
-      updates.add_repos(ReposFromFile(self._config.file.dirname/filexml.text,
+    for filexml in self.config.xpath('repofile/text()', []):
+      updates.add_repos(ReposFromFile(self._config.file.dirname/filexml,
                                       cls=SpinRepoGroup))
 
     self.setup_repos(updates)

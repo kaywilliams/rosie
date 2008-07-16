@@ -20,7 +20,6 @@ import gzip
 from rendition import listfmt
 from rendition import shlib
 
-from spin.constants import BOOLEANS_TRUE
 from spin.event     import Event
 from spin.locals    import L_LOGOS_RPM_DISTRO_INFO
 

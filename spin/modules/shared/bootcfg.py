@@ -19,8 +19,6 @@ from rendition import pps
 
 from rendition.rxml.macros import Macro
 
-from spin.constants import BOOLEANS_TRUE
-
 class BootConfigMixin(object):
   def __init__(self):
     self.bootconfig = BootConfigDummy(self)
@@ -42,7 +40,7 @@ class BootConfigDummy(object):
     for karg in args:
       self._macros['%%{%s}' % karg.split('=')[0]] = karg
 
-    if self.ptr.config.get('boot-config/@use-defaults', 'True') in BOOLEANS_TRUE:
+    if self.ptr.config.getbool('boot-config/@use-defaults', 'True'):
       self.boot_args.extend(args)
 
     if self.ptr.cvars['boot-args']:
@@ -56,8 +54,8 @@ class BootConfigDummy(object):
 
     boot_args = [ self._expand_macros(x) for x in self.boot_args ]
 
-    config = pps.path(self.ptr.config.get('boot-config/file/text()',
-               cfgfile or self.ptr.cvars['boot-config-file']))
+    config = self.ptr.config.getpath('boot-config/file',
+               cfgfile or self.ptr.cvars['boot-config-file'])
     lines = config.read_lines()
     _label = False # have we seen a label line yet?
 

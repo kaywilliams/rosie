@@ -22,7 +22,6 @@ import struct
 from rendition import pps
 from rendition import shlib
 
-from spin.constants import *
 from spin.event     import Event
 from spin.logging   import L1
 
@@ -53,12 +52,11 @@ class PublishSetupEvent(Event):
     self.diff.setup(self.DATA)
 
     prefix = \
-      pps.path(self.config.get('path-prefix/text()', 'distros')) / self.distroid
+      self.config.getpath('path-prefix', 'distros') / self.distroid
     self.web_path = \
-      pps.path(self.config.get('remote-webroot/text()',
-                               'http://' + self._get_host())) / prefix
+      self.config.getpath('remote-webroot', self._get_host()) / prefix
     self.publish_path = \
-      pps.path(self.config.get('local-webroot/text()', '/var/www/html')) / prefix
+      self.config.getpath('local-webroot', '/var/www/html') / prefix
 
   def apply(self):
     self.cvars['publish-content'] = set()
@@ -66,14 +64,13 @@ class PublishSetupEvent(Event):
     self.cvars['web-path'] = self.web_path
 
   def _get_host(self, ifname='eth0'):
-    if self.config.get('remote-webroot/@use-hostname', 'False') in BOOLEANS_TRUE:
-      return socket.gethostname()
+    if self.config.getbool('remote-webroot/@use-hostname', 'False'):
+      return 'http://'+socket.gethostname()
     else:
       # TODO - improve this, it's not particularly accurate in some cases
       s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-      return socket.inet_ntoa(fcntl.ioctl(s.fileno(),
-                                          0x8915,
-                                          struct.pack('256s', ifname[:15]))[20:24])
+      return 'http://'+socket.inet_ntoa(
+        fcntl.ioctl(s.fileno(), 0x8915, struct.pack('256s', ifname[:15]))[20:24])
 
 
 class PublishEvent(Event):

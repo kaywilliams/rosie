@@ -27,24 +27,46 @@ NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
 class BaseConfigValidator:
   def __init__(self, schema_paths, config_path):
     self.schema_paths = schema_paths
-    self.config = rxml.tree.read(config_path, xincluder=rxml.xinclude.MacroXInclude())
+    self.config = rxml.tree.read(config_path)
     self.elements = []
 
     self.curr_schema = None
 
   def validate(self, xpath_query, schema_file=None, schema_contents=None):
     if schema_file and schema_contents:
-      raise IOError("The 'schema_file' and the 'schema_contents' parameters "\
-                    "are mutually exclusive.")
+      raise AttributeError("'schema_file' and 'schema_contents' "
+                           "are mutually exclusive.")
     if schema_file is None and schema_contents is None:
-      raise IOError("Either the 'schema_file' or the 'schema_contents' parameter "\
-                    "should be provided.")
+      raise AttributeError("Either 'schema_file' or 'schema_contents' "
+                           "must be provided.")
     self.elements.append(xpath_query.lstrip('/'))
-    tree = self.config.get(xpath_query)
+    tree = self._scrub_tree(self.config.get(xpath_query))
     if schema_contents:
       self.validate_with_string(schema_contents, tree, self.elements[-1])
     else:
       self.validate_with_file(schema_file, tree, self.elements[-1])
+
+  def _scrub_tree(self, tree):
+    if tree is None: return
+
+    xmlbase = '{http://www.w3.org/XML/1998/namespace}base'
+
+    def remove_xmlbase(t):
+      if t.attrib.has_key(xmlbase):
+        del t.attrib[xmlbase]
+
+    def remove_macros(t):
+      for macro in t.xpath('macro'):
+        macro.getparent().remove(macro)
+
+    # copy and remove xml:base attributes from tree
+    tree = copy.deepcopy(tree)
+    remove_xmlbase(tree)
+    remove_macros(tree)
+    for c in tree.iterdescendants():
+      remove_xmlbase(c)
+      remove_macros(c)
+    return tree
 
   def validate_with_string(self, schema_contents, tree, tag):
     schema = etree.fromstring(schema_contents, base_url=self.config.file.dirname)
@@ -109,12 +131,11 @@ class BaseConfigValidator:
                                  "Missing required element: '%s'" % tag)
 
 class MainConfigValidator(BaseConfigValidator):
-  def __init__(self, schema_paths, config_path):
-    BaseConfigValidator.__init__(self, schema_paths, config_path)
+  pass
 
 class ConfigValidator(BaseConfigValidator):
   def __init__(self, schema_paths, config_path):
-    config = rxml.tree.read(config_path, xincluder=rxml.xinclude.MacroXInclude())
+    config = rxml.tree.read(config_path)
     BaseConfigValidator.__init__(self, schema_paths, config_path)
 
   def verify_elements(self, disabled):

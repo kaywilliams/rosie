@@ -22,7 +22,7 @@ from rendition.mkrpm       import GpgMixin
 from rendition.progressbar import ProgressBar
 
 from spin.callback  import GpgCallback, SyncCallback, LAYOUT_GPG
-from spin.constants import BOOLEANS_TRUE, RPM_REGEX
+from spin.constants import RPM_REGEX
 from spin.event     import Event
 from spin.logging   import L1, L2
 
@@ -45,16 +45,9 @@ class GpgSetupEvent(Event):
     )
 
   def apply(self):
-    pubkey = self.config.get('public-key/text()', None)
-    if pubkey: self.cvars['gpgsign-public-key'] = pps.path(pubkey)
-
-    seckey = self.config.get('secret-key/text()', None)
-    if seckey: self.cvars['gpgsign-secret-key'] = pps.path(seckey)
-
-    if self.config.pathexists('passphrase'):
-      pw = self.config.get('passphrase/text()', '')
-      if pw is None: pw = '' # config.get returns None if empty
-      self.cvars['gpgsign-passphrase'] = pw
+    self.cvars['gpgsign-public-key'] = self.config.getpath('public-key', None)
+    self.cvars['gpgsign-secret-key'] = self.config.getpath('secret-key', None)
+    self.cvars['gpgsign-passphrase'] = self.config.get('passphrase/text()', None) or ''
 
   def verify_cvars(self):
     "public and secret key cvars defined"

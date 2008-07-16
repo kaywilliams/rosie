@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from spin.constants import BOOLEANS_TRUE, SRPM_REGEX
+from spin.constants import SRPM_REGEX
 from spin.event     import Event
 
 from spin.modules.shared import ExtractMixin, RpmNotFoundError
@@ -69,7 +69,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
 
   def _generate(self, working_dir):
     rtn = []
-    if self.config.get('@use-default-set', 'True') in BOOLEANS_TRUE:
+    if self.config.getbool('@use-default-set', 'True'):
       for item in DEFAULT_SET:
         for file in working_dir.findpaths(glob=item):
           self.link(file, self.SOFTWARE_STORE)
