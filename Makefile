@@ -30,8 +30,6 @@ install:
 	fi
 	python setup.py install -O1 --skip-build --root $(DESTDIR) --record=INSTALLED_FILES
 	for dir in $(SUBDIRS); do make -C $$dir DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
-	install -dm 755 $(DESTDIR)/etc/logrotate.d
-	install -pm 644 etc/logrotate.d/spin $(DESTDIR)/etc/logrotate.d/spin
 
 tag:
 	@hg tag -m "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)" $(PKGNAME)-$(VERSION)-$(RELEASE)
