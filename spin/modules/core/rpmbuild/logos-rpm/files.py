@@ -68,20 +68,32 @@ class FilesHandlerObject(object):
     if self._files: return self._files
     distroid = self.ptr.distro_info['distroid']
     c = config.ConfigletContainer()
+
+    toread = set()
     for path in self.ptr.SHARE_DIRS:
       cpath = path / 'logos-rpm/%s.xml' % distroid
       if not cpath.exists():
         cpath = path / 'logos-rpm/default.xml'
         if not cpath.exists():
           continue
-      tree = rxml.config.read(cpath)
-      self.validate_tree(tree)
-      c.from_xml(tree)
+      toread.add(cpath)
+
+      for extra_path in path.findpaths(glob='*.pth'):
+        for p in extra_path.read_lines():
+          ep = pps.path(p) / '%s.xml' % distroid
+          if not ep.exists():
+            continue
+          toread.add(ep)
+
     supplied = self.ptr.config.get('logos-path/text()', None)
     if supplied is not None:
-      tree = rxml.config.read(supplied)
+      toread.add(supplied)
+
+    for p in toread:
+      tree = rxml.config.read(p)
       self.validate_tree(tree)
       c.from_xml(tree)
+
     # get all the files, after reading all the config files, for the highest
     # precedence.
     self._files = c[self.ptr.locals.anaconda_ver]
