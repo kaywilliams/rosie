@@ -72,18 +72,18 @@ class FilesHandlerObject(object):
     toread = set()
     for path in self.ptr.SHARE_DIRS:
       cpath = path / 'logos-rpm/%s.xml' % distroid
-      if not cpath.exists():
+      if cpath.exists():
+        toread.add(cpath)
+      else:
         cpath = path / 'logos-rpm/default.xml'
-        if not cpath.exists():
-          continue
-      toread.add(cpath)
+        if cpath.exists():
+          toread.add(cpath)
 
       for extra_path in path.findpaths(glob='*.pth'):
         for p in extra_path.read_lines():
-          ep = pps.path(p) / '%s.xml' % distroid
-          if not ep.exists():
-            continue
-          toread.add(ep)
+          ec = pps.path(p) / '%s.xml' % distroid
+          if ec.exists():
+            toread.add(ec)
 
     supplied = self.ptr.config.get('logos-path/text()', None)
     if supplied is not None:
