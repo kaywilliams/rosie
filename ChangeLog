@@ -1,8 +1,138 @@
+2008-07-16  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* share/spin/schemas/distro/config-rpm.rng, spin/event/fileio.py,
+	spin/modules/core/rpmbuild/config-rpm.py:
+	Changed dest to destdir and filename and destname in config-rpm.
+	[457f2172992a] [tip]
+
+	* share/spin/schemas/distro/lib.rng, spin/event/fileio.py:
+	Renamed <path/> element attributes.
+
+	The "dest" attribute is now calle "destdir". The "filename"
+	attribute is now called "destname".
+	[1408d65d4488]
+
+	* spin.spec:
+	Spin now owns /usr/share/spin.
+	[d1d3ec8ee6aa]
+
+	* spin/modules/core/rpmbuild/logos-rpm/files.py:
+	You can now have files with extension .pth in <share>/logos-rpm.
+
+	These *.pth files point to other folders that have config files that
+	the logos-rpm event can use. With this change, it is possible for
+	spin-logos-rpm to install files to /usr/share/spin-logos-rpm, and it
+	also installs a spin-logos-rpm.pth file in /usr/share/spin/logos-
+	rpm. The spin-logos-rpm.pth file points to /usr/share/spin-logos-
+	rpm.
+	[152165b45f58]
+
+	* spin.spec:
+	Spin doesn't require spin-logos-rpm. It is optional.
+	[78b7032ddb8a]
+
+	* Makefile, setup.py, spin.spec:
+	Not relying on INSTALLED_FILES; using globs in %files in spec file.
+	[d60966272b61]
+
+	* spin/modules/extensions/rpmbuild/__init__.py:
+	Removing empty extensions/rpmbuild folder.
+	[152dccbdbf78]
+
+	* spin.spec:
+	Removing dependency on 'python-devel'.
+
+	`rpmlint' raises an error if a non-devel package has a devel-package
+	dependency. The 'python-setuptools' package requires 'python-devel',
+	thereby making the requirement of 'python-devel' redundant.
+	[213223b0e7f9]
+
+	* Makefile:
+	Was re-installing /etc/* files.
+	[4978b892e64a]
+
+	* spin/modules/shared/createrepo.py:
+	execlib --> shlib.
+	[81d242c43bcb]
+
+2008-07-16  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/shared/bootcfg.py:
+	removed erroneous Macro import
+	[11014d43ce04]
+
+	* spin/event/__init__.py, spin/main.py, spin/modules/core/base.py,
+	spin/modules/core/installer/release-files.py,
+	spin/modules/core/packages/comps.py, spin/modules/core/publish.py,
+	spin/modules/core/repos.py, spin/modules/core/rpmbuild/config-
+	rpm.py, spin/modules/core/rpmbuild/logos-rpm/__init__.py,
+	spin/modules/core/rpmbuild/logos-rpm/config/configlets.py,
+	spin/modules/core/rpmbuild/logos-rpm/files.py,
+	spin/modules/core/rpmbuild/release-rpm.py,
+	spin/modules/extensions/iso.py,
+	spin/modules/extensions/packages/gpgsign.py,
+	spin/modules/extensions/sources.py, spin/modules/shared/bootcfg.py,
+	spin/modules/shared/installer.py, spin/modules/shared/rpmbuild.py,
+	spin/validate.py, spintest/__init__.py:
+	applied .getbool() and .getpath() to spin config
+
+	spin/*.py
+	 * updated all Event.config.get(..., [fallback]) in
+	BOOLEANS_[TRUE|FALSE] to use the new Event.config.getbool(...,
+	[fallback]) syntax
+	 * updated all pps.path(Event.config.get(..., [fallback]) to use the
+	new Event.config.getpath(..., [fallback]) syntax
+	 * all queries to .getbool() and .getpath(), above, no longer include
+	'/text()' spin/event/__init__.py
+	 * added DummyConfig.getbool(), DummyConfig.getbools(),
+	DummyConfig.getpath(), and DummyConfig.getpaths() to mirror the
+	API of XmlConfigElements spin/modules/core/publish.py
+	 * modified PublishEvent._get_host() to automatically prepend 'http://'
+	to its return value; adjusted other code accordingly
+	spin/modules/extensions/packages/gpgsign.py
+	 * greatly simplified gpgsign's cvar setup code spin/validate.py
+	 * validate() now raises an AttributeError instead of an IOError when
+	both 'schema_file' and 'schema_contents' are passed
+	 * added ._scrub_tree(), a method that removes xml:base and <macro>
+	from the tree prior to validation spintest/__init__.py
+	 * spintest now looks for its configuration in /etc/spin/spintest.conf
+	rather than /etc/spin/spin.conf
+	[e39a210c1176]
+
+2008-07-15  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* merged with head.
+	[3d9c8b3ffd62]
+
+	* spin/modules/core/publish.py:
+	The 'publish' event cleans up files and directories in output
+	folder.
+
+	The output folder of the publish event is not its metadata
+	directory, but the publish directory. Therefore,
+	IOMixin.clean_eventcache() doesn't remove extraneous files and
+	directories in the publish directory. Now in PublishEvent.apply() we
+	remove all the files and directories in the publish directory that
+	shouldn't be there.
+	[82f54a78aade]
+
+2008-07-15  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.4-1
+	[a99a46de7a54]
+
+2008-07-15  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.4-1.noarch.
+	[57c532774f5b] [spin-0.8.4-1]
+
 2008-07-15  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* .hgtags:
 	Tagged as spin-0.8.3-1
-	[108fc163c298] [tip]
+	[108fc163c298]
 
 2008-07-15  spinmaster  <spinmaster>
 

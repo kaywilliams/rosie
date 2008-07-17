@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.4
+Version: 0.8.5
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
@@ -95,6 +95,24 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Wed Jul 16 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.5-1
+- Changed dest to destdir and filename and destname in config-rpm. (uprakash)
+- Renamed <path/> element attributes. (uprakash)
+- Spin now owns /usr/share/spin. (uprakash)
+- You can now have files with extension .pth in <share>/logos-rpm. (uprakash)
+- Spin doesn't require spin-logos-rpm. It is optional. (uprakash)
+- Not relying on INSTALLED_FILES; using globs in %files in spec file. (uprakash)
+- Removing empty extensions/rpmbuild folder. (uprakash)
+- Removing dependency on 'python-devel'. (uprakash)
+- Was re-installing /etc/* files. (uprakash)
+- execlib --> shlib. (uprakash)
+- removed erroneous Macro import (dmusgrave)
+- applied .getbool(dmusgrave)
+- merged with head. (uprakash)
+- The 'publish' event cleans up files and directories in output folder. (uprakash)
+- Tagged as spin-0.8.4-1 (kwilliams)
+- Bumped version to spin-0.8.4-1.noarch. (spinmaster)
+
 * Tue Jul 15 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.4-1
 - Tagged as spin-0.8.3-1 (kwilliams)
 - Bumped version to spin-0.8.3-1.noarch. (spinmaster)
