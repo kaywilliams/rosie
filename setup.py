@@ -33,7 +33,6 @@ def get_data_files(directory):
         all_results.append((directory, result))
     return all_results
 
-
 def get_packages(directory):
     "Return all packages in directory"
     all_results = [directory]

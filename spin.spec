@@ -1,3 +1,5 @@
+%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+
 Name:    spin
 Version: 0.8.4
 Release: 1%{?dist}
@@ -44,9 +46,39 @@ and run a Spin-managed distribution.
 %clean
 %{__rm} -rf %{buildroot}
 
-%files -f INSTALLED_FILES
+%files
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/logrotate.d/spin
+%dir %{python_sitelib}/spin
+%dir %{python_sitelib}/spin/event
+%dir %{python_sitelib}/spin/locals
+%dir %{python_sitelib}/spin/modules
+%dir %{python_sitelib}/spin/modules/core
+%dir %{python_sitelib}/spin/modules/core/installer
+%dir %{python_sitelib}/spin/modules/core/packages
+%dir %{python_sitelib}/spin/modules/core/rpmbuild
+%dir %{python_sitelib}/spin/modules/core/rpmbuild/logos-rpm
+%dir %{python_sitelib}/spin/modules/core/rpmbuild/logos-rpm/config
+%dir %{python_sitelib}/spin/modules/extensions
+%dir %{python_sitelib}/spin/modules/extensions/installer
+%dir %{python_sitelib}/spin/modules/extensions/packages
+%dir %{python_sitelib}/spin/modules/shared
+%{python_sitelib}/spin/*.py*
+%{python_sitelib}/spin/event/*.py*
+%{python_sitelib}/spin/locals/*.py*
+%{python_sitelib}/spin/modules/*.py*
+%{python_sitelib}/spin/modules/core/*.py*
+%{python_sitelib}/spin/modules/core/installer/*.py*
+%{python_sitelib}/spin/modules/core/packages/*.py*
+%{python_sitelib}/spin/modules/core/rpmbuild/*.py*
+%{python_sitelib}/spin/modules/core/rpmbuild/logos-rpm/*.py*
+%{python_sitelib}/spin/modules/core/rpmbuild/logos-rpm/config/*.py*
+%{python_sitelib}/spin/modules/extensions/*.py*
+%{python_sitelib}/spin/modules/extensions/installer/*.py*
+%{python_sitelib}/spin/modules/extensions/packages/*.py*
+%{python_sitelib}/spin/modules/shared/*.py*
+%{_bindir}/spin
+%{_datadir}/spin
 %doc COPYING
 %doc ChangeLog
 %doc AUTHORS
@@ -81,4 +113,3 @@ and run a Spin-managed distribution.
 
 * Mon Jul 14 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.1-1
 - Initial Build
-

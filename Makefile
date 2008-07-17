@@ -28,7 +28,7 @@ install:
 		echo "ERROR: A destdir is required"; \
 		exit 1; \
 	fi
-	python setup.py install -O1 --skip-build --root $(DESTDIR) --record=INSTALLED_FILES
+	python setup.py install -O1 --skip-build --root $(DESTDIR)
 	for dir in $(SUBDIRS); do make -C $$dir DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
 
 tag:
