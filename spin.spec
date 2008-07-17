@@ -25,7 +25,6 @@ Requires: python-lxml
 Requires: python-setuptools
 Requires: rendition-common
 Requires: rpm-build
-Requires: spin-logos-rpm
 Requires: syslinux
 Requires: yum
 
