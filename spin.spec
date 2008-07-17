@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.5
+Version: 0.8.6
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
@@ -95,6 +95,12 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Wed Jul 16 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.6-1
+- merged with trunk. (uprakash)
+- I lied, python-devel is required. (uprakash)
+- Tagged as spin-0.8.5-1 (kwilliams)
+- Bumped version to spin-0.8.5-1.noarch. (spinmaster)
+
 * Wed Jul 16 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.5-1
 - Changed dest to destdir and filename and destname in config-rpm. (uprakash)
 - Renamed <path/> element attributes. (uprakash)
