@@ -1,8 +1,26 @@
 2008-07-16  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* spin.spec:
+	Requiring python instead of python-devel.
+	[06a4c6e10829] [tip]
+
+2008-07-16  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.6-1
+	[2750157e1c5f]
+
+2008-07-16  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.6-1.noarch.
+	[5a20430e2949] [spin-0.8.6-1]
+
+2008-07-16  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin.spec:
 	merged with trunk.
-	[c371c3f948b1] [tip]
+	[c371c3f948b1]
 
 	* spin.spec:
 	I lied, python-devel is required.
