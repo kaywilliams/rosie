@@ -58,8 +58,8 @@ class Test_ReleaseFilesWithDefaultSet(_ReleaseFilesEventTestCase):
 class Test_ReleaseFilesWithInputFiles(_ReleaseFilesEventTestCase):
   _conf = """<release-files>
     <path>/tmp/outfile</path>
-    <path dest="/infiles">infile</path>
-    <path dest="/infiles">infile2</path>
+    <path destdir="/infiles">infile</path>
+    <path destdir="/infiles">infile2</path>
   </release-files>"""
 
 class Test_ReleaseFilesWithPackageElement(_ReleaseFilesEventTestCase):
