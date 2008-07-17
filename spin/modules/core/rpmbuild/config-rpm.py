@@ -65,11 +65,11 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
 
   def validate(self):
     for file in self.config.xpath('file', []):
-      # if using raw output mode, a filename must be specified; otherwise,
+      # if using raw output mode, a destname must be specified; otherwise,
       # we don't know what to name the file
-      if file.get('@content', None) and not file.get('@filename', None):
+      if file.get('@content', None) and not file.get('@destname', None):
         raise InvalidConfigError(self.config.getroot().file,
-          "'raw' content type specified without accompying 'filename' "
+          "'raw' content type specified without accompanying 'destname' "
           "attribute:\n %s" % file)
 
   def setup(self):
@@ -89,18 +89,18 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
       if file.get('@content', 'filename') == 'raw':
         # if the content is 'raw', write the raw string to a file and set
         # text to that value
-        fn = self.filedir/file.get('@filename')
+        fn = self.filedir/file.get('@destname')
         if not fn.exists() or fn.md5sum() != md5.new(text).hexdigest():
           fn.write_text(text)
         text = fn
 
       self.io.add_fpath(text, ( self.rpm.build_folder //
                                 self.filerelpath //
-                                file.get('@dest',
+                                file.get('@destdir',
                                          '/usr/share/%s/files' % self.name) ),
                               id = 'file',
                               mode = file.get('@mode', None),
-                              filename = file.get('@filename', None))
+                              destname = file.get('@destname', None))
 
 
     if self.cvars['gpgsign-public-key']:

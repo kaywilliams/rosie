@@ -22,11 +22,7 @@
 
         <zeroOrMore>
         <element name="file">
-          <attribute name="dest"/>
-          <optional><attribute name="filename"/></optional>
-          <optional>
-          <attribute name="mode"><ref name="value-mode"/></attribute>
-          </optional>
+          <ref name="content-path-with-dest"/>
           <ref name="attribute-content"/>
           <text/>
         </element>

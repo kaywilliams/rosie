@@ -96,14 +96,14 @@ class IOObject(object):
       self.add_xpath(xpath, dst, *args, **kwargs)
 
   def add_fpath(self, fpath, dst, id=None, mode=None, prefix=None,
-                                  filename=None):
+                                  destname=None):
     """
     @param fpath : file path pointing to an existing file (all pps path
                    types are supported)
     """
     if not id: id = fpath
     fpath = pps.path(fpath)
-    self.add_item(fpath, dst//(filename or fpath.basename),
+    self.add_item(fpath, dst//(destname or fpath.basename),
                   id=id, mode=mode, prefix=prefix)
 
   def add_fpaths(self, fpaths, *args, **kwargs):
@@ -216,7 +216,7 @@ class IOObject(object):
     return ret
 
   def _process_path_xml(self, item, relpath=None, force_relative=False, mode=None):
-    "compute src, dst, filename, and mode from <path> elements"
+    "compute src, dst, destname, and mode from <path> elements"
     s = pps.path(item.get('text()'))
     d = pps.path(item.get('@destdir', ''))
     f = item.get('@destname', s.basename)
