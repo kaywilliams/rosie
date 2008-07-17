@@ -93,8 +93,8 @@
 
   <define name="content-path-with-dest">
     <ref name="content-path"/>
-    <optional><attribute name="dest"/></optional>
-    <optional><attribute name="filename"/></optional>
+    <optional><attribute name="destdir"/></optional>
+    <optional><attribute name="destname"/></optional>
   </define>
 
   <!-- id attribute -->

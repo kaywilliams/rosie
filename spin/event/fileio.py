@@ -218,8 +218,8 @@ class IOObject(object):
   def _process_path_xml(self, item, relpath=None, force_relative=False, mode=None):
     "compute src, dst, filename, and mode from <path> elements"
     s = pps.path(item.get('text()'))
-    d = pps.path(item.get('@dest', ''))
-    f = item.get('@filename', s.basename)
+    d = pps.path(item.get('@destdir', ''))
+    f = item.get('@destname', s.basename)
     m = item.get('@mode', mode)
 
     if relpath:
