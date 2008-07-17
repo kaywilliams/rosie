@@ -20,6 +20,8 @@ BuildRequires: python-setuptools
 BuildRequires: python-docutils
 
 Requires: createrepo
+Requires: gnupg
+Requires: mkisofs
 Requires: netpbm-progs
 Requires: python-devel
 Requires: python-imaging
