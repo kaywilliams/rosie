@@ -15,13 +15,13 @@ BuildArch: noarch
 BuildRequires: docbook-style-xsl
 BuildRequires: gzip
 BuildRequires: libxslt
-BuildRequires: python-devel
+BuildRequires: python
 BuildRequires: python-setuptools
 BuildRequires: python-docutils
 
 Requires: createrepo
 Requires: netpbm-progs
-Requires: python-devel
+Requires: python
 Requires: python-imaging
 Requires: python-lxml
 Requires: python-setuptools
