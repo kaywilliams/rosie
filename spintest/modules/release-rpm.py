@@ -34,9 +34,9 @@ class Test_ReleaseRpmInputs(ReleaseRpmEventTestCase):
       <release-rpm enabled="true">
         <file>%(working-dir)s/file1</file>
         <eula include-in-firstboot="true">%(working-dir)s/eula.en_US</eula>
-        <omf  dest="/usr/share/omf">%(working-dir)s/omf1</omf>
-        <html dest="/usr/share/html">%(working-dir)s/html1</html>
-        <doc  dest="/usr/share/doc">%(working-dir)s/doc1</doc>
+        <omf  destdir="/usr/share/omf">%(working-dir)s/omf1</omf>
+        <html destdir="/usr/share/html">%(working-dir)s/html1</html>
+        <doc  destdir="/usr/share/doc">%(working-dir)s/doc1</doc>
       </release-rpm>
       """ % {'working-dir': self.working_dir})
     self.file1 = self.working_dir / 'file1'
