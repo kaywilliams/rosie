@@ -19,7 +19,7 @@ import errno
 import os
 import sys
 
-from rendition import execlib
+from rendition import shlib
 
 from rendition.versort import Version
 
@@ -32,7 +32,7 @@ CREATEREPO_ATTEMPTS = 2
 class CreaterepoMixin:
   def __init__(self):
     self.cvars['createrepo-version'] = Version(
-      execlib.execute('rpm -q --queryformat="%{version}" createrepo')[0])
+      shlib.execute('rpm -q --queryformat="%{version}" createrepo')[0])
 
   def createrepo(self, path, groupfile=None, pretty=False,
                  update=True, quiet=True, database=True):
@@ -67,8 +67,8 @@ class CreaterepoMixin:
     count = 0
     while True:
       try:
-        execlib.execute(' '.join(args))
-      except execlib.ExecuteError, e:
+        shlib.execute(' '.join(args))
+      except shlib.ShExecError, e:
         if count >= CREATEREPO_ATTEMPTS or \
            (e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK):
           self.log(0,
@@ -87,4 +87,4 @@ class RpmNotFoundError(IOError): pass
 
 def RpmPackageVersion(name):
   return Version(
-    execlib.execute('rpm -q --queryformat="%%{version}" %s' % name)[0])
+    shlib.execute('rpm -q --queryformat="%%{version}" %s' % name)[0])
