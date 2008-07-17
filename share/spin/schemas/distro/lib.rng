@@ -109,7 +109,7 @@
     <optional>
     <attribute name="destname">
       <data type="token">
-        <param name="pattern">[^/]+</param>
+        <param name="pattern">[^/]*</param>
       </data>
     </attribute>
     </optional>
