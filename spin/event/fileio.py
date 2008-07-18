@@ -68,7 +68,7 @@ class IOObject(object):
       self.ptr.diff.input.idata.append(src)
 
     for s,d in self.compute_dst(src, dst):
-      m = int(mode or oct((s.stat().st_mode & 0777) or 0644), 8)
+      m = int((mode or '').lstrip('0') or oct((s.stat().st_mode & 0777) or 0644), 8)
 
       if d not in self.ptr.diff.output.odata:
         self.ptr.diff.output.odata.append(d)

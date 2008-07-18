@@ -78,7 +78,7 @@
 
   <define name="value-mode">
     <data type="token">
-      <param name="pattern">[0-7][0-7][0-7]</param>
+      <param name="pattern">[0]?[0-7]?[0-7][0-7][0-7]</param>
     </data>
   </define>
 

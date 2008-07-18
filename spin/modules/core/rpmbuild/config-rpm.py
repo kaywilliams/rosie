@@ -102,7 +102,6 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
                               mode = file.get('@mode', None),
                               destname = file.get('@destname', None))
 
-
     if self.cvars['gpgsign-public-key']:
       # also include the gpg key in the config-rpm
       self.io.add_fpath(self.cvars['gpgsign-public-key'],
