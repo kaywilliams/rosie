@@ -94,7 +94,7 @@
   <define name="content-path-with-dest">
     <ref name="content-path"/>
     <optional><attribute name="destdir"/></optional>
-    <optional><attribute name="destname"/></optional>
+    <ref name="attribute-destname"/>
   </define>
 
   <!-- id attribute -->
@@ -102,6 +102,17 @@
     <attribute name="id">
       <data type="ID"/>
     </attribute>
+  </define>
+
+  <!-- destname attribute -->
+  <define name="attribute-destname">
+    <optional>
+    <attribute name="destname">
+      <data type="token">
+        <param name="pattern">[^/]*</param>
+      </data>
+    </attribute>
+    </optional>
   </define>
 
   <!-- boot-config element -->

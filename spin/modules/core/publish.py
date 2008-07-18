@@ -92,36 +92,31 @@ class PublishEvent(Event):
     self.diff.setup(self.DATA)
     self.io.add_fpaths(self.cvars['publish-content'], self.cvars['publish-path'])
 
-  # overriding Event method to remove publish-path which is outside the mddir
-  # this is a hack, better would be to generalize clean_eventcache
-  # to clean all event output, not just output in the metadata dir
+  # overriding Event method to remove publish-path which is outside
+  # the mddir this is a hack, better would be to generalize
+  # clean_eventcache to clean all event output, not just output in the
+  # metadata dir.
   def clean(self):
     Event.clean(self)
     self.cvars['publish-path'].rm(recursive=True, force=True)
 
   def run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
-    self.log(1, L1("publishing to '%s'" % self.cvars['publish-path']))
-
-    # using link w/strict rather than io.sync to remove files outside the mddir
-    self.cvars['publish-path'].mkdirs()
-    for path in self.cvars['publish-content']:
-      self.link(path, self.cvars['publish-path'], strict=True)
-
+    self.io.sync_input(link=True,
+                       text="publishing to '%s'" % self.cvars['publish-path'])
     if self.cvars['selinux-enabled']:
       shlib.execute('chcon -R --type=httpd_sys_content_t %s' \
                     % self.cvars['publish-path'])
 
   def apply(self):
     self.io.clean_eventcache()
+
     expected = set(self.diff.output.oldoutput.keys())
     existing = set(self.cvars['publish-path'].findpaths(
                  mindepth=1, type=TYPE_NOT_DIR))
-
     # delete files in publish path no longer needed
     for path in existing.difference(expected):
       path.rm()
-
     # delete empty directories in publish path
     for dir in [ d for d in
                  self.cvars['publish-path'].findpaths(mindepth=1, type=TYPE_DIR)
