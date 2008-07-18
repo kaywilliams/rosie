@@ -61,7 +61,7 @@ class ImageModifyMixinTestCase:
     touch_input_files(self.event._config.file.abspath().dirname)
 
     # add config entries
-    a = {'dest': '/infiles'}
+    a = {'destdir': '/infiles'}
     Element('path', text='/tmp/outfile', parent=self.event.config)
     Element('path', text='infile',  parent=self.event.config, attrs=a)
     Element('path', text='infile2', parent=self.event.config, attrs=a)
@@ -107,7 +107,7 @@ def IMMTest_ConfigPaths(self, path_xpath):
     self.tb.dispatch.execute(until=self.event.id)
 
     for path in self.event.config.xpath(self.path_xpath):
-      dest = pps.path(path.attrib.get('dest', '/'))
+      dest = pps.path(path.attrib.get('destdir', '/'))
       file = dest/pps.path(path.text).basename
       self.check_file_in_image(file)
 

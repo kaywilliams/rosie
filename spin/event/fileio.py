@@ -68,7 +68,7 @@ class IOObject(object):
       self.ptr.diff.input.idata.append(src)
 
     for s,d in self.compute_dst(src, dst):
-      m = int((mode or '').lstrip('0') or oct((s.stat().st_mode & 0777) or 0644), 8)
+      m = int((mode or '').lstrip('0') or oct((s.stat().st_mode & 07777) or 0644), 8)
 
       if d not in self.ptr.diff.output.odata:
         self.ptr.diff.output.odata.append(d)
@@ -140,16 +140,16 @@ class IOObject(object):
     tx = sorted([ t for t in self._filter_data(what=what) if
                   self.ptr.diff.input.difference(t.src) or
                   self.ptr.diff.output.difference(t.dst) or
-                  not t.dst.exists() ],
+                  not t.dst.exists() or
+                  ( t.dst.exists() and t.dst.stat().st_mode != t.mode ) ],
                 cmp=lambda x,y: cmp(x.src.basename, y.src.basename))
 
     if tx:
       cb.sync_start(text=text, count=len(tx))
       for item in tx:
-        item.dst.rm(recursive=True, force=True)
-        syncfn(item.src, item.dst, link=link, callback=cb, updatefn=updatefn,
+        syncfn(item.src, item.dst, link=link, mode=item.mode,
+                                   callback=cb, updatefn=updatefn,
                                    **kwargs)
-        item.dst.chmod(item.mode)
         output.append(item.dst)
       cb.sync_end()
 

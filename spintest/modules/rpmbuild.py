@@ -18,13 +18,13 @@
 from spintest      import EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite
 
-class RpmsTestCase(EventTestCase):
-  moduleid = 'rpms'
-  eventid  = 'rpms'
+class RpmbuildTestCase(EventTestCase):
+  moduleid = 'rpmbuild'
+  eventid  = 'rpmbuild'
 
 def make_suite(distro, version, arch):
-  suite = ModuleTestSuite('rpms')
+  suite = ModuleTestSuite('rpmbuild')
 
-  suite.addTest(make_core_suite(RpmsTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(RpmbuildTestCase, distro, version, arch))
 
   return suite
