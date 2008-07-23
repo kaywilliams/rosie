@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.8
+Version: 0.8.9
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
@@ -97,6 +97,24 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Wed Jul 23 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.9-1
+- config-rpm: added web-path and gpgsign-public-key to variables diff data (kwilliams)
+- added check to ensure systemid exists before trying to use it (dmusgrave)
+- fixes for spintest (dmusgrave)
+- merged with trunk (dmusgrave)
+- modified schema to accept 4 digit modes (dmusgrave)
+- config-rpm: bumped version number (kwilliams)
+- Using IOMixin.sync_input(uprakash)
+- Fixed a bug in logos-rpm which caused .pth files to not be read. (uprakash)
+- fix to destname validation; allowing zero or more characters (kwilliams)
+- branch merge (kwilliams)
+- added validation for destname attribute; no '/' characters allowed (kwilliams)
+- spin.spec: added requires for gnupg and mkisofs (kwilliams)
+- dest -> destdir, filename -> destname in spintest (dmusgrave)
+- updated .getpath(dmusgrave)
+- Tagged as spin-0.8.8-1 (kwilliams)
+- Bumped version to spin-0.8.8-1.noarch. (spinmaster)
+
 * Wed Jul 16 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.8-1
 - After a lot of testing, now finally requiring 'python-devel'. (uprakash)
 - Tagged as spin-0.8.7-1 (kwilliams)

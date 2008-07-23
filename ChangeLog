@@ -1,8 +1,114 @@
+2008-07-23  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* spin/modules/core/rpmbuild/config-rpm.py:
+	config-rpm: added web-path and gpgsign-public-key to variables diff
+	data
+	[21051149fa4b] [tip]
+
+2008-07-18  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/shared/repos.py:
+	added check to ensure systemid exists before trying to use it
+	[69b16a6763ae]
+
+	* spin/event/fileio.py, spintest/mixins.py,
+	spintest/modules/rpmbuild.py:
+	fixes for spintest
+
+	spin/event/fileio.py
+	 * mode computation now pays attention to 4 digits instead of 3
+	 * .sync_input() now checks file modes in addition to file names
+	 * .sync_input() no longer deletes old destionation files, nor does it
+	chmod them; this is handled by sync now spintest/mixins.py
+	 * fixed references to 'dest' attribute spintest/modules/rpmbuild.py
+	 * renamed moduleid, eventid, to 'rpmbuild' from 'rpms'
+	[87c39766902d]
+
+	* share/spin/schemas/distro/lib.rng, spin/modules/core/rpmbuild
+	/config-rpm.py:
+	merged with trunk
+	[098b0a257d46]
+
+	* share/spin/schemas/distro/lib.rng, spin/event/fileio.py,
+	spin/modules/core/repos.py, spin/modules/core/rpmbuild/config-
+	rpm.py:
+	modified schema to accept 4 digit modes (possibly preceded by '0');
+	modes now strip leading '0's automatically
+	[41e5e0abf60f]
+
+2008-07-17  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* spin/modules/core/rpmbuild/config-rpm.py:
+	config-rpm: bumped version number
+	[ac6cd508664f]
+
+2008-07-17  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/publish.py:
+	Using IOMixin.sync_input() to sync files in the publish event.
+
+	The publish event was linking files from the build directory to the
+	publish directory itself, instead of using `self.io.sync_input()'.
+	This was being done so that the publish directory can be cleaned up
+	as and if needed. Now that the `PublishEvent.apply()' method has
+	been updated to take care of the cleaning of the publish directory,
+	we can use the `self.io.sync_input(link=True)' again.
+	[b67b73c4b501]
+
+	* spin/modules/core/rpmbuild/logos-rpm/files.py:
+	Fixed a bug in logos-rpm which caused .pth files to not be read.
+
+	If a shared path didn't have a <distroid>.xml and didn't have a
+	default.xml, we weren't searching for *.pth files.
+	[d0f5bd720d99]
+
+2008-07-17  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* share/spin/schemas/distro/lib.rng:
+	fix to destname validation; allowing zero or more characters
+
+	for consistency with other text attributes
+	[dfd49cb2a352]
+
+	* branch merge
+	[5726f7c833f7]
+
+	* share/spin/schemas/distro/lib.rng:
+	added validation for destname attribute; no '/' characters allowed
+	[04d74002cfc5]
+
+	* spin.spec:
+	spin.spec: added requires for gnupg and mkisofs
+	[86445d782600]
+
+2008-07-17  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spintest/modules/config-rpm.py, spintest/modules/files.py,
+	spintest/modules/release-files.py, spintest/modules/release-rpm.py:
+	dest -> destdir, filename -> destname in spintest
+	[4e703b5ea2d7]
+
+	* spin/event/__init__.py:
+	updated .getpath() implementation in DummyConfig to fit with new API
+	[ed07c8099868]
+
+2008-07-16  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.8-1
+	[c794f933f719]
+
+2008-07-16  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.8-1.noarch.
+	[34628b23a0d8] [spin-0.8.8-1]
+
 2008-07-16  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* spin.spec:
 	After a lot of testing, now finally requiring 'python-devel'.
-	[cf1a556a6c17] [tip]
+	[cf1a556a6c17]
 
 2008-07-16  Kay Williams  <kwilliams@renditionsoftware.com>
 
