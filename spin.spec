@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.9
+Version: 0.8.10
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
@@ -97,6 +97,10 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Wed Jul 23 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.10-1
+- Tagged as spin-0.8.9-1 (kwilliams)
+- Bumped version to spin-0.8.9-1.noarch. (spinmaster)
+
 * Wed Jul 23 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.9-1
 - config-rpm: added web-path and gpgsign-public-key to variables diff data (kwilliams)
 - added check to ensure systemid exists before trying to use it (dmusgrave)

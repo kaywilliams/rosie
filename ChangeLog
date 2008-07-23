@@ -1,9 +1,21 @@
 2008-07-23  Kay Williams  <kwilliams@renditionsoftware.com>
 
+	* .hgtags:
+	Tagged as spin-0.8.9-1
+	[73231f71972e] [tip]
+
+2008-07-23  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.9-1.noarch.
+	[087bcf718410] [spin-0.8.9-1]
+
+2008-07-23  Kay Williams  <kwilliams@renditionsoftware.com>
+
 	* spin/modules/core/rpmbuild/config-rpm.py:
 	config-rpm: added web-path and gpgsign-public-key to variables diff
 	data
-	[21051149fa4b] [tip]
+	[21051149fa4b]
 
 2008-07-18  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
