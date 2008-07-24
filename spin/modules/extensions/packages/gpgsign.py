@@ -127,4 +127,4 @@ class GpgSignEvent(GpgMixin, Event):
     "gpgkeys exist and were signed"
     for file in self.io.list_output(what='rpms'):
       self.verifier.failUnlessExists(file)
-    # TODO: check that keys are actually signed
+    # TODO: check that RPMs are actually signed

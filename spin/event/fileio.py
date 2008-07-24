@@ -141,7 +141,7 @@ class IOObject(object):
                   self.ptr.diff.input.difference(t.src) or
                   self.ptr.diff.output.difference(t.dst) or
                   not t.dst.exists() or
-                  ( t.dst.exists() and t.dst.stat().st_mode != t.mode ) ],
+                  ( t.dst.exists() and (t.dst.stat().st_mode & 07777) != t.mode ) ],
                 cmp=lambda x,y: cmp(x.src.basename, y.src.basename))
 
     if tx:
