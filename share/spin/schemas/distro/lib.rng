@@ -76,25 +76,23 @@
     </data>
   </define>
 
+  <!-- path values -->
+  <define name="value-filename">
+    <data type="token">
+      <param name="pattern">[^/]*</param>
+    </data>
+  </define>
+
+  <define name="value-absolute-local-path">
+    <data type="token">
+      <param name="pattern">/.*</param>
+    </data>
+  </define>
+
   <define name="value-mode">
     <data type="token">
       <param name="pattern">[0]?[0-7]?[0-7][0-7][0-7]</param>
     </data>
-  </define>
-
-  <define name="content-path">
-    <optional>
-    <attribute name="mode">
-      <ref name="value-mode"/>
-    </attribute>
-    </optional>
-    <text/>
-  </define>
-
-  <define name="content-path-with-dest">
-    <ref name="content-path"/>
-    <optional><attribute name="destdir"/></optional>
-    <ref name="attribute-destname"/>
   </define>
 
   <!-- id attribute -->
@@ -104,15 +102,42 @@
     </attribute>
   </define>
 
-  <!-- destname attribute -->
+  <!-- path attributes -->
+  <define name="attribute-destdir">
+    <optional>
+    <attribute name="destdir"/>
+    </optional>
+  </define>
+
+  <define name="attribute-destdir-absolute">
+    <optional>
+    <attribute name="destdir">
+      <ref name="value-absolute-local-path"/>
+    </attribute>
+    </optional>
+  </define>
+
   <define name="attribute-destname">
     <optional>
     <attribute name="destname">
-      <data type="token">
-        <param name="pattern">[^/]*</param>
-      </data>
+      <ref name="value-filename"/>
     </attribute>
     </optional>
+  </define>
+
+  <define name="attribute-mode">
+    <optional>
+    <attribute name="mode">
+      <ref name="value-mode"/>
+    </attribute>
+    </optional>
+    <text/>
+  </define>
+
+  <define name="content-path-with-dest">
+    <ref name="attribute-destdir"/>
+    <ref name="attribute-destname"/>
+    <ref name="attribute-mode"/>
   </define>
 
   <!-- boot-config element -->
