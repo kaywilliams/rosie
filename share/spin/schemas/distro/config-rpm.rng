@@ -22,7 +22,9 @@
 
         <zeroOrMore>
         <element name="file">
-          <ref name="content-path-with-dest"/>
+          <ref name="attribute-destdir-absolute"/>
+          <ref name="attribute-destname"/>
+          <ref name="attribute-mode"/>
           <ref name="attribute-content"/>
           <text/>
         </element>
