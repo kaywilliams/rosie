@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from spin.event   import Event
+from spin.event import Event
 
 from spin.modules.shared import FileDownloadMixin, ImageModifyMixin
 
@@ -66,8 +66,12 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
       self.DATA['input'].append(self.cvars['kickstart-file'])
     self.diff.setup(self.DATA)
 
+    # ImageModifyMixin setup
     self.image_locals = self.locals.L_FILES['xen']['initrd-xen']
     ImageModifyMixin.setup(self)
+    self.add_image()
+
+    # FileDownloadMixin setup
     self.file_locals = self.locals.L_FILES['xen']
     FileDownloadMixin.setup(self)
 

@@ -104,26 +104,32 @@ class ImageModifyMixin:
 
   def setup(self):
     # input images
-    repo = self.cvars['installer-repo']
-
     image_path = self.image_locals['path'] % self.cvars['distro-info']
 
     self.diff.setup(self.DATA)
-
-    try:
-      self.io.add_fpath(repo.url/image_path,
-                        (self.SOFTWARE_STORE/image_path).dirname,
-                        id='ImageModifyMixin')
-    except IOError:
-      if self.virtual:
-        self.DATA['output'].append(self.SOFTWARE_STORE/image_path)
-      else:
-        raise
 
     # other image input files
     for dst, src in self.cvars['%s-content' % self.id].items():
       self.io.add_fpaths(src, self.imagedir//dst, id='%s-input-files' % self.name)
     self.io.add_xpath('path', self.imagedir, id='%s-input-files' % self.name)
+
+  def _add_image(self):
+    ip = self.image_locals['path'] % self.cvars['distro-info']
+    self.io.add_fpath(self.cvars['installer-repo'].url/ip,
+                      self.path.dirname, id='ImageModifyMixin')
+  def _create_image(self):
+    ip = self.image_locals['path'] % self.cvars['distro-info']
+    self.DATA['output'].append(self.path)
+
+  def add_image(self):
+    self._add_image()
+  def add_or_create_image(self):
+    try:
+      self._add_image()
+    except IOError:
+      self._create_image()
+  def create_image(self):
+    self._create_image()
 
   def check(self):
     return self.diff.test_diffs()
@@ -132,8 +138,6 @@ class ImageModifyMixin:
     self.io.clean_eventcache()
 
   def _open(self):
-    if self.virtual:
-      if self.path.exists(): self.path.remove() # delete old image
     self.path.dirname.mkdirs()
     self.image = img.MakeImage(self.path, self.image_locals['format'], self.zipped)
     self.image.open()
@@ -147,12 +151,7 @@ class ImageModifyMixin:
     if self.path.exists(): self.path.remove()
 
     # clean up former output files
-    toclean = set(self.mddir.findpaths(type=pps.constants.TYPE_NOT_DIR)).difference(
-                  self.io.list_output())
-    toclean = set([ x for x in toclean if x.startswith(self.imagedir) ])
-    for file in toclean:
-      file.remove()
-      file.dirname.removedirs()
+    self.io.clean_eventcache()
 
     # sync image to input store
     self.io.sync_input(what=['ImageModifyMixin', '%s-input-files' % self.name], cache=True)
@@ -177,7 +176,6 @@ class ImageModifyMixin:
                                     self.image_locals['path'] %
                                     self.cvars['distro-info']) )
   zipped  = property(lambda self: self.image_locals.get('zipped', False))
-  virtual = property(lambda self: self.image_locals.get('virtual', False))
 
   def verify_image(self):
     "verify image existence."
@@ -200,8 +198,6 @@ class FileDownloadMixin:
   def setup(self):
     paths = []
     for data in self.file_locals.values():
-      if data.get('virtual', False): continue # skip virtual files
-
       rinfix = data['path'] % self.cvars['base-info']
       linfix = data['path'] % self.cvars['distro-info']
       self.io.add_fpath(self.cvars['installer-repo'].url/rinfix,

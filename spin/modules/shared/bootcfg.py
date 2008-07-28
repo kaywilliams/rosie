@@ -70,7 +70,7 @@ class BootConfigDummy(object):
         elif tokens[1] == '-': continue
         lines[i] = '%s %s' % (lines[i].rstrip(), ' '.join(boot_args))
 
-    dst.remove()
+    dst.rm(force=True)
     dst.write_lines(lines)
 
   def _expand_macros(self, s):
@@ -80,10 +80,10 @@ class BootConfigDummy(object):
 
   def _process_method(self, args):
     self.ptr.DATA['variables'].append('cvars[\'web-path\']')
-    if self.ptr.cvars['web-path']:
+    if self.ptr.cvars['web-path'] is not None:
       args.append('method=%s/os' % self.ptr.cvars['web-path'])
 
   def _process_ks(self, args):
     self.ptr.DATA['variables'].append('cvars[\'ks-path\']')
-    if self.ptr.cvars['ks-path']:
+    if self.ptr.cvars['ks-path'] is not None:
       args.append('ks=file:%s' % self.ptr.cvars['ks-path'])

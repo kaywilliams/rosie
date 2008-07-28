@@ -60,8 +60,11 @@ class ProductImageEvent(Event, ImageModifyMixin):
 
   def setup(self):
     self.DATA['input'].append(self.cvars['buildstamp-file'])
+
+    # ImageModifyMixin setup
     self.image_locals = self.locals.L_FILES['installer']['product.img']
     ImageModifyMixin.setup(self)
+    self.add_or_create_image()
 
   def run(self):
     self._modify()

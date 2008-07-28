@@ -15,11 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from StringIO import StringIO
-
 from spin.event import Event
 
 from spin.modules.shared import ImageModifyMixin, BootConfigMixin
+
+from rendition import pps
+from rendition import shlib
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -28,12 +29,14 @@ MODULE_INFO = dict(
   group       = 'installer',
 )
 
+MBR_FILES = [ pps.path('/usr/lib/syslinux/mbr.bin'),
+              pps.path('/usr/share/syslinux/mbr.bin'), ]
+
 class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'diskboot-image',
       parentid = 'installer',
-      version = 1,
       provides = ['diskboot.img'],
       requires = ['buildstamp-file', 'installer-repo', 'isolinux-files'],
       conditionally_requires = ['diskboot-image-content', 'web-path',
@@ -41,11 +44,12 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     )
 
     self.DATA = {
-      'variables': ['cvars[\'anaconda-version\']'],
       'config':    ['.'],
+      'variables': ['cvars[\'anaconda-version\']'],
       'input':     [],
       'output':    [],
     }
+
     ImageModifyMixin.__init__(self, 'diskboot.img')
     BootConfigMixin.__init__(self)
 
@@ -57,43 +61,44 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     Event.error(self, e)
 
   def setup(self):
-    if self.cvars['anaconda-version'] >= '11.4.0.40':
-      return # don't make diskboot image after this revision
+    self.DATA['input'].extend(self.cvars['isolinux-files'].values())
 
-    self.DATA['input'].append(self.cvars['isolinux-files']['initrd.img'])
     if ( self.cvars['installer-splash'] is not None and
          self.cvars['installer-splash'].exists() ):
       self.DATA['input'].append(self.cvars['installer-splash'])
 
-    self.image_locals = self.locals.L_FILES['installer']['diskboot.img']
-    self.bootconfig.setup(defaults=['nousbstorage'], include_method=True, include_ks=True)
-    ImageModifyMixin.setup(self)
+    # BootConfigMixin setup
+    self.bootconfig.setup(defaults=['nousbstorage'],
+                          include_method=True, include_ks=True)
 
-  def check(self):
-    if self.cvars['anaconda-version'] >= '11.4.0.40':
-      return False # don't make diskboot image after this revision
-    return self.diff.test_diffs()
+    # ImageModifyMixin setup
+    self.image_locals = self.locals.L_FILES['installer']['diskboot.img']
+    ImageModifyMixin.setup(self)
+    self.create_image()
 
   def run(self):
     self._modify()
 
-  def verify_image(self):
-    "verify image existence."
-    if self.cvars['anaconda-version'] >= '11.4.0.40':
-      return # don't make diskboot image after this revision
-    ImageModifyMixin.verify_image(self)
-
   def _generate(self):
-    if self.cvars['anaconda-version'] >= '11.4.0.40':
-      return # don't make diskboot image after this revision
-
     ImageModifyMixin._generate(self)
+
     if ( self.cvars['installer-splash'] is not None and
          self.cvars['installer-splash'].exists() ):
       self.image.write(self.cvars['installer-splash'], '/')
-    self.image.write(self.cvars['isolinux-files']['initrd.img'], '/')
 
-    # hack to modify boot args in syslinux.cfg file
-    for fn in self.image.list():
-      if fn.basename == 'syslinux.cfg':
-        self.bootconfig.modify(fn, cfgfile=fn); break
+    for file in self.cvars['isolinux-files'].values():
+      self.image.write(file, '/')
+
+    # modify boot args
+    isolinuxcfg = self.image.handler._mount/'isolinux.cfg'
+    syslinuxcfg = self.image.handler._mount/'syslinux.cfg'
+    self.bootconfig.modify(syslinuxcfg, cfgfile=isolinuxcfg)
+    isolinuxcfg.remove()
+    # remove local lines (essentially grep -v 'local')
+    syslinuxcfg.write_lines([ x for x in syslinuxcfg.read_lines()
+                              if x.find('local') == -1 ])
+
+    # install syslinux to image
+    self.image.close() # syslinux requires image not be mounted
+    shlib.execute('syslinux %s' % self.image.imgloc)
+    self.image.open()  # ImageModifyMixin expects image to be open when done

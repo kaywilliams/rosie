@@ -58,8 +58,11 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     self.DATA['input'].append(self.cvars['buildstamp-file'])
     if self.cvars['kickstart-file']:
       self.DATA['input'].append(self.cvars['kickstart-file'])
+
+    # ImageModifyMixin setup
     self.image_locals = self.locals.L_FILES['isolinux']['initrd.img']
     ImageModifyMixin.setup(self)
+    self.add_image()
 
   def run(self):
     self._modify()

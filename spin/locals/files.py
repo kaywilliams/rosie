@@ -18,8 +18,8 @@ L_FILES = LocalsDict({
       'vmlinuz':      dict(path='isolinux/vmlinuz'),
     },
     'installer': { # installer images
-      'product.img':  dict(path='images/product.img',  format='ext2', virtual=True),
-      'updates.img':  dict(path='images/updates.img',  format='ext2', virtual=True),
+      'product.img':  dict(path='images/product.img',  format='ext2'),
+      'updates.img':  dict(path='images/updates.img',  format='ext2'),
       'diskboot.img': dict(path='images/diskboot.img', format='fat32'),
     },
     'stage2': { # stage2 images
