@@ -129,14 +129,17 @@ class Build(object):
       raise RuntimeError("Cannot open '%s' for writing; is a directory" % logfile)
     self.logger = make_log(options.logthresh, logfile)
 
+    # set up event superclass so that it contains good default values
+    self._seed_event_defaults(options)
+
+    # change working dir to config dir so relative paths expand properly
+    os.chdir(self.distroconfig.file.dirname)
+
     # set up import_dirs
     import_dirs = self._compute_import_dirs(options)
 
     # set up lists of enabled and disabled modules
     enabled, disabled = self._compute_modules(options)
-
-    # set up event superclass so that it contains good default values
-    self._seed_event_defaults(options)
 
     load_extensions = False
     if options.list_modules:
@@ -215,7 +218,6 @@ class Build(object):
         print self.distroconfig
         sys.exit()
 
-
   def main(self):
     "Build a distribution"
     if self._lock.acquire():
@@ -262,9 +264,6 @@ class Build(object):
 
     self.mainconfig = mc
     self.distroconfig = dc
-
-    # change working dir to config dir so relative paths expand properly
-    os.chdir(dcp.dirname)
 
   def _compute_events(self, modules=None, events=None):
     """
