@@ -92,13 +92,16 @@ class PkglistEvent(Event):
     # setup if creating pkglist
     self.pkglistfile = self.mddir / 'pkglist'
 
-    self.rddirs = {} # list of repodata dirs across all repos
+    # add relevant input/variable sections, if interesting
+    for repoid, repo in self.cvars['repos'].items():
+      for attr in ['baseurl', 'mirrorlist', 'exclude',
+                   'includepkgs', 'enabled']:
 
-    for repo in self.cvars['repos'].values():
-      self.rddirs[repo.id] = repo.localurl / 'repodata'
+        if getattr(repo, attr):
+          self.DATA['variables'].append('cvars[\'repos\'][\'%s\'].%s'
+                                        % (repoid, attr))
 
-    self.DATA['input'].extend(self.rddirs.values())
-    self.DATA['variables'].append('rddirs')
+      self.DATA['input'].append(repo.localurl/'repodata')
 
   def run(self):
     # copy pkglist
@@ -184,9 +187,9 @@ class PkglistEvent(Event):
     self.verifier.failUnless(matched, "no kernel package found")
 
   def _verify_repos(self):
-    for repoid, rddir in self.rddirs.items():
-      for file in self.diff.input.difference().keys():
-        if file.startswith(rddir):
+    for repoid, repo in self.cvars['repos'].items():
+      for f in self.diff.input.difference().keys():
+        if f.startswith(repo.localurl/'repodata'):
           (self.dsdir/repoid).rm(recursive=True, force=True)
           break
 
