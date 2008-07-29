@@ -34,14 +34,12 @@ class Test_ReleaseRpmInputs(ReleaseRpmEventTestCase):
       <release-rpm enabled="true">
         <file>%(working-dir)s/file1</file>
         <eula include-in-firstboot="true">%(working-dir)s/eula.en_US</eula>
-        <omf  destdir="/usr/share/omf">%(working-dir)s/omf1</omf>
         <html destdir="/usr/share/html">%(working-dir)s/html1</html>
         <doc  destdir="/usr/share/doc">%(working-dir)s/doc1</doc>
       </release-rpm>
       """ % {'working-dir': self.working_dir})
     self.file1 = self.working_dir / 'file1'
     self.eula  = self.working_dir / 'eula.en_US'
-    self.omf1  = self.working_dir / 'omf1'
     self.html1 = self.working_dir / 'html1'
     self.doc1  = self.working_dir / 'doc1'
 
@@ -50,7 +48,6 @@ class Test_ReleaseRpmInputs(ReleaseRpmEventTestCase):
     self.clean_event_md()
     self.file1.touch()
     self.eula.touch()
-    self.omf1.touch()
     self.html1.touch()
     self.doc1.touch()
 
@@ -60,7 +57,6 @@ class Test_ReleaseRpmInputs(ReleaseRpmEventTestCase):
     ReleaseRpmEventTestCase.tearDown(self)
     self.file1.rm(force=True)
     self.eula.rm(force=True)
-    self.omf1.rm(force=True)
     self.html1.rm(force=True)
     self.doc1.rm(force=True)
 

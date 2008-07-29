@@ -49,7 +49,6 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
     d = self.rpm.build_folder
     self.filetypes = {
       'eula'    : d/'usr/share/eula',
-      'omf'     : d/'usr/share/omf/%s-release-notes' % self.name,
       'html'    : d/'usr/share/doc/HTML',
       'doc'     : d/'usr/share/doc/%s-release-notes-%s' % (self.name, self.version),
       'release' : d/'usr/share/doc/%s-release-%s' % (self.name, self.version),
@@ -66,7 +65,6 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
     }
 
   def setup(self):
-
     obsoletes = [ '%s %s %s' % (n,e,v)
                   for n,e,v in self.cvars.get('release-versions', [])]
     provides  = [ '%s %s %s' % (n,e,v)
@@ -76,7 +74,6 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
     self.rpm.setup_build(obsoletes=obsoletes, provides=provides)
 
     self.io.add_xpath('eula',  self.filetypes['eula'])
-    self.io.add_xpath('omf',   self.filetypes['omf'])
     self.io.add_xpath('html',  self.filetypes['html'])
     self.io.add_xpath('doc',   self.filetypes['doc'])
     self.io.add_xpath('files', self.filetypes['release'])

@@ -35,12 +35,6 @@
           </zeroOrMore>
 
           <zeroOrMore>
-            <element name="omf">
-              <ref name="content-path-with-dest"/>
-            </element>
-          </zeroOrMore>
-
-          <zeroOrMore>
             <element name="html">
               <ref name="content-path-with-dest"/>
             </element>
