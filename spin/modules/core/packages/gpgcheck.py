@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+
+from rendition import magic
 from rendition import mkrpm
 from rendition import shlib
 
@@ -90,6 +92,9 @@ class GpgCheckEvent(Event):
           homedir.rm(force=True, recursive=True)
           homedir.mkdirs()
           for key in self.io.list_output(what=repo):
+            if not magic.match(key) == magic.FILE_TYPE_GPGKEY:
+              raise RuntimeError("file '%s' does not appear to be a "
+                                 "valid gpg key" % key)
             shlib.execute('gpg --homedir %s --import %s' %(homedir,key))
 
       # if new rpms have been added from this repo, add them to check list
