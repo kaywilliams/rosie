@@ -85,6 +85,9 @@ class PkglistEvent(Event):
 
     # setup if copying pkglist
     if self.docopy:
+      if not self.config.getpath('.').isfile():
+        raise ValueError("given pkglist '%s' is not a file"
+                         % self.config.getpath('.'))
       self.io.add_xpath('.', self.mddir, id='pkglist')
       self.pkglistfile = self.io.list_output(what='pkglist')[0]
       return

@@ -60,7 +60,6 @@ class PkgorderEvent(Event):
     }
 
     self.dosync = self.config.pathexists('pkgorder/text()')
-    if self.dosync: self.DATA['input'] = [] # huh?
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -68,6 +67,9 @@ class PkgorderEvent(Event):
     self.DATA['input'].append(self.cvars['repodata-directory'])
 
     if self.dosync:
+      if not self.config.getpath('pkgorder').isfile():
+        raise ValueError("given pkgorder '%s' is not a file"
+                         % self.config.getpath('pkgorder'))
       self.io.add_xpath('pkgorder', self.mddir, id='pkgorder')
       self.pkgorderfile = self.io.list_output(what='pkgorder')[0]
     else:

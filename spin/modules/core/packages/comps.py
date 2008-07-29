@@ -56,7 +56,10 @@ class CompsEvent(Event):
     self.comps_supplied = self.config.get('text()', False)
 
     if self.comps_supplied:
-      self.io.add_xpath('/distro/comps', self.mddir, id='comps.xml')
+      if not self.config.getpath('.').isfile():
+        raise ValueError("given groupfile '%s' is not a file"
+                         % self.config.getpath('.'))
+      self.io.add_xpath('.', self.mddir, id='comps.xml')
 
     else:
       self.comps_out = self.mddir/'comps.xml'
