@@ -17,7 +17,6 @@
 #
 
 import re
-import sha
 import time
 
 from rendition import pps
@@ -99,7 +98,7 @@ class SpinRepo(YumRepo):
             raise RuntimeError("unable to find systemid at '%s'" % p.systemid)
       else:
         p = YumRepo._xform_uri(self, p)
-    except (AttributeError):
+    except AttributeError:
       p = YumRepo._xform_uri(self, p)
     return p
 

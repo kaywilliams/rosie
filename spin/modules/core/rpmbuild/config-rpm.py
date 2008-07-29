@@ -136,12 +136,22 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     repoids = self.config.get('repofile/@repoids', '*').strip()
     if repoids:
       if repoids == '*':
-        repoids = self.cvars['repos'].keys()
+        addrepoids = self.cvars['repos'].keys()
       else:
-        repoids = repoids.split()
+        addrepoids = repoids.split()
 
-      for repoid in repoids:
+      for repoid in addrepoids:
         if repoid in self.cvars['repos']:
+          try:
+            if isinstance(self.cvars['repos'][repoid].url.realm,
+                          pps.Path.rhn.RhnPath):
+              if repoids != '*':
+                self.logger.log(1, 'Warning: skipped adding repo \'%s\' to '
+                                   'config rpm since it contains a rhn(s):// '
+                                   'path' % repoid)
+              continue
+          except AttributeError:
+            pass
           lines.extend(self.cvars['repos'][repoid].lines(pretty=True))
           lines.append('')
         else:

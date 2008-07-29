@@ -58,8 +58,8 @@ class GpgCheckEvent(Event):
           self.gpgkeys[repo.id] = repo.gpgkey
           self.rpms[repo.id] = self.cvars['rpms-by-repoid'][repo.id]
         else:
-          raise RuntimeError("GPGcheck enabled for '%s' repository, but no "
-                             "keys provided." % repo.id)
+          raise RuntimeError("gpgcheck enabled for '%s' repository, but no "
+                             "keys provided" % repo.id)
 
     for repo in self.gpgkeys.keys():
       self.io.add_fpaths(self.gpgkeys[repo], self.mddir/repo, id=repo)
