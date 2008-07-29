@@ -63,18 +63,27 @@
   <define name="element-package">
     <element name="package">
 
+      <choice>
+
+      <group>
       <optional>
       <attribute name="type">
         <choice>
-          <value type="string">conditional</value>
           <value type="string">default</value>
           <value type="string">optional</value>
           <value type="string">mandatory</value>
         </choice>
       </attribute>
       </optional>
+      </group>
 
-      <optional><attribute name="requires"/></optional>
+      <group>
+      <attribute name="type">
+          <value type="string">conditional</value>
+      </attribute>
+      <attribute name="requires"/>
+      </group>
+      </choice>
 
       <text/>
 

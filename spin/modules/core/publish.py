@@ -83,7 +83,8 @@ class PublishEvent(Event):
 
     self.DATA =  {
       'variables': ['cvars[\'publish-path\']',
-                    'cvars[\'publish-content\']'],
+                    'cvars[\'publish-content\']',
+                    'cvars[\'selinux-enabled\']'],
       'input':     [],
       'output':    [],
     }
