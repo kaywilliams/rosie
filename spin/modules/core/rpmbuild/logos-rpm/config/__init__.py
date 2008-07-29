@@ -77,5 +77,7 @@ class ConfigletContainer(RecursiveUpdateDict):
       dst = file.get('@dest')
       anc = 'anaconda-%s' % file.get('@anaconda-version', '0')
       obj = configlets.configlet(file, parent_dir, precedence, defaults)
-      self.setdefault(anc, {}).update({dst: obj})
+      pdict = self.setdefault(anc, {})
+      if dst not in pdict or pdict[dst].precedence <= obj.precedence:
+        pdict.update({dst: obj})
 
