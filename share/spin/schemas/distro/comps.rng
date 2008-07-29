@@ -83,6 +83,7 @@
       </attribute>
       <attribute name="requires"/>
       </group>
+
       </choice>
 
       <text/>

@@ -17,16 +17,15 @@
         <element name="basearch"><text/></element>
         </optional>
 
+        <oneOrMore>
+          <choice>
+          <ref name="element-repo"/>
+          <ref name="element-repofile"/>
+          </choice>
+        </oneOrMore>
+
         <zeroOrMore>
         <ref name="element-exclude-package"/>
-        </zeroOrMore>
-
-        <zeroOrMore>
-        <ref name="element-repo"/>
-        </zeroOrMore>
-
-        <zeroOrMore>
-        <element name="repofile"><text/></element>
         </zeroOrMore>
 
         </interleave>

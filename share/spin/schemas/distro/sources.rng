@@ -9,17 +9,12 @@
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
-        <interleave>
-
-        <zeroOrMore>
-        <ref name="element-repo"/>
-        </zeroOrMore>
-
-        <zeroOrMore>
-        <element name="repofile"><text/></element>
-        </zeroOrMore>
-
-        </interleave>
+        <oneOrMore>
+          <choice>
+          <ref name="element-repo"/>
+          <ref name="element-repofile"/>
+          </choice>
+        </oneOrMore>
 
       </element>
       </optional>
