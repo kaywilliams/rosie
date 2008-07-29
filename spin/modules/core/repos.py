@@ -112,8 +112,7 @@ class ReposEvent(RepoEventMixin, Event):
       self.cvars['anaconda-version-supplied'] or anaconda_version
     if not self.cvars['anaconda-version']:
       raise RuntimeError("Unable to find the 'anaconda' package in any "
-                         "specified repository, and 'anaconda-version' "
-                         "not given in <installer>")
+                         "specified repository")
 
     # set up the installer repo
     for repo in self.repos.values():
