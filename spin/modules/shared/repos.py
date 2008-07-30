@@ -95,9 +95,11 @@ class SpinRepo(YumRepo):
         if p.systemid:
           p.systemid = p.systemid.realpath()
           if not p.systemid.exists():
-            raise RuntimeError("unable to find systemid at '%s'" % p.systemid)
+            raise RuntimeError("unable to find systemid for repo '%s' at '%s'"
+                               % (self.id, p.systemid))
           elif not p.systemid.isfile():
-            raise RuntimeError("systemid '%s' isn't a regular file" % p.systemid)
+            raise RuntimeError("systemid '%s' for repo '%s' isn't a regular "
+                               "file" % (p.systemid, self.id))
       else:
         p = YumRepo._xform_uri(self, p)
     except AttributeError:
