@@ -190,7 +190,7 @@ def make_log(threshold, logfile=None):
   container.console = console
 
   if logfile:
-    logfile = Logger(threshold=None, file_object=open(logfile, 'a+'),
+    logfile = Logger(threshold=None, file_object=open(str(logfile), 'a+'),
                      format='%(time)s: %(message)s')
     container.list.append(logfile)
     container.logfile = logfile
