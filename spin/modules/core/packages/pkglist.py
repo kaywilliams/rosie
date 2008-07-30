@@ -172,20 +172,39 @@ class PkglistEvent(Event):
     except Exception, e:
       raise RuntimeError(str(e))
 
+    # ensure what we read in is comprehensible
+    rx = re.compile('(.+)-(.+)-(.+)\.(.+)')
+    for i in range(0, len(self.cvars['pkglist'])):
+      if not rx.match(self.cvars['pkglist'][i]):
+        raise ValueError("invalid package format '%s' on line %d of "
+                         "pkglist '%s'" % (self.cvars['pkglist'][i], i+1,
+                                           self.pkglistfile))
+
   def verify_pkglistfile_exists(self):
     "pkglist file exists"
     self.verifier.failUnlessExists(self.pkglistfile)
+
+  def verify_pkglistfile_has_content(self):
+    "pkglist file has content"
+    if self.cvars['pkglist']:
+      self.verifier.failUnless(len(self.cvars['pkglist']) > 0,
+                               "pkglst is empty")
+    else:
+      self.verifier.fail("pkglist is empty")
 
   def verify_kernel_arch(self):
     "kernel arch matches arch in config"
     matched = False
     for pkg in self.cvars['pkglist']:
-      n,v,r,a = NVRA_REGEX.match(pkg).groups()
-      if n not in KERNELS: continue
-      self.verifier.failUnlessEqual(rpmUtils.arch.getBaseArch(a), self.basearch,
-        "the base arch of kernel package '%s' does not match the specified "
-        "base arch '%s'" % (pkg, self.basearch))
-      matched = True
+      try:
+        n,v,r,a = NVRA_REGEX.match(pkg).groups()
+        if n not in KERNELS: continue
+        self.verifier.failUnlessEqual(rpmUtils.arch.getBaseArch(a), self.basearch,
+          "the base arch of kernel package '%s' does not match the specified "
+          "base arch '%s'" % (pkg, self.basearch))
+        matched = True
+      except AttributeError:
+        pass
 
     self.verifier.failUnless(matched, "no kernel package found")
 
