@@ -13,6 +13,7 @@ and Fedora versions 7, 8 and 9.
 The following packages are needed for Spin to run:
 
 * createrepo
+* dosfstools
 * gnupg
 * mkisofs (genisoimage in fedora 8+)
 * netpbm-progs

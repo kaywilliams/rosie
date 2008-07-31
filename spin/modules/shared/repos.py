@@ -154,6 +154,7 @@ class SpinRepoGroup(SpinRepo):
     # get directory listing so we can figure out information about this repo
     # find all subrepos
     repos = []
+
     if (self.url/'repodata/repomd.xml').exists():
       updates = {}
       for k,v in self.items():

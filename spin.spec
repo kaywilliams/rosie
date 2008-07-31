@@ -20,6 +20,7 @@ BuildRequires: python-setuptools
 BuildRequires: python-docutils
 
 Requires: createrepo
+Requires: dosfstools
 Requires: gnupg
 Requires: mkisofs
 Requires: netpbm-progs
