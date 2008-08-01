@@ -96,10 +96,10 @@ class SpinRepo(YumRepo):
           systemid = pps.path(systemid).realpath()
           if not systemid.exists():
             raise RuntimeError("unable to find systemid for repo '%s' at '%s'"
-                               % (self.id, p.systemid))
+                               % (self.id, systemid))
           elif not systemid.isfile():
             raise RuntimeError("systemid '%s' for repo '%s' isn't a regular "
-                               "file" % (p.systemid, self.id))
+                               "file" % (systemid, self.id))
           p.systemid = systemid
         else:
           raise RuntimeError("missing systemid for repo '%s'" % self.id)
@@ -209,6 +209,7 @@ class SpinRepoGroup(SpinRepo):
       if baseurls:
         kwargs['baseurl'] = '\n'.join([ b/repo._relpath for b in baseurls ])
       l.extend(repo.lines(**kwargs))
+      l.append('')
     return l
 
   def read_repomd(self):
