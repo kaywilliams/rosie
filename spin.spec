@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.13
+Version: 0.8.14
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
@@ -98,6 +98,35 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Fri Aug 01 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.14-1
+- bug 253 - added newline between repogroup repos; fixed error messages for systemid (dmusgrave)
+- bug 251 - better error message given with missing systemid (dmusgrave)
+- added 'dosfstools' to INSTALL and spin.spec (dmusgrave)
+- added repoid to various systemid error messages (dmusgrave)
+- bug 249 - convert log-file to a string before opening for better error message (dmusgrave)
+- bug 247 - pkglist validation improvements (dmusgrave)
+- Fixed Bug 248. (uprakash)
+- bug 241 - entering a systemid that is a directory => runtime error (dmusgrave)
+- merged with trunk (dmusgrave)
+- bug 245 - giving a non-file to <pkglist> no longer incorrectly results in (dmusgrave)
+- repos/sources schemas now validate at least one repo or repofile element (kwilliams)
+- comps.rng: whitespace fixup (kwilliams)
+- bug 239 - no longer references obsolete <installer> element in anaconda RuntimeError (dmusgrave)
+- added magic type check for gpgkeys prior to importing them into rpmdb (dmusgrave)
+- bug 237 - pkglist now properly runs when included or excluded pkgs change (dmusgrave)
+- merged with trunk (dmusgrave)
+- bug 236 - rhn repos are now filtered from the yum repo file created in config-rpm (dmusgrave)
+- If two configlets had the same key, the first one was being used. (uprakash)
+- comps schema: validating that 'conditional' packages have 'requires' (kwilliams)
+- PublishEvent triggers on changes to the 'selinux-enabled' variable. (uprakash)
+- Chdir'ing into the config file's folder at a later point in time. (uprakash)
+- diskboot-image rewrite - all diskboot images are now created from scratch (dmusgrave)
+- config-rpm.rng: file)
+- lib.rng: misc path attribute updates (kwilliams)
+- Fixed Bug 231. (uprakash)
+- Tagged as spin-0.8.13-1 (kwilliams)
+- Bumped version to spin-0.8.13-1.noarch. (spinmaster)
+
 * Wed Jul 23 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.13-1
 - Tagged as spin-0.8.12-1 (kwilliams)
 - Bumped version to spin-0.8.12-1.noarch. (spinmaster)

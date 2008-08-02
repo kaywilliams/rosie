@@ -1,8 +1,252 @@
+2008-08-01  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/shared/repos.py:
+	bug 253 - added newline between repogroup repos; fixed error
+	messages for systemid
+	[81fe7cbaa93f] [tip]
+
+2008-07-31  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/shared/repos.py:
+	bug 251 - better error message given with missing systemid
+	[454d33624b2e]
+
+	* INSTALL, spin.spec, spin/modules/shared/repos.py:
+	added 'dosfstools' to INSTALL and spin.spec (for diskboot.img
+	creation purposes)
+	[087c5cbcbe39]
+
+2008-07-30  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/shared/repos.py:
+	added repoid to various systemid error messages
+	[0062947eb2a7]
+
+	* spin/logging.py:
+	bug 249 - convert log-file to a string before opening for better
+	error message
+	[fd6e7ba2eca7]
+
+	* spin/modules/core/packages/pkglist.py:
+	bug 247 - pkglist validation improvements
+
+	spin/modules/core/packages/pkglist.py
+	 * all packages in pkglist are checked to ensure they have the correct
+	format (n-v-r.a)
+	 * spin prints a warning if the resulting pkglist is empty
+	 * caught an additional error case in the kernel validation case when
+	input rpms are in an incorrect format
+	[d254f076f995]
+
+2008-07-29  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* share/spin/schemas/distro/release-rpm.rng,
+	spin/modules/core/rpmbuild/release-rpm.py, spintest/modules/release-
+	rpm.py:
+	Fixed Bug 248.
+
+	Removed support for <omf/> element in the 'release-rpm' event. Also,
+	updated the schema file and the test cases to reflect this change.
+	[d4011caf7bcd]
+
+2008-07-29  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/shared/repos.py:
+	bug 241 - entering a systemid that is a directory => runtime error
+	[9a826bfe2d1a]
+
+	* merged with trunk
+	[df6211f5c5ee]
+
+	* spin/modules/core/packages/comps.py,
+	spin/modules/core/packages/pkglist.py,
+	spin/modules/extensions/iso.py:
+	bug 245 - giving a non-file to <pkglist> no longer incorrectly
+	results in (potentially) massive downloads nor improper handling of
+	error condition
+
+	Also proactively fixed similar error cases in <comps> and <pkgorder>
+	[044b47b6772c]
+
+2008-07-29  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* share/spin/schemas/distro/lib.rng,
+	share/spin/schemas/distro/repos.rng,
+	share/spin/schemas/distro/sources.rng:
+	repos/sources schemas now validate at least one repo or repofile
+	element
+	[43516a605f5e]
+
+	* share/spin/schemas/distro/comps.rng:
+	comps.rng: whitespace fixup
+	[85444fd2ad46]
+
+2008-07-29  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/core/repos.py:
+	bug 239 - no longer references obsolete <installer> element in
+	anaconda RuntimeError
+	[1a18c4a3e0b9]
+
+	* spin/modules/core/packages/gpgcheck.py:
+	added magic type check for gpgkeys prior to importing them into
+	rpmdb
+	[210eafcd8cfb]
+
+	* spin/modules/core/packages/pkglist.py:
+	bug 237 - pkglist now properly runs when included or excluded pkgs
+	change
+
+	spin/modules/core/packages/pkglist.py
+	 * removed .rddirs
+	 * now automatically adds baseurl, mirrorlist, exclude, includepkgs,
+	and enabled attributes of each repo to the variable list of
+	DiffMixin if their values are non-None/non-empty
+	[392dd7062bb4]
+
+	* merged with trunk
+	[4cf560cfc982]
+
+	* spin/modules/core/packages/gpgcheck.py, spin/modules/core/rpmbuild
+	/config-rpm.py, spin/modules/shared/repos.py:
+	bug 236 - rhn repos are now filtered from the yum repo file created
+	in config-rpm
+
+	spin/modules/core/rpmbuild/config-rpm.py
+	 * if a repo is specified explicitly in the list of repoids to include
+	in the yum .repo file and it's url is a RhnPath, a warning is
+	printed to the screen that the repo was skipped. If the machine
+	in question doesn't have RhnPath support, this check is skipped
+	(though it should never reach this point anyway because spin will
+	fail earlier when trying to create this path in the first place).
+	[c379ed9187ad]
+
+2008-07-28  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/rpmbuild/logos-rpm/config/__init__.py:
+	If two configlets had the same key, the first one was being used.
+
+	This was happening when the anaconda version of the two configlets
+	were the same, but the precedence of the first one was less than the
+	precedence of the second one.
+	[13373779f354]
+
+2008-07-28  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* share/spin/schemas/distro/comps.rng:
+	comps schema: validating that 'conditional' packages have 'requires'
+
+	Modified schema for the 'package' element so that if the 'type'
+	attribute is set to 'conditional', the 'requires' attribute is
+	required, and vice versa.
+
+	Now if only our xml schema validator would report the error on the
+	correct line. Sigh.
+	[04b494bae9c2]
+
+2008-07-28  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/publish.py:
+	PublishEvent triggers on changes to the 'selinux-enabled' variable.
+
+	The 'selinux-enabled' variable is set to True is selinux enabled is
+	set to True. The 'publish' event runs `chcon' on the publish
+	directory if it is set to True. If this variable changes, the
+	'publish' event runs again.
+	[84575af0d1e6]
+
+	* spin/main.py:
+	Chdir'ing into the config file's folder at a later point in time.
+
+	Previously, we were chdir'ing into the distrodef file's folder soon
+	after reading the distrodef file. This breaks the setting up of the
+	share paths because if a share path specified at the command line is
+	relative, it is made relative to the distrodef file's directory.
+	Now, we chdir into the distrodef's directory after setting up all
+	the Event objects' default values.
+	[8b08877e4094]
+
+2008-07-28  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/locals/files.py, spin/modules/core/installer/diskboot-image.py,
+	spin/modules/core/installer/initrd-image.py,
+	spin/modules/core/installer/product-image.py,
+	spin/modules/core/installer/xen-images.py,
+	spin/modules/extensions/installer/updates-image.py,
+	spin/modules/shared/bootcfg.py, spin/modules/shared/installer.py:
+	diskboot-image rewrite - all diskboot images are now created from
+	scratch
+
+	spin/locals/files.py
+	 * removed 'virtual' property on product.img and updates.img
+	spin/modules/core/installer/diskboot-image.py
+	 * diskboot-image event now generates a diskboot.img file from scratch
+	instead of using the diskboot.img from the base distro as the
+	source. This means that fedora 9 can have a working diskboot.img
+	file again spin/modules/core/installer/*-image.py
+	 * added explicit handling of virtual images when necessary
+	spin/modules/extensions/installer/updates-image.py
+	 * added explicit handling of virtual images
+	spin/modules/shared/bootcfg.py
+	 * now forces the remove of the bootconfig file
+	spin/modules/shared/installer.py
+	 * removed virtual image processing
+	 * added add_image(), create_image(), and add_or_create_image(), the
+	replacements for virtual images. add_image() will create a copy of
+	the image in image_locals from the source (it must already
+	exist); create_image() will create a new image locally;
+	add_or_create_image() will copy the image in the source, if it
+	exists, or create a new image locally if not.
+	 * removed custom processing of output cleanup; now uses
+	.io.clean_eventcache()
+	[c1955b1e568f]
+
+2008-07-24  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* share/spin/schemas/distro/config-rpm.rng:
+	config-rpm.rng: file@destdir now requires an absolute local path
+	[0bbae1e72ebe]
+
+	* share/spin/schemas/distro/lib.rng:
+	lib.rng: misc path attribute updates
+
+	* added value-filename which disallows '/' characters in filenames
+	* added value-absolute-local-path which requires a leading '/'
+	character
+	* renamed content-path pattern to 'attribute-mode' since in effect it
+	defined the mode attribute
+	* added attribute-destdir-absolute, parallel to attribute-destdir,
+	which references value-absolute-local-path
+	* other misc cleanup/organization
+	[e01162bc42b4]
+
+2008-07-23  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/event/fileio.py, spin/modules/extensions/packages/gpgsign.py:
+	Fixed Bug 231.
+
+	In IOMixin.sync_input() when checking to see if the mode of the
+	input file is different from what's on disk, we need to `&' the
+	input file's mode with 07777 to get an accurate condition.
+	[e3b8add00658]
+
+2008-07-23  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.13-1
+	[3fe1e2de784a]
+
+2008-07-23  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.13-1.noarch.
+	[c6194c785ff2] [spin-0.8.13-1]
+
 2008-07-23  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* .hgtags:
 	Tagged as spin-0.8.12-1
-	[4223f5fa4c7d] [tip]
+	[4223f5fa4c7d]
 
 2008-07-23  spinmaster  <spinmaster>
 
