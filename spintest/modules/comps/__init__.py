@@ -76,7 +76,7 @@ class Test_Supplied(_CompsEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='comps')
-    comps_in  = rxml.tree.read(pps.path(__file__).dirname/'comps.xml')
+    comps_in  = rxml.tree.read(pps.path(__file__).abspath().dirname/'comps.xml')
     comps_out = self.read_comps()
 
     self.failUnlessEqual(comps_in, comps_out)
