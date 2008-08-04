@@ -25,8 +25,9 @@ from rendition import img
 from rendition import repo
 from rendition import versort
 
-from spin.event     import Event
-from spin.logging   import L1
+from spin.errors  import assert_file_readable
+from spin.event   import Event
+from spin.logging import L1
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -89,10 +90,8 @@ class BaseInfoEvent(Event):
     buildstamp = ffile.DictToFormattedFile(self.locals.L_BUILDSTAMP_FORMAT)
 
     # update base vars
-    try:
-      self.cvars.setdefault('base-info', {}).update(buildstamp.read(self.buildstamp_out))
-    except Exception, e:
-      raise RuntimeError(str(e))
+    assert_file_readable(self.buildstamp_out)
+    self.cvars.setdefault('base-info', {}).update(buildstamp.read(self.buildstamp_out))
 
   def verify_buildstamp_file(self):
     "verify buildstamp file exists"

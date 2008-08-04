@@ -28,6 +28,7 @@ import time
 from rendition.repo import RepoContainer, ReposFromFile, ReposFromXml
 
 from spin.constants import SRPM_PNVRA_REGEX, SRPM_REGEX
+from spin.errors    import assert_file_readable, SpinError
 from spin.event     import Event
 from spin.logging   import L1, L2
 from spin.validate  import InvalidConfigError
@@ -59,12 +60,6 @@ class SourceReposEvent(Event, RepoEventMixin):
       'output':    [],
     }
 
-  def validate(self):
-    # repos config must contain at least one repo or repofile
-    if not self.config.xpath('repo', []) and not self.config.xpath('repofile', []):
-        raise InvalidConfigError(self.config.getroot().file,
-          "<sources> must contain at least one <repo> or <repofile> element")
-
   def setup(self):
     self.diff.setup(self.DATA)
 
@@ -91,10 +86,8 @@ class SourceReposEvent(Event, RepoEventMixin):
 
     for repo in self.repos.values():
       if repo.pkgsfile.exists():
-        try:
-          repo.repocontent.read(repo.pkgsfile)
-        except Exception, e:
-          raise RuntimeError(str(e))
+        assert_file_readable(repo.pkgsfile)
+        repo.repocontent.read(repo.pkgsfile)
 
     # set up cvars
     self.cvars['source-repos'] = self.repos
@@ -156,8 +149,7 @@ class SourcesEvent(Event, CreaterepoMixin):
           self.io.add_fpath(rpmi, self.srpmdest, id=repo.id)
 
     if srpmset != processed_srpmset:
-      raise RuntimeError("The following SRPMs were not found in any "
-                         "input repo:\n%s" % sorted(srpmset - processed_srpmset))
+      raise MissingSrpmsError(sorted(srpmset - processed_srpmset))
 
   def run(self):
     self.log(1, L1("processing srpms"))
@@ -197,3 +189,7 @@ class SourcesEvent(Event, CreaterepoMixin):
       debugdir = (self.mddir + '.debug')
       debugdir.mkdir()
       self.mdfile.rename(debugdir/self.mdfile.basename)
+
+
+class MissingSrpmsError(SpinError):
+  message = "The following SRPMs were not found in any input repo:\n%(srpms)s"

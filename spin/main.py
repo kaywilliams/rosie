@@ -25,8 +25,6 @@ __author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
 __version__ = '3.0'
 __date__    = 'June 26th, 2007'
 
-DEBUG = True # enable to print tracebacks; disable for 'release mode'
-
 import errno
 import imp
 import os
@@ -52,6 +50,7 @@ from rendition.sync import link
 from spin.callback  import (SyncCallback, CachedSyncCallback, LinkCallback,
                             SyncCallbackCompressed)
 from spin.constants import *
+from spin.errors    import SpinErrorHandler
 from spin.event     import Event, CLASS_META
 from spin.logging   import make_log, L0, L1, L2
 from spin.validate  import (ConfigValidator, MainConfigValidator,
@@ -79,7 +78,7 @@ ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
 # the following chars are allowed in filenames...
 FILENAME_REGEX = re.compile('^[a-zA-Z0-9_\-\.]+$')
 
-class Build(object):
+class Build(SpinErrorHandler, object):
   """
   Primary build class - framework upon which a custom spin is generated
 
@@ -119,6 +118,11 @@ class Build(object):
 
     # set up configs
     self._get_config(options, arguments)
+
+    # set debug mode
+    self.debug = ( options.debug or
+                   self.mainconfig.getbool('/spin/debug', False) or
+                   False )
 
     # set up real logger - console and file
     logfile = pps.path(options.logfile
@@ -170,7 +174,7 @@ class Build(object):
 
     except ImportError, e:
       Event.logger.log(0, L0("Error loading core spin files: %s" % e))
-      if DEBUG: raise
+      if self.debug: raise
       sys.exit(1)
 
     # list modules, if requested
@@ -212,7 +216,7 @@ class Build(object):
         sys.exit(1)
       except Exception, e:
         Event.logger.log(0, L0("Unhandled exception: %s" % e))
-        if DEBUG: raise
+        if self.debug: raise
         sys.exit(1)
       if options.validate_only:
         print self.distroconfig
@@ -223,7 +227,10 @@ class Build(object):
     if self._lock.acquire():
       self._log_header()
       try:
-        self.dispatch.execute(until=None)
+        try:
+          self.dispatch.execute(until=None)
+        except Exception, e:
+          self._handle_Exception(e)
       finally:
         self._lock.release()
       DEFAULT_TEMP_DIR.rm(recursive=True, force=True) # clean up temp dir

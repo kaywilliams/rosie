@@ -48,6 +48,15 @@ def main():
     action='store_true',
     default=False,
     help="clear cache of downloaded files before executing")
+  parser.add_option('--debug',
+    dest='debug',
+    action='store_true',
+    default=False,
+    help=SUPPRESS_HELP)
+  parser.add_option('--no-debug',
+    dest='debug',
+    action='store_false',
+    help=SUPPRESS_HELP)
 
   config_group = OptionGroup(parser, "config options")
   config_group.add_option('-c', '--config', metavar='PATH',

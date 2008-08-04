@@ -70,20 +70,14 @@ class CreaterepoMixin:
         shlib.execute(' '.join(args))
       except shlib.ShExecError, e:
         if count >= CREATEREPO_ATTEMPTS or \
-           (e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK):
-          self.log(0,
-            "An unhandled exception has occurred while running 'createrepo' "
-            "in the '%s' event.\n\nError message was: %s" % (self.id, e))
-          sys.exit(1)
-        # over here iff e.errno == EAGAIN or e.errno == EWOULDBLOCK
+            e.errno not in [errno.EAGAIN, errno.EWOULDBLOCK]:
+          raise
         count += 1
       else:
         break
 
     os.chdir(cwd)
     return repo_files
-
-class RpmNotFoundError(IOError): pass
 
 def RpmPackageVersion(name):
   return Version(

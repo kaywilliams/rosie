@@ -15,12 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import errno
+import os
+
 from rendition import pkgorder
 from rendition import shlib
 
 from spin import splittree
 
 from spin.callback import BuildDepsolveCallback
+from spin.errors   import SpinIOError
 from spin.event    import Event, CLASS_META
 from spin.logging  import L1, L2, L3
 
@@ -67,9 +71,8 @@ class PkgorderEvent(Event):
     self.DATA['input'].append(self.cvars['repodata-directory'])
 
     if self.dosync:
-      if not self.config.getpath('pkgorder').isfile():
-        raise ValueError("given pkgorder '%s' is not a file"
-                         % self.config.getpath('pkgorder'))
+      pkofile = self.config.getpath('pkgorder')
+      assert_file_readable(pkofile, PkgorderIOError)
       self.io.add_xpath('pkgorder', self.mddir, id='pkgorder')
       self.pkgorderfile = self.io.list_output(what='pkgorder')[0]
     else:
@@ -254,3 +257,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
         isolinux_path.utime((i_st.st_atime, i_st.st_mtime))
 
     self.DATA['output'].extend([self.splittrees/set, self.isodir/set])
+
+class PkgorderIOError(SpinIOError):
+  message = ( "Unable to read pkgorder file '%(file)s': [errno %(errno)d] "
+              "%(message)s" )

@@ -176,9 +176,8 @@ class PkglistEvent(Event):
     rx = re.compile('(.+)-(.+)-(.+)\.(.+)')
     for i in range(0, len(self.cvars['pkglist'])):
       if not rx.match(self.cvars['pkglist'][i]):
-        raise ValueError("invalid package format '%s' on line %d of "
-                         "pkglist '%s'" % (self.cvars['pkglist'][i], i+1,
-                                           self.pkglistfile))
+        raise InvalidPkglistFormatError(self.pkglistfile,
+                                        i+1, self.cvars['pkglist'][i])
 
   def verify_pkglistfile_exists(self):
     "pkglist file exists"
@@ -229,3 +228,10 @@ class PkglistEvent(Event):
       conf.append('\n')
     repoconfig.write_lines(conf)
     return repoconfig
+
+
+class InvalidPkglistFormatError(ValueError):
+  message = ( "Invalid format '%(pkgfile)s' on line %(lino)d of "
+              "pkglist '%(line)s'.\n\nFormat should "
+              "be %{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}" )
+

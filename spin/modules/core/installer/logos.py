@@ -28,7 +28,7 @@ from rendition import shlib
 from spin.constants import SRPM_REGEX
 from spin.event     import Event
 
-from spin.modules.shared import ExtractMixin, RpmNotFoundError
+from spin.modules.shared import ExtractMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

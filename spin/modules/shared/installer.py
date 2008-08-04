@@ -28,8 +28,7 @@ from rendition import sync
 
 from spin.logging   import L1
 
-__all__ = ['ExtractMixin', 'ImageModifyMixin', 'FileDownloadMixin',
-           'RpmNotFoundError', 'OutputInvalidError']
+__all__ = ['ExtractMixin', 'ImageModifyMixin', 'FileDownloadMixin']
 
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')
 
@@ -209,6 +208,3 @@ class FileDownloadMixin:
 
   def _download(self):
     self.io.sync_input(what='FileDownloadMixin', cache=True)
-
-class RpmNotFoundError(Exception): pass
-class OutputInvalidError(Exception): pass

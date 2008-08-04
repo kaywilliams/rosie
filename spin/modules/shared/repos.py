@@ -16,9 +16,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
+import errno
+import os
 import re
 import time
 
+from rendition import listfmt
 from rendition import pps
 from rendition import rxml
 
@@ -26,8 +29,10 @@ from rendition.difftest.filesdiff import DiffTuple
 
 from rendition.pps.constants import TYPE_DIR
 
+from spin.errors    import SpinError, SpinIOError, RhnSupportError, assert_file_readable
 from spin.logging   import L1, L2
 from spin.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
+from spin.validate  import InvalidConfigError
 
 from rendition.repo          import ReposFromXml, ReposFromFile, getDefaultRepos
 from rendition.repo.repo     import YumRepo, RepoContainer, NSMAP
@@ -55,7 +60,7 @@ class SpinRepo(YumRepo):
     elif s is None:
       return None
     else:
-      raise ValueError('invalid boolean value')
+      raise ValueError("invalid boolean value '%s'" % s)
 
   @property
   def pkgsfile(self):
@@ -74,10 +79,10 @@ class SpinRepo(YumRepo):
     if not names: return (None, None)
 
     scan = re.compile('(?:.*/)?(' + '|'.join(names) + ')-(.*)(\..*\..*$)')
-    if not self.pkgsfile.exists():
-      raise RuntimeError("Unable to compute package version for '%s': "
-                         "pkgsfile '%s' does not exist."
-                         % (names, self.pkgsfile))
+    assert_file_readable(self.pkgsfile, PkgsfileIOError,
+                         names=listfmt.format(names,
+                                              sep=', ', pre='\'',
+                                              post='\'', last=' or '))
     for rpm in self.pkgsfile.read_lines():
       match = scan.match(rpm)
       if match:
@@ -94,15 +99,10 @@ class SpinRepo(YumRepo):
         systemid = self.get('systemid')
         if systemid:
           systemid = pps.path(systemid).realpath()
-          if not systemid.exists():
-            raise RuntimeError("unable to find systemid for repo '%s' at '%s'"
-                               % (self.id, systemid))
-          elif not systemid.isfile():
-            raise RuntimeError("systemid '%s' for repo '%s' isn't a regular "
-                               "file" % (systemid, self.id))
+          assert_file_readable(systemid, cls=SystemidIOError, repoid=self.id)
           p.systemid = systemid
         else:
-          raise RuntimeError("missing systemid for repo '%s'" % self.id)
+          raise SystemidUndefinedError(self.id)
       else:
         p = YumRepo._xform_uri(self, p)
     except AttributeError:
@@ -126,9 +126,7 @@ class RhnSpinRepo(SpinRepo):
         consistent = True; break
       i += 1
     if not consistent:
-      raise RuntimeError("Unable to obtain consistent value for one "
-                         "or more checksums in repo '%s' after %d tries"
-                         % (self.id, self.MAX_TRIES))
+      raise InconsistentRepodataError(self.id, self.MAX_TRIES)
 
 
 class SpinRepoGroup(SpinRepo):
@@ -150,9 +148,8 @@ class SpinRepoGroup(SpinRepo):
     except AttributeError:
       if self.url.realm.startswith('rhn://') or \
          self.url.realm.startswith('rhns://'):
-        raise ValueError("RHN path support not enabled - please install "
-                         "the 'rhnlib' and 'rhn-client-tools' packages.")
-      pass
+        raise RhnSupportError()
+      raise
 
     # get directory listing so we can figure out information about this repo
     # find all subrepos
@@ -184,8 +181,7 @@ class SpinRepoGroup(SpinRepo):
           self._repos.add_repo(R)
 
     if len(self._repos) == 0:
-      raise RuntimeError("Unable to find repodata folder for repo '%s' at '%s'"
-                          % (self.id, self.url.realm))
+      raise RepodataNotFoundError(self.id, self.url.realm)
 
     # set up $yumvar replacement for all subrepos
     for R in self._repos.values():
@@ -228,6 +224,12 @@ class RepoEventMixin:
   def __init__(self):
     self.repos = RepoContainer()
 
+  def validate(self):
+    # repos config must contain at least one repo or repofile
+    if not self.config.xpath('repo', []) and not self.config.xpath('repofile', []):
+      raise InvalidConfigError(self.config.getroot().file,
+        "<%s> must contain at least one <repo> or <repofile> element" % self.id)
+
   def setup_repos(self, repos=None):
     """
     Populates self.repos with Repo objects from the specified defaults
@@ -258,7 +260,7 @@ class RepoEventMixin:
 
     # make sure we got at least one repo out of that mess
     if not len(self.repos) > 0:
-      raise RuntimeError("No enabled repos in <%s>" % self.id)
+      raise NoReposEnabledError(self.id)
 
     # warn if multiple repos use the same mirrorlist and different baseurls
     mirrorgroups = {}
@@ -416,3 +418,25 @@ class ReposDiffTuple(DiffTuple):
     if self.mtime == -1 and self.path.basename != 'repomd.xml':
       # if mtime is -1, the path must exist, so we don't need try/except
       self.csum = self.path.shasum()
+
+
+class NoReposEnabledError(SpinError, RuntimeError):
+  message = "No enabled repos in '%(modid)s' module"
+
+class RepodataNotFoundError(SpinError, RuntimeError):
+  message = "Unable to find repodata folder for repo '%(repoid)s' at '%(url)s'"
+
+class InconsistentRepodataError(SpinError, RuntimeError):
+  message = ( "Unable to obtain consistent value for one or more checksums "
+              " in repo '%(repoid)s' after %(ntries)d tries" )
+
+class SystemidIOError(SpinIOError):
+  message = ( "Unable to read systemid file '%(file)s' for repo "
+              "'%(repo)s': [errno %(errno)d] %(message)s" )
+
+class SystemidUndefinedError(SpinError, InvalidConfigError):
+  message = "No <systemid> element defined for repo '%(repoid)s'"
+
+class PkgsfileIOError(SpinIOError):
+  message = ( "Unable to compute package version for %(names)s with pkgsfile "
+              "'%(file)s': [errno %(errno)d] %(message)s" )

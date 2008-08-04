@@ -20,9 +20,10 @@ import re
 from rendition.repo    import ReposFromXml, ReposFromFile, RepoContainer
 from rendition.versort import Version
 
-from spin.event     import Event
-from spin.logging   import L1, L2
-from spin.validate  import InvalidConfigError
+from spin.errors   import assert_file_readable, SpinError
+from spin.event    import Event
+from spin.logging  import L1, L2
+from spin.validate import InvalidConfigError
 
 from spin.modules.shared import RepoEventMixin, SpinRepoGroup
 
@@ -58,12 +59,6 @@ class ReposEvent(RepoEventMixin, Event):
       'output':    [],
     }
 
-  def validate(self):
-    # repos config must contain at least one repo or repofile
-    if not self.config.xpath('repo', []) and not self.config.xpath('repofile', []):
-        raise InvalidConfigError(self.config.getroot().file,
-          "<repos> must contain at least one <repo> or <repofile> element")
-
   def setup(self):
     self.diff.setup(self.DATA)
 
@@ -91,10 +86,8 @@ class ReposEvent(RepoEventMixin, Event):
 
     for repo in self.repos.values():
       # read repocontent
-      try:
-        repo.repocontent.read(repo.pkgsfile)
-      except Exception, e:
-        raise RuntimeError(str(e))
+      assert_file_readable(repo.pkgsfile)
+      repo.repocontent.read(repo.pkgsfile)
 
       # get logos and release versions, if any in repo
       for pkgid,allpkgs in RPMDATA.items(): # see below
@@ -111,8 +104,7 @@ class ReposEvent(RepoEventMixin, Event):
     self.cvars['anaconda-version'] = \
       self.cvars['anaconda-version-supplied'] or anaconda_version
     if not self.cvars['anaconda-version']:
-      raise RuntimeError("Unable to find the 'anaconda' package in any "
-                         "specified repository")
+      raise AnacondaNotFoundError()
 
     # set up the installer repo
     for repo in self.repos.values():
@@ -121,8 +113,7 @@ class ReposEvent(RepoEventMixin, Event):
         break
 
     if not self.cvars['installer-repo']:
-      raise RuntimeError("Unable to find 'isolinux/' and 'images/' "
-                         "folders inside any given repository.")
+      raise InstallerRepoNotFoundError()
 
     # set up cvars
     self.cvars['repos']   = self.repos
@@ -151,9 +142,14 @@ class ReposEvent(RepoEventMixin, Event):
     self.verifier.failUnlessSet('anaconda-version')
     self.verifier.failUnlessSet('installer-repo')
 
-
 #------ ERRORS ------#
-class RepoNotFoundError(StandardError): pass
+class AnacondaNotFoundError(SpinError):
+  message = "Unable to find the 'anaconda' package in any specified repository"
+
+class InstallerRepoNotFoundError(SpinError):
+  message = ( "Unable to find 'isolinux/' and 'images/' folders inside any "
+              "given repository." )
+
 
 #------ LOCALS ------#
 # maps an rpm type to the names of rpms for the 'category'

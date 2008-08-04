@@ -112,11 +112,11 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
       self.log(5, L0('running %s.verify()' % self.id))
       self.verify()
     except EventExit, e:
-      self._handle_EventExit(e)
-    except KeyboardInterrupt, e:
-      self._handle_KeyboardInterrupt(e)
+      self.log(0, e)
+      sys.exit()
     except Exception, e:
-      self._handle_Exception(e)
+      self.error(e)
+      raise
 
   # override these methods to get stuff to actually happen!
   def _add_cli(self, parser): pass
@@ -188,30 +188,6 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     except rxml.errors.XmlPathError:
       return DummyConfig(self._config)
 
-  #------ ERROR HANDLING ------#
-  def _handle_EventExit(self, e):
-    self.log(0, e)
-    sys.exit()
-
-  def _handle_KeyboardInterrupt(self, e):
-    self.error(e)
-    raise KeyboardInterrupt
-
-  def _handle_Exception(self, e):
-    self.error(e)
-    traceback.print_exc(file=self.logger.logfile.file_object)
-    if self.logger.test(3) or DEBUG:
-      raise
-    else:
-      self.log(0,
-        "An unhandled exception has been generated while processing "
-        "the '%s' event.  The traceback has been recorded in the log "
-        "file.  Please report this error by sending a copy of your "
-        "log file, configuration files, and any other relevant "
-        "information to contact@renditionsoftware.com.\n\nError message "
-        "was: %s" % (self.id, e))
-    sys.exit(1)
-
 
 class EventExit:
   "Error an event can raise in order to exit program execution"
@@ -259,5 +235,3 @@ class DummyConfig(object):
 
   def getpaths(self, path, fallback=rxml.tree.NoneObject()):
     return [ rxml.config._make_path(x) for x in self.xpath(path, fallback) ]
-
-from spin.main import DEBUG # imported here to avoid circular ref
