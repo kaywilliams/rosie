@@ -20,9 +20,9 @@ from rendition import magic
 from rendition import mkrpm
 from rendition import shlib
 
-from spin.callback  import GpgCallback
-from spin.event     import Event
-from spin.logging   import L1, L2
+from spin.callback import GpgCallback
+from spin.event    import Event
+from spin.logging  import L1, L2
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -36,7 +36,7 @@ class GpgCheckEvent(Event):
     Event.__init__(self,
       id = 'gpgcheck',
       parentid = 'packages',
-      version = 1,
+      version = '1',
       requires = ['rpms-by-repoid', 'repos'],
     )
 
