@@ -17,6 +17,7 @@
 #
 from rendition import rxml
 
+from spin.errors    import assert_file_readable, SpinError
 from spin.event     import Event
 from spin.logging   import L1
 from spin.constants import KERNELS
@@ -56,9 +57,7 @@ class CompsEvent(Event):
     self.comps_supplied = self.config.get('text()', False)
 
     if self.comps_supplied:
-      if not self.config.getpath('.').isfile():
-        raise ValueError("given groupfile '%s' is not a file"
-                         % self.config.getpath('.'))
+      assert_file_readable(self.config.getpath('.'))
       self.io.add_xpath('.', self.mddir, id='comps.xml')
 
     else:
@@ -99,11 +98,9 @@ class CompsEvent(Event):
       self.cvars['comps-file'] = self.comps_out
 
     # set required packages variable
-    try:
-      self.cvars['required-packages'] = \
-         rxml.config.read(self.cvars['comps-file']).xpath('//packagereq/text()')
-    except Exception, e:
-      raise RuntimeError(str(e))
+    assert_file_readable(self.cvars['comps-file'])
+    self.cvars['required-packages'] = \
+       rxml.config.read(self.cvars['comps-file']).xpath('//packagereq/text()')
 
     # set user required packages variable
     self.cvars['user-required-packages'] = \
@@ -147,7 +144,7 @@ class CompsEvent(Event):
     for gid, data in self._groupfiledata.items():
       # if packages is empty, no group definition was found
       if not data['packages']:
-        raise CompsError("unable to find group definition for '%s' in any groupfile" % gid)
+        raise CompsGroupNotFoundError(gid)
 
       dg = self._groups.setdefault(gid, CompsGroup(gid, **data['attrs']))
 
@@ -213,12 +210,10 @@ class CompsEvent(Event):
       try:
         self.cvars['repos'][rid]
       except KeyError:
-        raise CompsError("group '%s' specifies an invalid repoid '%s'; relevant config element is:\n%s" % \
-                         (gid, rid, group))
+        raise RepoidNotFoundError(gid, rid)
 
       if rid not in repo_groupfiles:
-        raise CompsError("group '%s' specifies a repoid '%s' that doesn't have its own groupfile" % \
-                         (gid, rid))
+        raise RepoHasNoGroupfileError(gid, rid)
 
 
   def _dict_from_xml(self, elem):
@@ -230,10 +225,8 @@ class CompsEvent(Event):
 
   def _process_groupfile(self, groupfile, id=None):
     "Process a groupfile, adding the requested groups to the groups dict"
-    try:
-      tree = rxml.config.read(groupfile)
-    except Exception, e:
-      raise CompsError("error reading file '%s': %s" % (groupfile, e))
+    assert_file_readable(groupfile)
+    tree = rxml.config.read(groupfile)
 
     # add any other groups specified
     for group in self.config.xpath(
@@ -385,7 +378,7 @@ class PackageReq(object):
     elif isinstance(other, str):
       return self.name == other
     else:
-      raise TypeError
+      raise TypeError(type(other))
 
   def toXml(self):
     attrs = {}
@@ -406,7 +399,7 @@ class GroupReq(object):
     elif isinstance(other, str):
       return self.name == other
     else:
-      raise TypeError
+      raise TypeError(type(other))
 
   def toXml(self):
     return Element('groupreq', text=self.name)
@@ -449,4 +442,14 @@ Element  = rxml.config.Element
 uElement = rxml.config.uElement
 
 #------ ERRORS ------#
-class CompsError(StandardError): pass
+class CompsError(SpinError): pass
+
+class GroupNotFoundError(CompsError):
+  message = "Group '%(group)s' not found in any groupfile"
+
+class RepoidNotFoundError(CompsError):
+  message = "Group '%(group)s' specifies nonexistant repoid '%(repoid)s'"
+
+class RepoHasNoGroupfileError(CompsError):
+  message = ( "Group '%(group)s' specifies repoid '%(repoid)s', which "
+              "doesn't have a groupfile" )

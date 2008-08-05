@@ -21,6 +21,7 @@ import time
 from rpmUtils.arch import getArchList
 
 from spin.constants import RPM_PNVRA_REGEX
+from spin.errors    import SpinError
 from spin.event     import Event
 from spin.logging   import L1, L2
 
@@ -81,8 +82,7 @@ class DownloadEvent(Event):
         self.cvars['rpms-by-repoid'][repo.id].sort()
 
     if rpmset != processed_rpmset:
-      raise RuntimeError("The following RPMs were not found in any "
-                         "input repos:\n%s" % sorted(rpmset - processed_rpmset))
+      raise RpmsNotFoundError(sorted(rpmset - processed_rpmset))
 
   def run(self):
     for repo in self.cvars['repos'].values():
@@ -112,3 +112,7 @@ class DownloadEvent(Event):
       debugdir=(self.mddir + '.debug')
       debugdir.mkdir()
       self.mdfile.rename(debugdir / self.mdfile.basename)
+
+
+class RpmsNotFoundError(SpinError):
+  message = "The following RPMs were not found in any input repos:\n%(rpms)s"

@@ -23,6 +23,7 @@ from rendition import difftest
 
 from spin.callback  import BuildDepsolveCallback
 from spin.constants import KERNELS
+from spin.errors    import assert_file_readable, SpinError
 from spin.event     import Event
 from spin.logging   import L1
 
@@ -85,9 +86,7 @@ class PkglistEvent(Event):
 
     # setup if copying pkglist
     if self.docopy:
-      if not self.config.getpath('.').isfile():
-        raise ValueError("given pkglist '%s' is not a file"
-                         % self.config.getpath('.'))
+      assert_file_readable(self.config.getpath('.'))
       self.io.add_xpath('.', self.mddir, id='pkglist')
       self.pkglistfile = self.io.list_output(what='pkglist')[0]
       return
@@ -167,10 +166,8 @@ class PkglistEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
-    try:
-      self.cvars['pkglist'] = self.pkglistfile.read_lines()
-    except Exception, e:
-      raise RuntimeError(str(e))
+    assert_file_readable(self.pkglistfile)
+    self.cvars['pkglist'] = self.pkglistfile.read_lines()
 
     # ensure what we read in is comprehensible
     rx = re.compile('(.+)-(.+)-(.+)\.(.+)')
@@ -230,8 +227,7 @@ class PkglistEvent(Event):
     return repoconfig
 
 
-class InvalidPkglistFormatError(ValueError):
+class InvalidPkglistFormatError(SpinError):
   message = ( "Invalid format '%(pkgfile)s' on line %(lino)d of "
               "pkglist '%(line)s'.\n\nFormat should "
               "be %{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}" )
-

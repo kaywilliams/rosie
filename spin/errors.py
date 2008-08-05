@@ -9,7 +9,7 @@ from rendition import pps
 REGEX_KWPARSE = re.compile('%\(([^\)]+)\).')
 
 def assert_file_readable(file, cls=None, **kwargs):
-  "Raise a SpinIOError (or subclass) if a file isn't readable for some reason"
+  "Raise a SpinIOError (or subclass) if a file isn't readable or is empty"
   fp = None
   try:
     try:
@@ -18,6 +18,11 @@ def assert_file_readable(file, cls=None, **kwargs):
       raise (cls or SpinIOError)(errno=e.errno,
                                  file=file,
                                  message=os.strerror(e.errno),
+                                 **kwargs)
+    if not fp.read(1024):
+      raise (cls or SpinIOError)(errno=-1,
+                                 file=file,
+                                 message="file is empty",
                                  **kwargs)
   finally:
     fp and fp.close()

@@ -16,13 +16,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from rendition import magic
 from rendition import mkrpm
 from rendition import shlib
 
 from spin.callback import GpgCallback
+from spin.errors   import SpinError, assert_file_readable
 from spin.event    import Event
 from spin.logging  import L1, L2
+from spin.validate import InvalidConfigError
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -60,8 +61,7 @@ class GpgCheckEvent(Event):
           self.gpgkeys[repo.id] = repo.gpgkey
           self.rpms[repo.id] = self.cvars['rpms-by-repoid'][repo.id]
         else:
-          raise RuntimeError("gpgcheck enabled for '%s' repository, but no "
-                             "keys provided" % repo.id)
+          raise NoGpgkeysProvidedError(repo.id)
 
     for repo in self.gpgkeys.keys():
       self.io.add_fpaths(self.gpgkeys[repo], self.mddir/repo, id=repo)
@@ -92,9 +92,7 @@ class GpgCheckEvent(Event):
           homedir.rm(force=True, recursive=True)
           homedir.mkdirs()
           for key in self.io.list_output(what=repo):
-            if not magic.match(key) == magic.FILE_TYPE_GPGKEY:
-              raise RuntimeError("file '%s' does not appear to be a "
-                                 "valid gpg key" % key)
+            assert_file_readable(key)
             shlib.execute('gpg --homedir %s --import %s' %(homedir,key))
 
       # if new rpms have been added from this repo, add them to check list
@@ -113,12 +111,17 @@ class GpgCheckEvent(Event):
                                     callback=self.gpgcheck_cb,
                                     working_dir=self.TEMP_DIR)
         if invalids:
-          raise RpmSignatureInvalidError("One or more RPMS failed "
-                                         "GPG key checking:\n * %s" % '\n * '.join(invalids))
+          raise RpmSignatureInvalidError(' * ' + '\n * '.join(invalids))
 
   def apply(self):
     self.io.clean_eventcache()
 
 #------ ERRORS ------#
-class RpmSignatureInvalidError(StandardError):
-  "Class of exceptions raised when an RPM signature check fails in some way"
+class RpmSignatureInvalidError(SpinError):
+  message = "One or more RPMs failed GPG key check:\n %(rpms)s"
+
+class InvalidGpgkeyError(SpinError):
+  message = "'%(file)s' does not appear to be a valid gpg key"
+
+class NoGpgkeysProvidedError(SpinError, InvalidConfigError):
+  message = "gpgcheck enabled but no gpgkeys defined for repo '%(repoid)s'"

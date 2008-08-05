@@ -21,6 +21,8 @@ from rendition import rxml
 from spintest import EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite
 
+from spin.errors import SpinError
+
 class GpgcheckEventTestCase(EventTestCase):
   moduleid = 'gpgcheck'
   eventid = 'gpgcheck'
@@ -41,10 +43,10 @@ class GpgcheckEventTestCase(EventTestCase):
 
 
 class Test_GpgKeysNotProvided(GpgcheckEventTestCase):
-  "raises RuntimeError when no keys are provided"
+  "raises SpinError when no keys are provided"
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(RuntimeError, self.event)
+    self.failUnlessRaises(SpinError, self.event)
 
   def _make_repos_config(self):
     repos = GpgcheckEventTestCase._make_repos_config(self)
