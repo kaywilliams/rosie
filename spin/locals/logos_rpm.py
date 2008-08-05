@@ -174,7 +174,7 @@ fi
           'triggerin': '''THEME_DIR=/usr/share/firstboot/themes
 if [ ! -e $THEME_DIR/default.rpmsave ]; then
   %%{__mv} $THEME_DIR/default $THEME_DIR/default.rpmsave
-  %%{__ln_s} $THEME_DIR/spin $THEME_DIR/default
+  %%{__cp} -rf $THEME_DIR/spin $THEME_DIR/default
 fi
 ''',
           'triggerun': '''THEME_DIR=/usr/share/firstboot/themes
