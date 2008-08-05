@@ -125,7 +125,7 @@ class GpgSignEvent(GpgMixin, Event):
 
     # add key to os folder
     self.io.sync_input(what='gpgsign-software-store', cache=True,
-        text='adding public key to os folder')
+        text="adding public key to 'os' folder")
 
   def apply(self):
     self.io.clean_eventcache()
