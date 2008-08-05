@@ -42,6 +42,7 @@ opt_defaults = dict(
   list_events = False,
   no_validate = True,
   clear_cache = False,
+  debug = True,
 )
 test_options = None # set on running parse_cmd_args(), below
 
