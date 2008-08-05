@@ -1,5 +1,7 @@
 SUBDIRS = man
 
+.PHONY: all clean install
+
 all:
 	for dir in $(SUBDIRS); do make -C $$dir; done
 

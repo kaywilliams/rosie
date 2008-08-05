@@ -17,7 +17,6 @@ BuildRequires: gzip
 BuildRequires: libxslt
 BuildRequires: python-devel
 BuildRequires: python-setuptools
-BuildRequires: python-docutils
 
 Requires: createrepo
 Requires: dosfstools
@@ -67,7 +66,6 @@ and run a Spin-managed distribution.
 %dir %{python_sitelib}/spin/modules/extensions/installer
 %dir %{python_sitelib}/spin/modules/extensions/packages
 %dir %{python_sitelib}/spin/modules/shared
-%dir %{_datadir}/spin
 %{python_sitelib}/spin/*.py*
 %{python_sitelib}/spin/event/*.py*
 %{python_sitelib}/spin/locals/*.py*
@@ -94,7 +92,6 @@ and run a Spin-managed distribution.
 %exclude /usr/share/spin/release/eula.pyc
 %exclude /usr/share/spin/release/eula.pyo
 %{_mandir}/man5/spin.conf.5.gz
-%{_mandir}/man5/distro.conf.5.gz
 %{_mandir}/man1/spin.1.gz
 
 %changelog
