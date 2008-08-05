@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.14
+Version: 0.8.15
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
@@ -98,6 +98,15 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Tue Aug 05 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.15-1
+- added brief note about <debug> element to spin.conf.xml (dmusgrave)
+- bug 259 - added 'debug' to spin.conf schema (dmusgrave)
+- added missing 'debug' attribute to spintest option instance (dmusgrave)
+- (dmusgrave)
+- fixed comps relative path for supplied comps file; fixed test pkglist format (dmusgrave)
+- Tagged as spin-0.8.14-1 (uprakash)
+- Bumped version to spin-0.8.14-1.noarch. (spinmaster)
+
 * Fri Aug 01 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.14-1
 - bug 253 - added newline between repogroup repos; fixed error messages for systemid (dmusgrave)
 - bug 251 - better error message given with missing systemid (dmusgrave)

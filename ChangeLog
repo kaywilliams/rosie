@@ -1,9 +1,110 @@
+2008-08-05  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* docsrc/man/spin.conf.xml:
+	added brief note about <debug> element to spin.conf.xml
+	[93fdeb5c35fb] [tip]
+
+	* share/spin/schemas/spin.rng:
+	bug 259 - added 'debug' to spin.conf schema
+	[40894d3e076a]
+
+	* spintest/runtest.py:
+	added missing 'debug' attribute to spintest option instance
+	[f6cf61995bfe]
+
+2008-08-04  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* bin/spin, spin/errors.py, spin/event/__init__.py, spin/main.py,
+	spin/modules/core/base.py, spin/modules/core/compose.py,
+	spin/modules/core/installer/logos.py, spin/modules/core/installer
+	/release-files.py, spin/modules/core/packages/pkglist.py,
+	spin/modules/core/repos.py,
+	spin/modules/extensions/installer/kickstart.py,
+	spin/modules/extensions/installer/updates-image.py,
+	spin/modules/extensions/iso.py, spin/modules/extensions/sources.py,
+	spin/modules/shared/createrepo.py, spin/modules/shared/installer.py,
+	spin/modules/shared/repos.py:
+	(hopefully) improved error handling in spin; disabled debug mode by
+	default
+
+	Debug mode is now disabled by default, meaning tracebacks are hidden
+	from the terminal and the user is presented with a more
+	'helpful/friendly' message (the tracebacks still appear in the log
+	file).
+
+	To reenable debug mode, use --debug on the command line or set a
+	'debug' boolean in the spin.conf file.
+
+	 bin/spin
+	 * added --debug and --no-debug options spin/errors.py
+	 * initial commit of error handling code in spin
+	 * assert_file_readable(file,[[cls],**kwargs]) checks to ensure that
+	the given file is readable; if it isn't, an exception is raised.
+	cls controls the class of this exception; if not given, uses
+	SpinIOError. **kwargs is a list of additional keyword arguments
+	to pass to the exception
+	 * SpinError is the superclass of all expected spin errors. It
+	consists of automatic __init__ and __str__ methods that handle
+	performing replacements on SpinError.message %(...)X vars. For
+	example, if SpinError.message is '%(var1)s %(var2)s a string!',
+	the SpinError's __init__() signature looks like __init__(var1,
+	var2) and calling __str__() will automatically perform printf
+	replacement
+	 * SpinIOError is a subclass of SpinError that handles generic I/O
+	related errors on files
+	 * RhnSupportError is a SpinError subclass related to rhn support not
+	being installed on the current system
+	 * SpinErrorHandler is a mixin intended for use with the Build object
+	that handles error processing
+	 * _handle_Exception handles converting errors to a defined error
+	class, if present (currently only used for ShlibExecuteErrors
+	spin/event/__init__.py
+	 * removed extended error processing code; now errors merely result in
+	calling Event.error() and reraising the exception spin/main.py
+	 * Build now subclasses SpinErrorHandler for error handling support
+	 * debug mode now controlled by Build.debug instead of DEBUG global
+	variable
+	 * error handling code added around Build.dispatch.execute()
+	spin/modules/*
+	 * created exception classes as subclasses of Spin(IO)Error as
+	necessary; convention is that expected errors are SpinError
+	subclasses, while unexpected are not (this allows the try/catch
+	block to filter exceptions correctly)
+	 * many error messages generally revised in the transition
+	spin/modules/core/repos.py
+	 * removed validation code; shared with sources.py
+	spin/modules/extensions/sources.py
+	 * removed validation code; shared with repos.py
+	spin/modules/shared/installer.py
+	 * removed RpmNotFoundError; unused
+	 * removed OutputInvalidError; unused spin/modules/shared/repos.py
+	 * added validation code that was removed from repos/sources
+	[4842f18841ad]
+
+	* spintest/modules/comps/__init__.py,
+	spintest/modules/pkglist/pkglist:
+	fixed comps relative path for supplied comps file; fixed test
+	pkglist format
+	[a402c862b079]
+
+2008-08-01  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.14-1
+	[1d514c31ff4a]
+
+2008-08-01  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.14-1.noarch.
+	[bf96fc8ce66c] [spin-0.8.14-1]
+
 2008-08-01  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
 	* spin/modules/shared/repos.py:
 	bug 253 - added newline between repogroup repos; fixed error
 	messages for systemid
-	[81fe7cbaa93f] [tip]
+	[81fe7cbaa93f]
 
 2008-07-31  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
