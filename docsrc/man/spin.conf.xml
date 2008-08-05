@@ -68,7 +68,7 @@
   <listitem>
     <para>Specifies a boolean value which enables or disables debug mode in Spin.  Enabling debug mode causes exception tracebacks, which are normally hidden, to be displayed on the command line when they occur.</para>
 <literallayout>
-	<debug>yes</debug>
+	<debug>BOOLEAN</debug>
 </literallayout>
   </listitem>
 </varlistentry>
@@ -113,9 +113,16 @@
 
 
 <refsect1 id="spin.conf.5-variables"><title>VARIABLES</title>
-<para>Spin element values, where indicated, use three variables:  CACHEDIR, PATH and TEXT.</para>
+<para>Spin element values, where indicated, use the variables below.</para>
 
 <variablelist>
+
+<varlistentry>
+  <term>BOOLEAN</term>
+  <listitem>
+    <para>BOOLEAN is one of the following values: Yes, yes, True, true, On, on, 1, No, no, False, false, Off, off, 0.</para>
+  </listitem>
+</varlistentry>
 
 <varlistentry>
   <term>CACHEDIR</term>
