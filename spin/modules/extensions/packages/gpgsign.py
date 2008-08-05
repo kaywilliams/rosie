@@ -88,9 +88,6 @@ class GpgSignEvent(GpgMixin, Event):
         id='gpgsign-software-store')
 
   def run(self):
-    self.io.sync_input(what='gpgsign-software-store', cache=True,
-        text='downloading public key to software store')
-
     # sync keys
     newkeys = self.io.sync_input(what=['pubkey','seckey'], cache=True,
               text='downloading keys')
@@ -125,6 +122,10 @@ class GpgSignEvent(GpgMixin, Event):
             break
       mkrpm.signRpms(signrpms, homedir=gnupg_dir, passphrase=self.cvars['gpgsign-passphrase'],
                      callback=self.gpgsign_cb, working_dir=self.TEMP_DIR)
+
+    # add key to os folder
+    self.io.sync_input(what='gpgsign-software-store', cache=True,
+        text='adding public key to os folder')
 
   def apply(self):
     self.io.clean_eventcache()
