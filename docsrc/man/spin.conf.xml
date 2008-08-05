@@ -63,6 +63,16 @@
   </listitem>
 </varlistentry>
 
+<varlistentry>
+  <term><option>debug</option></term>
+  <listitem>
+    <para>Specifies a boolean value which enables or disables debug mode in Spin.  Enabling debug mode causes exception tracebacks, which are normally hidden, to be displayed on the command line when they occur.</para>
+<literallayout>
+	<debug>yes</debug>
+</literallayout>
+  </listitem>
+</varlistentry>
+
 </variablelist>
 </refsect1>
 
