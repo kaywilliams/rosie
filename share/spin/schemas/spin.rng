@@ -11,6 +11,10 @@
       </optional>
 
       <interleave>
+        <optional>
+        <element name="debug"><ref name="value-boolean"/></element>
+        </optional>
+
         <zeroOrMore>
         <element name="share-path"><text/></element>
         </zeroOrMore>
@@ -42,5 +46,7 @@
       </interleave>
     </element>
   </start>
+
+  <include href="distro/lib.rng"/>
 
 </grammar>
