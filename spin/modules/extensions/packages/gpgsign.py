@@ -83,7 +83,14 @@ class GpgSignEvent(GpgMixin, Event):
 
     self.io.add_fpaths(self.cvars['cached-rpms'], self.mddir/'rpms', id='rpms')
 
+    self.io.add_fpath(self.cvars['gpgsign-public-key'],
+        self.SOFTWARE_STORE,
+        id='gpgsign-software-store')
+
   def run(self):
+    self.io.sync_input(what='gpgsign-software-store', cache=True,
+        text='downloading public key to software store')
+
     # sync keys
     newkeys = self.io.sync_input(what=['pubkey','seckey'], cache=True,
               text='downloading keys')
