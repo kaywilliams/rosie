@@ -149,7 +149,6 @@ class SpinRepoGroup(SpinRepo):
       if self.url.realm.startswith('rhn://') or \
          self.url.realm.startswith('rhns://'):
         raise RhnSupportError()
-      raise
 
     # get directory listing so we can figure out information about this repo
     # find all subrepos
