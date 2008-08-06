@@ -37,7 +37,7 @@ class GpgCheckEvent(Event):
     Event.__init__(self,
       id = 'gpgcheck',
       parentid = 'packages',
-      version = '1',
+      version = '0.9',
       requires = ['rpms-by-repoid', 'repos'],
     )
 
