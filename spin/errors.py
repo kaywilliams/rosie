@@ -83,6 +83,7 @@ class SpinErrorHandler:
     if self.logger.test(4) or self.debug:
       raise
     else:
+      self.logger.write(0, '\n') # start on a new line
       if not isinstance(e, SpinError):
         self.logger.write(0,
           "An unhandled exception has been generated while processing "
