@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.16
+Version: 0.8.17
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
@@ -95,6 +95,19 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Tue Aug 05 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.17-1
+- The logos RPM's triggerin on firstboot, copies instead of linking. (uprakash)
+- various fixes to error system and spintest integration (dmusgrave)
+- Fixed Bug 263; another miscellaneous cleanup of docs. (uprakash)
+- minor edits to spin.conf.xml for consistency (kwilliams)
+- adding quotes to log message for clarity (kwilliams)
+- gpgsign: rearranged actions in run event (kwilliams)
+- Fixed Bug 260. (uprakash)
+- Made the GpgCheckEvent.version a string. (uprakash)
+- Not raising an AttributeError, if RhnPath is not defined. (uprakash)
+- Tagged as spin-0.8.16-1 (kwilliams)
+- Bumped version to spin-0.8.16-1.noarch. (spinmaster)
+
 * Tue Aug 05 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.16-1
 - Tagged as spin-0.8.15-1 (kwilliams)
 - Bumped version to spin-0.8.15-1.noarch. (spinmaster)

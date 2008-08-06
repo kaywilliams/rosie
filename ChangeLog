@@ -1,8 +1,116 @@
+2008-08-05  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/locals/logos_rpm.py:
+	The logos RPM's triggerin on firstboot, copies instead of linking.
+
+	Linking the /usr/share/firstboot/themes/default file to
+	/usr/share/firstboot/themes/spin causes the file to be incorrectly
+	owned by both the firstboot package and the logos package. Copying
+	gets around this problem.
+	[7b6e71f365ad] [tip]
+
+2008-08-05  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/errors.py, spin/modules/core/packages/comps.py,
+	spin/modules/core/packages/download.py,
+	spin/modules/core/packages/gpgcheck.py,
+	spin/modules/core/packages/pkglist.py, spintest/core.py,
+	spintest/modules/gpgcheck.py:
+	various fixes to error system and spintest integration
+
+	spin/errors.py
+	 * assert_file_readable() now raises an exception if the file in
+	question is empty spin/modules/core/packages/comps.py
+	 * added definition for various comps-specific errors
+	 * uses assert_file_readable for the comps-supplied variant and for
+	reading self.cvars['comps-file'] in .apply()
+	spin/modules/core/packages/download.py
+	 * added definition for various download-specific errors
+	spin/modules/core/packages/gpgcheck.py
+	 * added definition for various gpgkey-specific errors
+	 * instead of using magic.py for gpgkey validation, merely uses
+	assert_file_readable (as gpgkeys can technically start anywhere in
+	the input file, so magic.py isn't particularly useful in this
+	sense) spin/modules/core/packages/pkglist.py
+	 * added definition for various pkglist-specific errors
+	 * uses assert_file_readable for the pkglist-supplied variant and for
+	reading self.cvars['pkglist'] in .apply() spintest/core.py
+	 * CoreEventTestCase01 now additionally excepts SpinErrors
+	spintest/modules/gpgcheck.py
+	 * Test_GpgKeysNotProvided now fails unless a SpinError is raised
+	[3b47d8664fb8]
+
+2008-08-05  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* INSTALL, docsrc/Makefile, docsrc/man/Makefile,
+	docsrc/man/distro/comps.rst, docsrc/man/distro/gpgsign.rst,
+	docsrc/man/distro/installer.rst, docsrc/man/distro/iso.rst,
+	docsrc/man/distro/isolinux.rst, docsrc/man/distro/lib.rst,
+	docsrc/man/distro/main.rst, docsrc/man/distro/product.rst,
+	docsrc/man/distro/publish.rst, docsrc/man/distro/repos.rst,
+	docsrc/man/distro/sources.rst, docsrc/man/distro/updates.rst,
+	docsrc/man/tools/rst2man.py, docsrc/man/tools/writers/__init__.py,
+	docsrc/man/tools/writers/manpage.py, spin.spec:
+	Fixed Bug 263; another miscellaneous cleanup of docs.
+
+	Now that the DDFR is available online, we don't need to create the
+	distro.conf.5.gz man page. Removed all the files and binaries that
+	were needed to create that man page.
+
+	Removed the BuildRequires on python-docutils and removed
+	distro.conf.5.gz from %files directive in the spec file.
+	[1bc1106051d8]
+
+2008-08-05  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/man/spin.conf.xml:
+	minor edits to spin.conf.xml for consistency
+	[175e68848656]
+
+	* spin/modules/extensions/packages/gpgsign.py:
+	adding quotes to log message for clarity
+	[6a4d8eff0fb0]
+
+	* spin/modules/extensions/packages/gpgsign.py:
+	gpgsign: rearranged actions in run event
+
+	* moved "adding public key" to end of run event
+	* modified log text to say "os folder" rather than "software store"
+	[2d26855811b3]
+
+2008-08-05  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/extensions/packages/gpgsign.py:
+	Fixed Bug 260.
+
+	The GpgSignEvent now copies the public key to the output folder.
+	[edda1eb05b9e]
+
+	* spin/modules/core/packages/gpgcheck.py:
+	Made the GpgCheckEvent.version a string.
+	[3176967e1375]
+
+	* spin/modules/shared/repos.py:
+	Not raising an AttributeError, if RhnPath is not defined.
+	[1636643f71ce]
+
+2008-08-05  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.16-1
+	[48315d0ee9be]
+
+2008-08-05  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.16-1.noarch.
+	[636157b416ad] [spin-0.8.16-1]
+
 2008-08-05  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* .hgtags:
 	Tagged as spin-0.8.15-1
-	[aad426754d97] [tip]
+	[aad426754d97]
 
 2008-08-05  spinmaster  <spinmaster>
 
