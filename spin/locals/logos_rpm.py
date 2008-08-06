@@ -180,7 +180,7 @@ fi
           'triggerun': '''THEME_DIR=/usr/share/firstboot/themes
 if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
   if [ -e $THEME_DIR/default.rpmsave ]; then
-    %%{__rm} -f $THEME_DIR/default
+    %%{__rm} -rf $THEME_DIR/default
     %%{__mv} $THEME_DIR/default.rpmsave $THEME_DIR/default
   fi
 fi
