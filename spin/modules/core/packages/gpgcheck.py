@@ -52,21 +52,20 @@ class GpgCheckEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.gpgkeys = {}  # keys to download
-    self.rpms = {}     # rpms to check
+    gpgkeys = {}   # keys to download
+    self.rpms = {} # rpms to check
 
     for repo in self.cvars['repos'].values():
       if self.cvars['rpms-by-repoid'].has_key(repo.id) and repo.gpgcheck:
         if repo.gpgkey:
-          self.gpgkeys[repo.id] = repo.gpgkey
+          gpgkeys[repo.id] = repo.gpgkey
           self.rpms[repo.id] = self.cvars['rpms-by-repoid'][repo.id]
         else:
           raise NoGpgkeysProvidedError(repo.id)
 
-    for repo in self.gpgkeys.keys():
+    for repo in gpgkeys:
       self.io.add_fpaths(self.gpgkeys[repo], self.mddir/repo, id=repo)
     self.DATA['variables'].append('rpms')
-    self.DATA['variables'].append('gpgkeys')
 
   def run(self):
     if not self.rpms:
@@ -77,23 +76,18 @@ class GpgCheckEvent(Event):
       newrpms = []
       homedir = self.mddir/repo/'homedir'
       self.DATA['output'].append(homedir)
-      self.io.sync_input(cache=True, what=repo,
-                         text="downloading gpgkeys - '%s'" % repo)
+      newkeys = self.io.sync_input(cache=True, what=repo,
+                  text="downloading gpgkeys - '%s'" % repo)
 
-      # if gpgkeys have changed for this repo, (re)create homedir and
-      # add all rpms from the repo to check list
-      difftup = self.diff.variables.difference('gpgkeys')
-      if difftup:
-        md, curr = difftup
-        if not hasattr(md, '__iter__') or not md.has_key(repo):
-          md = {repo: []}
-        if set(curr[repo]).difference(set(md[repo])):
-          newrpms = self.rpms[repo]
-          homedir.rm(force=True, recursive=True)
-          homedir.mkdirs()
-          for key in self.io.list_output(what=repo):
-            assert_file_readable(key)
-            shlib.execute('gpg --homedir %s --import %s' %(homedir,key))
+      # if new gpgkeys are downloaded, recreate the homedir and all rpms from
+      # that repo to check list
+      if newkeys:
+        newrpms = self.rpms[repo]
+        homedir.rm(force=True, recursive=True)
+        homedir.mkdirs()
+        for key in self.io.list_output(what=repo):
+          assert_file_readable(key)
+          shlib.execute('gpg --homedir %s --import %s' %(homedir,key))
 
       # if new rpms have been added from this repo, add them to check list
       else:
