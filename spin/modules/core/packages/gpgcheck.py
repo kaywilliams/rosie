@@ -106,7 +106,8 @@ class GpgCheckEvent(Event):
                                     callback=self.gpgcheck_cb,
                                     working_dir=self.TEMP_DIR)
         if invalids:
-          raise RpmSignatureInvalidError(' * ' + '\n * '.join(invalids))
+          raise RpmSignatureInvalidError('* ' + '\n * '.join(
+                                         [ x.basename for x in invalids ]))
 
   def apply(self):
     self.io.clean_eventcache()
