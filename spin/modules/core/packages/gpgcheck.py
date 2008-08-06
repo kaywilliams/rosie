@@ -20,7 +20,7 @@ from rendition import mkrpm
 from rendition import shlib
 
 from spin.callback import GpgCallback
-from spin.errors   import SpinError, assert_file_readable
+from spin.errors   import SpinError, SpinIOError, assert_file_readable
 from spin.event    import Event
 from spin.logging  import L1, L2
 from spin.validate import InvalidConfigError
@@ -64,7 +64,7 @@ class GpgCheckEvent(Event):
           raise NoGpgkeysProvidedError(repo.id)
 
     for repo in gpgkeys:
-      self.io.add_fpaths(self.gpgkeys[repo], self.mddir/repo, id=repo)
+      self.io.add_fpaths(gpgkeys[repo], self.mddir/repo, id=repo)
     self.DATA['variables'].append('rpms')
 
   def run(self):
@@ -86,7 +86,8 @@ class GpgCheckEvent(Event):
         homedir.rm(force=True, recursive=True)
         homedir.mkdirs()
         for key in self.io.list_output(what=repo):
-          assert_file_readable(key)
+          assert_file_readable(key, srcfile=self.io.i_dst[key].src,
+                                    cls=GpgkeyIOError)
           shlib.execute('gpg --homedir %s --import %s' %(homedir,key))
 
       # if new rpms have been added from this repo, add them to check list
@@ -114,8 +115,8 @@ class GpgCheckEvent(Event):
 class RpmSignatureInvalidError(SpinError):
   message = "One or more RPMs failed GPG key check:\n %(rpms)s"
 
-class InvalidGpgkeyError(SpinError):
-  message = "'%(file)s' does not appear to be a valid gpg key"
+class GpgkeyIOError(SpinIOError):
+  message = "cannot read gpgkey '%(file)s': [errno %(errno)d] %(message)s"
 
 class NoGpgkeysProvidedError(SpinError, InvalidConfigError):
   message = "gpgcheck enabled but no gpgkeys defined for repo '%(repoid)s'"

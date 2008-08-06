@@ -8,7 +8,7 @@ from rendition import pps
 
 REGEX_KWPARSE = re.compile('%\(([^\)]+)\).')
 
-def assert_file_readable(file, cls=None, **kwargs):
+def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
   "Raise a SpinIOError (or subclass) if a file isn't readable or is empty"
   fp = None
   try:
@@ -16,12 +16,12 @@ def assert_file_readable(file, cls=None, **kwargs):
       fp = pps.path(file).open()
     except pps.Path.error.PathError, e:
       raise (cls or SpinIOError)(errno=e.errno,
-                                 file=file,
+                                 file=srcfile or file,
                                  message=os.strerror(e.errno),
                                  **kwargs)
     if not fp.read(1024):
       raise (cls or SpinIOError)(errno=-1,
-                                 file=file,
+                                 file=srcfile or file,
                                  message="file is empty",
                                  **kwargs)
   finally:
@@ -51,7 +51,7 @@ class SpinError:
         self.map[k] = v
         req_arg_i += 1
 
-      if req_arg_i != len(req_args):
+      if req_arg_i != len(set(req_args)):
         raise TypeError("__init__() takes exactly %d arguments (%d given)"
                         % (len(req_args), req_arg_i))
 

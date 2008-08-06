@@ -41,6 +41,10 @@ class IOObject(object):
     self.ptr = ptr
     self.data = {}
 
+    # index for self.data keyed on src/dst
+    self.i_src = {}
+    self.i_dst = {}
+
   def compute_dst(self, src, dst):
     r = []
     for s in src.findpaths():
@@ -73,7 +77,11 @@ class IOObject(object):
       if d not in self.ptr.diff.output.odata:
         self.ptr.diff.output.odata.append(d)
 
-      self.data.setdefault(id, set()).add(TransactionData(s,d,m))
+      td = TransactionData(s,d,m)
+      self.data.setdefault(id, set()).add(td)
+      # add to indexes as well
+      self.i_src.setdefault(s, []).append(td) # one src can go to multiple dsts
+      self.i_dst[d] = td # but multiple srcs can't go to one dst
 
   def add_xpath(self, xpath, dst, id=None, mode=None, prefix=None,
                                   relpath=None, force_relative=False):
@@ -210,8 +218,8 @@ class IOObject(object):
 
     ret = []
     for id in what:
-      if not self.data.has_key(id): continue
-      for item in self.data[id]: ret.append(item)
+      for item in self.data.get(id, []):
+        ret.append(item)
 
     return ret
 
