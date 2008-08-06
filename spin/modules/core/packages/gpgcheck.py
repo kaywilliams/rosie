@@ -37,7 +37,7 @@ class GpgCheckEvent(Event):
     Event.__init__(self,
       id = 'gpgcheck',
       parentid = 'packages',
-      version = '1',
+      version = '0.9',
       requires = ['rpms-by-repoid', 'repos'],
     )
 
@@ -64,7 +64,7 @@ class GpgCheckEvent(Event):
           raise NoGpgkeysProvidedError(repo.id)
 
     for repo in gpgkeys:
-      self.io.add_fpaths(self.gpgkeys[repo], self.mddir/repo, id=repo)
+      self.io.add_fpaths(gpgkeys[repo], self.mddir/repo, id=repo)
     self.DATA['variables'].append('rpms')
 
   def run(self):
