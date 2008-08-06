@@ -99,7 +99,10 @@ class SpinRepo(YumRepo):
         systemid = self.get('systemid')
         if systemid:
           systemid = pps.path(systemid).realpath()
-          assert_file_readable(systemid, cls=SystemidIOError, repoid=self.id)
+          try:
+            assert_file_readable(systemid, cls=SystemidIOError, repoid=self.id)
+          except pps.lib.rhn.SystemidInvalidError, e:
+            raise SystemidInvalidError(systemid, self.id, str(e))
           p.systemid = systemid
         else:
           raise SystemidUndefinedError(self.id)
@@ -431,10 +434,14 @@ class InconsistentRepodataError(SpinError, RuntimeError):
 
 class SystemidIOError(SpinIOError):
   message = ( "Unable to read systemid file '%(file)s' for repo "
-              "'%(repo)s': [errno %(errno)d] %(message)s" )
+              "'%(repoid)s': [errno %(errno)d] %(message)s" )
 
 class SystemidUndefinedError(SpinError, InvalidConfigError):
   message = "No <systemid> element defined for repo '%(repoid)s'"
+
+class SystemidInvalidError(SpinError):
+  message = ( "Systemid file '%(file)s' for repo '%(repo)s' is invalid: "
+              "%(message)s" )
 
 class PkgsfileIOError(SpinIOError):
   message = ( "Unable to compute package version for %(names)s with pkgsfile "
