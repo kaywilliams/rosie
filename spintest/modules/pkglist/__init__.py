@@ -218,7 +218,7 @@ class Test_Supplied(DummyPkglistEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='pkglist')
-    pkglist_in  = (pps.path(__file__).dirname.dirname /
+    pkglist_in  = (pps.path(__file__).abspath().dirname.dirname /
                    self.event.config.get('text()')).read_lines()
     pkglist_out = self.event.cvars['pkglist']
     self.failUnlessEqual(sorted(pkglist_in), sorted(pkglist_out))
