@@ -17,6 +17,7 @@
 #
 import re
 import rpmUtils.arch
+import yum.Errors
 
 from rendition import depsolver
 from rendition import difftest
@@ -135,22 +136,28 @@ class PkglistEvent(Event):
         if prev:
           old_packages.extend([ x for x in prev if x not in curr ])
 
-      pkgtups = idepsolver.resolve(all_packages = required_packages,
-                                   old_packages = old_packages,
-                                   required = user_required,
-                                   config = str(repoconfig),
-                                   root = str(self.dsdir),
-                                   arch = self.arch,
-                                   callback = BuildDepsolveCallback(self.logger),
-                                   logger = self.logger)
+      try:
+        pkgtups = idepsolver.resolve(all_packages = required_packages,
+                                     old_packages = old_packages,
+                                     required = user_required,
+                                     config = str(repoconfig),
+                                     root = str(self.dsdir),
+                                     arch = self.arch,
+                                     callback = BuildDepsolveCallback(self.logger),
+                                     logger = self.logger)
+      except yum.Errors.InstallError, e:
+        raise DepsolveError(str(e))
     else:
       self.log(1, L1("resolving package dependencies"))
-      pkgtups = depsolver.resolve(packages = required_packages,
-                                  required = user_required,
-                                  config = str(repoconfig),
-                                  root = str(self.dsdir),
-                                  arch = self.arch,
-                                  callback = BuildDepsolveCallback(self.logger))
+      try:
+        pkgtups = depsolver.resolve(packages = required_packages,
+                                    required = user_required,
+                                    config = str(repoconfig),
+                                    root = str(self.dsdir),
+                                    arch = self.arch,
+                                    callback = BuildDepsolveCallback(self.logger))
+      except yum.Errors.InstallError, e:
+        raise DepsolveError(str(e))
 
     self.log(1, L1("pkglist closure achieved in %d packages" % len(pkgtups)))
 
@@ -231,3 +238,6 @@ class InvalidPkglistFormatError(SpinError):
   message = ( "Invalid format '%(pkgfile)s' on line %(lino)d of "
               "pkglist '%(line)s'.\n\nFormat should "
               "be %{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}" )
+
+class DepsolveError(SpinError):
+  message = "Error resolving package dependencies: %(message)s"
