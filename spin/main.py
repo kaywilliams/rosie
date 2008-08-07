@@ -254,12 +254,12 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
         mc = rxml.config.fromstring('<spin/>')
 
       if not dcp.exists():
-        raise rxml.errors.ConfigError("No config file found at '%s'" % dcp)
+        raise rxml.errors.ConfigError("No distro definition file found at '%s'" % dcp)
 
-      self.logger.log(3, "Reading distro config file '%s'" % dcp)
+      self.logger.log(3, "Reading distro definition file '%s'" % dcp)
       dc = rxml.config.read(dcp)
     except rxml.errors.XmlSyntaxError, e:
-      self.logger.log(0, "Error reading config file: %s" % e)
+      self.logger.log(0, "Error reading file: %s" % e)
       raise
 
     self.mainconfig = mc
