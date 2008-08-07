@@ -202,8 +202,6 @@ class CompsEvent(Event):
 
   def _validate_repoids(self):
     "Ensure that the repoids listed actually are defined"
-    repo_groupfiles = [ x for x,_ in self.groupfiles ]
-
     for group in self.config.xpath('group[@repoid]', []):
       rid = group.get('@repoid')
       gid = group.get('text()')
@@ -212,7 +210,7 @@ class CompsEvent(Event):
       except KeyError:
         raise RepoidNotFoundError(gid, rid)
 
-      if rid not in repo_groupfiles:
+      if rid not in [ x for x,_ in self.groupfiles ]:
         raise RepoHasNoGroupfileError(gid, rid)
 
 

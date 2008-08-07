@@ -38,7 +38,8 @@ from rendition.repo          import ReposFromXml, ReposFromFile, getDefaultRepos
 from rendition.repo.repo     import YumRepo, RepoContainer, NSMAP
 from rendition.repo.defaults import TYPE_ALL
 
-__all__ = ['RepoEventMixin', 'SpinRepo', 'SpinRepoGroup']
+__all__ = ['RepoEventMixin', 'SpinRepo', 'SpinRepoGroup',
+           'SpinRepoFileParseError']
 
 # list of folders that don't contain repodata folders for sure
 NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
@@ -446,3 +447,6 @@ class SystemidInvalidError(SpinError):
 class PkgsfileIOError(SpinIOError):
   message = ( "Unable to compute package version for %(names)s with pkgsfile "
               "'%(file)s': [errno %(errno)d] %(message)s" )
+
+class SpinRepoFileParseError(SpinError):
+  message = "Error parsing repo file: %(message)s"
