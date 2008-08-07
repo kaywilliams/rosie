@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.17
+Version: 0.8.18
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
@@ -95,6 +95,25 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Thu Aug 07 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.18-1
+- main: log messages now refer to distro 'definition' file rather than (kwilliams)
+- wrapped log creation and config getting code in exception handlers to prevent tracebacks (dmusgrave)
+- slightly optimized SpinErrorHandler.handle_Exception code path (dmusgrave)
+- pulled out validation code from main.py into validate.py (dmusgrave)
+- improved non debug mode output handling; except SpinErrors explicitly (dmusgrave)
+- bug 261 - pkglist depsolve errors are now 'handled' errors (dmusgrave)
+- bug 240 - invalid systemids no longer show up as unhandled (dmusgrave)
+- If mkrpm.verifyRpms(uprakash)
+- bug 267 - error messages now always start on a new line (dmusgrave)
+- merged with trunk (dmusgrave)
+- various bugs - allow reporting of errors to use the source, rather than the cached location (dmusgrave)
+- added missing import of assert_file_readable (dmusgrave)
+- The GpgCheckEvent.gpgkeys attribute is no longer there. (uprakash)
+- Fixed Bug 268. (uprakash)
+- Fixed bug in triggerun scriptlet for firstboot. (uprakash)
+- Tagged as spin-0.8.17-1 (kwilliams)
+- Bumped version to spin-0.8.17-1.noarch. (spinmaster)
+
 * Tue Aug 05 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.17-1
 - The logos RPM's triggerin on firstboot, copies instead of linking. (uprakash)
 - various fixes to error system and spintest integration (dmusgrave)

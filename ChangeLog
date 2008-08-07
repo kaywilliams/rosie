@@ -1,3 +1,122 @@
+2008-08-07  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* spin/main.py:
+	main: log messages now refer to distro 'definition' file rather than
+	'config'
+	[65ce3b3b5b3c] [tip]
+
+2008-08-07  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/main.py:
+	wrapped log creation and config getting code in exception handlers
+	to prevent tracebacks
+	[5d264b5188d4]
+
+	* spin/errors.py:
+	slightly optimized SpinErrorHandler.handle_Exception code path
+	[b2c8983e0d57]
+
+	* spin/main.py, spin/validate.py:
+	pulled out validation code from main.py into validate.py
+	[9a7c1cfd2ea6]
+
+	* spin/errors.py, spin/main.py:
+	improved non debug mode output handling; except SpinErrors
+	explicitly
+	[02b98cb99a60]
+
+	* spin/modules/core/packages/pkglist.py:
+	bug 261 - pkglist depsolve errors are now 'handled' errors
+	[e10ebca090d2]
+
+2008-08-06  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/shared/repos.py:
+	bug 240 - invalid systemids no longer show up as unhandled
+	[a8a6d4b88049]
+
+2008-08-06  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/packages/gpgcheck.py:
+	If mkrpm.verifyRpms() returns invalid RPMs, raise an exception.
+
+	This exception's error message contains a list of the base names of
+	RPMs that are invalid.
+	[ee85f33002c3]
+
+2008-08-06  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/errors.py:
+	bug 267 - error messages now always start on a new line
+	[5d4a16a73f0a]
+
+	* spin/modules/core/packages/gpgcheck.py:
+	merged with trunk
+	[5dda238942eb]
+
+	* spin/errors.py, spin/event/fileio.py,
+	spin/modules/core/packages/gpgcheck.py:
+	various bugs - allow reporting of errors to use the source, rather
+	than the cached location
+
+	spin/errors.py
+	 * assert_file_readable() now accepts a srcfile argument, which, if
+	defined, is used instead of file when reporting the error
+	location
+	 * corrected a bug in SpinError where a .message containing the same
+	%(var)X more than once would require the argument to be passed
+	more than once spin/event/fileio.py
+	 * added .io.i_src and .io.i_dst, indexes on top of self.data keyed on
+	src and dest, respectively. To get the location of a source file
+	given its destionation, then, use .io.i_dst[dst].src
+	 * .add_item() also populates the src and dst indexes
+	spin/modules/core/packages/gpgcheck.py
+	 * gpgkey checking now reports the source instead of the cached
+	location when errors are found
+	[b80a1f88f87d]
+
+	* spin/modules/extensions/iso.py:
+	added missing import of assert_file_readable
+	[becf3baa9902]
+
+2008-08-06  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/packages/gpgcheck.py:
+	The GpgCheckEvent.gpgkeys attribute is no longer there.
+
+	After the previous commit, GpgCheckEvent doesn't have a 'gpgkeys'
+	attribute anymore, but it was still being referenced. Also, changed
+	the event's version.
+	[1216259b6615]
+
+	* spin/modules/core/packages/gpgcheck.py:
+	Fixed Bug 268.
+
+	In the gpgcheck event, if a repository's gpgkey's mtime, size etc.
+	changed but the path to the gpgkey remained unchanged, the homedir
+	was not being recreated. This was happening because we were not
+	checking to see if new keys were installed, instead relying on the
+	path to the gpgkey.
+	[981b530a05e5]
+
+2008-08-05  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/locals/logos_rpm.py:
+	Fixed bug in triggerun scriptlet for firstboot.
+	[59b0882d2c86]
+
+2008-08-05  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.17-1
+	[1b800b28479c]
+
+2008-08-05  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.17-1.noarch.
+	[848e2cc6d2b6] [spin-0.8.17-1]
+
 2008-08-05  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* spin/locals/logos_rpm.py:
@@ -7,7 +126,7 @@
 	/usr/share/firstboot/themes/spin causes the file to be incorrectly
 	owned by both the firstboot package and the logos package. Copying
 	gets around this problem.
-	[7b6e71f365ad] [tip]
+	[7b6e71f365ad]
 
 2008-08-05  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
