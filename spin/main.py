@@ -53,8 +53,7 @@ from spin.constants import *
 from spin.errors    import SpinErrorHandler, SpinError
 from spin.event     import Event, CLASS_META
 from spin.logging   import make_log, L0, L1, L2
-from spin.validate  import (ConfigValidator, MainConfigValidator,
-                            InvalidConfigError, InvalidSchemaError)
+from spin.validate  import SpinValidationHandler
 
 from spin.event.loader import Loader
 
@@ -78,7 +77,7 @@ ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
 # the following chars are allowed in filenames...
 FILENAME_REGEX = re.compile('^[a-zA-Z0-9_\-\.]+$')
 
-class Build(SpinErrorHandler, object):
+class Build(SpinErrorHandler, SpinValidationHandler, object):
   """
   Primary build class - framework upon which a custom spin is generated
 
@@ -204,20 +203,7 @@ class Build(SpinErrorHandler, object):
 
     # perform validation, if not specified otherwise
     if not options.no_validate:
-      try:
-        self._validate_configs()
-      except InvalidSchemaError, e:
-        Event.logger.log(0, L0("Schema file used in validation appears to be invalid"))
-        Event.logger.log(0, L0(e))
-        sys.exit(1)
-      except InvalidConfigError, e:
-        Event.logger.log(0, L0("Config file validation against given schema failed"))
-        Event.logger.log(0, L0(e))
-        sys.exit(1)
-      except Exception, e:
-        Event.logger.log(0, L0("Unhandled exception: %s" % e))
-        if self.debug: raise
-        sys.exit(1)
+      self.validate_configs()
       if options.validate_only:
         print self.distroconfig
         sys.exit()
@@ -358,36 +344,6 @@ class Build(SpinErrorHandler, object):
     disabled.add('__init__') # hack, kinda; these are loaded automatically
 
     return enabled, disabled
-
-  def _validate_configs(self):
-    "Validate main config and distro config"
-    self.logger.log(2, L0("validating config"))
-
-    self.logger.log(4, L1("spin.conf"))
-    mcvalidator = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
-                                      self.mainconfig.file)
-    mcvalidator.validate('/spin', schema_file='spin.rng')
-
-    # validate individual sections of the distrodef file
-    self.logger.log(4, L1(pps.path(self.distroconfig.file).basename))
-    validator = ConfigValidator([ x/'schemas/distro' for x in Event.SHARE_DIRS ],
-                                self.distroconfig.file)
-
-    # validate all event top-level sections
-    validated = [] # list of already-validated modules (so we don't revalidate)
-    for e in self.dispatch:
-      element_name = e.__module__.split('.')[-1]
-      if element_name in validated: continue # don't re-validate
-      validator.validate(element_name, schema_file='%s.rng' % element_name)
-      validated.append(element_name)
-
-    # verify top-level elements
-    validator.config = Event._config
-    validator.verify_elements(self.disabled_modules)
-
-    # allow events to validate other things not covered in schema
-    for e in self.dispatch:
-      e.validate()
 
   def _seed_event_defaults(self, options):
     """

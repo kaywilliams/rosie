@@ -19,10 +19,62 @@ from lxml import etree
 
 import copy
 import os
+import sys
 
+from rendition import pps
 from rendition import rxml
 
+from spin.event   import Event
+from spin.logging import L0, L1
+
 NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
+
+class SpinValidationHandler:
+  def validate_configs(self):
+    try:
+      self._validate_configs()
+    except InvalidSchemaError, e:
+      self.logger.log(0, L0("Schema file used in validation appears to be invalid"))
+      self.logger.log(0, L0(e))
+      sys.exit(1)
+    except InvalidConfigError, e:
+      self.logger.log(0, L0("Config file validation against given schema failed"))
+      self.logger.log(0, L0(e))
+      sys.exit(1)
+    except Exception, e:
+      self.logger.log(0, L0("Unhandled exception while performing validation: %s" % e))
+      if self.debug: raise
+      sys.exit(1)
+
+  def _validate_configs(self):
+    "Validate main config and distro definition"
+    self.logger.log(2, L0("validating config"))
+
+    self.logger.log(4, L1("spin.conf"))
+    v = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
+                            self.mainconfig.file)
+    v.validate('/spin', schema_file='spin.rng')
+
+    # validat individual sections of the distrodef file
+    self.logger.log(4, L1(pps.path(self.distroconfig.file).basename))
+    v = ConfigValidator([ x/'schemas/distro' for x in Event.SHARE_DIRS ],
+                        self.distroconfig.file)
+
+    # validate all top-level sections
+    validated = [] # list of already-validated modules (so we don't revalidate)
+    for event in self.dispatch:
+      eid = event.__module__.split('.')[-1]
+      if eid in validated: continue # don't re-validate
+      v.validate(eid, schema_file='%s.rng' % eid)
+      validated.append(eid)
+
+    # verify top-level elements
+    v.config = Event._config
+    v.verify_elements(self.disabled_modules)
+
+    # allow events to validate other things not covered in schemas
+    for event in self.dispatch:
+      event.validate()
 
 class BaseConfigValidator:
   def __init__(self, schema_paths, config_path):
