@@ -17,7 +17,7 @@
 #
 from rendition import pps
 
-from spin.event     import Event
+from spin.event import Event
 
 from spin.modules.shared import RpmBuildMixin
 

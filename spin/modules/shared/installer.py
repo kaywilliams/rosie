@@ -26,7 +26,8 @@ from rendition import magic
 from rendition import pps
 from rendition import sync
 
-from spin.logging   import L1
+from spin.logging      import L1
+from spin.event.fileio import MissingInputFileError
 
 __all__ = ['ExtractMixin', 'ImageModifyMixin', 'FileDownloadMixin']
 
@@ -125,7 +126,7 @@ class ImageModifyMixin:
   def add_or_create_image(self):
     try:
       self._add_image()
-    except IOError:
+    except MissingInputFileError:
       self._create_image()
   def create_image(self):
     self._create_image()

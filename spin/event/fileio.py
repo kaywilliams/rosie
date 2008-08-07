@@ -20,6 +20,8 @@ from rendition import rxml
 
 from rendition.pps.constants import *
 
+from spin.errors import SpinError
+
 class IOMixin:
   def __init__(self):
     self.io = IOObject(self)
@@ -66,7 +68,7 @@ class IOObject(object):
     src = ((prefix or self.ptr._config.file.dirname) / src).normpath()
 
     if not src.exists():
-      raise IOError("missing input file '%s'" % src)
+      raise MissingInputFileError(src)
 
     if src not in self.ptr.diff.input.idata:
       self.ptr.diff.input.idata.append(src)
@@ -246,3 +248,7 @@ class TransactionData(object):
 
   def __str__(self):  return str((self.src, self.dst, self.mode))
   def __repr__(self): return '%s(%s)' % (self.__class__.__name__, self.__str__())
+
+
+class MissingInputFileError(SpinError):
+  message = "missing input file '%(file)s'"
