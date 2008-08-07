@@ -11,18 +11,20 @@ REGEX_KWPARSE = re.compile('%\(([^\)]+)\).')
 def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
   "Raise a SpinIOError (or subclass) if a file isn't readable or is empty"
   fp = None
+  errno = None; message = None
   try:
     try:
       fp = pps.path(file).open()
     except pps.Path.error.PathError, e:
-      raise (cls or SpinIOError)(errno=e.errno,
+      errno = e.errno; message = os.strerror(e.errno)
+    else:
+      if not fp.read(1024):
+        errno = -1;    message = "file is empty"
+
+    if errno and message:
+      raise (cls or SpinIOError)(errno=errno,
                                  file=srcfile or file,
-                                 message=os.strerror(e.errno),
-                                 **kwargs)
-    if not fp.read(1024):
-      raise (cls or SpinIOError)(errno=-1,
-                                 file=srcfile or file,
-                                 message="file is empty",
+                                 message=message,
                                  **kwargs)
   finally:
     fp and fp.close()
