@@ -50,7 +50,7 @@ from rendition.sync import link
 from spin.callback  import (SyncCallback, CachedSyncCallback, LinkCallback,
                             SyncCallbackCompressed)
 from spin.constants import *
-from spin.errors    import SpinErrorHandler
+from spin.errors    import SpinErrorHandler, SpinError
 from spin.event     import Event, CLASS_META
 from spin.logging   import make_log, L0, L1, L2
 from spin.validate  import (ConfigValidator, MainConfigValidator,
@@ -229,7 +229,7 @@ class Build(SpinErrorHandler, object):
       try:
         try:
           self.dispatch.execute(until=None)
-        except Exception, e:
+        except (SpinError, Exception), e:
           self._handle_Exception(e)
       finally:
         self._lock.release()

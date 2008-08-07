@@ -93,7 +93,8 @@ class SpinErrorHandler:
           "information to contact@renditionsoftware.com.\n\n"
           "Error message was: "
           % self.dispatch.currevent.id)
-      self.logger.log(0, handle_Exception(e))
+      self.logger.log(0, '[%s] %s' % (self.dispatch.currevent.id,
+                                      handle_Exception(e)))
     sys.exit(1)
 
 def handle_Exception(e):
