@@ -116,7 +116,11 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     self.logger = make_log(options.logthresh)
 
     # set up configs
-    self._get_config(options, arguments)
+    try:
+      self._get_config(options, arguments)
+    except Exception, e:
+      self.logger.log(0, L0(e))
+      sys.exit(1)
 
     # set debug mode
     self.debug = ( options.debug or
@@ -128,9 +132,12 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
               or self.distroconfig.getpath('/distro/main/log-file', None)
               or self.mainconfig.getpath('/spin/log-file', None)
               or DEFAULT_LOG_FILE).expand().abspath()
-    if logfile.isdir():
-      raise RuntimeError("Cannot open '%s' for writing; is a directory" % logfile)
-    self.logger = make_log(options.logthresh, logfile)
+    try:
+      self.logger = make_log(options.logthresh, logfile)
+    except IOError, e:
+      self.logger.log(0, L0("Error opening log file for writing: %s" % e))
+      if self.debug: raise
+      sys.exit(1)
 
     # set up event superclass so that it contains good default values
     self._seed_event_defaults(options)
