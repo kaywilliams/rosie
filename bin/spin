@@ -51,7 +51,7 @@ def main():
   parser.add_option('--debug',
     dest='debug',
     action='store_true',
-    default=False,
+    default=None,
     help=SUPPRESS_HELP)
   parser.add_option('--no-debug',
     dest='debug',

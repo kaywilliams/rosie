@@ -123,9 +123,12 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
       sys.exit(1)
 
     # set debug mode
-    self.debug = ( options.debug or
-                   self.mainconfig.getbool('/spin/debug', False) or
-                   False )
+    if options.debug is not None:
+      self.debug = options.debug
+    elif self.mainconfig.pathexists('/spin/debug'):
+      self.debug = self.mainconfig.getbool('/spin/debug', False)
+    else:
+      self.debug = False
 
     # set up real logger - console and file
     logfile = pps.path(options.logfile
