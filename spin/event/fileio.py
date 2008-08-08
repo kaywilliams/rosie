@@ -47,12 +47,23 @@ class IOObject(object):
     self.i_src = {}
     self.i_dst = {}
 
+  def abspath(self, f, prefix=None):
+    "Transform a path, f, to an absolute path"
+    return (prefix or self.ptr._config.file.dirname) / f
+
   def compute_dst(self, src, dst):
     r = []
     for s in src.findpaths():
       if not s.isfile(): continue
       r.append((s, (dst/s.relpathfrom(src)).normpath()))
     return r
+
+  def validate_input_file(self, f):
+    # method called by add_item() to ensure the source is a valid file
+    if not f: return
+    f = self.abspath(f)
+    if not f.exists():
+      raise MissingInputFileError(f)
 
   def add_item(self, src, dst, id=None, mode=None, prefix=None):
     """
@@ -65,10 +76,10 @@ class IOObject(object):
     @param prefix : the prefix to be prepended to relative paths
     """
     # absolute paths will not be affected by this join
-    src = ((prefix or self.ptr._config.file.dirname) / src).normpath()
+    src = self.abspath(src, prefix=prefix).normpath()
 
-    if not src.exists():
-      raise MissingInputFileError(src)
+    # make sure the source file is a valid file
+    self.validate_input_file(src)
 
     if src not in self.ptr.diff.input.idata:
       self.ptr.diff.input.idata.append(src)

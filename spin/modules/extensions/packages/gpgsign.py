@@ -45,11 +45,11 @@ class GpgSetupEvent(Event):
                   'gpgsign-passphrase'],
     )
 
+
   def setup(self):
-    # add items to sync list but don't actually download;
-    # checks to ensure they exist early in the process
-    self.io.add_xpath('public-key', self.mddir)
-    self.io.add_xpath('secret-key', self.mddir)
+    # checks to ensure gpgkeys exist
+    self.io.validate_input_file(self.config.getpath('public-key', None))
+    self.io.validate_input_file(self.config.getpath('secret-key', None))
 
   def apply(self):
     self.cvars['gpgsign-public-key'] = self.config.getpath('public-key', None)

@@ -283,7 +283,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
       if elem.get('@content', 'filename') == 'raw':
         scripts.append(elem.text)
       else:
-        scripts.append(self._config.file.dirname / elem.text)
+        scripts.append(self.io.abspath(elem.text))
 
     return scripts
 
