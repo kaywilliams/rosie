@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.18
+Version: 0.8.19
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
@@ -95,6 +95,18 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Fri Aug 08 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.19-1
+- bug 280 - fixed incorrectly named exception (dmusgrave)
+- various fileio improvements; fixed gpgsign valid key -> exception bug (dmusgrave)
+- bug 276 - missing gpgkeys to gpgsign now show up in gpgsign-setup rather than config-rpm (dmusgrave)
+- bugfix to logic processing of debug flags that prevented --no-debug from working (dmusgrave)
+- bug 243 - gpgsign fixed up so errors are handled (dmusgrave)
+- bug 250, bug 274 - empty repofiles now error; invalid repofiles errors are handled (dmusgrave)
+- error raised by .io.add_*(dmusgrave)
+- minor change to pkglist Supplied test case to ensure path is computed correctly (dmusgrave)
+- Tagged as spin-0.8.18-1 (kwilliams)
+- Bumped version to spin-0.8.18-1.noarch. (spinmaster)
+
 * Thu Aug 07 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.18-1
 - main: log messages now refer to distro 'definition' file rather than (kwilliams)
 - wrapped log creation and config getting code in exception handlers to prevent tracebacks (dmusgrave)

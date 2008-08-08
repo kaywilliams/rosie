@@ -1,9 +1,90 @@
+2008-08-08  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/core/packages/comps.py:
+	bug 280 - fixed incorrectly named exception
+	[5b680f888e6d] [tip]
+
+	* spin/event/fileio.py, spin/modules/core/repos.py,
+	spin/modules/core/rpmbuild/config-rpm.py,
+	spin/modules/extensions/packages/gpgsign.py,
+	spin/modules/extensions/sources.py:
+	various fileio improvements; fixed gpgsign valid key -> exception
+	bug
+
+	spin/event/fileio.py
+	 * added .io.abspath(f[,prefix]), which is the method all events should
+	use for uniform relative path handling. In the default case,
+	this joins the path f onto the dirname of the distro definition
+	used. If the optional prefix is provided, this prefix is used
+	instead
+	 * added .io.validate_input_file(f), the method called by
+	.io.add_item() to ensure the input is valid. At the moment, this
+	merely asserts that the file exists. This may become what is
+	currently assert_file_readable, though in that case, whether it
+	is ok for a file to be empty or not would have to be configurable
+	spin/modules/core/repos.py
+	 * now uses .io.abspath() spin/modules/core/rpmbuild/config-rpm.py
+	 * now uses .io.abspath() spin/modules/extensions/packages/gpgsign.py
+	 * now uses .io.validate_input_file() instead of .io.add_xpath() for
+	gpgkey existance validation spin/modules/extensions/sources.py
+	 * now uses .io.abspath()
+	[e285621b7e20]
+
+	* spin/modules/extensions/packages/gpgsign.py:
+	bug 276 - missing gpgkeys to gpgsign now show up in gpgsign-setup
+	rather than config-rpm
+	 * this was accomplished by faking the download in gpgsign-setup by
+	adding them to the sync list via .io.add_xpath(); if they don't
+	exist, gpgsign- setup will raise a 'missing input file '%s''
+	exception
+	[4eb15eece2b6]
+
+	* bin/spin, spin/main.py:
+	bugfix to logic processing of debug flags that prevented --no-debug
+	from working
+	[815ff418023f]
+
+	* spin/modules/extensions/packages/gpgsign.py:
+	bug 243 - gpgsign fixed up so errors are handled
+	[2dd06f51c864]
+
+2008-08-07  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/core/packages/comps.py, spin/modules/core/repos.py,
+	spin/modules/shared/repos.py:
+	bug 250, bug 274 - empty repofiles now error; invalid repofiles
+	errors are handled
+	[421bad533dec]
+
+	* spin/event/fileio.py, spin/modules/core/rpmbuild/release-rpm.py,
+	spin/modules/shared/installer.py:
+	error raised by .io.add_*() changed to a subclass of SpinError to
+	make it handled
+	[59a1c65c5aab]
+
+	* spintest/modules/pkglist/__init__.py:
+	minor change to pkglist Supplied test case to ensure path is
+	computed correctly
+	[a1a64bcddc00]
+
+2008-08-07  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.18-1
+	[f387a9789fc9]
+
+2008-08-07  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.18-1.noarch.
+	[9841f005e078] [spin-0.8.18-1]
+
 2008-08-07  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* spin/main.py:
 	main: log messages now refer to distro 'definition' file rather than
 	'config'
-	[65ce3b3b5b3c] [tip]
+	[65ce3b3b5b3c]
 
 2008-08-07  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
