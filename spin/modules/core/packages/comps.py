@@ -144,7 +144,7 @@ class CompsEvent(Event):
     for gid, data in self._groupfiledata.items():
       # if packages is empty, no group definition was found
       if not data['packages']:
-        raise CompsGroupNotFoundError(gid)
+        raise GroupNotFoundError(gid)
 
       dg = self._groups.setdefault(gid, CompsGroup(gid, **data['attrs']))
 
