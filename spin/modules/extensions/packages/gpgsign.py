@@ -23,6 +23,7 @@ from rendition.progressbar import ProgressBar
 
 from spin.callback  import GpgCallback, SyncCallback, LAYOUT_GPG
 from spin.constants import RPM_REGEX
+from spin.errors    import assert_file_readable, SpinError, SpinIOError
 from spin.event     import Event
 from spin.logging   import L1, L2
 
@@ -99,8 +100,13 @@ class GpgSignEvent(GpgMixin, Event):
     if newkeys:
       gnupg_dir.rm(recursive=True, force=True)
       gnupg_dir.mkdirs()
-      self.import_key(gnupg_dir, pubkey)
-      self.import_key(gnupg_dir, seckey)
+      for key in [pubkey, seckey]:
+        assert_file_readable(key, cls=GpgkeyIOError,
+                                  srcfile=self.io.i_dst[key].src)
+        try:
+          self.import_key(gnupg_dir, key)
+        except RuntimeError: # raised if key is invalid
+          raise GpgkeyInvalidError(self.io.i_dst[key].src)
     self.DATA['output'].append(gnupg_dir)
 
     # sync rpms to output folder
@@ -136,3 +142,9 @@ class GpgSignEvent(GpgMixin, Event):
     for file in self.io.list_output(what='rpms'):
       self.verifier.failUnlessExists(file)
     # TODO: check that RPMs are actually signed
+
+class GpgkeyIOError(SpinIOError):
+  message = "cannot read gpgkey '%(file)s': [errno %(errno)d] %(message)s"
+
+class GpgkeyInvalidError(SpinError):
+  message = "file '%(file)s' does not appear to be a valid gpg key"
