@@ -138,24 +138,24 @@ class PkglistEvent(Event):
 
       try:
         pkgtups = idepsolver.resolve(all_packages = required_packages,
-                                     old_packages = old_packages,
-                                     required = user_required,
-                                     config = str(repoconfig),
-                                     root = str(self.dsdir),
-                                     arch = self.arch,
-                                     callback = BuildDepsolveCallback(self.logger),
-                                     logger = self.logger)
+                    old_packages = old_packages,
+                    required = user_required,
+                    config = str(repoconfig),
+                    root = str(self.dsdir),
+                    arch = self.arch,
+                    callback = BuildDepsolveCallback(self.logger, required_packages),
+                    logger = self.logger)
       except yum.Errors.InstallError, e:
         raise DepsolveError(str(e))
     else:
       self.log(1, L1("resolving package dependencies"))
       try:
         pkgtups = depsolver.resolve(packages = required_packages,
-                                    required = user_required,
-                                    config = str(repoconfig),
-                                    root = str(self.dsdir),
-                                    arch = self.arch,
-                                    callback = BuildDepsolveCallback(self.logger))
+                    required = user_required,
+                    config = str(repoconfig),
+                    root = str(self.dsdir),
+                    arch = self.arch,
+                    callback = BuildDepsolveCallback(self.logger, required_packages))
       except yum.Errors.InstallError, e:
         raise DepsolveError(str(e))
 

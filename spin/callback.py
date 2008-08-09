@@ -227,16 +227,18 @@ class BuildDepsolveCallback:
   Callback methods other than groupAdded are defined by yum; see source code
   for examples of usage.
   """
-  def __init__(self, logger):
+  def __init__(self, logger, reqpkgs):
     """
     logger  : the logger object to which output should be written
     """
     self.logger = logger
+    self.reqpkgs = reqpkgs
     self.loop = 1
     self.count = 0
     self.grpcount = 0 # current group number
     self.grptotal = 0 # total number of groups
     self.bar = None
+    self.obsoletes = []
 
   def setupStart(self):
     if self.logger.test(2):
@@ -294,6 +296,21 @@ class BuildDepsolveCallback:
       self.bar.update(self.bar.status.size)
       self.bar.finish()
       self.logger.logfile.log(2, str(self.bar))
+    if self.obsoletes:
+      warnings = []
+      for o, n in [ (x[0], y[0]) for x, y in self.obsoletes ]:
+        if o not in self.reqpkgs:
+          # We were smart about getting a newer package for something
+          # that is not a required package. We don't want to print any
+          # warnings in this case.
+          continue
+        warnings.append("No package '%s' found in any of the input repositories. "
+          "However, the '%s' package obsoletes '%s'. Replace '%s' with '%s' in your "
+          "<comps> section to resolve this warning." % (o, n, o, o, n))
+      self.logger.log(0, 'Warning: ' + '\nWarning: '.join(warnings))
+
+  def foundObsolete(self, old, new):
+    self.obsoletes.append((old, new))
 
 class GpgCallback(callback.RpmSignCallback):
   """
