@@ -304,10 +304,10 @@ class BuildDepsolveCallback:
           # that is not a required package. We don't want to print any
           # warnings in this case.
           continue
-        warnings.append("No package '%s' found in any of the input repositories. "
+        warnings.append("Warning: No package '%s' found in any of the input repositories. "
           "However, the '%s' package obsoletes '%s'. Replace '%s' with '%s' in your "
           "<comps> section to resolve this warning." % (o, n, o, o, n))
-      self.logger.log(0, 'Warning: ' + '\nWarning: '.join(warnings))
+      self.logger.log(0, '\n'.join(warnings))
 
   def foundObsolete(self, old, new):
     self.obsoletes.append((old, new))
