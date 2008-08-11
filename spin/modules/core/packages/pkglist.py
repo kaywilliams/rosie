@@ -143,7 +143,7 @@ class PkglistEvent(Event):
                     config = str(repoconfig),
                     root = str(self.dsdir),
                     arch = self.arch,
-                    callback = BuildDepsolveCallback(self.logger, required_packages),
+                    callback = BuildDepsolveCallback(self.logger, user_required),
                     logger = self.logger)
       except yum.Errors.InstallError, e:
         raise DepsolveError(str(e))
@@ -155,7 +155,7 @@ class PkglistEvent(Event):
                     config = str(repoconfig),
                     root = str(self.dsdir),
                     arch = self.arch,
-                    callback = BuildDepsolveCallback(self.logger, required_packages))
+                    callback = BuildDepsolveCallback(self.logger, user_required))
       except yum.Errors.InstallError, e:
         raise DepsolveError(str(e))
 
