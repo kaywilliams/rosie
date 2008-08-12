@@ -40,10 +40,10 @@ class DiscinfoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'discinfo',
+      version = '1'
       parentid = 'installer',
       provides = ['.discinfo'],
       requires = ['anaconda-version'],
-      version = 1
     )
 
     self.difile = self.SOFTWARE_STORE/'.discinfo'
@@ -84,10 +84,10 @@ class TreeinfoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'treeinfo',
+      version = '1.1',
       parentid = 'installer',
       provides = ['.treeinfo'],
       requires = ['anaconda-version'],
-      version = 1,
     )
 
     self.tifile = self.SOFTWARE_STORE/'.treeinfo'
@@ -134,8 +134,8 @@ class BuildstampEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'buildstamp',
+      version = '1',
       parentid = 'installer',
-      version = 1,
       provides = ['buildstamp-file'],
       requires = ['anaconda-version', 'base-info'],
     )
