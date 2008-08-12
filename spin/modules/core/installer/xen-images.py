@@ -43,7 +43,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
       'config':    ['/distro/initrd-image'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [], # to be filled later
-      'output':    []  # to be filled later      
+      'output':    []  # to be filled later
     }
 
     ImageModifyMixin.__init__(self, 'initrd.img')

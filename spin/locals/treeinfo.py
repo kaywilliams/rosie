@@ -14,7 +14,7 @@ L_TREEINFO_FORMAT = LocalsDict({
         'version':      dict(index=4, value='%(version)s'),
         'discnum':      dict(index=5, value='1'),
         'packagedir':   dict(index=6, value='%(packagepath)s'),
-        'arch':         dict(index=7, value='%(arch)s'),
+        'arch':         dict(index=7, value='%(basearch)s'),
       },
     },
     'images-%(basearch)s': { # images-%(basearch)s section
