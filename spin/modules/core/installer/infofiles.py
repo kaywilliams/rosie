@@ -40,7 +40,7 @@ class DiscinfoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'discinfo',
-      version = '1'
+      version = '1',
       parentid = 'installer',
       provides = ['.discinfo'],
       requires = ['anaconda-version'],
