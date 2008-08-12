@@ -143,7 +143,7 @@ class BuildstampEvent(Event):
     self.bsfile = self.mddir/'.buildstamp'
 
     self.DATA = {
-      'variables': ['fullname', 'version', 'name', 'basearch', 'webloc',
+      'variables': ['fullname', 'version', 'packagepath', 'basearch', 'webloc', '
                     'cvars[\'anaconda-version\']',
                     'cvars[\'base-info\']'],
       'output':    [self.bsfile],
