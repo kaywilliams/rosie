@@ -17,10 +17,11 @@
 #
 from rendition import rxml
 
+from spin.constants import KERNELS
 from spin.errors    import assert_file_readable, SpinError
 from spin.event     import Event
 from spin.logging   import L1
-from spin.constants import KERNELS
+from spin.validate  import InvalidConfigError
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -47,6 +48,14 @@ class CompsEvent(Event):
       'input':     [],
       'output':    []
     }
+
+  def validate(self):
+    if ( not self.config.pathexists('text()') and
+         not self.config.pathexists('group') and
+         not self.config.pathexists('package') ):
+      raise InvalidConfigError(self.config.getroot().file,
+        "<%s> must contain either text or at least one <group> or "
+        "<package> element" % self.id)
 
   def setup(self):
     self.diff.setup(self.DATA)

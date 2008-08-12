@@ -22,12 +22,13 @@
 
           <interleave>
 
-          <zeroOrMore>
+          <oneOrMore>
+          <choice>
           <ref name="element-group"/>
-          </zeroOrMore>
-          <zeroOrMore>
           <ref name="element-package"/>
-          </zeroOrMore>
+          </choice>
+          </oneOrMore>
+
           <zeroOrMore>
           <ref name="element-exclude-package"/>
           </zeroOrMore>
