@@ -17,14 +17,15 @@ The following packages are needed for Spin to run:
 * gnupg
 * mkisofs (genisoimage in fedora 8+)
 * netpbm-progs
-* python
 * python-devel
 * python-imaging
 * python-lxml
 * python-setuptools
 * rendition-common
+* rhn-client-tools
+* rhnlib
 * rpm-build
-* spin-logos-rpm
+* spin-logos
 * syslinux
 * yum
 

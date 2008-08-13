@@ -28,7 +28,10 @@ Requires: python-imaging
 Requires: python-lxml
 Requires: python-setuptools
 Requires: rendition-common
+Requires: rhn-client-tools
+Requires: rhnlib
 Requires: rpm-build
+Requires: spin-logos
 Requires: syslinux
 Requires: yum
 
