@@ -1,8 +1,20 @@
 2008-08-12  Uday Prakash  <uprakash@renditionsoftware.com>
 
+	* .hgtags:
+	Tagged as spin-0.8.20-1
+	[a449673a05cd] [tip]
+
+2008-08-12  None  <None>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.20-1.noarch.
+	[ffefe3480980] [spin-0.8.20-1]
+
+2008-08-12  Uday Prakash  <uprakash@renditionsoftware.com>
+
 	* INSTALL, spin.spec:
 	Spin now requires rhnlin, rhn-client-tools, and spin-logos.
-	[121b3530997f] [tip]
+	[121b3530997f]
 
 2008-08-12  Kay Williams  <kwilliams@renditionsoftware.com>
 
