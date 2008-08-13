@@ -1,8 +1,95 @@
+2008-08-12  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* INSTALL, spin.spec:
+	Spin now requires rhnlin, rhn-client-tools, and spin-logos.
+	[121b3530997f] [tip]
+
+2008-08-12  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* spin/modules/core/installer/infofiles.py:
+	oops, remove extraneous single quote from last commit
+	[291d6fcbb7fc]
+
+	* spin/modules/core/installer/infofiles.py:
+	buildstamp bugfix - added packagepath, removed name from diff
+	variables
+	[85d9fa164083]
+
+2008-08-12  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* share/spin/schemas/distro/comps.rng,
+	spin/modules/core/packages/comps.py:
+	updated comps validation so it fails if it doesn't contain text() or
+	at least one group or package element
+	[4cd66cddf2f6]
+
+2008-08-12  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* spin/modules/core/installer/infofiles.py:
+	infofiles: small fix, added missing comma
+	[741a6b9c00f5]
+
+2008-08-12  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/installer/infofiles.py:
+	Bumped treeinfo event's version number.
+	[40af6be0669f]
+
+	* spin/locals/treeinfo.py, spin/modules/core/installer/xen-images.py:
+	The .treeinfo file had the wrong arch being written.
+
+	Using the 'basearch' instead of the 'arch' variable in the locals
+	dictionary.
+	[15f22133f581]
+
+2008-08-11  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/packages/pkglist.py:
+	The 'pkglist' event prints out warnings for user-required packages.
+
+	Previously, warnings were printed out for obsolete packages for all
+	packages that ended up in the comps file. This became too verbose
+	at times because there are packages in the "core" group that have
+	been renamed as well. The user has no control over the packages in
+	the "core" group and cannot modify it. Now, only packages that are
+	explicitly added to the comps file by the user have warnings printed
+	out for them.
+	[bce7f71cc42d]
+
+	* spin/callback.py:
+	Fixed printout of warnings in pkglist event.
+
+	The callback was prepending the string "Warning: " to all the
+	warnings. It was dumb, and I should have just prepended "Warning: "
+	to all the warnings as done in this changeset.
+	[c1a45e2814c5]
+
+2008-08-08  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/callback.py, spin/modules/core/packages/pkglist.py:
+	Fixed Bug 205.
+
+	Printing a warning if the required package is obsoleted by some
+	other package.
+	[37b6d5774045]
+
+2008-08-08  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.19-1
+	[e1abf9f20b38]
+
+2008-08-08  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.19-1.noarch.
+	[a661a7441631] [spin-0.8.19-1]
+
 2008-08-08  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
 	* spin/modules/core/packages/comps.py:
 	bug 280 - fixed incorrectly named exception
-	[5b680f888e6d] [tip]
+	[5b680f888e6d]
 
 	* spin/event/fileio.py, spin/modules/core/repos.py,
 	spin/modules/core/rpmbuild/config-rpm.py,

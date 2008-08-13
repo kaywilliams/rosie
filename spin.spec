@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.19
+Version: 0.8.20
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
@@ -98,6 +98,20 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Tue Aug 12 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.20-1
+- Spin now requires rhnlin, rhn-client-tools, and spin-logos. (uprakash)
+- oops, remove extraneous single quote from last commit (kwilliams)
+- buildstamp bugfix - added packagepath, removed name from diff variables (kwilliams)
+- updated comps validation so it fails if it doesn't contain text(dmusgrave)
+- infofiles: small fix, added missing comma (kwilliams)
+- Bumped treeinfo event's version number. (uprakash)
+- The .treeinfo file had the wrong arch being written. (uprakash)
+- The 'pkglist' event prints out warnings for user-required packages. (uprakash)
+- Fixed printout of warnings in pkglist event. (uprakash)
+- Fixed Bug 205. (uprakash)
+- Tagged as spin-0.8.19-1 (kwilliams)
+- Bumped version to spin-0.8.19-1.noarch. (spinmaster)
+
 * Fri Aug 08 2008 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.19-1
 - bug 280 - fixed incorrectly named exception (dmusgrave)
 - various fileio improvements; fixed gpgsign valid key -> exception bug (dmusgrave)
