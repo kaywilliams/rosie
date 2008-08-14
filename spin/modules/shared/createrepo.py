@@ -23,7 +23,8 @@ from rendition import shlib
 
 from rendition.versort import Version
 
-from spin.logging   import L1
+from spin.callback import TimerCallback
+from spin.logging  import L1
 
 __all__ = ['CreaterepoMixin']
 
@@ -33,11 +34,15 @@ class CreaterepoMixin:
   def __init__(self):
     self.cvars['createrepo-version'] = Version(
       shlib.execute('rpm -q --queryformat="%{version}" createrepo')[0])
+    if self.logger:
+      self.crcb = TimerCallback(self.logger)
+    else:
+      self.crcb = None
 
   def createrepo(self, path, groupfile=None, pretty=False,
                  update=True, quiet=True, database=True):
     "Run createrepo on the path specified."
-    self.log(1, L1("running createrepo"))
+    if self.crcb: self.crcb.start("running createrepo")
 
     repo_files = []
     for file in self.locals.L_CREATEREPO['xml-files'].keys():
@@ -77,6 +82,7 @@ class CreaterepoMixin:
         break
 
     os.chdir(cwd)
+    if self.crcb: self.crcb.end()
     return repo_files
 
 def RpmPackageVersion(name):
