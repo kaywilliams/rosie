@@ -87,6 +87,7 @@ class LinkCallback(_SyncCallbackMetered):
     self.logger.log(5, "Attempted invalid cross-device link between '%s' "
                        "and '%s'; copying instead" % (src, dst))
 
+
 class SyncCallback(LinkCallback):
   """
   Callback class for all file synchronization operations, including those
@@ -167,6 +168,7 @@ class CachedSyncCallback(_CachedSyncCallback, SyncCallback):
     if self.logger.test(3):
       self.logger.logfile.log(3, str(self.bar))
 
+
 class SyncCallbackCompressed(SyncCallback):
   """
   Callback class for file synchronization operations. Differs from SyncCallback,
@@ -215,10 +217,8 @@ class SyncCallbackCompressed(SyncCallback):
       self.bar.finish()
       self.logger.logfile.log(2, str(self.bar))
 
-# note - the following two classes could probably be combined together
-# if we tried hard enough
 
-class BuildDepsolveCallback:
+class BuildDepsolveCallback(object):
   """
   Callback class for depsolve and depsolve-like operations.  Displays progress
   bars for looped dependency solving operations, such as those that occur in
@@ -312,6 +312,7 @@ class BuildDepsolveCallback:
   def foundObsolete(self, old, new):
     self.obsoletes.append((old, new))
 
+
 class GpgCallback(callback.RpmSignCallback):
   """
   Callback class for gpg operations, including checking and signing of rpms.
@@ -361,7 +362,8 @@ class GpgCallback(callback.RpmSignCallback):
       self.logger.logfile.log(2, str(self.bar))
       del self.bar
 
-class IDepsolverCallback(object):
+
+class TimerCallback(object):
   def __init__(self, logger):
     self.logger = logger
     self.bar = None
@@ -370,9 +372,6 @@ class IDepsolverCallback(object):
     if self.logger.test(2):
       self.bar = ProgressBar(layout=LAYOUT_TIMER, title=L1(message))
       self.bar.start()
-
-  def increment(self, title):
-    pass
 
   def end(self):
     if self.logger.test(2):

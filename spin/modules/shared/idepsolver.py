@@ -23,7 +23,7 @@ from rendition import pps
 
 from rendition.depsolver import Depsolver
 
-from spin.callback import IDepsolverCallback
+from spin.callback import TimerCallback
 from spin.logging  import L1
 
 def resolve(all_packages=None, old_packages=None, required=None,
@@ -44,6 +44,7 @@ def resolve(all_packages=None, old_packages=None, required=None,
   pkgtups = [ po.pkgtup for po in pos ]
   solver.teardown()
   return pkgtups
+
 
 class IDepsolver(Depsolver):
   def __init__(self, all_packages=None, old_packages=None, required=None,
@@ -145,7 +146,7 @@ class IDepsolver(Depsolver):
     self.installed_packages[po.pkgtup] = po
 
   def getPackageObjects(self):
-    if self.logger: inscb = IDepsolverCallback(self.logger)
+    if self.logger: inscb = TimerCallback(self.logger)
     else:           inscb = None
 
     if inscb: inscb.start("checking for package changes")
