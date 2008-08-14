@@ -227,18 +227,16 @@ class BuildDepsolveCallback(object):
   Callback methods other than groupAdded are defined by yum; see source code
   for examples of usage.
   """
-  def __init__(self, logger, reqpkgs):
+  def __init__(self, logger):
     """
     logger  : the logger object to which output should be written
     """
     self.logger = logger
-    self.reqpkgs = reqpkgs
     self.loop = 1
     self.count = 0
     self.grpcount = 0 # current group number
     self.grptotal = 0 # total number of groups
     self.bar = None
-    self.obsoletes = []
 
   def setupStart(self):
     if self.logger.test(2):
@@ -296,6 +294,16 @@ class BuildDepsolveCallback(object):
       self.bar.update(self.bar.status.size)
       self.bar.finish()
       self.logger.logfile.log(2, str(self.bar))
+
+
+class PkglistCallback(BuildDepsolveCallback):
+  def __init__(self, logger, reqpkgs=None):
+    BuildDepsolveCallback.__init__(self, logger)
+    self.reqpkgs = reqpkgs or []
+    self.obsoletes = []
+
+  def end(self):
+    BuildDepsolveCallback.end(self)
     if self.obsoletes:
       warnings = []
       for o, n in [ (x[0], y[0]) for x, y in self.obsoletes ]:

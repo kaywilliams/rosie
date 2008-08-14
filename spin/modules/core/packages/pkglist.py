@@ -22,7 +22,7 @@ import yum.Errors
 from rendition import depsolver
 from rendition import difftest
 
-from spin.callback  import BuildDepsolveCallback
+from spin.callback  import PkglistCallback
 from spin.constants import KERNELS
 from spin.errors    import assert_file_readable, SpinError
 from spin.event     import Event
@@ -143,7 +143,7 @@ class PkglistEvent(Event):
                     config = str(repoconfig),
                     root = str(self.dsdir),
                     arch = self.arch,
-                    callback = BuildDepsolveCallback(self.logger, user_required),
+                    callback = PkglistCallback(self.logger, reqpkgs=user_required),
                     logger = self.logger)
       except yum.Errors.InstallError, e:
         raise DepsolveError(str(e))
@@ -155,7 +155,7 @@ class PkglistEvent(Event):
                     config = str(repoconfig),
                     root = str(self.dsdir),
                     arch = self.arch,
-                    callback = BuildDepsolveCallback(self.logger, user_required))
+                    callback = PkglistCallback(self.logger, reqpkgs=user_required))
       except yum.Errors.InstallError, e:
         raise DepsolveError(str(e))
 
