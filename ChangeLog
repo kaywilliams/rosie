@@ -1,8 +1,55 @@
+2008-08-14  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/shared/createrepo.py:
+	Fixed Bug 284.
+
+	The createrepo event makes use of the TimerCallback to tell the user
+	how much time has elapsed since the createrepo process began. This
+	way they have some indication of progress, and do not think that the
+	event is stuck.
+	[654d6c4a9dc3] [tip]
+
+	* spin/callback.py, spin/modules/core/packages/pkglist.py:
+	Fixed Bug 290.
+
+	Instead of "polluting" BuildDepsolveCallback, extending it in
+	PkglistCallback to make changes to the end() method to be able to
+	print out the warnings as needed. This way, nothing special has to
+	be done for the "iso" event's use of BuildDepsolveCallback.
+	[b9dc64a1bca0]
+
+	* spin/callback.py, spin/modules/shared/idepsolver.py:
+	Renamed IDepsolverCallback to TimerCallback.
+
+	There is nothing idepsolver-specific in this callback. By doing the
+	rename, we can now use this callback in the createrepo event to show
+	how much time has elapsed since the createrepo process began.
+	[0ff4f97e61b1]
+
+2008-08-12  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* INSTALL, spin.spec:
+	Spin doesn't require rhnlib explicitly.
+
+	Spin requires rhn-client-tools, which in turn requires rhnlib, so
+	there is no need to list rhnlib as a requirement.
+	[969002882383]
+
+	* .hgtags:
+	Tagged as spin-0.8.21-1
+	[5eadb5ea307f]
+
+2008-08-12  None  <None>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.21-1.noarch.
+	[4243e5959097] [spin-0.8.21-1]
+
 2008-08-12  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* .hgtags:
 	Tagged as spin-0.8.20-1
-	[a449673a05cd] [tip]
+	[a449673a05cd]
 
 2008-08-12  None  <None>
 

@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.21
+Version: 0.8.22
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
@@ -97,6 +97,14 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Thu Aug 14 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.22-1
+- Fixed Bug 284. (uprakash)
+- Fixed Bug 290. (uprakash)
+- Renamed IDepsolverCallback to TimerCallback. (uprakash)
+- Spin doesn't require rhnlib explicitly. (uprakash)
+- Tagged as spin-0.8.21-1 (uprakash)
+- Bumped version to spin-0.8.21-1.noarch. (None)
+
 * Tue Aug 12 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.21-1
 - Tagged as spin-0.8.20-1 (uprakash)
 - Bumped version to spin-0.8.20-1.noarch. (None)
