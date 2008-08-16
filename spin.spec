@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.23
+Version: 0.8.24
 Release: 1%{?dist}
 Summary: The Spin Package builds customized distributions
 
@@ -97,6 +97,10 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Fri Aug 15 2008  - 0.8.24-1
+- Tagged as spin-0.8.23-1 (root@server2.renditionsoftware.com)
+- Bumped version to spin-0.8.23-1.noarch. (spinmaster)
+
 * Fri Aug 15 2008  - 0.8.23-1
 - Tagged as spin-0.8.22-1 (uprakash)
 - Bumped version to spin-0.8.22-1.noarch. (None)
