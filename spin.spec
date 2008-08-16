@@ -98,12 +98,12 @@ and run a Spin-managed distribution.
 
 %changelog
 * Fri Aug 15 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.24-1
-- Tagged as spin-0.8.23-1 (root@server2.renditionsoftware.com)
+- Tagged as spin-0.8.23-1 (uprakash)
 - Bumped version to spin-0.8.23-1.noarch. (spinmaster)
 
-* Fri Aug 15 2008  - 0.8.23-1
+* Fri Aug 15 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.23-1
 - Tagged as spin-0.8.22-1 (uprakash)
-- Bumped version to spin-0.8.22-1.noarch. (None)
+- Bumped version to spin-0.8.22-1.noarch. (uprakash)
 
 * Thu Aug 14 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.22-1
 - Fixed Bug 284. (uprakash)
@@ -111,11 +111,11 @@ and run a Spin-managed distribution.
 - Renamed IDepsolverCallback to TimerCallback. (uprakash)
 - Spin doesn't require rhnlib explicitly. (uprakash)
 - Tagged as spin-0.8.21-1 (uprakash)
-- Bumped version to spin-0.8.21-1.noarch. (None)
+- Bumped version to spin-0.8.21-1.noarch. (uprakash)
 
 * Tue Aug 12 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.21-1
 - Tagged as spin-0.8.20-1 (uprakash)
-- Bumped version to spin-0.8.20-1.noarch. (None)
+- Bumped version to spin-0.8.20-1.noarch. (uprakash)
 
 * Tue Aug 12 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.20-1
 - Spin now requires rhnlin, rhn-client-tools, and spin-logos. (uprakash)
@@ -296,8 +296,8 @@ and run a Spin-managed distribution.
 - Built package spin-0.8.3-1.noarch. (spinmaster)
 - Bumped version to spin-0.8.3-1.noarch. (spinmaster)
 - Adding user name and email address to changelog. (uprakash)
-- Tagged as spin-0.8.2-1 (root@localhost.localdomain)
-- spin-0.8.2-1.noarch built. (root@localhost.localdomain)
+- Tagged as spin-0.8.2-1 (uprakash)
+- spin-0.8.2-1.noarch built. (uprakash)
 
 * Tue Jul 15 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.2-1
 - Tagged as spin-0.8.1-1 (kwilliams)
