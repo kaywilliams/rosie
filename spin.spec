@@ -97,7 +97,7 @@ and run a Spin-managed distribution.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
-* Fri Aug 15 2008  - 0.8.24-1
+* Fri Aug 15 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.24-1
 - Tagged as spin-0.8.23-1 (root@server2.renditionsoftware.com)
 - Bumped version to spin-0.8.23-1.noarch. (spinmaster)
 
