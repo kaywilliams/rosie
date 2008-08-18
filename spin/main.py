@@ -108,7 +108,6 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     These parameters are normally passed in from the command-line handler
     ('/usr/bin/spin')
     """
-    self._lock = lock.Lock('spin.pid')
 
     self.parser = parser
 
@@ -218,6 +217,9 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
         print self.appconfig
         sys.exit()
 
+    # set up locking
+    self._lock = lock.Lock(Event.cache_handler.cache_dir/'spin.pid')
+
   def main(self):
     "Build an appliance"
     if self._lock.acquire():
@@ -238,7 +240,6 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
 
   def _get_config(self, options, arguments):
     """
-
     Gets the main config and appliance configs based on option values.  Main
     config file is optional; if not found, merely uses a set of default
     values.  Appliance config is required, except in the event that the '-h' or
@@ -246,7 +247,6 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     config file can be omitted or not exist.  (This previous allowance is so
     that a user can type `spin -h` on the command line without giving
     the '-c' option.)
-
     """
     mcp = pps.path(options.mainconfigpath).expand().abspath()
     dcp = pps.path(arguments[0]).expand().abspath()
@@ -384,7 +384,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     di['version']      = Event._config.get(qstr % 'version')
     di['arch']         = ARCH_MAP[Event._config.get(qstr % 'arch', 'i386')]
     di['basearch']     = getBaseArch(di['arch'])
-    di['applianceid']     = Event._config.get(qstr % 'id',
+    di['applianceid']  = Event._config.get(qstr % 'id',
                           '%s-%s-%s' % (di['name'],
                                         di['version'],
                                         di['basearch']))
