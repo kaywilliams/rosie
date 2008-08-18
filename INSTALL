@@ -98,7 +98,7 @@ be run as the root user.
 Getting Started
 ===============
 
-1. Create a Appliance Definition File (.appliance)
+1. Create an Appliance Definition File (.appliance)
 --------------------------------------------------
 
 Spin includes some example files to help you get started. Copy these
@@ -119,13 +119,12 @@ Subversion, Mercurial or Git.
 Now you can open and modify the fedora.appliance and centos.appliance
 files.
 
-Appliance definition files (appliancefiles or .appliance files) define
-your appliance, including name, version, packages to include, and
-package repositories to use (e.g. CentOS 5, Fedora 9), etc. The
-fedora.appliance and centos.appliance files are abbreviated
-appliancefiles showing common options.  Example.appliance is a
-commented appliancefile containing an overview of general concepts,
-and descriptions of many elements and their usage.
+Appliance definition files (.appliance files) define your appliance, including 
+name, version, packages to include, and package repositories to use (e.g. 
+CentOS 5, Fedora 9), etc. The fedora.appliance and centos.appliance files are 
+abbreviated appliance files showing common options.  Example.appliance is a
+commented appliance file containing an overview of general concepts, and 
+descriptions of many elements and their usage.
 
 2. Running Spin
 ---------------
@@ -143,7 +142,6 @@ mounts and modifies installation images.
 ----------------------
 
 Your new appliance can be found at ``/var/www/html/appliances``.
-Enjoy!
 
 
 4. Questions/Comments/Issues
