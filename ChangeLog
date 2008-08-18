@@ -1,8 +1,26 @@
+2008-08-18  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* setup.py:
+	Fixed release number in setup.py.
+	[e6c1c3c1a2fa] [tip]
+
+2008-08-15  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.26-1
+	[def1e105973d]
+
+2008-08-15  spinmaster  <spinmaster>
+
+	* ChangeLog, spin.spec:
+	Bumped version to spin-0.8.26-1.noarch.
+	[74360c93e83e] [spin-0.8.26-1]
+
 2008-08-15  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* .hgtags:
 	Tagged as spin-0.8.25-1
-	[2d2e56671709] [tip]
+	[2d2e56671709]
 
 2008-08-15  spinmaster  <spinmaster>
 
