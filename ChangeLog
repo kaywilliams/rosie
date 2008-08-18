@@ -1,8 +1,111 @@
 2008-08-18  Uday Prakash  <uprakash@renditionsoftware.com>
 
+	* INSTALL:
+	Whitespace cleanup.
+	[13b6513aa913] [tip]
+
+	* .hgignore:
+	Added spintest/test.log to .hgignore.
+
+	I have accidentally added test.log to the repository a bunch of
+	times. Ignoring it all the time now.
+	[5525b9cded47]
+
+	* spintest/test.log:
+	Had accidentally added test.log to the repository.
+	[56f3339dcc35]
+
+2008-08-18  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* INSTALL:
+	wording tweaks to INSTALL file
+	[1f232cdb2694]
+
+2008-08-18  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* INSTALL, bin/spin, docsrc/man/spin.conf.xml, docsrc/man/spin.xml,
+	share/doc/examples/centos.appliance,
+	share/doc/examples/centos.distro,
+	share/doc/examples/example.appliance,
+	share/doc/examples/example.distro,
+	share/doc/examples/fedora.appliance,
+	share/doc/examples/fedora.distro,
+	share/spin/schemas/appliance/bootiso.rng,
+	share/spin/schemas/appliance/comps.rng, share/spin/schemas/appliance
+	/config-rpm.rng, share/spin/schemas/appliance/createrepo.rng,
+	share/spin/schemas/appliance/diskboot-image.rng,
+	share/spin/schemas/appliance/files.rng,
+	share/spin/schemas/appliance/gpgsign.rng,
+	share/spin/schemas/appliance/initrd-image.rng,
+	share/spin/schemas/appliance/iso.rng,
+	share/spin/schemas/appliance/isolinux.rng,
+	share/spin/schemas/appliance/kickstart.rng,
+	share/spin/schemas/appliance/lib.rng, share/spin/schemas/appliance
+	/logos-rpm.rng, share/spin/schemas/appliance/logos.rng,
+	share/spin/schemas/appliance/main.rng,
+	share/spin/schemas/appliance/pkglist.rng,
+	share/spin/schemas/appliance/product-image.rng,
+	share/spin/schemas/appliance/publish.rng,
+	share/spin/schemas/appliance/release-files.rng,
+	share/spin/schemas/appliance/release-rpm.rng,
+	share/spin/schemas/appliance/repos.rng,
+	share/spin/schemas/appliance/rpmbuild.rng,
+	share/spin/schemas/appliance/sources.rng,
+	share/spin/schemas/appliance/updates-image.rng,
+	share/spin/schemas/distro/bootiso.rng,
+	share/spin/schemas/distro/comps.rng, share/spin/schemas/distro
+	/config-rpm.rng, share/spin/schemas/distro/createrepo.rng,
+	share/spin/schemas/distro/diskboot-image.rng,
+	share/spin/schemas/distro/files.rng,
+	share/spin/schemas/distro/gpgsign.rng, share/spin/schemas/distro
+	/initrd-image.rng, share/spin/schemas/distro/iso.rng,
+	share/spin/schemas/distro/isolinux.rng,
+	share/spin/schemas/distro/kickstart.rng,
+	share/spin/schemas/distro/lib.rng, share/spin/schemas/distro/logos-
+	rpm.rng, share/spin/schemas/distro/logos.rng,
+	share/spin/schemas/distro/main.rng,
+	share/spin/schemas/distro/pkglist.rng, share/spin/schemas/distro
+	/product-image.rng, share/spin/schemas/distro/publish.rng,
+	share/spin/schemas/distro/release-files.rng,
+	share/spin/schemas/distro/release-rpm.rng,
+	share/spin/schemas/distro/repos.rng,
+	share/spin/schemas/distro/rpmbuild.rng,
+	share/spin/schemas/distro/sources.rng, share/spin/schemas/distro
+	/updates-image.rng, share/spin/schemas/logos-rpm/config.rng,
+	share/spin/schemas/spin.rng, spin.spec, spin/__init__.py,
+	spin/errors.py, spin/event/__init__.py, spin/event/locals.py,
+	spin/locals/__init__.py, spin/locals/logos_rpm.py, spin/main.py,
+	spin/modules/core/installer/infofiles.py,
+	spin/modules/core/installer/xen-images.py,
+	spin/modules/core/publish.py,
+	spin/modules/core/rpmbuild/__init__.py, spin/modules/core/rpmbuild
+	/config-rpm.py, spin/modules/core/rpmbuild/logos-rpm/__init__.py,
+	spin/modules/core/rpmbuild/logos-rpm/files.py,
+	spin/modules/core/rpmbuild/release-rpm.py,
+	spin/modules/extensions/files.py, spin/modules/extensions/iso.py,
+	spin/modules/shared/installer.py, spin/modules/shared/rpmbuild.py,
+	spin/validate.py, spintest/__init__.py,
+	spintest/modules/download/__init__.py, spintest/test.log:
+	Changed all references of "distro" to "appliance".
+
+	Look at Bug# 293 for more details.
+	[1b184018ce97]
+
+	* .hgtags:
+	Tagged as spin-0.8.27-1
+	[a518e0b03371]
+
+2008-08-18  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.27-1.noarch.
+	[e3bcd4d94c0e] [spin-0.8.27-1]
+
+2008-08-18  Uday Prakash  <uprakash@renditionsoftware.com>
+
 	* setup.py:
 	Fixed release number in setup.py.
-	[e6c1c3c1a2fa] [tip]
+	[e6c1c3c1a2fa]
 
 2008-08-15  Uday Prakash  <uprakash@renditionsoftware.com>
 

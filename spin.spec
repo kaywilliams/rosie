@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.27
+Version: 0.8.28
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -97,6 +97,15 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Mon Aug 18 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.28-1
+- Whitespace cleanup. (uprakash)
+- Added spintest/test.log to .hgignore. (uprakash)
+- Had accidentally added test.log to the repository. (uprakash)
+- wording tweaks to INSTALL file (kwilliams)
+- Changed all references of "distro" to "appliance". (uprakash)
+- Tagged as spin-0.8.27-1 (uprakash)
+- Bumped version to spin-0.8.27-1.noarch. (spinmaster)
+
 * Mon Aug 18 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.27-1
 - Fixed release number in setup.py. (uprakash)
 - Tagged as spin-0.8.26-1 (uprakash)
