@@ -70,6 +70,8 @@ class PpsPathError(SpinError):
       pass
 
 class ShLibError(SpinError):
+  def __init__(self, e):
+    self.map = {'cmd': e.cmd, 'errno': e.errno, 'desc': e.desc}
   message = ( "The command '%(cmd)s' exited with an unexepected status code. "
               "Error message was: [errno %(errno)d] %(desc)s" )
 
