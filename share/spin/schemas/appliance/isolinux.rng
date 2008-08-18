@@ -11,10 +11,6 @@
 
           <interleave>
 
-            <optional>
-            <element name="boot-args"><text/></element>
-            </optional>
-
             <zeroOrMore>
             <element name="path"><ref name="content-path-with-dest"/></element>
             </zeroOrMore>
