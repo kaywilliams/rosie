@@ -91,7 +91,7 @@ class SpinErrorHandler:
           "An unhandled exception has been generated while processing "
           "the '%s' event.  The traceback has been recorded in the log "
           "file.  Please report this error by sending a copy of your log "
-          "file, config and distro definition files, and any other relevant "
+          "file, config and appliance definition files, and any other relevant "
           "information to contact@renditionsoftware.com.\n\n"
           "Error message was: "
           % self.dispatch.currevent.id)

@@ -1,29 +1,34 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="distro">
+    <element name="appliance">
 
       <optional>
-      <element name="release-files">
+      <element name="publish">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
+        <interleave>
+
         <optional>
-        <attribute name="use-default-set">
+        <element name="remote-webroot">
+        <optional>
+        <attribute name="use-hostname">
           <ref name="value-boolean"/>
         </attribute>
         </optional>
+        <text/>
+        </element>
+        </optional>
 
-        <interleave>
+        <optional>
+        <element name="local-webroot"><text/></element>
+        </optional>
 
-        <zeroOrMore>
-        <element name="path"><text/></element>
-        </zeroOrMore>
-
-        <zeroOrMore>
-        <element name="package"><text/></element>
-        </zeroOrMore>
+        <optional>
+        <element name="path-prefix"><text/></element>
+        </optional>
 
         </interleave>
       </element>
@@ -31,5 +36,6 @@
 
     </element>
   </start>
+
   <include href="lib.rng"/>
 </grammar>

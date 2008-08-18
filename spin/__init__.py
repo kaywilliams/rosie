@@ -19,7 +19,7 @@
 spin
 
 A modular, extensible program framework for building customized anaconda-based
-Linux distributions.
+Linux appliances.
 
 Highly optimized execution engine attempts to minimize build times by tracking
 data on various parts of the build process and only executing stages that have
@@ -33,11 +33,11 @@ modules/ directory, or by making an entry in the configuration file.  It is
 also easy to extend the basic spin system by writing your own modules that
 implement the spin module interface.
 
-Support for multiple platform builds - spin is capable of building a
-distribution based on any version of anaconda from 10.x onward depending on
+Support for multiple platform builds - spin is capable of building an
+appliance based on any version of anaconda from 10.x onward depending on
 the software installed on the build machine.  Through the use of multiple
-configuration files, one machine can build a variety of custom distributions
-based on many different base distributions with no difficulty.  Careful use
+configuration files, one machine can build a variety of custom appliances
+based on many different base appliances with no difficulty.  Careful use
 of a cache management system ensures that build data files don't take up too
 much space on the machine's drive while attempting to minimize cache misses
 that eat up valuable time.

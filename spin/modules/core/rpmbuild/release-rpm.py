@@ -127,7 +127,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
     release_string = ['%s %s' % (self.fullname, self.version)]
     issue_string = ['Kernel \\r on an \\m\n']
 
-    # write the distro-release and redhat-release files
+    # write the appliance-release and redhat-release files
     (dest/'redhat-release').write_lines(release_string)
     (dest/'%s-release' % self.name).write_lines(release_string)
 

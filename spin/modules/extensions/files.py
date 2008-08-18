@@ -18,7 +18,7 @@
 """
 files.py
 
-Includes user-provided files and folders within the distribution folder.
+Includes user-provided files and folders within the appliance folder.
 """
 
 from spin.event   import Event

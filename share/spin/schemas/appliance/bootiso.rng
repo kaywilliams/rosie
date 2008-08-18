@@ -1,14 +1,16 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="distro">
+    <element name="appliance">
 
       <optional>
-      <element name="pkglist">
+      <element name="bootiso">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
-        <text/>
+        <optional>
+        <ref name="element-boot-config"/>
+        </optional>
       </element>
       </optional>
 

@@ -40,7 +40,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     self.xen_dir = self.SOFTWARE_STORE/'images/xen'
 
     self.DATA = {
-      'config':    ['/distro/initrd-image'],
+      'config':    ['.'],
       'variables': ['cvars[\'anaconda-version\']'],
       'input':     [], # to be filled later
       'output':    []  # to be filled later
@@ -76,7 +76,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     FileDownloadMixin.setup(self)
 
     # add input files from initrd.img
-    self.io.add_xpath('/distro/initrd-image/path', self.imagedir,
+    self.io.add_xpath('path', self.imagedir,
                       id='%s-input-files' % self.name)
 
   def run(self):

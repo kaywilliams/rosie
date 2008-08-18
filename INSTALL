@@ -2,13 +2,14 @@
 Installing Spin
 ===============
 
-This document covers Spin requirements, installation, and getting started.
+This document covers Spin requirements, installation, and getting
+started.
 
 Requirements
 ============
 
-Spin has been tested on systems running Red Hat Enterprise Linux 5, CentOS 5,
-and Fedora versions 7, 8 and 9.
+Spin has been tested on systems running Red Hat Enterprise Linux 5,
+CentOS 5, and Fedora versions 7, 8 and 9.
 
 The following packages are needed for Spin to run:
 
@@ -28,16 +29,17 @@ The following packages are needed for Spin to run:
 * syslinux
 * yum
 
-Note: Some of the packages (e.g. python-lxml) can be found in the Extra Packages
-for Enterprise Linux (EPEL) or Fedora Everything RPM repositories.
+Note: Some of the packages (e.g. python-lxml) can be found in the
+Extra Packages for Enterprise Linux (EPEL) or Fedora Everything RPM
+repositories.
 
 
 Installation
 ============
 
-Spin RPMs will be coming soon.  In the meantime, this document describes how you
-can obtain Spin and run it directly from source code.
-
+Spin RPMs will be coming soon.  In the meantime, this document
+describes how you can obtain Spin and run it directly from source
+code.
 
 In the following instructions, we assume that the working directory is
 ``SPIN_RUN``.
@@ -69,7 +71,8 @@ and then at the command line
 2. Create the Spin configuration file
 -------------------------------------
 
-Create a file called ``/etc/spin/spin.conf`` and add the following lines:
+Create a file called ``/etc/spin/spin.conf`` and add the following
+lines:
 
 ::
 
@@ -78,65 +81,69 @@ Create a file called ``/etc/spin/spin.conf`` and add the following lines:
     <disable-module>logos-rpm</disable-module> <!--temporary workaround-->
   </spin>
 
-Alternatively, you can copy ``$SPIN_RUN/spin/share/doc/examples/spin.conf`` 
+Alternatively, you can copy ``$SPIN_RUN/spin/share/doc/examples/spin.conf``
 to the /etc folder as a starting point and modify the share-path.
 
 3. Install Spin dependencies
 ----------------------------
 
-Install packages listed above under `Requirements`. Note that yum must be run
-as the root user.
+Install packages listed above under `Requirements`. Note that yum must
+be run as the root user.
 
 ::
 
-  $$ yum install (dependencies listed above)  
+  $$ yum install (dependencies listed above)
 
 
 Getting Started
 ===============
 
-1. Create a Distribution Definition File (.distro)
+1. Create a Appliance Definition File (.appliance)
 --------------------------------------------------
 
-Spin includes some example files to help you get started. Copy these files to
-a new folder, called ``DISTRO_DIR`` below.  While you are experimenting, you 
-will most likely want DISTRO_DIR to be in your home folder. Later you will want
-to maintain your .distro and related files using a Source Code Management 
-system such as CVS, Subversion, Mercurial or Git.
+Spin includes some example files to help you get started. Copy these
+files to a new folder, called ``APPLIANCE_DIR`` below.  While you are
+experimenting, you will most likely want APPLIANCE_DIR to be in your
+home folder. Later you will want to maintain your .appliance and
+related files using a Source Code Management system such as CVS,
+Subversion, Mercurial or Git.
 
 ::
 
-  $$ mkdir $DISTRO_DIR
+  $$ mkdir $APPLIANCE_DIR
   $$ cd $SPIN_RUN/spin/share/doc/example/
-  $$ cp fedora.distro centos.distro example.distro $DISTRO_DIR
-  $$ cd $DISTRO_DIR
+  $$ cp fedora.appliance centos.appliance example.appliance $APPLIANCE_DIR
+  $$ cd $APPLIANCE_DIR
 
 
-Now you can open and modify the fedora.distro and centos.distro files. 
+Now you can open and modify the fedora.appliance and centos.appliance
+files.
 
-Distribution definition files (distrofiles or .distro files) define your 
-distribution, including name, version, packages to include, and package
-repositories to use (e.g. CentOS 5, Fedora 9), etc. The fedora.distro and 
-centos.distro files are abbreviated distrofiles showing common options. 
-Example.distro is a commented distrofile containing an overview of general 
-concepts, and descriptions of many elements and their usage.
+Appliance definition files (appliancefiles or .appliance files) define
+your appliance, including name, version, packages to include, and
+package repositories to use (e.g. CentOS 5, Fedora 9), etc. The
+fedora.appliance and centos.appliance files are abbreviated
+appliancefiles showing common options.  Example.appliance is a
+commented appliancefile containing an overview of general concepts,
+and descriptions of many elements and their usage.
 
 2. Running Spin
 ---------------
 
-To run Spin, type the following at the command line. Note that Spin must be run
-as the root system user; this is required because Spin mounts and modifies
-installation images.
+To run Spin, type the following at the command line. Note that Spin
+must be run as the root system user; this is required because Spin
+mounts and modifies installation images.
 
 ::
 
-        $SPIN_RUN/bin/spin $DISTRO_DIR/centos.distro
+  $SPIN_RUN/bin/spin $APPLIANCE_DIR/centos.appliance
 
 
-3. Using the Custom Distribution
---------------------------------
+3. Using the Appliance
+----------------------
 
-Your new distribution can be found at ``/var/www/html/distros``.  Enjoy!
+Your new appliance can be found at ``/var/www/html/appliances``.
+Enjoy!
 
 
 4. Questions/Comments/Issues

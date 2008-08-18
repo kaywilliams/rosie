@@ -66,12 +66,12 @@ class FilesHandlerObject(object):
   @property
   def files(self):
     if self._files: return self._files
-    distroid = self.ptr.distro_info['distroid']
+    applianceid = self.ptr.appliance_info['applianceid']
     c = config.ConfigletContainer()
 
     toread = set()
     for path in self.ptr.SHARE_DIRS:
-      cpath = path / 'logos-rpm/%s.xml' % distroid
+      cpath = path / 'logos-rpm/%s.xml' % applianceid
       if cpath.exists():
         toread.add(cpath)
       else:
@@ -81,7 +81,7 @@ class FilesHandlerObject(object):
 
       for extra_path in path.findpaths(glob='*.pth'):
         for p in extra_path.read_lines():
-          ec = pps.path(p) / '%s.xml' % distroid
+          ec = pps.path(p) / '%s.xml' % applianceid
           if ec.exists():
             toread.add(ec)
 
@@ -117,7 +117,7 @@ class FilesHandlerObject(object):
       else:
         # create image
         img = Image.new('RGB', (info['width'], info['height']),
-                        info.get('background', self.ptr.distro_info['background']))
+                        info.get('background', self.ptr.appliance_info['background']))
         dst.dirname.mkdirs()
         img.save(dst, info.get('format', 'png'))
 
@@ -130,7 +130,7 @@ class FilesHandlerObject(object):
     img = Image.open(image)
     draw = ImageDraw.Draw(img)
     for i in strings:
-      text_string     = i.get('text', '') % self.ptr.cvars['distro-info']
+      text_string     = i.get('text', '') % self.ptr.cvars['appliance-info']
       text_coords     = (i.get('x-position', img.size[0]/2),
                          i.get('y-position', img.size[1]/2))
       text_max_width  = i.get('text-max-width', img.size[0])

@@ -104,7 +104,7 @@ class ImageModifyMixin:
 
   def setup(self):
     # input images
-    image_path = self.image_locals['path'] % self.cvars['distro-info']
+    image_path = self.image_locals['path'] % self.cvars['appliance-info']
 
     self.diff.setup(self.DATA)
 
@@ -114,11 +114,11 @@ class ImageModifyMixin:
     self.io.add_xpath('path', self.imagedir, id='%s-input-files' % self.name)
 
   def _add_image(self):
-    ip = self.image_locals['path'] % self.cvars['distro-info']
+    ip = self.image_locals['path'] % self.cvars['appliance-info']
     self.io.add_fpath(self.cvars['installer-repo'].url/ip,
                       self.path.dirname, id='ImageModifyMixin')
   def _create_image(self):
-    ip = self.image_locals['path'] % self.cvars['distro-info']
+    ip = self.image_locals['path'] % self.cvars['appliance-info']
     self.DATA['output'].append(self.path)
 
   def add_image(self):
@@ -174,7 +174,7 @@ class ImageModifyMixin:
 
   path    = property(lambda self: ( self.SOFTWARE_STORE /
                                     self.image_locals['path'] %
-                                    self.cvars['distro-info']) )
+                                    self.cvars['appliance-info']) )
   zipped  = property(lambda self: self.image_locals.get('zipped', False))
 
   def verify_image(self):
@@ -199,7 +199,7 @@ class FileDownloadMixin:
     paths = []
     for data in self.file_locals.values():
       rinfix = data['path'] % self.cvars['base-info']
-      linfix = data['path'] % self.cvars['distro-info']
+      linfix = data['path'] % self.cvars['appliance-info']
       self.io.add_fpath(self.cvars['installer-repo'].url/rinfix,
                         (self.SOFTWARE_STORE/linfix).dirname,
                         id='FileDownloadMixin')

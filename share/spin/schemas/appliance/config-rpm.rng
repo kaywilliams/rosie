@@ -2,7 +2,7 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
 
-    <element name="distro">
+    <element name="appliance">
       <optional>
       <element name="config-rpm">
         <optional>
@@ -14,7 +14,7 @@
         <optional>
         <element name="repofile">
           <optional>
-          <attribute name="distro"><ref name="value-boolean"/></attribute>
+          <attribute name="appliance"><ref name="value-boolean"/></attribute>
           </optional>
           <optional><attribute name="repoids"/></optional>
         </element>

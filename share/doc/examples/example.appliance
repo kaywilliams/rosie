@@ -1,4 +1,4 @@
-<!-- The following is a sample distribution definition (.distro) file.  Some of
+<!-- The following is a sample appliance definition (.appliance) file.  Some of
      the most 'interesting' possible configuration values have been highlighted;
      this is by no means a comprehensive list of available options.  See
      user documentation (not yet available) for a more complete discussion of
@@ -29,7 +29,7 @@
 
        <gpgcheck enabled="false"/>
 
-     Not all supported top-level elements are listed in this sample distro
+     Not all supported top-level elements are listed in this sample appliance
      definition.
 
 
@@ -37,15 +37,15 @@
 
      There are two classes of modules - core and extension.  Core modules
      define events that are generally considered to be requisite for a final
-     distro to be complete - generating a comps file, downloading packages,
+     appliance to be complete - generating a comps file, downloading packages,
      and creating installer images, for example.  Extension modules, on the
      other hand, are additional features that are not necessarily required
-     but that add extra output to the distro; iso generation and including a
+     but that add extra output to the appliance; iso generation and including a
      kickstart file, for example.
 
      Core modules are all enabled by default; meaning they will be loaded
      and the events they define will run whether or not a corresponding top
-     level element appears in the distro definition file.  Extension modules,
+     level element appears in the appliance definition file.  Extension modules,
      on the other hand, are disabled by default and must be explicitly loaded
      by putting an appropriate top level element in the definition file.  For
      example, in order to load the iso module to generate iso images, add the
@@ -55,12 +55,12 @@
          ...
        </iso>
 
-     The extension modules that are listed in this sample distro definition
+     The extension modules that are listed in this sample appliance definition
      have their enabled attribute set to false; all other modules are core.
 
      FILE PATHS
 
-     In general, any file path in the distro definition can take the form of
+     In general, any file path in the appliance definition can take the form of
      a local path ('/var/www/html' or 'file:///var/www/html') or a remote
      path accessible via http(s) ('http://www.example.com/file').  https
      user/password pairs can be specified in the URL or read from a prompt
@@ -81,36 +81,36 @@
      out for the sake of clarity.
 -->
 
-<!-- Distro files have support for using the w3 XInclude standard.  If this
-     functionality is desired, include the following attribute in the <distro>
+<!-- Appliance files have support for using the w3 XInclude standard.  If this
+     functionality is desired, include the following attribute in the <appliance>
      section:
 
      xmlns:xi="http://www.w3.org/2001/XInclude" -->
-<distro xmlns:xi="http://www.w3.org/2001/XInclude">
+<appliance xmlns:xi="http://www.w3.org/2001/XInclude">
 
-  <!-- All distro definitions need to contain a <main> section.  The main
-       section primarily deals with global distribution options like name,
+  <!-- All appliance definitions need to contain a <main> section.  The main
+       section primarily deals with global appliance options like name,
        architecture, etc. -->
   <main>
-    <!-- Human readable string representing distro -->
-    <fullname>Example Distribution</fullname>
+    <!-- Human readable string representing appliance -->
+    <fullname>Example Appliance</fullname>
 
-    <!-- Unique, unix filename chars only, used as distro identifier -->
+    <!-- Unique, unix filename chars only, used as appliance identifier -->
     <name>example</name>
 
-    <!-- Version of the distro -->
+    <!-- Version of the appliance -->
     <version>9</version>
 
     <!-- Arch to build for; supported archs are currently i386 and x86_64 -->
     <arch>i386</arch>
 
-    <!-- Name of the folder containing RPMs in the distro tree -->
+    <!-- Name of the folder containing RPMs in the appliance tree -->
     <!--<package-path>Packages</package-path>-->
 
   </main>
 
   <!-- The repos module is responsible for reading repository metadata for
-       determining the available packages for a distribution.  This section
+       determining the available packages for an appliance.  This section
        is optional when using the base module. -->
   <repos>
     <!-- Repos can be specified in two ways - a path to a yum.conf-style
@@ -128,7 +128,7 @@
     <!-- <exclude-package> and <include-package> elements as children of
          <repo> elements have the same effect as 'exclude' and 'includepkgs'
          in yum.conf files. <exclude-package> elements as children of the
-         <repos> element will exclude packages from the entire distro.
+         <repos> element will exclude packages from the entire appliance.
          Each exclude or include element should contain one package.-->
     <!--<exclude-package>tcpdump</exclude-package>-->
     <!--<repo id="base">
@@ -144,9 +144,9 @@
   <!--<installer/>-->
 
   <!-- The <comps> module is what computes and creates the group definitions
-       for the distribution. -->
+       for the appliance. -->
   <comps>
-    <!-- Include groups and packages in the distro by listing them in <group>
+    <!-- Include groups and packages in the appliance by listing them in <group>
          and <package> elements, respectively. Each group or package must
          be listed in a separate element -->
     <group>core</group>
@@ -154,7 +154,7 @@
 
     <!-- Exclude packages by using <exclude-package> elements.  Note that
          this just excludes them from the groupfile, not from the entire
-         distribution -->
+         appliance -->
     <!--<exclude-package>tcpdump</exclude-package>-->
 
     <!-- Alternately, include a path to an existing groupfile -->
@@ -163,7 +163,7 @@
 
   <!-- The config-rpm module allows developers to run arbitrary install
        scripts and to copy customized configuration files onto machines
-       using the distribution -->
+       using the appliance -->
   <config-rpm enabled="false">
     <!-- <script> elements specify scripts to be run in the post install
          section of the config rpm.  They are executed in the order they
@@ -171,7 +171,7 @@
     <!--<script>/path/to/script1</script>-->
 
     <!-- <file> elements can be used to install arbitrary files onto machines
-         that use the distro, even if these files are 'owned' by another
+         that use the appliance, even if these files are 'owned' by another
          RPM.  Use the dest attribute to control their final destination. -->
     <!--<file>/path/to/file1</file>-->
     <!--<file dest="/some/dest">/path/to/file2</file>-->
@@ -185,9 +185,9 @@
        such as readme files, eulas, and yum repos. -->
   <release-rpm>
     <!-- Set 'include-input' to false to not include the source repos in the
-         final distribution's repo set -->
+         final appliance's repo set -->
     <!-- Set 'include-repos' to false to not include a repository pointing to
-         the build machine's published distribution -->
+         the build machine's published appliance -->
     <!--<yum-repos include-input="true" include-repos="true"/>-->
   </release-rpm>
 
@@ -199,14 +199,14 @@
     <!--<passphrase>SECRET</passphrase>-->
   </gpgsign>
 
-  <!-- The files module allows arbitrary files to be included in the distro -->
+  <!-- The files module allows arbitrary files to be included in the appliance -->
   <files enabled="false">
     <!-- Include paths to files with <path> elements -->
     <!--<path>/path/to/file1</path>-->
     <!--<path>/path/to/file2</path>-->
   </files>
 
-  <!-- The sources module downloads and includes SRPMs in the distro tree -->
+  <!-- The sources module downloads and includes SRPMs in the appliance tree -->
   <sources enabled="false">
     <!-- The content of the sources module is the same as that of the repos
          module, except that repos should point to SRPM repositories, rather
@@ -215,28 +215,28 @@
          need to be changed or additional non-default repos are needed -->
   </sources>
 
-  <!-- The product-image module creates a product.img with any distro-
+  <!-- The product-image module creates a product.img with any appliance-
        specific customizations (such as branding) -->
   <product-image>
     <!--<path>/path/to/file1<path>-->
     <!--<path>/path/to/file2<path>-->
   </product-image>
 
-  <!-- The updates-image module creates an updates.img with any distro
+  <!-- The updates-image module creates an updates.img with any appliance
        specific customizations to installer code -->
   <updates-image>
     <!--<path>/path/to/file1<path>-->
     <!--<path>/path/to/file2<path>-->
   </updates-image>
-  
+
   <!-- The initrd-image modul allows arbitrary files to be included in the
-       initrd.img for the distro -->
+       initrd.img for the appliance -->
   <initrd-image>
     <!--<path>/path/to/file1<path>-->
     <!--<path>/path/to/file2<path>-->
   </initrd-image>
 
-  <!-- The kickstart module handles putting a kickstart into a distro,
+  <!-- The kickstart module handles putting a kickstart into an appliance,
        including embedding the kickstart into the initrd.img image and modifying
        the kernel boot arguments for diskboot.img, boot.iso and cd/dvd images-->
   <kickstart enabled="false">
@@ -252,4 +252,4 @@
     <!--<set>DVD</set>-->
   </iso>
 
-</distro>
+</appliance>

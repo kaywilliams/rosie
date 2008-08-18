@@ -47,7 +47,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     RpmBuildMixin.__init__(self,
       '%s-config' % self.name,
       "The %s-config provides scripts and supporting files for configuring "
-      "the %s distribution." % (self.name, self.fullname),
+      "the %s appliance." % (self.name, self.fullname),
       "%s configuration script and supporting files" % self.fullname,
       requires = ['coreutils', 'policycoreutils']
     )
@@ -57,7 +57,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     self.filerelpath = pps.path('usr/share/%s/files' % self.name)
 
     self.DATA = {
-      'variables': ['name', 'fullname', 'distroid', 'rpm.release', 
+      'variables': ['name', 'fullname', 'applianceid', 'rpm.release',
                     'cvars[\'web-path\']', 'cvars[\'gpgsign-public-key\']',],
       'config':    ['.'],
       'input':     [],
@@ -117,8 +117,8 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
 
     lines = []
 
-    # include a repo pointing to the published distro
-    if self.config.getbool('repofile/@distro', 'True'):
+    # include a repo pointing to the published appliance
+    if self.config.getbool('repofile/@appliance', 'True'):
       lines.extend([ '[%s]' % self.name,
                      'name      = %s - %s' % (self.fullname, self.basearch),
                      'baseurl   = %s' % (self.cvars['web-path']/'os') ])

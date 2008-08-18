@@ -47,4 +47,4 @@ class LocalsObject:
   L_CREATEREPO        = property(lambda self: L_CREATEREPO[self.createrepo_ver])
 
   # input distribution and version based
-  L_LOGOS_RPM_DISTRO_INFO = property(lambda self: L_LOGOS_RPM_DISTRO_INFO[self.base_name][self.base_ver])
+  L_LOGOS_RPM_APPLIANCE_INFO = property(lambda self: L_LOGOS_RPM_APPLIANCE_INFO[self.base_name][self.base_ver])

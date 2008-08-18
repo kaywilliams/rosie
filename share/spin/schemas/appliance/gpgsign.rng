@@ -1,23 +1,20 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="distro">
+    <element name="appliance">
+
       <optional>
-      <element name="diskboot-image">
+      <element name="gpgsign">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
         <interleave>
-
-        <optional>
-        <ref name="element-boot-config"/>
-        </optional>
-
-        <zeroOrMore>
-        <element name="path"><ref name="content-path-with-dest"/></element>
-        </zeroOrMore>
-
+          <element name="public-key"><text/></element>
+          <element name="secret-key"><text/></element>
+          <optional>
+          <element name="passphrase"><text/></element>
+          </optional>
         </interleave>
       </element>
       </optional>

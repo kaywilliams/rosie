@@ -45,7 +45,7 @@ class LocalsDict(dict):
   that aids the specific requirements of the spin locals system.
 
   Problem
-  Certain properties of anaconda-based distributions vary depending on the
+  Certain properties of anaconda-based appliances vary depending on the
   anaconda version, such as image file location and format or discinfo file
   internal format.  While starting at a specific anaconda version, these
   particular properties may persist for a number of subsequent anaconda

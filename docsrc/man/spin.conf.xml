@@ -84,7 +84,7 @@
 <varlistentry>
   <term><option>path</option></term>
   <listitem>
-<para>The <literal>path</literal> child element specifies where Spin stores both shared and per distribution cache data.  The default is <filename>/var/cache/spin</filename>.
+<para>The <literal>path</literal> child element specifies where Spin stores both shared and per appliance cache data.  The default is <filename>/var/cache/spin</filename>.
 </para>
 <literallayout>
 	<cache>
@@ -127,7 +127,7 @@
 <varlistentry>
   <term>CACHEDIR</term>
   <listitem>
-    <para>CACHEDIR is the directory location where Spin stores shared and per-distribution cache data.</para>
+    <para>CACHEDIR is the directory location where Spin stores shared and per-appliance cache data.</para>
   </listitem>
 </varlistentry>
 
@@ -158,12 +158,12 @@
 	<spin>
 		<share-path>/usr/share</share-path>
 		<share-path>~/spin/share</share-path>
-  		<lib-path>/usr/lib</lib-path>
+		<lib-path>/usr/lib</lib-path>
 		<lib-path>~/spin/lib</lib-path>
- 		<log-file>~/spin.log</log-file>
+		<log-file>~/spin.log</log-file>
 		<cache>
-  			<path>~/spin/cache</path>
-  			<max-size>5GB</max-size>
+			<path>~/spin/cache</path>
+			<max-size>5GB</max-size>
 		</cache>
 	</spin>
     </literallayout>

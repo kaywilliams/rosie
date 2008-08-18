@@ -18,7 +18,7 @@
 """
 infofiles.py
 
-generates distribution information files: .discinfo, .treeinfo, and .buildstamp
+generates appliance information files: .discinfo, .treeinfo, and .buildstamp
 """
 
 import copy
@@ -62,14 +62,14 @@ class DiscinfoEvent(Event):
     discinfo = ffile.DictToFormattedFile(self.locals.L_DISCINFO_FORMAT)
 
     # get name, fullname, and basearch from cvars
-    distro_vars = copy.deepcopy(self.cvars['distro-info'])
+    app_vars = copy.deepcopy(self.cvars['appliance-info'])
 
     # add timestamp and discs using defaults to match anaconda makestamp.py
-    distro_vars.update({'timestamp': str(time.time()), 'discs': 'ALL'})
+    app_vars.update({'timestamp': str(time.time()), 'discs': 'ALL'})
 
     # write .discinfo
     self.difile.dirname.mkdirs()
-    discinfo.write(self.difile, **distro_vars)
+    discinfo.write(self.difile, **app_vars)
     self.difile.chmod(0644)
 
   def apply(self):
@@ -104,7 +104,7 @@ class TreeinfoEvent(Event):
     lines = []
 
     # add timestamp to base vars (doesn't have to match .discinfo's timestamp)
-    vars = copy.deepcopy(self.cvars['distro-info'])
+    vars = copy.deepcopy(self.cvars['appliance-info'])
     vars.update({'timestamp': str(time.time())})
 
     # generate .treeinfo lines
@@ -157,11 +157,11 @@ class BuildstampEvent(Event):
 
     buildstamp = ffile.DictToFormattedFile(self.locals.L_BUILDSTAMP_FORMAT)
 
-    distro_vars = copy.deepcopy(self.cvars['base-info'])
-    distro_vars.update(self.cvars['distro-info'])
+    app_vars = copy.deepcopy(self.cvars['base-info'])
+    app_vars.update(self.cvars['appliance-info'])
 
     self.bsfile.dirname.mkdirs()
-    buildstamp.write(self.bsfile, **distro_vars)
+    buildstamp.write(self.bsfile, **app_vars)
     self.bsfile.chmod(0644)
 
   def apply(self):

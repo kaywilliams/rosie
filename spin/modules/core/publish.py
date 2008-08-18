@@ -28,7 +28,7 @@ from spin.logging   import L1
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PublishSetupEvent', 'PublishEvent'],
-  description = 'links distribution output to a publish location',
+  description = 'links appliance output to a publish location',
 )
 
 TYPE_DIR = pps.constants.TYPE_DIR
@@ -44,7 +44,7 @@ class PublishSetupEvent(Event):
     )
 
     self.DATA = {
-      'variables': ['distroid'],
+      'variables': ['applianceid'],
       'config': ['.'],
     }
 
@@ -52,7 +52,7 @@ class PublishSetupEvent(Event):
     self.diff.setup(self.DATA)
 
     prefix = \
-      self.config.getpath('path-prefix', 'distros') / self.distroid
+      self.config.getpath('path-prefix', 'appliances') / self.applianceid
     self.web_path = \
       self.config.getpath('remote-webroot', self._get_host()) / prefix
     self.publish_path = \

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<distro xmlns:xi="http://www.w3.org/2001/XInclude">
+<appliance xmlns:xi="http://www.w3.org/2001/XInclude">
 
-  <!-- Minimal distribution based on Fedora 9. See example.distro for more options -->
+  <!-- Minimal appliance based on Fedora 9. See example.appliance for more options -->
 
   <main>
     <fullname>Example System</fullname>
@@ -36,4 +36,4 @@
     </repo>
   </repos>
 
-</distro>
+</appliance>

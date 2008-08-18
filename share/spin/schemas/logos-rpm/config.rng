@@ -177,6 +177,6 @@
     </data>
   </define>
 
-  <include href="../distro/lib.rng"/>
+  <include href="../appliance/lib.rng"/>
 </grammar>
 

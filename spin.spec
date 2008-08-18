@@ -3,7 +3,7 @@
 Name:    spin
 Version: 0.8.27
 Release: 1%{?dist}
-Summary: The Spin Package builds customized distributions
+Summary: The Spin Package builds customized appliances
 
 License:   GPLv2+
 Group:     Applications/System
@@ -36,7 +36,7 @@ Requires: yum
 
 %description
 The spin package contains the necessary shared server applications to build
-and run a Spin-managed distribution.
+and run a Spin-managed appliance.
 
 %prep
 %setup -q

@@ -1,19 +1,18 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="distro">
-
+    <element name="appliance">
       <optional>
-      <element name="bootiso">
+      <element name="updates-image">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
-        <optional>
-        <ref name="element-boot-config"/>
-        </optional>
+
+        <zeroOrMore>
+        <element name="path"><ref name="content-path-with-dest"/></element>
+        </zeroOrMore>
       </element>
       </optional>
-
     </element>
   </start>
 

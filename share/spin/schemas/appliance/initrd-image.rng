@@ -1,16 +1,16 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="distro">
+    <element name="appliance">
       <optional>
-      <element name="updates-image">
+      <element name="initrd-image">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
-        <zeroOrMore>
+        <oneOrMore>
         <element name="path"><ref name="content-path-with-dest"/></element>
-        </zeroOrMore>
+        </oneOrMore>
       </element>
       </optional>
     </element>

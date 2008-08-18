@@ -1,20 +1,36 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="distro">
+    <element name="appliance">
+
       <optional>
-      <element name="initrd-image">
+      <element name="iso">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
+        <interleave>
+
+        <optional>
+        <element name="pkgorder"><text/></element>
+        </optional>
+
         <oneOrMore>
-        <element name="path"><ref name="content-path-with-dest"/></element>
+        <element name="set"><text/></element>
         </oneOrMore>
+
+        <optional>
+        <ref name="element-boot-config"/>
+        </optional>
+
+        </interleave>
+
       </element>
       </optional>
+
     </element>
   </start>
 
   <include href="lib.rng"/>
+
 </grammar>

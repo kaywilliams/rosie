@@ -132,7 +132,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
 
     # set up real logger - console and file
     logfile = pps.path(options.logfile
-              or self.distroconfig.getpath('/distro/main/log-file', None)
+              or self.appconfig.getpath('/appliance/main/log-file', None)
               or self.mainconfig.getpath('/spin/log-file', None)
               or DEFAULT_LOG_FILE).expand().abspath()
     try:
@@ -146,7 +146,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     self._seed_event_defaults(options)
 
     # change working dir to config dir so relative paths expand properly
-    os.chdir(self.distroconfig.file.dirname)
+    os.chdir(self.appconfig.file.dirname)
 
     # set up import_dirs
     import_dirs = self._compute_import_dirs(options)
@@ -215,11 +215,11 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     if not options.no_validate:
       self.validate_configs()
       if options.validate_only:
-        print self.distroconfig
+        print self.appconfig
         sys.exit()
 
   def main(self):
-    "Build a distribution"
+    "Build an appliance"
     if self._lock.acquire():
       self._log_header()
       try:
@@ -238,13 +238,15 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
 
   def _get_config(self, options, arguments):
     """
-    Gets the main config and distro configs based on option values.  Main
+
+    Gets the main config and appliance configs based on option values.  Main
     config file is optional; if not found, merely uses a set of default
-    values.  Distro config is required, except in the event that the '-h' or
-    '--help' argument was given on the command line, in which case the distro
+    values.  Appliance config is required, except in the event that the '-h' or
+    '--help' argument was given on the command line, in which case the appliance
     config file can be omitted or not exist.  (This previous allowance is so
     that a user can type `spin -h` on the command line without giving
     the '-c' option.)
+
     """
     mcp = pps.path(options.mainconfigpath).expand().abspath()
     dcp = pps.path(arguments[0]).expand().abspath()
@@ -257,16 +259,16 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
         mc = rxml.config.fromstring('<spin/>')
 
       if not dcp.exists():
-        raise rxml.errors.ConfigError("No distro definition file found at '%s'" % dcp)
+        raise rxml.errors.ConfigError("No appliance definition file found at '%s'" % dcp)
 
-      self.logger.log(3, "Reading distro definition file '%s'" % dcp)
+      self.logger.log(3, "Reading appliance definition file '%s'" % dcp)
       dc = rxml.config.read(dcp)
     except rxml.errors.XmlSyntaxError, e:
       self.logger.log(0, "Error reading file: %s" % e)
       raise
 
     self.mainconfig = mc
-    self.distroconfig = dc
+    self.appconfig = dc
 
   def _compute_events(self, modules=None, events=None):
     """
@@ -337,8 +339,8 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     enabled  = set(options.enabled_modules)
     disabled = set(options.disabled_modules)
 
-    # enable/disable modules from distro config
-    for module in self.distroconfig.xpath('/distro/*'):
+    # enable/disable modules from app config
+    for module in self.appconfig.xpath('/appliance/*'):
       if module.tag == 'main': continue # main isn't a module
       if not module.getbool('@enabled', 'True'):
         disabled.add(module.tag)
@@ -372,17 +374,17 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
 
     # set up config dirs
     Event.mainconfig = self.mainconfig
-    Event._config    = self.distroconfig
+    Event._config    = self.appconfig
 
     # set up base variables
-    di = Event.cvars['distro-info'] = {}
-    qstr = '/distro/main/%s/text()'
+    di = Event.cvars['appliance-info'] = {}
+    qstr = '/appliance/main/%s/text()'
 
     di['name']         = Event._config.get(qstr % 'name')
     di['version']      = Event._config.get(qstr % 'version')
     di['arch']         = ARCH_MAP[Event._config.get(qstr % 'arch', 'i386')]
     di['basearch']     = getBaseArch(di['arch'])
-    di['distroid']     = Event._config.get(qstr % 'id',
+    di['applianceid']     = Event._config.get(qstr % 'id',
                           '%s-%s-%s' % (di['name'],
                                         di['version'],
                                         di['basearch']))
@@ -394,9 +396,9 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     for k,v in di.items():
       setattr(Event, k, v)
 
-    # validate name, version, and distroid to ensure they don't have
+    # validate name, version, and applianceid to ensure they don't have
     # invalid characters
-    for check in ['name', 'version', 'distroid']:
+    for check in ['name', 'version', 'applianceid']:
       if not FILENAME_REGEX.match(di[check]):
         raise RuntimeError("Invalid value '%s' for <%s> element in <main>; "
           "accepted characters are a-z, A-Z, 0-9, _, ., and -."
@@ -406,7 +408,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     Event.CACHE_DIR    = self.mainconfig.getpath('/spin/cache/path',
                            DEFAULT_CACHE_DIR).expand().abspath()
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
-    Event.METADATA_DIR = Event.CACHE_DIR  / di['distroid']
+    Event.METADATA_DIR = Event.CACHE_DIR  / di['applianceid']
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed([ x.expand().abspath()
@@ -499,7 +501,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
 
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
-    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.distroid, time.strftime('%Y-%m-%d %X')))
+    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.applianceid, time.strftime('%Y-%m-%d %X')))
     Event.logger.log(4, "Loaded modules: %s" % Event.cvars['loaded-modules'])
     Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):

@@ -50,7 +50,7 @@ class TestBuild(Build):
     p = config.uElement('cache', parent=self.mainconfig)
     config.uElement('path', parent=p).text = BUILD_ROOT
 
-    self.distroconfig = self.conf
+    self.appconfig = self.conf
 
 
 class EventTestCase(unittest.TestCase):
@@ -79,7 +79,7 @@ class EventTestCase(unittest.TestCase):
 
   # config setup
   def _make_default_config(self):
-    top = config.Element('distro', attrs={'schema-version': '1.0'})
+    top = config.Element('appliance', attrs={'schema-version': '1.0'})
 
     main = self._make_main_config()
     if main is not None: top.append(main)

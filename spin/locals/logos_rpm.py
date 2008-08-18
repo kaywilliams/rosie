@@ -1,9 +1,9 @@
 from spin.locals import LocalsDict, REMOVE
 
-__all__ = ['L_LOGOS_RPM_DISTRO_INFO']
+__all__ = ['L_LOGOS_RPM_APPLIANCE_INFO']
 
-DEFAULT_DISTRO_INFO = {
-  'distroid': 'centos5',
+DEFAULT_APPLIANCE_INFO = {
+  'applianceid': 'centos5',
   'background': (33, 85, 147),
   'triggers': {
     'kdebase': {
@@ -81,15 +81,15 @@ fi
   },
 }
 
-FEDORA_DISTRO_INFO = DEFAULT_DISTRO_INFO.copy()
-FEDORA_DISTRO_INFO.update({
-  'distroid': 'fedora9',
+FEDORA_APPLIANCE_INFO = DEFAULT_APPLIANCE_INFO.copy()
+FEDORA_APPLIANCE_INFO.update({
+  'applianceid': 'fedora9',
   'background': (32, 75, 105),
 })
 
-L_LOGOS_RPM_DISTRO_INFO = {
+L_LOGOS_RPM_APPLIANCE_INFO = {
   'Fedora': LocalsDict({
-    '0': FEDORA_DISTRO_INFO,
+    '0': FEDORA_APPLIANCE_INFO,
     '8': {
       'post-install': '''SPIN_BACKGROUNDS="1-spin-sunrise.png 2-spin-day.png 3-spin-sunset.png 4-spin-night.png"
 DEFAULT=/usr/share/backgrounds/spin/default.jpg
@@ -250,19 +250,19 @@ fi
     },
   }),
   'CentOS': LocalsDict({
-    '0': DEFAULT_DISTRO_INFO,
+    '0': DEFAULT_APPLIANCE_INFO,
   }),
   'Fedora Core': LocalsDict({
-    '0': DEFAULT_DISTRO_INFO,
+    '0': DEFAULT_APPLIANCE_INFO,
   }),
   'Red Hat Enterprise Linux Server': LocalsDict({
-    '0': DEFAULT_DISTRO_INFO,
+    '0': DEFAULT_APPLIANCE_INFO,
     '5': {
-      'distroid': 'redhat5',
+      'applianceid': 'redhat5',
       'background': (120, 30, 29),
     },
   }),
   '*': LocalsDict({
-    '0': DEFAULT_DISTRO_INFO,
+    '0': DEFAULT_APPLIANCE_INFO,
   }),
 }

@@ -47,7 +47,7 @@ class SpinValidationHandler:
       sys.exit(1)
 
   def _validate_configs(self):
-    "Validate main config and distro definition"
+    "Validate main config and appliance definition"
     self.logger.log(2, L0("validating config"))
 
     self.logger.log(4, L1("spin.conf"))
@@ -55,10 +55,10 @@ class SpinValidationHandler:
                             self.mainconfig.file)
     v.validate('/spin', schema_file='spin.rng')
 
-    # validat individual sections of the distrodef file
-    self.logger.log(4, L1(pps.path(self.distroconfig.file).basename))
-    v = ConfigValidator([ x/'schemas/distro' for x in Event.SHARE_DIRS ],
-                        self.distroconfig.file)
+    # validat individual sections of the appliance_file
+    self.logger.log(4, L1(pps.path(self.appconfig.file).basename))
+    v = ConfigValidator([ x/'schemas/appliance' for x in Event.SHARE_DIRS ],
+                        self.appconfig.file)
 
     # validate all top-level sections
     validated = [] # list of already-validated modules (so we don't revalidate)
@@ -175,9 +175,9 @@ class BaseConfigValidator:
     return schema
 
   def check_required(self, schema, tag):
-    distro_defn = schema.get('//rng:element[@name="distro"]', namespaces=NSMAP)
-    if distro_defn is not None:
-      optional = distro_defn.get('rng:optional', namespaces=NSMAP)
+    app_defn = schema.get('//rng:element[@name="appliance"]', namespaces=NSMAP)
+    if app_defn is not None:
+      optional = app_defn.get('rng:optional', namespaces=NSMAP)
       if optional is None:
         raise InvalidConfigError(self.config.getroot().file,
                                  "Missing required element: '%s'" % tag)
@@ -207,12 +207,12 @@ class ConfigValidator(BaseConfigValidator):
 
   def massage_schema(self, schema, tag):
     schema = BaseConfigValidator.massage_schema(self, schema, tag)
-    distro_defn = schema.get('//rng:element[@name="distro"]', namespaces=NSMAP)
-    start_elem  = distro_defn.getparent()
-    for defn in distro_defn.iterchildren():
+    app_defn = schema.get('//rng:element[@name="appliance"]', namespaces=NSMAP)
+    start_elem  = app_defn.getparent()
+    for defn in app_defn.iterchildren():
       start_elem.append(defn)
       defn.parent = start_elem
-    start_elem.remove(start_elem.get('rng:element[@name="distro"]', namespaces=NSMAP))
+    start_elem.remove(start_elem.get('rng:element[@name="appliance"]', namespaces=NSMAP))
     for opt_elem in start_elem.xpath('rng:optional', fallback=[], namespaces=NSMAP):
       for child in opt_elem.iterchildren():
         start_elem.append(child)
