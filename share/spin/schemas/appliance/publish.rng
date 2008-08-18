@@ -12,22 +12,21 @@
         <interleave>
 
         <optional>
-        <element name="remote-webroot">
+        <element name="remote-url">
         <optional>
         <attribute name="use-hostname">
           <ref name="value-boolean"/>
         </attribute>
+        </optional>
+        <optional>
+        <attribute name="interface"/>
         </optional>
         <text/>
         </element>
         </optional>
 
         <optional>
-        <element name="local-webroot"><text/></element>
-        </optional>
-
-        <optional>
-        <element name="path-prefix"><text/></element>
+        <element name="local-dir"><text/></element>
         </optional>
 
         </interleave>

@@ -15,13 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import array
 import fcntl
+import platform
 import socket
 import struct
 
 from rendition import pps
 from rendition import shlib
 
+from spin.errors    import SpinError
 from spin.event     import Event
 from spin.logging   import L1
 
@@ -51,27 +54,62 @@ class PublishSetupEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    prefix = \
-      self.config.getpath('path-prefix', 'appliances') / self.applianceid
-    self.web_path = \
-      self.config.getpath('remote-webroot', self._get_host()) / prefix
-    self.publish_path = \
-      self.config.getpath('local-webroot', '/var/www/html') / prefix
+    self.local  = self.config.getpath('local-dir',  '/var/www/html')
+    self.remote = self.config.getpath('remote-url',
+                    self._get_host(ifname =
+                      self.config.get('remote-url/@interface', 'eth0')))
 
   def apply(self):
     self.cvars['publish-content'] = set()
-    self.cvars['publish-path'] = self.publish_path
-    self.cvars['web-path'] = self.web_path
+    self.cvars['publish-path'] = self.local
+    self.cvars['web-path'] = self.remote
 
-  def _get_host(self, ifname='eth0'):
+  def _get_host(self, ifname=None):
     if self.config.getbool('remote-webroot/@use-hostname', 'False'):
       return 'http://'+socket.gethostname()
     else:
-      # TODO - improve this, it's not particularly accurate in some cases
-      s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-      return 'http://'+socket.inet_ntoa(
-        fcntl.ioctl(s.fileno(), 0x8915, struct.pack('256s', ifname[:15]))[20:24])
+      if not ifname:
+        ifname,_ = get_first_active_interface()
+      try:
+        return 'http://'+get_ipaddr(ifname)
+      except IOError, e:
+        raise InterfaceIOError(ifname, str(e))
 
+# TODO - improve these, they're pretty vulnerable to changes in offsets and
+# the like
+def get_ipaddr(ifname='eth0'):
+  "Get the ip address associated with the given device ifname"
+  s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+  return socket.inet_ntoa(fcntl.ioctl(
+                            s.fileno(),
+                            0x8915, # SIOCGIFADDR
+                            struct.pack('256s', ifname[:15]))[20:24])
+
+def get_first_active_interface():
+  "Return the ifname, ifaddr for the first active non-loopback interface"
+  for ifname, ifaddr in get_interfaces():
+    if ifaddr.startswith('127.'): # loopback
+      continue
+    return ifname, ifaddr
+  return None, None
+
+def get_interfaces():
+  "Return a list (ifname, ifaddr) tuples for all active network intefaces"
+  noffset = 32; roffset = 32
+  if platform.machine() == 'x86_64': # x86_64 has different offsets, yay
+    noffset = 16; roffset = 40
+  s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+  bytes = 128 * 32 # 128 interfaces x # bytes in the struct?
+  names = array.array('B', '\0' * bytes)
+  outbytes = struct.unpack('iL', fcntl.ioctl(
+    s.fileno(),
+    0x8912, # SIOCGIFCONF
+    struct.pack('iL', bytes, names.buffer_info()[0])
+  ))[0]
+  namestr = names.tostring()
+  return ( [ ( namestr[i:i+noffset].split('\0', 1)[0],
+               socket.inet_ntoa(namestr[i+20:i+24]) )
+             for i in range(0, outbytes, roffset) ] )
 
 class PublishEvent(Event):
   def __init__(self):
@@ -123,3 +161,8 @@ class PublishEvent(Event):
                  self.cvars['publish-path'].findpaths(mindepth=1, type=TYPE_DIR)
                  if not d.listdir(all=True) ]:
       dir.removedirs()
+
+
+class InterfaceIOError(SpinError):
+  message = ( "Error looking up information for interface '%(interface)s': "
+              "%(message)s" )
