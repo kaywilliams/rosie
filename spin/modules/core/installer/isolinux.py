@@ -33,7 +33,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
       parentid = 'installer',
       provides = ['isolinux-files', 'boot-config-file'],
       requires = ['anaconda-version', 'base-info', 'installer-repo'],
-      conditionally_requires = ['ks-path', 'boot-args', 'installer-splash'],
+      conditionally_requires = ['installer-splash'],
     )
 
     self.DATA = {
