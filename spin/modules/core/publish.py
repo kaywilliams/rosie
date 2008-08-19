@@ -54,10 +54,10 @@ class PublishSetupEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.local  = self.config.getpath('local-dir',  '/var/www/html/appliances')
-    self.remote = self.config.getpath('remote-url',
+    self.local  = pps.path(self.config.getpath('local-dir',  '/var/www/html/appliances'))
+    self.remote = pps.path(self.config.getpath('remote-url',
                     self._get_host(ifname =
-                      self.config.get('remote-url/@interface', 'eth0')))
+                      self.config.get('remote-url/@interface', 'eth0'))))
 
   def apply(self):
     self.cvars['publish-content'] = set()
