@@ -9,12 +9,23 @@
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
+        <interleave>
+
+        <optional>
+        <element name="releasever"><text/></element>
+        </optional>
+        <optional>
+        <element name="basearch"><text/></element>
+        </optional>
+
         <oneOrMore>
           <choice>
           <ref name="element-repo"/>
           <ref name="element-repofile"/>
           </choice>
         </oneOrMore>
+
+        </interleave>
 
       </element>
       </optional>
