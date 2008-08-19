@@ -209,6 +209,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     if options.clear_cache:
       Event.logger.log(1, L0("clearing cache"))
       Event.cache_handler.cache_dir.listdir(all=True).rm(recursive=True)
+    Event.cache_handler.cache_dir.mkdirs()
 
     # perform validation, if not specified otherwise
     if not options.no_validate:
