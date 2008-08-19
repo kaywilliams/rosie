@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.28
+Version: 0.8.29
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -97,6 +97,18 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Mon Aug 18 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.29-1
+- fixing issues with schemas in 'distro' => 'appliance' folders (dmusgrave)
+- correcting update issues with schemas in 'distro' and 'application' folders (dmusgrave)
+- various updates to publish (dmusgrave)
+- removed erroneous conditionally-requires for 'isolinux' event (dmusgrave)
+- spin locking is now done by cache folder instead of globally; this allows you to run multiple copies of spin with different cache locations (dmusgrave)
+- removed erroneous 'boot-args' argument (dmusgrave)
+- fixed a bug with ShLibErrors not being __init__(dmusgrave)
+- Fixed release number in setup.py. (uprakash)
+- Tagged as spin-0.8.28-1 (uprakash)
+- Bumped version to spin-0.8.28-1.noarch. (spinmaster)
+
 * Mon Aug 18 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.28-1
 - Whitespace cleanup. (uprakash)
 - Added spintest/test.log to .hgignore. (uprakash)

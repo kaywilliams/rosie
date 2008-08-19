@@ -1,8 +1,67 @@
+2008-08-18  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* fixing issues with schemas in 'distro' => 'appliance' folders
+	[6eeeeb4f3e0f] [tip]
+
+	* correcting update issues with schemas in 'distro' and 'application'
+	folders
+	[651dc978c16c]
+
+	* share/spin/schemas/appliance/publish.rng,
+	spin/modules/core/publish.py:
+	various updates to publish
+	 * renamed 'remote-webroot' to 'remote-url'
+	 * renamed 'local-webroot' to 'local-dir'
+	 * removed 'path-prefix' and all associated processing; now remote-url
+	and local-dir are configured completely independently of one
+	another (default value is the same as before without the <prefix>
+	portion included)
+	 * added 'interface' attribute to 'remote-url'; users can use this
+	attribute to specify the interface name to use when determining
+	the machine's ip address; 'eth1', for example
+	 * spin now uses the first active, non-loopback network interface by
+	default when determining the build machine's ip address
+	[118f55c3a927]
+
+	* spin/modules/core/installer/isolinux.py:
+	removed erroneous conditionally-requires for 'isolinux' event
+	[b554de7f7652]
+
+	* spin/main.py:
+	spin locking is now done by cache folder instead of globally; this
+	allows you to run multiple copies of spin with different cache
+	locations
+	[f88d0afc62ce]
+
+	* share/spin/schemas/appliance/isolinux.rng:
+	removed erroneous 'boot-args' argument
+	[1c6126658736]
+
+	* spin/errors.py:
+	fixed a bug with ShLibErrors not being __init__()'d correctly
+	[a55177aad645]
+
+2008-08-18  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* setup.py:
+	Fixed release number in setup.py.
+	[af1c8734305b]
+
+	* .hgtags:
+	Tagged as spin-0.8.28-1
+	[bfb037b7f19b]
+
+2008-08-18  spinmaster  <spinmaster>
+
+	* ChangeLog, spin.spec:
+	Bumped version to spin-0.8.28-1.noarch.
+	[9412f8581619] [spin-0.8.28-1]
+
 2008-08-18  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* INSTALL:
 	Whitespace cleanup.
-	[13b6513aa913] [tip]
+	[13b6513aa913]
 
 	* .hgignore:
 	Added spintest/test.log to .hgignore.
