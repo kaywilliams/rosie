@@ -54,26 +54,27 @@ class PublishSetupEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.local  = self.config.getpath('local-dir',  '/var/www/html')
+    self.local  = self.config.getpath('local-dir',  '/var/www/html/appliances')
     self.remote = self.config.getpath('remote-url',
                     self._get_host(ifname =
                       self.config.get('remote-url/@interface', 'eth0')))
 
   def apply(self):
     self.cvars['publish-content'] = set()
-    self.cvars['publish-path'] = self.local
-    self.cvars['web-path'] = self.remote
+    self.cvars['publish-path'] = self.local / self.applianceid
+    self.cvars['web-path'] = self.remote / self.applianceid
 
   def _get_host(self, ifname=None):
-    if self.config.getbool('remote-webroot/@use-hostname', 'False'):
-      return 'http://'+socket.gethostname()
+    if self.config.getbool('remote-url/@use-hostname', 'False'):
+      realm = socket.gethostname()
     else:
       if not ifname:
         ifname,_ = get_first_active_interface()
       try:
-        return 'http://'+get_ipaddr(ifname)
+        realm = get_ipaddr(ifname)
       except IOError, e:
         raise InterfaceIOError(ifname, str(e))
+    return 'http://'+realm+'/appliances'
 
 # TODO - improve these, they're pretty vulnerable to changes in offsets and
 # the like
