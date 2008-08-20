@@ -151,7 +151,8 @@ class ImageModifyMixin:
     if self.path.exists(): self.path.remove()
 
     # clean up former output files
-    self.io.clean_eventcache()
+    self.imagedir.rm(recursive=True, force=True)
+    self.imagedir.mkdirs()
 
     # sync image to input store
     self.io.sync_input(what=['ImageModifyMixin', '%s-input-files' % self.name], cache=True)
