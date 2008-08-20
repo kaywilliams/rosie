@@ -175,6 +175,11 @@ fi
 if [ ! -e $THEME_DIR/default.rpmsave ]; then
   %%{__mv} $THEME_DIR/default $THEME_DIR/default.rpmsave
   %%{__cp} -rf $THEME_DIR/spin $THEME_DIR/default
+  for file in `ls -1 $THEME_DIR/default.rpmsave`; do
+    if [ ! -e $THEME_DIR/default/$file ]; then
+      %%{__cp} $THEME_DIR/default.rpmsave/$file $THEME_DIR/default/$file
+    fi
+  done
 fi
 ''',
           'triggerun': '''THEME_DIR=/usr/share/firstboot/themes
