@@ -6,9 +6,7 @@
         <interleave>
           <element name="name"><text/></element>
           <element name="version"><text/></element>
-          <optional>
           <ref name="element-arch"/>
-          </optional>
           <optional>
           <element name="id"><text/></element>
           </optional>
