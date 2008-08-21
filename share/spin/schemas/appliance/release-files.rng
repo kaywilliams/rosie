@@ -10,7 +10,7 @@
         </optional>
 
         <optional>
-        <attribute name="use-default-set">
+        <attribute name="extract-rpm-files">
           <ref name="value-boolean"/>
         </attribute>
         </optional>

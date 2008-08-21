@@ -69,7 +69,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
 
   def _generate(self, working_dir):
     rtn = []
-    if self.config.getbool('@use-default-set', 'True'):
+    if self.config.getbool('@extract-rpm-files', 'True'):
       for item in DEFAULT_SET:
         for file in working_dir.findpaths(glob=item):
           self.link(file, self.SOFTWARE_STORE)
