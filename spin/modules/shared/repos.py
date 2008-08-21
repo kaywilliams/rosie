@@ -370,7 +370,21 @@ class RepoEventMixin:
       # explicitly create directory for repos that don't have repodata
       (self.mddir/repo.id).mkdirs()
       self.io.sync_input(what='%s-repodata' % repo.id, cache=True,
-                         text=("downloading repodata - '%s'" % repo.id))
+                         text="downloading repodata - '%s'" % repo.id)
+
+    # verify synced data via checksums
+    self.logger.log(3, L1("verifying repodata file checksums"))
+    for repo in self.repos.values():
+      for r in repo.subrepos.values():
+        for k,v in r.datafiles.items():
+          if k == 'metadata': continue # skip repomd.xml
+          expected = r.repomd.get('//repo:data[@type="%s"]/'
+                                  'repo:checksum/text()' % k,
+                                  namespaces=NSMAP)
+          got = (self.mddir/r.id/r._relpath/v).shasum()
+          if got != expected:
+            raise RepomdCsumMismatchError(v.basename, repoid=repo.id,
+                                          got=got, expected=expected)
 
   def read_packages(self):
     """
@@ -450,3 +464,9 @@ class PkgsfileIOError(SpinIOError):
 
 class SpinRepoFileParseError(SpinError):
   message = "Error parsing repo file: %(message)s"
+
+class RepomdCsumMismatchError(SpinError):
+  message = ( "Checksum of file '%(file)s' doesn't match repomd.xml for "
+              "repo '%(repoid)s':\n"
+              "  Got:      %(got)s\n"
+              "  Expected: %(expected)s" )
