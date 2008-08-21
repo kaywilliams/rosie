@@ -56,7 +56,9 @@ class ReleaseFilesEvent(Event, ExtractMixin):
 
   def run(self):
     self.cvars.setdefault('release-files', [])
-    if self.rpms: self._extract()
+    if ( self.rpms and
+         self.config.getbool('@extract-rpm-files', 'True') ):
+      self._extract()
     self.io.sync_input(link=True, cache=False, what='release-files-input')
 
   def apply(self):
@@ -69,11 +71,10 @@ class ReleaseFilesEvent(Event, ExtractMixin):
 
   def _generate(self, working_dir):
     rtn = []
-    if self.config.getbool('@extract-rpm-files', 'True'):
-      for item in DEFAULT_SET:
-        for file in working_dir.findpaths(glob=item):
-          self.link(file, self.SOFTWARE_STORE)
-          rtn.append(self.SOFTWARE_STORE / file.basename)
+    for item in DEFAULT_SET:
+      for file in working_dir.findpaths(glob=item):
+        self.link(file, self.SOFTWARE_STORE)
+        rtn.append(self.SOFTWARE_STORE / file.basename)
     self.cvars['release-files'].extend(rtn)
     return rtn
 
