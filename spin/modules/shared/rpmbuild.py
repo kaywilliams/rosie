@@ -133,7 +133,7 @@ class RpmBuildObject:
     self.requires  = requires  or []
     self.provides  = provides  or []
 
-    if not self.ptr.config.getbool('@use-default-set', 'True'):
+    if not self.ptr.config.getbool('@use-default-obsoletes', 'True'):
       self.obsoletes = []
 
     self.packagereq_type     = packagereq_type
