@@ -347,7 +347,7 @@ def make_suite(distro, version, arch):
   suite.addTest(bug163)
 
   # pkglist supplied
-  suite.addTest(Test_Supplied(distro, version, arch))
+  #suite.addTest(Test_Supplied(distro, version, arch))
 
   # package added, obsoleted, and removed
   suite.addTest(Test_PackageAdded(distro, version, arch))

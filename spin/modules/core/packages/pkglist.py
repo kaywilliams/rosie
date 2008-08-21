@@ -80,19 +80,10 @@ class PkglistEvent(Event):
       'input':     [],
       'output':    [],
     }
-    self.docopy = self.config.pathexists('text()')
 
   def setup(self):
     self.diff.setup(self.DATA)
 
-    # setup if copying pkglist
-    if self.docopy:
-      assert_file_readable(self.config.getpath('.'))
-      self.io.add_xpath('.', self.mddir, id='pkglist')
-      self.pkglistfile = self.io.list_output(what='pkglist')[0]
-      return
-
-    # setup if creating pkglist
     self.pkglistfile = self.mddir / 'pkglist'
 
     # add relevant input/variable sections, if interesting
@@ -107,14 +98,6 @@ class PkglistEvent(Event):
       self.DATA['input'].append(repo.localurl/'repodata')
 
   def run(self):
-    # copy pkglist
-    if self.docopy:
-      self.io.sync_input(cache=True)
-      self.log(1, L1("reading supplied package list"))
-      if self.dsdir.exists():
-        self.dsdir.rm(recursive=True)
-      return
-
     # create pkglist
     if not self.dsdir.exists():
       self.dsdir.mkdirs()

@@ -63,46 +63,36 @@ class PkgorderEvent(Event):
       'output':    []
     }
 
-    self.dosync = self.config.pathexists('pkgorder/text()')
-
   def setup(self):
     self.diff.setup(self.DATA)
 
     self.DATA['input'].append(self.cvars['repodata-directory'])
 
-    if self.dosync:
-      pkofile = self.config.getpath('pkgorder')
-      assert_file_readable(pkofile, PkgorderIOError)
-      self.io.add_xpath('pkgorder', self.mddir, id='pkgorder')
-      self.pkgorderfile = self.io.list_output(what='pkgorder')[0]
-    else:
-      self.pkgorderfile = self.mddir/'pkgorder'
-      self.DATA['output'].append(self.pkgorderfile)
+    self.pkgorderfile = self.mddir/'pkgorder'
+    self.DATA['output'].append(self.pkgorderfile)
 
   def run(self):
     # delete prior pkgorder file, if exists
     self.io.clean_eventcache(all=True)
-    if self.dosync:
-      self.io.sync_input(cache=True)
-    else:
-      # generate pkgorder
-      self.log(1, L1("generating package ordering"))
 
-      # create yum config needed by pkgorder
-      cfg = self.TEMP_DIR/'pkgorder'
-      repoid = self.applianceid
-      cfg.write_lines([ YUMCONF % (self.applianceid, self.applianceid, self.cvars['os-dir']) ])
+    # generate pkgorder
+    self.log(1, L1("generating package ordering"))
 
-      # create pkgorder
-      pkgtups = pkgorder.order(config=cfg,
-                               arch=self.arch,
-                               callback=BuildDepsolveCallback(self.logger))
+    # create yum config needed by pkgorder
+    cfg = self.TEMP_DIR/'pkgorder'
+    repoid = self.applianceid
+    cfg.write_lines([ YUMCONF % (self.applianceid, self.applianceid, self.cvars['os-dir']) ])
 
-      # cleanup
-      cfg.remove()
+    # create pkgorder
+    pkgtups = pkgorder.order(config=cfg,
+                             arch=self.arch,
+                             callback=BuildDepsolveCallback(self.logger))
 
-      # write pkgorder
-      pkgorder.write_pkgorder(self.pkgorderfile, pkgtups)
+    # cleanup
+    cfg.remove()
+
+    # write pkgorder
+    pkgorder.write_pkgorder(self.pkgorderfile, pkgtups)
 
   def apply(self):
     self.io.clean_eventcache()

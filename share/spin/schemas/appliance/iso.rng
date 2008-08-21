@@ -11,10 +11,6 @@
 
         <interleave>
 
-        <optional>
-        <element name="pkgorder"><text/></element>
-        </optional>
-
         <oneOrMore>
         <element name="set"><text/></element>
         </oneOrMore>
