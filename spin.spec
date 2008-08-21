@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.29
+Version: 0.8.30
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -97,6 +97,31 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Thu Aug 21 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.30-1
+- Extracting RPMs iff )
+- bug 288 - comps wasn't including all group data in some situations (dmusgrave)
+- removed the ability to supply pkgorder and pkglists via config; they now must be dynamically generated (dmusgrave)
+- corrected iso boot-config test cases to use 'use-defaults' instead of 'use-default' (dmusgrave)
+- updated release-files test case with new attribute name; corrected Test_ReleaseFilesWithDefaultSet test cases (dmusgrave)
+- changed release-files/)
+- fixed a bug where shared/rpmbuild.py was checking use-default-set while the rng had use-default-obsoletes (dmusgrave)
+- removed additional extranneous stuff from isolinux.rng (dmusgrave)
+- fixed eth0 bug in automatic interface detection code in publish (dmusgrave)
+- merged with trunk (dmusgrave)
+- added missing (dmusgrave)
+- updated pid file handling to newer cachedir location (dmusgrave)
+- changed ImageModifyMixin.clean_eventcache(dmusgrave)
+- Bumped the logos-rpm event version. (uprakash)
+- Fixed the firstboot triggerin script. (uprakash)
+- <arch> is now required element within <main> (dmusgrave)
+- added basearch,releasever to sources for repos parity (dmusgrave)
+- Made PublishSetupEvent.remote and PublishSetupEvent.local Path objects. (uprakash)
+- default publish locations now include a "prefix" again (dmusgrave)
+- creating cache dir before trying to lock (dmusgrave)
+- Fixed version in setup.py. (uprakash)
+- Tagged as spin-0.8.29-1 (uprakash)
+- Bumped version to spin-0.8.29-1.noarch. (spinmaster)
+
 * Mon Aug 18 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.29-1
 - fixing issues with schemas in 'distro' => 'appliance' folders (dmusgrave)
 - correcting update issues with schemas in 'distro' and 'application' folders (dmusgrave)
