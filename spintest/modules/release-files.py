@@ -50,10 +50,10 @@ class Test_ReleaseFiles(_ReleaseFilesEventTestCase):
   _conf = """<release-files enabled="true"/>"""
 
 class Test_ReleaseFilesWithDefaultSet(_ReleaseFilesEventTestCase):
-  _conf = """<release-files use-default-set="true"/>"""
+  _conf = """<release-files extract-rpm-files="true"/>"""
 
-class Test_ReleaseFilesWithDefaultSet(_ReleaseFilesEventTestCase):
-  _conf = """<release-files use-default-set="false"/>"""
+class Test_ReleaseFilesWithoutDefaultSet(_ReleaseFilesEventTestCase):
+  _conf = """<release-files extract-rpm-files="false"/>"""
 
 class Test_ReleaseFilesWithInputFiles(_ReleaseFilesEventTestCase):
   _conf = """<release-files>
@@ -84,9 +84,9 @@ def make_suite(distro, version, arch):
   suite.addTest(Test_ReleaseFiles(distro, version, arch, enabled='True'))
   suite.addTest(Test_ReleaseFiles(distro, version, arch, enabled='False'))
 
-  # execution with modification of 'use-default-set' attribute
-  suite.addTest(Test_ReleaseFilesWithDefaultSet(distro, version, arch, enabled='True'))
-  suite.addTest(Test_ReleaseFilesWithDefaultSet(distro, version, arch, enabled='False'))
+  # execution with modification of 'extract-rpm-files' attribute
+  suite.addTest(Test_ReleaseFilesWithDefaultSet(distro, version, arch))
+  suite.addTest(Test_ReleaseFilesWithoutDefaultSet(distro, version, arch))
 
   # execution with <path/> element
   suite.addTest(Test_ReleaseFilesWithInputFiles(distro, version, arch, enabled='True'))
