@@ -1,7 +1,142 @@
+2008-08-21  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/installer/release-files.py:
+	Extracting RPMs iff @extract-rpm-files is set to True.
+
+	Previously, RPMs were being unpacked even if extract-rpm-files was
+	set to False. This was an unncessary step.
+	[1143cbe76370] [tip]
+
+2008-08-21  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/core/packages/comps.py:
+	bug 288 - comps wasn't including all group data in some situations
+	[f3a1c2cd93ba]
+
+	* share/spin/schemas/appliance/iso.rng,
+	share/spin/schemas/appliance/pkglist.rng,
+	spin/modules/core/packages/pkglist.py,
+	spin/modules/extensions/iso.py,
+	spintest/modules/pkglist/__init__.py:
+	removed the ability to supply pkgorder and pkglists via config; they
+	now must be dynamically generated
+	[baeaa113560f]
+
+	* spintest/modules/iso.py:
+	corrected iso boot-config test cases to use 'use-defaults' instead
+	of 'use-default'
+	[075c2e88a4e5]
+
+	* spintest/modules/release-files.py:
+	updated release-files test case with new attribute name; corrected
+	Test_ReleaseFilesWithDefaultSet test cases
+	[468b8819e367]
+
+	* share/spin/schemas/appliance/release-files.rng,
+	spin/modules/core/installer/release-files.py:
+	changed release-files/@use-default-set to release-files/@extract-
+	rpm-files to better reflect what is actually going on
+	[3a95dd20cf8f]
+
+	* spin/modules/shared/rpmbuild.py:
+	fixed a bug where shared/rpmbuild.py was checking use-default-set
+	while the rng had use-default-obsoletes
+	[b67095f7ca23]
+
+	* share/spin/schemas/appliance/isolinux.rng:
+	removed additional extranneous stuff from isolinux.rng (where did
+	this all come from?)
+	[61cd08dd68bf]
+
+	* spin/modules/core/publish.py:
+	fixed eth0 bug in automatic interface detection code in publish
+	[b4185ebe764e]
+
+2008-08-20  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* merged with trunk
+	[ab773ac90b0a]
+
+	* spintest/modules/xen-images.py:
+	added missing (gasp!) xen-images test suites
+	[5b846cbc722c]
+
+	* spintest/__init__.py:
+	updated pid file handling to newer cachedir location
+	[4f956153afc7]
+
+	* spin/modules/shared/installer.py:
+	changed ImageModifyMixin.clean_eventcache() to
+	ImageModifyMixin.imagedir.rm(); ImageModifyMixin.imagedir.mkdirs()
+	[d7d94fc32a87]
+
+2008-08-20  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/rpmbuild/logos-rpm/__init__.py:
+	Bumped the logos-rpm event version.
+	[929d90bb0051]
+
+	* spin/locals/logos_rpm.py:
+	Fixed the firstboot triggerin script.
+
+	The firstboot triggerin script was only copying the
+	/usr/share/firstboot/themes/spin folder to
+	/usr/share/firstboot/themes/default. There are other files in the
+	original /usr/share/firstboot/themes/default folder that are
+	required. These "missing" files are copied from the default.rpmsave
+	folder to the default folder.
+	[94195164c0a7]
+
+2008-08-20  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/main.rng:
+	<arch> is now required element within <main>
+	[218b7ef25aa0]
+
+2008-08-19  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/sources.rng:
+	added basearch,releasever to sources for repos parity
+	[614847acbb0f]
+
+2008-08-19  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/publish.py:
+	Made PublishSetupEvent.remote and PublishSetupEvent.local Path
+	objects.
+	[1b0acf941958]
+
+2008-08-19  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/core/publish.py:
+	default publish locations now include a "prefix" again
+	('appliances/$APPLIANCEID'); fixed ref to remote-webroot
+	[6b207fdf956b]
+
+	* spin/main.py:
+	creating cache dir before trying to lock
+	[cebb89599a6b]
+
+2008-08-18  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* setup.py:
+	Fixed version in setup.py.
+	[3934ab96bb45]
+
+	* .hgtags:
+	Tagged as spin-0.8.29-1
+	[87eb6d43739a]
+
+2008-08-18  spinmaster  <spinmaster>
+
+	* ChangeLog, spin.spec:
+	Bumped version to spin-0.8.29-1.noarch.
+	[d16f5ce84904] [spin-0.8.29-1]
+
 2008-08-18  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
 	* fixing issues with schemas in 'distro' => 'appliance' folders
-	[6eeeeb4f3e0f] [tip]
+	[6eeeeb4f3e0f]
 
 	* correcting update issues with schemas in 'distro' and 'application'
 	folders
