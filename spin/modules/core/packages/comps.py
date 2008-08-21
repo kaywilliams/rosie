@@ -245,29 +245,30 @@ class CompsEvent(Event):
     G = self._groupfiledata.setdefault(gid, {})
 
     # add attributes if not already present
-    if not G.has_key('attrs'):
-      G['attrs'] = {}
-      if self.include_localizations:
-        q = '//group[id/text()="%s"]/*' % gid
-        namedict = G['attrs']['name'] = {}
-        descdict = G['attrs']['description'] = {}
-      else:
-        q = '//group[id/text()="%s"]/*[not(@xml:lang)]' % gid
+    G.setdefault('attrs', {})
 
-      for attr in tree.xpath(q, []):
-        # filtering in XPath is annoying
-        if attr.tag == 'name':
-          if self.include_localizations:
-            namedict[attr.get('@xml:lang')] = attr.text
-          else:
-            G['attrs']['name'] = attr.text
-        elif attr.tag == 'description':
-          if self.include_localizations:
-            descdict[attr.get('@xml:lang')] = attr.text
-          else:
-            G['attrs']['description'] = attr.text
-        elif attr.tag not in ['packagelist', 'grouplist', 'id']:
-          G['attrs'][attr.tag] = attr.text
+    if self.include_localizations:
+      q = '//group[id/text()="%s"]/*' % gid
+      namedict = G['attrs']['name'] = {}
+      descdict = G['attrs']['description'] = {}
+    else:
+      q = '//group[id/text()="%s"]/*[not(@xml:lang)]' % gid
+
+    for attr in tree.xpath(q, []):
+      # filtering in XPath is annoying
+      if attr.tag == 'name' and not G['attrs'].has_key('name'):
+        if self.include_localizations:
+          namedict[attr.get('@xml:lang')] = attr.text
+        else:
+          G['attrs']['name'] = attr.text
+      elif attr.tag == 'description' and not G['attrs'].has_key('description'):
+        if self.include_localizations:
+          descdict[attr.get('@xml:lang')] = attr.text
+        else:
+          G['attrs']['description'] = attr.text
+      elif ( attr.tag not in ['packagelist', 'grouplist', 'id'] and
+             not G['attrs'].has_key(attr.tag) ):
+        G['attrs'][attr.tag] = attr.text
 
     # set the default value, if given
     #  * if default = true,    group.default = true
@@ -291,6 +292,7 @@ class CompsEvent(Event):
     for grp in tree.xpath('//group[id/text()="%s"]/grouplist/groupreq' % gid, []):
       G['groups'].add(grp)
       self._update_group_content(grp.text, tree)
+
 
 class CompsReqSet(set):
   """A set object that does manipulation based on __eq__ rather than id()
