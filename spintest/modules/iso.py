@@ -133,7 +133,7 @@ class Test_BootArgsDefault(IsoEventBootConfigTestCase):
   "default boot args and config-specified args in isolinux.cfg"
   _conf = \
   """<iso>
-    <boot-config use-default="true">
+    <boot-config use-defaults="true">
       <append-args>ro root=LABEL=/</append-args>
     </boot-config>
     <set>CD</set>
@@ -148,7 +148,7 @@ class Test_BootArgsNoDefault(IsoEventBootConfigTestCase):
   "default boot args not included"
   _conf = \
   """<iso>
-    <boot-config use-default="false">
+    <boot-config use-defaults="false">
       <append-args>ro root=LABEL=/</append-args>
     </boot-config>
     <set>CD</set>
@@ -164,7 +164,7 @@ class Test_BootArgsMacros(IsoEventBootConfigTestCase):
   "macro usage with non-default boot args"
   _conf = \
   """<iso>
-    <boot-config use-default="false">
+    <boot-config use-defaults="false">
       <append-args>ro root=LABEL=/ %{method} %{ks}</append-args>
     </boot-config>
     <set>CD</set>
