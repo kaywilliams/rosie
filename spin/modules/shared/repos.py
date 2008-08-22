@@ -381,7 +381,7 @@ class RepoEventMixin:
           expected = r.repomd.get('//repo:data[@type="%s"]/'
                                   'repo:checksum/text()' % k,
                                   namespaces=NSMAP)
-          got = (self.mddir/r.id/r._relpath/v).shasum()
+          got = (self.mddir/repo.id/r._relpath/v).shasum()
           if got != expected:
             raise RepomdCsumMismatchError(v.basename, repoid=repo.id,
                                           got=got, expected=expected)
