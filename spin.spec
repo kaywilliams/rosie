@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.30
+Version: 0.8.31
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -97,6 +97,14 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Fri Aug 22 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.31-1
+- fixed checksumming error for RepoGroups (dmusgrave@renditionsoftware.com)
+- bug 283 - added repomd checksumming after download; merged with trunk (dmusgrave)
+- bug 283 - added repomd checksumming after download (dmusgrave)
+- Fixed version in setup.py. (uprakash)
+- Tagged as spin-0.8.30-1 (uprakash)
+- Bumped version to spin-0.8.30-1.noarch. (spinmaster)
+
 * Thu Aug 21 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.30-1
 - Extracting RPMs iff )
 - bug 288 - comps wasn't including all group data in some situations (dmusgrave)

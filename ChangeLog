@@ -1,3 +1,35 @@
+2008-08-22  dmusgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/shared/repos.py:
+	fixed checksumming error for RepoGroups
+	[619da0afaad0] [tip]
+
+2008-08-21  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* bug 283 - added repomd checksumming after download; merged with
+	trunk
+	[b740c4aca6ec]
+
+	* spin/modules/shared/repos.py:
+	bug 283 - added repomd checksumming after download
+	[c26b7b633791]
+
+2008-08-21  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* setup.py:
+	Fixed version in setup.py.
+	[df76e4ce8b46]
+
+	* .hgtags:
+	Tagged as spin-0.8.30-1
+	[150e15e5f3cc]
+
+2008-08-21  spinmaster  <spinmaster>
+
+	* ChangeLog, spin.spec:
+	Bumped version to spin-0.8.30-1.noarch.
+	[3780cab4d1b8] [spin-0.8.30-1]
+
 2008-08-21  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* spin/modules/core/installer/release-files.py:
@@ -5,7 +37,7 @@
 
 	Previously, RPMs were being unpacked even if extract-rpm-files was
 	set to False. This was an unncessary step.
-	[1143cbe76370] [tip]
+	[1143cbe76370]
 
 2008-08-21  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
