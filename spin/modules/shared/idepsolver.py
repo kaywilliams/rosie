@@ -58,35 +58,54 @@ class IDepsolver(Depsolver):
     )
     self.all_packages = all_packages
     self.old_packages = old_packages
-    self.required     = required
-
-    self.new_packages = {}
-    self.installed_packages = {}
-
-    self.cached_file = pps.path(root) / 'cache'
-    self.cached_items = {}
-
+    self.required = required
     self.logger = logger
 
-  def setup(self):
-    Depsolver.setup(self)
+  @property
+  def new_packages(self):
+    if hasattr(self, '_new_packages'):
+      return self._new_packages
+    self._new_packages = {}
+    return self._new_packages
 
+  @property
+  def cached_file(self):
+    if hasattr(self, '_cached_file'):
+      return self._cached_file
+    self._cached_file = pps.path(self.root) / 'cache'
+    return self._cached_file
+
+  @property
+  def cached_items(self):
+    if hasattr(self, '_cached_items'):
+      return self._cached_items
+    self._cached_items = {}
     if self.cached_file.exists():
       f = self.cached_file.open('r')
-      self.cached_items = cPickle.load(f)
+      self._cached_items = cPickle.load(f)
       f.close()
-      for pkgtup, deps in self.cached_items.items():
-        for tup in [pkgtup] + deps.values():
-          if self.installed_packages.has_key(tup):
-            continue
+    return self._cached_items
+
+  @property
+  def installed_packages(self):
+    if hasattr(self, '_installed_packages'):
+      return self._installed_packages
+    self._installed_packages = {}
+    for pkgtup, deps in self.cached_items.items():
+      for tup in [pkgtup] + deps.values():
+        if tup not in self._installed_packages:
           try:
-            self.installed_packages[tup] = self.getPackageObject(tup)
+            self._installed_packages[tup] = self.getPackageObject(tup)
           except yum.Errors.DepError, e:
             # If one of the deps is missing, remove that dep.  This
             # will cause all the packages requiring this dep to get
             # depsolve'd but the other deps will not be "lost."
             if tup[0] not in self.old_packages and tup[0] not in self.all_packages:
               self.old_packages.append(tup[0])
+    return self._installed_packages
+
+  def setup(self):
+    Depsolver.setup(self)
 
   def getInstalledPackage(self, name=None, ver=None, rel=None, arch=None, epoch=None):
     for pkgtup_i in self.installed_packages:
@@ -104,31 +123,29 @@ class IDepsolver(Depsolver):
       pkgtup = pkgtups.pop()
       processed[pkgtup] = None
       rtn.add(pkgtup)
-      if self.cached_items.has_key(pkgtup):
+      if pkgtup in self.cached_items:
         for x in self.cached_items[pkgtup].values():
-          if not processed.has_key(x):
+          if x not in processed:
             pkgtups.append(x)
     return list(rtn)
 
   def removePackages(self, pkgtup, isupdated=False):
-    if ( isupdated and self.cached_items.has_key(pkgtup) ):
-      instpos = {}
-      bestpos = {}
-      deps = set([pkgtup] + self.cached_items[pkgtup].values())
+    if ( isupdated and pkgtup in self.cached_items ):
+      instpos = set()
+      bestpos = set()
+      deps = set(self.cached_items[pkgtup].values())
       for dep in deps:
+        if dep == pkgtup:
+          continue
         n,a,e,v,r = dep
         instpo = self.getInstalledPackage(name=n, arch=a, epoch=e, ver=v, rel=r)
         bestpo = self.getBestAvailablePackage(name=n)
-        if instpo:
-          instpos[instpo] = None
-        if bestpo:
-          bestpos[bestpo] = None
+        if instpo: instpos.add(instpo)
+        if bestpo: bestpos.add(bestpo)
       if instpos == bestpos:
-        # all the requires of the package are the same, just delete it and
-        # none of its deps
-        if self.installed_packages.has_key(pkgtup):
+        if pkgtup in self.installed_packages:
           del self.installed_packages[pkgtup]
-        if self.cached_items.has_key(pkgtup):
+        if pkgtup in self.cached_items:
           del self.cached_items[pkgtup]
         return [pkgtup]
 
@@ -136,9 +153,9 @@ class IDepsolver(Depsolver):
     pkgtups = self.getDeps(pkgtup)
     for pkgtup in pkgtups:
       removed.append(pkgtup)
-      if self.installed_packages.has_key(pkgtup):
+      if pkgtup in self.installed_packages:
         del self.installed_packages[pkgtup]
-      if self.cached_items.has_key(pkgtup):
+      if pkgtup in self.cached_items:
         del self.cached_items[pkgtup]
     return removed
 
@@ -166,7 +183,7 @@ class IDepsolver(Depsolver):
     unresolved = []
     for txmbr in self.tsInfo.getMembers():
       resolved = True
-      if self.cached_items.has_key(txmbr.po.pkgtup):
+      if txmbr.po.pkgtup in self.cached_items:
         for dep in self.cached_items[txmbr.po.pkgtup].values():
           if not self.tsInfo.exists(pkgtup=dep):
             resolved = False
@@ -202,7 +219,7 @@ class IDepsolver(Depsolver):
     if not self.old_packages: return
 
     for pkg in self.old_packages:
-      for pkgtup in self.cached_items.keys():
+      for pkgtup in self.cached_items:
         if pkgtup[0] == pkg:
           self.removePackages(pkgtup)
           break
@@ -226,13 +243,12 @@ class IDepsolver(Depsolver):
 
     removed = []
     for pkgtup, po in self.installed_packages.items():
-      if self.new_packages.has_key(po):
+      if po in self.new_packages:
         continue
       if pkgtup in removed:
         continue
       bestpo = self.getBestAvailablePackage(name=pkgtup[0])
       if po and bestpo and po != bestpo:
-
         # make sure that all the packages requiring the old package
         # can now require the new package seamlessly. First, we check
         # all the packages that require the old package, and make a
@@ -245,6 +261,7 @@ class IDepsolver(Depsolver):
           for req, dep in deps.items():
             if dep == po.pkgtup:
               requirements.append(req)
+
         required = False
         for req in requirements:
           if req not in bestpo.provides:
@@ -252,28 +269,20 @@ class IDepsolver(Depsolver):
               # check to see if the requirement is a file and that the file
               # is in the new package as well
               continue
-            if req[0] == pkgtup[0]:
-              if req[1] is None:
-                continue
-              if not (isinstance(req[1], str) or isinstance(req[1], unicode)):
-                flag = rpmUtils.miscutils.flagToString(req[1])
-              else:
-                flag = req[1]
-              newpo_evr = (bestpo.pkgtup[2], bestpo.pkgtup[3], bestpo.pkgtup[4])
-              reqpo_evr = req[2]
-              evr_check = rpmUtils.miscutils.compareEVR(reqpo_evr, newpo_evr)
-              if flag == 'LT' and evr_check > 0:
-                continue
-              if flag == 'LE' and evr_check >= 0:
-                continue
-              if flag == 'EQ' and evr_check == 0:
-                continue
-              if flag == 'GE' and evr_check <= 0:
-                continue
-              if flag == 'GT' and evr_check < 0:
-                continue
+
+            # if the best package satisfies the requirement and some,
+            # continue
+            bestpo_provides_req = False
+            for prov in bestpo.provides:
+              if rpmUtils.miscutils.rangeCompare(req, prov):
+                bestpo_provides_req = True
+                break
+            if bestpo_provides_req:
+              continue
+
             required = True
             break
+
         if required:
           continue
 
