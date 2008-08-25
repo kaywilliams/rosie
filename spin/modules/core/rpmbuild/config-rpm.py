@@ -108,6 +108,11 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
       self.io.add_fpath(self.cvars['gpgsign-public-key'],
                         self.rpm.build_folder/'etc/pki/rpm-gpg')
 
+    # add repos to cvars if necessary
+    if self.config.get('repofile/@repoids', '*').strip():
+      self.DATA['variables'].append('cvars[\'repos\']')
+
+
   def generate(self):
     self._generate_repofile()
     self.io.sync_input(cache=True)
@@ -157,8 +162,6 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
         else:
           raise RuntimeError("Invalid repoid '%s'; valid repoids are %s"
                              % (repoid, self.cvars['repos'].keys()))
-
-      self.DATA['variables'].append('cvars[\'repos\']')
 
     if len(lines) > 0:
       repofile.dirname.mkdirs()
