@@ -1,10 +1,26 @@
+2008-08-25  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* setup.py:
+	Fixed version in setup.py.
+	[f8cc5066c518] [tip]
+
+	* .hgtags:
+	Tagged as spin-0.8.32-1
+	[ccbca918d8c0]
+
+2008-08-25  spinmaster  <spinmaster>
+
+	* ChangeLog, spin.spec:
+	Bumped version to spin-0.8.32-1.noarch.
+	[9c3875b5a5cc] [spin-0.8.32-1]
+
 2008-08-25  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
 	* share/spin/schemas/appliance/createrepo.rng,
 	share/spin/schemas/appliance/isolinux.rng,
 	share/spin/schemas/appliance/pkglist.rng:
 	removed unnecessary RNG files (for modules that have no config)
-	[28667d4fcc80] [tip]
+	[28667d4fcc80]
 
 	* spin/locals/createrepo.py:
 	removed comps.xml data from createrepo locals; since comps.xml isn't
