@@ -1,8 +1,49 @@
+2008-08-25  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/createrepo.rng,
+	share/spin/schemas/appliance/isolinux.rng,
+	share/spin/schemas/appliance/pkglist.rng:
+	removed unnecessary RNG files (for modules that have no config)
+	[28667d4fcc80] [tip]
+
+	* spin/locals/createrepo.py:
+	removed comps.xml data from createrepo locals; since comps.xml isn't
+	a 'core' part of a repository, it doesn't make sense to include (and
+	it causes the fix to bug 298 to malfunction)
+	[4eef016c84e2]
+
+2008-08-22  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* setup.py:
+	Fixed version in setup.py.
+	[d4945cc5a12a]
+
+	* spin/modules/shared/idepsolver.py:
+	Being smarter about package updates; code cleanup.
+
+	The IDepsolver.iupdate() method didn't consider flags for
+	requirements of packages. It just checked the flags of requirements
+	when the requirement's name matched the name of the package with the
+	update. This wasn't sufficient all the time. For instance, the
+	python-urlgrabber package provides urlgrabber, and other packages
+	require urlgrabber (usually) instead of python-urlgrabber.
+	[c8e1df84ac5e]
+
+	* .hgtags:
+	Tagged as spin-0.8.31-1
+	[279ecf241935]
+
+2008-08-22  spinmaster  <spinmaster>
+
+	* ChangeLog, spin.spec:
+	Bumped version to spin-0.8.31-1.noarch.
+	[a4f9288dc99c] [spin-0.8.31-1]
+
 2008-08-22  dmusgrave  <dmusgrave@renditionsoftware.com>
 
 	* spin/modules/shared/repos.py:
 	fixed checksumming error for RepoGroups
-	[619da0afaad0] [tip]
+	[619da0afaad0]
 
 2008-08-21  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
