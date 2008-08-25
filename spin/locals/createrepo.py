@@ -9,7 +9,7 @@ L_CREATEREPO = LocalsDict({
       'repodata/other.xml.gz': True,
       'repodata/primary.xml.gz': True,
       'repodata/repomd.xml': True,
-      'repodata/comps.xml': True,
+      #'repodata/comps.xml': True,
     },
     'sqlite-files': {
       'repodata/filelists.sqlite.bz2': True,
@@ -31,9 +31,9 @@ L_CREATEREPO = LocalsDict({
       'update': True,
     },
   },
-  "createrepo-0.9.4": { # comps.xml.gz added
-    'xml-files': {
-      'repodata/comps.xml.gz': True,
-    },
-  }
+  #"createrepo-0.9.4": { # comps.xml.gz added
+  #  'xml-files': {
+  #    'repodata/comps.xml.gz': True,
+  #  },
+  #}
 })
