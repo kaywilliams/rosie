@@ -251,22 +251,18 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     """
     mcp = pps.path(options.mainconfigpath).expand().abspath()
     dcp = pps.path(arguments[0]).expand().abspath()
-    try:
-      if mcp and mcp.exists():
-        self.logger.log(4, "Reading main config file '%s'" % mcp)
-        mc = rxml.config.read(mcp)
-      else:
-        self.logger.log(4, "No main config file found at '%s'. Using default settings" % mcp)
-        mc = rxml.config.fromstring('<spin/>')
+    if mcp and mcp.exists():
+      self.logger.log(4, "Reading main config file '%s'" % mcp)
+      mc = rxml.config.read(mcp)
+    else:
+      self.logger.log(4, "No main config file found at '%s'. Using default settings" % mcp)
+      mc = rxml.config.fromstring('<spin/>')
 
-      if not dcp.exists():
-        raise rxml.errors.ConfigError("No appliance definition file found at '%s'" % dcp)
+    if not dcp.exists():
+      raise rxml.errors.ConfigError("No appliance definition file found at '%s'" % dcp)
 
-      self.logger.log(3, "Reading appliance definition file '%s'" % dcp)
-      dc = rxml.config.read(dcp)
-    except rxml.errors.XmlSyntaxError, e:
-      self.logger.log(0, "Error reading file: %s" % e)
-      raise
+    self.logger.log(3, "Reading appliance definition file '%s'" % dcp)
+    dc = rxml.config.read(dcp)
 
     self.mainconfig = mc
     self.appconfig = dc
