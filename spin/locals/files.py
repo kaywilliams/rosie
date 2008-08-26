@@ -1,3 +1,7 @@
+from rendition.magic import FILE_TYPE_EXT2FS as EXT2
+from rendition.magic import FILE_TYPE_FAT    as FAT32
+from rendition.magic import FILE_TYPE_CPIO   as CPIO
+
 from spin.locals import LocalsDict, REMOVE
 
 __all__ = ['L_FILES']
@@ -7,7 +11,7 @@ L_FILES = LocalsDict({
     'isolinux': { # isolinux files
       'boot.msg':     dict(path='isolinux/boot.msg'),
       'general.msg':  dict(path='isolinux/general.msg'),
-      'initrd.img':   dict(path='isolinux/initrd.img', format='ext2', zipped=True),
+      'initrd.img':   dict(path='isolinux/initrd.img', format=EXT2, zipped=True),
       'isolinux.bin': dict(path='isolinux/isolinux.bin'),
       'isolinux.cfg': dict(path='isolinux/isolinux.cfg'),
       'memtest':      dict(path='isolinux/memtest'),
@@ -18,9 +22,9 @@ L_FILES = LocalsDict({
       'vmlinuz':      dict(path='isolinux/vmlinuz'),
     },
     'installer': { # installer images
-      'product.img':  dict(path='images/product.img',  format='ext2'),
-      'updates.img':  dict(path='images/updates.img',  format='ext2'),
-      'diskboot.img': dict(path='images/diskboot.img', format='fat32'),
+      'product.img':  dict(path='images/product.img',  format=EXT2),
+      'updates.img':  dict(path='images/updates.img',  format=EXT2),
+      'diskboot.img': dict(path='images/diskboot.img', format=FAT32),
     },
     'stage2': { # stage2 images
       'stage2.img':   dict(path='%(name)s/base/stage2.img'),
@@ -29,15 +33,15 @@ L_FILES = LocalsDict({
     },
     'xen': { # xen images
       'vmlinuz-xen':  dict(path='images/xen/vmlinuz'),
-      'initrd-xen':   dict(path='images/xen/initrd.img', format='ext2', zipped=True),
+      'initrd-xen':   dict(path='images/xen/initrd.img', format=EXT2, zipped=True),
     },
   },
   "anaconda-10.2.0.3-1": { # initrd images to cpio format
     'isolinux': {
-      'initrd.img':   dict(format='cpio'),
+      'initrd.img':   dict(format=CPIO),
     },
     'xen': {
-      'initrd-xen':   dict(format='cpio'),
+      'initrd-xen':   dict(format=CPIO),
     },
   },
   "anaconda-10.89.1.1": { # netstg2, hdstg2 combined into minstg2
@@ -51,7 +55,7 @@ L_FILES = LocalsDict({
 # loadUrlImages() in urlinstall.c
 #  "anaconda-11.1.0.11-1": { # updates.img to cpio format
 #    'installer': {
-#      'updates.img':  dict(format='cpio', zipped=True),
+#      'updates.img':  dict(format=CPIO, zipped=True),
 #    },
 #  },
   "anaconda-11.1.0.51-1": { # stage 2 images moved to images/ folder
