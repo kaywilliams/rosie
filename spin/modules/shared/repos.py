@@ -259,7 +259,7 @@ class RepoEventMixin:
 
       # set $yumvars
       repo.vars['$releasever'] = self.config.get('releasever/text()', self.version)
-      repo.vars['$basearch']   = self.config.get('basearch/text()',   self.basearch)
+      repo.vars['$basearch']   = self.basearch
 
     # make sure we got at least one repo out of that mess
     if not len(self.repos) > 0:

@@ -13,9 +13,6 @@
         <optional>
         <element name="releasever"><text/></element>
         </optional>
-        <optional>
-        <element name="basearch"><text/></element>
-        </optional>
 
         <oneOrMore>
           <choice>
