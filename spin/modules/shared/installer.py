@@ -33,13 +33,6 @@ __all__ = ['ExtractMixin', 'ImageModifyMixin', 'FileDownloadMixin']
 
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')
 
-MAGIC_MAP = {
-  'ext2':     magic.FILE_TYPE_EXT2FS,
-  'cpio':     magic.FILE_TYPE_CPIO,
-  'squashfs': magic.FILE_TYPE_SQUASHFS,
-  'fat32':    magic.FILE_TYPE_FAT,
-}
-
 class ExtractMixin:
   def _extract(self):
     self.io.clean_eventcache(all=True)
@@ -114,11 +107,22 @@ class ImageModifyMixin:
     self.io.add_xpath('path', self.imagedir, id='%s-input-files' % self.name)
 
   def _add_image(self):
-    ip = self.image_locals['path'] % self.cvars['appliance-info']
-    self.io.add_fpath(self.cvars['installer-repo'].url/ip,
-                      self.path.dirname, id='ImageModifyMixin')
+    ip = ( self.cvars['installer-repo'].url /
+           self.image_locals['path'] % self.cvars['appliance-info'] )
+    # check the image format before adding it; if it doesn't match what we're
+    # expecting (such as a 404 HTML page), skip it
+    try:
+      if self.image_locals.get('zipped', False):
+        expected = magic.FILE_TYPE_GZIP
+      else:
+        expected = self.image_locals['format']
+      got = magic.match(ip)
+      if expected != got:
+        raise InvalidImageFormatError(self.image_locals['path'], expected, got)
+    except (IOError, pps.Path.error.PathError): # file not found, usually
+      pass
+    self.io.add_fpath(ip, self.path.dirname, id='ImageModifyMixin')
   def _create_image(self):
-    ip = self.image_locals['path'] % self.cvars['appliance-info']
     self.DATA['output'].append(self.path)
 
   def add_image(self):
@@ -126,7 +130,7 @@ class ImageModifyMixin:
   def add_or_create_image(self):
     try:
       self._add_image()
-    except MissingInputFileError:
+    except (MissingInputFileError, InvalidImageFormatError):
       self._create_image()
   def create_image(self):
     self._create_image()
@@ -185,7 +189,7 @@ class ImageModifyMixin:
       self.verifier.failUnless(magic.match(self.path) == magic.FILE_TYPE_GZIP,
                                "expected gzipped image file")
     else:
-      self.verifier.failUnless(magic.match(self.path) == MAGIC_MAP[self.image_locals['format']],
+      self.verifier.failUnless(magic.match(self.path) == self.image_locals['format'],
                                "expected %s image format" % self.image_locals['format'])
 
 
@@ -210,3 +214,8 @@ class FileDownloadMixin:
 
   def _download(self):
     self.io.sync_input(what='FileDownloadMixin', cache=True)
+
+
+class InvalidImageFormatError(StandardError):
+  message = ( "Error reading image file '%(image)s': invalid format: expected "
+              "%(expected)s, got %(got)s" )
