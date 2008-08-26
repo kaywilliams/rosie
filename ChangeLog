@@ -1,8 +1,43 @@
+2008-08-26  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/shared/installer.py:
+	ImageModifyMixin now checks the format of images before adding them
+	(to prevent apache 404 pages from fooling pps into thinking the
+	image exists)
+	[b51bf61d303f] [tip]
+
+	* spin/locals/files.py:
+	changed file format keys to use magic constants
+	[d0a37241340e]
+
+	* share/spin/schemas/appliance/lib.rng:
+	allow multiple baseurls per repo in lib.rng
+	[10b0fc05c93f]
+
+2008-08-25  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/core/rpmbuild/config-rpm.py:
+	moved adding of cvars['repos'] to .setup() in config-rpm so that
+	uday's fix doesn't make spintest puke all over itself
+	[d143fab65bc9]
+
+2008-08-25  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.33-1
+	[2d73acf75b41]
+
+2008-08-25  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.33-1.noarch.
+	[6d4398436a85] [spin-0.8.33-1]
+
 2008-08-25  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* setup.py:
 	Fixed version in setup.py.
-	[f8cc5066c518] [tip]
+	[f8cc5066c518]
 
 	* .hgtags:
 	Tagged as spin-0.8.32-1
