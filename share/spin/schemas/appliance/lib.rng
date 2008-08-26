@@ -11,9 +11,9 @@
       <element name="name"><text/></element>
       </optional>
 
-      <optional>
+      <zeroOrMore>
       <element name="baseurl"><text/></element>
-      </optional>
+      </zeroOrMore>
 
       <optional>
       <element name="mirrorlist"><text/></element>
