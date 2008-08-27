@@ -90,7 +90,6 @@ and run a Spin-managed appliance.
 %doc INSTALL
 %doc README
 %doc NEWS
-%doc share/doc/examples
 %exclude /usr/share/spin/release/eula.pyc
 %exclude /usr/share/spin/release/eula.pyo
 %{_mandir}/man5/spin.conf.5.gz
