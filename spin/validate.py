@@ -38,7 +38,7 @@ class SpinValidationHandler:
       self.logger.log(0, L0(e))
       sys.exit(1)
     except InvalidConfigError, e:
-      self.logger.log(0, L0("Config file validation against given schema failed"))
+      self.logger.log(0, L0("Validation against schema failed"))
       self.logger.log(0, L0(e))
       sys.exit(1)
     except Exception, e:
@@ -48,15 +48,14 @@ class SpinValidationHandler:
 
   def _validate_configs(self):
     "Validate main config and appliance definition"
-    self.logger.log(2, L0("validating config"))
 
-    self.logger.log(4, L1("spin.conf"))
+    self.logger.log(4, L0("Validating '%s'" % pps.path(self.mainconfig.file)))
     v = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
                             self.mainconfig.file)
     v.validate('/spin', schema_file='spin.rng')
 
     # validat individual sections of the appliance_file
-    self.logger.log(4, L1(pps.path(self.appconfig.file).basename))
+    self.logger.log(4, L0("Validating '%s'" % pps.path(self.appconfig.file)))
     v = ConfigValidator([ x/'schemas/appliance' for x in Event.SHARE_DIRS ],
                         self.appconfig.file)
 
