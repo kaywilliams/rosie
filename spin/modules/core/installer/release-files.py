@@ -52,7 +52,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     if self.rpms is not None:
       self.DATA['input'].extend(self.rpms)
     self.diff.setup(self.DATA)
-    self.io.add_xpath('path', self.SOFTWARE_STORE, id='release-files-input')
+    self.io.add_xpath('files', self.SOFTWARE_STORE, id='release-files-input')
 
   def run(self):
     self.cvars.setdefault('release-files', [])

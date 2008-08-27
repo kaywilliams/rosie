@@ -64,7 +64,7 @@ def make_suite(distro, version, arch):
   suite = ModuleTestSuite('initrd-image')
 
   suite.addTest(make_core_suite(InitrdImageEventTestCase, distro, version, arch))
-  suite.addTest(imm_make_suite(_InitrdImageEventTestCase, distro, version, arch, xpath='path'))
+  suite.addTest(imm_make_suite(_InitrdImageEventTestCase, distro, version, arch, xpath='files'))
   suite.addTest(Test_Kickstart(distro, version, arch))
 
   return suite

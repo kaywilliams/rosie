@@ -85,7 +85,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
       if script.get('@content', 'filename') != 'raw':
         self.DATA['input'].append(script.text)
 
-    for file in self.config.xpath('file', []):
+    for file in self.config.xpath('files', []):
       text = file.text
       if file.get('@content', 'filename') == 'raw':
         # if the content is 'raw', write the raw string to a file and set

@@ -23,9 +23,9 @@ class FilesEventTestCase(EventTestCase):
   moduleid = 'files'
   eventid  = 'files'
   _conf = """<files>
-    <path>/tmp/outfile</path>
-    <path destdir='/infiles'>infile</path>
-    <path destdir='/infiles'>infile2</path>
+    <files>/tmp/outfile</files>
+    <files destdir='/infiles'>infile</files>
+    <files destdir='/infiles'>infile2</files>
   </files>"""
 
   def setUp(self):

@@ -62,9 +62,9 @@ class ImageModifyMixinTestCase:
 
     # add config entries
     a = {'destdir': '/infiles'}
-    Element('path', text='/tmp/outfile', parent=self.event.config)
-    Element('path', text='infile',  parent=self.event.config, attrs=a)
-    Element('path', text='infile2', parent=self.event.config, attrs=a)
+    Element('files', text='/tmp/outfile', parent=self.event.config)
+    Element('files', text='infile',  parent=self.event.config, attrs=a)
+    Element('files', text='infile2', parent=self.event.config, attrs=a)
 
   def tearDown(self):
     remove_input_files(self.event._config.file.abspath().dirname)

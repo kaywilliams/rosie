@@ -21,7 +21,7 @@
         </optional>
 
         <zeroOrMore>
-        <element name="file">
+        <element name="files">
           <ref name="attribute-destdir-absolute"/>
           <ref name="attribute-destname"/>
           <ref name="attribute-mode"/>

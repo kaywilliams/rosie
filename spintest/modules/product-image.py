@@ -55,7 +55,7 @@ def make_suite(distro, version, arch):
   suite = ModuleTestSuite('product-image')
 
   suite.addTest(make_core_suite(ProductImageEventTestCase, distro, version, arch))
-  suite.addTest(imm_make_suite(_ProductImageEventTestCase, distro, version, arch, xpath='path'))
+  suite.addTest(imm_make_suite(_ProductImageEventTestCase, distro, version, arch, xpath='files'))
   suite.addTest(Test_Installclasses(distro, version, arch))
 
   return suite

@@ -104,7 +104,7 @@ class ImageModifyMixin:
     # other image input files
     for dst, src in self.cvars['%s-content' % self.id].items():
       self.io.add_fpaths(src, self.imagedir//dst, id='%s-input-files' % self.name)
-    self.io.add_xpath('path', self.imagedir, id='%s-input-files' % self.name)
+    self.io.add_xpath('files', self.imagedir, id='%s-input-files' % self.name)
 
   def _add_image(self):
     ip = ( self.cvars['installer-repo'].url /

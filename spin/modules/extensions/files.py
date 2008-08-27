@@ -45,7 +45,7 @@ class FilesEvent(Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.io.add_xpath('path', self.SOFTWARE_STORE)
+    self.io.add_xpath('files', self.SOFTWARE_STORE)
 
   def run(self):
     self.io.sync_input(cache=True)

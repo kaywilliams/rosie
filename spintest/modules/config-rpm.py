@@ -42,8 +42,8 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
     self._add_config(
       """
       <config-rpm enabled="true">
-        <file destdir="/etc/testdir">%(working-dir)s/file1</file>
-        <file destdir="/etc/testdir" destname="filename">%(working-dir)s/file2</file>
+        <files destdir="/etc/testdir">%(working-dir)s/file1</files>
+        <files destdir="/etc/testdir" destname="filename">%(working-dir)s/file2</files>
         <script type="post">%(working-dir)s/script1</script>
         <script type="pre">%(working-dir)s/script1</script>
         <script type="preun">%(working-dir)s/script1</script>

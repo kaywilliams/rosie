@@ -110,13 +110,11 @@ class Test_BootArgsMacros(_DiskbootImageEventTestCase):
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('diskboot-image')
 
-  if (distro, version) != ('fedora', '9'):
-    # hack, f9 and above don't make diskboot images anymore
-    suite.addTest(make_core_suite(DiskbootImageEventTestCase, distro, version, arch))
-    suite.addTest(imm_make_suite(_DiskbootImageEventTestCase, distro, version, arch, xpath='path'))
-    suite.addTest(Test_CvarContent(distro, version, arch))
-    suite.addTest(Test_BootArgsDefault(distro, version, arch))
-    suite.addTest(Test_BootArgsNoDefault(distro, version, arch))
-    suite.addTest(Test_BootArgsMacros(distro, version, arch))
+  suite.addTest(make_core_suite(DiskbootImageEventTestCase, distro, version, arch))
+  suite.addTest(imm_make_suite(_DiskbootImageEventTestCase, distro, version, arch, xpath='files'))
+  suite.addTest(Test_CvarContent(distro, version, arch))
+  suite.addTest(Test_BootArgsDefault(distro, version, arch))
+  suite.addTest(Test_BootArgsNoDefault(distro, version, arch))
+  suite.addTest(Test_BootArgsMacros(distro, version, arch))
 
   return suite

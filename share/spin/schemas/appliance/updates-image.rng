@@ -9,7 +9,7 @@
         </optional>
 
         <zeroOrMore>
-        <element name="path"><ref name="content-path-with-dest"/></element>
+        <element name="files"><ref name="content-path-with-dest"/></element>
         </zeroOrMore>
       </element>
       </optional>

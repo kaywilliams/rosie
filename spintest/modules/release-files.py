@@ -57,9 +57,9 @@ class Test_ReleaseFilesWithoutDefaultSet(_ReleaseFilesEventTestCase):
 
 class Test_ReleaseFilesWithInputFiles(_ReleaseFilesEventTestCase):
   _conf = """<release-files>
-    <path>/tmp/outfile</path>
-    <path destdir="/infiles">infile</path>
-    <path destdir="/infiles">infile2</path>
+    <files>/tmp/outfile</files>
+    <files destdir="/infiles">infile</files>
+    <files destdir="/infiles">infile2</files>
   </release-files>"""
 
 class Test_ReleaseFilesWithPackageElement(_ReleaseFilesEventTestCase):
@@ -88,7 +88,7 @@ def make_suite(distro, version, arch):
   suite.addTest(Test_ReleaseFilesWithDefaultSet(distro, version, arch))
   suite.addTest(Test_ReleaseFilesWithoutDefaultSet(distro, version, arch))
 
-  # execution with <path/> element
+  # execution with <files/> elements
   suite.addTest(Test_ReleaseFilesWithInputFiles(distro, version, arch, enabled='True'))
   suite.addTest(Test_ReleaseFilesWithInputFiles(distro, version, arch, enabled='False'))
 
