@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.35
+Version: 0.8.36
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -96,6 +96,11 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Thu Aug 28 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.36-1
+- Fixed version in setup.py. (uprakash)
+- Tagged as spin-0.8.35-1 (uprakash)
+- Bumped version to spin-0.8.35-1.noarch. (spinmaster)
+
 * Wed Aug 27 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.35-1
 - Not listing share/doc/examples as doc files in spec file. (uprakash)
 - changed <path>, <file> elements to <files> in several modules (dmusgrave)
