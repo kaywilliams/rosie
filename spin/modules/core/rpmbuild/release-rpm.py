@@ -33,7 +33,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'release-rpm',
       parentid = 'rpmbuild',
-      version = '0.91',
+      version = '0.92',
       requires = ['release-versions', 'input-repos'],
       provides = ['rpmbuild-data'],
     )

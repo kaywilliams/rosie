@@ -39,7 +39,7 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'logos-rpm',
       parentid = 'rpmbuild',
-      version = '0.1.4',
+      version = '0.1.5',
       requires = ['base-info', 'anaconda-version', 'logos-versions'],
       provides = ['rpmbuild-data']
     )
