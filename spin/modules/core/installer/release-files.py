@@ -79,7 +79,7 @@ class ReleaseFilesEvent(Event, ExtractMixin):
     return rtn
 
   def _find_rpms(self):
-    rpmnames = self.config.xpath('package/text()', [ '%s-release' % self.name ])
+    rpmnames = [ '%s-release' % self.name ]
     rpmset = set()
     for rpmname in rpmnames:
       for rpm in self.cvars['rpms-directory'].findpaths(

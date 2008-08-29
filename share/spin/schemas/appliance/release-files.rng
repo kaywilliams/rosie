@@ -21,10 +21,6 @@
         <element name="files"><text/></element>
         </zeroOrMore>
 
-        <zeroOrMore>
-        <element name="package"><text/></element>
-        </zeroOrMore>
-
         </interleave>
       </element>
       </optional>
