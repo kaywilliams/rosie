@@ -54,7 +54,8 @@ class GpgSetupEvent(Event):
   def apply(self):
     self.cvars['gpgsign-public-key'] = self.config.getpath('public-key', None)
     self.cvars['gpgsign-secret-key'] = self.config.getpath('secret-key', None)
-    self.cvars['gpgsign-passphrase'] = self.config.get('passphrase/text()', None) or ''
+    if self.config.pathexists('passphrase'):
+      self.cvars['gpgsign-passphrase'] = self.config.get('passphrase/text()', '')
 
   def verify_cvars(self):
     "public and secret key cvars defined"
