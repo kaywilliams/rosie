@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.34
+Version: 0.8.36
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -90,13 +90,31 @@ and run a Spin-managed appliance.
 %doc INSTALL
 %doc README
 %doc NEWS
-%doc share/doc/examples
 %exclude /usr/share/spin/release/eula.pyc
 %exclude /usr/share/spin/release/eula.pyo
 %{_mandir}/man5/spin.conf.5.gz
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Thu Aug 28 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.36-1
+- Fixed version in setup.py. (uprakash)
+- Tagged as spin-0.8.35-1 (uprakash)
+- Bumped version to spin-0.8.35-1.noarch. (spinmaster)
+
+* Wed Aug 27 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.35-1
+- Not listing share/doc/examples as doc files in spec file. (uprakash)
+- changed <path>, <file> elements to <files> in several modules (dmusgrave)
+- removed share/doc/examples since these are now on website (kwilliams)
+- tweaks to validation-related log messages (kwilliams)
+- less verbose log messages when reading spin.conf and .appliance files (kwilliams)
+- INSTALL now points users to www.renditionsoftware.com (kwilliams)
+- Bumped the version of the logos-rpm event. (uprakash)
+- Fixed version in setup.py. (uprakash)
+- modified error handling for config reading; errors not duplicated anymore on console (dmusgrave)
+- bug 306 - <basearch> removed from <repos> and <sources> (dmusgrave)
+- Tagged as spin-0.8.34-1 (uprakash)
+- Bumped version to spin-0.8.34-1.noarch. (spinmaster)
+
 * Tue Aug 26 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.34-1
 - ImageModifyMixin now checks the format of images before adding them (dmusgrave)
 - changed file format keys to use magic constants (dmusgrave)

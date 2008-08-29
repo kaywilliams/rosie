@@ -1,10 +1,129 @@
+2008-08-27  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* setup.py:
+	Fixed version in setup.py.
+	[dc6eedf6763a] [tip]
+
+	* .hgtags:
+	Tagged as spin-0.8.35-1
+	[abad7f394f1a]
+
+2008-08-27  spinmaster  <spinmaster>
+
+	* ChangeLog, spin.spec:
+	Bumped version to spin-0.8.35-1.noarch.
+	[b85bcfd34e99] [spin-0.8.35-1]
+
+2008-08-27  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin.spec:
+	Not listing share/doc/examples as doc files in spec file.
+	[aca7e63c65ec]
+
+2008-08-27  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/config-rpm.rng,
+	share/spin/schemas/appliance/diskboot-image.rng,
+	share/spin/schemas/appliance/files.rng, share/spin/schemas/appliance
+	/initrd-image.rng, share/spin/schemas/appliance/product-image.rng,
+	share/spin/schemas/appliance/release-files.rng,
+	share/spin/schemas/appliance/updates-image.rng,
+	spin/modules/core/installer/release-files.py,
+	spin/modules/core/rpmbuild/config-rpm.py,
+	spin/modules/extensions/files.py, spin/modules/shared/installer.py,
+	spintest/mixins.py, spintest/modules/config-rpm.py, spintest/modules
+	/diskboot-image.py, spintest/modules/files.py, spintest/modules
+	/initrd-image.py, spintest/modules/product-image.py,
+	spintest/modules/release-files.py, spintest/modules/updates-
+	image.py:
+	changed <path>, <file> elements to <files> in several modules
+
+	Affected modules are
+	 * config-rpm
+	 * diskboot-image
+	 * files
+	 * initrd-image
+	 * product-image
+	 * release-files
+	 * updates-image
+	[b6fa7c859770]
+
+2008-08-27  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* share/doc/examples/centos.appliance,
+	share/doc/examples/example.appliance,
+	share/doc/examples/fedora.appliance, share/doc/examples/spin.conf:
+	removed share/doc/examples since these are now on website
+
+	* see http://www.renditionsoftware.com/examples
+	* later we may move these to the spindocs repository
+	[9ac8f2beaba1]
+
+	* spin/validate.py:
+	tweaks to validation-related log messages
+
+	* all validation log messages now at level 4
+	* keep distinct wording around spin.conf (a config file) and the
+	appliance definition file (a definition file)
+	[06befde56877]
+
+	* spin/main.py:
+	less verbose log messages when reading spin.conf and .appliance
+	files
+	[7b8f37ddfc62]
+
+	* INSTALL:
+	INSTALL now points users to www.renditionsoftware.com
+
+	* http://www.renditionsoftware.com/spin/download (for users)
+	* http://www.renditionsoftware.com/spin/source (for developers)
+	[0daf6e1657f0]
+
+2008-08-26  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/rpmbuild/logos-rpm/__init__.py:
+	Bumped the version of the logos-rpm event.
+
+	There is a new spin-logos RPM, so bumping logos-rpm's version so
+	that it runs the next time an appliance is built.
+	[640c7f610869]
+
+	* setup.py:
+	Fixed version in setup.py.
+	[f45b7216c55b]
+
+2008-08-26  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/main.py:
+	modified error handling for config reading; errors not duplicated
+	anymore on console
+	[8cbff387775f]
+
+	* share/spin/schemas/appliance/repos.rng,
+	share/spin/schemas/appliance/sources.rng,
+	spin/modules/shared/repos.py:
+	bug 306 - <basearch> removed from <repos> and <sources>
+	[d30b27c9e5ea]
+
+2008-08-26  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.34-1
+	[83b8a44d5115]
+
+2008-08-26  spinmaster  <spinmaster>
+
+	* ChangeLog, spin.spec:
+	Bumped version to spin-0.8.34-1.noarch.
+	[69c0c5275775] [spin-0.8.34-1]
+
 2008-08-26  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
 	* spin/modules/shared/installer.py:
 	ImageModifyMixin now checks the format of images before adding them
 	(to prevent apache 404 pages from fooling pps into thinking the
 	image exists)
-	[b51bf61d303f] [tip]
+	[b51bf61d303f]
 
 	* spin/locals/files.py:
 	changed file format keys to use magic constants
