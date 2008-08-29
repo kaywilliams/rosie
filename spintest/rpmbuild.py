@@ -70,7 +70,7 @@ class RpmBuildMixinTestCase(object):
   def check_inputs(self):
     for file in self.event.io.list_output():
       self.failUnlessExists(file)
-      self.failUnlessExists(self.img_path / file.relpathfrom(self.event.rpm.build_folder))
+      self.failUnlessExists(self.img_path / file.relpathfrom(self.event.rpm.source_folder))
 
   def _get_provides(self):
     return self._get_deps(rpm.RPMTAG_PROVIDENAME,
