@@ -222,5 +222,6 @@ class InvalidPkglistFormatError(SpinError):
               "pkglist '%(line)s'.\n\nFormat should "
               "be %{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}" )
 
+
 class DepsolveError(SpinError):
   message = "Error resolving package dependencies: %(message)s"

@@ -95,7 +95,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
           fn.write_text(text)
         text = fn
 
-      self.io.add_fpath(text, ( self.rpm.build_folder //
+      self.io.add_fpath(text, ( self.rpm.source_folder //
                                 self.filerelpath //
                                 file.get('@destdir',
                                          '/usr/share/%s/files' % self.name) ),
@@ -106,19 +106,18 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     if self.cvars['gpgsign-public-key']:
       # also include the gpg key in the config-rpm
       self.io.add_fpath(self.cvars['gpgsign-public-key'],
-                        self.rpm.build_folder/'etc/pki/rpm-gpg')
+                        self.rpm.source_folder/'etc/pki/rpm-gpg')
 
     # add repos to cvars if necessary
     if self.config.get('repofile/@repoids', '*').strip():
       self.DATA['variables'].append('cvars[\'repos\']')
-
 
   def generate(self):
     self._generate_repofile()
     self.io.sync_input(cache=True)
 
   def _generate_repofile(self):
-    repofile = ( self.rpm.build_folder/'etc/yum.repos.d/%s.repo' % self.name )
+    repofile = ( self.rpm.source_folder/'etc/yum.repos.d/%s.repo' % self.name )
 
     lines = []
 
@@ -221,7 +220,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     # move support files as needed
     sources = []
     for support_file in self.io.list_output('file'):
-      src = '/' / support_file.relpathfrom(self.rpm.build_folder)
+      src = '/' / support_file.relpathfrom(self.rpm.source_folder)
       dst = '/' / src.relpathfrom('/' / self.filerelpath)
       sources.append(dst)
 
@@ -253,7 +252,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
 
     sources = []
     for support_file in self.io.list_output('file'):
-      src = '/' / support_file.relpathfrom(self.rpm.build_folder)
+      src = '/' / support_file.relpathfrom(self.rpm.source_folder)
       dst = '/' / src.relpathfrom('/' / self.filerelpath)
 
       sources.append(dst)

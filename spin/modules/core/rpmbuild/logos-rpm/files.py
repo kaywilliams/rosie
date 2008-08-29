@@ -108,7 +108,7 @@ class FilesHandlerObject(object):
     for dest, info in self.files.iteritems():
       if info['xwindow-type'] not in self.xwindow_type:
         continue
-      dst = self.ptr.rpm.build_folder // dest
+      dst = self.ptr.rpm.source_folder // dest
 
       if info.get('source', None) is not None:
         # copy image

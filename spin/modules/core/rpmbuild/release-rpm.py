@@ -46,7 +46,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
                    'fedora-release-notes', 'redhat-release-notes', 'centos-release-notes']
     )
 
-    d = self.rpm.build_folder
+    d = self.rpm.source_folder
     self.filetypes = {
       'eula'    : d/'usr/share/eula',
       'html'    : d/'usr/share/doc/HTML',
@@ -103,7 +103,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
 
   def _verify_release_notes(self):
     "Ensure the presence of RELEASE-NOTES.html and an index.html"
-    rnotes = self.rpm.build_folder.findpaths(glob='RELEASE-NOTES*')
+    rnotes = self.rpm.source_folder.findpaths(glob='RELEASE-NOTES*')
     if len(rnotes) == 0:
       self.filetypes['html'].mkdirs()
 

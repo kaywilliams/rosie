@@ -138,7 +138,7 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
     return triggers
 
   def _generate_custom_theme(self):
-    custom_theme = self.rpm.build_folder / 'usr/share/%s/custom.conf' % self.rpm.name
+    custom_theme = self.rpm.source_folder / 'usr/share/%s/custom.conf' % self.rpm.name
     custom_theme.dirname.mkdirs()
     custom_theme.write_text(
       self.locals.L_GDM_CUSTOM_THEME % \

@@ -143,10 +143,11 @@ class RpmBuildObject:
     self.autofile = self.ptr._config.file + '.dat'
 
     # RPM build variables
-    self.build_folder = self.ptr.mddir / 'build'
-    self.bdist_base   = self.build_folder / 'rpm-base'
-    self.rpm_base     = self.build_folder / 'rpm'
-    self.dist_dir     = self.build_folder / 'dist'
+    self.build_folder  = self.ptr.mddir / 'build'
+    self.bdist_base    = self.build_folder / 'rpm-base'
+    self.rpm_base      = self.build_folder / 'rpm'
+    self.dist_dir      = self.build_folder / 'dist'
+    self.source_folder = self.build_folder / 'source'
 
   #------------- PROPERTIES --------------#
   @property
@@ -162,14 +163,12 @@ class RpmBuildObject:
   @property
   def data_files(self):
     data_files = {}
-    for item in self.build_folder.findpaths(type=pps.constants.TYPE_DIR,
-                                            nglob=['files','scripts'],
-                                            mindepth=1):
+    for item in self.source_folder.findpaths(type=pps.constants.TYPE_DIR,
+                                             mindepth=1):
       files = item.findpaths(type=pps.constants.TYPE_NOT_DIR,
                              mindepth=1, maxdepth=1)
-
       if files:
-        data_files.setdefault('/' / item.relpathfrom(self.build_folder), []).extend(files)
+        data_files.setdefault('/' / item.relpathfrom(self.source_folder), []).extend(files)
     return data_files
 
   #--------- RPM BUILD HELPER METHODS ---------#
@@ -309,9 +308,9 @@ class RpmBuildObject:
     f.close()
 
   def write_manifest(self):
-    manifest = ['setup.py']
+    manifest = ['setup.py', 'setup.cfg']
     manifest.extend( [ x.relpathfrom(self.build_folder) for x in
-                       self.build_folder.findpaths(
+                       self.source_folder.findpaths(
                          type=pps.constants.TYPE_NOT_DIR) ])
     (self.build_folder/'MANIFEST').write_lines(manifest)
 
@@ -330,7 +329,7 @@ class RpmBuildObject:
 
   def add_doc_files(self, spec, section):
     doc = []
-    if (self.build_folder / 'COPYING').exists():
+    if (self.source_folder / 'COPYING').exists():
       doc.append('COPYING')
     for dir,files in self.data_files.items():
       if dir.startswith('/usr/share/doc'):
