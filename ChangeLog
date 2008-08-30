@@ -1,8 +1,70 @@
+2008-08-29  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/rpmbuild/config-rpm.py, spin/modules/core/rpmbuild
+	/logos-rpm/__init__.py, spin/modules/core/rpmbuild/release-rpm.py:
+	Bumped rpmbuild events' version numbers.
+	[c447aa754590] [tip]
+
+	* spintest/rpmbuild.py:
+	Fixed rpmbuild test cases.
+	[a3abe6171cf8]
+
+	* spin/modules/core/packages/pkglist.py, spin/modules/core/rpmbuild
+	/config-rpm.py, spin/modules/core/rpmbuild/logos-rpm/__init__.py,
+	spin/modules/core/rpmbuild/logos-rpm/files.py,
+	spin/modules/core/rpmbuild/release-rpm.py,
+	spin/modules/shared/rpmbuild.py:
+	The location of files that end up in the custom RPMs has changed.
+
+	Before this changeset, the build/ folder used to be the folder in
+	which files were to be laid out based on the locations they should
+	be installed at. This becomes icky when we start adding scripts and
+	triggers to the build/ folder. Now, all the files that are to be
+	installed by the RPM need to be placed at build/source. This gets
+	rid of some of the nglobs we have while computing the list of
+	data_files.
+	[c089e1f8b220]
+
+	* share/spin/schemas/appliance/logos.rng, share/spin/schemas/appliance
+	/release-files.rng, spin/modules/core/installer/logos.py,
+	spin/modules/core/installer/release-files.py:
+	The <package/> element is not supported for 'logos' and 'release-
+	files'.
+
+	The <package/> element was a way to specify the RPM to use as the
+	logos RPM (for the logos event) and the RPM(s) to use as the release
+	RPM(s) (for the release-files event). A better way to accomplish
+	this is to have pkglist set up a control variable with the names of
+	the logos RPM and release RPM(s). This changeset is a step in that
+	direction. Look at Bug 309 for more details.
+	[902ef19f613f]
+
+2008-08-29  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* merged with trunk
+	[f19c2e39f68b]
+
+	* spin/modules/extensions/packages/gpgsign.py:
+	bug 308 - fixed a bug with nonexistant gpgsign passphrases (again!)
+	[98bac3ea04e8]
+
+2008-08-28  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.36-1
+	[b0bceda8e012]
+
+2008-08-28  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.36-1.noarch.
+	[7886a2fda49c] [spin-0.8.36-1]
+
 2008-08-27  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* setup.py:
 	Fixed version in setup.py.
-	[dc6eedf6763a] [tip]
+	[dc6eedf6763a]
 
 	* .hgtags:
 	Tagged as spin-0.8.35-1

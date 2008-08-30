@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.36
+Version: 0.8.37
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -96,6 +96,16 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Sat Aug 30 2008  - 0.8.37-1
+- Bumped rpmbuild events' version numbers. (uprakash)
+- Fixed rpmbuild test cases. (uprakash)
+- The location of files that end up in the custom RPMs has changed. (uprakash)
+- The <package/> element is not supported for 'logos' and 'release-files'. (uprakash)
+- merged with trunk (dmusgrave)
+- bug 308 - fixed a bug with nonexistant gpgsign passphrases (dmusgrave)
+- Tagged as spin-0.8.36-1 (uprakash)
+- Bumped version to spin-0.8.36-1.noarch. (spinmaster)
+
 * Thu Aug 28 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.36-1
 - Fixed version in setup.py. (uprakash)
 - Tagged as spin-0.8.35-1 (uprakash)
