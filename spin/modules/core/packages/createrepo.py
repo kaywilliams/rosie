@@ -31,6 +31,7 @@ class CreaterepoEvent(Event, CreaterepoMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'createrepo',
+      version = '0.1',
       parentid = 'packages',
       provides = ['rpms', 'rpms-directory', 'repodata-directory'],
       requires = ['cached-rpms'],
