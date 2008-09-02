@@ -49,7 +49,7 @@ class SpinValidationHandler:
   def _validate_configs(self):
     "Validate main config and appliance definition"
 
-    self.logger.log(4, L0("Validating '%s'" % pps.path(self.mainconfig.file)))
+    self.logger.log(4, L0("Validating 'spin.conf'"))
     v = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
                             self.mainconfig.file)
     v.validate('/spin', schema_file='spin.rng')
