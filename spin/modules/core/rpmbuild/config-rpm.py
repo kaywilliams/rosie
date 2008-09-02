@@ -122,7 +122,8 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     lines = []
 
     # include a repo pointing to the published appliance
-    if self.config.getbool('repofile/@appliance', 'True'):
+    if ( self.config.getbool('repofile/@appliance', 'True') and
+         self.cvars['web-path'] is not None ):
       lines.extend([ '[%s]' % self.name,
                      'name      = %s - %s' % (self.fullname, self.basearch),
                      'baseurl   = %s' % (self.cvars['web-path']/'os') ])
