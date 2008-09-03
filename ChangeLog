@@ -1,5 +1,17 @@
 2008-09-02  Uday Prakash  <uprakash@renditionsoftware.com>
 
+	* .hgtags:
+	Tagged as spin-0.8.38-1
+	[c7777f928ea4] [tip]
+
+2008-09-02  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.38-1.noarch.
+	[6764616553a4] [spin-0.8.38-1]
+
+2008-09-02  Uday Prakash  <uprakash@renditionsoftware.com>
+
 	* spin/validate.py:
 	Fixed the spin validation process.
 
@@ -7,7 +19,7 @@
 	reading config files probably made some sense at some point, but it
 	doesn't anymore. Also, cleaned up some of the validation methods to
 	use sets instead of lists whereever appropriate.
-	[70ec83c5dc6a] [tip]
+	[70ec83c5dc6a]
 
 	* spin/validate.py:
 	Temporary fix to missing spin.conf files.
