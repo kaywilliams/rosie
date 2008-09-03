@@ -1,9 +1,56 @@
+2008-09-02  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/validate.py:
+	Fixed the spin validation process.
+
+	The config files are not re-read for validation purposes. Re-
+	reading config files probably made some sense at some point, but it
+	doesn't anymore. Also, cleaned up some of the validation methods to
+	use sets instead of lists whereever appropriate.
+	[70ec83c5dc6a] [tip]
+
+	* spin/validate.py:
+	Temporary fix to missing spin.conf files.
+
+	If a spin.conf file is not found, validation fails when trying to
+	print out a log message. In the case of a missing spin.conf file,
+	we create a StringIO object with the contents "<spin/>". This
+	object has not file attribute which was being accessed while trying
+	to print out a message. For now, just printing out 'spin.conf' as
+	the main config's file. This is not always true because you can
+	specify your own main config file and call it whatever. I am
+	working on a fix.
+	[d7a1ae6a24b3]
+
+	* spin/locals/createrepo.py, spin/modules/core/packages/createrepo.py,
+	spin/modules/shared/createrepo.py:
+	The createrepo event adds the <groupfile>.gz file to output when
+	needed.
+
+	Newer versions of createrepo (>= 0.94) gzip the group file.
+	Functionality has been added to the CreaterepoMixin to take care of
+	this case too by adding a locals entry for the version of the
+	createrepo that gzips groupfiles.
+	[c25bd523a0f3]
+
+2008-08-30  root  <root@server2.renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.37-1
+	[d0bcb17a70fb]
+
+2008-08-30  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.37-1.noarch.
+	[e5e3d0db9d21] [spin-0.8.37-1]
+
 2008-08-29  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* spin/modules/core/rpmbuild/config-rpm.py, spin/modules/core/rpmbuild
 	/logos-rpm/__init__.py, spin/modules/core/rpmbuild/release-rpm.py:
 	Bumped rpmbuild events' version numbers.
-	[c447aa754590] [tip]
+	[c447aa754590]
 
 	* spintest/rpmbuild.py:
 	Fixed rpmbuild test cases.
