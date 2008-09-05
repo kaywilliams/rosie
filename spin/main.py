@@ -228,7 +228,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
       try:
         try:
           self.dispatch.execute(until=None)
-        except (SpinError, Exception), e:
+        except (SpinError, Exception, KeyboardInterrupt), e:
           self._handle_Exception(e)
       finally:
         self._lock.release()

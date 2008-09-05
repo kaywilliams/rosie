@@ -88,17 +88,20 @@ class SpinErrorHandler:
       raise
     else:
       self.logger.write(0, '\n') # start on a new line
-      if not isinstance(e, SpinError):
-        self.logger.write(0,
-          "An unhandled exception has been generated while processing "
-          "the '%s' event.  The traceback has been recorded in the log "
-          "file.  Please report this error by sending a copy of your log "
-          "file, config and appliance definition files, and any other relevant "
-          "information to contact@renditionsoftware.com.\n\n"
-          "Error message was: "
-          % self.dispatch.currevent.id)
-      self.logger.log(0, '[%s] %s' % (self.dispatch.currevent.id,
-                                      handle_Exception(e)))
+      if isinstance(e, KeyboardInterrupt):
+        self.logger.log(0, "Spin halted on user input")
+      else:
+        if not isinstance(e, SpinError) and not isinstance(e, KeyboardInterrupt):
+          self.logger.write(0,
+            "An unhandled exception has been generated while processing "
+            "the '%s' event.  The traceback has been recorded in the log "
+            "file.  Please report this error by sending a copy of your log "
+            "file, config and appliance definition files, and any other "
+            "relevant information to contact@renditionsoftware.com.\n\n"
+            "Error message was: "
+            % self.dispatch.currevent.id)
+        self.logger.log(0, '[%s] %s' % (self.dispatch.currevent.id,
+                                        handle_Exception(e)))
     sys.exit(1)
 
 def handle_Exception(e):
