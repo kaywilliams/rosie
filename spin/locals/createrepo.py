@@ -19,6 +19,7 @@ L_CREATEREPO = LocalsDict({
     'capabilities': {
       'database': False,
       'update': False,
+      'gzipped_groupfile': False,
     },
   },
   "createrepo-0.4.7": { # database capability added
@@ -31,9 +32,9 @@ L_CREATEREPO = LocalsDict({
       'update': True,
     },
   },
-  #"createrepo-0.9.4": { # comps.xml.gz added
-  #  'xml-files': {
-  #    'repodata/comps.xml.gz': True,
-  #  },
-  #}
+  "createrepo-0.9.4": { # comps.xml.gz added
+    'capabilities': {
+      'gzipped_groupfile': True,
+    }
+  },
 })

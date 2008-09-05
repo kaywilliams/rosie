@@ -49,37 +49,54 @@ class SpinValidationHandler:
   def _validate_configs(self):
     "Validate main config and appliance definition"
 
-    self.logger.log(4, L0("Validating '%s'" % pps.path(self.mainconfig.file)))
+    if self.mainconfig.file is not None:
+      self.logger.log(4, L0("Validating '%s'" % self.mainconfig.file))
+    else:
+      self.logger.log(4, L0("Validating main config with default settings"))
+
     v = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
-                            self.mainconfig.file)
+                            self.mainconfig)
     v.validate('/spin', schema_file='spin.rng')
 
-    # validat individual sections of the appliance_file
+    # validate individual sections of the appliance_file
     self.logger.log(4, L0("Validating '%s'" % pps.path(self.appconfig.file)))
-    v = ConfigValidator([ x/'schemas/appliance' for x in Event.SHARE_DIRS ],
-                        self.appconfig.file)
+    v = AppConfigValidator([ x/'schemas/appliance' for x in Event.SHARE_DIRS ],
+                           self.appconfig)
 
     # validate all top-level sections
-    validated = [] # list of already-validated modules (so we don't revalidate)
+    tle_elements = set() # list of already-validated modules (so we don't revalidate)
     for event in self.dispatch:
       eid = event.__module__.split('.')[-1]
-      if eid in validated: continue # don't re-validate
+      if eid in tle_elements: continue # don't re-validate
       v.validate(eid, schema_file='%s.rng' % eid)
-      validated.append(eid)
+      if self.appconfig.pathexists(eid):
+        tle_elements.add(eid)
 
-    # verify top-level elements
-    v.config = Event._config
-    v.verify_elements(self.disabled_modules)
+    self._verify_tle_elements(tle_elements.union(self.disabled_modules))
 
     # allow events to validate other things not covered in schemas
     for event in self.dispatch:
       event.validate()
 
+  def _verify_tle_elements(self, expected_elements):
+    processed = set()
+    for child in self.appconfig.getroot().iterchildren():
+      if child.tag is etree.Comment: continue
+      if child.tag not in expected_elements:
+        raise InvalidConfigError(self.appconfig.getroot().file,
+                                 " unknown element '%s' found:\n%s"
+                                 % (child.tag, child.tostring(lineno=True)))
+      if child.tag in processed:
+        raise InvalidConfigError(self.appconfig.getroot().file,
+                                 " multiple instances of the '%s' element "
+                                 "found " % child.tag)
+      processed.add(child.tag)
+
+
 class BaseConfigValidator:
-  def __init__(self, schema_paths, config_path):
+  def __init__(self, schema_paths, config):
     self.schema_paths = schema_paths
-    self.config = rxml.tree.read(config_path)
-    self.elements = []
+    self.config = config
 
     self.curr_schema = None
 
@@ -90,12 +107,12 @@ class BaseConfigValidator:
     if schema_file is None and schema_contents is None:
       raise AttributeError("Either 'schema_file' or 'schema_contents' "
                            "must be provided.")
-    self.elements.append(xpath_query.lstrip('/'))
-    tree = self._scrub_tree(self.config.get(xpath_query))
+    element = xpath_query.lstrip('/')
+    tree = self._scrub_tree(self.config.get(xpath_query, None))
     if schema_contents:
-      self.validate_with_string(schema_contents, tree, self.elements[-1])
+      self.validate_with_string(schema_contents, tree, element)
     else:
-      self.validate_with_file(schema_file, tree, self.elements[-1])
+      self.validate_with_file(schema_file, tree, element)
 
   def _scrub_tree(self, tree):
     if tree is None: return
@@ -107,7 +124,7 @@ class BaseConfigValidator:
         del t.attrib[xmlbase]
 
     def remove_macros(t):
-      for macro in t.xpath('macro'):
+      for macro in t.xpath('macro', fallback=[]):
         macro.getparent().remove(macro)
 
     # copy and remove xml:base attributes from tree
@@ -181,28 +198,14 @@ class BaseConfigValidator:
         raise InvalidConfigError(self.config.getroot().file,
                                  "Missing required element: '%s'" % tag)
 
+
 class MainConfigValidator(BaseConfigValidator):
   pass
 
-class ConfigValidator(BaseConfigValidator):
-  def __init__(self, schema_paths, config_path):
-    config = rxml.tree.read(config_path)
-    BaseConfigValidator.__init__(self, schema_paths, config_path)
 
-  def verify_elements(self, disabled):
-    processed = []
-    for child in self.config.getroot().iterchildren():
-      if child.tag is etree.Comment: continue
-      if child.tag in disabled: continue
-      if child.tag not in self.elements:
-        raise InvalidConfigError(self.config.getroot().file,
-                                 " unknown element '%s' found:\n%s"
-                                 % (child.tag, child.tostring(lineno=True)))
-      if child.tag in processed:
-        raise InvalidConfigError(self.config.getroot().file,
-                                 " multiple instances of the '%s' element "
-                                 "found " % child.tag)
-      processed.append(child.tag)
+class AppConfigValidator(BaseConfigValidator):
+  def __init__(self, schema_paths, config):
+    BaseConfigValidator.__init__(self, schema_paths, config)
 
   def massage_schema(self, schema, tag):
     schema = BaseConfigValidator.massage_schema(self, schema, tag)
@@ -218,6 +221,7 @@ class ConfigValidator(BaseConfigValidator):
         child.parent = start_elem
       start_elem.remove(opt_elem)
     return schema
+
 
 #------ ERRORS ------#
 class InvalidXmlError(StandardError):

@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.37
+Version: 0.8.40
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -96,6 +96,22 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Wed Sep 03 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.40-1
+- The BaseConfigValidator class takes a ConfigElement and not a file. (uprakash)
+- Tagged as spin-0.8.39-1 (uprakash)
+- Bumped version to spin-0.8.39-1.noarch. (spinmaster)
+
+* Tue Sep 02 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.39-1
+- Tagged as spin-0.8.38-1 (uprakash)
+- Bumped version to spin-0.8.38-1.noarch. (spinmaster)
+
+* Tue Sep 02 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.38-1
+- Fixed the spin validation process. (uprakash)
+- Temporary fix to missing spin.conf files. (uprakash)
+- The createrepo event adds the <groupfile>.gz file to output when needed. (uprakash)
+- Tagged as spin-0.8.37-1 (root@server2.renditionsoftware.com)
+- Bumped version to spin-0.8.37-1.noarch. (spinmaster)
+
 * Sat Aug 30 2008  - 0.8.37-1
 - Bumped rpmbuild events' version numbers. (uprakash)
 - Fixed rpmbuild test cases. (uprakash)

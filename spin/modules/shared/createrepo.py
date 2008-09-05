@@ -57,6 +57,8 @@ class CreaterepoMixin:
     if groupfile:
       args.extend(['--groupfile', groupfile])
       repo_files.append(path / 'repodata'/ groupfile.basename)
+      if self.locals.L_CREATEREPO['capabilities']['gzipped_groupfile']:
+        repo_files.append(path / 'repodata/%s.gz' % groupfile.basename)
     if pretty:
       args.append('--pretty')
     if database and \

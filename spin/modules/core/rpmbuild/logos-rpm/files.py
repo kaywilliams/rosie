@@ -30,7 +30,7 @@ from rendition import pps
 from rendition import rxml
 from rendition import versort
 
-from spin.validate  import BaseConfigValidator
+from spin.validate import BaseConfigValidator
 
 import config
 
@@ -176,5 +176,5 @@ class FilesHandlerObject(object):
     if self.schema_file is None:
       return
     validator = BaseConfigValidator([self.schema_file.dirname],
-                                    tree.getroot().file)
+                                    tree)
     validator.validate('/logos-rpm', schema_file=self.schema_file.basename)
