@@ -72,4 +72,15 @@ L_FILES = LocalsDict({
       'vesamenu.c32': dict(path='isolinux/vesamenu.c32'),
     },
   },
+  "anaconda-11.4.1.19-1": { # removed minstg2.img
+    'stage2': {
+      'minstg2.img': REMOVE,
+    },
+  },
+#  "anaconda-11.4.1.29-1": { # renamed stage2.img to install.img
+#    'stage2': {
+#      'stage2.img': REMOVE,
+#      'install.img': dict(path='images/install.img'),
+#     },
+#   },
 })
