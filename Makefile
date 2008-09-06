@@ -39,8 +39,8 @@ changelog:
 	@hg log --style changelog > ChangeLog
 
 archive:
-	@hg archive -t tar --prefix=$(PKGNAME)-$(VERSION) $(PKGNAME)-$(VERSION).tar
-	@gzip $(PKGNAME)-$(VERSION).tar
+	@python setup.py --quiet sdist --dist-dir .
+	@rm -f MANIFEST
 
 srpm: archive
 	@rpmbuild $(BUILDARGS) -ts $(PKGNAME)-$(VERSION).tar.gz  || exit 1
