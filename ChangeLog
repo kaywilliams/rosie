@@ -1,3 +1,63 @@
+2008-09-05  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* MANIFEST.in:
+	Adding missing MANIFEST.in file.
+
+	Forgot to add the MANIFEST.in file the repository.
+	[ca66cbd92817] [tip]
+
+	* Makefile, spin.spec:
+	Not installing the core/vm and extensions/vm modules via spin RPM.
+
+	Added MANIFEST.in to ignore/include files as needed, and updated the
+	`make archive' command to use the `setup.py sdist' to create the
+	tarball.
+	[40f14bdf6227]
+
+2008-09-05  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* spin/locals/files.py:
+	added locals entries for fedora 10 stage2 image changes
+	[6a01d595311b]
+
+2008-09-05  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/errors.py, spin/main.py:
+	bug 313 - 'nice' message on KeyboardInterrupt
+	[43e6b355af17]
+
+	* spin/modules/core/vm/__init__.py,
+	spin/modules/extensions/vm/__init__.py,
+	spin/modules/extensions/vm/livecd.py,
+	spin/modules/extensions/vm/virtimage.py,
+	spin/modules/extensions/vm/vmware.py:
+	initial commit of various virtual machine/livecd events
+	 * completely unoptimized and not very well tested
+	 * see /wiki/devs/Spin20VirtualMachines for more details
+	[5d8f498cad71]
+
+	* merged with trunk
+	[b3db8b91d092]
+
+2008-09-02  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/core/rpmbuild/config-rpm.py:
+	fixed config-rpm so that it runs properly with publish module
+	disabled
+	[c514ca822c42]
+
+2008-09-03  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.40-1
+	[187f3d3a0c4d]
+
+2008-09-03  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.40-1.noarch.
+	[88dfae286eaf] [spin-0.8.40-1]
+
 2008-09-03  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* spin/modules/core/rpmbuild/logos-rpm/files.py:
@@ -7,7 +67,7 @@
 	but now takes in the in-memory contents of the file. The logos-rpm
 	event uses the BaseConfigValidator to validate items in the logos-
 	rpm's config file(s).
-	[f73852c41980] [tip]
+	[f73852c41980]
 
 2008-09-02  Uday Prakash  <uprakash@renditionsoftware.com>
 

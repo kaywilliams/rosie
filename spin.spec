@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.40
+Version: 0.8.41
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,17 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Fri Sep 05 2008  - 0.8.41-1
+- Adding missing MANIFEST.in file. (uprakash)
+- Not installing the core/vm and extensions/vm modules via spin RPM. (uprakash)
+- added locals entries for fedora 10 stage2 image changes (kwilliams)
+- bug 313 - 'nice' message on KeyboardInterrupt (dmusgrave)
+- initial commit of various virtual machine/livecd events (dmusgrave)
+- merged with trunk (dmusgrave)
+- fixed config-rpm so that it runs properly with publish module disabled (dmusgrave)
+- Tagged as spin-0.8.40-1 (uprakash)
+- Bumped version to spin-0.8.40-1.noarch. (spinmaster)
+
 * Wed Sep 03 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.40-1
 - The BaseConfigValidator class takes a ConfigElement and not a file. (uprakash)
 - Tagged as spin-0.8.39-1 (uprakash)
