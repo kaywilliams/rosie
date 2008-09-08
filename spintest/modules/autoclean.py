@@ -115,6 +115,7 @@ class Test_RemoveDisabled(AutocleanEventTestCase):
 
   def tearDown(self):
     if self.test_dir.exists(): self.test_dir.remove()
+    AutocleanEventTestCase.tearDown(self)
 
 
 def make_suite(distro, version, arch):
