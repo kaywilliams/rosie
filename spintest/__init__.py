@@ -348,14 +348,18 @@ def make_suite(distro, version, arch='i386'):
 
   for module in pps.path('modules').findpaths(mindepth=1, maxdepth=1):
     if module.basename == '__init__.py': continue
-    module = module.replace('.py', '')
+    module = module.abspath()
+    modname = module.basename.replace('.py', '')
     fp = None
     try:
       try:
-        fp,p,d = imp.find_module(module.basename, [module.dirname])
+        if module.isdir():
+          fp,p,d = imp.find_module('__init__', [module])
+        elif module.isfile():
+          fp,p,d = imp.find_module(modname, [module.dirname])
+        mod = imp.load_module('test-%s' % modname, fp, p, d)
       except ImportError:
         continue
-      mod = imp.load_module('test-%s' % module.basename, fp, p, d)
     finally:
       fp and fp.close()
 
