@@ -62,8 +62,10 @@ class IOObject(object):
     # method called by add_item() to ensure the source is a valid file
     if not f: return
     f = self.abspath(f)
-    if not f.exists():
-      raise MissingInputFileError(f)
+    try:
+      f.stat()
+    except pps.Path.error.PathError, e:
+      raise MissingInputFileError(f, e)
 
   def add_item(self, src, dst, id=None, mode=None, prefix=None):
     """
@@ -262,4 +264,4 @@ class TransactionData(object):
 
 
 class MissingInputFileError(SpinError):
-  message = "missing input file '%(file)s'"
+  message = "missing input file '%(file)s':\n%(error)s"
