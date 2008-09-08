@@ -24,6 +24,8 @@ import sys
 from rendition import pps
 from rendition import rxml
 
+XmlTreeElement = rxml.tree.XmlTreeElement
+
 from spin.event   import Event
 from spin.logging import L0, L1
 
@@ -84,8 +86,8 @@ class SpinValidationHandler:
       if child.tag is etree.Comment: continue
       if child.tag not in expected_elements:
         raise InvalidConfigError(self.appconfig.getroot().file,
-                                 " unknown element '%s' found:\n%s"
-                                 % (child.tag, child.tostring(lineno=True)))
+          " unknown element '%s' found:\n%s"
+            % (child.tag, XmlTreeElement.tostring(child, lineno=True)))
       if child.tag in processed:
         raise InvalidConfigError(self.appconfig.getroot().file,
                                  " multiple instances of the '%s' element "
@@ -175,8 +177,10 @@ class BaseConfigValidator:
       raise InvalidSchemaError(self.curr_schema or '<string>', e.error_log)
     else:
       if not relaxng.validate(tree):
-        raise InvalidConfigError(self.config.getroot().file, relaxng.error_log,
-                                 self.curr_schema or '<string>', tree.tostring(lineno=True))
+        raise InvalidConfigError(self.config.getroot().file,
+                                 relaxng.error_log,
+                                 self.curr_schema or '<string>',
+                                 XmlTreeElement.tostring(tree, lineno=True))
 
   def _read_schema(self):
     cwd = os.getcwd()
