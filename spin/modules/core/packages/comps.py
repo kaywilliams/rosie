@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import fnmatch
+
 from rendition import rxml
 
 from spin.constants import KERNELS
@@ -144,10 +146,15 @@ class CompsEvent(Event):
 
     self._groupfiledata = {} # data from group files
     self._groups = {} # groups we're creating
+    self._allpkgs = [] # list of all packages in all groupfiles
 
     # build up groups dictionary
     for groupfileid, path in self.groupfiles:
       self._process_groupfile(path, groupfileid)
+
+    # uniq and sort _allpkgs
+    self._allpkgs = list(set(self._allpkgs))
+    self._allpkgs.sort()
 
     # create group objects, add packages to them
     for gid, data in self._groupfiledata.items():
@@ -175,9 +182,11 @@ class CompsEvent(Event):
                          uservisible='true', biarchonly='false',
                          default='true', display_order='1',))
 
-    for pkg in cfg_pkgs:
-      self._groups['core'].packagelist.add(
-        PackageReq(**self._dict_from_xml(pkg)))
+    for pkgelem in cfg_pkgs:
+      for pkgname in fnmatch.filter(self._allpkgs,
+                                    _parse_pkgpattern(pkgelem.text)):
+        self._groups['core'].packagelist.add(
+          PackageReq(**self._dict_from_xml(pkgelem, pkgname=pkgname)))
 
     for pkgtup in cvar_pkgtups:
       if not isinstance(pkgtup, tuple):
@@ -190,10 +199,12 @@ class CompsEvent(Event):
         PackageReq('kernel', type='mandatory'))
 
     # remove excluded packages
-    for pkg in ( self.config.xpath('exclude-package/text()', []) +
-                 (list(self.cvars['comps-excluded-packages']) or []) ):
+    for pkgpattern in ( self.config.xpath('exclude-package/text()', []) +
+                        list(self.cvars['comps-excluded-packages'] or []) ):
       for group in self._groups.values():
-        group.packagelist.discard(pkg)
+        for pkgname in fnmatch.filter([ x.name for x in group.packagelist ],
+                                      _parse_pkgpattern(pkgpattern)):
+          group.packagelist.discard(pkgname)
 
     # create a category
     category = CompsCategory('Groups', name=self.fullname,
@@ -223,9 +234,9 @@ class CompsEvent(Event):
         raise RepoHasNoGroupfileError(gid, rid)
 
 
-  def _dict_from_xml(self, elem):
+  def _dict_from_xml(self, elem, pkgname=None):
     "Convert a package in xml form into a package tuple"
-    return dict(name     = elem.text,
+    return dict(name     = pkgname or elem.text,
                 type     = elem.get('@type', None),
                 requires = elem.get('@requires', None),
                 default  = elem.get('@default', None))
@@ -239,6 +250,9 @@ class CompsEvent(Event):
     for group in self.config.xpath(
       'group[not(@repoid) or @repoid="%s"]' % id, []):
       self._update_group_content(group.text, tree)
+
+    # add all packages to allpkgs
+    self._allpkgs.extend(tree.xpath('//packagereq/text()'))
 
   def _update_group_content(self, gid, tree):
     "Add the contents of a group in an xml tree to the group dict"
@@ -293,6 +307,41 @@ class CompsEvent(Event):
       G['groups'].add(grp)
       self._update_group_content(grp.text, tree)
 
+def _parse_pkgpattern(pattern):
+  "Drop meaningless (to comps) information from pkg pattern"
+  # note there is no way to tell that something is a ver or rel versus an
+  # additional portion of the rpm name.  Thus, any ver/rel pattern is
+  # interpreted as part of the package name
+  #
+  # name                    => name
+  # name.arch               => name
+  # name-ver                => name-ver
+  # name-ver-rel            => name-ver-rel
+  # name-ver-rel.arch       => name-ver-rel
+  # name-epoch:ver-rel.arch => name-ver-rel
+  # epoch:name-ver-rel.arch => name-ver-rel
+
+  # split either name-epoch or epoch from pattern, if present
+  try:
+    pre, rest = pattern.split(':', 1)
+  except ValueError:
+    pre  = None
+    rest = pattern
+
+  # split arch from pattern, if present
+  try:
+    mid, post = rest.split('.', 1)
+  except ValueError:
+    mid  = rest
+    post = None
+
+  # split epoch from pre, if necessary
+  if pre and not pre.isdigit(): # name-epoch
+    tmp, pre = pre.split('-')
+    mid = tmp+'-'+mid # join name onto ver-rel
+
+  # we now have rpm name pattern
+  return mid
 
 class CompsReqSet(set):
   """A set object that does manipulation based on __eq__ rather than id()
