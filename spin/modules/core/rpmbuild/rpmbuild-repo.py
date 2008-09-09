@@ -96,7 +96,9 @@ class RpmbuildRepoEvent(Event):
         self.log(4, L2(repo.id))
         self._createrepo(repo.localurl)
         repo.read_repomd()
-        repo.repocontent.update(repo.datafiles['primary'].href)
+        repo.repocontent.clear()
+        for pxml in repo.datafiles['primary']:
+          repo.repocontent.update(pxml.href, clear=False)
         repo.repocontent.write(repo.pkgsfile)
         self.DATA['output'].append(repo.localurl/'repodata')
         self.DATA['output'].append(repo.pkgsfile)
