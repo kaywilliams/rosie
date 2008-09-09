@@ -16,6 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
+import copy
 import errno
 import os
 import re
@@ -118,7 +119,7 @@ class RhnSpinRepo(SpinRepo):
   # metadata at times.  This class aims to account for this instability
 
   EMPTY_FILE_CSUM = 'da39a3ee5e6b4b0d3255bfef95601890afd80709'
-  MAX_TRIES = 5 # number of times to try redownloading repomd
+  MAX_TRIES = 10 # number of times to try redownloading repomd
 
   def read_repomd(self):
     i = 0; consistent = False
@@ -150,15 +151,15 @@ class SpinRepoGroup(SpinRepo):
       if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
         cls = RhnSpinRepo
     except AttributeError:
-      if self.url.realm.startswith('rhn://') or \
-         self.url.realm.startswith('rhns://'):
+      if ( self.url.realm.scheme == 'rhn' or
+           self.url.realm.scheme == 'rhns' ):
         raise RhnSupportError()
 
     # get directory listing so we can figure out information about this repo
     # find all subrepos
     repos = []
 
-    if (self.url/'repodata/repomd.xml').exists():
+    if (self.url/self.repomdfile).exists():
       updates = {}
       for k,v in self.items():
         if k not in ['id']:
@@ -169,7 +170,7 @@ class SpinRepoGroup(SpinRepo):
     else:
       for d in self.url.findpaths(type=TYPE_DIR, mindepth=1, maxdepth=1,
                                   nglob=NOT_REPO_GLOB):
-        if (d/'repodata/repomd.xml').exists():
+        if (d/self.repomdfile).exists():
           updates = {}
           for k,v in self.items():
             if k not in ['id', 'mirrorlist', 'baseurl']:
@@ -212,10 +213,12 @@ class SpinRepoGroup(SpinRepo):
     return l
 
   def read_repomd(self):
-    for R in self.subrepos.values():
-      R.read_repomd()
-      for k,v in R.datafiles.items():
-        self.datafiles.setdefault(k, []).append(R._relpath/v)
+    for subrepo in self.subrepos.values():
+      subrepo.read_repomd()
+      for k,v in subrepo.datafiles.items():
+        new = copy.copy(v)
+        new.href = subrepo._relpath/v.href
+        self.datafiles.setdefault(k, []).append(new)
 
   @property
   def subrepos(self):
@@ -297,6 +300,7 @@ class RepoEventMixin:
     .setup_repos().  It is only necessary to call this if you want to use
     .sync_repodata(), below, to copy down all repository metadata.
     """
+
     # set the DiffTuple type to ReposDiffTuple to handle the case when repodata
     # mtimes are -1
     self.diff.input.tupcls = ReposDiffTuple
@@ -310,52 +314,65 @@ class RepoEventMixin:
       repo.read_repomd()
 
       # add metadata to io sync
-      for r in repo.subrepos.values():
-        # first handle all repomd files except repomd.xml
-        for k,v in r.datafiles.items():
-          if k == 'metadata': continue # skip repomd.xml; handle later
-          # prepopulate the checksum so we don't have to compute it later
-          csum = r.repomd.get('repo:data[@type="%s"]/repo:checksum/text()' % k,
-                              namespaces=NSMAP)
-          ( pps.lib.CACHE.setdefault((r.url/v).normpath(), {})
-                         .setdefault('shasum', csum) )
+      for subrepo in repo.subrepos.values():
 
-        # now handle repomd.xml
-        src_csums = r.repomd.xpath('//repo:data/repo:checksum/text()',
-                                   namespaces=NSMAP)
+        # file locations
+        src = subrepo.url/subrepo.repomdfile
+        csh = (self.cache_handler.cache_dir /
+               self.cache_handler._gen_hash(src))
+        dst = self.mddir/repo.id/subrepo._relpath/subrepo.repomdfile
 
-        dst_repomd = self.mddir/repo.id/r._relpath/r.repomdfile
-        # get the cached file location and check there as well - the output
-        # file might not exist due to errors, etc
-        csh_repomd = (self.cache_handler.cache_dir /
-                      self.cache_handler._gen_hash((r.url/r.repomdfile).normpath()))
+        # write repomd.xml to cache, update its mtime
+        # have to hardcode this header b/c rxml doesn't write it out
+        csh.write_text('<?xml version="1.0" encoding="UTF-8"?>\n' +
+                       subrepo.repomd.unicode())
 
-        if dst_repomd.exists():
-          repomdfile = dst_repomd
-        elif csh_repomd.exists():
-          repomdfile = csh_repomd
+        # compute mtime to use in utime() by comparing checksums of
+        # repomd.xml in memory to the file on disk, if any.  If they
+        # match, use the mtime of the file on disk; otherwise, use
+        # the mtime in the server's repomd.xml
+        if dst.exists(): existing = dst
+        else:            existing = csh
+
+        dst_csums = rxml.tree.read(existing).xpath(
+          '//repo:checksum/text()', namespaces=NSMAP)
+        src_csums = subrepo.repomd.xpath(
+          '//repo:checksum/text()', namespaces=NSMAP)
+
+        if set(src_csums) == set(dst_csums):
+          mtime = existing.stat().st_mtime
         else:
-          repomdfile = None
+          # all datafiles have the same timestamp, so take the first one
+          mtime = int(subrepo.datafiles.values()[0].timestamp)
 
-        # compute destination checksums from repomd.xml on disk, if exists
-        dst_csums = []
-        if repomdfile is not None:
-          repomdxml = rxml.tree.read(repomdfile)
-          dst_csums = repomdxml.xpath('//repo:data/repo:checksum/text()',
-                                      namespaces=NSMAP)
+        # update mtime of csh and src; sync will always get file from cache
+        csh.utime((time.time(), mtime))
+        src.stat().update(st_mtime = mtime)
 
-        # if destination file exists and is the same as the source, set its
-        # mtime to be the same so that it isn't redownloaded
-        if src_csums == dst_csums and repomdfile is not None:
-          mtime = repomdfile.stat().st_mtime
-        else:
-          mtime = time.time()
+        # add repomd.xml to sync
+        self.io.add_fpath(src, dst.dirname, id='%s-repodata' % repo.id)
 
-        # finally, set up the sync process
-        for k,v in r.datafiles.items():
-          self.io.add_fpath(r.url/v, self.mddir/repo.id/r._relpath/v.dirname,
-                            id='%s-repodata' % repo.id)
-          (r.url/v).stat().update(st_mtime=mtime)
+        # now handle all other datafiles
+        for datafile in subrepo.datafiles.values():
+          src = subrepo.url/datafile.href
+          csh = (self.cache_handler.cache_dir /
+                 self.cache_handler._gen_hash(src))
+          dst = self.mddir/repo.id/subrepo._relpath/datafile.href
+
+          existing = None
+          if   dst.exists(): existing = dst
+          elif csh.exists(): existing = csh
+
+          # if checksums are the same, file hasn't changed; update server's
+          # mtime to account for this
+          if existing and datafile.checksum == existing.shasum():
+            mtime = existing.stat().st_mtime
+          else:
+            mtime = int(datafile.timestamp)
+
+          src.stat().update(st_mtime=mtime)
+
+          self.io.add_fpath(src, dst.dirname, id='%s-repodata' % repo.id)
 
   def sync_repodata(self):
     """
@@ -375,16 +392,14 @@ class RepoEventMixin:
     # verify synced data via checksums
     self.logger.log(3, L1("verifying repodata file checksums"))
     for repo in self.repos.values():
-      for r in repo.subrepos.values():
-        for k,v in r.datafiles.items():
-          if k == 'metadata': continue # skip repomd.xml
-          expected = r.repomd.get('//repo:data[@type="%s"]/'
-                                  'repo:checksum/text()' % k,
-                                  namespaces=NSMAP)
-          got = (self.mddir/repo.id/r._relpath/v).shasum()
-          if got != expected:
-            raise RepomdCsumMismatchError(v.basename, repoid=repo.id,
-                                          got=got, expected=expected)
+      for subrepo in repo.subrepos.values():
+        for datafile in subrepo.datafiles.values():
+          got = (self.mddir/repo.id/subrepo._relpath/datafile.href).shasum()
+          if datafile.checksum != got:
+            raise RepomdCsumMismatchError(datafile.href.basename,
+                                          repoid=repo.id,
+                                          got=got,
+                                          expected=datafile.checksum)
 
   def read_packages(self):
     """
@@ -410,7 +425,7 @@ class RepoEventMixin:
       doupdate = repo.id in newids or not repo.pkgsfile.exists()
       if not doupdate:
         for pxml in repo.datafiles['primary']:
-          if self.diff.input.difference((repo.url//pxml).normpath()):
+          if self.diff.input.difference((repo.url//pxml.href).normpath()):
             doupdate = True
             break
 
@@ -418,7 +433,7 @@ class RepoEventMixin:
         self.log(2, L2(repo.id))
         repo.repocontent.clear()
         for pxml in repo.datafiles['primary']:
-          repo.repocontent.update(pxml, clear=False)
+          repo.repocontent.update(pxml.href, clear=False)
         repo.repocontent.write(repo.pkgsfile)
 
       self.DATA['output'].append(repo.pkgsfile) # add pkgsfile to output

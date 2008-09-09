@@ -96,7 +96,7 @@ class RpmbuildRepoEvent(Event):
         self.log(4, L2(repo.id))
         self._createrepo(repo.localurl)
         repo.read_repomd()
-        repo.repocontent.update(repo.datafiles['primary'])
+        repo.repocontent.update(repo.datafiles['primary'].href)
         repo.repocontent.write(repo.pkgsfile)
         self.DATA['output'].append(repo.localurl/'repodata')
         self.DATA['output'].append(repo.pkgsfile)
@@ -121,11 +121,11 @@ class RpmbuildRepoEvent(Event):
     if self.cvars['rpmbuild-rpms']:
       rpmbuildrepo = self.repos[self.cid]
       self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.repomdfile)
-      self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.datafiles['primary'])
+      self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.datafiles['primary'].href)
     if self.cvars['rpmbuild-srpms']:
       rpmbuildrepo = self.repos[self.csid]
       self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.repomdfile)
-      self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.datafiles['primary'])
+      self.verifier.failUnlessExists(rpmbuildrepo.url / rpmbuildrepo.datafiles['primary'].href)
 
   #----- HELPER METHODS -----#
   def _createrepo(self, path):

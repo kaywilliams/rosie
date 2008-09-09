@@ -136,7 +136,7 @@ class CompsEvent(Event):
 
     for repo in self.cvars['repos'].values():
       for gf in repo.datafiles.get('group', []):
-        groupfiles.append((repo.id, repo.localurl/gf))
+        groupfiles.append((repo.id, repo.localurl/gf.href))
 
     return groupfiles
 

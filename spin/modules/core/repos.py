@@ -135,10 +135,11 @@ class ReposEvent(RepoEventMixin, Event):
 
   def verify_repodata(self):
     "repodata exists"
-    for repogroup in self.repos.values():
-      for repo in repogroup.subrepos.values():
-        for fn in repo.datafiles.values():
-          self.verifier.failUnlessExists(repogroup.localurl/repo._relpath/fn)
+    for repo in self.repos.values():
+      for subrepo in repo.subrepos.values():
+        for datafile in subrepo.datafiles.values():
+          self.verifier.failUnlessExists(
+            self.mddir/repo.id/subrepo._relpath/datafile.href)
 
   def verify_cvars(self):
     "verify cvars are set"
