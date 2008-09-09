@@ -18,7 +18,7 @@
         <interleave>
 
         <zeroOrMore>
-        <element name="files"><text/></element>
+        <element name="files"><ref name="content-path-with-dest"/></element>
         </zeroOrMore>
 
         </interleave>
