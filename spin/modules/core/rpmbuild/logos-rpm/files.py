@@ -87,7 +87,7 @@ class FilesHandlerObject(object):
 
     supplied = self.ptr.config.get('logos-path/text()', None)
     if supplied is not None:
-      toread.add(supplied)
+      toread.add(pps.path(supplied))
 
     for p in toread:
       tree = rxml.config.read(p)
