@@ -65,7 +65,7 @@ class IOObject(object):
     try:
       f.stat()
     except pps.Path.error.PathError, e:
-      raise MissingInputFileError(f, e)
+      raise MissingInputFileError(e)
 
   def add_item(self, src, dst, id=None, mode=None, prefix=None):
     """
@@ -264,4 +264,4 @@ class TransactionData(object):
 
 
 class MissingInputFileError(SpinError):
-  message = "missing input file '%(file)s':\n%(error)s"
+  message = "missing input file: %(error)s"
