@@ -1,10 +1,115 @@
+2008-09-09  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* merged with trunk
+	[6a756acd13de] [tip]
+
+	* spin/event/fileio.py:
+	modified MissingInputFileError to not print out the file in question
+	- that is left to the original error to handle
+	[55fcea2527d9]
+
+2008-09-09  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* Merged with tip.
+	[6eb6ae2fc4e8]
+
+	* spin/modules/core/rpmbuild/logos-rpm/files.py:
+	The supplied config file in <logos-rpm/> is a Path object.
+
+	This is the fix for Bug# 335.
+	[e51e57e12a2d]
+
+	* spin/modules/core/rpmbuild/rpmbuild-repo.py:
+	Iterating over all the primary.xml.gz files and updating
+	repocontent.
+
+	I don't know how things were working before, but now they are the
+	way they should be.
+	[6c780adf1165]
+
+2008-09-09  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/release-files.rng:
+	corrected rng for <files> inside <release-files> so that it accepts
+	standard files attributes (mode, destname, destdir)
+	[9641ccf15d81]
+
+	* spin/modules/core/packages/comps.py, spin/modules/core/repos.py,
+	spin/modules/core/rpmbuild/rpmbuild-repo.py,
+	spin/modules/shared/repos.py:
+	rhn repo reliability and performance improvements
+
+	spin/modules/shared/repos.py
+	 * improved RhnSupportError checking
+	 * fixed the bug where the original repomd.xml used for file comparison
+	wasn't necessarily the same one that was copied to the repodata
+	folder, which caused 'checksum mismatch' errors
+	 * each repodata file is now independently verified against its
+	expected checksum, instead of the entire repodata directory
+	together; this allows spin to only redownload files that have
+	changed rather than the entire repodata folder
+	 * checksumming is performed from the repomd in memory and the actual
+	data on disk; the repomd.xml on disk is ignored (except when
+	comparing repomd.xml explicitly)
+	 * cache file mtimes pre seeded so that 'downloading' the file won't
+	unnecessarily ping the remote server
+	 * repomd.xml is no longer a repo datafile
+	 * updated to use new RepoDataFile class in repo.datafiles.values()
+	[34fd34b1d505]
+
+2008-09-08  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/event/fileio.py:
+	InputFileMissingErrors now print out the reason for the missing file
+	(usually errno 2, not found, but not always)
+	[22a66c4de6ee]
+
+	* spintest/__init__.py:
+	finally tracked down and squished the bug with the CompsSupplied
+	test case in comps
+	[846f9086861e]
+
+	* spintest/modules/autoclean.py:
+	fixed a missing tearDown() method call that was causing unlocking to
+	fail in autoclean.py test cases
+	[adc285bcb09b]
+
+	* spin/validate.py:
+	bug 330 - using rxml.tree.XmlTreeElement's tostring() method to
+	print on validation errors
+	[e634355c255c]
+
+	* spin/modules/core/packages/comps.py:
+	added full PKGPATTERN support to <package> and <exclude-package>
+	elements in <comps>
+	 * new function _parse_pkgpattern drops irrelevant information from a
+	package pattern (epoch and arch)
+	 * because comps only handles package names, it is impossible to
+	distinguish version/release from package name; thus, any given
+	version/release is interpreted as part of the name (for example,
+	'redhat-release' could be n='redhat', v='release', or n='redhat-
+	release', v undefined; we always interpret it as the latter).
+	[a7dbbd95572f]
+
+2008-09-05  root  <root@server2.renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.41-1
+	[30fd0784d5aa]
+
+2008-09-05  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.41-1.noarch.
+	[2f28eb067fc7] [spin-0.8.41-1]
+
 2008-09-05  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* MANIFEST.in:
 	Adding missing MANIFEST.in file.
 
 	Forgot to add the MANIFEST.in file the repository.
-	[ca66cbd92817] [tip]
+	[ca66cbd92817]
 
 	* Makefile, spin.spec:
 	Not installing the core/vm and extensions/vm modules via spin RPM.

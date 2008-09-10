@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.41
+Version: 0.8.42
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,22 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Tue Sep 09 2008  - 0.8.42-1
+- merged with trunk (dmusgrave)
+- modified MissingInputFileError to not print out the file in question - that is left to the original error to handle (dmusgrave)
+- Merged with tip. (uprakash)
+- The supplied config file in <logos-rpm/> is a Path object. (uprakash)
+- Iterating over all the primary.xml.gz files and updating repocontent. (uprakash)
+- corrected rng for <files> inside <release-files> so that it accepts standard files attributes (dmusgrave)
+- rhn repo reliability and performance improvements (dmusgrave)
+- InputFileMissingErrors now print out the reason for the missing file (dmusgrave)
+- finally tracked down and squished the bug with the CompsSupplied test case in comps (dmusgrave)
+- fixed a missing tearDown(dmusgrave)
+- bug 330 - using rxml.tree.XmlTreeElement's tostring(dmusgrave)
+- added full PKGPATTERN support to <package> and <exclude-package> elements in <comps> (dmusgrave)
+- Tagged as spin-0.8.41-1 (root@server2.renditionsoftware.com)
+- Bumped version to spin-0.8.41-1.noarch. (spinmaster)
+
 * Fri Sep 05 2008  - 0.8.41-1
 - Adding missing MANIFEST.in file. (uprakash)
 - Not installing the core/vm and extensions/vm modules via spin RPM. (uprakash)
