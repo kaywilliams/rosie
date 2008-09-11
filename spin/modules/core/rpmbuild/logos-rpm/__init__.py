@@ -20,8 +20,9 @@ import gzip
 from rendition import listfmt
 from rendition import shlib
 
-from spin.event     import Event
-from spin.locals    import L_LOGOS_RPM_APPLIANCE_INFO
+from spin.event  import Event
+from spin.errors import SpinError
+from spin.locals import L_LOGOS_RPM_APPLIANCE_INFO
 
 from spin.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
 
@@ -100,9 +101,8 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
   def generate(self):
     RpmBuildMixin.generate(self)
     if len(self.fh.files) == 0:
-      raise RuntimeError("No images found in any share path: %s" %
-                         listfmt.format(self.SHARE_DIRS,
-                           pre='\'', post='\'', sep=', ', last=', '))
+      raise NoImagesDefinedError(listfmt.format(self.SHARE_DIRS,
+                                   pre='\'', post='\'', sep=', ', last=', '))
     self.fh.generate()
     self._generate_custom_theme()
 
@@ -144,3 +144,8 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
       self.locals.L_GDM_CUSTOM_THEME % \
       {'themename': self.config.get('theme/text()', 'Spin')}
     )
+
+
+class NoImagesDefinedError(SpinError):
+  message = ( "No images defined by the logos-rpm config files in the "
+              "share path(s): %(sharepath)s")
