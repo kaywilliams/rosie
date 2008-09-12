@@ -394,7 +394,9 @@ class RepoEventMixin:
     for repo in self.repos.values():
       for subrepo in repo.subrepos.values():
         for datafile in subrepo.datafiles.values():
-          got = (self.mddir/repo.id/subrepo._relpath/datafile.href).shasum()
+          f = self.mddir/repo.id/subrepo._relpath/datafile.href
+          f.uncache('shasum') # uncache previously-cached shasum
+          got = f.shasum()
           if datafile.checksum != got:
             raise RepomdCsumMismatchError(datafile.href.basename,
                                           repoid=repo.id,
