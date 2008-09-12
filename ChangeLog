@@ -1,7 +1,28 @@
+2008-09-11  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/rpmbuild/logos-rpm/__init__.py:
+	Raising a handled exception when no images defined by logos-rpm
+	config.
+
+	Check bug# 331 for details.
+	[aec2e4c41efe] [tip]
+
+2008-09-09  root  <root@server2.renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.42-1
+	[a9cb803c0a96]
+
+2008-09-09  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.42-1.noarch.
+	[a4094f8b9e71] [spin-0.8.42-1]
+
 2008-09-09  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
 	* merged with trunk
-	[6a756acd13de] [tip]
+	[6a756acd13de]
 
 	* spin/event/fileio.py:
 	modified MissingInputFileError to not print out the file in question
