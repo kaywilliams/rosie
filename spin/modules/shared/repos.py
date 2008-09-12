@@ -322,11 +322,6 @@ class RepoEventMixin:
                self.cache_handler._gen_hash(src))
         dst = self.mddir/repo.id/subrepo._relpath/subrepo.repomdfile
 
-        # write repomd.xml to cache, update its mtime
-        # have to hardcode this header b/c rxml doesn't write it out
-        csh.write_text('<?xml version="1.0" encoding="UTF-8"?>\n' +
-                       subrepo.repomd.unicode())
-
         # compute mtime to use in utime() by comparing checksums of
         # repomd.xml in memory to the file on disk, if any.  If they
         # match, use the mtime of the file on disk; otherwise, use
@@ -344,6 +339,11 @@ class RepoEventMixin:
         else:
           # all datafiles have the same timestamp, so take the first one
           mtime = int(subrepo.datafiles.values()[0].timestamp)
+
+        # write repomd.xml to cache, update its mtime
+        # have to hardcode this header b/c rxml doesn't write it out
+        csh.write_text('<?xml version="1.0" encoding="UTF-8"?>\n' +
+                       subrepo.repomd.unicode())
 
         # update mtime of csh and src; sync will always get file from cache
         csh.utime((time.time(), mtime))
