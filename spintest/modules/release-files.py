@@ -19,14 +19,14 @@ from spintest        import EventTestCase, ModuleTestSuite
 from spintest.core   import make_extension_suite
 from spintest.mixins import touch_input_files, remove_input_files
 
-class FilesEventTestCase(EventTestCase):
-  moduleid = 'files'
-  eventid  = 'files'
-  _conf = """<files>
+class ReleaseFilesEventTestCase(EventTestCase):
+  moduleid = 'release-files'
+  eventid  = 'release-files'
+  _conf = """<release-files>
     <files>/tmp/outfile</files>
     <files destdir='/infiles'>infile</files>
     <files destdir='/infiles'>infile2</files>
-  </files>"""
+  </release-files>"""
 
   def setUp(self):
     EventTestCase.setUp(self)
@@ -39,8 +39,8 @@ class FilesEventTestCase(EventTestCase):
     EventTestCase.tearDown(self)
 
 def make_suite(distro, version, arch):
-  suite = ModuleTestSuite('files')
+  suite = ModuleTestSuite('release-files')
 
-  suite.addTest(make_extension_suite(FilesEventTestCase, distro, version, arch))
+  suite.addTest(make_extension_suite(ReleaseFilesEventTestCase, distro, version, arch))
 
   return suite
