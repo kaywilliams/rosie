@@ -15,70 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import os
-import tempfile
 import time
-
-from rpmUtils.miscutils import rpm2cpio
 
 from rendition import img
 from rendition import magic
 from rendition import pps
-from rendition import sync
 
 from spin.logging      import L1
 from spin.event.fileio import MissingInputFileError
 
-__all__ = ['ExtractMixin', 'ImageModifyMixin', 'FileDownloadMixin']
+__all__ = ['ImageModifyMixin', 'FileDownloadMixin']
 
 ANACONDA_UUID_FMT = time.strftime('%Y%m%d%H%M')
-
-class ExtractMixin:
-  def _extract(self):
-    self.io.clean_eventcache(all=True)
-
-    # get input - extract RPMs
-    # create temporary directory for rpms, gets deleted once done
-    working_dir = pps.path(tempfile.mkdtemp(dir=self.TEMP_DIR))
-
-    # generate output files
-    try:
-      for rpm in self.rpms:
-        self._extract_rpm(rpm, working_dir)
-
-      # need to modify self.data, so that the metadata written has all
-      # the files created. Otherwise, self.data['output'] will be
-      # empty.
-      self.DATA['output'].extend(self._generate(working_dir))
-    finally:
-      working_dir.rm(recursive=True)
-
-  def _extract_rpm(self, rpmPath, output=pps.path(os.getcwd())):
-    """
-    Extract the contents of the RPM file specified by rpmPath to
-    the output location. The rpmPath parameter can use globbing.
-
-    @param rpmPath : the path to the RPM file
-    @param output  : the directory that is going to contain the RPM's
-                     contents
-    """
-    # create temporary directory for rpm contents
-    dir = pps.path(tempfile.mkdtemp(dir=self.TEMP_DIR))
-    try:
-      filename = dir/'rpm.cpio'
-
-      # sync the RPM down to the temporary directory
-      sync.sync(rpmPath, dir) #! fix me (dont use sync)
-      rpmFile = dir/rpmPath.basename
-
-      rpm2cpio(os.open(rpmFile, os.O_RDONLY), filename.open('w+'))
-      cpio = img.MakeImage(filename, 'cpio')
-      if not output.exists():
-        output.mkdirs()
-      cpio.open(point=output)
-    finally:
-      dir.rm(recursive=True)
-
 
 class ImageModifyMixin:
   "This class downloads and modifies images"
@@ -194,7 +142,7 @@ class ImageModifyMixin:
 
 
 class FileDownloadMixin:
-  "This class downloads files to a directory of your chosing"
+  "This class downloads files to a directory of your choosing"
   # Classes that extend this must require 'anaconda-version',
   # 'base-info' and 'installer-repo'.
   def __init__(self):
