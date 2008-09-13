@@ -15,9 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+try:
+  import Image
+except ImportError:
+  raise ImportError("missing 'python-imaging' error")
+
 import gzip
 
 from rendition import listfmt
+from rendition import magic
 from rendition import shlib
 
 from spin.event  import Event
@@ -40,9 +46,9 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'logos-rpm',
       parentid = 'rpmbuild',
-      version = '0.1.5',
+      version = '0.1.6',
       requires = ['base-info', 'anaconda-version', 'logos-versions'],
-      provides = ['rpmbuild-data']
+      provides = ['rpmbuild-data', 'installer-splash', 'product-image-content']
     )
 
     RpmBuildMixin.__init__(self,
@@ -98,6 +104,37 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
     self.rpm.setup_build(obsoletes=obsoletes, provides=provides)
     self.fh.setup()
 
+    # setup splash image creation
+    self.splash_format  = self.locals.L_LOGOS['splash-image']['format']
+    self.splash_infile  = self.locals.L_LOGOS['splash-image']['filename']
+    self.splash_outfile = self.mddir / 'splash' / self.locals.L_LOGOS['splash-image'].get(
+                            'output', 'splash.%s' % self.splash_format
+                          )
+    self.DATA['output'].append(self.splash_outfile)
+
+  def apply(self):
+    RpmBuildMixin.apply(self)
+    self.cvars['installer-splash'] = self.splash_outfile
+    self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
+      (self.rpm.source_folder/'usr/share/anaconda/pixmaps').listdir())
+
+  def verify_splash_exists(self):
+    "splash image exists"
+    self.verifier.failUnlessExists(self.splash_outfile)
+
+  def verify_splash_valid(self):
+    "splash image is valid"
+    if self.splash_format == 'jpg':
+      return magic.match(self.splash_outfile) == magic.FILE_TYPE_JPG
+    elif self.splash_format == 'png':
+      return magic.match(self.splash_outfile) == magic.FILE_TYPE_PNG
+    else:
+      return magic.match(self.splash_outfile) == magic.FILE_TYPE_LSS
+
+  def verify_pixmaps_exist(self):
+    "pixmaps for product.img available"
+    self.verifier.failUnlessExists(self.rpm.source_folder/'usr/share/anaconda/pixmaps')
+
   def generate(self):
     RpmBuildMixin.generate(self)
     if len(self.fh.files) == 0:
@@ -105,6 +142,7 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
                                    pre='\'', post='\'', sep=', ', last=', '))
     self.fh.generate()
     self._generate_custom_theme()
+    self._generate_splash_image()
 
   def get_post(self):
     if not self.appliance_info.has_key('post-install'):
@@ -144,6 +182,19 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
       self.locals.L_GDM_CUSTOM_THEME % \
       {'themename': self.config.get('theme/text()', 'Spin')}
     )
+
+  def _generate_splash_image(self):
+    try:
+      start_image = self.rpm.source_folder.findpaths(glob=self.splash_infile)[0]
+    except IndexError:
+      # no splash image found
+      return
+    self.splash_outfile.dirname.mkdirs()
+    if self.splash_format == 'lss':
+      shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
+                    %(start_image, self.splash_outfile))
+    else:
+      Image.open(start_image).save(self.splash_outfile, format=self.splash_format)
 
 
 class NoImagesDefinedError(SpinError):
