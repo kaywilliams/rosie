@@ -16,23 +16,24 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 """
-files.py
+release-files.py
 
-Includes user-provided files and folders within the appliance folder.
+Includes user-provided release files and folders within the appliance
+folder.
 """
 
 from spin.event   import Event
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['FilesEvent'],
-  description = 'includes arbitrary files in the os folder',
+  events      = ['ReleaseFilesEvent'],
+  description = 'includes arbitrary releasefiles in the os folder',
 )
 
-class FilesEvent(Event):
+class ReleaseFilesEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'files',
+      id = 'release-files',
       parentid = 'os',
       provides = ['os-contents'],
     )
@@ -54,7 +55,8 @@ class FilesEvent(Event):
     self.io.clean_eventcache()
 
   def error(self, e):
-    # performing a subset of Event.error since sync handles partially downloaded files
+    # performing a subset of Event.error since sync handles partially
+    # downloaded files
     if self.mdfile.exists():
       debugdir=(self.mddir + '.debug')
       debugdir.mkdir()
