@@ -28,14 +28,17 @@ MODULE_INFO = dict(
   group       = 'rpmbuild',
 )
 
+DEFAULT_SET = ['eula.txt', 'beta_eula.txt', 'EULA', 'GPL', 'README*',
+               '*-RPM-GPG', 'RPM-GPG-KEY*', 'RELEASE-NOTES*']
+
 class ReleaseRpmEvent(RpmBuildMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'release-rpm',
       parentid = 'rpmbuild',
-      version = '0.92',
+      version = '0.93',
       requires = ['release-versions', 'input-repos'],
-      provides = ['rpmbuild-data'],
+      provides = ['rpmbuild-data', 'extracted-release-files'],
     )
 
     RpmBuildMixin.__init__(self,
@@ -90,6 +93,21 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
       if not found:
         raise RuntimeError("release/eula.py not found in %s" % ', '.join(self.SHARE_DIRS))
 
+    # add software store to output
+    self.DATA['output'].append(self.SOFTWARE_STORE)
+
+  def apply(self):
+    RpmBuildMixin.apply(self)
+    existing = []
+    for item in DEFAULT_SET:
+      existing.extend(self.SOFTWARE_STORE.listdir(glob=item))
+    if existing:
+      self.cvars.setdefault('extracted-release-files', []).extend(existing)
+
+  def verify_cvars(self):
+    "verify all cvars exist"
+    self.verifier.failUnlessSet('extracted-release-files')
+
   def generate(self):
     "Generate additional files."
     RpmBuildMixin.generate(self)
@@ -100,6 +118,11 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
       if hasattr(self, generator):
         getattr(self, generator)(dir)
     self._verify_release_notes()
+
+    # copy release files to the software store
+    for item in DEFAULT_SET:
+      for file in self.rpm.source_folder.findpaths(glob=item):
+        self.link(file, self.SOFTWARE_STORE)
 
   def _verify_release_notes(self):
     "Ensure the presence of RELEASE-NOTES.html and an index.html"
