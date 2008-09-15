@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.43
+Version: 0.8.44
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,19 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Mon Sep 15 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.44-1
+- Bug# 342 Step 6.  Removed 'ExtractMixin' class from shared.installer. (uprakash)
+- Bug# 342 Step 5.  Renamed the 'files' spintest module to 'release-files'. (uprakash)
+- Bug# 342 Step 4.  Removed test cases for release-files and logos. (uprakash)
+- Bug# 341 Step 3.  Renamed 'files' to 'release-files'. (uprakash)
+- Bug# 342 Step 2.  The 'release-rpm' event does what 'release-files' did. (uprakash)
+- Bug# 342 Step 1.  The 'logos-rpm' event does what 'logos' used to do. (uprakash)
+- merged with trunk (dmusgrave)
+- clearing shasum cache before (dmusgrave)
+- moved location of repomd.xml cache write to fix checksumming bug during repodata changes (dmusgrave)
+- Tagged as spin-0.8.43-1 (uprakash)
+- Bumped version to spin-0.8.43-1.noarch. (spinmaster)
+
 * Fri Sep 12 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.43-1
 - Raising a handled exception when no images defined by logos-rpm config. (uprakash)
 - Tagged as spin-0.8.42-1 (root@server2.renditionsoftware.com)

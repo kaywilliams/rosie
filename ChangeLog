@@ -1,3 +1,74 @@
+2008-09-12  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/shared/installer.py:
+	Bug# 342 Step 6. Removed 'ExtractMixin' class from
+	shared.installer.
+	[9b15c2a78e1a] [tip]
+
+	* spintest/modules/files.py, spintest/modules/release-files.py:
+	Bug# 342 Step 5. Renamed the 'files' spintest module to 'release-
+	files'.
+	[2a3a4727a2cb]
+
+	* spintest/modules/logos.py, spintest/modules/release-files.py:
+	Bug# 342 Step 4. Removed test cases for release-files and logos.
+	[1891c7f0b3d8]
+
+	* share/spin/schemas/appliance/files.rng, share/spin/schemas/appliance
+	/release-files.rng, spin/modules/extensions/files.py,
+	spin/modules/extensions/release-files.py:
+	Bug# 341 Step 3. Renamed 'files' to 'release-files'.
+	[1618044e1854]
+
+	* share/spin/schemas/appliance/release-files.rng,
+	spin/modules/core/installer/release-files.py,
+	spin/modules/core/rpmbuild/release-rpm.py:
+	Bug# 342 Step 2. The 'release-rpm' event does what 'release-files'
+	did.
+
+	The 'release-rpm' event copies all the release notes and other files
+	that need to be in the software store to the its software store.
+	After this the 'compose' event comes along and picks up these files
+	and puts it in the published software store.
+	[880870b37fb0]
+
+	* spin/modules/core/installer/logos.py, spin/modules/core/rpmbuild
+	/logos-rpm/__init__.py:
+	Bug# 342 Step 1. The 'logos-rpm' event does what 'logos' used to
+	do.
+
+	The 'logos-rpm' now creates the splash image to be used by
+	'isolinux' and it also sets the 'product-image-content' control
+	variable with the images that should end up in the product.img.
+	[42822981d3a5]
+
+2008-09-12  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* merged with trunk
+	[814c9fe219da]
+
+	* spin/modules/shared/repos.py:
+	clearing shasum cache before (re)computing and comparing to
+	repomd.xml
+	[62da4b8adb2f]
+
+	* spin/modules/shared/repos.py:
+	moved location of repomd.xml cache write to fix checksumming bug
+	during repodata changes
+	[063fdbd23527]
+
+2008-09-12  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.43-1
+	[1de62ec5da76]
+
+2008-09-12  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.43-1.noarch.
+	[7a81f37d0262] [spin-0.8.43-1]
+
 2008-09-11  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* spin/modules/core/rpmbuild/logos-rpm/__init__.py:
@@ -5,7 +76,7 @@
 	config.
 
 	Check bug# 331 for details.
-	[aec2e4c41efe] [tip]
+	[aec2e4c41efe]
 
 2008-09-09  root  <root@server2.renditionsoftware.com>
 
