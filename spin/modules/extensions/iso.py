@@ -58,7 +58,6 @@ class PkgorderEvent(Event):
     )
 
     self.DATA =  {
-      'config':    ['pkgorder'],
       'input':     [],
       'output':    []
     }
