@@ -96,6 +96,7 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
           self._appliance_info = L_LOGOS_RPM_INFO['*']['0']
     return self._appliance_info
 
+  #-------- EVENT METHODS --------#
   def setup(self):
     obsoletes = [ '%s %s %s' %(n,e,v)
                   for n,e,v in self.cvars.get('logos-versions', [])]
@@ -135,6 +136,7 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
     "pixmaps for product.img available"
     self.verifier.failUnlessExists(self.rpm.source_folder/'usr/share/anaconda/pixmaps')
 
+  #-------- MIXIN HELPER METHODS ---------#
   def generate(self):
     RpmBuildMixin.generate(self)
     if len(self.fh.files) == 0:
@@ -175,6 +177,7 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
       triggers.append(trigger)
     return triggers
 
+  #-------- HELPER METHODS ---------#
   def _generate_custom_theme(self):
     custom_theme = self.rpm.source_folder / 'usr/share/%s/custom.conf' % self.rpm.name
     custom_theme.dirname.mkdirs()
