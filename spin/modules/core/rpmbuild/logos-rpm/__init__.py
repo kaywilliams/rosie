@@ -76,24 +76,25 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
 
   @property
   def appliance_info(self):
-    if not self._appliance_info:
-      try:
-        self._appliance_info = self.locals.L_LOGOS_RPM_APPLIANCE_INFO
-      except KeyError:
-        fullname = self.cvars['base-info']['fullname']
-        version  = self.cvars['base-info']['version']
-        # See if the version of the input distribution is a bugfix
-        found = False
-        if L_LOGOS_RPM_APPLIANCE_INFO.has_key(fullname):
-          for ver in L_LOGOS_RPM_INFO[fullname]:
-            if version.startswith(ver):
-              found = True
-              self._appliance_info = L_LOGOS_RPM_APPLIANCE_INFO[fullname][ver]
-              break
-        if not found:
-          # if not one of the "officially" supported appliances, default
-          # to something
-          self._appliance_info = L_LOGOS_RPM_INFO['*']['0']
+    if self._appliance_info is not None:
+      return self._appliance_info
+    try:
+      self._appliance_info = self.locals.L_LOGOS_RPM_APPLIANCE_INFO
+    except KeyError:
+      fullname = self.cvars['base-info']['fullname']
+      version  = self.cvars['base-info']['version']
+      # See if the version of the input distribution is a bugfix
+      found = False
+      if fullname in L_LOGOS_RPM_APPLIANCE_INFO:
+        for ver in L_LOGOS_RPM_INFO[fullname]:
+          if version.startswith(ver):
+            found = True
+            self._appliance_info = L_LOGOS_RPM_APPLIANCE_INFO[fullname][ver]
+            break
+      if not found:
+        # if not one of the "officially" supported appliances, default
+        # to something
+        self._appliance_info = L_LOGOS_RPM_INFO['*']['0']
     return self._appliance_info
 
   #-------- EVENT METHODS --------#
@@ -147,14 +148,14 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
     self._generate_splash_image()
 
   def get_post(self):
-    if not self.appliance_info.has_key('post-install'):
+    if 'post-install' not in self.appliance_info:
       return None
     post_install = self.rpm.build_folder / 'post-install.sh'
     post_install.write_text(self.appliance_info['post-install'])
     return post_install
 
   def get_postun(self):
-    if not self.appliance_info.has_key('post-uninstall'):
+    if 'post-uninstall' not in self.appliance_info:
       return None
     post_uninstall = self.rpm.build_folder / 'post-uninstall.sh'
     post_uninstall.write_text(self.appliance_info['post-uninstall'])

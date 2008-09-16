@@ -51,9 +51,9 @@ class ConfigletContainer(RecursiveUpdateDict):
   def rupdate(self, src, dst):
     for k,v in src.items():
       if isinstance(v, configlets.RemoveConfiglet):
-        if dst.has_key(k): del(dst[k])
+        if k in dst: del(dst[k])
       elif isinstance(v, configlets.Configlet):
-        if dst.has_key(k) and dst[k].precedence <= v.precedence:
+        if k in dst and dst[k].precedence <= v.precedence:
           dst[k].update(v)
         else:
           dst[k] = v
