@@ -326,19 +326,23 @@ class RepoEventMixin:
         # repomd.xml in memory to the file on disk, if any.  If they
         # match, use the mtime of the file on disk; otherwise, use
         # the mtime in the server's repomd.xml
-        if dst.exists(): existing = dst
-        else:            existing = csh
+        existing = None
+        if   dst.exists(): existing = dst
+        elif csh.exists(): existing = csh
 
-        dst_csums = rxml.tree.read(existing).xpath(
-          '//repo:checksum/text()', namespaces=NSMAP)
+        if existing is not None:
+          dst_csums = rxml.tree.read(existing).xpath(
+            '//repo:checksum/text()', namespaces=NSMAP)
+        else:
+          dst_csums = []
         src_csums = subrepo.repomd.xpath(
           '//repo:checksum/text()', namespaces=NSMAP)
 
         if set(src_csums) == set(dst_csums):
           mtime = existing.stat().st_mtime
         else:
-          # all datafiles have the same timestamp, so take the first one
-          mtime = int(subrepo.datafiles.values()[0].timestamp)
+          # match timestamp of primary.xml
+          mtime = int(subrepo.datafiles['primary'].timestamp)
 
         # write repomd.xml to cache, update its mtime
         # have to hardcode this header b/c rxml doesn't write it out
