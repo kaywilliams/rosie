@@ -72,6 +72,8 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
       'input':  [],
     }
 
+    self.anaconda_pixmaps = self.rpm.source_folder / '/usr/share/anaconda/pixmaps'
+
     self._appliance_info = None
 
   @property
@@ -117,8 +119,10 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
   def apply(self):
     RpmBuildMixin.apply(self)
     self.cvars['installer-splash'] = self.splash_outfile
-    self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
-      (self.rpm.source_folder/'usr/share/anaconda/pixmaps').listdir())
+    if self.anaconda_pixmaps.exists():
+      # anaconda_pixmaps's existence if verified in verify_pixmaps_exist()
+      self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
+        self.anaconda_pixmaps)
 
   def verify_splash_exists(self):
     "splash image exists"
@@ -135,7 +139,7 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
 
   def verify_pixmaps_exist(self):
     "pixmaps for product.img available"
-    self.verifier.failUnlessExists(self.rpm.source_folder/'usr/share/anaconda/pixmaps')
+    self.verifier.failUnlessExists(self.anaconda_pixmaps)
 
   #-------- MIXIN HELPER METHODS ---------#
   def generate(self):

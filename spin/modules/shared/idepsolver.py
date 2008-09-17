@@ -61,23 +61,28 @@ class IDepsolver(Depsolver):
     self.required = required
     self.logger = logger
 
+    self._new_packages = None
+    self._cached_file  = None
+    self._cached_items = None
+    self._installed_packages = None
+
   @property
   def new_packages(self):
-    if hasattr(self, '_new_packages'):
+    if self._new_packages is None:
       return self._new_packages
     self._new_packages = {}
     return self._new_packages
 
   @property
   def cached_file(self):
-    if hasattr(self, '_cached_file'):
+    if self._cached_file is None:
       return self._cached_file
     self._cached_file = pps.path(self.root) / 'cache'
     return self._cached_file
 
   @property
   def cached_items(self):
-    if hasattr(self, '_cached_items'):
+    if self._cached_items is None:
       return self._cached_items
     self._cached_items = {}
     if self.cached_file.exists():
@@ -88,7 +93,7 @@ class IDepsolver(Depsolver):
 
   @property
   def installed_packages(self):
-    if hasattr(self, '_installed_packages'):
+    if self._installed_packages is None:
       return self._installed_packages
     self._installed_packages = {}
     for pkgtup, deps in self.cached_items.items():
