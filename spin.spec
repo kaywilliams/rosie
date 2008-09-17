@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.44
+Version: 0.8.45
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,14 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Tue Sep 16 2008  - 0.8.45-1
+- Code cleanup. (uprakash)
+- Added some demarcation commments. (uprakash)
+- The pkgorder event doesn't have any config related to it. (uprakash)
+- bug 345 - missing cache files no longer result in errors (dmusgrave)
+- Tagged as spin-0.8.44-1 (uprakash)
+- Bumped version to spin-0.8.44-1.noarch. (spinmaster)
+
 * Mon Sep 15 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.44-1
 - Bug# 342 Step 6.  Removed 'ExtractMixin' class from shared.installer. (uprakash)
 - Bug# 342 Step 5.  Renamed the 'files' spintest module to 'release-files'. (uprakash)
