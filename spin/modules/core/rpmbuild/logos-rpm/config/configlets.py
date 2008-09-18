@@ -64,7 +64,7 @@ class CopyConfiglet(Configlet):
 
 class RemoveConfiglet(Configlet):
   def __init__(self, element, parent_dir, precedence, **kwargs):
-    kwargs.update({'remove': element.getbool('remove', 'False')})
+    kwargs.update({'remove': True})
     Configlet.__init__(self, element, parent_dir, precedence, **kwargs)
 
 class CreateImageConfiglet(ImageConfiglet):

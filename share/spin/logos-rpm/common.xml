@@ -57,27 +57,27 @@
   <file dest="/usr/share/apps/kdisplay/color-schemes/Spin.kcsrc"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <remove>True</remove>
+    <remove/>
   </file>
   <file dest="/usr/share/apps/kdisplay/color-schemes/SpinKDM.kcsrc"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <remove>True</remove>
+    <remove/>
   </file>
   <file dest="/usr/share/apps/kdm/themes/Spin/GdmGreeterTheme.desktop"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <remove>True</remove>
+    <remove/>
   </file>
   <file dest="/usr/share/apps/kdm/themes/Spin/SpinKDM.xml"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <remove>True</remove>
+    <remove/>
   </file>
   <file dest="/usr/share/apps/ksplash/Themes/Spin/Theme.rc"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <remove>True</remove>
+    <remove/>
   </file>
   <file dest="/usr/share/kde4/apps/kdisplay/color-schemes/Spin.kcsrc"
         xwindow-type="kde"
@@ -517,7 +517,7 @@
   </image>
   <image dest="/usr/lib/anaconda-runtime/boot/syslinux-splash.png"
         anaconda-version="11.2.0.66-1">
-    <remove>True</remove>
+    <remove/>
   </image>
   <image dest="/usr/share/anaconda/pixmaps/syslinux-splash.png"
         anaconda-version="11.2.0.66-1">
@@ -589,37 +589,37 @@
   <image dest="/usr/share/apps/kdm/themes/Spin/background.png"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <remove>True</remove>
+    <remove/>
   </image>
   <image dest="/usr/share/apps/kdm/themes/Spin/innerbackground.png"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <remove>True</remove>
+    <remove/>
   </image>
   <image dest="/usr/share/apps/kdm/themes/Spin/screenshot.png"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <remove>True</remove>
+    <remove/>
   </image>
   <image dest="/usr/share/apps/ksplash/Themes/Spin/screenshot.png"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <remove>True</remove>
+    <remove/>
   </image>
   <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_active_bar.png"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <remove>True</remove>
+    <remove/>
   </image>
   <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_bottom.png"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <remove>True</remove>
+    <remove/>
   </image>
   <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_inactive_bar.png"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <remove>True</remove>
+    <remove/>
   </image>
   <image dest="/usr/share/kde4/apps/kdm/themes/Spin/screenshot.png"
         xwindow-type="kde"

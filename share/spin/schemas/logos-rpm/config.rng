@@ -73,9 +73,7 @@
   </define>
 
   <define name="element-file-remove">
-  <element name="remove">
-    <ref name="value-boolean"/>
-  </element>
+  <element name="remove"><empty/></element>
   </define>
 
   <define name="element-file-copy">
