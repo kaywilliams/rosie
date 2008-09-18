@@ -18,6 +18,8 @@
 from rendition import pps
 from rendition import versort
 
+from spin.errors import SpinError
+
 class Configlet(dict):
   def __init__(self, element, parent_dir, precedence, **kwargs):
     self.element    = element
@@ -50,6 +52,8 @@ class ImageConfiglet(Configlet):
       font = text_info.get('font', self.get('font', None))
       if font is not None:
         text_info['font'] = self.parent_dir / font
+      else:
+        raise FontNotDefinedError(self.element.get('@dest'), self.element.getroot().file)
       strings.append(text_info)
     self['strings'] = strings
 
@@ -101,8 +105,7 @@ def configlet(element, parent_dir, precedence, defaults):
         return obj
     raise UnknownConfigletError()
   except (KeyError, UnknownConfigletError), e:
-    raise UnknownConfigletError("Config element not recognized\n%s\nin file: %s" % \
-                                 (element, element.getroot().file))
+    raise UnknownConfigletError(element, element.getroot().file)
 
 register_configlet('file',  'path',   CopyConfiglet)
 register_configlet('file',  'remove', RemoveConfiglet)
@@ -110,4 +113,8 @@ register_configlet('image', 'create', CreateImageConfiglet)
 register_configlet('image', 'remove', RemoveConfiglet)
 register_configlet('image', 'source', CopyImageConfiglet)
 
-class UnknownConfigletError(Exception): pass
+class UnknownConfigletError(SpinError):
+  message = "Config element not recognized\n%(element)sin file: %(file)s"
+class FontNotDefinedError(SpinError):
+  message = "No font file specified to write text with on the '%(image)s' image " \
+      "(defined in the '%(file)s' config file)"
