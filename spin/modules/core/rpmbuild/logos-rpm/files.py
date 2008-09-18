@@ -116,7 +116,7 @@ class FilesHandlerObject(object):
         self.ptr.copy(src, dst, callback=None)
       else:
         # create image
-        img = Image.new('RGB', (info['width'], info['height']),
+        img = Image.new('RGB', (info.get('width', 640), info.get('height', 480)),
                         info.get('background', self.ptr.appliance_info['background']))
         dst.dirname.mkdirs()
         img.save(dst, info.get('format', 'png'))
