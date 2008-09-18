@@ -145,6 +145,12 @@ class SpinRepoGroup(SpinRepo):
     "Find all the repos we contain and classify ourself"
     self._repos = RepoContainer()
 
+    # check validity of mirrorlist
+    try:
+      self.url # prepopulates url's mirrorgroup cache, raises below error
+    except pps.lib.mirror.MirrorlistFormatInvalidError, e:
+      raise MirrorlistFormatInvalidError(e.lineno, e.line, e.reason)
+
     # need special handling for rhn paths
     cls = SpinRepo
     try:
@@ -491,3 +497,7 @@ class RepomdCsumMismatchError(SpinError):
               "repo '%(repoid)s':\n"
               "  Got:      %(got)s\n"
               "  Expected: %(expected)s" )
+
+class MirrorlistFormatInvalidError(SpinError):
+  message = ( "Mirrorlist format invalid on line %(lineno)d: '%(line)s': "
+              "%(reason)s" )
