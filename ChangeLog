@@ -1,3 +1,46 @@
+2008-09-19  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* share/spin/schemas/logos-rpm/config.rng, spin/modules/core/rpmbuild
+	/logos-rpm/config/configlets.py:
+	The <image>/<source> element doesn't have <path> child element.
+
+	The <path> element has been removed, and the text of the <source>
+	element should be a path to the image on disk to be used.
+	[4282b308b93d] [tip]
+
+	* spin/modules/core/rpmbuild/logos-rpm/config/configlets.py:
+	Improved the error message of FontDefinedError.
+	[a8307410fa88]
+
+2008-09-19  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/lib.rng, spin/constants.py,
+	spin/modules/core/packages/createrepo.py,
+	spin/modules/core/packages/download.py,
+	spin/modules/extensions/packages/gpgsign.py,
+	spin/modules/extensions/sources.py, spin/modules/shared/repos.py:
+	spin booleans are now completely case insensitive; spin uses repo's
+	RPM_PNVRA_REGEX instead of its own
+	[a4c17e7a3534]
+
+	* spin/modules/core/packages/download.py,
+	spin/modules/extensions/sources.py, spin/modules/shared/repos.py:
+	download and sources now use filtered repocontent when processing
+	(s)rpms; improved mirrorlist invalid error message
+	[9d1204ec4efb]
+
+2008-09-18  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.46-1
+	[2cab3cd53376]
+
+2008-09-18  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.46-1.noarch.
+	[1e5643f7c494] [spin-0.8.46-1]
+
 2008-09-18  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* share/spin/logos-rpm/common.xml, share/spin/logos-rpm/icons.xml,
@@ -12,7 +55,7 @@
 	variable) is meaningless. Therefore, <remove/> elements cannot have
 	any children and if present mean that they the image or file it is
 	associated with should be removed.
-	[fab9b05ab944] [tip]
+	[fab9b05ab944]
 
 	* spin/modules/core/rpmbuild/logos-rpm/files.py:
 	Setting the default width and height of images created to 640x480.

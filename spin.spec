@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.46
+Version: 0.8.47
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,14 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Fri Sep 19 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.47-1
+- The <image>/<source> element doesn't have <path> child element. (uprakash)
+- Improved the error message of FontDefinedError. (uprakash)
+- spin booleans are now completely case insensitive; spin uses repo's RPM_PNVRA_REGEX instead of its own (dmusgrave)
+- download and sources now use filtered repocontent when processing (dmusgrave)
+- Tagged as spin-0.8.46-1 (uprakash)
+- Bumped version to spin-0.8.46-1.noarch. (spinmaster)
+
 * Thu Sep 18 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.46-1
 - The <remove> element's usage implies that image/file should be removed. (uprakash)
 - Setting the default width and height of images created to 640x480. (uprakash)
