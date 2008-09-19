@@ -89,7 +89,7 @@ and run a Spin-managed appliance.
 - Tagged as spin-0.8.45-1 (root@server2.renditionsoftware.com)
 - Bumped version to spin-0.8.45-1.noarch. (spinmaster)
 
-* Tue Sep 16 2008  - 0.8.45-1
+* Tue Sep 16 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.45-1
 - Code cleanup. (uprakash)
 - Added some demarcation commments. (uprakash)
 - The pkgorder event doesn't have any config related to it. (uprakash)
@@ -115,7 +115,7 @@ and run a Spin-managed appliance.
 - Tagged as spin-0.8.42-1 (root@server2.renditionsoftware.com)
 - Bumped version to spin-0.8.42-1.noarch. (spinmaster)
 
-* Tue Sep 09 2008  - 0.8.42-1
+* Tue Sep 09 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.42-1
 - merged with trunk (dmusgrave)
 - modified MissingInputFileError to not print out the file in question - that is left to the original error to handle (dmusgrave)
 - Merged with tip. (uprakash)
@@ -131,7 +131,7 @@ and run a Spin-managed appliance.
 - Tagged as spin-0.8.41-1 (root@server2.renditionsoftware.com)
 - Bumped version to spin-0.8.41-1.noarch. (spinmaster)
 
-* Fri Sep 05 2008  - 0.8.41-1
+* Fri Sep 05 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.41-1
 - Adding missing MANIFEST.in file. (uprakash)
 - Not installing the core/vm and extensions/vm modules via spin RPM. (uprakash)
 - added locals entries for fedora 10 stage2 image changes (kwilliams)
