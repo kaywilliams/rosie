@@ -92,7 +92,7 @@
 
   <define name="element-image-copy">
   <element name="source">
-    <ref name="element-file-copy"/>
+    <text/>
   </element>
   </define>
 

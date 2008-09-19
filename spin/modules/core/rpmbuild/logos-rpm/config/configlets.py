@@ -88,7 +88,7 @@ class CopyImageConfiglet(ImageConfiglet):
 
   def read(self):
     ImageConfiglet.read(self)
-    self['source'] = self.parent_dir / self.element.get('source/path/text()')
+    self['source'] = self.parent_dir / self.element.get('source/text()')
 
 registered_configlets = {}
 def register_configlet(tag, child_name, cls):
