@@ -39,7 +39,8 @@ class ImageConfiglet(Configlet):
     for elem in self.element.xpath('strings/string', []):
       text_info = {}
       for child in ['font', 'font-min-size', 'font-size', 'text',
-                    'text-max-width', 'x-position', 'y-position']:
+                    'text-max-width', 'x-position', 'y-position',
+                    'text-alignment']:
         value = elem.get('%s/text()' % child, None)
         if value is not None: text_info[child] = value
       if text_info.get('text', None) is not None:

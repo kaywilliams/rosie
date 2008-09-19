@@ -139,6 +139,7 @@ class FilesHandlerObject(object):
       font_min_size   = i.get('font-min-size', None)
       font_path       = i.get('font')
       limited_palette = i.get('limited-palette', 16)
+      text_alignment  = i.get('text-alignment', 'left')
 
       if font_color is None:
         if img.palette is not None:
@@ -166,8 +167,13 @@ class FilesHandlerObject(object):
             break
           font = ImageFont.truetype(font_path, font_size)
           w, h = draw.textsize(text_string, font=font)
-      draw.text((text_coords[0]-(w/2), text_coords[1]-(h/2)),
-                text_string, font=font, fill=font_color)
+
+      if text_alignment == 'center':
+        text_coords = (text_coords[0]-(w/2), text_coords[1]-(h/2))
+      elif text_alignment == 'right':
+        text_coords = (text_coords[0]-w, text_coords[1]-(h/2))
+
+      draw.text(text_coords, text_string, font=font, fill=font_color)
 
     del draw
     img.save(image, format=img.format)

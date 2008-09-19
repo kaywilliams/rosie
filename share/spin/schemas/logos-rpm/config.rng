@@ -123,6 +123,9 @@
         <element name="limited-palette"><data type="unsignedInt"></data></element>
       </optional>
       <optional>
+        <element name="text-alignment"><ref name="element-text-alignment"/></element>
+      </optional>
+      <optional>
         <element name="font-color">
           <ref name="value-hexcolor"/>
         </element>
@@ -132,6 +135,12 @@
   </oneOrMore>
   </element>
   </optional>
+  </define>
+
+  <define name="value-text-alignment">
+    <data type="token">
+      <param name="pattern">center|left|right</param>
+    </data>
   </define>
 
   <define name="element-font">
