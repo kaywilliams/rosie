@@ -123,7 +123,7 @@
         <element name="limited-palette"><data type="unsignedInt"></data></element>
       </optional>
       <optional>
-        <element name="text-alignment"><ref name="element-text-alignment"/></element>
+        <element name="text-alignment"><ref name="value-text-alignment"/></element>
       </optional>
       <optional>
         <element name="font-color">
