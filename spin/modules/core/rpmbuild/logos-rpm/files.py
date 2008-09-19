@@ -139,7 +139,7 @@ class FilesHandlerObject(object):
       font_min_size   = i.get('font-min-size', None)
       font_path       = i.get('font')
       limited_palette = i.get('limited-palette', 16)
-      text_alignment  = i.get('text-alignment', 'left')
+      text_alignment  = i.get('text-alignment', 'center')
 
       if font_color is None:
         if img.palette is not None:
