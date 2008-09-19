@@ -71,13 +71,13 @@
 
   <define name="value-boolean-true">
     <data type="token">
-      <param name="pattern">[Yy]es|[Tt]rue|[Oo]n|1</param>
+      <param name="pattern">[Yy][Ee][Ss]|[Tt][Rr][Uu][Ee]|[Oo][Nn]|1</param>
     </data>
   </define>
 
   <define name="value-boolean-false">
     <data type="token">
-      <param name="pattern">[Nn]o|[Ff]alse|[Oo]ff|0</param>
+      <param name="pattern">[Nn][Oo]|[Ff][Aa][Ll][Ss][Ee]|[Oo][Ff][Ff]|0</param>
     </data>
   </define>
 

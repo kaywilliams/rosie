@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from spin.constants import RPM_REGEX
-from spin.event     import Event
+
+from spin.event import Event
 
 from spin.modules.shared import CreaterepoMixin
 
@@ -67,7 +67,7 @@ class CreaterepoEvent(Event, CreaterepoMixin):
     self.io.sync_input(link=True)
 
     # remove all obsolete RPMs
-    old_files = set(self.cvars['rpms-directory'].findpaths(mindepth=1, regex=RPM_REGEX))
+    old_files = set(self.cvars['rpms-directory'].findpaths(mindepth=1, regex='.*\.rpm'))
     new_files = set(self.io.list_output(what='rpms'))
     for obsolete_file in old_files.difference(new_files):
       obsolete_file.rm(recursive=True, force=True)

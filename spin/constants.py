@@ -15,33 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import re
 
-BOOLEANS_TRUE  = ['True', 'true', 'Yes', 'yes', 'On', 'on', '1']
-BOOLEANS_FALSE = ['False', 'false', 'No', 'no', 'Off', 'off', '0']
+BOOLEANS_TRUE  = ['true',  'yes', 'on',  '1']
+BOOLEANS_FALSE = ['false', 'no',  'off', '0']
 
 RPM_GLOB  = '*.[Rr][Pp][Mm]'
 SRPM_GLOB = '*.[Ss][Rr][Cc].[Rr][Pp][Mm]'
 
-RPM_REGEX  = re.compile('.*\.[Rr][Pp][Mm]')
-SRPM_REGEX = re.compile('.*\.[Ss][Rr][Cc]\.[Rr][Pp][Mm]')
-
-RPM_PNVRA_REGEX  = re.compile('(?P<path>.*/)?'  # all chars up to the last '/'
-                              '(?P<name>.+)'    # rpm name
-                              '-'
-                              '(?P<version>.+)' # rpm version
-                              '-'
-                              '(?P<release>.+)' # rpm release
-                              '\.'
-                              '(?P<arch>.+)'    # rpm architecture
-                              '\.[Rr][Pp][Mm]')
-SRPM_PNVRA_REGEX = re.compile('(?P<path>.*/)?'  # all chars up to the last '/'
-                              '(?P<name>.+)'    # srpm name
-                              '-'
-                              '(?P<version>.+)' # srpm version
-                              '-'
-                              '(?P<release>.+)' # srpm release
-                              '\.([Ss][Rr][Cc])\.[Rr][Pp][Mm]')
+RPM_REGEX  = '.*\.[Rr][Pp][Mm]'
+SRPM_REGEX = '.*\.[Ss][Rr][Cc]\.[Rr][Pp][Mm]'
 
 # list of all currently-known kernel package equivalents
 KERNELS = [ 'kernel', 'kernel-smp', 'kernel-zen', 'kernel-zen0',

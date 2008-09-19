@@ -26,8 +26,8 @@ import stat
 import time
 
 from rendition.repo import RepoContainer, ReposFromFile, ReposFromXml
+from rendition.repo import RPM_PNVRA_REGEX
 
-from spin.constants import SRPM_PNVRA_REGEX, SRPM_REGEX
 from spin.errors    import assert_file_readable, SpinError
 from spin.event     import Event
 from spin.logging   import L1, L2
@@ -158,7 +158,7 @@ class SourcesEvent(Event, CreaterepoMixin):
                          text=('downloading source packages - %s' % repo.id))
 
     # remove all obsolete SRPMs
-    old_files = set(self.srpmdest.findpaths(mindepth=1, regex=SRPM_REGEX))
+    old_files = set(self.srpmdest.findpaths(mindepth=1, regex='.*\.src\.rpm'))
     new_files = set(self.io.list_output())
     for obsolete_file in (old_files - new_files):
       obsolete_file.rm(recursive=True, force=True)
@@ -178,7 +178,7 @@ class SourcesEvent(Event, CreaterepoMixin):
 
   def _deformat(self, srpm):
     try:
-      return SRPM_PNVRA_REGEX.match(srpm).groups()
+      return RPM_PNVRA_REGEX.match(srpm).groups()
     except (AttributeError, IndexError), e:
       self.log(4, L2("DEBUG: Unable to extract srpm information from name '%s'" % srpm))
       return (None, None, None, None, None)

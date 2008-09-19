@@ -55,9 +55,9 @@ class SpinRepo(YumRepo):
     self._systemid = None # system id, for redhat mirrors
 
   def _boolparse(self, s):
-    if s in BOOLEANS_FALSE:
+    if s.lower() in BOOLEANS_FALSE:
       return False
-    elif s in BOOLEANS_TRUE:
+    elif s.lower() in BOOLEANS_TRUE:
       return True
     elif s is None:
       return None

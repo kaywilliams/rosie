@@ -20,7 +20,8 @@ import time
 
 from rpmUtils.arch import getArchList
 
-from spin.constants import RPM_PNVRA_REGEX
+from rendition.repo import RPM_PNVRA_REGEX
+
 from spin.errors    import SpinError
 from spin.event     import Event
 from spin.logging   import L1, L2

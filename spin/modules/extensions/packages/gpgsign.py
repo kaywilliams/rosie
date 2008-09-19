@@ -22,7 +22,6 @@ from rendition.mkrpm       import GpgMixin
 from rendition.progressbar import ProgressBar
 
 from spin.callback  import GpgCallback, SyncCallback, LAYOUT_GPG
-from spin.constants import RPM_REGEX
 from spin.errors    import assert_file_readable, SpinError, SpinIOError
 from spin.event     import Event
 from spin.logging   import L1, L2
