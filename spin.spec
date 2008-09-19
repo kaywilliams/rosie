@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.45
+Version: 0.8.46
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,18 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Thu Sep 18 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.46-1
+- The <remove> element's usage implies that image/file should be removed. (uprakash)
+- Setting the default width and height of images created to 640x480. (uprakash)
+- Raising an excepting if font is not defined when writing text to image. (uprakash)
+- The 'product-image-content' control variable was being set incorrectly. (uprakash)
+- bug 338 - better errors when passing a baseurl to a mirrorlist element (dmusgrave)
+- Fixed typo. (uprakash)
+- The logos-rpm event sets product-image-content cvar iff it exists. (uprakash)
+- Reverting comps.py to not have PKGPATTERN support. (uprakash)
+- Tagged as spin-0.8.45-1 (root@server2.renditionsoftware.com)
+- Bumped version to spin-0.8.45-1.noarch. (spinmaster)
+
 * Tue Sep 16 2008  - 0.8.45-1
 - Code cleanup. (uprakash)
 - Added some demarcation commments. (uprakash)

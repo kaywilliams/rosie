@@ -1,3 +1,92 @@
+2008-09-18  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* share/spin/logos-rpm/common.xml, share/spin/logos-rpm/icons.xml,
+	share/spin/schemas/logos-rpm/config.rng, spin/modules/core/rpmbuild
+	/logos-rpm/config/configlets.py:
+	The <remove> element's usage implies that image/file should be
+	removed.
+
+	If you have a <remove> element in any of the <image> or <file>
+	elements, we assume that it should be removed. Having a <remove>
+	element's text value set to 'False' (or some other accepted
+	variable) is meaningless. Therefore, <remove/> elements cannot have
+	any children and if present mean that they the image or file it is
+	associated with should be removed.
+	[fab9b05ab944] [tip]
+
+	* spin/modules/core/rpmbuild/logos-rpm/files.py:
+	Setting the default width and height of images created to 640x480.
+
+	Just picking some value of the width and height. These can be
+	overridden by using the <create>/<width> and <create>/<height>
+	elements.
+	[6038d19131ed]
+
+	* spin/modules/core/rpmbuild/logos-rpm/config/configlets.py:
+	Raising an excepting if font is not defined when writing text to
+	image.
+
+	The logos-rpm's config file requires a font file defined for all the
+	<image/> elements that need text written to the images. Raising an
+	exception if that's not the case.
+	[b2695b22685f]
+
+	* spin/modules/core/rpmbuild/logos-rpm/__init__.py:
+	The 'product-image-content' control variable was being set
+	incorrectly.
+
+	It should be a list of files and not a directory.
+	[4124fc20b5e2]
+
+2008-09-18  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/shared/repos.py:
+	bug 338 - better errors when passing a baseurl to a mirrorlist
+	element
+
+	spin/modules/shared/repos.py
+	 * added a validity check on the mirrorlist prior to using it
+	 * added MirrorlistFormatInvalidError, the error raised when the above
+	validity check fails
+	[11f189c2605f]
+
+2008-09-17  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/shared/idepsolver.py:
+	Fixed typo.
+	[a7683e193da2]
+
+	* spin/modules/core/rpmbuild/logos-rpm/__init__.py,
+	spin/modules/shared/idepsolver.py:
+	The logos-rpm event sets product-image-content cvar iff it exists.
+
+	The logos-rpm's apply() method was settting the 'product-image-
+	content' control variable even if there were no images (which could
+	happen if the event is being skipped). Therefore, setting the
+	control variable iff those images exist. There is a
+	verify_pixmaps_exist() method that makes sure that the pixmaps
+	exist.
+	[a1ffc46cbb81]
+
+	* spin/modules/core/packages/comps.py:
+	Reverting comps.py to not have PKGPATTERN support.
+
+	RPM capabilities don't follow the PKGPATTERN standard either.
+	Keeping it simple.
+	[d6b705100d7a]
+
+2008-09-16  root  <root@server2.renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.8.45-1
+	[87238a3be6f0]
+
+2008-09-16  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.45-1.noarch.
+	[6935ac7e574f] [spin-0.8.45-1]
+
 2008-09-16  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* spin/modules/core/rpmbuild/logos-rpm/__init__.py,
@@ -6,7 +95,7 @@
 
 	Not using the has_key() method; instead using the 'x in y'
 	construct.
-	[133134d322e5] [tip]
+	[133134d322e5]
 
 	* spin/modules/core/rpmbuild/logos-rpm/__init__.py:
 	Added some demarcation commments.
