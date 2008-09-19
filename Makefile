@@ -32,7 +32,11 @@ install:
 	for dir in $(SUBDIRS); do make -C $$dir DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
 
 tag:
-	@hg tag -m "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)" $(PKGNAME)-$(VERSION)-$(RELEASE)
+	@if [ "$(USERNAME)" != "" ]; then \
+		hg tag --user "$(USERNAME)" -m "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)" $(PKGNAME)-$(VERSION)-$(RELEASE); \
+	else \
+		hg tag "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)" $(PKGNAME)-$(VERSION)-$(RELEASE); \
+	fi
 	@echo "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)"
 
 changelog:
