@@ -134,7 +134,7 @@ class SourcesEvent(Event, CreaterepoMixin):
     processed_srpmset = set()
     for repo in self.cvars['source-repos'].values():
       now = time.time()
-      for rpminfo in repo.repocontent:
+      for rpminfo in repo.repocontent.filter():
         rpmi = repo.url//rpminfo['file']
         _,n,v,r,a = self._deformat(rpmi)
         ## assuming the rpm file name to be lower-case 'rpm' suffixed

@@ -63,7 +63,7 @@ class DownloadEvent(Event):
     processed_rpmset = set()
     for repo in self.cvars['repos'].values():
       now = time.time()
-      for rpminfo in repo.repocontent:
+      for rpminfo in repo.repocontent.filter():
         rpm = repo.url//rpminfo['file']
         _,_,_,_,a = self._deformat(rpm)
         if ( rpm.basename in rpmset and

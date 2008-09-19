@@ -149,7 +149,7 @@ class SpinRepoGroup(SpinRepo):
     try:
       self.url # prepopulates url's mirrorgroup cache, raises below error
     except pps.lib.mirror.MirrorlistFormatInvalidError, e:
-      raise MirrorlistFormatInvalidError(e.lineno, e.line, e.reason)
+      raise MirrorlistFormatInvalidError(self.id, e.lineno, e.line, e.reason)
 
     # need special handling for rhn paths
     cls = SpinRepo
@@ -499,5 +499,5 @@ class RepomdCsumMismatchError(SpinError):
               "  Expected: %(expected)s" )
 
 class MirrorlistFormatInvalidError(SpinError):
-  message = ( "Mirrorlist format invalid on line %(lineno)d: '%(line)s': "
-              "%(reason)s" )
+  message = ( "Mirrorlist format invalid for repo '%(repo)s' on line "
+              "%(lineno)d: '%(line)s': %(reason)s" )
