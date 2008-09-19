@@ -53,7 +53,7 @@ class ImageConfiglet(Configlet):
       if font is not None:
         text_info['font'] = self.parent_dir / font
       else:
-        raise FontNotDefinedError(self.element.get('@dest'), self.element.getroot().file)
+        raise FontNotDefinedError(elem.sourceline, self.element.getroot().file)
       strings.append(text_info)
     self['strings'] = strings
 
@@ -116,5 +116,6 @@ register_configlet('image', 'source', CopyImageConfiglet)
 class UnknownConfigletError(SpinError):
   message = "Config element not recognized\n%(element)sin file: %(file)s"
 class FontNotDefinedError(SpinError):
-  message = "No font file specified to write text with on the '%(image)s' image " \
-      "(defined in the '%(file)s' config file)"
+  message = "No font file specified to write text with in the <string> element "\
+      "(line %(lineno)s, file '%(file)s'). You can resolve the error by adding a "\
+      "<font> element in the <defaults> or the <string> element."
