@@ -1,12 +1,49 @@
 2008-09-19  Uday Prakash  <uprakash@renditionsoftware.com>
 
+	* spin/modules/core/rpmbuild/logos-rpm/files.py:
+	The default value for <text-alignment/> is 'center'.
+	[296cc5a17357] [tip]
+
+	* share/spin/schemas/logos-rpm/config.rng:
+	Fixed a reference in the RelaxNG schema file for logos-rpm.
+	[9c1477b643c1]
+
+	* share/spin/schemas/logos-rpm/config.rng, spin/modules/core/rpmbuild
+	/logos-rpm/config/configlets.py, spin/modules/core/rpmbuild/logos-
+	rpm/files.py:
+	The <string> elements can have <text-alignment/> elements.
+
+	The accepted values for <text-alignment/> are 'center', 'right', and
+	'left'.
+	[e41ae1f429ad]
+
+	* Makefile:
+	Updated the `make tag' target to accept USERNAME argument.
+	[1fbd3ed351e9]
+
+	* spin.spec:
+	Added missing user names in spec file's changelog.
+	[6afb2788b584]
+
+	* .hgtags:
+	Tagged as spin-0.8.47-1
+	[bd560d7fdc7d]
+
+2008-09-19  spinmaster  <spinmaster>
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.47-1.noarch.
+	[bc57ff054f62] [spin-0.8.47-1]
+
+2008-09-19  Uday Prakash  <uprakash@renditionsoftware.com>
+
 	* share/spin/schemas/logos-rpm/config.rng, spin/modules/core/rpmbuild
 	/logos-rpm/config/configlets.py:
 	The <image>/<source> element doesn't have <path> child element.
 
 	The <path> element has been removed, and the text of the <source>
 	element should be a path to the image on disk to be used.
-	[4282b308b93d] [tip]
+	[4282b308b93d]
 
 	* spin/modules/core/rpmbuild/logos-rpm/config/configlets.py:
 	Improved the error message of FontDefinedError.
