@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.48
+Version: 0.8.49
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,11 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Mon Sep 22 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.49-1
+- logos-rpm: tweak error for no logos-rpm xml config found (kwilliams)
+- Tagged as spin-0.8.48-1 (spinmaster)
+- Bumped version to spin-0.8.48-1.noarch. (spinmaster)
+
 * Fri Sep 19 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.48-1
 - The default value for <text-alignment/> is 'center'. (uprakash)
 - Fixed a reference in the RelaxNG schema file for logos-rpm. (uprakash)
