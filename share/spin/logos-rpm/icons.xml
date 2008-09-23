@@ -83,9 +83,6 @@
   <file dest="/usr/share/gdm/themes/Spin/system.png" xwindow-type="gnome">
     <path>icons/system.png</path>
   </file>
-  <file dest="/usr/share/apps/kdm/themes/Spin/icons" xwindow-type="kde">
-    <path>icons/icons</path>
-  </file>
   <file dest="/usr/share/apps/kdm/themes/Spin/disconnect-active.png" xwindow-type="kde">
     <path>icons/disconnect-active.png</path>
   </file>
@@ -256,9 +253,6 @@
   </file>
   <file dest="/usr/share/apps/kdm/themes/Spin/system.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
     <remove/>
-  </file>
-  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/icons" anaconda-version="11.3.0.36-1" xwindow-type="kde">
-    <path>icons/icons</path>
   </file>
   <file dest="/usr/share/kde4/apps/kdm/themes/Spin/disconnect-active.png" anaconda-version="11.3.0.36-1" xwindow-type="kde">
     <path>icons/disconnect-active.png</path>
