@@ -50,6 +50,7 @@ class FilesHandlerObject(object):
     self.ptr = ptr
 
     self._files = None
+    self._config_files = None
     self._schema_file = None
 
   @property
@@ -64,32 +65,41 @@ class FilesHandlerObject(object):
     return self._schema
 
   @property
-  def files(self):
-    if self._files: return self._files
+  def config_files(self):
+    if self._config_files:
+      return self._config_files
+    self._config_files = []
+
     applianceid = self.ptr.appliance_info['applianceid']
-    c = config.ConfigletContainer()
 
-    toread = set()
+    dirs = set()
     for path in self.ptr.SHARE_DIRS:
-      cpath = path / 'logos-rpm/%s.xml' % applianceid
-      if cpath.exists():
-        toread.add(cpath)
-      else:
-        cpath = path / 'logos-rpm/default.xml'
-        if cpath.exists():
-          toread.add(cpath)
-
+      dirs.add(path)
       for extra_path in path.findpaths(glob='*.pth'):
         for p in extra_path.read_lines():
-          ec = pps.path(p) / '%s.xml' % applianceid
-          if ec.exists():
-            toread.add(ec)
+          dirs.add(pps.path(p))
+
+    for dir in dirs:
+      cpath = dir / 'logos-rpm/%s.xml' % applianceid
+      if not cpath.exists():
+        cpath = dir / 'logos-rpm/default.xml'
+
+      if cpath.exists() and cpath not in self._config_files:
+        self._config_files.append(cpath)
 
     supplied = self.ptr.config.get('logos-path/text()', None)
     if supplied is not None:
-      toread.add(pps.path(supplied))
+      self._config_files.append(pps.path(supplied))
 
-    for p in toread:
+    return self._config_files
+
+  @property
+  def files(self):
+    if self._files:
+      return self._files
+
+    c = config.ConfigletContainer()
+    for p in self.config_files:
       tree = rxml.config.read(p)
       self.validate_tree(tree)
       c.from_xml(tree)

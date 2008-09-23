@@ -116,6 +116,10 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
                           )
     self.DATA['output'].append(self.splash_outfile)
 
+    # Bug 348: Adding logos config files and files to diff input.
+    self.DATA['input'].extend(self.fh.config_files)
+    self.DATA['input'].extend(self.fh.files)
+
   def apply(self):
     RpmBuildMixin.apply(self)
     self.cvars['installer-splash'] = self.splash_outfile
