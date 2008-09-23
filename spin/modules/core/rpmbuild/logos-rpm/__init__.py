@@ -206,5 +206,4 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
 
 
 class NoImagesDefinedError(SpinError):
-  message = ( "No images defined by the logos-rpm config files in the "
-              "share path(s): %(sharepath)s")
+  message = ( "No logos-rpm xml config files found in the share path(s): %(sharepath)s")
