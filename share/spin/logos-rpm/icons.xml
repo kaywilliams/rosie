@@ -1,7 +1,4 @@
 <logos-rpm>
-  <file dest="/usr/share/gdm/themes/Spin/icons" xwindow-type="gnome">
-    <path>icons/icons</path>
-  </file>
   <file dest="/usr/share/gdm/themes/Spin/disconnect-active.png" xwindow-type="gnome">
     <path>icons/disconnect-active.png</path>
   </file>
