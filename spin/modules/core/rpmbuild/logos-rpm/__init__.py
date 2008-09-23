@@ -207,13 +207,23 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
 
 
 def get_ppmtolss16_options(file):
+  """
+  The `ppmtolss16' binary rearranges the colormap.  To preserve the
+  input image's colormap, this function can be called to get the
+  options to pass to `ppmtolss16'.
+  """
   im = Image.open(file)
   if im.palette is None:
     return ''
   palette = im.getpalette()
   limited_palette = []
+
+  # just look at the first 16 colors.  `ppmtolss16' doesn't care about
+  # the rest anyway.
   for i in xrange(0, 47, 3):
     limited_palette.append((palette[i], palette[i+1], palette[i+2]))
+
+  # compute the options
   options = ''
   for index, rgb in enumerate(limited_palette):
     options = '%s \\%s=%d' % (options, rgb_to_hex(rgb), index)
