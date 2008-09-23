@@ -195,14 +195,33 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
     try:
       start_image = self.rpm.source_folder.findpaths(glob=self.splash_infile)[0]
     except IndexError:
-      # no splash image found
+      # FIXME: no splash image found, raise exception?
       return
     self.splash_outfile.dirname.mkdirs()
     if self.splash_format == 'lss':
-      shlib.execute('pngtopnm %s | ppmtolss16 \#cdcfd5=7 \#ffffff=1 \#000000=0 \#c90000=15 > %s'
-                    %(start_image, self.splash_outfile))
+      exec_string = 'pngtopnm %s | ppmtolss16 %s > %s' % \
+          (start_image, get_ppmtolss16_options(start_image), self.splash_outfile)
+      shlib.execute(exec_string)
     else:
       Image.open(start_image).save(self.splash_outfile, format=self.splash_format)
+
+
+def get_ppmtolss16_options(file):
+  im = Image.open(file)
+  if im.palette is None:
+    return ''
+  palette = im.getpalette()
+  limited_palette = []
+  for i in xrange(0, 47, 3):
+    limited_palette.append((palette[i], palette[i+1], palette[i+2]))
+  options = ''
+  for index, rgb in enumerate(limited_palette):
+    options = '%s \\%s=%d' % (options, rgb_to_hex(rgb), index)
+  return options.strip()
+
+
+def rgb_to_hex(rgb):
+  return '#' + hex(rgb[0])[2:] + hex(rgb[1])[2:] + hex(rgb[2])[2:]
 
 
 class NoImagesDefinedError(SpinError):
