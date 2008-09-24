@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.49
+Version: 0.8.50
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,15 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Tue Sep 23 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.50-1
+- Fixed Bug 348.  Adding logos config files and files to diff input. (uprakash)
+- Removed more extraneous elements in icons.xml. (uprakash)
+- Removed extraneous element in icons.xml. (uprakash)
+- Added some comments to helper functions of logos-rpm. (uprakash)
+- Fixed the syslinux splash image for Red Hat and CentOS. (uprakash)
+- Tagged as spin-0.8.49-1 (spinmaster)
+- Bumped version to spin-0.8.49-1.noarch. (spinmaster)
+
 * Mon Sep 22 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.49-1
 - logos-rpm: tweak error for no logos-rpm xml config found (kwilliams)
 - Tagged as spin-0.8.48-1 (spinmaster)
