@@ -72,7 +72,7 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
       'input':  [],
     }
 
-    self.anaconda_pixmaps = self.rpm.source_folder / '/usr/share/anaconda/pixmaps'
+    self.anaconda_pixmaps = self.rpm.source_folder / 'usr/share/anaconda/pixmaps'
 
     self._appliance_info = None
 
