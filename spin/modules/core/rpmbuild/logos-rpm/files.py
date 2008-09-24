@@ -148,13 +148,12 @@ class FilesHandlerObject(object):
       font_size       = i.get('font-size', 52)
       font_min_size   = i.get('font-min-size', None)
       font_path       = i.get('font')
-      limited_palette = i.get('limited-palette', 16)
       text_alignment  = i.get('text-alignment', 'center')
 
       if font_color is None:
         if img.palette is not None:
-          assert len(img.palette.palette) == (limited_palette*3)
-          for i in xrange(limited_palette*3):
+          length_of_palette = len(img.palette.tostring())
+          for i in xrange(length_of_palette):
             if ( img.palette.palette[i] == '\xff' and
                  img.palette.palette[i+1] == '\xff' and
                  img.palette.palette[i+2] == '\xff'):
