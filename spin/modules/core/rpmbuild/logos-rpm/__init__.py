@@ -118,7 +118,12 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
 
     # Bug 348: Adding logos config files and files to diff input.
     self.DATA['input'].extend(self.fh.config_files)
-    self.DATA['input'].extend(self.fh.files)
+
+    input_files = []
+    for file, info in self.fh.files.iteritems():
+      if 'source' in info:
+        input_files.append(info['source'])
+    self.DATA['input'].extend(input_files)
 
   def apply(self):
     RpmBuildMixin.apply(self)
