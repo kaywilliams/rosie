@@ -74,15 +74,15 @@ class FilesHandlerObject(object):
 
     dirs = set()
     for path in self.ptr.SHARE_DIRS:
-      dirs.add(path)
+      dirs.add(path / 'logos-rpm')
       for extra_path in path.findpaths(glob='*.pth'):
         for p in extra_path.read_lines():
           dirs.add(pps.path(p))
 
     for dir in dirs:
-      cpath = dir / 'logos-rpm/%s.xml' % applianceid
+      cpath = dir / '%s.xml' % applianceid
       if not cpath.exists():
-        cpath = dir / 'logos-rpm/default.xml'
+        cpath = dir / 'default.xml'
 
       if cpath.exists() and cpath not in self._config_files:
         self._config_files.append(cpath)
