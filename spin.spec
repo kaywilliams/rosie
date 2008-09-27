@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.51
+Version: 0.8.52
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,11 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Fri Sep 26 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.52-1
+- Listing the input files as DATA['input'], instead of the output files. (uprakash)
+- Tagged as spin-0.8.51-1 (spinmaster)
+- Bumped version to spin-0.8.51-1.noarch. (spinmaster)
+
 * Wed Sep 24 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.51-1
 - logos-rpm: fixed a bug with how config-files were being located (kwilliams)
 - Fixed a bug with the setting of the 'product-image-content' cvar. (uprakash)
