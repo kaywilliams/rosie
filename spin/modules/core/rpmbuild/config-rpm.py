@@ -136,32 +136,16 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
         lines.append('gpgcheck = 0')
       lines.append('')
 
-    # include the given list of repoids, either a space separated list of
-    # repoids or '*', which means all repoids, all from the <repos> section
-    repoids = self.config.get('repofile/@repoids', '*').strip()
-    if repoids:
-      if repoids == '*':
-        addrepoids = self.cvars['repos'].keys()
-      else:
-        addrepoids = repoids.split()
-
-      for repoid in addrepoids:
-        if repoid in self.cvars['repos']:
-          try:
-            if isinstance(self.cvars['repos'][repoid].url.realm,
-                          pps.Path.rhn.RhnPath):
-              if repoids != '*':
-                self.logger.log(1, 'Warning: skipped adding repo \'%s\' to '
-                                   'config rpm since it contains a rhn(s):// '
-                                   'path' % repoid)
-              continue
-          except AttributeError:
-            pass
-          lines.extend(self.cvars['repos'][repoid].lines(pretty=True))
+    # include repo(s) pointing to appliance inputs
+    if self.config.getbool('repofile/@input', 'False'):
+      for repo in self.cvars['repos'].values():
+        try:
+          if isinstance(repo.url.realm, pps.Path.rhn.RhnPath):
+            continue
+          lines.extend(repo.lines(pretty=True))
           lines.append('')
-        else:
-          raise RuntimeError("Invalid repoid '%s'; valid repoids are %s"
-                             % (repoid, self.cvars['repos'].keys()))
+        except AttributeError:
+          pass
 
     if len(lines) > 0:
       repofile.dirname.mkdirs()
