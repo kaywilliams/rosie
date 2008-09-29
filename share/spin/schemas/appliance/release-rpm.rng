@@ -26,11 +26,6 @@
           <zeroOrMore>
             <element name="eula">
               <ref name="content-path-with-dest"/>
-              <optional>
-              <attribute name="include-in-firstboot">
-                <ref name="value-boolean"/>
-              </attribute>
-              </optional>
             </element>
           </zeroOrMore>
 

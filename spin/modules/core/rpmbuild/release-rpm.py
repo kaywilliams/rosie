@@ -81,18 +81,6 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
     self.io.add_xpath('doc',   self.filetypes['doc'])
     self.io.add_xpath('files', self.filetypes['release'])
 
-    # eulapy file
-    if ( self.config.getbool('eula/@include-in-firstboot', 'True') and
-         self.config.pathexists('eula') ):
-      found = False
-      for path in self.SHARE_DIRS:
-        path = path/'release/eula.py'
-        if path.exists():
-          self.io.add_fpath(path, self.filetypes['eulapy'])
-          found = True; break
-      if not found:
-        raise RuntimeError("release/eula.py not found in %s" % ', '.join(self.SHARE_DIRS))
-
     # add software store to output
     self.DATA['output'].append(self.SOFTWARE_STORE)
 

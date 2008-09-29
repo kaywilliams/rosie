@@ -33,7 +33,7 @@ class Test_ReleaseRpmInputs(ReleaseRpmEventTestCase):
       """
       <release-rpm enabled="true">
         <file>%(working-dir)s/file1</file>
-        <eula include-in-firstboot="true">%(working-dir)s/eula.en_US</eula>
+        <eula>%(working-dir)s/eula.en_US</eula>
         <html destdir="/usr/share/html">%(working-dir)s/html1</html>
         <doc  destdir="/usr/share/doc">%(working-dir)s/doc1</doc>
       </release-rpm>
