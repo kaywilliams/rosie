@@ -88,6 +88,7 @@ class GpgCheckEvent(Event):
         for key in self.io.list_output(what=repo):
           assert_file_readable(key, srcfile=self.io.i_dst[key].src,
                                     cls=GpgkeyIOError)
+          self._strip_key(key) # strip off non-gpg information from key
           shlib.execute('gpg --homedir %s --import %s' %(homedir,key))
 
       # if new rpms have been added from this repo, add them to check list
@@ -111,6 +112,26 @@ class GpgCheckEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
+
+  def _strip_key(self, k):
+    "Strip off non-GPG data from GPG keys"
+    outlines = []
+    inkey = False
+
+    PGP_BEGIN = '-----BEGIN PGP'
+    PGP_END   = '-----END PGP'
+
+    for line in k.read_lines():
+      if inkey:
+        outlines.append(line)
+        if line.startswith(PGP_END):
+          inkey = False
+      else:
+        if line.startswith(PGP_BEGIN):
+          inkey = True
+          outlines.append(line)
+
+    k.write_lines(outlines)
 
 #------ ERRORS ------#
 class RpmSignatureInvalidError(SpinError):
