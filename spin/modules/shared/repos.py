@@ -18,6 +18,7 @@
 
 import copy
 import errno
+import fnmatch
 import os
 import re
 import time
@@ -72,7 +73,13 @@ class SpinRepo(YumRepo):
     """Returns True if this repo can have the given pkg based on exclude
     and includepkgs.  Doesn't actually check to see if pkg is in the repo."""
     if pkg in self.exclude: return False
-    if self.includepkgs: return pkg in self.includepkgs
+    if self.includepkgs:
+      regex = '|'.join([ '(?:%s)' % fnmatch.translate(x) for x in self.includepkgs ])
+      scan = re.compile(regex)
+      if scan.match(pkg):
+        return True
+      else:
+        return False
     return True
 
   def get_rpm_version(self, names):
