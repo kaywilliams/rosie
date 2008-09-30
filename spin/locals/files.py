@@ -77,10 +77,13 @@ L_FILES = LocalsDict({
       'minstg2.img': REMOVE,
     },
   },
-#  "anaconda-11.4.1.29-1": { # renamed stage2.img to install.img
-#    'stage2': {
-#      'stage2.img': REMOVE,
-#      'install.img': dict(path='images/install.img'),
-#     },
-#   },
+  "anaconda-11.4.1.29-1": {
+    'stage2': { # renamed stage2.img to install.img
+      'stage2.img': dict(path='images/install.img'),
+     },
+    'xen': { # changed the location of the xen images
+      'initrd-xen':  dict(path='images/pxeboot/initrd-PAE.img'),
+      'vmlinuz-xen': dict(path='images/pxeboot/vmlinuz-PAE'),
+    },
+  },
 })
