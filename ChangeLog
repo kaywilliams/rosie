@@ -1,3 +1,46 @@
+2008-09-29  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* INSTALL:
+	Capitalizing Spin in the INSTALL file.
+	[0529f46fed7c] [tip]
+
+2008-09-28  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* INSTALL:
+	Fixed a typo in the INSTALL file.
+	[2450fc377923]
+
+2008-09-29  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/core/packages/gpgcheck.py:
+	added support for obtaining gpg keys from pgp keyservers
+	[f5c2f1d63e00]
+
+	* share/spin/schemas/appliance/release-rpm.rng,
+	spin/modules/core/rpmbuild/release-rpm.py, spintest/modules/release-
+	rpm.py:
+	removed include-in-firstboot attribute in release-rpm/eula
+	[d14c159c6f7d]
+
+	* share/spin/schemas/appliance/config-rpm.rng,
+	spin/modules/core/rpmbuild/config-rpm.py:
+	bug 347 - changed config-rpm/repofile/@repoids to config-
+	rpm/repofile/@input
+	 * @repoids => @input
+	 * @input accepts a boolean; True to include all input repositories
+	(except for rhn-based repos), False to skip; False is the default
+	[9a22c3b06d43]
+
+2008-09-26  spinmaster  <spinmaster>
+
+	* .hgtags:
+	Tagged as spin-0.8.52-1
+	[1b8e796783eb]
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.52-1.noarch.
+	[b67cf4ff4c70] [spin-0.8.52-1]
+
 2008-09-25  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* spin/modules/core/rpmbuild/logos-rpm/__init__.py:
@@ -6,7 +49,7 @@
 
 	The files being listed as input were actually the files which would
 	have been installed by the logos rpm.
-	[e3fa08cc71ef] [tip]
+	[e3fa08cc71ef]
 
 2008-09-24  spinmaster  <spinmaster>
 
