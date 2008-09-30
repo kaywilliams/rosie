@@ -97,9 +97,7 @@
   </define>
 
   <define name="element-image-write-text">
-  <optional>
-  <element name="strings">
-  <oneOrMore>
+  <zeroOrMore>
     <element name="string">
     <interleave>
       <ref name="element-font"/>
@@ -129,9 +127,7 @@
       </optional>
     </interleave>
     </element>
-  </oneOrMore>
-  </element>
-  </optional>
+  </zeroOrMore>
   </define>
 
   <define name="value-text-alignment">

@@ -13,12 +13,12 @@
 <refmeta>
 <refentrytitle>Spin Commands</refentrytitle>
 <manvolnum>1</manvolnum>
-<refmiscinfo>Spin Beta</refmiscinfo>
+<refmiscinfo>Spin</refmiscinfo>
 </refmeta>
 
 <refnamediv>
 <refname>spin</refname>
-<refpurpose>Builds and updates appliances.</refpurpose>
+<refpurpose>Builds and updates software appliances.</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -72,7 +72,7 @@
 
 <refsect1 id="spin.1-usage"><title>USAGE</title>
 <para><command>spin</command> [OPTIONS] APPLIANCE_FILE</para>
-<para>OPTIONS refers to the command-line options described below.  APPLIANCE_FILE refers to the appliance definition file.  See <filename>/usr/share/doc/spin-$version/appliance-definition-file-reference.html</filename> for more information.</para>
+<para>OPTIONS refers to the command-line options described below.  APPLIANCE_FILE refers to an appliance definition file, see the Appliance Definition File Reference at <ulink url="http://www.renditionsoftware.com/spin/docs"/> for more information.</para>
 </refsect1>
 
 
@@ -211,11 +211,11 @@
 <refsect1 id="spin.1-modules"><title>MODULES</title>
 <para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the spin command.</para>
 <para>On subsequent builds of the same appliance, Spin automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using <command>--skip</command> and <command>--force</command> spin command options.</para>
-<para>Developers can write custom Python modules and direct Spin to use them via the <command>--lib-path</command> spin command option.</para>
+<para>Developers can write custom Spin modules and direct Spin to use them via the <command>--lib-path</command> spin command option.</para>
 </refsect1>
 
 <refsect1 id="spin.1-bugs"><title>BUGS</title>
-<para>Submit bugs via email to <ulink url="mailto:spin@renditionsoftware.com">spin@renditionsoftware.com</ulink></para>
+<para>Submit bugs at <ulink url="http://www.renditionsoftware.com/bugs"/></para>
 </refsect1>
 
 <refsect1 id="spin.1-files"><title>FILES</title>
@@ -231,7 +231,6 @@
 <refsect1 id="spin.1-see_also"><title>SEE ALSO</title>
 <para><simplelist type="inline">
 <member>spin.conf(5)</member>
-<member>/usr/share/doc/spin-$version/appliance-definition-file-reference.html</member>
 <member><ulink url="http://www.renditionsoftware.com/spin"/></member>
 
 </simplelist></para>

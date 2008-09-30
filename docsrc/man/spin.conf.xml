@@ -66,7 +66,7 @@
 <varlistentry>
   <term><option>debug</option></term>
   <listitem>
-    <para>Specifies a boolean value which enables or disables debug mode in Spin.  Enabling debug mode causes exception tracebacks, which are normally hidden, to be displayed on the command line when they occur.</para>
+    <para>Specifies a boolean value which enables or disables debug mode in Spin.  Enabling debug mode causes exception tracebacks, which are normally visible only in the log file, to be additionally displayed on the command line.</para>
 <literallayout>
 	<debug>BOOLEAN</debug>
 </literallayout>
@@ -171,7 +171,7 @@
 </refsect1>
 
 <refsect1 id="spin.conf.5-bugs"><title>BUGS</title>
-<para>Submit bugs via email to <ulink url="mailto:spin@renditionsoftware.com">spin@renditionsoftware.com</ulink></para>
+<para>Submit bugs at <ulink url="http://www.renditionsoftware.com/bugs"/></para>
 </refsect1>
 
 <refsect1 id="spin.conf.5-files"><title>FILES</title>

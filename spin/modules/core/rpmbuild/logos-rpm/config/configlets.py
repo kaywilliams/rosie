@@ -36,7 +36,7 @@ class ImageConfiglet(Configlet):
 
   def read(self):
     strings = []
-    for elem in self.element.xpath('strings/string', []):
+    for elem in self.element.xpath('string', []):
       text_info = {}
       for child in ['font', 'font-min-size', 'font-size', 'text',
                     'text-max-width', 'x-position', 'y-position',
