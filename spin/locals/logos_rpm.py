@@ -265,6 +265,23 @@ fi
     '5': {
       'applianceid': 'redhat5',
       'background': (120, 30, 29),
+      'triggers': {
+        'desktop-backgrounds-basic': {
+          'triggerin': '''BACKGROUNDS=/usr/share/backgrounds
+DEFAULTS="default-5_4.jpg default-dual.jpg default-dual-wide.jpg default.jpg default-wide.jpg"
+for default in $DEFAULTS; do
+  %%{__ln_s} $BACKGROUNDS/spin/$default $BACKGROUNDS/images/$default
+done
+''',
+          'triggerun': '''BACKGROUNDS=/usr/share/backgrounds
+if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
+  for default in `ls -1 $BACKGROUNDS/images/default*`; do
+    %%{__rm} -f $default
+  done
+fi
+''',
+        },
+      },
     },
   }),
   '*': LocalsDict({
