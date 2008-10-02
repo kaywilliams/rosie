@@ -1,8 +1,69 @@
+2008-10-01  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* docsrc/man/spin.conf.xml, docsrc/man/spin.xml:
+	Renamed "literallayout" to "programlisting" in man pages.
+
+	This way, when the man pages' docbook XML files are converted to
+	HTML, the <pre/> elements are inserted when needed.
+	[12270753c1bb] [tip]
+
+	* spin/locals/logos_rpm.py:
+	Added a trigger on 'desktop-backgrounds-basic' for Red Hat 5.
+
+	This trigger (unlike the one for CentOS), always creates symlinks
+	from /usr/share/backgrounds/images to /usr/share/backgrounds/spin.
+	[b488062a1889]
+
+2008-10-02  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/event/loader.py, spin/locals/__init__.py:
+	replaced .replace('.py', '') with .splitext()[0]
+	[ce3616ef7576]
+
+2008-10-01  spinmaster  <spinmaster>
+
+	* .hgtags:
+	Tagged as spin-0.8.54-1
+	[8acb2ce41763]
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.54-1.noarch.
+	[a7ab9cbd25fb] [spin-0.8.54-1]
+
+2008-09-30  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* share/spin/logos-rpm/common.xml, share/spin/schemas/logos-
+	rpm/config.rng, spin/modules/core/rpmbuild/logos-
+	rpm/config/configlets.py:
+	Removed the <strings/> element around <string/> elements.
+
+	The logos-rpm's configuration files had a <strings/> element around
+	<string/> elements. Updated the schema and the default
+	configuration files to now have them anymore. Flattens the
+	configuration file by some.
+	[b2f67ecb803d]
+
+2008-10-01  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/man/spin.conf.xml, docsrc/man/spin.xml:
+	final spin and spin.conf man page edits
+	[cf2ee5d1bb22]
+
+2008-09-30  spinmaster  <spinmaster>
+
+	* .hgtags:
+	Tagged as spin-0.8.53-1
+	[ef8710618ba3]
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.53-1.noarch.
+	[78c1a5d4c3ac] [spin-0.8.53-1]
+
 2008-09-29  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* INSTALL:
 	Capitalizing Spin in the INSTALL file.
-	[0529f46fed7c] [tip]
+	[0529f46fed7c]
 
 2008-09-28  Uday Prakash  <uprakash@renditionsoftware.com>
 

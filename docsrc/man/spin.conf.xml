@@ -36,9 +36,9 @@
   <term><option>lib-path</option></term>
   <listitem>
     <para>Specifies a directory <replaceable class="parameter">PATH</replaceable> in which one or more Spin modules can be found. The default is the system path. Multiple path elements are allowed.  This element corresponds to the <command>--lib-path</command> command-line option.</para>
-<literallayout>
-	<lib-path>PATH</lib-path>
-</literallayout>
+<programlisting>
+&lt;lib-path&gt;PATH&lt;/lib-path&gt;
+</programlisting>
   </listitem>
 </varlistentry>
 
@@ -46,9 +46,9 @@
   <term><option>log-file</option></term>
   <listitem>
     <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which Spin writes logging information.  The default path is <filename>/var/log/spin.log</filename>.   Spin creates the log file if none exists. This element corresponds to the <command>--log-file</command> command-line option.</para>
-<literallayout>
-	<log-file>PATH</log-file>
-</literallayout>
+<programlisting>
+&lt;log-file&gt;PATH&lt;/log-file&gt;
+</programlisting>
 
   </listitem>
 </varlistentry>
@@ -57,9 +57,9 @@
   <term><option>share-path</option></term>
   <listitem>
     <para>Specifies a directory <replaceable class="parameter">PATH</replaceable> in which one or more of Spin's shared files can be found; the directory contains a hierarchy enabling Spin to extract files for schemas, <filename>*.rng</filename>, fonts and images.  The default path is <filename>/usr/share/spin</filename>.  Multiple path elements are allowed.  This element corresponds to the <option>--share-path</option> command-line option .</para>
-<literallayout>
-	<share-path>PATH</share-path>
-</literallayout>
+<programlisting>
+&lt;share-path&gt;PATH&lt;/share-path&gt;
+</programlisting>
   </listitem>
 </varlistentry>
 
@@ -67,9 +67,9 @@
   <term><option>debug</option></term>
   <listitem>
     <para>Specifies a boolean value which enables or disables debug mode in Spin.  Enabling debug mode causes exception tracebacks, which are normally visible only in the log file, to be additionally displayed on the command line.</para>
-<literallayout>
-	<debug>BOOLEAN</debug>
-</literallayout>
+<programlisting>
+&lt;debug&gt;BOOLEAN&lt;/debug&gt;
+</programlisting>
   </listitem>
 </varlistentry>
 
@@ -86,11 +86,11 @@
   <listitem>
 <para>The <literal>path</literal> child element specifies where Spin stores both shared and per appliance cache data.  The default is <filename>/var/cache/spin</filename>.
 </para>
-<literallayout>
-	<cache>
-		<path>CACHEDIR</path>
-	</cache>
-</literallayout>
+<programlisting>
+&lt;cache&gt;
+    &lt;path&gt;CACHEDIR&lt;/path&gt;
+&lt;/cache&gt;
+</programlisting>
   </listitem>
 </varlistentry>
 
@@ -100,11 +100,11 @@
     <para>The <literal>max-size</literal> child element specifies the maximum size for the shared cache located at <filename>CACHEDIR/.cache</filename>. The shared cache contains a copy of all files downloaded by Spin. There is no human-readable form of the shared cache. The default size is 30GB. The recommended minimum size is 5GB. The default suffix is GB; other common suffixes are MB, GiB and TB.</para>
 
 <para>Spin deletes files from the shared cache on a least-recently used basis.</para>
-<literallayout>
-	<cache>
-		<max-size>TEXT</max-size>
-	</cache>
-</literallayout>
+<programlisting>
+&lt;cache&gt;
+    &lt;max-size&gt;TEXT&lt;/max-size&gt;
+&lt;/cache&gt;
+</programlisting>
   </listitem>
 </varlistentry>
 
@@ -154,19 +154,19 @@
       An example spin configuration file with multiple listings for share-path and lib-path elements is shown below:
     </para>
 
-    <literallayout>
-	<spin>
-		<share-path>/usr/share</share-path>
-		<share-path>~/spin/share</share-path>
-		<lib-path>/usr/lib</lib-path>
-		<lib-path>~/spin/lib</lib-path>
-		<log-file>~/spin.log</log-file>
-		<cache>
-			<path>~/spin/cache</path>
-			<max-size>5GB</max-size>
-		</cache>
-	</spin>
-    </literallayout>
+    <programlisting>
+&lt;spin&gt;
+    &lt;share-path&gt;/usr/share&lt;/share-path&gt;
+    &lt;share-path&gt;~/spin/share&lt;/share-path&gt;
+    &lt;lib-path&gt;/usr/lib&lt;/lib-path&gt;
+    &lt;lib-path&gt;~/spin/lib&lt;/lib-path&gt;
+    &lt;log-file&gt;~/spin.log&lt;/log-file&gt;
+    &lt;cache&gt;
+        &lt;path&gt;~/spin/cache&lt;/path&gt;
+        &lt;max-size&gt;5GB&lt;/max-size&gt;
+    &lt;/cache&gt;
+&lt;/spin&gt;
+    </programlisting>
 
 </refsect1>
 

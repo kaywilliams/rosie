@@ -133,14 +133,14 @@
   <listitem>
     <para> Specifies the level of detail logged to the console during a build.  There are six levels <replaceable class="parameter">N</replaceable> (0 to 5) with Level 3 being Spin's default level.</para>
 <para>LEVELS
-<literallayout>
+<programlisting>
 * Level 0: Displays errors only.
 * Level 1: Displays build status.
 * Level 2: Displays module status.  See MODULES.
 * Level 3: Displays file download and creation status.
 * Level 4: Displays file copy and deletion status.
 * Level 5: Displays complete debug-level status.
-</literallayout>
+</programlisting>
 </para>
 <para>Setting the log level to 0 will prevent all logging except errors to the screen, while levels 1 to 5 have increasingly more detail about the build process.
 </para>
