@@ -49,10 +49,10 @@ class Loader(dispatch.Loader):
 
   def _process_path(self, path, default):
     for mod in path.findpaths(nregex='.*/(\..*|.*\.pyc|.*\.pyo)', mindepth=1):
-      modid = str(mod.basename.replace('.py', ''))
+      modid = str(mod.basename.splitext()[0])
       if not default and modid not in self.enabled: continue # default-off events
 
-      modname = mod.relpathfrom(path).replace('/', '.').replace('.py', '')
+      modname = mod.relpathfrom(path).splitext()[0].replace('/', '.')
 
       # don't load disabled events
       skip = False
