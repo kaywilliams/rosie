@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.54
+Version: 0.8.55
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,13 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Thu Oct 02 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.55-1
+- Renamed "literallayout" to "programlisting" in man pages. (uprakash)
+- Added a trigger on 'desktop-backgrounds-basic' for Red Hat 5. (uprakash)
+- replaced .replace(dmusgrave)
+- Tagged as spin-0.8.54-1 (spinmaster)
+- Bumped version to spin-0.8.54-1.noarch. (spinmaster)
+
 * Wed Oct 01 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.54-1
 - Removed the <strings/> element around <string/> elements. (uprakash)
 - final spin and spin.conf man page edits (kwilliams)
