@@ -69,22 +69,9 @@ class SpinRepo(YumRepo):
   def pkgsfile(self):
     return self.localurl/'packages'
 
-  def _pkg_filter(self, pkg):
-    """Returns True if this repo can have the given pkg based on exclude
-    and includepkgs.  Doesn't actually check to see if pkg is in the repo."""
-    if pkg in self.exclude: return False
-    if self.includepkgs:
-      regex = '|'.join([ '(?:%s)' % fnmatch.translate(x) for x in self.includepkgs ])
-      scan = re.compile(regex)
-      if scan.match(pkg):
-        return True
-      else:
-        return False
-    return True
-
   def get_rpm_version(self, names):
     # filter list of names if necessary
-    names = [ n for n in names if self._pkg_filter(n) ]
+    names = [ n for n in names if self.repocontent.has_package(n) ]
     if not names: return (None, None)
 
     scan = re.compile('(?:.*/)?(' + '|'.join(names) + ')-(.*)(\..*\..*$)')
