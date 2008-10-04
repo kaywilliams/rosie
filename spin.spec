@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.55
+Version: 0.8.56
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,16 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Fri Oct 03 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.56-1
+- removed SpinRepo._pkg_filter(dmusgrave)
+- Merged with trunk. (uprakash)
+- Added new installclass file for anaconda >= 11.4.1.10-1. (uprakash)
+- Merged heads. (uprakash)
+- Added locals for Fedora 10.  These aren't, by any means, complete. (uprakash)
+- The SpinRepo._pkg_filter(uprakash)
+- Tagged as spin-0.8.55-1 (spinmaster)
+- Bumped version to spin-0.8.55-1.noarch. (spinmaster)
+
 * Thu Oct 02 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.55-1
 - Renamed "literallayout" to "programlisting" in man pages. (uprakash)
 - Added a trigger on 'desktop-backgrounds-basic' for Red Hat 5. (uprakash)

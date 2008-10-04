@@ -1,3 +1,53 @@
+2008-10-03  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/shared/repos.py:
+	removed SpinRepo._pkg_filter(); now uses
+	SpinRepo.repocontent.has_package()
+	[3395d49a959c] [tip]
+
+2008-10-02  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* Merged with trunk.
+	[2a00f64e11d3]
+
+2008-09-30  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/locals/installclass.py:
+	Added new installclass file for anaconda >= 11.4.1.10-1.
+
+	The getBackend() method doesn't accept any parameters anymore.
+	[197dd7f2885f]
+
+	* Merged heads.
+	[de342d5f1527]
+
+	* spin/locals/files.py:
+	Added locals for Fedora 10. These aren't, by any means, complete.
+	[ff6fd7ed5787]
+
+2008-09-29  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/shared/repos.py:
+	The SpinRepo._pkg_filter() method now supports globs.
+
+	If the repository had a list of included packages associated with it
+	and some of them were globs, when a package (which matched one of
+	the globs) was tested, the method would incorrectly return False.
+
+	To get around this problem, we now convert the list of globs into a
+	regular expression, and then test.
+	[6564a019bf5a]
+
+2008-10-02  spinmaster  <spinmaster>
+
+	* .hgtags:
+	Tagged as spin-0.8.55-1
+	[4334b0b976df]
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.55-1.noarch.
+	[8104cbeeb46e] [spin-0.8.55-1]
+
 2008-10-01  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* docsrc/man/spin.conf.xml, docsrc/man/spin.xml:
@@ -5,7 +55,7 @@
 
 	This way, when the man pages' docbook XML files are converted to
 	HTML, the <pre/> elements are inserted when needed.
-	[12270753c1bb] [tip]
+	[12270753c1bb]
 
 	* spin/locals/logos_rpm.py:
 	Added a trigger on 'desktop-backgrounds-basic' for Red Hat 5.
