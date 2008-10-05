@@ -144,7 +144,7 @@ class IDepsolver(Depsolver):
           continue
         n,a,e,v,r = dep
         instpo = self.getInstalledPackage(name=n, arch=a, epoch=e, ver=v, rel=r)
-        bestpo = self.getBestAvailablePackage(name=n)
+        bestpo = self.getBestAvailablePackage(name=n, arch=a)
         if instpo: instpos.add(instpo)
         if bestpo: bestpos.add(bestpo)
       if instpos == bestpos:
@@ -246,13 +246,12 @@ class IDepsolver(Depsolver):
   def iupdate(self):
     if not self.installed_packages: return
 
-    removed = []
+    removed = set()
     for pkgtup, po in self.installed_packages.items():
-      if po in self.new_packages:
+      if po in self.new_packages or pkgtup in removed:
         continue
-      if pkgtup in removed:
-        continue
-      bestpo = self.getBestAvailablePackage(name=pkgtup[0])
+
+      bestpo = self.getBestAvailablePackage(name=pkgtup[0], arch=pkgtup[1])
       if po and bestpo and po != bestpo:
         # make sure that all the packages requiring the old package
         # can now require the new package seamlessly. First, we check
@@ -267,31 +266,33 @@ class IDepsolver(Depsolver):
             if dep == po.pkgtup:
               requirements.append(req)
 
-        required = False
-        for req in requirements:
-          if req not in bestpo.provides:
-            if req[0].startswith('/') and req[0] in bestpo.filelist:
-              # check to see if the requirement is a file and that the file
-              # is in the new package as well
-              continue
+        if satisfies_requirements(bestpo, requirements):
+          if po:
+            for x in self.removePackages(po.pkgtup, isupdated=True):
+              removed.add(x)
+          if bestpo:
+            self.installPackage(bestpo)
 
-            # if the best package satisfies the requirement and some,
-            # continue
-            bestpo_provides_req = False
-            for prov in bestpo.provides:
-              if rpmUtils.miscutils.rangeCompare(req, prov):
-                bestpo_provides_req = True
-                break
-            if bestpo_provides_req:
-              continue
 
-            required = True
-            break
+def satisfies_requirements(po, requirements):
+  """
+  Return true if the package object provides everything in the list of
+  requirements.
+  """
+  pkg_satisfies_reqs = True
+  for req in requirements:
+    if req in po.provides or \
+        ( req[0].startswith('/') and req[0] in po.filelist ):
+      continue
 
-        if required:
-          continue
-
-        if po:
-          removed.extend(self.removePackages(po.pkgtup, isupdated=True))
-        if bestpo:
-          self.installPackage(bestpo)
+    # if the best package satisfies the requirement and some,
+    # continue
+    for prov in po.provides:
+      if rpmUtils.miscutils.rangeCompare(req, prov):
+        break
+    else:
+      # if you get here, it means that the "new" package doesn't
+      # provide everything the "old" package did.
+      pkg_satisfies_reqs = False
+      break
+  return pkg_satisfies_reqs
