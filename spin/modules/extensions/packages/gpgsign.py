@@ -22,7 +22,7 @@ from rendition.mkrpm       import GpgMixin
 from rendition.progressbar import ProgressBar
 
 from spin.callback  import GpgCallback, SyncCallback, LAYOUT_GPG
-from spin.errors    import assert_file_readable, SpinError, SpinIOError
+from spin.errors    import assert_file_has_content, SpinError, SpinIOError
 from spin.event     import Event
 from spin.logging   import L1, L2
 
@@ -107,8 +107,8 @@ class GpgSignEvent(GpgMixin, Event):
       gnupg_dir.rm(recursive=True, force=True)
       gnupg_dir.mkdirs()
       for key in [pubkey, seckey]:
-        assert_file_readable(key, cls=GpgkeyIOError,
-                                  srcfile=self.io.i_dst[key].src)
+        assert_file_has_content(key, cls=GpgkeyIOError,
+                                srcfile=self.io.i_dst[key].src)
         try:
           self.import_key(gnupg_dir, key)
         except RuntimeError: # raised if key is invalid

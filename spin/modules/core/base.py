@@ -25,7 +25,7 @@ from rendition import img
 from rendition import repo
 from rendition import versort
 
-from spin.errors  import assert_file_readable
+from spin.errors  import assert_file_has_content
 from spin.event   import Event
 from spin.logging import L1
 
@@ -90,7 +90,7 @@ class BaseInfoEvent(Event):
     buildstamp = ffile.DictToFormattedFile(self.locals.L_BUILDSTAMP_FORMAT)
 
     # update base vars
-    assert_file_readable(self.buildstamp_out)
+    assert_file_has_content(self.buildstamp_out)
     self.cvars.setdefault('base-info', {}).update(buildstamp.read(self.buildstamp_out))
 
   def verify_buildstamp_file(self):

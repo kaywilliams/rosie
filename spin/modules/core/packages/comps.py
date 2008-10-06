@@ -18,7 +18,7 @@
 from rendition import rxml
 
 from spin.constants import KERNELS
-from spin.errors    import assert_file_readable, SpinError
+from spin.errors    import assert_file_has_content, SpinError
 from spin.event     import Event
 from spin.logging   import L1
 from spin.validate  import InvalidConfigError
@@ -66,7 +66,7 @@ class CompsEvent(Event):
     self.comps_supplied = self.config.get('text()', False)
 
     if self.comps_supplied:
-      assert_file_readable(self.config.getpath('.'))
+      assert_file_has_content(self.config.getpath('.'))
       self.io.add_xpath('.', self.mddir, id='comps.xml')
 
     else:
@@ -107,7 +107,7 @@ class CompsEvent(Event):
       self.cvars['comps-file'] = self.comps_out
 
     # set required packages variable
-    assert_file_readable(self.cvars['comps-file'])
+    assert_file_has_content(self.cvars['comps-file'])
     self.cvars['required-packages'] = \
        rxml.config.read(self.cvars['comps-file']).xpath('//packagereq/text()')
 
@@ -232,7 +232,7 @@ class CompsEvent(Event):
 
   def _process_groupfile(self, groupfile, id=None):
     "Process a groupfile, adding the requested groups to the groups dict"
-    assert_file_readable(groupfile)
+    assert_file_has_content(groupfile)
     tree = rxml.config.read(groupfile)
 
     # add any other groups specified

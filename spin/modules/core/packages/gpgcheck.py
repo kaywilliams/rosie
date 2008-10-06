@@ -20,7 +20,7 @@ from rendition import mkrpm
 from rendition import shlib
 
 from spin.callback import GpgCallback
-from spin.errors   import SpinError, SpinIOError, assert_file_readable
+from spin.errors   import SpinError, SpinIOError, assert_file_has_content
 from spin.event    import Event
 from spin.logging  import L1, L2
 from spin.validate import InvalidConfigError
@@ -86,7 +86,7 @@ class GpgCheckEvent(Event):
         homedir.rm(force=True, recursive=True)
         homedir.mkdirs()
         for key in self.io.list_output(what=repo):
-          assert_file_readable(key, srcfile=self.io.i_dst[key].src,
+          assert_file_has_content(key, srcfile=self.io.i_dst[key].src,
                                     cls=GpgkeyIOError)
           self._strip_key(key) # strip off non-gpg information from key
           shlib.execute('gpg --homedir %s --import %s' %(homedir,key))

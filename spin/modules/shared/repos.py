@@ -31,7 +31,8 @@ from rendition.difftest.filesdiff import DiffTuple
 
 from rendition.pps.constants import TYPE_DIR
 
-from spin.errors    import SpinError, SpinIOError, RhnSupportError, assert_file_readable
+from spin.errors    import (SpinError, SpinIOError, RhnSupportError,
+                            assert_file_readable, assert_file_has_content)
 from spin.logging   import L1, L2
 from spin.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
 from spin.validate  import InvalidConfigError
@@ -96,7 +97,7 @@ class SpinRepo(YumRepo):
         if systemid:
           systemid = pps.path(systemid).realpath()
           try:
-            assert_file_readable(systemid, cls=SystemidIOError, repoid=self.id)
+            assert_file_has_content(systemid, cls=SystemidIOError, repoid=self.id)
           except pps.lib.rhn.SystemidInvalidError, e:
             raise SystemidInvalidError(systemid, self.id, str(e))
           p.systemid = systemid

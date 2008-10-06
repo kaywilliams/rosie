@@ -8,8 +8,28 @@ from rendition import pps
 
 REGEX_KWPARSE = re.compile('%\(([^\)]+)\).')
 
+def assert_file_has_content(file, cls=None, srcfile=None, **kwargs):
+  "Raise a SpinIOError (or subclass) if a file is not readable or empty."
+  assert_file_readable(file, cls=cls, srcfile=srcfile, **kwargs)
+  fp = None
+  error = None
+  message = None
+  try:
+    fp = pps.path(file).open()
+    if not fp.read(1024):
+      errno = -1
+      message = "file is empty"
+  finally:
+    fp and fp.close()
+
+  if errno and message:
+    raise (cls or SpinIOError)(errno=errno,
+                               file=srcfile or file,
+                               message=message,
+                               **kwargs)
+
 def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
-  "Raise a SpinIOError (or subclass) if a file isn't readable or is empty"
+  "Raise a SpinIOError (or subclass) if a file isn't readable"
   fp = None
   errno = None; message = None
   try:
@@ -17,9 +37,6 @@ def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
       fp = pps.path(file).open()
     except pps.Path.error.PathError, e:
       errno = e.errno; message = os.strerror(e.errno)
-    else:
-      if not fp.read(1024):
-        errno = -1;    message = "file is empty"
 
     if errno and message:
       raise (cls or SpinIOError)(errno=errno,

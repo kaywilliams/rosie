@@ -20,7 +20,7 @@ import re
 from rendition.repo    import ReposFromXml, ReposFromFile, RepoContainer, RepoFileParseError
 from rendition.versort import Version
 
-from spin.errors   import assert_file_readable, SpinError
+from spin.errors   import assert_file_has_content, assert_file_readable, SpinError
 from spin.event    import Event
 from spin.logging  import L1, L2
 from spin.validate import InvalidConfigError
@@ -67,7 +67,7 @@ class ReposEvent(RepoEventMixin, Event):
       updates.add_repos(ReposFromXml(self.config.get('.'), cls=SpinRepoGroup))
     for filexml in self.config.xpath('repofile/text()', []):
       fn = self.io.abspath(filexml)
-      assert_file_readable(fn)
+      assert_file_has_content(fn)
       try:
         updates.add_repos(ReposFromFile(fn, cls=SpinRepoGroup))
       except RepoFileParseError, e:

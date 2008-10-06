@@ -24,7 +24,7 @@ from rendition import difftest
 
 from spin.callback  import PkglistCallback
 from spin.constants import KERNELS
-from spin.errors    import assert_file_readable, SpinError
+from spin.errors    import assert_file_has_content, SpinError
 from spin.event     import Event
 from spin.logging   import L1
 
@@ -156,7 +156,7 @@ class PkglistEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
-    assert_file_readable(self.pkglistfile)
+    assert_file_has_content(self.pkglistfile)
     self.cvars['pkglist'] = self.pkglistfile.read_lines()
 
     # ensure what we read in is comprehensible
