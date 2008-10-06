@@ -24,7 +24,6 @@ from rendition import shlib
 from spin import splittree
 
 from spin.callback import BuildDepsolveCallback
-from spin.errors   import SpinIOError, assert_file_readable
 from spin.event    import Event, CLASS_META
 from spin.logging  import L1, L2, L3
 
@@ -247,6 +246,3 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
 
     self.DATA['output'].extend([self.splittrees/set, self.isodir/set])
 
-class PkgorderIOError(SpinIOError):
-  message = ( "Unable to read pkgorder file '%(file)s': [errno %(errno)d] "
-              "%(message)s" )
