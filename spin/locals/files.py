@@ -35,6 +35,10 @@ L_FILES = LocalsDict({
       'vmlinuz-xen':  dict(path='images/xen/vmlinuz'),
       'initrd-xen':   dict(path='images/xen/initrd.img', format=EXT2, zipped=True),
     },
+    'do-xen': { # whether xen-images event needs to run, hack
+      'i386':   True,
+      'x86_64': True,
+    },
   },
   "anaconda-10.2.0.3-1": { # initrd images to cpio format
     'isolinux': {
@@ -85,5 +89,8 @@ L_FILES = LocalsDict({
       'initrd-xen':  dict(path='images/pxeboot/initrd-PAE.img'),
       'vmlinuz-xen': dict(path='images/pxeboot/vmlinuz-PAE'),
     },
+    'do-xen': { # xen images are the same as normal images now
+      'x86_64': False,
+    }
   },
 })

@@ -57,6 +57,8 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
       pass
 
   def setup(self):
+    if not self.locals.L_FILES['do-xen'][self.basearch]: return
+
     # fool ImageModifyMixin into using the content of initrd.img for xen's
     # initrd.img as well
     self.cvars['xen-images-content'] = self.cvars['initrd-image-content']
@@ -80,11 +82,20 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
                       id='%s-input-files' % self.name)
 
   def run(self):
+    if not self.locals.L_FILES['do-xen'][self.basearch]: return
+
     self._download()
     self._modify()
 
   def apply(self):
+    if not self.locals.L_FILES['do-xen'][self.basearch]: return
+
     self.io.clean_eventcache()
+
+  def verify_image(self):
+    # don't print warning if we didn't do anything
+    if not self.locals.L_FILES['do-xen'][self.basearch]: return
+    ImageModifyMixin.verify_image(self)
 
   def _generate(self):
     ImageModifyMixin._generate(self)
