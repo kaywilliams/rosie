@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.56
+Version: 0.8.57
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,13 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Mon Oct 06 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.57-1
+- Comparing architectures of packages when looking for updates. (uprakash)
+- merged with trunk (dmusgrave)
+- hack fix to xen-images in f10 - until we use treeinfo, just skip running xen-images in fedora 10 (dmusgrave)
+- Tagged as spin-0.8.56-1 (spinmaster)
+- Bumped version to spin-0.8.56-1.noarch. (spinmaster)
+
 * Fri Oct 03 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.56-1
 - removed SpinRepo._pkg_filter(dmusgrave)
 - Merged with trunk. (uprakash)

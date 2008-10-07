@@ -1,9 +1,36 @@
+2008-10-05  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/shared/idepsolver.py:
+	Comparing architectures of packages when looking for updates.
+	[afb188804ded] [tip]
+
+2008-10-06  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* merged with trunk
+	[8e78f6b50844]
+
+	* spin/locals/files.py, spin/modules/core/installer/xen-images.py:
+	hack fix to xen-images in f10 - until we use treeinfo, just skip
+	running xen-images in fedora 10 (since they're the same as those
+	handled in isolinux/pxeboot)
+	[9458ef1f42e2]
+
+2008-10-03  spinmaster  <spinmaster>
+
+	* .hgtags:
+	Tagged as spin-0.8.56-1
+	[5d29c8d5396f]
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.56-1.noarch.
+	[a623b7e79596] [spin-0.8.56-1]
+
 2008-10-03  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
 	* spin/modules/shared/repos.py:
 	removed SpinRepo._pkg_filter(); now uses
 	SpinRepo.repocontent.has_package()
-	[3395d49a959c] [tip]
+	[3395d49a959c]
 
 2008-10-02  Uday Prakash  <uprakash@renditionsoftware.com>
 
