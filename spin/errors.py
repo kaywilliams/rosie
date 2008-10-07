@@ -12,7 +12,7 @@ def assert_file_has_content(file, cls=None, srcfile=None, **kwargs):
   "Raise a SpinIOError (or subclass) if a file is not readable or empty."
   assert_file_readable(file, cls=cls, srcfile=srcfile, **kwargs)
   fp = None
-  error = None
+  errno = None
   message = None
   try:
     fp = pps.path(file).open()
