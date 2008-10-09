@@ -33,7 +33,8 @@ class CreaterepoEvent(Event, CreaterepoMixin):
       id = 'createrepo',
       version = '0.1',
       parentid = 'packages',
-      provides = ['rpms', 'rpms-directory', 'repodata-directory'],
+      provides = ['rpms', 'rpms-directory', 'repodata-directory',
+                  'treeinfo-checksums'],
       requires = ['cached-rpms'],
       conditionally_requires = ['comps-file', 'signed-rpms', 'gpgsign-public-key'],
     )
@@ -79,6 +80,8 @@ class CreaterepoEvent(Event, CreaterepoMixin):
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['rpms'] = self.io.list_output(what='rpms')
+    self.cvars.setdefault('treeinfo-checksums', set()).add(
+      (self.SOFTWARE_STORE, 'repodata/repomd.xml'))
 
   def verify_repodata_directory(self):
     self.verifier.failUnlessExists(self.cvars['repodata-directory'])

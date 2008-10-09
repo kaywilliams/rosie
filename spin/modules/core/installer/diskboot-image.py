@@ -37,7 +37,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     Event.__init__(self,
       id = 'diskboot-image',
       parentid = 'installer',
-      provides = ['diskboot.img'],
+      provides = ['diskboot.img', 'treeinfo-checksums'],
       requires = ['buildstamp-file', 'installer-repo', 'isolinux-files'],
       conditionally_requires = ['diskboot-image-content', 'web-path',
                                 'boot-args', 'ks-path', 'installer-splash'],
@@ -78,6 +78,12 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
 
   def run(self):
     self._modify()
+
+  def apply(self):
+    ImageModifyMixin.apply(self)
+    cvar = self.cvars.setdefault('treeinfo-checksums', set())
+    for file in self.SOFTWARE_STORE.findpaths(type=pps.constants.TYPE_NOT_DIR):
+      cvar.add((self.SOFTWARE_STORE, file.relpathfrom(self.SOFTWARE_STORE)))
 
   def _generate(self):
     ImageModifyMixin._generate(self)

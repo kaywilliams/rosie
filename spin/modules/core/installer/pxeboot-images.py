@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from spin.event   import Event
+from rendition import pps
+
+from spin.event import Event
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -29,7 +31,7 @@ class PxebootImagesEvent(Event):
     Event.__init__(self,
       id = 'pxeboot-images',
       parentid = 'installer',
-      provides = ['pxeboot'],
+      provides = ['pxeboot', 'treeinfo-checksums'],
       requires = ['isolinux-files'],
     )
 
@@ -50,3 +52,6 @@ class PxebootImagesEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
+    cvar = self.cvars.setdefault('treeinfo-checksums', set())
+    for f in self.SOFTWARE_STORE.findpaths(type=pps.constants.TYPE_NOT_DIR):
+      cvar.add((self.SOFTWARE_STORE, f.relpathfrom(self.SOFTWARE_STORE)))

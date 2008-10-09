@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+from rendition import pps
+
 from spin.event import Event
 
 from spin.modules.shared import FileDownloadMixin, ImageModifyMixin
@@ -32,7 +34,7 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
       id = 'xen-images',
       parentid = 'installer',
       version = 2,
-      provides = ['vmlinuz-xen', 'initrd-xen'],
+      provides = ['vmlinuz-xen', 'initrd-xen', 'treeinfo-checksums'],
       requires = ['anaconda-version', 'buildstamp-file', 'installer-repo'],
       conditionally_requires = ['initrd-image-content', 'kickstart-file', 'ks-path'],
     )
@@ -91,6 +93,10 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     if not self.locals.L_FILES['do-xen'][self.basearch]: return
 
     self.io.clean_eventcache()
+
+    cvar = self.cvars.setdefault('treeinfo-checksums', set())
+    for file in self.SOFTWARE_STORE.findpaths(type=pps.constants.TYPE_NOT_DIR):
+      cvar.add((self.SOFTWARE_STORE, file.relpathfrom(self.SOFTWARE_STORE)))
 
   def verify_image(self):
     # don't print warning if we didn't do anything

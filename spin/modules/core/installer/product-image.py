@@ -36,7 +36,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     Event.__init__(self,
       id = 'product-image',
       parentid = 'installer',
-      provides = ['product.img'],
+      provides = ['product.img', 'treeinfo-checksums'],
       requires = ['anaconda-version', 'buildstamp-file',
                   'comps-file', 'installer-repo'],
       conditionally_requires = ['product-image-content'],
@@ -68,6 +68,12 @@ class ProductImageEvent(Event, ImageModifyMixin):
 
   def run(self):
     self._modify()
+
+  def apply(self):
+    ImageModifyMixin.apply(self)
+    cvar = self.cvars.setdefault('treeinfo-checksums', set())
+    for file in self.SOFTWARE_STORE.findpaths(type=pps.constants.TYPE_NOT_DIR):
+      cvar.add((self.SOFTWARE_STORE, file.relpathfrom(self.SOFTWARE_STORE)))
 
   def _generate(self):
     ImageModifyMixin._generate(self)

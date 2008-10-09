@@ -56,4 +56,20 @@ L_TREEINFO_FORMAT = LocalsDict({
       },
     },
   },
+  "anaconda-11.4.1.29-1": {
+    'general': {
+      'content': {
+        'packagedir':   dict(index=6, value='%(packagepath)s'),
+      },
+    },
+    'images-xen': {
+      'initrd':         dict(index=0, value='images/pxeboot/initrd-PAE.img'),
+      'kernel':         dict(index=1, value='images/pxeboot/vmlinuz-PAE'),
+    },
+    'stage2': {
+      'instimage':      REMOVE,
+      'mainimage':      dict(index=0, value='images/install.img'),
+    },
+  }
 })
+

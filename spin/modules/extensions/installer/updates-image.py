@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+from rendition import pps
+
 from spin.event import Event
 
 from spin.modules.shared import ImageModifyMixin
@@ -31,7 +33,7 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     Event.__init__(self,
       id = 'updates-image',
       parentid = 'installer',
-      provides = ['updates.img'],
+      provides = ['updates.img', 'treeinfo-checksums'],
       requires = ['anaconda-version', 'installer-repo'],
       conditionally_requires = ['updates-image-content'],
     )
@@ -60,3 +62,9 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
 
   def run(self):
     self._modify()
+
+  def apply(self):
+    ImageModifyMixin.apply(self)
+    cvar = self.cvars.setdefault('treeinfo-checksums', set())
+    for file in self.SOFTWARE_STORE.findpaths(type=pps.constants.TYPE_NOT_DIR):
+      cvar.add((self.SOFTWARE_STORE, file.relpathfrom(self.SOFTWARE_STORE)))

@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from spin.event   import Event
+from rendition import pps
+
+from spin.event import Event
 
 from spin.modules.shared import FileDownloadMixin
 
@@ -31,7 +33,7 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
     Event.__init__(self,
       id = 'stage2-images',
       parentid = 'installer',
-      provides = ['stage2-images'],
+      provides = ['stage2-images', 'treeinfo-checksums'],
       requires = ['anaconda-version', 'base-info', 'installer-repo'],
     )
 
@@ -55,3 +57,7 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
     self.cvars.setdefault('stage2-images', {})
     for k,v in self.file_locals.items():
       self.cvars['stage2-images'][k] = self.SOFTWARE_STORE/v['path']
+    cvar = self.cvars.setdefault('treeinfo-checksums', set())
+    for f in self.SOFTWARE_STORE.findpaths(type=pps.constants.TYPE_NOT_DIR):
+      cvar.add((self.SOFTWARE_STORE, f.relpathfrom(self.SOFTWARE_STORE)))
+

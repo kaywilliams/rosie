@@ -36,6 +36,7 @@ class BootisoEvent(Event, BootConfigMixin):
       version = '0.2',
       requires = ['isolinux-files', 'boot-config-file'],
       conditionally_requires = ['web-path', 'boot-args'],
+      provides = ['treeinfo-checksums'],
     )
 
     self.bootiso = self.SOFTWARE_STORE/'images/boot.iso'
@@ -79,6 +80,10 @@ class BootisoEvent(Event, BootConfigMixin):
                   % (self.bootiso, self.name, isodir))
     ibin.utime((ibin_st.st_atime, ibin_st.st_mtime))
     isodir.rm(recursive=True)
+
+  def apply(self):
+    self.cvars.setdefault('treeinfo-checksums', set()).add(
+      (self.SOFTWARE_STORE, 'images/boot.iso'))
 
   def verify_bootiso_exists(self):
     "boot.iso exists"

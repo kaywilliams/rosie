@@ -87,17 +87,21 @@ class TreeinfoEvent(Event):
       version = '1.1',
       parentid = 'installer',
       provides = ['.treeinfo'],
-      requires = ['anaconda-version'],
+      requires = ['anaconda-version', 'treeinfo-checksums'],
     )
 
     self.tifile = self.SOFTWARE_STORE/'.treeinfo'
 
     self.DATA =  {
       'variables': ['name', 'version', 'packagepath', 'basearch'],
-      'output':    [self.tifile]
+      'output':    [self.tifile],
     }
 
   def setup(self):
+    inputs = []
+    for (software_store, file) in self.cvars.get('treeinfo-checksums', []):
+      inputs.append(software_store / file)
+    self.DATA['input'] = inputs
     self.diff.setup(self.DATA)
 
   def run(self):
@@ -114,6 +118,14 @@ class TreeinfoEvent(Event):
       for item in sort_keys(content):
         lines.append('%s = %s' % (item % vars, content[item]['value'] % vars))
       lines.append('')
+
+    # compute checksums
+    if 'treeinfo-checksums' in self.cvars:
+      lines.append('[checksums]')
+      checksums = sorted(self.cvars['treeinfo-checksums'])
+      for software_store, file in checksums:
+        shasum = (software_store / file).shasum()
+        lines.append('%s = sha1:%s' % (file, shasum))
 
     # write .treeinfo
     self.tifile.dirname.mkdirs()
