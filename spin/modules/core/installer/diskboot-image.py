@@ -36,6 +36,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'diskboot-image',
+      version = '0.1',
       parentid = 'installer',
       provides = ['diskboot.img', 'treeinfo-checksums'],
       requires = ['buildstamp-file', 'installer-repo', 'isolinux-files'],

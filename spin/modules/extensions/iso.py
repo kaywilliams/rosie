@@ -105,6 +105,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'iso',
+      version = '0.1',
       parentid = 'all',
       provides = ['iso-dir', 'publish-content'],
       requires = ['anaconda-version', 'pkgorder-file', 'manifest-file',

@@ -33,7 +33,7 @@ class BootisoEvent(Event, BootConfigMixin):
     Event.__init__(self,
       id = 'bootiso',
       parentid = 'installer',
-      version = '0.2',
+      version = '0.3',
       requires = ['isolinux-files', 'boot-config-file'],
       conditionally_requires = ['web-path', 'boot-args'],
       provides = ['treeinfo-checksums'],
