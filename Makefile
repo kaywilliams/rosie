@@ -59,5 +59,4 @@ bumpver:
 	(head -n $$cl $(SPECFILE) ; echo "$$DATELINE" ; echo "$$rpmlog"; echo ""; cat speclog) > $(SPECFILE).new ; \
 	mv $(SPECFILE).new $(SPECFILE); rm -f speclog; \
 	sed -i "s/Version: $(VERSION)/Version: $$NEWVERSION/" $(SPECFILE); \
-	sed -i "s/version = '$(VERSION)'/version = '"$$NEWVERSION"'/" setup.py
 	@make changelog
