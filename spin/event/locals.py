@@ -35,6 +35,7 @@ class LocalsObject:
   # anaconda-version based
   L_FILES             = property(lambda self: L_FILES[self.anaconda_ver])
   #L_BUILDINSTALL      = property(lambda self: L_BUILDINSTALL[self.anaconda_ver])
+  L_BOOTCFG           = property(lambda self: L_BOOTCFG[self.anaconda_ver])
   L_BUILDSTAMP_FORMAT = property(lambda self: L_BUILDSTAMP_FORMAT[self.anaconda_ver])
   L_DISCINFO_FORMAT   = property(lambda self: L_DISCINFO_FORMAT[self.anaconda_ver])
   L_TREEINFO_FORMAT   = property(lambda self: L_TREEINFO_FORMAT[self.anaconda_ver])

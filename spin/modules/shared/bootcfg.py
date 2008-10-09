@@ -81,9 +81,11 @@ class BootConfigDummy(object):
   def _process_method(self, args):
     self.ptr.DATA['variables'].append('cvars[\'web-path\']')
     if self.ptr.cvars['web-path'] is not None:
-      args.append('method=%s/os' % self.ptr.cvars['web-path'])
+      args.append('%s=%s/os' % (self.ptr.locals.L_BOOTCFG['options']['method'],
+                                self.ptr.cvars['web-path']))
 
   def _process_ks(self, args):
     self.ptr.DATA['variables'].append('cvars[\'ks-path\']')
     if self.ptr.cvars['ks-path'] is not None:
-      args.append('ks=file:%s' % self.ptr.cvars['ks-path'])
+      args.append('%s=file:%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],
+                                  self.ptr.cvars['ks-path']))
