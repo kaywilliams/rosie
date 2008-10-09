@@ -42,11 +42,11 @@ and run a Spin-managed appliance.
 %setup -q
 
 %build
-%{__make} depend
+%{__make}
 
 %install
 %{__rm} -rf %{buildroot}
-%{__make} install DESTDIR=%{buildroot}
+%{__make} install DESTDIR=%{buildroot} PYTHONLIBDIR=%{python_sitelib}
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -63,8 +63,6 @@ and run a Spin-managed appliance.
 %doc INSTALL
 %doc README
 %doc NEWS
-%exclude /usr/share/spin/release/eula.pyc
-%exclude /usr/share/spin/release/eula.pyo
 %{_mandir}/man5/spin.conf.5.gz
 %{_mandir}/man1/spin.1.gz
 

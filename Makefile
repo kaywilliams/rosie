@@ -3,24 +3,17 @@ SPECFILE := $(PKGNAME).spec
 VERSION := $(shell awk '/Version:/ { print $$2 }' $(SPECFILE))
 RELEASE := $(shell awk '/Release:/ { print $$2 }' $(SPECFILE) | sed -e 's|%{?dist}||g')
 
-SUBDIRS = docsrc etc
+SUBDIRS = bin docsrc etc share spin
 
 BUILDARGS =
 
-.PHONY: all clean depend subdirs build install tag changelog archive srpm bumpver
+.PHONY: all clean install tag changelog archive srpm bumpver
 
-all: build
-
-clean:
-	@rm -rf build/
-
-depend: build subdirs
-
-subdirs:
+all:
 	for dir in $(SUBDIRS); do make -C $$dir; done
 
-build:
-	python setup.py build
+clean:
+	for dir in $(SUBDIRS); do make -C $$dir clean; done
 
 install:
 	@if [ "$(DESTDIR)" = "" ]; then \
@@ -28,8 +21,14 @@ install:
 		echo "ERROR: A destdir is required"; \
 		exit 1; \
 	fi
-	python setup.py install -O1 --skip-build --root $(DESTDIR)
-	for dir in $(SUBDIRS); do make -C $$dir DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
+	@if [ "$(PYTHONLIBDIR)" = "" ]; then \
+		echo " "; \
+		echo "ERROR: A pythonlibdir is required."; \
+		exit 1; \
+	fi
+	mkdir -p $(PYTHONLIBDIR)
+	mkdir -p $(DESTDIR)
+	for dir in $(SUBDIRS); do make -C $$dir PYTHONLIBDIR=`cd $(PYTHONLIBDIR); pwd` DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
 
 tag:
 	@if [ "$(USERNAME)" != "" ]; then \
@@ -43,8 +42,7 @@ changelog:
 	@hg log --style changelog > ChangeLog
 
 archive:
-	@python setup.py --quiet sdist --dist-dir .
-	@rm -f MANIFEST
+	@hg archive -t tgz --prefix=$(PKGNAME)-$(VERSION) $(PKGNAME)-$(VERSION).tar.gz
 
 srpm: archive
 	@rpmbuild $(BUILDARGS) -ts $(PKGNAME)-$(VERSION).tar.gz  || exit 1
