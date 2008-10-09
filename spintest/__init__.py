@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import datetime
 import imp
 import os
 import sys
@@ -249,8 +250,10 @@ class EventTestRunner:
       result.printErrors()
 
     self.logger.log(1, result.separator2)
-    self.logger.log(1, "ran %d test%s in %.3fs" %
-      (result.testsRun, result.testsRun != 1 and 's' or '', stoptime-starttime))
+    self.logger.log(1, "ran %d test%s in %s" %
+      (result.testsRun,
+       result.testsRun != 1 and 's' or '',
+       datetime.timedelta(seconds=int(stoptime)-int(starttime))))
     self.logger.write(1, '\n')
 
     if not result.wasSuccessful():
