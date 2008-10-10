@@ -56,9 +56,7 @@ class Test_CvarContent(_DiskbootImageEventTestCase):
   "cvars['isolinux-files'] included"
   _conf = \
   """<diskboot-image>
-    <boot-config>
-      <append-args>ro root=LABEL=/</append-args>
-    </boot-config>
+    <boot-args>ro root=LABEL=/</boot-args>
   </diskboot-image>"""
 
   def runTest(self):
@@ -71,9 +69,7 @@ class Test_BootArgsDefault(_DiskbootImageEventTestCase):
   "default boot args and config-specified args in syslinux.cfg"
   _conf = \
   """<diskboot-image>
-    <boot-config use-defaults="true">
-      <append-args>ro root=LABEL=/</append-args>
-    </boot-config>
+    <boot-args use-defaults="true">ro root=LABEL=/</boot-args>
   </diskboot-image>"""
 
   def setUp(self):
@@ -84,9 +80,7 @@ class Test_BootArgsNoDefault(_DiskbootImageEventTestCase):
   "default boot args not included"
   _conf = \
   """<diskboot-image>
-    <boot-config use-defaults="false">
-      <append-args>ro root=LABEL=/</append-args>
-    </boot-config>
+    <boot-args use-defaults="false">ro root=LABEL=/</boot-args>
   </diskboot-image>"""
 
   def setUp(self):
@@ -97,9 +91,7 @@ class Test_BootArgsMacros(_DiskbootImageEventTestCase):
   "macro usage with non-default boot args"
   _conf = \
   """<diskboot-image>
-    <boot-config use-defaults="false">
-      <append-args>ro root=LABEL=/ %{method} %{ks}</append-args>
-    </boot-config>
+    <boot-args use-defaults="false">ro root=LABEL=/ %{method} %{ks}</boot-args>
   </diskboot-image>"""
 
   def setUp(self):
