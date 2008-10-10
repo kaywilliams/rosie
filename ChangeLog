@@ -1,8 +1,62 @@
+2008-10-08  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/installer/bootiso.py, spin/modules/core/installer
+	/diskboot-image.py, spin/modules/extensions/iso.py:
+	Bumped versions of events using BootConfigMixin.
+	[7606ecc95380] [tip]
+
+	* spin/event/locals.py, spin/locals/bootcfg.py,
+	spin/modules/shared/bootcfg.py:
+	Fixed Bug 363. Added locals information for bootcfg.
+
+	For anaconda version >= 11.4.1.6-1, the --method= argument has been
+	deprecated in favor of --repo=.
+	[c3b16b13ec29]
+
+	* spin/locals/treeinfo.py, spin/modules/core/installer/bootiso.py,
+	spin/modules/core/installer/diskboot-image.py,
+	spin/modules/core/installer/infofiles.py,
+	spin/modules/core/installer/product-image.py,
+	spin/modules/core/installer/pxeboot-images.py,
+	spin/modules/core/installer/stage2-images.py,
+	spin/modules/core/installer/xen-images.py,
+	spin/modules/core/packages/createrepo.py,
+	spin/modules/extensions/installer/updates-image.py:
+	Fixed Bug 362. Added [checksums] section to treeinfo file.
+
+	Events that want some of their output files' checksum written out to
+	the treeinfo file need to modify the 'treeinfo-checksums' control
+	variable by adding the path to their software store and the relative
+	path to the file from the software store (as a tuple) to it.
+
+	The treeinfo computes a list of files based on the tuples and marks
+	them as input files. It then -- in its run() method -- iterates
+	over this list of tuples, and computes the checksum of the file and
+	then writes it out to the treeinfo file.
+	[83f5e75dbfe7]
+
+2008-10-09  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spintest/__init__.py:
+	test output now formats seconds into more easily readible H:M:S
+	strings
+	[71c732a0b989]
+
+2008-10-07  spinmaster  <spinmaster>
+
+	* .hgtags:
+	Tagged as spin-0.8.58-1
+	[8ccbe76c4f51]
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.58-1.noarch.
+	[2f2598e561ba] [spin-0.8.58-1]
+
 2008-10-06  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* spin/errors.py:
 	Fixed a typo with a variable name in the errors module.
-	[ea78e7ad4007] [tip]
+	[ea78e7ad4007]
 
 	* spin/errors.py, spin/modules/core/base.py,
 	spin/modules/core/packages/comps.py,

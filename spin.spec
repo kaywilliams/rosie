@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.58
+Version: 0.8.59
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,14 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Thu Oct 09 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.59-1
+- Bumped versions of events using BootConfigMixin. (uprakash)
+- Fixed Bug 363. Added locals information for bootcfg. (uprakash)
+- Fixed Bug 362.  Added [checksums] section to treeinfo file. (uprakash)
+- test output now formats seconds into more easily readible H:M:S strings (dmusgrave)
+- Tagged as spin-0.8.58-1 (spinmaster)
+- Bumped version to spin-0.8.58-1.noarch. (spinmaster)
+
 * Tue Oct 07 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.58-1
 - Fixed a typo with a variable name in the errors module. (uprakash)
 - Added assert_file_has_content(uprakash)
