@@ -145,8 +145,8 @@
     <ref name="attribute-mode"/>
   </define>
 
-  <!-- boot-config element -->
-  <define name="element-boot-config">
+  <!-- boot-args element -->
+  <define name="element-boot-args">
     <element name="boot-args">
       <optional>
       <attribute name="use-defaults">
