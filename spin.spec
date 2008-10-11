@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.59
+Version: 0.8.60
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -69,6 +69,14 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Fri Oct 10 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.60-1
+- bug 367 - removed support for files in diskboot-image (dmusgrave)
+- bug 366 - renamed 'element-boot-config' to 'element-boot-args' in rng for symmetry (dmusgrave)
+- bug 366 - flattened boot-config/* into boot-args (dmusgrave)
+- removing initrd-image schema - bug 367 (kwilliams)
+- Tagged as spin-0.8.59-1 (spinmaster)
+- Bumped version to spin-0.8.59-1.noarch. (spinmaster)
+
 * Thu Oct 09 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.59-1
 - Bumped versions of events using BootConfigMixin. (uprakash)
 - Fixed Bug 363. Added locals information for bootcfg. (uprakash)
