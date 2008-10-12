@@ -88,7 +88,7 @@ srpm-enterprise: archive-enterprise
 bumpver:
 	@NEWSUBVER=$$((`echo $(VERSION) | cut -d . -f 3` + 1)) ; \
 	NEWVERSION=`echo $(VERSION).$$NEWSUBVER |cut -d . -f 1-2,4` ; \
-	changelog="`hg log -r tip:$(PKGNAME)-$(VERSION)-$(RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
+	changelog="`hg log --exclude spin/modules/core/rpmbuild/logos-rpm --exclude spin-enterprise.spec -r tip:$(PKGNAME)-$(VERSION)-$(RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
 	rpmlog="`echo "$$changelog" | sed -e 's/@.*>)/)/' -e 's/(.*</(/'`"; \
 	DATELINE="* `date "+%a %b %d %Y"` `hg showconfig ui.username` - $$NEWVERSION-$(RELEASE)" ; \
 	cl=`grep -n %changelog $(SPECFILE) | cut -d : -f 1` ; \
@@ -101,7 +101,7 @@ bumpver:
 bumpver-enterprise:
 	@NEWSUBVER=$$((`echo $(ENTERPRISE_VERSION) | cut -d . -f 3` + 1)) ; \
 	NEWENTERPRISE_VERSION=`echo $(ENTERPRISE_VERSION).$$NEWSUBVER |cut -d . -f 1-2,4` ; \
-	changelog="`hg log -r tip:$(ENTERPRISE_PKGNAME)-$(ENTERPRISE_VERSION)-$(ENTERPRISE_RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
+	changelog="`hg log --include spin/modules/core/rpmbuild/logos-rpm --include spin-enterprise-spec -r tip:$(ENTERPRISE_PKGNAME)-$(ENTERPRISE_VERSION)-$(ENTERPRISE_RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
 	rpmlog="`echo "$$changelog" | sed -e 's/@.*>)/)/' -e 's/(.*</(/'`"; \
 	DATELINE="* `date "+%a %b %d %Y"` `hg showconfig ui.username` - $$NEWENTERPRISE_VERSION-$(ENTERPRISE_RELEASE)" ; \
 	cl=`grep -n %changelog $(ENTERPRISE_SPECFILE) | cut -d : -f 1` ; \
