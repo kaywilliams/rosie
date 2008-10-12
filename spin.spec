@@ -15,6 +15,7 @@ BuildArch: noarch
 BuildRequires: docbook-style-xsl
 BuildRequires: gzip
 BuildRequires: libxslt
+BuildRequires: python
 
 Requires: createrepo
 Requires: dosfstools

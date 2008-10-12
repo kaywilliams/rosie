@@ -12,7 +12,7 @@ SUBDIRS = bin docsrc etc share spin
 
 BUILDARGS =
 
-.PHONY: all build install-enterprise clean install tag changelog archive archive-enterprise srpm srpm-enterprise bumpver bumpver-enterprise
+.PHONY: all clean install install-enterprise tag changelog archive archive-enterprise srpm srpm-enterprise bumpver bumpver-enterprise
 
 all:
 	for dir in $(SUBDIRS); do make -C $$dir; done
