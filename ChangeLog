@@ -1,8 +1,24 @@
+2008-10-12  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/initrd-image.rng, spin.spec:
+	Merged with trunk.
+	[a7036d0f85d7] [tip]
+
+2008-10-10  spinmaster  <spinmaster>
+
+	* .hgtags:
+	Tagged as spin-0.8.60-1
+	[bc517e4b9e53]
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.60-1.noarch.
+	[dd2dc402da72] [spin-0.8.60-1]
+
 2008-10-10  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
 	* share/spin/schemas/appliance/diskboot-image.rng:
 	bug 367 - removed support for files in diskboot-image
-	[4846c7de7cca] [tip]
+	[4846c7de7cca]
 
 	* share/spin/schemas/appliance/bootiso.rng,
 	share/spin/schemas/appliance/diskboot-image.rng,
@@ -38,6 +54,69 @@
 	* share/spin/schemas/appliance/initrd-image.rng:
 	removing initrd-image schema - bug 367
 	[dcb4a2a4cdcd]
+
+2008-10-12  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* Makefile:
+	Added a tag-enterprise target.
+	[8d987c9b29e8]
+
+	* Makefile:
+	Modified the bumpver and bumpver-enterprise targets.
+
+	The bumpver target now excludes all changes related to the logos-rpm
+	module in its rpm changelog. On the flip side, bumpver-enterprise
+	target just includes all changes related to the logos-rpm module in
+	its rpm changelog.
+	[c9de867fb64a]
+
+	* Makefile, spin-enterprise.spec, spin.spec:
+	Added 'python' to BuildRequires of Spin Packages.
+
+	It is needed by the 'pycompile' script.
+	[0a539f36b5f9]
+
+	* Makefile, spin-enterprise.spec, spin.spec:
+	Updated Requires and BuildRequires of Spin packages.
+	[f5f79ecad840]
+
+	* Makefile, spin-enterprise.spec, spin-extras.spec:
+	Renamed spin-extras and spin-enterprise.
+	[f549d23a9d6b]
+
+2008-10-09  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* Makefile, spin-extras.spec:
+	Added the spin-extras spec file.
+	[cd466ce014cb]
+
+	* Makefile:
+	Not modifying the setup.py in `bumpver'; it doesn't exist anymore.
+	[9594adf6ca4f]
+
+	* MANIFEST.in, Makefile, bin/Makefile, etc/Makefile,
+	etc/logrotate.d/Makefile, pycompile, setup.py, share/Makefile,
+	share/spin/Makefile, share/spin/logos-rpm/Makefile, share/spin
+	/logos-rpm/files/Makefile, share/spin/logos-
+	rpm/files/backgrounds/Makefile, share/spin/logos-
+	rpm/files/gdm/Makefile, share/spin/logos-rpm/files/gnome-background-
+	properties/Makefile, share/spin/logos-rpm/files/gnome-
+	screensaver/Makefile, share/spin/logos-rpm/files/kdisplay/Makefile,
+	share/spin/logos-rpm/files/kdm/Makefile, share/spin/logos-
+	rpm/files/ksplash/Makefile, share/spin/logos-rpm/fonts/Makefile,
+	share/spin/logos-rpm/icons/Makefile, share/spin/release/eula.py,
+	share/spin/schemas/Makefile, share/spin/schemas/appliance/Makefile,
+	share/spin/schemas/logos-rpm/Makefile, spin.spec, spin/Makefile,
+	spin/event/Makefile, spin/locals/Makefile, spin/modules/Makefile,
+	spin/modules/core/Makefile, spin/modules/core/installer/Makefile,
+	spin/modules/core/packages/Makefile,
+	spin/modules/core/rpmbuild/Makefile,
+	spin/modules/extensions/Makefile,
+	spin/modules/extensions/installer/Makefile,
+	spin/modules/extensions/packages/Makefile,
+	spin/modules/shared/Makefile:
+	Not using distutils to create Spin RPMs
+	[d089c54747f8]
 
 2008-10-09  spinmaster  <spinmaster>
 

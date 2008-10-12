@@ -103,8 +103,8 @@ bumpver:
 	tail --lines=+$$(($$cl + 1)) $(SPECFILE) > speclog ; \
 	(head -n $$cl $(SPECFILE) ; echo "$$DATELINE" ; echo "$$rpmlog"; echo ""; cat speclog) > $(SPECFILE).new ; \
 	mv $(SPECFILE).new $(SPECFILE); rm -f speclog; \
-	sed -i "s/Version: $(VERSION)/Version: $$NEWVERSION/" $(SPECFILE); \
-	@make changelog
+	sed -i "s/Version: $(VERSION)/Version: $$NEWVERSION/" $(SPECFILE)
+	make changelog
 
 bumpver-enterprise:
 	@NEWSUBVER=$$((`echo $(ENTERPRISE_VERSION) | cut -d . -f 3` + 1)) ; \
@@ -117,5 +117,4 @@ bumpver-enterprise:
 	(head -n $$cl $(ENTERPRISE_SPECFILE) ; echo "$$DATELINE" ; echo "$$rpmlog"; echo ""; cat speclog) > $(ENTERPRISE_SPECFILE).new ; \
 	mv $(ENTERPRISE_SPECFILE).new $(ENTERPRISE_SPECFILE); rm -f speclog; \
 	sed -i "s/Version: $(ENTERPRISE_VERSION)/Version: $$NEWENTERPRISE_VERSION/" $(ENTERPRISE_SPECFILE); \
-	@make changelog
 
