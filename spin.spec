@@ -15,8 +15,6 @@ BuildArch: noarch
 BuildRequires: docbook-style-xsl
 BuildRequires: gzip
 BuildRequires: libxslt
-BuildRequires: python-devel
-BuildRequires: python-setuptools
 
 Requires: createrepo
 Requires: dosfstools
@@ -28,9 +26,7 @@ Requires: python-imaging
 Requires: python-lxml
 Requires: python-setuptools
 Requires: rendition-common
-Requires: rhn-client-tools
 Requires: rpm-build
-Requires: spin-logos
 Requires: syslinux
 Requires: yum
 

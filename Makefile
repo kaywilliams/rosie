@@ -12,7 +12,7 @@ SUBDIRS = bin docsrc etc share spin
 
 BUILDARGS =
 
-.PHONY: all build install-enterprise clean install tag changelog archive srpm bumpver
+.PHONY: all build install-enterprise clean install tag changelog archive archive-enterprise srpm srpm-enterprise bumpver bumpver-enterprise
 
 all:
 	for dir in $(SUBDIRS); do make -C $$dir; done
@@ -64,7 +64,9 @@ changelog:
 	@hg log --style changelog > ChangeLog
 
 archive:
-	@hg archive -t tgz --prefix=$(PKGNAME)-$(VERSION) $(PKGNAME)-$(VERSION).tar.gz
+	@hg archive --exclude spin-enterprise.spec \
+                    --exclude 'spin/modules/core/rpmbuild/logos-rpm' \
+		    -t tgz --prefix=$(PKGNAME)-$(VERSION) $(PKGNAME)-$(VERSION).tar.gz
 
 archive-enterprise:
 	@hg archive --include 'spin/modules/core/rpmbuild/logos-rpm' \
