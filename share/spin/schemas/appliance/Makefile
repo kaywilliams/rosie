@@ -9,7 +9,6 @@ install:
 	install -pm 644 config-rpm.rng $(DESTDIR)/usr/share/spin/schemas/appliance/config-rpm.rng
 	install -pm 644 diskboot-image.rng $(DESTDIR)/usr/share/spin/schemas/appliance/diskboot-image.rng
 	install -pm 644 gpgsign.rng $(DESTDIR)/usr/share/spin/schemas/appliance/gpgsign.rng
-	install -pm 644 initrd-image.rng $(DESTDIR)/usr/share/spin/schemas/appliance/initrd-image.rng
 	install -pm 644 iso.rng $(DESTDIR)/usr/share/spin/schemas/appliance/iso.rng
 	install -pm 644 kickstart.rng $(DESTDIR)/usr/share/spin/schemas/appliance/kickstart.rng
 	install -pm 644 lib.rng $(DESTDIR)/usr/share/spin/schemas/appliance/lib.rng
