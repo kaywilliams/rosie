@@ -16,7 +16,7 @@
         </oneOrMore>
 
         <optional>
-        <ref name="element-boot-config"/>
+        <ref name="element-boot-args"/>
         </optional>
 
         </interleave>

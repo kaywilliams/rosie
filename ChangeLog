@@ -1,9 +1,60 @@
+2008-10-10  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/diskboot-image.rng:
+	bug 367 - removed support for files in diskboot-image
+	[4846c7de7cca] [tip]
+
+	* share/spin/schemas/appliance/bootiso.rng,
+	share/spin/schemas/appliance/diskboot-image.rng,
+	share/spin/schemas/appliance/iso.rng,
+	share/spin/schemas/appliance/lib.rng:
+	bug 366 - renamed 'element-boot-config' to 'element-boot-args' in
+	rng for symmetry
+	[2f58b3b659bf]
+
+	* share/spin/schemas/appliance/lib.rng,
+	spin/modules/shared/bootcfg.py, spintest/mixins.py,
+	spintest/modules/bootiso.py, spintest/modules/diskboot-image.py,
+	spintest/modules/iso.py:
+	bug 366 - flattened boot-config/* into boot-args
+	share/spin/schemas/appliance/lib.rng
+	 * modified element-boot-config: element now named boot-args, no longer
+	accepts children, has optional text value
+	spin/modules/shared/bootcfg.py
+	 * now obtains kernel arguments from the xpath 'boot-args/text()'
+	instead of 'boot-config/append-args/text()'
+	 * now obtains whether to use default values from 'boot-args/@use-
+	defaults' instead of 'boot-config/@use-defaults'
+	 * boot config file now cannot be specified in config
+	spintest/mixins.py
+	 * adjusted xpaths spintest/modules/bootiso.py
+	 * adjusted bootconfig test cases spintest/modules/diskboot-image.py
+	 * adjusted bootconfig test cases spintest/modules/iso.py
+	 * adjusted bootconfig test cases
+	[fb538750b0a4]
+
+2008-10-10  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/initrd-image.rng:
+	removing initrd-image schema - bug 367
+	[dcb4a2a4cdcd]
+
+2008-10-09  spinmaster  <spinmaster>
+
+	* .hgtags:
+	Tagged as spin-0.8.59-1
+	[8bb8774f7b94]
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.59-1.noarch.
+	[91c85421f277] [spin-0.8.59-1]
+
 2008-10-08  Uday Prakash  <uprakash@renditionsoftware.com>
 
 	* spin/modules/core/installer/bootiso.py, spin/modules/core/installer
 	/diskboot-image.py, spin/modules/extensions/iso.py:
 	Bumped versions of events using BootConfigMixin.
-	[7606ecc95380] [tip]
+	[7606ecc95380]
 
 	* spin/event/locals.py, spin/locals/bootcfg.py,
 	spin/modules/shared/bootcfg.py:

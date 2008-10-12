@@ -9,7 +9,7 @@
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
         <optional>
-        <ref name="element-boot-config"/>
+        <ref name="element-boot-args"/>
         </optional>
       </element>
       </optional>

@@ -11,12 +11,8 @@
         <interleave>
 
         <optional>
-        <ref name="element-boot-config"/>
+        <ref name="element-boot-args"/>
         </optional>
-
-        <zeroOrMore>
-        <element name="files"><ref name="content-path-with-dest"/></element>
-        </zeroOrMore>
 
         </interleave>
       </element>

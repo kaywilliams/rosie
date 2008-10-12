@@ -28,7 +28,7 @@ class BootConfigDummy(object):
     self._macros = {}
 
   def setup(self, defaults=None, include_method=False, include_ks=False):
-    self.boot_args = self.ptr.config.get('boot-config/append-args/text()', '').split()
+    self.boot_args = self.ptr.config.get('boot-args/text()', '').split()
 
     args = defaults or []
 
@@ -38,7 +38,7 @@ class BootConfigDummy(object):
     for karg in args:
       self._macros['%%{%s}' % karg.split('=')[0]] = karg
 
-    if self.ptr.config.getbool('boot-config/@use-defaults', 'True'):
+    if self.ptr.config.getbool('boot-args/@use-defaults', 'True'):
       self.boot_args.extend(args)
 
     if self.ptr.cvars['boot-args']:
@@ -52,9 +52,8 @@ class BootConfigDummy(object):
 
     boot_args = [ self._expand_macros(x) for x in self.boot_args ]
 
-    config = self.ptr.config.getpath('boot-config/file',
-               cfgfile or self.ptr.cvars['boot-config-file'])
-    lines = config.read_lines()
+    config = cfgfile or self.ptr.cvars['boot-config-file']
+    lines  = config.read_lines()
     _label = False # have we seen a label line yet?
 
     for i in range(0, len(lines)):

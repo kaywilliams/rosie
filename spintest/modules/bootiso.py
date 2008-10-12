@@ -50,9 +50,7 @@ class Test_BootArgsDefault(_BootisoEventTestCase):
   "default boot args and config-specified args in isolinux.cfg"
   _conf = \
   """<bootiso>
-    <boot-config use-defaults="true">
-      <append-args>ro root=LABEL=/</append-args>
-    </boot-config>
+    <boot-args use-defaults="true">ro root=LABEL=/</boot-args>
   </bootiso>"""
 
   def setUp(self):
@@ -64,14 +62,12 @@ class Test_BootArgsNoDefault(_BootisoEventTestCase):
   "default boot args not included"
   _conf = \
   """<bootiso>
-    <boot-config use-defaults="false">
-      <append-args>ro root=LABEL=/</append-args>
-    </boot-config>
+    <boot-args use-defaults="false">ro root=LABEL=/</boot-args>
   </bootiso>"""
 
   def setUp(self):
     _BootisoEventTestCase.setUp(self)
-    self.event.config.get('boot-config').attrib['use-defaults'] = 'false'
+    self.event.config.get('boot-args').attrib['use-defaults'] = 'false'
     self.do_defaults = False
 
 
@@ -79,9 +75,7 @@ class Test_BootArgsMacros(_BootisoEventTestCase):
   "macro usage with non-default boot args"
   _conf = \
   """<bootiso>
-    <boot-config use-defaults="false">
-      <append-args>ro root=LABEL=/ %{method} %{ks}</append-args>
-    </boot-config>
+    <boot-args use-defaults="false">ro root=LABEL=/ %{method} %{ks}</boot-args>
   </bootiso>"""
 
   def setUp(self):

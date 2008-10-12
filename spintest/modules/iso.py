@@ -39,9 +39,7 @@ class IsoEventTestCase(EventTestCase):
   moduleid = 'iso'
   eventid  = 'iso'
   _conf = """<iso>
-    <boot-config>
-      <append-args>ro root=LABEL=/</append-args>
-    </boot-config>
+    <boot-args>ro root=LABEL=/</boot-args>
     <set>CD</set>
     <set>400 MB</set>
   </iso>"""
@@ -91,9 +89,7 @@ class Test_IsoContent(IsoEventTestCase):
   "iso content matches split tree content"
   _conf = \
   """<iso>
-    <boot-config>
-      <append-args>ro root=LABEL=/</append-args>
-    </boot-config>
+    <boot-args>ro root=LABEL=/</boot-args>
     <set>CD</set>
     <set>400 MB</set>
   </iso>"""
@@ -122,9 +118,7 @@ class Test_SetsChanged(IsoEventBootConfigTestCase):
   "iso sets change"
   _conf = \
   """<iso>
-    <boot-config>
-      <append-args>ro root=LABEL=/</append-args>
-    </boot-config>
+    <boot-args>ro root=LABEL=/</boot-args>
     <set>640MB</set>
     <set>101 MiB</set>
   </iso>"""
@@ -133,9 +127,7 @@ class Test_BootArgsDefault(IsoEventBootConfigTestCase):
   "default boot args and config-specified args in isolinux.cfg"
   _conf = \
   """<iso>
-    <boot-config use-defaults="true">
-      <append-args>ro root=LABEL=/</append-args>
-    </boot-config>
+    <boot-args use-defaults="true">ro root=LABEL=/</boot-args>
     <set>CD</set>
     <set>400 MB</set>
   </iso>"""
@@ -148,9 +140,7 @@ class Test_BootArgsNoDefault(IsoEventBootConfigTestCase):
   "default boot args not included"
   _conf = \
   """<iso>
-    <boot-config use-defaults="false">
-      <append-args>ro root=LABEL=/</append-args>
-    </boot-config>
+    <boot-args use-defaults="false">ro root=LABEL=/</boot-args>
     <set>CD</set>
     <set>400 MB</set>
   </iso>"""
@@ -164,9 +154,7 @@ class Test_BootArgsMacros(IsoEventBootConfigTestCase):
   "macro usage with non-default boot args"
   _conf = \
   """<iso>
-    <boot-config use-defaults="false">
-      <append-args>ro root=LABEL=/ %{method} %{ks}</append-args>
-    </boot-config>
+    <boot-args use-defaults="false">ro root=LABEL=/ %{method} %{ks}</boot-args>
     <set>CD</set>
     <set>400 MB</set>
   </iso>"""
