@@ -12,7 +12,7 @@ SUBDIRS = bin docsrc etc share spin
 
 BUILDARGS =
 
-.PHONY: all clean install install-enterprise tag changelog archive archive-enterprise srpm srpm-enterprise bumpver bumpver-enterprise
+.PHONY: all clean install install-enterprise tag tag-enterprise changelog archive archive-enterprise srpm srpm-enterprise bumpver bumpver-enterprise
 
 all:
 	for dir in $(SUBDIRS); do make -C $$dir; done
@@ -59,6 +59,14 @@ tag:
 		hg tag "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)" $(PKGNAME)-$(VERSION)-$(RELEASE); \
 	fi
 	@echo "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)"
+
+tag-enterprise:
+	@if [ "$(USERNAME)" != "" ]; then \
+		hg tag --user "$(USERNAME)" -m "Tagged as $(ENTERPRISE_PKGNAME)-$(ENTERPRISE_VERSION)-$(ENTERPRISE_RELEASE)" $(ENTERPRISE_PKGNAME)-$(ENTERPRISE_VERSION)-$(ENTERPRISE_RELEASE); \
+	else \
+		hg tag "Tagged as $(ENTERPRISE_PKGNAME)-$(ENTERPRISE_VERSION)-$(ENTERPRISE_RELEASE)" $(ENTERPRISE_PKGNAME)-$(ENTERPRISE_VERSION)-$(ENTERPRISE_RELEASE); \
+	fi
+	@echo "Tagged as $(ENTERPRISE_PKGNAME)-$(ENTERPRISE_VERSION)-$(ENTERPRISE_RELEASE)"
 
 changelog:
 	@hg log --style changelog > ChangeLog
