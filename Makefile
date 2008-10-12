@@ -3,16 +3,16 @@ SPECFILE := $(PKGNAME).spec
 VERSION := $(shell awk '/Version:/ { print $$2 }' $(SPECFILE))
 RELEASE := $(shell awk '/Release:/ { print $$2 }' $(SPECFILE) | sed -e 's|%{?dist}||g')
 
-EXTRAS_PKGNAME := spin-extras
-EXTRAS_SPECFILE := $(EXTRAS_PKGNAME).spec
-EXTRAS_VERSION := $(shell awk '/Version:/ { print $$2 }' $(EXTRAS_SPECFILE))
-EXTRAS_RELEASE := $(shell awk '/Release:/ { print $$2 }' $(EXTRAS_SPECFILE) | sed -e 's|%{?dist}||g')
+ENTERPRISE_PKGNAME := spin-enterprise
+ENTERPRISE_SPECFILE := $(ENTERPRISE_PKGNAME).spec
+ENTERPRISE_VERSION := $(shell awk '/Version:/ { print $$2 }' $(ENTERPRISE_SPECFILE))
+ENTERPRISE_RELEASE := $(shell awk '/Release:/ { print $$2 }' $(ENTERPRISE_SPECFILE) | sed -e 's|%{?dist}||g')
 
 SUBDIRS = bin docsrc etc share spin
 
 BUILDARGS =
 
-.PHONY: all build installextras clean install tag changelog archive srpm bumpver
+.PHONY: all build install-enterprise clean install tag changelog archive srpm bumpver
 
 all:
 	for dir in $(SUBDIRS); do make -C $$dir; done
@@ -36,7 +36,7 @@ install:
 	mkdir -p $(DESTDIR)
 	for dir in $(SUBDIRS); do make -C $$dir PYTHONLIBDIR=`cd $(PYTHONLIBDIR); pwd` DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
 
-installextras:
+install-enterprise:
 	@if [ "$(DESTDIR)" = "" ]; then \
 		echo " "; \
 		echo "ERROR: A destdir is required"; \
@@ -66,22 +66,22 @@ changelog:
 archive:
 	@hg archive -t tgz --prefix=$(PKGNAME)-$(VERSION) $(PKGNAME)-$(VERSION).tar.gz
 
-archiveextras:
+archive-enterprise:
 	@hg archive --include 'spin/modules/core/rpmbuild/logos-rpm' \
 	            --include COPYING \
                     --include AUTHORS \
-                    --include spin-extras.spec \
+                    --include spin-enterprise.spec \
                     --include Makefile \
 	            --include pycompile \
-                    -t tgz --prefix=$(EXTRAS_PKGNAME)-$(EXTRAS_VERSION) $(EXTRAS_PKGNAME)-$(EXTRAS_VERSION).tar.gz
+                    -t tgz --prefix=$(ENTERPRISE_PKGNAME)-$(ENTERPRISE_VERSION) $(ENTERPRISE_PKGNAME)-$(ENTERPRISE_VERSION).tar.gz
 
 srpm: archive
 	@rpmbuild $(BUILDARGS) -ts $(PKGNAME)-$(VERSION).tar.gz  || exit 1
 	@rm -f $(PKGNAME)-$(VERSION).tar.gz
 
-srpmextras: archiveextras
-	@rpmbuild $(BUILDARGS) -ts $(EXTRAS_PKGNAME)-$(EXTRAS_VERSION).tar.gz  || exit 1
-	@rm -f $(EXTRAS_PKGNAME)-$(EXTRAS_VERSION).tar.gz
+srpm-enterprise: archive-enterprise
+	@rpmbuild $(BUILDARGS) -ts $(ENTERPRISE_PKGNAME)-$(ENTERPRISE_VERSION).tar.gz  || exit 1
+	@rm -f $(ENTERPRISE_PKGNAME)-$(ENTERPRISE_VERSION).tar.gz
 
 bumpver:
 	@NEWSUBVER=$$((`echo $(VERSION) | cut -d . -f 3` + 1)) ; \
@@ -96,16 +96,16 @@ bumpver:
 	sed -i "s/Version: $(VERSION)/Version: $$NEWVERSION/" $(SPECFILE); \
 	@make changelog
 
-bumpverextras:
-	@NEWSUBVER=$$((`echo $(EXTRAS_VERSION) | cut -d . -f 3` + 1)) ; \
-	NEWEXTRAS_VERSION=`echo $(EXTRAS_VERSION).$$NEWSUBVER |cut -d . -f 1-2,4` ; \
-	changelog="`hg log -r tip:$(EXTRAS_PKGNAME)-$(EXTRAS_VERSION)-$(EXTRAS_RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
+bumpver-enterprise:
+	@NEWSUBVER=$$((`echo $(ENTERPRISE_VERSION) | cut -d . -f 3` + 1)) ; \
+	NEWENTERPRISE_VERSION=`echo $(ENTERPRISE_VERSION).$$NEWSUBVER |cut -d . -f 1-2,4` ; \
+	changelog="`hg log -r tip:$(ENTERPRISE_PKGNAME)-$(ENTERPRISE_VERSION)-$(ENTERPRISE_RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
 	rpmlog="`echo "$$changelog" | sed -e 's/@.*>)/)/' -e 's/(.*</(/'`"; \
-	DATELINE="* `date "+%a %b %d %Y"` `hg showconfig ui.username` - $$NEWEXTRAS_VERSION-$(EXTRAS_RELEASE)" ; \
-	cl=`grep -n %changelog $(EXTRAS_SPECFILE) | cut -d : -f 1` ; \
-	tail --lines=+$$(($$cl + 1)) $(EXTRAS_SPECFILE) > speclog ; \
-	(head -n $$cl $(EXTRAS_SPECFILE) ; echo "$$DATELINE" ; echo "$$rpmlog"; echo ""; cat speclog) > $(EXTRAS_SPECFILE).new ; \
-	mv $(EXTRAS_SPECFILE).new $(EXTRAS_SPECFILE); rm -f speclog; \
-	sed -i "s/Version: $(EXTRAS_VERSION)/Version: $$NEWEXTRAS_VERSION/" $(EXTRAS_SPECFILE); \
+	DATELINE="* `date "+%a %b %d %Y"` `hg showconfig ui.username` - $$NEWENTERPRISE_VERSION-$(ENTERPRISE_RELEASE)" ; \
+	cl=`grep -n %changelog $(ENTERPRISE_SPECFILE) | cut -d : -f 1` ; \
+	tail --lines=+$$(($$cl + 1)) $(ENTERPRISE_SPECFILE) > speclog ; \
+	(head -n $$cl $(ENTERPRISE_SPECFILE) ; echo "$$DATELINE" ; echo "$$rpmlog"; echo ""; cat speclog) > $(ENTERPRISE_SPECFILE).new ; \
+	mv $(ENTERPRISE_SPECFILE).new $(ENTERPRISE_SPECFILE); rm -f speclog; \
+	sed -i "s/Version: $(ENTERPRISE_VERSION)/Version: $$NEWENTERPRISE_VERSION/" $(ENTERPRISE_SPECFILE); \
 	@make changelog
 

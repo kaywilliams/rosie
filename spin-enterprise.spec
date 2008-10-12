@@ -1,9 +1,9 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
-Name:           spin-extras
+Name:           spin-enterprise
 Version:        0.8.0
 Release:        1%{?dist}
-Summary:        The Spin Extras Package.
+Summary:        The Spin Enterprise Package
 
 Group:          Applications/System
 License:        GPLv2+
@@ -15,7 +15,9 @@ BuildArch:      noarch
 Requires:       spin
 
 %description
-The Spin Extras package contains modules that add features to Spin.
+The Spin Enterprise package contains modules that adds the logos-rpm
+event to Spin.  It also requires rhnlib and rhn-client-tools so that
+RHN paths can be used in baseurls of repositories.
 
 %prep
 %setup -q
@@ -24,7 +26,7 @@ The Spin Extras package contains modules that add features to Spin.
 
 %install
 %{__rm} -rf %{buildroot}
-%{__make} installextras DESTDIR=%{buildroot} PYTHONLIBDIR=%{python_sitelib}
+%{__make} install-enterprise DESTDIR=%{buildroot} PYTHONLIBDIR=%{python_sitelib}
 
 %clean
 %{__rm} -rf %{buildroot}
