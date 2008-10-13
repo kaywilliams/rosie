@@ -25,6 +25,8 @@ class InitrdImageEventTestCase(EventTestCase):
   moduleid = 'initrd-image'
   eventid  = 'initrd-image'
 
+  _conf = """<packages enabled="false"/>"""
+
 class _InitrdImageEventTestCase(ImageModifyMixinTestCase,
                                 InitrdImageEventTestCase):
   def __init__(self, distro, version, arch, conf=None):

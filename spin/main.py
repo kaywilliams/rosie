@@ -130,10 +130,10 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
       self.debug = False
 
     # set up real logger - console and file
-    logfile = pps.path(options.logfile
-              or self.appconfig.getpath('/appliance/main/log-file', None)
-              or self.mainconfig.getpath('/spin/log-file', None)
-              or DEFAULT_LOG_FILE).expand().abspath()
+    logfile = ( pps.path(options.logfile)
+                or self.appconfig.getpath('/appliance/main/log-file', None)
+                or self.mainconfig.getpath('/spin/log-file', None)
+                or DEFAULT_LOG_FILE ).expand().abspath()
     try:
       self.logger = make_log(options.logthresh, logfile)
     except IOError, e:
