@@ -30,7 +30,7 @@ RHN paths can be used in baseurls of repositories.
 
 %install
 %{__rm} -rf %{buildroot}
-%{__make} --makefile Makefile.enterprise install-enterprise DESTDIR=%{buildroot} PYTHONLIBDIR=%{python_sitelib}
+%{__make} --makefile Makefile.enterprise install DESTDIR=%{buildroot} PYTHONLIBDIR=%{python_sitelib}
 
 %clean
 %{__rm} -rf %{buildroot}
