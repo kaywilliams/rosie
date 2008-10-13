@@ -18,6 +18,7 @@
 #
 
 import optparse
+import os
 import sys
 import unittest
 
@@ -47,13 +48,6 @@ opt_defaults = dict(
 test_options = None # set on running parse_cmd_args(), below
 
 
-LOGFILE = open('test.log', 'w+')
-
-def make_logger(threshold):
-  console = logger.Logger(threshold=threshold, file_object=sys.stdout)
-  logfile = logger.Logger(threshold=threshold, file_object=LOGFILE)
-  return spintest.EventTestLogContainer([console, logfile])
-
 def parse_cmd_args():
   parser = optparse.OptionParser("usage: %prog [OPTIONS]",
                                  formatter=CleanHelpFormatter())
@@ -70,14 +64,11 @@ def parse_cmd_args():
     dest='basearch',
     default='i386',
     help='select the arch of the distribution to test')
+
   parser.add_option('-b', '--build-root', metavar='DIRECTORY',
     dest='buildroot',
     default='/tmp/spintest',
     help='choose the location where builds should be performed')
-  parser.add_option('--skip', metavar='MODULEID',
-    dest='skip_test',
-    action='append',
-    help='skip testing of a certain event, by id')
   parser.add_option('--spin-conf', metavar='PATH',
     dest='mainconfigpath',
     help='specify path to a main config file')
@@ -89,11 +80,17 @@ def parse_cmd_args():
     dest='sharepath',
     action='append',
     help='specify directory containing spin share files')
-  parser.add_option('-l', '--log-level', metavar='N',
+
+  parser.add_option('-l', '--log-file', metavar='path',
+    default='test.log',
+    dest='testlogfile',
+    help='specify the test log file to use')
+  parser.add_option('-v', '--log-level', metavar='N',
     default=2,
     type='int',
     dest='testloglevel',
-    help='specify the level of verbosity of the output log')
+    help='specify the verbosity of the console log (0-2)')
+
   parser.add_option('--no-clear-cache',
     dest='clear_test_cache',
     default=True,
@@ -109,6 +106,13 @@ def main():
 
   options, args = parse_cmd_args()
 
+  assert len(args) == 1
+  modpath = pps.path(args[0])
+  if modpath.basename == '__init__':
+    modname = modpath.dirname.basename
+  else:
+    modname = modpath.basename
+
   sys.path = options.libpath + sys.path
 
   import spintest
@@ -116,22 +120,20 @@ def main():
   spintest.BUILD_ROOT = pps.path(options.buildroot)
   spintest.EventTestCase.options = options
 
-  runner = spintest.EventTestRunner(options.testloglevel)
+  runner = spintest.EventTestRunner(options.testlogfile, options.testloglevel)
   suite = unittest.TestSuite()
 
-  if not args:
-    args = [ pps.path(__file__).abspath().dirname/'__init__.py' ]
-  for arg in args:
-    testpath = _testpath_normalize(arg)
-    fp = None
-    try:
-      fp,p,d = imp.find_module(testpath.basename, [testpath.dirname])
-      mod = imp.load_module('test-%s' % testpath.dirname.basename, fp, p, d)
-      suite.addTest(mod.make_suite(distro=options.distro,
-                                   version=options.version,
-                                   arch=options.basearch))
-    finally:
-      fp and fp.close()
+  cwd = os.getcwd() # save for later
+
+  fp = None
+  try:
+    fp,p,d = imp.find_module(modpath.basename, [modpath.dirname])
+    mod = imp.load_module('test-%s' % modname, fp, p, d)
+    suite.addTest(mod.make_suite(distro=options.distro,
+                                 version=options.version,
+                                 arch=options.basearch))
+  finally:
+    fp and fp.close()
 
   result = None
   try:
@@ -140,9 +142,23 @@ def main():
     if options.clear_test_cache:
       spintest.BUILD_ROOT.rm(recursive=True, force=True)
 
+  os.chdir(cwd) # make sure we're back where we started
+
+  # write results to summaryfile
+  summaryfile = pps.path('%s.summary' % options.testlogfile)
+  summaryfile.write_lines(['%s,%s,%s,%s,%s'
+    % (modname,
+       result.testsRun,
+       len(result.failures),
+       len(result.errors),
+       result.duration )],
+    append=True)
+
   if not result: # some sort of exception in the testing logic (can't currently happen)
+    sys.exit(3)
+  elif len(result.errors) > 0:
     sys.exit(2)
-  elif not result.wasSuccessful(): # not all tests succeeded
+  elif len(result.failures) > 0:
     sys.exit(1)
   else: # everything ok
     sys.exit(0)

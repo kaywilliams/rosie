@@ -235,8 +235,8 @@ class ModuleTestSuite(unittest.TestSuite):
       self.tearDown()
 
 class EventTestRunner:
-  def __init__(self, threshold=1):
-    self.logger = make_logger(threshold)
+  def __init__(self, logfile, threshold):
+    self.logger = make_logger(open(logfile, 'a+'), threshold)
 
   def run(self, test):
     result = EventTestResult(self.logger)
@@ -244,6 +244,7 @@ class EventTestRunner:
     starttime = time.time()
     test(result)
     stoptime = time.time()
+    result.duration = stoptime - starttime
 
     if result.failures or result.errors:
       self.logger.log(1, '\n\nERROR/FAILURE SUMMARY')
@@ -253,7 +254,7 @@ class EventTestRunner:
     self.logger.log(1, "ran %d test%s in %s" %
       (result.testsRun,
        result.testsRun != 1 and 's' or '',
-       datetime.timedelta(seconds=int(stoptime)-int(starttime))))
+       datetime.timedelta(seconds=int(round(result.duration)))))
     self.logger.write(1, '\n')
 
     if not result.wasSuccessful():
@@ -339,11 +340,9 @@ class EventTestLogContainer(logger.LogContainer):
     return self._format % d
 
 
-LOGFILE = open('test.log', 'w+')
-
-def make_logger(threshold):
+def make_logger(logfile, threshold):
   console = logger.Logger(threshold=threshold, file_object=sys.stdout)
-  logfile = logger.Logger(threshold=2, file_object=LOGFILE) #! write eventhing to file
+  logfile = logger.Logger(threshold=2, file_object=logfile) #! write eventhing to file
   return EventTestLogContainer([console, logfile])
 
 def make_suite(distro, version, arch='i386'):
