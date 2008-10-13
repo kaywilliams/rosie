@@ -71,12 +71,12 @@ tag-enterprise:
 changelog:
 	@hg log --style changelog > ChangeLog
 
-archive:
+archive: tag
 	@hg archive --exclude spin-enterprise.spec \
                     --exclude 'spin/modules/core/rpmbuild/logos-rpm' \
 		    -t tgz --prefix=$(PKGNAME)-$(VERSION) $(PKGNAME)-$(VERSION).tar.gz
 
-archive-enterprise:
+archive-enterprise: tag-enterprise
 	@hg archive --include 'spin/modules/core/rpmbuild/logos-rpm' \
 	            --include COPYING \
                     --include AUTHORS \
