@@ -1,6 +1,6 @@
-SUBDIRS = logrotate.d
+SUBDIRS = spin
 
-.PHONY: all install clean
+.PHONY: all clean install
 
 all:
 	for dir in $(SUBDIRS); do make -C $$dir; done
@@ -10,3 +10,4 @@ install:
 
 clean:
 	for dir in $(SUBDIRS); do make -C $$dir clean; done
+

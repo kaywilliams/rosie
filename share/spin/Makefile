@@ -1,6 +1,6 @@
-SUBDIRS = logrotate.d
+SUBDIRS = logos-rpm schemas
 
-.PHONY: all install clean
+.PHONY: all clean install
 
 all:
 	for dir in $(SUBDIRS); do make -C $$dir; done

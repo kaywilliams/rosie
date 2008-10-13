@@ -1,5 +1,9 @@
+.PHONY: all install clean
+
 all:
 
 install:
-	install -dm 755 $(DESTDIR)/etc/logrotate.d
+	mkdir -p $(DESTDIR)/etc/logrotate.d
 	install -pm 644 spin $(DESTDIR)/etc/logrotate.d/spin
+
+clean:

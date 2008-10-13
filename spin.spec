@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.59
+Version: 0.8.61
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -15,8 +15,7 @@ BuildArch: noarch
 BuildRequires: docbook-style-xsl
 BuildRequires: gzip
 BuildRequires: libxslt
-BuildRequires: python-devel
-BuildRequires: python-setuptools
+BuildRequires: python
 
 Requires: createrepo
 Requires: dosfstools
@@ -28,9 +27,7 @@ Requires: python-imaging
 Requires: python-lxml
 Requires: python-setuptools
 Requires: rendition-common
-Requires: rhn-client-tools
 Requires: rpm-build
-Requires: spin-logos
 Requires: syslinux
 Requires: yum
 
@@ -42,11 +39,11 @@ and run a Spin-managed appliance.
 %setup -q
 
 %build
-%{__make} depend
+%{__make}
 
 %install
 %{__rm} -rf %{buildroot}
-%{__make} install DESTDIR=%{buildroot}
+%{__make} install DESTDIR=%{buildroot} PYTHONLIBDIR=%{python_sitelib}
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -63,12 +60,21 @@ and run a Spin-managed appliance.
 %doc INSTALL
 %doc README
 %doc NEWS
-%exclude /usr/share/spin/release/eula.pyc
-%exclude /usr/share/spin/release/eula.pyo
 %{_mandir}/man5/spin.conf.5.gz
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Sun Oct 12 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.61-1
+- Broke spin into spin and spin-enterprise. (uprakash)
+
+* Fri Oct 10 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.60-1
+- bug 367 - removed support for files in diskboot-image (dmusgrave)
+- bug 366 - renamed 'element-boot-config' to 'element-boot-args' in rng for symmetry (dmusgrave)
+- bug 366 - flattened boot-config/* into boot-args (dmusgrave)
+- removing initrd-image schema - bug 367 (kwilliams)
+- Tagged as spin-0.8.59-1 (spinmaster)
+- Bumped version to spin-0.8.59-1.noarch. (spinmaster)
+
 * Thu Oct 09 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.59-1
 - Bumped versions of events using BootConfigMixin. (uprakash)
 - Fixed Bug 363. Added locals information for bootcfg. (uprakash)
