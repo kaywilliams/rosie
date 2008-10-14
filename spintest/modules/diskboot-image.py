@@ -25,7 +25,11 @@ from spintest.mixins import (ImageModifyMixinTestCase, imm_make_suite,
 class DiskbootImageEventTestCase(EventTestCase):
   moduleid = 'diskboot-image'
   eventid  = 'diskboot-image'
-  _conf = "<packages enabled='false'/>"
+  _conf = [
+    "<packages enabled='false'/>",
+    "<config-rpm enabled='false'/>",
+    "<release-rpm enabled='false'/>",
+  ]
 
 class _DiskbootImageEventTestCase(ImageModifyMixinTestCase,
                                   BootConfigMixinTestCase,
@@ -55,8 +59,7 @@ class _DiskbootImageEventTestCase(ImageModifyMixinTestCase,
 
 class Test_CvarContent(_DiskbootImageEventTestCase):
   "cvars['isolinux-files'] included"
-  _conf = [
-    _DiskbootImageEventTestCase._conf,
+  _conf = _DiskbootImageEventTestCase._conf + [
     "<diskboot-image>"
     "   <boot-args>ro root=LABEL=/</boot-args>"
     " </diskboot-image>",
@@ -65,13 +68,13 @@ class Test_CvarContent(_DiskbootImageEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='diskboot-image')
 
-    self.check_file_in_image(self.event.cvars['installer-splash'].basename)
+    if self.event.cvars['installer-splash'] is not None:
+      self.check_file_in_image(self.event.cvars['installer-splash'].basename)
     self.check_file_in_image(self.event.cvars['isolinux-files']['initrd.img'].basename)
 
 class Test_BootArgsDefault(_DiskbootImageEventTestCase):
   "default boot args and config-specified args in syslinux.cfg"
-  _conf = [
-    _DiskbootImageEventTestCase._conf,
+  _conf = _DiskbootImageEventTestCase._conf + [
     "<diskboot-image>"
     "  <boot-args use-defaults='true'>ro root=LABEL=/</boot-args>"
     "</diskboot-image>",
@@ -83,8 +86,7 @@ class Test_BootArgsDefault(_DiskbootImageEventTestCase):
 
 class Test_BootArgsNoDefault(_DiskbootImageEventTestCase):
   "default boot args not included"
-  _conf = [
-    _DiskbootImageEventTestCase._conf,
+  _conf =  _DiskbootImageEventTestCase._conf + [
     "<diskboot-image>"
     "  <boot-args use-defaults='false'>ro root=LABEL=/</boot-args>"
     "</diskboot-image>",
@@ -96,8 +98,7 @@ class Test_BootArgsNoDefault(_DiskbootImageEventTestCase):
 
 class Test_BootArgsMacros(_DiskbootImageEventTestCase):
   "macro usage with non-default boot args"
-  _conf = [
-    _DiskbootImageEventTestCase._conf,
+  _conf = _DiskbootImageEventTestCase._conf + [
     "<diskboot-image>"
     "  <boot-args use-defaults='false'>ro root=LABEL=/ %{method} %{ks}</boot-args>"
     "</diskboot-image>",

@@ -23,7 +23,11 @@ class IsolinuxTestCase(EventTestCase):
   moduleid = 'isolinux'
   eventid  = 'isolinux'
 
-  _conf = "<packages enabled='false'/>"
+  _conf = [
+    "<packages enabled='false'/>",
+    "<config-rpm enabled='false'/>",
+    "<release-rpm enabled='false'/>",
+  ]
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('isolinux')
