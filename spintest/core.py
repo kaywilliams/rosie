@@ -24,13 +24,19 @@ from spin.errors import SpinError
 class EventTestCaseHeader(EventTestCaseDummy):
   separator1 = '=' * 70
   separator2 = '-' * 70
-  def __init__(self, eventid):
+  def __init__(self, eventid, distro, version, arch):
     self.eventid = eventid
+    self.distro  = distro
+    self.version = version
+    self.arch    = arch
     EventTestCaseDummy.__init__(self)
 
   def shortDescription(self):
-    return '\n'.join(['', self.separator1,
-                      "testing event '%s'" % self.eventid, self.separator2])
+    return '\n'.join(['',
+                      self.separator1,
+                      "testing event '%s' (%s-%s-%s)"
+                        % (self.eventid, self.distro, self.version, self.arch),
+                      self.separator2])
 
 class CoreTestSuite(unittest.TestSuite):
   def __init__(self, tests=()):
@@ -51,7 +57,10 @@ class CoreTestSuite(unittest.TestSuite):
 
 def make_core_suite(TestCase, distro, version, arch, conf=None):
   suite = CoreTestSuite()
-  suite.addTest(EventTestCaseHeader(TestCase.eventid)) # hack to get a pretty header
+
+  # hack-ish solution to get a pretty header
+  suite.addTest(EventTestCaseHeader(TestCase.eventid, distro, version, arch))
+
   suite.addTest(CoreEventTestCase00(TestCase(distro, version, arch, conf)))
   suite.addTest(CoreEventTestCase01(TestCase(distro, version, arch, conf)))
   suite.addTest(CoreEventTestCase02(TestCase(distro, version, arch, conf)))
