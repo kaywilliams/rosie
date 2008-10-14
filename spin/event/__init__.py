@@ -15,9 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import errno
 import sys
-import traceback
+import time
+
+from datetime import timedelta
 
 from rendition import dispatch
 from rendition import rxml
@@ -90,26 +91,27 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
 
   # execution methods
   def execute(self):
-    self.log(5, L0('*** %s event ***' % self.id))
+    self.log(5, L0('*** %s ***' % self.id))
+    t_start = time.time()
     try:
-      self.log(5, L0('running %s.setup()' % self.id))
       if self.skipped:
         self.setup()
+        t_setup = time.time()
       else:
         if self.forced:
-          self.log(5, L0('running %s.clean()' % self.id))
           self.clean()
         self.setup()
-        self.log(5, L0('running %s.check()' % self.id))
+        t_setup = time.time()
         if self.check():
-          self.log(5, L0('running %s.run()' % self.id))
           if not self.suppress_run_message:
             self.log(1, L0('%s' % self.id))
           self.run()
+          t_run = time.time()
           self.postrun() ## FIXME: this is ugly
-      self.log(5, L0('running %s.apply()' % self.id))
+        else:
+          t_run = t_setup # we didn't run run()
       self.apply()
-      self.log(5, L0('running %s.verify()' % self.id))
+      t_apply = time.time()
       self.verify()
     except EventExit, e:
       self.log(0, e)
@@ -117,10 +119,16 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     except Exception, e:
       self.error(e)
       raise
+    t_end = time.time()
+
+    # log various event timing info to log level 5
+    self.log(5, L1("Event timing (%s):" % self.id), newline=False)
+    self.logger.write(5, "total: %s "  % timedelta(seconds=int(t_end   - t_start)))
+    self.logger.write(5, "setup: %s "  % timedelta(seconds=int(t_setup - t_start)))
+    self.logger.write(5, "run: %s "    % timedelta(seconds=int(t_run   - t_setup)))
+    self.logger.write(5, "apply: %s\n" % timedelta(seconds=int(t_apply - t_run)))
 
   # override these methods to get stuff to actually happen!
-  def _add_cli(self, parser): pass
-  def _apply_options(self, options): pass
   def validate(self): pass
   def setup(self): pass
   def clean(self):

@@ -84,9 +84,6 @@ class VerifyObject(unittest.TestCase):
 
       elapsedtime = time.time() - starttime
 
-      self.logger.log(5, L2("ran %d test%s in %.3fs" %
-        (result.testsRun, result.testsRun != 1 and 's' or '', elapsedtime)))
-
       if not result.wasSuccessful():
         self.logger.log(5, L2("FAILED("), newline=False)
         failed, errored = len(result.failures), len(result.errors)
@@ -97,8 +94,6 @@ class VerifyObject(unittest.TestCase):
           self.logger.write(5, "errors=%d" % errored)
         self.logger.write(5, ")\n")
         result.printErrors()
-      else:
-        self.logger.log(5, L2("all tests succeeded"))
 
     return result
 
