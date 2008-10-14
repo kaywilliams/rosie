@@ -109,7 +109,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
                         self.rpm.source_folder/'etc/pki/rpm-gpg')
 
     # add repos to cvars if necessary
-    if self.config.get('repofile/@repoids', '*').strip():
+    if self.config.getbool('repofile/@input', 'False'):
       self.DATA['variables'].append('cvars[\'repos\']')
 
   def generate(self):
