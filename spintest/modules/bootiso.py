@@ -26,7 +26,10 @@ class BootisoEventTestCase(EventTestCase):
   moduleid = 'bootiso'
   eventid  = 'bootiso'
 
-  _conf = """<packages enabled="false"/>"""
+  _conf = [
+    "<packages enabled='false'/>",
+    "<rpmbuild enabled='false'/>",
+  ]
 
 class _BootisoEventTestCase(BootConfigMixinTestCase, BootisoEventTestCase):
   def __init__(self, distro, version, arch, conf=None):

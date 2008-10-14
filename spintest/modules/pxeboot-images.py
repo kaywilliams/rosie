@@ -21,6 +21,10 @@ from spintest.core import make_core_suite
 class PxebootImagesEventTestCase(EventTestCase):
   moduleid = 'pxeboot-images'
   eventid  = 'pxeboot-images'
+  _conf = [
+    "<packages enabled='false'/>",
+    "<rpmbuild enabled='false'/>",
+  ]
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('pxeboot-images')

@@ -22,6 +22,10 @@ from spintest.mixins import fdm_make_suite
 class Stage2ImagesEventTestCase(EventTestCase):
   moduleid = 'stage2-images'
   eventid  = 'stage2-images'
+  _conf = [
+    "<packages enabled='false'/>",
+    "<rpmbulid enabled='false'/>",
+  ]
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('stage2-images')

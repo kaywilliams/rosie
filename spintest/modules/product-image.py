@@ -24,6 +24,10 @@ from spintest.mixins import ImageModifyMixinTestCase, imm_make_suite
 class ProductImageEventTestCase(EventTestCase):
   moduleid = 'product-image'
   eventid  = 'product-image'
+  _conf = [
+    "<packages enabled='false'/>",
+    "<rpmbuild enabled='false'/>",
+  ]
 
 class _ProductImageEventTestCase(ImageModifyMixinTestCase,
                                  ProductImageEventTestCase):
@@ -50,6 +54,8 @@ class Test_Installclasses(_ProductImageEventTestCase):
     image_content = copy.copy(self.image_content)
     self.failUnless(image_content.rematch('^installclasses').fnmatch('*.py'))
 
+## TODO - need a test case to check that installclass has the correct
+## groups selected - specifically, when comps is enabled
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('product-image')

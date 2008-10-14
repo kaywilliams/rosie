@@ -22,6 +22,10 @@ from spintest.mixins import ImageModifyMixinTestCase, imm_make_suite
 class UpdatesImageEventTestCase(EventTestCase):
   moduleid = 'updates-image'
   eventid  = 'updates-image'
+  _conf = [
+    "<packages enabled='false'/>",
+    "<rpmbuild enabled='false'/>",
+  ]
 
 class _UpdatesImageEventTestCase(ImageModifyMixinTestCase,
                                  UpdatesImageEventTestCase):

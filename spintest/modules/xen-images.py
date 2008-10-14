@@ -21,6 +21,10 @@ from spintest.core import make_core_suite
 class XenImagesEventTestCase(EventTestCase):
   moduleid = 'xen-images'
   eventid  = 'xen-images'
+  _conf = [
+    "<packages enabled='false'/>",
+    "<rpmbuild enabled='false'/>",
+  ]
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('xen-images')

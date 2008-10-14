@@ -27,6 +27,10 @@ class InstallerSetupEventTestCase(EventTestCase):
 class InstallerEventTestCase(EventTestCase):
   moduleid = 'installer'
   eventid  = 'installer'
+  _conf = [
+    "<packages enabled='false'/>",
+    "<rpmbuild enabled='false'/>",
+  ]
 
 
 def make_suite(distro, version, arch):

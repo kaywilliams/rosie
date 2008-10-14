@@ -25,6 +25,7 @@ from spintest.mixins import (ImageModifyMixinTestCase, imm_make_suite,
 class DiskbootImageEventTestCase(EventTestCase):
   moduleid = 'diskboot-image'
   eventid  = 'diskboot-image'
+  _conf = "<packages enabled='false'/>"
 
 class _DiskbootImageEventTestCase(ImageModifyMixinTestCase,
                                   BootConfigMixinTestCase,
@@ -54,10 +55,12 @@ class _DiskbootImageEventTestCase(ImageModifyMixinTestCase,
 
 class Test_CvarContent(_DiskbootImageEventTestCase):
   "cvars['isolinux-files'] included"
-  _conf = \
-  """<diskboot-image>
-    <boot-args>ro root=LABEL=/</boot-args>
-  </diskboot-image>"""
+  _conf = [
+    _DiskbootImageEventTestCase._conf,
+    "<diskboot-image>"
+    "   <boot-args>ro root=LABEL=/</boot-args>"
+    " </diskboot-image>",
+  ]
 
   def runTest(self):
     self.tb.dispatch.execute(until='diskboot-image')
@@ -67,10 +70,12 @@ class Test_CvarContent(_DiskbootImageEventTestCase):
 
 class Test_BootArgsDefault(_DiskbootImageEventTestCase):
   "default boot args and config-specified args in syslinux.cfg"
-  _conf = \
-  """<diskboot-image>
-    <boot-args use-defaults="true">ro root=LABEL=/</boot-args>
-  </diskboot-image>"""
+  _conf = [
+    _DiskbootImageEventTestCase._conf,
+    "<diskboot-image>"
+    "  <boot-args use-defaults='true'>ro root=LABEL=/</boot-args>"
+    "</diskboot-image>",
+  ]
 
   def setUp(self):
     _DiskbootImageEventTestCase.setUp(self)
@@ -78,10 +83,12 @@ class Test_BootArgsDefault(_DiskbootImageEventTestCase):
 
 class Test_BootArgsNoDefault(_DiskbootImageEventTestCase):
   "default boot args not included"
-  _conf = \
-  """<diskboot-image>
-    <boot-args use-defaults="false">ro root=LABEL=/</boot-args>
-  </diskboot-image>"""
+  _conf = [
+    _DiskbootImageEventTestCase._conf,
+    "<diskboot-image>"
+    "  <boot-args use-defaults='false'>ro root=LABEL=/</boot-args>"
+    "</diskboot-image>",
+  ]
 
   def setUp(self):
     _DiskbootImageEventTestCase.setUp(self)
@@ -89,10 +96,12 @@ class Test_BootArgsNoDefault(_DiskbootImageEventTestCase):
 
 class Test_BootArgsMacros(_DiskbootImageEventTestCase):
   "macro usage with non-default boot args"
-  _conf = \
-  """<diskboot-image>
-    <boot-args use-defaults="false">ro root=LABEL=/ %{method} %{ks}</boot-args>
-  </diskboot-image>"""
+  _conf = [
+    _DiskbootImageEventTestCase._conf,
+    "<diskboot-image>"
+    "  <boot-args use-defaults='false'>ro root=LABEL=/ %{method} %{ks}</boot-args>"
+    "</diskboot-image>",
+  ]
 
   def setUp(self):
     _DiskbootImageEventTestCase.setUp(self)

@@ -22,7 +22,11 @@ from spintest.mixins import touch_input_files, remove_input_files
 class KickstartEventTestCase(EventTestCase):
   moduleid = 'kickstart'
   eventid  = 'kickstart'
-  _conf = """<kickstart>infile</kickstart>"""
+  _conf = [
+    "<kickstart>infile</kickstart>",
+    "<packages enabled='false'/>",
+    "<rpmbuild enabled='false'/>",
+  ]
 
   def setUp(self):
     EventTestCase.setUp(self)

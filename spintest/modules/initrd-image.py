@@ -25,7 +25,10 @@ class InitrdImageEventTestCase(EventTestCase):
   moduleid = 'initrd-image'
   eventid  = 'initrd-image'
 
-  _conf = """<packages enabled="false"/>"""
+  _conf = [
+    "<packages enabled='false'/>",
+    "<rpmbuild enabled='false'/>",
+  ]
 
 class _InitrdImageEventTestCase(ImageModifyMixinTestCase,
                                 InitrdImageEventTestCase):
