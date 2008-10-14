@@ -45,10 +45,9 @@ opt_defaults = dict(
   clear_cache = False,
   debug = True,
 )
-test_options = None # set on running parse_cmd_args(), below
 
 
-def parse_cmd_args():
+def parse_cmd_args(defaults=None):
   parser = optparse.OptionParser("usage: %prog [OPTIONS]",
                                  formatter=CleanHelpFormatter())
 
@@ -97,14 +96,14 @@ def parse_cmd_args():
     action='store_false',
     help='don\'t clear event cache when done testing')
 
-  parser.set_defaults(**opt_defaults)
+  parser.set_defaults(**(defaults or {}))
 
   return parser.parse_args(sys.argv[1:])
 
 def main():
   import imp
 
-  options, args = parse_cmd_args()
+  options, args = parse_cmd_args(opt_defaults)
 
   assert len(args) == 1
   modpath = pps.path(args[0])

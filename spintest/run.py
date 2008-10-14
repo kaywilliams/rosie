@@ -19,16 +19,14 @@
 
 import csv
 import datetime
-import optparse
 import subprocess
 import sys
 import time
 
 from rendition import pps
 
-from rendition.CleanHelpFormatter import CleanHelpFormatter
-
 from spintest import make_logger
+from spintest.runtest import parse_cmd_args # use runtest's cmd parser
 
 START = None # start time
 TIMEFMT = '%Y-%m-%d %X'
@@ -44,52 +42,6 @@ opt_defaults = dict(
   sharepath = [],
   clear_test_cache = True,
 )
-
-def parse_cmd_args():
-  parser = optparse.OptionParser("usage: %prog [OPTIONS]",
-                                 formatter=CleanHelpFormatter())
-
-  parser.add_option('-d', '--distro', metavar='DISTRO',
-    dest='distro',
-    help='select the distribution to test')
-  parser.add_option('-f', '--version', metavar='VERSION',
-    dest='version',
-    help='select the version to test')
-  parser.add_option('-a', '--arch', metavar='ARCH',
-    dest='basearch',
-    help='select the arch of the distribution to test')
-
-  parser.add_option('-b', '--build-root', metavar='PATH',
-    dest='buildroot',
-    help='choose the location where builds should be performed')
-  parser.add_option('--spin-conf', metavar='PATH',
-    dest='mainconfigpath',
-    help='specify path to a main config file')
-  parser.add_option('--lib-path', metavar='PATH',
-    dest='libpath',
-    action='append',
-    help='specify directory containing spin library files')
-  parser.add_option('--share-path', metavar='PATH',
-    dest='sharepath',
-    action='append',
-    help='specify directory containing spin share files')
-
-  parser.add_option('-l', '--log-file', metavar='PATH',
-    dest='testlogfile',
-    help='specify the test log file to use')
-  parser.add_option('-v', '--log-level', metavar='N',
-    type='int',
-    dest='testloglevel',
-    help='specify the verbosity of the console log (0-2)')
-
-  parser.add_option('--no-clear-cache',
-    dest='clear_test_cache',
-    action='store_false',
-    help='don\'t clear event cache when done testing')
-
-  parser.set_defaults(**opt_defaults)
-
-  return parser.parse_args(sys.argv[1:])
 
 def reconstruct_cmd(options):
   # stupid method to reconstruct cmdline arguments from opts instance
@@ -116,31 +68,6 @@ def reconstruct_cmd(options):
     cmd += ['--share-path', '"%s"' % path]
 
   return cmd
-
-def main():
-  import imp
-
-  options, args = parse_cmd_args()
-  summaryfile = '%s.summary' % options.testlogfile
-  pps.path(summaryfile).write_text('') # clear file
-
-  if not args:
-    args = [ x.basename.splitext()[0] for x in
-               pps.path('modules').findpaths(mindepth=1, maxdepth=1)
-               if x.basename != '__init__.py'
-                  and x.ext != '.pyc'
-                  and x.ext != 'pyo' ]
-
-  cmd = reconstruct_cmd(options)
-
-  log_header(options)
-  r = 0
-  for arg in args:
-    # 0 = ok, 1 = test failure, 2 = test error, 3 = test engine error
-    r = max(r, subprocess.call(cmd + [_testpath_normalize(arg)]))
-  log_summary(options, summaryfile)
-  log_footer(options)
-  sys.exit(r)
 
 def _testpath_normalize(path):
   path = pps.path(path)
@@ -227,6 +154,31 @@ def log_summary(options, summaryfile):
   # make sure we close our handles on logfile
   del logger
   logfile.close()
+
+def main():
+  import imp
+
+  options, args = parse_cmd_args(opt_defaults)
+  summaryfile = '%s.summary' % options.testlogfile
+  pps.path(summaryfile).write_text('') # clear file
+
+  if not args:
+    args = [ x.basename.splitext()[0] for x in
+               pps.path('modules').findpaths(mindepth=1, maxdepth=1)
+               if x.basename != '__init__.py'
+                  and x.ext != '.pyc'
+                  and x.ext != 'pyo' ]
+
+  cmd = reconstruct_cmd(options)
+
+  log_header(options)
+  r = 0
+  for arg in args:
+    # 0 = ok, 1 = test failure, 2 = test error, 3 = test engine error
+    r = max(r, subprocess.call(cmd + [_testpath_normalize(arg)]))
+  log_summary(options, summaryfile)
+  log_footer(options)
+  sys.exit(r)
 
 
 if __name__ == '__main__': main()
