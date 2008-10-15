@@ -119,7 +119,7 @@ def log_summary(options, summaryfile):
 
   # formats, etc
   fmtstr   = '%-15s%8s%8s%8s%10s'
-  emfmtstr = '\033[1m%s\033[0;0m' % fmtstr
+  efmtstr = '\033[1m%s\033[0;0m' % fmtstr
   tabwidth = 15+8+8+8+10 # sum of column widths, above
   width    = 70 # all other widths
 
