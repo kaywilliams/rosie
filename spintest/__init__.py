@@ -247,27 +247,27 @@ class EventTestRunner:
     result.duration = stoptime - starttime
 
     if result.failures or result.errors:
-      self.logger.log(1, '\n\nERROR/FAILURE SUMMARY')
+      self.logger.log(2, '\n\nERROR/FAILURE SUMMARY')
       result.printErrors()
 
-    self.logger.log(1, result.separator2)
-    self.logger.log(1, "ran %d test%s in %s" %
+    self.logger.log(2, result.separator2)
+    self.logger.log(2, "ran %d test%s in %s" %
       (result.testsRun,
        result.testsRun != 1 and 's' or '',
        datetime.timedelta(seconds=int(round(result.duration)))))
-    self.logger.write(1, '\n')
+    self.logger.write(2, '\n')
 
     if not result.wasSuccessful():
-      self.logger.write(1, 'FAILED (')
+      self.logger.write(2, 'FAILED (')
       failed, errored = len(result.failures), len(result.errors)
       if failed:
-        self.logger.write(1, 'failures=%d' % failed)
+        self.logger.write(2, 'failures=%d' % failed)
       if errored:
         if failed: self.logger.write(1, ', ')
-        self.logger.write(1, 'errors=%d' % errored)
-      self.logger.write(1, ')\n')
+        self.logger.write(2, 'errors=%d' % errored)
+      self.logger.write(2, ')\n')
     else:
-      self.logger.write(1, 'OK\n')
+      self.logger.write(2, 'OK\n')
     return result
 
 
