@@ -1,5 +1,21 @@
 2008-10-15  Uday Prakash  <uprakash@renditionsoftware.com>
 
+	* docsrc/man/Makefile:
+	Had accidentally deleted one line from man/ folder's Makefile.
+	[5bdc1d3edace] [tip]
+
+	* spin.spec:
+	Updated changelog section of RPM spec file.
+	[7968bfdced4c]
+
+	* docsrc/man/Makefile:
+	Fixed a typo in the man/ folder's Makefile.
+	[7c154c9135d6]
+
+	* ChangeLog, spin.spec:
+	Bumped the major version of spin to 0.9.0.
+	[e470a458221d]
+
 	* share/spin/schemas/appliance/main.rng, spin/main.py,
 	spin/modules/core/repos.py:
 	Added support for <anaconda-version> in <main/>.
@@ -7,7 +23,7 @@
 	The user can now specify the anaconda version in the appliance file.
 	This gets around the problem where there is no anaconda RPM in any
 	of the input repositories.
-	[6b6092bcfbc3] [tip]
+	[6b6092bcfbc3]
 
 	* docsrc/Makefile, docsrc/man/Makefile:
 	Added man2html target to man/ folder's Makefile.
