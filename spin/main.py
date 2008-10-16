@@ -385,6 +385,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
                           '%s-%s-%s' % (di['name'],
                                         di['version'],
                                         di['basearch']))
+    di['anaconda-version'] = Event._config.get(qstr % 'anaconda-version', None)
     di['fullname']     = Event._config.get(qstr % 'fullname', di['name'])
     di['packagepath']  = Event._config.get(qstr % 'package-path', 'Packages')
     di['webloc']       = Event._config.get(qstr % 'bug-url', 'No bug url provided')

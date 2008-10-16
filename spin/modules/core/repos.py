@@ -86,27 +86,13 @@ class ReposEvent(RepoEventMixin, Event):
   def apply(self):
     self.io.clean_eventcache()
 
-    anaconda_version = None
+    if self.cvars['appliance-info']['anaconda-version'] is not None:
+      self.cvars['anaconda-version'] = self.cvars['appliance-info']['anaconda-version']
+    else:
+      anaconda_version = self._get_anaconda_version()
+      self.cvars['anaconda-version'] = \
+          self.cvars['anaconda-version-supplied'] or anaconda_version
 
-    for repo in self.repos.values():
-      # read repocontent
-      assert_file_readable(repo.pkgsfile)
-      repo.repocontent.read(repo.pkgsfile)
-
-      # get logos and release versions, if any in repo
-      for pkgid,allpkgs in RPMDATA.items(): # see below
-        n,v = repo.get_rpm_version(allpkgs)
-        if n is not None and v is not None:
-          self.cvars.setdefault(pkgid, []).append((n,'==',v))
-
-      # get anaconda version
-      n,v = repo.get_rpm_version(['anaconda'])
-      if n and v:
-        if not anaconda_version or v > anaconda_version:
-          anaconda_version = v
-
-    self.cvars['anaconda-version'] = \
-      self.cvars['anaconda-version-supplied'] or anaconda_version
     if not self.cvars['anaconda-version']:
       raise AnacondaNotFoundError()
 
@@ -146,6 +132,29 @@ class ReposEvent(RepoEventMixin, Event):
     self.verifier.failUnlessSet('repos')
     self.verifier.failUnlessSet('anaconda-version')
     self.verifier.failUnlessSet('installer-repo')
+
+  def _get_anaconda_version(self):
+    anaconda_version = None
+
+    for repo in self.repos.values():
+      # read repocontent
+      assert_file_readable(repo.pkgsfile)
+      repo.repocontent.read(repo.pkgsfile)
+
+      # get logos and release versions, if any in repo
+      for pkgid,allpkgs in RPMDATA.items(): # see below
+        n,v = repo.get_rpm_version(allpkgs)
+        if n is not None and v is not None:
+          self.cvars.setdefault(pkgid, []).append((n,'==',v))
+
+      # get anaconda version
+      n,v = repo.get_rpm_version(['anaconda'])
+      if n and v:
+        if not anaconda_version or v > anaconda_version:
+          anaconda_version = v
+
+    return anaconda_version
+
 
 #------ ERRORS ------#
 class AnacondaNotFoundError(SpinError):
