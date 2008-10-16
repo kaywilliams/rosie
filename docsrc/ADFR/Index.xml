@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<book id="ADFR"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title>Appliance Definition File Reference (ADFR)</title>
+
+  <bookinfo id="bookinfo">
+    <copyright id="copyright">
+      <year>2008</year>
+
+      <holder>Rendition Software</holder>
+    </copyright>
+
+    <legalnotice id="legal-notice">
+      <para>All Rights Reserved.</para>
+    </legalnotice>
+
+    <author id="author">
+      <affiliation>
+        <orgname>Rendition Software</orgname>
+      </affiliation>
+
+      <authorblurb>
+        <para><email>contact@renditionsoftware.com</email></para>
+      </authorblurb>
+    </author>
+
+    <keywordset id="keywordset">
+      <keyword>CentOS</keyword>
+
+      <keyword>Red Hat</keyword>
+
+      <keyword>RHEL</keyword>
+
+      <keyword>RHN</keyword>
+
+      <keyword>Fedora</keyword>
+
+      <keyword>Linux</keyword>
+
+      <keyword>appliance</keyword>
+
+      <keyword>distribution</keyword>
+
+      <keyword>Anaconda</keyword>
+
+      <keyword>YUM</keyword>
+
+      <keyword>RPM</keyword>
+
+      <keyword>operating system</keyword>
+
+      <keyword>repository</keyword>
+
+      <keyword>system administration</keyword>
+    </keywordset>
+  </bookinfo>
+
+  <xi:include href="Introduction.xml"
+              xpointer="element(/1)" />
+
+  <xi:include href="DocumentConventions.xml"
+              xpointer="element(/1)" />
+
+  <xi:include href="TopLevelElements.xml"
+              xpointer="element(/1)" />
+
+  <xi:include href="CommonComponents.xml"
+              xpointer="element(/1)" />
+
+  <xi:include href="Appendix-logos-rpm.xml"
+              xpointer="element(/1)" />
+</book>

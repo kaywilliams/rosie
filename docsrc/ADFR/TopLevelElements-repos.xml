@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="repos"
+         xreflabel="repos">
+  <title>
+  repos
+  </title>
+
+  <important>
+  <para>
+  This top-level element is <emphasis role="strong">required</emphasis>.
+  </para>
+  </important>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Contains a list of repositories that Spin uses to download its
+    packages.
+    </para>
+
+    <para>
+    This module is a member of the <emphasis role="strong">setup</emphasis>
+    module group.
+    </para>
+
+    <section id="repos-including-repositories"
+             xreflabel="Including Repositories in an Appliance">
+      <title>
+      Including Repositories in an Appliance
+      </title>
+
+      <para>
+      In order to operate, <application class="software">spin
+      </application> requires at least one input repository.
+      Repositories are specified by either defining them in XML
+      (see <emphasis><xref linkend="repos-repo" /></emphasis>) or by
+      pointing to a valid
+      <application class="software">yum</application> repofile (see
+      <emphasis><xref linkend="repos-repofile" /></emphasis>. All enabled
+      repositories are considered. Valid repository definitions must
+      include a minimum of one baseurl or a mirrorlist. Furthermore, all
+      repositories must have a unique id.
+      </para>
+
+      <para>
+      Exactly one of the input repositories must contain installer
+      images and isolinux files, located within folders called
+      <filename>images</filename> and <filename>isolinux</filename>,
+      respectively. This repository is referred to as the "base repository"
+      for the appliance, and is important in many of the stages of
+      the Spin build process.
+      </para>
+    </section>
+
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+&lt;repos [enabled=BOOLEAN]&gt;
+
+  &lt;!-- at least one repo or repofile element is required --&gt;
+ [&lt;repo id=ID&gt;
+    &lt;!-- at least one &lt;baseurl&gt; or &lt;mirrorlist&gt; is required --&gt;
+   [&lt;baseurl&gt;PATH&lt;/baseurl&gt;]*
+   [&lt;mirrorlist&gt;PATH&lt;/mirrorlist&gt;]
+   [&lt;enabled&gt;BOOLEAN&lt;/enabled&gt;]
+   [&lt;name&gt;TEXT&lt;/name&gt;]
+   [&lt;gpgcheck&gt;BOOLEAN&lt;/gpgcheck&gt;]
+   [&lt;gpgkey&gt;PATH&lt;gpgkey&gt;]*
+   [&lt;exclude-package&gt;PACKAGE&lt;/exclude-package&gt;]*
+   [&lt;include-package&gt;PACKAGE&lt;/include-package&gt;]*
+   [&lt;systemid&gt;PATH&lt;/systemid&gt;]
+  &lt;/repo&gt;]*
+
+ [&lt;repofile&gt;PATH&lt;/repofile&gt;]*
+
+ [&lt;releasever&gt;TEXT&lt;/releasever&gt;]
+ [&lt;exclude-package&gt;PACKAGE&lt;/exclude-package&gt;]*
+&lt;/repos&gt;
+    </programlisting>
+  </section>
+
+  <section>
+    <title>
+    Attributes
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      enabled
+      </term>
+
+      <listitem>
+      <para>
+      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      exclude-package
+      </term>
+
+      <listitem>
+      <para>
+      A <varname>PACKAGE</varname> pattern to exclude from all repositories
+      used in the appliance. See Also Common Element
+      <emphasis><xref linkend="repo" /></emphasis>,
+      <xref linkend="repo-including-excluding-repository-contents" /> and the
+      <emphasis><xref linkend="repos-repo" /></emphasis> and
+      <emphasis><xref linkend="repos-repofile" /></emphasis> elements.
+      </para>
+
+      <para>
+      This element can occur zero or more times.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+      releasever
+      </term>
+
+      <listitem>
+      <para>
+      The value to use to replace the <varname>$releasever</varname> yum
+      variable in all repository baseurls and/or mirrorlists instead of
+      the default value, <varname>$VERSION</varname>.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="repos-repo"
+                  xreflabel="repos/repo">
+      <term>
+      repo
+      </term>
+
+      <listitem>
+      <para>
+      Include a repository from which to select packages for the appliance.
+      See Common Element
+      <emphasis><xref linkend="repo" /></emphasis>. See Also
+      <xref linkend="repos-including-repositories" /> and
+      <xref linkend="repo-including-excluding-repository-contents" />.
+      </para>
+
+      <para>
+      This element can occur zero or more times. However, the
+      <emphasis role="strong">repo</emphasis> top-level element must have
+      at least one <emphasis>repos/repo</emphasis> or
+      <emphasis>repos/repofile</emphasis> element.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="repos-repofile"
+                  xreflabel="repos/repofile">
+      <term>
+      repofile
+      </term>
+
+      <listitem>
+      <para>
+      The <varname>PATH</varname> to a
+      <application class="software">yum</application> repofile.  See also
+      Common Element <emphasis><xref linkend="repo" /></emphasis> and
+      <xref linkend="repos-including-repositories" />. See also the
+      yum.conf man pages for the appropriate syntax of a yum repofile.
+      </para>
+
+      <para>
+      This element can occur zero or more times. However, the
+      <emphasis role="strong">repo</emphasis> top-level element must have
+      at least one <emphasis>repos/repo</emphasis> or
+      <emphasis>repos/repofile</emphasis> element.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <para>
+    In the following examples, line breaks have been added to the
+    <emphasis>repos/repo/baseurl</emphasis> and
+    <emphasis>repos/repo/mirrorlist</emphasis> to improve readability.
+    In a real appliance file, however, line breaks within
+    <varname>PATH</varname>-like elements are not allowed.
+    </para>
+
+    <section>
+      <title>
+      Example 1 - using <emphasis>repos/repo/include-package</emphasis>
+      and <emphasis>repos/repo/exclude-package</emphasis>
+      </title>
+
+      <para>
+      In the following example, two repositories are defined directly 
+      in XML. The first repository contains includes all packages except
+      those that match the <varname>PACKAGE</varname> pattern "xorg-x11-drv*"
+      while the second repository only includes packages that match the
+      same pattern.
+      </para>
+
+      <para>
+      Additionally, Spin will include any and all repositories defined
+      in the file <filename>fedora.repo</filename>.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;repos&gt;
+
+  &lt;repo id="fedora-base"&gt;
+
+    &lt;!-- $basearch will be replaced by $ARCH, $releasever by $VERSION --&gt;
+    &lt;baseurl&gt;http://download.fedora.redhat.com/pub/fedora/linux/releases/
+             $releasever/Fedora/$basearch/os/&lt;/baseurl&gt;
+
+    &lt;!-- include a mirrorlist as backup in case baseurl fails --&gt;
+    &lt;mirrorlist&gt;http://mirrors.fedoraproject.org/mirrorlist?
+                repo=fedora-$releasever&amp;amp;arch=$basearch&lt;/mirrorlist&gt;
+
+    &lt;!-- exclude all xorg-x11-drv packages --&gt;
+    &lt;exclude-package&gt;xorg-x11-drv*&lt;/exclude-package&gt;
+  &lt;/repo&gt;
+
+  &lt;repo id="livna-drivers"&gt;
+    &lt;baseurl&gt;http://rpm.livna.org/fedora/$releasever/$basearch/&lt;baseurl&gt;
+
+    &lt;!-- include only xorg-x11-drv packages --&gt;
+    &lt;include-package&gt;xorg-x11-drv*&lt;/include-package&gt;
+  &lt;/repo&gt;
+
+  &lt;!-- include additional repos defined in fedora-extras.repo --&gt;
+  &lt;repofile&gt;fedora-extras.repo&lt;/repofile&gt;
+&lt;/repos&gt;
+      </programlisting>
+      </informalexample>
+    </section>
+
+    <section>
+      <title>
+      Example 2 - RedHat Network repositories
+      </title>
+
+      <para>
+      Repositories that utilize the <filename>rhn</filename> or
+      <filename>rhns</filename> protocols to contact the RedHat Network
+      require a systemid to be specified.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;repos&gt;
+  &lt;repo id="base"&gt;
+    &lt;name&gt;Red Hat Enterprise Linux - Base&lt;/name&gt;
+    &lt;baseurl&gt;http://www.renditionsoftware.com/mirrors/redhat/enterprise/
+             $releasever/en/os/i386&lt;/baseurl&gt;
+  &lt;/repo&gt;
+  &lt;repo id="updates"&gt;
+    &lt;name&gt;Red Hat Enterprise Linux - Updates&lt;/name&gt;
+    &lt;baseurl&gt;rhns:///rhel-i386-server-5&lt;/baseurl&gt;
+    &lt;!-- location of the systemid is relative to the appliance file --&gt;
+    &lt;systemid&gt;common_systemid-5Server-$basearch&lt;/systemid&gt;
+  &lt;/repo&gt;
+&lt;/repos&gt; 
+      </programlisting>
+      </informalexample>
+
+    </section>
+
+    <section>
+      <title>
+      Example 3 - using <emphasis>repos/releasever</emphasis>
+      </title>
+
+      <para>
+      The <emphasis>repos/releasever</emphasis> element allows overriding the 
+      value used to replace the <varname>$releasever</varname> yum variable.
+
+      <informalexample>
+      <programlisting>
+&lt;appliance&gt;
+  &lt;main&gt;
+    ...
+    &lt;arch&gt;i386&lt;/arch&gt;
+    &lt;version&gt;1.0&lt;/version&gt;
+    ...
+  &lt;/main&gt;
+  ...
+  &lt;repos&gt;
+    &lt;releasever&gt;9&lt;/releasever&gt;
+    &lt;repo id="fedora-9"&gt;
+      &lt;baseurl&gt;http://download.fedora.redhat.com/pub/fedora/linux/
+               releases/$releasever/Fedora/$basearch/os/&lt;/baseurl&gt;
+    &lt;/repo&gt;
+  &lt;/repos&gt;
+  ...
+&lt;/appliance&gt;
+      </programlisting>
+      </informalexample>
+
+      In the example above, the baseurl evaluates to:
+
+      <literallayout>http://download.fedora.redhat.com/pub/fedora/linux/releases/9/Fedora/i386/os/ </literallayout>
+
+      If <emphasis>repos/releasever</emphasis> had not been included, the
+      baseurl instead would have been:
+
+      <literallayout>http://download.fedora.redhat.com/pub/fedora/linux/releases/1.0/Fedora/i386/os/ </literallayout>
+      </para>
+    </section>
+  </section>
+
+  <section>
+    <title>
+    See Also
+    </title>
+
+    <para>
+    <varname><xref linkend="variable-arch" /></varname>,
+    <varname><xref linkend="content-boolean" /></varname>,
+    <varname><xref linkend="content-package" /></varname>,
+    <varname><xref linkend="content-path" /></varname>,
+    <varname><xref linkend="content-text" /></varname>,
+    <emphasis><xref linkend="repo" /></emphasis>,
+    <xref linkend="repo-including-excluding-repository-contents" />
+    </para>
+  </section>
+</section>

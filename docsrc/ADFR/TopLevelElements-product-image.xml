@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="product-image"
+         xreflabel="product-image">
+  <title>
+  product-image
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Customize the <filename>product.img</filename> created by
+    <application class="software">Spin</application>. Typical
+    modifications include specifying additional Anaconda install classes and
+    overriding default installer graphics.
+    </para>
+
+    <para>
+    This module is a member of the <emphasis role="strong">installer</emphasis>
+    module group.
+    </para>
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;product-image [enabled=BOOLEAN]&gt;
+  [&lt;files [mode=MODE] [destdir=DIRNAME] [destname=BASENAME]&gt;PATH&lt;/files&gt;]*
+ &lt;/product-image&gt;]
+    </programlisting>
+  </section>
+
+  <section>
+    <title>
+    Attributes
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      enabled
+      </term>
+
+      <listitem>
+      <para>
+      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      files
+      </term>
+
+      <listitem>
+      <para>
+      The <varname>PATH</varname> to a file or folder to include in the
+      <filename>product.img</filename>.
+      </para>
+
+      <para>
+      This element accepts three attributes:
+      <emphasis>@destdir</emphasis>,
+      <emphasis>@destname</emphasis>, and
+      <emphasis>@mode</emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@destdir</emphasis>: See the <varname>PATH</varname>-like
+      attribute <emphasis><xref linkend="destdir" /></emphasis>. Controls
+      the location to which this file is copied on the
+      <filename>product.img</filename>. The default value is
+      <filename>/</filename>, the root of the image.
+      </para>
+
+      <para>
+      <emphasis>@destname</emphasis>: See the <varname>PATH</varname>-like
+      attribute <emphasis><xref linkend="destname" /></emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@mode</emphasis>: See the <varname>PATH</varname>-like
+      attribute <emphasis><xref linkend="mode" /></emphasis>.
+      </para>
+
+      <para>
+      See Also <xref linkend="path-like-elements" />.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <informalexample>
+    <programlisting>
+&lt;product-image&gt;
+  &lt;!-- include all files in the product-image folder, chmod to 600 --&gt;
+  &lt;files mode="600"&gt;product-image/*&lt;/files&gt;
+&lt;/product-image&gt;
+    </programlisting>
+    </informalexample>
+  </section>
+
+  <section>
+    <title>
+    See Also
+    </title>
+
+    <para>
+    <varname><xref linkend="content-boolean" /></varname>,
+    <varname><xref linkend="content-path" /></varname>,
+    <xref linkend="path-like-elements" />
+    </para>
+  </section>
+</section>

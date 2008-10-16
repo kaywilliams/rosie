@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="gpgsign"
+         xreflabel="gpgsign">
+  <title>
+  gpgsign
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Directs Spin to sign the appliance's packages with the specified GPG
+    key.
+    </para>
+
+    <para>
+    This module is a member of the <emphasis role="strong">packages</emphasis>
+    module group.
+    </para>
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;gpgsign [enabled=BOOLEAN]&gt;
+   &lt;public-key&gt;PATH&lt;/public-key&gt;
+   &lt;secret-key&gt;PATH&lt;/secret-key&gt;
+  [&lt;passphrase&gt;TEXT&lt;/passphrase&gt;]
+ &lt;/gpgsign&gt;]
+    </programlisting>
+  </section>
+
+  <section>
+    <title>
+    Attributes
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      enabled
+      </term>
+
+      <listitem>
+      <para>
+      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      passphrase
+      </term>
+
+      <listitem>
+      <para>
+      The GPG secret key's passphrase; used when accessing the secret key
+      in order to perform the signing process. If
+      <emphasis>gpgsign/passphrase</emphasis> is not present, the user is
+      prompted on the command line for the passphrase to use.
+      </para>
+
+      <note>
+      <para>
+      Remember that if the passphrase is stored in the appliance file, anyone
+      with read access to the file can retrieve it. Be sure to take the
+      appropriate steps, whether by limiting read access to the appliance
+      file or entering the passphrase at the prompt.
+      </para>
+      </note>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+      public-key
+      </term>
+
+      <listitem>
+      <para>
+      The <varname>PATH</varname> to the exported, armored GPG public key
+      that corresponds to the secret key used to sign the packages in this
+      appliance.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+      secret-key
+      </term>
+
+      <listitem>
+      <para>
+      The <varname>PATH</varname> to the exported, armored GPG secret key
+      with which to sign appliance packages.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <informalexample>
+    <programlisting>
+&lt;gpgsign enabled="true"&gt;
+  &lt;public-key&gt;GPG/GPG-public.key&lt;/public-key&gt;
+  &lt;secret-key&gt;GPG/GPG-secret.key&lt;/secret-key&gt;
+  &lt;passphrase&gt;secret&lt;/passphrase&gt;
+&lt;/gpgsign&gt;
+    </programlisting>
+    </informalexample>
+  </section>
+
+  <section>
+    <title>
+    See Also
+    </title>
+
+    <para>
+    <varname><xref linkend="content-boolean" /></varname>,
+    <varname><xref linkend="content-path" /></varname>,
+    <varname><xref linkend="content-text" /></varname>,
+    <emphasis><xref linkend="boot-args" /></emphasis>
+    </para>
+  </section>
+</section>

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="publish"
+         xreflabel="publish">
+  <title>
+  publish
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Publishes the appliance to a <varname>PATH</varname> on the build
+    machine (<emphasis>publish/local-dir</emphasis>) and enables client
+    systems to obtain their updates from an appliance download server
+    by using a URL <varname>PATH</varname>
+    (<emphasis>publish/remote-url</emphasis>).
+    </para>
+
+    <para>
+    The web-accessible download server can be either the Spin build
+    system or another machine. To utilize the Spin build system's hostname
+    instead of its IP address, set
+    <emphasis>publish/remote-url/@use-hostname</emphasis> to
+    <constant>TRUE</constant>. Use
+    <emphasis>publish/remote-url/@interface</emphasis> to
+    specify the network interface from which to obtain the IP address.
+    To specify a full <varname>PATH</varname> to the appliance download
+    server, use the <emphasis>publish/remote-url</emphasis> element with
+    a <varname>PATH</varname> in its text value (syntax 2).
+    </para>
+
+    <para>
+    This module is a member of the <emphasis role="strong">publish</emphasis>
+    module group.
+    </para>
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <section>
+      <title>
+      Syntax 1 - automatic remote url computation
+      </title>
+
+    <programlisting>
+[&lt;publish [enabled=BOOLEAN]&gt;
+  [&lt;local-dir&gt;PATH&lt;/local-dir&gt;]
+  [( &lt;remote-url use-hostname=TRUE [interface=TEXT]/&gt; |
+     &lt;remote-url [use-hostname=FALSE]/&gt; )]
+ &lt;/publish&gt;]
+    </programlisting>
+    </section>
+
+    <section>
+      <title>
+      Syntax 2 - manual remote url specification
+      </title>
+
+    <programlisting>
+[&lt;publish [enabled=BOOLEAN]&gt;
+  [&lt;local-dir&gt;PATH&lt;/local-dir&gt;]
+  [&lt;remote-url&gt;PATH&lt;/remote-url&gt;]
+ &lt;/publish&gt;]
+    </programlisting>
+    </section>
+  </section>
+
+  <section>
+    <title>
+    Attributes
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      enabled
+      </term>
+
+      <listitem>
+      <para>
+      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      local-dir
+      </term>
+
+      <listitem>
+      <para>
+      The <varname>PATH</varname> to a folder to which Spin publishes the
+      appliance. For the appliance to be accessible on the web, place the
+      directory in the system’s local webroot, e.g. the Apache
+      DocumentRoot.
+      </para>
+
+      <para>
+      The default text value for this element is
+      <filename>/var/www/html/appliances/$APPLIANCEID</filename>.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+      remote-url
+      </term>
+
+      <listitem>
+      <para>
+      The URL <varname>PATH</varname> to a folder from which client systems
+      can obtain appliance updates.
+      </para>
+
+      <para>
+      The default behavior is to use
+      <filename>http://$ipaddress/appliances/$APPLIANCEID</filename>,
+      where <varname>$ipaddress</varname> is computed using the value
+      of the <emphasis>@interface</emphasis> attribute.
+      </para>
+
+      <para>
+      This element accepts two attributes:
+      <emphasis>@interface</emphasis> and
+      <emphasis>@use-hostname</emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@interface</emphasis>: The network interface name,
+      e.g. "eth1", from which to obtain the <varname>$ipaddress</varname>
+      of the appliance's update repository. This attribute only has
+      an effect if <emphasis>publish/remote-url/@use-hostname</emphasis>
+      is <constant>FALSE</constant>. By default, Spin uses the first
+      active, non-loopback network interface.
+      </para>
+
+      <para>
+      <emphasis>@use-hostname</emphasis>: <varname>BOOLEAN</varname>
+      that determines whether <application class="software">Spin</application>
+      uses the build machine's hostname or IP address in the
+      automatically-computed remote url. The default value for
+      this attribute is <constant>FALSE</constant>.
+      </para>
+
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <para>
+    In the following examples, the build system's hostname is
+    <filename>buildserver</filename> and the IP addresses of "eth0" and
+    "eth1" are 10.10.1.105 and 192.168.0.10, respectively. It is building an
+    appliance with an <varname>$APPLIANCEID</varname> of
+    "samba-server-5-i386".
+    </para>
+
+    <section>
+      <title>
+      Example 1 - automatic remote url computation using IP address
+      </title>
+
+      <para>
+      In this example, the remote url is automatically computed using
+      the IP address of the first active network interface ("eth0"). The
+      resulting remote url is
+      <literallayout>http://10.10.1.105/appliances/samba-server-5-i386</literallayout>
+      In addition, the default local publish directory is also not used
+      in favor of a different location.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;publish&gt;
+  &lt;local-dir&gt;/var/webroot/html/&lt;/local-dir&gt;
+&lt;/publish&gt;
+      </programlisting>
+      </informalexample>
+    </section>
+
+    <section>
+      <title>
+      Example 2 - automatic remote url computation using hostname
+      </title>
+
+      <para>
+      In this example, the remote url is automatically computed using
+      the hostname of the build system. The resulting remote url is
+      <literallayout>http://buildserver/appliances/samba-server-5-i386</literallayout>
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;publish&gt;
+  &lt;remote-url use-hostname="true" /&gt;
+&lt;/publish&gt;
+      </programlisting>
+      </informalexample>
+
+    </section>
+
+    <section>
+      <title>
+      Example 3 - automatic remote url computation using a specific interface
+      </title>
+
+      <para>
+      In this example, the remote url is automatically computed using
+      the IP address of the specified interface, "eth1". The resulting
+      remote url is
+      <literallayout>http://192.168.0.10/appliances/samba-server-5-i386</literallayout>
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;publish&gt;
+  &lt;remote-url interface="eth1"/&gt;
+&lt;/publish&gt;
+      </programlisting>
+      </informalexample>
+
+    </section>
+
+    <section>
+      <title>
+      Example 4 - manual configuration of remote url
+      </title>
+
+      <para>
+      In this example, the remote url is manually configured. The
+      resulting remote url is
+      <literallayout>http://appliances.company.com/pub/appliances/samba-server-5-i386</literallayout>
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;publish&gt;
+  &lt;remote-url&gt;http://appliances.company.com/pub/&lt;/remote-url&gt;
+&lt;/publish&gt;
+      </programlisting>
+      </informalexample>
+    </section>
+  </section>
+
+  <section>
+    <title>
+    See Also
+    </title>
+
+    <para>
+    <varname><xref linkend="variable-appliance-id" /></varname>,
+    <varname><xref linkend="content-boolean" /></varname>,
+    <varname><xref linkend="content-path" /></varname>
+    </para>
+  </section>
+</section>

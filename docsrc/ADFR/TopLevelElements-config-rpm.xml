@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="config-rpm"
+         xreflabel="config-rpm">
+  <title>
+  config-rpm
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Creates the <filename>$NAME-config.rpm</filename> containing
+    customized configuration information and other data necessary for the
+    appliance’s operation. The <filename>$NAME-config.rpm</filename> installs 
+    customized configuration files via the <emphasis>config-rpm/files</emphasis>
+    element and runs configuration-related scripts via the 
+    <emphasis>config-rpm/script</emphasis> and 
+    <emphasis>config-rpm/trigger</emphasis> elements.
+    </para>
+
+    <para>
+    This module is a member of the <emphasis role="strong">rpmbuild</emphasis>
+    module group.
+    </para>
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+&lt;config-rpm [enabled=BOOLEAN]&gt;
+  [&lt;files [destdir=PATH] [destname=BASENAME] [mode=MODE]
+          [content=("filename"|"raw")&gt;
+    (PATH|TEXT)
+   &lt;/files&gt;]*
+
+  [&lt;repofile [appliance=BOOLEAN] [input=BOOLEAN] /&gt;
+
+  [&lt;obsoletes&gt;CAPABILITY&lt;/obsoletes&gt;]*
+  [&lt;requires&gt;CAPABILITY&lt;/requires&gt;]*
+
+  [&lt;script type=("post"|"pre"|"preun"|"postun"|"verifyscript")
+          [content=("filename"|"raw")]&gt;
+    (PATH|TEXT)
+   &lt;/script&gt;]*
+
+  [&lt;trigger package=CAPABILITY type=("triggerin"|"triggerun"|"triggerpostun")
+           [content=("filename"|"raw")] [interpreter=PATH]&gt;
+    (PATH|TEXT)
+   &lt;/trigger&gt;]*
+&lt;/config-rpm&gt;
+    </programlisting>
+  </section>
+
+  <section>
+    <title>
+    Attributes
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      enabled
+      </term>
+
+      <listitem>
+      <para>
+      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry id="config-rpm-files"
+                  xreflabel="config-rpm/files">
+      <term>
+      files
+      </term>
+
+      <listitem>
+      <para>
+      Path-like element for installing configuration files directly to 
+      the client system. The <emphasis>@destdir</emphasis> attribute 
+      specifies the destination directory for the file indicated by this
+      element's text value. Can occur zero or more times.
+      </para>
+
+      <para>
+      Accepts four attributes:
+      <emphasis>@content</emphasis>,
+      <emphasis>@destdir</emphasis>,
+      <emphasis>@destname</emphasis>, and
+      <emphasis>@mode</emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@content</emphasis>: See Common Attribute
+      <emphasis><xref linkend="config-rpm-content" /></emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@destdir</emphasis>: See the path-like attribute
+      <emphasis><xref linkend="destdir" /></emphasis>. Controls the
+      location to which this file should be installed on the client
+      system. The default value is
+      <filename>/usr/share/$NAME-config/files</filename>.
+      </para>
+
+      <para>
+      <emphasis>@destname</emphasis>: See the path-like attribute
+      <emphasis><xref linkend="destname" /></emphasis>. If
+      <emphasis>@content</emphasis> is "raw", this attribute is required.
+      </para>
+
+      <para>
+      <emphasis>@mode</emphasis>: See the path-like attribute
+      <emphasis><xref linkend="mode" /></emphasis>.
+      </para>
+    </listitem>
+    </varlistentry>
+
+    <varlistentry id="config-rpm-obsoletes"
+                  xreflabel="config-rpm/obsoletes">
+      <term>
+      obsoletes
+      </term>
+
+      <listitem>
+      <para>
+      See Common Element <emphasis><xref linkend="obsoletes" /></emphasis>. 
+      Can occur zero or more times.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="config-rpm-repofile"
+                  xreflabel="config-rpm/repofile">
+      <term>
+      repofile
+      </term>
+
+      <listitem>
+      <para>
+      Includes in the config RPM a
+      <application class="software">yum</application> repo file
+      <filename>/etc/yum.repos.d/$NAME.repo</filename> containing
+      one or more RPM update repositories to be used by the client system.
+      </para>
+
+      <para>
+      Accepts two attributes,
+      <emphasis>@appliance</emphasis> and
+      <emphasis>@input</emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@appliance</emphasis>: <varname>BOOLEAN</varname>
+      value indicating whether to generate a repository listing pointing
+      to the download server location for this appliance. The default value is
+      <constant>TRUE</constant>. See <emphasis role="strong">
+      <xref linkend="publish" /></emphasis> for information on 
+      defining the download server location.
+      </para>
+
+      <para>
+      <emphasis>@input</emphasis>: <varname>BOOLEAN</varname>
+      value indicating whether to include the repositories used to
+      build the appliance in the repofile. The default 
+      value is <constant>FALSE</constant>. See 
+      <emphasis role="strong"><xref linkend="repos" /></emphasis> for 
+      information on defining input repositories.
+      </para>
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="config-rpm-requires"
+                  xreflabel="config-rpm/requires">
+      <term>
+      requires
+      </term>
+
+      <listitem>
+      <para>
+      See Common Element
+      <emphasis><xref linkend="requires" /></emphasis>. Can occur zero or more
+      times.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="config-rpm-script"
+                  xreflabel="config-rpm/script">
+      <term>
+      script
+      </term>
+
+      <listitem>
+      <para>
+      Specifies one or more scripts to run during RPM installation and removal. 
+      Can occur zero or more times.
+      </para>
+
+      <para>
+      Accepts two attributes,
+      <emphasis>@content</emphasis> and
+      <emphasis>@type</emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@content</emphasis>: See Common Attribute
+      <xref linkend="config-rpm-content" />.
+      </para>
+
+      <para>
+      <emphasis>@type</emphasis>: Specifies the type of RPM script; must
+      be one of "pre", "post", "preun", "postun", or "verifyscript". This
+      attribute is required. For more information on defining scripts in
+      RPM spec files, see the Fedora project's
+      <ulink url="http://docs.fedoraproject.org/drafts/rpm-guide-en/">"RPM Guide"</ulink>
+      by Eric Foster-Johnson.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="config-rpm-trigger"
+                  xreflabel="config-rpm/trigger">
+      <term>
+      trigger
+      </term>
+
+      <listitem>
+      <para>
+      Specifies one or more trigger scripts to run during RPM installation and
+      removal. Can occur zero or more times.
+      </para>
+
+      <para>
+      Accepts four attributes:
+      <emphasis>@content</emphasis>,
+      <emphasis>@interpreter</emphasis>,
+      <emphasis>@package</emphasis>, and
+      <emphasis>@type</emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@content</emphasis>: See Common Attribute
+      <xref linkend="config-rpm-content" />.
+      </para>
+
+      <para>
+      <emphasis>@interpreter</emphasis>: The <varname>PATH</varname> to
+      the executable language interpreter to use when running the trigger
+      script. The default value is <filename>/bin/sh</filename>.
+      </para>
+
+      <para>
+      <emphasis>@package</emphasis>: The name of the RPM this script
+      triggers on.  This attribute is required. See Also the
+      <emphasis>@type</emphasis> attribute.
+      </para>
+
+      <para>
+      <emphasis>@type</emphasis>: Specifies the type of RPM trigger
+      script; must be one of "triggerin", "triggerun", or "triggerpostun".
+      This attribute is required. For more information on defining trigger
+      scripts in RPM spec files, see the Fedora project's
+      <ulink url="http://docs.fedoraproject.org/drafts/rpm-guide-en/">"RPM Guide"</ulink>
+      by Eric Foster-Johnson. See Also the <emphasis>@package</emphasis>
+      attribute.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <informalexample>
+    <programlisting>
+&lt;config-rpm&gt;
+  &lt;!-- put smb.conf in /etc/samba on the client system --&gt;
+  &lt;files destdir="/etc/samba"&gt;
+    smb.conf
+  &lt;/files&gt;
+
+  &lt;!-- rename and change mode of aliases.txt --&gt;
+  &lt;files destdir="/etc" destname="aliases" mode="0600"&gt;
+    aliases.txt
+  &lt;/files&gt;
+
+  &lt;!-- insert raw text into /etc/hosts --&gt;
+  &lt;files destdir="/etc" destname="hosts" content="raw"&gt;
+# Do not remove the following line, or various programs
+# that require network functionality will fail.
+127.0.0.1   localhost.localdomain localhost
+::1         localhost.localdomain localhost
+  &lt;/files&gt;
+
+  &lt;!-- include only the input repositories in generated repofile --&gt;
+  &lt;repofile appliance="false" input="true" /&gt;
+
+  &lt;!-- required packages --&gt;
+  &lt;requires&gt;samba&lt;/requires&gt;
+  &lt;requires&gt;samba-common&lt;/requires&gt;
+
+  &lt;!-- add a RPM %post script --&gt;
+  &lt;script type="post" content="raw"&gt;
+/sbin/chkconfig samba on
+  &lt;/script&gt;
+
+  &lt;!-- add a RPM %triggerin script that triggers on samba --&gt;
+  &lt;trigger package="samba" type="triggerin"&gt;
+    scripts/smb-triggerin.sh
+  &lt;/trigger&gt;
+&lt;/config-rpm&gt;
+    </programlisting>
+    </informalexample>
+  </section>
+
+  <section>
+    <title>
+    See Also
+    </title>
+
+    <para>
+    <varname><xref linkend="variable-name" /></varname>,
+    <varname><xref linkend="content-basename" /></varname>,
+    <varname><xref linkend="content-package" /></varname>,
+    <varname><xref linkend="content-path" /></varname>,
+    <varname><xref linkend="content-text" /></varname>,
+    <xref linkend="path-like-elements" />,
+    <emphasis role="strong"><xref linkend="repos" /></emphasis>
+    </para>
+  </section>
+</section>

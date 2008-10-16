@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="iso"
+         xreflabel="iso">
+  <title>
+  iso
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Creates ISO images of the appliance for installation via CD or DVD.
+    </para>
+
+    <para>
+    This module is a member of the <emphasis role="strong">publish</emphasis>
+    module group.
+    </para>
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;iso [enabled=BOOLEAN]&gt;
+  [&lt;boot-args [use-defaults=BOOLEAN]&gt;TEXT&lt;/boot-args&gt;]
+   &lt;set&gt;TEXT&lt;/set&gt;*
+ &lt;/iso&gt;]
+    </programlisting>
+  </section>
+
+  <section>
+    <title>
+    Attributes
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      enabled
+      </term>
+
+      <listitem>
+      <para>
+      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      boot-args
+      </term>
+
+      <listitem>
+      <para>
+      Modify the kernel boot arguments used in the ISO images.
+      The default append arguments for
+      <emphasis role="strong">iso</emphasis> are
+      <constant>%{ks}</constant> and
+      <constant>method=cdrom</constant>
+      See Also Common Element
+      <emphasis><xref linkend="boot-args" /></emphasis>.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+      set
+      </term>
+
+      <listitem>
+      <para>
+      Specify the size per ISO, in bytes, of a set of ISO images to
+      create. <varname>TEXT</varname> may include a SI-style suffix
+      ("MB", "GB", etc.).  The reserved values "CD" and "DVD" correspond
+      to "640MB" and "4.7GB", respectively.
+      </para>
+
+      <para>
+      This element must occur one or more times. Each instance will result
+      in the generation of another set of ISO images.
+      </para>
+
+      <note>
+      <para><emphasis>iso/set</emphasis> values are case- and
+      space-insensitive, and the trailing 'b' is optional. For instance,
+      the following <varname>TEXT</varname> values are all equivalent:
+      "640000000", "640M", "640 mb", "CD".
+      </para>
+
+      <para>
+      By default, sizes are computed using 1000 bytes per megabyte.
+      In order to use 1024 bytes per megabyte, insert a 'i' after the
+      order designator; for example, "640 MIB" or "4.7GiB".
+      </para>
+      </note>
+
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <para>
+    In the following example, <application class="software">Spin</application>
+    will create four sets of ISO images; one with 4.7 gigabytes per disc
+    ("DVD"), one with 400 megabytes per disc ("400000000"), one with 640
+    megabytes per disc ("640 mb"), and one with 640 mebibytes per disc
+    ("640 mib").
+    </para>
+
+    <informalexample>
+    <programlisting>
+&lt;iso&gt;
+  &lt;set&gt;DVD&lt;/set&gt;       &lt;!-- 4700000000 bytes/disc --&gt;
+  &lt;set&gt;400000000&lt;/set&gt; &lt;!--  400000000 bytes/disc --&gt;
+  &lt;set&gt;640 mb&lt;/set&gt;    &lt;!--  640000000 bytes/disc --&gt;
+  &lt;set&gt;640 mib&lt;/set&gt;   &lt;!--  671088640 bytes/disc --&gt;
+&lt;/iso&gt;
+    </programlisting>
+    </informalexample>
+  </section>
+
+  <section>
+    <title>
+    See Also
+    </title>
+
+    <para>
+    <varname><xref linkend="content-boolean" /></varname>,
+    <varname><xref linkend="content-text" /></varname>,
+    <xref linkend="boot-args-macros" />
+    </para>
+  </section>
+</section>

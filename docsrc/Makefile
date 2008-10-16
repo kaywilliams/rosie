@@ -1,6 +1,6 @@
-SUBDIRS = man
+SUBDIRS = man ADFR
 
-.PHONY: all clean install
+.PHONY: all clean html install pdf
 
 all:
 	for dir in $(SUBDIRS); do make -C $$dir; done
@@ -10,3 +10,9 @@ install:
 
 clean:
 	for dir in $(SUBDIRS); do make -C $$dir clean; done
+
+html:
+	for dir in $(SUBDIRS); do make -C $$dir html; [ $$? = 0 ] || exit 1; done
+
+pdf:
+	for dir in $(SUBDIRS); do make -C $$dir pdf; [ $$? = 0 ] || exit 1; done

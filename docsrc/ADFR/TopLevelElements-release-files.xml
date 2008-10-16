@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="release-files"
+         xreflabel="release-files">
+  <title>
+  release-files
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Includes additional files in the appliance at the root of the
+    published appliance directory.
+    </para>
+
+    <para>
+    This module is a member of the <emphasis role="strong">installer</emphasis>
+    module group.
+    </para>
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;release-files [enabled=BOOLEAN]&gt;
+  [&lt;files [mode=MODE] [destdir=DIRNAME] [destname=BASENAME]&gt;PATH&lt;/files&gt;]*
+ &lt;/release-files&gt;]
+    </programlisting>
+  </section>
+
+  <section>
+    <title>
+    Attributes
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      enabled
+      </term>
+
+      <listitem>
+      <para>
+      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      files
+      </term>
+
+      <listitem>
+      <para>
+      The <varname>PATH</varname> to a folder or file to include in the
+      appliance.
+      </para>
+
+      <para>
+      This element can occur zero or more times.
+      </para>
+
+      <para>
+      This element accepts three attributes:
+      <emphasis>@destdir</emphasis>,
+      <emphasis>@destname</emphasis>, and
+      <emphasis>@mode</emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@destdir</emphasis>: See the <varname>PATH</varname>-like
+      attribute <emphasis><xref linkend="destdir" /></emphasis>. Controls
+      the location to which this file is copied in the publish directory.
+      The default value is within the appliance's <filename>os/</filename>
+      folder.
+      </para>
+
+      <para>
+      <emphasis>@destname</emphasis>: See the <varname>PATH</varname>-like
+      attribute <emphasis><xref linkend="destname" /></emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@mode</emphasis>: See the <varname>PATH</varname>-like
+      attribute <emphasis><xref linkend="mode" /></emphasis>.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <informalexample>
+    <programlisting>
+&lt;release-files&gt;
+  &lt;files&gt;kickstart1.cfg&lt;/files&gt;
+  &lt;files&gt;kickstart2.cfg&lt;/files&gt;
+&lt;/release-files&gt;
+    </programlisting>
+    </informalexample>
+  </section>
+
+  <section>
+    <title>
+    See Also
+    </title>
+
+    <para>
+    <varname><xref linkend="content-boolean" /></varname>,
+    <varname><xref linkend="content-path" /></varname>,
+    <xref linkend="path-like-elements" />
+    </para>
+  </section>
+</section>

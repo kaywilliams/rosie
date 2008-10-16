@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="CommonComponents-Attributes">
+
+  <section id="config-rpm-content"
+           xreflabel="content">
+    <title>
+    Attribute: content
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      A common attribute occurring in the
+      <emphasis>config-rpm/files</emphasis>,
+      <emphasis>config-rpm/script</emphasis>, and
+      <emphasis>config-rpm/trigger</emphasis>
+      sub-elements, the <emphasis>@content</emphasis> attribute accepts
+      either "filename" or "raw".  When <emphasis>content</emphasis> is
+      "filename", the element's text value is treated as a
+      <varname>PATH</varname> to a file, whereas when it is "raw", the
+      element's text value is interpreted as the raw text a file to use.
+      Unless otherwise specified, the default value for
+      <emphasis>content</emphasis> is "filename".
+      </para>
+    </section>
+
+    <section>
+      <title>
+      See Also
+      </title>
+
+      <para>
+      <emphasis><xref linkend="config-rpm-files" /></emphasis>,
+      <emphasis><xref linkend="config-rpm-script" /></emphasis>,
+      <emphasis><xref linkend="config-rpm-trigger" /></emphasis>
+      </para>
+    </section>
+  </section>
+
+
+  <section id="destdir"
+           xreflabel="@destdir">
+    <title>
+    Attribute: destdir
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      An absolute or relative <varname>DIRNAME</varname> (path) to a
+      folder after which Spin places the final item of the parent element
+      <varname>$input</varname>. Spin creates this destination folder if
+      it does not exist. If this <varname>DIRNAME</varname> is absolute,
+      the final file location will ignore the <varname>PATH</varname>-like
+      element's <varname>$default</varname>.
+      </para>
+    </section>
+
+    <section>
+      <title>
+      Examples
+      </title>
+
+      <para>
+      In the following examples, the value of <varname>$default</varname>
+      is <filename>/var/www/html</filename>.
+
+      <informalexample>
+      <programlisting>     
+&lt;files destdir="hgweb"&gt;/var/input/samba-splash.jpg&lt;/files&gt;
+&lt;files destdir="/hgweb"&gt;/var/input/samba-splash.jpg&lt;/files&gt;
+      </programlisting>
+      </informalexample>
+
+      The paths specified above result in these corresponding destinations.
+
+      <informalexample>
+      <programlisting>
+/var/www/html/hgweb/samba-splash.jpg
+/hgweb/samba-splash.jpg
+      </programlisting>
+      </informalexample>
+      </para>
+
+    </section>
+
+    <section>
+      <title>
+      See Also
+      </title>
+
+      <para>
+      <emphasis><xref linkend="destname" /></emphasis>,
+      <varname><xref linkend="content-path" /></varname>,
+      <xref linkend="path-like-elements" />
+      </para>
+    </section>
+  </section>
+
+  <section id="destname"
+           xreflabel="@destname">
+    <title>
+    Attribute: destname
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      Specify the filename to use for the given <varname>$input</varname>
+      after it is copied to its destination. If not given, Spin uses the
+      basename of the <varname>$input</varname>.
+      </para>
+    </section>
+
+    <section>
+      <title>
+      Examples
+      </title>
+
+      <para>
+      In the following examples, the value of <varname>$default</varname>
+      is <filename>/var/www/html</filename>.
+
+      <informalexample>
+      <programlisting>
+&lt;files destname="output.jpg"&gt;/var/input/samba-splash.jpg&lt;/files&gt;
+&lt;files destdir="hgweb" destname="output.jpg"&gt;/var/input/samba-splash.jpg&lt;/files&gt;
+      </programlisting>
+      </informalexample>
+
+      The paths specified above result in these corresponding destinations.
+
+      <informalexample>
+      <programlisting>     
+/var/www/html/output.jpg
+/var/www/html/hgweb/output.jpg
+      </programlisting>
+      </informalexample>
+      </para>
+    </section>
+
+    <section>
+      <title>
+      See Also
+      </title>
+
+      <para>
+      <emphasis><xref linkend="destdir" /></emphasis>,
+      <varname><xref linkend="content-path" /></varname>,
+      <xref linkend="path-like-elements" />
+      </para>
+    </section>
+  </section>
+
+  <section id="enabled"
+           xreflabel="@enabled">
+    <title>
+    Attribute: enabled
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      <varname>BOOLEAN</varname> value that controls whether Spin uses the
+      module associated with the top-level element in the build process.
+      All top-level elements can be disabled except for &lt;main&gt;.
+      </para>
+
+      <para>
+      This attribute's default value is <constant>TRUE</constant>.
+      </para>
+    </section>
+
+    <section>
+      <title>
+      Examples
+      </title>
+
+      <informalexample>
+      <programlisting>
+&lt;release-files enabled="false"/&gt;
+      </programlisting>
+      </informalexample>
+    </section>
+
+    <section>
+      <title>
+      See Also
+      </title>
+
+      <para>
+      <varname><xref linkend="content-boolean" /></varname>
+      </para>
+    </section>
+  </section>
+
+
+  <section id="mode"
+           xreflabel="@mode">
+    <title>
+    Attribute: mode
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      The numeric file <varname>MODE</varname> to apply to the
+      <varname>$input</varname> (if a file) or recursively to all files,
+      including those in subfolders, below <varname>$input</varname> (if a
+      directory) after it has been copied. If not specified, uses 0644.
+      </para>
+    </section>
+
+    <section>
+      <title>
+      See Also
+      </title>
+
+      <para>
+      <varname><xref linkend="content-mode" /></varname>,
+      <xref linkend="path-like-elements" />
+      </para>
+    </section>
+  </section>
+</section>

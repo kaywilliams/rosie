@@ -1,0 +1,3 @@
+TexInputs: latex/
+TexStyle:  spindocs
+XslParam:  xsl/param.xsl

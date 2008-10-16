@@ -14,6 +14,7 @@ BuildArch: noarch
 
 BuildRequires: docbook-style-xsl
 BuildRequires: gzip
+BuildRequires: libxml2
 BuildRequires: libxslt
 BuildRequires: python
 
@@ -60,6 +61,8 @@ and run a Spin-managed appliance.
 %doc INSTALL
 %doc README
 %doc NEWS
+%doc docsrc/ADFR/ADFR.html
+%doc docsrc/images*
 %{_mandir}/man5/spin.conf.5.gz
 %{_mandir}/man1/spin.1.gz
 

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="bootiso"
+         xreflabel="bootiso">
+  <title>
+  bootiso
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Allows customization of the <filename>boot.iso</filename> image
+    created by <application class="software">Spin</application>. This
+    image can be burned to a CD or DVD and used to begin a network installation
+    on the client system.
+    </para>
+
+    <para>
+    This module is a member of the <emphasis role="strong">installer</emphasis>
+    module group.
+    </para>
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;bootiso [enabled=BOOLEAN]&gt;
+  [&lt;boot-args [use-defaults=BOOLEAN]&gt;TEXT&lt;/boot-args&gt;]
+ &lt;/bootiso&gt;]
+    </programlisting>
+  </section>
+
+  <section>
+    <title>
+    Attributes
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      enabled
+      </term>
+
+      <listitem>
+      <para>
+      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      boot-args
+      </term>
+
+      <listitem>
+      <para>
+      Modifies the kernel boot arguments of the <filename>/isolinux/isolinux.cfg
+      </filename> file within the <filename>boot.iso</filename>. The default 
+      append arguments for <emphasis role="strong">bootiso</emphasis> are
+      <constant>%{ks}</constant> and
+      <constant>%{method}</constant>.
+      See Also Common Element
+      <emphasis><xref linkend="boot-args" /></emphasis>.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <informalexample>
+    <programlisting>
+&lt;bootiso enabled="true"&gt;
+  &lt;boot-args use-defaults="false"&gt;
+    keymap=us lang=en_US ip=192.168.0.222
+    netmask=255.255.255.0 gateway=192.168.0.2 dns=192.168.0.7
+  &lt;/boot-args&gt;
+&lt;/bootiso&gt;
+    </programlisting>
+    </informalexample>
+  </section>
+
+  <section>
+    <title>
+    See Also
+    </title>
+
+    <para>
+    <varname><xref linkend="content-boolean" /></varname>,
+    <varname><xref linkend="content-text" /></varname>,
+    <emphasis><xref linkend="boot-args" /></emphasis>
+    </para>
+  </section>
+</section>
