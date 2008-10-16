@@ -7,7 +7,7 @@ GZIP = /bin/gzip
 
 all: spin.1.gz spin.conf.5.gz
 
-spin.1.gz: checkpkgs
+spin.1.gz:
 	@make checkpkg BINARY=$(XSLTPROC) INSTRUCTIONS="Install the libxslt package."
 	@make checkpkg BINARY=$(MANXSL) INSTRUCTIONS="Install the docbook-style-xsl package."
 	@$(GZIP) spin.1
