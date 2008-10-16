@@ -1,61 +1,227 @@
+2008-10-15  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/main.rng, spin/main.py,
+	spin/modules/core/repos.py:
+	Added support for <anaconda-version> in <main/>.
+
+	The user can now specify the anaconda version in the appliance file.
+	This gets around the problem where there is no anaconda RPM in any
+	of the input repositories.
+	[6b6092bcfbc3] [tip]
+
+	* docsrc/Makefile, docsrc/man/Makefile:
+	Added man2html target to man/ folder's Makefile.
+	[6053ea6f6a43]
+
+	* docsrc/ADFR/Appendix-logos-rpm.xml, docsrc/ADFR/CommonComponents-
+	Attributes.xml, docsrc/ADFR/CommonComponents-Content.xml,
+	docsrc/ADFR/CommonComponents-Elements.xml, docsrc/ADFR
+	/CommonComponents-Variables.xml, docsrc/ADFR/CommonComponents.xml,
+	docsrc/ADFR/DocumentConventions.xml, docsrc/ADFR/Index.xml,
+	docsrc/ADFR/Introduction.xml, docsrc/ADFR/Makefile, docsrc/ADFR
+	/TopLevelElements-bootiso.xml, docsrc/ADFR/TopLevelElements-
+	comps.xml, docsrc/ADFR/TopLevelElements-config-rpm.xml, docsrc/ADFR
+	/TopLevelElements-diskboot-image.xml, docsrc/ADFR/TopLevelElements-
+	gpgsign.xml, docsrc/ADFR/TopLevelElements-iso.xml, docsrc/ADFR
+	/TopLevelElements-kickstart.xml, docsrc/ADFR/TopLevelElements-logos-
+	rpm.xml, docsrc/ADFR/TopLevelElements-main.xml, docsrc/ADFR
+	/TopLevelElements-product-image.xml, docsrc/ADFR/TopLevelElements-
+	publish.xml, docsrc/ADFR/TopLevelElements-release-files.xml,
+	docsrc/ADFR/TopLevelElements-release-rpm.xml, docsrc/ADFR
+	/TopLevelElements-repos.xml, docsrc/ADFR/TopLevelElements-
+	sources.xml, docsrc/ADFR/TopLevelElements-updates-image.xml,
+	docsrc/ADFR/TopLevelElements.xml, docsrc/Makefile,
+	docsrc/dblatex/latex/spindocs.sty, docsrc/dblatex/spindocs.specs,
+	docsrc/dblatex/xsl/graphics/caution.eps,
+	docsrc/dblatex/xsl/graphics/caution.pdf,
+	docsrc/dblatex/xsl/graphics/important.eps,
+	docsrc/dblatex/xsl/graphics/important.pdf,
+	docsrc/dblatex/xsl/graphics/note.eps,
+	docsrc/dblatex/xsl/graphics/note.pdf,
+	docsrc/dblatex/xsl/graphics/tip.eps,
+	docsrc/dblatex/xsl/graphics/tip.pdf,
+	docsrc/dblatex/xsl/graphics/warning.eps,
+	docsrc/dblatex/xsl/graphics/warning.pdf,
+	docsrc/dblatex/xsl/param.xsl, docsrc/images/blank.png,
+	docsrc/images/caution.png, docsrc/images/draft.png,
+	docsrc/images/home.png, docsrc/images/important.png,
+	docsrc/images/next.png, docsrc/images/note.png,
+	docsrc/images/prev.png, docsrc/images/tip.png, docsrc/images/toc-
+	blank.png, docsrc/images/toc-minus.png, docsrc/images/toc-plus.png,
+	docsrc/images/up.png, docsrc/images/warning.png, spin.spec:
+	Merged spindocs repository with spin repository.
+	[0e7eb0ac4b66]
+
+2008-10-15  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spintest/__init__.py:
+	adjusted spintest log levels so it is less verbose in level 1
+	[e57b645b5d97]
+
+	* spintest/run.py:
+	fixed varname of efmtstr
+	[c78601916757]
+
+2008-10-14  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spintest/run.py, spintest/runtest.py:
+	spintest's run.py and runtest.py now use the exact same cmdline
+	parser Still looking for a better way to reconstruct command line
+	that isn't so vulnerable to command line option changes.
+	[dc63557f842c]
+
+	* spintest/core.py:
+	added distro-version-arch to spintest output module header
+	[a5335eb5f489]
+
+	* spin/event/__init__.py, spin/event/verify.py:
+	log adjustments
+	 * removed unnecessary log messages for each event's various method
+	calls
+	 * replaced the above with a summary of the time spent running
+	setup(), run(), apply(), and the total runtime; this prints after
+	each event at log level 5 and above
+	 * removed old ._add_cli() and ._apply_options() methods
+	 * removed some of the printout with verification methods
+	[44114d8cdc76]
+
+2008-10-14  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/rpmbuild/config-rpm.py:
+	We were looking for an obsoleted attribute in the <config-rpm/>.
+
+	The @repoids attribute has been removed in favor or @input.
+	[6ccae704477c]
+
+2008-10-14  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spintest/modules/bootiso.py, spintest/modules/diskboot-image.py,
+	spintest/modules/isolinux.py:
+	further disabled config-rpm and release-rpm in installer events that
+	don't need them (but do need logos-rpm)
+	[de7c6702a571]
+
+	* spintest/modules/bootiso.py, spintest/modules/diskboot-image.py,
+	spintest/modules/infofiles.py, spintest/modules/initrd-image.py,
+	spintest/modules/installer.py, spintest/modules/isolinux.py,
+	spintest/modules/kickstart.py, spintest/modules/product-image.py,
+	spintest/modules/pxeboot-images.py,
+	spintest/modules/stage2-images.py, spintest/modules/updates-
+	image.py, spintest/modules/xen-images.py:
+	disabled packages and rpmbuild module groups in most installer
+	module test cases
+	 * this improves runtime by 1:30-2:30 per installer event, which ends
+	up saving 15-20 minutes per distro-appliance build (a net savings
+	of several hours per night!)
+	[ad53bd7664af]
+
+2008-10-13  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* Merged with Daniel's changes.
+	[2da36e637de7]
+
+	* spin-enterprise.spec:
+	Fixed the install directive in the spin-enterprise.spec file.
+
+	Was calling the `make install-enterprise' target instead of `make
+	install'.
+	[77d4c498bb7c]
+
+	* Makefile, Makefile.enterprise, spin-enterprise.spec:
+	Broke Makefile into Makefile and Makefile.enterprise.
+
+	This way the source RPMs do not have references to the "other"
+	package in the Makefile in the SRPM.
+	[d32c6c00bd24]
+
+2008-10-13  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* MANIFEST.in, setup.py, share/spin/release/eula.py,
+	spintest/modules/bootiso.py, spintest/modules/infofiles.py,
+	spintest/modules/initrd-image.py, spintest/modules/isolinux.py:
+	merged with trunk, possibly disabled packages in some installer
+	events
+	[92a472921980]
+
+	* spintest/__init__.py, spintest/run.py, spintest/runtest.py:
+	spintest updates spintest/__init__.py
+	 * EventTestRunner now sets result.duration, the duration of the test
+	case
+	 * make_logger() now accepts an opened logfile object and a threshold;
+	no longer assumes 'test.log' spintest/run.py
+	 * new wrapper to runtest.py - both files will likely be renamed
+	shortly
+	 * each module to be tested by run is executed in a new python instance
+	to combat the 'too many open files' and 'MemoryError' errors test
+	suites have had recently
+	 * added better header, footer compared to old runtest
+	 * added summary details of the run spintest/runtest.py
+	 * removed excess make_logger
+	 * removed --skip option
+	 * added -l, --log-file option to specify the logfile to use
+	 * changed --log-level's short option to -v
+	 * runtest no longer accepts mod ids; it accepts the path to a single
+	module file to test
+	 * runtest now properly cd's back to the original wd after running
+	 * runtest now writes a summary file containing the modules tested, the
+	number of test cases ran, the number of failures, number of errors,
+	and total time spent testing (CSV)
+	[605747245add]
+
+	* spin/main.py:
+	updated logfile reading code slightly
+	[8a2fc00d62f8]
+
+	* spin/modules/core/installer/product-image.py:
+	removed false required dependency in product-image on comps; now
+	assumes 'core' group if comps not supplied
+	[25102079ca5b]
+
+2008-10-13  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* Makefile:
+	Creating a source RPM tags the repository against that RPM.
+
+	A build of the spin RPM creates a spin-related tag. A bug of the
+	spin-enterprise tag creates a spin-enterprise-related tag.
+	[4f14172c5f57]
+
 2008-10-12  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Updated the spin-0.8.61-1 tag.
+	[58c5513a38bf]
+
+	* .hgtags:
+	Tagged as spin-0.8.61-1
+	[df01886fe0b0]
+
+	* share/spin/schemas/appliance/Makefile:
+	Not installing the initrd-image.rng file. It doesn't exist anymore.
+	[12c8eca47328] [spin-0.8.61-1]
+
+	* spin/event/loader.py:
+	Ignoring Makefiles when loading Spin modules.
+	[42a0d6ca9697]
+
+	* .hgtags, Makefile:
+	Fixed the `make tag' and `make tag-enterprise' targets.
+
+	Also, removed the incorrect tag from .hgtags.
+	[cae4bfa9401e]
+
+	* .hgtags:
+	Added tag Tagged as spin-0.8.61-1, spin-0.8.61-1 for changeset
+	3b3a11318078
+	[e65ccf711157]
+
+	* ChangeLog, Makefile, spin.spec:
+	Bumped the version of spin to spin-0.8.61-1.
+	[3b3a11318078]
 
 	* share/spin/schemas/appliance/initrd-image.rng, spin.spec:
 	Merged with trunk.
-	[a7036d0f85d7] [tip]
-
-2008-10-10  spinmaster  <spinmaster>
-
-	* .hgtags:
-	Tagged as spin-0.8.60-1
-	[bc517e4b9e53]
-
-	* ChangeLog, setup.py, spin.spec:
-	Bumped version to spin-0.8.60-1.noarch.
-	[dd2dc402da72] [spin-0.8.60-1]
-
-2008-10-10  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
-
-	* share/spin/schemas/appliance/diskboot-image.rng:
-	bug 367 - removed support for files in diskboot-image
-	[4846c7de7cca]
-
-	* share/spin/schemas/appliance/bootiso.rng,
-	share/spin/schemas/appliance/diskboot-image.rng,
-	share/spin/schemas/appliance/iso.rng,
-	share/spin/schemas/appliance/lib.rng:
-	bug 366 - renamed 'element-boot-config' to 'element-boot-args' in
-	rng for symmetry
-	[2f58b3b659bf]
-
-	* share/spin/schemas/appliance/lib.rng,
-	spin/modules/shared/bootcfg.py, spintest/mixins.py,
-	spintest/modules/bootiso.py, spintest/modules/diskboot-image.py,
-	spintest/modules/iso.py:
-	bug 366 - flattened boot-config/* into boot-args
-	share/spin/schemas/appliance/lib.rng
-	 * modified element-boot-config: element now named boot-args, no longer
-	accepts children, has optional text value
-	spin/modules/shared/bootcfg.py
-	 * now obtains kernel arguments from the xpath 'boot-args/text()'
-	instead of 'boot-config/append-args/text()'
-	 * now obtains whether to use default values from 'boot-args/@use-
-	defaults' instead of 'boot-config/@use-defaults'
-	 * boot config file now cannot be specified in config
-	spintest/mixins.py
-	 * adjusted xpaths spintest/modules/bootiso.py
-	 * adjusted bootconfig test cases spintest/modules/diskboot-image.py
-	 * adjusted bootconfig test cases spintest/modules/iso.py
-	 * adjusted bootconfig test cases
-	[fb538750b0a4]
-
-2008-10-10  Kay Williams  <kwilliams@renditionsoftware.com>
-
-	* share/spin/schemas/appliance/initrd-image.rng:
-	removing initrd-image schema - bug 367
-	[dcb4a2a4cdcd]
-
-2008-10-12  Uday Prakash  <uprakash@renditionsoftware.com>
+	[a7036d0f85d7]
 
 	* Makefile:
 	Added a tag-enterprise target.
@@ -117,6 +283,57 @@
 	spin/modules/shared/Makefile:
 	Not using distutils to create Spin RPMs
 	[d089c54747f8]
+
+2008-10-10  spinmaster  <spinmaster>
+
+	* .hgtags:
+	Tagged as spin-0.8.60-1
+	[bc517e4b9e53]
+
+	* ChangeLog, setup.py, spin.spec:
+	Bumped version to spin-0.8.60-1.noarch.
+	[dd2dc402da72] [spin-0.8.60-1]
+
+2008-10-10  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/diskboot-image.rng:
+	bug 367 - removed support for files in diskboot-image
+	[4846c7de7cca]
+
+	* share/spin/schemas/appliance/bootiso.rng,
+	share/spin/schemas/appliance/diskboot-image.rng,
+	share/spin/schemas/appliance/iso.rng,
+	share/spin/schemas/appliance/lib.rng:
+	bug 366 - renamed 'element-boot-config' to 'element-boot-args' in
+	rng for symmetry
+	[2f58b3b659bf]
+
+	* share/spin/schemas/appliance/lib.rng,
+	spin/modules/shared/bootcfg.py, spintest/mixins.py,
+	spintest/modules/bootiso.py, spintest/modules/diskboot-image.py,
+	spintest/modules/iso.py:
+	bug 366 - flattened boot-config/* into boot-args
+	share/spin/schemas/appliance/lib.rng
+	 * modified element-boot-config: element now named boot-args, no longer
+	accepts children, has optional text value
+	spin/modules/shared/bootcfg.py
+	 * now obtains kernel arguments from the xpath 'boot-args/text()'
+	instead of 'boot-config/append-args/text()'
+	 * now obtains whether to use default values from 'boot-args/@use-
+	defaults' instead of 'boot-config/@use-defaults'
+	 * boot config file now cannot be specified in config
+	spintest/mixins.py
+	 * adjusted xpaths spintest/modules/bootiso.py
+	 * adjusted bootconfig test cases spintest/modules/diskboot-image.py
+	 * adjusted bootconfig test cases spintest/modules/iso.py
+	 * adjusted bootconfig test cases
+	[fb538750b0a4]
+
+2008-10-10  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/initrd-image.rng:
+	removing initrd-image schema - bug 367
+	[dcb4a2a4cdcd]
 
 2008-10-09  spinmaster  <spinmaster>
 

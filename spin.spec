@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.8.61
+Version: 0.9.0
 Release: 1%{?dist}
 Summary: The Spin Package builds customized appliances
 
@@ -67,6 +67,28 @@ and run a Spin-managed appliance.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Wed Oct 15 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.9.0-1
+- Added support for <anaconda-version> in <main/>. (uprakash)
+- Added man2html target to man/ folder's Makefile. (uprakash)
+- Merged spindocs repository with spin repository. (uprakash)
+- adjusted spintest log levels so it is less verbose in level 1 (dmusgrave)
+- fixed varname of efmtstr (dmusgrave)
+- spintest's run.py and runtest.py now use the exact same cmdline parser (dmusgrave)
+- added distro-version-arch to spintest output module header (dmusgrave)
+- log adjustments (dmusgrave)
+- We were looking for an obsoleted attribute in the <config-rpm/>. (uprakash)
+- further disabled config-rpm and release-rpm in installer events that don't need them (dmusgrave)
+- disabled packages and rpmbuild module groups in most installer module test cases (dmusgrave)
+- Broke Makefile into Makefile and Makefile.enterprise. (uprakash)
+- merged with trunk, possibly disabled packages in some installer events (dmusgrave)
+- spintest updates (dmusgrave)
+- updated logfile reading code slightly (dmusgrave)
+- removed false required dependency in product-image on comps; now assumes 'core' group if comps not supplied (dmusgrave)
+- Creating a source RPM tags the repository against that RPM. (uprakash)
+- Updated the spin-0.8.61-1 tag. (uprakash)
+- Tagged as spin-0.8.61-1 (uprakash)
+- Not installing the initrd-image.rng file. It doesn't exist anymore. (uprakash)
+
 * Sun Oct 12 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.61-1
 - Broke spin into spin and spin-enterprise. (uprakash)
 
