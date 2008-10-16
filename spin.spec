@@ -68,6 +68,7 @@ and run a Spin-managed appliance.
 
 %changelog
 * Wed Oct 15 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.9.0-1
+- Fixed a typo in the man/ folder's Makefile. (uprakash)
 - Added support for <anaconda-version> in <main/>. (uprakash)
 - Added man2html target to man/ folder's Makefile. (uprakash)
 - Merged spindocs repository with spin repository. (uprakash)
