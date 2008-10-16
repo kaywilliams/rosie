@@ -10,13 +10,14 @@ all: spin.1.gz spin.conf.5.gz
 spin.1.gz:
 	@make checkpkg BINARY=$(XSLTPROC) INSTRUCTIONS="Install the libxslt package."
 	@make checkpkg BINARY=$(MANXSL) INSTRUCTIONS="Install the docbook-style-xsl package."
-	@$(GZIP) spin.1
+	$(XSLTPROC) $(MANXSL) spin.xml
+	$(GZIP) spin.1
 
 spin.conf.5.gz:
 	@make checkpkg BINARY=$(XSLTPROC) INSTRUCTIONS="Install the libxslt package."
 	@make checkpkg BINARY=$(MANXSL) INSTRUCTIONS="Install the docbook-style-xsl package."
-	@$(XSLTPROC) $(MANXSL) spin.conf.xml
-	@$(GZIP) spin.conf.5
+	$(XSLTPROC) $(MANXSL) spin.conf.xml
+	$(GZIP) spin.conf.5
 
 man2html:
 	@make checkpkg BINARY=$(XSLTPROC) INSTRUCTIONS="Install the libxslt package."
