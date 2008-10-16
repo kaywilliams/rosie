@@ -35,15 +35,15 @@
       </title>
 
       <para>
-      In order to operate, <application class="software">spin
+      In order to operate, <application class="software">Spin
       </application> requires at least one input repository.
       Repositories are specified by either defining them in XML
       (see <emphasis><xref linkend="repos-repo" /></emphasis>) or by
       pointing to a valid
       <application class="software">yum</application> repofile (see
-      <emphasis><xref linkend="repos-repofile" /></emphasis>. All enabled
+      <emphasis><xref linkend="repos-repofile" /></emphasis>). All enabled
       repositories are considered. Valid repository definitions must
-      include a minimum of one baseurl or a mirrorlist. Furthermore, all
+      include a minimum of one baseurl or mirrorlist. Furthermore, all
       repositories must have a unique id.
       </para>
 
