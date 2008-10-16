@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:           spin-enterprise
-Version:        0.8.0
+Version:        0.9.1
 Release:        1%{?dist}
 Summary:        The Spin Enterprise Package
 
@@ -42,6 +42,6 @@ RHN paths can be used in baseurls of repositories.
 %doc AUTHORS
 
 %changelog
-* Thu Oct  9 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.8.0-1
-- Initial Build. (uprakash)
+* Thu Oct 16 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.9.1-1
+- Initial Build
 
