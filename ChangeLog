@@ -1,8 +1,28 @@
+2008-10-16  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/locals/treeinfo.py:
+	Fixed bug with treeinfo locals.
+	[c563a011249c] [tip]
+
+2008-10-16  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/ADFR/TopLevelElements-repos.xml:
+	ADFR: minor edits to repos element description
+	[50a441b36df0]
+
 2008-10-15  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.9.1-1
+	[1b1027fa17fb]
+
+	* ChangeLog, spin.spec:
+	Bumpved version to spin-0.9.1-1.
+	[7b8b04a3548b] [spin-0.9.1-1]
 
 	* docsrc/man/Makefile:
 	Had accidentally deleted one line from man/ folder's Makefile.
-	[5bdc1d3edace] [tip]
+	[5bdc1d3edace]
 
 	* spin.spec:
 	Updated changelog section of RPM spec file.
