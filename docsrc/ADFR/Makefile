@@ -23,7 +23,7 @@ ADFR.html:
                     --stringparam section.autolabel 1 \
                     --stringparam section.label.includes.component.label 1 \
                     --stringparam section.autolabel.max.depth 1 \
-                    /usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl Index.xml
+                    /usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl Index_tmp.xml
 	rm -f Index_tmp.xml
 
 ADFR.pdf:
