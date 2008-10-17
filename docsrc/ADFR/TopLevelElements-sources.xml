@@ -20,147 +20,10 @@
     </para>
 
     <para>
-    This module is a member of the <emphasis role="strong">publish</emphasis>
-    module group.
+    Accepts the same elements and attributes as the <xref linkend="repos" />
+    element.
     </para>
-  </section>
 
-  <section>
-    <title>
-    Syntax
-    </title>
-
-    <programlisting>
-[&lt;sources [enabled=BOOLEAN]&gt;
-
-   &lt;!-- one-or-more of the &lt;repo&gt; and/or &lt;repofile&gt; elements --&gt;
-  [&lt;repo id=ID&gt;
-     &lt;!-- at least one &lt;baseurl&gt; or &lt;mirrorlist&gt; is required --&gt;
-    [&lt;baseurl&gt;PATH&lt;/baseurl&gt;]*
-    [&lt;mirrorlist&gt;PATH&lt;/mirrorlist&gt;]
-    [&lt;enabled&gt;BOOLEAN&lt;/enabled&gt;]
-    [&lt;name&gt;TEXT&lt;/name&gt;]
-    [&lt;gpgcheck&gt;BOOLEAN&lt;/gpgcheck&gt;]
-    [&lt;gpgkey&gt;PATH&lt;gpgkey&gt;]*
-    [&lt;exclude-package&gt;PACKAGE&lt;/exclude-package&gt;]*
-    [&lt;include-package&gt;PACKAGE&lt;/include-package&gt;]*
-    [&lt;systemid&gt;PATH&lt;/systemid&gt;]
-   &lt;/repo&gt;]
-
-  [&lt;repofile&gt;PATH&lt;/repofile&gt;]*
-
-  [&lt;releasever&gt;TEXT&lt;/releasever&gt;]
-  [&lt;exclude-package&gt;PACKAGE&lt;/exclude-package&gt;]*
- &lt;/sources&gt;]
-    </programlisting>
-  </section>
-
-  <section>
-    <title>
-    Attributes
-    </title>
-
-    <variablelist>
-    <varlistentry>
-      <term>
-      enabled
-      </term>
-
-      <listitem>
-      <para>
-      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
-      </para>
-      </listitem>
-    </varlistentry>
-    </variablelist>
-  </section>
-
-  <section>
-    <title>
-    Elements
-    </title>
-
-    <variablelist>
-    <varlistentry>
-      <term>
-      exclude-package
-      </term>
-
-      <listitem>
-      <para>
-      A <varname>PACKAGE</varname> pattern to exclude from all source
-      repositories. See Also 
-      <xref linkend="repo-including-excluding-repository-contents" />.
-      </para>
-
-      <para>
-      This element can occur zero or more times.
-      </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>
-      releasever
-      </term>
-
-      <listitem>
-      <para>
-      The value to use to replace the <varname>$releasever</varname> YUM
-      variable in all source repository baseurls and/or mirrorlists
-      instead of the default value, <varname>$VERSION</varname>.
-      </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry id="sources-repo"
-                  xreflabel="sources/repo">
-      <term>
-      repo
-      </term>
-
-      <listitem>
-      <para>
-      Include a repository from which to select source packages for the
-      appliance.
-      See Common Element <emphasis><xref linkend="repo" /></emphasis>.
-      See Also
-      <xref linkend="repos-including-repositories" /> and
-      <xref linkend="repo-including-excluding-repository-contents" />.
-      </para>
-
-      <para>
-      This element can occur zero or more times. However, the
-      <emphasis role="strong">sources</emphasis> top-level element must
-      have at least one <emphasis>sources/repo</emphasis> or
-      <emphasis>sources/repofile</emphasis> element.
-      </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry id="sources-repofile"
-                  xreflabel="sources/repofile">
-      <term>
-      repofile
-      </term>
-
-      <listitem>
-      <para>The <varname>PATH</varname> to a
-      <application class="software">YUM</application> repofile. See also
-      Common Element <emphasis><xref linkend="repo" /></emphasis> and
-      <xref linkend="repos-including-repositories" />. See also the
-      yum.conf man pages for the appropriate syntax of a YUM repofile.
-      </para>
-
-      <para>
-      This element can occur zero or more times. However, the
-      <emphasis role="strong">sources</emphasis> top-level element must
-      have at least one <emphasis>sources/repo</emphasis> or
-      <emphasis>sources/repofile</emphasis> element.
-      </para>
-      </listitem>
-    </varlistentry>
-    </variablelist>
   </section>
 
   <section>
@@ -188,12 +51,7 @@
     </title>
 
     <para>
-    <varname><xref linkend="content-boolean" /></varname>,
-    <varname><xref linkend="content-package" /></varname>,
-    <varname><xref linkend="content-path" /></varname>,
-    <varname><xref linkend="content-text" /></varname>,
-    <emphasis><xref linkend="repo" /></emphasis>,
-    <xref linkend="repo-including-excluding-repository-contents" />
+    <emphasis><xref linkend="repos" /></emphasis>,
     </para>
   </section>
 </section>
