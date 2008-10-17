@@ -227,7 +227,7 @@
 
       <para>
       Additionally, Spin will include any and all repositories defined
-      in the file <filename>fedora.repo</filename>.
+      in the file <filename>fedora-extras.repo</filename>.
       </para>
 
       <informalexample>
@@ -264,13 +264,15 @@
 
     <section>
       <title>
-      Example 2 - RedHat Network repositories
+      Example 2 - Red Hat Network repositories
       </title>
 
       <para>
       Repositories that utilize the <filename>rhn</filename> or
-      <filename>rhns</filename> protocols to contact the RedHat Network
-      require a systemid to be specified.
+      <filename>rhns</filename> protocols to contact the Red Hat Network
+      require a systemid to be specified. See the <xref linkend="repo" />
+      common element for more information on using Red Hat Network
+      repositories.
       </para>
 
       <informalexample>

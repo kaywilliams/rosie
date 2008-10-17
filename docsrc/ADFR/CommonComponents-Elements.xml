@@ -436,7 +436,7 @@ $root/var/www/html/outfile.txt
 
       <para>
       Spin supports an extension to the standard supported schemes
-      in that it can connect to and download packages from RedHat Network
+      in that it can connect to and download packages from Red Hat Network
       servers. In order for this to function properly, the repository
       definition must include a <emphasis>repo/systemid</emphasis>
       element pointing to a valid RHN systemid file that has access to
@@ -801,7 +801,7 @@ baseurl=/var/repos/repoC
           <listitem>
           <para>
           A <varname>PATH</varname> to the systemid file to use when
-          contacting the RedHat Network.
+          contacting the Red Hat Network.
           </para>
 
           <para>
@@ -880,7 +880,7 @@ baseurl=/var/repos/repoC
 
         <para>
         This repository utilizes the <filename>rhn</filename> syntax
-        to contact the RedHat Network for packages.
+        to contact the Red Hat Network for packages.
         </para>
 
         <informalexample>
