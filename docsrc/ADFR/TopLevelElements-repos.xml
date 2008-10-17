@@ -40,7 +40,7 @@
       Repositories are specified by either defining them in XML
       (see <emphasis><xref linkend="repos-repo" /></emphasis>) or by
       pointing to a valid
-      <application class="software">yum</application> repofile (see
+      <application class="software">YUM</application> repofile (see
       <emphasis><xref linkend="repos-repofile" /></emphasis>). All enabled
       repositories are considered. Valid repository definitions must
       include a minimum of one baseurl or mirrorlist. Furthermore, all
@@ -51,9 +51,7 @@
       Exactly one of the input repositories must contain installer
       images and isolinux files, located within folders called
       <filename>images</filename> and <filename>isolinux</filename>,
-      respectively. This repository is referred to as the "base repository"
-      for the appliance, and is important in many of the stages of
-      the Spin build process.
+      respectively. These files are used to create installation images for the appliance.
       </para>
     </section>
 
@@ -143,7 +141,7 @@
 
       <listitem>
       <para>
-      The value to use to replace the <varname>$releasever</varname> yum
+      The value to use to replace the <varname>$releasever</varname> YUM
       variable in all repository baseurls and/or mirrorlists instead of
       the default value, <varname>$VERSION</varname>.
       </para>
@@ -183,10 +181,10 @@
       <listitem>
       <para>
       The <varname>PATH</varname> to a
-      <application class="software">yum</application> repofile.  See also
+      <application class="software">YUM</application> repofile.  See also
       Common Element <emphasis><xref linkend="repo" /></emphasis> and
       <xref linkend="repos-including-repositories" />. See also the
-      yum.conf man pages for the appropriate syntax of a yum repofile.
+      yum.conf man pages for the appropriate syntax of a YUM repofile.
       </para>
 
       <para>
@@ -302,7 +300,7 @@
 
       <para>
       The <emphasis>repos/releasever</emphasis> element allows overriding the 
-      value used to replace the <varname>$releasever</varname> yum variable.
+      value used to replace the <varname>$releasever</varname> YUM variable.
 
       <informalexample>
       <programlisting>

@@ -155,7 +155,7 @@
       <listitem>
       <para>
       Includes in the config RPM a
-      <application class="software">yum</application> repo file
+      <application class="software">YUM</application> repo file
       <filename>/etc/yum.repos.d/$NAME.repo</filename> containing
       one or more RPM update repositories to be used by the client system.
       </para>

@@ -106,7 +106,7 @@
 
       <listitem>
       <para>
-      The value to use to replace the <varname>$releasever</varname> yum
+      The value to use to replace the <varname>$releasever</varname> YUM
       variable in all source repository baseurls and/or mirrorlists
       instead of the default value, <varname>$VERSION</varname>.
       </para>
@@ -146,10 +146,10 @@
 
       <listitem>
       <para>The <varname>PATH</varname> to a
-      <application class="software">yum</application> repofile. See also
+      <application class="software">YUM</application> repofile. See also
       Common Element <emphasis><xref linkend="repo" /></emphasis> and
       <xref linkend="repos-including-repositories" />. See also the
-      yum.conf man pages for the appropriate syntax of a yum repofile.
+      yum.conf man pages for the appropriate syntax of a YUM repofile.
       </para>
 
       <para>

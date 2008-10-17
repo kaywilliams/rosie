@@ -198,7 +198,7 @@
     Within the ADFR, Spin variables are presented in monospace font
     preceded by a dollar sign, e.g. <varname>$APPLIANCEID</varname>.
     In the event that another application uses a variable with simliar
-    syntax (yum, for example), these variables are clearly indicated as
+    syntax (YUM, for example), these variables are clearly indicated as
     not being Spin variables.
     </para>
 
