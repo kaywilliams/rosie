@@ -80,7 +80,7 @@
       additional documentation files to include in the appliance.
       Typical files to include are <filename>AUTHOR</filename>,
       <filename>LICENSE</filename>, <filename>COPYRIGHT</filename>,
-      <filename>README</filename>, etc. This element can occur zero or more 
+      <filename>README</filename>, etc. Can occur zero or more 
       times.
       </para>
 
@@ -123,7 +123,7 @@
       <listitem>
       <para>
       The <varname>PATH</varname> to a file or folder containing the EULA
-      of the appliance. This element can occur zero or more times.
+      of the appliance. Can occur zero or more times.
       </para>
 
       <para>
@@ -164,7 +164,7 @@
       <listitem>
       <para>
       The <varname>PATH</varname> to additional files or folders to include
-      in the release RPM. This element can occur zero or more times.
+      in the release RPM. Can occur zero or more times.
       </para>
 
       <para>
@@ -206,7 +206,7 @@
       <listitem>
       <para>
       The <varname>PATH</varname> to a file or folder containing
-      HTML documentation files for the appliance. This element can occur zero 
+      HTML documentation files for the appliance. Can occur zero 
       or more times.
       </para>
 

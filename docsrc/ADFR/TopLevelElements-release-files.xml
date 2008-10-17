@@ -69,11 +69,7 @@
       <listitem>
       <para>
       The <varname>PATH</varname> to a folder or file to include in the
-      appliance.
-      </para>
-
-      <para>
-      This element can occur zero or more times.
+      appliance. Can occur zero or more times.
       </para>
 
       <para>
