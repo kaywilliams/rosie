@@ -32,11 +32,6 @@
     server, use the <emphasis>publish/remote-url</emphasis> element with
     a <varname>PATH</varname> in its text value (syntax 2).
     </para>
-
-    <para>
-    This module is a member of the <emphasis role="strong">publish</emphasis>
-    module group.
-    </para>
   </section>
 
   <section>
