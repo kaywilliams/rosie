@@ -1,8 +1,74 @@
+2008-10-20  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin-enterprise.spec, spin.spec:
+	The description directives of spec files are a maximum of 72
+	chars/line.
+	[95c884db1dde] [tip]
+
+2008-10-20  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* spin-enterprise.spec, spin.spec:
+	updated summary and descriptions fields for spin and spin-
+	development
+	[bf3c9f1adcff]
+
+	* branch merge
+	[f36de04c17d5]
+
+2008-10-18  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/ADFR/TopLevelElements-iso.xml, docsrc/ADFR/TopLevelElements-
+	publish.xml:
+	ADFR: removed mention of iso and publish events in publish module
+	group
+
+	* since there is no publish module group
+	[8cfb4cea1282]
+
+2008-10-17  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/ADFR/TopLevelElements-sources.xml:
+	ADFR: edits to sources element
+
+	* removed syntax and sub element descriptions. Instead refer to the
+	repos element
+	* removed mention of publish module group as there isn't one
+	[b5f7c4a95bf1]
+
+	* docsrc/ADFR/TopLevelElements-release-files.xml, docsrc/ADFR
+	/TopLevelElements-release-rpm.xml:
+	ADFR: Using a more compact descritpion for path-like elements
+	[68a2e25c5cf2]
+
+	* docsrc/ADFR/TopLevelElements-config-rpm.xml:
+	ADFR: added note in config-rpm about stripping of rhn repos
+	[4b0b21135f62]
+
+	* docsrc/ADFR/CommonComponents-Elements.xml, docsrc/ADFR
+	/TopLevelElements-repos.xml:
+	ADFR: repos and repo element edits; separating RedHat into two words
+	[e8c9c9eff807]
+
+	* docsrc/ADFR/CommonComponents-Elements.xml,
+	docsrc/ADFR/DocumentConventions.xml, docsrc/ADFR/TopLevelElements-
+	config-rpm.xml, docsrc/ADFR/TopLevelElements-repos.xml, docsrc/ADFR
+	/TopLevelElements-sources.xml:
+	ADFR: using proper capitalization for YUM
+	[24f97d4f8002]
+
 2008-10-16  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.9.3-1
+	[dd15ef7f56c5]
+
+	* ChangeLog, spin.spec:
+	Bumped version to spin-0.9.3-1.
+	[5298298e07b3] [spin-0.9.3-1]
 
 	* Makefile:
 	Excluding Makefiles while writing out changelog of RPM spec files.
-	[a01ea9cff2c7] [tip]
+	[a01ea9cff2c7]
 
 	* Makefile, Makefile.enterprise:
 	Excluding changes to spec files and ChangeLog file from rpm

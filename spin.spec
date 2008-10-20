@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.9.3
+Version: 0.9.4
 Release: 1%{?dist}
 Summary: Builds software appliances based on Red Hat, CentOS and Fedora Linux
 
@@ -77,6 +77,14 @@ separately purchase RHEL licenses for all installed client systems.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Mon Oct 20 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.9.4-1
+- ADFR: removed mention of iso and publish events in publish module (kwilliams)
+- ADFR: edits to sources element (kwilliams)
+- ADFR: Using a more compact descritpion for path-like elements (kwilliams)
+- ADFR: added note in config-rpm about stripping of rhn repos (kwilliams)
+- ADFR: repos and repo element edits; separating RedHat into two words (kwilliams)
+- ADFR: using proper capitalization for YUM (kwilliams)
+
 * Thu Oct 16 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.9.3-1
 - Fixed a typo in ADFR's Makefile. (uprakash)
 
