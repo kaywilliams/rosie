@@ -33,17 +33,18 @@ Requires: syslinux
 Requires: yum
 
 %description
-Spin is a lightweight, performance-optimized development tool for creating 
-simple, integrated, easy-to-manage software bundles (known as 'software
-appliances', 'custom distributions', or 'custom spins') containing operating 
-system components, applications and related configuration. Spin allows starting
-from Red Hat Enterprise Linux 5, CentOS 5, Fedora 9 and Fedora 10. Spin is 
-comparable to pungi and revisor, with added support for RHEL and CentOS as
-base distributions, automatic generation of a config RPM using user-provided 
-files and scripts, and performance enhancements of 50-90%.
+Spin is a lightweight, performance-optimized development tool for
+creating simple, integrated, easy-to-manage software bundles (known as
+'software appliances', 'custom distributions', or 'custom spins')
+containing operating system components, applications and related
+configuration. Spin allows starting from Red Hat Enterprise Linux 5,
+CentOS 5, Fedora 9 and Fedora 10. Spin is comparable to pungi and
+revisor, with added support for RHEL and CentOS as base distributions,
+automatic generation of a config RPM using user-provided files and
+scripts, and performance enhancements of 50-90%.
 
-Note: Customers who create appliances based on RHEL will need to separately 
-purchase RHEL licenses for all installed client systems.
+Note: Customers who create appliances based on RHEL will need to
+separately purchase RHEL licenses for all installed client systems.
 
 %prep
 %setup -q

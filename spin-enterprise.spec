@@ -19,11 +19,12 @@ Requires:       spin
 Requires:       spin-logos
 
 %description
-The Spin Enterprise package provides additional features for the Spin appliance
-development tool. It allows automatic generation of a logos RPM containing 
-appliance-specific branding which is visible during installation, system boot, 
-user login and and from the GNOME and KDE desktops. It also allows connecting 
-directly to Red Hat Network as an input source for appliance packages.
+The Spin Enterprise package provides additional features for the Spin
+appliance development tool. It allows automatic generation of a logos
+RPM containing appliance-specific branding which is visible during
+installation, system boot, user login and from the GNOME and KDE
+desktops. It also allows connecting directly to Red Hat Network as an
+input source for appliance packages.
 
 %prep
 %setup -q
