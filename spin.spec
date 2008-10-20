@@ -3,11 +3,11 @@
 Name:    spin
 Version: 0.9.3
 Release: 1%{?dist}
-Summary: The Spin Package builds customized appliances
+Summary: Builds software appliances based on Red Hat, CentOS and Fedora Linux
 
 License:   GPLv2+
 Group:     Applications/System
-URL:       http://www.renditionsoftware.com/products/spin
+URL:       http://www.renditionsoftware.com/spin
 Source0:   %{name}-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
@@ -33,8 +33,17 @@ Requires: syslinux
 Requires: yum
 
 %description
-The spin package contains the necessary shared server applications to build
-and run a Spin-managed appliance.
+Spin is a lightweight, performance-optimized development tool for creating 
+simple, integrated, easy-to-manage software bundles (known as 'software
+appliances', 'custom distributions', or 'custom spins') containing operating 
+system components, applications and related configuration. Spin allows starting
+from Red Hat Enterprise Linux 5, CentOS 5, Fedora 9 and Fedora 10. Spin is 
+comparable to pungi and revisor, with added support for RHEL and CentOS as
+base distributions, automatic generation of a config RPM using user-provided 
+files and scripts, and performance enhancements of 50-90%.
+
+Note: Customers who create appliances based on RHEL will need to separately 
+purchase RHEL licenses for all installed client systems.
 
 %prep
 %setup -q
