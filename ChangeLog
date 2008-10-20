@@ -1,8 +1,57 @@
+2008-10-16  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* Makefile:
+	Excluding Makefiles while writing out changelog of RPM spec files.
+	[a01ea9cff2c7] [tip]
+
+	* Makefile, Makefile.enterprise:
+	Excluding changes to spec files and ChangeLog file from rpm
+	changelog.
+	[9653426e53c3]
+
+	* docsrc/ADFR/Makefile:
+	Fixed a typo in ADFR's Makefile.
+	[0e63b2c04c48]
+
+	* .hgtags:
+	Tagged as spin-enterprise-0.9.1-1
+	[1b040135fab7]
+
+	* spin-enterprise.spec:
+	Bumped spin-enterprise version to 0.9.1-1.
+	[885e8bfb8695] [spin-enterprise-0.9.1-1]
+
+	* .hgtags:
+	Tagged as spin-0.9.2-1
+	[0040f7bb99a3]
+
+	* ChangeLog, spin.spec:
+	Bumped version to spin-0.9.2-1.
+	[560aede96b8b] [spin-0.9.2-1]
+
+	* spin/locals/treeinfo.py:
+	Fixed bug with treeinfo locals.
+	[c563a011249c]
+
+2008-10-16  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/ADFR/TopLevelElements-repos.xml:
+	ADFR: minor edits to repos element description
+	[50a441b36df0]
+
 2008-10-15  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.9.1-1
+	[1b1027fa17fb]
+
+	* ChangeLog, spin.spec:
+	Bumpved version to spin-0.9.1-1.
+	[7b8b04a3548b] [spin-0.9.1-1]
 
 	* docsrc/man/Makefile:
 	Had accidentally deleted one line from man/ folder's Makefile.
-	[5bdc1d3edace] [tip]
+	[5bdc1d3edace]
 
 	* spin.spec:
 	Updated changelog section of RPM spec file.

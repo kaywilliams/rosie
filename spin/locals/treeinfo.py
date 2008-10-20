@@ -63,12 +63,16 @@ L_TREEINFO_FORMAT = LocalsDict({
       },
     },
     'images-xen': {
-      'initrd':         dict(index=0, value='images/pxeboot/initrd-PAE.img'),
-      'kernel':         dict(index=1, value='images/pxeboot/vmlinuz-PAE'),
+      'content': {
+        'initrd':       dict(index=0, value='images/pxeboot/initrd-PAE.img'),
+        'kernel':       dict(index=1, value='images/pxeboot/vmlinuz-PAE'),
+      },
     },
     'stage2': {
-      'instimage':      REMOVE,
-      'mainimage':      dict(index=0, value='images/install.img'),
+      'content': {
+        'instimage':    REMOVE,
+        'mainimage':    dict(index=0, value='images/install.img'),
+      },
     },
   }
 })
