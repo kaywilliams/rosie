@@ -78,6 +78,7 @@ separately purchase RHEL licenses for all installed client systems.
 
 %changelog
 * Mon Oct 20 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.9.4-1
+- Updated the description and summary of the RPM. (kwilliams)
 - ADFR: removed mention of iso and publish events in publish module (kwilliams)
 - ADFR: edits to sources element (kwilliams)
 - ADFR: Using a more compact descritpion for path-like elements (kwilliams)

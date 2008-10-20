@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:           spin-enterprise
-Version:        0.9.1
+Version:        0.9.2
 Release:        1%{?dist}
 Summary:        Provides additional Spin features
 
@@ -45,6 +45,9 @@ input source for appliance packages.
 %doc AUTHORS
 
 %changelog
+* Mon Oct 20 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.9.2-1
+- Updated the description and summary of the RPM. (kwilliams)
+
 * Thu Oct 16 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.9.1-1
 - Initial Build
 
