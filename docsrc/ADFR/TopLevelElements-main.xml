@@ -19,7 +19,7 @@
 
     <para>
     Contains basic information about the distribution necessary for Spin
-    to complete the build.
+    to complete an appliance build.
     </para>
   </section>
 

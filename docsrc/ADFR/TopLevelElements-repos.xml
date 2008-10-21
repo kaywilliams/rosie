@@ -23,11 +23,6 @@
     packages.
     </para>
 
-    <para>
-    This module is a member of the <emphasis role="strong">setup</emphasis>
-    module group.
-    </para>
-
     <section id="repos-including-repositories"
              xreflabel="Including Repositories in an Appliance">
       <title>

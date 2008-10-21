@@ -10,8 +10,9 @@
   <para>
   Each top-level element in the ADFR maps to a code module of the same
   name. Each code module is responsible for performing a single step in
-  the appliance build process.  To obtain a list of all available modules,
-  type
+  the appliance build process.  Related modules are organized into 
+  module groups. To obtain a list of all available modules and module 
+  groups type
 
   <programlisting>
 spin --list-modules
@@ -21,17 +22,6 @@ spin --list-modules
   This document only describes top-level elements that contain
   user-configurable parameters; not all modules listed from the above
   command are described below.
-  </para>
-
-  <para>
-  Modules are grouped into one of five major categories:
-  <emphasis role="strong">setup</emphasis>,
-  <emphasis role="strong">packages</emphasis>,
-  <emphasis role="strong">installer</emphasis>,
-  <emphasis role="strong">rpmbuild</emphasis>, and
-  <emphasis role="strong">publish</emphasis>.
-  The "module group" membership for each module is included in its
-  Description section.
   </para>
 
   <para>
