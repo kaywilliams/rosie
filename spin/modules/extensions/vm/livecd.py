@@ -23,70 +23,94 @@ Creates a livecd image (.iso)
 
 import imgcreate
 
+from rendition import pps
+
 from spin.event   import Event
 
+from spin.modules.shared import vms
+
 MODULE_INFO = dict(
-  api    = 5.0,
-  events = ['LivecdEvent'],
+  api         = 5.0,
+  events      = ['LivecdEvent'],
+  description = 'creates an appliance livecd',
+  group       = 'vm',
 )
 
-class LivecdEvent(Event):
+class LivecdEvent(vms.VmCreateMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'livecd',
       parentid = 'vm',
-      provides = ['livecd-image'],
-      requires = ['os-dir', 'repos', 'repodata-directory']
+      requires = ['kickstart-file', 'pkglist', 'repodata-directory']
     )
 
-    self.vmdir = self.mddir / 'vms'
+    self.baseimg  = self.mddir / 'ext3fs.img'
+    self.builddir = self.mddir / 'build'
+    self.tmpdir   = self.mddir / 'tmp'
+    self.livecd   = self.mddir / '%s-livecd.iso' % self.applianceid
 
     self.DATA =  {
       'config': ['.'],
-      'input':  [],
-      'output': [self.vmdir],
-      'variables': ['cvars[\'repos\']', 'cvars[\'repodata-directory\']'],
+      'input':  [self.baseimg],
+      'output': [self.livecd, self.baseimg],
+      'variables': ['cvars[\'pkglist\']'],
     }
 
     self.creator = None
+    self.ks = None
+    self._scripts = []
 
   def setup(self):
     self.diff.setup(self.DATA)
 
     # read supplied kickstart
-    ks = imgcreate.read_kickstart(self.config.getpath('.'))
-    self.DATA['input'].append(self.config.getpath('.'))
+    self.ks = self.read_kickstart()
 
-    # replace repos in kickstart if present
-    ks.handler.repo.repoList = []
-    ks.handler.repo.parse(['--name', 'appliance',
-                           '--baseurl', 'file://%s' % self.cvars['repodata-directory'].dirname])
+    self._update_ks_repos(self.ks)
+    self._prep_ks_scripts(self.ks)
 
     # create image creator
-    self.vmdir.mkdirs()
-    self.creator = imgcreate.LiveImageCreator(ks, '%s-livecd' % self.applianceid)
+    self.creator = SpinLiveImageCreator(self, self.ks,
+                                        '%s-livecd' % self.applianceid)
+    self.creator.skip_compression = not self.config.getbool('@compress', True)
+    self.creator.skip_minimize    = not self.config.getbool('@minimize', True)
 
   def run(self):
     ## todos
     ## shell command outputs - too verbose for standard run
     ## hook up logging to spin, either by modifying spin or modyfing imgcreate
-    ## performance optimization - don't delete installroot and use yum update
-    ## squashfs creation is slooooooowwwwww....
 
     try:
-      self.creator.mount(cachedir=self.mddir/'build')
+      self.creator.mount(base_on=self.baseimg,
+                         cachedir=self.builddir)
       self.creator.install()
       self.creator.configure()
       self.creator.unmount()
-      self.creator.package(self.vmdir)
+      self.creator.package(self.mddir)
     finally:
       self.creator.cleanup()
 
   def apply(self):
     self.io.clean_eventcache()
 
-    self.cvars.setdefault('publish-content', set()).add(self.vmdir)
+    self.cvars.setdefault('publish-content', set()).add(self.livecd)
 
-  def error(self, e):
-    self.creator and self.creator.cleanup()
-    Event.error(self, e)
+
+class SpinLiveImageCreator(vms.SpinImageCreatorMixin,
+                           imgcreate.LiveImageCreator):
+  def __init__(self, event, *args, **kwargs):
+    imgcreate.LiveImageCreator.__init__(self, *args, **kwargs)
+    vms.SpinImageCreatorMixin.__init__(self, event)
+
+  def _base_on(self, base_on):
+    if pps.path(base_on).exists():
+      pps.path(base_on).cp(self._image, link=True, force=True)
+
+  def _cleanup(self):
+    if self._image and pps.path(self._image).exists():
+      pps.path(self._image).rename(self.event.baseimg)
+
+  def package(self, destdir = "."):
+    # also copy image elsewhere for faster base_on'ing
+    pps.path(self._image).cp(self.event.baseimg, link=True, force=True)
+    imgcreate.LiveImageCreator.package(self, destdir=destdir)
