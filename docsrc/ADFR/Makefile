@@ -28,7 +28,7 @@ ADFR.html:
 
 ADFR.pdf:
 	@make checkpkg BINARY=$(DBLATEX) INSTRUCTIONS="Install the dblatex package."
-	$(DBLATEX) -P draft.mode=yes -P draft.watermark=1 -o ADFR.pdf -P toc.section.depth=1 -P doc.section.depth=1 -S ../dblatex/spindocs.specs --pdf Index.xml
+	$(DBLATEX) -o ADFR.pdf -P toc.section.depth=1 -P doc.section.depth=1 -S ../dblatex/spindocs.specs --pdf Index.xml
 
 checkpkg:
 	@if [ ! -e $(BINARY) ]; then \
