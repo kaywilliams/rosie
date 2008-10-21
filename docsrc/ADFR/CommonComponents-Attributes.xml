@@ -56,11 +56,11 @@
 
       <para>
       An absolute or relative <varname>DIRNAME</varname> (path) to a
-      folder after which Spin places the final item of the parent element
-      <varname>$input</varname>. Spin creates this destination folder if
-      it does not exist. If this <varname>DIRNAME</varname> is absolute,
+      folder where Spin will place the specified file or files. Spin 
+      creates this destination folder if it does not exist. If the 
+      <varname>DIRNAME</varname> is absolute,
       the final file location will ignore the <varname>PATH</varname>-like
-      element's <varname>$default</varname>.
+      element's default destination.
       </para>
     </section>
 
@@ -70,22 +70,20 @@
       </title>
 
       <para>
-      In the following examples, the value of <varname>$default</varname>
-      is <filename>/var/www/html</filename>.
+      In the following example, the default destination is
+      <filename>/</filename>.
 
       <informalexample>
       <programlisting>     
-&lt;files destdir="hgweb"&gt;/var/input/samba-splash.jpg&lt;/files&gt;
-&lt;files destdir="/hgweb"&gt;/var/input/samba-splash.jpg&lt;/files&gt;
+&lt;files destdir="etc/samba"&gt;smb.conf&lt;/files&gt;
       </programlisting>
       </informalexample>
 
-      The paths specified above result in these corresponding destinations.
+      The path specified above results in the following destination.
 
       <informalexample>
       <programlisting>
-/var/www/html/hgweb/samba-splash.jpg
-/hgweb/samba-splash.jpg
+/etc/samba/smb.conf
       </programlisting>
       </informalexample>
       </para>
@@ -117,9 +115,9 @@
       </title>
 
       <para>
-      Specify the filename to use for the given <varname>$input</varname>
-      after it is copied to its destination. If not given, Spin uses the
-      basename of the <varname>$input</varname>.
+      The filename to use for the specified file or folder after it is 
+      copied to its destination. If not given, Spin uses the
+      basename of the specified file. Used to rename a file or folder.
       </para>
     </section>
 
@@ -129,22 +127,20 @@
       </title>
 
       <para>
-      In the following examples, the value of <varname>$default</varname>
-      is <filename>/var/www/html</filename>.
+      In the following example, the input file is visible within the 
+      file system, while the resulting file is hidden.
 
       <informalexample>
       <programlisting>
-&lt;files destname="output.jpg"&gt;/var/input/samba-splash.jpg&lt;/files&gt;
-&lt;files destdir="hgweb" destname="output.jpg"&gt;/var/input/samba-splash.jpg&lt;/files&gt;
+&lt;files destdir="/root" destname=".bashrc"&gt;bashrc&lt;/files&gt;
       </programlisting>
       </informalexample>
 
-      The paths specified above result in these corresponding destinations.
+      The above example results in the following.
 
       <informalexample>
       <programlisting>     
-/var/www/html/output.jpg
-/var/www/html/hgweb/output.jpg
+/root/.bashrc
       </programlisting>
       </informalexample>
       </para>
@@ -222,9 +218,27 @@
 
       <para>
       The numeric file <varname>MODE</varname> to apply to the
-      <varname>$input</varname> (if a file) or recursively to all files,
-      including those in subfolders, below <varname>$input</varname> (if a
-      directory) after it has been copied. If not specified, uses 0644.
+      specified file or recursively to all files, including those in 
+      subfolders, below the specified folder. If not specified, uses 
+      0644.
+      </para>
+    </section>
+
+    <section>
+      <title>
+      Examples
+      </title>
+
+      <para>
+      In the following example, the script 
+      <filename>config.sh</filename> is set to be executable by all 
+      system users.
+
+      <informalexample>
+      <programlisting>
+&lt;files mode="755"&gt;config.sh&lt;/files&gt;
+      </programlisting>
+      </informalexample>
       </para>
     </section>
 

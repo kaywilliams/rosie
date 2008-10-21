@@ -27,8 +27,9 @@
       space-separated list of kernel arguments to append to each
       "append" line in the syslinux configuration file. If
       <emphasis>boot-args/@use-defaults</emphasis> is
-      <constant>TRUE</constant>, the default set of kernel arguments
-      for the module are appended as well.
+      <constant>TRUE</constant>, the default set of kernel arguments, 
+      defined by the parent bootiso, diskboot-image or iso element,
+      are appended as well.
       </para>
 
     </section>
@@ -40,10 +41,9 @@
       </title>
 
       <para>
-      The <emphasis>boot-args</emphasis> element has support for two macros
-      whos text values will be replaced at runtime with some other string.
-      These macros can be used in combination with each other and any other
-      boot arguments.
+      The <emphasis>boot-args</emphasis> element has support for two macros,
+      described below. These macros can be used in combination with each 
+      other and any other boot arguments.
       </para>
 
       <variablelist>
@@ -126,8 +126,8 @@
 
       <para>
       In the following examples, the default set of kernel arguments
-      is <constant>text</constant>, <constant>keymap=us</constant>,
-      and <constant>method=cdrom</constant>.
+      is <constant>method=http://server/appliances/myappliance/os</constant> 
+      and <constant>ks=ks.cfg</constant>.
       </para>
 
       <section>
@@ -137,18 +137,19 @@
 
         <para>
         In this example, the default set of kernel arguments is included
-        along with those arguments defined in
-        <emphasis>boot-args</emphasis>.  The final set of
-        kernel append arguments is
-
-        <literallayout>text keymap=us method=cdrom noipv6 ks</literallayout>
-        </para>
+        along with arguments defined in
+        <emphasis>boot-args</emphasis>.
 
         <informalexample>
         <programlisting>     
-&lt;boot-args&gt;noipv6 ks&lt;/boot-args&gt;
+&lt;boot-args&gt;noipv6&lt;/boot-args&gt;
         </programlisting>
         </informalexample>
+
+        The final set of kernel append arguments is
+
+        <literallayout>method=http://server/appliances/myappliance/os ks=ks.cfg noipv6</literallayout>
+        </para>
       </section>
 
       <section>
@@ -158,35 +159,20 @@
 
         <para>
         In this example, the default set of kernel arguments are not
-        appended.  The final set of kernel append arguments is
-
-        <literallayout>noipv6 ks</literallayout>
-        </para>
-
-        <informalexample>
-        <programlisting>
-&lt;boot-args use-defaults="false"&gt;noipv6 ks&lt;/boot-args&gt;
-        </programlisting>
-        </informalexample>
-      </section>
-
-      <section>
-        <title>
-        Example 3 - only default set
-        </title>
-
-        <para>
-        In this example, only the default set of kernel arguments are
-        appended.  The final set of kernel append arguments is
-
-        <literallayout>text keymap=us method=cdrom</literallayout>
-        </para>
+        appended and a macro is used to include a 
+        <constant>method</constant> parameter. No <constant>ks</constant> 
+        parameter is included.
 
         <informalexample>
         <programlisting>
-&lt;boot-args/&gt;
+&lt;boot-args use-defaults="false"&gt;%{method} noipv6&lt;/boot-args&gt;
         </programlisting>
         </informalexample>
+
+      The final set of kernel append arguments is
+
+        <literallayout>method=http://server/appliances/myappliance/os noipv6</literallayout>
+        </para>
       </section>
 
     </section>
