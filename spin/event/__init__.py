@@ -97,6 +97,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
       if self.skipped:
         self.setup()
         t_setup = time.time()
+        t_run = t_setup
       else:
         if self.forced:
           self.clean()
