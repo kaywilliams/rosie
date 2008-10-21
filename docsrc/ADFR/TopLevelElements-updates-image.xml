@@ -13,9 +13,12 @@
     </title>
 
     <para>
-    Create and customize a <filename>updates.img</filename>. Typical
-    modifications involve applying updates to
-    <application class="software">Anaconda</application> source code.
+    Creates an <filename>updates.img</filename> which can be used to 
+    apply updates to 
+    <application class="software">Anaconda</application> source code. 
+    For more information on Anaconda development see the Fedora project's 
+    <ulink url="http://fedoraproject.org/wiki/Anaconda">Anaconda</ulink>
+    web page.
     </para>
 
     <para>
@@ -133,7 +136,8 @@
     <para>
     <varname><xref linkend="content-boolean" /></varname>,
     <varname><xref linkend="content-path" /></varname>,
-    <xref linkend="path-like-elements" />
+    <xref linkend="path-like-elements" />,
+    <ulink url="http://fedoraproject.org/wiki/Anaconda">Fedora Anaconda Project</ulink>
     </para>
   </section>
 </section>
