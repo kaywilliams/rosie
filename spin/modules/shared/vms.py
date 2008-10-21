@@ -212,6 +212,14 @@ class SpinImageCreatorMixin:
       raise CreatorError("Unable to disable SELinux because the installed "
                          "package set did not inclue the file '%s'" % file)
 
+  def _check_required_packages(self):
+    # raise an exception if appliance doesn't include all required packages
+    pass
+
+  def _get_pkglist_names(self):
+    return [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
+             for x in self.event.cvars['pkglist'] ]
+
   def install(self, repo_urls = None):
     yum_conf = pps.path(self._mktemp(prefix = "yum.conf-"))
 
@@ -234,6 +242,8 @@ class SpinImageCreatorMixin:
       rpm.addMacro("__file_context_path", "%{nil}")
 
     try:
+      self._check_required_packages() # make sure we have the pkgs we need
+
       self.__select_packages(ayum)
       self.__update_packages(ayum)
       self.__select_groups(ayum)
@@ -241,13 +251,14 @@ class SpinImageCreatorMixin:
 
       self.__can_handle_selinux(ayum)
 
-      ayum.runInstall()
-    except imgcreate.CreatorError, e:
-      # imgcreate raises an exception in the case when the transaction set
-      # is empty.  In this case, we don't care; that just means yum doesn't
-      # have any work do to.  If we get a CreatorError and the tsInfo isn't
-      # empty, though, then we have a problem
-      if len(ayum.tsInfo) != 0: raise
+      try:
+        ayum.runInstall()
+      except imgcreate.CreatorError, e:
+        # imgcreate raises an exception in the case when the transaction set
+        # is empty.  In this case, we don't care; that just means yum doesn't
+        # have any work do to.  If we get a CreatorError and the tsInfo isn't
+        # empty, though, then we have a problem
+        if len(ayum.tsInfo) != 0: raise
     except yum.Errors.RepoError, e:
       raise imgcreate.CreatorError("Unable to download from repo : %s" % e)
     except yum.Errors.YumBaseError, e:

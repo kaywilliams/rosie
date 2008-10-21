@@ -25,7 +25,8 @@ import imgcreate
 
 from rendition import pps
 
-from spin.event   import Event
+from spin.errors import SpinError
+from spin.event  import Event
 
 from spin.modules.shared import vms
 
@@ -105,12 +106,21 @@ class SpinLiveImageCreator(vms.SpinImageCreatorMixin,
   def _base_on(self, base_on):
     if pps.path(base_on).exists():
       pps.path(base_on).cp(self._image, link=True, force=True)
+      vms.SpinImageCreatorMixin._base_on(self, base_on)
 
   def _cleanup(self):
     if self._image and pps.path(self._image).exists():
       pps.path(self._image).rename(self.event.baseimg)
 
-  def package(self, destdir = "."):
+  def _check_required_packages(self):
+    if 'syslinux' not in self._get_pkglist_names():
+      raise SyslinuxRequiredError()
+
+  def package(self, destdir = '.'):
     # also copy image elsewhere for faster base_on'ing
     pps.path(self._image).cp(self.event.baseimg, link=True, force=True)
     imgcreate.LiveImageCreator.package(self, destdir=destdir)
+
+class SyslinuxRequiredError(SpinError):
+  message = ( "Creating an appliance livecd requires that the 'syslinux' "
+              "package be included in the appliance." )
