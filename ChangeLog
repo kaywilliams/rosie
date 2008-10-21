@@ -1,9 +1,47 @@
+2008-10-21  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/ADFR/CommonComponents-Attributes.xml, docsrc/ADFR
+	/CommonComponents-Elements.xml:
+	ADFR: edits to common attributes and elements sections
+	[abcecf13ad5d] [tip]
+
+	* docsrc/ADFR/TopLevelElements-sources.xml, docsrc/ADFR
+	/TopLevelElements-updates-image.xml:
+	ADFR: added references to Anaconda wiki in updates-image section
+	[7232d6b09ca1]
+
+	* docsrc/ADFR/TopLevelElements-main.xml, docsrc/ADFR/TopLevelElements-
+	repos.xml, docsrc/ADFR/TopLevelElements.xml:
+	ADFR: removed references to non-existent setup and publish module
+	groups
+	[865180ee757b]
+
+	* spin.spec:
+	spin.spec: minor edits to description
+	[8a1f8a71d322]
+
 2008-10-20  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-enterprise-0.9.2-1
+	[1085665b9ba3]
+
+	* .hgtags:
+	Tagged as spin-0.9.4-1
+	[9c011785dc7c] [spin-enterprise-0.9.2-1]
+
+	* spin-enterprise.spec, spin.spec:
+	Bumped version of the spin-enterprise RPM.
+	[988a0a3afce6] [spin-0.9.4-1]
+
+	* ChangeLog, spin.spec:
+	Bumped version of spin RPM.
+	[b94b2900664a]
 
 	* spin-enterprise.spec, spin.spec:
 	The description directives of spec files are a maximum of 72
 	chars/line.
-	[95c884db1dde] [tip]
+	[95c884db1dde]
 
 2008-10-20  Kay Williams  <kwilliams@renditionsoftware.com>
 

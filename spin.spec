@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.9.4
+Version: 0.9.5
 Release: 1%{?dist}
 Summary: Builds software appliances based on Red Hat, CentOS and Fedora Linux
 
@@ -78,6 +78,11 @@ separately purchase RHEL subscriptions for all installed systems.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Tue Oct 21 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.9.5-1
+- ADFR: edits to common attributes and elements sections (kwilliams)
+- ADFR: added references to Anaconda wiki in updates-image section (kwilliams)
+- ADFR: removed references to non-existent setup and publish module (kwilliams)
+
 * Mon Oct 20 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.9.4-1
 - Updated the description and summary of the RPM. (kwilliams)
 - ADFR: removed mention of iso and publish events in publish module (kwilliams)
