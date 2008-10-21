@@ -41,10 +41,11 @@ configuration. Spin allows starting from Red Hat Enterprise Linux 5,
 CentOS 5, Fedora 9 and Fedora 10. Spin is comparable to pungi and
 revisor, with added support for RHEL and CentOS as base distributions,
 automatic generation of a config RPM using user-provided files and
-scripts, and performance enhancements of 50-90%.
+scripts, and performance enhancements resulting in 50-90% faster
+build times.
 
 Note: Customers who create appliances based on RHEL will need to
-separately purchase RHEL licenses for all installed client systems.
+separately purchase RHEL subscriptions for all installed systems.
 
 %prep
 %setup -q
