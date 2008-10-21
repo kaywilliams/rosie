@@ -79,6 +79,7 @@ separately purchase RHEL subscriptions for all installed systems.
 
 %changelog
 * Tue Oct 21 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.9.5-1
+- Removed the draft watermark from the ADFR.pdf. (uprakash)
 - ADFR: edits to common attributes and elements sections (kwilliams)
 - ADFR: added references to Anaconda wiki in updates-image section (kwilliams)
 - ADFR: removed references to non-existent setup and publish module (kwilliams)

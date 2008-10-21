@@ -1,9 +1,23 @@
+2008-10-21  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* docsrc/ADFR/Makefile:
+	Removed the draft watermark from the ADFR.pdf.
+	[b80eeac5e460] [tip]
+
+	* .hgtags:
+	Tagged as spin-0.9.5-1
+	[c41105afcfe4]
+
+	* ChangeLog, spin.spec:
+	Bumped version to spin-0.9.5-1.
+	[bbd614977dbb] [spin-0.9.5-1]
+
 2008-10-21  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* docsrc/ADFR/CommonComponents-Attributes.xml, docsrc/ADFR
 	/CommonComponents-Elements.xml:
 	ADFR: edits to common attributes and elements sections
-	[abcecf13ad5d] [tip]
+	[abcecf13ad5d]
 
 	* docsrc/ADFR/TopLevelElements-sources.xml, docsrc/ADFR
 	/TopLevelElements-updates-image.xml:
