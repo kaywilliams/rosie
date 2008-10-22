@@ -13,11 +13,16 @@
     </title>
 
     <para>
-    Creates the <filename>$NAME-config.rpm</filename> containing
-    customized configuration information and other data necessary for the
-    appliance’s operation. The <filename>$NAME-config.rpm</filename> installs 
-    customized configuration files via the <emphasis>config-rpm/files</emphasis>
-    element and runs configuration-related scripts via the 
+    Creates an RPM used to install and update appliance-specific 
+    configuration on the client system.  The RPM is named 
+    <filename>$NAME-config</filename>, where $NAME is taken from the 
+    value of the <xref linkend="main-arch" /> element. The RPM 
+    completes three primary functions. It installs an 
+    automatically-generated YUM repofile controlled by the 
+    config-rpm/repofile element. It installs user-provided 
+    configuration files specified via 
+    <emphasis>config-rpm/files</emphasis> elements. And it runs 
+    user-provided scripts specified via 
     <emphasis>config-rpm/script</emphasis> and 
     <emphasis>config-rpm/trigger</emphasis> elements.
     </para>

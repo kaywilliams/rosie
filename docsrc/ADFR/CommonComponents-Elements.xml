@@ -443,6 +443,15 @@ $root/var/www/html/outfile.txt
       <varname>$rhnhost</varname> defaults to
       <filename>xmlrpc.rhn.redhat.com</filename>.
       </para>
+
+      <note>
+      Spin requires additional software including rhnlib and 
+      rhn-client-tools in order to use RHN repositories. To install a 
+      complete version of Spin including all available software, follow 
+      the instructions located at 
+      http://www.renditionsoftware.com/spin/download.
+      </note>
+
     </section>
 
     <section id="repo-valid-repos"

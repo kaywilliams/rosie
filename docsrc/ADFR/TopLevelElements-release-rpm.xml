@@ -13,10 +13,12 @@
     </title>
 
     <para>
-    Creates the <filename>$NAME-release.rpm</filename> containing
-    release files for the client system. The release RPM contains
-    files such as the EULA, appliance release notes, and appliance documentation
-    in HTML format.
+    Creates an RPM used to install and update appliance-specific 
+    release files on the client system.  The name of the RPM is 
+    <filename>$NAME-release</filename>, where $NAME is taken from the 
+    value of the <xref linkend="main-arch" /> element. The release RPM 
+    contains files such as the EULA, appliance release notes, and 
+    appliance documentation in HTML format.
     </para>
 
     <para>

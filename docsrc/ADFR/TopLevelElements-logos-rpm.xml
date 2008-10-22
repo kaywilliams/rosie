@@ -13,19 +13,29 @@
     </title>
 
     <para>
-    Createss the <filename>$NAME-logos.rpm</filename> containing
-    customized images for the <application
+    Creates an RPM containing appliance-specific images for the <application
     class="software">Anaconda</application> installer, <application
     class="software">Red Hat Graphical Boot (RHGB)</application>, firstboot,
     <application class="software">GDM</application> login screen and the
     <application class="software">GNOME</application> and
     <application class="software">KDE</application> display managers.
+    The name of the RPM is <filename>$NAME-logos</filename>, where 
+    $NAME is taken from the value of the <xref linkend="main-arch" /> 
+    element.
     </para>
 
     <para>
     This module is a member of the <emphasis role="strong">rpmbuild</emphasis>
     module group.
     </para>
+
+    <note>
+    Spin requires additional software in order to use the logos-rpm 
+    module. To install a complete version of Spin including all 
+    available software, follow the instructions located at 
+    http://www.renditionsoftware.com/spin/download.
+    </note>
+
   </section>
 
   <section>
