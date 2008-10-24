@@ -55,3 +55,34 @@ class KickstartEvent(Event):
   def verify_cvars(self):
     "cvars are set"
     self.verifier.failUnlessSet('ks-path')
+
+
+import imgcreate
+import sha
+
+class SpinKickstart:
+  # class that houses some of the common stuff we do with kickstart
+  def __init__(self, ksfile):
+    self.ks = imgcreate.read_kickstart(ksfile)
+
+  def update_repos(self, args):
+    self.ks.handler.repo.repoList = []
+    self.ks.handler.repo.parse(args)
+
+  def prep_scripts(self):
+    scripts = []
+    for s in self.ks.handler.scripts:
+      scripts.append(dict(scriptsha = sha.new(s.script).hexdigest(),
+                          interp    = s.interp,
+                          inChroot  = s.inChroot,
+                          type      = s.type))
+    return scripts
+
+  def update_packages(self, groups=None, packages=None, excludes=None):
+    self.excludedList = []
+    self.groupList    = []
+    self.packageList  = []
+
+    self.packages.add('\n@'.join(groups or [])  + '\n' +
+                      '\n'.join(packages or []) + '\n' +
+                      '\n-'.join(excludes or []))

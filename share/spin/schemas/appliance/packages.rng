@@ -1,0 +1,45 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="appliance">
+
+      <element name="packages">
+
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+
+        <interleave>
+
+        <oneOrMore>
+        <choice>
+        <ref name="element-group"/>
+        <element name="package"><text/></element>
+        </choice>
+        </oneOrMore>
+
+        <zeroOrMore>
+        <element name="exclude"><text/></element>
+        </zeroOrMore>
+
+        </interleave>
+
+      </element>
+    </element>
+  </start>
+
+  <include href="lib.rng"/>
+
+  <define name="element-group">
+    <element name="group">
+
+      <optional>
+      <attribute name="repoid"/>
+      </optional>
+
+      <text/>
+
+    </element>
+  </define>
+
+</grammar>

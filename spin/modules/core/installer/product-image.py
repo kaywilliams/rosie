@@ -18,9 +18,8 @@
 from StringIO import StringIO
 
 from rendition import pps
-from rendition import rxml
 
-from spin.event   import Event
+from spin.event import Event
 
 from spin.modules.shared import ImageModifyMixin
 
@@ -39,12 +38,12 @@ class ProductImageEvent(Event, ImageModifyMixin):
       provides = ['product.img', 'treeinfo-checksums'],
       requires = ['anaconda-version', 'buildstamp-file',
                   'installer-repo'],
-      conditionally_requires = ['comps-file', 'product-image-content'],
+      conditionally_requires = ['groupfile', 'product-image-content'],
     )
 
     self.DATA = {
       'config':    ['.'],
-      'variables': ['cvars[\'anaconda-version\']', 'cvars[\'comps-file\']'],
+      'variables': ['cvars[\'anaconda-version\']', 'cvars[\'groupfile\']'],
       'input':     [],
       'output':    [],
     }
@@ -60,8 +59,8 @@ class ProductImageEvent(Event, ImageModifyMixin):
 
   def setup(self):
     self.DATA['input'].append(self.cvars['buildstamp-file'])
-    if self.cvars['comps-file'] is not None:
-      self.DATA['input'].append(self.cvars['comps-file'])
+    if self.cvars['groupfile'] is not None:
+      self.DATA['input'].append(self.cvars['groupfile'])
 
     # ImageModifyMixin setup
     self.image_locals = self.locals.L_FILES['installer']['product.img']
@@ -88,18 +87,10 @@ class ProductImageEvent(Event, ImageModifyMixin):
     self._write_buildstamp()
 
   def _generate_installclass(self):
-    if self.cvars['comps-file'] is not None:
-      comps = rxml.tree.read(self.cvars['comps-file'])
-
-      mod = dict(
-        all_groups     = comps.xpath('//group/id/text()'),
-        default_groups = comps.xpath('//group[default/text() = "true"]/id/text()')
-      )
-    else:
-      mod = dict(
-        all_groups     = ['core'],
-        default_groups = ['core']
-      )
+    mod = dict(
+      all_groups     = self.cvars['user-required-groups'] or ['core'],
+      default_groups = self.cvars['user-required-groups'] or ['core'],
+    )
 
     self.image.writeflo(StringIO(self.locals.L_INSTALLCLASS % mod),
                         filename='custom.py', dst='installclasses')

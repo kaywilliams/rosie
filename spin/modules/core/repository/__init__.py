@@ -15,16 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from spintest      import EventTestCase, ModuleTestSuite
-from spintest.core import make_core_suite
+from spin.event import Event, CLASS_META
 
-class PackagesEventTestCase(EventTestCase):
-  moduleid = 'packages'
-  eventid  = 'packages'
+MODULE_INFO = dict(
+  api         = 5.0,
+  events      = ['RepositoryMetaEvent'],
+  description = 'modules that create a package repository',
+)
 
-def make_suite(distro, version, arch):
-  suite = ModuleTestSuite('packages')
-
-  suite.addTest(make_core_suite(PackagesEventTestCase, distro, version, arch))
-
-  return suite
+class RepositoryMetaEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'repository',
+      parentid = 'os',
+      properties = CLASS_META,
+      provides = ['os-content'],
+      suppress_run_message = True
+    )

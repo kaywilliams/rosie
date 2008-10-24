@@ -33,8 +33,8 @@ from spin.modules.shared import idepsolver
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PkglistEvent'],
-  description = 'depsolves comps.xml to create a package list',
-  group       = 'packages',
+  description = 'depsolves required packages and groups to create a package list',
+  group       = 'repository',
 )
 
 YUMCONF_HEADER = [
@@ -64,7 +64,7 @@ class PkglistEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'pkglist',
-      parentid = 'packages',
+      parentid = 'repository',
       provides = ['pkglist'],
       requires = ['required-packages', 'repos', 'user-required-packages'],
       conditionally_requires = ['pkglist-excluded-packages'],

@@ -52,7 +52,7 @@ class LivecdEvent(vms.VmCreateMixin, Event):
 
     self.DATA =  {
       'config': ['.'],
-      'input':  [self.baseimg],
+      'input':  [],
       'output': [self.livecd, self.baseimg],
       'variables': ['cvars[\'pkglist\']'],
     }
@@ -67,8 +67,9 @@ class LivecdEvent(vms.VmCreateMixin, Event):
     # read supplied kickstart
     self.ks = self.read_kickstart()
 
-    self._update_ks_repos(self.ks)
-    self._prep_ks_scripts(self.ks)
+    self._update_ks_repos()
+    self._prep_ks_scripts()
+    self._update_packages()
 
     # create image creator
     self.creator = SpinLiveImageCreator(self, self.ks,

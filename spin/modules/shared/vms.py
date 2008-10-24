@@ -23,6 +23,7 @@ import sha
 import yum
 
 from rendition import pps
+from rendition import rxml
 
 from rendition.repo import RPM_PNVRA_REGEX
 
@@ -46,23 +47,23 @@ class VmCreateMixin:
 
     return imgcreate.read_kickstart(self.cvars['kickstart-file'])
 
-  def _update_ks_repos(self, ks):
+  def _update_ks_repos(self):
     # replace repos in kickstart with repo pointing to published appliance
-    ks.handler.repo.repoList = []
-    ks.handler.repo.parse(['--name',    'appliance',
-                           '--baseurl', 'file://%s'
-                             % self.cvars['repodata-directory'].dirname])
+    self.ks.handler.repo.repoList = []
+    self.ks.handler.repo.parse(['--name',    'appliance',
+                                '--baseurl', 'file://%s'
+                                  % self.cvars['repodata-directory'].dirname])
 
     self.DATA['variables'].append('cvars[\'repodata-directory\']')
 
 
-  def _prep_ks_scripts(self, ks):
+  def _prep_ks_scripts(self):
     # prepare a variable we can easily compare in difftest. This variable
     # ignores script properties we don't care about (lineno, logfile).
     self._scripts = []
     self.DATA['variables'].append('_scripts')
 
-    for s in ks.handler.scripts:
+    for s in self.ks.handler.scripts:
       # storing script shasum for both whitespace and md size concerns
       self._scripts.append(dict(scriptsha = sha.new(s.script).hexdigest(),
                                 interp    = s.interp,
@@ -82,6 +83,7 @@ class VmCreateMixin:
       self.log(3, L1("one or more scripts changed in kickstart; "
                      "regenerating raw image"))
       self.vmdir.rm(recursive=True, force=True) # remove any previous base
+
 
 class SpinImageCreatorMixin:
   def __init__(self, event, *args, **kwargs):
@@ -146,63 +148,30 @@ class SpinImageCreatorMixin:
   def _cleanup(self):
     pass
 
-  def __select_packages(self, ayum):
-    # select new packages in pkglist if we're using an existing chroot
+  def _prepare_transaction(self, ayum):
     if not self._base:
-      self._getattr_('__select_packages')(ayum)
+      for pkg in [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
+                   for x in self.event.cvars['pkglist'] ]:
+        ayum.install(name = pkg)
     else:
-      diff = self.event.diff.variables.difference("cvars['pkglist']")
-
+      diff = self.event.diff.variables.difference('cvars[\'pkglist\']')
       if diff is not None:
-        prev = [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                 for x in diff[0] ]
-        next = [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                 for x in diff[1] ]
+        prev = set([ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
+                     for x in diff[0] ])
+        next = set([ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
+                     for x in diff[1] ])
 
-        for pkg in set(next) - set(prev):
+        # add new packages
+        for pkg in next - prev:
           ayum.install(name = pkg)
-
-  def __select_groups(self, ayum):
-    # don't select groups at all if we're using an existing chroot
-    if not self._base:
-      self._getattr_('__select_groups')(ayum)
-    else:
-      pass
-
-  def __deselect_packages(self, ayum):
-    # remove old packages in pkglist if we're using an exising chroot
-    if not self._base:
-      self._getattr_('__deselect_packages')(ayum)
-    else:
-      diff = self.event.diff.variables.difference("cvars['pkglist']")
-
-      if diff is not None:
-        prev = [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                 for x in diff[0] ]
-        next = [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                 for x in diff[1] ]
-
-        for pkg in (set(prev) - set(next)):
+        # remove old packages
+        for pkg in prev - next:
           ayum.remove(name = pkg)
 
-  def __update_packages(self, ayum):
-    if not self._base:
-      return
-    else:
-      diff = self.event.diff.variables.difference("cvars['pkglist']")
+      # update the rest
+      ayum.update()
 
-      if diff is not None:
-        # obtain list of newly-added and removed package names
-        new = [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                for x in set(diff[1]) - set(diff[0]) ]
-        old = [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                for x in set(diff[0]) - set(diff[1]) ]
-
-        # if a package was in both lists, this means it needs to be updated
-        for pkg in set(new) & set(old):
-          ayum.update(name = pkg)
-
-  def __can_handle_selinux(self, ayum):
+  def _can_handle_selinux(self, ayum):
     # rewritten to handle incremental check
     file = '/usr/sbin/lokkit'
     if ( not imgcreate.kickstart.selinux_enabled(self.ks) and
@@ -244,12 +213,9 @@ class SpinImageCreatorMixin:
     try:
       self._check_required_packages() # make sure we have the pkgs we need
 
-      self.__select_packages(ayum)
-      self.__update_packages(ayum)
-      self.__select_groups(ayum)
-      self.__deselect_packages(ayum)
+      self._prepare_transaction(ayum)
 
-      self.__can_handle_selinux(ayum)
+      self._can_handle_selinux(ayum)
 
       try:
         ayum.runInstall()

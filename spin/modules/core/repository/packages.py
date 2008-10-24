@@ -25,22 +25,25 @@ from spin.validate  import InvalidConfigError
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['CompsEvent'],
-  description = 'creates a comps.xml file',
-  group       = 'packages',
+  events      = ['PackagesEvent'],
+  description = 'defines the required packages and groups for the appliance',
+  group       = 'repository',
 )
 
-class CompsEvent(Event):
+class PackagesEvent(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'comps',
-      parentid = 'packages',
-      provides = ['comps-file', 'required-packages', 'user-required-packages'],
+      id = 'packages',
+      parentid = 'repository',
+      provides = ['groupfile', 'required-packages',
+                  'user-required-packages', 'user-required-groups',
+                  'user-excluded-packages'],
       requires = ['anaconda-version', 'repos'],
       conditionally_requires = ['comps-included-packages', 'comps-excluded-packages'],
     )
 
     self.comps = Element('comps')
+    self.app_gid = '%s-packages' % self.name
 
     self.DATA = {
       'variables': ['fullname', 'cvars[\'anaconda-version\']'],
@@ -49,71 +52,49 @@ class CompsEvent(Event):
       'output':    []
     }
 
-  def validate(self):
-    if ( not self.config.pathexists('text()') and
-         not self.config.pathexists('group') and
-         not self.config.pathexists('package') ):
-      raise InvalidConfigError(self.config.getroot().file,
-        "<%s> must contain either text or at least one <group> or "
-        "<package> element" % self.id)
-
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.include_localizations = \
-      self.config.getbool('@include-localized-strings', 'False')
+    self.comps_out = self.mddir/'comps.xml'
+    self.groupfiles = self._get_groupfiles()
 
-    self.comps_supplied = self.config.get('text()', False)
+    # track changes in repo/groupfile relationships
+    self.DATA['variables'].append('groupfiles')
 
-    if self.comps_supplied:
-      assert_file_has_content(self.config.getpath('.'))
-      self.io.add_xpath('.', self.mddir, id='comps.xml')
-
-    else:
-      self.comps_out = self.mddir/'comps.xml'
-      self.groupfiles = self._get_groupfiles()
-
-      # track changes in repo/groupfile relationships
-      self.DATA['variables'].append('groupfiles')
-
-      # track file changes
-      self.DATA['input'].extend([groupfile for repo,groupfile in
-                                 self.groupfiles])
+    # track file changes
+    self.DATA['input'].extend([groupfile for repo,groupfile in
+                               self.groupfiles])
 
     for i in ['comps-included-packages', 'comps-excluded-packages']:
-      if not self.cvars.has_key(i): self.cvars[i] = []
+      self.cvars.setdefault(i, [])
       self.DATA['variables'].append('cvars[\'%s\']' % i)
 
   def run(self):
     self.io.clean_eventcache(all=True)
 
-    if self.comps_supplied: # download comps file
-      self.log(1, L1("using existing file '%s'" % self.comps_supplied))
-      self.io.sync_input(cache=True)
-
-    else: # generate comps file
-      self.log(1, L1("creating new file"))
-      self._generate_comps()
-      self.comps.write(self.comps_out)
-      self.comps_out.chmod(0644)
-      self.DATA['output'].append(self.comps_out)
+    self.log(1, L1("creating new file"))
+    self._generate_comps()
+    self.comps.write(self.comps_out)
+    self.comps_out.chmod(0644)
+    self.DATA['output'].append(self.comps_out)
 
   def apply(self):
     self.io.clean_eventcache()
-    # set comps-file control variable
-    if self.comps_supplied:
-      self.cvars['comps-file'] = self.io.list_output(what='comps.xml')[0]
-    else:
-      self.cvars['comps-file'] = self.comps_out
+    # set groupfile control variable
+    self.cvars['groupfile'] = self.comps_out
 
     # set required packages variable
-    assert_file_has_content(self.cvars['comps-file'])
-    self.cvars['required-packages'] = \
-       rxml.config.read(self.cvars['comps-file']).xpath('//packagereq/text()')
+    assert_file_has_content(self.cvars['groupfile'])
+    comps = rxml.config.read(self.cvars['groupfile'])
+    self.cvars['required-packages'] = comps.xpath('//packagereq/text()')
 
-    # set user required packages variable
+    # set user-*-* cvars
     self.cvars['user-required-packages'] = \
       self.config.xpath('package/text()', [])
+    self.cvars['user-required-groups'] = \
+      self.config.xpath('group/text()', []) + [self.app_gid]
+    self.cvars['user-excluded-packages'] = \
+      self.config.xpath('exclude/text()', [])
 
   # output verification
   def verify_comps_xpath(self):
@@ -122,9 +103,9 @@ class CompsEvent(Event):
       "more than one user-specified comps file; using the first one only")
 
   def verify_cvar_comps_file(self):
-    "cvars['comps-file'] exists"
-    self.verifier.failUnless(self.cvars['comps-file'].exists(),
-      "unable to find comps.xml file at '%s'" % self.cvars['comps-file'])
+    "cvars['groupfile'] exists"
+    self.verifier.failUnless(self.cvars['groupfile'].exists(),
+      "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
 
 
   #------ COMPS FILE GENERATION METHODS ------#
@@ -165,42 +146,45 @@ class CompsEvent(Event):
       for grp in data['groups']:
         dg.grouplist.add(GroupReq(grp.text))
 
-    # add packages listed separately in config or included-packages cvar to core
-    cfg_pkgs     = self.config.xpath('package', [])
-    cvar_pkgtups = self.cvars['comps-included-packages'] or []
+    # add packages listed separately in config or included-packages
+    # to new $NAME-packages group
+    G = CompsGroup(self.app_gid,
+                   description   = 'required %s appliance rpms' % self.fullname,
+                   uservisible   = 'true',
+                   biarchonly    = 'false',
+                   default       = 'true',
+                   display_order = '1')
+    self._groups[self.app_gid] = G
 
-    # if we have packages, create a core group for them to reside in
-    self._groups.setdefault('core',
-      CompsGroup('core', name='core', description='autogenerated core group',
-                         uservisible='true', biarchonly='false',
-                         default='true', display_order='1',))
+    for pkg in self.config.xpath('package/text()', []):
+      G.packagelist.add(PackageReq(pkg))
 
-    for pkg in cfg_pkgs:
-      self._groups['core'].packagelist.add(
-        PackageReq(**self._dict_from_xml(pkg)))
-
-    for pkgtup in cvar_pkgtups:
+    for pkgtup in self.cvars['comps-included-packages'] or []:
       if not isinstance(pkgtup, tuple):
         pkgtup = (pkgtup, 'mandatory', None, None)
-      self._groups['core'].packagelist.add(PackageReq(*pkgtup))
+      G.packagelist.add(PackageReq(*pkgtup))
 
     # make sure a kernel package or equivalent exists
-    if not self._groups['core'].packagelist.intersection(KERNELS):
-      self._groups['core'].packagelist.add(
-        PackageReq('kernel', type='mandatory'))
+    kfound = False
+    for group in self._groups.values():
+      if group.packagelist.intersection(KERNELS):
+        kfound = True; break
+    if not kfound:
+      G.packagelist.add(PackageReq('kernel', 'mandatory'))
 
     # remove excluded packages
-    for pkg in ( self.config.xpath('exclude-package/text()', []) +
-                 (list(self.cvars['comps-excluded-packages']) or []) ):
+    for pkg in ( self.config.xpath('exclude/text()', []) +
+                 list(self.cvars['comps-excluded-packages'] or []) ):
       for group in self._groups.values():
         group.packagelist.discard(pkg)
 
     # create a category
-    category = CompsCategory('Groups', name=self.fullname,
-                             anaconda_version=self.cvars['anaconda-version'],
-                             description='Groups in %s' % self.fullname,
-                             display_order='99',
-                             groups=sorted(self._groups.keys()))
+    category = CompsCategory('Groups',
+                             name          = self.fullname,
+                             anaconda_version = self.cvars['anaconda-version'],
+                             description   = 'Groups in %s' % self.fullname,
+                             display_order = '99',
+                             groups        = sorted(self._groups.keys()))
 
     # add groups to comps
     for group in sorted(self._groups.values(), lambda x,y: cmp(x.id, y.id)):
@@ -247,40 +231,20 @@ class CompsEvent(Event):
     # add attributes if not already present
     G.setdefault('attrs', {})
 
-    if self.include_localizations:
-      q = '//group[id/text()="%s"]/*' % gid
-      namedict = G['attrs']['name'] = {}
-      descdict = G['attrs']['description'] = {}
-    else:
-      q = '//group[id/text()="%s"]/*[not(@xml:lang)]' % gid
+    ### places to store all the localizations
+    ##namedict = G['attrs']['name'] = {}
+    ##descdict = G['attrs']['description'] = {}
 
-    for attr in tree.xpath(q, []):
-      # filtering in XPath is annoying
-      if attr.tag == 'name' and not G['attrs'].has_key('name'):
-        if self.include_localizations:
-          namedict[attr.get('@xml:lang')] = attr.text
-        else:
-          G['attrs']['name'] = attr.text
-      elif attr.tag == 'description' and not G['attrs'].has_key('description'):
-        if self.include_localizations:
-          descdict[attr.get('@xml:lang')] = attr.text
-        else:
-          G['attrs']['description'] = attr.text
-      elif ( attr.tag not in ['packagelist', 'grouplist', 'id'] and
-             not G['attrs'].has_key(attr.tag) ):
-        G['attrs'][attr.tag] = attr.text
-
-    # set the default value, if given
-    #  * if default = true,    group.default = true
-    #  * if default = false,   group.default = false
-    #  * if default = default, group.default = value from groupfile
-    #  * if default = None,    group.default = true
-    default = self.config.get('group[text()="%s"]/@default' % gid, None)
-    if default:
-      if default != 'default':
-        G['attrs']['default'] = default
-    else:
-      G['attrs']['default'] = 'true'
+    ##for attr in tree.xpath('//group[id/text()="%s"]/*' % gid, []):
+    for attr in tree.xpath('//group[id/text()="%s"]/*[not(@xml:lang)]' % gid, []):
+      if attr.tag not in ['packagelist', 'grouplist', 'id']:
+        ##if attr.tag == 'name':
+        ##  namedict[attr.get('@xml:lang', None)] = attr.text
+        ##elif attr.tag == 'description':
+        ##  descdict[attr.get('@xml:lang', None)] = attr.text
+        ##elif not G['attrs'].has_key(attr.tag):
+        if not G['attrs'].has_key(attr.tag): #!
+          G['attrs'][attr.tag] = attr.text
 
     # add packages
     G.setdefault('packages', set())
@@ -314,10 +278,21 @@ class CompsGroup(object):
   def __init__(self, id, name=None, description=None, default=None,
                      uservisible=None, biarchonly=None, display_order=None,
                      packages=None, groups=None):
-    # name, description can be a string or a dictionary of lang, string pairs
-    self.id            = id
-    self.name          = name
-    self.description   = description
+    self.id           = id
+
+    ### name, description can be a string or a dictionary of lang, string pairs
+    ##if not isinstance(name, dict):
+    ##  self.name        = { None: name or id }
+    ##else:
+    ##  self.name        = name or id
+    self.name          = name or id #!
+
+    ##if description is not None and not isinstance(description, dict):
+    ##  self.description = { None: description }
+    ##else:
+    ##  self.description = description
+    self.description   = description #!
+
     self.default       = default
     self.uservisible   = uservisible
     self.biarchonly    = biarchonly
@@ -332,29 +307,27 @@ class CompsGroup(object):
     group = Element('group')
     Element('id', text=self.id, parent=group)
 
-    # add possibly-localized values
-    for attr in ['name', 'description']:
-      val = getattr(self, attr)
-      if val:
-        if isinstance(val, dict):
-          def sort_keys(k1, k2): # None > strings, strings sort normally
-            if   k1 is None: return -1
-            elif k2 is None: return 1
-            else: return cmp(k1, k2)
+    ### add localized values
+    ##for attr in ['name', 'description']:
+    ##  def sort_keys(k1, k2): # None > strings, strings sort normally
+    ##    if   k1 is None: return -1
+    ##    elif k2 is None: return 1
+    ##    else: return cmp(k1, k2)
 
-          for lang in sorted(val.keys(), sort_keys):
-            lval = val[lang]
-            if lang is None:
-              Element(attr, text=lval, parent=group)
-            else:
-              # I want to find the guy who created Clark notation and strangle him
-              Element(attr, text=lval, parent=group,
-                      attrs={'{http://www.w3.org/XML/1998/namespace}lang': lang},
-                      nsmap={'xml': 'http://www.w3.org/XML/1998/namespace'})
-        else:
-          Element(attr, text=val, parent=group)
-    # add non-localized values
-    for attr in ['default', 'uservisible', 'biarchonly', 'display_order']:
+    ##  val = getattr(self, attr)
+    ##  for lang in sorted(val.keys(), sort_keys):
+    ##    if lang is None:
+    ##      Element(attr, text=val[lang], parent=group)
+    ##    else:
+    ##      # I want to find the guy who created Clark notation and strangle him
+    ##      Element(attr, text=val[lang], parent=group,
+    ##              attrs={'{http://www.w3.org/XML/1998/namespaces}lang': lang},
+    ##              nsmap={'xml': 'http://www.w3.org/XML/1998/namespace'})
+
+    ### add non-localized values
+    ##for attr in ['default', 'uservisible', 'biarchonly', 'display_order']:
+    for attr in ['name', 'description', 'default', 'uservisible', #!
+                 'biarchonly', 'display_order']: #!
       if getattr(self, attr):
         Element(attr, text=getattr(self, attr), parent=group)
 
@@ -443,7 +416,6 @@ class CompsCategory(object):
       sub.append(Element('groupid', text=gid))
 
     return top
-
 
 #------- FACTORY FUNCTIONS -------#
 # convenience functions

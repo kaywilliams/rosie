@@ -24,50 +24,55 @@ Creates a virtimage (xen, virsh) disk image.
 import appcreate
 import imgcreate
 
-from spin.event import Event
+from spin.errors import SpinError
+from spin.event  import Event
+
+from spin.modules.shared import vms
 
 MODULE_INFO = dict(
-  api    = 5.0,
-  events = ['LibvirtVMEvent'],
+  api         = 5.0,
+  events      = ['LibvirtVMEvent'],
+  description = 'creates a libvirt (xen, virsh) virtual machine image',
+  group       = 'vm',
 )
 
 
-class LibvirtVMEvent(Event):
+class LibvirtVMEvent(vms.VmCreateMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'virtimage',
       parentid = 'vm',
-      provides = ['virtimage-image', 'virtimage-raw-disk-images',
-                  'virtimage-conf', 'vm-vmem', 'vm-vcpu'],
       requires = ['repos', 'repodata-directory'],
     )
 
-    self.vmdir = self.mddir / 'vms'
+    self.vmdir    = self.mddir / 'vms'
+    self.builddir = self.mddir / 'build'
+    self.tmpdir   = self.mddir / 'tmp'
+    self.app      = self.mddir / '%s.img' % self.applianceid
 
     self.DATA =  {
       'config': ['.'],
-      'input':  [],
-      'output': [self.vmdir],
+      'input':  [], #!
+      'output': [self.vmdir], #!
       'variables': ['cvars[\'pkglist\']', 'cvars[\'repodata-directory\']'],
     }
 
     self.creator = None
+    self.ks = None
+    self._scripts = []
 
   def setup(self):
     self.diff.setup(self.DATA)
 
     # read supplied kickstart
-    ks = imgcreate.read_kickstart(self.config.getpath('.'))
-    self.DATA['input'].append(self.config.getpath('.'))
+    self.ks = self.read_kickstart()
 
-    # replace repos in kickstart if present
-    ks.handler.repo.repoList = []
-    ks.handler.repo.parse(['--name', 'appliance',
-                           '--baseurl', 'file://%s' % self.cvars['repodata-directory'].dirname])
+    self._update_ks_repos()
+    self._prep_ks_scripts()
 
     # create image creator
     self.vmdir.mkdirs()
-    self.creator = appcreate.ApplianceImageCreator(ks, self.applianceid)
+    self.creator = SpinApplianceImageCreator(self, self.ks, self.applianceid)
     # the following isn't very portable due to attribute protection
     self.creator.__vmem = int(self.config.get('@vmem', '512'))
     self.creator.__vcpu = int(self.config.get('@vcpu', '1'))
@@ -75,7 +80,8 @@ class LibvirtVMEvent(Event):
   def run(self):
 
     try:
-      self.creator.mount(cachedir=self.mddir/'build')
+      ##self.creator.mount(base_on=X, cachedir=self.buiddir)
+      self.creator.mount(cachedir=self.builddir)
       self.creator.install()
       self.creator.configure()
       self.creator.unmount()
@@ -86,22 +92,19 @@ class LibvirtVMEvent(Event):
   def apply(self):
     self.io.clean_eventcache()
 
-    for img in self.vmdir.listdir('*.raw'):
-      self.cvars.setdefault('virtimage-raw-disk-images', []).append(img)
-    self.cvars['virtimage-conf'] = self.vmdir/'%s.xml' % self.applianceid
-
-    self.cvars['vm-vmem'] = int(self.config.get('@vmem', '512'))
-    self.cvars['vm-vcpu'] = int(self.config.get('@vcpu', '1'))
-
     self.cvars.setdefault('publish-content', set()).add(self.vmdir)
 
-  def error(self, e):
-    self.creator and self.creator.cleanup()
-    Event.error(self, e)
 
-  def verify_cvars(self):
-    "cvars are set"
-    self.verifier.failUnlessSet('vm-vmem')
-    self.verifier.failUnlessSet('vm-vcpu')
-    self.verifier.failUnlessSet('virtimage-raw-disk-images')
-    self.verifier.failUnlessSet('virtimage-conf')
+class SpinApplianceImageCreator(vms.SpinImageCreatorMixin,
+                                appcreate.ApplianceImageCreator):
+  def __init__(self, event, *args, **kwargs):
+    appcreate.ApplianceImageCreator.__init__(self, *args, **kwargs)
+    vms.SpinImageCreatorMixin.__init__(self, event)
+
+  def _check_required_packages(self):
+    if 'grub' not in self._get_pkglist_names():
+      raise GrubRequiredError()
+
+class GrubRequiredError(SpinError):
+  message = ( "Creating an appliance virtual image requires that the 'grub' "
+              "package be included in the appliance." )

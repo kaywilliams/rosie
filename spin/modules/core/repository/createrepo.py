@@ -24,7 +24,7 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['CreaterepoEvent'],
   description = 'creates repository metadata for pkglist RPMS',
-  group       = 'packages',
+  group       = 'repository',
 )
 
 class CreaterepoEvent(Event, CreaterepoMixin):
@@ -32,11 +32,11 @@ class CreaterepoEvent(Event, CreaterepoMixin):
     Event.__init__(self,
       id = 'createrepo',
       version = '0.1',
-      parentid = 'packages',
+      parentid = 'repository',
       provides = ['rpms', 'rpms-directory', 'repodata-directory',
                   'treeinfo-checksums'],
       requires = ['cached-rpms'],
-      conditionally_requires = ['comps-file', 'signed-rpms', 'gpgsign-public-key'],
+      conditionally_requires = ['groupfile', 'signed-rpms', 'gpgsign-public-key'],
     )
     CreaterepoMixin.__init__(self)
 
@@ -54,8 +54,8 @@ class CreaterepoEvent(Event, CreaterepoMixin):
 
     self.cvars['rpms-directory'] = self.SOFTWARE_STORE//self.packagepath
 
-    if self.cvars['comps-file']:
-      self.DATA['input'].append(self.cvars['comps-file'])
+    if self.cvars['groupfile']:
+      self.DATA['input'].append(self.cvars['groupfile'])
 
     if self.cvars['gpgsign-public-key']: # if we're signing rpms #!
       paths = self.cvars['signed-rpms']
@@ -74,7 +74,7 @@ class CreaterepoEvent(Event, CreaterepoMixin):
       obsolete_file.rm(recursive=True, force=True)
 
     # run createrepo
-    repo_files = self.createrepo(self.SOFTWARE_STORE, groupfile=self.cvars['comps-file'])
+    repo_files = self.createrepo(self.SOFTWARE_STORE, groupfile=self.cvars['groupfile'])
     self.DATA['output'].extend(repo_files)
 
   def apply(self):

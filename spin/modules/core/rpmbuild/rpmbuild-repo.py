@@ -140,16 +140,15 @@ class RpmbuildRepoEvent(Event):
   def _populate(self):
     if not self.cvars.has_key('rpmbuild-data'): return
 
-    for id in self.cvars['rpmbuild-data'].keys():
-      default   = self.cvars['rpmbuild-data'][id]['packagereq-default']
-      requires  = self.cvars['rpmbuild-data'][id]['packagereq-requires']
-      type      = self.cvars['rpmbuild-data'][id]['packagereq-type']
-      rpm_name  = self.cvars['rpmbuild-data'][id]['rpm-name']
-      obsoletes = self.cvars['rpmbuild-data'][id]['rpm-obsoletes']
+    for v in self.cvars['rpmbuild-data'].values():
       (self.cvars.setdefault('comps-included-packages', set())
-         .add((rpm_name, type, requires, default)))
-      if obsoletes:
-        self.cvars.setdefault('comps-excluded-packages', set()).update(obsoletes)
+         .add((v['rpm-name'],
+               v['packagereq-type'],
+               v['packagereq-requires'],
+               v['packagereq-default'])))
+      if v['rpm-obsoletes']:
+        (self.cvars.setdefault('comps-excluded-packages', set())
+          .update(v['rpm-obsoletes']))
 
   def _setup_repos(self, type, updates=None):
 

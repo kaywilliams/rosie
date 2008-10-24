@@ -314,7 +314,7 @@ class PkglistCallback(BuildDepsolveCallback):
           continue
         warnings.append("Warning: No package '%s' found in any of the input repositories. "
           "However, the '%s' package obsoletes '%s'. Replace '%s' with '%s' in your "
-          "<comps> section to resolve this warning." % (o, n, o, o, n))
+          "<packages> section to resolve this warning." % (o, n, o, o, n))
       self.logger.log(0, '\n'.join(warnings))
 
   def foundObsolete(self, old, new):

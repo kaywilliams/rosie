@@ -67,8 +67,9 @@ class ChrootEvent(vms.VmCreateMixin, Event):
     # read supplied kickstart
     self.ks = self.read_kickstart()
 
-    self._update_ks_repos(self.ks)
-    self._prep_ks_scripts(self.ks)
+    self._update_ks_repos()
+    self._prep_ks_scripts()
+    self._update_packages()
 
     # create image creator
     self.creator = SpinRawImageCreator(self, self.ks, 'raw')
