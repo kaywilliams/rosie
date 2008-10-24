@@ -130,8 +130,9 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
     self.cvars['installer-splash'] = self.splash_outfile
     if self.anaconda_pixmaps.exists():
       # anaconda_pixmaps's existence if verified in verify_pixmaps_exist()
-      self.cvars['product-image-content'].setdefault('/pixmaps', set()).update(
-        self.anaconda_pixmaps.listdir())
+      ( self.cvars.setdefault('product-image-content', {})
+                  .setdefault('/pixmaps', set())
+                    .update(self.anaconda_pixmaps.listdir()) )
 
   def verify_splash_exists(self):
     "splash image exists"
