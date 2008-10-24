@@ -23,14 +23,13 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['KickstartEvent'],
   description = 'downloads a default kickstart file',
-  group       = 'installer',
 )
 
 class KickstartEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'kickstart',
-      parentid = 'installer',
+      parentid = 'os',
       version = 1,
       provides = ['kickstart-file', 'ks-path', 'initrd-image-content'],
     )
