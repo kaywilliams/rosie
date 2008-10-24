@@ -22,7 +22,7 @@ class XenImagesEventTestCase(EventTestCase):
   moduleid = 'xen-images'
   eventid  = 'xen-images'
   _conf = [
-    "<packages enabled='false'/>",
+    "<repository enabled='false'/>",
     "<rpmbuild enabled='false'/>",
   ]
 

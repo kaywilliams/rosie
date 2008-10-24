@@ -24,7 +24,7 @@ class KickstartEventTestCase(EventTestCase):
   eventid  = 'kickstart'
   _conf = [
     "<kickstart>infile</kickstart>",
-    "<packages enabled='false'/>",
+    "<repository enabled='false'/>",
     "<rpmbuild enabled='false'/>",
   ]
 

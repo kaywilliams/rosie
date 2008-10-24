@@ -24,7 +24,7 @@ class IsolinuxTestCase(EventTestCase):
   eventid  = 'isolinux'
 
   _conf = [
-    "<packages enabled='false'/>",
+    "<repository enabled='false'/>",
     "<config-rpm enabled='false'/>",
     "<release-rpm enabled='false'/>",
   ]

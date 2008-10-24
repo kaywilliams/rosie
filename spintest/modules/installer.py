@@ -28,7 +28,7 @@ class InstallerEventTestCase(EventTestCase):
   moduleid = 'installer'
   eventid  = 'installer'
   _conf = [
-    "<packages enabled='false'/>",
+    "<repository enabled='false'/>",
     "<rpmbuild enabled='false'/>",
   ]
 

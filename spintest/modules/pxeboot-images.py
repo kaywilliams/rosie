@@ -22,7 +22,7 @@ class PxebootImagesEventTestCase(EventTestCase):
   moduleid = 'pxeboot-images'
   eventid  = 'pxeboot-images'
   _conf = [
-    "<packages enabled='false'/>",
+    "<repository enabled='false'/>",
     "<rpmbuild enabled='false'/>",
   ]
 
