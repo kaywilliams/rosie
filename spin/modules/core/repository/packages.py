@@ -43,7 +43,6 @@ class PackagesEvent(Event):
     )
 
     self.comps = Element('comps')
-    self.app_gid = '%s-packages' % self.name
 
     self.DATA = {
       'variables': ['fullname', 'cvars[\'anaconda-version\']'],
@@ -92,7 +91,7 @@ class PackagesEvent(Event):
     self.cvars['user-required-packages'] = \
       self.config.xpath('package/text()', [])
     self.cvars['user-required-groups'] = \
-      self.config.xpath('group/text()', []) + [self.app_gid]
+      self.config.xpath('group/text()', []) + ['%s-packages' % self.name]
     self.cvars['user-excluded-packages'] = \
       self.config.xpath('exclude/text()', [])
 
@@ -148,13 +147,14 @@ class PackagesEvent(Event):
 
     # add packages listed separately in config or included-packages
     # to new $NAME-packages group
-    G = CompsGroup(self.app_gid,
+    gid = '%s-packages' % self.name
+    G = CompsGroup(gid,
                    description   = 'required %s appliance rpms' % self.fullname,
                    uservisible   = 'true',
                    biarchonly    = 'false',
                    default       = 'true',
                    display_order = '1')
-    self._groups[self.app_gid] = G
+    self._groups[gid] = G
 
     for pkg in self.config.xpath('package/text()', []):
       G.packagelist.add(PackageReq(pkg))
@@ -231,19 +231,9 @@ class PackagesEvent(Event):
     # add attributes if not already present
     G.setdefault('attrs', {})
 
-    ### places to store all the localizations
-    ##namedict = G['attrs']['name'] = {}
-    ##descdict = G['attrs']['description'] = {}
-
-    ##for attr in tree.xpath('//group[id/text()="%s"]/*' % gid, []):
     for attr in tree.xpath('//group[id/text()="%s"]/*[not(@xml:lang)]' % gid, []):
-      if attr.tag not in ['packagelist', 'grouplist', 'id']:
-        ##if attr.tag == 'name':
-        ##  namedict[attr.get('@xml:lang', None)] = attr.text
-        ##elif attr.tag == 'description':
-        ##  descdict[attr.get('@xml:lang', None)] = attr.text
-        ##elif not G['attrs'].has_key(attr.tag):
-        if not G['attrs'].has_key(attr.tag): #!
+      if ( attr.tag not in ['packagelist', 'grouplist', 'id'] and
+           not G['attrs'].has_key(attr.tag) ):
           G['attrs'][attr.tag] = attr.text
 
     # add packages
@@ -280,24 +270,12 @@ class CompsGroup(object):
                      packages=None, groups=None):
     self.id           = id
 
-    ### name, description can be a string or a dictionary of lang, string pairs
-    ##if not isinstance(name, dict):
-    ##  self.name        = { None: name or id }
-    ##else:
-    ##  self.name        = name or id
-    self.name          = name or id #!
-
-    ##if description is not None and not isinstance(description, dict):
-    ##  self.description = { None: description }
-    ##else:
-    ##  self.description = description
-    self.description   = description #!
-
+    self.name          = name or id
+    self.description   = description
     self.default       = default
     self.uservisible   = uservisible
     self.biarchonly    = biarchonly
     self.display_order = display_order
-
     self.packagelist = CompsReqSet(packages or [])
     self.grouplist   = CompsReqSet(groups or [])
 
@@ -307,27 +285,8 @@ class CompsGroup(object):
     group = Element('group')
     Element('id', text=self.id, parent=group)
 
-    ### add localized values
-    ##for attr in ['name', 'description']:
-    ##  def sort_keys(k1, k2): # None > strings, strings sort normally
-    ##    if   k1 is None: return -1
-    ##    elif k2 is None: return 1
-    ##    else: return cmp(k1, k2)
-
-    ##  val = getattr(self, attr)
-    ##  for lang in sorted(val.keys(), sort_keys):
-    ##    if lang is None:
-    ##      Element(attr, text=val[lang], parent=group)
-    ##    else:
-    ##      # I want to find the guy who created Clark notation and strangle him
-    ##      Element(attr, text=val[lang], parent=group,
-    ##              attrs={'{http://www.w3.org/XML/1998/namespaces}lang': lang},
-    ##              nsmap={'xml': 'http://www.w3.org/XML/1998/namespace'})
-
-    ### add non-localized values
-    ##for attr in ['default', 'uservisible', 'biarchonly', 'display_order']:
-    for attr in ['name', 'description', 'default', 'uservisible', #!
-                 'biarchonly', 'display_order']: #!
+    for attr in ['name', 'description', 'default', 'uservisible',
+                 'biarchonly', 'display_order']:
       if getattr(self, attr):
         Element(attr, text=getattr(self, attr), parent=group)
 
