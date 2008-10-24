@@ -45,7 +45,7 @@ class ReposEvent(RepoEventMixin, Event):
                   'repos',
                   'repos', 'installer-repo',
                   'input-repos', # ugly solution to cycle in release-rpm, rpmbuild-repo
-                  'comps-excluded-packages',
+                  'excluded-packages',
                   'pkglist-excluded-packages'],
       conditionally_requires = ['anaconda-version-supplied'],
     )
@@ -111,7 +111,7 @@ class ReposEvent(RepoEventMixin, Event):
 
     # globally excluded packages
     global_excludes = self.config.xpath('exclude-package/text()', [])
-    self.cvars.setdefault('comps-excluded-packages', set()).update(global_excludes)
+    self.cvars.setdefault('excluded-packages', set()).update(global_excludes)
     self.cvars.setdefault('pkglist-excluded-packages', set()).update(global_excludes)
 
   def verify_pkgsfiles_exist(self):

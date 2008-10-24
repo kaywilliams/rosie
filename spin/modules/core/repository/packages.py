@@ -35,11 +35,11 @@ class PackagesEvent(Event):
     Event.__init__(self,
       id = 'packages',
       parentid = 'repository',
-      provides = ['groupfile', 'required-packages',
+      provides = ['groupfile', 'all-packages',
                   'user-required-packages', 'user-required-groups',
                   'user-excluded-packages'],
       requires = ['anaconda-version', 'repos'],
-      conditionally_requires = ['comps-included-packages', 'comps-excluded-packages'],
+      conditionally_requires = ['required-packages', 'excluded-packages'],
     )
 
     self.comps = Element('comps')
@@ -64,7 +64,7 @@ class PackagesEvent(Event):
     self.DATA['input'].extend([groupfile for repo,groupfile in
                                self.groupfiles])
 
-    for i in ['comps-included-packages', 'comps-excluded-packages']:
+    for i in ['required-packages', 'excluded-packages']:
       self.cvars.setdefault(i, [])
       self.DATA['variables'].append('cvars[\'%s\']' % i)
 
@@ -85,7 +85,7 @@ class PackagesEvent(Event):
     # set required packages variable
     assert_file_has_content(self.cvars['groupfile'])
     comps = rxml.config.read(self.cvars['groupfile'])
-    self.cvars['required-packages'] = comps.xpath('//packagereq/text()')
+    self.cvars['all-packages'] = comps.xpath('//packagereq/text()')
 
     # set user-*-* cvars
     self.cvars['user-required-packages'] = \
@@ -159,7 +159,7 @@ class PackagesEvent(Event):
     for pkg in self.config.xpath('package/text()', []):
       G.packagelist.add(PackageReq(pkg))
 
-    for pkgtup in self.cvars['comps-included-packages'] or []:
+    for pkgtup in self.cvars['required-packages'] or []:
       if not isinstance(pkgtup, tuple):
         pkgtup = (pkgtup, 'mandatory', None, None)
       G.packagelist.add(PackageReq(*pkgtup))
@@ -174,7 +174,7 @@ class PackagesEvent(Event):
 
     # remove excluded packages
     for pkg in ( self.config.xpath('exclude/text()', []) +
-                 list(self.cvars['comps-excluded-packages'] or []) ):
+                 list(self.cvars['excluded-packages'] or []) ):
       for group in self._groups.values():
         group.packagelist.discard(pkg)
 

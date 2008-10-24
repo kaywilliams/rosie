@@ -66,7 +66,7 @@ class PkglistEvent(Event):
       id = 'pkglist',
       parentid = 'repository',
       provides = ['pkglist'],
-      requires = ['required-packages', 'repos', 'user-required-packages'],
+      requires = ['all-packages', 'repos', 'user-required-packages'],
       conditionally_requires = ['pkglist-excluded-packages'],
       version = '0.2',
     )
@@ -76,7 +76,7 @@ class PkglistEvent(Event):
 
     self.DATA = {
       'config':    ['.'],
-      'variables': ['cvars[\'required-packages\']'],
+      'variables': ['cvars[\'all-packages\']'],
       'input':     [],
       'output':    [],
     }
@@ -104,12 +104,12 @@ class PkglistEvent(Event):
 
     self._verify_repos()
     repoconfig = self._create_repoconfig()
-    required_packages = self.cvars.get('required-packages', [])
+    required_packages = self.cvars.get('all-packages', [])
     user_required = self.cvars.get('user-required-packages', [])
 
     if INCREMENTAL_DEPSOLVE:
       old_packages = []
-      difftup = self.diff.variables.difference('cvars[\'required-packages\']')
+      difftup = self.diff.variables.difference('cvars[\'all-packages\']')
       if difftup:
         prev, curr = difftup
         if ( prev is None or

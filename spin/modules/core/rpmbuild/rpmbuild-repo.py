@@ -42,8 +42,8 @@ class RpmbuildRepoEvent(Event):
       version = 1,
       conditionally_requires = ['rpmbuild-data'],
       provides = ['repos', 'source-repos',
-                  'comps-included-packages',
-                  'comps-excluded-packages']
+                  'required-packages',
+                  'excluded-packages']
     )
 
     self.cid =  'rpmbuild-repo'
@@ -141,13 +141,13 @@ class RpmbuildRepoEvent(Event):
     if not self.cvars.has_key('rpmbuild-data'): return
 
     for v in self.cvars['rpmbuild-data'].values():
-      (self.cvars.setdefault('comps-included-packages', set())
+      (self.cvars.setdefault('required-packages', set())
          .add((v['rpm-name'],
                v['packagereq-type'],
                v['packagereq-requires'],
                v['packagereq-default'])))
       if v['rpm-obsoletes']:
-        (self.cvars.setdefault('comps-excluded-packages', set())
+        (self.cvars.setdefault('excluded-packages', set())
           .update(v['rpm-obsoletes']))
 
   def _setup_repos(self, type, updates=None):
