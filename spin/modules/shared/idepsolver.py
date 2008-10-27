@@ -19,31 +19,139 @@ import cPickle
 import rpmUtils
 import yum
 
+from rendition import difftest
 from rendition import pps
 
 from rendition.depsolver import Depsolver
 
-from spin.callback import TimerCallback
+from spin.callback import PkglistCallback, TimerCallback
 from spin.logging  import L1
 
-def resolve(all_packages=None, old_packages=None, required=None,
-            config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
-            callback=None, logger=None):
-  solver = IDepsolver(
-             all_packages = all_packages,
-             old_packages = old_packages,
-             required = required,
-             config = config,
-             root = root,
-             arch = arch,
-             callback = callback,
-             logger = logger
-           )
-  solver.setup()
-  pos = solver.getPackageObjects()
-  pkgtups = [ po.pkgtup for po in pos ]
-  solver.teardown()
-  return pkgtups
+INCREMENTAL_DEPSOLVE = True
+
+YUMCONF_HEADER = [
+  '[main]',
+  'cachedir=',
+  'logfile=/depsolve.log',
+  'debuglevel=0',
+  'errorlevel=0',
+  'gpgcheck=0',
+  'tolerant=1',
+  'exactarch=1',
+  'reposdir=/',
+  '\n',
+]
+
+class DepsolveManager(object):
+  def __init__(self):
+    self.solver = None
+    self.mandatory_pkgsfile = self.mddir / 'mandatory.pkgs'
+    self.depsolve_repo = self.mddir / 'depsolve.repo'
+
+  def resolve(self):
+    self._create_repoconfig()
+
+    required_packages = self._get_required_packages()
+    user_required     = self._get_user_required_packages()
+    old_packages      = self._get_old_packages()
+
+    if INCREMENTAL_DEPSOLVE:
+      self.solver = IDepsolver(
+        all_packages = required_packages,
+        old_packages = old_packages or [],
+        required = user_required,
+        config = str(self.depsolve_repo),
+        root = str(self.dsdir),
+        arch = self.arch,
+        callback = PkglistCallback(self.logger, reqpkgs=user_required),
+        logger = self.logger)
+      self.solver.setup()
+    else:
+      self.solver = Depsolver(config=config, root=root, arch=arch, callback=callback)
+      self.solver.setup()
+      self.logger.log(1, L1("resolving package dependencies"))
+      for package in required_packages:
+        try:
+          self.solver.install(name=package)
+        except yum.Errors.InstallError:
+          if package in user_required:
+            raise yum.Errors.InstallError("cannot find match for package '%s'" % package)
+          else:
+            self.logger.warning("Warning: cannot find match for package '%s'" % package)
+
+    pos = self.solver.getPackageObjects()
+    pkgtups = [ po.pkgtup for po in pos ]
+
+    packages = []
+    if 'mandatory' in self.solver.conf.group_package_types:
+      packages.extend(self.cvars['comps-mandatory-packages'])
+    if 'default' in self.solver.conf.group_package_types:
+      packages.extend(self.cvars['comps-default-packages'])
+    if 'optional' in self.solver.conf.group_package_types:
+      packages.extend(self.cvars['comps-optional-packages'])
+
+    self._create_mandatory_file(set(packages))
+
+    self.solver.teardown()
+    self.solver = None
+    return pkgtups
+
+  def _create_mandatory_file(self, packages):
+    allpkgtups = set()
+    for pkgtup in self.solver.resolved_deps:
+      if pkgtup[0] in packages:
+        allpkgtups.add(pkgtup)
+        for dep in self.solver.resolved_deps[pkgtup].values():
+          allpkgtups.add(dep)
+
+    while True:
+      newallpkgtups = allpkgtups
+
+      newitems = set()
+      for pkgtup in allpkgtups:
+        if pkgtup in self.solver.resolved_deps:
+          for dep in self.solver.resolved_deps[pkgtup].values():
+            newitems.add(dep)
+
+      allpkgtups = allpkgtups.union(newitems)
+
+      if allpkgtups == newallpkgtups:
+        break
+
+    self.mandatory_pkgsfile.write_lines(sorted([ x[0] for x in allpkgtups ]))
+
+  def _get_old_packages(self):
+    old_packages = []
+    if INCREMENTAL_DEPSOLVE:
+      difftup = self.diff.variables.difference('cvars[\'required-packages\']')
+      if difftup:
+        prev, curr = difftup
+        if ( prev is None or
+             isinstance(prev, difftest.NewEntry) or
+             isinstance(prev, difftest.NoneEntry) ):
+          prev = []
+        if prev:
+          old_packages.extend([ x for x in prev if x not in curr ])
+    return old_packages
+
+  def _get_required_packages(self):
+    return self.cvars.get('required-packages', [])
+
+  def _get_user_required_packages(self):
+    return self.cvars.get('user-required-packages', [])
+
+  def _create_repoconfig(self):
+    if self.depsolve_repo.exists():
+      self.depsolve_repo.remove()
+    conf = []
+    conf.extend(YUMCONF_HEADER)
+    if self.cvars['pkglist-excluded-packages']:
+      line = 'exclude=' + ' '.join(self.cvars['pkglist-excluded-packages'])
+      conf.append(line)
+    for repo in self.cvars['repos'].values():
+      conf.extend(repo.lines(pretty=True, baseurl=repo.localurl, mirrorlist=None))
+      conf.append('\n')
+    self.depsolve_repo.write_lines(conf)
 
 
 class IDepsolver(Depsolver):

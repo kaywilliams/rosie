@@ -18,9 +18,13 @@
 
 import imgcreate
 import inspect
+import os
 import rpm
 import sha
+import sys
 import yum
+
+from yum import _
 
 from rendition import pps
 
@@ -149,7 +153,9 @@ class SpinImageCreatorMixin:
   def __select_packages(self, ayum):
     # select new packages in pkglist if we're using an existing chroot
     if not self._base:
-      self._getattr_('__select_packages')(ayum)
+      #self._getattr_('__select_packages')(ayum)
+      #pkgs = set()
+      pkgs = set(self.event.cvars['pkglist-mandatory-packages'])
     else:
       diff = self.event.diff.variables.difference("cvars['pkglist']")
 
@@ -158,9 +164,10 @@ class SpinImageCreatorMixin:
                  for x in diff[0] ]
         next = [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
                  for x in diff[1] ]
+        pkgs = set(next) - set(prev)
 
-        for pkg in set(next) - set(prev):
-          ayum.install(name = pkg)
+    for pkg in pkgs:
+      ayum.install(name = pkg)
 
   def __select_groups(self, ayum):
     # don't select groups at all if we're using an existing chroot
@@ -223,7 +230,7 @@ class SpinImageCreatorMixin:
   def install(self, repo_urls = None):
     yum_conf = pps.path(self._mktemp(prefix = "yum.conf-"))
 
-    ayum = imgcreate.yuminst.LiveCDYum()
+    ayum = VMYum()
     ayum.setup(yum_conf, self._instroot)
     ayum.conf.obsoletes = 1 # enable obsoletes processing
 
@@ -274,3 +281,52 @@ class SpinImageCreatorMixin:
       if lvmdir.exists():
         for f in lvmdir.listdir():
           f.rm(force=True)
+
+class VMYum(imgcreate.yuminst.LiveCDYum):
+  def __init__(self):
+    imgcreate.yuminst.LiveCDYum.__init__(self)
+
+  def runInstall(self):
+    import time
+    os.environ["HOME"] = "/"
+
+    try:
+      members = self.tsInfo.getUnresolvedMembers()
+    except AttributeError, e:
+      members = []
+
+    for x in members:
+      self.tsInfo.markAsResolved(x)
+
+    try:
+      start = time.time()
+      (res, resmsg) = self.buildTransaction()
+      end = time.time()
+      print "TIME TAKEN: %s" % (end-start)
+    except yum.Errors.RepoError, e:
+      raise imgcreate.CreatorError("Unable to download from repo : %s" %(e,))
+    if res != 2:
+      raise imgcreate.CreatorError("Failed to build transaction : %s" % str.join("\n", resmsg))
+
+    dlpkgs = map(lambda x: x.po, filter(lambda txmbr: txmbr.ts_state in ("i", "u"), self.tsInfo.getMembers()))
+    self.downloadPkgs(dlpkgs)
+    # FIXME: sigcheck?
+
+    self.initActionTs()
+    self.populateTs(keepold=0)
+    deps = self.ts.check()
+    if len(deps) != 0:
+      raise imgcreate.CreatorError("Dependency check failed!")
+    rc = self.ts.order()
+    if rc != 0:
+      raise imgcreate.CreatorError("ordering packages for installation failed!")
+
+    # FIXME: callback should be refactored a little in yum
+    sys.path.append('/usr/share/yum-cli')
+    import callback
+    cb = callback.RPMInstallCallback()
+    cb.tsInfo = self.tsInfo
+    cb.filelog = False
+    ret = self.runTransaction(cb)
+    print ""
+    return ret

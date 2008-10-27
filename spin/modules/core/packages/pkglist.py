@@ -19,16 +19,12 @@ import re
 import rpmUtils.arch
 import yum.Errors
 
-from rendition import depsolver
-from rendition import difftest
-
-from spin.callback  import PkglistCallback
 from spin.constants import KERNELS
 from spin.errors    import assert_file_has_content, SpinError
 from spin.event     import Event
 from spin.logging   import L1
 
-from spin.modules.shared import idepsolver
+from spin.modules.shared.idepsolver import DepsolveManager
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -36,19 +32,6 @@ MODULE_INFO = dict(
   description = 'depsolves comps.xml to create a package list',
   group       = 'packages',
 )
-
-YUMCONF_HEADER = [
-  '[main]',
-  'cachedir=',
-  'logfile=/depsolve.log',
-  'debuglevel=0',
-  'errorlevel=0',
-  'gpgcheck=0',
-  'tolerant=1',
-  'exactarch=1',
-  'reposdir=/',
-  '\n',
-]
 
 NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
                         '-'
@@ -58,9 +41,7 @@ NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
                         '\.'
                         '(?P<arch>.+)')   # rpm architecture
 
-INCREMENTAL_DEPSOLVE = True
-
-class PkglistEvent(Event):
+class PkglistEvent(Event, DepsolveManager):
   def __init__(self):
     Event.__init__(self,
       id = 'pkglist',
@@ -70,6 +51,8 @@ class PkglistEvent(Event):
       conditionally_requires = ['pkglist-excluded-packages'],
       version = '0.2',
     )
+
+    DepsolveManager.__init__(self)
 
     self.dsdir = self.mddir / 'depsolve'
     self.pkglistfile = self.mddir / 'pkglist'
@@ -103,44 +86,11 @@ class PkglistEvent(Event):
       self.dsdir.mkdirs()
 
     self._verify_repos()
-    repoconfig = self._create_repoconfig()
-    required_packages = self.cvars.get('required-packages', [])
-    user_required = self.cvars.get('user-required-packages', [])
 
-    if INCREMENTAL_DEPSOLVE:
-      old_packages = []
-      difftup = self.diff.variables.difference('cvars[\'required-packages\']')
-      if difftup:
-        prev, curr = difftup
-        if ( prev is None or
-             isinstance(prev, difftest.NewEntry) or
-             isinstance(prev, difftest.NoneEntry) ):
-          prev = []
-        if prev:
-          old_packages.extend([ x for x in prev if x not in curr ])
-
-      try:
-        pkgtups = idepsolver.resolve(all_packages = required_packages,
-                    old_packages = old_packages,
-                    required = user_required,
-                    config = str(repoconfig),
-                    root = str(self.dsdir),
-                    arch = self.arch,
-                    callback = PkglistCallback(self.logger, reqpkgs=user_required),
-                    logger = self.logger)
-      except yum.Errors.InstallError, e:
-        raise DepsolveError(str(e))
-    else:
-      self.log(1, L1("resolving package dependencies"))
-      try:
-        pkgtups = depsolver.resolve(packages = required_packages,
-                    required = user_required,
-                    config = str(repoconfig),
-                    root = str(self.dsdir),
-                    arch = self.arch,
-                    callback = PkglistCallback(self.logger, reqpkgs=user_required))
-      except yum.Errors.InstallError, e:
-        raise DepsolveError(str(e))
+    try:
+      pkgtups = self.resolve() # in DepsolveManager
+    except yum.Errors.InstallError, e:
+      raise DepsolveError(str(e))
 
     self.log(1, L1("pkglist closure achieved in %d packages" % len(pkgtups)))
 
@@ -152,7 +102,9 @@ class PkglistEvent(Event):
     self.log(1, L1("writing pkglist"))
     self.pkglistfile.write_lines(pkglist)
 
-    self.DATA['output'].extend([self.dsdir, self.pkglistfile, repoconfig])
+    self.DATA['output'].extend([self.dsdir, self.pkglistfile,
+                                self.depsolve_repo, self.mandatory_pkgsfile])
+
 
   def apply(self):
     self.io.clean_eventcache()
@@ -165,6 +117,8 @@ class PkglistEvent(Event):
       if not rx.match(self.cvars['pkglist'][i]):
         raise InvalidPkglistFormatError(self.pkglistfile,
                                         i+1, self.cvars['pkglist'][i])
+
+    self.cvars['pkglist-mandatory-packages'] = self.mandatory_pkgsfile.read_lines()
 
   def verify_pkglistfile_exists(self):
     "pkglist file exists"
@@ -200,22 +154,6 @@ class PkglistEvent(Event):
         if f.startswith(repo.localurl/'repodata'):
           (self.dsdir/repoid).rm(recursive=True, force=True)
           break
-
-  def _create_repoconfig(self):
-    repoconfig = self.mddir / 'depsolve.repo'
-    if repoconfig.exists():
-      repoconfig.remove()
-    conf = []
-    conf.extend(YUMCONF_HEADER)
-    if self.cvars['pkglist-excluded-packages']:
-      line = 'exclude=' + ' '.join(self.cvars['pkglist-excluded-packages'])
-      conf.append(line)
-    for repo in self.cvars['repos'].values():
-      conf.extend(repo.lines(pretty=True, baseurl=repo.localurl, mirrorlist=None))
-      conf.append('\n')
-    repoconfig.write_lines(conf)
-    return repoconfig
-
 
 class InvalidPkglistFormatError(SpinError):
   message = ( "Invalid format '%(pkgfile)s' on line %(lino)d of "

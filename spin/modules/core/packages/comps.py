@@ -108,12 +108,24 @@ class CompsEvent(Event):
 
     # set required packages variable
     assert_file_has_content(self.cvars['comps-file'])
-    self.cvars['required-packages'] = \
-       rxml.config.read(self.cvars['comps-file']).xpath('//packagereq/text()')
+    comps = rxml.config.read(self.cvars['comps-file'])
+    self.cvars['required-packages'] = comps.xpath('//packagereq/text()')
 
     # set user required packages variable
     self.cvars['user-required-packages'] = \
       self.config.xpath('package/text()', [])
+
+    default   = []
+    for group in comps.xpath('group', []):
+      if group.getbool('default/text()'):
+        default.extend(group.xpath('packagelist/packagereq[@type="default"]/text()', []))
+
+    optional = comps.xpath('//packagereq[@type="optional"]/text()', [])
+    mandatory = comps.xpath('//packagereq[@type="mandatory"]/text()', [])
+
+    self.cvars['comps-default-packages'] = default
+    self.cvars['comps-optional-packages'] = optional
+    self.cvars['comps-mandatory-packages'] = mandatory
 
   # output verification
   def verify_comps_xpath(self):
