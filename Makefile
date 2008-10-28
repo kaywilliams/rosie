@@ -35,7 +35,7 @@ install:
 	mkdir -p $(PYTHONLIBDIR)
 	mkdir -p $(DESTDIR)
 	for dir in $(SUBDIRS); do make -C $$dir PYTHONLIBDIR=`cd $(PYTHONLIBDIR); pwd` DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
-	$(call COMPILE_PYTHON, $(DESTDIR)/$(PYTHONLIBDIR))
+	$(call COMPILE_PYTHON,$(DESTDIR)/$(PYTHONLIBDIR))
 
 tag:
 	@if [ "$(USERNAME)" != "" ]; then \

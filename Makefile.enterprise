@@ -42,7 +42,7 @@ install:
 	fi
 	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)
 	cp -var spin $(DESTDIR)/$(PYTHONLIBDIR)
-	$(call COMPILE_PYTHON, $(DESTDIR)/$(PYTHONLIBDIR))
+	$(call COMPILE_PYTHON,$(DESTDIR)/$(PYTHONLIBDIR))
 
 srpm: archive
 	@rpmbuild $(BUILDARGS) -ts $(PKGNAME)-$(VERSION).tar.gz  || exit 1
