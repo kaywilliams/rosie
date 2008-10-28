@@ -28,7 +28,7 @@ from spin.modules.shared.idepsolver import DepsolverMixin
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['PkglistEvent'],
+  events      = ['DepsolveEvent'],
   description = 'depsolves comps.xml to create a package list',
   group       = 'packages',
 )
@@ -41,10 +41,10 @@ NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
                         '\.'
                         '(?P<arch>.+)')   # rpm architecture
 
-class PkglistEvent(Event, DepsolverMixin):
+class DepsolveEvent(Event, DepsolverMixin):
   def __init__(self):
     Event.__init__(self,
-      id = 'pkglist',
+      id = 'depsolve',
       parentid = 'packages',
       provides = ['pkglist', 'pkglist-mandatory-packages'],
       requires = ['required-packages', 'repos', 'user-required-packages'],
