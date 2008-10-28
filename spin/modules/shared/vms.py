@@ -279,23 +279,19 @@ class VMYum(imgcreate.yuminst.LiveCDYum):
   def __init__(self):
     imgcreate.yuminst.LiveCDYum.__init__(self)
 
+  def resolveDeps(self):
+    # we don't need to do any depsolving because all the packages in
+    # the transaction set are resolved.
+    if len(self.tsInfo) > 0:
+      if not len(self.tsInfo):
+        return (0, ['Success - empty transaction'])
+      return (2, ['Success - deps resolved'])
+
   def runInstall(self):
-    import time
     os.environ["HOME"] = "/"
 
     try:
-      members = self.tsInfo.getUnresolvedMembers()
-    except AttributeError, e:
-      members = []
-
-    for x in members:
-      self.tsInfo.markAsResolved(x)
-
-    try:
-      start = time.time()
       (res, resmsg) = self.buildTransaction()
-      end = time.time()
-      print "TIME TAKEN: %s" % (end-start)
     except yum.Errors.RepoError, e:
       raise imgcreate.CreatorError("Unable to download from repo : %s" %(e,))
     if res != 2:
