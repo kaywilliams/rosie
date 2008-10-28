@@ -24,7 +24,7 @@ Creates a virtimage (xen, virsh) disk image.
 import appcreate
 import imgcreate
 
-from spin.event import Event
+from spin.event  import Event
 
 MODULE_INFO = dict(
   api    = 5.0,
@@ -67,10 +67,14 @@ class LibvirtVMEvent(Event):
 
     # create image creator
     self.vmdir.mkdirs()
-    self.creator = appcreate.ApplianceImageCreator(ks, self.applianceid)
-    # the following isn't very portable due to attribute protection
-    self.creator.__vmem = int(self.config.get('@vmem', '512'))
-    self.creator.__vcpu = int(self.config.get('@vcpu', '1'))
+    self.creator = appcreate.ApplianceImageCreator(
+                     ks,
+                     name     = self.applianceid,
+                     format   = 'raw',
+                     package  = 'none',
+                     vmem     = int(self.config.get('@vmem', '512')),
+                     vcpu     = int(self.config.get('@vcpu', '1')),
+                     checksum = False)
 
   def run(self):
 

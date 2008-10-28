@@ -243,7 +243,6 @@
       <varname><xref linkend="content-capability" /></varname>,
       <emphasis><xref linkend="requires" /></emphasis>,
       <emphasis role="strong"><xref linkend="config-rpm" /></emphasis>,
-      <emphasis role="strong"><xref linkend="logos-rpm" /></emphasis>,
       <emphasis role="strong"><xref linkend="release-rpm" /></emphasis>
       </para>
     </section>
@@ -955,7 +954,6 @@ baseurl=/var/repos/repoC
       <varname><xref linkend="content-capability" /></varname>,
       <emphasis><xref linkend="obsoletes" /></emphasis>,
       <emphasis role="strong"><xref linkend="config-rpm" /></emphasis>,
-      <emphasis role="strong"><xref linkend="logos-rpm" /></emphasis>,
       <emphasis role="strong"><xref linkend="release-rpm" /></emphasis>
       </para>
     </section>
