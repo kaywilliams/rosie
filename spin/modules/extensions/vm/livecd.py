@@ -42,7 +42,7 @@ class LivecdEvent(vms.VmCreateMixin, Event):
     Event.__init__(self,
       id = 'livecd',
       parentid = 'vm',
-      requires = ['kickstart-file', 'pkglist', 'repodata-directory']
+      requires = ['kickstart-file', 'pkglist-mandatory-packages', 'repodata-directory']
     )
 
     self.baseimg  = self.mddir / 'ext3fs.img'
@@ -54,7 +54,7 @@ class LivecdEvent(vms.VmCreateMixin, Event):
       'config': ['.'],
       'input':  [self.baseimg],
       'output': [self.livecd, self.baseimg],
-      'variables': ['cvars[\'pkglist\']'],
+      'variables': ['cvars[\'pkglist-mandatory-packages\']'],
     }
 
     self.creator = None

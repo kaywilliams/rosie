@@ -153,17 +153,14 @@ class SpinImageCreatorMixin:
   def __select_packages(self, ayum):
     # select new packages in pkglist if we're using an existing chroot
     if not self._base:
-      #self._getattr_('__select_packages')(ayum)
-      #pkgs = set()
       pkgs = set(self.event.cvars['pkglist-mandatory-packages'])
     else:
-      diff = self.event.diff.variables.difference("cvars['pkglist']")
+      diff = self.event.diff.variables.difference("cvars['pkglist-mandatory-packages']")
+      pkgs = set()
 
       if diff is not None:
-        prev = [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                 for x in diff[0] ]
-        next = [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                 for x in diff[1] ]
+        prev = [ x for x in diff[0] ]
+        next = [ x for x in diff[1] ]
         pkgs = set(next) - set(prev)
 
     for pkg in pkgs:
@@ -179,35 +176,32 @@ class SpinImageCreatorMixin:
   def __deselect_packages(self, ayum):
     # remove old packages in pkglist if we're using an exising chroot
     if not self._base:
-      self._getattr_('__deselect_packages')(ayum)
-    else:
-      diff = self.event.diff.variables.difference("cvars['pkglist']")
+      return
+    diff = self.event.diff.variables.difference("cvars['pkglist-mandatory-packages']")
+    pkgs = set()
 
-      if diff is not None:
-        prev = [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                 for x in diff[0] ]
-        next = [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                 for x in diff[1] ]
+    if diff is not None:
+      prev = [ x for x in diff[0] ]
+      next = [ x for x in diff[1] ]
+      pkgs = set(prev) - set(next)
 
-        for pkg in (set(prev) - set(next)):
-          ayum.remove(name = pkg)
+    for pkg in pkgs:
+      ayum.remove(name = pkg)
 
   def __update_packages(self, ayum):
     if not self._base:
       return
-    else:
-      diff = self.event.diff.variables.difference("cvars['pkglist']")
+    diff = self.event.diff.variables.difference("cvars['pkglist-mandatory-packages']")
+    pkgs = set()
 
-      if diff is not None:
-        # obtain list of newly-added and removed package names
-        new = [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                for x in set(diff[1]) - set(diff[0]) ]
-        old = [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                for x in set(diff[0]) - set(diff[1]) ]
+    if diff is not None:
+      prev = [ x for x in diff[0] ]
+      next = [ x for x in diff[1] ]
+      pkgs = set(prev) & set(next)
 
-        # if a package was in both lists, this means it needs to be updated
-        for pkg in set(new) & set(old):
-          ayum.update(name = pkg)
+    # if a package was in both lists, this means it needs to be updated
+    for pkg in pkgs:
+      ayum.update(name = pkg)
 
   def __can_handle_selinux(self, ayum):
     # rewritten to handle incremental check
@@ -224,8 +218,7 @@ class SpinImageCreatorMixin:
     pass
 
   def _get_pkglist_names(self):
-    return [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-             for x in self.event.cvars['pkglist'] ]
+    return self.event.cvars['pkglist-mandatory-packages']
 
   def install(self, repo_urls = None):
     yum_conf = pps.path(self._mktemp(prefix = "yum.conf-"))

@@ -46,7 +46,7 @@ class PkglistEvent(Event, DepsolveManager):
     Event.__init__(self,
       id = 'pkglist',
       parentid = 'packages',
-      provides = ['pkglist'],
+      provides = ['pkglist', 'pkglist-mandatory-packages'],
       requires = ['required-packages', 'repos', 'user-required-packages'],
       conditionally_requires = ['pkglist-excluded-packages'],
       version = '0.2',
