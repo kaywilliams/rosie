@@ -3,21 +3,21 @@
   <path>./</path>
   <repo id="repo4">
     <package>
-      <name>pkglist-bug163-req</name>
+      <name>depsolve-bug163-req</name>
       <version>1.0</version>
       <release>1</release>
       <requires>bug163-requirement</requires>
       <force-arch>noarch</force-arch>
     </package>
     <package>
-      <name>pkglist-bug163-prov</name>
+      <name>depsolve-bug163-prov</name>
       <version>1.0</version>
       <release>1</release>
       <force-arch>noarch</force-arch>
       <provides>bug163-requirement</provides>
     </package>
     <package>
-      <name>pkglist-bug163-prov</name>
+      <name>depsolve-bug163-prov</name>
       <version>2.0</version>
       <release>1</release>
       <force-arch>noarch</force-arch>

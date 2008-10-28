@@ -3,14 +3,14 @@
   <path>./</path>
   <repo id="repo3">
     <package>
-      <name>pkglist-test-package3</name>
+      <name>depsolve-test-package3</name>
       <version>1.0</version>
       <release>1</release>
-      <requires>pkglist-test-package4</requires>
+      <requires>depsolve-test-package4</requires>
       <force-arch>noarch</force-arch>
     </package>
     <package>
-      <name>pkglist-test-package4</name>
+      <name>depsolve-test-package4</name>
       <version>1.0</version>
       <release>1</release>
       <force-arch>noarch</force-arch>

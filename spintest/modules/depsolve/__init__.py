@@ -26,13 +26,13 @@ from rendition import rxml
 from spintest      import EventTestCase, ModuleTestSuite, _run_make
 from spintest.core import make_core_suite
 
-class DummyPkglistEventTestCase(EventTestCase):
-  moduleid = 'pkglist'
-  eventid  = 'pkglist'
+class DummyDepsolveEventTestCase(EventTestCase):
+  moduleid = 'depsolve'
+  eventid  = 'depsolve'
 
-class PkglistEventTestCase(EventTestCase):
-  moduleid = 'pkglist'
-  eventid  = 'pkglist'
+class DepsolveEventTestCase(EventTestCase):
+  moduleid = 'depsolve'
+  eventid  = 'depsolve'
 
   caseid = None
   clean  = False
@@ -50,7 +50,7 @@ class PkglistEventTestCase(EventTestCase):
     EventTestCase.tearDown(self)
 
   def runTest(self):
-    self.tb.dispatch.execute(until='pkglist')
+    self.tb.dispatch.execute(until='depsolve')
     self.PKGLIST_COUNT[self.caseid] = len(self.event.cvars['pkglist'])
 
   def getPkglistCount(self, caseid):
@@ -71,75 +71,75 @@ class PkglistEventTestCase(EventTestCase):
 
     return repos
 
-class Test_PkglistBug84_1(PkglistEventTestCase):
-  "Bug 84 #1: Force 'pkglist' without base group"
+class Test_DepsolveBug84_1(DepsolveEventTestCase):
+  "Bug 84 #1: Force 'depsolve' without base group"
   caseid = 'bug84_1'
   clean  =  True
 
-class Test_PkglistBug84_2(PkglistEventTestCase):
-  "Bug 84 #2: Run 'pkglist' with base group"
+class Test_DepsolveBug84_2(DepsolveEventTestCase):
+  "Bug 84 #2: Run 'depsolve' with base group"
   "with base group"
   _conf = """<comps>
     <group>base</group>
   </comps>"""
   caseid = 'bug84_2'
 
-class Test_PkglistBug84_3(PkglistEventTestCase):
-  "Bug 84 #3: Run 'pkglist' without base group"
+class Test_DepsolveBug84_3(DepsolveEventTestCase):
+  "Bug 84 #3: Run 'depsolve' without base group"
   caseid = 'bug84_3'
 
   def runTest(self):
-    PkglistEventTestCase.runTest(self)
+    DepsolveEventTestCase.runTest(self)
     count1 = self.getPkglistCount('bug84_1')
     count2 = self.getPkglistCount('bug84_3')
     self.failUnless(count1 == count2,
       "incremental depsolve: %d, forced depsolve: %d" % (count1, count2))
 
-class Test_PkglistBug85_1(PkglistEventTestCase):
-  "Bug 85 #1: Force 'pkglist' without updates repository"
+class Test_DepsolveBug85_1(DepsolveEventTestCase):
+  "Bug 85 #1: Force 'depsolve' without updates repository"
   caseid = 'bug85_1'
   clean  = True
 
-class Test_PkglistBug85_2(PkglistEventTestCase):
-  "Bug 85 #2: Run 'pkglist' with updates repository"
+class Test_DepsolveBug85_2(DepsolveEventTestCase):
+  "Bug 85 #2: Run 'depsolve' with updates repository"
   caseid = 'bug85_2'
   repos = ['base', 'updates']
 
-class Test_PkglistBug85_3(PkglistEventTestCase):
-  "Bug 85 #3: Run 'pkglist' without updates repository"
+class Test_DepsolveBug85_3(DepsolveEventTestCase):
+  "Bug 85 #3: Run 'depsolve' without updates repository"
   caseid = 'bug85_3'
 
   def runTest(self):
-    PkglistEventTestCase.runTest(self)
+    DepsolveEventTestCase.runTest(self)
     count1 = self.getPkglistCount('bug85_1')
     count2 = self.getPkglistCount('bug85_3')
     self.failUnless(count1 == count2, "bug85_1: %d packages; bug85_3: %d packages" % \
                     (count1, count2))
 
-class Test_PkglistBug86_1(PkglistEventTestCase):
-  "Bug 86 #1: Force 'pkglist' without 'release-rpm' forced"
+class Test_DepsolveBug86_1(DepsolveEventTestCase):
+  "Bug 86 #1: Force 'depsolve' without 'release-rpm' forced"
   caseid = 'bug86_1'
   clean  = True
   repos = ['base', 'updates']
 
-class Test_PkglistBug86_2(PkglistEventTestCase):
-  "Bug 86 #2: Force 'pkglist' with 'release-rpm' events"
+class Test_DepsolveBug86_2(DepsolveEventTestCase):
+  "Bug 86 #2: Force 'depsolve' with 'release-rpm' events"
   caseid = 'bug86_2'
   clean  = True
   repos = ['base', 'updates']
 
   def setUp(self):
-    PkglistEventTestCase.setUp(self)
+    DepsolveEventTestCase.setUp(self)
     self.clean_event_md(self.event._getroot().get('release-rpm'))
 
   def runTest(self):
-    PkglistEventTestCase.runTest(self)
+    DepsolveEventTestCase.runTest(self)
     count1 = self.getPkglistCount('bug86_1')
     count2 = self.getPkglistCount('bug86_2')
     self.failUnless(count1 == count2, "bug86_1: %d packages; bug86_2: %d packages" % \
                       (count1, count2))
 
-class Test_PkglistBug108(PkglistEventTestCase):
+class Test_DepsolveBug108(DepsolveEventTestCase):
   "Bug 108: 'pidgin' or 'libpurple' should be in pkglist (CentOS5-only test)"
   _conf = """<comps>
     <package>gaim</package>
@@ -149,7 +149,7 @@ class Test_PkglistBug108(PkglistEventTestCase):
   repos  = ['base', 'updates']
 
   def runTest(self):
-    self.tb.dispatch.execute(until='pkglist')
+    self.tb.dispatch.execute(until='depsolve')
     found_gaim = False
     found_pidgin = False
     found_libpurple = False
@@ -164,190 +164,187 @@ class Test_PkglistBug108(PkglistEventTestCase):
     self.failUnless(found_pidgin or found_libpurple)
     self.failIf(found_gaim)
 
-class Test_PkglistBug163_1(PkglistEventTestCase):
+class Test_DepsolveBug163_1(DepsolveEventTestCase):
   "Bug 163 #1: Newer package is not the desired package"
   _conf = """<comps>
-    <package>pkglist-bug163-req</package>
+    <package>depsolve-bug163-req</package>
   </comps>"""
   caseid = 'bug163_1'
   clean  = True
 
   def _make_repos_config(self):
-    repos = PkglistEventTestCase._make_repos_config(self)
+    repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='pkglist/pkglist-test-repos4.repo'))
+                 text='depsolve/depsolve-test-repos4.repo'))
     return repos
 
   def runTest(self):
-    PkglistEventTestCase.runTest(self)
-    self.failUnless('pkglist-bug163-prov-1.0-1.noarch' in self.event.cvars['pkglist'])
-    self.failIf('pkglist-bug163-prov-2.0-1.noarch' in self.event.cvars['pkglist'])
+    DepsolveEventTestCase.runTest(self)
+    self.failUnless('depsolve-bug163-prov-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failIf('depsolve-bug163-prov-2.0-1.noarch' in self.event.cvars['pkglist'])
 
-class Test_PkglistBug163_2(PkglistEventTestCase):
+class Test_DepsolveBug163_2(DepsolveEventTestCase):
   "Bug 163 #2: Newer package is not brought down when 'release-rpm' is forced"
   _conf = """<comps>
-    <package>pkglist-bug163-req</package>
+    <package>depsolve-bug163-req</package>
   </comps>"""
   caseid = 'bug163_2'
   clean  = False
 
   def _make_repos_config(self):
-    repos = PkglistEventTestCase._make_repos_config(self)
+    repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='pkglist/pkglist-test-repos4.repo'))
+                 text='depsolve/depsolve-test-repos4.repo'))
     return repos
 
   def setUp(self):
-    PkglistEventTestCase.setUp(self)
+    DepsolveEventTestCase.setUp(self)
     self.clean_event_md(self.event._getroot().get('release-rpm'))
 
   def runTest(self):
-    PkglistEventTestCase.runTest(self)
+    DepsolveEventTestCase.runTest(self)
     count1 = self.getPkglistCount('bug163_1')
     count2 = self.getPkglistCount('bug163_2')
     self.failUnless(count1 == count2, "bug163_1: %d packages; bug163_2: %d packages" % \
                       (count1, count2))
-    self.failUnless('pkglist-bug163-prov-1.0-1.noarch' in self.event.cvars['pkglist'])
-    self.failIf('pkglist-bug163-prov-2.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failUnless('depsolve-bug163-prov-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failIf('depsolve-bug163-prov-2.0-1.noarch' in self.event.cvars['pkglist'])
 
-class Test_Supplied(DummyPkglistEventTestCase):
+class Test_Supplied(DummyDepsolveEventTestCase):
   "Package list file is supplied"
-  _conf = "<pkglist>pkglist/pkglist</pkglist>"
+  _conf = "<depsolve>depsolve/depsolve</depsolve>"
 
   def runTest(self):
-    self.tb.dispatch.execute(until='pkglist')
-    pkglist_in  = (pps.path(__file__).abspath().dirname.dirname /
+    self.tb.dispatch.execute(until='depsolve')
+    depsolve_in  = (pps.path(__file__).abspath().dirname.dirname /
                    self.event.config.get('text()')).read_lines()
-    pkglist_out = self.event.cvars['pkglist']
-    self.failUnlessEqual(sorted(pkglist_in), sorted(pkglist_out))
+    depsolve_out = self.event.cvars['pkglist']
+    self.failUnlessEqual(sorted(depsolve_in), sorted(depsolve_out))
 
-class Test_PackageAdded(PkglistEventTestCase):
+class Test_PackageAdded(DepsolveEventTestCase):
   "Misc. Test #1: Package Added"
   _conf = """<comps>
-    <package>pkglist-test-package1</package>
+    <package>depsolve-test-package1</package>
   </comps>"""
   caseid = 'pkgadded'
   clean  = True
 
   def _make_repos_config(self):
-    repos = PkglistEventTestCase._make_repos_config(self)
+    repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='pkglist/pkglist-test-repos1.repo'))
+                 text='depsolve/depsolve-test-repos1.repo'))
 
     return repos
 
   def runTest(self):
-    self.tb.dispatch.execute(until='pkglist')
-    self.failUnless('pkglist-test-package1-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.tb.dispatch.execute(until='depsolve')
+    self.failUnless('depsolve-test-package1-1.0-1.noarch' in self.event.cvars['pkglist'])
 
-class Test_ObsoletedPackage(PkglistEventTestCase):
+class Test_ObsoletedPackage(DepsolveEventTestCase):
   "Misc. Test #2: Package obsoleted"
   _conf = """<comps>
-    <package>pkglist-test-package2</package>
+    <package>depsolve-test-package2</package>
   </comps>"""
 
   caseid = 'pkgobsoleted'
 
   def _make_repos_config(self):
-    repos = PkglistEventTestCase._make_repos_config(self)
+    repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='pkglist/pkglist-test-repos1.repo'))
+                 text='depsolve/depsolve-test-repos1.repo'))
     repos.append(rxml.config.Element('repofile',
-                 text='pkglist/pkglist-test-repos2.repo'))
+                 text='depsolve/depsolve-test-repos2.repo'))
 
     return repos
 
   def runTest(self):
-    self.tb.dispatch.execute(until='pkglist')
-    self.failUnless('pkglist-test-package2-1.0-1.noarch' in self.event.cvars['pkglist'])
-    self.failIf('pkglist-test-package1-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.tb.dispatch.execute(until='depsolve')
+    self.failUnless('depsolve-test-package2-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failIf('depsolve-test-package1-1.0-1.noarch' in self.event.cvars['pkglist'])
 
-class Test_RemovedPackage(PkglistEventTestCase):
+class Test_RemovedPackage(DepsolveEventTestCase):
   "Misc. Test #3: Package removed"
   caseid = 'pkgremoved'
 
   def runTest(self):
-    self.tb.dispatch.execute(until='pkglist')
-    self.failIf('pkglist-test-package2-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.tb.dispatch.execute(until='depsolve')
+    self.failIf('depsolve-test-package2-1.0-1.noarch' in self.event.cvars['pkglist'])
 
-class Test_ExclusivePackage_1(PkglistEventTestCase):
+class Test_ExclusivePackage_1(DepsolveEventTestCase):
   "Misc. Test #4: A package is required by only one other package..."
   _conf = """<comps>
-    <package>pkglist-test-package3</package>
+    <package>depsolve-test-package3</package>
   </comps>"""
   caseid = 'exclusive_1'
 
   def _make_repos_config(self):
-    repos = PkglistEventTestCase._make_repos_config(self)
+    repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='pkglist/pkglist-test-repos3.repo'))
+                 text='depsolve/depsolve-test-repos3.repo'))
 
     return repos
 
   def runTest(self):
-    self.tb.dispatch.execute(until='pkglist')
-    self.failUnless('pkglist-test-package3-1.0-1.noarch' in self.event.cvars['pkglist'])
-    self.failUnless('pkglist-test-package4-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.tb.dispatch.execute(until='depsolve')
+    self.failUnless('depsolve-test-package3-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failUnless('depsolve-test-package4-1.0-1.noarch' in self.event.cvars['pkglist'])
 
-class Test_ExclusivePackage_2(PkglistEventTestCase):
+class Test_ExclusivePackage_2(DepsolveEventTestCase):
   "Misc. Test #4 (contd.): ...and it should go away now"
   caseid = 'exclusive_2'
 
   def setUp(self):
-    PkglistEventTestCase.setUp(self)
+    DepsolveEventTestCase.setUp(self)
 
   def runTest(self):
-    self.tb.dispatch.execute(until='pkglist')
-    self.failIf('pkglist-test-package3-1.0-1.noarch' in self.event.cvars['pkglist'])
-    self.failIf('pkglist-test-package4-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.tb.dispatch.execute(until='depsolve')
+    self.failIf('depsolve-test-package3-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failIf('depsolve-test-package4-1.0-1.noarch' in self.event.cvars['pkglist'])
 
 def make_suite(distro, version, arch):
   _run_make(pps.path(__file__).dirname)
 
-  suite = ModuleTestSuite('pkglist')
+  suite = ModuleTestSuite('depsolve')
 
   # core tests
-  suite.addTest(make_core_suite(DummyPkglistEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(DummyDepsolveEventTestCase, distro, version, arch))
 
   # bug 84
-  bug84 = ModuleTestSuite('pkglist')
-  bug84.addTest(Test_PkglistBug84_1(distro, version, arch))
-  bug84.addTest(Test_PkglistBug84_2(distro, version, arch))
-  bug84.addTest(Test_PkglistBug84_3(distro, version, arch))
+  bug84 = ModuleTestSuite('depsolve')
+  bug84.addTest(Test_DepsolveBug84_1(distro, version, arch))
+  bug84.addTest(Test_DepsolveBug84_2(distro, version, arch))
+  bug84.addTest(Test_DepsolveBug84_3(distro, version, arch))
   suite.addTest(bug84)
 
   # bug 85
-  bug85 = ModuleTestSuite('pkglist')
-  bug85.addTest(Test_PkglistBug85_1(distro, version, arch))
-  bug85.addTest(Test_PkglistBug85_2(distro, version, arch))
-  bug85.addTest(Test_PkglistBug85_3(distro, version, arch))
+  bug85 = ModuleTestSuite('depsolve')
+  bug85.addTest(Test_DepsolveBug85_1(distro, version, arch))
+  bug85.addTest(Test_DepsolveBug85_2(distro, version, arch))
+  bug85.addTest(Test_DepsolveBug85_3(distro, version, arch))
   suite.addTest(bug85)
 
   # bug 86
-  bug86 = ModuleTestSuite('pkglist')
-  bug86.addTest(Test_PkglistBug86_1(distro, version, arch))
-  bug86.addTest(Test_PkglistBug86_2(distro, version, arch))
+  bug86 = ModuleTestSuite('depsolve')
+  bug86.addTest(Test_DepsolveBug86_1(distro, version, arch))
+  bug86.addTest(Test_DepsolveBug86_2(distro, version, arch))
   suite.addTest(bug86)
 
   # bug 108; for centos-5 base distro only
   if distro == 'centos' and version == '5':
-    bug108 = ModuleTestSuite('pkglist')
-    bug108.addTest(Test_PkglistBug108(distro, version, arch))
+    bug108 = ModuleTestSuite('depsolve')
+    bug108.addTest(Test_DepsolveBug108(distro, version, arch))
     suite.addTest(bug108)
 
   # bug 163
-  bug163 = ModuleTestSuite('pkglist')
-  bug163.addTest(Test_PkglistBug163_1(distro, version, arch))
-  bug163.addTest(Test_PkglistBug163_2(distro, version, arch))
+  bug163 = ModuleTestSuite('depsolve')
+  bug163.addTest(Test_DepsolveBug163_1(distro, version, arch))
+  bug163.addTest(Test_DepsolveBug163_2(distro, version, arch))
   suite.addTest(bug163)
-
-  # pkglist supplied
-  #suite.addTest(Test_Supplied(distro, version, arch))
 
   # package added, obsoleted, and removed
   suite.addTest(Test_PackageAdded(distro, version, arch))
