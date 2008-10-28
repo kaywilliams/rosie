@@ -82,9 +82,6 @@ spin --list-modules
   <xi:include href="TopLevelElements-kickstart.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="TopLevelElements-logos-rpm.xml"
-              xpointer="element(/1)" />
-
   <xi:include href="TopLevelElements-main.xml"
               xpointer="element(/1)" />
 

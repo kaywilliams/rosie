@@ -81,8 +81,8 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
                      name     = self.applianceid,
                      format   = 'raw',
                      package  = 'none',
-                     vmem     = self.config.get('@vmem', '512'),
-                     vcpu     = self.config.get('@vcpu', '1'),
+                     vmem     = int(self.config.get('@vmem', '512')),
+                     vcpu     = int(self.config.get('@vcpu', '1')),
                      checksum = False)
 
   def run(self):

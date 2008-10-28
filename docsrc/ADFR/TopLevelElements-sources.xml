@@ -20,8 +20,8 @@
     </para>
 
     <para>
-    Accepts the same elements and attributes as the <xref linkend="repos" />
-    element.
+    Accepts repo, repofile and releasever elements. See the 
+    <xref linkend="repos" /> element for more information. 
     </para>
 
   </section>
