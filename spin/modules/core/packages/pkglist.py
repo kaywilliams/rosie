@@ -24,7 +24,7 @@ from spin.errors    import assert_file_has_content, SpinError
 from spin.event     import Event
 from spin.logging   import L1
 
-from spin.modules.shared.idepsolver import DepsolveManager
+from spin.modules.shared.idepsolver import DepsolverMixin
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -41,7 +41,7 @@ NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
                         '\.'
                         '(?P<arch>.+)')   # rpm architecture
 
-class PkglistEvent(Event, DepsolveManager):
+class PkglistEvent(Event, DepsolverMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'pkglist',
@@ -52,7 +52,7 @@ class PkglistEvent(Event, DepsolveManager):
       version = '0.2',
     )
 
-    DepsolveManager.__init__(self)
+    DepsolverMixin.__init__(self)
 
     self.dsdir = self.mddir / 'depsolve'
     self.pkglistfile = self.mddir / 'pkglist'
@@ -88,7 +88,7 @@ class PkglistEvent(Event, DepsolveManager):
     self._verify_repos()
 
     try:
-      pkgtups = self.resolve() # in DepsolveManager
+      pkgtups = self.resolve() # in DepsolverMixin
     except yum.Errors.InstallError, e:
       raise DepsolveError(str(e))
 
@@ -104,7 +104,6 @@ class PkglistEvent(Event, DepsolveManager):
 
     self.DATA['output'].extend([self.dsdir, self.pkglistfile,
                                 self.depsolve_repo, self.mandatory_pkgsfile])
-
 
   def apply(self):
     self.io.clean_eventcache()

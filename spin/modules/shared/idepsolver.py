@@ -27,8 +27,6 @@ from rendition.depsolver import Depsolver
 from spin.callback import PkglistCallback, TimerCallback
 from spin.logging  import L1
 
-INCREMENTAL_DEPSOLVE = True
-
 YUMCONF_HEADER = [
   '[main]',
   'cachedir=',
@@ -42,9 +40,8 @@ YUMCONF_HEADER = [
   '\n',
 ]
 
-class DepsolveManager(object):
+class DepsolverMixin(object):
   def __init__(self):
-    self.solver = None
     self.mandatory_pkgsfile = self.mddir / 'mandatory.pkgs'
     self.depsolve_repo = self.mddir / 'depsolve.repo'
 
@@ -55,84 +52,42 @@ class DepsolveManager(object):
     user_required     = self._get_user_required_packages()
     old_packages      = self._get_old_packages()
 
-    if INCREMENTAL_DEPSOLVE:
-      self.solver = IDepsolver(
-        all_packages = required_packages,
-        old_packages = old_packages or [],
-        required = user_required,
-        comps_optional_packages = self.cvars['comps-optional-packages'],
-        config = str(self.depsolve_repo),
-        root = str(self.dsdir),
-        arch = self.arch,
-        callback = PkglistCallback(self.logger, reqpkgs=user_required),
-        logger = self.logger)
-      self.solver.setup()
-    else:
-      self.solver = Depsolver(config=config, root=root, arch=arch, callback=callback)
-      self.solver.setup()
-      self.logger.log(1, L1("resolving package dependencies"))
-      for package in required_packages:
-        try:
-          self.solver.install(name=package)
-        except yum.Errors.InstallError:
-          if package in user_required:
-            raise yum.Errors.InstallError("cannot find match for package '%s'" % package)
-          else:
-            self.logger.warning("Warning: cannot find match for package '%s'" % package)
+    solver = IDepsolver(
+      all_packages = required_packages,
+      old_packages = old_packages or [],
+      required = user_required,
+      comps_optional_pkgs = self.cvars['comps-optional-packages'],
+      comps_mandatory_pkgs = self.cvars['comps-mandatory-packages'],
+      comps_defaults_pkgs = self.cvars['comps-default-packages'],
+      config = str(self.depsolve_repo),
+      root = str(self.dsdir),
+      arch = self.arch,
+      logger = self.logger
+    )
 
-    pos = self.solver.getPackageObjects()
+    solver.setup()
+
+    pos = solver.getPackageObjects()
     pkgtups = [ po.pkgtup for po in pos ]
 
-    packages = []
-    if 'mandatory' in self.solver.conf.group_package_types:
-      packages.extend(self.cvars['comps-mandatory-packages'])
-    if 'default' in self.solver.conf.group_package_types:
-      packages.extend(self.cvars['comps-default-packages'])
-    if 'optional' in self.solver.conf.group_package_types:
-      packages.extend(self.cvars['comps-optional-packages'])
+    pkgs_and_deps = solver.getPackagesAndDeps()
+    self.mandatory_pkgsfile.write_lines(pkgs_and_deps)
 
-    self._create_mandatory_file(set(packages))
-
-    self.solver.teardown()
-    self.solver = None
+    solver.teardown()
+    solver = None
     return pkgtups
-
-  def _create_mandatory_file(self, packages):
-    allpkgtups = set()
-    for pkgtup in self.solver.resolved_deps:
-      if pkgtup[0] in packages:
-        allpkgtups.add(pkgtup)
-        for dep in self.solver.resolved_deps[pkgtup].values():
-          allpkgtups.add(dep)
-
-    while True:
-      newallpkgtups = allpkgtups
-
-      newitems = set()
-      for pkgtup in allpkgtups:
-        if pkgtup in self.solver.resolved_deps:
-          for dep in self.solver.resolved_deps[pkgtup].values():
-            newitems.add(dep)
-
-      allpkgtups = allpkgtups.union(newitems)
-
-      if allpkgtups == newallpkgtups:
-        break
-
-    self.mandatory_pkgsfile.write_lines(sorted([ x[0] for x in allpkgtups ]))
 
   def _get_old_packages(self):
     old_packages = []
-    if INCREMENTAL_DEPSOLVE:
-      difftup = self.diff.variables.difference('cvars[\'required-packages\']')
-      if difftup:
-        prev, curr = difftup
-        if ( prev is None or
-             isinstance(prev, difftest.NewEntry) or
-             isinstance(prev, difftest.NoneEntry) ):
-          prev = []
-        if prev:
-          old_packages.extend([ x for x in prev if x not in curr ])
+    difftup = self.diff.variables.difference('cvars[\'required-packages\']')
+    if difftup:
+      prev, curr = difftup
+      if ( prev is None or
+           isinstance(prev, difftest.NewEntry) or
+           isinstance(prev, difftest.NoneEntry) ):
+        prev = []
+      if prev:
+        old_packages.extend([ x for x in prev if x not in curr ])
     return old_packages
 
   def _get_required_packages(self):
@@ -157,20 +112,23 @@ class DepsolveManager(object):
 
 class IDepsolver(Depsolver):
   def __init__(self, all_packages=None, old_packages=None, required=None,
-               comps_optional_packages=None,config='/etc/yum.conf',
-               root='/tmp/depsolver', arch='i686',
-               callback=None, logger=None):
+               comps_optional_pkgs=None, comps_mandatory_pkgs=None, comps_defaults_pkgs=None,
+               config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
+               logger=None):
     Depsolver.__init__(self,
       config = str(config),
       root = str(root),
       arch = arch,
-      callback = callback
+      callback = PkglistCallback(logger, reqpkgs=required)
     )
     self.all_packages = all_packages
     self.old_packages = old_packages
-    self.comps_optional_packages = comps_optional_packages or []
     self.required = required
     self.logger = logger
+
+    self.comps_optional_pkgs = comps_optional_pkgs or []
+    self.comps_mandatory_pkgs = comps_mandatory_pkgs or []
+    self.comps_defaults_pkgs = comps_defaults_pkgs or []
 
     self._new_packages = None
     self._cached_file  = None
@@ -223,6 +181,38 @@ class IDepsolver(Depsolver):
   def setup(self):
     Depsolver.setup(self)
 
+  def getPackagesAndDeps(self, packages=None):
+    if packages is None:
+      packages = []
+      if 'mandatory' in self.conf.group_package_types:
+        packages.extend(self.comps_mandatory_pkgs)
+      if 'default' in self.conf.group_package_types:
+        packages.extend(self.comps_defaults_pkgs)
+      if 'optional' in self.conf.group_package_types:
+        packages.extend(self.comps_optional_pkgs)
+
+    allpkgtups = set()
+    for pkgtup in self.resolved_deps:
+      if pkgtup[0] in packages:
+        allpkgtups.add(pkgtup)
+        for dep in self.resolved_deps[pkgtup].values():
+          allpkgtups.add(dep)
+
+    while True:
+      newallpkgtups = allpkgtups
+
+      newitems = set()
+      for pkgtup in allpkgtups:
+        if pkgtup in self.resolved_deps:
+          for dep in self.resolved_deps[pkgtup].values():
+            newitems.add(dep)
+
+      allpkgtups = allpkgtups.union(newitems)
+
+      if allpkgtups == newallpkgtups:
+        break
+    return sorted([ x[0] for x in allpkgtups])
+
   def _provideToPkg(self, req):
     best = None
     (r,f,v) = req
@@ -235,12 +225,12 @@ class IDepsolver(Depsolver):
     if satisfiers:
       bestpkgs = self.bestPackagesFromList(satisfiers, arch=self.arch)
 
-      # Try to find the first best package that's not an optional package
-      # in comps.  If no such thing is package is found, return the first
-      # one and go from there.
+      # Try to find the first best package that's not an optional
+      # package in comps.  If no such package is found, return the
+      # first one and go from there.
       po = None
       for bestpkg in bestpkgs:
-        if bestpkg.name not in self.comps_optional_packages:
+        if bestpkg.name not in self.comps_optional_pkgs:
           po = bestpkg
           break
       else:
@@ -321,7 +311,7 @@ class IDepsolver(Depsolver):
     self.iupdate()
     if inscb: inscb.end()
 
-    self.logger.log(1, L1("resolving package dependencies"))
+    if self.logger: self.logger.log(1, L1("resolving package dependencies"))
     for po in self.installed_packages.values():
       self.install(po=po)
 
