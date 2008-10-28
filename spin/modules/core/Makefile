@@ -10,7 +10,6 @@ all:
 install:
 	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/spin/modules/core
 	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/spin/modules/core
-	../../../pycompile --basedir $(DESTDIR)/$(PYTHONLIBDIR)/spin/modules/core $(PYFILES)
 
 	for dir in $(SUBDIRS); do make -C $$dir PYTHONLIBDIR=`cd $(PYTHONLIBDIR); pwd` DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
 
