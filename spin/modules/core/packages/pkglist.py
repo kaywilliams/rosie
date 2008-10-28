@@ -59,7 +59,8 @@ class PkglistEvent(Event, DepsolverMixin):
 
     self.DATA = {
       'config':    ['.'],
-      'variables': ['cvars[\'required-packages\']'],
+      'variables': ['cvars[\'required-packages\']',
+                    'cvars[\'pkglist-excluded-packages\']'],
       'input':     [],
       'output':    [],
     }
