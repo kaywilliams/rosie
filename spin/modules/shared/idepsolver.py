@@ -60,6 +60,7 @@ class DepsolveManager(object):
         all_packages = required_packages,
         old_packages = old_packages or [],
         required = user_required,
+        comps_optional_packages = self.cvars['comps-optional-packages'],
         config = str(self.depsolve_repo),
         root = str(self.dsdir),
         arch = self.arch,
@@ -156,7 +157,8 @@ class DepsolveManager(object):
 
 class IDepsolver(Depsolver):
   def __init__(self, all_packages=None, old_packages=None, required=None,
-               config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
+               comps_optional_packages=None,config='/etc/yum.conf',
+               root='/tmp/depsolver', arch='i686',
                callback=None, logger=None):
     Depsolver.__init__(self,
       config = str(config),
@@ -166,6 +168,7 @@ class IDepsolver(Depsolver):
     )
     self.all_packages = all_packages
     self.old_packages = old_packages
+    self.comps_optional_packages = comps_optional_packages or []
     self.required = required
     self.logger = logger
 
@@ -219,6 +222,39 @@ class IDepsolver(Depsolver):
 
   def setup(self):
     Depsolver.setup(self)
+
+  def _provideToPkg(self, req):
+    best = None
+    (r,f,v) = req
+
+    satisfiers = set()
+    for po in self.whatProvides(r,f,v):
+      if po not in satisfiers:
+        satisfiers.add(po)
+
+    if satisfiers:
+      bestpkgs = self.bestPackagesFromList(satisfiers, arch=self.arch)
+
+      # Try to find the first best package that's not an optional package
+      # in comps.  If no such thing is package is found, return the first
+      # one and go from there.
+      po = None
+      for bestpkg in bestpkgs:
+        if bestpkg.name not in self.comps_optional_packages:
+          po = bestpkg
+          break
+      else:
+        po = bestpkgs[0]
+
+      thispkgobsdict = self.up.checkForObsolete([po.pkgtup])
+      if thispkgobsdict.has_key(po.pkgtup):
+        obsoleting = thispkgobsdict[po.pkgtup][0]
+        obsoleting_pkg = self.getPackageObject(obsoleting)
+        self.deps[req] = obsoleting_pkg
+        return obsoleting_pkg
+      self.deps[req] = po
+      return po
+    return None
 
   def getInstalledPackage(self, name=None, ver=None, rel=None, arch=None, epoch=None):
     for pkgtup_i in self.installed_packages:
