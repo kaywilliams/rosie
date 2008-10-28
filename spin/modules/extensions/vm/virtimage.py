@@ -42,7 +42,8 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
     Event.__init__(self,
       id = 'virtimage',
       parentid = 'vm',
-      requires = ['repos', 'repodata-directory'],
+      requires = ['kickstart', 'pkglist'],
+      provides = ['publish-content']
     )
 
     self.vmdir    = self.mddir / 'vms'
@@ -52,9 +53,9 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
 
     self.DATA =  {
       'config': ['.'],
-      'input':  [], #!
+      'input':  [],
       'output': [self.vmdir], #!
-      'variables': ['cvars[\'pkglist\']', 'cvars[\'repodata-directory\']'],
+      'variables': ['cvars[\'pkglist\']'],
     }
 
     self.creator = None
@@ -64,18 +65,25 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    # read supplied kickstart
-    self.ks = self.read_kickstart()
+    if self.cvars['kickstart'] is None:
+      raise vms.KickstartRequiredError(modid=self.id)
 
-    self._update_ks_repos()
+    # read supplied kickstart
+    self.ks = self.cvars['kickstart']
+    self.DATA['input'].append(self.cvars['kickstart-file'])
+
     self._prep_ks_scripts()
 
     # create image creator
     self.vmdir.mkdirs()
-    self.creator = SpinApplianceImageCreator(self, self.ks, self.applianceid)
-    # the following isn't very portable due to attribute protection
-    self.creator.__vmem = int(self.config.get('@vmem', '512'))
-    self.creator.__vcpu = int(self.config.get('@vcpu', '1'))
+    self.creator = SpinApplianceImageCreator(self,
+                     self.ks,
+                     name     = self.applianceid,
+                     format   = 'raw',
+                     package  = 'none',
+                     vmem     = self.config.get('@vmem', '512'),
+                     vcpu     = self.config.get('@vcpu', '1'),
+                     checksum = False)
 
   def run(self):
 
@@ -104,6 +112,11 @@ class SpinApplianceImageCreator(vms.SpinImageCreatorMixin,
   def _check_required_packages(self):
     if 'grub' not in self._get_pkglist_names():
       raise GrubRequiredError()
+
+  def _cleanup(self):
+    if self._instroot and pps.path(self._instroot).exists():
+      self.event.vmdir.rm(recursive=True, force=True)
+      pps.path(self._instroot).rename(self.event.vmdir)
 
 class GrubRequiredError(SpinError):
   message = ( "Creating an appliance virtual image requires that the 'grub' "

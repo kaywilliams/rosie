@@ -21,12 +21,14 @@ chroot.py
 Creates a chroot based off of the appliance
 """
 
+import subprocess
+
 import imgcreate
 
 from rendition import pps
 
 from spin.event   import Event
-from spin.logging import L1, L2
+from spin.logging import L1, L2, L3
 
 from spin.modules.shared import vms
 
@@ -42,13 +44,14 @@ class ChrootEvent(vms.VmCreateMixin, Event):
     Event.__init__(self,
       id = 'chroot',
       parentid = 'vm',
-      requires = ['kickstart-file', 'pkglist', 'repodata-directory'],
+      requires = ['kickstart', 'pkglist'],
       comes_before = ['publish'],
     )
 
     self.builddir = self.mddir / 'build'
     self.tmpdir   = self.mddir / 'tmp'
-    self.vmdir    = self.mddir / 'raw'
+    self.chroot   = self.mddir / self.applianceid
+    self.chrootgz = self.mddir / self.applianceid+'.tar.gz'
 
     self.DATA =  {
       'config': ['.'],
@@ -64,26 +67,34 @@ class ChrootEvent(vms.VmCreateMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    # read supplied kickstart
-    self.ks = self.read_kickstart()
+    if self.cvars['kickstart'] is None:
+      raise vms.KickstartRequiredError(modid=self.id)
 
-    self._update_ks_repos()
+    # read supplied kickstart
+    self.ks = self.cvars['kickstart']
+    self.DATA['input'].append(self.cvars['kickstart-file'])
+
     self._prep_ks_scripts()
-    self._update_packages()
 
     # create image creator
-    self.creator = SpinRawImageCreator(self, self.ks, 'raw')
+    self.creator = SpinRawImageCreator(self,
+                     compress = self.config.getbool('@compress', 'True'),
+                     ks       = self.ks,
+                     name     = self.applianceid)
 
   def run(self):
     ## todos
     ## shell command outputs - too verbose for standard run
     ## hook up logging to spin, either by modifying spin or modyfing imgcreate
 
-    self._check_ks_scripts() # remove base if ks scripts change
+    # if scripts change, remove base
+    if not self._check_ks_scripts():
+      (self.chroot).rm(recursive=True, force=True)
+      (self.chrootgz).rm(force=True)
 
     try:
       self.log(3, L1("mounting chroot"))
-      self.creator.mount(base_on=self.vmdir,
+      self.creator.mount(base_on=self.chroot,
                          cachedir=self.builddir)
       self.log(3, L1("installing selected packages"))
       self.creator.install()
@@ -103,9 +114,11 @@ class ChrootEvent(vms.VmCreateMixin, Event):
 
 class SpinRawImageCreator(vms.SpinImageCreatorMixin,
                           imgcreate.ImageCreator):
-  def __init__(self, event, *args, **kwargs):
+  def __init__(self, event, compress=True, *args, **kwargs):
     imgcreate.ImageCreator.__init__(self, *args, **kwargs)
     vms.SpinImageCreatorMixin.__init__(self, event)
+
+    self.compress = compress
 
   def _get_fstab(self):
     # livecd's version doesn't work out of the box because it asks for
@@ -119,17 +132,68 @@ class SpinRawImageCreator(vms.SpinImageCreatorMixin,
 
   def _base_on(self, base_on):
     base_on = pps.path(base_on)
-    # check to see if it looks like we have a chroot there
-    dirs = ['bin', 'dev', 'etc', 'lib', 'proc', 'root',
-            'sbin', 'sys', 'usr', 'var']
-    base_ok = True
-    for dir in dirs:
-      base_ok = base_ok and (base_on/dir).exists()
+    base_on_tgz = base_on+'.tar.gz'
 
-    if base_ok:
-      base_on.rename(self._instroot)
-      vms.SpinImageCreatorMixin._base_on(self, base_on)
+    if base_on_tgz.exists():
+      self.event.logger.log(2, L1("extracting previous chroot"))
+      cmd = ['tar', '--extract', '--gzip', '--preserve-permissions',
+                    '--atime-preserve', '--xattrs',
+                    '--file', base_on_tgz,
+                    '--directory', self._instroot]
+      if self.event.logger.test(5):
+        cmd.append('--verbose')
+      subprocess.call(cmd)
+      vms.SpinImageCreatorMixin._base_on(self, base_on_tgz)
+
+    elif base_on.exists():
+      self.event.logger.log(2, L1("verifying previous chroot"))
+      # check to see if it looks like we have a chroot there
+      dirs = ['bin', 'dev', 'etc', 'lib', 'proc', 'root',
+              'sbin', 'sys', 'usr', 'var']
+      base_ok = True
+      for dir in dirs:
+        base_ok = base_ok and (base_on/dir).exists()
+
+      if base_ok:
+        base_on.rename(self._instroot)
+        vms.SpinImageCreatorMixin._base_on(self, base_on)
 
   def _cleanup(self):
     if self._instroot and pps.path(self._instroot).exists():
-      pps.path(self._instroot).rename(self.event.vmdir)
+      (self.chroot).rm(recursive=True, force=True)
+      pps.path(self._instroot).rename(self.chroot)
+
+    self.event.builddir.rm(recursive=True, force=True)
+
+  def package(self, destdir = '.'):
+    # basically the same as the original package method, but slightly more
+    # robust (less sensitive to whether destdir exists or not)
+
+    self._stage_final_image()
+
+    if self.compress:
+      dst = destdir/self.event.chrootgz.basename
+      dst.rm(force=True)
+      (self._outdir/dst.basename).rename(dst)
+
+    else:
+      dst = destdir/self.event.chroot.basename
+      dst.rm(recursive=True, force=True)
+      for f in pps.path(self._outdir).listdir():
+        f.rename(dst/f.basename)
+
+  def _stage_final_image(self):
+    if self.compress:
+      self.event.logger.log(2, L1("compressing chroot"))
+      cmd = ['tar', '--create', '--gzip', '--xattrs',
+             '--file', pps.path(self._outdir)/self.event.chrootgz.basename,
+             '--directory', self._instroot]
+      if self.event.logger.test(5): cmd.append('--verbose')
+      cmd.extend([ x.basename for x in pps.path(self._instroot).listdir() ])
+
+      self.event.logger.log(4, L3(' '.join(cmd)))
+      subprocess.call(cmd)
+
+      pps.path(self._instroot).rm(recursive=True, force=True)
+    else:
+      imgcreate.ImageCreator._stage_final_image(self)

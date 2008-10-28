@@ -27,6 +27,7 @@ from rendition import rxml
 
 from rendition.repo import RPM_PNVRA_REGEX
 
+from spin.errors  import SpinError
 from spin.logging import L1, L2
 
 class VmCreateMixin:
@@ -39,23 +40,6 @@ class VmCreateMixin:
       debugdir.mkdir()
       self.mdfile.rename(debugdir/self.mdfile.basename)
     ##Event.error(self, e) # don't do this, this deletes output
-
-  def read_kickstart(self):
-    # add various metadata stuff
-    self.DATA['input'].append(self.cvars['kickstart-file'])
-    self.DATA['variables'].append('cvars[\'kickstart-file\']')
-
-    return imgcreate.read_kickstart(self.cvars['kickstart-file'])
-
-  def _update_ks_repos(self):
-    # replace repos in kickstart with repo pointing to published appliance
-    self.ks.handler.repo.repoList = []
-    self.ks.handler.repo.parse(['--name',    'appliance',
-                                '--baseurl', 'file://%s'
-                                  % self.cvars['repodata-directory'].dirname])
-
-    self.DATA['variables'].append('cvars[\'repodata-directory\']')
-
 
   def _prep_ks_scripts(self):
     # prepare a variable we can easily compare in difftest. This variable
@@ -82,7 +66,8 @@ class VmCreateMixin:
       # run is in the _scripts variable...
       self.log(3, L1("one or more scripts changed in kickstart; "
                      "regenerating raw image"))
-      self.vmdir.rm(recursive=True, force=True) # remove any previous base
+      return False
+    return True
 
 
 class SpinImageCreatorMixin:
@@ -178,8 +163,9 @@ class SpinImageCreatorMixin:
          pps.path('/selinux/enforce').exists() and
          not ayum.installHasFile(file) and
          not (pps.path(self._instroot)//file).exists() ): # check instroot too
-      raise CreatorError("Unable to disable SELinux because the installed "
-                         "package set did not inclue the file '%s'" % file)
+      raise imgcreate.CreatorError(
+        "Unable to disable SELinux because the installed package set did "
+        "not inclue the file '%s'" % file)
 
   def _check_required_packages(self):
     # raise an exception if appliance doesn't include all required packages
@@ -240,3 +226,8 @@ class SpinImageCreatorMixin:
       if lvmdir.exists():
         for f in lvmdir.listdir():
           f.rm(force=True)
+
+
+class RequiresKickstartError(SpinError):
+  message = ( "The '%(modid)s' module requires that a kickstart be specified "
+              "in the <kickstart> top-level element." )

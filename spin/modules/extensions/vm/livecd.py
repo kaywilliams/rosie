@@ -42,7 +42,8 @@ class LivecdEvent(vms.VmCreateMixin, Event):
     Event.__init__(self,
       id = 'livecd',
       parentid = 'vm',
-      requires = ['kickstart-file', 'pkglist', 'repodata-directory']
+      requires = ['kickstart', 'pkglist'],
+      provides = ['publish-content'],
     )
 
     self.baseimg  = self.mddir / 'ext3fs.img'
@@ -64,12 +65,14 @@ class LivecdEvent(vms.VmCreateMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    # read supplied kickstart
-    self.ks = self.read_kickstart()
+    if self.cvars['kickstart'] is None:
+      raise vms.KickstartRequiredError(modid=self.id)
 
-    self._update_ks_repos()
+    # read supplied kickstart
+    self.ks = self.cvars['kickstart']
+    self.DATA['input'].append(self.cvars['kickstart-file'])
+
     self._prep_ks_scripts()
-    self._update_packages()
 
     # create image creator
     self.creator = SpinLiveImageCreator(self, self.ks,
@@ -81,6 +84,10 @@ class LivecdEvent(vms.VmCreateMixin, Event):
     ## todos
     ## shell command outputs - too verbose for standard run
     ## hook up logging to spin, either by modifying spin or modyfing imgcreate
+
+    # if scripts change, remove base
+    if not self._check_ks_scripts():
+      self.baseimg.rm(force=True)
 
     try:
       self.creator.mount(base_on=self.baseimg,

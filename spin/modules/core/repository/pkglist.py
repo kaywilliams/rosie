@@ -104,8 +104,8 @@ class PkglistEvent(Event):
 
     self._verify_repos()
     repoconfig = self._create_repoconfig()
-    required_packages = self.cvars.get('all-packages', [])
-    user_required = self.cvars.get('user-required-packages', [])
+    required_packages = self.cvars['all-packages'] or []
+    user_required = self.cvars['user-required-packages'] or []
 
     if INCREMENTAL_DEPSOLVE:
       old_packages = []

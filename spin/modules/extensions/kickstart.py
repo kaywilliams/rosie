@@ -35,20 +35,23 @@ class KickstartEvent(Event):
       id = 'kickstart',
       parentid = 'os',
       version = 1,
-      provides = ['kickstart-file', 'ks-path', 'initrd-image-content'],
+      provides = ['kickstart', 'kickstart-file', 'ks-path',
+                  'initrd-image-content'],
       requires = ['user-required-packages', 'user-required-groups',
-                  'user-excluded-packages', 'web-path'],
+                  'user-excluded-packages', 'repodata-directory'],
     )
 
     self.DATA = {
       'config':    ['.'],
       'input':     [],
       'output':    [],
-      'variables': [],
+      'variables': ['cvars[\'repodata-directory\']',
+                    'cvars[\'user-required-groups\']',
+                    'cvars[\'user-required-packages\']',
+                    'cvars[\'user-excluded-packages\']'],
     }
 
     self.ksfile = None # set in setup
-
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -64,23 +67,28 @@ class KickstartEvent(Event):
     return ks
 
   def run(self):
+
     self.io.sync_input(cache=True)
 
     ks = self._read_kickstart(self.ksfile)
 
     # modify repos
+    ## problem - repodata-directory will only work for local vm builds
+    ## problem - web-path will only work if publish is executed before vms
     self._update_repos(ks,
-                       ['--name', 'appliance',
-                        '--baseurl', self.cvars['web-path']])
-    self.DATA['variables'].append('cvars[\'repodata-directory\']')
+          ['--name', 'appliance',
+           '--baseurl', 'file://'+self.cvars['repodata-directory'].dirname])
 
     # modify %packages
     self._update_packages(ks, groups   = self.cvars['user-required-groups'],
                               packages = self.cvars['user-required-packages'],
                               excludes = self.cvars['user-excluded-packages'])
-    self.DATA['variables'].append('cvars[\'user-required-groups\']')
-    self.DATA['variables'].append('cvars[\'user-required-packages\']')
-    self.DATA['variables'].append('cvars[\'user-excluded-packages\']')
+
+    # update partition so it doesn't write out deprecated bytes-per-inode
+    # in F9 and greater; this is kind of stupid
+    if self.locals.L_KICKSTART >= ksversion.F9:
+      for part in ks.handler.partition.partitions:
+        part.bytesPerInode = 0
 
     # write out updated file
     self.ksfile.write_text(str(ks.handler))
@@ -112,15 +120,3 @@ class KickstartEvent(Event):
     self.verifier.failUnlessSet('kickstart-file')
     self.verifier.failUnlessSet('ks-path')
     self.verifier.failUnlessSet('kickstart')
-
-
-#import sha
-
-#  def prep_scripts(self):
-#    scripts = []
-#    for s in self.ks.handler.scripts:
-#      scripts.append(dict(scriptsha = sha.new(s.script).hexdigest(),
-#                          interp    = s.interp,
-#                          inChroot  = s.inChroot,
-#                          type      = s.type))
-#    return scripts
