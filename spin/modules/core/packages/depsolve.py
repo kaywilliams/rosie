@@ -46,7 +46,7 @@ class DepsolveEvent(Event, DepsolverMixin):
     Event.__init__(self,
       id = 'depsolve',
       parentid = 'packages',
-      provides = ['pkglist', 'pkglist-mandatory-packages'],
+      provides = ['pkglist', 'pkglist-install-packages'],
       requires = ['required-packages', 'repos', 'user-required-packages'],
       conditionally_requires = ['pkglist-excluded-packages'],
       version = '0.2',
@@ -104,7 +104,7 @@ class DepsolveEvent(Event, DepsolverMixin):
     self.pkglistfile.write_lines(pkglist)
 
     self.DATA['output'].extend([self.dsdir, self.pkglistfile,
-                                self.depsolve_repo, self.mandatory_pkgsfile])
+                                self.depsolve_repo, self.install_pkgsfile])
 
   def apply(self):
     self.io.clean_eventcache()
@@ -118,7 +118,7 @@ class DepsolveEvent(Event, DepsolverMixin):
         raise InvalidPkglistFormatError(self.pkglistfile,
                                         i+1, self.cvars['pkglist'][i])
 
-    self.cvars['pkglist-mandatory-packages'] = self.mandatory_pkgsfile.read_lines()
+    self.cvars['pkglist-install-packages'] = self.install_pkgsfile.read_lines()
 
   def verify_pkglistfile_exists(self):
     "pkglist file exists"

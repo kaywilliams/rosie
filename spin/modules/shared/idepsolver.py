@@ -42,7 +42,7 @@ YUMCONF_HEADER = [
 
 class DepsolverMixin(object):
   def __init__(self):
-    self.mandatory_pkgsfile = self.mddir / 'mandatory.pkgs'
+    self.install_pkgsfile = self.mddir / 'install.pkgs'
     self.depsolve_repo = self.mddir / 'depsolve.repo'
 
   def resolve(self):
@@ -59,6 +59,7 @@ class DepsolverMixin(object):
       comps_optional_pkgs = self.cvars['comps-optional-packages'],
       comps_mandatory_pkgs = self.cvars['comps-mandatory-packages'],
       comps_defaults_pkgs = self.cvars['comps-default-packages'],
+      comps_conditional_pkgs = self.cvars['comps-conditional-packages'],
       config = str(self.depsolve_repo),
       root = str(self.dsdir),
       arch = self.arch,
@@ -71,7 +72,7 @@ class DepsolverMixin(object):
     pkgtups = [ po.pkgtup for po in pos ]
 
     pkgs_and_deps = solver.getPackagesAndDeps()
-    self.mandatory_pkgsfile.write_lines(pkgs_and_deps)
+    self.install_pkgsfile.write_lines(pkgs_and_deps)
 
     solver.teardown()
     solver = None
@@ -112,7 +113,8 @@ class DepsolverMixin(object):
 
 class IDepsolver(Depsolver):
   def __init__(self, all_packages=None, old_packages=None, required=None,
-               comps_optional_pkgs=None, comps_mandatory_pkgs=None, comps_defaults_pkgs=None,
+               comps_optional_pkgs=None, comps_mandatory_pkgs=None,
+               comps_defaults_pkgs=None, comps_conditional_pkgs=None,
                config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
                logger=None):
     Depsolver.__init__(self,
@@ -129,6 +131,7 @@ class IDepsolver(Depsolver):
     self.comps_optional_pkgs = comps_optional_pkgs or []
     self.comps_mandatory_pkgs = comps_mandatory_pkgs or []
     self.comps_defaults_pkgs = comps_defaults_pkgs or []
+    self.comps_conditional_pkgs = comps_conditional_pkgs or []
 
     self._new_packages = None
     self._cached_file  = None
@@ -183,14 +186,35 @@ class IDepsolver(Depsolver):
 
   def getPackagesAndDeps(self, packages=None):
     if packages is None:
-      packages = []
+      # If no packages are specified, look at the yum.conf file's
+      # group_package_types option and populate the list of packages.
+      # By default, yum sets 'group_package_types' to 'default' and
+      # 'mandatory'.
+      allpkgs = []
       if 'mandatory' in self.conf.group_package_types:
-        packages.extend(self.comps_mandatory_pkgs)
+        allpkgs.extend(self.comps_mandatory_pkgs)
       if 'default' in self.conf.group_package_types:
-        packages.extend(self.comps_defaults_pkgs)
+        allpkgs.extend(self.comps_defaults_pkgs)
       if 'optional' in self.conf.group_package_types:
-        packages.extend(self.comps_optional_pkgs)
+        allpkgs.extend(self.comps_optional_pkgs)
+    else:
+      allpkgs = packages
 
+    allpkgnames = self._get_deps(allpkgs)
+    if packages is None:
+      # If no packages were passed to this method, also look at the
+      # conditional packages in the comps.xml and add them and their
+      # deps to the list returned.
+      allpkgnames = set(allpkgnames)
+      if self.conf.enable_group_conditionals:
+        for condreq, cond in self.comps_conditional_pkgs:
+          if cond in allpkgnames:
+            allpkgnames = allpkgnames.union(self._get_deps([condreq]))
+      allpkgnames = list(allpkgnames)
+
+    return sorted(allpkgnames)
+
+  def _get_deps(self, packages):
     allpkgtups = set()
     for pkgtup in self.resolved_deps:
       if pkgtup[0] in packages:
@@ -211,6 +235,7 @@ class IDepsolver(Depsolver):
 
       if allpkgtups == newallpkgtups:
         break
+
     return sorted([ x[0] for x in allpkgtups])
 
   def _provideToPkg(self, req):

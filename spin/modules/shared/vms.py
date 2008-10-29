@@ -153,9 +153,9 @@ class SpinImageCreatorMixin:
   def __select_packages(self, ayum):
     # select new packages in pkglist if we're using an existing chroot
     if not self._base:
-      pkgs = set(self.event.cvars['pkglist-mandatory-packages'])
+      pkgs = set(self.event.cvars['pkglist-install-packages'])
     else:
-      diff = self.event.diff.variables.difference("cvars['pkglist-mandatory-packages']")
+      diff = self.event.diff.variables.difference("cvars['pkglist-install-packages']")
       pkgs = set()
 
       if diff is not None:
@@ -177,7 +177,7 @@ class SpinImageCreatorMixin:
     # remove old packages in pkglist if we're using an exising chroot
     if not self._base:
       return
-    diff = self.event.diff.variables.difference("cvars['pkglist-mandatory-packages']")
+    diff = self.event.diff.variables.difference("cvars['pkglist-install-packages']")
     pkgs = set()
 
     if diff is not None:
@@ -191,7 +191,7 @@ class SpinImageCreatorMixin:
   def __update_packages(self, ayum):
     if not self._base:
       return
-    diff = self.event.diff.variables.difference("cvars['pkglist-mandatory-packages']")
+    diff = self.event.diff.variables.difference("cvars['pkglist-install-packages']")
     pkgs = set()
 
     if diff is not None:
@@ -218,7 +218,7 @@ class SpinImageCreatorMixin:
     pass
 
   def _get_pkglist_names(self):
-    return self.event.cvars['pkglist-mandatory-packages']
+    return self.event.cvars['pkglist-install-packages']
 
   def install(self, repo_urls = None):
     yum_conf = pps.path(self._mktemp(prefix = "yum.conf-"))
