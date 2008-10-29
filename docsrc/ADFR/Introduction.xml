@@ -28,7 +28,7 @@
   required top-level elements:
   <emphasis role="strong"><xref linkend="main" /></emphasis>,
   <emphasis role="strong"><xref linkend="repos" /></emphasis>, and
-  <emphasis role="strong"><xref linkend="comps" /></emphasis>;
+  <emphasis role="strong"><xref linkend="packages" /></emphasis>;
   all other top-level elements are optional. Top-level elements can appear
   in the appliance file in any order. Indentation is for readability
   purposes only.
@@ -82,10 +82,10 @@
     &lt;/repo&gt;
   &lt;/repos&gt;
 
-  &lt;comps&gt;
+  &lt;packages&gt;
     &lt;group repoid="base"&gt;core&lt;/group&gt;
     &lt;group repoid="base"&gt;smb-server&lt;/group&gt;
-  &lt;/comps&gt;
+  &lt;/packages&gt;
 
 &lt;/appliance&gt;
     </programlisting>

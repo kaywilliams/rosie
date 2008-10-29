@@ -64,9 +64,6 @@ spin --list-modules
   <xi:include href="TopLevelElements-bootiso.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="TopLevelElements-comps.xml"
-              xpointer="element(/1)" />
-
   <xi:include href="TopLevelElements-config-rpm.xml"
               xpointer="element(/1)" />
 
@@ -83,6 +80,9 @@ spin --list-modules
               xpointer="element(/1)" />
 
   <xi:include href="TopLevelElements-main.xml"
+              xpointer="element(/1)" />
+
+  <xi:include href="TopLevelElements-packages.xml"
               xpointer="element(/1)" />
 
   <xi:include href="TopLevelElements-product-image.xml"
