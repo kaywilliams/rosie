@@ -28,7 +28,7 @@
       </optional>
 
       <zeroOrMore>
-      <element name="include-package"><text/></element>
+      <element name="includepkgs"><text/></element>
       </zeroOrMore>
 
       <zeroOrMore>
@@ -51,7 +51,7 @@
 
   <!-- exclude-package element-->
   <define name="element-exclude-package">
-    <element name="exclude-package">
+    <element name="exclude">
       <text/>
     </element>
   </define>
