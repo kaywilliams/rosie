@@ -69,15 +69,15 @@
    [&lt;name&gt;TEXT&lt;/name&gt;]
    [&lt;gpgcheck&gt;BOOLEAN&lt;/gpgcheck&gt;]
    [&lt;gpgkey&gt;PATH&lt;gpgkey&gt;]*
-   [&lt;exclude-package&gt;PACKAGE&lt;/exclude-package&gt;]*
-   [&lt;include-package&gt;PACKAGE&lt;/include-package&gt;]*
+   [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
+   [&lt;includepkgs&gt;PACKAGE&lt;/includepkgs&gt;]*
    [&lt;systemid&gt;PATH&lt;/systemid&gt;]
   &lt;/repo&gt;]*
 
  [&lt;repofile&gt;PATH&lt;/repofile&gt;]*
 
  [&lt;releasever&gt;TEXT&lt;/releasever&gt;]
- [&lt;exclude-package&gt;PACKAGE&lt;/exclude-package&gt;]*
+ [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
 &lt;/repos&gt;
     </programlisting>
   </section>
@@ -110,7 +110,7 @@
     <variablelist>
     <varlistentry>
       <term>
-      exclude-package
+      exclude
       </term>
 
       <listitem>
@@ -208,8 +208,8 @@
 
     <section>
       <title>
-      Example 1 - using <emphasis>repos/repo/include-package</emphasis>
-      and <emphasis>repos/repo/exclude-package</emphasis>
+      Example 1 - using <emphasis>repos/repo/includepkgs</emphasis>
+      and <emphasis>repos/repo/exclude</emphasis>
       </title>
 
       <para>
@@ -240,14 +240,14 @@
                 repo=fedora-$releasever&amp;amp;arch=$basearch&lt;/mirrorlist&gt;
 
     &lt;!-- exclude all xorg-x11-drv packages --&gt;
-    &lt;exclude-package&gt;xorg-x11-drv*&lt;/exclude-package&gt;
+    &lt;exclude&gt;xorg-x11-drv*&lt;/exclude&gt;
   &lt;/repo&gt;
 
   &lt;repo id="livna-drivers"&gt;
     &lt;baseurl&gt;http://rpm.livna.org/fedora/$releasever/$basearch/&lt;baseurl&gt;
 
     &lt;!-- include only xorg-x11-drv packages --&gt;
-    &lt;include-package&gt;xorg-x11-drv*&lt;/include-package&gt;
+    &lt;includepkgs&gt;xorg-x11-drv*&lt;/includepkgs&gt;
   &lt;/repo&gt;
 
   &lt;!-- include additional repos defined in fedora-extras.repo --&gt;

@@ -402,12 +402,9 @@ $root/var/www/html/outfile.txt
       <varname>exclude</varname>,
       <varname>gpgcheck</varname>,
       <varname>gpgkey</varname>,
-      <varname>includepkg</varname>, and
+      <varname>includepkgs</varname>, and
       <varname>mirrorlist</varname>. All options
-      are defined using elements of the same name with the exception of
-      <varname>includepkgs</varname> and <varname>exclude</varname>,
-      which use <emphasis>repo/include-package</emphasis> and
-      <emphasis>repo/exclude-package</emphasis>, respectively. The
+      are defined using elements of the same name. The
       <emphasis>repo/baseurl</emphasis> and
       <emphasis>repo/mirrorlist</emphasis> elements also have full support
       for the YUM variables <varname>$basearch</varname> and
@@ -509,29 +506,29 @@ baseurl=/var/repos/repoC
       <para>
       By default, all packages in all repositories are available for Spin
       to use. Available packages for a single repository can be restricted by
-      using one or more <emphasis>repo/exclude-package</emphasis> or
-      <emphasis>repo/include-package</emphasis> elements. The logic for
+      using one or more <emphasis>repo/exclude</emphasis> or
+      <emphasis>repo/includepkgs</emphasis> elements. The logic for
       processing these elements is the same as YUM's processing of
       <varname>includepkgs</varname> and <varname>exclude</varname> repo
       options.
       </para>
 
       <para>
-      Using a repository's <emphasis>repo/include-package</emphasis>
+      Using a repository's <emphasis>repo/includepkgs</emphasis>
       elements, the list of available packages is restricted to only those
       packages that match one or more of the included <varname>PACKAGE</varname>
-      patterns. If no <emphasis>repo/include-package</emphasis> patterns are 
+      patterns. If no <emphasis>repo/includepkgs</emphasis> patterns are 
       specified, all packages are considered available.
       </para>
 
       <para>
       After processing a repository's
-      <emphasis>repo/include-package</emphasis> elements, the
-      <emphasis>repo/exclude-package</emphasis> element can be used to
+      <emphasis>repo/includepkgs</emphasis> elements, the
+      <emphasis>repo/exclude</emphasis> element can be used to
       selectively remove specific packages from the list of available
       packages for the repository. Any package matching one or more of
       the <varname>PACKAGE</varname> patterns specified in a
-      <emphasis>repo/exclude-package</emphasis> element will be ignored
+      <emphasis>repo/exclude</emphasis> element will be ignored
       by Spin.
       </para>
     </section>
@@ -550,8 +547,8 @@ baseurl=/var/repos/repoC
  [&lt;name&gt;TEXT&lt;/name&gt;]
  [&lt;gpgcheck&gt;BOOLEAN&lt;/gpgcheck&gt;]
  [&lt;gpgkey&gt;PATH&lt;gpgkey&gt;]*
- [&lt;exclude-package&gt;PACKAGE&lt;/exclude-package&gt;]*
- [&lt;include-package&gt;PACKAGE&lt;/include-package&gt;]*
+ [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
+ [&lt;includepkgs&gt;PACKAGE&lt;/includepkgs&gt;]*
  [&lt;systemid&gt;PATH&lt;/systemid&gt;]
 &lt;/repo&gt;
       </programlisting>
@@ -639,9 +636,9 @@ baseurl=/var/repos/repoC
       </varlistentry>
 
       <varlistentry id="exclude-package"
-                    xreflabel="repo/exclude-package">
+                    xreflabel="repo/exclude">
         <term>
-        exclude-package
+        exclude
         </term>
 
         <listitem>
@@ -714,16 +711,16 @@ baseurl=/var/repos/repoC
       </varlistentry>
 
       <varlistentry id="include-package"
-                    xreflabel="repo/include-package">
+                    xreflabel="repo/includepkgs">
         <term>
-        include-package
+        includepkgs
         </term>
 
         <listitem>
           <para>
           A <varname>PACKAGE</varname> pattern to include from the
           repository. If one or more
-          <emphasis>repo/include-package</emphasis> patterns are defined,
+          <emphasis>repo/includepkgs</emphasis> patterns are defined,
           the repository will include only packages that match these
           patterns and nothing else.
           </para>
