@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<section id="comps" xreflabel="comps">
+<section id="packages" xreflabel="packages">
   <title>
-  comps
+  packages
   </title>
 
   <important>
@@ -12,23 +12,18 @@
   </para>
   </important>
 
-  <section id="comps-definition">
+  <section id="packages-definition">
     <title>
     Definition
     </title>
 
     <para>
-    Creates a <filename>comps.xml</filename> groupfile containing a list of groups
-    and packages included in the appliance. This file is used by Anaconda during
-    installation to allow user selection of optional software components. It is
-    also used by YUM and other package management tools to support group-level
-    operations. Accepts either a <varname>PATH</varname> to a pre-existing 
-    groupfile (syntax 1) or a list of groups and packages to include in a 
-    newly-generated groupfile (syntax 2).
+    Specifies the packages to be included in the appliance and to be
+    installed by default in any images created by Spin.
     </para>
 
     <para>
-    This module is a member of the <emphasis role="strong">packages</emphasis>
+    This module is a member of the <emphasis role="strong">repository</emphasis>
     module group.
     </para>
   </section>
@@ -39,44 +34,20 @@
     </title>
 
     <section>
-      <title>
-      Syntax 1 - pre-existing groupfile
-      </title>
-
       <para>
-      This syntax allows a pre-existing groupfile to be specified.
+      At least one <emphasis>packages/group</emphasis> or
+      <emphasis>packages/package</emphasis> element is required.
       </para>
 
       <programlisting>
-&lt;comps [enabled=<varname>BOOLEAN</varname>]&gt;<varname>PATH</varname>&lt;/comps&gt;
-      </programlisting>
-    </section>
-
-    <section>
-      <title>
-      Syntax 2 - create a new groupfile
-      </title>
-
-      <para>
-      With this syntax, Spin will create a comps.xml from scratch, using the
-      groups and packages specified in the
-      <emphasis>comps/group</emphasis> and <emphasis>comps/package</emphasis>
-      elements, respectively. Groups will be selected from the groupfiles of the
-      input repositories. At least one <emphasis>comps/group</emphasis>
-      or <emphasis>comps/package</emphasis> element is required for this
-      syntax.
-      </para>
-
-      <programlisting>
-&lt;comps [enabled=BOOLEAN] [include-localized-strings=BOOLEAN]&gt;
+&lt;packages [enabled=BOOLEAN]&gt;
 
   &lt;!-- must have at least one &lt;group&gt; or &lt;package&gt; element --&gt;
-  [&lt;group [repoid=TEXT] [default=(BOOLEAN|"default")]&gt;TEXT&lt;/group&gt;]*
-  [&lt;package type=("mandatory"|"default"|"optional")&gt;PACKAGE&lt;/package&gt;]*
-  [&lt;package type="conditional" requires=TEXT&gt;PACKAGE&lt;/package&gt;]*
+  [&lt;group [repoid=TEXT]&gt;TEXT&lt;/group&gt;]*
+  [&lt;package&gt;PACKAGE&lt;/package&gt;]*
 
-  [&lt;exclude-package&gt;PACKAGE&lt;/exclude-package&gt;]*
-&lt;/comps&gt;
+  [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
+&lt;/packages&gt;
       </programlisting>
     </section>
   </section>
@@ -98,26 +69,6 @@
       </para>
       </listitem>
     </varlistentry>
-
-    <varlistentry id="comps-include-localized-strings"
-                  xreflabel="include-localized-strings">
-      <term>
-      include-localized-strings
-      </term>
-
-      <listitem>
-      <para>
-      A <constant>BOOLEAN</constant> indicating whether
-      <application class="software">Spin</application> should include localized 
-      translations of names and descriptions from the input repository groupfiles 
-      in the generated <filename>comps.xml</filename>.
-      </para>
-
-      <para>
-      The default value for this attribute is <constant>FALSE</constant>.
-      </para>
-      </listitem>
-    </varlistentry>
     </variablelist>
   </section>
 
@@ -127,15 +78,16 @@
     </title>
 
     <variablelist>
-    <varlistentry id="comps-exclude-package"
-                  xreflabel="comps/exclude-package">
+    <varlistentry id="packages-exclude"
+                  xreflabel="packages/exclude">
       <term>
-      exclude-package
+      exclude
       </term>
 
       <listitem>
       <para>
-      The name of a package to exclude from the groupfile.
+      The name of a package to exclude from all groups specified via
+      <emphasis>packages/group</emphasis>
       </para>
 
       <para>
@@ -143,7 +95,7 @@
       </para>
 
       <note><application class="software">Spin</application> excludes
-      specified packages from the generated comps.xml, but they may still be
+      specified packages from any included groups, but they may still be
       included in the appliance repository to satisfy to package dependency 
       requirements.  See Also 
       <xref linkend="repo-including-excluding-repository-contents" />
@@ -153,39 +105,28 @@
       </listitem>
     </varlistentry>
 
-    <varlistentry id="comps-group"
-                  xreflabel="comps/group">
+    <varlistentry id="packages-group"
+                  xreflabel="packages/group">
       <term>
       group
       </term>
 
       <listitem>
-      <para>The unique ID of a group to include in the generated comps.xml
+      <para>The unique ID of a group to include in the appliance
       using one or more of the repository groupfiles indicated by the
       <emphasis>@repoid</emphasis> attributes as a source.
       </para>
 
       <para>
       This element can occur zero or more times. However, the
-      <emphasis role="strong">comps</emphasis> top-level element must
-      have at least one <emphasis>comps/group</emphasis> or
-      <emphasis>comps/package</emphasis> element.
+      <emphasis role="strong">packages</emphasis> top-level element must
+      have at least one <emphasis>packages/group</emphasis> or
+      <emphasis>packages/package</emphasis> element.
       </para>
 
       <para>
-      This element accepts two attributes:
-      <emphasis>@default</emphasis> and
+      This element accepts one attribute:
       <emphasis>@repoid</emphasis>.
-      </para>
-
-      <para>
-      <emphasis>@default</emphasis>: Sets the value of the group's <emphasis>
-      default</emphasis> element in the generated comps.xml. By default, the 
-      value is inherited from the group's <emphasis>default</emphasis> element
-      in the input repository groupfile. Otherwise, the 
-      <varname>BOOLEAN</varname> value of this element is used. Anaconda uses
-      the <emphasis>default</emphasis> element during installation
-      to determine the selection state for the group.
       </para>
 
       <para>
@@ -198,54 +139,28 @@
       </listitem>
     </varlistentry>
 
-    <varlistentry id="comps-package"
-                  xreflabel="comps/package">
+    <varlistentry id="packages-package"
+                  xreflabel="packages/package">
       <term>
       package
       </term>
 
       <listitem>
       <para>
-      The name of a package to be added as a <emphasis>packagereq</emphasis>
-      element in the "core" group of the generated comps.xml.
+      The name of a package to be included in the appliance. All packages
+      included in this way are added to a new group with the name
+      <constant>$NAME-packages</constant>. If the <varname>TEXT</varname>
+      value contains globbing characters, all matching packages from all
+      repositories will be included.
       </para>
 
       <para>
       This element can occur zero or more times. However, the
-      <emphasis role="strong">comps</emphasis> top-level element must
-      have at least one <emphasis>comps/group</emphasis> or
-      <emphasis>comps/package</emphasis> element.
+      <emphasis role="strong">packages</emphasis> top-level element must
+      have at least one <emphasis>packages/group</emphasis> or
+      <emphasis>packages/package</emphasis> element.
       </para>
 
-      <para>
-      This element accepts two attributes:
-      <emphasis>@requires</emphasis> and
-      <emphasis>@type</emphasis>.
-      </para>
-
-      <para>
-      <emphasis>@requires</emphasis>: Specifies the value of the <emphasis>
-      @requires</emphasis> attribute for the generated <emphasis>packagereq
-      </emphasis> element. Anaconda, YUM and other package management tools use
-      this attribute during package installation to determine the name of a 
-      package on which this package's selection status depends. This 
-      attribute is required only when <emphasis>@type</emphasis> is set to 
-      "conditional". See the <emphasis>@type</emphasis> attribute.
-      </para>
-
-      <para>
-      <emphasis>@type</emphasis>: Specifies the value of the <emphasis>@type
-      </emphasis> attribute for the generated <emphasis>packagereq</emphasis> 
-      element. Anaconda, YUM and other package management tools use this 
-      attribute to determine the selection status for this package during group
-      installation.  Specifically, "default" packages are selected by default
-      but can be deselected by the user, "optional" packages are deselected by 
-      default but can be selected by the user, "mandatory" packages are always
-      selected if the group is installed, and "conditional" packages are 
-      installed if the package indicated by <emphasis>@requires</emphasis> is
-      installed. The default value of this attribute is "mandatory". See also the
-      <emphasis>@requires</emphasis> attribute.
-      </para>
       </listitem>
     </varlistentry>
     </variablelist>
@@ -257,35 +172,40 @@
     </title>
 
     <para>
-    In the following example, Spin will generate a comps.xml including
-    groups taken from the groupfiles of its input repositories. The "base" 
-    and "core" groups  will be created using the "centos-base" repository as 
-    the source; all remaining groups will merge the contents of all 
-    repositories' groupfiles. Additionally, the "httpd" package will be added 
-    to the "core" group. Finally, the "system-config-soundcard" package will be 
-    completely excluded from appearing in the generated comps.xml.
+    In the following example, the appliance's <varname>$NAME</varname> is
+    "example". The appliance that Spin generates will include
+    several groups from the groupfiles of its input repositories as well as
+    a few individual packages. The "base" and "core" groups  will be created
+    using the "centos-base" repository as the source; all remaining groups
+    will merge the contents of all repositories' groupfiles. Additionally,
+    the "httpd" and "createrepo" packages, as well as all packages matching
+    the glob "samba*", will be added to a new group called
+    "example-packages". Finally, the "system-config-soundcard" package will
+    be excluded from appearing in any of the listed groups.
     </para>
 
     <informalexample>
     <programlisting>
-&lt;comps&gt;
+&lt;packages&gt;
   &lt;!-- only look at the groupfiles in "centos-base" for these groups --&gt;
   &lt;group id="centos-base"&gt;core&lt;/group&gt;
   &lt;group id="centos-base"&gt;base&lt;/group&gt;
 
-  &lt;!-- use all available gorupfiles for these groups --&gt;
+  &lt;!-- use all available groupfiles for these groups --&gt;
   &lt;group&gt;base-x&lt;/group&gt;
   &lt;group&gt;gnome-desktop&lt;/group&gt;
   &lt;group&gt;smb-server&lt;/group&gt;
   &lt;group&gt;admin-tools&lt;/group&gt;
   &lt;group&gt;web-server&lt;/group&gt;
 
-  &lt;!-- include httpd package in "core" group --&gt;
+  &lt;!-- include these package in "$NAME-packages" group --&gt;
   &lt;package&gt;httpd&lt;/package&gt;
+  &lt;package&gt;samba*&lt;/package&gt;
+  &lt;package&gt;createrepo&lt;/package&gt;
 
-  &lt;!-- prevent system-config-soundcard from appearing in the comps.xml --&gt;
-  &lt;exclude-package&gt;system-config-soundcard&lt;/exclude-package&gt;
-&lt;/comps&gt;  
+  &lt;!-- prevent system-config-soundcard from appearing in any group --&gt;
+  &lt;exclude&gt;system-config-soundcard&lt;/exclude&gt;
+&lt;/packages&gt;  
     </programlisting>
     </informalexample>
   </section>
