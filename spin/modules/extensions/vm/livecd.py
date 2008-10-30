@@ -42,8 +42,7 @@ class LivecdEvent(vms.VmCreateMixin, Event):
     Event.__init__(self,
       id = 'livecd',
       parentid = 'vm',
-      requires = ['kickstart', 'pkglist'],
-      provides = ['publish-content'],
+      requires = ['kickstart', 'pkglist-install-packages']
     )
 
     self.baseimg  = self.mddir / 'ext3fs.img'
@@ -55,7 +54,7 @@ class LivecdEvent(vms.VmCreateMixin, Event):
       'config': ['.'],
       'input':  [],
       'output': [self.livecd, self.baseimg],
-      'variables': ['cvars[\'pkglist\']'],
+      'variables': ['cvars[\'pkglist-install-packages\']'],
     }
 
     self.creator = None

@@ -3,6 +3,11 @@ SPECFILE := $(PKGNAME).spec
 VERSION := $(shell awk '/Version:/ { print $$2 }' $(SPECFILE))
 RELEASE := $(shell awk '/Release:/ { print $$2 }' $(SPECFILE) | sed -e 's|%{?dist}||g')
 
+define COMPILE_PYTHON
+	python -c "import compileall as C; C.compile_dir('$(1)', force=1)"
+	python -O -c "import compileall as C; C.compile_dir('$(1)', force=1)"
+endef
+
 .PHONY: tag archive install srpm bumpver
 
 clean:
@@ -22,7 +27,6 @@ archive: tag
                     --include AUTHORS \
                     --include spin-enterprise.spec \
                     --include Makefile.enterprise \
-	            --include pycompile \
                     -t tgz --prefix=$(PKGNAME)-$(VERSION) $(PKGNAME)-$(VERSION).tar.gz
 
 install:
@@ -38,8 +42,7 @@ install:
 	fi
 	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)
 	cp -var spin $(DESTDIR)/$(PYTHONLIBDIR)
-	./pycompile spin/modules/core/rpmbuild/logos-rpm/*.py
-	./pycompile spin/modules/core/rpmbuild/logos-rpm/config/*.py
+	$(call COMPILE_PYTHON,$(DESTDIR)/$(PYTHONLIBDIR))
 
 srpm: archive
 	@rpmbuild $(BUILDARGS) -ts $(PKGNAME)-$(VERSION).tar.gz  || exit 1

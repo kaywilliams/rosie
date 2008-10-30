@@ -19,47 +19,119 @@ import cPickle
 import rpmUtils
 import yum
 
+from rendition import difftest
 from rendition import pps
 
 from rendition.depsolver import Depsolver
 
-from spin.callback import TimerCallback
+from spin.callback import PkglistCallback, TimerCallback
 from spin.logging  import L1
 
-def resolve(all_packages=None, old_packages=None, required=None,
-            config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
-            callback=None, logger=None):
-  solver = IDepsolver(
-             all_packages = all_packages,
-             old_packages = old_packages,
-             required = required,
-             config = config,
-             root = root,
-             arch = arch,
-             callback = callback,
-             logger = logger
-           )
-  solver.setup()
-  pos = solver.getPackageObjects()
-  pkgtups = [ po.pkgtup for po in pos ]
-  solver.teardown()
-  return pkgtups
+YUMCONF_HEADER = [
+  '[main]',
+  'cachedir=',
+  'logfile=/depsolve.log',
+  'debuglevel=0',
+  'errorlevel=0',
+  'gpgcheck=0',
+  'tolerant=1',
+  'exactarch=1',
+  'reposdir=/',
+  '\n',
+]
+
+class DepsolverMixin(object):
+  def __init__(self):
+    self.install_pkgsfile = self.mddir / 'install.pkgs'
+    self.depsolve_repo = self.mddir / 'depsolve.repo'
+
+  def resolve(self):
+    self._create_repoconfig()
+
+    required_packages = self._get_required_packages()
+    user_required     = self._get_user_required_packages()
+    old_packages      = self._get_old_packages()
+
+    solver = IDepsolver(
+      all_packages = required_packages,
+      old_packages = old_packages or [],
+      required = user_required,
+      comps_optional_pkgs = self.cvars['comps-optional-packages'],
+      comps_mandatory_pkgs = self.cvars['comps-mandatory-packages'],
+      comps_defaults_pkgs = self.cvars['comps-default-packages'],
+      comps_conditional_pkgs = self.cvars['comps-conditional-packages'],
+      config = str(self.depsolve_repo),
+      root = str(self.dsdir),
+      arch = self.arch,
+      logger = self.logger
+    )
+
+    solver.setup()
+
+    pos = solver.getPackageObjects()
+    pkgtups = [ po.pkgtup for po in pos ]
+
+    pkgs_and_deps = solver.getPackagesAndDeps()
+    self.install_pkgsfile.write_lines(pkgs_and_deps)
+
+    solver.teardown()
+    solver = None
+    return pkgtups
+
+  def _get_old_packages(self):
+    old_packages = []
+    difftup = self.diff.variables.difference('cvars[\'all-packages\']')
+    if difftup:
+      prev, curr = difftup
+      if ( prev is None or
+           isinstance(prev, difftest.NewEntry) or
+           isinstance(prev, difftest.NoneEntry) ):
+        prev = []
+      if prev:
+        old_packages.extend([ x for x in prev if x not in curr ])
+    return old_packages
+
+  def _get_required_packages(self):
+    return self.cvars.get('all-packages', [])
+
+  def _get_user_required_packages(self):
+    return self.cvars.get('user-required-packages', [])
+
+  def _create_repoconfig(self):
+    if self.depsolve_repo.exists():
+      self.depsolve_repo.remove()
+    conf = []
+    conf.extend(YUMCONF_HEADER)
+    if self.cvars['pkglist-excluded-packages']:
+      line = 'exclude=' + ' '.join(self.cvars['pkglist-excluded-packages'])
+      conf.append(line)
+    for repo in self.cvars['repos'].values():
+      conf.extend(repo.lines(pretty=True, baseurl=repo.localurl, mirrorlist=None))
+      conf.append('\n')
+    self.depsolve_repo.write_lines(conf)
 
 
 class IDepsolver(Depsolver):
   def __init__(self, all_packages=None, old_packages=None, required=None,
+               comps_optional_pkgs=None, comps_mandatory_pkgs=None,
+               comps_defaults_pkgs=None, comps_conditional_pkgs=None,
                config='/etc/yum.conf', root='/tmp/depsolver', arch='i686',
-               callback=None, logger=None):
+               logger=None):
     Depsolver.__init__(self,
       config = str(config),
       root = str(root),
       arch = arch,
-      callback = callback
+      callback = PkglistCallback(logger, reqpkgs=required)
     )
     self.all_packages = all_packages
     self.old_packages = old_packages
     self.required = required
     self.logger = logger
+
+    self.comps_optional_pkgs = comps_optional_pkgs or []
+    self.comps_mandatory_pkgs = comps_mandatory_pkgs or []
+    self.comps_defaults_pkgs = comps_defaults_pkgs or []
+    self.comps_conditional_pkgs = comps_conditional_pkgs or []
 
     self._new_packages = None
     self._cached_file  = None
@@ -111,6 +183,93 @@ class IDepsolver(Depsolver):
 
   def setup(self):
     Depsolver.setup(self)
+
+  def getPackagesAndDeps(self, packages=None):
+    if packages is None:
+      # If no packages are specified, look at the yum.conf file's
+      # group_package_types option and populate the list of packages.
+      # By default, yum sets 'group_package_types' to 'default' and
+      # 'mandatory'.
+      allpkgs = []
+      if 'mandatory' in self.conf.group_package_types:
+        allpkgs.extend(self.comps_mandatory_pkgs)
+      if 'default' in self.conf.group_package_types:
+        allpkgs.extend(self.comps_defaults_pkgs)
+      if 'optional' in self.conf.group_package_types:
+        allpkgs.extend(self.comps_optional_pkgs)
+    else:
+      allpkgs = packages
+
+    allpkgnames = self._get_deps(allpkgs)
+    if packages is None:
+      # If no packages were passed to this method, also look at the
+      # conditional packages in the comps.xml and add them and their
+      # deps to the list returned.
+      allpkgnames = set(allpkgnames)
+      if self.conf.enable_group_conditionals:
+        for condreq, cond in self.comps_conditional_pkgs:
+          if cond in allpkgnames:
+            allpkgnames = allpkgnames.union(self._get_deps([condreq]))
+      allpkgnames = list(allpkgnames)
+
+    return sorted(allpkgnames)
+
+  def _get_deps(self, packages):
+    allpkgtups = set()
+    for pkgtup in self.resolved_deps:
+      if pkgtup[0] in packages:
+        allpkgtups.add(pkgtup)
+        for dep in self.resolved_deps[pkgtup].values():
+          allpkgtups.add(dep)
+
+    while True:
+      newallpkgtups = allpkgtups
+
+      newitems = set()
+      for pkgtup in allpkgtups:
+        if pkgtup in self.resolved_deps:
+          for dep in self.resolved_deps[pkgtup].values():
+            newitems.add(dep)
+
+      allpkgtups = allpkgtups.union(newitems)
+
+      if allpkgtups == newallpkgtups:
+        break
+
+    return sorted([ x[0] for x in allpkgtups])
+
+  def _provideToPkg(self, req):
+    best = None
+    (r,f,v) = req
+
+    satisfiers = set()
+    for po in self.whatProvides(r,f,v):
+      if po not in satisfiers:
+        satisfiers.add(po)
+
+    if satisfiers:
+      bestpkgs = self.bestPackagesFromList(satisfiers, arch=self.arch)
+
+      # Try to find the first best package that's not an optional
+      # package in comps.  If no such package is found, return the
+      # first one and go from there.
+      po = None
+      for bestpkg in bestpkgs:
+        if bestpkg.name not in self.comps_optional_pkgs:
+          po = bestpkg
+          break
+      else:
+        po = bestpkgs[0]
+
+      thispkgobsdict = self.up.checkForObsolete([po.pkgtup])
+      if thispkgobsdict.has_key(po.pkgtup):
+        obsoleting = thispkgobsdict[po.pkgtup][0]
+        obsoleting_pkg = self.getPackageObject(obsoleting)
+        self.deps[req] = obsoleting_pkg
+        return obsoleting_pkg
+      self.deps[req] = po
+      return po
+    return None
 
   def getInstalledPackage(self, name=None, ver=None, rel=None, arch=None, epoch=None):
     for pkgtup_i in self.installed_packages:
@@ -177,7 +336,7 @@ class IDepsolver(Depsolver):
     self.iupdate()
     if inscb: inscb.end()
 
-    self.logger.log(1, L1("resolving package dependencies"))
+    if self.logger: self.logger.log(1, L1("resolving package dependencies"))
     for po in self.installed_packages.values():
       self.install(po=po)
 

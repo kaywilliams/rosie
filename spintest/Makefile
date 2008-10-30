@@ -1,4 +1,4 @@
-SUBDIRS = modules/download modules/pkglist
+SUBDIRS = modules/download modules/depsolve
 
 all:
 	for d in $(SUBDIRS); do make -C $$d; done

@@ -44,7 +44,7 @@ class ChrootEvent(vms.VmCreateMixin, Event):
     Event.__init__(self,
       id = 'chroot',
       parentid = 'vm',
-      requires = ['kickstart', 'pkglist'],
+      requires = ['kickstart', 'pkglist-install-packages'],
       comes_before = ['publish'],
     )
 
@@ -57,7 +57,7 @@ class ChrootEvent(vms.VmCreateMixin, Event):
       'config': ['.'],
       'input':  [],
       'output': [],
-      'variables': ['cvars[\'pkglist\']'],
+      'variables': ['cvars[\'pkglist-install-packages\']'],
     }
 
     self.creator = None # the image creator instance

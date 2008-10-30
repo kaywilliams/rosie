@@ -35,9 +35,10 @@ class PackagesEvent(Event):
     Event.__init__(self,
       id = 'packages',
       parentid = 'repository',
-      provides = ['groupfile', 'all-packages',
-                  'user-required-packages', 'user-required-groups',
-                  'user-excluded-packages'],
+      provides = ['groupfile', 'all-packages', 'user-required-packages',
+                  'user-required-groups', 'user-excluded-packages',
+                  'comps-default-packages', 'comps-mandatory-packages',
+                  'comps-optional-packages', 'comps-conditional-packages'],
       requires = ['anaconda-version', 'repos'],
       conditionally_requires = ['required-packages', 'excluded-packages'],
     )
@@ -94,6 +95,23 @@ class PackagesEvent(Event):
       self.config.xpath('group/text()', []) + ['%s-packages' % self.name]
     self.cvars['user-excluded-packages'] = \
       self.config.xpath('exclude/text()', [])
+
+    # set comps-*-packages cvars
+    default = []
+    conditional = []
+    for group in comps.xpath('group', []):
+      if group.getbool('default/text()', 'True'):
+        default.extend(group.xpath('packagelist/packagereq[@type="default"]/text()', []))
+      for p in group.xpath('packagelist/packagereq[@type="conditional"]', []):
+        conditional.append((p.text, p.get('@requires')))
+
+    optional  = comps.xpath('//packagereq[@type="optional"]/text()',  [])
+    mandatory = comps.xpath('//packagereq[@type="mandatory"]/text()', [])
+
+    self.cvars['comps-default-packages']     = default
+    self.cvars['comps-optional-packages']    = optional
+    self.cvars['comps-mandatory-packages']   = mandatory
+    self.cvars['comps-conditional-packages'] = conditional
 
   # output verification
   def verify_comps_xpath(self):

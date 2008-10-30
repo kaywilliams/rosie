@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <build-repos>
-  <repo id="repo1">
+  <repo id="repo2">
     <package>
-      <name>pkglist-test-package1</name>
+      <name>depsolve-test-package2</name>
       <version>1.0</version>
       <release>1</release>
+      <obsoletes>depsolve-test-package1</obsoletes>
+      <provides>depsolve-test-package1</provides>
       <force-arch>noarch</force-arch>
     </package>
   </repo>

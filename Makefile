@@ -7,6 +7,11 @@ SUBDIRS = bin docsrc etc share spin
 
 BUILDARGS =
 
+define COMPILE_PYTHON
+	python -c "import compileall as C; C.compile_dir('$(1)', force=1)"
+	python -O -c "import compileall as C; C.compile_dir('$(1)', force=1)"
+endef
+
 .PHONY: all clean install tag changelog archive srpm bumpver
 
 all:
@@ -30,6 +35,7 @@ install:
 	mkdir -p $(PYTHONLIBDIR)
 	mkdir -p $(DESTDIR)
 	for dir in $(SUBDIRS); do make -C $$dir PYTHONLIBDIR=`cd $(PYTHONLIBDIR); pwd` DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
+	$(call COMPILE_PYTHON,$(DESTDIR)/$(PYTHONLIBDIR))
 
 tag:
 	@if [ "$(USERNAME)" != "" ]; then \

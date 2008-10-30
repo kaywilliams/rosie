@@ -18,9 +18,13 @@
 
 import imgcreate
 import inspect
+import os
 import rpm
 import sha
+import sys
 import yum
+
+from yum import _
 
 from rendition import pps
 from rendition import rxml
@@ -134,28 +138,57 @@ class SpinImageCreatorMixin:
 
   def _prepare_transaction(self, ayum):
     if not self._base:
-      for pkg in [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                   for x in self.event.cvars['pkglist'] ]:
-        ayum.install(name = pkg)
+      pkgs = set(self.event.cvars['pkglist-install-packages'])
     else:
-      diff = self.event.diff.variables.difference('cvars[\'pkglist\']')
+      diff = self.event.diff.variables.difference("cvars['pkglist-install-packages']")
+      pkgs = set()
+
       if diff is not None:
-        prev = set([ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                     for x in diff[0] ])
-        next = set([ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-                     for x in diff[1] ])
+        prev = [ x for x in diff[0] ]
+        next = [ x for x in diff[1] ]
+        pkgs = set(next) - set(prev)
 
-        # add new packages
-        for pkg in next - prev:
-          ayum.install(name = pkg)
-        # remove old packages
-        for pkg in prev - next:
-          ayum.remove(name = pkg)
+    for pkg in pkgs:
+      ayum.install(name = pkg)
 
-      # update the rest
-      ayum.update()
+  def __select_groups(self, ayum):
+    # don't select groups at all if we're using an existing chroot
+    if not self._base:
+      self._getattr_('__select_groups')(ayum)
+    else:
+      pass
 
-  def _can_handle_selinux(self, ayum):
+  def __deselect_packages(self, ayum):
+    # remove old packages in pkglist if we're using an exising chroot
+    if not self._base:
+      return
+    diff = self.event.diff.variables.difference("cvars['pkglist-install-packages']")
+    pkgs = set()
+
+    if diff is not None:
+      prev = [ x for x in diff[0] ]
+      next = [ x for x in diff[1] ]
+      pkgs = set(prev) - set(next)
+
+    for pkg in pkgs:
+      ayum.remove(name = pkg)
+
+  def __update_packages(self, ayum):
+    if not self._base:
+      return
+    diff = self.event.diff.variables.difference("cvars['pkglist-install-packages']")
+    pkgs = set()
+
+    if diff is not None:
+      prev = [ x for x in diff[0] ]
+      next = [ x for x in diff[1] ]
+      pkgs = set(prev) & set(next)
+
+    # if a package was in both lists, this means it needs to be updated
+    for pkg in pkgs:
+      ayum.update(name = pkg)
+
+  def __can_handle_selinux(self, ayum):
     # rewritten to handle incremental check
     file = '/usr/sbin/lokkit'
     if ( not imgcreate.kickstart.selinux_enabled(self.ks) and
@@ -171,13 +204,12 @@ class SpinImageCreatorMixin:
     pass
 
   def _get_pkglist_names(self):
-    return [ RPM_PNVRA_REGEX.match(x+'.rpm').group('name')
-             for x in self.event.cvars['pkglist'] ]
+    return self.event.cvars['pkglist-install-packages']
 
   def install(self, repo_urls = None):
     yum_conf = pps.path(self._mktemp(prefix = "yum.conf-"))
 
-    ayum = imgcreate.yuminst.LiveCDYum()
+    ayum = VMYum()
     ayum.setup(yum_conf, self._instroot)
     ayum.conf.obsoletes = 1 # enable obsoletes processing
 
@@ -226,6 +258,50 @@ class SpinImageCreatorMixin:
         for f in lvmdir.listdir():
           f.rm(force=True)
 
+class VMYum(imgcreate.yuminst.LiveCDYum):
+  def __init__(self):
+    imgcreate.yuminst.LiveCDYum.__init__(self)
+
+  def resolveDeps(self):
+    # we don't need to do any depsolving because all the packages in
+    # the transaction set are resolved.
+    if len(self.tsInfo) > 0:
+      if not len(self.tsInfo):
+        return (0, ['Success - empty transaction'])
+      return (2, ['Success - deps resolved'])
+
+  def runInstall(self):
+    os.environ["HOME"] = "/"
+
+    try:
+      (res, resmsg) = self.buildTransaction()
+    except yum.Errors.RepoError, e:
+      raise imgcreate.CreatorError("Unable to download from repo : %s" %(e,))
+    if res != 2:
+      raise imgcreate.CreatorError("Failed to build transaction : %s" % str.join("\n", resmsg))
+
+    dlpkgs = map(lambda x: x.po, filter(lambda txmbr: txmbr.ts_state in ("i", "u"), self.tsInfo.getMembers()))
+    self.downloadPkgs(dlpkgs)
+    # FIXME: sigcheck?
+
+    self.initActionTs()
+    self.populateTs(keepold=0)
+    deps = self.ts.check()
+    if len(deps) != 0:
+      raise imgcreate.CreatorError("Dependency check failed!")
+    rc = self.ts.order()
+    if rc != 0:
+      raise imgcreate.CreatorError("ordering packages for installation failed!")
+
+    # FIXME: callback should be refactored a little in yum
+    sys.path.append('/usr/share/yum-cli')
+    import callback
+    cb = callback.RPMInstallCallback()
+    cb.tsInfo = self.tsInfo
+    cb.filelog = False
+    ret = self.runTransaction(cb)
+    print ""
+    return ret
 
 class RequiresKickstartError(SpinError):
   message = ( "The '%(modid)s' module requires that a kickstart be specified "
