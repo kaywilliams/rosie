@@ -25,7 +25,7 @@ class ProductImageEventTestCase(EventTestCase):
   moduleid = 'product-image'
   eventid  = 'product-image'
   _conf = [
-    "<repository enabled='false'/>",
+    "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
   ]
 

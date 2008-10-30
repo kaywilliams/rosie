@@ -26,7 +26,7 @@ class InitrdImageEventTestCase(EventTestCase):
   eventid  = 'initrd-image'
 
   _conf = [
-    "<repository enabled='false'/>",
+    "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
   ]
 

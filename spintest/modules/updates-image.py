@@ -23,7 +23,7 @@ class UpdatesImageEventTestCase(EventTestCase):
   moduleid = 'updates-image'
   eventid  = 'updates-image'
   _conf = [
-    "<repository enabled='false'/>",
+    "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
   ]
 

@@ -23,7 +23,7 @@ class Stage2ImagesEventTestCase(EventTestCase):
   moduleid = 'stage2-images'
   eventid  = 'stage2-images'
   _conf = [
-    "<repository enabled='false'/>",
+    "<repocreate enabled='false'/>",
     "<rpmbulid enabled='false'/>",
   ]
 

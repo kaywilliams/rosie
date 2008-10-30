@@ -24,7 +24,7 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['CreaterepoEvent'],
   description = 'creates repository metadata for pkglist RPMS',
-  group       = 'repository',
+  group       = 'repocreate',
 )
 
 class CreaterepoEvent(Event, CreaterepoMixin):
@@ -32,7 +32,7 @@ class CreaterepoEvent(Event, CreaterepoMixin):
     Event.__init__(self,
       id = 'createrepo',
       version = '0.1',
-      parentid = 'repository',
+      parentid = 'repocreate',
       provides = ['rpms', 'rpms-directory', 'repodata-directory',
                   'treeinfo-checksums'],
       requires = ['cached-rpms'],

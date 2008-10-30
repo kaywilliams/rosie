@@ -22,7 +22,7 @@ class BuildstampEventTestCase(EventTestCase):
   moduleid = 'infofiles'
   eventid  = 'buildstamp'
   _conf = [
-    "<repository enabled='false'/>",
+    "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
   ]
 
@@ -30,7 +30,7 @@ class DiscinfoEventTestCase(EventTestCase):
   moduleid = 'infofiles'
   eventid  = 'discinfo'
   _conf = [
-    "<repository enabled='false'/>",
+    "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
   ]
 
@@ -38,7 +38,7 @@ class TreeinfoEventTestCase(EventTestCase):
   moduleid = 'infofiles'
   eventid  = 'treeinfo'
   _conf = [
-    "<repository enabled='false'/>",
+    "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
   ]
 

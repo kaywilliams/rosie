@@ -31,7 +31,7 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['DepsolveEvent'],
   description = 'depsolves required packages and groups to create a package list',
-  group       = 'repository',
+  group       = 'repocreate',
 )
 
 NVRA_REGEX = re.compile('(?P<name>.+)'    # rpm name
@@ -46,7 +46,7 @@ class DepsolveEvent(Event, DepsolverMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'depsolve',
-      parentid = 'repository',
+      parentid = 'repocreate',
       provides = ['pkglist', 'pkglist-install-packages'],
       requires = ['all-packages', 'repos', 'user-required-packages'],
       conditionally_requires = ['pkglist-excluded-packages'],

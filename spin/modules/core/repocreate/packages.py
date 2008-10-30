@@ -27,14 +27,14 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PackagesEvent'],
   description = 'defines the required packages and groups for the appliance',
-  group       = 'repository',
+  group       = 'repocreate',
 )
 
 class PackagesEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'packages',
-      parentid = 'repository',
+      parentid = 'repocreate',
       provides = ['groupfile', 'all-packages', 'user-required-packages',
                   'user-required-groups', 'user-excluded-packages',
                   'comps-default-packages', 'comps-mandatory-packages',

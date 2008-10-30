@@ -27,7 +27,7 @@ class BootisoEventTestCase(EventTestCase):
   eventid  = 'bootiso'
 
   _conf = [
-    "<repository enabled='false'/>",
+    "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
   ]
 

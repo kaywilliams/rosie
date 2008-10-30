@@ -22,7 +22,7 @@ class XenImagesEventTestCase(EventTestCase):
   moduleid = 'xen-images'
   eventid  = 'xen-images'
   _conf = [
-    "<repository enabled='false'/>",
+    "<repocreate enabled='false'/>",
     "<rpmbuild enabled='false'/>",
   ]
 

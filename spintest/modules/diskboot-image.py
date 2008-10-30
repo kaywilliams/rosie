@@ -26,7 +26,7 @@ class DiskbootImageEventTestCase(EventTestCase):
   moduleid = 'diskboot-image'
   eventid  = 'diskboot-image'
   _conf = [
-    "<repository enabled='false'/>",
+    "<repocreate enabled='false'/>",
     "<config-rpm enabled='false'/>",
     "<release-rpm enabled='false'/>",
   ]
