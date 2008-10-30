@@ -18,7 +18,7 @@
 from rendition import pps
 from rendition import rxml
 
-from spin.modules.core.repocreate.packages import KERNELS
+from spin.constants import KERNELS
 
 from spintest      import EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite
@@ -99,7 +99,7 @@ class Test_IncludeCoreGroups(_PackagesEventTestCase):
 
   def setUp(self):
     _PackagesEventTestCase.setUp(self)
-    self.event.cvars['comps-included-packages'] = set(['kde', 'xcalc'])
+    self.event.cvars['required-packages'] = set(['kde', 'xcalc'])
 
   def runTest(self):
     self.tb.dispatch.execute(until='packages')
@@ -133,7 +133,7 @@ class Test_ExcludePackages(_PackagesEventTestCase):
 
   def setUp(self):
     _PackagesEventTestCase.setUp(self)
-    self.event.cvars['comps-excluded-packages'] = set(['passwd', 'setup'])
+    self.event.cvars['excluded-packages'] = set(['passwd', 'setup'])
 
   def runTest(self):
     self.tb.dispatch.execute(until='packages')

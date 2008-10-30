@@ -18,8 +18,6 @@
 from rendition import pps
 from rendition.rxml.config import Element
 
-from spin.modules.core.repocreate.packages import KERNELS
-
 from spintest      import EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite
 

@@ -141,8 +141,6 @@ class InstallClass(BaseInstallClass):
 
   tasks = [("Default", %(default_groups)s), ("Everything", %(all_groups)s)]
 
-  sortPriority = 10000
-
   bugFiler = BugzillaFiler(bugUrl="https://bugzilla.redhat.com/xmlrpc.cgi")
 
   def getPackagePaths(self, uri):
