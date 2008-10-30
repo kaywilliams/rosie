@@ -88,10 +88,9 @@ class SpinImageCreatorMixin:
   def _getattr_(self, attr):
     for cls in inspect.getmro(self.__class__):
       if cls == SpinImageCreatorMixin: continue # don't look in this class
-      try:
-        return getattr(self, '_%s%s' % (cls.__name__, attr))
-      except:
-        pass
+      atn = '_%s%s' % (cls.__name__, attr)
+      if hasattr(self, atn):
+        return getattr(self, atn)
     else:
       raise AttributeError(attr)
 

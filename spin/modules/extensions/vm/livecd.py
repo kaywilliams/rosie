@@ -104,6 +104,8 @@ class LivecdEvent(vms.VmCreateMixin, Event):
 
     self.cvars.setdefault('publish-content', set()).add(self.livecd)
 
+    self.creator = None
+
 
 class SpinLiveImageCreator(vms.SpinImageCreatorMixin,
                            imgcreate.LiveImageCreator):

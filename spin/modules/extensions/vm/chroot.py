@@ -111,6 +111,7 @@ class ChrootEvent(vms.VmCreateMixin, Event):
     ##self.io.clean_eventcache() # don't do this, this deletes chroot
     self.tmpdir.rm(recursive=True, force=True)
 
+    self.creator = None
 
 class SpinRawImageCreator(vms.SpinImageCreatorMixin,
                           imgcreate.ImageCreator):
@@ -160,8 +161,8 @@ class SpinRawImageCreator(vms.SpinImageCreatorMixin,
 
   def _cleanup(self):
     if self._instroot and pps.path(self._instroot).exists():
-      (self.chroot).rm(recursive=True, force=True)
-      pps.path(self._instroot).rename(self.chroot)
+      (self.event.chroot).rm(recursive=True, force=True)
+      pps.path(self._instroot).rename(self.event.chroot)
 
     self.event.builddir.rm(recursive=True, force=True)
 
@@ -179,8 +180,9 @@ class SpinRawImageCreator(vms.SpinImageCreatorMixin,
     else:
       dst = destdir/self.event.chroot.basename
       dst.rm(recursive=True, force=True)
-      for f in pps.path(self._outdir).listdir():
-        f.rename(dst/f.basename)
+      chroot = pps.path(self._outdir).listdir()
+      assert len(chroot) == 1
+      chroot[0].rename(dst)
 
   def _stage_final_image(self):
     if self.compress:
