@@ -24,6 +24,8 @@ Creates a virtimage (xen, virsh) disk image.
 import appcreate
 import imgcreate
 
+from rendition import pps
+
 from spin.errors import SpinError
 from spin.event  import Event
 
@@ -46,7 +48,6 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
       provides = ['publish-content']
     )
 
-    self.vmdir    = self.mddir / 'vms'
     self.builddir = self.mddir / 'build'
     self.tmpdir   = self.mddir / 'tmp'
     self.app      = self.mddir / '%s.img' % self.applianceid
@@ -54,7 +55,7 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
     self.DATA =  {
       'config': ['.'],
       'input':  [],
-      'output': [self.vmdir], #!
+      'output': [],
       'variables': ['cvars[\'pkglist\']'],
     }
 
@@ -72,10 +73,15 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
     self.ks = self.cvars['kickstart']
     self.DATA['input'].append(self.cvars['kickstart-file'])
 
+    # add outputs
+    for part in self.ks.handler.partition.partitions:
+      self.DATA['output'].append(self.mddir/'%s-%s.raw'
+                                   % (self.applianceid, part.disk))
+    self.DATA['output'].append(self.mddir/'%s.xml' % self.applianceid)
+
     self._prep_ks_scripts()
 
     # create image creator
-    self.vmdir.mkdirs()
     self.creator = SpinApplianceImageCreator(self,
                      self.ks,
                      name     = self.applianceid,
@@ -93,14 +99,18 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
       self.creator.install()
       self.creator.configure()
       self.creator.unmount()
-      self.creator.package(self.vmdir)
+      self.creator.package(self.mddir)
     finally:
       self.creator.cleanup()
 
   def apply(self):
     self.io.clean_eventcache()
 
-    self.cvars.setdefault('publish-content', set()).add(self.vmdir)
+    self.cvars.setdefault('publish-content', set())
+    for part in self.ks.handler.partition.partitions:
+      self.cvars['publish-content'].add(self.mddir/'%s-%s.raw'
+                                         % (self.applianceid, part.disk))
+    self.cvars['publish-content'].add(self.mddir/'%s.xml' % self.applianceid)
 
 
 class SpinApplianceImageCreator(vms.SpinImageCreatorMixin,
@@ -114,9 +124,10 @@ class SpinApplianceImageCreator(vms.SpinImageCreatorMixin,
       raise GrubRequiredError()
 
   def _cleanup(self):
-    if self._instroot and pps.path(self._instroot).exists():
-      self.event.vmdir.rm(recursive=True, force=True)
-      pps.path(self._instroot).rename(self.event.vmdir)
+    pass
+    ##if self._instroot and pps.path(self._instroot).exists():
+    ##  self.event.vmdir.rm(recursive=True, force=True)
+    ##  pps.path(self._instroot).rename(self.event.vmdir)
 
 class GrubRequiredError(SpinError):
   message = ( "Creating an appliance virtual image requires that the 'grub' "
