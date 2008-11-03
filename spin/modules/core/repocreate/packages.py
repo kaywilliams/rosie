@@ -63,8 +63,7 @@ class PackagesEvent(Event):
     self.DATA['variables'].append('groupfiles')
 
     # track file changes
-    self.DATA['input'].extend([groupfile for repo,groupfile in
-                               self.groupfiles])
+    self.DATA['input'].extend([gf for _,gf in self.groupfiles])
 
     for i in ['required-packages', 'excluded-packages']:
       self.cvars.setdefault(i, [])
@@ -123,7 +122,7 @@ class PackagesEvent(Event):
 
   #------ COMPS FILE GENERATION METHODS ------#
   def _get_groupfiles(self):
-    "Get a list of all groupfiles in all repositories"
+    "Get a list of repoid, groupfile tuples for all repositories"
     groupfiles = []
 
     for repo in self.cvars['repos'].values():
@@ -199,7 +198,7 @@ class PackagesEvent(Event):
         for l in [ group.mandatory_packages, group.optional_packages,
                    group.default_packages, group.conditional_packages ]:
           try:
-            l.remove(pkg)
+            del l[pkg]
           except:
             pass
 
