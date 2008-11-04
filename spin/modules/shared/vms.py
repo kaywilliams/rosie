@@ -21,6 +21,7 @@ import inspect
 import os
 import rpm
 import sha
+import subprocess
 import sys
 import yum
 
@@ -136,68 +137,26 @@ class SpinImageCreatorMixin:
   def _cleanup(self):
     pass
 
-  def _prepare_transaction(self, ayum):
+  def _tx_packages(self):
+    # return a tuple of add, remove, update package lists
     if not self._base:
-      pkgs = set(self.event.cvars['pkglist-install-packages'])
+      a = set(self.event.cvars['pkglist-install-packages'])
+      r = set()
+      u = set()
     else:
       diff = self.event.diff.variables.difference("cvars['pkglist-install-packages']")
-      pkgs = set()
+      a = set()
+      r = set()
+      u = set()
 
       if diff is not None:
-        prev = [ x for x in diff[0] ]
-        next = [ x for x in diff[1] ]
-        pkgs = set(next) - set(prev)
+        prev = set([ x for x in diff[0] ])
+        next = set([ x for x in diff[1] ])
+        a = next - prev # stuff in next not in prev
+        r = prev - next # stuff in prev not in next
+        u = next & prev # stuff in both next and prev
 
-    for pkg in pkgs:
-      ayum.install(name = pkg)
-
-  def __select_groups(self, ayum):
-    # don't select groups at all if we're using an existing chroot
-    if not self._base:
-      self._getattr_('__select_groups')(ayum)
-    else:
-      pass
-
-  def __deselect_packages(self, ayum):
-    # remove old packages in pkglist if we're using an exising chroot
-    if not self._base:
-      return
-    diff = self.event.diff.variables.difference("cvars['pkglist-install-packages']")
-    pkgs = set()
-
-    if diff is not None:
-      prev = [ x for x in diff[0] ]
-      next = [ x for x in diff[1] ]
-      pkgs = set(prev) - set(next)
-
-    for pkg in pkgs:
-      ayum.remove(name = pkg)
-
-  def __update_packages(self, ayum):
-    if not self._base:
-      return
-    diff = self.event.diff.variables.difference("cvars['pkglist-install-packages']")
-    pkgs = set()
-
-    if diff is not None:
-      prev = [ x for x in diff[0] ]
-      next = [ x for x in diff[1] ]
-      pkgs = set(prev) & set(next)
-
-    # if a package was in both lists, this means it needs to be updated
-    for pkg in pkgs:
-      ayum.update(name = pkg)
-
-  def __can_handle_selinux(self, ayum):
-    # rewritten to handle incremental check
-    file = '/usr/sbin/lokkit'
-    if ( not imgcreate.kickstart.selinux_enabled(self.ks) and
-         pps.path('/selinux/enforce').exists() and
-         not ayum.installHasFile(file) and
-         not (pps.path(self._instroot)//file).exists() ): # check instroot too
-      raise imgcreate.CreatorError(
-        "Unable to disable SELinux because the installed package set did "
-        "not inclue the file '%s'" % file)
+    return a,r,u
 
   def _check_required_packages(self):
     # raise an exception if appliance doesn't include all required packages
@@ -209,46 +168,42 @@ class SpinImageCreatorMixin:
   def install(self, repo_urls = None):
     yum_conf = pps.path(self._mktemp(prefix = "yum.conf-"))
 
-    ayum = VMYum()
-    ayum.setup(yum_conf, self._instroot)
-    ayum.conf.obsoletes = 1 # enable obsoletes processing
-
-    for repo in imgcreate.kickstart.get_repos(self.ks, repo_urls or {}):
-      (name, baseurl, mirrorlist, inc, exc) = repo
-
-      yr = ayum.addRepository(name, baseurl, mirrorlist)
-      if inc:
-        yr.includepkgs = inc
-      if exc:
-        yr.exclude = exc
-
+    cmd = ['python', pps.path(__file__),
+                     '--installroot', self._instroot,
+                     '--conf', yum_conf]
+    for name,baseurl,_,_,_ in imgcreate.kickstart.get_repos(self.ks, repo_urls or {}):
+      cmd.extend(['--repo', '%s:%s' % (name, baseurl)])
     if imgcreate.kickstart.exclude_docs(self.ks):
-      rpm.addMacro("_excludedocs", "1")
-    if not imgcreate.kickstart.selinux_enabled(self.ks):
-      rpm.addMacro("__file_context_path", "%{nil}")
+      cmd.append('--excludedocs')
+    if imgcreate.kickstart.selinux_enabled(self.ks):
+      cmd.append('--selinux')
+
+    # construct yum shell-like command list for install
+    add, remove, update = self._tx_packages()
+    stdin = []
+    for pkg in add:    stdin.append('install %s' % pkg)
+    for pkg in remove: stdin.append('remove %s'  % pkg)
+    for pkg in update: stdin.append('update %s'  % pkg)
 
     try:
-      self._check_required_packages() # make sure we have the pkgs we need
-
-      self._prepare_transaction(ayum)
-
-      self._can_handle_selinux(ayum)
-
+      self._check_required_packages() # make sure we have the packages we need
+      p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
       try:
-        ayum.runInstall()
-      except imgcreate.CreatorError, e:
-        # imgcreate raises an exception in the case when the transaction set
-        # is empty.  In this case, we don't care; that just means yum doesn't
-        # have any work do to.  If we get a CreatorError and the tsInfo isn't
-        # empty, though, then we have a problem
-        if len(ayum.tsInfo) != 0: raise
-    except yum.Errors.RepoError, e:
-      raise imgcreate.CreatorError("Unable to download from repo : %s" % e)
-    except yum.Errors.YumBaseError, e:
-      raise imgcreate.CreatorError("Unable to install : %s" % e)
+        stdout,stderr = p.communicate('\n'.join(stdin))
+        if p.returncode != 0:
+          raise imgcreate.CreatorError("Unable to install: %s" % stderr)
+      except BaseException, e: # except all exceptions
+        # make sure RPM has finished doing stuff before we raise our exception
+        # to try and clean stuff up - ignore keyboard interrupts until it
+        # finishes
+        while True:
+          try:
+            p.wait()
+            raise e
+          except:
+            if p.returncode is not None: # finished
+              raise
     finally:
-      ayum.closeRpmDB()
-      ayum.close()
       yum_conf.remove()
 
     # do some clean up to avoid lvm leakage.  this sucks.
@@ -265,9 +220,9 @@ class VMYum(imgcreate.yuminst.LiveCDYum):
   def resolveDeps(self):
     # we don't need to do any depsolving because all the packages in
     # the transaction set are resolved.
-    if len(self.tsInfo) > 0:
-      if not len(self.tsInfo):
-        return (0, ['Success - empty transaction'])
+    if len(self.tsInfo) == 0:
+      return (0, ['Success - empty transaction'])
+    else:
       return (2, ['Success - deps resolved'])
 
   def runInstall(self):
@@ -306,3 +261,93 @@ class VMYum(imgcreate.yuminst.LiveCDYum):
 class RequiresKickstartError(SpinError):
   message = ( "The '%(modid)s' module requires that a kickstart be specified "
               "in the <kickstart> top-level element." )
+
+
+# The following hack solves two problems with imgcreate
+#  1) canceling an install via CTRL+C during rpm installation doesn't call
+#     imgcreate's cleanup methods because of RPM's interrupt signal handling
+#  2) multiple runs of imgcreate within the same session seem to have some
+#     sort of issue where the lockfile from the previous run sticks around
+#     instead of using a new value
+#
+# When this script is executed directly, it instead acts as a yum installer,
+# more or less.  (See below for script options.) It reads commands from
+# stdin, accepting '[install|remove|update] <pkgname>'.
+#
+# Since this process is in a subshell, cancelling via CTRL+C merely kills
+# the subshell and returns control to the parent python instance, allowing
+# us to properly clean up.  Furthermore, since each execution is performed
+# in a separate subshell, there is no data persistence issue around to cause
+# issue 2.
+#
+# Problem solved, albeit in a very hacky and ugly way.
+
+import optparse
+
+def makeparser():
+  parser = optparse.OptionParser()
+
+  parser.add_option('--installroot')
+  parser.add_option('--conf')
+  parser.add_option('--repo', action='append', default=[])
+  parser.add_option('--excludedocs', action='store_true', default=False)
+  parser.add_option('--selinux', action='store_true', default=False)
+
+  return parser
+
+def _can_handle_selinux(ayum):
+  file = '/usr/sbin/lokkit'
+  if ( pps.path('/selinux/enforce').exists() and
+       not ayum.installHasFile(file) and
+       not (pps.path(ayum.conf.installroot)//file).exists() ): # check instroot too
+    raise imgcreate.CreatorError(
+      "Unable to disable SELinux because the installed package set did "
+      "not include the file '%s'" % file)
+
+if __name__ == '__main__':
+  parser = makeparser()
+  opts,args = parser.parse_args(sys.argv[1:])
+
+  ayum = VMYum()
+  ayum.setup(opts.conf, opts.installroot)
+  ayum.conf.obsoletes = 1 # enable obsoletes processing
+
+  for repo in opts.repo:
+    name, baseurl = repo.split(':', 1)
+    ayum.addRepository(name, baseurl, None)
+
+  if opts.excludedocs:
+    rpm.addMacro('_excludedocs', '1')
+  if not opts.selinux:
+    rpm.addMacro('__file_context_path', '%{nil}')
+
+  try:
+    try:
+      for line in sys.stdin.readlines():
+        cmd, arg = line.split()
+        if   cmd == 'install': ayum.install(name = arg)
+        elif cmd == 'update':  ayum.update(name = arg)
+        elif cmd == 'remove':  ayum.remove(name = arg)
+        else: raise ValueError(cmd)
+    except yum.Errors.RepoError, e:
+      raise imgcreate.CreatorError("Unable to download from repo: %s" % e)
+    except yum.Errors.YumBaseError, e:
+      raise imgcreate.CreatorError("Unable to install: %s" % e)
+
+    # if selinux isn't enabled on host machine, check to see if we can diable
+    # raises imgcreate.CreatorError
+    if not opts.selinux:
+      _can_handle_selinux(ayum)
+
+    try:
+      ayum.runInstall()
+    except imgcreate.CreatorError, e:
+      # imgcreate raises an exception in the case when the transaction set
+      # is empty.  In this case, we don't care; that just means yum doesn't
+      # have any work do to.  If we get a CreatorError and the tsInfo isn't
+      # empty, though, then we have a problem
+      if len(ayum.tsInfo) != 0: raise
+  finally:
+    ayum.closeRpmDB()
+    ayum.close()
+
