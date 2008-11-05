@@ -45,7 +45,7 @@ class ChrootEvent(vms.VmCreateMixin, Event):
       id = 'chroot',
       parentid = 'vm',
       requires = ['kickstart', 'pkglist-install-packages'],
-      comes_before = ['publish'],
+      conditionally_comes_before = ['publish'],
     )
 
     self.builddir = self.mddir / 'build'
