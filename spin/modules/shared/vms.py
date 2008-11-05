@@ -59,18 +59,37 @@ class VmCreateMixin:
                                 inChroot  = s.inChroot,
                                 type      = s.type))
 
+  def _prep_partitions(self):
+    # do the same as _prep_ks_scripts, but for partitions instead
+    self._partitions = []
+    self.DATA['variables'].append('_partitions')
+
+    for p in self.ks.handler.partition.partitions:
+      self._partitions.append(dict(size       = s.size,
+                                   disk       = s.disk,
+                                   mountpoint = s.mountpoint,
+                                   fstype     = s.fstype))
+
   def _check_ks_scripts(self):
     # since we can't guarantee that scripts are idempotent (they're supplied
     # by users), we have to regenerate the chroot any time they change
     # annoying and inefficient, but also the only way we can be sure to get
     # all changes
     if ( not self.forced and
-         ( len(self.diff.variables.difference()) == 1 and
-           self.diff.variables.difference('_scripts') ) ):
+         self.mdfile.exists() and
+         self.diff.variables.difference('_scripts') ):
       # if we're not forced and the only difference between this run and last
       # run is in the _scripts variable...
-      self.log(3, L1("one or more scripts changed in kickstart; "
-                     "regenerating raw image"))
+      self.log(3, L1("kickstart scripts have changed; regenerating image"))
+      return False
+    return True
+
+  def _check_partitions(self):
+    # if partitions change in any meaningful way, start over
+    if ( not self.forced and
+         self.mdfile.exists() and
+         self.diff.variables.difference('_scripts') ):
+      self.log(3, L1("partition layout has changed; regenerating image"))
       return False
     return True
 
@@ -87,7 +106,7 @@ class SpinImageCreatorMixin:
     self._base = None # older image to use, if available
 
   # yay thanks for making it easy to subclass!
-  # this is an Xtreme Kool Hak that makes my life (slightly) easier when
+  # this is an Xtreem Kool Hak that makes my life (slightly) easier when
   # trying to access all the dumb double-underscore attributes imgcreate
   # likes to use
   def _getattr_(self, attr):
@@ -140,23 +159,23 @@ class SpinImageCreatorMixin:
   def _tx_packages(self):
     # return a tuple of add, remove, update package lists
     if not self._base:
-      a = set(self.event.cvars['pkglist-install-packages'])
+      i = set(self.event.cvars['pkglist-install-packages'])
       r = set()
       u = set()
     else:
       diff = self.event.diff.variables.difference("cvars['pkglist-install-packages']")
-      a = set()
+      i = set()
       r = set()
       u = set()
 
       if diff is not None:
         prev = set([ x for x in diff[0] ])
         next = set([ x for x in diff[1] ])
-        a = next - prev # stuff in next not in prev
+        i = next - prev # stuff in next not in prev
         r = prev - next # stuff in prev not in next
         u = next & prev # stuff in both next and prev
 
-    return a,r,u
+    return i,r,u
 
   def _check_required_packages(self):
     # raise an exception if appliance doesn't include all required packages
