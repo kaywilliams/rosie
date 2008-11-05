@@ -45,7 +45,7 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
       id = 'virtimage',
       parentid = 'vm',
       requires = ['kickstart', 'pkglist'],
-      provides = ['publish-content']
+      provides = ['publish-content', 'virtimage-raw', 'virtimage-conf']
     )
 
     self.builddir = self.mddir / 'build'
@@ -121,11 +121,14 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
     self.io.clean_eventcache()
 
     self.cvars.setdefault('publish-content', set())
+    self.cvars['virtimage-raw'] = []
 
     for part in self.ks.handler.partition.partitions:
-      self.cvars['publish-content'].add(self.mddir/'%s-%s.raw'
-                                         % (self.applianceid, part.disk))
+      disk = self.mddir/'%s-%s.raw' % (self.applianceid, part.disk)
+      self.cvars['publish-content'].add(disk)
+      self.cvars['virtimage-raw'].append(disk)
     self.cvars['publish-content'].add(self.mddir/'%s.xml' % self.applianceid)
+    self.cvars['virtimage-conf'] = (self.mddir/'%s.xml' % self.applianceid)
 
 
 class SpinApplianceImageCreator(vms.SpinImageCreatorMixin,

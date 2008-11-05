@@ -20,9 +20,9 @@ vmware.py
 
 Convert a libvirt appliance into a vmware appliance.
 """
+import subprocess
 
 from rendition import rxml
-from rendition import shlib
 
 from spin.constants import KERNELS
 from spin.event     import Event
@@ -38,54 +38,51 @@ class VmwareVMEvent(Event):
       id = 'vmware',
       parentid = 'vm',
       provides = ['vmware-image'],
-      requires = ['virtimage-conf', 'virtimage-raw-disk-images'],
+      requires = ['virtimage-conf', 'virtimage-raw'],
     )
 
-    self.vmdir = self.mddir / 'vms'
+    self.builddir = self.mddir/'build'
+    self.outfile  = self.mddir/'%s-%s.tgz' % (self.applianceid, self.version)
 
     self.DATA =  {
       'config': ['.'],
       'input':  [],
-      'output': [self.vmdir],
+      'output': [self.outfile],
       'variables': ['applianceid', 'version', 'fullname',
                     'cvars[\'virtimage-conf\']',
-                    'cvars[\'virtimage-raw-disk-images\']'],
+                    'cvars[\'virtimage-raw\']'],
     }
 
   def setup(self):
     self.diff.setup(self.DATA)
 
-    # add the virtimage conf to our inputs
+    # add the virtimage stuff to our inputs
     self.DATA['input'].append(self.cvars['virtimage-conf'])
+    for disk in self.cvars['virtimage-raw']:
+      self.DATA['input'].append(disk)
 
-    self.vmdir.mkdirs()
+    self.builddir.mkdirs()
 
   def run(self):
 
     # copy image
-    for img in self.cvars['virtimage-raw-disk-images']:
-      img.cp(self.vmdir, link=True)
+    for img in self.cvars['virtimage-raw']:
+      img.cp(self.builddir, link=True)
 
     # copy and modify config so virt-pack doesn't error
     vxml = rxml.tree.read(self.cvars['virtimage-conf'])
     vxml.get('name').attrib['version'] = self.version
     rxml.tree.Element('description', text=self.fullname, parent=vxml)
-    vxml.write(self.vmdir/'%s.xml' % self.applianceid)
+    vxml.write(self.builddir/self.cvars['virtimage-conf'].basename)
 
     # convert
-    cmd = ( '/usr/bin/virt-pack'
-            + ' "%s" ' % (self.vmdir/self.cvars['virtimage-conf'].basename)
-            + ' --output "%s"' % self.vmdir )
+    cmd = ['/usr/bin/virt-pack',
+           self.builddir/self.cvars['virtimage-conf'].basename,
+           '--output', self.mddir]
 
-    shlib.execute(cmd)
-
-    # remove originals, tgz, and xml
-    for img in self.cvars['virtimage-raw-disk-images']:
-      (self.vmdir/img.basename).remove()
-    (self.vmdir/'%s.xml' % self.applianceid).remove()
-    (self.vmdir/'%s-%s.tgz' % (self.applianceid, self.version)).remove()
+    subprocess.call(cmd)
 
   def apply(self):
     self.io.clean_eventcache()
 
-    self.cvars.setdefault('publish-content', set()).add(self.vmdir)
+    self.cvars.setdefault('publish-content', set()).add(self.outfile)
