@@ -72,7 +72,6 @@ class PackagesEvent(Event):
   def run(self):
     self.io.clean_eventcache(all=True)
 
-    self.log(1, L1("creating new file"))
     self._generate_comps()
     self.comps_out.write_text(self.comps.xml())
     self.comps_out.chmod(0644)
