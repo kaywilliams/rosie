@@ -38,7 +38,8 @@ class PackagesEvent(Event):
       provides = ['groupfile', 'all-packages', 'user-required-packages',
                   'user-required-groups', 'user-excluded-packages',
                   'comps-default-packages', 'comps-mandatory-packages',
-                  'comps-optional-packages', 'comps-conditional-packages'],
+                  'comps-optional-packages', 'comps-conditional-packages',
+                  'comps-group-info'],
       requires = ['repos'],
       conditionally_requires = ['required-packages', 'excluded-packages'],
     )
@@ -90,8 +91,8 @@ class PackagesEvent(Event):
 
     for cvid in ['all-packages', 'comps-default-packages',
                  'comps-optional-packages', 'comps-mandatory-packages',
-                 'comps-conditional-packages']:
-      self.cvars[cvid] = []
+                 'comps-conditional-packages', 'comps-group-info']:
+      self.cvars.setdefault(cvid, [])
 
     for group in GF.groups:
       self.cvars['all-packages'].extend(group.packages)
@@ -99,6 +100,14 @@ class PackagesEvent(Event):
       self.cvars['comps-optional-packages'].extend(group.optional_packages.keys())
       self.cvars['comps-mandatory-packages'].extend(group.mandatory_packages.keys())
       self.cvars['comps-conditional-packages'].extend(group.conditional_packages.keys())
+
+      gxml = self.config.get('group[text()="%s"]' % group.groupid, None)
+      if gxml is not None:
+        self.cvars['comps-group-info'].append((group.groupid,
+                                         gxml.getbool('@default', 'True'),
+                                         gxml.getbool('@optional', 'False')))
+      else:
+        self.cvars['comps-group-info'].append((group.groupid, True, False))
 
     # set user-*-* cvars
     self.cvars['user-required-packages'] = \
