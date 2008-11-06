@@ -25,9 +25,11 @@ import appcreate
 import imgcreate
 
 from rendition import pps
+from rendition import rxml
 
-from spin.errors import SpinError
-from spin.event  import Event
+from spin.errors  import SpinError
+from spin.event   import Event
+from spin.logging import L1
 
 from spin.modules.shared import vms
 
@@ -45,7 +47,7 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
       id = 'virtimage',
       parentid = 'vm',
       requires = ['kickstart', 'pkglist'],
-      provides = ['publish-content', 'virtimage-raw', 'virtimage-conf']
+      provides = ['publish-content']
     )
 
     self.builddir = self.mddir / 'build'
@@ -62,6 +64,8 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
     self.ks = None
     self._scripts = []
 
+    self.dovmx = self.config.getbool('@vmware', 'True')
+
   def setup(self):
     self.diff.setup(self.DATA)
 
@@ -74,9 +78,13 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
 
     # add outputs
     for part in self.ks.handler.partition.partitions:
-      self.DATA['output'].append(self.mddir/'%s-%s.raw'
-                                   % (self.applianceid, part.disk))
+      id = '%s-%s' % (self.applianceid, part.disk)
+      self.DATA['output'].append(self.mddir/'%s.raw' % id)
+      if self.dovmx:
+        self.DATA['output'].append(self.mddir/'%s.vmdk' % id)
     self.DATA['output'].append(self.mddir/'%s.xml' % self.applianceid)
+    if self.dovmx:
+      self.DATA['output'].append(self.mddir/'%s.vmx' % self.applianceid)
 
     self._prep_ks_scripts()
 
@@ -109,26 +117,48 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
         base_on[self.mddir/'%s-%s.raw' % (self.applianceid, part.disk)] = part.disk
 
     try:
+      self.log(3, L1("mounting disks"))
       self.creator.mount(base_on=base_on, cachedir=self.builddir)
+      self.log(3, L1("installing selected packages"))
       self.creator.install()
+      self.log(3, L1("configuring virtual machine"))
       self.creator.configure()
+      self.log(3, L1("unmounting disks"))
       self.creator.unmount()
+      self.log(3, L1("packacking virtual machine"))
       self.creator.package(self.mddir)
     finally:
       self.creator.cleanup()
+
+    # modify config for virtinst - requries /image/name/@version and
+    # /image/description/text()
+    conf = self.mddir/'%s.xml' % self.applianceid
+    vxml = rxml.tree.read(conf)
+    vxml.get('name').attrib['version'] = self.version
+    rxml.tree.Element('description', text=self.fullname, parent=vxml)
+    vxml.write(conf)
+
+    # create VMX files
+    if self.dovmx:
+      import virtinst, virtinst.UnWare
+      self.log(3, L1("creating VMX files"))
+      image = virtinst.ImageParser.parse_file(conf)
+      vmx   = virtinst.UnWare.Image(image)
+      vmx.make(image.base)
 
   def apply(self):
     self.io.clean_eventcache()
 
     self.cvars.setdefault('publish-content', set())
-    self.cvars['virtimage-raw'] = []
 
     for part in self.ks.handler.partition.partitions:
-      disk = self.mddir/'%s-%s.raw' % (self.applianceid, part.disk)
-      self.cvars['publish-content'].add(disk)
-      self.cvars['virtimage-raw'].append(disk)
+      id = '%s-%s' % (self.applianceid, part.disk)
+      self.cvars['publish-content'].add('%s.raw'  % id)
+      if self.dovmx:
+        self.cvars['publish-content'].add('%s.vmdk' % id)
     self.cvars['publish-content'].add(self.mddir/'%s.xml' % self.applianceid)
-    self.cvars['virtimage-conf'] = (self.mddir/'%s.xml' % self.applianceid)
+    if self.dovmx:
+      self.cvars['publish-content'].add(self.mddir/'%s.vmx' % self.applianceid)
 
 
 class SpinApplianceImageCreator(vms.SpinImageCreatorMixin,
