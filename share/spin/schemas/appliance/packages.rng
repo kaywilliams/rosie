@@ -36,6 +36,12 @@
       <optional>
       <attribute name="repoid"/>
       </optional>
+      <optional>
+      <attribute name="optional"><ref name="value-boolean"/></attribute>
+      </optional>
+      <optional>
+      <attribute name="default"><ref name="value-boolean"/></attribute>
+      </optional>
 
       <text/>
 
