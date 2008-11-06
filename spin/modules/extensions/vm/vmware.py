@@ -22,10 +22,15 @@ Convert a libvirt appliance into a vmware appliance.
 """
 import subprocess
 
+import virtinst
+import virtinst.UnWare
+
+from rendition import pps
 from rendition import rxml
 
 from spin.constants import KERNELS
 from spin.event     import Event
+from spin.logging   import L1
 
 MODULE_INFO = dict(
   api    = 5.0,
@@ -42,12 +47,12 @@ class VmwareVMEvent(Event):
     )
 
     self.builddir = self.mddir/'build'
-    self.outfile  = self.mddir/'%s-%s.tgz' % (self.applianceid, self.version)
+    self._publish = [] # list of files to add to publish
 
     self.DATA =  {
       'config': ['.'],
       'input':  [],
-      'output': [self.outfile],
+      'output': [],
       'variables': ['applianceid', 'version', 'fullname',
                     'cvars[\'virtimage-conf\']',
                     'cvars[\'virtimage-raw\']'],
@@ -65,24 +70,52 @@ class VmwareVMEvent(Event):
 
   def run(self):
 
+    # delete previous output
+    self.mddir.listdir('%s*' % self.applianceid).rm()
+
     # copy image
     for img in self.cvars['virtimage-raw']:
       img.cp(self.builddir, link=True)
 
     # copy and modify config so virt-pack doesn't error
+    conf = self.builddir/self.cvars['virtimage-conf'].basename
     vxml = rxml.tree.read(self.cvars['virtimage-conf'])
     vxml.get('name').attrib['version'] = self.version
     rxml.tree.Element('description', text=self.fullname, parent=vxml)
-    vxml.write(self.builddir/self.cvars['virtimage-conf'].basename)
+    vxml.write(conf)
 
     # convert
-    cmd = ['/usr/bin/virt-pack',
-           self.builddir/self.cvars['virtimage-conf'].basename,
-           '--output', self.mddir]
 
-    subprocess.call(cmd)
+    self.log(3, L1("creating VMX files"))
+    image = virtinst.ImageParser.parse_file(conf)
+    vmx = virtinst.UnWare.Image(image)
+    vmx.make(image.base)
+
+    if self.config.getbool('@compress', 'True'):
+      tdir = self.builddir/self.applianceid
+      tdir.mkdirs()
+      for f in self.builddir.listdir().filter(tdir.basename):
+        f.rename(tdir/f.basename)
+
+      cmd = ['tar', '--create', '--gzip',
+             '--file', self.mddir/'%s.tgz' % self.applianceid,
+             '--directory', tdir.dirname]
+      if self.logger.test(5): cmd.append('--verbose')
+      cmd.append(tdir.basename)
+
+      self.log(3, L1("packaging and compressing image"))
+      subprocess.call(cmd)
+
+      self._publish = [self.mddir/'%s.tgz' % self.applianceid]
+    else:
+      for f in self.builddir.listdir():
+        f.rename(self.mddir/f.basename)
+      self._publish = self.builddir.listdir()
 
   def apply(self):
-    self.io.clean_eventcache()
+    self.builddir.rm(recursive=True, force=True)
+    ##self.io.clean_eventcache() # don't do this, it erases output
 
-    self.cvars.setdefault('publish-content', set()).add(self.outfile)
+    self.cvars.setdefault('publish-content', set())
+    for f in self._publish:
+      self.cvars['publish-content'].add(f)
