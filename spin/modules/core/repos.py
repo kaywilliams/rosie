@@ -110,7 +110,7 @@ class ReposEvent(RepoEventMixin, Event):
     self.cvars['repoids'] = self.repoids
 
     # globally excluded packages
-    global_excludes = self.config.xpath('exclude-package/text()', [])
+    global_excludes = self.config.xpath('exclude/text()', [])
     self.cvars.setdefault('excluded-packages', set()).update(global_excludes)
     self.cvars.setdefault('pkglist-excluded-packages', set()).update(global_excludes)
 
