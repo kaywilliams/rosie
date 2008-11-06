@@ -18,15 +18,13 @@ class InstallClass(BaseInstallClass):
   showLoginChoice = 1
   showMinimal = 1
 
-  tasks = [("Default", %(default_groups)s), ("Everything", %(all_groups)s)]
+  tasks = [("Default", %(groups)s)]
 
   def setInstallData(self, anaconda):
     BaseInstallClass.setInstallData(self, anaconda)
     BaseInstallClass.setDefaultPartitioning(self, anaconda.id.partitions, CLEARPART_TYPE_LINUX)
 
-  def setGroupSelection(self, anaconda):
-    grps = anaconda.backend.getDefaultGroups()
-    map(lambda x: anaconda.backend.selectGroup(x), grps)
+%(setGroupSelection)s
 
   def setSteps(self, dispatch):
     BaseInstallClass.setSteps(self, dispatch);
@@ -51,15 +49,13 @@ class InstallClass(BaseInstallClass):
   showLoginChoice = 1
   showMinimal = 1
 
-  tasks = [("Default", %(default_groups)s), ("Everything", %(all_groups)s)]
+  tasks = [("Default", %(groups)s)]
 
   def setInstallData(self, anaconda):
     BaseInstallClass.setInstallData(self, anaconda)
     BaseInstallClass.setDefaultPartitioning(self, anaconda.id.partitions, CLEARPART_TYPE_LINUX)
 
-  def setGroupSelection(self, anaconda):
-    grps = anaconda.backend.getDefaultGroups(anaconda)
-    map(lambda x: anaconda.backend.selectGroup(x), grps)
+%(setGroupSelection)s
 
   def setSteps(self, dispatch):
     BaseInstallClass.setSteps(self, dispatch);
@@ -87,16 +83,13 @@ class InstallClass(BaseInstallClass):
   showLoginChoice = 1
   showMinimal = 1
 
-  tasks = [("Default", %(default_groups)s), ("Everything", %(all_groups)s)]
+  tasks = [("Default", %(groups)s)]
 
   def setInstallData(self, anaconda):
     BaseInstallClass.setInstallData(self, anaconda)
     BaseInstallClass.setDefaultPartitioning(self, anaconda.id.partitions, CLEARPART_TYPE_LINUX)
 
-  def setGroupSelection(self, anaconda):
-    grps = anaconda.backend.getDefaultGroups(anaconda)
-    log.info(grps)
-    map(lambda x: anaconda.backend.selectGroup(x), grps)
+%(setGroupSelection)s
 
   def setSteps(self, anaconda):
     BaseInstallClass.setSteps(self, anaconda);
@@ -139,7 +132,7 @@ class InstallClass(BaseInstallClass):
   showLoginChoice = 1
   showMinimal = 1
 
-  tasks = [("Default", %(default_groups)s), ("Everything", %(all_groups)s)]
+  tasks = [("Default", %(groups)s)]
 
   bugFiler = BugzillaFiler(bugUrl="https://bugzilla.redhat.com/xmlrpc.cgi")
 
@@ -159,6 +152,8 @@ class InstallClass(BaseInstallClass):
   def setSteps(self, anaconda):
     BaseInstallClass.setSteps(self, anaconda);
     anaconda.dispatch.skipStep("partition")
+
+%(setGroupSelection)s
 
   def getBackend(self):
     if flags.livecdInstall:

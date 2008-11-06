@@ -37,7 +37,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
       parentid = 'installer',
       provides = ['product.img', 'treeinfo-checksums'],
       requires = ['anaconda-version', 'buildstamp-file',
-                  'installer-repo'],
+                  'installer-repo', 'comps-group-info'],
       conditionally_requires = ['groupfile', 'product-image-content'],
     )
 
@@ -88,9 +88,16 @@ class ProductImageEvent(Event, ImageModifyMixin):
 
   def _generate_installclass(self):
     mod = dict(
-      all_groups     = self.cvars['user-required-groups'] or ['core'],
-      default_groups = self.cvars['user-required-groups'] or ['core'],
+      groups = self.cvars['user-required-groups'] or ['core'],
+      setGroupSelection = self._make_setGroupSelection()
     )
 
     self.image.writeflo(StringIO(self.locals.L_INSTALLCLASS % mod),
                         filename='custom.py', dst='installclasses')
+
+  def _make_setGroupSelection(self):
+    # indentation consistent with files in locals
+    lines = ['  def setGroupSelection(self, anaconda):']
+    for gi in self.cvars['comps-group-info']:
+      lines.append('    anaconda.backend.selectGroup("%s", (%s, %s))' % gi)
+    return '\n'.join(lines)
