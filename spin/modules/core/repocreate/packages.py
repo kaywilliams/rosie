@@ -16,12 +16,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from yum import comps
-
 from spin.constants import KERNELS
 from spin.errors    import assert_file_has_content, SpinError
 from spin.event     import Event
 from spin.logging   import L1
+
+from spin.modules.shared import comps
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -85,7 +85,7 @@ class PackagesEvent(Event):
 
     # set required packages variable
     assert_file_has_content(self.cvars['groupfile'])
-    GF = SpinComps()
+    GF = comps.Comps()
     GF.add(self.cvars['groupfile'])
 
     for cvid in ['all-packages', 'comps-default-packages',
@@ -145,11 +145,11 @@ class PackagesEvent(Event):
 
     groupfiles = {}
     for id, path in self.groupfiles:
-      gf = SpinComps()
+      gf = comps.Comps()
       gf.add(path)
       groupfiles[id] = gf
 
-    self.comps = SpinComps()
+    self.comps = comps.Comps()
 
     # add groups
     for group in self.config.xpath('group', []):
@@ -236,22 +236,6 @@ class PackagesEvent(Event):
       if rid not in [ x for x,_ in self.groupfiles ]:
         raise RepoHasNoGroupfileError(gid, rid)
 
-
-# older versions of yum don't have add_group or add_category yet
-class SpinComps(comps.Comps):
-  if not hasattr(comps.Comps, 'add_group'):
-    def add_group(self, group):
-      if self._groups.has_key(group.groupid):
-        self._groups[group.groupid].add(group)
-      else:
-        self._groups[group.groupid] = group
-
-  if not hasattr(comps.Comps, 'add_category'):
-    def add_category(self, category):
-      if self._categories.has_key(category.categoryid):
-        self._categories[category.categoryid].add(category)
-      else:
-        self._categories[category.categoryid] = category
 
 #------ ERRORS ------#
 class CompsError(SpinError): pass
