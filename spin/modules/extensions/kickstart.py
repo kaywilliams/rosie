@@ -37,7 +37,7 @@ class KickstartEvent(Event):
       version = 1,
       provides = ['kickstart', 'kickstart-file', 'ks-path',
                   'initrd-image-content'],
-      requires = ['user-required-packages', 'user-required-groups',
+      requires = ['user-required-packages', 'comps-group-info',
                   'user-excluded-packages', 'repodata-directory'],
     )
 
@@ -51,26 +51,15 @@ class KickstartEvent(Event):
                     'cvars[\'user-excluded-packages\']'],
     }
 
-    self.ksfile = None # set in setup
+    self.ksfile = None
 
   def setup(self):
+    self.ksfile = self.SOFTWARE_STORE / 'ks.cfg'
     self.diff.setup(self.DATA)
-    self.io.add_xpath('.', self.SOFTWARE_STORE, id='kickstart-file')
-    self.ksfile = self.io.list_output(what='kickstart-file')[0]
-
-  def _read_kickstart(self, path):
-    ks = ksparser.KickstartParser(
-           ksversion.makeVersion(self.locals.L_KICKSTART)
-         )
-
-    ks.readKickstart(path)
-    return ks
+    self.DATA['output'].append(self.ksfile)
 
   def run(self):
-
-    self.io.sync_input(cache=True)
-
-    ks = self._read_kickstart(self.ksfile)
+    ks = self._read_kickstart_from_string(self.config.text or '')
 
     # modify repos
     ## problem - repodata-directory will only work for local vm builds
@@ -80,9 +69,14 @@ class KickstartEvent(Event):
            '--baseurl', 'file://'+self.cvars['repodata-directory'].dirname])
 
     # modify %packages
-    self._update_packages(ks, groups   = self.cvars['user-required-groups'],
+    self._update_packages(ks, groups   = self.cvars['comps-group-info'],
                               packages = self.cvars['user-required-packages'],
                               excludes = self.cvars['user-excluded-packages'])
+
+    # modify partitions (iff missing)
+    if len(ks.handler.partition.partitions) == 0:
+      self._update_partitions(ks,
+            ['/', '--size', '550', '--fstype', 'ext3', '--ondisk', 'sda'])
 
     # update partition so it doesn't write out deprecated bytes-per-inode
     # in F9 and greater; this is kind of stupid
@@ -92,23 +86,6 @@ class KickstartEvent(Event):
 
     # write out updated file
     self.ksfile.write_text(str(ks.handler))
-
-  def _update_repos(self, ks, args):
-    ks.handler.repo.repoList = []
-    ks.handler.repo.parse(args)
-
-  def _update_packages(self, ks, groups=None, packages=None, excludes=None):
-    ks.handler.packages.excludedList = []
-    ks.handler.packages.groupList    = []
-    ks.handler.packages.packageList  = []
-
-    lines = []
-
-    if groups:   lines.extend([ '@'+x for x in groups ])
-    if packages: lines.extend(packages)
-    if excludes: lines.extend([ '-'+x for x in excludes ])
-
-    ks.handler.packages.add(lines)
 
   def apply(self):
     self.cvars['kickstart-file'] = self.ksfile
@@ -120,3 +97,47 @@ class KickstartEvent(Event):
     self.verifier.failUnlessSet('kickstart-file')
     self.verifier.failUnlessSet('ks-path')
     self.verifier.failUnlessSet('kickstart')
+
+  def _read_kickstart_from_string(self, string):
+    ks = ksparser.KickstartParser(
+           ksversion.makeVersion(self.locals.L_KICKSTART)
+         )
+
+    ks.readKickstartFromString(string)
+    return ks
+
+  def _read_kickstart(self, path):
+    ks = ksparser.KickstartParser(
+           ksversion.makeVersion(self.locals.L_KICKSTART)
+         )
+
+    ks.readKickstart(path)
+    return ks
+
+  def _update_repos(self, ks, args):
+    ks.handler.repo.repoList = []
+    ks.handler.repo.parse(args)
+
+  def _update_partitions(self, ks, args):
+    ks.handler.partition.partitions = []
+    ks.handler.partition.parse(args)
+
+  def _update_packages(self, ks, groups=None, packages=None, excludes=None):
+    ks.handler.packages.excludedList = []
+    ks.handler.packages.groupList    = []
+    ks.handler.packages.packageList  = []
+
+    lines = []
+
+    if groups:
+      for (grpid, default, optional) in groups:
+        line = '@%s' % grpid
+        if not default:
+          line = '%s --nodefaults' % line
+        if optional:
+          line = '%s --optional' % line
+        lines.append(line)
+    if packages: lines.extend(packages)
+    if excludes: lines.extend([ '-'+x for x in excludes ])
+
+    ks.handler.packages.add(lines)
