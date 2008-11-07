@@ -145,9 +145,7 @@ class PackagesEvent(Event):
 
     groupfiles = {}
     for id, path in self.groupfiles:
-      gf = comps.Comps()
-      gf.add(path)
-      groupfiles[id] = gf
+      groupfiles.setdefault(id, comps.Comps()).add(path)
 
     self.comps = comps.Comps()
 
