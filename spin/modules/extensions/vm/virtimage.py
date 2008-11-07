@@ -46,6 +46,7 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
     Event.__init__(self,
       id = 'virtimage',
       parentid = 'vm',
+      version = '1',
       requires = ['kickstart', 'pkglist'],
       provides = ['publish-content']
     )
@@ -64,7 +65,7 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
     self.ks = None
     self._scripts = []
 
-    self.dovmx = self.config.getbool('@vmware', 'True')
+    self.dovmx = self.config.getbool('@vmware', 'False')
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -153,9 +154,9 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
 
     for part in self.ks.handler.partition.partitions:
       id = '%s-%s' % (self.applianceid, part.disk)
-      self.cvars['publish-content'].add('%s.raw'  % id)
+      self.cvars['publish-content'].add(self.mddir/'%s.raw'  % id)
       if self.dovmx:
-        self.cvars['publish-content'].add('%s.vmdk' % id)
+        self.cvars['publish-content'].add(self.mddir/'%s.vmdk' % id)
     self.cvars['publish-content'].add(self.mddir/'%s.xml' % self.applianceid)
     if self.dovmx:
       self.cvars['publish-content'].add(self.mddir/'%s.vmx' % self.applianceid)
