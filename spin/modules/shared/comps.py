@@ -25,7 +25,14 @@ from yum.Errors import CompsException
 # switch all compsexceptions to grouperrors after api break
 import fnmatch
 import re
-from yum.misc import to_unicode
+
+# to_unicode backported from yum.misc
+def to_unicode(obj, encoding='utf-8', errors='replace'):
+    ''' convert a 'str' to 'unicode' '''
+    if isinstance(obj, basestring):
+        if not isinstance(obj, unocide):
+            obj = unicode(obj, encoding, errors)
+    return obj
 
 lang_attr = '{http://www.w3.org/XML/1998/namespace}lang'
 
