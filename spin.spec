@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.9.5
+Version: 1.0.0
 Release: 1%{?dist}
 Summary: Builds software appliances based on Red Hat, CentOS and Fedora Linux
 
@@ -78,6 +78,18 @@ separately purchase RHEL subscriptions for all installed systems.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Fri Nov 07 2008 Uday Prakash <uprakash@renditionsoftware.com> - 1.0.0-1
+- pkglist now runs when repos/exclude-package elements change (kwilliams)
+- modified virtimage to account for new ApplianceImageCreator.__init__(dmusgrave)
+- logging: improvements to unhandled exception error text (kwilliams)
+- ADFR: Corrected sources element description; exclude-package not allowed (kwilliams)
+- ADFR: commenting out logos-rpm related documentation (kwilliams)
+- ADFR: ordering release-files ahead of release-rpm in the TOC (kwilliams)
+- ADFR: updates to rpmbuild and repos elements (kwilliams)
+- more VM work (dmusgrave)
+- fixed time information when --skip'ing an event (dmusgrave)
+- initial commit of more serious VM work (dmusgrave)
+
 * Tue Oct 21 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.9.5-1
 - Removed the draft watermark from the ADFR.pdf. (uprakash)
 - ADFR: edits to common attributes and elements sections (kwilliams)
