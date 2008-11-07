@@ -18,7 +18,7 @@
 from spintest      import EventTestCase, ModuleTestSuite
 from spintest.core import make_core_suite
 
-non_meta_event = 'comps'
+non_meta_event = 'packages'
 meta_event = 'setup'
 
 class AutocleanEventTestCase(EventTestCase):
