@@ -177,7 +177,14 @@ class PackagesEvent(Event):
 
     # add packages
     for package in self.config.xpath('package', []):
-      for pkgname in fnmatch.filter(allpkgs, package.text):
+      pkgs = fnmatch.filter(allpkgs, package.text)
+      if len(pkgs) == 0:
+        if not self.config.getbool('@ignoremissing', 'False'):
+          raise PackageNotFoundError(package.text)
+        else:
+          self.log(0, "Warning: no packages matching '%s' found in any "
+                      "of the input repositories")
+      for pkgname in pkgs:
         app_group.mandatory_packages[pkgname] = 1
 
     # its a shame I have to replicate this code from comps.py
@@ -246,6 +253,9 @@ class CompsError(SpinError): pass
 
 class GroupNotFoundError(CompsError):
   message = "Group '%(group)s' not found in any groupfile"
+
+class PackageNotFoundError(CompsError):
+  message = "Package '%(package)s' not found in amy repository"
 
 class RepoidNotFoundError(CompsError):
   message = "Group '%(group)s' specifies nonexistant repoid '%(repoid)s'"
