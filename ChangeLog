@@ -1,8 +1,111 @@
+2008-10-27  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* spin/modules/core/packages/pkglist.py:
+	pkglist now runs when repos/exclude-package elements change
+	[9b700f492b08] [tip]
+
+2008-10-27  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/extensions/vm/virtimage.py:
+	modified virtimage to account for new
+	ApplianceImageCreator.__init__() args
+	[023faf9e7c0c]
+
+2008-10-27  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* spin/errors.py, spin/main.py:
+	logging: improvements to unhandled exception error text
+
+	* added path to the log file, so the user can find it
+	* changed the email address to 'spin@renditionsoftware.com'
+	* other minor edits
+	[e44b648f1af5]
+
+2008-10-26  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/ADFR/TopLevelElements-sources.xml:
+	ADFR: Corrected sources element description; exclude-package not
+	allowed
+	[345fbeffe74b]
+
+	* docsrc/ADFR/CommonComponents-Elements.xml, docsrc/ADFR/Index.xml,
+	docsrc/ADFR/TopLevelElements.xml:
+	ADFR: commenting out logos-rpm related documentation
+
+	* until we come up with a more reliable solution
+	[05f7878cbb41]
+
+2008-10-22  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/ADFR/TopLevelElements.xml:
+	ADFR: ordering release-files ahead of release-rpm in the TOC
+	[5e11d171c1e9]
+
+	* docsrc/ADFR/CommonComponents-Elements.xml, docsrc/ADFR
+	/TopLevelElements-config-rpm.xml, docsrc/ADFR/TopLevelElements-
+	logos-rpm.xml, docsrc/ADFR/TopLevelElements-release-rpm.xml,
+	docsrc/ADFR/TopLevelElements-repos.xml:
+	ADFR: updates to rpmbuild and repos elements
+
+	* Edited description sections for logos, release and config-rpm
+	elements
+	* Added notes for logos-rpm, repos and repo elements indicating that
+	additional needed software can be downloaded by following the
+	instructions at http://www.renditionsoftware.com/spin/download
+	[9d7938d9d5d2]
+
+2008-10-21  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/livecd.rng,
+	spin/modules/extensions/vm/livecd.py, spin/modules/shared/vms.py:
+	more VM work share/spin/schemas/appliance/livecd.rng
+	 * added livecd schema spin/modules/extensions/vm/livecd.py
+	 * ._base_on() now properly calls SpinImageCreatorMixin._base_on()
+	 * added ._check_required_packages(), which checks to ensure that the
+	pkglist contains 'syslinux'
+	 * added SyslinuxRequiredError, the error raised when the above check
+	fails spin/modules/shared/vms.py
+	 * added ._check_required_packagees(), which should raise an exception
+	if the distribution pkglist doesn't contain a required package
+	for the VM
+	 * added ._get_pkglist_names(), a helper method that transforms the
+	pkglist into a list of pkg names for easier comparison in
+	._check_required_packages()
+	 * .install() now calls ._check_required_packages() prior to actually
+	selecting any packges or groups
+	 * adjusted error processing slightly so that the special passing of
+	yum errors on empty transaction sets doesn't interfere with other
+	errors that occur before the transaction set has been populated
+	[d9f317342294]
+
+	* spin/event/__init__.py:
+	fixed time information when --skip'ing an event
+	[553dc5086a36]
+
+	* spin/modules/extensions/vm/chroot.py,
+	spin/modules/extensions/vm/livecd.py, spin/modules/shared/vms.py:
+	initial commit of more serious VM work
+	 * chroot event creates a chroot'ed install
+	 * livecd creates a livecd
+	 * shared/vms.py contains shared code for all vm stuff
+	 * all vm events are currently extension events
+	 * all vm events require that a kickstart be included via the kicstart
+	TLE
+	[6fb6c7fec406]
+
 2008-10-21  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.9.5-1
+	[503d8463696c]
+
+	* ChangeLog, spin.spec:
+	Updated the spin-0.9.5-1 branch.
+	[2311df9c6761] [spin-0.9.5-1]
 
 	* docsrc/ADFR/Makefile:
 	Removed the draft watermark from the ADFR.pdf.
-	[b80eeac5e460] [tip]
+	[b80eeac5e460]
 
 	* .hgtags:
 	Tagged as spin-0.9.5-1
@@ -10,7 +113,7 @@
 
 	* ChangeLog, spin.spec:
 	Bumped version to spin-0.9.5-1.
-	[bbd614977dbb] [spin-0.9.5-1]
+	[bbd614977dbb]
 
 2008-10-21  Kay Williams  <kwilliams@renditionsoftware.com>
 
