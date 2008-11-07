@@ -85,7 +85,7 @@ class PackagesEvent(Event):
 
     # set required packages variable
     assert_file_has_content(self.cvars['groupfile'])
-    GF = comps.Comps()
+    GF = SpinComps()
     GF.add(self.cvars['groupfile'])
 
     for cvid in ['all-packages', 'comps-default-packages',
@@ -145,11 +145,11 @@ class PackagesEvent(Event):
 
     groupfiles = {}
     for id, path in self.groupfiles:
-      gf = comps.Comps()
+      gf = SpinComps()
       gf.add(path)
       groupfiles[id] = gf
 
-    self.comps = comps.Comps()
+    self.comps = SpinComps()
 
     # add groups
     for group in self.config.xpath('group', []):
@@ -236,6 +236,22 @@ class PackagesEvent(Event):
       if rid not in [ x for x,_ in self.groupfiles ]:
         raise RepoHasNoGroupfileError(gid, rid)
 
+
+# older versions of yum don't have add_group or add_category yet
+class SpinComps(comps.Comps):
+  if not hasattr(comps.Comps, 'add_group'):
+    def add_group(self, group):
+      if self._groups.has_key(group.groupid):
+        self._groups[group.groupid].add(group)
+      else:
+        self._groups[group.groupid] = group
+
+  if not hasattr(comps.Comps, 'add_category'):
+    def add_category(self, category):
+      if self._categories.has_key(category.categoryid):
+        self._categories[category.categoryid].add(category)
+      else:
+        self._categories[category.categoryid] = category
 
 #------ ERRORS ------#
 class CompsError(SpinError): pass
