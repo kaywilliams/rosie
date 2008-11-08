@@ -183,7 +183,7 @@ class PackagesEvent(Event):
           raise PackageNotFoundError(package.text)
         else:
           self.log(0, "Warning: no packages matching '%s' found in any "
-                      "of the input repositories")
+                      "of the input repositories" % package.text)
       for pkgname in pkgs:
         app_group.mandatory_packages[pkgname] = 1
 
