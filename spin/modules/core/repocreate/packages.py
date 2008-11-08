@@ -16,6 +16,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
+import fnmatch
+
 from spin.constants import KERNELS
 from spin.errors    import assert_file_has_content, SpinError
 from spin.event     import Event
@@ -143,6 +145,11 @@ class PackagesEvent(Event):
     for id, path in self.groupfiles:
       groupfiles.setdefault(id, comps.Comps()).add(path)
 
+    allpkgs = [] # maintain a list of all packages in all repositories
+    for repo in self.cvars['repos'].values():
+      allpkgs.extend(repo.repocontent.return_pkgs('$name'))
+    allpkgs = sorted(list(set(allpkgs))) # sort + uniq
+
     self.comps = comps.Comps()
 
     # add groups
@@ -166,7 +173,15 @@ class PackagesEvent(Event):
 
     # add packages
     for package in self.config.xpath('package', []):
-      app_group.mandatory_packages[package.text] = 1
+      pkgs = fnmatch.filter(allpkgs, package.text)
+      if len(pkgs) == 0:
+        if self.config.getbool('@ignoremissing', 'False'):
+          self.log(0, "Warning: no packages matching '%s' found in any "
+                      "of the input repositories" % package.text)
+        else:
+          raise PackageNotFoundError(package.text)
+      for pkgname in pkgs:
+        app_group.mandatory_packages[pkgname] = 1
 
     # its a shame I have to replicate this code from comps.py
     for pkgtup in self.cvars['required-packages'] or []:
@@ -199,10 +214,8 @@ class PackagesEvent(Event):
       for group in self.comps.groups:
         for l in [ group.mandatory_packages, group.optional_packages,
                    group.default_packages, group.conditional_packages ]:
-          try:
-            del l[pkg]
-          except:
-            pass
+          for pkgname in fnmatch.filter(l, pkg):
+            del l[pkgname]
 
     # create a category
     category = comps.Category()
@@ -236,6 +249,9 @@ class CompsError(SpinError): pass
 
 class GroupNotFoundError(CompsError):
   message = "Group '%(group)s' not found in any groupfile"
+
+class PackageNotFoundError(CompsError):
+  message = "Package '%(package)s' not found in amy repository"
 
 class RepoidNotFoundError(CompsError):
   message = "Group '%(group)s' specifies nonexistant repoid '%(repoid)s'"

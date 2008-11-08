@@ -9,6 +9,16 @@
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
+        <optional>
+        <attribute name="ignoremissing"><ref name="value-boolean"/></attribute>
+        </optional>
+        <optional>
+        <attribute name="excludedocs"><ref name="value-boolean"/></attribute>
+        </optional>
+        <optional>
+        <attribute name="default"><ref name="value-boolean"/></attribute>
+        </optional>
+
         <interleave>
 
         <oneOrMore>

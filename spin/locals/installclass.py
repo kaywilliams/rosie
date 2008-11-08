@@ -71,9 +71,6 @@ from installclass import BaseInstallClass
 from rhpl.translate import N_
 from constants import *
 
-import logging
-log = logging.getLogger("anaconda")
-
 class InstallClass(BaseInstallClass):
   id = "custom"
   name = N_("_Custom")
