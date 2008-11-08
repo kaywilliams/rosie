@@ -13,26 +13,21 @@
     </title>
 
     <para>
-    Specifies the <varname>PATH</varname> to a default kickstart file for the 
-    appliance. The file is included in the 
+    Specifies the contents of the default kickstart file for the
+    appliance. The file is included in the
     <filename>initrd.img</filename>, and a <constant>ks=</constant>
-    <varname>BASENAME</varname> 
-    parameter is added to the kernel boot arguments for 
-    <emphasis role="strong"><xref linkend="bootiso" /></emphasis>, 
+    <varname>BASENAME</varname> parameter is added to the kernel boot
+    arguments for <emphasis role="strong"><xref linkend="bootiso"/></emphasis>,
     <emphasis role="strong"><xref linkend="diskboot-image" /></emphasis> and all
-    <emphasis role="strong"><xref linkend="iso" /></emphasis> 
-    images.</para> 
+    <emphasis role="strong"><xref linkend="iso" /></emphasis> images.
+    </para>
 
     <para>
-    The file is also included at the root of the installation tree for the 
+    The file is also included at the root of the installation tree for the
     published appliance, where it can be accessed during network boot (PXE)
     installations.
     </para>
 
-    <para>
-    This module is a member of the <emphasis role="strong">installer</emphasis>
-    module group.
-    </para>
   </section>
 
   <section>
@@ -41,7 +36,7 @@
     </title>
 
     <programlisting>
-[&lt;kickstart [enabled=BOOLEAN]&gt;PATH&lt;/kickstart&gt;]
+[&lt;kickstart [enabled=BOOLEAN]&gt;TEXT&lt;/kickstart&gt;]
     </programlisting>
   </section>
 
@@ -72,7 +67,10 @@
 
     <informalexample>
     <programlisting>
-&lt;kickstart&gt;ks.cfg&lt;/kickstart&gt;
+&lt;kickstart&gt;
+part / --fstype="ext3" --ondisk=sda --size=550
+authconfig --enablemd5 --useshadow
+&lt;/kickstart&gt;
     </programlisting>
     </informalexample>
   </section>
@@ -83,9 +81,8 @@
     </title>
 
     <para>
-    <varname><xref linkend="content-path" /></varname>,
     <varname><xref linkend="content-basename" /></varname>,
-    <xref linkend="bootiso" />, 
+    <xref linkend="bootiso" />,
     <xref linkend="diskboot-image" />,
     <xref linkend="iso" />,
     <xref linkend="boot-args-macros" />
