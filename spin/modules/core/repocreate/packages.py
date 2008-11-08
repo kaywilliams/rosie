@@ -179,11 +179,11 @@ class PackagesEvent(Event):
     for package in self.config.xpath('package', []):
       pkgs = fnmatch.filter(allpkgs, package.text)
       if len(pkgs) == 0:
-        if not self.config.getbool('@ignoremissing', 'False'):
-          raise PackageNotFoundError(package.text)
-        else:
+        if self.config.getbool('@ignoremissing', 'False'):
           self.log(0, "Warning: no packages matching '%s' found in any "
                       "of the input repositories" % package.text)
+        else:
+          raise PackageNotFoundError(package.text)
       for pkgname in pkgs:
         app_group.mandatory_packages[pkgname] = 1
 
