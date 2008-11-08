@@ -35,11 +35,9 @@ class PackagesEvent(Event):
     Event.__init__(self,
       id = 'packages',
       parentid = 'repocreate',
-      provides = ['groupfile', 'all-packages', 'user-required-packages',
-                  'user-required-groups', 'user-excluded-packages',
-                  'comps-default-packages', 'comps-mandatory-packages',
-                  'comps-optional-packages', 'comps-conditional-packages',
-                  'comps-group-info'],
+      provides = ['groupfile', 'comps-object', 'comps-group-info',
+                  'user-required-packages', 'user-required-groups',
+                  'user-excluded-packages', 'all-packages'],
       requires = ['repos'],
       conditionally_requires = ['required-packages', 'excluded-packages'],
     )
@@ -88,18 +86,13 @@ class PackagesEvent(Event):
     GF = comps.Comps()
     GF.add(self.cvars['groupfile'])
 
-    for cvid in ['all-packages', 'comps-default-packages',
-                 'comps-optional-packages', 'comps-mandatory-packages',
-                 'comps-conditional-packages', 'comps-group-info']:
-      self.cvars.setdefault(cvid, [])
+    self.cvars['comps-object'] = GF
+
+    self.cvars.setdefault('comps-group-info', [])
+    self.cvars.setdefault('all-packages', [])
 
     for group in GF.groups:
       self.cvars['all-packages'].extend(group.packages)
-      self.cvars['comps-default-packages'].extend(group.default_packages.keys())
-      self.cvars['comps-optional-packages'].extend(group.optional_packages.keys())
-      self.cvars['comps-mandatory-packages'].extend(group.mandatory_packages.keys())
-      self.cvars['comps-conditional-packages'].extend(group.conditional_packages.keys())
-
       gxml = self.config.get('group[text()="%s"]' % group.groupid, None)
       if gxml is not None:
         self.cvars['comps-group-info'].append((group.groupid,
@@ -127,6 +120,9 @@ class PackagesEvent(Event):
     self.verifier.failUnless(self.cvars['groupfile'].exists(),
       "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
 
+  def verify_cvar_comps_object(self):
+    "cvars['comps-object'] exists"
+    self.verifier.failUnlessSet('comps-object')
 
   #------ COMPS FILE GENERATION METHODS ------#
   def _get_groupfiles(self):

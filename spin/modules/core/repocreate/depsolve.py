@@ -48,7 +48,8 @@ class DepsolveEvent(Event, DepsolverMixin):
       id = 'depsolve',
       parentid = 'repocreate',
       provides = ['pkglist', 'pkglist-install-packages'],
-      requires = ['all-packages', 'repos', 'user-required-packages'],
+      requires = ['comps-object', 'repos', 'all-packages', 'comps-group-info',
+                  'user-required-packages'],
       conditionally_requires = ['pkglist-excluded-packages'],
       version = '0.2',
     )
@@ -61,6 +62,8 @@ class DepsolveEvent(Event, DepsolverMixin):
     self.DATA = {
       'config':    ['.'],
       'variables': ['cvars[\'all-packages\']',
+                    'cvars[\'comps-group-info\']',
+                    'cvars[\'user-required-packages\']',
                     'cvars[\'pkglist-excluded-packages\']'],
       'input':     [],
       'output':    [],

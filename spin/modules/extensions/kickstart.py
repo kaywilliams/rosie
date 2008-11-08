@@ -46,6 +46,7 @@ class KickstartEvent(Event):
       'input':     [],
       'output':    [],
       'variables': ['cvars[\'repodata-directory\']',
+                    'cvars[\'comps-group-info\']',
                     'cvars[\'user-required-groups\']',
                     'cvars[\'user-required-packages\']',
                     'cvars[\'user-excluded-packages\']'],

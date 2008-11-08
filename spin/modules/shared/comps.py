@@ -63,23 +63,23 @@ class Group(object):
         self.display_order = 1024
         self.installed = False
         self.toremove = False
-        
+
 
         if elem:
             self.parse(elem)
-        
+
     def __str__(self):
         return self.name
-    
+
     def _packageiter(self):
         # Gah, FIXME: real iterator/class
         lst = self.mandatory_packages.keys() + \
               self.optional_packages.keys() + \
               self.default_packages.keys() + \
-              self.conditional_packages.keys() 
-        
+              self.conditional_packages.keys()
+
         return lst
-    
+
     packages = property(_packageiter)
 
     def _expand_languages(self, lang):
@@ -88,7 +88,7 @@ class Group(object):
 
         if 'C' not in languages:
             languages.append('C')
-         
+
         # now normalize and expand the languages
         nelangs = []
         for lang in languages:
@@ -96,7 +96,7 @@ class Group(object):
                 if nelang not in nelangs:
                     nelangs.append(nelang)
         return nelangs
-        
+
     def nameByLang(self, lang):
 
         for langcode in self._expand_languages(lang):
@@ -120,49 +120,49 @@ class Group(object):
                 if self.groupid is not None:
                     raise CompsException
                 self.groupid = myid
-            
+
             elif child.tag == 'name':
                 text = child.text
                 if text:
                     text = text.encode('utf8')
-                
+
                 lang = child.attrib.get(lang_attr)
                 if lang:
                     self.translated_name[lang] = text
                 else:
                     self.name = text
-    
-    
+
+
             elif child.tag == 'description':
                 text = child.text
                 if text:
                     text = text.encode('utf8')
-                    
+
                 lang = child.attrib.get(lang_attr)
                 if lang:
                     self.translated_description[lang] = text
                 else:
                     if text:
                         self.description = text
-    
+
             elif child.tag == 'uservisible':
                 self.user_visible = parse_boolean(child.text)
-    
+
             elif child.tag == 'display_order':
                 self.display_order = parse_number(child.text)
 
             elif child.tag == 'default':
                 self.default = parse_boolean(child.text)
-    
-            elif child.tag in ['langonly', 'lang_only']: 
+
+            elif child.tag in ['langonly', 'lang_only']:
                 text = child.text
                 if self.langonly is not None:
                     raise CompsException
                 self.langonly = text
-    
+
             elif child.tag == 'packagelist':
                 self.parse_package_list(child)
-    
+
     def parse_package_list(self, packagelist_elem):
         for child in packagelist_elem:
             if child.tag == 'packagereq':
@@ -188,10 +188,10 @@ class Group(object):
 
     def add(self, obj):
         """Add another group object to this object"""
-    
+
         # we only need package lists and any translation that we don't already
         # have
-        
+
         for pkg in obj.mandatory_packages:
             self.mandatory_packages[pkg] = 1
         for pkg in obj.default_packages:
@@ -200,43 +200,43 @@ class Group(object):
             self.optional_packages[pkg] = 1
         for pkg in obj.conditional_packages:
             self.conditional_packages[pkg] = obj.conditional_packages[pkg]
-        
+
         # Handle cases where a comps.xml without name & decription tags
         # has been setup first, so the name & decription for this object is blank.
-            
-        
+
+
         if self.name == '' and obj.name != '':
             self.name = obj.name
 
         if self.description == '' and obj.description != '':
             self.description = obj.description
-            
+
         # name and description translations
         for lang in obj.translated_name:
             if not self.translated_name.has_key(lang):
                 self.translated_name[lang] = obj.translated_name[lang]
-        
+
         for lang in obj.translated_description:
             if not self.translated_description.has_key(lang):
                 self.translated_description[lang] = obj.translated_description[lang]
-        
+
     def xml(self):
         """write out an xml stanza for the group object"""
-        msg ="""        
+        msg ="""
   <group>
    <id>%s</id>
    <default>%s</default>
    <uservisible>%s</uservisible>
-   <display_order>%s</display_order>\n""" % (self.groupid, str(self.default), 
+   <display_order>%s</display_order>\n""" % (self.groupid, str(self.default),
                                   str(self.user_visible), self.display_order)
-   
+
         if self.langonly:
             msg += """   <langonly>%s</langonly>""" % self.langonly
-            
+
         msg +="""   <name>%s</name>\n""" % self.name
         for (lang, val) in self.translated_name.items():
             msg += """   <name xml:lang="%s">%s</name>\n""" % (lang, val)
-        
+
         msg += """   <description>%s</description>\n""" % self.description
         for (lang, val) in self.translated_description.items():
             msg += """   <description xml:lang="%s">%s</description>\n""" % (lang, val)
@@ -253,9 +253,9 @@ class Group(object):
         msg += """    </packagelist>\n"""
         msg += """  </group>"""
 
-        return msg      
-        
-        
+        return msg
+
+
 
 
 class Category(object):
@@ -266,19 +266,19 @@ class Category(object):
         self.translated_name = {}
         self.translated_description = {}
         self.display_order = 1024
-        self._groups = {}        
+        self._groups = {}
 
         if elem:
             self.parse(elem)
-            
+
     def __str__(self):
         return self.name
-    
+
     def _groupiter(self):
         return self._groups.keys()
-    
+
     groups = property(_groupiter)
-    
+
     def parse(self, elem):
         for child in elem:
             if child.tag == 'id':
@@ -291,24 +291,24 @@ class Category(object):
                 text = child.text
                 if text:
                     text = text.encode('utf8')
-                    
+
                 lang = child.attrib.get(lang_attr)
                 if lang:
                     self.translated_name[lang] = text
                 else:
                     self.name = text
-    
+
             elif child.tag == 'description':
                 text = child.text
                 if text:
                     text = text.encode('utf8')
-                    
+
                 lang = child.attrib.get(lang_attr)
                 if lang:
                     self.translated_description[lang] = text
                 else:
                     self.description = text
-            
+
             elif child.tag == 'grouplist':
                 self.parse_group_list(child)
 
@@ -323,30 +323,30 @@ class Category(object):
 
     def add(self, obj):
         """Add another category object to this object"""
-    
+
         for grp in obj.groups:
             self._groups[grp] = 1
-        
+
         # name and description translations
         for lang in obj.translated_name:
             if not self.translated_name.has_key(lang):
                 self.translated_name[lang] = obj.translated_name[lang]
-        
+
         for lang in obj.translated_description:
             if not self.translated_description.has_key(lang):
                 self.translated_description[lang] = obj.translated_description[lang]
 
     def xml(self):
         """write out an xml stanza for the group object"""
-        msg ="""        
+        msg ="""
   <category>
    <id>%s</id>
    <display_order>%s</display_order>\n""" % (self.categoryid, self.display_order)
-   
+
         msg +="""   <name>%s</name>\n""" % self.name
         for (lang, val) in self.translated_name.items():
             msg += """   <name xml:lang="%s">%s</name>\n""" % (lang, val)
-        
+
         msg += """   <description>%s</description>\n""" % self.description
         for (lang, val) in self.translated_description.items():
             msg += """    <description xml:lang="%s">%s</description>\n""" % (lang, val)
@@ -357,15 +357,15 @@ class Category(object):
         msg += """    </grouplist>\n"""
         msg += """  </category>\n"""
 
-        return msg                
-        
+        return msg
+
 class Comps(object):
     def __init__(self, overwrite_groups=False):
         self._groups = {}
         self._categories = {}
         self.compscount = 0
         self.overwrite_groups = overwrite_groups
-        self.compiled = False # have groups been compiled into avail/installed 
+        self.compiled = False # have groups been compiled into avail/installed
                               # lists, yet.
 
 
@@ -376,31 +376,31 @@ class Comps(object):
             return 0
         else:
             return -1
-    
+
     def get_groups(self):
         grps = self._groups.values()
         grps.sort(self.__sort_order)
         return grps
-        
+
     def get_categories(self):
         cats = self._categories.values()
         cats.sort(self.__sort_order)
         return cats
-        
-    
+
+
     groups = property(get_groups)
     categories = property(get_categories)
-    
-    
-    
+
+
+
     def has_group(self, grpid):
         exists = self.return_groups(grpid)
-            
+
         if exists:
             return True
-            
+
         return False
-    
+
     def return_group(self, grpid):
         """Return the first group which matches"""
         grps = self.return_groups(grpid)
@@ -419,7 +419,7 @@ class Comps(object):
                 thisgroup = self._groups[item]
                 returns[thisgroup.groupid] = thisgroup
                 continue
-            
+
             if case_sensitive:
                 match = re.compile(fnmatch.translate(item)).match
             else:
@@ -428,7 +428,7 @@ class Comps(object):
             for group in self.groups:
                 names = [ group.name, group.groupid ]
                 names.extend(group.translated_name.values())
-                for name in names:                
+                for name in names:
                     if match(name):
                         returns[group.groupid] = group
 
@@ -451,17 +451,17 @@ class Comps(object):
     def add(self, srcfile = None):
         if not srcfile:
             raise CompsException
-            
+
         if type(srcfile) == type('str'):
             # srcfile is a filename string
             infile = open(srcfile, 'rt')
         else:
             # srcfile is a file object
             infile = srcfile
-        
+
         self.compscount += 1
         self.compiled = False
-        
+
         parser = iterparse(infile)
         try:
             for event, elem in parser:
@@ -474,17 +474,17 @@ class Comps(object):
         except SyntaxError, e:
             raise CompsException, "comps file is empty/damaged"
             del parser
-            
+
         del parser
-        
+
     def compile(self, pkgtuplist):
         """ compile the groups into installed/available groups """
-        
+
         # convert the tuple list to a simple dict of pkgnames
         inst_pkg_names = {}
         for (n,a,e,v,r) in pkgtuplist:
             inst_pkg_names[n] = 1
-        
+
 
         for group in self.groups:
             # if there are mandatory packages in the group, then make sure
@@ -506,25 +506,25 @@ class Comps(object):
                     if inst_pkg_names.has_key(pkgname):
                         group.installed = True
                         break
-        
+
         self.compiled = True
-    
+
     def xml(self):
         """returns the xml of the comps files in this class, merged"""
 
         if not self._groups and not self._categories:
             return ""
-            
+
         msg = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE comps PUBLIC "-//Red Hat, Inc.//DTD Comps info//EN" "comps.dtd">
 <comps>
-""" 
- 
+"""
+
         for g in self.get_groups():
             msg += g.xml()
         for c in self.get_categories():
             msg += c.xml()
 
         msg += """\n</comps>\n"""
-        
+
         return msg

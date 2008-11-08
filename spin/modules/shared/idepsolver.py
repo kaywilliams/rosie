@@ -52,14 +52,29 @@ class DepsolverMixin(object):
     user_required     = self._get_user_required_packages()
     old_packages      = self._get_old_packages()
 
+    comps_conditional_pkgs = []
+    comps_default_pkgs     = []
+    comps_mandatory_pkgs   = []
+    comps_optional_pkgs    = []
+
+    for group in self.cvars['comps-object'].groups:
+      comps_default_pkgs.extend(group.default_packages.keys())
+      comps_mandatory_pkgs.extend(group.mandatory_packages.keys())
+      comps_optional_pkgs.extend(group.optional_packages.keys())
+
+      # get the package and it requires in the list
+      comps_conditional_pkgs.extend([
+        (x, y) for x, y in group.conditional_packages.items()
+      ])
+
     solver = IDepsolver(
       all_packages = required_packages,
       old_packages = old_packages or [],
       required = user_required,
-      comps_optional_pkgs = self.cvars['comps-optional-packages'],
-      comps_mandatory_pkgs = self.cvars['comps-mandatory-packages'],
-      comps_defaults_pkgs = self.cvars['comps-default-packages'],
-      comps_conditional_pkgs = self.cvars['comps-conditional-packages'],
+      comps_optional_pkgs = comps_optional_pkgs,
+      comps_mandatory_pkgs = comps_mandatory_pkgs,
+      comps_defaults_pkgs = comps_default_pkgs,
+      comps_conditional_pkgs = comps_conditional_pkgs,
       config = str(self.depsolve_repo),
       root = str(self.dsdir),
       arch = self.arch,
@@ -71,7 +86,28 @@ class DepsolverMixin(object):
     pos = solver.getPackageObjects()
     pkgtups = [ po.pkgtup for po in pos ]
 
-    pkgs_and_deps = solver.getPackagesAndDeps()
+    install_pkgs = []
+    for group in self.cvars['comps-object'].groups:
+      for (id, install_defaults, install_optionals) in self.cvars['comps-group-info']:
+        if id == group.groupid:
+          if 'mandatory' in solver.conf.group_package_types:
+            install_pkgs.extend(group.mandatory_packages.keys())
+          if install_defaults and 'default' in solver.conf.group_package_types:
+            install_pkgs.extend(group.default_packages.keys())
+          if install_optionals and 'optional' in solver.conf.group_package_types:
+            install_pkgs.extend(group.optional_packages.keys())
+          break
+
+    pkgs_and_deps = solver.getPackagesAndDeps(install_pkgs)
+
+    # have to do a second pass for the conditional packages
+    if solver.conf.enable_group_conditionals:
+      allpkgnames = set(pkgs_and_deps)
+      for condreq, cond in solver.comps_conditional_pkgs:
+        if cond in allpkgnames:
+          allpkgnames = allpkgnames.union(solver.getPackageAndDeps([condreq]))
+      pkgs_and_deps = list(allpkgnames)
+
     self.install_pkgsfile.write_lines(pkgs_and_deps)
 
     solver.teardown()
@@ -184,37 +220,7 @@ class IDepsolver(Depsolver):
   def setup(self):
     Depsolver.setup(self)
 
-  def getPackagesAndDeps(self, packages=None):
-    if packages is None:
-      # If no packages are specified, look at the yum.conf file's
-      # group_package_types option and populate the list of packages.
-      # By default, yum sets 'group_package_types' to 'default' and
-      # 'mandatory'.
-      allpkgs = []
-      if 'mandatory' in self.conf.group_package_types:
-        allpkgs.extend(self.comps_mandatory_pkgs)
-      if 'default' in self.conf.group_package_types:
-        allpkgs.extend(self.comps_defaults_pkgs)
-      if 'optional' in self.conf.group_package_types:
-        allpkgs.extend(self.comps_optional_pkgs)
-    else:
-      allpkgs = packages
-
-    allpkgnames = self._get_deps(allpkgs)
-    if packages is None:
-      # If no packages were passed to this method, also look at the
-      # conditional packages in the comps.xml and add them and their
-      # deps to the list returned.
-      allpkgnames = set(allpkgnames)
-      if self.conf.enable_group_conditionals:
-        for condreq, cond in self.comps_conditional_pkgs:
-          if cond in allpkgnames:
-            allpkgnames = allpkgnames.union(self._get_deps([condreq]))
-      allpkgnames = list(allpkgnames)
-
-    return sorted(allpkgnames)
-
-  def _get_deps(self, packages):
+  def getPackagesAndDeps(self, packages):
     allpkgtups = set()
     for pkgtup in self.resolved_deps:
       if pkgtup[0] in packages:
