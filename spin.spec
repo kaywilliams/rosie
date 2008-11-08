@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    spin
-Version: 0.9.5
+Version: 1.8.0
 Release: 1%{?dist}
 Summary: Builds software appliances based on Red Hat, CentOS and Fedora Linux
 
@@ -78,6 +78,66 @@ separately purchase RHEL subscriptions for all installed systems.
 %{_mandir}/man1/spin.1.gz
 
 %changelog
+* Fri Nov 07 2008 Uday Prakash <uprakash@renditionsoftware.com> - 1.8.0-1
+- Updated Makefiles to reflect changes in names of modules. (uprakash)
+- fixed packages processing of groupfiles in the RepoGroup case (fixes redhat builds). (dmusgrave)
+- backported to_unicode for earlier versions of yum. (dmusgrave)
+- gave up subclassing yum.comps.Comps; too much stuff is missing; instead, copied yum/comps.py into modules/shared/comps.py. (dmusgrave)
+- added SpinComps to packages, adds .add_group and .add_category to older versions of Yum.comps.Comps. (dmusgrave)
+- changed non meta test event for autoclean from 'comps' to 'packages'. (dmusgrave)
+- virtimage: defaulting dovmx to false; fixing path in publish-content. (kwilliams)
+- modified kickstart locals to pass on failed import of pykickstart. (dmusgrave)
+- modified installclasses we generate in product.img. (dmusgrave)
+- added virtimage schema. (dmusgrave)
+- added '@optional' and '@default' to /appliance/packages/group schema. (dmusgrave)
+- packages event now provides 'comps-group-info'. (dmusgrave)
+- removed vmware module; contents merged with virtimage; output generated with @vmware = True. (dmusgrave)
+- no longer use virt-pack to package vmware images; added @compress option. (dmusgrave)
+- removed log entry for packages event. (dmusgrave)
+- fixed repos event to look for 'exclude' rather than 'exclude-package'. (dmusgrave)
+- updated virtimage to work incrementally. (dmusgrave)
+- added _prep_partitions, _check_partitions; analogous to _prep_ks_scripts and _check_ks_scripts. (dmusgrave)
+- changed comes-before relationship to conditionally-comes-before. (dmusgrave)
+- finally fixed the data persistence and CTRL+C issues in image creation. (dmusgrave)
+- updated output and publish-content cvars for virtimage to account for possibility of multiple disk. (dmusgrave)
+- fixed a bug in package exclusion causing all exclude elements to be silently ignored. (dmusgrave)
+- updated documentation with repocreate instead of repository. (dmusgrave)
+- renamed 'repository' to 'repocreate'. (dmusgrave)
+- explicitly unset creator when finished; few random bug fixes. (dmusgrave)
+- renamed 'include-package' to 'includepkgs', 'exclude-package' to 'exclude' in schema. (dmusgrave)
+- renamed 'exclude-package' to 'exclude' and 'include-package' to 'includepkgs'. (dmusgrave)
+- renamed TopLevelElements-comps.xml to TopLevelElements-packages.xml. (dmusgrave)
+- changed 'comps' to 'packages' in ADFR. (dmusgrave)
+- added rng for chroot module. (dmusgrave)
+- kickstart modifications. (dmusgrave)
+- fixed a bug in the case when 'product-image-content' does not yet exist. (dmusgrave)
+- kickstart is no longer an installer module. (dmusgrave)
+- fixed installer test suites so they disable 'repository' instead of 'packages'. (dmusgrave)
+- packages cvar name changes. (dmusgrave)
+- removed commented-out localization stuff in package. (dmusgrave)
+- first phase of comps/packges/pkglist/vms changes. (dmusgrave)
+- Added support for conditional packages in depsolve event. (uprakash)
+- Fixed the COMPILE_PYTHON call in the Makefiles. (uprakash)
+- Using the compile_all module instead of pycompile to byte-compile. (uprakash)
+- Updated the test cases to reflect the pkglist-to-depsolve rename. (uprakash)
+- Renamed the pkglist event to the depsolve event. (uprakash)
+- Overriding the resolveDeps method to do nothing. (uprakash)
+- The IDepsolver class overrides the _provideToPkg() method. (uprakash)
+- The pkglist event provides pkglist-mandatory-packages. (uprakash)
+- The pkglist computes mandatory and default packages and their deps. (uprakash)
+
+* Fri Nov 07 2008 Uday Prakash <uprakash@renditionsoftware.com> - 1.0.0-1
+- pkglist now runs when repos/exclude-package elements change (kwilliams)
+- modified virtimage to account for new ApplianceImageCreator.__init__(dmusgrave)
+- logging: improvements to unhandled exception error text (kwilliams)
+- ADFR: Corrected sources element description; exclude-package not allowed (kwilliams)
+- ADFR: commenting out logos-rpm related documentation (kwilliams)
+- ADFR: ordering release-files ahead of release-rpm in the TOC (kwilliams)
+- ADFR: updates to rpmbuild and repos elements (kwilliams)
+- more VM work (dmusgrave)
+- fixed time information when --skip'ing an event (dmusgrave)
+- initial commit of more serious VM work (dmusgrave)
+
 * Tue Oct 21 2008 Uday Prakash <uprakash@renditionsoftware.com> - 0.9.5-1
 - Removed the draft watermark from the ADFR.pdf. (uprakash)
 - ADFR: edits to common attributes and elements sections (kwilliams)

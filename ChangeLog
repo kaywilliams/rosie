@@ -1,8 +1,698 @@
+2008-11-07  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/Makefile, spin/modules/core/Makefile,
+	spin/modules/core/repocreate/Makefile,
+	spin/modules/core/vm/Makefile, spin/modules/extensions/Makefile,
+	spin/modules/extensions/repocreate/Makefile,
+	spin/modules/extensions/vm/Makefile:
+	Updated Makefiles to reflect module name changes and additions.
+	[acf4f91f34b1] [tip]
+
+	* Merged with spin-1.0.
+	[bd43ed087192]
+
+	* .hgtags:
+	Tagged as spin-enterprise-1.0.0-1
+	[5b4d42bc8521]
+
+	* .hgtags:
+	Tagged as spin-1.0.0-1
+	[48c8479780df] [spin-enterprise-1.0.0-1]
+
+	* ChangeLog, spin-enterprise.spec, spin.spec:
+	Bumped version to spin-1.0.
+	[db717b5bb8bb] [spin-1.0.0-1]
+
+2008-11-07  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/core/repocreate/packages.py:
+	fixed packages processing of groupfiles in the RepoGroup case (fixes
+	redhat builds)
+	[3def737d40d7]
+
+	* spin/modules/shared/comps.py:
+	backported to_unicode for earlier versions of yum
+	[afd489b5e8d2]
+
+	* spin/modules/core/repocreate/packages.py,
+	spin/modules/shared/comps.py:
+	gave up subclassing yum.comps.Comps; too much stuff is missing;
+	instead, copied yum/comps.py into modules/shared/comps.py
+	[e795f813cca6]
+
+	* spin/modules/core/repocreate/packages.py:
+	added SpinComps to packages, adds .add_group and .add_category to
+	older versions of Yum.comps.Comps
+	[0441c7716d4e]
+
+	* spintest/modules/autoclean.py:
+	changed non meta test event for autoclean from 'comps' to 'packages'
+	[afa2ac0425f4]
+
+2008-11-06  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* spin/modules/extensions/vm/virtimage.py:
+	virtimage: defaulting dovmx to false; fixing path in publish-content
+	[7c3cef6ada7d]
+
+2008-11-06  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/locals/kickstart.py:
+	modified kickstart locals to pass on failed import of pykickstart
+	(temporary until pykickstart is required)
+	[10fda67ebb53]
+
+2008-11-05  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/core/repocreate/packages.py:
+	merged with trunk
+	[61cd7ca0080e]
+
+	* spin/locals/installclass.py, spin/modules/core/installer/product-
+	image.py:
+	modified installclasses we generate in product.img
+	spin/locals/installclass.py
+	 * installclasses now only have one task, 'Default', which contains all
+	groups in the groupfile
+	 * all installclasses now contain '%(setGroupSelection)s' macros which
+	are replaced by _generate_installclass(), in product-image.py
+	spin/modules/core/installer/product-image.py
+	 * ._generate_installclass() no longer replaces 'default_groups' or
+	'all_groups'; it instead replaces 'groups' and 'setGroupSelection'
+	 * added ._make_setGroupSelection(), a method that generates the
+	setGroupSelection() method for the installclass. Currently this
+	doesn't need to be localized; however, this may not always be the
+	case.
+	[3e59882b8a12]
+
+	* share/spin/schemas/appliance/virtimage.rng:
+	added virtimage schema
+	[a7e6c1a7bb51]
+
+	* share/spin/schemas/appliance/packages.rng:
+	added '@optional' and '@default' to /appliance/packages/group schema
+	[4769a47303af]
+
+	* spin/modules/core/repocreate/packages.py:
+	packages event now provides 'comps-group-info'
+	 * comps-group-info is a list of (groupid, default, optional) tuples,
+	where default and optional are boolean values indicating whether the
+	packages of the given type should be included in installed systems
+	by default
+	[2c8a7fa2e0b4]
+
+	* spin/modules/extensions/vm/virtimage.py,
+	spin/modules/extensions/vm/vmware.py:
+	removed vmware module; contents merged with virtimage; output
+	generated with @vmware = True
+	[5685796cbffd]
+
+	* spin/modules/extensions/vm/vmware.py:
+	no longer use virt-pack to package vmware images; added @compress
+	option
+	[d7bce9034faa]
+
+2008-11-05  root  <root@kayf10.renditionsoftware.com>
+
+	* spin/modules/core/repocreate/packages.py:
+	removed log entry for packages event
+	[f25682f55a31]
+
+	* branch merge
+	[f2c2d1686d1b]
+
+	* spin/modules/core/repos.py:
+	fixed repos event to look for 'exclude' rather than 'exclude-
+	package'
+	[0902e1c9df82]
+
+2008-11-05  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/extensions/vm/virtimage.py,
+	spin/modules/extensions/vm/vmware.py:
+	updated vmware event to run with latest vm changes
+	spin/modules/extensions/vm/virtimage.py
+	 * virtimage now provides virtimage-raw and virtimage-conf (list of raw
+	disk images and the config file, respectively)
+	spin/modules/extensions/vm/vmware.py
+	 * vmware no longer requires virtimage-raw-disk-images; it instead
+	requires virtimage-raw
+	 * now uses subprocess instead of shlib
+	 * corrected output behavior; now merely outputs the .tgz generated
+	(this may change in the future to be instead the four output
+	files simply because it is faster; or, may add an @compress
+	option)
+	[496348c9d7b1]
+
+	* spin/modules/extensions/vm/virtimage.py:
+	updated virtimage to work incrementally
+	spin/modules/extensions/vm/virtimage.py
+	 * no longer tracks 'pkglist', instead tracks 'pkglist-install-
+	packages' cvar
+	 * virtimage now attempts to use prior output when dealing with images;
+	if the partition layout has not changed between runs, prior
+	output is used; otherwise, we start over
+	 * now defines two fs subclasses, SpinExtDiskMount and
+	SpinPartitionedMount, which extend classes in imgcreate and
+	appcreate, respectively
+	 * these new classes allow passing of a 'format' parameter to various
+	methods that controls whether or not partitioning/formatting
+	commands actually run; by passing false, existing partitions are
+	used instead of creating new ones.
+	 * the above is a major hack that is by no means a 'realistic'
+	solution; it merely serves the purpose of enabling incremental
+	builds for virtimage, nothing more
+	[9bf94bb76445]
+
+	* spin/modules/shared/vms.py:
+	added _prep_partitions, _check_partitions; analogous to
+	_prep_ks_scripts and _check_ks_scripts
+	[b1bb9c9b6c72]
+
+	* spin/modules/extensions/vm/chroot.py:
+	changed comes-before relationship to conditionally-comes-before
+	[f06c02bb40b3]
+
+2008-11-03  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/shared/vms.py:
+	finally fixed the data persistence and CTRL+C issues in image
+	creation
+
+	spin/modules/shared/vms.py
+	 * removed ._prepare_transaction()
+	 * added ._tx_packages(), method returns a tuple of three lists - the
+	packages to add, remove, and update on this run (this is
+	essentially a combination of the previous .__select_packages(),
+	.__deselect_packages(), and .__update_packages() methods)
+	 * removed .__can_handle_selinux() (see below)
+	 * instead of instantiating a VMYum instance directly within this
+	instance of python, we use subprocess and create a subshell to
+	run the install - this prevents data persistence issues (since
+	data doesn't persist across sessions) and allows us considerably
+	better control over the behavior in the KeyboardInterrupt case
+	 * fixed VMYum.resolveDeps() return cases
+	 * added code when __name__ == '__main__'; this is the case described
+	above
+	 * the __main__ code case performs identical tasks to the ayum instance
+	within .install(); see comments for details
+	[0af02a22ee16]
+
+	* spin/modules/extensions/vm/virtimage.py:
+	updated output and publish-content cvars for virtimage to account
+	for possibility of multiple disks
+	[2d24eb2dbe87]
+
+	* spin/modules/core/repocreate/packages.py:
+	fixed a bug in package exclusion causing all exclude elements to be
+	silently ignored
+	[85aa5fed03f9]
+
+2008-10-30  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/locals/installclass.py,
+	spin/modules/core/repocreate/packages.py,
+	spintest/modules/createrepo/__init__.py,
+	spintest/modules/packages/__init__.py:
+	packages now uses yum.comps instead of rxml for comps handling
+	spin/locals/installclass.py
+	 * removed extra line on latest installclass
+	spin/modules/core/repocreate/packages.py
+	 * now uses yum.comps instead of manual processing via rxml - reduces
+	file by ~200 lines! spintest/modules/packages/__init__.py
+	 * updated spintest modules to account for above change
+	 * fixed a few test cases that needed new cvar names
+	[ce71cb7378a8]
+
+	* docsrc/ADFR/TopLevelElements-gpgsign.xml:
+	updated documentation with repocreate instead of repository
+	[240c666f30d4]
+
+	* spin/modules/core/repocreate/Makefile,
+	spin/modules/core/repocreate/__init__.py,
+	spin/modules/core/repocreate/createrepo.py,
+	spin/modules/core/repocreate/depsolve.py,
+	spin/modules/core/repocreate/download.py,
+	spin/modules/core/repocreate/gpgcheck.py,
+	spin/modules/core/repocreate/packages.py,
+	spin/modules/core/repository/Makefile,
+	spin/modules/core/repository/__init__.py,
+	spin/modules/core/repository/createrepo.py,
+	spin/modules/core/repository/depsolve.py,
+	spin/modules/core/repository/download.py,
+	spin/modules/core/repository/gpgcheck.py,
+	spin/modules/core/repository/packages.py,
+	spin/modules/extensions/repocreate/Makefile,
+	spin/modules/extensions/repocreate/__init__.py,
+	spin/modules/extensions/repocreate/gpgsign.py,
+	spin/modules/extensions/repository/Makefile,
+	spin/modules/extensions/repository/__init__.py,
+	spin/modules/extensions/repository/gpgsign.py,
+	spintest/modules/bootiso.py,
+	spintest/modules/createrepo/__init__.py, spintest/modules/diskboot-
+	image.py, spintest/modules/infofiles.py, spintest/modules/initrd-
+	image.py, spintest/modules/installer.py,
+	spintest/modules/isolinux.py, spintest/modules/kickstart.py,
+	spintest/modules/packages/__init__.py, spintest/modules/product-
+	image.py, spintest/modules/pxeboot-images.py,
+	spintest/modules/repocreate.py, spintest/modules/repository.py,
+	spintest/modules/stage2-images.py, spintest/modules/updates-
+	image.py, spintest/modules/xen-images.py:
+	renamed 'repository' to 'repocreate'
+	[f4b968da12f1]
+
+	* pycompile, spin/modules/core/packages/depsolve.py,
+	spin/modules/core/repository/Makefile,
+	spin/modules/core/repository/depsolve.py,
+	spin/modules/core/repository/packages.py,
+	spin/modules/core/repository/pkglist.py,
+	spin/modules/extensions/repository/Makefile,
+	spin/modules/extensions/vm/chroot.py,
+	spin/modules/extensions/vm/livecd.py,
+	spin/modules/shared/idepsolver.py, spin/modules/shared/vms.py,
+	spintest/modules/pkglist/Makefile,
+	spintest/modules/pkglist/__init__.py,
+	spintest/modules/pkglist/pkglist, spintest/modules/pkglist/pkglist-
+	test-repos1.xml, spintest/modules/pkglist/pkglist-test-repos2.xml,
+	spintest/modules/pkglist/pkglist-test-repos3.xml,
+	spintest/modules/pkglist/pkglist-test-repos4.xml:
+	merged with trunk (pkglist => depsolve changes primarily)
+	[30b210a5707a]
+
+	* spin/modules/extensions/vm/chroot.py,
+	spin/modules/extensions/vm/livecd.py, spin/modules/shared/vms.py:
+	explicitly unset creator when finished; few random bug fixes
+	[48618d351b0e]
+
+2008-10-29  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/lib.rng:
+	renamed 'include-package' to 'includepkgs', 'exclude-package' to
+	'exclude' in schema
+	[dba2055ea519]
+
+	* docsrc/ADFR/CommonComponents-Elements.xml, docsrc/ADFR
+	/TopLevelElements-gpgsign.xml, docsrc/ADFR/TopLevelElements-
+	repos.xml:
+	renamed 'exclude-package' to 'exclude' and 'include-package' to
+	'includepkgs'
+	[96a8c74ed09c]
+
+	* docsrc/ADFR/Introduction.xml, docsrc/ADFR/TopLevelElements-
+	comps.xml, docsrc/ADFR/TopLevelElements-packages.xml,
+	docsrc/ADFR/TopLevelElements.xml:
+	renamed TopLevelElements-comps.xml to TopLevelElements-packages.xml
+	[5aa6becf17b3]
+
+	* docsrc/ADFR/TopLevelElements-comps.xml:
+	changed 'comps' to 'packages' in ADFR
+	[5e5f746c68ab]
+
+2008-10-28  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/main.py, spin/modules/extensions/vm/virtimage.py:
+	merged with trunk
+	[6fc2aa0cb70a]
+
+	* spin/modules/core/repository/pkglist.py,
+	spin/modules/extensions/kickstart.py,
+	spin/modules/extensions/vm/chroot.py,
+	spin/modules/extensions/vm/livecd.py,
+	spin/modules/extensions/vm/virtimage.py, spin/modules/shared/vms.py:
+	more vm image updates spin/modules/extensions/kickstart.py
+	 * kickstart event now provides 'kickstart', the pykickstart in-memory
+	representation of the kickstart
+	 * kickstart no longer requires 'web-path'; it instead requires
+	'repodata-directory'
+	 * TODO - there is a problem with the above - if we use repodata-
+	directory as the basis for the repo that kickstart defines, then
+	bare-metal installs won't work (this is a local url); however, if
+	we use web-path instead, then compose must run before kickstart
+	and VM image generation
+	 * kickstart now tracks the repodata-directory, user-required-groups,
+	user-required-packages, and user-excluded packages cvars
+	 * kickstart repo again based on repodata-directory instead of web-
+	path; see TODO, above
+	 * in F9 and later, the partition command in pykickstart writes out
+	   --bytes-per-inode N if N is not zero; however, this option is
+	deprecated in this release; thus, in F9 and above, set
+	bytesPerInode to 0 to fool the parser
+	spin/modules/extensions/vm/chroot.py
+	 * chroot event no longer requires 'kickstart-file' or 'repodata-
+	directory'; it instead requires 'kickstart'
+	 * added an '@compress' option; defaults to true, compresses the final
+	image into a gzipped tarball if true
+	 * now uses the kickstart as read by the kickstart event instead of
+	parsing the kickstart file itself
+	 * removed the vmdir; chroot or chroot tgz are now created directly in
+	the mddir
+	 * added SpinRawImageCreator.package() to account both for the
+	possibility of compressed and uncompressed chroots as well as to
+	make the whole packaging process less sensitive to existing
+	directories spin/modules/extensions/vm/livecd.py
+	 * livecd event no longer requires 'kickstart-file' or 'repodata-
+	directory'; it instead requires 'kickstart'
+	 * livecd event now provides publish-content
+	 * now uses the kickstart as read by the kickstart event instead of
+	parsing the kickstart file itself
+	spin/modules/extensions/vm/virtimage.py
+	 * virtimage event no longer requires 'repos' or 'repodata-directory';
+	it instead requires 'kickstart' and 'pkglist'
+	 * virtimage event now provides 'publish-content'
+	 * updated SpinApplianceImageCreator.__init__() to new signature in
+	latest act codebase
+	 * added ._cleanup(), which copies the instroot out for future base_on
+	use (not yet implemented) spin/modules/shared/vms.py
+	 * removed .read_kickstart()
+	 * removed ._update_ks_repos()
+	 * ._check_ks_scripts() no longer performs any actions; it instead
+	merely returns True if the scripts haven't changed or False if
+	they have; it is up to the event to do the right thing with this
+	information
+	 * added RequiresKickstartError, the error a VM event should raise if
+	cvars['kickstart'] isn't set
+	[7a6f092059fc]
+
+	* share/spin/schemas/appliance/chroot.rng:
+	added rng for chroot module
+	[94731a6dc387]
+
+2008-10-24  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/event/locals.py, spin/locals/kickstart.py,
+	spin/modules/extensions/kickstart.py:
+	kickstart modifications
+	 * added locals entry for pykickstart version number - spin now
+	requires the latest version of pykickstart be installed
+	 * the kickstart module now reads the supplied kickstart, modifies the
+	repos command and %packages section, and writes out the new file. It
+	also stores the parsed kickstart in the 'kickstart' cvar
+	[f1bc127931be]
+
+	* spin/modules/core/rpmbuild/logos-rpm/__init__.py:
+	fixed a bug in the case when 'product-image-content' does not yet
+	exist
+	[5344ba31f042]
+
+	* spin/modules/extensions/installer/kickstart.py,
+	spin/modules/extensions/kickstart.py:
+	kickstart is no longer an installer module
+	[dfdf363e2066]
+
+	* spintest/modules/bootiso.py, spintest/modules/diskboot-image.py,
+	spintest/modules/infofiles.py, spintest/modules/initrd-image.py,
+	spintest/modules/installer.py, spintest/modules/isolinux.py,
+	spintest/modules/kickstart.py, spintest/modules/product-image.py,
+	spintest/modules/pxeboot-images.py,
+	spintest/modules/stage2-images.py, spintest/modules/updates-
+	image.py, spintest/modules/xen-images.py:
+	fixed installer test suites so they disable 'repository' instead of
+	'packages'
+	[509813394dc7]
+
+	* spin/modules/core/repos.py,
+	spin/modules/core/repository/packages.py,
+	spin/modules/core/repository/pkglist.py, spin/modules/core/rpmbuild
+	/rpmbuild-repo.py:
+	packages cvar name changes
+	 * 'comps-excluded-packages' => 'excluded-packages'
+	 * 'comps-included-packages' => 'required-packages'
+	 * 'required-packages' => 'all-packages'
+	[d9c5aaa4f7db]
+
+	* spin/modules/core/repository/packages.py:
+	removed commented-out localization stuff in package
+	[630593bb77e7]
+
+	* share/spin/schemas/appliance/comps.rng,
+	share/spin/schemas/appliance/packages.rng, spin/callback.py,
+	spin/modules/core/installer/product-image.py,
+	spin/modules/core/packages/Makefile,
+	spin/modules/core/packages/__init__.py,
+	spin/modules/core/packages/comps.py,
+	spin/modules/core/packages/createrepo.py,
+	spin/modules/core/packages/download.py,
+	spin/modules/core/packages/gpgcheck.py,
+	spin/modules/core/packages/pkglist.py,
+	spin/modules/core/repository/Makefile,
+	spin/modules/core/repository/__init__.py,
+	spin/modules/core/repository/createrepo.py,
+	spin/modules/core/repository/download.py,
+	spin/modules/core/repository/gpgcheck.py,
+	spin/modules/core/repository/packages.py,
+	spin/modules/core/repository/pkglist.py, spin/modules/core/rpmbuild
+	/rpmbuild-repo.py, spin/modules/extensions/installer/kickstart.py,
+	spin/modules/extensions/packages/Makefile,
+	spin/modules/extensions/packages/__init__.py,
+	spin/modules/extensions/packages/gpgsign.py,
+	spin/modules/extensions/repository/Makefile,
+	spin/modules/extensions/repository/__init__.py,
+	spin/modules/extensions/repository/gpgsign.py,
+	spin/modules/extensions/vm/chroot.py,
+	spin/modules/extensions/vm/livecd.py,
+	spin/modules/extensions/vm/virtimage.py, spin/modules/shared/vms.py,
+	spintest/modules/comps/__init__.py,
+	spintest/modules/comps/comps.xml,
+	spintest/modules/createrepo/__init__.py,
+	spintest/modules/packages/__init__.py,
+	spintest/modules/packages/comps.xml, spintest/modules/repository.py,
+	spintest/modules/software.py:
+	first phase of comps/packges/pkglist/vms changes
+	 * renamed 'packages' module and module group to 'repository'; this
+	name may change again due to its similarity with 'repos' module
+	 * renamed 'comps' to 'packages'
+	 * comps no longer accepts a supplied groupfile
+	 * comps currently no longer supports localization because rxml (and
+	lxml underneath) likes to change xml:lang to ns0:lang
+	 * removed support of nearly all packages/group and packages/package
+	options except for packages/group/@repoid
+	 * comps now generates a $NAME-packages group into which it places all
+	required packges instead of adding them to the 'core' group
+	 * similarly, if no group contains the 'kernel' package, it is added to
+	the $NAME-packages group
+	 * changed 'comps-file' cvar to 'groupfile'
+	 * updated test cases
+	[8571e83cbd20]
+
+2008-10-29  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/core/packages/comps.py,
+	spin/modules/core/packages/depsolve.py,
+	spin/modules/extensions/vm/chroot.py,
+	spin/modules/extensions/vm/livecd.py,
+	spin/modules/shared/idepsolver.py, spin/modules/shared/vms.py:
+	Added support for conditional packages in depsolve event.
+
+	The depsolve event was ignoring the conditional packages in the
+	comps.xml. Now, the comps event sets up a 'comps-conditional-
+	packages' cvar that is a list of (conditional package, requires)
+	tuples.
+
+	The depsolve event reads this cvar and if a requirement of a
+	conditional package is in the list of mandatory, default, and
+	optional packages and their deps, the conditional package and its
+	deps get added to the list.
+
+	Also, renamed the 'pkglist-mandatory-packages' cvar to 'pkglist-
+	install-packages'. The vm events now look at the pkglist-install-
+	packages variable instead of the 'pkglist' variabl, and run if the
+	variable changes.
+	[d62b242f47e1]
+
+2008-10-28  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* Makefile, Makefile.enterprise:
+	Fixed the COMPILE_PYTHON call in the Makefiles.
+
+	Extra space before directory name.
+	[7d597f5dab14]
+
+	* Makefile, Makefile.enterprise, pycompile, spin/Makefile,
+	spin/event/Makefile, spin/locals/Makefile, spin/modules/Makefile,
+	spin/modules/core/Makefile, spin/modules/core/installer/Makefile,
+	spin/modules/core/packages/Makefile,
+	spin/modules/core/rpmbuild/Makefile,
+	spin/modules/extensions/Makefile,
+	spin/modules/extensions/installer/Makefile,
+	spin/modules/extensions/packages/Makefile,
+	spin/modules/shared/Makefile:
+	Using the compile_all module instead of pycompile to byte-compile.
+	[925e5a975bce]
+
+	* spintest/Makefile, spintest/modules/depsolve/Makefile,
+	spintest/modules/depsolve/__init__.py, spintest/modules/depsolve
+	/depsolve-test-repos1.xml, spintest/modules/depsolve/depsolve-test-
+	repos2.xml, spintest/modules/depsolve/depsolve-test-repos3.xml,
+	spintest/modules/depsolve/depsolve-test-repos4.xml,
+	spintest/modules/pkglist/Makefile,
+	spintest/modules/pkglist/__init__.py,
+	spintest/modules/pkglist/pkglist, spintest/modules/pkglist/pkglist-
+	test-repos1.xml, spintest/modules/pkglist/pkglist-test-repos2.xml,
+	spintest/modules/pkglist/pkglist-test-repos3.xml,
+	spintest/modules/pkglist/pkglist-test-repos4.xml:
+	Updated the test cases to reflect the pkglist-to-depsolve rename.
+	[d86bb3189678]
+
+	* spin/modules/core/packages/depsolve.py,
+	spin/modules/core/packages/pkglist.py:
+	Renamed the pkglist event to the depsolve event.
+	[7678931ac80b]
+
+	* spin/modules/shared/vms.py:
+	Overriding the resolveDeps method to do nothing.
+
+	We know that the packages in the transaction set have their deps
+	resolved.
+	[b4ecdfcad0c8]
+
+	* spin/modules/core/packages/pkglist.py:
+	Merged with Kay's changes to pkglist.
+	[232c2174d74a]
+
+	* spin/modules/core/packages/pkglist.py,
+	spin/modules/shared/idepsolver.py:
+	Some pkglist code cleanup.
+
+	The support for choosing between incremental- and non-incremental
+	depsolve has been removed. It was adding more complexity than it
+	was worth.
+	[b4cbee015a9b]
+
+2008-10-27  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* spin/modules/shared/idepsolver.py:
+	The IDepsolver class overrides the _provideToPkg() method.
+
+	This method now gives preference to "mandatory" packages.
+	[df1888cc1d94]
+
+	* spin/modules/core/packages/pkglist.py,
+	spin/modules/extensions/vm/livecd.py, spin/modules/shared/vms.py:
+	The pkglist event provides pkglist-mandatory-packages.
+
+	Which is used by the SpinImageCreatorMixin.
+	[c5059a72cffd]
+
+	* Merged with trunk.
+	[eddc541a922c]
+
+	* spin/modules/core/packages/comps.py,
+	spin/modules/core/packages/pkglist.py,
+	spin/modules/shared/idepsolver.py, spin/modules/shared/vms.py:
+	The pkglist computes mandatory and default packages and their deps.
+
+	This can then be used by an event to install packages and their deps
+	without running depsolve again.
+	[588f769fae8e]
+
+2008-10-27  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* spin/modules/core/packages/pkglist.py:
+	pkglist now runs when repos/exclude-package elements change
+	[9b700f492b08]
+
+2008-10-27  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* spin/modules/extensions/vm/virtimage.py:
+	modified virtimage to account for new
+	ApplianceImageCreator.__init__() args
+	[023faf9e7c0c]
+
+2008-10-27  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* spin/errors.py, spin/main.py:
+	logging: improvements to unhandled exception error text
+
+	* added path to the log file, so the user can find it
+	* changed the email address to 'spin@renditionsoftware.com'
+	* other minor edits
+	[e44b648f1af5]
+
+2008-10-26  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/ADFR/TopLevelElements-sources.xml:
+	ADFR: Corrected sources element description; exclude-package not
+	allowed
+	[345fbeffe74b]
+
+	* docsrc/ADFR/CommonComponents-Elements.xml, docsrc/ADFR/Index.xml,
+	docsrc/ADFR/TopLevelElements.xml:
+	ADFR: commenting out logos-rpm related documentation
+
+	* until we come up with a more reliable solution
+	[05f7878cbb41]
+
+2008-10-22  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/ADFR/TopLevelElements.xml:
+	ADFR: ordering release-files ahead of release-rpm in the TOC
+	[5e11d171c1e9]
+
+	* docsrc/ADFR/CommonComponents-Elements.xml, docsrc/ADFR
+	/TopLevelElements-config-rpm.xml, docsrc/ADFR/TopLevelElements-
+	logos-rpm.xml, docsrc/ADFR/TopLevelElements-release-rpm.xml,
+	docsrc/ADFR/TopLevelElements-repos.xml:
+	ADFR: updates to rpmbuild and repos elements
+
+	* Edited description sections for logos, release and config-rpm
+	elements
+	* Added notes for logos-rpm, repos and repo elements indicating that
+	additional needed software can be downloaded by following the
+	instructions at http://www.renditionsoftware.com/spin/download
+	[9d7938d9d5d2]
+
+2008-10-21  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* share/spin/schemas/appliance/livecd.rng,
+	spin/modules/extensions/vm/livecd.py, spin/modules/shared/vms.py:
+	more VM work share/spin/schemas/appliance/livecd.rng
+	 * added livecd schema spin/modules/extensions/vm/livecd.py
+	 * ._base_on() now properly calls SpinImageCreatorMixin._base_on()
+	 * added ._check_required_packages(), which checks to ensure that the
+	pkglist contains 'syslinux'
+	 * added SyslinuxRequiredError, the error raised when the above check
+	fails spin/modules/shared/vms.py
+	 * added ._check_required_packagees(), which should raise an exception
+	if the distribution pkglist doesn't contain a required package
+	for the VM
+	 * added ._get_pkglist_names(), a helper method that transforms the
+	pkglist into a list of pkg names for easier comparison in
+	._check_required_packages()
+	 * .install() now calls ._check_required_packages() prior to actually
+	selecting any packges or groups
+	 * adjusted error processing slightly so that the special passing of
+	yum errors on empty transaction sets doesn't interfere with other
+	errors that occur before the transaction set has been populated
+	[d9f317342294]
+
+	* spin/event/__init__.py:
+	fixed time information when --skip'ing an event
+	[553dc5086a36]
+
+	* spin/modules/extensions/vm/chroot.py,
+	spin/modules/extensions/vm/livecd.py, spin/modules/shared/vms.py:
+	initial commit of more serious VM work
+	 * chroot event creates a chroot'ed install
+	 * livecd creates a livecd
+	 * shared/vms.py contains shared code for all vm stuff
+	 * all vm events are currently extension events
+	 * all vm events require that a kickstart be included via the kicstart
+	TLE
+	[6fb6c7fec406]
+
 2008-10-21  Uday Prakash  <uprakash@renditionsoftware.com>
+
+	* .hgtags:
+	Tagged as spin-0.9.5-1
+	[503d8463696c]
+
+	* ChangeLog, spin.spec:
+	Updated the spin-0.9.5-1 branch.
+	[2311df9c6761] [spin-0.9.5-1]
 
 	* docsrc/ADFR/Makefile:
 	Removed the draft watermark from the ADFR.pdf.
-	[b80eeac5e460] [tip]
+	[b80eeac5e460]
 
 	* .hgtags:
 	Tagged as spin-0.9.5-1
@@ -10,7 +700,7 @@
 
 	* ChangeLog, spin.spec:
 	Bumped version to spin-0.9.5-1.
-	[bbd614977dbb] [spin-0.9.5-1]
+	[bbd614977dbb]
 
 2008-10-21  Kay Williams  <kwilliams@renditionsoftware.com>
 
