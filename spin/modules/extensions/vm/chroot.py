@@ -44,7 +44,7 @@ class ChrootEvent(vms.VmCreateMixin, Event):
     Event.__init__(self,
       id = 'chroot',
       parentid = 'vm',
-      requires = ['kickstart', 'pkglist-install-packages'],
+      requires = ['local-baseurl-kickstart', 'pkglist-install-packages'],
       conditionally_comes_before = ['publish'],
     )
 
@@ -67,12 +67,12 @@ class ChrootEvent(vms.VmCreateMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    if self.cvars['kickstart'] is None:
+    if self.cvars['local-baseurl-kickstart'] is None:
       raise vms.KickstartRequiredError(modid=self.id)
 
     # read supplied kickstart
-    self.ks = self.cvars['kickstart']
-    self.DATA['input'].append(self.cvars['kickstart-file'])
+    self.ks = self.cvars['local-baseurl-kickstart']
+    self.DATA['input'].append(self.cvars['local-baseurl-kickstart-file'])
 
     self._prep_ks_scripts()
 

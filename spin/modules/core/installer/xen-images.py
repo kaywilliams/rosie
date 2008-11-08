@@ -36,7 +36,8 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
       version = 2,
       provides = ['vmlinuz-xen', 'initrd-xen', 'treeinfo-checksums'],
       requires = ['anaconda-version', 'buildstamp-file', 'installer-repo'],
-      conditionally_requires = ['initrd-image-content', 'kickstart-file', 'ks-path'],
+      conditionally_requires = ['initrd-image-content', 'remote-baseurl-kickstart-file',
+                                'remote-baseurl-ks-path'],
     )
 
     self.xen_dir = self.SOFTWARE_STORE/'images/xen'
@@ -66,8 +67,8 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     self.cvars['xen-images-content'] = self.cvars['initrd-image-content']
 
     self.DATA['input'].append(self.cvars['buildstamp-file'])
-    if self.cvars['kickstart-file']:
-      self.DATA['input'].append(self.cvars['kickstart-file'])
+    if self.cvars['remote-baseurl-kickstart-file']:
+      self.DATA['input'].append(self.cvars['remote-baseurl-kickstart-file'])
     self.diff.setup(self.DATA)
 
     # ImageModifyMixin setup
@@ -107,6 +108,6 @@ class XenImagesEvent(Event, ImageModifyMixin, FileDownloadMixin):
     ImageModifyMixin._generate(self)
     self._write_buildstamp()
 
-    # copy kickstart
-    if self.cvars['kickstart-file'] and self.cvars['ks-path']:
-      self.image.write(self.cvars['kickstart-file'], self.cvars['ks-path'].dirname)
+    # copy remote-baseurl-kickstart
+    if self.cvars['remote-baseurl-kickstart-file'] and self.cvars['remote-baseurl-ks-path']:
+      self.image.write(self.cvars['remote-baseurl-kickstart-file'], self.cvars['remote-baseurl-ks-path'].dirname)

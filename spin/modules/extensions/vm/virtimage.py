@@ -47,7 +47,7 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
       id = 'virtimage',
       parentid = 'vm',
       version = '1',
-      requires = ['kickstart', 'pkglist'],
+      requires = ['local-baseurl-kickstart', 'pkglist'],
       provides = ['publish-content']
     )
 
@@ -70,12 +70,12 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    if self.cvars['kickstart'] is None:
+    if self.cvars['local-baseurl-kickstart'] is None:
       raise vms.KickstartRequiredError(modid=self.id)
 
     # read supplied kickstart
-    self.ks = self.cvars['kickstart']
-    self.DATA['input'].append(self.cvars['kickstart-file'])
+    self.ks = self.cvars['local-baseurl-kickstart']
+    self.DATA['input'].append(self.cvars['local-baseurl-kickstart-file'])
 
     # add outputs
     for part in self.ks.handler.partition.partitions:

@@ -20,7 +20,8 @@ import pykickstart.version as ksversion
 
 from rendition import pps
 
-from spin.event import Event
+from spin.event  import Event
+from spin.errors import SpinError
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -35,10 +36,16 @@ class KickstartEvent(Event):
       id = 'kickstart',
       parentid = 'os',
       version = 1,
-      provides = ['kickstart', 'kickstart-file', 'ks-path',
+      provides = ['local-baseurl-kickstart',
+                  'local-baseurl-kickstart-file',
+                  'local-baseurl-ks-path',
+                  'remote-baseurl-kickstart',
+                  'remote-baseurl-kickstart-file',
+                  'remote-baseurl-ks-path',
                   'initrd-image-content'],
       requires = ['user-required-packages', 'comps-group-info',
-                  'user-excluded-packages', 'repodata-directory'],
+                  'user-excluded-packages', 'repodata-directory',
+                  'web-path'],
     )
 
     self.DATA = {
@@ -52,22 +59,21 @@ class KickstartEvent(Event):
                     'cvars[\'user-excluded-packages\']'],
     }
 
-    self.ksfile = None
+    self.local_ksfile  = None
+    self.remote_ksfile = None
 
   def setup(self):
-    self.ksfile = self.SOFTWARE_STORE / 'ks.cfg'
     self.diff.setup(self.DATA)
-    self.DATA['output'].append(self.ksfile)
+
+    self.remote_ksfile = self.SOFTWARE_STORE / 'ks.cfg'
+    self.local_ksfile  = self.mddir / 'ks.cfg'
+    self.DATA['output'].append(self.remote_ksfile)
+    self.DATA['output'].append(self.local_ksfile)
 
   def run(self):
     ks = self._read_kickstart_from_string(self.config.text or '')
 
-    # modify repos
-    ## problem - repodata-directory will only work for local vm builds
-    ## problem - web-path will only work if publish is executed before vms
-    self._update_repos(ks,
-          ['--name', 'appliance',
-           '--baseurl', 'file://'+self.cvars['repodata-directory'].dirname])
+    self._validate_kickstart(ks)
 
     # modify %packages
     self._update_packages(ks, groups   = self.cvars['comps-group-info'],
@@ -85,19 +91,48 @@ class KickstartEvent(Event):
       for part in ks.handler.partition.partitions:
         part.bytesPerInode = 0
 
-    # write out updated file
-    self.ksfile.write_text(str(ks.handler))
+    # modify repos to have local baseurl
+    self._update_repos(ks,
+          ['--name', 'appliance',
+           '--baseurl', 'file://'+self.cvars['repodata-directory'].dirname])
+
+    # write out ks file with the local baseurl
+    self.local_ksfile.write_text(str(ks.handler))
+
+    # modify repos to have remote baseurl
+    self._update_repos(ks,
+          ['--name', 'appliance',
+           '--baseurl', self.cvars['web-path'] / 'os' ])
+
+    # write out the ks file with the remote baseurl
+    self.remote_ksfile.write_text(str(ks.handler))
 
   def apply(self):
-    self.cvars['kickstart-file'] = self.ksfile
-    self.cvars['ks-path']        = '/' / self.ksfile.basename
-    self.cvars['kickstart']      = self._read_kickstart(self.ksfile)
+    self.cvars['local-baseurl-kickstart-file'] = self.local_ksfile
+    self.cvars['local-baseurl-ks-path']        = '/' / self.local_ksfile.basename
+    self.cvars['local-baseurl-kickstart']      = self._read_kickstart(self.local_ksfile)
+
+    self.cvars['remote-baseurl-kickstart-file'] = self.remote_ksfile
+    self.cvars['remote-baseurl-ks-path']        = '/' / self.remote_ksfile.basename
+    self.cvars['remote-baseurl-kickstart']      = self._read_kickstart(self.remote_ksfile)
 
   def verify_cvars(self):
     "cvars are set"
-    self.verifier.failUnlessSet('kickstart-file')
-    self.verifier.failUnlessSet('ks-path')
-    self.verifier.failUnlessSet('kickstart')
+    self.verifier.failUnlessSet('local-baseurl-kickstart-file')
+    self.verifier.failUnlessSet('local-baseurl-ks-path')
+    self.verifier.failUnlessSet('local-baseurl-kickstart')
+
+    self.verifier.failUnlessSet('remote-baseurl-kickstart-file')
+    self.verifier.failUnlessSet('remote-baseurl-ks-path')
+    self.verifier.failUnlessSet('remote-baseurl-kickstart')
+
+  def _validate_kickstart(self, ks):
+    if ks.handler.repo.repoList:
+      raise RepoSpecifiedError()
+    if ( ks.handler.packages.excludedList or
+         ks.handler.packages.groupList or
+         ks.handler.packages.packageList ):
+      raise PackagesSpecifiedError()
 
   def _read_kickstart_from_string(self, string):
     ks = ksparser.KickstartParser(
@@ -142,3 +177,9 @@ class KickstartEvent(Event):
     if excludes: lines.extend([ '-'+x for x in excludes ])
 
     ks.handler.packages.add(lines)
+
+
+class RepoSpecifiedError(SpinError):
+  message = "Cannot specify repo command in the kickstart contents."
+class PackagesSpecifiedError(SpinError):
+  message = "Cannot specify packages section in kickstart contents."
