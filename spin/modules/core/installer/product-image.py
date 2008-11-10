@@ -38,8 +38,9 @@ class ProductImageEvent(Event, ImageModifyMixin):
       version = 1,
       provides = ['product.img', 'treeinfo-checksums'],
       requires = ['anaconda-version', 'buildstamp-file',
-                  'installer-repo', 'comps-group-info'],
-      conditionally_requires = ['groupfile', 'product-image-content'],
+                  'installer-repo'],
+      conditionally_requires = ['comps-group-info', 'groupfile',
+                                'product-image-content'],
     )
 
     self.DATA = {
@@ -99,6 +100,6 @@ class ProductImageEvent(Event, ImageModifyMixin):
   def _make_setGroupSelection(self):
     # indentation consistent with files in locals
     lines = ['  def setGroupSelection(self, anaconda):']
-    for gi in self.cvars['comps-group-info']:
+    for gi in self.cvars['comps-group-info'] or [('core', True, False)]:
       lines.append('    anaconda.backend.selectGroup("%s", (%s, %s))' % gi)
     return '\n'.join(lines)
