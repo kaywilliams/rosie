@@ -105,7 +105,7 @@ class DepsolverMixin(object):
       allpkgnames = set(pkgs_and_deps)
       for condreq, cond in solver.comps_conditional_pkgs:
         if cond in allpkgnames:
-          allpkgnames = allpkgnames.union(solver.getPackageAndDeps([condreq]))
+          allpkgnames = allpkgnames.union(solver.getPackagesAndDeps([condreq]))
       pkgs_and_deps = list(allpkgnames)
 
     self.install_pkgsfile.write_lines(pkgs_and_deps)
