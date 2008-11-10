@@ -35,6 +35,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     Event.__init__(self,
       id = 'product-image',
       parentid = 'installer',
+      version = 1,
       provides = ['product.img', 'treeinfo-checksums'],
       requires = ['anaconda-version', 'buildstamp-file',
                   'installer-repo', 'comps-group-info'],
