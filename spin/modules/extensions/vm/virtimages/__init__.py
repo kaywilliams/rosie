@@ -16,9 +16,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 """
-virtimage.py
+virtimages
 
-Creates a virtimage (xen, virsh) disk image.
+Create virtual machine images of various types
 """
 
 import appcreate
@@ -33,29 +33,33 @@ from spin.logging import L1
 
 from spin.modules.shared import vms
 
+from libvirt import LibVirtEvent
+from vmware  import VmwareEvent
+
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['LibvirtVMEvent'],
-  description = 'creates a libvirt (xen, virsh) virtual machine image',
+  events      = ['VirtimageBaseEvent', 'LibVirtEvent', 'VmwareEvent'],
+  description = 'creates virtual machine images of various types',
   group       = 'vm',
 )
 
 
-class LibvirtVMEvent(vms.VmCreateMixin, Event):
+class VirtimageBaseEvent(vms.VmCreateMixin, Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'virtimage',
+      id = 'virtimage-base',
       parentid = 'vm',
       version = '1',
       requires = ['local-baseurl-kickstart', 'pkglist'],
-      provides = ['publish-content']
+      provides = ['virtimage-disks', 'virtimage-xml'],
     )
 
     self.builddir = self.mddir / 'build'
     self.tmpdir   = self.mddir / 'tmp'
+    self.outdir   = self.mddir / self.applianceid
 
     self.DATA =  {
-      'config': ['.'],
+      #'config': ['.'], # don't track this for now
       'input':  [],
       'output': [],
       'variables': ['cvars[\'pkglist-install-packages\']'],
@@ -64,8 +68,6 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
     self.creator = None
     self.ks = None
     self._scripts = []
-
-    self.dovmx = self.config.getbool('@vmware', 'False')
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -79,13 +81,9 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
 
     # add outputs
     for part in self.ks.handler.partition.partitions:
-      id = '%s-%s' % (self.applianceid, part.disk)
-      self.DATA['output'].append(self.mddir/'%s.raw' % id)
-      if self.dovmx:
-        self.DATA['output'].append(self.mddir/'%s.vmdk' % id)
-    self.DATA['output'].append(self.mddir/'%s.xml' % self.applianceid)
-    if self.dovmx:
-      self.DATA['output'].append(self.mddir/'%s.vmx' % self.applianceid)
+      self.DATA['output'].append(
+        self.outdir/'%s-%s.raw' % (self.applianceid, part.disk))
+    self.DATA['output'].append(self.outdir/'%s.xml' % self.applianceid)
 
     self._prep_ks_scripts()
 
@@ -102,18 +100,18 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
     # if scripts or partitions change, remove base
     if ( not self._check_ks_scripts() or
          not self._check_partitions() ):
-      self.mddir.listdir('*.raw').rm(force=True)
+      self.outdir.listdir('*.raw').rm(force=True)
 
     # prepare base_on
     base_on = {}
     for part in self.ks.handler.partition.partitions:
-      if not (self.mddir/'%s-%s.raw' % (self.applianceid, part.disk)).exists():
+      if not (self.outdir/'%s-%s.raw' % (self.applianceid, part.disk)).exists():
         # if any disk doesn't exist for a partition, give up and start over
-        self.mddir.listdir('*.raw').rm(force=True)
+        self.outdir.listdir('*.raw').rm(force=True)
         base_on = None
         break
       else:
-        base_on[self.mddir/'%s-%s.raw' % (self.applianceid, part.disk)] = part.disk
+        base_on[self.outdir/'%s-%s.raw' % (self.applianceid, part.disk)] = part.disk
 
     try:
       self.log(3, L1("mounting disks"))
@@ -129,35 +127,23 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
     finally:
       self.creator.cleanup()
 
-    # modify config for virtinst - requries /image/name/@version and
+    # modify config for conversion - requries /image/name/@version and
     # /image/description/text()
-    conf = self.mddir/'%s.xml' % self.applianceid
+    conf = self.outdir/'%s.xml' % self.applianceid
     vxml = rxml.tree.read(conf)
     vxml.get('name').attrib['version'] = self.version
     rxml.tree.Element('description', text=self.fullname, parent=vxml)
     vxml.write(conf)
 
-    # create VMX files
-    if self.dovmx:
-      import virtinst, virtinst.UnWare
-      self.log(3, L1("creating VMX files"))
-      image = virtinst.ImageParser.parse_file(conf)
-      vmx   = virtinst.UnWare.Image(image)
-      vmx.make(image.base)
-
   def apply(self):
     self.io.clean_eventcache()
 
-    self.cvars.setdefault('publish-content', set())
+    self.cvars.setdefault('virtimage-disks', [])
 
     for part in self.ks.handler.partition.partitions:
-      id = '%s-%s' % (self.applianceid, part.disk)
-      self.cvars['publish-content'].add(self.mddir/'%s.raw'  % id)
-      if self.dovmx:
-        self.cvars['publish-content'].add(self.mddir/'%s.vmdk' % id)
-    self.cvars['publish-content'].add(self.mddir/'%s.xml' % self.applianceid)
-    if self.dovmx:
-      self.cvars['publish-content'].add(self.mddir/'%s.vmx' % self.applianceid)
+      self.cvars['virtimage-disks'].append(
+        self.outdir/'%s-%s.raw' % (self.applianceid, part.disk))
+    self.cvars['virtimage-xml'] = self.outdir/'%s.xml' % self.applianceid
 
 
 class SpinApplianceImageCreator(vms.SpinImageCreatorMixin,
@@ -240,8 +226,8 @@ class SpinExtDiskMount(imgcreate.ExtDiskMount):
     else:
       raise AttributeError(attr)
 
-  def __create(self, format=True):
-    # only formats if format is True, otherwise passes
+  def __create(self, format=True): #!
+    # only formats if format is True, otherwise passes #!
     resize = False
     if not self.disk.fixed() and self.disk.exists():
       resize = True
@@ -253,7 +239,7 @@ class SpinExtDiskMount(imgcreate.ExtDiskMount):
     else:
       if format: self._getattr_('__format_filesystem')() #!
 
-  def mount(self, format=True):
+  def mount(self, format=True): #!
     self.__create(format=format) #!
     imgcreate.DiskMount.mount(self)
 
@@ -267,8 +253,8 @@ class SpinPartitionedMount(appcreate.PartitionedMount):
     else:
       raise AttributeError(attr)
 
-  def __format_disks(self, format=True):
-    # only formats if format is True, otherwise identical
+  def __format_disks(self, format=True): #!
+    # only formats if format is True, otherwise identical #!
     if format: #!
       logging.debug("Formatting disks")
       for dev in self.disks.keys():
@@ -322,9 +308,9 @@ class SpinPartitionedMount(appcreate.PartitionedMount):
         if rc != 0 and 1 == 0:
           raise appcreate.MountError("Error creating partition on %s" % d['disk'].device)
 
-  def mount(self, format=True):
-    # only formats if format is True; creates custom classes of mount/disks
-    # otherwise identical
+  def mount(self, format=True): #!
+    # only formats if format is True; creates custom classes of mount/disks #!
+    # otherwise identical #!
     for dev in self.disks.keys():
       d = self.disks[dev]
       d['disk'].create()
