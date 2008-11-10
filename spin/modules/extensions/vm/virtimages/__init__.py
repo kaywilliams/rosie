@@ -49,7 +49,6 @@ class VirtimageBaseEvent(vms.VmCreateMixin, Event):
     Event.__init__(self,
       id = 'virtimage-base',
       parentid = 'vm',
-      version = '1',
       requires = ['local-baseurl-kickstart', 'pkglist'],
       provides = ['virtimage-disks', 'virtimage-xml'],
     )
@@ -342,4 +341,3 @@ class SpinPartitionedMount(appcreate.PartitionedMount):
                 rmmountdir)
       pdisk.mount(format=format) #!
       p['mount'] = pdisk
-
