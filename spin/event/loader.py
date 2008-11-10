@@ -64,3 +64,6 @@ class Loader(dispatch.Loader):
       m = dispatch.load_modules(modname, path, err=False)
       if hasattr(m, 'MODULE_INFO'):
         self.modules[modid] = m
+        # set moduleid attribute on events
+        for event in m.MODULE_INFO['events']:
+          getattr(m, event).moduleid = modname.split('.')[-1]

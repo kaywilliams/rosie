@@ -514,6 +514,7 @@ class CvarsDict(dict):
 class AllEvent(Event):
   "Top level event that is the ancestor of all other events.  Changing this "
   "event's version will cause all events to automatically run."
+  moduleid = None
   def __init__(self):
     Event.__init__(self,
       id = 'all',
