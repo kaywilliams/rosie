@@ -92,12 +92,10 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
     # create image creator
     self.creator = SpinApplianceImageCreator(self,
                      self.ks,
-                     name     = self.applianceid,
-                     format   = 'raw',
-                     package  = 'none',
-                     vmem     = int(self.config.get('@vmem', '512')),
-                     vcpu     = int(self.config.get('@vcpu', '1')),
-                     checksum = False)
+                     name        = self.applianceid,
+                     disk_format = 'raw',
+                     vmem        = int(self.config.get('@vmem', '512')),
+                     vcpu        = int(self.config.get('@vcpu', '1')))
 
   def run(self):
 
@@ -127,7 +125,7 @@ class LibvirtVMEvent(vms.VmCreateMixin, Event):
       self.log(3, L1("unmounting disks"))
       self.creator.unmount()
       self.log(3, L1("packacking virtual machine"))
-      self.creator.package(self.mddir)
+      self.creator.package(self.mddir, package="none", include=None)
     finally:
       self.creator.cleanup()
 
