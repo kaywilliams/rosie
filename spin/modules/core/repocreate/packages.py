@@ -95,11 +95,12 @@ class PackagesEvent(Event):
 
     for group in GF.groups:
       self.cvars['all-packages'].extend(group.packages)
+
       gxml = self.config.get('group[text()="%s"]' % group.groupid, None)
       if gxml is not None:
         self.cvars['comps-group-info'].append((group.groupid,
-                                         gxml.getbool('@default', 'True'),
-                                         gxml.getbool('@optional', 'False')))
+                                         gxml.getbool('@default', True),
+                                         gxml.getbool('@optional', False)))
       else:
         self.cvars['comps-group-info'].append((group.groupid, True, False))
 
@@ -110,6 +111,14 @@ class PackagesEvent(Event):
       self.config.xpath('group/text()', []) + [self.app_gid]
     self.cvars['user-excluded-packages'] = \
       self.config.xpath('exclude/text()', [])
+
+    # set packages-* cvars
+    self.cvars['packages-ignoremissing'] = \
+      self.config.getbool('@ignoremissing', False)
+    self.cvars['packages-default'] = \
+      self.config.getbool('@default', False)
+    self.cvars['packages-excludedocs'] = \
+      self.config.getbool('@excludedocs', False)
 
   # output verification
   def verify_comps_xpath(self):
@@ -122,9 +131,13 @@ class PackagesEvent(Event):
     self.verifier.failUnless(self.cvars['groupfile'].exists(),
       "unable to find comps.xml file at '%s'" % self.cvars['groupfile'])
 
-  def verify_cvar_comps_object(self):
-    "cvars['comps-object'] exists"
-    self.verifier.failUnlessSet('comps-object')
+  def verify_cvars(self):
+    "cvars set"
+    for cvar in  ['groupfile', 'comps-object', 'comps-group-info',
+                  'user-required-packages', 'user-required-groups',
+                  'user-excluded-packages', 'all-packages']:
+      self.verifier.failUnlessSet(cvar)
+
 
   #------ COMPS FILE GENERATION METHODS ------#
   def _get_groupfiles(self):

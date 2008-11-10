@@ -17,6 +17,7 @@
 #
 import pykickstart.parser  as ksparser
 import pykickstart.version as ksversion
+from pykickstart.constants import KS_MISSING_PROMPT, KS_MISSING_IGNORE
 
 from rendition import pps
 
@@ -44,8 +45,8 @@ class KickstartEvent(Event):
                   'remote-baseurl-ks-path',
                   'initrd-image-content'],
       requires = ['user-required-packages', 'comps-group-info',
-                  'user-excluded-packages', 'repodata-directory',
-                  'web-path'],
+                  'user-excluded-packages', 'repodata-directory'],
+      conditionally_requires = ['web-path']
     )
 
     self.DATA = {
@@ -67,8 +68,9 @@ class KickstartEvent(Event):
 
     self.remote_ksfile = self.SOFTWARE_STORE / 'ks.cfg'
     self.local_ksfile  = self.mddir / 'ks.cfg'
-    self.DATA['output'].append(self.remote_ksfile)
     self.DATA['output'].append(self.local_ksfile)
+    if self.cvars['web-path']:
+      self.DATA['output'].append(self.remote_ksfile)
 
   def run(self):
     ks = self._read_kickstart_from_string(self.config.text or '')
@@ -76,9 +78,13 @@ class KickstartEvent(Event):
     self._validate_kickstart(ks)
 
     # modify %packages
-    self._update_packages(ks, groups   = self.cvars['comps-group-info'],
-                              packages = self.cvars['user-required-packages'],
-                              excludes = self.cvars['user-excluded-packages'])
+    self._update_packages(ks,
+      groups        = self.cvars['comps-group-info'],
+      packages      = self.cvars['user-required-packages'],
+      excludes      = self.cvars['user-excluded-packages'],
+      default       = self.cvars['packages-default'],
+      excludeDocs   = self.cvars['packages-excludedocs'],
+      handleMissing = self.cvars['packages-ignoremissing'])
 
     # modify partitions (iff missing)
     if len(ks.handler.partition.partitions) == 0:
@@ -99,22 +105,25 @@ class KickstartEvent(Event):
     # write out ks file with the local baseurl
     self.local_ksfile.write_text(str(ks.handler))
 
-    # modify repos to have remote baseurl
-    self._update_repos(ks,
-          ['--name', 'appliance',
-           '--baseurl', self.cvars['web-path'] / 'os' ])
+    # if we're publishing to a web-accesible location, also write out a
+    # kickstart with repos pointing to the web location
+    if self.cvars['web-path']:
+      self._update_repos(ks,
+            ['--name', 'appliance',
+             '--baseurl', self.cvars['web-path'] / 'os' ])
 
-    # write out the ks file with the remote baseurl
-    self.remote_ksfile.write_text(str(ks.handler))
+      # write out the ks file with the remote baseurl
+      self.remote_ksfile.write_text(str(ks.handler))
 
   def apply(self):
     self.cvars['local-baseurl-kickstart-file'] = self.local_ksfile
     self.cvars['local-baseurl-ks-path']        = '/' / self.local_ksfile.basename
     self.cvars['local-baseurl-kickstart']      = self._read_kickstart(self.local_ksfile)
 
-    self.cvars['remote-baseurl-kickstart-file'] = self.remote_ksfile
-    self.cvars['remote-baseurl-ks-path']        = '/' / self.remote_ksfile.basename
-    self.cvars['remote-baseurl-kickstart']      = self._read_kickstart(self.remote_ksfile)
+    if self.cvars['web-path']:
+      self.cvars['remote-baseurl-kickstart-file'] = self.remote_ksfile
+      self.cvars['remote-baseurl-ks-path']        = '/' / self.remote_ksfile.basename
+      self.cvars['remote-baseurl-kickstart']      = self._read_kickstart(self.remote_ksfile)
 
   def verify_cvars(self):
     "cvars are set"
@@ -122,9 +131,10 @@ class KickstartEvent(Event):
     self.verifier.failUnlessSet('local-baseurl-ks-path')
     self.verifier.failUnlessSet('local-baseurl-kickstart')
 
-    self.verifier.failUnlessSet('remote-baseurl-kickstart-file')
-    self.verifier.failUnlessSet('remote-baseurl-ks-path')
-    self.verifier.failUnlessSet('remote-baseurl-kickstart')
+    if self.cvars['web-path']:
+      self.verifier.failUnlessSet('remote-baseurl-kickstart-file')
+      self.verifier.failUnlessSet('remote-baseurl-ks-path')
+      self.verifier.failUnlessSet('remote-baseurl-kickstart')
 
   def _validate_kickstart(self, ks):
     if ks.handler.repo.repoList:
@@ -158,10 +168,20 @@ class KickstartEvent(Event):
     ks.handler.partition.partitions = []
     ks.handler.partition.parse(args)
 
-  def _update_packages(self, ks, groups=None, packages=None, excludes=None):
-    ks.handler.packages.excludedList = []
-    ks.handler.packages.groupList    = []
-    ks.handler.packages.packageList  = []
+  def _update_packages(self, ks, groups=None, packages=None, excludes=None,
+                                 default=None, excludeDocs=None,
+                                 handleMissing=None):
+    ks.handler.packages.excludedList  = []
+    ks.handler.packages.groupList     = []
+    ks.handler.packages.packageList   = []
+
+    if default is not None:
+      ks.handler.packages.default       = default
+    if excludeDocs is not None:
+      ks.handler.packages.excludeDocs   = excludeDocs
+    if handleMissing is not None:
+      ks.handler.packages.handleMissing = \
+        handleMissing and KS_MISSING_PROMPT or KS_MISSING_IGNORE
 
     lines = []
 
