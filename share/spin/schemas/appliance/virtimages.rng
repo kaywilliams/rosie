@@ -4,7 +4,7 @@
     <element name="appliance">
 
       <optional>
-      <element name="virtimage">
+      <element name="virtimages">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
@@ -15,6 +15,9 @@
         <attribute name="vcpu"/>
         </optional>
         <optional>
+        <optional>
+        <attribute name="libvirt"><ref name="value-boolean"/></attribute>
+        </optional>
         <attribute name="vmware"><ref name="value-boolean"/></attribute>
         </optional>
       </element>
