@@ -70,6 +70,7 @@ class VirtimageBaseEvent(vms.VmCreateMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
+    self.outdir.mkdirs()
 
     if self.cvars['local-baseurl-kickstart'] is None:
       raise vms.KickstartRequiredError(modid=self.id)
