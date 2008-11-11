@@ -48,9 +48,11 @@ class Loader(dispatch.Loader):
     return self.top
 
   def _process_path(self, path, default):
-    for mod in path.findpaths(nregex='.*/(\..*|.*\.pyc|.*\.pyo|Makefile)', mindepth=1):
+    for mod in path.findpaths(nregex='.*/(\..*|.*\.pyc|.*\.pyo|Makefile)',
+                              mindepth=1):
       modid = str(mod.basename.splitext()[0])
-      if not default and modid not in self.enabled: continue # default-off events
+      # only load default-off modules if explicitly enabled
+      if not default and modid not in self.enabled: continue
 
       modname = mod.relpathfrom(path).splitext()[0].replace('/', '.')
 
@@ -63,7 +65,5 @@ class Loader(dispatch.Loader):
 
       m = dispatch.load_modules(modname, path, err=False)
       if hasattr(m, 'MODULE_INFO'):
+        assert not self.modules.has_key(modid)
         self.modules[modid] = m
-        # set moduleid attribute on events
-        for event in m.MODULE_INFO['events']:
-          getattr(m, event).moduleid = modname.split('.')[-1]
