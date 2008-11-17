@@ -65,5 +65,4 @@ class Loader(dispatch.Loader):
 
       m = dispatch.load_modules(modname, path, err=False)
       if hasattr(m, 'MODULE_INFO'):
-        assert not self.modules.has_key(modid)
-        self.modules[modid] = m
+        self.modules.setdefault(modid, m) # only load if not already loaded
