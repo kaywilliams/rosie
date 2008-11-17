@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section>
+  <title>Configuring the Spin Machine</title>
+
+  <para><application class="software">Spin</application> is designed to work
+  in a networked environment. You can install <application
+  class="software">Spin</application> on a <application
+  class="software">Linux</application> system operating with <application
+  class="software">Fedora</application> 10, <application
+  class="software">CentOS</application> 5 or <application class="software">Red
+  Hat Enterprise Linux</application> 5. The OS needs to include an http daemon
+  with the ability to host web-accessible appliances for download. If you're
+  using <application arch="" class="software">Apache</application>, the httpd
+  configuration file directive &lt;Directory&gt; specifies the location of the
+  default directory for http files.</para>
+
+  <para>For capacity planning purposes, the machine should have a separate
+  logical or physical drive for the <filename
+  class="directory">/var</filename> directory. <application
+  class="software">Spin</application> uses the <filename
+  class="directory">/var/cache</filename> directory during initial and
+  subsequent appliance builds and the <filename
+  class="directory">/var/www/html</filename> directory for hosting the
+  appliances for distribution. Consequently, the drive space allocated should
+  be a minimum of 30GB. Depending upon the number and size of the applications
+  included in the appliance, you may need more disk space.</para>
+
+  <para>Disk access is another consideration. Due to the size of the files
+  handled, fast disk access is preferable. To accommodate the speed
+  requirements, it is best to use hard disk drives with Serial Advanced
+  Technology Attachment (SATA) interfaces.</para>
+
+  <para>In addition to the Spin product, the Spin build system must have a web
+  server installed on it in order to distribute the appliance through the
+  network. For instructions on installing Spin and a web server and verifying
+  that Spin is running correctly, see the "Getting Started Guide" on Rendition
+  Software's web site.</para>
+
+  <para>Now you are ready to begin defining your appliance!</para>
+</section>

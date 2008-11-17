@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<book>
+  <bookinfo>
+    <title>Spin User Manual</title>
+
+    <author>
+      <affiliation>
+        <orgname>Rendition Software</orgname>
+      </affiliation>
+    </author>
+
+    <pubdate>November 2008</pubdate>
+
+    <copyright>
+      <year>2008 </year>
+
+      <holder>Rendition Software. </holder>
+    </copyright>
+
+    <legalnotice>
+      <para>All Rights Reserved.</para>
+    </legalnotice>
+  </bookinfo>
+
+  <xi:include href="preface.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="part1.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+</book>

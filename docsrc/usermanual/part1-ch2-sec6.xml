@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section>
+  <title>Updating Your Appliance</title>
+
+  <para>Maintaining your appliance through updates is the final process step.
+  There are two reasons to rerun the <command>spin</command> command and
+  update your appliance. You may update the appliance repositories on the
+  build server from the mirrors. Or you may redefine your appliance. Depending
+  upon what, if anything, you update in the appliance, updates can occur on
+  the Spin build system, the download server and the client system.</para>
+
+  <section>
+    <title>Running <command>spin</command> to check for repository
+    updates</title>
+
+    <para>To include updated packages from the repositories, execute
+    <command>spin</command> with the
+    <filename>samba-server.appliance</filename> file. <application
+    class="software"> Rerunning <command>spin</command> with the same
+    <filename class="extension">.appliance</filename> file will dramatically
+    reduce the build time, assuming there are no changes to the file's
+    contents. Spin</application> uses a cache of the packages and verifies the
+    cache contents against the metadata for the repository and the groups. The
+    screen output below shows the results of a build with no changes to the
+    <filename>samba-server.appliance</filename> file and no updates to the
+    repositories.</para>
+
+    <para><screen>Reading '/home/spin/samba-server.appliance'
+Starting build of 'samba-server-5-i386' at 2008-10-25 18:29:55
+Build complete at 2008-10-25 18:30:26</screen></para>
+
+    <para>Since there were no updates, <command>spin</command> completed
+    successfully in less than two minutes. (Results will vary depending upon
+    your <application class="software">Spin</application> build system's
+    hardware configuration.) Only if something had changed would
+    <command>spin</command> have rerun the repository updates and provided
+    more detail about this build.</para>
+
+    <para>Unless you change the log level or the contents of the <filename
+    class="extension">.appliance</filename> file, <command>spin</command> will
+    append the minimal output above to the log file.</para>
+
+    <para><note>
+        <para>Spin's default behavior is to append all build output to the
+        <filename>spin.log</filename> file in the <filename
+        class="directory">/var/log</filename> directory. To redirect the
+        output for a particular build, use the <command>spin</command>
+        command</para>
+
+        <para><userinput># spin --log-file /var/log/$MYLOGFILE
+        samba-server.appliance</userinput></para>
+
+        <para>where <varname>$MYLOGFILE</varname> is the new name of the log
+        file.</para>
+      </note></para>
+
+    <para>If there are updates, then <command>spin</command> will include
+    those updated packages in the appliance repository on the build
+    system.</para>
+
+    <para><important>
+        <para>If the published distribution location is the same,
+        <command>spin</command> updates the distribution, adding new files and
+        replacing old ones.</para>
+      </important></para>
+  </section>
+
+  <section>
+    <title>Modifying the appliance definition file</title>
+
+    <para>If you change the <filename class="extension">.appliance</filename>
+    file, then you need to rerun <command>spin</command>. You may redefine
+    your appliance in a plethora of ways. Some of the more common options
+    could include selecting different repositories; including or excluding
+    groups, packages or custom files (configuration files, scripts or
+    triggers); or defining a new destination for the published
+    appliance.</para>
+
+    <para>If you change the <emphasis>main/name</emphasis>,
+    <emphasis>main/version</emphasis> or <emphasis>main/arch</emphasis> child
+    elements, then you are creating a new appliance with a new
+    <varname>$APPLIANCEID</varname> and published download server location
+    matching the new parameters. To avoid confusion between the different
+    appliances, save the new <filename class="extension">.appliance</filename>
+    file with a new name.</para>
+  </section>
+
+  <section>
+    <title>Updating the client system's appliance installation</title>
+
+    <para>If there are changes to the appliance on the build system, you will
+    need to update the installed client system using <command>yum</command>
+    <option>update</option>. For this example build, log on as the root user
+    and execute the <userinput>yum update</userinput> command.</para>
+
+    <para>Using the <command>yum </command><option>update</option> command
+    will update all packages on the client system from the download server,
+    including the appliance-specific config and release RPMs created by Spin.
+    For more information about what these RPMs contain and how to customize
+    their contents, see the <emphasis>config-rpm</emphasis> and
+    <emphasis>release-rpm</emphasis> TLEs in the ADFR.</para>
+
+    <para>To see what changed on the client system, check the
+    <filename>yum.log</filename> file in the <filename
+    class="directory">/var/log/</filename> directory.</para>
+  </section>
+</section>

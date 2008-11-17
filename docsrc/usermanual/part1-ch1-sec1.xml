@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section>
+  <title><application class="software">Spin</application> Builds
+  Appliances</title>
+
+  <para>An appliance is a set of software applications within an operating
+  system (OS) that forms a single distribution unit. Using Spin, an open
+  source appliance builder, you can create, deploy and maintain a custom
+  appliance:</para>
+
+  <para><itemizedlist>
+      <listitem>
+        <para>select an operating system (OS),</para>
+      </listitem>
+
+      <listitem>
+        <para>combine it with one or more applications,</para>
+      </listitem>
+
+      <listitem>
+        <para>set OS and application configuration parameters,</para>
+      </listitem>
+
+      <listitem>
+        <para>build the appliance,</para>
+      </listitem>
+
+      <listitem>
+        <para>deploy it to clients using standard tools and methods,</para>
+      </listitem>
+
+      <listitem>
+        <para>change the appliance components and configuration,</para>
+      </listitem>
+
+      <listitem>
+        <para>rebuild the appliance and</para>
+      </listitem>
+
+      <listitem>
+        <para>update existing clients using standard package update tools such
+        as <application class="software">YUM</application>.</para>
+      </listitem>
+    </itemizedlist></para>
+
+  <mediaobject>
+    <imageobject>
+      <imagedata fileref="spin_overview.jpg" />
+    </imageobject>
+
+    <textobject>
+      <para><application class="software">Spin</application> takes various
+      inputs (OS, applications, configuration files, etc.), combines that with
+      an appliance definition file (<filename
+      class="extension">.appliance</filename>) and creates an appliance
+      distribution with deployment images and an appliance package repository.
+      Using the bootable media, you can deploy the appliance to one or more
+      client systems. You can also update the appliance repository and
+      clients.</para>
+    </textobject>
+
+    <caption><para>How Spin Works</para></caption>
+  </mediaobject>
+
+  <para>In summary, Spin is a robust appliance life cycle manager for use in
+  defining, building and maintaining appliances that are easily deployed and
+  updated using industry standard tools.</para>
+</section>

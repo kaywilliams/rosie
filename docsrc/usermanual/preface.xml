@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter>
+  <title>Preface</title>
+
+  <section>
+    <title>This Manual's Audience</title>
+
+    <para>Spin is a product intended for Linux system administrators and build
+    managers who need to build and deploy Linux-based appliances. Each part in
+    this manual assumes you have a particular level of knowledge.</para>
+
+    <para>For Part I, "Basic Spin Usage," in addition to knowing how to create
+    and edit XML files, manage a web server and create USB and CD/DVD boot
+    media, you should have an intermediate skill level with the following
+    components:</para>
+
+    <para><itemizedlist>
+        <listitem>
+          <para><application class="software">Linux</application>
+          installation, usage and system administration and
+          configuration;</para>
+        </listitem>
+
+        <listitem>
+          <para><application class="software">RPM</application> package usage;
+          and</para>
+        </listitem>
+
+        <listitem>
+          <para><application class="software">YUM</application> usage and
+          configuration.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>For Part II, "Robust Appliance Management," experience with version
+    control systems, local mirror hosting, XPath and XInclude.</para>
+
+    <para>For Part III, "Advanced Appliance Concepts," key skills include
+    understanding how to create RPM packages and package repositories and how
+    to automate Anaconda installations using kickstart files, command line
+    arguments and update images.</para>
+  </section>
+
+  <section>
+    <title>What's Not Covered in This Manual</title>
+
+    <para>This manual complements several <application
+    class="software">Spin</application> documents. The "Installation
+    Instructions" and "Getting Started Guide" provide basic information about
+    obtaining and installing Spin and creating a basic CentOS appliance.
+    "Appliance Definition File Reference" (ADFR) contains the syntax for
+    appliance definition file elements and attributes. Finally, Spin has a set
+    of <emphasis role="strong">man pages</emphasis> explaining the
+    <command>spin</command> command, its options and the Spin configuration
+    file, <filename>spin.conf</filename>. This manual contains references to
+    all four throughout the text.</para>
+
+    <para>These Spin documents are available at <ulink
+    url="http://www.renditionsoftware.com/spin/docs/"> the Rendition Software
+    Spin documentation website</ulink>.</para>
+  </section>
+
+  <section>
+    <title>How to Read This Manual</title>
+
+    <para>The intent of the manual is to help you use Spin effectively to
+    build and maintain appliances, update the appliance and customize the
+    appliance installation. This is not a cookbook for various server
+    appliance types, e.g. <application class="software">Samba</application>,
+    DNS, or LDAP. Rather, this manual takes the top-down approach, explaining
+    the concepts before giving steps, commands and code examples that you can
+    use to build, deploy and enhance your own appliances.</para>
+  </section>
+
+  <section>
+    <title>Conventions Used in This Manual</title>
+
+    <para>The document conventions are alphabetically listed below.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><emphasis role="strong">Caution</emphasis></term>
+
+        <listitem>
+          <para>The Caution tag flags issues of importance.</para>
+
+          <para><caution>
+              <para>Using the 'dd' command to copy the diskboot.img file onto
+              a USB key will destroy existing data on the device.</para>
+            </caution></para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">Commands</emphasis></term>
+
+        <listitem>
+          <para><command>Command</command> names in Spin or
+          <function>function</function> names in other programs appear
+          throughout the document.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">Elements and
+        Attributes</emphasis></term>
+
+        <listitem>
+          <para>Elements and attributes in XML are referred to by their XPath
+          equivalents. The active node is always considered to be the root,
+          appliance; thus, the first element in the XPath expression is the
+          top-level element, while subsequent elements/attributes are its
+          children. Top-level elements in the ADFR and their child elements
+          use the <emphasis>parent/child/child</emphasis> format, while
+          <emphasis>@attribute-names</emphasis> are preceded by an @ symbol.
+          The assumed parent element is <emphasis>appliance</emphasis>. For
+          more details on XPath syntax, see <ulink
+          url="http://www.w3.org/TR/xpath.html">XML Path Language</ulink>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="example" xreflabel="example">
+        <term><emphasis role="strong">Examples</emphasis></term>
+
+        <listitem>
+          <para>Code examples appear in a box, displayed below.</para>
+
+          <para><informalexample>
+              <para><programlisting>&lt;!-- This is a comment in an example code section --&gt;</programlisting></para>
+            </informalexample></para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">Filenames</emphasis></term>
+
+        <listitem>
+          <para><filename>Filenames</filename>, <filename
+          class="directory">folder names or directory trees</filename> or
+          <filename class="extension">file extensions</filename> all use a
+          monospace format.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">Important</emphasis></term>
+
+        <listitem>
+          <para>Critical items appear with an "Important" set off tag: <para>
+              <important>
+                <para>The <emphasis>main</emphasis> top-level element is
+                required for a <filename
+                class="extension">.appliance</filename> file.</para>
+              </important>
+            </para></para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">Notes</emphasis></term>
+
+        <listitem>
+          <para>Within appliance file examples, the traditional XML comment
+          tags "&lt;!--" and "--&gt;" contain notes. See Also <xref
+          linkend="example" /> .</para>
+
+          <para>A set-off tag highlights things that a user needs to
+          know.</para>
+
+          <para><note>
+              <para>The top-level elements can be in any order in the
+              appliance definition file.</para>
+            </note></para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">Screen output</emphasis></term>
+
+        <listitem>
+          <para>Computer output to the screen can be <computeroutput>inline
+          computer output</computeroutput>, usually in Courier monospace font,
+          or included in a box, as in the case below.</para>
+
+          <screen>/usr/bin/spin</screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">User Input</emphasis></term>
+
+        <listitem>
+          <para>Commands entered by the user appear as <userinput>inline
+          commands</userinput> or formatted as an <xref linkend="example" />.
+          If the latter, then special characters indicate different users, as
+          shown below.</para>
+
+          <para><informalexample>
+              <programlisting># precedes lines entered as a root user
+
+$ precedes lines entered as a normal user</programlisting>
+            </informalexample></para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">Variables</emphasis></term>
+
+        <listitem>
+          <para>Spin variables are presented in monospace font preceded by a
+          dollar sign, e.g. <varname>$APPLIANCEID</varname>. Variables outside
+          the Spin realm appear in lowercase in monospace font preceded by a
+          dollar sign, e.g. <varname>$releasever</varname>.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>Organization of This Manual</title>
+
+    <para>This manual contains three parts, each with an increasing level of
+    complexity and detail.</para>
+
+    <para><itemizedlist>
+        <listitem>
+          <para>Part I, "Basic Spin Usage," will help you start using
+          <application class="software">Spin</application> immediately.</para>
+
+          <para><itemizedlist>
+              <listitem>
+                <para>"What Does Spin Do?" explains what an appliance is, how
+                <application class="software">Spin</application> helps you
+                build it in a more efficient timely manner and the underlying
+                architecture that makes this improved performance possible.
+                The section also includes a "Glossary of Terms" explaining
+                terms used within the <application
+                class="software">Spin</application> realm.</para>
+              </listitem>
+
+              <listitem>
+                <para>"Basic Usage: Getting the Job Done," covers the basic
+                concepts for configuring the <application
+                class="software">Spin</application> build system, defining and
+                deploying an appliance, running <application
+                class="software">Spin</application> and updating an appliance.
+                As a use case model, these sections will help you create a
+                basic <application class="software">Samba</application> server
+                appliance based on CentOS 5.</para>
+              </listitem>
+            </itemizedlist></para>
+        </listitem>
+
+        <listitem>
+          <para>Part II, "Robust Appliance Management," will help you set up a
+          managed appliance development and deployment environment using Spin
+          as its cornerstone.</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>"Why Use Spin as part of a Production Environment?"
+              explains implementing the development - staging - production
+              environment within the content of building and deploying
+              appliances using <application
+              class="software">Spin</application>. The Samba server appliance
+              you created in Part I will have new features requirements to
+              implement in Part II.</para>
+            </listitem>
+
+            <listitem>
+              <para>"Utilizing Spin within the Development - Staging -
+              Production climate" discusses how Spin makes your life easier as
+              a system or build administrator. Versioning appliance files and
+              utilizing an object-oriented model through the XInclude
+              mechanism for the appliance files are important usability
+              features. Choosing the best location for storing and downloading
+              an appliance via the web is another key concept.</para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+
+        <listitem>
+          <para>Part III, "Advanced Appliance Concepts," will help you
+          customize your appliances.</para>
+
+          <para><itemizedlist>
+              <listitem>
+                <para>"Desiging the Appliance" targets the advanced system
+                administrator, describing how to add custom release
+                files.</para>
+              </listitem>
+
+              <listitem>
+                <para>"Managing Appliance Packages" discusses GPG checking and
+                using GPG keys to sign your own packages.</para>
+              </listitem>
+
+              <listitem>
+                <para>"Booting Up an Appliance" gives you the opportunity to
+                flex your automation muscles by implementing boot-up and
+                kickstart files. Creating different images is another advanced
+                feature.</para>
+              </listitem>
+            </itemizedlist></para>
+        </listitem>
+      </itemizedlist></para>
+  </section>
+
+  <section>
+    <title>Getting Spin</title>
+
+    <para>The Beta version of Spin and associated documents are available at
+    <ulink url="http://www.renditionsoftware.com/spin/"> the Rendition
+    Software Spin website</ulink>.</para>
+  </section>
+</chapter>

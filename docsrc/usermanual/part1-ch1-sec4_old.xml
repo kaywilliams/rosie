@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section>
+  <title>Building Appliances with Spin</title>
+
+  <para>Spin empowers you to build an appliance using a single configuration
+  file and a single command. You provide the parameters. Spin does the work in
+  less time than its competitors.</para>
+
+  <para>To begin the appliance build process, you must first define the
+  appliance through an appliance definition file, commonly tagged with an
+  <filename class="extension">.appliance</filename> filename extension. It's
+  XML syntax, defined in the ADFR, has multiple TLEs, each of which
+  corresponds to a <application class="software">Python</application> module.
+  There are three required TLEs--<emphasis>main</emphasis>,
+  <emphasis>repos</emphasis> and <emphasis>packages</emphasis>. These and
+  other TLEs give you an extraordinary level of control over the appliance's
+  components and configuration.</para>
+
+  <para>In addition to serving as the execution plan for the appliance, this
+  <filename class="extension">.appliance</filename> file has the added benefit
+  of self-documenting your appliance. Storing it in a versioning system makes
+  tracking appliance life cycle changes easier.</para>
+
+  <para>Next, build the appliance using the <command>spin</command> command.
+  <application class="software">Spin</application> provides many command-line
+  options for controlling logging, module execution and <application
+  class="software">Spin</application>'s configuration. By only utilizing the
+  <filename class="extension">.appliance</filename> file and disallowing
+  direct user interaction, <application class="software">Spin</application>
+  enables you to schedule build and update processes during off-peak work
+  hours, thereby freeing up technical resources and not interfering with end
+  users' activities.</para>
+
+  <para>By default <application class="software">Spin</application> stores the
+  completed appliance on the <application class="software">Spin</application>
+  build system, making it the download server. But you can change the location
+  using the <filename class="extension">.appliance</filename> file. To deploy
+  an appliance, you can use a download server and other typical boot media
+  (CD, DVD or USB).</para>
+
+  <para>Updating the appliance on the build system and the client system is
+  one of <application class="software">Spin</application>'s strengths. Running
+  <command>spin</command> on the build system will check the repositories for
+  package updates. If found, <application class="software">Spin</application>
+  will rebuild the appliance. You can also redefine an appliance, then use
+  <command>spin</command> to rebuild the appliance. Using <userinput>yum
+  update</userinput> on the client system will update the client appliance
+  installation from the build system's appliance repository. Add to this the
+  fact that you can schedule <command>spin</command> to run automatically, and
+  you have a powerful appliance management tool.</para>
+
+  <para>In summary, using a single <filename
+  class="extension">.appliance</filename> definition text file, you can define
+  and build a comprehensive appliance with a Linux-based OS and one or more
+  applications, deploy it to many machines and update it automatically outside
+  normal work hours.</para>
+</section>
