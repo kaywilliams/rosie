@@ -86,6 +86,11 @@ class ReposEvent(RepoEventMixin, Event):
   def apply(self):
     self.io.clean_eventcache()
 
+    # read repocontent
+    for repo in self.repos.values():
+      assert_file_readable(repo.pkgsfile)
+      repo.repocontent.read(repo.pkgsfile)
+
     if self.cvars['appliance-info']['anaconda-version'] is not None:
       self.cvars['anaconda-version'] = self.cvars['appliance-info']['anaconda-version']
     else:
@@ -123,7 +128,7 @@ class ReposEvent(RepoEventMixin, Event):
     "repodata exists"
     for repo in self.repos.values():
       for subrepo in repo.subrepos.values():
-        for datafile in subrepo.datafiles.values():
+        for datafile in subrepo.iterdatafiles():
           self.verifier.failUnlessExists(
             self.mddir/repo.id/subrepo._relpath/datafile.href)
 

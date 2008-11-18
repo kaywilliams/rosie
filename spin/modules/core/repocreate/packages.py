@@ -18,6 +18,8 @@
 
 import fnmatch
 
+from rendition import magic
+
 from spin.constants import KERNELS
 from spin.errors    import assert_file_has_content, SpinError
 from spin.event     import Event
@@ -145,7 +147,11 @@ class PackagesEvent(Event):
     groupfiles = []
 
     for repo in self.cvars['repos'].values():
-      for gf in repo.datafiles.get('group', []):
+      if repo.has_gz:
+        key = 'group_gz'
+      else:
+        key = 'group'
+      for gf in repo.datafiles.get(key, []):
         groupfiles.append((repo.id, repo.localurl/gf.href))
 
     return groupfiles
@@ -156,7 +162,16 @@ class PackagesEvent(Event):
 
     groupfiles = {}
     for id, path in self.groupfiles:
-      groupfiles.setdefault(id, comps.Comps()).add(path)
+      try:
+        fp = None
+        if magic.match(path) == magic.FILE_TYPE_GZIP:
+          import gzip
+          fp = gzip.open(path)
+        else:
+          fp = open(path)
+          groupfiles.setdefault(id, comps.Comps()).add(fp)
+      finally:
+        fp and fp.close()
 
     allpkgs = [] # maintain a list of all packages in all repositories
     for repo in self.cvars['repos'].values():

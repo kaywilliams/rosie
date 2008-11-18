@@ -358,7 +358,7 @@ class RepoEventMixin:
         self.io.add_fpath(src, dst.dirname, id='%s-repodata' % repo.id)
 
         # now handle all other datafiles
-        for datafile in subrepo.datafiles.values():
+        for datafile in subrepo.iterdatafiles():
           src = subrepo.url/datafile.href
           csh = (self.cache_handler.cache_dir /
                  self.cache_handler._gen_hash(src))
@@ -398,7 +398,7 @@ class RepoEventMixin:
     self.logger.log(3, L1("verifying repodata file checksums"))
     for repo in self.repos.values():
       for subrepo in repo.subrepos.values():
-        for datafile in subrepo.datafiles.values():
+        for datafile in subrepo.iterdatafiles():
           f = self.mddir/repo.id/subrepo._relpath/datafile.href
           f.uncache('shasum') # uncache previously-cached shasum
           got = f.shasum()
@@ -431,16 +431,24 @@ class RepoEventMixin:
     for repo in self.repos.values():
       doupdate = repo.id in newids or not repo.pkgsfile.exists()
       if not doupdate:
-        for pxml in repo.datafiles['primary']:
-          if self.diff.input.difference((repo.url//pxml.href).normpath()):
+        if repo.has_sqlite:
+          pfiles = repo.datafiles['primary_db']
+        else:
+          pfiles = repo.datafiles['primary']
+        for pfile in dfiles:
+          if self.diff.input.difference((repo.url//pfile.href).normpath()):
             doupdate = True
             break
 
       if doupdate:
         self.log(2, L2(repo.id))
         repo.repocontent.clear()
-        for pxml in repo.datafiles['primary']:
-          repo.repocontent.update(pxml.href, clear=False)
+        if repo.has_sqlite:
+          pfiles = repo.datafiles['primary_db']
+        else:
+          pfiles = repo.datafiles['primary']
+        for pfile in pfiles:
+          repo.repocontent.update(pfile.href, clear=False)
         repo.repocontent.write(repo.pkgsfile)
 
       self.DATA['output'].append(repo.pkgsfile) # add pkgsfile to output
