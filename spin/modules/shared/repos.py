@@ -435,7 +435,7 @@ class RepoEventMixin:
           pfiles = repo.datafiles['primary_db']
         else:
           pfiles = repo.datafiles['primary']
-        for pfile in dfiles:
+        for pfile in pfiles:
           if self.diff.input.difference((repo.url//pfile.href).normpath()):
             doupdate = True
             break
