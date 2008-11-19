@@ -63,9 +63,9 @@ def reconstruct_cmd(options):
   if options.mainconfigpath:
     cmd += ['--distro-conf', options.mainconfigpath]
   for path in options.libpath:
-    cmd += ['--lib-path', '"%s"' % path]
+    cmd += ['--lib-path', '%s' % path]
   for path in options.sharepath:
-    cmd += ['--share-path', '"%s"' % path]
+    cmd += ['--share-path', '%s' % path]
 
   return cmd
 
