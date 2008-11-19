@@ -23,20 +23,9 @@ class KickstartEventTestCase(EventTestCase):
   moduleid = 'kickstart'
   eventid  = 'kickstart'
   _conf = [
-    "<kickstart>infile</kickstart>",
-    "<repocreate enabled='false'/>",
+    "<kickstart/>",
     "<rpmbuild enabled='false'/>",
   ]
-
-  def setUp(self):
-    EventTestCase.setUp(self)
-    if self.event:
-      touch_input_files(self.event._config.file.abspath().dirname)
-
-  def tearDown(self):
-    if self.event:
-      remove_input_files(self.event._config.file.abspath().dirname)
-    EventTestCase.tearDown(self)
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('kickstart')
