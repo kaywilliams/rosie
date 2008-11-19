@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter>
+  <title>Creating a Managed Appliance Development and Deployment Environment
+  Using <application class="software">Spin</application></title>
+
+  <para>You can harness <application class="software">Spin</application>'s
+  architecture and features to create a robust software development
+  environment with reusable components for the appliance definition file,
+  version tracking for that and other configuration files, expedited testing
+  procedures and alternate publish and download locations. Using <application
+  class="software">Spin</application> as part of a long-term deployment and
+  shop management strategy will enable you to be more efficient and provide an
+  appliance development and deployment history that is repeatable and
+  predictable.</para>
+
+  <xi:include href="part2-ch1-sec1.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+</chapter>

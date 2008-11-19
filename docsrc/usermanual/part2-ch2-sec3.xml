@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section>
+  <title>Reusing Appliance Components in an Object-oriented Strategy</title>
+
+  <para>To organize information better, the software development community
+  commonly uses substitution methods. In the case of Spin, you can create and
+  store content in one location and use XML Includes (XInclude) and XPaths in
+  the <filename class="extension">.appliance</filename> file to reuse that
+  content and condense large appliance definition files into more manageable
+  and readable sections using an object-oriented tree. Within that context,
+  some components of an appliance definition file are prime candidates for
+  substitution and reuse.</para>
+
+  <para>XInclude and XPointer do have limitations. Any documents that are
+  XIncluded must be well-formed XML documents and not plain text files, such
+  as HTML or a software program. Typically the appliance components cannot
+  exist competently without the master <filename
+  class="extension">.appliance</filename> file. References to portions of
+  included documents through XPointer must be well-formed XML. If any of the
+  included components are missing, the entire <filename
+  class="extension">.appliance</filename> file will be invalid. Finally, in
+  general using XPointer could increase CPU cycles and memory use; however,
+  with the <application class="software">Spin</application> build process no
+  significant CPU or memory cost has been found.</para>
+
+  <para>The advantages outweigh the disadvantages. XInclude processing is
+  recursive. You can have multiple layers of XIncluded documents within one
+  collective appliance. By using XPointer you can target one portion of a
+  document. From a time management standpoint, you spend time creating static
+  sections once, then reuse them. If your network topology changes, for
+  example, then you have one file to change, not ten <filename
+  class="extension">.appliance</filename> files and the inherent risk of
+  inaccuracies or inconsistencies among the appliances and within your
+  network.</para>
+
+  <para>Within the context of Spin, a two-part structure on the <application
+  class="software">Spin</application> build system will suffice for managing
+  the common versus unique appliance components. As in the diagram below,
+  under the subdirectory <filename class="directory">appliances/</filename>,
+  the <filename class="directory">common/</filename> branch contains reusable
+  components while the other branches each contain files unique to a single
+  appliance.</para>
+
+  <para><mediaobject>
+      <imageobject>
+        <imagedata depth="600px" fileref="appliance_definition_reuse.jpg"
+                   width="522px" />
+      </imageobject>
+    </mediaobject></para>
+
+  <para>To properly use the XInclude and XPointer structures, the directory
+  tree must represent the tiered structure above. In other words, the common
+  files to be included must exist at the same tier as any <filename
+  class="extension">.appliance</filename> file that references them.</para>
+
+  <para>In the <filename class="directory">appliances/common/</filename>
+  directory above, there are several reusable files.
+  <filename>Repos.xml</filename> contains several repository mirror lists and
+  base URLs from which to download the Linux OS based upon brand, architecture
+  and whether they are "base" or "updates." The
+  <filename>groups-packages.xml</filename> file contains common application
+  groups and packages that would be included in appliance using any OS, such
+  as "admin" or "editors." To have a standardized copyright statement,
+  <filename>main.xml</filename> is part of the common components.</para>
+
+  <para>For the Samba Server appliance, the directory <filename
+  class="directory">appliances/samba-server/</filename> in the drawing above
+  contains the <filename>samba-server.appliance</filename> file, the Samba
+  server configuration file, a kickstart file and a validation script. The
+  <filename class="extension">.appliance</filename> file would XInclude
+  components from the repositories, common groups and packages and a copyright
+  statement. The same logic holds true for the web and DNS servers.</para>
+
+  <para>To see the differences between one large versus several small files,
+  let's take the <filename>samba-server.appliance</filename> file you created
+  in Part I and modify that to use XInclude and XPointer statements. To do
+  that you will create a separate repository file,
+  <filename>repos.xml.</filename></para>
+
+  <para>First, create your <filename class="directory">appliances/</filename>
+  subdirectory with the two subdirectories <filename
+  class="directory">common/</filename> and <filename
+  class="directory">samba-server/</filename> as above. Place your
+  <filename>samba-server.appliance</filename> and
+  <filename>smb.conf</filename> files in the latter.</para>
+
+  <para>Next, create the <filename>appliances/common/repos.xml</filename>
+  using the example below. The separate repository file includes the URLs for
+  several OS brands, architectures and statuses, e.g. "base" and
+  "updates."</para>
+
+  <para><informalexample>
+      <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;appliance xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+
+&lt;!-- reposistories for centos --&gt;
+&lt;repos-centos&gt;
+&lt;!-- See www.centos.org for a list of public mirrors --&gt;
+    &lt;repo id="base"&gt;
+      &lt;name&gt;CentOS-$releasever - Base&lt;/name&gt;
+      &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/os/
+           $basearch/&lt;/baseurl&gt;
+      &lt;mirrorlist&gt;http://mirrorlist.centos.org/?release=$releasever&amp;amp;
+           arch=$basearch&amp;amp;repo=os&amp;amp;country=us&lt;/mirrorlist&gt;
+    &lt;/repo&gt;
+    &lt;repo id="updates"&gt;
+      &lt;name&gt;CentOS-$releasever - Updates&lt;/name&gt;
+      &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/updates/
+           $basearch/&lt;/baseurl&gt;
+      &lt;mirrorlist&gt;http://mirrorlist.centos.org/?release=$releasever&amp;amp;
+           arch=$basearch&amp;amp;repo=updates&amp;amp;country=us&lt;/mirrorlist&gt;
+    &lt;/repo&gt;
+
+&lt;/repos-centos&gt;
+
+&lt;!-- reposistories for fedora --&gt;
+&lt;repos-fedora&gt;
+
+&lt;!-- See www.fedoraproject.org for a list of public mirrors --&gt;
+    &lt;repo id="base"&gt;
+      &lt;name&gt;Fedora-$releasever - Base&lt;/name&gt;
+      &lt;baseurl&gt;http://mirror.stanford.edu/fedora/linux/releases/$releasever/
+           Fedora/$basearch/os&lt;/baseurl&gt;
+      &lt;mirrorlist&gt;http://mirrors.fedoraproject.org/mirrorlist?
+           repo=fedora-$releasever&amp;amp;arch=$basearch&amp;amp;country=us 
+      &lt;/mirrorlist&gt;
+
+&lt;repo id="updates"&gt;
+      &lt;name&gt;Fedora-$releasever - Updates&lt;/name&gt;
+      &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/updates/
+           $basearch/&lt;/baseurl&gt;
+      &lt;mirrorlist&gt;http://mirrors.fedoraproject.org/mirrorlist?
+           repo=updates-released-f$releasever&amp;amp;arch=$basearch&amp;amp;country=us 
+      &lt;/mirrorlist&gt;
+&lt;/repo&gt;
+
+&lt;/repos-fedora&gt;
+
+&lt;/appliance&gt;</programlisting>
+    </informalexample></para>
+
+  <para>The final step is to modify the
+  <filename>samba-server.appliance</filename> file, removing the
+  <emphasis>repos</emphasis> details and using XInclude and XPointer to reuse
+  common content. You may want to rename the <filename
+  class="extension">.appliance</filename> file or include it in a version
+  control system.</para>
+
+  <para><informalexample>
+      <programlisting>&lt;repos&gt;
+
+    &lt;!-- use global repos for CentOS --&gt;
+    &lt;xi:include href="../common/repos.xml" 
+                xpointer="xpointer(/appliance/repos-centos/*)" /&gt;
+
+  &lt;/repos&gt;</programlisting>
+    </informalexample></para>
+
+  <para>To build the <filename class="extension">.appliance</filename> file,
+  you will also have to change the path to the <filename>smb.conf</filename>
+  file in <emphasis>config-rpm/file</emphasis>.</para>
+
+  <para>The result is an object-oriented appliance definition file that will
+  reduce your maintenance overhead.</para>
+</section>

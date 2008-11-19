@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section>
+  <title>Forcing or Skipping Module Execution as Part of the Testing
+  Process</title>
+
+  <para>Just as in the SDLC you force or skip modules to test validity and
+  results of code or a process, so too can you use <application
+  class="software">Spin</application> to do that with an appliance. As part of
+  the debugging or testing process for an appliance, you may want to save time
+  and disk space by skipping a step in the build process whose results are
+  more predictable and not necessary to determining the success or validity of
+  the appliance.</para>
+
+  <para>As noted in Part I, <application class="software">Spin</application>
+  utilizes modules and groups of modules during the build process. You can
+  affect the process by configuring their corresponding TLEs in the <filename
+  class="extension">.appliance</filename> file. <application
+  class="software">Spin</application> executes some of the modules whether
+  they are in the <filename class="extension">.appliance</filename> file or
+  not, while others are "extensions" and only execute when specifically
+  included or required by other modules. In the <filename
+  class="extension">.appliance</filename> file, the <emphasis>main</emphasis>
+  top-level element defines the basic appliance information (appliance name,
+  version and architecture), while the <emphasis>repos</emphasis> and
+  <emphasis>packages</emphasis> top-level elements expose their module
+  namesakes and specify the repositories and what package groups to use in
+  creating the appliance.</para>
+
+  <para>Most individual modules are in groups, which you can also disable. The
+  "packages" module group creates package repositories or interacts with them
+  through other system files, <application class="software">GPG</application>
+  check and sign, downloading <filename class="extension">RPM</filename>s and
+  creating meta data. The "rpmbuild" module group creates <filename
+  class="extension">RPM</filename>s for your appliance
+  (<filename>config.rpm</filename> and <filename>release.rpm</filename>) and
+  <command>rpmbuild</command> RPM metadata. The "installer" group creates core
+  install <filename class="extension">IMG</filename> files. Miscellaneous
+  individual modules manage the build system's hard disk space and build tree,
+  create boot disks, expose the appliance for download and retrieve source
+  <filename class="extension">RPM</filename>s. For a list of the module
+  groups, use the <command>spin</command> command with the
+  <option>--list-modules</option> option.</para>
+
+  <para>In addition to <emphasis>main</emphasis>, <emphasis>repos</emphasis>
+  and <emphasis>packages</emphasis>, the "core" modules that Spin executes
+  automatically include <emphasis>bootiso</emphasis>,
+  <emphasis>diskboot-image</emphasis>, <emphasis>product-image</emphasis>,
+  <emphasis>publish</emphasis>, <emphasis>release-files</emphasis> and
+  <emphasis>release-rpm</emphasis>. Optional, or "extension," modules include
+  <emphasis>gpgsign</emphasis>, <emphasis>iso</emphasis>,
+  <emphasis>kickstart</emphasis>, <emphasis>updates-image</emphasis> and
+  <emphasis>sources</emphasis>. To execute these modules, you can either
+  include them in the <filename class="extension">.appliance</filename> file
+  or use the <command>spin</command> command with the <option>--force
+  $MODULE</option> option, where <varname>$MODULE</varname> is the name of a
+  module.</para>
+
+  <para>There are two methods to skip execution of a module. Within the
+  <filename class="extension">.appliance</filename> file, you can disable a
+  module by setting to FALSE the <emphasis>/@enabled</emphasis> attribute of
+  any group or a module exposed through a TLE. You can use the same method to
+  skip execution of a module group. Another method is to use the
+  <command>spin</command> command with the <option>--skip $MODULE</option>
+  option during a build, where <varname>$MODULE</varname> is the name of a
+  module.</para>
+
+  <para>"Core" modules that are candidates for skipping to save build time and
+  disk space include the image creation modules (<emphasis>bootiso</emphasis>,
+  <emphasis>diskboot-image</emphasis>, <emphasis>product-image</emphasis>),
+  the RPM creation module <emphasis>release-rpm</emphasis> and the
+  <emphasis>publish</emphasis> module.</para>
+</section>

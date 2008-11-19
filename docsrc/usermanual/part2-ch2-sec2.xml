@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section>
+  <title>Versioning Input Files for an Appliance</title>
+
+  <para>To track and audit any changes to the <application
+  class="software">Spin</application> files that are critical to the
+  definition, configuration and scripts of an appliance, use a revision
+  control system, such as <application
+  class="software">Mercurial</application> or <application arch=""
+  class="software">Subversion</application>. The Red Hat-based Linux OS' that
+  Spin works with by default (<application
+  class="software">RHEL</application>, <application
+  class="software">CentOS</application> and <application
+  class="software">Fedora</application>) all have the revision control system
+  <application class="software">Subversion</application>
+  (<command>svn</command>) installed as a development server. Subversion
+  remains the most popular revision control system. For the type of files and
+  distributed nature of Spin, though, the revision control system <application
+  class="software">Mercurial</application> (<command>hg</command>) may be a
+  better option. Mercurial is fast and distributed. Both
+  <command>svn</command> and <command>hg</command> work with secure protocols
+  -- ssh and https.</para>
+
+  <para>While everything could be revision controlled, there are some key
+  non-image files that should be. Within the <application
+  class="software">Spin</application> infrastructure and appliance building
+  process, candidates for revision control include configuration files,
+  appliance definition files and scripts, i.e. files that contain critical
+  textual information that may change over time or are commonly used to define
+  aspects of multiple appliances, such as common repositories or network
+  configuration.</para>
+
+  <para><itemizedlist>
+      <listitem>
+        <para><filename class="extension">.appliance</filename> files,</para>
+      </listitem>
+
+      <listitem>
+        <para><filename>spin.conf</filename>,</para>
+      </listitem>
+
+      <listitem>
+        <para>appliance configuration files,</para>
+      </listitem>
+
+      <listitem>
+        <para>appliance scripts, and</para>
+      </listitem>
+
+      <listitem>
+        <para><filename class="extension">.appliance</filename> XInclude
+        files.</para>
+      </listitem>
+    </itemizedlist></para>
+
+  <para>If you decide to not use a revision control system, you could rename
+  the <filename class="extension">.appliance</filename> file or other key
+  files every time you make a change to help you "version" your appliance. You
+  can also enter comments in the files. Keep in mind that changing the name of
+  the <filename class="extension">.appliance</filename> file does not mean
+  <application class="software">Spin</application> will build a new appliance.
+  As long as the <varname>$APPLIANCEID</varname> remains the same, the
+  appliance remains the same.</para>
+</section>

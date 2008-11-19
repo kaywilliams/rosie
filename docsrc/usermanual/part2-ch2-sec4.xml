@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section>
+  <title>Choosing an Appliance's Storage and Download Locations</title>
+
+  <para>By default <application class="software">Spin</application> uses the
+  <application class="software">Spin</application> build system as the default
+  location for publication and remote access. See the section "Deploying Your
+  Appliance" under Part I, Chapter 2, and the ADFR for more information about
+  the default settings. When the default settings are not appropriate, use the
+  <emphasis>publish</emphasis> TLE in the <filename
+  class="extension">.appliance</filename> file to direct <application
+  class="software">Spin</application> where to store the appliance and what
+  URL to use to make it accessible to clients for download.</para>
+
+  <para>Essentially, you have one choice for the server location of the
+  published appliance, the <application class="software">Spin</application>
+  build system. However, you can choose different directories on that machine.
+  If the <filename class="directory">/var</filename> directory is on a
+  separate logical drive, increasing the drive capacity is easier. </para>
+
+  <para>For the network-accessible location of the published appliance for
+  download, you have two choices: somewhere on the <application
+  class="software">Spin</application> build system or on another server.
+  Choosing that location depends upon several factors: your network security
+  topography, the location of your client systems, the types and number of
+  appliances, the number of users accessing the appliance and the number of
+  types of OSes used in the appliances.</para>
+
+  <para>Spin can accommodate a number of scenarios for storage and download.
+  Critical considerations include whether you have a single LAN versus a
+  separate DMZ, a download machine with multiple active interfaces, multiple
+  active ports or secure login requirements. Spin handles all of these through
+  the appliance definition file, e.g.
+  <filename>samba-server.appliance</filename>.</para>
+
+  <para><variablelist>
+      <varlistentry>
+        <term><emphasis role="strong">Scenario 1: Alternate publish, or
+        storage, locations</emphasis></term>
+
+        <listitem>
+          <para>While the publish and storage location is on the <application
+          class="software">Spin</application> build system, the default
+          location of <filename
+          class="directory">/var/www/html/appliances/<varname>$APPLIANCEID</varname></filename>
+          may not meet your needs. For administrative purposes, you may wish
+          to keep separate paths for different appliances or types of
+          appliances or make only certain paths accessible to others for
+          download from the <application class="software">Spin</application>
+          build system. To accomplish this, use
+          <emphasis>publish/local-dir</emphasis> to set an alternate directory
+          for publication. The default download URL will be the IP address of
+          the Spin build system's first active, non-loopback network
+          interface.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">Scenario 2: Single LAN but multiple
+        machines with one external firewall</emphasis></term>
+
+        <listitem>
+          <para>In this scenario, you may want to have separate physical
+          machines for build management and security administration purposes.
+          Use <emphasis>publish/remote-url</emphasis> to specify the full URL
+          path to the remotely accessible directory.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">Scenario 3: Separate DMZ for secure
+        remote accessibility</emphasis></term>
+
+        <listitem>
+          <para>A separate DMZ most likely means the <application
+          class="software">Spin</application> build system is behind your
+          external firewall for security purposes. The question is whether you
+          want the remotely accessible download host to be there, too, or in
+          the DMZ. To assign the appliance to a download server in the DMZ,
+          use <emphasis>publish/remote-url</emphasis> with the full http path
+          and machine's IP address.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">Scenario 4: Multiple active
+        interfaces</emphasis></term>
+
+        <listitem>
+          <para>While <application class="software">Spin</application> does
+          not factor in multiple active interfaces on the <application
+          class="software">Spin</application> build machine, it does consider
+          them for the remotely accessible server. By default it chooses the
+          first active, non-loopback network interface. To specify another
+          interface, enter the network card's number, e.g. "eth2," in the
+          <emphasis>publish/remote-url@interface</emphasis> attribute.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">Scenario 5: Multiple
+        ports</emphasis></term>
+
+        <listitem>
+          <para>To obscure and control the network communications, you can use
+          a unique port number, e.g. 8080, in the
+          <emphasis>publish/remote-url</emphasis> path.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">Scenario 6: Secure
+        login</emphasis></term>
+
+        <listitem>
+          <para><application class="software">Spin</application> allows you to
+          specify a user login name and password for download purposes using
+          <emphasis>publish/remote-url</emphasis>. The login and password are
+          free text.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>For the remotely accessible URL for the download server,
+  you can use either a hostname or an IP address. One key advantage to using a
+  machine's hostname is the ease of access using single name for multiple IPs,
+  either separately or together as a multihoned machine. Domain naming makes
+  the download server more logically accessible as opposed to IP addresses.
+  Finally, a hostname does not expose your IP blocks and network
+  topology.</para>
+
+  <para></para>
+</section>
