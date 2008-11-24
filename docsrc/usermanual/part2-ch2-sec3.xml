@@ -45,8 +45,7 @@
 
   <para><mediaobject>
       <imageobject>
-        <imagedata depth="600px" fileref="appliance_definition_reuse.jpg"
-                   width="522px" />
+        <imagedata fileref="appliance_definition_reuse.jpg" />
       </imageobject>
     </mediaobject></para>
 

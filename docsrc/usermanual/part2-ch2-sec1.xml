@@ -37,8 +37,7 @@
 
     <para><mediaobject>
         <imageobject>
-          <imagedata depth="467px" fileref="spin_logical_network.jpg"
-                     width="700px" />
+          <imagedata fileref="spin_logical_network.jpg" />
         </imageobject>
       </mediaobject></para>
 
