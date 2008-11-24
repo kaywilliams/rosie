@@ -22,7 +22,7 @@ from pykickstart.constants import KS_MISSING_PROMPT, KS_MISSING_IGNORE
 from rendition import pps
 
 from spin.event  import Event
-from spin.errors import SpinError
+from spin.errors import SpinError, assert_file_readable
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -113,14 +113,19 @@ class KickstartEvent(Event):
              '--baseurl', self.cvars['web-path'] / 'os' ])
 
       # write out the ks file with the remote baseurl
+      self.remote_ksfile.dirname.mkdirs()
       self.remote_ksfile.write_text(str(ks.handler))
 
   def apply(self):
+    self.io.clean_eventcache()
+
+    assert_file_readable(self.local_ksfile)
     self.cvars['local-baseurl-kickstart-file'] = self.local_ksfile
     self.cvars['local-baseurl-ks-path']        = '/' / self.local_ksfile.basename
     self.cvars['local-baseurl-kickstart']      = self._read_kickstart(self.local_ksfile)
 
     if self.cvars['web-path']:
+      assert_file_readable(self.remote_ksfile)
       self.cvars['remote-baseurl-kickstart-file'] = self.remote_ksfile
       self.cvars['remote-baseurl-ks-path']        = '/' / self.remote_ksfile.basename
       self.cvars['remote-baseurl-kickstart']      = self._read_kickstart(self.remote_ksfile)

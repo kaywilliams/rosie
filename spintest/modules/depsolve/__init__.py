@@ -79,9 +79,9 @@ class Test_DepsolveBug84_1(DepsolveEventTestCase):
 class Test_DepsolveBug84_2(DepsolveEventTestCase):
   "Bug 84 #2: Run 'depsolve' with base group"
   "with base group"
-  _conf = """<comps>
+  _conf = """<packages>
     <group>base</group>
-  </comps>"""
+  </packages>"""
   caseid = 'bug84_2'
 
 class Test_DepsolveBug84_3(DepsolveEventTestCase):
@@ -141,9 +141,9 @@ class Test_DepsolveBug86_2(DepsolveEventTestCase):
 
 class Test_DepsolveBug108(DepsolveEventTestCase):
   "Bug 108: 'pidgin' or 'libpurple' should be in pkglist (CentOS5-only test)"
-  _conf = """<comps>
+  _conf = """<packages>
     <package>gaim</package>
-  </comps>"""
+  </packages>"""
   caseid = 'bug108'
   clean  = False
   repos  = ['base', 'updates']
@@ -166,9 +166,9 @@ class Test_DepsolveBug108(DepsolveEventTestCase):
 
 class Test_DepsolveBug163_1(DepsolveEventTestCase):
   "Bug 163 #1: Newer package is not the desired package"
-  _conf = """<comps>
+  _conf = """<packages>
     <package>depsolve-bug163-req</package>
-  </comps>"""
+  </packages>"""
   caseid = 'bug163_1'
   clean  = True
 
@@ -186,9 +186,9 @@ class Test_DepsolveBug163_1(DepsolveEventTestCase):
 
 class Test_DepsolveBug163_2(DepsolveEventTestCase):
   "Bug 163 #2: Newer package is not brought down when 'release-rpm' is forced"
-  _conf = """<comps>
+  _conf = """<packages>
     <package>depsolve-bug163-req</package>
-  </comps>"""
+  </packages>"""
   caseid = 'bug163_2'
   clean  = False
 
@@ -225,9 +225,9 @@ class Test_Supplied(DummyDepsolveEventTestCase):
 
 class Test_PackageAdded(DepsolveEventTestCase):
   "Misc. Test #1: Package Added"
-  _conf = """<comps>
+  _conf = """<packages>
     <package>depsolve-test-package1</package>
-  </comps>"""
+  </packages>"""
   caseid = 'pkgadded'
   clean  = True
 
@@ -245,9 +245,9 @@ class Test_PackageAdded(DepsolveEventTestCase):
 
 class Test_ObsoletedPackage(DepsolveEventTestCase):
   "Misc. Test #2: Package obsoleted"
-  _conf = """<comps>
+  _conf = """<packages>
     <package>depsolve-test-package2</package>
-  </comps>"""
+  </packages>"""
 
   caseid = 'pkgobsoleted'
 
@@ -276,9 +276,9 @@ class Test_RemovedPackage(DepsolveEventTestCase):
 
 class Test_ExclusivePackage_1(DepsolveEventTestCase):
   "Misc. Test #4: A package is required by only one other package..."
-  _conf = """<comps>
+  _conf = """<packages>
     <package>depsolve-test-package3</package>
-  </comps>"""
+  </packages>"""
   caseid = 'exclusive_1'
 
   def _make_repos_config(self):

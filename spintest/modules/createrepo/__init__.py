@@ -32,7 +32,7 @@ class Test_CompsFile(CreaterepoEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='createrepo')
     self.failUnlessExists(self.event.cvars['repodata-directory'] /
-                          self.event.cvars['comps-file'].basename)
+                          self.event.cvars['groupfile'].basename)
 
 class Test_SignedRpms(CreaterepoEventTestCase):
   "uses signed rpms when gpgsign is enabled"

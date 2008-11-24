@@ -169,7 +169,7 @@ class PackagesEvent(Event):
           fp = gzip.open(path)
         else:
           fp = open(path)
-          groupfiles.setdefault(id, comps.Comps()).add(fp)
+        groupfiles.setdefault(id, comps.Comps()).add(fp)
       finally:
         fp and fp.close()
 
