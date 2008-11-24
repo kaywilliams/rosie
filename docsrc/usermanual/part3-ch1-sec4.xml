@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section>
+  <title>Automating Your Appliance Installation</title>
+
+  <para>Boot-up and kickstart opportunities with Spin; oversized files for
+  installation.</para>
+
+  <section>
+    <title>Kickstarting your appliance</title>
+
+    <para>Using kickstart files; &lt;kickstart&gt;; other places to insert
+    kickstart files and the advantage of doing so</para>
+  </section>
+
+  <section>
+    <title>Customizing the boot process</title>
+
+    <para>Special instructions for boot-up; &lt;initrd-image&gt;
+    (initrd.img)</para>
+  </section>
+</section>

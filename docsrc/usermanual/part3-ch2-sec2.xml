@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section>
+  <title>Using Scripts and Triggers</title>
+
+  <para>Scripts and triggers enable you to control your client's environment
+  to a great degree. To include these in your appliance, use the
+  <emphasis>config-rpm</emphasis> TLE in your
+  <filename>samba-server.appliance</filename> file.</para>
+
+  <para>The program that installs your appliance on the client system actually
+  runs scripts depending upon one of several possible situations. Include
+  these scripts using <emphasis>config-rpm/scripts</emphasis> in your
+  appliance definition file. Commonly referred to by their installation script
+  markers in an RPM spec file, the scripts execute prior to or following
+  installation or uninstallation. See Section 9.4.5 "Defining installation
+  scripts," in the Fedora Project's documentation, <ulink
+  url="http://docs.fedoraproject.org/drafts/rpm-guide-en/">RPM Guide</ulink>
+  by Eric Foster-Johnson.</para>
+
+  <para>You can also use trigger events as in the RPM spec file. The
+  installation program will run these scripts based upon various combinations
+  of installing, upgrading or removing the target package or your package. See
+  Section 10.2 "Setting Triggers," in the Fedora Project's documentation,
+  <ulink url="http://docs.fedoraproject.org/drafts/rpm-guide-en/">RPM
+  Guide</ulink> by Eric Foster-Johnson for a discussion of the trigger options
+  and their implications. To activate these trigger options using Spin,
+  include them with the <emphasis>config-rpm/trigger</emphasis> element of
+  your appliance definition file.</para>
+
+  <para>In the example below, the <emphasis>/script</emphasis> element directs
+  the installation program to execute the <filename>smb.script</filename> file
+  after installing the RPM.</para>
+
+  <para><informalexample>
+      <programlisting>&lt;!-- start samba daemon at init levels 3 and 5  --&gt;
+&lt;script type="post" content="filename"&gt;
+scripts/smb.script
+&lt;/script&gt;</programlisting>
+    </informalexample></para>
+
+  <para>For the installation to run properly, you will need to create the
+  <filename>smb.script</filename> file under a <filename
+  class="directory">scripts</filename> directory and include the contents
+  below. </para>
+
+  <para><informalexample>
+      <programlisting>/sbin/service smb start
+/sbin/chkconfig --level 35 smb on</programlisting>
+    </informalexample></para>
+
+  <para>In the <emphasis>/trigger </emphasis>element example, below, includes
+  an <filename>smb.sh</filename> script file to run when the program installs
+  the samba package.</para>
+
+  <para><informalexample>
+      <programlisting>&lt;!-- run shell script to check if samba-related services are present --&gt;
+&lt;trigger package="samba" type="triggerin" content="filename"&gt;
+scripts/smb.sh
+&lt;/trigger&gt;</programlisting>
+    </informalexample></para>
+
+  <para>You will need to create a sample <filename>smb.sh</filename> file and
+  store it in the relative location. The contents are below.</para>
+
+  <para><informalexample>
+      <programlisting>#!/bin/sh
+if test -s /etc/samba/smb.conf; then
+ cp smb.conf /etc/samba
+# could also run an /etc/init.d script
+else
+ mkdir /etc/samba
+ cp smb.conf /etc/samba
+fi </programlisting>
+    </informalexample></para>
+
+  <para>Include both of these examples in the <emphasis>config-rpm</emphasis>
+  TLE of your <filename>samba-server.appliance</filename>. </para>
+</section>

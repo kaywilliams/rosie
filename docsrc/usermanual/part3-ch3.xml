@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter>
+  <title>Booting up Your Appliance</title>
+
+  <para>By default Spin creates installable images for your appliance. But you
+  may already have a process in place that utilizes your own application
+  kickstart files. Or you may prefer to use other media or kernel arguments
+  during the boot process. Spin empowers you to reuse some of what you have
+  already developed.</para>
+
+  <xi:include href="part3-ch3-sec1.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="part3-ch3-sec2.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+</chapter>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter>
+  <title>Doing More with Spin</title>
+
+  <para>Now that you have created your basic
+  <filename>samba-server.appliance</filename>, you can customize your
+  appliance through additional elements in the appliance definition file. When
+  selecting packages, you may want certain events to occur depending upon what
+  package version is installed or deinstalled. Scripts that run automatically
+  or are triggered upon certain installation or deinstallation events give you
+  more power over the sequence of events and combination of packages. You can
+  also automate your appliance by including a kickstart file. Spin also
+  accomodates your preferences for media and kernel boot arguments. If your
+  company's legal department or custom software development department
+  requires certain content, you can include those components, as well.</para>
+
+  <para>Updating your appliance is easy with Spin, but you need to understand
+  whether the client system or just the appliance repository or both will
+  include any updates. The next chapter addresses that critical issue.</para>
+
+  <xi:include href="part3-ch1-sec1.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+</chapter>

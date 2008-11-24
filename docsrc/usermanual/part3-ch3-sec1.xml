@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section>
+  <title>Automating Your Appliance Installation</title>
+
+  <para>Spin can save you time and labor by helping you automate the boot-up
+  and appliance kickstart process.</para>
+
+  <section>
+    <title>Kickstarting your appliance</title>
+
+    <para>Kickstart installations automate the install process of a RedHat OS
+    and make the installations reproducible. You may want to use this method
+    if you have large-scale installations, complex storage requirements,
+    multiple network interfaces, secure systems or site-specific strategies.
+    Within the Spin process, the kickstart file automates the installation and
+    manages several functions during the install: selection of language,
+    network configuration, distribution source, keyboard, filesystem, mouse,
+    timezone, root password and package handling.</para>
+
+    <para>Instead of managing multiple kickstart files, Spin lets you make it
+    part of the appliance definition. By revision controlling the Spin files
+    (see Part 2), the kickstart process can be controlled, too.</para>
+
+    <para>Use the <emphasis>kickstart</emphasis> TLE in the
+    <filename>samba-server.appliance</filename> file to identify one kickstart
+    file, as in the example below. Substitute your own kickstart filename for
+    <filename>ks.cfg</filename>.</para>
+
+    <para><informalexample>
+        <programlisting>&lt;kickstart&gt;ks.cfg&lt;/kickstart&gt;</programlisting>
+      </informalexample></para>
+
+    <para>See the ADFR for the <emphasis>kickstart</emphasis> TLE
+    syntax.</para>
+  </section>
+</section>
