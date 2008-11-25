@@ -1,4 +1,4 @@
-SUBDIRS = man ADFR
+SUBDIRS = man ADFR usermanual
 
 .PHONY: all clean install
 

@@ -73,6 +73,7 @@ separately purchase RHEL subscriptions for all installed systems.
 %doc README
 %doc NEWS
 %doc docsrc/ADFR/ADFR.html
+%doc docsrc/usermanual/UserManual.html
 %doc docsrc/images*
 %{_mandir}/man5/spin.conf.5.gz
 %{_mandir}/man1/spin.1.gz
