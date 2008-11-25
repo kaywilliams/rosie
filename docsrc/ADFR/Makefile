@@ -2,6 +2,8 @@ DBLATEX  = /usr/bin/dblatex
 XMLLINT  = /usr/bin/xmllint
 XSLTPROC = /usr/bin/xsltproc
 
+HTML_STYLESHEET = /usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl
+
 .PHONY: all ADFR.html ADFR.pdf checkpkg clean install
 
 all: ADFR.html
@@ -11,6 +13,7 @@ install:
 ADFR.html:
 	@make checkpkg BINARY=$(XMLLINT)  INSTRUCTIONS="Install the libxml2 package."
 	@make checkpkg BINARY=$(XSLTPROC) INSTRUCTIONS="Install the libxslt package."
+	@make checkpkg BINARY=$(HTML_STYLESHEET) INSTRUCTIONS="Install the docbook-style-xsl package."
 	$(XMLLINT) --output Index_tmp.xml --xinclude Index.xml
 	sed -i 's|\\\$$|\$$|g' Index_tmp.xml
 	$(XSLTPROC) --output ADFR.html \
@@ -23,7 +26,7 @@ ADFR.html:
                     --stringparam section.autolabel 1 \
                     --stringparam section.label.includes.component.label 1 \
                     --stringparam section.autolabel.max.depth 1 \
-                    /usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl Index_tmp.xml
+                    $(HTML_STYLESHEET) Index_tmp.xml
 	rm -f Index_tmp.xml
 
 ADFR.pdf:
