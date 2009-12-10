@@ -21,8 +21,8 @@
     </para>
 
     <para>
-    The web-accessible download server can be either the Spin build
-    system or another machine. To utilize the Spin build system's hostname
+    The web-accessible download server can be either the SystemBuilder build
+    system or another machine. To utilize the SystemBuilder build system's hostname
     instead of its IP address, set
     <emphasis>publish/remote-url/@use-hostname</emphasis> to
     <constant>TRUE</constant>. Use
@@ -100,7 +100,7 @@
 
       <listitem>
       <para>
-      The <varname>PATH</varname> to a folder to which Spin publishes the
+      The <varname>PATH</varname> to a folder to which SystemBuilder publishes the
       appliance. For the appliance to be accessible on the web, place the
       directory in the system’s local webroot, e.g. the Apache
       DocumentRoot.
@@ -142,13 +142,13 @@
       e.g. "eth1", from which to obtain the <varname>$ipaddress</varname>
       of the appliance's update repository. This attribute only has
       an effect if <emphasis>publish/remote-url/@use-hostname</emphasis>
-      is <constant>FALSE</constant>. By default, Spin uses the first
+      is <constant>FALSE</constant>. By default, SystemBuilder uses the first
       active, non-loopback network interface.
       </para>
 
       <para>
       <emphasis>@use-hostname</emphasis>: <varname>BOOLEAN</varname>
-      that determines whether <application class="software">Spin</application>
+      that determines whether <application class="software">SystemBuilder</application>
       uses the build machine's hostname or IP address in the
       automatically-computed remote url. The default value for
       this attribute is <constant>FALSE</constant>.

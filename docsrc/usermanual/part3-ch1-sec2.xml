@@ -23,7 +23,7 @@
     of these files are ready for release.</para>
 
     <para>The example below demonstrates how to take a source document,
-    located in the <filename class="directory">/home/spin/examples/</filename>
+    located in the <filename class="directory">/home/systembuilder/examples/</filename>
     directory, rename it using the <emphasis>/@destname</emphasis> attribute,
     store it at another location using the <emphasis>/@destdir</emphasis>
     attribute and assign the user access level with the
@@ -35,23 +35,23 @@
 
     &lt;!-- README, CONFIG and TEST documents for Samba --&gt;
     &lt;doc mode="644" destdir="/var/doc/samba-example" destname="README"&gt;
-      /home/spin/examples/SAMBA-README
+      /home/systembuilder/examples/SAMBA-README
     &lt;/doc&gt;
     &lt;doc mode="644" destdir="/var/doc/samba-example" destname="CONFIG"&gt;
-      /home/spin/examples/SAMBA-CONFIG
+      /home/systembuilder/examples/SAMBA-CONFIG
     &lt;/doc&gt;
     &lt;doc mode="644" destdir="/var/doc/samba-example" destname="TEST"&gt;
-      /home/spin/examples/SAMBA-TEST
+      /home/systembuilder/examples/SAMBA-TEST
     &lt;/doc&gt;
 
     &lt;!-- End User License Agreement --&gt;
     &lt;eula mode="644" destdir="/var/doc/samba-example" destname="EULA"&gt;
-      /home/spin/examples/SAMBA-EULA
+      /home/systembuilder/examples/SAMBA-EULA
     &lt;/eula&gt;
 
     &lt;!-- Default HTML page upon install of target system --&gt;
     &lt;html mode="644" destdir="/var/doc/samba-example" destname="index.html"&gt;
-      /home/spin/examples/samba-index.html
+      /home/systembuilder/examples/samba-index.html
     &lt;/html&gt;
 
 &lt;/release-rpm&gt;</programlisting>

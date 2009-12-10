@@ -4,34 +4,34 @@
 <section>
   <title>Choosing an Appliance's Storage and Download Locations</title>
 
-  <para>By default <application class="software">Spin</application> uses the
-  <application class="software">Spin</application> build system as the default
+  <para>By default <application class="software">SystemBuilder</application> uses the
+  <application class="software">SystemBuilder</application> build system as the default
   location for publication and remote access. See the section "Deploying Your
   Appliance" under Part I, Chapter 2, and the SDFR for more information about
   the default settings. When the default settings are not appropriate, use the
   <emphasis>publish</emphasis> TLE in the <filename
   class="extension">.appliance</filename> file to direct <application
-  class="software">Spin</application> where to store the appliance and what
+  class="software">SystemBuilder</application> where to store the appliance and what
   URL to use to make it accessible to clients for download.</para>
 
   <para>Essentially, you have one choice for the server location of the
-  published appliance, the <application class="software">Spin</application>
+  published appliance, the <application class="software">SystemBuilder</application>
   build system. However, you can choose different directories on that machine.
   If the <filename class="directory">/var</filename> directory is on a
   separate logical drive, increasing the drive capacity is easier. </para>
 
   <para>For the network-accessible location of the published appliance for
   download, you have two choices: somewhere on the <application
-  class="software">Spin</application> build system or on another server.
+  class="software">SystemBuilder</application> build system or on another server.
   Choosing that location depends upon several factors: your network security
   topography, the location of your client systems, the types and number of
   appliances, the number of users accessing the appliance and the number of
   types of OSes used in the appliances.</para>
 
-  <para>Spin can accommodate a number of scenarios for storage and download.
+  <para>SystemBuilder can accommodate a number of scenarios for storage and download.
   Critical considerations include whether you have a single LAN versus a
   separate DMZ, a download machine with multiple active interfaces, multiple
-  active ports or secure login requirements. Spin handles all of these through
+  active ports or secure login requirements. SystemBuilder handles all of these through
   the appliance definition file, e.g.
   <filename>samba-server.appliance</filename>.</para>
 
@@ -42,17 +42,17 @@
 
         <listitem>
           <para>While the publish and storage location is on the <application
-          class="software">Spin</application> build system, the default
+          class="software">SystemBuilder</application> build system, the default
           location of <filename
           class="directory">/var/www/html/appliances/<varname>$APPLIANCEID</varname></filename>
           may not meet your needs. For administrative purposes, you may wish
           to keep separate paths for different appliances or types of
           appliances or make only certain paths accessible to others for
-          download from the <application class="software">Spin</application>
+          download from the <application class="software">SystemBuilder</application>
           build system. To accomplish this, use
           <emphasis>publish/local-dir</emphasis> to set an alternate directory
           for publication. The default download URL will be the IP address of
-          the Spin build system's first active, non-loopback network
+          the SystemBuilder build system's first active, non-loopback network
           interface.</para>
         </listitem>
       </varlistentry>
@@ -75,7 +75,7 @@
 
         <listitem>
           <para>A separate DMZ most likely means the <application
-          class="software">Spin</application> build system is behind your
+          class="software">SystemBuilder</application> build system is behind your
           external firewall for security purposes. The question is whether you
           want the remotely accessible download host to be there, too, or in
           the DMZ. To assign the appliance to a download server in the DMZ,
@@ -89,9 +89,9 @@
         interfaces</emphasis></term>
 
         <listitem>
-          <para>While <application class="software">Spin</application> does
+          <para>While <application class="software">SystemBuilder</application> does
           not factor in multiple active interfaces on the <application
-          class="software">Spin</application> build machine, it does consider
+          class="software">SystemBuilder</application> build machine, it does consider
           them for the remotely accessible server. By default it chooses the
           first active, non-loopback network interface. To specify another
           interface, enter the network card's number, e.g. "eth2," in the
@@ -115,7 +115,7 @@
         login</emphasis></term>
 
         <listitem>
-          <para><application class="software">Spin</application> allows you to
+          <para><application class="software">SystemBuilder</application> allows you to
           specify a user login name and password for download purposes using
           <emphasis>publish/remote-url</emphasis>. The login and password are
           free text.</para>

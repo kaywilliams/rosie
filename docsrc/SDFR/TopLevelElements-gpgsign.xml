@@ -13,7 +13,7 @@
     </title>
 
     <para>
-    Directs Spin to sign the appliance's packages with the specified GPG
+    Directs SystemBuilder to sign the appliance's packages with the specified GPG
     key.
     </para>
 

@@ -202,7 +202,7 @@
       </title>
       <para>
       A <varname>CAPABILITY</varname> to add to a top-level element RPM's
-      obsoletes list. Each RPM Spin builds has a pre-determined set of
+      obsoletes list. Each RPM SystemBuilder builds has a pre-determined set of
       capabilities it uses if the top-level element's
       <emphasis>@use-default-obsoletes</emphasis> attribute
       is <constant>TRUE</constant>. The default set of obsoletes can be 
@@ -274,12 +274,12 @@
       </para>
 
       <para>
-      <application class="software">Spin</application> supports reading
+      <application class="software">SystemBuilder</application> supports reading
       from <varname>$input</varname>s for file, http, and https locations,
       and writing to file locations. Unless otherwise specified,
       <varname>$input</varname> may refer to both file and folder locations.
       If the <varname>$input</varname> does not exist or is otherwise
-      unreadable, <application class="software">Spin</application> typically
+      unreadable, <application class="software">SystemBuilder</application> typically
       will raise an error and exit.
       </para>
       
@@ -409,7 +409,7 @@ $root/var/www/html/outfile.txt
       <emphasis>repo/mirrorlist</emphasis> elements also have full support
       for the YUM variables <varname>$basearch</varname> and
       <varname>$releasever</varname>. However, instead of using the build
-      system's architecture and release version, Spin defaults to using
+      system's architecture and release version, SystemBuilder defaults to using
       <varname>$ARCH</varname> and <varname>$VERSION</varname>,
       respectively. Top-level elements may define a
       <emphasis>releasever</emphasis> element that overrides the default
@@ -417,7 +417,7 @@ $root/var/www/html/outfile.txt
       </para>
 
       <para>
-      Spin supports an extension to the standard supported schemes
+      SystemBuilder supports an extension to the standard supported schemes
       in that it can connect to and download packages from Red Hat Network
       servers. In order for this to function properly, the repository
       definition must include a <emphasis>repo/systemid</emphasis>
@@ -441,11 +441,11 @@ $root/var/www/html/outfile.txt
       </para>
 
       <note>
-      Spin requires additional software including rhnlib and 
+      SystemBuilder requires additional software including rhnlib and 
       rhn-client-tools in order to use RHN repositories. To install a 
-      complete version of Spin including all available software, follow 
+      complete version of SystemBuilder including all available software, follow 
       the instructions located at 
-      http://www.renditionsoftware.com/spin/download.
+      http://www.renditionsoftware.com/systembuilder/download.
       </note>
 
     </section>
@@ -457,9 +457,9 @@ $root/var/www/html/outfile.txt
       </title>
 
       <para>
-      Spin supports standard YUM repositories; that is, folders containing
+      SystemBuilder supports standard YUM repositories; that is, folders containing
       a <filename>repodata</filename> folder with repository metadata.
-      However, Spin also supports an expanded type of repository, a
+      However, SystemBuilder also supports an expanded type of repository, a
       "repository group". A repository group is a collection of standard
       YUM repositories within another folder.
       </para>
@@ -482,7 +482,7 @@ baseurl=/var/repos/repoB
 baseurl=/var/repos/repoC
       </programlisting>
 
-      In Spin, on the other hand, all the repos could be included by
+      In SystemBuilder, on the other hand, all the repos could be included by
       using a repo group instead:
 
       <programlisting>
@@ -504,7 +504,7 @@ baseurl=/var/repos/repoC
       </title>
 
       <para>
-      By default, all packages in all repositories are available for Spin
+      By default, all packages in all repositories are available for SystemBuilder
       to use. Available packages for a single repository can be restricted by
       using one or more <emphasis>repo/exclude</emphasis> or
       <emphasis>repo/includepkgs</emphasis> elements. The logic for
@@ -529,7 +529,7 @@ baseurl=/var/repos/repoC
       packages for the repository. Any package matching one or more of
       the <varname>PACKAGE</varname> patterns specified in a
       <emphasis>repo/exclude</emphasis> element will be ignored
-      by Spin.
+      by SystemBuilder.
       </para>
     </section>
 
@@ -624,7 +624,7 @@ baseurl=/var/repos/repoC
         <para>
         <varname>BOOLEAN</varname> value indicating whether this
         repository should be enabled or not. Disabled repositories
-        are ignored by Spin when looking for packages to include in
+        are ignored by SystemBuilder when looking for packages to include in
         the appliance.
         </para>
 

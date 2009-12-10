@@ -49,8 +49,8 @@
 
     <para>Example implementations of the full
     <emphasis role="strong">logos-rpm</emphasis> XML configuration syntax
-    can be found in <filename>/usr/share/spin/logos-rpm/spin-logos</filename>.
-    For more information about incorporating branding images into a Spin
+    can be found in <filename>/usr/share/systembuilder/logos-rpm/systembuilder-logos</filename>.
+    For more information about incorporating branding images into a SystemBuilder
     appliance, see the
     <emphasis role="strong"><xref linkend="logos-rpm" /></emphasis> top-level
     element.
@@ -63,7 +63,7 @@
       </title>
 
       <para>
-      Spin processes <emphasis>image</emphasis> and <emphasis>file</emphasis>
+      SystemBuilder processes <emphasis>image</emphasis> and <emphasis>file</emphasis>
       elements based on the value of their <emphasis>@dest</emphasis> and
       <emphasis>@anaconda-version</emphasis> attributes. All
       <emphasis>image</emphasis> or <emphasis>file</emphasis> elements with
@@ -231,7 +231,7 @@
       </title>
 
       <para>
-      Including this empty tag directs Spin to not install any file at
+      Including this empty tag directs SystemBuilder to not install any file at
       the attribute "dest" <varname>PATH</varname> for the specified
       "anaconda-version." The default alternative behavior is to
       install a file to the "dest" location.
@@ -540,7 +540,7 @@
           The <varname>PATH</varname> to a TrueType font to use when writing
           this string. If not specified, uses the default value defined in
           <emphasis>defaults/font</emphasis>; if this value is not defined,
-          Spin raises an exception.
+          SystemBuilder raises an exception.
           </para>
           </listitem>
         </varlistentry>
@@ -565,7 +565,7 @@
 
           <listitem>
           <para>
-          The minimum <varname>INTEGER</varname> point size Spin is allowed
+          The minimum <varname>INTEGER</varname> point size SystemBuilder is allowed
           to use when automatically resizing text to make it fit the image.
           </para>
           </listitem>
@@ -681,7 +681,7 @@
       In this example, the <emphasis>file</emphasis> elements are used to
       illustrate various methods for handling customized display manager
       files and configuration. The first unconditionally copies the
-      <filename>files/backgrounds/spin.xml</filename> to the specified
+      <filename>files/backgrounds/systembuilder.xml</filename> to the specified
       destination.  The second and third copy display manager-specific
       files only when the logos RPM is including xwindow art of the given
       type (see
@@ -693,8 +693,8 @@
 
       <informalexample>
       <programlisting>
-&lt;file dest="/usr/share/backgrounds/spin/spin.xml"&gt;
-  &lt;path&gt;files/backgrounds/spin.xml&lt;/path&gt;
+&lt;file dest="/usr/share/backgrounds/systembuilder/systembuilder.xml"&gt;
+  &lt;path&gt;files/backgrounds/systembuilder.xml&lt;/path&gt;
 &lt;/file&gt;
 
 &lt;file dest="/usr/share/gnome-screensaver/lock-dialog-system.glade"
@@ -702,12 +702,12 @@
   &lt;path&gt;files/gnome-screensaver/lock-dialog-system.glade&lt;/path&gt;
 &lt;/file&gt;
 
-&lt;file dest="/usr/share/apps/kdm/themes/Spin/GdmGreeterTheme.desktop"
+&lt;file dest="/usr/share/apps/kdm/themes/SystemBuilder/GdmGreeterTheme.desktop"
       xwindow-type="kde"&gt;
   &lt;path&gt;files/kdm/GdmGreeterTheme.desktop&lt;/path&gt;
 &lt;/file&gt;
 
-&lt;file dest="/usr/share/apps/kdm/themes/Spin/GdmGreeterTheme.desktop"
+&lt;file dest="/usr/share/apps/kdm/themes/SystemBuilder/GdmGreeterTheme.desktop"
       anaconda-version="11.3.0.36-1"&gt;
   &lt;remove/&gt;
 &lt;/file&gt;
@@ -786,11 +786,11 @@
       <para>
       Later elements take precedence over earlier ones with the same
       "dest" and "anaconda-version" attribute values. In the
-      following examples, Spin installs nothing at
+      following examples, SystemBuilder installs nothing at
       <filename>/usr/share/customtext/opening.html</filename> for anaconda
       versions 11.3.0.19-1 or greater but does install
-      <filename>files/kdm/SpinKDM.xml</filename> to
-      <filename>/usr/share/kde4/apps/kdm/themes/Spin/SpinKDM.xml</filename>
+      <filename>files/kdm/SystemBuilderKDM.xml</filename> to
+      <filename>/usr/share/kde4/apps/kdm/themes/SystemBuilder/SystemBuilderKDM.xml</filename>
       for anaconda versions 11.3.0.36-1 and later.
       </para>
 
@@ -799,16 +799,16 @@
 &lt;file dest="/usr/share/customtext/opening.html"
       anaconda-version="11.3.0.19-1"
       xwindow-type="kde"&gt;
-  &lt;path&gt;files/kdm/SpinKDM.xml&lt;/path&gt;
+  &lt;path&gt;files/kdm/SystemBuilderKDM.xml&lt;/path&gt;
 &lt;/file&gt;
 &lt;file dest="/usr/share/customtext/opening.html"
       anaconda-version="11.3.0.19-1"&gt;
   &lt;remove/&gt;
 &lt;/file&gt;
-&lt;file dest="/usr/share/kde4/apps/kdm/themes/Spin/SpinKDM.xml"
+&lt;file dest="/usr/share/kde4/apps/kdm/themes/SystemBuilder/SystemBuilderKDM.xml"
       anaconda-version="11.3.0.36-1"
       xwindow-type="kde"&gt;
-  &lt;path&gt;files/kdm/SpinKDM.xml&lt;/path&gt;
+  &lt;path&gt;files/kdm/SystemBuilderKDM.xml&lt;/path&gt;
 &lt;/file&gt;
       </programlisting>
       </informalexample>

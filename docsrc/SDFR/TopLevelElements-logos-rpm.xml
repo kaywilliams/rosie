@@ -30,10 +30,10 @@
     </para>
 
     <note>
-    Spin requires additional software in order to use the logos-rpm 
-    module. To install a complete version of Spin including all 
+    SystemBuilder requires additional software in order to use the logos-rpm 
+    module. To install a complete version of SystemBuilder including all 
     available software, follow the instructions located at 
-    http://www.renditionsoftware.com/spin/download.
+    http://www.renditionsoftware.com/systembuilder/download.
     </note>
 
   </section>
@@ -142,7 +142,7 @@
       </para>
 
       <para>
-      If not specified, <application class="software">Spin</application>
+      If not specified, <application class="software">SystemBuilder</application>
       uses a default configuration based on the base distribution of the
       appliance.
       </para>

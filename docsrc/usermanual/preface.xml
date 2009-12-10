@@ -7,11 +7,11 @@
   <section>
     <title>This Manual's Audience</title>
 
-    <para>Spin is a product intended for Linux system administrators and build
+    <para>SystemBuilder is a product intended for Linux system administrators and build
     managers who need to build and deploy Linux-based appliances. Each part in
     this manual assumes you have a particular level of knowledge.</para>
 
-    <para>For Part I, "Basic Spin Usage," in addition to knowing how to create
+    <para>For Part I, "Basic SystemBuilder Usage," in addition to knowing how to create
     and edit XML files, manage a web server and create USB and CD/DVD boot
     media, you should have an intermediate skill level with the following
     components:</para>
@@ -47,25 +47,25 @@
     <title>What's Not Covered in This Manual</title>
 
     <para>This manual complements several <application
-    class="software">Spin</application> documents. The "Installation
+    class="software">SystemBuilder</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
-    obtaining and installing Spin and creating a basic CentOS appliance.
+    obtaining and installing SystemBuilder and creating a basic CentOS appliance.
     "Appliance Definition File Reference" (SDFR) contains the syntax for
-    appliance definition file elements and attributes. Finally, Spin has a set
+    appliance definition file elements and attributes. Finally, SystemBuilder has a set
     of <emphasis role="strong">man pages</emphasis> explaining the
-    <command>spin</command> command, its options and the Spin configuration
-    file, <filename>spin.conf</filename>. This manual contains references to
+    <command>systembuilder</command> command, its options and the SystemBuilder configuration
+    file, <filename>systembuilder.conf</filename>. This manual contains references to
     all four throughout the text.</para>
 
-    <para>These Spin documents are available at <ulink
-    url="http://www.renditionsoftware.com/spin/docs/"> the Rendition Software
-    Spin documentation website</ulink>.</para>
+    <para>These SystemBuilder documents are available at <ulink
+    url="http://www.renditionsoftware.com/systembuilder/docs/"> the Rendition Software
+    SystemBuilder documentation website</ulink>.</para>
   </section>
 
   <section>
     <title>How to Read This Manual</title>
 
-    <para>The intent of the manual is to help you use Spin effectively to
+    <para>The intent of the manual is to help you use SystemBuilder effectively to
     build and maintain appliances, update the appliance and customize the
     appliance installation. This is not a cookbook for various server
     appliance types, e.g. <application class="software">Samba</application>,
@@ -97,7 +97,7 @@
         <term><emphasis role="strong">Commands</emphasis></term>
 
         <listitem>
-          <para><command>Command</command> names in Spin or
+          <para><command>Command</command> names in SystemBuilder or
           <function>function</function> names in other programs appear
           throughout the document.</para>
         </listitem>
@@ -185,7 +185,7 @@
           computer output</computeroutput>, usually in Courier monospace font,
           or included in a box, as in the case below.</para>
 
-          <screen>/usr/bin/spin</screen>
+          <screen>/usr/bin/systembuilder</screen>
         </listitem>
       </varlistentry>
 
@@ -210,9 +210,9 @@ $ precedes lines entered as a normal user</programlisting>
         <term><emphasis role="strong">Variables</emphasis></term>
 
         <listitem>
-          <para>Spin variables are presented in monospace font preceded by a
+          <para>SystemBuilder variables are presented in monospace font preceded by a
           dollar sign, e.g. <varname>$APPLIANCEID</varname>. Variables outside
-          the Spin realm appear in lowercase in monospace font preceded by a
+          the SystemBuilder realm appear in lowercase in monospace font preceded by a
           dollar sign, e.g. <varname>$releasever</varname>.</para>
         </listitem>
       </varlistentry>
@@ -227,26 +227,26 @@ $ precedes lines entered as a normal user</programlisting>
 
     <para><itemizedlist>
         <listitem>
-          <para>Part I, "Basic Spin Usage," will help you start using
-          <application class="software">Spin</application> immediately.</para>
+          <para>Part I, "Basic SystemBuilder Usage," will help you start using
+          <application class="software">SystemBuilder</application> immediately.</para>
 
           <para><itemizedlist>
               <listitem>
-                <para>"What Does Spin Do?" explains what an appliance is, how
-                <application class="software">Spin</application> helps you
+                <para>"What Does SystemBuilder Do?" explains what an appliance is, how
+                <application class="software">SystemBuilder</application> helps you
                 build it in a more efficient timely manner and the underlying
                 architecture that makes this improved performance possible.
                 The section also includes a "Glossary of Terms" explaining
                 terms used within the <application
-                class="software">Spin</application> realm.</para>
+                class="software">SystemBuilder</application> realm.</para>
               </listitem>
 
               <listitem>
                 <para>"Basic Usage: Getting the Job Done," covers the basic
                 concepts for configuring the <application
-                class="software">Spin</application> build system, defining and
+                class="software">SystemBuilder</application> build system, defining and
                 deploying an appliance, running <application
-                class="software">Spin</application> and updating an appliance.
+                class="software">SystemBuilder</application> and updating an appliance.
                 As a use case model, these sections will help you create a
                 basic <application class="software">Samba</application> server
                 appliance based on CentOS 5.</para>
@@ -256,23 +256,23 @@ $ precedes lines entered as a normal user</programlisting>
 
         <listitem>
           <para>Part II, "Robust Appliance Management," will help you set up a
-          managed appliance development and deployment environment using Spin
+          managed appliance development and deployment environment using SystemBuilder
           as its cornerstone.</para>
 
           <itemizedlist>
             <listitem>
-              <para>"Why Use Spin as part of a Production Environment?"
+              <para>"Why Use SystemBuilder as part of a Production Environment?"
               explains implementing the development - staging - production
               environment within the content of building and deploying
               appliances using <application
-              class="software">Spin</application>. The Samba server appliance
+              class="software">SystemBuilder</application>. The Samba server appliance
               you created in Part I will have new features requirements to
               implement in Part II.</para>
             </listitem>
 
             <listitem>
-              <para>"Utilizing Spin within the Development - Staging -
-              Production climate" discusses how Spin makes your life easier as
+              <para>"Utilizing SystemBuilder within the Development - Staging -
+              Production climate" discusses how SystemBuilder makes your life easier as
               a system or build administrator. Versioning appliance files and
               utilizing an object-oriented model through the XInclude
               mechanism for the appliance files are important usability
@@ -310,10 +310,10 @@ $ precedes lines entered as a normal user</programlisting>
   </section>
 
   <section>
-    <title>Getting Spin</title>
+    <title>Getting SystemBuilder</title>
 
-    <para>The Beta version of Spin and associated documents are available at
-    <ulink url="http://www.renditionsoftware.com/spin/"> the Rendition
-    Software Spin website</ulink>.</para>
+    <para>The Beta version of SystemBuilder and associated documents are available at
+    <ulink url="http://www.renditionsoftware.com/systembuilder/"> the Rendition
+    Software SystemBuilder website</ulink>.</para>
   </section>
 </chapter>

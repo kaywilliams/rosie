@@ -25,7 +25,7 @@
   Section 10.2 "Setting Triggers," in the Fedora Project's documentation,
   <ulink url="http://docs.fedoraproject.org/drafts/rpm-guide-en/">RPM
   Guide</ulink> by Eric Foster-Johnson for a discussion of the trigger options
-  and their implications. To activate these trigger options using Spin,
+  and their implications. To activate these trigger options using SystemBuilder,
   include them with the <emphasis>config-rpm/trigger</emphasis> element of
   your appliance definition file.</para>
 

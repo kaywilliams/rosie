@@ -7,17 +7,17 @@
 
   <para>Just as in the SDLC you force or skip modules to test validity and
   results of code or a process, so too can you use <application
-  class="software">Spin</application> to do that with an appliance. As part of
+  class="software">SystemBuilder</application> to do that with an appliance. As part of
   the debugging or testing process for an appliance, you may want to save time
   and disk space by skipping a step in the build process whose results are
   more predictable and not necessary to determining the success or validity of
   the appliance.</para>
 
-  <para>As noted in Part I, <application class="software">Spin</application>
+  <para>As noted in Part I, <application class="software">SystemBuilder</application>
   utilizes modules and groups of modules during the build process. You can
   affect the process by configuring their corresponding TLEs in the <filename
   class="extension">.appliance</filename> file. <application
-  class="software">Spin</application> executes some of the modules whether
+  class="software">SystemBuilder</application> executes some of the modules whether
   they are in the <filename class="extension">.appliance</filename> file or
   not, while others are "extensions" and only execute when specifically
   included or required by other modules. In the <filename
@@ -40,11 +40,11 @@
   individual modules manage the build system's hard disk space and build tree,
   create boot disks, expose the appliance for download and retrieve source
   <filename class="extension">RPM</filename>s. For a list of the module
-  groups, use the <command>spin</command> command with the
+  groups, use the <command>systembuilder</command> command with the
   <option>--list-modules</option> option.</para>
 
   <para>In addition to <emphasis>main</emphasis>, <emphasis>repos</emphasis>
-  and <emphasis>packages</emphasis>, the "core" modules that Spin executes
+  and <emphasis>packages</emphasis>, the "core" modules that SystemBuilder executes
   automatically include <emphasis>bootiso</emphasis>,
   <emphasis>diskboot-image</emphasis>, <emphasis>product-image</emphasis>,
   <emphasis>publish</emphasis>, <emphasis>release-files</emphasis> and
@@ -53,7 +53,7 @@
   <emphasis>kickstart</emphasis>, <emphasis>updates-image</emphasis> and
   <emphasis>sources</emphasis>. To execute these modules, you can either
   include them in the <filename class="extension">.appliance</filename> file
-  or use the <command>spin</command> command with the <option>--force
+  or use the <command>systembuilder</command> command with the <option>--force
   $MODULE</option> option, where <varname>$MODULE</varname> is the name of a
   module.</para>
 
@@ -62,7 +62,7 @@
   module by setting to FALSE the <emphasis>/@enabled</emphasis> attribute of
   any group or a module exposed through a TLE. You can use the same method to
   skip execution of a module group. Another method is to use the
-  <command>spin</command> command with the <option>--skip $MODULE</option>
+  <command>systembuilder</command> command with the <option>--skip $MODULE</option>
   option during a build, where <varname>$MODULE</varname> is the name of a
   module.</para>
 

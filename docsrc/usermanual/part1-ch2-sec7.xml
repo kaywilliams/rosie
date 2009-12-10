@@ -8,12 +8,12 @@
   appliance.</para>
 
   <para>First, you configure the <application
-  class="software">Spin</application> build system to accommodate the size and
+  class="software">SystemBuilder</application> build system to accommodate the size and
   number of appliances you will build and store concurrently for download at
   any single time. The system should be accessible through your local network.
   After configuring the hardware, you can install one of the <application
   class="software">Linux </application>OS versions on which <application
-  class="software">Spin</application> runs.</para>
+  class="software">SystemBuilder</application> runs.</para>
 
   <para>Then you define your appliance in the <filename
   class="extension">samba-server.appliance</filename> file using XML tags
@@ -42,10 +42,10 @@
     </itemizedlist></para>
 
   <para>Once the appliance definition is complete, you log on as the root user
-  and execute the command <userinput>spin samba-server.appliance</userinput>
+  and execute the command <userinput>systembuilder samba-server.appliance</userinput>
   to build the appliance. Output goes to the screen and the default log file.
   The first build may take some time, since <application
-  class="software">Spin</application> needs to do everything the first
+  class="software">SystemBuilder</application> needs to do everything the first
   time:</para>
 
   <para><itemizedlist>
@@ -84,18 +84,18 @@
         <para>store the appliance on the download server.</para>
       </listitem>
     </itemizedlist>Deploying your appliance requires three steps. First,
-  <application class="software">Spin</application> will publish the appliance
+  <application class="software">SystemBuilder</application> will publish the appliance
   image files to the download server location from which the client system
   will obtain its initial installation and subsequent updates. By default, the
   location will be in the web server area on the <application
-  class="software">Spin</application> build system. Second, you create the CD
+  class="software">SystemBuilder</application> build system. Second, you create the CD
   or DVD boot media. Lastly, you install the client system by inserting the
   disk into the client machine and later verifying that the contents are
   correct.</para>
 
   <para>Updating your appliance, the final step, can involve simply checking
   for mirror repository updates. Depending upon the changes <application
-  class="software">Spin</application> encounters, spin could update the
+  class="software">SystemBuilder</application> encounters, systembuilder could update the
   appliance with updated packages. After updating the build appliance, you
   will need to run <userinput>yum update</userinput> on the client system to
   keep the client in synch with the current build appliance

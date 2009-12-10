@@ -2,13 +2,13 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Setting Up a Spin Production Environment</title>
+  <title>Setting Up a SystemBuilder Production Environment</title>
 
   <para>The traditional system development life cycle (SDLC) includes several
   stages, such as requirements analysis, system architecture, design and
   implementation, testing, deployment and maintenance. The stages with which
-  Spin is an integral part are implementation, testing, deployment and
-  maintenance. Within the Spin realm, implementation and testing include
+  SystemBuilder is an integral part are implementation, testing, deployment and
+  maintenance. Within the SystemBuilder realm, implementation and testing include
   development, often with a sandbox server for creating and testing the
   appliance. A second phase of testing includes staging, which allows you to
   test the pre-release appliance before releasing it for public consumption.
@@ -18,7 +18,7 @@
   system. Maintenance is an on-going process that could involve all of these
   stages.</para>
 
-  <para>Spin's ability to combine an OS with any number of applications makes
+  <para>SystemBuilder's ability to combine an OS with any number of applications makes
   it at once powerful and complicated. The advantage of using a repetitive
   isolated process described above is that you can develop, test and fine-tune
   your appliance before gradually testing its interactions with the outside
@@ -31,22 +31,22 @@
   <section>
     <title>The SDLC Process Step-by-Step</title>
 
-    <para><application class="software">Spin</application>'s logical network
+    <para><application class="software">SystemBuilder</application>'s logical network
     diagram, below, and subsequent description of steps covers the process in
     more detail.</para>
 
     <para><mediaobject>
         <imageobject>
-          <imagedata fileref="spin_logical_network.jpg" />
+          <imagedata fileref="systembuilder_logical_network.jpg" />
         </imageobject>
       </mediaobject></para>
 
     <para>To set up an environment with <application
-    class="software">Spin</application>, you would need a Development, or
+    class="software">SystemBuilder</application>, you would need a Development, or
     sandbox, system (D); a Version Control system (V); a Staging system (S);
     and a Production system (P). Development and Staging would contain
     identical installations of a <application
-    class="software">Spin</application> version on identical hardware with the
+    class="software">SystemBuilder</application> version on identical hardware with the
     same OS. The Production system, which would serve as your download server,
     should have a Linux-based OS and be web-accessible for client systems to
     be able to access it to retrieve your appliance RPMs. The Version system
@@ -128,18 +128,18 @@
           Staging Client</term>
 
           <listitem>
-            <para>Using <application class="software">Spin</application> on
+            <para>Using <application class="software">SystemBuilder</application> on
             the Staging system (S), you build the appliance with the
-            <command>spin</command> command, i.e. <userinput>spin
+            <command>systembuilder</command> command, i.e. <userinput>systembuilder
             samba-server.appliance</userinput>. <application
-            class="software">Spin</application> will create your appliance
+            class="software">SystemBuilder</application> will create your appliance
             RPMs and install images in the same location as in Step 2. After
             deploying the appliance to a Staging Client, test this beta
             version. If the results are unsatisfactory, go back to
             Development, check out the appropriate files from Version Control
             and make the appropriate changes, then check in. Use the iterative
             process in Steps 1-5 until you are satisfied with the results. Run
-            the <application class="software">Spin</application> appliance
+            the <application class="software">SystemBuilder</application> appliance
             test at least twice to confirm cache performance.</para>
           </listitem>
         </varlistentry>
@@ -168,7 +168,7 @@
             <para>Now you are ready to migrate the RPMs and distribution
             images that are a result of the successful build in Step 5 and
             that were checked into the Version Control system. You will not
-            rerun Spin on the Production system (P). Rather, you migrate the
+            rerun SystemBuilder on the Production system (P). Rather, you migrate the
             distribution to Production and release them for download access.
             This practice also ensures a controlled release into Production,
             which improves the lock-down and control process for releasing

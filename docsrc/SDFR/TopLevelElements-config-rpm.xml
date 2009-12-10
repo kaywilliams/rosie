@@ -189,7 +189,7 @@
       information on defining input repositories.
       </para>
 
-      <note>Red Hat Network input repositories are not included in the repofile. This is because the Spin-specific extensions used to define them are not understood by YUM.
+      <note>Red Hat Network input repositories are not included in the repofile. This is because the SystemBuilder-specific extensions used to define them are not understood by YUM.
       </note>
 
       </listitem>

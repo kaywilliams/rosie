@@ -5,30 +5,30 @@
   <title>Deploying Your Appliance</title>
 
   <para>Deploying your appliance to the client system is the next step. The
-  Spin build system creates the boot media and posts the completed appliance
+  SystemBuilder build system creates the boot media and posts the completed appliance
   to the download server, while the client system retrieves the appliance
   packages from the download server.</para>
 
   <para>For the purpose of this example, the destination appliance
   distribution is the default location on the <application
-  class="software">Spin</application> build system. After Spin creates the
+  class="software">SystemBuilder</application> build system. After SystemBuilder creates the
   appliance distribution images, you can create the boot media and install the
   appliance on the client system through the network.</para>
 
   <section>
     <title>Creating boot media</title>
 
-    <para>After <command>spin</command> successfully completes the build, you
+    <para>After <command>systembuilder</command> successfully completes the build, you
     will find your completed appliance in a folder beneath the <filename
     class="directory">/var/www/html/appliances</filename> default directory on
-    the download server. Spin automatically configures boot media to download
+    the download server. SystemBuilder automatically configures boot media to download
     packages from that server. The folder name will be the
     <varname>$APPLIANCEID</varname>, e.g.
     <filename>samba-server-5-i386</filename>.</para>
 
     <para>To make network installations possible, the build system and
     directory should be network and web accessible. The default publish path
-    assumes that the Spin build system is also the download server; it uses
+    assumes that the SystemBuilder build system is also the download server; it uses
     the IP address with no user login, password or port information. An
     example URL path to your appliance's download directory is below:</para>
 
@@ -36,7 +36,7 @@
         <programlisting>http://194.168.192.0/appliances/samba-server-5-i386</programlisting>
       </informalexample></para>
 
-    <para>The IP address belongs to the Spin build system's interface. For
+    <para>The IP address belongs to the SystemBuilder build system's interface. For
     your appliance, the IP address will be calculated using the first active,
     non-loopback interface on your download machine.</para>
 
@@ -69,9 +69,9 @@
 
     <para>Now you are ready to create your client! The standard procedure is
     to boot the client system from the CD. The boot process will start the
-    machine, then use the appliance image created by <command>spin</command>
+    machine, then use the appliance image created by <command>systembuilder</command>
     to retrieve all the packages from the <application
-    class="software">Spin</application> download server instead of remote
+    class="software">SystemBuilder</application> download server instead of remote
     Internet servers. When the installation successfully completes, the client
     system will reboot and display a login prompt. You can check the
     <filename>sys.log</filename> file for the installation and boot

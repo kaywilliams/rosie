@@ -4,10 +4,10 @@
 <chapter>
   <title>Booting up Your Appliance</title>
 
-  <para>By default Spin creates installable images for your appliance. But you
+  <para>By default SystemBuilder creates installable images for your appliance. But you
   may already have a process in place that utilizes your own application
   kickstart files. Or you may prefer to use other media or kernel arguments
-  during the boot process. Spin empowers you to reuse some of what you have
+  during the boot process. SystemBuilder empowers you to reuse some of what you have
   already developed.</para>
 
   <xi:include href="part3-ch3-sec1.xml" xpointer="element(/1)"

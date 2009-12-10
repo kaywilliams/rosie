@@ -11,12 +11,12 @@
   Linux operating system distribution, or appliance. It defines appliance 
   content and configuration, including name, version, and architecture; package
   repository locations; which packages to include; and the locations of 
-  configuration scripts, files and custom graphics. Spin uses the appliance file
+  configuration scripts, files and custom graphics. SystemBuilder uses the appliance file
   to assemble, create and publish the appliance. Other programs, such as
   <application class="software">YUM</application>,
   <application class="software">Anaconda</application>, and
   <application class="software">RPM</application>
-  use files created by <application class="software">Spin</application>
+  use files created by <application class="software">SystemBuilder</application>
   to install and update the appliance on the client system.
   </para>
 
@@ -42,13 +42,13 @@
 
   <para>
   An appliance file can be located in any local directory and invoked from the
-  command line using the command <command>spin</command> followed by the full
+  command line using the command <command>systembuilder</command> followed by the full
   or relative pathname to the file, such as:
   </para>
 
   <informalexample>
   <programlisting>
-<command>spin</command> /path/to/appliance/file
+<command>systembuilder</command> /path/to/appliance/file
   </programlisting>
   </informalexample>
 

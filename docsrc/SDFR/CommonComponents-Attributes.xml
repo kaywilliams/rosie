@@ -56,7 +56,7 @@
 
       <para>
       An absolute or relative <varname>DIRNAME</varname> (path) to a
-      folder where Spin will place the specified file or files. Spin 
+      folder where SystemBuilder will place the specified file or files. SystemBuilder 
       creates this destination folder if it does not exist. If the 
       <varname>DIRNAME</varname> is absolute,
       the final file location will ignore the <varname>PATH</varname>-like
@@ -116,7 +116,7 @@
 
       <para>
       The filename to use for the specified file or folder after it is 
-      copied to its destination. If not given, Spin uses the
+      copied to its destination. If not given, SystemBuilder uses the
       basename of the specified file. Used to rename a file or folder.
       </para>
     </section>
@@ -171,7 +171,7 @@
       </title>
 
       <para>
-      <varname>BOOLEAN</varname> value that controls whether Spin uses the
+      <varname>BOOLEAN</varname> value that controls whether SystemBuilder uses the
       module associated with the top-level element in the build process.
       All top-level elements can be disabled except for &lt;main&gt;.
       </para>

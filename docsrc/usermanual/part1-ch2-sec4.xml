@@ -5,28 +5,28 @@
   <title>Building Your Appliance</title>
 
   <para>Now that you have defined your appliance, use the
-  <command>spin</command> command to build it. The build process sends output
+  <command>systembuilder</command> command to build it. The build process sends output
   to the screen and to a log file.</para>
 
   <section>
-    <title>Executing the <command>spin</command> command</title>
+    <title>Executing the <command>systembuilder</command> command</title>
 
-    <para>The basic <command>spin</command> command validates the <filename
+    <para>The basic <command>systembuilder</command> command validates the <filename
     class="extension">.appliance</filename> file syntax, resolves package
     dependencies, creates appliance-specific packages, creates an appliance
     package repository, and creates deployment images, all while recording
     process results. The default level of screen output includes errors, build
-    and module status and file download and creation status. Spin also sends
-    this output to <filename>/var/log/spin.log</filename>. If a critical error
-    occurs, Spin includes that information in the log file. To run your sample
+    and module status and file download and creation status. SystemBuilder also sends
+    this output to <filename>/var/log/systembuilder.log</filename>. If a critical error
+    occurs, SystemBuilder includes that information in the log file. To run your sample
     appliance file, enter the command below:</para>
 
     <para><informalexample>
-        <programlisting>#spin samba-server.appliance</programlisting>
+        <programlisting>#systembuilder samba-server.appliance</programlisting>
       </informalexample>The output for an initial run details all the steps
     for downloading packages, checking package dependencies and creating
     images. If there are any errors, <application
-    class="software">Spin</application> notes those and, in many cases, halts
+    class="software">SystemBuilder</application> notes those and, in many cases, halts
     the process. See Appendix A for an example of a successful first-build
     output.</para>
   </section>

@@ -15,10 +15,10 @@
   groups type
 
   <programlisting>
-spin --list-modules
+systembuilder --list-modules
   </programlisting>
 
-  at the command prompt. Refer to the Spin man pages for more information.
+  at the command prompt. Refer to the SystemBuilder man pages for more information.
   This document only describes top-level elements that contain
   user-configurable parameters; not all modules listed from the above
   command are described below.
@@ -41,7 +41,7 @@ spin --list-modules
   <para>
   The sole exception to the above rules is the
   <emphasis role="strong">main</emphasis> module, which is required for
-  Spin to operate properly.
+  SystemBuilder to operate properly.
   </para>
 
   <para>

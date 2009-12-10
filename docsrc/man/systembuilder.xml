@@ -3,21 +3,21 @@
                          "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 
 <!-- See http://www.docbook.org/tdg/en/html/refentry.html for more documentation -->
-<!--Spin Command reference -->
+<!--SystemBuilder Command reference -->
 
-<refentry id="command.spin">
+<refentry id="command.systembuilder">
 <refentryinfo>
 <date>2008-06-13</date>
 </refentryinfo>
 
 <refmeta>
-<refentrytitle>Spin Commands</refentrytitle>
+<refentrytitle>SystemBuilder Commands</refentrytitle>
 <manvolnum>1</manvolnum>
-<refmiscinfo>Spin</refmiscinfo>
+<refmiscinfo>SystemBuilder</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>spin</refname>
+<refname>systembuilder</refname>
 <refpurpose>Builds and updates software appliances.</refpurpose>
 </refnamediv>
 
@@ -27,7 +27,7 @@
 </refsynopsisdivinfo>
 
 <cmdsynopsis>
-<command>spin</command>
+<command>systembuilder</command>
 <arg choice="opt">
 <option>--clear-cache </option>
 </arg>
@@ -66,24 +66,24 @@
 </cmdsynopsis>
 </refsynopsisdiv>
 
-<refsect1 id="spin.1-description"><title>DESCRIPTION</title>
+<refsect1 id="systembuilder.1-description"><title>DESCRIPTION</title>
 <para>Builds the appliance defined in the file at APPLIANCE_FILE. Updates the appliance if it exists.</para>
 </refsect1>
 
-<refsect1 id="spin.1-usage"><title>USAGE</title>
-<para><command>spin</command> [OPTIONS] APPLIANCE_FILE</para>
-<para>OPTIONS refers to the command-line options described below.  APPLIANCE_FILE refers to an appliance definition file, see the Appliance Definition File Reference at <ulink url="http://www.renditionsoftware.com/spin/docs"/> for more information.</para>
+<refsect1 id="systembuilder.1-usage"><title>USAGE</title>
+<para><command>systembuilder</command> [OPTIONS] APPLIANCE_FILE</para>
+<para>OPTIONS refers to the command-line options described below.  APPLIANCE_FILE refers to an appliance definition file, see the Appliance Definition File Reference at <ulink url="http://www.renditionsoftware.com/systembuilder/docs"/> for more information.</para>
 </refsect1>
 
 
-<refsect1 id="spin.1-options"><title>OPTIONS</title>
+<refsect1 id="systembuilder.1-options"><title>OPTIONS</title>
 <para>Command options are listed in alphabetical order.</para>
 <variablelist>
 
 <varlistentry>
   <term><option>-c; --config <replaceable class="parameter">SPINCONF</replaceable></option></term>
   <listitem>
-    <para> Specifies the directory and filename <replaceable class="parameter">SPINCONF</replaceable> of the spin configuration file.  The default value is <filename class="directory">/etc/spin/spin.conf</filename>.  See the <filename>spin.conf(5)</filename> man page for Spin configuration options.</para>
+    <para> Specifies the directory and filename <replaceable class="parameter">SPINCONF</replaceable> of the systembuilder configuration file.  The default value is <filename class="directory">/etc/systembuilder/systembuilder.conf</filename>.  See the <filename>systembuilder.conf(5)</filename> man page for SystemBuilder configuration options.</para>
 
   </listitem>
 </varlistentry>
@@ -91,7 +91,7 @@
 <varlistentry>
   <term><option>--clear-cache</option></term>
   <listitem>
-    <para>Clears the shared cache of downloaded files. See <filename>spin.conf(5)</filename> man page for more cache options.</para>
+    <para>Clears the shared cache of downloaded files. See <filename>systembuilder.conf(5)</filename> man page for more cache options.</para>
   </listitem>
 </varlistentry>
 
@@ -107,7 +107,7 @@
 <varlistentry>
   <term><option>--lib-path <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para> Specifies a directory containing Spin modules <replaceable class="parameter">PATH</replaceable>.  The default path is the system path.  This option can be specified more than once; for example:</para>
+    <para> Specifies a directory containing SystemBuilder modules <replaceable class="parameter">PATH</replaceable>.  The default path is the system path.  This option can be specified more than once; for example:</para>
 <para>--lib-path <replaceable class="parameter">PATH1</replaceable> --lib-path <replaceable class="parameter">PATH2</replaceable> --lib-path <replaceable class="parameter">PATH3</replaceable></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
@@ -116,14 +116,14 @@
 <varlistentry>
   <term><option>--list-modules</option></term>
   <listitem>
-    <para> Displays a list of Spin modules including name, description, and child modules, then exits without building the appliance.</para>
+    <para> Displays a list of SystemBuilder modules including name, description, and child modules, then exits without building the appliance.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term><option>--log-file <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which Spin writes logging information of Level 5 detail.  The default path is <filename>/var/log/spin.log</filename>.  See the command option <command>--log-level</command>.</para>
+    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which SystemBuilder writes logging information of Level 5 detail.  The default path is <filename>/var/log/systembuilder.log</filename>.  See the command option <command>--log-level</command>.</para>
 <para>--log-file <replaceable class="parameter">PATH</replaceable></para>
   </listitem>
 </varlistentry>
@@ -131,7 +131,7 @@
 <varlistentry>
   <term><option>-l; --log-level <replaceable class="parameter">N</replaceable></option></term>
   <listitem>
-    <para> Specifies the level of detail logged to the console during a build.  There are six levels <replaceable class="parameter">N</replaceable> (0 to 5) with Level 3 being Spin's default level.</para>
+    <para> Specifies the level of detail logged to the console during a build.  There are six levels <replaceable class="parameter">N</replaceable> (0 to 5) with Level 3 being SystemBuilder's default level.</para>
 <para>LEVELS
 <programlisting>
 * Level 0: Displays errors only.
@@ -157,7 +157,7 @@
 <varlistentry>
   <term><option>--share-path <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para> Specifies a directory <replaceable class="parameter">PATH</replaceable> where Spin can locate shared program data such as XML schema files.  The default path is <filename>/usr/share/spin/</filename>. This option can be specified more than once, as demonstrated below:</para>
+    <para> Specifies a directory <replaceable class="parameter">PATH</replaceable> where SystemBuilder can locate shared program data such as XML schema files.  The default path is <filename>/usr/share/systembuilder/</filename>. This option can be specified more than once, as demonstrated below:</para>
 
 <para>--share-path <replaceable class="parameter">PATH1</replaceable> --share-path <replaceable class="parameter">PATH2</replaceable> --share-path <replaceable class="parameter">PATH3</replaceable></para>
   </listitem>
@@ -181,62 +181,62 @@
 </variablelist>
 </refsect1>
 
-<refsect1 id="spin.1-variables"><title>VARIABLES</title>
-<para>Spin command options, where indicated, use three variables:  MODULE, PATH and SPINCONF.</para>
+<refsect1 id="systembuilder.1-variables"><title>VARIABLES</title>
+<para>SystemBuilder command options, where indicated, use three variables:  MODULE, PATH and SPINCONF.</para>
 
 <variablelist>
 <varlistentry>
   <term>MODULE</term>
   <listitem>
-	<para>The id of a Spin module.  See the MODULES section, below, for more information.</para>
+	<para>The id of a SystemBuilder module.  See the MODULES section, below, for more information.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term>PATH</term>
   <listitem>
-    <para> A local file path.  Spin resolves paths relative to the current working directory.</para>
+    <para> A local file path.  SystemBuilder resolves paths relative to the current working directory.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term>SPINCONF</term>
   <listitem>
-    <para>The directory and filename of the Spin configuration file.</para>
+    <para>The directory and filename of the SystemBuilder configuration file.</para>
   </listitem>
 </varlistentry>
 </variablelist>
 </refsect1>
 
-<refsect1 id="spin.1-modules"><title>MODULES</title>
-<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the spin command.</para>
-<para>On subsequent builds of the same appliance, Spin automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using <command>--skip</command> and <command>--force</command> spin command options.</para>
-<para>Developers can write custom Spin modules and direct Spin to use them via the <command>--lib-path</command> spin command option.</para>
+<refsect1 id="systembuilder.1-modules"><title>MODULES</title>
+<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the systembuilder command.</para>
+<para>On subsequent builds of the same appliance, SystemBuilder automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using <command>--skip</command> and <command>--force</command> systembuilder command options.</para>
+<para>Developers can write custom SystemBuilder modules and direct SystemBuilder to use them via the <command>--lib-path</command> systembuilder command option.</para>
 </refsect1>
 
-<refsect1 id="spin.1-bugs"><title>BUGS</title>
+<refsect1 id="systembuilder.1-bugs"><title>BUGS</title>
 <para>Submit bugs at <ulink url="http://www.renditionsoftware.com/bugs"/></para>
 </refsect1>
 
-<refsect1 id="spin.1-files"><title>FILES</title>
+<refsect1 id="systembuilder.1-files"><title>FILES</title>
 <para><simplelist type="inline">
-<member><ulink url="file:///usr/share/spin/">/usr/share/spin/</ulink></member>
-<member><ulink url="file:///usr/bin/spin">/usr/bin/spin</ulink></member>
-<member><ulink url="file:///etc/spin/spin.conf">/etc/spin/spin.conf</ulink></member>
-<member><ulink url="file:///var/log/spin.log">/var/log/spin.log</ulink></member>
-<member><ulink url="file:///var/cache/spin/">/var/cache/spin/</ulink></member>
+<member><ulink url="file:///usr/share/systembuilder/">/usr/share/systembuilder/</ulink></member>
+<member><ulink url="file:///usr/bin/systembuilder">/usr/bin/systembuilder</ulink></member>
+<member><ulink url="file:///etc/systembuilder/systembuilder.conf">/etc/systembuilder/systembuilder.conf</ulink></member>
+<member><ulink url="file:///var/log/systembuilder.log">/var/log/systembuilder.log</ulink></member>
+<member><ulink url="file:///var/cache/systembuilder/">/var/cache/systembuilder/</ulink></member>
 </simplelist></para>
 </refsect1>
 
-<refsect1 id="spin.1-see_also"><title>SEE ALSO</title>
+<refsect1 id="systembuilder.1-see_also"><title>SEE ALSO</title>
 <para><simplelist type="inline">
-<member>spin.conf(5)</member>
-<member><ulink url="http://www.renditionsoftware.com/spin"/></member>
+<member>systembuilder.conf(5)</member>
+<member><ulink url="http://www.renditionsoftware.com/systembuilder"/></member>
 
 </simplelist></para>
 </refsect1>
 
-<refsect1 id="spin.1-author"><title>AUTHOR</title>
+<refsect1 id="systembuilder.1-author"><title>AUTHOR</title>
 <para><author><othername>Rendition Software</othername>
 <contrib>Original author</contrib>
 </author></para>

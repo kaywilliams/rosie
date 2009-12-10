@@ -2,17 +2,17 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>How Spin Makes Typical System and Build Management Tasks
+  <title>How SystemBuilder Makes Typical System and Build Management Tasks
   Easier</title>
 
-  <para>Residing on a build system, Spin and its components make your
+  <para>Residing on a build system, SystemBuilder and its components make your
   appliance administration tasks easier during every step of the process.
-  Three are four main components within the Spin build system:</para>
+  Three are four main components within the SystemBuilder build system:</para>
 
   <para><orderedlist>
       <listitem>
         <para><emphasis role="strong">Appliance configuration</emphasis>,
-        consisting of <application class="software">Spin</application>'s
+        consisting of <application class="software">SystemBuilder</application>'s
         configuration information, your appliance's definition file and its
         configuration scripts;</para>
       </listitem>
@@ -25,24 +25,24 @@
 
       <listitem>
         <para><emphasis role="strong"><application
-        class="software">Spin'</application>s cache</emphasis>, containing the
+        class="software">SystemBuilder'</application>s cache</emphasis>, containing the
         cached contents of the OS and application packages for your appliance;
         and</para>
       </listitem>
 
       <listitem>
         <para><emphasis role="strong"><application
-        class="software">Spin</application>'s log</emphasis>, a record of your
+        class="software">SystemBuilder</application>'s log</emphasis>, a record of your
         appliance's builds.</para>
       </listitem>
     </orderedlist>The first component maintains the operations of <application
-  class="software">Spin</application>, including logging and cache
+  class="software">SystemBuilder</application>, including logging and cache
   preferences; your appliance's definition file, which defines repositories,
   application groups and packages; and your appliance's configuration scripts,
   to name a few. The second component contains the images used during first
   boot and appliance deployment to install the appliance on the client system.
   The last two components, the cache and log, enable <application
-  class="software">Spin</application> to outperform its competitors in terms
+  class="software">SystemBuilder</application> to outperform its competitors in terms
   of speed to build and track information.</para>
 
   <para>These four areas dramatically improve your ability to create, deploy
@@ -59,7 +59,7 @@
         <listitem>
           <para><emphasis role="strong">Test different configuration and
           application combinations within a single appliance definition
-          file.</emphasis> <application class="software">Spin</application>
+          file.</emphasis> <application class="software">SystemBuilder</application>
           uses an appliance definition file as a recipe for your appliance.
           You can create an appliance template, then enable or disable
           appliance components using the appliance definition file to test
@@ -79,7 +79,7 @@
         <listitem>
           <para><emphasis role="strong">Locate performance problem areas
           quickly and resolve them.</emphasis> <application
-          class="software">Spin</application> writes build actions to a log
+          class="software">SystemBuilder</application> writes build actions to a log
           file up to Log Level 5, the debugging mode. This information
           includes non-fatal errors that may impede performance without
           halting the process altogether.</para>
@@ -90,7 +90,7 @@
   <section>
     <title>Deploying appliances to clients</title>
 
-    <para>Spin empowers you to deploy the same appliance to one or more client
+    <para>SystemBuilder empowers you to deploy the same appliance to one or more client
     systems with less time and effort than it would take to build and
     configure identical systems manually.</para>
 
@@ -98,7 +98,7 @@
         <listitem>
           <para><emphasis role="strong">Eliminate the need for custom
           deployment automation scripts and applications.</emphasis>
-          <application class="software">Spin</application>-generated
+          <application class="software">SystemBuilder</application>-generated
           installation images are complete and ready to deploy via standard
           deployment tools and methods.</para>
         </listitem>
@@ -106,7 +106,7 @@
         <listitem>
           <para><emphasis role="strong">Dramatically reduce the download time
           when deploying an appliance.</emphasis> <application
-          class="software">Spin</application> creates a local appliance
+          class="software">SystemBuilder</application> creates a local appliance
           repository, so the client installation connects to your local
           download server, not various remote Internet servers, thereby
           reducing the connection speed.</para>
@@ -115,7 +115,7 @@
         <listitem>
           <para><emphasis role="strong">Increase the consistency of the
           appliance components.</emphasis> By using its own RPMs and local
-          repository on the build system for a particular appliance, Spin
+          repository on the build system for a particular appliance, SystemBuilder
           enables you to consistently deploy that appliance to all the client
           systems.</para>
         </listitem>
@@ -133,7 +133,7 @@
   <section>
     <title>Maintaining and updating distributions</title>
 
-    <para>Spin simplifies and standardizes the maintenance and update of
+    <para>SystemBuilder simplifies and standardizes the maintenance and update of
     complex appliances through its architecture and appliance
     definitions.</para>
 
@@ -149,7 +149,7 @@
 
         <listitem>
           <para><emphasis role="strong">Eliminate the need for custom
-          configuration management systems.</emphasis> Spin bundles
+          configuration management systems.</emphasis> SystemBuilder bundles
           configuration into an RPM, making it easy to deploy and maintain
           using standard package management tools, such as <application
           class="software">YUM</application>.</para>
@@ -168,7 +168,7 @@
 
         <listitem>
           <para><emphasis role="strong">Ease software update testing and
-          deployment.</emphasis> Spin allows software updates to be deployed
+          deployment.</emphasis> SystemBuilder allows software updates to be deployed
           either independently or on a per-appliance basis. This allows
           software applications on some machines to be updated quickly as
           needed, while others go through a more rigorous testing process, or
@@ -181,13 +181,13 @@
     <title>Migrating appliances and recovering systems</title>
 
     <para>Migrating to new hardware or recovering from a disaster are critical
-    management issues. Spin can reduce the time needed and make work
+    management issues. SystemBuilder can reduce the time needed and make work
     estimations more reliable.</para>
 
     <para><orderedlist>
         <listitem>
           <para><emphasis role="strong">Reduce downtime for system recovery
-          and migration.</emphasis> Spin makes it easy to maintain current
+          and migration.</emphasis> SystemBuilder makes it easy to maintain current
           up-to-date system images which are ready for redeployment in
           critical situations such as disaster recovery, or planned situations
           such as system migration.</para>
@@ -196,7 +196,7 @@
         <listitem>
           <para><emphasis role="strong">Have accurate estimates of
           redeployment and recovery.</emphasis> In addition to build process
-          details, the Spin logs include start and end times for build cycles,
+          details, the SystemBuilder logs include start and end times for build cycles,
           so you can reliably predict disaster recovery time and effort needed
           for all your appliances.</para>
         </listitem>
@@ -206,7 +206,7 @@
           in a fast, efficient, repeatable manner.</emphasis> Migrate an
           appliance that has been configured for one architecture to another
           by changing a few items in the appliance definition file in just
-          minutes. Use Spin on a sandbox build system to test the appliance
+          minutes. Use SystemBuilder on a sandbox build system to test the appliance
           before readying it for deployment to the new hardware
           systems.</para>
         </listitem>
@@ -216,7 +216,7 @@
           redeploy an appliance.</emphasis> You do not have to rely on the
           consistency or uptime of an Internet-based host to redeploy your
           appliance or continue operations. <application
-          class="software">Spin</application> utilizes its own cached contents
+          class="software">SystemBuilder</application> utilizes its own cached contents
           to complete installations and client system configurations.</para>
         </listitem>
       </orderedlist></para>
@@ -226,14 +226,14 @@
     <title>Upgrading appliances and their components</title>
 
     <para>Before upgrading a client system's hardware or an appliance's OS or
-    one of its applications, use Spin to test those upgrades with an
+    one of its applications, use SystemBuilder to test those upgrades with an
     appliance's other components to ensure compatibility and stability.</para>
 
     <para><orderedlist>
         <listitem>
           <para><emphasis role="strong">Reduce planning and deployment effort
           for hardware, OS and application upgrades.</emphasis> <application
-          class="software">Spin</application>'s appliance definition files
+          class="software">SystemBuilder</application>'s appliance definition files
           function as system descriptions. You can use these definitions as a
           starting point when upgrading to ensure that all prior system
           functions carry forward.</para>
@@ -241,19 +241,19 @@
 
         <listitem>
           <para><emphasis role="strong">Increase speeds for follow-on
-          builds.</emphasis> <application class="software">Spin</application>
+          builds.</emphasis> <application class="software">SystemBuilder</application>
           uses its built-in caching technology to store the appliance packages
           locally for quick access. If a package has not changed between
-          builds, <application class="software">Spin</application> uses the
+          builds, <application class="software">SystemBuilder</application> uses the
           cached copy.</para>
         </listitem>
 
         <listitem>
           <para><emphasis role="strong">Utilize <application
-          class="software">Spin</application> as an appliance configuration
+          class="software">SystemBuilder</application> as an appliance configuration
           management system. </emphasis> Adding version control to the
           <application class="software">appliance configuration portion of
-          Spin's</application> build system, as described in the introduction,
+          SystemBuilder's</application> build system, as described in the introduction,
           empowers you to manage your appliance releases.</para>
         </listitem>
       </orderedlist></para>

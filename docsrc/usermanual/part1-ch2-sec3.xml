@@ -47,7 +47,7 @@
     <para>The first required element, <emphasis>main</emphasis>, includes the
     appliance's name, the system architecture and the version of the
     appliance. These three items make up the default
-    <varname>$APPLIANCEID</varname>, which Spin uses to create directories for
+    <varname>$APPLIANCEID</varname>, which SystemBuilder uses to create directories for
     storing the completed appliance and providing web access to the appliance
     for download.</para>
 
@@ -85,12 +85,12 @@
     <title>Specifying the input repositories</title>
 
     <para>Next, to define the OS and the application packages for the
-    appliance, you need to define what repositories Spin will use. The example
+    appliance, you need to define what repositories SystemBuilder will use. The example
     below uses the <emphasis>repos/repo</emphasis> child element to define the
     repositories.</para>
 
     <para><important>
-        <para>For Spin to operate correctly, one of the repositories must have
+        <para>For SystemBuilder to operate correctly, one of the repositories must have
         an <filename class="directory">isolinux</filename> or <filename
         class="directory">images</filename> directory.</para>
       </important></para>
@@ -139,7 +139,7 @@
     <varname>$basearch</varname> variable represents the
     <emphasis>main/arch</emphasis> value. As a failsafe measure, the example
     includes a mirror list in addition to the preferred baseurl. In this
-    example, should the baseurl fail for the base repository, Spin will move
+    example, should the baseurl fail for the base repository, SystemBuilder will move
     to the mirror list in the United States for that version and architecture
     and traverse the list until it finds a working repository.</para>
 
@@ -189,7 +189,7 @@
     class="software">GNOME</application> graphical user interface (GUI) and
     printing capabilities. Print administration for CUPS printers can be done
     using a web interface, hence the inclusion of the web-server package.
-    Spin's default settings will include only the "name" and "description" for
+    SystemBuilder's default settings will include only the "name" and "description" for
     the groups in English.</para>
   </section>
 
@@ -199,25 +199,25 @@
     <para>The final step is to include appliance-specific configuration
     information, such as your own appliance configuration files and required
     packages outside the standard groups you have identified in
-    <emphasis>packages</emphasis>, above. Without this step, Spin will build a
+    <emphasis>packages</emphasis>, above. Without this step, SystemBuilder will build a
     generic OS appliance as defined by the <emphasis>packages/group</emphasis>
     child elements.</para>
 
     <para><application class="software">To enable you to install an appliance
-    on a client system, Spin uses RPMs just like other Linux-based OS and
+    on a client system, SystemBuilder uses RPMs just like other Linux-based OS and
     applications. When you install your appliance on the client system, the
     install process will retrieve all the packages and other files that you
-    specify from one or more repositories. Spin</application> gives you two
+    specify from one or more repositories. SystemBuilder</application> gives you two
     options for the repository locations. It can create your appliance
     repositories on your internal download server or it can direct the client
     installation process to the remote download repository servers sponsored
     by outside organizations, such as the mirror sites that <ulink
     url="http://mirror.centos.org">CentOS.org</ulink> or <ulink
     url="http://mirror.samba.org">Samba.org</ulink> host. The parameters of
-    the <emphasis>config-rpm</emphasis> TLE determine how Spin configures this
+    the <emphasis>config-rpm</emphasis> TLE determine how SystemBuilder configures this
     process.</para>
 
-    <para>In this instance, Spin will rely on its default settings plus the
+    <para>In this instance, SystemBuilder will rely on its default settings plus the
     <emphasis>/file</emphasis> and <emphasis>/requires</emphasis> child
     element parameters to construct the <filename>config.rpm</filename> file.
     That file will construct a <application class="software">YUM</application>
@@ -245,7 +245,7 @@
     <filename>smb.conf</filename>, in the <filename
     class="directory">/etc/samba</filename> directory. The appliance will also
     include two key <application>Samba</application>-related packages.
-    <application class="software">Spin</application> will resolve the
+    <application class="software">SystemBuilder</application> will resolve the
     dependencies to prepare the appliance for client installation.</para>
 
     <para>For more information on the advanced child elements of

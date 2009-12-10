@@ -2,11 +2,11 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Configuring the Spin Machine</title>
+  <title>Configuring the SystemBuilder Machine</title>
 
-  <para><application class="software">Spin</application> is designed to work
+  <para><application class="software">SystemBuilder</application> is designed to work
   in a networked environment. You can install <application
-  class="software">Spin</application> on a <application
+  class="software">SystemBuilder</application> on a <application
   class="software">Linux</application> system operating with <application
   class="software">Fedora</application> 10, <application
   class="software">CentOS</application> 5 or <application class="software">Red
@@ -19,7 +19,7 @@
   <para>For capacity planning purposes, the machine should have a separate
   logical or physical drive for the <filename
   class="directory">/var</filename> directory. <application
-  class="software">Spin</application> uses the <filename
+  class="software">SystemBuilder</application> uses the <filename
   class="directory">/var/cache</filename> directory during initial and
   subsequent appliance builds and the <filename
   class="directory">/var/www/html</filename> directory for hosting the
@@ -32,10 +32,10 @@
   requirements, it is best to use hard disk drives with Serial Advanced
   Technology Attachment (SATA) interfaces.</para>
 
-  <para>In addition to the Spin product, the Spin build system must have a web
+  <para>In addition to the SystemBuilder product, the SystemBuilder build system must have a web
   server installed on it in order to distribute the appliance through the
-  network. For instructions on installing Spin and a web server and verifying
-  that Spin is running correctly, see the "Getting Started Guide" on Rendition
+  network. For instructions on installing SystemBuilder and a web server and verifying
+  that SystemBuilder is running correctly, see the "Getting Started Guide" on Rendition
   Software's web site.</para>
 
   <para>Now you are ready to begin defining your appliance!</para>

@@ -2,11 +2,11 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title><application class="software">Spin</application> Builds
+  <title><application class="software">SystemBuilder</application> Builds
   Appliances</title>
 
   <para>An appliance is a set of software applications within an operating
-  system (OS) that forms a single distribution unit. Using Spin, an open
+  system (OS) that forms a single distribution unit. Using SystemBuilder, an open
   source appliance builder, you can create, deploy and maintain a custom
   appliance:</para>
 
@@ -47,11 +47,11 @@
 
   <mediaobject>
     <imageobject>
-      <imagedata fileref="spin_overview.jpg" />
+      <imagedata fileref="systembuilder_overview.jpg" />
     </imageobject>
 
     <textobject>
-      <para><application class="software">Spin</application> takes various
+      <para><application class="software">SystemBuilder</application> takes various
       inputs (OS, applications, configuration files, etc.), combines that with
       an appliance definition file (<filename
       class="extension">.appliance</filename>) and creates an appliance
@@ -61,10 +61,10 @@
       clients.</para>
     </textobject>
 
-    <caption><para>How Spin Works</para></caption>
+    <caption><para>How SystemBuilder Works</para></caption>
   </mediaobject>
 
-  <para>In summary, Spin is a robust appliance life cycle manager for use in
+  <para>In summary, SystemBuilder is a robust appliance life cycle manager for use in
   defining, building and maintaining appliances that are easily deployed and
   updated using industry standard tools.</para>
 </section>

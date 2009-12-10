@@ -117,7 +117,7 @@
     </title>
 
     <para>
-    In the following example, <application class="software">Spin</application>
+    In the following example, <application class="software">SystemBuilder</application>
     will create four sets of ISO images; one with 4.7 gigabytes per disc
     ("DVD"), one with 400 megabytes per disc ("400000000"), one with 640
     megabytes per disc ("640 mb"), and one with 640 mebibytes per disc

@@ -18,7 +18,7 @@
     </title>
 
     <para>
-    Contains basic information about the distribution necessary for Spin
+    Contains basic information about the distribution necessary for SystemBuilder
     to complete an appliance build.
     </para>
   </section>
@@ -169,7 +169,7 @@
       </para>
 
       <para>
-      The default value is <filename>/var/log/spin.log</filename>.
+      The default value is <filename>/var/log/systembuilder.log</filename>.
       </para>
       </listitem>
     </varlistentry>
@@ -204,7 +204,7 @@
       <listitem>
       <para>
       The name of the directory within the final output distribution
-      tree where Spin will place packages.
+      tree where SystemBuilder will place packages.
       </para>
 
       <para>
@@ -251,7 +251,7 @@
   &lt;fullname&gt;CentOS Samba Server&lt;/fullname&gt;
   &lt;bug-url&gt;http://www.example.com/bugs&lt;/bug-url&gt;
   &lt;copyright&gt;&amp;#169;2008, Example Company, All Rights Reserved.&lt;/copyright&gt;
-  &lt;log-file&gt;/home/spinuser/SPIN/eg_CentOS5_main.log&lt;/log-file&gt;
+  &lt;log-file&gt;/home/systembuilderuser/SPIN/eg_CentOS5_main.log&lt;/log-file&gt;
 &lt;/main&gt;
     </programlisting>
     </informalexample>

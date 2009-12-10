@@ -19,7 +19,7 @@
     </title>
 
     <para>
-    Contains a list of repositories that Spin uses to download its
+    Contains a list of repositories that SystemBuilder uses to download its
     packages.
     </para>
 
@@ -30,7 +30,7 @@
       </title>
 
       <para>
-      In order to operate, <application class="software">Spin
+      In order to operate, <application class="software">SystemBuilder
       </application> requires at least one input repository.
       Repositories are specified by either defining them in XML
       (see <emphasis><xref linkend="repos-repo" /></emphasis>) or by
@@ -221,7 +221,7 @@
       </para>
 
       <para>
-      Additionally, Spin will include any and all repositories defined
+      Additionally, SystemBuilder will include any and all repositories defined
       in the file <filename>fedora-extras.repo</filename>.
       </para>
 
@@ -289,11 +289,11 @@
       </informalexample>
 
       <note>
-      Spin requires additional software including rhnlib and 
+      SystemBuilder requires additional software including rhnlib and 
       rhn-client-tools in order to use RHN repositories. To install a 
-      complete version of Spin including all available software, follow 
+      complete version of SystemBuilder including all available software, follow 
       the instructions located at 
-      http://www.renditionsoftware.com/spin/download.
+      http://www.renditionsoftware.com/systembuilder/download.
       </note>
 
     </section>

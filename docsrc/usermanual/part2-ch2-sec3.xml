@@ -5,7 +5,7 @@
   <title>Reusing Appliance Components in an Object-oriented Strategy</title>
 
   <para>To organize information better, the software development community
-  commonly uses substitution methods. In the case of Spin, you can create and
+  commonly uses substitution methods. In the case of SystemBuilder, you can create and
   store content in one location and use XML Includes (XInclude) and XPaths in
   the <filename class="extension">.appliance</filename> file to reuse that
   content and condense large appliance definition files into more manageable
@@ -22,7 +22,7 @@
   included components are missing, the entire <filename
   class="extension">.appliance</filename> file will be invalid. Finally, in
   general using XPointer could increase CPU cycles and memory use; however,
-  with the <application class="software">Spin</application> build process no
+  with the <application class="software">SystemBuilder</application> build process no
   significant CPU or memory cost has been found.</para>
 
   <para>The advantages outweigh the disadvantages. XInclude processing is
@@ -35,8 +35,8 @@
   inaccuracies or inconsistencies among the appliances and within your
   network.</para>
 
-  <para>Within the context of Spin, a two-part structure on the <application
-  class="software">Spin</application> build system will suffice for managing
+  <para>Within the context of SystemBuilder, a two-part structure on the <application
+  class="software">SystemBuilder</application> build system will suffice for managing
   the common versus unique appliance components. As in the diagram below,
   under the subdirectory <filename class="directory">appliances/</filename>,
   the <filename class="directory">common/</filename> branch contains reusable
