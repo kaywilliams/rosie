@@ -32,7 +32,7 @@
   Critical considerations include whether you have a single LAN versus a
   separate DMZ, a download machine with multiple active interfaces, multiple
   active ports or secure login requirements. SystemBuilder handles all of these through
-  the appliance definition file, e.g.
+  the system definition file, e.g.
   <filename>samba-server.appliance</filename>.</para>
 
   <para><variablelist>

@@ -90,7 +90,7 @@
     <varname>$SYSTEMID</varname> is the appliance's identifier, consisting
     of the appliance's name, version and architecture as specified in the
     <emphasis>main</emphasis> top-level element. The variable
-    <varname>$APPLIANCEFILE</varname> is the name of your appliance definition
+    <varname>$APPLIANCEFILE</varname> is the name of your system definition
     file without the <filename class="extension">.appliance</filename>
     extension.</para>
 

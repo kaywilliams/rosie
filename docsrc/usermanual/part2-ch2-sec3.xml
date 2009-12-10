@@ -8,9 +8,9 @@
   commonly uses substitution methods. In the case of SystemBuilder, you can create and
   store content in one location and use XML Includes (XInclude) and XPaths in
   the <filename class="extension">.appliance</filename> file to reuse that
-  content and condense large appliance definition files into more manageable
+  content and condense large system definition files into more manageable
   and readable sections using an object-oriented tree. Within that context,
-  some components of an appliance definition file are prime candidates for
+  some components of an system definition file are prime candidates for
   substitution and reuse.</para>
 
   <para>XInclude and XPointer do have limitations. Any documents that are
@@ -161,6 +161,6 @@
   you will also have to change the path to the <filename>smb.conf</filename>
   file in <emphasis>config-rpm/file</emphasis>.</para>
 
-  <para>The result is an object-oriented appliance definition file that will
+  <para>The result is an object-oriented system definition file that will
   reduce your maintenance overhead.</para>
 </section>

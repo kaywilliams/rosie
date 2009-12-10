@@ -51,18 +51,18 @@
   <section>
     <title>Testing an appliance</title>
 
-    <para>While preparing the appliance definition file, you can test the OS
+    <para>While preparing the system definition file, you can test the OS
     with its various applications and configurations, together or in separate
     combinations, until you achieve the desired results.</para>
 
     <para><orderedlist>
         <listitem>
           <para><emphasis role="strong">Test different configuration and
-          application combinations within a single appliance definition
+          application combinations within a single system definition
           file.</emphasis> <application class="software">SystemBuilder</application>
-          uses an appliance definition file as a recipe for your appliance.
+          uses an system definition file as a recipe for your appliance.
           You can create an appliance template, then enable or disable
-          appliance components using the appliance definition file to test
+          appliance components using the system definition file to test
           application compatibility and functionality with the OS until you
           derive the combination that meets your needs.</para>
         </listitem>
@@ -142,7 +142,7 @@
           <para><emphasis role="strong">Utilize standard XML nomenclature to
           create an understandable yet powerful appliance
           definition.</emphasis> Combining the standardized XML-based
-          appliance definitions with familiar repository and package concepts
+          system definitions with familiar repository and package concepts
           makes reading, writing, understanding and updating the appliance
           definition straightforward.</para>
         </listitem>
@@ -158,7 +158,7 @@
         <listitem>
           <para><emphasis role="strong">Reduce the learning curve for various
           standard package management tools.</emphasis> By utilizing an
-          appliance definition file that defines key repository, OS, package
+          system definition file that defines key repository, OS, package
           and configuration parameters, you can reduce the burden of
           understanding the intricacies of multiple software tools, i.e.
           <application class="software">Anaconda</application>, <application
@@ -205,7 +205,7 @@
           <para><emphasis role="strong">Migrate one appliance to new hardware
           in a fast, efficient, repeatable manner.</emphasis> Migrate an
           appliance that has been configured for one architecture to another
-          by changing a few items in the appliance definition file in just
+          by changing a few items in the system definition file in just
           minutes. Use SystemBuilder on a sandbox build system to test the appliance
           before readying it for deployment to the new hardware
           systems.</para>
@@ -233,7 +233,7 @@
         <listitem>
           <para><emphasis role="strong">Reduce planning and deployment effort
           for hardware, OS and application upgrades.</emphasis> <application
-          class="software">SystemBuilder</application>'s appliance definition files
+          class="software">SystemBuilder</application>'s system definition files
           function as system descriptions. You can use these definitions as a
           starting point when upgrading to ensure that all prior system
           functions carry forward.</para>

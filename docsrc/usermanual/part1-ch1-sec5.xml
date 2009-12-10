@@ -13,13 +13,13 @@
         <term><emphasis role="strong">SDFR</emphasis></term>
 
         <listitem>
-          <para>"Appliance Definition File Reference," the rules of syntax for
-          the appliance definition file.</para>
+          <para>"System Definition File Reference," the rules of syntax for
+          the system definition file.</para>
         </listitem>
       </varlistentry>
 
       <varlistentry id="appliance_file" xreflabel="appliance file">
-        <term><emphasis role="strong">appliance definition
+        <term><emphasis role="strong">system definition
         file</emphasis></term>
 
         <listitem>

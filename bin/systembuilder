@@ -40,7 +40,7 @@ def main():
   parser = OptionParser("usage: %prog [OPTIONS] SYSTEM_DEFINITION",
                         formatter=CleanHelpFormatter(),
                         description="build the appliance defined in the "
-                                    "appliance definition file located at "
+                                    "system definition file located at "
                                     "SYSTEM_DEFINITION"
                         )
 

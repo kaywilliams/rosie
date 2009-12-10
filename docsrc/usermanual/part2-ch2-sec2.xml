@@ -27,7 +27,7 @@
   non-image files that should be. Within the <application
   class="software">SystemBuilder</application> infrastructure and appliance building
   process, candidates for revision control include configuration files,
-  appliance definition files and scripts, i.e. files that contain critical
+  system definition files and scripts, i.e. files that contain critical
   textual information that may change over time or are commonly used to define
   aspects of multiple appliances, such as common repositories or network
   configuration.</para>

@@ -20,7 +20,7 @@
     timezone, root password and package handling.</para>
 
     <para>Instead of managing multiple kickstart files, SystemBuilder lets you make it
-    part of the appliance definition. By revision controlling the SystemBuilder files
+    part of the system definition. By revision controlling the SystemBuilder files
     (see Part 2), the kickstart process can be controlled, too.</para>
 
     <para>Use the <emphasis>kickstart</emphasis> TLE in the

@@ -32,7 +32,7 @@
         <para>Creating the <application class="software">Samba</application>
         appliance entails several process steps. After configuring the
         <application class="software">SystemBuilder</application> build system, you
-        need to define the appliance using the appliance definition file
+        need to define the appliance using the system definition file
         (<filename class="extension">samba-server.appliance</filename>). Then
         you run <command>systembuilder</command> to validate the file, retrieve the
         packages and build the appliance RPMs. From there you prepare the boot

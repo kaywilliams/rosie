@@ -9,7 +9,7 @@
   less time than its competitors.</para>
 
   <para>To begin the appliance build process, you must first define the
-  appliance through an appliance definition file, commonly tagged with an
+  appliance through an system definition file, commonly tagged with an
   <filename class="extension">.appliance</filename> filename extension. It's
   XML syntax, defined in the SDFR, has multiple TLEs, each of which
   corresponds to a <application class="software">Python</application> module.

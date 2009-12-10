@@ -7,7 +7,7 @@
   </title>
 
   <para>
-  The appliance definition file contains instructions for building a
+  The system definition file contains instructions for building a
   Linux operating system distribution, or appliance. It defines appliance 
   content and configuration, including name, version, and architecture; package
   repository locations; which packages to include; and the locations of 

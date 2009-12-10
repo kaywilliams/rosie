@@ -41,7 +41,7 @@
       </listitem>
     </itemizedlist></para>
 
-  <para>Once the appliance definition is complete, you log on as the root user
+  <para>Once the system definition is complete, you log on as the root user
   and execute the command <userinput>systembuilder samba-server.appliance</userinput>
   to build the appliance. Output goes to the screen and the default log file.
   The first build may take some time, since <application
@@ -102,7 +102,7 @@
   distribution.</para>
 
   <para>Another method to update your appliance is actually changing the
-  appliance definition file, <filename>samba-server.appliance</filename> for
+  system definition file, <filename>samba-server.appliance</filename> for
   this scenario. Any changes to the three required <emphasis>main</emphasis>
   child elements would constitute creating a brand-new appliance. Save these
   changes to a new <filename class="extension">.appliance</filename>
@@ -119,6 +119,6 @@
 
   <para>Now that you have your appliance, you can modularize your
   <filename>samba-server.appliance</filename> file to reuse its parts and
-  version the appliance definition file components to make the build process
+  version the system definition file components to make the build process
   more efficient and traceable. Part II explains this process.</para>
 </section>

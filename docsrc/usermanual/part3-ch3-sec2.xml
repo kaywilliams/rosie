@@ -31,7 +31,7 @@
   <para>To add custom kernel boot arguments to the <filename
   class="directory">/isolinux/isolinux.cfg</filename> file of the
   <filename>boot.iso</filename> image, use the <emphasis>bootiso</emphasis>
-  TLE in your appliance definition file. Substitute your appropriate IP
+  TLE in your system definition file. Substitute your appropriate IP
   addresses.</para>
 
   <para><informalexample>

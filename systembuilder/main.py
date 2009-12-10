@@ -259,7 +259,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
       mc = rxml.config.fromstring('<spin/>')
 
     if not dcp.exists():
-      raise rxml.errors.ConfigError("No appliance definition file found at '%s'" % dcp)
+      raise rxml.errors.ConfigError("No system definition file found at '%s'" % dcp)
 
     self.logger.log(3, "Reading '%s'" % dcp)
     dc = rxml.config.read(dcp)

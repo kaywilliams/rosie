@@ -6,7 +6,7 @@
 
   <para>Now that you have created your basic
   <filename>samba-server.appliance</filename>, you can customize your
-  appliance through additional elements in the appliance definition file. When
+  appliance through additional elements in the system definition file. When
   selecting packages, you may want certain events to occur depending upon what
   package version is installed or deinstalled. Scripts that run automatically
   or are triggered upon certain installation or deinstallation events give you
