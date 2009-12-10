@@ -3,7 +3,7 @@
 Name:    systembuilder
 Version: 1.8.0
 Release: 1%{?dist}
-Summary: Builds software appliances based on Red Hat, CentOS and Fedora Linux
+Summary: Builds system distributions based on CentOS and Red Hat Enterprise Linux
 
 License:   GPLv2+
 Group:     Applications/System

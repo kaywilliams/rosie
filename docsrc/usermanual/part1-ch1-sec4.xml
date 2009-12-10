@@ -56,7 +56,7 @@
   <para>In summary, using a single <filename
   class="extension">.appliance</filename> definition file and some common
   system administration tasks, you can define and build a comprehensive
-  software appliance with a Linux-based OS and one or more applications,
+  system distribution with a Linux-based OS and one or more applications,
   deploy it to multiple machines and update it automatically.</para>
 
   <para><application class="software">SystemBuilder</application> can accomplish all
