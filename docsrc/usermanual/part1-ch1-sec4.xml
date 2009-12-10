@@ -12,7 +12,7 @@
   <para>To begin the appliance build process, you must first define the
   appliance through an appliance definition file, commonly tagged with an
   <filename class="extension">.appliance</filename> filename extension. It's
-  XML syntax, defined in the ADFR, has multiple TLEs, each of which gives you
+  XML syntax, defined in the SDFR, has multiple TLEs, each of which gives you
   an extraordinary level of control over your appliance's components and
   configuration.</para>
 

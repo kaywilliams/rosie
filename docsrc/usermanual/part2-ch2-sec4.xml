@@ -7,7 +7,7 @@
   <para>By default <application class="software">Spin</application> uses the
   <application class="software">Spin</application> build system as the default
   location for publication and remote access. See the section "Deploying Your
-  Appliance" under Part I, Chapter 2, and the ADFR for more information about
+  Appliance" under Part I, Chapter 2, and the SDFR for more information about
   the default settings. When the default settings are not appropriate, use the
   <emphasis>publish</emphasis> TLE in the <filename
   class="extension">.appliance</filename> file to direct <application

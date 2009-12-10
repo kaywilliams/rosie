@@ -11,7 +11,7 @@
   <para>To begin the appliance build process, you must first define the
   appliance through an appliance definition file, commonly tagged with an
   <filename class="extension">.appliance</filename> filename extension. It's
-  XML syntax, defined in the ADFR, has multiple TLEs, each of which
+  XML syntax, defined in the SDFR, has multiple TLEs, each of which
   corresponds to a <application class="software">Python</application> module.
   There are three required TLEs--<emphasis>main</emphasis>,
   <emphasis>repos</emphasis> and <emphasis>packages</emphasis>. These and

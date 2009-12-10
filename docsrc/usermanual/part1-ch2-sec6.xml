@@ -100,7 +100,7 @@ Build complete at 2008-10-25 18:30:26</screen></para>
     including the appliance-specific config and release RPMs created by Spin.
     For more information about what these RPMs contain and how to customize
     their contents, see the <emphasis>config-rpm</emphasis> and
-    <emphasis>release-rpm</emphasis> TLEs in the ADFR.</para>
+    <emphasis>release-rpm</emphasis> TLEs in the SDFR.</para>
 
     <para>To see what changed on the client system, check the
     <filename>yum.log</filename> file in the <filename

@@ -9,8 +9,8 @@
   alphabetical.</para>
 
   <para><variablelist>
-      <varlistentry id="adfr" xreflabel="ADFR">
-        <term><emphasis role="strong">ADFR</emphasis></term>
+      <varlistentry id="adfr" xreflabel="SDFR">
+        <term><emphasis role="strong">SDFR</emphasis></term>
 
         <listitem>
           <para>"Appliance Definition File Reference," the rules of syntax for
@@ -26,7 +26,7 @@
           <para>The information Spin uses to build, configure and store your
           appliance. By convention the text file uses the <filename
           class="extension">.appliance</filename> extension. The file uses XML
-          tagging as defined in the ADFR.</para>
+          tagging as defined in the SDFR.</para>
         </listitem>
       </varlistentry>
 

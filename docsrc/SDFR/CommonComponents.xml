@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<chapter id="ADFR-CommonComponents"
+<chapter id="SDFR-CommonComponents"
          xreflabel="Common Components"
          xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>
@@ -10,7 +10,7 @@
 
   <para>
   Common attributes and elements, constants and variables are used
-  throughout the ADFR documentation and have been included here to be concise.
+  throughout the SDFR documentation and have been included here to be concise.
   The descriptions provide a general overview of the item with more detail
   about values and behavior. Documentation for each top-level element may
   include variations on the standard behavior.

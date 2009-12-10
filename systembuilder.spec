@@ -66,7 +66,7 @@ separately purchase RHEL subscriptions for all installed systems.
 %doc INSTALL
 %doc README
 %doc NEWS
-%doc docsrc/ADFR/ADFR.html
+%doc docsrc/SDFR/SDFR.html
 %doc docsrc/usermanual/UserManual.html
 %doc docsrc/images*
 %{_mandir}/man5/systembuilder.conf.5.gz

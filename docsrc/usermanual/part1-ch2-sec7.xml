@@ -17,7 +17,7 @@
 
   <para>Then you define your appliance in the <filename
   class="extension">samba-server.appliance</filename> file using XML tags
-  defined in the ADFR. Your appliance recipe includes several key pieces of
+  defined in the SDFR. Your appliance recipe includes several key pieces of
   information:</para>
 
   <para><itemizedlist>
