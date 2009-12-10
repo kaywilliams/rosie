@@ -1,13 +1,13 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
-Name:           spin-enterprise
+Name:           systembuilder-enterprise
 Version:        1.0.0
 Release:        1%{?dist}
-Summary:        Provides additional Spin features
+Summary:        Provides additional SystemBuilder features
 
 Group:          Applications/System
 License:        GPLv2+
-URL:            http://www.renditionsoftware.com/spin
+URL:            http://www.renditionsoftware.com/SystemBuilder
 Source0:        %{name}-%{version}.tar.gz
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch:      noarch
@@ -15,16 +15,13 @@ BuildArch:      noarch
 BuildRequires:  python
 
 Requires:       rhn-client-tools
-Requires:       spin
-Requires:       spin-logos
+Requires:       systembuilder
+Requires:       systembuilder-logos
 
 %description
-The Spin Enterprise package provides additional features for the Spin
-appliance development tool. It allows automatic generation of a logos
-RPM containing appliance-specific branding which is visible during
-installation, system boot, user login and from the GNOME and KDE
-desktops. It also allows connecting directly to Red Hat Network as an
-input source for appliance packages.
+The SystemBuilder Enterprise package provides additional features for
+SystemBuilder. It also allows connecting directly to Red Hat Network as an
+input source for distribution packages.
 
 %prep
 %setup -q
@@ -40,7 +37,7 @@ input source for appliance packages.
 
 %files
 %defattr(-,root,root,-)
-%{python_sitelib}/spin/modules/core/rpmbuild/logos-rpm*
+%{python_sitelib}/systembuilder/modules/core/rpmbuild/logos-rpm*
 %doc COPYING
 %doc AUTHORS
 

@@ -1,4 +1,4 @@
-PKGNAME := spin-enterprise
+PKGNAME := systembuilder-enterprise
 SPECFILE := $(PKGNAME).spec
 VERSION := $(shell awk '/Version:/ { print $$2 }' $(SPECFILE))
 RELEASE := $(shell awk '/Release:/ { print $$2 }' $(SPECFILE) | sed -e 's|%{?dist}||g')
@@ -22,10 +22,10 @@ tag:
 	@echo "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)"
 
 archive: tag
-	@hg archive --include 'spin/modules/core/rpmbuild/logos-rpm' \
+	@hg archive --include 'systembuilder/modules/core/rpmbuild/logos-rpm' \
 	            --include COPYING \
                     --include AUTHORS \
-                    --include spin-enterprise.spec \
+                    --include systembuilder-enterprise.spec \
                     --include Makefile.enterprise \
                     -t tgz --prefix=$(PKGNAME)-$(VERSION) $(PKGNAME)-$(VERSION).tar.gz
 
@@ -41,7 +41,7 @@ install:
 		exit 1; \
 	fi
 	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)
-	cp -var spin $(DESTDIR)/$(PYTHONLIBDIR)
+	cp -var systembuilder $(DESTDIR)/$(PYTHONLIBDIR)
 	$(call COMPILE_PYTHON,$(DESTDIR)/$(PYTHONLIBDIR))
 
 srpm: archive
@@ -51,7 +51,7 @@ srpm: archive
 bumpver:
 	@NEWSUBVER=$$((`echo $(VERSION) | cut -d . -f 3` + 1)) ; \
 	NEWVERSION=`echo $(VERSION).$$NEWSUBVER |cut -d . -f 1-2,4` ; \
-	changelog="`hg log --include spin/modules/core/rpmbuild/logos-rpm -r tip:$(PKGNAME)-$(VERSION)-$(RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
+	changelog="`hg log --include systembuilder/modules/core/rpmbuild/logos-rpm -r tip:$(PKGNAME)-$(VERSION)-$(RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
 	rpmlog="`echo "$$changelog" | sed -e 's/@.*>)/)/' -e 's/(.*</(/'`"; \
 	DATELINE="* `date "+%a %b %d %Y"` `hg showconfig ui.username` - $$NEWVERSION-$(RELEASE)" ; \
 	cl=`grep -n %changelog $(SPECFILE) | cut -d : -f 1` ; \
