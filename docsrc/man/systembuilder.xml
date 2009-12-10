@@ -61,18 +61,18 @@
 <arg choice="opt">
 <option>--skip <replaceable class="parameter">MODULE</replaceable></option>
 </arg>
-<filename> APPLIANCE_FILE</filename>
+<filename> SYSTEM_DEFINITION</filename>
 
 </cmdsynopsis>
 </refsynopsisdiv>
 
 <refsect1 id="systembuilder.1-description"><title>DESCRIPTION</title>
-<para>Builds the appliance defined in the file at APPLIANCE_FILE. Updates the appliance if it exists.</para>
+<para>Builds the appliance defined in the file at SYSTEM_DEFINITION. Updates the appliance if it exists.</para>
 </refsect1>
 
 <refsect1 id="systembuilder.1-usage"><title>USAGE</title>
-<para><command>systembuilder</command> [OPTIONS] APPLIANCE_FILE</para>
-<para>OPTIONS refers to the command-line options described below.  APPLIANCE_FILE refers to an appliance definition file, see the Appliance Definition File Reference at <ulink url="http://www.renditionsoftware.com/systembuilder/docs"/> for more information.</para>
+<para><command>systembuilder</command> [OPTIONS] SYSTEM_DEFINITION</para>
+<para>OPTIONS refers to the command-line options described below.  SYSTEM_DEFINITION refers to an appliance definition file, see the Appliance Definition File Reference at <ulink url="http://www.renditionsoftware.com/systembuilder/docs"/> for more information.</para>
 </refsect1>
 
 
@@ -81,9 +81,9 @@
 <variablelist>
 
 <varlistentry>
-  <term><option>-c; --config <replaceable class="parameter">SPINCONF</replaceable></option></term>
+  <term><option>-c; --config <replaceable class="parameter">SYSTEMBUILDER_CONF</replaceable></option></term>
   <listitem>
-    <para> Specifies the directory and filename <replaceable class="parameter">SPINCONF</replaceable> of the systembuilder configuration file.  The default value is <filename class="directory">/etc/systembuilder/systembuilder.conf</filename>.  See the <filename>systembuilder.conf(5)</filename> man page for SystemBuilder configuration options.</para>
+    <para> Specifies the directory and filename <replaceable class="parameter">SYSTEMBUILDER_CONF</replaceable> of the systembuilder configuration file.  The default value is <filename class="directory">/etc/systembuilder/systembuilder.conf</filename>.  See the <filename>systembuilder.conf(5)</filename> man page for SystemBuilder configuration options.</para>
 
   </listitem>
 </varlistentry>
@@ -150,7 +150,7 @@
 <varlistentry>
   <term><option>--no-validate</option></term>
   <listitem>
-    <para>Disables validation of SPINCONF and APPLIANCE_FILE during the build process.</para>
+    <para>Disables validation of SYSTEMBUILDER_CONF and SYSTEM_DEFINITION during the build process.</para>
   </listitem>
 </varlistentry>
 
@@ -174,7 +174,7 @@
 <varlistentry>
   <term><option>--validate-only</option></term>
   <listitem>
-<para>Performs SPINCONF and APPLIANCE_FILE validation only; it does not build the appliance.  The option also displays the complete APPLIANCE_FILE file after resolving macro and include elements.</para>
+<para>Performs SYSTEMBUILDER_CONF and SYSTEM_DEFINITION validation only; it does not build the appliance.  The option also displays the complete SYSTEM_DEFINITION file after resolving macro and include elements.</para>
   </listitem>
 </varlistentry>
 
@@ -182,7 +182,7 @@
 </refsect1>
 
 <refsect1 id="systembuilder.1-variables"><title>VARIABLES</title>
-<para>SystemBuilder command options, where indicated, use three variables:  MODULE, PATH and SPINCONF.</para>
+<para>SystemBuilder command options, where indicated, use three variables:  MODULE, PATH and SYSTEMBUILDER_CONF.</para>
 
 <variablelist>
 <varlistentry>
@@ -200,7 +200,7 @@
 </varlistentry>
 
 <varlistentry>
-  <term>SPINCONF</term>
+  <term>SYSTEMBUILDER_CONF</term>
   <listitem>
     <para>The directory and filename of the SystemBuilder configuration file.</para>
   </listitem>
