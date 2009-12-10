@@ -4,9 +4,9 @@
 <section id="CommonComponents-variables">
 
   <section id="variable-appliance-id"
-           xreflabel="\$APPLIANCEID">
+           xreflabel="\$SYSTEMID">
     <title>
-    Variable: <varname>$APPLIANCEID</varname>
+    Variable: <varname>$SYSTEMID</varname>
     </title>
 
     <section>

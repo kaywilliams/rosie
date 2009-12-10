@@ -61,6 +61,6 @@
   can also enter comments in the files. Keep in mind that changing the name of
   the <filename class="extension">.appliance</filename> file does not mean
   <application class="software">SystemBuilder</application> will build a new appliance.
-  As long as the <varname>$APPLIANCEID</varname> remains the same, the
+  As long as the <varname>$SYSTEMID</varname> remains the same, the
   appliance remains the same.</para>
 </section>

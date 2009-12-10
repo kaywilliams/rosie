@@ -47,7 +47,7 @@
     <para>The first required element, <emphasis>main</emphasis>, includes the
     appliance's name, the system architecture and the version of the
     appliance. These three items make up the default
-    <varname>$APPLIANCEID</varname>, which SystemBuilder uses to create directories for
+    <varname>$SYSTEMID</varname>, which SystemBuilder uses to create directories for
     storing the completed appliance and providing web access to the appliance
     for download.</para>
 
@@ -72,7 +72,7 @@
   &lt;/main&gt;</programlisting>
       </informalexample></para>
 
-    <para>The default <varname>$APPLIANCEID</varname> will be
+    <para>The default <varname>$SYSTEMID</varname> will be
     <filename>samba-server-5-i386</filename>. See the SDFR for more details
     about the <emphasis>main</emphasis> element in an <filename
     class="extension">.appliance</filename> file.</para>

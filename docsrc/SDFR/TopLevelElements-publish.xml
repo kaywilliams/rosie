@@ -108,7 +108,7 @@
 
       <para>
       The default text value for this element is
-      <filename>/var/www/html/appliances/$APPLIANCEID</filename>.
+      <filename>/var/www/html/appliances/$SYSTEMID</filename>.
       </para>
       </listitem>
     </varlistentry>
@@ -126,7 +126,7 @@
 
       <para>
       The default behavior is to use
-      <filename>http://$ipaddress/appliances/$APPLIANCEID</filename>,
+      <filename>http://$ipaddress/appliances/$SYSTEMID</filename>,
       where <varname>$ipaddress</varname> is computed using the value
       of the <emphasis>@interface</emphasis> attribute.
       </para>
@@ -168,7 +168,7 @@
     In the following examples, the build system's hostname is
     <filename>buildserver</filename> and the IP addresses of "eth0" and
     "eth1" are 10.10.1.105 and 192.168.0.10, respectively. It is building an
-    appliance with an <varname>$APPLIANCEID</varname> of
+    appliance with an <varname>$SYSTEMID</varname> of
     "samba-server-5-i386".
     </para>
 

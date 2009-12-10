@@ -87,7 +87,7 @@
     desired applications. To accomplish this, <application
     class="software">SystemBuilder</application> relies on several default settings on
     the build system, noted in the table below. The variable
-    <varname>$APPLIANCEID</varname> is the appliance's identifier, consisting
+    <varname>$SYSTEMID</varname> is the appliance's identifier, consisting
     of the appliance's name, version and architecture as specified in the
     <emphasis>main</emphasis> top-level element. The variable
     <varname>$APPLIANCEFILE</varname> is the name of your appliance definition
@@ -115,7 +115,7 @@
             </row>
 
             <row>
-              <entry>/var/cache/systembuilder/<varname>$APPLIANCEID</varname>/</entry>
+              <entry>/var/cache/systembuilder/<varname>$SYSTEMID</varname>/</entry>
 
               <entry>Cache for your appliance's build.</entry>
             </row>
@@ -127,7 +127,7 @@
             </row>
 
             <row>
-              <entry>/var/www/html/appliances/<varname>$APPLIANCEID/</varname></entry>
+              <entry>/var/www/html/appliances/<varname>$SYSTEMID/</varname></entry>
 
               <entry>Directory to which SystemBuilder publishes an appliance.</entry>
             </row>

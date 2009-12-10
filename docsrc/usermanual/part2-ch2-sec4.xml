@@ -44,7 +44,7 @@
           <para>While the publish and storage location is on the <application
           class="software">SystemBuilder</application> build system, the default
           location of <filename
-          class="directory">/var/www/html/appliances/<varname>$APPLIANCEID</varname></filename>
+          class="directory">/var/www/html/appliances/<varname>$SYSTEMID</varname></filename>
           may not meet your needs. For administrative purposes, you may wish
           to keep separate paths for different appliances or types of
           appliances or make only certain paths accessible to others for

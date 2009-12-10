@@ -81,7 +81,7 @@ Build complete at 2008-10-25 18:30:26</screen></para>
     <para>If you change the <emphasis>main/name</emphasis>,
     <emphasis>main/version</emphasis> or <emphasis>main/arch</emphasis> child
     elements, then you are creating a new appliance with a new
-    <varname>$APPLIANCEID</varname> and published download server location
+    <varname>$SYSTEMID</varname> and published download server location
     matching the new parameters. To avoid confusion between the different
     appliances, save the new <filename class="extension">.appliance</filename>
     file with a new name.</para>

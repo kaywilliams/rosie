@@ -23,7 +23,7 @@
     class="directory">/var/www/html/appliances</filename> default directory on
     the download server. SystemBuilder automatically configures boot media to download
     packages from that server. The folder name will be the
-    <varname>$APPLIANCEID</varname>, e.g.
+    <varname>$SYSTEMID</varname>, e.g.
     <filename>samba-server-5-i386</filename>.</para>
 
     <para>To make network installations possible, the build system and
