@@ -19,7 +19,7 @@
 
     <para>
     Contains basic information about the distribution necessary for SystemBuilder
-    to complete an appliance build.
+    to complete an distribution build.
     </para>
   </section>
 
@@ -80,7 +80,7 @@
       <listitem>
       <para>
       <varname>TEXT</varname> specifying a way for client system
-      users to report appliance installation bugs.
+      users to report distribution installation bugs.
       </para>
 
       <para>
@@ -96,7 +96,7 @@
 
       <listitem>
       <para>
-      Copyright <varname>TEXT</varname> for the appliance.
+      Copyright <varname>TEXT</varname> for the distribution.
       </para>
 
       <para>
@@ -125,7 +125,7 @@
 
       <listitem>
       <para>
-      A human-friendly name for the appliance.
+      A human-friendly name for the distribution.
       </para>
 
       <para>
@@ -142,8 +142,8 @@
 
       <listitem>
       <para>
-      The unique id for the custom appliance. This value is also the
-      directory name for the final published appliance build folder within
+      The unique id for the custom distribution. This value is also the
+      directory name for the final published distribution build folder within
       the build cache.
       </para>
 
@@ -165,7 +165,7 @@
 
       <listitem>
       <para>
-      The <varname>PATH</varname> to the appliance’s build log file.
+      The <varname>PATH</varname> to the distribution’s build log file.
       </para>
 
       <para>
@@ -182,7 +182,7 @@
 
       <listitem>
       <para>
-      The name of the target appliance.
+      The name of the target distribution.
       </para>
 
       <para>
@@ -221,7 +221,7 @@
 
       <listitem>
       <para>
-      The version of the target appliance.
+      The version of the target distribution.
       </para>
 
       <para>
@@ -263,7 +263,7 @@
     </title>
 
     <para>
-    <varname><xref linkend="variable-appliance-id" /></varname>,
+    <varname><xref linkend="variable-distribution-id" /></varname>,
     <varname><xref linkend="variable-arch" /></varname>,
     <varname><xref linkend="variable-name" /></varname>,
     <varname><xref linkend="variable-version" /></varname>,

@@ -88,7 +88,7 @@ class VirtimageBaseEvent(vms.VmCreateMixin, Event):
     self._prep_ks_scripts()
 
     # create image creator
-    self.creator = SpinApplianceImageCreator(self,
+    self.creator = SpinDistributionImageCreator(self,
                      self.ks,
                      name        = self.systemid,
                      disk_format = 'raw',
@@ -146,10 +146,10 @@ class VirtimageBaseEvent(vms.VmCreateMixin, Event):
     self.cvars['virtimage-xml'] = self.outdir/'%s.xml' % self.systemid
 
 
-class SpinApplianceImageCreator(vms.SpinImageCreatorMixin,
-                                appcreate.ApplianceImageCreator):
+class SpinDistributionImageCreator(vms.SpinImageCreatorMixin,
+                                appcreate.DistributionImageCreator):
   def __init__(self, event, *args, **kwargs):
-    appcreate.ApplianceImageCreator.__init__(self, *args, **kwargs)
+    appcreate.DistributionImageCreator.__init__(self, *args, **kwargs)
     vms.SpinImageCreatorMixin.__init__(self, event)
 
   def _check_required_packages(self):
@@ -190,7 +190,7 @@ class SpinApplianceImageCreator(vms.SpinImageCreatorMixin,
       vms.SpinImageCreatorMixin._base_on(self, base_on)
 
     else:
-      appcreate.ApplianceImageCreator._mount_instroot(self)
+      appcreate.DistributionImageCreator._mount_instroot(self)
 
   def _cleanup(self):
     try:
@@ -200,8 +200,8 @@ class SpinApplianceImageCreator(vms.SpinImageCreatorMixin,
       pass
 
 class GrubRequiredError(SpinError):
-  message = ( "Creating an appliance virtual image requires that the 'grub' "
-              "package be included in the appliance." )
+  message = ( "Creating an distribution virtual image requires that the 'grub' "
+              "package be included in the distribution." )
 
 import inspect
 import logging

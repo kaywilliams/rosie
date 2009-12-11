@@ -99,7 +99,7 @@ class KickstartEvent(Event):
 
     # modify repos to have local baseurl
     self._update_repos(ks,
-          ['--name', 'appliance',
+          ['--name', 'distribution',
            '--baseurl', 'file://'+self.cvars['repodata-directory'].dirname])
 
     # write out ks file with the local baseurl
@@ -109,7 +109,7 @@ class KickstartEvent(Event):
     # kickstart with repos pointing to the web location
     if self.cvars['web-path']:
       self._update_repos(ks,
-            ['--name', 'appliance',
+            ['--name', 'distribution',
              '--baseurl', self.cvars['web-path'] / 'os' ])
 
       # write out the ks file with the remote baseurl

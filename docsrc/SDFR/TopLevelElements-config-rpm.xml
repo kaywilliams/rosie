@@ -13,7 +13,7 @@
     </title>
 
     <para>
-    Creates an RPM used to install and update appliance-specific 
+    Creates an RPM used to install and update distribution-specific 
     configuration on the client system.  The RPM is named 
     <filename>$NAME-config</filename>, where $NAME is taken from the 
     value of the <xref linkend="main-arch" /> element. The RPM 
@@ -45,7 +45,7 @@
     (PATH|TEXT)
    &lt;/files&gt;]*
 
-  [&lt;repofile [appliance=BOOLEAN] [input=BOOLEAN] /&gt;
+  [&lt;repofile [distribution=BOOLEAN] [input=BOOLEAN] /&gt;
 
   [&lt;obsoletes&gt;CAPABILITY&lt;/obsoletes&gt;]*
   [&lt;requires&gt;CAPABILITY&lt;/requires&gt;]*
@@ -167,14 +167,14 @@
 
       <para>
       Accepts two attributes,
-      <emphasis>@appliance</emphasis> and
+      <emphasis>@distribution</emphasis> and
       <emphasis>@input</emphasis>.
       </para>
 
       <para>
-      <emphasis>@appliance</emphasis>: <varname>BOOLEAN</varname>
+      <emphasis>@distribution</emphasis>: <varname>BOOLEAN</varname>
       value indicating whether to generate a repository listing pointing
-      to the download server location for this appliance. The default value is
+      to the download server location for this distribution. The default value is
       <constant>TRUE</constant>. See <emphasis role="strong">
       <xref linkend="publish" /></emphasis> for information on 
       defining the download server location.
@@ -183,7 +183,7 @@
       <para>
       <emphasis>@input</emphasis>: <varname>BOOLEAN</varname>
       value indicating whether to include the repositories used to
-      build the appliance in the repofile. The default 
+      build the distribution in the repofile. The default 
       value is <constant>FALSE</constant>. See 
       <emphasis role="strong"><xref linkend="repos" /></emphasis> for 
       information on defining input repositories.
@@ -322,7 +322,7 @@
   &lt;/files&gt;
 
   &lt;!-- include only the input repositories in generated repofile --&gt;
-  &lt;repofile appliance="false" input="true" /&gt;
+  &lt;repofile distribution="false" input="true" /&gt;
 
   &lt;!-- required packages --&gt;
   &lt;requires&gt;samba&lt;/requires&gt;

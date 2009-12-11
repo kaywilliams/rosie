@@ -47,6 +47,6 @@
     </element>
   </start>
 
-  <include href="appliance/lib.rng"/>
+  <include href="distribution/lib.rng"/>
 
 </grammar>

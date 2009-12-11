@@ -14,7 +14,7 @@
 
     <para>
     Specifies the contents of the default kickstart file for the
-    appliance. The file is included in the
+    distribution. The file is included in the
     <filename>initrd.img</filename>, and a <constant>ks=</constant>
     <varname>BASENAME</varname> parameter is added to the kernel boot
     arguments for <emphasis role="strong"><xref linkend="bootiso"/></emphasis>,
@@ -24,7 +24,7 @@
 
     <para>
     The file is also included at the root of the installation tree for the
-    published appliance, where it can be accessed during network boot (PXE)
+    published distribution, where it can be accessed during network boot (PXE)
     installations.
     </para>
 

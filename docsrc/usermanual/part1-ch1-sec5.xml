@@ -18,14 +18,14 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="appliance_file" xreflabel="appliance file">
+      <varlistentry id="system_definition" xreflabel="system definition">
         <term><emphasis role="strong">system definition
         file</emphasis></term>
 
         <listitem>
           <para>The information SystemBuilder uses to build, configure and store your
-          appliance. By convention the text file uses the <filename
-          class="extension">.appliance</filename> extension. The file uses XML
+          distribution. By convention the text file uses the <filename
+          class="extension">.xml</filename> extension. The file uses XML
           tagging as defined in the SDFR.</para>
         </listitem>
       </varlistentry>
@@ -35,10 +35,10 @@
         role="strong"><varname>$SYSTEMID</varname></emphasis></term>
 
         <listitem>
-          <para>The id for an appliance. The default value consists of the
+          <para>The id for an distribution. The default value consists of the
           <emphasis>/name</emphasis>, <emphasis>/version</emphasis> and
           <emphasis>/arch</emphasis> child elements of the
-          <emphasis>main</emphasis> TLE in the appliance file, e.g.
+          <emphasis>main</emphasis> TLE in the definition file, e.g.
           <varname>$NAME</varname>-<varname>$VERSION</varname>-<varname>$ARCH</varname>.</para>
         </listitem>
       </varlistentry>
@@ -56,7 +56,8 @@
         <term><emphasis role="strong">client system</emphasis></term>
 
         <listitem>
-          <para>The target system on which the appliance is installed.</para>
+          <para>The target system on which distribution contents are installed.
+          </para>
         </listitem>
       </varlistentry>
 
@@ -64,8 +65,8 @@
         <term><emphasis role="strong">download server</emphasis></term>
 
         <listitem>
-          <para>The machine from which client systems download the appliance.
-          It may be the build system.</para>
+          <para>The machine from which client systems download distribution
+          contents. It may be the build system.</para>
         </listitem>
       </varlistentry>
 
@@ -84,8 +85,8 @@
         <listitem>
           <para>Within a <application class="software">SystemBuilder</application>
           development - staging - production environment, it serves as the
-          download server from which clients retrieve the appliance to
-          install.</para>
+          download server from which clients retrieve the distribution contents
+          to install.</para>
         </listitem>
       </varlistentry>
 
@@ -95,8 +96,8 @@
         <listitem>
           <para>The development portion of a development - staging -
           production environment for a <application
-          class="software">SystemBuilder</application> appliance build management
-          system.</para>
+          class="software">SystemBuilder</application> distribution build
+          management system.</para>
         </listitem>
       </varlistentry>
 
@@ -107,7 +108,7 @@
           <para>The server within a development - staging - production
           environment that uses <application
           class="software">SystemBuilder</application> to build production-ready
-          appliance distributions for migration to the production, or
+          system distributions for migration to the production, or
           download, server.</para>
         </listitem>
       </varlistentry>
@@ -125,7 +126,7 @@
         <term><emphasis role="strong">top-level element</emphasis></term>
 
         <listitem>
-          <para>An element in the appliance file XML syntax that corresponds
+          <para>An element in the definition file XML syntax that corresponds
           to a SystemBuilder module. See Also <xref linkend="tle" />.</para>
         </listitem>
       </varlistentry>

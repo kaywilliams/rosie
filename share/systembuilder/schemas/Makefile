@@ -1,4 +1,4 @@
-SUBDIRS = appliance logos-rpm
+SUBDIRS = distribution logos-rpm
 
 .PHONY: all clean install
 

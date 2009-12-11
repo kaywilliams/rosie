@@ -131,7 +131,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
 
     # set up real logger - console and file
     self.logfile = ( pps.path(options.logfile)
-                     or self.appconfig.getpath('/appliance/main/log-file', None)
+                     or self.appconfig.getpath('/distribution/main/log-file', None)
                      or self.mainconfig.getpath('/spin/log-file', None)
                      or DEFAULT_LOG_FILE ).expand().abspath()
     try:
@@ -222,7 +222,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     self._lock = lock.Lock(Event.cache_handler.cache_dir/'spin.pid')
 
   def main(self):
-    "Build an appliance"
+    "Build an distribution"
     if self._lock.acquire():
       self._log_header()
       try:
@@ -241,10 +241,10 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
 
   def _get_config(self, options, arguments):
     """
-    Gets the main config and appliance configs based on option values.  Main
+    Gets the main config and distribution configs based on option values.  Main
     config file is optional; if not found, merely uses a set of default
-    values.  Appliance config is required, except in the event that the '-h' or
-    '--help' argument was given on the command line, in which case the appliance
+    values.  Distribution config is required, except in the event that the '-h' or
+    '--help' argument was given on the command line, in which case the distribution
     config file can be omitted or not exist.  (This previous allowance is so
     that a user can type `spin -h` on the command line without giving
     the '-c' option.)
@@ -337,7 +337,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     disabled = set(options.disabled_modules)
 
     # enable/disable modules from app config
-    for module in self.appconfig.xpath('/appliance/*'):
+    for module in self.appconfig.xpath('/distribution/*'):
       if module.tag == 'main': continue # main isn't a module
       if not module.getbool('@enabled', 'True'):
         disabled.add(module.tag)
@@ -374,8 +374,8 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     Event._config    = self.appconfig
 
     # set up base variables
-    di = Event.cvars['appliance-info'] = {}
-    qstr = '/appliance/main/%s/text()'
+    di = Event.cvars['distribution-info'] = {}
+    qstr = '/distribution/main/%s/text()'
 
     di['name']         = Event._config.get(qstr % 'name')
     di['version']      = Event._config.get(qstr % 'version')

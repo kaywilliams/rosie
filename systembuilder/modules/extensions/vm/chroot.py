@@ -18,7 +18,7 @@
 """
 chroot.py
 
-Creates a chroot based off of the appliance
+Creates a chroot based off of the distribution
 """
 
 import subprocess
@@ -35,7 +35,7 @@ from spin.modules.shared import vms
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['ChrootEvent'],
-  description = 'creates a chroot installation of the appliance',
+  description = 'creates a chroot installation of the distribution',
   group       = 'vm',
 )
 

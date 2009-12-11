@@ -31,7 +31,7 @@ from spin.logging   import L1
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PublishSetupEvent', 'PublishEvent'],
-  description = 'links appliance output to a publish location',
+  description = 'links distribution output to a publish location',
 )
 
 TYPE_DIR = pps.constants.TYPE_DIR
@@ -74,7 +74,7 @@ class PublishSetupEvent(Event):
         realm = get_ipaddr(ifname)
       except IOError, e:
         raise InterfaceIOError(ifname, str(e))
-    return 'http://'+realm+'/appliances'
+    return 'http://'+realm+'/distributions'
 
 # TODO - improve these, they're pretty vulnerable to changes in offsets and
 # the like

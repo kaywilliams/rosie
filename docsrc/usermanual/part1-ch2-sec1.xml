@@ -11,7 +11,7 @@
   class="software">Fedora</application> 10, <application
   class="software">CentOS</application> 5 or <application class="software">Red
   Hat Enterprise Linux</application> 5. The OS needs to include an http daemon
-  with the ability to host web-accessible appliances for download. If you're
+  with the ability to host web-accessible distributions for download. If you're
   using <application arch="" class="software">Apache</application>, the httpd
   configuration file directive &lt;Directory&gt; specifies the location of the
   default directory for http files.</para>
@@ -21,11 +21,11 @@
   class="directory">/var</filename> directory. <application
   class="software">SystemBuilder</application> uses the <filename
   class="directory">/var/cache</filename> directory during initial and
-  subsequent appliance builds and the <filename
+  subsequent distribution builds and the <filename
   class="directory">/var/www/html</filename> directory for hosting the
-  appliances for distribution. Consequently, the drive space allocated should
+  distributions. Consequently, the drive space allocated should
   be a minimum of 30GB. Depending upon the number and size of the applications
-  included in the appliance, you may need more disk space.</para>
+  included in the distribution, you may need more disk space.</para>
 
   <para>Disk access is another consideration. Due to the size of the files
   handled, fast disk access is preferable. To accommodate the speed
@@ -33,10 +33,10 @@
   Technology Attachment (SATA) interfaces.</para>
 
   <para>In addition to the SystemBuilder product, the SystemBuilder build system must have a web
-  server installed on it in order to distribute the appliance through the
+  server installed on it in order to make the distribution available through the
   network. For instructions on installing SystemBuilder and a web server and verifying
   that SystemBuilder is running correctly, see the "Getting Started Guide" on Rendition
   Software's web site.</para>
 
-  <para>Now you are ready to begin defining your appliance!</para>
+  <para>Now you are ready to begin defining your distribution!</para>
 </section>

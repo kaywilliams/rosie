@@ -2,7 +2,7 @@
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
 
-    <element name="appliance">
+    <element name="distribution">
     <optional>
       <element name="release-rpm">
 

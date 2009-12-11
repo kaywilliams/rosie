@@ -10,7 +10,7 @@
   <para>
   Each top-level element in the SDFR maps to a code module of the same
   name. Each code module is responsible for performing a single step in
-  the appliance build process.  Related modules are organized into 
+  the distribution build process.  Related modules are organized into 
   module groups. To obtain a list of all available modules and module 
   groups type
 

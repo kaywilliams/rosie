@@ -10,7 +10,7 @@
   perform a specialized function.</para>
 
   <section>
-    <title>Adding appliance release files</title>
+    <title>Adding distribution release files</title>
 
     <para>To add files for release, use the <emphasis>release-rpm</emphasis>
     TLE. The <emphasis>release-rpm/eula</emphasis> element includes one
@@ -57,10 +57,10 @@
 &lt;/release-rpm&gt;</programlisting>
       </informalexample></para>
 
-    <para>When installing the appliance on the client system, there are four
+    <para>When installing the distribution on the client system, there are four
     key paths for documentation or files you may provide, as listed in the
-    table below. The variable <varname>$NAME</varname> is the appliance name,
-    and <varname>$VERSION</varname> is the appliance's version; both values
+    table below. The variable <varname>$NAME</varname> is the distribution name,
+    and <varname>$VERSION</varname> is the distribution's version; both values
     are specified in the <emphasis>main</emphasis> TLE.</para>
 
     <para><table>
@@ -102,7 +102,7 @@
     <para>When creating the release rpms, normally files are copied onto all
     media; large files could take up a lot of disk space. To avoid this,
     include a file on a single disk media or at the root of the published
-    appliance directory using the <emphasis>release-files</emphasis> TLE. You
+    distribution directory using the <emphasis>release-files</emphasis> TLE. You
     may also want to include additional files, such as the kickstart
     files.</para>
   </section>

@@ -7,38 +7,36 @@
 
   <para>Just as in the SDLC you force or skip modules to test validity and
   results of code or a process, so too can you use <application
-  class="software">SystemBuilder</application> to do that with an appliance. As part of
-  the debugging or testing process for an appliance, you may want to save time
-  and disk space by skipping a step in the build process whose results are
-  more predictable and not necessary to determining the success or validity of
-  the appliance.</para>
+  class="software">SystemBuilder</application> to do that when building a
+  distribution. As part of the debugging or testing process for a distribution,
+  you may want to save time and disk space by skipping a step in the build
+  process whose results are more predictable and not necessary to determining
+  the success or validity of the distribution.</para>
 
   <para>As noted in Part I, <application class="software">SystemBuilder</application>
   utilizes modules and groups of modules during the build process. You can
-  affect the process by configuring their corresponding TLEs in the <filename
-  class="extension">.appliance</filename> file. <application
-  class="software">SystemBuilder</application> executes some of the modules whether
-  they are in the <filename class="extension">.appliance</filename> file or
-  not, while others are "extensions" and only execute when specifically
-  included or required by other modules. In the <filename
-  class="extension">.appliance</filename> file, the <emphasis>main</emphasis>
-  top-level element defines the basic appliance information (appliance name,
+  affect the process by configuring their corresponding TLEs in the distribution
+  definition. <application class="software">SystemBuilder</application> executes
+  some of the modules whether they are in the definition or
+  not, while others are "extensions" and only execute when specifically included
+  or required by other modules. In the definition, the <emphasis>main</emphasis>
+  top-level element defines the basic distribution information (name,
   version and architecture), while the <emphasis>repos</emphasis> and
   <emphasis>packages</emphasis> top-level elements expose their module
   namesakes and specify the repositories and what package groups to use in
-  creating the appliance.</para>
+  creating the distribution.</para>
 
   <para>Most individual modules are in groups, which you can also disable. The
   "packages" module group creates package repositories or interacts with them
   through other system files, <application class="software">GPG</application>
   check and sign, downloading <filename class="extension">RPM</filename>s and
   creating meta data. The "rpmbuild" module group creates <filename
-  class="extension">RPM</filename>s for your appliance
+  class="extension">RPM</filename>s for your distribution
   (<filename>config.rpm</filename> and <filename>release.rpm</filename>) and
   <command>rpmbuild</command> RPM metadata. The "installer" group creates core
   install <filename class="extension">IMG</filename> files. Miscellaneous
   individual modules manage the build system's hard disk space and build tree,
-  create boot disks, expose the appliance for download and retrieve source
+  create boot disks, expose the distribution for download and retrieve source
   <filename class="extension">RPM</filename>s. For a list of the module
   groups, use the <command>systembuilder</command> command with the
   <option>--list-modules</option> option.</para>
@@ -52,13 +50,13 @@
   <emphasis>gpgsign</emphasis>, <emphasis>iso</emphasis>,
   <emphasis>kickstart</emphasis>, <emphasis>updates-image</emphasis> and
   <emphasis>sources</emphasis>. To execute these modules, you can either
-  include them in the <filename class="extension">.appliance</filename> file
+  include them in the definition file
   or use the <command>systembuilder</command> command with the <option>--force
   $MODULE</option> option, where <varname>$MODULE</varname> is the name of a
   module.</para>
 
   <para>There are two methods to skip execution of a module. Within the
-  <filename class="extension">.appliance</filename> file, you can disable a
+  definition file, you can disable a
   module by setting to FALSE the <emphasis>/@enabled</emphasis> attribute of
   any group or a module exposed through a TLE. You can use the same method to
   skip execution of a module group. Another method is to use the

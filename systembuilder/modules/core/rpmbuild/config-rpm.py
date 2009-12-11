@@ -47,7 +47,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     RpmBuildMixin.__init__(self,
       '%s-config' % self.name,
       "The %s-config provides scripts and supporting files for configuring "
-      "the %s appliance." % (self.name, self.fullname),
+      "the %s distribution." % (self.name, self.fullname),
       "%s configuration script and supporting files" % self.fullname,
       requires = ['coreutils', 'policycoreutils']
     )
@@ -121,8 +121,8 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
 
     lines = []
 
-    # include a repo pointing to the published appliance
-    if ( self.config.getbool('repofile/@appliance', 'True') and
+    # include a repo pointing to the published distribution
+    if ( self.config.getbool('repofile/@distribution', 'True') and
          self.cvars['web-path'] is not None ):
       lines.extend([ '[%s]' % self.name,
                      'name      = %s - %s' % (self.fullname, self.basearch),
@@ -136,7 +136,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
         lines.append('gpgcheck = 0')
       lines.append('')
 
-    # include repo(s) pointing to appliance inputs
+    # include repo(s) pointing to distribution inputs
     if self.config.getbool('repofile/@input', 'False'):
       for repo in self.cvars['repos'].values():
         try:

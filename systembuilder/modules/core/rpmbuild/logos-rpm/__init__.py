@@ -74,14 +74,14 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
 
     self.anaconda_pixmaps = self.rpm.source_folder / 'usr/share/anaconda/pixmaps'
 
-    self._appliance_info = None
+    self._distribution_info = None
 
   @property
-  def appliance_info(self):
-    if self._appliance_info is not None:
-      return self._appliance_info
+  def distribution_info(self):
+    if self._distribution_info is not None:
+      return self._distribution_info
     try:
-      self._appliance_info = self.locals.L_LOGOS_RPM_APPLIANCE_INFO
+      self._distribution_info = self.locals.L_LOGOS_RPM_APPLIANCE_INFO
     except KeyError:
       fullname = self.cvars['base-info']['fullname']
       version  = self.cvars['base-info']['version']
@@ -91,13 +91,13 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
         for ver in L_LOGOS_RPM_INFO[fullname]:
           if version.startswith(ver):
             found = True
-            self._appliance_info = L_LOGOS_RPM_APPLIANCE_INFO[fullname][ver]
+            self._distribution_info = L_LOGOS_RPM_APPLIANCE_INFO[fullname][ver]
             break
       if not found:
-        # if not one of the "officially" supported appliances, default
+        # if not one of the "officially" supported distributions, default
         # to something
-        self._appliance_info = L_LOGOS_RPM_INFO['*']['0']
-    return self._appliance_info
+        self._distribution_info = L_LOGOS_RPM_INFO['*']['0']
+    return self._distribution_info
 
   #-------- EVENT METHODS --------#
   def setup(self):
@@ -162,29 +162,29 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
     self._generate_splash_image()
 
   def get_post(self):
-    if 'post-install' not in self.appliance_info:
+    if 'post-install' not in self.distribution_info:
       return None
     post_install = self.rpm.build_folder / 'post-install.sh'
-    post_install.write_text(self.appliance_info['post-install'])
+    post_install.write_text(self.distribution_info['post-install'])
     return post_install
 
   def get_postun(self):
-    if 'post-uninstall' not in self.appliance_info:
+    if 'post-uninstall' not in self.distribution_info:
       return None
     post_uninstall = self.rpm.build_folder / 'post-uninstall.sh'
-    post_uninstall.write_text(self.appliance_info['post-uninstall'])
+    post_uninstall.write_text(self.distribution_info['post-uninstall'])
     return post_uninstall
 
   def get_triggers(self):
     triggers = TriggerContainer()
-    for triggerid in self.appliance_info.get('triggers', {}):
+    for triggerid in self.distribution_info.get('triggers', {}):
       trigger = Trigger(triggerid)
-      triggerin = self.appliance_info['triggers'][triggerid].get('triggerin', None)
+      triggerin = self.distribution_info['triggers'][triggerid].get('triggerin', None)
       if triggerin is not None:
         script = self.rpm.build_folder / '%s-triggerin.sh' % triggerid
         script.write_text(triggerin % {'rpm_name': self.rpm.name})
         trigger.setdefault('triggerin_scripts', []).append(script)
-      triggerun = self.appliance_info['triggers'][triggerid].get('triggerun', None)
+      triggerun = self.distribution_info['triggers'][triggerid].get('triggerun', None)
       if triggerun is not None:
         script = self.rpm.build_folder / '%s-triggerun.sh' % triggerid
         script.write_text(triggerun % {'rpm_name': self.rpm.name})

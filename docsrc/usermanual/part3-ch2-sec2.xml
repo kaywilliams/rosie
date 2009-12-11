@@ -5,12 +5,12 @@
   <title>Using Scripts and Triggers</title>
 
   <para>Scripts and triggers enable you to control your client's environment
-  to a great degree. To include these in your appliance, use the
+  to a great degree. To include these in your distribution, use the
   <emphasis>config-rpm</emphasis> TLE in your
   <filename>samber-server.xml</filename> file.</para>
 
-  <para>The program that installs your appliance on the client system actually
-  runs scripts depending upon one of several possible situations. Include
+  <para>The program that installs RPMs on the client system
+  actually runs scripts depending upon one of several possible situations. Include
   these scripts using <emphasis>config-rpm/scripts</emphasis> in your
   system definition file. Commonly referred to by their installation script
   markers in an RPM spec file, the scripts execute prior to or following

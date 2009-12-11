@@ -178,7 +178,7 @@ class SpinImageCreatorMixin:
     return i,r,u
 
   def _check_required_packages(self):
-    # raise an exception if appliance doesn't include all required packages
+    # raise an exception if distribution doesn't include all required packages
     pass
 
   def _get_pkglist_names(self):

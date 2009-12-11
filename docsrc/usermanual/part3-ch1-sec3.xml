@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Verifying Appliance Package Integrity</title>
+  <title>Verifying System Distribution Package Integrity</title>
 
   <para>Verifying package integrity using GPG is a secure way of ensuring that
   you have downloaded the correct set of data; if the key matches the
@@ -32,10 +32,10 @@
   <section>
     <title>Signing your packages</title>
 
-    <para>To authenticate your appliance RPMs, you can also sign them and
+    <para>To authenticate your distribution RPMS, you can also sign them and
     provide a password in your <filename>samber-server.xml</filename>
     file. Use the <emphasis>gpgsign/secret-key</emphasis> for exported,
-    armored GPG secret key that signs your appliance and
+    armored GPG secret key that signs your distribution and
     <emphasis>gpgsign/public-key</emphasis> to enter the exported, armored GPG
     public key file that matches the <emphasis>/secret-key</emphasis>. You may
     enter a password in plain text form using the
@@ -60,6 +60,6 @@
 
     <para>Since all <application class="software">RedHat</application>
     repositories have a GPG key for the distributions, you may want to sign
-    and key any new appliance repository as standard practice.</para>
+    and key any new distribution repository as standard practice.</para>
   </section>
 </section>

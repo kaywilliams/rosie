@@ -67,7 +67,7 @@
 </refsynopsisdiv>
 
 <refsect1 id="systembuilder.1-description"><title>DESCRIPTION</title>
-<para>Builds the appliance defined in the file at SYSTEM_DEFINITION. Updates the appliance if it exists.</para>
+<para>Builds the distribution defined in the file at SYSTEM_DEFINITION. Updates the distribution if it exists.</para>
 </refsect1>
 
 <refsect1 id="systembuilder.1-usage"><title>USAGE</title>
@@ -116,7 +116,7 @@
 <varlistentry>
   <term><option>--list-modules</option></term>
   <listitem>
-    <para> Displays a list of SystemBuilder modules including name, description, and child modules, then exits without building the appliance.</para>
+    <para> Displays a list of SystemBuilder modules including name, description, and child modules, then exits without building the distribution.</para>
   </listitem>
 </varlistentry>
 
@@ -174,7 +174,7 @@
 <varlistentry>
   <term><option>--validate-only</option></term>
   <listitem>
-<para>Performs SYSTEMBUILDER_CONF and SYSTEM_DEFINITION validation only; it does not build the appliance.  The option also displays the complete SYSTEM_DEFINITION file after resolving macro and include elements.</para>
+<para>Performs SYSTEMBUILDER_CONF and SYSTEM_DEFINITION validation only; it does not build the distribution.  The option also displays the complete SYSTEM_DEFINITION file after resolving macro and include elements.</para>
   </listitem>
 </varlistentry>
 
@@ -210,7 +210,7 @@
 
 <refsect1 id="systembuilder.1-modules"><title>MODULES</title>
 <para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the systembuilder command.</para>
-<para>On subsequent builds of the same appliance, SystemBuilder automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using <command>--skip</command> and <command>--force</command> systembuilder command options.</para>
+<para>On subsequent builds of the same distribution, SystemBuilder automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using <command>--skip</command> and <command>--force</command> systembuilder command options.</para>
 <para>Developers can write custom SystemBuilder modules and direct SystemBuilder to use them via the <command>--lib-path</command> systembuilder command option.</para>
 </refsect1>
 

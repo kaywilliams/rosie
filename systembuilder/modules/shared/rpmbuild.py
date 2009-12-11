@@ -175,7 +175,7 @@ class RpmBuildObject:
   def setup_build(self, **kwargs):
     if self.autofile.exists():
       self.release = rxml.config.read(self.autofile).get(
-       '/appliance/%s/rpms/%s/release/text()' %
+       '/distribution/%s/rpms/%s/release/text()' %
        (self.ptr.systemid, self.ptr.id), '0')
     else:
       self.release = '0'
@@ -207,9 +207,9 @@ class RpmBuildObject:
 
   def save_release(self):
     if self.autofile.exists():
-      root = rxml.config.read(self.autofile).get('/appliance')
+      root = rxml.config.read(self.autofile).get('/distribution')
     else:
-      root = rxml.config.Element('appliance')
+      root = rxml.config.Element('distribution')
 
     sysid    = rxml.config.uElement(self.ptr.systemid, parent=root)
     rpms     = rxml.config.uElement('rpms', parent=sysid)
@@ -219,7 +219,7 @@ class RpmBuildObject:
     root.write(self.autofile)
 
     if self.ptr._config.file.exists():
-      # set the mode and ownership of .dat file to match appliance_file.
+      # set the mode and ownership of .dat file to match distribution_file.
       st = self.ptr._config.file.stat()
       self.autofile.chown(st.st_uid, st.st_gid)
       self.autofile.chmod(st.st_mode)

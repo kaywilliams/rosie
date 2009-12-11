@@ -51,7 +51,7 @@
     <emphasis role="strong">logos-rpm</emphasis> XML configuration syntax
     can be found in <filename>/usr/share/systembuilder/logos-rpm/systembuilder-logos</filename>.
     For more information about incorporating branding images into a SystemBuilder
-    appliance, see the
+    distribution, see the
     <emphasis role="strong"><xref linkend="logos-rpm" /></emphasis> top-level
     element.
     </para>
@@ -70,7 +70,7 @@
       the same <emphasis>@dest</emphasis> value are sorted based on their
       <emphasis>@anaconda-version</emphasis>; the element with the highest
       anaconda version that is not newer than the anaconda version in the
-      appliance being built is used and all others are ignored. If two or
+      distribution being built is used and all others are ignored. If two or
       more elements have the same destination and anaconda version, the
       latest one in the file is used.
       </para>
@@ -579,7 +579,7 @@
           <listitem>
           <para>
           The <varname>TEXT</varname> to write to the image. The text value
-          of the appliance file's <emphasis>main/*</emphasis> elements may
+          of the distribution file's <emphasis>main/*</emphasis> elements may
           be included using <constant>%{$element}</constant>, where
           <varname>$element</varname> is the name of the child element from
           which to retrieve the text value.
@@ -687,7 +687,7 @@
       type (see
       <emphasis role="strong"><xref linkend="logos-rpm" /></emphasis>'s
       <emphasis>include-xwindows-art</emphasis> element). The fourth removes
-      the specified destionation file for appliances using anaconda versions
+      the specified destionation file for distributions using anaconda versions
       11.3.0.36-1 or later.
       </para>
 
@@ -737,7 +737,7 @@
       in "png" format with a gray background. The image contains the text
       from the <emphasis>main/fullname</emphasis>,
       <emphasis>main/version</emphasis>, and
-      <emphasis>main/copyright</emphasis> elements from the appliance file.
+      <emphasis>main/copyright</emphasis> elements from the distribution file.
       </para>
 
       <informalexample>

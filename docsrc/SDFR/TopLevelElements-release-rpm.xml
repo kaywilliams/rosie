@@ -13,12 +13,12 @@
     </title>
 
     <para>
-    Creates an RPM used to install and update appliance-specific 
+    Creates an RPM used to install and update distribution-specific 
     release files on the client system.  The name of the RPM is 
     <filename>$NAME-release</filename>, where $NAME is taken from the 
     value of the <xref linkend="main-arch" /> element. The release RPM 
-    contains files such as the EULA, appliance release notes, and 
-    appliance documentation in HTML format.
+    contains files such as the EULA, distribution release notes, and 
+    distribution documentation in HTML format.
     </para>
 
     <para>
@@ -79,7 +79,7 @@
 
       <listitem>
       <para>The <varname>PATH</varname> to a folder or file containing
-      additional documentation files to include in the appliance.
+      additional documentation files to include in the distribution.
       Typical files to include are <filename>AUTHOR</filename>,
       <filename>LICENSE</filename>, <filename>COPYRIGHT</filename>,
       <filename>README</filename>, etc. Can occur zero or more 
@@ -125,7 +125,7 @@
       <listitem>
       <para>
       The <varname>PATH</varname> to a file or folder containing the EULA
-      of the appliance. Can occur zero or more times.
+      of the distribution. Can occur zero or more times.
       </para>
 
       <para>
@@ -208,7 +208,7 @@
       <listitem>
       <para>
       The <varname>PATH</varname> to a file or folder containing
-      HTML documentation files for the appliance. Can occur zero 
+      HTML documentation files for the distribution. Can occur zero 
       or more times.
       </para>
 

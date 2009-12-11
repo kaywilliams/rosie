@@ -38,7 +38,7 @@ deployment and maintenance using compact, flexible, reliable
 system distributions. See http://www.renditionsoftware.com for
 more information. 
 
-Note: Customers who create appliances based on RHEL will need to
+Note: Customers who create distributions based on RHEL will need to
 separately purchase RHEL subscriptions for all installed systems.
 
 %prep

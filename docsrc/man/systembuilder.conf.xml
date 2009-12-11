@@ -84,7 +84,7 @@
 <varlistentry>
   <term><option>path</option></term>
   <listitem>
-<para>The <literal>path</literal> child element specifies where SystemBuilder stores both shared and per appliance cache data.  The default is <filename>/var/cache/systembuilder</filename>.
+<para>The <literal>path</literal> child element specifies where SystemBuilder stores both shared and per distribution cache data.  The default is <filename>/var/cache/systembuilder</filename>.
 </para>
 <programlisting>
 &lt;cache&gt;
@@ -127,7 +127,7 @@
 <varlistentry>
   <term>CACHEDIR</term>
   <listitem>
-    <para>CACHEDIR is the directory location where SystemBuilder stores shared and per-appliance cache data.</para>
+    <para>CACHEDIR is the directory location where SystemBuilder stores shared and per-distribution cache data.</para>
   </listitem>
 </varlistentry>
 

@@ -110,12 +110,12 @@
         <listitem>
           <para>Elements and attributes in XML are referred to by their XPath
           equivalents. The active node is always considered to be the root,
-          appliance; thus, the first element in the XPath expression is the
+          distribution; thus, the first element in the XPath expression is the
           top-level element, while subsequent elements/attributes are its
           children. Top-level elements in the SDFR and their child elements
           use the <emphasis>parent/child/child</emphasis> format, while
           <emphasis>@attribute-names</emphasis> are preceded by an @ symbol.
-          The assumed parent element is <emphasis>appliance</emphasis>. For
+          The assumed parent element is <emphasis>distribution</emphasis>. For
           more details on XPath syntax, see <ulink
           url="http://www.w3.org/TR/xpath.html">XML Path Language</ulink>.
           </para>
@@ -152,8 +152,7 @@
           <para>Critical items appear with an "Important" set off tag: <para>
               <important>
                 <para>The <emphasis>main</emphasis> top-level element is
-                required for a <filename
-                class="extension">.appliance</filename> file.</para>
+                required.</para>
               </important>
             </para></para>
         </listitem>
@@ -163,7 +162,7 @@
         <term><emphasis role="strong">Notes</emphasis></term>
 
         <listitem>
-          <para>Within appliance file examples, the traditional XML comment
+          <para>Within definition file examples, the traditional XML comment
           tags "&lt;!--" and "--&gt;" contain notes. See Also <xref
           linkend="example" /> .</para>
 
@@ -232,8 +231,9 @@ $ precedes lines entered as a normal user</programlisting>
 
           <para><itemizedlist>
               <listitem>
-                <para>"What Does SystemBuilder Do?" explains what an appliance is, how
-                <application class="software">SystemBuilder</application> helps you
+                <para>"What Does SystemBuilder Do?" explains what a distribution
+                is, how <application class="software">SystemBuilder
+                </application> helps you
                 build it in a more efficient timely manner and the underlying
                 architecture that makes this improved performance possible.
                 The section also includes a "Glossary of Terms" explaining
@@ -244,19 +244,19 @@ $ precedes lines entered as a normal user</programlisting>
               <listitem>
                 <para>"Basic Usage: Getting the Job Done," covers the basic
                 concepts for configuring the <application
-                class="software">SystemBuilder</application> build system, defining and
-                deploying an appliance, running <application
-                class="software">SystemBuilder</application> and updating an appliance.
-                As a use case model, these sections will help you create a
-                basic <application class="software">Samba</application> server
-                appliance based on CentOS 5.</para>
+                class="software">SystemBuilder</application> build system,
+                defining and deploying a distribution, running <application
+                class="software">SystemBuilder</application> and updating a
+                distribution. As a use case model, these sections will help you
+                create a basic <application class="software">Samba</application>
+                server distribution based on CentOS 5.</para>
               </listitem>
             </itemizedlist></para>
         </listitem>
 
         <listitem>
-          <para>Part II, "Robust Appliance Management," will help you set up a
-          managed appliance development and deployment environment using SystemBuilder
+          <para>Part II, "Robust Distribution Management," will help you set up
+          a managed development and deployment environment using SystemBuilder
           as its cornerstone.</para>
 
           <itemizedlist>
@@ -264,43 +264,43 @@ $ precedes lines entered as a normal user</programlisting>
               <para>"Why Use SystemBuilder as part of a Production Environment?"
               explains implementing the development - staging - production
               environment within the content of building and deploying
-              appliances using <application
-              class="software">SystemBuilder</application>. The Samba server appliance
-              you created in Part I will have new features requirements to
-              implement in Part II.</para>
+              distributions using <application
+              class="software">SystemBuilder</application>. The Samba server
+              distribution you created in Part I will have new features
+              requirements to implement in Part II.</para>
             </listitem>
 
             <listitem>
               <para>"Utilizing SystemBuilder within the Development - Staging -
               Production climate" discusses how SystemBuilder makes your life easier as
-              a system or build administrator. Versioning appliance files and
+              a system or build administrator. Versioning distribution files and
               utilizing an object-oriented model through the XInclude
-              mechanism for the appliance files are important usability
+              mechanism for the distribution definitions are important usability
               features. Choosing the best location for storing and downloading
-              an appliance via the web is another key concept.</para>
+              a distribution via the web is another key concept.</para>
             </listitem>
           </itemizedlist>
         </listitem>
 
         <listitem>
-          <para>Part III, "Advanced Appliance Concepts," will help you
-          customize your appliances.</para>
+          <para>Part III, "Advanced System Distribution Concepts," will help you
+          customize your distributions.</para>
 
           <para><itemizedlist>
               <listitem>
-                <para>"Desiging the Appliance" targets the advanced system
+                <para>"Desiging the Distribution" targets the advanced system
                 administrator, describing how to add custom release
                 files.</para>
               </listitem>
 
               <listitem>
-                <para>"Managing Appliance Packages" discusses GPG checking and
+                <para>"Managing Distribution Packages" discusses GPG checking and
                 using GPG keys to sign your own packages.</para>
               </listitem>
 
               <listitem>
-                <para>"Booting Up an Appliance" gives you the opportunity to
-                flex your automation muscles by implementing boot-up and
+                <para>"Automating System Installation" gives you the opportunity
+                to flex your automation muscles by implementing boot-up and
                 kickstart files. Creating different images is another advanced
                 feature.</para>
               </listitem>

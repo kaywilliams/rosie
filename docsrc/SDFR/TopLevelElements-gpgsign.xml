@@ -13,7 +13,7 @@
     </title>
 
     <para>
-    Directs SystemBuilder to sign the appliance's packages with the specified GPG
+    Directs SystemBuilder to sign the distribution's packages with the specified GPG
     key.
     </para>
 
@@ -78,9 +78,9 @@
 
       <note>
       <para>
-      Remember that if the passphrase is stored in the appliance file, anyone
+      Remember that if the passphrase is stored in the distribution file, anyone
       with read access to the file can retrieve it. Be sure to take the
-      appropriate steps, whether by limiting read access to the appliance
+      appropriate steps, whether by limiting read access to the distribution
       file or entering the passphrase at the prompt.
       </para>
       </note>
@@ -96,7 +96,7 @@
       <para>
       The <varname>PATH</varname> to the exported, armored GPG public key
       that corresponds to the secret key used to sign the packages in this
-      appliance.
+      distribution.
       </para>
       </listitem>
     </varlistentry>
@@ -109,7 +109,7 @@
       <listitem>
       <para>
       The <varname>PATH</varname> to the exported, armored GPG secret key
-      with which to sign appliance packages.
+      with which to sign distribution packages.
       </para>
       </listitem>
     </varlistentry>

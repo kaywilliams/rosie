@@ -39,7 +39,7 @@ P = pps.Path
 def main():
   parser = OptionParser("usage: %prog [OPTIONS] SYSTEM_DEFINITION",
                         formatter=CleanHelpFormatter(),
-                        description="build the appliance defined in the "
+                        description="build the distribution defined in the "
                                     "system definition file located at "
                                     "SYSTEM_DEFINITION"
                         )

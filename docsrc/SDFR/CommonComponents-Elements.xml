@@ -55,7 +55,7 @@
         <listitem>
         <para>
         If the <emphasis role="strong">kickstart</emphasis> top-level element
-        is present in this appliance file, this macro will be replaced by
+        is present in this definition file, this macro will be replaced by
         the string <constant>ks=$path</constant>, where
         <varname>$path</varname> is the path to the kickstart file on the
         installation image. If the <emphasis role="strong">kickstart</emphasis>
@@ -73,7 +73,7 @@
         <para>
         This macro will be replaced by the string
         <constant>method=$path</constant>, where <varname>$path</varname>
-        is the remote URL to the appliance's published output directory,
+        is the remote URL to the distribution's published output directory,
         as determined by the
         <emphasis role="strong"><xref linkend="publish"/></emphasis>
         module.
@@ -126,7 +126,7 @@
 
       <para>
       In the following examples, the default set of kernel arguments
-      is <constant>method=http://server/appliances/myappliance/os</constant> 
+      is <constant>method=http://server/distributions/mydistribution/os</constant> 
       and <constant>ks=ks.cfg</constant>.
       </para>
 
@@ -148,7 +148,7 @@
 
         The final set of kernel append arguments is
 
-        <literallayout>method=http://server/appliances/myappliance/os ks=ks.cfg noipv6</literallayout>
+        <literallayout>method=http://server/distributions/mydistribution/os ks=ks.cfg noipv6</literallayout>
         </para>
       </section>
 
@@ -171,7 +171,7 @@
 
       The final set of kernel append arguments is
 
-        <literallayout>method=http://server/appliances/myappliance/os noipv6</literallayout>
+        <literallayout>method=http://server/distributions/mydistribution/os noipv6</literallayout>
         </para>
       </section>
 
@@ -264,7 +264,7 @@
       <varname>PATH</varname>-like elements generally are used to copy an
       input file to some other location, such as within a disk image,
       into a RPM in order to be installed to a specific location on client
-      systems, or into a folder within the appliance tree itself.
+      systems, or into a folder within the distribution tree itself.
       A <varname>PATH</varname>-like element's text value is the
       <varname>PATH</varname> to some file <varname>$input</varname> to use,
       while the <emphasis>@destdir</emphasis>,
@@ -567,7 +567,7 @@ baseurl=/var/repos/repoC
         <listitem>
         <para>
         A unique one-word <varname>ID</varname> representing this
-        repository within a particular appliance. Corresponds to the
+        repository within a particular distribution. Corresponds to the
         <varname>repositoryid</varname> of a repository in a YUM
         repofile.
         </para>
@@ -625,7 +625,7 @@ baseurl=/var/repos/repoC
         <varname>BOOLEAN</varname> value indicating whether this
         repository should be enabled or not. Disabled repositories
         are ignored by SystemBuilder when looking for packages to include in
-        the appliance.
+        the distribution.
         </para>
 
         <para>
@@ -813,7 +813,7 @@ baseurl=/var/repos/repoC
       In the following examples, line breaks have been added to the
       <emphasis>repo/baseurl</emphasis> and
       <emphasis>repo/mirrorlist</emphasis> lines to improve readability.
-      In a real appliance file, however, line breaks within
+      In a real distribution definition, however, line breaks within
       <varname>PATH</varname>-like elements are not allowed.
       </para>
 

@@ -8,57 +8,57 @@
 
   <para>
   The system definition file contains instructions for building a
-  Linux operating system distribution, or appliance. It defines appliance 
+  Linux operating system distribution, or distribution. It defines distribution 
   content and configuration, including name, version, and architecture; package
   repository locations; which packages to include; and the locations of 
-  configuration scripts, files and custom graphics. SystemBuilder uses the appliance file
-  to assemble, create and publish the appliance. Other programs, such as
+  configuration scripts, files and custom graphics. SystemBuilder uses the distribution file
+  to assemble, create and publish the distribution. Other programs, such as
   <application class="software">YUM</application>,
   <application class="software">Anaconda</application>, and
   <application class="software">RPM</application>
   use files created by <application class="software">SystemBuilder</application>
-  to install and update the appliance on the client system.
+  to install and update the distribution on the client system.
   </para>
 
   <para>
-  The appliance file is a text-based file in XML format. Within the
+  The distribution file is a text-based file in XML format. Within the
   file are a series of top-level elements that equate to
-  modules, or steps, within the appliance build process. These elements,
+  modules, or steps, within the distribution build process. These elements,
   in turn, contain their own attributes and elements. There are three
   required top-level elements:
   <emphasis role="strong"><xref linkend="main" /></emphasis>,
   <emphasis role="strong"><xref linkend="repos" /></emphasis>, and
   <emphasis role="strong"><xref linkend="packages" /></emphasis>;
   all other top-level elements are optional. Top-level elements can appear
-  in the appliance file in any order. Indentation is for readability
+  in the distribution file in any order. Indentation is for readability
   purposes only.
   </para>
 
   <para>
-  The appliance file has full support of XML Inclusions (XIncludes). Please
+  The distribution file has full support of XML Inclusions (XIncludes). Please
   refer to the <ulink url="http://www.w3.org/TR/xinclude/">XInclude Technical
   Report</ulink> for more information.
   </para>
 
   <para>
-  An appliance file can be located in any local directory and invoked from the
+  An distribution file can be located in any local directory and invoked from the
   command line using the command <command>systembuilder</command> followed by the full
   or relative pathname to the file, such as:
   </para>
 
   <informalexample>
   <programlisting>
-<command>systembuilder</command> /path/to/appliance/file
+<command>systembuilder</command> /path/to/distribution/file
   </programlisting>
   </informalexample>
 
   <section>
     <title>
-    Basic appliance file example
+    Basic distribution file example
     </title>
 
     <para>
-    Here is a basic example appliance file based on a CentOS 5 distribution.
+    Here is a basic example distribution file based on a CentOS 5 distribution.
     </para>
 
     <informalexample>

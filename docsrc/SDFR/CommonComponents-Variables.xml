@@ -3,7 +3,7 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="CommonComponents-variables">
 
-  <section id="variable-appliance-id"
+  <section id="variable-distribution-id"
            xreflabel="\$SYSTEMID">
     <title>
     Variable: <varname>$SYSTEMID</varname>
@@ -15,7 +15,7 @@
       </title>
 
       <para>
-      The unique id of an appliance. Value is obtained from the
+      The unique id of an distribution. Value is obtained from the
       <xref linkend="main-id" />  element, if present; otherwise the
       default value is <constant>$NAME-$VERSION-$ARCH</constant>.
       </para>
@@ -46,7 +46,7 @@
       </title>
 
       <para>
-      The architecture for the appliance. Value is obtained from the 
+      The architecture for the distribution. Value is obtained from the 
       <xref linkend="main-arch" /> element.
       </para>
     </section>
@@ -64,7 +64,7 @@
       </title>
 
       <para>
-      The name for the appliance. Value is obtained from the
+      The name for the distribution. Value is obtained from the
       <xref linkend="main-name" /> element.
       </para>
 
@@ -83,7 +83,7 @@
       </title>
 
       <para>
-      The version for the appliance. Value is obtained from the
+      The version for the distribution. Value is obtained from the
       <xref linkend="main-version" /> element.
       </para>
     </section>

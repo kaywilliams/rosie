@@ -18,7 +18,7 @@
     </title>
 
     <para>
-    Specifies the packages to be included in the appliance and to be
+    Specifies the packages to be included in the distribution and to be
     installed by default in any images created by SystemBuilder.
     </para>
 
@@ -96,10 +96,10 @@
 
       <note><application class="software">SystemBuilder</application> excludes
       specified packages from any included groups, but they may still be
-      included in the appliance repository to satisfy to package dependency 
+      included in the distribution repository to satisfy to package dependency 
       requirements.  See Also 
       <xref linkend="repo-including-excluding-repository-contents" />
-      for information on excluding packages from the appliance
+      for information on excluding packages from the distribution
       itself.</note>
 
       </listitem>
@@ -112,7 +112,7 @@
       </term>
 
       <listitem>
-      <para>The unique ID of a group to include in the appliance
+      <para>The unique ID of a group to include in the distribution
       using one or more of the repository groupfiles indicated by the
       <emphasis>@repoid</emphasis> attributes as a source.
       </para>
@@ -147,7 +147,7 @@
 
       <listitem>
       <para>
-      The name of a package to be included in the appliance. All packages
+      The name of a package to be included in the distribution. All packages
       included in this way are added to a new group with the name
       <constant>$NAME-packages</constant>. If the <varname>TEXT</varname>
       value contains globbing characters, all matching packages from all
@@ -172,8 +172,8 @@
     </title>
 
     <para>
-    In the following example, the appliance's <varname>$NAME</varname> is
-    "example". The appliance that SystemBuilder generates will include
+    In the following example, the distribution's <varname>$NAME</varname> is
+    "example". The distribution that SystemBuilder generates will include
     several groups from the groupfiles of its input repositories as well as
     a few individual packages. The "base" and "core" groups  will be created
     using the "centos-base" repository as the source; all remaining groups

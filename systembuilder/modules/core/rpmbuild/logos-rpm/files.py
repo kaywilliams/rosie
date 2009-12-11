@@ -70,7 +70,7 @@ class FilesHandlerObject(object):
       return self._config_files
     self._config_files = []
 
-    systemid = self.ptr.appliance_info['systemid']
+    systemid = self.ptr.distribution_info['systemid']
 
     dirs = set()
     for path in self.ptr.SHARE_DIRS:
@@ -127,7 +127,7 @@ class FilesHandlerObject(object):
       else:
         # create image
         img = Image.new('RGB', (info.get('width', 640), info.get('height', 480)),
-                        info.get('background', self.ptr.appliance_info['background']))
+                        info.get('background', self.ptr.distribution_info['background']))
         dst.dirname.mkdirs()
         img.save(dst, info.get('format', 'png'))
 
@@ -140,7 +140,7 @@ class FilesHandlerObject(object):
     img = Image.open(image)
     draw = ImageDraw.Draw(img)
     for i in strings:
-      text_string     = i.get('text', '') % self.ptr.cvars['appliance-info']
+      text_string     = i.get('text', '') % self.ptr.cvars['distribution-info']
       text_coords     = (i.get('x-position', img.size[0]/2),
                          i.get('y-position', img.size[1]/2))
       text_max_width  = i.get('text-max-width', img.size[0])

@@ -30,7 +30,7 @@ from spin.modules.shared import comps
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PackagesEvent'],
-  description = 'defines the required packages and groups for the appliance',
+  description = 'defines the required packages and groups for the distribution',
   group       = 'repocreate',
 )
 
@@ -196,7 +196,7 @@ class PackagesEvent(Event):
     app_group = comps.Group()
     app_group.name        = self.app_gid
     app_group.groupid     = app_group.name
-    app_group.description = 'required %s appliance rpms' % self.fullname
+    app_group.description = 'required %s distribution rpms' % self.fullname
     app_group.default     = True
 
     # add packages

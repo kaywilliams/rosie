@@ -33,7 +33,7 @@ from spin.modules.shared import vms
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['LivecdEvent'],
-  description = 'creates an appliance livecd',
+  description = 'creates an distribution livecd',
   group       = 'vm',
 )
 
@@ -131,5 +131,5 @@ class SpinLiveImageCreator(vms.SpinImageCreatorMixin,
     imgcreate.LiveImageCreator.package(self, destdir=destdir)
 
 class SyslinuxRequiredError(SpinError):
-  message = ( "Creating an appliance livecd requires that the 'syslinux' "
-              "package be included in the appliance." )
+  message = ( "Creating an distribution livecd requires that the 'syslinux' "
+              "package be included in the distribution." )

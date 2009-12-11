@@ -5,24 +5,25 @@
   <title>Tying it All Together</title>
 
   <para>In summary, there are five steps to creating a successful
-  appliance.</para>
+  distribution.</para>
 
   <para>First, you configure the <application
-  class="software">SystemBuilder</application> build system to accommodate the size and
-  number of appliances you will build and store concurrently for download at
-  any single time. The system should be accessible through your local network.
+  class="software">SystemBuilder</application> build system to accommodate the
+  size and number of distributions you will build and store concurrently for
+  download at any single time. The system should be accessible through your
+  local network.
   After configuring the hardware, you can install one of the <application
   class="software">Linux </application>OS versions on which <application
   class="software">SystemBuilder</application> runs.</para>
 
-  <para>Then you define your appliance in the <filename
+  <para>Then you define your distribution in the <filename
   class="extension">samber-server.xml</filename> file using XML tags
-  defined in the SDFR. Your appliance recipe includes several key pieces of
+  defined in the SDFR. Your definition includes several key pieces of
   information:</para>
 
   <para><itemizedlist>
       <listitem>
-        <para>the name of the appliance, its version and architecture;</para>
+        <para>the name of the distribution, its version and architecture;</para>
       </listitem>
 
       <listitem>
@@ -36,14 +37,14 @@
       </listitem>
 
       <listitem>
-        <para>custom appliance configuration files and required packages
+        <para>custom system configuration files and required packages
         outside the standard application groups.</para>
       </listitem>
     </itemizedlist></para>
 
   <para>Once the system definition is complete, you log on as the root user
   and execute the command <userinput>systembuilder samber-server.xml</userinput>
-  to build the appliance. Output goes to the screen and the default log file.
+  to build the distribution. Output goes to the screen and the default log file.
   The first build may take some time, since <application
   class="software">SystemBuilder</application> needs to do everything the first
   time:</para>
@@ -81,35 +82,33 @@
       </listitem>
 
       <listitem>
-        <para>store the appliance on the download server.</para>
+        <para>store the distribution on the download server.</para>
       </listitem>
-    </itemizedlist>Deploying your appliance requires three steps. First,
-  <application class="software">SystemBuilder</application> will publish the appliance
-  image files to the download server location from which the client system
-  will obtain its initial installation and subsequent updates. By default, the
-  location will be in the web server area on the <application
-  class="software">SystemBuilder</application> build system. Second, you create the CD
-  or DVD boot media. Lastly, you install the client system by inserting the
-  disk into the client machine and later verifying that the contents are
+    </itemizedlist>Deploying client systems requires three steps. First,
+  <application class="software">SystemBuilder</application> will publish the
+  distribution image files to the download server location from which the client
+  system will obtain its initial installation and subsequent updates. By
+  default, the location will be in the web server area on the <application
+  class="software">SystemBuilder</application> build system. Second, you create
+  the CD or DVD boot media. Lastly, you install the client system by inserting
+  the disk into the client machine and later verifying that the contents are
   correct.</para>
 
-  <para>Updating your appliance, the final step, can involve simply checking
+  <para>Updating your distribution, the final step, can involve simply checking
   for mirror repository updates. Depending upon the changes <application
-  class="software">SystemBuilder</application> encounters, systembuilder could update the
-  appliance with updated packages. After updating the build appliance, you
-  will need to run <userinput>yum update</userinput> on the client system to
-  keep the client in synch with the current build appliance
-  distribution.</para>
+  class="software">SystemBuilder</application> encounters, systembuilder could
+  update the distribution with updated packages. After updating the
+  distribution, you will need to run <userinput>yum update</userinput> on the
+  client system to keep the client in synch with the current distribution.</para>
 
-  <para>Another method to update your appliance is actually changing the
-  system definition file, <filename>samber-server.xml</filename> for
-  this scenario. Any changes to the three required <emphasis>main</emphasis>
-  child elements would constitute creating a brand-new appliance. Save these
-  changes to a new <filename class="extension">.appliance</filename>
-  file.</para>
+  <para>Another method to update your distribution is actually changing the
+  definition, <filename>samber-server.xml</filename> for this scenario. Any
+  changes to the three required <emphasis>main</emphasis>
+  child elements would constitute creating a brand-new distribution. Save these
+  changes to a new filename.</para>
 
-  <para>In the Samba CentOS 5 appliance example presented here, what you have
-  in the end is an appliance for a Samba server on CentOS 5 for the i386
+  <para>In the Samba CentOS 5 Server example presented here, what you have
+  in the end is a distribution for a Samba server on CentOS 5 for the i386
   architecture. It includes GUI applications as well as a web server,
   administration and printing capabilities. Your custom
   <filename>smb.conf</filename> file provides custom <application
@@ -117,7 +116,7 @@
   packages come from the repositories at <ulink
   url="http://mirror.centos.org">http://mirror.centos.org</ulink> .</para>
 
-  <para>Now that you have your appliance, you can modularize your
+  <para>Now that you have your definition, you can modularize your
   <filename>samber-server.xml</filename> file to reuse its parts and
   version the system definition file components to make the build process
   more efficient and traceable. Part II explains this process.</para>
