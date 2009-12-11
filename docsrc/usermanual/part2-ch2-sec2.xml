@@ -2,39 +2,33 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Versioning Input Files for an Appliance</title>
+  <title>Versioning Input Files for a System Distribution</title>
 
   <para>To track and audit any changes to the <application
   class="software">SystemBuilder</application> files that are critical to the
-  definition, configuration and scripts of an appliance, use a revision
+  definition, configuration and scripts of a system, use a revision
   control system, such as <application
-  class="software">Mercurial</application> or <application arch=""
-  class="software">Subversion</application>. The Red Hat-based Linux OS' that
+  class="software">Subversion</application>, <application
+  class="software">Git</application> or <application arch=""
+  class="software">Mercurial</application>. The Red Hat-based Linux OS' that
   SystemBuilder works with by default (<application
-  class="software">RHEL</application>, <application
-  class="software">CentOS</application> and <application
-  class="software">Fedora</application>) all have the revision control system
+  class="software">RHEL</application> and <application
+  class="software">CentOS</application>) have the revision control system
   <application class="software">Subversion</application>
-  (<command>svn</command>) installed as a development server. Subversion
-  remains the most popular revision control system. For the type of files and
-  distributed nature of SystemBuilder, though, the revision control system <application
-  class="software">Mercurial</application> (<command>hg</command>) may be a
-  better option. Mercurial is fast and distributed. Both
-  <command>svn</command> and <command>hg</command> work with secure protocols
-  -- ssh and https.</para>
+  (<command>svn</command>) available by default.
 
   <para>While everything could be revision controlled, there are some key
   non-image files that should be. Within the <application
-  class="software">SystemBuilder</application> infrastructure and appliance building
-  process, candidates for revision control include configuration files,
+  class="software">SystemBuilder</application> infrastructure and distribution
+  building process, candidates for revision control include configuration files,
   system definition files and scripts, i.e. files that contain critical
   textual information that may change over time or are commonly used to define
-  aspects of multiple appliances, such as common repositories or network
+  aspects of multiple system distributions, such as common repositories or network
   configuration.</para>
 
   <para><itemizedlist>
       <listitem>
-        <para><filename class="extension">.appliance</filename> files,</para>
+        <para>system definition files,</para>
       </listitem>
 
       <listitem>
@@ -42,25 +36,24 @@
       </listitem>
 
       <listitem>
-        <para>appliance configuration files,</para>
+        <para>system configuration files,</para>
       </listitem>
 
       <listitem>
-        <para>appliance scripts, and</para>
+        <para>system configuration scripts, and</para>
       </listitem>
 
       <listitem>
-        <para><filename class="extension">.appliance</filename> XInclude
-        files.</para>
+        <para>system definition XInclude files.</para>
       </listitem>
     </itemizedlist></para>
 
   <para>If you decide to not use a revision control system, you could rename
-  the <filename class="extension">.appliance</filename> file or other key
-  files every time you make a change to help you "version" your appliance. You
-  can also enter comments in the files. Keep in mind that changing the name of
-  the <filename class="extension">.appliance</filename> file does not mean
-  <application class="software">SystemBuilder</application> will build a new appliance.
+  the system definition file or other key
+  files every time you make a change to help you "version" your distribution.
+  You can also enter comments in the files. Keep in mind that changing the name
+  of system definition file does not mean <application class="software">
+  SystemBuilder</application> will build a new distribution.
   As long as the <varname>$SYSTEMID</varname> remains the same, the
-  appliance remains the same.</para>
+  distribution remains the same.</para>
 </section>

@@ -2,50 +2,49 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Deploying Your Appliance</title>
+  <title>System Deployment</title>
 
-  <para>Deploying your appliance to the client system is the next step. The
-  SystemBuilder build system creates the boot media and posts the completed appliance
-  to the download server, while the client system retrieves the appliance
-  packages from the download server.</para>
+  <para>Deployment to a client system is the next step. The SystemBuilder build
+  system creates the boot media and posts the completed distribution
+  to the download server. During network installation the client system
+  retrieves the packages from the download server.</para>
 
-  <para>For the purpose of this example, the destination appliance
-  distribution is the default location on the <application
-  class="software">SystemBuilder</application> build system. After SystemBuilder creates the
-  appliance distribution images, you can create the boot media and install the
-  appliance on the client system through the network.</para>
+  <para>For the purpose of this example, the destination distribution is the
+  default location on the <application class="software">SystemBuilder
+  </application> build system. After SystemBuilder creates the distribution, 
+  you can create the boot media and install to the client system through the
+  network.</para>
 
   <section>
     <title>Creating boot media</title>
 
-    <para>After <command>systembuilder</command> successfully completes the build, you
-    will find your completed appliance in a folder beneath the <filename
-    class="directory">/var/www/html/distributions</filename> default directory on
-    the download server. SystemBuilder automatically configures boot media to download
-    packages from that server. The folder name will be the
-    <varname>$SYSTEMID</varname>, e.g.
+    <para>After <command>systembuilder</command> successfully completes the
+    build, you  will find your completed distribution in a folder beneath the
+    <filename class="directory">/var/www/html/distributions</filename> default
+    directory on the download server. SystemBuilder automatically configures 
+    boot media to download packages from that server. The folder name will be
+    the <varname>$SYSTEMID</varname>, e.g.
     <filename>samba-server-5-i386</filename>.</para>
 
     <para>To make network installations possible, the build system and
     directory should be network and web accessible. The default publish path
-    assumes that the SystemBuilder build system is also the download server; it uses
-    the IP address with no user login, password or port information. An
-    example URL path to your appliance's download directory is below:</para>
+    assumes that the SystemBuilder build system is also the download server; 
+    it uses the IP address with no user login, password or port information. An
+    example URL path to your distribution's download directory is below:</para>
 
     <para><informalexample>
-        <programlisting>http://194.168.192.0/appliances/samba-server-5-i386</programlisting>
+        <programlisting>http://194.168.192.0/distributions/samba-server-5-i386</programlisting>
       </informalexample></para>
 
-    <para>The IP address belongs to the SystemBuilder build system's interface. For
-    your appliance, the IP address will be calculated using the first active,
-    non-loopback interface on your download machine.</para>
+    <para>The IP address belongs to the SystemBuilder build system's interface.
+    For your distribution, the IP address will be calculated using the first
+    active, non-loopback interface on your download machine.</para>
 
-    <para>To install the appliance on the client system, you burn the
-    appliance image to a separate media. For this example, burn the
-    <filename>boot.iso</filename> image (found in the <filename
-    class="directory">/os/images</filename> folder below the <filename
-    class="directory">/appliances/samba-server-5-i386</filename> folder,
-    above) to a CD or DVD.</para>
+    <para>To install to a client system, you burn a boot image to a separate
+    media. For this example, burn the <filename>boot.iso</filename> image 
+    (found in the <filename class="directory">/os/images</filename> folder 
+    below the <filename class="directory">/distributions/samba-server-5-i386
+    </filename> folder, above) to a CD or DVD.</para>
 
     <para>To burn the image, one option is to run the
     <command>cdrecord</command> command from the <filename
@@ -65,11 +64,11 @@
   </section>
 
   <section>
-    <title>Installing the appliance on a client system</title>
+    <title>Installing a client system</title>
 
     <para>Now you are ready to create your client! The standard procedure is
     to boot the client system from the CD. The boot process will start the
-    machine, then use the appliance image created by <command>systembuilder</command>
+    machine, then use the boot image created by <command>systembuilder</command>
     to retrieve all the packages from the <application
     class="software">SystemBuilder</application> download server instead of remote
     Internet servers. When the installation successfully completes, the client
@@ -77,10 +76,10 @@
     <filename>sys.log</filename> file for the installation and boot
     process.</para>
 
-    <para>One quick verification test to make sure the correct appliance was
-    installed is to verify the contents of the <filename>smb.conf</filename>
+    <para>One quick verification test to make sure the was install correctly is
+    to verify the contents of the <filename>smb.conf</filename>
     installed on the client system. It should match the one provided in the
-    <filename class="extension">.appliance</filename> file.</para>
+    system definition.</para>
 
     <para>Congratulations! You now have a Samba server installed on your
     CentoOS 5 client.</para>

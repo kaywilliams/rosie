@@ -2,15 +2,15 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>SystemBuilder's Physical Architecture and the Appliance Creation
-  Process</title>
+  <title>SystemBuilder's Physical Architecture and the System Distribution
+  Creation Process</title>
 
-  <para><application>SystemBuilder</application> has two directory architectures: the
-  structure that it creates when you install <application
-  class="software">SystemBuilder</application> and the default structure <application
-  class="software">SystemBuilder</application> uses when creating an appliance. The
-  latter structure aids in creating, building and deploying your
-  appliances.</para>
+  <para><application>SystemBuilder</application> has two directory
+  architectures: the structure that it creates when you install <application
+  class="software">SystemBuilder</application> and the default structure
+  <application class="software">SystemBuilder</application> uses when creating
+  system distributions. The latter structure aids in creating, building and
+  deploying your system distributions.</para>
 
   <section>
     <title>SystemBuilder's installed architecture</title>
@@ -71,7 +71,8 @@
             <row>
               <entry>/usr/share/systembuilder/schemas</entry>
 
-              <entry>Relax NG schemas for appliance file validation.</entry>
+              <entry>Relax NG schemas for system definition file validation.
+              </entry>
             </row>
           </tbody>
         </tgroup>
@@ -79,32 +80,32 @@
   </section>
 
   <section>
-    <title>SystemBuilder's default appliance structure</title>
+    <title>SystemBuilder's default system distribution structure</title>
 
-    <para>One strength of <application class="software">SystemBuilder</application> is
-    that with a minimal <filename class="extension">.appliance</filename> file
-    you can create a custom appliance with a base OS and architecture and the
+    <para>One strength of <application class="software">SystemBuilder
+    </application> is that with a minimal system definition you can create a
+    system distribution with a base OS and architecture and the
     desired applications. To accomplish this, <application
-    class="software">SystemBuilder</application> relies on several default settings on
-    the build system, noted in the table below. The variable
-    <varname>$SYSTEMID</varname> is the appliance's identifier, consisting
-    of the appliance's name, version and architecture as specified in the
-    <emphasis>main</emphasis> top-level element. The variable
-    <varname>$APPLIANCEFILE</varname> is the name of your system definition
-    file without the <filename class="extension">.appliance</filename>
-    extension.</para>
+    class="software">SystemBuilder</application> relies on several default
+    settings on the build system, noted in the table below. The variable
+    <varname>$SYSTEMID</varname> is the system distribution's identifier,
+    consisting of the name, version and architecture of the distribution as
+    specified in the <emphasis>main</emphasis> top-level element. The variable
+    <varname>$SYSTEMDEFINITION</varname> is the name of your system definition
+    file without the file extension, e.g. 
+    <filename class="extension">.xml</filename>.</para>
 
     <para><table>
-        <title>Default Folders and Files SystemBuilder Generates on the Build System
-        and Download Server</title>
+        <title>Default Folders and Files SystemBuilder Generates on the Build
+        System and Download Server</title>
 
         <tgroup cols="2">
           <tbody>
             <row>
-              <entry><varname>$APPLIANCEFILE</varname>.dat</entry>
+              <entry><varname>$SYSTEMDEFINITION</varname>.dat</entry>
 
-              <entry>Appliance data file. Used by SystemBuilder to manage the
-              appliance's RPM release numbers. This file should be version
+              <entry>Distribution data file. Used by SystemBuilder to manage the
+              distribution's RPM release numbers. This file should be version
               controlled.</entry>
             </row>
 
@@ -117,7 +118,7 @@
             <row>
               <entry>/var/cache/systembuilder/<varname>$SYSTEMID</varname>/</entry>
 
-              <entry>Cache for your appliance's build.</entry>
+              <entry>Cache for your distribution's build.</entry>
             </row>
 
             <row>
@@ -129,7 +130,8 @@
             <row>
               <entry>/var/www/html/distributions/<varname>$SYSTEMID/</varname></entry>
 
-              <entry>Directory to which SystemBuilder publishes an appliance.</entry>
+              <entry>Directory to which SystemBuilder publishes a distribution.
+              </entry>
             </row>
           </tbody>
         </tgroup>
@@ -140,6 +142,6 @@
     the build speed, noted in the table above. After the initial build, when
     SystemBuilder downloads all the necessary packages, subsequent builds take a
     fraction of the time because SystemBuilder relies on the cached RPM contents and
-    only looks for changes in the appliance.</para>
+    only looks for changes.</para>
   </section>
 </section>

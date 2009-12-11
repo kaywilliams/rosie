@@ -2,13 +2,13 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Automating Your Appliance Installation</title>
+  <title>Automating Client Installation</title>
 
   <para>Boot-up and kickstart opportunities with SystemBuilder; oversized files for
   installation.</para>
 
   <section>
-    <title>Kickstarting your appliance</title>
+    <title>Kickstarting clients</title>
 
     <para>Using kickstart files; &lt;kickstart&gt;; other places to insert
     kickstart files and the advantage of doing so</para>

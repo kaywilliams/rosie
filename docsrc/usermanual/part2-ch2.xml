@@ -2,7 +2,7 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter>
-  <title>Utilizing SystemBuilder Fully Within an Appliance's Life Cycle</title>
+  <title>Utilizing SystemBuilder Fully Within an System's Life Cycle</title>
 
   <xi:include href="part2-ch2-sec1.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />

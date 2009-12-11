@@ -8,7 +8,7 @@
     <title>This Manual's Audience</title>
 
     <para>SystemBuilder is a product intended for Linux system administrators and build
-    managers who need to build and deploy Linux-based appliances. Each part in
+    managers who need to build and deploy Linux-based systems. Each part in
     this manual assumes you have a particular level of knowledge.</para>
 
     <para>For Part I, "Basic SystemBuilder Usage," in addition to knowing how to create
@@ -34,10 +34,10 @@
         </listitem>
       </itemizedlist></para>
 
-    <para>For Part II, "Robust Appliance Management," experience with version
+    <para>For Part II, "Robust System Distribution Management," experience with version
     control systems, local mirror hosting, XPath and XInclude.</para>
 
-    <para>For Part III, "Advanced Appliance Concepts," key skills include
+    <para>For Part III, "Advanced System Distribution Concepts," key skills include
     understanding how to create RPM packages and package repositories and how
     to automate Anaconda installations using kickstart files, command line
     arguments and update images.</para>
@@ -49,7 +49,7 @@
     <para>This manual complements several <application
     class="software">SystemBuilder</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
-    obtaining and installing SystemBuilder and creating a basic CentOS appliance.
+    obtaining and installing SystemBuilder and creating a basic CentOS system distribution.
     "System Definition File Reference" (SDFR) contains the syntax for
     system definition file elements and attributes. Finally, SystemBuilder has a set
     of <emphasis role="strong">man pages</emphasis> explaining the
@@ -65,13 +65,13 @@
   <section>
     <title>How to Read This Manual</title>
 
-    <para>The intent of the manual is to help you use SystemBuilder effectively to
-    build and maintain appliances, update the appliance and customize the
-    appliance installation. This is not a cookbook for various server
-    appliance types, e.g. <application class="software">Samba</application>,
+    <para>The intent of the manual is to help you use SystemBuilder effectively
+    to build and maintain system distributions, update distribution and
+    customize client installations. This is not a cookbook for various system
+    types, e.g. <application class="software">Samba</application>,
     DNS, or LDAP. Rather, this manual takes the top-down approach, explaining
     the concepts before giving steps, commands and code examples that you can
-    use to build, deploy and enhance your own appliances.</para>
+    use to build, deploy and enhance your own system builds.</para>
   </section>
 
   <section>

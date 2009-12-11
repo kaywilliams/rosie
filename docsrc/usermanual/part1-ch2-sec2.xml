@@ -2,11 +2,11 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Choosing an Appliance Use Case: A Samba Server</title>
+  <title>Choosing a Use Case: A Samba Server</title>
 
   <para>For the purpose of this user guide, examples, processes and
   illustrations will focus on defining, building, deploying and updating a
-  <application class="software">Samba</application> server appliance based on
+  <application class="software">Samba</application> server based on
   <application class="software">CentOS 5</application>. Samba is a project of
   the <ulink url="http://conservancy.softwarefreedom.org/">Software Freedom
   Conservancy</ulink>. Samba is a key interoperability component in a blended
@@ -16,10 +16,10 @@
 
   <para>The discussions and code examples in this chapter and subsequent parts
   focus on a Samba server based on CentOS 5 that enables print and file
-  services. In this chapter, the examples assume the appliance will be
+  services. In this chapter, the examples assume the server will be
   installed via the network with a web server and that the download server is
-  the <application class="software">SystemBuilder</application> build system. The SDFR
-  provides the syntax for all parent and child elements and their
+  the <application class="software">SystemBuilder</application> build system.
+  The SDFR provides the syntax for all parent and child elements and their
   attributes.</para>
 
   <para><mediaobject>
@@ -30,17 +30,17 @@
 
       <textobject>
         <para>Creating the <application class="software">Samba</application>
-        appliance entails several process steps. After configuring the
-        <application class="software">SystemBuilder</application> build system, you
-        need to define the appliance using the system definition file
+        server distribution entails several process steps. After configuring the
+        <application class="software">SystemBuilder</application> build system,
+        you need to create system definition file
         (<filename class="extension">samber-server.xml</filename>). Then
-        you run <command>systembuilder</command> to validate the file, retrieve the
-        packages and build the appliance RPMs. From there you prepare the boot
+        you run <command>systembuilder</command> to validate the file, retrieve
+        the packages and build the distribution. From there you prepare the boot
         media.</para>
       </textobject>
     </mediaobject>The drawing above illustrates three of the five steps
   necessary to complete the <application class="software">Samba</application>
-  server appliance. The next section will explain how to define your appliance
-  before you build it and prepare for deploying the appliance to a client
+  server distribution. The next section will explain how to define the system
+  before you build it and prepare for deployment to a client
   system.</para>
 </section>

@@ -2,18 +2,18 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Enhancing Your CentOS 5 Samba Server Appliance</title>
+  <title>Enhancing Your CentOS 5 Samba Server</title>
 
-  <para>In this part, you will learn how to update your appliance with some
-  common server administration components using two different methods. These
-  updates require changes to the <emphasis>config-rpm</emphasis> and
+  <para>In this part, you will learn how to update your system distribution 
+  with some common server administration components using two different methods.
+  These  updates require changes to the <emphasis>config-rpm</emphasis> and
   <emphasis>packages</emphasis> TLEs already in place in your
   <filename>samber-server.xml</filename> file.</para>
 
   <para>Following the illustrations in this section, you can conditionally
-  configure your appliance's applications, automate its installation, create
+  configure applications in your distribution, automate installation, create
   various install images, add business support required by the legal and
-  software development departments and secure your appliance. All of these
-  options utilize top-level elements that you include in your appliance
+  software development departments and secure your system. All of these
+  options utilize top-level elements that you include in your system
   definition file, <filename>samber-server.xml</filename>.</para>
 </section>

@@ -2,46 +2,42 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Reusing Appliance Components in an Object-oriented Strategy</title>
+  <title>Reusing Definition Components in an Object-oriented Strategy</title>
 
   <para>To organize information better, the software development community
   commonly uses substitution methods. In the case of SystemBuilder, you can create and
-  store content in one location and use XML Includes (XInclude) and XPaths in
-  the <filename class="extension">.appliance</filename> file to reuse that
-  content and condense large system definition files into more manageable
-  and readable sections using an object-oriented tree. Within that context,
-  some components of an system definition file are prime candidates for
-  substitution and reuse.</para>
+  store content in one location and use XML Includes (XInclude) and XPaths 
+  to reuse content across definition files and condense large definition
+  files into more manageable and readable sections using an object-oriented
+  tree. Within that context, some components of an system definition file are
+  prime candidates for substitution and reuse.</para>
 
   <para>XInclude and XPointer do have limitations. Any documents that are
   XIncluded must be well-formed XML documents and not plain text files, such
-  as HTML or a software program. Typically the appliance components cannot
-  exist competently without the master <filename
-  class="extension">.appliance</filename> file. References to portions of
-  included documents through XPointer must be well-formed XML. If any of the
-  included components are missing, the entire <filename
-  class="extension">.appliance</filename> file will be invalid. Finally, in
-  general using XPointer could increase CPU cycles and memory use; however,
-  with the <application class="software">SystemBuilder</application> build process no
-  significant CPU or memory cost has been found.</para>
+  as HTML or a software program. Typically the definition components cannot
+  exist competently without the master definition file. References to portions
+  of  included documents through XPointer must be well-formed XML. If any of the
+  included components are missing, the entire definition will be invalid.
+  Finally, in general using XPointer could increase CPU cycles and memory use;
+  however, with the <application class="software">SystemBuilder</application>
+  build process no significant CPU or memory cost has been found.</para>
 
   <para>The advantages outweigh the disadvantages. XInclude processing is
   recursive. You can have multiple layers of XIncluded documents within one
-  collective appliance. By using XPointer you can target one portion of a
+  collective system definition. By using XPointer you can target one portion of a
   document. From a time management standpoint, you spend time creating static
   sections once, then reuse them. If your network topology changes, for
-  example, then you have one file to change, not ten <filename
-  class="extension">.appliance</filename> files and the inherent risk of
-  inaccuracies or inconsistencies among the appliances and within your
+  example, then you have one file to change, not ten, and the inherent risk of
+  inaccuracies or inconsistencies among the definitions and within your
   network.</para>
 
   <para>Within the context of SystemBuilder, a two-part structure on the <application
-  class="software">SystemBuilder</application> build system will suffice for managing
-  the common versus unique appliance components. As in the diagram below,
-  under the subdirectory <filename class="directory">appliances/</filename>,
-  the <filename class="directory">common/</filename> branch contains reusable
-  components while the other branches each contain files unique to a single
-  appliance.</para>
+  class="software">SystemBuilder</application> build system will suffice for
+  managing the common versus unique definition components. As in the diagram
+  below, under the subdirectory <filename class="directory">distributions/
+  </filename>, the <filename class="directory">common/</filename> branch
+  contains reusable components while the other branches each contain files
+  unique to a single system distribution.</para>
 
   <para><mediaobject>
       <imageobject>
@@ -51,24 +47,24 @@
 
   <para>To properly use the XInclude and XPointer structures, the directory
   tree must represent the tiered structure above. In other words, the common
-  files to be included must exist at the same tier as any <filename
-  class="extension">.appliance</filename> file that references them.</para>
+  files to be included must exist at the same tier as any definition files that
+  references them.</para>
 
-  <para>In the <filename class="directory">appliances/common/</filename>
+  <para>In the <filename class="directory">distributions/common/</filename>
   directory above, there are several reusable files.
   <filename>Repos.xml</filename> contains several repository mirror lists and
   base URLs from which to download the Linux OS based upon brand, architecture
   and whether they are "base" or "updates." The
   <filename>groups-packages.xml</filename> file contains common application
-  groups and packages that would be included in appliance using any OS, such
+  groups and packages that would be included in distributions using any OS, such
   as "admin" or "editors." To have a standardized copyright statement,
   <filename>main.xml</filename> is part of the common components.</para>
 
-  <para>For the Samba Server appliance, the directory <filename
-  class="directory">appliances/samba-server/</filename> in the drawing above
+  <para>For the Samba Server, the directory <filename
+  class="directory">distributions/samba-server/</filename> in the drawing above
   contains the <filename>samber-server.xml</filename> file, the Samba
   server configuration file, a kickstart file and a validation script. The
-  <filename class="extension">.appliance</filename> file would XInclude
+  definition file would XInclude
   components from the repositories, common groups and packages and a copyright
   statement. The same logic holds true for the web and DNS servers.</para>
 
@@ -78,14 +74,14 @@
   that you will create a separate repository file,
   <filename>repos.xml.</filename></para>
 
-  <para>First, create your <filename class="directory">appliances/</filename>
+  <para>First, create your <filename class="directory">distributions/</filename>
   subdirectory with the two subdirectories <filename
   class="directory">common/</filename> and <filename
   class="directory">samba-server/</filename> as above. Place your
   <filename>samber-server.xml</filename> and
   <filename>smb.conf</filename> files in the latter.</para>
 
-  <para>Next, create the <filename>appliances/common/repos.xml</filename>
+  <para>Next, create the <filename>distributions/common/repos.xml</filename>
   using the example below. The separate repository file includes the URLs for
   several OS brands, architectures and statuses, e.g. "base" and
   "updates."</para>
@@ -143,21 +139,20 @@
   <para>The final step is to modify the
   <filename>samber-server.xml</filename> file, removing the
   <emphasis>repos</emphasis> details and using XInclude and XPointer to reuse
-  common content. You may want to rename the <filename
-  class="extension">.appliance</filename> file or include it in a version
-  control system.</para>
+  common content. You may want to rename the definition file or include it in 
+  a version control system.</para>
 
   <para><informalexample>
       <programlisting>&lt;repos&gt;
 
     &lt;!-- use global repos for CentOS --&gt;
     &lt;xi:include href="../common/repos.xml" 
-                xpointer="xpointer(/appliance/repos-centos/*)" /&gt;
+                xpointer="xpointer(/distributions/repos-centos/*)" /&gt;
 
   &lt;/repos&gt;</programlisting>
     </informalexample></para>
 
-  <para>To build the <filename class="extension">.appliance</filename> file,
+  <para>To build the system definition file,
   you will also have to change the path to the <filename>smb.conf</filename>
   file in <emphasis>config-rpm/file</emphasis>.</para>
 

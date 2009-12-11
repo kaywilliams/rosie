@@ -6,50 +6,49 @@
   Easier</title>
 
   <para>Residing on a build system, SystemBuilder and its components make your
-  appliance administration tasks easier during every step of the process.
+  system administration tasks easier during every step of the process.
   Three are four main components within the SystemBuilder build system:</para>
 
   <para><orderedlist>
       <listitem>
-        <para><emphasis role="strong">Appliance configuration</emphasis>,
+        <para><emphasis role="strong">System configuration</emphasis>,
         consisting of <application class="software">SystemBuilder</application>'s
-        configuration information, your appliance's definition file and its
+        configuration information, your system's definition file and its
         configuration scripts;</para>
       </listitem>
 
       <listitem>
-        <para><emphasis role="strong">Appliance distribution</emphasis>,
-        containing your appliance's distribution images with the appliance
-        RPMs;</para>
+        <para><emphasis role="strong">System distribution</emphasis>,
+        containing your system's distribution images and package repository;
+        </para>
       </listitem>
 
       <listitem>
         <para><emphasis role="strong"><application
-        class="software">SystemBuilder'</application>s cache</emphasis>, containing the
-        cached contents of the OS and application packages for your appliance;
+        class="software">SystemBuilder'</application>s cache</emphasis>,
+        containing cached contents of OS and application packages;
         and</para>
       </listitem>
 
       <listitem>
         <para><emphasis role="strong"><application
-        class="software">SystemBuilder</application>'s log</emphasis>, a record of your
-        appliance's builds.</para>
+        class="software">SystemBuilder</application>'s log</emphasis>, a record
+        of distribution builds.</para>
       </listitem>
     </orderedlist>The first component maintains the operations of <application
   class="software">SystemBuilder</application>, including logging and cache
-  preferences; your appliance's definition file, which defines repositories,
-  application groups and packages; and your appliance's configuration scripts,
+  preferences; your system definition file, which defines repositories,
+  application groups and packages; and your system configuration scripts,
   to name a few. The second component contains the images used during first
-  boot and appliance deployment to install the appliance on the client system.
-  The last two components, the cache and log, enable <application
-  class="software">SystemBuilder</application> to outperform its competitors in terms
-  of speed to build and track information.</para>
+  boot and client system deployment. The last two components, the cache and log,
+  enable <application class="software">SystemBuilder</application> to minimize
+  build time and track information.</para>
 
   <para>These four areas dramatically improve your ability to create, deploy
-  and maintain your appliances in a superior manner.</para>
+  and maintain system distributions in a superior manner.</para>
 
   <section>
-    <title>Testing an appliance</title>
+    <title>Testing an system distribution</title>
 
     <para>While preparing the system definition file, you can test the OS
     with its various applications and configurations, together or in separate
@@ -60,20 +59,20 @@
           <para><emphasis role="strong">Test different configuration and
           application combinations within a single system definition
           file.</emphasis> <application class="software">SystemBuilder</application>
-          uses an system definition file as a recipe for your appliance.
-          You can create an appliance template, then enable or disable
-          appliance components using the system definition file to test
+          uses an system definition file as a recipe for your system.
+          You can create a system template, then enable or disable
+          system components using the system definition file to test
           application compatibility and functionality with the OS until you
           derive the combination that meets your needs.</para>
         </listitem>
 
         <listitem>
           <para><emphasis role="strong">Accelerate testing procedures by
-          eliminating unnecessary steps.</emphasis> Reduce the appliance build
-          time by forcing or skipping build components during a single build
-          run. For example, you may want to test connection and download
-          speeds to particular repositories, but you may not want to build the
-          actual distribution images.</para>
+          eliminating unnecessary steps.</emphasis> Reduce the system
+          distribution build time by forcing or skipping build components
+          during a single build run. For example, you may want to test
+          connection and download speeds to particular repositories, but you
+          may not want to build the actual distribution images.</para>
         </listitem>
 
         <listitem>
@@ -88,11 +87,11 @@
   </section>
 
   <section>
-    <title>Deploying appliances to clients</title>
+    <title>Deploying client systems</title>
 
-    <para>SystemBuilder empowers you to deploy the same appliance to one or more client
-    systems with less time and effort than it would take to build and
-    configure identical systems manually.</para>
+    <para>SystemBuilder empowers you to deploy the same components and
+    configuraton to one or more client systems with less time and effort than
+    it would take to build and configure identical systems manually.</para>
 
     <para><orderedlist>
         <listitem>
@@ -105,8 +104,8 @@
 
         <listitem>
           <para><emphasis role="strong">Dramatically reduce the download time
-          when deploying an appliance.</emphasis> <application
-          class="software">SystemBuilder</application> creates a local appliance
+          when deploying client systems.</emphasis> <application
+          class="software">SystemBuilder</application> creates a local system
           repository, so the client installation connects to your local
           download server, not various remote Internet servers, thereby
           reducing the connection speed.</para>
@@ -114,18 +113,18 @@
 
         <listitem>
           <para><emphasis role="strong">Increase the consistency of the
-          appliance components.</emphasis> By using its own RPMs and local
-          repository on the build system for a particular appliance, SystemBuilder
-          enables you to consistently deploy that appliance to all the client
-          systems.</para>
+          system components.</emphasis> By using its own RPMs and local
+          repository on the build system for a particular system distribution,
+          SystemBuilder enables you to consistently deploy that distribution to
+          all the client systems.</para>
         </listitem>
 
         <listitem>
-          <para><emphasis role="strong">Deploy your appliances to multiple
+          <para><emphasis role="strong">Deploy multiple machines
           machines quickly and reliably.</emphasis> Once you have identified
-          your client system hardware, an appliance and your boot media, you
-          can systematically and simultaneously create multiple client systems
-          using a multihoned or replicate web server.</para>
+          your client system hardware, a system distribution and your boot
+          media, you can systematically and simultaneously create multiple
+          client systems using a multihoned or replicate web server.</para>
         </listitem>
       </orderedlist></para>
   </section>
@@ -134,16 +133,15 @@
     <title>Maintaining and updating distributions</title>
 
     <para>SystemBuilder simplifies and standardizes the maintenance and update of
-    complex appliances through its architecture and appliance
-    definitions.</para>
+    complex systems through its architecture and system definitions.</para>
 
     <para><orderedlist>
         <listitem>
           <para><emphasis role="strong">Utilize standard XML nomenclature to
-          create an understandable yet powerful appliance
+          create an understandable yet powerful system
           definition.</emphasis> Combining the standardized XML-based
           system definitions with familiar repository and package concepts
-          makes reading, writing, understanding and updating the appliance
+          makes reading, writing, understanding and updating the system
           definition straightforward.</para>
         </listitem>
 
@@ -168,9 +166,9 @@
 
         <listitem>
           <para><emphasis role="strong">Ease software update testing and
-          deployment.</emphasis> SystemBuilder allows software updates to be deployed
-          either independently or on a per-appliance basis. This allows
-          software applications on some machines to be updated quickly as
+          deployment.</emphasis> SystemBuilder allows software updates to
+          be deployed either independently or on a per-distribution basis. This
+          allows software applications on some machines to be updated quickly as
           needed, while others go through a more rigorous testing process, or
           deploy different application versions altogether.</para>
         </listitem>
@@ -178,7 +176,7 @@
   </section>
 
   <section>
-    <title>Migrating appliances and recovering systems</title>
+    <title>Migrating and and recovering systems</title>
 
     <para>Migrating to new hardware or recovering from a disaster are critical
     management issues. SystemBuilder can reduce the time needed and make work
@@ -196,38 +194,38 @@
         <listitem>
           <para><emphasis role="strong">Have accurate estimates of
           redeployment and recovery.</emphasis> In addition to build process
-          details, the SystemBuilder logs include start and end times for build cycles,
-          so you can reliably predict disaster recovery time and effort needed
-          for all your appliances.</para>
+          details, the SystemBuilder logs include start and end times for build
+          cycles, so you can reliably predict disaster recovery time and effort
+          needed for all your systems.</para>
         </listitem>
 
         <listitem>
-          <para><emphasis role="strong">Migrate one appliance to new hardware
-          in a fast, efficient, repeatable manner.</emphasis> Migrate an
-          appliance that has been configured for one architecture to another
+          <para><emphasis role="strong">Migrate one system to new hardware
+          in a fast, efficient, repeatable manner.</emphasis> Migrate a
+          system that has been configured for one architecture to another
           by changing a few items in the system definition file in just
-          minutes. Use SystemBuilder on a sandbox build system to test the appliance
-          before readying it for deployment to the new hardware
+          minutes. Use SystemBuilder on a sandbox build system to test the
+          system before readying it for deployment to the new hardware
           systems.</para>
         </listitem>
 
         <listitem>
           <para><emphasis role="strong">Utilize a local cache to quickly
-          redeploy an appliance.</emphasis> You do not have to rely on the
-          consistency or uptime of an Internet-based host to redeploy your
-          appliance or continue operations. <application
-          class="software">SystemBuilder</application> utilizes its own cached contents
+          redeploy systems.</emphasis> You do not have to rely on the
+          consistency or uptime of an Internet-based host to redeploy systems
+          or continue operations. <application class="software">
+          SystemBuilder</application> utilizes its own cached contents
           to complete installations and client system configurations.</para>
         </listitem>
       </orderedlist></para>
   </section>
 
   <section>
-    <title>Upgrading appliances and their components</title>
+    <title>Upgrading systems and their components</title>
 
-    <para>Before upgrading a client system's hardware or an appliance's OS or
-    one of its applications, use SystemBuilder to test those upgrades with an
-    appliance's other components to ensure compatibility and stability.</para>
+    <para>Before upgrading a client system's hardware, OS or
+    one of its applications, use SystemBuilder to test those upgrades with
+    other components to ensure compatibility and stability.</para>
 
     <para><orderedlist>
         <listitem>
@@ -242,7 +240,7 @@
         <listitem>
           <para><emphasis role="strong">Increase speeds for follow-on
           builds.</emphasis> <application class="software">SystemBuilder</application>
-          uses its built-in caching technology to store the appliance packages
+          uses its built-in caching technology to store the system packages
           locally for quick access. If a package has not changed between
           builds, <application class="software">SystemBuilder</application> uses the
           cached copy.</para>
@@ -250,11 +248,11 @@
 
         <listitem>
           <para><emphasis role="strong">Utilize <application
-          class="software">SystemBuilder</application> as an appliance configuration
+          class="software">SystemBuilder</application> as an system configuration
           management system. </emphasis> Adding version control to the
-          <application class="software">appliance configuration portion of
-          SystemBuilder's</application> build system, as described in the introduction,
-          empowers you to manage your appliance releases.</para>
+          <application class="software">system configuration portion of
+          SystemBuilder's</application> build system, as described in the
+          introduction, empowers you to manage your system releases.</para>
         </listitem>
       </orderedlist></para>
   </section>

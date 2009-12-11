@@ -24,9 +24,9 @@
     </para>
 
     <section id="repos-including-repositories"
-             xreflabel="Including Repositories in an Appliance">
+             xreflabel="Including Repositories in a System Distribution">
       <title>
-      Including Repositories in an Appliance
+      Including Repositories in a System Distribution
       </title>
 
       <para>
@@ -46,7 +46,8 @@
       Exactly one of the input repositories must contain installer
       images and isolinux files, located within folders called
       <filename>images</filename> and <filename>isolinux</filename>,
-      respectively. These files are used to create installation images for the appliance.
+      respectively. These files are used to create installation images for the
+      system distribution.
       </para>
     </section>
 
@@ -116,7 +117,7 @@
       <listitem>
       <para>
       A <varname>PACKAGE</varname> pattern to exclude from all repositories
-      used in the appliance. See Also Common Element
+      used in the system distribution. See Also Common Element
       <emphasis><xref linkend="repo" /></emphasis>,
       <xref linkend="repo-including-excluding-repository-contents" /> and the
       <emphasis><xref linkend="repos-repo" /></emphasis> and
@@ -151,8 +152,8 @@
 
       <listitem>
       <para>
-      Include a repository from which to select packages for the appliance.
-      See Common Element
+      Include a repository from which to select packages for the system
+      distribution. See Common Element
       <emphasis><xref linkend="repo" /></emphasis>. See Also
       <xref linkend="repos-including-repositories" /> and
       <xref linkend="repo-including-excluding-repository-contents" />.
@@ -202,7 +203,7 @@
     In the following examples, line breaks have been added to the
     <emphasis>repos/repo/baseurl</emphasis> and
     <emphasis>repos/repo/mirrorlist</emphasis> to improve readability.
-    In a real appliance file, however, line breaks within
+    In a real system definition file, however, line breaks within
     <varname>PATH</varname>-like elements are not allowed.
     </para>
 
@@ -281,7 +282,7 @@
   &lt;repo id="updates"&gt;
     &lt;name&gt;Red Hat Enterprise Linux - Updates&lt;/name&gt;
     &lt;baseurl&gt;rhns:///rhel-i386-server-5&lt;/baseurl&gt;
-    &lt;!-- location of the systemid is relative to the appliance file --&gt;
+    &lt;!-- location of the systemid is relative to the system definition file --&gt;
     &lt;systemid&gt;common_systemid-5Server-$basearch&lt;/systemid&gt;
   &lt;/repo&gt;
 &lt;/repos&gt; 

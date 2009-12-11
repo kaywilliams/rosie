@@ -10,21 +10,21 @@
   SystemBuilder is an integral part are implementation, testing, deployment and
   maintenance. Within the SystemBuilder realm, implementation and testing include
   development, often with a sandbox server for creating and testing the
-  appliance. A second phase of testing includes staging, which allows you to
-  test the pre-release appliance before releasing it for public consumption.
+  client systems. A second phase of testing includes staging, which allows you to
+  test the pre-release the distribution before releasing it for production.
   This simulated environment includes completing the build and deployment
-  processes plus using the appliance as intended for a period of time. The
-  final component, production, enables deployment of the appliance to a client
+  processes plus using the distribution as intended for a period of time. The
+  final component, production, enables deployment of the distribution to a client
   system. Maintenance is an on-going process that could involve all of these
   stages.</para>
 
   <para>SystemBuilder's ability to combine an OS with any number of applications makes
   it at once powerful and complicated. The advantage of using a repetitive
   isolated process described above is that you can develop, test and fine-tune
-  your appliance before gradually testing its interactions with the outside
-  world and, finally, releasing it for others to use. Within the Linux release
-  environment, applications and OS are updated and upgraded at a variety of
-  rates. This process gives you optimum control over what patches, updates,
+  your system distribution before gradually testing its interactions with the
+  outside world and, finally, releasing it for others to use. Within the Linux
+  release environment, applications and OS are updated and upgraded at a variety
+  of rates. This process gives you optimum control over what patches, updates,
   enhancements and upgrades you choose to maintain and release to your
   customers.</para>
 
@@ -49,13 +49,13 @@
     class="software">SystemBuilder</application> version on identical hardware with the
     same OS. The Production system, which would serve as your download server,
     should have a Linux-based OS and be web-accessible for client systems to
-    be able to access it to retrieve your appliance RPMs. The Version system
+    be able to access it to retrieve distribution contents. The Version system
     should have a Linux-based OS with a compatible version control
     system.</para>
 
     <para>One variable worth noting is that the hostname for Staging and
     Production systems is identical; this compatibility will aid in Step 7,
-    migrating the built appliance to the download server for distribution. The
+    migrating the built distribution to a production download server. The
     hostnames for Development and Version Control are different from the
     others.</para>
 
@@ -65,103 +65,99 @@
 
     <para><variablelist>
         <varlistentry>
-          <term>Step 1: Define Your Appliance</term>
+          <term>Step 1: Define Your System Distribution</term>
 
           <listitem>
             <para>During this phase you will work with the Development system
             (D). In addition to creating the
             <filename>samber-server.xml</filename> definition file, you
             will also create any configuration files necessary for the
-            appliance to run properly, such as <filename>smb.conf</filename>.
+            system to run properly, such as <filename>smb.conf</filename>.
             Essentially, you will complete the process described in "Defining
-            Your Appliance" in Part I, Chapter 2.</para>
+            Your System" in Part I, Chapter 2.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>Step 2: Build Your Appliance and Deploy and Test it on a
-          Sandbox Client</term>
+          <term>Step 2: Build Your System Distribution and Deploy and Test
+          it on a Sandbox Client</term>
 
           <listitem>
-            <para>This step entails building and deploying your appliance as
+            <para>This step entails building and deploying your distribution as
             in Part I, Chapter 2, and testing the functionality of your
-            appliance to make sure it does what it is supposed to do. Steps 1
+            distribution to make sure it does what it is supposed to do. Steps 1
             and 2 are iterative during the alpha release phase, with you
-            incorporating changes to the <filename
-            class="extension">.appliance</filename> or configuration files and
-            testing them until you are satisfied with the end result, i.e. an
-            appliance distribution that deploys correctly and the resulting
-            appliance functionality performs as expected.</para>
+            incorporating changes to the system definition or configuration
+            files and testing them until you are satisfied with the end result,
+            i.e. a system distribution that deploys correctly and the resulting
+            client functionality performs as expected.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>Step 3: Check-in Your Appliance Files to Version
+          <term>Step 3: Check-in Your Definition Files to Version
           Control</term>
 
           <listitem>
             <para>Once you are satisfied with the results in Step 2, you will
-            set up your Version Control repository (V) and check in the
-            <filename class="extension">.appliance</filename> and
-            configuration files to create the beta release. From this point
-            forward, if you need to adjust your appliance in any way, you can
-            check out and alter these files only using the Development
-            system.</para>
+            set up your Version Control repository (V) and check in system
+            definition and configuration files to create the beta release. 
+            From this point forward, if you need to adjust your distribution
+            in any way, you can check out and alter these files only using the
+            Development system.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>Step 4: Check-out Your Appliance Files to Staging</term>
+          <term>Step 4: Check-out Your Distribution Files to Staging</term>
 
           <listitem>
             <para>Now that your beta release is available, you are ready to
             complete the pre-release build/deploy/test process. Check out the
-            repository with the <filename
-            class="extension">.appliance</filename> and configuration files
+            repository with the definition and configuration files
             from Version Control. If you made several revisions to the files,
             check out the version you want to deploy.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>Step 5: Build Your Appliance and Deploy and Test it on a
+          <term>Step 5: Build Your Distribution and Deploy and Test it on a
           Staging Client</term>
 
           <listitem>
             <para>Using <application class="software">SystemBuilder</application> on
-            the Staging system (S), you build the appliance with the
+            the Staging system (S), you build the distribution with the
             <command>systembuilder</command> command, i.e. <userinput>systembuilder
             samber-server.xml</userinput>. <application
-            class="software">SystemBuilder</application> will create your appliance
-            RPMs and install images in the same location as in Step 2. After
-            deploying the appliance to a Staging Client, test this beta
+            class="software">SystemBuilder</application> will create your
+            distribution in the same location as in Step 2. After
+            deploying the distribution to a Staging Client, test this beta
             version. If the results are unsatisfactory, go back to
             Development, check out the appropriate files from Version Control
             and make the appropriate changes, then check in. Use the iterative
             process in Steps 1-5 until you are satisfied with the results. Run
-            the <application class="software">SystemBuilder</application> appliance
+            the <application class="software">SystemBuilder</application>
             test at least twice to confirm cache performance.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>Step 6: Check-in Your Appliance Distribution to Version
-          Control</term>
+          <term>Step 6: Check-in Your Distribution Definition and Configuration
+          to Version Control</term>
 
           <listitem>
             <para>Once you have successfully built, deployed and tested your
-            appliance on the Staging Client, you can check in to Version
-            Control the distribution RPMs and images that resulted from the
-            Staging release. Including the appliance distribution itself in
-            this system has one distinct advantage. By utilizing the control
-            part of the system, you have a record of who checks out what
-            appliance and when. It also audits what changed in each version,
-            e.g. the RPM headers.</para>
+            distribution on the Staging Client, you can check in the system
+            definition and configuration files to Version Control. Including the
+            system definition itself in this system has one distinct advantage.
+            By utilizing the control part of the system, you have a record of
+            who make changes to the defintion and when. It also audits what
+            changed in each version.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>Step 7: Migrate Your Appliance Distribution to Production for
+          <term>Step 7: Migrate Your System Distribution to Production for
           Release</term>
 
           <listitem>
@@ -172,25 +168,25 @@
             distribution to Production and release them for download access.
             This practice also ensures a controlled release into Production,
             which improves the lock-down and control process for releasing
-            appliances such as DNS or SMTP servers to the sanitized DMZ
+            system distribution such as DNS or SMTP servers to the sanitized DMZ
             environment.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>Step 8: Deploy Your Appliance to the Production Clients</term>
+          <term>Step 8: Deploy Your Distribution to Production Clients</term>
 
           <listitem>
-            <para>As in Part I, Chapter 2, the "Deploying Your Appliance"
+            <para>As in Part I, Chapter 2, the "Deploying Clients"
             section, you will create the boot media from the Staging system
-            and use it to install the appliance on your users' clients. In
-            turn, the clients will download the appliance RPMs from the
+            and use it to install client systems. In
+            turn, the clients will download the system RPMs from the
             Production system.</para>
           </listitem>
         </varlistentry>
       </variablelist></para>
 
-    <para>Once you have deployed the appliance to production clients, you may
+    <para>Once you have deployed the distribution to production clients, you may
     discover changes that need to be made. OS or applications can have
     updates, incorporating bug fixes or other planned changes. They can have
     upgrades or full version releases with new features. Or you may want to

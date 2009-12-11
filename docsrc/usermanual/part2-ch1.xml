@@ -2,8 +2,9 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter>
-  <title>Creating a Managed Appliance Development and Deployment Environment
-  Using <application class="software">SystemBuilder</application></title>
+  <title>Creating a Managed System Distribution Development and Deployment
+  Environment Using <application class="software">SystemBuilder
+  </application></title>
 
   <para>You can harness <application class="software">SystemBuilder</application>'s
   architecture and features to create a robust software development
@@ -12,7 +13,7 @@
   procedures and alternate publish and download locations. Using <application
   class="software">SystemBuilder</application> as part of a long-term deployment and
   shop management strategy will enable you to be more efficient and provide an
-  appliance development and deployment history that is repeatable and
+  system distribution development and deployment history that is repeatable and
   predictable.</para>
 
   <xi:include href="part2-ch1-sec1.xml" xpointer="element(/1)"

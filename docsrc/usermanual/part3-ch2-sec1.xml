@@ -2,32 +2,32 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Updating Your Appliance</title>
+  <title>Updating Your System Distribution</title>
 
   <para>Using your system definition file, there are two methods to change
-  an appliance by adding or removing application packages in conjunction with
-  the <command>yum</command> <option>update</option> command option. One
-  method uses the <emphasis>packages</emphasis> TLE, which addresses the
-  appliance repository only, while the other uses
-  <emphasis>config-rpm</emphasis>, which affects changes within your
-  appliance's repository and on the installed client system.</para>
+  a system distribution by adding or removing application packages in 
+  conjunction with the <command>yum</command> <option>update</option> command
+  option. One method uses the <emphasis>packages</emphasis> TLE, which addresses
+  the distribution repository only, while the other uses <emphasis>config-rpm
+  </emphasis>, which affects changes within the distribution repository and on
+  the installed client system.</para>
 
-  <para>Regarding updates, if you add a package to your appliance using
+  <para>Regarding updates, if you add a package to your distribution using
   <emphasis>packages</emphasis> in your
   <filename>samber-server.xml</filename> file, <command>yum</command>
-  <option>update</option> will include the package in the appliance
+  <option>update</option> will include the package in the distribution
   repository, which is available for installation. If you add a new package
   using <emphasis>config-rpm/requires</emphasis>, <command>yum</command>
-  <option>update</option> will include the package in the appliance repository
+  <option>update</option> will include the package in the distribution repository
   <emphasis role="strong">and</emphasis> install it on the client system.
   </para>
 
-  <para>If you choose to update your appliance by removing a package using
+  <para>If you choose to update your distribution by removing a package using
   <emphasis>packages/exclude-package</emphasis>, <command>yum</command>
-  <option>update</option> will remove the package from the appliance
+  <option>update</option> will remove the package from the distribution
   repository but not from the installed client system. If you use
   <emphasis>config-rpm/obsoletes</emphasis>, <command>yum</command>
-  <option>update</option> will remove the package from the appliance
+  <option>update</option> will remove the package from the distribution
   repository <emphasis role="strong">and</emphasis> the installed client
   system. </para>
 

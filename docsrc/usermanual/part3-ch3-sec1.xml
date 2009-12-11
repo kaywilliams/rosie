@@ -2,13 +2,13 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Automating Your Appliance Installation</title>
+  <title>Automating Client Installations</title>
 
-  <para>SystemBuilder can save you time and labor by helping you automate the boot-up
-  and appliance kickstart process.</para>
+  <para>SystemBuilder can save you time and labor by helping you automate the
+  client boot-up and kickstart process.</para>
 
   <section>
-    <title>Kickstarting your appliance</title>
+    <title>Kickstarting Client Systems</title>
 
     <para>Kickstart installations automate the install process of a RedHat OS
     and make the installations reproducible. You may want to use this method

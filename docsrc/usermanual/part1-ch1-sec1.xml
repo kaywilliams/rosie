@@ -3,12 +3,12 @@
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
   <title><application class="software">SystemBuilder</application> Builds
-  Appliances</title>
+  System Distributions</title>
 
-  <para>An appliance is a set of software applications within an operating
-  system (OS) that forms a single distribution unit. Using SystemBuilder, an open
-  source appliance builder, you can create, deploy and maintain a custom
-  appliance:</para>
+  <para>A system distribution is a set of operating system components,
+  applications and configuration needed to deploy a system to perform a desired
+  function. Using SystemBuilder you can create and maintain system
+  distributions:</para>
 
   <para><itemizedlist>
       <listitem>
@@ -24,7 +24,7 @@
       </listitem>
 
       <listitem>
-        <para>build the appliance,</para>
+        <para>build the system distribution,</para>
       </listitem>
 
       <listitem>
@@ -32,11 +32,11 @@
       </listitem>
 
       <listitem>
-        <para>change the appliance components and configuration,</para>
+        <para>change components and configuration,</para>
       </listitem>
 
       <listitem>
-        <para>rebuild the appliance and</para>
+        <para>rebuild the system distribution and</para>
       </listitem>
 
       <listitem>
@@ -51,20 +51,19 @@
     </imageobject>
 
     <textobject>
-      <para><application class="software">SystemBuilder</application> takes various
-      inputs (OS, applications, configuration files, etc.), combines that with
-      an system definition file (<filename
-      class="extension">.appliance</filename>) and creates an appliance
-      distribution with deployment images and an appliance package repository.
-      Using the bootable media, you can deploy the appliance to one or more
-      client systems. You can also update the appliance repository and
-      clients.</para>
+      <para><application class="software">SystemBuilder</application> takes
+      various inputs (OS, applications, configuration files, etc.), combines 
+      that with an system definition file and creates a system distribution 
+      with deployment images and a package repository. Using the bootable media,
+      you can deploy the distribution to one or more client systems. You can 
+      also update existing clients from the distribution package repository.
+      </para>
     </textobject>
 
     <caption><para>How SystemBuilder Works</para></caption>
   </mediaobject>
 
-  <para>In summary, SystemBuilder is a robust appliance life cycle manager for use in
-  defining, building and maintaining appliances that are easily deployed and
-  updated using industry standard tools.</para>
+  <para>In summary, SystemBuilder is a robust distribution life cycle manager
+  for use in defining, building and maintaining system distributions that are
+  easily deployed and updated using industry standard tools.</para>
 </section>
