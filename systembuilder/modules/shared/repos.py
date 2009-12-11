@@ -49,12 +49,12 @@ NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
                  'stylesheet-images']
 
 class SystemBuilderRepo(YumRepo):
-  keyfilter = ['id', 'distributionid']
+  keyfilter = ['id', 'systemid']
 
   def __init__(self, **kwargs):
     YumRepo.__init__(self, **kwargs)
     self.localurl = None
-    self._distributionid = None # system id, for redhat mirrors
+    self._systemid = None # system id, for redhat mirrors
 
   def _boolparse(self, s):
     if s.lower() in BOOLEANS_FALSE:
@@ -93,14 +93,14 @@ class SystemBuilderRepo(YumRepo):
     p = pps.path(p)
     try:
       if isinstance(p, pps.Path.rhn.RhnPath):
-        distributionid = self.get('distributionid')
-        if distributionid:
-          distributionid = pps.path(distributionid).realpath()
+        systemid = self.get('systemid')
+        if systemid:
+          systemid = pps.path(systemid).realpath()
           try:
-            assert_file_has_content(distributionid, cls=SystemidIOError, repoid=self.id)
+            assert_file_has_content(systemid, cls=SystemidIOError, repoid=self.id)
           except pps.lib.rhn.SystemidInvalidError, e:
-            raise SystemidInvalidError(distributionid, self.id, str(e))
-          p.distributionid = distributionid
+            raise SystemidInvalidError(systemid, self.id, str(e))
+          p.systemid = systemid
         else:
           raise SystemidUndefinedError(self.id)
       else:
@@ -478,11 +478,11 @@ class InconsistentRepodataError(SystemBuilderError, RuntimeError):
               " in repo '%(repoid)s' after %(ntries)d tries" )
 
 class SystemidIOError(SystemBuilderIOError):
-  message = ( "Unable to read distributionid file '%(file)s' for repo "
+  message = ( "Unable to read systemid file '%(file)s' for repo "
               "'%(repoid)s': [errno %(errno)d] %(message)s" )
 
 class SystemidUndefinedError(SystemBuilderError, InvalidConfigError):
-  message = "No <distributionid> element defined for repo '%(repoid)s'"
+  message = "No <systemid> element defined for repo '%(repoid)s'"
 
 class SystemidInvalidError(SystemBuilderError):
   message = ( "Systemid file '%(file)s' for repo '%(repo)s' is invalid: "
