@@ -31,7 +31,7 @@ from rendition.difftest.filesdiff import DiffTuple
 
 from rendition.pps.constants import TYPE_DIR
 
-from systembuilder.errors    import (SpinError, SpinIOError, RhnSupportError,
+from systembuilder.errors    import (SystemBuilderError, SystemBuilderIOError, RhnSupportError,
                             assert_file_readable, assert_file_has_content)
 from systembuilder.logging   import L1, L2
 from systembuilder.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
@@ -41,14 +41,14 @@ from rendition.repo          import ReposFromXml, ReposFromFile, getDefaultRepos
 from rendition.repo.repo     import YumRepo, RepoContainer, NSMAP
 from rendition.repo.defaults import TYPE_ALL
 
-__all__ = ['RepoEventMixin', 'SpinRepo', 'SpinRepoGroup',
-           'SpinRepoFileParseError']
+__all__ = ['RepoEventMixin', 'SystemBuilderRepo', 'SystemBuilderRepoGroup',
+           'SystemBuilderRepoFileParseError']
 
 # list of folders that don't contain repodata folders for sure
 NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
                  'stylesheet-images']
 
-class SpinRepo(YumRepo):
+class SystemBuilderRepo(YumRepo):
   keyfilter = ['id', 'distributionid']
 
   def __init__(self, **kwargs):
@@ -109,7 +109,7 @@ class SpinRepo(YumRepo):
       p = YumRepo._xform_uri(self, p)
     return p
 
-class RhnSpinRepo(SpinRepo):
+class RhnSystemBuilderRepo(SystemBuilderRepo):
   # redhat's RHN repos are very annoying in that they have inconsitent
   # metadata at times.  This class aims to account for this instability
 
@@ -119,7 +119,7 @@ class RhnSpinRepo(SpinRepo):
   def read_repomd(self):
     i = 0; consistent = False
     while i < self.MAX_TRIES:
-      SpinRepo.read_repomd(self)
+      SystemBuilderRepo.read_repomd(self)
       if self.EMPTY_FILE_CSUM not in \
         self.repomd.xpath('//repo:data/repo:checksum/text()',
                           namespaces=NSMAP):
@@ -129,9 +129,9 @@ class RhnSpinRepo(SpinRepo):
       raise InconsistentRepodataError(self.id, self.MAX_TRIES)
 
 
-class SpinRepoGroup(SpinRepo):
+class SystemBuilderRepoGroup(SystemBuilderRepo):
   def __init__(self, **kwargs):
-    SpinRepo.__init__(self, **kwargs)
+    SystemBuilderRepo.__init__(self, **kwargs)
 
     self._repos = None
     self.has_installer_files = False
@@ -147,10 +147,10 @@ class SpinRepoGroup(SpinRepo):
       raise MirrorlistFormatInvalidError(self.id, e.lineno, e.line, e.reason)
 
     # need special handling for rhn paths
-    cls = SpinRepo
+    cls = SystemBuilderRepo
     try:
       if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
-        cls = RhnSpinRepo
+        cls = RhnSystemBuilderRepo
     except AttributeError:
       if ( self.url.realm.scheme == 'rhn' or
            self.url.realm.scheme == 'rhns' ):
@@ -467,40 +467,40 @@ class ReposDiffTuple(DiffTuple):
       self.csum = self.path.shasum()
 
 
-class NoReposEnabledError(SpinError, RuntimeError):
+class NoReposEnabledError(SystemBuilderError, RuntimeError):
   message = "No enabled repos in '%(modid)s' module"
 
-class RepodataNotFoundError(SpinError, RuntimeError):
+class RepodataNotFoundError(SystemBuilderError, RuntimeError):
   message = "Unable to find repodata folder for repo '%(repoid)s' at '%(url)s'"
 
-class InconsistentRepodataError(SpinError, RuntimeError):
+class InconsistentRepodataError(SystemBuilderError, RuntimeError):
   message = ( "Unable to obtain consistent value for one or more checksums "
               " in repo '%(repoid)s' after %(ntries)d tries" )
 
-class SystemidIOError(SpinIOError):
+class SystemidIOError(SystemBuilderIOError):
   message = ( "Unable to read distributionid file '%(file)s' for repo "
               "'%(repoid)s': [errno %(errno)d] %(message)s" )
 
-class SystemidUndefinedError(SpinError, InvalidConfigError):
+class SystemidUndefinedError(SystemBuilderError, InvalidConfigError):
   message = "No <distributionid> element defined for repo '%(repoid)s'"
 
-class SystemidInvalidError(SpinError):
+class SystemidInvalidError(SystemBuilderError):
   message = ( "Systemid file '%(file)s' for repo '%(repo)s' is invalid: "
               "%(message)s" )
 
-class PkgsfileIOError(SpinIOError):
+class PkgsfileIOError(SystemBuilderIOError):
   message = ( "Unable to compute package version for %(names)s with pkgsfile "
               "'%(file)s': [errno %(errno)d] %(message)s" )
 
-class SpinRepoFileParseError(SpinError):
+class SystemBuilderRepoFileParseError(SystemBuilderError):
   message = "Error parsing repo file: %(message)s"
 
-class RepomdCsumMismatchError(SpinError):
+class RepomdCsumMismatchError(SystemBuilderError):
   message = ( "Checksum of file '%(file)s' doesn't match repomd.xml for "
               "repo '%(repoid)s':\n"
               "  Got:      %(got)s\n"
               "  Expected: %(expected)s" )
 
-class MirrorlistFormatInvalidError(SpinError):
+class MirrorlistFormatInvalidError(SystemBuilderError):
   message = ( "Mirrorlist format invalid for repo '%(repo)s' on line "
               "%(lineno)d: '%(line)s': %(reason)s" )

@@ -21,7 +21,7 @@ from rendition import rxml
 from systembuildertest import EventTestCase, ModuleTestSuite
 from systembuildertest.core import make_core_suite
 
-from systembuilder.errors import SpinError
+from systembuilder.errors import SystemBuilderError
 
 class GpgcheckEventTestCase(EventTestCase):
   moduleid = 'gpgcheck'
@@ -43,10 +43,10 @@ class GpgcheckEventTestCase(EventTestCase):
 
 
 class Test_GpgKeysNotProvided(GpgcheckEventTestCase):
-  "raises SpinError when no keys are provided"
+  "raises SystemBuilderError when no keys are provided"
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(SpinError, self.event)
+    self.failUnlessRaises(SystemBuilderError, self.event)
 
   def _make_repos_config(self):
     repos = GpgcheckEventTestCase._make_repos_config(self)

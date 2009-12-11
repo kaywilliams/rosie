@@ -20,7 +20,7 @@ from rendition import rxml
 
 from rendition.pps.constants import *
 
-from systembuilder.errors import SpinError
+from systembuilder.errors import SystemBuilderError
 
 class IOMixin:
   def __init__(self):
@@ -263,5 +263,5 @@ class TransactionData(object):
   def __repr__(self): return '%s(%s)' % (self.__class__.__name__, self.__str__())
 
 
-class MissingInputFileError(SpinError):
+class MissingInputFileError(SystemBuilderError):
   message = "missing input file: %(error)s"

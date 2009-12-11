@@ -1,8 +1,8 @@
 # Fedora Infinity KSplash/ML Theme
 
-[KSplash Theme: Spin]
-Name = Spin
-Description = Spin splash screen theme
+[KSplash Theme: SystemBuilder]
+Name = SystemBuilder
+Description = SystemBuilder splash screen theme
 Version = 1.0
 Author = systembuilder
 

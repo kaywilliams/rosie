@@ -21,7 +21,7 @@ import fnmatch
 from rendition import magic
 
 from systembuilder.constants import KERNELS
-from systembuilder.errors    import assert_file_has_content, SpinError
+from systembuilder.errors    import assert_file_has_content, SystemBuilderError
 from systembuilder.event     import Event
 from systembuilder.logging   import L1
 
@@ -273,7 +273,7 @@ class PackagesEvent(Event):
 
 
 #------ ERRORS ------#
-class CompsError(SpinError): pass
+class CompsError(SystemBuilderError): pass
 
 class GroupNotFoundError(CompsError):
   message = "Group '%(group)s' not found in any groupfile"

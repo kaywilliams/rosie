@@ -23,7 +23,7 @@ from rendition import repo
 from systembuilder.event   import Event
 from systembuilder.logging import L1, L2
 
-from systembuilder.modules.shared import SpinRepoGroup
+from systembuilder.modules.shared import SystemBuilderRepoGroup
 
 from rendition.repo.repo import RepoContainer
 
@@ -70,9 +70,9 @@ class RpmbuildRepoEvent(Event):
         self.io.add_fpath(self.cvars['rpmbuild-data'][id]['srpm-path'],
                           self.RPMBUILD_SRPMS, id='rpmbuild-srpms')
 
-      rpmbuild_rpms  = SpinRepoGroup(id=self.cid, name=self.cid,
+      rpmbuild_rpms  = SystemBuilderRepoGroup(id=self.cid, name=self.cid,
                                    baseurl=self.RPMBUILD_RPMS, gpgcheck='no')
-      rpmbuild_srpms = SpinRepoGroup(id=self.csid, name=self.csid,
+      rpmbuild_srpms = SystemBuilderRepoGroup(id=self.csid, name=self.csid,
                                    baseurl=self.RPMBUILD_SRPMS)
 
       self._setup_repos('packages', updates = {self.cid:  rpmbuild_rpms,

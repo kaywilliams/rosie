@@ -7,23 +7,23 @@
 
   <xi:include href="icons.xml" xpointer="xpointer(/logos-rpm/*)"/>
 
-  <file dest="/usr/share/apps/kdisplay/color-schemes/Spin.kcsrc"
+  <file dest="/usr/share/apps/kdisplay/color-schemes/SystemBuilder.kcsrc"
         xwindow-type="kde">
-    <path>files/kdisplay/Spin.kcsrc</path>
+    <path>files/kdisplay/SystemBuilder.kcsrc</path>
   </file>
-  <file dest="/usr/share/apps/kdisplay/color-schemes/SpinKDM.kcsrc"
+  <file dest="/usr/share/apps/kdisplay/color-schemes/SystemBuilderKDM.kcsrc"
         xwindow-type="kde">
-    <path>files/kdisplay/SpinKDM.kcsrc</path>
+    <path>files/kdisplay/SystemBuilderKDM.kcsrc</path>
   </file>
-  <file dest="/usr/share/apps/kdm/themes/Spin/GdmGreeterTheme.desktop"
+  <file dest="/usr/share/apps/kdm/themes/SystemBuilder/GdmGreeterTheme.desktop"
         xwindow-type="kde">
     <path>files/kdm/GdmGreeterTheme.desktop</path>
   </file>
-  <file dest="/usr/share/apps/kdm/themes/Spin/SpinKDM.xml"
+  <file dest="/usr/share/apps/kdm/themes/SystemBuilder/SystemBuilderKDM.xml"
         xwindow-type="kde">
-    <path>files/kdm/SpinKDM.xml</path>
+    <path>files/kdm/SystemBuilderKDM.xml</path>
   </file>
-  <file dest="/usr/share/apps/ksplash/Themes/Spin/Theme.rc"
+  <file dest="/usr/share/apps/ksplash/Themes/SystemBuilder/Theme.rc"
         xwindow-type="kde">
     <path>files/ksplash/Theme.rc</path>
   </file>
@@ -33,14 +33,14 @@
   <file dest="/usr/share/backgrounds/systembuilder/systembuilder.xml">
     <path>files/backgrounds/systembuilder.xml</path>
   </file>
-  <file dest="/usr/share/gdm/themes/Spin/GdmGreeterTheme.desktop">
+  <file dest="/usr/share/gdm/themes/SystemBuilder/GdmGreeterTheme.desktop">
     <path>files/gdm/GdmGreeterTheme.desktop</path>
   </file>
-  <file dest="/usr/share/gdm/themes/Spin/SpinGDM.xml">
-    <path>files/gdm/SpinGDM.xml</path>
+  <file dest="/usr/share/gdm/themes/SystemBuilder/SystemBuilderGDM.xml">
+    <path>files/gdm/SystemBuilderGDM.xml</path>
   </file>
-  <file dest="/usr/share/gdm/themes/Spin/Spin.gtkrc">
-    <path>files/gdm/Spin.gtkrc</path>
+  <file dest="/usr/share/gdm/themes/SystemBuilder/SystemBuilder.gtkrc">
+    <path>files/gdm/SystemBuilder.gtkrc</path>
   </file>
   <file dest="/usr/share/gnome-background-properties/desktop-backgrounds-systembuilder.xml"
         xwindow-type="gnome">
@@ -54,52 +54,52 @@
         xwindow-type="gnome">
     <path>files/gnome-screensaver/lock-dialog-system.gtkrc</path>
   </file>
-  <file dest="/usr/share/apps/kdisplay/color-schemes/Spin.kcsrc"
+  <file dest="/usr/share/apps/kdisplay/color-schemes/SystemBuilder.kcsrc"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
     <remove/>
   </file>
-  <file dest="/usr/share/apps/kdisplay/color-schemes/SpinKDM.kcsrc"
+  <file dest="/usr/share/apps/kdisplay/color-schemes/SystemBuilderKDM.kcsrc"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
     <remove/>
   </file>
-  <file dest="/usr/share/apps/kdm/themes/Spin/GdmGreeterTheme.desktop"
+  <file dest="/usr/share/apps/kdm/themes/SystemBuilder/GdmGreeterTheme.desktop"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
     <remove/>
   </file>
-  <file dest="/usr/share/apps/kdm/themes/Spin/SpinKDM.xml"
+  <file dest="/usr/share/apps/kdm/themes/SystemBuilder/SystemBuilderKDM.xml"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
     <remove/>
   </file>
-  <file dest="/usr/share/apps/ksplash/Themes/Spin/Theme.rc"
+  <file dest="/usr/share/apps/ksplash/Themes/SystemBuilder/Theme.rc"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
     <remove/>
   </file>
-  <file dest="/usr/share/kde4/apps/kdisplay/color-schemes/Spin.kcsrc"
+  <file dest="/usr/share/kde4/apps/kdisplay/color-schemes/SystemBuilder.kcsrc"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <path>files/kdisplay/Spin.kcsrc</path>
+    <path>files/kdisplay/SystemBuilder.kcsrc</path>
   </file>
-  <file dest="/usr/share/kde4/apps/kdisplay/color-schemes/SpinKDM.kcsrc"
+  <file dest="/usr/share/kde4/apps/kdisplay/color-schemes/SystemBuilderKDM.kcsrc"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <path>files/kdisplay/SpinKDM.kcsrc</path>
+    <path>files/kdisplay/SystemBuilderKDM.kcsrc</path>
   </file>
-  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/GdmGreeterTheme.desktop"
+  <file dest="/usr/share/kde4/apps/kdm/themes/SystemBuilder/GdmGreeterTheme.desktop"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
     <path>files/kdm/GdmGreeterTheme.desktop</path>
   </file>
-  <file dest="/usr/share/kde4/apps/kdm/themes/Spin/SpinKDM.xml"
+  <file dest="/usr/share/kde4/apps/kdm/themes/SystemBuilder/SystemBuilderKDM.xml"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
-    <path>files/kdm/SpinKDM.xml</path>
+    <path>files/kdm/SystemBuilderKDM.xml</path>
   </file>
-  <file dest="/usr/share/kde4/apps/ksplash/Themes/Spin/Theme.rc"
+  <file dest="/usr/share/kde4/apps/ksplash/Themes/SystemBuilder/Theme.rc"
         xwindow-type="kde"
         anaconda-version="11.3.0.36-1">
     <path>files/ksplash/Theme.rc</path>
@@ -112,14 +112,14 @@
       <height>960</height>
     </create>
   </image>
-  <image dest="/usr/share/apps/kdm/themes/Spin/screenshot.png"
+  <image dest="/usr/share/apps/kdm/themes/SystemBuilder/screenshot.png"
          xwindow-type="kde">
     <create>
       <width>1024</width>
       <height>768</height>
     </create>
   </image>
-  <image dest="/usr/share/apps/ksplash/Themes/Spin/screenshot.png"
+  <image dest="/usr/share/apps/ksplash/Themes/SystemBuilder/screenshot.png"
          xwindow-type="kde">
     <create>
       <width>1024</width>
@@ -171,7 +171,7 @@
       <text>%{copyright}</text>
     </string>
   </image>
-  <image dest="/usr/share/gdm/themes/Spin/innerbackground.png">
+  <image dest="/usr/share/gdm/themes/SystemBuilder/innerbackground.png">
     <create>
       <width>680</width>
       <height>520</height>
@@ -208,7 +208,7 @@
       <text>%{copyright}</text>
     </string>
   </image>
-  <image dest="/usr/share/apps/kdm/themes/Spin/innerbackground.png"
+  <image dest="/usr/share/apps/kdm/themes/SystemBuilder/innerbackground.png"
          xwindow-type="kde">
     <create>
       <width>680</width>
@@ -277,7 +277,7 @@
       <text>%{copyright}</text>
     </string>
   </image>
-  <image dest="/usr/share/gdm/themes/Spin/screenshot.png">
+  <image dest="/usr/share/gdm/themes/SystemBuilder/screenshot.png">
     <create>
       <width>1024</width>
       <height>768</height>
@@ -289,7 +289,7 @@
       <height>1024</height>
     </create>
   </image>
-  <image dest="/usr/share/gdm/themes/Spin/background.png">
+  <image dest="/usr/share/gdm/themes/SystemBuilder/background.png">
     <create>
       <width>2560</width>
       <height>1600</height>
@@ -321,7 +321,7 @@
       <text>Version %{version}</text>
     </string>
   </image>
-  <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_bottom.png"
+  <image dest="/usr/share/apps/ksplash/Themes/SystemBuilder/splash_bottom.png"
          xwindow-type="kde">
     <create>
       <width>400</width>
@@ -358,7 +358,7 @@
       <text>%{copyright}</text>
     </string>
   </image>
-  <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_inactive_bar.png"
+  <image dest="/usr/share/apps/ksplash/Themes/SystemBuilder/splash_inactive_bar.png"
          xwindow-type="kde">
     <create>
       <width>400</width>
@@ -444,14 +444,14 @@
       <text>Version %{version}</text>
     </string>
   </image>
-  <image dest="/usr/share/apps/kdm/themes/Spin/background.png"
+  <image dest="/usr/share/apps/kdm/themes/SystemBuilder/background.png"
          xwindow-type="kde">
     <create>
       <width>2560</width>
       <height>1600</height>
     </create>
   </image>
-  <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_active_bar.png"
+  <image dest="/usr/share/apps/ksplash/Themes/SystemBuilder/splash_active_bar.png"
          xwindow-type="kde">
     <create>
       <width>400</width>
@@ -562,42 +562,42 @@
       <text>%{copyright}</text>
     </string>
   </image>
-  <image dest="/usr/share/apps/kdm/themes/Spin/background.png"
+  <image dest="/usr/share/apps/kdm/themes/SystemBuilder/background.png"
          xwindow-type="kde"
          anaconda-version="11.3.0.36-1">
     <remove/>
   </image>
-  <image dest="/usr/share/apps/kdm/themes/Spin/innerbackground.png"
+  <image dest="/usr/share/apps/kdm/themes/SystemBuilder/innerbackground.png"
          xwindow-type="kde"
          anaconda-version="11.3.0.36-1">
     <remove/>
   </image>
-  <image dest="/usr/share/apps/kdm/themes/Spin/screenshot.png"
+  <image dest="/usr/share/apps/kdm/themes/SystemBuilder/screenshot.png"
          xwindow-type="kde"
          anaconda-version="11.3.0.36-1">
     <remove/>
   </image>
-  <image dest="/usr/share/apps/ksplash/Themes/Spin/screenshot.png"
+  <image dest="/usr/share/apps/ksplash/Themes/SystemBuilder/screenshot.png"
          xwindow-type="kde"
          anaconda-version="11.3.0.36-1">
     <remove/>
   </image>
-  <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_active_bar.png"
+  <image dest="/usr/share/apps/ksplash/Themes/SystemBuilder/splash_active_bar.png"
          xwindow-type="kde"
          anaconda-version="11.3.0.36-1">
     <remove/>
   </image>
-  <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_bottom.png"
+  <image dest="/usr/share/apps/ksplash/Themes/SystemBuilder/splash_bottom.png"
          xwindow-type="kde"
          anaconda-version="11.3.0.36-1">
     <remove/>
   </image>
-  <image dest="/usr/share/apps/ksplash/Themes/Spin/splash_inactive_bar.png"
+  <image dest="/usr/share/apps/ksplash/Themes/SystemBuilder/splash_inactive_bar.png"
          xwindow-type="kde"
          anaconda-version="11.3.0.36-1">
     <remove/>
   </image>
-  <image dest="/usr/share/kde4/apps/kdm/themes/Spin/screenshot.png"
+  <image dest="/usr/share/kde4/apps/kdm/themes/SystemBuilder/screenshot.png"
          xwindow-type="kde"
          anaconda-version="11.3.0.36-1">
     <create>
@@ -605,7 +605,7 @@
       <height>768</height>
     </create>
   </image>
-  <image dest="/usr/share/kde4/apps/kdm/themes/Spin/innerbackground.png"
+  <image dest="/usr/share/kde4/apps/kdm/themes/SystemBuilder/innerbackground.png"
          xwindow-type="kde"
          anaconda-version="11.3.0.36-1">
     <create>
@@ -613,7 +613,7 @@
       <height>520</height>
     </create>
   </image>
-  <image dest="/usr/share/kde4/apps/ksplash/Themes/Spin/splash_bottom.png"
+  <image dest="/usr/share/kde4/apps/ksplash/Themes/SystemBuilder/splash_bottom.png"
          xwindow-type="kde"
          anaconda-version="11.3.0.36-1">
     <create>
@@ -621,7 +621,7 @@
       <height>19</height>
     </create>
   </image>
-  <image dest="/usr/share/kde4/apps/ksplash/Themes/Spin/splash_inactive_bar.png"
+  <image dest="/usr/share/kde4/apps/ksplash/Themes/SystemBuilder/splash_inactive_bar.png"
          xwindow-type="kde"
          anaconda-version="11.3.0.36-1">
     <create>

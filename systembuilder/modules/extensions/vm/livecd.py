@@ -25,7 +25,7 @@ import imgcreate
 
 from rendition import pps
 
-from systembuilder.errors import SpinError
+from systembuilder.errors import SystemBuilderError
 from systembuilder.event  import Event
 
 from systembuilder.modules.shared import vms
@@ -74,7 +74,7 @@ class LivecdEvent(vms.VmCreateMixin, Event):
     self._prep_ks_scripts()
 
     # create image creator
-    self.creator = SpinLiveImageCreator(self, self.ks,
+    self.creator = SystemBuilderLiveImageCreator(self, self.ks,
                                         '%s-livecd' % self.distributionid)
     self.creator.skip_compression = not self.config.getbool('@compress', True)
     self.creator.skip_minimize    = not self.config.getbool('@minimize', True)
@@ -106,16 +106,16 @@ class LivecdEvent(vms.VmCreateMixin, Event):
     self.creator = None
 
 
-class SpinLiveImageCreator(vms.SpinImageCreatorMixin,
+class SystemBuilderLiveImageCreator(vms.SystemBuilderImageCreatorMixin,
                            imgcreate.LiveImageCreator):
   def __init__(self, event, *args, **kwargs):
     imgcreate.LiveImageCreator.__init__(self, *args, **kwargs)
-    vms.SpinImageCreatorMixin.__init__(self, event)
+    vms.SystemBuilderImageCreatorMixin.__init__(self, event)
 
   def _base_on(self, base_on):
     if pps.path(base_on).exists():
       pps.path(base_on).cp(self._image, link=True, force=True)
-      vms.SpinImageCreatorMixin._base_on(self, base_on)
+      vms.SystemBuilderImageCreatorMixin._base_on(self, base_on)
 
   def _cleanup(self):
     if self._image and pps.path(self._image).exists():
@@ -130,6 +130,6 @@ class SpinLiveImageCreator(vms.SpinImageCreatorMixin,
     pps.path(self._image).cp(self.event.baseimg, link=True, force=True)
     imgcreate.LiveImageCreator.package(self, destdir=destdir)
 
-class SyslinuxRequiredError(SpinError):
+class SyslinuxRequiredError(SystemBuilderError):
   message = ( "Creating an distribution livecd requires that the 'syslinux' "
               "package be included in the distribution." )

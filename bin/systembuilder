@@ -20,7 +20,7 @@
 """
 systembuilder
 
-Spin wrapper
+SystemBuilder wrapper
 """
 
 import imp

@@ -27,7 +27,7 @@ from rendition import magic
 from rendition import shlib
 
 from systembuilder.event  import Event
-from systembuilder.errors import SpinError
+from systembuilder.errors import SystemBuilderError
 from systembuilder.locals import L_LOGOS_RPM_APPLIANCE_INFO
 
 from systembuilder.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
@@ -198,7 +198,7 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
     custom_theme.dirname.mkdirs()
     custom_theme.write_text(
       self.locals.L_GDM_CUSTOM_THEME % \
-      {'themename': self.config.get('theme/text()', 'Spin')}
+      {'themename': self.config.get('theme/text()', 'SystemBuilder')}
     )
 
   def _generate_splash_image(self):
@@ -244,5 +244,5 @@ def rgb_to_hex(rgb):
   return '#' + hex(rgb[0])[2:] + hex(rgb[1])[2:] + hex(rgb[2])[2:]
 
 
-class NoImagesDefinedError(SpinError):
+class NoImagesDefinedError(SystemBuilderError):
   message = ( "No logos-rpm xml config files found in the share path(s): %(sharepath)s")

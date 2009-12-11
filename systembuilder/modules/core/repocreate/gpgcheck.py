@@ -20,7 +20,7 @@ from rendition import mkrpm
 from rendition import shlib
 
 from systembuilder.callback import GpgCallback
-from systembuilder.errors   import SpinError, SpinIOError, assert_file_has_content
+from systembuilder.errors   import SystemBuilderError, SystemBuilderIOError, assert_file_has_content
 from systembuilder.event    import Event
 from systembuilder.logging  import L1, L2
 from systembuilder.validate import InvalidConfigError
@@ -134,11 +134,11 @@ class GpgCheckEvent(Event):
     k.write_lines(outlines)
 
 #------ ERRORS ------#
-class RpmSignatureInvalidError(SpinError):
+class RpmSignatureInvalidError(SystemBuilderError):
   message = "One or more RPMs failed GPG key check:\n %(rpms)s"
 
-class GpgkeyIOError(SpinIOError):
+class GpgkeyIOError(SystemBuilderIOError):
   message = "cannot read gpgkey '%(file)s': [errno %(errno)d] %(message)s"
 
-class NoGpgkeysProvidedError(SpinError, InvalidConfigError):
+class NoGpgkeysProvidedError(SystemBuilderError, InvalidConfigError):
   message = "gpgcheck enabled but no gpgkeys defined for repo '%(repoid)s'"

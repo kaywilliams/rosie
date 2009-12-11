@@ -22,7 +22,7 @@ from pykickstart.constants import KS_MISSING_PROMPT, KS_MISSING_IGNORE
 from rendition import pps
 
 from systembuilder.event  import Event
-from systembuilder.errors import SpinError, assert_file_readable
+from systembuilder.errors import SystemBuilderError, assert_file_readable
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -204,7 +204,7 @@ class KickstartEvent(Event):
     ks.handler.packages.add(lines)
 
 
-class RepoSpecifiedError(SpinError):
+class RepoSpecifiedError(SystemBuilderError):
   message = "Cannot specify repo command in the kickstart contents."
-class PackagesSpecifiedError(SpinError):
+class PackagesSpecifiedError(SystemBuilderError):
   message = "Cannot specify packages section in kickstart contents."

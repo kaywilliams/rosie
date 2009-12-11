@@ -32,7 +32,7 @@ from rendition import rxml
 
 from rendition.repo import RPM_PNVRA_REGEX
 
-from systembuilder.errors  import SpinError
+from systembuilder.errors  import SystemBuilderError
 from systembuilder.logging import L1, L2
 
 class VmCreateMixin:
@@ -94,7 +94,7 @@ class VmCreateMixin:
     return True
 
 
-class SpinImageCreatorMixin:
+class SystemBuilderImageCreatorMixin:
   def __init__(self, event, *args, **kwargs):
 
     self.event = event
@@ -111,7 +111,7 @@ class SpinImageCreatorMixin:
   # likes to use
   def _getattr_(self, attr):
     for cls in inspect.getmro(self.__class__):
-      if cls == SpinImageCreatorMixin: continue # don't look in this class
+      if cls == SystemBuilderImageCreatorMixin: continue # don't look in this class
       atn = '_%s%s' % (cls.__name__, attr)
       if hasattr(self, atn):
         return getattr(self, atn)
@@ -123,7 +123,7 @@ class SpinImageCreatorMixin:
     # setattr on the outermost instance class, and it errors if no parent
     # class instance defines the attr
     for cls in inspect.getmro(self.__class__):
-      if cls == SpinImageCreatorMixin: continue # don't look in this class
+      if cls == SystemBuilderImageCreatorMixin: continue # don't look in this class
       atn = '_%s%s' % (cls.__name__, attr)
       if hasattr(self, atn):
         setattr(self, atn, v)
@@ -277,7 +277,7 @@ class VMYum(imgcreate.yuminst.LiveCDYum):
     print ""
     return ret
 
-class RequiresKickstartError(SpinError):
+class RequiresKickstartError(SystemBuilderError):
   message = ( "The '%(modid)s' module requires that a kickstart be specified "
               "in the <kickstart> top-level element." )
 

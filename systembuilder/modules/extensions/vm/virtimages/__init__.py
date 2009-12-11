@@ -27,7 +27,7 @@ import imgcreate
 from rendition import pps
 from rendition import rxml
 
-from systembuilder.errors  import SpinError
+from systembuilder.errors  import SystemBuilderError
 from systembuilder.event   import Event
 from systembuilder.logging import L1
 
@@ -88,7 +88,7 @@ class VirtimageBaseEvent(vms.VmCreateMixin, Event):
     self._prep_ks_scripts()
 
     # create image creator
-    self.creator = SpinDistributionImageCreator(self,
+    self.creator = SystemBuilderDistributionImageCreator(self,
                      self.ks,
                      name        = self.distributionid,
                      disk_format = 'raw',
@@ -146,11 +146,11 @@ class VirtimageBaseEvent(vms.VmCreateMixin, Event):
     self.cvars['virtimage-xml'] = self.outdir/'%s.xml' % self.distributionid
 
 
-class SpinDistributionImageCreator(vms.SpinImageCreatorMixin,
+class SystemBuilderDistributionImageCreator(vms.SystemBuilderImageCreatorMixin,
                                 appcreate.DistributionImageCreator):
   def __init__(self, event, *args, **kwargs):
     appcreate.DistributionImageCreator.__init__(self, *args, **kwargs)
-    vms.SpinImageCreatorMixin.__init__(self, event)
+    vms.SystemBuilderImageCreatorMixin.__init__(self, event)
 
   def _check_required_packages(self):
     if 'grub' not in self._get_pkglist_names():
@@ -174,7 +174,7 @@ class SpinDistributionImageCreator(vms.SpinImageCreatorMixin,
                 id.stat().st_size)
         self._getattr_('__disks')[name] = disk
 
-      self._setattr_('__instloop', SpinPartitionedMount( #!
+      self._setattr_('__instloop', SystemBuilderPartitionedMount( #!
                                      self._getattr_('__disks'),
                                      self._instroot))
 
@@ -187,7 +187,7 @@ class SpinDistributionImageCreator(vms.SpinImageCreatorMixin,
       except appcreate.MountError, e:
         raise imgcreate.CreatorError("Failed mount disks: %s" % e)
 
-      vms.SpinImageCreatorMixin._base_on(self, base_on)
+      vms.SystemBuilderImageCreatorMixin._base_on(self, base_on)
 
     else:
       appcreate.DistributionImageCreator._mount_instroot(self)
@@ -199,7 +199,7 @@ class SpinDistributionImageCreator(vms.SpinImageCreatorMixin,
     except:
       pass
 
-class GrubRequiredError(SpinError):
+class GrubRequiredError(SystemBuilderError):
   message = ( "Creating an distribution virtual image requires that the 'grub' "
               "package be included in the distribution." )
 
@@ -208,7 +208,7 @@ import logging
 import subprocess
 
 # the following classes use the same 'Xtreem Kool Hak' as
-# SpinImageCreatorMixin for _getattr_ (see shared/vms.py for details)
+# SystemBuilderImageCreatorMixin for _getattr_ (see shared/vms.py for details)
 #
 # These classes allow appcreator to use base_on for its images - specifically,
 # the disk images are not automatically formatted upon creation
@@ -216,10 +216,10 @@ import subprocess
 # Most of the method code here is unchanged from the original; lines with
 # differences end in '#!'
 
-class SpinExtDiskMount(imgcreate.ExtDiskMount):
+class SystemBuilderExtDiskMount(imgcreate.ExtDiskMount):
   def _getattr_(self, attr):
     for cls in inspect.getmro(self.__class__):
-      if cls == SpinExtDiskMount: continue # don't loop infinitely
+      if cls == SystemBuilderExtDiskMount: continue # don't loop infinitely
       atn = '_%s%s' % (cls.__name__, attr)
       if hasattr(self, atn):
         return getattr(self, atn)
@@ -243,10 +243,10 @@ class SpinExtDiskMount(imgcreate.ExtDiskMount):
     self.__create(format=format) #!
     imgcreate.DiskMount.mount(self)
 
-class SpinPartitionedMount(appcreate.PartitionedMount):
+class SystemBuilderPartitionedMount(appcreate.PartitionedMount):
   def _getattr_(self, attr):
     for cls in inspect.getmro(self.__class__):
-      if cls == SpinPartitionedMount: continue # don't loop infinitely
+      if cls == SystemBuilderPartitionedMount: continue # don't loop infinitely
       atn = '_%s%s' % (cls.__name__, attr)
       if hasattr(self, atn):
         return getattr(self, atn)
@@ -333,7 +333,7 @@ class SpinPartitionedMount(appcreate.PartitionedMount):
       rmmountdir = False
       if p['mountpoint'] == "/":
         rmmountdir = True
-      pdisk = SpinExtDiskMount( #!
+      pdisk = SystemBuilderExtDiskMount( #!
                 imgcreate.RawDisk(p['size'] * 1024 * 1024, p['device']),
                 self.mountdir + p['mountpoint'],
                 p['fstype'],

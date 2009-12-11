@@ -19,7 +19,7 @@ import unittest
 
 from systembuildertest import EventTestCaseDummy, decorate
 
-from systembuilder.errors import SpinError
+from systembuilder.errors import SystemBuilderError
 
 class EventTestCaseHeader(EventTestCaseDummy):
   separator1 = '=' * 70
@@ -88,7 +88,7 @@ def CoreEventTestCase00(self):
     self.execute_predecessors(self.event)
     try:
       self.failIfRuns(self.event)
-    except (AssertionError, RuntimeError, SpinError), e:
+    except (AssertionError, RuntimeError, SystemBuilderError), e:
       pass
     if self.event.diff.handlers.has_key('output'):
       self.failIf(self.event.verifier.unittest().wasSuccessful())

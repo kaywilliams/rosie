@@ -9,7 +9,7 @@ from rendition import pps
 REGEX_KWPARSE = re.compile('%\(([^\)]+)\).')
 
 def assert_file_has_content(file, cls=None, srcfile=None, **kwargs):
-  "Raise a SpinIOError (or subclass) if a file is not readable or empty."
+  "Raise a SystemBuilderIOError (or subclass) if a file is not readable or empty."
   assert_file_readable(file, cls=cls, srcfile=srcfile, **kwargs)
   fp = None
   errno = None
@@ -23,13 +23,13 @@ def assert_file_has_content(file, cls=None, srcfile=None, **kwargs):
     fp and fp.close()
 
   if errno and message:
-    raise (cls or SpinIOError)(errno=errno,
+    raise (cls or SystemBuilderIOError)(errno=errno,
                                file=srcfile or file,
                                message=message,
                                **kwargs)
 
 def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
-  "Raise a SpinIOError (or subclass) if a file isn't readable"
+  "Raise a SystemBuilderIOError (or subclass) if a file isn't readable"
   fp = None
   errno = None; message = None
   try:
@@ -39,14 +39,14 @@ def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
       errno = e.errno; message = os.strerror(e.errno)
 
     if errno and message:
-      raise (cls or SpinIOError)(errno=errno,
+      raise (cls or SystemBuilderIOError)(errno=errno,
                                  file=srcfile or file,
                                  message=message,
                                  **kwargs)
   finally:
     fp and fp.close()
 
-class SpinError:
+class SystemBuilderError:
   message = None
   def __init__(self, *args, **kwargs):
     self.map = {}
@@ -78,27 +78,27 @@ class SpinError:
   def __str__(self):
     return self.message % self.map
 
-class SpinIOError(SpinError, IOError):
+class SystemBuilderIOError(SystemBuilderError, IOError):
   message = "Cannot read file '%(file)s': [errno %(errno)d] %(message)s"
 
-class PpsPathError(SpinError):
+class PpsPathError(SystemBuilderError):
   def __str__(self):
     if self.error.errno == 21: # EISDIR
       pass
 
-class ShLibError(SpinError):
+class ShLibError(SystemBuilderError):
   def __init__(self, e):
     self.map = {'cmd': e.cmd, 'errno': e.errno, 'desc': e.desc}
   message = ( "The command '%(cmd)s' exited with an unexepected status code. "
               "Error message was: [errno %(errno)d] %(desc)s" )
 
-class RhnSupportError(RuntimeError, SpinError):
+class RhnSupportError(RuntimeError, SystemBuilderError):
   def __str__(self):
     return ( "RHN support not enabled - please install then 'rhnlib' and "
              "'rhn-client-tools' packages from the systembuilder software repo "
              "at www.renditionsoftware.com" )
 
-class SpinErrorHandler:
+class SystemBuilderErrorHandler:
   def _handle_Exception(self, e):
     traceback.print_exc(file=self.logger.logfile.file_object)
     if self.logger.test(4) or self.debug:
@@ -106,9 +106,9 @@ class SpinErrorHandler:
     else:
       self.logger.write(0, '\n') # start on a new line
       if isinstance(e, KeyboardInterrupt):
-        self.logger.log(0, "Spin halted on user input")
+        self.logger.log(0, "SystemBuilder halted on user input")
       else:
-        if not isinstance(e, SpinError) and not isinstance(e, KeyboardInterrupt):
+        if not isinstance(e, SystemBuilderError) and not isinstance(e, KeyboardInterrupt):
           self.logger.write(0,
             "An unhandled exception has been generated while processing "
             "the '%s' event.  The traceback has been recorded in the log "

@@ -21,7 +21,7 @@ import yum.Errors
 
 from systembuilder.callback  import PkglistCallback
 from systembuilder.constants import KERNELS
-from systembuilder.errors    import assert_file_has_content, SpinError
+from systembuilder.errors    import assert_file_has_content, SystemBuilderError
 from systembuilder.event     import Event
 from systembuilder.logging   import L1
 
@@ -160,10 +160,10 @@ class DepsolveEvent(Event, DepsolverMixin):
           break
 
 
-class InvalidPkglistFormatError(SpinError):
+class InvalidPkglistFormatError(SystemBuilderError):
   message = ( "Invalid format '%(pkgfile)s' on line %(lino)d of "
               "pkglist '%(line)s'.\n\nFormat should "
               "be %{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}" )
 
-class DepsolveError(SpinError):
+class DepsolveError(SystemBuilderError):
   message = "Error resolving package dependencies: %(message)s"

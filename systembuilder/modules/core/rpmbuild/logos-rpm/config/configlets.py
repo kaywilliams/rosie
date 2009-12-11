@@ -18,7 +18,7 @@
 from rendition import pps
 from rendition import versort
 
-from systembuilder.errors import SpinError
+from systembuilder.errors import SystemBuilderError
 
 class Configlet(dict):
   def __init__(self, element, parent_dir, precedence, **kwargs):
@@ -114,9 +114,9 @@ register_configlet('image', 'create', CreateImageConfiglet)
 register_configlet('image', 'remove', RemoveConfiglet)
 register_configlet('image', 'source', CopyImageConfiglet)
 
-class UnknownConfigletError(SpinError):
+class UnknownConfigletError(SystemBuilderError):
   message = "Config element not recognized\n%(element)sin file: %(file)s"
-class FontNotDefinedError(SpinError):
+class FontNotDefinedError(SystemBuilderError):
   message = "No font file specified to write text with in the <string> element "\
       "(line %(lineno)s, file '%(file)s'). You can resolve the error by adding a "\
       "<font> element in the <defaults> or the <string> element."

@@ -22,7 +22,7 @@ from rendition.mkrpm       import GpgMixin
 from rendition.progressbar import ProgressBar
 
 from systembuilder.callback  import GpgCallback, SyncCallback, LAYOUT_GPG
-from systembuilder.errors    import assert_file_has_content, SpinError, SpinIOError
+from systembuilder.errors    import assert_file_has_content, SystemBuilderError, SystemBuilderIOError
 from systembuilder.event     import Event
 from systembuilder.logging   import L1, L2
 
@@ -149,8 +149,8 @@ class GpgSignEvent(GpgMixin, Event):
       self.verifier.failUnlessExists(file)
     # TODO: check that RPMs are actually signed
 
-class GpgkeyIOError(SpinIOError):
+class GpgkeyIOError(SystemBuilderIOError):
   message = "cannot read gpgkey '%(file)s': [errno %(errno)d] %(message)s"
 
-class GpgkeyInvalidError(SpinError):
+class GpgkeyInvalidError(SystemBuilderError):
   message = "file '%(file)s' does not appear to be a valid gpg key"

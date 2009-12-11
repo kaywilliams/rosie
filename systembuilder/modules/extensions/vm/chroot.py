@@ -77,7 +77,7 @@ class ChrootEvent(vms.VmCreateMixin, Event):
     self._prep_ks_scripts()
 
     # create image creator
-    self.creator = SpinRawImageCreator(self,
+    self.creator = SystemBuilderRawImageCreator(self,
                      compress = self.config.getbool('@compress', 'True'),
                      ks       = self.ks,
                      name     = self.distributionid)
@@ -113,11 +113,11 @@ class ChrootEvent(vms.VmCreateMixin, Event):
 
     self.creator = None
 
-class SpinRawImageCreator(vms.SpinImageCreatorMixin,
+class SystemBuilderRawImageCreator(vms.SystemBuilderImageCreatorMixin,
                           imgcreate.ImageCreator):
   def __init__(self, event, compress=True, *args, **kwargs):
     imgcreate.ImageCreator.__init__(self, *args, **kwargs)
-    vms.SpinImageCreatorMixin.__init__(self, event)
+    vms.SystemBuilderImageCreatorMixin.__init__(self, event)
 
     self.compress = compress
 
@@ -144,7 +144,7 @@ class SpinRawImageCreator(vms.SpinImageCreatorMixin,
       if self.event.logger.test(5):
         cmd.append('--verbose')
       subprocess.call(cmd)
-      vms.SpinImageCreatorMixin._base_on(self, base_on_tgz)
+      vms.SystemBuilderImageCreatorMixin._base_on(self, base_on_tgz)
 
     elif base_on.exists():
       self.event.logger.log(2, L1("verifying previous chroot"))
@@ -157,7 +157,7 @@ class SpinRawImageCreator(vms.SpinImageCreatorMixin,
 
       if base_ok:
         base_on.rename(self._instroot)
-        vms.SpinImageCreatorMixin._base_on(self, base_on)
+        vms.SystemBuilderImageCreatorMixin._base_on(self, base_on)
 
   def _cleanup(self):
     if self._instroot and pps.path(self._instroot).exists():

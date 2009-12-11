@@ -31,7 +31,7 @@ from systembuilder.logging import L0, L1
 
 NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
 
-class SpinValidationHandler:
+class SystemBuilderValidationHandler:
   def validate_configs(self):
     try:
       self._validate_configs()

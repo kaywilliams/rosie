@@ -18,7 +18,7 @@
 """
 main.py
 
-Python script defining the Build class, the primary controller for the Spin.
+Python script defining the Build class, the primary controller for the SystemBuilder.
 """
 
 __author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
@@ -50,10 +50,10 @@ from rendition.sync import link
 from systembuilder.callback  import (SyncCallback, CachedSyncCallback, LinkCallback,
                             SyncCallbackCompressed)
 from systembuilder.constants import *
-from systembuilder.errors    import SpinErrorHandler, SpinError
+from systembuilder.errors    import SystemBuilderErrorHandler, SystemBuilderError
 from systembuilder.event     import Event, CLASS_META
 from systembuilder.logging   import make_log, L0, L1, L2
-from systembuilder.validate  import SpinValidationHandler
+from systembuilder.validate  import SystemBuilderValidationHandler
 
 from systembuilder.event.loader import Loader
 
@@ -77,7 +77,7 @@ ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
 # the following chars are allowed in filenames...
 FILENAME_REGEX = re.compile('^[a-zA-Z0-9_\-\.]+$')
 
-class Build(SpinErrorHandler, SpinValidationHandler, object):
+class Build(SystemBuilderErrorHandler, SystemBuilderValidationHandler, object):
   """
   Primary build class - framework upon which a custom systembuilder is generated
 
@@ -228,7 +228,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
       try:
         try:
           self.dispatch.execute(until=None)
-        except (SpinError, Exception, KeyboardInterrupt), e:
+        except (SystemBuilderError, Exception, KeyboardInterrupt), e:
           self._handle_Exception(e)
       finally:
         self._lock.release()

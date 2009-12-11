@@ -13,7 +13,7 @@ if [ -e $KSPLASHRC -a ! -e $KSPLASHRC.rpmsave ]; then
 fi
 cat > $KSPLASHRC <<EOF
 [KSplash]
-Theme=Spin
+Theme=SystemBuilder
 EOF
 ''',
       'triggerun': '''KSPLASHRC=/usr/share/config/ksplashrc
@@ -224,7 +224,7 @@ fi
 if [ ! -e $CONFIG_DIR/ksplashrc.rpmsave ]; then
   %%{__cp} $CONFIG_DIR/ksplashrc $CONFIG_DIR/ksplashrc.rpmsave
 fi
-%%{__sed} -i 's|FedoraWaves|Spin|g' $CONFIG_DIR/ksplashrc
+%%{__sed} -i 's|FedoraWaves|SystemBuilder|g' $CONFIG_DIR/ksplashrc
 ''',
           'triggerun': '''CONFIG_DIR=/usr/share/kde-settings/kde-profile/default/share/config
 if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
@@ -240,7 +240,7 @@ fi
 if [ ! -e $CONFIG_DIR/kdmrc.rpmsave ]; then
   %%{__cp} $CONFIG_DIR/kdmrc $CONFIG_DIR/kdmrc.rpmsave
 fi
-%%{__sed} -i 's|FedoraWaves|Spin|g' $CONFIG_DIR/kdmrc
+%%{__sed} -i 's|FedoraWaves|SystemBuilder|g' $CONFIG_DIR/kdmrc
 ''',
           'triggerun': '''CONFIG_DIR=/etc/kde/kdm
 if [ "$2" -eq "0" -o "$1" -eq "0" ]; then

@@ -4,7 +4,7 @@ all:
 
 install:
 	mkdir -p $(DESTDIR)/usr/share/systembuilder/logos-rpm/files/kdisplay
-	install -pm 644 Spin.kcsrc $(DESTDIR)/usr/share/systembuilder/logos-rpm/files/kdisplay/Spin.kcsrc
-	install -pm 644 SpinKDM.kcsrc $(DESTDIR)/usr/share/systembuilder/logos-rpm/files/kdisplay/SpinKDM.kcsrc
+	install -pm 644 SystemBuilder.kcsrc $(DESTDIR)/usr/share/systembuilder/logos-rpm/files/kdisplay/SystemBuilder.kcsrc
+	install -pm 644 SystemBuilderKDM.kcsrc $(DESTDIR)/usr/share/systembuilder/logos-rpm/files/kdisplay/SystemBuilderKDM.kcsrc
 
 clean:
