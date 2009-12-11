@@ -63,7 +63,7 @@
 
     <informalexample>
     <programlisting>
-&lt;appliance&gt;
+&lt;system&gt;
 
   &lt;main&gt;
     &lt;name&gt;samba&lt;/name&gt;
@@ -87,7 +87,7 @@
     &lt;group repoid="base"&gt;smb-server&lt;/group&gt;
   &lt;/packages&gt;
 
-&lt;/appliance&gt;
+&lt;/system&gt;
     </programlisting>
     </informalexample>
   </section>

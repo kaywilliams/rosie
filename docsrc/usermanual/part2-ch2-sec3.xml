@@ -92,7 +92,7 @@
 
   <para><informalexample>
       <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;appliance xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;system xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;!-- reposistories for centos --&gt;
 &lt;repos-centos&gt;
@@ -137,7 +137,7 @@
 
 &lt;/repos-fedora&gt;
 
-&lt;/appliance&gt;</programlisting>
+&lt;/system&gt;</programlisting>
     </informalexample></para>
 
   <para>The final step is to modify the

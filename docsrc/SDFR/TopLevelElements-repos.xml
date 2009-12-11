@@ -309,7 +309,7 @@
 
       <informalexample>
       <programlisting>
-&lt;appliance&gt;
+&lt;system&gt;
   &lt;main&gt;
     ...
     &lt;arch&gt;i386&lt;/arch&gt;
@@ -325,7 +325,7 @@
     &lt;/repo&gt;
   &lt;/repos&gt;
   ...
-&lt;/appliance&gt;
+&lt;/system&gt;
       </programlisting>
       </informalexample>
 

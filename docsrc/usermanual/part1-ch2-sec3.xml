@@ -32,16 +32,16 @@
 
     <para>The first step to creating an appliance is defining the basic
     <filename class="extension">.appliance</filename> file. The tags
-    &lt;appliance&gt; and &lt;/appliance&gt; encapsulate all top-level
+    &lt;system&gt; and &lt;/system&gt; encapsulate all top-level
     elements and their child elements and attributes.</para>
 
     <para><informalexample>
         <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;appliance xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;system xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;!-- Included top-level elements with child elements and attributes --&gt;
 
-&lt;/appliance&gt;</programlisting>
+&lt;/system&gt;</programlisting>
       </informalexample></para>
 
     <para>The first required element, <emphasis>main</emphasis>, includes the
