@@ -88,7 +88,7 @@
     desired applications. To accomplish this, <application
     class="software">SystemBuilder</application> relies on several default
     settings on the build system, noted in the table below. The variable
-    <varname>$SYSTEMID</varname> is the system distribution's identifier,
+    <varname>$DISTRIBUTIONID</varname> is the system distribution's identifier,
     consisting of the name, version and architecture of the distribution as
     specified in the <emphasis>main</emphasis> top-level element. The variable
     <varname>$SYSTEMDEFINITION</varname> is the name of your system definition
@@ -116,7 +116,7 @@
             </row>
 
             <row>
-              <entry>/var/cache/systembuilder/<varname>$SYSTEMID</varname>/</entry>
+              <entry>/var/cache/systembuilder/<varname>$DISTRIBUTIONID</varname>/</entry>
 
               <entry>Cache for your distribution's build.</entry>
             </row>
@@ -128,7 +128,7 @@
             </row>
 
             <row>
-              <entry>/var/www/html/distributions/<varname>$SYSTEMID/</varname></entry>
+              <entry>/var/www/html/distributions/<varname>$DISTRIBUTIONID/</varname></entry>
 
               <entry>Directory to which SystemBuilder publishes a distribution.
               </entry>

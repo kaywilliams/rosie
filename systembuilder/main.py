@@ -381,7 +381,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     di['version']      = Event._config.get(qstr % 'version')
     di['arch']         = ARCH_MAP[Event._config.get(qstr % 'arch', 'i386')]
     di['basearch']     = getBaseArch(di['arch'])
-    di['systemid']  = Event._config.get(qstr % 'id',
+    di['distributionid']  = Event._config.get(qstr % 'id',
                           '%s-%s-%s' % (di['name'],
                                         di['version'],
                                         di['basearch']))
@@ -394,9 +394,9 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     for k,v in di.items():
       setattr(Event, k, v)
 
-    # validate name, version, and systemid to ensure they don't have
+    # validate name, version, and distributionid to ensure they don't have
     # invalid characters
-    for check in ['name', 'version', 'systemid']:
+    for check in ['name', 'version', 'distributionid']:
       if not FILENAME_REGEX.match(di[check]):
         raise RuntimeError("Invalid value '%s' for <%s> element in <main>; "
           "accepted characters are a-z, A-Z, 0-9, _, ., and -."
@@ -406,7 +406,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     Event.CACHE_DIR    = self.mainconfig.getpath('/spin/cache/path',
                            DEFAULT_CACHE_DIR).expand().abspath()
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
-    Event.METADATA_DIR = Event.CACHE_DIR  / di['systemid']
+    Event.METADATA_DIR = Event.CACHE_DIR  / di['distributionid']
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed([ x.expand().abspath()
@@ -499,7 +499,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
 
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
-    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.systemid, time.strftime('%Y-%m-%d %X')))
+    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.distributionid, time.strftime('%Y-%m-%d %X')))
     Event.logger.log(4, "Loaded modules: %s" % Event.cvars['loaded-modules'])
     Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):

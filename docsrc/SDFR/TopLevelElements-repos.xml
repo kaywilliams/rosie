@@ -72,7 +72,7 @@
    [&lt;gpgkey&gt;PATH&lt;gpgkey&gt;]*
    [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
    [&lt;includepkgs&gt;PACKAGE&lt;/includepkgs&gt;]*
-   [&lt;systemid&gt;PATH&lt;/systemid&gt;]
+   [&lt;distributionid&gt;PATH&lt;/distributionid&gt;]
   &lt;/repo&gt;]*
 
  [&lt;repofile&gt;PATH&lt;/repofile&gt;]*
@@ -266,7 +266,7 @@
       <para>
       Repositories that utilize the <filename>rhn</filename> or
       <filename>rhns</filename> protocols to contact the Red Hat Network
-      require a systemid to be specified. See the <xref linkend="repo" />
+      require a distributionid to be specified. See the <xref linkend="repo" />
       common element for more information on using Red Hat Network
       repositories.
       </para>
@@ -282,8 +282,8 @@
   &lt;repo id="updates"&gt;
     &lt;name&gt;Red Hat Enterprise Linux - Updates&lt;/name&gt;
     &lt;baseurl&gt;rhns:///rhel-i386-server-5&lt;/baseurl&gt;
-    &lt;!-- location of the systemid is relative to the system definition file --&gt;
-    &lt;systemid&gt;common_systemid-5Server-$basearch&lt;/systemid&gt;
+    &lt;!-- location of the distributionid is relative to the system definition file --&gt;
+    &lt;distributionid&gt;common_distributionid-5Server-$basearch&lt;/distributionid&gt;
   &lt;/repo&gt;
 &lt;/repos&gt; 
       </programlisting>

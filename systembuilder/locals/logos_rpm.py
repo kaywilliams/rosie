@@ -3,7 +3,7 @@ from spin.locals import LocalsDict, REMOVE
 __all__ = ['L_LOGOS_RPM_APPLIANCE_INFO']
 
 DEFAULT_APPLIANCE_INFO = {
-  'systemid': 'centos5',
+  'distributionid': 'centos5',
   'background': (33, 85, 147),
   'triggers': {
     'kdebase': {
@@ -83,7 +83,7 @@ fi
 
 FEDORA_APPLIANCE_INFO = DEFAULT_APPLIANCE_INFO.copy()
 FEDORA_APPLIANCE_INFO.update({
-  'systemid': 'fedora9',
+  'distributionid': 'fedora9',
   'background': (32, 75, 105),
 })
 
@@ -263,7 +263,7 @@ fi
   'Red Hat Enterprise Linux Server': LocalsDict({
     '0': DEFAULT_APPLIANCE_INFO,
     '5': {
-      'systemid': 'redhat5',
+      'distributionid': 'redhat5',
       'background': (120, 30, 29),
       'triggers': {
         'desktop-backgrounds-basic': {

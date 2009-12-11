@@ -196,7 +196,7 @@
     <listitem>
     <para>
     Within the SDFR, SystemBuilder variables are presented in monospace font
-    preceded by a dollar sign, e.g. <varname>$SYSTEMID</varname>.
+    preceded by a dollar sign, e.g. <varname>$DISTRIBUTIONID</varname>.
     In the event that another application uses a variable with simliar
     syntax (YUM, for example), these variables are clearly indicated as
     not being SystemBuilder variables.

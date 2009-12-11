@@ -210,7 +210,7 @@ $ precedes lines entered as a normal user</programlisting>
 
         <listitem>
           <para>SystemBuilder variables are presented in monospace font preceded by a
-          dollar sign, e.g. <varname>$SYSTEMID</varname>. Variables outside
+          dollar sign, e.g. <varname>$DISTRIBUTIONID</varname>. Variables outside
           the SystemBuilder realm appear in lowercase in monospace font preceded by a
           dollar sign, e.g. <varname>$releasever</varname>.</para>
         </listitem>

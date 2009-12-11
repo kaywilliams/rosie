@@ -54,6 +54,6 @@
   You can also enter comments in the files. Keep in mind that changing the name
   of system definition file does not mean <application class="software">
   SystemBuilder</application> will build a new distribution.
-  As long as the <varname>$SYSTEMID</varname> remains the same, the
+  As long as the <varname>$DISTRIBUTIONID</varname> remains the same, the
   distribution remains the same.</para>
 </section>

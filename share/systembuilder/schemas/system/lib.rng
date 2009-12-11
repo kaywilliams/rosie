@@ -20,7 +20,7 @@
       </optional>
 
       <optional>
-      <element name="systemid"><text/></element>
+      <element name="distributionid"><text/></element>
       </optional>
 
       <optional>

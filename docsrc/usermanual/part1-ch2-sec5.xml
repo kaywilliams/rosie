@@ -23,7 +23,7 @@
     <filename class="directory">/var/www/html/distributions</filename> default
     directory on the download server. SystemBuilder automatically configures 
     boot media to download packages from that server. The folder name will be
-    the <varname>$SYSTEMID</varname>, e.g.
+    the <varname>$DISTRIBUTIONID</varname>, e.g.
     <filename>samba-server-5-i386</filename>.</para>
 
     <para>To make network installations possible, the build system and

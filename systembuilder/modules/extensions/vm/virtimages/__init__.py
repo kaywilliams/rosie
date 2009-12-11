@@ -55,7 +55,7 @@ class VirtimageBaseEvent(vms.VmCreateMixin, Event):
 
     self.builddir = self.mddir / 'build'
     self.tmpdir   = self.mddir / 'tmp'
-    self.outdir   = self.mddir / self.systemid
+    self.outdir   = self.mddir / self.distributionid
 
     self.DATA =  {
       #'config': ['.'], # don't track this for now
@@ -82,15 +82,15 @@ class VirtimageBaseEvent(vms.VmCreateMixin, Event):
     # add outputs
     for part in self.ks.handler.partition.partitions:
       self.DATA['output'].append(
-        self.outdir/'%s-%s.raw' % (self.systemid, part.disk))
-    self.DATA['output'].append(self.outdir/'%s.xml' % self.systemid)
+        self.outdir/'%s-%s.raw' % (self.distributionid, part.disk))
+    self.DATA['output'].append(self.outdir/'%s.xml' % self.distributionid)
 
     self._prep_ks_scripts()
 
     # create image creator
     self.creator = SpinDistributionImageCreator(self,
                      self.ks,
-                     name        = self.systemid,
+                     name        = self.distributionid,
                      disk_format = 'raw',
                      vmem        = int(self.config.get('@vmem', '512')),
                      vcpu        = int(self.config.get('@vcpu', '1')))
@@ -105,13 +105,13 @@ class VirtimageBaseEvent(vms.VmCreateMixin, Event):
     # prepare base_on
     base_on = {}
     for part in self.ks.handler.partition.partitions:
-      if not (self.outdir/'%s-%s.raw' % (self.systemid, part.disk)).exists():
+      if not (self.outdir/'%s-%s.raw' % (self.distributionid, part.disk)).exists():
         # if any disk doesn't exist for a partition, give up and start over
         self.outdir.listdir('*.raw').rm(force=True)
         base_on = None
         break
       else:
-        base_on[self.outdir/'%s-%s.raw' % (self.systemid, part.disk)] = part.disk
+        base_on[self.outdir/'%s-%s.raw' % (self.distributionid, part.disk)] = part.disk
 
     try:
       self.log(3, L1("mounting disks"))
@@ -129,7 +129,7 @@ class VirtimageBaseEvent(vms.VmCreateMixin, Event):
 
     # modify config for conversion - requries /image/name/@version and
     # /image/description/text()
-    conf = self.outdir/'%s.xml' % self.systemid
+    conf = self.outdir/'%s.xml' % self.distributionid
     vxml = rxml.tree.read(conf)
     vxml.get('name').attrib['version'] = self.version
     rxml.tree.Element('description', text=self.fullname, parent=vxml)
@@ -142,8 +142,8 @@ class VirtimageBaseEvent(vms.VmCreateMixin, Event):
 
     for part in self.ks.handler.partition.partitions:
       self.cvars['virtimage-disks'].append(
-        self.outdir/'%s-%s.raw' % (self.systemid, part.disk))
-    self.cvars['virtimage-xml'] = self.outdir/'%s.xml' % self.systemid
+        self.outdir/'%s-%s.raw' % (self.distributionid, part.disk))
+    self.cvars['virtimage-xml'] = self.outdir/'%s.xml' % self.distributionid
 
 
 class SpinDistributionImageCreator(vms.SpinImageCreatorMixin,

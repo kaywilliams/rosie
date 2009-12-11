@@ -49,12 +49,12 @@ NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
                  'stylesheet-images']
 
 class SpinRepo(YumRepo):
-  keyfilter = ['id', 'systemid']
+  keyfilter = ['id', 'distributionid']
 
   def __init__(self, **kwargs):
     YumRepo.__init__(self, **kwargs)
     self.localurl = None
-    self._systemid = None # system id, for redhat mirrors
+    self._distributionid = None # system id, for redhat mirrors
 
   def _boolparse(self, s):
     if s.lower() in BOOLEANS_FALSE:
@@ -93,14 +93,14 @@ class SpinRepo(YumRepo):
     p = pps.path(p)
     try:
       if isinstance(p, pps.Path.rhn.RhnPath):
-        systemid = self.get('systemid')
-        if systemid:
-          systemid = pps.path(systemid).realpath()
+        distributionid = self.get('distributionid')
+        if distributionid:
+          distributionid = pps.path(distributionid).realpath()
           try:
-            assert_file_has_content(systemid, cls=SystemidIOError, repoid=self.id)
+            assert_file_has_content(distributionid, cls=SystemidIOError, repoid=self.id)
           except pps.lib.rhn.SystemidInvalidError, e:
-            raise SystemidInvalidError(systemid, self.id, str(e))
-          p.systemid = systemid
+            raise SystemidInvalidError(distributionid, self.id, str(e))
+          p.distributionid = distributionid
         else:
           raise SystemidUndefinedError(self.id)
       else:
@@ -478,11 +478,11 @@ class InconsistentRepodataError(SpinError, RuntimeError):
               " in repo '%(repoid)s' after %(ntries)d tries" )
 
 class SystemidIOError(SpinIOError):
-  message = ( "Unable to read systemid file '%(file)s' for repo "
+  message = ( "Unable to read distributionid file '%(file)s' for repo "
               "'%(repoid)s': [errno %(errno)d] %(message)s" )
 
 class SystemidUndefinedError(SpinError, InvalidConfigError):
-  message = "No <systemid> element defined for repo '%(repoid)s'"
+  message = "No <distributionid> element defined for repo '%(repoid)s'"
 
 class SystemidInvalidError(SpinError):
   message = ( "Systemid file '%(file)s' for repo '%(repo)s' is invalid: "

@@ -79,7 +79,7 @@ Build complete at 2008-10-25 18:30:26</screen></para>
     <para>If you change the <emphasis>main/name</emphasis>,
     <emphasis>main/version</emphasis> or <emphasis>main/arch</emphasis> child
     elements, then you are creating a new distribution with a new
-    <varname>$SYSTEMID</varname> and published download server location
+    <varname>$DISTRIBUTIONID</varname> and published download server location
     matching the new parameters. To avoid confusion between the different
     distributions, save the new definition file with a new name.</para>
   </section>
