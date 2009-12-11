@@ -48,7 +48,7 @@ class LivecdEvent(vms.VmCreateMixin, Event):
     self.baseimg  = self.mddir / 'ext3fs.img'
     self.builddir = self.mddir / 'build'
     self.tmpdir   = self.mddir / 'tmp'
-    self.livecd   = self.mddir / '%s-livecd.iso' % self.applianceid
+    self.livecd   = self.mddir / '%s-livecd.iso' % self.systemid
 
     self.DATA =  {
       'config': ['.'],
@@ -75,7 +75,7 @@ class LivecdEvent(vms.VmCreateMixin, Event):
 
     # create image creator
     self.creator = SpinLiveImageCreator(self, self.ks,
-                                        '%s-livecd' % self.applianceid)
+                                        '%s-livecd' % self.systemid)
     self.creator.skip_compression = not self.config.getbool('@compress', True)
     self.creator.skip_minimize    = not self.config.getbool('@minimize', True)
 

@@ -176,7 +176,7 @@ class RpmBuildObject:
     if self.autofile.exists():
       self.release = rxml.config.read(self.autofile).get(
        '/appliance/%s/rpms/%s/release/text()' %
-       (self.ptr.applianceid, self.ptr.id), '0')
+       (self.ptr.systemid, self.ptr.id), '0')
     else:
       self.release = '0'
 
@@ -211,8 +211,8 @@ class RpmBuildObject:
     else:
       root = rxml.config.Element('appliance')
 
-    appid    = rxml.config.uElement(self.ptr.applianceid, parent=root)
-    rpms     = rxml.config.uElement('rpms', parent=appid)
+    sysid    = rxml.config.uElement(self.ptr.systemid, parent=root)
+    rpms     = rxml.config.uElement('rpms', parent=sysid)
     parent   = rxml.config.uElement(self.ptr.id, parent=rpms)
     release  = rxml.config.uElement('release', parent=parent, text=self.release)
 

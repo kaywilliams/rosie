@@ -47,7 +47,7 @@ class PublishSetupEvent(Event):
     )
 
     self.DATA = {
-      'variables': ['applianceid'],
+      'variables': ['systemid'],
       'config': ['.'],
     }
 
@@ -61,8 +61,8 @@ class PublishSetupEvent(Event):
 
   def apply(self):
     self.cvars['publish-content'] = set()
-    self.cvars['publish-path'] = self.local / self.applianceid
-    self.cvars['web-path'] = self.remote / self.applianceid
+    self.cvars['publish-path'] = self.local / self.systemid
+    self.cvars['web-path'] = self.remote / self.systemid
 
   def _get_host(self, ifname=None):
     if self.config.getbool('remote-url/@use-hostname', 'False'):

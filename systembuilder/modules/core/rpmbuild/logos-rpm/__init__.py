@@ -65,7 +65,7 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
 
     self.DATA = {
       'config': ['.'],
-      'variables': ['applianceid', 'fullname', 'copyright', 'rpm.release',
+      'variables': ['systemid', 'fullname', 'copyright', 'rpm.release',
                     'cvars[\'anaconda-version\']',
                     'cvars[\'logos-versions\']'],
       'output': [self.rpm.build_folder],

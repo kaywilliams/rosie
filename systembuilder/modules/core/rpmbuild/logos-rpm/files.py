@@ -70,7 +70,7 @@ class FilesHandlerObject(object):
       return self._config_files
     self._config_files = []
 
-    applianceid = self.ptr.appliance_info['applianceid']
+    systemid = self.ptr.appliance_info['systemid']
 
     dirs = set()
     for path in self.ptr.SHARE_DIRS:
@@ -80,7 +80,7 @@ class FilesHandlerObject(object):
           dirs.add(pps.path(p))
 
     for dir in dirs:
-      cpath = dir / '%s.xml' % applianceid
+      cpath = dir / '%s.xml' % systemid
       if not cpath.exists():
         cpath = dir / 'default.xml'
 

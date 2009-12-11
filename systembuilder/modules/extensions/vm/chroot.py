@@ -50,8 +50,8 @@ class ChrootEvent(vms.VmCreateMixin, Event):
 
     self.builddir = self.mddir / 'build'
     self.tmpdir   = self.mddir / 'tmp'
-    self.chroot   = self.mddir / self.applianceid
-    self.chrootgz = self.mddir / self.applianceid+'.tar.gz'
+    self.chroot   = self.mddir / self.systemid
+    self.chrootgz = self.mddir / self.systemid+'.tar.gz'
 
     self.DATA =  {
       'config': ['.'],
@@ -80,7 +80,7 @@ class ChrootEvent(vms.VmCreateMixin, Event):
     self.creator = SpinRawImageCreator(self,
                      compress = self.config.getbool('@compress', 'True'),
                      ks       = self.ks,
-                     name     = self.applianceid)
+                     name     = self.systemid)
 
   def run(self):
     ## todos

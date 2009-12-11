@@ -78,8 +78,8 @@ class PkgorderEvent(Event):
 
     # create yum config needed by pkgorder
     cfg = self.TEMP_DIR/'pkgorder'
-    repoid = self.applianceid
-    cfg.write_lines([ YUMCONF % (self.applianceid, self.applianceid, self.cvars['os-dir']) ])
+    repoid = self.systemid
+    cfg.write_lines([ YUMCONF % (self.systemid, self.systemid, self.cvars['os-dir']) ])
 
     # create pkgorder
     pkgtups = pkgorder.order(config=cfg,

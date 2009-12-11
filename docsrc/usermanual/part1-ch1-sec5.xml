@@ -30,7 +30,7 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="applianceid" xreflabel="SYSTEMID">
+      <varlistentry id="systemid" xreflabel="SYSTEMID">
         <term><emphasis
         role="strong"><varname>$SYSTEMID</varname></emphasis></term>
 
