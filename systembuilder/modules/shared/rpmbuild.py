@@ -24,8 +24,8 @@ from rendition import mkrpm
 from rendition import pps
 from rendition import rxml
 
-from spin.event     import Event
-from spin.logging   import L1
+from systembuilder.event     import Event
+from systembuilder.logging   import L1
 
 __all__ = ['RpmBuildMixin', 'Trigger', 'TriggerContainer']
 
@@ -193,7 +193,7 @@ class RpmBuildObject:
     self.ptr.diff.setup(self.ptr.DATA)
 
     self.arch     = kwargs.get('arch',     'noarch')
-    self.author   = kwargs.get('author',   'spin')
+    self.author   = kwargs.get('author',   'systembuilder')
     self.fullname = kwargs.get('fullname', self.ptr.fullname)
     if kwargs.has_key('version'):
       self.version = kwargs['version']

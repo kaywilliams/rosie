@@ -17,7 +17,7 @@
 #
 from rendition import pps
 
-from spin.event import Event
+from systembuilder.event import Event
 
 MODULE_INFO = dict(
   api         = 5.0,

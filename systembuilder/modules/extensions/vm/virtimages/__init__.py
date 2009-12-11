@@ -27,11 +27,11 @@ import imgcreate
 from rendition import pps
 from rendition import rxml
 
-from spin.errors  import SpinError
-from spin.event   import Event
-from spin.logging import L1
+from systembuilder.errors  import SpinError
+from systembuilder.event   import Event
+from systembuilder.logging import L1
 
-from spin.modules.shared import vms
+from systembuilder.modules.shared import vms
 
 from libvirt import LibVirtEvent
 from vmware  import VmwareEvent

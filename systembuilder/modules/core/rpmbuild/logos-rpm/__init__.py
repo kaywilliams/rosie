@@ -26,11 +26,11 @@ from rendition import listfmt
 from rendition import magic
 from rendition import shlib
 
-from spin.event  import Event
-from spin.errors import SpinError
-from spin.locals import L_LOGOS_RPM_APPLIANCE_INFO
+from systembuilder.event  import Event
+from systembuilder.errors import SpinError
+from systembuilder.locals import L_LOGOS_RPM_APPLIANCE_INFO
 
-from spin.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
+from systembuilder.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
 
 from files import FilesHandlerMixin
 
@@ -54,7 +54,7 @@ class LogosRpmEvent(FilesHandlerMixin, RpmBuildMixin, Event):
     RpmBuildMixin.__init__(self,
       '%s-logos' % self.name,
       "The %s-logos package contains image files which have been automatically "
-      "created by spin and are specific to %s." % (self.name, self.fullname),
+      "created by systembuilder and are specific to %s." % (self.name, self.fullname),
       "Icons and pictures related to %s" % self.fullname,
       license = 'GPLv2',
       provides = ['system-logos'],

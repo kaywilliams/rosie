@@ -21,8 +21,8 @@ import unittest
 
 from rendition import pps
 
-from spin.logging import L1, L2
-from spin.verify  import BuildTestResult
+from systembuilder.logging import L1, L2
+from systembuilder.verify  import BuildTestResult
 
 class VerifyMixin:
   def __init__(self):

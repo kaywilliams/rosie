@@ -1,4 +1,4 @@
-from spin.locals import LocalsDict, REMOVE
+from systembuilder.locals import LocalsDict, REMOVE
 
 __all__ = ['L_LOGOS_RPM_APPLIANCE_INFO']
 
@@ -44,7 +44,7 @@ for default in $DEFAULTS; do
   file=$BACKGROUNDS/images/$default
   if [ -e $file ]; then
     %%{__mv} $file $file.rpmsave
-    %%{__ln_s} $BACKGROUNDS/spin/$default $file
+    %%{__ln_s} $BACKGROUNDS/systembuilder/$default $file
   fi
 done
 ''',
@@ -91,18 +91,18 @@ L_LOGOS_RPM_APPLIANCE_INFO = {
   'Fedora': LocalsDict({
     '0': FEDORA_APPLIANCE_INFO,
     '8': {
-      'post-install': '''SPIN_BACKGROUNDS="1-spin-sunrise.png 2-spin-day.png 3-spin-sunset.png 4-spin-night.png"
-DEFAULT=/usr/share/backgrounds/spin/default.jpg
+      'post-install': '''SPIN_BACKGROUNDS="1-systembuilder-sunrise.png 2-systembuilder-day.png 3-systembuilder-sunset.png 4-systembuilder-night.png"
+DEFAULT=/usr/share/backgrounds/systembuilder/default.jpg
 for file in $SPIN_BACKGROUNDS; do
-  if [ -e /usr/share/backgrounds/spin/$file ]; then
-    %{__rm} -f /usr/share/backgrounds/spin/$file
+  if [ -e /usr/share/backgrounds/systembuilder/$file ]; then
+    %{__rm} -f /usr/share/backgrounds/systembuilder/$file
   fi
-  %{__ln_s} $DEFAULT /usr/share/backgrounds/spin/$file
+  %{__ln_s} $DEFAULT /usr/share/backgrounds/systembuilder/$file
 done
 ''',
-      'post-uninstall': '''SPIN_BACKGROUNDS="1-spin-sunrise.png 2-spin-day.png 3-spin-sunset.png 4-spin-night.png"
+      'post-uninstall': '''SPIN_BACKGROUNDS="1-systembuilder-sunrise.png 2-systembuilder-day.png 3-systembuilder-sunset.png 4-systembuilder-night.png"
 for file in $SPIN_BACKGROUNDS; do
-  %{__rm} -f /usr/share/backgrounds/spin/$file
+  %{__rm} -f /usr/share/backgrounds/systembuilder/$file
 done
 ''',
       'triggers': {
@@ -113,14 +113,14 @@ for default in $DEFAULTS; do
   file=$BACKGROUNDS/images/$default
   if [ -e $file ]; then
     %%{__mv} $file $file.rpmsave
-    %%{__ln_s} $BACKGROUNDS/spin/$default $file
+    %%{__ln_s} $BACKGROUNDS/systembuilder/$default $file
   fi
 done
 if [ -e $BACKGROUNDS/infinity ]; then
   %%{__mv} $BACKGROUNDS/infinity $BACKGROUNDS/infinity.rpmsave
-  %%{__ln_s} $BACKGROUNDS/spin $BACKGROUNDS/infinity
-  if [ ! -e $BACKGROUNDS/spin/infinity.xml ]; then
-    %%{__ln_s} $BACKGROUNDS/spin/spin.xml $BACKGROUNDS/spin/infinity.xml
+  %%{__ln_s} $BACKGROUNDS/systembuilder $BACKGROUNDS/infinity
+  if [ ! -e $BACKGROUNDS/systembuilder/infinity.xml ]; then
+    %%{__ln_s} $BACKGROUNDS/systembuilder/systembuilder.xml $BACKGROUNDS/systembuilder/infinity.xml
   fi
 fi
 ''',
@@ -132,7 +132,7 @@ if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
   done
   %%{__rm} -rf $BACKGROUNDS/infinity
   %%{__mv} -f $BACKGROUNDS/infinity.rpmsave $BACKGROUNDS/infinity
-  %%{__rm} -f $BACKGROUNDS/spin/infinity.xml
+  %%{__rm} -f $BACKGROUNDS/systembuilder/infinity.xml
 fi
 ''',
         },
@@ -147,12 +147,12 @@ for default in $DEFAULTS; do
   file=$BACKGROUNDS/images/$default
   if [ -e $file ]; then
     %%{__mv} $file $file.rpmsave
-    %%{__ln_s} $BACKGROUNDS/spin/$default $file
+    %%{__ln_s} $BACKGROUNDS/systembuilder/$default $file
   fi
 default=$BACKGROUNDS/default.png
 if [ -e $default ]; then
   %%{__mv} $default $default.rpmsave
-  %%{__ln_s} $BACKGROUNDS/spin/default.jpg $default
+  %%{__ln_s} $BACKGROUNDS/systembuilder/default.jpg $default
 fi
 done
 ''',
@@ -174,7 +174,7 @@ fi
           'triggerin': '''THEME_DIR=/usr/share/firstboot/themes
 if [ ! -e $THEME_DIR/default.rpmsave ]; then
   %%{__mv} $THEME_DIR/default $THEME_DIR/default.rpmsave
-  %%{__cp} -rf $THEME_DIR/spin $THEME_DIR/default
+  %%{__cp} -rf $THEME_DIR/systembuilder $THEME_DIR/default
   for file in `ls -1 $THEME_DIR/default.rpmsave`; do
     if [ ! -e $THEME_DIR/default/$file ]; then
       %%{__cp} $THEME_DIR/default.rpmsave/$file $THEME_DIR/default/$file
@@ -195,14 +195,14 @@ fi
           'triggerin': '''BACKGROUNDS=/usr/share/backgrounds
 if [ ! -e $BACKGROUNDS/waves.rpmsave ]; then
   %%{__mv} $BACKGROUNDS/waves $BACKGROUNDS/waves.rpmsave
-  %%{__ln_s} $BACKGROUNDS/spin $BACKGROUNDS/waves
-  if [ ! -e $BACKGROUNDS/spin/waves.xml ]; then
-    %%{__ln_s} $BACKGROUNDS/spin/spin.xml $BACKGROUNDS/spin/waves.xml
+  %%{__ln_s} $BACKGROUNDS/systembuilder $BACKGROUNDS/waves
+  if [ ! -e $BACKGROUNDS/systembuilder/waves.xml ]; then
+    %%{__ln_s} $BACKGROUNDS/systembuilder/systembuilder.xml $BACKGROUNDS/systembuilder/waves.xml
   fi
 fi
 for wave in `ls -1 $BACKGROUNDS/waves.rpmsave | grep png`; do
   if [ ! -e $BACKGROUNDS/waves/$wave ]; then
-    %%{__ln_s} $BACKGROUNDS/spin/default.png $BACKGROUNDS/waves/$wave
+    %%{__ln_s} $BACKGROUNDS/systembuilder/default.png $BACKGROUNDS/waves/$wave
   fi
 done
 ''',
@@ -214,7 +214,7 @@ if [ "$2" -eq "0" -o "$1" -eq "0" ]; then
     done
     %%{__rm} -f $BACKGROUNDS/waves
     %%{__mv} -f $BACKGROUNDS/waves.rpmsave $BACKGROUNDS/waves
-    %%{__rm} -f $BACKGROUNDS/spin/waves.xml
+    %%{__rm} -f $BACKGROUNDS/systembuilder/waves.xml
   fi
 fi
 ''',
@@ -270,7 +270,7 @@ fi
           'triggerin': '''BACKGROUNDS=/usr/share/backgrounds
 DEFAULTS="default-5_4.jpg default-dual.jpg default-dual-wide.jpg default.jpg default-wide.jpg"
 for default in $DEFAULTS; do
-  %%{__ln_s} $BACKGROUNDS/spin/$default $BACKGROUNDS/images/$default
+  %%{__ln_s} $BACKGROUNDS/systembuilder/$default $BACKGROUNDS/images/$default
 done
 ''',
           'triggerun': '''BACKGROUNDS=/usr/share/backgrounds

@@ -1,4 +1,4 @@
-SUBDIRS = spin
+SUBDIRS = systembuilder
 
 .PHONY: all clean install
 

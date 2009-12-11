@@ -30,7 +30,7 @@ from rendition import pps
 from rendition import rxml
 from rendition import versort
 
-from spin.validate import BaseConfigValidator
+from systembuilder.validate import BaseConfigValidator
 
 import config
 

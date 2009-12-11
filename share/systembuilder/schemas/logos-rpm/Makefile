@@ -3,7 +3,7 @@
 all:
 
 install:
-	mkdir -p $(DESTDIR)/usr/share/spin/schemas/logos-rpm
-	install -pm 644 config.rng $(DESTDIR)/usr/share/spin/schemas/logos-rpm/config.rng
+	mkdir -p $(DESTDIR)/usr/share/systembuilder/schemas/logos-rpm
+	install -pm 644 config.rng $(DESTDIR)/usr/share/systembuilder/schemas/logos-rpm/config.rng
 
 clean:

@@ -5,8 +5,8 @@ PYFILES = $(wildcard *.py)
 all:
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/spin/event
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/spin/event
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/event
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/event
 
 clean:
 	rm -f *.pyc *.pyo

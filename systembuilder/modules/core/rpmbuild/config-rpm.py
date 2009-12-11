@@ -19,10 +19,10 @@ from StringIO import StringIO
 
 from rendition import pps
 
-from spin.event     import Event
-from spin.validate  import InvalidConfigError
+from systembuilder.event     import Event
+from systembuilder.validate  import InvalidConfigError
 
-from spin.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
+from systembuilder.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
 
 import md5
 

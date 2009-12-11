@@ -19,13 +19,13 @@ import re
 import rpmUtils.arch
 import yum.Errors
 
-from spin.callback  import PkglistCallback
-from spin.constants import KERNELS
-from spin.errors    import assert_file_has_content, SpinError
-from spin.event     import Event
-from spin.logging   import L1
+from systembuilder.callback  import PkglistCallback
+from systembuilder.constants import KERNELS
+from systembuilder.errors    import assert_file_has_content, SpinError
+from systembuilder.event     import Event
+from systembuilder.logging   import L1
 
-from spin.modules.shared.idepsolver import DepsolverMixin
+from systembuilder.modules.shared.idepsolver import DepsolverMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

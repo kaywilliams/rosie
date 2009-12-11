@@ -20,12 +20,12 @@ import fnmatch
 
 from rendition import magic
 
-from spin.constants import KERNELS
-from spin.errors    import assert_file_has_content, SpinError
-from spin.event     import Event
-from spin.logging   import L1
+from systembuilder.constants import KERNELS
+from systembuilder.errors    import assert_file_has_content, SpinError
+from systembuilder.event     import Event
+from systembuilder.logging   import L1
 
-from spin.modules.shared import comps
+from systembuilder.modules.shared import comps
 
 MODULE_INFO = dict(
   api         = 5.0,

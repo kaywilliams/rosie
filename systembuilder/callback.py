@@ -18,7 +18,7 @@
 """
 callback.py
 
-Callback classes for spin
+Callback classes for systembuilder
 
 This file contains several 'callback' classes primarily intended for reporting
 progress information back to the user.  Many make use of progressbar.py to
@@ -30,7 +30,7 @@ from rendition.progressbar   import ProgressBar
 from rendition.sync.cache    import CachedSyncCallback  as _CachedSyncCallback
 from rendition.sync.callback import SyncCallbackMetered as _SyncCallbackMetered
 
-from spin.logging import L1, L2
+from systembuilder.logging import L1, L2
 
 # progressbar layouts - see progressbar.py for other tags
 LAYOUT_TIMER     = '%(title)-67.67s (%(time-elapsed)s)'

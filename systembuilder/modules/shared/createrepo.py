@@ -23,8 +23,8 @@ from rendition import shlib
 
 from rendition.versort import Version
 
-from spin.callback import TimerCallback
-from spin.logging  import L1
+from systembuilder.callback import TimerCallback
+from systembuilder.logging  import L1
 
 __all__ = ['CreaterepoMixin']
 

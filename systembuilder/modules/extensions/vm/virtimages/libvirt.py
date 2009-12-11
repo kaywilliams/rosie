@@ -21,7 +21,7 @@ libvirt.py
 create a libvirt image from the output of virtimage-base
 """
 
-from spin.event import Event
+from systembuilder.event import Event
 
 class LibVirtEvent(Event):
   def __init__(self):

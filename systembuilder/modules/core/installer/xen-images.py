@@ -17,9 +17,9 @@
 #
 from rendition import pps
 
-from spin.event import Event
+from systembuilder.event import Event
 
-from spin.modules.shared import FileDownloadMixin, ImageModifyMixin
+from systembuilder.modules.shared import FileDownloadMixin, ImageModifyMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

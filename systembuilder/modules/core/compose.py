@@ -19,8 +19,8 @@ import csv
 
 from rendition.pps.constants import TYPE_NOT_DIR
 
-from spin.event   import Event
-from spin.logging import L1
+from systembuilder.event   import Event
+from systembuilder.logging import L1
 
 MODULE_INFO = dict(
   api         = 5.0,

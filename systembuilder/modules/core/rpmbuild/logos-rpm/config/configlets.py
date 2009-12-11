@@ -18,7 +18,7 @@
 from rendition import pps
 from rendition import versort
 
-from spin.errors import SpinError
+from systembuilder.errors import SpinError
 
 class Configlet(dict):
   def __init__(self, element, parent_dir, precedence, **kwargs):

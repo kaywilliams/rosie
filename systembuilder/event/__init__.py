@@ -24,12 +24,12 @@ from rendition import dispatch
 from rendition import rxml
 from rendition import sync
 
-from spin.logging import L0, L1
+from systembuilder.logging import L0, L1
 
-from spin.event.diff   import DiffMixin
-from spin.event.fileio import IOMixin
-from spin.event.locals import LocalsMixin
-from spin.event.verify import VerifyMixin
+from systembuilder.event.diff   import DiffMixin
+from systembuilder.event.fileio import IOMixin
+from systembuilder.event.locals import LocalsMixin
+from systembuilder.event.verify import VerifyMixin
 
 # Constant (re)definitions
 CLASS_DEFAULT = dispatch.CLASS_DEFAULT

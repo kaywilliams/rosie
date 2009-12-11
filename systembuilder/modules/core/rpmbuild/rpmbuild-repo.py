@@ -20,10 +20,10 @@ import os
 from rendition import shlib
 from rendition import repo
 
-from spin.event   import Event
-from spin.logging import L1, L2
+from systembuilder.event   import Event
+from systembuilder.logging import L1, L2
 
-from spin.modules.shared import SpinRepoGroup
+from systembuilder.modules.shared import SpinRepoGroup
 
 from rendition.repo.repo import RepoContainer
 

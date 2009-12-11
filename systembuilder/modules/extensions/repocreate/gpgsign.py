@@ -21,10 +21,10 @@ from rendition import mkrpm
 from rendition.mkrpm       import GpgMixin
 from rendition.progressbar import ProgressBar
 
-from spin.callback  import GpgCallback, SyncCallback, LAYOUT_GPG
-from spin.errors    import assert_file_has_content, SpinError, SpinIOError
-from spin.event     import Event
-from spin.logging   import L1, L2
+from systembuilder.callback  import GpgCallback, SyncCallback, LAYOUT_GPG
+from systembuilder.errors    import assert_file_has_content, SpinError, SpinIOError
+from systembuilder.event     import Event
+from systembuilder.logging   import L1, L2
 
 MODULE_INFO = dict(
   api         = 5.0,

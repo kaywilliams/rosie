@@ -31,9 +31,9 @@ from rendition import shlib
 
 from rendition.rxml import config
 
-from spin.main import Build
+from systembuilder.main import Build
 
-BUILD_ROOT = '/tmp/spintest' # location builds are performed
+BUILD_ROOT = '/tmp/systembuildertest' # location builds are performed
 
 class TestBuild(Build):
   def __init__(self, conf, *args, **kwargs):
@@ -41,11 +41,11 @@ class TestBuild(Build):
     Build.__init__(self, *args, **kwargs)
 
   def _get_config(self, options, arguments):
-    mcf = pps.path(options.mainconfigpath or '/etc/spin/spintest.conf')
+    mcf = pps.path(options.mainconfigpath or '/etc/systembuilder/systembuildertest.conf')
     if mcf.exists():
       self.mainconfig = config.read(mcf)
     else:
-      self.mainconfig = config.read(StringIO('<spin/>'))
+      self.mainconfig = config.read(StringIO('<systembuilder/>'))
 
     # set the cache dir
     p = config.uElement('cache', parent=self.mainconfig)

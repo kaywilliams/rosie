@@ -25,10 +25,10 @@ import imgcreate
 
 from rendition import pps
 
-from spin.errors import SpinError
-from spin.event  import Event
+from systembuilder.errors import SpinError
+from systembuilder.event  import Event
 
-from spin.modules.shared import vms
+from systembuilder.modules.shared import vms
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -82,7 +82,7 @@ class LivecdEvent(vms.VmCreateMixin, Event):
   def run(self):
     ## todos
     ## shell command outputs - too verbose for standard run
-    ## hook up logging to spin, either by modifying spin or modyfing imgcreate
+    ## hook up logging to systembuilder, either by modifying systembuilder or modyfing imgcreate
 
     # if scripts change, remove base
     if not self._check_ks_scripts():

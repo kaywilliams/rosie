@@ -5,8 +5,8 @@ SUBDIRS = distribution logos-rpm
 all:
 
 install:
-	mkdir -p $(DESTDIR)/usr/share/spin/schemas
-	install -pm 644 spin.rng $(DESTDIR)/usr/share/spin/schemas/spin.rng
+	mkdir -p $(DESTDIR)/usr/share/systembuilder/schemas
+	install -pm 644 systembuilder.rng $(DESTDIR)/usr/share/systembuilder/schemas/systembuilder.rng
 
 	for dir in $(SUBDIRS); do make -C $$dir DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
 

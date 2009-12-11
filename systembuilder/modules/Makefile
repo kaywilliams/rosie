@@ -8,8 +8,8 @@ all:
 	for dir in $(SUBDIRS); do make -C $$dir; done
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/spin/modules
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/spin/modules
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules
 
 	for dir in $(SUBDIRS); do make -C $$dir PYTHONLIBDIR=`cd $(PYTHONLIBDIR); pwd` DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
 

@@ -18,10 +18,10 @@
 from rendition import pps
 from rendition import rxml
 
-from spin.constants import KERNELS
+from systembuilder.constants import KERNELS
 
-from spintest      import EventTestCase, ModuleTestSuite
-from spintest.core import make_core_suite
+from systembuildertest      import EventTestCase, ModuleTestSuite
+from systembuildertest.core import make_core_suite
 
 class PackagesEventTestCase(EventTestCase):
   moduleid = 'packages'

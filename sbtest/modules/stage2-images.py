@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from spintest        import EventTestCase, ModuleTestSuite
-from spintest.core   import make_core_suite
-from spintest.mixins import fdm_make_suite
+from systembuildertest        import EventTestCase, ModuleTestSuite
+from systembuildertest.core   import make_core_suite
+from systembuildertest.mixins import fdm_make_suite
 
 class Stage2ImagesEventTestCase(EventTestCase):
   moduleid = 'stage2-images'

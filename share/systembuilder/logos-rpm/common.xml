@@ -27,11 +27,11 @@
         xwindow-type="kde">
     <path>files/ksplash/Theme.rc</path>
   </file>
-  <file dest="/usr/share/backgrounds/spin/desktop-backgrounds-spin.xml">
-    <path>files/backgrounds/desktop-backgrounds-spin.xml</path>
+  <file dest="/usr/share/backgrounds/systembuilder/desktop-backgrounds-systembuilder.xml">
+    <path>files/backgrounds/desktop-backgrounds-systembuilder.xml</path>
   </file>
-  <file dest="/usr/share/backgrounds/spin/spin.xml">
-    <path>files/backgrounds/spin.xml</path>
+  <file dest="/usr/share/backgrounds/systembuilder/systembuilder.xml">
+    <path>files/backgrounds/systembuilder.xml</path>
   </file>
   <file dest="/usr/share/gdm/themes/Spin/GdmGreeterTheme.desktop">
     <path>files/gdm/GdmGreeterTheme.desktop</path>
@@ -42,9 +42,9 @@
   <file dest="/usr/share/gdm/themes/Spin/Spin.gtkrc">
     <path>files/gdm/Spin.gtkrc</path>
   </file>
-  <file dest="/usr/share/gnome-background-properties/desktop-backgrounds-spin.xml"
+  <file dest="/usr/share/gnome-background-properties/desktop-backgrounds-systembuilder.xml"
         xwindow-type="gnome">
-    <path>files/gnome-background-properties/desktop-backgrounds-spin.xml</path>
+    <path>files/gnome-background-properties/desktop-backgrounds-systembuilder.xml</path>
   </file>
   <file dest="/usr/share/gnome-screensaver/lock-dialog-system.glade"
         xwindow-type="gnome">
@@ -105,7 +105,7 @@
     <path>files/ksplash/Theme.rc</path>
   </file>
 
-  <image dest="/usr/share/backgrounds/spin/default-dual-wide.jpg"
+  <image dest="/usr/share/backgrounds/systembuilder/default-dual-wide.jpg"
          xwindow-type="gnome">
     <create>
       <width>2560</width>
@@ -126,7 +126,7 @@
       <height>768</height>
     </create>
   </image>
-  <image dest="/usr/share/backgrounds/spin/default.jpg"
+  <image dest="/usr/share/backgrounds/systembuilder/default.jpg"
          xwindow-type="gnome">
     <create>
       <width>1600</width>
@@ -283,7 +283,7 @@
       <height>768</height>
     </create>
   </image>
-  <image dest="/usr/share/backgrounds/spin/default-5_4.jpg">
+  <image dest="/usr/share/backgrounds/systembuilder/default-5_4.jpg">
     <create>
       <width>1280</width>
       <height>1024</height>
@@ -295,7 +295,7 @@
       <height>1600</height>
     </create>
   </image>
-  <image dest="/usr/share/backgrounds/spin/default-dual.jpg">
+  <image dest="/usr/share/backgrounds/systembuilder/default-dual.jpg">
     <create>
       <width>2560</width>
       <height>1240</height>
@@ -458,7 +458,7 @@
       <height>64</height>
     </create>
   </image>
-  <image dest="/usr/share/backgrounds/spin/default-wide.jpg"
+  <image dest="/usr/share/backgrounds/systembuilder/default-wide.jpg"
          xwindow-type="gnome">
     <create>
       <width>1680</width>

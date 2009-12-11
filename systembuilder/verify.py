@@ -17,7 +17,7 @@
 #
 import unittest
 
-from spin.logging import L3
+from systembuilder.logging import L3
 
 class BuildTestResult(unittest.TestResult):
 

@@ -31,7 +31,7 @@ from rendition.sync import link
 
 from rendition.pps.Path.error import PathError
 
-from spin.constants import RPM_GLOB, SRPM_GLOB
+from systembuilder.constants import RPM_GLOB, SRPM_GLOB
 
 TS = rpm.TransactionSet()
 TS.setVSFlags(-1)

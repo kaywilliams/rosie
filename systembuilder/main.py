@@ -47,15 +47,15 @@ from rendition import sync
 from rendition.sync import cache
 from rendition.sync import link
 
-from spin.callback  import (SyncCallback, CachedSyncCallback, LinkCallback,
+from systembuilder.callback  import (SyncCallback, CachedSyncCallback, LinkCallback,
                             SyncCallbackCompressed)
-from spin.constants import *
-from spin.errors    import SpinErrorHandler, SpinError
-from spin.event     import Event, CLASS_META
-from spin.logging   import make_log, L0, L1, L2
-from spin.validate  import SpinValidationHandler
+from systembuilder.constants import *
+from systembuilder.errors    import SpinErrorHandler, SpinError
+from systembuilder.event     import Event, CLASS_META
+from systembuilder.logging   import make_log, L0, L1, L2
+from systembuilder.validate  import SpinValidationHandler
 
-from spin.event.loader import Loader
+from systembuilder.event.loader import Loader
 
 # RPMS we need to check for
 # createrepo
@@ -66,10 +66,10 @@ from spin.event.loader import Loader
 
 API_VERSION = 5.0
 
-DEFAULT_TEMP_DIR = pps.path('/tmp/spin')
-DEFAULT_CACHE_DIR = pps.path('/var/cache/spin')
-DEFAULT_SHARE_DIR = pps.path('/usr/share/spin')
-DEFAULT_LOG_FILE = pps.path('/var/log/spin.log')
+DEFAULT_TEMP_DIR = pps.path('/tmp/systembuilder')
+DEFAULT_CACHE_DIR = pps.path('/var/cache/systembuilder')
+DEFAULT_SHARE_DIR = pps.path('/usr/share/systembuilder')
+DEFAULT_LOG_FILE = pps.path('/var/log/systembuilder.log')
 
 # map our supported archs to the highest arch in that arch 'class'
 ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
@@ -79,7 +79,7 @@ FILENAME_REGEX = re.compile('^[a-zA-Z0-9_\-\.]+$')
 
 class Build(SpinErrorHandler, SpinValidationHandler, object):
   """
-  Primary build class - framework upon which a custom spin is generated
+  Primary build class - framework upon which a custom systembuilder is generated
 
   Build consists mostly of variable values  and a dispatch object,  which
   is responsible  for calling  module events  in order to perform various
@@ -106,7 +106,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
                  command line arguments
 
     These parameters are normally passed in from the command-line handler
-    ('/usr/bin/spin')
+    ('/usr/bin/systembuilder')
     """
 
     self.parser = parser
@@ -124,15 +124,15 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     # set debug mode
     if options.debug is not None:
       self.debug = options.debug
-    elif self.mainconfig.pathexists('/spin/debug'):
-      self.debug = self.mainconfig.getbool('/spin/debug', False)
+    elif self.mainconfig.pathexists('/systembuilder/debug'):
+      self.debug = self.mainconfig.getbool('/systembuilder/debug', False)
     else:
       self.debug = False
 
     # set up real logger - console and file
     self.logfile = ( pps.path(options.logfile)
                      or self.appconfig.getpath('/distribution/main/log-file', None)
-                     or self.mainconfig.getpath('/spin/log-file', None)
+                     or self.mainconfig.getpath('/systembuilder/log-file', None)
                      or DEFAULT_LOG_FILE ).expand().abspath()
     try:
       self.logger = make_log(options.logthresh, self.logfile)
@@ -167,7 +167,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
 
     try:
       self.dispatch = dispatch.Dispatch(
-                        loader.load(import_dirs, prefix='spin/modules')
+                        loader.load(import_dirs, prefix='systembuilder/modules')
                       )
       self.disabled_modules = loader.disabled
       self.enabled_modules  = loader.enabled
@@ -181,7 +181,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
           self.module_map.setdefault(grp, []).extend(self.module_map[modid])
 
     except ImportError, e:
-      Event.logger.log(0, L0("Error loading core spin files: %s" % e))
+      Event.logger.log(0, L0("Error loading core systembuilder files: %s" % e))
       if self.debug: raise
       sys.exit(1)
 
@@ -219,7 +219,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
         sys.exit()
 
     # set up locking
-    self._lock = lock.Lock(Event.cache_handler.cache_dir/'spin.pid')
+    self._lock = lock.Lock(Event.cache_handler.cache_dir/'systembuilder.pid')
 
   def main(self):
     "Build an distribution"
@@ -235,7 +235,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
       DEFAULT_TEMP_DIR.rm(recursive=True, force=True) # clean up temp dir
       self._log_footer()
     else:
-      self.logger.log(0, L0("Another instance of spin (pid %d) is already "
+      self.logger.log(0, L0("Another instance of systembuilder (pid %d) is already "
                             "running" % self._lock._readlock()[0]))
       sys.exit()
 
@@ -246,7 +246,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
     values.  Distribution config is required, except in the event that the '-h' or
     '--help' argument was given on the command line, in which case the distribution
     config file can be omitted or not exist.  (This previous allowance is so
-    that a user can type `spin -h` on the command line without giving
+    that a user can type `systembuilder -h` on the command line without giving
     the '-c' option.)
     """
     mcp = pps.path(options.mainconfigpath).expand().abspath()
@@ -256,7 +256,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
       mc = rxml.config.read(mcp)
     else:
       self.logger.log(4, "No main config file found at '%s'. Using default settings" % mcp)
-      mc = rxml.config.fromstring('<spin/>')
+      mc = rxml.config.fromstring('<systembuilder/>')
 
     if not dcp.exists():
       raise rxml.errors.ConfigError("No system definition file found at '%s'" % dcp)
@@ -315,7 +315,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
                  command line options
     """
     import_dirs = [ x.expand().abspath() for x in \
-      self.mainconfig.getpaths('/spin/lib-path', []) ]
+      self.mainconfig.getpaths('/systembuilder/lib-path', []) ]
 
     if options.libpath:
       import_dirs = [ pps.path(x).expand().abspath() for x in options.libpath ] + import_dirs
@@ -327,7 +327,7 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
 
   def _compute_modules(self, options):
     """
-    Compute a list of modules spin should not load.  Disabling takes priorty
+    Compute a list of modules systembuilder should not load.  Disabling takes priorty
     over enabling.
 
     options      : an optparse.Values instance containing the result of
@@ -345,9 +345,9 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
         enabled.add(module.tag)
 
     # enable/disable modules from main config
-    for module in self.mainconfig.xpath('/spin/enable-module', []):
+    for module in self.mainconfig.xpath('/systembuilder/enable-module', []):
       enabled.add(module.text)
-    for module in self.mainconfig.xpath('/spin/disable-module', []):
+    for module in self.mainconfig.xpath('/systembuilder/disable-module', []):
       disabled.add(module.text)
 
     disabled.add('__init__') # hack, kinda; these are loaded automatically
@@ -403,21 +403,21 @@ class Build(SpinErrorHandler, SpinValidationHandler, object):
           % (di[check], check))
 
     # set up other directories
-    Event.CACHE_DIR    = self.mainconfig.getpath('/spin/cache/path',
+    Event.CACHE_DIR    = self.mainconfig.getpath('/systembuilder/cache/path',
                            DEFAULT_CACHE_DIR).expand().abspath()
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
     Event.METADATA_DIR = Event.CACHE_DIR  / di['distributionid']
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed([ x.expand().abspath()
-      for x in self.mainconfig.getpaths('/spin/share-path', []) ]))
+      for x in self.mainconfig.getpaths('/systembuilder/share-path', []) ]))
     sharedirs.extend(reversed([ pps.path(x).expand().abspath()
       for x in options.sharepath ]))
 
     # reverse the order so we get cli options, then config, then defaults
     Event.SHARE_DIRS = [ x for x in reversed(sharedirs) ]
 
-    cache_max_size = self.mainconfig.get('/spin/cache/max-size/text()', '30GB')
+    cache_max_size = self.mainconfig.get('/systembuilder/cache/max-size/text()', '30GB')
     if cache_max_size.isdigit():
       cache_max_size = '%sGB' % cache_max_size
     Event.CACHE_MAX_SIZE = si.parse(cache_max_size)

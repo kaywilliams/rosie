@@ -5,8 +5,8 @@ PYFILES = $(wildcard *.py)
 all:
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/spin/modules/core/installer
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/spin/modules/core/installer
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules/core/installer
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules/core/installer
 
 clean:
 	rm -f *.pyc *.pyo

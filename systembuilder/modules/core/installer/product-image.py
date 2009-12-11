@@ -19,9 +19,9 @@ from StringIO import StringIO
 
 from rendition import pps
 
-from spin.event import Event
+from systembuilder.event import Event
 
-from spin.modules.shared import ImageModifyMixin
+from systembuilder.modules.shared import ImageModifyMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

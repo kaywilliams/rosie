@@ -17,8 +17,8 @@
 #
 from rendition.rxml import config
 
-from spintest      import EventTestCase, ModuleTestSuite
-from spintest.core import make_core_suite
+from systembuildertest      import EventTestCase, ModuleTestSuite
+from systembuildertest.core import make_core_suite
 
 class InstallerSetupEventTestCase(EventTestCase):
   moduleid = 'installer'

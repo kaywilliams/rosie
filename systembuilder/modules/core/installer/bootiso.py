@@ -17,9 +17,9 @@
 #
 from rendition import shlib
 
-from spin.event import Event
+from systembuilder.event import Event
 
-from spin.modules.shared import BootConfigMixin
+from systembuilder.modules.shared import BootConfigMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

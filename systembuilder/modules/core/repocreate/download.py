@@ -22,9 +22,9 @@ from rpmUtils.arch import getArchList
 
 from rendition.repo import RPM_PNVRA_REGEX
 
-from spin.errors    import SpinError
-from spin.event     import Event
-from spin.logging   import L1, L2
+from systembuilder.errors    import SpinError
+from systembuilder.event     import Event
+from systembuilder.logging   import L1, L2
 
 MODULE_INFO = dict(
   api         = 5.0,

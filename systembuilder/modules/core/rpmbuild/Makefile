@@ -5,8 +5,8 @@ PYFILES = $(wildcard *.py)
 all:
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/spin/modules/core/rpmbuild
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/spin/modules/core/rpmbuild
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules/core/rpmbuild
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules/core/rpmbuild
 
 clean:
 	rm -f *.pyc *.pyo

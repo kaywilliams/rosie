@@ -25,8 +25,8 @@ import virtconv.formats
 
 from rendition import pps
 
-from spin.event   import Event
-from spin.logging import L1, L2
+from systembuilder.event   import Event
+from systembuilder.logging import L1, L2
 
 class VmwareEvent(Event):
   def __init__(self):

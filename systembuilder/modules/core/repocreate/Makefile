@@ -5,8 +5,8 @@ PYFILES = $(wildcard *.py)
 all:
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/spin/modules/core/repocreate/
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/spin/modules/core/repocreate
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules/core/repocreate/
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules/core/repocreate
 
 clean:
 	rm -f *.pyc *.pyo

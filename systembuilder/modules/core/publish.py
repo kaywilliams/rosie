@@ -24,9 +24,9 @@ import struct
 from rendition import pps
 from rendition import shlib
 
-from spin.errors    import SpinError
-from spin.event     import Event
-from spin.logging   import L1
+from systembuilder.errors    import SpinError
+from systembuilder.event     import Event
+from systembuilder.logging   import L1
 
 MODULE_INFO = dict(
   api         = 5.0,

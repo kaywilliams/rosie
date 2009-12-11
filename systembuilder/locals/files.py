@@ -2,7 +2,7 @@ from rendition.magic import FILE_TYPE_EXT2FS as EXT2
 from rendition.magic import FILE_TYPE_FAT    as FAT32
 from rendition.magic import FILE_TYPE_CPIO   as CPIO
 
-from spin.locals import LocalsDict, REMOVE
+from systembuilder.locals import LocalsDict, REMOVE
 
 __all__ = ['L_FILES']
 

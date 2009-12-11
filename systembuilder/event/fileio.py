@@ -20,7 +20,7 @@ from rendition import rxml
 
 from rendition.pps.constants import *
 
-from spin.errors import SpinError
+from systembuilder.errors import SpinError
 
 class IOMixin:
   def __init__(self):

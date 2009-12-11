@@ -17,9 +17,9 @@
 #
 import unittest
 
-from spintest import EventTestCaseDummy, decorate
+from systembuildertest import EventTestCaseDummy, decorate
 
-from spin.errors import SpinError
+from systembuilder.errors import SpinError
 
 class EventTestCaseHeader(EventTestCaseDummy):
   separator1 = '=' * 70

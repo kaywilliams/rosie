@@ -28,12 +28,12 @@ import time
 from rendition.repo import RepoContainer, ReposFromFile, ReposFromXml
 from rendition.repo import RPM_PNVRA_REGEX
 
-from spin.errors    import assert_file_readable, SpinError
-from spin.event     import Event
-from spin.logging   import L1, L2
-from spin.validate  import InvalidConfigError
+from systembuilder.errors    import assert_file_readable, SpinError
+from systembuilder.event     import Event
+from systembuilder.logging   import L1, L2
+from systembuilder.validate  import InvalidConfigError
 
-from spin.modules.shared import CreaterepoMixin, RepoEventMixin, SpinRepoGroup
+from systembuilder.modules.shared import CreaterepoMixin, RepoEventMixin, SpinRepoGroup
 
 MODULE_INFO = dict(
   api         = 5.0,

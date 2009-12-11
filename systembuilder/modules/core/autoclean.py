@@ -19,8 +19,8 @@ from rendition import rxml
 
 from rendition.difftest.handlers import DiffHandler
 
-from spin.event   import Event
-from spin.logging import L1, L2
+from systembuilder.event   import Event
+from systembuilder.logging import L1, L2
 
 MODULE_INFO = dict(
   api         = 5.0,

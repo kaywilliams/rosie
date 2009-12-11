@@ -21,8 +21,8 @@ from pykickstart.constants import KS_MISSING_PROMPT, KS_MISSING_IGNORE
 
 from rendition import pps
 
-from spin.event  import Event
-from spin.errors import SpinError, assert_file_readable
+from systembuilder.event  import Event
+from systembuilder.errors import SpinError, assert_file_readable
 
 MODULE_INFO = dict(
   api         = 5.0,

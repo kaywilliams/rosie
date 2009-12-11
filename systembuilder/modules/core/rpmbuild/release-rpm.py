@@ -17,9 +17,9 @@
 #
 from rendition import pps
 
-from spin.event import Event
+from systembuilder.event import Event
 
-from spin.modules.shared import RpmBuildMixin
+from systembuilder.modules.shared import RpmBuildMixin
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -43,7 +43,7 @@ class ReleaseRpmEvent(RpmBuildMixin, Event):
 
     RpmBuildMixin.__init__(self,
       '%s-release' % self.name,
-      '%s release files created by spin' % self.fullname,
+      '%s release files created by systembuilder' % self.fullname,
       '%s release files' % self.name,
       obsoletes = ['fedora-release', 'redhat-release', 'centos-release',
                    'fedora-release-notes', 'redhat-release-notes', 'centos-release-notes']

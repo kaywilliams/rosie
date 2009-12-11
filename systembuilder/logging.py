@@ -43,7 +43,7 @@ MSG_MAXWIDTH = 75
 
 class Logger(logger.Logger):
   """
-  Logging class used in all spin output.  Extends the logger.Logger class
+  Logging class used in all systembuilder output.  Extends the logger.Logger class
   and contains some of the features of the python logging module, particularly
   a simplified implementation of message formatting.  As with normal
   logger.Logger objects, this Logger can be attached to any file or file-like

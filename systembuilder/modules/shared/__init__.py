@@ -17,12 +17,12 @@
 #
 from rendition import listcompare
 
-from spin.modules.shared.bootcfg    import *
-from spin.modules.shared.createrepo import *
-from spin.modules.shared.installer  import *
-from spin.modules.shared.idepsolver import *
-from spin.modules.shared.repos      import *
-from spin.modules.shared.rpmbuild   import *
+from systembuilder.modules.shared.bootcfg    import *
+from systembuilder.modules.shared.createrepo import *
+from systembuilder.modules.shared.installer  import *
+from systembuilder.modules.shared.idepsolver import *
+from systembuilder.modules.shared.repos      import *
+from systembuilder.modules.shared.rpmbuild   import *
 
 class ListCompareMixin:
   def __init__(self, lfn=None, rfn=None, bfn=None, cb=None):

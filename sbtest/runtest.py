@@ -66,19 +66,19 @@ def parse_cmd_args(defaults=None):
 
   parser.add_option('-b', '--build-root', metavar='DIRECTORY',
     dest='buildroot',
-    default='/tmp/spintest',
+    default='/tmp/systembuildertest',
     help='choose the location where builds should be performed')
-  parser.add_option('--spin-conf', metavar='PATH',
+  parser.add_option('--systembuilder-conf', metavar='PATH',
     dest='mainconfigpath',
     help='specify path to a main config file')
   parser.add_option('--lib-path', metavar='PATH',
     dest='libpath',
     action='append',
-    help='specify directory containing spin library files')
+    help='specify directory containing systembuilder library files')
   parser.add_option('--share-path', metavar='PATH',
     dest='sharepath',
     action='append',
-    help='specify directory containing spin share files')
+    help='specify directory containing systembuilder share files')
 
   parser.add_option('-l', '--log-file', metavar='path',
     default='test.log',
@@ -114,12 +114,12 @@ def main():
 
   sys.path = options.libpath + sys.path
 
-  import spintest
+  import systembuildertest
 
-  spintest.BUILD_ROOT = pps.path(options.buildroot)
-  spintest.EventTestCase.options = options
+  systembuildertest.BUILD_ROOT = pps.path(options.buildroot)
+  systembuildertest.EventTestCase.options = options
 
-  runner = spintest.EventTestRunner(options.testlogfile, options.testloglevel)
+  runner = systembuildertest.EventTestRunner(options.testlogfile, options.testloglevel)
   suite = unittest.TestSuite()
 
   cwd = os.getcwd() # save for later
@@ -139,7 +139,7 @@ def main():
     result = runner.run(suite)
   finally:
     if options.clear_test_cache:
-      spintest.BUILD_ROOT.rm(recursive=True, force=True)
+      systembuildertest.BUILD_ROOT.rm(recursive=True, force=True)
 
   os.chdir(cwd) # make sure we're back where we started
 

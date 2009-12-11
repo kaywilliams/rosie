@@ -19,11 +19,11 @@
 from rendition import mkrpm
 from rendition import shlib
 
-from spin.callback import GpgCallback
-from spin.errors   import SpinError, SpinIOError, assert_file_has_content
-from spin.event    import Event
-from spin.logging  import L1, L2
-from spin.validate import InvalidConfigError
+from systembuilder.callback import GpgCallback
+from systembuilder.errors   import SpinError, SpinIOError, assert_file_has_content
+from systembuilder.event    import Event
+from systembuilder.logging  import L1, L2
+from systembuilder.validate import InvalidConfigError
 
 MODULE_INFO = dict(
   api         = 5.0,

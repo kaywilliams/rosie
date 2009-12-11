@@ -18,7 +18,7 @@
 from rendition import repo
 from rendition import versort
 
-from spin.event import Event, CLASS_META
+from systembuilder.event import Event, CLASS_META
 
 MODULE_INFO = dict(
   api         = 5.0,

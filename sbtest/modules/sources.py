@@ -20,8 +20,8 @@ import copy
 from rendition import repo
 from rendition.rxml import config
 
-from spintest        import EventTestCase, ModuleTestSuite
-from spintest.core   import make_extension_suite
+from systembuildertest        import EventTestCase, ModuleTestSuite
+from systembuildertest.core   import make_extension_suite
 
 class SourceEventTestCase(EventTestCase):
   moduleid = 'sources'

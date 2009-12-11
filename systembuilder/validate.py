@@ -26,8 +26,8 @@ from rendition import rxml
 
 XmlTreeElement = rxml.tree.XmlTreeElement
 
-from spin.event   import Event
-from spin.logging import L0, L1
+from systembuilder.event   import Event
+from systembuilder.logging import L0, L1
 
 NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
 
@@ -58,7 +58,7 @@ class SpinValidationHandler:
 
     v = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
                             self.mainconfig)
-    v.validate('/spin', schema_file='spin.rng')
+    v.validate('/systembuilder', schema_file='systembuilder.rng')
 
     # validate individual sections of the distribution_file
     self.logger.log(4, L0("Validating '%s'" % pps.path(self.appconfig.file)))

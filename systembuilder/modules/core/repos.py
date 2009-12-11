@@ -20,12 +20,12 @@ import re
 from rendition.repo    import ReposFromXml, ReposFromFile, RepoContainer, RepoFileParseError
 from rendition.versort import Version
 
-from spin.errors   import assert_file_has_content, assert_file_readable, SpinError
-from spin.event    import Event
-from spin.logging  import L1, L2
-from spin.validate import InvalidConfigError
+from systembuilder.errors   import assert_file_has_content, assert_file_readable, SpinError
+from systembuilder.event    import Event
+from systembuilder.logging  import L1, L2
+from systembuilder.validate import InvalidConfigError
 
-from spin.modules.shared import RepoEventMixin, SpinRepoGroup, SpinRepoFileParseError
+from systembuilder.modules.shared import RepoEventMixin, SpinRepoGroup, SpinRepoFileParseError
 
 MODULE_INFO = dict(
   api         = 5.0,

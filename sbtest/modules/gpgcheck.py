@@ -18,10 +18,10 @@
 from rendition import repo
 from rendition import rxml
 
-from spintest import EventTestCase, ModuleTestSuite
-from spintest.core import make_core_suite
+from systembuildertest import EventTestCase, ModuleTestSuite
+from systembuildertest.core import make_core_suite
 
-from spin.errors import SpinError
+from systembuilder.errors import SpinError
 
 class GpgcheckEventTestCase(EventTestCase):
   moduleid = 'gpgcheck'

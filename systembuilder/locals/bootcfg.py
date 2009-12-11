@@ -1,4 +1,4 @@
-from spin.locals import LocalsDict, REMOVE
+from systembuilder.locals import LocalsDict, REMOVE
 
 __all__ = ['L_BOOTCFG']
 

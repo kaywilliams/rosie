@@ -21,13 +21,13 @@ import os
 from rendition import pkgorder
 from rendition import shlib
 
-from spin import splittree
+from systembuilder import splittree
 
-from spin.callback import BuildDepsolveCallback
-from spin.event    import Event, CLASS_META
-from spin.logging  import L1, L2, L3
+from systembuilder.callback import BuildDepsolveCallback
+from systembuilder.event    import Event, CLASS_META
+from systembuilder.logging  import L1, L2, L3
 
-from spin.modules.shared import ListCompareMixin, BootConfigMixin
+from systembuilder.modules.shared import ListCompareMixin, BootConfigMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

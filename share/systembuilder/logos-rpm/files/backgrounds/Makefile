@@ -3,9 +3,9 @@
 all:
 
 install:
-	mkdir -p $(DESTDIR)/usr/share/spin/logos-rpm/files/backgrounds
-	install -pm 644 desktop-backgrounds-spin.xml $(DESTDIR)/usr/share/spin/logos-rpm/files/backgrounds/desktop-backgrounds-spin.xml
-	install -pm 644 spin.xml $(DESTDIR)/usr/share/spin/logos-rpm/files/backgrounds/spin.xml
+	mkdir -p $(DESTDIR)/usr/share/systembuilder/logos-rpm/files/backgrounds
+	install -pm 644 desktop-backgrounds-systembuilder.xml $(DESTDIR)/usr/share/systembuilder/logos-rpm/files/backgrounds/desktop-backgrounds-systembuilder.xml
+	install -pm 644 systembuilder.xml $(DESTDIR)/usr/share/systembuilder/logos-rpm/files/backgrounds/systembuilder.xml
 
 
 clean:

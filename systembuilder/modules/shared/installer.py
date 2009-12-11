@@ -21,8 +21,8 @@ from rendition import img
 from rendition import magic
 from rendition import pps
 
-from spin.logging      import L1
-from spin.event.fileio import MissingInputFileError
+from systembuilder.logging      import L1
+from systembuilder.event.fileio import MissingInputFileError
 
 __all__ = ['ImageModifyMixin', 'FileDownloadMixin']
 

@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from spintest          import BUILD_ROOT, EventTestCase, ModuleTestSuite
-from spintest.core     import make_core_suite
-from spintest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
+from systembuildertest          import BUILD_ROOT, EventTestCase, ModuleTestSuite
+from systembuildertest.core     import make_core_suite
+from systembuildertest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
 
 class ReleaseRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
   moduleid = 'release-rpm'

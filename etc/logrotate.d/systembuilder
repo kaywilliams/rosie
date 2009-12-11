@@ -1,4 +1,4 @@
-/var/log/spin.log {
+/var/log/systembuilder.log {
     missingok
     notifempty
     rotate 4

@@ -26,8 +26,8 @@ import time
 
 from rendition import FormattedFile as ffile
 
-from spin.event  import Event
-from spin.locals import sort_keys
+from systembuilder.event  import Event
+from systembuilder.locals import sort_keys
 
 MODULE_INFO = dict(
   api         = 5.0,

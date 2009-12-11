@@ -16,9 +16,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from spin.event import Event
+from systembuilder.event import Event
 
-from spin.modules.shared import CreaterepoMixin
+from systembuilder.modules.shared import CreaterepoMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

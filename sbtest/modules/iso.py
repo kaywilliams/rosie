@@ -22,11 +22,11 @@ from rendition.img         import MakeImage
 from rendition.rxml.config import Element
 from rendition import si
 
-from spin.splittree import parse_size
+from systembuilder.splittree import parse_size
 
-from spintest        import EventTestCase, ModuleTestSuite
-from spintest.core   import make_core_suite, make_extension_suite
-from spintest.mixins import BootConfigMixinTestCase
+from systembuildertest        import EventTestCase, ModuleTestSuite
+from systembuildertest.core   import make_core_suite, make_extension_suite
+from systembuildertest.mixins import BootConfigMixinTestCase
 
 #------ pkgorder ------#
 class PkgorderEventTestCase(EventTestCase):

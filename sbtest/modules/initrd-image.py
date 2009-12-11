@@ -17,9 +17,9 @@
 #
 from rendition import pps
 
-from spintest        import EventTestCase, ModuleTestSuite
-from spintest.core   import make_core_suite
-from spintest.mixins import ImageModifyMixinTestCase, imm_make_suite
+from systembuildertest        import EventTestCase, ModuleTestSuite
+from systembuildertest.core   import make_core_suite
+from systembuildertest.mixins import ImageModifyMixinTestCase, imm_make_suite
 
 class InitrdImageEventTestCase(EventTestCase):
   moduleid = 'initrd-image'
