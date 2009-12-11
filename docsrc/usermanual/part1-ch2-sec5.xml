@@ -20,7 +20,7 @@
 
     <para>After <command>systembuilder</command> successfully completes the build, you
     will find your completed appliance in a folder beneath the <filename
-    class="directory">/var/www/html/appliances</filename> default directory on
+    class="directory">/var/www/html/distributions</filename> default directory on
     the download server. SystemBuilder automatically configures boot media to download
     packages from that server. The folder name will be the
     <varname>$SYSTEMID</varname>, e.g.

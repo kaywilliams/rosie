@@ -127,7 +127,7 @@
             </row>
 
             <row>
-              <entry>/var/www/html/appliances/<varname>$SYSTEMID/</varname></entry>
+              <entry>/var/www/html/distributions/<varname>$SYSTEMID/</varname></entry>
 
               <entry>Directory to which SystemBuilder publishes an appliance.</entry>
             </row>

@@ -108,7 +108,7 @@
 
       <para>
       The default text value for this element is
-      <filename>/var/www/html/appliances/$SYSTEMID</filename>.
+      <filename>/var/www/html/distributions/$SYSTEMID</filename>.
       </para>
       </listitem>
     </varlistentry>

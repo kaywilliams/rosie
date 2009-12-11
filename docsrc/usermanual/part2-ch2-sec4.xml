@@ -2,31 +2,32 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Choosing an Appliance's Storage and Download Locations</title>
+  <title>Choosing a Distribution's Storage and Download Locations</title>
 
   <para>By default <application class="software">SystemBuilder</application> uses the
   <application class="software">SystemBuilder</application> build system as the default
-  location for publication and remote access. See the section "Deploying Your
-  Appliance" under Part I, Chapter 2, and the SDFR for more information about
+  locatin for publication and remote access. See the section "System Deployment"
+  under Part I, Chapter 2, and the SDFR for more information about
   the default settings. When the default settings are not appropriate, use the
-  <emphasis>publish</emphasis> TLE in the <filename
-  class="extension">.appliance</filename> file to direct <application
-  class="software">SystemBuilder</application> where to store the appliance and what
-  URL to use to make it accessible to clients for download.</para>
+  <emphasis>publish</emphasis> TLE in the system definition to direct
+  <application class="software">SystemBuilder</application> where to store 
+  the distribution and what URL to use to make it accessible to clients for
+  download.</para>
 
   <para>Essentially, you have one choice for the server location of the
-  published appliance, the <application class="software">SystemBuilder</application>
-  build system. However, you can choose different directories on that machine.
-  If the <filename class="directory">/var</filename> directory is on a
-  separate logical drive, increasing the drive capacity is easier. </para>
+  published system distribution, the <application class="software">
+  SystemBuilder</application>build system. However, you can choose different
+  directories on that machine. If the <filename class="directory">/var
+  </filename> directory is on a separate logical drive, increasing the drive
+  capacity is easier. </para>
 
-  <para>For the network-accessible location of the published appliance for
+  <para>For the network-accessible location of the system distribution for
   download, you have two choices: somewhere on the <application
   class="software">SystemBuilder</application> build system or on another server.
   Choosing that location depends upon several factors: your network security
   topography, the location of your client systems, the types and number of
-  appliances, the number of users accessing the appliance and the number of
-  types of OSes used in the appliances.</para>
+  distributions, the number of users accessing the distribution and the number
+  of types of OSes used in the distributions.</para>
 
   <para>SystemBuilder can accommodate a number of scenarios for storage and download.
   Critical considerations include whether you have a single LAN versus a
@@ -44,10 +45,10 @@
           <para>While the publish and storage location is on the <application
           class="software">SystemBuilder</application> build system, the default
           location of <filename
-          class="directory">/var/www/html/appliances/<varname>$SYSTEMID</varname></filename>
+          class="directory">/var/www/html/distributions/<varname>$SYSTEMID</varname></filename>
           may not meet your needs. For administrative purposes, you may wish
-          to keep separate paths for different appliances or types of
-          appliances or make only certain paths accessible to others for
+          to keep separate paths for different distributions or types of
+          distributions or make only certain paths accessible to others for
           download from the <application class="software">SystemBuilder</application>
           build system. To accomplish this, use
           <emphasis>publish/local-dir</emphasis> to set an alternate directory
@@ -78,7 +79,7 @@
           class="software">SystemBuilder</application> build system is behind your
           external firewall for security purposes. The question is whether you
           want the remotely accessible download host to be there, too, or in
-          the DMZ. To assign the appliance to a download server in the DMZ,
+          the DMZ. To assign the distribution to a download server in the DMZ,
           use <emphasis>publish/remote-url</emphasis> with the full http path
           and machine's IP address.</para>
         </listitem>
