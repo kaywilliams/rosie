@@ -16,7 +16,7 @@
   class="software">SystemBuilder</application> runs.</para>
 
   <para>Then you define your appliance in the <filename
-  class="extension">samba-server.appliance</filename> file using XML tags
+  class="extension">samber-server.xml</filename> file using XML tags
   defined in the SDFR. Your appliance recipe includes several key pieces of
   information:</para>
 
@@ -42,7 +42,7 @@
     </itemizedlist></para>
 
   <para>Once the system definition is complete, you log on as the root user
-  and execute the command <userinput>systembuilder samba-server.appliance</userinput>
+  and execute the command <userinput>systembuilder samber-server.xml</userinput>
   to build the appliance. Output goes to the screen and the default log file.
   The first build may take some time, since <application
   class="software">SystemBuilder</application> needs to do everything the first
@@ -51,7 +51,7 @@
   <para><itemizedlist>
       <listitem>
         <para>validate the <filename
-        class="extension">samba-server.appliance</filename> file,</para>
+        class="extension">samber-server.xml</filename> file,</para>
       </listitem>
 
       <listitem>
@@ -102,7 +102,7 @@
   distribution.</para>
 
   <para>Another method to update your appliance is actually changing the
-  system definition file, <filename>samba-server.appliance</filename> for
+  system definition file, <filename>samber-server.xml</filename> for
   this scenario. Any changes to the three required <emphasis>main</emphasis>
   child elements would constitute creating a brand-new appliance. Save these
   changes to a new <filename class="extension">.appliance</filename>
@@ -118,7 +118,7 @@
   url="http://mirror.centos.org">http://mirror.centos.org</ulink> .</para>
 
   <para>Now that you have your appliance, you can modularize your
-  <filename>samba-server.appliance</filename> file to reuse its parts and
+  <filename>samber-server.xml</filename> file to reuse its parts and
   version the system definition file components to make the build process
   more efficient and traceable. Part II explains this process.</para>
 </section>

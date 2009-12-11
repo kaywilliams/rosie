@@ -22,7 +22,7 @@
     appliance file, enter the command below:</para>
 
     <para><informalexample>
-        <programlisting>#systembuilder samba-server.appliance</programlisting>
+        <programlisting>#systembuilder samber-server.xml</programlisting>
       </informalexample>The output for an initial run details all the steps
     for downloading packages, checking package dependencies and creating
     images. If there are any errors, <application

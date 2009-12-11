@@ -14,7 +14,7 @@
 
   <para>Regarding updates, if you add a package to your appliance using
   <emphasis>packages</emphasis> in your
-  <filename>samba-server.appliance</filename> file, <command>yum</command>
+  <filename>samber-server.xml</filename> file, <command>yum</command>
   <option>update</option> will include the package in the appliance
   repository, which is available for installation. If you add a new package
   using <emphasis>config-rpm/requires</emphasis>, <command>yum</command>
@@ -41,13 +41,13 @@
   be available for installation, while the <emphasis>config-rpm</emphasis>
   installs associated RPMs on the client system, as well. Insert the following
   two lines within the <emphasis>packages</emphasis> TLE in your
-  <filename>samba-server.appliance</filename> file.</para>
+  <filename>samber-server.xml</filename> file.</para>
 
   <para><informalexample>
       <programlisting>&lt;group&gt;ftp-server&lt;/group&gt;
 &lt;group&gt;editors&lt;/group&gt;</programlisting>
     </informalexample>And within the <emphasis>config-rpm</emphasis> TLE in
-  your <filename>samba-server.appliance</filename> file, insert these lines to
+  your <filename>samber-server.xml</filename> file, insert these lines to
   automatically include them on the client system.</para>
 
   <para><informalexample>

@@ -6,7 +6,7 @@
 
   <para>To set up a more robust process for creating, testing, deploying and
   updating your Samba server installation on CentOS 5 using your
-  <filename>samba-server.appliance</filename> file, you'll do several tasks in
+  <filename>samber-server.xml</filename> file, you'll do several tasks in
   this section. First, you'll divide the file into reusable components. You'll
   also choose appropriate download and storage locations. Then you'll log
   those files into the versioning system of your choice. The testing process

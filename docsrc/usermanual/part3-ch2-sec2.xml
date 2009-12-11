@@ -7,7 +7,7 @@
   <para>Scripts and triggers enable you to control your client's environment
   to a great degree. To include these in your appliance, use the
   <emphasis>config-rpm</emphasis> TLE in your
-  <filename>samba-server.appliance</filename> file.</para>
+  <filename>samber-server.xml</filename> file.</para>
 
   <para>The program that installs your appliance on the client system actually
   runs scripts depending upon one of several possible situations. Include
@@ -76,5 +76,5 @@ fi </programlisting>
     </informalexample></para>
 
   <para>Include both of these examples in the <emphasis>config-rpm</emphasis>
-  TLE of your <filename>samba-server.appliance</filename>. </para>
+  TLE of your <filename>samber-server.xml</filename>. </para>
 </section>

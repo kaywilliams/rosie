@@ -33,7 +33,7 @@
   separate DMZ, a download machine with multiple active interfaces, multiple
   active ports or secure login requirements. SystemBuilder handles all of these through
   the system definition file, e.g.
-  <filename>samba-server.appliance</filename>.</para>
+  <filename>samber-server.xml</filename>.</para>
 
   <para><variablelist>
       <varlistentry>

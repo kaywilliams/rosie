@@ -8,12 +8,12 @@
   common server administration components using two different methods. These
   updates require changes to the <emphasis>config-rpm</emphasis> and
   <emphasis>packages</emphasis> TLEs already in place in your
-  <filename>samba-server.appliance</filename> file.</para>
+  <filename>samber-server.xml</filename> file.</para>
 
   <para>Following the illustrations in this section, you can conditionally
   configure your appliance's applications, automate its installation, create
   various install images, add business support required by the legal and
   software development departments and secure your appliance. All of these
   options utilize top-level elements that you include in your appliance
-  definition file, <filename>samba-server.appliance</filename>.</para>
+  definition file, <filename>samber-server.xml</filename>.</para>
 </section>

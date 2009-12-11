@@ -17,17 +17,17 @@
 
     <para>To include updated packages from the repositories, execute
     <command>systembuilder</command> with the
-    <filename>samba-server.appliance</filename> file. <application
+    <filename>samber-server.xml</filename> file. <application
     class="software"> Rerunning <command>systembuilder</command> with the same
     <filename class="extension">.appliance</filename> file will dramatically
     reduce the build time, assuming there are no changes to the file's
     contents. SystemBuilder</application> uses a cache of the packages and verifies the
     cache contents against the metadata for the repository and the groups. The
     screen output below shows the results of a build with no changes to the
-    <filename>samba-server.appliance</filename> file and no updates to the
+    <filename>samber-server.xml</filename> file and no updates to the
     repositories.</para>
 
-    <para><screen>Reading '/home/systembuilder/samba-server.appliance'
+    <para><screen>Reading '/home/systembuilder/samber-server.xml'
 Starting build of 'samba-server-5-i386' at 2008-10-25 18:29:55
 Build complete at 2008-10-25 18:30:26</screen></para>
 
@@ -50,7 +50,7 @@ Build complete at 2008-10-25 18:30:26</screen></para>
         command</para>
 
         <para><userinput># systembuilder --log-file /var/log/$MYLOGFILE
-        samba-server.appliance</userinput></para>
+        samber-server.xml</userinput></para>
 
         <para>where <varname>$MYLOGFILE</varname> is the new name of the log
         file.</para>

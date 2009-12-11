@@ -9,7 +9,7 @@
   default sets of kernel boot arguments. But SystemBuilder allows you to do more. You
   can create multiple sets of release images for CD or DVD or create a USB
   key-ready image. You can also specify custom kernel boot arguments for each
-  file type. Modify your <filename>samba-server.appliance</filename> file to
+  file type. Modify your <filename>samber-server.xml</filename> file to
   include what image customization options you want.</para>
 
   <para>To specify custom <filename class="extension">ISO</filename> file
@@ -47,7 +47,7 @@ netmask=255.255.255.0 gateway=192.168.0.2 dns=192.168.0.7
   file and possibly add custom boot arguments to the
   <filename>/syslinux.cfg</filename> file, use the
   <emphasis>diskboot-image</emphasis> TLE in your
-  <filename>samba-server.appliance</filename> file. The example below disables
+  <filename>samber-server.xml</filename> file. The example below disables
   the default boot arguments "%{ks}," "%{method}," and "nousbstorage."</para>
 
   <para><informalexample>

@@ -24,7 +24,7 @@
     (see Part 2), the kickstart process can be controlled, too.</para>
 
     <para>Use the <emphasis>kickstart</emphasis> TLE in the
-    <filename>samba-server.appliance</filename> file to identify one kickstart
+    <filename>samber-server.xml</filename> file to identify one kickstart
     file, as in the example below. Substitute your own kickstart filename for
     <filename>ks.cfg</filename>.</para>
 

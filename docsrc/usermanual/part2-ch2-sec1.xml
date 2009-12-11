@@ -70,7 +70,7 @@
           <listitem>
             <para>During this phase you will work with the Development system
             (D). In addition to creating the
-            <filename>samba-server.appliance</filename> definition file, you
+            <filename>samber-server.xml</filename> definition file, you
             will also create any configuration files necessary for the
             appliance to run properly, such as <filename>smb.conf</filename>.
             Essentially, you will complete the process described in "Defining
@@ -131,7 +131,7 @@
             <para>Using <application class="software">SystemBuilder</application> on
             the Staging system (S), you build the appliance with the
             <command>systembuilder</command> command, i.e. <userinput>systembuilder
-            samba-server.appliance</userinput>. <application
+            samber-server.xml</userinput>. <application
             class="software">SystemBuilder</application> will create your appliance
             RPMs and install images in the same location as in Step 2. After
             deploying the appliance to a Staging Client, test this beta

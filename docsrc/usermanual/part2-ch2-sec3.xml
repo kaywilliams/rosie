@@ -66,14 +66,14 @@
 
   <para>For the Samba Server appliance, the directory <filename
   class="directory">appliances/samba-server/</filename> in the drawing above
-  contains the <filename>samba-server.appliance</filename> file, the Samba
+  contains the <filename>samber-server.xml</filename> file, the Samba
   server configuration file, a kickstart file and a validation script. The
   <filename class="extension">.appliance</filename> file would XInclude
   components from the repositories, common groups and packages and a copyright
   statement. The same logic holds true for the web and DNS servers.</para>
 
   <para>To see the differences between one large versus several small files,
-  let's take the <filename>samba-server.appliance</filename> file you created
+  let's take the <filename>samber-server.xml</filename> file you created
   in Part I and modify that to use XInclude and XPointer statements. To do
   that you will create a separate repository file,
   <filename>repos.xml.</filename></para>
@@ -82,7 +82,7 @@
   subdirectory with the two subdirectories <filename
   class="directory">common/</filename> and <filename
   class="directory">samba-server/</filename> as above. Place your
-  <filename>samba-server.appliance</filename> and
+  <filename>samber-server.xml</filename> and
   <filename>smb.conf</filename> files in the latter.</para>
 
   <para>Next, create the <filename>appliances/common/repos.xml</filename>
@@ -141,7 +141,7 @@
     </informalexample></para>
 
   <para>The final step is to modify the
-  <filename>samba-server.appliance</filename> file, removing the
+  <filename>samber-server.xml</filename> file, removing the
   <emphasis>repos</emphasis> details and using XInclude and XPointer to reuse
   common content. You may want to rename the <filename
   class="extension">.appliance</filename> file or include it in a version
