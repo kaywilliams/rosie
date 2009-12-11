@@ -37,11 +37,11 @@ from rendition.CleanHelpFormatter import CleanHelpFormatter
 P = pps.Path
 
 def main():
-  parser = OptionParser("usage: %prog [OPTIONS] SYSTEM_DEFINITION",
+  parser = OptionParser("usage: %prog [OPTIONS] DISTRIBUTION_DEFINITION",
                         formatter=CleanHelpFormatter(),
                         description="build the distribution defined in the "
                                     "system definition file located at "
-                                    "SYSTEM_DEFINITION"
+                                    "DISTRIBUTION_DEFINITION"
                         )
 
   parser.add_option('--clear-cache',

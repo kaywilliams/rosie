@@ -61,18 +61,18 @@
 <arg choice="opt">
 <option>--skip <replaceable class="parameter">MODULE</replaceable></option>
 </arg>
-<filename> SYSTEM_DEFINITION</filename>
+<filename> DISTRIBUTION_DEFINITION</filename>
 
 </cmdsynopsis>
 </refsynopsisdiv>
 
 <refsect1 id="systembuilder.1-description"><title>DESCRIPTION</title>
-<para>Builds the distribution defined in the file at SYSTEM_DEFINITION. Updates the distribution if it exists.</para>
+<para>Builds the distribution defined in the file at DISTRIBUTION_DEFINITION. Updates the distribution if it exists.</para>
 </refsect1>
 
 <refsect1 id="systembuilder.1-usage"><title>USAGE</title>
-<para><command>systembuilder</command> [OPTIONS] SYSTEM_DEFINITION</para>
-<para>OPTIONS refers to the command-line options described below.  SYSTEM_DEFINITION refers to an system definition file, see the System Definition File Reference at <ulink url="http://www.renditionsoftware.com/systembuilder/docs"/> for more information.</para>
+<para><command>systembuilder</command> [OPTIONS] DISTRIBUTION_DEFINITION</para>
+<para>OPTIONS refers to the command-line options described below.  DISTRIBUTION_DEFINITION refers to an system definition file, see the System Definition File Reference at <ulink url="http://www.renditionsoftware.com/systembuilder/docs"/> for more information.</para>
 </refsect1>
 
 
@@ -150,7 +150,7 @@
 <varlistentry>
   <term><option>--no-validate</option></term>
   <listitem>
-    <para>Disables validation of SYSTEMBUILDER_CONF and SYSTEM_DEFINITION during the build process.</para>
+    <para>Disables validation of SYSTEMBUILDER_CONF and DISTRIBUTION_DEFINITION during the build process.</para>
   </listitem>
 </varlistentry>
 
@@ -174,7 +174,7 @@
 <varlistentry>
   <term><option>--validate-only</option></term>
   <listitem>
-<para>Performs SYSTEMBUILDER_CONF and SYSTEM_DEFINITION validation only; it does not build the distribution.  The option also displays the complete SYSTEM_DEFINITION file after resolving macro and include elements.</para>
+<para>Performs SYSTEMBUILDER_CONF and DISTRIBUTION_DEFINITION validation only; it does not build the distribution.  The option also displays the complete DISTRIBUTION_DEFINITION file after resolving macro and include elements.</para>
   </listitem>
 </varlistentry>
 
