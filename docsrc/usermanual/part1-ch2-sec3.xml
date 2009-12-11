@@ -2,14 +2,14 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Defining Your Appliance</title>
+  <title>Defining Your System Distribution</title>
 
-  <para>To define your Samba appliance, you will need to do the
+  <para>To define your Samba system distribution, you will need to do the
   following:</para>
 
   <para><itemizedlist>
       <listitem>
-        <para>Define some basic appliance information;</para>
+        <para>Define some basic system information;</para>
       </listitem>
 
       <listitem>
@@ -28,12 +28,11 @@
     </itemizedlist></para>
 
   <section>
-    <title>Naming the appliance</title>
+    <title>Naming the system distribution</title>
 
-    <para>The first step to creating an appliance is defining the basic
-    <filename class="extension">.appliance</filename> file. The tags
-    &lt;system&gt; and &lt;/system&gt; encapsulate all top-level
-    elements and their child elements and attributes.</para>
+    <para>The first step to creating a system distribution is creating the
+    definition file. The tags &lt;system&gt; and &lt;/system&gt; encapsulate
+    all top-level elements and their child elements and attributes.</para>
 
     <para><informalexample>
         <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
@@ -45,23 +44,21 @@
       </informalexample></para>
 
     <para>The first required element, <emphasis>main</emphasis>, includes the
-    appliance's name, the system architecture and the version of the
-    appliance. These three items make up the default
-    <varname>$SYSTEMID</varname>, which SystemBuilder uses to create directories for
-    storing the completed appliance and providing web access to the appliance
-    for download.</para>
+    name of system distribution, the system architecture and the version. These
+    three items make up the default <varname>$SYSTEMID</varname>, which
+    SystemBuilder uses to create directories for storing the completed system
+    distribution and providing web access to the distribution.</para>
 
     <para><note>
-        <para>The TLE elements can be in any order within an appliance
-        definition file.</para>
+        <para>The TLE elements can be in any order within a system definition
+        file.</para>
       </note></para>
 
-    <para>In the example below, the appliance version will be 5, and the
-    appliance will run on the i386 architecture.</para>
+    <para>In the example below, the system distribution version will be 5, and
+    the system architecture will be i386.</para>
 
     <para><important>
-        <para>The <emphasis>main</emphasis> top-level element is required for
-        an <filename class="extension">.appliance</filename> file.</para>
+        <para>The <emphasis>main</emphasis> top-level element is required.</para>
       </important></para>
 
     <para><informalexample>
@@ -74,20 +71,19 @@
 
     <para>The default <varname>$SYSTEMID</varname> will be
     <filename>samba-server-5-i386</filename>. See the SDFR for more details
-    about the <emphasis>main</emphasis> element in an <filename
-    class="extension">.appliance</filename> file.</para>
+    about the <emphasis>main</emphasis> element.</para>
 
-    <para>Save the <filename class="extension">.appliance</filename> file as
-    <filename>samba-server.appliance</filename> before preceding.</para>
+    <para>Save the file as <filename>samba-server.xml</filename> before
+    preceding.</para>
   </section>
 
   <section>
     <title>Specifying the input repositories</title>
 
     <para>Next, to define the OS and the application packages for the
-    appliance, you need to define what repositories SystemBuilder will use. The example
-    below uses the <emphasis>repos/repo</emphasis> child element to define the
-    repositories.</para>
+    system distribution, you need to define what repositories SystemBuilder
+    will use. The example below uses the <emphasis>repos/repo</emphasis> child
+    element to define the repositories.</para>
 
     <para><important>
         <para>For SystemBuilder to operate correctly, one of the repositories must have
@@ -102,8 +98,8 @@
     are for readability purposes only.</para>
 
     <para><important>
-        <para>The <emphasis>repos</emphasis> top-level element is required for
-        an <filename class="extension">.appliance</filename> file.</para>
+        <para>The <emphasis>repos</emphasis> top-level element is required.
+        </para>
       </important></para>
 
     <para><informalexample>
@@ -144,7 +140,7 @@
     and traverse the list until it finds a working repository.</para>
 
     <para><note>
-        <para>To avoid confusion between the appliance version and the OS
+        <para>To avoid confusion between the system version and the OS
         version, use the base OS version number in the
         <emphasis>main/version</emphasis> child element.</para>
       </note></para>
@@ -155,20 +151,19 @@
   </section>
 
   <section>
-    <title>Including package groups in the appliance repository</title>
+    <title>Including package groups in the system distribution</title>
 
     <para>Once you have defined your repositories, you specify the software
     packages and groups to include. Use the <emphasis>packages</emphasis>
-    top-level element in the <filename class="extension">.appliance</filename>
-    file to accomplish this.</para>
+    top-level element to accomplish this.</para>
 
     <para>The example below includes package groups for the <application
     class="software">Samba</application> application and related tools plus an
     X Window System.</para>
 
     <para><important>
-        <para>The <emphasis>packages</emphasis> top-level element is required
-        for an <filename class="extension">.appliance</filename> file.</para>
+        <para>The <emphasis>packages</emphasis> top-level element is required.
+        </para>
       </important></para>
 
     <para><informalexample>
@@ -185,7 +180,7 @@
 &lt;/packages&gt;  </programlisting>
       </informalexample></para>
 
-    <para>The appliance will include the <application
+    <para>The system distribution will include the <application
     class="software">GNOME</application> graphical user interface (GUI) and
     printing capabilities. Print administration for CUPS printers can be done
     using a web interface, hence the inclusion of the web-server package.
@@ -194,31 +189,21 @@
   </section>
 
   <section>
-    <title>Configuring the appliance</title>
+    <title>Configuring the system</title>
 
-    <para>The final step is to include appliance-specific configuration
-    information, such as your own appliance configuration files and required
+    <para>The final step is to include system-specific configuration
+    information, such as your own configuration files and required
     packages outside the standard groups you have identified in
-    <emphasis>packages</emphasis>, above. Without this step, SystemBuilder will build a
-    generic OS appliance as defined by the <emphasis>packages/group</emphasis>
-    child elements.</para>
+    <emphasis>packages</emphasis>, above.</para>
 
-    <para><application class="software">To enable you to install an appliance
-    on a client system, SystemBuilder uses RPMs just like other Linux-based OS and
-    applications. When you install your appliance on the client system, the
-    install process will retrieve all the packages and other files that you
-    specify from one or more repositories. SystemBuilder</application> gives you two
-    options for the repository locations. It can create your appliance
-    repositories on your internal download server or it can direct the client
-    installation process to the remote download repository servers sponsored
-    by outside organizations, such as the mirror sites that <ulink
-    url="http://mirror.centos.org">CentOS.org</ulink> or <ulink
-    url="http://mirror.samba.org">Samba.org</ulink> host. The parameters of
-    the <emphasis>config-rpm</emphasis> TLE determine how SystemBuilder configures this
-    process.</para>
+    <para><application class="software">To enable you to install the system
+    distribution on a client system, SystemBuilder uses RPMs just like other
+    Linux-based OS and applications. When you install your distribution on the
+    client system, the install process will retrieve all the packages and other
+    files that you specify from the download server.</para>
 
-    <para>In this instance, SystemBuilder will rely on its default settings plus the
-    <emphasis>/file</emphasis> and <emphasis>/requires</emphasis> child
+    <para>In this instance, SystemBuilder will rely on its default settings plus
+    the <emphasis>/file</emphasis> and <emphasis>/requires</emphasis> child
     element parameters to construct the <filename>config.rpm</filename> file.
     That file will construct a <application class="software">YUM</application>
     <filename>samba-server.repo</filename> file at the default path <filename
@@ -226,7 +211,7 @@
     class="extension">REPO</filename> file will not include the remote
     repositories that other organizations have hosted; however, it will
     include a repository definition pointing to your download server location
-    for this appliance.</para>
+    for this distribution.</para>
 
     <para><informalexample>
         <programlisting>&lt;config-rpm&gt;
@@ -243,10 +228,10 @@
     <para>In the example above, the client system will receive your
     <application class="software">Samba</application> configuration file,
     <filename>smb.conf</filename>, in the <filename
-    class="directory">/etc/samba</filename> directory. The appliance will also
+    class="directory">/etc/samba</filename> directory. The distribution will also
     include two key <application>Samba</application>-related packages.
     <application class="software">SystemBuilder</application> will resolve the
-    dependencies to prepare the appliance for client installation.</para>
+    dependencies to create the system distribution.</para>
 
     <para>For more information on the advanced child elements of
     <emphasis>config-rpm</emphasis> (implementing scripts and triggers,
@@ -254,8 +239,7 @@
     class="extension">REPO</filename> file), see the
     <emphasis>config-rpm</emphasis> TLE in the SDFR.</para>
 
-    <para>After you have saved your <filename
-    class="extension">.appliance</filename> file, you are ready to build your
-    appliance.</para>
+    <para>After you have saved your definition file, you are ready to build
+    your system distribution.</para>
   </section>
 </section>
