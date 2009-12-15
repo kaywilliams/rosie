@@ -196,7 +196,7 @@
     packages outside the standard groups you have identified in
     <emphasis>packages</emphasis>, above.</para>
 
-    <para><application class="software">To enable you to install the system
+    <para>To enable you to install the system
     distribution on a client system, SystemBuilder uses RPMs just like other
     Linux-based OS and applications. When you install your distribution on the
     client system, the install process will retrieve all the packages and other
