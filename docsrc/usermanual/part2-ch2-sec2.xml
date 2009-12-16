@@ -15,7 +15,7 @@
   class="software">RHEL</application> and <application
   class="software">CentOS</application>) have the revision control system
   <application class="software">Subversion</application>
-  (<command>svn</command>) available by default.
+  (<command>svn</command>) available by default.</para>
 
   <para>While everything could be revision controlled, there are some key
   non-image files that should be. Within the <application
