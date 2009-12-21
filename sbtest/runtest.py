@@ -66,7 +66,7 @@ def parse_cmd_args(defaults=None):
 
   parser.add_option('-b', '--build-root', metavar='DIRECTORY',
     dest='buildroot',
-    default='/tmp/systembuildertest',
+    default='/tmp/sbtest',
     help='choose the location where builds should be performed')
   parser.add_option('--systembuilder-conf', metavar='PATH',
     dest='mainconfigpath',
@@ -114,12 +114,12 @@ def main():
 
   sys.path = options.libpath + sys.path
 
-  import systembuildertest
+  import sbtest
 
-  systembuildertest.BUILD_ROOT = pps.path(options.buildroot)
-  systembuildertest.EventTestCase.options = options
+  sbtest.BUILD_ROOT = pps.path(options.buildroot)
+  sbtest.EventTestCase.options = options
 
-  runner = systembuildertest.EventTestRunner(options.testlogfile, options.testloglevel)
+  runner = sbtest.EventTestRunner(options.testlogfile, options.testloglevel)
   suite = unittest.TestSuite()
 
   cwd = os.getcwd() # save for later
@@ -139,7 +139,7 @@ def main():
     result = runner.run(suite)
   finally:
     if options.clear_test_cache:
-      systembuildertest.BUILD_ROOT.rm(recursive=True, force=True)
+      sbtest.BUILD_ROOT.rm(recursive=True, force=True)
 
   os.chdir(cwd) # make sure we're back where we started
 

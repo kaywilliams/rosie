@@ -18,9 +18,9 @@
 from rendition     import pps
 from rendition.img import MakeImage
 
-from systembuildertest        import EventTestCase, ModuleTestSuite
-from systembuildertest.core   import make_core_suite
-from systembuildertest.mixins import BootConfigMixinTestCase
+from sbtest        import EventTestCase, ModuleTestSuite
+from sbtest.core   import make_core_suite
+from sbtest.mixins import BootConfigMixinTestCase
 
 class BootisoEventTestCase(EventTestCase):
   moduleid = 'bootiso'

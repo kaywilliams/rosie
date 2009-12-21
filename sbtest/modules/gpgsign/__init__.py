@@ -17,8 +17,8 @@
 #
 from rendition import pps
 
-from systembuildertest      import EventTestCase, ModuleTestSuite
-from systembuildertest.core import make_extension_suite
+from sbtest      import EventTestCase, ModuleTestSuite
+from sbtest.core import make_extension_suite
 
 class GpgsignTestCase(EventTestCase):
   moduleid = 'gpgsign'

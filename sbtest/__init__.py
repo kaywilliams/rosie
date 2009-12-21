@@ -33,7 +33,7 @@ from rendition.rxml import config
 
 from systembuilder.main import Build
 
-BUILD_ROOT = '/tmp/systembuildertest' # location builds are performed
+BUILD_ROOT = '/tmp/sbtest' # location builds are performed
 
 class TestBuild(Build):
   def __init__(self, conf, *args, **kwargs):
@@ -41,7 +41,7 @@ class TestBuild(Build):
     Build.__init__(self, *args, **kwargs)
 
   def _get_config(self, options, arguments):
-    mcf = pps.path(options.mainconfigpath or '/etc/systembuilder/systembuildertest.conf')
+    mcf = pps.path(options.mainconfigpath or '/etc/systembuilder/sbtest.conf')
     if mcf.exists():
       self.mainconfig = config.read(mcf)
     else:

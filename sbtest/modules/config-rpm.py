@@ -17,9 +17,9 @@
 #
 from rendition import pps
 
-from systembuildertest          import BUILD_ROOT, EventTestCase, ModuleTestSuite
-from systembuildertest.core     import make_core_suite
-from systembuildertest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
+from sbtest          import BUILD_ROOT, EventTestCase, ModuleTestSuite
+from sbtest.core     import make_core_suite
+from sbtest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
 
 class ConfigRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
   moduleid = 'config-rpm'

@@ -25,8 +25,8 @@ import time
 
 from rendition import pps
 
-from systembuildertest import make_logger
-from systembuildertest.runtest import parse_cmd_args # use runtest's cmd parser
+from sbtest import make_logger
+from sbtest.runtest import parse_cmd_args # use runtest's cmd parser
 
 START = None # start time
 TIMEFMT = '%Y-%m-%d %X'
@@ -35,7 +35,7 @@ opt_defaults = dict(
   distro   = 'fedora',
   version  = '9',
   basearch = 'i386',
-  buildroot   = '/tmp/systembuildertest',
+  buildroot   = '/tmp/sbtest',
   testlogfile = 'test.log',
   testloglevel = 2,
   libpath   = [],

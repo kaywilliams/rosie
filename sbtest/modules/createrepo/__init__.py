@@ -18,8 +18,8 @@
 from rendition import pps
 from rendition.rxml.config import Element
 
-from systembuildertest      import EventTestCase, ModuleTestSuite
-from systembuildertest.core import make_core_suite
+from sbtest      import EventTestCase, ModuleTestSuite
+from sbtest.core import make_core_suite
 
 
 class CreaterepoEventTestCase(EventTestCase):

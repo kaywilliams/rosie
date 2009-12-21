@@ -18,8 +18,8 @@
 from rendition               import pps
 from rendition.rxml.config import Element
 
-from systembuildertest import decorate
-from systembuildertest.core import CoreTestSuite
+from sbtest import decorate
+from sbtest.core import CoreTestSuite
 
 #------ FileDownloadMixin ------#
 class FDMTest_Files:

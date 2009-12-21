@@ -23,8 +23,8 @@ from rendition import pps
 from rendition import repo
 from rendition import rxml
 
-from systembuildertest      import EventTestCase, ModuleTestSuite, _run_make
-from systembuildertest.core import make_core_suite
+from sbtest      import EventTestCase, ModuleTestSuite, _run_make
+from sbtest.core import make_core_suite
 
 class DummyDepsolveEventTestCase(EventTestCase):
   moduleid = 'depsolve'

@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systembuildertest        import EventTestCase, ModuleTestSuite
-from systembuildertest.core   import make_extension_suite
-from systembuildertest.mixins import touch_input_files, remove_input_files
+from sbtest        import EventTestCase, ModuleTestSuite
+from sbtest.core   import make_extension_suite
+from sbtest.mixins import touch_input_files, remove_input_files
 
 class KickstartEventTestCase(EventTestCase):
   moduleid = 'kickstart'

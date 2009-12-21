@@ -24,9 +24,9 @@ from rendition import si
 
 from systembuilder.splittree import parse_size
 
-from systembuildertest        import EventTestCase, ModuleTestSuite
-from systembuildertest.core   import make_core_suite, make_extension_suite
-from systembuildertest.mixins import BootConfigMixinTestCase
+from sbtest        import EventTestCase, ModuleTestSuite
+from sbtest.core   import make_core_suite, make_extension_suite
+from sbtest.mixins import BootConfigMixinTestCase
 
 #------ pkgorder ------#
 class PkgorderEventTestCase(EventTestCase):

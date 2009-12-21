@@ -20,8 +20,8 @@ from rendition import rxml
 
 from systembuilder.constants import KERNELS
 
-from systembuildertest      import EventTestCase, ModuleTestSuite
-from systembuildertest.core import make_core_suite
+from sbtest      import EventTestCase, ModuleTestSuite
+from sbtest.core import make_core_suite
 
 class PackagesEventTestCase(EventTestCase):
   moduleid = 'packages'

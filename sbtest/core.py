@@ -17,7 +17,7 @@
 #
 import unittest
 
-from systembuildertest import EventTestCaseDummy, decorate
+from sbtest import EventTestCaseDummy, decorate
 
 from systembuilder.errors import SystemBuilderError
 
