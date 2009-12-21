@@ -279,7 +279,7 @@ class GroupNotFoundError(CompsError):
   message = "Group '%(group)s' not found in any groupfile"
 
 class PackageNotFoundError(CompsError):
-  message = "Package '%(package)s' not found in amy repository"
+  message = "Package '%(package)s' not found in any repository"
 
 class RepoidNotFoundError(CompsError):
   message = "Group '%(group)s' specifies nonexistant repoid '%(repoid)s'"
