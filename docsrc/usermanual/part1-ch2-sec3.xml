@@ -50,7 +50,7 @@
     distribution and providing web access to the distribution.</para>
 
     <para><note>
-        <para>The TLE elements can be in any order within a system definition
+        <para>The TLE elements can be in any order within a distribution definition
         file.</para>
       </note></para>
 

@@ -50,8 +50,8 @@
     class="software">SystemBuilder</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
     obtaining and installing SystemBuilder and creating a basic CentOS system distribution.
-    "System Definition File Reference" (DDFR) contains the syntax for
-    system definition file elements and attributes. Finally, SystemBuilder has a set
+    "Distribution Definition File Reference" (DDFR) contains the syntax for
+    distribution definition file elements and attributes. Finally, SystemBuilder has a set
     of <emphasis role="strong">man pages</emphasis> explaining the
     <command>systembuilder</command> command, its options and the SystemBuilder configuration
     file, <filename>systembuilder.conf</filename>. This manual contains references to
@@ -171,7 +171,7 @@
 
           <para><note>
               <para>The top-level elements can be in any order in the
-              system definition file.</para>
+              distribution definition file.</para>
             </note></para>
         </listitem>
       </varlistentry>

@@ -71,7 +71,7 @@
             <row>
               <entry>/usr/share/systembuilder/schemas</entry>
 
-              <entry>Relax NG schemas for system definition file validation.
+              <entry>Relax NG schemas for distribution definition file validation.
               </entry>
             </row>
           </tbody>
@@ -83,7 +83,7 @@
     <title>SystemBuilder's default system distribution structure</title>
 
     <para>One strength of <application class="software">SystemBuilder
-    </application> is that with a minimal system definition you can create a
+    </application> is that with a minimal distribution definition you can create a
     system distribution with a base OS and architecture and the
     desired applications. To accomplish this, <application
     class="software">SystemBuilder</application> relies on several default
@@ -91,7 +91,7 @@
     <varname>$DISTRIBUTIONID</varname> is the system distribution's identifier,
     consisting of the name, version and architecture of the distribution as
     specified in the <emphasis>main</emphasis> top-level element. The variable
-    <varname>$SYSTEMDEFINITION</varname> is the name of your system definition
+    <varname>$SYSTEMDEFINITION</varname> is the name of your distribution definition
     file without the file extension, e.g. 
     <filename class="extension">.xml</filename>.</para>
 

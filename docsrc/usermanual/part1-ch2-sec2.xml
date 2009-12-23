@@ -32,7 +32,7 @@
         <para>Creating the <application class="software">Samba</application>
         server distribution entails several process steps. After configuring the
         <application class="software">SystemBuilder</application> build system,
-        you need to create system definition file
+        you need to create distribution definition file
         (<filename class="extension">samber-server.xml</filename>). Then
         you run <command>systembuilder</command> to validate the file, retrieve
         the packages and build the distribution. From there you prepare the boot

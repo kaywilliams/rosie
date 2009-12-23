@@ -10,6 +10,6 @@
   this section. First, you'll divide the file into reusable components. You'll
   also choose appropriate download and storage locations. Then you'll log
   those files into the versioning system of your choice. The testing process
-  for your system definition file has several options, which are covered in
+  for your distribution definition file has several options, which are covered in
   the last section.</para>
 </section>

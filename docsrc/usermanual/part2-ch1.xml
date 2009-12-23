@@ -8,7 +8,7 @@
 
   <para>You can harness <application class="software">SystemBuilder</application>'s
   architecture and features to create a robust software development
-  environment with reusable components for the system definition file,
+  environment with reusable components for the distribution definition file,
   version tracking for that and other configuration files, expedited testing
   procedures and alternate publish and download locations. Using <application
   class="software">SystemBuilder</application> as part of a long-term deployment and

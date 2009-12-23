@@ -67,7 +67,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
   </section>
 
   <section>
-    <title>Modifying the system definition file</title>
+    <title>Modifying the distribution definition file</title>
 
     <para>If you change the distribution definition, then you need to rerun <command>systembuilder</command>. You may redefine
     your distribution in a plethora of ways. Some of the more common options

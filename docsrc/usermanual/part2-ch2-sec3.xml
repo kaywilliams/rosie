@@ -9,7 +9,7 @@
   store content in one location and use XML Includes (XInclude) and XPaths 
   to reuse content across definition files and condense large definition
   files into more manageable and readable sections using an object-oriented
-  tree. Within that context, some components of an system definition file are
+  tree. Within that context, some components of an distribution definition file are
   prime candidates for substitution and reuse.</para>
 
   <para>XInclude and XPointer do have limitations. Any documents that are
@@ -24,7 +24,7 @@
 
   <para>The advantages outweigh the disadvantages. XInclude processing is
   recursive. You can have multiple layers of XIncluded documents within one
-  collective system definition. By using XPointer you can target one portion of a
+  collective distribution definition. By using XPointer you can target one portion of a
   document. From a time management standpoint, you spend time creating static
   sections once, then reuse them. If your network topology changes, for
   example, then you have one file to change, not ten, and the inherent risk of
@@ -152,10 +152,10 @@
   &lt;/repos&gt;</programlisting>
     </informalexample></para>
 
-  <para>To build the system definition file,
+  <para>To build the distribution definition file,
   you will also have to change the path to the <filename>smb.conf</filename>
   file in <emphasis>config-rpm/file</emphasis>.</para>
 
-  <para>The result is an object-oriented system definition file that will
+  <para>The result is an object-oriented distribution definition file that will
   reduce your maintenance overhead.</para>
 </section>

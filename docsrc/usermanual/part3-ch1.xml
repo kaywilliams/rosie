@@ -6,7 +6,7 @@
 
   <para>Now that you have created your basic
   <filename>samber-server.xml</filename>, you can customize your
-  system through additional elements in the system definition file. When
+  system through additional elements in the distribution definition file. When
   selecting packages, you may want certain events to occur depending upon what
   package version is installed or deinstalled. Scripts that run automatically
   or are triggered upon certain installation or deinstallation events give you
