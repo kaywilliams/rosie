@@ -28,8 +28,8 @@
     repositories.</para>
 
     <para><screen>Reading '/home/systembuilder/samber-server.xml'
-Starting build of 'samba-server-5-i386' at 2008-10-25 18:29:55
-Build complete at 2008-10-25 18:30:26</screen></para>
+Starting build of 'samba-server-5-i386' at 2009-10-25 18:29:55
+Build complete at 2009-10-25 18:30:26</screen></para>
 
     <para>Since there were no updates, <command>systembuilder</command> completed
     successfully in less than two minutes. (Results will vary depending upon
