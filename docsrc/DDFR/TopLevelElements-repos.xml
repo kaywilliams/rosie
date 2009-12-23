@@ -203,7 +203,7 @@
     In the following examples, line breaks have been added to the
     <emphasis>repos/repo/baseurl</emphasis> and
     <emphasis>repos/repo/mirrorlist</emphasis> to improve readability.
-    In a real system definition file, however, line breaks within
+    In a real distribution definition file, however, line breaks within
     <varname>PATH</varname>-like elements are not allowed.
     </para>
 
@@ -282,7 +282,7 @@
   &lt;repo id="updates"&gt;
     &lt;name&gt;Red Hat Enterprise Linux - Updates&lt;/name&gt;
     &lt;baseurl&gt;rhns:///rhel-i386-server-5&lt;/baseurl&gt;
-    &lt;!-- location of the distributionid is relative to the system definition file --&gt;
+    &lt;!-- location of the distributionid is relative to the distribution definition file --&gt;
     &lt;distributionid&gt;common_distributionid-5Server-$basearch&lt;/distributionid&gt;
   &lt;/repo&gt;
 &lt;/repos&gt; 
