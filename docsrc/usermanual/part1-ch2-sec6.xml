@@ -97,7 +97,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
     including the system-specific config and release RPMs created by SystemBuilder.
     For more information about what these RPMs contain and how to customize
     their contents, see the <emphasis>config-rpm</emphasis> and
-    <emphasis>release-rpm</emphasis> TLEs in the SDFR.</para>
+    <emphasis>release-rpm</emphasis> TLEs in the DDFR.</para>
 
     <para>To see what changed on the client system, check the
     <filename>yum.log</filename> file in the <filename

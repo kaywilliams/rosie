@@ -18,7 +18,7 @@
 
   <para>Then you define your distribution in the <filename
   class="extension">samber-server.xml</filename> file using XML tags
-  defined in the SDFR. Your definition includes several key pieces of
+  defined in the DDFR. Your definition includes several key pieces of
   information:</para>
 
   <para><itemizedlist>

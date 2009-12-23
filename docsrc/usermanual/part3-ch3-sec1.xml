@@ -32,7 +32,7 @@
         <programlisting>&lt;kickstart&gt;ks.cfg&lt;/kickstart&gt;</programlisting>
       </informalexample></para>
 
-    <para>See the SDFR for the <emphasis>kickstart</emphasis> TLE
+    <para>See the DDFR for the <emphasis>kickstart</emphasis> TLE
     syntax.</para>
   </section>
 </section>

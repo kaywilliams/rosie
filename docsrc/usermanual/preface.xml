@@ -50,7 +50,7 @@
     class="software">SystemBuilder</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
     obtaining and installing SystemBuilder and creating a basic CentOS system distribution.
-    "System Definition File Reference" (SDFR) contains the syntax for
+    "System Definition File Reference" (DDFR) contains the syntax for
     system definition file elements and attributes. Finally, SystemBuilder has a set
     of <emphasis role="strong">man pages</emphasis> explaining the
     <command>systembuilder</command> command, its options and the SystemBuilder configuration
@@ -112,7 +112,7 @@
           equivalents. The active node is always considered to be the root,
           distribution; thus, the first element in the XPath expression is the
           top-level element, while subsequent elements/attributes are its
-          children. Top-level elements in the SDFR and their child elements
+          children. Top-level elements in the DDFR and their child elements
           use the <emphasis>parent/child/child</emphasis> format, while
           <emphasis>@attribute-names</emphasis> are preceded by an @ symbol.
           The assumed parent element is <emphasis>distribution</emphasis>. For

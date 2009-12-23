@@ -19,7 +19,7 @@
   services. In this chapter, the examples assume the server will be
   installed via the network with a web server and that the download server is
   the <application class="software">SystemBuilder</application> build system.
-  The SDFR provides the syntax for all parent and child elements and their
+  The DDFR provides the syntax for all parent and child elements and their
   attributes.</para>
 
   <para><mediaobject>

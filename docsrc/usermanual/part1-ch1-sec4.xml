@@ -11,7 +11,7 @@
   <para>To begin the system distribution build process, you must first define
   the system through a system definition file, commonly tagged with an
   <filename class="extension">.xml</filename> filename extension. It's
-  XML syntax, defined in the SDFR, has multiple TLEs, each of which gives you
+  XML syntax, defined in the DDFR, has multiple TLEs, each of which gives you
   an extraordinary level of control over system components and
   configuration.</para>
 
