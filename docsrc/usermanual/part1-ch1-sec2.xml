@@ -48,7 +48,7 @@
   and maintain system distributions in a superior manner.</para>
 
   <section>
-    <title>Testing an system distribution</title>
+    <title>Testing a system distribution</title>
 
     <para>While preparing the distribution definition file, you can test the OS
     with its various applications and configurations, together or in separate
@@ -123,7 +123,7 @@
           <para><emphasis role="strong">Deploy multiple machines
           machines quickly and reliably.</emphasis> Once you have identified
           your client system hardware, a system distribution and your boot
-          media, you can systematically and simultaneously create multiple
+          media, you ca systematically and simultaneously create multiple
           client systems using a multihoned or replicate web server.</para>
         </listitem>
       </orderedlist></para>
@@ -248,7 +248,7 @@
 
         <listitem>
           <para><emphasis role="strong">Utilize <application
-          class="software">SystemBuilder</application> as an system configuration
+          class="software">SystemBuilder</application> as a system configuration
           management system. </emphasis> Adding version control to the
           <application class="software">system configuration portion of
           SystemBuilder's</application> build system, as described in the

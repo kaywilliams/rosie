@@ -5,7 +5,7 @@
   <title>Building System Distributions with SystemBuilder</title>
 
   <para><application class="software">SystemBuilder</application> empowers you
-  to build an system distributions using a single configuration file and a 
+  to build a system distributions using a single configuration file and a 
   single command.</para>
 
   <para>To begin the system distribution build process, you must first define
