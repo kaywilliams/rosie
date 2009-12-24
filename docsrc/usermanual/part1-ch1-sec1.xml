@@ -64,6 +64,7 @@
   </mediaobject>
 
   <para>In summary, SystemBuilder is a robust distribution life cycle manager
-  for use in defining, building and maintaining system distributions that are
-  easily deployed and updated using industry standard tools.</para>
+  for use in defining, building and maintaining system distributions that can
+  be easily installed and updated on physical, virtual and cloud machines using
+  industry standard deployment and update tools.</para>
 </section>
