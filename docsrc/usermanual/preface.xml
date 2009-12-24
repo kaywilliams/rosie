@@ -67,9 +67,7 @@
 
     <para>The intent of the manual is to help you use SystemBuilder effectively
     to build and maintain system distributions, update distribution and
-    customize client installations. This is not a cookbook for various system
-    types, e.g. <application class="software">Samba</application>,
-    DNS, or LDAP. Rather, this manual takes the top-down approach, explaining
+    customize client installations. This manual takes the top-down approach, explaining
     the concepts before giving steps, commands and code examples that you can
     use to build, deploy and enhance your own system builds.</para>
   </section>
