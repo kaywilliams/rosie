@@ -40,7 +40,7 @@ def main():
   parser = OptionParser("usage: %prog [OPTIONS] DISTRIBUTION_DEFINITION",
                         formatter=CleanHelpFormatter(),
                         description="build the distribution defined in the "
-                                    "system definition file located at "
+                                    "distribution definition file located at "
                                     "DISTRIBUTION_DEFINITION"
                         )
 

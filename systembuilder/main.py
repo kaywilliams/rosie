@@ -259,7 +259,7 @@ class Build(SystemBuilderErrorHandler, SystemBuilderValidationHandler, object):
       mc = rxml.config.fromstring('<systembuilder/>')
 
     if not dcp.exists():
-      raise rxml.errors.ConfigError("No system definition file found at '%s'" % dcp)
+      raise rxml.errors.ConfigError("No distribution definition file found at '%s'" % dcp)
 
     self.logger.log(3, "Reading '%s'" % dcp)
     dc = rxml.config.read(dcp)

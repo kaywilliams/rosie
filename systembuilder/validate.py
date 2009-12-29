@@ -49,7 +49,7 @@ class SystemBuilderValidationHandler:
       sys.exit(1)
 
   def _validate_configs(self):
-    "Validate main config and system definition"
+    "Validate systembuilder config and distribution definition"
 
     if self.mainconfig.file is not None:
       self.logger.log(4, L0("Validating '%s'" % self.mainconfig.file))
