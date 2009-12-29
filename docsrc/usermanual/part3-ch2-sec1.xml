@@ -23,7 +23,7 @@
   </para>
 
   <para>If you choose to update your distribution by removing a package using
-  <emphasis>packages/exclude-package</emphasis>, <command>yum</command>
+  <emphasis>packages/exclude</emphasis>, <command>yum</command>
   <option>update</option> will remove the package from the distribution
   repository but not from the installed client system. If you use
   <emphasis>config-rpm/obsoletes</emphasis>, <command>yum</command>
