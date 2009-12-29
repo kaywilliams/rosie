@@ -48,11 +48,11 @@ class Test_PackagesDownloaded(DownloadEventTestCase):
   pass
 
 class Test_AddedPackageDownloaded(DownloadEventTestCase):
-  "Test that the packages in <comps> are downloaded"
-  _conf = """<comps>
+  "Test that the packages in <packages> are downloaded"
+  _conf = """<packages>
     <package>package1</package>
     <package>package2</package>
-  </comps>"""
+  </packages>"""
 
   def runTest(self):
     DownloadEventTestCase.runTest(self)
