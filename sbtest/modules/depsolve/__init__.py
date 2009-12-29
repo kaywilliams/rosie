@@ -139,31 +139,6 @@ class Test_DepsolveBug86_2(DepsolveEventTestCase):
     self.failUnless(count1 == count2, "bug86_1: %d packages; bug86_2: %d packages" % \
                       (count1, count2))
 
-class Test_DepsolveBug108(DepsolveEventTestCase):
-  "Bug 108: 'pidgin' or 'libpurple' should be in pkglist (CentOS5-only test)"
-  _conf = """<packages>
-    <package>gaim</package>
-  </packages>"""
-  caseid = 'bug108'
-  clean  = False
-  repos  = ['base', 'updates']
-
-  def runTest(self):
-    self.tb.dispatch.execute(until='depsolve')
-    found_gaim = False
-    found_pidgin = False
-    found_libpurple = False
-    for package in self.event.cvars['pkglist']:
-      if package.startswith('gaim'):
-        found_gaim = True
-      if package.startswith('pidgin'):
-        found_pidgin = True
-      if package.startswith('libpurple'):
-        found_libpurple = True
-
-    self.failUnless(found_pidgin or found_libpurple)
-    self.failIf(found_gaim)
-
 class Test_DepsolveBug163_1(DepsolveEventTestCase):
   "Bug 163 #1: Newer package is not the desired package"
   _conf = """<packages>
@@ -333,12 +308,6 @@ def make_suite(distro, version, arch):
   bug86.addTest(Test_DepsolveBug86_1(distro, version, arch))
   bug86.addTest(Test_DepsolveBug86_2(distro, version, arch))
   suite.addTest(bug86)
-
-  # bug 108; for centos-5 base distro only
-  if distro == 'centos' and version == '5':
-    bug108 = ModuleTestSuite('depsolve')
-    bug108.addTest(Test_DepsolveBug108(distro, version, arch))
-    suite.addTest(bug108)
 
   # bug 163
   bug163 = ModuleTestSuite('depsolve')
