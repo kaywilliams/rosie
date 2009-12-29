@@ -72,7 +72,7 @@
 
 <refsect1 id="systembuilder.1-usage"><title>USAGE</title>
 <para><command>systembuilder</command> [OPTIONS] DISTRIBUTION_DEFINITION</para>
-<para>OPTIONS refers to the command-line options described below.  DISTRIBUTION_DEFINITION refers to an system definition file, see the System Definition File Reference at <ulink url="http://www.renditionsoftware.com/systembuilder/docs"/> for more information.</para>
+<para>OPTIONS refers to the command-line options described below.  DISTRIBUTION_DEFINITION refers to a system definition file, see the System Definition File Reference at <ulink url="http://www.renditionsoftware.com/systembuilder/docs"/> for more information.</para>
 </refsect1>
 
 

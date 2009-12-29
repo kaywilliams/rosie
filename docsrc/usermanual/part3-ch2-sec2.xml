@@ -12,7 +12,7 @@
   <para>The program that installs RPMs on the client system
   actually runs scripts depending upon one of several possible situations. Include
   these scripts using <emphasis>config-rpm/scripts</emphasis> in your
-  system definition file. Commonly referred to by their installation script
+  distribution definition file. Commonly referred to by their installation script
   markers in an RPM spec file, the scripts execute prior to or following
   installation or uninstallation. See Section 9.4.5 "Defining installation
   scripts," in the Fedora Project's documentation, <ulink
@@ -27,7 +27,7 @@
   Guide</ulink> by Eric Foster-Johnson for a discussion of the trigger options
   and their implications. To activate these trigger options using SystemBuilder,
   include them with the <emphasis>config-rpm/trigger</emphasis> element of
-  your system definition file.</para>
+  your distribution definition file.</para>
 
   <para>In the example below, the <emphasis>/script</emphasis> element directs
   the installation program to execute the <filename>smb.script</filename> file

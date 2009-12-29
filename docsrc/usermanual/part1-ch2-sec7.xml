@@ -18,7 +18,7 @@
 
   <para>Then you define your distribution in the <filename
   class="extension">samber-server.xml</filename> file using XML tags
-  defined in the SDFR. Your definition includes several key pieces of
+  defined in the DDFR. Your definition includes several key pieces of
   information:</para>
 
   <para><itemizedlist>
@@ -42,7 +42,7 @@
       </listitem>
     </itemizedlist></para>
 
-  <para>Once the system definition is complete, you log on as the root user
+  <para>Once the distribution definition is complete, you log on as the root user
   and execute the command <userinput>systembuilder samber-server.xml</userinput>
   to build the distribution. Output goes to the screen and the default log file.
   The first build may take some time, since <application
@@ -118,6 +118,6 @@
 
   <para>Now that you have your definition, you can modularize your
   <filename>samber-server.xml</filename> file to reuse its parts and
-  version the system definition file components to make the build process
+  version the distribution definition file components to make the build process
   more efficient and traceable. Part II explains this process.</para>
 </section>

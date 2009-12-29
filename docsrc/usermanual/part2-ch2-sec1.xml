@@ -87,7 +87,7 @@
             in Part I, Chapter 2, and testing the functionality of your
             distribution to make sure it does what it is supposed to do. Steps 1
             and 2 are iterative during the alpha release phase, with you
-            incorporating changes to the system definition or configuration
+            incorporating changes to the distribution definition or configuration
             files and testing them until you are satisfied with the end result,
             i.e. a system distribution that deploys correctly and the resulting
             client functionality performs as expected.</para>
@@ -149,7 +149,7 @@
             <para>Once you have successfully built, deployed and tested your
             distribution on the Staging Client, you can check in the system
             definition and configuration files to Version Control. Including the
-            system definition itself in this system has one distinct advantage.
+            distribution definition itself in this system has one distinct advantage.
             By utilizing the control part of the system, you have a record of
             who make changes to the defintion and when. It also audits what
             changed in each version.</para>

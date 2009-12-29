@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<chapter id="SDFR-Introduction">
+<chapter id="DDFR-Introduction">
   <title>
-  Introduction to the SDFR
+  Introduction to the Distribution Definition File
   </title>
 
   <para>
-  The system definition file contains instructions for building a
+  The distribution definition file contains instructions for building a
   Linux operating system distribution, or distribution. It defines distribution 
   content and configuration, including name, version, and architecture; package
   repository locations; which packages to include; and the locations of 
@@ -41,7 +41,7 @@
   </para>
 
   <para>
-  An distribution file can be located in any local directory and invoked from the
+  A distribution file can be located in any local directory and invoked from the
   command line using the command <command>systembuilder</command> followed by the full
   or relative pathname to the file, such as:
   </para>

@@ -37,7 +37,7 @@
       </listitem>
     </orderedlist>The first component maintains the operations of <application
   class="software">SystemBuilder</application>, including logging and cache
-  preferences; your system definition file, which defines repositories,
+  preferences; your distribution definition file, which defines repositories,
   application groups and packages; and your system configuration scripts,
   to name a few. The second component contains the images used during first
   boot and client system deployment. The last two components, the cache and log,
@@ -48,20 +48,20 @@
   and maintain system distributions in a superior manner.</para>
 
   <section>
-    <title>Testing an system distribution</title>
+    <title>Testing a system distribution</title>
 
-    <para>While preparing the system definition file, you can test the OS
+    <para>While preparing the distribution definition file, you can test the OS
     with its various applications and configurations, together or in separate
     combinations, until you achieve the desired results.</para>
 
     <para><orderedlist>
         <listitem>
           <para><emphasis role="strong">Test different configuration and
-          application combinations within a single system definition
+          application combinations within a single distribution definition
           file.</emphasis> <application class="software">SystemBuilder</application>
-          uses an system definition file as a recipe for your system.
+          uses an distribution definition file as a recipe for your system.
           You can create a system template, then enable or disable
-          system components using the system definition file to test
+          system components using the distribution definition file to test
           application compatibility and functionality with the OS until you
           derive the combination that meets your needs.</para>
         </listitem>
@@ -123,7 +123,7 @@
           <para><emphasis role="strong">Deploy multiple machines
           machines quickly and reliably.</emphasis> Once you have identified
           your client system hardware, a system distribution and your boot
-          media, you can systematically and simultaneously create multiple
+          media, you ca systematically and simultaneously create multiple
           client systems using a multihoned or replicate web server.</para>
         </listitem>
       </orderedlist></para>
@@ -133,14 +133,14 @@
     <title>Maintaining and updating distributions</title>
 
     <para>SystemBuilder simplifies and standardizes the maintenance and update of
-    complex systems through its architecture and system definitions.</para>
+    complex systems through its architecture and distribution definitions.</para>
 
     <para><orderedlist>
         <listitem>
           <para><emphasis role="strong">Utilize standard XML nomenclature to
           create an understandable yet powerful system
           definition.</emphasis> Combining the standardized XML-based
-          system definitions with familiar repository and package concepts
+          distribution definitions with familiar repository and package concepts
           makes reading, writing, understanding and updating the system
           definition straightforward.</para>
         </listitem>
@@ -156,7 +156,7 @@
         <listitem>
           <para><emphasis role="strong">Reduce the learning curve for various
           standard package management tools.</emphasis> By utilizing an
-          system definition file that defines key repository, OS, package
+          distribution definition file that defines key repository, OS, package
           and configuration parameters, you can reduce the burden of
           understanding the intricacies of multiple software tools, i.e.
           <application class="software">Anaconda</application>, <application
@@ -203,7 +203,7 @@
           <para><emphasis role="strong">Migrate one system to new hardware
           in a fast, efficient, repeatable manner.</emphasis> Migrate a
           system that has been configured for one architecture to another
-          by changing a few items in the system definition file in just
+          by changing a few items in the distribution definition file in just
           minutes. Use SystemBuilder on a sandbox build system to test the
           system before readying it for deployment to the new hardware
           systems.</para>
@@ -231,7 +231,7 @@
         <listitem>
           <para><emphasis role="strong">Reduce planning and deployment effort
           for hardware, OS and application upgrades.</emphasis> <application
-          class="software">SystemBuilder</application>'s system definition files
+          class="software">SystemBuilder</application>'s distribution definition files
           function as system descriptions. You can use these definitions as a
           starting point when upgrading to ensure that all prior system
           functions carry forward.</para>
@@ -248,7 +248,7 @@
 
         <listitem>
           <para><emphasis role="strong">Utilize <application
-          class="software">SystemBuilder</application> as an system configuration
+          class="software">SystemBuilder</application> as a system configuration
           management system. </emphasis> Adding version control to the
           <application class="software">system configuration portion of
           SystemBuilder's</application> build system, as described in the

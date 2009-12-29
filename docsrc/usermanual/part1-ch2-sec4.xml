@@ -12,7 +12,7 @@
     <title>Executing the <command>systembuilder</command> command</title>
 
     <para>The basic <command>systembuilder</command> command validates the 
-    system definition file syntax, resolves package dependencies, creates
+    distribution definition file syntax, resolves package dependencies, creates
     distribution-specific packages, creates a distribution package repository, 
     and creates deployment images, all while recording process results. The
     default level of screen output includes errors, build and module status and

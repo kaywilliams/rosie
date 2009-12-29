@@ -50,8 +50,8 @@
     class="software">SystemBuilder</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
     obtaining and installing SystemBuilder and creating a basic CentOS system distribution.
-    "System Definition File Reference" (SDFR) contains the syntax for
-    system definition file elements and attributes. Finally, SystemBuilder has a set
+    "Distribution Definition File Reference" (DDFR) contains the syntax for
+    distribution definition file elements and attributes. Finally, SystemBuilder has a set
     of <emphasis role="strong">man pages</emphasis> explaining the
     <command>systembuilder</command> command, its options and the SystemBuilder configuration
     file, <filename>systembuilder.conf</filename>. This manual contains references to
@@ -67,9 +67,7 @@
 
     <para>The intent of the manual is to help you use SystemBuilder effectively
     to build and maintain system distributions, update distribution and
-    customize client installations. This is not a cookbook for various system
-    types, e.g. <application class="software">Samba</application>,
-    DNS, or LDAP. Rather, this manual takes the top-down approach, explaining
+    customize client installations. This manual takes the top-down approach, explaining
     the concepts before giving steps, commands and code examples that you can
     use to build, deploy and enhance your own system builds.</para>
   </section>
@@ -112,7 +110,7 @@
           equivalents. The active node is always considered to be the root,
           distribution; thus, the first element in the XPath expression is the
           top-level element, while subsequent elements/attributes are its
-          children. Top-level elements in the SDFR and their child elements
+          children. Top-level elements in the DDFR and their child elements
           use the <emphasis>parent/child/child</emphasis> format, while
           <emphasis>@attribute-names</emphasis> are preceded by an @ symbol.
           The assumed parent element is <emphasis>distribution</emphasis>. For
@@ -171,7 +169,7 @@
 
           <para><note>
               <para>The top-level elements can be in any order in the
-              system definition file.</para>
+              distribution definition file.</para>
             </note></para>
         </listitem>
       </varlistentry>
@@ -312,7 +310,7 @@ $ precedes lines entered as a normal user</programlisting>
   <section>
     <title>Getting SystemBuilder</title>
 
-    <para>The Beta version of SystemBuilder and associated documents are available at
+    <para>SystemBuilder and associated documents are available at
     <ulink url="http://www.renditionsoftware.com/systembuilder/"> the Rendition
     Software SystemBuilder website</ulink>.</para>
   </section>

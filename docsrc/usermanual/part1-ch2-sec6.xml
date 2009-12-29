@@ -28,8 +28,8 @@
     repositories.</para>
 
     <para><screen>Reading '/home/systembuilder/samber-server.xml'
-Starting build of 'samba-server-5-i386' at 2008-10-25 18:29:55
-Build complete at 2008-10-25 18:30:26</screen></para>
+Starting build of 'samba-server-5-i386' at 2009-10-25 18:29:55
+Build complete at 2009-10-25 18:30:26</screen></para>
 
     <para>Since there were no updates, <command>systembuilder</command> completed
     successfully in less than two minutes. (Results will vary depending upon
@@ -67,7 +67,7 @@ Build complete at 2008-10-25 18:30:26</screen></para>
   </section>
 
   <section>
-    <title>Modifying the system definition file</title>
+    <title>Modifying the distribution definition file</title>
 
     <para>If you change the distribution definition, then you need to rerun <command>systembuilder</command>. You may redefine
     your distribution in a plethora of ways. Some of the more common options
@@ -97,7 +97,7 @@ Build complete at 2008-10-25 18:30:26</screen></para>
     including the system-specific config and release RPMs created by SystemBuilder.
     For more information about what these RPMs contain and how to customize
     their contents, see the <emphasis>config-rpm</emphasis> and
-    <emphasis>release-rpm</emphasis> TLEs in the SDFR.</para>
+    <emphasis>release-rpm</emphasis> TLEs in the DDFR.</para>
 
     <para>To see what changed on the client system, check the
     <filename>yum.log</filename> file in the <filename

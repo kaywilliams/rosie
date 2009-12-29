@@ -79,7 +79,7 @@
     <para>One quick verification test to make sure the was install correctly is
     to verify the contents of the <filename>smb.conf</filename>
     installed on the client system. It should match the one provided in the
-    system definition.</para>
+    distribution definition.</para>
 
     <para>Congratulations! You now have a Samba server installed on your
     CentoOS 5 client.</para>

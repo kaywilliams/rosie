@@ -53,7 +53,7 @@
     <textobject>
       <para><application class="software">SystemBuilder</application> takes
       various inputs (OS, applications, configuration files, etc.), combines 
-      that with an system definition file and creates a system distribution 
+      that with an distribution definition file and creates a system distribution 
       with deployment images and a package repository. Using the bootable media,
       you can deploy the distribution to one or more client systems. You can 
       also update existing clients from the distribution package repository.
@@ -64,6 +64,7 @@
   </mediaobject>
 
   <para>In summary, SystemBuilder is a robust distribution life cycle manager
-  for use in defining, building and maintaining system distributions that are
-  easily deployed and updated using industry standard tools.</para>
+  for use in defining, building and maintaining system distributions that can
+  be easily installed and updated on physical, virtual and cloud machines using
+  industry standard deployment and update tools.</para>
 </section>

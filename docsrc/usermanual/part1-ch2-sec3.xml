@@ -50,7 +50,7 @@
     distribution and providing web access to the distribution.</para>
 
     <para><note>
-        <para>The TLE elements can be in any order within a system definition
+        <para>The TLE elements can be in any order within a distribution definition
         file.</para>
       </note></para>
 
@@ -70,7 +70,7 @@
       </informalexample></para>
 
     <para>The default <varname>$DISTRIBUTIONID</varname> will be
-    <filename>samba-server-5-i386</filename>. See the SDFR for more details
+    <filename>samba-server-5-i386</filename>. See the DDFR for more details
     about the <emphasis>main</emphasis> element.</para>
 
     <para>Save the file as <filename>samba-server.xml</filename> before
@@ -237,7 +237,7 @@
     <emphasis>config-rpm</emphasis> (implementing scripts and triggers,
     obsoleting packages and customizing the <filename
     class="extension">REPO</filename> file), see the
-    <emphasis>config-rpm</emphasis> TLE in the SDFR.</para>
+    <emphasis>config-rpm</emphasis> TLE in the DDFR.</para>
 
     <para>After you have saved your definition file, you are ready to build
     your system distribution.</para>

@@ -9,24 +9,24 @@
   alphabetical.</para>
 
   <para><variablelist>
-      <varlistentry id="adfr" xreflabel="SDFR">
-        <term><emphasis role="strong">SDFR</emphasis></term>
+      <varlistentry id="adfr" xreflabel="DDFR">
+        <term><emphasis role="strong">DDFR</emphasis></term>
 
         <listitem>
-          <para>"System Definition File Reference," the rules of syntax for
-          the system definition file.</para>
+          <para>"Distribution Definition File Reference," the rules of syntax for
+          the distribution definition file.</para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="system_definition" xreflabel="system definition">
-        <term><emphasis role="strong">system definition
+      <varlistentry id="system_definition" xreflabel="distribution definition">
+        <term><emphasis role="strong">distribution definition
         file</emphasis></term>
 
         <listitem>
           <para>The information SystemBuilder uses to build, configure and store your
           distribution. By convention the text file uses the <filename
           class="extension">.xml</filename> extension. The file uses XML
-          tagging as defined in the SDFR.</para>
+          tagging as defined in the DDFR.</para>
         </listitem>
       </varlistentry>
 

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<chapter id="SDFR-TLE-Introduction"
+<chapter id="DDFR-TLE-Introduction"
          xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>
   Top-Level Elements
   </title>
 
   <para>
-  Each top-level element in the SDFR maps to a code module of the same
+  Each top-level element in the DDFR maps to a code module of the same
   name. Each code module is responsible for performing a single step in
   the distribution build process.  Related modules are organized into 
   module groups. To obtain a list of all available modules and module 
