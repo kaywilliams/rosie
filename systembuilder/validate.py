@@ -234,7 +234,7 @@ class InvalidXmlError(StandardError):
       return self.args[1]
     msg = ''
     for err in self.args[1]: # relaxNG error log object
-      msg += '  line %d: %s\n' % (err.line, err.message)
+      msg += 'ERROR: %s\n' % err.message
     return msg
 class InvalidConfigError(InvalidXmlError):
   def __str__(self):
