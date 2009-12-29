@@ -32,7 +32,7 @@
       </zeroOrMore>
 
       <zeroOrMore>
-      <ref name="element-exclude-package"/>
+      <ref name="element-exclude"/>
       </zeroOrMore>
 
       <zeroOrMore>
@@ -49,8 +49,8 @@
     </element>
   </define>
 
-  <!-- exclude-package element-->
-  <define name="element-exclude-package">
+  <!-- exclude element-->
+  <define name="element-exclude">
     <element name="exclude">
       <text/>
     </element>

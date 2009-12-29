@@ -635,7 +635,7 @@ baseurl=/var/repos/repoC
         </listitem>
       </varlistentry>
 
-      <varlistentry id="exclude-package"
+      <varlistentry id="exclude"
                     xreflabel="repo/exclude">
         <term>
         exclude
@@ -730,7 +730,7 @@ baseurl=/var/repos/repoC
           </para>
 
           <para>
-          See Also the <emphasis><xref linkend="exclude-package" /></emphasis>
+          See Also the <emphasis><xref linkend="exclude" /></emphasis>
           element.
           </para>
           </listitem>

@@ -22,7 +22,7 @@
         </oneOrMore>
 
         <zeroOrMore>
-        <ref name="element-exclude-package"/>
+        <ref name="element-exclude"/>
         </zeroOrMore>
 
         </interleave>
