@@ -51,7 +51,6 @@ changelog:
 archive: tag
 	@hg archive --exclude systembuilder-enterprise.spec \
                     --exclude Makefile.enterprise \
-                    --exclude 'systembuilder/modules/core/rpmbuild/logos-rpm' \
 		    -t tgz --prefix=$(PKGNAME)-$(VERSION) $(PKGNAME)-$(VERSION).tar.gz
 
 srpm: archive
@@ -61,7 +60,7 @@ srpm: archive
 bumpver:
 	@NEWSUBVER=$$((`echo $(VERSION) | cut -d . -f 3` + 1)) ; \
 	NEWVERSION=`echo $(VERSION).$$NEWSUBVER |cut -d . -f 1-2,4` ; \
-	changelog="`hg log --exclude systembuilder/modules/core/rpmbuild/logos-rpm --exclude systembuilder-enterprise.spec --exclude .hgtags --exclude systembuilder.spec --exclude ChangeLog --exclude Makefile --exclude Makefile.enterprise -r tip:$(PKGNAME)-$(VERSION)-$(RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
+	changelog="`hg log --exclude systembuilder-enterprise.spec --exclude .hgtags --exclude systembuilder.spec --exclude ChangeLog --exclude Makefile --exclude Makefile.enterprise -r tip:$(PKGNAME)-$(VERSION)-$(RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
 	rpmlog="`echo "$$changelog" | sed -e 's/@.*>)/)/' -e 's/(.*</(/'`"; \
 	DATELINE="* `date "+%a %b %d %Y"` `hg showconfig ui.username` - $$NEWVERSION-$(RELEASE)" ; \
 	cl=`grep -n %changelog $(SPECFILE) | cut -d : -f 1` ; \
