@@ -22,8 +22,7 @@ tag:
 	@echo "Tagged as $(PKGNAME)-$(VERSION)-$(RELEASE)"
 
 archive: tag
-	@hg archive --include 'systembuilder/modules/core/rpmbuild/logos-rpm' \
-	            --include COPYING \
+	@hg archive --include COPYING \
                     --include AUTHORS \
                     --include systembuilder-enterprise.spec \
                     --include Makefile.enterprise \
@@ -51,7 +50,7 @@ srpm: archive
 bumpver:
 	@NEWSUBVER=$$((`echo $(VERSION) | cut -d . -f 3` + 1)) ; \
 	NEWVERSION=`echo $(VERSION).$$NEWSUBVER |cut -d . -f 1-2,4` ; \
-	changelog="`hg log --include systembuilder/modules/core/rpmbuild/logos-rpm -r tip:$(PKGNAME)-$(VERSION)-$(RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
+	changelog="`hg log -r tip:$(PKGNAME)-$(VERSION)-$(RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
 	rpmlog="`echo "$$changelog" | sed -e 's/@.*>)/)/' -e 's/(.*</(/'`"; \
 	DATELINE="* `date "+%a %b %d %Y"` `hg showconfig ui.username` - $$NEWVERSION-$(RELEASE)" ; \
 	cl=`grep -n %changelog $(SPECFILE) | cut -d : -f 1` ; \

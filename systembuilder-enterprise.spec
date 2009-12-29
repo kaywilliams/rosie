@@ -37,7 +37,6 @@ input source for distribution packages.
 
 %files
 %defattr(-,root,root,-)
-%{python_sitelib}/systembuilder/modules/core/rpmbuild/logos-rpm*
 %doc COPYING
 %doc AUTHORS
 

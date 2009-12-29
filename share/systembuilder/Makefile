@@ -1,4 +1,4 @@
-SUBDIRS = logos-rpm schemas
+SUBDIRS = schemas
 
 .PHONY: all clean install
 

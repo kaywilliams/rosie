@@ -1,4 +1,4 @@
-SUBDIRS = distribution logos-rpm
+SUBDIRS = distribution
 
 .PHONY: all clean install
 
