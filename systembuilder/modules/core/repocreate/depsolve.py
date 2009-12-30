@@ -85,12 +85,13 @@ class DepsolveEvent(Event, DepsolverMixin):
 
       self.DATA['input'].append(repo.localurl/'repodata')
 
+
   def run(self):
     # create pkglist
     if not self.dsdir.exists():
       self.dsdir.mkdirs()
 
-    self._verify_repos()
+    self._clean_dsdir()
 
     try:
       pkgtups = self.resolve() # in DepsolverMixin
@@ -152,12 +153,11 @@ class DepsolveEvent(Event, DepsolverMixin):
 
     self.verifier.failUnless(matched, "no kernel package found")
 
-  def _verify_repos(self):
-    for repoid, repo in self.cvars['repos'].items():
-      for f in self.diff.input.difference().keys():
-        if f.startswith(repo.localurl/'repodata'):
-          (self.dsdir/repoid).rm(recursive=True, force=True)
-          break
+  def _clean_dsdir(self):
+    for f in self.diff.variables.difference().keys():
+      if f.startswith('cvars[\'repos\']'):
+        self.dsdir.rm(recursive=True, force=True)
+        break
 
 
 class InvalidPkglistFormatError(SystemBuilderError):
