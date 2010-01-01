@@ -434,12 +434,16 @@ class Comps(object):
 
         return returns.values()
 
-    def add_group(self, group):
-        if self._groups.has_key(group.groupid):
-            thatgroup = self._groups[group.groupid]
+    def add_group(self, group, groupid = None):
+        '''creates a new group, or adds to an existing group with the \
+           same or a provided groupid'''
+        if not groupid:
+            groupid = group.groupid
+        if self._groups.has_key(groupid):
+            thatgroup = self._groups[groupid]
             thatgroup.add(group)
         else:
-            self._groups[group.groupid] = group
+            self._groups[groupid] = group
 
     def add_category(self, category):
         if self._categories.has_key(category.categoryid):

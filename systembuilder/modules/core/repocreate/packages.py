@@ -44,6 +44,7 @@ class PackagesEvent(Event):
                   'user-excluded-packages', 'all-packages'],
       requires = ['repos'],
       conditionally_requires = ['required-packages', 'excluded-packages'],
+      version = '1.00'
     )
 
     self.comps = None
@@ -187,17 +188,12 @@ class PackagesEvent(Event):
         if ( group.get('@repoid', None) is None or
              group.get('@repoid', None) == repoid ):
           if gf.has_group(group.text):
-            self.comps.add_group(gf.return_group(group.text))
+            self.comps.add_group(gf.return_group(group.text), 'core')
             added = True
       if not added:
         raise GroupNotFoundError(group.text)
-      self.comps.return_group(group.text).default = True # all groups are default
 
-    app_group = comps.Group()
-    app_group.name        = self.app_gid
-    app_group.groupid     = app_group.name
-    app_group.description = 'required %s distribution rpms' % self.fullname
-    app_group.default     = True
+    core_group = self.comps.return_group('core')
 
     # add packages
     for package in self.config.xpath('package', []):
@@ -209,7 +205,7 @@ class PackagesEvent(Event):
         else:
           raise PackageNotFoundError(package.text)
       for pkgname in pkgs:
-        app_group.mandatory_packages[pkgname] = 1
+        core_group.mandatory_packages[pkgname] = 1
 
     # its a shame I have to replicate this code from comps.py
     for pkgtup in self.cvars['required-packages'] or []:
@@ -217,13 +213,13 @@ class PackagesEvent(Event):
         pkgtup = (pkgtup, 'mandatory', None, None)
       package, genre, requires, default = pkgtup
       if genre == 'mandatory':
-        app_group.mandatory_packages[package] = 1
+        core_group.mandatory_packages[package] = 1
       elif genre == 'default':
-        app_group.default_packages[package] = 1
+        core_group.default_packages[package] = 1
       elif genre == 'optional':
-        app_group.optional_packages[package] = 1
+        core_group.optional_packages[package] = 1
       elif genre == 'conditional':
-        app_group.conditional_packages[package] = requires
+        core_group.conditional_packages[package] = requires
 
     # make sure a kernel package or equivalent exists
     kfound = False
@@ -231,10 +227,7 @@ class PackagesEvent(Event):
       if set(group.packages).intersection(KERNELS):
         kfound = True; break
     if not kfound:
-      app_group.mandatory_packages['kernel'] = 1
-
-    # add group to comps
-    self.comps.add_group(app_group)
+      core_group.mandatory_packages['kernel'] = 1
 
     # remove excluded packages
     for pkg in ( self.config.xpath('exclude/text()', []) +
