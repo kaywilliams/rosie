@@ -47,11 +47,11 @@ class DepsolveEvent(Event, DepsolverMixin):
     Event.__init__(self,
       id = 'depsolve',
       parentid = 'repocreate',
-      provides = ['pkglist', 'pkglist-install-packages'],
+      provides = ['pkglist'],
       requires = ['comps-object', 'repos', 'all-packages', 'comps-group-info',
                   'user-required-packages'],
       conditionally_requires = ['pkglist-excluded-packages'],
-      version = '0.2',
+      version = '1.02',
     )
 
     DepsolverMixin.__init__(self)
@@ -122,8 +122,6 @@ class DepsolveEvent(Event, DepsolverMixin):
       if not rx.match(self.cvars['pkglist'][i]):
         raise InvalidPkglistFormatError(self.pkglistfile,
                                         i+1, self.cvars['pkglist'][i])
-
-    self.cvars['pkglist-install-packages'] = self.install_pkgsfile.read_lines()
 
   def verify_pkglistfile_exists(self):
     "pkglist file exists"
