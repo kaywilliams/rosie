@@ -44,14 +44,12 @@ class _PackagesEventTestCase(PackagesEventTestCase):
   def check_all(self, groupfile):
     self.check_core(groupfile)
     self.check_category(groupfile)
-    self.check_groups(groupfile)
+    self.check_excluded(groupfile)
 
   def check_core(self, groupfile):
-    groups = groupfile.xpath('/comps/group/id/text()')
-    for grp in self.included_groups:
-      self.failUnless(grp in groups, '%s not in %s' % (grp, groups))
+    #still need to check if packages from included_groups in core
 
-    packages = groupfile.xpath('/comps/group[id/text()="%s"]/packagelist/packagereq/text()' % self.event.app_gid)
+    packages = groupfile.xpath('/comps/group[\'core\']/packagelist/packagereq/text()')
     for pkg in self.included_pkgs:
       self.failUnless(pkg in packages, '%s not in %s' % (pkg, packages))
 
@@ -64,10 +62,10 @@ class _PackagesEventTestCase(PackagesEventTestCase):
   def check_category(self, groupfile):
     self.failUnlessEqual(
       sorted(groupfile.xpath('/comps/category/grouplist/groupid/text()')),
-      sorted(self.included_groups + [self.event.app_gid])
+      sorted(['core'])
     )
 
-  def check_groups(self, groupfile):
+  def check_excluded(self, groupfile):
     pkgs = groupfile.xpath('/comps/group/packagelist/packagreq/text()')
     for pkg in self.excluded_pkgs:
       self.failIf(pkg in pkgs)
@@ -85,7 +83,6 @@ class Test_IncludePackages(_PackagesEventTestCase):
 
     groupfile = self.read_groupfile()
 
-    self.included_groups = ['core', 'base']
     self.check_all(groupfile)
 
 class Test_IncludeCoreGroups(_PackagesEventTestCase):
@@ -104,7 +101,6 @@ class Test_IncludeCoreGroups(_PackagesEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='packages')
 
-    self.included_groups = ['core']
     self.included_pkgs = ['createrepo', 'httpd', 'kde', 'xcalc']
     self.check_all(self.read_groupfile())
 
@@ -119,7 +115,6 @@ class Test_IncludeGroups(_PackagesEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='packages')
 
-    self.included_groups = ['base', 'printing']
     self.check_all(self.read_groupfile())
 
 class Test_ExcludePackages(_PackagesEventTestCase):
@@ -138,7 +133,6 @@ class Test_ExcludePackages(_PackagesEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='packages')
 
-    self.included_groups = ['core']
     self.excluded_pkgs = ['cpio', 'kudzu', 'passwd', 'setup']
     self.check_all(self.read_groupfile())
 
@@ -154,7 +148,6 @@ class Test_GroupsByRepo(_PackagesEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='packages')
 
-    self.included_groups = ['core', 'base', 'printing']
     self.check_all(self.read_groupfile())
 
     # still need to check 'core' and 'printing' came from 'base' #!
@@ -170,7 +163,6 @@ class Test_MultipleGroupfiles(_PackagesEventTestCase):
   def runTest(self):
     self.tb.dispatch.execute(until='packages')
 
-    self.included_groups = ['core', 'base-x']
     self.check_all(self.read_groupfile())
 
     # still need to check that 'base-x' contains all packages listed in #!
