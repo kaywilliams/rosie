@@ -435,8 +435,8 @@ class Comps(object):
         return returns.values()
 
     def add_group(self, group, groupid = None):
-        '''creates a new group, or adds to an existing group with the \
-           same or a provided groupid'''
+        '''creates a new group, adds to an existing group with the same \
+           groupid, or adds to a existing group specified using a groupid'''
         if not groupid:
             groupid = group.groupid
         if self._groups.has_key(groupid):

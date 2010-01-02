@@ -181,6 +181,14 @@ class PackagesEvent(Event):
 
     self.comps = comps.Comps()
 
+    if 'comps' not in self.config.xpath('group', []):
+      core_group             = comps.Group()
+      core_group.name        = 'Core'
+      core_group.groupid     = 'core'
+      core_group.description = 'Core Packages'
+      core_group.default     = True
+      self.comps.add_group(core_group)
+
     # add groups
     for group in self.config.xpath('group', []):
       added = False
@@ -228,6 +236,8 @@ class PackagesEvent(Event):
         kfound = True; break
     if not kfound:
       core_group.mandatory_packages['kernel'] = 1
+
+    self.comps.add_group(core_group)
 
     # remove excluded packages
     for pkg in ( self.config.xpath('exclude/text()', []) +
