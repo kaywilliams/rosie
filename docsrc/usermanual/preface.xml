@@ -5,22 +5,22 @@
   <title>Preface</title>
 
   <section>
-    <title>This Manual's Audience</title>
+    <title>Audience</title>
 
-    <para>SystemBuilder is a product intended for Linux system administrators and build
-    managers who need to build and deploy Linux-based systems. Each part in
-    this manual assumes you have a particular level of knowledge.</para>
+    <para>SystemBuilder is a product intended for system administrators
+    who need to build, test, deploy and maintain Red Hat Enterprise Linux or 
+    CentOS-based systems. Each part in this manual assumes you have a particular
+    level of knowledge.</para>
 
-    <para>For Part I, "Basic SystemBuilder Usage," in addition to knowing how to create
-    and edit XML files, manage a web server and create USB and CD/DVD boot
-    media, you should have an intermediate skill level with the following
+    <para>For Part I, "Basic SystemBuilder Usage," in addition to knowing how
+    to create and edit XML files, manage a web server and create USB and CD/DVD
+    boot media, you should have an intermediate skill level with the following
     components:</para>
 
     <para><itemizedlist>
         <listitem>
-          <para><application class="software">Linux</application>
-          installation, usage and system administration and
-          configuration;</para>
+          <para>Red Hat Enterprise Linux or CentOS installation, usage and 
+          system administration and configuration;</para>
         </listitem>
 
         <listitem>
@@ -34,36 +34,43 @@
         </listitem>
       </itemizedlist></para>
 
-    <para>For Part II, "Robust System Distribution Management," experience with version
-    control systems, local mirror hosting, XPath and XInclude.</para>
+    <para>For Part II, "Production System Distribution Management," experience
+    with version control systems, local mirror hosting, XPath and XInclude.
+    </para>
 
-    <para>For Part III, "Advanced System Distribution Concepts," key skills include
-    understanding how to create RPM packages and package repositories and how
-    to automate Anaconda installations using kickstart files, command line
-    arguments and update images.</para>
+    <para>For Part III, "Advanced System Distribution Concepts," key skills 
+    include understanding how to automate Anaconda installations using 
+    kickstart files and command line arguments.</para>
   </section>
 
   <section>
-    <title>What's Not Covered in This Manual</title>
+    <title>What's Not Covered</title>
 
     <para>This manual complements several <application
     class="software">SystemBuilder</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
-    obtaining and installing SystemBuilder and creating a basic CentOS system distribution.
-    "Distribution Definition File Reference" (DDFR) contains the syntax for
-    distribution definition file elements and attributes. Finally, SystemBuilder has a set
-    of <emphasis role="strong">man pages</emphasis> explaining the
-    <command>systembuilder</command> command, its options and the SystemBuilder configuration
-    file, <filename>systembuilder.conf</filename>. This manual contains references to
-    all four throughout the text.</para>
+    obtaining and installing SystemBuilder and creating a basic CentOS system
+    distribution. The "Distribution Definition File Reference" (DDFR) contains
+    the syntax for distribution definition file elements and attributes. 
+    Finally, SystemBuilder has a set of 
+    <emphasis role="strong">man pages</emphasis> explaining the
+    <command>systembuilder</command> command, its options and the SystemBuilder
+    configuration file, <filename>systembuilder.conf</filename>. This manual 
+    contains references to all four throughout the text.</para>
 
-    <para>These SystemBuilder documents are available at <ulink
-    url="http://www.renditionsoftware.com/systembuilder/docs/"> the Rendition Software
-    SystemBuilder documentation website</ulink>.</para>
+    <para>These SystemBuilder documents are available at the Rendition
+    Software SystemBuilder documentation website.
+    </para>
+
+    <para>
+    <ulink url="http://www.renditionsoftware.com/systembuilder/docs/">
+    http://www.renditionsoftware.com/systembuilder/docs/ </ulink>
+    </para>
+
   </section>
 
   <section>
-    <title>How to Read This Manual</title>
+    <title>How to Read</title>
 
     <para>The intent of the manual is to help you use SystemBuilder effectively
     to build and maintain system distributions, update distribution and
@@ -73,7 +80,7 @@
   </section>
 
   <section>
-    <title>Conventions Used in This Manual</title>
+    <title>Conventions Used</title>
 
     <para>The document conventions are alphabetically listed below.</para>
 
@@ -217,7 +224,7 @@ $ precedes lines entered as a normal user</programlisting>
   </section>
 
   <section>
-    <title>Organization of This Manual</title>
+    <title>Organization</title>
 
     <para>This manual contains three parts, each with an increasing level of
     complexity and detail.</para>
@@ -229,7 +236,7 @@ $ precedes lines entered as a normal user</programlisting>
 
           <para><itemizedlist>
               <listitem>
-                <para>"What Does SystemBuilder Do?" explains what a distribution
+                <para>"SystemBuilder Basics" explains what a distribution
                 is, how <application class="software">SystemBuilder
                 </application> helps you
                 build it in a more efficient timely manner and the underlying
@@ -240,7 +247,7 @@ $ precedes lines entered as a normal user</programlisting>
               </listitem>
 
               <listitem>
-                <para>"Basic Usage: Getting the Job Done," covers the basic
+                <para>"Basic Usage: Building a Distribution," covers the basic
                 concepts for configuring the <application
                 class="software">SystemBuilder</application> build system,
                 defining and deploying a distribution, running <application
@@ -253,7 +260,7 @@ $ precedes lines entered as a normal user</programlisting>
         </listitem>
 
         <listitem>
-          <para>Part II, "Robust Distribution Management," will help you set up
+          <para>Part II, "Production Distribution Management," will help you set up
           a managed development and deployment environment using SystemBuilder
           as its cornerstone.</para>
 

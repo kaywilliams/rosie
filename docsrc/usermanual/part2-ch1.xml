@@ -7,7 +7,7 @@
   </application></title>
 
   <para>You can harness <application class="software">SystemBuilder</application>'s
-  architecture and features to create a robust software development
+  architecture and features to create a production software development
   environment with reusable components for the distribution definition file,
   version tracking for that and other configuration files, expedited testing
   procedures and alternate publish and download locations. Using <application

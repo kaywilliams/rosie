@@ -4,7 +4,7 @@
 <section>
   <title>Life Cycle Management Use Case: a Samba Server</title>
 
-  <para>To set up a more robust process for creating, testing, deploying and
+  <para>To set up a more production process for creating, testing, deploying and
   updating your Samba server installation on CentOS 5 using your
   <filename>samber-server.xml</filename> file, you'll do several tasks in
   this section. First, you'll divide the file into reusable components. You'll

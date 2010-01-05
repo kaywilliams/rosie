@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section>
-  <title>Updating Your Distribution</title>
+  <title>Updating a Distribution</title>
 
   <para>Maintaining your distribution through updates is the final process step.
   There are two reasons to rerun the <command>systembuilder</command> command and

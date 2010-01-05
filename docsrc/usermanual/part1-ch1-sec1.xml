@@ -63,7 +63,7 @@
     <caption><para>How SystemBuilder Works</para></caption>
   </mediaobject>
 
-  <para>In summary, SystemBuilder is a robust distribution life cycle manager
+  <para>In summary, SystemBuilder is a production distribution life cycle manager
   for use in defining, building and maintaining system distributions that can
   be easily installed and updated on physical, virtual and cloud machines using
   industry standard deployment and update tools.</para>
