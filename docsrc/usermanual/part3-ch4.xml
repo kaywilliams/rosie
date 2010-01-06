@@ -6,14 +6,7 @@
 
   <para>Following the basic instructions in Part I, you can release your
   distribution with the default settings. Typically, larger organizations may
-  have business and security constraints that they wish you to follow. The
-  legal department may require a EULA or other legal statements. If your
-  distribution includes custom software developed in-house, then the software
-  development team may require help files and release notes, as well as files
-  for release.</para>
-
-  <xi:include href="part3-ch1-sec2.xml" xpointer="element(/1)"
-              xmlns:xi="http://www.w3.org/2001/XInclude" />
+  have security constraints that they wish you to follow.</para>
 
   <xi:include href="part3-ch1-sec3.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />

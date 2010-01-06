@@ -28,7 +28,6 @@ class DiskbootImageEventTestCase(EventTestCase):
   _conf = [
     "<repocreate enabled='false'/>",
     "<config-rpm enabled='false'/>",
-    "<release-rpm enabled='false'/>",
   ]
 
 class _DiskbootImageEventTestCase(ImageModifyMixinTestCase,

@@ -42,31 +42,24 @@
   <option>--list-modules</option> option.</para>
 
   <para>In addition to <emphasis>main</emphasis>, <emphasis>repos</emphasis>
-  and <emphasis>packages</emphasis>, the "core" modules that SystemBuilder executes
-  automatically include <emphasis>bootiso</emphasis>,
+  and <emphasis>packages</emphasis>, the "core" modules that SystemBuilder
+  executes automatically include <emphasis>bootiso</emphasis>,
   <emphasis>diskboot-image</emphasis>, <emphasis>product-image</emphasis>,
-  <emphasis>publish</emphasis>, <emphasis>release-files</emphasis> and
-  <emphasis>release-rpm</emphasis>. Optional, or "extension," modules include
-  <emphasis>gpgsign</emphasis>, <emphasis>iso</emphasis>,
-  <emphasis>kickstart</emphasis>, <emphasis>updates-image</emphasis> and
-  <emphasis>sources</emphasis>. To execute these modules, you can either
-  include them in the definition file
+  <emphasis>publish</emphasis> and <emphasis>release-files</emphasis>. 
+  Optional, or "extension," modules include <emphasis>gpgsign</emphasis>, 
+  <emphasis>iso</emphasis>, <emphasis>kickstart</emphasis>, 
+  <emphasis>updates-image</emphasis> and <emphasis>sources</emphasis>. 
+  To execute these modules, you can either include them in the definition file
   or use the <command>systembuilder</command> command with the <option>--force
   $MODULE</option> option, where <varname>$MODULE</varname> is the name of a
   module.</para>
 
   <para>There are two methods to skip execution of a module. Within the
-  definition file, you can disable a
-  module by setting to FALSE the <emphasis>/@enabled</emphasis> attribute of
-  any group or a module exposed through a TLE. You can use the same method to
-  skip execution of a module group. Another method is to use the
-  <command>systembuilder</command> command with the <option>--skip $MODULE</option>
-  option during a build, where <varname>$MODULE</varname> is the name of a
-  module.</para>
+  definition file, you can disable a module by setting to FALSE the
+  <emphasis>/@enabled</emphasis> attribute of any group or a module exposed
+  through a TLE. You can use the same method to skip execution of a module 
+  group. Another method is to use the <command>systembuilder</command> command
+  with the <option>--skip $MODULE</option> option during a build, where 
+  <varname>$MODULE</varname> is the name of a module.</para>
 
-  <para>"Core" modules that are candidates for skipping to save build time and
-  disk space include the image creation modules (<emphasis>bootiso</emphasis>,
-  <emphasis>diskboot-image</emphasis>, <emphasis>product-image</emphasis>),
-  the RPM creation module <emphasis>release-rpm</emphasis> and the
-  <emphasis>publish</emphasis> module.</para>
 </section>

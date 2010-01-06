@@ -116,29 +116,6 @@ class Test_DepsolveBug85_3(DepsolveEventTestCase):
     self.failUnless(count1 == count2, "bug85_1: %d packages; bug85_3: %d packages" % \
                     (count1, count2))
 
-class Test_DepsolveBug86_1(DepsolveEventTestCase):
-  "Bug 86 #1: Force 'depsolve' without 'release-rpm' forced"
-  caseid = 'bug86_1'
-  clean  = True
-  repos = ['base', 'updates']
-
-class Test_DepsolveBug86_2(DepsolveEventTestCase):
-  "Bug 86 #2: Force 'depsolve' with 'release-rpm' events"
-  caseid = 'bug86_2'
-  clean  = True
-  repos = ['base', 'updates']
-
-  def setUp(self):
-    DepsolveEventTestCase.setUp(self)
-    self.clean_event_md(self.event._getroot().get('release-rpm'))
-
-  def runTest(self):
-    DepsolveEventTestCase.runTest(self)
-    count1 = self.getPkglistCount('bug86_1')
-    count2 = self.getPkglistCount('bug86_2')
-    self.failUnless(count1 == count2, "bug86_1: %d packages; bug86_2: %d packages" % \
-                      (count1, count2))
-
 class Test_DepsolveBug163_1(DepsolveEventTestCase):
   "Bug 163 #1: Newer package is not the desired package"
   _conf = """<packages>
@@ -156,34 +133,6 @@ class Test_DepsolveBug163_1(DepsolveEventTestCase):
 
   def runTest(self):
     DepsolveEventTestCase.runTest(self)
-    self.failUnless('depsolve-bug163-prov-1.0-1.noarch' in self.event.cvars['pkglist'])
-    self.failIf('depsolve-bug163-prov-2.0-1.noarch' in self.event.cvars['pkglist'])
-
-class Test_DepsolveBug163_2(DepsolveEventTestCase):
-  "Bug 163 #2: Newer package is not brought down when 'release-rpm' is forced"
-  _conf = """<packages>
-    <package>depsolve-bug163-req</package>
-  </packages>"""
-  caseid = 'bug163_2'
-  clean  = False
-
-  def _make_repos_config(self):
-    repos = DepsolveEventTestCase._make_repos_config(self)
-
-    repos.append(rxml.config.Element('repofile',
-                 text='depsolve/depsolve-test-repos4.repo'))
-    return repos
-
-  def setUp(self):
-    DepsolveEventTestCase.setUp(self)
-    self.clean_event_md(self.event._getroot().get('release-rpm'))
-
-  def runTest(self):
-    DepsolveEventTestCase.runTest(self)
-    count1 = self.getPkglistCount('bug163_1')
-    count2 = self.getPkglistCount('bug163_2')
-    self.failUnless(count1 == count2, "bug163_1: %d packages; bug163_2: %d packages" % \
-                      (count1, count2))
     self.failUnless('depsolve-bug163-prov-1.0-1.noarch' in self.event.cvars['pkglist'])
     self.failIf('depsolve-bug163-prov-2.0-1.noarch' in self.event.cvars['pkglist'])
 

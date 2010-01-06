@@ -18,7 +18,6 @@ install:
 	install -pm 644 product-image.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/product-image.rng
 	install -pm 644 publish.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/publish.rng
 	install -pm 644 release-files.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/release-files.rng
-	install -pm 644 release-rpm.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/release-rpm.rng
 	install -pm 644 repos.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/repos.rng
 	install -pm 644 rpmbuild.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/rpmbuild.rng
 	install -pm 644 sources.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/sources.rng

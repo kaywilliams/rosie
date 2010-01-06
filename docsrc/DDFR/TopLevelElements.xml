@@ -94,9 +94,6 @@ systembuilder --list-modules
   <xi:include href="TopLevelElements-release-files.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="TopLevelElements-release-rpm.xml"
-              xpointer="element(/1)" />
-
   <xi:include href="TopLevelElements-repos.xml"
               xpointer="element(/1)" />
 

@@ -94,10 +94,10 @@ Build complete at 2009-10-25 18:30:26</screen></para>
 
     <para>Using the <command>yum </command><option>update</option> command
     will update all packages on the client system from the download server,
-    including the system-specific config and release RPMs created by SystemBuilder.
-    For more information about what these RPMs contain and how to customize
-    their contents, see the <emphasis>config-rpm</emphasis> and
-    <emphasis>release-rpm</emphasis> TLEs in the DDFR.</para>
+    including the system-specific config RPM created by SystemBuilder.
+    For more information what the config RPM contains and how to customize
+    its contents, see the section on <emphasis>config-rpm</emphasis> in the
+    Distribution Definition File Reference. </para>
 
     <para>To see what changed on the client system, check the
     <filename>yum.log</filename> file in the <filename
