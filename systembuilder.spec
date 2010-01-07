@@ -28,18 +28,16 @@ Requires: python-imaging
 Requires: python-lxml
 Requires: python-setuptools
 Requires: rendition-common
+Requires: rhn-client-tools
 Requires: rpm-build
 Requires: syslinux
 Requires: yum
 
 %description
-SystemBuilder is an administrator tool for automating system 
-deployment and maintenance using compact, flexible, reliable
-system distributions. See http://www.renditionsoftware.com for
-more information. 
-
-Note: Customers who create distributions based on RHEL will need to
-separately purchase RHEL subscriptions for all installed systems.
+SystemBuilder is an industry best practice solution for deploying
+and maintaining Centos and Red Hat Enterprise Linux systems
+in physical, virtual and cloud environments. See 
+http://www.renditionsoftware.com for more information. 
 
 %prep
 %setup -q
@@ -66,13 +64,14 @@ separately purchase RHEL subscriptions for all installed systems.
 %doc INSTALL
 %doc README
 %doc NEWS
-%doc docsrc/SDFR/SDFR.html
-%doc docsrc/usermanual/UserManual.html
 %doc docsrc/images*
 %{_mandir}/man5/systembuilder.conf.5.gz
 %{_mandir}/man1/systembuilder.1.gz
 
 %changelog
+
+* Thu Jan 07 2010 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.2
+- merged systembuilder and systembuilder-enterprise rpms
 
 * Thu Dec 10 2009 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.1-1
 - Initial Build

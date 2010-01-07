@@ -3,7 +3,7 @@ SPECFILE := $(PKGNAME).spec
 VERSION := $(shell awk '/Version:/ { print $$2 }' $(SPECFILE))
 RELEASE := $(shell awk '/Release:/ { print $$2 }' $(SPECFILE) | sed -e 's|%{?dist}||g')
 
-SUBDIRS = bin docsrc etc share systembuilder
+SUBDIRS = bin docsrc/man etc share systembuilder
 
 BUILDARGS =
 
@@ -49,9 +49,7 @@ changelog:
 	@hg log --style changelog > ChangeLog
 
 archive: tag
-	@hg archive --exclude systembuilder-enterprise.spec \
-                    --exclude Makefile.enterprise \
-		    -t tgz --prefix=$(PKGNAME)-$(VERSION) $(PKGNAME)-$(VERSION).tar.gz
+	@hg archive -t tgz --prefix=$(PKGNAME)-$(VERSION) $(PKGNAME)-$(VERSION).tar.gz
 
 srpm: archive
 	@rpmbuild $(BUILDARGS) -ts $(PKGNAME)-$(VERSION).tar.gz  || exit 1
