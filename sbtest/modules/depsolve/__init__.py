@@ -252,16 +252,9 @@ def make_suite(distro, version, arch):
   bug85.addTest(Test_DepsolveBug85_3(distro, version, arch))
   suite.addTest(bug85)
 
-  # bug 86
-  bug86 = ModuleTestSuite('depsolve')
-  bug86.addTest(Test_DepsolveBug86_1(distro, version, arch))
-  bug86.addTest(Test_DepsolveBug86_2(distro, version, arch))
-  suite.addTest(bug86)
-
   # bug 163
   bug163 = ModuleTestSuite('depsolve')
   bug163.addTest(Test_DepsolveBug163_1(distro, version, arch))
-  bug163.addTest(Test_DepsolveBug163_2(distro, version, arch))
   suite.addTest(bug163)
 
   # package added, obsoleted, and removed
