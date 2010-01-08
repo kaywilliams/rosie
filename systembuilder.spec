@@ -5,7 +5,7 @@ Version: 0.8.0
 Release: 1%{?dist}
 Summary: Builds system distributions based on CentOS and Red Hat Enterprise Linux
 
-License:   GPLv2+
+License:   GPL
 Group:     Applications/System
 URL:       http://www.renditionsoftware.com/systembuilder
 Source0:   %{name}-%{version}.tar.gz
