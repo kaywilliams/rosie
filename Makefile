@@ -58,7 +58,7 @@ srpm: archive
 bumpver:
 	@NEWSUBVER=$$((`echo $(VERSION) | cut -d . -f 3` + 1)) ; \
 	NEWVERSION=`echo $(VERSION).$$NEWSUBVER |cut -d . -f 1-2,4` ; \
-	changelog="`hg log --exclude systembuilder-enterprise.spec --exclude .hgtags --exclude systembuilder.spec --exclude ChangeLog --exclude Makefile --exclude Makefile.enterprise -r tip:$(PKGNAME)-$(VERSION)-$(RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
+	changelog="`hg log --exclude .hgtags --exclude systembuilder.spec --exclude ChangeLog --exclude Makefile --exclude Makefile.enterprise -r tip:$(PKGNAME)-$(VERSION)-$(RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
 	rpmlog="`echo "$$changelog" | sed -e 's/@.*>)/)/' -e 's/(.*</(/'`"; \
 	DATELINE="* `date "+%a %b %d %Y"` `hg showconfig ui.username` - $$NEWVERSION-$(RELEASE)" ; \
 	cl=`grep -n %changelog $(SPECFILE) | cut -d : -f 1` ; \
@@ -66,4 +66,5 @@ bumpver:
 	(head -n $$cl $(SPECFILE) ; echo "$$DATELINE" ; echo "$$rpmlog"; echo ""; cat speclog) > $(SPECFILE).new ; \
 	mv $(SPECFILE).new $(SPECFILE); rm -f speclog; \
 	sed -i "s/Version: $(VERSION)/Version: $$NEWVERSION/" $(SPECFILE)
+	chmod 644 s(SPECFILE)
 	make changelog
