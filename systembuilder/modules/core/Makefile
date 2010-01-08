@@ -1,4 +1,4 @@
-SUBDIRS = installer repocreate rpmbuild vm
+SUBDIRS = installer repocreate rpmbuild
 
 PYFILES = $(wildcard *.py)
 
