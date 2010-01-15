@@ -21,16 +21,12 @@ BuildRequires: python
 Requires: createrepo
 Requires: dosfstools
 Requires: gnupg
-Requires: mkisofs
-Requires: netpbm-progs
 Requires: python-devel
-Requires: python-imaging
 Requires: python-lxml
 Requires: python-setuptools
 Requires: rendition-common
 Requires: rhn-client-tools
 Requires: rpm-build
-Requires: syslinux
 Requires: yum
 
 %description
