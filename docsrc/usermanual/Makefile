@@ -18,7 +18,7 @@ UserManual.html:
 	sed -i 's|\\\$$|\$$|g' Index_tmp.xml
 	$(XSLTPROC) --output UserManual.html \
 	            --stringparam generate.toc "book toc,title" \
-                    --stringparam toc.max.depth 2 \
+                    --stringparam toc.max.depth 3 \
                     --stringparam admon.graphics 1 \
                     --stringparam admon.graphics.extension .png \
                     --stringparam callout.graphics.extension .png \
