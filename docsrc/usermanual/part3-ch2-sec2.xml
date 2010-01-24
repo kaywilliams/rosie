@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
   <title>Using Scripts and Triggers</title>
 
@@ -14,7 +14,7 @@
   these scripts using <emphasis>config-rpm/scripts</emphasis> in your
   distribution definition file. Commonly referred to by their installation script
   markers in an RPM spec file, the scripts execute prior to or following
-  installation or uninstallation. See Section 9.4.5 "Defining installation
+  installation or uninstallation. See Section 9.4.4 "Defining installation
   scripts," in the Fedora Project's documentation, <ulink
   url="http://docs.fedoraproject.org/drafts/rpm-guide-en/">RPM Guide</ulink>
   by Eric Foster-Johnson.</para>
