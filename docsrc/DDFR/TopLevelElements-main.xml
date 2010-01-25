@@ -6,12 +6,6 @@
   main
   </title>
 
-  <important>
-  <para>
-  This top-level element is <emphasis role="strong">required</emphasis>.
-  </para>
-  </important>
-
   <section>
     <title>
     Definition
