@@ -23,7 +23,7 @@
     part of the distribution definition. By revision controlling the SystemBuilder files
     (see Part 2), the kickstart process can be controlled, too.</para>
 
-    <para>Use the <emphasis>kickstart</emphasis> TLE in the
+    <para>Use the <emphasis>kickstart</emphasis> element in the
     <filename>samber-server.xml</filename> file to identify one kickstart
     file, as in the example below. Substitute your own kickstart filename for
     <filename>ks.cfg</filename>.</para>
@@ -32,7 +32,7 @@
         <programlisting>&lt;kickstart&gt;ks.cfg&lt;/kickstart&gt;</programlisting>
       </informalexample></para>
 
-    <para>See the DDFR for the <emphasis>kickstart</emphasis> TLE
+    <para>See the DDFR for the <emphasis>kickstart</emphasis> element 
     syntax.</para>
   </section>
 </section>

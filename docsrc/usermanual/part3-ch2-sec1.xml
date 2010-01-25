@@ -7,10 +7,10 @@
   <para>Using your distribution definition file, there are two methods to change
   a system distribution by adding or removing application packages in 
   conjunction with the <command>yum</command> <option>update</option> command
-  option. One method uses the <emphasis>packages</emphasis> TLE, which addresses
-  the distribution repository only, while the other uses <emphasis>config-rpm
-  </emphasis>, which affects changes within the distribution repository and on
-  the installed client system.</para>
+  option. One method uses the <emphasis>packages</emphasis> element, which 
+  addresses the distribution repository only, while the other uses 
+  <emphasis>config-rpm</emphasis>, which affects changes within the 
+  distribution repository and on the installed client system.</para>
 
   <para>Regarding updates, if you add a package to your distribution using
   <emphasis>packages</emphasis> in your
@@ -18,9 +18,9 @@
   <option>update</option> will include the package in the distribution
   repository, which is available for installation. If you add a new package
   using <emphasis>config-rpm/requires</emphasis>, <command>yum</command>
-  <option>update</option> will include the package in the distribution repository
-  <emphasis role="strong">and</emphasis> install it on the client system.
-  </para>
+  <option>update</option> will include the package in the distribution 
+  repository <emphasis role="strong">and</emphasis> install it on the client
+  system.</para>
 
   <para>If you choose to update your distribution by removing a package using
   <emphasis>packages/exclude</emphasis>, <command>yum</command>
@@ -31,22 +31,23 @@
   repository <emphasis role="strong">and</emphasis> the installed client
   system. </para>
 
-  <para>Remember that the <emphasis>packages</emphasis> TLE installs package
-  groups, while the <emphasis>config-rpm</emphasis> TLE installs
+  <para>Remember that the <emphasis>packages</emphasis> element installs package
+  groups, while the <emphasis>config-rpm</emphasis> element installs
   packages.</para>
 
   <para>In the example below, you can include two common system administration
   and network connectivity components: an FTP server and editors. The
-  <emphasis>packages</emphasis> TLE includes the two common groups, which will
+  <emphasis>packages</emphasis> element includes the two common groups, which
+  will
   be available for installation, while the <emphasis>config-rpm</emphasis>
   installs associated RPMs on the client system, as well. Insert the following
-  two lines within the <emphasis>packages</emphasis> TLE in your
+  two lines within the <emphasis>packages</emphasis> element in your
   <filename>samber-server.xml</filename> file.</para>
 
   <para><informalexample>
       <programlisting>&lt;group&gt;ftp-server&lt;/group&gt;
 &lt;group&gt;editors&lt;/group&gt;</programlisting>
-    </informalexample>And within the <emphasis>config-rpm</emphasis> TLE in
+    </informalexample>And within the <emphasis>config-rpm</emphasis> element in
   your <filename>samber-server.xml</filename> file, insert these lines to
   automatically include them on the client system.</para>
 

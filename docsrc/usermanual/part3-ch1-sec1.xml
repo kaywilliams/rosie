@@ -7,7 +7,7 @@
   <para>In this part, you will learn how to update your system distribution 
   with some common server administration components using two different methods.
   These  updates require changes to the <emphasis>config-rpm</emphasis> and
-  <emphasis>packages</emphasis> TLEs already in place in your
+  <emphasis>packages</emphasis> elements already in place in your
   <filename>samber-server.xml</filename> file.</para>
 
   <para>Following the illustrations in this section, you can conditionally

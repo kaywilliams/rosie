@@ -13,8 +13,8 @@
   include what image customization options you want.</para>
 
   <para>To specify custom <filename class="extension">ISO</filename> file
-  sizes and media, use the <emphasis>iso</emphasis> TLE and specify which sets
-  you want. You can also add custom kernel boot arguments to the <filename
+  sizes and media, use the <emphasis>iso</emphasis> element and specify which
+  sets you want. You can also add custom kernel boot arguments to the <filename
   class="extension">ISO</filename> files, as well. The default values are
   "%{ks}" and "method=cdrom." The example below creates several image
   types.</para>
@@ -31,7 +31,7 @@
   <para>To add custom kernel boot arguments to the <filename
   class="directory">/isolinux/isolinux.cfg</filename> file of the
   <filename>boot.iso</filename> image, use the <emphasis>bootiso</emphasis>
-  TLE in your distribution definition file. Substitute your appropriate IP
+  element in your distribution definition file. Substitute your appropriate IP
   addresses.</para>
 
   <para><informalexample>
@@ -46,7 +46,7 @@ netmask=255.255.255.0 gateway=192.168.0.2 dns=192.168.0.7
   <para>To create a USB diskboot <filename class="extension">IMG</filename>
   file and possibly add custom boot arguments to the
   <filename>/syslinux.cfg</filename> file, use the
-  <emphasis>diskboot-image</emphasis> TLE in your
+  <emphasis>diskboot-image</emphasis> element in your
   <filename>samber-server.xml</filename> file. The example below disables
   the default boot arguments "%{ks}," "%{method}," and "nousbstorage."</para>
 
@@ -58,5 +58,6 @@ netmask=255.255.255.0 gateway=192.168.0.2 dns=192.168.0.7
     </informalexample></para>
 
   <para>See the DDFR for the complete syntaxes of <emphasis>iso</emphasis>,
-  <emphasis>bootiso</emphasis> and <emphasis>diskboot</emphasis> TLEs.</para>
+  <emphasis>bootiso</emphasis> and <emphasis>diskboot</emphasis> elements.
+  </para>
 </section>

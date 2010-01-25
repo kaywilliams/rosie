@@ -38,7 +38,7 @@
           <para>The id for an distribution. The default value consists of the
           <emphasis>/name</emphasis>, <emphasis>/version</emphasis> and
           <emphasis>/arch</emphasis> child elements of the
-          <emphasis>main</emphasis> TLE in the definition file, e.g.
+          <emphasis>main</emphasis> element in the definition file, e.g.
           <varname>$NAME</varname>-<varname>$VERSION</varname>-<varname>$ARCH</varname>.</para>
         </listitem>
       </varlistentry>
@@ -113,22 +113,5 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="tle" xreflabel="TLE">
-        <term><emphasis role="strong">TLE</emphasis></term>
-
-        <listitem>
-          <para>An abbreviation for <xref
-          linkend="top-level-element" />.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="top-level-element" xreflabel="top-level element">
-        <term><emphasis role="strong">top-level element</emphasis></term>
-
-        <listitem>
-          <para>An element in the definition file XML syntax that corresponds
-          to a SystemBuilder module. See Also <xref linkend="tle" />.</para>
-        </listitem>
-      </varlistentry>
     </variablelist></para>
 </section>

@@ -9,7 +9,7 @@
   locatin for publication and remote access. See the section "Deploying Client Machines"
   under Part I, Chapter 2, and the DDFR for more information about
   the default settings. When the default settings are not appropriate, use the
-  <emphasis>publish</emphasis> TLE in the distribution definition to direct
+  <emphasis>publish</emphasis> element in the distribution definition to direct
   <application class="software">SystemBuilder</application> where to store 
   the distribution and what URL to use to make it accessible to clients for
   download.</para>
