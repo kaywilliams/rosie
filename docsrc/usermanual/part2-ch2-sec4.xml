@@ -2,11 +2,11 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Choosing Storage and Download Locations</title>
+  <title>Download Locations</title>
 
   <para>By default <application class="software">SystemBuilder</application> uses the
   <application class="software">SystemBuilder</application> build system as the default
-  locatin for publication and remote access. See the section "Deploying Client Machines"
+  location for publication and remote access. See the section "Deploying Client Machines"
   under Part I, Chapter 2, and the DDFR for more information about
   the default settings. When the default settings are not appropriate, use the
   <emphasis>publish</emphasis> element in the distribution definition to direct

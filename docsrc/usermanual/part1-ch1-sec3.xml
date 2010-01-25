@@ -95,8 +95,7 @@
     <filename class="extension">.xml</filename>.</para>
 
     <para><table>
-        <title>Default Folders and Files SystemBuilder Generates on the Build
-        System and Download Server</title>
+        <title>Default Folders and Files SystemBuilder Generates</title>
 
         <tgroup cols="2">
           <tbody>

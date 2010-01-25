@@ -18,10 +18,10 @@
               xmlns:xi="http://www.w3.org/2001/XInclude" />
   <xi:include href="part2-ch2-sec1.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
-  <xi:include href="part2-ch2-sec4.xml" xpointer="element(/1)"
-              xmlns:xi="http://www.w3.org/2001/XInclude" />
   <xi:include href="part2-ch2-sec2.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
   <xi:include href="part2-ch2-sec3.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+  <xi:include href="part2-ch2-sec4.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 </chapter>

@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Versioning Distribution Definitions</title>
+  <title>Versioning Definitions</title>
 
   <para>To track and audit any changes to the <application
   class="software">SystemBuilder</application> files that are critical to the
