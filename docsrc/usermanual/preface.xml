@@ -249,7 +249,7 @@ $ precedes lines entered as a normal user</programlisting>
               <listitem>
                 <para>"Basic Usage: Building a Distribution," covers the basic
                 concepts for configuring the <application
-                class="software">SystemBuilder</application> build system,
+                class="software">SystemBuilder</application> build machine,
                 defining and deploying a distribution, running <application
                 class="software">SystemBuilder</application> and updating a
                 distribution. As a use case model, these sections will help you

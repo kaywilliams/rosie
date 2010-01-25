@@ -2,7 +2,7 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <chapter>
-  <title>Booting client systems</title>
+  <title>Booting client machines</title>
 
   <para>By default SystemBuilder creates boot mages to use during system
   installation. But you may already have a process in place that utilizes your

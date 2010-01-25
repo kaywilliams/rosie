@@ -5,7 +5,7 @@
   <title>Download Locations</title>
 
   <para>By default <application class="software">SystemBuilder</application> uses the
-  <application class="software">SystemBuilder</application> build system as the default
+  <application class="software">SystemBuilder</application> build machine as the default
   location for publication and remote access. See the section "Deploying Client Machines"
   under Part I, Chapter 2, and the DDFR for more information about
   the default settings. When the default settings are not appropriate, use the
@@ -16,16 +16,16 @@
 
   <para>Essentially, you have one choice for the server location of the
   published system distribution, the <application class="software">
-  SystemBuilder</application>build system. However, you can choose different
+  SystemBuilder</application>build machine. However, you can choose different
   directories on that machine. If the <filename class="directory">/var
   </filename> directory is on a separate logical drive, increasing the drive
   capacity is easier. </para>
 
   <para>For the network-accessible location of the system distribution for
   download, you have two choices: somewhere on the <application
-  class="software">SystemBuilder</application> build system or on another server.
+  class="software">SystemBuilder</application> build machine or on another server.
   Choosing that location depends upon several factors: your network security
-  topography, the location of your client systems, the types and number of
+  topography, the location of your client machines, the types and number of
   distributions, the number of users accessing the distribution and the number
   of types of OSes used in the distributions.</para>
 
@@ -43,17 +43,17 @@
 
         <listitem>
           <para>While the publish and storage location is on the <application
-          class="software">SystemBuilder</application> build system, the default
+          class="software">SystemBuilder</application> build machine, the default
           location of <filename
           class="directory">/var/www/html/distributions/<varname>$DISTRIBUTIONID</varname></filename>
           may not meet your needs. For administrative purposes, you may wish
           to keep separate paths for different distributions or types of
           distributions or make only certain paths accessible to others for
           download from the <application class="software">SystemBuilder</application>
-          build system. To accomplish this, use
+          build machine. To accomplish this, use
           <emphasis>publish/local-dir</emphasis> to set an alternate directory
           for publication. The default download URL will be the IP address of
-          the SystemBuilder build system's first active, non-loopback network
+          the SystemBuilder build machine's first active, non-loopback network
           interface.</para>
         </listitem>
       </varlistentry>
@@ -76,7 +76,7 @@
 
         <listitem>
           <para>A separate DMZ most likely means the <application
-          class="software">SystemBuilder</application> build system is behind your
+          class="software">SystemBuilder</application> build machine is behind your
           external firewall for security purposes. The question is whether you
           want the remotely accessible download host to be there, too, or in
           the DMZ. To assign the distribution to a download server in the DMZ,

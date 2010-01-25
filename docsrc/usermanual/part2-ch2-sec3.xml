@@ -32,7 +32,7 @@
   network.</para>
 
   <para>Within the context of SystemBuilder, a two-part structure on the <application
-  class="software">SystemBuilder</application> build system will suffice for
+  class="software">SystemBuilder</application> build machine will suffice for
   managing the common versus unique definition components. As in the diagram
   below, under the subdirectory <filename class="directory">distributions/
   </filename>, the <filename class="directory">common/</filename> branch

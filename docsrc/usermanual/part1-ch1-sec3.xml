@@ -86,7 +86,7 @@
     system distribution with a base OS and architecture and the
     desired applications. To accomplish this, <application
     class="software">SystemBuilder</application> relies on several default
-    settings on the build system, noted in the table below. The variable
+    settings on the build machine, noted in the table below. The variable
     <varname>$DISTRIBUTIONID</varname> is the system distribution's identifier,
     consisting of the name, version and architecture of the distribution as
     specified in the <emphasis>main</emphasis> top-level element. The variable

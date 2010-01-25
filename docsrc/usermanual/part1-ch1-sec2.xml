@@ -4,9 +4,9 @@
 <section>
   <title>SystemBuilder Benefits</title>
 
-  <para>Residing on a build system, SystemBuilder and its components make your
+  <para>Residing on a build machine, SystemBuilder and its components make your
   system administration tasks easier during every step of the process.
-  Three are four main components within the SystemBuilder build system:</para>
+  Three are four main components within the SystemBuilder build machine:</para>
 
   <para><orderedlist>
       <listitem>
@@ -39,7 +39,7 @@
   preferences; your distribution definition file, which defines repositories,
   application groups and packages; and your system configuration scripts,
   to name a few. The second component contains the images used during first
-  boot and client system deployment. The last two components, the cache and log,
+  boot and client machine deployment. The last two components, the cache and log,
   enable <application class="software">SystemBuilder</application> to minimize
   build time and track information.</para>
 
@@ -86,10 +86,10 @@
   </section>
 
   <section>
-    <title>Deploying client systems</title>
+    <title>Deploying client machines</title>
 
     <para>SystemBuilder empowers you to deploy the same components and
-    configuraton to one or more client systems with less time and effort than
+    configuraton to one or more client machines with less time and effort than
     it would take to build and configure identical systems manually.</para>
 
     <para><orderedlist>
@@ -103,7 +103,7 @@
 
         <listitem>
           <para><emphasis role="strong">Dramatically reduce the download time
-          when deploying client systems.</emphasis> <application
+          when deploying client machines.</emphasis> <application
           class="software">SystemBuilder</application> creates a local system
           repository, so the client installation connects to your local
           download server, not various remote Internet servers, thereby
@@ -113,17 +113,17 @@
         <listitem>
           <para><emphasis role="strong">Increase the consistency of the
           system components.</emphasis> By using its own RPMs and local
-          repository on the build system for a particular system distribution,
+          repository on the build machine for a particular system distribution,
           SystemBuilder enables you to consistently deploy that distribution to
-          all the client systems.</para>
+          all the client machines.</para>
         </listitem>
 
         <listitem>
           <para><emphasis role="strong">Deploy multiple machines
           machines quickly and reliably.</emphasis> Once you have identified
-          your client system hardware, a system distribution and your boot
+          your client machine hardware, a system distribution and your boot
           media, you ca systematically and simultaneously create multiple
-          client systems using a multihoned or replicate web server.</para>
+          client machines using a multihoned or replicate web server.</para>
         </listitem>
       </orderedlist></para>
   </section>
@@ -203,7 +203,7 @@
           in a fast, efficient, repeatable manner.</emphasis> Migrate a
           system that has been configured for one architecture to another
           by changing a few items in the distribution definition file in just
-          minutes. Use SystemBuilder on a sandbox build system to test the
+          minutes. Use SystemBuilder on a sandbox build machine to test the
           system before readying it for deployment to the new hardware
           systems.</para>
         </listitem>
@@ -214,7 +214,7 @@
           consistency or uptime of an Internet-based host to redeploy systems
           or continue operations. <application class="software">
           SystemBuilder</application> utilizes its own cached contents
-          to complete installations and client system configurations.</para>
+          to complete installations and client machine configurations.</para>
         </listitem>
       </orderedlist></para>
   </section>
@@ -222,7 +222,7 @@
   <section>
     <title>Upgrading systems and their components</title>
 
-    <para>Before upgrading a client system's hardware, OS or
+    <para>Before upgrading a client machine's hardware, OS or
     one of its applications, use SystemBuilder to test those upgrades with
     other components to ensure compatibility and stability.</para>
 
@@ -250,7 +250,7 @@
           class="software">SystemBuilder</application> as a system configuration
           management system. </emphasis> Adding version control to the
           <application class="software">system configuration portion of
-          SystemBuilder's</application> build system, as described in the
+          SystemBuilder's</application> build machine, as described in the
           introduction, empowers you to manage your system releases.</para>
         </listitem>
       </orderedlist></para>

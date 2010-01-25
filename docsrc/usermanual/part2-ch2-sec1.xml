@@ -10,7 +10,7 @@
   SystemBuilder is an integral part are implementation, testing, deployment and
   maintenance. Within the SystemBuilder realm, implementation and testing include
   development, often with a sandbox server for creating and testing the
-  client systems. A second phase of testing includes staging, which allows you to
+  client machines. A second phase of testing includes staging, which allows you to
   test the pre-release the distribution before releasing it for production.
   This simulated environment includes completing the build and deployment
   processes plus using the distribution as intended for a period of time. The
@@ -48,7 +48,7 @@
     identical installations of a <application
     class="software">SystemBuilder</application> version on identical hardware with the
     same OS. The Production system, which would serve as your download server,
-    should have a Linux-based OS and be web-accessible for client systems to
+    should have a Linux-based OS and be web-accessible for client machines to
     be able to access it to retrieve distribution contents. The Version system
     should have a Linux-based OS with a compatible version control
     system.</para>
@@ -60,7 +60,7 @@
     others.</para>
 
     <para>Another point about the diagram is that the Production system is
-    outside your internal firewall, in the DMZ. If client systems will access
+    outside your internal firewall, in the DMZ. If client machines will access
     the Production system from the Internet, it should be in the DMZ.</para>
 
     <para><variablelist>
@@ -179,7 +179,7 @@
           <listitem>
             <para>As in Part I, Chapter 2, the "Deploying Clients"
             section, you will create the boot media from the Staging system
-            and use it to install client systems. In
+            and use it to install client machines. In
             turn, the clients will download the system RPMs from the
             Production system.</para>
           </listitem>

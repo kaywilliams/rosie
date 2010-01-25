@@ -8,7 +8,7 @@
   distribution.</para>
 
   <para>First, you configure the <application
-  class="software">SystemBuilder</application> build system to accommodate the
+  class="software">SystemBuilder</application> build machine to accommodate the
   size and number of distributions you will build and store concurrently for
   download at any single time. The system should be accessible through your
   local network.
@@ -84,13 +84,13 @@
       <listitem>
         <para>store the distribution on the download server.</para>
       </listitem>
-    </itemizedlist>Deploying client systems requires three steps. First,
+    </itemizedlist>Deploying client machines requires three steps. First,
   <application class="software">SystemBuilder</application> will publish the
   distribution image files to the download server location from which the client
   system will obtain its initial installation and subsequent updates. By
   default, the location will be in the web server area on the <application
-  class="software">SystemBuilder</application> build system. Second, you create
-  the CD or DVD boot media. Lastly, you install the client system by inserting
+  class="software">SystemBuilder</application> build machine. Second, you create
+  the CD or DVD boot media. Lastly, you install the client machine by inserting
   the disk into the client machine and later verifying that the contents are
   correct.</para>
 
@@ -99,7 +99,7 @@
   class="software">SystemBuilder</application> encounters, systembuilder could
   update the distribution with updated packages. After updating the
   distribution, you will need to run <userinput>yum update</userinput> on the
-  client system to keep the client in synch with the current distribution.</para>
+  client machine to keep the client in synch with the current distribution.</para>
 
   <para>Another method to update your distribution is actually changing the
   definition, <filename>samber-server.xml</filename> for this scenario. Any

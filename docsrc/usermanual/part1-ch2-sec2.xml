@@ -18,7 +18,7 @@
   focus on a Samba server based on CentOS 5 that enables print and file
   services. In this chapter, the examples assume the server will be
   installed via the network with a web server and that the download server is
-  the <application class="software">SystemBuilder</application> build system.
+  the <application class="software">SystemBuilder</application> build machine.
   The DDFR provides the syntax for all parent and child elements and their
   attributes.</para>
 
@@ -31,7 +31,7 @@
       <textobject>
         <para>Creating the <application class="software">Samba</application>
         server distribution entails several process steps. After configuring the
-        <application class="software">SystemBuilder</application> build system,
+        <application class="software">SystemBuilder</application> build machine,
         you need to create distribution definition file
         (<filename class="extension">samber-server.xml</filename>). Then
         you run <command>systembuilder</command> to validate the file, retrieve

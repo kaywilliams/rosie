@@ -9,7 +9,7 @@
   <emphasis>config-rpm</emphasis> element in your
   <filename>samber-server.xml</filename> file.</para>
 
-  <para>The program that installs RPMs on the client system
+  <para>The program that installs RPMs on the client machine
   actually runs scripts depending upon one of several possible situations. Include
   these scripts using <emphasis>config-rpm/scripts</emphasis> in your
   distribution definition file. Commonly referred to by their installation script

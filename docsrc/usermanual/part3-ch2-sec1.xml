@@ -10,7 +10,7 @@
   option. One method uses the <emphasis>packages</emphasis> element, which 
   addresses the distribution repository only, while the other uses 
   <emphasis>config-rpm</emphasis>, which affects changes within the 
-  distribution repository and on the installed client system.</para>
+  distribution repository and on the installed client machine.</para>
 
   <para>Regarding updates, if you add a package to your distribution using
   <emphasis>packages</emphasis> in your
@@ -25,7 +25,7 @@
   <para>If you choose to update your distribution by removing a package using
   <emphasis>packages/exclude</emphasis>, <command>yum</command>
   <option>update</option> will remove the package from the distribution
-  repository but not from the installed client system. If you use
+  repository but not from the installed client machine. If you use
   <emphasis>config-rpm/obsoletes</emphasis>, <command>yum</command>
   <option>update</option> will remove the package from the distribution
   repository <emphasis role="strong">and</emphasis> the installed client
@@ -40,7 +40,7 @@
   <emphasis>packages</emphasis> element includes the two common groups, which
   will
   be available for installation, while the <emphasis>config-rpm</emphasis>
-  installs associated RPMs on the client system, as well. Insert the following
+  installs associated RPMs on the client machine, as well. Insert the following
   two lines within the <emphasis>packages</emphasis> element in your
   <filename>samber-server.xml</filename> file.</para>
 
@@ -49,7 +49,7 @@
 &lt;group&gt;editors&lt;/group&gt;</programlisting>
     </informalexample>And within the <emphasis>config-rpm</emphasis> element in
   your <filename>samber-server.xml</filename> file, insert these lines to
-  automatically include them on the client system.</para>
+  automatically include them on the client machine.</para>
 
   <para><informalexample>
       <programlisting>&lt;requires&gt;ftp&lt;/requires&gt;

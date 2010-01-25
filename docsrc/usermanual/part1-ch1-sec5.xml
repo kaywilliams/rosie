@@ -43,8 +43,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="build-system" xreflabel="build system">
-        <term><emphasis role="strong">build system</emphasis></term>
+      <varlistentry id="build-system" xreflabel="build machine">
+        <term><emphasis role="strong">build machine</emphasis></term>
 
         <listitem>
           <para>The server on which <application
@@ -52,8 +52,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="client-system" xreflabel="client system">
-        <term><emphasis role="strong">client system</emphasis></term>
+      <varlistentry id="client-system" xreflabel="client machine">
+        <term><emphasis role="strong">client machine</emphasis></term>
 
         <listitem>
           <para>The target system on which distribution contents are installed.
@@ -65,8 +65,8 @@
         <term><emphasis role="strong">download server</emphasis></term>
 
         <listitem>
-          <para>The machine from which client systems download distribution
-          contents. It may be the build system.</para>
+          <para>The machine from which client machines download distribution
+          contents. It may be the build machine.</para>
         </listitem>
       </varlistentry>
 

@@ -34,21 +34,21 @@
 
   <para>By default, <application class="software">SystemBuilder</application>
   stores the completed system distribution on the <application
-  class="software">SystemBuilder</application> build system, making it the
+  class="software">SystemBuilder</application> build machine, making it the
   download server. But you can change the download location using the system
-  definition file. To deploy client systems, you
+  definition file. To deploy client machines, you
   can use a download server and typical boot media (CD, DVD or USB).</para>
 
   <para>Enabling you to easily and reliably update the system distribution on
-  the build system and client systems is one of <application
+  the build machine and client machines is one of <application
   class="software">SystemBuilder</application>'s strengths. Running
-  <command>systembuilder</command> on the build system will check the public OS
+  <command>systembuilder</command> on the build machine will check the public OS
   and application repositories for package updates. If found, <application
   class="software">SystemBuilder</application> will rebuild the distribution.
   You can also redefine the system using the distribution definition file, then use
   <command>systembuilder</command> to rebuild the distribution. Using the
-  <userinput>yum update</userinput> command on the client system will update
-  client systems from the download server. Add to this the fact that you can
+  <userinput>yum update</userinput> command on the client machine will update
+  client machines from the download server. Add to this the fact that you can
   schedule <command>systembuilder</command> to run automatically, and you have a
   powerful system deployment an maintenance management tool.</para>
 

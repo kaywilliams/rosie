@@ -55,7 +55,7 @@
       various inputs (OS, applications, configuration files, etc.), combines 
       that with an distribution definition file and creates a system distribution 
       with deployment images and a package repository. Using the bootable media,
-      you can deploy the distribution to one or more client systems. You can 
+      you can deploy the distribution to one or more client machines. You can 
       also update existing clients from the distribution package repository.
       </para>
     </textobject>

@@ -32,7 +32,7 @@
   requirements, it is best to use hard disk drives with Serial Advanced
   Technology Attachment (SATA) interfaces.</para>
 
-  <para>In addition to the SystemBuilder product, the SystemBuilder build system must have a web
+  <para>In addition to the SystemBuilder product, the SystemBuilder build machine must have a web
   server installed on it in order to make the distribution available through the
   network. For instructions on installing SystemBuilder and a web server and verifying
   that SystemBuilder is running correctly, see the "Getting Started Guide" on Rendition

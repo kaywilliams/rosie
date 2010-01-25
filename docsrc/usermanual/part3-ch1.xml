@@ -17,7 +17,7 @@
   requires certain content, you can include those components, as well.</para>
 
   <para>Updating your distribution is easy with SystemBuilder, but you need to
-  understand whether the client system or just the distribution repository or
+  understand whether the client machine or just the distribution repository or
   both will include any updates. The next chapter addresses that critical issue.
   </para>
 

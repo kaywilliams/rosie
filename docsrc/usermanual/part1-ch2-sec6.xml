@@ -9,7 +9,7 @@
   update your distribution. You may update the distribution repositories on the
   build server from the mirrors. Or you may redefine your distribution. Depending
   upon what, if anything, you update in the distribution, updates can occur on
-  the SystemBuilder build system, the download server and the client system.</para>
+  the SystemBuilder build machine, the download server and the client machine.</para>
 
   <section>
     <title>Running <command>systembuilder</command> to check for repository
@@ -33,7 +33,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
 
     <para>Since there were no updates, <command>systembuilder</command> completed
     successfully in less than two minutes. (Results will vary depending upon
-    your <application class="software">SystemBuilder</application> build system's
+    your <application class="software">SystemBuilder</application> build machine's
     hardware configuration.) Only if something had changed would
     <command>systembuilder</command> have rerun the repository updates and provided
     more detail about this build.</para>
@@ -85,21 +85,21 @@ Build complete at 2009-10-25 18:30:26</screen></para>
   </section>
 
   <section>
-    <title>Updating client systems</title>
+    <title>Updating client machines</title>
 
     <para>If there are changes to the distribution, you will
-    need to update installed client systems using <command>yum</command>
+    need to update installed client machines using <command>yum</command>
     <option>update</option>. For this example build, log on as the root user
     and execute the <userinput>yum update</userinput> command.</para>
 
     <para>Using the <command>yum </command><option>update</option> command
-    will update all packages on the client system from the download server,
+    will update all packages on the client machine from the download server,
     including the system-specific config RPM created by SystemBuilder.
     For more information what the config RPM contains and how to customize
     its contents, see the section on <emphasis>config-rpm</emphasis> in the
     Distribution Definition File Reference. </para>
 
-    <para>To see what changed on the client system, check the
+    <para>To see what changed on the client machine, check the
     <filename>yum.log</filename> file in the <filename
     class="directory">/var/log/</filename> directory.</para>
   </section>

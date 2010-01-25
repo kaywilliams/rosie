@@ -197,9 +197,9 @@
     <emphasis>packages</emphasis>, above.</para>
 
     <para>To enable you to install the system
-    distribution on a client system, SystemBuilder uses RPMs just like other
+    distribution on a client machine, SystemBuilder uses RPMs just like other
     Linux-based OS and applications. When you install your distribution on the
-    client system, the install process will retrieve all the packages and other
+    client machine, the install process will retrieve all the packages and other
     files that you specify from the download server.</para>
 
     <para>In this instance, SystemBuilder will rely on its default settings plus
@@ -215,7 +215,7 @@
 
     <para><informalexample>
         <programlisting>&lt;config-rpm&gt;
-  &lt;!-- install configuration files on the client system --&gt;
+  &lt;!-- install configuration files on the client machine --&gt;
   &lt;files destdir="/etc/samba" mode="644" content="filename"&gt;smb.conf&lt;/files&gt;
 
   &lt;!-- required packages for samba in addition to the default smb-server group--&gt;
@@ -225,7 +225,7 @@
 &lt;/config-rpm&gt;</programlisting>
       </informalexample></para>
 
-    <para>In the example above, the client system will receive your
+    <para>In the example above, the client machine will receive your
     <application class="software">Samba</application> configuration file,
     <filename>smb.conf</filename>, in the <filename
     class="directory">/etc/samba</filename> directory. The distribution will also
