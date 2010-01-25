@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Verifying System Distribution Package Integrity</title>
+  <title>Verifying Package Integrity</title>
 
   <para>Verifying package integrity using GPG is a secure way of ensuring that
   you have downloaded the correct set of data; if the key matches the

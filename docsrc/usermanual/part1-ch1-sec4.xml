@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Building System Distributions with SystemBuilder</title>
+  <title>Building Distributions</title>
 
   <para><application class="software">SystemBuilder</application> empowers you
   to build a system distributions using a single configuration file and a 

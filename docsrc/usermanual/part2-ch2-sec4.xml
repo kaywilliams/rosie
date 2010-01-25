@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Choosing a Distribution's Storage and Download Locations</title>
+  <title>Choosing Storage and Download Locations</title>
 
   <para>By default <application class="software">SystemBuilder</application> uses the
   <application class="software">SystemBuilder</application> build system as the default

@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Defining Your System Distribution</title>
+  <title>Defining a Distribution</title>
 
   <para>To define your Samba system distribution, you will need to do the
   following:</para>

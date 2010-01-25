@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Setting Up a SystemBuilder Production Environment</title>
+  <title>Setting Up a Production Environment</title>
 
   <para>The traditional system development life cycle (SDLC) includes several
   stages, such as requirements analysis, system architecture, design and
@@ -65,7 +65,7 @@
 
     <para><variablelist>
         <varlistentry>
-          <term>Step 1: Define Your System Distribution</term>
+          <term>Step 1: Define Your Distribution</term>
 
           <listitem>
             <para>During this phase you will work with the Development system
@@ -79,7 +79,7 @@
         </varlistentry>
 
         <varlistentry>
-          <term>Step 2: Build Your System Distribution and Deploy and Test
+          <term>Step 2: Build Your Distribution and Deploy and Test
           it on a Sandbox Client</term>
 
           <listitem>
@@ -157,7 +157,7 @@
         </varlistentry>
 
         <varlistentry>
-          <term>Step 7: Migrate Your System Distribution to Production for
+          <term>Step 7: Migrate Your Distribution to Production for
           Release</term>
 
           <listitem>

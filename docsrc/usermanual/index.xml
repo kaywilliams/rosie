@@ -11,10 +11,10 @@
       </affiliation>
     </author>
 
-    <pubdate>December 2009</pubdate>
+    <pubdate>January 2010</pubdate>
 
     <copyright>
-      <year>2009 </year>
+      <year>2010 </year>
 
       <holder>Rendition Software. </holder>
     </copyright>
@@ -27,12 +27,18 @@
   <xi:include href="preface.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-  <xi:include href="part1.xml" xpointer="element(/1)"
+  <xi:include href="part1-ch1.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-  <xi:include href="part2.xml" xpointer="element(/1)"
+  <xi:include href="part1-ch2.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-  <xi:include href="part3.xml" xpointer="element(/1)"
+  <xi:include href="part2-ch1.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="part3-ch3.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="part3-ch1.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 </book>

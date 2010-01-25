@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Building Your System Distribution</title>
+  <title>Building a Distribution</title>
 
   <para>Now that you have defined your system distribution, use the
   <command>systembuilder</command> command to build it. The build process sends

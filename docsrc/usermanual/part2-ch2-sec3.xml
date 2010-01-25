@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Reusing Definition Components in an Object-oriented Strategy</title>
+  <title>Reusing Distribution Definitions</title>
 
   <para>To organize information better, the software development community
   commonly uses substitution methods. In the case of SystemBuilder, you can create and

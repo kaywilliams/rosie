@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Life Cycle Management Use Case: a Samba Server</title>
+  <title>Use Case: a Samba Server</title>
 
   <para>To set up a more production process for creating, testing, deploying and
   updating your Samba server installation on CentOS 5 using your

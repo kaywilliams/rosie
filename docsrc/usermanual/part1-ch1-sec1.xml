@@ -2,8 +2,8 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title><application class="software">SystemBuilder</application> Builds
-  System Distributions</title>
+  <title><application class="software">SystemBuilder</application> Overview
+  </title>
 
   <para>A system distribution is a set of operating system components,
   applications and configuration needed to deploy a system to perform a desired
