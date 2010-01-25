@@ -24,9 +24,15 @@
   <xi:include href="part3-ch1-sec1.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
+  <xi:include href="part3-ch3-sec1.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+
   <xi:include href="part3-ch2-sec2.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
   <xi:include href="part3-ch1-sec3.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="part3-ch3-sec2.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 </chapter>

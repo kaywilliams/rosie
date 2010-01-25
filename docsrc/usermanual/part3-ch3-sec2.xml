@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Creating Install Images</title>
+  <title>Creating CD/DVD Images</title>
 
   <para>By default SystemBuilder creates <filename>boot.iso</filename> and
   <filename>diskboot.img</filename> files for CD media. All images come with

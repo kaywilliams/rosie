@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Automating Client Installations</title>
+  <title>Automating Installations</title>
 
   <para>SystemBuilder can save you time and labor by helping you automate the
   client boot-up and kickstart process.</para>
