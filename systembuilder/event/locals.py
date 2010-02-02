@@ -50,3 +50,4 @@ class LocalsObject:
 
   # input distribution and version based
   L_LOGOS_RPM_APPLIANCE_INFO = property(lambda self: L_LOGOS_RPM_APPLIANCE_INFO[self.base_name][self.base_ver])
+  L_YUM_PLUGIN               = property(lambda self: L_YUM_PLUGIN[self.base_name][self.base_ver])

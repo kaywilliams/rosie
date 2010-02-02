@@ -12,12 +12,17 @@
         <interleave>
 
         <optional>
-        <element name="repofile">
+        <element name="updates">
           <optional>
-          <attribute name="distribution"><ref name="value-boolean"/></attribute>
+          <attribute name="strict"><ref name="value-boolean"/></attribute>
           </optional>
           <optional>
-          <attribute name="input"><ref name="value-boolean"/></attribute>
+          <attribute name="repos">
+            <choice>
+            <value type="string">master</value>
+            <value type="string">all</value>
+            </choice>
+          </attribute>
           </optional>
         </element>
         </optional>

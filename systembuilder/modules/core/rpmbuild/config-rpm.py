@@ -38,7 +38,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config-rpm',
       parentid = 'rpmbuild',
-      version = '0.98',
+      version = '0.99',
       provides = ['rpmbuild-data'],
       requires = ['input-repos'],
       conditionally_requires = ['web-path', 'gpgsign-public-key'],
@@ -109,11 +109,13 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
                         self.rpm.source_folder/'etc/pki/rpm-gpg')
 
     # add repos to cvars if necessary
-    if self.config.getbool('repofile/@input', 'False'):
+    if self.config.get('updates/@repos', 'master') == 'all':
       self.DATA['variables'].append('cvars[\'repos\']')
 
   def generate(self):
     self._generate_repofile()
+    if self.config.getbool('updates/@strict', True):
+      self._include_sync_plugin()
     self.io.sync_input(cache=True)
 
   def _generate_repofile(self):
@@ -122,8 +124,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
     lines = []
 
     # include a repo pointing to the published distribution
-    if ( self.config.getbool('repofile/@distribution', 'True') and
-         self.cvars['web-path'] is not None ):
+    if self.cvars['web-path'] is not None:
       lines.extend([ '[%s]' % self.name,
                      'name      = %s - %s' % (self.fullname, self.basearch),
                      'baseurl   = %s' % (self.cvars['web-path']/'os') ])
@@ -137,7 +138,7 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
       lines.append('')
 
     # include repo(s) pointing to distribution inputs
-    if self.config.getbool('repofile/@input', 'False'):
+    if self.config.get('updates/@repos', 'master') == 'all':
       for repo in self.cvars['repos'].values():
         try:
           if isinstance(repo.url.realm, pps.Path.rhn.RhnPath):
@@ -152,6 +153,26 @@ class ConfigRpmEvent(RpmBuildMixin, Event):
       repofile.write_lines(lines)
 
       self.DATA['output'].append(repofile)
+
+  def _include_sync_plugin(self):
+    # replacement map for config file
+    map = { 'masterrepo': self.name }
+
+    # config
+    configfile = self.rpm.source_folder/'etc/yum/pluginconf.d/sync.conf'
+    configfile.dirname.mkdirs()
+    # hackish - do %s replacement for masterrepo
+    configfile.write_lines([ x % map for x in self.locals.L_YUM_PLUGIN['config'] ])
+
+    # cronjob
+    cronfile = self.rpm.source_folder/'etc/cron.daily/sync.cron'
+    cronfile.dirname.mkdirs()
+    cronfile.write_lines(self.locals.L_YUM_PLUGIN['cron'])
+
+    # plugin
+    plugin = self.rpm.source_folder/'usr/lib/yum-plugins/sync.py'
+    plugin.dirname.mkdirs()
+    plugin.write_lines(self.locals.L_YUM_PLUGIN['plugin'])
 
   def get_pre(self):
     return self._make_script(self._process_script('pre'), 'pre')

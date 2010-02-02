@@ -24,6 +24,7 @@ from rendition import mkrpm
 from rendition import pps
 from rendition import rxml
 
+from systembuilder.errors    import SystemBuilderError
 from systembuilder.event     import Event
 from systembuilder.logging   import L1
 
@@ -57,10 +58,13 @@ class RpmBuildMixin:
 
     self.log(1, L1("building %s-%s-%s.%s.rpm" % \
                    (R.name, R.version, R.release, R.arch)))
-    mkrpm.build(R.build_folder, self.mddir, createrepo=False,
-                bdist_base=R.bdist_base, rpm_base=R.rpm_base,
-                dist_dir=R.dist_dir, keep_source=True,
-                quiet=(self.logger.threshold < 5))
+    try:
+      mkrpm.build(R.build_folder, self.mddir, createrepo=False,
+                  bdist_base=R.bdist_base, rpm_base=R.rpm_base,
+                  dist_dir=R.dist_dir, keep_source=True,
+                  quiet=(self.logger.threshold < 5))
+    except mkrpm.rpmbuild.RpmBuilderException, e:
+      raise RpmBuildFailedException(message=str(e))
 
     R.save_release()
     self.DATA['output'].append(R.rpm_path)
@@ -388,3 +392,7 @@ class Trigger(dict):
       else:
         lines.append('%s = %s' % (key, value))
     return '\n'.join(lines)
+
+
+class RpmBuildFailedException(SystemBuilderError):
+  message = "RPM build failed.  See build output below for details:\n%(message)s"
