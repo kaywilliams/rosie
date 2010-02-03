@@ -15,7 +15,7 @@
     <para>
     Publishes the distribution to a <varname>PATH</varname> on the build
     machine (<emphasis>publish/local-dir</emphasis>) and enables client
-    systems to obtain their updates from an distribution download server
+    systems to obtain their updates from a distribution download server
     by using a URL <varname>PATH</varname>
     (<emphasis>publish/remote-url</emphasis>).
     </para>

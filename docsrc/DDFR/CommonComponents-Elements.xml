@@ -419,8 +419,8 @@ $root/var/www/html/outfile.txt
       SystemBuilder supports an extension to the standard supported schemes
       in that it can connect to and download packages from Red Hat Network
       servers. In order for this to function properly, the repository
-      definition must include a <emphasis>repo/distributionid</emphasis>
-      element pointing to a valid RHN distributionid file that has access to
+      definition must include a <emphasis>repo/systemid</emphasis>
+      element pointing to a valid RHN systemid file that has access to
       the desired packages.
       </para>
 
@@ -548,7 +548,7 @@ baseurl=/var/repos/repoC
  [&lt;gpgkey&gt;PATH&lt;gpgkey&gt;]*
  [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
  [&lt;includepkgs&gt;PACKAGE&lt;/includepkgs&gt;]*
- [&lt;distributionid&gt;PATH&lt;/distributionid&gt;]
+ [&lt;systemid&gt;PATH&lt;/systemid&gt;]
 &lt;/repo&gt;
       </programlisting>
     </section>
@@ -782,15 +782,15 @@ baseurl=/var/repos/repoC
           </listitem>
         </varlistentry>
 
-        <varlistentry id="distributionid"
-                      xreflabel="repo/distributionid">
+        <varlistentry id="systemid"
+                      xreflabel="repo/systemid">
           <term>
-          distributionid
+          systemid
           </term>
 
           <listitem>
           <para>
-          A <varname>PATH</varname> to the distributionid file to use when
+          A <varname>PATH</varname> to the systemid file to use when
           contacting the Red Hat Network.
           </para>
 
@@ -877,7 +877,7 @@ baseurl=/var/repos/repoC
         <programlisting>
 &lt;repo id="redhat-5Server"&gt;
   &lt;baseurl&gt;rhns:///rhel-i386-server-5/&lt;/baseurl&gt;
-  &lt;distributionid&gt;data/rhel/distributionid-i386-5Server&lt;/distributionid&gt;
+  &lt;systemid&gt;data/rhel/systemid-i386-5Server&lt;/systemid&gt;
 &lt;/repo&gt;
         </programlisting>
         </informalexample>
