@@ -11,10 +11,8 @@
     Definition
     </title>
 
-    <para>
-    Contains basic information about the distribution necessary for SystemBuilder
-    to complete a distribution build.
-    </para>
+    <para>Contains basic information about the distribution.</para>
+
   </section>
 
   <section>
@@ -51,8 +49,9 @@
       <listitem>
       <para>
       The microprocessor architecture label for the target distribution
-      machines. Accepts either "i386" or "x86_64".
-      </para>
+      machines. Used to resolve $releasever variables used in repository
+      definitions. See the <emphasis>repos</emphasis> element for more
+      information. Accepts either "i386" or "x86_64".</para>
 
       <para>
       Throughout this document, the text value of this element is
@@ -73,7 +72,8 @@
       <listitem>
       <para>
       <varname>TEXT</varname> specifying a way for client system
-      users to report distribution installation bugs.
+      users to report distribution installation bugs. Displays when bugs are
+      encountered during during client machine installation.
       </para>
 
       <para>
@@ -90,7 +90,8 @@
 
       <listitem>
       <para>
-      A human-friendly name for the distribution.
+      A human-friendly name for the distribution. Displays during client machine
+      installation.
       </para>
 
       <para>
@@ -107,9 +108,10 @@
 
       <listitem>
       <para>
-      The unique id for the custom distribution. This value is also the
-      directory name for the final published distribution build folder within
-      the build cache.
+      The unique id for the custom distribution. Used as the directory name
+      for the distribution in the SystemBuilder publish and cache folders
+      (by default <emphasis>/var/www/html/distributions/</emphasis> and 
+      <emphasis>/var/cache/systembuilder</emphasis>, respectively).
       </para>
 
       <para>
@@ -168,8 +170,8 @@
 
       <listitem>
       <para>
-      The name of the directory within the final output distribution
-      tree where SystemBuilder will place packages.
+      The name of the directory within the distribution tree where 
+      SystemBuilder will place packages.
       </para>
 
       <para>
@@ -186,7 +188,8 @@
 
       <listitem>
       <para>
-      The version of the target distribution.
+      The version of the target distribution. Displays during client machine
+      installation.
       </para>
 
       <para>
@@ -215,7 +218,6 @@
   &lt;arch&gt;i386&lt;/arch&gt;
   &lt;fullname&gt;CentOS Samba Server&lt;/fullname&gt;
   &lt;bug-url&gt;http://www.example.com/bugs&lt;/bug-url&gt;
-  &lt;copyright&gt;&amp;#169;2009, Example Company, All Rights Reserved.&lt;/copyright&gt;
   &lt;log-file&gt;/home/systembuilderuser/SPIN/eg_CentOS5_main.log&lt;/log-file&gt;
 &lt;/main&gt;
     </programlisting>
