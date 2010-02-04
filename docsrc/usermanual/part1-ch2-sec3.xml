@@ -93,18 +93,20 @@
     preceding.</para>
 
     <para><note>
-        <para>Each time you change the distribution ID, either implicitly by
+        <para>Each time you change a distribution ID, either implicitly by
         changing the <emphasis>name</emphasis>, <emphasis>version</emphasis> or 
         <emphasis>arch</emphasis> elements, or explicitly by changing the
         <emphasis>id</emphasis> element, new folders are created in the
-        publish and cache locations (/var/www/html/distributions and 
-        /var/cache/systembuilder, by default, respectively). While you are
-        experimenting with creating distributions, you will likely change
-        distribution IDs multiple times. To preserve hard drive space, you may
-        wish to occasionally review and delete obsolete folders from the
-        publish and cache locations using the command <command>rm -rf 
-        <emphasis>obsolete_folder</emphasis></command>, where "obsolete_folder"
-        is the path to the folder you wish to remove.</para>
+        publish and cache locations 
+        (<emphasis>/var/www/html/distributions</emphasis> and 
+        <emphasis>/var/cache/systembuilder</emphasis>, by default,
+        respectively). While you are experimenting with creating distributions,
+        you will likely change distribution IDs multiple times. To preserve
+        hard drive space, you may wish to occasionally review and delete
+        obsolete folders from the publish and cache locations using the command
+        <command>rm -rf <emphasis>obsolete_folder</emphasis></command>, where
+        <emphasis>obsolete_folder</emphasis> is the path to the folder you wish
+        to remove.</para>
       </note></para>
 
   </section>
