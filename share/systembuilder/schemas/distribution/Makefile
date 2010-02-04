@@ -6,7 +6,7 @@ install:
 	mkdir -p $(DESTDIR)/usr/share/systembuilder/schemas/distribution
 	install -pm 644 bootiso.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/bootiso.rng
 	install -pm 644 chroot.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/chroot.rng
-	install -pm 644 config-rpm.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/config-rpm.rng
+	install -pm 644 config.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/config.rng
 	install -pm 644 diskboot-image.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/diskboot-image.rng
 	install -pm 644 gpgsign.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/gpgsign.rng
 	install -pm 644 iso.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/iso.rng

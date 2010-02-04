@@ -28,15 +28,15 @@ import md5
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['ConfigRpmEvent'],
+  events      = ['ConfigEvent'],
   description = 'creates a configuration RPM',
   group       = 'rpmbuild',
 )
 
-class ConfigRpmEvent(RpmBuildMixin, Event):
+class ConfigEvent(RpmBuildMixin, Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'config-rpm',
+      id = 'config',
       parentid = 'rpmbuild',
       version = '0.99',
       provides = ['rpmbuild-data'],

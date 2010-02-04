@@ -4,7 +4,7 @@
 
     <element name="distribution">
       <optional>
-      <element name="config-rpm">
+      <element name="config">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
