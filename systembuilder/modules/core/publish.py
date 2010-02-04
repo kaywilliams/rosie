@@ -142,8 +142,7 @@ class PublishEvent(Event):
 
   def run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
-    self.io.sync_input(link=True,
-                       text="publishing to '%s'" % self.cvars['publish-path'])
+    self.io.sync_input(text="publishing to '%s'" % self.cvars['publish-path'])
     if self.cvars['selinux-enabled']:
       shlib.execute('chcon -R --type=httpd_sys_content_t %s' \
                     % self.cvars['publish-path'])
