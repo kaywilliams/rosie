@@ -23,9 +23,6 @@
           <element name="bug-url"><text/></element>
           </optional>
           <optional>
-          <element name="copyright"><text/></element>
-          </optional>
-          <optional>
           <element name="log-file"><text/></element>
           </optional>
         </interleave>

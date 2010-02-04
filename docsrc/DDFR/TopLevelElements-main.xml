@@ -28,7 +28,6 @@
   &lt;name&gt;TEXT&lt;/name&gt;
   &lt;version&gt;TEXT&lt;/version&gt;
  [&lt;bug-url&gt;TEXT&lt;/bug-url&gt;]
- [&lt;copyright&gt;TEXT&lt;/copyright&gt;]
  [&lt;fullname&gt;TEXT&lt;/fullname&gt;]
  [&lt;id&gt;TEXT&lt;/id&gt;]
  [&lt;log-file&gt;PATH&lt;/log-file&gt;]
@@ -80,34 +79,6 @@
       <para>
       The default value is "No bug url provided".
       </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>
-      copyright
-      </term>
-
-      <listitem>
-      <para>
-      Copyright <varname>TEXT</varname> for the distribution.
-      </para>
-
-      <para>
-      The default value is the empty string ("").
-      </para>
-
-      <note>
-      <para>To include the copyright symbol, use
-      <markup><constant>&amp;#169;</constant></markup>
-      as the special character encoding.
-      </para>
-
-      <para>
-      Be sure to use standard XML encoding for other characters as well,
-      if necessary.
-      </para>
-      </note>
       </listitem>
     </varlistentry>
 

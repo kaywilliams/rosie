@@ -57,16 +57,14 @@
   and whether they are "base" or "updates." The
   <filename>groups-packages.xml</filename> file contains common application
   groups and packages that would be included in distributions using any operating system, such
-  as "admin" or "editors." To have a standardized copyright statement,
-  <filename>main.xml</filename> is part of the common components.</para>
+  as "admin" or "editors."</para>
 
   <para>For the Samba Server, the directory <filename
   class="directory">distributions/samba-server/</filename> in the drawing above
   contains the <filename>samba-server.distribution</filename> file, the Samba
   server configuration file, a kickstart file and a validation script. The
   definition file would XInclude
-  components from the repositories, common groups and packages and a copyright
-  statement. The same logic holds true for the web and DNS servers.</para>
+  components from the repositories, common groups and packages. The same logic holds true for the web and DNS servers.</para>
 
   <para>To see the differences between one large versus several small files,
   let's take the <filename>samba-server.distribution</filename> file you created

@@ -389,7 +389,6 @@ class Build(SystemBuilderErrorHandler, SystemBuilderValidationHandler, object):
     di['fullname']     = Event._config.get(qstr % 'fullname', di['name'])
     di['packagepath']  = Event._config.get(qstr % 'package-path', 'Packages')
     di['webloc']       = Event._config.get(qstr % 'bug-url', 'No bug url provided')
-    di['copyright']    = Event._config.get(qstr % 'copyright', '')
 
     for k,v in di.items():
       setattr(Event, k, v)
