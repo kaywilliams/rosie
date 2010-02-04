@@ -4,9 +4,9 @@
 <section id="CommonComponents-variables">
 
   <section id="variable-distribution-id"
-           xreflabel="\$DISTRIBUTIONID">
+           xreflabel="\$ID">
     <title>
-    Variable: <varname>$DISTRIBUTIONID</varname>
+    Variable: <varname>$ID</varname>
     </title>
 
     <section>

@@ -147,7 +147,7 @@
 
       <para>
       Throughout this document, the text value of this element is referred
-      to by <varname>$DISTRIBUTIONID</varname>.
+      to by <varname>$ID</varname>.
       </para>
       </listitem>
     </varlistentry>
