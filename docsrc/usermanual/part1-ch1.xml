@@ -2,15 +2,9 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <chapter>
-  <title>Understanding SystemBuilder</title>
+  <title>Introduction</title>
 
   <xi:include href="part1-ch1-sec1.xml" xpointer="element(/1)"
-              xmlns:xi="http://www.w3.org/2001/XInclude" />
-
-  <xi:include href="part1-ch1-sec4.xml" xpointer="element(/1)"
-              xmlns:xi="http://www.w3.org/2001/XInclude" />
-
-  <xi:include href="part1-ch1-sec2.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
   <xi:include href="part1-ch1-sec3.xml" xpointer="element(/1)"

@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Deploying Client Machines</title>
+  <title>Installing a Client Machine</title>
 
   <para>Deployment to a client machine is the next step. The SystemBuilder build
   system creates the boot media and posts the completed distribution
@@ -23,7 +23,7 @@
     <filename class="directory">/var/www/html/distributions</filename> default
     directory on the download server. SystemBuilder automatically configures 
     boot media to download packages from that server. The folder name will be
-    the <varname>$DISTRIBUTIONID</varname>, e.g.
+    the <varname>$ID</varname>, e.g.
     <filename>samba-server-5-i386</filename>.</para>
 
     <para>To make network installations possible, the build machine and
@@ -82,6 +82,6 @@
     distribution definition.</para>
 
     <para>Congratulations! You now have a Samba server installed on your
-    CentoOS 5 client.</para>
+    CentOS 5 client.</para>
   </section>
 </section>

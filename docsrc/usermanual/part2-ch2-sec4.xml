@@ -15,26 +15,26 @@
   download.</para>
 
   <para>Essentially, you have one choice for the server location of the
-  published system distribution, the <application class="software">
+  published distribution, the <application class="software">
   SystemBuilder</application>build machine. However, you can choose different
   directories on that machine. If the <filename class="directory">/var
   </filename> directory is on a separate logical drive, increasing the drive
   capacity is easier. </para>
 
-  <para>For the network-accessible location of the system distribution for
+  <para>For the network-accessible location of the distribution for
   download, you have two choices: somewhere on the <application
   class="software">SystemBuilder</application> build machine or on another server.
   Choosing that location depends upon several factors: your network security
   topography, the location of your client machines, the types and number of
   distributions, the number of users accessing the distribution and the number
-  of types of OSes used in the distributions.</para>
+  of types of operating systemes used in the distributions.</para>
 
   <para>SystemBuilder can accommodate a number of scenarios for storage and download.
   Critical considerations include whether you have a single LAN versus a
   separate DMZ, a download machine with multiple active interfaces, multiple
   active ports or secure login requirements. SystemBuilder handles all of these through
   the distribution definition file, e.g.
-  <filename>samber-server.xml</filename>.</para>
+  <filename>samba-server.distribution</filename>.</para>
 
   <para><variablelist>
       <varlistentry>
@@ -45,7 +45,7 @@
           <para>While the publish and storage location is on the <application
           class="software">SystemBuilder</application> build machine, the default
           location of <filename
-          class="directory">/var/www/html/distributions/<varname>$DISTRIBUTIONID</varname></filename>
+          class="directory">/var/www/html/distributions/<varname>$ID</varname></filename>
           may not meet your needs. For administrative purposes, you may wish
           to keep separate paths for different distributions or types of
           distributions or make only certain paths accessible to others for

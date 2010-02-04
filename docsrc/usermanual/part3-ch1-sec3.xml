@@ -16,7 +16,7 @@
     <emphasis>/repo/gpgcheck</emphasis> to TRUE. You must also include at
     least one GPG key file using <emphasis>/repo/gpgkey</emphasis>.</para>
 
-    <para>In your <filename>samber-server.xml</filename> file under your
+    <para>In your <filename>samba-server.distribution</filename> file under your
     <emphasis>repos/repo</emphasis> listing for "base" repository, you can add
     the following code to use the public key provided for CentOS 5.</para>
 
@@ -33,7 +33,7 @@
     <title>Signing your packages</title>
 
     <para>To authenticate your distribution RPMS, you can also sign them and
-    provide a password in your <filename>samber-server.xml</filename>
+    provide a password in your <filename>samba-server.distribution</filename>
     file. Use the <emphasis>gpgsign/secret-key</emphasis> for exported,
     armored GPG secret key that signs your distribution and
     <emphasis>gpgsign/public-key</emphasis> to enter the exported, armored GPG

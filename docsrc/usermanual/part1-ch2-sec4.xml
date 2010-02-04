@@ -4,7 +4,7 @@
 <section>
   <title>Building a Distribution</title>
 
-  <para>Now that you have defined your system distribution, use the
+  <para>Now that you have defined your distribution, use the
   <command>systembuilder</command> command to build it. The build process sends
   output to the screen and to a log file.</para>
 
@@ -22,12 +22,32 @@
     build, enter the command below:</para>
 
     <para><informalexample>
-        <programlisting>#systembuilder samber-server.xml</programlisting>
+        <programlisting>#systembuilder samba-server.distribution</programlisting>
       </informalexample>The output for an initial run details all the steps
     for downloading packages, checking package dependencies and creating
     images. If there are any errors, <application
     class="software">SystemBuilder</application> notes those and, in many cases, halts
     the process. See Appendix A for an example of a successful first-build
     output.</para>
+
+    <para>The variable
+    <varname>$SYSTEMDEFINITION</varname> is the name of your distribution definition
+    file without the file extension, e.g. 
+    <filename class="extension">.distribution</filename>.</para>
+    <para><table>
+        <title>Default Folders and Files SystemBuilder Generates</title>
+
+        <tgroup cols="2">
+          <tbody>
+            <row>
+              <entry><varname>$SYSTEMDEFINITION</varname>.dat</entry>
+
+              <entry>Distribution data file. Used by SystemBuilder to manage the
+              distribution's RPM release numbers. This file should be version
+              controlled.</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table></para>
   </section>
 </section>

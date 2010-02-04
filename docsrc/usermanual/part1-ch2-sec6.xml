@@ -17,17 +17,17 @@
 
     <para>To include updated packages from the repositories, execute
     <command>systembuilder</command> with the
-    <filename>samber-server.xml</filename> file. <application
+    <filename>samba-server.distribution</filename> file. <application
     class="software"> Rerunning <command>systembuilder</command> with the same
     <filename class="extension">.distribution</filename> file will dramatically
     reduce the build time, assuming there are no changes to the file's
     contents. SystemBuilder</application> uses a cache of the packages and verifies the
     cache contents against the metadata for the repository and the groups. The
     screen output below shows the results of a build with no changes to the
-    <filename>samber-server.xml</filename> file and no updates to the
+    <filename>samba-server.distribution</filename> file and no updates to the
     repositories.</para>
 
-    <para><screen>Reading '/home/systembuilder/samber-server.xml'
+    <para><screen>Reading '/home/systembuilder/samba-server.distribution'
 Starting build of 'samba-server-5-i386' at 2009-10-25 18:29:55
 Build complete at 2009-10-25 18:30:26</screen></para>
 
@@ -49,7 +49,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
         command</para>
 
         <para><userinput># systembuilder --log-file /var/log/$MYLOGFILE
-        samber-server.xml</userinput></para>
+        samba-server.distribution</userinput></para>
 
         <para>where <varname>$MYLOGFILE</varname> is the new name of the log
         file.</para>
@@ -79,7 +79,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
     <para>If you change the <emphasis>main/name</emphasis>,
     <emphasis>main/version</emphasis> or <emphasis>main/arch</emphasis> child
     elements, then you are creating a new distribution with a new
-    <varname>$DISTRIBUTIONID</varname> and published download server location
+    <varname>$ID</varname> and published download server location
     matching the new parameters. To avoid confusion between the different
     distributions, save the new definition file with a new name.</para>
   </section>

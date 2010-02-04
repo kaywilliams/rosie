@@ -18,12 +18,12 @@
   system. Maintenance is an on-going process that could involve all of these
   stages.</para>
 
-  <para>SystemBuilder's ability to combine an OS with any number of applications makes
+  <para>SystemBuilder's ability to combine an operating system with any number of applications makes
   it at once powerful and complicated. The advantage of using a repetitive
   isolated process described above is that you can develop, test and fine-tune
-  your system distribution before gradually testing its interactions with the
+  your distribution before gradually testing its interactions with the
   outside world and, finally, releasing it for others to use. Within the Linux
-  release environment, applications and OS are updated and upgraded at a variety
+  release environment, applications and operating system are updated and upgraded at a variety
   of rates. This process gives you optimum control over what patches, updates,
   enhancements and upgrades you choose to maintain and release to your
   customers.</para>
@@ -47,10 +47,10 @@
     and a Production system (P). Development and Staging would contain
     identical installations of a <application
     class="software">SystemBuilder</application> version on identical hardware with the
-    same OS. The Production system, which would serve as your download server,
-    should have a Linux-based OS and be web-accessible for client machines to
+    same operating system. The Production system, which would serve as your download server,
+    should have a Linux-based operating system and be web-accessible for client machines to
     be able to access it to retrieve distribution contents. The Version system
-    should have a Linux-based OS with a compatible version control
+    should have a Linux-based operating system with a compatible version control
     system.</para>
 
     <para>One variable worth noting is that the hostname for Staging and
@@ -70,7 +70,7 @@
           <listitem>
             <para>During this phase you will work with the Development system
             (D). In addition to creating the
-            <filename>samber-server.xml</filename> definition file, you
+            <filename>samba-server.distribution</filename> definition file, you
             will also create any configuration files necessary for the
             system to run properly, such as <filename>smb.conf</filename>.
             Essentially, you will complete the process described in "Defining
@@ -89,7 +89,7 @@
             and 2 are iterative during the alpha release phase, with you
             incorporating changes to the distribution definition or configuration
             files and testing them until you are satisfied with the end result,
-            i.e. a system distribution that deploys correctly and the resulting
+            i.e. a distribution that deploys correctly and the resulting
             client functionality performs as expected.</para>
           </listitem>
         </varlistentry>
@@ -128,7 +128,7 @@
             <para>Using <application class="software">SystemBuilder</application> on
             the Staging system (S), you build the distribution with the
             <command>systembuilder</command> command, i.e. <userinput>systembuilder
-            samber-server.xml</userinput>. <application
+            samba-server.distribution</userinput>. <application
             class="software">SystemBuilder</application> will create your
             distribution in the same location as in Step 2. After
             deploying the distribution to a Staging Client, test this beta
@@ -168,7 +168,7 @@
             distribution to Production and release them for download access.
             This practice also ensures a controlled release into Production,
             which improves the lock-down and control process for releasing
-            system distribution such as DNS or SMTP servers to the sanitized DMZ
+            distribution such as DNS or SMTP servers to the sanitized DMZ
             environment.</para>
           </listitem>
         </varlistentry>
@@ -187,7 +187,7 @@
       </variablelist></para>
 
     <para>Once you have deployed the distribution to production clients, you may
-    discover changes that need to be made. OS or applications can have
+    discover changes that need to be made. operating system or applications can have
     updates, incorporating bug fixes or other planned changes. They can have
     upgrades or full version releases with new features. Or you may want to
     add or remove applications or change configuration settings. Depending

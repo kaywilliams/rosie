@@ -5,11 +5,10 @@
   <title>Glossary of Terms</title>
 
   <para>These terms are specific to the SystemBuilder environment, not to Linux or
-  applications that run on Linux. The content arrangement is
-  alphabetical.</para>
+  applications that run on Linux. They are arranged in alphabetical order.</para>
 
   <para><variablelist>
-      <varlistentry id="adfr" xreflabel="DDFR">
+      <varlistentry id="ddfr" xreflabel="DDFR">
         <term><emphasis role="strong">DDFR</emphasis></term>
 
         <listitem>
@@ -23,22 +22,22 @@
         file</emphasis></term>
 
         <listitem>
-          <para>The information SystemBuilder uses to build, configure and store your
-          distribution. By convention the text file uses the <filename
-          class="extension">.xml</filename> extension. The file uses XML
+          <para>The information SystemBuilder uses to build, configure and store
+          a distribution. By convention the text file uses the <filename
+          class="extension">.distribution</filename> extension. The file uses XML
           tagging as defined in the DDFR.</para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="distributionid" xreflabel="DISTRIBUTIONID">
+      <varlistentry id="id" xreflabel="ID">
         <term><emphasis
-        role="strong"><varname>$DISTRIBUTIONID</varname></emphasis></term>
+        role="strong"><varname>$ID</varname></emphasis></term>
 
         <listitem>
-          <para>The id for an distribution. The default value consists of the
+          <para>The id for a distribution. The default value consists of the
           <emphasis>/name</emphasis>, <emphasis>/version</emphasis> and
           <emphasis>/arch</emphasis> child elements of the
-          <emphasis>main</emphasis> element in the definition file, e.g.
+          <emphasis>main</emphasis> element in the definition file in the format
           <varname>$NAME</varname>-<varname>$VERSION</varname>-<varname>$ARCH</varname>.</para>
         </listitem>
       </varlistentry>
@@ -66,7 +65,7 @@
 
         <listitem>
           <para>The machine from which client machines download distribution
-          contents. It may be the build machine.</para>
+          contents. By default, the build machine is also the download server.</para>
         </listitem>
       </varlistentry>
 
@@ -108,7 +107,7 @@
           <para>The server within a development - staging - production
           environment that uses <application
           class="software">SystemBuilder</application> to build production-ready
-          system distributions for migration to the production, or
+          distributions for migration to the production, or
           download, server.</para>
         </listitem>
       </varlistentry>

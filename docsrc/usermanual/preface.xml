@@ -73,7 +73,7 @@
     <title>How to Read</title>
 
     <para>The intent of the manual is to help you use SystemBuilder effectively
-    to build and maintain system distributions, and to use distributions to
+    to build and maintain distributions, and to use distributions to
     install and update client machines. This manual takes a top-down approach,
     explaining the concepts before giving steps, commands and code examples
     that you can use to build, deploy and enhance your own distributions.</para>
@@ -216,7 +216,7 @@ $ precedes lines entered as a normal user</programlisting>
 
         <listitem>
           <para>SystemBuilder variables are presented in monospace font preceded by a
-          dollar sign, e.g. <varname>$DISTRIBUTIONID</varname>. Variables outside
+          dollar sign, e.g. <varname>$ID</varname>. Variables outside
           the SystemBuilder realm appear in lowercase in monospace font preceded by a
           dollar sign, e.g. <varname>$releasever</varname>.</para>
         </listitem>
@@ -239,7 +239,7 @@ $ precedes lines entered as a normal user</programlisting>
         </listitem>
 
         <listitem>
-          <para>Chapter 2, "Understanding SystemBuilder" explains what a 
+          <para>Chapter 2, "Introduction" explains what a 
           distribution is, how <application class="software">SystemBuilder
           </application> helps you build it in an efficient timely manner
           and the underlying architecture that makes this improved performance

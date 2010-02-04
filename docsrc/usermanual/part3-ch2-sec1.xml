@@ -5,7 +5,7 @@
   <title>Updating a Distribution</title>
 
   <para>Using your distribution definition file, there are two methods to change
-  a system distribution by adding or removing application packages in 
+  a distribution by adding or removing application packages in 
   conjunction with the <command>yum</command> <option>update</option> command
   option. One method uses the <emphasis>packages</emphasis> element, which 
   addresses the distribution repository only, while the other uses 
@@ -14,7 +14,7 @@
 
   <para>Regarding updates, if you add a package to your distribution using
   <emphasis>packages</emphasis> in your
-  <filename>samber-server.xml</filename> file, <command>yum</command>
+  <filename>samba-server.distribution</filename> file, <command>yum</command>
   <option>update</option> will include the package in the distribution
   repository, which is available for installation. If you add a new package
   using <emphasis>config-rpm/requires</emphasis>, <command>yum</command>
@@ -42,13 +42,13 @@
   be available for installation, while the <emphasis>config-rpm</emphasis>
   installs associated RPMs on the client machine, as well. Insert the following
   two lines within the <emphasis>packages</emphasis> element in your
-  <filename>samber-server.xml</filename> file.</para>
+  <filename>samba-server.distribution</filename> file.</para>
 
   <para><informalexample>
       <programlisting>&lt;group&gt;ftp-server&lt;/group&gt;
 &lt;group&gt;editors&lt;/group&gt;</programlisting>
     </informalexample>And within the <emphasis>config-rpm</emphasis> element in
-  your <filename>samber-server.xml</filename> file, insert these lines to
+  your <filename>samba-server.distribution</filename> file, insert these lines to
   automatically include them on the client machine.</para>
 
   <para><informalexample>

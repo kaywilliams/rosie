@@ -10,37 +10,27 @@
   <application class="software">CentOS 5</application>. Samba is a project of
   the <ulink url="http://conservancy.softwarefreedom.org/">Software Freedom
   Conservancy</ulink>. Samba is a key interoperability component in a blended
-  OS environment. When installed on a Linux or Unix OS, it enables that system
+  operating system environment. When installed on a Linux or Unix operating system, it enables that system
   to act like a Windows file or print server, enabling Windows users to print
   to or save files using it.</para>
 
   <para>The discussions and code examples in this chapter and subsequent parts
   focus on a Samba server based on CentOS 5 that enables print and file
   services. In this chapter, the examples assume the server will be
-  installed via the network with a web server and that the download server is
-  the <application class="software">SystemBuilder</application> build machine.
-  The DDFR provides the syntax for all parent and child elements and their
-  attributes.</para>
+  installed via the network directly from the build machine. The DDFR provides
+  the syntax for all parent and child elements and their attributes.</para>
 
-  <para><mediaobject>
-      <imageobject>
-        <imagedata depth="600px" fileref="create_distribution.jpg"
-                   width="600px" />
-      </imageobject>
+  <para>Creating the <application class="software">Samba</application>
+  server distribution entails several process steps. After configuring the
+  <application class="software">SystemBuilder</application> build machine,
+  as described in the previous chapter, you need to create a distribution
+  definition file 
+  (<filename class="extension">samba-server.distribution</filename>). Then
+  you run <command>systembuilder</command> to validate the file, retrieve
+  the packages and build the distribution. From there you prepare the boot
+  media.</para>
 
-      <textobject>
-        <para>Creating the <application class="software">Samba</application>
-        server distribution entails several process steps. After configuring the
-        <application class="software">SystemBuilder</application> build machine,
-        you need to create distribution definition file
-        (<filename class="extension">samber-server.xml</filename>). Then
-        you run <command>systembuilder</command> to validate the file, retrieve
-        the packages and build the distribution. From there you prepare the boot
-        media.</para>
-      </textobject>
-    </mediaobject>The drawing above illustrates three of the five steps
-  necessary to complete the <application class="software">Samba</application>
-  server distribution. The next section will explain how to define the system
+  <para>The next section will explain how to define the system
   before you build it and prepare for deployment to a client
   system.</para>
 </section>

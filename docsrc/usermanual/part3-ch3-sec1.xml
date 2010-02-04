@@ -10,7 +10,7 @@
   <section>
     <title>Kickstarting Client Systems</title>
 
-    <para>Kickstart installations automate the install process of a RedHat OS
+    <para>Kickstart installations automate the install process of a RedHat operating system
     and make the installations reproducible. You may want to use this method
     if you have large-scale installations, complex storage requirements,
     multiple network interfaces, secure systems or site-specific strategies.
@@ -24,7 +24,7 @@
     (see Part 2), the kickstart process can be controlled, too.</para>
 
     <para>Use the <emphasis>kickstart</emphasis> element in the
-    <filename>samber-server.xml</filename> file to identify one kickstart
+    <filename>samba-server.distribution</filename> file to identify one kickstart
     file, as in the example below. Substitute your own kickstart filename for
     <filename>ks.cfg</filename>.</para>
 
