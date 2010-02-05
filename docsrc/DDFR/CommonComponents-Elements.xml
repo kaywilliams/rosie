@@ -827,9 +827,8 @@ baseurl=/var/repos/repoC
 
         <informalexample>
         <programlisting>
-&lt;repo id="fedora-9"&gt;
-  &lt;baseurl&gt;http://mirrors.kernel.org/fedora/releases/9/Everything/i386/os
-  &lt;/baseurl&gt;
+&lt;repo id="base"&gt;
+  &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/os/$basearch/&lt;/baseurl&gt;
 &lt;/repo&gt;
         </programlisting>
         </informalexample>
@@ -847,17 +846,14 @@ baseurl=/var/repos/repoC
 
         <informalexample>
         <programlisting>
-&lt;repo id="fedora-9"&gt;
-  &lt;name&gt;Fedora 9 Everything&lt;/name&gt;
-  &lt;baseurl&gt;http://mirrors.kernel.org/fedora/releases/9/Everything/i386/os
-  &lt;/baseurl&gt;
-  &lt;baseurl&gt;http://mirrors.xmission.com/fedora/releases/9/Everything/i386/os
-  &lt;/baseurl&gt;
-  &lt;mirrorlist&gt;http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-9
-              &amp;arch=i386&lt;/mirrorlist&gt;
+&lt;repo id="base"&gt;
+  &lt;name&gt;CentOS 9 Base&lt;/name&gt;
+  &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/os/$basearch/&lt;/baseurl&gt;
+  &lt;baseurl&gt;http://mirrors.xmission.com/centos/$releasever/os/$basearch&lt;/baseurl&gt;
+  &lt;mirrorlist&gt;http://mirrorlist.centos.org/?release=$releasever&amp;amp;
+        arch=$basearch&amp;amp;repo=os&amp;amp;country=us&lt;/mirrorlist&gt;
   &lt;gpgcheck&gt;yes&lt;/gpgcheck&gt;
-  &lt;gpgkey&gt;http://download.fedora.redhat.com/pub/fedora/linux/releases/9/
-          Everything/i386/os/RPM-GPG-KEY-fedora&lt;gpgkey&gt;
+  &lt;gpgkey&gt;http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5&lt;gpgkey&gt;
 &lt;/repo&gt;
         </programlisting>
         </informalexample>

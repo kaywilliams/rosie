@@ -111,7 +111,7 @@ $identifier [ ( &gt; | &lt; | = | &gt;= | &lt;= ) $version ]
 
         <informalexample>
         <programlisting>
-fedora-release &lt; 9
+centos-release &lt; 5
 bash &lt;= 2.5.1
 samba
         </programlisting>

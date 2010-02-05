@@ -217,36 +217,36 @@
 
       <para>
       Additionally, SystemBuilder will include any and all repositories defined
-      in the file <filename>fedora-extras.repo</filename>.
+      in the file <filename>centos-extras.repo</filename>.
       </para>
 
       <informalexample>
       <programlisting>
 &lt;repos&gt;
 
-  &lt;repo id="fedora-base"&gt;
+  &lt;repo id="base"&gt;
 
     &lt;!-- $basearch will be replaced by $ARCH, $releasever by $VERSION --&gt;
-    &lt;baseurl&gt;http://download.fedora.redhat.com/pub/fedora/linux/releases/
-             $releasever/Fedora/$basearch/os/&lt;/baseurl&gt;
+    &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/os/
+          $basearch/&lt;/baseurl&gt;
 
     &lt;!-- include a mirrorlist as backup in case baseurl fails --&gt;
-    &lt;mirrorlist&gt;http://mirrors.fedoraproject.org/mirrorlist?
-                repo=fedora-$releasever&amp;amp;arch=$basearch&lt;/mirrorlist&gt;
+    &lt;mirrorlist&gt;http://mirrorlist.centos.org/?release=$releasever&amp;amp;
+          arch=$basearch&amp;amp;repo=os&amp;amp;country=us&lt;/mirrorlist&gt;
 
     &lt;!-- exclude all xorg-x11-drv packages --&gt;
     &lt;exclude&gt;xorg-x11-drv*&lt;/exclude&gt;
   &lt;/repo&gt;
 
   &lt;repo id="livna-drivers"&gt;
-    &lt;baseurl&gt;http://rpm.livna.org/fedora/$releasever/$basearch/&lt;baseurl&gt;
+    &lt;baseurl&gt;http://rpm.livna.org/repo/$releasever/$basearch/&lt;baseurl&gt;
 
     &lt;!-- include only xorg-x11-drv packages --&gt;
     &lt;includepkgs&gt;xorg-x11-drv*&lt;/includepkgs&gt;
   &lt;/repo&gt;
 
-  &lt;!-- include additional repos defined in fedora-extras.repo --&gt;
-  &lt;repofile&gt;fedora-extras.repo&lt;/repofile&gt;
+  &lt;!-- include additional repos defined in centos-extras.repo --&gt;
+  &lt;repofile&gt;centos-extras.repo&lt;/repofile&gt;
 &lt;/repos&gt;
       </programlisting>
       </informalexample>
@@ -270,14 +270,14 @@
 &lt;repos&gt;
   &lt;repo id="base"&gt;
     &lt;name&gt;Red Hat Enterprise Linux - Base&lt;/name&gt;
-    &lt;baseurl&gt;http://www.renditionsoftware.com/mirrors/redhat/enterprise/
+    &lt;baseurl&gt;http://example.company.com/install_server/redhat/enterprise/
              $releasever/en/os/i386&lt;/baseurl&gt;
   &lt;/repo&gt;
   &lt;repo id="updates"&gt;
     &lt;name&gt;Red Hat Enterprise Linux - Updates&lt;/name&gt;
-    &lt;baseurl&gt;rhns:///rhel-i386-server-5&lt;/baseurl&gt;
+    &lt;baseurl&gt;rhn:///rhel-i386-server-5&lt;/baseurl&gt;
     &lt;!-- location of the systemid is relative to the distribution definition file --&gt;
-    &lt;systemid&gt;common_systemid-5Server-$basearch&lt;/systemid&gt;
+    &lt;systemid&gt;systemid-5Server-$basearch&lt;/systemid&gt;
   &lt;/repo&gt;
 &lt;/repos&gt; 
       </programlisting>
@@ -313,10 +313,10 @@
   &lt;/main&gt;
   ...
   &lt;repos&gt;
-    &lt;releasever&gt;9&lt;/releasever&gt;
-    &lt;repo id="fedora-9"&gt;
-      &lt;baseurl&gt;http://download.fedora.redhat.com/pub/fedora/linux/
-               releases/$releasever/Fedora/$basearch/os/&lt;/baseurl&gt;
+    &lt;releasever&gt;5&lt;/releasever&gt;
+    &lt;repo id="centos-5"&gt;
+	    &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/os/
+	          $basearch/&lt;/baseurl&gt;
     &lt;/repo&gt;
   &lt;/repos&gt;
   ...
@@ -326,12 +326,12 @@
 
       In the example above, the baseurl evaluates to:
 
-      <literallayout>http://download.fedora.redhat.com/pub/fedora/linux/releases/9/Fedora/i386/os/ </literallayout>
+      <literallayout>http://mirror.centos.org/centos/5/os/i386 </literallayout>
 
       If <emphasis>repos/releasever</emphasis> had not been included, the
       baseurl instead would have been:
 
-      <literallayout>http://download.fedora.redhat.com/pub/fedora/linux/releases/1.0/Fedora/i386/os/ </literallayout>
+      <literallayout>http://mirror.centos.org/centos/1.0/os/i386 </literallayout>
       </para>
     </section>
   </section>
