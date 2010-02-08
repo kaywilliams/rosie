@@ -10,10 +10,10 @@
   <xi:include href="TopLevelElements-main.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="TopLevelElements-packages.xml"
+  <xi:include href="TopLevelElements-repos.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="TopLevelElements-repos.xml"
+  <xi:include href="TopLevelElements-packages.xml"
               xpointer="element(/1)" />
 
 </chapter>
