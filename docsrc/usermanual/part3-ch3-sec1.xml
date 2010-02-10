@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section>
+<section id="automating-installations" xreflabel="Section 5.2 Automating Installations">
   <title>Automating Installations</title>
 
   <para>SystemBuilder can save you time and labor by helping you automate the
@@ -34,5 +34,45 @@
 
     <para>See the DDFR for the <emphasis>kickstart</emphasis> element 
     syntax.</para>
+
   </section>
+
+  <section>
+    <title>Modifying boot.iso and diskboot.img network installation images</title>
+
+    <para>To add custom kernel boot arguments to the <filename
+    class="directory">/isolinux/isolinux.cfg</filename> file of the
+    <filename>boot.iso</filename> image, use the <emphasis>bootiso</emphasis>
+    element in your distribution definition file. Substitute your appropriate IP
+    addresses.</para>
+
+    <para><informalexample>
+        <programlisting>&lt;bootiso&gt;
+  &lt;boot-args use-defaults="false"&gt;
+  keymap=us lang=en_US ip=192.168.0.222
+  netmask=255.255.255.0 gateway=192.168.0.2 dns=192.168.0.7
+  &lt;/boot-args&gt;
+  &lt;/bootiso&gt;</programlisting>
+      </informalexample></para>
+
+    <para>To create a USB diskboot <filename class="extension">IMG</filename>
+    file and possibly add custom boot arguments to the
+    <filename>/syslinux.cfg</filename> file, use the
+    <emphasis>diskboot-image</emphasis> element in your
+    <filename>samba-server.distribution</filename> file. The example below disables
+    the default boot arguments "%{ks}," "%{method}," and "nousbstorage."</para>
+
+    <para><informalexample>
+        <programlisting>&lt;diskboot-image enabled="true"&gt;
+  &lt;!-- no args will be appended to syslinux.cfg --&gt;
+  &lt;boot-args use-defaults="false" /&gt;
+  &lt;/diskboot-image&gt;</programlisting>
+      </informalexample></para>
+
+    <para>See the DDFR for the complete syntaxes of the 
+    <emphasis>bootiso</emphasis> and <emphasis>diskboot</emphasis> elements.
+    </para>
+
+  </section>
+
 </section>

@@ -4,41 +4,32 @@
 <section>
   <title>Installing a Client Machine</title>
 
-  <para>Deployment to a client machine is the next step. The SystemBuilder build
-  system creates the boot media and posts the completed distribution
-  to the download server. During network installation the client machine
-  retrieves the packages from the download server.</para>
+  <para>Deployment to a client machines is the next step. Because 
+  <application class="software">SystemBuilder</application> creates
+  distributions in a standard operating system format, client machines can be
+  deployed using the same tools and methods as used for 
+  <application class="software">CentOS</application> and 
+  <application class="software">Red Hat Enterprise Linux</application>. See the 
+  <emphasis>Red Hat Enterprise Linux 5 Installation Guide</emphasis> for 
+  complete information.</para> 
 
-  <para>For the purpose of this example, the destination distribution is the
-  default location on the <application class="software">SystemBuilder
-  </application> build machine. After SystemBuilder creates the distribution, 
-  you can create the boot media and install to the client machine through the
-  network.</para>
+  <para>In the samba-server example, you will use a network install image
+  to create an installation CD or DVD. To start the installation, you will boot
+  the client machine using the CD/DVD. The installer program contained on the
+  CD/DVD will then use the network to download files from the distribution URL
+  to complete the installation. To complete this example, you must have
+  configured the build machine as a web server, as described in 
+  <xref linkend="configuring-a-build-machine"/></para>
 
   <section>
     <title>Creating boot media</title>
 
-    <para>After <command>systembuilder</command> successfully completes the
-    build, you  will find your completed distribution in a folder beneath the
-    <filename class="directory">/var/www/html/distributions</filename> default
-    directory on the download server. SystemBuilder automatically configures 
-    boot media to download packages from that server. The folder name will be
-    the <varname>$ID</varname>, e.g.
+    <para>After <application class="software">SystemBuilder</application>
+    completes the build, you  will find your distribution in a folder beneath
+    the <filename class="directory">/var/www/html/distributions</filename> 
+    default directory on the download server. The folder name will be
+    the distribution <varname>$ID</varname>, e.g.
     <filename>samba-server-5-i386</filename>.</para>
-
-    <para>To make network installations possible, the build machine and
-    directory should be network and web accessible. The default publish path
-    assumes that the SystemBuilder build machine is also the download server; 
-    it uses the IP address with no user login, password or port information. An
-    example URL path to your distribution's download directory is below:</para>
-
-    <para><informalexample>
-        <programlisting>http://194.168.192.0/distributions/samba-server-5-i386</programlisting>
-      </informalexample></para>
-
-    <para>The IP address belongs to the SystemBuilder build machine's interface.
-    For your distribution, the IP address will be calculated using the first
-    active, non-loopback interface on your download machine.</para>
 
     <para>To install to a client machine, you burn a boot image to a separate
     media. For this example, burn the <filename>boot.iso</filename> image 
@@ -58,25 +49,20 @@
 # cdrecord -v -dao dev=ATA:1,0,0 boot.iso</programlisting>
       </informalexample></para>
 
-    <para><application class="software">You can also use the </application>
-    <filename>diskboot.img</filename> file to create a USB key bootable media.
-    That process is described elsewhere in this manual.</para>
   </section>
 
   <section>
     <title>Installing a client machine</title>
 
     <para>Now you are ready to create your client! The standard procedure is
-    to boot the client machine from the CD. The boot process will start the
-    machine, then use the boot image created by <command>systembuilder</command>
-    to retrieve all the packages from the <application
-    class="software">SystemBuilder</application> download server instead of remote
-    Internet servers. When the installation successfully completes, the client
+    to boot the client machine from the CD or DVD. The boot process will start
+    the machine, and load an installation program, or <emphasis>installer</emphasis> from the CD or DVD into system
+    memory. The installer will complete the installation, retrieving additional content over the network from the <xref linkend="distribution-url"/>. When the installation successfully completes, the client
     system will reboot and display a login prompt. You can check the
-    <filename>sys.log</filename> file for the installation and boot
-    process.</para>
+    <filename>sys.log</filename> file for installation and boot
+    process log information.</para>
 
-    <para>One quick verification test to make sure the was install correctly is
+    <para>One quick test to make sure the install completed correctly is
     to verify the contents of the <filename>smb.conf</filename>
     installed on the client machine. It should match the one provided in the
     distribution definition.</para>

@@ -8,26 +8,6 @@
   applications that run on Linux. They are arranged in alphabetical order.</para>
 
   <para><variablelist>
-      <varlistentry id="ddfr" xreflabel="DDFR">
-        <term><emphasis role="strong">DDFR</emphasis></term>
-
-        <listitem>
-          <para>"Distribution Definition File Reference," the rules of syntax for
-          the distribution definition file.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="system_definition" xreflabel="distribution definition">
-        <term><emphasis role="strong">distribution definition
-        file</emphasis></term>
-
-        <listitem>
-          <para>The information SystemBuilder uses to build, configure and store
-          a distribution. By convention the text file uses the <filename
-          class="extension">.distribution</filename> extension. The file uses XML
-          tagging as defined in the DDFR.</para>
-        </listitem>
-      </varlistentry>
 
       <varlistentry id="id" xreflabel="ID">
         <term><emphasis
@@ -57,6 +37,63 @@
         <listitem>
           <para>The target system on which distribution contents are installed.
           </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="ddfr" xreflabel="DDFR">
+        <term><emphasis role="strong">DDFR</emphasis></term>
+
+        <listitem>
+          <para>"Distribution Definition File Reference," the rules of syntax for
+          the distribution definition file.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="distribution_definition" xreflabel="distribution definition">
+        <term><emphasis role="strong">distribution definition</emphasis></term>
+
+        <listitem>
+          <para>The information SystemBuilder uses to build, configure and store
+          a distribution. By convention the text file uses the <filename
+          class="extension">.distribution</filename> extension. The file uses XML
+          tagging as defined in the DDFR.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="distribution-data-file" xreflabel="distribution data file">
+        <term><emphasis role="strong">distribution data file</emphasis></term>
+
+        <listitem>
+          <para>A file SystemBuilder creates to track and increment the release number of the distribution's configuration RPM. This file is created in the same folder as the distribution definition, using the same filename, with a <filename>.dat</filename> file extension. For example, given the full path to a definition file:</para>
+
+          <para><informalexample>
+          <filename>/~/samba-server.distribution</filename></informalexample>
+          </para>
+
+          <para>SystemBuilder will create the data file as follows:</para>
+
+          <para><informalexample>
+          <filename>/~/samba-server.distribution.dat</filename></informalexample>
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="distribution-url" xreflabel="distribution URL">
+        <term><emphasis role="strong">distribution URL</emphasis></term>
+
+        <listitem>
+          <para>The web location for downloading distribution content. By default this location is as follows, where $IP_ADDRESS is the address of the build machine, and $ID is the distribution id.</para>
+
+          <para><informalexample>
+            <filename>http://$IP_ADDRESS/distributions/$ID</filename></informalexample></para>
+
+<para>For example, if the IP Address for the build machine is <filename>192.168.1.5</filename> and the distribution id is <emphasis>samba-server-5-i386</emphasis> the distribution URL is as follows:</para>
+
+          <para><informalexample>
+              <filename>http://192.168.1.5/distributions/samba-server-5-i386</filename>
+            </informalexample></para>
+
+          <para>The distribution URL is configurable using the <emphasis>publish</emphasis> element of the distribution definition. More information on specifying the distribution URL is available in Chapter 4 under <xref linkend="download-locations"/></para>
         </listitem>
       </varlistentry>
 

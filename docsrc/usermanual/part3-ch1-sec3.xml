@@ -25,8 +25,6 @@
 &lt;gpgkey&gt;http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5&lt;gpgkey&gt;</programlisting>
       </informalexample></para>
 
-    <para>Fedora 9 also has a public key under the path
-    <userinput>ftp://ftp.dit.upm.es/linux/fedora-9.0/RPM-GPG-KEY-fedora</userinput>.</para>
   </section>
 
   <section>

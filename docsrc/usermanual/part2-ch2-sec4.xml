@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section>
+<section id="download-locations" xreflabel="Section 4.5 Download Locations">
   <title>Download Locations</title>
 
   <para>By default <application class="software">SystemBuilder</application> uses the
   <application class="software">SystemBuilder</application> build machine as the default
-  location for publication and remote access. See the section "Deploying Client Machines"
-  under Part I, Chapter 2, and the DDFR for more information about
-  the default settings. When the default settings are not appropriate, use the
+  location for publication and remote access. The default <xref linkend="distribution-url"/>
+  assumes that the SystemBuilder build machine is also the download server; 
+  it uses the IP address with no user login, password or port information. An
+  example URL path to your distribution's download directory is below:</para>
+
+  <para><informalexample>
+      <programlisting>http://192.168.1.5/distributions/samba-server-5-i386</programlisting>
+    </informalexample></para>
+
+  <para>The IP address belongs to the SystemBuilder build machine's interface.
+  For your distribution, the IP address will be calculated using the first
+  active, non-loopback interface on your download machine.</para>
+
+  <para>When the default settings are not appropriate, use the
   <emphasis>publish</emphasis> element in the distribution definition to direct
   <application class="software">SystemBuilder</application> where to store 
   the distribution and what URL to use to make it accessible to clients for

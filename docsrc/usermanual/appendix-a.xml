@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter>
+  <title>Appendix A</title>
+
+  <para>Following is an example of SystemBuilder output for a successful
+  first build.</para>
+
+  <informalexample>
+    <programlisting>
+Reading '/~/samba-server.distribution'
+Starting build of 'samba-server-5-i386' at 2010-02-09 09:10:54
+autoclean
+repos
+ * downloading repodata - 'base'
+   - comps.xml               [=========================]     942 kB (00:06)
+   - filelists.sqlite.bz2    [=========================]     3.4 MB (00:10)
+   - other.sqlite.bz2        [=========================]     8.3 MB (00:14)
+   - primary.sqlite.bz2      [=========================]     1.7 MB (00:03)
+   - repomd.xml              [=========================]     2.1 kB (00:00)
+ * downloading repodata - 'updates'
+   - filelists.sqlite.bz2    [=========================]     2.4 MB (00:19)
+   - other.sqlite.bz2        [=========================]     8.1 MB (00:26)
+   - primary.sqlite.bz2      [=========================]     474 kB (00:02)
+   - repomd.xml              [=========================]     2.0 kB (00:00)
+ * verifying repodata file checksums
+ * reading available packages
+   - base
+   - updates
+base-info
+ * reading buildstamp file from base repository
+config-rpm
+ * downloading files
+   - smb.conf                [=========================]     0.0  B (00:00)
+ * building samba-server-config-5-1.noarch.rpm
+rpmbuild-repo
+ * copying packages
+ * running createrepo
+packages
+depsolve
+ * verifying repodata file checksums
+ * reading available packages
+   - base
+   - updates
+base-info
+ * reading buildstamp file from base repository
+config-rpm
+ * downloading files
+   - smb.conf                [=========================]     0.0  B (00:00)
+ * building samba-server-config-5-1.noarch.rpm
+rpmbuild-repo
+ * copying packages
+ * running createrepo
+packages
+depsolve
+ * reading package metadata                                         (00:06)
+ * checking for package changes                                     (00:01)
+ * resolving package dependencies
+   - loop 1 (346 packages)   [=========================]    346/346 (00:08)
+   - loop 2 (371 packages)   [=========================]    371/371 (00:05)
+   - loop 3 (83 packages)    [=========================]      83/83 (00:01)
+   - loop 4 (16 packages)    [=========================]      16/16 (00:00)
+   - loop 5 (5 packages)     [=========================]        5/5 (00:00)
+   - loop 6 (1 package)      [=========================]        1/1 (00:05)
+   - loop 7 (2 packages)     [=========================]        2/2 (00:00)
+ * pkglist closure achieved in 819 packages
+ * writing pkglist
+download
+ * downloading packages - 'base'
+   - Deployment_Guide-en-US- [=========================]     3.6 MB (00:43)
+   - GConf2-2.14.0-9.el5.i38 [=========================]     1.5 MB (00:18)
+   - MAKEDEV-3.23-1.2.i386.r [=========================]     138 kB (00:02)
+   ... [output abbreviated for readability]
+   - zenity-2.16.0-2.el5.i38 [=========================]     1.2 MB (00:00)
+   - zip-2.31-2.el5.i386.rpm [=========================]     130 kB (00:00)
+   - zlib-1.2.3-3.i386.rpm   [=========================]      51 kB (00:00)
+ * downloading packages - 'updates'
+   - PyXML-0.8.4-4.el5_4.2.i [=========================]     1.1 MB (00:00)
+   - acpid-1.0.4-9.el5_4.2.i [=========================]      24 kB (00:00)
+   - autofs-5.0.1-0.rc2.131. [=========================]     904 kB (00:00)
+   ... [output abbreviated for readability]
+   - xterm-215-8.el5_4.1.i38 [=========================]     414 kB (00:00)
+   - xulrunner-1.9.0.16-2.el [=========================]      10 MB (00:00)
+   - yum-fastestmirror-1.1.1 [=========================]      19 kB (00:00)
+ * downloading packages - 'rpmbuild-repo'
+   - samba-server-config-5-1 [=========================]     2.8 kB (00:00)
+gpgcheck
+createrepo
+ * downloading files
+ * running createrepo                                               (01:04)
+isolinux
+ * downloading files
+   - boot.msg                [=========================]     292  B (00:00)
+   - general.msg             [=========================]     919  B (00:00)
+   - initrd.img              [=========================]     6.9 MB (00:00)
+   - isolinux.bin            [=========================]      11 kB (00:00)
+   - isolinux.cfg            [=========================]     366  B (00:00)
+   - memtest                 [=========================]      95 kB (00:00)
+   - options.msg             [=========================]     817  B (00:00)
+   - param.msg               [=========================]     517  B (00:00)
+   - rescue.msg              [=========================]     490  B (00:00)
+   - splash.lss              [=========================]      64 kB (00:00)
+   - vmlinuz                 [=========================]     1.9 MB (00:00)
+discinfo
+buildstamp
+stage2-images
+ * downloading files
+   - minstg2.img             [=========================]      41 MB (00:01)
+   - stage2.img              [=========================]     112 MB (00:03)
+initrd-image
+ * downloading files
+   - initrd.img              [=========================]     6.9 MB (00:00)
+ * modifying initrd.img
+xen-images
+ * downloading files
+   - initrd.img              [=========================]     6.9 MB (00:00)
+   - vmlinuz                 [=========================]     2.2 MB (00:00)
+ * downloading files
+   - initrd.img              [=========================]     6.9 MB (00:00)
+ * modifying initrd.img
+product-image
+ * modifying product.img
+bootiso
+   - isolinux.cfg            [=========================]     366  B (00:00)
+diskboot-image
+ * modifying diskboot.img
+pxeboot-images
+ * downloading files
+   - initrd.img              [=========================]     6.9 MB (00:00)
+   - vmlinuz                 [=========================]     1.9 MB (00:00)
+treeinfo
+compose
+ * linking files
+ * creating manifest file
+publish
+ * publishing to '/var/www/html/distributions/samba-server-5-i386' 
+Build complete at 2010-02-09 09:18:58
+    </programlisting>
+  </informalexample>
+    
+</chapter>
