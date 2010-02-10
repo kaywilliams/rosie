@@ -165,9 +165,9 @@ class ConfigEvent(RpmBuildMixin, Event):
     configfile.write_lines([ x % map for x in self.locals.L_YUM_PLUGIN['config'] ])
 
     # cronjob
-    cronfile = self.rpm.source_folder/'etc/cron.daily/sync.cron'
-    cronfile.dirname.mkdirs()
-    cronfile.write_lines(self.locals.L_YUM_PLUGIN['cron'])
+    #cronfile = self.rpm.source_folder/'etc/cron.daily/sync.cron'
+    #cronfile.dirname.mkdirs()
+    #cronfile.write_lines(self.locals.L_YUM_PLUGIN['cron'])
 
     # plugin
     plugin = self.rpm.source_folder/'usr/lib/yum-plugins/sync.py'
