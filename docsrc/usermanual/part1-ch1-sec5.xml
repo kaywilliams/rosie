@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Glossary of Terms for SystemBuilder</title>
+  <title>Glossary of Terms</title>
 
   <para>These terms are specific to the SystemBuilder environment, not to Linux or
-  applications that run on Linux. The content arrangement is
-  alphabetical.</para>
+  applications that run on Linux. They are arranged in alphabetical order.</para>
 
   <para><variablelist>
-      <varlistentry id="adfr" xreflabel="DDFR">
+      <varlistentry id="ddfr" xreflabel="DDFR">
         <term><emphasis role="strong">DDFR</emphasis></term>
 
         <listitem>
@@ -23,28 +22,28 @@
         file</emphasis></term>
 
         <listitem>
-          <para>The information SystemBuilder uses to build, configure and store your
-          distribution. By convention the text file uses the <filename
-          class="extension">.xml</filename> extension. The file uses XML
+          <para>The information SystemBuilder uses to build, configure and store
+          a distribution. By convention the text file uses the <filename
+          class="extension">.distribution</filename> extension. The file uses XML
           tagging as defined in the DDFR.</para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="distributionid" xreflabel="DISTRIBUTIONID">
+      <varlistentry id="id" xreflabel="ID">
         <term><emphasis
-        role="strong"><varname>$DISTRIBUTIONID</varname></emphasis></term>
+        role="strong"><varname>$ID</varname></emphasis></term>
 
         <listitem>
-          <para>The id for an distribution. The default value consists of the
+          <para>The id for a distribution. The default value consists of the
           <emphasis>/name</emphasis>, <emphasis>/version</emphasis> and
           <emphasis>/arch</emphasis> child elements of the
-          <emphasis>main</emphasis> TLE in the definition file, e.g.
+          <emphasis>main</emphasis> element in the definition file in the format
           <varname>$NAME</varname>-<varname>$VERSION</varname>-<varname>$ARCH</varname>.</para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="build-system" xreflabel="build system">
-        <term><emphasis role="strong">build system</emphasis></term>
+      <varlistentry id="build-system" xreflabel="build machine">
+        <term><emphasis role="strong">build machine</emphasis></term>
 
         <listitem>
           <para>The server on which <application
@@ -52,8 +51,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="client-system" xreflabel="client system">
-        <term><emphasis role="strong">client system</emphasis></term>
+      <varlistentry id="client-system" xreflabel="client machine">
+        <term><emphasis role="strong">client machine</emphasis></term>
 
         <listitem>
           <para>The target system on which distribution contents are installed.
@@ -65,8 +64,8 @@
         <term><emphasis role="strong">download server</emphasis></term>
 
         <listitem>
-          <para>The machine from which client systems download distribution
-          contents. It may be the build system.</para>
+          <para>The machine from which client machines download distribution
+          contents. By default, the build machine is also the download server.</para>
         </listitem>
       </varlistentry>
 
@@ -108,27 +107,10 @@
           <para>The server within a development - staging - production
           environment that uses <application
           class="software">SystemBuilder</application> to build production-ready
-          system distributions for migration to the production, or
+          distributions for migration to the production, or
           download, server.</para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="tle" xreflabel="TLE">
-        <term><emphasis role="strong">TLE</emphasis></term>
-
-        <listitem>
-          <para>An abbreviation for <xref
-          linkend="top-level-element" />.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="top-level-element" xreflabel="top-level element">
-        <term><emphasis role="strong">top-level element</emphasis></term>
-
-        <listitem>
-          <para>An element in the definition file XML syntax that corresponds
-          to a SystemBuilder module. See Also <xref linkend="tle" />.</para>
-        </listitem>
-      </varlistentry>
     </variablelist></para>
 </section>

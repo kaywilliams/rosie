@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Versioning Input Files for a System Distribution</title>
+  <title>Versioning Definitions</title>
 
   <para>To track and audit any changes to the <application
   class="software">SystemBuilder</application> files that are critical to the
@@ -10,7 +10,7 @@
   control system, such as <application
   class="software">Subversion</application>, <application
   class="software">Git</application> or <application arch=""
-  class="software">Mercurial</application>. The Red Hat-based Linux OS' that
+  class="software">Mercurial</application>. The Red Hat-based Linux operating system' that
   SystemBuilder works with by default (<application
   class="software">RHEL</application> and <application
   class="software">CentOS</application>) have the revision control system
@@ -23,7 +23,7 @@
   building process, candidates for revision control include configuration files,
   distribution definition files and scripts, i.e. files that contain critical
   textual information that may change over time or are commonly used to define
-  aspects of multiple system distributions, such as common repositories or network
+  aspects of multiple distributions, such as common repositories or network
   configuration.</para>
 
   <para><itemizedlist>
@@ -54,6 +54,6 @@
   You can also enter comments in the files. Keep in mind that changing the name
   of distribution definition file does not mean <application class="software">
   SystemBuilder</application> will build a new distribution.
-  As long as the <varname>$DISTRIBUTIONID</varname> remains the same, the
+  As long as the <varname>$ID</varname> remains the same, the
   distribution remains the same.</para>
 </section>

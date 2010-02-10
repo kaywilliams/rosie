@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Defining Your System Distribution</title>
+  <title>Defining a Distribution</title>
 
-  <para>To define your Samba system distribution, you will need to do the
+  <para>To define your Samba distribution, you will need to do the
   following:</para>
 
   <para><itemizedlist>
@@ -13,13 +13,13 @@
       </listitem>
 
       <listitem>
-        <para>Select the repositories from which to download the OS, the Samba
+        <para>Select the repositories from which to download the operating system, the Samba
         RPMs and any dependency files;</para>
       </listitem>
 
       <listitem>
         <para>Define the application groups and packages to include with the
-        OS; and</para>
+        operating system; and</para>
       </listitem>
 
       <listitem>
@@ -28,38 +28,54 @@
     </itemizedlist></para>
 
   <section>
-    <title>Naming the system distribution</title>
+    <title>Creating a distribution file</title>
 
-    <para>The first step to creating a system distribution is creating the
-    definition file. The tags &lt;system&gt; and &lt;/system&gt; encapsulate
-    all top-level elements and their child elements and attributes.</para>
+    <para>The first step to creating a distribution is creating the
+    definition file. The definition file is a text file in XML format. It can
+    be created using any text editor - vi, emacs, nano, or gedit - or 
+    a dedicated XML editor, if you prefer. The tags &lt;distribution&gt; and 
+    &lt;/distribution&gt; encapsulate all additional elements and attributes.
+    </para>
 
     <para><informalexample>
         <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;system xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
-&lt;!-- Included top-level elements with child elements and attributes --&gt;
+&lt;!-- Additional elements and attributes --&gt;
 
-&lt;/system&gt;</programlisting>
+&lt;/distribution&gt;</programlisting>
       </informalexample></para>
 
-    <para>The first required element, <emphasis>main</emphasis>, includes the
-    name of system distribution, the system architecture and the version. These
-    three items make up the default <varname>$DISTRIBUTIONID</varname>, which
-    SystemBuilder uses to create directories for storing the completed system
-    distribution and providing web access to the distribution.</para>
+    <para>The first line, beginning in "&lt;?xml...?&gt;", identifies the file
+    as an XML file. This line is not required, but is a good practice for
+    compatibility with XML format changes in the future.</para>
+
+    <para>Likewise, the "xmlns:xi..." attribute is not required on the 
+    distribution element. It allows the use of xinclude statements within the
+    document. XIncludes, a convenient mechanism for reusing content across 
+    multiple definitions, are discussed in Chapter 4, 
+    "Creating a Production Environment".</para>   
+
+  </section>
+
+  <section>
+    <title>Naming the distribution</title>
+
+    <para>The first required element of the definition, <emphasis>main</emphasis>, includes the
+    name of the distribution, the system architecture and the version. These
+    three items make up the default distribution ID (<varname>$ID</varname>),
+    which SystemBuilder uses to create folders for storing the completed
+    distribution (under /var/www/html/distributions, by default) and for caching
+    distribution content (under /var/cache/systembuilder, by default).</para>
 
     <para><note>
-        <para>The TLE elements can be in any order within a distribution definition
+        <para>The elements can be in any order within a distribution definition
         file.</para>
       </note></para>
 
-    <para>In the example below, the system distribution version will be 5, and
-    the system architecture will be i386.</para>
-
-    <para><important>
-        <para>The <emphasis>main</emphasis> top-level element is required.</para>
-      </important></para>
+    <para>In the example below, the distribution version will be 5, the system
+    architecture will be i386, and the <varname>$ID</varname> will
+    be <filename>samba-server-5-i386</filename>. </para>
 
     <para><informalexample>
         <programlisting>  &lt;main&gt;
@@ -69,19 +85,37 @@
   &lt;/main&gt;</programlisting>
       </informalexample></para>
 
-    <para>The default <varname>$DISTRIBUTIONID</varname> will be
-    <filename>samba-server-5-i386</filename>. See the DDFR for more details
-    about the <emphasis>main</emphasis> element.</para>
+    <para>You can override the default distribution ID using an 
+    <emphasis>id</emphasis> element. See the DDFR for more details about the
+    <emphasis>main</emphasis> element.</para>
 
-    <para>Save the file as <filename>samba-server.xml</filename> before
+    <para>Save the file as <filename>samba-server.distribution</filename> before
     preceding.</para>
+
+    <para><note>
+        <para>Each time you change a distribution ID, either implicitly by
+        changing the <emphasis>name</emphasis>, <emphasis>version</emphasis> or 
+        <emphasis>arch</emphasis> elements, or explicitly by changing the
+        <emphasis>id</emphasis> element, new folders are created in the
+        publish and cache locations 
+        (<emphasis>/var/www/html/distributions</emphasis> and 
+        <emphasis>/var/cache/systembuilder</emphasis>, by default,
+        respectively). While you are experimenting with creating distributions,
+        you will likely change distribution IDs multiple times. To preserve
+        hard drive space, you may wish to occasionally review and delete
+        obsolete folders from the publish and cache locations using the command
+        <command>rm -rf <emphasis>obsolete_folder</emphasis></command>, where
+        <emphasis>obsolete_folder</emphasis> is the path to the folder you wish
+        to remove.</para>
+      </note></para>
+
   </section>
 
   <section>
     <title>Specifying the input repositories</title>
 
-    <para>Next, to define the OS and the application packages for the
-    system distribution, you need to define what repositories SystemBuilder
+    <para>Next, to define the operating system and the application packages for the
+    distribution, you need to define what repositories SystemBuilder
     will use. The example below uses the <emphasis>repos/repo</emphasis> child
     element to define the repositories.</para>
 
@@ -96,11 +130,6 @@
     uses variables for the <emphasis>/repo/baseurl</emphasis> and
     <emphasis>/repo/mirrorlist</emphasis> URL values. Line breaks in the URLs
     are for readability purposes only.</para>
-
-    <para><important>
-        <para>The <emphasis>repos</emphasis> top-level element is required.
-        </para>
-      </important></para>
 
     <para><informalexample>
         <programlisting>  &lt;repos&gt;
@@ -140,18 +169,18 @@
     and traverse the list until it finds a working repository.</para>
 
     <para><note>
-        <para>To avoid confusion between the system version and the OS
-        version, use the base OS version number in the
+        <para>To avoid confusion between the system version and the operating system
+        version, use the base operating system version number in the
         <emphasis>main/version</emphasis> child element.</para>
       </note></para>
 
-    <para>Now that you've identified the package repositories for the OS, you
+    <para>Now that you've identified the package repositories for the operating system, you
     need to include the RPMs for the applications, namely <application
     class="software">Samba</application>.</para>
   </section>
 
   <section>
-    <title>Including package groups in the system distribution</title>
+    <title>Including package groups in the distribution</title>
 
     <para>Once you have defined your repositories, you specify the software
     packages and groups to include. Use the <emphasis>packages</emphasis>
@@ -160,11 +189,6 @@
     <para>The example below includes package groups for the <application
     class="software">Samba</application> application and related tools plus an
     X Window System.</para>
-
-    <para><important>
-        <para>The <emphasis>packages</emphasis> top-level element is required.
-        </para>
-      </important></para>
 
     <para><informalexample>
         <programlisting>&lt;packages&gt;
@@ -180,7 +204,7 @@
 &lt;/packages&gt;  </programlisting>
       </informalexample></para>
 
-    <para>The system distribution will include the <application
+    <para>The distribution will include the <application
     class="software">GNOME</application> graphical user interface (GUI) and
     printing capabilities. Print administration for CUPS printers can be done
     using a web interface, hence the inclusion of the web-server package.
@@ -197,9 +221,9 @@
     <emphasis>packages</emphasis>, above.</para>
 
     <para>To enable you to install the system
-    distribution on a client system, SystemBuilder uses RPMs just like other
-    Linux-based OS and applications. When you install your distribution on the
-    client system, the install process will retrieve all the packages and other
+    distribution on a client machine, SystemBuilder uses RPMs just like other
+    Linux-based operating system and applications. When you install your distribution on the
+    client machine, the install process will retrieve all the packages and other
     files that you specify from the download server.</para>
 
     <para>In this instance, SystemBuilder will rely on its default settings plus
@@ -215,7 +239,7 @@
 
     <para><informalexample>
         <programlisting>&lt;config-rpm&gt;
-  &lt;!-- install configuration files on the client system --&gt;
+  &lt;!-- install configuration files on the client machine --&gt;
   &lt;files destdir="/etc/samba" mode="644" content="filename"&gt;smb.conf&lt;/files&gt;
 
   &lt;!-- required packages for samba in addition to the default smb-server group--&gt;
@@ -225,21 +249,21 @@
 &lt;/config-rpm&gt;</programlisting>
       </informalexample></para>
 
-    <para>In the example above, the client system will receive your
+    <para>In the example above, the client machine will receive your
     <application class="software">Samba</application> configuration file,
     <filename>smb.conf</filename>, in the <filename
     class="directory">/etc/samba</filename> directory. The distribution will also
     include two key <application>Samba</application>-related packages.
     <application class="software">SystemBuilder</application> will resolve the
-    dependencies to create the system distribution.</para>
+    dependencies to create the distribution.</para>
 
     <para>For more information on the advanced child elements of
     <emphasis>config-rpm</emphasis> (implementing scripts and triggers,
     obsoleting packages and customizing the <filename
     class="extension">REPO</filename> file), see the
-    <emphasis>config-rpm</emphasis> TLE in the DDFR.</para>
+    <emphasis>config-rpm</emphasis> element in the DDFR.</para>
 
     <para>After you have saved your definition file, you are ready to build
-    your system distribution.</para>
+    your distribution.</para>
   </section>
 </section>

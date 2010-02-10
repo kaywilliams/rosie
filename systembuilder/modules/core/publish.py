@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2007, 2008
+# Copyright (c) 2010
 # Rendition Software, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -142,8 +142,8 @@ class PublishEvent(Event):
 
   def run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
-    self.io.sync_input(link=True,
-                       text="publishing to '%s'" % self.cvars['publish-path'])
+    self.io.sync_input(text="publishing to '%s'" % self.cvars['publish-path'],
+                       callback=Event.link_callback)
     if self.cvars['selinux-enabled']:
       shlib.execute('chcon -R --type=httpd_sys_content_t %s' \
                     % self.cvars['publish-path'])

@@ -4,14 +4,8 @@
 <section id="repos"
          xreflabel="repos">
   <title>
-  repos
+  Repos
   </title>
-
-  <important>
-  <para>
-  This top-level element is <emphasis role="strong">required</emphasis>.
-  </para>
-  </important>
 
   <section>
     <title>
@@ -23,64 +17,189 @@
     packages.
     </para>
 
-    <section id="repos-including-repositories"
-             xreflabel="Including Repositories in a System Distribution">
+    <para>
+    In order to operate, <application class="software">SystemBuilder
+    </application> requires at least one input repository.
+    Repositories are specified by either defining them in XML
+    (see <emphasis><xref linkend="repos-repo" /></emphasis>) or by
+    pointing to a valid
+    <application class="software">YUM</application> repofile (see
+    <emphasis><xref linkend="repos-repofile" /></emphasis>). All enabled
+    repositories are considered. Valid repository definitions must
+    include a minimum of one baseurl or mirrorlist. Furthermore, all
+    repositories must have a unique id.
+    </para>
+
+    <section id="repo-base-repository"
+             xreflabel="Base Repository">
       <title>
-      Including Repositories in a System Distribution
+      Operating System Base Repository
       </title>
-
       <para>
-      In order to operate, <application class="software">SystemBuilder
-      </application> requires at least one input repository.
-      Repositories are specified by either defining them in XML
-      (see <emphasis><xref linkend="repos-repo" /></emphasis>) or by
-      pointing to a valid
-      <application class="software">YUM</application> repofile (see
-      <emphasis><xref linkend="repos-repofile" /></emphasis>). All enabled
-      repositories are considered. Valid repository definitions must
-      include a minimum of one baseurl or mirrorlist. Furthermore, all
-      repositories must have a unique id.
-      </para>
-
-      <para>
-      Exactly one of the input repositories must contain installer
-      images and isolinux files, located within folders called
-      <filename>images</filename> and <filename>isolinux</filename>,
+      Exactly one of the input repositories must specify an operating system base 
+      repository containing installer images and isolinux files, located within
+      folders called <filename>images</filename> and <filename>isolinux</filename>,
       respectively. These files are used to create installation images for the
-      system distribution.
+      distribution. For CentOS, this repository will be a public or local mirror. 
+      For Red Hat Enterprise Linux, it will be an install tree created
+      by using the <command>mount -o loop <emphasis>isofile</emphasis>
+      <emphasis>mount_location</emphasis></command> command to mount an
+      operating system ISO image file to a local or web-available network 
+      location. See the <emphasis>Red Hat Enterprise Linux 5 Installation
+      Guide</emphasis>, under the topic <emphasis>Preparing for a Network
+      Installation</emphasis>, for more information.
       </para>
     </section>
 
-  </section>
+    <section id="repo-rhn-repositories"
+             xreflabel="Red Hat Network Repositories">
+      <title>
+      Red Hat Network Repositories
+      </title>
+      <para>
+      SystemBuilder supports an extension to the standard supported schemes
+      in that it can connect to and download packages from Red Hat Network (RHN)
+      servers. 
+      </para>
 
-  <section>
-    <title>
-    Syntax
-    </title>
+      <para>
+      Prior to using SystemBuilder to access updates from RHN you will
+      need to create a systemid. This requires an available subscription to 
+      Red Hat Enterprise Linux. See the Red Hat web site for purchase
+      information. Once you have an available subscription, install Red Hat 
+      Enterprise Linux 5 in the desired architecture version (i386 or x86_64)
+      onto a client system. Register the system to Red Hat Network during
+      installation, or first boot, or later using the 
+      <command>rhn_register</command> command. Once the system has successfully
+      registered with RHN, a systemid file will be created in the 
+      <filename type="directory">/etc/sysconfig/</filename> folder of the
+      machine. This is the file you will use to configure SystemBuilder to
+      access software from RHN. You may copy this file to the SystemBuilder
+      build machine if necessary. Note, to ensure the systemid has access to
+      the software desired for your distribution, you can use the Red Hat
+      Network web user interface to locate the system, and view and alter it's
+      channel subscriptions.</para>
 
-    <programlisting>
-&lt;repos [enabled=BOOLEAN]&gt;
+	    <para>After the above steps are completed, you are ready to specify RHN
+      repositories. The repositories will point to the subscribed channel in RHN
+      using a custom <filename>rhn://</filename> protocol in the following
+      format:</para>
 
-  &lt;!-- at least one repo or repofile element is required --&gt;
- [&lt;repo id=ID&gt;
-    &lt;!-- at least one &lt;baseurl&gt; or &lt;mirrorlist&gt; is required --&gt;
-   [&lt;baseurl&gt;PATH&lt;/baseurl&gt;]*
-   [&lt;mirrorlist&gt;PATH&lt;/mirrorlist&gt;]
-   [&lt;enabled&gt;BOOLEAN&lt;/enabled&gt;]
-   [&lt;name&gt;TEXT&lt;/name&gt;]
-   [&lt;gpgcheck&gt;BOOLEAN&lt;/gpgcheck&gt;]
-   [&lt;gpgkey&gt;PATH&lt;gpgkey&gt;]*
-   [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
-   [&lt;includepkgs&gt;PACKAGE&lt;/includepkgs&gt;]*
-   [&lt;distributionid&gt;PATH&lt;/distributionid&gt;]
-  &lt;/repo&gt;]*
+      <para><command>rhn://[$rhnhost]/$rhnchannel/</command></para>
 
- [&lt;repofile&gt;PATH&lt;/repofile&gt;]*
+      <para>where $rhnhost is the hostname of the server to contact and
+      $rhnchannel is the name of the RHN channel from which to obtain packages.
+      If not specified, $rhnhost defaults to a public Red Hat Network server at
+      xmlrpc.rhn.redhat.com. Valid $rhnchannel values include:
 
- [&lt;releasever&gt;TEXT&lt;/releasever&gt;]
- [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
-&lt;/repos&gt;
-    </programlisting>
+        <itemizedlist>
+          <listitem>rhel-i386-server-5</listitem>
+          <listitem>rhel-x86_64-server-5</listitem>
+        </itemizedlist>
+      </para>
+
+      <para>See <emphasis><xref linkend="repo-rhn-example" /></emphasis> for
+      an example.</para>
+
+      <note>
+      SystemBuilder requires additional software including rhnlib and 
+      rhn-client-tools rpm packages in order to use RHN repositories. To install
+      a complete version of SystemBuilder including all available software, 
+      follow the instructions located at 
+      http://www.renditionsoftware.com/systembuilder/download.
+      </note>
+    </section>
+
+    <section id="repo-including-excluding-repository-contents"
+             xreflabel="Including and Excluding Repository Contents">
+      <title>
+      Including and Excluding Repository Contents
+      </title>
+
+      <para>
+      By default, all packages in all repositories are available for 
+      SystemBuilder to use. Packages can be excluded from <emphasis>all 
+      repositories</emphasis> using the <emphasis>exclude</emphasis> element. 
+      Available packages for <emphasis>a single repository</emphasis> can be 
+      restricted by using one or more <emphasis>repo/exclude</emphasis> or
+      <emphasis>repo/includepkgs</emphasis> elements. The logic for
+      processing these elements is the same as YUM's processing of
+      <varname>includepkgs</varname> and <varname>exclude</varname> repo
+      options.
+      </para>
+
+      <para>
+      Using a repository's <emphasis>repo/includepkgs</emphasis>
+      elements, the list of available packages is restricted to only those
+      packages that match one or more of the included <varname>PACKAGE</varname>
+      patterns. If no <emphasis>repo/includepkgs</emphasis> patterns are 
+      specified, all packages are considered available.
+      </para>
+
+      <para>
+      After processing a repository's
+      <emphasis>repo/includepkgs</emphasis> elements, the
+      <emphasis>repo/exclude</emphasis> element can be used to
+      selectively remove specific packages from the list of available
+      packages for the repository. Any package matching one or more of
+      the <varname>PACKAGE</varname> patterns specified in a
+      <emphasis>repo/exclude</emphasis> element will be ignored
+      by SystemBuilder.
+      </para>
+
+      <para>See <emphasis><xref linkend="repo-include-exclude-example" /></emphasis> for
+      an example.</para>
+
+    </section>
+
+    <section id="repo-valid-repos"
+             xreflabel="Valid Repositories">
+      <title>
+      Valid Repositories
+      </title>
+
+      <para>
+      SystemBuilder supports standard YUM repositories; that is, folders containing
+      a <filename>repodata</filename> folder with repository metadata.
+      In addition, SystemBuilder supports an expanded type of repository, a
+      "repository group". A repository group is a collection of standard
+      YUM repositories within another folder. This feature allows, for 
+      example, defining a Red Hat Enterprise Linux installation tree as a
+      single repository when in fact it contain multiple repositories.</para>
+
+      <para>
+      For example, if there are three repositories
+      <filename>repoA</filename>, <filename>repoB</filename>, and
+      <filename>repoC</filename> in a folder <filename>/var/repos</filename>,
+      in order to include all three repos in YUM, a repofile must contain
+      three repo entries:
+
+      <programlisting>
+[repoA]
+baseurl=/var/repos/repoA
+
+[repoB]
+baseurl=/var/repos/repoB
+
+[repoC]
+baseurl=/var/repos/repoC
+      </programlisting>
+
+      In SystemBuilder, on the other hand, all the repos can be included by
+      using a repo group instead:
+
+      <programlisting>
+&lt;repo id="repogroup"&gt;
+  &lt;baseurl&gt;/var/repos&lt;/baseurl&gt;
+&lt;/repo&gt;
+      </programlisting>
+
+      This repository contains all the packages available in each
+      of the individual repositories <filename>repoA</filename>,
+      <filename>repoB</filename>, and <filename>repoC</filename>.
+      </para>
+    </section>
+
   </section>
 
   <section>
@@ -117,11 +236,8 @@
       <listitem>
       <para>
       A <varname>PACKAGE</varname> pattern to exclude from all repositories
-      used in the system distribution. See Also Common Element
-      <emphasis><xref linkend="repo" /></emphasis>,
-      <xref linkend="repo-including-excluding-repository-contents" /> and the
-      <emphasis><xref linkend="repos-repo" /></emphasis> and
-      <emphasis><xref linkend="repos-repofile" /></emphasis> elements.
+      used in the distribution. See Also 
+      <emphasis><xref linkend="repo-including-excluding-repository-contents" /></emphasis>.
       </para>
 
       <para>
@@ -153,10 +269,7 @@
       <listitem>
       <para>
       Include a repository from which to select packages for the system
-      distribution. See Common Element
-      <emphasis><xref linkend="repo" /></emphasis>. See Also
-      <xref linkend="repos-including-repositories" /> and
-      <xref linkend="repo-including-excluding-repository-contents" />.
+      distribution.
       </para>
 
       <para>
@@ -165,6 +278,281 @@
       at least one <emphasis>repos/repo</emphasis> or
       <emphasis>repos/repofile</emphasis> element.
       </para>
+
+      <para>
+      The repo element provides a means to define various properties about
+      a <application>YUM</application> repository. These definitions can be
+      used in addition to or in place of repository definitions defined in
+      a YUM repofile.
+      </para>
+
+      <para>
+      Supported YUM repository options include
+      <varname>baseurl</varname>,
+      <varname>enabled</varname>,
+      <varname>exclude</varname>,
+      <varname>gpgcheck</varname>,
+      <varname>gpgkey</varname>,
+      <varname>includepkgs</varname>, and
+      <varname>mirrorlist</varname>. All options
+      are defined using elements of the same name. The
+      <emphasis>repo/baseurl</emphasis> and
+      <emphasis>repo/mirrorlist</emphasis> elements also have full support
+      for the YUM variables <varname>$basearch</varname> and
+      <varname>$releasever</varname>. However, instead of using the build
+      system's architecture and release version, SystemBuilder defaults to using
+      <varname>$ARCH</varname> and <varname>$VERSION</varname>,
+      respectively. Top-level elements may define a
+      <emphasis>releasever</emphasis> element that overrides the default
+      replacement value for <varname>$releasever</varname>.
+      </para>
+
+      <para>
+      Attributes
+      </para>
+
+      <variablelist>
+      <varlistentry id="repo-id"
+                    xreflabel="repo/@id">
+        <term>id</term>
+
+        <listitem>
+        <para>
+        A unique one-word <varname>ID</varname> representing this
+        repository within a particular distribution. Corresponds to the
+        <varname>repositoryid</varname> of a repository in a YUM
+        repofile.
+        </para>
+
+        <para>
+        This attribute is required.
+        </para>
+
+        <para>
+        See Also the <emphasis><xref linkend="name" /></emphasis>.
+        </para>
+        </listitem>
+      </varlistentry>
+      </variablelist>
+
+      <para>
+      Elements
+      </para>
+
+      <variablelist>
+      <varlistentry id="baseurl"
+                    xreflabel="repo/baseurl">
+        <term>
+        baseurl
+        </term>
+
+        <listitem>
+        <para>
+        The <varname>PATH</varname> to a valid repository.
+        </para>
+
+        <para>
+        This element may occur zero or more times. However, each repository
+        must have at least one <emphasis>repo/baseurl</emphasis> or
+        <emphasis>repo/mirrorlist</emphasis>.
+        </para>
+
+        <para>
+        See Also <xref linkend="repo-valid-repos" /> and the
+        <emphasis><xref linkend="mirrorlist" /></emphasis> element.
+        </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        enabled
+        </term>
+
+        <listitem>
+        <para>
+        <varname>BOOLEAN</varname> value indicating whether this
+        repository should be enabled or not. Disabled repositories
+        are ignored by SystemBuilder when looking for packages to include in
+        the distribution.
+        </para>
+
+        <para>
+        The default text value for this element is
+        <constant>TRUE</constant>.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="exclude"
+                    xreflabel="repo/exclude">
+        <term>
+        exclude
+        </term>
+
+        <listitem>
+        <para>
+        A <varname>PACKAGE</varname> pattern to exclude from the repository.
+        </para>
+
+        <para>
+        This element can occur zero or more times.
+        </para>
+
+        <para>
+        See Also <emphasis>
+        <xref linkend="repo-including-excluding-repository-contents" /></emphasis>.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="gpgcheck"
+                    xreflabel="repo/gpgcheck">
+        <term>
+        gpgcheck
+        </term>
+
+        <listitem>
+        <para>
+        <varname>BOOLEAN</varname> indicating whether GPG key
+        checking is enabled for this repository.
+        </para>
+
+        <para>
+        The default text value for this element is
+        <constant>FALSE</constant>.
+        </para>
+
+        <para>
+        If this element is <constant>TRUE</constant>, then at least one
+        <emphasis>repo/gpgkey</emphasis> must be present.
+        </para>
+
+        <para>
+        See Also the <emphasis><xref linkend="gpgkey" /></emphasis> element.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="gpgkey"
+                    xreflabel="repo/gpgkey">
+        <term>
+        gpgkey
+        </term>
+
+        <listitem>
+        <para>
+        The <varname>PATH</varname> to the ACII-armored GPG key
+        for the repository.
+        </para>
+
+        <para>
+        This element can occur zero or more times. If
+        <emphasis>repo/gpgcheck</emphasis> is <constant>TRUE</constant>,
+        this element must occur at least once.
+        </para>
+
+        <para>
+        See Also the <emphasis><xref linkend="gpgcheck" /></emphasis>
+        element.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="include-package"
+                    xreflabel="repo/includepkgs">
+        <term>
+        includepkgs
+        </term>
+
+        <listitem>
+          <para>
+          A <varname>PACKAGE</varname> pattern to include from the
+          repository. If one or more
+          <emphasis>repo/includepkgs</emphasis> patterns are defined,
+          the repository will include only packages that match these
+          patterns and nothing else.
+          </para>
+
+          <para>
+          This element can occur zero or more times.
+          </para>
+
+          <para>
+          See Also <emphasis>
+          <xref linkend="repo-including-excluding-repository-contents" /></emphasis>.
+          </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry id="mirrorlist"
+                      xreflabel="repo/mirrorlist">
+          <term>
+          mirrorlist
+          </term>
+
+          <listitem>
+          <para>
+          The <varname>PATH</varname> to a file containing a list of
+          baseurls to valid repositories.
+          </para>
+
+          <para>
+          Each repository must have at least one
+          <emphasis>repo/baseurl</emphasis> or
+          <emphasis>repo/mirrorlist</emphasis>.
+          </para>
+
+          <para>
+          See Also <xref linkend="repo-valid-repos" /> and the
+          <emphasis><xref linkend="baseurl" /></emphasis> element.
+          </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry id="name"
+                      xreflabel="repo/name">
+          <term>
+          name
+          </term>
+
+          <listitem>
+          <para>
+          A human-readable name of the repository.
+          </para>
+
+          <para>
+          The default value is the repository's <varname>ID</varname>.
+          </para>
+
+          <para>
+          See Also the <emphasis><xref linkend="repo-id" /></emphasis>
+          attribute.
+          </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry id="systemid"
+                      xreflabel="repo/systemid">
+          <term>
+          systemid
+          </term>
+
+          <listitem>
+          <para>
+          A <varname>PATH</varname> to the systemid file to use when
+          contacting the Red Hat Network.
+          </para>
+
+          <para>
+          This element is required when using RHN baseurls.
+          </para>
+
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
       </listitem>
     </varlistentry>
 
@@ -177,9 +565,7 @@
       <listitem>
       <para>
       The <varname>PATH</varname> to a
-      <application class="software">YUM</application> repofile.  See also
-      Common Element <emphasis><xref linkend="repo" /></emphasis> and
-      <xref linkend="repos-including-repositories" />. See also the
+      <application class="software">YUM</application> repofile.  See also the
       yum.conf man pages for the appropriate syntax of a YUM repofile.
       </para>
 
@@ -190,9 +576,8 @@
       <emphasis>repos/repofile</emphasis> element.
       </para>
       </listitem>
-    </varlistentry>
+      </varlistentry>
     </variablelist>
-  </section>
 
   <section>
     <title>
@@ -207,7 +592,8 @@
     <varname>PATH</varname>-like elements are not allowed.
     </para>
 
-    <section>
+    <section  id="repo-include-exclude-example"
+             xreflabel="Example 1 - using repos/repo/includepkgs and repos/repo/exclude">
       <title>
       Example 1 - using <emphasis>repos/repo/includepkgs</emphasis>
       and <emphasis>repos/repo/exclude</emphasis>
@@ -223,52 +609,52 @@
 
       <para>
       Additionally, SystemBuilder will include any and all repositories defined
-      in the file <filename>fedora-extras.repo</filename>.
+      in the file <filename>centos-extras.repo</filename>.
       </para>
 
       <informalexample>
       <programlisting>
 &lt;repos&gt;
 
-  &lt;repo id="fedora-base"&gt;
+  &lt;repo id="base"&gt;
 
     &lt;!-- $basearch will be replaced by $ARCH, $releasever by $VERSION --&gt;
-    &lt;baseurl&gt;http://download.fedora.redhat.com/pub/fedora/linux/releases/
-             $releasever/Fedora/$basearch/os/&lt;/baseurl&gt;
+    &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/os/
+          $basearch/&lt;/baseurl&gt;
 
     &lt;!-- include a mirrorlist as backup in case baseurl fails --&gt;
-    &lt;mirrorlist&gt;http://mirrors.fedoraproject.org/mirrorlist?
-                repo=fedora-$releasever&amp;amp;arch=$basearch&lt;/mirrorlist&gt;
+    &lt;mirrorlist&gt;http://mirrorlist.centos.org/?release=$releasever&amp;amp;
+          arch=$basearch&amp;amp;repo=os&amp;amp;country=us&lt;/mirrorlist&gt;
 
     &lt;!-- exclude all xorg-x11-drv packages --&gt;
     &lt;exclude&gt;xorg-x11-drv*&lt;/exclude&gt;
   &lt;/repo&gt;
 
   &lt;repo id="livna-drivers"&gt;
-    &lt;baseurl&gt;http://rpm.livna.org/fedora/$releasever/$basearch/&lt;baseurl&gt;
+    &lt;baseurl&gt;http://rpm.livna.org/repo/$releasever/$basearch/&lt;baseurl&gt;
 
     &lt;!-- include only xorg-x11-drv packages --&gt;
     &lt;includepkgs&gt;xorg-x11-drv*&lt;/includepkgs&gt;
   &lt;/repo&gt;
 
-  &lt;!-- include additional repos defined in fedora-extras.repo --&gt;
-  &lt;repofile&gt;fedora-extras.repo&lt;/repofile&gt;
+  &lt;!-- include additional repos defined in centos-extras.repo --&gt;
+  &lt;repofile&gt;centos-extras.repo&lt;/repofile&gt;
 &lt;/repos&gt;
       </programlisting>
       </informalexample>
     </section>
 
-    <section>
+    <section id="repo-rhn-example"
+             xreflabel="Example 2 - Red Hat Network repositories">
       <title>
       Example 2 - Red Hat Network repositories
       </title>
 
       <para>
-      Repositories that utilize the <filename>rhn</filename> or
-      <filename>rhns</filename> protocols to contact the Red Hat Network
-      require a distributionid to be specified. See the <xref linkend="repo" />
-      common element for more information on using Red Hat Network
-      repositories.
+      Repositories that utilize the <filename>rhn</filename> protocol to contact
+      the Red Hat Network require a systemid to be specified. See
+      <xref linkend="repo-rhn-repositories" /> for more information on using Red Hat
+      Network repositories.
       </para>
 
       <informalexample>
@@ -276,27 +662,18 @@
 &lt;repos&gt;
   &lt;repo id="base"&gt;
     &lt;name&gt;Red Hat Enterprise Linux - Base&lt;/name&gt;
-    &lt;baseurl&gt;http://www.renditionsoftware.com/mirrors/redhat/enterprise/
+    &lt;baseurl&gt;http://example.company.com/install_server/redhat/enterprise/
              $releasever/en/os/i386&lt;/baseurl&gt;
   &lt;/repo&gt;
   &lt;repo id="updates"&gt;
     &lt;name&gt;Red Hat Enterprise Linux - Updates&lt;/name&gt;
-    &lt;baseurl&gt;rhns:///rhel-i386-server-5&lt;/baseurl&gt;
-    &lt;!-- location of the distributionid is relative to the distribution definition file --&gt;
-    &lt;distributionid&gt;common_distributionid-5Server-$basearch&lt;/distributionid&gt;
+    &lt;baseurl&gt;rhn:///rhel-i386-server-5&lt;/baseurl&gt;
+    &lt;!-- location of the systemid is relative to the distribution definition file --&gt;
+    &lt;systemid&gt;systemid-5Server-$basearch&lt;/systemid&gt;
   &lt;/repo&gt;
 &lt;/repos&gt; 
       </programlisting>
       </informalexample>
-
-      <note>
-      SystemBuilder requires additional software including rhnlib and 
-      rhn-client-tools in order to use RHN repositories. To install a 
-      complete version of SystemBuilder including all available software, follow 
-      the instructions located at 
-      http://www.renditionsoftware.com/systembuilder/download.
-      </note>
-
     </section>
 
     <section>
@@ -319,10 +696,10 @@
   &lt;/main&gt;
   ...
   &lt;repos&gt;
-    &lt;releasever&gt;9&lt;/releasever&gt;
-    &lt;repo id="fedora-9"&gt;
-      &lt;baseurl&gt;http://download.fedora.redhat.com/pub/fedora/linux/
-               releases/$releasever/Fedora/$basearch/os/&lt;/baseurl&gt;
+    &lt;releasever&gt;5&lt;/releasever&gt;
+    &lt;repo id="centos-5"&gt;
+	    &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/os/
+	          $basearch/&lt;/baseurl&gt;
     &lt;/repo&gt;
   &lt;/repos&gt;
   ...
@@ -332,12 +709,12 @@
 
       In the example above, the baseurl evaluates to:
 
-      <literallayout>http://download.fedora.redhat.com/pub/fedora/linux/releases/9/Fedora/i386/os/ </literallayout>
+      <literallayout>http://mirror.centos.org/centos/5/os/i386 </literallayout>
 
       If <emphasis>repos/releasever</emphasis> had not been included, the
       baseurl instead would have been:
 
-      <literallayout>http://download.fedora.redhat.com/pub/fedora/linux/releases/1.0/Fedora/i386/os/ </literallayout>
+      <literallayout>http://mirror.centos.org/centos/1.0/os/i386 </literallayout>
       </para>
     </section>
   </section>
@@ -348,13 +725,14 @@
     </title>
 
     <para>
+
     <varname><xref linkend="variable-arch" /></varname>,
     <varname><xref linkend="content-boolean" /></varname>,
     <varname><xref linkend="content-package" /></varname>,
     <varname><xref linkend="content-path" /></varname>,
     <varname><xref linkend="content-text" /></varname>,
-    <emphasis><xref linkend="repo" /></emphasis>,
-    <xref linkend="repo-including-excluding-repository-contents" />
+    <emphasis role="strong"><xref linkend="sources" /></emphasis>
     </para>
   </section>
+</section>
 </section>

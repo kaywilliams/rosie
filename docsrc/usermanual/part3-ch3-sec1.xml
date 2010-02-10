@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Automating Client Installations</title>
+  <title>Automating Installations</title>
 
   <para>SystemBuilder can save you time and labor by helping you automate the
   client boot-up and kickstart process.</para>
@@ -10,7 +10,7 @@
   <section>
     <title>Kickstarting Client Systems</title>
 
-    <para>Kickstart installations automate the install process of a RedHat OS
+    <para>Kickstart installations automate the install process of a RedHat operating system
     and make the installations reproducible. You may want to use this method
     if you have large-scale installations, complex storage requirements,
     multiple network interfaces, secure systems or site-specific strategies.
@@ -23,8 +23,8 @@
     part of the distribution definition. By revision controlling the SystemBuilder files
     (see Part 2), the kickstart process can be controlled, too.</para>
 
-    <para>Use the <emphasis>kickstart</emphasis> TLE in the
-    <filename>samber-server.xml</filename> file to identify one kickstart
+    <para>Use the <emphasis>kickstart</emphasis> element in the
+    <filename>samba-server.distribution</filename> file to identify one kickstart
     file, as in the example below. Substitute your own kickstart filename for
     <filename>ks.cfg</filename>.</para>
 
@@ -32,7 +32,7 @@
         <programlisting>&lt;kickstart&gt;ks.cfg&lt;/kickstart&gt;</programlisting>
       </informalexample></para>
 
-    <para>See the DDFR for the <emphasis>kickstart</emphasis> TLE
+    <para>See the DDFR for the <emphasis>kickstart</emphasis> element 
     syntax.</para>
   </section>
 </section>

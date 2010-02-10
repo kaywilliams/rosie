@@ -6,8 +6,11 @@
   <title>Distribution Definition File Reference</title>
 
   <bookinfo id="bookinfo">
+
+    <pubdate>February 2010</pubdate>
+
     <copyright id="copyright">
-      <year>2009</year>
+      <year>2010</year>
 
       <holder>Rendition Software</holder>
     </copyright>
@@ -35,11 +38,7 @@
 
       <keyword>RHN</keyword>
 
-      <keyword>Fedora</keyword>
-
       <keyword>Linux</keyword>
-
-      <keyword>distribution</keyword>
 
       <keyword>distribution</keyword>
 
@@ -60,10 +59,10 @@
   <xi:include href="Introduction.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="DocumentConventions.xml"
+  <xi:include href="RequiredElements.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="TopLevelElements.xml"
+  <xi:include href="OptionalElements.xml"
               xpointer="element(/1)" />
 
   <xi:include href="CommonComponents.xml"

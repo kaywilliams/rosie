@@ -4,9 +4,9 @@
 <section id="CommonComponents-variables">
 
   <section id="variable-distribution-id"
-           xreflabel="\$DISTRIBUTIONID">
+           xreflabel="\$ID">
     <title>
-    Variable: <varname>$DISTRIBUTIONID</varname>
+    Variable: <varname>$ID</varname>
     </title>
 
     <section>
@@ -15,7 +15,7 @@
       </title>
 
       <para>
-      The unique id of an distribution. Value is obtained from the
+      The unique id of a distribution. Value is obtained from the
       <xref linkend="main-id" />  element, if present; otherwise the
       default value is <constant>$NAME-$VERSION-$ARCH</constant>.
       </para>

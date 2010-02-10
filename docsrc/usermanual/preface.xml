@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <chapter>
   <title>Preface</title>
 
@@ -9,17 +9,17 @@
 
     <para>SystemBuilder is a product intended for system administrators
     who need to build, test, deploy and maintain Red Hat Enterprise Linux or 
-    CentOS-based systems. Each part in this manual assumes you have a particular
-    level of knowledge.</para>
+    CentOS-based systems. Certain chapters in this manual assume you have a 
+    particular level of knowledge.</para>
 
-    <para>For Part I, "Basic SystemBuilder Usage," in addition to knowing how
+    <para>For Chapter 3, "Building a Distribution," in addition to knowing how
     to create and edit XML files, manage a web server and create USB and CD/DVD
     boot media, you should have an intermediate skill level with the following
     components:</para>
 
     <para><itemizedlist>
         <listitem>
-          <para>Red Hat Enterprise Linux or CentOS installation, usage and 
+          <para>Red Hat Enterprise Linux or CentOS installation, usage, 
           system administration and configuration;</para>
         </listitem>
 
@@ -34,11 +34,11 @@
         </listitem>
       </itemizedlist></para>
 
-    <para>For Part II, "Production System Distribution Management," experience
+    <para>For Chapter 4, "Creating a Production Environment," experience
     with version control systems, local mirror hosting, XPath and XInclude.
     </para>
 
-    <para>For Part III, "Advanced System Distribution Concepts," key skills 
+    <para>For Chapter 5, "Doing More with SystemBuilder," key skills
     include understanding how to automate Anaconda installations using 
     kickstart files and command line arguments.</para>
   </section>
@@ -73,10 +73,10 @@
     <title>How to Read</title>
 
     <para>The intent of the manual is to help you use SystemBuilder effectively
-    to build and maintain system distributions, update distribution and
-    customize client installations. This manual takes the top-down approach, explaining
-    the concepts before giving steps, commands and code examples that you can
-    use to build, deploy and enhance your own system builds.</para>
+    to build and maintain distributions, and to use distributions to
+    install and update client machines. This manual takes a top-down approach,
+    explaining the concepts before giving steps, commands and code examples
+    that you can use to build, deploy and enhance your own distributions.</para>
   </section>
 
   <section>
@@ -144,7 +144,8 @@
 
         <listitem>
           <para><filename>Filenames</filename>, <filename
-          class="directory">folder names or directory trees</filename> or
+          class="directory">folder names</filename>, 
+          <filename class="directory">directory trees</filename> and
           <filename class="extension">file extensions</filename> all use a
           monospace format.</para>
         </listitem>
@@ -215,7 +216,7 @@ $ precedes lines entered as a normal user</programlisting>
 
         <listitem>
           <para>SystemBuilder variables are presented in monospace font preceded by a
-          dollar sign, e.g. <varname>$DISTRIBUTIONID</varname>. Variables outside
+          dollar sign, e.g. <varname>$ID</varname>. Variables outside
           the SystemBuilder realm appear in lowercase in monospace font preceded by a
           dollar sign, e.g. <varname>$releasever</varname>.</para>
         </listitem>
@@ -226,90 +227,62 @@ $ precedes lines entered as a normal user</programlisting>
   <section>
     <title>Organization</title>
 
-    <para>This manual contains three parts, each with an increasing level of
-    complexity and detail.</para>
+    <para>This manual contains five chapters, each with an increasing level of
+  complexity and detail.</para>
 
     <para><itemizedlist>
         <listitem>
-          <para>Part I, "Basic SystemBuilder Usage," will help you start using
-          <application class="software">SystemBuilder</application> immediately.</para>
-
-          <para><itemizedlist>
-              <listitem>
-                <para>"SystemBuilder Basics" explains what a distribution
-                is, how <application class="software">SystemBuilder
-                </application> helps you
-                build it in a more efficient timely manner and the underlying
-                architecture that makes this improved performance possible.
-                The section also includes a "Glossary of Terms" explaining
-                terms used within the <application
-                class="software">SystemBuilder</application> realm.</para>
-              </listitem>
-
-              <listitem>
-                <para>"Basic Usage: Building a Distribution," covers the basic
-                concepts for configuring the <application
-                class="software">SystemBuilder</application> build system,
-                defining and deploying a distribution, running <application
-                class="software">SystemBuilder</application> and updating a
-                distribution. As a use case model, these sections will help you
-                create a basic <application class="software">Samba</application>
-                server distribution based on CentOS 5.</para>
-              </listitem>
-            </itemizedlist></para>
+          <para>Chapter I, "Preface," provides information about how to use and
+          read this manual. It also contains information on obtaining the 
+          <application class="software">SystemBuilder</application> product.
+          </para>
         </listitem>
 
         <listitem>
-          <para>Part II, "Production Distribution Management," will help you set up
-          a managed development and deployment environment using SystemBuilder
-          as its cornerstone.</para>
-
-          <itemizedlist>
-            <listitem>
-              <para>"Why Use SystemBuilder as part of a Production Environment?"
-              explains implementing the development - staging - production
-              environment within the content of building and deploying
-              distributions using <application
-              class="software">SystemBuilder</application>. The Samba server
-              distribution you created in Part I will have new features
-              requirements to implement in Part II.</para>
-            </listitem>
-
-            <listitem>
-              <para>"Utilizing SystemBuilder within the Development - Staging -
-              Production climate" discusses how SystemBuilder makes your life easier as
-              a system or build administrator. Versioning distribution files and
-              utilizing an object-oriented model through the XInclude
-              mechanism for the distribution definitions are important usability
-              features. Choosing the best location for storing and downloading
-              a distribution via the web is another key concept.</para>
-            </listitem>
-          </itemizedlist>
+          <para>Chapter 2, "Introduction" explains what a 
+          distribution is, how <application class="software">SystemBuilder
+          </application> helps you build it in an efficient timely manner
+          and the underlying architecture that makes this improved performance
+          possible. The section also includes a "Glossary of Terms" explaining
+          terms used within the <application
+          class="software">SystemBuilder</application> realm.</para>
         </listitem>
 
         <listitem>
-          <para>Part III, "Advanced System Distribution Concepts," will help you
-          customize your distributions.</para>
+          <para>Chapter 3, "Building a Distribution," covers the basic
+          concepts for configuring the <application
+          class="software">SystemBuilder</application> build machine,
+          defining and deploying a distribution, running <application
+          class="software">SystemBuilder</application> and updating a
+          distribution. As a use case model, these sections will help you
+          create a basic <application class="software">Samba</application>
+          server distribution based on CentOS 5.</para>
+        </listitem>
 
-          <para><itemizedlist>
-              <listitem>
-                <para>"Desiging the Distribution" targets the advanced system
-                administrator, describing how to add custom release
-                files.</para>
-              </listitem>
+        <listitem>
+          <para>Chapter 4, "Creating a Production Environment," will help you
+          set up a managed development and deployment environment using
+          SystemBuilder as its cornerstone. It explains implementing the 
+          development - staging - production environment within the context of 
+          building and deploying distributions using <application
+          class="software">SystemBuilder</application>. The Samba server
+          distribution you created in Part I will have new features
+          requirements to implement in Part II.</para>
 
-              <listitem>
-                <para>"Managing Distribution Packages" discusses GPG checking and
-                using GPG keys to sign your own packages.</para>
-              </listitem>
+          <para>Chapter 4 also discusses how SystemBuilder makes your life
+          easier as a system or build administrator. Versioning distribution
+          files and utilizing an object-oriented model through the XInclude
+          mechanism for the distribution definitions are important usability
+          features. Choosing the best location for storing and downloading
+          a distribution via the web is another key concept.</para>
+        </listitem>
 
-              <listitem>
-                <para>"Automating System Installation" gives you the opportunity
-                to flex your automation muscles by implementing boot-up and
-                kickstart files. Creating different images is another advanced
-                feature.</para>
-              </listitem>
-            </itemizedlist></para>
+        <listitem>
+          <para>Chapter 5, "Doing More with SystemBuilder" will help you
+          customize your distributions. It describes using kickstart files to 
+          automate client installation, discusses GPG checking and
+          using GPG keys to sign your own packages, and provides information on 
+          creating CD/DVD installation images.</para>
         </listitem>
       </itemizedlist></para>
   </section>
@@ -319,6 +292,7 @@ $ precedes lines entered as a normal user</programlisting>
 
     <para>SystemBuilder and associated documents are available at
     <ulink url="http://www.renditionsoftware.com/systembuilder/"> the Rendition
-    Software SystemBuilder website</ulink>.</para>
+    Software SystemBuilder website</ulink> 
+    at www.renditionsoftware.com/systembuilder.</para>
   </section>
 </chapter>

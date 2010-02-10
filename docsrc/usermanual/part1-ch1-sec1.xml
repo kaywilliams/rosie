@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title><application class="software">SystemBuilder</application> Builds
-  System Distributions</title>
+  <title><application class="software">SystemBuilder</application> Overview
+  </title>
 
-  <para>A system distribution is a set of operating system components,
-  applications and configuration needed to deploy a system to perform a desired
-  function. Using SystemBuilder you can create and maintain system
-  distributions:</para>
+  <para>Automating the customization, installation and maintenance of CentOS and
+  Red Hat Enterprise Linux systems today requires costly and complex management
+  solutions. <application class="software">SystemBuilder</application> provides
+  a simple, reliable alternative. SystemBuilder packages 
+  user-specified content into standard operating system deployment bundles, or 
+  <emphasis>distributions</emphasis>. System distributions can be used to
+  deploy and maintain client machines, physical and virtual, in a wide range of
+  IT environments.</para>
+
+  <para>A distribution is a set of operating system components,
+  applications and configuration, packaged for deployment in a standard format.
+  Using SystemBuilder you can create and maintain distributions:</para>
 
   <para><itemizedlist>
       <listitem>
-        <para>select an operating system (OS),</para>
+        <para>select an operating system (operating system),</para>
       </listitem>
 
       <listitem>
@@ -20,11 +28,11 @@
       </listitem>
 
       <listitem>
-        <para>set OS and application configuration parameters,</para>
+        <para>set operating system and application configuration parameters,</para>
       </listitem>
 
       <listitem>
-        <para>build the system distribution,</para>
+        <para>build the distribution,</para>
       </listitem>
 
       <listitem>
@@ -36,35 +44,32 @@
       </listitem>
 
       <listitem>
-        <para>rebuild the system distribution and</para>
+        <para>rebuild the distribution and</para>
       </listitem>
 
       <listitem>
-        <para>update existing clients using standard package update tools such
-        as <application class="software">YUM</application>.</para>
+        <para>update existing clients using standard package update tools.</para>
       </listitem>
     </itemizedlist></para>
 
   <mediaobject>
     <imageobject>
-      <imagedata fileref="systembuilder_overview.jpg" />
+      <imagedata fileref="systembuilder_overview.png" />
     </imageobject>
-
-    <textobject>
-      <para><application class="software">SystemBuilder</application> takes
-      various inputs (OS, applications, configuration files, etc.), combines 
-      that with an distribution definition file and creates a system distribution 
-      with deployment images and a package repository. Using the bootable media,
-      you can deploy the distribution to one or more client systems. You can 
-      also update existing clients from the distribution package repository.
-      </para>
-    </textobject>
 
     <caption><para>How SystemBuilder Works</para></caption>
   </mediaobject>
 
+  <para><application class="software">SystemBuilder</application> reads 
+  a distribution definition file, gathers various inputs (operating system, applications, 
+  configuration files, etc.), and creates a distribution 
+  with installation images and a package repository. Using the bootable media,
+  you can deploy the distribution to one or more client machines. You can 
+  also update existing clients from the distribution package repository.
+  </para>
+
   <para>In summary, SystemBuilder is a production distribution life cycle manager
-  for use in defining, building and maintaining system distributions that can
+  for use in defining, building and maintaining distributions that can
   be easily installed and updated on physical, virtual and cloud machines using
   industry standard deployment and update tools.</para>
 </section>

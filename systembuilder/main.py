@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2007, 2008
+# Copyright (c) 2010
 # Rendition Software, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -389,7 +389,6 @@ class Build(SystemBuilderErrorHandler, SystemBuilderValidationHandler, object):
     di['fullname']     = Event._config.get(qstr % 'fullname', di['name'])
     di['packagepath']  = Event._config.get(qstr % 'package-path', 'Packages')
     di['webloc']       = Event._config.get(qstr % 'bug-url', 'No bug url provided')
-    di['copyright']    = Event._config.get(qstr % 'copyright', '')
 
     for k,v in di.items():
       setattr(Event, k, v)

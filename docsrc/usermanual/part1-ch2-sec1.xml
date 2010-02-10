@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
   <title>Configuring a Build Machine</title>
 
@@ -8,35 +8,40 @@
   in a networked environment. You can install <application
   class="software">SystemBuilder</application> on a <application
   class="software">Linux</application> system operating with <application
-  class="software">Fedora</application> 10, <application
   class="software">CentOS</application> 5 or <application class="software">Red
-  Hat Enterprise Linux</application> 5. The OS needs to include an http daemon
-  with the ability to host web-accessible distributions for download. If you're
-  using <application arch="" class="software">Apache</application>, the httpd
-  configuration file directive &lt;Directory&gt; specifies the location of the
-  default directory for http files.</para>
+  Hat Enterprise Linux</application> 5.</para>
 
   <para>For capacity planning purposes, the machine should have a separate
   logical or physical drive for the <filename
   class="directory">/var</filename> directory. <application
   class="software">SystemBuilder</application> uses the <filename
-  class="directory">/var/cache</filename> directory during initial and
-  subsequent distribution builds and the <filename
-  class="directory">/var/www/html</filename> directory for hosting the
-  distributions. Consequently, the drive space allocated should
-  be a minimum of 30GB. Depending upon the number and size of the applications
-  included in the distribution, you may need more disk space.</para>
+  class="directory">/var/cache/systembuilder</filename> folder for caching 
+  distribution contents and the <filename 
+  class="directory">/var/www/html/distributions</filename> folder for storing
+  completed distributions. The recommended minimum drive space allocated for
+  each of these folders is 15GB (30GB total). Depending upon the number and size
+  of distributions created, you may need more disk space.</para>
 
   <para>Disk access is another consideration. Due to the size of the files
   handled, fast disk access is preferable. To accommodate the speed
   requirements, it is best to use hard disk drives with Serial Advanced
   Technology Attachment (SATA) interfaces.</para>
 
-  <para>In addition to the SystemBuilder product, the SystemBuilder build system must have a web
-  server installed on it in order to make the distribution available through the
-  network. For instructions on installing SystemBuilder and a web server and verifying
-  that SystemBuilder is running correctly, see the "Getting Started Guide" on Rendition
-  Software's web site.</para>
+  <para>SystemBuilder makes it easy to test client machine installations and
+  updates over the network directly from the build server. To make use of this
+  feature, you will need to install and configure a web server.</para>
+
+  <para>First, install and configure the Apache web server by completing the
+  following steps as the root user.</para>
+
+  <para><userinput># yum install httpd</userinput></para>
+  <para><userinput># service httpd start</userinput></para>
+  <para><userinput># chkconfig --level 3 httpd on</userinput></para>
+
+  <para>Next, modify your firewall configuration, if needed, to allow 
+  www/http traffic (port 80) using the command below as the root user.</para>
+
+  <para><userinput># system-config-securitylevel</userinput></para>
 
   <para>Now you are ready to begin defining your distribution!</para>
 </section>

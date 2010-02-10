@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<chapter id="DDFR-DocumentConventions" xreflabel="document conventions">
+<section xreflabel="document conventions">
   <title>
   Document Conventions
   </title>
@@ -102,24 +102,6 @@
 
   <varlistentry>
     <term>
-    Important
-    </term>
-
-    <listitem>
-    <para>
-    Critical items appear with an "Important" tag:
-    </para>
-
-    <important>
-    <para>
-    This top level element is <emphasis role="strong">required</emphasis>.
-    </para>
-    </important>
-    </listitem>
-  </varlistentry>
-
-  <varlistentry>
-    <term>
     Note
     </term>
 
@@ -177,7 +159,7 @@
 
   <varlistentry>
     <term>
-    Top-level Elements and Module Groups
+    Top-Level Elements and Module Groups
     </term>
 
     <listitem>
@@ -196,7 +178,7 @@
     <listitem>
     <para>
     Within this document, SystemBuilder variables are presented in monospace font
-    preceded by a dollar sign, e.g. <varname>$DISTRIBUTIONID</varname>.
+    preceded by a dollar sign, e.g. <varname>$ID</varname>.
     In the event that another application uses a variable with simliar
     syntax (YUM, for example), these variables are clearly indicated as
     not being SystemBuilder variables.
@@ -210,4 +192,4 @@
     </listitem>
   </varlistentry>
   </variablelist>
-</chapter>
+</section>

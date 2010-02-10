@@ -3,24 +3,16 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="main" xreflabel="main">
   <title>
-  main
+  Main
   </title>
-
-  <important>
-  <para>
-  This top-level element is <emphasis role="strong">required</emphasis>.
-  </para>
-  </important>
 
   <section>
     <title>
     Definition
     </title>
 
-    <para>
-    Contains basic information about the distribution necessary for SystemBuilder
-    to complete an distribution build.
-    </para>
+    <para>Contains basic information about the distribution.</para>
+
   </section>
 
   <section>
@@ -34,7 +26,6 @@
   &lt;name&gt;TEXT&lt;/name&gt;
   &lt;version&gt;TEXT&lt;/version&gt;
  [&lt;bug-url&gt;TEXT&lt;/bug-url&gt;]
- [&lt;copyright&gt;TEXT&lt;/copyright&gt;]
  [&lt;fullname&gt;TEXT&lt;/fullname&gt;]
  [&lt;id&gt;TEXT&lt;/id&gt;]
  [&lt;log-file&gt;PATH&lt;/log-file&gt;]
@@ -58,8 +49,9 @@
       <listitem>
       <para>
       The microprocessor architecture label for the target distribution
-      machines. Accepts either "i386" or "x86_64".
-      </para>
+      machines. Used to resolve $releasever variables used in repository
+      definitions. See the <emphasis>repos</emphasis> element for more
+      information. Accepts either "i386" or "x86_64".</para>
 
       <para>
       Throughout this document, the text value of this element is
@@ -80,40 +72,13 @@
       <listitem>
       <para>
       <varname>TEXT</varname> specifying a way for client system
-      users to report distribution installation bugs.
+      users to report distribution installation bugs. Displays when bugs are
+      encountered during during client machine installation.
       </para>
 
       <para>
       The default value is "No bug url provided".
       </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>
-      copyright
-      </term>
-
-      <listitem>
-      <para>
-      Copyright <varname>TEXT</varname> for the distribution.
-      </para>
-
-      <para>
-      The default value is the empty string ("").
-      </para>
-
-      <note>
-      <para>To include the copyright symbol, use
-      <markup><constant>&amp;#169;</constant></markup>
-      as the special character encoding.
-      </para>
-
-      <para>
-      Be sure to use standard XML encoding for other characters as well,
-      if necessary.
-      </para>
-      </note>
       </listitem>
     </varlistentry>
 
@@ -125,7 +90,8 @@
 
       <listitem>
       <para>
-      A human-friendly name for the distribution.
+      A human-friendly name for the distribution. Displays during client machine
+      installation.
       </para>
 
       <para>
@@ -142,9 +108,10 @@
 
       <listitem>
       <para>
-      The unique id for the custom distribution. This value is also the
-      directory name for the final published distribution build folder within
-      the build cache.
+      The unique id for the custom distribution. Used as the directory name
+      for the distribution in the SystemBuilder publish and cache folders
+      (by default <emphasis>/var/www/html/distributions/</emphasis> and 
+      <emphasis>/var/cache/systembuilder</emphasis>, respectively).
       </para>
 
       <para>
@@ -153,7 +120,7 @@
 
       <para>
       Throughout this document, the text value of this element is referred
-      to by <varname>$DISTRIBUTIONID</varname>.
+      to by <varname>$ID</varname>.
       </para>
       </listitem>
     </varlistentry>
@@ -203,8 +170,8 @@
 
       <listitem>
       <para>
-      The name of the directory within the final output distribution
-      tree where SystemBuilder will place packages.
+      The name of the directory within the distribution tree where 
+      SystemBuilder will place packages.
       </para>
 
       <para>
@@ -221,7 +188,8 @@
 
       <listitem>
       <para>
-      The version of the target distribution.
+      The version of the target distribution. Displays during client machine
+      installation.
       </para>
 
       <para>
@@ -250,7 +218,6 @@
   &lt;arch&gt;i386&lt;/arch&gt;
   &lt;fullname&gt;CentOS Samba Server&lt;/fullname&gt;
   &lt;bug-url&gt;http://www.example.com/bugs&lt;/bug-url&gt;
-  &lt;copyright&gt;&amp;#169;2009, Example Company, All Rights Reserved.&lt;/copyright&gt;
   &lt;log-file&gt;/home/systembuilderuser/SPIN/eg_CentOS5_main.log&lt;/log-file&gt;
 &lt;/main&gt;
     </programlisting>

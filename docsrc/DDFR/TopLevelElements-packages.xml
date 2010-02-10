@@ -3,14 +3,8 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="packages" xreflabel="packages">
   <title>
-  packages
+  Packages
   </title>
-
-  <important>
-  <para>
-  This top-level element is <emphasis role="strong">required</emphasis>.
-  </para>
-  </important>
 
   <section id="packages-definition">
     <title>

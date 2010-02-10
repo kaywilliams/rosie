@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Deploying Client Machines</title>
+  <title>Installing a Client Machine</title>
 
-  <para>Deployment to a client system is the next step. The SystemBuilder build
+  <para>Deployment to a client machine is the next step. The SystemBuilder build
   system creates the boot media and posts the completed distribution
-  to the download server. During network installation the client system
+  to the download server. During network installation the client machine
   retrieves the packages from the download server.</para>
 
   <para>For the purpose of this example, the destination distribution is the
   default location on the <application class="software">SystemBuilder
-  </application> build system. After SystemBuilder creates the distribution, 
-  you can create the boot media and install to the client system through the
+  </application> build machine. After SystemBuilder creates the distribution, 
+  you can create the boot media and install to the client machine through the
   network.</para>
 
   <section>
@@ -23,12 +23,12 @@
     <filename class="directory">/var/www/html/distributions</filename> default
     directory on the download server. SystemBuilder automatically configures 
     boot media to download packages from that server. The folder name will be
-    the <varname>$DISTRIBUTIONID</varname>, e.g.
+    the <varname>$ID</varname>, e.g.
     <filename>samba-server-5-i386</filename>.</para>
 
-    <para>To make network installations possible, the build system and
+    <para>To make network installations possible, the build machine and
     directory should be network and web accessible. The default publish path
-    assumes that the SystemBuilder build system is also the download server; 
+    assumes that the SystemBuilder build machine is also the download server; 
     it uses the IP address with no user login, password or port information. An
     example URL path to your distribution's download directory is below:</para>
 
@@ -36,11 +36,11 @@
         <programlisting>http://194.168.192.0/distributions/samba-server-5-i386</programlisting>
       </informalexample></para>
 
-    <para>The IP address belongs to the SystemBuilder build system's interface.
+    <para>The IP address belongs to the SystemBuilder build machine's interface.
     For your distribution, the IP address will be calculated using the first
     active, non-loopback interface on your download machine.</para>
 
-    <para>To install to a client system, you burn a boot image to a separate
+    <para>To install to a client machine, you burn a boot image to a separate
     media. For this example, burn the <filename>boot.iso</filename> image 
     (found in the <filename class="directory">/os/images</filename> folder 
     below the <filename class="directory">/distributions/samba-server-5-i386
@@ -64,10 +64,10 @@
   </section>
 
   <section>
-    <title>Installing a client system</title>
+    <title>Installing a client machine</title>
 
     <para>Now you are ready to create your client! The standard procedure is
-    to boot the client system from the CD. The boot process will start the
+    to boot the client machine from the CD. The boot process will start the
     machine, then use the boot image created by <command>systembuilder</command>
     to retrieve all the packages from the <application
     class="software">SystemBuilder</application> download server instead of remote
@@ -78,10 +78,10 @@
 
     <para>One quick verification test to make sure the was install correctly is
     to verify the contents of the <filename>smb.conf</filename>
-    installed on the client system. It should match the one provided in the
+    installed on the client machine. It should match the one provided in the
     distribution definition.</para>
 
     <para>Congratulations! You now have a Samba server installed on your
-    CentoOS 5 client.</para>
+    CentOS 5 client.</para>
   </section>
 </section>

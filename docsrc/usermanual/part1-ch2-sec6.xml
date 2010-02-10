@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
   <title>Updating a Distribution</title>
 
@@ -9,7 +9,7 @@
   update your distribution. You may update the distribution repositories on the
   build server from the mirrors. Or you may redefine your distribution. Depending
   upon what, if anything, you update in the distribution, updates can occur on
-  the SystemBuilder build system, the download server and the client system.</para>
+  the SystemBuilder build machine, the download server and the client machine.</para>
 
   <section>
     <title>Running <command>systembuilder</command> to check for repository
@@ -17,23 +17,23 @@
 
     <para>To include updated packages from the repositories, execute
     <command>systembuilder</command> with the
-    <filename>samber-server.xml</filename> file. <application
+    <filename>samba-server.distribution</filename> file. <application
     class="software"> Rerunning <command>systembuilder</command> with the same
     <filename class="extension">.distribution</filename> file will dramatically
     reduce the build time, assuming there are no changes to the file's
     contents. SystemBuilder</application> uses a cache of the packages and verifies the
     cache contents against the metadata for the repository and the groups. The
     screen output below shows the results of a build with no changes to the
-    <filename>samber-server.xml</filename> file and no updates to the
+    <filename>samba-server.distribution</filename> file and no updates to the
     repositories.</para>
 
-    <para><screen>Reading '/home/systembuilder/samber-server.xml'
+    <para><screen>Reading '/home/systembuilder/samba-server.distribution'
 Starting build of 'samba-server-5-i386' at 2009-10-25 18:29:55
 Build complete at 2009-10-25 18:30:26</screen></para>
 
     <para>Since there were no updates, <command>systembuilder</command> completed
     successfully in less than two minutes. (Results will vary depending upon
-    your <application class="software">SystemBuilder</application> build system's
+    your <application class="software">SystemBuilder</application> build machine's
     hardware configuration.) Only if something had changed would
     <command>systembuilder</command> have rerun the repository updates and provided
     more detail about this build.</para>
@@ -49,7 +49,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
         command</para>
 
         <para><userinput># systembuilder --log-file /var/log/$MYLOGFILE
-        samber-server.xml</userinput></para>
+        samba-server.distribution</userinput></para>
 
         <para>where <varname>$MYLOGFILE</varname> is the new name of the log
         file.</para>
@@ -79,27 +79,27 @@ Build complete at 2009-10-25 18:30:26</screen></para>
     <para>If you change the <emphasis>main/name</emphasis>,
     <emphasis>main/version</emphasis> or <emphasis>main/arch</emphasis> child
     elements, then you are creating a new distribution with a new
-    <varname>$DISTRIBUTIONID</varname> and published download server location
+    <varname>$ID</varname> and published download server location
     matching the new parameters. To avoid confusion between the different
     distributions, save the new definition file with a new name.</para>
   </section>
 
   <section>
-    <title>Updating client systems</title>
+    <title>Updating client machines</title>
 
     <para>If there are changes to the distribution, you will
-    need to update installed client systems using <command>yum</command>
+    need to update installed client machines using <command>yum</command>
     <option>update</option>. For this example build, log on as the root user
     and execute the <userinput>yum update</userinput> command.</para>
 
     <para>Using the <command>yum </command><option>update</option> command
-    will update all packages on the client system from the download server,
+    will update all packages on the client machine from the download server,
     including the system-specific config RPM created by SystemBuilder.
     For more information what the config RPM contains and how to customize
     its contents, see the section on <emphasis>config-rpm</emphasis> in the
     Distribution Definition File Reference. </para>
 
-    <para>To see what changed on the client system, check the
+    <para>To see what changed on the client machine, check the
     <filename>yum.log</filename> file in the <filename
     class="directory">/var/log/</filename> directory.</para>
   </section>

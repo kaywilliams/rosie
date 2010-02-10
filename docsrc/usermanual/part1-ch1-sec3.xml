@@ -1,147 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>SystemBuilder's Physical Architecture and the System Distribution
-  Creation Process</title>
+  <title>SystemBuilder Files and Folders</title>
 
-  <para><application>SystemBuilder</application> has two directory
-  architectures: the structure that it creates when you install <application
-  class="software">SystemBuilder</application> and the default structure
-  <application class="software">SystemBuilder</application> uses when creating
-  system distributions. The latter structure aids in creating, building and
-  deploying your system distributions.</para>
+  <para><application class="software">SystemBuilder</application> has several
+  key files and folders, listed in the table below.</para>
 
-  <section>
-    <title>SystemBuilder's installed architecture</title>
+  <para><table>
+      <title>SystemBuilder Files and Folders</title>
 
-    <para>Developed using the <application
-    class="software">Python</application> interpreter, the installed
-    <application class="software">SystemBuilder</application> application has several
-    key subdirectories. To install and operate <application
-    class="software">SystemBuilder</application> you must be a root user. If you
-    install it from the RPM packages, its operating files will be in the
-    <filename class="directory">/usr</filename> directory. If you choose to
-    install from the source, you will need to complete additional
-    configuration steps. Refer to SystemBuilder's "Installation Guide."</para>
+      <tgroup cols="2">
+        <tbody>
+          <row>
+            <entry>/etc/systembuilder/systembuilder.conf</entry>
 
-    <para><table>
-        <title>SystemBuilder Build System Directory Structure</title>
+            <entry><application>SystemBuilder</application> looks
+            for this file to locate systembuilder configuration. See the
+            systembuilder and systembuilder.conf man pages for more information.
+            This file is optional and does not exist in the default SystemBuilder
+            installation.</entry>
+          </row>
+          <row>
+            <entry>/usr/bin/systembuilder</entry>
 
-        <tgroup cols="2">
-          <tbody>
-            <row>
-              <entry>/etc/yum.repos.d/systembuilder.repo</entry>
+            <entry>The <command>systembuilder</command> command.</entry>
+          </row>
 
-              <entry>Repository base URLs for <application
-              class="software">SystemBuilder</application> hosted by Rendition
-              Software.</entry>
-            </row>
+          <row>
+            <entry>/usr/lib/python<varname>$version</varname>/site-packages/systembuilder</entry>
 
-            <row>
-              <entry>/usr/bin/systembuilder</entry>
+            <entrytbl cols="1">
+              <tbody>
+                <row>
+                  <entry>Python code for <application
+                  class="software">SystemBuilder</application>, where
+                  <varname>$version</varname> is the <application
+                  class="software">Python</application> version.</entry>
+                </row>
+              </tbody>
+            </entrytbl>
+          </row>
 
-              <entry>The <command>systembuilder</command> command.</entry>
-            </row>
+          <row>
+            <entry>/usr/share/doc/systembuilder-<varname>$version</varname></entry>
 
-            <row>
-              <entry>/usr/lib/python<varname>$version</varname>/site-packages/systembuilder</entry>
+            <entry>Documentation for <application
+            class="software">SystemBuilder</application>, where
+            <varname>$version</varname> is the <application
+            class="software">SystemBuilder</application> version.</entry>
+          </row>
 
-              <entrytbl cols="1">
-                <tbody>
-                  <row>
-                    <entry>Python code for <application
-                    class="software">SystemBuilder</application>, where
-                    <varname>$version</varname> is the <application
-                    class="software">Python</application> version.</entry>
-                  </row>
-                </tbody>
-              </entrytbl>
-            </row>
+          <row>
+            <entry>/usr/share/systembuilder/schemas</entry>
 
-            <row>
-              <entry>/usr/share/doc/systembuilder-<varname>$version</varname></entry>
+            <entry>Relax NG schemas for distribution definition file validation.
+            </entry>
+          </row>
+          <row>
+            <entry>/var/cache/systembuilder/</entry>
 
-              <entry>Documentation for <application
-              class="software">SystemBuilder</application>, where
-              <varname>$version</varname> is the <application
-              class="software">SystemBuilder</application> version.</entry>
-            </row>
+            <entry>SystemBuilder stores cached content in this folder. See
+            the systembuilder and systembuilder.conf man pages for cache-related
+            options.
+            </entry>
+          </row>
 
-            <row>
-              <entry>/usr/share/systembuilder/schemas</entry>
+          <row>
+            <entry>/var/log/systembuilder.log</entry>
 
-              <entry>Relax NG schemas for distribution definition file validation.
-              </entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table></para>
-  </section>
+            <entry>SystemBuilder's default log file.</entry>
+          </row>
 
-  <section>
-    <title>SystemBuilder's default system distribution structure</title>
+          <row>
+            <entry>/var/www/html/distributions/</entry>
 
-    <para>One strength of <application class="software">SystemBuilder
-    </application> is that with a minimal distribution definition you can create a
-    system distribution with a base OS and architecture and the
-    desired applications. To accomplish this, <application
-    class="software">SystemBuilder</application> relies on several default
-    settings on the build system, noted in the table below. The variable
-    <varname>$DISTRIBUTIONID</varname> is the system distribution's identifier,
-    consisting of the name, version and architecture of the distribution as
-    specified in the <emphasis>main</emphasis> top-level element. The variable
-    <varname>$SYSTEMDEFINITION</varname> is the name of your distribution definition
-    file without the file extension, e.g. 
-    <filename class="extension">.xml</filename>.</para>
+            <entry>SystemBuilder publishes completed distributions to  
+            this folder by default. An alternative location can be specified on
+            a per distribution basis within a distribution definition file.
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table></para>
 
-    <para><table>
-        <title>Default Folders and Files SystemBuilder Generates on the Build
-        System and Download Server</title>
-
-        <tgroup cols="2">
-          <tbody>
-            <row>
-              <entry><varname>$SYSTEMDEFINITION</varname>.dat</entry>
-
-              <entry>Distribution data file. Used by SystemBuilder to manage the
-              distribution's RPM release numbers. This file should be version
-              controlled.</entry>
-            </row>
-
-            <row>
-              <entry>/var/cache/systembuilder/.cache</entry>
-
-              <entry>Shared download cache.</entry>
-            </row>
-
-            <row>
-              <entry>/var/cache/systembuilder/<varname>$DISTRIBUTIONID</varname>/</entry>
-
-              <entry>Cache for your distribution's build.</entry>
-            </row>
-
-            <row>
-              <entry>/var/log/systembuilder.log</entry>
-
-              <entry>SystemBuilder's default log file.</entry>
-            </row>
-
-            <row>
-              <entry>/var/www/html/distributions/<varname>$DISTRIBUTIONID/</varname></entry>
-
-              <entry>Directory to which SystemBuilder publishes a distribution.
-              </entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table></para>
-
-    <para>Another strength of <application
-    class="software">SystemBuilder</application>'s is its use of a cache to increase
-    the build speed, noted in the table above. After the initial build, when
-    SystemBuilder downloads all the necessary packages, subsequent builds take a
-    fraction of the time because SystemBuilder relies on the cached RPM contents and
-    only looks for changes.</para>
-  </section>
 </section>
