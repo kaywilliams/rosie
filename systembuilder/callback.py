@@ -63,7 +63,7 @@ class LinkCallback(_SyncCallbackMetered):
     self.logger.log(4, L2(fn), format='%(message).75s')
 
   def rmdir_start(self):
-    self.logger.log(4, L1("removing empty directories"))
+    self.logger.log(4, L1("removing directories"))
 
   def rmdir(self, dn):
     if dn.isabs():
