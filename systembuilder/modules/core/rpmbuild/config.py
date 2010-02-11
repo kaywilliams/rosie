@@ -76,9 +76,6 @@ class ConfigEvent(RpmBuildMixin, Event):
   def setup(self):
     self.rpm.setup_build()
 
-    self.scriptdir.mkdirs()
-    self.filedir.mkdirs()
-
     # add all scripts as input so if they change, we rerun
     for script in self.config.xpath('script',  []) + \
                   self.config.xpath('trigger', []):
@@ -113,6 +110,9 @@ class ConfigEvent(RpmBuildMixin, Event):
       self.DATA['variables'].append('cvars[\'repos\']')
 
   def generate(self):
+    self.scriptdir.mkdirs()
+    self.filedir.mkdirs()
+
     self._generate_repofile()
     if self.config.getbool('updates/@strict', True):
       self._include_sync_plugin()
