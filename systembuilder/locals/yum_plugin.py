@@ -95,10 +95,10 @@ L_YUM_PLUGIN = {
   "CentOS": LocalsDict({
     '0': PLUGIN_DEFAULTS,
   }),
-  "Fedora": LocalsDict({
+  "Fedora Core": LocalsDict({
     '0': PLUGIN_DEFAULTS,
   }),
-  "RedHat": LocalsDict({
+  "Red Hat Enterprise Linux Server": LocalsDict({
     '0': PLUGIN_DEFAULTS,
   }),
 }
