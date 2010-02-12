@@ -42,12 +42,10 @@ class LocalsObject:
   L_KICKSTART         = property(lambda self: L_KICKSTART[self.anaconda_ver])
   L_LOGOS             = property(lambda self: L_LOGOS[self.anaconda_ver])
   L_INSTALLCLASS      = property(lambda self: L_INSTALLCLASS[self.anaconda_ver])
-  L_RELEASE_HTML      = property(lambda self: L_RELEASE_HTML[self.anaconda_ver])
   L_GDM_CUSTOM_THEME  = property(lambda self: L_GDM_CUSTOM_THEME[self.anaconda_ver])
 
   # createrepo-version based
   L_CREATEREPO        = property(lambda self: L_CREATEREPO[self.createrepo_ver])
 
   # input distribution and version based
-  L_LOGOS_RPM_APPLIANCE_INFO = property(lambda self: L_LOGOS_RPM_APPLIANCE_INFO[self.base_name][self.base_ver])
   L_YUM_PLUGIN               = property(lambda self: L_YUM_PLUGIN[self.base_name][self.base_ver])
