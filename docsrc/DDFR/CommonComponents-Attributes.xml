@@ -3,7 +3,7 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="CommonComponents-Attributes">
 
-  <section id="config-rpm-content"
+  <section id="config-content"
            xreflabel="content">
     <title>
     Attribute: content
@@ -16,9 +16,9 @@
 
       <para>
       A common attribute occurring in the
-      <emphasis>config-rpm/files</emphasis>,
-      <emphasis>config-rpm/script</emphasis>, and
-      <emphasis>config-rpm/trigger</emphasis>
+      <emphasis>config/files</emphasis>,
+      <emphasis>config/script</emphasis>, and
+      <emphasis>config/trigger</emphasis>
       sub-elements, the <emphasis>@content</emphasis> attribute accepts
       either "filename" or "raw".  When <emphasis>content</emphasis> is
       "filename", the element's text value is treated as a
@@ -35,9 +35,9 @@
       </title>
 
       <para>
-      <emphasis><xref linkend="config-rpm-files" /></emphasis>,
-      <emphasis><xref linkend="config-rpm-script" /></emphasis>,
-      <emphasis><xref linkend="config-rpm-trigger" /></emphasis>
+      <emphasis><xref linkend="config-files" /></emphasis>,
+      <emphasis><xref linkend="config-script" /></emphasis>,
+      <emphasis><xref linkend="config-trigger" /></emphasis>
       </para>
     </section>
   </section>
@@ -98,7 +98,7 @@
       <para>
       <emphasis><xref linkend="destname" /></emphasis>,
       <varname><xref linkend="content-path" /></varname>,
-      <xref linkend="path-like-elements" />
+      <xref linkend="path-like-element" />
       </para>
     </section>
   </section>
@@ -154,7 +154,7 @@
       <para>
       <emphasis><xref linkend="destdir" /></emphasis>,
       <varname><xref linkend="content-path" /></varname>,
-      <xref linkend="path-like-elements" />
+      <xref linkend="path-like-element" />
       </para>
     </section>
   </section>
@@ -249,7 +249,7 @@
 
       <para>
       <varname><xref linkend="content-mode" /></varname>,
-      <xref linkend="path-like-elements" />
+      <xref linkend="path-like-element" />
       </para>
     </section>
   </section>

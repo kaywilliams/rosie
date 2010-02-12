@@ -108,7 +108,7 @@
     <varname><xref linkend="content-boolean" /></varname>,
     <varname><xref linkend="content-text" /></varname>,
     <emphasis><xref linkend="boot-args" /></emphasis>,
-    <xref linkend="path-like-elements" />
+    <xref linkend="path-like-element" />
     </para>
   </section>
 </section>

@@ -242,16 +242,16 @@
       <para>
       <varname><xref linkend="content-capability" /></varname>,
       <emphasis><xref linkend="requires" /></emphasis>,
-      <emphasis role="strong"><xref linkend="config-rpm" /></emphasis>,
+      <emphasis role="strong"><xref linkend="config" /></emphasis>,
       </para>
     </section>
   </section>
 
 
-  <section id="path-like-elements"
-           xreflabel="PATH-like Elements">
+  <section id="path-like-element"
+           xreflabel="PATH-like Element">
     <title>
-    Element: <varname>PATH</varname>-like Elements
+    Element: <varname>PATH</varname>-like Element
     </title>
 
     <section>
@@ -425,7 +425,7 @@ $root/var/www/html/outfile.txt
       <para>
       <varname><xref linkend="content-capability" /></varname>,
       <emphasis><xref linkend="obsoletes" /></emphasis>,
-      <emphasis role="strong"><xref linkend="config-rpm" /></emphasis>,
+      <emphasis role="strong"><xref linkend="config" /></emphasis>,
       </para>
     </section>
   </section>

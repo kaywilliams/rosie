@@ -124,7 +124,7 @@
     <para>
     <varname><xref linkend="content-boolean" /></varname>,
     <varname><xref linkend="content-path" /></varname>,
-    <xref linkend="path-like-elements" />
+    <xref linkend="path-like-element" />
     </para>
   </section>
 </section>

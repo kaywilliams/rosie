@@ -27,7 +27,7 @@
 
       <para>
       <varname><xref linkend="content-dirname" /></varname>,
-      <xref linkend="path-like-elements" />
+      <xref linkend="path-like-element" />
       </para>
     </section>
   </section>
@@ -192,7 +192,7 @@ config(bash) = 3.2-20.fc9
 
       <para>
       <varname><xref linkend="content-basename" /></varname>,
-      <xref linkend="path-like-elements" />
+      <xref linkend="path-like-element" />
       </para>
     </section>
   </section>
@@ -425,7 +425,7 @@ https://myuser:mypassword@www.example.com:443/secure/directory/file
       <para>
       <varname><xref linkend="content-basename" /></varname>,
       <varname><xref linkend="content-dirname" /></varname>,
-      <xref linkend="path-like-elements" />
+      <xref linkend="path-like-element" />
       </para>
     </section>
   </section>
