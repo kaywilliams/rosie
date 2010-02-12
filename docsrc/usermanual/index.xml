@@ -33,6 +33,9 @@
   <xi:include href="part1-ch2.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
+  <xi:include href="part1-ch3.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+
   <xi:include href="part2-ch1.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 

@@ -6,12 +6,12 @@
 
   <para>Scripts and triggers enable you to control your client's environment
   to a great degree. To include these in your distribution, use the
-  <emphasis>config-rpm</emphasis> element in your
+  <emphasis>config</emphasis> element in your
   <filename>samba-server.distribution</filename> file.</para>
 
   <para>The program that installs RPMs on the client machine
   actually runs scripts depending upon one of several possible situations. Include
-  these scripts using <emphasis>config-rpm/scripts</emphasis> in your
+  these scripts using <emphasis>config/scripts</emphasis> in your
   distribution definition file. Commonly referred to by their installation script
   markers in an RPM spec file, the scripts execute prior to or following
   installation or uninstallation. See Section 9.4.4 "Defining installation
@@ -26,7 +26,7 @@
   <ulink url="http://docs.fedoraproject.org/drafts/rpm-guide-en/">RPM
   Guide</ulink> by Eric Foster-Johnson for a discussion of the trigger options
   and their implications. To activate these trigger options using SystemBuilder,
-  include them with the <emphasis>config-rpm/trigger</emphasis> element of
+  include them with the <emphasis>config/trigger</emphasis> element of
   your distribution definition file.</para>
 
   <para>In the example below, the <emphasis>/script</emphasis> element directs
@@ -75,6 +75,6 @@ else
 fi </programlisting>
     </informalexample></para>
 
-  <para>Include both of these examples in the <emphasis>config-rpm</emphasis>
+  <para>Include both of these examples in the <emphasis>config</emphasis>
   element of your <filename>samba-server.distribution</filename>. </para>
 </section>

@@ -6,7 +6,7 @@
 
   <para>In this part, you will learn how to update your distribution 
   with some common server administration components using two different methods.
-  These  updates require changes to the <emphasis>config-rpm</emphasis> and
+  These  updates require changes to the <emphasis>config</emphasis> and
   <emphasis>packages</emphasis> elements already in place in your
   <filename>samba-server.distribution</filename> file.</para>
 

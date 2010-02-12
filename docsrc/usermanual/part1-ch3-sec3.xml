@@ -96,7 +96,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
     will update all packages on the client machine from the download server,
     including the system-specific config RPM created by SystemBuilder.
     For more information what the config RPM contains and how to customize
-    its contents, see the section on <emphasis>config-rpm</emphasis> in the
+    its contents, see the section on <emphasis>config</emphasis> in the
     Distribution Definition File Reference. </para>
 
     <para>To see what changed on the client machine, check the

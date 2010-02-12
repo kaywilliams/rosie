@@ -1,87 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section>
-  <title>SystemBuilder Files and Folders</title>
+<section id="configuring-a-build-machine" xreflabel="Configuring a Build Machine">
+  <title>Configuring a Build Machine</title>
 
-  <para><application class="software">SystemBuilder</application> has several
-  key files and folders, listed in the table below.</para>
+  <para><application class="software">SystemBuilder</application> is designed to work
+  in a networked environment. You can install <application
+  class="software">SystemBuilder</application> on a <application
+  class="software">Linux</application> system operating with <application
+  class="software">CentOS</application> 5 or <application class="software">Red
+  Hat Enterprise Linux</application> 5.</para>
 
-  <para><table>
-      <title>SystemBuilder Files and Folders</title>
+  <para>For capacity planning purposes, the machine should have a separate
+  logical or physical drive for the <filename
+  class="directory">/var</filename> directory. <application
+  class="software">SystemBuilder</application> uses the <filename
+  class="directory">/var/cache/systembuilder</filename> folder for caching 
+  distribution contents and the <filename 
+  class="directory">/var/www/html/distributions</filename> folder for storing
+  completed distributions. The recommended minimum drive space allocated for
+  each of these folders is 15GB (30GB total). Depending upon the number and size
+  of distributions created, you may need more disk space.</para>
 
-      <tgroup cols="2">
-        <tbody>
-          <row>
-            <entry>/etc/systembuilder/systembuilder.conf</entry>
+  <para>Disk access is another consideration. Due to the size of the files
+  handled, fast disk access is preferable. To accommodate the speed
+  requirements, it is best to use hard disk drives with Serial Advanced
+  Technology Attachment (SATA) interfaces.</para>
 
-            <entry><application>SystemBuilder</application> looks
-            for this file to locate systembuilder configuration. See the
-            systembuilder and systembuilder.conf man pages for more information.
-            This file is optional and does not exist in the default SystemBuilder
-            installation.</entry>
-          </row>
-          <row>
-            <entry>/usr/bin/systembuilder</entry>
+  <para>SystemBuilder makes it easy to test client machine installations and
+  updates over the network directly from the build server. To make use of this
+  feature, you will need to install and configure a web server.</para>
 
-            <entry>The <command>systembuilder</command> command.</entry>
-          </row>
+  <para>First, install and configure the Apache web server by completing the
+  following steps as the root user.</para>
 
-          <row>
-            <entry>/usr/lib/python<varname>$version</varname>/site-packages/systembuilder</entry>
+  <para><userinput># yum install httpd</userinput></para>
+  <para><userinput># service httpd start</userinput></para>
+  <para><userinput># chkconfig --level 3 httpd on</userinput></para>
 
-            <entrytbl cols="1">
-              <tbody>
-                <row>
-                  <entry>Python code for <application
-                  class="software">SystemBuilder</application>, where
-                  <varname>$version</varname> is the <application
-                  class="software">Python</application> version.</entry>
-                </row>
-              </tbody>
-            </entrytbl>
-          </row>
+  <para>Next, modify your firewall configuration, if needed, to allow 
+  www/http traffic (port 80) using the command below as the root user.</para>
 
-          <row>
-            <entry>/usr/share/doc/systembuilder-<varname>$version</varname></entry>
+  <para><userinput># system-config-securitylevel</userinput></para>
 
-            <entry>Documentation for <application
-            class="software">SystemBuilder</application>, where
-            <varname>$version</varname> is the <application
-            class="software">SystemBuilder</application> version.</entry>
-          </row>
-
-          <row>
-            <entry>/usr/share/systembuilder/schemas</entry>
-
-            <entry>Relax NG schemas for distribution definition file validation.
-            </entry>
-          </row>
-          <row>
-            <entry>/var/cache/systembuilder/</entry>
-
-            <entry>SystemBuilder stores cached content in this folder. See
-            the systembuilder and systembuilder.conf man pages for cache-related
-            options.
-            </entry>
-          </row>
-
-          <row>
-            <entry>/var/log/systembuilder.log</entry>
-
-            <entry>SystemBuilder's default log file.</entry>
-          </row>
-
-          <row>
-            <entry>/var/www/html/distributions/</entry>
-
-            <entry>SystemBuilder publishes completed distributions to  
-            this folder by default. An alternative location can be specified on
-            a per distribution basis within a distribution definition file.
-            </entry>
-          </row>
-        </tbody>
-      </tgroup>
-    </table></para>
-
+  <para>Now you are ready to begin defining your distribution!</para>
 </section>

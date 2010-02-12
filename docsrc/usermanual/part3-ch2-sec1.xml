@@ -9,7 +9,7 @@
   conjunction with the <command>yum</command> <option>update</option> command
   option. One method uses the <emphasis>packages</emphasis> element, which 
   addresses the distribution repository only, while the other uses 
-  <emphasis>config-rpm</emphasis>, which affects changes within the 
+  <emphasis>config</emphasis>, which affects changes within the 
   distribution repository and on the installed client machine.</para>
 
   <para>Regarding updates, if you add a package to your distribution using
@@ -17,7 +17,7 @@
   <filename>samba-server.distribution</filename> file, <command>yum</command>
   <option>update</option> will include the package in the distribution
   repository, which is available for installation. If you add a new package
-  using <emphasis>config-rpm/requires</emphasis>, <command>yum</command>
+  using <emphasis>config/requires</emphasis>, <command>yum</command>
   <option>update</option> will include the package in the distribution 
   repository <emphasis role="strong">and</emphasis> install it on the client
   system.</para>
@@ -26,20 +26,20 @@
   <emphasis>packages/exclude</emphasis>, <command>yum</command>
   <option>update</option> will remove the package from the distribution
   repository but not from the installed client machine. If you use
-  <emphasis>config-rpm/obsoletes</emphasis>, <command>yum</command>
+  <emphasis>config/obsoletes</emphasis>, <command>yum</command>
   <option>update</option> will remove the package from the distribution
   repository <emphasis role="strong">and</emphasis> the installed client
   system. </para>
 
   <para>Remember that the <emphasis>packages</emphasis> element installs package
-  groups, while the <emphasis>config-rpm</emphasis> element installs
+  groups, while the <emphasis>config</emphasis> element installs
   packages.</para>
 
   <para>In the example below, you can include two common system administration
   and network connectivity components: an FTP server and editors. The
   <emphasis>packages</emphasis> element includes the two common groups, which
   will
-  be available for installation, while the <emphasis>config-rpm</emphasis>
+  be available for installation, while the <emphasis>config</emphasis>
   installs associated RPMs on the client machine, as well. Insert the following
   two lines within the <emphasis>packages</emphasis> element in your
   <filename>samba-server.distribution</filename> file.</para>
@@ -47,7 +47,7 @@
   <para><informalexample>
       <programlisting>&lt;group&gt;ftp-server&lt;/group&gt;
 &lt;group&gt;editors&lt;/group&gt;</programlisting>
-    </informalexample>And within the <emphasis>config-rpm</emphasis> element in
+    </informalexample>And within the <emphasis>config</emphasis> element in
   your <filename>samba-server.distribution</filename> file, insert these lines to
   automatically include them on the client machine.</para>
 

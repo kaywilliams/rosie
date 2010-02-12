@@ -30,7 +30,7 @@ repos
    - updates
 base-info
  * reading buildstamp file from base repository
-config-rpm
+config
  * downloading files
    - smb.conf                [=========================]     0.0  B (00:00)
  * building samba-server-config-5-1.noarch.rpm
@@ -45,7 +45,7 @@ depsolve
    - updates
 base-info
  * reading buildstamp file from base repository
-config-rpm
+config
  * downloading files
    - smb.conf                [=========================]     0.0  B (00:00)
  * building samba-server-config-5-1.noarch.rpm

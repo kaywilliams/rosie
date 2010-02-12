@@ -152,7 +152,7 @@
 
   <para>To build the distribution definition file,
   you will also have to change the path to the <filename>smb.conf</filename>
-  file in <emphasis>config-rpm/file</emphasis>.</para>
+  file in <emphasis>config/file</emphasis>.</para>
 
   <para>The result is an object-oriented distribution definition file that will
   reduce your maintenance overhead.</para>

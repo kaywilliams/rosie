@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section>
+  <title>SystemBuilder Files and Folders</title>
+
+  <para><application class="software">SystemBuilder</application> has several
+  key files and folders, listed in the table below.</para>
+
+  <para><table>
+      <title>SystemBuilder Files and Folders</title>
+
+      <tgroup cols="2">
+        <tbody>
+          <row>
+            <entry>/etc/systembuilder/systembuilder.conf</entry>
+
+            <entry><application>SystemBuilder</application> looks
+            for this file to locate systembuilder configuration. See the
+            systembuilder and systembuilder.conf man pages for more information.
+            This file is optional and does not exist in the default SystemBuilder
+            installation.</entry>
+          </row>
+          <row>
+            <entry>/usr/bin/systembuilder</entry>
+
+            <entry>The <command>systembuilder</command> command.</entry>
+          </row>
+
+          <row>
+            <entry>/usr/lib/python<varname>$version</varname>/site-packages/systembuilder</entry>
+
+            <entrytbl cols="1">
+              <tbody>
+                <row>
+                  <entry>Python code for <application
+                  class="software">SystemBuilder</application>, where
+                  <varname>$version</varname> is the <application
+                  class="software">Python</application> version.</entry>
+                </row>
+              </tbody>
+            </entrytbl>
+          </row>
+
+          <row>
+            <entry>/usr/share/doc/systembuilder-<varname>$version</varname></entry>
+
+            <entry>Documentation for <application
+            class="software">SystemBuilder</application>, where
+            <varname>$version</varname> is the <application
+            class="software">SystemBuilder</application> version.</entry>
+          </row>
+
+          <row>
+            <entry>/usr/share/systembuilder/schemas</entry>
+
+            <entry>Relax NG schemas for distribution definition file validation.
+            </entry>
+          </row>
+          <row>
+            <entry>/var/cache/systembuilder/</entry>
+
+            <entry>SystemBuilder stores cached content in this folder. See
+            the systembuilder and systembuilder.conf man pages for cache-related
+            options.
+            </entry>
+          </row>
+
+          <row>
+            <entry>/var/log/systembuilder.log</entry>
+
+            <entry>SystemBuilder's default log file.</entry>
+          </row>
+
+          <row>
+            <entry>/var/www/html/distributions/</entry>
+
+            <entry>SystemBuilder publishes completed distributions to  
+            this folder by default. An alternative location can be specified on
+            a per distribution basis within a distribution definition file.
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table></para>
+
+</section>

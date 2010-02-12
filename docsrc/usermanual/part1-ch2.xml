@@ -2,7 +2,29 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <chapter>
-  <title>Building a Distribution</title>
+  <title>Defining a Distribution</title>
+
+  <para>To define your Samba distribution, you will need to do the following:</para>
+
+  <para><itemizedlist>
+      <listitem>
+        <para>Define some basic system information;</para>
+      </listitem>
+
+      <listitem>
+        <para>Select the repositories from which to download the operating
+        system, the Samba RPMs and any dependency files;</para>
+      </listitem>
+
+      <listitem>
+        <para>Define the application groups and packages to include with the
+        operating system; and</para>
+      </listitem>
+
+      <listitem>
+        <para>Provide configuration information.</para>
+      </listitem>
+    </itemizedlist></para>
 
   <xi:include href="part1-ch2-sec1.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
@@ -22,6 +44,4 @@
   <xi:include href="part1-ch2-sec6.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-  <xi:include href="part1-ch2-sec7.xml" xpointer="element(/1)"
-              xmlns:xi="http://www.w3.org/2001/XInclude" />
 </chapter>
