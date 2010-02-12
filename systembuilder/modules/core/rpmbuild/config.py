@@ -114,7 +114,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     self.filedir.mkdirs()
 
     self._generate_repofile()
-    if self.config.getbool('updates/@strict', True):
+    if self.config.getbool('updates/@sync', True):
       self._include_sync_plugin()
     self.io.sync_input(cache=True)
 

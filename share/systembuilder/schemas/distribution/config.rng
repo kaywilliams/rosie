@@ -14,7 +14,7 @@
         <optional>
         <element name="updates">
           <optional>
-          <attribute name="strict"><ref name="value-boolean"/></attribute>
+          <attribute name="sync"><ref name="value-boolean"/></attribute>
           </optional>
           <optional>
           <attribute name="repos">
