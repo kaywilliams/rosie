@@ -87,7 +87,7 @@
     <attribute name="content">
       <choice>
       <value type="string">filename</value>
-      <value type="string">raw</value>
+      <value type="string">text</value>
       </choice>
     </attribute>
     </optional>

@@ -42,12 +42,12 @@
   [&lt;updates [sync=BOOLEAN] [repos=("master"|"all")] /&gt;
 
   [&lt;files [destdir=PATH] [destname=BASENAME] [mode=MODE]
-          [content=("filename"|"raw")&gt;
+          [content=("filename"|"text")&gt;
     (PATH|TEXT)
    &lt;/files&gt;]*
 
   [&lt;script type=("post"|"pre"|"preun"|"postun"|"verifyscript")
-          [content=("filename"|"raw")]&gt;
+          [content=("filename"|"text")]&gt;
     (PATH|TEXT)
    &lt;/script&gt;]*
 
@@ -55,7 +55,7 @@
   [&lt;requires&gt;CAPABILITY&lt;/requires&gt;]*
 
   [&lt;trigger package=CAPABILITY type=("triggerin"|"triggerun"|"triggerpostun")
-           [content=("filename"|"raw")] [interpreter=PATH]&gt;
+           [content=("filename"|"text")] [interpreter=PATH]&gt;
     (PATH|TEXT)
    &lt;/trigger&gt;]*
 &lt;/config&gt;
@@ -172,7 +172,7 @@
       <para>
       <emphasis>@destname</emphasis>: See the path-like attribute
       <emphasis><xref linkend="destname" /></emphasis>. If
-      <emphasis>@content</emphasis> is "raw", this attribute is required.
+      <emphasis>@content</emphasis> is "text", this attribute is required.
       </para>
 
       <para>
@@ -315,7 +315,7 @@
   &lt;/files&gt;
 
   &lt;!-- create /etc/hosts using the supplied text --&gt;
-  &lt;files destdir="/etc" destname="hosts" content="raw"&gt;
+  &lt;files destdir="/etc" destname="hosts" content="text"&gt;
 # Do not remove the following line, or various programs
 # that require network functionality will fail.
 127.0.0.1   localhost.localdomain localhost
@@ -330,7 +330,7 @@
   &lt;requires&gt;samba-common&lt;/requires&gt;
 
   &lt;!-- add a RPM %post script --&gt;
-  &lt;script type="post" content="raw"&gt;
+  &lt;script type="post" content="text"&gt;
 /sbin/chkconfig samba on
   &lt;/script&gt;
 

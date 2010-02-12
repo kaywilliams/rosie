@@ -20,10 +20,10 @@
       <emphasis>config/script</emphasis>, and
       <emphasis>config/trigger</emphasis>
       sub-elements, the <emphasis>@content</emphasis> attribute accepts
-      either "filename" or "raw".  When <emphasis>content</emphasis> is
+      either "filename" or "text".  When <emphasis>content</emphasis> is
       "filename", the element's text value is treated as a
-      <varname>PATH</varname> to a file, whereas when it is "raw", the
-      element's text value is interpreted as the raw text a file to use.
+      <varname>PATH</varname> to a file, whereas when it is "text", the
+      element's text value is interpreted as the raw text to use.
       Unless otherwise specified, the default value for
       <emphasis>content</emphasis> is "filename".
       </para>

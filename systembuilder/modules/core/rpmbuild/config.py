@@ -66,26 +66,30 @@ class ConfigEvent(RpmBuildMixin, Event):
 
   def validate(self):
     for file in self.config.xpath('file', []):
-      # if using raw output mode, a destname must be specified; otherwise,
+      # if using text mode, a destname must be specified; otherwise,
       # we don't know what to name the file
       if file.get('@content', None) and not file.get('@destname', None):
         raise InvalidConfigError(self.config.getroot().file,
-          "'raw' content type specified without accompanying 'destname' "
+          "'text' content type specified without accompanying 'destname' "
           "attribute:\n %s" % file)
 
   def setup(self):
     self.rpm.setup_build()
 
+
     # add all scripts as input so if they change, we rerun
     for script in self.config.xpath('script',  []) + \
                   self.config.xpath('trigger', []):
-      if script.get('@content', 'filename') != 'raw':
+      if script.get('@content', 'filename') != 'text':
         self.DATA['input'].append(script.text)
 
+    # TODO move to run function?
+    self.scriptdir.mkdirs()
+    self.filedir.mkdirs()
     for file in self.config.xpath('files', []):
       text = file.text
-      if file.get('@content', 'filename') == 'raw':
-        # if the content is 'raw', write the raw string to a file and set
+      if file.get('@content', 'filename') == 'text':
+        # if the content is 'text', write the string to a file and set
         # text to that value
         fn = self.filedir/file.get('@destname')
         if not fn.exists() or fn.md5sum() != md5.new(text).hexdigest():
@@ -110,9 +114,6 @@ class ConfigEvent(RpmBuildMixin, Event):
       self.DATA['variables'].append('cvars[\'repos\']')
 
   def generate(self):
-    self.scriptdir.mkdirs()
-    self.filedir.mkdirs()
-
     self._generate_repofile()
     if self.config.getbool('updates/@sync', True):
       self._include_sync_plugin()
@@ -198,8 +199,8 @@ class ConfigEvent(RpmBuildMixin, Event):
       inter = elem.get('@interpreter', None)
       text  = elem.get('text()', None)
 
-      if elem.get('@content', 'filename') == 'raw':
-        # if the content is 'raw', write the raw string to a file and set
+      if elem.get('@content', 'filename') == 'text':
+        # if the content is 'text', write the string to a file and set
         # text to that value
         script = self.scriptdir/'triggerin-%s' % key
         if not text.endswith('\n'): text += '\n' # make sure it ends in a newline
@@ -288,7 +289,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     scripts = []
 
     for elem in self.config.xpath('script[@type="%s"]' % script_type, []):
-      if elem.get('@content', 'filename') == 'raw':
+      if elem.get('@content', 'filename') == 'text':
         scripts.append(elem.text)
       else:
         scripts.append(self.io.abspath(elem.text))
