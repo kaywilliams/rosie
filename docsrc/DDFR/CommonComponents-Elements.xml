@@ -261,15 +261,16 @@
 
       <para>
       <varname>PATH</varname>-like elements generally are used to copy an
-      input file to some other location, such as within a disk image,
+      input file or folder to some other location, such as within a disk image,
       into a RPM in order to be installed to a specific location on client
       systems, or into a folder within the distribution tree itself.
       A <varname>PATH</varname>-like element's text value is the
-      <varname>PATH</varname> to some file <varname>$input</varname> to use,
-      while the <emphasis>@destdir</emphasis>,
+      <varname>PATH</varname> to some file or folder <varname>$input</varname>
+      to use, while the <emphasis>@destdir</emphasis>,
       <emphasis>@destname</emphasis>, and <emphasis>@mode</emphasis>
       attributes control the location, filename, and mode of the destination
-      file.
+      file. In the case of a folder, the mode is applied to all files within
+      the folder and any subfolders.
       </para>
 
       <para>
@@ -290,7 +291,7 @@
       </title>
 
       <para>
-      <varname>PATH</varname>-like element have two important properties
+      <varname>PATH</varname>-like elements have two important properties
       when determining the final destination of the
       <varname>$input</varname>. The first, <varname>$root</varname>
       may be an absolute path on the build system or a specific disk image.

@@ -3,46 +3,6 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="CommonComponents-Attributes">
 
-  <section id="config-content"
-           xreflabel="content">
-    <title>
-    Attribute: content
-    </title>
-
-    <section>
-      <title>
-      Definition
-      </title>
-
-      <para>
-      A common attribute occurring in the
-      <emphasis>config/files</emphasis>,
-      <emphasis>config/script</emphasis>, and
-      <emphasis>config/trigger</emphasis>
-      sub-elements, the <emphasis>@content</emphasis> attribute accepts
-      either "filename" or "text".  When <emphasis>content</emphasis> is
-      "filename", the element's text value is treated as a
-      <varname>PATH</varname> to a file, whereas when it is "text", the
-      element's text value is interpreted as the raw text to use.
-      Unless otherwise specified, the default value for
-      <emphasis>content</emphasis> is "filename".
-      </para>
-    </section>
-
-    <section>
-      <title>
-      See Also
-      </title>
-
-      <para>
-      <emphasis><xref linkend="config-files" /></emphasis>,
-      <emphasis><xref linkend="config-script" /></emphasis>,
-      <emphasis><xref linkend="config-trigger" /></emphasis>
-      </para>
-    </section>
-  </section>
-
-
   <section id="destdir"
            xreflabel="@destdir">
     <title>

@@ -144,8 +144,8 @@
 
       <listitem>
       <para>
-      Specifies one or more files to install to the client system. Can occur 
-      zero or more times.
+      Specifies a file or folder containing files to install to the client
+      system. Can occur zero or more times.
       </para>
 
       <para>
@@ -157,8 +157,13 @@
       </para>
 
       <para>
-      <emphasis>@content</emphasis>: See Common Attribute
-      <emphasis><xref linkend="config-content" /></emphasis>.
+      <emphasis>@content</emphasis>: Accepts either "filename" or "text".  
+      When <emphasis>content</emphasis> is
+      "filename", the element's text value is treated as a
+      <varname>PATH</varname> to a file, whereas when it is "text", the
+      element's text value is interpreted as the raw text to use for creating
+      a file with the name specified using the @destname attribute.
+      The default value is "filename".
       </para>
 
       <para>
@@ -190,8 +195,8 @@
 
       <listitem>
       <para>
-      Specifies one or more scripts to run during RPM installation or removal. 
-      Can occur zero or more times.
+      Specifies a script to run during RPM installation or removal. Can occur
+      zero or more times.
       </para>
 
       <para>
@@ -201,8 +206,11 @@
       </para>
 
       <para>
-      <emphasis>@content</emphasis>: See Common Attribute
-      <xref linkend="config-content" />.
+      <emphasis>@content</emphasis>: Accepts either "filename" or "text".  
+      When <emphasis>content</emphasis> is "filename", the element's text value
+      is treated as a <varname>PATH</varname> to a file, whereas when it is
+      "text", the element's text value is interpreted as the raw text of the
+      script to execute. The default value is "filename".
       </para>
 
       <para>
@@ -253,8 +261,8 @@
 
       <listitem>
       <para>
-      Specifies one or more trigger scripts to run during RPM installation and
-      removal. Can occur zero or more times.
+      Specifies a script to run during RPM installation and removal. Can occur
+      zero or more times.
       </para>
 
       <para>
@@ -266,8 +274,11 @@
       </para>
 
       <para>
-      <emphasis>@content</emphasis>: See Common Attribute
-      <xref linkend="config-content" />.
+      <emphasis>@content</emphasis>: Accepts either "filename" or "text".  
+      When <emphasis>content</emphasis> is "filename", the element's text value
+      is treated as a <varname>PATH</varname> to a file, whereas when it is
+      "text", the element's text value is interpreted as the raw text of the
+      script to execute. The default value is "filename".
       </para>
 
       <para>
