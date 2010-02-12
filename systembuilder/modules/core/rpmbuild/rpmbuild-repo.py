@@ -40,6 +40,7 @@ class RpmbuildRepoEvent(Event):
       id = 'rpmbuild-repo',
       parentid = 'rpmbuild',
       version = 1,
+      suppress_run_message = True,
       conditionally_requires = ['rpmbuild-data'],
       provides = ['repos', 'source-repos',
                   'required-packages',
@@ -83,14 +84,14 @@ class RpmbuildRepoEvent(Event):
     self.io.clean_eventcache(all=True)
 
     # sync rpms
-    self.log(1, L1("copying packages"))
+    self.log(4, L1("copying packages"))
     if self.cvars['rpmbuild-data']:
       self.io.sync_input(link=True, what='rpmbuild-rpms',
                          text=self.log(4, L2("RPMS")))
       self.io.sync_input(link=True, what='rpmbuild-srpms',
                          text=self.log(4, L2("SRPMS")))
 
-    self.log(1, L1("running createrepo"))
+    self.log(4, L1("running createrepo"))
     if self.cvars['rpmbuild-data']:
       for repo in self.repos.values():
         self.log(4, L2(repo.id))
