@@ -101,4 +101,7 @@ L_YUM_PLUGIN = {
   "Red Hat Enterprise Linux Server": LocalsDict({
     '0': PLUGIN_DEFAULTS,
   }),
+  "Red Hat Enterprise Linux Client": LocalsDict({
+    '0': PLUGIN_DEFAULTS,
+  }),
 }
