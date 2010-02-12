@@ -140,14 +140,14 @@
 
 	  <para>
 	  The following example will disable the
-	  <emphasis role="strong">config-rpm</emphasis> top-level element
+	  <emphasis role="strong">config</emphasis> top-level element
 	  and associated code module:
 	  <programlisting>
-	&lt;config-rpm enabled="false" /&gt;
+	&lt;config enabled="false" /&gt;
 	  </programlisting>
 
 	  The entire <emphasis role="strong">rpmbuild</emphasis> module group,
-	  which includes <emphasis role="strong">config-rpm</emphasis>, is
+	  which includes <emphasis role="strong">config</emphasis>, is
 	  disabled like in the following example:
 
 	  <programlisting>

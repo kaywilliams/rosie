@@ -10,7 +10,7 @@
   <xi:include href="TopLevelElements-bootiso.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="TopLevelElements-config-rpm.xml"
+  <xi:include href="TopLevelElements-config.xml"
               xpointer="element(/1)" />
 
   <xi:include href="TopLevelElements-diskboot-image.xml"
