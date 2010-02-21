@@ -22,12 +22,12 @@ from sbtest.core     import make_core_suite
 from sbtest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
 
 class ConfigRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
-  moduleid = 'config-rpm'
-  eventid  = 'config-rpm'
-  _conf = """<config-rpm enabled="true">
+  moduleid = 'config'
+  eventid  = 'config'
+  _conf = """<config enabled="true">
     <requires>yum</requires>
     <requires>createrepo</requires>
-  </config-rpm>"""
+  </config>"""
 
 class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
   def __init__(self, distro, version, arch, conf=None):
@@ -41,7 +41,7 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
 
     self._add_config(
       """
-      <config-rpm enabled="true">
+      <config enabled="true">
         <files destdir="/etc/testdir">%(working-dir)s/file1</files>
         <files destdir="/etc/testdir" destname="filename">%(working-dir)s/file2</files>
         <script type="post">%(working-dir)s/script1</script>
@@ -52,7 +52,7 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
         <trigger package="bash" type="triggerin">%(working-dir)s/script1</trigger>
         <trigger package="bash" type="triggerun">%(working-dir)s/script1</trigger>
         <trigger package="python" type="triggerpostun" interpreter="/bin/python">%(working-dir)s/script1</trigger>
-      </config-rpm>
+      </config>
       """ % {'working-dir': self.working_dir})
 
   def setUp(self):
@@ -74,7 +74,7 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
     self.script2.rm(force=True)
 
   def runTest(self):
-    self.tb.dispatch.execute(until='config-rpm')
+    self.tb.dispatch.execute(until='config')
     self.check_inputs()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
@@ -85,7 +85,7 @@ class Test_ConfigRpmBuild(ConfigRpmEventTestCase):
     self.event.status = True
 
   def runTest(self):
-    self.tb.dispatch.execute(until='config-rpm')
+    self.tb.dispatch.execute(until='config')
     self.check_header()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
@@ -96,7 +96,7 @@ class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmEventTestCase):
     self.event.status = True
 
   def runTest(self):
-    self.tb.dispatch.execute(until='config-rpm')
+    self.tb.dispatch.execute(until='config')
     self.check_cvars()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
@@ -106,12 +106,12 @@ class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
     self.event.status = True
 
   def runTest(self):
-    self.tb.dispatch.execute(until='config-rpm')
+    self.tb.dispatch.execute(until='config')
     self.check_cvars()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
 def make_suite(distro, version, arch):
-  suite = ModuleTestSuite('config-rpm')
+  suite = ModuleTestSuite('config')
 
   suite.addTest(make_core_suite(ConfigRpmEventTestCase, distro, version, arch))
   suite.addTest(Test_ConfigRpmInputs(distro, version, arch))
