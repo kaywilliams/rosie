@@ -1,36 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section>
-  <title>Choosing a Use Case: A Samba Server</title>
+<section id="updating-client-machines" xreflabel="Updating Client Machines">
+  <title>Updating Client Machines</title>
 
-  <para>For the purpose of this user guide, examples, processes and
-  illustrations will focus on defining, building, deploying and updating a
-  <application class="software">Samba</application> server based on
-  <application class="software">CentOS 5</application>. Samba is a project of
-  the <ulink url="http://conservancy.softwarefreedom.org/">Software Freedom
-  Conservancy</ulink>. Samba is a key interoperability component in a blended
-  operating system environment. When installed on a Linux or Unix operating system, it enables that system
-  to act like a Windows file or print server, enabling Windows users to print
-  to or save files using it.</para>
+  <para>SystemBuilder makes it easy to keep previously installed client machines up to date with changes to the distribution. This is done using a <application type="software">YUM</application> plugin module, the <emphasis>sync</emphasis> plugin. SystemBuilder includes the <application class="software">sync plugin</application> by default in the <xref linkend="configuration-package" /></para>.  
 
-  <para>The discussions and code examples in this chapter and subsequent parts
-  focus on a Samba server based on CentOS 5 that enables print and file
-  services. In this chapter, the examples assume the server will be
-  installed via the network directly from the build machine. The DDFR provides
-  the syntax for all parent and child elements and their attributes.</para>
+  <mediaobject>
+    <imageobject>
+      <imagedata fileref="systembuilder_updates.png" />
+    </imageobject>
 
-  <para>Creating the <application class="software">Samba</application>
-  server distribution entails several process steps. After configuring the
-  <application class="software">SystemBuilder</application> build machine,
-  as described in the previous chapter, you need to create a distribution
-  definition file 
-  (<filename class="extension">samba-server.distribution</filename>). Then
-  you run <command>systembuilder</command> to validate the file, retrieve
-  the packages and build the distribution. From there you prepare the boot
-  media.</para>
+    <caption><para>SystemBuilder Update Model</para></caption>
+  </mediaobject>
 
-  <para>The next section will explain how to define the system
-  before you build it and prepare for deployment to a client
-  system.</para>
+  <para>The plugin performs two functions:</para>
+
+  <itemizedlist>
+  <listitem><para>Establishes the <xref linkend="distribution-repository"/> as the master repository for the client system. This disables all other default package repositories, allowing the plugin to get an accurate list of what packages <emphasis>should be installed</emphasis> on the system using packages available in the distribution repository.</para></listitem>
+
+  <listitem><para>Provides a new command line argument <emphasis>sync</emphasis> for use with YUM:</para>
+  <informalexample><para><command># yum sync</command></para></informalexample>
+	<para>The <emphasis>sync</emphasis> argument behaves similarly to the YUM <emphasis>update</emphasis> argument, with two additions: 1) it adds packages from the distribution repository that are not installed on the client, and 2) it removes packages from the client that do not exist in the repository.</para> 
+  </listitem>
+
+  </itemizedlist>
+
 </section>

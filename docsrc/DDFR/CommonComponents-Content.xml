@@ -318,9 +318,10 @@ kernel-0:2.4.1-10.i686
       <title>Definition</title>
 
       <para>
-      An absolute or relative local or remote path with globbing support.
-      Unless otherwise noted, <varname>PATH</varname> can refer to a file
-      or a folder, and may or may not exist.
+      An absolute or relative local or remote path. Relative paths are resolved
+      against the folder location of the distribution definition. Unless 
+      otherwise noted, <varname>PATH</varname> can refer to a file or a folder,
+      and may or may not exist.
       </para>
 
       <para>

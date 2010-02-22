@@ -51,7 +51,7 @@
     Instructions" and "Getting Started Guide" provide basic information about
     obtaining and installing SystemBuilder and creating a basic CentOS system
     distribution. The "Distribution Definition File Reference" (DDFR) contains
-    the syntax for distribution definition file elements and attributes. 
+    the syntax for distribution definition elements and attributes. 
     Finally, SystemBuilder has a set of 
     <emphasis role="strong">man pages</emphasis> explaining the
     <command>systembuilder</command> command, its options and the SystemBuilder
@@ -168,7 +168,7 @@
         <term><emphasis role="strong">Notes</emphasis></term>
 
         <listitem>
-          <para>Within definition file examples, the traditional XML comment
+          <para>Within distribution definition examples, the traditional XML comment
           tags "&lt;!--" and "--&gt;" contain notes. See Also <xref
           linkend="example" /> .</para>
 
@@ -177,7 +177,7 @@
 
           <para><note>
               <para>The top-level elements can be in any order in the
-              distribution definition file.</para>
+              distribution definition.</para>
             </note></para>
         </listitem>
       </varlistentry>

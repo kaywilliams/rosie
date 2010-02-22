@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section>
+<section id="using-scripts-and-triggers" xreflabel="Using Scripts and Triggers">
   <title>Using Scripts and Triggers</title>
 
   <para>Scripts and triggers enable you to control your client's environment
@@ -12,12 +12,16 @@
   <para>The program that installs RPMs on the client machine
   actually runs scripts depending upon one of several possible situations. Include
   these scripts using <emphasis>config/scripts</emphasis> in your
-  distribution definition file. Commonly referred to by their installation script
+  distribution definition. Commonly referred to by their installation script
   markers in an RPM spec file, the scripts execute prior to or following
   installation or uninstallation. See Section 9.4.4 "Defining installation
   scripts," in the Fedora Project's documentation, <ulink
   url="http://docs.fedoraproject.org/drafts/rpm-guide-en/">RPM Guide</ulink>
-  by Eric Foster-Johnson.</para>
+  by Eric Foster-Johnson. See also 
+  <ulink url="http://fedoraproject.org/wiki/Packaging/ScriptletSnippets">
+  Fedora Packaging ScriptletSnippets wiki page</ulink> and the 
+  <ulink url="http://www.rpm.org/max-rpm-snapshot/">Maximum RPM</ulink>book.
+  </para>
 
   <para>You can also use trigger events as in the RPM spec file. The
   installation program will run these scripts based upon various combinations
@@ -27,7 +31,7 @@
   Guide</ulink> by Eric Foster-Johnson for a discussion of the trigger options
   and their implications. To activate these trigger options using SystemBuilder,
   include them with the <emphasis>config/trigger</emphasis> element of
-  your distribution definition file.</para>
+  your distribution definition.</para>
 
   <para>In the example below, the <emphasis>/script</emphasis> element directs
   the installation program to execute the <filename>smb.script</filename> file

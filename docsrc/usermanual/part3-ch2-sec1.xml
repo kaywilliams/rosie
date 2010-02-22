@@ -4,7 +4,7 @@
 <section>
   <title>Updating a Distribution</title>
 
-  <para>Using your distribution definition file, there are two methods to change
+  <para>Using your distribution definition, there are two methods to change
   a distribution by adding or removing application packages in 
   conjunction with the <command>yum</command> <option>update</option> command
   option. One method uses the <emphasis>packages</emphasis> element, which 

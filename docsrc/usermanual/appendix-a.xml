@@ -4,6 +4,9 @@
 <chapter>
   <title>Appendix A</title>
 
+<section>
+  <title>Example SystemBuilder Output</title>
+
   <para>Following is an example of SystemBuilder output for a successful
   first build.</para>
 
@@ -138,5 +141,7 @@ publish
 Build complete at 2010-02-09 09:18:58
     </programlisting>
   </informalexample>
+
+</section>
     
 </chapter>

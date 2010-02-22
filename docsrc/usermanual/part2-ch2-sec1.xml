@@ -70,7 +70,7 @@
           <listitem>
             <para>During this phase you will work with the Development system
             (D). In addition to creating the
-            <filename>samba-server.distribution</filename> definition file, you
+            <filename>samba-server.distribution</filename> distribution definition, you
             will also create any configuration files necessary for the
             system to run properly, such as <filename>smb.conf</filename>.
             Essentially, you will complete the process described in "Defining

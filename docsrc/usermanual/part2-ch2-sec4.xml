@@ -44,7 +44,7 @@
   Critical considerations include whether you have a single LAN versus a
   separate DMZ, a download machine with multiple active interfaces, multiple
   active ports or secure login requirements. SystemBuilder handles all of these through
-  the distribution definition file, e.g.
+  the distribution definition, e.g.
   <filename>samba-server.distribution</filename>.</para>
 
   <para><variablelist>

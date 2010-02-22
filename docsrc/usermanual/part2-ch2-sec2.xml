@@ -21,14 +21,14 @@
   non-image files that should be. Within the <application
   class="software">SystemBuilder</application> infrastructure and distribution
   building process, candidates for revision control include configuration files,
-  distribution definition files and scripts, i.e. files that contain critical
+  distribution definitions and scripts, i.e. files that contain critical
   textual information that may change over time or are commonly used to define
   aspects of multiple distributions, such as common repositories or network
   configuration.</para>
 
   <para><itemizedlist>
       <listitem>
-        <para>distribution definition files,</para>
+        <para>distribution definitions,</para>
       </listitem>
 
       <listitem>
@@ -49,10 +49,10 @@
     </itemizedlist></para>
 
   <para>If you decide to not use a revision control system, you could rename
-  the distribution definition file or other key
+  the distribution definition or other key
   files every time you make a change to help you "version" your distribution.
   You can also enter comments in the files. Keep in mind that changing the name
-  of distribution definition file does not mean <application class="software">
+  of distribution definition does not mean <application class="software">
   SystemBuilder</application> will build a new distribution.
   As long as the <varname>$ID</varname> remains the same, the
   distribution remains the same.</para>

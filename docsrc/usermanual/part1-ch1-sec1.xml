@@ -5,10 +5,10 @@
   <title><application class="software">SystemBuilder</application> Overview
   </title>
 
-  <para>Automating the customization, installation and maintenance of CentOS and
-  Red Hat Enterprise Linux systems today requires costly and complex management
+  <para>Automating customization, installation and maintenance of Red Hat 
+  Enterprise Linux and CentOS systems today requires costly and complex management
   solutions. <application class="software">SystemBuilder</application> provides
-  a simple, reliable alternative. SystemBuilder packages 
+  a simple, standard, reliable alternative. SystemBuilder packages 
   user-specified content into standard operating system deployment bundles, or 
   <emphasis>distributions</emphasis>. System distributions can be used to
   deploy and maintain client machines, physical and virtual, in a wide range of
@@ -20,7 +20,7 @@
 
   <para><itemizedlist>
       <listitem>
-        <para>select an operating system (operating system),</para>
+        <para>select an operating system,</para>
       </listitem>
 
       <listitem>
@@ -48,7 +48,7 @@
       </listitem>
 
       <listitem>
-        <para>update existing clients using standard package update tools.</para>
+        <para>update existing clients using standard update tools.</para>
       </listitem>
     </itemizedlist></para>
 
@@ -57,18 +57,18 @@
       <imagedata fileref="systembuilder_overview.png" />
     </imageobject>
 
-    <caption><para>How SystemBuilder Works</para></caption>
+    <caption><para>SystemBuilder Overview</para></caption>
   </mediaobject>
 
   <para><application class="software">SystemBuilder</application> reads 
-  a distribution definition file, gathers various inputs (operating system, applications, 
-  configuration files, etc.), and creates a distribution 
-  with installation images and a package repository. Using the bootable media,
-  you can deploy the distribution to one or more client machines. You can 
+  a distribution definition, gathers various inputs (operating system, applications, 
+  and configuration files), and creates a distribution 
+  with installation images and a package repository. Using the installation
+  images, you can deploy the distribution to one or more client machines. You can 
   also update existing clients from the distribution package repository.
   </para>
 
-  <para>In summary, SystemBuilder is a production distribution life cycle manager
+  <para>In summary, SystemBuilder is a production system life cycle manager
   for use in defining, building and maintaining distributions that can
   be easily installed and updated on physical, virtual and cloud machines using
   industry standard deployment and update tools.</para>

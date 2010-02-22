@@ -7,15 +7,15 @@
   <para>To organize information better, the software development community
   commonly uses substitution methods. In the case of SystemBuilder, you can create and
   store content in one location and use XML Includes (XInclude) and XPaths 
-  to reuse content across definition files and condense large definition
+  to reuse content across distribution definitions and condense large definition
   files into more manageable and readable sections using an object-oriented
-  tree. Within that context, some components of a distribution definition file are
+  tree. Within that context, some components of a distribution definition are
   prime candidates for substitution and reuse.</para>
 
   <para>XInclude and XPointer do have limitations. Any documents that are
   XIncluded must be well-formed XML documents and not plain text files, such
   as HTML or a software program. Typically the definition components cannot
-  exist competently without the master definition file. References to portions
+  exist competently without the master distribution definition. References to portions
   of  included documents through XPointer must be well-formed XML. If any of the
   included components are missing, the entire definition will be invalid.
   Finally, in general using XPointer could increase CPU cycles and memory use;
@@ -47,7 +47,7 @@
 
   <para>To properly use the XInclude and XPointer structures, the directory
   tree must represent the tiered structure above. In other words, the common
-  files to be included must exist at the same tier as any definition files that
+  files to be included must exist at the same tier as any distribution definitions that
   references them.</para>
 
   <para>In the <filename class="directory">distributions/common/</filename>
@@ -63,7 +63,7 @@
   class="directory">distributions/samba-server/</filename> in the drawing above
   contains the <filename>samba-server.distribution</filename> file, the Samba
   server configuration file, a kickstart file and a validation script. The
-  definition file would XInclude
+  distribution definition would XInclude
   components from the repositories, common groups and packages. The same logic holds true for the web and DNS servers.</para>
 
   <para>To see the differences between one large versus several small files,
@@ -137,7 +137,7 @@
   <para>The final step is to modify the
   <filename>samba-server.distribution</filename> file, removing the
   <emphasis>repos</emphasis> details and using XInclude and XPointer to reuse
-  common content. You may want to rename the definition file or include it in 
+  common content. You may want to rename the distribution definition or include it in 
   a version control system.</para>
 
   <para><informalexample>
@@ -150,10 +150,10 @@
   &lt;/repos&gt;</programlisting>
     </informalexample></para>
 
-  <para>To build the distribution definition file,
+  <para>To build the distribution definition,
   you will also have to change the path to the <filename>smb.conf</filename>
   file in <emphasis>config/file</emphasis>.</para>
 
-  <para>The result is an object-oriented distribution definition file that will
+  <para>The result is an object-oriented distribution definition that will
   reduce your maintenance overhead.</para>
 </section>
