@@ -12,7 +12,6 @@ install:
 	install -pm 644 iso.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/iso.rng
 	install -pm 644 kickstart.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/kickstart.rng
 	install -pm 644 lib.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/lib.rng
-	install -pm 644 livecd.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/livecd.rng
 	install -pm 644 main.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/main.rng
 	install -pm 644 packages.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/packages.rng
 	install -pm 644 product-image.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/product-image.rng
