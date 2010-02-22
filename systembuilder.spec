@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    systembuilder
-Version: 0.8.0
+Version: 0.8.2
 Release: 1%{?dist}
 Summary: Builds system distributions based on CentOS and Red Hat Enterprise Linux
 
@@ -65,8 +65,13 @@ http://www.renditionsoftware.com for more information.
 %{_mandir}/man1/systembuilder.1.gz
 
 %changelog
+* Mon Feb 22 2010 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.2-1
+- added yum-sync plugin
+- renamed config-rpm module to config
+- modified config schema
+- modified packages to include only mandatory and default group packages
 
-* Thu Jan 07 2010 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.2
+* Thu Jan 07 2010 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.1-1
 - merged systembuilder and systembuilder-enterprise rpms
 
 * Thu Dec 10 2009 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.1-1
