@@ -44,7 +44,7 @@ class PackagesEvent(Event):
                   'user-excluded-packages', 'all-packages'],
       requires = ['repos'],
       conditionally_requires = ['required-packages', 'excluded-packages'],
-      version = '1.00'
+      version = '1.01'
     )
 
     self.comps = None
@@ -197,6 +197,8 @@ class PackagesEvent(Event):
              group.get('@repoid', None) == repoid ):
           if gf.has_group(group.text):
             self.comps.add_group(gf.return_group(group.text), 'core')
+            # clear all optional packages out
+            self.comps.return_group('core').optional_packages = {}
             added = True
       if not added:
         raise GroupNotFoundError(group.text)
