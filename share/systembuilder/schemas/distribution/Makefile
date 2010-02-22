@@ -21,6 +21,5 @@ install:
 	install -pm 644 rpmbuild.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/rpmbuild.rng
 	install -pm 644 sources.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/sources.rng
 	install -pm 644 updates-image.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/updates-image.rng
-	install -pm 644 virtimages.rng $(DESTDIR)/usr/share/systembuilder/schemas/distribution/virtimages.rng
 
 clean:
