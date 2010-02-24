@@ -80,7 +80,8 @@
     be <filename>samba-server-5-i386</filename>. </para>
 
     <para><informalexample>
-      <programlisting>  &lt;main&gt;
+      <programlisting>
+&lt;main&gt;
   &lt;name&gt;samba-server&lt;/name&gt;
   &lt;version&gt;5&lt;/version&gt;
   &lt;arch&gt;i386&lt;/arch&gt;
@@ -295,17 +296,13 @@
   &lt;group&gt;base-x&lt;/group&gt;
   &lt;group&gt;gnome-desktop&lt;/group&gt;
   &lt;group&gt;admin-tools&lt;/group&gt;
-  &lt;group&gt;web-server&lt;/group&gt;
   &lt;group&gt;smb-server&lt;/group&gt;
-  &lt;group&gt;printing&lt;/group&gt;
 &lt;/packages&gt;  </programlisting>
     </informalexample></para>
 
     <para>The distribution will include the <application
     class="software">GNOME</application> graphical user interface (GUI) and
-    printing capabilities. Print administration for CUPS printers can be done
-    using a web interface, hence the inclusion of the web-server package.
-    </para>
+    common system administration tools.</para>
   </section>
 
   <section id="configuring-clients" xreflabel="Configuring Client Machines">
@@ -379,8 +376,29 @@
 
       <para>The <emphasis>config</emphasis> element allows you to specify files to be installed at certain locations on the client system. For the samba-server distribution, you will install two files, a <filename>smb.conf</filename> file for configuring the samba server, and a <filename>yum-sync.sh</filename> cron script file for executing the <command>yum sync</command> command, provided by the YUM Sync Plugin, on a daily basis.</para>
 
-      <informalexample>
-        <programlisting><para>
+      <para>First, create a basic smb.conf file containing the following content. For this example we are configuring the samba server to provide anonymous, read-only access to content in the client machine's <filename>/public</filename> folder. </para>
+
+      <para><informalexample>
+        <programlisting>
+[global]
+  workgroup = WORKGROUP
+  netbios name = SAMBA
+  security = share
+
+[public]
+  comment = Public
+  path = /public
+  read only = no
+  guest only = yes
+        </programlisting>
+      </informalexample></para>
+
+      <para>Save the smb.conf file in the same folder as the <filename>samba-server.distribution.</filename></para>
+
+      <para>Next, add the following section to your samba-server.distribution file:</para>
+
+      <para><informalexample>
+        <programlisting>
 &lt;config&gt;
 
   &lt;!-- samba configuration --&gt;
@@ -394,10 +412,10 @@
   &lt;/files&gt;
 
 &lt;/config&gt;
-        </para></programlisting>
-      </informalexample>
+        </programlisting>
+      </informalexample></para>
 
-      <para>The example above includes two <emphasis>files</emphasis> elements. The first element directs SystemBuilder to locate a file named smb.conf in the same folder as the distribution definition, download it, include it in the configuration package for installation to the <filename>/etc/samba</filename> with the file mode "644". The second element directs SystemBuilder to create a new file named <filename>yum-sync.cron</filename>, containing the text supplied between the &lt;files&gt; and &lt;/files&gt; tags, and include it configuration package for installation to the <filename>/etc/cron.daily</filename> folder with the mode "644".</para>
+      <para>The example above includes two <emphasis>files</emphasis> elements. The first element directs SystemBuilder to locate a file named smb.conf in the same folder as the distribution definition, download it, include it in the configuration package for installation to the <filename>/etc/samba</filename> folder with the file mode "644". The second element directs SystemBuilder to create a new file named <filename>yum-sync.cron</filename>, containing the text supplied between the &lt;files&gt; and &lt;/files&gt; tags, and include it configuration package for installation to the <filename>/etc/cron.daily</filename> folder with the mode "644".</para>
 
       <note>SystemBuilder resolves all paths in the definition relative to the definition's folder location.</note>
       <note>The attribute value <emphasis>content="text"</emphasis> provides a convenient way to include short files and scripts without needing to create and manage separate files on disk. Larger files can also be created this way, however, this makes the definition more difficult to read.</note>
@@ -411,8 +429,8 @@
 
       <para>For the samba-server example, let's include a script to restart the samba daemon each time the configuration package is installed or updated.</para>
 
-      <informalexample>
-        <programlisting><para>
+      <para><informalexample>
+        <programlisting>
 &lt;config&gt;
 
   ...
@@ -420,8 +438,8 @@
   &lt;script type="post" content="text"&gt;service smb restart&lt;/script&gt;
 
 &lt;/config&gt;
-        </para></programlisting>
-      </informalexample>
+        </programlisting>
+      </informalexample></para>
 
       <para>Scripts are discussed in more detail under <xref linkend="using-scripts-and-triggers"/>.</para>
 
@@ -434,16 +452,16 @@
 
       <para>For the samba-server example, the <emphasis>samba</emphasis> package is required to enable the command <command>service smb restart</command> used in the <emphasis>script</emphasis> element above.</para>
 
-      <informalexample>
-        <programlisting><para>
+      <para><informalexample>
+        <programlisting>
 &lt;config&gt;
   ...
 
   &lt;requires&gt;samba&lt;/requires&gt;
 
 &lt;/config&gt;
-        </para></programlisting>
-      </informalexample>
+        </programlisting>
+      </informalexample></para>
 
     </section>
 
@@ -457,8 +475,8 @@
 
     <para>Your complete samba-server distribution should now look as follows:</para>
 
-    <informalexample>
-      <programlisting><para>
+    <para><informalexample>
+      <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
@@ -485,9 +503,7 @@
   &lt;group&gt;base-x&lt;/group&gt;
   &lt;group&gt;gnome-desktop&lt;/group&gt;
   &lt;group&gt;admin-tools&lt;/group&gt;
-  &lt;group&gt;web-server&lt;/group&gt;
   &lt;group&gt;smb-server&lt;/group&gt;
-  &lt;group&gt;printing&lt;/group&gt;
 &lt;/packages&gt;  
 
 &lt;config&gt;
@@ -506,8 +522,8 @@
 &lt;/config&gt;
 
 &lt;/distribution&gt;
-      </para></programlisting>
-    </informalexample>
+      </programlisting>
+    </informalexample></para>
 
     <para>Once your definition is complete, you can use 
     <application class="software">SystemBuilder</application> to validate

@@ -4,12 +4,11 @@
 <section>
   <title>Updating a Distribution</title>
 
-  <para>Maintaining your distribution through updates is the final process step.
-  There are two reasons to rerun the <command>systembuilder</command> command and
-  update your distribution. You may update the distribution repositories on the
-  build server from the mirrors. Or you may redefine your distribution. Depending
-  upon what, if anything, you update in the distribution, updates can occur on
-  the SystemBuilder build machine, the download server and the client machine.</para>
+  <para>SystemBuilder makes it easy to keep your distribution up to date over 
+  time by simply rerunning the <command>systembuilder</command> command. 
+  When SystemBuilder runs, it looks for changes in build input, or in the 
+  distribution definition, and makes adjustments to the published
+  distribution as necessary.</para>
 
   <section>
     <title>Running <command>systembuilder</command> to check for repository
@@ -32,14 +31,16 @@ Starting build of 'samba-server-5-i386' at 2009-10-25 18:29:55
 Build complete at 2009-10-25 18:30:26</screen></para>
 
     <para>Since there were no updates, <command>systembuilder</command> completed
-    successfully in less than two minutes. (Results will vary depending upon
-    your <application class="software">SystemBuilder</application> build machine's
-    hardware configuration.) Only if something had changed would
-    <command>systembuilder</command> have rerun the repository updates and provided
-    more detail about this build.</para>
+    successfully in less than two minutes. (Results will vary based on factors
+    including network connection speed between the build machine and input 
+    repositories, number of packages in the distribution, and build 
+    machine hardware configuration.) Only if something had changed would
+    <command>systembuilder</command> have rerun the repository updates and 
+    provided more detail about this build.</para>
 
-    <para>Unless you change the log level or the contents of the distribution, <command>systembuilder</command> will
-    append the minimal output above to the log file.</para>
+    <para>Unless you change the log level or the contents of the distribution, 
+    <command>systembuilder</command> will append the minimal output above to 
+    the log file.</para>
 
     <para><note>
         <para>SystemBuilder's default behavior is to append all build output to the
@@ -55,9 +56,15 @@ Build complete at 2009-10-25 18:30:26</screen></para>
         file.</para>
       </note></para>
 
-    <para>If there are updates, then <command>systembuilder</command> will include
-    those updated packages in the distribution repository on the build
-    system.</para>
+    <para>If there are updated packages, then SystemBuilder will refresh the 
+    <xref linkend="distribution-repository"/> to contain just the current set
+    of packages. Specifically, when SystemBuilder determines that packages have
+    changed, it calculates the list of packages needed to satisfy distribution 
+    requirements, and then adds and removes packages as necessary to bring the 
+    distribution repository into comformance with the list. This behavior 
+    allows the <xref linkend="sync-plugin" /> to rely on packages in the 
+    distribution repository as a master list of packages to be installed on 
+    client machines.</para>
 
     <para><important>
         <para>If the published distribution location is the same,
@@ -69,7 +76,9 @@ Build complete at 2009-10-25 18:30:26</screen></para>
   <section>
     <title>Modifying the distribution definition</title>
 
-    <para>If you change the distribution definition, then you need to rerun <command>systembuilder</command>. You may redefine
+    <para>If you change the distribution definition, or other build input 
+    such as configuration files and scripts, then you need to rerun 
+    <command>systembuilder</command>. You may redefine
     your distribution in a plethora of ways. Some of the more common options
     could include selecting different repositories; including or excluding
     groups, packages or custom files (configuration files, scripts or
@@ -84,23 +93,53 @@ Build complete at 2009-10-25 18:30:26</screen></para>
     distributions, save the new distribution definition with a new name.</para>
   </section>
 
-  <section>
-    <title>Updating client machines</title>
+  <para>To try out distribution updates for the samba-server example, you can 
+  make two modifications: remove a group, and modify a configuration file.</para>
 
-    <para>If there are changes to the distribution, you will
-    need to update installed client machines using <command>yum</command>
-    <option>update</option>. For this example build, log on as the root user
-    and execute the <userinput>yum update</userinput> command.</para>
+  <para>First, let's say you have determined you don't need packages from
+  the admin-tools group on this system. You can remove them by removing the 
+  corresponding <emphasis>/packages/group</emphasis> element. Modify the
+  <emphasis>packages</emphasis> element to look as follows:</para>
 
-    <para>Using the <command>yum </command><option>update</option> command
-    will update all packages on the client machine from the download server,
-    including the system-specific config RPM created by SystemBuilder.
-    For more information what the config RPM contains and how to customize
-    its contents, see the section on <emphasis>config</emphasis> in the
-    Distribution Definition File Reference. </para>
+    <para><informalexample>
+      <programlisting>
+&lt;packages&gt;
+  &lt;group&gt;core&lt;/group&gt;
+  &lt;group&gt;base&lt;/group&gt;
+  &lt;group&gt;base-x&lt;/group&gt;
+  &lt;group&gt;gnome-desktop&lt;/group&gt;
+  &lt;group&gt;smb-server&lt;/group&gt;
+&lt;/packages&gt;  </programlisting>
+    </informalexample></para>   
 
-    <para>To see what changed on the client machine, check the
-    <filename>yum.log</filename> file in the <filename
-    class="directory">/var/log/</filename> directory.</para>
-  </section>
+  <para>Save the <filename>samba-server.distribution</filename> file.</para>
+
+  <para>Next, presuming you would like to change the name of the workgroup for 
+  your samba server, modify the content of the smb.conf file as follows:</para>
+
+  <para><informalexample>
+   <programlisting>
+[global]
+  workgroup = MYCOMPANY     # was WORKGROUP
+  netbios name = SAMBA
+  security = share
+
+[public]
+  comment = Public
+  path = /public
+  read only = no
+  guest only = yes
+    </programlisting>
+  </informalexample></para>
+
+  <para>Save the smb.conf file</para>
+
+  <para>Now run the command 
+  <command>systembuilder samba-server.distribution</command>. You should see 
+  that a new configuration package is generated, and that the distribution
+  is updated.</para>
+
+  <para>In the next section you will see how these changes are applied to
+  previously installed client systems.</para>
+
 </section>

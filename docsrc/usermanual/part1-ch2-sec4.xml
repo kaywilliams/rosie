@@ -7,7 +7,13 @@
   <para>Now that you have defined your distribution, use the
   <command>systembuilder</command> command to build it.</para>
 
-  <note>The initial build of a distribution can be time consuming, on the order of several minutes to an hour or more. Initial build time depends on a number of variables including the location of package repositories (local or remote), network connection speed, the number of packages included in the distribution, and the amount of content that can be reused from the SystemBuilder shared cache. Subsequent builds complete in much less time, often 1-2 minutes, depending on the level and type of change since the previous build.</note>
+  <note>The initial build of a distribution can be time consuming, on the order
+  of several minutes to an hour or more. Initial build time depends on a number
+  of variables including the location of package repositories (local or remote), 
+  network connection speed, the number of packages included in the distribution, 
+  and the amount of content that can be reused from the SystemBuilder shared 
+  cache. Subsequent builds complete in much less time, often 1-2 minutes, 
+  depending on the level and type of change since the previous build.</note>
 
   <para>The basic <command>systembuilder</command> command validates the 
   distribution definition syntax, creates the distribution, and records 

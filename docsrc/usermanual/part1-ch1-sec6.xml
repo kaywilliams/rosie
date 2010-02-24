@@ -59,6 +59,11 @@
 
           <para>The release number "1" will be written to the distribution data file. When configuration changes in the future, e.g. when files or scripts are added, deleted or modified, SystemBuilder will increment the release number by 1, create a new configuration package (in this case samba-server-config-5-2.noarch.rpm), and store the new release number ("2") in the distribution data file. The incremented version number allows installed client machines to determine that a new configuration package is available for download and installation.</para>
 
+          <para>For more information on what the configuration package contains
+          and how to customize its contents, see the section on 
+          <emphasis>config</emphasis> in the Distribution Definition File 
+          Reference.</para>
+
         </listitem>
       </varlistentry>
 
@@ -183,6 +188,14 @@
           class="software">SystemBuilder</application> to build production-ready
           distributions for migration to the production, or
           download, server.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="sync-plugin" xreflabel="sync plugin">
+        <term><emphasis role="strong">sync plugin</emphasis></term>
+
+        <listitem>
+          <para>A <application class="software">YUM</application> plugin provided by SystemBuilder that allows synchronizing packages on client machines with packages in the <xref linkend="distribution-repository"/>. The plugin is included by default in the <xref linkend="configuration-package" />, which serves as the mechanism for installing it on client machines. The plugin establishes the distribution repository as the <emphasis>master repository</emphasis>, disables all non-master repositories, and provides a new argument, <emphasis>sync</emphasis>, to YUM. Help for the <emphasis>sync</emphasis> argument is available on client machines using the <command>yum help</command> command. Running <command>yum sync</command> allows YUM to calculate package additions and removals based on packages available in the distribution repository. For more information, see the section on <xref linkend="updating-client-machines"/>.</para>
         </listitem>
       </varlistentry>
 
