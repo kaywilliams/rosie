@@ -1,8 +1,38 @@
+2010-02-24  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* merge with trunk
+	[9f439c063f0c] [tip]
+
+	* docsrc/usermanual/part1-ch1-sec6.xml,
+	docsrc/usermanual/part1-ch2-sec3.xml,
+	docsrc/usermanual/part1-ch2-sec4.xml,
+	docsrc/usermanual/part1-ch2-sec6.xml,
+	docsrc/usermanual/part1-ch2-sec7.xml,
+	docsrc/usermanual/part1-ch2.xml:
+	UserManual edits through chapter 3
+	[5913c83e6043]
+
+	* systembuilder/locals/yum_plugin.py:
+	yum-plugin bugfix to command registration
+	[b1d18a2ff5b8]
+
 2010-02-22  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* share/systembuilder/schemas/distribution/Makefile:
+	removed obsolete virtimages.rng from Makefile
+	[b1633a27c919]
+
+	* share/systembuilder/schemas/distribution/Makefile:
+	removed obsolete livecd.rng from Makefile
+	[5f2a0c1201bc]
+
+	* ChangeLog, Makefile, systembuilder.spec:
+	bumped version number in specfile
+	[b7be940ce4f4]
 
 	* sbtest/modules/config-rpm.py:
 	merged with trunk
-	[8bac45212d02] [tip]
+	[8bac45212d02]
 
 	* docsrc/DDFR/CommonComponents-Content.xml,
 	docsrc/usermanual/appendix-a.xml,
@@ -41,6 +71,14 @@
 	documentation: config-related updates to the usermanual and DDFR
 	[e14b5c9ccdef]
 
+2010-02-12  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/DDFR/CommonComponents-Attributes.xml, docsrc/DDFR
+	/CommonComponents-Elements.xml, docsrc/DDFR/TopLevelElements-
+	config.xml:
+	DDFR: additional documentation cleanup for the config element
+	[48ea99ebb705]
+
 2010-02-20  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
 	* sbtest/modules/config-rpm.py, sbtest/modules/config.py,
@@ -57,12 +95,6 @@
 	[725224c0ecf7]
 
 2010-02-12  Kay Williams  <kwilliams@renditionsoftware.com>
-
-	* docsrc/DDFR/CommonComponents-Attributes.xml, docsrc/DDFR
-	/CommonComponents-Elements.xml, docsrc/DDFR/TopLevelElements-
-	config.xml:
-	DDFR: additional documentation cleanup for the config element
-	[48ea99ebb705]
 
 	* docsrc/DDFR/CommonComponents-Attributes.xml, docsrc/DDFR
 	/TopLevelElements-config.xml,
@@ -451,10 +483,6 @@
 	UserManual: many edits, yet more to come
 	[46fa8aeca9fe]
 
-	* systembuilder/modules/core/publish.py:
-	publish copies rather than links to ensure distribution integrity
-	[2d06436190f0]
-
 	* docsrc/DDFR/CommonComponents-Variables.xml,
 	docsrc/DDFR/DocumentConventions.xml, docsrc/DDFR/TopLevelElements-
 	main.xml, docsrc/DDFR/TopLevelElements-publish.xml:
@@ -528,18 +556,16 @@
 	usermanual: removed TLE abbreviation, using 'element' instead
 	[9e0949c0dfca]
 
+2010-02-03  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/modules/core/publish.py:
+	publish copies rather than links to ensure distribution integrity
+	[2d06436190f0]
+
 2010-01-24  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* merge with trunk
 	[18ae36f19f5a]
-
-2010-01-15  Kay Williams  <kwilliams@renditionsoftware.com>
-
-	* systembuilder.spec:
-	removed logos-rpm requires from specfile
-	[69b4e7f4ca1c]
-
-2010-01-24  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* docsrc/usermanual/Makefile, docsrc/usermanual/index.xml,
 	docsrc/usermanual/part1-ch1-sec1.xml,
@@ -607,6 +633,12 @@
 	* docsrc/usermanual/Makefile:
 	usermanual: html toc now three levels deep
 	[97f73cb86565]
+
+2010-01-15  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder.spec:
+	removed logos-rpm requires from specfile
+	[69b4e7f4ca1c]
 
 2010-01-07  Kay Williams  <kwilliams@renditionsoftware.com>
 
@@ -809,69 +841,6 @@
 	removed logos-rpm test module
 	[5032b8d29c02]
 
-	* share/systembuilder/logos-rpm/Makefile, share/systembuilder/logos-
-	rpm/centos5.xml, share/systembuilder/logos-rpm/common.xml,
-	share/systembuilder/logos-rpm/fedora9.xml, share/systembuilder
-	/logos-rpm/files/Makefile, share/systembuilder/logos-
-	rpm/files/backgrounds/Makefile, share/systembuilder/logos-
-	rpm/files/backgrounds/desktop-backgrounds-systembuilder.xml,
-	share/systembuilder/logos-rpm/files/backgrounds/systembuilder.xml,
-	share/systembuilder/logos-rpm/files/gdm/GdmGreeterTheme.desktop,
-	share/systembuilder/logos-rpm/files/gdm/Makefile,
-	share/systembuilder/logos-rpm/files/gdm/SystemBuilder.gtkrc,
-	share/systembuilder/logos-rpm/files/gdm/SystemBuilderGDM.xml,
-	share/systembuilder/logos-rpm/files/gnome-background-
-	properties/Makefile, share/systembuilder/logos-rpm/files/gnome-
-	background-properties/desktop-backgrounds-systembuilder.xml,
-	share/systembuilder/logos-rpm/files/gnome-screensaver/Makefile,
-	share/systembuilder/logos-rpm/files/gnome-screensaver/lock-dialog-
-	system.glade, share/systembuilder/logos-rpm/files/gnome-screensaver
-	/lock-dialog-system.gtkrc, share/systembuilder/logos-
-	rpm/files/kdisplay/Makefile, share/systembuilder/logos-
-	rpm/files/kdisplay/SystemBuilder.kcsrc, share/systembuilder/logos-
-	rpm/files/kdisplay/SystemBuilderKDM.kcsrc, share/systembuilder
-	/logos-rpm/files/kdm/GdmGreeterTheme.desktop, share/systembuilder
-	/logos-rpm/files/kdm/Makefile, share/systembuilder/logos-
-	rpm/files/kdm/SystemBuilderKDM.xml, share/systembuilder/logos-
-	rpm/files/ksplash/Makefile, share/systembuilder/logos-
-	rpm/files/ksplash/Theme.rc, share/systembuilder/logos-rpm/fonts
-	/DejaVuLGCSans-Bold.ttf, share/systembuilder/logos-rpm/fonts
-	/DejaVuLGCSans-ExtraLight.ttf, share/systembuilder/logos-
-	rpm/fonts/DejaVuLGCSans.ttf, share/systembuilder/logos-
-	rpm/fonts/Makefile, share/systembuilder/logos-rpm/icons.xml,
-	share/systembuilder/logos-rpm/icons/Makefile, share/systembuilder
-	/logos-rpm/icons/disconnect-active.png, share/systembuilder/logos-
-	rpm/icons/disconnect-prelight.png, share/systembuilder/logos-
-	rpm/icons/disconnect.png, share/systembuilder/logos-rpm/icons/halt-
-	active.png, share/systembuilder/logos-rpm/icons/halt-prelight.png,
-	share/systembuilder/logos-rpm/icons/halt.png, share/systembuilder
-	/logos-rpm/icons/language-active.png, share/systembuilder/logos-
-	rpm/icons/language-prelight.png, share/systembuilder/logos-
-	rpm/icons/language.png, share/systembuilder/logos-
-	rpm/icons/line.png, share/systembuilder/logos-rpm/icons/quit-
-	active.png, share/systembuilder/logos-rpm/icons/quit-prelight.png,
-	share/systembuilder/logos-rpm/icons/quit.png, share/systembuilder
-	/logos-rpm/icons/reboot-active.png, share/systembuilder/logos-
-	rpm/icons/reboot-prelight.png, share/systembuilder/logos-
-	rpm/icons/reboot.png, share/systembuilder/logos-rpm/icons/selection-
-	active.png, share/systembuilder/logos-rpm/icons/selection-
-	prelight.png, share/systembuilder/logos-rpm/icons/selection.png,
-	share/systembuilder/logos-rpm/icons/session-active.png,
-	share/systembuilder/logos-rpm/icons/session-prelight.png,
-	share/systembuilder/logos-rpm/icons/session.png, share/systembuilder
-	/logos-rpm/icons/suspend-active.png, share/systembuilder/logos-
-	rpm/icons/suspend-prelight.png, share/systembuilder/logos-
-	rpm/icons/suspend.png, share/systembuilder/logos-rpm/icons/system-
-	active.png, share/systembuilder/logos-rpm/icons/system-prelight.png,
-	share/systembuilder/logos-rpm/icons/system.png, share/systembuilder
-	/logos-rpm/redhat5.xml, systembuilder/modules/core/rpmbuild/logos-
-	rpm/__init__.py, systembuilder/modules/core/rpmbuild/logos-
-	rpm/config/__init__.py, systembuilder/modules/core/rpmbuild/logos-
-	rpm/config/configlets.py, systembuilder/modules/core/rpmbuild/logos-
-	rpm/files.py:
-	removed logos-rpm module and schemas, for now
-	[73d9c6d14c67]
-
 	* docsrc/usermanual/part3-ch2-sec1.xml:
 	documentation bugfix
 	[fd5d67215fed]
@@ -980,6 +949,71 @@
 	renamed SDFR folder to DDFR
 	[25f2ced66ad4]
 
+2009-12-28  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* share/systembuilder/logos-rpm/Makefile, share/systembuilder/logos-
+	rpm/centos5.xml, share/systembuilder/logos-rpm/common.xml,
+	share/systembuilder/logos-rpm/fedora9.xml, share/systembuilder
+	/logos-rpm/files/Makefile, share/systembuilder/logos-
+	rpm/files/backgrounds/Makefile, share/systembuilder/logos-
+	rpm/files/backgrounds/desktop-backgrounds-systembuilder.xml,
+	share/systembuilder/logos-rpm/files/backgrounds/systembuilder.xml,
+	share/systembuilder/logos-rpm/files/gdm/GdmGreeterTheme.desktop,
+	share/systembuilder/logos-rpm/files/gdm/Makefile,
+	share/systembuilder/logos-rpm/files/gdm/SystemBuilder.gtkrc,
+	share/systembuilder/logos-rpm/files/gdm/SystemBuilderGDM.xml,
+	share/systembuilder/logos-rpm/files/gnome-background-
+	properties/Makefile, share/systembuilder/logos-rpm/files/gnome-
+	background-properties/desktop-backgrounds-systembuilder.xml,
+	share/systembuilder/logos-rpm/files/gnome-screensaver/Makefile,
+	share/systembuilder/logos-rpm/files/gnome-screensaver/lock-dialog-
+	system.glade, share/systembuilder/logos-rpm/files/gnome-screensaver
+	/lock-dialog-system.gtkrc, share/systembuilder/logos-
+	rpm/files/kdisplay/Makefile, share/systembuilder/logos-
+	rpm/files/kdisplay/SystemBuilder.kcsrc, share/systembuilder/logos-
+	rpm/files/kdisplay/SystemBuilderKDM.kcsrc, share/systembuilder
+	/logos-rpm/files/kdm/GdmGreeterTheme.desktop, share/systembuilder
+	/logos-rpm/files/kdm/Makefile, share/systembuilder/logos-
+	rpm/files/kdm/SystemBuilderKDM.xml, share/systembuilder/logos-
+	rpm/files/ksplash/Makefile, share/systembuilder/logos-
+	rpm/files/ksplash/Theme.rc, share/systembuilder/logos-rpm/fonts
+	/DejaVuLGCSans-Bold.ttf, share/systembuilder/logos-rpm/fonts
+	/DejaVuLGCSans-ExtraLight.ttf, share/systembuilder/logos-
+	rpm/fonts/DejaVuLGCSans.ttf, share/systembuilder/logos-
+	rpm/fonts/Makefile, share/systembuilder/logos-rpm/icons.xml,
+	share/systembuilder/logos-rpm/icons/Makefile, share/systembuilder
+	/logos-rpm/icons/disconnect-active.png, share/systembuilder/logos-
+	rpm/icons/disconnect-prelight.png, share/systembuilder/logos-
+	rpm/icons/disconnect.png, share/systembuilder/logos-rpm/icons/halt-
+	active.png, share/systembuilder/logos-rpm/icons/halt-prelight.png,
+	share/systembuilder/logos-rpm/icons/halt.png, share/systembuilder
+	/logos-rpm/icons/language-active.png, share/systembuilder/logos-
+	rpm/icons/language-prelight.png, share/systembuilder/logos-
+	rpm/icons/language.png, share/systembuilder/logos-
+	rpm/icons/line.png, share/systembuilder/logos-rpm/icons/quit-
+	active.png, share/systembuilder/logos-rpm/icons/quit-prelight.png,
+	share/systembuilder/logos-rpm/icons/quit.png, share/systembuilder
+	/logos-rpm/icons/reboot-active.png, share/systembuilder/logos-
+	rpm/icons/reboot-prelight.png, share/systembuilder/logos-
+	rpm/icons/reboot.png, share/systembuilder/logos-rpm/icons/selection-
+	active.png, share/systembuilder/logos-rpm/icons/selection-
+	prelight.png, share/systembuilder/logos-rpm/icons/selection.png,
+	share/systembuilder/logos-rpm/icons/session-active.png,
+	share/systembuilder/logos-rpm/icons/session-prelight.png,
+	share/systembuilder/logos-rpm/icons/session.png, share/systembuilder
+	/logos-rpm/icons/suspend-active.png, share/systembuilder/logos-
+	rpm/icons/suspend-prelight.png, share/systembuilder/logos-
+	rpm/icons/suspend.png, share/systembuilder/logos-rpm/icons/system-
+	active.png, share/systembuilder/logos-rpm/icons/system-prelight.png,
+	share/systembuilder/logos-rpm/icons/system.png, share/systembuilder
+	/logos-rpm/redhat5.xml, systembuilder/modules/core/rpmbuild/logos-
+	rpm/__init__.py, systembuilder/modules/core/rpmbuild/logos-
+	rpm/config/__init__.py, systembuilder/modules/core/rpmbuild/logos-
+	rpm/config/configlets.py, systembuilder/modules/core/rpmbuild/logos-
+	rpm/files.py:
+	removed logos-rpm module and schemas, for now
+	[73d9c6d14c67]
+
 2009-12-21  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* systembuilder/modules/core/repocreate/packages.py:
@@ -1019,13 +1053,6 @@
 	branch merge
 	[eb906fa35470]
 
-2009-12-11  Kay Williams  <kwilliams@renditionsoftware.com>
-
-	* systembuilder/modules/shared/repos.py:
-	fixed erroneous change from systemid to distributionid in repos
-	shared module
-	[36e721fa586d]
-
 2009-12-15  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* share/systembuilder/schemas/distribution/Makefile:
@@ -1053,6 +1080,11 @@
 	[afc97d02a705]
 
 2009-12-11  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/modules/shared/repos.py:
+	fixed erroneous change from systemid to distributionid in repos
+	shared module
+	[36e721fa586d]
 
 	* share/systembuilder/schemas/distribution/lib.rng:
 	reverted erronious distributionid back to systemid in lib.rng
