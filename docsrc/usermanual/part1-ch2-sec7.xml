@@ -2,122 +2,23 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Tying it All Together</title>
+  <title>Updating a Client Machine</title>
 
-  <para>In summary, there are five steps to creating a successful
-  distribution.</para>
+  <para>If there are changes to the distribution, you will
+  need to update installed client machines using <command>yum</command>
+  <option>sync</option>. For this example build, log on to the client machine 
+  as the root user and execute the <userinput>yum sync</userinput> command. </para>
 
-  <para>First, you configure the <application
-  class="software">SystemBuilder</application> build machine to accommodate the
-  size and number of distributions you will build and store concurrently for
-  download at any single time. The system should be accessible through your
-  local network.
-  After configuring the hardware, you can install one of the <application
-  class="software">Linux </application>operating system versions on which <application
-  class="software">SystemBuilder</application> runs.</para>
+  <para>Using the <command>yum </command><option>sync</option> command, 
+  provided by the <xref linkend="sync-plugin"/>,
+  will update all packages on the client machine from the distribution
+  repository, including the system-specific <xref linkend="configuration-package"/>
+  created during the build process.</para>
 
-  <para>Then you define your distribution in the <filename
-  class="extension">samba-server.distribution</filename> file using XML tags
-  defined in the DDFR. Your definition includes several key pieces of
-  information:</para>
+  <para>To see what packages changed on the client machine, check the
+  <filename>yum.log</filename> file in the <filename
+  class="directory">/var/log/</filename> directory.</para>
 
-  <para><itemizedlist>
-      <listitem>
-        <para>the name of the distribution, its version and architecture;</para>
-      </listitem>
+  <para>For the samba-server example, you should see that a new version of the samba-server-config package is installed, the prior version of the samba-server-config package is removed, and a number packages from the admin-tools group, including system-config-network and system-config-users, are removed. You can verify that the <filename>smb.conf</filename> has been updated by typing <command>cat /etc/samba/smb.conf</command> at the command line and ensuring the workgroup is now set to "MYCOMPANY" rather than "WORKGROUP".</para>
 
-      <listitem>
-        <para>the repositories for the operating system and application packages, including
-        base install and update mirror locations;</para>
-      </listitem>
-
-      <listitem>
-        <para>the standard package groups for any applications to include and
-        any packages to exclude; and</para>
-      </listitem>
-
-      <listitem>
-        <para>custom system configuration files and required packages
-        outside the standard application groups.</para>
-      </listitem>
-    </itemizedlist></para>
-
-  <para>Once the distribution definition is complete, you log on as the root user
-  and execute the command <userinput>systembuilder samba-server.distribution</userinput>
-  to build the distribution. Output goes to the screen and the default log file.
-  The first build may take some time, since <application
-  class="software">SystemBuilder</application> needs to do everything the first
-  time:</para>
-
-  <para><itemizedlist>
-      <listitem>
-        <para>validate the <filename
-        class="extension">samba-server.distribution</filename> file,</para>
-      </listitem>
-
-      <listitem>
-        <para>locate active repositories,</para>
-      </listitem>
-
-      <listitem>
-        <para>resolve package dependencies,</para>
-      </listitem>
-
-      <listitem>
-        <para>retrieve the necessary packages,</para>
-      </listitem>
-
-      <listitem>
-        <para>retrieve other configuration or user-provided files,</para>
-      </listitem>
-
-      <listitem>
-        <para>create the <filename>config.rpm</filename> and
-        <filename>release.rpm</filename> files,</para>
-      </listitem>
-
-      <listitem>
-        <para>create the <filename>boot.iso</filename> and other required
-        images, and</para>
-      </listitem>
-
-      <listitem>
-        <para>store the distribution on the download server.</para>
-      </listitem>
-    </itemizedlist>Deploying client machines requires three steps. First,
-  <application class="software">SystemBuilder</application> will publish the
-  distribution image files to the download server location from which the client
-  system will obtain its initial installation and subsequent updates. By
-  default, the location will be in the web server area on the <application
-  class="software">SystemBuilder</application> build machine. Second, you create
-  the CD or DVD boot media. Lastly, you install the client machine by inserting
-  the disk into the client machine and later verifying that the contents are
-  correct.</para>
-
-  <para>Updating your distribution, the final step, can involve simply checking
-  for mirror repository updates. Depending upon the changes <application
-  class="software">SystemBuilder</application> encounters, systembuilder could
-  update the distribution with updated packages. After updating the
-  distribution, you will need to run <userinput>yum update</userinput> on the
-  client machine to keep the client in synch with the current distribution.</para>
-
-  <para>Another method to update your distribution is actually changing the
-  definition, <filename>samba-server.distribution</filename> for this scenario. Any
-  changes to the three required <emphasis>main</emphasis>
-  child elements would constitute creating a brand-new distribution. Save these
-  changes to a new filename.</para>
-
-  <para>In the Samba CentOS 5 Server example presented here, what you have
-  in the end is a distribution for a Samba server on CentOS 5 for the i386
-  architecture. It includes GUI applications as well as a web server,
-  administration and printing capabilities. Your custom
-  <filename>smb.conf</filename> file provides custom <application
-  class="software">Samba</application> configuration instructions. The
-  packages come from the repositories at <ulink
-  url="http://mirror.centos.org">http://mirror.centos.org</ulink> .</para>
-
-  <para>Now that you have your definition, you can modularize your
-  <filename>samba-server.distribution</filename> file to reuse its parts and
-  version the distribution definition components to make the build process
-  more efficient and traceable. Part II explains this process.</para>
 </section>
