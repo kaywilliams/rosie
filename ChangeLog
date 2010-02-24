@@ -1,7 +1,11 @@
 2010-02-24  Kay Williams  <kwilliams@renditionsoftware.com>
 
+	* ChangeLog, systembuilder.spec:
+	bumped spec version
+	[504ff09b9951] [tip]
+
 	* merge with trunk
-	[9f439c063f0c] [tip]
+	[9f439c063f0c]
 
 	* docsrc/usermanual/part1-ch1-sec6.xml,
 	docsrc/usermanual/part1-ch2-sec3.xml,
