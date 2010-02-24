@@ -86,7 +86,7 @@ PLUGIN_DEFAULTS = {
     '      return 1, [str(e)]',
     '',
     'def config_hook(conduit):',
-    '  conduit.registerCommand(StrictSyncCommand())',
+    '  conduit.registerCommand(SyncCommand())',
   ],
 }
 
