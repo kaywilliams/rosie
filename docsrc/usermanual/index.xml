@@ -27,16 +27,16 @@
   <xi:include href="preface.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-  <xi:include href="part1-ch1.xml" xpointer="element(/1)"
+  <xi:include href="ch2.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-  <xi:include href="part1-ch2.xml" xpointer="element(/1)"
+  <xi:include href="ch3.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-  <xi:include href="part2-ch1.xml" xpointer="element(/1)"
+  <xi:include href="ch4.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-  <xi:include href="part3-ch1.xml" xpointer="element(/1)"
+  <xi:include href="ch5.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
   <xi:include href="appendix-a.xml" xpointer="element(/1)"

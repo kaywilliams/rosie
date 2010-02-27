@@ -5,7 +5,7 @@
   <title>Creating a Production Environment</title>
 
   <para>You can harness <application class="software">SystemBuilder</application>'s
-  architecture and features to create a production software development
+  architecture and features to create a production system development
   environment with reusable components for the distribution definition,
   version tracking for that and other configuration files, expedited testing
   procedures and alternate publish and download locations. Using <application
@@ -14,14 +14,20 @@
   distribution development and deployment history that is repeatable and
   predictable.</para>
 
-  <xi:include href="part2-ch1-sec1.xml" xpointer="element(/1)"
+  <para>In this chapter, you will set up a production process for creating, 
+  testing, deploying and updating your Samba server. You will divide your 
+  <filename>samba-server.distribution</filename> file into reusable components. 
+  You'll also choose appropriate download and storage locations. Then you'll log
+  those files into the versioning system of your choice. The testing process
+  for your distribution definition has several options, which are covered in
+  the last section.</para>
+
+  <xi:include href="ch4-sec1.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
-  <xi:include href="part2-ch2-sec1.xml" xpointer="element(/1)"
+  <xi:include href="ch4-sec2.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
-  <xi:include href="part2-ch2-sec2.xml" xpointer="element(/1)"
+  <xi:include href="ch4-sec3.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
-  <xi:include href="part2-ch2-sec3.xml" xpointer="element(/1)"
-              xmlns:xi="http://www.w3.org/2001/XInclude" />
-  <xi:include href="part2-ch2-sec4.xml" xpointer="element(/1)"
+  <xi:include href="ch4-sec4.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 </chapter>

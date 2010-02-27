@@ -41,8 +41,9 @@
 
   <para><mediaobject>
       <imageobject>
-        <imagedata fileref="distribution_definition_reuse.jpg" />
+        <imagedata fileref="distribution_definition_reuse.png" />
       </imageobject>
+      <caption><para>Distribution Definition File Reuse</para></caption>
     </mediaobject></para>
 
   <para>To properly use the XInclude and XPointer structures, the directory

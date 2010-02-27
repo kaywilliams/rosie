@@ -18,18 +18,17 @@
   system. Maintenance is an on-going process that could involve all of these
   stages.</para>
 
-  <para>SystemBuilder's ability to combine an operating system with any number of applications makes
-  it at once powerful and complicated. The advantage of using a repetitive
+  <para>The advantage of using a repetitive
   isolated process described above is that you can develop, test and fine-tune
   your distribution before gradually testing its interactions with the
   outside world and, finally, releasing it for others to use. Within the Linux
   release environment, applications and operating system are updated and upgraded at a variety
   of rates. This process gives you optimum control over what patches, updates,
-  enhancements and upgrades you choose to maintain and release to your
-  customers.</para>
+  enhancements and upgrades you choose to maintain and release in your
+  production environment.</para>
 
   <section>
-    <title>The SDLC Process Step-by-Step</title>
+    <title>The Production Process Step-by-Step</title>
 
     <para><application class="software">SystemBuilder</application>'s logical network
     diagram, below, and subsequent description of steps covers the process in
@@ -41,17 +40,16 @@
         </imageobject>
       </mediaobject></para>
 
-    <para>To set up an environment with <application
-    class="software">SystemBuilder</application>, you would need a Development, or
+    <para>To set up production environment with <application
+    class="software">SystemBuilder</application>, you will need a Development, or
     sandbox, system (D); a Version Control system (V); a Staging system (S);
-    and a Production system (P). Development and Staging would contain
+    and a Production system (P). Development and Staging will contain
     identical installations of a <application
     class="software">SystemBuilder</application> version on identical hardware with the
-    same operating system. The Production system, which would serve as your download server,
-    should have a Linux-based operating system and be web-accessible for client machines to
+    same operating system. The Production system, which will serve as your download server,
+    needs to be web-accessible for client machines to
     be able to access it to retrieve distribution contents. The Version system
-    should have a Linux-based operating system with a compatible version control
-    system.</para>
+    needs to have a version control system that supports Linux clients.</para>
 
     <para>One variable worth noting is that the hostname for Staging and
     Production systems is identical; this compatibility will aid in Step 7,
@@ -60,8 +58,7 @@
     others.</para>
 
     <para>Another point about the diagram is that the Production system is
-    outside your internal firewall, in the DMZ. If client machines will access
-    the Production system from the Internet, it should be in the DMZ.</para>
+    in a separate network from the Development and Staging systems.</para>
 
     <para><variablelist>
         <varlistentry>
@@ -73,14 +70,13 @@
             <filename>samba-server.distribution</filename> distribution definition, you
             will also create any configuration files necessary for the
             system to run properly, such as <filename>smb.conf</filename>.
-            Essentially, you will complete the process described in "Defining
-            Your System" in Part I, Chapter 2.</para>
+            Essentially, you will complete the process described in <xref linkend="defining-a-distribution"/>.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
           <term>Step 2: Build Your Distribution and Deploy and Test
-          it on a Sandbox Client</term>
+          it on Development Clients</term>
 
           <listitem>
             <para>This step entails building and deploying your distribution as
@@ -89,7 +85,7 @@
             and 2 are iterative during the alpha release phase, with you
             incorporating changes to the distribution definition or configuration
             files and testing them until you are satisfied with the end result,
-            i.e. a distribution that deploys correctly and the resulting
+            i.e. a distribution that deploys and updates correctly and the resulting
             client functionality performs as expected.</para>
           </listitem>
         </varlistentry>
