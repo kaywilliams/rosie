@@ -29,6 +29,7 @@ class InstallClass(BaseInstallClass):
   def setSteps(self, dispatch):
     BaseInstallClass.setSteps(self, dispatch);
     dispatch.skipStep("partition")
+    dispatch.skipStep("tasksel")
 
   def __init__(self, expert):
     BaseInstallClass.__init__(self, expert)
@@ -60,6 +61,7 @@ class InstallClass(BaseInstallClass):
   def setSteps(self, dispatch):
     BaseInstallClass.setSteps(self, dispatch);
     dispatch.skipStep("partition")
+    dispatch.skipStep("tasksel")
 
   def __init__(self, expert):
     BaseInstallClass.__init__(self, expert)
@@ -91,6 +93,7 @@ class InstallClass(BaseInstallClass):
   def setSteps(self, anaconda):
     BaseInstallClass.setSteps(self, anaconda);
     anaconda.dispatch.skipStep("partition")
+    anaconda.dispatch.skipStep("tasksel")
 
   def getBackend(self, methodstr):
     if methodstr.startswith("livecd://"):
@@ -149,6 +152,7 @@ class InstallClass(BaseInstallClass):
   def setSteps(self, anaconda):
     BaseInstallClass.setSteps(self, anaconda);
     anaconda.dispatch.skipStep("partition")
+    anaconda.dispatch.skipStep("tasksel")
 
 %(setGroupSelection)s
 
