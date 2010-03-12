@@ -18,7 +18,7 @@ class InstallClass(BaseInstallClass):
   showLoginChoice = 1
   showMinimal = 1
 
-  tasks = [("Default", %(groups)s)]
+  tasks = [("Default", ['core']]
 
   def setInstallData(self, anaconda):
     BaseInstallClass.setInstallData(self, anaconda)
@@ -51,7 +51,7 @@ class InstallClass(BaseInstallClass):
   showLoginChoice = 1
   showMinimal = 1
 
-  tasks = [("Default", %(groups)s)]
+  tasks = [("Default", ['core'])]
 
   def setInstallData(self, anaconda):
     BaseInstallClass.setInstallData(self, anaconda)
@@ -84,7 +84,7 @@ class InstallClass(BaseInstallClass):
   showLoginChoice = 1
   showMinimal = 1
 
-  tasks = [("Default", %(groups)s)]
+  tasks = [("Default", ['core'])]
 
   def setInstallData(self, anaconda):
     BaseInstallClass.setInstallData(self, anaconda)
@@ -135,7 +135,7 @@ class InstallClass(BaseInstallClass):
   showLoginChoice = 1
   showMinimal = 1
 
-  tasks = [("Default", %(groups)s)]
+  tasks = [("Default", ['core']]
 
   bugFiler = BugzillaFiler(bugUrl="https://bugzilla.redhat.com/xmlrpc.cgi")
 
