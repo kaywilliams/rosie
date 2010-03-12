@@ -24,7 +24,8 @@ class InstallClass(BaseInstallClass):
     BaseInstallClass.setInstallData(self, anaconda)
     BaseInstallClass.setDefaultPartitioning(self, anaconda.id.partitions, CLEARPART_TYPE_LINUX)
 
-%(setGroupSelection)s
+  def setGroupSelection(self, anaconda):
+    anaconda.backend.selectGroup('core', True, False)
 
   def setSteps(self, dispatch):
     BaseInstallClass.setSteps(self, dispatch);
@@ -56,7 +57,8 @@ class InstallClass(BaseInstallClass):
     BaseInstallClass.setInstallData(self, anaconda)
     BaseInstallClass.setDefaultPartitioning(self, anaconda.id.partitions, CLEARPART_TYPE_LINUX)
 
-%(setGroupSelection)s
+  def setGroupSelection(self, anaconda):
+    anaconda.backend.selectGroup('core', True, False)
 
   def setSteps(self, dispatch):
     BaseInstallClass.setSteps(self, dispatch);
@@ -88,7 +90,8 @@ class InstallClass(BaseInstallClass):
     BaseInstallClass.setInstallData(self, anaconda)
     BaseInstallClass.setDefaultPartitioning(self, anaconda.id.partitions, CLEARPART_TYPE_LINUX)
 
-%(setGroupSelection)s
+  def setGroupSelection(self, anaconda):
+    anaconda.backend.selectGroup('core', True, False)
 
   def setSteps(self, anaconda):
     BaseInstallClass.setSteps(self, anaconda);
@@ -154,7 +157,8 @@ class InstallClass(BaseInstallClass):
     anaconda.dispatch.skipStep("partition")
     anaconda.dispatch.skipStep("tasksel")
 
-%(setGroupSelection)s
+  def setGroupSelection(self, anaconda):
+    anaconda.backend.selectGroup('core', True, False)
 
   def getBackend(self):
     if flags.livecdInstall:
