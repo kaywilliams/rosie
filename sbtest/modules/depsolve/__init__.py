@@ -230,6 +230,20 @@ class Test_ExclusivePackage_2(DepsolveEventTestCase):
     self.failIf('depsolve-test-package3-1.0-1.noarch' in self.event.cvars['pkglist'])
     self.failIf('depsolve-test-package4-1.0-1.noarch' in self.event.cvars['pkglist'])
 
+class Test_MandatoryVsOptional(DepsolveEventTestCase):
+  """Ensure that if a mandatory package provides something that is also
+     provided by an optional package, the optional package is only
+     selected if it provides something else that no other package does."""
+  _conf = """<packages>
+    <group>core</group>
+  </packages>"""
+  clean = True
+
+  def runTest(self):
+    self.tb.dispatch.execute(until='depsolve')
+    self.failIf(len([ x for x in self.event.cvars['pkglist'] if x.startswith('rsyslog') ]) != 0);
+    self.failIf(len([ x for x in self.event.cvars['pkglist'] if x.startswith('sysklogd') ]) != 1);
+
 def make_suite(distro, version, arch):
   _run_make(pps.path(__file__).dirname)
 
@@ -266,5 +280,8 @@ def make_suite(distro, version, arch):
   # then remove it.
   suite.addTest(Test_ExclusivePackage_1(distro, version, arch))
   suite.addTest(Test_ExclusivePackage_2(distro, version, arch))
+
+  # optional packages only included if absolutely necessary
+  suite.addTest(Test_MandatoryVsOptional(distro, version, arch))
 
   return suite

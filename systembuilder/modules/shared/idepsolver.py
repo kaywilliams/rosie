@@ -253,6 +253,15 @@ class IDepsolver(Depsolver):
       if po not in satisfiers:
         satisfiers.add(po)
 
+    # hack - if we have at least one satisfier that is a required
+    # package, then remove all non-required packages from the list
+    # to ensure that the nonrequired packages aren't selected before
+    # the required ones
+    mandatory_satisfiers = [ po for po in satisfiers \
+                             if po.name in self.comps_mandatory_pkgs ]
+    if len(mandatory_satisfiers) > 0:
+      satisfiers = mandatory_satisfiers
+
     if satisfiers:
       bestpkgs = self.bestPackagesFromList(satisfiers, arch=self.arch)
 
