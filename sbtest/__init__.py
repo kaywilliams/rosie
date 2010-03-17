@@ -78,6 +78,10 @@ class EventTestCase(unittest.TestCase):
 
     self._testMethodDoc = self.__class__.__doc__
 
+  # hack to get display working properly in centos 5
+  def shortDescription(self):
+    return self._testMethodDoc
+
   # config setup
   def _make_default_config(self):
     top = config.Element('distribution', attrs={'schema-version': '1.0'})

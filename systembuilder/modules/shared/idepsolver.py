@@ -259,8 +259,14 @@ class IDepsolver(Depsolver):
     # the required ones
     mandatory_satisfiers = [ po for po in satisfiers \
                              if po.name in self.comps_mandatory_pkgs ]
+    # do the same thing for default packages
+    default_satisfiers = [ po for po in satisfiers \
+                           if po.name in self.comps_defaults_pkgs ]
+    # mandatory has priority over default, which has priority over optional
     if len(mandatory_satisfiers) > 0:
       satisfiers = mandatory_satisfiers
+    elif len(default_satisfiers) > 0:
+      satisfiers = default_satisfiers
 
     if satisfiers:
       bestpkgs = self.bestPackagesFromList(satisfiers, arch=self.arch)
