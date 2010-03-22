@@ -61,7 +61,7 @@ class ConfigEvent(RpmBuildMixin, Event):
                     'cvars[\'web-path\']', 'cvars[\'gpgsign-public-key\']',],
       'config':    ['.'],
       'input':     [],
-      'output':    [self.rpm.build_folder],
+      'output':    [],
     }
 
   def validate(self):
@@ -76,33 +76,21 @@ class ConfigEvent(RpmBuildMixin, Event):
   def setup(self):
     self.rpm.setup_build()
 
+    # add files for synchronization to the build folder
+    for file in self.config.xpath('files', []):
+      if file.get('@content', 'filename') == 'filename':
+        self.io.add_fpath(file.text, 
+                          ( self.rpm.source_folder //
+                            self.filerelpath //
+                            file.get('@destdir',
+                            '/usr/share/%s/files' % self.name) ),
+                           id = 'file',)
 
     # add all scripts as input so if they change, we rerun
     for script in self.config.xpath('script',  []) + \
                   self.config.xpath('trigger', []):
-      if script.get('@content', 'filename') != 'text':
+      if script.get('@content', 'filename') == 'filename':
         self.DATA['input'].append(script.text)
-
-    # TODO move to run function?
-    self.scriptdir.mkdirs()
-    self.filedir.mkdirs()
-    for file in self.config.xpath('files', []):
-      text = file.text
-      if file.get('@content', 'filename') == 'text':
-        # if the content is 'text', write the string to a file and set
-        # text to that value
-        fn = self.filedir/file.get('@destname')
-        if not fn.exists() or fn.md5sum() != md5.new(text).hexdigest():
-          fn.write_text(text)
-        text = fn
-
-      self.io.add_fpath(text, ( self.rpm.source_folder //
-                                self.filerelpath //
-                                file.get('@destdir',
-                                         '/usr/share/%s/files' % self.name) ),
-                              id = 'file',
-                              mode = file.get('@mode', None),
-                              destname = file.get('@destname', None))
 
     if self.cvars['gpgsign-public-key']:
       # also include the gpg key in the config-rpm
@@ -114,10 +102,32 @@ class ConfigEvent(RpmBuildMixin, Event):
       self.DATA['variables'].append('cvars[\'repos\']')
 
   def generate(self):
+    self._generate_files()
     self._generate_repofile()
     if self.config.getbool('updates/@sync', True):
       self._include_sync_plugin()
     self.io.sync_input(cache=True)
+
+  def _generate_files(self):
+    # create files based on raw text from config file
+    self.filedir.mkdirs()
+    for file in self.config.xpath('files', []):
+      text = file.text
+      if file.get('@content', 'filename') == 'text':
+        # if the content is 'text', write the string to a file and set
+        # text to that value
+        fn = self.filedir/file.get('@destname')
+        if not fn.exists() or fn.md5sum() != md5.new(text).hexdigest():
+          fn.write_text(text)
+        text = fn
+
+        self.io.add_fpath(text, ( self.rpm.source_folder //
+                                  self.filerelpath //
+                                  file.get('@destdir',
+                                           '/usr/share/%s/files' % self.name) ),
+                                id = 'file',
+                                mode = file.get('@mode', None),
+                                destname = file.get('@destname', None))    
 
   def _generate_repofile(self):
     repofile = ( self.rpm.source_folder/'etc/yum.repos.d/%s.repo' % self.name )

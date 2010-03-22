@@ -45,7 +45,7 @@ class RpmBuildMixin:
     self.rpm.setup_build()
 
   def run(self):
-    self.io.clean_eventcache()
+    self.io.clean_eventcache(all=True)
 
     R = self.rpm
 
@@ -69,6 +69,7 @@ class RpmBuildMixin:
     R.save_release()
     self.DATA['output'].append(R.rpm_path)
     self.DATA['output'].append(R.srpm_path)
+    self.DATA['output'].append(self.rpm.build_folder)
 
   def apply(self):
     self.io.clean_eventcache()
