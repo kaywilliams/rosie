@@ -83,6 +83,11 @@ class DepsolverMixin(object):
 
     solver.setup()
 
+    solver.comps_pkgs = [ solver.getBestAvailablePackage(n) for n in 
+                          comps_mandatory_pkgs + \
+                          comps_default_pkgs + \
+                          comps_conditional_pkgs ]
+
     pos = solver.getPackageObjects()
     pkgtups = [ po.pkgtup for po in pos ]
 
@@ -253,39 +258,15 @@ class IDepsolver(Depsolver):
       if po not in satisfiers:
         satisfiers.add(po)
 
-    # hack - if we have at least one satisfier that is a required
-    # package, then remove all non-required packages from the list
-    # to ensure that the nonrequired packages aren't selected before
-    # the required ones
-    mandatory_satisfiers = [ po for po in satisfiers \
-                             if po.name in self.comps_mandatory_pkgs ]
-    # do the same thing for default packages
-    default_satisfiers = [ po for po in satisfiers \
-                           if po.name in self.comps_defaults_pkgs ]
-    # and conditional as well
-    conditional_satisfiers = [ po for po in satisfiers \
-                           if po.name in self.comps_conditional_pkgs ]
-    # mandatory has priority over default, which has priority over optional
-    if len(mandatory_satisfiers) > 0:
-      satisfiers = mandatory_satisfiers
-    elif len(default_satisfiers) > 0:
-      satisfiers = default_satisfiers
-    elif len(conditional_satisfiers) > 0:
-      satisfiers = conditional_satisfiers
+    # Minimize packages in the distribution by giving preference to 
+    # satisfiers listed as comps packages
+    comps_satisfiers = [ po for po in satisfiers \
+                         if po in self.comps_pkgs ]
+    if len(comps_satisfiers) > 0:
+      satisfiers = comps_satisfiers
 
     if satisfiers:
-      bestpkgs = self.bestPackagesFromList(satisfiers, arch=self.arch)
-
-      # Try to find the first best package that's not an optional
-      # package in comps.  If no such package is found, return the
-      # first one and go from there.
-      po = None
-      for bestpkg in bestpkgs:
-        if bestpkg.name not in self.comps_optional_pkgs:
-          po = bestpkg
-          break
-      else:
-        po = bestpkgs[0]
+      po = self.bestPackagesFromList(satisfiers, arch=self.arch)[0] 
 
       thispkgobsdict = self.up.checkForObsolete([po.pkgtup])
       if thispkgobsdict.has_key(po.pkgtup):
