@@ -66,7 +66,7 @@ http://www.renditionsoftware.com for more information.
 
 %changelog
 * Fri Mar 26 2010 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.5-1
-- Initial Build
+- depsolve changes to avoid pulling in unnecessary packages
 
 * Wed Feb 24 2010 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.4-1
 - bumped config module version
