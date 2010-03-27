@@ -56,18 +56,18 @@ Build complete at 2009-10-25 18:30:26</screen></para>
         file.</para>
       </note></para>
 
-    <para>If there are updated packages, then SystemBuilder will refresh the 
+    <para>If SystemBuilder finds updated packages, it will refresh the 
     <xref linkend="distribution-repository"/> to contain just the current set
     of packages. Specifically, when SystemBuilder determines that packages have
     changed, it calculates the list of packages needed to satisfy distribution 
     requirements, and then adds and removes packages as necessary to bring the 
     distribution repository into comformance with the list. This behavior 
-    allows the <xref linkend="sync-plugin" /> to rely on packages in the 
+    allows the <xref linkend="yum-sync-plugin" /> to rely on packages in the 
     distribution repository as a master list of packages to be installed on 
     client machines.</para>
 
     <para><important>
-        <para>If the published distribution location is the same,
+        <para>If the published download location is the same,
         <command>systembuilder</command> updates the distribution, adding new files and
         replacing old ones.</para>
       </important></para>
@@ -88,7 +88,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
     <para>If you change the <emphasis>main/name</emphasis>,
     <emphasis>main/version</emphasis> or <emphasis>main/arch</emphasis> child
     elements, then you are creating a new distribution with a new
-    <varname>$ID</varname> and published download server location
+    <varname>$ID</varname> and <xref linkend="download-location"/>
     matching the new parameters. To avoid confusion between the different
     distributions, save the new distribution definition with a new name.</para>
   </section>

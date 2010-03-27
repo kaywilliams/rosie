@@ -7,8 +7,7 @@
   <para><application class="software">SystemBuilder</application> has several
   key files and folders, listed in the table below.</para>
 
-  <para><table>
-      <title>SystemBuilder Files and Folders</title>
+  <para><informaltable>
 
       <tgroup cols="2">
         <tbody>
@@ -82,6 +81,6 @@
           </row>
         </tbody>
       </tgroup>
-    </table></para>
+    </informaltable></para>
 
 </section>

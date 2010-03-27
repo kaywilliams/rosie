@@ -1,59 +1,222 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section>
-  <title>Versioning Definitions</title>
+<section id="production-definitions" xreflabel="Production Definitions">
+  <title>Production Definitions</title>
 
-  <para>To track and audit any changes to the <application
-  class="software">SystemBuilder</application> files that are critical to the
-  definition, configuration and scripts of a system, use a revision
-  control system, such as <application
-  class="software">Subversion</application>, <application
-  class="software">Git</application> or <application arch=""
-  class="software">Mercurial</application>. The Red Hat-based Linux operating system' that
-  SystemBuilder works with by default (<application
-  class="software">RHEL</application> and <application
-  class="software">CentOS</application>) have the revision control system
-  <application class="software">Subversion</application>
-  (<command>svn</command>) available by default.</para>
+  <para>When working with your distribution through the development - staging - 
+  production cycle, you will manage two versions of it, a development 
+  version and a production version. The development version, which
+  specifies the Development server as the <xref linkend="download-location"/>, 
+  is used for modifying and testing changes to the definition itself and to 
+  configuration files such as smb.conf. The production version is used in 
+  both the Staging and Production environments. It specifies a download location
+  using a hostname that is common across Staging and Production network 
+  environments.</para>
 
-  <para>While everything could be revision controlled, there are some key
-  non-image files that should be. Within the <application
-  class="software">SystemBuilder</application> infrastructure and distribution
-  building process, candidates for revision control include configuration files,
-  distribution definitions and scripts, i.e. files that contain critical
-  textual information that may change over time or are commonly used to define
-  aspects of multiple distributions, such as common repositories or network
-  configuration.</para>
+  <para>To create definitions for both versions, you will first create the development
+  definition. Then you will create the production defintion. To keep the two
+  documents synchronized, with the exception of the download-location (specified
+  using the <emphasis>publish</emphasis> element), you will use XML Includes 
+  (XInclude) to reuse content from the former within the latter.</para>
+  
+  <para>XIncludes are a convenient feature, in general, for reusing content 
+  across multiple definitions. Later in this section we will discuss an additional 
+  scenario for using XInclude. We will also cover important limitations in 
+  SystemBuilder's XInclude support.</para>
 
-  <para><itemizedlist>
-      <listitem>
-        <para>distribution definitions,</para>
-      </listitem>
+  <section>
+    <title>Create Development and Production Definitions</title>
 
-      <listitem>
-        <para><filename>systembuilder.conf</filename>,</para>
-      </listitem>
+    <para>To create a <emphasis>development</emphasis> definition for the samba-server example, begin
+    with the <filename>samba-server.distribution</filename> file you created in
+    <xref linkend="defining-a-distribution"/>. First, rename the definition:</para>
 
-      <listitem>
-        <para>system configuration files,</para>
-      </listitem>
+    <para><informalexample><programlisting>
+mv samba-server.distribution samba-server-developer.distribution
+    </programlisting></informalexample></para>
 
-      <listitem>
-        <para>system configuration scripts, and</para>
-      </listitem>
+    <para>Then modify the <emphasis>/main/name</emphasis> element as follows:</para>
 
-      <listitem>
-        <para>distribution definition XInclude files.</para>
-      </listitem>
-    </itemizedlist></para>
+    <para><informalexample>
+      <programlisting>
+&lt;main&gt;
+  &lt;name&gt;samba-server-development&lt;/name&gt;
+  ...
+&lt;/main&gt;
+      </programlisting>
+    </informalexample></para> 
 
-  <para>If you decide to not use a revision control system, you could rename
-  the distribution definition or other key
-  files every time you make a change to help you "version" your distribution.
-  You can also enter comments in the files. Keep in mind that changing the name
-  of distribution definition does not mean <application class="software">
-  SystemBuilder</application> will build a new distribution.
-  As long as the <varname>$ID</varname> remains the same, the
-  distribution remains the same.</para>
+
+    <para>The next step is to create a <emphasis>production</emphasis> definition. You have three objectives when creating this file. The first is to reuse as much content from the development definition as possible.  You will do this using XInclude statements. The second is to change the name of the distribution, which will allow both the development and production distributions to be built on the same physical machine, if desired, without overwriting each other. This objective is accomplished by changing the <emphasis>/main/name</emphasis> element. The third is to change the <xref linkend="download-location"/> for the distribution, specifying a fixed URL that is common across Staging and Production environments.  You will do this by adding a <emphasis>/publish/remote-url</emphasis> element. In our example the URL will be <filename>http://download.company.com/distributions</filename>. The completed <filename>samba-server-production.distribution</filename> will look as follows:</para>
+
+    <para><informalexample>
+      <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+
+&lt;main&gt;
+  &lt;name&gt;samba-server&lt;/name&gt;
+  &lt;!-- reuse all elements from /distribution/main except "name" --&gt;
+  &lt;xi:include href="samba-server-development.distribution"
+   xpointer="xpointer(/distribution/main/*[name()!=&amp;quot;name&amp;quot;])"/&gt; 
+&lt;/main&gt;
+
+&lt;!-- reuse all elements from /distribution except "main" --&gt;
+&lt;xi:include href="samba-server-development.distribution"
+ xpointer="xpointer(/distribution/*[name()!=&amp;quot;main&amp;quot;])"/&gt;
+
+&lt;publish&gt;
+  &lt;remote-url&gt;http://download.company.com/distributions/&lt;/remote-url&gt;
+&lt;/publish&gt;
+
+&lt;/distribution&gt;
+      </programlisting>
+    </informalexample></para> 
+
+   <para>You can see how the file appears after the xincludes have been processed using the <command>xmllint</command> command as follows:</para>
+
+    <para><informalexample>
+      <programlisting>
+xmllint --xinclude --format samba-server-production.distribution
+      </programlisting>
+    </informalexample></para> 
+
+   <para>Once you have created the files, you can ensure they are valid for use with SystemBuilder using the --validate-only command as follows, where $filename is the name of the file to validate:</para>
+
+    <para><informalexample>
+      <programlisting>
+# systembuilder --validate-only $filename
+      </programlisting>
+    </informalexample></para> 
+ 
+  </section>
+
+  <section>
+  <title>Strategies for Content Reuse with XInclude</title>
+
+  <para>To ease the organization and reuse of information, the software development community
+  commonly uses substitution methods. In the case of SystemBuilder, you can create and
+  store content in one location and use XML Inclusions (XInclude) and XPaths 
+  to reuse content across distribution definitions and condense large definition
+  files into more manageable and readable sections using an object-oriented
+  tree. Within that context, some components of a distribution definition are
+  prime candidates for substitution and reuse.</para>
+
+  <para>Using XInclude instructions within your definitions has a number of
+  advantages. XInclude processing is recursive. You can have multiple layers of 
+  XIncluded documents within one collective distribution definition. By using 
+  XPointer you can target one portion of a document. From a time management 
+  standpoint, you spend time creating static sections once, then reuse them. 
+  If your network topology changes, for example, then you have one file to 
+  change, not ten, and the inherent risk of inaccuracies or inconsistencies 
+  among the definitions and within your network.</para>
+
+  <para>Using XIncludes with SystemBuilder does have one significant limitation, and this has to do with relative path resolution. Specifically, while paths within <emphasis>http</emphasis> attributes of <emphasis>include</emphasis> elements are resolved relative to the <emphasis>including document's location</emphasis>, SystemBuilder resolves all other paths, as noted in <xref linkend="defining-a-distribution"/>, relative to the <emphasis>location of the definition</emphasis>. Because of this limitation, you will need to exercise care when planning the file system structure for your definitions and shared content.</para>
+ 
+  <para>Within the context of SystemBuilder, a two-part structure on the <application
+  class="software">SystemBuilder</application> build machine will suffice for
+  managing the common versus unique definition components. As in the diagram
+  below, under the subdirectory <filename class="directory">distributions/
+  </filename>, the <filename class="directory">common/</filename> branch
+  contains reusable components while the other branches each contain files
+  unique to a single distribution.</para>
+
+  <para><mediaobject>
+      <imageobject>
+        <imagedata fileref="distribution_definition_reuse.png" />
+      </imageobject>
+      <caption><para>Distribution Definition File Reuse</para></caption>
+    </mediaobject></para>
+
+  <para>To properly use the XInclude and XPointer structures, the directory
+  tree must represent the tiered structure above. In other words, the common
+  files to be included must exist at the same tier as any distribution definitions that
+  references them.</para>
+
+  <para>In the <filename class="directory">distributions/common/</filename>
+  directory above, there are several reusable files.
+  <filename>Repos.xml</filename> contains several repository mirror lists and
+  base URLs from which to download the Linux operating system based upon brand, architecture
+  and whether they are "base" or "updates." The
+  <filename>groups-packages.xml</filename> file contains common application
+  groups and packages that would be included in distributions using any operating system, such
+  as "admin" or "editors."</para>
+
+  <para>For the Samba Server, the directory <filename
+  class="directory">distributions/samba-server/</filename> in the drawing above
+  contains the <filename>samba-server.distribution</filename> file, the Samba
+  server configuration file, a kickstart file and a validation script. The
+  distribution definition would XInclude
+  components from the repositories, common groups and packages. The same logic holds true for the web and DNS servers.</para>
+
+  <para>To see the differences between one large versus several small files,
+  let's take the <filename>samba-server.distribution</filename> file you created
+  in Part I and modify that to use XInclude and XPointer statements. To do
+  that you will create a separate repository file,
+  <filename>repos.xml.</filename></para>
+
+  <para>First, create your <filename class="directory">distributions/</filename>
+  subdirectory with the two subdirectories <filename
+  class="directory">common/</filename> and <filename
+  class="directory">samba-server/</filename> as above. Place your
+  <filename>samba-server.distribution</filename> and
+  <filename>smb.conf</filename> files in the latter.</para>
+
+  <para>Next, create the <filename>distributions/common/repos.xml</filename>
+  using the example below. The separate repository file includes the URLs for
+  several operating system brands, architectures and statuses, e.g. "base" and
+  "updates."</para>
+
+  <para><informalexample>
+      <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+
+&lt;!-- reposistories for centos --&gt;
+&lt;repos-centos&gt;
+&lt;!-- See www.centos.org for a list of public mirrors --&gt;
+    &lt;repo id="base"&gt;
+      &lt;name&gt;CentOS-$releasever - Base&lt;/name&gt;
+      &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/os/
+           $basearch/&lt;/baseurl&gt;
+      &lt;mirrorlist&gt;http://mirrorlist.centos.org/?release=$releasever&amp;amp;
+           arch=$basearch&amp;amp;repo=os&amp;amp;country=us&lt;/mirrorlist&gt;
+    &lt;/repo&gt;
+    &lt;repo id="updates"&gt;
+      &lt;name&gt;CentOS-$releasever - Updates&lt;/name&gt;
+      &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/updates/
+           $basearch/&lt;/baseurl&gt;
+      &lt;mirrorlist&gt;http://mirrorlist.centos.org/?release=$releasever&amp;amp;
+           arch=$basearch&amp;amp;repo=updates&amp;amp;country=us&lt;/mirrorlist&gt;
+    &lt;/repo&gt;
+
+&lt;/repos-centos&gt;
+
+&lt;/distribution&gt;</programlisting>
+    </informalexample></para>
+
+  <para>The final step is to modify the
+  <filename>samba-server.distribution</filename> file, removing the
+  <emphasis>repos</emphasis> details and using XInclude and XPointer to reuse
+  common content. You may want to rename the distribution definition or include it in 
+  a version control system.</para>
+
+  <para><informalexample>
+      <programlisting>&lt;repos&gt;
+
+    &lt;!-- use global repos for CentOS --&gt;
+    &lt;xi:include href="../common/repos.xml" 
+                xpointer="xpointer(/distributions/repos-centos/*)" /&gt;
+
+  &lt;/repos&gt;</programlisting>
+    </informalexample></para>
+
+  <para>To build the distribution definition,
+  you will also have to change the path to the <filename>smb.conf</filename>
+  file in <emphasis>config/file</emphasis>.</para>
+
+  <para>The result is an object-oriented distribution definition that will
+  reduce your maintenance overhead.</para>
+  </section>
+
 </section>

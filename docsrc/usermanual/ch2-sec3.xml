@@ -8,17 +8,15 @@
   <application class="software">SystemBuilder</application> creates
   distributions in a standard operating system format, client machines can be
   deployed using the same tools and methods as used for
-  <application class="software">Red Hat Enterprise Linux</application> and 
+  <application class="software">Red Hat Enterprise Linux</application> (RHEL) and 
   <application class="software">CentOS</application>.</para>
 
   <itemizedlist>
   <listitem>Network installation using a network interface card (NIC) with Pre-Execution Environment (PXE) support, CD/DVD or USB boot media.</listitem>
   <listitem>CD/DVD installation (for use in environments with limited network connectivity).</listitem>
-  <listitem>virt-install and other virtual machine installation tools</listitem>
+  <listitem>Virtual machine installation using the virt-manager or virt-install tools provided with RHEL and CentOS 5.4 operating systems</listitem>
   </itemizedlist>
   
-  <para>See the 
-  <emphasis>Red Hat Enterprise Linux 5 Installation Guide</emphasis> for 
-  complete information.</para> 
+  <para>See the section on <xref linkend="installing-physical-and-virtual-clients"/> for complete information.</para> 
 
 </section>

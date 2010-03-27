@@ -2,13 +2,13 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <chapter>
-  <title>Creating a Production Environment</title>
+  <title>Production Distributions</title>
 
   <para>You can harness <application class="software">SystemBuilder</application>'s
   architecture and features to create a production system development
   environment with reusable components for the distribution definition,
   version tracking for that and other configuration files, expedited testing
-  procedures and alternate publish and download locations. Using <application
+  procedures and alternate development and production locations. Using <application
   class="software">SystemBuilder</application> as part of a long-term deployment and
   shop management strategy will enable you to be more efficient and provide an
   distribution development and deployment history that is repeatable and
@@ -29,5 +29,13 @@
   <xi:include href="ch4-sec3.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
   <xi:include href="ch4-sec4.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+  <xi:include href="ch4-sec5.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+  <xi:include href="ch4-sec6.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+  <xi:include href="ch4-sec7.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+  <xi:include href="ch4-sec8.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 </chapter>
