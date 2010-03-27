@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    systembuilder
-Version: 0.8.4
+Version: 0.8.5
 Release: 1%{?dist}
 Summary: Builds system distributions based on CentOS and Red Hat Enterprise Linux
 
@@ -65,6 +65,9 @@ http://www.renditionsoftware.com for more information.
 %{_mandir}/man1/systembuilder.1.gz
 
 %changelog
+* Fri Mar 26 2010 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.5-1
+- Initial Build
+
 * Wed Feb 24 2010 Kay Williams <kwilliams@renditionsoftware.com> - 0.8.4-1
 - bumped config module version
 
