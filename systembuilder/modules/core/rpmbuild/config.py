@@ -23,6 +23,7 @@ from systembuilder.event     import Event
 from systembuilder.validate  import InvalidConfigError
 
 from systembuilder.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
+from systembuilder.errors import SystemBuilderIOError, assert_file_readable
 
 import md5
 
@@ -65,16 +66,25 @@ class ConfigEvent(RpmBuildMixin, Event):
     }
 
   def validate(self):
-    for file in self.config.xpath('file', []):
+    for file in self.config.xpath('files', []):
       # if using text mode, a destname must be specified; otherwise,
       # we don't know what to name the file
       if file.get('@content', None) and not file.get('@destname', None):
         raise InvalidConfigError(self.config.getroot().file,
-          "'text' content type specified without accompanying 'destname' "
+          "'text' content specified without accompanying 'destname' "
           "attribute:\n %s" % file)
 
   def setup(self):
     self.rpm.setup_build()
+
+    # Hack to use a custom error for validating missing files
+    for element in [ 'files', 'script', 'trigger' ]:
+      for item in self.config.xpath(element, []):
+        if item.get('@content', 'filename') == 'filename':
+          assert_file_readable(item.get('text()', None), 
+                               element=element,
+                               item=str(item)[:-1], 
+                               cls=ConfigIOError)
 
     # add files for synchronization to the build folder
     for file in self.config.xpath('files', []):
@@ -127,7 +137,7 @@ class ConfigEvent(RpmBuildMixin, Event):
                                            '/usr/share/%s/files' % self.name) ),
                                 id = 'file',
                                 mode = file.get('@mode', None),
-                                destname = file.get('@destname', None))    
+                                destname = file.get('@destname', None))
 
   def _generate_repofile(self):
     repofile = ( self.rpm.source_folder/'etc/yum.repos.d/%s.repo' % self.name )
@@ -339,3 +349,7 @@ class ConfigEvent(RpmBuildMixin, Event):
       return self.scriptdir/id
     else:
       return None
+
+#------ ERRORS ------#
+class ConfigIOError(SystemBuilderIOError):
+  message = "Cannot find the file or folder named '%(file)s'. Check that it exists and that the element '%(item)s' is correct. If you are providing text rather than a file, add the attribute content='text' to the <%(element)s ...> element. [errno %(errno)d] %(message)s"
