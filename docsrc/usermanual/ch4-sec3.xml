@@ -1,160 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section>
-  <title>Reusing Definitions</title>
+<section id="versioning-definitions" xreflabel="Versioning Definitions">
+  <title>Versioning Definitions</title>
 
-  <para>To organize information better, the software development community
-  commonly uses substitution methods. In the case of SystemBuilder, you can create and
-  store content in one location and use XML Includes (XInclude) and XPaths 
-  to reuse content across distribution definitions and condense large definition
-  files into more manageable and readable sections using an object-oriented
-  tree. Within that context, some components of a distribution definition are
-  prime candidates for substitution and reuse.</para>
+  <para>To track and audit any changes to the <application
+  class="software">SystemBuilder</application> files that are critical to the
+  definition, configuration and scripts of a system, use a revision
+  control system, such as <application
+  class="software">Subversion</application>, <application
+  class="software">Git</application> or <application arch=""
+  class="software">Mercurial</application>. The Red Hat-based Linux operating system' that
+  SystemBuilder works with by default (<application
+  class="software">RHEL</application> and <application
+  class="software">CentOS</application>) have the revision control system
+  <application class="software">Subversion</application>
+  (<command>svn</command>) available by default.</para>
 
-  <para>XInclude and XPointer do have limitations. Any documents that are
-  XIncluded must be well-formed XML documents and not plain text files, such
-  as HTML or a software program. Typically the definition components cannot
-  exist competently without the master distribution definition. References to portions
-  of  included documents through XPointer must be well-formed XML. If any of the
-  included components are missing, the entire definition will be invalid.
-  Finally, in general using XPointer could increase CPU cycles and memory use;
-  however, with the <application class="software">SystemBuilder</application>
-  build process no significant CPU or memory cost has been found.</para>
+  <para>While everything could be revision controlled, there are some key
+  non-image files that should be. Within the <application
+  class="software">SystemBuilder</application> infrastructure and distribution
+  building process, candidates for revision control include configuration files,
+  distribution definitions and scripts, i.e. files that contain critical
+  textual information that may change over time or are commonly used to define
+  aspects of multiple distributions, such as common repositories or network
+  configuration.</para>
 
-  <para>The advantages outweigh the disadvantages. XInclude processing is
-  recursive. You can have multiple layers of XIncluded documents within one
-  collective distribution definition. By using XPointer you can target one portion of a
-  document. From a time management standpoint, you spend time creating static
-  sections once, then reuse them. If your network topology changes, for
-  example, then you have one file to change, not ten, and the inherent risk of
-  inaccuracies or inconsistencies among the definitions and within your
-  network.</para>
+  <para><itemizedlist>
+      <listitem>
+        <para>distribution definitions,</para>
+      </listitem>
 
-  <para>Within the context of SystemBuilder, a two-part structure on the <application
-  class="software">SystemBuilder</application> build machine will suffice for
-  managing the common versus unique definition components. As in the diagram
-  below, under the subdirectory <filename class="directory">distributions/
-  </filename>, the <filename class="directory">common/</filename> branch
-  contains reusable components while the other branches each contain files
-  unique to a single distribution.</para>
+      <listitem>
+        <para><filename>systembuilder.conf</filename>,</para>
+      </listitem>
 
-  <para><mediaobject>
-      <imageobject>
-        <imagedata fileref="distribution_definition_reuse.png" />
-      </imageobject>
-      <caption><para>Distribution Definition File Reuse</para></caption>
-    </mediaobject></para>
+      <listitem>
+        <para>system configuration files,</para>
+      </listitem>
 
-  <para>To properly use the XInclude and XPointer structures, the directory
-  tree must represent the tiered structure above. In other words, the common
-  files to be included must exist at the same tier as any distribution definitions that
-  references them.</para>
+      <listitem>
+        <para>system configuration scripts, and</para>
+      </listitem>
 
-  <para>In the <filename class="directory">distributions/common/</filename>
-  directory above, there are several reusable files.
-  <filename>Repos.xml</filename> contains several repository mirror lists and
-  base URLs from which to download the Linux operating system based upon brand, architecture
-  and whether they are "base" or "updates." The
-  <filename>groups-packages.xml</filename> file contains common application
-  groups and packages that would be included in distributions using any operating system, such
-  as "admin" or "editors."</para>
+      <listitem>
+        <para>distribution definition XInclude files.</para>
+      </listitem>
+    </itemizedlist></para>
 
-  <para>For the Samba Server, the directory <filename
-  class="directory">distributions/samba-server/</filename> in the drawing above
-  contains the <filename>samba-server.distribution</filename> file, the Samba
-  server configuration file, a kickstart file and a validation script. The
-  distribution definition would XInclude
-  components from the repositories, common groups and packages. The same logic holds true for the web and DNS servers.</para>
-
-  <para>To see the differences between one large versus several small files,
-  let's take the <filename>samba-server.distribution</filename> file you created
-  in Part I and modify that to use XInclude and XPointer statements. To do
-  that you will create a separate repository file,
-  <filename>repos.xml.</filename></para>
-
-  <para>First, create your <filename class="directory">distributions/</filename>
-  subdirectory with the two subdirectories <filename
-  class="directory">common/</filename> and <filename
-  class="directory">samba-server/</filename> as above. Place your
-  <filename>samba-server.distribution</filename> and
-  <filename>smb.conf</filename> files in the latter.</para>
-
-  <para>Next, create the <filename>distributions/common/repos.xml</filename>
-  using the example below. The separate repository file includes the URLs for
-  several operating system brands, architectures and statuses, e.g. "base" and
-  "updates."</para>
-
-  <para><informalexample>
-      <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
-
-&lt;!-- reposistories for centos --&gt;
-&lt;repos-centos&gt;
-&lt;!-- See www.centos.org for a list of public mirrors --&gt;
-    &lt;repo id="base"&gt;
-      &lt;name&gt;CentOS-$releasever - Base&lt;/name&gt;
-      &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/os/
-           $basearch/&lt;/baseurl&gt;
-      &lt;mirrorlist&gt;http://mirrorlist.centos.org/?release=$releasever&amp;amp;
-           arch=$basearch&amp;amp;repo=os&amp;amp;country=us&lt;/mirrorlist&gt;
-    &lt;/repo&gt;
-    &lt;repo id="updates"&gt;
-      &lt;name&gt;CentOS-$releasever - Updates&lt;/name&gt;
-      &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/updates/
-           $basearch/&lt;/baseurl&gt;
-      &lt;mirrorlist&gt;http://mirrorlist.centos.org/?release=$releasever&amp;amp;
-           arch=$basearch&amp;amp;repo=updates&amp;amp;country=us&lt;/mirrorlist&gt;
-    &lt;/repo&gt;
-
-&lt;/repos-centos&gt;
-
-&lt;!-- reposistories for fedora --&gt;
-&lt;repos-fedora&gt;
-
-&lt;!-- See www.fedoraproject.org for a list of public mirrors --&gt;
-    &lt;repo id="base"&gt;
-      &lt;name&gt;Fedora-$releasever - Base&lt;/name&gt;
-      &lt;baseurl&gt;http://mirror.stanford.edu/fedora/linux/releases/$releasever/
-           Fedora/$basearch/os&lt;/baseurl&gt;
-      &lt;mirrorlist&gt;http://mirrors.fedoraproject.org/mirrorlist?
-           repo=fedora-$releasever&amp;amp;arch=$basearch&amp;amp;country=us 
-      &lt;/mirrorlist&gt;
-
-&lt;repo id="updates"&gt;
-      &lt;name&gt;Fedora-$releasever - Updates&lt;/name&gt;
-      &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/updates/
-           $basearch/&lt;/baseurl&gt;
-      &lt;mirrorlist&gt;http://mirrors.fedoraproject.org/mirrorlist?
-           repo=updates-released-f$releasever&amp;amp;arch=$basearch&amp;amp;country=us 
-      &lt;/mirrorlist&gt;
-&lt;/repo&gt;
-
-&lt;/repos-fedora&gt;
-
-&lt;/distribution&gt;</programlisting>
-    </informalexample></para>
-
-  <para>The final step is to modify the
-  <filename>samba-server.distribution</filename> file, removing the
-  <emphasis>repos</emphasis> details and using XInclude and XPointer to reuse
-  common content. You may want to rename the distribution definition or include it in 
-  a version control system.</para>
-
-  <para><informalexample>
-      <programlisting>&lt;repos&gt;
-
-    &lt;!-- use global repos for CentOS --&gt;
-    &lt;xi:include href="../common/repos.xml" 
-                xpointer="xpointer(/distributions/repos-centos/*)" /&gt;
-
-  &lt;/repos&gt;</programlisting>
-    </informalexample></para>
-
-  <para>To build the distribution definition,
-  you will also have to change the path to the <filename>smb.conf</filename>
-  file in <emphasis>config/file</emphasis>.</para>
-
-  <para>The result is an object-oriented distribution definition that will
-  reduce your maintenance overhead.</para>
+  <para>If you decide to not use a revision control system, you could rename
+  the distribution definition or other key
+  files every time you make a change to help you "version" your distribution.
+  You can also enter comments in the files. Keep in mind that changing the name
+  of distribution definition does not mean <application class="software">
+  SystemBuilder</application> will build a new distribution.
+  As long as the <varname>$ID</varname> remains the same, the
+  distribution remains the same.</para>
 </section>
+

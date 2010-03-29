@@ -44,7 +44,7 @@
         <term><emphasis role="strong">configuration package</emphasis></term>
 
         <listitem>
-          <para>An RPM package created by SystemBuilder during the build process. This package contains the <application class="software">YUM</application> sync plugin, SystemBuilder created update configuration, and user-specified configuration files and scripts. The name of the configuration package is in the following format, where $NAME and $VERSION are taken from the <emphasis>name</emphasis>, and <emphasis>version</emphasis> elements in the distribution definition and $RELEASE is taken from the <xref linkend="distribution-data-file" />.
+          <para>An RPM package created by SystemBuilder during the build process. This package contains the <application class="software">YUM</application> sync plugin, SystemBuilder created YUM configuration, and user-specified configuration files and scripts. The name of the configuration package is in the following format, where $NAME and $VERSION are taken from the <emphasis>name</emphasis>, and <emphasis>version</emphasis> elements in the distribution definition and $RELEASE is taken from the <xref linkend="distribution-data-file" />.
           </para>
 
           <para><informalexample>
@@ -108,22 +108,22 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="distribution-url" xreflabel="distribution URL">
-        <term><emphasis role="strong">distribution URL</emphasis></term>
+      <varlistentry id="download-location" xreflabel="download location">
+        <term><emphasis role="strong">download location</emphasis></term>
 
         <listitem>
-          <para>The web location for downloading distribution content. By default this location is as follows, where $IP_ADDRESS is the address of the build machine, and $ID is the distribution id.</para>
+          <para>The web location (URL) for downloading distribution content. SystemBuilder uses this location during the build process for two purposes, for creating YUM client configuration (included in the <xref linkend="configuration-package"/>), and for customizing network install images. By default the download location is as follows, where $IP_ADDRESS is the address of the build machine, and $ID is the distribution id.</para>
 
           <para><informalexample>
             <filename>http://$IP_ADDRESS/distributions/$ID</filename></informalexample></para>
 
-<para>For example, if the IP Address for the build machine is <filename>192.168.1.5</filename> and the distribution id is <emphasis>samba-server-5-i386</emphasis> the distribution URL is as follows:</para>
+<para>For example, if the IP Address for the build machine is <filename>192.168.1.5</filename> and the distribution id is <emphasis>samba-server-5-i386</emphasis> the download location is as follows:</para>
 
           <para><informalexample>
               <filename>http://192.168.1.5/distributions/samba-server-5-i386</filename>
             </informalexample></para>
 
-          <para>The distribution URL is configurable using the <emphasis>publish</emphasis> element of the distribution definition. More information on specifying the distribution URL is available in Chapter 5 under <xref linkend="download-locations"/></para>
+          <para>The download location is configurable using the <emphasis>publish</emphasis> element of the distribution definition. See the DDFR for information on the publish element. See also <xref linkend="production-definitions"/> for a discussion on using download locations in a production environment.</para>
         </listitem>
       </varlistentry>
 
@@ -135,25 +135,7 @@
           process. Provides packages for use during client machine installations
           and updates. Can be accessed over the network from the 
           <filename type="directory">os</filename> folder of the 
-          <xref linkend="distribution-url"/>.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="download-server" xreflabel="download server">
-        <term><emphasis role="strong">download server</emphasis></term>
-
-        <listitem>
-          <para>The machine from which client machines download distribution
-          contents. By default, the build machine is also the download server.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="module" xreflabel="module">
-        <term><emphasis role="strong">module</emphasis></term>
-
-        <listitem>
-          <para>A software function within <application
-          class="software">SystemBuilder</application> that executes.</para>
+          <xref linkend="download-location"/>.</para>
         </listitem>
       </varlistentry>
 
@@ -169,17 +151,6 @@
       </varlistentry>
 
       <varlistentry>
-        <term><emphasis role="strong">sandbox</emphasis></term>
-
-        <listitem>
-          <para>The development portion of a development - staging -
-          production environment for a <application
-          class="software">SystemBuilder</application> distribution build
-          management system.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
         <term><emphasis role="strong">staging server</emphasis></term>
 
         <listitem>
@@ -191,8 +162,8 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="sync-plugin" xreflabel="sync plugin">
-        <term><emphasis role="strong">sync plugin</emphasis></term>
+      <varlistentry id="yum-sync-plugin" xreflabel="YUM Sync Plugin">
+        <term><emphasis role="strong">YUM Sync Plugin</emphasis></term>
 
         <listitem>
           <para>A <application class="software">YUM</application> plugin provided by SystemBuilder that allows synchronizing packages on client machines with packages in the <xref linkend="distribution-repository"/>. The plugin is included by default in the <xref linkend="configuration-package" />, which serves as the mechanism for installing it on client machines. The plugin establishes the distribution repository as the <emphasis>master repository</emphasis>, disables all non-master repositories, and provides a new argument, <emphasis>sync</emphasis>, to YUM. Help for the <emphasis>sync</emphasis> argument is available on client machines using the <command>yum help</command> command. Running <command>yum sync</command> allows YUM to calculate package additions and removals based on packages available in the distribution repository. For more information, see the section on <xref linkend="updating-client-machines"/>.</para>

@@ -1,11 +1,270 @@
+2010-03-26  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/dblatex/xsl/param.xsl, docsrc/usermanual/UserManual.html,
+	docsrc/usermanual/UserManual.pdf, docsrc/usermanual/ch2-sec2.xml,
+	docsrc/usermanual/ch2-sec3.xml, docsrc/usermanual/ch2-sec4.xml,
+	docsrc/usermanual/ch2-sec5.xml, docsrc/usermanual/ch2-sec6.xml,
+	docsrc/usermanual/ch3-sec1.xml, docsrc/usermanual/ch3-sec4.xml,
+	docsrc/usermanual/ch3-sec5.xml, docsrc/usermanual/ch3-sec6.xml,
+	docsrc/usermanual/ch3-sec7.xml, docsrc/usermanual/ch3-sec8.xml,
+	docsrc/usermanual/ch4-sec1.xml, docsrc/usermanual/ch4-sec2.xml,
+	docsrc/usermanual/ch4-sec3.xml, docsrc/usermanual/ch4-sec4.xml,
+	docsrc/usermanual/ch4-sec5.xml, docsrc/usermanual/ch4-sec6.xml,
+	docsrc/usermanual/ch4-sec7.xml, docsrc/usermanual/ch4-sec8.xml,
+	docsrc/usermanual/ch4.xml, docsrc/usermanual/index.xml,
+	docsrc/usermanual/systembuilder_logical_network.jpg,
+	docsrc/usermanual/systembuilder_logical_network.png,
+	docsrc/usermanual/systembuilder_updates.png:
+	additional usermanual edits - work in progress
+	[0df5a5e40733] [tip]
+
+2010-03-22  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/modules/core/repocreate/depsolve.py,
+	systembuilder/modules/shared/idepsolver.py:
+	depsolve dependency resolution now prefers best comps packages
+
+	Previously during dependency resolution, depsolve preferred
+	satisfier packages if the package 'name' matched a package in comps.
+	With this change, depsolve first gets the best available package for
+	each comps package, and then matches the full package object (not
+	just the name) before determining whether a comps package should be
+	a preferred satisfier.
+
+	modules/shared/repocreate/idepsolver.py
+	* implemented logic described above
+	* removed legacy code that attempted to filter out comps_optional_pkgs
+
+	modules/core/repocreate/depsolve.py
+	* bumped version
+
+	HG Enter commit message. Lines beginning with 'HG:' are removed.
+	[1c80021eaf5e]
+
+2010-03-22  root  <root@spinmaster.renditionsoftware.com>
+
+	* systembuilder/modules/core/rpmbuild/config.py,
+	systembuilder/modules/shared/rpmbuild.py:
+	fixed up some config event caching issues
+
+	The config event was leaving obsolete files in the build folder,
+	resulting in obsolete files being included in and installed by the
+	config RPM.
+
+	shared/rpmbuild.py
+	* now deletes the eventcache prior to each run using
+	self.io.clean_eventcache(all=True)
+	* the build folder is now added to diff output in the shared
+	rpmbuild.py module rather than in the config specific module. Thus,
+	if we have additional rpms in the future (e.g. logos, release), the
+	build folder will be preserved between systembuilder runs for those
+	as well.
+
+	core/config.py
+	* Now processing provided files separately from raw text files.
+	* Provided files are handled using fileio functions. Files are listed
+	as input in the setup function using add_fpath. They are
+	synchronized to the build folder in the generate function using
+	sync_input.
+	* For raw text files, differences are managed via config diff. File
+	creation now occurs in the generate function (moved from the setup
+	function), allowing it to occur after the build folder has been
+	cleaned.
+	[74926b71c194]
+
+2010-03-17  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/modules/core/repocreate/depsolve.py,
+	systembuilder/modules/shared/idepsolver.py:
+	final fix (hopefully) to prevent sync from installing unnecessary
+	packages
+
+	idepsolve.py
+	* depsolve now also prioritizes conditional packages over optional
+	packages
+	* order is mandatory -> default -> conditional
+	* should prevent depsolve from ever selecting a package for inclusion
+	in the distribution that differs from what yum would select at
+	install time.
+
+	depsolve.py
+	* bumped version number
+	[12052b142030]
+
+2010-03-16  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* sbtest/__init__.py, systembuilder/modules/shared/idepsolver.py:
+	Additional fix to prevent sync from installing unnecessary packages
+
+	sbtest/__init__.py
+	 * added hack so that test messages display properly in centos 5
+
+	modules/shared/idepsolver.py
+	 * idepsolver now also checks for default packages before falling back
+	to optional packages in _provideToPkg()
+	 * hierarchy is required > default > optional
+	 * not sure if this will be needed for conditional; I'm leaving it
+	alone for now, but if it is required, it should be doable via the
+	same method
+	[ad2b9df02527]
+
+2010-03-14  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* sbtest/modules/depsolve/__init__.py,
+	systembuilder/modules/shared/idepsolver.py:
+	depsolve now prioritizes mandatory packages over optional packages
+	when looking to satisfy requirements
+
+	sbtest/modules/depsolve/__init__.py
+	 * added Test_MandatoryVsOptional, which checks that mandatory packages
+	are chosen over optional ones when both provide the same req
+
+	modules/shared/idepsolver.py
+	 * added a hack that causes mandatory packages to be chosen over
+	optional packages when both provide the same satisfier
+	 * if, for a given req, there exists at least one mandatory satisfier,
+	only mandatory package satisfiers are considered for that req. If
+	there are no mandatory satisifers, then non-mandatory packages
+	are also considered.
+	[251db34369c8]
+
+2010-03-12  kwilliams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/modules/core/rpmbuild/config.py:
+	config package no longer removes input files
+
+	* previously, the config package moved files on client systems from
+	/usr/share/$name/files/... to the destination location. With this
+	change, it copies files rather than moving. This allows rpm -V on
+	the rpm to work correctly. Previously it reported the moved files as
+	'missing'.
+	* bumped config package version number
+	[f63332b1adfa]
+
+2010-03-11  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/locals/installclass.py:
+	eliminated another variable substitution in installclass.py
+	[d2b89eca6577]
+
+	* systembuilder/locals/installclass.py,
+	systembuilder/modules/core/installer/product-image.py:
+	installclass group selection no longer variable
+
+	* awhile back we changed the packages module to create a comps file
+	with all packages in a single 'core' group
+	* because we now have a single group, the installclass can simply
+	select that group.
+	* as a result, this commit moves groupselection logic out of the
+	product-image module and places it in the locals file
+	[adbf033b214d]
+
+2010-03-10  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/locals/installclass.py,
+	systembuilder/modules/core/installer/product-image.py:
+	modified custom.py installclass to skip task selection
+
+	locals/installclass.py
+	* skipping 'tasksel' step for all anaconda versions
+	* now that we are placing all required packages in the core group, the
+	"Task Selection" dialog always comes up blank
+	* better to skip it entirely
+
+	modules/core/installer/product-image.py
+	* bumped the product-image event version number to force rebuilding a
+	new product image with the new install class
+	[835c145743e3]
+
+2010-03-08  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/DDFR/Index.xml, docsrc/DDFR/TopLevelElements-publish.xml,
+	docsrc/DDFR/TopLevelElements-repos.xml:
+	DDFR edits
+
+	* changed the pubdate to March 2010
+	* clarified the use of RHN child channels, added a child channel to
+	the RHN repos example, and provided information on obtaining channel
+	labels from the RHN web UI.
+	* misc grammar fixes
+	[fa3e069b56db]
+
+2010-02-27  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/usermanual/ch2-sec1.xml, docsrc/usermanual/ch2-sec2.xml,
+	docsrc/usermanual/ch2-sec3.xml, docsrc/usermanual/ch2-sec4.xml,
+	docsrc/usermanual/ch2-sec5.xml, docsrc/usermanual/ch2-sec6.xml,
+	docsrc/usermanual/ch2.xml, docsrc/usermanual/ch3-sec1.xml,
+	docsrc/usermanual/ch3-sec2.xml, docsrc/usermanual/ch3-sec3.xml,
+	docsrc/usermanual/ch3-sec4.xml, docsrc/usermanual/ch3-sec5.xml,
+	docsrc/usermanual/ch3-sec6.xml, docsrc/usermanual/ch3-sec7.xml,
+	docsrc/usermanual/ch3-sec8.xml, docsrc/usermanual/ch3.xml,
+	docsrc/usermanual/ch4-sec1.xml, docsrc/usermanual/ch4-sec2.xml,
+	docsrc/usermanual/ch4-sec3.xml, docsrc/usermanual/ch4-sec4.xml,
+	docsrc/usermanual/ch4.xml, docsrc/usermanual/ch5-sec1.xml,
+	docsrc/usermanual/ch5-sec2.xml, docsrc/usermanual/ch5-sec3.xml,
+	docsrc/usermanual/ch5-sec4.xml, docsrc/usermanual/ch5-sec5.xml,
+	docsrc/usermanual/ch5-sec6.xml, docsrc/usermanual/ch5.xml,
+	docsrc/usermanual/distribution_definition_reuse.jpg,
+	docsrc/usermanual/distribution_definition_reuse.png,
+	docsrc/usermanual/index.xml, docsrc/usermanual/part1-ch1-sec1.xml,
+	docsrc/usermanual/part1-ch1-sec2.xml,
+	docsrc/usermanual/part1-ch1-sec3.xml,
+	docsrc/usermanual/part1-ch1-sec4.xml,
+	docsrc/usermanual/part1-ch1-sec5.xml,
+	docsrc/usermanual/part1-ch1-sec6.xml,
+	docsrc/usermanual/part1-ch1.xml,
+	docsrc/usermanual/part1-ch2-sec1.xml,
+	docsrc/usermanual/part1-ch2-sec2.xml,
+	docsrc/usermanual/part1-ch2-sec3.xml,
+	docsrc/usermanual/part1-ch2-sec4.xml,
+	docsrc/usermanual/part1-ch2-sec5.xml,
+	docsrc/usermanual/part1-ch2-sec6.xml,
+	docsrc/usermanual/part1-ch2-sec7.xml,
+	docsrc/usermanual/part1-ch2.xml,
+	docsrc/usermanual/part2-ch1-sec1.xml,
+	docsrc/usermanual/part2-ch1.xml,
+	docsrc/usermanual/part2-ch2-sec1.xml,
+	docsrc/usermanual/part2-ch2-sec2.xml,
+	docsrc/usermanual/part2-ch2-sec3.xml,
+	docsrc/usermanual/part2-ch2-sec4.xml,
+	docsrc/usermanual/part3-ch1-sec1.xml,
+	docsrc/usermanual/part3-ch1-sec3.xml,
+	docsrc/usermanual/part3-ch1-sec4.xml,
+	docsrc/usermanual/part3-ch1.xml,
+	docsrc/usermanual/part3-ch2-sec1.xml,
+	docsrc/usermanual/part3-ch2-sec2.xml,
+	docsrc/usermanual/part3-ch3-sec1.xml,
+	docsrc/usermanual/part3-ch3-sec2.xml,
+	docsrc/usermanual/part3-ch3-sec3.xml:
+	user manual edits; primarily source file renaming
+
+	* renamed user manual source files to align with document chapters
+
+	* modified distribution_document_reuse image to remove references to
+	"appliances". File is now in png format rather than jpg.
+	[711c1b90ed28]
+
 2010-02-24  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* ChangeLog, systembuilder.spec:
+	bumped specfile version
+	[aa85b572bab0]
+
+	* systembuilder/modules/core/rpmbuild/config.py:
+	bumped config module version to include new yum-sync plugin
+	[7f90676f821d]
+
+	* ChangeLog, systembuilder.spec:
 	bumped spec version
-	[504ff09b9951] [tip]
+	[504ff09b9951]
 
 	* merge with trunk
 	[9f439c063f0c]
+
+	* systembuilder/locals/yum_plugin.py:
+	yum-plugin bugfix to command registration
+	[b1d18a2ff5b8]
 
 	* docsrc/usermanual/part1-ch1-sec6.xml,
 	docsrc/usermanual/part1-ch2-sec3.xml,
@@ -15,10 +274,6 @@
 	docsrc/usermanual/part1-ch2.xml:
 	UserManual edits through chapter 3
 	[5913c83e6043]
-
-	* systembuilder/locals/yum_plugin.py:
-	yum-plugin bugfix to command registration
-	[b1d18a2ff5b8]
 
 2010-02-22  Kay Williams  <kwilliams@renditionsoftware.com>
 
@@ -75,14 +330,6 @@
 	documentation: config-related updates to the usermanual and DDFR
 	[e14b5c9ccdef]
 
-2010-02-12  Kay Williams  <kwilliams@renditionsoftware.com>
-
-	* docsrc/DDFR/CommonComponents-Attributes.xml, docsrc/DDFR
-	/CommonComponents-Elements.xml, docsrc/DDFR/TopLevelElements-
-	config.xml:
-	DDFR: additional documentation cleanup for the config element
-	[48ea99ebb705]
-
 2010-02-20  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
 
 	* sbtest/modules/config-rpm.py, sbtest/modules/config.py,
@@ -99,6 +346,12 @@
 	[725224c0ecf7]
 
 2010-02-12  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/DDFR/CommonComponents-Attributes.xml, docsrc/DDFR
+	/CommonComponents-Elements.xml, docsrc/DDFR/TopLevelElements-
+	config.xml:
+	DDFR: additional documentation cleanup for the config element
+	[48ea99ebb705]
 
 	* docsrc/DDFR/CommonComponents-Attributes.xml, docsrc/DDFR
 	/TopLevelElements-config.xml,
@@ -487,6 +740,10 @@
 	UserManual: many edits, yet more to come
 	[46fa8aeca9fe]
 
+	* systembuilder/modules/core/publish.py:
+	publish copies rather than links to ensure distribution integrity
+	[2d06436190f0]
+
 	* docsrc/DDFR/CommonComponents-Variables.xml,
 	docsrc/DDFR/DocumentConventions.xml, docsrc/DDFR/TopLevelElements-
 	main.xml, docsrc/DDFR/TopLevelElements-publish.xml:
@@ -560,16 +817,18 @@
 	usermanual: removed TLE abbreviation, using 'element' instead
 	[9e0949c0dfca]
 
-2010-02-03  Kay Williams  <kwilliams@renditionsoftware.com>
-
-	* systembuilder/modules/core/publish.py:
-	publish copies rather than links to ensure distribution integrity
-	[2d06436190f0]
-
 2010-01-24  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* merge with trunk
 	[18ae36f19f5a]
+
+2010-01-15  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder.spec:
+	removed logos-rpm requires from specfile
+	[69b4e7f4ca1c]
+
+2010-01-24  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* docsrc/usermanual/Makefile, docsrc/usermanual/index.xml,
 	docsrc/usermanual/part1-ch1-sec1.xml,
@@ -637,12 +896,6 @@
 	* docsrc/usermanual/Makefile:
 	usermanual: html toc now three levels deep
 	[97f73cb86565]
-
-2010-01-15  Kay Williams  <kwilliams@renditionsoftware.com>
-
-	* systembuilder.spec:
-	removed logos-rpm requires from specfile
-	[69b4e7f4ca1c]
 
 2010-01-07  Kay Williams  <kwilliams@renditionsoftware.com>
 
@@ -845,6 +1098,69 @@
 	removed logos-rpm test module
 	[5032b8d29c02]
 
+	* share/systembuilder/logos-rpm/Makefile, share/systembuilder/logos-
+	rpm/centos5.xml, share/systembuilder/logos-rpm/common.xml,
+	share/systembuilder/logos-rpm/fedora9.xml, share/systembuilder
+	/logos-rpm/files/Makefile, share/systembuilder/logos-
+	rpm/files/backgrounds/Makefile, share/systembuilder/logos-
+	rpm/files/backgrounds/desktop-backgrounds-systembuilder.xml,
+	share/systembuilder/logos-rpm/files/backgrounds/systembuilder.xml,
+	share/systembuilder/logos-rpm/files/gdm/GdmGreeterTheme.desktop,
+	share/systembuilder/logos-rpm/files/gdm/Makefile,
+	share/systembuilder/logos-rpm/files/gdm/SystemBuilder.gtkrc,
+	share/systembuilder/logos-rpm/files/gdm/SystemBuilderGDM.xml,
+	share/systembuilder/logos-rpm/files/gnome-background-
+	properties/Makefile, share/systembuilder/logos-rpm/files/gnome-
+	background-properties/desktop-backgrounds-systembuilder.xml,
+	share/systembuilder/logos-rpm/files/gnome-screensaver/Makefile,
+	share/systembuilder/logos-rpm/files/gnome-screensaver/lock-dialog-
+	system.glade, share/systembuilder/logos-rpm/files/gnome-screensaver
+	/lock-dialog-system.gtkrc, share/systembuilder/logos-
+	rpm/files/kdisplay/Makefile, share/systembuilder/logos-
+	rpm/files/kdisplay/SystemBuilder.kcsrc, share/systembuilder/logos-
+	rpm/files/kdisplay/SystemBuilderKDM.kcsrc, share/systembuilder
+	/logos-rpm/files/kdm/GdmGreeterTheme.desktop, share/systembuilder
+	/logos-rpm/files/kdm/Makefile, share/systembuilder/logos-
+	rpm/files/kdm/SystemBuilderKDM.xml, share/systembuilder/logos-
+	rpm/files/ksplash/Makefile, share/systembuilder/logos-
+	rpm/files/ksplash/Theme.rc, share/systembuilder/logos-rpm/fonts
+	/DejaVuLGCSans-Bold.ttf, share/systembuilder/logos-rpm/fonts
+	/DejaVuLGCSans-ExtraLight.ttf, share/systembuilder/logos-
+	rpm/fonts/DejaVuLGCSans.ttf, share/systembuilder/logos-
+	rpm/fonts/Makefile, share/systembuilder/logos-rpm/icons.xml,
+	share/systembuilder/logos-rpm/icons/Makefile, share/systembuilder
+	/logos-rpm/icons/disconnect-active.png, share/systembuilder/logos-
+	rpm/icons/disconnect-prelight.png, share/systembuilder/logos-
+	rpm/icons/disconnect.png, share/systembuilder/logos-rpm/icons/halt-
+	active.png, share/systembuilder/logos-rpm/icons/halt-prelight.png,
+	share/systembuilder/logos-rpm/icons/halt.png, share/systembuilder
+	/logos-rpm/icons/language-active.png, share/systembuilder/logos-
+	rpm/icons/language-prelight.png, share/systembuilder/logos-
+	rpm/icons/language.png, share/systembuilder/logos-
+	rpm/icons/line.png, share/systembuilder/logos-rpm/icons/quit-
+	active.png, share/systembuilder/logos-rpm/icons/quit-prelight.png,
+	share/systembuilder/logos-rpm/icons/quit.png, share/systembuilder
+	/logos-rpm/icons/reboot-active.png, share/systembuilder/logos-
+	rpm/icons/reboot-prelight.png, share/systembuilder/logos-
+	rpm/icons/reboot.png, share/systembuilder/logos-rpm/icons/selection-
+	active.png, share/systembuilder/logos-rpm/icons/selection-
+	prelight.png, share/systembuilder/logos-rpm/icons/selection.png,
+	share/systembuilder/logos-rpm/icons/session-active.png,
+	share/systembuilder/logos-rpm/icons/session-prelight.png,
+	share/systembuilder/logos-rpm/icons/session.png, share/systembuilder
+	/logos-rpm/icons/suspend-active.png, share/systembuilder/logos-
+	rpm/icons/suspend-prelight.png, share/systembuilder/logos-
+	rpm/icons/suspend.png, share/systembuilder/logos-rpm/icons/system-
+	active.png, share/systembuilder/logos-rpm/icons/system-prelight.png,
+	share/systembuilder/logos-rpm/icons/system.png, share/systembuilder
+	/logos-rpm/redhat5.xml, systembuilder/modules/core/rpmbuild/logos-
+	rpm/__init__.py, systembuilder/modules/core/rpmbuild/logos-
+	rpm/config/__init__.py, systembuilder/modules/core/rpmbuild/logos-
+	rpm/config/configlets.py, systembuilder/modules/core/rpmbuild/logos-
+	rpm/files.py:
+	removed logos-rpm module and schemas, for now
+	[73d9c6d14c67]
+
 	* docsrc/usermanual/part3-ch2-sec1.xml:
 	documentation bugfix
 	[fd5d67215fed]
@@ -953,71 +1269,6 @@
 	renamed SDFR folder to DDFR
 	[25f2ced66ad4]
 
-2009-12-28  Kay Williams  <kwilliams@renditionsoftware.com>
-
-	* share/systembuilder/logos-rpm/Makefile, share/systembuilder/logos-
-	rpm/centos5.xml, share/systembuilder/logos-rpm/common.xml,
-	share/systembuilder/logos-rpm/fedora9.xml, share/systembuilder
-	/logos-rpm/files/Makefile, share/systembuilder/logos-
-	rpm/files/backgrounds/Makefile, share/systembuilder/logos-
-	rpm/files/backgrounds/desktop-backgrounds-systembuilder.xml,
-	share/systembuilder/logos-rpm/files/backgrounds/systembuilder.xml,
-	share/systembuilder/logos-rpm/files/gdm/GdmGreeterTheme.desktop,
-	share/systembuilder/logos-rpm/files/gdm/Makefile,
-	share/systembuilder/logos-rpm/files/gdm/SystemBuilder.gtkrc,
-	share/systembuilder/logos-rpm/files/gdm/SystemBuilderGDM.xml,
-	share/systembuilder/logos-rpm/files/gnome-background-
-	properties/Makefile, share/systembuilder/logos-rpm/files/gnome-
-	background-properties/desktop-backgrounds-systembuilder.xml,
-	share/systembuilder/logos-rpm/files/gnome-screensaver/Makefile,
-	share/systembuilder/logos-rpm/files/gnome-screensaver/lock-dialog-
-	system.glade, share/systembuilder/logos-rpm/files/gnome-screensaver
-	/lock-dialog-system.gtkrc, share/systembuilder/logos-
-	rpm/files/kdisplay/Makefile, share/systembuilder/logos-
-	rpm/files/kdisplay/SystemBuilder.kcsrc, share/systembuilder/logos-
-	rpm/files/kdisplay/SystemBuilderKDM.kcsrc, share/systembuilder
-	/logos-rpm/files/kdm/GdmGreeterTheme.desktop, share/systembuilder
-	/logos-rpm/files/kdm/Makefile, share/systembuilder/logos-
-	rpm/files/kdm/SystemBuilderKDM.xml, share/systembuilder/logos-
-	rpm/files/ksplash/Makefile, share/systembuilder/logos-
-	rpm/files/ksplash/Theme.rc, share/systembuilder/logos-rpm/fonts
-	/DejaVuLGCSans-Bold.ttf, share/systembuilder/logos-rpm/fonts
-	/DejaVuLGCSans-ExtraLight.ttf, share/systembuilder/logos-
-	rpm/fonts/DejaVuLGCSans.ttf, share/systembuilder/logos-
-	rpm/fonts/Makefile, share/systembuilder/logos-rpm/icons.xml,
-	share/systembuilder/logos-rpm/icons/Makefile, share/systembuilder
-	/logos-rpm/icons/disconnect-active.png, share/systembuilder/logos-
-	rpm/icons/disconnect-prelight.png, share/systembuilder/logos-
-	rpm/icons/disconnect.png, share/systembuilder/logos-rpm/icons/halt-
-	active.png, share/systembuilder/logos-rpm/icons/halt-prelight.png,
-	share/systembuilder/logos-rpm/icons/halt.png, share/systembuilder
-	/logos-rpm/icons/language-active.png, share/systembuilder/logos-
-	rpm/icons/language-prelight.png, share/systembuilder/logos-
-	rpm/icons/language.png, share/systembuilder/logos-
-	rpm/icons/line.png, share/systembuilder/logos-rpm/icons/quit-
-	active.png, share/systembuilder/logos-rpm/icons/quit-prelight.png,
-	share/systembuilder/logos-rpm/icons/quit.png, share/systembuilder
-	/logos-rpm/icons/reboot-active.png, share/systembuilder/logos-
-	rpm/icons/reboot-prelight.png, share/systembuilder/logos-
-	rpm/icons/reboot.png, share/systembuilder/logos-rpm/icons/selection-
-	active.png, share/systembuilder/logos-rpm/icons/selection-
-	prelight.png, share/systembuilder/logos-rpm/icons/selection.png,
-	share/systembuilder/logos-rpm/icons/session-active.png,
-	share/systembuilder/logos-rpm/icons/session-prelight.png,
-	share/systembuilder/logos-rpm/icons/session.png, share/systembuilder
-	/logos-rpm/icons/suspend-active.png, share/systembuilder/logos-
-	rpm/icons/suspend-prelight.png, share/systembuilder/logos-
-	rpm/icons/suspend.png, share/systembuilder/logos-rpm/icons/system-
-	active.png, share/systembuilder/logos-rpm/icons/system-prelight.png,
-	share/systembuilder/logos-rpm/icons/system.png, share/systembuilder
-	/logos-rpm/redhat5.xml, systembuilder/modules/core/rpmbuild/logos-
-	rpm/__init__.py, systembuilder/modules/core/rpmbuild/logos-
-	rpm/config/__init__.py, systembuilder/modules/core/rpmbuild/logos-
-	rpm/config/configlets.py, systembuilder/modules/core/rpmbuild/logos-
-	rpm/files.py:
-	removed logos-rpm module and schemas, for now
-	[73d9c6d14c67]
-
 2009-12-21  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* systembuilder/modules/core/repocreate/packages.py:
@@ -1057,6 +1308,13 @@
 	branch merge
 	[eb906fa35470]
 
+2009-12-11  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/modules/shared/repos.py:
+	fixed erroneous change from systemid to distributionid in repos
+	shared module
+	[36e721fa586d]
+
 2009-12-15  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* share/systembuilder/schemas/distribution/Makefile:
@@ -1084,11 +1342,6 @@
 	[afc97d02a705]
 
 2009-12-11  Kay Williams  <kwilliams@renditionsoftware.com>
-
-	* systembuilder/modules/shared/repos.py:
-	fixed erroneous change from systemid to distributionid in repos
-	shared module
-	[36e721fa586d]
 
 	* share/systembuilder/schemas/distribution/lib.rng:
 	reverted erronious distributionid back to systemid in lib.rng

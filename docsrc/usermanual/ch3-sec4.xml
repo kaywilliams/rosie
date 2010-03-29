@@ -4,33 +4,40 @@
 <section>
   <title>Building a Distribution</title>
 
-  <para>Now that you have defined your distribution, use the
-  <command>systembuilder</command> command to build it.</para>
+  <para>Now that you have defined your distribution, you use the
+  <command>systembuilder</command> command to build it. The basic command validates the 
+  distribution definition syntax, creates the distribution, and records 
+  process results. The default level of screen output includes errors, build
+  status and file download and creation status. SystemBuilder also
+  sends this output to the log file, by default 
+  <filename>/var/log/systembuilder.log</filename>. If a critical error
+  occurs, SystemBuilder includes detailed error information in the log file.</para>
 
-  <note>The initial build of a distribution can be time consuming, on the order
+  <para>The initial build of a distribution can be time consuming, on the order
   of several minutes to an hour or more. Initial build time depends on a number
   of variables including the location of package repositories (local or remote), 
   network connection speed, the number of packages included in the distribution, 
   and the amount of content that can be reused from the SystemBuilder shared 
   cache. Subsequent builds complete in much less time, often 1-2 minutes, 
-  depending on the level and type of change since the previous build.</note>
+  depending on the level and type of change since the previous build.</para>
 
-  <para>The basic <command>systembuilder</command> command validates the 
-  distribution definition syntax, creates the distribution, and records 
-  process results. The default level of screen output includes errors, build
-  and module status and file download and creation status. SystemBuilder also
-  sends this output to the log file, by default 
-  <filename>/var/log/systembuilder.log</filename>. If a critical error
-  occurs, SystemBuilder includes detailed error information in the log file.
-  To run your build, enter the command below:</para>
+  <para>To run your build, enter the command below:</para>
 
   <para><informalexample>
       <programlisting>#systembuilder samba-server.distribution</programlisting>
-    </informalexample>The output for an initial run details all the steps
+    </informalexample></para>
+
+  <para>The output for an initial run details all the steps
   for downloading packages, checking package dependencies and creating
   images. If there are any errors, <application
   class="software">SystemBuilder</application> notes those and, in many cases,
   halts the process. See Appendix A for an example of a successful first-build
   output.</para>
+
+  <note>If your distribution uses RHN channels as repositories, SystemBuilder may occasionally report errors such as the following while downloading or verifying repository metadata:
+
+  <programlisting>[repos] long int too large to convert to int</programlisting> 
+
+This can happen when SystemBuilder receives invalid data from RHN. (Typically this occurs when data is being replicated across RHN servers). The error may be corrected by running SystemBuilder again, either immediately or after waiting several minutes.</note>
 
 </section>

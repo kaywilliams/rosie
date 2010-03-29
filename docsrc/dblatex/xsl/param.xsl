@@ -9,7 +9,7 @@
 <xsl:param name="figure.important">important</xsl:param>
 
 <!-- Options used for documentclass -->
-<xsl:param name="latex.class.options">a4paper,10pt,twoside,openright</xsl:param>
+<xsl:param name="latex.class.options">10pt</xsl:param>
 
 <!-- DB2LaTeX requires Palatino like fonts -->
 <xsl:param name="xetex.font">
