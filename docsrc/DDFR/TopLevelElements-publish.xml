@@ -22,9 +22,9 @@
 
     <para>
     The web-accessible download server can be either the SystemBuilder build
-    system or another machine. To utilize the SystemBuilder build system's hostname
+    system or another machine. To utilize the SystemBuilder build system's fully qualified domain name (FQDN) 
     instead of its IP address, set
-    <emphasis>publish/remote-url/@use-hostname</emphasis> to
+    <emphasis>publish/remote-url/@fqdn</emphasis> to
     <constant>TRUE</constant>. Use
     <emphasis>publish/remote-url/@interface</emphasis> to
     specify the network interface from which to obtain the IP address.
@@ -47,8 +47,8 @@
     <programlisting>
 [&lt;publish [enabled=BOOLEAN]&gt;
   [&lt;local-dir&gt;PATH&lt;/local-dir&gt;]
-  [( &lt;remote-url use-hostname=TRUE [interface=TEXT]/&gt; |
-     &lt;remote-url [use-hostname=FALSE]/&gt; )]
+  [( &lt;remote-url fqdn=TRUE [interface=TEXT]/&gt; |
+     &lt;remote-url [fqdn=FALSE]/&gt; )]
  &lt;/publish&gt;]
     </programlisting>
     </section>
@@ -134,22 +134,22 @@
       <para>
       This element accepts two attributes:
       <emphasis>@interface</emphasis> and
-      <emphasis>@use-hostname</emphasis>.
+      <emphasis>@fqdn</emphasis>.
       </para>
 
       <para>
       <emphasis>@interface</emphasis>: The network interface name,
       e.g. "eth1", from which to obtain the <varname>$ipaddress</varname>
       of the distribution's update repository. This attribute only has
-      an effect if <emphasis>publish/remote-url/@use-hostname</emphasis>
+      an effect if <emphasis>publish/remote-url/@fqdn</emphasis>
       is <constant>FALSE</constant>. By default, SystemBuilder uses the first
       active, non-loopback network interface.
       </para>
 
       <para>
-      <emphasis>@use-hostname</emphasis>: <varname>BOOLEAN</varname>
+      <emphasis>@fqdn</emphasis>: <varname>BOOLEAN</varname>
       that determines whether <application class="software">SystemBuilder</application>
-      uses the build machine's hostname or IP address in the
+      uses the build machine's fully qualified domain name or IP address in the
       automatically-computed remote url. The default value for
       this attribute is <constant>FALSE</constant>.
       </para>
@@ -165,8 +165,8 @@
     </title>
 
     <para>
-    In the following examples, the build system's hostname is
-    <filename>buildserver</filename> and the IP addresses of "eth0" and
+    In the following examples, the build system's fully qualified domain name is
+    <filename>buildserver.company.com</filename> and the IP addresses of "eth0" and
     "eth1" are 10.10.1.105 and 192.168.0.10, respectively. It is building a
     distribution with an <varname>$ID</varname> of
     "samba-server-5-i386".
@@ -197,19 +197,19 @@
 
     <section>
       <title>
-      Example 2 - automatic remote url computation using hostname
+      Example 2 - automatic remote url computation using FQDN
       </title>
 
       <para>
       In this example, the remote url is automatically computed using
-      the hostname of the build system. The resulting remote url is
-      <literallayout>http://buildserver/distributions/samba-server-5-i386</literallayout>
+      the FQDN of the build system. The resulting remote url is
+      <literallayout>http://buildserver.company.com/distributions/samba-server-5-i386</literallayout>
       </para>
 
       <informalexample>
       <programlisting>
 &lt;publish&gt;
-  &lt;remote-url use-hostname="true" /&gt;
+  &lt;remote-url fqdn="true" /&gt;
 &lt;/publish&gt;
       </programlisting>
       </informalexample>

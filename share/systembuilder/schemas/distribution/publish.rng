@@ -14,7 +14,7 @@
         <optional>
         <element name="remote-url">
         <optional>
-        <attribute name="use-hostname">
+        <attribute name="use-fqdn">
           <ref name="value-boolean"/>
         </attribute>
         </optional>

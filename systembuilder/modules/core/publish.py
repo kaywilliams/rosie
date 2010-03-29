@@ -65,8 +65,8 @@ class PublishSetupEvent(Event):
     self.cvars['web-path'] = self.remote / self.distributionid
 
   def _get_host(self, ifname=None):
-    if self.config.getbool('remote-url/@use-hostname', 'False'):
-      realm = socket.gethostname()
+    if self.config.getbool('remote-url/@fqdn', 'False'):
+      realm = socket.getfqdn()
     else:
       if not ifname:
         ifname,_ = get_first_active_interface()
