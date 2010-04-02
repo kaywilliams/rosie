@@ -39,7 +39,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.03',
+      version = '1.04',
       provides = ['rpmbuild-data'],
       requires = ['input-repos'],
       conditionally_requires = ['web-path', 'gpgsign-public-key'],
@@ -78,13 +78,13 @@ class ConfigEvent(RpmBuildMixin, Event):
     self.rpm.setup_build()
 
     # Hack to use a custom error for validating missing files
-    for element in [ 'files', 'script', 'trigger' ]:
-      for item in self.config.xpath(element, []):
-        if item.get('@content', 'filename') == 'filename':
-          assert_file_readable(item.get('text()', None), 
-                               element=element,
-                               item=str(item)[:-1], 
-                               cls=ConfigIOError)
+    #for element in [ 'files', 'script', 'trigger' ]:
+    #  for item in self.config.xpath(element, []):
+    #    if item.get('@content', 'filename') == 'filename':
+    #      assert_file_readable(item.get('text()', None), 
+    #                           element=element,
+    #                           item=str(item)[:-1], 
+    #                           cls=ConfigIOError)
 
     # add files for synchronization to the build folder
     for file in self.config.xpath('files', []):
@@ -271,11 +271,9 @@ class ConfigEvent(RpmBuildMixin, Event):
     return script
 
   def _mk_postun(self):
-    """Makes a postun scriptlet that uninstalls each <file> and restores
-    backups from .rpmsave, if present."""
+    """Makes a postun scriptlet that uninstalls obsolete <files> and
+    restores backups from .rpmsave, if present."""
     script = ''
-
-    script += 'if [ "$1" == "0" ]; then\n'
 
     sources = []
     for support_file in self.io.list_output('file'):
@@ -284,20 +282,22 @@ class ConfigEvent(RpmBuildMixin, Event):
 
       sources.append(dst)
 
-    script += '\n  file="%s"' % '\n        '.join(sources)
+    script += 'file="%s"' % '\n      '.join(sources)
+    script += '\ns=%s\n' % ('/' / self.filerelpath)
 
     script += '\n'.join([
         '',
-        '  for f in $file; do',
+        'for f in $file; do',
+        '  if [ ! -e $s/$f ]; then',
         '    if [ -e $f.rpmsave ]; then',
         '      %{__mv} -f $f.rpmsave $f',
         '    else',
         '      %{__rm} -f $f',
         '    fi',
-        '  done',
-        '',
+        '  fi', 
+        'done',
+        'find $s -depth -empty -type d -exec rmdir {} \;',
       ])
-    script += '\nfi\n'
 
     return script
 
