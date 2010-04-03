@@ -246,7 +246,7 @@
       <para>
       In this example, the remote url is manually configured. The
       resulting remote url is
-      <literallayout>http://distributions.company.com/pub/distributions/samba-server-5-i386</literallayout>
+      <literallayout>http://distributions.company.com/pub/samba-server-5-i386</literallayout>
       </para>
 
       <informalexample>
