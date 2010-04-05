@@ -39,7 +39,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.04',
+      version = '1.05',
       provides = ['rpmbuild-data'],
       requires = ['input-repos'],
       conditionally_requires = ['web-path', 'gpgsign-public-key'],
@@ -54,7 +54,6 @@ class ConfigEvent(RpmBuildMixin, Event):
     )
 
     self.scriptdir   = self.rpm.build_folder/'scripts'
-    self.filedir     = self.rpm.build_folder/'files'
     self.filerelpath = pps.path('usr/share/%s/files' % self.name)
 
     self.DATA = {
@@ -93,8 +92,7 @@ class ConfigEvent(RpmBuildMixin, Event):
                           ( self.rpm.source_folder //
                             self.filerelpath //
                             file.get('@destdir',
-                            '/usr/share/%s/files' % self.name) ),
-                           id = 'file',)
+                            '/usr/share/%s/files' % self.name) ) )
 
     # add all scripts as input so if they change, we rerun
     for script in self.config.xpath('script',  []) + \
@@ -120,16 +118,23 @@ class ConfigEvent(RpmBuildMixin, Event):
 
   def _generate_files(self):
     # create files based on raw text from config file
-    self.filedir.mkdirs()
     for file in self.config.xpath('files', []):
       text = file.text
       if file.get('@content', 'filename') == 'text':
         # if the content is 'text', write the string to a file and set
         # text to that value
-        fn = self.filedir/file.get('@destname')
+        destdir = ( self.rpm.source_folder //
+                    self.filerelpath //
+                    file.get('@destdir','/usr/share/%s/files' % self.name) )
+        destdir.mkdirs()
+        fn = ( destdir // file.get('@destname') )
         if not fn.exists() or fn.md5sum() != md5.new(text).hexdigest():
           fn.write_text(text)
         text = fn
+
+        fn.chmod(self.io.compute_mode(fn, file.get('@mode', None)))
+
+        self.DATA['output'].append(fn)
 
   def _generate_repofile(self):
     repofile = ( self.rpm.source_folder/'etc/yum.repos.d/%s.repo' % self.name )
@@ -238,7 +243,8 @@ class ConfigEvent(RpmBuildMixin, Event):
 
     # move support files as needed
     sources = []
-    for support_file in self.io.list_output('file'):
+    for support_file in (self.rpm.source_folder // self.filerelpath).findpaths(
+                         type=pps.constants.TYPE_NOT_DIR):
       src = '/' / support_file.relpathfrom(self.rpm.source_folder)
       dst = '/' / src.relpathfrom('/' / self.filerelpath)
       sources.append(dst)
@@ -268,7 +274,8 @@ class ConfigEvent(RpmBuildMixin, Event):
     script = ''
 
     sources = []
-    for support_file in self.io.list_output('file'):
+    for support_file in (self.rpm.source_folder // self.filerelpath).findpaths(
+                         type=pps.constants.TYPE_NOT_DIR):
       src = '/' / support_file.relpathfrom(self.rpm.source_folder)
       dst = '/' / src.relpathfrom('/' / self.filerelpath)
 
