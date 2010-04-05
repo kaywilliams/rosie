@@ -51,6 +51,9 @@ class IOObject(object):
     "Transform a path, f, to an absolute path"
     return (prefix or self.ptr._config.file.dirname) / f
 
+  def compute_mode(self, src, mode):
+    return int((mode or '').lstrip('0') or oct((src.stat().st_mode & 07777) or 0644), 8)
+
   def compute_dst(self, src, dst):
     r = []
     for s in src.findpaths():
@@ -87,7 +90,7 @@ class IOObject(object):
       self.ptr.diff.input.idata.append(src)
 
     for s,d in self.compute_dst(src, dst):
-      m = int((mode or '').lstrip('0') or oct((s.stat().st_mode & 07777) or 0644), 8)
+      m = self.compute_mode(s, mode)
 
       if d not in self.ptr.diff.output.odata:
         self.ptr.diff.output.odata.append(d)
