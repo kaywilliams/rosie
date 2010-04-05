@@ -131,14 +131,6 @@ class ConfigEvent(RpmBuildMixin, Event):
           fn.write_text(text)
         text = fn
 
-        self.io.add_fpath(text, ( self.rpm.source_folder //
-                                  self.filerelpath //
-                                  file.get('@destdir',
-                                           '/usr/share/%s/files' % self.name) ),
-                                id = 'file',
-                                mode = file.get('@mode', None),
-                                destname = file.get('@destname', None))
-
   def _generate_repofile(self):
     repofile = ( self.rpm.source_folder/'etc/yum.repos.d/%s.repo' % self.name )
 
