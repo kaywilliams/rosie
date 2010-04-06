@@ -39,7 +39,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.05',
+      version = '1.06',
       provides = ['rpmbuild-data'],
       requires = ['input-repos'],
       conditionally_requires = ['web-path', 'gpgsign-public-key'],
@@ -111,10 +111,11 @@ class ConfigEvent(RpmBuildMixin, Event):
 
   def generate(self):
     self._generate_files()
+    self.io.sync_input(cache=True)
+    self._generate_files_checksums()
     self._generate_repofile()
     if self.config.getbool('updates/@sync', True):
       self._include_sync_plugin()
-    self.io.sync_input(cache=True)
 
   def _generate_files(self):
     # create files based on raw text from config file
@@ -135,6 +136,27 @@ class ConfigEvent(RpmBuildMixin, Event):
         fn.chmod(self.io.compute_mode(fn, file.get('@mode', None)))
 
         self.DATA['output'].append(fn)
+
+  def _generate_files_checksums(self):
+    """Creates a file containing checksums of all <files>. For use in 
+    determining whether to backup existing files at install time."""
+    md5file = ( self.rpm.source_folder/'usr/share/%s/md5sums' % self.name )
+
+    lines = []
+
+    # compute checksums
+
+    for file in (self.rpm.source_folder // self.filerelpath).findpaths(
+                 type=pps.constants.TYPE_NOT_DIR):
+      src = '/' / file.relpathfrom(self.rpm.source_folder)
+      md5sum = file.md5sum()
+      lines.append('%s %s' % (md5sum, src))
+
+    if len(lines) > 0:
+      md5file.dirname.mkdirs()
+      md5file.write_lines(lines)
+
+      self.DATA['output'].append(md5file)
 
   def _generate_repofile(self):
     repofile = ( self.rpm.source_folder/'etc/yum.repos.d/%s.repo' % self.name )
@@ -193,7 +215,9 @@ class ConfigEvent(RpmBuildMixin, Event):
     plugin.write_lines(self.locals.L_YUM_PLUGIN['plugin'])
 
   def get_pre(self):
-    return self._make_script(self._process_script('pre'), 'pre')
+    scripts = [self._mk_pre()]
+    scripts.extend(self._process_script('pre'))
+    return self._make_script(scripts, 'pre')
   def get_post(self):
     scripts = [self._mk_post()]
     scripts.extend(self._process_script('post'))
@@ -236,6 +260,22 @@ class ConfigEvent(RpmBuildMixin, Event):
 
     return triggers
 
+  def _mk_pre(self):
+    """Makes a pre scriptlet that copies an existing md5sums file later use
+    by the post scriptlet"""
+    script = ''
+
+    script += 'file=/usr/share/%s/md5sums\n' % self.name
+
+    script += '\n'.join([
+      '',
+      'if [ -e $file ]; then',
+      '  %{__cp} $file $file.prev',
+      'fi',
+      '', ])
+
+    return script
+
   def _mk_post(self):
     """Makes a post scriptlet that installs each <file> to the given
     destination, backing up any existing files to .rpmsave"""
@@ -250,13 +290,19 @@ class ConfigEvent(RpmBuildMixin, Event):
       sources.append(dst)
 
     script += 'file="%s"' % '\n      '.join(sources)
-    script += '\ns=%s\n' % ('/' / self.filerelpath)
+    script += '\nmd5file=/usr/share/%s/md5sums\n' % self.name
+    script += 's=%s\n' % ('/' / self.filerelpath)
 
     script += '\n'.join([
       '',
       'for f in $file; do',
       '  if [ -e $f ]; then',
-      '    %{__mv} $f $f.rpmsave',
+      '    existmd5=`md5sum $f | sed -e "s/ .*//"`',
+      '    newmd5=`grep $f $md5file | sed -e "s/ .*//"`',
+      '    prevmd5=`grep $f $md5file.prev | sed -e "s/ .*//"`',
+      '    if [[ $existmd5 != $newmd5 && $existmd5 != $prevmd5 ]]; then',
+      '      %{__mv} $f $f.rpmsave',
+      '    fi',
       '  fi',
       '  if [ ! -d `dirname $f` ]; then',
       '    %{__mkdir} -p `dirname $f`',
@@ -297,6 +343,9 @@ class ConfigEvent(RpmBuildMixin, Event):
         'done',
         'find $s -depth -empty -type d -exec rmdir {} \;',
       ])
+
+    #remove md5sums.prev file   
+    script += '\n%%{__rm} -f /usr/share/%s/md5sums.prev\n' % self.name
 
     return script
 
