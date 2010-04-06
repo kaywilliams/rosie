@@ -415,6 +415,9 @@ class Build(SystemBuilderErrorHandler, SystemBuilderValidationHandler, object):
 
     # reverse the order so we get cli options, then config, then defaults
     Event.SHARE_DIRS = [ x for x in reversed(sharedirs) ]
+    for d in Event.SHARE_DIRS:
+      if not d==DEFAULT_SHARE_DIR and not d.isdir():
+        raise RuntimeError("The specified share-path '%s' does not exist." %d)
 
     cache_max_size = self.mainconfig.get('/systembuilder/cache/max-size/text()', '30GB')
     if cache_max_size.isdigit():
