@@ -301,7 +301,7 @@ class ConfigEvent(RpmBuildMixin, Event):
       '  if [ -e $f ]; then',
       '    curr=`md5sum $f | sed -e "s/ .*//"`',
       '    new=`grep $f $md5file | sed -e "s/ .*//"`',
-      '    prev=`grep $f $md5file.prev | sed -e "s/ .*//"`',
+      '    prev=`grep $f $md5file.prev &> /dev/null | sed -e "s/ .*//"`',
       '    if [[ $curr != $new && $curr != $prev ]]; then',
       '      %{__mv} $f $f.rpmsave',
       '    fi',
