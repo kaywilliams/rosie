@@ -92,7 +92,9 @@ class ConfigEvent(RpmBuildMixin, Event):
                           ( self.rpm.source_folder //
                             self.filerelpath //
                             file.get('@destdir',
-                            '/usr/share/%s/files' % self.name) ) )
+                            '/usr/share/%s/files' % self.name) ) ,
+                           mode=file.get('@mode', None),
+                           destname=file.get('@destname', None) )
 
     # add all scripts as input so if they change, we rerun
     for script in self.config.xpath('script',  []) + \
@@ -297,10 +299,10 @@ class ConfigEvent(RpmBuildMixin, Event):
       '',
       'for f in $file; do',
       '  if [ -e $f ]; then',
-      '    existmd5=`md5sum $f | sed -e "s/ .*//"`',
-      '    newmd5=`grep $f $md5file | sed -e "s/ .*//"`',
-      '    prevmd5=`grep $f $md5file.prev | sed -e "s/ .*//"`',
-      '    if [[ $existmd5 != $newmd5 && $existmd5 != $prevmd5 ]]; then',
+      '    curr=`md5sum $f | sed -e "s/ .*//"`',
+      '    new=`grep $f $md5file | sed -e "s/ .*//"`',
+      '    prev=`grep $f $md5file.prev | sed -e "s/ .*//"`',
+      '    if [[ $curr != $new && $curr != $prev ]]; then',
       '      %{__mv} $f $f.rpmsave',
       '    fi',
       '  fi',
