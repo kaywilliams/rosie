@@ -39,7 +39,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.06',
+      version = '1.07',
       provides = ['rpmbuild-data'],
       requires = ['input-repos'],
       conditionally_requires = ['web-path', 'gpgsign-public-key'],
@@ -294,6 +294,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     script += 'file="%s"' % '\n      '.join(sources)
     script += '\nmd5file=/usr/share/%s/md5sums\n' % self.name
     script += 's=%s\n' % ('/' / self.filerelpath)
+    script += 'changed=""\n'
 
     script += '\n'.join([
       '',
@@ -301,9 +302,14 @@ class ConfigEvent(RpmBuildMixin, Event):
       '  if [ -e $f ]; then',
       '    curr=`md5sum $f | sed -e "s/ .*//"`',
       '    new=`grep $f $md5file | sed -e "s/ .*//"`',
-      '    prev=`grep $f $md5file.prev &> /dev/null | sed -e "s/ .*//"`',
-      '    if [[ $curr != $new && $curr != $prev ]]; then',
-      '      %{__mv} $f $f.rpmsave',
+      '    prev=`grep $f $md5file.prev 2>/dev/null | sed -e "s/ .*//"`',
+      '    if [[ $curr != $new ]]; then',
+      '      # file changed',
+      '      changed="$changed $f"',
+      '      if [[ $curr != $prev ]]; then',
+      '        # file changed by user',
+      '        %{__mv} $f $f.rpmsave',
+      '      fi',
       '    fi',
       '  fi',
       '  if [ ! -d `dirname $f` ]; then',
