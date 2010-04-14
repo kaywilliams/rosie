@@ -39,7 +39,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.08',
+      version = '1.09',
       provides = ['rpmbuild-data'],
       requires = ['input-repos'],
       conditionally_requires = ['web-path', 'gpgsign-public-key'],
@@ -154,11 +154,10 @@ class ConfigEvent(RpmBuildMixin, Event):
       md5sum = file.md5sum()
       lines.append('%s %s' % (md5sum, src))
 
-    if len(lines) > 0:
-      md5file.dirname.mkdirs()
-      md5file.write_lines(lines)
+    md5file.dirname.mkdirs()
+    md5file.write_lines(lines)
 
-      self.DATA['output'].append(md5file)
+    self.DATA['output'].append(md5file)
 
   def _generate_repofile(self):
     repofile = ( self.rpm.source_folder/'etc/yum.repos.d/%s.repo' % self.name )
@@ -273,6 +272,8 @@ class ConfigEvent(RpmBuildMixin, Event):
       '',
       'if [ -e $file ]; then',
       '  %{__cp} $file $file.prev',
+      'else',
+      '  touch $file.prev',
       'fi',
       '', ])
 
@@ -302,18 +303,14 @@ class ConfigEvent(RpmBuildMixin, Event):
       '  if [ -e $f ]; then',
       '    curr=`md5sum $f | sed -e "s/ .*//"`',
       '    new=`grep $f $md5file | sed -e "s/ .*//"`',
-      '    prev=`grep $f $md5file.prev 2>/dev/null | sed -e "s/ .*//"`',
+      '    prev=`grep $f $md5file.prev | sed -e "s/ .*//"`',
       '    if [[ $curr != $new ]]; then',
-      '      # file changed',
-      '      changed="$changed $f"',
       '      if [[ $curr != $prev ]]; then',
       '        # file changed by user',
       '        %{__mv} $f $f.rpmsave',
+      '        changed="$changed $f"',
       '      fi',
       '    fi',
-      '  else',
-      '    # file changed',
-      '    changed="$changed $f"',
       '  fi',
       '  if [ ! -d `dirname $f` ]; then',
       '    %{__mkdir} -p `dirname $f`',
@@ -322,6 +319,8 @@ class ConfigEvent(RpmBuildMixin, Event):
       '  /sbin/restorecon $f',
       'done',
       '', ])
+
+    script += '\nchanged=\"$changed `diff $md5file $md5file.prev | grep -o \'\/.*\' | sed s!$s!!g`\"\n'
 
     return script
 
