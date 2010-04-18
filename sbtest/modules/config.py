@@ -36,6 +36,8 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
     self.working_dir = BUILD_ROOT
     self.file1 = pps.path('%s/file1' % self.working_dir)
     self.file2 = pps.path('%s/file2' % self.working_dir)
+    self.dir1  = pps.path('%s/dir1'  % self.working_dir)
+    self.file3 = pps.path('%s/file3' % self.dir1)
     self.script1 = pps.path('%s/script1' % self.working_dir)
     self.script2 = pps.path('%s/script2' % self.working_dir)
 
@@ -43,15 +45,26 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
       """
       <config enabled="true">
         <files destdir="/etc/testdir">%(working-dir)s/file1</files>
-        <files destdir="/etc/testdir" destname="filename">%(working-dir)s/file2</files>
+        <files destdir="/etc/testdir" destname="file4">%(working-dir)s/file2</files>
+        <files destdir="/etc/testdir" destname="file5" content="text">here is some text</files>
+        <files destdir="/etc/testdir">%(working-dir)s/dir1</files>
+        <!--<files destdir="/etc/testdir" destname="dir2" content="text">-->
         <script type="post">%(working-dir)s/script1</script>
         <script type="pre">%(working-dir)s/script1</script>
         <script type="preun">%(working-dir)s/script1</script>
         <script type="postun">%(working-dir)s/script1</script>
         <script type="verifyscript">%(working-dir)s/script1</script>
+        <script type="post" content="text">echo post</script>
+        <script type="pre" content="text">echo pre</script>
+        <script type="preun" content="text">echo preun</script>
+        <script type="postun" content="text">echo postun</script>
+        <script type="verifyscript" content="text">echo verifyscript</script>
         <trigger package="bash" type="triggerin">%(working-dir)s/script1</trigger>
         <trigger package="bash" type="triggerun">%(working-dir)s/script1</trigger>
         <trigger package="python" type="triggerpostun" interpreter="/bin/python">%(working-dir)s/script1</trigger>
+        <trigger package="bash" type="triggerin" content="text">echo triggerin</trigger>
+        <trigger package="bash" type="triggerun" content="text">echo triggerun</trigger>
+        <trigger package="python" type="triggerpostun" interpreter="/bin/python" content="text">print triggerpostun</trigger>
       </config>
       """ % {'working-dir': self.working_dir})
 
@@ -59,6 +72,8 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
     ConfigRpmEventTestCase.setUp(self)
     self.file1.touch()
     self.file2.touch()
+    self.dir1.mkdir()
+    self.file3.touch()
     self.script1.touch()
     self.script2.touch()
     self.clean_event_md()

@@ -19,8 +19,9 @@ from StringIO import StringIO
 
 from rendition import pps
 
-from systembuilder.event     import Event
-from systembuilder.validate  import InvalidConfigError
+from systembuilder.event        import Event
+from systembuilder.validate     import InvalidConfigError
+from systembuilder.event.fileio import MissingInputFileError
 
 from systembuilder.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
 from systembuilder.errors import SystemBuilderIOError, assert_file_readable
@@ -39,7 +40,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.09',
+      version = '1.10',
       provides = ['rpmbuild-data'],
       requires = ['input-repos'],
       conditionally_requires = ['web-path', 'gpgsign-public-key'],
@@ -88,13 +89,20 @@ class ConfigEvent(RpmBuildMixin, Event):
     # add files for synchronization to the build folder
     for file in self.config.xpath('files', []):
       if file.get('@content', 'filename') == 'filename':
-        self.io.add_fpath(file.text, 
-                          ( self.rpm.source_folder //
-                            self.filerelpath //
-                            file.get('@destdir',
-                            '/usr/share/%s/files' % self.name) ) ,
-                           mode=file.get('@mode', None),
-                           destname=file.get('@destname', None) )
+        try:
+          self.io.add_fpath(file.text,
+                            ( self.rpm.source_folder //
+                              self.filerelpath //
+                              file.get('@destdir',
+                              '/usr/share/%s/files' % self.name) ) ,
+                             mode=file.get('@mode', None),
+                             destname=file.get('@destname', None) )
+        except MissingInputFileError, e:
+          raise SystemBuilderIOError(errno=e.map['error'].errno,
+             file=file.text, message="If you wanted to include "
+             "this string as the contents of a file instead of "
+             "as a filename, be sure to set the @content attribute "
+             "of the <files> element to 'text'.");
 
     # add all scripts as input so if they change, we rerun
     for script in self.config.xpath('script',  []) + \
@@ -273,6 +281,7 @@ class ConfigEvent(RpmBuildMixin, Event):
       'if [ -e $file ]; then',
       '  %{__cp} $file $file.prev',
       'else',
+      '  %{__mkdir} -p `dirname $file`',
       '  touch $file.prev',
       'fi',
       '', ])
@@ -294,6 +303,7 @@ class ConfigEvent(RpmBuildMixin, Event):
 
     script += 'file="%s"' % '\n      '.join(sources)
     script += '\nmd5file=/usr/share/%s/md5sums\n' % self.name
+    script += 'mkdirs=/usr/share/%s/mkdirs\n' % self.name
     script += 's=%s\n' % ('/' / self.filerelpath)
     script += 'changed=""\n'
 
@@ -314,6 +324,7 @@ class ConfigEvent(RpmBuildMixin, Event):
       '  fi',
       '  if [ ! -d `dirname $f` ]; then',
       '    %{__mkdir} -p `dirname $f`',
+      '    echo `dirname $f` >> $mkdirs',
       '  fi',
       '  %{__cp} $s/$f $f',
       '  /sbin/restorecon $f',
@@ -339,6 +350,7 @@ class ConfigEvent(RpmBuildMixin, Event):
 
     script += 'file="%s"' % '\n      '.join(sources)
     script += '\ns=%s\n' % ('/' / self.filerelpath)
+    script += 'mkdirs=/usr/share/%s/mkdirs\n' % self.name
 
     script += '\n'.join([
         '',
@@ -349,13 +361,22 @@ class ConfigEvent(RpmBuildMixin, Event):
         '    else',
         '      %{__rm} -f $f',
         '    fi',
-        '  fi', 
+        '  fi',
         'done',
         'find $s -depth -empty -type d -exec rmdir {} \;',
+        'if [ -e $mkdirs ]; then',
+        '  for f in `cat $mkdirs`; do',
+        '    rmdir --ignore-fail-on-non-empty -p $f',
+        '  done',
+        'fi',
       ])
 
-    #remove md5sums.prev file   
+    # remove md5sums.prev file   
     script += '\n%%{__rm} -f /usr/share/%s/md5sums.prev\n' % self.name
+    # remove mkdirs file on uninstall
+    script += 'if [ $1 -eq 0 ]; then\n'
+    script += '  rm -f $mkdirs\n'
+    script += 'fi\n'
 
     return script
 
