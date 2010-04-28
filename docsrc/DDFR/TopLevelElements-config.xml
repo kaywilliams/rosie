@@ -15,8 +15,7 @@
     <para>
     Creates an RPM used to install and update distribution-specific 
     configuration on the client system.  The RPM is named 
-    <filename>$NAME-config</filename>, where $NAME is taken from the 
-    value of the <xref linkend="main-arch" /> element. The RPM 
+    <filename>system-config</filename>. The system-config RPM 
     completes three primary functions. It installs automatically-generated YUM
     plugin and repository definition files. It installs user-provided 
     configuration files specified via 
@@ -99,7 +98,7 @@
       <para>
       Controls inclusion of the <application class="software">YUM</application>
       sync plugin; also controls which repositories are listed in the 
-      <filename>/etc/yum.repos.d/$NAME.repo</filename> file.
+      <filename>/etc/yum.repos.d/system.repo</filename> file.
       </para>
 
       <para>
@@ -125,7 +124,7 @@
 
       <para>
       <emphasis>@repos</emphasis>: value indicating whether to include the <emphasis>input</emphasis> repositories, the repositories used to
-      build the distribution, in the <filename>/etc/yum.repos.d/$NAME.repo</filename> file, in addition to the distribution, or <emphasis>master</emphasis> repository. The default 
+      build the distribution, in the <filename>/etc/yum.repos.d/system.repo</filename> file, in addition to the distribution, or <emphasis>master</emphasis> repository. The default 
       value is <constant>master</constant>. See <emphasis role="strong"><xref linkend="repos" /></emphasis> for 
       information on defining input repositories.
       </para>
@@ -171,7 +170,7 @@
       <emphasis><xref linkend="destdir" /></emphasis>. Controls the
       location to which this file should be installed on the client
       system. The default value is
-      <filename>/usr/share/$NAME-config/files</filename>.
+      <filename>/usr/share/system-config/files</filename>.
       </para>
 
       <para>
