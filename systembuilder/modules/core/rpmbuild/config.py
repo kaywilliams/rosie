@@ -40,22 +40,22 @@ class ConfigEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.10',
+      version = '1.11',
       provides = ['rpmbuild-data'],
       requires = ['input-repos'],
       conditionally_requires = ['web-path', 'gpgsign-public-key'],
     )
 
     RpmBuildMixin.__init__(self,
-      '%s-config' % self.name,
-      "The %s-config provides scripts and supporting files for configuring "
-      "the %s distribution." % (self.name, self.fullname),
-      "%s configuration script and supporting files" % self.fullname,
+      'system-config',
+      "The system-config package provides scripts and supporting files for "
+		  "configuring %s systems." % self.fullname,
+      "%s configuration scripts and supporting files" % self.fullname,
       requires = ['coreutils', 'policycoreutils']
     )
 
     self.scriptdir   = self.rpm.build_folder/'scripts'
-    self.filerelpath = pps.path('usr/share/%s/files' % self.name)
+    self.filerelpath = pps.path('usr/share/system-config/files')
 
     self.DATA = {
       'variables': ['name', 'fullname', 'distributionid', 'rpm.release',
@@ -77,15 +77,6 @@ class ConfigEvent(RpmBuildMixin, Event):
   def setup(self):
     self.rpm.setup_build()
 
-    # Hack to use a custom error for validating missing files
-    #for element in [ 'files', 'script', 'trigger' ]:
-    #  for item in self.config.xpath(element, []):
-    #    if item.get('@content', 'filename') == 'filename':
-    #      assert_file_readable(item.get('text()', None), 
-    #                           element=element,
-    #                           item=str(item)[:-1], 
-    #                           cls=ConfigIOError)
-
     # add files for synchronization to the build folder
     for file in self.config.xpath('files', []):
       if file.get('@content', 'filename') == 'filename':
@@ -98,17 +89,19 @@ class ConfigEvent(RpmBuildMixin, Event):
                              mode=file.get('@mode', None),
                              destname=file.get('@destname', None) )
         except MissingInputFileError, e:
-          raise SystemBuilderIOError(errno=e.map['error'].errno,
-             file=file.text, message="If you wanted to include "
-             "this string as the contents of a file instead of "
-             "as a filename, be sure to set the @content attribute "
-             "of the <files> element to 'text'.");
+          raise ConfigIOError(errno=e.map['error'].errno, message='',
+             file=file.text, element='files', item=str(file)[:-1] );
 
     # add all scripts as input so if they change, we rerun
     for script in self.config.xpath('script',  []) + \
                   self.config.xpath('trigger', []):
       if script.get('@content', 'filename') == 'filename':
+        assert_file_readable(script.text, 
+                             element=script.tag,
+                             item=str(script)[:-1], 
+                             cls=ConfigIOError)
         self.DATA['input'].append(script.text)
+
 
     if self.cvars['gpgsign-public-key']:
       # also include the gpg key in the config-rpm
@@ -150,7 +143,7 @@ class ConfigEvent(RpmBuildMixin, Event):
   def _generate_files_checksums(self):
     """Creates a file containing checksums of all <files>. For use in 
     determining whether to backup existing files at install time."""
-    md5file = ( self.rpm.source_folder/'usr/share/%s/md5sums' % self.name )
+    md5file = ( self.rpm.source_folder/'usr/share/system-config/md5sums' )
 
     lines = []
 
@@ -168,7 +161,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     self.DATA['output'].append(md5file)
 
   def _generate_repofile(self):
-    repofile = ( self.rpm.source_folder/'etc/yum.repos.d/%s.repo' % self.name )
+    repofile = ( self.rpm.source_folder/'etc/yum.repos.d/system.repo' )
 
     lines = []
 
@@ -274,7 +267,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     by the post scriptlet"""
     script = ''
 
-    script += 'file=/usr/share/%s/md5sums\n' % self.name
+    script += 'file=/usr/share/system-config/md5sums\n'
 
     script += '\n'.join([
       '',
@@ -302,14 +295,15 @@ class ConfigEvent(RpmBuildMixin, Event):
       sources.append(dst)
 
     script += 'file="%s"' % '\n      '.join(sources)
-    script += '\nmd5file=/usr/share/%s/md5sums\n' % self.name
-    script += 'mkdirs=/usr/share/%s/mkdirs\n' % self.name
+    script += '\nmd5file=/usr/share/system-config/md5sums\n'
+    script += 'mkdirs=/usr/share/system-config/mkdirs\n'
     script += 's=%s\n' % ('/' / self.filerelpath)
     script += 'changed=""\n'
 
     script += '\n'.join([
       '',
       'for f in $file; do',
+      '  # create .rpmsave and add file to changed variable, if needed',
       '  if [ -e $f ]; then',
       '    curr=`md5sum $f | sed -e "s/ .*//"`',
       '    new=`grep $f $md5file | sed -e "s/ .*//"`',
@@ -322,10 +316,18 @@ class ConfigEvent(RpmBuildMixin, Event):
       '      fi',
       '    fi',
       '  fi',
+      '  # mkdirs one level at a time, if needed, and track for later removal',
       '  if [ ! -d `dirname $f` ]; then',
-      '    %{__mkdir} -p `dirname $f`',
-      '    echo `dirname $f` >> $mkdirs',
+      '    levels="${f//[^\/]/}"',
+      '    for i in `seq 2 ${#levels}`; do',
+      '      dir=`echo $f | cut -f 1-$i -d/`',
+      '      if [ ! -d $dir ]; then',
+      '        %{__mkdir} $dir',
+      '        echo $dir >> $mkdirs',
+      '      fi',
+      '    done',
       '  fi',
+      '  # copy file to final location',   
       '  %{__cp} $s/$f $f',
       '  /sbin/restorecon $f',
       'done',
@@ -350,7 +352,7 @@ class ConfigEvent(RpmBuildMixin, Event):
 
     script += 'file="%s"' % '\n      '.join(sources)
     script += '\ns=%s\n' % ('/' / self.filerelpath)
-    script += 'mkdirs=/usr/share/%s/mkdirs\n' % self.name
+    script += 'mkdirs=/usr/share/system-config/mkdirs\n'
 
     script += '\n'.join([
         '',
@@ -365,14 +367,25 @@ class ConfigEvent(RpmBuildMixin, Event):
         'done',
         'find $s -depth -empty -type d -exec rmdir {} \;',
         'if [ -e $mkdirs ]; then',
+        '  #first pass to remove empty dirs',
         '  for f in `cat $mkdirs`; do',
-        '    rmdir --ignore-fail-on-non-empty -p $f',
+        '    if [ -e $f ] ; then',
+        '      rmdir --ignore-fail-on-non-empty -p $f',
+        '    fi',
+        '  done',
+        '  #second pass to remove dirs from mkdirs file',
+        '  for f in `cat $mkdirs`; do',
+        '    if [ ! -e $f ] ; then',
+        '      sed -i s!$f\$!!g $mkdirs',
+        '    fi',
+        '  # third pass to remove empty lines from mkdirs',
+        '  sed -i /$/d $mkdirs',
         '  done',
         'fi',
       ])
 
     # remove md5sums.prev file   
-    script += '\n%%{__rm} -f /usr/share/%s/md5sums.prev\n' % self.name
+    script += '\n%{__rm} -f /usr/share/system-config/md5sums.prev\n'
     # remove mkdirs file on uninstall
     script += 'if [ $1 -eq 0 ]; then\n'
     script += '  rm -f $mkdirs\n'
