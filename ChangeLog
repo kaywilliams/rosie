@@ -1,4 +1,268 @@
+2010-04-28  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/usermanual/UserManual.html, docsrc/usermanual/UserManual.pdf,
+	docsrc/usermanual/appendix-a.xml, docsrc/usermanual/ch2-sec6.xml:
+	modified UserManual to reflect config RPM naming changes
+	[beb737dc264f] [tip]
+
+	* docsrc/DDFR/TopLevelElements-config.xml:
+	modified DDFR to reflect RPM and repofile naming changes
+	[3bccc9728997]
+
+	* systembuilder/modules/core/rpmbuild/config.py:
+	enhancements to config event
+
+	systembuilder/modules/core/rpmbuild/config.py
+	* now using a static name for the rpm - "system-config"
+	* also using a static name for the repofile - "system.repo"
+	* modified text of missing file error and enabled it for scripts and
+	triggers, in addition to files
+	* improved tracking and removal of created directories
+	* bumped version number
+	[ede1d868ea6b]
+
+2010-04-18  Daniel Musgrave  <dmusgrave@renditionsoftware.com>
+
+	* sbtest/modules/config.py,
+	systembuilder/modules/core/rpmbuild/config.py:
+	config improvements - friendly error message and dir cleanup on
+	uninstall
+
+	Changed the behavior when config event doesn't find one of the files
+	specified in the <files> elements - gives a friendly message
+	reminding the user about "@content='text'" in case they meant to do
+	that.
+
+	Added test cases for config event for the various combinations of <(
+	files|pre|post|postun|triggerin|triggerun|triggerpostun|verifyscript
+	)>, content=(file|text), and text()=<file>|<directory>.
+
+	Added logic to the config.rpm postun script that removes directories
+	created by the config.rpm that are empty after uninstall.
+
+	sbtest/modules/config.py
+	 * added a test for including a directory with a <files> element
+	 * added a test for including a file with content="text"
+	 * added tests for pre, post, preun, postun, and verifyscript with
+	content="text"
+	 * added tests for triggerin, triggerun, and triggerpostun with
+	content="text"
+
+	modules/core/rpmbuild.config.py
+	 * updated version to 1.10
+	 * added friendly error message when input file is not found
+	 * fixed a bug in creating the md5file.prev if the containing directory
+	was not found
+	 * added a mkdirs file to '/usr/share/%s', which contains the list of
+	directories created by the config.rpm
+	 * on postun, attempt to remove each directory listed in the mkdirs
+	file; if directory is not empty, ignore error
+	 * on postun when removing config.rpm, delete the mkdirs file
+	[7d82aa48726e]
+
+2010-04-13  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/modules/core/rpmbuild/config.py:
+	config: improved logic for determining $changed files
+
+	systembuilder/modules/core/rpmbuild/config.py
+	* bumped version
+	* create md5sums file each time (even when empty it serves as a
+	control for calulating changes)
+	* create md5sums.prev file each time (see comment above)
+	* adding user modified files to $changed
+	* adding diffs between md5sums and md5sums.prev to $changed
+	[d716a19c1220]
+
+2010-04-12  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/modules/core/rpmbuild/config.py:
+	config: also adding file to when they are installed for the first
+	time
+	[4d7059641ba3]
+
+2010-04-08  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/modules/core/rpmbuild/config.py:
+	config: added $changed variable; fixed a bug with rpmsave
+
+	systembuilder/modules/core/rpmbuild/config.py
+	* bumped version number
+	* added a 'changed' variable that tracks filenames of changed files.
+	This makes it easier for writers of <scripts> to complete actions
+	(e.g. service restart httpd) only if existing files have changed.
+	* fixed a bug in the calculation of previous file md5sums. We were
+	sending std error and std output to /dev/null, should have been std
+	error only
+	[75a551a3405d]
+
+2010-04-06  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/modules/core/rpmbuild/config.py:
+	config: silencing grep output in post scriptlet if mdfile.prev does
+	not exist
+	[1d9b31ccce8c]
+
+	* systembuilder/modules/core/rpmbuild/config.py:
+	additional config event fixes
+
+	systembuilder/modules/core/rpmbuild/config.py
+	* fixed <files> element to support destdir and mode attributes when
+	content='filename'
+	* simplified variable naming in post scriptlet
+	[7c2c165d7fd7]
+
+	* systembuilder/modules/core/rpmbuild/config.py:
+	better .rpmsave handling for config rpm
+
+	Previous, the config rpm created a backup of an existing file (with
+	the .rpmsave file extension) each time a file changed, whether by
+	user mods to the file on disk or by admin mods to the file in the
+	distribution. With this commit, the config rpm will only create
+	rpmsave files in the former case.
+
+	systembuilder/modules/core/rpmbuild/config.py
+	* added a _generate_files_checksums method that includes a file
+	containing checksums in the rpm
+	* added a pre scriptlet that copies the checksums file (from the prior
+	rpm install) to the same file with a .prev extension
+	* added logic to the post script that compares checksums and creates
+	an .rpmsave file only if the file on disk does not match the same
+	file in either the current or previous rpm.
+	* added logic to the postun script to remove the checksum file with
+	the .prev extension
+	[553202c68e59]
+
+2010-04-05  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/main.py:
+	raising an error if a specified share-path does not exist
+	[6a1ab6bdf8c0]
+
+	* merged with trunk
+	[f25b60cf0c86]
+
+	* systembuilder/event/fileio.py,
+	systembuilder/modules/core/rpmbuild/config.py:
+	better fix for changeset 2044
+
+	Changeset 2044 removed adding generated files using io.add_fpath.
+	This stopped the config event from running every time due to missing
+	input files. It also stopped generated files from being included in
+	the config rpm.
+
+	In this fix, the config event generates files directly in the build
+	folder (rather than in a separate folder which is later sync'd to
+	the build folder vi sync_input), sets file modes (using a new
+	function provided in fileio.py) and adds the files as output. In
+	addition, it gets the list of files to include in the rpm post and
+	postun scripts by looking in the build folder, rather than by using
+	the io.list_output function.
+
+	systembuilder/event/fileio.py
+	* added a new compute_mode method and modified add_item to call it
+
+	systembuilder/modules/core/rpmbuild/config.py
+	* bumped version number
+	* removed obsolete self.filedir variable since files are now generated
+	directly to the build folder
+	* no longer setting id='file' when calling io.add_fpath during setup
+	for non-generated files since make_post and make_postun methods no
+	longer call io.list_output('file').
+	* the generate_files method now creates dirs in the build folder as
+	needed, generates files in the appropriate location, sets their
+	modes using the new io.compute_mode method, and adds them to the
+	output dictionary.
+	* make_post and make_postun now get their filelists by calling
+	findpaths on the build folder
+	[2cb80644ac78]
+
+2010-04-04  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/modules/core/rpmbuild/config.py:
+	Fixed a bug that was causing config to run every time with generated
+	files
+	[03b2b1d3a683]
+
+2010-04-03  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/DDFR/TopLevelElements-publish.xml:
+	fixed error in DDFR regarding publish/remote-url
+	[d9df6eeefa59]
+
+2010-04-02  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/modules/core/rpmbuild/config.py:
+	config: backed out input validation; modified postun event
+
+	This fix makes three changes to the config event.
+
+	The first is to comment out the recently added code to implement
+	friendly error messages for input validation. This code made use of
+	assert_file_readable, which operates, as the name implies, at a file
+	level. The unintended consequence is that it was blocking the use of
+	folders within config/files elements. Need to come up with a better
+	fix, but for now we will simply back it out.
+
+	The second is to modify the postun script to remove obsolete files
+	when the config rpm is updated. The previous code was only removing
+	files when the rpm was removed entirely. In addition, the postun
+	script now removes obsolete dirs from the /usr/share/$name/files
+	folder. More work is needed to have postun remove obsolete dirs
+	created by the post script.
+
+	The third is to bump the version.
+	[29764e0bb863]
+
+2010-03-29  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder/modules/core/rpmbuild/config.py:
+	improvements to config error messages
+
+	* fixed a bug that was causing a validation script to return false
+	positives
+	* added a friendly error message for missing files, scripts and
+	triggers
+	[e6fb9bfee9cc]
+
+	* share/systembuilder/schemas/distribution/publish.rng:
+	publish schema now allows 'fqdn' attribute
+	[d9ba302b0552]
+
+2010-03-28  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* docsrc/usermanual/systembuilder_logical_network.jpg:
+	merged with trunk
+	[cfb0a0464fe0]
+
+	* docsrc/DDFR/TopLevelElements-publish.xml,
+	share/systembuilder/schemas/distribution/publish.rng,
+	systembuilder/modules/core/publish.py:
+	publish xml now uses 'fqdn' attribute rather than 'use-hostname'
+
+	The publish event now looks for an attribute named 'fqdn' rather
+	than an attribute named 'use-hostname'. When specified, it performs
+	the same function as previously, only using the fqdn (e.g.
+	'host.domain.com') rather than the hostname (e.g. 'host'). This
+	commit modifies the publish event, as well as the corresponding
+	documentation.
+	[c0b0f0ac6672]
+
+2010-03-27  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* systembuilder.spec:
+	updated changelog in specfile
+	[df532c33ff9f]
+
+	* .hgtags:
+	Tagged as systembuilder-0.8.5-1
+	[bb863c6cf444]
+
 2010-03-26  Kay Williams  <kwilliams@renditionsoftware.com>
+
+	* ChangeLog, systembuilder.spec:
+	bumped version
+	[9a828431a298] [systembuilder-0.8.5-1]
 
 	* docsrc/dblatex/xsl/param.xsl, docsrc/usermanual/UserManual.html,
 	docsrc/usermanual/UserManual.pdf, docsrc/usermanual/ch2-sec2.xml,
@@ -16,7 +280,7 @@
 	docsrc/usermanual/systembuilder_logical_network.png,
 	docsrc/usermanual/systembuilder_updates.png:
 	additional usermanual edits - work in progress
-	[0df5a5e40733] [tip]
+	[0df5a5e40733]
 
 2010-03-22  Kay Williams  <kwilliams@renditionsoftware.com>
 
