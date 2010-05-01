@@ -130,7 +130,7 @@ class ConfigEvent(RpmBuildMixin, Event):
   def _generate_files(self):
     # create files based on raw text from config file
     for file in self.config.xpath('files', []):
-      text = file.text
+      text = file.text + '\n' # add newline to end; stripped by config.xpath()
       if file.get('@content', 'filename') == 'text':
         # if the content is 'text', write the string to a file and set
         # text to that value
