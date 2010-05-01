@@ -36,22 +36,7 @@ base-info
 config
  * downloading files
    - smb.conf                [=========================]     0.0  B (00:00)
- * building samba-server-config-5-1.noarch.rpm
-rpmbuild-repo
- * copying packages
- * running createrepo
-packages
-depsolve
- * verifying repodata file checksums
- * reading available packages
-   - base
-   - updates
-base-info
- * reading buildstamp file from base repository
-config
- * downloading files
-   - smb.conf                [=========================]     0.0  B (00:00)
- * building samba-server-config-5-1.noarch.rpm
+ * building system-config-5-1.noarch.rpm
 rpmbuild-repo
  * copying packages
  * running createrepo
@@ -87,7 +72,7 @@ download
    - xulrunner-1.9.0.16-2.el [=========================]      10 MB (00:00)
    - yum-fastestmirror-1.1.1 [=========================]      19 kB (00:00)
  * downloading packages - 'rpmbuild-repo'
-   - samba-server-config-5-1 [=========================]     2.8 kB (00:00)
+   - system-config-5-1       [=========================]     2.8 kB (00:00)
 gpgcheck
 createrepo
  * downloading files

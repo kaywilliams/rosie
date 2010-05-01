@@ -44,17 +44,17 @@
         <term><emphasis role="strong">configuration package</emphasis></term>
 
         <listitem>
-          <para>An RPM package created by SystemBuilder during the build process. This package contains the <application class="software">YUM</application> sync plugin, SystemBuilder created YUM configuration, and user-specified configuration files and scripts. The name of the configuration package is in the following format, where $NAME and $VERSION are taken from the <emphasis>name</emphasis>, and <emphasis>version</emphasis> elements in the distribution definition and $RELEASE is taken from the <xref linkend="distribution-data-file" />.
+          <para>An RPM package created by SystemBuilder during the build process. This package contains the <application class="software">YUM</application> sync plugin, SystemBuilder created YUM configuration, and user-specified configuration files and scripts. The name of the configuration package is in the following format, where $VERSION is taken from the <emphasis>version</emphasis> element in the distribution definition and $RELEASE is taken from the <xref linkend="distribution-data-file" />.
           </para>
 
           <para><informalexample>
-          <filename>$NAME-config-$VERSION-$RELEASE.noarch.rpm</filename></informalexample>
+          <filename>system-config-$VERSION-$RELEASE.noarch.rpm</filename></informalexample>
           </para>
 
           <para>For example, given a distribution with the name "samba-server" and version "5", the first time SystemBuilder creates the distribution, the configuration package will be named as follows:</para>
 
           <para><informalexample>
-          <filename>samba-server-config-5-1.noarch.rpm</filename></informalexample>
+          <filename>system-config-5-1.noarch.rpm</filename></informalexample>
           </para>
 
           <para>The release number "1" will be written to the distribution data file. When configuration changes in the future, e.g. when files or scripts are added, deleted or modified, SystemBuilder will increment the release number by 1, create a new configuration package (in this case samba-server-config-5-2.noarch.rpm), and store the new release number ("2") in the distribution data file. The incremented version number allows installed client machines to determine that a new configuration package is available for download and installation.</para>
