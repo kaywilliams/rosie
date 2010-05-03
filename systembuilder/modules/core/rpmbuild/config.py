@@ -40,7 +40,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.12',
+      version = '1.13',
       provides = ['rpmbuild-data'],
       requires = ['input-repos'],
       conditionally_requires = ['web-path', 'gpgsign-public-key'],
@@ -328,7 +328,7 @@ class ConfigEvent(RpmBuildMixin, Event):
       '    done',
       '  fi',
       '  # copy file to final location',   
-      '  %{__cp} $s/$f $f',
+      '  %{__cp} --preserve=all $s/$f $f',
       '  /sbin/restorecon $f',
       'done',
       '', ])
