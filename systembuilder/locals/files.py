@@ -93,4 +93,17 @@ L_FILES = LocalsDict({
       'x86_64': False,
     }
   },
+  "anaconda-13.21.20.5-1": {
+    'isolinux': {
+      'boot.cat':     dict(path='isolinux/boot.cat'),
+      'grub.conf':    dict(path='isolinux/grub.conf'),
+      'options.msg':  REMOVE,
+      'general.msg':  REMOVE,
+      'param.msg':  REMOVE,
+      'rescue.msg':  REMOVE,
+    },
+    'do-xen': { # xen removed starting RHEL 6)
+      'i386': False,
+    }
+  },
 })
