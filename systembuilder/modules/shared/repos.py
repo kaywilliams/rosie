@@ -343,7 +343,7 @@ class RepoEventMixin:
           mtime = existing.stat().st_mtime
         else:
           # match timestamp of primary.xml
-          mtime = int(subrepo.datafiles['primary'].timestamp)
+          mtime = float(subrepo.datafiles['primary'].timestamp)
 
         # write repomd.xml to cache, update its mtime
         # have to hardcode this header b/c rxml doesn't write it out
@@ -373,7 +373,7 @@ class RepoEventMixin:
           if existing and datafile.checksum == existing.shasum():
             mtime = existing.stat().st_mtime
           else:
-            mtime = int(datafile.timestamp)
+            mtime = float(datafile.timestamp)
 
           src.stat().update(st_mtime=mtime)
 
