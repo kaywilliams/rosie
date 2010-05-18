@@ -31,7 +31,7 @@ UserManual.html:
 
 UserManual.pdf:
 	@make checkpkg BINARY=$(DBLATEX) INSTRUCTIONS="Install the dblatex package."
-	$(DBLATEX) -o UserManual.pdf -P toc.section.depth=1 -P doc.section.depth=1 -S ../dblatex/systembuilderdocs.specs --pdf index.xml
+	$(DBLATEX) -o UserManual.pdf -P toc.section.depth=1 -P doc.section.depth=1 -S ../dblatex/solutionstudiodocs.specs --pdf index.xml
 
 checkpkg:
 	@if [ ! -e $(BINARY) ]; then \

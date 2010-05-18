@@ -17,9 +17,9 @@
 #
 import os
 
-from rendition.pps.Path.local.error import error_transform
+from solutionstudio.util.pps.Path.local.error import error_transform
 
-from rendition.pps.Path.local import LocalPath_IO
+from solutionstudio.util.pps.Path.local import LocalPath_IO
 
 class PosixPath_IO(LocalPath_IO):
 

@@ -465,7 +465,7 @@ class FormatMatchError(StandardError):
   "Class of error raised when an input string matches no Format objects"
 
 if __name__ == '__main__':
-  from rendition import pps
+  from solutionstudio.util import pps
   import sys
 
   if len(sys.argv) != 2:

@@ -4,12 +4,12 @@
 <chapter>
   <title>Production Distributions</title>
 
-  <para>You can harness <application class="software">SystemBuilder</application>'s
+  <para>You can harness <application class="software">SolutionStudio</application>'s
   architecture and features to create a production system development
   environment with reusable components for the distribution definition,
   version tracking for that and other configuration files, expedited testing
   procedures and alternate development and production locations. Using <application
-  class="software">SystemBuilder</application> as part of a long-term deployment and
+  class="software">SolutionStudio</application> as part of a long-term deployment and
   shop management strategy will enable you to be more efficient and provide an
   distribution development and deployment history that is repeatable and
   predictable.</para>

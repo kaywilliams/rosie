@@ -1,7 +1,7 @@
 Test methods of PathToken
 
 Set up the environment
-  >>> from rendition import pps
+  >>> from solutionstudio.util import pps
   >>> P = pps.Path.posix.PosixPath
   >>> H = pps.Path.http.HttpPath
 

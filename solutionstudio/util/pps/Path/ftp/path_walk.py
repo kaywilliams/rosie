@@ -16,11 +16,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from rendition.pps.PathSet   import PathSet
+from solutionstudio.util.pps.PathSet   import PathSet
 
-from rendition.pps.Path.error import PathError
+from solutionstudio.util.pps.Path.error import PathError
 
-from rendition.pps.Path.remote  import RemotePath_Walk
+from solutionstudio.util.pps.Path.remote  import RemotePath_Walk
 
 class FtpPath_Walk(RemotePath_Walk):
 

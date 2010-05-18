@@ -17,7 +17,7 @@
 #
 import unittest
 
-from systembuilder.logging import L3
+from solutionstudio.logging import L3
 
 class BuildTestResult(unittest.TestResult):
 

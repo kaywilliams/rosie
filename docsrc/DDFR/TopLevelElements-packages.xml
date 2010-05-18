@@ -13,7 +13,7 @@
 
     <para>
     Specifies the packages to be included in the distribution and to be
-    installed by default in any images created by SystemBuilder.
+    installed by default in any images created by SolutionStudio.
     </para>
 
     <para>
@@ -88,7 +88,7 @@
       This element can occur zero or more times.
       </para>
 
-      <note><application class="software">SystemBuilder</application> excludes
+      <note><application class="software">SolutionStudio</application> excludes
       specified packages from any included groups, but they may still be
       included in the distribution repository to satisfy to package dependency 
       requirements.  See Also 
@@ -127,7 +127,7 @@
       <emphasis>@repoid</emphasis>: The id of the repository from which
       to obtain group data.  This id corresponds to a <emphasis>repoid</emphasis>
       defined in a <emphasis role="strong">repo</emphasis> element. If not specified,
-      <application class="software">SystemBuilder</application> merges all matching
+      <application class="software">SolutionStudio</application> merges all matching
       groups from all repo groupfiles.
       </para>
       </listitem>
@@ -167,7 +167,7 @@
 
     <para>
     In the following example, the distribution's <varname>$NAME</varname> is
-    "example". The distribution that SystemBuilder generates will include
+    "example". The distribution that SolutionStudio generates will include
     several groups from the groupfiles of its input repositories as well as
     a few individual packages. The "base" and "core" groups  will be created
     using the "centos-base" repository as the source; all remaining groups

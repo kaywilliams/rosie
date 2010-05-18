@@ -7,8 +7,8 @@
   <para>The traditional system development life cycle (SDLC) includes several
   stages, such as requirements analysis, system architecture, design and
   implementation, testing, deployment and maintenance. The stages with which
-  SystemBuilder is an integral part are implementation, testing, deployment and
-  maintenance. Within the SystemBuilder realm, implementation and testing include
+  SolutionStudio is an integral part are implementation, testing, deployment and
+  maintenance. Within the SolutionStudio realm, implementation and testing include
   development, with a development build machine and client machines, which can 
   be virtual machines, for testing installation and updates. A
   second phase of testing includes staging, which allows you to
@@ -31,23 +31,23 @@
   <section>
     <title>The Production Process Step-by-Step</title>
 
-    <para><application class="software">SystemBuilder</application>'s logical network
+    <para><application class="software">SolutionStudio</application>'s logical network
     diagram, below, and subsequent description of steps covers the process in
     more detail.</para>
 
     <para><mediaobject>
         <imageobject>
-          <imagedata fileref="systembuilder_logical_network.png" />
+          <imagedata fileref="solutionstudio_logical_network.png" />
         </imageobject>
-      <caption><para>SystemBuilder Logical Network</para></caption>
+      <caption><para>SolutionStudio Logical Network</para></caption>
       </mediaobject></para>
 
     <para>To set up production environment with <application
-    class="software">SystemBuilder</application>, you will need a Development 
+    class="software">SolutionStudio</application>, you will need a Development 
     system (D); a Version Control system (V); a Staging system (S);
     and a Production system (P). Development and Staging will contain
     identical installations of a <application
-    class="software">SystemBuilder</application> version. The Production system,
+    class="software">SolutionStudio</application> version. The Production system,
     which will serve as your download server, needs to be web-accessible for 
     client machines to be able to access it to retrieve distribution content.
     The Version system needs to have a version control system that supports
@@ -101,7 +101,7 @@
           <listitem>
             <para>This step entails building the <emphasis>development</emphasis>
             distribution, specifically by running the command 
-            <userinput>systembuilder samba-server-development.distribution
+            <userinput>solutionstudio samba-server-development.distribution
             </userinput>. (You will build the 
             <emphasis>production</emphasis> distribution in Step 6.) 
             </para>
@@ -155,11 +155,11 @@
           <term>Step 6: Build a Production Distribution</term>
 
           <listitem>
-            <para>Using <application class="software">SystemBuilder</application> on
+            <para>Using <application class="software">SolutionStudio</application> on
             the Staging system (S), build the production distribution, e.g. 
-            <userinput>systembuilder samba-server-production.distribution
+            <userinput>solutionstudio samba-server-production.distribution
             </userinput>. In addition you should add a <command>cron</command> 
-            instruction on the Staging system to run SystemBuilder on a regular
+            instruction on the Staging system to run SolutionStudio on a regular
             basis. This will serve to update the distribution over time as new
             packages are made available in input repositories. See 
             <xref linkend="creating-a-staging-machine"/> for more information.
@@ -200,7 +200,7 @@
           <listitem>
             <para>Now you are ready to migrate the distribution that is a result
             of the successful build in Step 6 and that was checked into the 
-            Version Control system in Step 8. You will not rerun SystemBuilder
+            Version Control system in Step 8. You will not rerun SolutionStudio
             on the Production system (P). Rather, you will migrate the 
             distribution to Production and release it for download access.
             This practice also ensures a controlled release into Production,

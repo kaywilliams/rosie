@@ -4,7 +4,7 @@
 <section id="automating-installations" xreflabel="Section 5.2 Automating Installations">
   <title>Automating Installations</title>
 
-  <para>SystemBuilder can save you time and labor by helping you automate the
+  <para>SolutionStudio can save you time and labor by helping you automate the
   client boot-up and kickstart process.</para>
 
   <section>
@@ -14,13 +14,13 @@
     and make the installations reproducible. You may want to use this method
     if you have large-scale installations, complex storage requirements,
     multiple network interfaces, secure systems or site-specific strategies.
-    Within the SystemBuilder process, the kickstart file automates the installation and
+    Within the SolutionStudio process, the kickstart file automates the installation and
     manages several functions during the install: selection of language,
     network configuration, distribution source, keyboard, filesystem, mouse,
     timezone, root password and package handling.</para>
 
-    <para>Instead of managing multiple kickstart files, SystemBuilder lets you make it
-    part of the distribution definition. By revision controlling the SystemBuilder files
+    <para>Instead of managing multiple kickstart files, SolutionStudio lets you make it
+    part of the distribution definition. By revision controlling the SolutionStudio files
     (see Part 2), the kickstart process can be controlled, too.</para>
 
     <para>Use the <emphasis>kickstart</emphasis> element in the

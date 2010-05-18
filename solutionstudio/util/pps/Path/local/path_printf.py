@@ -32,7 +32,7 @@ elif os.name == 'posix':
   except ImportError:
     pwd = None
 
-from rendition.pps.path import path_printf
+from solutionstudio.util.pps.path import path_printf
 
 PROTECT = []
 

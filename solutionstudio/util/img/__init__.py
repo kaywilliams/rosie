@@ -18,8 +18,8 @@
 import imp
 import os
 
-from rendition import pps
-from rendition import shlib
+from solutionstudio.util import pps
+from solutionstudio.util import shlib
 
 from errors import *
 

@@ -1,7 +1,7 @@
 Ensure that Path objects can still be used (mostly) transparently as strings
 
 Set up the environment
-  >>> from rendition import pps
+  >>> from solutionstudio.util import pps
   >>> P = pps.path
 
 Path.__add__ performs normal string addition without any Path-related

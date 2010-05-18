@@ -16,15 +16,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from rendition.pps.UriTuple import urlunparse
+from solutionstudio.util.pps.UriTuple import urlunparse
 
-from rendition.pps.Path import BasePath
+from solutionstudio.util.pps.Path import BasePath
 
 from path_stat import RemotePath_Stat
 
-from rendition.pps.Path import Path_IO     as RemotePath_IO
-from rendition.pps.Path import Path_Printf as RemotePath_Printf
-from rendition.pps.Path import Path_Walk   as RemotePath_Walk
+from solutionstudio.util.pps.Path import Path_IO     as RemotePath_IO
+from solutionstudio.util.pps.Path import Path_Printf as RemotePath_Printf
+from solutionstudio.util.pps.Path import Path_Walk   as RemotePath_Walk
 
 class _RemotePath(BasePath):
   "String representation of HTTP file paths"

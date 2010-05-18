@@ -17,8 +17,8 @@
 #
 import copy
 
-from rendition import repo
-from rendition.rxml import config
+from solutionstudio.util import repo
+from solutionstudio.util.rxml import config
 
 from sbtest        import EventTestCase, ModuleTestSuite
 from sbtest.core   import make_extension_suite

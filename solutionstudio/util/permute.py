@@ -140,7 +140,7 @@ will appear in the final output more than once as well.
 import re
 
 try:
-  from rendition.listfmt import ListFormatter
+  from solutionstudio.util.listfmt import ListFormatter
   _LISTFMT = ListFormatter(pre='\'', post='\'', sep=', ')
   def listfmt(l, *args, **kwargs): return _LISTFMT.format(l)
 except ImportError:

@@ -20,12 +20,12 @@ import md5
 import sha
 import stat
 
-from rendition.pps import path
+from solutionstudio.util.pps import path
 
-from rendition.pps.lib       import cached
-from rendition.pps.constants import *
+from solutionstudio.util.pps.lib       import cached
+from solutionstudio.util.pps.constants import *
 
-from rendition.pps.Path.error import PathError
+from solutionstudio.util.pps.Path.error import PathError
 
 class Path_IO(object):
   "I/O operations for Path objects"

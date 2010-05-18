@@ -63,11 +63,11 @@
     <para>The first required element of the definition, 
     <emphasis>main</emphasis>, includes the name of the distribution, the system
     architecture and the version. These three items make up the default
-    distribution id (<varname>$ID</varname>), which SystemBuilder uses to create
+    distribution id (<varname>$ID</varname>), which SolutionStudio uses to create
     folders for storing the completed distribution (under 
     <filename type="directory">/var/www/html/distributions</filename>, by
     default) and for caching distribution content (under 
-    <filename type="directory">/var/cache/systembuilder</filename>, by default).
+    <filename type="directory">/var/cache/solutionstudio</filename>, by default).
     </para>
 
     <para><note>
@@ -99,10 +99,10 @@
         <para>Each time you change a distribution's id, either implicitly by
         changing the <emphasis>name</emphasis>, <emphasis>version</emphasis> or 
         <emphasis>arch</emphasis> elements, or explicitly by changing the
-        <emphasis>id</emphasis> element, SystemBuilder creates new folders for
+        <emphasis>id</emphasis> element, SolutionStudio creates new folders for
         it in the publish and cache folders 
         (<emphasis>/var/www/html/distributions</emphasis> and 
-        <emphasis>/var/cache/systembuilder</emphasis>, by default,
+        <emphasis>/var/cache/solutionstudio</emphasis>, by default,
         respectively). To preserve hard drive space, you may wish to review 
         the publish and cache folders on occasion. Folders for obsolete
         distributions can be deleted using standard file system methods (e.g. 
@@ -114,10 +114,10 @@
   <section id="specifying-repositories" xreflabel="Specifying Repositories">
     <title>Specifying repositories</title>
 
-    <para>SystemBuilder obtains software from RPM package repositories. 
+    <para>SolutionStudio obtains software from RPM package repositories. 
     Repositories are collections of RPMs with associated metadata files. 
     Metadata files allow applications, like 
-    <application>SystemBuilder</application>, to learn about packages in the
+    <application>SolutionStudio</application>, to learn about packages in the
     repository, without having to download and inspect each package
     individually. Access to package repositories may be either public or
     restricted. Common public repositories include CentOS 5 Base, CentOS 5 
@@ -158,7 +158,7 @@
   	<section>
   	  <title>CentOS repositories</title>
 
-      <para>This example directs SystemBuilder to use public mirrors to access
+      <para>This example directs SolutionStudio to use public mirrors to access
       the CentOS 5 base and updates repositories for the i386 architecture.
       </para>
 
@@ -184,7 +184,7 @@
     <section>
     <title>Red Hat Enterprise Linux repositories</title>
       <para>
-      Prior to using SystemBuilder to access Red Hat Enterprise Linux
+      Prior to using SolutionStudio to access Red Hat Enterprise Linux
       repositories, you will need to complete the following steps:</para>
 
       <itemizedlist>
@@ -208,8 +208,8 @@
         the system has successfully registered with RHN, a systemid file will
         be created in the <filename type="directory">/etc/sysconfig/</filename>
         folder of the machine. This is the file you will use to configure
-        SystemBuilder to access software from RHN. You may copy this file to the
-        SystemBuilder build machine if necessary. Note, to ensure the systemid
+        SolutionStudio to access software from RHN. You may copy this file to the
+        SolutionStudio build machine if necessary. Note, to ensure the systemid
         has access to the software desired for your distribution, you can use
         the Red Hat Network web user interface to locate the system, and view
         and alter it's channel subscriptions.</para></listitem>
@@ -243,7 +243,7 @@
         </itemizedlist>
       </para>
 
-      <para>In the following example, SystemBuilder will contact the RHN server
+      <para>In the following example, SolutionStudio will contact the RHN server
       located at <filename type="directory">xmlrpc.rhn.examplecompany.com
       </filename> and request packages from the 
       <filename>rhel-i386-server-5</filename> software channel.</para>
@@ -310,13 +310,13 @@
 
     <para>The final step for your samba-server definition is to specify 
     configuration for client machines. 
-    <application class="software">SystemBuilder</application> allows you to deploy
+    <application class="software">SolutionStudio</application> allows you to deploy
     and update client machine configuration in the same manner as you deploy and update 
     individual software components, using an RPM package. This simplifies your 
     tasks as a system administrator by allowing you to manage software and 
     configuration using uniform tools and processes. Creating RPM packages 
     manually can be cumbersome and time consuming. 
-    <application class="software">SystemBuilder</application> makes it easy by 
+    <application class="software">SolutionStudio</application> makes it easy by 
     creating the <xref linkend="configuration-package"/> automatically during the build process, based 
     on information you provide in the distribution definition.</para>
    
@@ -338,7 +338,7 @@
 
     <section>
       <title>Configuring updates</title>
-      <para>SystemBuilder creates a configuration package by default, even if 
+      <para>SolutionStudio creates a configuration package by default, even if 
       no <emphasis>config</emphasis> element is specified in the definition. In
       this case, the configuration package performs just two actions:
 
@@ -415,9 +415,9 @@
         </programlisting>
       </informalexample></para>
 
-      <para>The example above includes two <emphasis>files</emphasis> elements. The first element directs SystemBuilder to locate a file named smb.conf in the same folder as the distribution definition, download it, include it in the configuration package for installation to the <filename>/etc/samba</filename> folder with the file mode "644". The second element directs SystemBuilder to create a new file named <filename>yum-sync.cron</filename>, containing the text supplied between the &lt;files&gt; and &lt;/files&gt; tags, and include it configuration package for installation to the <filename>/etc/cron.daily</filename> folder with the mode "644".</para>
+      <para>The example above includes two <emphasis>files</emphasis> elements. The first element directs SolutionStudio to locate a file named smb.conf in the same folder as the distribution definition, download it, include it in the configuration package for installation to the <filename>/etc/samba</filename> folder with the file mode "644". The second element directs SolutionStudio to create a new file named <filename>yum-sync.cron</filename>, containing the text supplied between the &lt;files&gt; and &lt;/files&gt; tags, and include it configuration package for installation to the <filename>/etc/cron.daily</filename> folder with the mode "644".</para>
 
-      <note>SystemBuilder resolves all paths in the definition relative to the definition's folder location.</note>
+      <note>SolutionStudio resolves all paths in the definition relative to the definition's folder location.</note>
       <note>The attribute value <emphasis>content="text"</emphasis> provides a convenient way to include short files and scripts without needing to create and manage separate files on disk. Larger files can also be created this way, however, this makes the definition more difficult to read.</note>
 
     </section>
@@ -526,17 +526,17 @@
     </informalexample></para>
 
     <para>Once your definition is complete, you can use 
-    <application class="software">SystemBuilder</application> to validate
+    <application class="software">SolutionStudio</application> to validate
     it's syntax.</para>
 
     <para>
     <informalexample>
-      <programlisting>#systembuilder --validate-only samba-server.definition</programlisting>
+      <programlisting>#solutionstudio --validate-only samba-server.definition</programlisting>
     </informalexample>
     </para>
 
     <para>If your definition is valid, 
-    <application class="software">SystemBuilder</application> will display the 
+    <application class="software">SolutionStudio</application> will display the 
     complete definition and exit. Otherwise, it will display error information,
     allowing you to locate and correct issues.</para>
 

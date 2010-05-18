@@ -25,7 +25,7 @@ __date__    = 'August 22nd, 2007'
 
 import sys
 
-from rendition.progressbar import ProgressBar
+from solutionstudio.util.progressbar import ProgressBar
 
 THROTTLE = 10 # update a maximum of 10 times per second
 

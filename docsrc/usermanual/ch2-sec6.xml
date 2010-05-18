@@ -4,7 +4,7 @@
 <section>
   <title>Glossary of Terms</title>
 
-  <para>These terms are specific to the SystemBuilder environment, not to Linux or
+  <para>These terms are specific to the SolutionStudio environment, not to Linux or
   applications that run on Linux. They are arranged in alphabetical order.</para>
 
   <para><variablelist>
@@ -27,7 +27,7 @@
 
         <listitem>
           <para>The server on which <application
-          class="software">SystemBuilder</application> is installed.</para>
+          class="software">SolutionStudio</application> is installed.</para>
         </listitem>
       </varlistentry>
 
@@ -44,20 +44,20 @@
         <term><emphasis role="strong">configuration package</emphasis></term>
 
         <listitem>
-          <para>An RPM package created by SystemBuilder during the build process. This package contains the <application class="software">YUM</application> sync plugin, SystemBuilder created YUM configuration, and user-specified configuration files and scripts. The name of the configuration package is in the following format, where $VERSION is taken from the <emphasis>version</emphasis> element in the distribution definition and $RELEASE is taken from the <xref linkend="distribution-data-file" />.
+          <para>An RPM package created by SolutionStudio during the build process. This package contains the <application class="software">YUM</application> sync plugin, SolutionStudio created YUM configuration, and user-specified configuration files and scripts. The name of the configuration package is in the following format, where $VERSION is taken from the <emphasis>version</emphasis> element in the distribution definition and $RELEASE is taken from the <xref linkend="distribution-data-file" />.
           </para>
 
           <para><informalexample>
           <filename>system-config-$VERSION-$RELEASE.noarch.rpm</filename></informalexample>
           </para>
 
-          <para>For example, given a distribution with the name "samba-server" and version "5", the first time SystemBuilder creates the distribution, the configuration package will be named as follows:</para>
+          <para>For example, given a distribution with the name "samba-server" and version "5", the first time SolutionStudio creates the distribution, the configuration package will be named as follows:</para>
 
           <para><informalexample>
           <filename>system-config-5-1.noarch.rpm</filename></informalexample>
           </para>
 
-          <para>The release number "1" will be written to the distribution data file. When configuration changes in the future, e.g. when files or scripts are added, deleted or modified, SystemBuilder will increment the release number by 1, create a new configuration package (in this case samba-server-config-5-2.noarch.rpm), and store the new release number ("2") in the distribution data file. The incremented version number allows installed client machines to determine that a new configuration package is available for download and installation.</para>
+          <para>The release number "1" will be written to the distribution data file. When configuration changes in the future, e.g. when files or scripts are added, deleted or modified, SolutionStudio will increment the release number by 1, create a new configuration package (in this case samba-server-config-5-2.noarch.rpm), and store the new release number ("2") in the distribution data file. The incremented version number allows installed client machines to determine that a new configuration package is available for download and installation.</para>
 
           <para>For more information on what the configuration package contains
           and how to customize its contents, see the section on 
@@ -80,7 +80,7 @@
         <term><emphasis role="strong">distribution definition</emphasis></term>
 
         <listitem>
-          <para>The information SystemBuilder uses to build, configure and store
+          <para>The information SolutionStudio uses to build, configure and store
           a distribution. By convention the text file uses the <filename
           class="extension">.distribution</filename> extension. The file uses XML
           tagging as defined in the DDFR.</para>
@@ -91,13 +91,13 @@
         <term><emphasis role="strong">distribution data file</emphasis></term>
 
         <listitem>
-          <para>A file SystemBuilder creates to track and increment the release number of the distribution's <xref linkend="configuration-package" />. This file is created in the same folder as the distribution definition, using the same filename, with a <filename>.dat</filename> file extension. For example, given the full path to a distribution definition:</para>
+          <para>A file SolutionStudio creates to track and increment the release number of the distribution's <xref linkend="configuration-package" />. This file is created in the same folder as the distribution definition, using the same filename, with a <filename>.dat</filename> file extension. For example, given the full path to a distribution definition:</para>
 
           <para><informalexample>
           <filename>/~/samba-server.definition</filename></informalexample>
           </para>
 
-          <para>SystemBuilder will create the data file as follows:</para>
+          <para>SolutionStudio will create the data file as follows:</para>
 
           <para><informalexample>
           <filename>/~/samba-server.definition.dat</filename></informalexample>
@@ -112,7 +112,7 @@
         <term><emphasis role="strong">download location</emphasis></term>
 
         <listitem>
-          <para>The web location (URL) for downloading distribution content. SystemBuilder uses this location during the build process for two purposes, for creating YUM client configuration (included in the <xref linkend="configuration-package"/>), and for customizing network install images. By default the download location is as follows, where $IP_ADDRESS is the address of the build machine, and $ID is the distribution id.</para>
+          <para>The web location (URL) for downloading distribution content. SolutionStudio uses this location during the build process for two purposes, for creating YUM client configuration (included in the <xref linkend="configuration-package"/>), and for customizing network install images. By default the download location is as follows, where $IP_ADDRESS is the address of the build machine, and $ID is the distribution id.</para>
 
           <para><informalexample>
             <filename>http://$IP_ADDRESS/distributions/$ID</filename></informalexample></para>
@@ -143,7 +143,7 @@
         <term><emphasis role="strong">production server</emphasis></term>
 
         <listitem>
-          <para>Within a <application class="software">SystemBuilder</application>
+          <para>Within a <application class="software">SolutionStudio</application>
           development - staging - production environment, it serves as the
           download server from which clients retrieve the distribution contents
           to install.</para>
@@ -156,7 +156,7 @@
         <listitem>
           <para>The server within a development - staging - production
           environment that uses <application
-          class="software">SystemBuilder</application> to build production-ready
+          class="software">SolutionStudio</application> to build production-ready
           distributions for migration to the production, or
           download, server.</para>
         </listitem>
@@ -166,7 +166,7 @@
         <term><emphasis role="strong">YUM Sync Plugin</emphasis></term>
 
         <listitem>
-          <para>A <application class="software">YUM</application> plugin provided by SystemBuilder that allows synchronizing packages on client machines with packages in the <xref linkend="distribution-repository"/>. The plugin is included by default in the <xref linkend="configuration-package" />, which serves as the mechanism for installing it on client machines. The plugin establishes the distribution repository as the <emphasis>master repository</emphasis>, disables all non-master repositories, and provides a new argument, <emphasis>sync</emphasis>, to YUM. Help for the <emphasis>sync</emphasis> argument is available on client machines using the <command>yum help</command> command. Running <command>yum sync</command> allows YUM to calculate package additions and removals based on packages available in the distribution repository. For more information, see the section on <xref linkend="updating-client-machines"/>.</para>
+          <para>A <application class="software">YUM</application> plugin provided by SolutionStudio that allows synchronizing packages on client machines with packages in the <xref linkend="distribution-repository"/>. The plugin is included by default in the <xref linkend="configuration-package" />, which serves as the mechanism for installing it on client machines. The plugin establishes the distribution repository as the <emphasis>master repository</emphasis>, disables all non-master repositories, and provides a new argument, <emphasis>sync</emphasis>, to YUM. Help for the <emphasis>sync</emphasis> argument is available on client machines using the <command>yum help</command> command. Running <command>yum sync</command> allows YUM to calculate package additions and removals based on packages available in the distribution repository. For more information, see the section on <xref linkend="updating-client-machines"/>.</para>
         </listitem>
       </varlistentry>
 

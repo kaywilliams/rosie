@@ -1,7 +1,7 @@
 Test methods of PathToken
 
 Set up the environment
-  >>> from rendition import pps
+  >>> from solutionstudio.util import pps
   >>> P = pps.Path.%(pathtype)s.%(pathcls)s
   >>> absolute = P('%(abspath)s') / '%(relpath)s'
   >>> relative = P('%(abspath-noroot)s') / '%(relpath)s'

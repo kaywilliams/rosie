@@ -19,7 +19,7 @@ import unittest
 
 from sbtest import EventTestCaseDummy, decorate
 
-from systembuilder.errors import SystemBuilderError
+from solutionstudio.errors import SolutionStudioError
 
 class EventTestCaseHeader(EventTestCaseDummy):
   separator1 = '=' * 70
@@ -88,7 +88,7 @@ def CoreEventTestCase00(self):
     self.execute_predecessors(self.event)
     try:
       self.failIfRuns(self.event)
-    except (AssertionError, RuntimeError, SystemBuilderError), e:
+    except (AssertionError, RuntimeError, SolutionStudioError), e:
       pass
     if self.event.diff.handlers.has_key('output'):
       self.failIf(self.event.verifier.unittest().wasSuccessful())

@@ -52,7 +52,7 @@ __date__    = 'June 12th, 2007'
 
 from xml.sax import SAXParseException
 
-from rendition import rxml
+from solutionstudio.util import rxml
 
 def expand(list):
   "Expands a list of lists into a list, in place."
@@ -183,4 +183,4 @@ class NoneEntry:
   def __len__(self):
     return 0
 
-from rendition.difftest.handlers import * # at the end to avoid circular imports
+from solutionstudio.util.difftest.handlers import * # at the end to avoid circular imports

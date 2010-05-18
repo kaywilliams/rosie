@@ -27,14 +27,14 @@ __date__    = 'August 22nd, 2007'
 import md5
 import time
 
-from rendition.progressbar import ProgressBar
+from solutionstudio.util.progressbar import ProgressBar
 
-from rendition.sync.__init__ import CopyHandler, SyncOperation, mirror_updatefn
-from rendition.sync.callback import SyncCallbackMetered
+from solutionstudio.util.sync.__init__ import CopyHandler, SyncOperation, mirror_updatefn
+from solutionstudio.util.sync.callback import SyncCallbackMetered
 
-from rendition.pps import path
+from solutionstudio.util.pps import path
 
-from rendition.pps.constants import *
+from solutionstudio.util.pps.constants import *
 
 DEFAULT_CACHE_DIR = '/tmp/.sync-cache'
 DEFAULT_CACHE_SIZE = 500 * 1024**2 # 500 MB

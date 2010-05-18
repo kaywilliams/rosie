@@ -21,17 +21,17 @@ import copy
 import os
 import sys
 
-from rendition import pps
-from rendition import rxml
+from solutionstudio.util import pps
+from solutionstudio.util import rxml
 
 XmlTreeElement = rxml.tree.XmlTreeElement
 
-from systembuilder.event   import Event
-from systembuilder.logging import L0, L1
+from solutionstudio.event   import Event
+from solutionstudio.logging import L0, L1
 
 NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
 
-class SystemBuilderValidationHandler:
+class SolutionStudioValidationHandler:
   def validate_configs(self):
     try:
       self._validate_configs()
@@ -49,7 +49,7 @@ class SystemBuilderValidationHandler:
       sys.exit(1)
 
   def _validate_configs(self):
-    "Validate systembuilder config and distribution definition"
+    "Validate solutionstudio config and distribution definition"
 
     if self.mainconfig.file is not None:
       self.logger.log(4, L0("Validating '%s'" % self.mainconfig.file))
@@ -58,7 +58,7 @@ class SystemBuilderValidationHandler:
 
     v = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
                             self.mainconfig)
-    v.validate('/systembuilder', schema_file='systembuilder.rng')
+    v.validate('/solutionstudio', schema_file='solutionstudio.rng')
 
     # validate individual sections of the distribution_file
     self.logger.log(4, L0("Validating '%s'" % pps.path(self.appconfig.file)))

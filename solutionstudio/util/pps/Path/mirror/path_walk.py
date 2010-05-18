@@ -17,11 +17,11 @@
 #
 import errno
 
-from rendition.pps.lib.mirror import trymirrors, ContinueIteration
-from rendition.pps.Path.error import PathError
-from rendition.pps.PathSet    import PathSet
+from solutionstudio.util.pps.lib.mirror import trymirrors, ContinueIteration
+from solutionstudio.util.pps.Path.error import PathError
+from solutionstudio.util.pps.PathSet    import PathSet
 
-from rendition.pps.Path.remote import RemotePath_Walk
+from solutionstudio.util.pps.Path.remote import RemotePath_Walk
 
 class MirrorPath_Walk(RemotePath_Walk):
   "Path iteration/walking functions"

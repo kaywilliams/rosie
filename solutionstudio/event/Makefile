@@ -5,8 +5,8 @@ PYFILES = $(wildcard *.py)
 all:
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/event
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/event
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/solutionstudio/event
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/solutionstudio/event
 
 clean:
 	rm -f *.pyc *.pyo

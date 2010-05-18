@@ -18,12 +18,12 @@
 import imp
 import sys
 
-from rendition import graph
-from rendition import pps
-from rendition import resolve
-from rendition import tree
+from solutionstudio.util import graph
+from solutionstudio.util import pps
+from solutionstudio.util import resolve
+from solutionstudio.util import tree
 
-from rendition.versort import Version
+from solutionstudio.util.versort import Version
 
 CLASS_DEFAULT = 00
 CLASS_META    = 01 # meta-class event

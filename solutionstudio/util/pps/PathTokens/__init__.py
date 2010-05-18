@@ -19,7 +19,7 @@
 PathTokens - an alternate representation of Path objects
 """
 
-from rendition.pps import path
+from solutionstudio.util.pps import path
 
 class PathTokens(list):
   """

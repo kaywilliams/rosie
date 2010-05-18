@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from rendition.decorator import decorator
+from solutionstudio.util.decorator import decorator
 
-from rendition.pps.Path.error import PathError
+from solutionstudio.util.pps.Path.error import PathError
 
 @decorator
 def error_transform(fn, *args, **kwargs):

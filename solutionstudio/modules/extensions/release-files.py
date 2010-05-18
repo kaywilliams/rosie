@@ -22,7 +22,7 @@ Includes user-provided release files and folders within the distribution
 folder.
 """
 
-from systembuilder.event   import Event
+from solutionstudio.event   import Event
 
 MODULE_INFO = dict(
   api         = 5.0,

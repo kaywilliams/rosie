@@ -18,14 +18,14 @@
 
 import fnmatch
 
-from rendition import magic
+from solutionstudio.util import magic
 
-from systembuilder.constants import KERNELS
-from systembuilder.errors    import assert_file_has_content, SystemBuilderError
-from systembuilder.event     import Event
-from systembuilder.logging   import L1
+from solutionstudio.constants import KERNELS
+from solutionstudio.errors    import assert_file_has_content, SolutionStudioError
+from solutionstudio.event     import Event
+from solutionstudio.logging   import L1
 
-from systembuilder.modules.shared import comps
+from solutionstudio.modules.shared import comps
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -278,7 +278,7 @@ class PackagesEvent(Event):
 
 
 #------ ERRORS ------#
-class CompsError(SystemBuilderError): pass
+class CompsError(SolutionStudioError): pass
 
 class GroupNotFoundError(CompsError):
   message = "Group '%(group)s' not found in any groupfile"

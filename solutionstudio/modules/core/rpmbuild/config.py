@@ -17,14 +17,14 @@
 #
 from StringIO import StringIO
 
-from rendition import pps
+from solutionstudio.util import pps
 
-from systembuilder.event        import Event
-from systembuilder.validate     import InvalidConfigError
-from systembuilder.event.fileio import MissingInputFileError
+from solutionstudio.event        import Event
+from solutionstudio.validate     import InvalidConfigError
+from solutionstudio.event.fileio import MissingInputFileError
 
-from systembuilder.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
-from systembuilder.errors import SystemBuilderIOError, assert_file_readable
+from solutionstudio.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
+from solutionstudio.errors import SolutionStudioIOError, assert_file_readable
 
 import md5
 
@@ -443,5 +443,5 @@ class ConfigEvent(RpmBuildMixin, Event):
       return None
 
 #------ ERRORS ------#
-class ConfigIOError(SystemBuilderIOError):
+class ConfigIOError(SolutionStudioIOError):
   message = "Cannot find the file or folder named '%(file)s'. Check that it exists and that the element '%(item)s' is correct. If you are providing text rather than a file, add the attribute content='text' to the <%(element)s ...> element. [errno %(errno)d] %(message)s"

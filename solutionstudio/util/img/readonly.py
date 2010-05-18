@@ -17,12 +17,12 @@
 #
 import shutil
 
-from rendition import pps
-from rendition import shlib
+from solutionstudio.util import pps
+from solutionstudio.util import shlib
 
-from rendition.img import MODES, MODE_READ, MODE_WRITE, acquire_mount_point
-from rendition.img.image  import Image
-from rendition.img.errors import *
+from solutionstudio.util.img import MODES, MODE_READ, MODE_WRITE, acquire_mount_point
+from solutionstudio.util.img.image  import Image
+from solutionstudio.util.img.errors import *
 
 
 class ReadOnlyImageHandler:

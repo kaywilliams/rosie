@@ -26,11 +26,11 @@ import os
 import tempfile
 import sys
 
-from rendition import pps
-from rendition import shlib
-from rendition import sync
+from solutionstudio.util import pps
+from solutionstudio.util import shlib
+from solutionstudio.util import sync
 
-from rendition.mkrpm.setup import SETUP_PY_TEXT
+from solutionstudio.util.mkrpm.setup import SETUP_PY_TEXT
 
 __all__ = [
   'RpmBuilderException',

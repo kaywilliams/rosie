@@ -1,5 +1,5 @@
 # rxml.serialize functions
-from rendition.rxml import tree, serialize
+from solutionstudio.util.rxml import tree, serialize
 
 from util import Token, TokenGroup, _deformat
 

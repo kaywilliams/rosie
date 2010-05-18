@@ -23,7 +23,7 @@ if os.name == 'nt':
   except ImportError:
     win32security = None
 
-from rendition.pps.Path.local import LocalPath_Printf
+from solutionstudio.util.pps.Path.local import LocalPath_Printf
 
 class NTPath_Printf(LocalPath_Printf):
   """

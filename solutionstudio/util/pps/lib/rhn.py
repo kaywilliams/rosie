@@ -38,7 +38,7 @@
 
 import xmlrpclib
 
-from rendition.pps import path
+from solutionstudio.util.pps import path
 
 # systemid validation
 def validate_systemid(systemid):

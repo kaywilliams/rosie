@@ -23,7 +23,7 @@
   <para>XIncludes are a convenient feature, in general, for reusing content 
   across multiple definitions. Later in this section we will discuss an additional 
   scenario for using XInclude. We will also cover important limitations in 
-  SystemBuilder's XInclude support.</para>
+  SolutionStudio's XInclude support.</para>
 
   <section>
     <title>Create Development and Production Definitions</title>
@@ -82,11 +82,11 @@ xmllint --xinclude --format samba-server-production.distribution
       </programlisting>
     </informalexample></para> 
 
-   <para>Once you have created the files, you can ensure they are valid for use with SystemBuilder using the --validate-only command as follows, where $filename is the name of the file to validate:</para>
+   <para>Once you have created the files, you can ensure they are valid for use with SolutionStudio using the --validate-only command as follows, where $filename is the name of the file to validate:</para>
 
     <para><informalexample>
       <programlisting>
-# systembuilder --validate-only $filename
+# solutionstudio --validate-only $filename
       </programlisting>
     </informalexample></para> 
  
@@ -96,7 +96,7 @@ xmllint --xinclude --format samba-server-production.distribution
   <title>Strategies for Content Reuse with XInclude</title>
 
   <para>To ease the organization and reuse of information, the software development community
-  commonly uses substitution methods. In the case of SystemBuilder, you can create and
+  commonly uses substitution methods. In the case of SolutionStudio, you can create and
   store content in one location and use XML Inclusions (XInclude) and XPaths 
   to reuse content across distribution definitions and condense large definition
   files into more manageable and readable sections using an object-oriented
@@ -112,10 +112,10 @@ xmllint --xinclude --format samba-server-production.distribution
   change, not ten, and the inherent risk of inaccuracies or inconsistencies 
   among the definitions and within your network.</para>
 
-  <para>Using XIncludes with SystemBuilder does have one significant limitation, and this has to do with relative path resolution. Specifically, while paths within <emphasis>http</emphasis> attributes of <emphasis>include</emphasis> elements are resolved relative to the <emphasis>including document's location</emphasis>, SystemBuilder resolves all other paths, as noted in <xref linkend="defining-a-distribution"/>, relative to the <emphasis>location of the definition</emphasis>. Because of this limitation, you will need to exercise care when planning the file system structure for your definitions and shared content.</para>
+  <para>Using XIncludes with SolutionStudio does have one significant limitation, and this has to do with relative path resolution. Specifically, while paths within <emphasis>http</emphasis> attributes of <emphasis>include</emphasis> elements are resolved relative to the <emphasis>including document's location</emphasis>, SolutionStudio resolves all other paths, as noted in <xref linkend="defining-a-distribution"/>, relative to the <emphasis>location of the definition</emphasis>. Because of this limitation, you will need to exercise care when planning the file system structure for your definitions and shared content.</para>
  
-  <para>Within the context of SystemBuilder, a two-part structure on the <application
-  class="software">SystemBuilder</application> build machine will suffice for
+  <para>Within the context of SolutionStudio, a two-part structure on the <application
+  class="software">SolutionStudio</application> build machine will suffice for
   managing the common versus unique definition components. As in the diagram
   below, under the subdirectory <filename class="directory">distributions/
   </filename>, the <filename class="directory">common/</filename> branch

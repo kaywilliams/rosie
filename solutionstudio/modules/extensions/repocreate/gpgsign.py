@@ -15,16 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from rendition import pps
-from rendition import mkrpm
+from solutionstudio.util import pps
+from solutionstudio.util import mkrpm
 
-from rendition.mkrpm       import GpgMixin
-from rendition.progressbar import ProgressBar
+from solutionstudio.util.mkrpm       import GpgMixin
+from solutionstudio.util.progressbar import ProgressBar
 
-from systembuilder.callback  import GpgCallback, SyncCallback, LAYOUT_GPG
-from systembuilder.errors    import assert_file_has_content, SystemBuilderError, SystemBuilderIOError
-from systembuilder.event     import Event
-from systembuilder.logging   import L1, L2
+from solutionstudio.callback  import GpgCallback, SyncCallback, LAYOUT_GPG
+from solutionstudio.errors    import assert_file_has_content, SolutionStudioError, SolutionStudioIOError
+from solutionstudio.event     import Event
+from solutionstudio.logging   import L1, L2
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -149,8 +149,8 @@ class GpgSignEvent(GpgMixin, Event):
       self.verifier.failUnlessExists(file)
     # TODO: check that RPMs are actually signed
 
-class GpgkeyIOError(SystemBuilderIOError):
+class GpgkeyIOError(SolutionStudioIOError):
   message = "cannot read gpgkey '%(file)s': [errno %(errno)d] %(message)s"
 
-class GpgkeyInvalidError(SystemBuilderError):
+class GpgkeyInvalidError(SolutionStudioError):
   message = "file '%(file)s' does not appear to be a valid gpg key"

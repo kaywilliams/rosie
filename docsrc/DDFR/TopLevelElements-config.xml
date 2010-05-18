@@ -110,7 +110,7 @@
       <para>
       <emphasis>@sync</emphasis>: <varname>BOOLEAN</varname> value indicating
       whether to include the 
-      <application class="software">SystemBuilder</application>-provided 
+      <application class="software">SolutionStudio</application>-provided 
       <application class="software">YUM</application> sync plugin in the config
       RPM. The sync plugin overrides 
       <application class="software">YUM</application>'s default behavior 1) to
@@ -129,7 +129,7 @@
       information on defining input repositories.
       </para>
 
-      <note>Red Hat Network input repositories are not included in the repofile. This is because the SystemBuilder-specific extensions used to define them are not understood by YUM.
+      <note>Red Hat Network input repositories are not included in the repofile. This is because the SolutionStudio-specific extensions used to define them are not understood by YUM.
       </note>
 
       </listitem>

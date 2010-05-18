@@ -4,6 +4,6 @@ all:
 
 install:
 	mkdir -p $(DESTDIR)/etc/logrotate.d
-	install -pm 644 systembuilder $(DESTDIR)/etc/logrotate.d/systembuilder
+	install -pm 644 solutionstudio $(DESTDIR)/etc/logrotate.d/solutionstudio
 
 clean:

@@ -17,12 +17,12 @@
 #
 import unittest
 
-from rendition import pps
-from rendition.img         import MakeImage
-from rendition.rxml.config import Element
-from rendition import si
+from solutionstudio.util import pps
+from solutionstudio.util.img         import MakeImage
+from solutionstudio.util.rxml.config import Element
+from solutionstudio.util import si
 
-from systembuilder.splittree import parse_size
+from solutionstudio.splittree import parse_size
 
 from sbtest        import EventTestCase, ModuleTestSuite
 from sbtest.core   import make_core_suite, make_extension_suite

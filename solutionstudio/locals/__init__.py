@@ -18,18 +18,18 @@
 """
 locals.py
 
-Locals data for systembuilder
+Locals data for solutionstudio
 
 This file contains a number of anaconda version-specific data for various
-parts of the systembuilder process.  All information is stored in nested
+parts of the solutionstudio process.  All information is stored in nested
 LocalsDict objects.  See LocalsDict, below, for details on how it differs from
 the standard dict object.
 """
 
 import imp
 
-from rendition import pps
-from rendition import versort
+from solutionstudio.util import pps
+from solutionstudio.util import versort
 
 # local data imports happen at bottom to avoid circular refs
 
@@ -42,7 +42,7 @@ REMOVE = RemoveObject()
 class LocalsDict(dict):
   """
   A LocalsDict is a subclass of dict with a specialized key lookup system
-  that aids the specific requirements of the systembuilder locals system.
+  that aids the specific requirements of the solutionstudio locals system.
 
   Problem
   Certain properties of anaconda-based distributions vary depending on the

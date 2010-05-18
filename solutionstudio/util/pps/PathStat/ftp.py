@@ -20,10 +20,10 @@
 import stat
 import time
 
-from rendition.pps.constants import *
+from solutionstudio.util.pps.constants import *
 
-from rendition.pps.Path.error import PathError
-from rendition.pps.lib.ftp    import FtpFileObject
+from solutionstudio.util.pps.Path.error import PathError
+from solutionstudio.util.pps.lib.ftp    import FtpFileObject
 
 from remote import RemotePathStat
 

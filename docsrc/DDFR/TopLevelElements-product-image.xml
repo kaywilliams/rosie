@@ -14,7 +14,7 @@
 
     <para>
     Customize the <filename>product.img</filename> created by
-    <application class="software">SystemBuilder</application>. Typical
+    <application class="software">SolutionStudio</application>. Typical
     modifications include specifying additional Anaconda install classes and
     overriding default installer graphics.
     </para>

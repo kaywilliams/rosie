@@ -24,14 +24,14 @@ import unittest
 
 from StringIO import StringIO
 
-from rendition import logger
-from rendition import pps
-from rendition import repo
-from rendition import shlib
+from solutionstudio.util import logger
+from solutionstudio.util import pps
+from solutionstudio.util import repo
+from solutionstudio.util import shlib
 
-from rendition.rxml import config
+from solutionstudio.util.rxml import config
 
-from systembuilder.main import Build
+from solutionstudio.main import Build
 
 BUILD_ROOT = '/tmp/sbtest' # location builds are performed
 
@@ -41,11 +41,11 @@ class TestBuild(Build):
     Build.__init__(self, *args, **kwargs)
 
   def _get_config(self, options, arguments):
-    mcf = pps.path(options.mainconfigpath or '/etc/systembuilder/sbtest.conf')
+    mcf = pps.path(options.mainconfigpath or '/etc/solutionstudio/sbtest.conf')
     if mcf.exists():
       self.mainconfig = config.read(mcf)
     else:
-      self.mainconfig = config.read(StringIO('<systembuilder/>'))
+      self.mainconfig = config.read(StringIO('<solutionstudio/>'))
 
     # set the cache dir
     p = config.uElement('cache', parent=self.mainconfig)

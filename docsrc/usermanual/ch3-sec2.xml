@@ -22,11 +22,11 @@
 
   <para>Creating the <application class="software">Samba</application>
   server distribution entails several process steps. After configuring the
-  <application class="software">SystemBuilder</application> build machine,
+  <application class="software">SolutionStudio</application> build machine,
   as described in the previous chapter, you need to create a distribution
   distribution definition 
   (<filename class="extension">samba-server.definition</filename>). Then
-  you run <command>systembuilder</command> to validate the file, retrieve
+  you run <command>solutionstudio</command> to validate the file, retrieve
   the packages and build the distribution. From there you prepare the boot
   media.</para>
 

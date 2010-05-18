@@ -6,7 +6,7 @@
   <title>Installing Physical and Virtual Clients</title>
 
   <para>Deployment to a client machine is the next step. Because 
-  <application class="software">SystemBuilder</application> creates
+  <application class="software">SolutionStudio</application> creates
   distributions in a standard operating system format, client machines can be
   deployed using the same tools and methods as used for 
   <application class="software">Red Hat Enterprise Linux</application> and
@@ -32,7 +32,7 @@
 
     <section>
       <title>Creating boot media</title>
-      <para>After <application class="software">SystemBuilder</application>
+      <para>After <application class="software">SolutionStudio</application>
       completes the build, you  will find your distribution in a folder beneath
       the <filename class="directory">/var/www/html/distributions</filename> 
       default directory on the download server. The folder name will be

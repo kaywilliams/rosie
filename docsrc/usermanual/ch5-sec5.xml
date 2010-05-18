@@ -4,9 +4,9 @@
 <section>
   <title>Creating CD/DVD Images</title>
 
-  <para>By default SystemBuilder creates <filename>boot.iso</filename> and
+  <para>By default SolutionStudio creates <filename>boot.iso</filename> and
   <filename>diskboot.img</filename> files for CD media. All images come with
-  default sets of kernel boot arguments. But SystemBuilder allows you to do more. You
+  default sets of kernel boot arguments. But SolutionStudio allows you to do more. You
   can create multiple sets of release images for CD or DVD or create a USB
   key-ready image. You can also specify custom kernel boot arguments for each
   file type. Modify your <filename>samba-server.definition</filename> file to

@@ -17,12 +17,12 @@
 #
 import time
 
-from rendition import img
-from rendition import magic
-from rendition import pps
+from solutionstudio.util import img
+from solutionstudio.util import magic
+from solutionstudio.util import pps
 
-from systembuilder.logging      import L1
-from systembuilder.event.fileio import MissingInputFileError
+from solutionstudio.logging      import L1
+from solutionstudio.event.fileio import MissingInputFileError
 
 __all__ = ['ImageModifyMixin', 'FileDownloadMixin']
 

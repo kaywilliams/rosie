@@ -20,11 +20,11 @@ import time
 
 from rpmUtils.arch import getArchList
 
-from rendition.repo import RPM_PNVRA_REGEX
+from solutionstudio.util.repo import RPM_PNVRA_REGEX
 
-from systembuilder.errors    import SystemBuilderError
-from systembuilder.event     import Event
-from systembuilder.logging   import L1, L2
+from solutionstudio.errors    import SolutionStudioError
+from solutionstudio.event     import Event
+from solutionstudio.logging   import L1, L2
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -115,5 +115,5 @@ class DownloadEvent(Event):
       self.mdfile.rename(debugdir / self.mdfile.basename)
 
 
-class RpmsNotFoundError(SystemBuilderError):
+class RpmsNotFoundError(SolutionStudioError):
   message = "The following RPMs were not found in any input repos:\n%(rpms)s"

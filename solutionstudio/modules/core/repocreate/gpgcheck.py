@@ -16,14 +16,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from rendition import mkrpm
-from rendition import shlib
+from solutionstudio.util import mkrpm
+from solutionstudio.util import shlib
 
-from systembuilder.callback import GpgCallback
-from systembuilder.errors   import SystemBuilderError, SystemBuilderIOError, assert_file_has_content
-from systembuilder.event    import Event
-from systembuilder.logging  import L1, L2
-from systembuilder.validate import InvalidConfigError
+from solutionstudio.callback import GpgCallback
+from solutionstudio.errors   import SolutionStudioError, SolutionStudioIOError, assert_file_has_content
+from solutionstudio.event    import Event
+from solutionstudio.logging  import L1, L2
+from solutionstudio.validate import InvalidConfigError
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -134,11 +134,11 @@ class GpgCheckEvent(Event):
     k.write_lines(outlines)
 
 #------ ERRORS ------#
-class RpmSignatureInvalidError(SystemBuilderError):
+class RpmSignatureInvalidError(SolutionStudioError):
   message = "One or more RPMs failed GPG key check:\n %(rpms)s"
 
-class GpgkeyIOError(SystemBuilderIOError):
+class GpgkeyIOError(SolutionStudioIOError):
   message = "cannot read gpgkey '%(file)s': [errno %(errno)d] %(message)s"
 
-class NoGpgkeysProvidedError(SystemBuilderError, InvalidConfigError):
+class NoGpgkeysProvidedError(SolutionStudioError, InvalidConfigError):
   message = "gpgcheck enabled but no gpgkeys defined for repo '%(repoid)s'"

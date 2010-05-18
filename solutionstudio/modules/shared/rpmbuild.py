@@ -20,13 +20,13 @@ from ConfigParser import ConfigParser
 import colorsys
 import re
 
-from rendition import mkrpm
-from rendition import pps
-from rendition import rxml
+from solutionstudio.util import mkrpm
+from solutionstudio.util import pps
+from solutionstudio.util import rxml
 
-from systembuilder.errors    import SystemBuilderError
-from systembuilder.event     import Event
-from systembuilder.logging   import L1
+from solutionstudio.errors    import SolutionStudioError
+from solutionstudio.event     import Event
+from solutionstudio.logging   import L1
 
 __all__ = ['RpmBuildMixin', 'Trigger', 'TriggerContainer']
 
@@ -198,7 +198,7 @@ class RpmBuildObject:
     self.ptr.diff.setup(self.ptr.DATA)
 
     self.arch     = kwargs.get('arch',     'noarch')
-    self.author   = kwargs.get('author',   'systembuilder')
+    self.author   = kwargs.get('author',   'solutionstudio')
     self.fullname = kwargs.get('fullname', self.ptr.fullname)
     if kwargs.has_key('version'):
       self.version = kwargs['version']
@@ -395,5 +395,5 @@ class Trigger(dict):
     return '\n'.join(lines)
 
 
-class RpmBuildFailedException(SystemBuilderError):
+class RpmBuildFailedException(SolutionStudioError):
   message = "RPM build failed.  See build output below for details:\n%(message)s"

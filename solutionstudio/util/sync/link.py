@@ -21,9 +21,9 @@ __author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
 __version__ = '0.8.1'
 __date__    = 'August 22nd, 2007'
 
-from rendition.pps.Path.error import PathError
+from solutionstudio.util.pps.Path.error import PathError
 
-from rendition.sync.__init__  import CopyHandler, SyncOperation, SyncError
+from solutionstudio.util.sync.__init__  import CopyHandler, SyncOperation, SyncError
 
 #------ SYNC HANDLER ------#
 class LinkHandler(CopyHandler):

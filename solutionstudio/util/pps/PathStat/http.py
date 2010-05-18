@@ -22,7 +22,7 @@ import rfc822
 import stat
 import time
 
-from rendition.pps.lib.http import HttpFileObject
+from solutionstudio.util.pps.lib.http import HttpFileObject
 
 from __init__ import PathStat
 

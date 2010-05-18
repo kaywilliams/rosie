@@ -17,8 +17,8 @@
 #
 import os
 
-from rendition.pps.Path    import Path_Walk
-from rendition.pps.PathSet import PathSet
+from solutionstudio.util.pps.Path    import Path_Walk
+from solutionstudio.util.pps.PathSet import PathSet
 
 from error import error_transform
 

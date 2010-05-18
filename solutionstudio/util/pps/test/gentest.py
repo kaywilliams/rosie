@@ -1,6 +1,6 @@
 import copy
 
-from rendition import pps
+from solutionstudio.util import pps
 
 # update individual values in the appropriate section below if neccessary
 PATH_DEFAULTS = {

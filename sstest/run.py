@@ -23,7 +23,7 @@ import subprocess
 import sys
 import time
 
-from rendition import pps
+from solutionstudio.util import pps
 
 from sbtest import make_logger
 from sbtest.runtest import parse_cmd_args # use runtest's cmd parser

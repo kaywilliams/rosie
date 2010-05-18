@@ -17,15 +17,15 @@
 #
 import re
 
-from rendition.repo    import ReposFromXml, ReposFromFile, RepoContainer, RepoFileParseError
-from rendition.versort import Version
+from solutionstudio.util.repo    import ReposFromXml, ReposFromFile, RepoContainer, RepoFileParseError
+from solutionstudio.util.versort import Version
 
-from systembuilder.errors   import assert_file_has_content, assert_file_readable, SystemBuilderError
-from systembuilder.event    import Event
-from systembuilder.logging  import L1, L2
-from systembuilder.validate import InvalidConfigError
+from solutionstudio.errors   import assert_file_has_content, assert_file_readable, SolutionStudioError
+from solutionstudio.event    import Event
+from solutionstudio.logging  import L1, L2
+from solutionstudio.validate import InvalidConfigError
 
-from systembuilder.modules.shared import RepoEventMixin, SystemBuilderRepoGroup, SystemBuilderRepoFileParseError
+from solutionstudio.modules.shared import RepoEventMixin, SolutionStudioRepoGroup, SolutionStudioRepoFileParseError
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -64,14 +64,14 @@ class ReposEvent(RepoEventMixin, Event):
 
     updates  = RepoContainer()
     if self.config.pathexists('.'):
-      updates.add_repos(ReposFromXml(self.config.get('.'), cls=SystemBuilderRepoGroup))
+      updates.add_repos(ReposFromXml(self.config.get('.'), cls=SolutionStudioRepoGroup))
     for filexml in self.config.xpath('repofile/text()', []):
       fn = self.io.abspath(filexml)
       assert_file_has_content(fn)
       try:
-        updates.add_repos(ReposFromFile(fn, cls=SystemBuilderRepoGroup))
+        updates.add_repos(ReposFromFile(fn, cls=SolutionStudioRepoGroup))
       except RepoFileParseError, e:
-        raise SystemBuilderRepoFileParseError(e.args[0])
+        raise SolutionStudioRepoFileParseError(e.args[0])
 
     self.setup_repos(updates)
     self.read_repodata()
@@ -162,10 +162,10 @@ class ReposEvent(RepoEventMixin, Event):
 
 
 #------ ERRORS ------#
-class AnacondaNotFoundError(SystemBuilderError):
+class AnacondaNotFoundError(SolutionStudioError):
   message = "Unable to find the 'anaconda' package in any specified repository"
 
-class InstallerRepoNotFoundError(SystemBuilderError):
+class InstallerRepoNotFoundError(SolutionStudioError):
   message = ( "Unable to find 'isolinux/' and 'images/' folders inside any "
               "given repository." )
 

@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from rendition import pps
-from rendition import rxml
-from rendition import statfmt
+from solutionstudio.util import pps
+from solutionstudio.util import rxml
+from solutionstudio.util import statfmt
 
 NEW = '-'
 NONE = '<not found>'

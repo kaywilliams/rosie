@@ -37,9 +37,9 @@ __version__ = "1.0"
 
 import copy
 
-from rendition import versort
+from solutionstudio.util import versort
 
-from rendition.rxml import merge
+from solutionstudio.util.rxml import merge
 
 def incremental_merge(entries, index):
   indexes = entries.xpath('*/@version')

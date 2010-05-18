@@ -4,61 +4,61 @@
 <section>
   <title>Updating a Distribution</title>
 
-  <para>SystemBuilder makes it easy to keep your distribution up to date over 
-  time by simply rerunning the <command>systembuilder</command> command. 
-  When SystemBuilder runs, it looks for changes in build input, or in the 
+  <para>SolutionStudio makes it easy to keep your distribution up to date over 
+  time by simply rerunning the <command>solutionstudio</command> command. 
+  When SolutionStudio runs, it looks for changes in build input, or in the 
   distribution definition, and makes adjustments to the published
   distribution as necessary.</para>
 
   <section>
-    <title>Running <command>systembuilder</command> to check for repository
+    <title>Running <command>solutionstudio</command> to check for repository
     updates</title>
 
     <para>To include updated packages from the repositories, execute
-    <command>systembuilder</command> with the
+    <command>solutionstudio</command> with the
     <filename>samba-server.definition</filename> file. <application
-    class="software"> Rerunning <command>systembuilder</command> with the same
+    class="software"> Rerunning <command>solutionstudio</command> with the same
     <filename class="extension">.distribution</filename> file will dramatically
     reduce the build time, assuming there are no changes to the file's
-    contents. SystemBuilder</application> uses a cache of the packages and verifies the
+    contents. SolutionStudio</application> uses a cache of the packages and verifies the
     cache contents against the metadata for the repository and the groups. The
     screen output below shows the results of a build with no changes to the
     <filename>samba-server.definition</filename> file and no updates to the
     repositories.</para>
 
-    <para><screen>Reading '/home/systembuilder/samba-server.definition'
+    <para><screen>Reading '/home/solutionstudio/samba-server.definition'
 Starting build of 'samba-server-5-i386' at 2009-10-25 18:29:55
 Build complete at 2009-10-25 18:30:26</screen></para>
 
-    <para>Since there were no updates, <command>systembuilder</command> completed
+    <para>Since there were no updates, <command>solutionstudio</command> completed
     successfully in less than two minutes. (Results will vary based on factors
     including network connection speed between the build machine and input 
     repositories, number of packages in the distribution, and build 
     machine hardware configuration.) Only if something had changed would
-    <command>systembuilder</command> have rerun the repository updates and 
+    <command>solutionstudio</command> have rerun the repository updates and 
     provided more detail about this build.</para>
 
     <para>Unless you change the log level or the contents of the distribution, 
-    <command>systembuilder</command> will append the minimal output above to 
+    <command>solutionstudio</command> will append the minimal output above to 
     the log file.</para>
 
     <para><note>
-        <para>SystemBuilder's default behavior is to append all build output to the
-        <filename>systembuilder.log</filename> file in the <filename
+        <para>SolutionStudio's default behavior is to append all build output to the
+        <filename>solutionstudio.log</filename> file in the <filename
         class="directory">/var/log</filename> directory. To redirect the
-        output for a particular build, use the <command>systembuilder</command>
+        output for a particular build, use the <command>solutionstudio</command>
         command</para>
 
-        <para><userinput># systembuilder --log-file /var/log/$MYLOGFILE
+        <para><userinput># solutionstudio --log-file /var/log/$MYLOGFILE
         samba-server.definition</userinput></para>
 
         <para>where <varname>$MYLOGFILE</varname> is the new name of the log
         file.</para>
       </note></para>
 
-    <para>If SystemBuilder finds updated packages, it will refresh the 
+    <para>If SolutionStudio finds updated packages, it will refresh the 
     <xref linkend="distribution-repository"/> to contain just the current set
-    of packages. Specifically, when SystemBuilder determines that packages have
+    of packages. Specifically, when SolutionStudio determines that packages have
     changed, it calculates the list of packages needed to satisfy distribution 
     requirements, and then adds and removes packages as necessary to bring the 
     distribution repository into comformance with the list. This behavior 
@@ -68,7 +68,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
 
     <para><important>
         <para>If the published download location is the same,
-        <command>systembuilder</command> updates the distribution, adding new files and
+        <command>solutionstudio</command> updates the distribution, adding new files and
         replacing old ones.</para>
       </important></para>
   </section>
@@ -78,7 +78,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
 
     <para>If you change the distribution definition, or other build input 
     such as configuration files and scripts, then you need to rerun 
-    <command>systembuilder</command>. You may redefine
+    <command>solutionstudio</command>. You may redefine
     your distribution in a plethora of ways. Some of the more common options
     could include selecting different repositories; including or excluding
     groups, packages or custom files (configuration files, scripts or
@@ -135,7 +135,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
   <para>Save the smb.conf file</para>
 
   <para>Now run the command 
-  <command>systembuilder samba-server.definition</command>. You should see 
+  <command>solutionstudio samba-server.definition</command>. You should see 
   that a new configuration package is generated, and that the distribution
   is updated.</para>
 

@@ -25,7 +25,7 @@ defines the interface; see the individual modules for specific implementation.
 import itertools
 import stat
 
-from rendition.pps.constants import *
+from solutionstudio.util.pps.constants import *
 
 N_STAT_ITEMS = 10
 DEFAULT_STAT_ORDER = ['st_mode', 'st_ino',  'st_dev',   'st_nlink', 'st_uid',

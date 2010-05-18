@@ -19,12 +19,12 @@ __author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
 __version__ = '1.0'
 __date__    = 'June 12th, 2007'
 
-from rendition import pps
-from rendition import rxml
+from solutionstudio.util import pps
+from solutionstudio.util import rxml
 
-from rendition.difftest           import expand, DummyMetadata
-from rendition.difftest.filesdiff import diff, DiffTuple
-from rendition.difftest.handlers  import DiffHandler
+from solutionstudio.util.difftest           import expand, DummyMetadata
+from solutionstudio.util.difftest.filesdiff import diff, DiffTuple
+from solutionstudio.util.difftest.handlers  import DiffHandler
 
 class InputHandler(DiffHandler):
   def __init__(self, data):

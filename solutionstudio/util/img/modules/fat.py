@@ -17,12 +17,12 @@
 #
 import os
 
-from rendition import magic
-from rendition import shlib
+from solutionstudio.util import magic
+from solutionstudio.util import shlib
 
-from rendition.img import acquire_mount_point, release_mount_point
+from solutionstudio.util.img import acquire_mount_point, release_mount_point
 
-from rendition.img.mountable import MountableImageHandler, MakeMountableImage
+from solutionstudio.util.img.mountable import MountableImageHandler, MakeMountableImage
 
 IMAGES = [
   {

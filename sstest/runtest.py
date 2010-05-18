@@ -22,9 +22,9 @@ import os
 import sys
 import unittest
 
-from rendition import pps
+from solutionstudio.util import pps
 
-from rendition.CleanHelpFormatter import CleanHelpFormatter
+from solutionstudio.util.CleanHelpFormatter import CleanHelpFormatter
 
 opt_defaults = dict(
   logthresh = 0,
@@ -68,17 +68,17 @@ def parse_cmd_args(defaults=None):
     dest='buildroot',
     default='/tmp/sbtest',
     help='choose the location where builds should be performed')
-  parser.add_option('--systembuilder-conf', metavar='PATH',
+  parser.add_option('--solutionstudio-conf', metavar='PATH',
     dest='mainconfigpath',
     help='specify path to a main config file')
   parser.add_option('--lib-path', metavar='PATH',
     dest='libpath',
     action='append',
-    help='specify directory containing systembuilder library files')
+    help='specify directory containing solutionstudio library files')
   parser.add_option('--share-path', metavar='PATH',
     dest='sharepath',
     action='append',
-    help='specify directory containing systembuilder share files')
+    help='specify directory containing solutionstudio share files')
 
   parser.add_option('-l', '--log-file', metavar='path',
     default='test.log',

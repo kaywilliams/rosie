@@ -20,16 +20,16 @@ import time
 
 from datetime import timedelta
 
-from rendition import dispatch
-from rendition import rxml
-from rendition import sync
+from solutionstudio.util import dispatch
+from solutionstudio.util import rxml
+from solutionstudio.util import sync
 
-from systembuilder.logging import L0, L1
+from solutionstudio.logging import L0, L1
 
-from systembuilder.event.diff   import DiffMixin
-from systembuilder.event.fileio import IOMixin
-from systembuilder.event.locals import LocalsMixin
-from systembuilder.event.verify import VerifyMixin
+from solutionstudio.event.diff   import DiffMixin
+from solutionstudio.event.fileio import IOMixin
+from solutionstudio.event.locals import LocalsMixin
+from solutionstudio.event.verify import VerifyMixin
 
 # Constant (re)definitions
 CLASS_DEFAULT = dispatch.CLASS_DEFAULT

@@ -18,10 +18,10 @@
 import errno
 import os
 
-from rendition.decorator import decorator
+from solutionstudio.util.decorator import decorator
 
-from rendition.pps.Path.error import PathError
-from rendition.pps.lib.http   import HttpFileObjectError
+from solutionstudio.util.pps.Path.error import PathError
+from solutionstudio.util.pps.lib.http   import HttpFileObjectError
 
 @decorator
 def error_transform(fn, *args, **kwargs):

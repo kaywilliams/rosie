@@ -2,9 +2,9 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>SystemBuilder Files and Folders</title>
+  <title>SolutionStudio Files and Folders</title>
 
-  <para><application class="software">SystemBuilder</application> has several
+  <para><application class="software">SolutionStudio</application> has several
   key files and folders, listed in the table below.</para>
 
   <para><informaltable>
@@ -12,28 +12,28 @@
       <tgroup cols="2">
         <tbody>
           <row>
-            <entry>/etc/systembuilder/systembuilder.conf</entry>
+            <entry>/etc/solutionstudio/solutionstudio.conf</entry>
 
-            <entry><application>SystemBuilder</application> looks
-            for this file to locate systembuilder configuration. See the
-            systembuilder and systembuilder.conf man pages for more information.
-            This file is optional and does not exist in the default SystemBuilder
+            <entry><application>SolutionStudio</application> looks
+            for this file to locate solutionstudio configuration. See the
+            solutionstudio and solutionstudio.conf man pages for more information.
+            This file is optional and does not exist in the default SolutionStudio
             installation.</entry>
           </row>
           <row>
-            <entry>/usr/bin/systembuilder</entry>
+            <entry>/usr/bin/solutionstudio</entry>
 
-            <entry>The <command>systembuilder</command> command.</entry>
+            <entry>The <command>solutionstudio</command> command.</entry>
           </row>
 
           <row>
-            <entry>/usr/lib/python<varname>$version</varname>/site-packages/systembuilder</entry>
+            <entry>/usr/lib/python<varname>$version</varname>/site-packages/solutionstudio</entry>
 
             <entrytbl cols="1">
               <tbody>
                 <row>
                   <entry>Python code for <application
-                  class="software">SystemBuilder</application>, where
+                  class="software">SolutionStudio</application>, where
                   <varname>$version</varname> is the <application
                   class="software">Python</application> version.</entry>
                 </row>
@@ -42,39 +42,39 @@
           </row>
 
           <row>
-            <entry>/usr/share/doc/systembuilder-<varname>$version</varname></entry>
+            <entry>/usr/share/doc/solutionstudio-<varname>$version</varname></entry>
 
             <entry>Documentation for <application
-            class="software">SystemBuilder</application>, where
+            class="software">SolutionStudio</application>, where
             <varname>$version</varname> is the <application
-            class="software">SystemBuilder</application> version.</entry>
+            class="software">SolutionStudio</application> version.</entry>
           </row>
 
           <row>
-            <entry>/usr/share/systembuilder/schemas</entry>
+            <entry>/usr/share/solutionstudio/schemas</entry>
 
             <entry>Relax NG schemas for distribution definition validation.
             </entry>
           </row>
           <row>
-            <entry>/var/cache/systembuilder/</entry>
+            <entry>/var/cache/solutionstudio/</entry>
 
-            <entry>SystemBuilder stores cached content in this folder. See
-            the systembuilder and systembuilder.conf man pages for cache-related
+            <entry>SolutionStudio stores cached content in this folder. See
+            the solutionstudio and solutionstudio.conf man pages for cache-related
             options.
             </entry>
           </row>
 
           <row>
-            <entry>/var/log/systembuilder.log</entry>
+            <entry>/var/log/solutionstudio.log</entry>
 
-            <entry>SystemBuilder's default log file.</entry>
+            <entry>SolutionStudio's default log file.</entry>
           </row>
 
           <row>
             <entry>/var/www/html/distributions/</entry>
 
-            <entry>SystemBuilder publishes completed distributions to  
+            <entry>SolutionStudio publishes completed distributions to  
             this folder by default. An alternative location can be specified on
             a per distribution basis within a distribution definition.
             </entry>

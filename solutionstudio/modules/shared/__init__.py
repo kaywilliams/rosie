@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from rendition import listcompare
+from solutionstudio.util import listcompare
 
-from systembuilder.modules.shared.bootcfg    import *
-from systembuilder.modules.shared.createrepo import *
-from systembuilder.modules.shared.installer  import *
-from systembuilder.modules.shared.idepsolver import *
-from systembuilder.modules.shared.repos      import *
-from systembuilder.modules.shared.rpmbuild   import *
+from solutionstudio.modules.shared.bootcfg    import *
+from solutionstudio.modules.shared.createrepo import *
+from solutionstudio.modules.shared.installer  import *
+from solutionstudio.modules.shared.idepsolver import *
+from solutionstudio.modules.shared.repos      import *
+from solutionstudio.modules.shared.rpmbuild   import *
 
 class ListCompareMixin:
   def __init__(self, lfn=None, rfn=None, bfn=None, cb=None):

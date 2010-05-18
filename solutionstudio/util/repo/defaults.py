@@ -1,6 +1,6 @@
 "Default repository definitions"
 
-from rendition.repo import ReposFromString
+from solutionstudio.util.repo import ReposFromString
 
 __all__ = ['getDefaultRepos', 'getDefaultPackageRepos',
            'getDefaultSourceRepos', 'getDefaultInstallerRepos',
@@ -32,7 +32,7 @@ def getDefaultRepoById(id, distro, version, **kwargs):
       return repos[id]
   raise NoSuchRepoError("No such repo id '%s'" % id)
 
-from rendition.repo.repo import BaseRepo, YumRepo # avoid circular ref
+from solutionstudio.util.repo.repo import BaseRepo, YumRepo # avoid circular ref
 
 def _makeRepos(distro, version, type,
                cls=YumRepo, arch=None, include_baseurl=False,

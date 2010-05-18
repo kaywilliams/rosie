@@ -16,9 +16,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from systembuilder.event import Event
+from solutionstudio.event import Event
 
-from systembuilder.modules.shared import CreaterepoMixin
+from solutionstudio.modules.shared import CreaterepoMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

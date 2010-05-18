@@ -17,13 +17,13 @@
 #
 import os
 
-from rendition import pps
-from rendition import shlib
-from rendition import sync
+from solutionstudio.util import pps
+from solutionstudio.util import shlib
+from solutionstudio.util import sync
 
-from rendition.img import acquire_mount_point, release_mount_point, MODE_WRITE
-from rendition.img.errors import ImageIOError
-from rendition.img.image  import Image
+from solutionstudio.util.img import acquire_mount_point, release_mount_point, MODE_WRITE
+from solutionstudio.util.img.errors import ImageIOError
+from solutionstudio.util.img.image  import Image
 
 class MountableImageHandler:
   def __init__(self, base):

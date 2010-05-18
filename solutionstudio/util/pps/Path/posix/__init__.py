@@ -21,9 +21,9 @@ import posixpath
 from path_io     import PosixPath_IO
 from path_printf import PosixPath_Printf
 
-from rendition.pps.Path.local import _LocalPath     as LocalPath
-from rendition.pps.Path.local import LocalPath_Stat as PosixPath_Stat
-from rendition.pps.Path.local import LocalPath_Walk as PosixPath_Walk
+from solutionstudio.util.pps.Path.local import _LocalPath     as LocalPath
+from solutionstudio.util.pps.Path.local import LocalPath_Stat as PosixPath_Stat
+from solutionstudio.util.pps.Path.local import LocalPath_Walk as PosixPath_Walk
 
 class PosixPath(PosixPath_IO, PosixPath_Printf, PosixPath_Stat,
                 PosixPath_Walk, LocalPath):

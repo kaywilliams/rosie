@@ -202,7 +202,7 @@
       </title>
       <para>
       A <varname>CAPABILITY</varname> to add to a top-level element RPM's
-      obsoletes list. Each RPM SystemBuilder builds has a pre-determined set of
+      obsoletes list. Each RPM SolutionStudio builds has a pre-determined set of
       capabilities it uses if the top-level element's
       <emphasis>@use-default-obsoletes</emphasis> attribute
       is <constant>TRUE</constant>. The default set of obsoletes can be 
@@ -274,12 +274,12 @@
       </para>
 
       <para>
-      <application class="software">SystemBuilder</application> supports reading
+      <application class="software">SolutionStudio</application> supports reading
       from <varname>$input</varname>s for file, http, and https locations,
       and writing to file locations. Unless otherwise specified,
       <varname>$input</varname> may refer to both file and folder locations.
       If the <varname>$input</varname> does not exist or is otherwise
-      unreadable, <application class="software">SystemBuilder</application> typically
+      unreadable, <application class="software">SolutionStudio</application> typically
       will raise an error and exit.
       </para>
       

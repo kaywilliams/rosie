@@ -19,13 +19,13 @@ import cPickle
 import rpmUtils
 import yum
 
-from rendition import difftest
-from rendition import pps
+from solutionstudio.util import difftest
+from solutionstudio.util import pps
 
-from rendition.depsolver import Depsolver
+from solutionstudio.util.depsolver import Depsolver
 
-from systembuilder.callback import PkglistCallback, TimerCallback
-from systembuilder.logging  import L1
+from solutionstudio.callback import PkglistCallback, TimerCallback
+from solutionstudio.logging  import L1
 
 YUMCONF_HEADER = [
   '[main]',

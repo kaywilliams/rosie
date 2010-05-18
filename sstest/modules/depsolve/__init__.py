@@ -19,9 +19,9 @@ from StringIO import StringIO
 
 import unittest
 
-from rendition import pps
-from rendition import repo
-from rendition import rxml
+from solutionstudio.util import pps
+from solutionstudio.util import repo
+from solutionstudio.util import rxml
 
 from sbtest      import EventTestCase, ModuleTestSuite, _run_make
 from sbtest.core import make_core_suite

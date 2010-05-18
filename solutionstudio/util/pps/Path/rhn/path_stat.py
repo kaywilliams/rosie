@@ -17,12 +17,12 @@
 #
 import time
 
-from rendition.pps         import path
-from rendition.pps.lib.rhn import validate_systemid
+from solutionstudio.util.pps         import path
+from solutionstudio.util.pps.lib.rhn import validate_systemid
 
-from rendition.pps.Path.remote   import RemotePath_Stat
+from solutionstudio.util.pps.Path.remote   import RemotePath_Stat
 
-from rendition.pps.PathStat.http import HttpPathStat
+from solutionstudio.util.pps.PathStat.http import HttpPathStat
 
 # if system doesn't have up2date_client; raises ImportError which is excepted
 import sys

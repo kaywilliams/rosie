@@ -5,7 +5,7 @@
   <title>Installing Client Machines</title>
 
   <para>Because 
-  <application class="software">SystemBuilder</application> creates
+  <application class="software">SolutionStudio</application> creates
   distributions in a standard operating system format, client machines can be
   deployed using the same tools and methods as used for
   <application class="software">Red Hat Enterprise Linux</application> (RHEL) and 

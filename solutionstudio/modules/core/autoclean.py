@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from rendition import rxml
+from solutionstudio.util import rxml
 
-from rendition.difftest.handlers import DiffHandler
+from solutionstudio.util.difftest.handlers import DiffHandler
 
-from systembuilder.event   import Event
-from systembuilder.logging import L1, L2
+from solutionstudio.event   import Event
+from solutionstudio.logging import L1, L2
 
 MODULE_INFO = dict(
   api         = 5.0,

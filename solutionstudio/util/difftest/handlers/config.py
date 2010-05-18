@@ -22,10 +22,10 @@ __date__    = 'June 12th, 2007'
 import copy
 import difflib
 
-from rendition import rxml
+from solutionstudio.util import rxml
 
-from rendition.difftest          import expand, NoneEntry, NewEntry
-from rendition.difftest.handlers import DiffHandler
+from solutionstudio.util.difftest          import expand, NoneEntry, NewEntry
+from solutionstudio.util.difftest.handlers import DiffHandler
 
 class ConfigHandler(DiffHandler):
   def __init__(self, data, config):

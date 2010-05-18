@@ -23,32 +23,32 @@ import os
 import re
 import time
 
-from rendition import listfmt
-from rendition import pps
-from rendition import rxml
+from solutionstudio.util import listfmt
+from solutionstudio.util import pps
+from solutionstudio.util import rxml
 
-from rendition.difftest.filesdiff import DiffTuple
+from solutionstudio.util.difftest.filesdiff import DiffTuple
 
-from rendition.pps.constants import TYPE_DIR
+from solutionstudio.util.pps.constants import TYPE_DIR
 
-from systembuilder.errors    import (SystemBuilderError, SystemBuilderIOError, RhnSupportError,
+from solutionstudio.errors    import (SolutionStudioError, SolutionStudioIOError, RhnSupportError,
                             assert_file_readable, assert_file_has_content)
-from systembuilder.logging   import L1, L2
-from systembuilder.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
-from systembuilder.validate  import InvalidConfigError
+from solutionstudio.logging   import L1, L2
+from solutionstudio.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
+from solutionstudio.validate  import InvalidConfigError
 
-from rendition.repo          import ReposFromXml, ReposFromFile, getDefaultRepos
-from rendition.repo.repo     import YumRepo, RepoContainer, NSMAP
-from rendition.repo.defaults import TYPE_ALL
+from solutionstudio.util.repo          import ReposFromXml, ReposFromFile, getDefaultRepos
+from solutionstudio.util.repo.repo     import YumRepo, RepoContainer, NSMAP
+from solutionstudio.util.repo.defaults import TYPE_ALL
 
-__all__ = ['RepoEventMixin', 'SystemBuilderRepo', 'SystemBuilderRepoGroup',
-           'SystemBuilderRepoFileParseError']
+__all__ = ['RepoEventMixin', 'SolutionStudioRepo', 'SolutionStudioRepoGroup',
+           'SolutionStudioRepoFileParseError']
 
 # list of folders that don't contain repodata folders for sure
 NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
                  'stylesheet-images']
 
-class SystemBuilderRepo(YumRepo):
+class SolutionStudioRepo(YumRepo):
   keyfilter = ['id', 'systemid']
 
   def __init__(self, **kwargs):
@@ -109,7 +109,7 @@ class SystemBuilderRepo(YumRepo):
       p = YumRepo._xform_uri(self, p)
     return p
 
-class RhnSystemBuilderRepo(SystemBuilderRepo):
+class RhnSolutionStudioRepo(SolutionStudioRepo):
   # redhat's RHN repos are very annoying in that they have inconsitent
   # metadata at times.  This class aims to account for this instability
 
@@ -119,7 +119,7 @@ class RhnSystemBuilderRepo(SystemBuilderRepo):
   def read_repomd(self):
     i = 0; consistent = False
     while i < self.MAX_TRIES:
-      SystemBuilderRepo.read_repomd(self)
+      SolutionStudioRepo.read_repomd(self)
       if self.EMPTY_FILE_CSUM not in \
         self.repomd.xpath('//repo:data/repo:checksum/text()',
                           namespaces=NSMAP):
@@ -129,9 +129,9 @@ class RhnSystemBuilderRepo(SystemBuilderRepo):
       raise InconsistentRepodataError(self.id, self.MAX_TRIES)
 
 
-class SystemBuilderRepoGroup(SystemBuilderRepo):
+class SolutionStudioRepoGroup(SolutionStudioRepo):
   def __init__(self, **kwargs):
-    SystemBuilderRepo.__init__(self, **kwargs)
+    SolutionStudioRepo.__init__(self, **kwargs)
 
     self._repos = None
     self.has_installer_files = False
@@ -147,10 +147,10 @@ class SystemBuilderRepoGroup(SystemBuilderRepo):
       raise MirrorlistFormatInvalidError(self.id, e.lineno, e.line, e.reason)
 
     # need special handling for rhn paths
-    cls = SystemBuilderRepo
+    cls = SolutionStudioRepo
     try:
       if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
-        cls = RhnSystemBuilderRepo
+        cls = RhnSolutionStudioRepo
     except AttributeError:
       if ( self.url.realm.scheme == 'rhn' or
            self.url.realm.scheme == 'rhns' ):
@@ -467,40 +467,40 @@ class ReposDiffTuple(DiffTuple):
       self.csum = self.path.shasum()
 
 
-class NoReposEnabledError(SystemBuilderError, RuntimeError):
+class NoReposEnabledError(SolutionStudioError, RuntimeError):
   message = "No enabled repos in '%(modid)s' module"
 
-class RepodataNotFoundError(SystemBuilderError, RuntimeError):
+class RepodataNotFoundError(SolutionStudioError, RuntimeError):
   message = "Unable to find repodata folder for repo '%(repoid)s' at '%(url)s'"
 
-class InconsistentRepodataError(SystemBuilderError, RuntimeError):
+class InconsistentRepodataError(SolutionStudioError, RuntimeError):
   message = ( "Unable to obtain consistent value for one or more checksums "
               " in repo '%(repoid)s' after %(ntries)d tries" )
 
-class SystemidIOError(SystemBuilderIOError):
+class SystemidIOError(SolutionStudioIOError):
   message = ( "Unable to read systemid file '%(file)s' for repo "
               "'%(repoid)s': [errno %(errno)d] %(message)s" )
 
-class SystemidUndefinedError(SystemBuilderError, InvalidConfigError):
+class SystemidUndefinedError(SolutionStudioError, InvalidConfigError):
   message = "No <systemid> element defined for repo '%(repoid)s'"
 
-class SystemidInvalidError(SystemBuilderError):
+class SystemidInvalidError(SolutionStudioError):
   message = ( "Systemid file '%(file)s' for repo '%(repo)s' is invalid: "
               "%(message)s" )
 
-class PkgsfileIOError(SystemBuilderIOError):
+class PkgsfileIOError(SolutionStudioIOError):
   message = ( "Unable to compute package version for %(names)s with pkgsfile "
               "'%(file)s': [errno %(errno)d] %(message)s" )
 
-class SystemBuilderRepoFileParseError(SystemBuilderError):
+class SolutionStudioRepoFileParseError(SolutionStudioError):
   message = "Error parsing repo file: %(message)s"
 
-class RepomdCsumMismatchError(SystemBuilderError):
+class RepomdCsumMismatchError(SolutionStudioError):
   message = ( "Checksum of file '%(file)s' doesn't match repomd.xml for "
               "repo '%(repoid)s':\n"
               "  Got:      %(got)s\n"
               "  Expected: %(expected)s" )
 
-class MirrorlistFormatInvalidError(SystemBuilderError):
+class MirrorlistFormatInvalidError(SolutionStudioError):
   message = ( "Mirrorlist format invalid for repo '%(repo)s' on line "
               "%(lineno)d: '%(line)s': %(reason)s" )

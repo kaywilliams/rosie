@@ -62,11 +62,11 @@ import os
 import sha
 import tempfile
 
-from rendition import gpgparse
-from rendition import magic
-from rendition import pps
-from rendition import shlib
-from rendition import sync
+from solutionstudio.util import gpgparse
+from solutionstudio.util import magic
+from solutionstudio.util import pps
+from solutionstudio.util import shlib
+from solutionstudio.util import sync
 
 from callback import RpmSignCallback
 from globals  import RPM_HEADER_INDEX_MAGIC

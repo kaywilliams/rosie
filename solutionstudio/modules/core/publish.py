@@ -21,12 +21,12 @@ import platform
 import socket
 import struct
 
-from rendition import pps
-from rendition import shlib
+from solutionstudio.util import pps
+from solutionstudio.util import shlib
 
-from systembuilder.errors    import SystemBuilderError
-from systembuilder.event     import Event
-from systembuilder.logging   import L1
+from solutionstudio.errors    import SolutionStudioError
+from solutionstudio.event     import Event
+from solutionstudio.logging   import L1
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -164,6 +164,6 @@ class PublishEvent(Event):
       dir.removedirs()
 
 
-class InterfaceIOError(SystemBuilderError):
+class InterfaceIOError(SolutionStudioError):
   message = ( "Error looking up information for interface '%(interface)s': "
               "%(message)s" )

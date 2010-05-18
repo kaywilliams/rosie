@@ -18,10 +18,10 @@
 
 import copy
 
-from rendition.pps.Path.remote import RemotePath_IO
+from solutionstudio.util.pps.Path.remote import RemotePath_IO
 
-from rendition.pps.lib.http      import HttpFileObject
-from rendition.pps.PathStat.http import HttpPathStat
+from solutionstudio.util.pps.lib.http      import HttpFileObject
+from solutionstudio.util.pps.PathStat.http import HttpPathStat
 
 from error import error_transform
 

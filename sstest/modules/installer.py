@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from rendition.rxml import config
+from solutionstudio.util.rxml import config
 
 from sbtest      import EventTestCase, ModuleTestSuite
 from sbtest.core import make_core_suite

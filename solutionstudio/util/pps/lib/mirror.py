@@ -20,10 +20,10 @@ import errno
 
 from math import ceil, log
 
-from rendition.pps            import path
-from rendition.pps.Path.error import PathError
+from solutionstudio.util.pps            import path
+from solutionstudio.util.pps.Path.error import PathError
 
-from rendition.pps.Path.remote import RemotePath #!
+from solutionstudio.util.pps.Path.remote import RemotePath #!
 
 # list of error codes that indicate that we were unable to get files from
 # a host because of problems with the host itself: name or service unknown,

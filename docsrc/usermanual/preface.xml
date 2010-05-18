@@ -7,7 +7,7 @@
   <section>
     <title>Audience</title>
 
-    <para>SystemBuilder is a product intended for system administrators
+    <para>SolutionStudio is a product intended for system administrators
     who need to build, test, deploy and maintain Red Hat Enterprise Linux or 
     CentOS-based systems. Certain chapters in this manual assume you have a 
     particular level of knowledge.</para>
@@ -38,7 +38,7 @@
     with version control systems, local mirror hosting, XPath and XInclude.
     </para>
 
-    <para>For Chapter 5, "Doing More with SystemBuilder," key skills
+    <para>For Chapter 5, "Doing More with SolutionStudio," key skills
     include understanding how to automate Anaconda installations using 
     kickstart files and command line arguments.</para>
   </section>
@@ -47,24 +47,24 @@
     <title>What's Not Covered</title>
 
     <para>This manual complements several <application
-    class="software">SystemBuilder</application> documents. The "Installation
+    class="software">SolutionStudio</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
-    obtaining and installing SystemBuilder and creating a basic CentOS system
+    obtaining and installing SolutionStudio and creating a basic CentOS system
     distribution. The "Distribution Definition File Reference" (DDFR) contains
     the syntax for distribution definition elements and attributes. 
-    Finally, SystemBuilder has a set of 
+    Finally, SolutionStudio has a set of 
     <emphasis role="strong">man pages</emphasis> explaining the
-    <command>systembuilder</command> command, its options and the SystemBuilder
-    configuration file, <filename>systembuilder.conf</filename>. This manual 
+    <command>solutionstudio</command> command, its options and the SolutionStudio
+    configuration file, <filename>solutionstudio.conf</filename>. This manual 
     contains references to all four throughout the text.</para>
 
-    <para>These SystemBuilder documents are available at the Rendition
-    Software SystemBuilder documentation website.
+    <para>These SolutionStudio documents are available at the Rendition
+    Software SolutionStudio documentation website.
     </para>
 
     <para>
-    <ulink url="http://www.renditionsoftware.com/systembuilder/docs/">
-    http://www.renditionsoftware.com/systembuilder/docs/ </ulink>
+    <ulink url="http://www.renditionsoftware.com/solutionstudio/docs/">
+    http://www.renditionsoftware.com/solutionstudio/docs/ </ulink>
     </para>
 
   </section>
@@ -72,7 +72,7 @@
   <section>
     <title>How to Read</title>
 
-    <para>The intent of the manual is to help you use SystemBuilder effectively
+    <para>The intent of the manual is to help you use SolutionStudio effectively
     to build and maintain distributions, and to use distributions to
     install and update client machines. This manual takes a top-down approach,
     explaining the concepts before giving steps, commands and code examples
@@ -102,7 +102,7 @@
         <term><emphasis role="strong">Commands</emphasis></term>
 
         <listitem>
-          <para><command>Command</command> names in SystemBuilder or
+          <para><command>Command</command> names in SolutionStudio or
           <function>function</function> names in other programs appear
           throughout the document.</para>
         </listitem>
@@ -190,7 +190,7 @@
           computer output</computeroutput>, usually in Courier monospace font,
           or included in a box, as in the case below.</para>
 
-          <screen>/usr/bin/systembuilder</screen>
+          <screen>/usr/bin/solutionstudio</screen>
         </listitem>
       </varlistentry>
 
@@ -215,9 +215,9 @@ $ precedes lines entered as a normal user</programlisting>
         <term><emphasis role="strong">Variables</emphasis></term>
 
         <listitem>
-          <para>SystemBuilder variables are presented in monospace font preceded by a
+          <para>SolutionStudio variables are presented in monospace font preceded by a
           dollar sign, e.g. <varname>$ID</varname>. Variables outside
-          the SystemBuilder realm appear in lowercase in monospace font preceded by a
+          the SolutionStudio realm appear in lowercase in monospace font preceded by a
           dollar sign, e.g. <varname>$releasever</varname>.</para>
         </listitem>
       </varlistentry>
@@ -234,26 +234,26 @@ $ precedes lines entered as a normal user</programlisting>
         <listitem>
           <para>Chapter I, "Preface," provides information about how to use and
           read this manual. It also contains information on obtaining the 
-          <application class="software">SystemBuilder</application> product.
+          <application class="software">SolutionStudio</application> product.
           </para>
         </listitem>
 
         <listitem>
           <para>Chapter 2, "Introduction" explains what a 
-          distribution is, how <application class="software">SystemBuilder
+          distribution is, how <application class="software">SolutionStudio
           </application> helps you build it in an efficient timely manner
           and the underlying architecture that makes this improved performance
           possible. The section also includes a "Glossary of Terms" explaining
           terms used within the <application
-          class="software">SystemBuilder</application> realm.</para>
+          class="software">SolutionStudio</application> realm.</para>
         </listitem>
 
         <listitem>
           <para>Chapter 3, "Building a Distribution," covers the basic
           concepts for configuring the <application
-          class="software">SystemBuilder</application> build machine,
+          class="software">SolutionStudio</application> build machine,
           defining and deploying a distribution, running <application
-          class="software">SystemBuilder</application> and updating a
+          class="software">SolutionStudio</application> and updating a
           distribution. As a use case model, these sections will help you
           create a basic <application class="software">Samba</application>
           server distribution based on CentOS 5.</para>
@@ -262,14 +262,14 @@ $ precedes lines entered as a normal user</programlisting>
         <listitem>
           <para>Chapter 4, "Creating a Production Environment," will help you
           set up a managed development and deployment environment using
-          SystemBuilder as its cornerstone. It explains implementing the 
+          SolutionStudio as its cornerstone. It explains implementing the 
           development - staging - production environment within the context of 
           building and deploying distributions using <application
-          class="software">SystemBuilder</application>. The Samba server
+          class="software">SolutionStudio</application>. The Samba server
           distribution you created in Part I will have new features
           requirements to implement in Part II.</para>
 
-          <para>Chapter 4 also discusses how SystemBuilder makes your life
+          <para>Chapter 4 also discusses how SolutionStudio makes your life
           easier as a system or build administrator. Versioning distribution
           files and utilizing an object-oriented model through the XInclude
           mechanism for the distribution definitions are important usability
@@ -278,7 +278,7 @@ $ precedes lines entered as a normal user</programlisting>
         </listitem>
 
         <listitem>
-          <para>Chapter 5, "Doing More with SystemBuilder" will help you
+          <para>Chapter 5, "Doing More with SolutionStudio" will help you
           customize your distributions. It describes using kickstart files to 
           automate client installation, discusses GPG checking and
           using GPG keys to sign your own packages, and provides information on 
@@ -288,11 +288,11 @@ $ precedes lines entered as a normal user</programlisting>
   </section>
 
   <section>
-    <title>Getting SystemBuilder</title>
+    <title>Getting SolutionStudio</title>
 
-    <para>SystemBuilder and associated documents are available at
-    <ulink url="http://www.renditionsoftware.com/systembuilder/"> the Rendition
-    Software SystemBuilder website</ulink> 
-    at www.renditionsoftware.com/systembuilder.</para>
+    <para>SolutionStudio and associated documents are available at
+    <ulink url="http://www.renditionsoftware.com/solutionstudio/"> the Rendition
+    Software SolutionStudio website</ulink> 
+    at www.renditionsoftware.com/solutionstudio.</para>
   </section>
 </chapter>

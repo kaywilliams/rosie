@@ -36,7 +36,7 @@ import struct
 
 # import pps, if available
 try:
-  from rendition import pps
+  from solutionstudio.util import pps
 except ImportError:
   pps = None
 

@@ -16,9 +16,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from rendition.pps.lib.mirror import trymirrors
+from solutionstudio.util.pps.lib.mirror import trymirrors
 
-from rendition.pps.Path.remote import RemotePath_IO
+from solutionstudio.util.pps.Path.remote import RemotePath_IO
 
 class MirrorPath_IO(RemotePath_IO):
 

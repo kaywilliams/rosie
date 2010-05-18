@@ -18,11 +18,11 @@
 import os
 import shutil
 
-from rendition import pps
-from rendition import shlib
+from solutionstudio.util import pps
+from solutionstudio.util import shlib
 
-from rendition.img import acquire_mount_point, release_mount_point, MODES, MODE_READ, MODE_WRITE
-from rendition.img.errors import *
+from solutionstudio.util.img import acquire_mount_point, release_mount_point, MODES, MODE_READ, MODE_WRITE
+from solutionstudio.util.img.errors import *
 
 class Image:
   def __init__(self, image, zipped=False):

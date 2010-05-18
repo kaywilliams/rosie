@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from rendition import shlib
+from solutionstudio.util import shlib
 
-from systembuilder.event import Event
+from solutionstudio.event import Event
 
-from systembuilder.modules.shared import BootConfigMixin
+from solutionstudio.modules.shared import BootConfigMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

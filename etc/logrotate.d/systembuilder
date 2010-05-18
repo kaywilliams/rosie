@@ -1,4 +1,4 @@
-/var/log/systembuilder.log {
+/var/log/solutionstudio.log {
     missingok
     notifempty
     rotate 4

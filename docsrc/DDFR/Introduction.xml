@@ -12,12 +12,12 @@
   Linux operating system distribution, or distribution. It defines distribution 
   content and configuration, including name, version, and architecture; package
   repository locations; which packages to include; and the locations of 
-  configuration scripts, files and custom graphics. SystemBuilder uses the distribution file
+  configuration scripts, files and custom graphics. SolutionStudio uses the distribution file
   to assemble, create and publish the distribution. Other programs, such as
   <application class="software">YUM</application>,
   <application class="software">Anaconda</application>, and
   <application class="software">RPM</application>
-  use files created by <application class="software">SystemBuilder</application>
+  use files created by <application class="software">SolutionStudio</application>
   to install and update the distribution on the client system.
   </para>
 
@@ -43,13 +43,13 @@
 
   <para>
   A distribution file can be located in any local directory and invoked from the
-  command line using the command <command>systembuilder</command> followed by the full
+  command line using the command <command>solutionstudio</command> followed by the full
   or relative pathname to the file, such as:
   </para>
 
   <informalexample>
   <programlisting>
-<command>systembuilder</command> /path/to/distribution/file
+<command>solutionstudio</command> /path/to/distribution/file
   </programlisting>
   </informalexample>
 
@@ -109,10 +109,10 @@
 	  groups type
 
 	  <programlisting>
-	systembuilder --list-modules
+	solutionstudio --list-modules
 	  </programlisting>
 
-	  at the command prompt. Refer to the SystemBuilder man pages for more information.
+	  at the command prompt. Refer to the SolutionStudio man pages for more information.
 	  This document only describes top-level elements that contain
 	  user-configurable parameters; not all modules listed from the above
 	  command are described below.
@@ -135,7 +135,7 @@
 	  <para>
 	  The sole exception to the above rules is the
 	  <emphasis role="strong">main</emphasis> module, which is required for
-	  SystemBuilder to operate properly.
+	  SolutionStudio to operate properly.
 	  </para>
 
 	  <para>

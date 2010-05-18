@@ -8,8 +8,8 @@ all:
 	for dir in $(SUBDIRS); do make -C $$dir; done
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules/core
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules/core
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/solutionstudio/modules/core
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/solutionstudio/modules/core
 
 	for dir in $(SUBDIRS); do make -C $$dir PYTHONLIBDIR=`cd $(PYTHONLIBDIR); pwd` DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
 

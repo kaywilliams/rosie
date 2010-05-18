@@ -2,13 +2,13 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title><application class="software">SystemBuilder</application> Overview
+  <title><application class="software">SolutionStudio</application> Overview
   </title>
 
   <para>Automating customization, installation and maintenance of Red Hat 
   Enterprise Linux and CentOS systems today requires costly and complex management
-  solutions. <application class="software">SystemBuilder</application> provides
-  a simple, standard, reliable alternative. SystemBuilder packages 
+  solutions. <application class="software">SolutionStudio</application> provides
+  a simple, standard, reliable alternative. SolutionStudio packages 
   user-specified content into standard operating system deployment bundles, or 
   <emphasis>distributions</emphasis>. System distributions can be used to
   deploy and maintain client machines, physical and virtual, in a wide range of
@@ -16,7 +16,7 @@
 
   <para>A distribution is a set of operating system components,
   applications and configuration, packaged for deployment in a standard format.
-  Using SystemBuilder you can create and maintain distributions:</para>
+  Using SolutionStudio you can create and maintain distributions:</para>
 
   <para><itemizedlist>
       <listitem>
@@ -54,13 +54,13 @@
 
   <mediaobject>
     <imageobject>
-      <imagedata fileref="systembuilder_overview.png" />
+      <imagedata fileref="solutionstudio_overview.png" />
     </imageobject>
 
-    <caption><para>SystemBuilder Overview</para></caption>
+    <caption><para>SolutionStudio Overview</para></caption>
   </mediaobject>
 
-  <para><application class="software">SystemBuilder</application> reads 
+  <para><application class="software">SolutionStudio</application> reads 
   a distribution definition, gathers various inputs (operating system, applications, 
   and configuration files), and creates a distribution 
   with installation images and a package repository. Using the installation
@@ -68,7 +68,7 @@
   also update existing clients from the distribution package repository.
   </para>
 
-  <para>In summary, SystemBuilder is a production system life cycle manager
+  <para>In summary, SolutionStudio is a production system life cycle manager
   for use in defining, building and maintaining distributions that can
   be easily installed and updated on physical, virtual and cloud machines using
   industry standard deployment and update tools.</para>

@@ -17,15 +17,15 @@
 #
 import os
 
-from rendition import magic
-from rendition import pps
-from rendition import shlib
-from rendition import sync
+from solutionstudio.util import magic
+from solutionstudio.util import pps
+from solutionstudio.util import shlib
+from solutionstudio.util import sync
 
-from rendition.img import acquire_mount_point, release_mount_point, MODE_WRITE, MODE_READ
+from solutionstudio.util.img import acquire_mount_point, release_mount_point, MODE_WRITE, MODE_READ
 
-from rendition.img.errors import ImageIOError
-from rendition.img.image  import Image
+from solutionstudio.util.img.errors import ImageIOError
+from solutionstudio.util.img.image  import Image
 
 IMAGES = [
   {

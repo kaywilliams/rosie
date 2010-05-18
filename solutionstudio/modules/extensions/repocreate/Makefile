@@ -5,8 +5,8 @@ PYFILES = $(wildcard *.py)
 all:
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules/extensions/repocreate/
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules/extensions/repocreate
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/solutionstudio/modules/extensions/repocreate/
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/solutionstudio/modules/extensions/repocreate
 
 clean:
 	rm -f *.pyc *.pyo

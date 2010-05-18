@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from rendition import repo
-from rendition import rxml
+from solutionstudio.util import repo
+from solutionstudio.util import rxml
 
 from sbtest import EventTestCase, ModuleTestSuite
 from sbtest.core import make_core_suite
 
-from systembuilder.errors import SystemBuilderError
+from solutionstudio.errors import SolutionStudioError
 
 class GpgcheckEventTestCase(EventTestCase):
   moduleid = 'gpgcheck'
@@ -43,10 +43,10 @@ class GpgcheckEventTestCase(EventTestCase):
 
 
 class Test_GpgKeysNotProvided(GpgcheckEventTestCase):
-  "raises SystemBuilderError when no keys are provided"
+  "raises SolutionStudioError when no keys are provided"
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(SystemBuilderError, self.event)
+    self.failUnlessRaises(SolutionStudioError, self.event)
 
   def _make_repos_config(self):
     repos = GpgcheckEventTestCase._make_repos_config(self)

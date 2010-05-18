@@ -24,10 +24,10 @@ generates distribution information files: .discinfo, .treeinfo, and .buildstamp
 import copy
 import time
 
-from rendition import FormattedFile as ffile
+from solutionstudio.util import FormattedFile as ffile
 
-from systembuilder.event  import Event
-from systembuilder.locals import sort_keys
+from solutionstudio.event  import Event
+from solutionstudio.locals import sort_keys
 
 MODULE_INFO = dict(
   api         = 5.0,

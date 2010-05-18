@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from rendition.pps.Path.http import HttpPath_IO
+from solutionstudio.util.pps.Path.http import HttpPath_IO
 
 class RhnPath_IO(HttpPath_IO):
 

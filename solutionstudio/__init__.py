@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 """
-systembuilder
+solutionstudio
 
 A modular, extensible program framework for building customized anaconda-based
 Linux distributions.
@@ -30,10 +30,10 @@ that the output is consistenly valid and up-to-date with the available input.
 Modular-style system allows easy customization of the build process.  It is
 simple to enable or disable entire modules by adding or removing them from a
 modules/ directory, or by making an entry in the configuration file.  It is
-also easy to extend the basic systembuilder system by writing your own modules that
-implement the systembuilder module interface.
+also easy to extend the basic solutionstudio system by writing your own modules that
+implement the solutionstudio module interface.
 
-Support for multiple platform builds - systembuilder is capable of building an
+Support for multiple platform builds - solutionstudio is capable of building an
 distribution based on any version of anaconda from 10.x onward depending on
 the software installed on the build machine.  Through the use of multiple
 configuration files, one machine can build a variety of custom distributions

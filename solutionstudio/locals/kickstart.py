@@ -1,4 +1,4 @@
-from systembuilder.locals import LocalsDict
+from solutionstudio.locals import LocalsDict
 
 __all__ = ['L_KICKSTART']
 

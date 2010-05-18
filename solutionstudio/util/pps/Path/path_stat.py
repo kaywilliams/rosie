@@ -17,7 +17,7 @@
 #
 import stat
 
-from rendition.pps.Path.error import PathError
+from solutionstudio.util.pps.Path.error import PathError
 
 class Path_Stat(object):
   "Stat methods for Path objects"

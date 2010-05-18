@@ -18,16 +18,16 @@
 import errno
 import os
 
-from rendition import pkgorder
-from rendition import shlib
+from solutionstudio.util import pkgorder
+from solutionstudio.util import shlib
 
-from systembuilder import splittree
+from solutionstudio import splittree
 
-from systembuilder.callback import BuildDepsolveCallback
-from systembuilder.event    import Event, CLASS_META
-from systembuilder.logging  import L1, L2, L3
+from solutionstudio.callback import BuildDepsolveCallback
+from solutionstudio.event    import Event, CLASS_META
+from solutionstudio.logging  import L1, L2, L3
 
-from systembuilder.modules.shared import ListCompareMixin, BootConfigMixin
+from solutionstudio.modules.shared import ListCompareMixin, BootConfigMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

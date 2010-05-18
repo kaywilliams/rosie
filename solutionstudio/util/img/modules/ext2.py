@@ -16,10 +16,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from rendition import magic
-from rendition import shlib
+from solutionstudio.util import magic
+from solutionstudio.util import shlib
 
-from rendition.img.mountable import MountableImageHandler, MakeMountableImage
+from solutionstudio.util.img.mountable import MountableImageHandler, MakeMountableImage
 
 IMAGES = [
   {
