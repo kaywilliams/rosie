@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
-# Copyright (c) 2007, 2008
-# Rendition Software, Inc. All rights reserved.
+# Copyright (c) 2010
+# Solution Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,11 +53,11 @@ def parse_cmd_args(defaults=None):
 
   parser.add_option('-d', '--distro', metavar='DISTRO',
     dest='distro',
-    default='fedora',
+    default='centos',
     help='select the distribution to test')
   parser.add_option('-f', '--version', metavar='VERSION',
     dest='version',
-    default='9',
+    default='5',
     help='select the version to test')
   parser.add_option('-a', '--arch', metavar='ARCH',
     dest='basearch',
@@ -66,7 +66,7 @@ def parse_cmd_args(defaults=None):
 
   parser.add_option('-b', '--build-root', metavar='DIRECTORY',
     dest='buildroot',
-    default='/tmp/sbtest',
+    default='/tmp/sstest',
     help='choose the location where builds should be performed')
   parser.add_option('--solutionstudio-conf', metavar='PATH',
     dest='mainconfigpath',
@@ -114,12 +114,12 @@ def main():
 
   sys.path = options.libpath + sys.path
 
-  import sbtest
+  import sstest
 
-  sbtest.BUILD_ROOT = pps.path(options.buildroot)
-  sbtest.EventTestCase.options = options
+  sstest.BUILD_ROOT = pps.path(options.buildroot)
+  sstest.EventTestCase.options = options
 
-  runner = sbtest.EventTestRunner(options.testlogfile, options.testloglevel)
+  runner = sstest.EventTestRunner(options.testlogfile, options.testloglevel)
   suite = unittest.TestSuite()
 
   cwd = os.getcwd() # save for later
@@ -139,7 +139,7 @@ def main():
     result = runner.run(suite)
   finally:
     if options.clear_test_cache:
-      sbtest.BUILD_ROOT.rm(recursive=True, force=True)
+      sstest.BUILD_ROOT.rm(recursive=True, force=True)
 
   os.chdir(cwd) # make sure we're back where we started
 

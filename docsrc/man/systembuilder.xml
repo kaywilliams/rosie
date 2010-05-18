@@ -72,7 +72,7 @@
 
 <refsect1 id="solutionstudio.1-usage"><title>USAGE</title>
 <para><command>solutionstudio</command> [OPTIONS] DISTRIBUTION_DEFINITION</para>
-<para>OPTIONS refers to the command-line options described below.  DISTRIBUTION_DEFINITION refers to a distribution definition file, see the Distribution Definition File Reference at <ulink url="http://www.renditionsoftware.com/solutionstudio/docs"/> for more information.</para>
+<para>OPTIONS refers to the command-line options described below.  DISTRIBUTION_DEFINITION refers to a distribution definition file, see the Distribution Definition File Reference at <ulink url="http://solutionstudio.org/solutionstudio/docs"/> for more information.</para>
 </refsect1>
 
 
@@ -220,7 +220,7 @@
 </refsect1>
 
 <refsect1 id="solutionstudio.1-bugs"><title>BUGS</title>
-<para>Submit bugs at <ulink url="http://www.renditionsoftware.com/bugs"/></para>
+<para>Submit bugs at <ulink url="http://solutionstudio.org/bugs"/></para>
 </refsect1>
 
 <refsect1 id="solutionstudio.1-files"><title>FILES</title>
@@ -236,13 +236,13 @@
 <refsect1 id="solutionstudio.1-see_also"><title>SEE ALSO</title>
 <para><simplelist type="inline">
 <member>solutionstudio.conf(5)</member>
-<member><ulink url="http://www.renditionsoftware.com/solutionstudio"/></member>
+<member><ulink url="http://solutionstudio.org/solutionstudio"/></member>
 
 </simplelist></para>
 </refsect1>
 
 <refsect1 id="solutionstudio.1-author"><title>AUTHOR</title>
-<para><author><othername>Rendition Software</othername>
+<para><author><othername>Solution Studio Foundation</othername>
 <contrib>Original author</contrib>
 </author></para>
 </refsect1>

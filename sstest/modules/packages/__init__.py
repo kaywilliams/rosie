@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2007, 2008
-# Rendition Software, Inc. All rights reserved.
+# Copyright (c) 2010
+# Solution Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@ from solutionstudio.util import rxml
 
 from solutionstudio.constants import KERNELS
 
-from sbtest      import EventTestCase, ModuleTestSuite
-from sbtest.core import make_core_suite
+from sstest      import EventTestCase, ModuleTestSuite
+from sstest.core import make_core_suite
 
 class PackagesEventTestCase(EventTestCase):
   moduleid = 'packages'

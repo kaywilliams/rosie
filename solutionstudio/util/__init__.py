@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2007, 2008
-# Rendition Software, Inc. All rights reserved.
+# Copyright (c) 2010
+# Solution Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,13 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 """
-Base module for the Distribution Management System (Rendition)
-
-Contains all the modules necessary for all Rendition software
-to operate.
-
-The Distribution Management System is responsible for creating
-and maintaining a software distribution on a particular system.
+Base module for SolutionStudio utilities
 
 See individual module documentation for more information.
 """

@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2007, 2008
-# Rendition Software, Inc. All rights reserved.
+# Copyright (c) 2010
+# Solution Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 #
 from solutionstudio.util import pps
 
-from sbtest          import BUILD_ROOT, EventTestCase, ModuleTestSuite
-from sbtest.core     import make_core_suite
-from sbtest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
+from sstest          import BUILD_ROOT, EventTestCase, ModuleTestSuite
+from sstest.core     import make_core_suite
+from sstest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
 
 class ConfigRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
   moduleid = 'config'

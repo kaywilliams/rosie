@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2007, 2008
-# Rendition Software, Inc. All rights reserved.
+# Copyright (c) 2010
+# Solution Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from sbtest        import EventTestCase, ModuleTestSuite
-from sbtest.core   import make_extension_suite
-from sbtest.mixins import touch_input_files, remove_input_files
+from sstest        import EventTestCase, ModuleTestSuite
+from sstest.core   import make_extension_suite
+from sstest.mixins import touch_input_files, remove_input_files
 
 class ReleaseFilesEventTestCase(EventTestCase):
   moduleid = 'release-files'

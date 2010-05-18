@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2007, 2008
-# Rendition Software, Inc. All rights reserved.
+# Copyright (c) 2010
+# Solution Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ logger.addHandler(handler)
 class DepsolveError(yum.Errors.MiscError):
   pass
 
-class RenditionYum(yum.YumBase):
+class SolutionStudioYum(yum.YumBase):
   def __init__(self, config='/etc/yum.conf', root='/tmp/depsolver',
                arch=None, callback=None):
     yum.YumBase.__init__(self)
@@ -167,11 +167,11 @@ class RenditionYum(yum.YumBase):
     self.comps = None
     del self.ts
 
-class Depsolver(RenditionYum):
+class Depsolver(SolutionStudioYum):
   def __init__(self, config='/etc/yum.conf', root='/tmp/depsolver',
                arch=None, callback=None):
 
-    RenditionYum.__init__(self,
+    SolutionStudioYum.__init__(self,
       config = str(config),
       root = str(root),
       arch = arch,

@@ -96,7 +96,7 @@ class RhnSupportError(RuntimeError, SolutionStudioError):
   def __str__(self):
     return ( "RHN support not enabled - please install then 'rhnlib' and "
              "'rhn-client-tools' packages from the solutionstudio software repo "
-             "at www.renditionsoftware.com" )
+             "at solutionstudio.org" )
 
 class SolutionStudioErrorHandler:
   def _handle_Exception(self, e):
@@ -114,7 +114,7 @@ class SolutionStudioErrorHandler:
             "the '%s' event.  The traceback has been recorded in the log "
             "file at '%s'.  Please report this error by sending a copy "
             "of your log file, distribution definition file and any other "
-            "relevant information to solutionstudio@renditionsoftware.com.\n\n"
+            "relevant information to solutionstudio@solutionstudio.org\n\n"
             "Error message was: "
             % (self.dispatch.currevent.id, self.logfile))
         self.logger.log(0, '[%s] %s' % (self.dispatch.currevent.id,

@@ -7,7 +7,7 @@ Summary: Builds system distributions based on CentOS and Red Hat Enterprise Linu
 
 License:   GPL
 Group:     Applications/System
-URL:       http://www.renditionsoftware.com/solutionstudio
+URL:       http://solutionstudio.org/solutionstudio
 Source0:   %{name}-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
@@ -30,10 +30,9 @@ Requires: rpm-build
 Requires: yum
 
 %description
-SolutionStudio is an industry best practice solution for deploying
-and maintaining Centos and Red Hat Enterprise Linux systems
-in physical, virtual and cloud environments. See 
-http://www.renditionsoftware.com for more information. 
+SolutionStudio makes it easy to build custom system distributions 
+based on CentOS and Red Hat Enterprise Linux. See 
+http://solutionstudio.org for more information. 
 
 %prep
 %setup -q

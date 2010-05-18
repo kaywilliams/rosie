@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
-# Copyright (c) 2007, 2008
-# Rendition Software, Inc. All rights reserved.
+# Copyright (c) 2010
+# Solution Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@ import time
 
 from solutionstudio.util import pps
 
-from sbtest import make_logger
-from sbtest.runtest import parse_cmd_args # use runtest's cmd parser
+from sstest import make_logger
+from sstest.runtest import parse_cmd_args # use runtest's cmd parser
 
 START = None # start time
 TIMEFMT = '%Y-%m-%d %X'
@@ -35,7 +35,7 @@ opt_defaults = dict(
   distro   = 'fedora',
   version  = '9',
   basearch = 'i386',
-  buildroot   = '/tmp/sbtest',
+  buildroot   = '/tmp/sstest',
   testlogfile = 'test.log',
   testloglevel = 2,
   libpath   = [],

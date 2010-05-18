@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2007, 2008
-# Rendition Software, Inc. All rights reserved.
+# Copyright (c) 2010
+# Solution Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,9 +19,8 @@
 
 Support for Internationalization (i18n) and Localization (l10n).
 
-This module provided i18n and l10n support for Rendition applications by
-providing and interface to the GNU gettext message catalog library
-using python's gettext module.
+This module provides i18n and l10n support using the the GNU gettext 
+message catalog library and python's gettext module.
 
 I18n refers to the operation by which a program can be run on machines
 with non-English default language settings. L10n refers to the

@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2007, 2008
-# Rendition Software, Inc. All rights reserved.
+# Copyright (c) 2010
+# Solution Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ from solutionstudio.util import pps
 from solutionstudio.util import repo
 from solutionstudio.util import rxml
 
-from sbtest      import EventTestCase, ModuleTestSuite, _run_make
-from sbtest.core import make_core_suite
+from sstest      import EventTestCase, ModuleTestSuite, _run_make
+from sstest.core import make_core_suite
 
 class DummyDepsolveEventTestCase(EventTestCase):
   moduleid = 'depsolve'
@@ -65,7 +65,7 @@ class DepsolveEventTestCase(EventTestCase):
                                             version=self.version,
                                             arch=self.arch,
                                             include_baseurl=True,
-                                            baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+                                            baseurl='http://solutionstudio.org/mirrors/%s' % self.distro)
         r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
         repos.append(r.toxml())
 

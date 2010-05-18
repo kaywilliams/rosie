@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2007, 2008
-# Rendition Software, Inc. All rights reserved.
+# Copyright (c) 2010
+# Solution Studio Foundation. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ from solutionstudio.util.rxml import config
 
 from solutionstudio.main import Build
 
-BUILD_ROOT = '/tmp/sbtest' # location builds are performed
+BUILD_ROOT = '/tmp/sstest' # location builds are performed
 
 class TestBuild(Build):
   def __init__(self, conf, *args, **kwargs):
@@ -41,7 +41,7 @@ class TestBuild(Build):
     Build.__init__(self, *args, **kwargs)
 
   def _get_config(self, options, arguments):
-    mcf = pps.path(options.mainconfigpath or '/etc/solutionstudio/sbtest.conf')
+    mcf = pps.path(options.mainconfigpath or '/etc/solutionstudio/sstest.conf')
     if mcf.exists():
       self.mainconfig = config.read(mcf)
     else:
@@ -122,7 +122,7 @@ class EventTestCase(unittest.TestCase):
                                            version=self.version,
                                            arch=self.arch,
                                            include_baseurl=True,
-                                           baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+                                           baseurl='http://solutionstudio.org/mirrors/%s' % self.distro)
     base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
 
     repos.append(base.toxml())
