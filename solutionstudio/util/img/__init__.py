@@ -1,0 +1,90 @@
+#
+# Copyright (c) 2007, 2008
+# Rendition Software, Inc. All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>
+#
+import imp
+import os
+
+from rendition import pps
+from rendition import shlib
+
+from errors import *
+
+#------ GLOBAL VARS ------#
+IMGLIB_TEMP = pps.path('/tmp/imglib')
+IMGLIB_MNT  = IMGLIB_TEMP / 'mnt'
+
+# dictionary of handler names and their associated req'd packages
+HANDLERS = ['gzip']
+
+MODE_READ = 'r'
+MODE_WRITE = 'w'
+MODES = [MODE_READ, MODE_WRITE]
+
+IMAGE_FORMATS = {} # not currently used
+NEW_IMAGE_FACTORY = {}
+
+
+#---------FACTORY FUNCTIONS---------#
+def MakeImage(file, format, zipped=False, **kwargs):
+  if format not in IMAGE_FORMATS:
+    raise ValueError("Image format '%s' not supported; must be one of %s" % \
+                      (format, IMAGE_FORMATS))
+
+  file = pps.path(file)
+  ex = file.exists()
+  img = NEW_IMAGE_FACTORY[format](file, zipped=zipped, **kwargs)
+  if not ex and zipped:
+    shlib.execute('gzip %s' % file)
+    file.rename('%s.gz', file)
+
+  return img
+
+
+#------ UTILITY FUNCTIONS ------#
+def process_module(module):
+  "Populate factory function global lists"
+  if not hasattr(module, 'IMAGES'): return
+  for image in module.IMAGES:
+    # rpm checking here
+    for alias in image['aliases']:
+      IMAGE_FORMATS[alias] = getattr(module, image['class'])
+      NEW_IMAGE_FACTORY[alias] = getattr(module, image['factory'])
+
+def acquire_mount_point():
+  "Returns earliest available mount point"
+  index = 0
+  while (IMGLIB_MNT/str(index)).exists():
+    index += 1
+  point = IMGLIB_MNT/str(index)
+  point.mkdirs()
+  return point
+
+def release_mount_point(p):
+  "Release a mount point back into the pool to be used again"
+  p.rm(recursive=True, force=True)
+
+def cleanup():
+  "Remove the temporary directories"
+  IMGLIB_TEMP.rm(recursive=True, force=True)
+
+
+# load handler modules
+for modfile in (pps.path(__path__[0])/'modules').findpaths(glob='*.py',
+    type=pps.constants.TYPE_NOT_DIR, mindepth=1, maxdepth=1):
+
+  modname = 'img-'+modfile.basename.splitext()[0]
+  process_module(imp.load_source(modname, modfile))
