@@ -16,7 +16,7 @@
   class="software">SystemBuilder</application> runs.</para>
 
   <para>Then you define your distribution in the <filename
-  class="extension">samba-server.distribution</filename> file using XML tags
+  class="extension">samba-server.definition</filename> file using XML tags
   defined in the DDFR. Your definition includes several key pieces of
   information:</para>
 
@@ -41,7 +41,7 @@
     </itemizedlist></para>
 
   <para>Once the distribution definition is complete, you log on as the root user
-  and execute the command <userinput>systembuilder samba-server.distribution</userinput>
+  and execute the command <userinput>systembuilder samba-server.definition</userinput>
   to build the distribution. Output goes to the screen and the default log file.
   The first build may take some time, since <application
   class="software">SystemBuilder</application> needs to do everything from 
@@ -50,7 +50,7 @@
   <para><itemizedlist>
       <listitem>file:///usr/share/doc/HTML/index.html
         <para>validate the <filename
-        class="extension">samba-server.distribution</filename> file,</para>
+        class="extension">samba-server.definition</filename> file,</para>
       </listitem>
 
       <listitem>

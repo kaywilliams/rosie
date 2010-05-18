@@ -92,7 +92,7 @@
     <emphasis>id</emphasis> element. See the DDFR for more details about the
     <emphasis>main</emphasis> element.</para>
 
-    <para>Save the file as <filename>samba-server.distribution</filename> before
+    <para>Save the file as <filename>samba-server.definition</filename> before
     preceding.</para>
 
     <para><note>
@@ -393,9 +393,9 @@
         </programlisting>
       </informalexample></para>
 
-      <para>Save the smb.conf file in the same folder as the <filename>samba-server.distribution.</filename></para>
+      <para>Save the smb.conf file in the same folder as the <filename>samba-server.definition.</filename></para>
 
-      <para>Next, add the following section to your samba-server.distribution file:</para>
+      <para>Next, add the following section to your samba-server.definition file:</para>
 
       <para><informalexample>
         <programlisting>
@@ -531,7 +531,7 @@
 
     <para>
     <informalexample>
-      <programlisting>#systembuilder --validate-only samba-server.distribution</programlisting>
+      <programlisting>#systembuilder --validate-only samba-server.definition</programlisting>
     </informalexample>
     </para>
 

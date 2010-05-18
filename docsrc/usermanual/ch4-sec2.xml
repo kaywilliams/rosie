@@ -29,11 +29,11 @@
     <title>Create Development and Production Definitions</title>
 
     <para>To create a <emphasis>development</emphasis> definition for the samba-server example, begin
-    with the <filename>samba-server.distribution</filename> file you created in
+    with the <filename>samba-server.definition</filename> file you created in
     <xref linkend="defining-a-distribution"/>. First, rename the definition:</para>
 
     <para><informalexample><programlisting>
-mv samba-server.distribution samba-server-developer.distribution
+mv samba-server.definition samba-server-developer.distribution
     </programlisting></informalexample></para>
 
     <para>Then modify the <emphasis>/main/name</emphasis> element as follows:</para>
@@ -145,13 +145,13 @@ xmllint --xinclude --format samba-server-production.distribution
 
   <para>For the Samba Server, the directory <filename
   class="directory">distributions/samba-server/</filename> in the drawing above
-  contains the <filename>samba-server.distribution</filename> file, the Samba
+  contains the <filename>samba-server.definition</filename> file, the Samba
   server configuration file, a kickstart file and a validation script. The
   distribution definition would XInclude
   components from the repositories, common groups and packages. The same logic holds true for the web and DNS servers.</para>
 
   <para>To see the differences between one large versus several small files,
-  let's take the <filename>samba-server.distribution</filename> file you created
+  let's take the <filename>samba-server.definition</filename> file you created
   in Part I and modify that to use XInclude and XPointer statements. To do
   that you will create a separate repository file,
   <filename>repos.xml.</filename></para>
@@ -160,7 +160,7 @@ xmllint --xinclude --format samba-server-production.distribution
   subdirectory with the two subdirectories <filename
   class="directory">common/</filename> and <filename
   class="directory">samba-server/</filename> as above. Place your
-  <filename>samba-server.distribution</filename> and
+  <filename>samba-server.definition</filename> and
   <filename>smb.conf</filename> files in the latter.</para>
 
   <para>Next, create the <filename>distributions/common/repos.xml</filename>
@@ -196,7 +196,7 @@ xmllint --xinclude --format samba-server-production.distribution
     </informalexample></para>
 
   <para>The final step is to modify the
-  <filename>samba-server.distribution</filename> file, removing the
+  <filename>samba-server.definition</filename> file, removing the
   <emphasis>repos</emphasis> details and using XInclude and XPointer to reuse
   common content. You may want to rename the distribution definition or include it in 
   a version control system.</para>

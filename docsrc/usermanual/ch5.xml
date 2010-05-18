@@ -5,7 +5,7 @@
   <title>Doing More with SystemBuilder</title>
 
   <para>Now that you have created your basic
-  <filename>samba-server.distribution</filename>, you can customize your
+  <filename>samba-server.definition</filename>, you can customize your
   system through additional elements in the distribution definition. When
   selecting packages, you may want certain events to occur depending upon what
   package version is installed or deinstalled. Scripts that run automatically

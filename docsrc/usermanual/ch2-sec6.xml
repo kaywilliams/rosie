@@ -94,13 +94,13 @@
           <para>A file SystemBuilder creates to track and increment the release number of the distribution's <xref linkend="configuration-package" />. This file is created in the same folder as the distribution definition, using the same filename, with a <filename>.dat</filename> file extension. For example, given the full path to a distribution definition:</para>
 
           <para><informalexample>
-          <filename>/~/samba-server.distribution</filename></informalexample>
+          <filename>/~/samba-server.definition</filename></informalexample>
           </para>
 
           <para>SystemBuilder will create the data file as follows:</para>
 
           <para><informalexample>
-          <filename>/~/samba-server.distribution.dat</filename></informalexample>
+          <filename>/~/samba-server.definition.dat</filename></informalexample>
           </para>
 
           <para>Care should be taken not to delete this file. Doing so will cause the release number of the configuration package to restart at "1". As a result, updated configuration packages will fail to be downloaded and installed during client machine updates.</para>

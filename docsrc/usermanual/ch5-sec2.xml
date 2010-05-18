@@ -24,7 +24,7 @@
     (see Part 2), the kickstart process can be controlled, too.</para>
 
     <para>Use the <emphasis>kickstart</emphasis> element in the
-    <filename>samba-server.distribution</filename> file to identify one kickstart
+    <filename>samba-server.definition</filename> file to identify one kickstart
     file, as in the example below. Substitute your own kickstart filename for
     <filename>ks.cfg</filename>.</para>
 
@@ -59,7 +59,7 @@
     file and possibly add custom boot arguments to the
     <filename>/syslinux.cfg</filename> file, use the
     <emphasis>diskboot-image</emphasis> element in your
-    <filename>samba-server.distribution</filename> file. The example below disables
+    <filename>samba-server.definition</filename> file. The example below disables
     the default boot arguments "%{ks}," "%{method}," and "nousbstorage."</para>
 
     <para><informalexample>

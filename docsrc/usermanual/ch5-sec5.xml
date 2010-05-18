@@ -9,7 +9,7 @@
   default sets of kernel boot arguments. But SystemBuilder allows you to do more. You
   can create multiple sets of release images for CD or DVD or create a USB
   key-ready image. You can also specify custom kernel boot arguments for each
-  file type. Modify your <filename>samba-server.distribution</filename> file to
+  file type. Modify your <filename>samba-server.definition</filename> file to
   include what image customization options you want.</para>
 
   <para>To specify custom <filename class="extension">ISO</filename> file

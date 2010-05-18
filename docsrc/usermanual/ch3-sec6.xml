@@ -16,17 +16,17 @@
 
     <para>To include updated packages from the repositories, execute
     <command>systembuilder</command> with the
-    <filename>samba-server.distribution</filename> file. <application
+    <filename>samba-server.definition</filename> file. <application
     class="software"> Rerunning <command>systembuilder</command> with the same
     <filename class="extension">.distribution</filename> file will dramatically
     reduce the build time, assuming there are no changes to the file's
     contents. SystemBuilder</application> uses a cache of the packages and verifies the
     cache contents against the metadata for the repository and the groups. The
     screen output below shows the results of a build with no changes to the
-    <filename>samba-server.distribution</filename> file and no updates to the
+    <filename>samba-server.definition</filename> file and no updates to the
     repositories.</para>
 
-    <para><screen>Reading '/home/systembuilder/samba-server.distribution'
+    <para><screen>Reading '/home/systembuilder/samba-server.definition'
 Starting build of 'samba-server-5-i386' at 2009-10-25 18:29:55
 Build complete at 2009-10-25 18:30:26</screen></para>
 
@@ -50,7 +50,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
         command</para>
 
         <para><userinput># systembuilder --log-file /var/log/$MYLOGFILE
-        samba-server.distribution</userinput></para>
+        samba-server.definition</userinput></para>
 
         <para>where <varname>$MYLOGFILE</varname> is the new name of the log
         file.</para>
@@ -112,7 +112,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
 &lt;/packages&gt;  </programlisting>
     </informalexample></para>   
 
-  <para>Save the <filename>samba-server.distribution</filename> file.</para>
+  <para>Save the <filename>samba-server.definition</filename> file.</para>
 
   <para>Next, presuming you would like to change the name of the workgroup for 
   your samba server, modify the content of the smb.conf file as follows:</para>
@@ -135,7 +135,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
   <para>Save the smb.conf file</para>
 
   <para>Now run the command 
-  <command>systembuilder samba-server.distribution</command>. You should see 
+  <command>systembuilder samba-server.definition</command>. You should see 
   that a new configuration package is generated, and that the distribution
   is updated.</para>
 

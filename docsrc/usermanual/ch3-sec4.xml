@@ -24,7 +24,7 @@
   <para>To run your build, enter the command below:</para>
 
   <para><informalexample>
-      <programlisting>#systembuilder samba-server.distribution</programlisting>
+      <programlisting>#systembuilder samba-server.definition</programlisting>
     </informalexample></para>
 
   <para>The output for an initial run details all the steps

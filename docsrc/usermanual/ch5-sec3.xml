@@ -7,7 +7,10 @@
   <para>Scripts and triggers enable you to control your client's environment
   to a great degree. To include these in your distribution, use the
   <emphasis>config</emphasis> element in your
-  <filename>samba-server.distribution</filename> file.</para>
+  <filename>samba-server.definition</filename> file.</para>
+
+  <section>
+  <title>Running Scripts when the Configuration Package is Installed or Uninstalled</title>
 
   <para>The program that installs RPMs on the client machine
   actually runs scripts depending upon one of several possible situations. Include
@@ -21,17 +24,6 @@
   <ulink url="http://fedoraproject.org/wiki/Packaging/ScriptletSnippets">
   Fedora Packaging ScriptletSnippets wiki page</ulink> and the 
   <ulink url="http://www.rpm.org/max-rpm-snapshot/">Maximum RPM</ulink>book.
-  </para>
-
-  <para>You can also use trigger events as in the RPM spec file. The
-  installation program will run these scripts based upon various combinations
-  of installing, upgrading or removing the target package or your package. See
-  Section 10.2 "Setting Triggers," in the Fedora Project's documentation,
-  <ulink url="http://docs.fedoraproject.org/drafts/rpm-guide-en/">RPM
-  Guide</ulink> by Eric Foster-Johnson for a discussion of the trigger options
-  and their implications. To activate these trigger options using SystemBuilder,
-  include them with the <emphasis>config/trigger</emphasis> element of
-  your distribution definition.</para>
 
   <para>In the example below, the <emphasis>/script</emphasis> element directs
   the installation program to execute the <filename>smb.script</filename> file
@@ -53,6 +45,47 @@ scripts/smb.script
       <programlisting>/sbin/service smb start
 /sbin/chkconfig --level 35 smb on</programlisting>
     </informalexample></para>
+
+  </para>
+
+  <section>
+  <title>Running Scripts only when Installed Files Change</title>
+
+  <para>You may want to perform certain actions, such as restarting system services, only when specific files change. This increases installation performance of the configuration package, and eliminates unnecessary disruption to previously installed systems. To do this, you can make use of the <emphasis>$changed</emphasis> variable. This variable contains a string-separated list of files to be installed by the configuration package that differ from existing files in the file system, or do not currently exist.</para>
+
+  <para>For example, to restart the web server service (httpd) only when the httpd.conf file changes, the <emphasis>config</emphasis> element in your definition would look as follows:</para>
+
+  <para><informalexample>
+      <programlisting>
+&lt;config&gt;
+
+&lt;files destdir="/etc/httpd/conf/"&gt;httpd.conf&lt;/files&gt;
+
+&lt;script type="post" content="text"&gt;
+  if [[ $changed = */etc/httpd/conf/httpd.conf* ]] ; then
+    service httpd restart
+  fi
+&lt;/script&gt;
+
+&lt;/config&gt;
+      </programlisting>
+    </informalexample></para>
+
+  </section>
+
+  </section>
+
+  <section>
+  <title>Running Scripts when other Packages are Installed or Uninstalled</title>
+  <para>You can also use trigger events as in the RPM spec file. The
+  installation program will run these scripts based upon various combinations
+  of installing, upgrading or removing the target package or your package. See
+  Section 10.2 "Setting Triggers," in the Fedora Project's documentation,
+  <ulink url="http://docs.fedoraproject.org/drafts/rpm-guide-en/">RPM
+  Guide</ulink> by Eric Foster-Johnson for a discussion of the trigger options
+  and their implications. To activate these trigger options using SystemBuilder,
+  include them with the <emphasis>config/trigger</emphasis> element of
+  your distribution definition.</para>
 
   <para>In the <emphasis>/trigger </emphasis>element example, below, includes
   an <filename>smb.sh</filename> script file to run when the program installs
@@ -79,6 +112,8 @@ else
 fi </programlisting>
     </informalexample></para>
 
-  <para>Include both of these examples in the <emphasis>config</emphasis>
-  element of your <filename>samba-server.distribution</filename>. </para>
+  </section>
+
+
+  <para>Scripts and triggers allow you to fine-tune client configuration during installation or removal of the configuration package, or other packages that you specify. </para>
 </section>

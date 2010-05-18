@@ -12,7 +12,7 @@
 
   <informalexample>
     <programlisting>
-Reading '/~/samba-server.distribution'
+Reading '/~/samba-server.definition'
 Starting build of 'samba-server-5-i386' at 2010-02-09 09:10:54
 autoclean
 repos

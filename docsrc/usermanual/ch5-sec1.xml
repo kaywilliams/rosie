@@ -8,12 +8,12 @@
   with some common server administration components using two different methods.
   These  updates require changes to the <emphasis>config</emphasis> and
   <emphasis>packages</emphasis> elements already in place in your
-  <filename>samba-server.distribution</filename> file.</para>
+  <filename>samba-server.definition</filename> file.</para>
 
   <para>Following the illustrations in this section, you can conditionally
   configure applications in your distribution, automate installation, create
   various install images, add business support required by the legal and
   software development departments and secure your system. All of these
   options utilize top-level elements that you include in your system
-  distribution definition, <filename>samba-server.distribution</filename>.</para>
+  distribution definition, <filename>samba-server.definition</filename>.</para>
 </section>
