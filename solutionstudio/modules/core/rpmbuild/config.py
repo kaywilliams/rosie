@@ -173,7 +173,7 @@ class ConfigEvent(RpmBuildMixin, Event):
       # if we signed the rpms we use, include the gpgkey check in the repofile
       if self.cvars['gpgsign-public-key']:
         lines.extend(['gpgcheck = 1',
-                      'gpgkey   = file://%s' % ('/etc/pki/rpm-gpg' /
+                      'gpgkey   = %s' % (self.cvars['web-path']/'os' /
                          self.cvars['gpgsign-public-key'].basename)])
       else:
         lines.append('gpgcheck = 0')
