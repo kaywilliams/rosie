@@ -24,7 +24,6 @@ Requires: gnupg
 Requires: python-devel
 Requires: python-lxml
 Requires: python-setuptools
-Requires: rendition-common
 Requires: rhn-client-tools
 Requires: rpm-build
 Requires: yum
