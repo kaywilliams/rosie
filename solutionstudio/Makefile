@@ -1,4 +1,4 @@
-SUBDIRS = event locals modules
+SUBDIRS = event locals modules util
 
 PYFILES = $(wildcard *.py)
 

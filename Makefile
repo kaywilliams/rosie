@@ -49,14 +49,8 @@ changelog:
 	@hg log --style changelog > ChangeLog
 
 archive: tag
-	@hg archive --exclude solutionstudio/util/execlib.py \
-                    --exclude solutionstudio/util/i18n.py \
-                    --exclude solutionstudio/util/permute.py \
-                    --exclude solutionstudio/util/rpmbind.py \
-                    --exclude solutionstudio/util/seqlib.py \
-                    --exclude solutionstudio/util/textfmt.py \
-                    --exclude solutionstudio/util/pps/test \
-        -t tgz --prefix=$(PKGNAME)-$(VERSION) $(PKGNAME)-$(VERSION).tar.gz
+	@hg archive -t tgz --prefix=$(PKGNAME)-$(VERSION) \
+        $(PKGNAME)-$(VERSION).tar.gz
 
 srpm: archive
 	@rpmbuild $(BUILDARGS) -ts $(PKGNAME)-$(VERSION).tar.gz  || exit 1
