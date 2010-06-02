@@ -1,10 +1,23 @@
 2010-06-02  Kay Williams  <kayw@solutionstudio.org>
 
+	* solutionstudio.spec:
+	added mkisofs to solutionstudio.spec
+	[16c021ff477d] [tip]
+
+	* ChangeLog, Makefile, solutionstudio.spec, solutionstudio/Makefile,
+	solutionstudio/util/Makefile:
+	added util folder to make process
+	[0cb927c17d7c]
+
 	* .hgtags:
 	Tagged as solutionstudio-0.9.2-1
-	[114c98a4278d] [tip]
+	[114c98a4278d]
 
 2010-06-01  Kay Williams  <kayw@solutionstudio.org>
+
+	* ChangeLog, solutionstudio.spec:
+	bumped rpm version
+	[02b917a90388] [solutionstudio-0.9.2-1]
 
 	* solutionstudio.spec:
 	removed rendition-common requirement from solutionstudio.spec
