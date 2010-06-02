@@ -21,6 +21,7 @@ BuildRequires: python
 Requires: createrepo
 Requires: dosfstools
 Requires: gnupg
+Requires: mkisofs
 Requires: python-devel
 Requires: python-lxml
 Requires: python-setuptools
