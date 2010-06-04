@@ -91,8 +91,8 @@ class ReposEvent(RepoEventMixin, Event):
       assert_file_readable(repo.pkgsfile)
       repo.repocontent.read(repo.pkgsfile)
 
-    if self.cvars['distribution-info']['anaconda-version'] is not None:
-      self.cvars['anaconda-version'] = self.cvars['distribution-info']['anaconda-version']
+    if self.cvars['solution-info']['anaconda-version'] is not None:
+      self.cvars['anaconda-version'] = self.cvars['solution-info']['anaconda-version']
     else:
       anaconda_version = self._get_anaconda_version()
       self.cvars['anaconda-version'] = \

@@ -53,7 +53,7 @@
           <row>
             <entry>/usr/share/solutionstudio/schemas</entry>
 
-            <entry>Relax NG schemas for distribution definition validation.
+            <entry>Relax NG schemas for solution definition validation.
             </entry>
           </row>
           <row>
@@ -72,11 +72,11 @@
           </row>
 
           <row>
-            <entry>/var/www/html/distributions/</entry>
+            <entry>/var/www/html/solutions/</entry>
 
-            <entry>SolutionStudio publishes completed distributions to  
+            <entry>SolutionStudio publishes completed solutions to  
             this folder by default. An alternative location can be specified on
-            a per distribution basis within a distribution definition.
+            a per solution basis within a solution definition.
             </entry>
           </row>
         </tbody>

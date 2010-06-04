@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="defining-a-distribution" xreflabel="Defining a Distribution">
-  <title>Defining a Distribution</title>
+<section id="defining-a-solution" xreflabel="Defining a Solution">
+  <title>Defining a Solution</title>
 
-  <para>To define your Samba distribution, you will need to do the following:</para>
+  <para>To define your Samba solution, you will need to do the following:</para>
 
   <para><itemizedlist>
       <listitem>
@@ -27,22 +27,22 @@
     </itemizedlist></para>
 
   <section>
-    <title>Creating a distribution definition</title>
+    <title>Creating a solution definition</title>
 
-    <para>The first step to creating a distribution is creating the
-    distribution definition. The distribution definition is a text file in XML format. It can
+    <para>The first step to creating a solution is creating the
+    solution definition. The solution definition is a text file in XML format. It can
     be created using any text editor - vi, emacs, nano, or gedit - or 
-    a dedicated XML editor, if you prefer. The tags &lt;distribution&gt; and 
-    &lt;/distribution&gt; encapsulate all additional elements and attributes.
+    a dedicated XML editor, if you prefer. The tags &lt;solution&gt; and 
+    &lt;/solution&gt; encapsulate all additional elements and attributes.
     </para>
 
     <para><informalexample>
       <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;solution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;!-- Additional elements and attributes --&gt;
 
-&lt;/distribution&gt;</programlisting>
+&lt;/solution&gt;</programlisting>
     </informalexample></para>
 
     <para>The first line, beginning in "&lt;?xml", identifies the file
@@ -50,7 +50,7 @@
     compatibility with future XML format changes.</para>
 
     <para>Likewise, the "xmlns:xi..." attribute is not required on the 
-    distribution element. It allows the use of xinclude statements within the
+    solution element. It allows the use of xinclude statements within the
     document. XIncludes, a convenient mechanism for reusing content across 
     multiple definitions, are discussed in Chapter 4, 
     "Creating a Production Environment".</para>   
@@ -58,24 +58,24 @@
   </section>
 
   <section>
-    <title>Naming a distribution</title>
+    <title>Naming a solution</title>
 
     <para>The first required element of the definition, 
-    <emphasis>main</emphasis>, includes the name of the distribution, the system
+    <emphasis>main</emphasis>, includes the name of the solution, the system
     architecture and the version. These three items make up the default
-    distribution id (<varname>$ID</varname>), which SolutionStudio uses to create
-    folders for storing the completed distribution (under 
-    <filename type="directory">/var/www/html/distributions</filename>, by
-    default) and for caching distribution content (under 
+    solution id (<varname>$ID</varname>), which SolutionStudio uses to create
+    folders for storing the completed solution (under 
+    <filename type="directory">/var/www/html/solutions</filename>, by
+    default) and for caching solution content (under 
     <filename type="directory">/var/cache/solutionstudio</filename>, by default).
     </para>
 
     <para><note>
-        <para>The elements can be in any order within a distribution definition
+        <para>The elements can be in any order within a solution definition
         file.</para>
       </note></para>
 
-    <para>In the example below, the distribution version will be 5, the system
+    <para>In the example below, the solution version will be 5, the system
     architecture will be i386, and the <varname>$ID</varname> will
     be <filename>samba-server-5-i386</filename>. </para>
 
@@ -88,24 +88,24 @@
 &lt;/main&gt;</programlisting>
     </informalexample></para>
 
-    <para>You can override the default distribution id using an
-    <emphasis>id</emphasis> element. See the DDFR for more details about the
+    <para>You can override the default solution id using an
+    <emphasis>id</emphasis> element. See the SDFR for more details about the
     <emphasis>main</emphasis> element.</para>
 
     <para>Save the file as <filename>samba-server.definition</filename> before
     preceding.</para>
 
     <para><note>
-        <para>Each time you change a distribution's id, either implicitly by
+        <para>Each time you change a solution's id, either implicitly by
         changing the <emphasis>name</emphasis>, <emphasis>version</emphasis> or 
         <emphasis>arch</emphasis> elements, or explicitly by changing the
         <emphasis>id</emphasis> element, SolutionStudio creates new folders for
         it in the publish and cache folders 
-        (<emphasis>/var/www/html/distributions</emphasis> and 
+        (<emphasis>/var/www/html/solutions</emphasis> and 
         <emphasis>/var/cache/solutionstudio</emphasis>, by default,
         respectively). To preserve hard drive space, you may wish to review 
         the publish and cache folders on occasion. Folders for obsolete
-        distributions can be deleted using standard file system methods (e.g. 
+        solutions can be deleted using standard file system methods (e.g. 
         <command>rm -rf <emphasis>obsolete_folder</emphasis></command>).</para>
       </note></para>
 
@@ -127,7 +127,7 @@
     utility.</para>
 
     <para>In this section, you will define the repositories to be used for your
-    distribution.</para>
+    solution.</para>
 
     <itemizedlist>
 
@@ -143,7 +143,7 @@
       channel within Red Hat Network. Typically, your definition will include
       both base and updates repositories.</para></listitem>
 
-      <listitem><para>Additional Repositories. Your distribution may include any
+      <listitem><para>Additional Repositories. Your solution may include any
       number of additional public or private repositories.</para></listitem>
 
     </itemizedlist>
@@ -210,7 +210,7 @@
         folder of the machine. This is the file you will use to configure
         SolutionStudio to access software from RHN. You may copy this file to the
         SolutionStudio build machine if necessary. Note, to ensure the systemid
-        has access to the software desired for your distribution, you can use
+        has access to the software desired for your solution, you can use
         the Red Hat Network web user interface to locate the system, and view
         and alter it's channel subscriptions.</para></listitem>
       </itemizedlist>
@@ -300,7 +300,7 @@
 &lt;/packages&gt;  </programlisting>
     </informalexample></para>
 
-    <para>The distribution will include the <application
+    <para>The solution will include the <application
     class="software">GNOME</application> graphical user interface (GUI) and
     common system administration tools.</para>
   </section>
@@ -318,7 +318,7 @@
     manually can be cumbersome and time consuming. 
     <application class="software">SolutionStudio</application> makes it easy by 
     creating the <xref linkend="configuration-package"/> automatically during the build process, based 
-    on information you provide in the distribution definition.</para>
+    on information you provide in the solution definition.</para>
    
     <para>Using the <emphasis>config</emphasis> element, you can complete the
     following:
@@ -344,15 +344,15 @@
 
       <itemizedlist>
         <listitem>Installs a plugin module for YUM that allows synchronizing 
-        packages on the client machine with packages in the distribution
+        packages on the client machine with packages in the solution
         repository. See <xref linkend="updating-client-machines"/> for more
         information on the 
         <application class="software">YUM Sync Plugin</application>.</listitem>
 
         <listitem>Installs a repository definition for the 
-        <xref linkend="distribution-repository"/>. Use the 
+        <xref linkend="solution-repository"/>. Use the 
         <command>man yum.conf</command> command for more information on YUM 
-        repository definitions. For the samba-server distribution, the file will
+        repository definitions. For the samba-server solution, the file will
         be installed at <filename>/etc/yum.repos.d/samba-server.repo</filename>.
         </listitem>
       </itemizedlist>
@@ -361,7 +361,7 @@
       <para>The sync plugin can be disabled on individual client machines using 
       the <filename>/etc/yum/yumplugin.d/sync.conf</filename> file. The sync 
       plugin can be excluded from the configuration package altogether using
-      the <emphasis>config/updates</emphasis> element. See the DDFR for more 
+      the <emphasis>config/updates</emphasis> element. See the SDFR for more 
       information on <application class="software">YUM</application> update 
       configuration using the <emphasis>/config/updates</emphasis> element.
       </para>
@@ -374,7 +374,7 @@
     <section>
       <title>Installing files</title>
 
-      <para>The <emphasis>config</emphasis> element allows you to specify files to be installed at certain locations on the client system. For the samba-server distribution, you will install two files, a <filename>smb.conf</filename> file for configuring the samba server, and a <filename>yum-sync.sh</filename> cron script file for executing the <command>yum sync</command> command, provided by the YUM Sync Plugin, on a daily basis.</para>
+      <para>The <emphasis>config</emphasis> element allows you to specify files to be installed at certain locations on the client system. For the samba-server solution, you will install two files, a <filename>smb.conf</filename> file for configuring the samba server, and a <filename>yum-sync.sh</filename> cron script file for executing the <command>yum sync</command> command, provided by the YUM Sync Plugin, on a daily basis.</para>
 
       <para>First, create a basic smb.conf file containing the following content. For this example we are configuring the samba server to provide anonymous, read-only access to content in the client machine's <filename>/public</filename> folder. </para>
 
@@ -415,7 +415,7 @@
         </programlisting>
       </informalexample></para>
 
-      <para>The example above includes two <emphasis>files</emphasis> elements. The first element directs SolutionStudio to locate a file named smb.conf in the same folder as the distribution definition, download it, include it in the configuration package for installation to the <filename>/etc/samba</filename> folder with the file mode "644". The second element directs SolutionStudio to create a new file named <filename>yum-sync.cron</filename>, containing the text supplied between the &lt;files&gt; and &lt;/files&gt; tags, and include it configuration package for installation to the <filename>/etc/cron.daily</filename> folder with the mode "644".</para>
+      <para>The example above includes two <emphasis>files</emphasis> elements. The first element directs SolutionStudio to locate a file named smb.conf in the same folder as the solution definition, download it, include it in the configuration package for installation to the <filename>/etc/samba</filename> folder with the file mode "644". The second element directs SolutionStudio to create a new file named <filename>yum-sync.cron</filename>, containing the text supplied between the &lt;files&gt; and &lt;/files&gt; tags, and include it configuration package for installation to the <filename>/etc/cron.daily</filename> folder with the mode "644".</para>
 
       <note>SolutionStudio resolves all paths in the definition relative to the definition's folder location.</note>
       <note>The attribute value <emphasis>content="text"</emphasis> provides a convenient way to include short files and scripts without needing to create and manage separate files on disk. Larger files can also be created this way, however, this makes the definition more difficult to read.</note>
@@ -466,19 +466,19 @@
     </section>
 
     <para>For more information on child elements of <emphasis>config</emphasis>,
-    see the <emphasis>config</emphasis> element in the DDFR.</para>
+    see the <emphasis>config</emphasis> element in the SDFR.</para>
 
   </section>
 
   <section>
     <title>Validating a definition</title>
 
-    <para>Your complete samba-server distribution should now look as follows:</para>
+    <para>Your complete samba-server solution should now look as follows:</para>
 
     <para><informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;solution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main&gt;
   &lt;name&gt;samba-server&lt;/name&gt;
@@ -521,7 +521,7 @@
 
 &lt;/config&gt;
 
-&lt;/distribution&gt;
+&lt;/solution&gt;
       </programlisting>
     </informalexample></para>
 

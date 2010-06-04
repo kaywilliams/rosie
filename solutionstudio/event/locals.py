@@ -47,5 +47,5 @@ class LocalsObject:
   # createrepo-version based
   L_CREATEREPO        = property(lambda self: L_CREATEREPO[self.createrepo_ver])
 
-  # input distribution and version based
+  # base distribution and version based
   L_YUM_PLUGIN               = property(lambda self: L_YUM_PLUGIN[self.base_name][self.base_ver])

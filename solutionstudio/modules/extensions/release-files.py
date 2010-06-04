@@ -18,7 +18,7 @@
 """
 release-files.py
 
-Includes user-provided release files and folders within the distribution
+Includes user-provided release files and folders within the solution
 folder.
 """
 

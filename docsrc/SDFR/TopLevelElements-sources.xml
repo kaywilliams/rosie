@@ -15,7 +15,7 @@
     <para>
     Specifies the list of repositories from which SolutionStudio downloads
     source RPMs (SRPMs). If this module is enabled, every RPM in the
-    distribution must have a matching SRPM in one or more of these source
+    solution must have a matching SRPM in one or more of these source
     repositories.
     </para>
 

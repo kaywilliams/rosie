@@ -20,7 +20,7 @@ from solutionstudio.event import Event, CLASS_META
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['RpmbuildEvent'],
-  description = 'modules that create distribution-specific RPMs',
+  description = 'modules that create solution-specific RPMs',
 )
 
 class RpmbuildEvent(Event):

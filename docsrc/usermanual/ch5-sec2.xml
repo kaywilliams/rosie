@@ -16,11 +16,11 @@
     multiple network interfaces, secure systems or site-specific strategies.
     Within the SolutionStudio process, the kickstart file automates the installation and
     manages several functions during the install: selection of language,
-    network configuration, distribution source, keyboard, filesystem, mouse,
+    network configuration, solution source, keyboard, filesystem, mouse,
     timezone, root password and package handling.</para>
 
     <para>Instead of managing multiple kickstart files, SolutionStudio lets you make it
-    part of the distribution definition. By revision controlling the SolutionStudio files
+    part of the solution definition. By revision controlling the SolutionStudio files
     (see Part 2), the kickstart process can be controlled, too.</para>
 
     <para>Use the <emphasis>kickstart</emphasis> element in the
@@ -32,7 +32,7 @@
         <programlisting>&lt;kickstart&gt;ks.cfg&lt;/kickstart&gt;</programlisting>
       </informalexample></para>
 
-    <para>See the DDFR for the <emphasis>kickstart</emphasis> element 
+    <para>See the SDFR for the <emphasis>kickstart</emphasis> element 
     syntax.</para>
 
   </section>
@@ -43,7 +43,7 @@
     <para>To add custom kernel boot arguments to the <filename
     class="directory">/isolinux/isolinux.cfg</filename> file of the
     <filename>boot.iso</filename> image, use the <emphasis>bootiso</emphasis>
-    element in your distribution definition. Substitute your appropriate IP
+    element in your solution definition. Substitute your appropriate IP
     addresses.</para>
 
     <para><informalexample>
@@ -69,7 +69,7 @@
   &lt;/diskboot-image&gt;</programlisting>
       </informalexample></para>
 
-    <para>See the DDFR for the complete syntaxes of the 
+    <para>See the SDFR for the complete syntaxes of the 
     <emphasis>bootiso</emphasis> and <emphasis>diskboot</emphasis> elements.
     </para>
 

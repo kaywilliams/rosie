@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<book id="DDFR"
+<book id="SDFR"
       xmlns:xi="http://www.w3.org/2001/XInclude">
-  <title>Distribution Definition File Reference</title>
+  <title>Solution Definition File Reference</title>
 
   <bookinfo id="bookinfo">
 
@@ -40,7 +40,7 @@
 
       <keyword>Linux</keyword>
 
-      <keyword>distribution</keyword>
+      <keyword>solution</keyword>
 
       <keyword>Anaconda</keyword>
 

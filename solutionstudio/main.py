@@ -131,7 +131,7 @@ class Build(SolutionStudioErrorHandler, SolutionStudioValidationHandler, object)
 
     # set up real logger - console and file
     self.logfile = ( pps.path(options.logfile)
-                     or self.appconfig.getpath('/distribution/main/log-file', None)
+                     or self.appconfig.getpath('/solution/main/log-file', None)
                      or self.mainconfig.getpath('/solutionstudio/log-file', None)
                      or DEFAULT_LOG_FILE ).expand().abspath()
     try:
@@ -222,7 +222,7 @@ class Build(SolutionStudioErrorHandler, SolutionStudioValidationHandler, object)
     self._lock = lock.Lock(Event.cache_handler.cache_dir/'solutionstudio.pid')
 
   def main(self):
-    "Build an distribution"
+    "Build a solution"
     if self._lock.acquire():
       self._log_header()
       try:
@@ -241,10 +241,10 @@ class Build(SolutionStudioErrorHandler, SolutionStudioValidationHandler, object)
 
   def _get_config(self, options, arguments):
     """
-    Gets the main config and distribution configs based on option values.  Main
+    Gets the main config and solution configs based on option values.  Main
     config file is optional; if not found, merely uses a set of default
     values.  Distribution config is required, except in the event that the '-h' or
-    '--help' argument was given on the command line, in which case the distribution
+    '--help' argument was given on the command line, in which case the solution
     config file can be omitted or not exist.  (This previous allowance is so
     that a user can type `solutionstudio -h` on the command line without giving
     the '-c' option.)
@@ -259,7 +259,7 @@ class Build(SolutionStudioErrorHandler, SolutionStudioValidationHandler, object)
       mc = rxml.config.fromstring('<solutionstudio/>')
 
     if not dcp.exists():
-      raise rxml.errors.ConfigError("No distribution definition file found at '%s'" % dcp)
+      raise rxml.errors.ConfigError("No solution definition file found at '%s'" % dcp)
 
     self.logger.log(3, "Reading '%s'" % dcp)
     dc = rxml.config.read(dcp)
@@ -337,7 +337,7 @@ class Build(SolutionStudioErrorHandler, SolutionStudioValidationHandler, object)
     disabled = set(options.disabled_modules)
 
     # enable/disable modules from app config
-    for module in self.appconfig.xpath('/distribution/*'):
+    for module in self.appconfig.xpath('/solution/*'):
       if module.tag == 'main': continue # main isn't a module
       if not module.getbool('@enabled', 'True'):
         disabled.add(module.tag)
@@ -374,14 +374,14 @@ class Build(SolutionStudioErrorHandler, SolutionStudioValidationHandler, object)
     Event._config    = self.appconfig
 
     # set up base variables
-    di = Event.cvars['distribution-info'] = {}
-    qstr = '/distribution/main/%s/text()'
+    di = Event.cvars['solution-info'] = {}
+    qstr = '/solution/main/%s/text()'
 
     di['name']         = Event._config.get(qstr % 'name')
     di['version']      = Event._config.get(qstr % 'version')
     di['arch']         = ARCH_MAP[Event._config.get(qstr % 'arch', 'i386')]
     di['basearch']     = getBaseArch(di['arch'])
-    di['distributionid']  = Event._config.get(qstr % 'id',
+    di['solutionid']  = Event._config.get(qstr % 'id',
                           '%s-%s-%s' % (di['name'],
                                         di['version'],
                                         di['basearch']))
@@ -393,9 +393,9 @@ class Build(SolutionStudioErrorHandler, SolutionStudioValidationHandler, object)
     for k,v in di.items():
       setattr(Event, k, v)
 
-    # validate name, version, and distributionid to ensure they don't have
+    # validate name, version, and solutionid to ensure they don't have
     # invalid characters
-    for check in ['name', 'version', 'distributionid']:
+    for check in ['name', 'version', 'solutionid']:
       if not FILENAME_REGEX.match(di[check]):
         raise RuntimeError("Invalid value '%s' for <%s> element in <main>; "
           "accepted characters are a-z, A-Z, 0-9, _, ., and -."
@@ -405,7 +405,7 @@ class Build(SolutionStudioErrorHandler, SolutionStudioValidationHandler, object)
     Event.CACHE_DIR    = self.mainconfig.getpath('/solutionstudio/cache/path',
                            DEFAULT_CACHE_DIR).expand().abspath()
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
-    Event.METADATA_DIR = Event.CACHE_DIR  / di['distributionid']
+    Event.METADATA_DIR = Event.CACHE_DIR  / di['solutionid']
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed([ x.expand().abspath()
@@ -501,7 +501,7 @@ class Build(SolutionStudioErrorHandler, SolutionStudioValidationHandler, object)
 
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
-    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.distributionid, time.strftime('%Y-%m-%d %X')))
+    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.solutionid, time.strftime('%Y-%m-%d %X')))
     Event.logger.log(4, "Loaded modules: %s" % Event.cvars['loaded-modules'])
     Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):
@@ -520,7 +520,7 @@ class AllEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'all',
-      version = 0,
+      version = 1,
       properties = CLASS_META,
       suppress_run_message = True
     )

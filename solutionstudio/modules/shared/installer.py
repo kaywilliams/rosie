@@ -45,7 +45,7 @@ class ImageModifyMixin:
 
   def setup(self):
     # input images
-    image_path = self.image_locals['path'] % self.cvars['distribution-info']
+    image_path = self.image_locals['path'] % self.cvars['solution-info']
 
     self.diff.setup(self.DATA)
 
@@ -56,7 +56,7 @@ class ImageModifyMixin:
 
   def _add_image(self):
     ip = ( self.cvars['installer-repo'].url /
-           self.image_locals['path'] % self.cvars['distribution-info'] )
+           self.image_locals['path'] % self.cvars['solution-info'] )
     # check the image format before adding it; if it doesn't match what we're
     # expecting (such as a 404 HTML page), skip it
     try:
@@ -127,7 +127,7 @@ class ImageModifyMixin:
 
   path    = property(lambda self: ( self.SOFTWARE_STORE /
                                     self.image_locals['path'] %
-                                    self.cvars['distribution-info']) )
+                                    self.cvars['solution-info']) )
   zipped  = property(lambda self: self.image_locals.get('zipped', False))
 
   def verify_image(self):
@@ -152,7 +152,7 @@ class FileDownloadMixin:
     paths = []
     for data in self.file_locals.values():
       rinfix = data['path'] % self.cvars['base-info']
-      linfix = data['path'] % self.cvars['distribution-info']
+      linfix = data['path'] % self.cvars['solution-info']
       self.io.add_fpath(self.cvars['installer-repo'].url/rinfix,
                         (self.SOFTWARE_STORE/linfix).dirname,
                         id='FileDownloadMixin')

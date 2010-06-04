@@ -40,7 +40,7 @@
       repository containing installer images and isolinux files, located within
       folders called <filename>images</filename> and <filename>isolinux</filename>,
       respectively. These files are used to create installation images for the
-      distribution. For CentOS, this repository will be a public or local mirror. 
+      solution. For CentOS, this repository will be a public or local mirror. 
       For Red Hat Enterprise Linux, it will be an install tree created
       by using the <command>mount -o loop <emphasis>isofile</emphasis>
       <emphasis>mount_location</emphasis></command> command to mount an
@@ -76,7 +76,7 @@
       machine. This is the file you will use to configure SolutionStudio to
       access software from RHN. You may copy this file to the SolutionStudio
       build machine if necessary. Note, to ensure the systemid has access to
-      the software desired for your distribution, you can use the Red Hat
+      the software desired for your solution, you can use the Red Hat
       Network web user interface to locate the system, and view and alter it's
       channel subscriptions.</para>
 
@@ -242,7 +242,7 @@ baseurl=/var/repos/repoC
       <listitem>
       <para>
       A <varname>PACKAGE</varname> pattern to exclude from all repositories
-      used in the distribution. See Also 
+      used in the solution. See Also 
       <emphasis><xref linkend="repo-including-excluding-repository-contents" /></emphasis>.
       </para>
 
@@ -275,7 +275,7 @@ baseurl=/var/repos/repoC
       <listitem>
       <para>
       Include a repository from which to select packages for the system
-      distribution.
+      solution.
       </para>
 
       <para>
@@ -325,7 +325,7 @@ baseurl=/var/repos/repoC
         <listitem>
         <para>
         A unique one-word <varname>ID</varname> representing this
-        repository within a particular distribution. Corresponds to the
+        repository within a particular solution. Corresponds to the
         <varname>repositoryid</varname> of a repository in a YUM
         repofile.
         </para>
@@ -381,7 +381,7 @@ baseurl=/var/repos/repoC
         <varname>BOOLEAN</varname> value indicating whether this
         repository should be enabled or not. Disabled repositories
         are ignored by SolutionStudio when looking for packages to include in
-        the distribution.
+        the solution.
         </para>
 
         <para>
@@ -594,7 +594,7 @@ baseurl=/var/repos/repoC
     In the following examples, line breaks have been added to the
     <emphasis>repos/repo/baseurl</emphasis> and
     <emphasis>repos/repo/mirrorlist</emphasis> to improve readability.
-    In a real distribution definition file, however, line breaks within
+    In a real solution definition file, however, line breaks within
     <varname>PATH</varname>-like elements are not allowed.
     </para>
 

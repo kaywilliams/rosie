@@ -1,9 +1,9 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    solutionstudio
-Version: 0.9.3
+Version: 1.0 
 Release: 1%{?dist}
-Summary: Builds system distributions based on CentOS and Red Hat Enterprise Linux
+Summary: Builds system solutions based on CentOS and Red Hat Enterprise Linux
 
 License:   GPL
 Group:     Applications/System
@@ -30,7 +30,7 @@ Requires: rpm-build
 Requires: yum
 
 %description
-SolutionStudio makes it easy to build custom system distributions 
+SolutionStudio builds complete, self-contained system solutions 
 based on CentOS and Red Hat Enterprise Linux. See 
 http://solutionstudio.org for more information. 
 
@@ -63,11 +63,7 @@ http://solutionstudio.org for more information.
 %{_mandir}/man1/solutionstudio.1.gz
 
 %changelog
-* Wed Jun 02 2010 Kay Williams <kayw@solutionstudio.org> - 0.9.3-1
-- added util folder to make process (kayw)
-
-* Wed Jun 02 2010 Kay Williams <kayw@solutionstudio.org> - 0.9.2-1
-- Makefile changes
+* Thu Jun 03 2010 Kay Williams <kayw@solutionstudio.org> - 1.0-1
 
 * Tue Jun 01 2010 Kay Williams <kayw@solutionstudio.org> - 0.9.1-1
 - Initial Build

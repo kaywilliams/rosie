@@ -5,7 +5,7 @@
   <title>Using Scripts and Triggers</title>
 
   <para>Scripts and triggers enable you to control your client's environment
-  to a great degree. To include these in your distribution, use the
+  to a great degree. To include these in your solution, use the
   <emphasis>config</emphasis> element in your
   <filename>samba-server.definition</filename> file.</para>
 
@@ -15,7 +15,7 @@
   <para>The program that installs RPMs on the client machine
   actually runs scripts depending upon one of several possible situations. Include
   these scripts using <emphasis>config/scripts</emphasis> in your
-  distribution definition. Commonly referred to by their installation script
+  solution definition. Commonly referred to by their installation script
   markers in an RPM spec file, the scripts execute prior to or following
   installation or uninstallation. See Section 9.4.4 "Defining installation
   scripts," in the Fedora Project's documentation, <ulink
@@ -85,7 +85,7 @@ scripts/smb.script
   Guide</ulink> by Eric Foster-Johnson for a discussion of the trigger options
   and their implications. To activate these trigger options using SolutionStudio,
   include them with the <emphasis>config/trigger</emphasis> element of
-  your distribution definition.</para>
+  your solution definition.</para>
 
   <para>In the <emphasis>/trigger </emphasis>element example, below, includes
   an <filename>smb.sh</filename> script file to run when the program installs

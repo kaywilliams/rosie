@@ -17,17 +17,17 @@
   <para>The discussions and code examples in this chapter and subsequent parts
   focus on a Samba server based on CentOS 5 that enables print and file
   services. In this chapter, the examples assume the server will be
-  installed via the network directly from the build machine. The DDFR provides
+  installed via the network directly from the build machine. The SDFR provides
   the syntax for all parent and child elements and their attributes.</para>
 
   <para>Creating the <application class="software">Samba</application>
-  server distribution entails several process steps. After configuring the
+  server solution entails several process steps. After configuring the
   <application class="software">SolutionStudio</application> build machine,
-  as described in the previous chapter, you need to create a distribution
-  distribution definition 
+  as described in the previous chapter, you need to create a solution
+  solution definition 
   (<filename class="extension">samba-server.definition</filename>). Then
   you run <command>solutionstudio</command> to validate the file, retrieve
-  the packages and build the distribution. From there you prepare the boot
+  the packages and build the solution. From there you prepare the boot
   media.</para>
 
   <para>The next section will explain how to define the system

@@ -58,7 +58,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     self.filerelpath = pps.path('usr/share/system-config/files')
 
     self.DATA = {
-      'variables': ['name', 'fullname', 'distributionid', 'rpm.release',
+      'variables': ['name', 'fullname', 'solutionid', 'rpm.release',
                     'cvars[\'web-path\']', 'cvars[\'gpgsign-public-key\']',],
       'config':    ['.'],
       'input':     [],
@@ -165,7 +165,7 @@ class ConfigEvent(RpmBuildMixin, Event):
 
     lines = []
 
-    # include a repo pointing to the published distribution
+    # include a repo pointing to the published solution
     if self.cvars['web-path'] is not None:
       lines.extend([ '[%s]' % self.name,
                      'name      = %s - %s' % (self.fullname, self.basearch),
@@ -179,7 +179,7 @@ class ConfigEvent(RpmBuildMixin, Event):
         lines.append('gpgcheck = 0')
       lines.append('')
 
-    # include repo(s) pointing to distribution inputs
+    # include repo(s) pointing to solution inputs
     if self.config.get('updates/@repos', 'master') == 'all':
       for repo in self.cvars['repos'].values():
         try:

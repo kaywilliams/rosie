@@ -37,11 +37,11 @@ from solutionstudio.util.CleanHelpFormatter import CleanHelpFormatter
 P = pps.Path
 
 def main():
-  parser = OptionParser("usage: %prog [OPTIONS] DISTRIBUTION_DEFINITION",
+  parser = OptionParser("usage: %prog [OPTIONS] SOLUTION_DEFINITION",
                         formatter=CleanHelpFormatter(),
                         description="build the distribution defined in the "
-                                    "distribution definition file located at "
-                                    "DISTRIBUTION_DEFINITION"
+                                    "solution definition file located at "
+                                    "SOLUTION_DEFINITION"
                         )
 
   parser.add_option('--clear-cache',

@@ -49,7 +49,7 @@ class SolutionStudioValidationHandler:
       sys.exit(1)
 
   def _validate_configs(self):
-    "Validate solutionstudio config and distribution definition"
+    "Validate solutionstudio config and solution definition"
 
     if self.mainconfig.file is not None:
       self.logger.log(4, L0("Validating '%s'" % self.mainconfig.file))
@@ -60,9 +60,9 @@ class SolutionStudioValidationHandler:
                             self.mainconfig)
     v.validate('/solutionstudio', schema_file='solutionstudio.rng')
 
-    # validate individual sections of the distribution_file
+    # validate individual sections of the solution_file
     self.logger.log(4, L0("Validating '%s'" % pps.path(self.appconfig.file)))
-    v = AppConfigValidator([ x/'schemas/distribution' for x in Event.SHARE_DIRS ],
+    v = AppConfigValidator([ x/'schemas/solution' for x in Event.SHARE_DIRS ],
                            self.appconfig)
 
     # validate all top-level sections
@@ -195,7 +195,7 @@ class BaseConfigValidator:
     return schema
 
   def check_required(self, schema, tag):
-    app_defn = schema.get('//rng:element[@name="distribution"]', namespaces=NSMAP)
+    app_defn = schema.get('//rng:element[@name="solution"]', namespaces=NSMAP)
     if app_defn is not None:
       optional = app_defn.get('rng:optional', namespaces=NSMAP)
       if optional is None:
@@ -213,12 +213,12 @@ class AppConfigValidator(BaseConfigValidator):
 
   def massage_schema(self, schema, tag):
     schema = BaseConfigValidator.massage_schema(self, schema, tag)
-    app_defn = schema.get('//rng:element[@name="distribution"]', namespaces=NSMAP)
+    app_defn = schema.get('//rng:element[@name="solution"]', namespaces=NSMAP)
     start_elem  = app_defn.getparent()
     for defn in app_defn.iterchildren():
       start_elem.append(defn)
       defn.parent = start_elem
-    start_elem.remove(start_elem.get('rng:element[@name="distribution"]', namespaces=NSMAP))
+    start_elem.remove(start_elem.get('rng:element[@name="solution"]', namespaces=NSMAP))
     for opt_elem in start_elem.xpath('rng:optional', fallback=[], namespaces=NSMAP):
       for child in opt_elem.iterchildren():
         start_elem.append(child)

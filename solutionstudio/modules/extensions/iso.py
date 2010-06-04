@@ -78,8 +78,8 @@ class PkgorderEvent(Event):
 
     # create yum config needed by pkgorder
     cfg = self.TEMP_DIR/'pkgorder'
-    repoid = self.distributionid
-    cfg.write_lines([ YUMCONF % (self.distributionid, self.distributionid, self.cvars['os-dir']) ])
+    repoid = self.solutionid
+    cfg.write_lines([ YUMCONF % (self.solutionid, self.solutionid, self.cvars['os-dir']) ])
 
     # create pkgorder
     pkgtups = pkgorder.order(config=cfg,
@@ -207,7 +207,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     splitter.u_tree     = self.cvars['os-dir']
     splitter.u_src_tree = self.cvars['srpms-dir']
     splitter.s_tree     = self.splittrees/set
-    splitter.product_path = self.cvars['distribution-info']['packagepath']
+    splitter.product_path = self.cvars['solution-info']['packagepath']
     splitter.difmt      = self.locals.L_DISCINFO_FORMAT
     splitter.pkgorder   = self.cvars['pkgorder-file']
 

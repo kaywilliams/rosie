@@ -2,13 +2,13 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Updating a Distribution</title>
+  <title>Updating a Solution</title>
 
-  <para>SolutionStudio makes it easy to keep your distribution up to date over 
+  <para>SolutionStudio makes it easy to keep your solution up to date over 
   time by simply rerunning the <command>solutionstudio</command> command. 
   When SolutionStudio runs, it looks for changes in build input, or in the 
-  distribution definition, and makes adjustments to the published
-  distribution as necessary.</para>
+  solution definition, and makes adjustments to the published
+  solution as necessary.</para>
 
   <section>
     <title>Running <command>solutionstudio</command> to check for repository
@@ -18,7 +18,7 @@
     <command>solutionstudio</command> with the
     <filename>samba-server.definition</filename> file. <application
     class="software"> Rerunning <command>solutionstudio</command> with the same
-    <filename class="extension">.distribution</filename> file will dramatically
+    <filename class="extension">.definition</filename> file will dramatically
     reduce the build time, assuming there are no changes to the file's
     contents. SolutionStudio</application> uses a cache of the packages and verifies the
     cache contents against the metadata for the repository and the groups. The
@@ -33,12 +33,12 @@ Build complete at 2009-10-25 18:30:26</screen></para>
     <para>Since there were no updates, <command>solutionstudio</command> completed
     successfully in less than two minutes. (Results will vary based on factors
     including network connection speed between the build machine and input 
-    repositories, number of packages in the distribution, and build 
+    repositories, number of packages in the solution, and build 
     machine hardware configuration.) Only if something had changed would
     <command>solutionstudio</command> have rerun the repository updates and 
     provided more detail about this build.</para>
 
-    <para>Unless you change the log level or the contents of the distribution, 
+    <para>Unless you change the log level or the contents of the solution, 
     <command>solutionstudio</command> will append the minimal output above to 
     the log file.</para>
 
@@ -57,43 +57,43 @@ Build complete at 2009-10-25 18:30:26</screen></para>
       </note></para>
 
     <para>If SolutionStudio finds updated packages, it will refresh the 
-    <xref linkend="distribution-repository"/> to contain just the current set
+    <xref linkend="solution-repository"/> to contain just the current set
     of packages. Specifically, when SolutionStudio determines that packages have
-    changed, it calculates the list of packages needed to satisfy distribution 
+    changed, it calculates the list of packages needed to satisfy solution 
     requirements, and then adds and removes packages as necessary to bring the 
-    distribution repository into comformance with the list. This behavior 
+    solution repository into comformance with the list. This behavior 
     allows the <xref linkend="yum-sync-plugin" /> to rely on packages in the 
-    distribution repository as a master list of packages to be installed on 
+    solution repository as a master list of packages to be installed on 
     client machines.</para>
 
     <para><important>
         <para>If the published download location is the same,
-        <command>solutionstudio</command> updates the distribution, adding new files and
+        <command>solutionstudio</command> updates the solution, adding new files and
         replacing old ones.</para>
       </important></para>
   </section>
 
   <section>
-    <title>Modifying the distribution definition</title>
+    <title>Modifying the solution definition</title>
 
-    <para>If you change the distribution definition, or other build input 
+    <para>If you change the solution definition, or other build input 
     such as configuration files and scripts, then you need to rerun 
     <command>solutionstudio</command>. You may redefine
-    your distribution in a plethora of ways. Some of the more common options
+    your solution in a plethora of ways. Some of the more common options
     could include selecting different repositories; including or excluding
     groups, packages or custom files (configuration files, scripts or
     triggers); or defining a new destination for the published
-    distribution.</para>
+    solution.</para>
 
     <para>If you change the <emphasis>main/name</emphasis>,
     <emphasis>main/version</emphasis> or <emphasis>main/arch</emphasis> child
-    elements, then you are creating a new distribution with a new
+    elements, then you are creating a new solution with a new
     <varname>$ID</varname> and <xref linkend="download-location"/>
     matching the new parameters. To avoid confusion between the different
-    distributions, save the new distribution definition with a new name.</para>
+    solutions, save the new solution definition with a new name.</para>
   </section>
 
-  <para>To try out distribution updates for the samba-server example, you can 
+  <para>To try out solution updates for the samba-server example, you can 
   make two modifications: remove a group, and modify a configuration file.</para>
 
   <para>First, let's say you have determined you don't need packages from
@@ -136,7 +136,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
 
   <para>Now run the command 
   <command>solutionstudio samba-server.definition</command>. You should see 
-  that a new configuration package is generated, and that the distribution
+  that a new configuration package is generated, and that the solution
   is updated.</para>
 
   <para>In the next section you will see how these changes are applied to

@@ -1,55 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<chapter id="DDFR-Introduction"
+<chapter id="SDFR-Introduction"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>
   Introduction
   </title>
 
   <para>
-  The distribution definition file contains instructions for building a
-  Linux operating system distribution, or distribution. It defines distribution 
+  The solution definition file contains instructions for building a
+  Linux operating system solution, or solution. It defines solution 
   content and configuration, including name, version, and architecture; package
   repository locations; which packages to include; and the locations of 
-  configuration scripts, files and custom graphics. SolutionStudio uses the distribution file
-  to assemble, create and publish the distribution. Other programs, such as
+  configuration scripts, files and custom graphics. SolutionStudio uses the solution file
+  to assemble, create and publish the solution. Other programs, such as
   <application class="software">YUM</application>,
   <application class="software">Anaconda</application>, and
   <application class="software">RPM</application>
   use files created by <application class="software">SolutionStudio</application>
-  to install and update the distribution on the client system.
+  to install and update the solution on the client system.
   </para>
 
   <para>
-  The distribution file is a text-based file in XML format. Within the
+  The solution file is a text-based file in XML format. Within the
   file are a series of top-level elements that equate to
-  modules, or steps, within the distribution build process. These elements,
+  modules, or steps, within the solution build process. These elements,
   in turn, contain their own attributes and elements. There are three
   required top-level elements:
   <emphasis role="strong"><xref linkend="main" /></emphasis>,
   <emphasis role="strong"><xref linkend="repos" /></emphasis>, and
   <emphasis role="strong"><xref linkend="packages" /></emphasis>;
   all other top-level elements are optional. Top-level elements can appear
-  in the distribution file in any order. Indentation is for readability
+  in the solution file in any order. Indentation is for readability
   purposes only.
   </para>
 
   <para>
-  The distribution file has full support of XML Inclusions (XIncludes). Please
+  The solution file has full support of XML Inclusions (XIncludes). Please
   refer to the <ulink url="http://www.w3.org/TR/xinclude/">XInclude Technical
   Report</ulink> for more information.
   </para>
 
   <para>
-  A distribution file can be located in any local directory and invoked from the
+  A solution file can be located in any local directory and invoked from the
   command line using the command <command>solutionstudio</command> followed by the full
   or relative pathname to the file, such as:
   </para>
 
   <informalexample>
   <programlisting>
-<command>solutionstudio</command> /path/to/distribution/file
+<command>solutionstudio</command> /path/to/solution/file
   </programlisting>
   </informalexample>
 
@@ -58,16 +58,16 @@
 
   <section>
     <title>
-    Example Distribution Definition
+    Example Solution Definition
     </title>
 
     <para>
-    Here is a basic example distribution definition based on CentOS 5.
+    Here is a basic example solution definition based on CentOS 5.
     </para>
 
     <informalexample>
     <programlisting>
-&lt;distribution&gt;
+&lt;solution&gt;
 
   &lt;main&gt;
     &lt;name&gt;samba&lt;/name&gt;
@@ -91,7 +91,7 @@
     &lt;group repoid="base"&gt;smb-server&lt;/group&gt;
   &lt;/packages&gt;
 
-&lt;/distribution&gt;
+&lt;/solution&gt;
     </programlisting>
     </informalexample>
   </section>
@@ -102,9 +102,9 @@
     </title>
 
 	  <para>
-	  Each top-level element in the DDFR maps to a code module of the same
+	  Each top-level element in the SDFR maps to a code module of the same
 	  name. Each code module is responsible for performing a single step in
-	  the distribution build process.  Related modules are organized into 
+	  the solution build process.  Related modules are organized into 
 	  module groups. To obtain a list of all available modules and module 
 	  groups type
 

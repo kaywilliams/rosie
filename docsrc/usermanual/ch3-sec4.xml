@@ -2,21 +2,21 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Building a Distribution</title>
+  <title>Building a Solution</title>
 
-  <para>Now that you have defined your distribution, you use the
+  <para>Now that you have defined your solution, you use the
   <command>solutionstudio</command> command to build it. The basic command validates the 
-  distribution definition syntax, creates the distribution, and records 
+  solution definition syntax, creates the solution, and records 
   process results. The default level of screen output includes errors, build
   status and file download and creation status. SolutionStudio also
   sends this output to the log file, by default 
   <filename>/var/log/solutionstudio.log</filename>. If a critical error
   occurs, SolutionStudio includes detailed error information in the log file.</para>
 
-  <para>The initial build of a distribution can be time consuming, on the order
+  <para>The initial build of a solution can be time consuming, on the order
   of several minutes to an hour or more. Initial build time depends on a number
   of variables including the location of package repositories (local or remote), 
-  network connection speed, the number of packages included in the distribution, 
+  network connection speed, the number of packages included in the solution, 
   and the amount of content that can be reused from the SolutionStudio shared 
   cache. Subsequent builds complete in much less time, often 1-2 minutes, 
   depending on the level and type of change since the previous build.</para>
@@ -34,7 +34,7 @@
   halts the process. See Appendix A for an example of a successful first-build
   output.</para>
 
-  <note>If your distribution uses RHN channels as repositories, SolutionStudio may occasionally report errors such as the following while downloading or verifying repository metadata:
+  <note>If your solution uses RHN channels as repositories, SolutionStudio may occasionally report errors such as the following while downloading or verifying repository metadata:
 
   <programlisting>[repos] long int too large to convert to int</programlisting> 
 

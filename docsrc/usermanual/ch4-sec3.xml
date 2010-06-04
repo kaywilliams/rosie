@@ -19,16 +19,16 @@
 
   <para>While everything could be revision controlled, there are some key
   non-image files that should be. Within the <application
-  class="software">SolutionStudio</application> infrastructure and distribution
+  class="software">SolutionStudio</application> infrastructure and solution
   building process, candidates for revision control include configuration files,
-  distribution definitions and scripts, i.e. files that contain critical
+  solution definitions and scripts, i.e. files that contain critical
   textual information that may change over time or are commonly used to define
-  aspects of multiple distributions, such as common repositories or network
+  aspects of multiple solutions, such as common repositories or network
   configuration.</para>
 
   <para><itemizedlist>
       <listitem>
-        <para>distribution definitions,</para>
+        <para>solution definitions,</para>
       </listitem>
 
       <listitem>
@@ -44,17 +44,17 @@
       </listitem>
 
       <listitem>
-        <para>distribution definition XInclude files.</para>
+        <para>solution definition XInclude files.</para>
       </listitem>
     </itemizedlist></para>
 
   <para>If you decide to not use a revision control system, you could rename
-  the distribution definition or other key
-  files every time you make a change to help you "version" your distribution.
+  the solution definition or other key
+  files every time you make a change to help you "version" your solution.
   You can also enter comments in the files. Keep in mind that changing the name
-  of distribution definition does not mean <application class="software">
-  SolutionStudio</application> will build a new distribution.
+  of solution definition does not mean <application class="software">
+  SolutionStudio</application> will build a new solution.
   As long as the <varname>$ID</varname> remains the same, the
-  distribution remains the same.</para>
+  solution remains the same.</para>
 </section>
 

@@ -13,7 +13,7 @@
     </title>
 
     <para>
-    Creates an RPM used to install and update distribution-specific 
+    Creates an RPM used to install and update solution-specific 
     configuration on the client system.  The RPM is named 
     <filename>system-config</filename>. The system-config RPM 
     completes three primary functions. It installs automatically-generated YUM
@@ -114,17 +114,17 @@
       <application class="software">YUM</application> sync plugin in the config
       RPM. The sync plugin overrides 
       <application class="software">YUM</application>'s default behavior 1) to
-      disable all repositories other than the distribution, or 
+      disable all repositories other than the solution, or 
       <emphasis>master</emphasis>, repository, and 2) to provide a 
       <emphasis>sync</emphasis> argument that allows adding <emphasis>and 
       removing</emphasis> installed packages on the client machine to align with
-      available packages in the distribution repository. The default value is 
+      available packages in the solution repository. The default value is 
       <constant>TRUE</constant>. 
       </para>
 
       <para>
       <emphasis>@repos</emphasis>: value indicating whether to include the <emphasis>input</emphasis> repositories, the repositories used to
-      build the distribution, in the <filename>/etc/yum.repos.d/system.repo</filename> file, in addition to the distribution, or <emphasis>master</emphasis> repository. The default 
+      build the solution, in the <filename>/etc/yum.repos.d/system.repo</filename> file, in addition to the solution, or <emphasis>master</emphasis> repository. The default 
       value is <constant>master</constant>. See <emphasis role="strong"><xref linkend="repos" /></emphasis> for 
       information on defining input repositories.
       </para>

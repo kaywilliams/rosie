@@ -27,11 +27,11 @@
   class="directory">/var</filename> directory. <application
   class="software">SolutionStudio</application> uses the <filename
   class="directory">/var/cache/solutionstudio</filename> folder for caching 
-  distribution contents and the <filename 
-  class="directory">/var/www/html/distributions</filename> folder for storing
-  completed distributions. The recommended minimum drive space allocated for
+  solution contents and the <filename 
+  class="directory">/var/www/html/solutions</filename> folder for storing
+  completed solutions. The recommended minimum drive space allocated for
   each of these folders is 15GB (30GB total). Depending upon the number and size
-  of distributions created, you may need more disk space.</para>
+  of solutions created, you may need more disk space.</para>
 
   <para>Disk access is another consideration. Due to the size of the files
   handled, fast disk access is preferable. To accommodate the speed
@@ -55,7 +55,7 @@
 
   <para><programlisting># system-config-securitylevel</programlisting></para>
 
-  <para>To install and configure support for testing distributions using KVM-based virtual
+  <para>To install and configure support for testing solutions using KVM-based virtual
   machines (recommended), complete these additional steps as the root user. Note the OS and system requirements specified earlier in this section.</para>
 
   <para>First, install the kvm package group.</para>
@@ -79,5 +79,5 @@
 # shutdown -r now
   </programlisting></informalexample></para>
 
-  <para>Now you are ready to begin defining your distribution!</para>
+  <para>Now you are ready to begin defining your solution!</para>
 </section>

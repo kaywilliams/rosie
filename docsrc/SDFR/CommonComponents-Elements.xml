@@ -73,7 +73,7 @@
         <para>
         This macro will be replaced by the string
         <constant>method=$path</constant>, where <varname>$path</varname>
-        is the remote URL to the distribution's published output directory,
+        is the remote URL to the solution's published output directory,
         as determined by the
         <emphasis role="strong"><xref linkend="publish"/></emphasis>
         module.
@@ -126,7 +126,7 @@
 
       <para>
       In the following examples, the default set of kernel arguments
-      is <constant>method=http://server/distributions/mydistribution/os</constant> 
+      is <constant>method=http://server/solutions/mysolution/os</constant> 
       and <constant>ks=ks.cfg</constant>.
       </para>
 
@@ -148,7 +148,7 @@
 
         The final set of kernel append arguments is
 
-        <literallayout>method=http://server/distributions/mydistribution/os ks=ks.cfg noipv6</literallayout>
+        <literallayout>method=http://server/solutions/mysolution/os ks=ks.cfg noipv6</literallayout>
         </para>
       </section>
 
@@ -171,7 +171,7 @@
 
       The final set of kernel append arguments is
 
-        <literallayout>method=http://server/distributions/mydistribution/os noipv6</literallayout>
+        <literallayout>method=http://server/solutions/mysolution/os noipv6</literallayout>
         </para>
       </section>
 
@@ -263,7 +263,7 @@
       <varname>PATH</varname>-like elements generally are used to copy an
       input file or folder to some other location, such as within a disk image,
       into a RPM in order to be installed to a specific location on client
-      systems, or into a folder within the distribution tree itself.
+      systems, or into a folder within the solution tree itself.
       A <varname>PATH</varname>-like element's text value is the
       <varname>PATH</varname> to some file or folder <varname>$input</varname>
       to use, while the <emphasis>@destdir</emphasis>,

@@ -18,7 +18,7 @@
 
 <refnamediv>
 <refname>solutionstudio</refname>
-<refpurpose>Builds and updates system distributions.</refpurpose>
+<refpurpose>Builds and updates Linux-based solutions.</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -61,18 +61,18 @@
 <arg choice="opt">
 <option>--skip <replaceable class="parameter">MODULE</replaceable></option>
 </arg>
-<filename> DISTRIBUTION_DEFINITION</filename>
+<filename> SOLUTION_DEFINITION</filename>
 
 </cmdsynopsis>
 </refsynopsisdiv>
 
 <refsect1 id="solutionstudio.1-description"><title>DESCRIPTION</title>
-<para>Builds the distribution defined in the file at DISTRIBUTION_DEFINITION. Updates the distribution if it exists.</para>
+<para>Builds the solution defined in the file at SOLUTION_DEFINITION. Updates the solution if it exists.</para>
 </refsect1>
 
 <refsect1 id="solutionstudio.1-usage"><title>USAGE</title>
-<para><command>solutionstudio</command> [OPTIONS] DISTRIBUTION_DEFINITION</para>
-<para>OPTIONS refers to the command-line options described below.  DISTRIBUTION_DEFINITION refers to a distribution definition file, see the Distribution Definition File Reference at <ulink url="http://solutionstudio.org/solutionstudio/docs"/> for more information.</para>
+<para><command>solutionstudio</command> [OPTIONS] SOLUTION_DEFINITION</para>
+<para>OPTIONS refers to the command-line options described below.  SOLUTION_DEFINITION refers to a solution definition file, see the Solution Definition File Reference at <ulink url="http://solutionstudio.org/solutionstudio/docs"/> for more information.</para>
 </refsect1>
 
 
@@ -81,9 +81,9 @@
 <variablelist>
 
 <varlistentry>
-  <term><option>-c; --config <replaceable class="parameter">SYSTEMBUILDER_CONF</replaceable></option></term>
+  <term><option>-c; --config <replaceable class="parameter">SOLUTIONSTUDIO_CONF</replaceable></option></term>
   <listitem>
-    <para> Specifies the directory and filename <replaceable class="parameter">SYSTEMBUILDER_CONF</replaceable> of the solutionstudio configuration file.  The default value is <filename class="directory">/etc/solutionstudio/solutionstudio.conf</filename>.  See the <filename>solutionstudio.conf(5)</filename> man page for SolutionStudio configuration options.</para>
+    <para> Specifies the directory and filename <replaceable class="parameter">SOLUTIONSTUDIO_CONF</replaceable> of the solutionstudio configuration file.  The default value is <filename class="directory">/etc/solutionstudio/solutionstudio.conf</filename>.  See the <filename>solutionstudio.conf(5)</filename> man page for SolutionStudio configuration options.</para>
 
   </listitem>
 </varlistentry>
@@ -117,8 +117,8 @@
 <varlistentry>
   <term><option>--list-modules</option></term>
   <listitem>
-    <para> Displays a list of SolutionStudio modules including name, description, and child modules, then exits without building the distribution. Note: SolutionStudio requires a distribution definition on the command line when using this option, for example:</para>
-<para>solutionstudio --list-modules <filename>DISTRIBUTION_DEFINITION</filename></para>
+    <para> Displays a list of SolutionStudio modules including name, description, and child modules, then exits without building the solution. Note: SolutionStudio requires a solution definition on the command line when using this option, for example:</para>
+<para>solutionstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
 </varlistentry>
@@ -153,7 +153,7 @@
 <varlistentry>
   <term><option>--no-validate</option></term>
   <listitem>
-    <para>Disables validation of SYSTEMBUILDER_CONF and DISTRIBUTION_DEFINITION during the build process.</para>
+    <para>Disables validation of SOLUTIONSTUDIO_CONF and SOLUTION_DEFINITION during the build process.</para>
   </listitem>
 </varlistentry>
 
@@ -178,7 +178,7 @@
 <varlistentry>
   <term><option>--validate-only</option></term>
   <listitem>
-<para>Performs SYSTEMBUILDER_CONF and DISTRIBUTION_DEFINITION validation only; it does not build the distribution.  The option also displays the complete DISTRIBUTION_DEFINITION file after resolving macro and include elements.</para>
+<para>Performs SOLUTIONSTUDIO_CONF and SOLUTION_DEFINITION validation only; it does not build the solution.  The option also displays the complete SOLUTION_DEFINITION file after resolving macro and include elements.</para>
   </listitem>
 </varlistentry>
 
@@ -186,7 +186,7 @@
 </refsect1>
 
 <refsect1 id="solutionstudio.1-variables"><title>VARIABLES</title>
-<para>SolutionStudio command options, where indicated, use three variables:  MODULE, PATH and SYSTEMBUILDER_CONF.</para>
+<para>SolutionStudio command options, where indicated, use three variables:  MODULE, PATH and SOLUTIONSTUDIO_CONF.</para>
 
 <variablelist>
 <varlistentry>
@@ -204,7 +204,7 @@
 </varlistentry>
 
 <varlistentry>
-  <term>SYSTEMBUILDER_CONF</term>
+  <term>SOLUTIONSTUDIO_CONF</term>
   <listitem>
     <para>The directory and filename of the SolutionStudio configuration file.</para>
   </listitem>
@@ -213,9 +213,9 @@
 </refsect1>
 
 <refsect1 id="solutionstudio.1-modules"><title>MODULES</title>
-<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the solutionstudio command. Note: SolutionStudio requires a distribution definition on the command line when using this option, for example:</para>
-<para>solutionstudio --list-modules <filename>DISTRIBUTION_DEFINITION</filename></para>
-<para>On subsequent builds of the same distribution, SolutionStudio automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using the <command>--skip</command> and <command>--force</command> options.</para>
+<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the solutionstudio command. Note: SolutionStudio requires a solution definition on the command line when using this option, for example:</para>
+<para>solutionstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
+<para>On subsequent builds of the same solution, SolutionStudio automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using the <command>--skip</command> and <command>--force</command> options.</para>
 <para>Developers can write custom SolutionStudio modules and direct SolutionStudio to use them via the <command>--lib-path</command> solutionstudio command option.</para>
 </refsect1>
 

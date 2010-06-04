@@ -12,7 +12,7 @@
     CentOS-based systems. Certain chapters in this manual assume you have a 
     particular level of knowledge.</para>
 
-    <para>For Chapter 3, "Building a Distribution," in addition to knowing how
+    <para>For Chapter 3, "Building a Solution," in addition to knowing how
     to create and edit XML files, manage a web server and create USB and CD/DVD
     boot media, you should have an intermediate skill level with the following
     components:</para>
@@ -50,8 +50,8 @@
     class="software">SolutionStudio</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
     obtaining and installing SolutionStudio and creating a basic CentOS system
-    distribution. The "Distribution Definition File Reference" (DDFR) contains
-    the syntax for distribution definition elements and attributes. 
+    solution. The "Solution Definition File Reference" (SDFR) contains
+    the syntax for solution definition elements and attributes. 
     Finally, SolutionStudio has a set of 
     <emphasis role="strong">man pages</emphasis> explaining the
     <command>solutionstudio</command> command, its options and the SolutionStudio
@@ -73,10 +73,10 @@
     <title>How to Read</title>
 
     <para>The intent of the manual is to help you use SolutionStudio effectively
-    to build and maintain distributions, and to use distributions to
+    to build and maintain solutions, and to use solutions to
     install and update client machines. This manual takes a top-down approach,
     explaining the concepts before giving steps, commands and code examples
-    that you can use to build, deploy and enhance your own distributions.</para>
+    that you can use to build, deploy and enhance your own solutions.</para>
   </section>
 
   <section>
@@ -115,12 +115,12 @@
         <listitem>
           <para>Elements and attributes in XML are referred to by their XPath
           equivalents. The active node is always considered to be the root,
-          distribution; thus, the first element in the XPath expression is the
+          solution; thus, the first element in the XPath expression is the
           top-level element, while subsequent elements/attributes are its
-          children. Top-level elements in the DDFR and their child elements
+          children. Top-level elements in the SDFR and their child elements
           use the <emphasis>parent/child/child</emphasis> format, while
           <emphasis>@attribute-names</emphasis> are preceded by an @ symbol.
-          The assumed parent element is <emphasis>distribution</emphasis>. For
+          The assumed parent element is <emphasis>solution</emphasis>. For
           more details on XPath syntax, see <ulink
           url="http://www.w3.org/TR/xpath.html">XML Path Language</ulink>.
           </para>
@@ -168,7 +168,7 @@
         <term><emphasis role="strong">Notes</emphasis></term>
 
         <listitem>
-          <para>Within distribution definition examples, the traditional XML comment
+          <para>Within solution definition examples, the traditional XML comment
           tags "&lt;!--" and "--&gt;" contain notes. See Also <xref
           linkend="example" /> .</para>
 
@@ -177,7 +177,7 @@
 
           <para><note>
               <para>The top-level elements can be in any order in the
-              distribution definition.</para>
+              solution definition.</para>
             </note></para>
         </listitem>
       </varlistentry>
@@ -240,7 +240,7 @@ $ precedes lines entered as a normal user</programlisting>
 
         <listitem>
           <para>Chapter 2, "Introduction" explains what a 
-          distribution is, how <application class="software">SolutionStudio
+          solution is, how <application class="software">SolutionStudio
           </application> helps you build it in an efficient timely manner
           and the underlying architecture that makes this improved performance
           possible. The section also includes a "Glossary of Terms" explaining
@@ -249,14 +249,14 @@ $ precedes lines entered as a normal user</programlisting>
         </listitem>
 
         <listitem>
-          <para>Chapter 3, "Building a Distribution," covers the basic
+          <para>Chapter 3, "Building a Solution," covers the basic
           concepts for configuring the <application
           class="software">SolutionStudio</application> build machine,
-          defining and deploying a distribution, running <application
+          defining and deploying a solution, running <application
           class="software">SolutionStudio</application> and updating a
-          distribution. As a use case model, these sections will help you
+          solution. As a use case model, these sections will help you
           create a basic <application class="software">Samba</application>
-          server distribution based on CentOS 5.</para>
+          server solution based on CentOS 5.</para>
         </listitem>
 
         <listitem>
@@ -264,22 +264,22 @@ $ precedes lines entered as a normal user</programlisting>
           set up a managed development and deployment environment using
           SolutionStudio as its cornerstone. It explains implementing the 
           development - staging - production environment within the context of 
-          building and deploying distributions using <application
+          building and deploying solutions using <application
           class="software">SolutionStudio</application>. The Samba server
-          distribution you created in Part I will have new features
+          solution you created in Part I will have new features
           requirements to implement in Part II.</para>
 
           <para>Chapter 4 also discusses how SolutionStudio makes your life
-          easier as a system or build administrator. Versioning distribution
+          easier as a system or build administrator. Versioning solution
           files and utilizing an object-oriented model through the XInclude
-          mechanism for the distribution definitions are important usability
+          mechanism for the solution definitions are important usability
           features. Choosing the best location for storing and downloading
-          a distribution via the web is another key concept.</para>
+          a solution via the web is another key concept.</para>
         </listitem>
 
         <listitem>
           <para>Chapter 5, "Doing More with SolutionStudio" will help you
-          customize your distributions. It describes using kickstart files to 
+          customize your solutions. It describes using kickstart files to 
           automate client installation, discusses GPG checking and
           using GPG keys to sign your own packages, and provides information on 
           creating CD/DVD installation images.</para>

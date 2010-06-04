@@ -31,7 +31,7 @@ from solutionstudio.logging   import L1
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PublishSetupEvent', 'PublishEvent'],
-  description = 'links distribution output to a publish location',
+  description = 'links solution output to a publish location',
 )
 
 TYPE_DIR = pps.constants.TYPE_DIR
@@ -47,22 +47,22 @@ class PublishSetupEvent(Event):
     )
 
     self.DATA = {
-      'variables': ['distributionid'],
+      'variables': ['solutionid'],
       'config': ['.'],
     }
 
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.local  = pps.path(self.config.getpath('local-dir',  '/var/www/html/distributions'))
+    self.local  = pps.path(self.config.getpath('local-dir',  '/var/www/html/solutions'))
     self.remote = pps.path(self.config.getpath('remote-url',
                     self._get_host(ifname =
                       self.config.get('remote-url/@interface', None))))
 
   def apply(self):
     self.cvars['publish-content'] = set()
-    self.cvars['publish-path'] = self.local / self.distributionid
-    self.cvars['web-path'] = self.remote / self.distributionid
+    self.cvars['publish-path'] = self.local / self.solutionid
+    self.cvars['web-path'] = self.remote / self.solutionid
 
   def _get_host(self, ifname=None):
     if self.config.getbool('remote-url/@fqdn', 'False'):
@@ -74,7 +74,7 @@ class PublishSetupEvent(Event):
         realm = get_ipaddr(ifname)
       except IOError, e:
         raise InterfaceIOError(ifname, str(e))
-    return 'http://'+realm+'/distributions'
+    return 'http://'+realm+'/solutions'
 
 # TODO - improve these, they're pretty vulnerable to changes in offsets and
 # the like

@@ -2,16 +2,16 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <chapter>
-  <title>Production Distributions</title>
+  <title>Production Solutions</title>
 
   <para>You can harness <application class="software">SolutionStudio</application>'s
   architecture and features to create a production system development
-  environment with reusable components for the distribution definition,
+  environment with reusable components for the solution definition,
   version tracking for that and other configuration files, expedited testing
   procedures and alternate development and production locations. Using <application
   class="software">SolutionStudio</application> as part of a long-term deployment and
   shop management strategy will enable you to be more efficient and provide an
-  distribution development and deployment history that is repeatable and
+  solution development and deployment history that is repeatable and
   predictable.</para>
 
   <para>In this chapter, you will set up a production process for creating, 
@@ -19,7 +19,7 @@
   <filename>samba-server.definition</filename> file into reusable components. 
   You'll also choose appropriate download and storage locations. Then you'll log
   those files into the versioning system of your choice. The testing process
-  for your distribution definition has several options, which are covered in
+  for your solution definition has several options, which are covered in
   the last section.</para>
 
   <xi:include href="ch4-sec1.xml" xpointer="element(/1)"

@@ -3,7 +3,7 @@ MANXSL = /usr/share/sgml/docbook/xsl-stylesheets/manpages/docbook.xsl
 XSLTPROC = /usr/bin/xsltproc
 GZIP = /bin/gzip
 
-.PHONY: all checkpkg clean install solutionstudio.1.gz solutionstudio.conf.5.gz man2html
+.PHONY: all checkpkg clean install solutionstudio.1.gz solutionstudio.conf.5.gz html
 
 all: solutionstudio.1.gz solutionstudio.conf.5.gz
 
@@ -19,7 +19,7 @@ solutionstudio.conf.5.gz:
 	$(XSLTPROC) $(MANXSL) solutionstudio.conf.xml
 	$(GZIP) solutionstudio.conf.5
 
-man2html:
+html:
 	@make checkpkg BINARY=$(XSLTPROC) INSTRUCTIONS="Install the libxslt package."
 	$(XSLTPROC) --output solutionstudio.1.html /usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl solutionstudio.xml
 	$(XSLTPROC) --output solutionstudio.conf.5.html /usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl solutionstudio.conf.xml

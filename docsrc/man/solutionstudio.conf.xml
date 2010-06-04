@@ -84,7 +84,7 @@
 <varlistentry>
   <term><option>path</option></term>
   <listitem>
-<para>The <literal>path</literal> child element specifies where SolutionStudio stores both shared and per distribution cache data.  The default is <filename>/var/cache/solutionstudio</filename>.
+<para>The <literal>path</literal> child element specifies where SolutionStudio stores both shared and per solution cache data.  The default is <filename>/var/cache/solutionstudio</filename>.
 </para>
 <programlisting>
 &lt;cache&gt;
@@ -127,7 +127,7 @@
 <varlistentry>
   <term>CACHEDIR</term>
   <listitem>
-    <para>CACHEDIR is the directory location where SolutionStudio stores shared and per-distribution cache data.</para>
+    <para>CACHEDIR is the directory location where SolutionStudio stores shared and per-solution cache data.</para>
   </listitem>
 </varlistentry>
 
