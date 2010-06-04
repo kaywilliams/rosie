@@ -1,21 +1,16 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="distribution">
+    <element name="solution">
 
       <optional>
-      <element name="gpgsign">
+      <element name="chroot">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
-
-        <interleave>
-          <element name="public-key"><text/></element>
-          <element name="secret-key"><text/></element>
-          <optional>
-          <element name="passphrase"><text/></element>
-          </optional>
-        </interleave>
+        <optional>
+        <attribute name="compress"><ref name="value-boolean"/></attribute>
+        </optional>
       </element>
       </optional>
 

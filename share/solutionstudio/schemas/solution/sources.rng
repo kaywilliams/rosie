@@ -1,10 +1,10 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="distribution">
+    <element name="solution">
 
       <optional>
-      <element name="publish">
+      <element name="sources">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
@@ -12,24 +12,18 @@
         <interleave>
 
         <optional>
-        <element name="remote-url">
-        <optional>
-        <attribute name="fqdn">
-          <ref name="value-boolean"/>
-        </attribute>
-        </optional>
-        <optional>
-        <attribute name="interface"/>
-        </optional>
-        <text/>
-        </element>
+        <element name="releasever"><text/></element>
         </optional>
 
-        <optional>
-        <element name="local-dir"><text/></element>
-        </optional>
+        <oneOrMore>
+          <choice>
+          <ref name="element-repo"/>
+          <ref name="element-repofile"/>
+          </choice>
+        </oneOrMore>
 
         </interleave>
+
       </element>
       </optional>
 

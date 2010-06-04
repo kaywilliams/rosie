@@ -1,9 +1,10 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="distribution">
+    <element name="solution">
+
       <optional>
-      <element name="diskboot-image">
+      <element name="publish">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
@@ -11,7 +12,21 @@
         <interleave>
 
         <optional>
-        <ref name="element-boot-args"/>
+        <element name="remote-url">
+        <optional>
+        <attribute name="fqdn">
+          <ref name="value-boolean"/>
+        </attribute>
+        </optional>
+        <optional>
+        <attribute name="interface"/>
+        </optional>
+        <text/>
+        </element>
+        </optional>
+
+        <optional>
+        <element name="local-dir"><text/></element>
         </optional>
 
         </interleave>
