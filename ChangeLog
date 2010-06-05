@@ -1,3 +1,19 @@
+2010-06-05  Kay Williams  <kayw@solutionstudio.org>
+
+	* solutionstudio/modules/core/rpmbuild/config.py:
+	config: postun cleans empty dirs only if files folder exists
+	[07832781d67f] [tip]
+
+	* ChangeLog, solutionstudio.spec:
+	bumped release version
+	[c3dc5b4f7454]
+
+2010-06-05  root  <root>
+
+	* .hgtags:
+	Tagged as solutionstudio-1.0.1-1
+	[72b03b1a3d41]
+
 2010-06-04  Kay Williams  <kayw@solutionstudio.org>
 
 	* bin/solutionstudio, docsrc/SDFR/Index.xml,
