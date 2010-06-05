@@ -37,7 +37,7 @@
 
     <para><mediaobject>
         <imageobject>
-          <imagedata fileref="solutionstudio_logical_network.png" />
+          <imagedata fileref="logical_network.png" />
         </imageobject>
       <caption><para>SolutionStudio Logical Network</para></caption>
       </mediaobject></para>

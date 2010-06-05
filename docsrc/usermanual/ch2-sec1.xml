@@ -54,7 +54,7 @@
 
   <mediaobject>
     <imageobject>
-      <imagedata fileref="solutionstudio_overview.png" />
+      <imagedata fileref="overview.png" />
     </imageobject>
 
     <caption><para>SolutionStudio Overview</para></caption>

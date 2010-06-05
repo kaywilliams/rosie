@@ -124,7 +124,7 @@ xmllint --xinclude --format samba-server-production.definition
 
   <para><mediaobject>
       <imageobject>
-        <imagedata fileref="solution_definition_reuse.png" />
+        <imagedata fileref="definition_reuse.png" />
       </imageobject>
       <caption><para>Solution Definition File Reuse</para></caption>
     </mediaobject></para>
