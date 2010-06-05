@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    solutionstudio
-Version: 1.0 
+Version: 1.0.1
 Release: 1%{?dist}
 Summary: Builds system solutions based on CentOS and Red Hat Enterprise Linux
 
@@ -63,6 +63,10 @@ http://solutionstudio.org for more information.
 %{_mandir}/man1/solutionstudio.1.gz
 
 %changelog
+* Sat Jun 05 2010 Kay Williams <kayw@solutionstudio.org> - 1.0.1-1
+- product renaming (kayw)
+- naming change from distribution to solution (kayw)
+
 * Thu Jun 03 2010 Kay Williams <kayw@solutionstudio.org> - 1.0-1
 
 * Tue Jun 01 2010 Kay Williams <kayw@solutionstudio.org> - 0.9.1-1
