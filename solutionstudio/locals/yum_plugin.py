@@ -98,6 +98,9 @@ L_YUM_PLUGIN = {
   "Fedora Core": LocalsDict({
     '0': PLUGIN_DEFAULTS,
   }),
+  "Red Hat Enterprise Linux": LocalsDict({
+    '0': PLUGIN_DEFAULTS,
+  }),
   "Red Hat Enterprise Linux Server": LocalsDict({
     '0': PLUGIN_DEFAULTS,
   }),
