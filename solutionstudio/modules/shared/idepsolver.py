@@ -85,8 +85,7 @@ class DepsolverMixin(object):
 
     solver.comps_pkgs = [ solver.getBestAvailablePackage(n) for n in 
                           comps_mandatory_pkgs + \
-                          comps_default_pkgs + \
-                          comps_conditional_pkgs ]
+                          comps_default_pkgs ]
 
     pos = solver.getPackageObjects()
     pkgtups = [ po.pkgtup for po in pos ]
