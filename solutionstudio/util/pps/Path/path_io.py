@@ -16,8 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 import errno
-import md5
-import sha
+import hashlib
 import stat
 
 from solutionstudio.util.pps import path
@@ -207,14 +206,12 @@ class Path_IO(object):
 
   @cached()
   @cached(globally=True)
-  def md5sum(self, hex=True):
-    return _checksum(md5, self, hex)
-
-  @cached()
-  @cached(globally=True)
-  def shasum(self, hex=True):
-    return _checksum(sha, self, hex)
-
+  def checksum(self, type=None, hex=True):
+    "Compute a checksum using mod (sha or md5).  Return the (hex)digest"
+    mod = eval("hashlib.%s" % type)
+    csum = mod(self.read_text())
+    if hex: return csum.hexdigest()
+    else:   return csum.digest()
 
 def copyfileobj(fsrc, fdst, buflen=16*1024):
   "Copy from open file object fsrc to open file object fdst"
@@ -222,9 +219,3 @@ def copyfileobj(fsrc, fdst, buflen=16*1024):
     buf = fsrc.read(buflen)
     if not buf: break
     fdst.write(buf)
-
-def _checksum(mod, f, hex=True):
-  "Compute a checksum using mod (sha or md5).  Return the (hex)digest"
-  csum = mod.new(f.read_text())
-  if hex: return csum.hexdigest()
-  else:   return csum.digest()

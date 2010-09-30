@@ -258,6 +258,7 @@ class RepoDataFile:
   def __init__(self, xml):
     self.href = pps.path(xml.get('repo:location/@href', namespaces=NSMAP))
     self.checksum = xml.get('repo:checksum/text()', namespaces=NSMAP)
+    self.checksum_type = xml.get('repo:checksum/@type', namespaces=NSMAP)
     self.timestamp = xml.get('repo:timestamp/text()', namespaces=NSMAP)
 
 def retry502(times, fn, *args, **kwargs):

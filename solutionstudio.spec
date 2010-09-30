@@ -23,6 +23,7 @@ Requires: dosfstools
 Requires: gnupg
 Requires: mkisofs
 Requires: python-devel
+Requires: python-hashlib
 Requires: python-lxml
 Requires: python-setuptools
 Requires: rhn-client-tools

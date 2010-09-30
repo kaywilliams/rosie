@@ -24,7 +24,7 @@ __author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
 __version__ = '0.8.1'
 __date__    = 'August 22nd, 2007'
 
-import md5
+import hashlib
 import time
 
 from solutionstudio.util.progressbar import ProgressBar
@@ -164,7 +164,7 @@ class CachedSyncHandler(CopyHandler):
 
   def _gen_hash(self, text):
     "Generate a hash of a filename"
-    return md5.md5(text).hexdigest()
+    return hashlib.md5(text).hexdigest()
 
   def _touch(self, hash):
     "Touch a file in the cache list to update its atime"

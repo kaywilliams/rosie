@@ -124,7 +124,7 @@ class TreeinfoEvent(Event):
       lines.append('[checksums]')
       checksums = sorted(self.cvars['treeinfo-checksums'])
       for software_store, file in checksums:
-        shasum = (software_store / file).shasum()
+        shasum = (software_store / file).checksum(type="sha1")
         lines.append('%s = sha1:%s' % (file, shasum))
 
     # write .treeinfo

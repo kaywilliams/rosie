@@ -57,9 +57,8 @@ STDERR_FILENO = 2
 
 from getpass import getpass
 
-import md5
+import hashlib 
 import os
-import sha
 import tempfile
 
 from solutionstudio.util import gpgparse
@@ -222,7 +221,7 @@ class TagComputer(GpgMixin):
     return (long(os.stat(self.contentsfile).st_size),)
 
   def get_md5(self):
-    return md5.new(self.contents).digest()
+    return hashlib.md5(self.contents).digest()
 
   def get_gpg(self):
     sigfile = self.get_sigfile(self.contentsfile)
@@ -237,7 +236,7 @@ class TagComputer(GpgMixin):
     return dsa
 
   def get_sha1(self):
-    return sha.new(self.header).hexdigest()
+    return hashlib.sha(self.header).hexdigest()
 
   def get_sigfile(self, file):
     sigfile = pps.path('%s.sig' % file)

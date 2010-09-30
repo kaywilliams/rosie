@@ -26,7 +26,7 @@ from solutionstudio.event.fileio import MissingInputFileError
 from solutionstudio.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
 from solutionstudio.errors import SolutionStudioIOError, assert_file_readable
 
-import md5
+import hashlib
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -132,7 +132,7 @@ class ConfigEvent(RpmBuildMixin, Event):
                     file.get('@destdir','/usr/share/%s/files' % self.name) )
         destdir.mkdirs()
         fn = ( destdir // file.get('@destname') )
-        if not fn.exists() or fn.md5sum() != md5.new(text).hexdigest():
+        if not fn.exists() or fn.checksum(type='md5') != hashlib.md5(text).hexdigest():
           fn.write_text(text)
         text = fn
 
@@ -152,7 +152,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     for file in (self.rpm.source_folder // self.filerelpath).findpaths(
                  type=pps.constants.TYPE_NOT_DIR):
       src = '/' / file.relpathfrom(self.rpm.source_folder)
-      md5sum = file.md5sum()
+      md5sum = file.checksum(type='md5')
       lines.append('%s %s' % (md5sum, src))
 
     md5file.dirname.mkdirs()

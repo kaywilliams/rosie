@@ -370,7 +370,8 @@ class RepoEventMixin:
 
           # if checksums are the same, file hasn't changed; update server's
           # mtime to account for this
-          if existing and datafile.checksum == existing.shasum():
+          if existing and datafile.checksum == existing.checksum(
+            type=datafile.checksum_type):
             mtime = existing.stat().st_mtime
           else:
             mtime = float(datafile.timestamp)
@@ -400,8 +401,8 @@ class RepoEventMixin:
       for subrepo in repo.subrepos.values():
         for datafile in subrepo.iterdatafiles():
           f = self.mddir/repo.id/subrepo._relpath/datafile.href
-          f.uncache('shasum') # uncache previously-cached shasum
-          got = f.shasum()
+          f.uncache('checksum') # uncache previously-cached shasum
+          got = f.checksum(type=datafile.checksum_type)
           if datafile.checksum != got:
             raise RepomdCsumMismatchError(datafile.href.basename,
                                           repoid=repo.id,
@@ -464,7 +465,7 @@ class ReposDiffTuple(DiffTuple):
     # hack so we don't end up downloading repomd.xml 3 times...
     if self.mtime == -1 and self.path.basename != 'repomd.xml':
       # if mtime is -1, the path must exist, so we don't need try/except
-      self.csum = self.path.shasum()
+      self.csum = self.path.checksum()
 
 
 class NoReposEnabledError(SolutionStudioError, RuntimeError):
