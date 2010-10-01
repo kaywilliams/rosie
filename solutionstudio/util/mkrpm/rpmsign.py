@@ -236,7 +236,7 @@ class TagComputer(GpgMixin):
     return dsa
 
   def get_sha1(self):
-    return hashlib.sha(self.header).hexdigest()
+    return hashlib.sha1(self.header).hexdigest()
 
   def get_sigfile(self, file):
     sigfile = pps.path('%s.sig' % file)

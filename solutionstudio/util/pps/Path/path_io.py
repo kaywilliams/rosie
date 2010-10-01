@@ -208,6 +208,7 @@ class Path_IO(object):
   @cached(globally=True)
   def checksum(self, type=None, hex=True):
     "Compute a checksum using mod (sha or md5).  Return the (hex)digest"
+    if type == 'sha': type = 'sha1'
     mod = eval("hashlib.%s" % type)
     csum = mod(self.read_text())
     if hex: return csum.hexdigest()
