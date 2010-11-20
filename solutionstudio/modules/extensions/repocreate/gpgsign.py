@@ -80,6 +80,7 @@ class GpgSignEvent(GpgMixin, Event):
     self.DATA = {
       'input':     [],
       'output':    [],
+      'config':    ['.'],
     }
 
   def setup(self):
@@ -115,6 +116,11 @@ class GpgSignEvent(GpgMixin, Event):
           raise GpgkeyInvalidError(self.io.i_dst[key].src)
     self.DATA['output'].append(gnupg_dir)
 
+    # check passphrase if supplied
+    if self.cvars['gpgsign-passphrase']:
+      if not mkrpm.verifyPassphrase(gnupg_dir, self.cvars['gpgsign-passphrase']):
+        raise IncorrectPassphraseError(self.io.i_dst[seckey].src)
+
     # sync rpms to output folder
     newrpms = self.io.sync_input(what='rpms', text='copying rpms',
               callback=self.copy_callback_compressed)
@@ -127,7 +133,7 @@ class GpgSignEvent(GpgMixin, Event):
 
     if signrpms:
       self.log(1, L1("signing rpms"))
-      if self.cvars['gpgsign-passphrase'] is None:
+      if self.cvars['gpgsign-passphrase'] is None: # prompt for password
         while True:
           self.cvars['gpgsign-passphrase'] = mkrpm.getPassphrase()
           if mkrpm.verifyPassphrase(gnupg_dir, self.cvars['gpgsign-passphrase']):
@@ -154,3 +160,6 @@ class GpgkeyIOError(SolutionStudioIOError):
 
 class GpgkeyInvalidError(SolutionStudioError):
   message = "file '%(file)s' does not appear to be a valid gpg key"
+
+class IncorrectPassphraseError(SolutionStudioError):
+  message = "the passphrase provided for gpgkey '%(file)s' is not valid"
