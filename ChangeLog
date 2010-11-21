@@ -1,4 +1,4 @@
-2010-06-05  Kay Williams  <kayw@solutionstudio.org>
+2010-06-05  Kay Williams  <kwilliams@www.renditionsoftware.com>
 
 	* solutionstudio/modules/core/rpmbuild/config.py:
 	config: postun cleans empty dirs only if files folder exists
@@ -14,7 +14,7 @@
 	Tagged as solutionstudio-1.0.1-1
 	[72b03b1a3d41]
 
-2010-06-04  Kay Williams  <kayw@solutionstudio.org>
+2010-06-04  Kay Williams  <kwilliams@www.renditionsoftware.com>
 
 	* bin/solutionstudio, docsrc/SDFR/Index.xml,
 	docsrc/man/solutionstudio.conf.xml, docsrc/man/solutionstudio.xml,
@@ -243,7 +243,7 @@
 	naming change from distribution to solution
 	[7a946c7074ea]
 
-2010-06-03  Kay Williams  <kayw@solutionstudio.org>
+2010-06-03  Kay Williams  <kwilliams@www.renditionsoftware.com>
 
 	* docsrc/DDFR/CommonComponents-Attributes.xml, docsrc/DDFR
 	/CommonComponents-Content.xml, docsrc/DDFR/CommonComponents-
@@ -339,7 +339,7 @@
 	removed bogus tag
 	[98efc07aed86] [solutionstudio-0.9.4-1]
 
-2010-06-02  Kay Williams  <kayw@solutionstudio.org>
+2010-06-02  Kay Williams  <kwilliams@www.renditionsoftware.com>
 
 	* ChangeLog, solutionstudio.spec:
 	bumped rpm version
@@ -362,7 +362,7 @@
 	Tagged as solutionstudio-0.9.2-1
 	[114c98a4278d]
 
-2010-06-01  Kay Williams  <kayw@solutionstudio.org>
+2010-06-01  Kay Williams  <kwilliams@www.renditionsoftware.com>
 
 	* ChangeLog, solutionstudio.spec:
 	bumped rpm version
@@ -372,7 +372,7 @@
 	removed rendition-common requirement from solutionstudio.spec
 	[1d5322b35d06]
 
-2010-05-30  Kay Williams  <kayw@solutionstudio.org>
+2010-05-30  Kay Williams  <kwilliams@www.renditionsoftware.com>
 
 	* docsrc/dblatex/latex/solutionstudiodocs.sty,
 	docsrc/dblatex/latex/systembuilderdocs.sty,

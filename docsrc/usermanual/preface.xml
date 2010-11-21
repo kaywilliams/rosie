@@ -58,13 +58,13 @@
     configuration file, <filename>solutionstudio.conf</filename>. This manual 
     contains references to all four throughout the text.</para>
 
-    <para>These SolutionStudio documents are available at the SolutionStudio.org
+    <para>These SolutionStudio documents are available at the Rendition Software
     website.
     </para>
 
     <para>
-    <ulink url="http://solutionstudio.org/solutionstudio/docs/">
-    http://solutionstudio.org/solutionstudio/docs/ </ulink>
+    <ulink url="http://www.renditionsoftware.com/solutionstudio/docs/">
+    http://www.renditionsoftware.com/solutionstudio/docs/ </ulink>
     </para>
 
   </section>
@@ -291,8 +291,8 @@ $ precedes lines entered as a normal user</programlisting>
     <title>Getting SolutionStudio</title>
 
     <para>SolutionStudio and associated documents are available at
-    <ulink url="http://solutionstudio.org/solutionstudio/"> the 
-    SolutionStudio.org website</ulink> 
-    at solutionstudio.org/solutionstudio.</para>
+    <ulink url="http://www.renditionsoftware.com/solutionstudio/"> the 
+    Rendition Software website</ulink> 
+    at www.renditionsoftware.com/solutionstudio.</para>
   </section>
 </chapter>

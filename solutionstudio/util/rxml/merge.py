@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2010
-# Solution Studio. All rights reserved.
+# Rendition Software, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ BOOLEANS = {
   'no':  False, 'No':  False, 'false': False, 'False': False, '0': False,
 }
 
-NSMAP = {'xm': 'http://solutionstudio.org/ns/merge'}
+NSMAP = {'xm': 'http://www.renditionsoftware.com/ns/merge'}
 
 class XmlMergeHandler:
   """

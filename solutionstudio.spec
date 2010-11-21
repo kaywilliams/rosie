@@ -7,7 +7,7 @@ Summary: Builds system solutions based on CentOS and Red Hat Enterprise Linux
 
 License:   GPL
 Group:     Applications/System
-URL:       http://solutionstudio.org/solutionstudio
+URL:       http://www.renditionsoftware.com/solutionstudio
 Source0:   %{name}-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
@@ -33,7 +33,7 @@ Requires: yum
 %description
 SolutionStudio builds complete, self-contained system solutions 
 based on CentOS and Red Hat Enterprise Linux. See 
-http://solutionstudio.org for more information. 
+http://www.renditionsoftware.com for more information. 
 
 %prep
 %setup -q
@@ -64,14 +64,14 @@ http://solutionstudio.org for more information.
 %{_mandir}/man1/solutionstudio.1.gz
 
 %changelog
-* Sat Jun 05 2010 Kay Williams <kayw@solutionstudio.org> - 1.0.2-1
-- config: postun cleans empty dirs only if files folder exists (kayw)
+* Sat Jun 05 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.2-1
+- config: postun cleans empty dirs only if files folder exists 
 
-* Sat Jun 05 2010 Kay Williams <kayw@solutionstudio.org> - 1.0.1-1
-- product renaming (kayw)
-- naming change from distribution to solution (kayw)
+* Sat Jun 05 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.1-1
+- product renaming
+- naming change from distribution to solution
 
-* Thu Jun 03 2010 Kay Williams <kayw@solutionstudio.org> - 1.0-1
+* Thu Jun 03 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0-1
 
-* Tue Jun 01 2010 Kay Williams <kayw@solutionstudio.org> - 0.9.1-1
+* Tue Jun 01 2010 Kay Williams <kwilliams@renditionsoftware.com> - 0.9.1-1
 - Initial Build

@@ -171,7 +171,7 @@
 </refsect1>
 
 <refsect1 id="solutionstudio.conf.5-bugs"><title>BUGS</title>
-<para>Submit bugs at <ulink url="http://solutionstudio.org/bugs"/></para>
+<para>Submit bugs at <ulink url="http://www.renditionsoftware.com/bugs"/></para>
 </refsect1>
 
 <refsect1 id="solutionstudio.conf.5-files"><title>FILES</title>
@@ -188,12 +188,12 @@
 
 <refsect1 id="solutionstudio.conf.5-seealso"><title>SEE ALSO</title>
 <para><simplelist type="inline">
-<member><ulink url="http://solutionstudio.org/solutionstudio">http://solutionstudio.org/solutionstudio</ulink></member>
+<member><ulink url="http://www.renditionsoftware.com/solutionstudio">http://www.renditionsoftware.com/solutionstudio</ulink></member>
 </simplelist></para>
 </refsect1>
 
 <refsect1 id="solutionstudio.conf.5-author"><title>AUTHOR</title>
-<para><author><othername>Solution Studio</othername>
+<para><author><othername>Rendition Software, Inc.</othername>
 <contrib>Original author</contrib>
 </author></para>
 </refsect1>

@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2010
-# Solution Studio. All rights reserved.
+# Rendition Software, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ class DepsolveEventTestCase(EventTestCase):
                                             version=self.version,
                                             arch=self.arch,
                                             include_baseurl=True,
-                                            baseurl='http://solutionstudio.org/mirrors/%s' % self.distro)
+                                            baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
         r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
         repos.append(r.toxml())
 

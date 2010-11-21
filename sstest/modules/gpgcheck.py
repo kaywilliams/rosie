@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2010
-# Solution Studio. All rights reserved.
+# Rendition Software, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ class GpgcheckEventTestCase(EventTestCase):
                                            version=self.version,
                                            arch=self.arch,
                                            include_baseurl=True,
-                                           baseurl='http://solutionstudio.org/mirrors/%s' % self.distro)
+                                           baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
     base.update({'mirrorlist': None})
 
     repos.append(base.toxml()) # don't overwrite gpgkey and gpgcheck defaults
