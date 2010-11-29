@@ -26,13 +26,6 @@ L_TREEINFO_FORMAT = LocalsDict({
         'diskboot.img': dict(index=3, value='images/diskboot.img'),
       },
     },
-    'images-xen': { # images-xen section
-      'index': 2,
-      'content': {
-        'kernel':       dict(index=0, value='images/xen/vmlinuz'),
-        'initrd':       dict(index=1, value='images/xen/initrd.img'),
-      },
-    },
     'stage2': { # stage2 section
       'index': 3,
       'content': {
@@ -60,12 +53,6 @@ L_TREEINFO_FORMAT = LocalsDict({
     'general': {
       'content': {
         'packagedir':   dict(index=6, value='%(packagepath)s'),
-      },
-    },
-    'images-xen': {
-      'content': {
-        'initrd':       dict(index=0, value='images/pxeboot/initrd-PAE.img'),
-        'kernel':       dict(index=1, value='images/pxeboot/vmlinuz-PAE'),
       },
     },
     'stage2': {

@@ -31,21 +31,10 @@ L_FILES = LocalsDict({
       'netstg2.img':  dict(path='%(name)s/base/netstg2.img'),
       'hdstg2.img':   dict(path='%(name)s/base/hdstg2.img'),
     },
-    'xen': { # xen images
-      'vmlinuz-xen':  dict(path='images/xen/vmlinuz'),
-      'initrd-xen':   dict(path='images/xen/initrd.img', format=EXT2, zipped=True),
-    },
-    'do-xen': { # whether xen-images event needs to run, hack
-      'i386':   True,
-      'x86_64': True,
-    },
   },
   "anaconda-10.2.0.3-1": { # initrd images to cpio format
     'isolinux': {
       'initrd.img':   dict(format=CPIO),
-    },
-    'xen': {
-      'initrd-xen':   dict(format=CPIO),
     },
   },
   "anaconda-10.89.1.1": { # netstg2, hdstg2 combined into minstg2
@@ -84,14 +73,7 @@ L_FILES = LocalsDict({
   "anaconda-11.4.1.29-1": {
     'stage2': { # renamed stage2.img to install.img
       'stage2.img': dict(path='images/install.img'),
-     },
-    'xen': { # changed the location of the xen images
-      'initrd-xen':  dict(path='images/pxeboot/initrd-PAE.img'),
-      'vmlinuz-xen': dict(path='images/pxeboot/vmlinuz-PAE'),
     },
-    'do-xen': { # xen images are the same as normal images now
-      'x86_64': False,
-    }
   },
   "anaconda-13.21.20.5-1": {
     'isolinux': {
@@ -102,8 +84,5 @@ L_FILES = LocalsDict({
       'param.msg':  REMOVE,
       'rescue.msg':  REMOVE,
     },
-    'do-xen': { # xen removed starting RHEL 6)
-      'i386': False,
-    }
   },
 })

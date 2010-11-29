@@ -100,13 +100,6 @@ initrd-image
  * downloading files
    - initrd.img              [=========================]     6.9 MB (00:00)
  * modifying initrd.img
-xen-images
- * downloading files
-   - initrd.img              [=========================]     6.9 MB (00:00)
-   - vmlinuz                 [=========================]     2.2 MB (00:00)
- * downloading files
-   - initrd.img              [=========================]     6.9 MB (00:00)
- * modifying initrd.img
 product-image
  * modifying product.img
 bootiso
