@@ -32,8 +32,8 @@ START = None # start time
 TIMEFMT = '%Y-%m-%d %X'
 
 opt_defaults = dict(
-  distro   = 'fedora',
-  version  = '9',
+  distro   = 'centos',
+  version  = '5',
   basearch = 'i386',
   buildroot   = '/tmp/sstest',
   testlogfile = 'test.log',
