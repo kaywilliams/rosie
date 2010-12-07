@@ -169,5 +169,66 @@ class InstallClass(BaseInstallClass):
 
   def __init__(self):
     BaseInstallClass.__init__(self)
+'''
+,
+  "anaconda-11.4.1.10-1":
+'''
+from installclass import BaseInstallClass
+from constants import *
+from flags import flags
+import os, types
+import iutil
+
+import gettext
+_ = lambda x: gettext.ldgettext("anaconda", x)
+
+import installmethod
+import yuminstall
+
+import rpmUtils.arch
+
+class InstallClass(BaseInstallClass):
+  id = "custom"
+  _name = N_("_Custom")
+  _description = N_("Select the software you would like to install on your system.")
+  _descriptionFields = (productName,)
+  sortPriority = 10000
+
+  bootloaderTimeoutDefault = 5
+  bootloaderExtraArgs = "crashkernel=auto"
+
+  tasks = [(N_("Minimal"),
+            ["core"])]
+
+  def getPackagePaths(self, uri):
+    if not type(uri) == types.ListType:
+      uri = [uri,]
+
+    return {productName: uri}
+
+  def setInstallData(self, anaconda):
+    BaseInstallClass.setInstallData(self, anaconda)
+    BaseInstallClass.setDefaultPartitioning(self,
+                                            anaconda.id.storage,
+                                            anaconda.platform)
+
+
+  def setSteps(self, anaconda):
+    BaseInstallClass.setSteps(self, anaconda);
+    anaconda.dispatch.skipStep("partition")
+    anaconda.dispatch.skipStep("tasksel")
+
+  def setGroupSelection(self, anaconda):
+    anaconda.backend.selectGroup('core')
+
+  def getBackend(self):
+    if flags.livecdInstall:
+      import livecd
+      return livecd.LiveCDCopyBackend
+    else:
+      return yuminstall.YumBackend
+
+  def __init__(self):
+    BaseInstallClass.__init__(self)
 ''',
 })
