@@ -39,7 +39,7 @@ class RpmbuildRepoEvent(Event):
     Event.__init__(self,
       id = 'rpmbuild-repo',
       parentid = 'rpmbuild',
-      version = 1,
+      version = 1.01,
       suppress_run_message = True,
       conditionally_requires = ['rpmbuild-data'],
       provides = ['repos', 'source-repos',
@@ -47,8 +47,8 @@ class RpmbuildRepoEvent(Event):
                   'excluded-packages']
     )
 
-    self.cid =  'rpmbuild-repo'
-    self.csid = 'rpmbuild-repo-sources'
+    self.cid =  self.solutionid
+    self.csid = '%s-sources' % self.solutionid
 
     self.RPMBUILD_RPMS  = self.mddir/self.cid
     self.RPMBUILD_SRPMS = self.mddir/self.csid
