@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    solutionstudio
-Version: 1.0.2
+Version: 1.0.3
 Release: 1%{?dist}
 Summary: Builds system solutions based on CentOS and Red Hat Enterprise Linux
 
@@ -65,6 +65,20 @@ http://www.renditionsoftware.com for more information.
 %{_mandir}/man1/solutionstudio.1.gz
 
 %changelog
+* Mon Dec 06 2010 Kay Williams <kayw@solutionstudio.org> - 1.0.3-1
+- added installclass for anaconda rhel6 (kayw)
+- changed name of rpmbuild-repo to  repo (kayw)
+- updates-image and product-image no longer look for existing images (kayw)
+- changed default sstest distro to centos 5 (kayw)
+- removed support for xen-images (kayw)
+- rendition software naming (kayw)
+- modified gpgsign to verify supplied passphrase, difftest config (kayw)
+- hashlib fixes (kayw)
+- added support for sha256 (kayw)
+- added 'Red Hat Enterprise Linux' entry to yum_plugin locals file (kayw)
+- removing conditional packages from pkglist - implementation was broken - consider adding back later (kayw)
+- config: postun cleans empty dirs only if files folder exists (kayw)
+
 * Sat Jun 05 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.2-1
 - config: postun cleans empty dirs only if files folder exists 
 

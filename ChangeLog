@@ -1,8 +1,290 @@
-2010-06-05  Kay Williams  <kwilliams@www.renditionsoftware.com>
+2010-12-06  Kay Williams  <kayw@solutionprovider.net>
+
+	* solutionstudio.spec:
+	added requirement on syslinux rpm
+	[5961f87a30dc] [tip]
+
+	* solutionstudio/locals/installclass.py:
+	added installclass for anaconda rhel6
+	[fe87be3bb439]
+
+	* solutionstudio/modules/core/rpmbuild/rpmbuild-repo.py:
+	changed name of rpmbuild-repo to repo
+	[d1f38fb02c2f]
+
+	* solutionstudio/modules/core/installer/product-image.py,
+	solutionstudio/modules/extensions/installer/updates-image.py:
+	updates-image and product-image no longer look for existing images
+	[f6be76ebe7bc]
+
+2010-11-29  Kay Williams  <kayw@solutionprovider.net>
+
+	* sstest/run.py:
+	changed default sstest distro to centos 5
+	[fb251640cc4e]
+
+	* docsrc/usermanual/appendix-a.xml, solutionstudio/locals/files.py,
+	solutionstudio/locals/treeinfo.py,
+	solutionstudio/modules/core/installer/xen-images.py, sstest/modules
+	/xen-images.py:
+	removed support for xen-images
+	[9474c9d1eb5e]
+
+2010-11-20  Kay Williams  <kayw@solutionprovider.net>
+
+	* ChangeLog, INSTALL, NEWS, bin/solutionstudio, docsrc/SDFR/Index.xml,
+	docsrc/SDFR/TopLevelElements-repos.xml,
+	docsrc/man/solutionstudio.conf.xml, docsrc/man/solutionstudio.xml,
+	docsrc/usermanual/index.xml, docsrc/usermanual/preface.xml,
+	solutionstudio.spec, solutionstudio/__init__.py,
+	solutionstudio/callback.py, solutionstudio/constants.py,
+	solutionstudio/errors.py, solutionstudio/event/__init__.py,
+	solutionstudio/event/diff.py, solutionstudio/event/fileio.py,
+	solutionstudio/event/loader.py, solutionstudio/event/locals.py,
+	solutionstudio/event/verify.py, solutionstudio/locals/__init__.py,
+	solutionstudio/logging.py, solutionstudio/main.py,
+	solutionstudio/modules/__init__.py,
+	solutionstudio/modules/core/__init__.py,
+	solutionstudio/modules/core/autoclean.py,
+	solutionstudio/modules/core/base.py,
+	solutionstudio/modules/core/compose.py,
+	solutionstudio/modules/core/init.py,
+	solutionstudio/modules/core/installer/__init__.py,
+	solutionstudio/modules/core/installer/bootiso.py,
+	solutionstudio/modules/core/installer/diskboot-image.py,
+	solutionstudio/modules/core/installer/infofiles.py,
+	solutionstudio/modules/core/installer/initrd-image.py,
+	solutionstudio/modules/core/installer/isolinux.py,
+	solutionstudio/modules/core/installer/product-image.py,
+	solutionstudio/modules/core/installer/pxeboot-images.py,
+	solutionstudio/modules/core/installer/stage2-images.py,
+	solutionstudio/modules/core/installer/xen-images.py,
+	solutionstudio/modules/core/publish.py,
+	solutionstudio/modules/core/repocreate/__init__.py,
+	solutionstudio/modules/core/repocreate/createrepo.py,
+	solutionstudio/modules/core/repocreate/depsolve.py,
+	solutionstudio/modules/core/repocreate/download.py,
+	solutionstudio/modules/core/repocreate/gpgcheck.py,
+	solutionstudio/modules/core/repocreate/packages.py,
+	solutionstudio/modules/core/repos.py,
+	solutionstudio/modules/core/rpmbuild/__init__.py,
+	solutionstudio/modules/core/rpmbuild/config.py,
+	solutionstudio/modules/core/rpmbuild/rpmbuild-repo.py,
+	solutionstudio/modules/extensions/__init__.py,
+	solutionstudio/modules/extensions/installer/__init__.py,
+	solutionstudio/modules/extensions/installer/kickstart.py,
+	solutionstudio/modules/extensions/installer/updates-image.py,
+	solutionstudio/modules/extensions/iso.py,
+	solutionstudio/modules/extensions/release-files.py,
+	solutionstudio/modules/extensions/repocreate/__init__.py,
+	solutionstudio/modules/extensions/repocreate/gpgsign.py,
+	solutionstudio/modules/extensions/sources.py,
+	solutionstudio/modules/shared/__init__.py,
+	solutionstudio/modules/shared/bootcfg.py,
+	solutionstudio/modules/shared/createrepo.py,
+	solutionstudio/modules/shared/idepsolver.py,
+	solutionstudio/modules/shared/installer.py,
+	solutionstudio/modules/shared/repos.py,
+	solutionstudio/modules/shared/rpmbuild.py,
+	solutionstudio/splittree.py,
+	solutionstudio/util/CleanHelpFormatter.py,
+	solutionstudio/util/FormattedFile.py,
+	solutionstudio/util/__init__.py, solutionstudio/util/decorator.py,
+	solutionstudio/util/depsolver/__init__.py,
+	solutionstudio/util/depsolver/callback.py,
+	solutionstudio/util/depsolver/depsolver.py,
+	solutionstudio/util/difftest/__init__.py,
+	solutionstudio/util/difftest/filesdiff.py,
+	solutionstudio/util/difftest/handlers/__init__.py,
+	solutionstudio/util/difftest/handlers/config.py,
+	solutionstudio/util/difftest/handlers/input.py,
+	solutionstudio/util/difftest/handlers/output.py,
+	solutionstudio/util/difftest/handlers/variables.py,
+	solutionstudio/util/dispatch.py, solutionstudio/util/execlib.py,
+	solutionstudio/util/filereader.py, solutionstudio/util/gpgparse.py,
+	solutionstudio/util/graph.py, solutionstudio/util/i18n.py,
+	solutionstudio/util/img/__init__.py,
+	solutionstudio/util/img/errors.py, solutionstudio/util/img/image.py,
+	solutionstudio/util/img/modules/cpio.py,
+	solutionstudio/util/img/modules/ext2.py,
+	solutionstudio/util/img/modules/fat.py,
+	solutionstudio/util/img/modules/iso.py,
+	solutionstudio/util/img/mountable.py,
+	solutionstudio/util/img/readonly.py,
+	solutionstudio/util/listcompare.py, solutionstudio/util/listfmt.py,
+	solutionstudio/util/logger.py, solutionstudio/util/magic.py,
+	solutionstudio/util/mkrpm/__init__.py,
+	solutionstudio/util/mkrpm/globals.py,
+	solutionstudio/util/mkrpm/package.py,
+	solutionstudio/util/mkrpm/rpmbuild.py,
+	solutionstudio/util/mkrpm/rpmsign.py,
+	solutionstudio/util/pkgorder.py,
+	solutionstudio/util/pps/Path/__init__.py,
+	solutionstudio/util/pps/Path/error.py,
+	solutionstudio/util/pps/Path/ftp/__init__.py,
+	solutionstudio/util/pps/Path/ftp/error.py,
+	solutionstudio/util/pps/Path/ftp/path_io.py,
+	solutionstudio/util/pps/Path/ftp/path_stat.py,
+	solutionstudio/util/pps/Path/ftp/path_walk.py,
+	solutionstudio/util/pps/Path/http/__init__.py,
+	solutionstudio/util/pps/Path/http/error.py,
+	solutionstudio/util/pps/Path/http/path_io.py,
+	solutionstudio/util/pps/Path/http/path_stat.py,
+	solutionstudio/util/pps/Path/http/path_walk.py,
+	solutionstudio/util/pps/Path/local/__init__.py,
+	solutionstudio/util/pps/Path/local/error.py,
+	solutionstudio/util/pps/Path/local/path_io.py,
+	solutionstudio/util/pps/Path/local/path_printf.py,
+	solutionstudio/util/pps/Path/local/path_stat.py,
+	solutionstudio/util/pps/Path/local/path_walk.py,
+	solutionstudio/util/pps/Path/mirror/__init__.py,
+	solutionstudio/util/pps/Path/mirror/path_io.py,
+	solutionstudio/util/pps/Path/mirror/path_stat.py,
+	solutionstudio/util/pps/Path/mirror/path_walk.py,
+	solutionstudio/util/pps/Path/nt/__init__.py,
+	solutionstudio/util/pps/Path/nt/path_printf.py,
+	solutionstudio/util/pps/Path/path_io.py,
+	solutionstudio/util/pps/Path/path_printf.py,
+	solutionstudio/util/pps/Path/path_stat.py,
+	solutionstudio/util/pps/Path/path_walk.py,
+	solutionstudio/util/pps/Path/posix/__init__.py,
+	solutionstudio/util/pps/Path/posix/path_io.py,
+	solutionstudio/util/pps/Path/posix/path_printf.py,
+	solutionstudio/util/pps/Path/remote/__init__.py,
+	solutionstudio/util/pps/Path/remote/path_stat.py,
+	solutionstudio/util/pps/Path/rhn/__init__.py,
+	solutionstudio/util/pps/Path/rhn/path_io.py,
+	solutionstudio/util/pps/Path/rhn/path_stat.py,
+	solutionstudio/util/pps/PathSet/__init__.py,
+	solutionstudio/util/pps/PathStat/__init__.py,
+	solutionstudio/util/pps/PathStat/ftp.py,
+	solutionstudio/util/pps/PathStat/http.py,
+	solutionstudio/util/pps/PathStat/local.py,
+	solutionstudio/util/pps/PathTokens/__init__.py,
+	solutionstudio/util/pps/UriTuple/__init__.py,
+	solutionstudio/util/pps/__init__.py,
+	solutionstudio/util/pps/constants.py,
+	solutionstudio/util/pps/lib/__init__.py,
+	solutionstudio/util/pps/lib/ftp.py,
+	solutionstudio/util/pps/lib/http.py,
+	solutionstudio/util/pps/lib/mirror.py,
+	solutionstudio/util/pps/lib/rhn.py, solutionstudio/util/pps/util.py,
+	solutionstudio/util/progressbar.py, solutionstudio/util/resolve.py,
+	solutionstudio/util/rpmbind.py,
+	solutionstudio/util/rxml/__init__.py,
+	solutionstudio/util/rxml/config.py,
+	solutionstudio/util/rxml/imerge.py,
+	solutionstudio/util/rxml/merge.py,
+	solutionstudio/util/rxml/merge.rng,
+	solutionstudio/util/rxml/serialize.py,
+	solutionstudio/util/rxml/tree.py, solutionstudio/util/seqlib.py,
+	solutionstudio/util/shlib.py, solutionstudio/util/si.py,
+	solutionstudio/util/sync/__init__.py,
+	solutionstudio/util/sync/cache.py,
+	solutionstudio/util/sync/callback.py,
+	solutionstudio/util/sync/link.py, solutionstudio/util/textfmt.py,
+	solutionstudio/util/tree.py, solutionstudio/validate.py,
+	solutionstudio/verify.py, sstest/__init__.py, sstest/core.py,
+	sstest/mixins.py, sstest/modules/__init__.py, sstest/modules/all.py,
+	sstest/modules/autoclean.py, sstest/modules/base.py,
+	sstest/modules/bootiso.py, sstest/modules/compose.py,
+	sstest/modules/config.py, sstest/modules/createrepo/__init__.py,
+	sstest/modules/depsolve/__init__.py, sstest/modules/diskboot-
+	image.py, sstest/modules/download/__init__.py,
+	sstest/modules/gpgcheck.py, sstest/modules/gpgsign/__init__.py,
+	sstest/modules/infofiles.py, sstest/modules/init.py, sstest/modules
+	/initrd-image.py, sstest/modules/installer.py,
+	sstest/modules/iso.py, sstest/modules/isolinux.py,
+	sstest/modules/kickstart.py, sstest/modules/packages/__init__.py,
+	sstest/modules/product-image.py, sstest/modules/publish.py,
+	sstest/modules/pxeboot-images.py, sstest/modules/release-files.py,
+	sstest/modules/repocreate.py, sstest/modules/repos.py,
+	sstest/modules/rpmbuild-repo.py, sstest/modules/rpmbuild.py,
+	sstest/modules/sources.py, sstest/modules/stage2-images.py,
+	sstest/modules/updates-image.py, sstest/modules/xen-images.py,
+	sstest/rpmbuild.py, sstest/run.py, sstest/runtest.py:
+	rendition software naming
+	[17c1fc4aabd6]
+
+2010-11-19  Kay Williams  <kayw@solutionprovider.net>
+
+	* solutionstudio/modules/extensions/repocreate/gpgsign.py:
+	modified gpgsign to verify supplied passphrase, difftest config
+	[ae44bdeb2d4e]
+
+2010-09-30  Kay Williams  <kayw@solutionprovider.net>
+
+	* solutionstudio/util/mkrpm/rpmsign.py,
+	solutionstudio/util/pps/Path/path_io.py:
+	hashlib fixes
+
+	solutionstudio/util/mkrpm/rpmsign.py
+	* fixed get_sha1 method to call hashlib.sha1
+
+	solutionstudio/util/pps/Path/path_io.py
+	* added a filter in checksum method to convert incoming 'sha' type to
+	'sha1'
+	[a443aca67b58]
+
+	* solutionstudio.spec,
+	solutionstudio/modules/core/installer/infofiles.py,
+	solutionstudio/modules/core/rpmbuild/config.py,
+	solutionstudio/modules/shared/repos.py,
+	solutionstudio/util/mkrpm/rpmsign.py,
+	solutionstudio/util/pps/Path/path_io.py,
+	solutionstudio/util/repo/repo.py, solutionstudio/util/sync/cache.py:
+	added support for sha256
+
+	Previously we used the Python 2.4 builtin sha and md5 modules to
+	perform checksum operations. The builtin sha module did not provide
+	support for the sha256 algorithm, however. This becomes an issue
+	with EL6 package repositories which use sha256 sums for validating
+	repodata files. Python 2.5 introduces support for sha256 using a new
+	builtin hashlib module. This module has been made available for use
+	with previous python versions (2.3 and 2.4) via a separate module,
+	packaged as python-hashlib and made available from the EPEl 5
+	package repository.
+
+	This commit adds support for sha256 checksums using the hashlib
+	module. Specific changes include:
+
+	* added dependency on python-hashlib to rpm specfile
+	* removed imports for sha and md5 modules; added imports for hashlib
+	* consolidated separate 'md5sum' and 'shasum' pps functions to a
+	single 'checksum' function, and added a new parameter for indicating
+	'type' (e.g. md5, sha1, sha256)
+	* modified calling functions in various solution studio modules to use
+	the new checksum function and pass the type parameter.
+	[08b1f5928228]
+
+	* solutionstudio/locals/yum_plugin.py:
+	added 'Red Hat Enterprise Linux' entry to yum_plugin locals file
+	[019e8cbca1a9]
+
+2010-09-29  Kay Williams  <kayw@solutionstudio.net>
+
+	* solutionstudio/modules/shared/idepsolver.py:
+	removing conditional packages from pkglist - implementation was
+	broken - consider adding back later
+	[671d58d51c7f]
+
+2010-06-05  Kay Williams  <kayw@solutionstudio.org>
+
+	* ChangeLog, solutionstudio.spec:
+	bumped rpm version
+	[ed939b50707e]
+
+2010-06-05  root  <root>
+
+	* .hgtags:
+	Tagged as solutionstudio-1.0.2-1
+	[25e0226b0937]
+
+2010-06-05  Kay Williams  <kayw@solutionstudio.org>
 
 	* solutionstudio/modules/core/rpmbuild/config.py:
 	config: postun cleans empty dirs only if files folder exists
-	[07832781d67f] [tip]
+	[07832781d67f] [solutionstudio-1.0.2-1]
 
 	* ChangeLog, solutionstudio.spec:
 	bumped release version
@@ -14,7 +296,7 @@
 	Tagged as solutionstudio-1.0.1-1
 	[72b03b1a3d41]
 
-2010-06-04  Kay Williams  <kwilliams@www.renditionsoftware.com>
+2010-06-04  Kay Williams  <kayw@solutionstudio.org>
 
 	* bin/solutionstudio, docsrc/SDFR/Index.xml,
 	docsrc/man/solutionstudio.conf.xml, docsrc/man/solutionstudio.xml,
@@ -243,7 +525,7 @@
 	naming change from distribution to solution
 	[7a946c7074ea]
 
-2010-06-03  Kay Williams  <kwilliams@www.renditionsoftware.com>
+2010-06-03  Kay Williams  <kayw@solutionstudio.org>
 
 	* docsrc/DDFR/CommonComponents-Attributes.xml, docsrc/DDFR
 	/CommonComponents-Content.xml, docsrc/DDFR/CommonComponents-
@@ -339,7 +621,7 @@
 	removed bogus tag
 	[98efc07aed86] [solutionstudio-0.9.4-1]
 
-2010-06-02  Kay Williams  <kwilliams@www.renditionsoftware.com>
+2010-06-02  Kay Williams  <kayw@solutionstudio.org>
 
 	* ChangeLog, solutionstudio.spec:
 	bumped rpm version
@@ -362,7 +644,7 @@
 	Tagged as solutionstudio-0.9.2-1
 	[114c98a4278d]
 
-2010-06-01  Kay Williams  <kwilliams@www.renditionsoftware.com>
+2010-06-01  Kay Williams  <kayw@solutionstudio.org>
 
 	* ChangeLog, solutionstudio.spec:
 	bumped rpm version
@@ -372,7 +654,7 @@
 	removed rendition-common requirement from solutionstudio.spec
 	[1d5322b35d06]
 
-2010-05-30  Kay Williams  <kwilliams@www.renditionsoftware.com>
+2010-05-30  Kay Williams  <kayw@solutionstudio.org>
 
 	* docsrc/dblatex/latex/solutionstudiodocs.sty,
 	docsrc/dblatex/latex/systembuilderdocs.sty,
