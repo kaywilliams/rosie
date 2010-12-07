@@ -28,6 +28,7 @@ Requires: python-lxml
 Requires: python-setuptools
 Requires: rhn-client-tools
 Requires: rpm-build
+Requires: syslinux
 Requires: yum
 
 %description
