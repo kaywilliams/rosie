@@ -33,6 +33,7 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     Event.__init__(self,
       id = 'updates-image',
       parentid = 'installer',
+      version = 1.01,
       provides = ['updates.img', 'treeinfo-checksums'],
       requires = ['anaconda-version', 'installer-repo'],
       conditionally_requires = ['updates-image-content'],
@@ -58,7 +59,7 @@ class UpdatesImageEvent(Event, ImageModifyMixin):
     # ImageModifyMixin setup
     self.image_locals = self.locals.L_FILES['installer']['updates.img']
     ImageModifyMixin.setup(self)
-    self.add_or_create_image()
+    self.create_image()
 
   def run(self):
     self._modify()

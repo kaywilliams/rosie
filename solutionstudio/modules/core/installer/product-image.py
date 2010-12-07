@@ -35,7 +35,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     Event.__init__(self,
       id = 'product-image',
       parentid = 'installer',
-      version = 1.02,
+      version = 1.03,
       provides = ['product.img', 'treeinfo-checksums'],
       requires = ['anaconda-version', 'buildstamp-file',
                   'installer-repo'],
@@ -64,7 +64,7 @@ class ProductImageEvent(Event, ImageModifyMixin):
     # ImageModifyMixin setup
     self.image_locals = self.locals.L_FILES['installer']['product.img']
     ImageModifyMixin.setup(self)
-    self.add_or_create_image()
+    self.create_image()
 
   def run(self):
     self._modify()
