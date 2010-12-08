@@ -4,26 +4,26 @@
 <section id="updating-client-machines" xreflabel="Updating Client Machines">
   <title>Updating Client Machines</title>
 
-  <para>SolutionStudio makes it easy to keep installed client machines up to date with changes to the solution. This is done using automated builds and the <application class="software">YUM Sync Plugin</application>.</para> 
+  <para>SystemBuilder makes it easy to keep installed client machines up to date with changes to the system distribution. This is done using automated builds and the <application class="software">YUM Sync Plugin</application>.</para> 
 
-  <para><emphasis role="strong">Automated Builds.</emphasis> SolutionStudio runs from the command line with no need for manual intervention. Because of this, SolutionStudio can be automated to refresh solutions on a periodic basis, e.g. nightly, using job scheduling programs such as <command>cron</command>. Doing so has two benefits. First, it ensures that your solutions are current and ready to install or reinstall new clients, whenever the need occurs. Second, it allows your solutions to serve as "master repositories", providing ongoing updates to client machines via the YUM Sync Plugin tool. More information on using <command>cron</command> to automate SolutionStudio builds is available in Chapter 4, Creating a Production Environment.</para>
+  <para><emphasis role="strong">Automated Builds.</emphasis> SystemBuilder runs from the command line with no need for manual intervention. Because of this, SystemBuilder can be automated to refresh system distributions on a periodic basis, e.g. nightly, using job scheduling programs such as <command>cron</command>. Doing so has two benefits. First, it ensures that your system distributions are current and ready to install or reinstall new clients, whenever the need occurs. Second, it allows your system distributions to serve as "master repositories", providing ongoing updates to client machines via the YUM Sync Plugin tool. More information on using <command>cron</command> to automate SystemBuilder builds is available in Chapter 4, Creating a Production Environment.</para>
 
   <mediaobject>
     <imageobject>
       <imagedata fileref="updates.png" />
     </imageobject>
 
-    <caption><para>SolutionStudio Update Model</para></caption>
+    <caption><para>SystemBuilder Update Model</para></caption>
   </mediaobject>
 
-  <para><emphasis role="strong">YUM Sync Plugin.</emphasis> The SolutionStudio product provides a small extension to YUM, the <emphasis>YUM Sync Plugin</emphasis> that allows keeping installed clients up to date with changes in the solution or "master" repository. The YUM SyncPlugin is installed to client machines by default via the <xref linkend="configuration-package" />. The plugin performs two functions:</para>
+  <para><emphasis role="strong">YUM Sync Plugin.</emphasis> The SystemBuilder product provides a small extension to YUM, the <emphasis>YUM Sync Plugin</emphasis> that allows keeping installed clients up to date with changes in the system distribution or "master" repository. The YUM SyncPlugin is installed to client machines by default via the <xref linkend="configuration-package" />. The plugin performs two functions:</para>
 
   <itemizedlist>
-  <listitem><para>Establishes the <xref linkend="solution-repository"/> as the master repository for the client system. This disables all other default package repositories, allowing the plugin to get an accurate list of what packages <emphasis>should be installed</emphasis> on the system using packages available in the solution repository.</para></listitem>
+  <listitem><para>Establishes the <xref linkend="system-repository"/> as the master repository for the client system. This disables all other default package repositories, allowing the plugin to get an accurate list of what packages <emphasis>should be installed</emphasis> on the system using packages available in the system distribution repository.</para></listitem>
 
   <listitem><para>Provides a new command line argument <emphasis>sync</emphasis> for use with YUM:</para>
   <informalexample><para><command># yum sync</command></para></informalexample>
-	<para>The <emphasis>sync</emphasis> argument behaves similarly to the YUM <emphasis>update</emphasis> argument, with two additions: 1) it adds packages from the solution repository that are not installed on the client, and 2) it removes packages from the client that do not exist in the repository.</para> 
+	<para>The <emphasis>sync</emphasis> argument behaves similarly to the YUM <emphasis>update</emphasis> argument, with two additions: 1) it adds packages from the system distribution repository that are not installed on the client, and 2) it removes packages from the client that do not exist in the repository.</para> 
   </listitem>
   </itemizedlist>
 

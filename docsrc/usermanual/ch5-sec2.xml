@@ -4,7 +4,7 @@
 <section id="automating-installations" xreflabel="Section 5.2 Automating Installations">
   <title>Automating Installations</title>
 
-  <para>SolutionStudio can save you time and labor by helping you automate the
+  <para>SystemBuilder can save you time and labor by helping you automate the
   client boot-up and kickstart process.</para>
 
   <section>
@@ -14,13 +14,13 @@
     and make the installations reproducible. You may want to use this method
     if you have large-scale installations, complex storage requirements,
     multiple network interfaces, secure systems or site-specific strategies.
-    Within the SolutionStudio process, the kickstart file automates the installation and
+    Within the SystemBuilder process, the kickstart file automates the installation and
     manages several functions during the install: selection of language,
-    network configuration, solution source, keyboard, filesystem, mouse,
+    network configuration, keyboard, filesystem, mouse,
     timezone, root password and package handling.</para>
 
-    <para>Instead of managing multiple kickstart files, SolutionStudio lets you make it
-    part of the solution definition. By revision controlling the SolutionStudio files
+    <para>Instead of managing multiple kickstart files, SystemBuilder lets you make it
+    part of the system distribution definition. By revision controlling the SystemBuilder files
     (see Part 2), the kickstart process can be controlled, too.</para>
 
     <para>Use the <emphasis>kickstart</emphasis> element in the
@@ -43,7 +43,7 @@
     <para>To add custom kernel boot arguments to the <filename
     class="directory">/isolinux/isolinux.cfg</filename> file of the
     <filename>boot.iso</filename> image, use the <emphasis>bootiso</emphasis>
-    element in your solution definition. Substitute your appropriate IP
+    element in your system definition. Substitute your appropriate IP
     addresses.</para>
 
     <para><informalexample>

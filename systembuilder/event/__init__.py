@@ -20,16 +20,16 @@ import time
 
 from datetime import timedelta
 
-from solutionstudio.util import dispatch
-from solutionstudio.util import rxml
-from solutionstudio.util import sync
+from systembuilder.util import dispatch
+from systembuilder.util import rxml
+from systembuilder.util import sync
 
-from solutionstudio.logging import L0, L1
+from systembuilder.logging import L0, L1
 
-from solutionstudio.event.diff   import DiffMixin
-from solutionstudio.event.fileio import IOMixin
-from solutionstudio.event.locals import LocalsMixin
-from solutionstudio.event.verify import VerifyMixin
+from systembuilder.event.diff   import DiffMixin
+from systembuilder.event.fileio import IOMixin
+from systembuilder.event.locals import LocalsMixin
+from systembuilder.event.verify import VerifyMixin
 
 # Constant (re)definitions
 CLASS_DEFAULT = dispatch.CLASS_DEFAULT
@@ -193,7 +193,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   @property
   def config(self):
     try:
-      return self._config.get('/solution/%s' % self.moduleid)
+      return self._config.get('/system/%s' % self.moduleid)
     except rxml.errors.XmlPathError:
       return DummyConfig(self._config)
 

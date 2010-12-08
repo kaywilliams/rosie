@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from solutionstudio.util import pps
+from systembuilder.util import pps
 
-from sstest        import EventTestCase, ModuleTestSuite
-from sstest.core   import make_core_suite
-from sstest.mixins import ImageModifyMixinTestCase, imm_make_suite
+from sbtest        import EventTestCase, ModuleTestSuite
+from sbtest.core   import make_core_suite
+from sbtest.mixins import ImageModifyMixinTestCase, imm_make_suite
 
 class InitrdImageEventTestCase(EventTestCase):
   moduleid = 'initrd-image'

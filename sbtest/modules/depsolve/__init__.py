@@ -19,12 +19,12 @@ from StringIO import StringIO
 
 import unittest
 
-from solutionstudio.util import pps
-from solutionstudio.util import repo
-from solutionstudio.util import rxml
+from systembuilder.util import pps
+from systembuilder.util import repo
+from systembuilder.util import rxml
 
-from sstest      import EventTestCase, ModuleTestSuite, _run_make
-from sstest.core import make_core_suite
+from sbtest      import EventTestCase, ModuleTestSuite, _run_make
+from sbtest.core import make_core_suite
 
 class DummyDepsolveEventTestCase(EventTestCase):
   moduleid = 'depsolve'

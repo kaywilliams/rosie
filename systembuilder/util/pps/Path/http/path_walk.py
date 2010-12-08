@@ -18,12 +18,12 @@
 import re
 import stat
 
-from solutionstudio.util.pps.Path.remote import RemotePath_Walk
+from systembuilder.util.pps.Path.remote import RemotePath_Walk
 
-from solutionstudio.util.pps.constants import *
-from solutionstudio.util.pps.PathSet   import PathSet
+from systembuilder.util.pps.constants import *
+from systembuilder.util.pps.PathSet   import PathSet
 
-from solutionstudio.util.pps.Path.error import PathError
+from systembuilder.util.pps.Path.error import PathError
 
 # url REs to ignore
 BLACKLIST = [

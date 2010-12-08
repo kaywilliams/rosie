@@ -1,4 +1,4 @@
-from solutionstudio.util import pps
+from systembuilder.util import pps
 import doctest
 
 for file in pps.path(__file__).dirname.listdir().filter('*.py'):

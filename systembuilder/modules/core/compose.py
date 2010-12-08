@@ -17,10 +17,10 @@
 #
 import csv
 
-from solutionstudio.util.pps.constants import TYPE_NOT_DIR
+from systembuilder.util.pps.constants import TYPE_NOT_DIR
 
-from solutionstudio.event   import Event
-from solutionstudio.logging import L1
+from systembuilder.event   import Event
+from systembuilder.logging import L1
 
 MODULE_INFO = dict(
   api         = 5.0,

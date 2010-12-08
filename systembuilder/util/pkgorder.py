@@ -35,7 +35,7 @@ import logging
 from yum.transactioninfo import SortableTransactionData
 from yum.constants       import *
 
-from solutionstudio.util import pps
+from systembuilder.util import pps
 
 # groups yanked right out of pkgorder; I made up the names
 ORDER_GROUPS = [

@@ -3,22 +3,22 @@
                          "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 
 <!-- See http://www.docbook.org/tdg/en/html/refentry.html for more documentation -->
-<!--SolutionStudio Command reference -->
+<!--SystemBuilder Command reference -->
 
-<refentry id="command.solutionstudio">
+<refentry id="command.systembuilder">
 <refentryinfo>
 <date>2008-06-13</date>
 </refentryinfo>
 
 <refmeta>
-<refentrytitle>SolutionStudio Commands</refentrytitle>
+<refentrytitle>SystemBuilder Commands</refentrytitle>
 <manvolnum>1</manvolnum>
-<refmiscinfo>SolutionStudio</refmiscinfo>
+<refmiscinfo>SystemBuilder</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>solutionstudio</refname>
-<refpurpose>Builds and updates Linux-based solutions.</refpurpose>
+<refname>systembuilder</refname>
+<refpurpose>Builds and updates Linux-based system distributions.</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -27,7 +27,7 @@
 </refsynopsisdivinfo>
 
 <cmdsynopsis>
-<command>solutionstudio</command>
+<command>systembuilder</command>
 <arg choice="opt">
 <option>--clear-cache </option>
 </arg>
@@ -66,24 +66,24 @@
 </cmdsynopsis>
 </refsynopsisdiv>
 
-<refsect1 id="solutionstudio.1-description"><title>DESCRIPTION</title>
-<para>Builds the solution defined in the file at SOLUTION_DEFINITION. Updates the solution if it exists.</para>
+<refsect1 id="systembuilder.1-description"><title>DESCRIPTION</title>
+<para>Builds the system distribution defined in the file at SOLUTION_DEFINITION. Updates the system distribution if it exists.</para>
 </refsect1>
 
-<refsect1 id="solutionstudio.1-usage"><title>USAGE</title>
-<para><command>solutionstudio</command> [OPTIONS] SOLUTION_DEFINITION</para>
-<para>OPTIONS refers to the command-line options described below.  SOLUTION_DEFINITION refers to a solution definition file, see the Solution Definition File Reference at <ulink url="http://www.renditionsoftware.com/solutionstudio/docs"/> for more information.</para>
+<refsect1 id="systembuilder.1-usage"><title>USAGE</title>
+<para><command>systembuilder</command> [OPTIONS] SOLUTION_DEFINITION</para>
+<para>OPTIONS refers to the command-line options described below.  SOLUTION_DEFINITION refers to a system definition file, see the System Definition File Reference at <ulink url="http://www.renditionsoftware.com/systembuilder/docs"/> for more information.</para>
 </refsect1>
 
 
-<refsect1 id="solutionstudio.1-options"><title>OPTIONS</title>
+<refsect1 id="systembuilder.1-options"><title>OPTIONS</title>
 <para>Command options are listed in alphabetical order.</para>
 <variablelist>
 
 <varlistentry>
   <term><option>-c; --config <replaceable class="parameter">SOLUTIONSTUDIO_CONF</replaceable></option></term>
   <listitem>
-    <para> Specifies the directory and filename <replaceable class="parameter">SOLUTIONSTUDIO_CONF</replaceable> of the solutionstudio configuration file.  The default value is <filename class="directory">/etc/solutionstudio/solutionstudio.conf</filename>.  See the <filename>solutionstudio.conf(5)</filename> man page for SolutionStudio configuration options.</para>
+    <para> Specifies the directory and filename <replaceable class="parameter">SOLUTIONSTUDIO_CONF</replaceable> of the systembuilder configuration file.  The default value is <filename class="directory">/etc/systembuilder/systembuilder.conf</filename>.  See the <filename>systembuilder.conf(5)</filename> man page for SystemBuilder configuration options.</para>
 
   </listitem>
 </varlistentry>
@@ -91,14 +91,14 @@
 <varlistentry>
   <term><option>--clear-cache</option></term>
   <listitem>
-    <para>Clears the shared cache of downloaded files. See <filename>solutionstudio.conf(5)</filename> man page for more cache options.</para>
+    <para>Clears the shared cache of downloaded files. See <filename>systembuilder.conf(5)</filename> man page for more cache options.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term><option>--force <replaceable class="parameter">MODULE</replaceable></option></term>
   <listitem>
-	<para>Forces a SolutionStudio <replaceable class="parameter">MODULE</replaceable> to execute, even if the module would ordinarily be skipped for optimizations in speed. Forcing a module forces its children recursively. This option can be specified more than once, as in the example below:</para>
+	<para>Forces a SystemBuilder <replaceable class="parameter">MODULE</replaceable> to execute, even if the module would ordinarily be skipped for optimizations in speed. Forcing a module forces its children recursively. This option can be specified more than once, as in the example below:</para>
 
 <para>--force <replaceable class="parameter">MODULE1</replaceable> --force <replaceable class="parameter">MODULE2</replaceable> --force <replaceable class="parameter">MODULE3</replaceable></para>
 <para>See the MODULES section below for more information.</para>
@@ -108,7 +108,7 @@
 <varlistentry>
   <term><option>--lib-path <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para> Specifies a directory containing SolutionStudio modules <replaceable class="parameter">PATH</replaceable>.  The default path is the system path.  This option can be specified more than once; for example:</para>
+    <para> Specifies a directory containing SystemBuilder modules <replaceable class="parameter">PATH</replaceable>.  The default path is the system path.  This option can be specified more than once; for example:</para>
 <para>--lib-path <replaceable class="parameter">PATH1</replaceable> --lib-path <replaceable class="parameter">PATH2</replaceable> --lib-path <replaceable class="parameter">PATH3</replaceable></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
@@ -117,8 +117,8 @@
 <varlistentry>
   <term><option>--list-modules</option></term>
   <listitem>
-    <para> Displays a list of SolutionStudio modules including name, description, and child modules, then exits without building the solution. Note: SolutionStudio requires a solution definition on the command line when using this option, for example:</para>
-<para>solutionstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
+    <para> Displays a list of SystemBuilder modules including name, description, and child modules, then exits without building the system distribution. Note: SystemBuilder requires a system definition on the command line when using this option, for example:</para>
+<para>systembuilder --list-modules <filename>SOLUTION_DEFINITION</filename></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
 </varlistentry>
@@ -126,7 +126,7 @@
 <varlistentry>
   <term><option>--log-file <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which SolutionStudio writes logging information of Level 5 detail.  The default path is <filename>/var/log/solutionstudio.log</filename>.  See the command option <command>--log-level</command>.</para>
+    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which SystemBuilder writes logging information of Level 5 detail.  The default path is <filename>/var/log/systembuilder.log</filename>.  See the command option <command>--log-level</command>.</para>
 <para>--log-file <replaceable class="parameter">PATH</replaceable></para>
   </listitem>
 </varlistentry>
@@ -134,7 +134,7 @@
 <varlistentry>
   <term><option>-l; --log-level <replaceable class="parameter">N</replaceable></option></term>
   <listitem>
-    <para> Specifies the level of detail logged to the console during a build.  There are six levels <replaceable class="parameter">N</replaceable> (0 to 5) with Level 3 being SolutionStudio's default level.</para>
+    <para> Specifies the level of detail logged to the console during a build.  There are six levels <replaceable class="parameter">N</replaceable> (0 to 5) with Level 3 being SystemBuilder's default level.</para>
 <para>LEVELS
 <programlisting>
 * Level 0: Displays errors only.
@@ -160,7 +160,7 @@
 <varlistentry>
   <term><option>--share-path <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para> Specifies a directory <replaceable class="parameter">PATH</replaceable> where SolutionStudio can locate shared program data such as XML schema files.  The default path is <filename>/usr/share/solutionstudio/</filename>. This option can be specified more than once, as demonstrated below:</para>
+    <para> Specifies a directory <replaceable class="parameter">PATH</replaceable> where SystemBuilder can locate shared program data such as XML schema files.  The default path is <filename>/usr/share/systembuilder/</filename>. This option can be specified more than once, as demonstrated below:</para>
 
 <para>--share-path <replaceable class="parameter">PATH1</replaceable> --share-path <replaceable class="parameter">PATH2</replaceable> --share-path <replaceable class="parameter">PATH3</replaceable></para>
   </listitem>
@@ -178,70 +178,70 @@
 <varlistentry>
   <term><option>--validate-only</option></term>
   <listitem>
-<para>Performs SOLUTIONSTUDIO_CONF and SOLUTION_DEFINITION validation only; it does not build the solution.  The option also displays the complete SOLUTION_DEFINITION file after resolving macro and include elements.</para>
+<para>Performs SOLUTIONSTUDIO_CONF and SOLUTION_DEFINITION validation only; it does not build the system distribution.  The option also displays the complete SOLUTION_DEFINITION file after resolving macro and include elements.</para>
   </listitem>
 </varlistentry>
 
 </variablelist>
 </refsect1>
 
-<refsect1 id="solutionstudio.1-variables"><title>VARIABLES</title>
-<para>SolutionStudio command options, where indicated, use three variables:  MODULE, PATH and SOLUTIONSTUDIO_CONF.</para>
+<refsect1 id="systembuilder.1-variables"><title>VARIABLES</title>
+<para>SystemBuilder command options, where indicated, use three variables:  MODULE, PATH and SOLUTIONSTUDIO_CONF.</para>
 
 <variablelist>
 <varlistentry>
   <term>MODULE</term>
   <listitem>
-	<para>The id of a SolutionStudio module.  See the MODULES section, below, for more information.</para>
+	<para>The id of a SystemBuilder module.  See the MODULES section, below, for more information.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term>PATH</term>
   <listitem>
-    <para> A local file path.  SolutionStudio resolves paths relative to the current working directory.</para>
+    <para> A local file path.  SystemBuilder resolves paths relative to the current working directory.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term>SOLUTIONSTUDIO_CONF</term>
   <listitem>
-    <para>The directory and filename of the SolutionStudio configuration file.</para>
+    <para>The directory and filename of the SystemBuilder configuration file.</para>
   </listitem>
 </varlistentry>
 </variablelist>
 </refsect1>
 
-<refsect1 id="solutionstudio.1-modules"><title>MODULES</title>
-<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the solutionstudio command. Note: SolutionStudio requires a solution definition on the command line when using this option, for example:</para>
-<para>solutionstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
-<para>On subsequent builds of the same solution, SolutionStudio automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using the <command>--skip</command> and <command>--force</command> options.</para>
-<para>Developers can write custom SolutionStudio modules and direct SolutionStudio to use them via the <command>--lib-path</command> solutionstudio command option.</para>
+<refsect1 id="systembuilder.1-modules"><title>MODULES</title>
+<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the systembuilder command. Note: SystemBuilder requires a system definition on the command line when using this option, for example:</para>
+<para>systembuilder --list-modules <filename>SOLUTION_DEFINITION</filename></para>
+<para>On subsequent builds of the same system distribution, SystemBuilder automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using the <command>--skip</command> and <command>--force</command> options.</para>
+<para>Developers can write custom SystemBuilder modules and direct SystemBuilder to use them via the <command>--lib-path</command> systembuilder command option.</para>
 </refsect1>
 
-<refsect1 id="solutionstudio.1-bugs"><title>BUGS</title>
+<refsect1 id="systembuilder.1-bugs"><title>BUGS</title>
 <para>Submit bugs at <ulink url="http://www.renditionsoftware.com/bugs"/></para>
 </refsect1>
 
-<refsect1 id="solutionstudio.1-files"><title>FILES</title>
+<refsect1 id="systembuilder.1-files"><title>FILES</title>
 <para><simplelist type="inline">
-<member><ulink url="file:///usr/share/solutionstudio/">/usr/share/solutionstudio/</ulink></member>
-<member><ulink url="file:///usr/bin/solutionstudio">/usr/bin/solutionstudio</ulink></member>
-<member><ulink url="file:///etc/solutionstudio/solutionstudio.conf">/etc/solutionstudio/solutionstudio.conf</ulink></member>
-<member><ulink url="file:///var/log/solutionstudio.log">/var/log/solutionstudio.log</ulink></member>
-<member><ulink url="file:///var/cache/solutionstudio/">/var/cache/solutionstudio/</ulink></member>
+<member><ulink url="file:///usr/share/systembuilder/">/usr/share/systembuilder/</ulink></member>
+<member><ulink url="file:///usr/bin/systembuilder">/usr/bin/systembuilder</ulink></member>
+<member><ulink url="file:///etc/systembuilder/systembuilder.conf">/etc/systembuilder/systembuilder.conf</ulink></member>
+<member><ulink url="file:///var/log/systembuilder.log">/var/log/systembuilder.log</ulink></member>
+<member><ulink url="file:///var/cache/systembuilder/">/var/cache/systembuilder/</ulink></member>
 </simplelist></para>
 </refsect1>
 
-<refsect1 id="solutionstudio.1-see_also"><title>SEE ALSO</title>
+<refsect1 id="systembuilder.1-see_also"><title>SEE ALSO</title>
 <para><simplelist type="inline">
-<member>solutionstudio.conf(5)</member>
-<member><ulink url="http://www.renditionsoftware.com/solutionstudio"/></member>
+<member>systembuilder.conf(5)</member>
+<member><ulink url="http://www.renditionsoftware.com/systembuilder"/></member>
 
 </simplelist></para>
 </refsect1>
 
-<refsect1 id="solutionstudio.1-author"><title>AUTHOR</title>
+<refsect1 id="systembuilder.1-author"><title>AUTHOR</title>
 <para><author><othername>Rendition Software, Inc.</othername>
 <contrib>Original author</contrib>
 </author></para>

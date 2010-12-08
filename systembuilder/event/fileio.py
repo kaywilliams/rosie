@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from solutionstudio.util import pps
-from solutionstudio.util import rxml
+from systembuilder.util import pps
+from systembuilder.util import rxml
 
-from solutionstudio.util.pps.constants import *
+from systembuilder.util.pps.constants import *
 
-from solutionstudio.errors import SolutionStudioError
+from systembuilder.errors import SystemBuilderError
 
 class IOMixin:
   def __init__(self):
@@ -266,5 +266,5 @@ class TransactionData(object):
   def __repr__(self): return '%s(%s)' % (self.__class__.__name__, self.__str__())
 
 
-class MissingInputFileError(SolutionStudioError):
+class MissingInputFileError(SystemBuilderError):
   message = "missing input file: %(error)s"

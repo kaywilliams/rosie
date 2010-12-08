@@ -31,15 +31,15 @@ mirror:http://mirrors.fedoraproject.org/mirrorlist?arch=i386&distro=fedora8::/re
 import errno
 import posixpath
 
-from solutionstudio.util.pps            import path as _path, register_scheme
-from solutionstudio.util.pps.UriTuple   import UriTuple
-from solutionstudio.util.pps.lib        import cached
-from solutionstudio.util.pps.lib.mirror import MirrorGroup, validate_mirrorlist
-from solutionstudio.util.pps.util       import urlparse, urlunparse
-from solutionstudio.util.pps.Path.error import PathError
+from systembuilder.util.pps            import path as _path, register_scheme
+from systembuilder.util.pps.UriTuple   import UriTuple
+from systembuilder.util.pps.lib        import cached
+from systembuilder.util.pps.lib.mirror import MirrorGroup, validate_mirrorlist
+from systembuilder.util.pps.util       import urlparse, urlunparse
+from systembuilder.util.pps.Path.error import PathError
 
-from solutionstudio.util.pps.Path.remote import _RemotePath as RemotePath
-from solutionstudio.util.pps.Path.remote import RemotePath_Printf as MirrorPath_Printf
+from systembuilder.util.pps.Path.remote import _RemotePath as RemotePath
+from systembuilder.util.pps.Path.remote import RemotePath_Printf as MirrorPath_Printf
 
 from path_io   import MirrorPath_IO
 from path_stat import MirrorPath_Stat

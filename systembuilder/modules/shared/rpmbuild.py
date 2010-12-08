@@ -20,13 +20,13 @@ from ConfigParser import ConfigParser
 import colorsys
 import re
 
-from solutionstudio.util import mkrpm
-from solutionstudio.util import pps
-from solutionstudio.util import rxml
+from systembuilder.util import mkrpm
+from systembuilder.util import pps
+from systembuilder.util import rxml
 
-from solutionstudio.errors    import SolutionStudioError
-from solutionstudio.event     import Event
-from solutionstudio.logging   import L1
+from systembuilder.errors    import SystemBuilderError
+from systembuilder.event     import Event
+from systembuilder.logging   import L1
 
 __all__ = ['RpmBuildMixin', 'Trigger', 'TriggerContainer']
 
@@ -180,7 +180,7 @@ class RpmBuildObject:
   def setup_build(self, **kwargs):
     if self.autofile.exists():
       self.release = rxml.config.read(self.autofile).get(
-       '/solution/rpms/%s/release/text()' %
+       '/system/rpms/%s/release/text()' %
        (self.ptr.id), '0')
     else:
       self.release = '0'
@@ -198,7 +198,7 @@ class RpmBuildObject:
     self.ptr.diff.setup(self.ptr.DATA)
 
     self.arch     = kwargs.get('arch',     'noarch')
-    self.author   = kwargs.get('author',   'solutionstudio')
+    self.author   = kwargs.get('author',   'systembuilder')
     self.fullname = kwargs.get('fullname', self.ptr.fullname)
     if kwargs.has_key('version'):
       self.version = kwargs['version']
@@ -212,9 +212,9 @@ class RpmBuildObject:
 
   def save_release(self):
     if self.autofile.exists():
-      root = rxml.config.read(self.autofile).get('/solution')
+      root = rxml.config.read(self.autofile).get('/system')
     else:
-      root = rxml.config.Element('solution')
+      root = rxml.config.Element('system')
 
     rpms     = rxml.config.uElement('rpms', parent=root)
     parent   = rxml.config.uElement(self.ptr.id, parent=rpms)
@@ -394,5 +394,5 @@ class Trigger(dict):
     return '\n'.join(lines)
 
 
-class RpmBuildFailedException(SolutionStudioError):
+class RpmBuildFailedException(SystemBuilderError):
   message = "RPM build failed.  See build output below for details:\n%(message)s"

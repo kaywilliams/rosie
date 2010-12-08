@@ -61,11 +61,11 @@ import hashlib
 import os
 import tempfile
 
-from solutionstudio.util import gpgparse
-from solutionstudio.util import magic
-from solutionstudio.util import pps
-from solutionstudio.util import shlib
-from solutionstudio.util import sync
+from systembuilder.util import gpgparse
+from systembuilder.util import magic
+from systembuilder.util import pps
+from systembuilder.util import shlib
+from systembuilder.util import sync
 
 from callback import RpmSignCallback
 from globals  import RPM_HEADER_INDEX_MAGIC

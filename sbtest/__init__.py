@@ -24,16 +24,16 @@ import unittest
 
 from StringIO import StringIO
 
-from solutionstudio.util import logger
-from solutionstudio.util import pps
-from solutionstudio.util import repo
-from solutionstudio.util import shlib
+from systembuilder.util import logger
+from systembuilder.util import pps
+from systembuilder.util import repo
+from systembuilder.util import shlib
 
-from solutionstudio.util.rxml import config
+from systembuilder.util.rxml import config
 
-from solutionstudio.main import Build
+from systembuilder.main import Build
 
-BUILD_ROOT = '/tmp/sstest' # location builds are performed
+BUILD_ROOT = '/tmp/sbtest' # location builds are performed
 
 class TestBuild(Build):
   def __init__(self, conf, *args, **kwargs):
@@ -41,11 +41,11 @@ class TestBuild(Build):
     Build.__init__(self, *args, **kwargs)
 
   def _get_config(self, options, arguments):
-    mcf = pps.path(options.mainconfigpath or '/etc/solutionstudio/sstest.conf')
+    mcf = pps.path(options.mainconfigpath or '/etc/systembuilder/sbtest.conf')
     if mcf.exists():
       self.mainconfig = config.read(mcf)
     else:
-      self.mainconfig = config.read(StringIO('<solutionstudio/>'))
+      self.mainconfig = config.read(StringIO('<systembuilder/>'))
 
     # set the cache dir
     p = config.uElement('cache', parent=self.mainconfig)
@@ -84,7 +84,7 @@ class EventTestCase(unittest.TestCase):
 
   # config setup
   def _make_default_config(self):
-    top = config.Element('solution', attrs={'schema-version': '1.0'})
+    top = config.Element('system', attrs={'schema-version': '1.0'})
 
     main = self._make_main_config()
     if main is not None: top.append(main)

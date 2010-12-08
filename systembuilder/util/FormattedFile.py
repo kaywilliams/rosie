@@ -27,7 +27,7 @@ map to assist in reading values or as a template for writing out a file.
 
 import re
 
-from solutionstudio.util import pps
+from systembuilder.util import pps
 
 FMT_FIND = re.compile('%\(([^\)]+)\).') # finds %(<key>)<N>
 

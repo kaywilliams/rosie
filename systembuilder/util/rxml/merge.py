@@ -52,7 +52,7 @@ import copy
 import re
 import sys
 
-from solutionstudio.util.rxml import tree
+from systembuilder.util.rxml import tree
 
 BOOLEANS = {
   'yes': True,  'Yes': True,  'true':  True,  'True':  True,  '1': True,

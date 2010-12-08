@@ -19,12 +19,12 @@ import errno
 import os
 import sys
 
-from solutionstudio.util import shlib
+from systembuilder.util import shlib
 
-from solutionstudio.util.versort import Version
+from systembuilder.util.versort import Version
 
-from solutionstudio.callback import TimerCallback
-from solutionstudio.logging  import L1
+from systembuilder.callback import TimerCallback
+from systembuilder.logging  import L1
 
 __all__ = ['CreaterepoMixin']
 

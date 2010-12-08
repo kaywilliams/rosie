@@ -21,17 +21,17 @@ import platform
 import socket
 import struct
 
-from solutionstudio.util import pps
-from solutionstudio.util import shlib
+from systembuilder.util import pps
+from systembuilder.util import shlib
 
-from solutionstudio.errors    import SolutionStudioError
-from solutionstudio.event     import Event
-from solutionstudio.logging   import L1
+from systembuilder.errors    import SystemBuilderError
+from systembuilder.event     import Event
+from systembuilder.logging   import L1
 
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PublishSetupEvent', 'PublishEvent'],
-  description = 'links solution output to a publish location',
+  description = 'links build output to a publish location',
 )
 
 TYPE_DIR = pps.constants.TYPE_DIR
@@ -47,22 +47,22 @@ class PublishSetupEvent(Event):
     )
 
     self.DATA = {
-      'variables': ['solutionid'],
+      'variables': ['systemid'],
       'config': ['.'],
     }
 
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.local  = pps.path(self.config.getpath('local-dir',  '/var/www/html/solutions'))
+    self.local  = pps.path(self.config.getpath('local-dir',  '/var/www/html/systems'))
     self.remote = pps.path(self.config.getpath('remote-url',
                     self._get_host(ifname =
                       self.config.get('remote-url/@interface', None))))
 
   def apply(self):
     self.cvars['publish-content'] = set()
-    self.cvars['publish-path'] = self.local / self.solutionid
-    self.cvars['web-path'] = self.remote / self.solutionid
+    self.cvars['publish-path'] = self.local / self.systemid
+    self.cvars['web-path'] = self.remote / self.systemid
 
   def _get_host(self, ifname=None):
     if self.config.getbool('remote-url/@fqdn', 'False'):
@@ -74,7 +74,7 @@ class PublishSetupEvent(Event):
         realm = get_ipaddr(ifname)
       except IOError, e:
         raise InterfaceIOError(ifname, str(e))
-    return 'http://'+realm+'/solutions'
+    return 'http://'+realm+'/systems'
 
 # TODO - improve these, they're pretty vulnerable to changes in offsets and
 # the like
@@ -164,6 +164,6 @@ class PublishEvent(Event):
       dir.removedirs()
 
 
-class InterfaceIOError(SolutionStudioError):
+class InterfaceIOError(SystemBuilderError):
   message = ( "Error looking up information for interface '%(interface)s': "
               "%(message)s" )

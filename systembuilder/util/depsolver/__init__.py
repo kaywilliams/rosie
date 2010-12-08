@@ -17,7 +17,7 @@
 #
 import yum
 
-from depsolver import Depsolver, SolutionStudioYum
+from depsolver import Depsolver, SystemBuilderYum
 from callback  import DepSolverCallback
 
 def resolve(packages=None, required=None, config='/etc/yum.conf',

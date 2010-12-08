@@ -19,12 +19,12 @@ import errno
 import hashlib
 import stat
 
-from solutionstudio.util.pps import path
+from systembuilder.util.pps import path
 
-from solutionstudio.util.pps.lib       import cached
-from solutionstudio.util.pps.constants import *
+from systembuilder.util.pps.lib       import cached
+from systembuilder.util.pps.constants import *
 
-from solutionstudio.util.pps.Path.error import PathError
+from systembuilder.util.pps.Path.error import PathError
 
 class Path_IO(object):
   "I/O operations for Path objects"

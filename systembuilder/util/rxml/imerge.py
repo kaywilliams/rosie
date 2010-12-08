@@ -37,9 +37,9 @@ __version__ = "1.0"
 
 import copy
 
-from solutionstudio.util import versort
+from systembuilder.util import versort
 
-from solutionstudio.util.rxml import merge
+from systembuilder.util.rxml import merge
 
 def incremental_merge(entries, index):
   indexes = entries.xpath('*/@version')

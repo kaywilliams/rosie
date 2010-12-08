@@ -1,4 +1,4 @@
-from solutionstudio.locals import LocalsDict, REMOVE
+from systembuilder.locals import LocalsDict, REMOVE
 
 __all__ = ['L_TREEINFO_FORMAT']
 

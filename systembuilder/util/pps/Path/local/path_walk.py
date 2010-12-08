@@ -17,8 +17,8 @@
 #
 import os
 
-from solutionstudio.util.pps.Path    import Path_Walk
-from solutionstudio.util.pps.PathSet import PathSet
+from systembuilder.util.pps.Path    import Path_Walk
+from systembuilder.util.pps.PathSet import PathSet
 
 from error import error_transform
 

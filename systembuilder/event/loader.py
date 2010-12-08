@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from solutionstudio.util import dispatch
-from solutionstudio.util import pps
+from systembuilder.util import dispatch
+from systembuilder.util import pps
 
 class Loader(dispatch.Loader):
   def __init__(self, enabled=None, disabled=None, load_extensions=False,

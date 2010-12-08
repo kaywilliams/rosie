@@ -17,15 +17,15 @@
 #
 import re
 
-from solutionstudio.util.repo    import ReposFromXml, ReposFromFile, RepoContainer, RepoFileParseError
-from solutionstudio.util.versort import Version
+from systembuilder.util.repo    import ReposFromXml, ReposFromFile, RepoContainer, RepoFileParseError
+from systembuilder.util.versort import Version
 
-from solutionstudio.errors   import assert_file_has_content, assert_file_readable, SolutionStudioError
-from solutionstudio.event    import Event
-from solutionstudio.logging  import L1, L2
-from solutionstudio.validate import InvalidConfigError
+from systembuilder.errors   import assert_file_has_content, assert_file_readable, SystemBuilderError
+from systembuilder.event    import Event
+from systembuilder.logging  import L1, L2
+from systembuilder.validate import InvalidConfigError
 
-from solutionstudio.modules.shared import RepoEventMixin, SolutionStudioRepoGroup, SolutionStudioRepoFileParseError
+from systembuilder.modules.shared import RepoEventMixin, SystemBuilderRepoGroup, SystemBuilderRepoFileParseError
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -64,14 +64,14 @@ class ReposEvent(RepoEventMixin, Event):
 
     updates  = RepoContainer()
     if self.config.pathexists('.'):
-      updates.add_repos(ReposFromXml(self.config.get('.'), cls=SolutionStudioRepoGroup))
+      updates.add_repos(ReposFromXml(self.config.get('.'), cls=SystemBuilderRepoGroup))
     for filexml in self.config.xpath('repofile/text()', []):
       fn = self.io.abspath(filexml)
       assert_file_has_content(fn)
       try:
-        updates.add_repos(ReposFromFile(fn, cls=SolutionStudioRepoGroup))
+        updates.add_repos(ReposFromFile(fn, cls=SystemBuilderRepoGroup))
       except RepoFileParseError, e:
-        raise SolutionStudioRepoFileParseError(e.args[0])
+        raise SystemBuilderRepoFileParseError(e.args[0])
 
     self.setup_repos(updates)
     self.read_repodata()
@@ -91,8 +91,8 @@ class ReposEvent(RepoEventMixin, Event):
       assert_file_readable(repo.pkgsfile)
       repo.repocontent.read(repo.pkgsfile)
 
-    if self.cvars['solution-info']['anaconda-version'] is not None:
-      self.cvars['anaconda-version'] = self.cvars['solution-info']['anaconda-version']
+    if self.cvars['system-info']['anaconda-version'] is not None:
+      self.cvars['anaconda-version'] = self.cvars['system-info']['anaconda-version']
     else:
       anaconda_version = self._get_anaconda_version()
       self.cvars['anaconda-version'] = \
@@ -162,10 +162,10 @@ class ReposEvent(RepoEventMixin, Event):
 
 
 #------ ERRORS ------#
-class AnacondaNotFoundError(SolutionStudioError):
+class AnacondaNotFoundError(SystemBuilderError):
   message = "Unable to find the 'anaconda' package in any specified repository"
 
-class InstallerRepoNotFoundError(SolutionStudioError):
+class InstallerRepoNotFoundError(SystemBuilderError):
   message = ( "Unable to find 'isolinux/' and 'images/' folders inside any "
               "given repository." )
 

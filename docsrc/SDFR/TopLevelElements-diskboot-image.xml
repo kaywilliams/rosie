@@ -14,7 +14,7 @@
 
     <para>
     Allows customization of the <filename>diskboot.img</filename> file
-    created by <application class="software">SolutionStudio</application>. This image
+    created by <application class="software">SystemBuilder</application>. This image
     can be written to a portable USB device and used to begin a network
     installation on the client system.
     </para>

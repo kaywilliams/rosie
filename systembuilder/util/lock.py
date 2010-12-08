@@ -1,7 +1,7 @@
 import os
 import socket
 
-from solutionstudio.util import pps
+from systembuilder.util import pps
 
 class Lock:
   """Simple locking class.  Not particularly thread safe; intended more for

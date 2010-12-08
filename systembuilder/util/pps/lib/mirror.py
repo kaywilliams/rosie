@@ -20,10 +20,10 @@ import errno
 
 from math import ceil, log
 
-from solutionstudio.util.pps            import path
-from solutionstudio.util.pps.Path.error import PathError
+from systembuilder.util.pps            import path
+from systembuilder.util.pps.Path.error import PathError
 
-from solutionstudio.util.pps.Path.remote import RemotePath #!
+from systembuilder.util.pps.Path.remote import RemotePath #!
 
 # list of error codes that indicate that we were unable to get files from
 # a host because of problems with the host itself: name or service unknown,

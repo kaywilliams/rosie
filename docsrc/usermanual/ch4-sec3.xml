@@ -5,13 +5,13 @@
   <title>Versioning Definitions</title>
 
   <para>To track and audit any changes to the <application
-  class="software">SolutionStudio</application> files that are critical to the
+  class="software">SystemBuilder</application> files that are critical to the
   definition, configuration and scripts of a system, use a revision
   control system, such as <application
   class="software">Subversion</application>, <application
   class="software">Git</application> or <application arch=""
   class="software">Mercurial</application>. The Red Hat-based Linux operating system' that
-  SolutionStudio works with by default (<application
+  SystemBuilder works with by default (<application
   class="software">RHEL</application> and <application
   class="software">CentOS</application>) have the revision control system
   <application class="software">Subversion</application>
@@ -19,20 +19,20 @@
 
   <para>While everything could be revision controlled, there are some key
   non-image files that should be. Within the <application
-  class="software">SolutionStudio</application> infrastructure and solution
+  class="software">SystemBuilder</application> infrastructure and system
   building process, candidates for revision control include configuration files,
-  solution definitions and scripts, i.e. files that contain critical
+  system definitions and scripts, i.e. files that contain critical
   textual information that may change over time or are commonly used to define
-  aspects of multiple solutions, such as common repositories or network
+  aspects of multiple systems, such as common repositories or network
   configuration.</para>
 
   <para><itemizedlist>
       <listitem>
-        <para>solution definitions,</para>
+        <para>system definitions,</para>
       </listitem>
 
       <listitem>
-        <para><filename>solutionstudio.conf</filename>,</para>
+        <para><filename>systembuilder.conf</filename>,</para>
       </listitem>
 
       <listitem>
@@ -44,17 +44,17 @@
       </listitem>
 
       <listitem>
-        <para>solution definition XInclude files.</para>
+        <para>system definition XInclude files.</para>
       </listitem>
     </itemizedlist></para>
 
   <para>If you decide to not use a revision control system, you could rename
-  the solution definition or other key
-  files every time you make a change to help you "version" your solution.
+  the system distribution definition or other key
+  files every time you make a change to help you "version" your system distribution.
   You can also enter comments in the files. Keep in mind that changing the name
-  of solution definition does not mean <application class="software">
-  SolutionStudio</application> will build a new solution.
+  of system definition file does not mean <application class="software">
+  SystemBuilder</application> will build a new system distribution.
   As long as the <varname>$ID</varname> remains the same, the
-  solution remains the same.</para>
+  system distribution remains the same.</para>
 </section>
 

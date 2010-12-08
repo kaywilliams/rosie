@@ -13,12 +13,12 @@
     </title>
 
     <para>
-    Contains a list of repositories that SolutionStudio uses to download its
+    Contains a list of repositories that SystemBuilder uses to download its
     packages.
     </para>
 
     <para>
-    In order to operate, <application class="software">SolutionStudio
+    In order to operate, <application class="software">SystemBuilder
     </application> requires at least one input repository.
     Repositories are specified by either defining them in XML
     (see <emphasis><xref linkend="repos-repo" /></emphasis>) or by
@@ -40,7 +40,7 @@
       repository containing installer images and isolinux files, located within
       folders called <filename>images</filename> and <filename>isolinux</filename>,
       respectively. These files are used to create installation images for the
-      solution. For CentOS, this repository will be a public or local mirror. 
+      system distribution. For CentOS, this repository will be a public or local mirror. 
       For Red Hat Enterprise Linux, it will be an install tree created
       by using the <command>mount -o loop <emphasis>isofile</emphasis>
       <emphasis>mount_location</emphasis></command> command to mount an
@@ -57,13 +57,13 @@
       Red Hat Network Repositories
       </title>
       <para>
-      SolutionStudio supports an extension to the standard supported schemes
+      SystemBuilder supports an extension to the standard supported schemes
       in that it can connect to and download packages from Red Hat Network (RHN)
       servers. 
       </para>
 
       <para>
-      Prior to using SolutionStudio to access updates from RHN you will
+      Prior to using SystemBuilder to access updates from RHN you will
       need to create a systemid. This requires an available subscription to 
       Red Hat Enterprise Linux. See the Red Hat web site for purchase
       information. Once you have an available subscription, install Red Hat 
@@ -73,10 +73,10 @@
       <command>rhn_register</command> command. Once the system has successfully
       registered with RHN, a systemid file will be created in the 
       <filename type="directory">/etc/sysconfig/</filename> folder of the
-      machine. This is the file you will use to configure SolutionStudio to
-      access software from RHN. You may copy this file to the SolutionStudio
+      machine. This is the file you will use to configure SystemBuilder to
+      access software from RHN. You may copy this file to the SystemBuilder
       build machine if necessary. Note, to ensure the systemid has access to
-      the software desired for your solution, you can use the Red Hat
+      the software desired for your system distribution, you can use the Red Hat
       Network web user interface to locate the system, and view and alter it's
       channel subscriptions.</para>
 
@@ -108,11 +108,11 @@
       an example.</para>
 
       <note>
-      SolutionStudio requires additional software including rhnlib and 
+      SystemBuilder requires additional software including rhnlib and 
       rhn-client-tools rpm packages in order to use RHN repositories. To install
-      a complete version of SolutionStudio including all available software, 
+      a complete version of SystemBuilder including all available software, 
       follow the instructions located at 
-      http://www.renditionsoftware.com/solutionstudio/download.
+      http://www.renditionsoftware.com/systembuilder/download.
       </note>
     </section>
 
@@ -124,7 +124,7 @@
 
       <para>
       By default, all packages in all repositories are available for 
-      SolutionStudio to use. Packages can be excluded from <emphasis>all 
+      SystemBuilder to use. Packages can be excluded from <emphasis>all 
       repositories</emphasis> using the <emphasis>exclude</emphasis> element. 
       Available packages for <emphasis>a single repository</emphasis> can be 
       restricted by using one or more <emphasis>repo/exclude</emphasis> or
@@ -150,7 +150,7 @@
       packages for the repository. Any package matching one or more of
       the <varname>PACKAGE</varname> patterns specified in a
       <emphasis>repo/exclude</emphasis> element will be ignored
-      by SolutionStudio.
+      by SystemBuilder.
       </para>
 
       <para>See <emphasis><xref linkend="repo-include-exclude-example" /></emphasis> for
@@ -165,9 +165,9 @@
       </title>
 
       <para>
-      SolutionStudio supports standard YUM repositories; that is, folders containing
+      SystemBuilder supports standard YUM repositories; that is, folders containing
       a <filename>repodata</filename> folder with repository metadata.
-      In addition, SolutionStudio supports an expanded type of repository, a
+      In addition, SystemBuilder supports an expanded type of repository, a
       "repository group". A repository group is a collection of standard
       YUM repositories within another folder. This feature allows, for 
       example, defining a Red Hat Enterprise Linux installation tree as a
@@ -191,7 +191,7 @@ baseurl=/var/repos/repoB
 baseurl=/var/repos/repoC
       </programlisting>
 
-      In SolutionStudio, on the other hand, all the repos can be included by
+      In SystemBuilder, on the other hand, all the repos can be included by
       using a repo group instead:
 
       <programlisting>
@@ -242,7 +242,7 @@ baseurl=/var/repos/repoC
       <listitem>
       <para>
       A <varname>PACKAGE</varname> pattern to exclude from all repositories
-      used in the solution. See Also 
+      used in the system distribution. See Also 
       <emphasis><xref linkend="repo-including-excluding-repository-contents" /></emphasis>.
       </para>
 
@@ -275,7 +275,7 @@ baseurl=/var/repos/repoC
       <listitem>
       <para>
       Include a repository from which to select packages for the system
-      solution.
+      distribution.
       </para>
 
       <para>
@@ -306,7 +306,7 @@ baseurl=/var/repos/repoC
       <emphasis>repo/mirrorlist</emphasis> elements also have full support
       for the YUM variables <varname>$basearch</varname> and
       <varname>$releasever</varname>. However, instead of using the build
-      system's architecture and release version, SolutionStudio defaults to using
+      system's architecture and release version, SystemBuilder defaults to using
       <varname>$ARCH</varname> and <varname>$VERSION</varname>,
       respectively. Top-level elements may define a
       <emphasis>releasever</emphasis> element that overrides the default
@@ -325,7 +325,7 @@ baseurl=/var/repos/repoC
         <listitem>
         <para>
         A unique one-word <varname>ID</varname> representing this
-        repository within a particular solution. Corresponds to the
+        repository. Corresponds to the
         <varname>repositoryid</varname> of a repository in a YUM
         repofile.
         </para>
@@ -380,8 +380,8 @@ baseurl=/var/repos/repoC
         <para>
         <varname>BOOLEAN</varname> value indicating whether this
         repository should be enabled or not. Disabled repositories
-        are ignored by SolutionStudio when looking for packages to include in
-        the solution.
+        are ignored by SystemBuilder when looking for packages to include in
+        the system distribution.
         </para>
 
         <para>
@@ -594,7 +594,7 @@ baseurl=/var/repos/repoC
     In the following examples, line breaks have been added to the
     <emphasis>repos/repo/baseurl</emphasis> and
     <emphasis>repos/repo/mirrorlist</emphasis> to improve readability.
-    In a real solution definition file, however, line breaks within
+    In a real system definition file, however, line breaks within
     <varname>PATH</varname>-like elements are not allowed.
     </para>
 
@@ -614,7 +614,7 @@ baseurl=/var/repos/repoC
       </para>
 
       <para>
-      Additionally, SolutionStudio will include any and all repositories defined
+      Additionally, SystemBuilder will include any and all repositories defined
       in the file <filename>centos-extras.repo</filename>.
       </para>
 

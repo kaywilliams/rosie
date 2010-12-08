@@ -27,7 +27,7 @@ if os.name == 'posix':
   except ImportError:
     pwd = None
 
-from solutionstudio.util.pps.Path.local import LocalPath_Printf
+from systembuilder.util.pps.Path.local import LocalPath_Printf
 
 class PosixPath_Printf(LocalPath_Printf):
   """

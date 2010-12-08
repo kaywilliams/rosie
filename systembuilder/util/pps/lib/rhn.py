@@ -38,7 +38,7 @@
 
 import xmlrpclib
 
-from solutionstudio.util.pps import path
+from systembuilder.util.pps import path
 
 # systemid validation
 def validate_systemid(systemid):

@@ -32,7 +32,7 @@ elif os.name == 'posix':
   except ImportError:
     pwd = None
 
-from solutionstudio.util.pps.path import path_printf
+from systembuilder.util.pps.path import path_printf
 
 PROTECT = []
 

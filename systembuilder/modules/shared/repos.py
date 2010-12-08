@@ -23,32 +23,32 @@ import os
 import re
 import time
 
-from solutionstudio.util import listfmt
-from solutionstudio.util import pps
-from solutionstudio.util import rxml
+from systembuilder.util import listfmt
+from systembuilder.util import pps
+from systembuilder.util import rxml
 
-from solutionstudio.util.difftest.filesdiff import DiffTuple
+from systembuilder.util.difftest.filesdiff import DiffTuple
 
-from solutionstudio.util.pps.constants import TYPE_DIR
+from systembuilder.util.pps.constants import TYPE_DIR
 
-from solutionstudio.errors    import (SolutionStudioError, SolutionStudioIOError, RhnSupportError,
+from systembuilder.errors    import (SystemBuilderError, SystemBuilderIOError, RhnSupportError,
                             assert_file_readable, assert_file_has_content)
-from solutionstudio.logging   import L1, L2
-from solutionstudio.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
-from solutionstudio.validate  import InvalidConfigError
+from systembuilder.logging   import L1, L2
+from systembuilder.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
+from systembuilder.validate  import InvalidConfigError
 
-from solutionstudio.util.repo          import ReposFromXml, ReposFromFile, getDefaultRepos
-from solutionstudio.util.repo.repo     import YumRepo, RepoContainer, NSMAP
-from solutionstudio.util.repo.defaults import TYPE_ALL
+from systembuilder.util.repo          import ReposFromXml, ReposFromFile, getDefaultRepos
+from systembuilder.util.repo.repo     import YumRepo, RepoContainer, NSMAP
+from systembuilder.util.repo.defaults import TYPE_ALL
 
-__all__ = ['RepoEventMixin', 'SolutionStudioRepo', 'SolutionStudioRepoGroup',
-           'SolutionStudioRepoFileParseError']
+__all__ = ['RepoEventMixin', 'SystemBuilderRepo', 'SystemBuilderRepoGroup',
+           'SystemBuilderRepoFileParseError']
 
 # list of folders that don't contain repodata folders for sure
 NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
                  'stylesheet-images']
 
-class SolutionStudioRepo(YumRepo):
+class SystemBuilderRepo(YumRepo):
   keyfilter = ['id', 'systemid']
 
   def __init__(self, **kwargs):
@@ -109,7 +109,7 @@ class SolutionStudioRepo(YumRepo):
       p = YumRepo._xform_uri(self, p)
     return p
 
-class RhnSolutionStudioRepo(SolutionStudioRepo):
+class RhnSystemBuilderRepo(SystemBuilderRepo):
   # redhat's RHN repos are very annoying in that they have inconsitent
   # metadata at times.  This class aims to account for this instability
 
@@ -119,7 +119,7 @@ class RhnSolutionStudioRepo(SolutionStudioRepo):
   def read_repomd(self):
     i = 0; consistent = False
     while i < self.MAX_TRIES:
-      SolutionStudioRepo.read_repomd(self)
+      SystemBuilderRepo.read_repomd(self)
       if self.EMPTY_FILE_CSUM not in \
         self.repomd.xpath('//repo:data/repo:checksum/text()',
                           namespaces=NSMAP):
@@ -129,9 +129,9 @@ class RhnSolutionStudioRepo(SolutionStudioRepo):
       raise InconsistentRepodataError(self.id, self.MAX_TRIES)
 
 
-class SolutionStudioRepoGroup(SolutionStudioRepo):
+class SystemBuilderRepoGroup(SystemBuilderRepo):
   def __init__(self, **kwargs):
-    SolutionStudioRepo.__init__(self, **kwargs)
+    SystemBuilderRepo.__init__(self, **kwargs)
 
     self._repos = None
     self.has_installer_files = False
@@ -147,10 +147,10 @@ class SolutionStudioRepoGroup(SolutionStudioRepo):
       raise MirrorlistFormatInvalidError(self.id, e.lineno, e.line, e.reason)
 
     # need special handling for rhn paths
-    cls = SolutionStudioRepo
+    cls = SystemBuilderRepo
     try:
       if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
-        cls = RhnSolutionStudioRepo
+        cls = RhnSystemBuilderRepo
     except AttributeError:
       if ( self.url.realm.scheme == 'rhn' or
            self.url.realm.scheme == 'rhns' ):
@@ -468,40 +468,40 @@ class ReposDiffTuple(DiffTuple):
       self.csum = self.path.checksum()
 
 
-class NoReposEnabledError(SolutionStudioError, RuntimeError):
+class NoReposEnabledError(SystemBuilderError, RuntimeError):
   message = "No enabled repos in '%(modid)s' module"
 
-class RepodataNotFoundError(SolutionStudioError, RuntimeError):
+class RepodataNotFoundError(SystemBuilderError, RuntimeError):
   message = "Unable to find repodata folder for repo '%(repoid)s' at '%(url)s'"
 
-class InconsistentRepodataError(SolutionStudioError, RuntimeError):
+class InconsistentRepodataError(SystemBuilderError, RuntimeError):
   message = ( "Unable to obtain consistent value for one or more checksums "
               " in repo '%(repoid)s' after %(ntries)d tries" )
 
-class SystemidIOError(SolutionStudioIOError):
+class SystemidIOError(SystemBuilderIOError):
   message = ( "Unable to read systemid file '%(file)s' for repo "
               "'%(repoid)s': [errno %(errno)d] %(message)s" )
 
-class SystemidUndefinedError(SolutionStudioError, InvalidConfigError):
+class SystemidUndefinedError(SystemBuilderError, InvalidConfigError):
   message = "No <systemid> element defined for repo '%(repoid)s'"
 
-class SystemidInvalidError(SolutionStudioError):
+class SystemidInvalidError(SystemBuilderError):
   message = ( "Systemid file '%(file)s' for repo '%(repo)s' is invalid: "
               "%(message)s" )
 
-class PkgsfileIOError(SolutionStudioIOError):
+class PkgsfileIOError(SystemBuilderIOError):
   message = ( "Unable to compute package version for %(names)s with pkgsfile "
               "'%(file)s': [errno %(errno)d] %(message)s" )
 
-class SolutionStudioRepoFileParseError(SolutionStudioError):
+class SystemBuilderRepoFileParseError(SystemBuilderError):
   message = "Error parsing repo file: %(message)s"
 
-class RepomdCsumMismatchError(SolutionStudioError):
+class RepomdCsumMismatchError(SystemBuilderError):
   message = ( "Checksum of file '%(file)s' doesn't match repomd.xml for "
               "repo '%(repoid)s':\n"
               "  Got:      %(got)s\n"
               "  Expected: %(expected)s" )
 
-class MirrorlistFormatInvalidError(SolutionStudioError):
+class MirrorlistFormatInvalidError(SystemBuilderError):
   message = ( "Mirrorlist format invalid for repo '%(repo)s' on line "
               "%(lineno)d: '%(line)s': %(reason)s" )

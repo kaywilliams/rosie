@@ -3,13 +3,13 @@ import re
 import sys
 import traceback
 
-from solutionstudio.util import shlib
-from solutionstudio.util import pps
+from systembuilder.util import shlib
+from systembuilder.util import pps
 
 REGEX_KWPARSE = re.compile('%\(([^\)]+)\).')
 
 def assert_file_has_content(file, cls=None, srcfile=None, **kwargs):
-  "Raise a SolutionStudioIOError (or subclass) if a file is not readable or empty."
+  "Raise a SystemBuilderIOError (or subclass) if a file is not readable or empty."
   assert_file_readable(file, cls=cls, srcfile=srcfile, **kwargs)
   fp = None
   errno = None
@@ -23,13 +23,13 @@ def assert_file_has_content(file, cls=None, srcfile=None, **kwargs):
     fp and fp.close()
 
   if errno and message:
-    raise (cls or SolutionStudioIOError)(errno=errno,
+    raise (cls or SystemBuilderIOError)(errno=errno,
                                file=srcfile or file,
                                message=message,
                                **kwargs)
 
 def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
-  "Raise a SolutionStudioIOError (or subclass) if a file isn't readable"
+  "Raise a SystemBuilderIOError (or subclass) if a file isn't readable"
   fp = None
   errno = None; message = None
   try:
@@ -39,14 +39,14 @@ def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
       errno = e.errno; message = os.strerror(e.errno)
 
     if errno and message:
-      raise (cls or SolutionStudioIOError)(errno=errno,
+      raise (cls or SystemBuilderIOError)(errno=errno,
                                  file=srcfile or file,
                                  message=message,
                                  **kwargs)
   finally:
     fp and fp.close()
 
-class SolutionStudioError:
+class SystemBuilderError:
   message = None
   def __init__(self, *args, **kwargs):
     self.map = {}
@@ -78,27 +78,27 @@ class SolutionStudioError:
   def __str__(self):
     return self.message % self.map
 
-class SolutionStudioIOError(SolutionStudioError, IOError):
+class SystemBuilderIOError(SystemBuilderError, IOError):
   message = "Cannot read file '%(file)s': [errno %(errno)d] %(message)s"
 
-class PpsPathError(SolutionStudioError):
+class PpsPathError(SystemBuilderError):
   def __str__(self):
     if self.error.errno == 21: # EISDIR
       pass
 
-class ShLibError(SolutionStudioError):
+class ShLibError(SystemBuilderError):
   def __init__(self, e):
     self.map = {'cmd': e.cmd, 'errno': e.errno, 'desc': e.desc}
   message = ( "The command '%(cmd)s' exited with an unexepected status code. "
               "Error message was: [errno %(errno)d] %(desc)s" )
 
-class RhnSupportError(RuntimeError, SolutionStudioError):
+class RhnSupportError(RuntimeError, SystemBuilderError):
   def __str__(self):
     return ( "RHN support not enabled - please install then 'rhnlib' and "
-             "'rhn-client-tools' packages from the solutionstudio software repo "
+             "'rhn-client-tools' packages from the systembuilder software repo "
              "at www.renditionsoftware.com" )
 
-class SolutionStudioErrorHandler:
+class SystemBuilderErrorHandler:
   def _handle_Exception(self, e):
     traceback.print_exc(file=self.logger.logfile.file_object)
     if self.logger.test(4) or self.debug:
@@ -106,15 +106,15 @@ class SolutionStudioErrorHandler:
     else:
       self.logger.write(0, '\n') # start on a new line
       if isinstance(e, KeyboardInterrupt):
-        self.logger.log(0, "SolutionStudio halted on user input")
+        self.logger.log(0, "SystemBuilder halted on user input")
       else:
-        if not isinstance(e, SolutionStudioError) and not isinstance(e, KeyboardInterrupt):
+        if not isinstance(e, SystemBuilderError) and not isinstance(e, KeyboardInterrupt):
           self.logger.write(0,
             "An unhandled exception has been generated while processing "
             "the '%s' event.  The traceback has been recorded in the log "
             "file at '%s'.  Please report this error by sending a copy "
-            "of your log file, solution definition file and any other "
-            "relevant information to solutionstudio@www.renditionsoftware.com\n\n"
+            "of your log file, system definition file and any other "
+            "relevant information to systembuilder@www.renditionsoftware.com\n\n"
             "Error message was: "
             % (self.dispatch.currevent.id, self.logfile))
         self.logger.log(0, '[%s] %s' % (self.dispatch.currevent.id,

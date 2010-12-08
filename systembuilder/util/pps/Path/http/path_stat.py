@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from solutionstudio.util.pps.Path.remote import RemotePath_Stat
+from systembuilder.util.pps.Path.remote import RemotePath_Stat
 
-from solutionstudio.util.pps.PathStat.http import HttpPathStat
+from systembuilder.util.pps.PathStat.http import HttpPathStat
 
 from error import error_transform
 

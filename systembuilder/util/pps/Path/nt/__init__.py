@@ -20,12 +20,12 @@ import ntpath
 
 from path_printf import NTPath_Printf
 
-from solutionstudio.util.pps.util import urlunparse
+from systembuilder.util.pps.util import urlunparse
 
-from solutionstudio.util.pps.Path.local import _LocalPath     as LocalPath
-from solutionstudio.util.pps.Path.local import LocalPath_IO   as NTPath_IO
-from solutionstudio.util.pps.Path.local import LocalPath_Stat as NTPath_Stat
-from solutionstudio.util.pps.Path.local import LocalPath_Walk as NTPath_Walk
+from systembuilder.util.pps.Path.local import _LocalPath     as LocalPath
+from systembuilder.util.pps.Path.local import LocalPath_IO   as NTPath_IO
+from systembuilder.util.pps.Path.local import LocalPath_Stat as NTPath_Stat
+from systembuilder.util.pps.Path.local import LocalPath_Walk as NTPath_Walk
 
 class NTPath(NTPath_IO, NTPath_Printf, NTPath_Stat,
              NTPath_Walk, LocalPath):

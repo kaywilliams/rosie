@@ -22,16 +22,16 @@ import rpm
 
 from math import ceil
 
-from solutionstudio.util import FormattedFile as ffile
-from solutionstudio.util import pkgorder
-from solutionstudio.util import rxml
-from solutionstudio.util import si
+from systembuilder.util import FormattedFile as ffile
+from systembuilder.util import pkgorder
+from systembuilder.util import rxml
+from systembuilder.util import si
 
-from solutionstudio.util.sync import link
+from systembuilder.util.sync import link
 
-from solutionstudio.util.pps.Path.error import PathError
+from systembuilder.util.pps.Path.error import PathError
 
-from solutionstudio.constants import RPM_GLOB, SRPM_GLOB
+from systembuilder.constants import RPM_GLOB, SRPM_GLOB
 
 TS = rpm.TransactionSet()
 TS.setVSFlags(-1)

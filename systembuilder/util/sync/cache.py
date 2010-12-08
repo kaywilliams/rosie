@@ -27,14 +27,14 @@ __date__    = 'August 22nd, 2007'
 import hashlib
 import time
 
-from solutionstudio.util.progressbar import ProgressBar
+from systembuilder.util.progressbar import ProgressBar
 
-from solutionstudio.util.sync.__init__ import CopyHandler, SyncOperation, mirror_updatefn
-from solutionstudio.util.sync.callback import SyncCallbackMetered
+from systembuilder.util.sync.__init__ import CopyHandler, SyncOperation, mirror_updatefn
+from systembuilder.util.sync.callback import SyncCallbackMetered
 
-from solutionstudio.util.pps import path
+from systembuilder.util.pps import path
 
-from solutionstudio.util.pps.constants import *
+from systembuilder.util.pps.constants import *
 
 DEFAULT_CACHE_DIR = '/tmp/.sync-cache'
 DEFAULT_CACHE_SIZE = 500 * 1024**2 # 500 MB

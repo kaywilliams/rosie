@@ -22,9 +22,9 @@ import os
 import sys
 import unittest
 
-from solutionstudio.util import pps
+from systembuilder.util import pps
 
-from solutionstudio.util.CleanHelpFormatter import CleanHelpFormatter
+from systembuilder.util.CleanHelpFormatter import CleanHelpFormatter
 
 opt_defaults = dict(
   logthresh = 0,
@@ -66,19 +66,19 @@ def parse_cmd_args(defaults=None):
 
   parser.add_option('-b', '--build-root', metavar='DIRECTORY',
     dest='buildroot',
-    default='/tmp/sstest',
+    default='/tmp/sbtest',
     help='choose the location where builds should be performed')
-  parser.add_option('--solutionstudio-conf', metavar='PATH',
+  parser.add_option('--systembuilder-conf', metavar='PATH',
     dest='mainconfigpath',
     help='specify path to a main config file')
   parser.add_option('--lib-path', metavar='PATH',
     dest='libpath',
     action='append',
-    help='specify directory containing solutionstudio library files')
+    help='specify directory containing systembuilder library files')
   parser.add_option('--share-path', metavar='PATH',
     dest='sharepath',
     action='append',
-    help='specify directory containing solutionstudio share files')
+    help='specify directory containing systembuilder share files')
 
   parser.add_option('-l', '--log-file', metavar='path',
     default='test.log',
@@ -114,12 +114,12 @@ def main():
 
   sys.path = options.libpath + sys.path
 
-  import sstest
+  import sbtest
 
-  sstest.BUILD_ROOT = pps.path(options.buildroot)
-  sstest.EventTestCase.options = options
+  sbtest.BUILD_ROOT = pps.path(options.buildroot)
+  sbtest.EventTestCase.options = options
 
-  runner = sstest.EventTestRunner(options.testlogfile, options.testloglevel)
+  runner = sbtest.EventTestRunner(options.testlogfile, options.testloglevel)
   suite = unittest.TestSuite()
 
   cwd = os.getcwd() # save for later
@@ -139,7 +139,7 @@ def main():
     result = runner.run(suite)
   finally:
     if options.clear_test_cache:
-      sstest.BUILD_ROOT.rm(recursive=True, force=True)
+      sbtest.BUILD_ROOT.rm(recursive=True, force=True)
 
   os.chdir(cwd) # make sure we're back where we started
 

@@ -23,10 +23,10 @@ import subprocess
 import sys
 import time
 
-from solutionstudio.util import pps
+from systembuilder.util import pps
 
-from sstest import make_logger
-from sstest.runtest import parse_cmd_args # use runtest's cmd parser
+from sbtest import make_logger
+from sbtest.runtest import parse_cmd_args # use runtest's cmd parser
 
 START = None # start time
 TIMEFMT = '%Y-%m-%d %X'
@@ -35,7 +35,7 @@ opt_defaults = dict(
   distro   = 'centos',
   version  = '5',
   basearch = 'i386',
-  buildroot   = '/tmp/sstest',
+  buildroot   = '/tmp/sbtest',
   testlogfile = 'test.log',
   testloglevel = 2,
   libpath   = [],

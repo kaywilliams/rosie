@@ -18,10 +18,10 @@
 
 import copy
 
-from solutionstudio.util.pps.Path.remote import RemotePath_IO
+from systembuilder.util.pps.Path.remote import RemotePath_IO
 
-from solutionstudio.util.pps.lib.http      import HttpFileObject
-from solutionstudio.util.pps.PathStat.http import HttpPathStat
+from systembuilder.util.pps.lib.http      import HttpFileObject
+from systembuilder.util.pps.PathStat.http import HttpPathStat
 
 from error import error_transform
 

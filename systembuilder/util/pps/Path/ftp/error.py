@@ -18,10 +18,10 @@
 import errno
 import os
 
-from solutionstudio.util.decorator import decorator
+from systembuilder.util.decorator import decorator
 
-from solutionstudio.util.pps.Path.error import PathError
-from solutionstudio.util.pps.lib.ftp    import FtpFileObjectError
+from systembuilder.util.pps.Path.error import PathError
+from systembuilder.util.pps.lib.ftp    import FtpFileObjectError
 
 @decorator
 def error_transform(fn, *args, **kwargs):

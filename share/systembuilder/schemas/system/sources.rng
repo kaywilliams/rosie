@@ -1,23 +1,26 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="solution">
+    <element name="system">
 
       <optional>
-      <element name="iso">
+      <element name="sources">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
         <interleave>
 
-        <oneOrMore>
-        <element name="set"><text/></element>
-        </oneOrMore>
-
         <optional>
-        <ref name="element-boot-args"/>
+        <element name="releasever"><text/></element>
         </optional>
+
+        <oneOrMore>
+          <choice>
+          <ref name="element-repo"/>
+          <ref name="element-repofile"/>
+          </choice>
+        </oneOrMore>
 
         </interleave>
 
@@ -28,5 +31,4 @@
   </start>
 
   <include href="lib.rng"/>
-
 </grammar>

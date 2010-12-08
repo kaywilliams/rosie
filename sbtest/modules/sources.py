@@ -17,11 +17,11 @@
 #
 import copy
 
-from solutionstudio.util import repo
-from solutionstudio.util.rxml import config
+from systembuilder.util import repo
+from systembuilder.util.rxml import config
 
-from sstest        import EventTestCase, ModuleTestSuite
-from sstest.core   import make_extension_suite
+from sbtest        import EventTestCase, ModuleTestSuite
+from sbtest.core   import make_extension_suite
 
 class SourceEventTestCase(EventTestCase):
   moduleid = 'sources'

@@ -19,10 +19,10 @@ import sys
 import time
 import unittest
 
-from solutionstudio.util import pps
+from systembuilder.util import pps
 
-from solutionstudio.logging import L1, L2
-from solutionstudio.verify  import BuildTestResult
+from systembuilder.logging import L1, L2
+from systembuilder.verify  import BuildTestResult
 
 class VerifyMixin:
   def __init__(self):

@@ -1,4 +1,4 @@
-SUBDIRS = solutionstudio
+SUBDIRS = systembuilder
 
 .PHONY: all clean install
 

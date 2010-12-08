@@ -12,7 +12,7 @@ import string
 import sys
 import types
 
-class SolutionStudioDistribution(Distribution):
+class SystemBuilderDistribution(Distribution):
   def __init__(self, attrs=None):
     Distribution.__init__(self, attrs=attrs)
 
@@ -371,7 +371,7 @@ class BdistRpm(bdist_rpm.bdist_rpm):
 
 def main():
   attrs = {
-    'distclass': SolutionStudioDistribution,
+    'distclass': SystemBuilderDistribution,
     'cmdclass':  {
       'install':   Install,
       'bdist_rpm': BdistRpm,

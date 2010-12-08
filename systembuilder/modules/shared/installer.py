@@ -17,12 +17,12 @@
 #
 import time
 
-from solutionstudio.util import img
-from solutionstudio.util import magic
-from solutionstudio.util import pps
+from systembuilder.util import img
+from systembuilder.util import magic
+from systembuilder.util import pps
 
-from solutionstudio.logging      import L1
-from solutionstudio.event.fileio import MissingInputFileError
+from systembuilder.logging      import L1
+from systembuilder.event.fileio import MissingInputFileError
 
 __all__ = ['ImageModifyMixin', 'FileDownloadMixin']
 
@@ -45,7 +45,7 @@ class ImageModifyMixin:
 
   def setup(self):
     # input images
-    image_path = self.image_locals['path'] % self.cvars['solution-info']
+    image_path = self.image_locals['path'] % self.cvars['system-info']
 
     self.diff.setup(self.DATA)
 
@@ -56,7 +56,7 @@ class ImageModifyMixin:
 
   def _add_image(self):
     ip = ( self.cvars['installer-repo'].url /
-           self.image_locals['path'] % self.cvars['solution-info'] )
+           self.image_locals['path'] % self.cvars['system-info'] )
     # check the image format before adding it; if it doesn't match what we're
     # expecting (such as a 404 HTML page), skip it
     try:
@@ -127,7 +127,7 @@ class ImageModifyMixin:
 
   path    = property(lambda self: ( self.SOFTWARE_STORE /
                                     self.image_locals['path'] %
-                                    self.cvars['solution-info']) )
+                                    self.cvars['system-info']) )
   zipped  = property(lambda self: self.image_locals.get('zipped', False))
 
   def verify_image(self):
@@ -152,7 +152,7 @@ class FileDownloadMixin:
     paths = []
     for data in self.file_locals.values():
       rinfix = data['path'] % self.cvars['base-info']
-      linfix = data['path'] % self.cvars['solution-info']
+      linfix = data['path'] % self.cvars['system-info']
       self.io.add_fpath(self.cvars['installer-repo'].url/rinfix,
                         (self.SOFTWARE_STORE/linfix).dirname,
                         id='FileDownloadMixin')

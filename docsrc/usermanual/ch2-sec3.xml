@@ -5,11 +5,11 @@
   <title>Installing Client Machines</title>
 
   <para>Because 
-  <application class="software">SolutionStudio</application> creates
-  solutions in a standard operating system format, client machines can be
-  deployed using the same tools and methods as used for
-  <application class="software">Red Hat Enterprise Linux</application> (RHEL) and 
-  <application class="software">CentOS</application>.</para>
+  <application class="software">SystemBuilder</application> creates
+  system distributions in a standard operating system format, client machines
+  can be deployed using the same tools and methods as used for
+  <application class="software">Red Hat Enterprise Linux</application> (RHEL)
+  and <application class="software">CentOS</application>.</para>
 
   <itemizedlist>
   <listitem>Network installation using a network interface card (NIC) with Pre-Execution Environment (PXE) support, CD/DVD or USB boot media.</listitem>

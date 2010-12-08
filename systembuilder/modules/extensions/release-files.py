@@ -18,11 +18,11 @@
 """
 release-files.py
 
-Includes user-provided release files and folders within the solution
+Includes user-provided release files and folders within the system distribution
 folder.
 """
 
-from solutionstudio.event   import Event
+from systembuilder.event   import Event
 
 MODULE_INFO = dict(
   api         = 5.0,

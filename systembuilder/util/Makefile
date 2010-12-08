@@ -10,7 +10,7 @@ install:
                      -name seqlib.py -o \
                      -name textfmt.py -o \
                      -wholename "*pps/test*" \)| \
-        cpio -pdvm $(DESTDIR)/$(PYTHONLIBDIR)/solutionstudio/util
+        cpio -pdvm $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/util
 
 clean:
 	find ./ -name "*.pyo" -o -name "*.pyc" -type f -print0 | \

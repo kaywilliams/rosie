@@ -19,13 +19,13 @@ import re
 import rpmUtils.arch
 import yum.Errors
 
-from solutionstudio.callback  import PkglistCallback
-from solutionstudio.constants import KERNELS
-from solutionstudio.errors    import assert_file_has_content, SolutionStudioError
-from solutionstudio.event     import Event
-from solutionstudio.logging   import L1
+from systembuilder.callback  import PkglistCallback
+from systembuilder.constants import KERNELS
+from systembuilder.errors    import assert_file_has_content, SystemBuilderError
+from systembuilder.event     import Event
+from systembuilder.logging   import L1
 
-from solutionstudio.modules.shared.idepsolver import DepsolverMixin
+from systembuilder.modules.shared.idepsolver import DepsolverMixin
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -158,10 +158,10 @@ class DepsolveEvent(Event, DepsolverMixin):
         break
 
 
-class InvalidPkglistFormatError(SolutionStudioError):
+class InvalidPkglistFormatError(SystemBuilderError):
   message = ( "Invalid format '%(pkgfile)s' on line %(lino)d of "
               "pkglist '%(line)s'.\n\nFormat should "
               "be %{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}" )
 
-class DepsolveError(SolutionStudioError):
+class DepsolveError(SystemBuilderError):
   message = "Error resolving package dependencies: %(message)s"

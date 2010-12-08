@@ -21,12 +21,12 @@ __date__    = 'June 12th, 2007'
 
 import errno
 
-from solutionstudio.util import pps
-from solutionstudio.util import rxml
+from systembuilder.util import pps
+from systembuilder.util import rxml
 
-from solutionstudio.util.difftest           import expand
-from solutionstudio.util.difftest.filesdiff import diff, DiffTuple
-from solutionstudio.util.difftest.handlers  import DiffHandler
+from systembuilder.util.difftest           import expand
+from systembuilder.util.difftest.filesdiff import diff, DiffTuple
+from systembuilder.util.difftest.handlers  import DiffHandler
 
 class OutputHandler(DiffHandler):
   def __init__(self, data):

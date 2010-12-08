@@ -18,12 +18,12 @@
 import imp
 import sys
 
-from solutionstudio.util import graph
-from solutionstudio.util import pps
-from solutionstudio.util import resolve
-from solutionstudio.util import tree
+from systembuilder.util import graph
+from systembuilder.util import pps
+from systembuilder.util import resolve
+from systembuilder.util import tree
 
-from solutionstudio.util.versort import Version
+from systembuilder.util.versort import Version
 
 CLASS_DEFAULT = 00
 CLASS_META    = 01 # meta-class event

@@ -3,7 +3,7 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <book id="SDFR"
       xmlns:xi="http://www.w3.org/2001/XInclude">
-  <title>Solution Definition File Reference</title>
+  <title>System Definition File Reference</title>
 
   <bookinfo id="bookinfo">
 
@@ -40,7 +40,7 @@
 
       <keyword>Linux</keyword>
 
-      <keyword>solution</keyword>
+      <keyword>system distribution</keyword>
 
       <keyword>Anaconda</keyword>
 

@@ -17,11 +17,11 @@
 #
 import errno
 
-from solutionstudio.util.pps.lib.mirror import trymirrors, ContinueIteration, HOSTUNAVAIL
+from systembuilder.util.pps.lib.mirror import trymirrors, ContinueIteration, HOSTUNAVAIL
 
-from solutionstudio.util.pps.Path.remote import RemotePath_Stat
+from systembuilder.util.pps.Path.remote import RemotePath_Stat
 
-from solutionstudio.util.pps.Path.error import PathError
+from systembuilder.util.pps.Path.error import PathError
 
 class MirrorPath_Stat(RemotePath_Stat):
   # file properties

@@ -21,8 +21,8 @@ import tempfile
 
 from rpmUtils import miscutils
 
-from solutionstudio.util import img
-from solutionstudio.util import pps
+from systembuilder.util import img
+from systembuilder.util import pps
 
 FLAGS_MAP = {
   0: '',

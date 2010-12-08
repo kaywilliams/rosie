@@ -21,9 +21,9 @@ import lxml.sax
 
 from StringIO import StringIO
 
-from solutionstudio.util import pps
+from systembuilder.util import pps
 
-from solutionstudio.util.rxml import errors
+from systembuilder.util.rxml import errors
 
 class NoneObject: pass
 

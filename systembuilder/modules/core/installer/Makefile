@@ -5,8 +5,8 @@ PYFILES = $(wildcard *.py)
 all:
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/solutionstudio/modules/core/installer
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/solutionstudio/modules/core/installer
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules/core/installer
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systembuilder/modules/core/installer
 
 clean:
 	rm -f *.pyc *.pyo

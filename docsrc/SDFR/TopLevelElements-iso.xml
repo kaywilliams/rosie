@@ -13,7 +13,7 @@
     </title>
 
     <para>
-    Creates ISO images of the solution for installation via CD or DVD.
+    Creates ISO images of the system distribution for installation via CD or DVD.
     </para>
   </section>
 
@@ -117,7 +117,7 @@
     </title>
 
     <para>
-    In the following example, <application class="software">SolutionStudio</application>
+    In the following example, <application class="software">SystemBuilder</application>
     will create four sets of ISO images; one with 4.7 gigabytes per disc
     ("DVD"), one with 400 megabytes per disc ("400000000"), one with 640
     megabytes per disc ("640 mb"), and one with 640 mebibytes per disc

@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 """
-Base module for SolutionStudio utilities
+Base module for SystemBuilder utilities
 
 See individual module documentation for more information.
 """

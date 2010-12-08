@@ -1,7 +1,7 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="solutionstudio">
+    <element name="systembuilder">
       <optional>
       <attribute name="schema-version">
         <choice>
@@ -47,6 +47,6 @@
     </element>
   </start>
 
-  <include href="solution/lib.rng"/>
+  <include href="system/lib.rng"/>
 
 </grammar>

@@ -1,6 +1,6 @@
 import copy
 
-from solutionstudio.util import pps
+from systembuilder.util import pps
 
 # update individual values in the appropriate section below if neccessary
 PATH_DEFAULTS = {

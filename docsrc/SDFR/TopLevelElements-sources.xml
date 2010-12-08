@@ -13,9 +13,9 @@
     </title>
 
     <para>
-    Specifies the list of repositories from which SolutionStudio downloads
+    Specifies the list of repositories from which SystemBuilder downloads
     source RPMs (SRPMs). If this module is enabled, every RPM in the
-    solution must have a matching SRPM in one or more of these source
+    system distribution must have a matching SRPM in one or more of these source
     repositories.
     </para>
 

@@ -16,17 +16,17 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from solutionstudio.util.pps          import path as _path, register_scheme
-from solutionstudio.util.pps.lib.http import auth_handler
-from solutionstudio.util.pps.util     import urlunparse
+from systembuilder.util.pps          import path as _path, register_scheme
+from systembuilder.util.pps.lib.http import auth_handler
+from systembuilder.util.pps.util     import urlunparse
 
 from path_io   import RhnPath_IO
 from path_stat import RhnPath_Stat
 
-from solutionstudio.util.pps.Path.http import HttpPath_Printf as RhnPath_Printf
+from systembuilder.util.pps.Path.http import HttpPath_Printf as RhnPath_Printf
 
-from solutionstudio.util.pps.Path.remote import _RemotePath     as RemotePath
-from solutionstudio.util.pps.Path.remote import RemotePath_Walk as RhnPath_Walk
+from systembuilder.util.pps.Path.remote import _RemotePath     as RemotePath
+from systembuilder.util.pps.Path.remote import RemotePath_Walk as RhnPath_Walk
 
 class RhnPath(RhnPath_IO, RhnPath_Printf, RhnPath_Stat,
               RhnPath_Walk, RemotePath):

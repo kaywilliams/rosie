@@ -16,12 +16,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from solutionstudio.util import magic
+from systembuilder.util import magic
 
-from solutionstudio.util.img import MODE_READ, MODE_WRITE, acquire_mount_point
+from systembuilder.util.img import MODE_READ, MODE_WRITE, acquire_mount_point
 
-from solutionstudio.util.img.readonly  import ReadOnlyImageHandler, MakeReadOnlyImage, ReadOnlyError
-from solutionstudio.util.img.mountable import MountableImageHandler
+from systembuilder.util.img.readonly  import ReadOnlyImageHandler, MakeReadOnlyImage, ReadOnlyError
+from systembuilder.util.img.mountable import MountableImageHandler
 
 IMAGES = [
   {

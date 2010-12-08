@@ -17,9 +17,9 @@
 #
 import copy
 
-from sstest        import EventTestCase, ModuleTestSuite
-from sstest.core   import make_core_suite
-from sstest.mixins import ImageModifyMixinTestCase, imm_make_suite
+from sbtest        import EventTestCase, ModuleTestSuite
+from sbtest.core   import make_core_suite
+from sbtest.mixins import ImageModifyMixinTestCase, imm_make_suite
 
 class ProductImageEventTestCase(EventTestCase):
   moduleid = 'product-image'

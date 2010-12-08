@@ -1,15 +1,15 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="solution">
+    <element name="system">
 
       <optional>
-      <element name="chroot">
+      <element name="bootiso">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
         <optional>
-        <attribute name="compress"><ref name="value-boolean"/></attribute>
+        <ref name="element-boot-args"/>
         </optional>
       </element>
       </optional>

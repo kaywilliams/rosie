@@ -19,11 +19,11 @@ from StringIO import StringIO
 
 import unittest
 
-from solutionstudio.util import pps
-from solutionstudio.util import rxml
+from systembuilder.util import pps
+from systembuilder.util import rxml
 
-from sstest      import EventTestCase, ModuleTestSuite, _run_make
-from sstest.core import make_core_suite
+from sbtest      import EventTestCase, ModuleTestSuite, _run_make
+from sbtest.core import make_core_suite
 
 class DownloadEventTestCase(EventTestCase):
   moduleid = 'download'
@@ -79,7 +79,7 @@ class Test_ArchChanges(DownloadEventTestCase):
   "Test arch changes in <main/>"
   def __init__(self, distro, version, arch):
     DownloadEventTestCase.__init__(self, distro, version, arch)
-    rxml.tree.uElement('arch', self.conf.get('/solution/main'), text='i386')
+    rxml.tree.uElement('arch', self.conf.get('/system/main'), text='i386')
 
 class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
   "Test multiple repos with the same package."

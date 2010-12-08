@@ -18,16 +18,16 @@
 
 import os
 
-from solutionstudio.util.pps.util import urlunparse, _normpart
+from systembuilder.util.pps.util import urlunparse, _normpart
 
-from solutionstudio.util.pps      import path as _path, register_scheme
-from solutionstudio.util.pps.Path import BasePath
+from systembuilder.util.pps      import path as _path, register_scheme
+from systembuilder.util.pps.Path import BasePath
 
 from path_io   import LocalPath_IO
 from path_stat import LocalPath_Stat
 from path_walk import LocalPath_Walk
 
-from solutionstudio.util.pps.Path import Path_Printf as LocalPath_Printf
+from systembuilder.util.pps.Path import Path_Printf as LocalPath_Printf
 
 class _LocalPath(BasePath):
   "String representation of local file paths"
@@ -103,8 +103,8 @@ class LocalPath(LocalPath_IO, LocalPath_Printf, LocalPath_Stat,
 def path(string):
   return PLATFORM_MAP[os.name](string)
 
-from solutionstudio.util.pps.Path.nt    import NTPath
-from solutionstudio.util.pps.Path.posix import PosixPath
+from systembuilder.util.pps.Path.nt    import NTPath
+from systembuilder.util.pps.Path.posix import PosixPath
 
 PLATFORM_MAP = {
   'nt': NTPath,

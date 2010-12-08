@@ -19,10 +19,10 @@ import errno
 import fnmatch
 import re
 
-from solutionstudio.util.pps.constants import *
-from solutionstudio.util.pps.PathSet   import PathSet
+from systembuilder.util.pps.constants import *
+from systembuilder.util.pps.PathSet   import PathSet
 
-from solutionstudio.util.pps.Path.error import PathError
+from systembuilder.util.pps.Path.error import PathError
 
 
 class Path_Walk(object):

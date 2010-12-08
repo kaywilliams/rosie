@@ -18,19 +18,19 @@
 """
 callback.py
 
-Callback classes for solutionstudio
+Callback classes for systembuilder
 
 This file contains several 'callback' classes primarily intended for reporting
 progress information back to the user.  Many make use of progressbar.py to
 display this data in a compact, easy-to-read format.
 """
 
-from solutionstudio.util.mkrpm         import callback
-from solutionstudio.util.progressbar   import ProgressBar
-from solutionstudio.util.sync.cache    import CachedSyncCallback  as _CachedSyncCallback
-from solutionstudio.util.sync.callback import SyncCallbackMetered as _SyncCallbackMetered
+from systembuilder.util.mkrpm         import callback
+from systembuilder.util.progressbar   import ProgressBar
+from systembuilder.util.sync.cache    import CachedSyncCallback  as _CachedSyncCallback
+from systembuilder.util.sync.callback import SyncCallbackMetered as _SyncCallbackMetered
 
-from solutionstudio.logging import L1, L2
+from systembuilder.logging import L1, L2
 
 # progressbar layouts - see progressbar.py for other tags
 LAYOUT_TIMER     = '%(title)-67.67s (%(time-elapsed)s)'

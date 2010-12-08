@@ -18,19 +18,19 @@
 
 import fnmatch
 
-from solutionstudio.util import magic
+from systembuilder.util import magic
 
-from solutionstudio.constants import KERNELS
-from solutionstudio.errors    import assert_file_has_content, SolutionStudioError
-from solutionstudio.event     import Event
-from solutionstudio.logging   import L1
+from systembuilder.constants import KERNELS
+from systembuilder.errors    import assert_file_has_content, SystemBuilderError
+from systembuilder.event     import Event
+from systembuilder.logging   import L1
 
-from solutionstudio.modules.shared import comps
+from systembuilder.modules.shared import comps
 
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PackagesEvent'],
-  description = 'defines the required packages and groups for the solution',
+  description = 'defines the required packages and groups for the system distribution',
   group       = 'repocreate',
 )
 
@@ -278,7 +278,7 @@ class PackagesEvent(Event):
 
 
 #------ ERRORS ------#
-class CompsError(SolutionStudioError): pass
+class CompsError(SystemBuilderError): pass
 
 class GroupNotFoundError(CompsError):
   message = "Group '%(group)s' not found in any groupfile"

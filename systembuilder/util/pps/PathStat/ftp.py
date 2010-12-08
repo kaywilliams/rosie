@@ -20,10 +20,10 @@
 import stat
 import time
 
-from solutionstudio.util.pps.constants import *
+from systembuilder.util.pps.constants import *
 
-from solutionstudio.util.pps.Path.error import PathError
-from solutionstudio.util.pps.lib.ftp    import FtpFileObject
+from systembuilder.util.pps.Path.error import PathError
+from systembuilder.util.pps.lib.ftp    import FtpFileObject
 
 from remote import RemotePathStat
 

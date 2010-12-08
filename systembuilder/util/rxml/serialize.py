@@ -31,7 +31,7 @@ __date__    = 'April 4th, 2008'
 
 import types
 
-from solutionstudio.util.rxml import tree
+from systembuilder.util.rxml import tree
 
 class XmlSerializer:
   """

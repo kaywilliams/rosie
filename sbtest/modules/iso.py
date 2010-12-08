@@ -17,16 +17,16 @@
 #
 import unittest
 
-from solutionstudio.util import pps
-from solutionstudio.util.img         import MakeImage
-from solutionstudio.util.rxml.config import Element
-from solutionstudio.util import si
+from systembuilder.util import pps
+from systembuilder.util.img         import MakeImage
+from systembuilder.util.rxml.config import Element
+from systembuilder.util import si
 
-from solutionstudio.splittree import parse_size
+from systembuilder.splittree import parse_size
 
-from sstest        import EventTestCase, ModuleTestSuite
-from sstest.core   import make_core_suite, make_extension_suite
-from sstest.mixins import BootConfigMixinTestCase
+from sbtest        import EventTestCase, ModuleTestSuite
+from sbtest.core   import make_core_suite, make_extension_suite
+from sbtest.mixins import BootConfigMixinTestCase
 
 #------ pkgorder ------#
 class PkgorderEventTestCase(EventTestCase):

@@ -17,12 +17,12 @@
 #
 import os
 
-from solutionstudio.util import magic
-from solutionstudio.util import shlib
+from systembuilder.util import magic
+from systembuilder.util import shlib
 
-from solutionstudio.util.img import acquire_mount_point, release_mount_point
+from systembuilder.util.img import acquire_mount_point, release_mount_point
 
-from solutionstudio.util.img.mountable import MountableImageHandler, MakeMountableImage
+from systembuilder.util.img.mountable import MountableImageHandler, MakeMountableImage
 
 IMAGES = [
   {

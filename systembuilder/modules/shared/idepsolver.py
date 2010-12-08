@@ -19,13 +19,13 @@ import cPickle
 import rpmUtils
 import yum
 
-from solutionstudio.util import difftest
-from solutionstudio.util import pps
+from systembuilder.util import difftest
+from systembuilder.util import pps
 
-from solutionstudio.util.depsolver import Depsolver
+from systembuilder.util.depsolver import Depsolver
 
-from solutionstudio.callback import PkglistCallback, TimerCallback
-from solutionstudio.logging  import L1
+from systembuilder.callback import PkglistCallback, TimerCallback
+from systembuilder.logging  import L1
 
 YUMCONF_HEADER = [
   '[main]',
@@ -257,7 +257,7 @@ class IDepsolver(Depsolver):
       if po not in satisfiers:
         satisfiers.add(po)
 
-    # Minimize packages in the solution by giving preference to 
+    # Minimize packages in the system distribution by giving preference to 
     # satisfiers listed as comps packages
     comps_satisfiers = [ po for po in satisfiers \
                          if po in self.comps_pkgs ]

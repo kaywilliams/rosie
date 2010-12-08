@@ -25,15 +25,15 @@ import rpm
 import stat
 import time
 
-from solutionstudio.util.repo import RepoContainer, ReposFromFile, ReposFromXml
-from solutionstudio.util.repo import RPM_PNVRA_REGEX
+from systembuilder.util.repo import RepoContainer, ReposFromFile, ReposFromXml
+from systembuilder.util.repo import RPM_PNVRA_REGEX
 
-from solutionstudio.errors    import assert_file_readable, SolutionStudioError
-from solutionstudio.event     import Event
-from solutionstudio.logging   import L1, L2
-from solutionstudio.validate  import InvalidConfigError
+from systembuilder.errors    import assert_file_readable, SystemBuilderError
+from systembuilder.event     import Event
+from systembuilder.logging   import L1, L2
+from systembuilder.validate  import InvalidConfigError
 
-from solutionstudio.modules.shared import CreaterepoMixin, RepoEventMixin, SolutionStudioRepoGroup
+from systembuilder.modules.shared import CreaterepoMixin, RepoEventMixin, SystemBuilderRepoGroup
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -65,10 +65,10 @@ class SourceReposEvent(Event, RepoEventMixin):
 
     updates = RepoContainer()
     if self.config.pathexists('.'):
-      updates.add_repos(ReposFromXml(self.config.get('.'), cls=SolutionStudioRepoGroup))
+      updates.add_repos(ReposFromXml(self.config.get('.'), cls=SystemBuilderRepoGroup))
     for filexml in self.config.xpath('repofile/text()', []):
       updates.add_repos(ReposFromFile(self.io.abspath(filexml),
-                                      cls=SolutionStudioRepoGroup))
+                                      cls=SystemBuilderRepoGroup))
 
     self.setup_repos(updates)
     self.read_repodata()
@@ -191,5 +191,5 @@ class SourcesEvent(Event, CreaterepoMixin):
       self.mdfile.rename(debugdir/self.mdfile.basename)
 
 
-class MissingSrpmsError(SolutionStudioError):
+class MissingSrpmsError(SystemBuilderError):
   message = "The following SRPMs were not found in any input repo:\n%(srpms)s"

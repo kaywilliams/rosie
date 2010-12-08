@@ -5,9 +5,9 @@
   <title>Appendix A</title>
 
 <section>
-  <title>Example SolutionStudio Output</title>
+  <title>Example SystemBuilder Output</title>
 
-  <para>Following is an example of SolutionStudio output for a successful
+  <para>Following is an example of SystemBuilder output for a successful
   first build.</para>
 
   <informalexample>
@@ -115,7 +115,7 @@ compose
  * linking files
  * creating manifest file
 publish
- * publishing to '/var/www/html/solutions/samba-server-5-i386' 
+ * publishing to '/var/www/html/systems/samba-server-5-i386' 
 Build complete at 2010-02-09 09:18:58
     </programlisting>
   </informalexample>

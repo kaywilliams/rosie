@@ -2,69 +2,69 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Building Solutions</title>
+  <title>Building Systems</title>
 
   <para>Running 
-  <application class="software">SolutionStudio</application> gathers solution
-  content, processes it, and creates a complete solution.</para>
+  <application class="software">SystemBuilder</application> gathers system
+  content, processes it, and creates a complete system distribution.</para>
 
     <mediaobject>
       <imageobject>
         <imagedata fileref="build_overview.png" />
       </imageobject>
 
-      <caption><para>SolutionStudio Build Process</para></caption>
+      <caption><para>SystemBuilder Build Process</para></caption>
     </mediaobject>
 
   <section>
   <title>Build Input</title>
 
-  <para><application class="software">SolutionStudio</application> uses three classes of input to create solutions: a base operating system, package repositories, and configuration files and scripts. Solution content is specified using a <xref linkend="solution_definition">solution definition</xref>.</para>
+  <para><application class="software">SystemBuilder</application> uses three classes of input to create system distributions: a base operating system, package repositories, and configuration files and scripts. System content is specified using a <xref linkend="system_definition">system definition</xref>.</para>
 
   <itemizedlist>
-  <listitem><emphasis role="strong"> Base Operating System.</emphasis> SolutionStudio requires a base operating system solution as input for creating new solutions. The base operating system is defined at the level of operating system name (Red Hat Enterprise Linux or CentOS), version (5) and architecture (i386 or x86_64). The four base operating systems SolutionStudio supports are RHEL-5-i386, RHEL-5-x86_64, CentOS-5-i386 and CentOS-5-x86_64. Base operating system solutions must include both network installation images and package repositories. Base operating system solution are covered in more detail under <xref linkend="specifying-repositories" />.</listitem>
+  <listitem><emphasis role="strong"> Base Operating System.</emphasis> SystemBuilder requires a base operating system distribution as input for creating new system distributions. The base operating system is defined at the level of operating system name (Red Hat Enterprise Linux or CentOS), version (5) and architecture (i386 or x86_64). The four base operating systems SystemBuilder supports are RHEL-5-i386, RHEL-5-x86_64, CentOS-5-i386 and CentOS-5-x86_64. Base operating system distributions must include both network installation images and package repositories. Base operating system distributions are covered in more detail under <xref linkend="specifying-repositories" />.</listitem>
 
-  <listitem><emphasis role="strong">Package Repositories.</emphasis> SolutionStudio uses RPM package repositories to locate and download software components for the solution. SolutionStudio requires at least one package repository, that of the base operating system solution. A typical solution definition will specify multiple input repositories, including the base operating system update repository, and repositories made available from other internal and external providers. See <xref linkend="specifying-repositories" /> for more information.</listitem>
+  <listitem><emphasis role="strong">Package Repositories.</emphasis> SystemBuilder uses RPM package repositories to locate and download software components for the system distribution. SystemBuilder requires at least one package repository, that of the base operating system distribution. A typical system definition will specify multiple input repositories, including the base operating system update repository, and repositories made available from other internal and external providers. See <xref linkend="specifying-repositories" /> for more information.</listitem>
 
-  <listitem><emphasis role="strong">Configuration Files and Scripts.</emphasis> The final category of solution content is user-provided configuration files and scripts. Files are copied, and scripts are executed, during client machine installation and updates. For more information, see <xref linkend="configuring-clients" />.</listitem>
+  <listitem><emphasis role="strong">Configuration Files and Scripts.</emphasis> The final category of system distribution content is user-provided configuration files and scripts. Files are copied, and scripts are executed, during client machine installation and updates. For more information, see <xref linkend="configuring-clients" />.</listitem>
   </itemizedlist>
   </section>
 
   <section>
   <title>Build Process</title>
 
-  <para><application class="software">SolutionStudio</application> uses information from the <xref linkend="solution_definition"/> to gather solution content. It processes this information in three primary ways.</para>
+  <para><application class="software">SystemBuilder</application> uses information from the <xref linkend="system_definition"/> to gather system distribution content. It processes this information in three primary ways.</para>
 
   <itemizedlist>
-  <listitem><para><emphasis role="strong">Creates a configuration package.</emphasis> SolutionStudio creates a <xref linkend="configuration-package" /> in RPM format. This package contains configuration files and scripts specified in the solution definition. It also contains SolutionStudio-generated YUM update configuration. See <xref linkend="updating-client-machines" /> for more information on SolutionStudio-generated YUM configuration.</para>
+  <listitem><para><emphasis role="strong">Creates a configuration package.</emphasis> SystemBuilder creates a <xref linkend="configuration-package" /> in RPM format. This package contains configuration files and scripts specified in the system distribution definition. It also contains SystemBuilder-generated YUM update configuration. See <xref linkend="updating-client-machines" /> for more information on SystemBuilder-generated YUM configuration.</para>
 
-  <para>During this step, SolutionStudio also creates a <xref linkend="solution-data-file"/>, if one does not exist, in the same folder as the solution definition. The file has a <filename>.dat</filename> extension. SolutionStudio uses the data file to track and increment the configuration package release number.</para></listitem>
+  <para>During this step, SystemBuilder also creates a <xref linkend="system-data-file"/>, if one does not exist, in the same folder as the system distribution definition. The file has a <filename>.dat</filename> extension. SystemBuilder uses the data file to track and increment the configuration package release number.</para></listitem>
 
-  <listitem><emphasis role="strong">Assembles a package repository.</emphasis> Using the solution definition, SolutionStudio compiles a list of required packages. It then resolves package dependencies, downloads packages, adds the configuration package (mentioned in the previous item) and creates a complete, self-contained package repository. The package repository is used during network installations to client machines. It is also used during client machine updates.</listitem>
+  <listitem><emphasis role="strong">Assembles a package repository.</emphasis> Using the system distribution definition, SystemBuilder compiles a list of required packages. It then resolves package dependencies, downloads packages, adds the configuration package (mentioned in the previous item) and creates a complete, self-contained package repository. The package repository is used during network installations to client machines. It is also used during client machine updates.</listitem>
 
-  <listitem><emphasis role="strong">Customizes network install images.</emphasis> SolutionStudio downloads network installation images from the base operating system and modifies them to include solution-specific information. By default, SolutionStudio configures the installer program contained within the images to access solution content from the solution's <xref linkend="download-location"/>. This allows client machines to be installed over the network without needing to provide the download location manually at installation time. SolutionStudio can also be used to completely automate client installations. See <xref linkend="automating-installations"/> for more information.</listitem>
+  <listitem><emphasis role="strong">Customizes network install images.</emphasis> SystemBuilder downloads network installation images from the base operating system and modifies them to include system-specific information. By default, SystemBuilder configures the installer program contained within the images to access content from the system distribution's <xref linkend="download-location"/>. This allows client machines to be installed over the network without needing to provide the download location manually at installation time. SystemBuilder can also be used to completely automate client installations. See <xref linkend="automating-installations"/> for more information.</listitem>
   </itemizedlist>
 
-  <para><application class="software">SolutionStudio</application> stores solution content, both input and generated, in the cache folder, by default <filename type="directory">/var/cache/solutionstudio/</filename>. It reuses information from the cache on subsequent runs, where possible, to improve build performance.</para>
+  <para><application class="software">SystemBuilder</application> stores system content, both input and generated, in the cache folder, by default <filename type="directory">/var/cache/systembuilder/</filename>. It reuses information from the cache on subsequent runs, where possible, to improve build performance.</para>
   </section>
 
   <section>
   <title>Build Output</title>
 
-  <para>SolutionStudio outputs a complete solution, a solution data file and a log file.</para>
+  <para>SystemBuilder outputs a complete system distribution, a system distribution data file and a log file.</para>
 
   <itemizedlist>
-  <listitem><emphasis role="strong">Solution.</emphasis> The primary output of the build process is a complete solution containing solution-specific network installation images and a package repository. Using network installation images you can deploy the solution to one or more physical or virtual client machines. See <xref linkend="installing-client-machines" /> for more information. The solution package repository supports client machine updates using YUM. The section <xref linkend="updating-client-machines" /> provides an overview of SolutionStudio's client machine update features.</listitem>
+  <listitem><emphasis role="strong">System.</emphasis> The primary output of the build process is a complete system distribution containing system-specific network installation images and a package repository. Using network installation images you can deploy the system distribution to one or more physical or virtual client machines. See <xref linkend="installing-client-machines" /> for more information. The system package repository supports client machine updates using YUM. The section <xref linkend="updating-client-machines" /> provides an overview of SystemBuilder's client machine update features.</listitem>
 
-  <listitem><emphasis role="strong">Solution Data File.</emphasis> As mentioned above, SolutionStudio creates a <xref linkend="solution-data-file"/> during the build process. This file is used to track and increment the release number of the configuration package.</listitem>
+  <listitem><emphasis role="strong">System Data File.</emphasis> As mentioned above, SystemBuilder creates a <xref linkend="system-data-file"/> during the build process. This file is used to track and increment the release number of the configuration package.</listitem>
 
-  <listitem><emphasis role="strong">SolutionStudio Log File.</emphasis> SolutionStudio sends output both to the screen and to a log file, located by default at <filename>/var/log/solutionstudio.log.</filename></listitem>
+  <listitem><emphasis role="strong">SystemBuilder Log File.</emphasis> SystemBuilder sends output both to the screen and to a log file, located by default at <filename>/var/log/systembuilder.log.</filename></listitem>
   </itemizedlist>
 
   </section>
 
-  <para>In summary, SolutionStudio is a production solution life cycle manager
-  for use in defining, building and maintaining solutions that can
+  <para>In summary, SystemBuilder is a production system life cycle manager
+  for use in defining, building and maintaining system distribution that can
   be easily installed and updated on physical and virtual machines using
   industry standard deployment and update tools.</para>
 </section>

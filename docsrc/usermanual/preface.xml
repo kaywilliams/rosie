@@ -7,12 +7,12 @@
   <section>
     <title>Audience</title>
 
-    <para>SolutionStudio is a product intended for system administrators
+    <para>SystemBuilder is a product intended for system administrators
     who need to build, test, deploy and maintain Red Hat Enterprise Linux or 
     CentOS-based systems. Certain chapters in this manual assume you have a 
     particular level of knowledge.</para>
 
-    <para>For Chapter 3, "Building a Solution," in addition to knowing how
+    <para>For Chapter 3, "Building a System," in addition to knowing how
     to create and edit XML files, manage a web server and create USB and CD/DVD
     boot media, you should have an intermediate skill level with the following
     components:</para>
@@ -38,7 +38,7 @@
     with version control systems, local mirror hosting, XPath and XInclude.
     </para>
 
-    <para>For Chapter 5, "Doing More with SolutionStudio," key skills
+    <para>For Chapter 5, "Doing More with SystemBuilder," key skills
     include understanding how to automate Anaconda installations using 
     kickstart files and command line arguments.</para>
   </section>
@@ -47,24 +47,24 @@
     <title>What's Not Covered</title>
 
     <para>This manual complements several <application
-    class="software">SolutionStudio</application> documents. The "Installation
+    class="software">SystemBuilder</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
-    obtaining and installing SolutionStudio and creating a basic CentOS system
-    solution. The "Solution Definition File Reference" (SDFR) contains
-    the syntax for solution definition elements and attributes. 
-    Finally, SolutionStudio has a set of 
+    obtaining and installing SystemBuilder and creating a basic CentOS system
+    distribution. The "System Definition File Reference" (SDFR) contains
+    the syntax for system definition elements and attributes. 
+    Finally, SystemBuilder has a set of 
     <emphasis role="strong">man pages</emphasis> explaining the
-    <command>solutionstudio</command> command, its options and the SolutionStudio
-    configuration file, <filename>solutionstudio.conf</filename>. This manual 
+    <command>systembuilder</command> command, its options and the SystemBuilder
+    configuration file, <filename>systembuilder.conf</filename>. This manual 
     contains references to all four throughout the text.</para>
 
-    <para>These SolutionStudio documents are available at the Rendition Software
+    <para>These SystemBuilder documents are available at the Rendition Software
     website.
     </para>
 
     <para>
-    <ulink url="http://www.renditionsoftware.com/solutionstudio/docs/">
-    http://www.renditionsoftware.com/solutionstudio/docs/ </ulink>
+    <ulink url="http://www.renditionsoftware.com/systembuilder/docs/">
+    http://www.renditionsoftware.com/systembuilder/docs/ </ulink>
     </para>
 
   </section>
@@ -72,11 +72,12 @@
   <section>
     <title>How to Read</title>
 
-    <para>The intent of the manual is to help you use SolutionStudio effectively
-    to build and maintain solutions, and to use solutions to
-    install and update client machines. This manual takes a top-down approach,
-    explaining the concepts before giving steps, commands and code examples
-    that you can use to build, deploy and enhance your own solutions.</para>
+    <para>The intent of the manual is to help you use SystemBuilder effectively
+    to build and maintain system distributions, and to use system distributions
+    to install and update client machines. This manual takes a top-down
+    approach, explaining the concepts before giving steps, commands and code 
+    examples that you can use to build, deploy and enhance your own system
+    distributions.</para>
   </section>
 
   <section>
@@ -102,7 +103,7 @@
         <term><emphasis role="strong">Commands</emphasis></term>
 
         <listitem>
-          <para><command>Command</command> names in SolutionStudio or
+          <para><command>Command</command> names in SystemBuilder or
           <function>function</function> names in other programs appear
           throughout the document.</para>
         </listitem>
@@ -115,12 +116,12 @@
         <listitem>
           <para>Elements and attributes in XML are referred to by their XPath
           equivalents. The active node is always considered to be the root,
-          solution; thus, the first element in the XPath expression is the
+          system; thus, the first element in the XPath expression is the
           top-level element, while subsequent elements/attributes are its
           children. Top-level elements in the SDFR and their child elements
           use the <emphasis>parent/child/child</emphasis> format, while
           <emphasis>@attribute-names</emphasis> are preceded by an @ symbol.
-          The assumed parent element is <emphasis>solution</emphasis>. For
+          The assumed parent element is <emphasis>system</emphasis>. For
           more details on XPath syntax, see <ulink
           url="http://www.w3.org/TR/xpath.html">XML Path Language</ulink>.
           </para>
@@ -168,7 +169,7 @@
         <term><emphasis role="strong">Notes</emphasis></term>
 
         <listitem>
-          <para>Within solution definition examples, the traditional XML comment
+          <para>Within system definition examples, the traditional XML comment
           tags "&lt;!--" and "--&gt;" contain notes. See Also <xref
           linkend="example" /> .</para>
 
@@ -177,7 +178,7 @@
 
           <para><note>
               <para>The top-level elements can be in any order in the
-              solution definition.</para>
+              system definition.</para>
             </note></para>
         </listitem>
       </varlistentry>
@@ -190,7 +191,7 @@
           computer output</computeroutput>, usually in Courier monospace font,
           or included in a box, as in the case below.</para>
 
-          <screen>/usr/bin/solutionstudio</screen>
+          <screen>/usr/bin/systembuilder</screen>
         </listitem>
       </varlistentry>
 
@@ -215,9 +216,9 @@ $ precedes lines entered as a normal user</programlisting>
         <term><emphasis role="strong">Variables</emphasis></term>
 
         <listitem>
-          <para>SolutionStudio variables are presented in monospace font preceded by a
+          <para>SystemBuilder variables are presented in monospace font preceded by a
           dollar sign, e.g. <varname>$ID</varname>. Variables outside
-          the SolutionStudio realm appear in lowercase in monospace font preceded by a
+          the SystemBuilder realm appear in lowercase in monospace font preceded by a
           dollar sign, e.g. <varname>$releasever</varname>.</para>
         </listitem>
       </varlistentry>
@@ -234,53 +235,52 @@ $ precedes lines entered as a normal user</programlisting>
         <listitem>
           <para>Chapter I, "Preface," provides information about how to use and
           read this manual. It also contains information on obtaining the 
-          <application class="software">SolutionStudio</application> product.
+          <application class="software">SystemBuilder</application> product.
           </para>
         </listitem>
 
         <listitem>
-          <para>Chapter 2, "Introduction" explains what a 
-          solution is, how <application class="software">SolutionStudio
-          </application> helps you build it in an efficient timely manner
+          <para>Chapter 2, "Introduction" explains what a system distribution
+          is, how <application class="software">SystemBuilder
+          </application> helps you build one in an efficient timely manner
           and the underlying architecture that makes this improved performance
           possible. The section also includes a "Glossary of Terms" explaining
           terms used within the <application
-          class="software">SolutionStudio</application> realm.</para>
+          class="software">SystemBuilder</application> realm.</para>
         </listitem>
 
         <listitem>
-          <para>Chapter 3, "Building a Solution," covers the basic
+          <para>Chapter 3, "Building a System," covers the basic
           concepts for configuring the <application
-          class="software">SolutionStudio</application> build machine,
-          defining and deploying a solution, running <application
-          class="software">SolutionStudio</application> and updating a
-          solution. As a use case model, these sections will help you
+          class="software">SystemBuilder</application> build machine,
+          defining and deploying a system distribution, running <application
+          class="software">SystemBuilder</application> and updating a
+          system distribution. As a use case model, these sections will help you
           create a basic <application class="software">Samba</application>
-          server solution based on CentOS 5.</para>
+          server distribution based on CentOS 5.</para>
         </listitem>
 
         <listitem>
           <para>Chapter 4, "Creating a Production Environment," will help you
           set up a managed development and deployment environment using
-          SolutionStudio as its cornerstone. It explains implementing the 
+          SystemBuilder as its cornerstone. It explains implementing the 
           development - staging - production environment within the context of 
-          building and deploying solutions using <application
-          class="software">SolutionStudio</application>. The Samba server
-          solution you created in Part I will have new features
-          requirements to implement in Part II.</para>
+          <application class="software">SystemBuilder</application>. The 
+          Samba server system distribution you created in Part I will have new 
+          feature requirements to implement in Part II.</para>
 
-          <para>Chapter 4 also discusses how SolutionStudio makes your life
-          easier as a system or build administrator. Versioning solution
+          <para>Chapter 4 also discusses how SystemBuilder makes your life
+          easier as a system or build administrator. Versioning system 
           files and utilizing an object-oriented model through the XInclude
-          mechanism for the solution definitions are important usability
+          mechanism for the system distribution definitions are important usability
           features. Choosing the best location for storing and downloading
-          a solution via the web is another key concept.</para>
+          a system distribution via the web is another key concept.</para>
         </listitem>
 
         <listitem>
-          <para>Chapter 5, "Doing More with SolutionStudio" will help you
-          customize your solutions. It describes using kickstart files to 
-          automate client installation, discusses GPG checking and
+          <para>Chapter 5, "Doing More with SystemBuilder" will help you
+          customize your system distributions. It describes using kickstart 
+          files to automate client installation, discusses GPG checking and
           using GPG keys to sign your own packages, and provides information on 
           creating CD/DVD installation images.</para>
         </listitem>
@@ -288,11 +288,11 @@ $ precedes lines entered as a normal user</programlisting>
   </section>
 
   <section>
-    <title>Getting SolutionStudio</title>
+    <title>Getting SystemBuilder</title>
 
-    <para>SolutionStudio and associated documents are available at
-    <ulink url="http://www.renditionsoftware.com/solutionstudio/"> the 
+    <para>SystemBuilder and associated documents are available at
+    <ulink url="http://www.renditionsoftware.com/systembuilder/"> the 
     Rendition Software website</ulink> 
-    at www.renditionsoftware.com/solutionstudio.</para>
+    at www.renditionsoftware.com/systembuilder.</para>
   </section>
 </chapter>

@@ -11,7 +11,7 @@
     Definition
     </title>
 
-    <para>Contains basic information about the solution.</para>
+    <para>Contains basic information about the system distribution.</para>
 
   </section>
 
@@ -48,7 +48,7 @@
 
       <listitem>
       <para>
-      The microprocessor architecture label for the target solution
+      The microprocessor architecture label for the target client
       machines. Used to resolve $releasever variables used in repository
       definitions. See the <emphasis>repos</emphasis> element for more
       information. Accepts either "i386" or "x86_64".</para>
@@ -72,7 +72,7 @@
       <listitem>
       <para>
       <varname>TEXT</varname> specifying a way for client system
-      users to report solution installation bugs. Displays when bugs are
+      users to report system installation bugs. Displays when bugs are
       encountered during during client machine installation.
       </para>
 
@@ -90,7 +90,7 @@
 
       <listitem>
       <para>
-      A human-friendly name for the solution. Displays during client machine
+      A human-friendly name for the system distribution. Displays during client machine
       installation.
       </para>
 
@@ -108,10 +108,10 @@
 
       <listitem>
       <para>
-      The unique id for the custom solution. Used as the directory name
-      for the solution in the SolutionStudio publish and cache folders
-      (by default <emphasis>/var/www/html/solutions/</emphasis> and 
-      <emphasis>/var/cache/solutionstudio</emphasis>, respectively).
+      The unique id for the system distribution. Used as the directory name
+      for the system distribution in the SystemBuilder publish and cache folders
+      (by default <emphasis>/var/www/html/systems/</emphasis> and 
+      <emphasis>/var/cache/systembuilder</emphasis>, respectively).
       </para>
 
       <para>
@@ -132,11 +132,11 @@
 
       <listitem>
       <para>
-      The <varname>PATH</varname> to the solution’s build log file.
+      The <varname>PATH</varname> to the system distribution’s build log file.
       </para>
 
       <para>
-      The default value is <filename>/var/log/solutionstudio.log</filename>.
+      The default value is <filename>/var/log/systembuilder.log</filename>.
       </para>
       </listitem>
     </varlistentry>
@@ -149,7 +149,7 @@
 
       <listitem>
       <para>
-      The name of the target solution.
+      The name of the target system distribution.
       </para>
 
       <para>
@@ -170,8 +170,8 @@
 
       <listitem>
       <para>
-      The name of the directory within the solution tree where 
-      SolutionStudio will place packages.
+      The name of the directory within the system distribution tree where 
+      SystemBuilder will place packages.
       </para>
 
       <para>
@@ -188,8 +188,8 @@
 
       <listitem>
       <para>
-      The version of the target solution. Displays during client machine
-      installation.
+      The version of the target system distribution. Displays during client 
+      machine installation.
       </para>
 
       <para>
@@ -218,7 +218,7 @@
   &lt;arch&gt;i386&lt;/arch&gt;
   &lt;fullname&gt;CentOS Samba Server&lt;/fullname&gt;
   &lt;bug-url&gt;http://www.example.com/bugs&lt;/bug-url&gt;
-  &lt;log-file&gt;/home/solutionstudiouser/SPIN/eg_CentOS5_main.log&lt;/log-file&gt;
+  &lt;log-file&gt;/home/systembuilderuser/SPIN/eg_CentOS5_main.log&lt;/log-file&gt;
 &lt;/main&gt;
     </programlisting>
     </informalexample>
@@ -230,7 +230,7 @@
     </title>
 
     <para>
-    <varname><xref linkend="variable-solution-id" /></varname>,
+    <varname><xref linkend="variable-system-id" /></varname>,
     <varname><xref linkend="variable-arch" /></varname>,
     <varname><xref linkend="variable-name" /></varname>,
     <varname><xref linkend="variable-version" /></varname>,

@@ -7,21 +7,21 @@
   <para>The traditional system development life cycle (SDLC) includes several
   stages, such as requirements analysis, system architecture, design and
   implementation, testing, deployment and maintenance. The stages with which
-  SolutionStudio is an integral part are implementation, testing, deployment and
-  maintenance. Within the SolutionStudio realm, implementation and testing include
+  SystemBuilder is an integral part are implementation, testing, deployment and
+  maintenance. Within the SystemBuilder realm, implementation and testing include
   development, with a development build machine and client machines, which can 
   be virtual machines, for testing installation and updates. A
   second phase of testing includes staging, which allows you to
-  test the pre-release solution before releasing it for production.
+  test the pre-release system before releasing it for production.
   This simulated environment includes completing the build and deployment
-  processes plus using the solution as intended for a period of time. The
-  final component, production, enables deployment of the solution to a client
+  processes plus using the system distribution as intended for a period of time. The
+  final component, production, enables deployment of the system distribution to a client
   system. Maintenance is an on-going process that could involve all of these
   stages.</para>
 
   <para>The advantage of using a repetitive isolated 
   process as described above is that you can develop, test and fine-tune
-  your solution before gradually testing its performance in a simulated 
+  your system distribution before gradually testing its performance in a simulated 
   environment and, finally, releasing it for real-world use. Within the Linux
   release environment, applications and operating system are updated and upgraded at a variety
   of rates. This process gives you optimum control over what patches, updates,
@@ -31,7 +31,7 @@
   <section>
     <title>The Production Process Step-by-Step</title>
 
-    <para><application class="software">SolutionStudio</application>'s logical network
+    <para><application class="software">SystemBuilder</application>'s logical network
     diagram, below, and subsequent description of steps covers the process in
     more detail.</para>
 
@@ -39,36 +39,36 @@
         <imageobject>
           <imagedata fileref="logical_network.png" />
         </imageobject>
-      <caption><para>SolutionStudio Logical Network</para></caption>
+      <caption><para>SystemBuilder Logical Network</para></caption>
       </mediaobject></para>
 
     <para>To set up production environment with <application
-    class="software">SolutionStudio</application>, you will need a Development 
+    class="software">SystemBuilder</application>, you will need a Development 
     system (D); a Version Control system (V); a Staging system (S);
     and a Production system (P). Development and Staging will contain
     identical installations of a <application
-    class="software">SolutionStudio</application> version. The Production system,
+    class="software">SystemBuilder</application> version. The Production system,
     which will serve as your download server, needs to be web-accessible for 
-    client machines to be able to access it to retrieve solution content.
+    client machines to be able to access it to retrieve system content.
     The Version system needs to have a version control system that supports
     Linux clients.</para>
 
     <para>In early stages of the process, Steps 1-7, you will work with two 
-    versions of your solution, one for development and one for production. 
+    versions of your system distribution, one for development and one for production. 
     The two versions will be identical with one exception, the <xref 
     linkend="download-location"/>. This will allow you to test client 
     installation, basic functionality, and updates directly from a development 
-    machine prior to moving the solution to a staging server. In later 
-    stages, Steps 5-10, you will work with a single solution, the production
-    solution, across separate network environments, staging and production. 
+    machine prior to moving the system distribution to a staging server. In later 
+    stages, Steps 5-10, you will work with a single system, the production
+    system, across separate network environments, staging and production. 
     The staging process allows you to test client interactions with simulated 
     network servers and services prior to deployment. The staging environment is
-    also where you will test ongoing solution updates from external package 
+    also where you will test ongoing system updates from external package 
     repositories.</para> 
 
     <para>There are several variables worth noting in the diagram. One is that 
     the hostname for Staging and Production systems is identical; this 
-    compatibility will aid in Step 9, migrating the production solution to
+    compatibility will aid in Step 9, migrating the production system distribution to
     a production download server. The hostnames for Development and Version 
     Control are different from the others. Another point about the diagram is 
     that, as mentioned above, the Production system is in a separate network 
@@ -96,14 +96,14 @@
         </varlistentry>
 
         <varlistentry>
-          <term>Step 2: Build a Development Solution</term>
+          <term>Step 2: Build a Development System</term>
 
           <listitem>
             <para>This step entails building the <emphasis>development</emphasis>
-            solution, specifically by running the command 
-            <userinput>solutionstudio samba-server-development.definition
+            system distribution, specifically by running the command 
+            <userinput>systembuilder samba-server-development.definition
             </userinput>. (You will build the 
-            <emphasis>production</emphasis> solution in Step 6.) 
+            <emphasis>production</emphasis> system distribution in Step 6.) 
             </para>
           </listitem>
         </varlistentry>
@@ -112,7 +112,7 @@
           <term>Step 3: Test on Development Clients</term>
 
           <listitem>
-            <para>After building the development solution, you will install
+            <para>After building the development system distribution, you will install
             it on development clients and test client functionality. During 
             this step you will also test updates to existing 
             client machines. See <xref linkend="testing-production-updates"/> for
@@ -131,10 +131,11 @@
             <para>Once you are satisfied with the results in Step 3, 
             you will set up your Version Control repository (V) and check in 
             definition and configuration files prior to creating the production 
-            solution. From this point forward, if you need to adjust your
-            solution or configuration files in any way, you should return 
-            to Step 1, checking out and altering these files using the
-            Development system. See <xref linkend="versioning-definitions"/> for
+            system distribution. From this point forward, if you need to adjust
+            your system definition or configuration files in any way, you 
+            should return to Step 1, checking out and altering these files
+            using the Development system. See 
+            <xref linkend="versioning-definitions"/> for
             information on using a version control system.</para>
           </listitem>
         </varlistentry>
@@ -144,7 +145,7 @@
 
           <listitem>
             <para>Now that development is complete, you are ready to build, 
-            deploy and test the production solution on a staging server.
+            deploy and test the production system distribution on a staging server.
             Check out the repository with the definition and configuration files
             from Version Control. If you made several revisions to the files,
             check out the version you want to deploy.</para>
@@ -152,15 +153,15 @@
         </varlistentry>
 
         <varlistentry>
-          <term>Step 6: Build a Production Solution</term>
+          <term>Step 6: Build a Production System</term>
 
           <listitem>
-            <para>Using <application class="software">SolutionStudio</application> on
-            the Staging system (S), build the production solution, e.g. 
-            <userinput>solutionstudio samba-server-production.definition
+            <para>Using <application class="software">SystemBuilder</application> on
+            the Staging system (S), build the production system distribution, e.g. 
+            <userinput>systembuilder samba-server-production.definition
             </userinput>. In addition you should add a <command>cron</command> 
-            instruction on the Staging system to run SolutionStudio on a regular
-            basis. This will serve to update the solution over time as new
+            instruction on the Staging system to run SystemBuilder on a regular
+            basis. This will serve to update the system distribution over time as new
             packages are made available in input repositories. See 
             <xref linkend="creating-a-staging-machine"/> for more information.
             </para>
@@ -171,7 +172,7 @@
           <term>Step 7: Test on Staging Clients</term>
 
           <listitem>
-            <para>Next you will deploy and test the solution on a Staging
+            <para>Next you will deploy and test the system distribution on a Staging
             Client. If the results
             are unsatisfactory, go back to Development (Step 1), check out the
             appropriate files from Version Control, make changes as needed, and 
@@ -181,37 +182,37 @@
         </varlistentry>
 
         <varlistentry>
-          <term>Step 8: Check-in Your Solution to Version Control</term>
+          <term>Step 8: Check-in Your System to Version Control</term>
 
           <listitem>
             <para>Once you have successfully built, deployed and tested your
-            solution on the Staging Client, you can check in the 
-            solution <emphasis>itself</emphasis> to Version Control. 
-            Versioning the solution allows you to maintain a record of
-            who made changes to the solution and when. It also audits what
+            system on the Staging Client, you can check in the 
+            system distribution <emphasis>itself</emphasis> to Version Control. 
+            Versioning the system distribution allows you to maintain a record of
+            who made changes to the system distribution and when. It also audits what
             changed in each version.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>Step 9: Migrate Your Solution to Production for
+          <term>Step 9: Migrate Your System to Production for
           Release</term>
 
           <listitem>
-            <para>Now you are ready to migrate the solution that is a result
+            <para>Now you are ready to migrate the system distribution that is a result
             of the successful build in Step 6 and that was checked into the 
-            Version Control system in Step 8. You will not rerun SolutionStudio
+            Version Control system in Step 8. You will not rerun SystemBuilder
             on the Production system (P). Rather, you will migrate the 
-            solution to Production and release it for download access.
+            system distribution to Production and release it for download access.
             This practice also ensures a controlled release into Production,
             which improves the lock-down and control process for releasing
-            solutions such as DNS or SMTP servers to the production network
+            systems such as DNS or SMTP servers to the production network
             environment.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>Step 10: Deploy and Update Your Solution on Production Clients</term>
+          <term>Step 10: Deploy and Update Your System on Production Clients</term>
 
           <listitem>
             <para>As in Chapter 2, the "Deploying Clients"
@@ -226,7 +227,7 @@
         </varlistentry>
       </variablelist></para>
 
-    <para>Once you have deployed the solution to production clients, you may
+    <para>Once you have deployed the system distribution to production clients, you may
     discover changes that need to be made. Operating system or applications can have
     updates, incorporating bug fixes or other planned changes. They can have
     upgrades or full version releases with new features. Or you may want to

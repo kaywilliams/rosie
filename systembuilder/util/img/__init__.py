@@ -18,8 +18,8 @@
 import imp
 import os
 
-from solutionstudio.util import pps
-from solutionstudio.util import shlib
+from systembuilder.util import pps
+from systembuilder.util import shlib
 
 from errors import *
 

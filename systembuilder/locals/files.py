@@ -1,8 +1,8 @@
-from solutionstudio.util.magic import FILE_TYPE_EXT2FS as EXT2
-from solutionstudio.util.magic import FILE_TYPE_FAT    as FAT32
-from solutionstudio.util.magic import FILE_TYPE_CPIO   as CPIO
+from systembuilder.util.magic import FILE_TYPE_EXT2FS as EXT2
+from systembuilder.util.magic import FILE_TYPE_FAT    as FAT32
+from systembuilder.util.magic import FILE_TYPE_CPIO   as CPIO
 
-from solutionstudio.locals import LocalsDict, REMOVE
+from systembuilder.locals import LocalsDict, REMOVE
 
 __all__ = ['L_FILES']
 

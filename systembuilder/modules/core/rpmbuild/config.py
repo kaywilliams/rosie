@@ -17,14 +17,14 @@
 #
 from StringIO import StringIO
 
-from solutionstudio.util import pps
+from systembuilder.util import pps
 
-from solutionstudio.event        import Event
-from solutionstudio.validate     import InvalidConfigError
-from solutionstudio.event.fileio import MissingInputFileError
+from systembuilder.event        import Event
+from systembuilder.validate     import InvalidConfigError
+from systembuilder.event.fileio import MissingInputFileError
 
-from solutionstudio.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
-from solutionstudio.errors import SolutionStudioIOError, assert_file_readable
+from systembuilder.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
+from systembuilder.errors import SystemBuilderIOError, assert_file_readable
 
 import hashlib
 
@@ -58,7 +58,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     self.filerelpath = pps.path('usr/share/system-config/files')
 
     self.DATA = {
-      'variables': ['name', 'fullname', 'solutionid', 'rpm.release',
+      'variables': ['name', 'fullname', 'systemid', 'rpm.release',
                     'cvars[\'web-path\']', 'cvars[\'gpgsign-public-key\']',],
       'config':    ['.'],
       'input':     [],
@@ -165,7 +165,7 @@ class ConfigEvent(RpmBuildMixin, Event):
 
     lines = []
 
-    # include a repo pointing to the published solution
+    # include a repo pointing to the published system
     if self.cvars['web-path'] is not None:
       lines.extend([ '[%s]' % self.name,
                      'name      = %s - %s' % (self.fullname, self.basearch),
@@ -179,7 +179,7 @@ class ConfigEvent(RpmBuildMixin, Event):
         lines.append('gpgcheck = 0')
       lines.append('')
 
-    # include repo(s) pointing to solution inputs
+    # include repo(s) pointing to system inputs
     if self.config.get('updates/@repos', 'master') == 'all':
       for repo in self.cvars['repos'].values():
         try:
@@ -443,5 +443,5 @@ class ConfigEvent(RpmBuildMixin, Event):
       return None
 
 #------ ERRORS ------#
-class ConfigIOError(SolutionStudioIOError):
+class ConfigIOError(SystemBuilderIOError):
   message = "Cannot find the file or folder named '%(file)s'. Check that it exists and that the element '%(item)s' is correct. If you are providing text rather than a file, add the attribute content='text' to the <%(element)s ...> element. [errno %(errno)d] %(message)s"

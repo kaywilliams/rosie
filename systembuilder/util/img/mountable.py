@@ -17,13 +17,13 @@
 #
 import os
 
-from solutionstudio.util import pps
-from solutionstudio.util import shlib
-from solutionstudio.util import sync
+from systembuilder.util import pps
+from systembuilder.util import shlib
+from systembuilder.util import sync
 
-from solutionstudio.util.img import acquire_mount_point, release_mount_point, MODE_WRITE
-from solutionstudio.util.img.errors import ImageIOError
-from solutionstudio.util.img.image  import Image
+from systembuilder.util.img import acquire_mount_point, release_mount_point, MODE_WRITE
+from systembuilder.util.img.errors import ImageIOError
+from systembuilder.util.img.image  import Image
 
 class MountableImageHandler:
   def __init__(self, base):

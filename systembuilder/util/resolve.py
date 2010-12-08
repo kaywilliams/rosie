@@ -61,7 +61,7 @@ __author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
 __version__ = '3.1'
 __date__    = 'September 7th, 2007'
 
-from solutionstudio.util import graph
+from systembuilder.util import graph
 
 class Item(object):
   "A simple resolution struct that allows dependency solving."

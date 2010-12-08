@@ -8,48 +8,48 @@
   </title>
 
   <para>
-  The solution definition file contains instructions for building a
-  Linux operating system solution, or solution. It defines solution 
+  The system definition file contains instructions for building Linux operating
+  system distributions for use in installing client machines. It defines system 
   content and configuration, including name, version, and architecture; package
   repository locations; which packages to include; and the locations of 
-  configuration scripts, files and custom graphics. SolutionStudio uses the solution file
-  to assemble, create and publish the solution. Other programs, such as
+  configuration scripts, files and custom graphics. SystemBuilder uses the system distribution file
+  to assemble, create and publish the system distribution. Other programs, such as
   <application class="software">YUM</application>,
   <application class="software">Anaconda</application>, and
   <application class="software">RPM</application>
-  use files created by <application class="software">SolutionStudio</application>
-  to install and update the solution on the client system.
+  use files created by <application class="software">SystemBuilder</application>
+  to install and update the system distribution on the client system.
   </para>
 
   <para>
-  The solution file is a text-based file in XML format. Within the
+  The system definition file is a text-based file in XML format. Within the
   file are a series of top-level elements that equate to
-  modules, or steps, within the solution build process. These elements,
+  modules, or steps, within the system distribution build process. These elements,
   in turn, contain their own attributes and elements. There are three
   required top-level elements:
   <emphasis role="strong"><xref linkend="main" /></emphasis>,
   <emphasis role="strong"><xref linkend="repos" /></emphasis>, and
   <emphasis role="strong"><xref linkend="packages" /></emphasis>;
   all other top-level elements are optional. Top-level elements can appear
-  in the solution file in any order. Indentation is for readability
+  in the system distribution file in any order. Indentation is for readability
   purposes only.
   </para>
 
   <para>
-  The solution file has full support of XML Inclusions (XIncludes). Please
+  The system definition file has full support of XML Inclusions (XIncludes). Please
   refer to the <ulink url="http://www.w3.org/TR/xinclude/">XInclude Technical
   Report</ulink> for more information.
   </para>
 
   <para>
-  A solution file can be located in any local directory and invoked from the
-  command line using the command <command>solutionstudio</command> followed by the full
-  or relative pathname to the file, such as:
+  A system definition file can be located in any local directory and invoked 
+  from the command line using the command <command>systembuilder</command> 
+  followed by the full or relative pathname to the file, such as:
   </para>
 
   <informalexample>
   <programlisting>
-<command>solutionstudio</command> /path/to/solution/file
+<command>systembuilder</command> /path/to/system/file
   </programlisting>
   </informalexample>
 
@@ -58,16 +58,16 @@
 
   <section>
     <title>
-    Example Solution Definition
+    Example System Definition
     </title>
 
     <para>
-    Here is a basic example solution definition based on CentOS 5.
+    Here is a basic example system definition based on CentOS 5.
     </para>
 
     <informalexample>
     <programlisting>
-&lt;solution&gt;
+&lt;system distribution&gt;
 
   &lt;main&gt;
     &lt;name&gt;samba&lt;/name&gt;
@@ -91,7 +91,7 @@
     &lt;group repoid="base"&gt;smb-server&lt;/group&gt;
   &lt;/packages&gt;
 
-&lt;/solution&gt;
+&lt;/system&gt;
     </programlisting>
     </informalexample>
   </section>
@@ -104,15 +104,15 @@
 	  <para>
 	  Each top-level element in the SDFR maps to a code module of the same
 	  name. Each code module is responsible for performing a single step in
-	  the solution build process.  Related modules are organized into 
+	  the system distribution build process.  Related modules are organized into 
 	  module groups. To obtain a list of all available modules and module 
 	  groups type
 
 	  <programlisting>
-	solutionstudio --list-modules
+	systembuilder --list-modules
 	  </programlisting>
 
-	  at the command prompt. Refer to the SolutionStudio man pages for more information.
+	  at the command prompt. Refer to the SystemBuilder man pages for more information.
 	  This document only describes top-level elements that contain
 	  user-configurable parameters; not all modules listed from the above
 	  command are described below.
@@ -135,7 +135,7 @@
 	  <para>
 	  The sole exception to the above rules is the
 	  <emphasis role="strong">main</emphasis> module, which is required for
-	  SolutionStudio to operate properly.
+	  SystemBuilder to operate properly.
 	  </para>
 
 	  <para>

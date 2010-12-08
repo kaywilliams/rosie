@@ -18,16 +18,16 @@
 import errno
 import os
 
-from solutionstudio.util import pkgorder
-from solutionstudio.util import shlib
+from systembuilder.util import pkgorder
+from systembuilder.util import shlib
 
-from solutionstudio import splittree
+from systembuilder import splittree
 
-from solutionstudio.callback import BuildDepsolveCallback
-from solutionstudio.event    import Event, CLASS_META
-from solutionstudio.logging  import L1, L2, L3
+from systembuilder.callback import BuildDepsolveCallback
+from systembuilder.event    import Event, CLASS_META
+from systembuilder.logging  import L1, L2, L3
 
-from solutionstudio.modules.shared import ListCompareMixin, BootConfigMixin
+from systembuilder.modules.shared import ListCompareMixin, BootConfigMixin
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -78,8 +78,8 @@ class PkgorderEvent(Event):
 
     # create yum config needed by pkgorder
     cfg = self.TEMP_DIR/'pkgorder'
-    repoid = self.solutionid
-    cfg.write_lines([ YUMCONF % (self.solutionid, self.solutionid, self.cvars['os-dir']) ])
+    repoid = self.systemid
+    cfg.write_lines([ YUMCONF % (self.systemid, self.systemid, self.cvars['os-dir']) ])
 
     # create pkgorder
     pkgtups = pkgorder.order(config=cfg,
@@ -207,7 +207,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     splitter.u_tree     = self.cvars['os-dir']
     splitter.u_src_tree = self.cvars['srpms-dir']
     splitter.s_tree     = self.splittrees/set
-    splitter.product_path = self.cvars['solution-info']['packagepath']
+    splitter.product_path = self.cvars['system-info']['packagepath']
     splitter.difmt      = self.locals.L_DISCINFO_FORMAT
     splitter.pkgorder   = self.cvars['pkgorder-file']
 

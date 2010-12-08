@@ -50,7 +50,7 @@
     <para>
     Elements and attributes in XML are referred to by their XPath
     equivalents. The active node is always considered to be the root,
-    solution; thus, the first element in the XPath expression is the
+    system; thus, the first element in the XPath expression is the
     top-level element, while subsequent elements/attributes are its
     children. For more details on XPath syntax, see
     <ulink url="http://www.w3.org/TR/xpath.html">XML Path Language</ulink>.
@@ -177,11 +177,11 @@
 
     <listitem>
     <para>
-    Within this document, SolutionStudio variables are presented in monospace font
+    Within this document, SystemBuilder variables are presented in monospace font
     preceded by a dollar sign, e.g. <varname>$ID</varname>.
     In the event that another application uses a variable with simliar
     syntax (YUM, for example), these variables are clearly indicated as
-    not being SolutionStudio variables.
+    not being SystemBuilder variables.
     </para>
 
     <para>

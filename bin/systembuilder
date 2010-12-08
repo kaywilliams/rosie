@@ -18,9 +18,9 @@
 #
 
 """
-solutionstudio
+systembuilder
 
-SolutionStudio wrapper
+SystemBuilder wrapper
 """
 
 import imp
@@ -30,9 +30,9 @@ import sys
 from optparse import OptionParser, OptionGroup, SUPPRESS_HELP
 from StringIO import StringIO
 
-from solutionstudio.util import pps
+from systembuilder.util import pps
 
-from solutionstudio.util.CleanHelpFormatter import CleanHelpFormatter
+from systembuilder.util.CleanHelpFormatter import CleanHelpFormatter
 
 P = pps.Path
 
@@ -40,7 +40,7 @@ def main():
   parser = OptionParser("usage: %prog [OPTIONS] SOLUTION_DEFINITION",
                         formatter=CleanHelpFormatter(),
                         description="build the distribution defined in the "
-                                    "solution definition file located at "
+                                    "system definition file located at "
                                     "SOLUTION_DEFINITION"
                         )
 
@@ -61,7 +61,7 @@ def main():
 
   config_group = OptionGroup(parser, "config options")
   config_group.add_option('-c', '--config', metavar='PATH',
-    default='/etc/solutionstudio/solutionstudio.conf',
+    default='/etc/systembuilder/systembuilder.conf',
     dest='mainconfigpath',
     help="specify path to the config file")
   config_group.add_option('--no-validate',
@@ -93,12 +93,12 @@ def main():
     action='append',
     dest='libpath',
     default=[],
-    help="specify directory containing solutionstudio library files")
+    help="specify directory containing systembuilder library files")
   module_group.add_option('--share-path', metavar='PATH',
     action='append',
     dest='sharepath',
     default=[],
-    help="specify directory containing solutionstudio shared files")
+    help="specify directory containing systembuilder shared files")
   module_group.add_option('--enable-module', metavar='MODULE',
     action='append',
     dest='enabled_modules',
@@ -151,16 +151,16 @@ def main():
     parser.print_help()
     sys.exit(1)
 
-  # import solutionstudio from some path in sys.path
+  # import systembuilder from some path in sys.path
   try:
-    import solutionstudio.main
+    import systembuilder.main
   except ImportError, e:
-    print "Unable to load core solutionstudio files"
+    print "Unable to load core systembuilder files"
     raise #!
     sys.exit(1)
 
   # initialize our software builder with opts and make it go!
-  sbuilder = solutionstudio.main.Build(opts, args, parser)
+  sbuilder = systembuilder.main.Build(opts, args, parser)
   sbuilder.main()
   sys.exit()
 

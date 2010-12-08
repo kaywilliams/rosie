@@ -1,17 +1,20 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="solution">
-
+    <element name="system">
       <optional>
-      <element name="product-image">
+      <element name="diskboot-image">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
 
-        <zeroOrMore>
-        <element name="files"><ref name="content-path-with-dest"/></element>
-        </zeroOrMore>
+        <interleave>
+
+        <optional>
+        <ref name="element-boot-args"/>
+        </optional>
+
+        </interleave>
       </element>
       </optional>
 

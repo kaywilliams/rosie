@@ -20,7 +20,7 @@ import shutil
 
 from error import error_transform
 
-from solutionstudio.util.pps.Path import Path_IO
+from systembuilder.util.pps.Path import Path_IO
 
 class LocalPath_IO(Path_IO):
 

@@ -19,7 +19,7 @@ import re
 import stat
 import time
 
-from solutionstudio.util import statfmt
+from systembuilder.util import statfmt
 
 QFIND = re.compile('(?:\'[^\']*\')|(?:\"[^\"]*\")')
 

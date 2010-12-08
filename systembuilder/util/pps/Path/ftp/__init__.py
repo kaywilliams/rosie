@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from solutionstudio.util.pps import register_scheme
+from systembuilder.util.pps import register_scheme
 
 from path_io     import FtpPath_IO
 from path_stat   import FtpPath_Stat
 from path_walk   import FtpPath_Walk
 
-from solutionstudio.util.pps.Path.remote import _RemotePath as RemotePath
-from solutionstudio.util.pps.Path.remote import RemotePath_Printf as FtpPath_Printf
+from systembuilder.util.pps.Path.remote import _RemotePath as RemotePath
+from systembuilder.util.pps.Path.remote import RemotePath_Printf as FtpPath_Printf
 
 class FtpPath(FtpPath_IO, FtpPath_Printf, FtpPath_Stat,
               FtpPath_Walk, RemotePath):

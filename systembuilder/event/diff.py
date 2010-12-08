@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from solutionstudio.util import difftest
+from systembuilder.util import difftest
 
 # add support for serialization of versort classes
-from solutionstudio.util.versort.serialize import VersionXmlSerializer
+from systembuilder.util.versort.serialize import VersionXmlSerializer
 difftest.rxml.serialize.SERIALIZERS.insert(0, VersionXmlSerializer())
 
 class DiffMixin:

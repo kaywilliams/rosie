@@ -36,7 +36,7 @@ import struct
 
 # import pps, if available
 try:
-  from solutionstudio.util import pps
+  from systembuilder.util import pps
 except ImportError:
   pps = None
 
