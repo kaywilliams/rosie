@@ -13,7 +13,7 @@
     </title>
 
     <para>
-    Specifies the list of repositories from which SystemBuilder downloads
+    Specifies the list of repositories from which SystemStudio downloads
     source RPMs (SRPMs). If this module is enabled, every RPM in the
     system distribution must have a matching SRPM in one or more of these source
     repositories.

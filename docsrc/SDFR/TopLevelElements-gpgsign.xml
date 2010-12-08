@@ -13,7 +13,7 @@
     </title>
 
     <para>
-    Directs SystemBuilder to sign the system distribution's packages with the specified GPG
+    Directs SystemStudio to sign the system distribution's packages with the specified GPG
     key.
     </para>
 

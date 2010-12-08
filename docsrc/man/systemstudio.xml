@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+
+<!-- See http://www.docbook.org/tdg/en/html/refentry.html for more documentation -->
+<!--SystemStudio Command reference -->
+
+<refentry id="command.systemstudio">
+<refentryinfo>
+<date>2008-06-13</date>
+</refentryinfo>
+
+<refmeta>
+<refentrytitle>SystemStudio Commands</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo>SystemStudio</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>systemstudio</refname>
+<refpurpose>Builds and updates Linux-based system distributions.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsynopsisdivinfo>
+<date>2008-06-11</date>
+</refsynopsisdivinfo>
+
+<cmdsynopsis>
+<command>systemstudio</command>
+<arg choice="opt">
+<option>--clear-cache </option>
+</arg>
+<arg choice="opt">
+<option>[-c | --config ] <replaceable class="parameter">PATH</replaceable></option>
+</arg>
+<arg choice="opt">
+<option>--no-validate </option>
+</arg>
+<arg choice="opt">
+<option>--validate-only </option>
+</arg>
+<arg choice="opt">
+<option>[-l | --log-level ] <replaceable class="parameter">N</replaceable></option>
+</arg>
+<arg choice="opt">
+<option>--log-file <replaceable class="parameter">PATH</replaceable></option>
+</arg>
+<arg choice="opt">
+<option>--lib-path <replaceable class="parameter">PATH</replaceable></option>
+</arg>
+<arg choice="opt">
+<option>--list-modules</option>
+</arg>
+<arg choice="opt">
+<option>--share-path <replaceable class="parameter">PATH</replaceable></option>
+</arg>
+<arg choice="opt">
+<option>--force <replaceable class="parameter">MODULE</replaceable></option>
+</arg>
+<arg choice="opt">
+<option>--skip <replaceable class="parameter">MODULE</replaceable></option>
+</arg>
+<filename> SOLUTION_DEFINITION</filename>
+
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsect1 id="systemstudio.1-description"><title>DESCRIPTION</title>
+<para>Builds the system distribution defined in the file at SOLUTION_DEFINITION. Updates the system distribution if it exists.</para>
+</refsect1>
+
+<refsect1 id="systemstudio.1-usage"><title>USAGE</title>
+<para><command>systemstudio</command> [OPTIONS] SOLUTION_DEFINITION</para>
+<para>OPTIONS refers to the command-line options described below.  SOLUTION_DEFINITION refers to a system definition file, see the System Definition File Reference at <ulink url="http://www.renditionsoftware.com/systemstudio/docs"/> for more information.</para>
+</refsect1>
+
+
+<refsect1 id="systemstudio.1-options"><title>OPTIONS</title>
+<para>Command options are listed in alphabetical order.</para>
+<variablelist>
+
+<varlistentry>
+  <term><option>-c; --config <replaceable class="parameter">SOLUTIONSTUDIO_CONF</replaceable></option></term>
+  <listitem>
+    <para> Specifies the directory and filename <replaceable class="parameter">SOLUTIONSTUDIO_CONF</replaceable> of the systemstudio configuration file.  The default value is <filename class="directory">/etc/systemstudio/systemstudio.conf</filename>.  See the <filename>systemstudio.conf(5)</filename> man page for SystemStudio configuration options.</para>
+
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--clear-cache</option></term>
+  <listitem>
+    <para>Clears the shared cache of downloaded files. See <filename>systemstudio.conf(5)</filename> man page for more cache options.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--force <replaceable class="parameter">MODULE</replaceable></option></term>
+  <listitem>
+	<para>Forces a SystemStudio <replaceable class="parameter">MODULE</replaceable> to execute, even if the module would ordinarily be skipped for optimizations in speed. Forcing a module forces its children recursively. This option can be specified more than once, as in the example below:</para>
+
+<para>--force <replaceable class="parameter">MODULE1</replaceable> --force <replaceable class="parameter">MODULE2</replaceable> --force <replaceable class="parameter">MODULE3</replaceable></para>
+<para>See the MODULES section below for more information.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--lib-path <replaceable class="parameter">PATH</replaceable></option></term>
+  <listitem>
+    <para> Specifies a directory containing SystemStudio modules <replaceable class="parameter">PATH</replaceable>.  The default path is the system path.  This option can be specified more than once; for example:</para>
+<para>--lib-path <replaceable class="parameter">PATH1</replaceable> --lib-path <replaceable class="parameter">PATH2</replaceable> --lib-path <replaceable class="parameter">PATH3</replaceable></para>
+<para>See the MODULES section below for more information.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--list-modules</option></term>
+  <listitem>
+    <para> Displays a list of SystemStudio modules including name, description, and child modules, then exits without building the system distribution. Note: SystemStudio requires a system definition on the command line when using this option, for example:</para>
+<para>systemstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
+<para>See the MODULES section below for more information.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--log-file <replaceable class="parameter">PATH</replaceable></option></term>
+  <listitem>
+    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which SystemStudio writes logging information of Level 5 detail.  The default path is <filename>/var/log/systemstudio.log</filename>.  See the command option <command>--log-level</command>.</para>
+<para>--log-file <replaceable class="parameter">PATH</replaceable></para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>-l; --log-level <replaceable class="parameter">N</replaceable></option></term>
+  <listitem>
+    <para> Specifies the level of detail logged to the console during a build.  There are six levels <replaceable class="parameter">N</replaceable> (0 to 5) with Level 3 being SystemStudio's default level.</para>
+<para>LEVELS
+<programlisting>
+* Level 0: Displays errors only.
+* Level 1: Displays build status.
+* Level 2: Displays module status.  See MODULES.
+* Level 3: Displays file download and creation status.
+* Level 4: Displays file copy and deletion status.
+* Level 5: Displays complete debug-level status.
+</programlisting>
+</para>
+<para>Setting the log level to 0 will prevent all logging except errors to the screen, while levels 1 to 5 have increasingly more detail about the build process.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--no-validate</option></term>
+  <listitem>
+    <para>Disables validation of SOLUTIONSTUDIO_CONF and SOLUTION_DEFINITION during the build process.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--share-path <replaceable class="parameter">PATH</replaceable></option></term>
+  <listitem>
+    <para> Specifies a directory <replaceable class="parameter">PATH</replaceable> where SystemStudio can locate shared program data such as XML schema files.  The default path is <filename>/usr/share/systemstudio/</filename>. This option can be specified more than once, as demonstrated below:</para>
+
+<para>--share-path <replaceable class="parameter">PATH1</replaceable> --share-path <replaceable class="parameter">PATH2</replaceable> --share-path <replaceable class="parameter">PATH3</replaceable></para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--skip <replaceable class="parameter">MODULE</replaceable></option></term>
+  <listitem>
+	<para>Prevents a <replaceable class="parameter">MODULE</replaceable> from executing, even if the module would ordinarily be executed due to changes in input, output or other factors. Skipping a module skips its children recursively. This option can be specified more than once, as in the example below:</para>
+<para>--skip <replaceable class="parameter">MODULE1</replaceable> --skip <replaceable class="parameter">MODULE2</replaceable> --skip <replaceable class="parameter">MODULE3</replaceable></para>
+<para>See the MODULES section below for more information.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--validate-only</option></term>
+  <listitem>
+<para>Performs SOLUTIONSTUDIO_CONF and SOLUTION_DEFINITION validation only; it does not build the system distribution.  The option also displays the complete SOLUTION_DEFINITION file after resolving macro and include elements.</para>
+  </listitem>
+</varlistentry>
+
+</variablelist>
+</refsect1>
+
+<refsect1 id="systemstudio.1-variables"><title>VARIABLES</title>
+<para>SystemStudio command options, where indicated, use three variables:  MODULE, PATH and SOLUTIONSTUDIO_CONF.</para>
+
+<variablelist>
+<varlistentry>
+  <term>MODULE</term>
+  <listitem>
+	<para>The id of a SystemStudio module.  See the MODULES section, below, for more information.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term>PATH</term>
+  <listitem>
+    <para> A local file path.  SystemStudio resolves paths relative to the current working directory.</para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term>SOLUTIONSTUDIO_CONF</term>
+  <listitem>
+    <para>The directory and filename of the SystemStudio configuration file.</para>
+  </listitem>
+</varlistentry>
+</variablelist>
+</refsect1>
+
+<refsect1 id="systemstudio.1-modules"><title>MODULES</title>
+<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the systemstudio command. Note: SystemStudio requires a system definition on the command line when using this option, for example:</para>
+<para>systemstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
+<para>On subsequent builds of the same system distribution, SystemStudio automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using the <command>--skip</command> and <command>--force</command> options.</para>
+<para>Developers can write custom SystemStudio modules and direct SystemStudio to use them via the <command>--lib-path</command> systemstudio command option.</para>
+</refsect1>
+
+<refsect1 id="systemstudio.1-bugs"><title>BUGS</title>
+<para>Submit bugs at <ulink url="http://www.renditionsoftware.com/bugs"/></para>
+</refsect1>
+
+<refsect1 id="systemstudio.1-files"><title>FILES</title>
+<para><simplelist type="inline">
+<member><ulink url="file:///usr/share/systemstudio/">/usr/share/systemstudio/</ulink></member>
+<member><ulink url="file:///usr/bin/systemstudio">/usr/bin/systemstudio</ulink></member>
+<member><ulink url="file:///etc/systemstudio/systemstudio.conf">/etc/systemstudio/systemstudio.conf</ulink></member>
+<member><ulink url="file:///var/log/systemstudio.log">/var/log/systemstudio.log</ulink></member>
+<member><ulink url="file:///var/cache/systemstudio/">/var/cache/systemstudio/</ulink></member>
+</simplelist></para>
+</refsect1>
+
+<refsect1 id="systemstudio.1-see_also"><title>SEE ALSO</title>
+<para><simplelist type="inline">
+<member>systemstudio.conf(5)</member>
+<member><ulink url="http://www.renditionsoftware.com/systemstudio"/></member>
+
+</simplelist></para>
+</refsect1>
+
+<refsect1 id="systemstudio.1-author"><title>AUTHOR</title>
+<para><author><othername>Rendition Software, Inc.</othername>
+<contrib>Original author</contrib>
+</author></para>
+</refsect1>
+
+</refentry>

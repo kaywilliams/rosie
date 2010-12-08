@@ -2,7 +2,7 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <chapter>
-  <title>Doing More with SystemBuilder</title>
+  <title>Doing More with SystemStudio</title>
 
   <para>Now that you have created your basic
   <filename>samba-server.definition</filename>, you can customize your
@@ -11,12 +11,12 @@
   package version is installed or deinstalled. Scripts that run automatically
   or are triggered upon certain installation or deinstallation events give you
   more power over the sequence of events and combination of packages. You can
-  also automate system installation by including a kickstart file. SystemBuilder
+  also automate system installation by including a kickstart file. SystemStudio
   also accomodates your preferences for media and kernel boot arguments. If your
   company's legal department or custom software development department
   requires certain content, you can include those components, as well.</para>
 
-  <para>Updating your system distribution is easy with SystemBuilder, but you need to
+  <para>Updating your system distribution is easy with SystemStudio, but you need to
   understand whether the client machine or just the system distribution repository or
   both will include any updates. The next chapter addresses that critical issue.
   </para>

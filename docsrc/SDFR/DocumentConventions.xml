@@ -177,11 +177,11 @@
 
     <listitem>
     <para>
-    Within this document, SystemBuilder variables are presented in monospace font
+    Within this document, SystemStudio variables are presented in monospace font
     preceded by a dollar sign, e.g. <varname>$ID</varname>.
     In the event that another application uses a variable with simliar
     syntax (YUM, for example), these variables are clearly indicated as
-    not being SystemBuilder variables.
+    not being SystemStudio variables.
     </para>
 
     <para>

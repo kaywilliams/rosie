@@ -1,4 +1,4 @@
-SUBDIRS = systembuilder
+SUBDIRS = systemstudio
 
 .PHONY: all clean install
 

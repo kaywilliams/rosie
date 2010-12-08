@@ -13,12 +13,12 @@
     </title>
 
     <para>
-    Contains a list of repositories that SystemBuilder uses to download its
+    Contains a list of repositories that SystemStudio uses to download its
     packages.
     </para>
 
     <para>
-    In order to operate, <application class="software">SystemBuilder
+    In order to operate, <application class="software">SystemStudio
     </application> requires at least one input repository.
     Repositories are specified by either defining them in XML
     (see <emphasis><xref linkend="repos-repo" /></emphasis>) or by
@@ -57,13 +57,13 @@
       Red Hat Network Repositories
       </title>
       <para>
-      SystemBuilder supports an extension to the standard supported schemes
+      SystemStudio supports an extension to the standard supported schemes
       in that it can connect to and download packages from Red Hat Network (RHN)
       servers. 
       </para>
 
       <para>
-      Prior to using SystemBuilder to access updates from RHN you will
+      Prior to using SystemStudio to access updates from RHN you will
       need to create a systemid. This requires an available subscription to 
       Red Hat Enterprise Linux. See the Red Hat web site for purchase
       information. Once you have an available subscription, install Red Hat 
@@ -73,8 +73,8 @@
       <command>rhn_register</command> command. Once the system has successfully
       registered with RHN, a systemid file will be created in the 
       <filename type="directory">/etc/sysconfig/</filename> folder of the
-      machine. This is the file you will use to configure SystemBuilder to
-      access software from RHN. You may copy this file to the SystemBuilder
+      machine. This is the file you will use to configure SystemStudio to
+      access software from RHN. You may copy this file to the SystemStudio
       build machine if necessary. Note, to ensure the systemid has access to
       the software desired for your system distribution, you can use the Red Hat
       Network web user interface to locate the system, and view and alter it's
@@ -108,11 +108,11 @@
       an example.</para>
 
       <note>
-      SystemBuilder requires additional software including rhnlib and 
+      SystemStudio requires additional software including rhnlib and 
       rhn-client-tools rpm packages in order to use RHN repositories. To install
-      a complete version of SystemBuilder including all available software, 
+      a complete version of SystemStudio including all available software, 
       follow the instructions located at 
-      http://www.renditionsoftware.com/systembuilder/download.
+      http://www.renditionsoftware.com/systemstudio/download.
       </note>
     </section>
 
@@ -124,7 +124,7 @@
 
       <para>
       By default, all packages in all repositories are available for 
-      SystemBuilder to use. Packages can be excluded from <emphasis>all 
+      SystemStudio to use. Packages can be excluded from <emphasis>all 
       repositories</emphasis> using the <emphasis>exclude</emphasis> element. 
       Available packages for <emphasis>a single repository</emphasis> can be 
       restricted by using one or more <emphasis>repo/exclude</emphasis> or
@@ -150,7 +150,7 @@
       packages for the repository. Any package matching one or more of
       the <varname>PACKAGE</varname> patterns specified in a
       <emphasis>repo/exclude</emphasis> element will be ignored
-      by SystemBuilder.
+      by SystemStudio.
       </para>
 
       <para>See <emphasis><xref linkend="repo-include-exclude-example" /></emphasis> for
@@ -165,9 +165,9 @@
       </title>
 
       <para>
-      SystemBuilder supports standard YUM repositories; that is, folders containing
+      SystemStudio supports standard YUM repositories; that is, folders containing
       a <filename>repodata</filename> folder with repository metadata.
-      In addition, SystemBuilder supports an expanded type of repository, a
+      In addition, SystemStudio supports an expanded type of repository, a
       "repository group". A repository group is a collection of standard
       YUM repositories within another folder. This feature allows, for 
       example, defining a Red Hat Enterprise Linux installation tree as a
@@ -191,7 +191,7 @@ baseurl=/var/repos/repoB
 baseurl=/var/repos/repoC
       </programlisting>
 
-      In SystemBuilder, on the other hand, all the repos can be included by
+      In SystemStudio, on the other hand, all the repos can be included by
       using a repo group instead:
 
       <programlisting>
@@ -306,7 +306,7 @@ baseurl=/var/repos/repoC
       <emphasis>repo/mirrorlist</emphasis> elements also have full support
       for the YUM variables <varname>$basearch</varname> and
       <varname>$releasever</varname>. However, instead of using the build
-      system's architecture and release version, SystemBuilder defaults to using
+      system's architecture and release version, SystemStudio defaults to using
       <varname>$ARCH</varname> and <varname>$VERSION</varname>,
       respectively. Top-level elements may define a
       <emphasis>releasever</emphasis> element that overrides the default
@@ -380,7 +380,7 @@ baseurl=/var/repos/repoC
         <para>
         <varname>BOOLEAN</varname> value indicating whether this
         repository should be enabled or not. Disabled repositories
-        are ignored by SystemBuilder when looking for packages to include in
+        are ignored by SystemStudio when looking for packages to include in
         the system distribution.
         </para>
 
@@ -614,7 +614,7 @@ baseurl=/var/repos/repoC
       </para>
 
       <para>
-      Additionally, SystemBuilder will include any and all repositories defined
+      Additionally, SystemStudio will include any and all repositories defined
       in the file <filename>centos-extras.repo</filename>.
       </para>
 

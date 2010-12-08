@@ -8,12 +8,12 @@
   system distribution.</para>
 
   <para>First, you configure the <application
-  class="software">SystemBuilder</application> build machine to accommodate the
+  class="software">SystemStudio</application> build machine to accommodate the
   size and number of system distributions you will build and store concurrently.
   The system should be accessible through your local network.
   After configuring the hardware, you can install one of the <application
   class="software">Linux </application>operating system versions on which 
-  <application class="software">SystemBuilder</application> runs.</para>
+  <application class="software">SystemStudio</application> runs.</para>
 
   <para>Then you define your system distribution in the <filename
   class="extension">samba-server.definition</filename> file using XML tags
@@ -41,10 +41,10 @@
     </itemizedlist></para>
 
   <para>Once the system distribution definition is complete, you log on as the root user
-  and execute the command <userinput>systembuilder samba-server.definition</userinput>
+  and execute the command <userinput>systemstudio samba-server.definition</userinput>
   to build the system distribution. Output goes to the screen and the default log file.
   The first build may take some time, since <application
-  class="software">SystemBuilder</application> needs to do everything from 
+  class="software">SystemStudio</application> needs to do everything from 
   scratch:</para>
 
   <para><itemizedlist>
@@ -89,7 +89,7 @@
   <para>Updating your system distribution can involve simply checking for mirror 
   repository updates. Or it can involve changing the system distribution definition or
   configuration files and scripts. Depending upon the changes it encounters, 
-  <application class="software">SystemBuilder</application> will 
+  <application class="software">SystemStudio</application> will 
   update the system distribution as necessary. After updating the
   system distribution, you will need to run <userinput>yum sync</userinput> on client
   machines to keep them up to date with the current system distribution.</para>

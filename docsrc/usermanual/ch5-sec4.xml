@@ -38,7 +38,7 @@
     public key file that matches the <emphasis>/secret-key</emphasis>. You may
     enter a password in plain text form using the
     <emphasis>/passphrase</emphasis> element, which is necessary if you want
-    to run SystemBuilder without user interaction. If there is no passphrase, then SystemBuilder
+    to run SystemStudio without user interaction. If there is no passphrase, then SystemStudio
     will prompt you for the passphrase during the build process.</para>
 
     <para>The example below uses the keys without the passphrase, thus

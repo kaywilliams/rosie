@@ -5,13 +5,13 @@
   <title>Versioning Definitions</title>
 
   <para>To track and audit any changes to the <application
-  class="software">SystemBuilder</application> files that are critical to the
+  class="software">SystemStudio</application> files that are critical to the
   definition, configuration and scripts of a system, use a revision
   control system, such as <application
   class="software">Subversion</application>, <application
   class="software">Git</application> or <application arch=""
   class="software">Mercurial</application>. The Red Hat-based Linux operating system' that
-  SystemBuilder works with by default (<application
+  SystemStudio works with by default (<application
   class="software">RHEL</application> and <application
   class="software">CentOS</application>) have the revision control system
   <application class="software">Subversion</application>
@@ -19,7 +19,7 @@
 
   <para>While everything could be revision controlled, there are some key
   non-image files that should be. Within the <application
-  class="software">SystemBuilder</application> infrastructure and system
+  class="software">SystemStudio</application> infrastructure and system
   building process, candidates for revision control include configuration files,
   system definitions and scripts, i.e. files that contain critical
   textual information that may change over time or are commonly used to define
@@ -32,7 +32,7 @@
       </listitem>
 
       <listitem>
-        <para><filename>systembuilder.conf</filename>,</para>
+        <para><filename>systemstudio.conf</filename>,</para>
       </listitem>
 
       <listitem>
@@ -53,7 +53,7 @@
   files every time you make a change to help you "version" your system distribution.
   You can also enter comments in the files. Keep in mind that changing the name
   of system definition file does not mean <application class="software">
-  SystemBuilder</application> will build a new system distribution.
+  SystemStudio</application> will build a new system distribution.
   As long as the <varname>$ID</varname> remains the same, the
   system distribution remains the same.</para>
 </section>

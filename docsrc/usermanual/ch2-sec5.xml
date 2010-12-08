@@ -2,9 +2,9 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>SystemBuilder Files and Folders</title>
+  <title>SystemStudio Files and Folders</title>
 
-  <para><application class="software">SystemBuilder</application> has several
+  <para><application class="software">SystemStudio</application> has several
   key files and folders, listed in the table below.</para>
 
   <para><informaltable>
@@ -12,28 +12,28 @@
       <tgroup cols="2">
         <tbody>
           <row>
-            <entry>/etc/systembuilder/systembuilder.conf</entry>
+            <entry>/etc/systemstudio/systemstudio.conf</entry>
 
-            <entry><application>SystemBuilder</application> looks
-            for this file to locate systembuilder configuration. See the
-            systembuilder and systembuilder.conf man pages for more information.
-            This file is optional and does not exist in the default SystemBuilder
+            <entry><application>SystemStudio</application> looks
+            for this file to locate systemstudio configuration. See the
+            systemstudio and systemstudio.conf man pages for more information.
+            This file is optional and does not exist in the default SystemStudio
             installation.</entry>
           </row>
           <row>
-            <entry>/usr/bin/systembuilder</entry>
+            <entry>/usr/bin/systemstudio</entry>
 
-            <entry>The <command>systembuilder</command> command.</entry>
+            <entry>The <command>systemstudio</command> command.</entry>
           </row>
 
           <row>
-            <entry>/usr/lib/python<varname>$version</varname>/site-packages/systembuilder</entry>
+            <entry>/usr/lib/python<varname>$version</varname>/site-packages/systemstudio</entry>
 
             <entrytbl cols="1">
               <tbody>
                 <row>
                   <entry>Python code for <application
-                  class="software">SystemBuilder</application>, where
+                  class="software">SystemStudio</application>, where
                   <varname>$version</varname> is the <application
                   class="software">Python</application> version.</entry>
                 </row>
@@ -42,39 +42,39 @@
           </row>
 
           <row>
-            <entry>/usr/share/doc/systembuilder-<varname>$version</varname></entry>
+            <entry>/usr/share/doc/systemstudio-<varname>$version</varname></entry>
 
             <entry>Documentation for <application
-            class="software">SystemBuilder</application>, where
+            class="software">SystemStudio</application>, where
             <varname>$version</varname> is the <application
-            class="software">SystemBuilder</application> version.</entry>
+            class="software">SystemStudio</application> version.</entry>
           </row>
 
           <row>
-            <entry>/usr/share/systembuilder/schemas</entry>
+            <entry>/usr/share/systemstudio/schemas</entry>
 
             <entry>Relax NG schemas for system definition validation.
             </entry>
           </row>
           <row>
-            <entry>/var/cache/systembuilder/</entry>
+            <entry>/var/cache/systemstudio/</entry>
 
-            <entry>SystemBuilder stores cached content in this folder. See
-            the systembuilder and systembuilder.conf man pages for cache-related
+            <entry>SystemStudio stores cached content in this folder. See
+            the systemstudio and systemstudio.conf man pages for cache-related
             options.
             </entry>
           </row>
 
           <row>
-            <entry>/var/log/systembuilder.log</entry>
+            <entry>/var/log/systemstudio.log</entry>
 
-            <entry>SystemBuilder's default log file.</entry>
+            <entry>SystemStudio's default log file.</entry>
           </row>
 
           <row>
             <entry>/var/www/html/systems/</entry>
 
-            <entry>SystemBuilder publishes completed system distributions to  
+            <entry>SystemStudio publishes completed system distributions to  
             this folder by default. An alternative location can be specified on
             a per-system-distribution basis within a system definition.
             </entry>
