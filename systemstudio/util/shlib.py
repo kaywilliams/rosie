@@ -22,7 +22,7 @@ A basic library for executing shell functions, because the default python
 ones are cumbersome!
 """
 
-import popen2
+import subprocess
 
 def execute(cmd, verbose=False):
   """Execute cmd, displaying output if verbose is true.  Raises a ShExecError
@@ -30,13 +30,15 @@ def execute(cmd, verbose=False):
   stdout in a list.
   """
 
-  proc = popen2.Popen3(cmd, True)
+  proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, 
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                          close_fds=True)
   status = proc.wait()
 
-  stdout = [ line.rstrip("\n") for line in proc.fromchild.readlines() ]
-  proc.fromchild.close()
-  stderr = [ line.rstrip("\n") for line in proc.childerr.readlines() ]
-  proc.childerr.close()
+  stdout = [ line.rstrip("\n") for line in proc.stdout.readlines() ]
+  proc.stdout.close()
+  stderr = [ line.rstrip("\n") for line in proc.stderr.readlines() ]
+  proc.stderr.close()
 
   if status != 0:
     errstr = "Error code: %s\n" % status
