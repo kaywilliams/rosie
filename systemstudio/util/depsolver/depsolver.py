@@ -33,7 +33,7 @@ class SystemStudioYum(yum.YumBase):
     yum.YumBase.__init__(self)
     self.config = config
     self.root = root
-    self.arch = arch
+    self.archstr = arch
     self.dsCallback = callback
 
     self._rpmdb = None
@@ -54,12 +54,14 @@ class SystemStudioYum(yum.YumBase):
   def setup(self):
     "Prepare to resolve dependencies by setting up metadata."
     if self.dsCallback: self.dsCallback.setupStart()
-    self.doConfigSetup(fn=str(self.config), root=str(self.root), init_plugins=False)
+    self.preconf.fn = str(self.config)
+    self.preconf.root = str(self.root)
+    self.preconf.init_plugins = False
     self.doRpmDBSetup()
     self.conf.cache = 0
     self.conf.obsoletes = 1
     self.doRepoSetup()
-    self.doSackSetup(archlist=rpmUtils.arch.getArchList(self.arch))
+    self.doSackSetup(archlist=rpmUtils.arch.getArchList(self.archstr))
     self.doTsSetup()
     self.doUpdateSetup()
 
@@ -115,7 +117,7 @@ class SystemStudioYum(yum.YumBase):
 
     lst = []
     for pkgs in pkgbyname.values():
-      lst.extend(self.bestPackagesFromList(pkgs, arch=self.arch))
+      lst.extend(self.bestPackagesFromList(pkgs, arch=self.archstr))
     pkgs = lst
 
     return pkgs, name_mismatch
@@ -220,7 +222,7 @@ class Depsolver(SystemStudioYum):
       if self.tsInfo.exists(dep.pkgtup):
         # provider already exists in transaction info, get it
         pkgs = self.tsInfo.getMembers(pkgtup=dep.pkgtup)
-        member = self.bestPackagesFromList(pkgs, arch=self.arch)[0]
+        member = self.bestPackagesFromList(pkgs, arch=self.archstr)[0]
       else:
         # select provider and add it to list of unresolved items
         member = self.tsInfo.addInstall(dep)
@@ -251,7 +253,7 @@ class Depsolver(SystemStudioYum):
         satisfiers.append(po)
 
     if satisfiers:
-      bestpkgs = self.bestPackagesFromList(satisfiers, arch=self.arch)
+      bestpkgs = self.bestPackagesFromList(satisfiers, arch=self.archstr)
       po = bestpkgs[0]
 
       thispkgobsdict = self.up.checkForObsolete([po.pkgtup])

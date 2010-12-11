@@ -265,7 +265,7 @@ class IDepsolver(Depsolver):
       satisfiers = comps_satisfiers
 
     if satisfiers:
-      po = self.bestPackagesFromList(satisfiers, arch=self.arch)[0] 
+      po = self.bestPackagesFromList(satisfiers, arch=self.archstr)[0] 
 
       thispkgobsdict = self.up.checkForObsolete([po.pkgtup])
       if thispkgobsdict.has_key(po.pkgtup):
