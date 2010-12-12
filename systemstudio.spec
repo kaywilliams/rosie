@@ -1,9 +1,9 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    systemstudio
-Version: 1.0.3
+Version: 1.0.4
 Release: 1%{?dist}
-Summary: Builds system distributions based on CentOS and Red Hat Enterprise Linux
+Summary: Builds system distributions for CentOS and Red Hat Enterprise Linux
 
 License:   GPL
 Group:     Applications/System
@@ -65,6 +65,9 @@ http://www.renditionsoftware.com for more information.
 %{_mandir}/man1/systemstudio.1.gz
 
 %changelog
+* Sun Dec 12 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.4-1
+- Initial Build
+
 * Mon Dec 06 2010 Kay Williams <kayw@systemstudio.org> - 1.0.3-1
 - added installclass for anaconda rhel6 (kayw)
 - changed name of rpmbuild-repo to  repo (kayw)
