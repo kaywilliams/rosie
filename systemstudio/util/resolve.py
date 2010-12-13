@@ -347,7 +347,7 @@ class BaseRelationship(tuple):
   "Simple struct for a requirement - tracks the original location the require "
   "came from for better error messages"
   def __init__(self, iterable):
-    tuple.__init__(self, iterable)
+    tuple.__init__(self)
     self.orignode = self[0]
 
 class Requires(BaseRelationship): pass
