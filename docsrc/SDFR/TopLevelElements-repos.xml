@@ -740,7 +740,6 @@ baseurl=/var/repos/repoC
     <varname><xref linkend="content-package" /></varname>,
     <varname><xref linkend="content-path" /></varname>,
     <varname><xref linkend="content-text" /></varname>,
-    <emphasis role="strong"><xref linkend="sources" /></emphasis>
     </para>
   </section>
 </section>

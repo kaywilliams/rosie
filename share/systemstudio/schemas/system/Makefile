@@ -19,7 +19,6 @@ install:
 	install -pm 644 release-files.rng $(DESTDIR)/usr/share/systemstudio/schemas/system/release-files.rng
 	install -pm 644 repos.rng $(DESTDIR)/usr/share/systemstudio/schemas/system/repos.rng
 	install -pm 644 rpmbuild.rng $(DESTDIR)/usr/share/systemstudio/schemas/system/rpmbuild.rng
-	install -pm 644 sources.rng $(DESTDIR)/usr/share/systemstudio/schemas/system/sources.rng
 	install -pm 644 updates-image.rng $(DESTDIR)/usr/share/systemstudio/schemas/system/updates-image.rng
 
 clean:
