@@ -81,7 +81,7 @@ def main():
     dest='logthresh',
     type='int',
     default=3,
-    help="specify the level of verbosity of the output log")
+    help="specify a level (0-6) of verbosity for the output log")
   log_group.add_option('--log-file', metavar='PATH',
     dest='logfile',
     default=None,
