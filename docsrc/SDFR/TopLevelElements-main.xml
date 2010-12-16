@@ -11,7 +11,7 @@
     Definition
     </title>
 
-    <para>Contains basic information about the system distribution.</para>
+    <para>Contains basic information about the system repository.</para>
 
   </section>
 
@@ -90,7 +90,7 @@
 
       <listitem>
       <para>
-      A human-friendly name for the system distribution. Displays during client machine
+      A human-friendly name for the system repository. Displays during client machine
       installation.
       </para>
 
@@ -108,8 +108,8 @@
 
       <listitem>
       <para>
-      The unique id for the system distribution. Used as the directory name
-      for the system distribution in the SystemStudio publish and cache folders
+      The unique id for the system repository. Used as the directory name
+      for the system repository in the SystemStudio publish and cache folders
       (by default <emphasis>/var/www/html/systems/</emphasis> and 
       <emphasis>/var/cache/systemstudio</emphasis>, respectively).
       </para>
@@ -132,7 +132,7 @@
 
       <listitem>
       <para>
-      The <varname>PATH</varname> to the system distribution’s build log file.
+      The <varname>PATH</varname> to the system repository’s build log file.
       </para>
 
       <para>
@@ -149,7 +149,7 @@
 
       <listitem>
       <para>
-      The name of the target system distribution.
+      The name of the target system repository.
       </para>
 
       <para>
@@ -170,7 +170,7 @@
 
       <listitem>
       <para>
-      The name of the directory within the system distribution tree where 
+      The name of the directory within the system repository tree where 
       SystemStudio will place packages.
       </para>
 
@@ -188,7 +188,7 @@
 
       <listitem>
       <para>
-      The version of the target system distribution. Displays during client 
+      The version of the target system repository. Displays during client 
       machine installation.
       </para>
 

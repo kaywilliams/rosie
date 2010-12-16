@@ -18,7 +18,7 @@
 
 <refnamediv>
 <refname>systemstudio</refname>
-<refpurpose>Builds and updates Linux-based system distributions.</refpurpose>
+<refpurpose>Builds and maintains Linux-based system repositories.</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -67,7 +67,7 @@
 </refsynopsisdiv>
 
 <refsect1 id="systemstudio.1-description"><title>DESCRIPTION</title>
-<para>Builds the system distribution defined in the file at SOLUTION_DEFINITION. Updates the system distribution if it exists.</para>
+<para>Builds the system repository defined in the file at SOLUTION_DEFINITION. Updates the system repository if it exists.</para>
 </refsect1>
 
 <refsect1 id="systemstudio.1-usage"><title>USAGE</title>
@@ -117,7 +117,7 @@
 <varlistentry>
   <term><option>--list-modules</option></term>
   <listitem>
-    <para> Displays a list of SystemStudio modules including name, description, and child modules, then exits without building the system distribution. Note: SystemStudio requires a system definition on the command line when using this option, for example:</para>
+    <para> Displays a list of SystemStudio modules including name, description, and child modules, then exits without building the system repository. Note: SystemStudio requires a system definition on the command line when using this option, for example:</para>
 <para>systemstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
@@ -178,7 +178,7 @@
 <varlistentry>
   <term><option>--validate-only</option></term>
   <listitem>
-<para>Performs SOLUTIONSTUDIO_CONF and SOLUTION_DEFINITION validation only; it does not build the system distribution.  The option also displays the complete SOLUTION_DEFINITION file after resolving macro and include elements.</para>
+<para>Performs SOLUTIONSTUDIO_CONF and SOLUTION_DEFINITION validation only; it does not build the system repository.  The option also displays the complete SOLUTION_DEFINITION file after resolving macro and include elements.</para>
   </listitem>
 </varlistentry>
 
@@ -215,7 +215,7 @@
 <refsect1 id="systemstudio.1-modules"><title>MODULES</title>
 <para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the systemstudio command. Note: SystemStudio requires a system definition on the command line when using this option, for example:</para>
 <para>systemstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
-<para>On subsequent builds of the same system distribution, SystemStudio automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using the <command>--skip</command> and <command>--force</command> options.</para>
+<para>On subsequent builds of the same system repository, SystemStudio automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using the <command>--skip</command> and <command>--force</command> options.</para>
 <para>Developers can write custom SystemStudio modules and direct SystemStudio to use them via the <command>--lib-path</command> systemstudio command option.</para>
 </refsect1>
 

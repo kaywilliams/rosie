@@ -40,7 +40,7 @@
       repository containing installer images and isolinux files, located within
       folders called <filename>images</filename> and <filename>isolinux</filename>,
       respectively. These files are used to create installation images for the
-      system distribution. For CentOS, this repository will be a public or local mirror. 
+      system repository. For CentOS, this repository will be a public or local mirror. 
       For Red Hat Enterprise Linux, it will be an install tree created
       by using the <command>mount -o loop <emphasis>isofile</emphasis>
       <emphasis>mount_location</emphasis></command> command to mount an
@@ -76,7 +76,7 @@
       machine. This is the file you will use to configure SystemStudio to
       access software from RHN. You may copy this file to the SystemStudio
       build machine if necessary. Note, to ensure the systemid has access to
-      the software desired for your system distribution, you can use the Red Hat
+      the software desired for your system repository, you can use the Red Hat
       Network web user interface to locate the system, and view and alter it's
       channel subscriptions.</para>
 
@@ -242,7 +242,7 @@ baseurl=/var/repos/repoC
       <listitem>
       <para>
       A <varname>PACKAGE</varname> pattern to exclude from all repositories
-      used in the system distribution. See Also 
+      used in the system repository. See Also 
       <emphasis><xref linkend="repo-including-excluding-repository-contents" /></emphasis>.
       </para>
 
@@ -275,7 +275,7 @@ baseurl=/var/repos/repoC
       <listitem>
       <para>
       Include a repository from which to select packages for the system
-      distribution.
+      repository.
       </para>
 
       <para>
@@ -381,7 +381,7 @@ baseurl=/var/repos/repoC
         <varname>BOOLEAN</varname> value indicating whether this
         repository should be enabled or not. Disabled repositories
         are ignored by SystemStudio when looking for packages to include in
-        the system distribution.
+        the system repository.
         </para>
 
         <para>

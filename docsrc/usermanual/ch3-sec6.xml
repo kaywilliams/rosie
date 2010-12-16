@@ -4,11 +4,11 @@
 <section>
   <title>Updating a System</title>
 
-  <para>SystemStudio makes it easy to keep your system distribution up to date over 
+  <para>SystemStudio makes it easy to keep your system repository up to date over 
   time by simply rerunning the <command>systemstudio</command> command. 
   When SystemStudio runs, it looks for changes in build input, or in the 
   system definition, and makes adjustments to the published
-  system distribution as necessary.</para>
+  system repository as necessary.</para>
 
   <section>
     <title>Running <command>systemstudio</command> to check for repository
@@ -33,12 +33,12 @@ Build complete at 2009-10-25 18:30:26</screen></para>
     <para>Since there were no updates, <command>systemstudio</command> completed
     successfully in less than two minutes. (Results will vary based on factors
     including network connection speed between the build machine and input 
-    repositories, number of packages in the system distribution, and build 
+    repositories, number of packages in the system repository, and build 
     machine hardware configuration.) Only if something had changed would
     <command>systemstudio</command> have rerun the repository updates and 
     provided more detail about this build.</para>
 
-    <para>Unless you change the log level or the contents of the system distribution, 
+    <para>Unless you change the log level or the contents of the system repository, 
     <command>systemstudio</command> will append the minimal output above to 
     the log file.</para>
 
@@ -68,29 +68,29 @@ Build complete at 2009-10-25 18:30:26</screen></para>
 
     <para><important>
         <para>If the published download location is the same,
-        <command>systemstudio</command> updates the system distribution, adding new files and
+        <command>systemstudio</command> updates the system repository, adding new files and
         replacing old ones.</para>
       </important></para>
   </section>
 
   <section>
-    <title>Modifying the system distribution definition</title>
+    <title>Modifying the system repository definition</title>
 
-    <para>If you change the system distribution definition, or other build input 
+    <para>If you change the system repository definition, or other build input 
     such as configuration files and scripts, then you need to rerun 
     <command>systemstudio</command>. You may redefine
-    your system distribution in a plethora of ways. Some of the more common options
+    your system repository in a plethora of ways. Some of the more common options
     could include selecting different repositories; including or excluding
     groups, packages or custom files (configuration files, scripts or
     triggers); or defining a new destination for the published
-    system distribution.</para>
+    system repository.</para>
 
     <para>If you change the <emphasis>main/name</emphasis>,
     <emphasis>main/version</emphasis> or <emphasis>main/arch</emphasis> child
-    elements, then you are creating a new system distribution with a new
+    elements, then you are creating a new system repository with a new
     <varname>$ID</varname> and <xref linkend="download-location"/>
     matching the new parameters. To avoid confusion between the different
-    system distributions, save the new system definition with a new name.</para>
+    system repositories, save the new system definition with a new name.</para>
   </section>
 
   <para>To try out system updates for the samba-server example, you can 
@@ -136,7 +136,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
 
   <para>Now run the command 
   <command>systemstudio samba-server.definition</command>. You should see 
-  that a new configuration package is generated, and that the system distribution
+  that a new configuration package is generated, and that the system repository
   is updated.</para>
 
   <para>In the next section you will see how these changes are applied to

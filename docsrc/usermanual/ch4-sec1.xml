@@ -14,14 +14,14 @@
   second phase of testing includes staging, which allows you to
   test the pre-release system before releasing it for production.
   This simulated environment includes completing the build and deployment
-  processes plus using the system distribution as intended for a period of time. The
-  final component, production, enables deployment of the system distribution to a client
+  processes plus using the system repository as intended for a period of time. The
+  final component, production, enables deployment of the system repository to a client
   system. Maintenance is an on-going process that could involve all of these
   stages.</para>
 
   <para>The advantage of using a repetitive isolated 
   process as described above is that you can develop, test and fine-tune
-  your system distribution before gradually testing its performance in a simulated 
+  your system repository before gradually testing its performance in a simulated 
   environment and, finally, releasing it for real-world use. Within the Linux
   release environment, applications and operating system are updated and upgraded at a variety
   of rates. This process gives you optimum control over what patches, updates,
@@ -54,11 +54,11 @@
     Linux clients.</para>
 
     <para>In early stages of the process, Steps 1-7, you will work with two 
-    versions of your system distribution, one for development and one for production. 
+    versions of your system repository, one for development and one for production. 
     The two versions will be identical with one exception, the <xref 
     linkend="download-location"/>. This will allow you to test client 
     installation, basic functionality, and updates directly from a development 
-    machine prior to moving the system distribution to a staging server. In later 
+    machine prior to moving the system repository to a staging server. In later 
     stages, Steps 5-10, you will work with a single system, the production
     system, across separate network environments, staging and production. 
     The staging process allows you to test client interactions with simulated 
@@ -68,7 +68,7 @@
 
     <para>There are several variables worth noting in the diagram. One is that 
     the hostname for Staging and Production systems is identical; this 
-    compatibility will aid in Step 9, migrating the production system distribution to
+    compatibility will aid in Step 9, migrating the production system repository to
     a production download server. The hostnames for Development and Version 
     Control are different from the others. Another point about the diagram is 
     that, as mentioned above, the Production system is in a separate network 
@@ -100,10 +100,10 @@
 
           <listitem>
             <para>This step entails building the <emphasis>development</emphasis>
-            system distribution, specifically by running the command 
+            system repository, specifically by running the command 
             <userinput>systemstudio samba-server-development.definition
             </userinput>. (You will build the 
-            <emphasis>production</emphasis> system distribution in Step 6.) 
+            <emphasis>production</emphasis> system repository in Step 6.) 
             </para>
           </listitem>
         </varlistentry>
@@ -112,7 +112,7 @@
           <term>Step 3: Test on Development Clients</term>
 
           <listitem>
-            <para>After building the development system distribution, you will install
+            <para>After building the development system repository, you will install
             it on development clients and test client functionality. During 
             this step you will also test updates to existing 
             client machines. See <xref linkend="testing-production-updates"/> for
@@ -131,7 +131,7 @@
             <para>Once you are satisfied with the results in Step 3, 
             you will set up your Version Control repository (V) and check in 
             definition and configuration files prior to creating the production 
-            system distribution. From this point forward, if you need to adjust
+            system repository. From this point forward, if you need to adjust
             your system definition or configuration files in any way, you 
             should return to Step 1, checking out and altering these files
             using the Development system. See 
@@ -145,7 +145,7 @@
 
           <listitem>
             <para>Now that development is complete, you are ready to build, 
-            deploy and test the production system distribution on a staging server.
+            deploy and test the production system repository on a staging server.
             Check out the repository with the definition and configuration files
             from Version Control. If you made several revisions to the files,
             check out the version you want to deploy.</para>
@@ -157,11 +157,11 @@
 
           <listitem>
             <para>Using <application class="software">SystemStudio</application> on
-            the Staging system (S), build the production system distribution, e.g. 
+            the Staging system (S), build the production system repository, e.g. 
             <userinput>systemstudio samba-server-production.definition
             </userinput>. In addition you should add a <command>cron</command> 
             instruction on the Staging system to run SystemStudio on a regular
-            basis. This will serve to update the system distribution over time as new
+            basis. This will serve to update the system repository over time as new
             packages are made available in input repositories. See 
             <xref linkend="creating-a-staging-machine"/> for more information.
             </para>
@@ -172,7 +172,7 @@
           <term>Step 7: Test on Staging Clients</term>
 
           <listitem>
-            <para>Next you will deploy and test the system distribution on a Staging
+            <para>Next you will deploy and test the system repository on a Staging
             Client. If the results
             are unsatisfactory, go back to Development (Step 1), check out the
             appropriate files from Version Control, make changes as needed, and 
@@ -187,9 +187,9 @@
           <listitem>
             <para>Once you have successfully built, deployed and tested your
             system on the Staging Client, you can check in the 
-            system distribution <emphasis>itself</emphasis> to Version Control. 
-            Versioning the system distribution allows you to maintain a record of
-            who made changes to the system distribution and when. It also audits what
+            system repository <emphasis>itself</emphasis> to Version Control. 
+            Versioning the system repository allows you to maintain a record of
+            who made changes to the system repository and when. It also audits what
             changed in each version.</para>
           </listitem>
         </varlistentry>
@@ -199,11 +199,11 @@
           Release</term>
 
           <listitem>
-            <para>Now you are ready to migrate the system distribution that is a result
+            <para>Now you are ready to migrate the system repository that is a result
             of the successful build in Step 6 and that was checked into the 
             Version Control system in Step 8. You will not rerun SystemStudio
             on the Production system (P). Rather, you will migrate the 
-            system distribution to Production and release it for download access.
+            system repository to Production and release it for download access.
             This practice also ensures a controlled release into Production,
             which improves the lock-down and control process for releasing
             systems such as DNS or SMTP servers to the production network
@@ -227,7 +227,7 @@
         </varlistentry>
       </variablelist></para>
 
-    <para>Once you have deployed the system distribution to production clients, you may
+    <para>Once you have deployed the system repository to production clients, you may
     discover changes that need to be made. Operating system or applications can have
     updates, incorporating bug fixes or other planned changes. They can have
     upgrades or full version releases with new features. Or you may want to

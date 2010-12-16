@@ -15,7 +15,7 @@
       </title>
 
       <para>
-      The unique id of a system distribution. Value is obtained from the
+      The unique id of a system repository. Value is obtained from the
       <xref linkend="main-id" />  element, if present; otherwise the
       default value is <constant>$NAME-$VERSION-$ARCH</constant>.
       </para>
@@ -46,7 +46,7 @@
       </title>
 
       <para>
-      The architecture for the system distribution. Value is obtained from the 
+      The architecture for the system repository. Value is obtained from the 
       <xref linkend="main-arch" /> element.
       </para>
     </section>
@@ -64,7 +64,7 @@
       </title>
 
       <para>
-      The name for the system distribution. Value is obtained from the
+      The name for the system repository. Value is obtained from the
       <xref linkend="main-name" /> element.
       </para>
 
@@ -83,7 +83,7 @@
       </title>
 
       <para>
-      The version for the system distribution. Value is obtained from the
+      The version for the system repository. Value is obtained from the
       <xref linkend="main-version" /> element.
       </para>
     </section>

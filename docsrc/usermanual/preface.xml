@@ -8,7 +8,7 @@
     <title>Audience</title>
 
     <para>SystemStudio is a product intended for system administrators
-    who need to build, test, deploy and maintain Red Hat Enterprise Linux or 
+    who wish to automate build and maintenance of Red Hat Enterprise Linux or 
     CentOS-based systems. Certain chapters in this manual assume you have a 
     particular level of knowledge.</para>
 
@@ -50,7 +50,7 @@
     class="software">SystemStudio</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
     obtaining and installing SystemStudio and creating a basic CentOS system
-    distribution. The "System Definition File Reference" (SDFR) contains
+    repository. The "System Definition File Reference" (SDFR) contains
     the syntax for system definition elements and attributes. 
     Finally, SystemStudio has a set of 
     <emphasis role="strong">man pages</emphasis> explaining the
@@ -73,11 +73,11 @@
     <title>How to Read</title>
 
     <para>The intent of the manual is to help you use SystemStudio effectively
-    to build and maintain system distributions, and to use system distributions
+    to build and maintain system repositories, and to use system repositories
     to install and update client machines. This manual takes a top-down
     approach, explaining the concepts before giving steps, commands and code 
-    examples that you can use to build, deploy and enhance your own system
-    distributions.</para>
+    examples that you can use to build and make use of your own system 
+    repositories.</para>
   </section>
 
   <section>
@@ -240,7 +240,7 @@ $ precedes lines entered as a normal user</programlisting>
         </listitem>
 
         <listitem>
-          <para>Chapter 2, "Introduction" explains what a system distribution
+          <para>Chapter 2, "Introduction" explains what a system repository
           is, how <application class="software">SystemStudio
           </application> helps you build one in an efficient timely manner
           and the underlying architecture that makes this improved performance
@@ -253,11 +253,11 @@ $ precedes lines entered as a normal user</programlisting>
           <para>Chapter 3, "Building a System," covers the basic
           concepts for configuring the <application
           class="software">SystemStudio</application> build machine,
-          defining and deploying a system distribution, running <application
+          defining and deploying a system repository, running <application
           class="software">SystemStudio</application> and updating a
-          system distribution. As a use case model, these sections will help you
+          system repository. As a use case model, these sections will help you
           create a basic <application class="software">Samba</application>
-          server distribution based on CentOS 5.</para>
+          server repository based on CentOS 5.</para>
         </listitem>
 
         <listitem>
@@ -266,20 +266,20 @@ $ precedes lines entered as a normal user</programlisting>
           SystemStudio as its cornerstone. It explains implementing the 
           development - staging - production environment within the context of 
           <application class="software">SystemStudio</application>. The 
-          Samba server system distribution you created in Part I will have new 
+          Samba server system repository you created in Part I will have new 
           feature requirements to implement in Part II.</para>
 
           <para>Chapter 4 also discusses how SystemStudio makes your life
           easier as a system or build administrator. Versioning system 
           files and utilizing an object-oriented model through the XInclude
-          mechanism for the system distribution definitions are important usability
+          mechanism for the system repository definitions are important usability
           features. Choosing the best location for storing and downloading
-          a system distribution via the web is another key concept.</para>
+          a system repository via the web is another key concept.</para>
         </listitem>
 
         <listitem>
           <para>Chapter 5, "Doing More with SystemStudio" will help you
-          customize your system distributions. It describes using kickstart 
+          customize your system repositories. It describes using kickstart 
           files to automate client installation, discusses GPG checking and
           using GPG keys to sign your own packages, and provides information on 
           creating CD/DVD installation images.</para>

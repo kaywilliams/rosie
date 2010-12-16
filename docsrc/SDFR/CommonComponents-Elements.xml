@@ -73,7 +73,7 @@
         <para>
         This macro will be replaced by the string
         <constant>method=$path</constant>, where <varname>$path</varname>
-        is the remote URL to the system distribution's published output directory,
+        is the remote URL to the system repository's published output directory,
         as determined by the
         <emphasis role="strong"><xref linkend="publish"/></emphasis>
         module.
@@ -263,7 +263,7 @@
       <varname>PATH</varname>-like elements generally are used to copy an
       input file or folder to some other location, such as within a disk image,
       into a RPM in order to be installed to a specific location on client
-      systems, or into a folder within the system distribution tree itself.
+      systems, or into a folder within the system repository tree itself.
       A <varname>PATH</varname>-like element's text value is the
       <varname>PATH</varname> to some file or folder <varname>$input</varname>
       to use, while the <emphasis>@destdir</emphasis>,

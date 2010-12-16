@@ -27,11 +27,11 @@
   class="directory">/var</filename> directory. <application
   class="software">SystemStudio</application> uses the <filename
   class="directory">/var/cache/systemstudio</filename> folder for caching 
-  system distribution content and the <filename 
+  system repository content and the <filename 
   class="directory">/var/www/html/systems</filename> folder for storing
-  completed system distributions. The recommended minimum drive space allocated for
+  completed system repositories. The recommended minimum drive space allocated for
   each of these folders is 15GB (30GB total). Depending upon the number and size
-  of system distributions created, you may need more disk space.</para>
+  of system repositories created, you may need more disk space.</para>
 
   <para>Disk access is another consideration. Due to the size of the files
   handled, fast disk access is preferable. To accommodate the speed
@@ -79,5 +79,5 @@
 # shutdown -r now
   </programlisting></informalexample></para>
 
-  <para>Now you are ready to begin defining your system distribution!</para>
+  <para>Now you are ready to begin defining your system repository!</para>
 </section>
