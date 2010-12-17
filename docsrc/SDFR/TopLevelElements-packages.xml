@@ -12,7 +12,7 @@
     </title>
 
     <para>
-    Specifies the packages to be included in the system repository and to be
+    Specifies the packages to be included in the system distribution and to be
     installed by default in any images created by SystemStudio.
     </para>
 
@@ -90,10 +90,10 @@
 
       <note><application class="software">SystemStudio</application> excludes
       specified packages from any included groups, but they may still be
-      included in the system repository repository to satisfy to package dependency 
+      included in the system distribution repository to satisfy to package dependency 
       requirements.  See Also 
       <xref linkend="repo-including-excluding-repository-contents" />
-      for information on excluding packages from the system repository
+      for information on excluding packages from the system distribution
       itself.</note>
 
       </listitem>
@@ -106,7 +106,7 @@
       </term>
 
       <listitem>
-      <para>The unique ID of a group to include in the system repository
+      <para>The unique ID of a group to include in the system distribution
       using one or more of the repository groupfiles indicated by the
       <emphasis>@repoid</emphasis> attributes as a source.
       </para>
@@ -141,7 +141,7 @@
 
       <listitem>
       <para>
-      The name of a package to be included in the system repository. All packages
+      The name of a package to be included in the system distribution. All packages
       included in this way are added to a new group with the name
       <constant>$NAME-packages</constant>. If the <varname>TEXT</varname>
       value contains globbing characters, all matching packages from all
@@ -166,8 +166,8 @@
     </title>
 
     <para>
-    In the following example, the system repository's <varname>$NAME</varname> is
-    "example". The system repository that SystemStudio generates will include
+    In the following example, the system distribution's <varname>$NAME</varname> is
+    "example". The system distribution that SystemStudio generates will include
     several groups from the groupfiles of its input repositories as well as
     a few individual packages. The "base" and "core" groups  will be created
     using the "centos-base" repository as the source; all remaining groups

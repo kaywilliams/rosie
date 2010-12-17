@@ -20,7 +20,7 @@
     timezone, root password and package handling.</para>
 
     <para>Instead of managing multiple kickstart files, SystemStudio lets you make it
-    part of the system repository definition. By revision controlling the SystemStudio files
+    part of the system distribution definition. By revision controlling the SystemStudio files
     (see Part 2), the kickstart process can be controlled, too.</para>
 
     <para>Use the <emphasis>kickstart</emphasis> element in the

@@ -74,9 +74,9 @@
           <row>
             <entry>/var/www/html/systems/</entry>
 
-            <entry>SystemStudio publishes completed system repositories to  
+            <entry>SystemStudio publishes completed system distributions to  
             this folder by default. An alternative location can be specified on
-            a per-system basis within a system definition.
+            a per-system-distribution basis within a system definition.
             </entry>
           </row>
         </tbody>

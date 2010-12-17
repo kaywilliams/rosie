@@ -6,7 +6,7 @@
 
   <para>You can harness <application class="software">SystemStudio</application>'s
   architecture and features to create a production system development
-  environment with reusable components for the system repository definition,
+  environment with reusable components for the system distribution definition,
   version tracking for that and other configuration files, expedited testing
   procedures and alternate development and production locations. Using <application
   class="software">SystemStudio</application> as part of a long-term deployment and

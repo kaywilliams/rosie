@@ -9,29 +9,29 @@
 
   <para>
   The system definition file contains instructions for building Linux operating
-  system repositories for use in installing client machines. It defines system 
+  system distributions for use in installing client machines. It defines system 
   content and configuration, including name, version, and architecture; package
   repository locations; which packages to include; and the locations of 
-  configuration scripts, files and custom graphics. SystemStudio uses the system repository file
-  to assemble, create and publish the system repository. Other programs, such as
+  configuration scripts, files and custom graphics. SystemStudio uses the system distribution file
+  to assemble, create and publish the system distribution. Other programs, such as
   <application class="software">YUM</application>,
   <application class="software">Anaconda</application>, and
   <application class="software">RPM</application>
   use files created by <application class="software">SystemStudio</application>
-  to install and update the system repository on the client system.
+  to install and update the system distribution on the client system.
   </para>
 
   <para>
   The system definition file is a text-based file in XML format. Within the
   file are a series of top-level elements that equate to
-  modules, or steps, within the system repository build process. These elements,
+  modules, or steps, within the system distribution build process. These elements,
   in turn, contain their own attributes and elements. There are three
   required top-level elements:
   <emphasis role="strong"><xref linkend="main" /></emphasis>,
   <emphasis role="strong"><xref linkend="repos" /></emphasis>, and
   <emphasis role="strong"><xref linkend="packages" /></emphasis>;
   all other top-level elements are optional. Top-level elements can appear
-  in the system repository file in any order. Indentation is for readability
+  in the system distribution file in any order. Indentation is for readability
   purposes only.
   </para>
 
@@ -67,7 +67,7 @@
 
     <informalexample>
     <programlisting>
-&lt;system repository&gt;
+&lt;system distribution&gt;
 
   &lt;main&gt;
     &lt;name&gt;samba&lt;/name&gt;
@@ -104,7 +104,7 @@
 	  <para>
 	  Each top-level element in the SDFR maps to a code module of the same
 	  name. Each code module is responsible for performing a single step in
-	  the system repository build process.  Related modules are organized into 
+	  the system distribution build process.  Related modules are organized into 
 	  module groups. To obtain a list of all available modules and module 
 	  groups type
 

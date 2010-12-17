@@ -29,16 +29,16 @@
   <section>
     <title>Creating a system definition</title>
 
-    <para>The first step to creating a system repository is creating the
+    <para>The first step to creating a system distribution is creating the
     system definition. The system definition is a text file in XML format. It can
     be created using any text editor - vi, emacs, nano, or gedit - or 
-    a dedicated XML editor, if you prefer. The tags &lt;system repository&gt; and 
+    a dedicated XML editor, if you prefer. The tags &lt;system distribution&gt; and 
     &lt;/system&gt; encapsulate all additional elements and attributes.
     </para>
 
     <para><informalexample>
       <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;system repository xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;system distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;!-- Additional elements and attributes --&gt;
 
@@ -58,15 +58,15 @@
   </section>
 
   <section>
-    <title>Naming a system repository</title>
+    <title>Naming a system distribution</title>
 
     <para>The first required element of the definition, 
-    <emphasis>main</emphasis>, includes the name of the system repository, the system
+    <emphasis>main</emphasis>, includes the name of the system distribution, the system
     architecture and the version. These three items make up the default
     system id (<varname>$ID</varname>), which SystemStudio uses to create
-    folders for storing the completed system repository (under 
+    folders for storing the completed system distribution (under 
     <filename type="directory">/var/www/html/systems</filename>, by
-    default) and for caching system repository content (under 
+    default) and for caching system distribution content (under 
     <filename type="directory">/var/cache/systemstudio</filename>, by default).
     </para>
 
@@ -75,7 +75,7 @@
         file.</para>
       </note></para>
 
-    <para>In the example below, the system repository version will be 5, the system
+    <para>In the example below, the system distribution version will be 5, the system
     architecture will be i386, and the <varname>$ID</varname> will
     be <filename>samba-server-5-i386</filename>. </para>
 
@@ -96,7 +96,7 @@
     preceding.</para>
 
     <para><note>
-        <para>Each time you change a system repository's id, either implicitly by
+        <para>Each time you change a system distribution's id, either implicitly by
         changing the <emphasis>name</emphasis>, <emphasis>version</emphasis> or 
         <emphasis>arch</emphasis> elements, or explicitly by changing the
         <emphasis>id</emphasis> element, SystemStudio creates new folders for
@@ -105,7 +105,7 @@
         <emphasis>/var/cache/systemstudio</emphasis>, by default,
         respectively). To preserve hard drive space, you may wish to review 
         the publish and cache folders on occasion. Folders for obsolete
-        system repositories can be deleted using standard file system methods
+        system distributions can be deleted using standard file system methods
         (e.g. <command>rm -rf <emphasis>obsolete_folder</emphasis></command>).
         </para>
       </note></para>
@@ -144,7 +144,7 @@
       channel within Red Hat Network. Typically, your definition will include
       both base and updates repositories.</para></listitem>
 
-      <listitem><para>Additional Repositories. Your system repository may 
+      <listitem><para>Additional Repositories. Your system distribution may 
       include packages from any number of additional public or private 
       repositories.</para></listitem>
 
@@ -212,7 +212,7 @@
         folder of the machine. This is the file you will use to configure
         SystemStudio to access software from RHN. You may copy this file to the
         SystemStudio build machine if necessary. Note, to ensure the systemid
-        has access to the software desired for your system repository, you can use
+        has access to the software desired for your system distribution, you can use
         the Red Hat Network web user interface to locate the system, and view
         and alter it's channel subscriptions.</para></listitem>
       </itemizedlist>
@@ -302,7 +302,7 @@
 &lt;/packages&gt;  </programlisting>
     </informalexample></para>
 
-    <para>The system repository will include the <application
+    <para>The system distribution will include the <application
     class="software">GNOME</application> graphical user interface (GUI) and
     common system administration tools.</para>
   </section>
@@ -320,7 +320,7 @@
     manually can be cumbersome and time consuming. 
     <application class="software">SystemStudio</application> makes it easy by 
     creating the <xref linkend="configuration-package"/> automatically during the build process, based 
-    on information you provide in the system repository definition.</para>
+    on information you provide in the system distribution definition.</para>
    
     <para>Using the <emphasis>config</emphasis> element, you can complete the
     following:
@@ -346,7 +346,7 @@
 
       <itemizedlist>
         <listitem>Installs a plugin module for YUM that allows synchronizing 
-        packages on the client machine with packages in the system repository
+        packages on the client machine with packages in the system distribution
         repository. See <xref linkend="updating-client-machines"/> for more
         information on the 
         <application class="software">YUM Sync Plugin</application>.</listitem>
@@ -355,7 +355,7 @@
         <xref linkend="system-repository"/>. Use the 
         <command>man yum.conf</command> command for more information on YUM 
         repository definitions. For clients installed using the samba-server
-        system repository, the file will be installed at 
+        system distribution, the file will be installed at 
         <filename>/etc/yum.repos.d/samba-server.repo</filename>.
         </listitem>
       </itemizedlist>
@@ -418,7 +418,7 @@
         </programlisting>
       </informalexample></para>
 
-      <para>The example above includes two <emphasis>files</emphasis> elements. The first element directs SystemStudio to locate a file named smb.conf in the same folder as the system repository definition, download it, include it in the configuration package for installation to the <filename>/etc/samba</filename> folder with the file mode "644". The second element directs SystemStudio to create a new file named <filename>yum-sync.cron</filename>, containing the text supplied between the &lt;files&gt; and &lt;/files&gt; tags, and include it configuration package for installation to the <filename>/etc/cron.daily</filename> folder with the mode "644".</para>
+      <para>The example above includes two <emphasis>files</emphasis> elements. The first element directs SystemStudio to locate a file named smb.conf in the same folder as the system distribution definition, download it, include it in the configuration package for installation to the <filename>/etc/samba</filename> folder with the file mode "644". The second element directs SystemStudio to create a new file named <filename>yum-sync.cron</filename>, containing the text supplied between the &lt;files&gt; and &lt;/files&gt; tags, and include it configuration package for installation to the <filename>/etc/cron.daily</filename> folder with the mode "644".</para>
 
       <note>SystemStudio resolves all paths in the definition relative to the definition's folder location.</note>
       <note>The attribute value <emphasis>content="text"</emphasis> provides a convenient way to include short files and scripts without needing to create and manage separate files on disk. Larger files can also be created this way, however, this makes the definition more difficult to read.</note>
@@ -481,7 +481,7 @@
     <para><informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;system repository xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;system distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main&gt;
   &lt;name&gt;samba-server&lt;/name&gt;

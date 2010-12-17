@@ -13,7 +13,7 @@
     </title>
 
     <para>
-    Directs SystemStudio to sign the system repository's packages with the specified GPG
+    Directs SystemStudio to sign the system distribution's packages with the specified GPG
     key.
     </para>
 
@@ -78,9 +78,9 @@
 
       <note>
       <para>
-      Remember that if the passphrase is stored in the system repository file, anyone
+      Remember that if the passphrase is stored in the system distribution file, anyone
       with read access to the file can retrieve it. Be sure to take the
-      appropriate steps, whether by limiting read access to the system repository
+      appropriate steps, whether by limiting read access to the system distribution
       file or entering the passphrase at the prompt.
       </para>
       </note>
@@ -96,7 +96,7 @@
       <para>
       The <varname>PATH</varname> to the exported, armored GPG public key
       that corresponds to the secret key used to sign the packages in this
-      system repository.
+      system distribution.
       </para>
       </listitem>
     </varlistentry>

@@ -30,10 +30,10 @@
   <section>
     <title>Signing your packages</title>
 
-    <para>To authenticate your system repository RPMS, you can also sign them and
+    <para>To authenticate your system distribution RPMS, you can also sign them and
     provide a password in your <filename>samba-server.definition</filename>
     file. Use the <emphasis>gpgsign/secret-key</emphasis> for exported,
-    armored GPG secret key that signs your system repository and
+    armored GPG secret key that signs your system distribution and
     <emphasis>gpgsign/public-key</emphasis> to enter the exported, armored GPG
     public key file that matches the <emphasis>/secret-key</emphasis>. You may
     enter a password in plain text form using the
@@ -57,7 +57,7 @@
       </informalexample></para>
 
     <para>Since all <application class="software">RedHat</application>
-    repositories have a GPG key for the system repositories, you may want to sign
+    repositories have a GPG key for the system distributions, you may want to sign
     and key any new system repository as standard practice.</para>
   </section>
 </section>

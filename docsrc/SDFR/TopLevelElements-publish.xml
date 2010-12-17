@@ -13,9 +13,9 @@
     </title>
 
     <para>
-    Publishes the system repository to a <varname>PATH</varname> on the build
+    Publishes the system distribution to a <varname>PATH</varname> on the build
     machine (<emphasis>publish/local-dir</emphasis>) and enables client
-    systems to obtain their updates from a system repository download server
+    systems to obtain their updates from a system distribution download server
     by using a URL <varname>PATH</varname>
     (<emphasis>publish/remote-url</emphasis>).
     </para>
@@ -28,7 +28,7 @@
     <constant>TRUE</constant>. Use
     <emphasis>publish/remote-url/@interface</emphasis> to
     specify the network interface from which to obtain the IP address.
-    To specify a full <varname>PATH</varname> to the system repository download
+    To specify a full <varname>PATH</varname> to the system distribution download
     server, use the <emphasis>publish/remote-url</emphasis> element with
     a <varname>PATH</varname> in its text value (syntax 2).
     </para>
@@ -101,7 +101,7 @@
       <listitem>
       <para>
       The <varname>PATH</varname> to a folder to which SystemStudio publishes
-      the system repository. For the system repository to be accessible on
+      the system distribution. For the system distribution to be accessible on
       the web, place the directory in the system’s local webroot, e.g. the 
       Apache DocumentRoot.
       </para>
@@ -140,7 +140,7 @@
       <para>
       <emphasis>@interface</emphasis>: The network interface name,
       e.g. "eth1", from which to obtain the <varname>$ipaddress</varname>
-      of the system repository's update repository. This attribute only has
+      of the system distribution's update repository. This attribute only has
       an effect if <emphasis>publish/remote-url/@fqdn</emphasis>
       is <constant>FALSE</constant>. By default, SystemStudio uses the first
       active, non-loopback network interface.
@@ -168,7 +168,7 @@
     In the following examples, the build system's fully qualified domain name is
     <filename>buildserver.company.com</filename> and the IP addresses of "eth0" and
     "eth1" are 10.10.1.105 and 192.168.0.10, respectively. It is building a
-    system repository with an <varname>$ID</varname> of
+    system distribution with an <varname>$ID</varname> of
     "samba-server-5-i386".
     </para>
 

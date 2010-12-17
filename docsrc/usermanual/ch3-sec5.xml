@@ -7,7 +7,7 @@
 
   <para>Deployment to a client machine is the next step. Because 
   <application class="software">SystemStudio</application> creates
-  system repositories in a standard operating system format, client machines
+  system distributions in a standard operating system format, client machines
   can be deployed using the same tools and methods as used for 
   <application class="software">Red Hat Enterprise Linux</application> and
   <application class="software">CentOS</application>.</para> 
@@ -15,7 +15,7 @@
   <para>For the samba-server example, we will discuss two installation methods. In the first method, you will install to a physical machine using a bootable CD or DVD. In the second, you will install to a virtual machine.</para>
 
   <para>The methods discussed below are only two of several possible methods for
-  installing your system repository to physical or virtual client machines. See the   
+  installing your system distribution to physical or virtual client machines. See the   
   <emphasis>Red Hat Enterprise Linux 5 Installation Guide</emphasis> and 
   <emphasis>Red Hat Enterprise Linux 5 Virtualization Guide</emphasis> for 
   additional methods and complete information.</para> 
@@ -25,7 +25,7 @@
   <para>In this method, you will use a network install image (<filename>boot.iso</filename>)
   to create an installation CD or DVD. To start the installation, you will boot
   the client machine using the CD/DVD. The installer program contained on the
-  CD/DVD will then use the network to download files from the system repository URL
+  CD/DVD will then use the network to download files from the system distribution URL
   to complete the installation. To complete this example, you must have
   configured the build machine as a web server, as described in 
   <xref linkend="configuring-a-build-machine"/> </para>
@@ -33,10 +33,10 @@
     <section>
       <title>Creating boot media</title>
       <para>After <application class="software">SystemStudio</application>
-      completes the build, you  will find your system repository in a folder beneath
+      completes the build, you  will find your system distribution in a folder beneath
       the <filename class="directory">/var/www/html/systems</filename> 
       default directory on the download server. The folder name will be
-      the system repository <varname>$ID</varname>, e.g.
+      the system distribution <varname>$ID</varname>, e.g.
       <filename>samba-server-5-i386</filename>.</para>
 
       <para>To install to a client machine, you burn a boot image to a separate
@@ -108,7 +108,7 @@
 
     <section id="deleting-a-virtual-machine" xreflabel="Deleting a virtual machine"><title>Deleting a virtual machine</title>
 
-      <para>While developing a new system repository, you may wish to reuse the same virtual-machine name for testing multiple iterations of the same system. You can do this using <command>virt-manager</command> as follows:</para>
+      <para>While developing a new system distribution, you may wish to reuse the same virtual-machine name for testing multiple iterations of the same system. You can do this using <command>virt-manager</command> as follows:</para>
 
       <itemizedlist>
         <listitem>From the virt-manager graphical user interface, click on the line beginning "samba-server".</listitem>

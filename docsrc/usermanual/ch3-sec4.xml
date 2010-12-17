@@ -4,19 +4,19 @@
 <section>
   <title>Building a System</title>
 
-  <para>Now that you have defined your system repository, you use the
+  <para>Now that you have defined your system distribution, you use the
   <command>systemstudio</command> command to build it. The basic command validates the 
-  system definition syntax, creates the system repository, and records 
+  system definition syntax, creates the system distribution, and records 
   process results. The default level of screen output includes errors, build
   status and file download and creation status. SystemStudio also
   sends this output to the log file, by default 
   <filename>/var/log/systemstudio.log</filename>. If a critical error
   occurs, SystemStudio includes detailed error information in the log file.</para>
 
-  <para>The initial build of a system repository can be time consuming, on the order
+  <para>The initial build of a system distribution can be time consuming, on the order
   of several minutes to an hour or more. Initial build time depends on a number
   of variables including the location of package repositories (local or remote), 
-  network connection speed, the number of packages included in the system repository, 
+  network connection speed, the number of packages included in the system distribution, 
   and the amount of content that can be reused from the SystemStudio shared 
   cache. Subsequent builds complete in much less time, often 1-2 minutes, 
   depending on the level and type of change since the previous build.</para>
@@ -34,7 +34,7 @@
   halts the process. See Appendix A for an example of a successful first-build
   output.</para>
 
-  <note>If your system repository uses RHN channels as repositories, SystemStudio may occasionally report errors such as the following while downloading or verifying repository metadata:
+  <note>If your system distribution uses RHN channels as repositories, SystemStudio may occasionally report errors such as the following while downloading or verifying repository metadata:
 
   <programlisting>[repos] long int too large to convert to int</programlisting> 
 

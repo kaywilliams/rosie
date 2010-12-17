@@ -49,12 +49,12 @@
     </itemizedlist></para>
 
   <para>If you decide to not use a revision control system, you could rename
-  the system repository definition or other key
-  files every time you make a change to help you "version" your system repository.
+  the system distribution definition or other key
+  files every time you make a change to help you "version" your system distribution.
   You can also enter comments in the files. Keep in mind that changing the name
   of system definition file does not mean <application class="software">
-  SystemStudio</application> will build a new system repository.
+  SystemStudio</application> will build a new system distribution.
   As long as the <varname>$ID</varname> remains the same, the
-  system repository remains the same.</para>
+  system distribution remains the same.</para>
 </section>
 

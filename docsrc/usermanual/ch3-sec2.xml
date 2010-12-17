@@ -21,13 +21,13 @@
   the syntax for all parent and child elements and their attributes.</para>
 
   <para>Creating the <application class="software">Samba</application>
-  server system repository entails several process steps. After configuring
+  server system distribution entails several process steps. After configuring
   the <application class="software">SystemStudio</application> build machine,
-  as described in the previous chapter, you need to create a system repository
+  as described in the previous chapter, you need to create a system distribution
   system definition 
   (<filename class="extension">samba-server.definition</filename>). Then
   you run <command>systemstudio</command> to validate the file, retrieve
-  the packages and build the system repository. From there you prepare the boot
+  the packages and build the system distribution. From there you prepare the boot
   media.</para>
 
   <para>The next section will explain how to define the system

@@ -7,7 +7,7 @@
 
   <bookinfo id="bookinfo">
 
-    <pubdate>December 2010</pubdate>
+    <pubdate>June 2010</pubdate>
 
     <copyright id="copyright">
       <year>2010</year>
@@ -40,7 +40,7 @@
 
       <keyword>Linux</keyword>
 
-      <keyword>system repository</keyword>
+      <keyword>system distribution</keyword>
 
       <keyword>Anaconda</keyword>
 

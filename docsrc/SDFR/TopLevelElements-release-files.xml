@@ -13,8 +13,8 @@
     </title>
 
     <para>
-    Includes additional files in the system repository at the root of the
-    published system repository directory.
+    Includes additional files in the system distribution at the root of the
+    published system distribution directory.
     </para>
 
     <para>
@@ -69,7 +69,7 @@
       <listitem>
       <para>
       The <varname>PATH</varname> to a folder or file to include in the
-      system repository. Can occur zero or more times.
+      system distribution. Can occur zero or more times.
       </para>
 
       <para>
@@ -83,7 +83,7 @@
       <emphasis>@destdir</emphasis>: See the <varname>PATH</varname>-like
       attribute <emphasis><xref linkend="destdir" /></emphasis>. Controls
       the location to which this file is copied in the publish directory.
-      The default value is within the system repository's <filename>os/</filename>
+      The default value is within the system distribution's <filename>os/</filename>
       folder.
       </para>
 

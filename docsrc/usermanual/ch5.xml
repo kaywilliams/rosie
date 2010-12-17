@@ -6,7 +6,7 @@
 
   <para>Now that you have created your basic
   <filename>samba-server.definition</filename>, you can customize your
-  system through additional elements in the system repository definition. When
+  system through additional elements in the system distribution definition. When
   selecting packages, you may want certain events to occur depending upon what
   package version is installed or deinstalled. Scripts that run automatically
   or are triggered upon certain installation or deinstallation events give you
@@ -16,8 +16,8 @@
   company's legal department or custom software development department
   requires certain content, you can include those components, as well.</para>
 
-  <para>Updating your system repository is easy with SystemStudio, but you need to
-  understand whether the client machine or just the system repository repository or
+  <para>Updating your system distribution is easy with SystemStudio, but you need to
+  understand whether the client machine or just the system distribution repository or
   both will include any updates. The next chapter addresses that critical issue.
   </para>
 
