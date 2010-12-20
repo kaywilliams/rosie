@@ -193,7 +193,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   @property
   def config(self):
     try:
-      return self._config.get('/system/%s' % self.moduleid)
+      return self._config.get('/distribution/%s' % self.moduleid)
     except rxml.errors.XmlPathError:
       return DummyConfig(self._config)
 

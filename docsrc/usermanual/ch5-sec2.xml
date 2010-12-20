@@ -32,7 +32,7 @@
         <programlisting>&lt;kickstart&gt;ks.cfg&lt;/kickstart&gt;</programlisting>
       </informalexample></para>
 
-    <para>See the SDFR for the <emphasis>kickstart</emphasis> element 
+    <para>See the DDFR for the <emphasis>kickstart</emphasis> element 
     syntax.</para>
 
   </section>
@@ -43,7 +43,7 @@
     <para>To add custom kernel boot arguments to the <filename
     class="directory">/isolinux/isolinux.cfg</filename> file of the
     <filename>boot.iso</filename> image, use the <emphasis>bootiso</emphasis>
-    element in your system definition. Substitute your appropriate IP
+    element in your distribution definition. Substitute your appropriate IP
     addresses.</para>
 
     <para><informalexample>
@@ -69,7 +69,7 @@
   &lt;/diskboot-image&gt;</programlisting>
       </informalexample></para>
 
-    <para>See the SDFR for the complete syntaxes of the 
+    <para>See the DDFR for the complete syntaxes of the 
     <emphasis>bootiso</emphasis> and <emphasis>diskboot</emphasis> elements.
     </para>
 

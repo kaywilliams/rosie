@@ -53,7 +53,7 @@ mv samba-server.definition samba-server-developer.definition
     <para><informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;system distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;distribution distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main&gt;
   &lt;name&gt;samba-server&lt;/name&gt;
@@ -70,7 +70,7 @@ mv samba-server.definition samba-server-developer.definition
   &lt;remote-url&gt;http://download.company.com/systems/&lt;/remote-url&gt;
 &lt;/publish&gt;
 
-&lt;/system&gt;
+&lt;/distribution&gt;
       </programlisting>
     </informalexample></para> 
 
@@ -98,14 +98,14 @@ xmllint --xinclude --format samba-server-production.definition
   <para>To ease the organization and reuse of information, the software development community
   commonly uses substitution methods. In the case of SystemStudio, you can create and
   store content in one location and use XML Inclusions (XInclude) and XPaths 
-  to reuse content across system definitions and condense large definition
+  to reuse content across distribution definitions and condense large definition
   files into more manageable and readable sections using an object-oriented
-  tree. Within that context, some components of a system definition are
+  tree. Within that context, some components of a distribution definition are
   prime candidates for substitution and reuse.</para>
 
   <para>Using XInclude instructions within your definitions has a number of
   advantages. XInclude processing is recursive. You can have multiple layers of 
-  XIncluded documents within one collective system definition. By using 
+  XIncluded documents within one collective distribution definition. By using 
   XPointer you can target one portion of a document. From a time management 
   standpoint, you spend time creating static sections once, then reuse them. 
   If your network topology changes, for example, then you have one file to 
@@ -126,12 +126,12 @@ xmllint --xinclude --format samba-server-production.definition
       <imageobject>
         <imagedata fileref="definition_reuse.png" />
       </imageobject>
-      <caption><para>System Definition File Reuse</para></caption>
+      <caption><para>Distribution Definition File Reuse</para></caption>
     </mediaobject></para>
 
   <para>To properly use the XInclude and XPointer structures, the directory
   tree must represent the tiered structure above. In other words, the common
-  files to be included must exist at the same tier as any system definitions that
+  files to be included must exist at the same tier as any distribution definitions that
   references them.</para>
 
   <para>In the <filename class="directory">system distributions/common/</filename>
@@ -147,7 +147,7 @@ xmllint --xinclude --format samba-server-production.definition
   class="directory">system distributions/samba-server/</filename> in the drawing above
   contains the <filename>samba-server.definition</filename> file, the Samba
   server configuration file, a kickstart file and a validation script. The
-  system definition would XInclude
+  distribution definition would XInclude
   components from the repositories, common groups and packages. The same logic holds true for the web and DNS servers.</para>
 
   <para>To see the differences between one large versus several small files,
@@ -170,7 +170,7 @@ xmllint --xinclude --format samba-server-production.definition
 
   <para><informalexample>
       <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;system distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;distribution distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;!-- reposistories for centos --&gt;
 &lt;repos-centos&gt;
@@ -192,7 +192,7 @@ xmllint --xinclude --format samba-server-production.definition
 
 &lt;/repos-centos&gt;
 
-&lt;/system&gt;</programlisting>
+&lt;/distribution&gt;</programlisting>
     </informalexample></para>
 
   <para>The final step is to modify the
@@ -215,7 +215,7 @@ xmllint --xinclude --format samba-server-production.definition
   you will also have to change the path to the <filename>smb.conf</filename>
   file in <emphasis>config/file</emphasis>.</para>
 
-  <para>The result is an object-oriented system definition that will
+  <para>The result is an object-oriented distribution definition that will
   reduce your maintenance overhead.</para>
   </section>
 

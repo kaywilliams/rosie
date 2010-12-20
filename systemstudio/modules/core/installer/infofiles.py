@@ -62,7 +62,7 @@ class DiscinfoEvent(Event):
     discinfo = ffile.DictToFormattedFile(self.locals.L_DISCINFO_FORMAT)
 
     # get name, fullname, and basearch from cvars
-    app_vars = copy.deepcopy(self.cvars['system-info'])
+    app_vars = copy.deepcopy(self.cvars['distribution-info'])
 
     # add timestamp and discs using defaults to match anaconda makestamp.py
     app_vars.update({'timestamp': str(time.time()), 'discs': 'ALL'})
@@ -108,7 +108,7 @@ class TreeinfoEvent(Event):
     lines = []
 
     # add timestamp to base vars (doesn't have to match .discinfo's timestamp)
-    vars = copy.deepcopy(self.cvars['system-info'])
+    vars = copy.deepcopy(self.cvars['distribution-info'])
     vars.update({'timestamp': str(time.time())})
 
     # generate .treeinfo lines
@@ -170,7 +170,7 @@ class BuildstampEvent(Event):
     buildstamp = ffile.DictToFormattedFile(self.locals.L_BUILDSTAMP_FORMAT)
 
     app_vars = copy.deepcopy(self.cvars['base-info'])
-    app_vars.update(self.cvars['system-info'])
+    app_vars.update(self.cvars['distribution-info'])
 
     self.bsfile.dirname.mkdirs()
     buildstamp.write(self.bsfile, **app_vars)

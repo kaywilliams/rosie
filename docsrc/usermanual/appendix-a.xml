@@ -115,7 +115,7 @@ compose
  * linking files
  * creating manifest file
 publish
- * publishing to '/var/www/html/systems/samba-server-5-i386' 
+ * publishing to '/var/www/html/distributions/samba-server-5-i386' 
 Build complete at 2010-02-09 09:18:58
     </programlisting>
   </informalexample>

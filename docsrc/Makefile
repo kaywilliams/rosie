@@ -1,4 +1,4 @@
-SUBDIRS = man SDFR usermanual
+SUBDIRS = man DDFR usermanual
 
 .PHONY: all clean install
 

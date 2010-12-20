@@ -50,8 +50,8 @@
     class="software">SystemStudio</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
     obtaining and installing SystemStudio and creating a basic CentOS system
-    distribution. The "System Definition File Reference" (SDFR) contains
-    the syntax for system definition elements and attributes. 
+    distribution. The "Distribution Definition File Reference" (DDFR) contains
+    the syntax for distribution definition elements and attributes. 
     Finally, SystemStudio has a set of 
     <emphasis role="strong">man pages</emphasis> explaining the
     <command>systemstudio</command> command, its options and the SystemStudio
@@ -118,7 +118,7 @@
           equivalents. The active node is always considered to be the root,
           system; thus, the first element in the XPath expression is the
           top-level element, while subsequent elements/attributes are its
-          children. Top-level elements in the SDFR and their child elements
+          children. Top-level elements in the DDFR and their child elements
           use the <emphasis>parent/child/child</emphasis> format, while
           <emphasis>@attribute-names</emphasis> are preceded by an @ symbol.
           The assumed parent element is <emphasis>system</emphasis>. For
@@ -169,7 +169,7 @@
         <term><emphasis role="strong">Notes</emphasis></term>
 
         <listitem>
-          <para>Within system definition examples, the traditional XML comment
+          <para>Within distribution definition examples, the traditional XML comment
           tags "&lt;!--" and "--&gt;" contain notes. See Also <xref
           linkend="example" /> .</para>
 
@@ -178,7 +178,7 @@
 
           <para><note>
               <para>The top-level elements can be in any order in the
-              system definition.</para>
+              distribution definition.</para>
             </note></para>
         </listitem>
       </varlistentry>

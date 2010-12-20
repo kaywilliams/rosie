@@ -180,7 +180,7 @@ class RpmBuildObject:
   def setup_build(self, **kwargs):
     if self.autofile.exists():
       self.release = rxml.config.read(self.autofile).get(
-       '/system/rpms/%s/release/text()' %
+       '/distribution/rpms/%s/release/text()' %
        (self.ptr.id), '0')
     else:
       self.release = '0'
@@ -212,7 +212,7 @@ class RpmBuildObject:
 
   def save_release(self):
     if self.autofile.exists():
-      root = rxml.config.read(self.autofile).get('/system')
+      root = rxml.config.read(self.autofile).get('/distribution')
     else:
       root = rxml.config.Element('system')
 

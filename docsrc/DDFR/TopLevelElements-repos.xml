@@ -594,7 +594,7 @@ baseurl=/var/repos/repoC
     In the following examples, line breaks have been added to the
     <emphasis>repos/repo/baseurl</emphasis> and
     <emphasis>repos/repo/mirrorlist</emphasis> to improve readability.
-    In a real system definition file, however, line breaks within
+    In a real distribution definition file, however, line breaks within
     <varname>PATH</varname>-like elements are not allowed.
     </para>
 
@@ -696,7 +696,7 @@ baseurl=/var/repos/repoC
 
       <informalexample>
       <programlisting>
-&lt;system&gt;
+&lt;distribution&gt;
   &lt;main&gt;
     ...
     &lt;arch&gt;i386&lt;/arch&gt;
@@ -712,7 +712,7 @@ baseurl=/var/repos/repoC
     &lt;/repo&gt;
   &lt;/repos&gt;
   ...
-&lt;/system&gt;
+&lt;/distribution&gt;
       </programlisting>
       </informalexample>
 

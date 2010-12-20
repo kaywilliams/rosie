@@ -34,7 +34,7 @@
       <title>Creating boot media</title>
       <para>After <application class="software">SystemStudio</application>
       completes the build, you  will find your system distribution in a folder beneath
-      the <filename class="directory">/var/www/html/systems</filename> 
+      the <filename class="directory">/var/www/html/distributions</filename> 
       default directory on the download server. The folder name will be
       the system distribution <varname>$ID</varname>, e.g.
       <filename>samba-server-5-i386</filename>.</para>
@@ -124,7 +124,7 @@
     a physical or virtual client, is
     to verify the contents of the <filename>smb.conf</filename>
     installed on the client machine. It should match the one provided in the
-    system definition.</para>
+    distribution definition.</para>
 
     <para>Congratulations! You now have a Samba server installed on a CentOS 5
     client machine.</para>

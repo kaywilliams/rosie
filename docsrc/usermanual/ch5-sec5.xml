@@ -28,7 +28,7 @@
 &lt;/iso&gt;</programlisting>
     </informalexample></para>
 
-  <para>See the SDFR for the complete syntaxes of <emphasis>iso</emphasis>,
+  <para>See the DDFR for the complete syntaxes of <emphasis>iso</emphasis>,
   <emphasis>bootiso</emphasis> and <emphasis>diskboot</emphasis> elements.
   </para>
 </section>

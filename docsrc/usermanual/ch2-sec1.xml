@@ -61,7 +61,7 @@
   </mediaobject>
 
   <para><application class="software">SystemStudio</application> reads 
-  a system definition, gathers various inputs (operating system, applications, 
+  a distribution definition, gathers various inputs (operating system, applications, 
   and configuration files), and creates a system distribution 
   with installation images and a package repository. Using the installation
   images, you can deploy the system distribution to one or more client machines. You can 

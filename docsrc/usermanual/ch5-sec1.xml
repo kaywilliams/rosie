@@ -15,5 +15,5 @@
   various install images, add business support required by the legal and
   software development departments and secure your system. All of these
   options utilize top-level elements that you include in your system
-  system definition, <filename>samba-server.definition</filename>.</para>
+  distribution definition, <filename>samba-server.definition</filename>.</para>
 </section>

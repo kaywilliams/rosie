@@ -131,7 +131,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
 
     # set up real logger - console and file
     self.logfile = ( pps.path(options.logfile)
-                     or self.appconfig.getpath('/system/main/log-file', None)
+                     or self.appconfig.getpath('/distribution/main/log-file', None)
                      or self.mainconfig.getpath('/systemstudio/log-file', None)
                      or DEFAULT_LOG_FILE ).expand().abspath()
     try:
@@ -337,7 +337,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     disabled = set(options.disabled_modules)
 
     # enable/disable modules from app config
-    for module in self.appconfig.xpath('/system/*'):
+    for module in self.appconfig.xpath('/distribution/*'):
       if module.tag == 'main': continue # main isn't a module
       if not module.getbool('@enabled', 'True'):
         disabled.add(module.tag)
@@ -374,8 +374,8 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     Event._config    = self.appconfig
 
     # set up base variables
-    di = Event.cvars['system-info'] = {}
-    qstr = '/system/main/%s/text()'
+    di = Event.cvars['distribution-info'] = {}
+    qstr = '/distribution/main/%s/text()'
 
     di['name']         = Event._config.get(qstr % 'name')
     di['version']      = Event._config.get(qstr % 'version')

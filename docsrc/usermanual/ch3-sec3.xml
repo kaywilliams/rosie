@@ -27,22 +27,22 @@
     </itemizedlist></para>
 
   <section>
-    <title>Creating a system definition</title>
+    <title>Creating a distribution definition</title>
 
     <para>The first step to creating a system distribution is creating the
-    system definition. The system definition is a text file in XML format. It can
+    distribution definition. The distribution definition is a text file in XML format. It can
     be created using any text editor - vi, emacs, nano, or gedit - or 
-    a dedicated XML editor, if you prefer. The tags &lt;system distribution&gt; and 
-    &lt;/system&gt; encapsulate all additional elements and attributes.
+    a dedicated XML editor, if you prefer. The tags &lt;distribution distribution&gt; and 
+    &lt;/distribution&gt; encapsulate all additional elements and attributes.
     </para>
 
     <para><informalexample>
       <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;system distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;distribution distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;!-- Additional elements and attributes --&gt;
 
-&lt;/system&gt;</programlisting>
+&lt;/distribution&gt;</programlisting>
     </informalexample></para>
 
     <para>The first line, beginning in "&lt;?xml", identifies the file
@@ -65,13 +65,13 @@
     architecture and the version. These three items make up the default
     system id (<varname>$ID</varname>), which SystemStudio uses to create
     folders for storing the completed system distribution (under 
-    <filename type="directory">/var/www/html/systems</filename>, by
+    <filename type="directory">/var/www/html/distributions</filename>, by
     default) and for caching system distribution content (under 
     <filename type="directory">/var/cache/systemstudio</filename>, by default).
     </para>
 
     <para><note>
-        <para>The elements can be in any order within a system definition
+        <para>The elements can be in any order within a distribution definition
         file.</para>
       </note></para>
 
@@ -89,7 +89,7 @@
     </informalexample></para>
 
     <para>You can override the default system id using an
-    <emphasis>id</emphasis> element. See the SDFR for more details about the
+    <emphasis>id</emphasis> element. See the DDFR for more details about the
     <emphasis>main</emphasis> element.</para>
 
     <para>Save the file as <filename>samba-server.definition</filename> before
@@ -101,7 +101,7 @@
         <emphasis>arch</emphasis> elements, or explicitly by changing the
         <emphasis>id</emphasis> element, SystemStudio creates new folders for
         it in the publish and cache folders 
-        (<emphasis>/var/www/html/systems</emphasis> and 
+        (<emphasis>/var/www/html/distributions</emphasis> and 
         <emphasis>/var/cache/systemstudio</emphasis>, by default,
         respectively). To preserve hard drive space, you may wish to review 
         the publish and cache folders on occasion. Folders for obsolete
@@ -364,7 +364,7 @@
       <para>The sync plugin can be disabled on individual client machines using 
       the <filename>/etc/yum/yumplugin.d/sync.conf</filename> file. The sync 
       plugin can be excluded from the configuration package altogether using
-      the <emphasis>config/updates</emphasis> element. See the SDFR for more 
+      the <emphasis>config/updates</emphasis> element. See the DDFR for more 
       information on <application class="software">YUM</application> update 
       configuration using the <emphasis>/config/updates</emphasis> element.
       </para>
@@ -469,19 +469,19 @@
     </section>
 
     <para>For more information on child elements of <emphasis>config</emphasis>,
-    see the <emphasis>config</emphasis> element in the SDFR.</para>
+    see the <emphasis>config</emphasis> element in the DDFR.</para>
 
   </section>
 
   <section>
     <title>Validating a definition</title>
 
-    <para>Your complete samba-server system definition should now look as follows:</para>
+    <para>Your complete samba-server distribution definition should now look as follows:</para>
 
     <para><informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;system distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;distribution distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main&gt;
   &lt;name&gt;samba-server&lt;/name&gt;
@@ -524,7 +524,7 @@
 
 &lt;/config&gt;
 
-&lt;/system&gt;
+&lt;/distribution&gt;
       </programlisting>
     </informalexample></para>
 

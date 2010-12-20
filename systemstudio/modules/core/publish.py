@@ -54,7 +54,7 @@ class PublishSetupEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.local  = pps.path(self.config.getpath('local-dir',  '/var/www/html/systems'))
+    self.local  = pps.path(self.config.getpath('local-dir',  '/var/www/html/distributions'))
     self.remote = pps.path(self.config.getpath('remote-url',
                     self._get_host(ifname =
                       self.config.get('remote-url/@interface', None))))

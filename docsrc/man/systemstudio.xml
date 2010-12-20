@@ -72,7 +72,7 @@
 
 <refsect1 id="systemstudio.1-usage"><title>USAGE</title>
 <para><command>systemstudio</command> [OPTIONS] SOLUTION_DEFINITION</para>
-<para>OPTIONS refers to the command-line options described below.  SOLUTION_DEFINITION refers to a system definition file, see the System Definition File Reference at <ulink url="http://www.renditionsoftware.com/systemstudio/docs"/> for more information.</para>
+<para>OPTIONS refers to the command-line options described below.  SOLUTION_DEFINITION refers to a distribution definition file, see the Distribution Definition File Reference at <ulink url="http://www.renditionsoftware.com/systemstudio/docs"/> for more information.</para>
 </refsect1>
 
 
@@ -117,7 +117,7 @@
 <varlistentry>
   <term><option>--list-modules</option></term>
   <listitem>
-    <para> Displays a list of SystemStudio modules including name, description, and child modules, then exits without building the system distribution. Note: SystemStudio requires a system definition on the command line when using this option, for example:</para>
+    <para> Displays a list of SystemStudio modules including name, description, and child modules, then exits without building the system distribution. Note: SystemStudio requires a distribution definition on the command line when using this option, for example:</para>
 <para>systemstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
@@ -213,7 +213,7 @@
 </refsect1>
 
 <refsect1 id="systemstudio.1-modules"><title>MODULES</title>
-<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the systemstudio command. Note: SystemStudio requires a system definition on the command line when using this option, for example:</para>
+<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the systemstudio command. Note: SystemStudio requires a distribution definition on the command line when using this option, for example:</para>
 <para>systemstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
 <para>On subsequent builds of the same system distribution, SystemStudio automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using the <command>--skip</command> and <command>--force</command> options.</para>
 <para>Developers can write custom SystemStudio modules and direct SystemStudio to use them via the <command>--lib-path</command> systemstudio command option.</para>

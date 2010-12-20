@@ -155,7 +155,7 @@
     </para>
 
     <programlisting>
-&lt;systemstudio&gt;
+&lt;distributionstudio&gt;
     &lt;share-path&gt;/usr/share&lt;/share-path&gt;
     &lt;share-path&gt;~/systemstudio/share&lt;/share-path&gt;
     &lt;lib-path&gt;/usr/lib&lt;/lib-path&gt;

@@ -53,7 +53,7 @@
           <row>
             <entry>/usr/share/systemstudio/schemas</entry>
 
-            <entry>Relax NG schemas for system definition validation.
+            <entry>Relax NG schemas for distribution definition validation.
             </entry>
           </row>
           <row>
@@ -72,11 +72,11 @@
           </row>
 
           <row>
-            <entry>/var/www/html/systems/</entry>
+            <entry>/var/www/html/distributions/</entry>
 
             <entry>SystemStudio publishes completed system distributions to  
             this folder by default. An alternative location can be specified on
-            a per-system-distribution basis within a system definition.
+            a per-system-distribution basis within a distribution definition.
             </entry>
           </row>
         </tbody>

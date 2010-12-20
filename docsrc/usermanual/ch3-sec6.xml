@@ -7,7 +7,7 @@
   <para>SystemStudio makes it easy to keep your system distribution up to date over 
   time by simply rerunning the <command>systemstudio</command> command. 
   When SystemStudio runs, it looks for changes in build input, or in the 
-  system definition, and makes adjustments to the published
+  distribution definition, and makes adjustments to the published
   system distribution as necessary.</para>
 
   <section>
@@ -90,7 +90,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
     elements, then you are creating a new system distribution with a new
     <varname>$ID</varname> and <xref linkend="download-location"/>
     matching the new parameters. To avoid confusion between the different
-    system distributions, save the new system definition with a new name.</para>
+    system distributions, save the new distribution definition with a new name.</para>
   </section>
 
   <para>To try out system updates for the samba-server example, you can 

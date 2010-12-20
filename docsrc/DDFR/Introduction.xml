@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<chapter id="SDFR-Introduction"
+<chapter id="DDFR-Introduction"
   xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>
   Introduction
   </title>
 
   <para>
-  The system definition file contains instructions for building Linux operating
+  The distribution definition file contains instructions for building Linux operating
   system distributions for use in installing client machines. It defines system 
   content and configuration, including name, version, and architecture; package
   repository locations; which packages to include; and the locations of 
@@ -22,7 +22,7 @@
   </para>
 
   <para>
-  The system definition file is a text-based file in XML format. Within the
+  The distribution definition file is a text-based file in XML format. Within the
   file are a series of top-level elements that equate to
   modules, or steps, within the system distribution build process. These elements,
   in turn, contain their own attributes and elements. There are three
@@ -36,13 +36,13 @@
   </para>
 
   <para>
-  The system definition file has full support of XML Inclusions (XIncludes). Please
+  The distribution definition file has full support of XML Inclusions (XIncludes). Please
   refer to the <ulink url="http://www.w3.org/TR/xinclude/">XInclude Technical
   Report</ulink> for more information.
   </para>
 
   <para>
-  A system definition file can be located in any local directory and invoked 
+  A distribution definition file can be located in any local directory and invoked 
   from the command line using the command <command>systemstudio</command> 
   followed by the full or relative pathname to the file, such as:
   </para>
@@ -58,11 +58,11 @@
 
   <section>
     <title>
-    Example System Definition
+    Example Distribution Definition
     </title>
 
     <para>
-    Here is a basic example system definition based on CentOS 5.
+    Here is a basic example distribution definition based on CentOS 5.
     </para>
 
     <informalexample>
@@ -91,7 +91,7 @@
     &lt;group repoid="base"&gt;smb-server&lt;/group&gt;
   &lt;/packages&gt;
 
-&lt;/system&gt;
+&lt;/distribution&gt;
     </programlisting>
     </informalexample>
   </section>
@@ -102,7 +102,7 @@
     </title>
 
 	  <para>
-	  Each top-level element in the SDFR maps to a code module of the same
+	  Each top-level element in the DDFR maps to a code module of the same
 	  name. Each code module is responsible for performing a single step in
 	  the system distribution build process.  Related modules are organized into 
 	  module groups. To obtain a list of all available modules and module 

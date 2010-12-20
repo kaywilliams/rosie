@@ -62,29 +62,29 @@
 
           <para>For more information on what the configuration package contains
           and how to customize its contents, see the section on 
-          <emphasis>config</emphasis> in the System Definition File 
+          <emphasis>config</emphasis> in the Distribution Definition File 
           Reference.</para>
 
         </listitem>
       </varlistentry>
 
-      <varlistentry id="ddfr" xreflabel="SDFR">
-        <term><emphasis role="strong">SDFR</emphasis></term>
+      <varlistentry id="ddfr" xreflabel="DDFR">
+        <term><emphasis role="strong">DDFR</emphasis></term>
 
         <listitem>
-          <para>"System Definition File Reference," the rules of syntax for
+          <para>"Distribution Definition File Reference," the rules of syntax for
           the system distribution definition.</para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="system_definition" xreflabel="system definition">
-        <term><emphasis role="strong">system definition</emphasis></term>
+      <varlistentry id="system_definition" xreflabel="distribution definition">
+        <term><emphasis role="strong">distribution definition</emphasis></term>
 
         <listitem>
           <para>The information SystemStudio uses to build, configure and store
           a system distribution. By convention the text file uses the <filename
           class="extension">.definition</filename> extension. The file uses XML
-          tagging as defined in the SDFR.</para>
+          tagging as defined in the DDFR.</para>
         </listitem>
       </varlistentry>
 
@@ -92,7 +92,7 @@
         <term><emphasis role="strong">system distribution data file</emphasis></term>
 
         <listitem>
-          <para>A file SystemStudio creates to track and increment the release number of the system distribution's <xref linkend="configuration-package" />. This file is created in the same folder as the system distribution definition, using the same filename, with a <filename>.dat</filename> file extension. For example, given the full path to a system definition:</para>
+          <para>A file SystemStudio creates to track and increment the release number of the system distribution's <xref linkend="configuration-package" />. This file is created in the same folder as the system distribution definition, using the same filename, with a <filename>.dat</filename> file extension. For example, given the full path to a distribution definition:</para>
 
           <para><informalexample>
           <filename>/~/samba-server.definition</filename></informalexample>
@@ -124,7 +124,7 @@
               <filename>http://192.168.1.5/systems/samba-server-5-i386</filename>
             </informalexample></para>
 
-          <para>The download location is configurable using the <emphasis>publish</emphasis> element of the system distribution definition. See the SDFR for information on the publish element. See also <xref linkend="production-definitions"/> for a discussion on using download locations in a production environment.</para>
+          <para>The download location is configurable using the <emphasis>publish</emphasis> element of the system distribution definition. See the DDFR for information on the publish element. See also <xref linkend="production-definitions"/> for a discussion on using download locations in a production environment.</para>
         </listitem>
       </varlistentry>
 

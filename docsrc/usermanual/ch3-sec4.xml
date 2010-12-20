@@ -6,7 +6,7 @@
 
   <para>Now that you have defined your system distribution, you use the
   <command>systemstudio</command> command to build it. The basic command validates the 
-  system definition syntax, creates the system distribution, and records 
+  distribution definition syntax, creates the system distribution, and records 
   process results. The default level of screen output includes errors, build
   status and file download and creation status. SystemStudio also
   sends this output to the log file, by default 
