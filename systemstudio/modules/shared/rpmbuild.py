@@ -214,7 +214,7 @@ class RpmBuildObject:
     if self.autofile.exists():
       root = rxml.config.read(self.autofile).get('/distribution')
     else:
-      root = rxml.config.Element('system')
+      root = rxml.config.Element('distribution')
 
     rpms     = rxml.config.uElement('rpms', parent=root)
     parent   = rxml.config.uElement(self.ptr.id, parent=rpms)
