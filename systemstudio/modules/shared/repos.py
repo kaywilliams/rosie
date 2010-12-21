@@ -49,7 +49,7 @@ NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
                  'stylesheet-images']
 
 class SystemStudioRepo(YumRepo):
-  keyfilter = ['id', 'systemid']
+  keyfilter = ['id', 'distributionid']
 
   def __init__(self, **kwargs):
     YumRepo.__init__(self, **kwargs)

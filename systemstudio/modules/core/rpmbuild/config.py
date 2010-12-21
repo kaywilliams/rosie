@@ -58,7 +58,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     self.filerelpath = pps.path('usr/share/system-config/files')
 
     self.DATA = {
-      'variables': ['name', 'fullname', 'systemid', 'rpm.release',
+      'variables': ['name', 'fullname', 'distributionid', 'rpm.release',
                     'cvars[\'web-path\']', 'cvars[\'gpgsign-public-key\']',],
       'config':    ['.'],
       'input':     [],

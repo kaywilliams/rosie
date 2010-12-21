@@ -47,8 +47,8 @@ class RpmbuildRepoEvent(Event):
                   'excluded-packages']
     )
 
-    self.cid =  '%s-config' % self.systemid
-    self.csid = '%s-sources' % self.systemid
+    self.cid =  '%s-config' % self.distributionid
+    self.csid = '%s-sources' % self.distributionid
 
     self.RPMBUILD_RPMS  = self.mddir/self.cid
     self.RPMBUILD_SRPMS = self.mddir/self.csid
