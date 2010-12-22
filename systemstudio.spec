@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    systemstudio
-Version: 1.0.6
+Version: 1.0.7
 Release: 1%{?dist}
 Summary: Builds system distributions for CentOS and Red Hat Enterprise Linux
 
@@ -65,6 +65,9 @@ http://www.renditionsoftware.com for more information.
 %{_mandir}/man1/systemstudio.1.gz
 
 %changelog
+* Tue Dec 21 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.7-1
+
+
 * Tue Dec 21 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.6-1
 - changed variable name from systemid to distributionid (kayw)
 

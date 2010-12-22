@@ -1,8 +1,23 @@
 2010-12-21  Kay Williams  <kwilliams@renditionsoftware.com>
 
 	* .hgtags:
+	Tagged as systemstudio-1.0.6-1
+	[80fb0763f168] [tip]
+
+	* branch merge
+	[27f727820e33] [systemstudio-1.0.6-1]
+
+	* share/systemstudio/schemas/distribution/Makefile:
+	updated schema path to distribution naming in Makefile
+	[54ea9ba850ab]
+
+	* ChangeLog, systemstudio.spec:
+	make tag and bumpver
+	[7a5c6056352f]
+
+	* .hgtags:
 	Tagged as systemstudio-1.0.5-1
-	[e75936322deb] [tip]
+	[e75936322deb]
 
 2010-12-21  Kay Williams  <kayw@solutionprovider.net>
 
