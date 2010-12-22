@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name:    systemstudio
-Version: 1.0.4
+Version: 1.0.6
 Release: 1%{?dist}
 Summary: Builds system distributions for CentOS and Red Hat Enterprise Linux
 
@@ -65,8 +65,20 @@ http://www.renditionsoftware.com for more information.
 %{_mandir}/man1/systemstudio.1.gz
 
 %changelog
-* Sun Dec 12 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.4-1
-- Initial Build
+* Tue Dec 21 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.6-1
+- changed variable name from systemid to distributionid (kayw)
+
+* Tue Dec 21 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.5-1
+- changed variable name from systemid to distributionid (kwilliams)
+- bugfix to shared rpmbuild module to write out distribution in .dat files (kwilliams)
+- fixed sstest to use distribution root element (kwilliams)
+- reverting to distribution naming (kwilliams)
+- Backed out changeset 85c960485b26 (kwilliams)
+- documentation updates (kwilliams)
+- removing optional sources event (kwilliams)
+- help displays valid log-level values (kwilliams)
+- ui tweak for rpmbuild-repo (kwilliams)
+- removed deprecated parameter from __init__ call in resolve.conf (kwilliams)
 
 * Mon Dec 06 2010 Kay Williams <kayw@systemstudio.org> - 1.0.3-1
 - added installclass for anaconda rhel6 (kayw)
