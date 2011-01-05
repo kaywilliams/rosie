@@ -50,11 +50,12 @@ class OutputHandler(DiffHandler):
   def mdwrite(self, root):
     parent = rxml.config.uElement('output', parent=root)
     # write to metadata file
-    paths = []
+    paths = set()
     for file in [ pps.path(x) for x in self.odata ]:
       if not file.exists():
         raise pps.Path.PathError(errno.ENOENT, file)
-      paths.extend(file.findpaths(type=pps.constants.TYPE_NOT_DIR))
+      for f in file.findpaths(type=pps.constants.TYPE_NOT_DIR):
+        paths.add(f)
     for file in paths:
       file = file.normpath()
       parent.append(self.tupcls(file).toxml())
