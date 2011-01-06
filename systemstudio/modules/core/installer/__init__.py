@@ -22,7 +22,7 @@ from systemstudio.event import Event, CLASS_META
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['InstallerEvent', 'InstallerSetupEvent'],
+  events      = ['InstallerEvent'],
   description = 'modules that create core install images',
 )
 
@@ -36,30 +36,3 @@ class InstallerEvent(Event):
       suppress_run_message = True,
     )
 
-class InstallerSetupEvent(Event):
-  def __init__(self):
-    Event.__init__(self,
-      id = 'installer-setup',
-      parentid = 'setup',
-      provides = ['anaconda-version-supplied'],
-      suppress_run_message = True,
-    )
-
-    self.DATA = {
-      'variables': [],
-      'config': ['.'],
-    }
-
-  def setup(self):
-    self.diff.setup(self.DATA)
-
-    self.anaconda_version = self.config.get('anaconda-version/text()', None)
-    if self.anaconda_version is not None:
-      self.anaconda_version = versort.Version(self.anaconda_version)
-
-  def run(self):
-    pass
-
-  def apply(self):
-    # set cvars
-    self.cvars['anaconda-version-supplied'] = self.anaconda_version
