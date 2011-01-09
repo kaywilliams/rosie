@@ -51,10 +51,23 @@ class DepsolveEventTestCase(EventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='depsolve')
-    self.PKGLIST_COUNT[self.caseid] = len(self.event.cvars['pkglist'])
+    count = 0
+    for tups in self.event.cvars['pkglist'].itervalues():
+      count = count + len(tups)
+    self.PKGLIST_COUNT[self.caseid] = count 
 
   def getPkglistCount(self, caseid):
     return self.PKGLIST_COUNT.get(caseid)
+
+  def getPkgFiles(self):
+    pkgtups = []
+    for tups in self.event.cvars['pkglist'].itervalues():
+      pkgtups.extend(tups)
+    pkgfiles = []
+    for tup in pkgtups:
+       _, _, f, _, _ = tup
+       pkgfiles.append(pps.path(f).basename) 
+    return pkgfiles
 
   def _make_repos_config(self):
     repos = rxml.config.Element('repos')
@@ -133,8 +146,8 @@ class Test_DepsolveBug163_1(DepsolveEventTestCase):
 
   def runTest(self):
     DepsolveEventTestCase.runTest(self)
-    self.failUnless('depsolve-bug163-prov-1.0-1.noarch' in self.event.cvars['pkglist'])
-    self.failIf('depsolve-bug163-prov-2.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failUnless('depsolve-bug163-prov-1.0-1.noarch.rpm' in self.getPkgFiles())
+    self.failIf('depsolve-bug163-prov-2.0-1.noarch.rpm' in self.getPkgFiles())
 
 class Test_Supplied(DummyDepsolveEventTestCase):
   "Package list file is supplied"
@@ -165,7 +178,7 @@ class Test_PackageAdded(DepsolveEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='depsolve')
-    self.failUnless('depsolve-test-package1-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failUnless('depsolve-test-package1-1.0-1.noarch.rpm' in self.getPkgFiles())
 
 class Test_ObsoletedPackage(DepsolveEventTestCase):
   "Misc. Test #2: Package obsoleted"
@@ -187,8 +200,8 @@ class Test_ObsoletedPackage(DepsolveEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='depsolve')
-    self.failUnless('depsolve-test-package2-1.0-1.noarch' in self.event.cvars['pkglist'])
-    self.failIf('depsolve-test-package1-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failUnless('depsolve-test-package2-1.0-1.noarch.rpm' in self.getPkgFiles())
+    self.failIf('depsolve-test-package1-1.0-1.noarch.rpm' in self.getPkgFiles())
 
 class Test_RemovedPackage(DepsolveEventTestCase):
   "Misc. Test #3: Package removed"
@@ -196,7 +209,7 @@ class Test_RemovedPackage(DepsolveEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='depsolve')
-    self.failIf('depsolve-test-package2-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failIf('depsolve-test-package2-1.0-1.noarch.rpm' in self.getPkgFiles())
 
 class Test_ExclusivePackage_1(DepsolveEventTestCase):
   "Misc. Test #4: A package is required by only one other package..."
@@ -215,8 +228,8 @@ class Test_ExclusivePackage_1(DepsolveEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='depsolve')
-    self.failUnless('depsolve-test-package3-1.0-1.noarch' in self.event.cvars['pkglist'])
-    self.failUnless('depsolve-test-package4-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failUnless('depsolve-test-package3-1.0-1.noarch.rpm' in self.getPkgFiles())
+    self.failUnless('depsolve-test-package4-1.0-1.noarch.rpm' in self.getPkgFiles())
 
 class Test_ExclusivePackage_2(DepsolveEventTestCase):
   "Misc. Test #4 (contd.): ...and it should go away now"
@@ -227,8 +240,8 @@ class Test_ExclusivePackage_2(DepsolveEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='depsolve')
-    self.failIf('depsolve-test-package3-1.0-1.noarch' in self.event.cvars['pkglist'])
-    self.failIf('depsolve-test-package4-1.0-1.noarch' in self.event.cvars['pkglist'])
+    self.failIf('depsolve-test-package3-1.0-1.noarch.rpm' in self.getPkgFiles())
+    self.failIf('depsolve-test-package4-1.0-1.noarch.rpm' in self.getPkgFiles())
 
 class Test_MandatoryVsOptional(DepsolveEventTestCase):
   """Ensure that if a mandatory package provides something that is also
@@ -241,8 +254,8 @@ class Test_MandatoryVsOptional(DepsolveEventTestCase):
 
   def runTest(self):
     self.tb.dispatch.execute(until='depsolve')
-    self.failIf(len([ x for x in self.event.cvars['pkglist'] if x.startswith('rsyslog') ]) != 0);
-    self.failIf(len([ x for x in self.event.cvars['pkglist'] if x.startswith('sysklogd') ]) != 1);
+    self.failIf(len([ x for x in self.getPkgFiles() if x.startswith('rsyslog') ]) != 0);
+    self.failIf(len([ x for x in self.getPkgFiles() if x.startswith('sysklogd') ]) != 1);
 
 def make_suite(distro, version, arch):
   _run_make(pps.path(__file__).dirname)

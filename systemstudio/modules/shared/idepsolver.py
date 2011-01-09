@@ -42,7 +42,6 @@ YUMCONF_HEADER = [
 
 class DepsolverMixin(object):
   def __init__(self):
-    self.install_pkgsfile = self.mddir / 'install.pkgs'
     self.depsolve_repo = self.mddir / 'depsolve.repo'
 
   def resolve(self):
@@ -62,7 +61,7 @@ class DepsolverMixin(object):
       comps_mandatory_pkgs.extend(group.mandatory_packages.keys())
       comps_optional_pkgs.extend(group.optional_packages.keys())
 
-      # get the package and it requires in the list
+      # get the package and its requires in the list
       comps_conditional_pkgs.extend([
         (x, y) for x, y in group.conditional_packages.items()
       ])
@@ -88,35 +87,16 @@ class DepsolverMixin(object):
                           comps_default_pkgs ]
 
     pos = solver.getPackageObjects()
-    pkgtups = [ po.pkgtup for po in pos ]
-
-    install_pkgs = []
-    for group in self.cvars['comps-object'].groups:
-      for (id, install_defaults, install_optionals) in self.cvars['comps-group-info']:
-        if id == group.groupid:
-          if 'mandatory' in solver.conf.group_package_types:
-            install_pkgs.extend(group.mandatory_packages.keys())
-          if install_defaults and 'default' in solver.conf.group_package_types:
-            install_pkgs.extend(group.default_packages.keys())
-          if install_optionals and 'optional' in solver.conf.group_package_types:
-            install_pkgs.extend(group.optional_packages.keys())
-          break
-
-    pkgs_and_deps = solver.getPackagesAndDeps(install_pkgs)
-
-    # have to do a second pass for the conditional packages
-    if solver.conf.enable_group_conditionals:
-      allpkgnames = set(pkgs_and_deps)
-      for condreq, cond in solver.comps_conditional_pkgs:
-        if cond in allpkgnames:
-          allpkgnames = allpkgnames.union(solver.getPackagesAndDeps([condreq]))
-      pkgs_and_deps = list(allpkgnames)
-
-    self.install_pkgsfile.write_lines(pkgs_and_deps)
+    pkgdict = {}
+    for po in pos:
+      if not pkgdict.has_key(po.repoid):
+        pkgdict[po.repoid] = []
+      pkgdict[po.repoid].append( (po.name, po.arch, po.remote_path,
+                                  po.size, po.filetime) )
 
     solver.teardown()
     solver = None
-    return pkgtups
+    return pkgdict
 
   def _get_old_packages(self):
     old_packages = []

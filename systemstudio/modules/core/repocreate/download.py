@@ -57,55 +57,38 @@ class DownloadEvent(Event):
 
     self.cvars['rpms-by-repoid'] = {}
 
-    rpmset = set()
-    for pkg in self.cvars['pkglist']:
-      rpmset.add('%s.rpm' % pkg)
-
-    processed_rpmset = set()
+    # get urls for each subrepo
+    urldict = {}
     for repo in self.cvars['repos'].values():
+      for subrepo in repo.subrepos.values():
+        urldict[subrepo.id] = subrepo.url
+    
+    for subrepo in self.cvars['pkglist'].keys():
       now = time.time()
-      for rpminfo in repo.repocontent.filter():
-        rpm = repo.url//rpminfo['file']
-        _,_,_,_,a = self._deformat(rpm)
-        if ( rpm.basename in rpmset and
-             rpm.basename not in processed_rpmset and
-             a in self._validarchs ):
-          rpm.stat(populate=False).update(
-            st_size  = rpminfo['size'],
-            st_mtime = rpminfo['mtime'],
-            st_mode  = (stat.S_IFREG | 0644),
-            st_atime = now)
-          processed_rpmset.add(rpm.basename)
-          self.io.add_fpath(rpm, self.builddata_dest, id=repo.id)
-          self.cvars['rpms-by-repoid'].setdefault(repo.id, []).append(
-            self.builddata_dest // rpm.basename)
-      if repo.id in self.cvars['rpms-by-repoid']:
-        self.cvars['rpms-by-repoid'][repo.id].sort()
-
-    if rpmset != processed_rpmset:
-      raise RpmsNotFoundError(sorted(rpmset - processed_rpmset))
+      # populate rpm time and size from repodata values (for performance)
+      for tup in self.cvars['pkglist'][subrepo]:
+        _, _, path, size, mtime = tup
+        rpm = urldict[subrepo]//path
+        rpm.stat(populate=False).update(
+          st_size  = size,
+          st_mtime = mtime,
+          st_mode  = (stat.S_IFREG | 0644),
+          st_atime = now)
+        # add rpm for to io sync
+        self.io.add_fpath(rpm, self.builddata_dest, id=subrepo)
+        self.cvars['rpms-by-repoid'].setdefault(subrepo, []).append(
+          self.builddata_dest // rpm.basename)
+    if repo.id in self.cvars['rpms-by-repoid']:
+      self.cvars['rpms-by-repoid'][repo.id].sort()
 
   def run(self):
-    for repo in self.cvars['repos'].values():
-      self.io.sync_input(link=True, cache=True, what=repo.id,
-                         text=("downloading packages - '%s'" % repo.id))
+    for subrepo in self.cvars['pkglist'].keys():
+      self.io.sync_input(link=True, cache=True, what=subrepo,
+                         text=("downloading packages - '%s'" % subrepo))
 
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['cached-rpms'] = self.io.list_output()
-
-  def _deformat(self, rpm):
-    """
-    p[ath],n[ame],v[ersion],r[elease],a[rch] = _deformat(rpm)
-
-    Takes an rpm with an optional path prefix and splits it into its component parts.
-    Returns a path, name, version, release, arch tuple.
-    """
-    try:
-      return RPM_PNVRA_REGEX.match(rpm).groups()
-    except (AttributeError, IndexError), e:
-      self.log(2, L2("DEBUG: Unable to extract rpm information from name '%s'" % rpm))
-      return (None, None, None, None, None)
 
   def error(self, e):
     # performing a subset of Event.error since sync handles partially downloaded files

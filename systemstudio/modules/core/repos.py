@@ -16,6 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 import re
+import ConfigParser
 
 from systemstudio.util.repo    import ReposFromXml, ReposFromFile, RepoContainer, RepoFileParseError
 from systemstudio.util.versort import Version
@@ -38,16 +39,12 @@ class ReposEvent(RepoEventMixin, Event):
     Event.__init__(self,
       id = 'repos',
       parentid = 'setup',
-      version = 3,
+      version = 1.3,
       provides = ['anaconda-version',
-                  'logos-versions',
-                  'release-versions',
-                  'repos',
                   'repos', 'installer-repo',
                   'input-repos', # ugly solution to cycle in rpmbuild-repo
                   'excluded-packages',
                   'pkglist-excluded-packages'],
-      conditionally_requires = ['anaconda-version-supplied'],
     )
 
     RepoEventMixin.__init__(self)
@@ -79,34 +76,41 @@ class ReposEvent(RepoEventMixin, Event):
   def run(self):
     self.sync_repodata()
 
-    # process available package lists
-    self.log(1, L1("reading available packages"))
-    self.read_packages()
-
   def apply(self):
     self.io.clean_eventcache()
 
-    # read repocontent
-    for repo in self.repos.values():
-      assert_file_readable(repo.pkgsfile)
-      repo.repocontent.read(repo.pkgsfile)
-
-    if self.cvars['distribution-info']['anaconda-version'] is not None:
-      self.cvars['anaconda-version'] = self.cvars['distribution-info']['anaconda-version']
-    else:
-      anaconda_version = self._get_anaconda_version()
-      self.cvars['anaconda-version'] = \
-          self.cvars['anaconda-version-supplied'] or anaconda_version
-
-    if not self.cvars['anaconda-version']:
-      raise AnacondaNotFoundError()
-
-    # set up the installer repo
+    # set up installer repo
     for repo in self.repos.values():
       if repo.has_installer_files:
         self.cvars['installer-repo'] = repo
-        break
 
+        # .treeinfo exists?
+        if not (self.mddir/repo.id/repo.treeinfofile).exists():
+          raise TreeinfoNotFoundError(repoid=repo.id, repourl=repo.url.realm)        
+
+        # read treeinfo
+        else:
+          treeinfo = ConfigParser.SafeConfigParser()
+          treeinfo.read(self.mddir/repo.id/repo.treeinfofile)
+
+          # supported distribution?
+          df = treeinfo.get('general', 'family')
+          dv = treeinfo.get('general', 'version')[:1]
+          supported = False
+          for d in ['CentOS', 'Red Hat Enterprise Linux']:
+            if d in df and dv in ['5','6']:
+              supported = True
+          if not supported: 
+            raise UnsupportedInstallerRepoError(repoid=repo.id, 
+                  family=df, 
+                  version=treeinfo.get('general', 'version'), 
+                  repourl=repo.url.realm)
+
+          # map distribution version to anaconda version
+          map = {'5':'11.1.2',
+                 '6':'13.21.82'}
+          self.cvars['anaconda-version'] = map[dv]
+      
     if not self.cvars['installer-repo']:
       raise InstallerRepoNotFoundError()
 
@@ -118,11 +122,6 @@ class ReposEvent(RepoEventMixin, Event):
     global_excludes = self.config.xpath('exclude/text()', [])
     self.cvars.setdefault('excluded-packages', set()).update(global_excludes)
     self.cvars.setdefault('pkglist-excluded-packages', set()).update(global_excludes)
-
-  def verify_pkgsfiles_exist(self):
-    "verify all pkgsfiles exist"
-    for repo in self.repos.values():
-      self.verifier.failUnlessExists(repo.pkgsfile)
 
   def verify_repodata(self):
     "repodata exists"
@@ -138,46 +137,16 @@ class ReposEvent(RepoEventMixin, Event):
     self.verifier.failUnlessSet('anaconda-version')
     self.verifier.failUnlessSet('installer-repo')
 
-  def _get_anaconda_version(self):
-    anaconda_version = None
-
-    for repo in self.repos.values():
-      # read repocontent
-      assert_file_readable(repo.pkgsfile)
-      repo.repocontent.read(repo.pkgsfile)
-
-      # get logos and release versions, if any in repo
-      for pkgid,allpkgs in RPMDATA.items(): # see below
-        n,v = repo.get_rpm_version(allpkgs)
-        if n is not None and v is not None:
-          self.cvars.setdefault(pkgid, []).append((n,'==',v))
-
-      # get anaconda version
-      n,v = repo.get_rpm_version(['anaconda'])
-      if n and v:
-        if not anaconda_version or v > anaconda_version:
-          anaconda_version = v
-
-    return anaconda_version
-
 
 #------ ERRORS ------#
-class AnacondaNotFoundError(SystemStudioError):
-  message = "Unable to find the 'anaconda' package in any specified repository"
-
 class InstallerRepoNotFoundError(SystemStudioError):
   message = ( "Unable to find 'isolinux/' and 'images/' folders inside any "
               "given repository." )
 
+class TreeinfoNotFoundError(SystemStudioError):
+  message = ( "Unable to find '.treeinfo' file in '%(repoid)s' repo "
+              "at '%(repourl)s' " )
 
-#------ LOCALS ------#
-# maps an rpm type to the names of rpms for the 'category'
-RPMDATA = { 'logos-versions':   [ 'fedora-logos',
-                                  'centos-logos',
-                                  'redhat-logos' ],
-            'release-versions': [ 'fedora-release',
-                                  'centos-release',
-                                  'redhat-release',
-                                  'fedora-release-notes',
-                                  'centos-release-notes',
-                                  'redhat-release-notes' ] }
+class UnsupportedInstallerRepoError(SystemStudioError):
+  message = ( "The '%(repoid)s' repository containing '%(family)s %(version)s' "
+              "at '%(repourl)s' is not supported." )

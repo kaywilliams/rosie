@@ -100,24 +100,12 @@ class RpmbuildRepoEvent(Event):
         repo.repocontent.clear()
         for pxml in repo.datafiles['primary']:
           repo.repocontent.update(pxml.href, clear=False)
-        repo.repocontent.write(repo.pkgsfile)
         self.DATA['output'].append(repo.localurl/'repodata')
-        self.DATA['output'].append(repo.pkgsfile)
 
   def apply(self):
     self.io.clean_eventcache()
     self._populate()
-    if self.cvars['rpmbuild-data']:
-      try:
-        self.repos[self.cid].repocontent.read(self.repos[self.cid].pkgsfile)
-      except Exception, e:
-        raise RuntimeError(str(e))
-
-      self.cvars['repos'].add_repo(self.repos[self.cid])
-
-      if self.cvars['source-repos']:
-        self.repos[self.csid].repocontent.read(self.repos[self.csid].pkgsfile)
-        self.cvars['source-repos'].add_repo(self.repos[self.csid])
+    self.cvars['repos'].add_repo(self.repos[self.cid])
 
   def verify_repodata(self):
     "repodata exists"

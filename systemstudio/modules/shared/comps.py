@@ -468,18 +468,17 @@ class Comps(object):
 
         parser = iterparse(infile)
         try:
-            for event, elem in parser:
-                if elem.tag == "group":
-                    group = Group(elem)
-                    self.add_group(group)
-                if elem.tag == "category":
-                    category = Category(elem)
-                    self.add_category(category)
+          for event, elem in parser:
+            if elem.tag == "group":
+               group = Group(elem)
+               self.add_group(group)
+            if elem.tag == "category":
+               category = Category(elem)
+               self.add_category(category)
         except SyntaxError, e:
-            raise CompsException, "comps file is empty/damaged"
-            del parser
-
-        del parser
+          raise CompsException, "comps file is empty/damaged"
+        finally:
+          del parser
 
     def compile(self, pkgtuplist):
         """ compile the groups into installed/available groups """

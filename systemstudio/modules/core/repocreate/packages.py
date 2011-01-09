@@ -174,11 +174,6 @@ class PackagesEvent(Event):
       finally:
         fp and fp.close()
 
-    allpkgs = [] # maintain a list of all packages in all repositories
-    for repo in self.cvars['repos'].values():
-      allpkgs.extend(repo.repocontent.return_pkgs('$name'))
-    allpkgs = sorted(list(set(allpkgs))) # sort + uniq
-
     self.comps = comps.Comps()
 
     if 'comps' not in self.config.xpath('group', []):
@@ -207,15 +202,7 @@ class PackagesEvent(Event):
 
     # add packages
     for package in self.config.xpath('package', []):
-      pkgs = fnmatch.filter(allpkgs, package.text)
-      if len(pkgs) == 0:
-        if self.config.getbool('@ignoremissing', 'False'):
-          self.log(0, "Warning: no packages matching '%s' found in any "
-                      "of the input repositories" % package.text)
-        else:
-          raise PackageNotFoundError(package.text)
-      for pkgname in pkgs:
-        core_group.mandatory_packages[pkgname] = 1
+      core_group.mandatory_packages[package.text] = 1
 
     # its a shame I have to replicate this code from comps.py
     for pkgtup in self.cvars['required-packages'] or []:

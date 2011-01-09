@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import cPickle
 import re
 import rpmUtils.arch
 import yum.Errors
@@ -51,7 +52,7 @@ class DepsolveEvent(Event, DepsolverMixin):
       requires = ['comps-object', 'repos', 'all-packages', 'comps-group-info',
                   'user-required-packages'],
       conditionally_requires = ['pkglist-excluded-packages'],
-      version = '1.05'
+      version = '1.06'
     )
 
     DepsolverMixin.__init__(self)
@@ -94,34 +95,29 @@ class DepsolveEvent(Event, DepsolverMixin):
     self._clean_dsdir()
 
     try:
-      pkgtups = self.resolve() # in DepsolverMixin
+      pkgs_by_repo = self.resolve() # in DepsolverMixin
     except yum.Errors.InstallError, e:
       raise DepsolveError(str(e))
 
-    self.log(1, L1("pkglist closure achieved in %d packages" % len(pkgtups)))
-
-    pkglist = []
-    for n,a,_,v,r in pkgtups:
-      pkglist.append('%s-%s-%s.%s' % (n,v,r,a))
-    pkglist.sort()
+    count = 0
+    for tups in pkgs_by_repo.itervalues():
+      count = count + len(tups)
+    self.log(1, L1("pkglist closure achieved in %d packages" % count))
 
     self.log(1, L1("writing pkglist"))
-    self.pkglistfile.write_lines(pkglist)
+    pklfile = self.pkglistfile.open('wb')
+    cPickle.dump(pkgs_by_repo, pklfile, -1)
+    pklfile.close()
 
     self.DATA['output'].extend([self.dsdir, self.pkglistfile,
-                                self.depsolve_repo, self.install_pkgsfile])
+                                self.depsolve_repo])
 
   def apply(self):
     self.io.clean_eventcache()
     assert_file_has_content(self.pkglistfile)
-    self.cvars['pkglist'] = self.pkglistfile.read_lines()
-
-    # ensure what we read in is comprehensible
-    rx = re.compile('(.+)-(.+)-(.+)\.(.+)')
-    for i in range(0, len(self.cvars['pkglist'])):
-      if not rx.match(self.cvars['pkglist'][i]):
-        raise InvalidPkglistFormatError(self.pkglistfile,
-                                        i+1, self.cvars['pkglist'][i])
+    pklfile = open(self.pkglistfile, 'rb')
+    self.cvars['pkglist'] = cPickle.load(pklfile)
+    pklfile.close()
 
   def verify_pkglistfile_exists(self):
     "pkglist file exists"
@@ -131,16 +127,19 @@ class DepsolveEvent(Event, DepsolverMixin):
     "pkglist file has content"
     if self.cvars['pkglist']:
       self.verifier.failUnless(len(self.cvars['pkglist']) > 0,
-                               "pkglst is empty")
+                               "pkglist is empty")
     else:
       self.verifier.fail("pkglist is empty")
 
   def verify_kernel_arch(self):
     "kernel arch matches arch in config"
     matched = False
-    for pkg in self.cvars['pkglist']:
+    pkgs = []
+    for v in self.cvars['pkglist'].itervalues():
+      pkgs.extend(v)
+    for pkg in pkgs:
       try:
-        n,v,r,a = NVRA_REGEX.match(pkg).groups()
+        n,a,__,_,_ = pkg
         if n not in KERNELS: continue
         self.verifier.failUnlessEqual(rpmUtils.arch.getBaseArch(a), self.basearch,
           "the base arch of kernel package '%s' does not match the specified "

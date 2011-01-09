@@ -86,11 +86,11 @@ class EventHandler(DiffHandler):
       self.events[event.get('@id')] = event.get('version/text()')
 
   def mdwrite(self, root):
-    parent = rxml.config.uElement('events', parent=root)
+    parent = rxml.tree.uElement('events', parent=root)
 
     for k,v in self.data.items():
-      e = rxml.config.Element('event', parent=parent, attrs={'id': k})
-      rxml.config.Element('version', parent=e, text=str(v))
+      e = rxml.tree.Element('event', parent=parent, attrs={'id': k})
+      rxml.tree.Element('version', parent=e, text=str(v))
 
   def diff(self):
     for k,v in self.events.items():

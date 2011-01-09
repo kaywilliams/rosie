@@ -417,27 +417,6 @@ class _RepoContent(list):
     "Write self into <filename>,<size>,<lines> lines at in file fn"
     pps.path(fn).write_lines(self._tocsv())
 
-  def _tocsv(self):
-    mf = StringIO()
-    mwriter = csv.DictWriter(mf, CSVORDER, lineterminator='\n')
-    for i in self:
-      mwriter.writerow(i)
-    lines = mf.getvalue().splitlines()
-    mf.close()
-    return lines
-
-  def _fromcsv(self, fcsv):
-    del self[:] # clear repocontent out
-    mr = fcsv.open('r')
-    mreader = csv.DictReader(mr, CSVORDER, lineterminator='\n')
-    for i in mreader:
-      self.append(dict(file  = i['file'],
-                       size  = int(i['size']),
-                       mtime = int(i['mtime'])))
-    mr.close()
-    self.sort()
-    self._gen_pkgdict()
-
   def filter(self, include=None, exclude=None):
     ret = []
     if include is None: include = self.repo.includepkgs

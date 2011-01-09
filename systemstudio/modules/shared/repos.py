@@ -50,6 +50,7 @@ NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
 
 class SystemStudioRepo(YumRepo):
   keyfilter = ['id', 'distributionid']
+  treeinfofile = pps.path('.treeinfo')
 
   def __init__(self, **kwargs):
     YumRepo.__init__(self, **kwargs)
@@ -65,10 +66,6 @@ class SystemStudioRepo(YumRepo):
       return None
     else:
       raise ValueError("invalid boolean value '%s'" % s)
-
-  @property
-  def pkgsfile(self):
-    return self.localurl/'packages'
 
   def get_rpm_version(self, names):
     # filter list of names if necessary
@@ -314,6 +311,12 @@ class RepoEventMixin:
       # read metadata
       repo.read_repomd()
 
+      # add .treeinfo to io sync
+      src = repo.url/repo.treeinfofile
+      dst = self.mddir/repo.id
+      if src.exists():
+        self.io.add_fpath(src, dst, id='%s-repodata' % repo.id)
+
       # add metadata to io sync
       for subrepo in repo.subrepos.values():
 
@@ -408,51 +411,6 @@ class RepoEventMixin:
                                           repoid=repo.id,
                                           got=got,
                                           expected=datafile.checksum)
-
-  def read_packages(self):
-    """
-    After synchronizing repository metadata, this method reads in the list
-    of packages, along with size and mtime information about each one, from
-    the primary.xml.gz.  This is only done for primary.xml.gz files that
-    actually change, or for new repositories.  After reading this data in,
-    it is written out to the repository's pkgsfile.
-
-    This method should typically be called in Event.run(), after calling
-    .sync_repodata(), above.  Each repo's .localurl attribute must also be
-    set (normally handled via .setup_repos(), also above).
-    """
-    # compute the set of old and new repos
-    difftup = self.diff.variables.difference('repoids')
-    newids = set()
-    if difftup:
-      prev,curr = difftup
-      if not isinstance(prev, list): prev = [] # ugly hack; NewEntry not iterable
-      newids = set(curr).difference(prev)
-
-    for repo in self.repos.values():
-      doupdate = repo.id in newids or not repo.pkgsfile.exists()
-      if not doupdate:
-        if repo.has_sqlite:
-          pfiles = repo.datafiles['primary_db']
-        else:
-          pfiles = repo.datafiles['primary']
-        for pfile in pfiles:
-          if self.diff.input.difference((repo.url//pfile.href).normpath()):
-            doupdate = True
-            break
-
-      if doupdate:
-        self.log(2, L2(repo.id))
-        repo.repocontent.clear()
-        if repo.has_sqlite:
-          pfiles = repo.datafiles['primary_db']
-        else:
-          pfiles = repo.datafiles['primary']
-        for pfile in pfiles:
-          repo.repocontent.update(pfile.href, clear=False)
-        repo.repocontent.write(repo.pkgsfile)
-
-      self.DATA['output'].append(repo.pkgsfile) # add pkgsfile to output
 
 class ReposDiffTuple(DiffTuple):
   attrs = DiffTuple.attrs + [('csum', str)]

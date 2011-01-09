@@ -21,6 +21,7 @@ import unittest
 
 from systemstudio.util import pps
 from systemstudio.util import rxml
+from systemstudio.util.repo import RPM_PNVRA_REGEX
 
 from sstest      import EventTestCase, ModuleTestSuite, _run_make
 from sstest.core import make_core_suite
@@ -36,11 +37,24 @@ class DownloadEventTestCase(EventTestCase):
 
     return repos
 
+  def _deformat(self, rpm):
+    """
+    p[ath],n[ame],v[ersion],r[elease],a[rch] = _deformat(rpm)
+
+    Takes an rpm with an optional path prefix and splits it into its component parts.
+    Returns a path, name, version, release, arch tuple.
+    """
+    try:
+      return RPM_PNVRA_REGEX.match(rpm).groups()
+    except (AttributeError, IndexError), e:
+      self.log(2, L2("DEBUG: Unable to extract rpm information from name '%s'" % rpm))
+      return (None, None, None, None, None)
+
   def runTest(self):
     self.tb.dispatch.execute(until='download')
     for rpm in self.event.io.list_output():
       self.failUnlessExists(rpm)
-      _,_,_,_,a = self.event._deformat(rpm)
+      _,_,_,_,a = self._deformat(rpm)
       self.failUnless(a in self.event._validarchs)
 
 class Test_PackagesDownloaded(DownloadEventTestCase):
@@ -59,9 +73,9 @@ class Test_AddedPackageDownloaded(DownloadEventTestCase):
     found1 = False
     found2 = False
     for package in self.event.io.list_output():
-      if self.event._deformat(package)[1] == 'package1':
+      if self._deformat(package)[1] == 'package1':
         found1 = True
-      if self.event._deformat(package)[1] == 'package2':
+      if self._deformat(package)[1] == 'package2':
         found2 = True
     self.failUnless(found1 and found2)
 
@@ -72,7 +86,7 @@ class Test_RemovedPackageDeleted(DownloadEventTestCase):
     # removed
     DownloadEventTestCase.runTest(self)
     for package in self.event.io.list_output():
-      pkgname = self.event._deformat(package)[1]
+      pkgname = self._deformat(package)[1]
       self.failIf(pkgname == 'package1' or pkgname == 'package2')
 
 class Test_ArchChanges(DownloadEventTestCase):

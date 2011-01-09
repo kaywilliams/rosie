@@ -179,7 +179,7 @@ class RpmBuildObject:
   #--------- RPM BUILD HELPER METHODS ---------#
   def setup_build(self, **kwargs):
     if self.autofile.exists():
-      self.release = rxml.config.read(self.autofile).get(
+      self.release = rxml.tree.read(self.autofile).get(
        '/distribution/rpms/%s/release/text()' %
        (self.ptr.id), '0')
     else:
@@ -212,13 +212,13 @@ class RpmBuildObject:
 
   def save_release(self):
     if self.autofile.exists():
-      root = rxml.config.read(self.autofile).get('/distribution')
+      root = rxml.tree.read(self.autofile).get('/distribution')
     else:
-      root = rxml.config.Element('distribution')
+      root = rxml.tree.Element('distribution')
 
-    rpms     = rxml.config.uElement('rpms', parent=root)
-    parent   = rxml.config.uElement(self.ptr.id, parent=rpms)
-    release  = rxml.config.uElement('release', parent=parent, text=self.release)
+    rpms     = rxml.tree.uElement('rpms', parent=root)
+    parent   = rxml.tree.uElement(self.ptr.id, parent=rpms)
+    release  = rxml.tree.uElement('release', parent=parent, text=self.release)
 
     root.write(self.autofile)
 
