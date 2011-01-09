@@ -80,7 +80,7 @@ class Solver(yum.YumBase):
     yum.YumBase.__init__(self)
     self.config = config
     self.root = root
-    self.arch = arch
+    self.solver_arch = arch
 
     self.deps = {}
     self.path = []
@@ -94,7 +94,7 @@ class Solver(yum.YumBase):
     self.doRpmDBSetup()
     self.conf.cache = 0
     self.doRepoSetup()
-    self.doSackSetup(archlist=rpmUtils.arch.getArchList(self.arch))
+    self.doSackSetup(archlist=rpmUtils.arch.getArchList(self.solver_arch))
     self.doTsSetup()
     self.doGroupSetup()
     self.repos.populateSack('enabled', 'filelists') # this could be a problem, but is OK for now
@@ -128,7 +128,7 @@ class Solver(yum.YumBase):
         satisfiers.append(po)
 
     if satisfiers:
-      best = self.bestPackagesFromList(satisfiers, arch=self.arch)[0]
+      best = self.bestPackagesFromList(satisfiers, arch=self.solver_arch)[0]
       self.deps[req] = best
       return best
     return None
@@ -177,7 +177,7 @@ class Solver(yum.YumBase):
           continue
         if self.tsInfo.exists(dep.pkgtup):
           pkgs = self.tsInfo.getMembers(pkgtup=dep.pkgtup)
-          member = self.bestPackagesFromList(pkgs, arch=self.arch)[0]
+          member = self.bestPackagesFromList(pkgs, arch=self.solver_arch)[0]
         else:
           member = self.tsInfo.addInstall(dep)
           unresolved.append(member)
