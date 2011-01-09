@@ -20,10 +20,6 @@ from systemstudio.util.rxml import config
 from sstest      import EventTestCase, ModuleTestSuite
 from sstest.core import make_core_suite
 
-class InstallerSetupEventTestCase(EventTestCase):
-  moduleid = 'installer'
-  eventid  = 'installer-setup'
-
 class InstallerEventTestCase(EventTestCase):
   moduleid = 'installer'
   eventid  = 'installer'
@@ -35,9 +31,6 @@ class InstallerEventTestCase(EventTestCase):
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('installer')
-
-  # installer-setup
-  suite.addTest(make_core_suite(InstallerSetupEventTestCase, distro, version, arch))
 
   # installer
   suite.addTest(make_core_suite(InstallerEventTestCase, distro, version, arch))
