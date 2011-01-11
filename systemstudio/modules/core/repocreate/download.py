@@ -38,7 +38,8 @@ class DownloadEvent(Event):
     Event.__init__(self,
       id = 'download',
       parentid = 'repocreate',
-      provides = ['cached-rpms', 'rpms-by-repoid'],
+      provides = ['cached-rpms',
+                  'rpms-by-repoid'], # used by gpgcheck progress bars
       requires = ['pkglist', 'repos'],
     )
 
@@ -57,29 +58,26 @@ class DownloadEvent(Event):
 
     self.cvars['rpms-by-repoid'] = {}
 
-    # get urls for each subrepo
-    urldict = {}
     for repo in self.cvars['repos'].values():
       for subrepo in repo.subrepos.values():
-        urldict[subrepo.id] = subrepo.url
-    
-    for subrepo in self.cvars['pkglist'].keys():
-      now = time.time()
-      # populate rpm time and size from repodata values (for performance)
-      for tup in self.cvars['pkglist'][subrepo]:
-        _, _, path, size, mtime = tup
-        rpm = urldict[subrepo]//path
-        rpm.stat(populate=False).update(
-          st_size  = size,
-          st_mtime = mtime,
-          st_mode  = (stat.S_IFREG | 0644),
-          st_atime = now)
-        # add rpm for to io sync
-        self.io.add_fpath(rpm, self.builddata_dest, id=subrepo)
-        self.cvars['rpms-by-repoid'].setdefault(subrepo, []).append(
-          self.builddata_dest // rpm.basename)
-    if repo.id in self.cvars['rpms-by-repoid']:
-      self.cvars['rpms-by-repoid'][repo.id].sort()
+        now = time.time()
+        # populate rpm time and size from repodata values (for performance)
+        if subrepo.id not in self.cvars['pkglist']:
+          continue
+        for tup in self.cvars['pkglist'][subrepo.id]: 
+          _, _, path, size, mtime = tup
+          rpm = subrepo.url//path
+          rpm.stat(populate=False).update(
+            st_size  = size,
+            st_mtime = mtime,
+            st_mode  = (stat.S_IFREG | 0644),
+            st_atime = now)
+          # add rpm for to io sync
+          self.io.add_fpath(rpm, self.builddata_dest, id=subrepo.id)
+          self.cvars['rpms-by-repoid'].setdefault(repo.id, []).append(
+            self.builddata_dest // rpm.basename)
+      if repo.id in self.cvars['rpms-by-repoid']:
+        self.cvars['rpms-by-repoid'][repo.id].sort()
 
   def run(self):
     for subrepo in self.cvars['pkglist'].keys():
