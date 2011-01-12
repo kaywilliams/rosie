@@ -216,11 +216,14 @@ del key
 rpmsigtag = {
   # size of gpg/dsaheader sums differ between 64/65(contains '\n')
   "dsaheader": (267, RPM_BIN, None, 0),
+  "rsaheader": (268, RPM_BIN, None, 0),
+  "sha1header": (269, RPM_STRING, None, 0),
+  "longsigsize": (270, RPM_INT64, None, 0),
+  "longarchivesize": (271, RPM_INT64, None, 0),
   "gpg": (1005, RPM_BIN, None, 0),
   "header_signatures": (62, RPM_BIN, 16, 0), # content of this tag is unclear
   "payloadsize": (1007, RPM_INT32, 1, 0),
   "size_in_signature": (1000, RPM_INT32, 1, 0),
-  "sha1header": (269, RPM_STRING, None, 0),
   "md5": (1004, RPM_BIN, 16, 0),
   # legacy entries in older rpm packages:
   "pgp": (1002, RPM_BIN, None, 1),
