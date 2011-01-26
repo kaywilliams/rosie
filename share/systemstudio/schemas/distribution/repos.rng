@@ -1,7 +1,7 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
-    <element name="system">
+    <element name="distribution">
 
       <element name="repos">
         <optional>
@@ -15,10 +15,7 @@
         </optional>
 
         <oneOrMore>
-          <choice>
           <ref name="element-repo"/>
-          <ref name="element-repofile"/>
-          </choice>
         </oneOrMore>
 
         <zeroOrMore>

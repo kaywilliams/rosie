@@ -48,7 +48,10 @@ class XmlTreeObject(object):
       return s
 
   def _tostring(self):
-    return lxml.etree.tostring(self)
+    string = lxml.etree.tostring(self)
+    for k,v in self.nsmap.items():
+      string = string.replace('%s:' % k, '').replace(':%s' % k, '')
+    return string
 
   def getroot(self):
     return self.getroottree().getroot()
@@ -164,20 +167,103 @@ class XmlTreeElement(lxml.etree.ElementBase, XmlTreeObject):
 
     f = codecs.open(file, encoding='utf-8', mode='w')
     f.write(self.unicode())
+ 
+#-----------SAX-----------#
+class XmlTreeSaxHandler(lxml.sax.ElementTreeContentHandler):
+  def __init__(self, makeelement=None):
+    lxml.sax.ElementTreeContentHandler.__init__(self, makeelement=makeelement)
+
+    self._ns_mapping = {'xml': ['http://www.w3.org/XML/1998/namespace'] }
+    self.lineno = 1
+
+  def startElementNS(self, *args, **kwargs):
+    lxml.sax.ElementTreeContentHandler.startElementNS(self, *args, **kwargs)
+    self._element_stack[-1].sourceline = self.lineno
+
+  def characters(self, data):
+    lxml.sax.ElementTreeContentHandler.characters(self, data)
+    self.lineno += data.count('\n')
+
+  def comment(self, data):
+    c = lxml.etree.Comment(data)
+    if self._root is None:
+      self._root_siblings.append(c)
+    else:
+      self._element_stack[-1].append(c)
+    c.sourceline = self.lineno
+
+class XmlTreeProducer(lxml.sax.ElementTreeProducer):
+  def __init__(self, eot, handler):
+    lxml.sax.ElementTreeProducer.__init__(self, eot, handler)
+    handler.lineno = self._element.sourceline
+
+  def _recursive_saxify(self, element, prefixes):
+    content_handler = self._content_handler
+    tag = element.tag
+    if tag is lxml.etree.Comment or tag is lxml.etree.ProcessingInstruction:
+      if tag is lxml.etree.ProcessingInstruction:
+        content_handler.processingInstruction(
+          element.target, element.text
+        )
+      if tag is lxml.etree.Comment:
+        content_handler.comment(element.text)
+      if element.tail:
+        content_handler.characters(element.tail)
+      return
+
+    new_prefixes = []
+    build_qname = self._build_qname
+    element_prefix = element.prefix
+
+    attribs = element.items()
+    if attribs:
+      attr_values = {}
+      attr_qnames = {}
+      for attr_ns_name, value in attribs:
+        attr_ns_tuple = lxml.sax._getNsTag(attr_ns_name)
+        attr_values[attr_ns_tuple] = value
+        attr_qnames[attr_ns_tuple] = build_qname(
+          attr_ns_tuple[0], attr_ns_tuple[1], prefixes, new_prefixes, element_prefix)
+      sax_attributes = self._attr_class(attr_values, attr_qnames)
+    else:
+      sax_attributes = self._empty_attributes
+
+    ns_uri, local_name = lxml.sax._getNsTag(tag)
+
+    qname = build_qname(ns_uri, local_name, prefixes, new_prefixes, element_prefix)
+
+    for prefix, uri in new_prefixes:
+      content_handler.startPrefixMapping(prefix, uri)
+
+    content_handler.startElementNS((ns_uri, local_name),
+                     qname, sax_attributes)
+    if element.text is not None:
+      content_handler.characters(element.text)
+    for child in element:
+      self._recursive_saxify(child, prefixes)
+    content_handler.endElementNS((ns_uri, local_name), qname)
+    for prefix, uri in new_prefixes:
+      content_handler.endPrefixMapping(prefix)
+    if element.tail:
+      content_handler.characters(element.tail)
+
+  def _build_qname(self, ns_uri, local_name, prefixes, new_prefixes, element_prefix):
+    if ns_uri is None:
+      return local_name
+    try:
+      prefix = prefixes[ns_uri]
+    except KeyError:
+      prefix = prefixes[ns_uri] = element_prefix or 'ns%02d' % len(new_prefixes)
+      new_prefixes.append( (prefix, ns_uri) )
+    return prefix + ':' + local_name
 
 #-----------FACTORY FUNCTIONS-----------#
 PARSER = lxml.etree.XMLParser(remove_blank_text=False, remove_comments=False)
 PARSER.setElementClassLookup(lxml.etree.ElementDefaultClassLookup(element=XmlTreeElement,
                                                                   comment=XmlTreeComment))
 
-def saxify(tree):
-  # update line numbers after xincluding is complete
-  root = tree.getroot()
-  root.sourceline = 1
-  lineno = 1 + ((root.text or '') + (root.tail or '')).count('\n')
-  for elem in root.iterdescendants():
-    elem.sourceline = lineno
-    lineno += ((elem.text or '') + (elem.tail or '')).count('\n')
+def saxify(tree, handler):
+  return XmlTreeProducer(tree, handler).saxify()
 
 # TODO - perhaps have Element accept *args, **kwargs instead
 def Element(name, parent=None, text=None, attrs=None, nsmap=None, parser=PARSER):
@@ -208,23 +294,22 @@ def uElement(name, parent, attrs=None, text=None, **kwargs):
           del(elem.attrib[k])
   return elem
 
-def read(file, saxifier=None, parser=PARSER):
-  saxifier = saxifier or saxify
+def read(file, handler=None, parser=PARSER):
+  handler = handler or XmlTreeSaxHandler(parser.makeelement)
   try:
     roottree = lxml.etree.parse(file, parser)
   except lxml.etree.XMLSyntaxError, e:
-    print pps.path(file).read_text()
     raise errors.XmlSyntaxError(file, e)
   else:
     try:
       roottree.xinclude()
     except lxml.etree.XIncludeError, e:
-      print pps.path(file).read_text()
       raise errors.XIncludeSyntaxError(file, e)
 
-  saxifier(roottree)
-  roottree.getroot().file = file
-  return roottree.getroot()
+  saxify(roottree, handler)
+  handler._root.file = file
+  handler._root.maxlineno = handler.lineno
+  return handler._root
 
 def fromstring(s, **kwargs):
   root = read(StringIO(s), **kwargs)

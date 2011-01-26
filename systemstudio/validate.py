@@ -62,7 +62,7 @@ class SystemStudioValidationHandler:
 
     # validate individual sections of the system distribution_file
     self.logger.log(4, L0("Validating '%s'" % pps.path(self.appconfig.file)))
-    v = AppConfigValidator([ x/'schemas/system' for x in Event.SHARE_DIRS ],
+    v = AppConfigValidator([ x/'schemas/distribution' for x in Event.SHARE_DIRS ],
                            self.appconfig)
 
     # validate all top-level sections
@@ -195,7 +195,7 @@ class BaseConfigValidator:
     return schema
 
   def check_required(self, schema, tag):
-    app_defn = schema.get('//rng:element[@name="system"]', namespaces=NSMAP)
+    app_defn = schema.get('//rng:element[@name="distribution"]', namespaces=NSMAP)
     if app_defn is not None:
       optional = app_defn.get('rng:optional', namespaces=NSMAP)
       if optional is None:
@@ -213,12 +213,12 @@ class AppConfigValidator(BaseConfigValidator):
 
   def massage_schema(self, schema, tag):
     schema = BaseConfigValidator.massage_schema(self, schema, tag)
-    app_defn = schema.get('//rng:element[@name="system"]', namespaces=NSMAP)
+    app_defn = schema.get('//rng:element[@name="distribution"]', namespaces=NSMAP)
     start_elem  = app_defn.getparent()
     for defn in app_defn.iterchildren():
       start_elem.append(defn)
       defn.parent = start_elem
-    start_elem.remove(start_elem.get('rng:element[@name="system"]', namespaces=NSMAP))
+    start_elem.remove(start_elem.get('rng:element[@name="distribution"]', namespaces=NSMAP))
     for opt_elem in start_elem.xpath('rng:optional', fallback=[], namespaces=NSMAP):
       for child in opt_elem.iterchildren():
         start_elem.append(child)
@@ -232,9 +232,9 @@ class InvalidXmlError(StandardError):
   def __str__(self):
     if isinstance(self.args[1], basestring):
       return self.args[1]
-    msg = ''
+    msg = '\nErrors:\n'
     for err in self.args[1]: # relaxNG error log object
-      msg += 'ERROR: %s\n' % err.message
+      msg += 'line %d: %s\n' % (err.line, err.message)
     return msg
 class InvalidConfigError(InvalidXmlError):
   def __str__(self):

@@ -317,50 +317,9 @@ class RepoEventMixin:
       if src.exists():
         self.io.add_fpath(src, dst, id='%s-repodata' % repo.id)
 
-      # add metadata to io sync
+      # add datafiles to io sync
       for subrepo in repo.subrepos.values():
 
-        # file locations
-        src = subrepo.url/subrepo.repomdfile
-        csh = (self.cache_handler.cache_dir /
-               self.cache_handler._gen_hash(src))
-        dst = self.mddir/repo.id/subrepo._relpath/subrepo.repomdfile
-
-        # compute mtime to use in utime() by comparing checksums of
-        # repomd.xml in memory to the file on disk, if any.  If they
-        # match, use the mtime of the file on disk; otherwise, use
-        # the mtime in the server's repomd.xml
-        existing = None
-        if   dst.exists(): existing = dst
-        elif csh.exists(): existing = csh
-
-        if existing is not None:
-          dst_csums = rxml.tree.read(existing).xpath(
-            '//repo:checksum/text()', namespaces=NSMAP)
-        else:
-          dst_csums = []
-        src_csums = subrepo.repomd.xpath(
-          '//repo:checksum/text()', namespaces=NSMAP)
-
-        if set(src_csums) == set(dst_csums):
-          mtime = existing.stat().st_mtime
-        else:
-          # match timestamp of primary.xml
-          mtime = float(subrepo.datafiles['primary'].timestamp)
-
-        # write repomd.xml to cache, update its mtime
-        # have to hardcode this header b/c rxml doesn't write it out
-        csh.write_text('<?xml version="1.0" encoding="UTF-8"?>\n' +
-                       subrepo.repomd.unicode())
-
-        # update mtime of csh and src; sync will always get file from cache
-        csh.utime((time.time(), mtime))
-        src.stat().update(st_mtime = mtime)
-
-        # add repomd.xml to sync
-        self.io.add_fpath(src, dst.dirname, id='%s-repodata' % repo.id)
-
-        # now handle all other datafiles
         for datafile in subrepo.iterdatafiles():
           src = subrepo.url/datafile.href
           csh = (self.cache_handler.cache_dir /
@@ -395,6 +354,16 @@ class RepoEventMixin:
     for repo in self.repos.values():
       # explicitly create directory for repos that don't have repodata
       (self.mddir/repo.id).mkdirs()
+
+      # always write repomd.xml since rhn doesn't give us timestamps
+      for subrepo in repo.subrepos.values():
+        dst = self.mddir/repo.id/subrepo._relpath/subrepo.repomdfile
+        (dst.dirname).mkdirs()
+        dst.write_text('<?xml version="1.0" encoding="UTF-8"?>\n' +
+                       subrepo.repomd.unicode())
+        self.DATA['output'].append(dst)
+
+      # sync repo datafiles and treeinfo
       self.io.sync_input(what='%s-repodata' % repo.id, cache=True,
                          text="downloading repodata - '%s'" % repo.id)
 

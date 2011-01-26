@@ -207,32 +207,24 @@ class ConfigElement(tree.XmlTreeElement):
     except errors.XmlPathError:
       return False
 
+class ConfigTreeSaxHandler(tree.XmlTreeSaxHandler):
+  "SAX Content Handler."
+  def __init__(self, makeelement=None):
+    tree.XmlTreeSaxHandler.__init__(self, makeelement=makeelement)
+
+  def endElementNS(self, ns_name, qname):
+    element = self._element_stack.pop()
+    if ns_name != lxml.sax._getNsTag(element.tag):
+      raise lxml.sax.SaxError("Unexpected element closed: {%s}%s" % ns_name)
+
+    # convert whitespace into None
+    if element.text is not None:
+      element.text = element.text.strip() or None
 
 #--------FACTORY FUNCTIONS--------#
 PARSER = lxml.etree.XMLParser(remove_blank_text=False, remove_comments=True)
 PARSER.setElementClassLookup(lxml.etree.ElementDefaultClassLookup(element=ConfigElement,
                                                                   comment=tree.XmlTreeComment))
-
-def saxify(t):
-  def convert_text(elem):
-    # convert text consisting of just whitespace into None
-    if elem.text is not None:
-      elem.text = elem.text.strip() or None
-  def strip_ns(elem):
-    # completely remove namespaces
-    if not isinstance(elem, tree.XmlTreeComment): # don't do comments
-      i = elem.tag.find('}')
-      if i > 0:
-        elem.tag = elem.tag[i+1:]
-
-  tree.saxify(t)
-  root = t.getroot()
-
-  strip_ns(root)
-  convert_text(root)
-  for elem in root.iterdescendants():
-    strip_ns(elem)
-    convert_text(elem)
 
 def Element(name, parent=None, text=None, attrs=None, parser=PARSER, **kwargs):
   t = tree.Element(name, parent=parent, text=text, attrs=attrs,
@@ -246,14 +238,16 @@ def uElement(name, parent, text=None, attrs=None, parser=PARSER, **kwargs):
   if text is None: t.text = None
   return t
 
-def read(file, saxifier=saxify, parser=PARSER):
-  config = tree.read(file, saxifier=saxifier, parser=parser)
+def read(file, handler=None, parser=PARSER):
+  config = tree.read(file,
+                     handler or ConfigTreeSaxHandler(parser.makeelement),
+                     parser=parser)
   config.file = file
   return config
 
-def fromstring(string, saxifier=saxify, parser=PARSER, **kwargs):
+def fromstring(string, handler=None, parser=PARSER, **kwargs):
   return tree.fromstring(string,
-                         saxifier=saxifier,
+                         handler=handler or ConfigTreeSaxHandler(parser.makeelement),
                          parser=parser,
                          **kwargs)
 
