@@ -357,10 +357,10 @@ class RepoEventMixin:
 
       # always write repomd.xml since rhn doesn't give us timestamps
       for subrepo in repo.subrepos.values():
+        src = subrepo.url/subrepo.repomdfile
         dst = self.mddir/repo.id/subrepo._relpath/subrepo.repomdfile
         (dst.dirname).mkdirs()
-        dst.write_text('<?xml version="1.0" encoding="UTF-8"?>\n' +
-                       subrepo.repomd.unicode())
+        src.cp(dst.dirname)
         self.DATA['output'].append(dst)
 
       # sync repo datafiles and treeinfo
@@ -389,8 +389,7 @@ class ReposDiffTuple(DiffTuple):
 
     self.csum = None
 
-    # hack so we don't end up downloading repomd.xml 3 times...
-    if self.mtime == -1 and self.path.basename != 'repomd.xml':
+    if self.mtime == -1:
       # if mtime is -1, the path must exist, so we don't need try/except
       self.csum = self.path.checksum()
 
