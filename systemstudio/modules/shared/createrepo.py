@@ -33,7 +33,7 @@ CREATEREPO_ATTEMPTS = 2
 class CreaterepoMixin:
   def __init__(self):
     self.cvars['createrepo-version'] = Version(
-      shlib.execute('rpm -q --queryformat="%{version}" createrepo')[0])
+      shlib.execute('createrepo --version')[0].lstrip("createrepo "))
     if self.logger:
       self.crcb = TimerCallback(self.logger)
     else:
@@ -49,8 +49,11 @@ class CreaterepoMixin:
       repo_files.append(path / file)
 
     args = ['/usr/bin/createrepo']
+    #note: using createrepo help to determine update capability since 
+    #createrepo reported version number was incorrect (0.4.9) for version
+    #0.4.11.
     if update and (path/'repodata').exists() and \
-       self.locals.L_CREATEREPO['capabilities']['update']:
+       '--update' in ' '.join(shlib.execute('createrepo --help')):
       args.append('--update')
     if quiet:
       args.append('--quiet')
