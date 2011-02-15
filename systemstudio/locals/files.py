@@ -77,7 +77,6 @@ L_FILES = LocalsDict({
   },
   "anaconda-13.21.20.5-1": {
     'isolinux': {
-      'boot.cat':     dict(path='isolinux/boot.cat'),
       'grub.conf':    dict(path='isolinux/grub.conf'),
       'options.msg':  REMOVE,
       'general.msg':  REMOVE,
