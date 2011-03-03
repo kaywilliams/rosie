@@ -28,20 +28,16 @@ import os
 import sys
 
 from optparse import OptionParser, OptionGroup, SUPPRESS_HELP
-from StringIO import StringIO
 
 from systemstudio.util import pps
 
 from systemstudio.util.CleanHelpFormatter import CleanHelpFormatter
 
-P = pps.Path
-
 def main():
   parser = OptionParser("usage: %prog [OPTIONS] DISTRIBUTION_DEFINITION",
                         formatter=CleanHelpFormatter(),
                         description="build the distribution defined in the "
-                                    "system definition file located at "
-                                    "DISTRIBUTION_DEFINITION"
+                                    "file at DISTRIBUTION_DEFINITION"
                         )
 
   parser.add_option('--clear-cache',
@@ -63,7 +59,7 @@ def main():
   config_group.add_option('-c', '--config', metavar='PATH',
     default='/etc/systemstudio/systemstudio.conf',
     dest='mainconfigpath',
-    help="specify path to the config file")
+    help="specify path to the systemstudio config file")
   config_group.add_option('--no-validate',
     dest='no_validate',
     action='store_true',
@@ -160,7 +156,7 @@ def main():
     sys.exit(1)
 
   # initialize our software builder with opts and make it go!
-  sbuilder = systemstudio.main.Build(opts, args, parser)
+  sbuilder = systemstudio.main.Build(opts, args)
   sbuilder.main()
   sys.exit()
 

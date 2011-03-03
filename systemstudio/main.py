@@ -94,7 +94,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
   the build process.
   """
 
-  def __init__(self, options, arguments, parser):
+  def __init__(self, options, arguments):
     """
     Initialize a Build object
 
@@ -102,14 +102,10 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
       options:   an  optparse.Options  object  with  the  command  line
                  arguments encountered during command line parsing
       arguments: a list of arguments not processed by the parser
-      parser:    the optparse.OptionParser instance used to parse these
-                 command line arguments
 
     These parameters are normally passed in from the command-line handler
     ('/usr/bin/systemstudio')
     """
-
-    self.parser = parser
 
     # set up temporary logger - console only
     self.logger = make_log(options.logthresh)
@@ -400,6 +396,9 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
         raise RuntimeError("Invalid value '%s' for <%s> element in <main>; "
           "accepted characters are a-z, A-Z, 0-9, _, ., and -."
           % (di[check], check))
+
+    # make distributionid available to external programs via the Build object
+    Build.distributionid = di['distributionid']
 
     # set up other directories
     Event.CACHE_DIR    = self.mainconfig.getpath('/systemstudio/cache/path',
