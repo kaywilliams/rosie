@@ -42,6 +42,7 @@ class PublishSetupEvent(Event):
     Event.__init__(self,
       id = 'publish-setup',
       parentid = 'setup',
+      version = 1.00,
       provides = ['publish-content', 'publish-path', 'web-path'],
       suppress_run_message=True,
     )
@@ -65,15 +66,23 @@ class PublishSetupEvent(Event):
     self.cvars['web-path'] = self.remote / self.distributionid
 
   def _get_host(self, ifname=None):
+    if not ifname:
+      ifname,_ = get_first_active_interface()
+    try:
+      realm = get_ipaddr(ifname)
+    except IOError, e:
+      raise InterfaceIOError(ifname, str(e))
+
     if self.config.getbool('remote-url/@fqdn', 'False'):
-      realm = socket.getfqdn()
-    else:
-      if not ifname:
-        ifname,_ = get_first_active_interface()
-      try:
-        realm = get_ipaddr(ifname)
-      except IOError, e:
-        raise InterfaceIOError(ifname, str(e))
+      hostname, aliases, _ = socket.gethostbyaddr(realm)
+      names = [hostname]
+      names.extend(aliases)
+      for name in names:
+        if '.' in name: # name is fqdn
+          realm = name 
+          break
+      else:
+        raise FQDNNotFoundError(realm, ifname, names)
     return 'http://'+realm+'/distributions'
 
 # TODO - improve these, they're pretty vulnerable to changes in offsets and
@@ -167,3 +176,14 @@ class PublishEvent(Event):
 class InterfaceIOError(SystemStudioError):
   message = ( "Error looking up information for interface '%(interface)s': "
               "%(message)s" )
+
+class FQDNNotFoundError(SystemStudioError):
+  message = ( "Unable to locate a fully-qualified domain name (FQDN) for "
+              "IP address '%(ipaddr)s' on interface '%(interface)s'. "
+              "Valid FQDNs must contain at least one '.' to separate host "
+              "and domain parts. The hostname(s) found for this address "
+              "include %(hostname)s. If this IP address is correct, please "
+              "check with your network administrator to ensure the DNS reverse "
+              "record is correctly configured. Otherwise, please specify an "
+              "alternative interface for obtaining the IP address. See the "
+              "SystemStudio documentation on 'Publish' for more information.") 
