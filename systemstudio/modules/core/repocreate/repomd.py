@@ -1,4 +1,4 @@
-#
+
 # Copyright (c) 2011
 # Rendition Software, Inc. All rights reserved.
 #
@@ -18,19 +18,19 @@
 
 from systemstudio.event import Event
 
-from systemstudio.modules.shared import CreaterepoMixin
+from systemstudio.modules.shared import RepomdMixin
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['CreaterepoEvent'],
+  events      = ['RepomdEvent'],
   description = 'creates repository metadata for pkglist RPMS',
   group       = 'repocreate',
 )
 
-class CreaterepoEvent(Event, CreaterepoMixin):
+class RepomdEvent(Event, RepomdMixin):
   def __init__(self):
     Event.__init__(self,
-      id = 'createrepo',
+      id = 'repomd',
       version = '0.1',
       parentid = 'repocreate',
       provides = ['rpms', 'rpms-directory', 'repodata-directory',
@@ -38,7 +38,7 @@ class CreaterepoEvent(Event, CreaterepoMixin):
       requires = ['cached-rpms'],
       conditionally_requires = ['groupfile', 'signed-rpms', 'gpgsign-public-key'],
     )
-    CreaterepoMixin.__init__(self)
+    RepomdMixin.__init__(self)
 
     self.cvars['repodata-directory'] = self.SOFTWARE_STORE/'repodata'
 

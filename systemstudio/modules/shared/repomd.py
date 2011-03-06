@@ -26,11 +26,11 @@ from systemstudio.util.versort import Version
 from systemstudio.callback import TimerCallback
 from systemstudio.logging  import L1
 
-__all__ = ['CreaterepoMixin']
+__all__ = ['RepomdMixin']
 
 CREATEREPO_ATTEMPTS = 2
 
-class CreaterepoMixin:
+class RepomdMixin:
   def __init__(self):
     self.cvars['createrepo-version'] = Version(
       shlib.execute('createrepo --version')[0].lstrip("createrepo "))

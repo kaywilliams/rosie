@@ -18,7 +18,7 @@
 from systemstudio.util import listcompare
 
 from systemstudio.modules.shared.bootcfg    import *
-from systemstudio.modules.shared.createrepo import *
+from systemstudio.modules.shared.repomd import *
 from systemstudio.modules.shared.installer  import *
 from systemstudio.modules.shared.idepsolver import *
 from systemstudio.modules.shared.repos      import *

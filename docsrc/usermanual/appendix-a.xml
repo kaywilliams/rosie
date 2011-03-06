@@ -74,7 +74,7 @@ download
  * downloading packages - 'rpmbuild-repo'
    - system-config-5-1       [=========================]     2.8 kB (00:00)
 gpgcheck
-createrepo
+repomd
  * downloading files
  * running createrepo                                               (01:04)
 isolinux

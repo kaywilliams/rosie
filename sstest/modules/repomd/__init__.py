@@ -22,19 +22,19 @@ from sstest      import EventTestCase, ModuleTestSuite
 from sstest.core import make_core_suite
 
 
-class CreaterepoEventTestCase(EventTestCase):
-  moduleid = 'createrepo'
-  eventid  = 'createrepo'
+class RepomdEventTestCase(EventTestCase):
+  moduleid = 'repomd'
+  eventid  = 'repomd'
 
 
-class Test_CompsFile(CreaterepoEventTestCase):
+class Test_CompsFile(RepomdEventTestCase):
   "comps file provided"
   def runTest(self):
-    self.tb.dispatch.execute(until='createrepo')
+    self.tb.dispatch.execute(until='repomd')
     self.failUnlessExists(self.event.cvars['repodata-directory'] /
                           self.event.cvars['groupfile'].basename)
 
-class Test_SignedRpms(CreaterepoEventTestCase):
+class Test_SignedRpms(RepomdEventTestCase):
   "uses signed rpms when gpgsign is enabled"
   _conf = """<gpgsign>
     <public-key>%s</public-key>
@@ -44,13 +44,13 @@ class Test_SignedRpms(CreaterepoEventTestCase):
                    pps.path(__file__).dirname.abspath()/'RPM-GPG-SEC-KEY-test')
 
   def runTest(self):
-    self.tb.dispatch.execute(until='createrepo')
+    self.tb.dispatch.execute(until='repomd')
     # no need to test anything specifically; if we get this far we succeeded
 
 def make_suite(distro, version, arch):
-  suite = ModuleTestSuite('createrepo')
+  suite = ModuleTestSuite('repomd')
 
-  suite.addTest(make_core_suite(CreaterepoEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(RepomdEventTestCase, distro, version, arch))
   suite.addTest(Test_CompsFile(distro, version, arch))
   suite.addTest(Test_SignedRpms(distro, version, arch))
 
