@@ -31,10 +31,11 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     Event.__init__(self,
       id = 'initrd-image',
       parentid = 'installer',
+      version = '1.01',
       provides = ['isolinux-files'],
       requires = ['anaconda-version', 'buildstamp-file'],
-      conditionally_requires = ['initrd-image-content', 'remote-baseurl-kickstart-file',
-                                'remote-baseurl-ks-path'],
+      conditionally_requires = ['initrd-image-content', 'kickstart-file',
+                                'ks-path'],
       comes_after = ['isolinux'],
     )
 
@@ -57,8 +58,8 @@ class InitrdImageEvent(Event, ImageModifyMixin):
   def setup(self):
     self.diff.setup(self.DATA)
     self.DATA['input'].append(self.cvars['buildstamp-file'])
-    if self.cvars['remote-baseurl-kickstart-file']:
-      self.DATA['input'].append(self.cvars['remote-baseurl-kickstart-file'])
+    if self.cvars['kickstart-file']:
+      self.DATA['input'].append(self.cvars['kickstart-file'])
 
     # ImageModifyMixin setup
     self.image_locals = self.locals.L_FILES['isolinux']['initrd.img']
@@ -78,5 +79,5 @@ class InitrdImageEvent(Event, ImageModifyMixin):
     self._write_buildstamp()
 
     # copy kickstart file
-    if self.cvars['remote-baseurl-kickstart-file'] and self.cvars['remote-baseurl-ks-path']:
-      self.image.write(self.cvars['remote-baseurl-kickstart-file'], self.cvars['remote-baseurl-ks-path'].dirname)
+    if self.cvars['kickstart-file'] and self.cvars['ks-path']:
+      self.image.write(self.cvars['kickstart-file'], self.cvars['ks-path'].dirname)

@@ -130,7 +130,7 @@ class BootConfigMixinTestCase:
 
   def _append_ks_arg(self, args):
     if self.event.cvars['ks-path']:
-      args.append('ks=file:%s' % self.event.cvars['ks-file'])
+      args.append('ks=file:%s' % self.event.cvars['ks-path'])
 
   def _append_config_args(self, args):
     if self.event.cvars['boot-args']:
