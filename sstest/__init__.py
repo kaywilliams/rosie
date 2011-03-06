@@ -71,8 +71,6 @@ class EventTestCase(unittest.TestCase):
     self.event = None
     unittest.TestCase.__init__(self)
 
-    self.parser = None
-
     self.tb = None
     self.output = []
 
@@ -137,7 +135,7 @@ class EventTestCase(unittest.TestCase):
 
   # test suite methods
   def setUp(self):
-    self.tb = TestBuild(self.conf, self.options, [], self.parser)
+    self.tb = TestBuild(self.conf, self.options, [])
     self.event = self.tb.dispatch._top.get(self.eventid, None)
     if not self.tb._lock.acquire():
       print "unable to lock (currently running pid is %s)" % self.tb._lock.path.read_text().strip()
