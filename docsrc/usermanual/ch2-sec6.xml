@@ -116,12 +116,12 @@
           <para>The web location (URL) for downloading system distribution content. SystemStudio uses this location during the build process for two purposes, for creating YUM client configuration (included in the <xref linkend="configuration-package"/>), and for customizing network install images. By default the download location is as follows, where $IP_ADDRESS is the address of the build machine, and $ID is the system distribution id.</para>
 
           <para><informalexample>
-            <filename>http://$IP_ADDRESS/systems/$ID</filename></informalexample></para>
+            <filename>http://$IP_ADDRESS/distributions/$ID</filename></informalexample></para>
 
 <para>For example, if the IP Address for the build machine is <filename>192.168.1.5</filename> and the system distribution id is <emphasis>samba-server-5-i386</emphasis> the download location is as follows:</para>
 
           <para><informalexample>
-              <filename>http://192.168.1.5/systems/samba-server-5-i386</filename>
+              <filename>http://192.168.1.5/distributions/samba-server-5-i386</filename>
             </informalexample></para>
 
           <para>The download location is configurable using the <emphasis>publish</emphasis> element of the system distribution definition. See the DDFR for information on the publish element. See also <xref linkend="production-definitions"/> for a discussion on using download locations in a production environment.</para>

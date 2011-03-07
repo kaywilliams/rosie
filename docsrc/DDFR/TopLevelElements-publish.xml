@@ -126,7 +126,7 @@
 
       <para>
       The default behavior is to use
-      <filename>http://$ipaddress/systems/$ID</filename>,
+      <filename>http://$ipaddress/distributions/$ID</filename>,
       where <varname>$ipaddress</varname> is computed using the value
       of the <emphasis>@interface</emphasis> attribute.
       </para>
@@ -181,7 +181,7 @@
       In this example, the remote url is automatically computed using
       the IP address of the first active network interface ("eth0"). The
       resulting remote url is
-      <literallayout>http://10.10.1.105/systems/samba-server-5-i386</literallayout>
+      <literallayout>http://10.10.1.105/distributions/samba-server-5-i386</literallayout>
       In addition, it is using a different location, 
       <filename>/var/webroot/html/</filename>, rather than the default location.
       </para>
@@ -203,7 +203,7 @@
       <para>
       In this example, the remote url is automatically computed using
       the FQDN of the build system. The resulting remote url is
-      <literallayout>http://buildserver.company.com/systems/samba-server-5-i386</literallayout>
+      <literallayout>http://buildserver.company.com/distributions/samba-server-5-i386</literallayout>
       </para>
 
       <informalexample>
@@ -225,7 +225,7 @@
       In this example, the remote url is automatically computed using
       the IP address of the specified interface, "eth1". The resulting
       remote url is
-      <literallayout>http://192.168.0.10/systems/samba-server-5-i386</literallayout>
+      <literallayout>http://192.168.0.10/distributions/samba-server-5-i386</literallayout>
       </para>
 
       <informalexample>
@@ -246,13 +246,13 @@
       <para>
       In this example, the remote url is manually configured. The
       resulting remote url is
-      <literallayout>http://systems.company.com/pub/samba-server-5-i386</literallayout>
+      <literallayout>http://distributions.company.com/pub/samba-server-5-i386</literallayout>
       </para>
 
       <informalexample>
       <programlisting>
 &lt;publish&gt;
-  &lt;remote-url&gt;http://systems.company.com/pub/&lt;/remote-url&gt;
+  &lt;remote-url&gt;http://distributions.company.com/pub/&lt;/remote-url&gt;
 &lt;/publish&gt;
       </programlisting>
       </informalexample>

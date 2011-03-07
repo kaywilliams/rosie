@@ -67,7 +67,7 @@ mv samba-server.definition samba-server-developer.definition
  xpointer="xpointer(/system/*[name()!=&amp;quot;main&amp;quot;])"/&gt;
 
 &lt;publish&gt;
-  &lt;remote-url&gt;http://download.company.com/systems/&lt;/remote-url&gt;
+  &lt;remote-url&gt;http://download.company.com/distributions/&lt;/remote-url&gt;
 &lt;/publish&gt;
 
 &lt;/distribution&gt;
@@ -206,7 +206,7 @@ xmllint --xinclude --format samba-server-production.definition
 
     &lt;!-- use global repos for CentOS --&gt;
     &lt;xi:include href="../common/repos.xml" 
-                xpointer="xpointer(/systems/repos-centos/*)" /&gt;
+                xpointer="xpointer(/distributions/repos-centos/*)" /&gt;
 
   &lt;/repos&gt;</programlisting>
     </informalexample></para>

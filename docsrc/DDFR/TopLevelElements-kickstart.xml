@@ -14,8 +14,8 @@
 
     <para>
     Specifies the <varname>PATH</varname> to a default kickstart file for the 
-    appliance. The file is included in the 
-    <filename>initrd.img</filename>, and a <constant>ks=</constant>
+    distribution. The file is included in the 
+    <filename>initrd.img</filename>, and a <constant>ks=file:/</constant>
     <varname>BASENAME</varname> 
     parameter is added to the kernel boot arguments for 
     <emphasis role="strong"><xref linkend="bootiso" /></emphasis>, 
@@ -25,8 +25,9 @@
 
     <para>
     The file is also included at the root of the installation tree for the 
-    published appliance, where it can be accessed during network boot (PXE)
-    installations.
+    published distribution (e.g. 
+    http://server.company.com/distributions/$ID/os/ks.cfg), where it can be
+    accessed during network boot (PXE) and virtual machine installations.
     </para>
 
     <para>

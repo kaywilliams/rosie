@@ -126,7 +126,7 @@
 
       <para>
       In the following examples, the default set of kernel arguments
-      is <constant>method=http://server/systems/mysystemos</constant> 
+      is <constant>method=http://server/distributions/mysystemos</constant> 
       and <constant>ks=ks.cfg</constant>.
       </para>
 
@@ -148,7 +148,7 @@
 
         The final set of kernel append arguments is
 
-        <literallayout>method=http://server/systems/mysystemos ks=ks.cfg noipv6</literallayout>
+        <literallayout>method=http://server/distributions/mysystemos ks=ks.cfg noipv6</literallayout>
         </para>
       </section>
 
@@ -171,7 +171,7 @@
 
       The final set of kernel append arguments is
 
-        <literallayout>method=http://server/systems/mysystemos noipv6</literallayout>
+        <literallayout>method=http://server/distributions/mysystemos noipv6</literallayout>
         </para>
       </section>
 
