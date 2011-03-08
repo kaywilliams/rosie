@@ -40,7 +40,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.14',
+      version = '1.15',
       provides = ['rpmbuild-data'],
       requires = ['input-repos'],
       conditionally_requires = ['web-path', 'gpgsign-public-key'],
@@ -169,7 +169,8 @@ class ConfigEvent(RpmBuildMixin, Event):
     if self.cvars['web-path'] is not None:
       lines.extend([ '[%s]' % self.name,
                      'name      = %s - %s' % (self.fullname, self.basearch),
-                     'baseurl   = %s' % (self.cvars['web-path']/'os') ])
+                     'baseurl   = %s' % (self.cvars['web-path']/'os'),
+                     'metadata_expire = 0' ])
       # if we signed the rpms we use, include the gpgkey check in the repofile
       if self.cvars['gpgsign-public-key']:
         lines.extend(['gpgcheck = 1',
