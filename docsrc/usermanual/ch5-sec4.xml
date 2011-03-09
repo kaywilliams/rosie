@@ -8,56 +8,18 @@
   you have downloaded the correct set of data; if the key matches the
   information in the data set, then the set is correct.</para>
 
-  <section>
-    <title>Checking the packages</title>
+  <para>For a repository that you use in the <emphasis>repos/repo</emphasis>
+  element, you can indicate whether GPG checking is enabled by setting
+  <emphasis>/repo/gpgcheck</emphasis> to TRUE. You must also include at
+  least one GPG key file using <emphasis>/repo/gpgkey</emphasis>.</para>
 
-    <para>For a repository that you use in the <emphasis>repos/repo</emphasis>
-    element, you can indicate whether GPG checking is enabled by setting
-    <emphasis>/repo/gpgcheck</emphasis> to TRUE. You must also include at
-    least one GPG key file using <emphasis>/repo/gpgkey</emphasis>.</para>
+  <para>In your <filename>samba-server.definition</filename> file under your
+  <emphasis>repos/repo</emphasis> listing for "base" repository, you can add
+  the following code to use the public key provided for CentOS 5.</para>
 
-    <para>In your <filename>samba-server.definition</filename> file under your
-    <emphasis>repos/repo</emphasis> listing for "base" repository, you can add
-    the following code to use the public key provided for CentOS 5.</para>
+  <para><informalexample>
+    <programlisting>&lt;gpgcheck&gt;yes&lt;/gpgcheck&gt;
+&lt;gpgkey&gt;http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5&lt;gpgkey&gt;</programlisting>    </informalexample></para>
 
-    <para><informalexample>
-        <programlisting>&lt;gpgcheck&gt;yes&lt;/gpgcheck&gt;
-&lt;gpgkey&gt;http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5&lt;gpgkey&gt;</programlisting>
-      </informalexample></para>
-
-  </section>
-
-  <section>
-    <title>Signing your packages</title>
-
-    <para>To authenticate your system distribution RPMS, you can also sign them and
-    provide a password in your <filename>samba-server.definition</filename>
-    file. Use the <emphasis>gpgsign/secret-key</emphasis> for exported,
-    armored GPG secret key that signs your system distribution and
-    <emphasis>gpgsign/public-key</emphasis> to enter the exported, armored GPG
-    public key file that matches the <emphasis>/secret-key</emphasis>. You may
-    enter a password in plain text form using the
-    <emphasis>/passphrase</emphasis> element, which is necessary if you want
-    to run SystemStudio without user interaction. If there is no passphrase, then SystemStudio
-    will prompt you for the passphrase during the build process.</para>
-
-    <para>The example below uses the keys without the passphrase, thus
-    requiring you to be present during the process to enter the
-    passphrase.</para>
-
-    <para><informalexample>
-        <programlisting>&lt;gpgsign&gt;
-     &lt;public-key&gt;
-     GPG/GPG-public.key
-     &lt;/public-key&gt;
-     &lt;secret-key&gt;
-     GPG/GPG-secret.key
-     &lt;/secret-key&gt;
-&lt;/gpgsign&gt;</programlisting>
-      </informalexample></para>
-
-    <para>Since all <application class="software">RedHat</application>
-    repositories have a GPG key for the system distributions, you may want to sign
-    and key any new system repository as standard practice.</para>
-  </section>
+ </section>
 </section>

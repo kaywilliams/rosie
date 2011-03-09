@@ -280,9 +280,9 @@ $ precedes lines entered as a normal user</programlisting>
         <listitem>
           <para>Chapter 5, "Doing More with SystemStudio" will help you
           customize your system distributions. It describes using kickstart 
-          files to automate client installation, discusses GPG checking and
-          using GPG keys to sign your own packages, and provides information on 
-          creating CD/DVD installation images.</para>
+          files to automate client installations, discusses GPG checking for 
+          RPMS, and provides information on creating CD/DVD installation images.
+          </para>
         </listitem>
       </itemizedlist></para>
   </section>

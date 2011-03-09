@@ -36,7 +36,7 @@ class RepomdEvent(Event, RepomdMixin):
       provides = ['rpms', 'rpms-directory', 'repodata-directory',
                   'treeinfo-checksums'],
       requires = ['cached-rpms'],
-      conditionally_requires = ['groupfile', 'signed-rpms', 'gpgsign-public-key'],
+      conditionally_requires = ['groupfile', ],
     )
     RepomdMixin.__init__(self)
 
@@ -57,12 +57,8 @@ class RepomdEvent(Event, RepomdMixin):
     if self.cvars['groupfile']:
       self.DATA['input'].append(self.cvars['groupfile'])
 
-    if self.cvars['gpgsign-public-key']: # if we're signing rpms #!
-      paths = self.cvars['signed-rpms']
-    else:
-      paths = self.cvars['cached-rpms']
-
-    self.io.add_fpaths(paths, self.cvars['rpms-directory'], id='rpms')
+    self.io.add_fpaths(self.cvars['cached-rpms'], 
+                       self.cvars['rpms-directory'], id='rpms')
 
   def run(self):
     self.io.sync_input(link=True)

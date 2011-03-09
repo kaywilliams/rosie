@@ -8,7 +8,6 @@ install:
 	install -pm 644 chroot.rng $(DESTDIR)/usr/share/systemstudio/schemas/distribution/chroot.rng
 	install -pm 644 config.rng $(DESTDIR)/usr/share/systemstudio/schemas/distribution/config.rng
 	install -pm 644 diskboot-image.rng $(DESTDIR)/usr/share/systemstudio/schemas/distribution/diskboot-image.rng
-	install -pm 644 gpgsign.rng $(DESTDIR)/usr/share/systemstudio/schemas/distribution/gpgsign.rng
 	install -pm 644 iso.rng $(DESTDIR)/usr/share/systemstudio/schemas/distribution/iso.rng
 	install -pm 644 kickstart.rng $(DESTDIR)/usr/share/systemstudio/schemas/distribution/kickstart.rng
 	install -pm 644 lib.rng $(DESTDIR)/usr/share/systemstudio/schemas/distribution/lib.rng

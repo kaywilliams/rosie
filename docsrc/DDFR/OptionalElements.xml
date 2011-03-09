@@ -16,9 +16,6 @@
   <xi:include href="TopLevelElements-diskboot-image.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="TopLevelElements-gpgsign.xml"
-              xpointer="element(/1)" />
-
   <xi:include href="TopLevelElements-iso.xml"
               xpointer="element(/1)" />
 

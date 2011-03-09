@@ -34,19 +34,6 @@ class Test_CompsFile(RepomdEventTestCase):
     self.failUnlessExists(self.event.cvars['repodata-directory'] /
                           self.event.cvars['groupfile'].basename)
 
-class Test_SignedRpms(RepomdEventTestCase):
-  "uses signed rpms when gpgsign is enabled"
-  _conf = """<gpgsign>
-    <public-key>%s</public-key>
-    <secret-key>%s</secret-key>
-    <passphrase></passphrase>
-  </gpgsign>""" % (pps.path(__file__).dirname.abspath()/'RPM-GPG-KEY-test',
-                   pps.path(__file__).dirname.abspath()/'RPM-GPG-SEC-KEY-test')
-
-  def runTest(self):
-    self.tb.dispatch.execute(until='repomd')
-    # no need to test anything specifically; if we get this far we succeeded
-
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('repomd')
 

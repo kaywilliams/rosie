@@ -20,6 +20,17 @@
     (<emphasis>publish/remote-url</emphasis>).
     </para>
 
+    <para>Because system distributions are intended for automatic installation
+    and update to client machines, to ensure that correct content is 
+    distributed, you should ensure that only trusted users and groups have
+    <emphasis>write</emphasis> access to the <emphasis>local-dir</emphasis>. In
+    addition, to prevent man-in-the-middle style security attacks, you may
+    wish to configure the <emphasis>remote-url</emphasis> for SSL access.
+    See your web server documentation for information on configuring SSL. Also
+    see <emphasis>Example 5</emphasis> below for specifying an SSL (https) 
+    <emphasis>remote-url</emphasis>.
+    </para>
+
     <para>
     The web-accessible download server can be either the SystemStudio build
     system or another machine. To utilize the SystemStudio build system's fully qualified domain name (FQDN) 
@@ -253,6 +264,26 @@
       <programlisting>
 &lt;publish&gt;
   &lt;remote-url&gt;http://distributions.company.com/pub/&lt;/remote-url&gt;
+&lt;/publish&gt;
+      </programlisting>
+      </informalexample>
+    </section>
+ 
+    <section>
+      <title>
+      Example 5 - manual configuration of remote url using SSL
+      </title>
+
+      <para>
+      In this example, the remote url is manually configured to use an SSL web
+      location. The resulting remote url is
+      <literallayout>https://distributions.company.com/pub/samba-server-5-i386</literallayout>
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;publish&gt;
+  &lt;remote-url&gt;https://distributions.company.com/pub/&lt;/remote-url&gt;
 &lt;/publish&gt;
       </programlisting>
       </informalexample>

@@ -43,7 +43,7 @@ class ConfigEvent(RpmBuildMixin, Event):
       version = '1.15',
       provides = ['rpmbuild-data'],
       requires = ['input-repos'],
-      conditionally_requires = ['web-path', 'gpgsign-public-key'],
+      conditionally_requires = ['web-path'],
     )
 
     RpmBuildMixin.__init__(self,
@@ -59,7 +59,7 @@ class ConfigEvent(RpmBuildMixin, Event):
 
     self.DATA = {
       'variables': ['name', 'fullname', 'distributionid', 'rpm.release',
-                    'cvars[\'web-path\']', 'cvars[\'gpgsign-public-key\']',],
+                    'cvars[\'web-path\']', ],
       'config':    ['.'],
       'input':     [],
       'output':    [],
@@ -101,12 +101,6 @@ class ConfigEvent(RpmBuildMixin, Event):
                              item=str(script)[:-1], 
                              cls=ConfigIOError)
         self.DATA['input'].append(script.text)
-
-
-    if self.cvars['gpgsign-public-key']:
-      # also include the gpg key in the config-rpm
-      self.io.add_fpath(self.cvars['gpgsign-public-key'],
-                        self.rpm.source_folder/'etc/pki/rpm-gpg')
 
     # add repos to cvars if necessary
     if self.config.get('updates/@repos', 'master') == 'all':
@@ -170,15 +164,9 @@ class ConfigEvent(RpmBuildMixin, Event):
       lines.extend([ '[%s]' % self.name,
                      'name      = %s - %s' % (self.fullname, self.basearch),
                      'baseurl   = %s' % (self.cvars['web-path']/'os'),
-                     'metadata_expire = 0' ])
-      # if we signed the rpms we use, include the gpgkey check in the repofile
-      if self.cvars['gpgsign-public-key']:
-        lines.extend(['gpgcheck = 1',
-                      'gpgkey   = %s' % (self.cvars['web-path']/'os' /
-                         self.cvars['gpgsign-public-key'].basename)])
-      else:
-        lines.append('gpgcheck = 0')
-      lines.append('')
+                     'metadata_expire = 0',
+                     'gpgcheck = 0',
+                     '' ])
 
     # include repo(s) pointing to system inputs
     if self.config.get('updates/@repos', 'master') == 'all':

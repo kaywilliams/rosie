@@ -449,8 +449,7 @@ baseurl=/var/repos/repoC
 
         <listitem>
         <para>
-        The <varname>PATH</varname> to the ACII-armored GPG key
-        for the repository.
+        The <varname>PATH</varname> to the GPG key for the repository.
         </para>
 
         <para>
