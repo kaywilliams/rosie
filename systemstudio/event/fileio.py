@@ -102,18 +102,20 @@ class IOObject(object):
       self.i_dst[d] = td # but multiple srcs can't go to one dst
 
   def add_xpath(self, xpath, dst, id=None, mode=None, prefix=None,
-                                  relpath=None, force_relative=False):
+                                  destname=None, relpath=None, 
+                                  force_relative=False):
     """
     @param xpath : xpath query into the config file that contains zero or
                    more path elements to add to the possible input list
     """
     if not id: id = xpath
     for item in self.ptr.config.xpath(xpath, []):
-      s,d,f,m = self._process_path_xml(item, mode=mode,
+      s,d,f,m = self._process_path_xml(item, destname=destname,
+                                             mode=mode,
                                              relpath=relpath,
                                              force_relative=force_relative)
-
-      self.add_item(s, dst//d/f, id=id, mode=m or mode, prefix=prefix)
+      self.add_item(s, dst//d/f, id=id, mode=m or mode, 
+                    prefix=prefix)
 
   def add_xpaths(self, xpaths, *args, **kwargs):
     "Add multiple xpaths at once; calls add_xpath on each element in xpaths"
@@ -241,11 +243,11 @@ class IOObject(object):
 
     return ret
 
-  def _process_path_xml(self, item, relpath=None, force_relative=False, mode=None):
+  def _process_path_xml(self, item, destname=None, relpath=None, force_relative=False, mode=None):
     "compute src, dst, destname, and mode from <path> elements"
     s = pps.path(item.get('text()'))
     d = pps.path(item.get('@destdir', ''))
-    f = item.get('@destname', s.basename)
+    f = destname or item.get('@destname', s.basename)
     m = item.get('@mode', mode)
 
     if relpath:
