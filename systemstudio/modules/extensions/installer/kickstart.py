@@ -42,8 +42,11 @@ class KickstartEvent(Event):
     }
 
   def setup(self):
+    self.ksname = 'ks.cfg'
+
     self.diff.setup(self.DATA)
-    self.io.add_xpath('.', self.SOFTWARE_STORE, id='kickstart-file')
+    self.io.add_xpath('.', self.SOFTWARE_STORE, id='kickstart-file', 
+                      destname=self.ksname)
 
   def run(self):
     self.io.sync_input(cache=True)
