@@ -381,9 +381,9 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
                           '%s-%s-%s' % (di['name'],
                                         di['version'],
                                         di['basearch']))
-    di['anaconda-version'] = Event._config.get(qstr % 'anaconda-version', None)
+    di['anaconda-version'] = None
     di['fullname']     = Event._config.get(qstr % 'fullname', di['name'])
-    di['packagepath']  = Event._config.get(qstr % 'package-path', 'Packages')
+    di['packagepath']  = 'Packages'
     di['webloc']       = Event._config.get(qstr % 'bug-url', 'No bug url provided')
 
     for k,v in di.items():

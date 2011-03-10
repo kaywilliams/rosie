@@ -99,13 +99,13 @@ class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
   "Test multiple repos with the same package."
   def runTest(self):
     DownloadEventTestCase.runTest(self)
-    # if the length of cvars['cached-rpms'] is equal to the length of
+    # if the length of cvars['rpms'] is equal to the length of
     # packages in cvars['rpms-by-repoid'], then we know for sure that
     # we are downloading a package from exactly one repository.
     numpkgs = 0
     for id in self.event.cvars['rpms-by-repoid']:
       numpkgs += len(self.event.cvars['rpms-by-repoid'][id])
-    self.failUnless(len(self.event.cvars['cached-rpms']) == numpkgs)
+    self.failUnless(len(self.event.cvars['rpms']) == numpkgs)
 
 def make_suite(distro, version, arch):
   _run_make(pps.path(__file__).dirname)

@@ -29,7 +29,6 @@
  [&lt;fullname&gt;TEXT&lt;/fullname&gt;]
  [&lt;id&gt;TEXT&lt;/id&gt;]
  [&lt;log-file&gt;PATH&lt;/log-file&gt;]
- [&lt;package-path&gt;PATH&lt;/package-path&gt;]
 &lt;/main&gt;
     </programlisting>
   </section>
@@ -149,7 +148,7 @@
 
       <listitem>
       <para>
-      The name of the target system distribution.
+      The name of the system distribution.
       </para>
 
       <para>
@@ -159,23 +158,6 @@
 
       <para>
       This element is required.
-      </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term>
-      package-path
-      </term>
-
-      <listitem>
-      <para>
-      The name of the directory within the system distribution tree where 
-      SystemStudio will place packages.
-      </para>
-
-      <para>
-      The default value is <filename>Packages</filename>.
       </para>
       </listitem>
     </varlistentry>

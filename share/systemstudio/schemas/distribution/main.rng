@@ -14,9 +14,6 @@
           <element name="fullname"><text/></element>
           </optional>
           <optional>
-          <element name="package-path"><text/></element>
-          </optional>
-          <optional>
           <element name="bug-url"><text/></element>
           </optional>
           <optional>

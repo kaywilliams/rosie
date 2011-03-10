@@ -31,12 +31,11 @@ class RepomdEvent(Event, RepomdMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'repomd',
-      version = '0.1',
+      version = '1.02',
       parentid = 'repocreate',
-      provides = ['rpms', 'rpms-directory', 'repodata-directory',
-                  'treeinfo-checksums'],
-      requires = ['cached-rpms'],
-      conditionally_requires = ['groupfile', ],
+      requires = ['rpms-directory', 'rpms'],
+      provides = ['repodata-directory', 'treeinfo-checksums'],
+      conditionally_requires = ['groupfile', 'checked-rpms'],
     )
     RepomdMixin.__init__(self)
 
@@ -44,7 +43,9 @@ class RepomdEvent(Event, RepomdMixin):
 
     self.DATA = {
       'config':    ['.'],
-      'variables': ['packagepath'],
+      'variables': ['packagepath', 
+                    'cvars[\'rpms\']', 
+                    'cvars[\'rpms-directory\']'],
       'input':     [],
       'output':    [],
     }
@@ -52,22 +53,12 @@ class RepomdEvent(Event, RepomdMixin):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.cvars['rpms-directory'] = self.SOFTWARE_STORE//self.packagepath
-
     if self.cvars['groupfile']:
       self.DATA['input'].append(self.cvars['groupfile'])
 
-    self.io.add_fpaths(self.cvars['cached-rpms'], 
-                       self.cvars['rpms-directory'], id='rpms')
-
   def run(self):
-    self.io.sync_input(link=True)
-
-    # remove all obsolete RPMs
-    old_files = set(self.cvars['rpms-directory'].findpaths(mindepth=1, regex='.*\.rpm'))
-    new_files = set(self.io.list_output(what='rpms'))
-    for obsolete_file in old_files.difference(new_files):
-      obsolete_file.rm(recursive=True, force=True)
+    # create temporary symlink to rpms-directory, deleted by clean_eventcache()
+    self.cvars['rpms-directory'].symlink(self.SOFTWARE_STORE//self.packagepath)
 
     # run createrepo
     repo_files = self.createrepo(self.SOFTWARE_STORE, groupfile=self.cvars['groupfile'])
@@ -75,7 +66,6 @@ class RepomdEvent(Event, RepomdMixin):
 
   def apply(self):
     self.io.clean_eventcache()
-    self.cvars['rpms'] = self.io.list_output(what='rpms')
     self.cvars.setdefault('treeinfo-checksums', set()).add(
       (self.SOFTWARE_STORE, 'repodata/repomd.xml'))
 

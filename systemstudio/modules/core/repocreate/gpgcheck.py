@@ -39,6 +39,7 @@ class GpgCheckEvent(Event):
       parentid = 'repocreate',
       version = '0.9',
       requires = ['rpms-by-repoid', 'repos'],
+      provides = ['checked-rpms'],
     )
 
     self.DATA = {

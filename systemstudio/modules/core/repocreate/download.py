@@ -37,8 +37,10 @@ class DownloadEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'download',
+      version = 1.01,
       parentid = 'repocreate',
-      provides = ['cached-rpms',
+      provides = ['rpms',
+                  'rpms-directory',
                   'rpms-by-repoid'], # used by gpgcheck progress bars
       requires = ['pkglist', 'repos'],
     )
@@ -46,12 +48,12 @@ class DownloadEvent(Event):
     self._validarchs = getArchList(self.arch)
 
     self.DATA = {
-      'variables': ['cvars[\'pkglist\']'],
+      'variables': ['packagepath', 'cvars[\'pkglist\']'],
       'input':     [],
       'output':    [],
     }
 
-    self.builddata_dest = self.mddir/'rpms'
+    self.builddata_dest = self.SOFTWARE_STORE//self.packagepath
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -86,7 +88,8 @@ class DownloadEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
-    self.cvars['cached-rpms'] = self.io.list_output()
+    self.cvars['rpms'] = self.io.list_output()
+    self.cvars['rpms-directory'] = self.builddata_dest
 
   def error(self, e):
     # performing a subset of Event.error since sync handles partially downloaded files
