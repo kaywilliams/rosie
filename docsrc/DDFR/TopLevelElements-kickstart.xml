@@ -13,22 +13,24 @@
     </title>
 
     <para>
-    Specifies the <varname>PATH</varname> to a default kickstart file for the 
-    distribution. The file is included in the 
-    <filename>initrd.img</filename>, and a <constant>ks=file:/</constant>
-    <varname>BASENAME</varname> 
-    parameter is added to the kernel boot arguments for 
-    <emphasis role="strong"><xref linkend="bootiso" /></emphasis>, 
-    <emphasis role="strong"><xref linkend="diskboot-image" /></emphasis> and all
-    <emphasis role="strong"><xref linkend="iso" /></emphasis> 
-    images.</para> 
-
-    <para>
-    The file is also included at the root of the installation tree for the 
-    published distribution (e.g. 
-    http://server.company.com/distributions/$ID/os/ks.cfg), where it can be
-    accessed during network boot (PXE) and virtual machine installations.
+    Specifies a <varname>PATH</varname> to a kickstart file for inclusion in
+    the distribution.  The file is renamed, if needed, to 
+    <filename>ks.cfg</filename> and included in the distribution's 
+    <filename>os</filename> folder, e.g. 
+    <filename>http://server.company.com/distributions/samba-server-5-i386/os/ks.cfg</filename>. 
+    This makes the file easy to identify later when someone, possibly someone
+    other than the person who built the system distribution, configures 
+    network boot (PXE) or virtual machine installations. 
     </para>
+
+   <para>
+    The kickstart file is also included in the 
+    <emphasis role="strong"><xref linkend="bootiso" /></emphasis> and
+    <emphasis role="strong"><xref linkend="diskboot-image" /></emphasis>
+    images, and in all 
+    <emphasis role="strong"><xref linkend="iso" /></emphasis> images. 
+    It will be used automatically when these images are used for new system
+    installations.</para> 
 
     <para>
     This module is a member of the <emphasis role="strong">installer</emphasis>

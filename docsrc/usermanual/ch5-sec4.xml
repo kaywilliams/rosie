@@ -21,5 +21,4 @@
     <programlisting>&lt;gpgcheck&gt;yes&lt;/gpgcheck&gt;
 &lt;gpgkey&gt;http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5&lt;gpgkey&gt;</programlisting>    </informalexample></para>
 
- </section>
 </section>

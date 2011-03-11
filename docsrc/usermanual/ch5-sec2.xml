@@ -10,22 +10,15 @@
   <section>
     <title>Kickstarting Client Systems</title>
 
-    <para>Kickstart installations automate the install process of a RedHat operating system
-    and make the installations reproducible. You may want to use this method
-    if you have large-scale installations, complex storage requirements,
-    multiple network interfaces, secure systems or site-specific strategies.
-    Within the SystemStudio process, the kickstart file automates the installation and
-    manages several functions during the install: selection of language,
-    network configuration, keyboard, filesystem, mouse,
-    timezone, root password and package handling.</para>
+    <para>Kickstart files let you automate system installations by 
+    providing answers to install-time questions such as selection of language,
+    network configuration, keyboard, filesystem configuration, mouse,
+    timezone and root password.</para>
 
-    <para>Instead of managing multiple kickstart files, SystemStudio lets you make it
-    part of the system distribution definition. By revision controlling the SystemStudio files
-    (see Part 2), the kickstart process can be controlled, too.</para>
-
-    <para>Use the <emphasis>kickstart</emphasis> element in the
-    <filename>samba-server.definition</filename> file to identify one kickstart
-    file, as in the example below. Substitute your own kickstart filename for
+    <para>To include a kickstart file in your 
+    <filename>samba-server.definition</filename>, use the 
+    <emphasis>kickstart</emphasis> element, as in the example below. 
+    Substitute your own kickstart filename for
     <filename>ks.cfg</filename>.</para>
 
     <para><informalexample>
