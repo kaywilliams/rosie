@@ -35,7 +35,7 @@ class ReleaseFilesEvent(Event):
     Event.__init__(self,
       id = 'release-files',
       parentid = 'os',
-      provides = ['os-contents'],
+      provides = ['os-content'],
     )
 
     self.DATA =  {
