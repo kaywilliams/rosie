@@ -41,7 +41,8 @@ class DownloadEvent(Event):
       parentid = 'repocreate',
       provides = ['rpms',
                   'rpms-directory',
-                  'rpms-by-repoid'], # used by gpgcheck progress bars
+                  'rpms-by-repoid', # used by gpgcheck progress bars
+                  'os-content'],
       requires = ['pkglist', 'repos'],
     )
 
