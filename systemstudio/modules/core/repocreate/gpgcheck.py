@@ -77,8 +77,9 @@ class GpgCheckEvent(Event):
       newrpms = []
       homedir = self.mddir/repo/'homedir'
       self.DATA['output'].append(homedir)
-      newkeys = self.io.sync_input(cache=True, what=repo,
-                  text="downloading gpgkeys - '%s'" % repo)
+      newkeys = self.io.sync_input(cache=True, what=repo, 
+                  text=self.log(4, L1("downloading keys - '%s'" % repo)),
+                                   callback=self.link_callback)
 
       # if new gpgkeys are downloaded, recreate the homedir and all rpms from
       # that repo to check list
