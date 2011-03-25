@@ -26,7 +26,7 @@ PLUGIN_DEFAULTS = {
     '  for repo in conduit._base.repos.listEnabled():',
     '    if repo.id == conduit.confString(\'main\', \'masterrepo\', default=\'base\'):',
     '      continue',
-    '    conduit.info(2, "[%s] Ignoring non-master repo \'%s\'" % (PLUGIN_NAME, repo.id))',
+    '    conduit.info(2, "[%s] Ignoring repo \'%s\'" % (PLUGIN_NAME, repo.id))',
     '    conduit._base.repos.disableRepo(repo.id)',
     '',
     'def preresolve_hook(conduit):',
