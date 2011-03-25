@@ -25,7 +25,7 @@ from systemstudio import splittree
 
 from systemstudio.callback import BuildDepsolveCallback
 from systemstudio.event    import Event, CLASS_META
-from systemstudio.logging  import L1, L2, L3
+from systemstudio.sslogging  import L1, L2, L3
 
 from systemstudio.modules.shared import ListCompareMixin, BootConfigMixin
 
@@ -108,7 +108,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
       version = '0.1',
       parentid = 'all',
       provides = ['iso-dir', 'publish-content'],
-      requires = ['anaconda-version', 'pkgorder-file', 'manifest-file',
+      requires = ['anaconda-version', 'pkgorder-file', 
                   'boot-config-file', 'os-dir'],
       conditionally_requires = ['srpms-dir', 'ks-path', 'boot-args'],
     )
@@ -133,7 +133,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     self.isodir = self.mddir/'iso'
 
     self.DATA['input'].append(self.cvars['pkgorder-file'])
-    self.DATA['input'].append(self.cvars['manifest-file'])
+    self.DATA['input'].append(self.SOFTWARE_STORE)
 
     self.bootconfig.setup(defaults=['method=cdrom'], include_ks=True)
 

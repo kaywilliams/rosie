@@ -15,12 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import csv
 
 from systemstudio.util.pps.constants import TYPE_NOT_DIR
 
 from systemstudio.event   import Event
-from systemstudio.logging import L1
+from systemstudio.sslogging import L1
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -28,26 +27,19 @@ MODULE_INFO = dict(
   description = 'creates an os folder',
 )
 
-FIELDS = ['file', 'size', 'mtime']
-
 class ComposeEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'compose',
       parentid = 'os',
-      # as an optimization iso diffs 'manifest-file' to determine if it should
-      # run, thus avoiding calculating diffs for all files in SOFTWARE_STORE
-      provides = ['os-dir', 'publish-content', 'manifest-file'],
+      provides = ['os-dir', 'publish-content',],
       requires = ['os-content'],
     )
 
-    # put manifest in SOFTWARE_STORE for use by downstream tools, e.g. installer
-    self.mfile = self.SOFTWARE_STORE / '.manifest'
-
     self.DATA =  {
-      'variables': ['mfile'],
+      'variables': [],
       'input':     [],
-      'output':    [self.mfile],
+      'output':    [],
     }
 
   def setup(self):
@@ -68,39 +60,11 @@ class ComposeEvent(Event):
     for event in self.events:
       self.io.sync_input(link=True, what=event, text=None)
 
-    # create manifest file
-    self.log(1, L1("creating manifest file"))
-
-    manifest = []
-    for i in (self.SOFTWARE_STORE).findpaths(nglob=self.mfile,
-                                             type=TYPE_NOT_DIR):
-      st = i.stat()
-      manifest.append({
-        'file':  i.relpathfrom(self.SOFTWARE_STORE),
-        'size':  st.st_size,
-        'mtime': st.st_mtime})
-    manifest.sort()
-
-    self.mfile.touch()
-    mf = self.mfile.open('w')
-
-    mwriter = csv.DictWriter(mf, FIELDS, lineterminator='\n')
-    for line in manifest:
-      mwriter.writerow(line)
-
-    mf.close()
-
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['os-dir'] = self.SOFTWARE_STORE
-    self.cvars['manifest-file'] = self.mfile
     self.cvars.setdefault('publish-content', set()).add(self.SOFTWARE_STORE)
-
-  def verify_manifest_exists(self):
-    "manifest file exists"
-    self.verifier.failUnlessExists(self.mfile)
 
   def verify_cvars(self):
     "verify cvars are set"
     self.verifier.failUnlessSet('os-dir')
-    self.verifier.failUnlessSet('manifest-file')
