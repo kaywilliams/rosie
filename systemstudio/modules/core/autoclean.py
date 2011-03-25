@@ -20,7 +20,7 @@ from systemstudio.util import rxml
 from systemstudio.util.difftest.handlers import DiffHandler
 
 from systemstudio.event   import Event
-from systemstudio.logging import L1, L2
+from systemstudio.sslogging import L1, L2
 
 MODULE_INFO = dict(
   api         = 5.0,

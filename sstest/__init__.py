@@ -90,6 +90,9 @@ class EventTestCase(unittest.TestCase):
     repos = self._make_repos_config()
     if repos is not None: top.append(repos)
 
+    gpgcheck = self._make_gpgcheck_config()
+    if gpgcheck is not None: top.append(gpgcheck)
+
     self.conf = top
 
     if hasattr(self, '_conf'): # string or list of strings
@@ -126,6 +129,11 @@ class EventTestCase(unittest.TestCase):
     repos.append(base.toxml())
 
     return repos
+
+  def _make_gpgcheck_config(self):
+    gpgcheck = config.Element('gpgcheck', attrs={'enabled': 'false'})
+
+    return gpgcheck
 
   def _add_config(self, section):
     sect = config.read(StringIO(section))

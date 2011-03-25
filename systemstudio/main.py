@@ -52,7 +52,7 @@ from systemstudio.callback  import (SyncCallback, CachedSyncCallback, LinkCallba
 from systemstudio.constants import *
 from systemstudio.errors    import SystemStudioErrorHandler, SystemStudioError
 from systemstudio.event     import Event, CLASS_META
-from systemstudio.logging   import make_log, L0, L1, L2
+from systemstudio.sslogging   import make_log, L0, L1, L2
 from systemstudio.validate  import SystemStudioValidationHandler
 
 from systemstudio.event.loader import Loader

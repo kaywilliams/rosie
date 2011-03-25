@@ -12,14 +12,7 @@
   or are triggered upon certain installation or deinstallation events give you
   more power over the sequence of events and combination of packages. You can
   also automate system installation by including a kickstart file. SystemStudio
-  also accomodates your preferences for media and kernel boot arguments. If your
-  company's legal department or custom software development department
-  requires certain content, you can include those components, as well.</para>
-
-  <para>Updating your system distribution is easy with SystemStudio, but you need to
-  understand whether the client machine or just the system distribution repository or
-  both will include any updates. The next chapter addresses that critical issue.
-  </para>
+  also accomodates your preferences for media and kernel boot arguments.</para>
 
   <xi:include href="ch5-sec1.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
@@ -34,8 +27,5 @@
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
   <xi:include href="ch5-sec5.xml" xpointer="element(/1)"
-              xmlns:xi="http://www.w3.org/2001/XInclude" />
-
-  <xi:include href="ch5-sec6.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 </chapter>

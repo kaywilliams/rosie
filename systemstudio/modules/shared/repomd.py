@@ -24,7 +24,7 @@ from systemstudio.util import shlib
 from systemstudio.util.versort import Version
 
 from systemstudio.callback import TimerCallback
-from systemstudio.logging  import L1
+from systemstudio.sslogging  import L1
 
 __all__ = ['RepomdMixin']
 

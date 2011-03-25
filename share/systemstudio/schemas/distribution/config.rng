@@ -17,12 +17,7 @@
           <attribute name="sync"><ref name="value-boolean"/></attribute>
           </optional>
           <optional>
-          <attribute name="repos">
-            <choice>
-            <value type="string">master</value>
-            <value type="string">all</value>
-            </choice>
-          </attribute>
+          <attribute name="gpgcheck"><ref name="value-boolean"/></attribute>
           </optional>
         </element>
         </optional>

@@ -21,7 +21,7 @@ from systemstudio.util import img
 from systemstudio.util import magic
 from systemstudio.util import pps
 
-from systemstudio.logging      import L1
+from systemstudio.sslogging      import L1
 from systemstudio.event.fileio import MissingInputFileError
 
 __all__ = ['ImageModifyMixin', 'FileDownloadMixin']

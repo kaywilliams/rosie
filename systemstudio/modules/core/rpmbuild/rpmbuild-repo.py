@@ -17,13 +17,15 @@
 #
 import os
 
+from systemstudio.util import mkrpm
 from systemstudio.util import shlib
 from systemstudio.util import repo
 
 from systemstudio.event   import Event
-from systemstudio.logging import L1, L2
+from systemstudio.sslogging import L1, L2
 
 from systemstudio.modules.shared import SystemStudioRepoGroup
+from systemstudio.modules.shared.rpmbuild import PUBKEY, GPGKEY_NAME
 
 from systemstudio.util.repo.repo import RepoContainer
 
@@ -39,7 +41,7 @@ class RpmbuildRepoEvent(Event):
     Event.__init__(self,
       id = 'rpmbuild-repo',
       parentid = 'rpmbuild',
-      version = 1.01,
+      version = 1.02,
       suppress_run_message = True,
       conditionally_requires = ['rpmbuild-data'],
       provides = ['repos', 'source-repos',
@@ -47,16 +49,18 @@ class RpmbuildRepoEvent(Event):
                   'excluded-packages']
     )
 
-    self.cid =  '%s-config' % self.distributionid
+    self.cid =  '%s' % self.distributionid
     self.csid = '%s-sources' % self.distributionid
 
     self.RPMBUILD_RPMS  = self.mddir/self.cid
     self.RPMBUILD_SRPMS = self.mddir/self.csid
 
+    self.gpgkey = GPGKEY_NAME
+
     self.DATA = {
       'input':  [],
       'output': [],
-      'variables': [],
+      'variables': ['gpgkey'],
     }
 
     self.repos = RepoContainer()
@@ -72,7 +76,8 @@ class RpmbuildRepoEvent(Event):
                           self.RPMBUILD_SRPMS, id='rpmbuild-srpms')
 
       rpmbuild_rpms  = SystemStudioRepoGroup(id=self.cid, name=self.cid,
-                                   baseurl=self.RPMBUILD_RPMS, gpgcheck='no')
+                              baseurl=self.RPMBUILD_RPMS, gpgcheck='yes',
+                              gpgkey='file://'+self.mddir/self.gpgkey,)
       rpmbuild_srpms = SystemStudioRepoGroup(id=self.csid, name=self.csid,
                                    baseurl=self.RPMBUILD_SRPMS)
 
@@ -86,12 +91,18 @@ class RpmbuildRepoEvent(Event):
     # sync rpms
     self.log(4, L1("copying packages"))
     if self.cvars['rpmbuild-data']:
-      self.io.sync_input(link=True, what='rpmbuild-rpms',
-                         text=self.log(4, L2("RPMS")))
-      self.io.sync_input(link=True, what='rpmbuild-srpms',
-                         text=self.log(4, L2("SRPMS")))
+      self.io.sync_input(what='rpmbuild-rpms', callback=self.link_callback,
+                         text=self.log(4, L2("Linking RPMS")))
+      self.io.sync_input(what='rpmbuild-srpms', callback=self.link_callback,
+                         text=self.log(4, L2("Linking SRPMS")))
 
-    self.log(4, L1("running createrepo"))
+    # create gpgkey
+    key = self.mddir/self.gpgkey
+    key.write_text(PUBKEY)
+    self.DATA['output'].append(key)
+
+    # run createrepo
+    self.log(4, L1("creating repository metadata"))
     if self.cvars['rpmbuild-data']:
       for repo in self.repos.values():
         self.log(4, L2(repo.id))
@@ -126,6 +137,11 @@ class RpmbuildRepoEvent(Event):
     shlib.execute('/usr/bin/createrepo --update -q .')
     os.chdir(cwd)
 
+  def _make_keys(self):
+    self.pubkey.write_text(PUBKEY)
+    self.seckey.write_text(SECKEY)
+    self.DATA['output'].append([self.pubkey])
+
   def _populate(self):
     if not self.cvars.has_key('rpmbuild-data'): return
 
@@ -138,6 +154,7 @@ class RpmbuildRepoEvent(Event):
       if v['rpm-obsoletes']:
         (self.cvars.setdefault('excluded-packages', set())
           .update(v['rpm-obsoletes']))
+
 
   def _setup_repos(self, type, updates=None):
 

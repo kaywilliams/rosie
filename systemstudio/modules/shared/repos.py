@@ -33,7 +33,7 @@ from systemstudio.util.pps.constants import TYPE_DIR
 
 from systemstudio.errors    import (SystemStudioError, SystemStudioIOError, RhnSupportError,
                             assert_file_readable, assert_file_has_content)
-from systemstudio.logging   import L1, L2
+from systemstudio.sslogging   import L1, L2
 from systemstudio.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
 from systemstudio.validate  import InvalidConfigError
 

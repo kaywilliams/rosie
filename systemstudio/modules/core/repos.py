@@ -23,7 +23,7 @@ from systemstudio.util.versort import Version
 
 from systemstudio.errors   import assert_file_has_content, assert_file_readable, SystemStudioError
 from systemstudio.event    import Event
-from systemstudio.logging  import L1, L2
+from systemstudio.sslogging  import L1, L2
 from systemstudio.validate import InvalidConfigError
 
 from systemstudio.modules.shared import RepoEventMixin, SystemStudioRepoGroup, SystemStudioRepoFileParseError

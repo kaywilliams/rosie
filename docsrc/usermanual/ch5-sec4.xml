@@ -2,23 +2,33 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Verifying Package Integrity</title>
+  <title>Creating CD/DVD Images</title>
 
-  <para>Verifying package integrity using GPG is a secure way of ensuring that
-  you have downloaded the correct set of data; if the key matches the
-  information in the data set, then the set is correct.</para>
+  <para>By default SystemStudio creates <filename>boot.iso</filename> and
+  <filename>diskboot.img</filename> files for CD media. All images come with
+  default sets of kernel boot arguments. But SystemStudio allows you to do more. You
+  can create multiple sets of release images for CD or DVD or create a USB
+  key-ready image. You can also specify custom kernel boot arguments for each
+  file type. Modify your <filename>samba-server.definition</filename> file to
+  include what image customization options you want.</para>
 
-  <para>For a repository that you use in the <emphasis>repos/repo</emphasis>
-  element, you can indicate whether GPG checking is enabled by setting
-  <emphasis>/repo/gpgcheck</emphasis> to TRUE. You must also include at
-  least one GPG key file using <emphasis>/repo/gpgkey</emphasis>.</para>
-
-  <para>In your <filename>samba-server.definition</filename> file under your
-  <emphasis>repos/repo</emphasis> listing for "base" repository, you can add
-  the following code to use the public key provided for CentOS 5.</para>
+  <para>To specify custom <filename class="extension">ISO</filename> file
+  sizes and media, use the <emphasis>iso</emphasis> element and specify which
+  sets you want. You can also add custom kernel boot arguments to the <filename
+  class="extension">ISO</filename> files, as well. The default values are
+  "%{ks}" and "method=cdrom." The example below creates several image
+  types.</para>
 
   <para><informalexample>
-    <programlisting>&lt;gpgcheck&gt;yes&lt;/gpgcheck&gt;
-&lt;gpgkey&gt;http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5&lt;gpgkey&gt;</programlisting>    </informalexample></para>
+      <programlisting>&lt;iso&gt;
+&lt;set&gt;DVD&lt;/set&gt; &lt;!-- 4700000000 bytes/disc --&gt;
+&lt;set&gt;400000000&lt;/set&gt; &lt;!-- 400000000 bytes/disc --&gt;
+&lt;set&gt;640 mb&lt;/set&gt; &lt;!-- 640000000 bytes/disc --&gt;
+&lt;set&gt;640 mib&lt;/set&gt; &lt;!-- 671088640 bytes/disc --&gt;
+&lt;/iso&gt;</programlisting>
+    </informalexample></para>
 
+  <para>See the DDFR for the complete syntaxes of <emphasis>iso</emphasis>,
+  <emphasis>bootiso</emphasis> and <emphasis>diskboot</emphasis> elements.
+  </para>
 </section>

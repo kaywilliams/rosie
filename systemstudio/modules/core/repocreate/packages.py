@@ -23,7 +23,7 @@ from systemstudio.util import magic
 from systemstudio.constants import KERNELS
 from systemstudio.errors    import assert_file_has_content, SystemStudioError
 from systemstudio.event     import Event
-from systemstudio.logging   import L1
+from systemstudio.sslogging   import L1
 
 from systemstudio.modules.shared import comps
 

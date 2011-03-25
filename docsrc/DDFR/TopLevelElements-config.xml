@@ -13,15 +13,13 @@
     </title>
 
     <para>
-    Creates an RPM used to install and update system-specific 
-    configuration on the client system.  The RPM is named 
-    <filename>system-config</filename>. The system-config RPM 
-    completes three primary functions. It installs automatically-generated YUM
-    plugin and repository definition files. It installs user-provided 
-    configuration files specified via 
-    <emphasis>config/files</emphasis> elements. And it runs 
-    user-provided scripts specified via 
-    <emphasis>config/script</emphasis> and 
+    Creates an RPM used to install and update system-specific configuration on
+    the client system.  The RPM is named <filename>system-config</filename>.
+    The system-config RPM completes three primary functions. It installs
+    automatically-generated YUM plugin and repository definition files. It
+    installs user-provided configuration files specified via
+    <emphasis>config/files</emphasis> elements. And it runs user-provided
+    scripts specified via <emphasis>config/script</emphasis> and
     <emphasis>config/trigger</emphasis> elements.
     </para>
 
@@ -38,7 +36,7 @@
 
     <programlisting>
 &lt;config [enabled=BOOLEAN]&gt;
-  [&lt;updates [sync=BOOLEAN] [repos=("master"|"all")] /&gt;
+  [&lt;updates [sync=boolean] [gpgcheck=boolean]) /&gt;
 
   [&lt;files [destdir=PATH] [destname=BASENAME] [mode=MODE]
           [content=("filename"|"text")&gt;
@@ -97,40 +95,37 @@
       <listitem>
       <para>
       Controls inclusion of the <application class="software">YUM</application>
-      sync plugin; also controls which repositories are listed in the 
-      <filename>/etc/yum.repos.d/system.repo</filename> file.
+      sync plugin; also controls whether gpgchecking is performed. 
       </para>
 
       <para>
       Accepts two attributes,
       <emphasis>@sync</emphasis> and
-      <emphasis>@repos</emphasis>.
+      <emphasis>@gpgcheck</emphasis>.
       </para>
 
       <para>
       <emphasis>@sync</emphasis>: <varname>BOOLEAN</varname> value indicating
-      whether to include the 
-      <application class="software">SystemStudio</application>-provided 
-      <application class="software">YUM</application> sync plugin in the config
-      RPM. The sync plugin overrides 
-      <application class="software">YUM</application>'s default behavior 1) to
-      disable all repositories other than the system distribution, or 
-      <emphasis>master</emphasis>, repository, and 2) to provide a 
-      <emphasis>sync</emphasis> argument that allows adding <emphasis>and 
-      removing</emphasis> installed packages on the client machine to align with
-      available packages in the system distribution repository. The default value is 
+      whether to include the <application
+      class="software">SystemStudio</application>-provided <application
+      class="software">YUM</application> sync plugin in the config RPM. The
+      sync plugin overrides <application class="software">YUM</application>'s
+      default behavior 1) to disable all repositories other than the
+      distribution repository and 2) to provide a <emphasis>sync</emphasis>
+      argument that allows adding <emphasis>and removing</emphasis> installed
+      packages on client machines in alignment with with available packages in
+      the distribution repository. The default value is
       <constant>TRUE</constant>. 
       </para>
 
       <para>
-      <emphasis>@repos</emphasis>: value indicating whether to include the <emphasis>input</emphasis> repositories, the repositories used to
-      build the system distribution, in the <filename>/etc/yum.repos.d/system.repo</filename> file, in addition to the system distribution, or <emphasis>master</emphasis> repository. The default 
-      value is <constant>master</constant>. See <emphasis role="strong"><xref linkend="repos" /></emphasis> for 
-      information on defining input repositories.
+      <emphasis>@gpgcheck</emphasis>: <varname>BOOLEAN</varname> value
+      indicating whether packages should be checked for valid GPG signatures.
+      This value controls whether SystemStudio performs gpgchecking when
+      creating the distribution. It also controls whether YUM checks packages
+      from the distribution prior to performing client machine updates. The
+      default value is <constant>TRUE</constant>.
       </para>
-
-      <note>Red Hat Network input repositories are not included in the repofile. This is because the SystemStudio-specific extensions used to define them are not understood by YUM.
-      </note>
 
       </listitem>
     </varlistentry>
@@ -334,6 +329,9 @@
 
   &lt;!-- exclude the yum sync plugin --&gt;
   &lt;updates sync="false" /&gt;
+
+  &lt;!-- disable gpgchecking for the distribution --&gt;
+  &lt;updates gpgcheck="false" /&gt;
 
   &lt;!-- required packages --&gt;
   &lt;requires&gt;samba&lt;/requires&gt;

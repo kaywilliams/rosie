@@ -27,7 +27,7 @@ from systemstudio.util import versort
 
 from systemstudio.errors  import assert_file_has_content
 from systemstudio.event   import Event
-from systemstudio.logging import L1
+from systemstudio.sslogging import L1
 
 MODULE_INFO = dict(
   api         = 5.0,

@@ -21,7 +21,7 @@ import unittest
 
 from systemstudio.util import pps
 
-from systemstudio.logging import L1, L2
+from systemstudio.sslogging import L1, L2
 from systemstudio.verify  import BuildTestResult
 
 class VerifyMixin:

@@ -24,7 +24,7 @@ from systemstudio.util.repo import RPM_PNVRA_REGEX
 
 from systemstudio.errors    import SystemStudioError
 from systemstudio.event     import Event
-from systemstudio.logging   import L1, L2
+from systemstudio.sslogging   import L1, L2
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -41,7 +41,6 @@ class DownloadEvent(Event):
       parentid = 'repocreate',
       provides = ['rpms',
                   'rpms-directory',
-                  'rpms-by-repoid', # used by gpgcheck progress bars
                   'os-content'],
       requires = ['pkglist', 'repos'],
     )
@@ -59,8 +58,6 @@ class DownloadEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.cvars['rpms-by-repoid'] = {}
-
     for repo in self.cvars['repos'].values():
       for subrepo in repo.subrepos.values():
         now = time.time()
@@ -77,10 +74,6 @@ class DownloadEvent(Event):
             st_atime = now)
           # add rpm for to io sync
           self.io.add_fpath(rpm, self.builddata_dest, id=subrepo.id)
-          self.cvars['rpms-by-repoid'].setdefault(repo.id, []).append(
-            self.builddata_dest // rpm.basename)
-      if repo.id in self.cvars['rpms-by-repoid']:
-        self.cvars['rpms-by-repoid'][repo.id].sort()
 
   def run(self):
     for subrepo in self.cvars['pkglist'].keys():
@@ -89,7 +82,12 @@ class DownloadEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
-    self.cvars['rpms'] = self.io.list_output()
+
+    self.cvars['rpms'] = {}
+    for subrepo in self.cvars['pkglist'].keys():
+      for rpm in self.io.list_output(what=subrepo):
+        self.cvars['rpms'][rpm] = subrepo
+
     self.cvars['rpms-directory'] = self.builddata_dest
 
   def error(self, e):

@@ -25,18 +25,16 @@ progress information back to the user.  Many make use of progressbar.py to
 display this data in a compact, easy-to-read format.
 """
 
-from systemstudio.util.mkrpm         import callback
 from systemstudio.util.progressbar   import ProgressBar
 from systemstudio.util.sync.cache    import CachedSyncCallback  as _CachedSyncCallback
 from systemstudio.util.sync.callback import SyncCallbackMetered as _SyncCallbackMetered
 
-from systemstudio.logging import L1, L2
+from systemstudio.sslogging import L1, L2
 
 # progressbar layouts - see progressbar.py for other tags
 LAYOUT_TIMER     = '%(title)-67.67s (%(time-elapsed)s)'
 LAYOUT_SYNC      = '%(title)-28.28s [%(bar)s] %(curvalue)9.9sB (%(time-elapsed)s)'
 LAYOUT_DEPSOLVE  = '%(title)-28.28s [%(bar)s] %(ratio)10.10s (%(time-elapsed)s)'
-LAYOUT_GPG       = '%(title)-28.28s [%(bar)s] %(ratio)10.10s (%(time-elapsed)s)'
 
 class LinkCallback(_SyncCallbackMetered):
   """
@@ -320,57 +318,6 @@ class PkglistCallback(BuildDepsolveCallback):
 
   def foundObsolete(self, old, new):
     self.obsoletes.append((old, new))
-
-
-class GpgCallback(callback.RpmSignCallback):
-  """
-  Callback class for gpg operations, including checking and signing of rpms.
-  Displays a single progressbar with a changing title to indicate the current
-  rpm.
-  """
-  def __init__(self, logger):
-    """
-    logger  : the logger object to which output should be written
-    """
-    callback.RpmSignCallback.__init__(self)
-    self.logger = logger
-    self.bar = None
-
-  def start(self, unchecked=0):
-    """
-    At log level 1 and below, do nothing
-    At log level 2 and above, create a progress bar and start it.
-
-    unchecked : the 'size' of the progress bar (number of rpms, typically)
-    """
-    if self.logger.test(2):
-      self.bar = ProgressBar(size=unchecked, title=L2(''), layout=LAYOUT_GPG)
-      self.bar.start()
-
-  def processed(self, pkgname):
-    """
-    At log level 1 and below, do nothing
-    At log level 2 and above, update the progress bar's position and title
-
-    pkgname : the new title for the progress bar
-    """
-    if self.logger.test(2):
-      self.bar.status.position += 1
-      self.bar.tags['title'] = L2(pkgname)
-
-  def end(self):
-    """
-    At log level 1 and below, do nothing
-    At log level 2 and above, finish off the progress bar and write it to the
-    logfile
-    """
-    if self.logger.test(2):
-      self.bar.tags['title'] = L2('done')
-      self.bar.update(self.bar.status.size)
-      self.bar.finish()
-      self.logger.logfile.log(2, str(self.bar))
-      del self.bar
-
 
 class TimerCallback(object):
   def __init__(self, logger):

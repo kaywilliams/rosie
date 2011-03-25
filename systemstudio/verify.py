@@ -17,7 +17,7 @@
 #
 import unittest
 
-from systemstudio.logging import L3
+from systemstudio.sslogging import L3
 
 class BuildTestResult(unittest.TestResult):
 

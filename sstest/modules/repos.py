@@ -44,7 +44,6 @@ class Test_RepoDefaults(ReposEventTestCase):
       <mirrorlist/>
     </repo>
     <repo id="updates">
-      <gpgcheck>no</gpgcheck>
     </repo>
     <repo id="everything">
       <enabled>no</enabled>

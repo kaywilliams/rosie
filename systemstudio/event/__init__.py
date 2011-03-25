@@ -24,7 +24,7 @@ from systemstudio.util import dispatch
 from systemstudio.util import rxml
 from systemstudio.util import sync
 
-from systemstudio.logging import L0, L1
+from systemstudio.sslogging import L0, L1
 
 from systemstudio.event.diff   import DiffMixin
 from systemstudio.event.fileio import IOMixin

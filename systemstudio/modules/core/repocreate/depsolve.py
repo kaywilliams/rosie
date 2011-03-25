@@ -24,7 +24,7 @@ from systemstudio.callback  import PkglistCallback
 from systemstudio.constants import KERNELS
 from systemstudio.errors    import assert_file_has_content, SystemStudioError
 from systemstudio.event     import Event
-from systemstudio.logging   import L1
+from systemstudio.sslogging   import L1
 
 from systemstudio.modules.shared.idepsolver import DepsolverMixin
 
@@ -52,7 +52,7 @@ class DepsolveEvent(Event, DepsolverMixin):
       requires = ['comps-object', 'repos', 'all-packages', 'comps-group-info',
                   'user-required-packages'],
       conditionally_requires = ['pkglist-excluded-packages'],
-      version = '1.06'
+      version = '1.07'
     )
 
     DepsolverMixin.__init__(self)

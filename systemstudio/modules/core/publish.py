@@ -26,7 +26,7 @@ from systemstudio.util import shlib
 
 from systemstudio.errors    import SystemStudioError
 from systemstudio.event     import Event
-from systemstudio.logging   import L1
+from systemstudio.sslogging   import L1
 
 MODULE_INFO = dict(
   api         = 5.0,

@@ -25,7 +25,7 @@ from systemstudio.util import pps
 from systemstudio.util.depsolver import Depsolver
 
 from systemstudio.callback import PkglistCallback, TimerCallback
-from systemstudio.logging  import L1
+from systemstudio.sslogging  import L1
 
 YUMCONF_HEADER = [
   '[main]',
@@ -358,8 +358,8 @@ class IDepsolver(Depsolver):
 
     pos = Depsolver.getPackageObjects(self, unresolved=unresolved)
 
-    f = self.cached_file.open('w')
-    cPickle.dump(self.resolved_deps, f)
+    f = self.cached_file.open('wb')
+    cPickle.dump(self.resolved_deps, f, -1)
     f.close()
 
     return pos

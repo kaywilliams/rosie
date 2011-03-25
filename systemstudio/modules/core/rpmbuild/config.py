@@ -24,6 +24,7 @@ from systemstudio.validate     import InvalidConfigError
 from systemstudio.event.fileio import MissingInputFileError
 
 from systemstudio.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
+from systemstudio.modules.shared.rpmbuild import GPGKEY_NAME
 from systemstudio.errors import SystemStudioIOError, assert_file_readable
 
 import hashlib
@@ -40,10 +41,10 @@ class ConfigEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.15',
-      provides = ['rpmbuild-data'],
+      version = '1.16',
+      provides = ['rpmbuild-data', 'gpgkey-infix', 'gpgcheck-enabled',],
       requires = ['input-repos'],
-      conditionally_requires = ['web-path'],
+      conditionally_requires = ['web-path',] 
     )
 
     RpmBuildMixin.__init__(self,
@@ -56,6 +57,7 @@ class ConfigEvent(RpmBuildMixin, Event):
 
     self.scriptdir   = self.rpm.build_folder/'scripts'
     self.filerelpath = pps.path('usr/share/system-config/files')
+    self.cvars['gpgkey-infix'] = "'gpgkeys/%s' % repo['id']"
 
     self.DATA = {
       'variables': ['name', 'fullname', 'distributionid', 'rpm.release',
@@ -102,9 +104,13 @@ class ConfigEvent(RpmBuildMixin, Event):
                              cls=ConfigIOError)
         self.DATA['input'].append(script.text)
 
-    # add repos to cvars if necessary
-    if self.config.get('updates/@repos', 'master') == 'all':
-      self.DATA['variables'].append('cvars[\'repos\']')
+    # add cvars['repos'] to difftest so that if they change, we rerun to 
+    # provide an updated system.repos file
+    self.DATA['variables'].append('cvars[\'repos\']')
+
+    # set cvars['gpgcheck-enabled'] for use by gpgcheck event
+    self.cvars['gpgcheck-enabled'] = self.config.getbool(
+                                     'updates/@gpgcheck', True)
 
   def generate(self):
     self._generate_files()
@@ -161,23 +167,33 @@ class ConfigEvent(RpmBuildMixin, Event):
 
     # include a repo pointing to the published system
     if self.cvars['web-path'] is not None:
+      baseurl = self.cvars['web-path']/'os'
       lines.extend([ '[%s]' % self.name,
                      'name      = %s - %s' % (self.fullname, self.basearch),
-                     'baseurl   = %s' % (self.cvars['web-path']/'os'),
+                     'baseurl   = %s' % baseurl,
                      'metadata_expire = 0',
-                     'gpgcheck = 0',
-                     '' ])
+                     'gpgcheck = %s' % (self.cvars['gpgcheck-enabled']),
+                     ])
 
+      if self.cvars['gpgcheck-enabled']:
+        keys = []
+        for repo in self.cvars['repos'].values():
+          for key in repo.gpgkey:
+            keys.append(baseurl/eval(self.cvars['gpgkey-infix'])/key.basename)
+        repo = {'id': self.distributionid}
+        keys.append(baseurl/eval(self.cvars['gpgkey-infix'])/GPGKEY_NAME)
+        lines.append('gpgkey = %s' % ', '.join(keys)) 
+  
     # include repo(s) pointing to system inputs
-    if self.config.get('updates/@repos', 'master') == 'all':
-      for repo in self.cvars['repos'].values():
-        try:
-          if isinstance(repo.url.realm, pps.Path.rhn.RhnPath):
-            continue
-          lines.extend(repo.lines(pretty=True))
-          lines.append('')
-        except AttributeError:
-          pass
+    lines.append('')
+    for repo in self.cvars['repos'].values():
+      try:
+        if isinstance(repo.url.realm, pps.Path.rhn.RhnPath):
+          continue
+        lines.extend(repo.lines(pretty=True))
+        lines.append('')
+      except AttributeError:
+        pass
 
     if len(lines) > 0:
       repofile.dirname.mkdirs()

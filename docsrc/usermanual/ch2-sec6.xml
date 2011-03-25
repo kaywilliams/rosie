@@ -45,7 +45,14 @@
         <term><emphasis role="strong">configuration package</emphasis></term>
 
         <listitem>
-          <para>An RPM package created by SystemStudio during the build process. This package contains the <application class="software">YUM</application> sync plugin, SystemStudio created YUM configuration, and user-specified configuration files and scripts. The name of the configuration package is in the following format, where $VERSION is taken from the <emphasis>version</emphasis> element in the system distribution definition and $RELEASE is taken from the <xref linkend="system-data-file" />.
+	  <para>An RPM package created by SystemStudio during the build
+	  process. This package contains the <application
+	  class="software">YUM</application> sync plugin, SystemStudio created
+	  YUM configuration, and user-specified configuration files and
+	  scripts. The name of the configuration package is in the following
+	  format, where $VERSION is taken from the <emphasis>version</emphasis>
+	  element in the system distribution definition and $RELEASE is taken
+	  from the <xref linkend="system-data-file" />.
           </para>
 
           <para><informalexample>
@@ -58,7 +65,16 @@
           <filename>system-config-5-1.noarch.rpm</filename></informalexample>
           </para>
 
-          <para>The release number "1" will be written to the system distribution data file. When configuration changes in the future, e.g. when files or scripts are added, deleted or modified, SystemStudio will increment the release number by 1, create a new configuration package (in this case samba-server-config-5-2.noarch.rpm), and store the new release number ("2") in the system distribution data file. The incremented version number allows installed client machines to determine that a new configuration package is available for download and installation.</para>
+	  <para>The release number "1" will be written to the system
+	  distribution data file. When configuration changes in the future,
+	  e.g. when files or scripts are added, deleted or modified,
+	  SystemStudio will increment the release number by 1, create a new
+	  configuration package (in this case
+	  samba-server-config-5-2.noarch.rpm), and store the new release number
+	  ("2") in the system distribution data file. The incremented version
+	  number allows installed client machines to determine that a new
+	  configuration package is available for download and
+	  installation.</para>
 
           <para>For more information on what the configuration package contains
           and how to customize its contents, see the section on 
@@ -72,8 +88,8 @@
         <term><emphasis role="strong">DDFR</emphasis></term>
 
         <listitem>
-          <para>"Distribution Definition File Reference," the rules of syntax for
-          the system distribution definition.</para>
+	  <para>"Distribution Definition File Reference," the rules of syntax
+	  for the system distribution definition.</para>
         </listitem>
       </varlistentry>
 
@@ -92,7 +108,12 @@
         <term><emphasis role="strong">system distribution data file</emphasis></term>
 
         <listitem>
-          <para>A file SystemStudio creates to track and increment the release number of the system distribution's <xref linkend="configuration-package" />. This file is created in the same folder as the system distribution definition, using the same filename, with a <filename>.dat</filename> file extension. For example, given the full path to a distribution definition:</para>
+	  <para>A file SystemStudio creates to track and increment the release
+	  number of the system distribution's <xref
+	  linkend="configuration-package" />. This file is created in the same
+	  folder as the system distribution definition, using the same
+	  filename, with a <filename>.dat</filename> file extension. For
+	  example, given the full path to a distribution definition:</para>
 
           <para><informalexample>
           <filename>/~/samba-server.definition</filename></informalexample>
@@ -104,7 +125,10 @@
           <filename>/~/samba-server.definition.dat</filename></informalexample>
           </para>
 
-          <para>Care should be taken not to delete this file. Doing so will cause the release number of the configuration package to restart at "1". As a result, updated configuration packages will fail to be downloaded and installed during client machine updates.</para>
+	  <para>Care should be taken not to delete this file. Doing so will
+	  cause the release number of the configuration package to restart at
+	  "1". As a result, updated configuration packages will fail to be
+	  downloaded and installed during client machine updates.</para>
 
         </listitem>
       </varlistentry>
@@ -113,18 +137,31 @@
         <term><emphasis role="strong">download location</emphasis></term>
 
         <listitem>
-          <para>The web location (URL) for downloading system distribution content. SystemStudio uses this location during the build process for two purposes, for creating YUM client configuration (included in the <xref linkend="configuration-package"/>), and for customizing network install images. By default the download location is as follows, where $IP_ADDRESS is the address of the build machine, and $ID is the system distribution id.</para>
+	  <para>The web location (URL) for downloading system distribution
+	  content. SystemStudio uses this location during the build process for
+	  two purposes, for creating YUM client configuration (included in the
+	  <xref linkend="configuration-package"/>), and for customizing network
+	  install images. By default the download location is as follows, where
+	  $IP_ADDRESS is the address of the build machine, and $ID is the
+	  system distribution id.</para>
 
           <para><informalexample>
-            <filename>http://$IP_ADDRESS/distributions/$ID</filename></informalexample></para>
+	    <filename>http://$IP_ADDRESS/distributions/$ID</filename></informalexample></para>
 
-<para>For example, if the IP Address for the build machine is <filename>192.168.1.5</filename> and the system distribution id is <emphasis>samba-server-5-i386</emphasis> the download location is as follows:</para>
+	  <para>For example, if the IP Address for the build machine is
+	  <filename>192.168.1.5</filename> and the system distribution id is
+	  <emphasis>samba-server-5-i386</emphasis> the download location is as
+	  follows:</para>
 
           <para><informalexample>
               <filename>http://192.168.1.5/distributions/samba-server-5-i386</filename>
             </informalexample></para>
 
-          <para>The download location is configurable using the <emphasis>publish</emphasis> element of the system distribution definition. See the DDFR for information on the publish element. See also <xref linkend="production-definitions"/> for a discussion on using download locations in a production environment.</para>
+	  <para>The download location is configurable using the
+	  <emphasis>publish</emphasis> element of the system distribution
+	  definition. See the DDFR for information on the publish element. See
+	  also <xref linkend="production-definitions"/> for a discussion on
+	  using download locations in a production environment.</para>
         </listitem>
       </varlistentry>
 
@@ -132,11 +169,11 @@
         <term><emphasis role="strong">system repository</emphasis></term>
 
         <listitem>
-          <para>RPM package repository created during the system distribution build
-          process. Provides packages for use during client machine installations
-          and updates. Can be accessed over the network from the 
-          <filename type="directory">os</filename> folder of the 
-          <xref linkend="download-location"/>.</para>
+	  <para>RPM package repository created during the system distribution
+	  build process. Provides packages for use during client machine
+	  installations and updates. Can be accessed over the network from the
+	  <filename type="directory">os</filename> folder of the <xref
+	  linkend="download-location"/>.</para>
         </listitem>
       </varlistentry>
 
@@ -144,10 +181,10 @@
         <term><emphasis role="strong">production server</emphasis></term>
 
         <listitem>
-          <para>Within a <application class="software">SystemStudio</application>
-          development - staging - production environment, it serves as the
-          download server from which clients retrieve the system distribution contents
-          to install.</para>
+	  <para>Within a <application
+	  class="software">SystemStudio</application> development - staging -
+	  production environment, it serves as the download server from which
+	  clients retrieve the system distribution contents to install.</para>
         </listitem>
       </varlistentry>
 
@@ -167,7 +204,21 @@
         <term><emphasis role="strong">YUM Sync Plugin</emphasis></term>
 
         <listitem>
-          <para>A <application class="software">YUM</application> plugin provided by SystemStudio that allows synchronizing packages on client machines with packages in the <xref linkend="system-repository"/>. The plugin is included by default in the <xref linkend="configuration-package" />, which serves as the mechanism for installing it on client machines. The plugin establishes the system distribution repository as the <emphasis>master repository</emphasis>, disables all non-master repositories, and provides a new argument, <emphasis>sync</emphasis>, to YUM. Help for the <emphasis>sync</emphasis> argument is available on client machines using the <command>yum help</command> command. Running <command>yum sync</command> allows YUM to calculate package additions and removals based on packages available in the system distribution repository. For more information, see the section on <xref linkend="updating-client-machines"/>.</para>
+	  <para>A <application class="software">YUM</application> plugin
+	  provided by SystemStudio that allows synchronizing packages on client
+	  machines with packages in the <xref linkend="system-repository"/>.
+	  The plugin is included by default in the <xref
+	  linkend="configuration-package" />, which serves as the mechanism for
+	  installing it on client machines. The plugin establishes the system
+	  distribution repository as the <emphasis>master
+	  repository</emphasis>, disables all other repositories, and provides
+	  a new argument, <emphasis>sync</emphasis>, to YUM. Help for the
+	  <emphasis>sync</emphasis> argument is available on client machines
+	  using the <command>yum help</command> command. Running <command>yum
+	  sync</command> allows YUM to calculate package additions and removals
+	  based on packages available in the system distribution repository.
+	  For more information, see the section on <xref
+	  linkend="updating-client-machines"/>.</para>
         </listitem>
       </varlistentry>
 

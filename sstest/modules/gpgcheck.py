@@ -22,6 +22,7 @@ from sstest import EventTestCase, ModuleTestSuite
 from sstest.core import make_core_suite
 
 from systemstudio.errors import SystemStudioError
+from systemstudio.util.pps.constants import TYPE_NOT_DIR
 
 class GpgcheckEventTestCase(EventTestCase):
   moduleid = 'gpgcheck'
@@ -41,26 +42,80 @@ class GpgcheckEventTestCase(EventTestCase):
 
     return repos
 
+  def _make_gpgcheck_config(self):
+    gpgcheck = rxml.config.Element('gpgcheck', attrs={'enabled': 'true'})
 
-class Test_GpgKeysNotProvided(GpgcheckEventTestCase):
-  "raises SystemStudioError when no keys are provided"
-  def runTest(self):
-    self.execute_predecessors(self.event)
-    self.failUnlessRaises(SystemStudioError, self.event)
+    return gpgcheck
+
+class Test_FailsOnUnsignedPackages(GpgcheckEventTestCase):
+  "fails on unsigned packages"
+  # package1 below is an unsigned package from shared test repo1
+  _conf = """<packages>
+    <package>package1</package>
+  </packages>"""
 
   def _make_repos_config(self):
     repos = GpgcheckEventTestCase._make_repos_config(self)
 
-    # don't overwrite gpgcheck defaults
-    for item in repos.xpath('//gpgkey', []):
-      item.getparent().remove(item)
+    rxml.config.Element('repofile', text='shared/test-repos.repo', parent=repos)
 
     return repos
+
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(SystemStudioError, self.event)
+
+class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
+  "fails if keys are not provided"
+
+  # using repos_config from base EventTestCase class, which does
+  # not include gpgkey definitions
+  def _make_repos_config(self):
+    return EventTestCase._make_repos_config(self)
+ 
+  def runTest(self):
+    self.execute_predecessors(self.event)
+    self.failUnlessRaises(SystemStudioError, self.event)
+
+class Test_CreatesOutput(GpgcheckEventTestCase):
+  "creates output when gpgcheck enabled"
+  def _make_repos_config(self):
+    return GpgcheckEventTestCase._make_repos_config(self)
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.event)
+    self.failUnless(self.event.mddir.findpaths(mindepth=1, 
+                                               nglob='gpgcheck.md'))
+
+    expected = [ x.basename for x in self.event.io.list_output(what='gpgkeys') ]
+    found = [ x.basename for x in
+             (self.event.SOFTWARE_STORE/'gpgkeys').findpaths(mindepth=1,
+                                                             type=TYPE_NOT_DIR)]
+    self.failUnless(expected)
+    self.failUnless(set(expected) == set(found))
+
+class Test_RemovesOutput(GpgcheckEventTestCase):
+  "removes output when gpgcheck disabled"
+  # disable gpgcheck via /distribution/config/updates@gpgcheck
+  _conf = """<config>
+    <updates gpgcheck='false'/>
+  </config>"""
+
+  def _make_repos_config(self):
+    return GpgcheckEventTestCase._make_repos_config(self)
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.event)
+    self.failUnless(not self.event.mddir.findpaths(mindepth=1,
+                                                   nglob='gpgcheck.md'))
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('gpgcheck')
 
   suite.addTest(make_core_suite(GpgcheckEventTestCase, distro, version, arch))
-  suite.addTest(Test_GpgKeysNotProvided(distro, version, arch))
+  suite.addTest(Test_FailsOnUnsignedPackages(distro, version, arch))
+  suite.addTest(Test_FailsIfKeyNotProvided(distro, version, arch))
+  suite.addTest(Test_CreatesOutput(distro, version, arch))
+  suite.addTest(Test_RemovesOutput(distro, version, arch))
 
   return suite

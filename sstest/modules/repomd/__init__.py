@@ -39,6 +39,5 @@ def make_suite(distro, version, arch):
 
   suite.addTest(make_core_suite(RepomdEventTestCase, distro, version, arch))
   suite.addTest(Test_CompsFile(distro, version, arch))
-  suite.addTest(Test_SignedRpms(distro, version, arch))
 
   return suite

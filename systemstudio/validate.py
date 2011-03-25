@@ -27,7 +27,7 @@ from systemstudio.util import rxml
 XmlTreeElement = rxml.tree.XmlTreeElement
 
 from systemstudio.event   import Event
-from systemstudio.logging import L0, L1
+from systemstudio.sslogging import L0, L1
 
 NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
 

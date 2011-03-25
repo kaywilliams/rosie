@@ -297,7 +297,6 @@ baseurl=/var/repos/repoC
       <varname>baseurl</varname>,
       <varname>enabled</varname>,
       <varname>exclude</varname>,
-      <varname>gpgcheck</varname>,
       <varname>gpgkey</varname>,
       <varname>includepkgs</varname>, and
       <varname>mirrorlist</varname>. All options
@@ -413,34 +412,6 @@ baseurl=/var/repos/repoC
         </listitem>
       </varlistentry>
 
-      <varlistentry id="gpgcheck"
-                    xreflabel="repo/gpgcheck">
-        <term>
-        gpgcheck
-        </term>
-
-        <listitem>
-        <para>
-        <varname>BOOLEAN</varname> indicating whether GPG key
-        checking is enabled for this repository.
-        </para>
-
-        <para>
-        The default text value for this element is
-        <constant>FALSE</constant>.
-        </para>
-
-        <para>
-        If this element is <constant>TRUE</constant>, then at least one
-        <emphasis>repo/gpgkey</emphasis> must be present.
-        </para>
-
-        <para>
-        See Also the <emphasis><xref linkend="gpgkey" /></emphasis> element.
-        </para>
-        </listitem>
-      </varlistentry>
-
       <varlistentry id="gpgkey"
                     xreflabel="repo/gpgkey">
         <term>
@@ -449,19 +420,23 @@ baseurl=/var/repos/repoC
 
         <listitem>
         <para>
-        The <varname>PATH</varname> to the GPG key for the repository.
+        The <varname>PATH</varname> to a GPG key.
         </para>
 
         <para>
-        This element can occur zero or more times. If
-        <emphasis>repo/gpgcheck</emphasis> is <constant>TRUE</constant>,
-        this element must occur at least once.
+        This element can occur zero or more times for any given repository.
+        By default, however, one or more keys must be provided across all
+        repositories. SystemStudio uses GPG keys to verify that packages 
+        are from trusted providers. Verification can be disabled (not 
+        recommended) by setting <emphasis>config/updates@gpgcheck</emphasis>
+        to <constant>FALSE</constant>.
         </para>
 
         <para>
-        See Also the <emphasis><xref linkend="gpgcheck" /></emphasis>
+        See Also the <emphasis><xref linkend="config" /></emphasis>
         element.
         </para>
+
         </listitem>
       </varlistentry>
 

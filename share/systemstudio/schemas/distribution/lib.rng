@@ -39,12 +39,6 @@
       <element name="gpgkey"><text/></element>
       </zeroOrMore>
 
-      <optional>
-      <element name="gpgcheck">
-        <ref name="value-boolean"/>
-      </element>
-      </optional>
-
       </interleave>
     </element>
   </define>

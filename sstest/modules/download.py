@@ -33,7 +33,7 @@ class DownloadEventTestCase(EventTestCase):
   def _make_repos_config(self):
     repos = EventTestCase._make_repos_config(self)
 
-    rxml.config.Element('repofile', text='download/download-test-repos.repo', parent=repos)
+    rxml.config.Element('repofile', text='shared/test-repos.repo', parent=repos)
 
     return repos
 
@@ -100,15 +100,13 @@ class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
   def runTest(self):
     DownloadEventTestCase.runTest(self)
     # if the length of cvars['rpms'] is equal to the length of
-    # packages in cvars['rpms-by-repoid'], then we know for sure that
-    # we are downloading a package from exactly one repository.
-    numpkgs = 0
-    for id in self.event.cvars['rpms-by-repoid']:
-      numpkgs += len(self.event.cvars['rpms-by-repoid'][id])
-    self.failUnless(len(self.event.cvars['rpms']) == numpkgs)
+    # the set of cvars['rpms'] basenames, then we know for that we are
+    # not downloading duplicate packages.
+    self.failUnless(len(self.event.cvars['rpms']) == 
+                    len(set(rpm.basename for rpm in self.event.cvars['rpms'])))
 
 def make_suite(distro, version, arch):
-  _run_make(pps.path(__file__).dirname)
+  _run_make(pps.path(__file__).dirname/'shared')
 
   suite = ModuleTestSuite('download')
 
