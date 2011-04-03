@@ -117,7 +117,6 @@ class ConfigEvent(RpmBuildMixin, Event):
     if not self.cvars['gpgcheck-enabled']:
       return
 
-    yb = yum.YumBase()
     urls = []
     for repo in self.cvars['repos'].values():
       for url in repo.gpgkey:
@@ -128,7 +127,7 @@ class ConfigEvent(RpmBuildMixin, Event):
       self.io.add_fpath(url,
         self.SOFTWARE_STORE/'gpgkeys',
         destname='RPM-GPG-KEY-%s' % \
-                 yb._retrievePublicKey(url)[0]['hexkeyid'].lower(),
+                 yum.YumBase()._retrievePublicKey(url)[0]['hexkeyid'].lower(),
         id='gpgkeys')
 
   def generate(self):
@@ -466,7 +465,7 @@ class ConfigEvent(RpmBuildMixin, Event):
       return []
 
     # get list of keys
-    gpgkeys = self.io.list_output(what='gpgkeys')
+    gpgkeys = set(self.io.list_output(what='gpgkeys'))
 
     # cache for future
     fo = self.pklfile.open('wb')
@@ -475,7 +474,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     fo.close()
 
     # create gpgkey list for use by yum sync plugin
-    listfile = (self.SOFTWARE_STORE/'gpgkeys/gpgkey.list')
+    listfile = self.SOFTWARE_STORE/'gpgkeys/gpgkey.list'
     lines = [x.basename for x in gpgkeys]
     listfile.write_lines(lines)
     self.DATA['output'].append(listfile)

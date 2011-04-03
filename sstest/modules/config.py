@@ -157,7 +157,7 @@ class Test_OutputsGpgkeys(ConfigEventTestCase):
              (self.event.SOFTWARE_STORE/'gpgkeys').findpaths(mindepth=1,
                                                              type=TYPE_NOT_DIR)]
     self.failUnless(expected)
-    self.failUnless(expected == found)
+    self.failUnless(set(expected) == set(found))
 
 class Test_RemovesGpgkeys(ConfigEventTestCase):
   "removes output when gpgcheck disabled"
