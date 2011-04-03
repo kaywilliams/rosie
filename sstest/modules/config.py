@@ -16,12 +16,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 from systemstudio.util import pps
+from systemstudio.util import repo
+from systemstudio.util import rxml
+
+from systemstudio.util.pps.constants import TYPE_NOT_DIR
 
 from sstest          import BUILD_ROOT, EventTestCase, ModuleTestSuite
 from sstest.core     import make_core_suite
 from sstest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
 
-class ConfigRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
+class ConfigEventTestCase(RpmBuildMixinTestCase, EventTestCase):
   moduleid = 'config'
   eventid  = 'config'
   _conf = """<config enabled="true">
@@ -29,9 +33,23 @@ class ConfigRpmEventTestCase(RpmBuildMixinTestCase, EventTestCase):
     <requires>createrepo</requires>
   </config>"""
 
-class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
+  def _make_repos_config(self):
+    repos = rxml.config.Element('repos')
+
+    base = repo.getDefaultRepoById('base', distro=self.distro,
+                                           version=self.version,
+                                           arch=self.arch,
+                                           include_baseurl=True,
+                                           baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+    base.update({'mirrorlist': None})
+
+    repos.append(base.toxml()) # don't overwrite gpgkey and gpgcheck defaults
+
+    return repos
+
+class Test_ConfigRpmInputs(ConfigEventTestCase):
   def __init__(self, distro, version, arch, conf=None):
-    ConfigRpmEventTestCase.__init__(self, distro, version, arch, conf=conf)
+    ConfigEventTestCase.__init__(self, distro, version, arch, conf=conf)
 
     self.working_dir = BUILD_ROOT
     self.file1 = pps.path('%s/file1' % self.working_dir)
@@ -69,7 +87,7 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
       """ % {'working-dir': self.working_dir})
 
   def setUp(self):
-    ConfigRpmEventTestCase.setUp(self)
+    ConfigEventTestCase.setUp(self)
     self.file1.touch()
     self.file2.touch()
     self.dir1.mkdir()
@@ -82,7 +100,7 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
   def tearDown(self):
     if self.img_path:
       self.img_path.rm(recursive=True, force=True)
-    ConfigRpmEventTestCase.tearDown(self)
+    ConfigEventTestCase.tearDown(self)
     self.file1.rm(force=True)
     self.file2.rm(force=True)
     self.script1.rm(force=True)
@@ -93,9 +111,9 @@ class Test_ConfigRpmInputs(ConfigRpmEventTestCase):
     self.check_inputs()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ConfigRpmBuild(ConfigRpmEventTestCase):
+class Test_ConfigRpmBuild(ConfigEventTestCase):
   def setUp(self):
-    ConfigRpmEventTestCase.setUp(self)
+    ConfigEventTestCase.setUp(self)
     self.clean_event_md()
     self.event.status = True
 
@@ -104,9 +122,9 @@ class Test_ConfigRpmBuild(ConfigRpmEventTestCase):
     self.check_header()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmEventTestCase):
+class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigEventTestCase):
   def setUp(self):
-    ConfigRpmEventTestCase.setUp(self)
+    ConfigEventTestCase.setUp(self)
     self.clean_event_md()
     self.event.status = True
 
@@ -115,9 +133,9 @@ class Test_ConfigRpmCvars1(RpmCvarsTestCase, ConfigRpmEventTestCase):
     self.check_cvars()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
-class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
+class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigEventTestCase):
   def setUp(self):
-    ConfigRpmEventTestCase.setUp(self)
+    ConfigEventTestCase.setUp(self)
     self.event.status = True
 
   def runTest(self):
@@ -125,13 +143,47 @@ class Test_ConfigRpmCvars2(RpmCvarsTestCase, ConfigRpmEventTestCase):
     self.check_cvars()
     self.failUnless(self.event.verifier.unittest().wasSuccessful())
 
+class Test_OutputsGpgkeys(ConfigEventTestCase):
+  "creates output when gpgcheck enabled"
+  def _make_repos_config(self):
+    return ConfigEventTestCase._make_repos_config(self)
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.event)
+    self.failUnless((self.event.SOFTWARE_STORE/'gpgkeys').findpaths(mindepth=1))
+    expected = [ x.basename for x in self.event.cvars['gpgkeys'] ]
+    expected.append('gpgkey.list')
+    found = [ x.basename for x in
+             (self.event.SOFTWARE_STORE/'gpgkeys').findpaths(mindepth=1,
+                                                             type=TYPE_NOT_DIR)]
+    self.failUnless(expected)
+    self.failUnless(expected == found)
+
+class Test_RemovesGpgkeys(ConfigEventTestCase):
+  "removes output when gpgcheck disabled"
+  # disable gpgcheck via /distribution/config/updates@gpgcheck
+  _conf = """<config>
+    <updates gpgcheck='false'/>
+  </config>"""
+
+  def _make_repos_config(self):
+    return ConfigEventTestCase._make_repos_config(self)
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.event)
+    self.failUnless(not (self.event.SOFTWARE_STORE/'gpgkeys').
+                         findpaths())
+
+
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('config')
 
-  suite.addTest(make_core_suite(ConfigRpmEventTestCase, distro, version, arch))
+  suite.addTest(make_core_suite(ConfigEventTestCase, distro, version, arch))
   suite.addTest(Test_ConfigRpmInputs(distro, version, arch))
   suite.addTest(Test_ConfigRpmBuild(distro, version, arch))
   suite.addTest(Test_ConfigRpmCvars1(distro, version, arch))
   suite.addTest(Test_ConfigRpmCvars2(distro, version, arch))
+  suite.addTest(Test_OutputsGpgkeys(distro, version, arch))
+  suite.addTest(Test_RemovesGpgkeys(distro, version, arch))
 
   return suite

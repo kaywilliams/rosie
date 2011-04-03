@@ -25,7 +25,6 @@ from systemstudio.event   import Event
 from systemstudio.sslogging import L1, L2
 
 from systemstudio.modules.shared import SystemStudioRepoGroup
-from systemstudio.modules.shared.rpmbuild import PUBKEY, GPGKEY_NAME
 
 from systemstudio.util.repo.repo import RepoContainer
 
@@ -43,7 +42,7 @@ class RpmbuildRepoEvent(Event):
       parentid = 'rpmbuild',
       version = 1.02,
       suppress_run_message = True,
-      conditionally_requires = ['rpmbuild-data'],
+      requires = ['rpmbuild-data', 'pubkey'],
       provides = ['repos', 'source-repos',
                   'required-packages',
                   'excluded-packages']
@@ -55,12 +54,9 @@ class RpmbuildRepoEvent(Event):
     self.RPMBUILD_RPMS  = self.mddir/self.cid
     self.RPMBUILD_SRPMS = self.mddir/self.csid
 
-    self.gpgkey = GPGKEY_NAME
-
     self.DATA = {
-      'input':  [],
+      'input':  ['cvars[\'pubkey\']'],
       'output': [],
-      'variables': ['gpgkey'],
     }
 
     self.repos = RepoContainer()
@@ -77,7 +73,7 @@ class RpmbuildRepoEvent(Event):
 
       rpmbuild_rpms  = SystemStudioRepoGroup(id=self.cid, name=self.cid,
                               baseurl=self.RPMBUILD_RPMS, gpgcheck='yes',
-                              gpgkey='file://'+self.mddir/self.gpgkey,)
+                              gpgkey='file://'+self.cvars['pubkey'],)
       rpmbuild_srpms = SystemStudioRepoGroup(id=self.csid, name=self.csid,
                                    baseurl=self.RPMBUILD_SRPMS)
 
@@ -95,11 +91,6 @@ class RpmbuildRepoEvent(Event):
                          text=self.log(4, L2("Linking RPMS")))
       self.io.sync_input(what='rpmbuild-srpms', callback=self.link_callback,
                          text=self.log(4, L2("Linking SRPMS")))
-
-    # create gpgkey
-    key = self.mddir/self.gpgkey
-    key.write_text(PUBKEY)
-    self.DATA['output'].append(key)
 
     # run createrepo
     self.log(4, L1("creating repository metadata"))
@@ -136,11 +127,6 @@ class RpmbuildRepoEvent(Event):
     os.chdir(path)
     shlib.execute('/usr/bin/createrepo --update -q .')
     os.chdir(cwd)
-
-  def _make_keys(self):
-    self.pubkey.write_text(PUBKEY)
-    self.seckey.write_text(SECKEY)
-    self.DATA['output'].append([self.pubkey])
 
   def _populate(self):
     if not self.cvars.has_key('rpmbuild-data'): return

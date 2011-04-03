@@ -24,10 +24,11 @@ from systemstudio.validate     import InvalidConfigError
 from systemstudio.event.fileio import MissingInputFileError
 
 from systemstudio.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
-from systemstudio.modules.shared.rpmbuild import GPGKEY_NAME
-from systemstudio.errors import SystemStudioIOError, assert_file_readable
+from systemstudio.errors         import SystemStudioIOError, assert_file_readable
 
+import cPickle
 import hashlib
+import yum
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -41,9 +42,9 @@ class ConfigEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.16',
-      provides = ['rpmbuild-data', 'gpgkey-infix', 'gpgcheck-enabled',],
-      requires = ['input-repos'],
+      version = '1.18',
+      provides = ['rpmbuild-data', 'gpgkeys', 'gpgcheck-enabled', 'os-content'],
+      requires = ['input-repos', 'pubkey'],
       conditionally_requires = ['web-path',] 
     )
 
@@ -57,7 +58,6 @@ class ConfigEvent(RpmBuildMixin, Event):
 
     self.scriptdir   = self.rpm.build_folder/'scripts'
     self.filerelpath = pps.path('usr/share/system-config/files')
-    self.cvars['gpgkey-infix'] = "'gpgkeys/%s' % repo['id']"
 
     self.DATA = {
       'variables': ['name', 'fullname', 'distributionid', 'rpm.release',
@@ -89,7 +89,8 @@ class ConfigEvent(RpmBuildMixin, Event):
                               file.get('@destdir',
                               '/usr/share/%s/files' % self.name) ) ,
                              mode=file.get('@mode', None),
-                             destname=file.get('@destname', None) )
+                             destname=file.get('@destname', None), 
+                             id = 'build-input' )
         except MissingInputFileError, e:
           raise ConfigIOError(errno=e.map['error'].errno, message='',
              file=file.text, element='files', item=str(file)[:-1] );
@@ -108,9 +109,27 @@ class ConfigEvent(RpmBuildMixin, Event):
     # provide an updated system.repos file
     self.DATA['variables'].append('cvars[\'repos\']')
 
-    # set cvars['gpgcheck-enabled'] for use by gpgcheck event
+    # setup gpgkeys
     self.cvars['gpgcheck-enabled'] = self.config.getbool(
                                      'updates/@gpgcheck', True)
+    self.pklfile = self.mddir/'gpgkeys.pkl'
+
+    if not self.cvars['gpgcheck-enabled']:
+      return
+
+    yb = yum.YumBase()
+    urls = []
+    for repo in self.cvars['repos'].values():
+      for url in repo.gpgkey:
+        urls.append(url)
+    urls.append(self.cvars['pubkey'])
+
+    for url in urls: 
+      self.io.add_fpath(url,
+        self.SOFTWARE_STORE/'gpgkeys',
+        destname='RPM-GPG-KEY-%s' % \
+                 yb._retrievePublicKey(url)[0]['hexkeyid'].lower(),
+        id='gpgkeys')
 
   def generate(self):
     self._generate_files()
@@ -175,15 +194,9 @@ class ConfigEvent(RpmBuildMixin, Event):
                      'gpgcheck = %s' % (self.cvars['gpgcheck-enabled']),
                      ])
 
-      if self.cvars['gpgcheck-enabled']:
-        keys = []
-        for repo in self.cvars['repos'].values():
-          for key in repo.gpgkey:
-            keys.append(baseurl/eval(self.cvars['gpgkey-infix'])/key.basename)
-        repo = {'id': self.distributionid}
-        keys.append(baseurl/eval(self.cvars['gpgkey-infix'])/GPGKEY_NAME)
-        lines.append('gpgkey = %s' % ', '.join(keys)) 
-  
+      # include gpgkeys
+      lines.append('gpgkey = %s' % ', '.join(self._gpgkeys()))
+ 
     # include repo(s) pointing to system inputs
     lines.append('')
     for repo in self.cvars['repos'].values():
@@ -446,6 +459,42 @@ class ConfigEvent(RpmBuildMixin, Event):
       return self.scriptdir/id
     else:
       return None
+
+  def _gpgkeys(self):
+    if not self.cvars['gpgcheck-enabled']:
+      self.pklfile.rm(force=True)
+      return []
+
+    # get list of keys
+    gpgkeys = self.io.list_output(what='gpgkeys')
+
+    # cache for future
+    fo = self.pklfile.open('wb')
+    cPickle.dump(gpgkeys, fo, -1)
+    self.DATA['output'].append(self.pklfile)
+    fo.close()
+
+    # create gpgkey list for use by yum sync plugin
+    listfile = (self.SOFTWARE_STORE/'gpgkeys/gpgkey.list')
+    lines = [x.basename for x in gpgkeys]
+    listfile.write_lines(lines)
+    self.DATA['output'].append(listfile)
+
+    # convert keys to remote urls for use in repofile
+    remotekeys = set([(self.cvars['web-path']/x[len(self.OUTPUT_DIR+'/'):])
+                       for x in gpgkeys])
+
+    return remotekeys
+
+  def apply(self):
+    self.rpm._apply()
+
+    if self.pklfile.exists():
+      fo = self.pklfile.open('rb')
+      self.cvars['gpgkeys']=cPickle.load(fo)
+      fo.close()
+    else:
+      self.cvars['gpgkeys']=[]
 
 #------ ERRORS ------#
 class ConfigIOError(SystemStudioIOError):

@@ -18,6 +18,7 @@
 import os
 import rpm
 import tempfile
+import yum
 
 from rpmUtils import miscutils
 
@@ -38,13 +39,19 @@ class RpmBuildMixinTestCase(object):
   @property
   def rpm_header(self):
     if self.event.rpm.rpm_path.exists():
-      if headers.has_key(self.event.rpm.rpm_path):
-        return headers[self.event.rpm.rpm_path]
+      # we need an rpmdb with the pubkey imported to read the signed rpm header
+      # or we could disable signature checking, but this works so here we go.
+      rpmdb_dir = self.event.mddir/'rpmdb'
+      rpmdb_dir.rm(force=True)
+      rpmdb_dir.mkdirs()
+      rpm.addMacro('_dbpath', rpmdb_dir)
       ts = rpm.TransactionSet()
+      ts.initDB()
+      ts.pgpImportPubkey(yum.misc.procgpgkey(
+                         self.event.cvars['pubkey'].read_text()))
       fdno = os.open(self.event.rpm.rpm_path, os.O_RDONLY)
       rpm_header = ts.hdrFromFdno(fdno)
       os.close(fdno)
-      headers[self.event.rpm.rpm_path] = rpm_header
       del ts
       return rpm_header
     return None
@@ -68,7 +75,7 @@ class RpmBuildMixinTestCase(object):
     return None
 
   def check_inputs(self):
-    for file in self.event.io.list_output():
+    for file in self.event.io.list_output(what='build-input'):
       self.failUnlessExists(file)
       self.failUnlessExists(self.img_path / file.relpathfrom(self.event.rpm.source_folder))
 
@@ -149,5 +156,4 @@ class RpmCvarsTestCase(object):
     self.failUnless(self.event.rpm.rpm_path == cvars['rpm-path'])
     self.failUnless(self.event.rpm.srpm_path == cvars['srpm-path'])
 
-headers = {}
 extracts = {}

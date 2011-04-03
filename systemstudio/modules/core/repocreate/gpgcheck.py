@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import cPickle
 import rpm
 import rpmUtils
 import yum
@@ -49,14 +48,14 @@ class GpgCheckEvent(Event):
     Event.__init__(self,
       id = 'gpgcheck',
       parentid = 'repocreate',
-      version = '1.01',
-      requires = ['rpms', 'repos', 'gpgkey-infix', 'gpgcheck-enabled',],
-      provides = ['checked-rpms', 'os-content'],
+      version = '1.02',
+      requires = ['rpms', 'gpgcheck-enabled', 'gpgkeys',],
+      provides = ['checked-rpms', ],
       suppress_run_message = True
     )
 
     self.DATA = {
-      'variables': ['cvars[\'rpms\']'],
+      'variables': ['cvars[\'gpgcheck-enabled\']'],
       'input':     [],
       'output':    [],
     }
@@ -65,13 +64,15 @@ class GpgCheckEvent(Event):
     if not self.cvars['gpgcheck-enabled']:
       return
 
-    self.diff.setup(self.DATA)
+    # massage rpms cvar into a form that difftest.variables handles properly
+    # in the future we should add pickle support to difftest
+    self.rpms = sorted([str(x) for x in self.cvars['rpms']])
+    self.DATA['variables'].append('rpms')
 
-    for repo in self.cvars['repos'].values():
-      for url in repo.gpgkey:
-        self.io.add_fpath(url, 
-                          self.SOFTWARE_STORE/eval(self.cvars['gpgkey-infix']),
-                          id='gpgkeys')
+    if self.cvars['gpgkeys']:
+      self.DATA['input'].extend(self.cvars['gpgkeys'])
+
+    self.diff.setup(self.DATA)
 
   def run(self):
     if not self.cvars['gpgcheck-enabled']: 
@@ -81,10 +82,6 @@ class GpgCheckEvent(Event):
     self.log(1, "gpgcheck")
     #get rpms to check
     self._get_tochecks()
-
-    # sync new keys
-    self.io.sync_input(cache=True, callback=self.link_callback, 
-                       text="downloading keys")
 
     # process keys
     self._process_keys()
@@ -135,17 +132,10 @@ class GpgCheckEvent(Event):
     self.ts.initDB()
 
     #add keys to rpmdb
-    keyids = set()
-    for key in self.io.list_output(what='gpgkeys'):
+    for key in self.cvars['gpgkeys']:
       #validate key
-      assert_file_has_content(key, srcfile=self.io.i_dst[key].src,
-                              cls=GpgkeyIOError)
-      self._strip_key(key) # strip off non-gpg information from key
+      assert_file_has_content(key, cls=GpgkeyIOError)
 
-      #track keyids across sessions for determining when to recheck rpms
-      keyids.add(yum.misc.keyIdToRPMVer(
-                   yum.misc.getgpgkeyinfo(
-                   key.read_text())['keyid']).lower())
       #add to rpmdb
       self.ts.pgpImportPubkey(yum.misc.procgpgkey(key.read_text()))
       
@@ -153,38 +143,23 @@ class GpgCheckEvent(Event):
     rpm.delMacro('_dbpath')
     self.DATA['output'].append(rpmdb_dir)    
 
-    #if any prior key ids no longer exist, recheck all packages
-    priorids = set()
-    pklfile = self.mddir/'keyids.pkl'
-    if pklfile.exists():
-      priorids = cPickle.load(pklfile.open('rb')) # redefine priorids
-    if priorids.difference(keyids):
-      self.tochecks = self.cvars['rpms']
+    # if any prior key ids no longer exist, recheck all packages
+    # this approach is fragile in that it assumes the only input files
+    # are gpgkeys, which is true at the moment, but not guaranteed 
+    removed = []
+    for k in self.diff.input.difference():
+      difftup = self.diff.input.difference()[k]
+      if difftup:
+        md, curr = difftup
+        if md and not curr: #prior key has been removed
+          removed.append(k)
+    if removed:
+        self.tochecks = self.cvars['rpms']
+        self.log(2, L1("prior keys removed, rechecking all packages"))
 
-    #pickle current keyids for future comparison
-    pklfile.rm(force=True)
-    cPickle.dump(keyids, pklfile.open('wb'), -1)
-    self.DATA['output'].append(pklfile)
-
-  def _strip_key(self, k):
-    "Strip off non-GPG data from GPG keys"
-    outlines = []
-    inkey = False
-
-    PGP_BEGIN = '-----BEGIN PGP'
-    PGP_END   = '-----END PGP'
-
-    for line in k.read_lines():
-      if inkey:
-        outlines.append(line)
-        if line.startswith(PGP_END):
-          inkey = False
-      else:
-        if line.startswith(PGP_BEGIN):
-          inkey = True
-          outlines.append(line)
-
-    k.write_lines(outlines)
+  def verify_mdfile_exists(self):
+    # this is silly but it keeps sstest from complaining 
+    self.verifier.failUnlessExists(self.mdfile)
 
 #------ ERRORS ------#
 class RpmSignatureInvalidError(SystemStudioError):

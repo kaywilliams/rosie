@@ -15,10 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+from systemstudio.util import pps
 from systemstudio.util import repo
 from systemstudio.util import rxml
 
-from sstest import EventTestCase, ModuleTestSuite
+from sstest import EventTestCase, ModuleTestSuite, _run_make
 from sstest.core import make_core_suite
 
 from systemstudio.errors import SystemStudioError
@@ -49,7 +50,11 @@ class GpgcheckEventTestCase(EventTestCase):
 
 class Test_FailsOnUnsignedPackages(GpgcheckEventTestCase):
   "fails on unsigned packages"
-  # package1 below is an unsigned package from shared test repo1
+
+  # create shared test repos
+  _run_make(pps.path(__file__).dirname/'shared')
+
+  # add an unsigned package
   _conf = """<packages>
     <package>package1</package>
   </packages>"""
@@ -77,7 +82,7 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
     self.execute_predecessors(self.event)
     self.failUnlessRaises(SystemStudioError, self.event)
 
-class Test_CreatesOutput(GpgcheckEventTestCase):
+class Test_OutputsGpgkeys(GpgcheckEventTestCase):
   "creates output when gpgcheck enabled"
   def _make_repos_config(self):
     return GpgcheckEventTestCase._make_repos_config(self)
@@ -94,7 +99,7 @@ class Test_CreatesOutput(GpgcheckEventTestCase):
     self.failUnless(expected)
     self.failUnless(set(expected) == set(found))
 
-class Test_RemovesOutput(GpgcheckEventTestCase):
+class Test_RemovesGpgkeys(GpgcheckEventTestCase):
   "removes output when gpgcheck disabled"
   # disable gpgcheck via /distribution/config/updates@gpgcheck
   _conf = """<config>
@@ -115,7 +120,5 @@ def make_suite(distro, version, arch):
   suite.addTest(make_core_suite(GpgcheckEventTestCase, distro, version, arch))
   suite.addTest(Test_FailsOnUnsignedPackages(distro, version, arch))
   suite.addTest(Test_FailsIfKeyNotProvided(distro, version, arch))
-  suite.addTest(Test_CreatesOutput(distro, version, arch))
-  suite.addTest(Test_RemovesOutput(distro, version, arch))
 
   return suite
