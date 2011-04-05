@@ -42,7 +42,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.19',
+      version = '1.20',
       provides = ['rpmbuild-data', 'gpgkeys', 'gpgcheck-enabled', 'os-content'],
       requires = ['input-repos', 'pubkey'],
       conditionally_requires = ['web-path',] 
@@ -453,6 +453,8 @@ class ConfigEvent(RpmBuildMixin, Event):
         script += item + '\n'
 
     if script:
+      script = 'set -e \n' + script # force the script to fail at runtime if 
+                                    # any item within it fails
       self.scriptdir.mkdirs()
       (self.scriptdir/id).write_text(script)
       return self.scriptdir/id
