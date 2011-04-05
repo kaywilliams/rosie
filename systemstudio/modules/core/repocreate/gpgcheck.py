@@ -114,7 +114,7 @@ class GpgCheckEvent(Event):
     self.io.clean_eventcache()
 
   def _get_tochecks(self):
-    difftup = self.diff.variables.difference('cvars[\'rpms\']')
+    difftup = self.diff.variables.difference('rpms')
     if difftup:
       md, curr = difftup
       if not hasattr(md, '__iter__'): md = {}
