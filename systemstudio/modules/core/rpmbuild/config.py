@@ -42,7 +42,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.18',
+      version = '1.19',
       provides = ['rpmbuild-data', 'gpgkeys', 'gpgcheck-enabled', 'os-content'],
       requires = ['input-repos', 'pubkey'],
       conditionally_requires = ['web-path',] 
