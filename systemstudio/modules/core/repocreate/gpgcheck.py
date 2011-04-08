@@ -48,7 +48,7 @@ class GpgCheckEvent(Event):
     Event.__init__(self,
       id = 'gpgcheck',
       parentid = 'repocreate',
-      version = '1.02',
+      version = '1.03',
       requires = ['rpms', 'gpgcheck-enabled', 'gpgkeys',],
       provides = ['checked-rpms', ],
       suppress_run_message = True
@@ -125,7 +125,6 @@ class GpgCheckEvent(Event):
   def _process_keys(self):
     # create rpmdb for key storage
     rpmdb_dir = self.mddir/'rpmdb'
-    rpmdb_dir.rm(force=True)
     rpmdb_dir.mkdirs()
     rpm.addMacro('_dbpath', rpmdb_dir)
     self.ts = rpm.TransactionSet()
@@ -141,7 +140,6 @@ class GpgCheckEvent(Event):
       
     #cleanup 
     rpm.delMacro('_dbpath')
-    self.DATA['output'].append(rpmdb_dir)    
 
     # if any prior key ids no longer exist, recheck all packages
     # this approach is fragile in that it assumes the only input files
