@@ -39,7 +39,7 @@ class GpgcheckEventTestCase(EventTestCase):
                                            baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
     base.update({'mirrorlist': None})
 
-    repos.append(base.toxml()) # don't overwrite gpgkey and gpgcheck defaults
+    repos.append(base.toxml()) 
 
     return repos
 
@@ -71,48 +71,26 @@ class Test_FailsOnUnsignedPackages(GpgcheckEventTestCase):
     self.failUnlessRaises(SystemStudioError, self.event)
 
 class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
-  "fails if keys are not provided"
+  "fails if no keys defined"
 
-  # using repos_config from base EventTestCase class, which does
-  # not include gpgkey definitions
+  def setUp(self):
+    EventTestCase.setUp(self)
+    self.clean_event_md()
+
   def _make_repos_config(self):
-    return EventTestCase._make_repos_config(self)
- 
+    repos = rxml.config.Element('repos')
+    base = repo.getDefaultRepoById('base', distro=self.distro,
+           version=self.version, arch=self.arch, include_baseurl=True,
+           baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+    # set gpgkeys to none
+    base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'yes'})
+    repos.append(base.toxml())
+    return repos 
+
   def runTest(self):
     self.execute_predecessors(self.event)
     self.failUnlessRaises(SystemStudioError, self.event)
 
-class Test_OutputsGpgkeys(GpgcheckEventTestCase):
-  "creates output when gpgcheck enabled"
-  def _make_repos_config(self):
-    return GpgcheckEventTestCase._make_repos_config(self)
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=self.event)
-    self.failUnless(self.event.mddir.findpaths(mindepth=1, 
-                                               nglob='gpgcheck.md'))
-
-    expected = [ x.basename for x in self.event.io.list_output(what='gpgkeys') ]
-    found = [ x.basename for x in
-             (self.event.SOFTWARE_STORE/'gpgkeys').findpaths(mindepth=1,
-                                                             type=TYPE_NOT_DIR)]
-    self.failUnless(expected)
-    self.failUnless(set(expected) == set(found))
-
-class Test_RemovesGpgkeys(GpgcheckEventTestCase):
-  "removes output when gpgcheck disabled"
-  # disable gpgcheck via /distribution/config/updates@gpgcheck
-  _conf = """<config>
-    <updates gpgcheck='false'/>
-  </config>"""
-
-  def _make_repos_config(self):
-    return GpgcheckEventTestCase._make_repos_config(self)
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=self.event)
-    self.failUnless(not self.event.mddir.findpaths(mindepth=1,
-                                                   nglob='gpgcheck.md'))
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('gpgcheck')
