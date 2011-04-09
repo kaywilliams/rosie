@@ -26,6 +26,8 @@ from systemstudio.util import sync
 
 from systemstudio.sslogging import L0, L1
 
+from systemstudio.errors import SystemStudioError
+
 from systemstudio.event.diff   import DiffMixin
 from systemstudio.event.fileio import IOMixin
 from systemstudio.event.locals import LocalsMixin
@@ -117,7 +119,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     except EventExit, e:
       self.log(0, e)
       sys.exit()
-    except Exception, e:
+    except (SystemStudioError, Exception, KeyboardInterrupt), e:
       self.error(e)
       raise
     t_end = time.time()
