@@ -37,6 +37,7 @@ class LocalsObject:
   #L_BUILDINSTALL      = property(lambda self: L_BUILDINSTALL[self.anaconda_ver])
   L_BOOTCFG           = property(lambda self: L_BOOTCFG[self.anaconda_ver])
   L_BUILDSTAMP_FORMAT = property(lambda self: L_BUILDSTAMP_FORMAT[self.anaconda_ver])
+  L_CHECKSUM          = property(lambda self: L_CHECKSUM[self.anaconda_ver])
   L_DISCINFO_FORMAT   = property(lambda self: L_DISCINFO_FORMAT[self.anaconda_ver])
   L_TREEINFO_FORMAT   = property(lambda self: L_TREEINFO_FORMAT[self.anaconda_ver])
   L_KICKSTART         = property(lambda self: L_KICKSTART[self.anaconda_ver])

@@ -40,7 +40,7 @@ class RepomdMixin:
       self.crcb = None
 
   def createrepo(self, path, groupfile=None, pretty=False,
-                 update=True, quiet=True, database=True):
+                 update=True, quiet=True, database=True, checksum=None):
     "Run createrepo on the path specified."
     if self.crcb: self.crcb.start("running createrepo")
 
@@ -52,8 +52,8 @@ class RepomdMixin:
     #note: using createrepo help to determine update capability since 
     #createrepo reported version number was incorrect (0.4.9) for version
     #0.4.11.
-    if update and (path/'repodata').exists() and \
-       '--update' in ' '.join(shlib.execute('createrepo --help')):
+    if (update and (path/'repodata').exists() and 
+       '--update' in ' '.join(shlib.execute('createrepo --help'))):
       args.append('--update')
     if quiet:
       args.append('--quiet')
@@ -64,11 +64,14 @@ class RepomdMixin:
         repo_files.append(path / 'repodata/%s.gz' % groupfile.basename)
     if pretty:
       args.append('--pretty')
-    if database and \
-       self.locals.L_CREATEREPO['capabilities']['database']:
+    if (database and 
+       self.locals.L_CREATEREPO['capabilities']['database']):
       args.append('--database')
       for file in self.locals.L_CREATEREPO['sqlite-files'].keys():
         repo_files.append(path / file)
+    if (checksum and 
+       self.locals.L_CREATEREPO['capabilities']['checksum']):
+      args.append('--checksum %s' % checksum)
     args.append('.')
 
     cwd = os.getcwd()

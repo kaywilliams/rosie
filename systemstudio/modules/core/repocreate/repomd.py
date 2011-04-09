@@ -31,7 +31,7 @@ class RepomdEvent(Event, RepomdMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'repomd',
-      version = '1.02',
+      version = '1.03',
       parentid = 'repocreate',
       requires = ['rpms-directory', 'rpms'],
       provides = ['repodata-directory', 'treeinfo-checksums'],
@@ -61,7 +61,9 @@ class RepomdEvent(Event, RepomdMixin):
     self.cvars['rpms-directory'].symlink(self.SOFTWARE_STORE//self.packagepath)
 
     # run createrepo
-    repo_files = self.createrepo(self.SOFTWARE_STORE, groupfile=self.cvars['groupfile'])
+    repo_files = self.createrepo(self.SOFTWARE_STORE, 
+                                 groupfile=self.cvars['groupfile'],
+                                 checksum=self.locals.L_CHECKSUM['type'])
     self.DATA['output'].extend(repo_files)
 
   def apply(self):

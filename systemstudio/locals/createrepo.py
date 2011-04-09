@@ -1,6 +1,6 @@
 from systemstudio.locals import LocalsDict, REMOVE
 
-__all__ = ['L_CREATEREPO']
+__all__ = ['L_CREATEREPO', 'L_CHECKSUM']
 
 L_CREATEREPO = LocalsDict({
   "createrepo-0": {
@@ -37,4 +37,17 @@ L_CREATEREPO = LocalsDict({
       'gzipped_groupfile': True,
     }
   },
+  "createrepo-0.9.7": { # checksum option added (sha|sha256)
+    'capabilities': {
+      'checksum': True,
+    }
+  },
+})
+L_CHECKSUM = LocalsDict({
+  "anaconda-0": {
+    'type': 'sha'
+   },
+  "anaconda-13.21.82": {
+     'type': 'sha256',
+   },
 })
