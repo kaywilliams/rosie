@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import rpm
 import rpmUtils
 import yum
 
@@ -61,18 +60,18 @@ class GpgCheckEvent(Event):
     }
 
   def setup(self):
+    self.diff.setup(self.DATA)
+
     if not self.cvars['gpgcheck-enabled']:
       return
 
     # massage rpms cvar into a form that difftest.variables handles properly
     # in the future we should add pickle support to difftest
-    self.rpms = sorted([str(x) for x in self.cvars['rpms']])
+    self.rpms = sorted([x for x in self.cvars['rpms']])
     self.DATA['variables'].append('rpms')
 
     if self.cvars['gpgkeys']:
       self.DATA['input'].extend(self.cvars['gpgkeys'])
-
-    self.diff.setup(self.DATA)
 
   def run(self):
     if not self.cvars['gpgcheck-enabled']: 
@@ -98,6 +97,7 @@ class GpgCheckEvent(Event):
         r = rpmUtils.miscutils.checkSig(self.ts, pkg)
         if r != 0: # check failed
           invalids.append( (pkg, error_text[r]) )
+      del self.ts
       if invalids:
         # provide msg listing package name, error type, and originating repo
         repos = {}
@@ -124,11 +124,7 @@ class GpgCheckEvent(Event):
 
   def _process_keys(self):
     # create rpmdb for key storage
-    rpmdb_dir = self.mddir/'rpmdb'
-    rpmdb_dir.mkdirs()
-    rpm.addMacro('_dbpath', rpmdb_dir)
-    self.ts = rpm.TransactionSet()
-    self.ts.initDB()
+    self.ts = rpmUtils.transaction.TransactionWrapper(root=self.mddir/'rpmdb')
 
     #add keys to rpmdb
     for key in self.cvars['gpgkeys']:
@@ -138,9 +134,6 @@ class GpgCheckEvent(Event):
       #add to rpmdb
       self.ts.pgpImportPubkey(yum.misc.procgpgkey(key.read_text()))
       
-    #cleanup 
-    rpm.delMacro('_dbpath')
-
     # if any prior key ids no longer exist, recheck all packages
     # this approach is fragile in that it assumes the only input files
     # are gpgkeys, which is true at the moment, but not guaranteed 
