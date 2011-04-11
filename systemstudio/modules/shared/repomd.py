@@ -70,7 +70,7 @@ class RepomdMixin:
       for file in self.locals.L_CREATEREPO['sqlite-files'].keys():
         repo_files.append(path / file)
     if (checksum and 
-       self.locals.L_CREATEREPO['capabilities']['checksum']):
+       'checksum' in self.locals.L_CREATEREPO['capabilities']):
       args.append('--checksum %s' % checksum)
     args.append('.')
 
