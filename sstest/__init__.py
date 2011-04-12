@@ -51,8 +51,8 @@ class TestBuild(Build):
     p = config.uElement('cache', parent=self.mainconfig)
     config.uElement('path', parent=p).text = BUILD_ROOT
 
-    self.appconfig = self.conf
-
+  def _get_definition(self, options, arguments):
+    self.definition = self.conf
 
 class EventTestCase(unittest.TestCase):
   def __init__(self, distro, version, arch='i386', conf=None):

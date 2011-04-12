@@ -61,9 +61,9 @@ class SystemStudioValidationHandler:
     v.validate('/systemstudio', schema_file='systemstudio.rng')
 
     # validate individual sections of the system distribution_file
-    self.logger.log(4, L0("Validating '%s'" % pps.path(self.appconfig.file)))
+    self.logger.log(4, L0("Validating '%s'" % pps.path(self.definition.file)))
     v = AppConfigValidator([ x/'schemas/distribution' for x in Event.SHARE_DIRS ],
-                           self.appconfig)
+                           self.definition)
 
     # validate all top-level sections
     tle_elements = set() # list of already-validated modules (so we don't revalidate)
@@ -71,7 +71,7 @@ class SystemStudioValidationHandler:
       eid = event.__module__.split('.')[-1]
       if eid in tle_elements: continue # don't re-validate
       v.validate(eid, schema_file='%s.rng' % eid)
-      if self.appconfig.pathexists(eid):
+      if self.definition.pathexists(eid):
         tle_elements.add(eid)
 
     self._verify_tle_elements(tle_elements.union(self.disabled_modules))
@@ -82,14 +82,14 @@ class SystemStudioValidationHandler:
 
   def _verify_tle_elements(self, expected_elements):
     processed = set()
-    for child in self.appconfig.getroot().iterchildren():
+    for child in self.definition.getroot().iterchildren():
       if child.tag is etree.Comment: continue
       if child.tag not in expected_elements:
-        raise InvalidConfigError(self.appconfig.getroot().file,
+        raise InvalidConfigError(self.definition.getroot().file,
           " unknown element '%s' found:\n%s"
             % (child.tag, XmlTreeElement.tostring(child, lineno=True)))
       if child.tag in processed:
-        raise InvalidConfigError(self.appconfig.getroot().file,
+        raise InvalidConfigError(self.definition.getroot().file,
                                  " multiple instances of the '%s' element "
                                  "found " % child.tag)
       processed.add(child.tag)

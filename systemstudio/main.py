@@ -113,6 +113,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     # set up configs
     try:
       self._get_config(options, arguments)
+      self._get_definition(options, arguments)
     except Exception, e:
       self.logger.log(0, L0(e))
       sys.exit(1)
@@ -127,7 +128,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
 
     # set up real logger - console and file
     self.logfile = ( pps.path(options.logfile)
-                     or self.appconfig.getpath('/distribution/main/log-file', None)
+                     or self.definition.getpath('/distribution/main/log-file', None)
                      or self.mainconfig.getpath('/systemstudio/log-file', None)
                      or DEFAULT_LOG_FILE ).expand().abspath()
     try:
@@ -141,7 +142,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     self._seed_event_defaults(options)
 
     # change working dir to config dir so relative paths expand properly
-    os.chdir(self.appconfig.file.dirname)
+    os.chdir(self.definition.file.dirname)
 
     # set up import_dirs
     import_dirs = self._compute_import_dirs(options)
@@ -211,7 +212,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     if not options.no_validate:
       self.validate_configs()
       if options.validate_only:
-        print self.appconfig
+        print self.definition
         sys.exit()
 
     # set up locking
@@ -237,31 +238,33 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
 
   def _get_config(self, options, arguments):
     """
-    Gets the main config and system definition based on option values.  Main
-    config file is optional; if not found, merely uses a set of default
-    values.  Distribution config is required, except in the event that the '-h' or
-    '--help' argument was given on the command line, in which case the system distribution
-    config file can be omitted or not exist.  (This previous allowance is so
-    that a user can type `systemstudio -h` on the command line without giving
-    the '-c' option.)
+    Gets the systemstudio config based on option values. The systemstudio
+    config file is optional; if not found, merely uses a set of default values.
     """
-    mcp = pps.path(options.mainconfigpath).expand().abspath()
-    dcp = pps.path(arguments[0]).expand().abspath()
-    if mcp and mcp.exists():
-      self.logger.log(4, "Reading '%s'" % mcp)
-      mc = rxml.config.read(mcp)
+    cp = pps.path(options.mainconfigpath).expand().abspath()
+    if cp and cp.exists():
+      self.logger.log(4, "Reading '%s'" % cp)
+      mc = rxml.config.read(cp)
     else:
-      self.logger.log(4, "No main config file found at '%s'. Using default settings" % mcp)
+      self.logger.log(4, "No systemstudio config file found at '%s'. Using default settings" % cp)
       mc = rxml.config.fromstring('<systemstudio/>')
 
-    if not dcp.exists():
-      raise rxml.errors.ConfigError("No system definition file found at '%s'" % dcp)
-
-    self.logger.log(3, "Reading '%s'" % dcp)
-    dc = rxml.config.read(dcp)
-
     self.mainconfig = mc
-    self.appconfig = dc
+
+  def _get_definition(self, options, arguments):
+    """
+    Gets the definition based on option values. Distribution config is
+    required, except in the event that the '-h' or '--help' argument was given
+    on the command line, in which case the definition file can be omitted or
+    not exist.  (This previous allowance is so that a user can type
+    `systemstudio -h` on the command line without giving the '-c' option.) 
+    """
+    dp = pps.path(arguments[0]).expand().abspath()
+    if not dp.exists():
+      raise rxml.errors.ConfigError("No definition found at '%s'" % dp)
+    self.logger.log(3, "Reading '%s'" % dp)
+    dc = rxml.config.read(dp)
+    self.definition = dc
 
   def _compute_events(self, modules=None, events=None):
     """
@@ -333,7 +336,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     disabled = set(options.disabled_modules)
 
     # enable/disable modules from app config
-    for module in self.appconfig.xpath('/distribution/*'):
+    for module in self.definition.xpath('/distribution/*'):
       if module.tag == 'main': continue # main isn't a module
       if not module.getbool('@enabled', 'True'):
         disabled.add(module.tag)
@@ -367,7 +370,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
 
     # set up config dirs
     Event.mainconfig = self.mainconfig
-    Event._config    = self.appconfig
+    Event._config    = self.definition
 
     # set up base variables
     di = Event.cvars['distribution-info'] = {}
