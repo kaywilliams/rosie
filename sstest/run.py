@@ -166,6 +166,7 @@ def main():
     args = [ x.basename.splitext()[0] for x in
                pps.path('modules').findpaths(mindepth=1, maxdepth=1)
                if x.basename != '__init__.py'
+                  and x.basename != 'shared'
                   and x.ext != '.pyc'
                   and x.ext != 'pyo' ]
 
