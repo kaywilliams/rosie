@@ -119,52 +119,6 @@
     </section>
   </section>
 
-  <section id="enabled"
-           xreflabel="@enabled">
-    <title>
-    Attribute: enabled
-    </title>
-
-    <section>
-      <title>
-      Definition
-      </title>
-
-      <para>
-      <varname>BOOLEAN</varname> value that controls whether SystemStudio uses the
-      module associated with the top-level element in the build process.
-      All top-level elements can be disabled except for &lt;main&gt;.
-      </para>
-
-      <para>
-      This attribute's default value is <constant>TRUE</constant>.
-      </para>
-    </section>
-
-    <section>
-      <title>
-      Examples
-      </title>
-
-      <informalexample>
-      <programlisting>
-&lt;release-files enabled="false"/&gt;
-      </programlisting>
-      </informalexample>
-    </section>
-
-    <section>
-      <title>
-      See Also
-      </title>
-
-      <para>
-      <varname><xref linkend="content-boolean" /></varname>
-      </para>
-    </section>
-  </section>
-
-
   <section id="mode"
            xreflabel="@mode">
     <title>
