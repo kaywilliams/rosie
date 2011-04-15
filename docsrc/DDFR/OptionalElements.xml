@@ -28,10 +28,4 @@
   <xi:include href="TopLevelElements-publish.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="TopLevelElements-release-files.xml"
-              xpointer="element(/1)" />
-
-  <xi:include href="TopLevelElements-updates-image.xml"
-              xpointer="element(/1)" />
-
 </chapter>
