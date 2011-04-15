@@ -47,9 +47,9 @@ class IOObject(object):
     self.i_src = {}
     self.i_dst = {}
 
-  def abspath(self, f, prefix=None):
+  def abspath(self, f):
     "Transform a path, f, to an absolute path"
-    return (prefix or self.ptr._config.file.dirname) / f
+    return self.ptr._config.file.dirname / f
 
   def compute_mode(self, src, mode):
     return int((mode or '').lstrip('0') or oct((src.stat().st_mode & 07777) or 0644), 8)
@@ -70,7 +70,7 @@ class IOObject(object):
     except pps.Path.error.PathError, e:
       raise MissingInputFileError(e)
 
-  def add_item(self, src, dst, id=None, mode=None, prefix=None):
+  def add_item(self, src, dst, id=None, mode=None, ):
     """
     Add a source, destination pair to the list of possible files to be synced.
 
@@ -78,10 +78,9 @@ class IOObject(object):
     @param dst    : the full path, including file basename, of the destination
     @param id     : an identifier for this particular file; need not be unique
     @param mode   : default mode to assign to files
-    @param prefix : the prefix to be prepended to relative paths
     """
     # absolute paths will not be affected by this join
-    src = self.abspath(src, prefix=prefix).normpath()
+    src = self.abspath(src).normpath()
 
     # make sure the source file is a valid file
     self.validate_input_file(src)
@@ -101,9 +100,7 @@ class IOObject(object):
       self.i_src.setdefault(s, []).append(td) # one src can go to multiple dsts
       self.i_dst[d] = td # but multiple srcs can't go to one dst
 
-  def add_xpath(self, xpath, dst, id=None, mode=None, prefix=None,
-                                  destname=None, relpath=None, 
-                                  force_relative=False):
+  def add_xpath(self, xpath, dst, id=None, mode=None, destname=None, ):
     """
     @param xpath : xpath query into the config file that contains zero or
                    more path elements to add to the possible input list
@@ -111,11 +108,8 @@ class IOObject(object):
     if not id: id = xpath
     for item in self.ptr.config.xpath(xpath, []):
       s,d,f,m = self._process_path_xml(item, destname=destname,
-                                             mode=mode,
-                                             relpath=relpath,
-                                             force_relative=force_relative)
-      self.add_item(s, dst//d/f, id=id, mode=m or mode, 
-                    prefix=prefix)
+                                             mode=mode,)
+      self.add_item(s, dst//d/f, id=id, mode=m or mode, )
 
   def add_xpaths(self, xpaths, *args, **kwargs):
     "Add multiple xpaths at once; calls add_xpath on each element in xpaths"
@@ -123,8 +117,7 @@ class IOObject(object):
     for xpath in xpaths:
       self.add_xpath(xpath, dst, *args, **kwargs)
 
-  def add_fpath(self, fpath, dst, id=None, mode=None, prefix=None,
-                                  destname=None):
+  def add_fpath(self, fpath, dst, id=None, mode=None, destname=None):
     """
     @param fpath : file path pointing to an existing file (all pps path
                    types are supported)
@@ -132,7 +125,7 @@ class IOObject(object):
     if not id: id = fpath
     fpath = pps.path(fpath)
     self.add_item(fpath, dst//(destname or fpath.basename),
-                  id=id, mode=mode, prefix=prefix)
+                  id=id, mode=mode, )
 
   def add_fpaths(self, fpaths, *args, **kwargs):
     "Add multiple fpaths at once; calls add_fpath on each element in fpaths"
@@ -243,16 +236,12 @@ class IOObject(object):
 
     return ret
 
-  def _process_path_xml(self, item, destname=None, relpath=None, force_relative=False, mode=None):
+  def _process_path_xml(self, item, destname=None, mode=None):
     "compute src, dst, destname, and mode from <path> elements"
     s = pps.path(item.get('text()'))
     d = pps.path(item.get('@destdir', ''))
     f = destname or item.get('@destname', s.basename)
     m = item.get('@mode', mode)
-
-    if relpath:
-      if force_relative: d = relpath // d
-      else:              d = relpath / d
 
     return s,d,f,m
 
