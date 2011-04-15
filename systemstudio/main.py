@@ -263,8 +263,9 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     if not dp.exists():
       raise rxml.errors.ConfigError("No definition found at '%s'" % dp)
     self.logger.log(3, "Reading '%s'" % dp)
-    dc = rxml.config.parse(dp).getroot()
-    self.definition = dc
+    dt = rxml.config.parse(dp)
+    self.definitiontree = dt
+    self.definition = dt.getroot()
 
   def _compute_events(self, modules=None, events=None):
     """
@@ -369,8 +370,9 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     Event.logger = self.logger
 
     # set up config dirs
-    Event.mainconfig = self.mainconfig
-    Event._config    = self.definition
+    Event.mainconfig  = self.mainconfig
+    Event._config     = self.definition
+    Event._configtree = self.definitiontree
 
     # set up base variables
     di = Event.cvars['distribution-info'] = {}
