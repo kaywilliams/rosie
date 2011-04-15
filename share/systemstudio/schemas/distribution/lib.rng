@@ -133,10 +133,22 @@
     <text/>
   </define>
 
+  <define name="attribute-content">
+    <optional>
+    <attribute name="content">
+      <choice>
+      <value type="string">filename</value>
+      <value type="string">text</value>
+      </choice>
+    </attribute>
+    </optional>
+  </define>
+
   <define name="content-path-with-dest">
     <ref name="attribute-destdir"/>
     <ref name="attribute-destname"/>
     <ref name="attribute-mode"/>
+    <ref name="attribute-content"/>
   </define>
 
   <!-- boot-args element -->

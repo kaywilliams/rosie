@@ -77,17 +77,6 @@
     </choice>
   </define>
 
-  <define name="attribute-content">
-    <optional>
-    <attribute name="content">
-      <choice>
-      <value type="string">filename</value>
-      <value type="string">text</value>
-      </choice>
-    </attribute>
-    </optional>
-  </define>
-
   <include href="rpmbuild.rng"/>
   <include href="lib.rng"/>
 
