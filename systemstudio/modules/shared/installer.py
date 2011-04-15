@@ -107,7 +107,7 @@ class ImageModifyMixin:
     self.imagedir.mkdirs()
 
     # sync image to input store
-    self.io.sync_input(what=['ImageModifyMixin', '%s-input-files' % self.name], cache=True)
+    self.io.process_files(what=['ImageModifyMixin', '%s-input-files' % self.name], cache=True)
 
     # modify image
     self.log(1, L1("modifying %s" % self.name))
@@ -161,7 +161,7 @@ class FileDownloadMixin:
     self.io.clean_eventcache()
 
   def _download(self):
-    self.io.sync_input(what='FileDownloadMixin', cache=True)
+    self.io.process_files(what='FileDownloadMixin', cache=True)
 
 
 class InvalidImageFormatError(StandardError):

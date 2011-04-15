@@ -72,7 +72,7 @@ class BaseInfoEvent(Event):
     self.log(2, L1("reading buildstamp file from base repository"))
 
     # download initrd.img
-    self.io.sync_input(cache=True, callback=Event.link_callback,
+    self.io.process_files(cache=True, callback=Event.link_callback,
                        text=None, what='initrd.img')
 
     # extract buildstamp

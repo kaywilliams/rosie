@@ -133,7 +133,7 @@ class IOObject(object):
     for fpath in fpaths:
       self.add_fpath(fpath, *args, **kwargs)
 
-  def sync_input(self, callback=None, link=False, cache=False, what=None,
+  def process_files(self, callback=None, link=False, cache=False, what=None,
                        text='downloading files', updatefn=None,
                        **kwargs):
     """

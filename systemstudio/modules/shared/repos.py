@@ -364,7 +364,7 @@ class RepoEventMixin:
         self.DATA['output'].append(dst)
 
       # sync repo datafiles and treeinfo
-      self.io.sync_input(what='%s-repodata' % repo.id, cache=True,
+      self.io.process_files(what='%s-repodata' % repo.id, cache=True,
                          text="downloading repodata - '%s'" % repo.id)
 
     # verify synced data via checksums

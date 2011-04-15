@@ -58,7 +58,7 @@ class ComposeEvent(Event):
     # create composed tree
     self.log(1, L1("linking files"))
     for event in self.events:
-      self.io.sync_input(link=True, what=event, text=None)
+      self.io.process_files(link=True, what=event, text=None)
 
   def apply(self):
     self.io.clean_eventcache()

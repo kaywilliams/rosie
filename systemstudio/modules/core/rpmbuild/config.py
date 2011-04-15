@@ -132,7 +132,7 @@ class ConfigEvent(RpmBuildMixin, Event):
 
   def generate(self):
     self._generate_files()
-    self.io.sync_input(cache=True)
+    self.io.process_files(cache=True)
     self._generate_files_checksums()
     self._generate_repofile()
     if self.config.getbool('updates/@sync', True):

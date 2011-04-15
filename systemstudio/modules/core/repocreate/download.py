@@ -77,7 +77,7 @@ class DownloadEvent(Event):
 
   def run(self):
     for subrepo in self.cvars['pkglist'].keys():
-      self.io.sync_input(link=True, cache=True, what=subrepo,
+      self.io.process_files(link=True, cache=True, what=subrepo,
                          text=("downloading packages - '%s'" % subrepo))
 
   def apply(self):

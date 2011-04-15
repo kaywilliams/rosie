@@ -48,7 +48,7 @@ class PxebootImagesEvent(Event):
     self.io.add_fpath(self.cvars['isolinux-files']['initrd.img'], self.pxebootdir)
 
   def run(self):
-    self.io.sync_input(cache=True)
+    self.io.process_files(cache=True)
 
   def apply(self):
     self.io.clean_eventcache()

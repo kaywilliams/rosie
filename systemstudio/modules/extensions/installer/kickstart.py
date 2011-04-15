@@ -49,7 +49,7 @@ class KickstartEvent(Event):
                       destname=self.ksname)
 
   def run(self):
-    self.io.sync_input(cache=True)
+    self.io.process_files(cache=True)
 
   def apply(self):
     self.cvars['kickstart-file'] = self.io.list_output(what='kickstart-file')[0]
