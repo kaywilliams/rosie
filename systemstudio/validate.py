@@ -186,7 +186,7 @@ class BaseConfigValidator:
     cwd = os.getcwd()
     os.chdir(self.curr_schema.dirname)
     try:
-      schema = rxml.tree.read(self.curr_schema.basename)
+      schema = rxml.tree.parse(self.curr_schema.basename).getroot()
     finally:
       os.chdir(cwd)
     return schema

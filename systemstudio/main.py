@@ -244,7 +244,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     cp = pps.path(options.mainconfigpath).expand().abspath()
     if cp and cp.exists():
       self.logger.log(4, "Reading '%s'" % cp)
-      mc = rxml.config.read(cp)
+      mc = rxml.config.parse(cp).getroot()
     else:
       self.logger.log(4, "No systemstudio config file found at '%s'. Using default settings" % cp)
       mc = rxml.config.fromstring('<systemstudio/>')
@@ -263,7 +263,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     if not dp.exists():
       raise rxml.errors.ConfigError("No definition found at '%s'" % dp)
     self.logger.log(3, "Reading '%s'" % dp)
-    dc = rxml.config.read(dp)
+    dc = rxml.config.parse(dp).getroot()
     self.definition = dc
 
   def _compute_events(self, modules=None, events=None):

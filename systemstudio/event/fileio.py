@@ -200,7 +200,7 @@ class IOObject(object):
       if self.ptr.mdfile.exists() and self.ptr.diff.output:
         self.ptr.diff.output.clear()
 
-        root = rxml.tree.read(self.ptr.mdfile)
+        root = rxml.tree.parse(self.ptr.mdfile).getroot()
         self.ptr.diff.output.mdread(root)
 
         expected = set(self.ptr.diff.output.oldoutput.keys())

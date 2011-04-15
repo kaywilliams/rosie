@@ -129,7 +129,7 @@ class XmlMergeHandler:
 
   def mergefile(self, file):
     "Merge the contents of file with self.tree"
-    return self.merge(tree.read(file))
+    return self.merge(tree.parse(file)).getroot()
 
   def merge(self, mergetree):
     "Merge the contents of tree with self.tree"

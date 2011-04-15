@@ -238,11 +238,10 @@ def uElement(name, parent, text=None, attrs=None, parser=PARSER, **kwargs):
   if text is None: t.text = None
   return t
 
-def read(file, handler=None, parser=PARSER):
-  config = tree.read(file,
+def parse(file, handler=None, parser=PARSER):
+  config = tree.parse(file,
                      handler or ConfigTreeSaxHandler(parser.makeelement),
                      parser=parser)
-  config.file = file
   return config
 
 def fromstring(string, handler=None, parser=PARSER, **kwargs):

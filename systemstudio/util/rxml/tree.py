@@ -294,9 +294,10 @@ def uElement(name, parent, attrs=None, text=None, **kwargs):
           del(elem.attrib[k])
   return elem
 
-def read(file, handler=None, parser=PARSER):
+def parse(file, handler=None, parser=PARSER):
   handler = handler or XmlTreeSaxHandler(parser.makeelement)
   try:
+    roottree = lxml.etree.ElementTree()
     roottree = lxml.etree.parse(file, parser)
   except lxml.etree.XMLSyntaxError, e:
     raise errors.XmlSyntaxError(file, e)
@@ -309,7 +310,7 @@ def read(file, handler=None, parser=PARSER):
   saxify(roottree, handler)
   handler._root.file = file
   handler._root.maxlineno = handler.lineno
-  return handler._root
+  return handler.etree
 
 def fromstring(s, **kwargs):
   root = read(StringIO(s), **kwargs)

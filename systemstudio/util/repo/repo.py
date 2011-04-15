@@ -200,7 +200,7 @@ class IORepo(BaseRepo):
     return iter(datafiles)
 
   def read_repomd(self):
-    self.repomd = rxml.tree.read((self.url//self.repomdfile).open())
+    self.repomd = rxml.tree.parse((self.url//self.repomdfile).open()).getroot()
 
     for data in self.repomd.xpath('repo:data', namespaces=NSMAP):
       self.datafiles[data.get('@type')] = RepoDataFile(data)

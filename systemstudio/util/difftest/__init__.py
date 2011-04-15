@@ -101,7 +101,7 @@ class DiffTest:
     """
     if self.metadata is None:
       try:
-        self.metadata = rxml.config.read(self.mdfile)
+        self.metadata = rxml.config.parse(self.mdfile).getroot()
       except (ValueError, IOError, SAXParseException, rxml.errors.XmlSyntaxError), e:
         self.metadata = DummyMetadata(self.mdfile)
 
