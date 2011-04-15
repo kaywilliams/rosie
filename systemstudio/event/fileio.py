@@ -51,15 +51,23 @@ class IOObject(object):
     "Transform a path, f, to an absolute path"
     return self.ptr._config.file.dirname / f
 
-  def compute_mode(self, src, mode):
-    return int((mode or '').lstrip('0') or oct((src.stat().st_mode & 07777) or 0644), 8)
+  def compute_mode(self, src, mode, content):
+    if content == 'text':
+      return int((mode or '').lstrip('0') or oct(0644), 8)
 
-  def compute_dst(self, src, dst):
-    r = []
-    for s in src.findpaths():
-      if not s.isfile(): continue
-      r.append((s, (dst/s.relpathfrom(src)).normpath()))
-    return r
+    else: #content == 'file'
+      return int((mode or '').lstrip('0') or oct((src.stat().st_mode & 07777) or 0644), 8)
+
+  def compute_dst(self, src, dst, content):
+    if content == 'text':
+      return [(src, dst.normpath())]
+
+    else: # content == 'file'
+      r = []
+      for s in src.findpaths():
+        if not s.isfile(): continue
+        r.append((s, (dst/s.relpathfrom(src)).normpath()))
+      return r
 
   def validate_input_file(self, f):
     # method called by add_item() to ensure the source is a valid file
@@ -70,31 +78,41 @@ class IOObject(object):
     except pps.Path.error.PathError, e:
       raise MissingInputFileError(e)
 
-  def add_item(self, src, dst, id=None, mode=None, ):
+  def add_item(self, src, dst, id=None, mode=None, content='file', xpath=None):
     """
-    Add a source, destination pair to the list of possible files to be synced.
+    Adds source/destination pairs to list of possible files to be processed.
 
-    @param src    : the full path, including file basename, of the source
+    @param src    : the full path, including file basename to a file, or the
+                    text of a file to be processed
     @param dst    : the full path, including file basename, of the destination
     @param id     : an identifier for this particular file; need not be unique
     @param mode   : default mode to assign to files
+    @param content: content type (file path or text) contained in src parami
+    @param xpath  : full xpath to the config element associated with this item
+                    (if available)
     """
-    # absolute paths will not be affected by this join
-    src = self.abspath(src).normpath()
+    if content == 'text':
+      if xpath not in self.ptr.diff.config.cdata:
+        self.ptr.diff.config.cdata.append(xpath)
 
-    # make sure the source file is a valid file
-    self.validate_input_file(src)
+    else: # content == 'file'
+      # absolute paths will not be affected by this join
+      src = self.abspath(src).normpath()
 
-    if src not in self.ptr.diff.input.idata:
-      self.ptr.diff.input.idata.append(src)
+      # make sure the source file is a valid file
+      self.validate_input_file(src)
 
-    for s,d in self.compute_dst(src, dst):
-      m = self.compute_mode(s, mode)
+      if src not in self.ptr.diff.input.idata:
+        self.ptr.diff.input.idata.append(src)
+
+    for s,d in self.compute_dst(src, dst, content):
+      m = self.compute_mode(s, mode, content)
 
       if d not in self.ptr.diff.output.odata:
         self.ptr.diff.output.odata.append(d)
 
-      td = TransactionData(s,d,m)
+      td = TransactionData(s,d,m, content, xpath)
+
       self.data.setdefault(id, set()).add(td)
       # add to indexes as well
       self.i_src.setdefault(s, []).append(td) # one src can go to multiple dsts
@@ -107,9 +125,11 @@ class IOObject(object):
     """
     if not id: id = xpath
     for item in self.ptr.config.xpath(xpath, []):
-      s,d,f,m = self._process_path_xml(item, destname=destname,
+      s,d,f,m,c = self._process_path_xml(item, destname=destname,
                                              mode=mode,)
-      self.add_item(s, dst//d/f, id=id, mode=m or mode, )
+      item_xpath = self.ptr._configtree.getpath(item)
+      self.add_item(s, dst//d/f, id=id, mode=m or mode, content=c, 
+                                 xpath=item_xpath )
 
   def add_xpaths(self, xpaths, *args, **kwargs):
     "Add multiple xpaths at once; calls add_xpath on each element in xpaths"
@@ -242,18 +262,22 @@ class IOObject(object):
     d = pps.path(item.get('@destdir', ''))
     f = destname or item.get('@destname', s.basename)
     m = item.get('@mode', mode)
+    c = item.get('@content', 'file')
 
-    return s,d,f,m
+    return s,d,f,m,c
 
 
 class TransactionData(object):
   "Simple struct to hold src, dst, mode"
-  def __init__(self, src, dst, mode):
+  def __init__(self, src, dst, mode, content, xpath):
     self.src  = src
     self.dst  = dst
     self.mode = mode
+    self.content = content
+    self.xpath = xpath
 
-  def __str__(self):  return str((self.src, self.dst, self.mode))
+  def __str__(self):  return str((self.src, self.dst, self.mode, self.content,
+                                  self.xpath))
   def __repr__(self): return '%s(%s)' % (self.__class__.__name__, self.__str__())
 
 
