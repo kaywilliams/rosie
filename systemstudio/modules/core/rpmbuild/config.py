@@ -154,7 +154,7 @@ class ConfigEvent(RpmBuildMixin, Event):
           fn.write_text(text)
         text = fn
 
-        fn.chmod(self.io.compute_mode(fn, file.get('@mode', None)))
+        fn.chmod(self.io.compute_mode(fn, file.get('@mode', None), 'text'))
 
         self.DATA['output'].append(fn)
 

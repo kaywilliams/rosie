@@ -176,21 +176,29 @@ class IOObject(object):
     else:
       syncfn = self.ptr.copy;  cb = callback or self.ptr.copy_callback
 
-    # add item to transaction if input or output file has changed, or if
-    # output file does not exist; sort on source basename
+    # add item to transaction if content has changed, or input file has changed,
+    # or output file has changed, or output file does not exist; sort on source
+    # basename if exists, or output basename.
     tx = sorted([ t for t in self._filter_data(what=what) if
+                  (t.xpath and self.ptr.diff.config.difference(t.xpath)) or
                   self.ptr.diff.input.difference(t.src) or
                   self.ptr.diff.output.difference(t.dst) or
                   not t.dst.exists() or
-                  ( t.dst.exists() and (t.dst.stat().st_mode & 07777) != t.mode ) ],
-                cmp=lambda x,y: cmp(x.src.basename, y.src.basename))
+                  ( t.dst.exists() and (t.dst.stat().st_mode & 07777) != t.mode)
+                  ],
+                  key=lambda t: t.sort)
 
     if tx:
       cb.sync_start(text=text, count=len(tx))
       for item in tx:
-        syncfn(item.src, item.dst, link=link, mode=item.mode,
-                                   callback=cb, updatefn=updatefn,
-                                   **kwargs)
+        if item.content == 'text': # create files from text
+          item.dst.dirname.mkdirs()
+          item.dst.write_text(item.src + '\n')
+          item.dst.chmod(item.mode)
+        else: # sync existing files
+          syncfn(item.src, item.dst, link=link, mode=item.mode,
+                                     callback=cb, updatefn=updatefn,
+                                     **kwargs)
         output.append(item.dst)
       cb.sync_end()
 
@@ -275,6 +283,8 @@ class TransactionData(object):
     self.mode = mode
     self.content = content
     self.xpath = xpath
+    self.sort = ((self.content == 'text' and self.dst.basename.lower()) or 
+                  self.src.basename.lower())
 
   def __str__(self):  return str((self.src, self.dst, self.mode, self.content,
                                   self.xpath))
