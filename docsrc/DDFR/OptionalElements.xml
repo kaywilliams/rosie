@@ -22,9 +22,6 @@
   <xi:include href="TopLevelElements-kickstart.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="TopLevelElements-product-image.xml"
-              xpointer="element(/1)" />
-
   <xi:include href="TopLevelElements-publish.xml"
               xpointer="element(/1)" />
 
