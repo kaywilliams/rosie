@@ -191,13 +191,16 @@ class IOObject(object):
                   key=lambda t: t.sort)
 
     if tx:
-      cb.sync_start(text=text, count=len(tx))
+      start_sync = False # only notify callback if have files to sync
       for item in tx:
         if item.content == 'text': # create files from text
           item.dst.dirname.mkdirs()
           item.dst.write_text(item.src + '\n')
           item.dst.chmod(item.mode)
         else: # sync existing files
+          if start_sync == False:
+            cb.sync_start(text=text, count=len(tx))
+            start_sync = True
           syncfn(item.src, item.dst, link=link, mode=item.mode,
                                      callback=cb, updatefn=updatefn,
                                      **kwargs)
