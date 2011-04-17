@@ -20,6 +20,7 @@ from StringIO import StringIO
 from systemstudio.util import pps
 
 from systemstudio.event        import Event
+from systemstudio.event.fileio import MissingXpathInputFileError
 from systemstudio.validate     import InvalidConfigError
 
 from systemstudio.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
@@ -86,11 +87,10 @@ class ConfigEvent(RpmBuildMixin, Event):
     # add all scripts as input so if they change, we rerun
     for script in self.config.xpath('script',  []) + \
                   self.config.xpath('trigger', []):
-      if script.get('@content', 'filename') == 'filename':
+      if script.get('@content', 'file') == 'file':
         assert_file_readable(script.text, 
-                             element=script.tag,
-                             item=str(script)[:-1], 
-                             cls=ConfigIOError)
+                             xpath=self._configtree.getpath(script),
+                             cls=MissingXpathInputFileError)
         self.DATA['input'].append(script.text)
 
     # add cvars['repos'] to difftest so that if they change, we rerun to 
@@ -226,7 +226,7 @@ class ConfigEvent(RpmBuildMixin, Event):
       inter = elem.get('@interpreter', None)
       text  = elem.get('text()', None)
 
-      if elem.get('@content', 'filename') == 'text':
+      if elem.get('@content', 'file') == 'text':
         # if the content is 'text', write the string to a file and set
         # text to that value
         script = self.scriptdir/'triggerin-%s' % key
@@ -385,7 +385,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     scripts = []
 
     for elem in self.config.xpath('script[@type="%s"]' % script_type, []):
-      if elem.get('@content', 'filename') == 'text':
+      if elem.get('@content', 'file') == 'text':
         scripts.append(elem.text)
       else:
         scripts.append(self.io.abspath(elem.text))
@@ -464,6 +464,3 @@ class ConfigEvent(RpmBuildMixin, Event):
     else:
       self.cvars['gpgkeys']=[]
 
-#------ ERRORS ------#
-class ConfigIOError(SystemStudioIOError):
-  message = "Cannot find the file or folder named '%(file)s'. Check that it exists and that the element '%(item)s' is correct. If you are providing text rather than a file, add the attribute content='text' to the <%(element)s ...> element. [errno %(errno)d] %(message)s"
