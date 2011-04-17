@@ -69,14 +69,20 @@ class IOObject(object):
         r.append((s, (dst/s.relpathfrom(src)).normpath()))
       return r
 
-  def validate_input_file(self, f):
+  def validate_input_file(self, f, xpath):
     # method called by add_item() to ensure the source is a valid file
     if not f: return
     f = self.abspath(f)
     try:
       f.stat()
     except pps.Path.error.PathError, e:
-      raise MissingInputFileError(e)
+      if xpath:
+        raise MissingXpathInputFileError(errno=e.errno, message=e.strerror, 
+                                         file=f.replace('\n', '\\n'), 
+                                         xpath=xpath)
+      else:
+        raise MissingInputFileError(errno=e.errno, message=e.strerror, 
+                                    file=f.replace('\n', '\\n'))
 
   def add_item(self, src, dst, id=None, mode=None, content='file', xpath=None):
     """
@@ -100,7 +106,7 @@ class IOObject(object):
       src = self.abspath(src).normpath()
 
       # make sure the source file is a valid file
-      self.validate_input_file(src)
+      self.validate_input_file(src, xpath)
 
       if src not in self.ptr.diff.input.idata:
         self.ptr.diff.input.idata.append(src)
@@ -296,6 +302,8 @@ class TransactionData(object):
                                   self.xpath))
   def __repr__(self): return '%s(%s)' % (self.__class__.__name__, self.__str__())
 
+class MissingXpathInputFileError(SystemStudioError):
+  message = "Cannot find the file or folder '%(file)s'. Check that it exists and that the '%(xpath)s' element is correct. If you are providing text rather than a file, add the attribute 'content=\"text\"' to the '%(xpath)s' element. [errno %(errno)d] %(message)s."
 
 class MissingInputFileError(SystemStudioError):
-  message = "missing input file: %(error)s"
+  message = "Cannot find the specified file or folder '%(file)s'. [errno %(errno)d] %(message)s."
