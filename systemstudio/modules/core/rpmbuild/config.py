@@ -21,7 +21,6 @@ from systemstudio.util import pps
 
 from systemstudio.event        import Event
 from systemstudio.validate     import InvalidConfigError
-from systemstudio.event.fileio import MissingInputFileError
 
 from systemstudio.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
 from systemstudio.errors         import SystemStudioIOError, assert_file_readable
@@ -83,20 +82,6 @@ class ConfigEvent(RpmBuildMixin, Event):
     self.io.add_xpath('files', self.rpm.source_folder // self.filerelpath, 
                       destdir_fallback = 'usr/share/system-config/files', 
                       id = 'build-input')
-    #for file in self.config.xpath('files', []):
-    #  if file.get('@content', 'filename') == 'filename':
-    #    try:
-    #      self.io.add_fpath(file.text,
-    #                        ( self.rpm.source_folder //
-    #                          self.filerelpath //
-    #                          file.get('@destdir',
-    #                          '/usr/share/%s/files' % self.name) ) ,
-    #                         mode=file.get('@mode', None),
-    #                         destname=file.get('@destname', None), 
-    #                         id = 'build-input' )
-    #    except MissingInputFileError, e:
-    #      raise ConfigIOError(errno=e.map['error'].errno, message='',
-    #         file=file.text, element='files', item=str(file)[:-1] );
 
     # add all scripts as input so if they change, we rerun
     for script in self.config.xpath('script',  []) + \
@@ -134,32 +119,11 @@ class ConfigEvent(RpmBuildMixin, Event):
         id='gpgkeys')
 
   def generate(self):
-    #self._generate_files()
     self.io.process_files(cache=True)
     self._generate_files_checksums()
     self._generate_repofile()
     if self.config.getbool('updates/@sync', True):
       self._include_sync_plugin()
-
-  #def _generate_files(self):
-  #  # create files based on raw text from config file
-  #  for file in self.config.xpath('files', []):
-  #    text = file.text + '\n' # add newline to end; stripped by config.xpath()
-  #    if file.get('@content', 'filename') == 'text':
-  #      # if the content is 'text', write the string to a file and set
-  #      # text to that value
-  #      destdir = ( self.rpm.source_folder //
-  #                  self.filerelpath //
-  #                  file.get('@destdir','/usr/share/%s/files' % self.name) )
-  #      destdir.mkdirs()
-  #      fn = ( destdir // file.get('@destname') )
-  #      if not fn.exists() or fn.checksum(type='md5') != hashlib.md5(text).hexdigest():
-  #        fn.write_text(text)
-  #      text = fn
-
-  #      fn.chmod(self.io.compute_mode(fn, file.get('@mode', None), 'text'))
-
-  #      self.DATA['output'].append(fn)
 
   def _generate_files_checksums(self):
     """Creates a file containing checksums of all <files>. For use in 
