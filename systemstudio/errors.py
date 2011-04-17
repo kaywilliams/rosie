@@ -40,7 +40,7 @@ def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
 
     if errno and message:
       raise (cls or SystemStudioIOError)(errno=errno,
-                                 file=srcfile or file,
+                                 file=(srcfile or file).replace('\n','\\n'),
                                  message=message,
                                  **kwargs)
   finally:
