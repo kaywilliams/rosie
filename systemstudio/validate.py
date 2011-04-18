@@ -26,7 +26,6 @@ from systemstudio.util import rxml
 
 XmlTreeElement = rxml.tree.XmlTreeElement
 
-from systemstudio.event   import Event
 from systemstudio.sslogging import L0, L1
 
 NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
@@ -56,13 +55,13 @@ class SystemStudioValidationHandler:
     else:
       self.logger.log(4, L0("Validating main config with default settings"))
 
-    v = MainConfigValidator([ x/'schemas' for x in Event.SHARE_DIRS ],
+    v = MainConfigValidator([ x/'schemas' for x in self.sharedirs ],
                             self.mainconfig)
     v.validate('/systemstudio', schema_file='systemstudio.rng')
 
     # validate individual sections of the system distribution_file
     self.logger.log(4, L0("Validating '%s'" % pps.path(self.definition.file)))
-    v = AppConfigValidator([ x/'schemas/distribution' for x in Event.SHARE_DIRS ],
+    v = AppConfigValidator([ x/'schemas/distribution' for x in self.sharedirs ],
                            self.definition)
 
     # validate all top-level sections

@@ -420,10 +420,11 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
       for x in options.sharepath ]))
 
     # reverse the order so we get cli options, then config, then defaults
-    Event.SHARE_DIRS = [ x for x in reversed(sharedirs) ]
-    for d in Event.SHARE_DIRS:
+    self.sharedirs = [ x for x in reversed(sharedirs) ]
+    for d in self.sharedirs:
       if not d==DEFAULT_SHARE_DIR and not d.isdir():
         raise RuntimeError("The specified share-path '%s' does not exist." %d)
+    Event.SHARE_DIRS=self.sharedirs
 
     cache_max_size = self.mainconfig.get('/systemstudio/cache/max-size/text()', '30GB')
     if cache_max_size.isdigit():
