@@ -17,6 +17,7 @@
 #
 import datetime
 import imp
+import lxml
 import os
 import sys
 import time
@@ -43,9 +44,9 @@ class TestBuild(Build):
   def _get_config(self, options, arguments):
     mcf = pps.path(options.mainconfigpath or '/etc/systemstudio/sstest.conf')
     if mcf.exists():
-      self.mainconfig = config.read(mcf)
+      self.mainconfig = config.parse(mcf).getroot()
     else:
-      self.mainconfig = config.read(StringIO('<systemstudio/>'))
+      self.mainconfig = config.parse(StringIO('<systemstudio/>')).getroot()
 
     # set the cache dir
     p = config.uElement('cache', parent=self.mainconfig)
@@ -53,6 +54,7 @@ class TestBuild(Build):
 
   def _get_definition(self, options, arguments):
     self.definition = self.conf
+    self.definitiontree = lxml.etree.ElementTree(self.conf)
 
 class EventTestCase(unittest.TestCase):
   def __init__(self, distro, version, arch='i386', conf=None):
@@ -136,7 +138,7 @@ class EventTestCase(unittest.TestCase):
     return gpgcheck
 
   def _add_config(self, section):
-    sect = config.read(StringIO(section))
+    sect = config.parse(StringIO(section)).getroot()
     for old in self.conf.xpath(sect.tag, []):
       self.conf.remove(old)
     self.conf.append(sect)

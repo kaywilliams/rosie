@@ -39,7 +39,7 @@ class _PackagesEventTestCase(PackagesEventTestCase):
     self.clean_event_md()
 
   def read_groupfile(self):
-    return rxml.tree.read(self.event.cvars['groupfile'])
+    return rxml.tree.parse(self.event.cvars['groupfile']).getroot()
 
   def check_all(self, groupfile):
     self.check_core(groupfile)
