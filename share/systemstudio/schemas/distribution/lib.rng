@@ -137,7 +137,7 @@
     <optional>
     <attribute name="content">
       <choice>
-      <value type="string">filename</value>
+      <value type="string">file</value>
       <value type="string">text</value>
       </choice>
     </attribute>
