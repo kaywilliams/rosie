@@ -3,8 +3,9 @@ import re
 import sys
 import traceback
 
-from systemstudio.util import shlib
-from systemstudio.util import pps
+from systemstudio.util     import shlib
+from systemstudio.util     import pps
+from systemstudio.validate import InvalidXmlError
 
 REGEX_KWPARSE = re.compile('%\(([^\)]+)\).')
 
@@ -108,7 +109,9 @@ class SystemStudioErrorHandler:
       if isinstance(e, KeyboardInterrupt):
         self.logger.log(0, "SystemStudio halted on user input")
       else:
-        if not isinstance(e, SystemStudioError) and not isinstance(e, KeyboardInterrupt):
+        if (not isinstance(e, SystemStudioError) and 
+            not isinstance(e, InvalidXmlError) and
+            not isinstance(e, KeyboardInterrupt)):
           self.logger.write(0,
             "An unhandled exception has been generated while processing "
             "the '%s' event.  The traceback has been recorded in the log "

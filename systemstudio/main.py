@@ -47,13 +47,14 @@ from systemstudio.util import sync
 from systemstudio.util.sync import cache
 from systemstudio.util.sync import link
 
-from systemstudio.callback  import (SyncCallback, CachedSyncCallback, LinkCallback,
-                            SyncCallbackCompressed)
+from systemstudio.callback  import (SyncCallback, CachedSyncCallback,
+                                    LinkCallback, SyncCallbackCompressed)
 from systemstudio.constants import *
 from systemstudio.errors    import SystemStudioErrorHandler, SystemStudioError
 from systemstudio.event     import Event, CLASS_META
-from systemstudio.sslogging   import make_log, L0, L1, L2
-from systemstudio.validate  import SystemStudioValidationHandler
+from systemstudio.sslogging import make_log, L0, L1, L2
+from systemstudio.validate  import (SystemStudioValidationHandler, 
+                                    InvalidXmlError)
 
 from systemstudio.event.loader import Loader
 
@@ -225,7 +226,8 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
       try:
         try:
           self.dispatch.execute(until=None)
-        except (SystemStudioError, Exception, KeyboardInterrupt), e:
+        except (SystemStudioError, InvalidXmlError, Exception, 
+                KeyboardInterrupt), e:
           self._handle_Exception(e)
       finally:
         self._lock.release()
