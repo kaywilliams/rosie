@@ -35,7 +35,7 @@
     </title>
 
     <programlisting>
-&lt;config [enabled=BOOLEAN]&gt;
+&lt;config&gt;
   [&lt;updates [sync=boolean] [gpgcheck=boolean]) /&gt;
 
   [&lt;files [destdir=PATH] [destname=BASENAME] [mode=MODE]
@@ -57,26 +57,6 @@
    &lt;/trigger&gt;]*
 &lt;/config&gt;
     </programlisting>
-  </section>
-
-  <section>
-    <title>
-    Attributes
-    </title>
-
-    <variablelist>
-    <varlistentry>
-      <term>
-      enabled
-      </term>
-
-      <listitem>
-      <para>
-      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
-      </para>
-      </listitem>
-    </varlistentry>
-    </variablelist>
   </section>
 
   <section>

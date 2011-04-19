@@ -34,7 +34,7 @@
       </para>
 
       <programlisting>
-&lt;packages [enabled=BOOLEAN]&gt;
+&lt;packages&gt;
 
   &lt;!-- must have at least one &lt;group&gt; or &lt;package&gt; element --&gt;
   [&lt;group [repoid=TEXT]&gt;TEXT&lt;/group&gt;]*
@@ -44,26 +44,6 @@
 &lt;/packages&gt;
       </programlisting>
     </section>
-  </section>
-
-  <section>
-    <title>
-    Attributes
-    </title>
-
-    <variablelist>
-    <varlistentry>
-      <term>
-      enabled
-      </term>
-
-      <listitem>
-      <para>
-      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
-      </para>
-      </listitem>
-    </varlistentry>
-    </variablelist>
   </section>
 
   <section>

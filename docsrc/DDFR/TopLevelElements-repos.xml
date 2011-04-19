@@ -210,26 +210,6 @@ baseurl=/var/repos/repoC
 
   <section>
     <title>
-    Attributes
-    </title>
-
-    <variablelist>
-    <varlistentry>
-      <term>
-      enabled
-      </term>
-
-      <listitem>
-      <para>
-      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
-      </para>
-      </listitem>
-    </varlistentry>
-    </variablelist>
-  </section>
-
-  <section>
-    <title>
     Elements
     </title>
 

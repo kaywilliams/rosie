@@ -44,7 +44,7 @@
     </title>
 
     <programlisting>
-[&lt;kickstart [enabled=BOOLEAN]&gt;PATH&lt;/kickstart&gt;]
+[&lt;kickstart&gt;PATH&lt;/kickstart&gt;]
     </programlisting>
   </section>
 
@@ -53,19 +53,6 @@
     Attributes
     </title>
 
-    <variablelist>
-    <varlistentry>
-      <term>
-      enabled
-      </term>
-
-      <listitem>
-      <para>
-      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
-      </para>
-      </listitem>
-    </varlistentry>
-    </variablelist>
   </section>
 
   <section>

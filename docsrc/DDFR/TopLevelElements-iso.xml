@@ -23,31 +23,11 @@
     </title>
 
     <programlisting>
-[&lt;iso [enabled=BOOLEAN]&gt;
+[&lt;iso&gt;
   [&lt;boot-args [use-defaults=BOOLEAN]&gt;TEXT&lt;/boot-args&gt;]
    &lt;set&gt;TEXT&lt;/set&gt;*
  &lt;/iso&gt;]
     </programlisting>
-  </section>
-
-  <section>
-    <title>
-    Attributes
-    </title>
-
-    <variablelist>
-    <varlistentry>
-      <term>
-      enabled
-      </term>
-
-      <listitem>
-      <para>
-      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
-      </para>
-      </listitem>
-    </varlistentry>
-    </variablelist>
   </section>
 
   <section>
