@@ -27,7 +27,6 @@
     Syntax
     </title>
 
-    <section>
       <para>
       At least one <emphasis>packages/group</emphasis> or
       <emphasis>packages/package</emphasis> element is required.
@@ -43,7 +42,6 @@
   [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
 &lt;/packages&gt;
       </programlisting>
-    </section>
   </section>
 
   <section>

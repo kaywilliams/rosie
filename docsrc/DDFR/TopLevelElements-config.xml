@@ -39,7 +39,7 @@
   [&lt;updates [sync=boolean] [gpgcheck=boolean]) /&gt;
 
   [&lt;files [destdir=PATH] [destname=BASENAME] [mode=MODE]
-          [content=("file"|"text")&gt;
+          [content=("file"|"text")]&gt;
     (PATH|TEXT)
    &lt;/files&gt;]*
 
@@ -191,8 +191,7 @@
       <emphasis>@type</emphasis>: Specifies the type of RPM script; must
       be one of "pre", "post", "preun", "postun", or "verifyscript". This
       attribute is required. For more information on defining scripts in
-      RPM spec files, see the Fedora project's
-      <ulink url="http://docs.fedoraproject.org/drafts/rpm-guide-en/">"RPM Guide"</ulink>
+      RPM spec files, see the Fedora project's <emphasis>"RPM Guide"</emphasis>
       by Eric Foster-Johnson.
       </para>
       </listitem>
@@ -272,8 +271,8 @@
       script; must be one of "triggerin", "triggerun", or "triggerpostun".
       This attribute is required. For more information on defining trigger
       scripts in RPM spec files, see the Fedora project's
-      <ulink url="http://docs.fedoraproject.org/drafts/rpm-guide-en/">"RPM Guide"</ulink>
-      by Eric Foster-Johnson. See Also the <emphasis>@package</emphasis>
+      <emphasis>"RPM Guide"</emphasis> by Eric Foster-Johnson. See Also the
+      <emphasis>@package</emphasis>
       attribute.
       </para>
       </listitem>
