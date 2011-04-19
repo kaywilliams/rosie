@@ -39,12 +39,12 @@
   [&lt;updates [sync=boolean] [gpgcheck=boolean]) /&gt;
 
   [&lt;files [destdir=PATH] [destname=BASENAME] [mode=MODE]
-          [content=("filename"|"text")&gt;
+          [content=("file"|"text")&gt;
     (PATH|TEXT)
    &lt;/files&gt;]*
 
   [&lt;script type=("post"|"pre"|"preun"|"postun"|"verifyscript")
-          [content=("filename"|"text")]&gt;
+          [content=("file"|"text")]&gt;
     (PATH|TEXT)
    &lt;/script&gt;]*
 
@@ -52,7 +52,7 @@
   [&lt;requires&gt;CAPABILITY&lt;/requires&gt;]*
 
   [&lt;trigger package=CAPABILITY type=("triggerin"|"triggerun"|"triggerpostun")
-           [content=("filename"|"text")] [interpreter=PATH]&gt;
+           [content=("file"|"text")] [interpreter=PATH]&gt;
     (PATH|TEXT)
    &lt;/trigger&gt;]*
 &lt;/config&gt;
@@ -131,13 +131,13 @@
       </para>
 
       <para>
-      <emphasis>@content</emphasis>: Accepts either "filename" or "text".  
+      <emphasis>@content</emphasis>: Accepts either "file" or "text".  
       When <emphasis>content</emphasis> is
-      "filename", the element's text value is treated as a
+      "file", the element's text value is treated as a
       <varname>PATH</varname> to a file, whereas when it is "text", the
       element's text value is interpreted as the raw text to use for creating
       a file with the name specified using the @destname attribute.
-      The default value is "filename".
+      The default value is "file".
       </para>
 
       <para>
@@ -180,11 +180,11 @@
       </para>
 
       <para>
-      <emphasis>@content</emphasis>: Accepts either "filename" or "text".  
-      When <emphasis>content</emphasis> is "filename", the element's text value
+      <emphasis>@content</emphasis>: Accepts either "file" or "text".  
+      When <emphasis>content</emphasis> is "file", the element's text value
       is treated as a <varname>PATH</varname> to a file, whereas when it is
       "text", the element's text value is interpreted as the raw text of the
-      script to execute. The default value is "filename".
+      script to execute. The default value is "file".
       </para>
 
       <para>
@@ -248,11 +248,11 @@
       </para>
 
       <para>
-      <emphasis>@content</emphasis>: Accepts either "filename" or "text".  
-      When <emphasis>content</emphasis> is "filename", the element's text value
+      <emphasis>@content</emphasis>: Accepts either "file" or "text".  
+      When <emphasis>content</emphasis> is "file", the element's text value
       is treated as a <varname>PATH</varname> to a file, whereas when it is
       "text", the element's text value is interpreted as the raw text of the
-      script to execute. The default value is "filename".
+      script to execute. The default value is "file".
       </para>
 
       <para>
