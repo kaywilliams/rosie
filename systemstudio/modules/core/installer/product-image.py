@@ -61,6 +61,11 @@ class ProductImageEvent(Event, ImageModifyMixin):
   def setup(self):
     self.DATA['input'].append(self.cvars['buildstamp-file'])
 
+    # Diff installclass text, strip leading and trailing whitespace first
+    # since this is lost when reading strings back from metadata
+    self.installclass = self.locals.L_INSTALLCLASS.strip()
+    self.DATA['variables'].append('installclass')
+
     # ImageModifyMixin setup
     self.image_locals = self.locals.L_FILES['installer']['product.img']
     ImageModifyMixin.setup(self)
