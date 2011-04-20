@@ -13,29 +13,26 @@
     </title>
 
     <para>
-    Specifies a <varname>PATH</varname> to a kickstart file for inclusion in
-    the distribution.  The file is renamed, if needed, to 
-    <filename>ks.cfg</filename> and included in the distribution's 
-    <filename>os</filename> folder, e.g. 
-    <filename>http://server.company.com/distributions/samba-server-5-i386/os/ks.cfg</filename>. 
-    This makes the file easy to identify later when someone, possibly someone
-    other than the person who built the system distribution, configures 
-    network boot (PXE) or virtual machine installations. 
+    The kickstart element specifies either the
+    <varname>PATH</varname> to a kickstart file, or the text of a file to be 
+    created. The resulting file is named <filename>ks.cfg</filename> and 
+    included in the distribution's <filename>os</filename> folder, e.g.
+    <filename>http://server.company.com/distributions/samba-server-5-i386/os/ks.cfg</filename>.
+    It is also included in the <emphasis role="strong"><xref
+    linkend="bootiso" /></emphasis> and <emphasis role="strong"><xref
+    linkend="diskboot-image" /></emphasis> images, and in all <emphasis
+    role="strong"><xref linkend="iso" /></emphasis>. 
     </para>
 
-   <para>
-    The kickstart file is also included in the 
-    <emphasis role="strong"><xref linkend="bootiso" /></emphasis> and
-    <emphasis role="strong"><xref linkend="diskboot-image" /></emphasis>
-    images, and in all 
-    <emphasis role="strong"><xref linkend="iso" /></emphasis> images. 
-    It will be used automatically when these images are used for new system
-    installations.</para> 
+    <para>For more information on creating and using kickstart files, see the
+    <emphasis>SystemStudio User Manual</emphasis>.
+    </para> 
 
-    <para>
-    This module is a member of the <emphasis role="strong">installer</emphasis>
-    module group.
-    </para>
+    <note>It is not necessary to specify a '%packages' section in the kickstart
+    file. SystemStudio automatically configures the installer to install all
+    packages in the distribution repository. If a '%packages' section is
+    provided, it is ignored.</note>
+
   </section>
 
   <section>
@@ -44,7 +41,7 @@
     </title>
 
     <programlisting>
-[&lt;kickstart [enabled=BOOLEAN]&gt;PATH&lt;/kickstart&gt;]
+[&lt;kickstart [content=("text"|"file")]&gt;PATH&lt;/kickstart&gt;]
     </programlisting>
   </section>
 
@@ -55,17 +52,22 @@
 
     <variablelist>
     <varlistentry>
-      <term>
-      enabled
-      </term>
+    <term>
+    content
+    </term>
 
-      <listitem>
-      <para>
-      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
-      </para>
-      </listitem>
+    <listitem>
+    <para>
+    Accepts either "file" or "text".  When
+    <emphasis>content</emphasis> is "file", the element's text value is treated
+    as a <varname>PATH</varname> to a file, whereas when it is "text", the
+    element's text value is interpreted as the raw text to use for creating a
+    file. The default value is "file".
+    </para>
+    </listitem>
     </varlistentry>
     </variablelist>
+
   </section>
 
   <section>
@@ -73,11 +75,39 @@
     Examples
     </title>
 
+    <section>
+    <title>
+    Example 1 - including a kickstart file
+    </title>   
     <informalexample>
     <programlisting>
 &lt;kickstart&gt;ks.cfg&lt;/kickstart&gt;
     </programlisting>
     </informalexample>
+    </section>
+
+    <section>
+    <title>
+    Example 2 - including kickstart text
+    </title>
+    <informalexample>
+    <programlisting>
+&lt;kickstart content="text"&gt;
+install
+lang en_US
+network bootproto=dhcp 
+clearpart --all
+autopart
+bootloader --location=mbr
+timezone America/Vancouver
+auth --enablemd5 --enableshadow --enablecache
+rootpw secret
+selinux --enforcing
+reboot
+&lt;/kickstart&gt;
+    </programlisting>
+    </informalexample>
+    </section>
   </section>
 
   <section>

@@ -31,30 +31,10 @@
     </title>
 
     <programlisting>
-[&lt;bootiso [enabled=BOOLEAN]&gt;
+[&lt;bootiso&gt;
   [&lt;boot-args [use-defaults=BOOLEAN]&gt;TEXT&lt;/boot-args&gt;]
  &lt;/bootiso&gt;]
     </programlisting>
-  </section>
-
-  <section>
-    <title>
-    Attributes
-    </title>
-
-    <variablelist>
-    <varlistentry>
-      <term>
-      enabled
-      </term>
-
-      <listitem>
-      <para>
-      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
-      </para>
-      </listitem>
-    </varlistentry>
-    </variablelist>
   </section>
 
   <section>
@@ -90,7 +70,7 @@
 
     <informalexample>
     <programlisting>
-&lt;bootiso enabled="true"&gt;
+&lt;bootiso&gt;
   &lt;boot-args use-defaults="false"&gt;
     keymap=us lang=en_US ip=192.168.0.222
     netmask=255.255.255.0 gateway=192.168.0.2 dns=192.168.0.7

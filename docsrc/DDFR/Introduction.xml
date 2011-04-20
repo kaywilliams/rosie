@@ -98,66 +98,6 @@
 
   <section>
     <title>
-    Top-Level Elements
-    </title>
-
-	  <para>
-	  Each top-level element in the DDFR maps to a code module of the same
-	  name. Each code module is responsible for performing a single step in
-	  the system distribution build process.  Related modules are organized into 
-	  module groups. To obtain a list of all available modules and module 
-	  groups type
-
-	  <programlisting>
-	systemstudio --list-modules
-	  </programlisting>
-
-	  at the command prompt. Refer to the SystemStudio man pages for more information.
-	  This document only describes top-level elements that contain
-	  user-configurable parameters; not all modules listed from the above
-	  command are described below.
-	  </para>
-
-	  <para>
-	  All top-level elements, including those not described in the following
-	  document, support the following method for enabling and disabling the
-	  module's processing code. A top-level element
-	  <emphasis role="strong">element</emphasis> can be disabled by setting
-	  <emphasis>element/@enabled</emphasis> to <constant>FALSE</constant>.
-	  Similarly, the module groups
-	  <emphasis role="strong">rpmbuild</emphasis>,
-	  <emphasis role="strong">package</emphasis>, and
-	  <emphasis role="strong">installer</emphasis> can be disabled by setting
-	  their <emphasis>@enabled</emphasis> attribute to
-	  <constant>FALSE</constant>.
-	  </para>
-
-	  <para>
-	  The sole exception to the above rules is the
-	  <emphasis role="strong">main</emphasis> module, which is required for
-	  SystemStudio to operate properly.
-	  </para>
-
-	  <para>
-	  The following example will disable the
-	  <emphasis role="strong">config</emphasis> top-level element
-	  and associated code module:
-	  <programlisting>
-	&lt;config enabled="false" /&gt;
-	  </programlisting>
-
-	  The entire <emphasis role="strong">rpmbuild</emphasis> module group,
-	  which includes <emphasis role="strong">config</emphasis>, is
-	  disabled like in the following example:
-
-	  <programlisting>
-	&lt;rpmbuild enabled="false" /&gt;
-	  </programlisting>
-	  </para>
-  </section>
-
-  <section>
-    <title>
     See Also
     </title>
 

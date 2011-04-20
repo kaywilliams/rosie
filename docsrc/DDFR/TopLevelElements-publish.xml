@@ -56,7 +56,7 @@
       </title>
 
     <programlisting>
-[&lt;publish [enabled=BOOLEAN]&gt;
+[&lt;publish&gt;
   [&lt;local-dir&gt;PATH&lt;/local-dir&gt;]
   [( &lt;remote-url fqdn=TRUE [interface=TEXT]/&gt; |
      &lt;remote-url [fqdn=FALSE]/&gt; )]
@@ -70,32 +70,12 @@
       </title>
 
     <programlisting>
-[&lt;publish [enabled=BOOLEAN]&gt;
+[&lt;publish&gt;
   [&lt;local-dir&gt;PATH&lt;/local-dir&gt;]
   [&lt;remote-url&gt;PATH&lt;/remote-url&gt;]
  &lt;/publish&gt;]
     </programlisting>
     </section>
-  </section>
-
-  <section>
-    <title>
-    Attributes
-    </title>
-
-    <variablelist>
-    <varlistentry>
-      <term>
-      enabled
-      </term>
-
-      <listitem>
-      <para>
-      See Common Attribute <emphasis><xref linkend="enabled" /></emphasis>.
-      </para>
-      </listitem>
-    </varlistentry>
-    </variablelist>
   </section>
 
   <section>
