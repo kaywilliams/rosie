@@ -31,7 +31,7 @@ class KickstartEvent(Event):
     Event.__init__(self,
       id = 'kickstart',
       parentid = 'installer',
-      version = 1,
+      version = 1.01,
       provides = ['kickstart-file', 'ks-path', 'initrd-image-content'],
     )
 
@@ -64,7 +64,7 @@ class KickstartEvent(Event):
       if '%packages' in line:
         break
     else:
-      kstext = self.kstext + '%packages\n'
+      kstext = self.kstext + '\n%packages\n'
 
     self.ksfile.dirname.mkdirs()
     self.ksfile.write_text(kstext)
