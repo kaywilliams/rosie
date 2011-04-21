@@ -62,12 +62,13 @@ class KickstartEvent(Event):
   def run(self):
     for line in self.kstext.split('\n'): 
       if '%packages' in line:
+        text = self.kstext
         break
     else:
-      kstext = self.kstext + '\n%packages\n'
+      text = self.kstext + '\n%packages\n'
 
     self.ksfile.dirname.mkdirs()
-    self.ksfile.write_text(kstext)
+    self.ksfile.write_text(text)
     self.DATA['output'].append(self.ksfile)
 
   def apply(self):
