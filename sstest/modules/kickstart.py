@@ -34,9 +34,31 @@ class KickstartEventTestCase(EventTestCase):
       remove_input_files(self.event._config.file.abspath().dirname)
     EventTestCase.tearDown(self)
 
+class Test_KickstartFromText(KickstartEventTestCase):
+  "kickstart created from text input"
+  _conf = """<kickstart content='text'></kickstart>"""
+
+  def setUp(self):
+    EventTestCase.setUp(self)
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.event)
+    self.failUnlessExists(self.event.ksfile)
+
+  def tearDown(self):
+    EventTestCase.tearDown(self)
+
+class Test_PackageSectionInKickstart(KickstartEventTestCase):
+  "kickstart includes %packages section"
+  def runTest(self):
+   self.tb.dispatch.execute(until=self.event)
+   self.failUnless('%packages' in self.event.ksfile.read_text())
+
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('kickstart')
 
   suite.addTest(make_extension_suite(KickstartEventTestCase, distro, version, arch))
+  suite.addTest(Test_KickstartFromText(distro, version, arch))
+  suite.addTest(Test_PackageSectionInKickstart(distro, version, arch))
 
   return suite

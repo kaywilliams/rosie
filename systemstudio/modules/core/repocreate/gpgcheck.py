@@ -48,7 +48,8 @@ class GpgCheckEvent(Event):
       id = 'gpgcheck',
       parentid = 'repocreate',
       version = '1.03',
-      requires = ['rpms', 'gpgcheck-enabled', 'gpgkeys',],
+      requires = ['rpms'],
+      conditionally_requires = ['gpgcheck-enabled', 'gpgkeys'],
       provides = ['checked-rpms', ],
       suppress_run_message = True
     )

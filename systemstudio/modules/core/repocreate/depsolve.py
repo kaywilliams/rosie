@@ -51,7 +51,7 @@ class DepsolveEvent(Event, DepsolverMixin):
       provides = ['pkglist'],
       requires = ['comps-object', 'repos', 'all-packages', 'comps-group-info',
                   'user-required-packages'],
-      conditionally_requires = ['pkglist-excluded-packages'],
+      conditionally_requires = ['excluded-packages'],
       version = '1.07'
     )
 
@@ -65,7 +65,7 @@ class DepsolveEvent(Event, DepsolverMixin):
       'variables': ['cvars[\'all-packages\']',
                     'cvars[\'comps-group-info\']',
                     'cvars[\'user-required-packages\']',
-                    'cvars[\'pkglist-excluded-packages\']'],
+                    'cvars[\'excluded-packages\']'],
       'input':     [],
       'output':    [],
     }

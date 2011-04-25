@@ -141,6 +141,8 @@ class RpmbuildRepoEvent(Event):
         (self.cvars.setdefault('excluded-packages', set())
           .update(v['rpm-obsoletes']))
 
+    for v in ['required-packages', 'excluded-packages']:
+      if v in self.cvars: self.cvars[v] = list(self.cvars[v])
 
   def _setup_repos(self, type, updates=None):
 

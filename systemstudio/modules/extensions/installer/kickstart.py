@@ -31,30 +31,50 @@ class KickstartEvent(Event):
     Event.__init__(self,
       id = 'kickstart',
       parentid = 'installer',
-      version = 1,
+      version = 1.01,
       provides = ['kickstart-file', 'ks-path', 'initrd-image-content'],
     )
 
     self.DATA = {
-      'config': ['.'],
-      'input':  [],
-      'output': [],
+      'config':    ['.'],
+      'variables': [],
+      'output':    [],
     }
 
   def setup(self):
-    self.ksname = 'ks.cfg'
-
     self.diff.setup(self.DATA)
-    self.io.add_xpath('.', self.SOFTWARE_STORE, id='kickstart-file', 
-                      destname=self.ksname)
+
+    self.ksname = 'ks.cfg'
+    self.ksfile = self.SOFTWARE_STORE/self.ksname
+
+    # read the text or file specified in the kickstart element
+    # note: we download the existing file here rather than use add_fpath as
+    # the file is small and processing is cleaner 
+    elem = self.config.get('.')
+    if elem.get('@content', 'file') == 'text':
+      self.kstext = (elem.text or '')
+    else:
+      self.io.validate_input_file(elem.text, None) 
+      self.kstext = self.io.abspath(elem.text).read_text()
+
+    self.DATA['variables'].append('kstext')
 
   def run(self):
-    self.io.process_files(cache=True)
+    for line in self.kstext.split('\n'): 
+      if '%packages' in line:
+        text = self.kstext
+        break
+    else:
+      text = self.kstext + '\n%packages\n'
+
+    self.ksfile.dirname.mkdirs()
+    self.ksfile.write_text(text)
+    self.DATA['output'].append(self.ksfile)
 
   def apply(self):
-    self.cvars['kickstart-file'] = self.io.list_output(what='kickstart-file')[0]
+    self.cvars['kickstart-file'] = self.ksfile
     self.cvars['ks-path'] = pps.path('/%s' % self.cvars['kickstart-file'].basename)
 
   def verify_cvars(self):
-    "cvars are set"
-    self.verifier.failUnlessSet('ks-path')
+    "kickstart file exists"
+    self.verifier.failUnlessExists(self.cvars['kickstart-file'])

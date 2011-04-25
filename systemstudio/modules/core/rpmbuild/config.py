@@ -93,9 +93,19 @@ class ConfigEvent(RpmBuildMixin, Event):
                              cls=MissingXpathInputFileError)
         self.DATA['input'].append(script.text)
 
-    # add cvars['repos'] to difftest so that if they change, we rerun to 
-    # provide an updated system.repos file
-    self.DATA['variables'].append('cvars[\'repos\']')
+    # compute input repos text and add to diff variables
+    self.input_repos_text = []
+
+    for repo in self.cvars['repos'].values(): #include input repos
+      try:
+        if isinstance(repo.url.realm, pps.Path.rhn.RhnPath):
+          continue
+        self.input_repos_text.extend(repo.lines(pretty=True))
+        self.input_repos_text.append('')
+      except AttributeError:
+        pass
+
+    self.DATA['variables'].append('input_repos_text')
 
     # setup gpgkeys
     self.cvars['gpgcheck-enabled'] = self.config.getbool(
@@ -149,8 +159,7 @@ class ConfigEvent(RpmBuildMixin, Event):
     repofile = ( self.rpm.source_folder/'etc/yum.repos.d/system.repo' )
 
     lines = []
-
-    # include a repo pointing to the published system
+    # include distribution repo
     if self.cvars['web-path'] is not None:
       baseurl = self.cvars['web-path']/'os'
       lines.extend([ '[%s]' % self.name,
@@ -159,20 +168,11 @@ class ConfigEvent(RpmBuildMixin, Event):
                      'metadata_expire = 0',
                      'gpgcheck = %s' % (self.cvars['gpgcheck-enabled']),
                      ])
-
-      # include gpgkeys
       lines.append('gpgkey = %s' % ', '.join(self._gpgkeys()))
- 
-    # include repo(s) pointing to system inputs
-    lines.append('')
-    for repo in self.cvars['repos'].values():
-      try:
-        if isinstance(repo.url.realm, pps.Path.rhn.RhnPath):
-          continue
-        lines.extend(repo.lines(pretty=True))
-        lines.append('')
-      except AttributeError:
-        pass
+
+    # include input repos
+    lines.append('') 
+    lines.extend(self.input_repos_text)
 
     if len(lines) > 0:
       repofile.dirname.mkdirs()
