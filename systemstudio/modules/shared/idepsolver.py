@@ -122,8 +122,8 @@ class DepsolverMixin(object):
       self.depsolve_repo.remove()
     conf = []
     conf.extend(YUMCONF_HEADER)
-    if self.cvars['pkglist-excluded-packages']:
-      line = 'exclude=' + ' '.join(self.cvars['pkglist-excluded-packages'])
+    if self.cvars['excluded-packages']:
+      line = 'exclude=' + ' '.join(self.cvars['excluded-packages'])
       conf.append(line)
     for repo in self.cvars['repos'].values():
       conf.extend(repo.lines(pretty=True, baseurl=repo.localurl, mirrorlist=None))

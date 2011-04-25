@@ -41,7 +41,7 @@ class PackagesEvent(Event):
       parentid = 'repocreate',
       provides = ['groupfile', 'comps-object', 'comps-group-info',
                   'user-required-packages', 'user-required-groups',
-                  'user-excluded-packages', 'all-packages'],
+                  'all-packages'],
       requires = ['repos'],
       conditionally_requires = ['required-packages', 'excluded-packages'],
       version = '1.01'
@@ -69,9 +69,15 @@ class PackagesEvent(Event):
     # track file changes
     self.DATA['input'].extend([gf for _,gf in self.groupfiles])
 
-    for i in ['required-packages', 'excluded-packages']:
-      self.cvars.setdefault(i, [])
-      self.DATA['variables'].append('cvars[\'%s\']' % i)
+    # set required packages and track
+    self.cvars.setdefault('required-packages', [])
+    self.DATA['variables'].append('cvars[\'required-packages\']')
+
+    # set excluded packages and track
+    self.cvars.setdefault('excluded-packages', [])
+    (self.cvars['excluded-packages']
+        .extend(self.config.xpath('exclude/text()', [])))
+    self.DATA['variables'].append('cvars[\'excluded-packages\']')
 
   def run(self):
     self.io.clean_eventcache(all=True)
@@ -112,8 +118,6 @@ class PackagesEvent(Event):
       self.config.xpath('package/text()', [])
     self.cvars['user-required-groups'] = \
       self.config.xpath('group/text()', []) + [self.app_gid]
-    self.cvars['user-excluded-packages'] = \
-      self.config.xpath('exclude/text()', [])
 
     # set packages-* cvars
     self.cvars['packages-ignoremissing'] = \
@@ -138,7 +142,7 @@ class PackagesEvent(Event):
     "cvars set"
     for cvar in  ['groupfile', 'comps-object', 'comps-group-info',
                   'user-required-packages', 'user-required-groups',
-                  'user-excluded-packages', 'all-packages']:
+                  'all-packages']:
       self.verifier.failUnlessSet(cvar)
 
 
@@ -229,8 +233,7 @@ class PackagesEvent(Event):
     self.comps.add_group(core_group)
 
     # remove excluded packages
-    for pkg in ( self.config.xpath('exclude/text()', []) +
-                 list(self.cvars['excluded-packages'] or []) ):
+    for pkg in self.cvars['excluded-packages']:
       for group in self.comps.groups:
         for l in [ group.mandatory_packages, group.optional_packages,
                    group.default_packages, group.conditional_packages ]:

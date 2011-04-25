@@ -43,8 +43,7 @@ class ReposEvent(RepoEventMixin, Event):
       provides = ['anaconda-version',
                   'repos', 'installer-repo',
                   'input-repos', # ugly solution to cycle in rpmbuild-repo
-                  'excluded-packages',
-                  'pkglist-excluded-packages'],
+                  ],
     )
 
     RepoEventMixin.__init__(self)
@@ -117,11 +116,6 @@ class ReposEvent(RepoEventMixin, Event):
     # set up cvars
     self.cvars['repos']   = self.repos
     self.cvars['repoids'] = self.repoids
-
-    # globally excluded packages
-    global_excludes = self.config.xpath('exclude/text()', [])
-    self.cvars.setdefault('excluded-packages', set()).update(global_excludes)
-    self.cvars.setdefault('pkglist-excluded-packages', set()).update(global_excludes)
 
   def verify_repodata(self):
     "repodata exists"

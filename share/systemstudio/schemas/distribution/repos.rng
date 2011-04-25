@@ -18,10 +18,6 @@
           <ref name="element-repo"/>
         </oneOrMore>
 
-        <zeroOrMore>
-        <ref name="element-exclude"/>
-        </zeroOrMore>
-
         </interleave>
 
       </element>
