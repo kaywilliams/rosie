@@ -12,13 +12,7 @@
     </title>
 
     <para>
-    Specifies the packages to be included in the system distribution and to be
-    installed by default in any images created by SystemStudio.
-    </para>
-
-    <para>
-    This module is a member of the <emphasis role="strong">repository</emphasis>
-    module group.
+    Specifies the packages to be included in the system distribution.
     </para>
   </section>
 
@@ -58,21 +52,12 @@
 
       <listitem>
       <para>
-      The name of a package to exclude from all groups specified via
-      <emphasis>packages/group</emphasis>
+      The name of a package to be excluded from the distribution repository. 
       </para>
 
       <para>
       This element can occur zero or more times.
       </para>
-
-      <note><application class="software">SystemStudio</application> excludes
-      specified packages from any included groups, but they may still be
-      included in the system distribution repository to satisfy to package dependency 
-      requirements.  See Also 
-      <xref linkend="repo-including-excluding-repository-contents" />
-      for information on excluding packages from the system distribution
-      itself.</note>
 
       </listitem>
     </varlistentry>
@@ -153,7 +138,7 @@
     the "httpd" and "createrepo" packages, as well as all packages matching
     the glob "samba*", will be added to a new group called
     "example-packages". Finally, the "system-config-soundcard" package will
-    be excluded from appearing in any of the listed groups.
+    be excluded from the distribution.
     </para>
 
     <informalexample>
@@ -175,7 +160,8 @@
   &lt;package&gt;samba*&lt;/package&gt;
   &lt;package&gt;createrepo&lt;/package&gt;
 
-  &lt;!-- prevent system-config-soundcard from appearing in any group --&gt;
+  &lt;!-- prevent system-config-soundcard from being included in the 
+  distribution --&gt;
   &lt;exclude&gt;system-config-soundcard&lt;/exclude&gt;
 &lt;/packages&gt;  
     </programlisting>

@@ -125,7 +125,14 @@
       <para>
       By default, all packages in all repositories are available for 
       SystemStudio to use. Packages can be excluded from <emphasis>all 
-      repositories</emphasis> using the <emphasis>exclude</emphasis> element. 
+      repositories</emphasis> using the <emphasis>packages/exclude</emphasis>
+      element. See <varname><xref linkend="packages-definition" /></varname> for
+      infomation on excluding packages from 
+      <emphasis>all respositories</emphasis> using the
+      <varname>packages</varname> top-level element.
+      </para>
+
+      <para>
       Available packages for <emphasis>a single repository</emphasis> can be 
       restricted by using one or more <emphasis>repo/exclude</emphasis> or
       <emphasis>repo/includepkgs</emphasis> elements. The logic for
@@ -214,24 +221,6 @@ baseurl=/var/repos/repoC
     </title>
 
     <variablelist>
-    <varlistentry>
-      <term>
-      exclude
-      </term>
-
-      <listitem>
-      <para>
-      A <varname>PACKAGE</varname> pattern to exclude from all repositories
-      used in the system distribution. See Also 
-      <emphasis><xref linkend="repo-including-excluding-repository-contents" /></emphasis>.
-      </para>
-
-      <para>
-      This element can occur zero or more times.
-      </para>
-      </listitem>
-    </varlistentry>
-
     <varlistentry>
       <term>
       releasever
