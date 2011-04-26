@@ -55,9 +55,12 @@ class KickstartEvent(Event):
       self.kstext = (elem.text or '')
     else:
       self.io.validate_input_file(elem.text, None) 
-      self.kstext = self.io.abspath(elem.text).read_text()
+      self.kstext = self.io.abspath(elem.text).read_text().strip()
 
     self.DATA['variables'].append('kstext')
+
+  def check(self):
+    return self.diff.test_diffs(debug=True)
 
   def run(self):
     for line in self.kstext.split('\n'): 
