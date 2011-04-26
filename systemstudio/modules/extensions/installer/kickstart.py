@@ -59,9 +59,6 @@ class KickstartEvent(Event):
 
     self.DATA['variables'].append('kstext')
 
-  def check(self):
-    return self.diff.test_diffs(debug=True)
-
   def run(self):
     for line in self.kstext.split('\n'): 
       if '%packages' in line:
