@@ -345,6 +345,8 @@ class RpmBuildObject:
     rpmbuild_data['packagereq-type']     = self.packagereq_type
 
     rpmbuild_data['rpm-name']      = self.name
+    rpmbuild_data['rpm-version']   = self.version
+    rpmbuild_data['rpm-release']   = self.release
     rpmbuild_data['rpm-obsoletes'] = self.obsoletes
     rpmbuild_data['rpm-provides']  = self.provides
     rpmbuild_data['rpm-requires']  = self.requires
