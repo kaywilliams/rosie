@@ -127,6 +127,7 @@ class PublishEvent(Event):
       id = 'publish',
       parentid = 'all',
       requires = ['publish-path', 'publish-content'],
+      provides = ['published-distribution']
     )
 
     self.DATA =  {
