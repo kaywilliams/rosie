@@ -53,7 +53,7 @@ class PkgorderEvent(Event):
       id = 'pkgorder',
       parentid = 'all',
       provides = ['pkgorder-file'],
-      requires = ['repodata-directory', 'os-dir'],
+      requires = ['repomd-file', 'os-dir'],
     )
 
     self.DATA =  {
@@ -64,7 +64,7 @@ class PkgorderEvent(Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.DATA['input'].append(self.cvars['repodata-directory'])
+    self.DATA['input'].append(self.cvars['repomd-file'])
 
     self.pkgorderfile = self.mddir/'pkgorder'
     self.DATA['output'].append(self.pkgorderfile)
@@ -109,7 +109,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
       parentid = 'all',
       provides = ['iso-dir', 'publish-content'],
       requires = ['anaconda-version', 'pkgorder-file', 
-                  'boot-config-file', 'os-dir'],
+                  'boot-config-file', 'treeinfo-file'],
       conditionally_requires = ['srpms-dir', 'ks-path', 'boot-args'],
     )
     ListCompareMixin.__init__(self)
@@ -132,8 +132,8 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     self.diff.setup(self.DATA)
     self.isodir = self.mddir/'iso'
 
-    self.DATA['input'].append(self.cvars['pkgorder-file'])
-    self.DATA['input'].append(self.SOFTWARE_STORE)
+    self.DATA['input'].extend([self.cvars['pkgorder-file'],
+                               self.cvars['treeinfo-file']])
 
     self.bootconfig.setup(defaults=['method=cdrom'], include_ks=True)
 

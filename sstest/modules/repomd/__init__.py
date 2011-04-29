@@ -31,7 +31,7 @@ class Test_CompsFile(RepomdEventTestCase):
   "comps file provided"
   def runTest(self):
     self.tb.dispatch.execute(until='repomd')
-    self.failUnlessExists(self.event.cvars['repodata-directory'] /
+    self.failUnlessExists(self.event.SOFTWARE_STORE / 'repodata' /
                           self.event.cvars['groupfile'].basename)
 
 def make_suite(distro, version, arch):

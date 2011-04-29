@@ -34,12 +34,12 @@ class RepomdEvent(Event, RepomdMixin):
       version = '1.03',
       parentid = 'repocreate',
       requires = ['rpms-directory', 'rpms'],
-      provides = ['repodata-directory', 'treeinfo-checksums'],
+      provides = ['repomd-file', 'treeinfo-checksums'],
       conditionally_requires = ['groupfile', 'checked-rpms'],
     )
     RepomdMixin.__init__(self)
 
-    self.cvars['repodata-directory'] = self.SOFTWARE_STORE/'repodata'
+    self.cvars['repomd-file'] = self.SOFTWARE_STORE/'repodata/repomd.xml'
 
     self.DATA = {
       'config':    ['.'],
@@ -72,4 +72,4 @@ class RepomdEvent(Event, RepomdMixin):
       (self.SOFTWARE_STORE, 'repodata/repomd.xml'))
 
   def verify_repodata_directory(self):
-    self.verifier.failUnlessExists(self.cvars['repodata-directory'])
+    self.verifier.failUnlessExists(self.cvars['repomd-file'])

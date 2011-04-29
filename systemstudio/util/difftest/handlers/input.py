@@ -56,7 +56,9 @@ class InputHandler(DiffHandler):
   def diff(self):
     self.newinput = {}
     for datum in self.idata:
-      for ifile in pps.path(datum).findpaths(type=pps.constants.TYPE_NOT_DIR):
+      ifiles = pps.path(datum).findpaths(type=pps.constants.TYPE_NOT_DIR)
+      if not ifiles: raise ValueError('No file(s) found at %s' % datum)
+      for ifile in ifiles:
         self.newinput[ifile] = self.tupcls(ifile)
     self.diffdict = diff(self.oldinput, self.newinput)
     if self.diffdict: self.dprint('input: %s' % self.diffdict)

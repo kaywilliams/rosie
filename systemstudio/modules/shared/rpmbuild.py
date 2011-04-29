@@ -184,8 +184,8 @@ class RpmBuildObject:
 
     self.ptr.diff.setup(self.ptr.DATA)
 
-    self.ptr.DATA['input'].extend(['prt.cvars[\'pubkey\']', 
-                                   'ptr.cvars[\'seckey\']'])
+    self.ptr.DATA['input'].extend([self.ptr.cvars['pubkey'], 
+                                   self.ptr.cvars['seckey']])
 
     self.arch     = kwargs.get('arch',     'noarch')
     self.author   = kwargs.get('author',   'systemstudio')

@@ -86,7 +86,7 @@ class TreeinfoEvent(Event):
       id = 'treeinfo',
       version = '1.1',
       parentid = 'installer',
-      provides = ['.treeinfo'],
+      provides = ['treeinfo-file'],
       requires = ['anaconda-version', 'treeinfo-checksums'],
     )
 
@@ -136,6 +136,7 @@ class TreeinfoEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
+    self.cvars['treeinfo-file'] = self.tifile
 
   def verify_treeinfo_file_exists(self):
     ".treeinfo file exists"

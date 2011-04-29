@@ -55,7 +55,7 @@ class RpmbuildRepoEvent(Event):
     self.RPMBUILD_SRPMS = self.mddir/self.csid
 
     self.DATA = {
-      'input':  ['cvars[\'pubkey\']'],
+      'input':  [],
       'output': [],
     }
 
@@ -63,6 +63,8 @@ class RpmbuildRepoEvent(Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
+
+    self.DATA['input'].append(self.cvars['pubkey'])
 
     if self.cvars['rpmbuild-data']:
       for id in self.cvars['rpmbuild-data'].keys():
