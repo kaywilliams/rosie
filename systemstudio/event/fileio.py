@@ -69,7 +69,7 @@ class IOObject(object):
         r.append((s, (dst/s.relpathfrom(src)).normpath()))
       return r
 
-  def validate_input_file(self, f, xpath):
+  def validate_input_file(self, f, xpath=None):
     # method called by add_item() to ensure the source is a valid file
     if not f: return
     f = self.abspath(f)
