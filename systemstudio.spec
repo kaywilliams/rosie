@@ -22,6 +22,7 @@ Requires: createrepo
 Requires: dosfstools
 Requires: gnupg
 Requires: mkisofs
+Requires: pykickstart
 Requires: python-devel
 Requires: python-hashlib
 Requires: python-lxml

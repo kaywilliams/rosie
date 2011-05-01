@@ -76,7 +76,7 @@ class IOObject(object):
     try:
       f.stat()
     except pps.Path.error.PathError, e:
-      if xpath:
+      if xpath is not None:
         raise MissingXpathInputFileError(errno=e.errno, message=e.strerror, 
                                          file=f.replace('\n', '\\n'), 
                                          xpath=xpath)

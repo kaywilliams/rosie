@@ -15,7 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util import pps
+
+import rpm
+
+from systemstudio.util   import pps
+from systemstudio.util   import shlib
+from systemstudio.errors import SystemStudioError
+
+from systemstudio.util.versort import Version
 
 from systemstudio.event import Event
 
@@ -41,6 +48,12 @@ class KickstartEvent(Event):
       'output':    [],
     }
 
+    # get pykickstart version
+    ts = rpm.TransactionSet()
+    h = list(ts.dbMatch('name', 'pykickstart'))[0]
+    self.cvars['pykickstart-version'] = Version("%s-%s" % (h['version'], 
+                                                           h['release']))
+
   def setup(self):
     self.diff.setup(self.DATA)
 
@@ -54,21 +67,39 @@ class KickstartEvent(Event):
     if elem.get('@content', 'file') == 'text':
       self.kstext = (elem.text or '')
     else:
-      self.io.validate_input_file(elem.text, None) 
+      self.io.validate_input_file(elem.text, elem) 
       self.kstext = self.io.abspath(elem.text).read_text().strip()
 
     self.DATA['variables'].append('kstext')
 
   def run(self):
-    for line in self.kstext.split('\n'): 
-      if '%packages' in line:
-        text = self.kstext
-        break
-    else:
-      text = self.kstext + '\n%packages\n'
 
+    ksver = 'rhel%s' %  self.cvars['base-info']['version'].split('.')[0]
+
+    adds=[{'test'    : "line.startswith('#version')",
+           'text'    : "\n#version %s" % ksver },
+          {'test'    :  "line.startswith('%packages')",
+           'text'    : "\n%packages\ngroup core\n%end",},]
+
+    # test for missing ks parameters
+    for line in self.kstext.split('\n'): 
+      for item in adds:
+        if eval(item['test']):
+          item['exists'] = True
+
+    # add missing parameters
+    for item in adds:
+      if not 'exists' in item: #add to end for sensible line no's in validation
+        self.kstext = self.kstext + item['text']
+
+    # write kickstart
     self.ksfile.dirname.mkdirs()
-    self.ksfile.write_text(text)
+    self.ksfile.write_text(self.kstext + '\n')
+
+    #validate kickstart
+    map = { 'ksver': ksver, 'ksfile': self.ksfile }
+    exec(self.locals.L_PYKICKSTART % map)
+
     self.DATA['output'].append(self.ksfile)
 
   def apply(self):
@@ -78,3 +109,6 @@ class KickstartEvent(Event):
   def verify_cvars(self):
     "kickstart file exists"
     self.verifier.failUnlessExists(self.cvars['kickstart-file'])
+
+class KickstartValidationError(SystemStudioError):
+  message = ( "%(message)s" )

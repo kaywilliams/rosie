@@ -24,7 +24,7 @@ from systemstudio.event.fileio import MissingXpathInputFileError
 from systemstudio.validate     import InvalidConfigError
 
 from systemstudio.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
-from systemstudio.errors         import SystemStudioIOError, assert_file_readable
+from systemstudio.errors         import assert_file_readable
 
 import cPickle
 import hashlib
