@@ -52,6 +52,8 @@ class Test_KickstartFromText(KickstartEventTestCase):
 
 class Test_KickstartIncludesAdditions(KickstartEventTestCase):
   "kickstart includes additional items"
+  _conf = """<kickstart content='text'></kickstart>"""
+
   def runTest(self):
    self.tb.dispatch.execute(until=self.event)
    for item in self.event.adds:

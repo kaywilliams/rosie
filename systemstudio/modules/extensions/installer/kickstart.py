@@ -64,11 +64,15 @@ class KickstartEvent(Event):
     # note: we download the existing file here rather than use add_fpath as
     # the file is small and processing is cleaner 
     elem = self.config.get('.')
+    self.ks_source = '' # track source for use in error messages
     if elem.get('@content', 'file') == 'text':
       self.kstext = (elem.text or '')
+      self.kssource = ('kickstart definition:\n<kickstart content="text">\n  %s\n</kickstart>' %
+                      ('\n  ').join([ l.strip() for l in self.kstext.split('\n')]))
     else:
       self.io.validate_input_file(elem.text, elem) 
       self.kstext = self.io.abspath(elem.text).read_text().strip()
+      self.kssource = 'kickstart file: %s' % self.io.abspath(elem.text)
 
     self.DATA['variables'].append('kstext')
 
@@ -76,23 +80,20 @@ class KickstartEvent(Event):
 
     ksver = 'rhel%s' %  self.cvars['base-info']['version'].split('.')[0]
 
-    self.adds=[ # expose as a class property so test module can access
-               {'test'    : "line.startswith('#version')",
-                'text'    : "\n#version %s" % ksver },
-               {'test'    :  "line.startswith('%packages')",
-                'text'    : "\n%packages\ngroup core\n%end",},]
-
     # test for missing ks parameters
+    self.adds = self.locals.L_KICKSTART_ADDS # expose as class property for
+                                             # use by kickstart test module
+    self.adds['version']['text'] = '\n#version %s' % ksver
     for line in self.kstext.split('\n'): 
       for item in self.adds:
-        if eval(item['test']):
-          item['exists'] = True
+        if self.adds[item]['test']:
+          self.adds[item]['exists'] = True
 
     # add missing parameters
     kstext = self.kstext[:] # self.kstext used for diff test, leave it alone
     for item in self.adds:
-      if not 'exists' in item: #add to end for sensible line no's in validation
-        kstext = kstext + item['text']
+      if not 'exists' in item: #add to end for correct line no's in validation
+        kstext = kstext + self.adds[item]['text']
 
     # write kickstart
     self.ksfile.dirname.mkdirs()

@@ -51,4 +51,5 @@ class LocalsObject:
   L_YUM_PLUGIN        = property(lambda self: L_YUM_PLUGIN[self.base_name][self.base_ver])
 
   # pykickstart version based
+  L_KICKSTART_ADDS    = property(lambda self: L_KICKSTART_ADDS[self.pykickstart_ver])
   L_PYKICKSTART       = property(lambda self: L_PYKICKSTART[self.pykickstart_ver])
