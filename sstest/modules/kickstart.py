@@ -66,6 +66,7 @@ class Test_KickstartIncludesAdditions(KickstartEventTestCase):
 
   def tearDown(self):
     EventTestCase.tearDown(self)
+>>>>>>> other
 
 class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
   "kickstart fails on invalid input"
