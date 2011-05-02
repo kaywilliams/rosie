@@ -54,10 +54,18 @@ class Test_KickstartIncludesAdditions(KickstartEventTestCase):
   "kickstart includes additional items"
   _conf = """<kickstart content='text'></kickstart>"""
 
+  def setUp(self):
+    EventTestCase.setUp(self)
+    self.clean_event_md()
+
   def runTest(self):
    self.tb.dispatch.execute(until=self.event)
    for item in self.event.adds:
-     self.failUnless(item['text'] in self.event.ksfile.read_text())
+     self.failUnless(self.event.adds[item]['text'] in 
+                     self.event.ksfile.read_text())
+
+  def tearDown(self):
+    EventTestCase.tearDown(self)
 
 class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
   "kickstart fails on invalid input"
@@ -66,6 +74,9 @@ class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
   def runTest(self):
    self.execute_predecessors(self.event)
    self.failUnlessRaises(SystemStudioError, self.event)
+
+  def tearDown(self):
+    EventTestCase.tearDown(self)
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('kickstart')
