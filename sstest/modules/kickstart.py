@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+from systemstudio.errors import SystemStudioError
+
 from sstest        import EventTestCase, ModuleTestSuite
 from sstest.core   import make_extension_suite
 from sstest.mixins import touch_input_files, remove_input_files
@@ -48,17 +50,27 @@ class Test_KickstartFromText(KickstartEventTestCase):
   def tearDown(self):
     EventTestCase.tearDown(self)
 
-class Test_PackageSectionInKickstart(KickstartEventTestCase):
-  "kickstart includes %packages section"
+class Test_KickstartIncludesAdditions(KickstartEventTestCase):
+  "kickstart includes additional items"
   def runTest(self):
    self.tb.dispatch.execute(until=self.event)
-   self.failUnless('%packages' in self.event.ksfile.read_text())
+   for item in self.event.adds:
+     self.failUnless(item['text'] in self.event.ksfile.read_text())
+
+class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
+  "kickstart fails on invalid input"
+  _conf = """<kickstart content='text'>invalid</kickstart>"""
+
+  def runTest(self):
+   self.execute_predecessors(self.event)
+   self.failUnlessRaises(SystemStudioError, self.event)
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('kickstart')
 
   suite.addTest(make_extension_suite(KickstartEventTestCase, distro, version, arch))
   suite.addTest(Test_KickstartFromText(distro, version, arch))
-  suite.addTest(Test_PackageSectionInKickstart(distro, version, arch))
+  suite.addTest(Test_KickstartIncludesAdditions(distro, version, arch))
+  suite.addTest(Test_KickstartFailsOnInvalidInput(distro, version, arch))
 
   return suite

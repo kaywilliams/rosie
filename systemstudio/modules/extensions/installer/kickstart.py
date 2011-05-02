@@ -76,25 +76,27 @@ class KickstartEvent(Event):
 
     ksver = 'rhel%s' %  self.cvars['base-info']['version'].split('.')[0]
 
-    adds=[{'test'    : "line.startswith('#version')",
-           'text'    : "\n#version %s" % ksver },
-          {'test'    :  "line.startswith('%packages')",
-           'text'    : "\n%packages\ngroup core\n%end",},]
+    self.adds=[ # expose as a class property so test module can access
+               {'test'    : "line.startswith('#version')",
+                'text'    : "\n#version %s" % ksver },
+               {'test'    :  "line.startswith('%packages')",
+                'text'    : "\n%packages\ngroup core\n%end",},]
 
     # test for missing ks parameters
     for line in self.kstext.split('\n'): 
-      for item in adds:
+      for item in self.adds:
         if eval(item['test']):
           item['exists'] = True
 
     # add missing parameters
-    for item in adds:
+    kstext = self.kstext[:] # self.kstext used for diff test, leave it alone
+    for item in self.adds:
       if not 'exists' in item: #add to end for sensible line no's in validation
-        self.kstext = self.kstext + item['text']
+        kstext = kstext + item['text']
 
     # write kickstart
     self.ksfile.dirname.mkdirs()
-    self.ksfile.write_text(self.kstext + '\n')
+    self.ksfile.write_text(kstext + '\n')
 
     #validate kickstart
     map = { 'ksver': ksver, 'ksfile': self.ksfile }
