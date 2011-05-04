@@ -20,7 +20,8 @@ from systemstudio.util import rxml
 
 from systemstudio.util.pps.constants import *
 
-from systemstudio.errors import SystemStudioError
+from systemstudio.errors   import SystemStudioError
+from systemstudio.validate import InvalidConfigError
 
 class IOMixin:
   def __init__(self):
@@ -68,6 +69,15 @@ class IOObject(object):
         if not s.isfile(): continue
         r.append((s, (dst/s.relpathfrom(src)).normpath()))
       return r
+
+  def validate_destnames(self, xpaths=None):
+    # method called by events to ensure destname is provided for text content;
+    # expects a list of path-like elements
+    for path in xpaths: #allow python to raise an error of no paths provided
+      if path.get('@content', None) and not path.get('@destname', None):
+        raise InvalidConfigError(self.ptr.config.getroot().file,
+          "missing 'destname' attribute:"
+          "\n %s" % path)
 
   def validate_input_file(self, f, xpath=None):
     # method called by add_item() to ensure the source is a valid file
