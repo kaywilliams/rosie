@@ -23,6 +23,7 @@ from systemstudio.util.pps.constants import TYPE_NOT_DIR
 
 from sstest          import BUILD_ROOT, EventTestCase, ModuleTestSuite
 from sstest.core     import make_core_suite
+from sstest.mixins   import ValidateDestnamesMixinTestCase
 from sstest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
 
 class ConfigEventTestCase(RpmBuildMixinTestCase, EventTestCase):
@@ -174,6 +175,13 @@ class Test_RemovesGpgkeys(ConfigEventTestCase):
     self.failUnless(not (self.event.SOFTWARE_STORE/'gpgkeys').
                          findpaths())
 
+class Test_ValidateDestnames(ValidateDestnamesMixinTestCase, 
+                             ConfigEventTestCase):
+  "destname required for text content"  
+
+  _conf = """<config>
+    <files content="text">test</files>
+  </config>"""
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('config')
@@ -185,5 +193,6 @@ def make_suite(distro, version, arch):
   suite.addTest(Test_ConfigRpmCvars2(distro, version, arch))
   suite.addTest(Test_OutputsGpgkeys(distro, version, arch))
   suite.addTest(Test_RemovesGpgkeys(distro, version, arch))
+  suite.addTest(Test_ValidateDestnames(distro, version, arch))
 
   return suite
