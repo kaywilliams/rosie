@@ -49,6 +49,15 @@ def fdm_make_suite(TestCase, distro, version, arch, conf=None):
   return suite
 
 
+#------ ValidateDestnamesMixin ------#
+class ValidateDestnamesMixinTestCase:
+  "destname required for text content"
+
+  def runTest(self):
+    self.tb.dispatch.execute(until=self.eventid)
+    self.failUnlessRaises(SystemStudioError) 
+
+
 #------ ImageModifyMixin ------#
 class ImageModifyMixinTestCase:
   def __init__(self):
