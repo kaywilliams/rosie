@@ -109,7 +109,8 @@ class RpmbuildRepoEvent(Event):
   def apply(self):
     self.io.clean_eventcache()
     self._populate()
-    self.cvars['repos'].add_repo(self.repos[self.cid])
+    if self.cvars['rpmbuild-data']:
+      self.cvars['repos'].add_repo(self.repos[self.cid])
 
   def verify_repodata(self):
     "repodata exists"
