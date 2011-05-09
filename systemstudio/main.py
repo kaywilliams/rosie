@@ -421,6 +421,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
 
     # reverse the order so we get cli options, then config, then defaults
     self.sharedirs = [ x for x in reversed(sharedirs) ]
+    assert self.sharedirs
     for d in self.sharedirs:
       if not d==DEFAULT_SHARE_DIR and not d.isdir():
         raise RuntimeError("The specified share-path '%s' does not exist." %d)

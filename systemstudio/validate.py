@@ -37,10 +37,12 @@ class SystemStudioValidationHandler:
     except InvalidSchemaError, e:
       self.logger.log(0, L0("Schema file used in validation appears to be invalid"))
       self.logger.log(0, L0(e))
+      if self.debug: raise
       sys.exit(1)
     except InvalidConfigError, e:
       self.logger.log(0, L0("Validation against schema failed"))
       self.logger.log(0, L0(e))
+      if self.debug: raise
       sys.exit(1)
     except Exception, e:
       self.logger.log(0, L0("Unhandled exception while performing validation: %s" % e))

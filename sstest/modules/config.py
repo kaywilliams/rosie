@@ -15,15 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util import pps
-from systemstudio.util import repo
-from systemstudio.util import rxml
-
+from systemstudio.util     import pps
+from systemstudio.util     import repo
+from systemstudio.util     import rxml
+from systemstudio.validate import InvalidConfigError
 from systemstudio.util.pps.constants import TYPE_NOT_DIR
 
-from sstest          import BUILD_ROOT, EventTestCase, ModuleTestSuite
+from sstest          import (BUILD_ROOT, TestBuild, EventTestCase, 
+                            ModuleTestSuite)
 from sstest.core     import make_core_suite
-from sstest.mixins   import ValidateDestnamesMixinTestCase
 from sstest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
 
 class ConfigEventTestCase(RpmBuildMixinTestCase, EventTestCase):
@@ -175,13 +175,30 @@ class Test_RemovesGpgkeys(ConfigEventTestCase):
     self.failUnless(not (self.event.SOFTWARE_STORE/'gpgkeys').
                          findpaths())
 
-class Test_ValidateDestnames(ValidateDestnamesMixinTestCase, 
-                             ConfigEventTestCase):
+class Test_ValidateDestnames(ConfigEventTestCase):
   "destname required for text content"  
 
   _conf = """<config>
     <files content="text">test</files>
   </config>"""
+
+  def setUp(self): pass
+
+  def runTest(self):
+    self.tb = TestBuild(self.conf, self.options, [])
+    # can't get unittest.TestCase.failUnlessRaises to work so, sigh, 
+    # here's a copy of the code...
+    try:
+      self.tb.validate_configs()
+    except InvalidConfigError:
+      return
+    else: 
+      raise self.failureException, "InvalidConfigError not raised"
+
+  def tearDown(self):
+    self.tb._lock.release()
+    del self.tb
+    del self.conf
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('config')
