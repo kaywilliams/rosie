@@ -84,7 +84,6 @@ class DepsolveEvent(Event, DepsolverMixin):
                                         % (repoid, attr))
 
       for subrepo in repo.subrepos.values():
-        print repo.localurl/subrepo._relpath/'repodata'
         self.DATA['input'].append(repo.localurl/subrepo._relpath/'repodata')
 
   def run(self):
