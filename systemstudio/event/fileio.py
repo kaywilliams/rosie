@@ -88,11 +88,11 @@ class IOObject(object):
     except pps.Path.error.PathError, e:
       if xpath is not None:
         raise MissingXpathInputFileError(errno=e.errno, message=e.strerror, 
-                                      file=f.replace('\n', '\\n'), 
+                                      file=f, 
                                       xpath=self.ptr._configtree.getpath(xpath))
       else:
         raise MissingInputFileError(errno=e.errno, message=e.strerror, 
-                                    file=f.replace('\n', '\\n'))
+                                    file=f)
 
   def add_item(self, src, dst, id=None, mode=None, content='file', xpath=None):
     """
