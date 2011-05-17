@@ -76,8 +76,8 @@ class IOObject(object):
     for path in xpaths: #allow python to raise an error of no paths provided
       if path.get('@content', None) and not path.get('@destname', None):
         raise InvalidConfigError(self.ptr.config.getroot().file,
-          "missing 'destname' attribute:"
-          "\n %s" % path)
+          "[%s] missing 'destname' attribute at '%s':"
+          "\n %s" % (self.ptr.id, self.ptr._configtree.getpath(path), path))
 
   def validate_input_file(self, f, xpath=None):
     # method called by add_item() to ensure the source is a valid file
@@ -88,8 +88,8 @@ class IOObject(object):
     except pps.Path.error.PathError, e:
       if xpath is not None:
         raise MissingXpathInputFileError(errno=e.errno, message=e.strerror, 
-                                         file=f.replace('\n', '\\n'), 
-                                         xpath=xpath)
+                                      file=f.replace('\n', '\\n'), 
+                                      xpath=self.ptr._configtree.getpath(xpath))
       else:
         raise MissingInputFileError(errno=e.errno, message=e.strerror, 
                                     file=f.replace('\n', '\\n'))
