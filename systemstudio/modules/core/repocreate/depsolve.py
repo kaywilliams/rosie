@@ -75,17 +75,17 @@ class DepsolveEvent(Event, DepsolverMixin):
 
     self.pkglistfile = self.mddir / 'pkglist'
 
-    # add relevant input/variable sections, if interesting
+    # add relevant input/variable sections
     for repoid, repo in self.cvars['repos'].items():
       for attr in ['baseurl', 'mirrorlist', 'exclude',
                    'includepkgs', 'enabled']:
-
         if getattr(repo, attr):
           self.DATA['variables'].append('cvars[\'repos\'][\'%s\'].%s'
                                         % (repoid, attr))
 
-      self.DATA['input'].append(repo.localurl/'repodata')
-
+      for subrepo in repo.subrepos.values():
+        print repo.localurl/subrepo._relpath/'repodata'
+        self.DATA['input'].append(repo.localurl/subrepo._relpath/'repodata')
 
   def run(self):
     # create pkglist
