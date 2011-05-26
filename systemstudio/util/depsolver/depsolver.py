@@ -304,7 +304,7 @@ class Depsolver(SystemStudioYum):
 
 class DummyRpmDBPackageSack(yum.rpmsack.RPMDBPackageSack):
   def __init__(self, root='/'):
-    yum.rpmsack.RPMDBPackageSack.__init__(self, persistdir=root)
+    yum.rpmsack.RPMDBPackageSack.__init__(self)
 
   def _get_pkglist(self):
     return []
