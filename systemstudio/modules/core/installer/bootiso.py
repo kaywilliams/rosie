@@ -36,7 +36,7 @@ class BootisoEvent(Event, BootConfigMixin):
       version = '0.3',
       requires = ['isolinux-files', 'boot-config-file'],
       conditionally_requires = ['web-path', 'boot-args'],
-      provides = ['treeinfo-checksums'],
+      provides = ['treeinfo-checksums', 'os-content'],
     )
 
     self.bootiso = self.SOFTWARE_STORE/'images/boot.iso'

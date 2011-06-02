@@ -38,7 +38,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
       id = 'diskboot-image',
       version = '0.1',
       parentid = 'installer',
-      provides = ['diskboot.img', 'treeinfo-checksums'],
+      provides = ['diskboot.img', 'treeinfo-checksums', 'os-content'],
       requires = ['buildstamp-file', 'installer-repo', 'isolinux-files'],
       conditionally_requires = ['diskboot-image-content', 'web-path',
                                 'boot-args', 'ks-path', 'installer-splash'],

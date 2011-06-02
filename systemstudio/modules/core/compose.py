@@ -47,7 +47,7 @@ class ComposeEvent(Event):
 
     self.events = []
     for event in self._getroot():
-      if event.id != self.id:
+      if 'os-content' in event.provides:
         event_output_dir = self.METADATA_DIR/event.id/'output/os'
         if event_output_dir.exists():
           self.events.append(event.id)

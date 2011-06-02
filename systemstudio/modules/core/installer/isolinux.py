@@ -31,7 +31,7 @@ class IsolinuxEvent(Event, FileDownloadMixin):
     Event.__init__(self,
       id = 'isolinux',
       parentid = 'installer',
-      provides = ['isolinux-files', 'boot-config-file'],
+      provides = ['isolinux-files', 'boot-config-file', 'os-content'],
       requires = ['anaconda-version', 'base-info', 'installer-repo'],
       conditionally_requires = ['installer-splash'],
     )

@@ -33,7 +33,7 @@ class Stage2ImagesEvent(Event, FileDownloadMixin):
     Event.__init__(self,
       id = 'stage2-images',
       parentid = 'installer',
-      provides = ['stage2-images', 'treeinfo-checksums'],
+      provides = ['stage2-images', 'treeinfo-checksums', 'os-content'],
       requires = ['anaconda-version', 'base-info', 'installer-repo'],
     )
 

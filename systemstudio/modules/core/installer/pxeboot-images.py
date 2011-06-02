@@ -31,7 +31,7 @@ class PxebootImagesEvent(Event):
     Event.__init__(self,
       id = 'pxeboot-images',
       parentid = 'installer',
-      provides = ['pxeboot', 'treeinfo-checksums'],
+      provides = ['pxeboot', 'treeinfo-checksums', 'os-content'],
       requires = ['isolinux-files'],
     )
 

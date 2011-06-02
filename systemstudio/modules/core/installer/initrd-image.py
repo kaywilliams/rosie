@@ -32,7 +32,7 @@ class InitrdImageEvent(Event, ImageModifyMixin):
       id = 'initrd-image',
       parentid = 'installer',
       version = '1.01',
-      provides = ['isolinux-files'],
+      provides = ['isolinux-files', 'os-content'],
       requires = ['anaconda-version', 'buildstamp-file'],
       conditionally_requires = ['initrd-image-content', 'kickstart-file',
                                 'ks-path'],

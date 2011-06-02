@@ -42,7 +42,7 @@ class DiscinfoEvent(Event):
       id = 'discinfo',
       version = '1',
       parentid = 'installer',
-      provides = ['.discinfo'],
+      provides = ['.discinfo', 'os-content'],
       requires = ['anaconda-version'],
     )
 
@@ -86,7 +86,7 @@ class TreeinfoEvent(Event):
       id = 'treeinfo',
       version = '1.1',
       parentid = 'installer',
-      provides = ['treeinfo-file'],
+      provides = ['treeinfo-file', 'os-content'],
       requires = ['anaconda-version', 'treeinfo-checksums'],
     )
 

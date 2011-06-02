@@ -32,7 +32,6 @@ class InstallerEvent(Event):
       id = 'installer',
       parentid = 'os',
       properties = CLASS_META,
-      provides = ['os-content'],
       suppress_run_message = True,
     )
 
