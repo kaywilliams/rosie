@@ -93,6 +93,3 @@ class RepomdMixin:
     if self.crcb: self.crcb.end()
     return repo_files
 
-def RpmPackageVersion(name):
-  return Version(
-    shlib.execute('rpm -q --queryformat="%%{version}" %s' % name)[0])

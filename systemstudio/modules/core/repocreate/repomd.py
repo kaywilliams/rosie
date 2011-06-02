@@ -34,7 +34,7 @@ class RepomdEvent(Event, RepomdMixin):
       version = '1.03',
       parentid = 'repocreate',
       requires = ['rpms-directory', 'rpms'],
-      provides = ['repomd-file', 'treeinfo-checksums'],
+      provides = ['repomd-file', 'treeinfo-checksums', 'os-content'],
       conditionally_requires = ['groupfile', 'checked-rpms'],
     )
     RepomdMixin.__init__(self)
