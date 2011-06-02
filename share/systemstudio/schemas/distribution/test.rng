@@ -1,0 +1,27 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="distribution">
+
+      <optional>
+      <element name="test">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+        <element name="script">
+        <text/>
+        </element>
+        <optional>
+        <element name="kickstart">
+        <ref name="attribute-content"/>
+        <text/>
+        </element>
+        </optional>
+      </element>
+      </optional>
+
+    </element>
+  </start>
+
+  <include href="lib.rng"/>
+</grammar>
