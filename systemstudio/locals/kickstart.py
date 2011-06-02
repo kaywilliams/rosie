@@ -3,20 +3,20 @@ from systemstudio.locals import LocalsDict, REMOVE
 __all__ = ['L_KICKSTART_ADDS']
 
 L_KICKSTART_ADDS = LocalsDict({
-  "pykickstart-0": {
+  "anaconda-0": {
     'version': {
       'test' : "line.startswith('#version')",
-      'text' : ""  # provided at runtime by the event
+      'text' : "\n# version rhel%s" # resolved at runtime
       },
     'packages': {
       'test' :  "line.startswith('%packages')",
-      'text' : "\n%packages\ngroup core",
+      'text' : "\n%packages\n@core",
       },
     },
- "pykickstart-1.74": {
+ "anaconda-13.21": {
     'packages': {
       'test' :  "line.startswith('%packages')",
-      'text' : "\n%packages\ngroup core\n%end", # introduced trailing %end
+      'text' : "\n%packages\n@core\n%end", # introduced trailing %end
       },
     },
   })

@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import rpm
+
+from systemstudio.util.versort import Version
+
 from systemstudio.locals import *
 
 class LocalsMixin:
@@ -31,7 +35,6 @@ class LocalsObject:
 
   anaconda_ver    = property(lambda self: 'anaconda-%s'   % self.ptr.cvars['anaconda-version'])
   createrepo_ver  = property(lambda self: 'createrepo-%s' % self.ptr.cvars['createrepo-version'])
-  pykickstart_ver = property(lambda self: 'pykickstart-%s' % self.ptr.cvars['pykickstart-version'])
 
   # anaconda-version based
   L_FILES             = property(lambda self: L_FILES[self.anaconda_ver])
@@ -51,5 +54,15 @@ class LocalsObject:
   L_YUM_PLUGIN        = property(lambda self: L_YUM_PLUGIN[self.base_name][self.base_ver])
 
   # pykickstart version based
-  L_KICKSTART_ADDS    = property(lambda self: L_KICKSTART_ADDS[self.pykickstart_ver])
+  ts = rpm.TransactionSet()
+  h = list(ts.dbMatch('name', 'pykickstart'))[0]
+  pykickstart_ver = 'pykickstart-%s' % Version("%s-%s" % (h['version'], h['release']))
+
+  def kickstart_get(self):
+    adds = L_KICKSTART_ADDS[self.anaconda_ver]
+    adds['version']['text'] = adds['version']['text'].replace(
+                              '%s', self.base_ver.split('.')[0])
+    return adds
+
+  L_KICKSTART_ADDS    = property(kickstart_get)
   L_PYKICKSTART       = property(lambda self: L_PYKICKSTART[self.pykickstart_ver])

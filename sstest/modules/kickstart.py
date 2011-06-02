@@ -60,8 +60,8 @@ class Test_KickstartIncludesAdditions(KickstartEventTestCase):
 
   def runTest(self):
    self.tb.dispatch.execute(until=self.event)
-   for item in self.event.adds:
-     self.failUnless(self.event.adds[item]['text'] in 
+   for item in self.event.locals.L_KICKSTART_ADDS:
+     self.failUnless(self.event.locals.L_KICKSTART_ADDS[item]['text'] in 
                      self.event.ksfile.read_text())
 
   def tearDown(self):
