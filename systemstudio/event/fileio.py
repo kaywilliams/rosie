@@ -88,8 +88,7 @@ class IOObject(object):
     except pps.Path.error.PathError, e:
       if xpath is not None:
         raise MissingXpathInputFileError(errno=e.errno, message=e.strerror, 
-                                      file=f, 
-                                      xpath=self.ptr._configtree.getpath(xpath))
+                                      file=f, xpath=xpath)
       else:
         raise MissingInputFileError(errno=e.errno, message=e.strerror, 
                                     file=f)
@@ -270,6 +269,12 @@ class IOObject(object):
     Return a list of output files, or a subset based on the ids specified in what
     """
     return sorted([ item.dst for item in self._filter_data(what=what) ])
+
+  def list_input(self, what=None):
+    """
+    Return a list of input files, or a subset based on ids specified in what
+    """
+    return sorted([ item.src for item in self._filter_data(what=what) ])
 
   def _filter_data(self, what=None):
     "process 'what' arguments uniformly"
