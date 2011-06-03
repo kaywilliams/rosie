@@ -164,4 +164,27 @@
     </element>
   </define>
 
+  <!-- publish elements -->
+  <define name="content-publish-elements">
+
+    <optional>
+    <element name="remote-url">
+    <optional>
+    <attribute name="fqdn">
+      <ref name="value-boolean"/>
+    </attribute>
+    </optional>
+    <optional>
+    <attribute name="interface"/>
+    </optional>
+    <text/>
+    </element>
+    </optional>
+
+    <optional>
+    <element name="local-dir"><text/></element>
+    </optional>
+
+  </define>
+
 </grammar>

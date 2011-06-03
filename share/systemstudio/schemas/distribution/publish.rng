@@ -10,26 +10,9 @@
         </optional>
 
         <interleave>
-
-        <optional>
-        <element name="remote-url">
-        <optional>
-        <attribute name="fqdn">
-          <ref name="value-boolean"/>
-        </attribute>
-        </optional>
-        <optional>
-        <attribute name="interface"/>
-        </optional>
-        <text/>
-        </element>
-        </optional>
-
-        <optional>
-        <element name="local-dir"><text/></element>
-        </optional>
-
+        <ref name="content-publish-elements"/>
         </interleave>
+
       </element>
       </optional>
 

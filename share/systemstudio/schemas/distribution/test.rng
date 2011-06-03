@@ -18,6 +18,7 @@
         <text/>
         </element>
         </optional>
+        <ref name="content-publish-elements"/>
         </interleave>
       </element>
       </optional>
