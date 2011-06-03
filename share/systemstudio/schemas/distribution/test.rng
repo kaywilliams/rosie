@@ -8,6 +8,7 @@
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
+        <interleave>
         <element name="script">
         <text/>
         </element>
@@ -17,6 +18,7 @@
         <text/>
         </element>
         </optional>
+        </interleave>
       </element>
       </optional>
 
