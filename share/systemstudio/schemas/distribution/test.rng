@@ -8,16 +8,15 @@
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
+        <ref name='content-ssh-attributes'/>
         <interleave>
-        <element name="script">
-        <text/>
-        </element>
         <optional>
         <element name="kickstart">
         <ref name="attribute-content"/>
         <text/>
         </element>
         </optional>
+        <ref name="content-deploy-elements"/>
         <ref name="content-publish-elements"/>
         </interleave>
       </element>

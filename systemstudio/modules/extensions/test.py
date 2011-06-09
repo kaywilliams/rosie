@@ -16,7 +16,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import subprocess as sub
 
 from libvirt import libvirtError
 
@@ -25,7 +24,7 @@ from systemstudio.event     import Event, CLASS_META
 from systemstudio.sslogging import L1, L2, L3
 from systemstudio.util      import pps
 
-from systemstudio.modules.shared import RepomdMixin
+from systemstudio.modules.shared import RepomdMixin, DeployEventMixin
 from systemstudio.modules.shared.config import ConfigEventMixin
 from systemstudio.modules.shared.kickstart import KickstartEventMixin
 from systemstudio.modules.shared.publish import PublishEventMixin
@@ -40,7 +39,7 @@ MODULE_INFO = dict(
 
 
 class TestEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin, 
-                PublishEventMixin, Event):
+                PublishEventMixin, DeployEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'test',
@@ -93,8 +92,8 @@ class TestEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     self.ksxpath = 'kickstart'
     KickstartEventMixin.setup(self)
 
-    # script
-    self.io.add_xpath('script', self.mddir, id='script', mode='750')
+    # deploy
+    DeployEventMixin.setup(self)
 
     # track changes to base installer files (but not product.img, updates.img)
     self.installer_files = []
@@ -132,75 +131,10 @@ class TestEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     self.link(self.SOFTWARE_STORE, self.pubpath) 
     self.chcon(self.pubpath)
 
-    # get script
-    self.script = self.io.process_files(text=None, what='script')[0]
-
-    # update 
-    if not self._rebuild() and self._activate():
-      self.log(1, L1("running update script"))
-      r = self._update()
-      if r != 0: sys.exit(1)
-
-    # install
-    else:
-      self.log(1, L1("running install script"))
-      self._clean()
-      self._install()
-
-    # test
-    # self.log(1, L1("running test script"))
+    # deploy
+    DeployEventMixin.run(self)
 
   def apply(self):
     self.io.clean_eventcache()
 
-
-  ##### Helper Functions #####
-
-  def _rebuild(self):
-    '''Test current rebuild triggers against prior and return true if changes'''
-
-    # did install script change (either file or text)?
-    '''
-    script_file = self.io.list_input(what='install-script')
-    if (( script_file and script_file[0] in self.diff.input.diffdict) 
-         or '/distribution/test/install-script' in self.diff.config.diffdict):
-      return True
-    '''
-  
-    # did kickstart change?
-    if 'kstext' in self.diff.variables.diffdict: 
-      return True
-
-    # did installer files change?
-    for f in self.installer_files:
-      if f in self.diff.input.diffdict:
-        return True
-      
-    # if not, install parameters haven't changed, no need to rebuild
-    return False 
-
-  def _clean(self):
-    self.log(2, L2("cleaning machine"))
-    r = sub.call('%s clean %s' % (self.script, self.distributionid), shell=True)
-    if r != 0:
-      raise Exception("make me a systemstudio error")
- 
-  def _activate(self):
-    r = sub.call('%s activate %s' % (self.script, self.distributionid), shell=True)
-    if r != 0:
-      raise Exception("make me a systemstudio error")
-  
-  def _install(self):
-    self.log(2, L2("installing machine"))
-    r = sub.call('%s install %s %s' % (self.script, 
-                 self.distributionid, self.webpath), shell=True) 
-    if r != 0:
-      raise Exception("make me a systemstudio error")
-  
-  def _update(self):
-    self.log(2, L2("updating machine"))
-    r = sub.call('%s update %s' % (self.script, self.distributionid),
-                                   shell=True)
-    if r != 0:
-      raise Exception("make me a systemstudio error")
 

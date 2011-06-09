@@ -187,4 +187,72 @@
 
   </define>
 
+  <!-- ssh attributes -->
+  <define name="content-ssh-attributes">
+    <attribute name="password"/>
+    <optional><attribute name="hostname"/></optional>
+    <optional><attribute name="port"/></optional>
+    <optional><attribute name="username"/></optional>
+    <optional><attribute name="pkey"/></optional>
+    <optional><attribute name="key-filename"/></optional>
+    <optional><attribute name="timeout"/></optional>
+    <optional><attribute name="look-for-keys"/></optional>
+  </define>
+
+  <!-- deploy element content -->
+  <define name="content-deploy-element">
+    <optional>
+    <attribute name="ssh">
+      <ref name="value-boolean"/>
+    </attribute>
+    </optional>
+    <optional>
+    <ref name="content-ssh-attributes"/>
+    </optional>
+    <optional>
+    <ref name="attribute-content"/>
+    </optional>
+    <text/>
+  </define>
+
+  <!-- deploy elements -->
+  <define name="content-deploy-elements">
+
+    <optional>
+    <element name="activate-script">
+    <ref name="content-deploy-element"/>
+    </element>
+    </optional>
+
+    <optional>
+    <element name="clean-script">
+    <ref name="content-deploy-element"/>
+    </element>
+    </optional>
+
+    <optional>
+    <element name="install-script">
+    <ref name="content-deploy-element"/>
+    </element>
+    </optional>
+
+    <optional>
+    <element name="verify-install-script">
+    <ref name="content-deploy-element"/>
+    </element>
+    </optional>
+
+    <optional>
+    <element name="update-script">
+    <ref name="content-deploy-element"/>
+    </element>
+    </optional>
+
+    <optional>
+    <element name="test-script">
+    <ref name="content-deploy-element"/>
+    </element>
+    </optional>
+
+  </define>
 </grammar>
