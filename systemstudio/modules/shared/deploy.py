@@ -69,21 +69,17 @@ class DeployEventMixin:
     for script in self.scripts:
       self.io.process_files(what=script)
 
-    if not self._rebuild() and (not self.io.list_output('activate_script') 
-                           or self._execute('activate-script')):
+    if not self._rebuild() and self._execute('activate-script'):
        self.log(1, L1("running update script"))
-       r = self._execute('update-script')
-       if r != 0: sys.exit(1)
+       self._execute('update-script')
  
     # install
     else:
       self.log(1, L1("running install script"))
-      #self.io.list_output('clean-script') and self._execute('clean-script')
-      #self.io.list_output('install-script') and self._execute('install-script')
-      self.io.list_output('activate-script') and self._execute(
-        'activate-script')
-      self.io.list_output('verify-install-script') and self._execute(
-        'verify-install-script')
+      self._execute('clean-script')
+      self._execute('install-script')
+      self._execute('activate-script')
+      self._execute('verify-install-script')
  
     # test
     # self.log(1, L1("running test script"))
@@ -114,6 +110,7 @@ class DeployEventMixin:
     return False 
 
   def _execute(self, script):
+    if not self.io.list_output(script): return
     if 'message' in self.scripts[script]:
       self.log(self.scripts[script]['message_level'], 
                eval("%s('%s')" % (self.scripts[script]['message_format'],
@@ -134,11 +131,17 @@ class DeployEventMixin:
       client = paramiko.SSHClient()
       client.load_system_host_keys()
       client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+      self.log(3, L3('connecting to host \'%s\'' % params['hostname'])) 
       for i in range(24): # retry connect to host every 5 seconds for 2 minutes
         try:
-          client.connect(**params)
+          client.connect(**dict(params))
+          self.log(3, L3('connected')) 
           break
-        except socket.error as e:
+        except socket.error, e:
+          if e[0] == -2:
+            raise SSHFailedError(script=script, 
+                                 message="Unable to resolve hostname '%s'. Verify hostname and DNS configuration." % params['hostname'],
+                                 params=str(params))
           if e[0] == 4:
             raise KeyboardInterrupt
           else:
@@ -146,9 +149,10 @@ class DeployEventMixin:
               L0("[socket.error %s] %s: System may be starting. Will continue retrying for 2 minutes. Press CTRL+C twice to exit"
               % (e[0], e[1])))
             time.sleep(5)
-        except paramiko.BadAuthenticationType as e:
+        except paramiko.BadAuthenticationType, e:
           raise SSHFailedError(script=script, message=str(e), 
                                params=str(params))
+
       else:
         raise SSHFailedError(script=script, 
           message="unable to establish connection with remote host: '%s'"
@@ -156,20 +160,25 @@ class DeployEventMixin:
           params=str(params)) 
 
       # copy script to remote machine
+      self.log(3, L3("copying '%s' to '%s'" % (script, params['hostname'])))
       sftp = paramiko.SFTPClient.from_transport(client.get_transport())
       if not '.systemstudio' in  sftp.listdir(): sftp.mkdir('.systemstudio')
       sftp.put(self.io.list_output(what=script)[0], '.systemstudio/%s' % script)
       sftp.chmod('.systemstudio/%s' % script, mode=0755)
 
       # execute script
+      cmd = './.systemstudio/%s %s' % (script, 
+            ' '.join(self.scripts[script]['arguments']))
+      self.log(3, L3("executing '%s' on '%s'" % (cmd, params['hostname'])))
       chan = client._transport.open_session()
-      chan.exec_command('.systemstudio/%s %s' % 
-                        (script, ' '.join(self.scripts[script]['arguments'])))
+      chan.exec_command(cmd)
       stdin = chan.makefile('wb', -1)
       stdout = chan.makefile('rb', -1)
       stderr = chan.makefile_stderr('rb', -1)
       for f in ['out', 'err']:
-        print eval('std%s.read()' % f)
+        text = eval('std%s.read()' % f).rstrip()
+        if text:
+          self.log(0, L0(text))
       status = chan.recv_exit_status()
       chan.close()
       client.close()
@@ -187,8 +196,8 @@ class SSHParameters(DictMixin):
     self.params = dict(
       hostname=ptr.config.get('%s/@hostname' % script, 
                     ptr.config.get('@hostname', ptr.distributionid)),
-      port=ptr.config.get('%s/@port' % script, 
-                    ptr.config.get('@port', '22')),
+      port=int(ptr.config.get('%s/@port' % script, 
+                    ptr.config.get('@port', 22))),
       username=ptr.config.get('%s/@username' % script,
                     ptr.config.get('@username', 'root')),
       password=ptr.config.get('%s/@password' % script,

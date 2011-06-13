@@ -17,8 +17,6 @@
 #
 import os
 
-from libvirt import libvirtError
-
 from systemstudio.callback  import BuildDepsolveCallback
 from systemstudio.event     import Event, CLASS_META
 from systemstudio.sslogging import L1, L2, L3
@@ -45,7 +43,6 @@ class TestEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
       id = 'test',
       parentid = 'all',
       requires = ['os-dir', 'config-release'], 
-      conditionally_requires = ['kickstart-file'] 
     )
 
     self.configxpath = 'config'
@@ -90,7 +87,8 @@ class TestEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
 
     # kickstart 
     self.ksxpath = 'kickstart'
-    KickstartEventMixin.setup(self)
+    if self.config.get('kickstart', None):
+      KickstartEventMixin.setup(self)
 
     # deploy
     DeployEventMixin.setup(self)
@@ -122,8 +120,9 @@ class TestEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
                     checksum=self.locals.L_CHECKSUM['type'])
 
     # update kickstart
-    (self.SOFTWARE_STORE/'ks.cfg').rm(force=True)
-    KickstartEventMixin.run(self) 
+    if self.config.get('kickstart', None):
+      (self.SOFTWARE_STORE/'ks.cfg').rm(force=True)
+      KickstartEventMixin.run(self) 
 
     # publish to test folder
     self.log(0, L1('publishing to %s' % self.pubpath))
