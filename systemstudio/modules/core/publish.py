@@ -27,7 +27,8 @@ from systemstudio.errors    import SystemStudioError
 from systemstudio.event     import Event
 from systemstudio.sslogging   import L1
 
-from systemstudio.modules.shared.publish import PublishEventMixin
+from systemstudio.modules.shared import DeployEventMixin
+from systemstudio.modules.shared.publish import PublishEventMixin 
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -65,12 +66,12 @@ class PublishSetupEvent(PublishEventMixin, Event):
     self.cvars['web-path'] = self.webpath 
 
 
-class PublishEvent(PublishEventMixin, Event):
+class PublishEvent(PublishEventMixin, DeployEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish',
       parentid = 'all',
-      requires = ['publish-path', 'publish-content'],
+      requires = ['web-path', 'publish-path', 'publish-content'],
       provides = ['published-distribution']
     )
 
@@ -78,6 +79,7 @@ class PublishEvent(PublishEventMixin, Event):
       'variables': ['cvars[\'publish-path\']',
                     'cvars[\'publish-content\']',
                     'cvars[\'selinux-enabled\']'],
+      'config':    ['.'],
       'input':     [],
       'output':    [],
     }
@@ -85,6 +87,8 @@ class PublishEvent(PublishEventMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
     self.io.add_fpaths(self.cvars['publish-content'], self.cvars['publish-path'])
+    self.webpath = self.cvars['web-path'] / 'os'
+    DeployEventMixin.setup(self)
 
   def clean(self):
     Event.clean(self)
@@ -95,6 +99,7 @@ class PublishEvent(PublishEventMixin, Event):
     self.io.process_files(text="publishing to '%s'" % self.cvars['publish-path'],
                        callback=Event.link_callback)
     self.chcon(self.cvars['publish-path'])
+    DeployEventMixin.run(self)
 
   def apply(self):
     self.io.clean_eventcache()

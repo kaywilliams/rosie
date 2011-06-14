@@ -16,8 +16,8 @@
         <text/>
         </element>
         </optional>
-        <ref name="content-deploy-elements"/>
         <ref name="content-publish-elements"/>
+        <ref name="content-deploy-elements"/>
         </interleave>
       </element>
       </optional>

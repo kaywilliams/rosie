@@ -47,8 +47,7 @@ class ConfigEvent(ConfigEventMixin, Event):
       version = '1.23',
       provides = ['rpmbuild-data', 'config-release', 'gpgkeys', 
                   'gpgcheck-enabled', 'os-content'],
-      requires = ['input-repos', 'pubkey'],
-      conditionally_requires = ['web-path',] 
+      requires = ['input-repos', 'pubkey', 'web-path'],
     )
 
     ConfigEventMixin.__init__(self) 

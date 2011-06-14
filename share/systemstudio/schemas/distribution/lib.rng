@@ -189,6 +189,7 @@
 
   <!-- ssh attributes -->
   <define name="content-ssh-attributes">
+    <optional>
     <attribute name="password"/>
     <optional><attribute name="hostname"/></optional>
     <optional><attribute name="port"/></optional>
@@ -197,6 +198,7 @@
     <optional><attribute name="key-filename"/></optional>
     <optional><attribute name="timeout"/></optional>
     <optional><attribute name="look-for-keys"/></optional>
+    </optional>
   </define>
 
   <!-- deploy element content -->

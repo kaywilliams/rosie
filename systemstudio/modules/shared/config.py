@@ -246,9 +246,9 @@ class ConfigEventMixin(RpmBuildMixin):
     script += '\n'.join([
       '',
       'if [ -e $file ]; then',
-      '  %{__cp} $file $file.prev',
+      '  /bin/cp $file $file.prev',
       'else',
-      '  %{__mkdir} -p `dirname $file`',
+      '  /bin/mkdir -p `dirname $file`',
       '  touch $file.prev',
       'fi',
       '', ])
@@ -285,7 +285,7 @@ class ConfigEventMixin(RpmBuildMixin):
       '    if [[ $curr != $new ]]; then',
       '      if [[ $curr != $prev ]]; then',
       '        # file changed by user',
-      '        %{__mv} $f $f.rpmsave',
+      '        /bin/mv $f $f.rpmsave',
       '        changed="$changed $f"',
       '      fi',
       '    fi',
@@ -296,13 +296,13 @@ class ConfigEventMixin(RpmBuildMixin):
       '    for i in `seq 2 ${#levels}`; do',
       '      dir=`echo $f | cut -f 1-$i -d/`',
       '      if [ ! -d $dir ]; then',
-      '        %{__mkdir} $dir',
+      '        /bin/mkdir $dir',
       '        echo $dir >> $mkdirs',
       '      fi',
       '    done',
       '  fi',
       '  # copy file to final location',   
-      '  %{__cp} --preserve=all $s/$f $f',
+      '  /bin/cp --preserve=all $s/$f $f',
       '  /sbin/restorecon $f',
       'done',
       '', ])
@@ -333,9 +333,9 @@ class ConfigEventMixin(RpmBuildMixin):
         'for f in $file; do',
         '  if [ ! -e $s/$f ]; then',
         '    if [ -e $f.rpmsave ]; then',
-        '      %{__mv} -f $f.rpmsave $f',
+        '      /bin/mv -f $f.rpmsave $f',
         '    else',
-        '      %{__rm} -f $f',
+        '      /bin/rm -f $f',
         '    fi',
         '  fi',
         'done',
@@ -359,7 +359,7 @@ class ConfigEventMixin(RpmBuildMixin):
       ])
 
     # remove md5sums.prev file   
-    script += '\n%{__rm} -f /usr/share/system-config/md5sums.prev\n'
+    script += '\n/bin/rm -f /usr/share/system-config/md5sums.prev\n'
     # remove mkdirs file on uninstall
     script += 'if [ $1 -eq 0 ]; then\n'
     script += '  rm -f $mkdirs\n'

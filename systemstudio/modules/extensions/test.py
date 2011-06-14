@@ -87,20 +87,11 @@ class TestEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
 
     # kickstart 
     self.ksxpath = 'kickstart'
-    if self.config.get('kickstart', None):
+    if self.config.get('kickstart', None) is not None:
       KickstartEventMixin.setup(self)
 
     # deploy
     DeployEventMixin.setup(self)
-
-    # track changes to base installer files (but not product.img, updates.img)
-    self.installer_files = []
-    for key in [ x for x in self.locals.L_FILES if x != 'installer' ]:
-      for file in self.locals.L_FILES[key]:
-        self.installer_files.append(self.cvars['installer-repo'].url /
-          self.locals.L_FILES[key][file]['path'] % 
-            self.cvars['distribution-info'])
-    self.DATA['input'].extend(self.installer_files)
 
   def run(self):
     # sync files from compose (os-dir) folder
@@ -120,7 +111,7 @@ class TestEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
                     checksum=self.locals.L_CHECKSUM['type'])
 
     # update kickstart
-    if self.config.get('kickstart', None):
+    if self.config.get('kickstart', None) is not None:
       (self.SOFTWARE_STORE/'ks.cfg').rm(force=True)
       KickstartEventMixin.run(self) 
 
