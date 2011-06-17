@@ -169,20 +169,20 @@
 
     <optional>
     <element name="remote-url">
-    <optional>
-    <attribute name="fqdn">
-      <ref name="value-boolean"/>
-    </attribute>
-    </optional>
-    <optional>
-    <attribute name="interface"/>
-    </optional>
-    <text/>
+      <optional>
+        <attribute name="fqdn">
+          <ref name="value-boolean"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="interface"/>
+      </optional>
+      <text/>
     </element>
     </optional>
 
     <optional>
-    <element name="local-dir"><text/></element>
+      <element name="local-dir"><text/></element>
     </optional>
 
   </define>
@@ -208,9 +208,7 @@
       <ref name="value-boolean"/>
     </attribute>
     </optional>
-    <optional>
     <ref name="content-ssh-attributes"/>
-    </optional>
     <optional>
     <ref name="attribute-content"/>
     </optional>
@@ -219,7 +217,7 @@
 
   <!-- deploy elements -->
   <define name="content-deploy-elements">
-
+    <interleave>
     <optional>
     <element name="activate-script">
     <ref name="content-deploy-element"/>
@@ -255,6 +253,7 @@
     <ref name="content-deploy-element"/>
     </element>
     </optional>
+    </interleave>
 
   </define>
 </grammar>

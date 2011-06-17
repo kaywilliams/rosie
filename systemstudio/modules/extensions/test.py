@@ -31,33 +31,34 @@ P = pps.path
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['TestEvent'],
-  description = 'tests distribution installation and update',
+  events      = ['TestPublishEvent', 'TestDeployEvent'],
+  description = 'creates test distribution; installs and updates a client',
 )
 
 
-class TestEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin, 
-                PublishEventMixin, DeployEventMixin, Event):
+class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin, 
+                       PublishEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'test',
+      id = 'test-publish',
       parentid = 'all',
       requires = ['os-dir', 'config-release'], 
+      provides = ['test-webpath', 'test-localpath']
     )
 
     self.configxpath = 'config'
     ConfigEventMixin.__init__(self)
     RepomdMixin.__init__(self)
 
-    self.pubpath = self.get_local('local-dir', 
+    self.localpath = self.get_local('local-dir', 
                                   '/var/www/html/distributions/test')
     self.webpath = self.get_remote('remote-url', 'distributions/test')
 
     self.DATA =  {
-      'config':    ['.'],
+      'config':    ['local-dir', 'remote-url', 'kickstart'],
       'input':     [],
       'output':    [],
-      'variables': ['cvars[\'config-release\']', 'pubpath', 'webpath'],
+      'variables': ['cvars[\'config-release\']', 'localpath', 'webpath'],
     }
 
   def validate(self):
@@ -65,7 +66,7 @@ class TestEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
 
   def clean(self):
     Event.clean(self)
-    self.pubpath.rm(recursive=True, force=True) #publish path
+    self.localpath.rm(recursive=True, force=True) #publish path
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -90,8 +91,6 @@ class TestEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     if self.config.get('kickstart', None) is not None:
       KickstartEventMixin.setup(self)
 
-    # deploy
-    DeployEventMixin.setup(self)
 
   def run(self):
     # sync files from compose (os-dir) folder
@@ -116,15 +115,39 @@ class TestEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
       KickstartEventMixin.run(self) 
 
     # publish to test folder
-    self.log(0, L1('publishing to %s' % self.pubpath))
-    self.pubpath.rm(force=True)
-    self.link(self.SOFTWARE_STORE, self.pubpath) 
-    self.chcon(self.pubpath)
+    self.log(0, L1('publishing to %s' % self.localpath))
+    self.localpath.rm(force=True)
+    self.link(self.SOFTWARE_STORE, self.localpath) 
+    self.chcon(self.localpath)
 
-    # deploy
+  def apply(self):
+    self.io.clean_eventcache()
+    self.cvars['test-webpath'] = self.webpath
+
+
+class TestDeployEvent(DeployEventMixin, Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'test-deploy',
+      parentid = 'all',
+      requires = ['test-webpath', ], 
+    )
+
+    self.DATA =  {
+      'config':    [], # populated by mixin
+      'input':     [], # ditto
+      'output':    [], # ditto
+      'variables': [], # populated in setup
+    }
+
+  def setup(self):
+    self.diff.setup(self.DATA)
+    self.webpath = self.cvars['test-webpath'] 
+    self.DATA['variables'].append('webpath')
+    DeployEventMixin.setup(self)
+
+  def run(self):
     DeployEventMixin.run(self)
 
   def apply(self):
     self.io.clean_eventcache()
-
-

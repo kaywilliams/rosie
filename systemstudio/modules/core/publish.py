@@ -32,8 +32,8 @@ from systemstudio.modules.shared.publish import PublishEventMixin
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['PublishSetupEvent', 'PublishEvent'],
-  description = 'links build output to a publish location',
+  events      = ['PublishSetupEvent', 'PublishEvent' ],
+  description = 'publish distribution to a web accessible location',
 )
 
 TYPE_DIR = pps.constants.TYPE_DIR
@@ -66,7 +66,7 @@ class PublishSetupEvent(PublishEventMixin, Event):
     self.cvars['web-path'] = self.webpath 
 
 
-class PublishEvent(PublishEventMixin, DeployEventMixin, Event):
+class PublishEvent(PublishEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish',
@@ -87,8 +87,6 @@ class PublishEvent(PublishEventMixin, DeployEventMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
     self.io.add_fpaths(self.cvars['publish-content'], self.cvars['publish-path'])
-    self.webpath = self.cvars['web-path'] / 'os'
-    DeployEventMixin.setup(self)
 
   def clean(self):
     Event.clean(self)
@@ -99,7 +97,6 @@ class PublishEvent(PublishEventMixin, DeployEventMixin, Event):
     self.io.process_files(text="publishing to '%s'" % self.cvars['publish-path'],
                        callback=Event.link_callback)
     self.chcon(self.cvars['publish-path'])
-    DeployEventMixin.run(self)
 
   def apply(self):
     self.io.clean_eventcache()
