@@ -55,12 +55,14 @@ class ConfigEventMixin(RpmBuildMixin):
     self.rpm.setup_build(**kwargs)
 
     self.scriptdir   = self.rpm.build_folder/'scripts'
-    self.filerelpath = pps.path('usr/share/system-config/files')
+    self.installdir  = pps.path('/usr/local/system-config')
+    self.filerelpath = self.installdir/'files'
+    self.md5file     = self.installdir/'md5sums'
 
     # add files for synchronization to the build folder
     self.io.add_xpath(self.configxpath + '/files', 
                       self.rpm.source_folder // self.filerelpath, 
-                      destdir_fallback = 'usr/share/system-config/files', 
+                      destdir_fallback = self.filerelpath, 
                       id = 'files')
 
     # add scripts as input so if they change, we rerun
@@ -131,7 +133,7 @@ class ConfigEventMixin(RpmBuildMixin):
       self.io.process_files(cache=True, callback=self.files_cb, 
                             text=self.files_text, what=what)
 
-    self.files = [ x[len(self.rpm.source_folder / self.filerelpath):] 
+    self.files = [ x[len(self.rpm.source_folder // self.filerelpath):] 
                    for x in self.io.list_output(what='files') ]
     self._generate_files_checksums()
     self._generate_repofile()
@@ -141,7 +143,7 @@ class ConfigEventMixin(RpmBuildMixin):
   def _generate_files_checksums(self):
     """Creates a file containing checksums of all <files>. For use in 
     determining whether to backup existing files at install time."""
-    md5file = ( self.rpm.source_folder/'usr/share/system-config/md5sums' )
+    md5file =  self.rpm.source_folder // self.md5file 
 
     lines = []
 
@@ -153,6 +155,7 @@ class ConfigEventMixin(RpmBuildMixin):
 
     md5file.dirname.mkdirs()
     md5file.write_lines(lines)
+    md5file.chmod(0640)
 
     self.DATA['output'].append(md5file)
 
@@ -208,6 +211,7 @@ class ConfigEventMixin(RpmBuildMixin):
   def get_post(self):
     scripts = [self._mk_post()]
     scripts.extend(self._process_script('post'))
+    scripts.append('/bin/chmod 750 %s' % self.installdir)
     return self._make_script(scripts, 'post')
   def get_verifyscript(self):
     return self._make_script(self._process_script('verifyscript'), 'verifyscript')
@@ -253,7 +257,7 @@ class ConfigEventMixin(RpmBuildMixin):
     by the post scriptlet"""
     script = ''
 
-    script += 'file=/usr/share/system-config/md5sums\n'
+    script += 'file=%s\n' % self.md5file
 
     script += '\n'.join([
       '',
@@ -274,9 +278,9 @@ class ConfigEventMixin(RpmBuildMixin):
 
     # move support files as needed
     script += 'files="%s"' % '\n      '.join(self.files)
-    script += '\nmd5file=/usr/share/system-config/md5sums\n'
-    script += 'mkdirs=/usr/share/system-config/mkdirs\n'
-    script += 's=%s\n' % ('/' / self.filerelpath)
+    script += '\nmd5file=%s\n' % self.md5file
+    script += 'mkdirs=%s/mkdirs\n' % self.installdir
+    script += 's=%s\n' % self.filerelpath
     script += 'changed=""\n'
 
     script += '\n'.join([

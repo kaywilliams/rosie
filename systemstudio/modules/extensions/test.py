@@ -42,7 +42,7 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     Event.__init__(self,
       id = 'test-publish',
       parentid = 'all',
-      version = 1.0
+      version = 1.01
       requires = ['os-dir', 'config-release'], 
       provides = ['test-webpath', 'test-localpath']
     )

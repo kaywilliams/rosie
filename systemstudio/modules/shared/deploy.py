@@ -153,8 +153,7 @@ class DeployEventMixin:
           break
         except (socket.error, paramiko.SSHException), e:
           if i == 0:
-            self.log(2, L2("Unable to connect. System may be starting. Will retry for 2 minutes. Press CTRL+C to exit." 
-               % params['hostname']))
+            self.log(2, L2("Unable to connect. System may be starting. Will retry for 2 minutes. Press CTRL+C to exit."))
           self.log(2, L2("%s. Retrying..." % e))
           time.sleep(5)
 
@@ -176,9 +175,11 @@ class DeployEventMixin:
       # copy script to remote machine
       self.log(2, L2("copying '%s' to '%s'" % (script, params['hostname'])))
       sftp = paramiko.SFTPClient.from_transport(client.get_transport())
-      if not '.systemstudio' in  sftp.listdir(): sftp.mkdir('.systemstudio')
+      if not '.systemstudio' in  sftp.listdir(): 
+        sftp.mkdir('.systemstudio')
+        sftp.chmod('.systemstudio', mode=0750)
       sftp.put(self.io.list_output(what=script)[0], '.systemstudio/%s' % script)
-      sftp.chmod('.systemstudio/%s' % script, mode=0755)
+      sftp.chmod('.systemstudio/%s' % script, mode=0750)
   
       # execute script
       cmd = './.systemstudio/%s %s' % (script, 
