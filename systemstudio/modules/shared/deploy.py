@@ -31,7 +31,8 @@ from UserDict import DictMixin
 
 class DeployEventMixin:
   def setup(self): 
-    # needs to be called after self.webpath and self.kstext are set
+    # needs to be called after self.webpath, self.repomdfile and self.kstext
+    # are set
 
     # strip trailing whitespace from kstext so that diff testing works
     # as expected. using shelve for metadata storage (someday) will 
@@ -39,6 +40,7 @@ class DeployEventMixin:
     self.kstext = self.kstext.rstrip()
 
     self.DATA['variables'].extend(['webpath', 'kstext'])
+    self.DATA['input'].append(self.repomdfile)
 
     self.scripts = {
              'activate-script': dict(ssh=False, 
@@ -105,19 +107,20 @@ class DeployEventMixin:
     if (( script_file and script_file[0] in self.diff.input.diffdict) 
          or '/distribution/%s/install-script' % self.id 
          in self.diff.config.diffdict):
-      #return True
-      pass
+      self.log(1, L1("'install-script' changed, reinstalling...")) 
+      return True
   
     # did kickstart change?
     if 'kstext' in self.diff.variables.diffdict:
-      #return True
-      pass
+      self.log(1, L1("kickstart changed, reinstalling...")) 
+      return True
 
     # is there an existing system that can be activated?
     try:
       self._execute('activate-script')
     except (ScriptFailedError, SSHFailedError), e:
       self.log(1, L1(e))
+      self.log(1, L1("unable to activate machine, reinstalling...")) 
       return True
 
     # if not, install parameters haven't changed, no need to rebuild
@@ -150,7 +153,7 @@ class DeployEventMixin:
           break
         except (socket.error, paramiko.SSHException), e:
           if i == 0:
-            self.log(2, L1("Unable to connect to '%s'. System may be starting. Will continue retrying for 2 minutes. Press CTRL+C to exit." 
+            self.log(2, L2("Unable to connect. System may be starting. Will retry for 2 minutes. Press CTRL+C to exit." 
                % params['hostname']))
           self.log(2, L2("%s. Retrying..." % e))
           time.sleep(5)

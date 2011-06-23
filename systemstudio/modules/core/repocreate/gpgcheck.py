@@ -98,7 +98,9 @@ class GpgCheckEvent(Event):
         r = rpmUtils.miscutils.checkSig(self.ts, pkg)
         if r != 0: # check failed
           invalids.append( (pkg, error_text[r]) )
+      self.ts.close()
       del self.ts
+      self.ts = None
       if invalids:
         # provide msg listing package name, error type, and originating repo
         repos = {}

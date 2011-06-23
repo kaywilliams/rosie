@@ -40,7 +40,7 @@ class ConfigEventMixin(RpmBuildMixin):
       "The system-config package provides scripts and supporting files for "
 		  "configuring %s systems." % self.fullname,
       "%s configuration scripts and supporting files" % self.fullname,
-      requires = ['coreutils', 'policycoreutils']
+      requires = ['coreutils']
     )
 
   def validate(self):
@@ -61,16 +61,27 @@ class ConfigEventMixin(RpmBuildMixin):
     self.io.add_xpath(self.configxpath + '/files', 
                       self.rpm.source_folder // self.filerelpath, 
                       destdir_fallback = 'usr/share/system-config/files', 
-                      id = 'build-input')
+                      id = 'files')
 
-    # add all scripts as input so if they change, we rerun
-    for script in self.config.xpath(self.configxpath + '/script',  []) + \
-                  self.config.xpath(self.configxpath + '/trigger', []):
+    # add scripts as input so if they change, we rerun
+    for script in self.config.xpath(self.configxpath + '/script',  []):
       if script.get('@content', 'file') == 'file':
         assert_file_readable(script.text, 
                              xpath=self._configtree.getpath(script),
                              cls=MissingXpathInputFileError)
         self.DATA['input'].append(script.text)
+
+    # add triggers for synchronization to scripts folder
+    for script in self.config.xpath(self.configxpath + '/trigger', []):
+      self.io.add_xpath(self._configtree.getpath(script),
+                        self.scriptdir, destname='%s-%s' % (
+                        script.get('@type'), script.get('@trigger')), 
+                        id='triggers')
+
+    # copies of user-provided scripts and triggers go here for easier 
+    # user debugging
+    self.debugdir    = self.rpm.source_folder/'root/.systemstudio'
+    self.debug_postfile = self.debugdir/'config-post-script'
 
     # compute input repos text and add to diff variables
     self.input_repos_text = []
@@ -116,10 +127,12 @@ class ConfigEventMixin(RpmBuildMixin):
     RpmBuildMixin.run(self)
 
   def generate(self):
-    self.io.process_files(cache=True, callback=self.files_cb, 
-                          text=self.files_text, what='build-input')
-    self.io.process_files(cache=True, callback=self.files_cb, 
-                          text=self.files_text, what='gpgkeys')
+    for what in ['files', 'gpgkeys', 'triggers']:
+      self.io.process_files(cache=True, callback=self.files_cb, 
+                            text=self.files_text, what=what)
+
+    self.files = [ x[len(self.rpm.source_folder / self.filerelpath):] 
+                   for x in self.io.list_output(what='files') ]
     self._generate_files_checksums()
     self._generate_repofile()
     if self.config.getbool(self.configxpath + '/updates/@sync', True):
@@ -134,11 +147,9 @@ class ConfigEventMixin(RpmBuildMixin):
 
     # compute checksums
 
-    for file in (self.rpm.source_folder // self.filerelpath).findpaths(
-                 type=pps.constants.TYPE_NOT_DIR):
-      src = '/' / file.relpathfrom(self.rpm.source_folder)
+    for file in self.io.list_output(what='files'):
       md5sum = file.checksum(type='md5')
-      lines.append('%s %s' % (md5sum, src))
+      lines.append('%s %s' % (md5sum, file[len(self.rpm.source_folder):]))
 
     md5file.dirname.mkdirs()
     md5file.write_lines(lines)
@@ -198,41 +209,42 @@ class ConfigEventMixin(RpmBuildMixin):
     scripts = [self._mk_post()]
     scripts.extend(self._process_script('post'))
     return self._make_script(scripts, 'post')
-  def get_preun(self):
-    return self._make_script(self._process_script('preun'), 'preun')
-  def get_postun(self):
-    scripts = self._process_script('postun')
-    scripts.append(self._mk_postun())
-    return self._make_script(scripts, 'postun')
   def get_verifyscript(self):
     return self._make_script(self._process_script('verifyscript'), 'verifyscript')
 
   def get_triggers(self):
     triggers = TriggerContainer()
 
+    triggers.append(self._mk_triggerin())
+
     for elem in self.config.xpath(self.configxpath + '/trigger', []):
-      key   = elem.get('@package')
+      key   = elem.get('@trigger')
       id    = elem.get('@type')
       inter = elem.get('@interpreter', None)
-      text  = elem.get('text()', None)
-
-      if elem.get('@content', 'file') == 'text':
-        # if the content is 'text', write the string to a file and set
-        # text to that value
-        script = self.scriptdir/'triggerin-%s' % key
-        if not text.endswith('\n'): text += '\n' # make sure it ends in a newline
-        script.write_text(text)
-        text = script
+      file  = self.scriptdir/'%s-%s' % (elem.get('@type'), elem.get('@trigger'))
 
       flags = []
       if inter:
         flags.extend(['-p', inter])
 
+      # create trigger objects
       assert id in ['triggerin', 'triggerun', 'triggerpostun']
       t = Trigger(key)
-      t[id+'_scripts'] = [text]
+      t[id+'_scripts'] = [file]
       if flags: t[id+'_flags'] = ' '.join(flags)
       triggers.append(t)
+
+      # add 'set -e' to bash trigger scripts for consistent behavior with
+      # non-trigger scripts
+      if inter is None or 'bash' in inter:
+        file.write_text('set -e\n' + file.read_text())
+
+      # make the file executable
+      file.chmod(0750)
+
+      # link file to debug folder for installation by the rpm for 
+      # easier user debugging
+      self.link(file, self.debugdir/'config-%s-script' % file.basename)
 
     return triggers
 
@@ -261,14 +273,7 @@ class ConfigEventMixin(RpmBuildMixin):
     script = ''
 
     # move support files as needed
-    sources = []
-    for support_file in (self.rpm.source_folder // self.filerelpath).findpaths(
-                         type=pps.constants.TYPE_NOT_DIR):
-      src = '/' / support_file.relpathfrom(self.rpm.source_folder)
-      dst = '/' / src.relpathfrom('/' / self.filerelpath)
-      sources.append(dst)
-
-    script += 'file="%s"' % '\n      '.join(sources)
+    script += 'files="%s"' % '\n      '.join(self.files)
     script += '\nmd5file=/usr/share/system-config/md5sums\n'
     script += 'mkdirs=/usr/share/system-config/mkdirs\n'
     script += 's=%s\n' % ('/' / self.filerelpath)
@@ -276,7 +281,7 @@ class ConfigEventMixin(RpmBuildMixin):
 
     script += '\n'.join([
       '',
-      'for f in $file; do',
+      'for f in $files; do',
       '  # create .rpmsave and add file to changed variable, if needed',
       '  if [ -e $f ]; then',
       '    curr=`md5sum $f | sed -e "s/ .*//"`',
@@ -301,113 +306,81 @@ class ConfigEventMixin(RpmBuildMixin):
       '      fi',
       '    done',
       '  fi',
-      '  # copy file to final location',   
+      '  # copy file to final location',
       '  /bin/cp --preserve=all $s/$f $f',
-      '  /sbin/restorecon $f',
       'done',
       '', ])
 
-    script += '\nchanged=\"$changed `diff $md5file $md5file.prev | grep -o \'\/.*\' | sed s!$s!!g`\"\n'
+    # add differences between current and previous md5sum files to changed
+    # variable; yuck lots of massaging to get a space separated list 
+    script += '\n'
+    script += 'changed=\"$changed `diff $md5file $md5file.prev | grep -o \'\/.*\' | sed -e \"s|$s||g\" | tr \'\\n\' \' \'`\"\n'
+    script += '\n'
 
-    return script
+    file = self.debug_postfile[len(self.rpm.source_folder):]
 
-  def _mk_postun(self):
-    """Makes a postun scriptlet that uninstalls obsolete <files> and
-    restores backups from .rpmsave, if present."""
-    script = ''
-
-    sources = []
-    for support_file in (self.rpm.source_folder // self.filerelpath).findpaths(
-                         type=pps.constants.TYPE_NOT_DIR):
-      src = '/' / support_file.relpathfrom(self.rpm.source_folder)
-      dst = '/' / src.relpathfrom('/' / self.filerelpath)
-
-      sources.append(dst)
-
-    script += 'file="%s"' % '\n      '.join(sources)
-    script += '\ns=%s\n' % ('/' / self.filerelpath)
-    script += 'mkdirs=/usr/share/system-config/mkdirs\n'
-
-    script += '\n'.join([
-        '',
-        'for f in $file; do',
-        '  if [ ! -e $s/$f ]; then',
-        '    if [ -e $f.rpmsave ]; then',
-        '      /bin/mv -f $f.rpmsave $f',
-        '    else',
-        '      /bin/rm -f $f',
-        '    fi',
-        '  fi',
-        'done',
-        '[[ -d $s ]] && find $s -depth -empty -type d -exec rmdir {} \;',
-        'if [ -e $mkdirs ]; then',
-        '  #first pass to remove empty dirs',
-        '  for f in `cat $mkdirs`; do',
-        '    if [ -e $f ] ; then',
-        '      rmdir --ignore-fail-on-non-empty -p $f',
-        '    fi',
-        '  done',
-        '  #second pass to remove dirs from mkdirs file',
-        '  for f in `cat $mkdirs`; do',
-        '    if [ ! -e $f ] ; then',
-        '      sed -i s!$f\$!!g $mkdirs',
-        '    fi',
-        '  # third pass to remove empty lines from mkdirs',
-        '  sed -i /$/d $mkdirs',
-        '  done',
-        'fi',
-      ])
-
-    # remove md5sums.prev file   
-    script += '\n/bin/rm -f /usr/share/system-config/md5sums.prev\n'
-    # remove mkdirs file on uninstall
-    script += 'if [ $1 -eq 0 ]; then\n'
-    script += '  rm -f $mkdirs\n'
+    script += '# add changed variable to user debugging script\n'
+    script += 'if [[ -e %s ]]; then sed -i "/set -e/ a\\\n' % file
+    script += 'changed=\'$changed\'" %s\n' % file
     script += 'fi\n'
-
+    script += '\n'
+    script += '\n##### Start of User Scripts #####\n'
     return script
+
+  def _mk_triggerin(self):
+    # reset selinux context for installed files
+    key = 'selinux-policy-targeted'
+    type = 'triggerin'
+    file = self.scriptdir/'%s-%s' % (type, key)
+    lines = [
+    'set -e',
+    'files="%s"' % '\n      '.join(self.files),
+    '',
+    'for f in $files; do',
+    '  /sbin/restorecon $f',
+    'done',]
+
+    file.write_text('\n'.join(lines))
+    file.chmod(0750)
+
+    t = Trigger('selinux-policy-targeted')
+    t[type+'_scripts'] = [file]
+
+    return t 
 
   def _process_script(self, script_type):
-    """Returns a list of pps paths and strings; pps path items should be
-    read to obtain script content, while strings should be interpreted as
-    raw script content themselves (intended for use with _make_script(),
-    below."""
+    """Processes and returns user-provided scripts for a given script type. 
+    Also, saves these to a file which is included in the rpm and installed
+    to client machines for debugging purposes."""
     scripts = []
     for elem in self.config.xpath(self.configxpath + '/script[@type="%s"]' 
                                   % script_type, []):
       if elem.get('@content', 'file') == 'text':
         scripts.append(elem.text)
       else:
-        scripts.append(self.io.abspath(elem.text))
+        scripts.append(self.io.abspath(elem.text).read_text())
+
+    if scripts:
+      #write file for inclusion in rpm for end user debugging
+      s = scripts[:]
+      s.insert(0, 'set -e\n')
+      file =  self.debugdir/'config-%s-script' % script_type
+      file.dirname.mkdirs()
+      file.write_lines(s)
+      file.chmod(0750)
+      self.DATA['output'].append(file)
 
     return scripts
 
   def _make_script(self, iterable, id):
 
-    """For each item in the iterable, if it is a pps path, read the file and
-    concat it onto the script; otherwise, concat the string onto the script"""
+    """For each item in the iterable concat it onto the script. Write the
+    completed script to a file for inclusion in the rpm spec file."""
     script = ''
 
     for item in iterable:
-      if isinstance(item, pps.Path.BasePath):
-        self.copy_callback.start(item, '')
-        fsrc = item.open('rb')
-        fdst = StringIO()
-        self.copy_callback._cp_start(item.stat().st_size, item.basename)
-        read = 0
-        while True:
-          buf = fsrc.read(16*1024)
-          if not buf: break
-          fdst.write(buf)
-          read += len(buf)
-          self.copy_callback._cp_update(read)
-        self.copy_callback._cp_end(read)
-
-        fdst.seek(0)
-        script += fdst.read() + '\n'
-      else:
-        assert isinstance(item, basestring)
-        script += item + '\n'
+      assert isinstance(item, basestring)
+      script += item + '\n'
 
     if script:
       script = 'set -e \n' + script # force the script to fail at runtime if 

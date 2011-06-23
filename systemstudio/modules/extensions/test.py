@@ -42,6 +42,7 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     Event.__init__(self,
       id = 'test-publish',
       parentid = 'all',
+      version = 1.0
       requires = ['os-dir', 'config-release'], 
       provides = ['test-webpath', 'test-localpath']
     )
@@ -108,6 +109,7 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     self.createrepo(self.SOFTWARE_STORE, 
                     groupfile=self.cvars['groupfile'],
                     checksum=self.locals.L_CHECKSUM['type'])
+    self.repomdfile = self.SOFTWARE_STORE/'repodata/repomd.xml'
 
     # update kickstart
     if self.config.get('kickstart', None) is not None:

@@ -44,7 +44,7 @@ class ConfigEvent(ConfigEventMixin, Event):
     Event.__init__(self,
       id = 'config',
       parentid = 'rpmbuild',
-      version = '1.23',
+      version = '1.24',
       provides = ['rpmbuild-data', 'config-release', 'gpgkeys', 
                   'gpgcheck-enabled', 'os-content'],
       requires = ['input-repos', 'pubkey', 'web-path'],

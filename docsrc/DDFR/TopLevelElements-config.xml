@@ -43,7 +43,7 @@
     (PATH|TEXT)
    &lt;/files&gt;]*
 
-  [&lt;script type=("post"|"pre"|"preun"|"postun"|"verifyscript")
+  [&lt;script type=("post"|"pre"|"verifyscript")
           [content=("file"|"text")]&gt;
     (PATH|TEXT)
    &lt;/script&gt;]*
@@ -189,7 +189,7 @@
 
       <para>
       <emphasis>@type</emphasis>: Specifies the type of RPM script; must
-      be one of "pre", "post", "preun", "postun", or "verifyscript". This
+      be one of "pre", "post" or "verifyscript". This
       attribute is required. For more information on defining scripts in
       RPM spec files, see the Fedora project's <emphasis>"RPM Guide"</emphasis>
       by Eric Foster-Johnson.
