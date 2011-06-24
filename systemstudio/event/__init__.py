@@ -53,7 +53,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   """
   The Event superclass also has quite a few attributes set up by main.py
   - these attributes are shared across all Event subclasses, but are
-  computed just once.  See make_event_superclass() inside main.py for
+  computed just once.  See _seed_event_defaults() inside main.py for
   more details.
   """
   def __init__(self, id, version=0, suppress_run_message=False, parentid=None,

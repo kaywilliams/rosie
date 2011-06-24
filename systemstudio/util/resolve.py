@@ -64,6 +64,7 @@ __date__    = 'September 7th, 2007'
 from systemstudio.util import graph
 
 class Item(object):
+
   "A simple resolution struct that allows dependency solving."
   def __init__(self, id, enabled = True,
                      provides = None,
@@ -72,7 +73,8 @@ class Item(object):
                      comes_after  = None,
                      conditionally_requires     = None,
                      conditionally_comes_before = None,
-                     conditionally_comes_after  = None):
+                     conditionally_comes_after  = None,
+                     conditional = False):
     self.id = id
 
     self.provides     = set(provides or [])
@@ -85,7 +87,8 @@ class Item(object):
     self.conditionally_comes_before = set(conditionally_comes_before or [])
     self.conditionally_comes_after  = set(conditionally_comes_after  or [])
 
-    self.enabled = enabled
+    self.conditional = conditional
+    self.enabled     = enabled
 
   def get_children(self): return []
 
@@ -151,6 +154,7 @@ class Resolver(graph.DirectedGraph):
     if len(unresolved) > 0:
       raise UnresolvableError(unresolved)
     else:
+      self._remove_conditional(resolved)
       return resolved
 
   def _resolve(self):
@@ -341,6 +345,23 @@ class Resolver(graph.DirectedGraph):
       return True
 
     return False
+
+  def _remove_conditional(self, resolved):
+    # removes events marked as conditional if their provides are not 
+    # required by any other event
+    for top in resolved:
+      all_requires = []
+      for requires in [ event.requires for event in top ]:
+        all_requires.extend(requires)
+
+      keep = False
+      for event in [ event for event in top if event.conditional ]:
+        for provides in event.provides:
+          if provides in all_requires:
+            keep = True
+
+      if keep == False:
+        event.disable()
 
 
 class BaseRelationship(tuple):

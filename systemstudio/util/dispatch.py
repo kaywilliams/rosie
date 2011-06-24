@@ -42,7 +42,8 @@ class Event(tree.NodeMixin, graph.DirectedNodeMixin, resolve.Item):
                      comes_after  = None,
                      conditionally_requires     = None,
                      conditionally_comes_before = None,
-                     conditionally_comes_after  = None):
+                     conditionally_comes_after  = None,
+                     conditional = False):
     self.enabled = enabled
     self.properties = properties
 
@@ -56,7 +57,8 @@ class Event(tree.NodeMixin, graph.DirectedNodeMixin, resolve.Item):
                           comes_after  = comes_after,
                           conditionally_requires     = conditionally_requires,
                           conditionally_comes_before = conditionally_comes_before,
-                          conditionally_comes_after  = conditionally_comes_after)
+                          conditionally_comes_after = conditionally_comes_after,
+                          conditional = conditional)
 
   def __iter__(self): return tree.depthfirst(self)
   def __str__(self):  return self.id
