@@ -39,7 +39,6 @@ class RepomdEvent(Event, RepomdMixin):
     )
     RepomdMixin.__init__(self)
 
-    self.cvars['repomd-file'] = self.SOFTWARE_STORE/'repodata/repomd.xml'
 
     self.DATA = {
       'config':    ['.'],
@@ -68,6 +67,7 @@ class RepomdEvent(Event, RepomdMixin):
 
   def apply(self):
     self.io.clean_eventcache()
+    self.cvars['repomd-file'] = self.repomdfile
     self.cvars.setdefault('treeinfo-checksums', set()).add(
       (self.SOFTWARE_STORE, 'repodata/repomd.xml'))
 

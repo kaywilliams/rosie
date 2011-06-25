@@ -15,26 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import os
 
-from systemstudio.callback  import BuildDepsolveCallback
 from systemstudio.event     import Event, CLASS_META
-from systemstudio.sslogging import L1, L2, L3
+from systemstudio.sslogging import L1, L2
 from systemstudio.util      import pps
 
-from systemstudio.modules.shared import RepomdMixin, DeployEventMixin
+from systemstudio.modules.shared import RepomdMixin
 from systemstudio.modules.shared.config import ConfigEventMixin
 from systemstudio.modules.shared.kickstart import KickstartEventMixin
 from systemstudio.modules.shared.publish import PublishEventMixin
 
-P = pps.path
-
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['TestPublishEvent', 'TestDeployEvent'],
-  description = 'creates test distribution; installs and updates a client',
+  events      = ['TestPublishEvent',],
+  description = 'creates a test distribution if requested',
 )
-
 
 class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin, 
                        PublishEventMixin, Event):
@@ -42,9 +37,11 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     Event.__init__(self,
       id = 'test-publish',
       parentid = 'all',
-      version = 1.01
+      version = 1.01,
       requires = ['os-dir', 'config-release'], 
-      provides = ['test-webpath', 'test-localpath']
+      conditionally_requires = [ 'kickstart-file' ],
+      provides = ['test-webpath', 'test-repomdfile', 'test-kstext'],
+      conditional = True
     )
 
     self.configxpath = 'config'
@@ -61,9 +58,6 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
       'output':    [],
       'variables': ['cvars[\'config-release\']', 'localpath', 'webpath'],
     }
-
-  def validate(self):
-    ConfigEventMixin.validate(self)
 
   def clean(self):
     Event.clean(self)
@@ -89,8 +83,12 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
 
     # kickstart 
     self.ksxpath = 'kickstart'
-    if self.config.get('kickstart', None) is not None:
+    if self.config.get('kickstart', False): # test ks provided
       KickstartEventMixin.setup(self)
+    elif 'ks-path' in self.cvars:
+      self.kstext = self.cvars['kickstart-file'].read_text() # production ks provided
+    else:
+      self.kstext = ''
 
 
   def run(self):
@@ -125,31 +123,6 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
   def apply(self):
     self.io.clean_eventcache()
     self.cvars['test-webpath'] = self.webpath
+    self.cvars['test-kstext'] = self.kstext # provided by kickstart mixin
+    self.cvars['test-repomdfile'] = self.repomdfile # provided by repomdmixin
 
-
-class TestDeployEvent(DeployEventMixin, Event):
-  def __init__(self):
-    Event.__init__(self,
-      id = 'test-deploy',
-      parentid = 'all',
-      requires = ['test-webpath', ], 
-    )
-
-    self.DATA =  {
-      'config':    [], # populated by mixin
-      'input':     [], # ditto
-      'output':    [], # ditto
-      'variables': [], # populated in setup
-    }
-
-  def setup(self):
-    self.diff.setup(self.DATA)
-    self.webpath = self.cvars['test-webpath'] 
-    self.DATA['variables'].append('webpath')
-    DeployEventMixin.setup(self)
-
-  def run(self):
-    DeployEventMixin.run(self)
-
-  def apply(self):
-    self.io.clean_eventcache()

@@ -84,7 +84,14 @@ class DeployEventMixin:
     for script in self.scripts:
       self.io.process_files(what=script)
 
-    if self._reinstall():
+    # set install_triggers using self.install_triggers, if provided by
+    # parent event, else default to 'activate'
+    try:
+      install_triggers = self.install_triggers
+    except:
+      install_triggers = [ 'activate' ]
+
+    if self._reinstall(triggers = install_triggers):
       self._execute('clean-script')
       self._execute('install-script')
       self._execute('activate-script')
@@ -99,32 +106,39 @@ class DeployEventMixin:
  
   ##### Helper Functions #####
   
-  def _reinstall(self):
-    '''Test install triggers and return true if system should be reinstalled'''
+  def _reinstall(self, triggers = []):
+    '''
+    Tests specified install triggers and returns true if the install script 
+    should be executed. The triggers parameter accepts a list of values 
+    including 'install-script', 'kickstart' and 'activate'.
+    '''
   
-    # did install script change (either file or text)?
-    script_file = self.io.list_input(what='install-script')
-    if (( script_file and script_file[0] in self.diff.input.diffdict) 
-         or '/distribution/%s/install-script' % self.id 
-         in self.diff.config.diffdict):
-      self.log(1, L1("'install-script' changed, reinstalling...")) 
-      return True
+    if 'install-script' in triggers:
+      # did install script change (either file or text)?
+      script_file = self.io.list_input(what='install-script')
+      if (( script_file and script_file[0] in self.diff.input.diffdict) 
+           or '/distribution/%s/install-script' % self.id 
+           in self.diff.config.diffdict):
+        self.log(1, L1("'install-script' changed, reinstalling...")) 
+        return True # reinstall
   
-    # did kickstart change?
-    if 'kstext' in self.diff.variables.diffdict:
-      self.log(1, L1("kickstart changed, reinstalling...")) 
-      return True
+    if 'kickstart' in triggers:
+      # did kickstart change?
+      if 'kstext' in self.diff.variables.diffdict:
+        self.log(1, L1("kickstart changed, reinstalling...")) 
+        return True # reinstall
 
-    # is there an existing system that can be activated?
-    try:
-      self._execute('activate-script')
-    except (ScriptFailedError, SSHFailedError), e:
-      self.log(1, L1(e))
-      self.log(1, L1("unable to activate machine, reinstalling...")) 
-      return True
+    if 'activate' in triggers:
+      # is there an existing system that can be activated?
+      try:
+        self._execute('activate-script')
+      except (ScriptFailedError, SSHFailedError), e:
+        self.log(1, L1(e))
+        self.log(1, L1("unable to activate machine, reinstalling...")) 
+        return True # reinstall
 
     # if not, install parameters haven't changed, no need to rebuild
-    return False 
+    return False # don't reinstall
   
   def _execute(self, script):
     if not self.io.list_output(script): return

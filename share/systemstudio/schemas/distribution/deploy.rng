@@ -1,0 +1,21 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="distribution">
+
+      <optional>
+      <element name="deploy">
+        <optional>
+        <attribute name="enabled"><ref name="value-boolean"/></attribute>
+        </optional>
+        <ref name='content-ssh-attributes'/>
+        <ref name="content-deploy-elements"/>
+
+      </element>
+      </optional>
+
+    </element>
+  </start>
+
+  <include href="lib.rng"/>
+</grammar>

@@ -39,6 +39,8 @@ class RepomdMixin:
     else:
       self.crcb = None
 
+    self.repomdfile = self.SOFTWARE_STORE/'repodata/repomd.xml'
+
   def createrepo(self, path, groupfile=None, pretty=False,
                  update=True, quiet=True, database=True, checksum=None):
     "Run createrepo on the path specified."
