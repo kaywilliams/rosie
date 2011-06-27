@@ -35,7 +35,7 @@ class KickstartEventMixin:
       self.kssource = ('<kickstart content="text">\n  %s\n</kickstart>' %
                       ('\n  ').join([ l.strip() for l in self.kstext.split('\n')]))
     else:
-      self.io.validate_input_file(elem.text, elem)
+      self.io.validate_input_file(elem.text, self._configtree.getpath(elem))
       self.kstext = self.io.abspath(elem.text).read_text().strip()
       self.kssource = 'kickstart file: %s' % self.io.abspath(elem.text)
 

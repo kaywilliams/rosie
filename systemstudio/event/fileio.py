@@ -88,7 +88,7 @@ class IOObject(object):
     except pps.Path.error.PathError, e:
       if xpath is not None:
         raise MissingXpathInputFileError(errno=e.errno, message=e.strerror, 
-                                      file=f, xpath=xpath.tag)
+                                      file=f, xpath=xpath)
       else:
         raise MissingInputFileError(errno=e.errno, message=e.strerror, 
                                     file=f)
