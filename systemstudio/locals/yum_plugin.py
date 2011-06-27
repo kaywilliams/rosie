@@ -28,6 +28,7 @@ PLUGIN_DEFAULTS = {
     '',
     '# disable all repos except the master repo',
     'def prereposetup_hook(conduit):',
+    '  conduit._base.cleanMetadata()',
     '  for repo in conduit._base.repos.listEnabled():',
     '    if repo.id == conduit.confString(\'main\', \'masterrepo\', default=\'base\'):',
     '      continue',

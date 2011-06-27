@@ -169,7 +169,6 @@ class ConfigEventMixin(RpmBuildMixin):
       lines.extend([ '[%s]' % self.name,
                      'name      = %s - %s' % (self.fullname, self.basearch),
                      'baseurl   = %s' % baseurl,
-                     'metadata_expire = 0',
                      'gpgcheck = %s' % (self.cvars['gpgcheck-enabled']),
                      ])
       lines.append('gpgkey = %s' % ', '.join(self._gpgkeys()))
