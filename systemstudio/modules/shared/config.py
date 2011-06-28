@@ -33,6 +33,7 @@ import yum
 
 class ConfigEventMixin(RpmBuildMixin):
   configxpath = '.' # path to config element
+  config_mixin_version = "1.04"
 
   def __init__(self): # call after creating self.DATA
     RpmBuildMixin.__init__(self,
@@ -49,6 +50,8 @@ class ConfigEventMixin(RpmBuildMixin):
 
   def setup(self, webpath, files_cb=None, files_text="downloading files",
             **kwargs):
+    self.DATA['variables'].append('config_mixin_version')
+
     self.webpath = webpath
     self.files_cb = files_cb
     self.files_text = files_text
@@ -212,6 +215,12 @@ class ConfigEventMixin(RpmBuildMixin):
     scripts.extend(self._process_script('post'))
     scripts.append('/bin/chmod 750 %s' % self.installdir)
     return self._make_script(scripts, 'post')
+  def get_preun(self):
+    return self._make_script(self._process_script('preun'), 'preun')
+  def get_postun(self):
+    scripts = self._process_script('postun')
+    scripts.append(self._mk_postun())
+    return self._make_script(scripts, 'postun')
   def get_verifyscript(self):
     return self._make_script(self._process_script('verifyscript'), 'verifyscript')
 
@@ -263,8 +272,10 @@ class ConfigEventMixin(RpmBuildMixin):
       'if [ -e $file ]; then',
       '  /bin/cp $file $file.prev',
       'else',
+      '  if [ ! -e $file.prev ]; then',
       '  /bin/mkdir -p `dirname $file`',
       '  touch $file.prev',
+      '  fi',
       'fi',
       '', ])
 
@@ -327,7 +338,66 @@ class ConfigEventMixin(RpmBuildMixin):
     script += 'changed=\'$changed\'" %s\n' % file
     script += 'fi\n'
     script += '\n'
+    script += '# remove md5sum file if script fails\n'
+    script += 'trap "rm -f $md5file" EXIT\n'
+    script += '\n'
     script += '\n##### Start of User Scripts #####\n'
+    return script
+
+  def _mk_postun(self):
+    """Makes a postun scriptlet that uninstalls obsolete <files> and
+    restores backups from .rpmsave, if present."""
+    script = ''
+
+    sources = []
+    for support_file in (self.rpm.source_folder // self.filerelpath).findpaths(
+                         type=pps.constants.TYPE_NOT_DIR):
+      src = '/' / support_file.relpathfrom(self.rpm.source_folder)
+      dst = '/' / src.relpathfrom('/' / self.filerelpath)
+
+      sources.append(dst)
+
+    script += 'file="%s"' % '\n      '.join(sources)
+    script += '\ns=%s\n' % ('/' / self.filerelpath)
+    script += 'mkdirs=/usr/share/system-config/mkdirs\n'
+
+    script += '\n'.join([
+        '',
+        'for f in $file; do',
+        '  if [ ! -e $s/$f ]; then',
+        '    if [ -e $f.rpmsave ]; then',
+       '      /bin/mv -f $f.rpmsave $f',
+        '    else',
+        '      /bin/rm -f $f',
+        '    fi',
+        '  fi',
+        'done',
+        '[[ -d $s ]] && find $s -depth -empty -type d -exec rmdir {} \;',
+        'if [ -e $mkdirs ]; then',
+        '  #first pass to remove empty dirs',
+        '  for f in `cat $mkdirs`; do',
+        '    if [ -e $f ] ; then',
+        '      rmdir --ignore-fail-on-non-empty -p $f',
+        '    fi',
+        '  done',
+        '  #second pass to remove dirs from mkdirs file',
+        '  for f in `cat $mkdirs`; do',
+        '    if [ ! -e $f ] ; then',
+        '      sed -i s!$f\$!!g $mkdirs',
+        '    fi',
+        '  # third pass to remove empty lines from mkdirs',
+        '  sed -i /$/d $mkdirs',
+        '  done',
+        'fi',
+      ])
+
+    # remove md5sums.prev file   
+    script += '\n/bin/rm -f /usr/share/system-config/md5sums.prev\n'
+    # remove mkdirs file on uninstall
+    script += 'if [ $1 -eq 0 ]; then\n'
+    script += '  rm -f $mkdirs\n'
+    script += 'fi\n'
+
     return script
 
   def _mk_triggerin(self):

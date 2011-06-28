@@ -60,6 +60,8 @@
     <choice>
     <value type="string">post</value>
     <value type="string">pre</value>
+    <value type="string">preun</value>
+    <value type="string">postun</value>
     <value type="string">verifyscript</value>
     </choice>
   </define>
