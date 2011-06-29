@@ -38,8 +38,8 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
       id = 'test-publish',
       parentid = 'all',
       version = 1.01,
-      requires = ['os-dir', 'config-release'], 
-      conditionally_requires = [ 'kickstart-file' ],
+      requires = ['os-dir'], 
+      conditionally_requires = [ 'kickstart-file', 'config-release'],
       provides = ['test-webpath', 'test-repomdfile', 'test-kstext'],
       conditional = True
     )
@@ -56,7 +56,7 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
       'config':    ['local-dir', 'remote-url', 'kickstart'],
       'input':     [],
       'output':    [],
-      'variables': ['cvars[\'config-release\']', 'localpath', 'webpath'],
+      'variables': ['localpath', 'webpath'],
     }
 
   def clean(self):
@@ -75,11 +75,13 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
                  [len(self.SOFTWARE_STORE.split('/')):])
       self.io.add_item(p, self.SOFTWARE_STORE/dirname, id='os-dir')
 
-    # config-rpm 
-    ConfigEventMixin.setup(self, webpath=self.webpath, 
+    # config-rpm
+    if 'config-release' in self.cvars:
+      ConfigEventMixin.setup(self, webpath=self.webpath, 
                          release=self.cvars['config-release'] + '.test',
                          files_cb=self.link_callback, 
                          files_text=self.log(4, L2("gathering config content")))
+      self.DATA['variables'].append('cvars[\'config-release\']')
 
     # kickstart 
     self.ksxpath = 'kickstart'
@@ -98,10 +100,11 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
                           what='os-dir')
 
     # modify config-rpm
-    ConfigEventMixin.run(self)
-    (self.rpm.rpm_path).cp(self.SOFTWARE_STORE/'Packages')
-    self.DATA['output'].append(self.SOFTWARE_STORE/'Packages'/
-                               self.rpm.rpm_path.basename)
+    if 'config-release' in self.cvars:
+      ConfigEventMixin.run(self)
+      (self.rpm.rpm_path).cp(self.SOFTWARE_STORE/'Packages')
+      self.DATA['output'].append(self.SOFTWARE_STORE/'Packages'/
+                                 self.rpm.rpm_path.basename)
 
     # update repodata
     self.createrepo(self.SOFTWARE_STORE, 

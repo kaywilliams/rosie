@@ -78,12 +78,12 @@ class Test_ConfigRpmInputs(ConfigEventTestCase):
         <script type="preun" content="text">echo preun</script>
         <script type="postun" content="text">echo postun</script>
         <script type="verifyscript" content="text">echo verifyscript</script>
-        <trigger package="bash" type="triggerin">%(working-dir)s/script1</trigger>
-        <trigger package="bash" type="triggerun">%(working-dir)s/script1</trigger>
-        <trigger package="python" type="triggerpostun" interpreter="/bin/python">%(working-dir)s/script1</trigger>
-        <trigger package="bash" type="triggerin" content="text">echo triggerin</trigger>
-        <trigger package="bash" type="triggerun" content="text">echo triggerun</trigger>
-        <trigger package="python" type="triggerpostun" interpreter="/bin/python" content="text">print triggerpostun</trigger>
+        <trigger trigger="bash" type="triggerin">%(working-dir)s/script1</trigger>
+        <trigger trigger="bash" type="triggerun">%(working-dir)s/script1</trigger>
+        <trigger trigger="python" type="triggerpostun" interpreter="/bin/python">%(working-dir)s/script1</trigger>
+        <trigger trigger="bash" type="triggerin" content="text">echo triggerin</trigger>
+        <trigger trigger="bash" type="triggerun" content="text">echo triggerun</trigger>
+        <trigger trigger="python" type="triggerpostun" interpreter="/bin/python" content="text">print triggerpostun</trigger>
       </config>
       """ % {'working-dir': self.working_dir})
 
