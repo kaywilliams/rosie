@@ -163,7 +163,10 @@ class Dispatch:
     while True:
       try:
         self.next()
-        if not self.currevent.enabled: continue
+        if not self.currevent.enabled:
+          if self.currevent == until or self.currevent.id == until:
+            raise StopIteration
+          continue
         getattr(self.currevent, fn)(*args, **kwargs)
         if self.currevent == until or self.currevent.id == until:
           raise StopIteration
