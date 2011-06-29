@@ -42,7 +42,7 @@ class ConfigEventTestCase(RpmBuildMixinTestCase, EventTestCase):
                                            arch=self.arch,
                                            include_baseurl=True,
                                            baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
-    base.update({'mirrorlist': None})
+    base.update({'mirrorlist': None, 'gpgcheck': None})
 
     repos.append(base.toxml()) # don't overwrite gpgkey and gpgcheck defaults
 
