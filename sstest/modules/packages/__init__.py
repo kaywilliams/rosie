@@ -106,11 +106,20 @@ class Test_IncludeCoreGroups(_PackagesEventTestCase):
 
 class Test_IncludeGroups(_PackagesEventTestCase):
   "groupfile generated, groups included"
-  _conf = \
-  """<packages>
-    <group>base</group>
-    <group>printing</group>
-  </packages>"""
+  def __init__(self, distro, version, arch, conf=None):
+    _PackagesEventTestCase.__init__(self, distro, version, arch, conf=conf)
+    self._add_config({ 
+    '5': \
+    """<packages>
+      <group>base</group>
+      <group>printing</group>
+    </packages>""",
+    '6': \
+    """<packages>
+      <group>base</group>
+      <group>console-internet</group>
+    </packages>""",
+    }[version[:1]])
 
   def runTest(self):
     self.tb.dispatch.execute(until='packages')
@@ -138,12 +147,21 @@ class Test_ExcludePackages(_PackagesEventTestCase):
 
 class Test_GroupsByRepo(_PackagesEventTestCase):
   "groupfile generated, group included from specific repo"
-  _conf = \
-  """<packages>
-    <group repoid="base">core</group>
-    <group>base</group>
-    <group repoid="base">printing</group>
-  </packages>"""
+  def __init__(self, distro, version, arch, conf=None):
+    _PackagesEventTestCase.__init__(self, distro, version, arch, conf=conf)
+    self._add_config({ 
+    '5':
+    """<packages>
+      <group repoid="base">core</group>
+      <group>base</group>
+      <group repoid="base">printing</group>
+    </packages>""",
+    '6':
+    """<packages>
+      <group repoid="base">core</group>
+      <group>base</group>
+      <group repoid="base">console-internet</group>
+    </packages>""",}[version[:1]])
 
   def runTest(self):
     self.tb.dispatch.execute(until='packages')
