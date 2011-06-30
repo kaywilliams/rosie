@@ -63,6 +63,7 @@ class EventTestCase(unittest.TestCase):
     self.arch = arch
 
     self.conf = conf or self._make_default_config()
+    self.buildroot = BUILD_ROOT
 
     # make sure an appropriate config section exists
     if not self.conf.pathexists(self.moduleid):

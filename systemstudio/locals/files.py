@@ -34,7 +34,7 @@ L_FILES = LocalsDict({
   },
   "anaconda-10.2.0.3-1": { # initrd images to cpio format
     'isolinux': {
-      'initrd.img':   dict(format=CPIO),
+      'initrd.img':   dict(format=CPIO, zipped=True),
     },
   },
   "anaconda-10.89.1.1": { # netstg2, hdstg2 combined into minstg2

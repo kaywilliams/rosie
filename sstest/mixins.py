@@ -58,16 +58,18 @@ class ImageModifyMixinTestCase:
     self.clean_event_md()
 
     # touch input files
-    touch_input_files(self.event._config.file.abspath().dirname)
+    touch_input_files(self.buildroot)
 
     # add config entries
     a = {'destdir': '/infiles'}
     Element('files', text='/tmp/outfile', parent=self.event.config)
-    Element('files', text='infile',  parent=self.event.config, attrs=a)
-    Element('files', text='infile2', parent=self.event.config, attrs=a)
+    Element('files', text='%s/infile' % self.buildroot,  
+                     parent=self.event.config, attrs=a)
+    Element('files', text='%s/infile2' % self.buildroot,
+                     parent=self.event.config, attrs=a)
 
   def tearDown(self):
-    remove_input_files(self.event._config.file.abspath().dirname)
+    remove_input_files(self.buildroot)
 
   def populate_image_content(self):
     if self.image_content is not None: return
