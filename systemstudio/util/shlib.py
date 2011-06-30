@@ -33,16 +33,15 @@ def execute(cmd, verbose=False):
   proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, 
                           stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                           close_fds=True)
-  status = proc.wait()
 
-  stdout = [ line.rstrip("\n") for line in proc.stdout.readlines() ]
-  proc.stdout.close()
-  stderr = [ line.rstrip("\n") for line in proc.stderr.readlines() ]
-  proc.stderr.close()
+  stdout, stderr = proc.communicate()
+  stdout = stdout.rstrip().split('\n')
+
+  status = proc.returncode
 
   if status != 0:
     errstr = "Error code: %s\n" % status
-    for line in stderr: errstr += line + "\n"
+    errstr += stderr
     raise ShExecError(status >> 8, errstr, cmd)
 
   if verbose:
