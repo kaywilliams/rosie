@@ -69,7 +69,6 @@ class Test_RepoDefaults(ReposEventTestCase):
 
     self.failUnless(self.event.repos['base'].baseurl[0].equivpath('/nonexistant/path'))
     self.failUnless(self.event.repos['base'].mirrorlist is None)
-    self.failUnlessEqual(self.event.repos['updates'].gpgcheck, False)
 
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('repos')

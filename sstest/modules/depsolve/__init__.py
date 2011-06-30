@@ -80,6 +80,10 @@ class DepsolveEventTestCase(EventTestCase):
                                             include_baseurl=True,
                                             baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
         r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
+        if repoid == 'updates' and 'systemid' in r:
+          # look for systemid in sstest folder 
+          r['systemid'] = (pps.path(('/').join(__file__.split('/')[:-3]))
+                           /pps.path(r['systemid']).basename)
         repos.append(r.toxml())
 
     return repos
