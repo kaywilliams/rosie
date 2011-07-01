@@ -129,6 +129,15 @@ class GpgCheckEvent(Event):
     # create rpmdb for key storage
     self.ts = rpmUtils.transaction.TransactionWrapper(root=self.mddir/'rpmdb')
 
+    # add rpmdb dir to output
+    # shouldn't need to do this since we never use it on subsequent runs
+    # but for some reason, sporadically, it is being accessed during python
+    # garbage collection (even though we close the transaction and 
+    # delete and reset the transaction object immediately after use)
+    # No harm in leaving it around since we delete it at the start of each 
+    # run via clean_metadata(all=true)
+    self.DATA['output'].append(self.mddir/'rpmdb')
+
     #add keys to rpmdb
     for key in self.cvars['gpgkeys']:
       #validate key
