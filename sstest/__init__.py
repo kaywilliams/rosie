@@ -149,7 +149,7 @@ class EventTestCase(unittest.TestCase):
     self.tb = TestBuild(self.conf, self.options, [])
     self.event = self.tb.dispatch._top.get(self.eventid, None)
     if not self.tb._lock.acquire():
-      print "unable to lock (currently running pid is %s)" % self.tb._lock.path.read_text().strip()
+      print "unable to lock (currently running pid is %s: %s)" % (self.tb._lock.path.read_text().strip(), self.tb._lock.path)
       print "current event: '%s'" % self.event.id
       print "test case: %s" % self._testMethodDoc
       print "continuing anyway"

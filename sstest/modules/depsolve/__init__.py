@@ -145,7 +145,7 @@ class Test_DepsolveBug163_1(DepsolveEventTestCase):
     repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='depsolve/depsolve-test-repos4.repo'))
+                 text='/tmp/sstest/depsolve-test-repos4.repo'))
     return repos
 
   def runTest(self):
@@ -176,7 +176,7 @@ class Test_PackageAdded(DepsolveEventTestCase):
     repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='depsolve/depsolve-test-repos1.repo'))
+                 text='/tmp/sstest/depsolve-test-repos1.repo'))
 
     return repos
 
@@ -196,9 +196,9 @@ class Test_ObsoletedPackage(DepsolveEventTestCase):
     repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='depsolve/depsolve-test-repos1.repo'))
+                 text='/tmp/sstest/depsolve-test-repos1.repo'))
     repos.append(rxml.config.Element('repofile',
-                 text='depsolve/depsolve-test-repos2.repo'))
+                 text='/tmp/sstest/depsolve-test-repos2.repo'))
 
     return repos
 
@@ -226,7 +226,7 @@ class Test_ExclusivePackage_1(DepsolveEventTestCase):
     repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='depsolve/depsolve-test-repos3.repo'))
+                 text='/tmp/sstest/depsolve-test-repos3.repo'))
 
     return repos
 
@@ -256,10 +256,18 @@ class Test_MandatoryVsOptional(DepsolveEventTestCase):
   </packages>"""
   clean = True
 
+  def _make_repos_config(self):
+    repos = DepsolveEventTestCase._make_repos_config(self)
+
+    repos.append(rxml.config.Element('repofile',
+                 text='/tmp/sstest/depsolve-test-repos5.repo'))
+
+    return repos
+
   def runTest(self):
     self.tb.dispatch.execute(until='depsolve')
-    self.failIf(len([ x for x in self.getPkgFiles() if x.startswith('rsyslog') ]) != 0);
-    self.failIf(len([ x for x in self.getPkgFiles() if x.startswith('sysklogd') ]) != 1);
+    self.failIf(len([ x for x in self.getPkgFiles() if x.startswith('mandatory') ]) != 1)
+    self.failIf(len([ x for x in self.getPkgFiles() if x.startswith('optional') ]) != 0)
 
 def make_suite(distro, version, arch):
   _run_make(pps.path(__file__).dirname)

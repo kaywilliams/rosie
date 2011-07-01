@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <build-repos>
+  <path>/tmp/sstest/</path>
   <repo id="repo1">
     <package>
       <name>depsolve-test-package1</name>

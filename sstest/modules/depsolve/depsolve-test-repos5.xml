@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <build-repos>
   <path>/tmp/sstest/</path>
-  <repo id="repo4">
+  <repo id="repo5">
+    <groupfile>groupfile5.xml</groupfile>
     <package>
-      <name>depsolve-bug163-req</name>
+      <name>requires</name>
       <version>1.0</version>
       <release>1</release>
-      <requires>bug163-requirement</requires>
+      <requires>provision</requires>
       <force-arch>noarch</force-arch>
     </package>
     <package>
-      <name>depsolve-bug163-prov</name>
+      <name>mandatory</name>
       <version>1.0</version>
       <release>1</release>
       <force-arch>noarch</force-arch>
-      <provides>bug163-requirement</provides>
+      <provides>provision</provides>
     </package>
     <package>
-      <name>depsolve-bug163-prov</name>
-      <version>2.0</version>
+      <name>optional</name>
+      <version>1.0</version>
       <release>1</release>
       <force-arch>noarch</force-arch>
+      <provides>provision</provides>
     </package>
   </repo>
 </build-repos>
