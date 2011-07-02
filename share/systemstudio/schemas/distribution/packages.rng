@@ -3,7 +3,9 @@
   <start>
     <element name="distribution">
 
+      <optional>
       <element name="packages">
+      </optional>
 
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
