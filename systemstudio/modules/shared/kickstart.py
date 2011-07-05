@@ -15,14 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
+import rpm
 
 from systemstudio.errors import SystemStudioError
+from systemstudio.util.versort import Version
 
 class KickstartEventMixin:
   ksxpath = '.'
   ksname = 'ks.cfg'
 
   def setup(self):
+    # set pykickstart_version (used by locals mixin and sstest)
+    ts = rpm.TransactionSet()
+    h = list(ts.dbMatch('name', 'pykickstart'))[0]
+    self.cvars['pykickstart-version'] = Version("%s-%s" % 
+                                                (h['version'], h['release']))
+
     self.ksfile = self.SOFTWARE_STORE/self.ksname
 
     # read the text or file specified in the kickstart element

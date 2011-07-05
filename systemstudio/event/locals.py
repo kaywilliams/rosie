@@ -15,9 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-import rpm
-
-from systemstudio.util.versort import Version
 
 from systemstudio.locals import *
 
@@ -54,9 +51,7 @@ class LocalsObject:
   L_YUM_PLUGIN        = property(lambda self: L_YUM_PLUGIN[self.base_name][self.base_ver])
 
   # pykickstart version based
-  ts = rpm.TransactionSet()
-  h = list(ts.dbMatch('name', 'pykickstart'))[0]
-  pykickstart_ver = 'pykickstart-%s' % Version("%s-%s" % (h['version'], h['release']))
+  pykickstart_ver = property(lambda self: 'pykickstart-%s' % self.ptr.cvars['pykickstart-version'])
 
   def kickstart_get(self):
     adds = L_KICKSTART_ADDS[self.anaconda_ver]
