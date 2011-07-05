@@ -38,6 +38,8 @@ class KickstartEvent(KickstartEventMixin, Event):
                   'os-content'],
     )
 
+    KickstartEventMixin.__init__(self)
+
     self.DATA = {
       'config':    ['.'],
       'variables': [],

@@ -47,6 +47,7 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     self.configxpath = 'config'
     ConfigEventMixin.__init__(self)
     RepomdMixin.__init__(self)
+    KickstartEventMixin.__init__(self)
 
     self.localpath = self.get_local('local-dir', 
                                   '/var/www/html/distributions/test')

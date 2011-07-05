@@ -73,7 +73,10 @@ class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
 
   def runTest(self):
    self.execute_predecessors(self.event)
-   self.failUnlessRaises(SystemStudioError, self.event)
+   if self.event.cvars['pykickstart-version'] < '1.74' and self.event.cvars['base-info']['version'][:1] >= '6':
+     pass # el5 pykickstart can't validate el6 files
+   else:
+     self.failUnlessRaises(SystemStudioError, self.event)
 
   def tearDown(self):
     EventTestCase.tearDown(self)

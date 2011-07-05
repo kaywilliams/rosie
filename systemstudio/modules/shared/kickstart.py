@@ -21,16 +21,17 @@ from systemstudio.errors import SystemStudioError
 from systemstudio.util.versort import Version
 
 class KickstartEventMixin:
-  ksxpath = '.'
-  ksname = 'ks.cfg'
+  def __init__(self):
+    self.ksxpath = '.'
+    self.ksname = 'ks.cfg'
 
-  def setup(self):
     # set pykickstart_version (used by locals mixin and sstest)
     ts = rpm.TransactionSet()
     h = list(ts.dbMatch('name', 'pykickstart'))[0]
     self.cvars['pykickstart-version'] = Version("%s-%s" % 
                                                 (h['version'], h['release']))
 
+  def setup(self):
     self.ksfile = self.SOFTWARE_STORE/self.ksname
 
     # read the text or file specified in the kickstart element
