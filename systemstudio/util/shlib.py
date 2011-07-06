@@ -35,7 +35,10 @@ def execute(cmd, verbose=False):
                           close_fds=True)
 
   stdout, stderr = proc.communicate()
-  stdout = stdout.rstrip().split('\n')
+  if stdout:
+    stdout = stdout.rstrip().split('\n')
+  else:
+    stdout = []
 
   status = proc.returncode
 
