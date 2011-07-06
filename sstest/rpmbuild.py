@@ -53,6 +53,7 @@ class RpmBuildMixinTestCase(object):
       rpm_header = ts.hdrFromFdno(fdno)
       os.close(fdno)
       del ts
+      rpm.delMacro('_dbpath')
       return rpm_header
     return None
 
