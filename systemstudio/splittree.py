@@ -54,8 +54,6 @@ class Timber:
     if self.discsize < si.parse('100MiB'):
       raise ValueError, "Minimum disc size for iso generation is 100 MiB"
     self.dosrc = dosrc
-    self.comps = si.parse('10MiB')
-    self.reserve = 0
     self.name = None
     self.pkgorder = None
 
@@ -179,10 +177,7 @@ class Timber:
 
         newsize = used + file.getsize()
 
-        if disc == 1: maxsize = self.discsize - self.comps - self.reserve
-        else:         maxsize = self.discsize
-
-        if newsize > maxsize:
+        if newsize > self.discsize:
           # move to the next disc
           try:
             nextdisc = self.rpm_disc_map.index(disc+1)
@@ -196,7 +191,7 @@ class Timber:
             disc = disc - 1
             print 'DEBUG: overflow from disc %d onto disc %d' % (disc+1, disc)
             print 'DEBUG: newsize: %d maxsize: %d' % (newsize, maxsize)
-            continue
+            raise
         else:
           link.sync(file, discpath/self.product_path, allow_xdev=True)
       used = newsize
