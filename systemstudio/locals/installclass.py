@@ -171,7 +171,7 @@ class InstallClass(BaseInstallClass):
     BaseInstallClass.__init__(self)
 '''
 ,
-  "anaconda-11.4.1.10-1":
+  "anaconda-13.21.82":
 '''
 from installclass import BaseInstallClass
 from constants import *
@@ -190,7 +190,7 @@ import rpmUtils.arch
 class InstallClass(BaseInstallClass):
   id = "custom"
   _name = N_("_Custom")
-  _description = N_("Select the software you would like to install on your system.")
+  _description = N_("The %s installation includes the following software.")
   _descriptionFields = (productName,)
   sortPriority = 10000
 
@@ -216,17 +216,15 @@ class InstallClass(BaseInstallClass):
   def setSteps(self, anaconda):
     BaseInstallClass.setSteps(self, anaconda);
     anaconda.dispatch.skipStep("partition")
-    anaconda.dispatch.skipStep("tasksel")
+    anaconda.dispatch.skipStep("tasksel", skip=1, permanent=1)
+    anaconda.dispatch.skipStep("group-selection", skip=1, permanent=1)
 
   def setGroupSelection(self, anaconda):
-    anaconda.backend.selectGroup('core')
+    BaseInstallClass.setGroupSelection(self, anaconda)
+    map(lambda x: anaconda.backend.selectGroup(x), ["core"])
 
   def getBackend(self):
-    if flags.livecdInstall:
-      import livecd
-      return livecd.LiveCDCopyBackend
-    else:
-      return yuminstall.YumBackend
+    return yuminstall.YumBackend
 
   def __init__(self):
     BaseInstallClass.__init__(self)
