@@ -24,16 +24,16 @@ from sstest.mixins import touch_input_files, remove_input_files
 class KickstartEventTestCase(EventTestCase):
   moduleid = 'kickstart'
   eventid  = 'kickstart'
-  _conf = """<kickstart>infile</kickstart>"""
+  _conf = """<kickstart>/tmp/sstest/infile</kickstart>"""
 
   def setUp(self):
     EventTestCase.setUp(self)
     if self.event:
-      touch_input_files(self.event._config.file.abspath().dirname)
+      touch_input_files(self.buildroot)
 
   def tearDown(self):
     if self.event:
-      remove_input_files(self.event._config.file.abspath().dirname)
+      remove_input_files(self.buildroot)
     EventTestCase.tearDown(self)
 
 class Test_KickstartFromText(KickstartEventTestCase):
