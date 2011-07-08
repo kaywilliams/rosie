@@ -205,7 +205,6 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     splitter = splittree.Timber(set, dosrc=self.cvars['srpms-dir'] is not None)
     splitter.name       = self.name
     splitter.u_tree     = self.cvars['os-dir']
-    print self.cvars['os-dir']
     splitter.u_src_tree = self.cvars['srpms-dir']
     splitter.s_tree     = self.splittrees/set
     splitter.product_path = self.cvars['distribution-info']['packagepath']
