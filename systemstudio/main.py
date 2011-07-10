@@ -380,9 +380,16 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     di = Event.cvars['distribution-info'] = {}
     qstr = '/distribution/main/%s/text()'
 
-    di['name']         = Event._config.get(qstr % 'name')
-    di['version']      = Event._config.get(qstr % 'version')
-    di['arch']         = ARCH_MAP[Event._config.get(qstr % 'arch', 'i386')]
+    try:
+      di['name']         = Event._config.get(qstr % 'name')
+      di['version']      = Event._config.get(qstr % 'version')
+      di['arch']         = ARCH_MAP[Event._config.get(qstr % 'arch', 'i386')]
+    except rxml.errors.XmlPathError, e:
+      self.logger.log(0, L0("Validation of %s failed. %s" % 
+                            (Event._config.getroot().file, e)))
+      if self.debug: raise
+      sys.exit(1)
+     
     di['basearch']     = getBaseArch(di['arch'])
     di['distributionid']  = Event._config.get(qstr % 'id',
                           '%s-%s-%s' % (di['name'],
