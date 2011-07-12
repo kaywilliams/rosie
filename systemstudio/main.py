@@ -129,8 +129,10 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
 
     # set up real logger - console and file
     self.logfile = ( pps.path(options.logfile)
-                     or self.definition.getpath('/distribution/main/log-file', None)
-                     or self.mainconfig.getpath('/systemstudio/log-file', None)
+                     or self.definition.getpath(
+                        '/distribution/main/log-file/text()', None)
+                     or self.mainconfig.getpath(
+                        '/systemstudio/log-file/text()', None)
                      or DEFAULT_LOG_FILE ).expand().abspath()
     try:
       self.logger = make_log(options.logthresh, self.logfile)
@@ -317,7 +319,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
                  command line options
     """
     import_dirs = [ x.expand().abspath() for x in \
-      self.mainconfig.getpaths('/systemstudio/lib-path', []) ]
+      self.mainconfig.getpaths('/systemstudio/lib-path/text()', []) ]
 
     if options.libpath:
       import_dirs = [ pps.path(x).expand().abspath() for x in options.libpath ] + import_dirs
@@ -415,14 +417,16 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     Build.distributionid = di['distributionid']
 
     # set up other directories
-    Event.CACHE_DIR    = self.mainconfig.getpath('/systemstudio/cache/path',
+    Event.CACHE_DIR    = self.mainconfig.getpath(
+                           '/systemstudio/cache/path/text()',
                            DEFAULT_CACHE_DIR).expand().abspath()
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
     Event.METADATA_DIR = Event.CACHE_DIR  / di['distributionid']
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed([ x.expand().abspath()
-      for x in self.mainconfig.getpaths('/systemstudio/share-path', []) ]))
+      for x in self.mainconfig.getpaths(
+        '/systemstudio/share-path/text()', []) ]))
     sharedirs.extend(reversed([ pps.path(x).expand().abspath()
       for x in options.sharepath ]))
 

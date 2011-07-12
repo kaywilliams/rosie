@@ -18,7 +18,7 @@
 """
 A configuration reading library.
 
-Provides read() and get() functions, complete with fallback support.
+Provides parse() and get() functions, complete with fallback support.
 """
 
 __author__   = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
@@ -196,10 +196,10 @@ class ConfigElement(tree.XmlTreeElement):
     return _make_boolean(self.get(path, fallback))
 
   def getpath(self, path, fallback=tree.NoneObject()):
-    return _make_path(self.get(path, fallback), fallback)
+    return _make_path(self, path, fallback, multiple=False)
 
   def getpaths(self, path, fallback=tree.NoneObject()):
-    return [ _make_path(x) for x in self.xpath(path, fallback) ]
+    return _make_path(self, path, fallback, multiple=True)
 
   def pathexists(self, path):
     try:
@@ -263,14 +263,45 @@ def _make_boolean(string):
   except KeyError:
     raise ValueError("'%s' is not a valid boolean" % string)
 
-def _make_path(string, fallback=None):
-  if isinstance(string, tree.XmlTreeElement):
-    string = string.text
-  elif string is None:
-    string = fallback
-  if string is None:
-    return fallback
-  if not isinstance(string, basestring):
-    raise ValueError("query must return a string, got a %s" % type(string))
+def _make_path(element, path, fallback=None, multiple=True):
+  roottree = element.getroottree()
 
-  return pps.path(string)
+  # does the path query returns results?
+  try:
+    strings = roottree.xpath(path)
+    test = strings[0] # trick to force an IndexError if list is empty
+
+  # if not, set the fallback as the result
+  except IndexError:
+    strings = [ fallback ]
+    # if fallback is a string, morph it to a pps path object 
+    if isinstance(fallback, basestring):
+      fallback = pps.path(fallback)
+
+    return fallback
+       
+  # process results
+  if not multiple: # filter to a single item if requested
+    strings[:1]   
+  for i in range(len(strings)):
+    if not isinstance(strings[i], basestring):
+      raise ValueError("query must return a string, got a %s" % 
+                       type(strings[i]))
+
+    # get the base for resolving relative paths
+    ancestors = list(strings[i].getparent().iterancestors())
+    ancestors.reverse()
+    ancestors.append(strings[i].getparent())
+    if isinstance(roottree.getroot().file, basestring):
+      base = pps.path(roottree.getroot().file).dirname
+    else: # e.g. roottree could be a stringIO object rather than a file
+      base = pps.path('.')
+    for ancestor in ancestors:
+      try:
+        base = base / pps.path(ancestor.xpath("@xml:base")[0]).dirname
+      except errors.XmlPathError:
+        pass
+    strings[i] = (base / strings[i]).normpath()
+
+  if multiple: return strings
+  else: return strings[0]

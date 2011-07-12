@@ -297,7 +297,6 @@ def uElement(name, parent, attrs=None, text=None, **kwargs):
 def parse(file, handler=None, parser=PARSER):
   handler = handler or XmlTreeSaxHandler(parser.makeelement)
   try:
-    roottree = lxml.etree.ElementTree()
     roottree = lxml.etree.parse(file, parser)
   except lxml.etree.XMLSyntaxError, e:
     raise errors.XmlSyntaxError(file, e)

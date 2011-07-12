@@ -21,6 +21,7 @@ import time
 from datetime import timedelta
 
 from systemstudio.util import dispatch
+from systemstudio.util import pps
 from systemstudio.util import rxml
 from systemstudio.util import sync
 
@@ -242,7 +243,13 @@ class DummyConfig(object):
     return rxml.config._make_boolean(self.get(path, fallback))
 
   def getpath(self, path, fallback=rxml.tree.NoneObject()):
-    return rxml.config._make_path(self.get(path, fallback), fallback)
+    if isinstance(fallback, basestring):
+      return pps.path(fallback)
+    else:
+      return fallback
 
   def getpaths(self, path, fallback=rxml.tree.NoneObject()):
-    return [ rxml.config._make_path(x) for x in self.xpath(path, fallback) ]
+    if isinstance(fallback, basestring):
+      return pps.path(fallback) 
+    else:
+      return fallback 

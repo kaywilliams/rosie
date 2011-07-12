@@ -25,7 +25,7 @@ from systemstudio.util import pps, shlib
 
 class PublishEventMixin:
   def get_local(self, xpath, default):
-    local = pps.path(self.config.getpath(xpath, default))
+    local = self.config.getpath(xpath, default)
     return local / self.distributionid
   
   def get_remote(self, xpath, default): 

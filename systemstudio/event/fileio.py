@@ -293,11 +293,15 @@ class IOObject(object):
   def _process_path_xml(self, item, destname=None, mode=None, 
                         destdir_fallback=''):
     "compute src, dst, destname, and mode from <path> elements"
-    s = pps.path(item.get('text()'))
-    d = pps.path(item.get('@destdir', destdir_fallback))
-    f = destname or item.get('@destname', s.basename)
-    m = item.get('@mode', mode)
     c = item.get('@content', 'file')
+    if c == "file":
+      s = self.ptr.config.getpath('%s/text()' % 
+                                   self.ptr._configtree.getpath(item))
+    else:
+      s = item.get('text()')
+    d = pps.path(item.get('@destdir', destdir_fallback))
+    f = destname or item.get('@destname', None) or s.basename
+    m = item.get('@mode', mode)
 
     return s,d,f,m,c
 
