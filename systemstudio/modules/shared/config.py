@@ -214,6 +214,7 @@ class ConfigEventMixin(RpmBuildMixin):
     scripts = [self._mk_post()]
     scripts.extend(self._process_script('post'))
     scripts.append('/bin/chmod 750 %s' % self.installdir)
+    scripts.append('trap - INT TERM EXIT')
     return self._make_script(scripts, 'post')
   def get_preun(self):
     return self._make_script(self._process_script('preun'), 'preun')
@@ -339,7 +340,7 @@ class ConfigEventMixin(RpmBuildMixin):
     script += 'fi\n'
     script += '\n'
     script += '# remove md5sum file if script fails\n'
-    script += 'trap "rm -f $md5file" EXIT\n'
+    script += 'trap "rm -f $md5file" INT TERM EXIT\n'
     script += '\n'
     script += '\n##### Start of User Scripts #####\n'
     return script
