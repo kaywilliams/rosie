@@ -249,7 +249,7 @@
     </optional>
 
     <optional>
-    <element name="test-script">
+    <element name="post-script">
     <ref name="content-deploy-element"/>
     </element>
     </optional>

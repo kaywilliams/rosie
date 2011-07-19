@@ -45,20 +45,20 @@ class DeployEventMixin:
     self.scripts = {
              'activate-script': dict(ssh=False, 
                               arguments=[self.distributionid]),
-             'clean-script': dict(message='cleaning machine',
+             'clean-script': dict(message='running clean script',
                               ssh=False,
                               arguments=[self.distributionid]),
-             'install-script': dict(message='installing machine',
+             'install-script': dict(message='running install script',
                               ssh=False,
                               arguments=[self.distributionid, self.webpath]),
              'verify-install-script': 
-                              dict(message='verifying machine installation',
+                              dict(message='running verify-install script',
                               ssh=True,
                               arguments=[self.distributionid]),
-             'update-script': dict(message='updating machine',
+             'update-script': dict(message='running update script',
                               ssh=True,
                               arguments=[self.distributionid]),
-             'test-script': dict(message='updating machine',
+             'post-script':   dict(message='running post script',
                               ssh=True,
                               arguments=[self.distributionid])}
 
@@ -101,8 +101,7 @@ class DeployEventMixin:
     else:
       self._execute('update-script')
  
-    # test
-    # self._execute('test-script')
+    self._execute('post-script')
  
  
   ##### Helper Functions #####

@@ -172,7 +172,7 @@ class RpmBuildObject:
     self.force_release = release
 
     if self.autofile.exists():
-      self.release = rxml.tree.parse(self.autofile).getroot().get(
+      self.release = rxml.config.parse(self.autofile).getroot().get(
        '/distribution/rpms/%s/release/text()' %
        (self.ptr.id), '0')
     else:
@@ -208,15 +208,15 @@ class RpmBuildObject:
 
   def save_release(self):
     if self.autofile.exists():
-      root = rxml.tree.parse(self.autofile).getroot().get('/distribution')
+      root = rxml.config.parse(self.autofile).getroot().get('/distribution')
     else:
-      root = rxml.tree.Element('distribution')
+      root = rxml.config.Element('distribution')
 
-    rpms     = rxml.tree.uElement('rpms', parent=root)
-    parent   = rxml.tree.uElement(self.ptr.id, parent=rpms)
-    release  = rxml.tree.uElement('release', parent=parent, text=self.release)
+    rpms     = rxml.config.uElement('rpms', parent=root)
+    parent   = rxml.config.uElement(self.ptr.id, parent=rpms)
+    release  = rxml.config.uElement('release', parent=parent, text=self.release)
 
-    lxml.etree.ElementTree(root).write(self.autofile, pretty_print=True)
+    root.write(self.autofile)
 
     if self.ptr._config.file.exists():
       # set the mode and ownership of .dat file to match definition file.
