@@ -69,8 +69,9 @@ class DeployEventMixin:
         self.DATA['config'].append(script)
 
     #setup ssh default values
+    _hostname = self.config.get('@hostname', self.distributionid)
     self.ssh_defaults = dict(
-      hostname = self.config.get('@hostname', self.distributionid),
+      hostname = _hostname.replace('$id', self.distributionid),
       port     = self.config.get('@port', 22),
       username = self.config.get('@username', 'root'),
       password = self.config.get('@password', None),
@@ -225,6 +226,8 @@ class SSHParameters(DictMixin):
     self.params = {}
     for param,value in ptr.ssh_defaults.items():
       self.params[param] = ptr.config.get('%s/@%s' % (script, param), value)
+    self.params['hostname'] = self.params['hostname'].replace('$id',
+                              ptr.distributionid)
 
   def __getitem__(self, key):
     return self.params[key]

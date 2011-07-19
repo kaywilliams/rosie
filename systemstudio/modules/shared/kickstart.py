@@ -48,6 +48,7 @@ class KickstartEventMixin:
       self.kstext = self.io.abspath(elem.text).read_text().strip()
       self.kssource = 'kickstart file: %s' % self.io.abspath(elem.text)
 
+    self.kstext = self.kstext.replace('$id', self.distributionid)
     self.DATA['variables'].append('kstext')
 
   def run(self):
