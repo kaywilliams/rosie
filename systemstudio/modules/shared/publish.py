@@ -24,14 +24,16 @@ import struct
 from systemstudio.util import pps, shlib
 
 class PublishEventMixin:
-  def get_local(self, xpath, default):
-    local = self.config.getpath(xpath, default)
+  def get_local(self, default):
+    local = self.config.getpath('/distribution/%s/local-dir/text()' % 
+                                self.moduleid, default)
     return local / self.distributionid
   
-  def get_remote(self, xpath, default): 
-    remote = pps.path(self.config.getpath(xpath,
-                      self._get_host(default, xpath, ifname =
-                        self.config.get(xpath+'/@interface', None))))
+  def get_remote(self, default): 
+    remote = pps.path(self.config.getpath('/distribution/%s/remote-url/text()'
+                      % self.moduleid, 
+                      self._get_host(default, 'remote-url', ifname =
+                        self.config.get('remote-url/@interface', None))))
     return remote / self.distributionid
   
   def _get_host(self, default, xpath, ifname=None):

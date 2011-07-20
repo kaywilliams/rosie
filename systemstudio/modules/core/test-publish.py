@@ -49,9 +49,8 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     RepomdMixin.__init__(self)
     KickstartEventMixin.__init__(self)
 
-    self.localpath = self.get_local('local-dir', 
-                                  '/var/www/html/distributions/test')
-    self.webpath = self.get_remote('remote-url', 'distributions/test')
+    self.localpath = self.get_local('/var/www/html/distributions/test')
+    self.webpath = self.get_remote('distributions/test')
 
     self.DATA =  {
       'config':    ['local-dir', 'remote-url', 'kickstart'],

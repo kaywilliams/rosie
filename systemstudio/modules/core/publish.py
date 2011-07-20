@@ -57,8 +57,8 @@ class PublishSetupEvent(PublishEventMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.localpath = self.get_local('local-dir', '/var/www/html/distributions')
-    self.webpath   = self.get_remote('remote-url', 'distributions')
+    self.localpath = self.get_local('/var/www/html/distributions')
+    self.webpath   = self.get_remote('distributions')
 
   def apply(self):
     self.cvars['publish-content'] = set()
