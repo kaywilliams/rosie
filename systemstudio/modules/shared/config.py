@@ -53,6 +53,8 @@ class ConfigEventMixin(RpmBuildMixin):
     self.DATA['variables'].append('config_mixin_version')
 
     self.webpath = webpath
+    self.masterrepo = '%s-%s' % (self.name, 
+                      hashlib.md5(self.distributionid).hexdigest()[-6:])
     self.files_cb = files_cb
     self.files_text = files_text
     self.rpm.setup_build(**kwargs)
@@ -104,7 +106,7 @@ class ConfigEventMixin(RpmBuildMixin):
       except AttributeError:
         pass
 
-    self.DATA['variables'].append('input_repos_text')
+    self.DATA['variables'].extend(['input_repos_text', 'masterrepo'])
 
     # setup gpgkeys
     self.cvars['gpgcheck-enabled'] = self.config.getbool(
@@ -169,7 +171,7 @@ class ConfigEventMixin(RpmBuildMixin):
     # include distribution repo
     if self.webpath is not None:
       baseurl = self.webpath
-      lines.extend([ '[%s]' % self.name,
+      lines.extend([ '[%s]' % self.masterrepo, 
                      'name      = %s - %s' % (self.fullname, self.basearch),
                      'baseurl   = %s' % baseurl,
                      'gpgcheck = %s' % (self.cvars['gpgcheck-enabled']),
@@ -188,7 +190,7 @@ class ConfigEventMixin(RpmBuildMixin):
 
   def _include_sync_plugin(self):
     # replacement map for config file
-    map = { 'masterrepo': self.name }
+    map = { 'masterrepo': self.masterrepo }
 
     # config
     configfile = self.rpm.source_folder/'etc/yum/pluginconf.d/sync.conf'
