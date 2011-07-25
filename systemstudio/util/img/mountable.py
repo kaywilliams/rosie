@@ -46,7 +46,7 @@ class MountableImageHandler:
       point = acquire_mount_point()
     mounted = False
     for mounts in pps.path('/proc/mounts').read_lines():
-      if mounts.find(self.base.imgloc) != -1:
+      if self.base.imgloc in mounts:
         mounted = True; break
     if mode == MODE_WRITE and mounted:
       import warnings

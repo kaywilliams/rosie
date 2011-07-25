@@ -78,7 +78,11 @@ def release_mount_point(p):
   p.rm(recursive=True, force=True)
 
 def cleanup():
-  "Remove the temporary directories"
+  "Cleanup any orphaned mounts and remove the temporary directory"
+  for mount in IMGLIB_MNT.findpaths(mindepth=1):
+    if mount in pps.path('/proc/mounts').read_text():
+      shlib.execute('umount %s' % mount)
+
   IMGLIB_TEMP.rm(recursive=True, force=True)
 
 

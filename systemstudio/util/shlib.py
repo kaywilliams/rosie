@@ -45,7 +45,7 @@ def execute(cmd, verbose=False):
   if status != 0:
     errstr = "Error code: %s\n" % status
     errstr += stderr
-    raise ShExecError(status >> 8, errstr, cmd)
+    raise ShExecError(status >> 8, status, errstr, cmd)
 
   if verbose:
     for line in stdout: print line
@@ -55,8 +55,9 @@ def execute(cmd, verbose=False):
 
 class ShExecError(StandardError):
   "Class of errors raised when shlib encouters an error in program execution"
-  def __init__(self, errno, desc, cmd):
+  def __init__(self, errno, retcode, desc, cmd):
     self.errno = errno
+    self.retcode = retcode
     self.desc  = desc
     self.cmd   = cmd
 
