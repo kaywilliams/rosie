@@ -195,11 +195,11 @@ class ConfigElement(tree.XmlTreeElement):
   def getbool(self, path, fallback=tree.NoneObject()):
     return _make_boolean(self.get(path, fallback))
 
-  def getpath(self, path, fallback=tree.NoneObject()):
-    return _make_path(self, path, fallback, multiple=False)
+  def getpath(self, path, fallback=tree.NoneObject(), relative=False):
+    return _make_path(self, path, fallback, relative=relative, multiple=False)
 
-  def getpaths(self, path, fallback=tree.NoneObject()):
-    return _make_path(self, path, fallback, multiple=True)
+  def getpaths(self, path, fallback=tree.NoneObject(), relative=False):
+    return _make_path(self, path, fallback, relative=relative, multiple=True)
 
   def pathexists(self, path):
     try:
@@ -263,7 +263,7 @@ def _make_boolean(string):
   except KeyError:
     raise ValueError("'%s' is not a valid boolean" % string)
 
-def _make_path(element, path, fallback=None, multiple=True):
+def _make_path(element, path, fallback=None, relative=False, multiple=True):
   roottree = element.getroottree()
 
   # does the path query returns results?
@@ -292,7 +292,7 @@ def _make_path(element, path, fallback=None, multiple=True):
     ancestors = list(strings[i].getparent().iterancestors())
     ancestors.reverse()
     ancestors.append(strings[i].getparent())
-    if isinstance(roottree.getroot().file, basestring):
+    if isinstance(roottree.getroot().file, basestring) and not relative:
       base = pps.path(roottree.getroot().file).dirname
     else: # e.g. roottree could be a stringIO object rather than a file
       base = pps.path('.')
