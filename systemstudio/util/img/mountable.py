@@ -16,6 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import time
 
 from systemstudio.util import pps
 from systemstudio.util import shlib
@@ -24,6 +25,9 @@ from systemstudio.util import sync
 from systemstudio.util.img import acquire_mount_point, release_mount_point, MODE_WRITE
 from systemstudio.util.img.errors import ImageIOError
 from systemstudio.util.img.image  import Image
+
+UMOUNT_ATTEMPTS = 1
+UMOUNT_RETRY_TIME = 2 # seconds
 
 class MountableImageHandler:
   def __init__(self, base):
@@ -57,7 +61,20 @@ class MountableImageHandler:
     (self._mount/'lost+found').rm(recursive=True, force=True)
 
   def close(self):
-    shlib.execute('umount %s' % self._mount)
+    count = 0
+    while True:
+      try:
+        shlib.execute('umount %s' % self._mount)
+      except shlib.ShExecError, e:
+        if count >= UMOUNT_ATTEMPTS or e.retcode != 1:
+          raise
+        else:
+          # device may be busy
+          time.sleep(UMOUNT_RETRY_TIME)
+          count += 1
+      else:
+        break
+      
     release_mount_point(self._mount)
     self._mount = None
 
