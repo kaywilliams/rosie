@@ -207,6 +207,18 @@ class ConfigElement(tree.XmlTreeElement):
     except errors.XmlPathError:
       return False
 
+  def replace(self, map):
+    "performs string replacement across all attributes and text elements"
+    for key in map:
+      for elem in self.getroot().iterdescendants():
+        for attr in elem.attrib.keys():
+          if key in elem.attrib[attr]:
+            elem.attrib[attr] = elem.attrib[attr].replace(key, map[key])
+        if elem.text is not None:
+          if key in elem.text:
+            elem.text = elem.text.replace(key, map[key])
+
+
 class ConfigTreeSaxHandler(tree.XmlTreeSaxHandler):
   "SAX Content Handler."
   def __init__(self, makeelement=None):

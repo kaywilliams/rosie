@@ -127,6 +127,44 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     else:
       self.debug = False
 
+    # set up initial variables
+    qstr = '/distribution/main/%s/text()'
+    try:
+      self.name     = self.definition.get(qstr % 'name')
+      self.version  = self.definition.get(qstr % 'version')
+      self.arch     = ARCH_MAP[self.definition.get(qstr % 'arch', 'i386')]
+    except rxml.errors.XmlPathError, e:
+      self.logger.log(0, L0("Validation of %s failed. %s" % 
+                            (self.definition.getroot().file, e)))
+      if self.debug: raise
+      sys.exit(1)
+     
+    self.basearch        = getBaseArch(self.arch)
+    self.distributionid  = self.definition.get(qstr % 'id',
+                          '%s-%s-%s' % (self.name,
+                                        self.version,
+                                        self.basearch))
+
+    # expand variables in definition file
+    map = {'$name':    self.name,
+           '$version': self.version,
+           '$arch':    self.basearch,
+           '$id':      self.distributionid}
+
+    for item in self.definition.xpath('//macro', []):
+      name = '$%s' % item.attrib['id']
+      if name not in map:
+        map[name] = item.text
+      else:
+        message = ("Error: duplicate macros with the id '%s' found while processing the definition file '%s'" % (item.attrib['id'], self.definition.file))
+        if self.debug:
+          raise RuntimeError(message)
+        else: 
+          print message
+          sys.exit(1)
+     
+    self.definition.replace(map)
+
     # set up real logger - console and file
     self.logfile = ( pps.path(options.logfile)
                      or self.definition.getpath(
@@ -382,21 +420,11 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     di = Event.cvars['distribution-info'] = {}
     qstr = '/distribution/main/%s/text()'
 
-    try:
-      di['name']         = Event._config.get(qstr % 'name')
-      di['version']      = Event._config.get(qstr % 'version')
-      di['arch']         = ARCH_MAP[Event._config.get(qstr % 'arch', 'i386')]
-    except rxml.errors.XmlPathError, e:
-      self.logger.log(0, L0("Validation of %s failed. %s" % 
-                            (Event._config.getroot().file, e)))
-      if self.debug: raise
-      sys.exit(1)
-     
-    di['basearch']     = getBaseArch(di['arch'])
-    di['distributionid']  = Event._config.get(qstr % 'id',
-                          '%s-%s-%s' % (di['name'],
-                                        di['version'],
-                                        di['basearch']))
+    di['name']         = self.name 
+    di['version']      = self.version
+    di['arch']         = self.arch
+    di['basearch']     = self.basearch
+    di['distributionid']  = self.distributionid
     di['anaconda-version'] = None
     di['fullname']     = Event._config.get(qstr % 'fullname', di['name'])
     di['packagepath']  = 'Packages'
