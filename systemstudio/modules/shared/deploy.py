@@ -18,16 +18,19 @@
 
 import paramiko
 import signal
-import socket
 import sys
-import time
+import traceback
 
 import subprocess as sub
 
 from systemstudio.sslogging import L0, L1, L2
 from systemstudio.errors import SystemStudioError
+from systemstudio.util import sshlib
 
 from UserDict import DictMixin
+
+SSH_RETRIES = 24
+SSH_SLEEP = 5
 
 class DeployEventMixin:
   def setup(self): 
@@ -157,32 +160,19 @@ class DeployEventMixin:
     params = SSHParameters(self, script)
     try:
       # establish connection
-      client = paramiko.SSHClient()
-      client.set_missing_host_key_policy(paramiko.MissingHostKeyPolicy())
-      signal.signal(signal.SIGINT, signal.default_int_handler) #enable ctrl+C
-      self.log(2, L2('connecting to host \'%s\'' % params['hostname'])) 
-      for i in range(24): # retry connect to host every 5 seconds for 2 minutes
-        try:
-          client.connect(**dict(params))
-          break
-        except (socket.error, paramiko.SSHException), e:
-          if i == 0:
-            self.log(2, L2("Unable to connect. System may be starting. Will retry for 2 minutes. Press CTRL+C to exit."))
-          self.log(2, L2("%s. Retrying..." % e))
-          time.sleep(5)
+      try:
+        self.log(2, L2('connecting to host \'%s\'' % params['hostname'])) 
+        signal.signal(signal.SIGINT, signal.default_int_handler) #enable ctrl+C
+        client = sshlib.get_client(retries=SSH_RETRIES, sleep=SSH_SLEEP,
+                                   callback=SSHConnectCallback(self.logger),
+                                   **dict(params))
 
-        except paramiko.BadAuthenticationType, e:
-          raise SSHFailedError(script=script, message=str(e), 
-                               params=str(params))
+      except paramiko.BadAuthenticationType, e:
+        raise SSHFailedError(script=script, message=str(e), params=str(params))
 
-        # host can change from installation to installation, so 
-        # don't require a match to known hosts
-        except paramiko.BadHostKeyException:
-          pass 
-  
-      else:
+      except sshlib.ConnectionFailedError:
         raise SSHFailedError(script=script, 
-          message="unable to establish connection with remote host: '%s'"
+          message="Unable to establish connection with remote host: '%s'"
                   % params['hostname'],
           params=str(params)) 
   
@@ -214,10 +204,9 @@ class DeployEventMixin:
       if status != 0:
         raise ScriptFailedError(script=script)
   
-    except Exception, e:
-      print e
-      try: client.close()
-      except: pass
+    except:
+      if 'client' in locals():
+        client.close()
       raise
 
 class SSHParameters(DictMixin):
@@ -250,4 +239,15 @@ class SSHFailedError(ScriptFailedError):
   message = """Error occured running '%(script)s'.
 Error message: '%(message)s'
 SSH parameters: '%(params)s"""
+
+
+class SSHConnectCallback:
+  def __init__(self, logger):
+    self.logger = logger
+
+  def start(self, message, *args, **kwargs):
+    self.logger.log(2, L2(message))
+
+  def retry(self, message, *args, **kwargs):
+    self.logger.log(2, L2(message))
 
