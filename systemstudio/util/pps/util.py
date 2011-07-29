@@ -42,12 +42,13 @@ def urlparse(url):
       scheme, url = url[:i].lower(), url[i+1:]
   if url[:2] == '//':
     netloc, url = _splitnetloc(url, 2)
-  if '#' in url:
-    url, fragment = url.split('#', 1)
-  if '?' in url:
-    url, query    = url.split('?', 1)
-  if ';' in url:
-    url, params   = url.split(';', 1)
+  if not (scheme == '' or scheme == 'file'):
+    if '#' in url:
+      url, fragment = url.split('#', 1)
+    if '?' in url:
+      url, query    = url.split('?', 1)
+    if ';' in url:
+      url, params   = url.split(';', 1)
   return (scheme, netloc, url or '/', params, query, fragment)
 
 def _splitnetloc(url, start=0):
