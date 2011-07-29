@@ -8,6 +8,9 @@
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
+        <optional>
+        <attribute name="datafile-dir"/>
+        </optional>
 
         <interleave>
 

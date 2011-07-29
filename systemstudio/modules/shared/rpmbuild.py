@@ -67,7 +67,7 @@ class RpmBuildMixin:
       mkrpm.build(R.build_folder, self.mddir, createrepo=False,
                   bdist_base=R.bdist_base, rpm_base=R.rpm_base,
                   dist_dir=R.dist_dir, keep_source=True,
-                  quiet=(self.logger.threshold < 5))
+                  quiet=(int(self.logger.threshold) < 5))
     except mkrpm.rpmbuild.RpmBuilderException, e:
       raise RpmBuildFailedException(message=str(e))
 
@@ -136,7 +136,11 @@ class RpmBuildObject:
     self.packagereq_default  = packagereq_default
     self.packagereq_requires = packagereq_requires
 
-    self.autofile = self.ptr._config.file + '.dat'
+    self.autofile = (self.ptr._config.getpath(
+                     '/distribution/config/@datafile-dir', 
+                     self.ptr._config.file.dirname) / 
+                     self.ptr._config.file.basename + '.dat')
+    self.autofile.dirname.mkdirs()
 
     # RPM build variables
     self.build_folder  = self.ptr.mddir / 'build'
