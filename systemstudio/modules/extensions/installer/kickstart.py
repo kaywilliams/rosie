@@ -42,7 +42,7 @@ class KickstartEvent(KickstartEventMixin, Event):
 
     self.DATA = {
       'config':    ['.'],
-      'variables': [],
+      'variables': ['kickstart_mixin_version'],
       'output':    [],
     }
 

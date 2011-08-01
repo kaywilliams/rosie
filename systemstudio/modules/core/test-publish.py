@@ -56,7 +56,8 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
       'config':    ['local-dir', 'remote-url', 'kickstart'],
       'input':     [],
       'output':    [],
-      'variables': ['localpath', 'webpath'],
+      'variables': ['localpath', 'webpath', 'config_mixin_version', 
+                    'kickstart_mixin_version'],
     }
 
   def clean(self):

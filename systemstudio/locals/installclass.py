@@ -189,10 +189,11 @@ import rpmUtils.arch
 
 class InstallClass(BaseInstallClass):
   id = "custom"
-  _name = N_("_Custom")
+  name = N_("Custom")
   _description = N_("The %s installation includes the following software.")
   _descriptionFields = (productName,)
-  sortPriority = 10000
+  sortPriority = 10006 
+  hidden = 0
 
   bootloaderTimeoutDefault = 5
   bootloaderExtraArgs = "crashkernel=auto"
