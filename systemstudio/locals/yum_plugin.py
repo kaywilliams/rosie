@@ -197,6 +197,9 @@ PLUGIN_DEFAULTS = {
 
 
 L_YUM_PLUGIN = {
+  "centos": LocalsDict({
+    '0': PLUGIN_DEFAULTS,
+  }),
   "CentOS": LocalsDict({
     '0': PLUGIN_DEFAULTS,
   }),

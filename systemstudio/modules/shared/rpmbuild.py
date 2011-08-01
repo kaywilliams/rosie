@@ -30,8 +30,6 @@ from systemstudio.sslogging import L1
 
 __all__ = ['RpmBuildMixin', 'Trigger', 'TriggerContainer']
 
-VER_X_REGEX = re.compile('[^0-9]*([0-9]+).*')
-
 class RpmBuildMixin:
   def __init__(self, *args, **kwargs):
     self.rpm = RpmBuildObject(self, *args,**kwargs)
@@ -200,15 +198,10 @@ class RpmBuildObject:
     self.arch     = kwargs.get('arch',     'noarch')
     self.author   = kwargs.get('author',   'systemstudio')
     self.fullname = kwargs.get('fullname', self.ptr.fullname)
-    if kwargs.has_key('version'):
-      self.version = kwargs['version']
-    else:
-      vermatch = VER_X_REGEX.match(self.ptr.version)
-      if vermatch:
-        # for interop with 3rd party repofiles that use $releasever
-        self.version = vermatch.group(1)
-      else:
-        self.version = self.ptr.version
+    self.version  = kwargs.get('version',  self.ptr.basever)
+
+    self.ptr.DATA['variables'].extend(['rpm.arch', 'rpm.author', 'rpm.fullname',
+                                       'rpm.version'])
 
   def save_release(self):
     if self.autofile.exists():

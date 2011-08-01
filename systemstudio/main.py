@@ -138,7 +138,13 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
                             (self.definition.getroot().file, e)))
       if self.debug: raise
       sys.exit(1)
-     
+    
+    # set basever to first digit in version string, e.g. '5Server' becomes '5'
+    self.basever = ''
+    for char in self.version:
+      if char.isdigit(): self.basever = char
+      break
+      
     self.basearch        = getBaseArch(self.arch)
     self.distributionid  = self.definition.get(qstr % 'id',
                           '%s-%s-%s' % (self.name,
@@ -148,6 +154,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     # expand variables in definition file
     map = {'$name':    self.name,
            '$version': self.version,
+           '$basever': self.basever,
            '$arch':    self.basearch,
            '$id':      self.distributionid}
 
@@ -422,6 +429,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
 
     di['name']         = self.name 
     di['version']      = self.version
+    di['basever']      = self.basever # first digit in self.version
     di['arch']         = self.arch
     di['basearch']     = self.basearch
     di['distributionid']  = self.distributionid
