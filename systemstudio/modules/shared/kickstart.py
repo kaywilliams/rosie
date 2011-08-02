@@ -21,7 +21,7 @@ from systemstudio.errors import SystemStudioError
 from systemstudio.util.versort import Version
 
 class KickstartEventMixin:
-  kickstart_mixin_version = "1.0"
+  kickstart_mixin_version = "1.02"
 
   def __init__(self):
     self.ksxpath = '.'

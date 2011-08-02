@@ -10,13 +10,10 @@ L_KICKSTART_ADDS = LocalsDict({
       },
     'packages': {
       'test' :  "line.startswith('%packages')",
-      'text' : "\n%packages --default",
+      'text' : "\n%packages\n@core",
       },
     },
  "anaconda-13.21": {
-    'packages': {
-      'test' :  "line.startswith('%packages')",
-      'text' : "\n%packages --default\n%end", # introduced trailing %end
-      },
+    'packages': REMOVE, 
     },
   })
