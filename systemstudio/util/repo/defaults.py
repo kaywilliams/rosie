@@ -365,9 +365,7 @@ baseurl    = %(baseurl)s/development/$basearch/os/
 
 
 #============ CENTOS ============#
-CENTOS_GPGKEYS = ' '.join(['%(gpgkeyroot)s-CentOS-$releasever',
-                           '%(gpgkeyroot)s-beta']) % \
-  dict(gpgkeyroot='%(baseurl)s/$releasever/os/$basearch/RPM-GPG-KEY')
+CENTOS_GPGKEYS = '%(baseurl)s/$releasever/os/$basearch/RPM-GPG-KEY-CentOS-$releasever'
 
 CENTOS_PACKAGES = \
 """[base]
