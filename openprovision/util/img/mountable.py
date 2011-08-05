@@ -18,13 +18,13 @@
 import os
 import time
 
-from systemstudio.util import pps
-from systemstudio.util import shlib
-from systemstudio.util import sync
+from openprovision.util import pps
+from openprovision.util import shlib
+from openprovision.util import sync
 
-from systemstudio.util.img import acquire_mount_point, release_mount_point, MODE_WRITE
-from systemstudio.util.img.errors import ImageIOError
-from systemstudio.util.img.image  import Image
+from openprovision.util.img import acquire_mount_point, release_mount_point, MODE_WRITE
+from openprovision.util.img.errors import ImageIOError
+from openprovision.util.img.image  import Image
 
 UMOUNT_ATTEMPTS = 1
 UMOUNT_RETRY_TIME = 2 # seconds

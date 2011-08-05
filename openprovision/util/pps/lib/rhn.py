@@ -38,7 +38,7 @@
 
 import xmlrpclib
 
-from systemstudio.util.pps import path
+from openprovision.util.pps import path
 
 # systemid validation
 def validate_systemid(systemid):

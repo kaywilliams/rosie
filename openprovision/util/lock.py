@@ -1,7 +1,7 @@
 import os
 import socket
 
-from systemstudio.util import pps
+from openprovision.util import pps
 
 class Lock:
   """Simple locking class.  Not particularly thread safe; intended more for

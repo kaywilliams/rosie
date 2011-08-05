@@ -29,9 +29,9 @@ import lxml
 
 from xml.sax.saxutils import escape
 
-from systemstudio.util import pps
+from openprovision.util import pps
 
-from systemstudio.util.rxml import errors, tree
+from openprovision.util.rxml import errors, tree
 
 BOOLEANS = {
   # True equivalents

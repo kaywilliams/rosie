@@ -20,11 +20,11 @@ import time
 
 from rpmUtils.arch import getArchList
 
-from systemstudio.util.repo import RPM_PNVRA_REGEX
+from openprovision.util.repo import RPM_PNVRA_REGEX
 
-from systemstudio.errors    import SystemStudioError
-from systemstudio.event     import Event
-from systemstudio.sslogging   import L1, L2
+from openprovision.errors    import SystemStudioError
+from openprovision.event     import Event
+from openprovision.sslogging   import L1, L2
 
 MODULE_INFO = dict(
   api         = 5.0,

@@ -25,7 +25,7 @@ __date__    = 'August 22nd, 2007'
 
 import sys
 
-from systemstudio.util.progressbar import ProgressBar
+from openprovision.util.progressbar import ProgressBar
 
 THROTTLE = 10 # update a maximum of 10 times per second
 

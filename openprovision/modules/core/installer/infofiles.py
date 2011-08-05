@@ -24,10 +24,10 @@ generates system information files: .discinfo, .treeinfo, and .buildstamp
 import copy
 import time
 
-from systemstudio.util import FormattedFile as ffile
+from openprovision.util import FormattedFile as ffile
 
-from systemstudio.event  import Event
-from systemstudio.locals import sort_keys
+from openprovision.event  import Event
+from openprovision.locals import sort_keys
 
 MODULE_INFO = dict(
   api         = 5.0,

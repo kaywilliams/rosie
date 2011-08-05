@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util.decorator import decorator
+from openprovision.util.decorator import decorator
 
-from systemstudio.util.pps.Path.error import PathError
+from openprovision.util.pps.Path.error import PathError
 
 @decorator
 def error_transform(fn, *args, **kwargs):

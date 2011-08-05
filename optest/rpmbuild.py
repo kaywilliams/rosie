@@ -22,8 +22,8 @@ import yum
 
 from rpmUtils import miscutils
 
-from systemstudio.util import img
-from systemstudio.util import pps
+from openprovision.util import img
+from openprovision.util import pps
 
 FLAGS_MAP = {
   0: '',

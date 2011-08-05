@@ -54,8 +54,8 @@
     the syntax for distribution definition elements and attributes. 
     Finally, SystemStudio has a set of 
     <emphasis role="strong">man pages</emphasis> explaining the
-    <command>systemstudio</command> command, its options and the SystemStudio
-    configuration file, <filename>systemstudio.conf</filename>. This manual 
+    <command>openprovision</command> command, its options and the SystemStudio
+    configuration file, <filename>openprovision.conf</filename>. This manual 
     contains references to all four throughout the text.</para>
 
     <para>These SystemStudio documents are available at the Rendition Software
@@ -63,8 +63,8 @@
     </para>
 
     <para>
-    <ulink url="http://www.renditionsoftware.com/systemstudio/docs/">
-    http://www.renditionsoftware.com/systemstudio/docs/ </ulink>
+    <ulink url="http://www.renditionsoftware.com/openprovision/docs/">
+    http://www.renditionsoftware.com/openprovision/docs/ </ulink>
     </para>
 
   </section>
@@ -191,7 +191,7 @@
           computer output</computeroutput>, usually in Courier monospace font,
           or included in a box, as in the case below.</para>
 
-          <screen>/usr/bin/systemstudio</screen>
+          <screen>/usr/bin/openprovision</screen>
         </listitem>
       </varlistentry>
 
@@ -291,8 +291,8 @@ $ precedes lines entered as a normal user</programlisting>
     <title>Getting SystemStudio</title>
 
     <para>SystemStudio and associated documents are available at
-    <ulink url="http://www.renditionsoftware.com/systemstudio/"> the 
+    <ulink url="http://www.renditionsoftware.com/openprovision/"> the 
     Rendition Software website</ulink> 
-    at www.renditionsoftware.com/systemstudio.</para>
+    at www.renditionsoftware.com/openprovision.</para>
   </section>
 </chapter>

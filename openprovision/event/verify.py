@@ -19,10 +19,10 @@ import sys
 import time
 import unittest
 
-from systemstudio.util import pps
+from openprovision.util import pps
 
-from systemstudio.sslogging import L1, L2
-from systemstudio.verify  import BuildTestResult
+from openprovision.sslogging import L1, L2
+from openprovision.verify  import BuildTestResult
 
 class VerifyMixin:
   def __init__(self):

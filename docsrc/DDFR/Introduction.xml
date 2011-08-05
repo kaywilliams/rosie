@@ -43,13 +43,13 @@
 
   <para>
   A distribution definition file can be located in any local directory and invoked 
-  from the command line using the command <command>systemstudio</command> 
+  from the command line using the command <command>openprovision</command> 
   followed by the full or relative pathname to the file, such as:
   </para>
 
   <informalexample>
   <programlisting>
-<command>systemstudio</command> /path/to/system/file
+<command>openprovision</command> /path/to/system/file
   </programlisting>
   </informalexample>
 

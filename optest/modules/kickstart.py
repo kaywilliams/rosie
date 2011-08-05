@@ -15,16 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.errors import SystemStudioError
+from openprovision.errors import SystemStudioError
 
-from sstest        import EventTestCase, ModuleTestSuite
-from sstest.core   import make_extension_suite
-from sstest.mixins import touch_input_files, remove_input_files
+from optest        import EventTestCase, ModuleTestSuite
+from optest.core   import make_extension_suite
+from optest.mixins import touch_input_files, remove_input_files
 
 class KickstartEventTestCase(EventTestCase):
   moduleid = 'kickstart'
   eventid  = 'kickstart'
-  _conf = """<kickstart>/tmp/sstest/infile</kickstart>"""
+  _conf = """<kickstart>/tmp/optest/infile</kickstart>"""
 
   def setUp(self):
     EventTestCase.setUp(self)

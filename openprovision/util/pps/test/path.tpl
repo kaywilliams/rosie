@@ -1,7 +1,7 @@
 Test posix methods of path objects
 
 Set up the environment
-  >>> from systemstudio.util import pps
+  >>> from openprovision.util import pps
   >>> P = pps.Path.%(pathtype)s.%(pathcls)s 
   >>> absolute = P('%(abspath)s')
   >>> relative = P('%(relpath)s')

@@ -5,8 +5,8 @@ PYFILES = $(wildcard *.py)
 all:
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systemstudio/modules/shared
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systemstudio/modules/shared
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/openprovision/modules/shared
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/openprovision/modules/shared
 
 clean:
 	rm -f *.pyc *.pyo

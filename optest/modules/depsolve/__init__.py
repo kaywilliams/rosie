@@ -19,12 +19,12 @@ from StringIO import StringIO
 
 import unittest
 
-from systemstudio.util import pps
-from systemstudio.util import repo
-from systemstudio.util import rxml
+from openprovision.util import pps
+from openprovision.util import repo
+from openprovision.util import rxml
 
-from sstest      import EventTestCase, ModuleTestSuite, _run_make
-from sstest.core import make_core_suite
+from optest      import EventTestCase, ModuleTestSuite, _run_make
+from optest.core import make_core_suite
 
 class DummyDepsolveEventTestCase(EventTestCase):
   moduleid = 'depsolve'
@@ -81,7 +81,7 @@ class DepsolveEventTestCase(EventTestCase):
                                             baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
         r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
         if repoid == 'updates' and 'systemid' in r:
-          # look for systemid in sstest folder 
+          # look for systemid in optest folder 
           r['systemid'] = (pps.path(('/').join(__file__.split('/')[:-3]))
                            /pps.path(r['systemid']).basename)
         repos.append(r.toxml())
@@ -145,7 +145,7 @@ class Test_DepsolveBug163_1(DepsolveEventTestCase):
     repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='/tmp/sstest/depsolve-test-repos4.repo'))
+                 text='/tmp/optest/depsolve-test-repos4.repo'))
     return repos
 
   def runTest(self):
@@ -176,7 +176,7 @@ class Test_PackageAdded(DepsolveEventTestCase):
     repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='/tmp/sstest/depsolve-test-repos1.repo'))
+                 text='/tmp/optest/depsolve-test-repos1.repo'))
 
     return repos
 
@@ -196,9 +196,9 @@ class Test_ObsoletedPackage(DepsolveEventTestCase):
     repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='/tmp/sstest/depsolve-test-repos1.repo'))
+                 text='/tmp/optest/depsolve-test-repos1.repo'))
     repos.append(rxml.config.Element('repofile',
-                 text='/tmp/sstest/depsolve-test-repos2.repo'))
+                 text='/tmp/optest/depsolve-test-repos2.repo'))
 
     return repos
 
@@ -226,7 +226,7 @@ class Test_ExclusivePackage_1(DepsolveEventTestCase):
     repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='/tmp/sstest/depsolve-test-repos3.repo'))
+                 text='/tmp/optest/depsolve-test-repos3.repo'))
 
     return repos
 
@@ -260,7 +260,7 @@ class Test_MandatoryVsOptional(DepsolveEventTestCase):
     repos = DepsolveEventTestCase._make_repos_config(self)
 
     repos.append(rxml.config.Element('repofile',
-                 text='/tmp/sstest/depsolve-test-repos5.repo'))
+                 text='/tmp/optest/depsolve-test-repos5.repo'))
 
     return repos
 

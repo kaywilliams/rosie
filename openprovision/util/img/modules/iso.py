@@ -16,12 +16,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from systemstudio.util import magic
+from openprovision.util import magic
 
-from systemstudio.util.img import MODE_READ, MODE_WRITE, acquire_mount_point
+from openprovision.util.img import MODE_READ, MODE_WRITE, acquire_mount_point
 
-from systemstudio.util.img.readonly  import ReadOnlyImageHandler, MakeReadOnlyImage, ReadOnlyError
-from systemstudio.util.img.mountable import MountableImageHandler
+from openprovision.util.img.readonly  import ReadOnlyImageHandler, MakeReadOnlyImage, ReadOnlyError
+from openprovision.util.img.mountable import MountableImageHandler
 
 IMAGES = [
   {

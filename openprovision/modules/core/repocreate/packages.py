@@ -18,14 +18,14 @@
 
 import fnmatch
 
-from systemstudio.util import magic
+from openprovision.util import magic
 
-from systemstudio.constants import KERNELS
-from systemstudio.errors    import assert_file_has_content, SystemStudioError
-from systemstudio.event     import Event
-from systemstudio.sslogging   import L1
+from openprovision.constants import KERNELS
+from openprovision.errors    import assert_file_has_content, SystemStudioError
+from openprovision.event     import Event
+from openprovision.sslogging   import L1
 
-from systemstudio.modules.shared import comps
+from openprovision.modules.shared import comps
 
 MODULE_INFO = dict(
   api         = 5.0,

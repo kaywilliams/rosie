@@ -25,7 +25,7 @@ defines the interface; see the individual modules for specific implementation.
 import itertools
 import stat
 
-from systemstudio.util.pps.constants import *
+from openprovision.util.pps.constants import *
 
 N_STAT_ITEMS = 10
 DEFAULT_STAT_ORDER = ['st_mode', 'st_ino',  'st_dev',   'st_nlink', 'st_uid',

@@ -3,9 +3,9 @@ import re
 import sys
 import traceback
 
-from systemstudio.util     import shlib
-from systemstudio.util     import pps
-from systemstudio.validate import InvalidXmlError
+from openprovision.util     import shlib
+from openprovision.util     import pps
+from openprovision.validate import InvalidXmlError
 
 REGEX_KWPARSE = re.compile('%\(([^\)]+)\).')
 
@@ -96,7 +96,7 @@ class ShLibError(SystemStudioError):
 class RhnSupportError(RuntimeError, SystemStudioError):
   def __str__(self):
     return ( "RHN support not enabled - please install then 'rhnlib' and "
-             "'rhn-client-tools' packages from the systemstudio software repo "
+             "'rhn-client-tools' packages from the openprovision software repo "
              "at www.renditionsoftware.com" )
 
 class SystemStudioErrorHandler:
@@ -117,7 +117,7 @@ class SystemStudioErrorHandler:
             "the '%s' event.  The traceback has been recorded in the log "
             "file at '%s'.  Please report this error by sending a copy "
             "of your log file, system definition file and any other "
-            "relevant information to systemstudio@www.renditionsoftware.com\n\n"
+            "relevant information to openprovision@www.renditionsoftware.com\n\n"
             "Error message was: "
             % (self.dispatch.currevent.id, self.logfile))
         self.logger.log(0, '[%s] %s' % (self.dispatch.currevent.id,

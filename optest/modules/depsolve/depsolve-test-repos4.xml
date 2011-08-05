@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <build-repos>
-  <path>/tmp/sstest/</path>
+  <path>/tmp/optest/</path>
   <repo id="repo4">
     <package>
       <name>depsolve-bug163-req</name>

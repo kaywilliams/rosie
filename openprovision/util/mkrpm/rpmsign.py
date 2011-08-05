@@ -61,11 +61,11 @@ import hashlib
 import os
 import tempfile
 
-from systemstudio.util import gpgparse
-from systemstudio.util import magic
-from systemstudio.util import pps
-from systemstudio.util import shlib
-from systemstudio.util import sync
+from openprovision.util import gpgparse
+from openprovision.util import magic
+from openprovision.util import pps
+from openprovision.util import shlib
+from openprovision.util import sync
 
 from callback import RpmSignCallback
 from globals  import RPM_HEADER_INDEX_MAGIC

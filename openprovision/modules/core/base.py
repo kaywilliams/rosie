@@ -20,14 +20,14 @@ base.py
 
 provides information about the base distribution
 """
-from systemstudio.util import FormattedFile as ffile
-from systemstudio.util import img
-from systemstudio.util import repo
-from systemstudio.util import versort
+from openprovision.util import FormattedFile as ffile
+from openprovision.util import img
+from openprovision.util import repo
+from openprovision.util import versort
 
-from systemstudio.errors  import assert_file_has_content
-from systemstudio.event   import Event
-from systemstudio.sslogging import L1
+from openprovision.errors  import assert_file_has_content
+from openprovision.event   import Event
+from openprovision.sslogging import L1
 
 MODULE_INFO = dict(
   api         = 5.0,

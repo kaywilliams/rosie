@@ -28,9 +28,9 @@ __author__  = 'Daniel Musgrave <dmusgrave@renditionsoftare.com>'
 __version__ = '0.9'
 __date__    = 'April 30th, 2008'
 
-from systemstudio.util import pps
+from openprovision.util import pps
 
-from systemstudio.util.sync.callback import SyncCallback
+from openprovision.util.sync.callback import SyncCallback
 
 class SyncOperation:
   """

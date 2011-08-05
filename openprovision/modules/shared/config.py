@@ -17,15 +17,15 @@
 #
 from StringIO import StringIO
 
-from systemstudio.util import pps
-from systemstudio.util.repo import YumRepo
+from openprovision.util import pps
+from openprovision.util.repo import YumRepo
 
-from systemstudio.event        import Event
-from systemstudio.event.fileio import MissingXpathInputFileError
-from systemstudio.validate     import InvalidConfigError
+from openprovision.event        import Event
+from openprovision.event.fileio import MissingXpathInputFileError
+from openprovision.validate     import InvalidConfigError
 
-from systemstudio.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
-from systemstudio.errors         import assert_file_readable
+from openprovision.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
+from openprovision.errors         import assert_file_readable
 
 import cPickle
 import hashlib
@@ -87,7 +87,7 @@ class ConfigEventMixin(RpmBuildMixin):
 
     # copies of user-provided scripts and triggers go here for easier 
     # user debugging
-    self.debugdir    = self.rpm.source_folder/'root/.systemstudio'
+    self.debugdir    = self.rpm.source_folder/'root/.openprovision'
     self.debug_postfile = self.debugdir/'config-post-script'
 
     # compute input repos text and add to diff variables

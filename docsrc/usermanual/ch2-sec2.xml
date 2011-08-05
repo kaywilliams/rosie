@@ -45,7 +45,7 @@
   <listitem><emphasis role="strong">Customizes network install images.</emphasis> SystemStudio downloads network installation images from the base operating system and modifies them to include system-specific information. By default, SystemStudio configures the installer program contained within the images to access content from the system distribution's <xref linkend="download-location"/>. This allows client machines to be installed over the network without needing to provide the download location manually at installation time. SystemStudio can also be used to completely automate client installations. See <xref linkend="automating-installations"/> for more information.</listitem>
   </itemizedlist>
 
-  <para><application class="software">SystemStudio</application> stores system content, both input and generated, in the cache folder, by default <filename type="directory">/var/cache/systemstudio/</filename>. It reuses information from the cache on subsequent runs, where possible, to improve build performance.</para>
+  <para><application class="software">SystemStudio</application> stores system content, both input and generated, in the cache folder, by default <filename type="directory">/var/cache/openprovision/</filename>. It reuses information from the cache on subsequent runs, where possible, to improve build performance.</para>
   </section>
 
   <section>
@@ -58,7 +58,7 @@
 
   <listitem><emphasis role="strong">System Data File.</emphasis> As mentioned above, SystemStudio creates a <xref linkend="system-data-file"/> during the build process. This file is used to track and increment the release number of the configuration package.</listitem>
 
-  <listitem><emphasis role="strong">SystemStudio Log File.</emphasis> SystemStudio sends output both to the screen and to a log file, located by default at <filename>/var/log/systemstudio.log.</filename></listitem>
+  <listitem><emphasis role="strong">SystemStudio Log File.</emphasis> SystemStudio sends output both to the screen and to a log file, located by default at <filename>/var/log/openprovision.log.</filename></listitem>
   </itemizedlist>
 
   </section>

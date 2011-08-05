@@ -31,7 +31,7 @@ __date__    = 'April 4th, 2008'
 
 import types
 
-from systemstudio.util.rxml import tree
+from openprovision.util.rxml import tree
 
 class XmlSerializer:
   """

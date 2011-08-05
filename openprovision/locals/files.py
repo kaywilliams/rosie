@@ -1,8 +1,8 @@
-from systemstudio.util.magic import FILE_TYPE_EXT2FS as EXT2
-from systemstudio.util.magic import FILE_TYPE_FAT    as FAT32
-from systemstudio.util.magic import FILE_TYPE_CPIO   as CPIO
+from openprovision.util.magic import FILE_TYPE_EXT2FS as EXT2
+from openprovision.util.magic import FILE_TYPE_FAT    as FAT32
+from openprovision.util.magic import FILE_TYPE_CPIO   as CPIO
 
-from systemstudio.locals import LocalsDict, REMOVE
+from openprovision.locals import LocalsDict, REMOVE
 
 __all__ = ['L_FILES']
 

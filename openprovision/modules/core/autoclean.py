@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util import rxml
+from openprovision.util import rxml
 
-from systemstudio.util.difftest.handlers import DiffHandler
+from openprovision.util.difftest.handlers import DiffHandler
 
-from systemstudio.event   import Event
-from systemstudio.sslogging import L1, L2
+from openprovision.event   import Event
+from openprovision.sslogging import L1, L2
 
 MODULE_INFO = dict(
   api         = 5.0,

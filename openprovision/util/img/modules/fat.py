@@ -17,12 +17,12 @@
 #
 import os
 
-from systemstudio.util import magic
-from systemstudio.util import shlib
+from openprovision.util import magic
+from openprovision.util import shlib
 
-from systemstudio.util.img import acquire_mount_point, release_mount_point
+from openprovision.util.img import acquire_mount_point, release_mount_point
 
-from systemstudio.util.img.mountable import MountableImageHandler, MakeMountableImage
+from openprovision.util.img.mountable import MountableImageHandler, MakeMountableImage
 
 IMAGES = [
   {

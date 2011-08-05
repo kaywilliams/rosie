@@ -19,12 +19,12 @@ import errno
 import os
 import sys
 
-from systemstudio.util import shlib
+from openprovision.util import shlib
 
-from systemstudio.util.versort import Version
+from openprovision.util.versort import Version
 
-from systemstudio.callback import TimerCallback
-from systemstudio.sslogging  import L1
+from openprovision.callback import TimerCallback
+from openprovision.sslogging  import L1
 
 __all__ = ['RepomdMixin']
 

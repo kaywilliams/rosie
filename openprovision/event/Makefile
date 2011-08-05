@@ -5,8 +5,8 @@ PYFILES = $(wildcard *.py)
 all:
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systemstudio/event
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systemstudio/event
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/openprovision/event
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/openprovision/event
 
 clean:
 	rm -f *.pyc *.pyo

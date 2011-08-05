@@ -61,7 +61,7 @@ __author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
 __version__ = '3.1'
 __date__    = 'September 7th, 2007'
 
-from systemstudio.util import graph
+from openprovision.util import graph
 
 class Item(object):
 

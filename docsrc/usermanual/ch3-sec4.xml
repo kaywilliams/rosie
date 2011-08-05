@@ -5,12 +5,12 @@
   <title>Building a System</title>
 
   <para>Now that you have defined your system distribution, you use the
-  <command>systemstudio</command> command to build it. The basic command validates the 
+  <command>openprovision</command> command to build it. The basic command validates the 
   distribution definition syntax, creates the system distribution, and records 
   process results. The default level of screen output includes errors, build
   status and file download and creation status. SystemStudio also
   sends this output to the log file, by default 
-  <filename>/var/log/systemstudio.log</filename>. If a critical error
+  <filename>/var/log/openprovision.log</filename>. If a critical error
   occurs, SystemStudio includes detailed error information in the log file.</para>
 
   <para>The initial build of a system distribution can be time consuming, on the order
@@ -24,7 +24,7 @@
   <para>To run your build, enter the command below:</para>
 
   <para><informalexample>
-      <programlisting>#systemstudio samba-server.definition</programlisting>
+      <programlisting>#openprovision samba-server.definition</programlisting>
     </informalexample></para>
 
   <para>The output for an initial run details all the steps

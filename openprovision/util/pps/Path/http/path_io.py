@@ -18,10 +18,10 @@
 
 import copy
 
-from systemstudio.util.pps.Path.remote import RemotePath_IO
+from openprovision.util.pps.Path.remote import RemotePath_IO
 
-from systemstudio.util.pps.lib.http      import HttpFileObject
-from systemstudio.util.pps.PathStat.http import HttpPathStat
+from openprovision.util.pps.lib.http      import HttpFileObject
+from openprovision.util.pps.PathStat.http import HttpPathStat
 
 from error import error_transform
 

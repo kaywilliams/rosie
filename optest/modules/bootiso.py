@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util     import pps
-from systemstudio.util.img import MakeImage
+from openprovision.util     import pps
+from openprovision.util.img import MakeImage
 
-from sstest        import EventTestCase, ModuleTestSuite
-from sstest.core   import make_core_suite
-from sstest.mixins import BootConfigMixinTestCase
+from optest        import EventTestCase, ModuleTestSuite
+from optest.core   import make_core_suite
+from optest.mixins import BootConfigMixinTestCase
 
 class BootisoEventTestCase(EventTestCase):
   moduleid = 'bootiso'

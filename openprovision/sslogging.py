@@ -23,7 +23,7 @@ import sys
 import textwrap
 import time
 
-from systemstudio.util import logger
+from openprovision.util import logger
 
 # format of the various printouts
 FORMAT_L0 = '%s'
@@ -43,7 +43,7 @@ MSG_MAXWIDTH = 75
 
 class Logger(logger.Logger):
   """
-  Logging class used in all systemstudio output.  Extends the logger.Logger class
+  Logging class used in all openprovision output.  Extends the logger.Logger class
   and contains some of the features of the python logging module, particularly
   a simplified implementation of message formatting.  As with normal
   logger.Logger objects, this Logger can be attached to any file or file-like

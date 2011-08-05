@@ -22,9 +22,9 @@ import os
 import sys
 import unittest
 
-from systemstudio.util import pps
+from openprovision.util import pps
 
-from systemstudio.util.CleanHelpFormatter import CleanHelpFormatter
+from openprovision.util.CleanHelpFormatter import CleanHelpFormatter
 
 opt_defaults = dict(
   logthresh = 0,
@@ -66,19 +66,19 @@ def parse_cmd_args(defaults=None):
 
   parser.add_option('-b', '--build-root', metavar='DIRECTORY',
     dest='buildroot',
-    default='/tmp/sstest',
+    default='/tmp/optest',
     help='choose the location where builds should be performed')
-  parser.add_option('--systemstudio-conf', metavar='PATH',
+  parser.add_option('--openprovision-conf', metavar='PATH',
     dest='mainconfigpath',
     help='specify path to a main config file')
   parser.add_option('--lib-path', metavar='PATH',
     dest='libpath',
     action='append',
-    help='specify directory containing systemstudio library files')
+    help='specify directory containing openprovision library files')
   parser.add_option('--share-path', metavar='PATH',
     dest='sharepath',
     action='append',
-    help='specify directory containing systemstudio share files')
+    help='specify directory containing openprovision share files')
 
   parser.add_option('-l', '--log-file', metavar='path',
     default='test.log',
@@ -114,12 +114,12 @@ def main():
 
   sys.path = options.libpath + sys.path
 
-  import sstest
+  import optest
 
-  sstest.BUILD_ROOT = pps.path(options.buildroot)
-  sstest.EventTestCase.options = options
+  optest.BUILD_ROOT = pps.path(options.buildroot)
+  optest.EventTestCase.options = options
 
-  runner = sstest.EventTestRunner(options.testlogfile, options.testloglevel)
+  runner = optest.EventTestRunner(options.testlogfile, options.testloglevel)
   suite = unittest.TestSuite()
 
   cwd = os.getcwd() # save for later
@@ -139,7 +139,7 @@ def main():
     result = runner.run(suite)
   finally:
     if options.clear_test_cache:
-      sstest.BUILD_ROOT.rm(recursive=True, force=True)
+      optest.BUILD_ROOT.rm(recursive=True, force=True)
 
   os.chdir(cwd) # make sure we're back where we started
 

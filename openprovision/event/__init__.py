@@ -20,19 +20,19 @@ import time
 
 from datetime import timedelta
 
-from systemstudio.util import dispatch
-from systemstudio.util import pps
-from systemstudio.util import rxml
-from systemstudio.util import sync
+from openprovision.util import dispatch
+from openprovision.util import pps
+from openprovision.util import rxml
+from openprovision.util import sync
 
-from systemstudio.sslogging import L0, L1
+from openprovision.sslogging import L0, L1
 
-from systemstudio.errors import SystemStudioError
+from openprovision.errors import SystemStudioError
 
-from systemstudio.event.diff   import DiffMixin
-from systemstudio.event.fileio import IOMixin
-from systemstudio.event.locals import LocalsMixin
-from systemstudio.event.verify import VerifyMixin
+from openprovision.event.diff   import DiffMixin
+from openprovision.event.fileio import IOMixin
+from openprovision.event.locals import LocalsMixin
+from openprovision.event.verify import VerifyMixin
 
 # Constant (re)definitions
 CLASS_DEFAULT = dispatch.CLASS_DEFAULT

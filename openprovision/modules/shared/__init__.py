@@ -15,15 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util import listcompare
+from openprovision.util import listcompare
 
-from systemstudio.modules.shared.bootcfg    import *
-from systemstudio.modules.shared.deploy     import *
-from systemstudio.modules.shared.repomd     import *
-from systemstudio.modules.shared.installer  import *
-from systemstudio.modules.shared.idepsolver import *
-from systemstudio.modules.shared.repos      import *
-from systemstudio.modules.shared.rpmbuild   import *
+from openprovision.modules.shared.bootcfg    import *
+from openprovision.modules.shared.deploy     import *
+from openprovision.modules.shared.repomd     import *
+from openprovision.modules.shared.installer  import *
+from openprovision.modules.shared.idepsolver import *
+from openprovision.modules.shared.repos      import *
+from openprovision.modules.shared.rpmbuild   import *
 
 class ListCompareMixin:
   def __init__(self, lfn=None, rfn=None, bfn=None, cb=None):

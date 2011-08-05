@@ -1,5 +1,5 @@
 # rxml.serialize functions
-from systemstudio.util.rxml import tree, serialize
+from openprovision.util.rxml import tree, serialize
 
 from util import Token, TokenGroup, _deformat
 

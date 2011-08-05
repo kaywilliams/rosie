@@ -16,14 +16,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from systemstudio.event     import Event, CLASS_META
-from systemstudio.sslogging import L1, L2
-from systemstudio.util      import pps
+from openprovision.event     import Event, CLASS_META
+from openprovision.sslogging import L1, L2
+from openprovision.util      import pps
 
-from systemstudio.modules.shared import RepomdMixin
-from systemstudio.modules.shared.config import ConfigEventMixin
-from systemstudio.modules.shared.kickstart import KickstartEventMixin
-from systemstudio.modules.shared.publish import PublishEventMixin
+from openprovision.modules.shared import RepomdMixin
+from openprovision.modules.shared.config import ConfigEventMixin
+from openprovision.modules.shared.kickstart import KickstartEventMixin
+from openprovision.modules.shared.publish import PublishEventMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

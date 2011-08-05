@@ -16,10 +16,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from systemstudio.util import magic
-from systemstudio.util import shlib
+from openprovision.util import magic
+from openprovision.util import shlib
 
-from systemstudio.util.img.mountable import MountableImageHandler, MakeMountableImage
+from openprovision.util.img.mountable import MountableImageHandler, MakeMountableImage
 
 IMAGES = [
   {

@@ -17,9 +17,9 @@
 #
 import os
 
-from systemstudio.util.pps.Path.local.error import error_transform
+from openprovision.util.pps.Path.local.error import error_transform
 
-from systemstudio.util.pps.Path.local import LocalPath_IO
+from openprovision.util.pps.Path.local import LocalPath_IO
 
 class PosixPath_IO(LocalPath_IO):
 

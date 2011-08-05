@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from sstest        import EventTestCase, ModuleTestSuite
-from sstest.core   import make_core_suite
-from sstest.mixins import fdm_make_suite
+from optest        import EventTestCase, ModuleTestSuite
+from optest.core   import make_core_suite
+from optest.mixins import fdm_make_suite
 
 class Stage2ImagesEventTestCase(EventTestCase):
   moduleid = 'stage2-images'

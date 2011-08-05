@@ -17,12 +17,12 @@
 #
 import time
 
-from systemstudio.util.pps         import path
-from systemstudio.util.pps.lib.rhn import validate_systemid
+from openprovision.util.pps         import path
+from openprovision.util.pps.lib.rhn import validate_systemid
 
-from systemstudio.util.pps.Path.remote   import RemotePath_Stat
+from openprovision.util.pps.Path.remote   import RemotePath_Stat
 
-from systemstudio.util.pps.PathStat.http import HttpPathStat
+from openprovision.util.pps.PathStat.http import HttpPathStat
 
 # if system doesn't have up2date_client; raises ImportError which is excepted
 import sys

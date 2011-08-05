@@ -16,11 +16,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from systemstudio.util.pps.PathSet   import PathSet
+from openprovision.util.pps.PathSet   import PathSet
 
-from systemstudio.util.pps.Path.error import PathError
+from openprovision.util.pps.Path.error import PathError
 
-from systemstudio.util.pps.Path.remote  import RemotePath_Walk
+from openprovision.util.pps.Path.remote  import RemotePath_Walk
 
 class FtpPath_Walk(RemotePath_Walk):
 

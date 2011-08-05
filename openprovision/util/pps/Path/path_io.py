@@ -19,12 +19,12 @@ import errno
 import hashlib
 import stat
 
-from systemstudio.util.pps import path
+from openprovision.util.pps import path
 
-from systemstudio.util.pps.lib       import cached
-from systemstudio.util.pps.constants import *
+from openprovision.util.pps.lib       import cached
+from openprovision.util.pps.constants import *
 
-from systemstudio.util.pps.Path.error import PathError
+from openprovision.util.pps.Path.error import PathError
 
 class Path_IO(object):
   "I/O operations for Path objects"

@@ -17,7 +17,7 @@
 #
 import unittest
 
-from systemstudio.sslogging import L3
+from openprovision.sslogging import L3
 
 class BuildTestResult(unittest.TestResult):
 

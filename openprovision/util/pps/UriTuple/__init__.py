@@ -24,7 +24,7 @@ Based on some functions/classes in urlparse
 
 from os.path import normpath
 
-from systemstudio.util.pps.util import urlparse, urlunparse
+from openprovision.util.pps.util import urlparse, urlunparse
 
 class UriTuple(tuple):
   """Tuple of the various pieces of a split URI.  Based on urlparse.BaseResult,

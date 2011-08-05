@@ -16,10 +16,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from systemstudio.util  import pps
-from systemstudio.event import Event
+from openprovision.util  import pps
+from openprovision.event import Event
 
-from systemstudio.modules.shared.kickstart import KickstartEventMixin
+from openprovision.modules.shared.kickstart import KickstartEventMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

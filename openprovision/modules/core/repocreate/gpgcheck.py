@@ -18,9 +18,9 @@
 import rpmUtils
 import yum
 
-from systemstudio.errors   import SystemStudioError, SystemStudioIOError, assert_file_has_content
-from systemstudio.event    import Event
-from systemstudio.sslogging  import L1
+from openprovision.errors   import SystemStudioError, SystemStudioIOError, assert_file_has_content
+from openprovision.event    import Event
+from openprovision.sslogging  import L1
 
 YUMCONF_HEADER = [
   '[main]',
@@ -161,7 +161,7 @@ class GpgCheckEvent(Event):
         self.log(2, L1("prior keys removed, rechecking all packages"))
 
   def verify_mdfile_exists(self):
-    # this is silly but it keeps sstest from complaining 
+    # this is silly but it keeps optest from complaining 
     self.verifier.failUnlessExists(self.mdfile)
 
 #------ ERRORS ------#

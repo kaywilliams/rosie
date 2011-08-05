@@ -1,4 +1,4 @@
-from systemstudio.locals import LocalsDict, REMOVE
+from openprovision.locals import LocalsDict, REMOVE
 
 __all__ = ['L_DISCINFO_FORMAT']
 

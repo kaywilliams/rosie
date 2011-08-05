@@ -465,7 +465,7 @@ class FormatMatchError(StandardError):
   "Class of error raised when an input string matches no Format objects"
 
 if __name__ == '__main__':
-  from systemstudio.util import pps
+  from openprovision.util import pps
   import sys
 
   if len(sys.argv) != 2:

@@ -67,7 +67,7 @@
     folders for storing the completed system distribution (under 
     <filename type="directory">/var/www/html/distributions</filename>, by
     default) and for caching system distribution content (under 
-    <filename type="directory">/var/cache/systemstudio</filename>, by default).
+    <filename type="directory">/var/cache/openprovision</filename>, by default).
     </para>
 
     <para><note>
@@ -102,7 +102,7 @@
         <emphasis>id</emphasis> element, SystemStudio creates new folders for
         it in the publish and cache folders 
         (<emphasis>/var/www/html/distributions</emphasis> and 
-        <emphasis>/var/cache/systemstudio</emphasis>, by default,
+        <emphasis>/var/cache/openprovision</emphasis>, by default,
         respectively). To preserve hard drive space, you may wish to review 
         the publish and cache folders on occasion. Folders for obsolete
         system distributions can be deleted using standard file system methods
@@ -534,7 +534,7 @@
 
     <para>
     <informalexample>
-      <programlisting>#systemstudio --validate-only samba-server.definition</programlisting>
+      <programlisting>#openprovision --validate-only samba-server.definition</programlisting>
     </informalexample>
     </para>
 

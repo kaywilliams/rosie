@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util import pps
-from systemstudio.util.rxml.config import Element
+from openprovision.util import pps
+from openprovision.util.rxml.config import Element
 
-from sstest      import EventTestCase, ModuleTestSuite
-from sstest.core import make_core_suite
+from optest      import EventTestCase, ModuleTestSuite
+from optest.core import make_core_suite
 
 
 class RepomdEventTestCase(EventTestCase):

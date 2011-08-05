@@ -17,8 +17,8 @@
 #
 import rpm
 
-from systemstudio.errors import SystemStudioError
-from systemstudio.util.versort import Version
+from openprovision.errors import SystemStudioError
+from openprovision.util.versort import Version
 
 class KickstartEventMixin:
   kickstart_mixin_version = "1.02"
@@ -27,7 +27,7 @@ class KickstartEventMixin:
     self.ksxpath = '.'
     self.ksname = 'ks.cfg'
 
-    # set pykickstart_version (used by locals mixin and sstest)
+    # set pykickstart_version (used by locals mixin and optest)
     ts = rpm.TransactionSet()
     h = list(ts.dbMatch('name', 'pykickstart'))[0]
     self.cvars['pykickstart-version'] = Version("%s-%s" % 

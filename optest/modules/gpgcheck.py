@@ -15,15 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util import pps
-from systemstudio.util import repo
-from systemstudio.util import rxml
+from openprovision.util import pps
+from openprovision.util import repo
+from openprovision.util import rxml
 
-from sstest import EventTestCase, ModuleTestSuite, _run_make
-from sstest.core import make_core_suite
+from optest import EventTestCase, ModuleTestSuite, _run_make
+from optest.core import make_core_suite
 
-from systemstudio.errors import SystemStudioError
-from systemstudio.util.pps.constants import TYPE_NOT_DIR
+from openprovision.errors import SystemStudioError
+from openprovision.util.pps.constants import TYPE_NOT_DIR
 
 class GpgcheckEventTestCase(EventTestCase):
   moduleid = 'gpgcheck'

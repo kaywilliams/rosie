@@ -18,18 +18,18 @@
 """
 callback.py
 
-Callback classes for systemstudio
+Callback classes for openprovision
 
 This file contains several 'callback' classes primarily intended for reporting
 progress information back to the user.  Many make use of progressbar.py to
 display this data in a compact, easy-to-read format.
 """
 
-from systemstudio.util.progressbar   import ProgressBar
-from systemstudio.util.sync.cache    import CachedSyncCallback  as _CachedSyncCallback
-from systemstudio.util.sync.callback import SyncCallbackMetered as _SyncCallbackMetered
+from openprovision.util.progressbar   import ProgressBar
+from openprovision.util.sync.cache    import CachedSyncCallback  as _CachedSyncCallback
+from openprovision.util.sync.callback import SyncCallbackMetered as _SyncCallbackMetered
 
-from systemstudio.sslogging import L1, L2
+from openprovision.sslogging import L1, L2
 
 # progressbar layouts - see progressbar.py for other tags
 LAYOUT_TIMER     = '%(title)-67.67s (%(time-elapsed)s)'

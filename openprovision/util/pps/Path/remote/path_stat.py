@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util.pps.lib import cached
+from openprovision.util.pps.lib import cached
 
-from systemstudio.util.pps.PathStat import PathStat
+from openprovision.util.pps.PathStat import PathStat
 
-from systemstudio.util.pps.Path import path_stat
+from openprovision.util.pps.Path import path_stat
 
 class RemotePath_Stat(path_stat.Path_Stat):
   """

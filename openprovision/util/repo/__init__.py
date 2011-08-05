@@ -1,7 +1,7 @@
 import ConfigParser
 import StringIO
 
-from systemstudio.util.repo.repo import *
+from openprovision.util.repo.repo import *
 
 def ReposFromXml(tree, cls=BaseRepo, original=None):
   """Create Repo objects from an XmlTree <repo> elements, or update values

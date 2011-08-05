@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from systemstudio.locals import *
+from openprovision.locals import *
 
 class LocalsMixin:
   def __init__(self):

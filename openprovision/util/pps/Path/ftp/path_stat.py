@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util.pps.Path.remote import RemotePath_Stat
+from openprovision.util.pps.Path.remote import RemotePath_Stat
 
-from systemstudio.util.pps.PathStat.ftp import FtpPathStat
+from openprovision.util.pps.PathStat.ftp import FtpPathStat
 
 from error import error_transform
 

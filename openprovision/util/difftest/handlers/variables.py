@@ -21,10 +21,10 @@ __date__    = 'June 12th, 2007'
 
 import textwrap
 
-from systemstudio.util import rxml
+from openprovision.util import rxml
 
-from systemstudio.util.difftest          import expand, NoneEntry, NewEntry
-from systemstudio.util.difftest.handlers import DiffHandler
+from openprovision.util.difftest          import expand, NoneEntry, NewEntry
+from openprovision.util.difftest.handlers import DiffHandler
 
 NEW = '-'
 NONE = '<not found>'

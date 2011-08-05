@@ -3,38 +3,38 @@ MANXSL = /usr/share/sgml/docbook/xsl-stylesheets/manpages/docbook.xsl
 XSLTPROC = /usr/bin/xsltproc
 GZIP = /bin/gzip
 
-.PHONY: all checkpkg clean install systemstudio.1.gz systemstudio.conf.5.gz html
+.PHONY: all checkpkg clean install openprovision.1.gz openprovision.conf.5.gz html
 
-all: systemstudio.1.gz systemstudio.conf.5.gz
+all: openprovision.1.gz openprovision.conf.5.gz
 
-systemstudio.1.gz:
+openprovision.1.gz:
 	@make checkpkg BINARY=$(XSLTPROC) INSTRUCTIONS="Install the libxslt package."
 	@make checkpkg BINARY=$(MANXSL) INSTRUCTIONS="Install the docbook-style-xsl package."
-	$(XSLTPROC) $(MANXSL) systemstudio.xml
-	$(GZIP) systemstudio.1
+	$(XSLTPROC) $(MANXSL) openprovision.xml
+	$(GZIP) openprovision.1
 
-systemstudio.conf.5.gz:
+openprovision.conf.5.gz:
 	@make checkpkg BINARY=$(XSLTPROC) INSTRUCTIONS="Install the libxslt package."
 	@make checkpkg BINARY=$(MANXSL) INSTRUCTIONS="Install the docbook-style-xsl package."
-	$(XSLTPROC) $(MANXSL) systemstudio.conf.xml
-	$(GZIP) systemstudio.conf.5
+	$(XSLTPROC) $(MANXSL) openprovision.conf.xml
+	$(GZIP) openprovision.conf.5
 
 html:
 	@make checkpkg BINARY=$(XSLTPROC) INSTRUCTIONS="Install the libxslt package."
-	$(XSLTPROC) --output systemstudio.1.html /usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl systemstudio.xml
-	$(XSLTPROC) --output systemstudio.conf.5.html /usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl systemstudio.conf.xml
+	$(XSLTPROC) --output openprovision.1.html /usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl openprovision.xml
+	$(XSLTPROC) --output openprovision.conf.5.html /usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl openprovision.conf.xml
 
 install:
 	mkdir -p $(DESTDIR)/usr/share/man/man5
 	mkdir -p $(DESTDIR)/usr/share/man/man1
-	install -m 644 systemstudio.1.gz $(DESTDIR)/usr/share/man/man1/systemstudio.1.gz
-	install -m 644 systemstudio.conf.5.gz $(DESTDIR)/usr/share/man/man5/systemstudio.conf.5.gz
+	install -m 644 openprovision.1.gz $(DESTDIR)/usr/share/man/man1/openprovision.1.gz
+	install -m 644 openprovision.conf.5.gz $(DESTDIR)/usr/share/man/man5/openprovision.conf.5.gz
 
 clean:
-	rm -f systemstudio.1.gz
-	rm -f systemstudio.conf.5.gz
-	rm -f systemstudio.1.html
-	rm -f systemstudio.conf.5.html
+	rm -f openprovision.1.gz
+	rm -f openprovision.conf.5.gz
+	rm -f openprovision.1.html
+	rm -f openprovision.conf.5.html
 
 checkpkg:
 	@if [ ! -e $(BINARY) ]; then \

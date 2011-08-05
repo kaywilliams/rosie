@@ -17,7 +17,7 @@
 #
 import stat
 
-from systemstudio.util.pps.Path.error import PathError
+from openprovision.util.pps.Path.error import PathError
 
 class Path_Stat(object):
   "Stat methods for Path objects"

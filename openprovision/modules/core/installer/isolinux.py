@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.event   import Event
+from openprovision.event   import Event
 
-from systemstudio.modules.shared import FileDownloadMixin
+from openprovision.modules.shared import FileDownloadMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

@@ -25,16 +25,16 @@ import unittest
 
 from StringIO import StringIO
 
-from systemstudio.util import logger
-from systemstudio.util import pps
-from systemstudio.util import repo
-from systemstudio.util import shlib
+from openprovision.util import logger
+from openprovision.util import pps
+from openprovision.util import repo
+from openprovision.util import shlib
 
-from systemstudio.util.rxml import config
+from openprovision.util.rxml import config
 
-from systemstudio.main import Build
+from openprovision.main import Build
 
-BUILD_ROOT = '/tmp/sstest' # location builds are performed
+BUILD_ROOT = '/tmp/optest' # location builds are performed
 
 class TestBuild(Build):
   def __init__(self, conf, *args, **kwargs):
@@ -42,11 +42,11 @@ class TestBuild(Build):
     Build.__init__(self, *args, **kwargs)
 
   def _get_config(self, options, arguments):
-    mcf = pps.path(options.mainconfigpath or '/etc/systemstudio/sstest.conf')
+    mcf = pps.path(options.mainconfigpath or '/etc/openprovision/optest.conf')
     if mcf.exists():
       self.mainconfig = config.parse(mcf).getroot()
     else:
-      self.mainconfig = config.parse(StringIO('<systemstudio/>')).getroot()
+      self.mainconfig = config.parse(StringIO('<openprovision/>')).getroot()
 
     # set the cache dir
     p = config.uElement('cache', parent=self.mainconfig)

@@ -20,13 +20,13 @@ from ConfigParser import ConfigParser
 import re
 import lxml
 
-from systemstudio.util import mkrpm
-from systemstudio.util import pps
-from systemstudio.util import rxml
+from openprovision.util import mkrpm
+from openprovision.util import pps
+from openprovision.util import rxml
 
-from systemstudio.errors    import SystemStudioError
-from systemstudio.event     import Event
-from systemstudio.sslogging import L1
+from openprovision.errors    import SystemStudioError
+from openprovision.event     import Event
+from openprovision.sslogging import L1
 
 __all__ = ['RpmBuildMixin', 'Trigger', 'TriggerContainer']
 
@@ -196,7 +196,7 @@ class RpmBuildObject:
                                    self.ptr.cvars['seckey']])
 
     self.arch     = kwargs.get('arch',     'noarch')
-    self.author   = kwargs.get('author',   'systemstudio')
+    self.author   = kwargs.get('author',   'openprovision')
     self.fullname = kwargs.get('fullname', self.ptr.fullname)
     self.version  = kwargs.get('version',  self.ptr.basever)
 

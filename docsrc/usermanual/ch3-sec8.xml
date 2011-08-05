@@ -41,7 +41,7 @@
     </itemizedlist></para>
 
   <para>Once the system distribution definition is complete, you log on as the root user
-  and execute the command <userinput>systemstudio samba-server.definition</userinput>
+  and execute the command <userinput>openprovision samba-server.definition</userinput>
   to build the system distribution. Output goes to the screen and the default log file.
   The first build may take some time, since <application
   class="software">SystemStudio</application> needs to do everything from 

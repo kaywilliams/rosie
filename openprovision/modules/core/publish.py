@@ -21,14 +21,14 @@ import platform
 import socket
 import struct
 
-from systemstudio.util import pps
+from openprovision.util import pps
 
-from systemstudio.errors    import SystemStudioError
-from systemstudio.event     import Event
-from systemstudio.sslogging   import L1
+from openprovision.errors    import SystemStudioError
+from openprovision.event     import Event
+from openprovision.sslogging   import L1
 
-from systemstudio.modules.shared import DeployEventMixin
-from systemstudio.modules.shared.publish import PublishEventMixin 
+from openprovision.modules.shared import DeployEventMixin
+from openprovision.modules.shared.publish import PublishEventMixin 
 
 MODULE_INFO = dict(
   api         = 5.0,

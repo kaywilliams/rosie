@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util import dispatch
-from systemstudio.util import pps
+from openprovision.util import dispatch
+from openprovision.util import pps
 
 class Loader(dispatch.Loader):
   def __init__(self, enabled=None, disabled=None, load_extensions=False,

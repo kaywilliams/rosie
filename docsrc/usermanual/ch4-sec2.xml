@@ -86,7 +86,7 @@ xmllint --xinclude --format samba-server-production.definition
 
     <para><informalexample>
       <programlisting>
-# systemstudio --validate-only $filename
+# openprovision --validate-only $filename
       </programlisting>
     </informalexample></para> 
  

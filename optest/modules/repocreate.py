@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from sstest      import EventTestCase, ModuleTestSuite
-from sstest.core import make_core_suite
+from optest      import EventTestCase, ModuleTestSuite
+from optest.core import make_core_suite
 
 class RepocreateEventTestCase(EventTestCase):
   moduleid = 'repocreate'

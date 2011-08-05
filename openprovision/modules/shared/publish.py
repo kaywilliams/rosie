@@ -21,7 +21,7 @@ import platform
 import socket
 import struct
 
-from systemstudio.util import pps, shlib
+from openprovision.util import pps, shlib
 
 class PublishEventMixin:
   def get_local(self, default):

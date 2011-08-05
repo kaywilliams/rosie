@@ -17,16 +17,16 @@
 #
 import unittest
 
-from systemstudio.util import pps
-from systemstudio.util.img         import MakeImage
-from systemstudio.util.rxml.config import Element
-from systemstudio.util import si
+from openprovision.util import pps
+from openprovision.util.img         import MakeImage
+from openprovision.util.rxml.config import Element
+from openprovision.util import si
 
-from systemstudio.splittree import parse_size
+from openprovision.splittree import parse_size
 
-from sstest        import EventTestCase, ModuleTestSuite
-from sstest.core   import make_core_suite, make_extension_suite
-from sstest.mixins import BootConfigMixinTestCase
+from optest        import EventTestCase, ModuleTestSuite
+from optest.core   import make_core_suite, make_extension_suite
+from optest.mixins import BootConfigMixinTestCase
 
 #------ pkgorder ------#
 class PkgorderEventTestCase(EventTestCase):

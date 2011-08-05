@@ -2,8 +2,8 @@ import copy
 import fnmatch
 import re
 
-from systemstudio.util import pps
-from systemstudio.util import rxml
+from openprovision.util import pps
+from openprovision.util import rxml
 
 __all__ = ['BaseRepo', 'IORepo', 'YumRepo', 'RepoContainer', 'RPM_PNVRA_REGEX']
 
@@ -345,7 +345,7 @@ from xml.sax  import make_parser, ContentHandler
 
 from yum.misc import unique, bunzipFile
 
-from systemstudio.util import magic
+from openprovision.util import magic
 
 CSVORDER = ['file', 'size', 'mtime']
 

@@ -18,15 +18,15 @@
 import re
 import ConfigParser
 
-from systemstudio.util.repo    import ReposFromXml, ReposFromFile, RepoContainer, RepoFileParseError
-from systemstudio.util.versort import Version
+from openprovision.util.repo    import ReposFromXml, ReposFromFile, RepoContainer, RepoFileParseError
+from openprovision.util.versort import Version
 
-from systemstudio.errors   import assert_file_has_content, assert_file_readable, SystemStudioError
-from systemstudio.event    import Event
-from systemstudio.sslogging  import L1, L2
-from systemstudio.validate import InvalidConfigError
+from openprovision.errors   import assert_file_has_content, assert_file_readable, SystemStudioError
+from openprovision.event    import Event
+from openprovision.sslogging  import L1, L2
+from openprovision.validate import InvalidConfigError
 
-from systemstudio.modules.shared import RepoEventMixin, SystemStudioRepoGroup, SystemStudioRepoFileParseError
+from openprovision.modules.shared import RepoEventMixin, SystemStudioRepoGroup, SystemStudioRepoFileParseError
 
 MODULE_INFO = dict(
   api         = 5.0,

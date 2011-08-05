@@ -5,8 +5,8 @@ SUBDIRS = distribution
 all:
 
 install:
-	mkdir -p $(DESTDIR)/usr/share/systemstudio/schemas
-	install -pm 644 systemstudio.rng $(DESTDIR)/usr/share/systemstudio/schemas/systemstudio.rng
+	mkdir -p $(DESTDIR)/usr/share/openprovision/schemas
+	install -pm 644 openprovision.rng $(DESTDIR)/usr/share/openprovision/schemas/openprovision.rng
 
 	for dir in $(SUBDIRS); do make -C $$dir DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
 

@@ -17,11 +17,11 @@
 #
 import errno
 
-from systemstudio.util.pps.lib.mirror import trymirrors, ContinueIteration
-from systemstudio.util.pps.Path.error import PathError
-from systemstudio.util.pps.PathSet    import PathSet
+from openprovision.util.pps.lib.mirror import trymirrors, ContinueIteration
+from openprovision.util.pps.Path.error import PathError
+from openprovision.util.pps.PathSet    import PathSet
 
-from systemstudio.util.pps.Path.remote import RemotePath_Walk
+from openprovision.util.pps.Path.remote import RemotePath_Walk
 
 class MirrorPath_Walk(RemotePath_Walk):
   "Path iteration/walking functions"

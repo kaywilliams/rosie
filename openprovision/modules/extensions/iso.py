@@ -18,16 +18,16 @@
 import errno
 import os
 
-from systemstudio.util import pkgorder
-from systemstudio.util import shlib
+from openprovision.util import pkgorder
+from openprovision.util import shlib
 
-from systemstudio import splittree
+from openprovision import splittree
 
-from systemstudio.callback import BuildDepsolveCallback
-from systemstudio.event    import Event, CLASS_META
-from systemstudio.sslogging  import L1, L2, L3
+from openprovision.callback import BuildDepsolveCallback
+from openprovision.event    import Event, CLASS_META
+from openprovision.sslogging  import L1, L2, L3
 
-from systemstudio.modules.shared import ListCompareMixin, BootConfigMixin
+from openprovision.modules.shared import ListCompareMixin, BootConfigMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

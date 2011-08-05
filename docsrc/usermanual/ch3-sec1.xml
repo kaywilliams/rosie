@@ -26,7 +26,7 @@
   logical or physical drive for the <filename
   class="directory">/var</filename> directory. <application
   class="software">SystemStudio</application> uses the <filename
-  class="directory">/var/cache/systemstudio</filename> folder for caching 
+  class="directory">/var/cache/openprovision</filename> folder for caching 
   system distribution content and the <filename 
   class="directory">/var/www/html/distributions</filename> folder for storing
   completed system distributions. The recommended minimum drive space allocated for

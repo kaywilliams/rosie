@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.event import Event
+from openprovision.event import Event
 
-from systemstudio.modules.shared import ImageModifyMixin, BootConfigMixin
+from openprovision.modules.shared import ImageModifyMixin, BootConfigMixin
 
-from systemstudio.util import pps
-from systemstudio.util import shlib
+from openprovision.util import pps
+from openprovision.util import shlib
 
 MODULE_INFO = dict(
   api         = 5.0,

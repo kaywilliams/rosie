@@ -1,4 +1,4 @@
-/var/log/systemstudio.log {
+/var/log/openprovision.log {
     missingok
     notifempty
     rotate 4

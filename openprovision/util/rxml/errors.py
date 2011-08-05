@@ -1,4 +1,4 @@
-from systemstudio.util import pps
+from openprovision.util import pps
 
 class XIncludeError(Exception):
   def __str__(self):

@@ -18,12 +18,12 @@
 import imp
 import sys
 
-from systemstudio.util import graph
-from systemstudio.util import pps
-from systemstudio.util import resolve
-from systemstudio.util import tree
+from openprovision.util import graph
+from openprovision.util import pps
+from openprovision.util import resolve
+from openprovision.util import tree
 
-from systemstudio.util.versort import Version
+from openprovision.util.versort import Version
 
 CLASS_DEFAULT = 00
 CLASS_META    = 01 # meta-class event

@@ -23,9 +23,9 @@ import traceback
 
 import subprocess as sub
 
-from systemstudio.sslogging import L0, L1, L2
-from systemstudio.errors import SystemStudioError
-from systemstudio.util import sshlib
+from openprovision.sslogging import L0, L1, L2
+from openprovision.errors import SystemStudioError
+from openprovision.util import sshlib
 
 from UserDict import DictMixin
 
@@ -179,14 +179,14 @@ class DeployEventMixin:
       # copy script to remote machine
       self.log(2, L2("copying '%s' to '%s'" % (script, params['hostname'])))
       sftp = paramiko.SFTPClient.from_transport(client.get_transport())
-      if not '.systemstudio' in  sftp.listdir(): 
-        sftp.mkdir('.systemstudio')
-        sftp.chmod('.systemstudio', mode=0750)
-      sftp.put(self.io.list_output(what=script)[0], '.systemstudio/%s' % script)
-      sftp.chmod('.systemstudio/%s' % script, mode=0750)
+      if not '.openprovision' in  sftp.listdir(): 
+        sftp.mkdir('.openprovision')
+        sftp.chmod('.openprovision', mode=0750)
+      sftp.put(self.io.list_output(what=script)[0], '.openprovision/%s' % script)
+      sftp.chmod('.openprovision/%s' % script, mode=0750)
   
       # execute script
-      cmd = './.systemstudio/%s %s' % (script, 
+      cmd = './.openprovision/%s %s' % (script, 
             ' '.join(self.scripts[script]['arguments']))
       self.log(2, L2("executing '%s' on '%s'" % (cmd, params['hostname'])))
       chan = client._transport.open_session()

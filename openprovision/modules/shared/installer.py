@@ -17,12 +17,12 @@
 #
 import time
 
-from systemstudio.util import img
-from systemstudio.util import magic
-from systemstudio.util import pps
+from openprovision.util import img
+from openprovision.util import magic
+from openprovision.util import pps
 
-from systemstudio.sslogging      import L1
-from systemstudio.event.fileio import MissingInputFileError
+from openprovision.sslogging      import L1
+from openprovision.event.fileio import MissingInputFileError
 
 __all__ = ['ImageModifyMixin', 'FileDownloadMixin']
 

@@ -16,9 +16,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from systemstudio.event import Event
+from openprovision.event import Event
 
-from systemstudio.modules.shared import RepomdMixin
+from openprovision.modules.shared import RepomdMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

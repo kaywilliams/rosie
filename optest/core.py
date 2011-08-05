@@ -17,9 +17,9 @@
 #
 import unittest
 
-from sstest import EventTestCaseDummy, decorate
+from optest import EventTestCaseDummy, decorate
 
-from systemstudio.errors import SystemStudioError
+from openprovision.errors import SystemStudioError
 
 class EventTestCaseHeader(EventTestCaseDummy):
   separator1 = '=' * 70

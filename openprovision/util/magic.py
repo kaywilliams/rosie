@@ -36,7 +36,7 @@ import struct
 
 # import pps, if available
 try:
-  from systemstudio.util import pps
+  from openprovision.util import pps
 except ImportError:
   pps = None
 

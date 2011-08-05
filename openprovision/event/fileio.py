@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util import pps
-from systemstudio.util import rxml
+from openprovision.util import pps
+from openprovision.util import rxml
 
-from systemstudio.util.pps.constants import *
+from openprovision.util.pps.constants import *
 
-from systemstudio.errors   import SystemStudioError
-from systemstudio.validate import InvalidConfigError
+from openprovision.errors   import SystemStudioError
+from openprovision.validate import InvalidConfigError
 
 class IOMixin:
   def __init__(self):

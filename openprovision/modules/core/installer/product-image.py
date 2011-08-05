@@ -17,11 +17,11 @@
 #
 from StringIO import StringIO
 
-from systemstudio.util import pps
+from openprovision.util import pps
 
-from systemstudio.event import Event
+from openprovision.event import Event
 
-from systemstudio.modules.shared import ImageModifyMixin
+from openprovision.modules.shared import ImageModifyMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

@@ -40,21 +40,21 @@ normal methods, such as upper(), split(), and the like.
 import errno
 import os.path
 
-from systemstudio.util.pps import path
+from openprovision.util.pps import path
 
-from systemstudio.util.pps.lib import cached, CACHE
+from openprovision.util.pps.lib import cached, CACHE
 
-from systemstudio.util.pps.constants  import _base
-from systemstudio.util.pps.PathTokens import PathTokens
-from systemstudio.util.pps.Path.error import PathError
+from openprovision.util.pps.constants  import _base
+from openprovision.util.pps.PathTokens import PathTokens
+from openprovision.util.pps.Path.error import PathError
 # imported at the end to avoid circular ref
-#from systemstudio.util.pps.util       import urlparse, urlunparse, _normpart
-#from systemstudio.util.pps.UriTuple   import UriTuple
+#from openprovision.util.pps.util       import urlparse, urlunparse, _normpart
+#from openprovision.util.pps.UriTuple   import UriTuple
 
-from systemstudio.util.pps.Path.path_io     import Path_IO
-from systemstudio.util.pps.Path.path_printf import Path_Printf
-from systemstudio.util.pps.Path.path_stat   import Path_Stat
-from systemstudio.util.pps.Path.path_walk   import Path_Walk
+from openprovision.util.pps.Path.path_io     import Path_IO
+from openprovision.util.pps.Path.path_printf import Path_Printf
+from openprovision.util.pps.Path.path_stat   import Path_Stat
+from openprovision.util.pps.Path.path_walk   import Path_Walk
 
 class BasePath(_base):
   """
@@ -396,5 +396,5 @@ class BasePath(_base):
       pass
 
 # imported last to avoid circular ref
-from systemstudio.util.pps.UriTuple import UriTuple
-from systemstudio.util.pps.util     import urlparse, urlunparse, _normpart
+from openprovision.util.pps.UriTuple import UriTuple
+from openprovision.util.pps.util     import urlparse, urlunparse, _normpart

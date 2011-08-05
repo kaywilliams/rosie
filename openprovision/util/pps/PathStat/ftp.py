@@ -20,10 +20,10 @@
 import stat
 import time
 
-from systemstudio.util.pps.constants import *
+from openprovision.util.pps.constants import *
 
-from systemstudio.util.pps.Path.error import PathError
-from systemstudio.util.pps.lib.ftp    import FtpFileObject
+from openprovision.util.pps.Path.error import PathError
+from openprovision.util.pps.lib.ftp    import FtpFileObject
 
 from remote import RemotePathStat
 

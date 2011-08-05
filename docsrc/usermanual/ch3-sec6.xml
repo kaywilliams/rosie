@@ -5,19 +5,19 @@
   <title>Updating a System</title>
 
   <para>SystemStudio makes it easy to keep your system distribution up to date over 
-  time by simply rerunning the <command>systemstudio</command> command. 
+  time by simply rerunning the <command>openprovision</command> command. 
   When SystemStudio runs, it looks for changes in build input, or in the 
   distribution definition, and makes adjustments to the published
   system distribution as necessary.</para>
 
   <section>
-    <title>Running <command>systemstudio</command> to check for repository
+    <title>Running <command>openprovision</command> to check for repository
     updates</title>
 
     <para>To include updated packages from the repositories, execute
-    <command>systemstudio</command> with the
+    <command>openprovision</command> with the
     <filename>samba-server.definition</filename> file. <application
-    class="software"> Rerunning <command>systemstudio</command> with the same
+    class="software"> Rerunning <command>openprovision</command> with the same
     <filename class="extension">.definition</filename> file will dramatically
     reduce the build time, assuming there are no changes to the file's
     contents. SystemStudio</application> uses a cache of the packages and verifies the
@@ -26,30 +26,30 @@
     <filename>samba-server.definition</filename> file and no updates to the
     repositories.</para>
 
-    <para><screen>Reading '/home/systemstudio/samba-server.definition'
+    <para><screen>Reading '/home/openprovision/samba-server.definition'
 Starting build of 'samba-server-5-i386' at 2009-10-25 18:29:55
 Build complete at 2009-10-25 18:30:26</screen></para>
 
-    <para>Since there were no updates, <command>systemstudio</command> completed
+    <para>Since there were no updates, <command>openprovision</command> completed
     successfully in less than two minutes. (Results will vary based on factors
     including network connection speed between the build machine and input 
     repositories, number of packages in the system distribution, and build 
     machine hardware configuration.) Only if something had changed would
-    <command>systemstudio</command> have rerun the repository updates and 
+    <command>openprovision</command> have rerun the repository updates and 
     provided more detail about this build.</para>
 
     <para>Unless you change the log level or the contents of the system distribution, 
-    <command>systemstudio</command> will append the minimal output above to 
+    <command>openprovision</command> will append the minimal output above to 
     the log file.</para>
 
     <para><note>
         <para>SystemStudio's default behavior is to append all build output to the
-        <filename>systemstudio.log</filename> file in the <filename
+        <filename>openprovision.log</filename> file in the <filename
         class="directory">/var/log</filename> directory. To redirect the
-        output for a particular build, use the <command>systemstudio</command>
+        output for a particular build, use the <command>openprovision</command>
         command</para>
 
-        <para><userinput># systemstudio --log-file /var/log/$MYLOGFILE
+        <para><userinput># openprovision --log-file /var/log/$MYLOGFILE
         samba-server.definition</userinput></para>
 
         <para>where <varname>$MYLOGFILE</varname> is the new name of the log
@@ -68,7 +68,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
 
     <para><important>
         <para>If the published download location is the same,
-        <command>systemstudio</command> updates the system distribution, adding new files and
+        <command>openprovision</command> updates the system distribution, adding new files and
         replacing old ones.</para>
       </important></para>
   </section>
@@ -78,7 +78,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
 
     <para>If you change the system distribution definition, or other build input 
     such as configuration files and scripts, then you need to rerun 
-    <command>systemstudio</command>. You may redefine
+    <command>openprovision</command>. You may redefine
     your system distribution in a plethora of ways. Some of the more common options
     could include selecting different repositories; including or excluding
     groups, packages or custom files (configuration files, scripts or
@@ -135,7 +135,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
   <para>Save the smb.conf file</para>
 
   <para>Now run the command 
-  <command>systemstudio samba-server.definition</command>. You should see 
+  <command>openprovision samba-server.definition</command>. You should see 
   that a new configuration package is generated, and that the system distribution
   is updated.</para>
 

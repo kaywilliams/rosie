@@ -20,13 +20,13 @@ import re
 import rpmUtils.arch
 import yum.Errors
 
-from systemstudio.callback  import PkglistCallback
-from systemstudio.constants import KERNELS
-from systemstudio.errors    import assert_file_has_content, SystemStudioError
-from systemstudio.event     import Event
-from systemstudio.sslogging   import L1
+from openprovision.callback  import PkglistCallback
+from openprovision.constants import KERNELS
+from openprovision.errors    import assert_file_has_content, SystemStudioError
+from openprovision.event     import Event
+from openprovision.sslogging   import L1
 
-from systemstudio.modules.shared.idepsolver import DepsolverMixin
+from openprovision.modules.shared.idepsolver import DepsolverMixin
 
 MODULE_INFO = dict(
   api         = 5.0,

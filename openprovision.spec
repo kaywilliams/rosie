@@ -1,13 +1,13 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
-Name:    systemstudio
+Name:    openprovision
 Version: 1.0.7
 Release: 1%{?dist}
 Summary: Builds system distributions for CentOS and Red Hat Enterprise Linux
 
 License:   GPL
 Group:     Applications/System
-URL:       http://www.renditionsoftware.com/systemstudio
+URL:       http://www.renditionsoftware.com/openprovision
 Source0:   %{name}-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
@@ -52,18 +52,18 @@ http://www.renditionsoftware.com for more information.
 
 %files
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/logrotate.d/systemstudio
+%config(noreplace) %{_sysconfdir}/logrotate.d/openprovision
 %{python_sitelib}/*
-%{_bindir}/systemstudio
-%{_datadir}/systemstudio
+%{_bindir}/openprovision
+%{_datadir}/openprovision
 %doc COPYING
 %doc ChangeLog
 %doc AUTHORS
 %doc INSTALL
 %doc README
 %doc NEWS
-%{_mandir}/man5/systemstudio.conf.5.gz
-%{_mandir}/man1/systemstudio.1.gz
+%{_mandir}/man5/openprovision.conf.5.gz
+%{_mandir}/man1/openprovision.1.gz
 
 %changelog
 * Tue Dec 21 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.7-1
@@ -75,7 +75,7 @@ http://www.renditionsoftware.com for more information.
 * Tue Dec 21 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.5-1
 - changed variable name from systemid to distributionid (kwilliams)
 - bugfix to shared rpmbuild module to write out distribution in .dat files (kwilliams)
-- fixed sstest to use distribution root element (kwilliams)
+- fixed optest to use distribution root element (kwilliams)
 - reverting to distribution naming (kwilliams)
 - Backed out changeset 85c960485b26 (kwilliams)
 - documentation updates (kwilliams)
@@ -84,11 +84,11 @@ http://www.renditionsoftware.com for more information.
 - ui tweak for rpmbuild-repo (kwilliams)
 - removed deprecated parameter from __init__ call in resolve.conf (kwilliams)
 
-* Mon Dec 06 2010 Kay Williams <kayw@systemstudio.org> - 1.0.3-1
+* Mon Dec 06 2010 Kay Williams <kayw@openprovision.org> - 1.0.3-1
 - added installclass for anaconda rhel6 (kayw)
 - changed name of rpmbuild-repo to  repo (kayw)
 - updates-image and product-image no longer look for existing images (kayw)
-- changed default sstest distro to centos 5 (kayw)
+- changed default optest distro to centos 5 (kayw)
 - removed support for xen-images (kayw)
 - rendition software naming (kayw)
 - modified gpgsign to verify supplied passphrase, difftest config (kayw)

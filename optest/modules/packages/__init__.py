@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util import pps
-from systemstudio.util import rxml
+from openprovision.util import pps
+from openprovision.util import rxml
 
-from systemstudio.constants import KERNELS
+from openprovision.constants import KERNELS
 
-from sstest      import EventTestCase, ModuleTestSuite
-from sstest.core import make_core_suite
+from optest      import EventTestCase, ModuleTestSuite
+from optest.core import make_core_suite
 
 class PackagesEventTestCase(EventTestCase):
   moduleid = 'packages'

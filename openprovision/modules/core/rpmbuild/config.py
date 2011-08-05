@@ -17,16 +17,16 @@
 #
 from StringIO import StringIO
 
-from systemstudio.util import pps
+from openprovision.util import pps
 
-from systemstudio.event        import Event
-from systemstudio.event.fileio import MissingXpathInputFileError
+from openprovision.event        import Event
+from openprovision.event.fileio import MissingXpathInputFileError
 
-from systemstudio.validate     import InvalidConfigError
+from openprovision.validate     import InvalidConfigError
 
-from systemstudio.errors         import assert_file_readable
+from openprovision.errors         import assert_file_readable
 
-from systemstudio.modules.shared.config import ConfigEventMixin
+from openprovision.modules.shared.config import ConfigEventMixin
 
 import cPickle
 import hashlib

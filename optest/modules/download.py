@@ -19,12 +19,12 @@ from StringIO import StringIO
 
 import unittest
 
-from systemstudio.util import pps
-from systemstudio.util import rxml
-from systemstudio.util.repo import RPM_PNVRA_REGEX
+from openprovision.util import pps
+from openprovision.util import rxml
+from openprovision.util.repo import RPM_PNVRA_REGEX
 
-from sstest      import EventTestCase, ModuleTestSuite, _run_make
-from sstest.core import make_core_suite
+from optest      import EventTestCase, ModuleTestSuite, _run_make
+from optest.core import make_core_suite
 
 class DownloadEventTestCase(EventTestCase):
   moduleid = 'download'

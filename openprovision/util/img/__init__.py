@@ -18,8 +18,8 @@
 import imp
 import os
 
-from systemstudio.util import pps
-from systemstudio.util import shlib
+from openprovision.util import pps
+from openprovision.util import shlib
 
 from errors import *
 

@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util.pps.Path import Path_Stat
+from openprovision.util.pps.Path import Path_Stat
 
-from systemstudio.util.pps.PathStat.local import LocalPathStat
+from openprovision.util.pps.PathStat.local import LocalPathStat
 
 from error import error_transform
 

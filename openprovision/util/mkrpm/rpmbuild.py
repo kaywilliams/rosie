@@ -26,11 +26,11 @@ import os
 import tempfile
 import sys
 
-from systemstudio.util import pps
-from systemstudio.util import shlib
-from systemstudio.util import sync
+from openprovision.util import pps
+from openprovision.util import shlib
+from openprovision.util import sync
 
-from systemstudio.util.mkrpm.setup import SETUP_PY_TEXT
+from openprovision.util.mkrpm.setup import SETUP_PY_TEXT
 
 __all__ = [
   'RpmBuilderException',

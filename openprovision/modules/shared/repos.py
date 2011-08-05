@@ -23,23 +23,23 @@ import os
 import re
 import time
 
-from systemstudio.util import listfmt
-from systemstudio.util import pps
-from systemstudio.util import rxml
+from openprovision.util import listfmt
+from openprovision.util import pps
+from openprovision.util import rxml
 
-from systemstudio.util.difftest.filesdiff import DiffTuple
+from openprovision.util.difftest.filesdiff import DiffTuple
 
-from systemstudio.util.pps.constants import TYPE_DIR
+from openprovision.util.pps.constants import TYPE_DIR
 
-from systemstudio.errors    import (SystemStudioError, SystemStudioIOError, RhnSupportError,
+from openprovision.errors    import (SystemStudioError, SystemStudioIOError, RhnSupportError,
                             assert_file_readable, assert_file_has_content)
-from systemstudio.sslogging   import L1, L2
-from systemstudio.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
-from systemstudio.validate  import InvalidConfigError
+from openprovision.sslogging   import L1, L2
+from openprovision.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
+from openprovision.validate  import InvalidConfigError
 
-from systemstudio.util.repo          import ReposFromXml, ReposFromFile, getDefaultRepos
-from systemstudio.util.repo.repo     import YumRepo, RepoContainer, NSMAP
-from systemstudio.util.repo.defaults import TYPE_ALL
+from openprovision.util.repo          import ReposFromXml, ReposFromFile, getDefaultRepos
+from openprovision.util.repo.repo     import YumRepo, RepoContainer, NSMAP
+from openprovision.util.repo.defaults import TYPE_ALL
 
 __all__ = ['RepoEventMixin', 'SystemStudioRepo', 'SystemStudioRepoGroup',
            'SystemStudioRepoFileParseError']

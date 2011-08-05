@@ -15,16 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util     import pps
-from systemstudio.util     import repo
-from systemstudio.util     import rxml
-from systemstudio.validate import InvalidConfigError
-from systemstudio.util.pps.constants import TYPE_NOT_DIR
+from openprovision.util     import pps
+from openprovision.util     import repo
+from openprovision.util     import rxml
+from openprovision.validate import InvalidConfigError
+from openprovision.util.pps.constants import TYPE_NOT_DIR
 
-from sstest          import (BUILD_ROOT, TestBuild, EventTestCase, 
+from optest          import (BUILD_ROOT, TestBuild, EventTestCase, 
                             ModuleTestSuite)
-from sstest.core     import make_core_suite
-from sstest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
+from optest.core     import make_core_suite
+from optest.rpmbuild import RpmBuildMixinTestCase, RpmCvarsTestCase
 
 class ConfigEventTestCase(RpmBuildMixinTestCase, EventTestCase):
   moduleid = 'config'

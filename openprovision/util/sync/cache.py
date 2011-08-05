@@ -27,14 +27,14 @@ __date__    = 'August 22nd, 2007'
 import hashlib
 import time
 
-from systemstudio.util.progressbar import ProgressBar
+from openprovision.util.progressbar import ProgressBar
 
-from systemstudio.util.sync.__init__ import CopyHandler, SyncOperation, mirror_updatefn
-from systemstudio.util.sync.callback import SyncCallbackMetered
+from openprovision.util.sync.__init__ import CopyHandler, SyncOperation, mirror_updatefn
+from openprovision.util.sync.callback import SyncCallbackMetered
 
-from systemstudio.util.pps import path
+from openprovision.util.pps import path
 
-from systemstudio.util.pps.constants import *
+from openprovision.util.pps.constants import *
 
 DEFAULT_CACHE_DIR = '/tmp/.sync-cache'
 DEFAULT_CACHE_SIZE = 500 * 1024**2 # 500 MB

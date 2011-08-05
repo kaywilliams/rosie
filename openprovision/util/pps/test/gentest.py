@@ -1,6 +1,6 @@
 import copy
 
-from systemstudio.util import pps
+from openprovision.util import pps
 
 # update individual values in the appropriate section below if neccessary
 PATH_DEFAULTS = {

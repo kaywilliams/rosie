@@ -17,15 +17,15 @@
 #
 import os
 
-from systemstudio.callback  import BuildDepsolveCallback
-from systemstudio.event     import Event, CLASS_META
-from systemstudio.sslogging import L1, L2, L3
-from systemstudio.util      import pps
+from openprovision.callback  import BuildDepsolveCallback
+from openprovision.event     import Event, CLASS_META
+from openprovision.sslogging import L1, L2, L3
+from openprovision.util      import pps
 
-from systemstudio.modules.shared import RepomdMixin, DeployEventMixin
-from systemstudio.modules.shared.config import ConfigEventMixin
-from systemstudio.modules.shared.kickstart import KickstartEventMixin
-from systemstudio.modules.shared.publish import PublishEventMixin
+from openprovision.modules.shared import RepomdMixin, DeployEventMixin
+from openprovision.modules.shared.config import ConfigEventMixin
+from openprovision.modules.shared.kickstart import KickstartEventMixin
+from openprovision.modules.shared.publish import PublishEventMixin
 
 P = pps.path
 

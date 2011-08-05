@@ -5,7 +5,7 @@
 <!-- See http://www.docbook.org/tdg/en/html/refentry.html for more documentation -->
 <!--SystemStudio Command reference -->
 
-<refentry id="command.systemstudio">
+<refentry id="command.openprovision">
 <refentryinfo>
 <date>2008-06-13</date>
 </refentryinfo>
@@ -17,7 +17,7 @@
 </refmeta>
 
 <refnamediv>
-<refname>systemstudio</refname>
+<refname>openprovision</refname>
 <refpurpose>Builds and updates Linux-based system distributions.</refpurpose>
 </refnamediv>
 
@@ -27,7 +27,7 @@
 </refsynopsisdivinfo>
 
 <cmdsynopsis>
-<command>systemstudio</command>
+<command>openprovision</command>
 <arg choice="opt">
 <option>--clear-cache </option>
 </arg>
@@ -66,24 +66,24 @@
 </cmdsynopsis>
 </refsynopsisdiv>
 
-<refsect1 id="systemstudio.1-description"><title>DESCRIPTION</title>
+<refsect1 id="openprovision.1-description"><title>DESCRIPTION</title>
 <para>Builds the system distribution defined in the file at SOLUTION_DEFINITION. Updates the system distribution if it exists.</para>
 </refsect1>
 
-<refsect1 id="systemstudio.1-usage"><title>USAGE</title>
-<para><command>systemstudio</command> [OPTIONS] SOLUTION_DEFINITION</para>
-<para>OPTIONS refers to the command-line options described below.  SOLUTION_DEFINITION refers to a distribution definition file, see the Distribution Definition File Reference at <ulink url="http://www.renditionsoftware.com/systemstudio/docs"/> for more information.</para>
+<refsect1 id="openprovision.1-usage"><title>USAGE</title>
+<para><command>openprovision</command> [OPTIONS] SOLUTION_DEFINITION</para>
+<para>OPTIONS refers to the command-line options described below.  SOLUTION_DEFINITION refers to a distribution definition file, see the Distribution Definition File Reference at <ulink url="http://www.renditionsoftware.com/openprovision/docs"/> for more information.</para>
 </refsect1>
 
 
-<refsect1 id="systemstudio.1-options"><title>OPTIONS</title>
+<refsect1 id="openprovision.1-options"><title>OPTIONS</title>
 <para>Command options are listed in alphabetical order.</para>
 <variablelist>
 
 <varlistentry>
   <term><option>-c; --config <replaceable class="parameter">SOLUTIONSTUDIO_CONF</replaceable></option></term>
   <listitem>
-    <para> Specifies the directory and filename <replaceable class="parameter">SOLUTIONSTUDIO_CONF</replaceable> of the systemstudio configuration file.  The default value is <filename class="directory">/etc/systemstudio/systemstudio.conf</filename>.  See the <filename>systemstudio.conf(5)</filename> man page for SystemStudio configuration options.</para>
+    <para> Specifies the directory and filename <replaceable class="parameter">SOLUTIONSTUDIO_CONF</replaceable> of the openprovision configuration file.  The default value is <filename class="directory">/etc/openprovision/openprovision.conf</filename>.  See the <filename>openprovision.conf(5)</filename> man page for SystemStudio configuration options.</para>
 
   </listitem>
 </varlistentry>
@@ -91,7 +91,7 @@
 <varlistentry>
   <term><option>--clear-cache</option></term>
   <listitem>
-    <para>Clears the shared cache of downloaded files. See <filename>systemstudio.conf(5)</filename> man page for more cache options.</para>
+    <para>Clears the shared cache of downloaded files. See <filename>openprovision.conf(5)</filename> man page for more cache options.</para>
   </listitem>
 </varlistentry>
 
@@ -118,7 +118,7 @@
   <term><option>--list-modules</option></term>
   <listitem>
     <para> Displays a list of SystemStudio modules including name, description, and child modules, then exits without building the system distribution. Note: SystemStudio requires a distribution definition on the command line when using this option, for example:</para>
-<para>systemstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
+<para>openprovision --list-modules <filename>SOLUTION_DEFINITION</filename></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
 </varlistentry>
@@ -126,7 +126,7 @@
 <varlistentry>
   <term><option>--log-file <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which SystemStudio writes logging information of Level 5 detail.  The default path is <filename>/var/log/systemstudio.log</filename>.  See the command option <command>--log-level</command>.</para>
+    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which SystemStudio writes logging information of Level 5 detail.  The default path is <filename>/var/log/openprovision.log</filename>.  See the command option <command>--log-level</command>.</para>
 <para>--log-file <replaceable class="parameter">PATH</replaceable></para>
   </listitem>
 </varlistentry>
@@ -160,7 +160,7 @@
 <varlistentry>
   <term><option>--share-path <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para> Specifies a directory <replaceable class="parameter">PATH</replaceable> where SystemStudio can locate shared program data such as XML schema files.  The default path is <filename>/usr/share/systemstudio/</filename>. This option can be specified more than once, as demonstrated below:</para>
+    <para> Specifies a directory <replaceable class="parameter">PATH</replaceable> where SystemStudio can locate shared program data such as XML schema files.  The default path is <filename>/usr/share/openprovision/</filename>. This option can be specified more than once, as demonstrated below:</para>
 
 <para>--share-path <replaceable class="parameter">PATH1</replaceable> --share-path <replaceable class="parameter">PATH2</replaceable> --share-path <replaceable class="parameter">PATH3</replaceable></para>
   </listitem>
@@ -185,7 +185,7 @@
 </variablelist>
 </refsect1>
 
-<refsect1 id="systemstudio.1-variables"><title>VARIABLES</title>
+<refsect1 id="openprovision.1-variables"><title>VARIABLES</title>
 <para>SystemStudio command options, where indicated, use three variables:  MODULE, PATH and SOLUTIONSTUDIO_CONF.</para>
 
 <variablelist>
@@ -212,36 +212,36 @@
 </variablelist>
 </refsect1>
 
-<refsect1 id="systemstudio.1-modules"><title>MODULES</title>
-<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the systemstudio command. Note: SystemStudio requires a distribution definition on the command line when using this option, for example:</para>
-<para>systemstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
+<refsect1 id="openprovision.1-modules"><title>MODULES</title>
+<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the openprovision command. Note: SystemStudio requires a distribution definition on the command line when using this option, for example:</para>
+<para>openprovision --list-modules <filename>SOLUTION_DEFINITION</filename></para>
 <para>On subsequent builds of the same system distribution, SystemStudio automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using the <command>--skip</command> and <command>--force</command> options.</para>
-<para>Developers can write custom SystemStudio modules and direct SystemStudio to use them via the <command>--lib-path</command> systemstudio command option.</para>
+<para>Developers can write custom SystemStudio modules and direct SystemStudio to use them via the <command>--lib-path</command> openprovision command option.</para>
 </refsect1>
 
-<refsect1 id="systemstudio.1-bugs"><title>BUGS</title>
+<refsect1 id="openprovision.1-bugs"><title>BUGS</title>
 <para>Submit bugs at <ulink url="http://www.renditionsoftware.com/bugs"/></para>
 </refsect1>
 
-<refsect1 id="systemstudio.1-files"><title>FILES</title>
+<refsect1 id="openprovision.1-files"><title>FILES</title>
 <para><simplelist type="inline">
-<member><ulink url="file:///usr/share/systemstudio/">/usr/share/systemstudio/</ulink></member>
-<member><ulink url="file:///usr/bin/systemstudio">/usr/bin/systemstudio</ulink></member>
-<member><ulink url="file:///etc/systemstudio/systemstudio.conf">/etc/systemstudio/systemstudio.conf</ulink></member>
-<member><ulink url="file:///var/log/systemstudio.log">/var/log/systemstudio.log</ulink></member>
-<member><ulink url="file:///var/cache/systemstudio/">/var/cache/systemstudio/</ulink></member>
+<member><ulink url="file:///usr/share/openprovision/">/usr/share/openprovision/</ulink></member>
+<member><ulink url="file:///usr/bin/openprovision">/usr/bin/openprovision</ulink></member>
+<member><ulink url="file:///etc/openprovision/openprovision.conf">/etc/openprovision/openprovision.conf</ulink></member>
+<member><ulink url="file:///var/log/openprovision.log">/var/log/openprovision.log</ulink></member>
+<member><ulink url="file:///var/cache/openprovision/">/var/cache/openprovision/</ulink></member>
 </simplelist></para>
 </refsect1>
 
-<refsect1 id="systemstudio.1-see_also"><title>SEE ALSO</title>
+<refsect1 id="openprovision.1-see_also"><title>SEE ALSO</title>
 <para><simplelist type="inline">
-<member>systemstudio.conf(5)</member>
-<member><ulink url="http://www.renditionsoftware.com/systemstudio"/></member>
+<member>openprovision.conf(5)</member>
+<member><ulink url="http://www.renditionsoftware.com/openprovision"/></member>
 
 </simplelist></para>
 </refsect1>
 
-<refsect1 id="systemstudio.1-author"><title>AUTHOR</title>
+<refsect1 id="openprovision.1-author"><title>AUTHOR</title>
 <para><author><othername>Rendition Software, Inc.</othername>
 <contrib>Original author</contrib>
 </author></para>

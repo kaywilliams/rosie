@@ -5,28 +5,28 @@
 <!-- See http://www.docbook.org/tdg/en/html/refentry.html for more documentation -->
 <!--SystemStudio Configuration reference -->
 
-<refentry id="configuration.systemstudio">
+<refentry id="configuration.openprovision">
 <refentryinfo>
 <date>2008-06-13</date>
 </refentryinfo>
 
 <refmeta>
-<refentrytitle>systemstudio.conf</refentrytitle>
+<refentrytitle>openprovision.conf</refentrytitle>
 <manvolnum>5</manvolnum>
 <refmiscinfo>SystemStudio Beta</refmiscinfo>
 <refmiscinfo class="sectdesc">SystemStudio configuration reference</refmiscinfo>
 </refmeta>
 
 <refnamediv>
-<refname>systemstudio.conf</refname>
+<refname>openprovision.conf</refname>
 <refpurpose>Configuration file for SystemStudio.</refpurpose>
 </refnamediv>
 
-<refsect1 id='systemstudio.conf.5-description'><title>DESCRIPTION</title>
-<para>SystemStudio uses an optional configuration file systemstudio.conf located at <filename>/etc/systemstudio/</filename>. The location of this file can be overridden using the <command>-c</command> or <command>--config</command> SystemStudio command line option. The default SystemStudio installation does not include a systemstudio.conf file.</para>
+<refsect1 id='openprovision.conf.5-description'><title>DESCRIPTION</title>
+<para>SystemStudio uses an optional configuration file openprovision.conf located at <filename>/etc/openprovision/</filename>. The location of this file can be overridden using the <command>-c</command> or <command>--config</command> SystemStudio command line option. The default SystemStudio installation does not include a openprovision.conf file.</para>
 </refsect1>
 
-<refsect1 id='systemstudio.conf.5-optional-elements'><title>ELEMENTS</title>
+<refsect1 id='openprovision.conf.5-optional-elements'><title>ELEMENTS</title>
 
 <para>All elements are optional.</para>
 
@@ -45,7 +45,7 @@
 <varlistentry>
   <term><option>log-file</option></term>
   <listitem>
-    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which SystemStudio writes logging information.  The default path is <filename>/var/log/systemstudio.log</filename>.   SystemStudio creates the log file if none exists. This element corresponds to the <command>--log-file</command> command-line option.</para>
+    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which SystemStudio writes logging information.  The default path is <filename>/var/log/openprovision.log</filename>.   SystemStudio creates the log file if none exists. This element corresponds to the <command>--log-file</command> command-line option.</para>
 <programlisting>
 &lt;log-file&gt;PATH&lt;/log-file&gt;
 </programlisting>
@@ -56,7 +56,7 @@
 <varlistentry>
   <term><option>share-path</option></term>
   <listitem>
-    <para>Specifies a directory <replaceable class="parameter">PATH</replaceable> in which one or more of SystemStudio's shared files can be found; the directory contains a hierarchy enabling SystemStudio to extract files for schemas, <filename>*.rng</filename>, fonts and images.  The default path is <filename>/usr/share/systemstudio</filename>.  Multiple path elements are allowed.  This element corresponds to the <option>--share-path</option> command-line option .</para>
+    <para>Specifies a directory <replaceable class="parameter">PATH</replaceable> in which one or more of SystemStudio's shared files can be found; the directory contains a hierarchy enabling SystemStudio to extract files for schemas, <filename>*.rng</filename>, fonts and images.  The default path is <filename>/usr/share/openprovision</filename>.  Multiple path elements are allowed.  This element corresponds to the <option>--share-path</option> command-line option .</para>
 <programlisting>
 &lt;share-path&gt;PATH&lt;/share-path&gt;
 </programlisting>
@@ -76,7 +76,7 @@
 </variablelist>
 </refsect1>
 
-<refsect1 id='systemstudio.conf.5-optional-cache'>
+<refsect1 id='openprovision.conf.5-optional-cache'>
 <title>CACHE ELEMENTS</title>
 <para>SystemStudio caches data across sessions for improved performance.  The cache element allows specifying cache-related options.</para>
 
@@ -84,7 +84,7 @@
 <varlistentry>
   <term><option>path</option></term>
   <listitem>
-<para>The <literal>path</literal> child element specifies where SystemStudio stores both shared and per system cache data.  The default is <filename>/var/cache/systemstudio</filename>.
+<para>The <literal>path</literal> child element specifies where SystemStudio stores both shared and per system cache data.  The default is <filename>/var/cache/openprovision</filename>.
 </para>
 <programlisting>
 &lt;cache&gt;
@@ -112,7 +112,7 @@
 </refsect1>
 
 
-<refsect1 id="systemstudio.conf.5-variables"><title>VARIABLES</title>
+<refsect1 id="openprovision.conf.5-variables"><title>VARIABLES</title>
 <para>SystemStudio element values, where indicated, use the variables below.</para>
 
 <variablelist>
@@ -148,51 +148,51 @@
 </variablelist>
 </refsect1>
 
- <refsect1 id="systemstudio.conf.5-examples">
+ <refsect1 id="openprovision.conf.5-examples">
     <title>EXAMPLES</title>
     <para>
-      An example systemstudio configuration file with multiple listings for share-path and lib-path elements is shown below:
+      An example openprovision configuration file with multiple listings for share-path and lib-path elements is shown below:
     </para>
 
     <programlisting>
 &lt;distributionstudio&gt;
     &lt;share-path&gt;/usr/share&lt;/share-path&gt;
-    &lt;share-path&gt;~/systemstudio/share&lt;/share-path&gt;
+    &lt;share-path&gt;~/openprovision/share&lt;/share-path&gt;
     &lt;lib-path&gt;/usr/lib&lt;/lib-path&gt;
-    &lt;lib-path&gt;~/systemstudio/lib&lt;/lib-path&gt;
-    &lt;log-file&gt;~/systemstudio.log&lt;/log-file&gt;
+    &lt;lib-path&gt;~/openprovision/lib&lt;/lib-path&gt;
+    &lt;log-file&gt;~/openprovision.log&lt;/log-file&gt;
     &lt;cache&gt;
-        &lt;path&gt;~/systemstudio/cache&lt;/path&gt;
+        &lt;path&gt;~/openprovision/cache&lt;/path&gt;
         &lt;max-size&gt;5GB&lt;/max-size&gt;
     &lt;/cache&gt;
-&lt;/systemstudio&gt;
+&lt;/openprovision&gt;
     </programlisting>
 
 </refsect1>
 
-<refsect1 id="systemstudio.conf.5-bugs"><title>BUGS</title>
+<refsect1 id="openprovision.conf.5-bugs"><title>BUGS</title>
 <para>Submit bugs at <ulink url="http://www.renditionsoftware.com/bugs"/></para>
 </refsect1>
 
-<refsect1 id="systemstudio.conf.5-files"><title>FILES</title>
+<refsect1 id="openprovision.conf.5-files"><title>FILES</title>
 <para><simplelist type="inline">
-<member>systemstudio(1)</member>
-<member><ulink url="file:///etc/systemstudio/systemstudio.conf">/etc/systemstudio/systemstudio.conf</ulink></member>
-<member><ulink url="file:///usr/bin/systemstudio">/usr/bin/systemstudio</ulink></member>
-<member><ulink url="file:///usr/share/systemstudio/">/usr/share/systemstudio</ulink></member>
-<member><ulink url="file:///var/cache/systemstudio/">/var/cache/systemstudio/</ulink></member>
-<member><ulink url="file:///var/log/systemstudio.log">/var/log/systemstudio.log</ulink></member>
+<member>openprovision(1)</member>
+<member><ulink url="file:///etc/openprovision/openprovision.conf">/etc/openprovision/openprovision.conf</ulink></member>
+<member><ulink url="file:///usr/bin/openprovision">/usr/bin/openprovision</ulink></member>
+<member><ulink url="file:///usr/share/openprovision/">/usr/share/openprovision</ulink></member>
+<member><ulink url="file:///var/cache/openprovision/">/var/cache/openprovision/</ulink></member>
+<member><ulink url="file:///var/log/openprovision.log">/var/log/openprovision.log</ulink></member>
 </simplelist></para>
 </refsect1>
 
 
-<refsect1 id="systemstudio.conf.5-seealso"><title>SEE ALSO</title>
+<refsect1 id="openprovision.conf.5-seealso"><title>SEE ALSO</title>
 <para><simplelist type="inline">
-<member><ulink url="http://www.renditionsoftware.com/systemstudio">http://www.renditionsoftware.com/systemstudio</ulink></member>
+<member><ulink url="http://www.renditionsoftware.com/openprovision">http://www.renditionsoftware.com/openprovision</ulink></member>
 </simplelist></para>
 </refsect1>
 
-<refsect1 id="systemstudio.conf.5-author"><title>AUTHOR</title>
+<refsect1 id="openprovision.conf.5-author"><title>AUTHOR</title>
 <para><author><othername>Rendition Software, Inc.</othername>
 <contrib>Original author</contrib>
 </author></para>

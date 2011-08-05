@@ -21,12 +21,12 @@ import copy
 import os
 import sys
 
-from systemstudio.util import pps
-from systemstudio.util import rxml
+from openprovision.util import pps
+from openprovision.util import rxml
 
 XmlTreeElement = rxml.tree.XmlTreeElement
 
-from systemstudio.sslogging import L0, L1
+from openprovision.sslogging import L0, L1
 
 NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
 
@@ -50,7 +50,7 @@ class SystemStudioValidationHandler:
       sys.exit(1)
 
   def _validate_configs(self):
-    "Validate systemstudio config and system definition"
+    "Validate openprovision config and system definition"
 
     if self.mainconfig.file is not None:
       self.logger.log(4, L0("Validating '%s'" % self.mainconfig.file))
@@ -59,7 +59,7 @@ class SystemStudioValidationHandler:
 
     v = MainConfigValidator([ x/'schemas' for x in self.sharedirs ],
                             self.mainconfig)
-    v.validate('/systemstudio', schema_file='systemstudio.rng')
+    v.validate('/openprovision', schema_file='openprovision.rng')
 
     # validate individual sections of the system distribution_file
     self.logger.log(4, L0("Validating '%s'" % pps.path(self.definition.file)))

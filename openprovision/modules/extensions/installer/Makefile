@@ -5,8 +5,8 @@ PYFILES = $(wildcard *.py)
 all:
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systemstudio/modules/extensions/installer
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systemstudio/modules/extensions/installer
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/openprovision/modules/extensions/installer
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/openprovision/modules/extensions/installer
 
 clean:
 	rm -f *.pyc *.pyo

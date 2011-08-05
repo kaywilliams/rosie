@@ -5,8 +5,8 @@ PYFILES = $(wildcard *.py)
 all:
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systemstudio/modules/core/repocreate/
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systemstudio/modules/core/repocreate
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/openprovision/modules/core/repocreate/
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/openprovision/modules/core/repocreate
 
 clean:
 	rm -f *.pyc *.pyo

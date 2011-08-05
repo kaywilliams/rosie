@@ -8,8 +8,8 @@ all:
 	for dir in $(SUBDIRS); do make -C $$dir; done
 
 install:
-	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/systemstudio/modules/extensions
-	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/systemstudio/modules/extensions
+	mkdir -p $(DESTDIR)/$(PYTHONLIBDIR)/openprovision/modules/extensions
+	cp -var $(PYFILES) $(DESTDIR)/$(PYTHONLIBDIR)/openprovision/modules/extensions
 
 	for dir in $(SUBDIRS); do make -C $$dir PYTHONLIBDIR=`cd $(PYTHONLIBDIR); pwd` DESTDIR=`cd $(DESTDIR); pwd` install; [ $$? = 0 ] || exit 1; done
 

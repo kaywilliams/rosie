@@ -52,7 +52,7 @@ import copy
 import re
 import sys
 
-from systemstudio.util.rxml import tree
+from openprovision.util.rxml import tree
 
 BOOLEANS = {
   'yes': True,  'Yes': True,  'true':  True,  'True':  True,  '1': True,

@@ -18,11 +18,11 @@
 import os
 import shutil
 
-from systemstudio.util import pps
-from systemstudio.util import shlib
+from openprovision.util import pps
+from openprovision.util import shlib
 
-from systemstudio.util.img import acquire_mount_point, release_mount_point, MODES, MODE_READ, MODE_WRITE
-from systemstudio.util.img.errors import *
+from openprovision.util.img import acquire_mount_point, release_mount_point, MODES, MODE_READ, MODE_WRITE
+from openprovision.util.img.errors import *
 
 class Image:
   def __init__(self, image, zipped=False):

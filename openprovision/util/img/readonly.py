@@ -17,12 +17,12 @@
 #
 import shutil
 
-from systemstudio.util import pps
-from systemstudio.util import shlib
+from openprovision.util import pps
+from openprovision.util import shlib
 
-from systemstudio.util.img import MODES, MODE_READ, MODE_WRITE, acquire_mount_point
-from systemstudio.util.img.image  import Image
-from systemstudio.util.img.errors import *
+from openprovision.util.img import MODES, MODE_READ, MODE_WRITE, acquire_mount_point
+from openprovision.util.img.image  import Image
+from openprovision.util.img.errors import *
 
 
 class ReadOnlyImageHandler:

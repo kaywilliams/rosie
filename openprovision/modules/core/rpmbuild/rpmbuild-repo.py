@@ -17,16 +17,16 @@
 #
 import os
 
-from systemstudio.util import mkrpm
-from systemstudio.util import shlib
-from systemstudio.util import repo
+from openprovision.util import mkrpm
+from openprovision.util import shlib
+from openprovision.util import repo
 
-from systemstudio.event   import Event
-from systemstudio.sslogging import L1, L2
+from openprovision.event   import Event
+from openprovision.sslogging import L1, L2
 
-from systemstudio.modules.shared import SystemStudioRepoGroup
+from openprovision.modules.shared import SystemStudioRepoGroup
 
-from systemstudio.util.repo.repo import RepoContainer
+from openprovision.util.repo.repo import RepoContainer
 
 MODULE_INFO = dict(
   api         = 5.0,

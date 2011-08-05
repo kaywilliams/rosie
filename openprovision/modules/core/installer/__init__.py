@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from systemstudio.util import repo
-from systemstudio.util import versort
+from openprovision.util import repo
+from openprovision.util import versort
 
-from systemstudio.event import Event, CLASS_META
+from openprovision.event import Event, CLASS_META
 
 MODULE_INFO = dict(
   api         = 5.0,

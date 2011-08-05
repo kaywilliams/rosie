@@ -35,28 +35,28 @@ import time
 
 from rpmUtils.arch import getBaseArch
 
-from systemstudio.util import dispatch
-from systemstudio.util import listfmt
-from systemstudio.util import lock
-from systemstudio.util import pps
-from systemstudio.util import rxml
-from systemstudio.util import shlib
-from systemstudio.util import si
+from openprovision.util import dispatch
+from openprovision.util import listfmt
+from openprovision.util import lock
+from openprovision.util import pps
+from openprovision.util import rxml
+from openprovision.util import shlib
+from openprovision.util import si
 
-from systemstudio.util import sync
-from systemstudio.util.sync import cache
-from systemstudio.util.sync import link
+from openprovision.util import sync
+from openprovision.util.sync import cache
+from openprovision.util.sync import link
 
-from systemstudio.callback  import (SyncCallback, CachedSyncCallback,
+from openprovision.callback  import (SyncCallback, CachedSyncCallback,
                                     LinkCallback, SyncCallbackCompressed)
-from systemstudio.constants import *
-from systemstudio.errors    import SystemStudioErrorHandler, SystemStudioError
-from systemstudio.event     import Event, CLASS_META
-from systemstudio.sslogging import make_log, L0, L1, L2
-from systemstudio.validate  import (SystemStudioValidationHandler, 
+from openprovision.constants import *
+from openprovision.errors    import SystemStudioErrorHandler, SystemStudioError
+from openprovision.event     import Event, CLASS_META
+from openprovision.sslogging import make_log, L0, L1, L2
+from openprovision.validate  import (SystemStudioValidationHandler, 
                                     InvalidXmlError)
 
-from systemstudio.event.loader import Loader
+from openprovision.event.loader import Loader
 
 # RPMS we need to check for
 # createrepo
@@ -67,10 +67,10 @@ from systemstudio.event.loader import Loader
 
 API_VERSION = 5.0
 
-DEFAULT_TEMP_DIR = pps.path('/tmp/systemstudio')
-DEFAULT_CACHE_DIR = pps.path('/var/cache/systemstudio')
-DEFAULT_SHARE_DIR = pps.path('/usr/share/systemstudio')
-DEFAULT_LOG_FILE = pps.path('/var/log/systemstudio.log')
+DEFAULT_TEMP_DIR = pps.path('/tmp/openprovision')
+DEFAULT_CACHE_DIR = pps.path('/var/cache/openprovision')
+DEFAULT_SHARE_DIR = pps.path('/usr/share/openprovision')
+DEFAULT_LOG_FILE = pps.path('/var/log/openprovision.log')
 
 # map our supported archs to the highest arch in that arch 'class'
 ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
@@ -80,7 +80,7 @@ FILENAME_REGEX = re.compile('^[a-zA-Z0-9_\-\.]+$')
 
 class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
   """
-  Primary build class - framework upon which a custom systemstudio is generated
+  Primary build class - framework upon which a custom openprovision is generated
 
   Build consists mostly of variable values  and a dispatch object,  which
   is responsible  for calling  module events  in order to perform various
@@ -105,7 +105,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
       arguments: a list of arguments not processed by the parser
 
     These parameters are normally passed in from the command-line handler
-    ('/usr/bin/systemstudio')
+    ('/usr/bin/openprovision')
     """
 
     # set up temporary logger - console only
@@ -122,8 +122,8 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     # set debug mode
     if options.debug is not None:
       self.debug = options.debug
-    elif self.mainconfig.pathexists('/systemstudio/debug'):
-      self.debug = self.mainconfig.getbool('/systemstudio/debug', False)
+    elif self.mainconfig.pathexists('/openprovision/debug'):
+      self.debug = self.mainconfig.getbool('/openprovision/debug', False)
     else:
       self.debug = False
 
@@ -177,7 +177,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
                      or self.definition.getpath(
                         '/distribution/main/log-file/text()', None)
                      or self.mainconfig.getpath(
-                        '/systemstudio/log-file/text()', None)
+                        '/openprovision/log-file/text()', None)
                      or DEFAULT_LOG_FILE ).expand().abspath()
     try:
       self.logger = make_log(options.logthresh, self.logfile)
@@ -212,7 +212,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
 
     try:
       self.dispatch = dispatch.Dispatch(
-                        loader.load(import_dirs, prefix='systemstudio/modules')
+                        loader.load(import_dirs, prefix='openprovision/modules')
                       )
       self.disabled_modules = loader.disabled
       self.enabled_modules  = loader.enabled
@@ -226,7 +226,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
           self.module_map.setdefault(grp, []).extend(self.module_map[modid])
 
     except ImportError, e:
-      Event.logger.log(0, L0("Error loading core systemstudio files: %s" % e))
+      Event.logger.log(0, L0("Error loading core openprovision files: %s" % e))
       if self.debug: raise
       sys.exit(1)
 
@@ -264,7 +264,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
         sys.exit()
 
     # set up locking
-    self._lock = lock.Lock(Event.cache_handler.cache_dir/'systemstudio.pid')
+    self._lock = lock.Lock(Event.cache_handler.cache_dir/'openprovision.pid')
 
   def main(self):
     "Build a system distribution"
@@ -281,13 +281,13 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
       DEFAULT_TEMP_DIR.rm(recursive=True, force=True) # clean up temp dir
       self._log_footer()
     else:
-      self.logger.log(0, L0("Another instance of systemstudio (pid %d) is already "
+      self.logger.log(0, L0("Another instance of openprovision (pid %d) is already "
                             "running" % self._lock._readlock()[0]))
       sys.exit()
 
   def _get_config(self, options, arguments):
     """
-    Gets the systemstudio config based on option values. The systemstudio
+    Gets the openprovision config based on option values. The openprovision
     config file is optional; if not found, merely uses a set of default values.
     """
     cp = pps.path(options.mainconfigpath).expand().abspath()
@@ -295,8 +295,8 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
       self.logger.log(4, "Reading '%s'" % cp)
       mc = rxml.config.parse(cp).getroot()
     else:
-      self.logger.log(4, "No systemstudio config file found at '%s'. Using default settings" % cp)
-      mc = rxml.config.fromstring('<systemstudio/>')
+      self.logger.log(4, "No openprovision config file found at '%s'. Using default settings" % cp)
+      mc = rxml.config.fromstring('<openprovision/>')
 
     self.mainconfig = mc
 
@@ -306,7 +306,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     required, except in the event that the '-h' or '--help' argument was given
     on the command line, in which case the definition file can be omitted or
     not exist.  (This previous allowance is so that a user can type
-    `systemstudio -h` on the command line without giving the '-c' option.) 
+    `openprovision -h` on the command line without giving the '-c' option.) 
     """
     dp = pps.path(arguments[0]).expand().abspath()
     if not dp.exists():
@@ -364,7 +364,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
                  command line options
     """
     import_dirs = [ x.expand().abspath() for x in \
-      self.mainconfig.getpaths('/systemstudio/lib-path/text()', []) ]
+      self.mainconfig.getpaths('/openprovision/lib-path/text()', []) ]
 
     if options.libpath:
       import_dirs = [ pps.path(x).expand().abspath() for x in options.libpath ] + import_dirs
@@ -376,7 +376,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
 
   def _compute_modules(self, options):
     """
-    Compute a list of modules systemstudio should not load.  Disabling takes priorty
+    Compute a list of modules openprovision should not load.  Disabling takes priorty
     over enabling.
 
     options      : an optparse.Values instance containing the result of
@@ -394,9 +394,9 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
         enabled.add(module.tag)
 
     # enable/disable modules from main config
-    for module in self.mainconfig.xpath('/systemstudio/enable-module', []):
+    for module in self.mainconfig.xpath('/openprovision/enable-module', []):
       enabled.add(module.text)
-    for module in self.mainconfig.xpath('/systemstudio/disable-module', []):
+    for module in self.mainconfig.xpath('/openprovision/disable-module', []):
       disabled.add(module.text)
 
     disabled.add('__init__') # hack, kinda; these are loaded automatically
@@ -454,7 +454,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
 
     # set up other directories
     Event.CACHE_DIR    = self.mainconfig.getpath(
-                           '/systemstudio/cache/path/text()',
+                           '/openprovision/cache/path/text()',
                            DEFAULT_CACHE_DIR).expand().abspath()
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
     Event.METADATA_DIR = Event.CACHE_DIR  / di['distributionid']
@@ -462,7 +462,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed([ x.expand().abspath()
       for x in self.mainconfig.getpaths(
-        '/systemstudio/share-path/text()', []) ]))
+        '/openprovision/share-path/text()', []) ]))
     sharedirs.extend(reversed([ pps.path(x).expand().abspath()
       for x in options.sharepath ]))
 
@@ -474,7 +474,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
         raise RuntimeError("The specified share-path '%s' does not exist." %d)
     Event.SHARE_DIRS=self.sharedirs
 
-    cache_max_size = self.mainconfig.get('/systemstudio/cache/max-size/text()', '30GB')
+    cache_max_size = self.mainconfig.get('/openprovision/cache/max-size/text()', '30GB')
     if cache_max_size.isdigit():
       cache_max_size = '%sGB' % cache_max_size
     Event.CACHE_MAX_SIZE = si.parse(cache_max_size)

@@ -1,7 +1,7 @@
 Test posix methods of path objects
 
 Set up the environment
-  >>> from systemstudio.util import pps
+  >>> from openprovision.util import pps
   >>> P = pps.Path.posix.PosixPath
   >>> H = pps.Path.http.HttpPath
   >>> import os

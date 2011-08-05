@@ -17,8 +17,8 @@
 #
 import os
 
-from systemstudio.util.pps.Path    import Path_Walk
-from systemstudio.util.pps.PathSet import PathSet
+from openprovision.util.pps.Path    import Path_Walk
+from openprovision.util.pps.PathSet import PathSet
 
 from error import error_transform
 

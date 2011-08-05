@@ -101,7 +101,7 @@
           <listitem>
             <para>This step entails building the <emphasis>development</emphasis>
             system distribution, specifically by running the command 
-            <userinput>systemstudio samba-server-development.definition
+            <userinput>openprovision samba-server-development.definition
             </userinput>. (You will build the 
             <emphasis>production</emphasis> system distribution in Step 6.) 
             </para>
@@ -158,7 +158,7 @@
           <listitem>
             <para>Using <application class="software">SystemStudio</application> on
             the Staging system (S), build the production system distribution, e.g. 
-            <userinput>systemstudio samba-server-production.definition
+            <userinput>openprovision samba-server-production.definition
             </userinput>. In addition you should add a <command>cron</command> 
             instruction on the Staging system to run SystemStudio on a regular
             basis. This will serve to update the system distribution over time as new

@@ -19,13 +19,13 @@ import cPickle
 import rpmUtils
 import yum
 
-from systemstudio.util import difftest
-from systemstudio.util import pps
+from openprovision.util import difftest
+from openprovision.util import pps
 
-from systemstudio.util.depsolver import Depsolver
+from openprovision.util.depsolver import Depsolver
 
-from systemstudio.callback import PkglistCallback, TimerCallback
-from systemstudio.sslogging  import L1
+from openprovision.callback import PkglistCallback, TimerCallback
+from openprovision.sslogging  import L1
 
 YUMCONF_HEADER = [
   '[main]',

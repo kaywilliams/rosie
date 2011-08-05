@@ -20,7 +20,7 @@ import shutil
 
 from error import error_transform
 
-from systemstudio.util.pps.Path import Path_IO
+from openprovision.util.pps.Path import Path_IO
 
 class LocalPath_IO(Path_IO):
 

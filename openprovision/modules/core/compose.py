@@ -16,10 +16,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from systemstudio.util.pps.constants import TYPE_NOT_DIR
+from openprovision.util.pps.constants import TYPE_NOT_DIR
 
-from systemstudio.event   import Event
-from systemstudio.sslogging import L1
+from openprovision.event   import Event
+from openprovision.sslogging import L1
 
 MODULE_INFO = dict(
   api         = 5.0,

@@ -48,7 +48,7 @@ def raw_throttle(throttle=None, bandwidth=None):
 # argument values, if present.
 CACHE = {}
 
-from systemstudio.util.decorator import decorator
+from openprovision.util.decorator import decorator
 
 def cached(name=None, set=False, globally=False):
   """ 

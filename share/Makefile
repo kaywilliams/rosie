@@ -1,4 +1,4 @@
-SUBDIRS = systemstudio
+SUBDIRS = openprovision
 
 .PHONY: all clean install
 

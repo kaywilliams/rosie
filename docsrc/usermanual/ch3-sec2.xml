@@ -26,7 +26,7 @@
   as described in the previous chapter, you need to create a system distribution
   distribution definition 
   (<filename class="extension">samba-server.definition</filename>). Then
-  you run <command>systemstudio</command> to validate the file, retrieve
+  you run <command>openprovision</command> to validate the file, retrieve
   the packages and build the system distribution. From there you prepare the boot
   media.</para>
 

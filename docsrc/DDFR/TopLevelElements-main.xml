@@ -110,7 +110,7 @@
       The unique id for the system distribution. Used as the directory name
       for the system distribution in the SystemStudio publish and cache folders
       (by default <emphasis>/var/www/html/distributions/</emphasis> and 
-      <emphasis>/var/cache/systemstudio</emphasis>, respectively).
+      <emphasis>/var/cache/openprovision</emphasis>, respectively).
       </para>
 
       <para>
@@ -135,7 +135,7 @@
       </para>
 
       <para>
-      The default value is <filename>/var/log/systemstudio.log</filename>.
+      The default value is <filename>/var/log/openprovision.log</filename>.
       </para>
       </listitem>
     </varlistentry>
@@ -200,7 +200,7 @@
   &lt;arch&gt;i386&lt;/arch&gt;
   &lt;fullname&gt;CentOS Samba Server&lt;/fullname&gt;
   &lt;bug-url&gt;http://www.example.com/bugs&lt;/bug-url&gt;
-  &lt;log-file&gt;/home/systemstudiouser/SPIN/eg_CentOS5_main.log&lt;/log-file&gt;
+  &lt;log-file&gt;/home/openprovisionuser/SPIN/eg_CentOS5_main.log&lt;/log-file&gt;
 &lt;/main&gt;
     </programlisting>
     </informalexample>

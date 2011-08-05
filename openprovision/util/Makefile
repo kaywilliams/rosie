@@ -10,7 +10,7 @@ install:
                      -name seqlib.py -o \
                      -name textfmt.py -o \
                      -wholename "*pps/test*" \)| \
-        cpio -pdvm $(DESTDIR)/$(PYTHONLIBDIR)/systemstudio/util
+        cpio -pdvm $(DESTDIR)/$(PYTHONLIBDIR)/openprovision/util
 
 clean:
 	find ./ -name "*.pyo" -o -name "*.pyc" -type f -print0 | \

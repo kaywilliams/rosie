@@ -16,15 +16,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from systemstudio.util.pps          import register_scheme
-from systemstudio.util.pps.lib.http import auth_handler
+from openprovision.util.pps          import register_scheme
+from openprovision.util.pps.lib.http import auth_handler
 
 from path_io   import HttpPath_IO
 from path_stat import HttpPath_Stat
 from path_walk import HttpPath_Walk
 
-from systemstudio.util.pps.Path.remote import _RemotePath as RemotePath
-from systemstudio.util.pps.Path.remote import RemotePath_Printf as HttpPath_Printf
+from openprovision.util.pps.Path.remote import _RemotePath as RemotePath
+from openprovision.util.pps.Path.remote import RemotePath_Printf as HttpPath_Printf
 
 class HttpPath(HttpPath_IO, HttpPath_Printf, HttpPath_Stat,
                HttpPath_Walk, RemotePath):

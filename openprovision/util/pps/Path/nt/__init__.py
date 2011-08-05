@@ -20,12 +20,12 @@ import ntpath
 
 from path_printf import NTPath_Printf
 
-from systemstudio.util.pps.util import urlunparse
+from openprovision.util.pps.util import urlunparse
 
-from systemstudio.util.pps.Path.local import _LocalPath     as LocalPath
-from systemstudio.util.pps.Path.local import LocalPath_IO   as NTPath_IO
-from systemstudio.util.pps.Path.local import LocalPath_Stat as NTPath_Stat
-from systemstudio.util.pps.Path.local import LocalPath_Walk as NTPath_Walk
+from openprovision.util.pps.Path.local import _LocalPath     as LocalPath
+from openprovision.util.pps.Path.local import LocalPath_IO   as NTPath_IO
+from openprovision.util.pps.Path.local import LocalPath_Stat as NTPath_Stat
+from openprovision.util.pps.Path.local import LocalPath_Walk as NTPath_Walk
 
 class NTPath(NTPath_IO, NTPath_Printf, NTPath_Stat,
              NTPath_Walk, LocalPath):
