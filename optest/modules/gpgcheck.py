@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ from openprovision.util import rxml
 from optest import EventTestCase, ModuleTestSuite, _run_make
 from optest.core import make_core_suite
 
-from openprovision.errors import SystemStudioError
+from openprovision.errors import OpenProvisionError
 from openprovision.util.pps.constants import TYPE_NOT_DIR
 
 class GpgcheckEventTestCase(EventTestCase):
@@ -36,7 +36,7 @@ class GpgcheckEventTestCase(EventTestCase):
                                            version=self.version,
                                            arch=self.arch,
                                            include_baseurl=True,
-                                           baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+                                           baseurl='http://www.openprovision.com/mirrors/%s' % self.distro)
     base.update({'mirrorlist': None})
 
     repos.append(base.toxml()) 
@@ -68,7 +68,7 @@ class Test_FailsOnUnsignedPackages(GpgcheckEventTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(SystemStudioError, self.event)
+    self.failUnlessRaises(OpenProvisionError, self.event)
 
 class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
   "fails if no keys defined"
@@ -81,7 +81,7 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
     repos = rxml.config.Element('repos')
     base = repo.getDefaultRepoById('base', distro=self.distro,
            version=self.version, arch=self.arch, include_baseurl=True,
-           baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+           baseurl='http://www.openprovision.com/mirrors/%s' % self.distro)
     # set gpgkeys to none
     base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'yes'})
     repos.append(base.toxml())
@@ -89,7 +89,7 @@ class Test_FailsIfKeyNotProvided(GpgcheckEventTestCase):
 
   def runTest(self):
     self.execute_predecessors(self.event)
-    self.failUnlessRaises(SystemStudioError, self.event)
+    self.failUnlessRaises(OpenProvisionError, self.event)
 
 
 def make_suite(distro, version, arch):

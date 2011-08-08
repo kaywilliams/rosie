@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ from rpmUtils.arch import getArchList
 
 from openprovision.util.repo import RPM_PNVRA_REGEX
 
-from openprovision.errors    import SystemStudioError
+from openprovision.errors    import OpenProvisionError
 from openprovision.event     import Event
 from openprovision.sslogging   import L1, L2
 
@@ -98,5 +98,5 @@ class DownloadEvent(Event):
       self.mdfile.rename(debugdir / self.mdfile.basename)
 
 
-class RpmsNotFoundError(SystemStudioError):
+class RpmsNotFoundError(OpenProvisionError):
   message = "The following RPMs were not found in any input repos:\n%(rpms)s"

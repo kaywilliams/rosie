@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

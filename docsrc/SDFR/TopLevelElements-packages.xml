@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="packages" xreflabel="packages">
+  <title>
+  Packages
+  </title>
+
+  <section id="packages-definition">
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Specifies the packages to be included in the system repository.
+    </para>
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+      <para>
+      At least one <emphasis>packages/group</emphasis> or
+      <emphasis>packages/package</emphasis> element is required.
+      </para>
+
+      <programlisting>
+&lt;packages&gt;
+
+  &lt;!-- must have at least one &lt;group&gt; or &lt;package&gt; element --&gt;
+  [&lt;group [repoid=TEXT]&gt;TEXT&lt;/group&gt;]*
+  [&lt;package&gt;PACKAGE&lt;/package&gt;]*
+
+  [&lt;exclude&gt;PACKAGE&lt;/exclude&gt;]*
+&lt;/packages&gt;
+      </programlisting>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry id="packages-exclude"
+                  xreflabel="packages/exclude">
+      <term>
+      exclude
+      </term>
+
+      <listitem>
+      <para>
+      The name of a package to be excluded from the system repository. 
+      </para>
+
+      <para>
+      This element can occur zero or more times.
+      </para>
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="packages-group"
+                  xreflabel="packages/group">
+      <term>
+      group
+      </term>
+
+      <listitem>
+      <para>The unique ID of a group to include in the system repository
+      using one or more of the repository groupfiles indicated by the
+      <emphasis>@repoid</emphasis> attributes as a source.
+      </para>
+
+      <para>
+      This element can occur zero or more times. However, the
+      <emphasis role="strong">packages</emphasis> top-level element must
+      have at least one <emphasis>packages/group</emphasis> or
+      <emphasis>packages/package</emphasis> element.
+      </para>
+
+      <para>
+      This element accepts one attribute:
+      <emphasis>@repoid</emphasis>.
+      </para>
+
+      <para>
+      <emphasis>@repoid</emphasis>: The id of the repository from which
+      to obtain group data.  This id corresponds to a <emphasis>repoid</emphasis>
+      defined in a <emphasis role="strong">repo</emphasis> element. If not specified,
+      <application class="software">OpenProvision</application> merges all matching
+      groups from all repo groupfiles.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="packages-package"
+                  xreflabel="packages/package">
+      <term>
+      package
+      </term>
+
+      <listitem>
+      <para>
+      The name of a package to be included in the system repository. All packages
+      included in this way are added to a new group with the name
+      <constant>$NAME-packages</constant>. If the <varname>TEXT</varname>
+      value contains globbing characters, all matching packages from all
+      repositories will be included.
+      </para>
+
+      <para>
+      This element can occur zero or more times. However, the
+      <emphasis role="strong">packages</emphasis> top-level element must
+      have at least one <emphasis>packages/group</emphasis> or
+      <emphasis>packages/package</emphasis> element.
+      </para>
+
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <para>
+    In the following example, the system repository's <varname>$NAME</varname> is
+    "example". The system repository that OpenProvision generates will include
+    several groups from the groupfiles of its input repositories as well as
+    a few individual packages. The "base" and "core" groups  will be created
+    using the "centos-base" repository as the source; all remaining groups
+    will merge the contents of all repositories' groupfiles. Additionally,
+    the "httpd" and "createrepo" packages, as well as all packages matching
+    the glob "samba*", will be added to a new group called
+    "example-packages". Finally, the "system-config-soundcard" package will
+    be excluded from the system repository.
+    </para>
+
+    <informalexample>
+    <programlisting>
+&lt;packages&gt;
+  &lt;!-- only look at the groupfiles in "centos-base" for these groups --&gt;
+  &lt;group id="centos-base"&gt;core&lt;/group&gt;
+  &lt;group id="centos-base"&gt;base&lt;/group&gt;
+
+  &lt;!-- use all available groupfiles for these groups --&gt;
+  &lt;group&gt;base-x&lt;/group&gt;
+  &lt;group&gt;gnome-desktop&lt;/group&gt;
+  &lt;group&gt;smb-server&lt;/group&gt;
+  &lt;group&gt;admin-tools&lt;/group&gt;
+  &lt;group&gt;web-server&lt;/group&gt;
+
+  &lt;!-- include these package in "$NAME-packages" group --&gt;
+  &lt;package&gt;httpd&lt;/package&gt;
+  &lt;package&gt;samba*&lt;/package&gt;
+  &lt;package&gt;createrepo&lt;/package&gt;
+
+  &lt;!-- prevent system-config-soundcard from being included in the 
+  system repository --&gt;
+  &lt;exclude&gt;system-config-soundcard&lt;/exclude&gt;
+&lt;/packages&gt;  
+    </programlisting>
+    </informalexample>
+  </section>
+
+  <section>
+    <title>
+    See Also
+    </title>
+
+    <para>
+    <varname><xref linkend="content-boolean" /></varname>,
+    <varname><xref linkend="content-package" /></varname>,
+    <varname><xref linkend="content-text" /></varname>,
+    <emphasis><xref linkend="repos" /></emphasis>
+    </para>
+  </section>
+</section>

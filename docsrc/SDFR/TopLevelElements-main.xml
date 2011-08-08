@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="main" xreflabel="main">
+  <title>
+  Main
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>Contains basic information about the system repository.</para>
+
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+&lt;main&gt;
+  &lt;arch&gt;("i386"|"x86_64")&lt;/arch&gt;
+  &lt;name&gt;TEXT&lt;/name&gt;
+  &lt;version&gt;TEXT&lt;/version&gt;
+ [&lt;bug-url&gt;TEXT&lt;/bug-url&gt;]
+ [&lt;fullname&gt;TEXT&lt;/fullname&gt;]
+ [&lt;id&gt;TEXT&lt;/id&gt;]
+ [&lt;log-file&gt;PATH&lt;/log-file&gt;]
+&lt;/main&gt;
+    </programlisting>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry id="main-arch"
+                  xreflabel="main/arch">
+      <term>
+      arch
+      </term>
+
+      <listitem>
+      <para>
+      The microprocessor architecture label for the target client
+      machines. Used to resolve $releasever variables used in repository
+      definitions. See the <emphasis>repos</emphasis> element for more
+      information. Accepts either "i386" or "x86_64".</para>
+
+      <para>
+      Throughout this document, the text value of this element is
+      referred to by <varname>$ARCH</varname>.
+      </para>
+
+      <para>
+      This element is required.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+      bug-url
+      </term>
+
+      <listitem>
+      <para>
+      <varname>TEXT</varname> specifying a way for client system
+      users to report system installation bugs. Displays when bugs are
+      encountered during during client machine installation.
+      </para>
+
+      <para>
+      The default value is "No bug url provided".
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="main-fullname"
+                  xreflabel="main/fullname">
+      <term>
+      fullname
+      </term>
+
+      <listitem>
+      <para>
+      A human-friendly name for the system repository. Displays during client machine
+      installation.
+      </para>
+
+      <para>
+      The default value is <varname>$NAME</varname>.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="main-id"
+                  xreflabel="main/id">
+      <term>
+      id
+      </term>
+
+      <listitem>
+      <para>
+      The unique id for the system repository. Used as the directory name
+      for the system repository in the OpenProvision publish and cache folders
+      (by default <emphasis>/var/www/html/system_repos/</emphasis> and 
+      <emphasis>/var/cache/openprovision</emphasis>, respectively).
+      </para>
+
+      <para>
+      The default value is <varname>$NAME-$VERSION-$ARCH</varname>.
+      </para>
+
+      <para>
+      Throughout this document, the text value of this element is referred
+      to by <varname>$ID</varname>.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+      log-file
+      </term>
+
+      <listitem>
+      <para>
+      The <varname>PATH</varname> to the system repository’s build log file.
+      </para>
+
+      <para>
+      The default value is <filename>/var/log/openprovision.log</filename>.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="main-name"
+                  xreflabel="main/name">
+      <term>
+      name
+      </term>
+
+      <listitem>
+      <para>
+      The name of the system repository.
+      </para>
+
+      <para>
+      Throughout this document, the text value of this element is referred
+      to by <varname>$NAME</varname>.
+      </para>
+
+      <para>
+      This element is required.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="main-version"
+                  xreflabel="main/version">
+      <term>
+      version
+      </term>
+
+      <listitem>
+      <para>
+      The version of the target system repository. Displays during client 
+      machine installation.
+      </para>
+
+      <para>
+      Throughout this document, the text value of this element is referred
+      to by <varname>$VERSION</varname>.
+      </para>
+
+      <para>
+      This element is required.
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
+  </section>
+
+  <section>
+    <title>
+    Examples
+    </title>
+
+    <informalexample>
+    <programlisting>
+&lt;main&gt;
+  &lt;name&gt;samba-server&lt;/name&gt;
+  &lt;version&gt;5&lt;/version&gt;
+  &lt;arch&gt;i386&lt;/arch&gt;
+  &lt;fullname&gt;CentOS Samba Server&lt;/fullname&gt;
+  &lt;bug-url&gt;http://www.example.com/bugs&lt;/bug-url&gt;
+  &lt;log-file&gt;/home/openprovisionuser/SPIN/eg_CentOS5_main.log&lt;/log-file&gt;
+&lt;/main&gt;
+    </programlisting>
+    </informalexample>
+  </section>
+
+  <section>
+    <title>
+    See Also
+    </title>
+
+    <para>
+    <varname><xref linkend="variable-system-id" /></varname>,
+    <varname><xref linkend="variable-arch" /></varname>,
+    <varname><xref linkend="variable-name" /></varname>,
+    <varname><xref linkend="variable-version" /></varname>,
+    <varname><xref linkend="content-dirname" /></varname>,
+    <varname><xref linkend="content-path" /></varname>,
+    <varname><xref linkend="content-text" /></varname>
+    </para>
+  </section>
+</section>

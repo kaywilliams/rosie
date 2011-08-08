@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 Python module that can be used to read, write, build and modify RPMs.
 """
 
-__author__ = 'Uday Prakash <uprakash@renditionsoftware.com>'
+__author__ = 'Uday Prakash <uprakash@openprovision.com>'
 __date__   = 'September 11, 2007'
 
 from rpmsign  import *

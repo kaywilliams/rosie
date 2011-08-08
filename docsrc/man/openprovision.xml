@@ -3,7 +3,7 @@
                          "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 
 <!-- See http://www.docbook.org/tdg/en/html/refentry.html for more documentation -->
-<!--SystemStudio Command reference -->
+<!--OpenProvision Command reference -->
 
 <refentry id="command.openprovision">
 <refentryinfo>
@@ -11,14 +11,14 @@
 </refentryinfo>
 
 <refmeta>
-<refentrytitle>SystemStudio Commands</refentrytitle>
+<refentrytitle>OpenProvision Commands</refentrytitle>
 <manvolnum>1</manvolnum>
-<refmiscinfo>SystemStudio</refmiscinfo>
+<refmiscinfo>OpenProvision</refmiscinfo>
 </refmeta>
 
 <refnamediv>
 <refname>openprovision</refname>
-<refpurpose>Builds and updates Linux-based system distributions.</refpurpose>
+<refpurpose>Builds and updates Linux-based system repositories.</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -61,18 +61,18 @@
 <arg choice="opt">
 <option>--skip <replaceable class="parameter">MODULE</replaceable></option>
 </arg>
-<filename> SOLUTION_DEFINITION</filename>
+<filename> SYSTEM_DEFINITION</filename>
 
 </cmdsynopsis>
 </refsynopsisdiv>
 
 <refsect1 id="openprovision.1-description"><title>DESCRIPTION</title>
-<para>Builds the system distribution defined in the file at SOLUTION_DEFINITION. Updates the system distribution if it exists.</para>
+<para>Builds the system repository defined in the file at SYSTEM_DEFINITION. Updates the system repository if it exists.</para>
 </refsect1>
 
 <refsect1 id="openprovision.1-usage"><title>USAGE</title>
-<para><command>openprovision</command> [OPTIONS] SOLUTION_DEFINITION</para>
-<para>OPTIONS refers to the command-line options described below.  SOLUTION_DEFINITION refers to a distribution definition file, see the Distribution Definition File Reference at <ulink url="http://www.renditionsoftware.com/openprovision/docs"/> for more information.</para>
+<para><command>openprovision</command> [OPTIONS] SYSTEM_DEFINITION</para>
+<para>OPTIONS refers to the command-line options described below.  SYSTEM_DEFINITION refers to a system definition file, see the System Definition File Reference at <ulink url="http://www.openprovision.com/openprovision/docs"/> for more information.</para>
 </refsect1>
 
 
@@ -81,9 +81,9 @@
 <variablelist>
 
 <varlistentry>
-  <term><option>-c; --config <replaceable class="parameter">SOLUTIONSTUDIO_CONF</replaceable></option></term>
+  <term><option>-c; --config <replaceable class="parameter">OPENPROVISION_CONF</replaceable></option></term>
   <listitem>
-    <para> Specifies the directory and filename <replaceable class="parameter">SOLUTIONSTUDIO_CONF</replaceable> of the openprovision configuration file.  The default value is <filename class="directory">/etc/openprovision/openprovision.conf</filename>.  See the <filename>openprovision.conf(5)</filename> man page for SystemStudio configuration options.</para>
+    <para> Specifies the directory and filename <replaceable class="parameter">OPENPROVISION_CONF</replaceable> of the openprovision configuration file.  The default value is <filename class="directory">/etc/openprovision/openprovision.conf</filename>.  See the <filename>openprovision.conf(5)</filename> man page for OpenProvision configuration options.</para>
 
   </listitem>
 </varlistentry>
@@ -98,7 +98,7 @@
 <varlistentry>
   <term><option>--force <replaceable class="parameter">MODULE</replaceable></option></term>
   <listitem>
-	<para>Forces a SystemStudio <replaceable class="parameter">MODULE</replaceable> to execute, even if the module would ordinarily be skipped for optimizations in speed. Forcing a module forces its children recursively. This option can be specified more than once, as in the example below:</para>
+	<para>Forces a OpenProvision <replaceable class="parameter">MODULE</replaceable> to execute, even if the module would ordinarily be skipped for optimizations in speed. Forcing a module forces its children recursively. This option can be specified more than once, as in the example below:</para>
 
 <para>--force <replaceable class="parameter">MODULE1</replaceable> --force <replaceable class="parameter">MODULE2</replaceable> --force <replaceable class="parameter">MODULE3</replaceable></para>
 <para>See the MODULES section below for more information.</para>
@@ -108,7 +108,7 @@
 <varlistentry>
   <term><option>--lib-path <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para> Specifies a directory containing SystemStudio modules <replaceable class="parameter">PATH</replaceable>.  The default path is the system path.  This option can be specified more than once; for example:</para>
+    <para> Specifies a directory containing OpenProvision modules <replaceable class="parameter">PATH</replaceable>.  The default path is the system path.  This option can be specified more than once; for example:</para>
 <para>--lib-path <replaceable class="parameter">PATH1</replaceable> --lib-path <replaceable class="parameter">PATH2</replaceable> --lib-path <replaceable class="parameter">PATH3</replaceable></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
@@ -117,8 +117,8 @@
 <varlistentry>
   <term><option>--list-modules</option></term>
   <listitem>
-    <para> Displays a list of SystemStudio modules including name, description, and child modules, then exits without building the system distribution. Note: SystemStudio requires a distribution definition on the command line when using this option, for example:</para>
-<para>openprovision --list-modules <filename>SOLUTION_DEFINITION</filename></para>
+    <para> Displays a list of OpenProvision modules including name, description, and child modules, then exits without building the system repository. Note: OpenProvision requires a system definition on the command line when using this option, for example:</para>
+<para>openprovision --list-modules <filename>SYSTEM_DEFINITION</filename></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
 </varlistentry>
@@ -126,7 +126,7 @@
 <varlistentry>
   <term><option>--log-file <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which SystemStudio writes logging information of Level 5 detail.  The default path is <filename>/var/log/openprovision.log</filename>.  See the command option <command>--log-level</command>.</para>
+    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which OpenProvision writes logging information of Level 5 detail.  The default path is <filename>/var/log/openprovision.log</filename>.  See the command option <command>--log-level</command>.</para>
 <para>--log-file <replaceable class="parameter">PATH</replaceable></para>
   </listitem>
 </varlistentry>
@@ -134,7 +134,7 @@
 <varlistentry>
   <term><option>-l; --log-level <replaceable class="parameter">N</replaceable></option></term>
   <listitem>
-    <para> Specifies the level of detail logged to the console during a build.  There are six levels <replaceable class="parameter">N</replaceable> (0 to 5) with Level 3 being SystemStudio's default level.</para>
+    <para> Specifies the level of detail logged to the console during a build.  There are six levels <replaceable class="parameter">N</replaceable> (0 to 5) with Level 3 being OpenProvision's default level.</para>
 <para>LEVELS
 <programlisting>
 * Level 0: Displays errors only.
@@ -153,14 +153,14 @@
 <varlistentry>
   <term><option>--no-validate</option></term>
   <listitem>
-    <para>Disables validation of SOLUTIONSTUDIO_CONF and SOLUTION_DEFINITION during the build process.</para>
+    <para>Disables validation of OPENPROVISION_CONF and SYSTEM_DEFINITION during the build process.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term><option>--share-path <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para> Specifies a directory <replaceable class="parameter">PATH</replaceable> where SystemStudio can locate shared program data such as XML schema files.  The default path is <filename>/usr/share/openprovision/</filename>. This option can be specified more than once, as demonstrated below:</para>
+    <para> Specifies a directory <replaceable class="parameter">PATH</replaceable> where OpenProvision can locate shared program data such as XML schema files.  The default path is <filename>/usr/share/openprovision/</filename>. This option can be specified more than once, as demonstrated below:</para>
 
 <para>--share-path <replaceable class="parameter">PATH1</replaceable> --share-path <replaceable class="parameter">PATH2</replaceable> --share-path <replaceable class="parameter">PATH3</replaceable></para>
   </listitem>
@@ -178,7 +178,7 @@
 <varlistentry>
   <term><option>--validate-only</option></term>
   <listitem>
-<para>Performs SOLUTIONSTUDIO_CONF and SOLUTION_DEFINITION validation only; it does not build the system distribution.  The option also displays the complete SOLUTION_DEFINITION file after resolving macro and include elements.</para>
+<para>Performs OPENPROVISION_CONF and SYSTEM_DEFINITION validation only; it does not build the system repository.  The option also displays the complete SYSTEM_DEFINITION file after resolving macro and include elements.</para>
   </listitem>
 </varlistentry>
 
@@ -186,41 +186,41 @@
 </refsect1>
 
 <refsect1 id="openprovision.1-variables"><title>VARIABLES</title>
-<para>SystemStudio command options, where indicated, use three variables:  MODULE, PATH and SOLUTIONSTUDIO_CONF.</para>
+<para>OpenProvision command options, where indicated, use three variables:  MODULE, PATH and OPENPROVISION_CONF.</para>
 
 <variablelist>
 <varlistentry>
   <term>MODULE</term>
   <listitem>
-	<para>The id of a SystemStudio module.  See the MODULES section, below, for more information.</para>
+	<para>The id of a OpenProvision module.  See the MODULES section, below, for more information.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term>PATH</term>
   <listitem>
-    <para> A local file path.  SystemStudio resolves paths relative to the current working directory.</para>
+    <para> A local file path.  OpenProvision resolves paths relative to the current working directory.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
-  <term>SOLUTIONSTUDIO_CONF</term>
+  <term>OPENPROVISION_CONF</term>
   <listitem>
-    <para>The directory and filename of the SystemStudio configuration file.</para>
+    <para>The directory and filename of the OpenProvision configuration file.</para>
   </listitem>
 </varlistentry>
 </variablelist>
 </refsect1>
 
 <refsect1 id="openprovision.1-modules"><title>MODULES</title>
-<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the openprovision command. Note: SystemStudio requires a distribution definition on the command line when using this option, for example:</para>
-<para>openprovision --list-modules <filename>SOLUTION_DEFINITION</filename></para>
-<para>On subsequent builds of the same system distribution, SystemStudio automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using the <command>--skip</command> and <command>--force</command> options.</para>
-<para>Developers can write custom SystemStudio modules and direct SystemStudio to use them via the <command>--lib-path</command> openprovision command option.</para>
+<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the openprovision command. Note: OpenProvision requires a system definition on the command line when using this option, for example:</para>
+<para>openprovision --list-modules <filename>SYSTEM_DEFINITION</filename></para>
+<para>On subsequent builds of the same system repository, OpenProvision automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using the <command>--skip</command> and <command>--force</command> options.</para>
+<para>Developers can write custom OpenProvision modules and direct OpenProvision to use them via the <command>--lib-path</command> openprovision command option.</para>
 </refsect1>
 
 <refsect1 id="openprovision.1-bugs"><title>BUGS</title>
-<para>Submit bugs at <ulink url="http://www.renditionsoftware.com/bugs"/></para>
+<para>Submit bugs at <ulink url="http://www.openprovision.com/bugs"/></para>
 </refsect1>
 
 <refsect1 id="openprovision.1-files"><title>FILES</title>
@@ -236,13 +236,13 @@
 <refsect1 id="openprovision.1-see_also"><title>SEE ALSO</title>
 <para><simplelist type="inline">
 <member>openprovision.conf(5)</member>
-<member><ulink url="http://www.renditionsoftware.com/openprovision"/></member>
+<member><ulink url="http://www.openprovision.com/openprovision"/></member>
 
 </simplelist></para>
 </refsect1>
 
 <refsect1 id="openprovision.1-author"><title>AUTHOR</title>
-<para><author><othername>Rendition Software, Inc.</othername>
+<para><author><othername>OpenProvision, Inc.</othername>
 <contrib>Original author</contrib>
 </author></para>
 </refsect1>

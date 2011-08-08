@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -237,7 +237,7 @@ class IDepsolver(Depsolver):
       if po not in satisfiers:
         satisfiers.add(po)
 
-    # Minimize packages in the system distribution by giving preference to 
+    # Minimize packages in the system repository by giving preference to 
     # satisfiers listed as comps packages
     comps_satisfiers = [ po for po in satisfiers \
                          if po in self.comps_pkgs ]

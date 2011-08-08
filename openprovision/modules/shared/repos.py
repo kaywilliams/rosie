@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ from openprovision.util.difftest.filesdiff import DiffTuple
 
 from openprovision.util.pps.constants import TYPE_DIR
 
-from openprovision.errors    import (SystemStudioError, SystemStudioIOError, RhnSupportError,
+from openprovision.errors    import (OpenProvisionError, OpenProvisionIOError, RhnSupportError,
                             assert_file_readable, assert_file_has_content)
 from openprovision.sslogging   import L1, L2
 from openprovision.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
@@ -41,15 +41,15 @@ from openprovision.util.repo          import ReposFromXml, ReposFromFile, getDef
 from openprovision.util.repo.repo     import YumRepo, RepoContainer, NSMAP
 from openprovision.util.repo.defaults import TYPE_ALL
 
-__all__ = ['RepoEventMixin', 'SystemStudioRepo', 'SystemStudioRepoGroup',
-           'SystemStudioRepoFileParseError']
+__all__ = ['RepoEventMixin', 'OpenProvisionRepo', 'OpenProvisionRepoGroup',
+           'OpenProvisionRepoFileParseError']
 
 # list of folders that don't contain repodata folders for sure
 NOT_REPO_GLOB = ['images', 'isolinux', 'repodata', 'repoview',
                  'stylesheet-images']
 
-class SystemStudioRepo(YumRepo):
-  keyfilter = ['id', 'distributionid']
+class OpenProvisionRepo(YumRepo):
+  keyfilter = ['id', 'systemid']
   treeinfofile = pps.path('.treeinfo')
 
   def __init__(self, **kwargs):
@@ -106,7 +106,7 @@ class SystemStudioRepo(YumRepo):
       p = YumRepo._xform_uri(self, p)
     return p
 
-class RhnSystemStudioRepo(SystemStudioRepo):
+class RhnOpenProvisionRepo(OpenProvisionRepo):
   # redhat's RHN repos are very annoying in that they have inconsitent
   # metadata at times.  This class aims to account for this instability
 
@@ -116,7 +116,7 @@ class RhnSystemStudioRepo(SystemStudioRepo):
   def read_repomd(self):
     i = 0; consistent = False
     while i < self.MAX_TRIES:
-      SystemStudioRepo.read_repomd(self)
+      OpenProvisionRepo.read_repomd(self)
       if self.EMPTY_FILE_CSUM not in \
         self.repomd.xpath('//repo:data/repo:checksum/text()',
                           namespaces=NSMAP):
@@ -126,9 +126,9 @@ class RhnSystemStudioRepo(SystemStudioRepo):
       raise InconsistentRepodataError(self.id, self.MAX_TRIES)
 
 
-class SystemStudioRepoGroup(SystemStudioRepo):
+class OpenProvisionRepoGroup(OpenProvisionRepo):
   def __init__(self, **kwargs):
-    SystemStudioRepo.__init__(self, **kwargs)
+    OpenProvisionRepo.__init__(self, **kwargs)
 
     self._repos = None
     self.has_installer_files = False
@@ -144,10 +144,10 @@ class SystemStudioRepoGroup(SystemStudioRepo):
       raise MirrorlistFormatInvalidError(self.id, e.lineno, e.line, e.reason)
 
     # need special handling for rhn paths
-    cls = SystemStudioRepo
+    cls = OpenProvisionRepo
     try:
       if isinstance(self.url.realm, pps.Path.rhn.RhnPath):
-        cls = RhnSystemStudioRepo
+        cls = RhnOpenProvisionRepo
     except AttributeError:
       if ( self.url.realm.scheme == 'rhn' or
            self.url.realm.scheme == 'rhns' ):
@@ -394,40 +394,40 @@ class ReposDiffTuple(DiffTuple):
       self.csum = self.path.checksum()
 
 
-class NoReposEnabledError(SystemStudioError, RuntimeError):
+class NoReposEnabledError(OpenProvisionError, RuntimeError):
   message = "No enabled repos in '%(modid)s' module"
 
-class RepodataNotFoundError(SystemStudioError, RuntimeError):
+class RepodataNotFoundError(OpenProvisionError, RuntimeError):
   message = "Unable to find repodata folder for repo '%(repoid)s' at '%(url)s'"
 
-class InconsistentRepodataError(SystemStudioError, RuntimeError):
+class InconsistentRepodataError(OpenProvisionError, RuntimeError):
   message = ( "Unable to obtain consistent value for one or more checksums "
               " in repo '%(repoid)s' after %(ntries)d tries" )
 
-class SystemidIOError(SystemStudioIOError):
+class SystemidIOError(OpenProvisionIOError):
   message = ( "Unable to read systemid file '%(file)s' for repo "
               "'%(repoid)s': [errno %(errno)d] %(message)s" )
 
-class SystemidUndefinedError(SystemStudioError, InvalidConfigError):
+class SystemidUndefinedError(OpenProvisionError, InvalidConfigError):
   message = "No <systemid> element defined for repo '%(repoid)s'"
 
-class SystemidInvalidError(SystemStudioError):
+class SystemidInvalidError(OpenProvisionError):
   message = ( "Systemid file '%(file)s' for repo '%(repo)s' is invalid: "
               "%(message)s" )
 
-class PkgsfileIOError(SystemStudioIOError):
+class PkgsfileIOError(OpenProvisionIOError):
   message = ( "Unable to compute package version for %(names)s with pkgsfile "
               "'%(file)s': [errno %(errno)d] %(message)s" )
 
-class SystemStudioRepoFileParseError(SystemStudioError):
+class OpenProvisionRepoFileParseError(OpenProvisionError):
   message = "Error parsing repo file: %(message)s"
 
-class RepomdCsumMismatchError(SystemStudioError):
+class RepomdCsumMismatchError(OpenProvisionError):
   message = ( "Checksum of file '%(file)s' doesn't match repomd.xml for "
               "repo '%(repoid)s':\n"
               "  Got:      %(got)s\n"
               "  Expected: %(expected)s" )
 
-class MirrorlistFormatInvalidError(SystemStudioError):
+class MirrorlistFormatInvalidError(OpenProvisionError):
   message = ( "Mirrorlist format invalid for repo '%(repo)s' on line "
               "%(lineno)d: '%(line)s': %(reason)s" )

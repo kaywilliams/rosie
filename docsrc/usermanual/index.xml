@@ -3,11 +3,11 @@
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <book>
   <bookinfo>
-    <title>SystemStudio User Manual</title>
+    <title>OpenProvision User Manual</title>
 
     <author>
       <affiliation>
-        <orgname>Rendition Software, Inc.</orgname>
+        <orgname>OpenProvision, Inc.</orgname>
       </affiliation>
     </author>
 
@@ -16,7 +16,7 @@
     <copyright>
       <year>2010 </year>
 
-      <holder>Rendition Software, Inc. </holder>
+      <holder>OpenProvision, Inc. </holder>
     </copyright>
 
     <legalnotice>

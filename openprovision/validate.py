@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ from openprovision.sslogging import L0, L1
 
 NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
 
-class SystemStudioValidationHandler:
+class OpenProvisionValidationHandler:
   def validate_configs(self):
     try:
       self._validate_configs()
@@ -61,9 +61,9 @@ class SystemStudioValidationHandler:
                             self.mainconfig)
     v.validate('/openprovision', schema_file='openprovision.rng')
 
-    # validate individual sections of the system distribution_file
+    # validate individual sections of the system definition
     self.logger.log(4, L0("Validating '%s'" % pps.path(self.definition.file)))
-    v = AppConfigValidator([ x/'schemas/distribution' for x in self.sharedirs ],
+    v = AppConfigValidator([ x/'schemas/system' for x in self.sharedirs ],
                            self.definition)
 
     # validate all top-level sections
@@ -196,7 +196,7 @@ class BaseConfigValidator:
     return schema
 
   def check_required(self, schema, tag):
-    app_defn = schema.get('//rng:element[@name="distribution"]', namespaces=NSMAP)
+    app_defn = schema.get('//rng:element[@name="system"]', namespaces=NSMAP)
     if app_defn is not None:
       optional = app_defn.get('rng:optional', namespaces=NSMAP)
       if optional is None:
@@ -214,12 +214,12 @@ class AppConfigValidator(BaseConfigValidator):
 
   def massage_schema(self, schema, tag):
     schema = BaseConfigValidator.massage_schema(self, schema, tag)
-    app_defn = schema.get('//rng:element[@name="distribution"]', namespaces=NSMAP)
+    app_defn = schema.get('//rng:element[@name="system"]', namespaces=NSMAP)
     start_elem  = app_defn.getparent()
     for defn in app_defn.iterchildren():
       start_elem.append(defn)
       defn.parent = start_elem
-    start_elem.remove(start_elem.get('rng:element[@name="distribution"]', namespaces=NSMAP))
+    start_elem.remove(start_elem.get('rng:element[@name="system"]', namespaces=NSMAP))
     for opt_elem in start_elem.xpath('rng:optional', fallback=[], namespaces=NSMAP):
       for child in opt_elem.iterchildren():
         start_elem.append(child)

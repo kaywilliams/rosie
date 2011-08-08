@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="CommonComponents-Content">
+
+  <section id="content-basename"
+           xreflabel="BASENAME">
+    <title>
+    Content: <varname>BASENAME</varname>
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      A valid UNIX filename without any leading directory components;
+      may include any characters except null and "/".
+      </para>
+    </section>
+
+    <section>
+      <title>
+      See Also
+      </title>
+
+      <para>
+      <varname><xref linkend="content-dirname" /></varname>,
+      <xref linkend="path-like-element" />
+      </para>
+    </section>
+  </section>
+
+  <section id="content-boolean"
+           xreflabel="BOOLEAN">
+    <title>
+    Content: <varname>BOOLEAN</varname>
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      A <varname>BOOLEAN</varname> is an element or attribute text value
+      that may be either <constant>TRUE</constant> or
+      <constant>FALSE</constant>. <varname>BOOLEAN</varname> values are
+      case-insensitive.
+      </para>
+    </section>
+
+    <section>
+      <title>
+      Syntax
+      </title>
+
+      <programlisting>
+FALSE: ("no"|"false"|"off"|"0")
+TRUE:  ("yes"|"true"|"on"|"1")
+      </programlisting>
+    </section>
+  </section>
+
+  <section id="content-capability"
+           xreflabel="CAPABILITY">
+    <title>
+    Content: <varname>CAPABILITY</varname>
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      A RPM capability string. Supports mathematical comparison
+      operators (&gt;, &lt;, =, &gt;=, &lt;=). <varname>CAPABILITY</varname>
+      often refers to the name of a package, but may also indicate a
+      file on disk or be some other arbitrary string (referred to as a
+      <emphasis>virtual capability</emphasis>).
+
+      </para>
+    </section>
+
+    <section>
+      <title>
+      Syntax
+      </title>
+
+      <programlisting>
+$identifier [ ( &gt; | &lt; | = | &gt;= | &lt;= ) $version ]
+      </programlisting>
+
+    </section>
+
+    <section>
+      <title>
+      Examples
+      </title>
+
+      <section>
+        <title>
+        Example 1 - Package-based
+        </title>
+
+        <para>
+        The following examples are capabilities based off of package names.
+        </para>
+
+        <informalexample>
+        <programlisting>
+centos-release &lt; 5
+bash &lt;= 2.5.1
+samba
+        </programlisting>
+        </informalexample>
+
+      <note>
+      <para>
+      Be sure when defining capabilities within a system repository file to
+      escape the <constant>&lt;</constant> and <constant>&gt;</constant>
+      characters using <constant>&amp;lt;</constant> and
+      <constant>&amp;gt;</constant>, respectively.
+      </para>
+      </note>
+
+      </section>
+
+      <section>
+        <title>
+        Example 2 - Filename-based
+        </title>
+
+        <para>
+        The following examples are capabilities based off of filenames
+        </para>
+
+        <programlisting>
+/bin/bash
+/usr/bin/python
+/sbin/chkconfig
+        </programlisting>
+
+      </section>
+
+      <section>
+        <title>
+        Example 3 - Arbitrary string-based
+        </title>
+
+        <para>
+        The following examples are virtual capabilities based off of
+        arbitrary strings.
+        </para>
+
+        <informalexample>
+        <programlisting>
+rpm(CompressedFileNames)
+libc.so.6
+config(bash) = 3.2-20.fc9
+        </programlisting>
+        </informalexample>
+      </section>
+
+    </section>
+
+  </section>
+
+  <section id="content-dirname"
+           xreflabel="DIRNAME">
+    <title>
+    Content: <varname>DIRNAME</varname>
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      The directory component of a <varname>PATH</varname> without the
+      filename; may include all characters except null.
+      </para>
+    </section>
+
+    <section>
+      <title>
+      See Also
+      </title>
+
+      <para>
+      <varname><xref linkend="content-basename" /></varname>,
+      <xref linkend="path-like-element" />
+      </para>
+    </section>
+  </section>
+
+  <section id="content-mode"  
+           xreflabel="MODE">
+    <title>
+    Content: <varname>MODE</varname>
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      A numeric mode in octal.
+      </para>
+    </section>
+
+    <section>
+      <title>
+      Syntax
+      </title>
+
+      <para>
+      A mode consists of a string of integers in octal. The preceding
+      "0" character is optional. Modes must define a value for the user,
+      group, and other bits; it may additionally contain special
+      permissions.
+      </para>
+
+    </section>
+
+    <section>
+      <title>
+      Examples
+      </title>
+
+      <para>
+      The following are all examples of valid <varname>MODE</varname>
+      values. Any of these examples may be preceded by the optional octal
+      indicator, "0".
+      </para>
+
+      <programlisting>
+644
+755
+1444
+      </programlisting>
+    </section>
+
+  </section>
+
+  <section id="content-package"
+           xreflabel="PACKAGE">
+    <title>
+    Content: <varname>PACKAGE</varname>
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      A pattern representing a package. The variable supports full glob
+      syntax, e.g. <filename>*-devel</filename>.
+      </para>
+
+    </section>
+
+    <section>
+      <title>
+      Syntax
+      </title>
+
+      <para>
+      Package patterns support a number of possible choices. The full set
+      of choices is listed below. The most common way to refer to a package
+      is simply by its name.
+      </para>
+
+      <programlisting>
+name
+name.arch
+name-ver
+name-ver-rel
+name-ver-rel.arch
+name-epoch:ver-rel.arch
+epoch:name-ver-rel.arch
+      </programlisting>
+    </section>
+
+    <section>
+      <title>
+      Examples
+      </title>
+
+      <informalexample>
+      <programlisting>
+# name=kernel, ver=2.4, rel=10, arch=i686, epoch=0
+kernel
+kernel.i686
+kernel-2.4.1
+kernel-2.4.1-10
+kernel-2.4.1-10.i686
+kernel-0:2.4.1-10.i686
+0:kernel-2.4.1-10.i686
+      </programlisting>
+      </informalexample>
+    </section>
+
+  </section>
+
+  <section id="content-path"
+           xreflabel="PATH">
+    <title>
+    Content: <varname>PATH</varname>
+    </title>
+
+    <section>
+      <title>Definition</title>
+
+      <para>
+      An absolute or relative local or remote path. Relative paths are resolved
+      against the folder location of the system repository definition. Unless 
+      otherwise noted, <varname>PATH</varname> can refer to a file or a folder,
+      and may or may not exist.
+      </para>
+
+      <para>
+      <varname>PATH</varname>s may originate in file, http, or https
+      schemes. Specifying the scheme of file paths is optional; absolute
+      file paths may simply start with a forward slash ("/"). All relative
+      paths are relative to the system repository file unless otherwise specified.
+      </para>
+
+    </section>
+
+    <section>
+      <title>Syntax</title>
+
+      <section>
+        <title>
+        Syntax 1 - local <varname>PATH</varname>s
+        </title>
+
+        <para>
+        Absolute local paths start with a forward slash ("/"). They
+        can be further broken up into <varname>DIRNAME</varname> and
+        <varname>BASENAME</varname> components; <varname>DIRNAME</varname>
+        is the directory component of a <varname>PATH</varname> without the
+        filename, while <varname>BASENAME</varname> is the filename.
+        <varname>PATH</varname>s that contain no leading directory components
+        have an empty <varname>DIRNAME</varname>.
+        </para>
+
+        <programlisting>
+[DIRNAME/]BASENAME
+        </programlisting>
+
+      </section>
+
+      <section>
+        <title>
+        Syntax 2 - absolute local and remote <varname>PATH</varname>s
+        </title>
+
+        <para>
+        All paths that contain scheme and realm components are considered
+        absolute. These paths break down into <varname>DIRNAME</varname>
+        and <varname>BASENAME</varname> components in the same way as local
+        paths do in Syntax 1.
+        </para>
+
+        <programlisting>
+$scheme://[$username[:$password]@][($hostname|$ipaddress)][:$port]/[$path]
+        </programlisting>
+      </section>
+    </section>
+
+    <section>
+      <title>
+      Examples
+      </title>
+
+      <section>
+        <title>
+        Syntax 1
+        </title>
+
+        <para>
+        Examples of Syntax 1. The first path is an absolute local path
+        while the second is a relative local path.
+        </para>
+
+        <informalexample>
+        <programlisting>
+/var/www/html
+data/inputs
+        </programlisting>
+        </informalexample>
+      </section>
+
+      <section>
+        <title>
+        Syntax 2
+        </title>
+
+        <para>
+        Examples of Syntax 2. Note the first two examples below are
+        equivalent to the first example of Syntax 1, above. All four
+        examples are absolute paths.
+        </para>
+
+        <informalexample>
+        <programlisting>
+file:///var/www/html
+file://localhost/var/www/html
+http://www.example.com/directory/file
+https://myuser:mypassword@www.example.com:443/secure/directory/file
+        </programlisting>
+        </informalexample>
+      </section>
+    </section>
+
+    <section>
+      <title>See Also</title>
+
+      <para>
+      <varname><xref linkend="content-basename" /></varname>,
+      <varname><xref linkend="content-dirname" /></varname>,
+      <xref linkend="path-like-element" />
+      </para>
+    </section>
+  </section>
+
+  <section id="content-text"
+           xreflabel="TEXT">
+    <title>
+    Content: <varname>TEXT</varname>
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      Arbitrary text. Unless otherwise specified, <varname>TEXT</varname>
+      values may contain any characters, including non-alphanumeric and
+      whitespace characters. See top-level element documentation for
+      specific restrictions.
+      </para>
+
+      <para>
+      Typical restricted values might limit characters to alphanumeric
+      characters plus the underscore, dash, and period. Another common
+      limitation is no whitespace characters allowed.
+      </para>
+    </section>
+
+  </section>
+
+</section>

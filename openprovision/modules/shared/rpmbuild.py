@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ from openprovision.util import mkrpm
 from openprovision.util import pps
 from openprovision.util import rxml
 
-from openprovision.errors    import SystemStudioError
+from openprovision.errors    import OpenProvisionError
 from openprovision.event     import Event
 from openprovision.sslogging import L1
 
@@ -135,7 +135,7 @@ class RpmBuildObject:
     self.packagereq_requires = packagereq_requires
 
     self.autofile = (self.ptr._config.getpath(
-                     '/distribution/config/@datafile-dir', 
+                     '/system/config/@datafile-dir', 
                      self.ptr._config.file.dirname) / 
                      self.ptr._config.file.basename + '.dat')
     self.autofile.dirname.mkdirs()
@@ -175,7 +175,7 @@ class RpmBuildObject:
 
     if self.autofile.exists():
       self.release = rxml.config.parse(self.autofile).getroot().get(
-       '/distribution/rpms/%s/release/text()' %
+       '/system/rpms/%s/release/text()' %
        (self.ptr.id), '0')
     else:
       self.release = '0'
@@ -205,9 +205,9 @@ class RpmBuildObject:
 
   def save_release(self):
     if self.autofile.exists():
-      root = rxml.config.parse(self.autofile).getroot().get('/distribution')
+      root = rxml.config.parse(self.autofile).getroot().get('/system')
     else:
-      root = rxml.config.Element('distribution')
+      root = rxml.config.Element('system')
 
     rpms     = rxml.config.uElement('rpms', parent=root)
     parent   = rxml.config.uElement(self.ptr.id, parent=rpms)
@@ -412,6 +412,6 @@ class Trigger(dict):
     return '\n'.join(lines)
 
 
-class RpmBuildFailedException(SystemStudioError):
+class RpmBuildFailedException(OpenProvisionError):
   message = "RPM build failed.  See build output below for details:\n%(message)s"
 

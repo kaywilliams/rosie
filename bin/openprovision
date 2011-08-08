@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 """
 openprovision
 
-SystemStudio wrapper
+OpenProvision wrapper
 """
 
 import imp
@@ -34,10 +34,11 @@ from openprovision.util import pps
 from openprovision.util.CleanHelpFormatter import CleanHelpFormatter
 
 def main():
-  parser = OptionParser("usage: %prog [OPTIONS] DISTRIBUTION_DEFINITION",
+  parser = OptionParser("usage: %prog [OPTIONS] SYSTEM_DEFINITION",
                         formatter=CleanHelpFormatter(),
-                        description="build the distribution defined in the "
-                                    "file at DISTRIBUTION_DEFINITION"
+                        description="build, test, deploy and maintain systems"
+                                    "as defined in the file at "
+                                    "SYSTEM_DEFINITION"
                         )
 
   parser.add_option('--clear-cache',

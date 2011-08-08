@@ -10,7 +10,7 @@ from openprovision.validate import InvalidXmlError
 REGEX_KWPARSE = re.compile('%\(([^\)]+)\).')
 
 def assert_file_has_content(file, cls=None, srcfile=None, **kwargs):
-  "Raise a SystemStudioIOError (or subclass) if a file is not readable or empty."
+  "Raise a OpenProvisionIOError (or subclass) if a file is not readable or empty."
   assert_file_readable(file, cls=cls, srcfile=srcfile, **kwargs)
   fp = None
   errno = None
@@ -24,13 +24,13 @@ def assert_file_has_content(file, cls=None, srcfile=None, **kwargs):
     fp and fp.close()
 
   if errno and message:
-    raise (cls or SystemStudioIOError)(errno=errno,
+    raise (cls or OpenProvisionIOError)(errno=errno,
                                file=srcfile or file,
                                message=message,
                                **kwargs)
 
 def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
-  "Raise a SystemStudioIOError (or subclass) if a file isn't readable"
+  "Raise a OpenProvisionIOError (or subclass) if a file isn't readable"
   fp = None
   errno = None; message = None
   try:
@@ -40,14 +40,14 @@ def assert_file_readable(file, cls=None, srcfile=None, **kwargs):
       errno = e.errno; message = os.strerror(e.errno)
 
     if errno and message:
-      raise (cls or SystemStudioIOError)(errno=errno,
+      raise (cls or OpenProvisionIOError)(errno=errno,
                                  file=(srcfile or file).replace('\n','\\n'),
                                  message=message,
                                  **kwargs)
   finally:
     fp and fp.close()
 
-class SystemStudioError:
+class OpenProvisionError:
   message = None
   def __init__(self, *args, **kwargs):
     self.map = {}
@@ -79,27 +79,27 @@ class SystemStudioError:
   def __str__(self):
     return self.message % self.map
 
-class SystemStudioIOError(SystemStudioError, IOError):
+class OpenProvisionIOError(OpenProvisionError, IOError):
   message = "Cannot read file '%(file)s': [errno %(errno)d] %(message)s"
 
-class PpsPathError(SystemStudioError):
+class PpsPathError(OpenProvisionError):
   def __str__(self):
     if self.error.errno == 21: # EISDIR
       pass
 
-class ShLibError(SystemStudioError):
+class ShLibError(OpenProvisionError):
   def __init__(self, e):
     self.map = {'cmd': e.cmd, 'errno': e.errno, 'desc': e.desc}
   message = ( "The command '%(cmd)s' exited with an unexepected status code. "
               "Error message was: [errno %(errno)d] %(desc)s" )
 
-class RhnSupportError(RuntimeError, SystemStudioError):
+class RhnSupportError(RuntimeError, OpenProvisionError):
   def __str__(self):
     return ( "RHN support not enabled - please install then 'rhnlib' and "
              "'rhn-client-tools' packages from the openprovision software repo "
-             "at www.renditionsoftware.com" )
+             "at www.openprovision.com" )
 
-class SystemStudioErrorHandler:
+class OpenProvisionErrorHandler:
   def _handle_Exception(self, e):
     traceback.print_exc(file=self.logger.logfile.file_object)
     if self.logger.test(4) or self.debug:
@@ -107,9 +107,9 @@ class SystemStudioErrorHandler:
     else:
       self.logger.write(0, '\n') # start on a new line
       if isinstance(e, KeyboardInterrupt):
-        self.logger.log(0, "SystemStudio halted on user input")
+        self.logger.log(0, "OpenProvision halted on user input")
       else:
-        if (not isinstance(e, SystemStudioError) and 
+        if (not isinstance(e, OpenProvisionError) and 
             not isinstance(e, InvalidXmlError) and
             not isinstance(e, KeyboardInterrupt)):
           self.logger.write(0,
@@ -117,7 +117,7 @@ class SystemStudioErrorHandler:
             "the '%s' event.  The traceback has been recorded in the log "
             "file at '%s'.  Please report this error by sending a copy "
             "of your log file, system definition file and any other "
-            "relevant information to openprovision@www.renditionsoftware.com\n\n"
+            "relevant information to openprovision@openprovision.com\n\n"
             "Error message was: "
             % (self.dispatch.currevent.id, self.logfile))
         self.logger.log(0, '[%s] %s' % (self.dispatch.currevent.id,

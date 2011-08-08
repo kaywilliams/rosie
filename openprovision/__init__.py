@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 openprovision
 
 A modular, extensible program framework for building customized anaconda-based
-Linux system distributions.
+Linux system repositories.
 
 Highly optimized execution engine attempts to minimize build times by tracking
 data on various parts of the build process and only executing stages that have
@@ -34,9 +34,9 @@ also easy to extend the basic openprovision system by writing your own modules t
 implement the openprovision module interface.
 
 Support for multiple platform builds - openprovision is capable of building a
-system distribution based on any version of anaconda from 10.x onward depending
+system repository based on any version of anaconda from 10.x onward depending
 on the software installed on the build machine.  Through the use of multiple
-configuration files, one machine can build a variety of system distributions 
+configuration files, one machine can build a variety of system repositories 
 based on many different base distributions with no difficulty.  Careful use
 of a cache management system ensures that build data files don't take up too
 much space on the machine's drive while attempting to minimize cache misses
@@ -45,6 +45,6 @@ that eat up valuable time.
 See main.py for information on more specific implementation details.
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
+__author__  = 'Daniel Musgrave <dmusgrave@openprovision.com>'
 __version__ = '3.0'
 __date__    = 'March 8th, 2007'

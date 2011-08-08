@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-from openprovision.errors import SystemStudioError
+from openprovision.errors import OpenProvisionError
 
 from optest        import EventTestCase, ModuleTestSuite
 from optest.core   import make_extension_suite
@@ -76,7 +76,7 @@ class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
    if self.event.cvars['pykickstart-version'] < '1.74' and self.event.cvars['base-info']['version'][:1] >= '6':
      pass # el5 pykickstart can't validate el6 files
    else:
-     self.failUnlessRaises(SystemStudioError, self.event)
+     self.failUnlessRaises(OpenProvisionError, self.event)
 
   def tearDown(self):
     EventTestCase.tearDown(self)

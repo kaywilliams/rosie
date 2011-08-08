@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,10 +18,10 @@
 """
 main.py
 
-Python script defining the Build class, the primary controller for the SystemStudio.
+Python script defining the Build class, the primary controller for the OpenProvision.
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
+__author__  = 'Daniel Musgrave <dmusgrave@openprovision.com>'
 __version__ = '3.0'
 __date__    = 'June 26th, 2007'
 
@@ -50,10 +50,10 @@ from openprovision.util.sync import link
 from openprovision.callback  import (SyncCallback, CachedSyncCallback,
                                     LinkCallback, SyncCallbackCompressed)
 from openprovision.constants import *
-from openprovision.errors    import SystemStudioErrorHandler, SystemStudioError
+from openprovision.errors    import OpenProvisionErrorHandler, OpenProvisionError
 from openprovision.event     import Event, CLASS_META
 from openprovision.sslogging import make_log, L0, L1, L2
-from openprovision.validate  import (SystemStudioValidationHandler, 
+from openprovision.validate  import (OpenProvisionValidationHandler, 
                                     InvalidXmlError)
 
 from openprovision.event.loader import Loader
@@ -78,7 +78,7 @@ ARCH_MAP = {'i386': 'athlon', 'x86_64': 'x86_64'}
 # the following chars are allowed in filenames...
 FILENAME_REGEX = re.compile('^[a-zA-Z0-9_\-\.]+$')
 
-class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
+class Build(OpenProvisionErrorHandler, OpenProvisionValidationHandler, object):
   """
   Primary build class - framework upon which a custom openprovision is generated
 
@@ -128,7 +128,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
       self.debug = False
 
     # set up initial variables
-    qstr = '/distribution/main/%s/text()'
+    qstr = '/system/main/%s/text()'
     try:
       self.name     = self.definition.get(qstr % 'name')
       self.version  = self.definition.get(qstr % 'version')
@@ -146,7 +146,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
       break
       
     self.basearch        = getBaseArch(self.arch)
-    self.distributionid  = self.definition.get(qstr % 'id',
+    self.systemid  = self.definition.get(qstr % 'id',
                           '%s-%s-%s' % (self.name,
                                         self.version,
                                         self.basearch))
@@ -156,7 +156,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
            '$version': self.version,
            '$basever': self.basever,
            '$arch':    self.basearch,
-           '$id':      self.distributionid}
+           '$id':      self.systemid}
 
     for item in self.definition.xpath('//macro', []):
       name = '$%s' % item.attrib['id']
@@ -175,7 +175,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     # set up real logger - console and file
     self.logfile = ( pps.path(options.logfile)
                      or self.definition.getpath(
-                        '/distribution/main/log-file/text()', None)
+                        '/system/main/log-file/text()', None)
                      or self.mainconfig.getpath(
                         '/openprovision/log-file/text()', None)
                      or DEFAULT_LOG_FILE ).expand().abspath()
@@ -267,13 +267,13 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     self._lock = lock.Lock(Event.cache_handler.cache_dir/'openprovision.pid')
 
   def main(self):
-    "Build a system distribution"
+    "Build a system repository"
     if self._lock.acquire():
       self._log_header()
       try:
         try:
           self.dispatch.execute(until=None)
-        except (SystemStudioError, InvalidXmlError, Exception, 
+        except (OpenProvisionError, InvalidXmlError, Exception, 
                 KeyboardInterrupt), e:
           self._handle_Exception(e)
       finally:
@@ -302,7 +302,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
 
   def _get_definition(self, options, arguments):
     """
-    Gets the definition based on option values. Distribution config is
+    Gets the definition based on option values. A definition file is
     required, except in the event that the '-h' or '--help' argument was given
     on the command line, in which case the definition file can be omitted or
     not exist.  (This previous allowance is so that a user can type
@@ -386,7 +386,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     disabled = set(options.disabled_modules)
 
     # enable/disable modules from app config
-    for module in self.definition.xpath('/distribution/*'):
+    for module in self.definition.xpath('/system/*'):
       if module.tag == 'main': continue # main isn't a module
       if not module.getbool('@enabled', 'True'):
         disabled.add(module.tag)
@@ -425,14 +425,14 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
 
     # set up base variables
     di = Event.cvars['distribution-info'] = {}
-    qstr = '/distribution/main/%s/text()'
+    qstr = '/system/main/%s/text()'
 
     di['name']         = self.name 
     di['version']      = self.version
     di['basever']      = self.basever # first digit in self.version
     di['arch']         = self.arch
     di['basearch']     = self.basearch
-    di['distributionid']  = self.distributionid
+    di['systemid']  = self.systemid
     di['anaconda-version'] = None
     di['fullname']     = Event._config.get(qstr % 'fullname', di['name'])
     di['packagepath']  = 'Packages'
@@ -441,23 +441,23 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
     for k,v in di.items():
       setattr(Event, k, v)
 
-    # validate name, version, and distributionid to ensure they don't have
+    # validate name, version, and systemid to ensure they don't have
     # invalid characters
-    for check in ['name', 'version', 'distributionid']:
+    for check in ['name', 'version', 'systemid']:
       if not FILENAME_REGEX.match(di[check]):
         raise RuntimeError("Invalid value '%s' for <%s> element in <main>; "
           "accepted characters are a-z, A-Z, 0-9, _, ., and -."
           % (di[check], check))
 
-    # make distributionid available to external programs via the Build object
-    Build.distributionid = di['distributionid']
+    # make systemid available to external programs via the Build object
+    Build.systemid = di['systemid']
 
     # set up other directories
     Event.CACHE_DIR    = self.mainconfig.getpath(
                            '/openprovision/cache/path/text()',
                            DEFAULT_CACHE_DIR).expand().abspath()
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
-    Event.METADATA_DIR = Event.CACHE_DIR  / di['distributionid']
+    Event.METADATA_DIR = Event.CACHE_DIR  / di['systemid']
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed([ x.expand().abspath()
@@ -556,7 +556,7 @@ class Build(SystemStudioErrorHandler, SystemStudioValidationHandler, object):
 
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
-    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.distributionid, time.strftime('%Y-%m-%d %X')))
+    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.systemid, time.strftime('%Y-%m-%d %X')))
     Event.logger.log(4, "Loaded modules: %s" % Event.cvars['loaded-modules'])
     Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):

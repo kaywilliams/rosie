@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ from openprovision.util import repo
 from openprovision.event   import Event
 from openprovision.sslogging import L1, L2
 
-from openprovision.modules.shared import SystemStudioRepoGroup
+from openprovision.modules.shared import OpenProvisionRepoGroup
 
 from openprovision.util.repo.repo import RepoContainer
 
@@ -48,8 +48,8 @@ class RpmbuildRepoEvent(Event):
                   'excluded-packages']
     )
 
-    self.cid =  '%s' % self.distributionid
-    self.csid = '%s-sources' % self.distributionid
+    self.cid =  '%s' % self.systemid
+    self.csid = '%s-sources' % self.systemid
 
     self.RPMBUILD_RPMS  = self.mddir/self.cid
     self.RPMBUILD_SRPMS = self.mddir/self.csid
@@ -73,10 +73,10 @@ class RpmbuildRepoEvent(Event):
         self.io.add_fpath(self.cvars['rpmbuild-data'][id]['srpm-path'],
                           self.RPMBUILD_SRPMS, id='rpmbuild-srpms')
 
-      rpmbuild_rpms  = SystemStudioRepoGroup(id=self.cid, name=self.cid,
+      rpmbuild_rpms  = OpenProvisionRepoGroup(id=self.cid, name=self.cid,
                               baseurl=self.RPMBUILD_RPMS, gpgcheck='yes',
                               gpgkey='file://'+self.cvars['pubkey'],)
-      rpmbuild_srpms = SystemStudioRepoGroup(id=self.csid, name=self.csid,
+      rpmbuild_srpms = OpenProvisionRepoGroup(id=self.csid, name=self.csid,
                                    baseurl=self.RPMBUILD_SRPMS)
 
       self._setup_repos('packages', updates = {self.cid:  rpmbuild_rpms,

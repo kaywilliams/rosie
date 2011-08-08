@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="CommonComponents-Attributes">
+
+  <section id="destdir"
+           xreflabel="@destdir">
+    <title>
+    Attribute: destdir
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      An absolute or relative <varname>DIRNAME</varname> (path) to a
+      folder where OpenProvision will place the specified file or files. OpenProvision 
+      creates this destination folder if it does not exist. If the 
+      <varname>DIRNAME</varname> is absolute,
+      the final file location will ignore the <varname>PATH</varname>-like
+      element's default destination.
+      </para>
+    </section>
+
+    <section>
+      <title>
+      Examples
+      </title>
+
+      <para>
+      In the following example, the default destination is
+      <filename>/</filename>.
+
+      <informalexample>
+      <programlisting>     
+&lt;files destdir="etc/samba"&gt;smb.conf&lt;/files&gt;
+      </programlisting>
+      </informalexample>
+
+      The path specified above results in the following destination.
+
+      <informalexample>
+      <programlisting>
+/etc/samba/smb.conf
+      </programlisting>
+      </informalexample>
+      </para>
+
+    </section>
+
+    <section>
+      <title>
+      See Also
+      </title>
+
+      <para>
+      <emphasis><xref linkend="destname" /></emphasis>,
+      <varname><xref linkend="content-path" /></varname>,
+      <xref linkend="path-like-element" />
+      </para>
+    </section>
+  </section>
+
+  <section id="destname"
+           xreflabel="@destname">
+    <title>
+    Attribute: destname
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      The filename to use for the specified file or folder after it is 
+      copied to its destination. If not given, OpenProvision uses the
+      basename of the specified file. Used to rename a file or folder.
+      </para>
+    </section>
+
+    <section>
+      <title>
+      Examples
+      </title>
+
+      <para>
+      In the following example, the input file is visible within the 
+      file system, while the resulting file is hidden.
+
+      <informalexample>
+      <programlisting>
+&lt;files destdir="/root" destname=".bashrc"&gt;bashrc&lt;/files&gt;
+      </programlisting>
+      </informalexample>
+
+      The above example results in the following.
+
+      <informalexample>
+      <programlisting>     
+/root/.bashrc
+      </programlisting>
+      </informalexample>
+      </para>
+    </section>
+
+    <section>
+      <title>
+      See Also
+      </title>
+
+      <para>
+      <emphasis><xref linkend="destdir" /></emphasis>,
+      <varname><xref linkend="content-path" /></varname>,
+      <xref linkend="path-like-element" />
+      </para>
+    </section>
+  </section>
+
+  <section id="mode"
+           xreflabel="@mode">
+    <title>
+    Attribute: mode
+    </title>
+
+    <section>
+      <title>
+      Definition
+      </title>
+
+      <para>
+      The numeric file <varname>MODE</varname> to apply to the
+      specified file or recursively to all files, including those in 
+      subfolders, below the specified folder. If not specified, uses 
+      0644.
+      </para>
+    </section>
+
+    <section>
+      <title>
+      Examples
+      </title>
+
+      <para>
+      In the following example, the script 
+      <filename>config.sh</filename> is set to be executable by all 
+      system users.
+
+      <informalexample>
+      <programlisting>
+&lt;files mode="755"&gt;config.sh&lt;/files&gt;
+      </programlisting>
+      </informalexample>
+      </para>
+    </section>
+
+    <section>
+      <title>
+      See Also
+      </title>
+
+      <para>
+      <varname><xref linkend="content-mode" /></varname>,
+      <xref linkend="path-like-element" />
+      </para>
+    </section>
+  </section>
+</section>

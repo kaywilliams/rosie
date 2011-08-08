@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #
 import yum
 
-from depsolver import Depsolver, SystemStudioYum
+from depsolver import Depsolver, OpenProvisionYum
 from callback  import DepSolverCallback
 
 def resolve(packages=None, required=None, config='/etc/yum.conf',

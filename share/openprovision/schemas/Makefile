@@ -1,4 +1,4 @@
-SUBDIRS = distribution 
+SUBDIRS = system 
 
 .PHONY: all clean install
 

@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ from openprovision.util import rxml
 
 from openprovision.util.pps.constants import *
 
-from openprovision.errors   import SystemStudioError
+from openprovision.errors   import OpenProvisionError
 from openprovision.validate import InvalidConfigError
 
 class IOMixin:
@@ -321,8 +321,8 @@ class TransactionData(object):
                                   self.xpath))
   def __repr__(self): return '%s(%s)' % (self.__class__.__name__, self.__str__())
 
-class MissingXpathInputFileError(SystemStudioError):
+class MissingXpathInputFileError(OpenProvisionError):
   message = "Cannot find the file or folder '%(file)s'. Check that it exists and that the '%(xpath)s' element is correct. If you are providing text rather than a file, add the attribute 'content=\"text\"' to the '%(xpath)s' element. [errno %(errno)d] %(message)s."
 
-class MissingInputFileError(SystemStudioError):
+class MissingInputFileError(OpenProvisionError):
   message = "Cannot find the specified file or folder '%(file)s'. [errno %(errno)d] %(message)s."

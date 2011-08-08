@@ -2,21 +2,21 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title><application class="software">SystemStudio</application> Overview
+  <title><application class="software">OpenProvision</application> Overview
   </title>
 
   <para>Automating customization, installation and maintenance of Red Hat 
   Enterprise Linux and CentOS systems today requires costly and complex management
-  solutions. <application class="software">SystemStudio</application> provides
-  a simple, standard, reliable alternative. SystemStudio packages 
+  solutions. <application class="software">OpenProvision</application> provides
+  a simple, standard, reliable alternative. OpenProvision packages 
   user-specified content into standard operating system deployment bundles, or 
-  <emphasis>system distributions</emphasis>. System distributions can be used to
+  <emphasis>system repositories</emphasis>. System repositoriess can be used to
   deploy and maintain client machines, physical and virtual, in a wide range of
   IT environments.</para>
 
-  <para>A system distribution is a set of operating system components,
+  <para>A system repository is a set of operating system components,
   applications and configuration, packaged for deployment in a standard format.
-  Using SystemStudio you can create and maintain system distributions:</para>
+  Using OpenProvision you can create and maintain system repositories:</para>
 
   <para><itemizedlist>
       <listitem>
@@ -32,7 +32,7 @@
       </listitem>
 
       <listitem>
-        <para>build the system distribution,</para>
+        <para>build the system repository,</para>
       </listitem>
 
       <listitem>
@@ -44,7 +44,7 @@
       </listitem>
 
       <listitem>
-        <para>rebuild the system distribution and</para>
+        <para>rebuild the system repository and</para>
       </listitem>
 
       <listitem>
@@ -57,19 +57,19 @@
       <imagedata fileref="overview.png" />
     </imageobject>
 
-    <caption><para>SystemStudio Overview</para></caption>
+    <caption><para>OpenProvision Overview</para></caption>
   </mediaobject>
 
-  <para><application class="software">SystemStudio</application> reads 
-  a distribution definition, gathers various inputs (operating system, applications, 
-  and configuration files), and creates a system distribution 
+  <para><application class="software">OpenProvision</application> reads 
+  a system definition, gathers various inputs (operating system, applications, 
+  and configuration files), and creates a system repository 
   with installation images and a package repository. Using the installation
-  images, you can deploy the system distribution to one or more client machines. You can 
-  also update existing clients from the system distribution package repository.
+  images, you can deploy the system repository to one or more client machines. You can 
+  also update existing clients from the system repository package repository.
   </para>
 
-  <para>In summary, SystemStudio is a production system life cycle manager
-  for use in defining, building and maintaining system distributions that can
+  <para>In summary, OpenProvision is a production system life cycle manager
+  for use in defining, building and maintaining system repositories that can
   be easily installed and updated on physical, virtual and cloud machines using
   industry standard deployment and update tools.</para>
 </section>

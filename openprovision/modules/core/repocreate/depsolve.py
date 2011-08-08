@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ import yum.Errors
 
 from openprovision.callback  import PkglistCallback
 from openprovision.constants import KERNELS
-from openprovision.errors    import assert_file_has_content, SystemStudioError
+from openprovision.errors    import assert_file_has_content, OpenProvisionError
 from openprovision.event     import Event
 from openprovision.sslogging   import L1
 
@@ -156,10 +156,10 @@ class DepsolveEvent(Event, DepsolverMixin):
         break
 
 
-class InvalidPkglistFormatError(SystemStudioError):
+class InvalidPkglistFormatError(OpenProvisionError):
   message = ( "Invalid format '%(pkgfile)s' on line %(lino)d of "
               "pkglist '%(line)s'.\n\nFormat should "
               "be %{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}" )
 
-class DepsolveError(SystemStudioError):
+class DepsolveError(OpenProvisionError):
   message = "Error resolving package dependencies: %(message)s"

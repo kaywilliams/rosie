@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section id="diskboot-image"
+         xreflabel="diskboot-image">
+  <title>
+  Diskboot-Image
+  </title>
+
+  <section>
+    <title>
+    Definition
+    </title>
+
+    <para>
+    Allows customization of the <filename>diskboot.img</filename> file
+    created by <application class="software">OpenProvision</application>. This image
+    can be written to a portable USB device and used to begin a network
+    installation on the client system.
+    </para>
+
+    <para>
+    This module is a member of the <emphasis role="strong">installer</emphasis>
+    module group.
+    </para>
+  </section>
+
+  <section>
+    <title>
+    Syntax
+    </title>
+
+    <programlisting>
+[&lt;diskboot-image&gt;
+  [&lt;boot-args [use-defaults=BOOLEAN]&gt;TEXT&lt;/boot-args&gt;]
+ &lt;/diskboot-image&gt;]
+    </programlisting>
+  </section>
+
+  <section>
+    <title>
+    Elements
+    </title>
+
+    <variablelist>
+    <varlistentry>
+      <term>
+      boot-args
+      </term>
+
+      <listitem>
+      <para>
+      Modifies the kernel boot arguments of the 
+      <filename>/syslinux.cfg</filename> file contained within the 
+      <filename>diskboot.img</filename>. The default append arguments
+      for <emphasis role="strong">diskboot-image</emphasis> are
+      <constant>%{ks}</constant>,
+      <constant>%{method}</constant>, and
+      <constant>nousbstorage</constant>.
+      See Also Common Element
+      <emphasis><xref linkend="boot-args" /></emphasis>.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    </variablelist>
+  </section>
+
+  <section>
+    <title>See Also</title>
+
+    <para>
+    <varname><xref linkend="content-boolean" /></varname>,
+    <varname><xref linkend="content-text" /></varname>,
+    <emphasis><xref linkend="boot-args" /></emphasis>,
+    <xref linkend="path-like-element" />
+    </para>
+  </section>
+</section>

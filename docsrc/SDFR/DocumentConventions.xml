@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<section xreflabel="document conventions">
+  <title>
+  Document Conventions
+  </title>
+
+  <para>
+  The arrangement of content in this chapter and other document chapters
+  is alphabetical.
+  </para>
+
+  <variablelist>
+  <varlistentry>
+    <term>
+    Comments
+    </term>
+
+    <listitem>
+    <para>
+    Comments in XML appear between <constant>&lt;!--</constant> and
+    <constant>--&gt;</constant>, and may span multiple lines.
+    </para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>
+    Definitions
+    </term>
+
+    <listitem>
+    <para>
+    The tag "Definition" gives a description of the top-level element.
+    Definitions include a short explanation of the item’s purpose,
+    what happens when its used, elements and attributes enclosed within
+    that item, what values it accepts, the default value, whether it is
+    required and the number of times it may appear.
+    </para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>
+    Elements and Attributes
+    </term>
+
+    <listitem>
+    <para>
+    Elements and attributes in XML are referred to by their XPath
+    equivalents. The active node is always considered to be the root,
+    system; thus, the first element in the XPath expression is the
+    top-level element, while subsequent elements/attributes are its
+    children. For more details on XPath syntax, see
+    <ulink url="http://www.w3.org/TR/xpath.html">XML Path Language</ulink>.
+    </para>
+
+    <para>
+    <emphasis>XPath expressions</emphasis> appear in italics.
+    </para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>
+    Examples
+    </term>
+
+    <listitem>
+    <para>
+    The section heading "Examples" or the phrase "For example" indicate a
+    code example with actual values.
+    </para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>
+    Filenames
+    </term>
+
+    <listitem>
+    <para>
+    <filename>Filenames</filename> appear in monospace font.
+    </para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>
+    Frequency
+    </term>
+
+    <listitem>
+    <para>
+    Unless otherwise specified, all sub-elements are optional and can
+    occur a maximum of one time underneath the top-level element.
+    </para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>
+    Note
+    </term>
+
+    <listitem>
+    <para>
+    Information items appear with an "Note" tag:
+    </para>
+
+    <note>
+    <para>
+    Be sure to escape the <constant>&lt;</constant> and
+    <constant>&gt;</constant> characters using
+    <constant>&amp;lt;</constant> and <constant>&amp;gt;</constant>,
+    respectively.
+    </para>
+    </note>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>
+    Syntax
+    </term>
+
+    <listitem>
+    <para>
+    The heading "Syntax" contains the syntax for a top-level element,
+    common element, or attribute. Elements or attributes that appear between
+    square brackets (<constant>[</constant> and <constant>]</constant>) are
+    optional. Choices are indicated by parenthesis (<constant>(</constant>
+    and <constant>)</constant>), with each individual choice separated by
+    a vertical bar (<constant>|</constant>). If an element can be repeated
+    multiple times, it is followed by an asterisk (<constant>*</constant>).
+    </para>
+
+    <note>
+    <para>
+    The indicators for optional elements and elements that can occur more
+    than once can be combined:
+    <programlisting>
+ &lt;element/&gt;   &lt;!-- 1 required --&gt;
+ &lt;element/&gt;*  &lt;!-- 1 required, additional allowed --&gt;
+[&lt;element/&gt;]  &lt;!-- 0-1 allowed --&gt;
+[&lt;element/&gt;]* &lt;!-- 0 or more allowed --&gt;
+    </programlisting>
+    </para>
+    </note>
+
+    <para>
+    Occasionally, a syntax requirement may be expressed in a comment instead
+    of with the above syntax indicators for clarity's sake.
+    </para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>
+    Top-Level Elements and Module Groups
+    </term>
+
+    <listitem>
+    <para>
+    <emphasis role="strong">Top-level element names</emphasis> and
+    <emphasis role="strong">module group names</emphasis> appear in bold.
+    </para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>
+    Variables and Content
+    </term>
+
+    <listitem>
+    <para>
+    Within this document, OpenProvision variables are presented in monospace font
+    preceded by a dollar sign, e.g. <varname>$ID</varname>.
+    In the event that another application uses a variable with simliar
+    syntax (YUM, for example), these variables are clearly indicated as
+    not being OpenProvision variables.
+    </para>
+
+    <para>
+    When an element's text value or attribute accepts a particular class
+    of input, this content type is indicated by monospace font without a
+    leading dollarsign, e.g. <varname>BOOLEAN</varname>.
+    </para>
+    </listitem>
+  </varlistentry>
+  </variablelist>
+</section>

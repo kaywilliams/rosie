@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ from openprovision.util import sync
 
 from openprovision.sslogging import L0, L1
 
-from openprovision.errors import SystemStudioError
+from openprovision.errors import OpenProvisionError
 
 from openprovision.event.diff   import DiffMixin
 from openprovision.event.fileio import IOMixin
@@ -120,7 +120,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
     except EventExit, e:
       self.log(0, e)
       sys.exit()
-    except (SystemStudioError, Exception, KeyboardInterrupt), e:
+    except (OpenProvisionError, Exception, KeyboardInterrupt), e:
       self.error(e)
       raise
     t_end = time.time()
@@ -196,7 +196,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   @property
   def config(self):
     try:
-      return self._config.get('/distribution/%s' % self.moduleid)
+      return self._config.get('/system/%s' % self.moduleid)
     except rxml.errors.XmlPathError:
       return DummyConfig(self._config)
 

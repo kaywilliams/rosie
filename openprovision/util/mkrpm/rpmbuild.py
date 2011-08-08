@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 Module that can be used to build RPMs.
 """
 
-__author__ = 'Uday Prakash <uprakash@renditionsoftware.com>'
+__author__ = 'Uday Prakash <uprakash@openprovision.com>'
 __date__   = 'April 19, 2007'
 
 import os

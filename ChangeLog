@@ -195,7 +195,7 @@
 	documentation updates
 
 	* modified png images to use systemstudio naming
-	* naming change from "system distribution" to "system repository"
+	* naming change from "system repository" to "system repository"
 	[85c960485b26]
 
 2010-12-13  Kay Williams  <kwilliams@renditionsoftware.com>
@@ -2157,7 +2157,7 @@
 	* The gpgkey location in systemrepo previously pointed to the file on
 	disk (e.g. file:///etc/pki/rpm-gpg/RPM-GPG-KEY-solutionstudio). This
 	has been changed to instead point to the key on the download server
-	(e.g. http://somehost/distributions/somedistribution/os/RPM-GPG-KEY-
+	(e.g. http://somehost/system_repos/somedistribution/os/RPM-GPG-KEY-
 	solutionstudio). The latter approach allows new gpgkeys to be
 	downloaded automatically to existing machines (good). The previous
 	approach required manual edits to the system.repo on existing
@@ -4237,7 +4237,7 @@
 	* bin/systembuilder, docsrc/man/systembuilder.xml,
 	systembuilder/errors.py, systembuilder/main.py,
 	systembuilder/validate.py:
-	changed references to 'distribution definition' from 'system
+	changed references to 'system definition' from 'system
 	definition'
 	[fe27fbf8ba0b]
 
@@ -4891,7 +4891,7 @@
 	docsrc/usermanual/part3-ch3-sec1.xml,
 	docsrc/usermanual/part3-ch3.xml, docsrc/usermanual/part3.xml,
 	docsrc/usermanual/preface.xml:
-	usermanual modification to refer to system distributions rather than
+	usermanual modification to refer to system repositories rather than
 	appliances
 	[b56c7583a628]
 
@@ -4900,7 +4900,7 @@
 	docsrc/usermanual/part1-ch2-sec5.xml,
 	docsrc/usermanual/part2-ch2-sec4.xml,
 	systembuilder/modules/core/publish.py:
-	changed default publish folder to /var/www/html/distributions
+	changed default publish folder to /var/www/html/system_repos
 	[4827d422d338]
 
 	* docsrc/usermanual/part1-ch2-sec2.xml,
@@ -14703,7 +14703,7 @@
 	bug 150 - allow module disables from config
 
 	The specfile and documentation allow for modules to be disabled from
-	spin's config file as well as from the distribution definition.
+	spin's config file as well as from the system definition.
 	However, the actual code hasn't supported this for some time. This
 	commit addresses this issue by allowing modules to be disabled in
 	the modules section of the spin config file.
@@ -17016,7 +17016,7 @@
 
 	A note on terminology: now that 'distro conf' has been removed from
 	options and added as an argument, we are choosing to instead call it
-	a 'distribution definition' or '.distro file'. Meanwhile, what was
+	a 'system definition' or '.distro file'. Meanwhile, what was
 	formerly referred to as the 'main config file' is now the only
 	config file, thus just 'config file'. This should help distinguish
 	between the two types of files to prevent confusion on the user end.

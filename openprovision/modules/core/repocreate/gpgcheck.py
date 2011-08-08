@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 import rpmUtils
 import yum
 
-from openprovision.errors   import SystemStudioError, SystemStudioIOError, assert_file_has_content
+from openprovision.errors   import OpenProvisionError, OpenProvisionIOError, assert_file_has_content
 from openprovision.event    import Event
 from openprovision.sslogging  import L1
 
@@ -165,8 +165,8 @@ class GpgCheckEvent(Event):
     self.verifier.failUnlessExists(self.mdfile)
 
 #------ ERRORS ------#
-class RpmSignatureInvalidError(SystemStudioError):
+class RpmSignatureInvalidError(OpenProvisionError):
   message = "One or more RPMs failed GPG key check. You may need to list additional gpgkeys in your repo definition(s). \n %(rpms)s"
 
-class GpgkeyIOError(SystemStudioIOError):
+class GpgkeyIOError(OpenProvisionIOError):
   message = "Cannot read gpgkey '%(file)s': [errno %(errno)d] %(message)s"

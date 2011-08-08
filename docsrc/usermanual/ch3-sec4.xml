@@ -4,20 +4,20 @@
 <section>
   <title>Building a System</title>
 
-  <para>Now that you have defined your system distribution, you use the
+  <para>Now that you have defined your system repository, you use the
   <command>openprovision</command> command to build it. The basic command validates the 
-  distribution definition syntax, creates the system distribution, and records 
+  system definition syntax, creates the system repository, and records 
   process results. The default level of screen output includes errors, build
-  status and file download and creation status. SystemStudio also
+  status and file download and creation status. OpenProvision also
   sends this output to the log file, by default 
   <filename>/var/log/openprovision.log</filename>. If a critical error
-  occurs, SystemStudio includes detailed error information in the log file.</para>
+  occurs, OpenProvision includes detailed error information in the log file.</para>
 
-  <para>The initial build of a system distribution can be time consuming, on the order
+  <para>The initial build of a system repository can be time consuming, on the order
   of several minutes to an hour or more. Initial build time depends on a number
   of variables including the location of package repositories (local or remote), 
-  network connection speed, the number of packages included in the system distribution, 
-  and the amount of content that can be reused from the SystemStudio shared 
+  network connection speed, the number of packages included in the system repository, 
+  and the amount of content that can be reused from the OpenProvision shared 
   cache. Subsequent builds complete in much less time, often 1-2 minutes, 
   depending on the level and type of change since the previous build.</para>
 
@@ -30,14 +30,14 @@
   <para>The output for an initial run details all the steps
   for downloading packages, checking package dependencies and creating
   images. If there are any errors, <application
-  class="software">SystemStudio</application> notes those and, in many cases,
+  class="software">OpenProvision</application> notes those and, in many cases,
   halts the process. See Appendix A for an example of a successful first-build
   output.</para>
 
-  <note>If your system distribution uses RHN channels as repositories, SystemStudio may occasionally report errors such as the following while downloading or verifying repository metadata:
+  <note>If your system repository uses RHN channels as repositories, OpenProvision may occasionally report errors such as the following while downloading or verifying repository metadata:
 
   <programlisting>[repos] long int too large to convert to int</programlisting> 
 
-This can happen when SystemStudio receives invalid data from RHN. (Typically this occurs when data is being replicated across RHN servers). The error may be corrected by running SystemStudio again, either immediately or after waiting several minutes.</note>
+This can happen when OpenProvision receives invalid data from RHN. (Typically this occurs when data is being replicated across RHN servers). The error may be corrected by running OpenProvision again, either immediately or after waiting several minutes.</note>
 
 </section>

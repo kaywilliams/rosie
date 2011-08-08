@@ -2,9 +2,9 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>SystemStudio Files and Folders</title>
+  <title>OpenProvision Files and Folders</title>
 
-  <para><application class="software">SystemStudio</application> has several
+  <para><application class="software">OpenProvision</application> has several
   key files and folders, listed in the table below.</para>
 
   <para><informaltable>
@@ -14,10 +14,10 @@
           <row>
             <entry>/etc/openprovision/openprovision.conf</entry>
 
-            <entry><application>SystemStudio</application> looks
+            <entry><application>OpenProvision</application> looks
             for this file to locate openprovision configuration. See the
             openprovision and openprovision.conf man pages for more information.
-            This file is optional and does not exist in the default SystemStudio
+            This file is optional and does not exist in the default OpenProvision
             installation.</entry>
           </row>
           <row>
@@ -33,7 +33,7 @@
               <tbody>
                 <row>
                   <entry>Python code for <application
-                  class="software">SystemStudio</application>, where
+                  class="software">OpenProvision</application>, where
                   <varname>$version</varname> is the <application
                   class="software">Python</application> version.</entry>
                 </row>
@@ -45,21 +45,21 @@
             <entry>/usr/share/doc/openprovision-<varname>$version</varname></entry>
 
             <entry>Documentation for <application
-            class="software">SystemStudio</application>, where
+            class="software">OpenProvision</application>, where
             <varname>$version</varname> is the <application
-            class="software">SystemStudio</application> version.</entry>
+            class="software">OpenProvision</application> version.</entry>
           </row>
 
           <row>
             <entry>/usr/share/openprovision/schemas</entry>
 
-            <entry>Relax NG schemas for distribution definition validation.
+            <entry>Relax NG schemas for system definition validation.
             </entry>
           </row>
           <row>
             <entry>/var/cache/openprovision/</entry>
 
-            <entry>SystemStudio stores cached content in this folder. See
+            <entry>OpenProvision stores cached content in this folder. See
             the openprovision and openprovision.conf man pages for cache-related
             options.
             </entry>
@@ -68,15 +68,15 @@
           <row>
             <entry>/var/log/openprovision.log</entry>
 
-            <entry>SystemStudio's default log file.</entry>
+            <entry>OpenProvision's default log file.</entry>
           </row>
 
           <row>
-            <entry>/var/www/html/distributions/</entry>
+            <entry>/var/www/html/system_repos/</entry>
 
-            <entry>SystemStudio publishes completed system distributions to  
+            <entry>OpenProvision publishes completed system repositories to  
             this folder by default. An alternative location can be specified on
-            a per-system-distribution basis within a distribution definition.
+            a per-system-repository basis within a system definition.
             </entry>
           </row>
         </tbody>

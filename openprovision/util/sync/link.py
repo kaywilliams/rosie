@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #
 "link.py - a CopyHandler object for linking files instead of copying them"
 
-__author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
+__author__  = 'Daniel Musgrave <dmusgrave@openprovision.com>'
 __version__ = '0.8.1'
 __date__    = 'August 22nd, 2007'
 

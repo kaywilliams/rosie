@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ which allows trusted code to use the unconstrained interface
 a confined domain (XmlMerge).
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@renditionsoftware.com>"
+__author__  = "Daniel Musgrave <dmusgrave@openprovision.com>"
 __version__ = "2.0"
 __date__    = "Janary 25, 2007"
 
@@ -59,7 +59,7 @@ BOOLEANS = {
   'no':  False, 'No':  False, 'false': False, 'False': False, '0': False,
 }
 
-NSMAP = {'xm': 'http://www.renditionsoftware.com/ns/merge'}
+NSMAP = {'xm': 'http://www.openprovision.com/ns/merge'}
 
 class XmlMergeHandler:
   """

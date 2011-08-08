@@ -3,11 +3,11 @@
 Name:    openprovision
 Version: 1.0.7
 Release: 1%{?dist}
-Summary: Builds system distributions for CentOS and Red Hat Enterprise Linux
+Summary: Platform for provisioning CentOS and Red Hat Enterprise Linux Systems
 
 License:   GPL
 Group:     Applications/System
-URL:       http://www.renditionsoftware.com/openprovision
+URL:       http://www.openprovision.com/openprovision
 Source0:   %{name}-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
@@ -33,9 +33,10 @@ Requires: syslinux
 Requires: yum
 
 %description
-SystemStudio builds complete, self-contained system distributions 
-based on CentOS and Red Hat Enterprise Linux. See 
-http://www.renditionsoftware.com for more information. 
+OpenProvision is a complete platform for IT professionals to automate build, 
+test, deployment and maintenance of CentOS and Red Hat Enterprise Linux
+systems for use in any physical, virtual or cloud environment. See 
+http://www.openprovision.com for more information. 
 
 %prep
 %setup -q
@@ -66,42 +67,5 @@ http://www.renditionsoftware.com for more information.
 %{_mandir}/man1/openprovision.1.gz
 
 %changelog
-* Tue Dec 21 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.7-1
-
-
-* Tue Dec 21 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.6-1
-- changed variable name from systemid to distributionid (kayw)
-
-* Tue Dec 21 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.5-1
-- changed variable name from systemid to distributionid (kwilliams)
-- bugfix to shared rpmbuild module to write out distribution in .dat files (kwilliams)
-- fixed optest to use distribution root element (kwilliams)
-- reverting to distribution naming (kwilliams)
-- Backed out changeset 85c960485b26 (kwilliams)
-- documentation updates (kwilliams)
-- removing optional sources event (kwilliams)
-- help displays valid log-level values (kwilliams)
-- ui tweak for rpmbuild-repo (kwilliams)
-- removed deprecated parameter from __init__ call in resolve.conf (kwilliams)
-
-* Mon Dec 06 2010 Kay Williams <kayw@openprovision.org> - 1.0.3-1
-- added installclass for anaconda rhel6 (kayw)
-- changed name of rpmbuild-repo to  repo (kayw)
-- updates-image and product-image no longer look for existing images (kayw)
-- changed default optest distro to centos 5 (kayw)
-- removed support for xen-images (kayw)
-- rendition software naming (kayw)
-- modified gpgsign to verify supplied passphrase, difftest config (kayw)
-- hashlib fixes (kayw)
-- added support for sha256 (kayw)
-- added 'Red Hat Enterprise Linux' entry to yum_plugin locals file (kayw)
-- removing conditional packages from pkglist - implementation was broken - consider adding back later (kayw)
-- config: postun cleans empty dirs only if files folder exists (kayw)
-
-* Sat Jun 05 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0.2-1
-- config: postun cleans empty dirs only if files folder exists 
-
-* Thu Jun 03 2010 Kay Williams <kwilliams@renditionsoftware.com> - 1.0-1
-
-* Tue Jun 01 2010 Kay Williams <kwilliams@renditionsoftware.com> - 0.9.1-1
+* Mon Jul 08 2011 Kay Williams <kwilliams@openprovision.com> - 0.9.1-1
 - Initial Build

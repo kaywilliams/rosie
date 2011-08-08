@@ -5,9 +5,9 @@
   <title>Appendix A</title>
 
 <section>
-  <title>Example SystemStudio Output</title>
+  <title>Example OpenProvision Output</title>
 
-  <para>Following is an example of SystemStudio output for a successful
+  <para>Following is an example of OpenProvision output for a successful
   first build.</para>
 
   <informalexample>
@@ -114,7 +114,7 @@ treeinfo
 compose
  * linking files
 publish
- * publishing to '/var/www/html/distributions/samba-server-5-i386' 
+ * publishing to '/var/www/html/system_repos/samba-server-5-i386' 
 Build complete at 2010-02-09 09:18:58
     </programlisting>
   </informalexample>

@@ -4,7 +4,7 @@
 <section id="production-definitions" xreflabel="Production Definitions">
   <title>Production Definitions</title>
 
-  <para>When working with your system distribution through the development - staging - 
+  <para>When working with your system repository through the development - staging - 
   production cycle, you will manage two versions of it, a development 
   version and a production version. The development version, which
   specifies the Development server as the <xref linkend="download-location"/>, 
@@ -23,7 +23,7 @@
   <para>XIncludes are a convenient feature, in general, for reusing content 
   across multiple definitions. Later in this section we will discuss an additional 
   scenario for using XInclude. We will also cover important limitations in 
-  SystemStudio's XInclude support.</para>
+  OpenProvision's XInclude support.</para>
 
   <section>
     <title>Create Development and Production Definitions</title>
@@ -48,12 +48,12 @@ mv samba-server.definition samba-server-developer.definition
     </informalexample></para> 
 
 
-    <para>The next step is to create a <emphasis>production</emphasis> definition. You have three objectives when creating this file. The first is to reuse as much content from the development definition as possible.  You will do this using XInclude statements. The second is to change the name of the system distribution, which will allow both the development and production system distributions to be built on the same physical machine, if desired, without overwriting each other. This objective is accomplished by changing the <emphasis>/main/name</emphasis> element. The third is to change the <xref linkend="download-location"/> for the system distribution, specifying a fixed URL that is common across Staging and Production environments.  You will do this by adding a <emphasis>/publish/remote-url</emphasis> element. In our example the URL will be <filename>http://download.company.com/systems</filename>. The completed <filename>samba-server-production.definition</filename> will look as follows:</para>
+    <para>The next step is to create a <emphasis>production</emphasis> definition. You have three objectives when creating this file. The first is to reuse as much content from the development definition as possible.  You will do this using XInclude statements. The second is to change the name of the system repository, which will allow both the development and production system repositories to be built on the same physical machine, if desired, without overwriting each other. This objective is accomplished by changing the <emphasis>/main/name</emphasis> element. The third is to change the <xref linkend="download-location"/> for the system repository, specifying a fixed URL that is common across Staging and Production environments.  You will do this by adding a <emphasis>/publish/remote-url</emphasis> element. In our example the URL will be <filename>http://download.company.com/systems</filename>. The completed <filename>samba-server-production.definition</filename> will look as follows:</para>
 
     <para><informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;distribution distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;system xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main&gt;
   &lt;name&gt;samba-server&lt;/name&gt;
@@ -67,10 +67,10 @@ mv samba-server.definition samba-server-developer.definition
  xpointer="xpointer(/system/*[name()!=&amp;quot;main&amp;quot;])"/&gt;
 
 &lt;publish&gt;
-  &lt;remote-url&gt;http://download.company.com/distributions/&lt;/remote-url&gt;
+  &lt;remote-url&gt;http://download.company.com/system_repos/&lt;/remote-url&gt;
 &lt;/publish&gt;
 
-&lt;/distribution&gt;
+&lt;/system&gt;
       </programlisting>
     </informalexample></para> 
 
@@ -82,7 +82,7 @@ xmllint --xinclude --format samba-server-production.definition
       </programlisting>
     </informalexample></para> 
 
-   <para>Once you have created the files, you can ensure they are valid for use with SystemStudio using the --validate-only command as follows, where $filename is the name of the file to validate:</para>
+   <para>Once you have created the files, you can ensure they are valid for use with OpenProvision using the --validate-only command as follows, where $filename is the name of the file to validate:</para>
 
     <para><informalexample>
       <programlisting>
@@ -96,28 +96,28 @@ xmllint --xinclude --format samba-server-production.definition
   <title>Strategies for Content Reuse with XInclude</title>
 
   <para>To ease the organization and reuse of information, the software development community
-  commonly uses substitution methods. In the case of SystemStudio, you can create and
+  commonly uses substitution methods. In the case of OpenProvision, you can create and
   store content in one location and use XML Inclusions (XInclude) and XPaths 
-  to reuse content across distribution definitions and condense large definition
+  to reuse content across system definitions and condense large definition
   files into more manageable and readable sections using an object-oriented
-  tree. Within that context, some components of a distribution definition are
+  tree. Within that context, some components of a system definition are
   prime candidates for substitution and reuse.</para>
 
   <para>Using XInclude instructions within your definitions has a number of
   advantages. XInclude processing is recursive. You can have multiple layers of 
-  XIncluded documents within one collective distribution definition. By using 
+  XIncluded documents within one collective system definition. By using 
   XPointer you can target one portion of a document. From a time management 
   standpoint, you spend time creating static sections once, then reuse them. 
   If your network topology changes, for example, then you have one file to 
   change, not ten, and the inherent risk of inaccuracies or inconsistencies 
   among the definitions and within your network.</para>
 
-  <para>Using XIncludes with SystemStudio does have one significant limitation, and this has to do with relative path resolution. Specifically, while paths within <emphasis>http</emphasis> attributes of <emphasis>include</emphasis> elements are resolved relative to the <emphasis>including document's location</emphasis>, SystemStudio resolves all other paths, as noted in <xref linkend="defining-a-system"/>, relative to the <emphasis>location of the definition</emphasis>. Because of this limitation, you will need to exercise care when planning the file system structure for your definitions and shared content.</para>
+  <para>Using XIncludes with OpenProvision does have one significant limitation, and this has to do with relative path resolution. Specifically, while paths within <emphasis>http</emphasis> attributes of <emphasis>include</emphasis> elements are resolved relative to the <emphasis>including document's location</emphasis>, OpenProvision resolves all other paths, as noted in <xref linkend="defining-a-system"/>, relative to the <emphasis>location of the definition</emphasis>. Because of this limitation, you will need to exercise care when planning the file system structure for your definitions and shared content.</para>
  
-  <para>Within the context of SystemStudio, a two-part structure on the <application
-  class="software">SystemStudio</application> build machine will suffice for
+  <para>Within the context of OpenProvision, a two-part structure on the <application
+  class="software">OpenProvision</application> build machine will suffice for
   managing the common versus unique definition components. As in the diagram
-  below, under the subdirectory <filename class="directory">system distributions/
+  below, under the subdirectory <filename class="directory">system repositories/
   </filename>, the <filename class="directory">common/</filename> branch
   contains reusable components while the other branches each contain files
   unique to a single system.</para>
@@ -126,15 +126,15 @@ xmllint --xinclude --format samba-server-production.definition
       <imageobject>
         <imagedata fileref="definition_reuse.png" />
       </imageobject>
-      <caption><para>Distribution Definition File Reuse</para></caption>
+      <caption><para>System Definition File Reuse</para></caption>
     </mediaobject></para>
 
   <para>To properly use the XInclude and XPointer structures, the directory
   tree must represent the tiered structure above. In other words, the common
-  files to be included must exist at the same tier as any distribution definitions that
+  files to be included must exist at the same tier as any system definitions that
   references them.</para>
 
-  <para>In the <filename class="directory">system distributions/common/</filename>
+  <para>In the <filename class="directory">system repositories/common/</filename>
   directory above, there are several reusable files.
   <filename>Repos.xml</filename> contains several repository mirror lists and
   base URLs from which to download the Linux operating system based upon brand,
@@ -144,10 +144,10 @@ xmllint --xinclude --format samba-server-production.definition
   system, such as "admin" or "editors."</para>
 
   <para>For the Samba Server, the directory <filename
-  class="directory">system distributions/samba-server/</filename> in the drawing above
+  class="directory">system repositories/samba-server/</filename> in the drawing above
   contains the <filename>samba-server.definition</filename> file, the Samba
   server configuration file, a kickstart file and a validation script. The
-  distribution definition would XInclude
+  system definition would XInclude
   components from the repositories, common groups and packages. The same logic holds true for the web and DNS servers.</para>
 
   <para>To see the differences between one large versus several small files,
@@ -156,21 +156,21 @@ xmllint --xinclude --format samba-server-production.definition
   that you will create a separate repository file,
   <filename>repos.xml.</filename></para>
 
-  <para>First, create your <filename class="directory">system distributions/</filename>
+  <para>First, create your <filename class="directory">system repositories/</filename>
   subdirectory with the two subdirectories <filename
   class="directory">common/</filename> and <filename
   class="directory">samba-server/</filename> as above. Place your
   <filename>samba-server.definition</filename> and
   <filename>smb.conf</filename> files in the latter.</para>
 
-  <para>Next, create the <filename>system distributions/common/repos.xml</filename>
+  <para>Next, create the <filename>system repositories/common/repos.xml</filename>
   using the example below. The separate repository file includes the URLs for
   several operating system brands, architectures and statuses, e.g. "base" and
   "updates."</para>
 
   <para><informalexample>
       <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;distribution distribution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;system xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;!-- reposistories for centos --&gt;
 &lt;repos-centos&gt;
@@ -192,13 +192,13 @@ xmllint --xinclude --format samba-server-production.definition
 
 &lt;/repos-centos&gt;
 
-&lt;/distribution&gt;</programlisting>
+&lt;/system&gt;</programlisting>
     </informalexample></para>
 
   <para>The final step is to modify the
   <filename>samba-server.definition</filename> file, removing the
   <emphasis>repos</emphasis> details and using XInclude and XPointer to reuse
-  common content. You may want to rename the system distribution definition or include it in 
+  common content. You may want to rename the system repository definition or include it in 
   a version control system.</para>
 
   <para><informalexample>
@@ -206,16 +206,16 @@ xmllint --xinclude --format samba-server-production.definition
 
     &lt;!-- use global repos for CentOS --&gt;
     &lt;xi:include href="../common/repos.xml" 
-                xpointer="xpointer(/distributions/repos-centos/*)" /&gt;
+                xpointer="xpointer(/system_repos/repos-centos/*)" /&gt;
 
   &lt;/repos&gt;</programlisting>
     </informalexample></para>
 
-  <para>To build the system distribution definition,
+  <para>To build the system repository definition,
   you will also have to change the path to the <filename>smb.conf</filename>
   file in <emphasis>config/file</emphasis>.</para>
 
-  <para>The result is an object-oriented distribution definition that will
+  <para>The result is an object-oriented system definition that will
   reduce your maintenance overhead.</para>
   </section>
 

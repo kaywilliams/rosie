@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ class ConfigEventMixin(RpmBuildMixin):
 
     self.webpath = webpath
     self.masterrepo = '%s-%s' % (self.name, 
-                      hashlib.md5(self.distributionid).hexdigest()[-6:])
+                      hashlib.md5(self.systemid).hexdigest()[-6:])
     self.files_cb = files_cb
     self.files_text = files_text
     self.rpm.setup_build(**kwargs)
@@ -168,7 +168,7 @@ class ConfigEventMixin(RpmBuildMixin):
     repofile = ( self.rpm.source_folder/'etc/yum.repos.d/system.repo' )
 
     lines = []
-    # include distribution repo
+    # include system repo
     if self.webpath is not None:
       baseurl = self.webpath
       lines.extend([ '[%s]' % self.masterrepo, 

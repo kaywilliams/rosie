@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import traceback
 import subprocess as sub
 
 from openprovision.sslogging import L0, L1, L2
-from openprovision.errors import SystemStudioError
+from openprovision.errors import OpenProvisionError
 from openprovision.util import sshlib
 
 from UserDict import DictMixin
@@ -47,23 +47,23 @@ class DeployEventMixin:
 
     self.scripts = {
              'activate-script': dict(ssh=False, 
-                              arguments=[self.distributionid]),
+                              arguments=[self.systemid]),
              'clean-script': dict(message='running clean script',
                               ssh=False,
-                              arguments=[self.distributionid]),
+                              arguments=[self.systemid]),
              'install-script': dict(message='running install script',
                               ssh=False,
-                              arguments=[self.distributionid, self.webpath]),
+                              arguments=[self.systemid, self.webpath]),
              'verify-install-script': 
                               dict(message='running verify-install script',
                               ssh=True,
-                              arguments=[self.distributionid]),
+                              arguments=[self.systemid]),
              'update-script': dict(message='running update script',
                               ssh=True,
-                              arguments=[self.distributionid]),
+                              arguments=[self.systemid]),
              'post-script':   dict(message='running post script',
                               ssh=True,
-                              arguments=[self.distributionid])}
+                              arguments=[self.systemid])}
 
     for script in self.scripts:
       if self.config.get(script, None) is not None:
@@ -72,9 +72,9 @@ class DeployEventMixin:
         self.DATA['config'].append(script)
 
     #setup ssh default values
-    _hostname = self.config.get('@hostname', self.distributionid)
+    _hostname = self.config.get('@hostname', self.systemid)
     self.ssh_defaults = dict(
-      hostname = _hostname.replace('$id', self.distributionid),
+      hostname = _hostname.replace('$id', self.systemid),
       port     = self.config.get('@port', 22),
       username = self.config.get('@username', 'root'),
       password = self.config.get('@password', None),
@@ -120,7 +120,7 @@ class DeployEventMixin:
       # did install script change (either file or text)?
       script_file = self.io.list_input(what='install-script')
       if (( script_file and script_file[0] in self.diff.input.diffdict) 
-           or '/distribution/%s/install-script' % self.id 
+           or '/system/%s/install-script' % self.id 
            in self.diff.config.diffdict):
         self.log(1, L1("'install-script' changed, reinstalling...")) 
         return True # reinstall
@@ -215,7 +215,7 @@ class SSHParameters(DictMixin):
     for param,value in ptr.ssh_defaults.items():
       self.params[param] = ptr.config.get('%s/@%s' % (script, param), value)
     self.params['hostname'] = self.params['hostname'].replace('$id',
-                              ptr.distributionid)
+                              ptr.systemid)
 
   def __getitem__(self, key):
     return self.params[key]
@@ -232,7 +232,7 @@ class SSHParameters(DictMixin):
   def __str__(self):
     return ', '.join([ '%s=\'%s\'' % (k,self.params[k]) for k in self.params ])
 
-class ScriptFailedError(SystemStudioError):
+class ScriptFailedError(OpenProvisionError):
   message = "Error occured running '%(script)s'. See above for error message." 
 
 class SSHFailedError(ScriptFailedError):

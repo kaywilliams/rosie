@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ scripts.  By reading these bits and comparing them to a list of expected
 values, we can attempt to determine the type of a file.
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@renditionsoftware.com>"
+__author__  = "Daniel Musgrave <dmusgrave@openprovision.com>"
 __version__ = "1.0"
 __date__    = "April 17th, 2007"
 

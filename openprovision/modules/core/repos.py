@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,12 +21,12 @@ import ConfigParser
 from openprovision.util.repo    import ReposFromXml, ReposFromFile, RepoContainer, RepoFileParseError
 from openprovision.util.versort import Version
 
-from openprovision.errors   import assert_file_has_content, assert_file_readable, SystemStudioError
+from openprovision.errors   import assert_file_has_content, assert_file_readable, OpenProvisionError
 from openprovision.event    import Event
 from openprovision.sslogging  import L1, L2
 from openprovision.validate import InvalidConfigError
 
-from openprovision.modules.shared import RepoEventMixin, SystemStudioRepoGroup, SystemStudioRepoFileParseError
+from openprovision.modules.shared import RepoEventMixin, OpenProvisionRepoGroup, OpenProvisionRepoFileParseError
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -60,14 +60,14 @@ class ReposEvent(RepoEventMixin, Event):
 
     updates  = RepoContainer()
     if self.config.pathexists('.'):
-      updates.add_repos(ReposFromXml(self.config.get('.'), cls=SystemStudioRepoGroup))
+      updates.add_repos(ReposFromXml(self.config.get('.'), cls=OpenProvisionRepoGroup))
     for filexml in self.config.xpath('repofile/text()', []):
       fn = self.io.abspath(filexml)
       assert_file_has_content(fn)
       try:
-        updates.add_repos(ReposFromFile(fn, cls=SystemStudioRepoGroup))
+        updates.add_repos(ReposFromFile(fn, cls=OpenProvisionRepoGroup))
       except RepoFileParseError, e:
-        raise SystemStudioRepoFileParseError(e.args[0])
+        raise OpenProvisionRepoFileParseError(e.args[0])
 
     self.setup_repos(updates)
     self.read_repodata()
@@ -133,14 +133,14 @@ class ReposEvent(RepoEventMixin, Event):
 
 
 #------ ERRORS ------#
-class InstallerRepoNotFoundError(SystemStudioError):
+class InstallerRepoNotFoundError(OpenProvisionError):
   message = ( "Unable to find 'isolinux/' and 'images/' folders inside any "
               "given repository." )
 
-class TreeinfoNotFoundError(SystemStudioError):
+class TreeinfoNotFoundError(OpenProvisionError):
   message = ( "Unable to find '.treeinfo' file in '%(repoid)s' repo "
               "at '%(repourl)s' " )
 
-class UnsupportedInstallerRepoError(SystemStudioError):
+class UnsupportedInstallerRepoError(OpenProvisionError):
   message = ( "The '%(repoid)s' repository containing '%(family)s %(version)s' "
               "at '%(repourl)s' is not supported." )

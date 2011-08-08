@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ class ConfigEventTestCase(RpmBuildMixinTestCase, EventTestCase):
                                            version=self.version,
                                            arch=self.arch,
                                            include_baseurl=True,
-                                           baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+                                           baseurl='http://www.openprovision.com/mirrors/%s' % self.distro)
     base.update({'mirrorlist': None, 'gpgcheck': None})
 
     repos.append(base.toxml()) # don't overwrite gpgkey and gpgcheck defaults
@@ -162,7 +162,7 @@ class Test_OutputsGpgkeys(ConfigEventTestCase):
 
 class Test_RemovesGpgkeys(ConfigEventTestCase):
   "removes output when gpgcheck disabled"
-  # disable gpgcheck via /distribution/config/updates@gpgcheck
+  # disable gpgcheck via /system/config/updates@gpgcheck
   _conf = """<config>
     <updates gpgcheck='false'/>
   </config>"""

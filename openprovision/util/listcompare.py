@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ Iteratively compares two lists, returning elements unique to each list and the
 ones in common.
 """
 
-__author__  = "Daniel Musgrave <dmusgrave@renditionsoftware.com>"
+__author__  = "Daniel Musgrave <dmusgrave@openprovision.com>"
 __version__ = "1.0"
 __date__    = "17 November 2006"
 

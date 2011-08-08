@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -93,7 +93,7 @@ class Test_ArchChanges(DownloadEventTestCase):
   "Test arch changes in <main/>"
   def __init__(self, distro, version, arch):
     DownloadEventTestCase.__init__(self, distro, version, arch)
-    rxml.tree.uElement('arch', self.conf.get('/distribution/main'), text='i386')
+    rxml.tree.uElement('arch', self.conf.get('/system/main'), text='i386')
 
 class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
   "Test multiple repos with the same package."

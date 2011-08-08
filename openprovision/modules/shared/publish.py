@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,16 +25,16 @@ from openprovision.util import pps, shlib
 
 class PublishEventMixin:
   def get_local(self, default):
-    local = self.config.getpath('/distribution/%s/local-dir/text()' % 
+    local = self.config.getpath('/system/%s/local-dir/text()' % 
                                 self.moduleid, default)
-    return local / self.distributionid
+    return local / self.systemid
   
   def get_remote(self, default): 
-    remote = pps.path(self.config.getpath('/distribution/%s/remote-url/text()'
+    remote = pps.path(self.config.getpath('/system/%s/remote-url/text()'
                       % self.moduleid, 
                       self._get_host(default, 'remote-url', ifname =
                         self.config.get('remote-url/@interface', None))))
-    return remote / self.distributionid
+    return remote / self.systemid
   
   def _get_host(self, default, xpath, ifname=None):
     if not ifname:

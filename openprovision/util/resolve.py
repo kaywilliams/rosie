@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ as an RPM dependency solver; rather, it is intended to provide RPM-like
 dependency resolution for other tasks that requires similar functionality.)
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
+__author__  = 'Daniel Musgrave <dmusgrave@openprovision.com>'
 __version__ = '3.1'
 __date__    = 'September 7th, 2007'
 

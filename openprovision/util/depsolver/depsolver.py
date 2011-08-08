@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ logger.addHandler(handler)
 class DepsolveError(yum.Errors.MiscError):
   pass
 
-class SystemStudioYum(yum.YumBase):
+class OpenProvisionYum(yum.YumBase):
   def __init__(self, config='/etc/yum.conf', root='/tmp/depsolver',
                arch=None, callback=None):
     yum.YumBase.__init__(self)
@@ -169,11 +169,11 @@ class SystemStudioYum(yum.YumBase):
     self.comps = None
     del self.ts
 
-class Depsolver(SystemStudioYum):
+class Depsolver(OpenProvisionYum):
   def __init__(self, config='/etc/yum.conf', root='/tmp/depsolver',
                arch=None, callback=None):
 
-    SystemStudioYum.__init__(self,
+    OpenProvisionYum.__init__(self,
       config = str(config),
       root = str(root),
       arch = arch,

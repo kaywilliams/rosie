@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ Handlers must implement the following interface:
     while returning a len 0 object means that no change has occurred.
 """
 
-__author__  = 'Daniel Musgrave <dmusgrave@renditionsoftware.com>'
+__author__  = 'Daniel Musgrave <dmusgrave@openprovision.com>'
 __version__ = '1.0'
 __date__    = 'June 12th, 2007'
 

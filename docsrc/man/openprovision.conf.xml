@@ -3,7 +3,7 @@
                          "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 
 <!-- See http://www.docbook.org/tdg/en/html/refentry.html for more documentation -->
-<!--SystemStudio Configuration reference -->
+<!--OpenProvision Configuration reference -->
 
 <refentry id="configuration.openprovision">
 <refentryinfo>
@@ -13,17 +13,17 @@
 <refmeta>
 <refentrytitle>openprovision.conf</refentrytitle>
 <manvolnum>5</manvolnum>
-<refmiscinfo>SystemStudio Beta</refmiscinfo>
-<refmiscinfo class="sectdesc">SystemStudio configuration reference</refmiscinfo>
+<refmiscinfo>OpenProvision Beta</refmiscinfo>
+<refmiscinfo class="sectdesc">OpenProvision configuration reference</refmiscinfo>
 </refmeta>
 
 <refnamediv>
 <refname>openprovision.conf</refname>
-<refpurpose>Configuration file for SystemStudio.</refpurpose>
+<refpurpose>Configuration file for OpenProvision.</refpurpose>
 </refnamediv>
 
 <refsect1 id='openprovision.conf.5-description'><title>DESCRIPTION</title>
-<para>SystemStudio uses an optional configuration file openprovision.conf located at <filename>/etc/openprovision/</filename>. The location of this file can be overridden using the <command>-c</command> or <command>--config</command> SystemStudio command line option. The default SystemStudio installation does not include a openprovision.conf file.</para>
+<para>OpenProvision uses an optional configuration file openprovision.conf located at <filename>/etc/openprovision/</filename>. The location of this file can be overridden using the <command>-c</command> or <command>--config</command> OpenProvision command line option. The default OpenProvision installation does not include a openprovision.conf file.</para>
 </refsect1>
 
 <refsect1 id='openprovision.conf.5-optional-elements'><title>ELEMENTS</title>
@@ -35,7 +35,7 @@
 <varlistentry>
   <term><option>lib-path</option></term>
   <listitem>
-    <para>Specifies a directory <replaceable class="parameter">PATH</replaceable> in which one or more SystemStudio modules can be found. The default is the system path. Multiple path elements are allowed.  This element corresponds to the <command>--lib-path</command> command-line option.</para>
+    <para>Specifies a directory <replaceable class="parameter">PATH</replaceable> in which one or more OpenProvision modules can be found. The default is the system path. Multiple path elements are allowed.  This element corresponds to the <command>--lib-path</command> command-line option.</para>
 <programlisting>
 &lt;lib-path&gt;PATH&lt;/lib-path&gt;
 </programlisting>
@@ -45,7 +45,7 @@
 <varlistentry>
   <term><option>log-file</option></term>
   <listitem>
-    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which SystemStudio writes logging information.  The default path is <filename>/var/log/openprovision.log</filename>.   SystemStudio creates the log file if none exists. This element corresponds to the <command>--log-file</command> command-line option.</para>
+    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which OpenProvision writes logging information.  The default path is <filename>/var/log/openprovision.log</filename>.   OpenProvision creates the log file if none exists. This element corresponds to the <command>--log-file</command> command-line option.</para>
 <programlisting>
 &lt;log-file&gt;PATH&lt;/log-file&gt;
 </programlisting>
@@ -56,7 +56,7 @@
 <varlistentry>
   <term><option>share-path</option></term>
   <listitem>
-    <para>Specifies a directory <replaceable class="parameter">PATH</replaceable> in which one or more of SystemStudio's shared files can be found; the directory contains a hierarchy enabling SystemStudio to extract files for schemas, <filename>*.rng</filename>, fonts and images.  The default path is <filename>/usr/share/openprovision</filename>.  Multiple path elements are allowed.  This element corresponds to the <option>--share-path</option> command-line option .</para>
+    <para>Specifies a directory <replaceable class="parameter">PATH</replaceable> in which one or more of OpenProvision's shared files can be found; the directory contains a hierarchy enabling OpenProvision to extract files for schemas, <filename>*.rng</filename>, fonts and images.  The default path is <filename>/usr/share/openprovision</filename>.  Multiple path elements are allowed.  This element corresponds to the <option>--share-path</option> command-line option .</para>
 <programlisting>
 &lt;share-path&gt;PATH&lt;/share-path&gt;
 </programlisting>
@@ -66,7 +66,7 @@
 <varlistentry>
   <term><option>debug</option></term>
   <listitem>
-    <para>Specifies a boolean value which enables or disables debug mode in SystemStudio.  Enabling debug mode causes exception tracebacks, which are normally visible only in the log file, to be additionally displayed on the command line.</para>
+    <para>Specifies a boolean value which enables or disables debug mode in OpenProvision.  Enabling debug mode causes exception tracebacks, which are normally visible only in the log file, to be additionally displayed on the command line.</para>
 <programlisting>
 &lt;debug&gt;BOOLEAN&lt;/debug&gt;
 </programlisting>
@@ -78,13 +78,13 @@
 
 <refsect1 id='openprovision.conf.5-optional-cache'>
 <title>CACHE ELEMENTS</title>
-<para>SystemStudio caches data across sessions for improved performance.  The cache element allows specifying cache-related options.</para>
+<para>OpenProvision caches data across sessions for improved performance.  The cache element allows specifying cache-related options.</para>
 
 <variablelist>
 <varlistentry>
   <term><option>path</option></term>
   <listitem>
-<para>The <literal>path</literal> child element specifies where SystemStudio stores both shared and per system cache data.  The default is <filename>/var/cache/openprovision</filename>.
+<para>The <literal>path</literal> child element specifies where OpenProvision stores both shared and per system cache data.  The default is <filename>/var/cache/openprovision</filename>.
 </para>
 <programlisting>
 &lt;cache&gt;
@@ -97,9 +97,9 @@
 <varlistentry>
   <term><option>max-size</option></term>
   <listitem>
-    <para>The <literal>max-size</literal> child element specifies the maximum size for the shared cache located at <filename>CACHEDIR/.cache</filename>. The shared cache contains a copy of all files downloaded by SystemStudio. There is no human-readable form of the shared cache. The default size is 30GB. The recommended minimum size is 5GB. The default suffix is GB; other common suffixes are MB, GiB and TB.</para>
+    <para>The <literal>max-size</literal> child element specifies the maximum size for the shared cache located at <filename>CACHEDIR/.cache</filename>. The shared cache contains a copy of all files downloaded by OpenProvision. There is no human-readable form of the shared cache. The default size is 30GB. The recommended minimum size is 5GB. The default suffix is GB; other common suffixes are MB, GiB and TB.</para>
 
-<para>SystemStudio deletes files from the shared cache on a least-recently used basis.</para>
+<para>OpenProvision deletes files from the shared cache on a least-recently used basis.</para>
 <programlisting>
 &lt;cache&gt;
     &lt;max-size&gt;TEXT&lt;/max-size&gt;
@@ -113,7 +113,7 @@
 
 
 <refsect1 id="openprovision.conf.5-variables"><title>VARIABLES</title>
-<para>SystemStudio element values, where indicated, use the variables below.</para>
+<para>OpenProvision element values, where indicated, use the variables below.</para>
 
 <variablelist>
 
@@ -127,14 +127,14 @@
 <varlistentry>
   <term>CACHEDIR</term>
   <listitem>
-    <para>CACHEDIR is the directory location where SystemStudio stores shared and per-system cache data.</para>
+    <para>CACHEDIR is the directory location where OpenProvision stores shared and per-system cache data.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term>PATH</term>
   <listitem>
-    <para>PATH is the local absolute and relative file paths that SystemStudio supports. SystemStudio resolves relative paths from the current working directory.</para>
+    <para>PATH is the local absolute and relative file paths that OpenProvision supports. OpenProvision resolves relative paths from the current working directory.</para>
   </listitem>
 </varlistentry>
 
@@ -151,11 +151,11 @@
  <refsect1 id="openprovision.conf.5-examples">
     <title>EXAMPLES</title>
     <para>
-      An example openprovision configuration file with multiple listings for share-path and lib-path elements is shown below:
+      An example OpenProvision configuration file with multiple listings for share-path and lib-path elements is shown below:
     </para>
 
     <programlisting>
-&lt;distributionstudio&gt;
+&lt;openprovision&gt;
     &lt;share-path&gt;/usr/share&lt;/share-path&gt;
     &lt;share-path&gt;~/openprovision/share&lt;/share-path&gt;
     &lt;lib-path&gt;/usr/lib&lt;/lib-path&gt;
@@ -171,7 +171,7 @@
 </refsect1>
 
 <refsect1 id="openprovision.conf.5-bugs"><title>BUGS</title>
-<para>Submit bugs at <ulink url="http://www.renditionsoftware.com/bugs"/></para>
+<para>Submit bugs at <ulink url="http://www.openprovision.com/bugs"/></para>
 </refsect1>
 
 <refsect1 id="openprovision.conf.5-files"><title>FILES</title>
@@ -188,12 +188,12 @@
 
 <refsect1 id="openprovision.conf.5-seealso"><title>SEE ALSO</title>
 <para><simplelist type="inline">
-<member><ulink url="http://www.renditionsoftware.com/openprovision">http://www.renditionsoftware.com/openprovision</ulink></member>
+<member><ulink url="http://www.openprovision.com/openprovision">http://www.openprovision.com/openprovision</ulink></member>
 </simplelist></para>
 </refsect1>
 
 <refsect1 id="openprovision.conf.5-author"><title>AUTHOR</title>
-<para><author><othername>Rendition Software, Inc.</othername>
+<para><author><othername>OpenProvision, Inc.</othername>
 <contrib>Original author</contrib>
 </author></para>
 </refsect1>

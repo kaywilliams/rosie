@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ class ConfigEvent(ConfigEventMixin, Event):
     ConfigEventMixin.__init__(self) 
 
     self.DATA = {
-      'variables': ['name', 'fullname', 'distributionid', 'rpm.release',
+      'variables': ['name', 'fullname', 'systemid', 'rpm.release',
                     'cvars[\'web-path\']'],
       'config':    ['.'],
       'input':     [],

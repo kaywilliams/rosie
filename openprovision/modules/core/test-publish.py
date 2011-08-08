@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ from openprovision.modules.shared.publish import PublishEventMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['TestPublishEvent',],
-  description = 'creates a test distribution if requested',
+  description = 'creates a test system repository if requested',
 )
 
 class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin, 
@@ -49,8 +49,8 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     RepomdMixin.__init__(self)
     KickstartEventMixin.__init__(self)
 
-    self.localpath = self.get_local('/var/www/html/distributions/test')
-    self.webpath = self.get_remote('distributions/test')
+    self.localpath = self.get_local('/var/www/html/system_repos/test')
+    self.webpath = self.get_remote('system_repos/test')
 
     self.DATA =  {
       'config':    ['local-dir', 'remote-url', 'kickstart'],
@@ -97,7 +97,7 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
   def run(self):
     # sync files from compose (os-dir) folder
     self.SOFTWARE_STORE.rm(force=True)
-    self.io.process_files(link=True, text="preparing test distribution", 
+    self.io.process_files(link=True, text="preparing test system repository", 
                           what='os-dir')
 
     # modify config-rpm

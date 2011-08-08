@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #
 import rpm
 
-from openprovision.errors import SystemStudioError
+from openprovision.errors import OpenProvisionError
 from openprovision.util.versort import Version
 
 class KickstartEventMixin:
@@ -50,7 +50,7 @@ class KickstartEventMixin:
       self.kstext = self.io.abspath(elem.text).read_text().strip()
       self.kssource = 'kickstart file: %s' % self.io.abspath(elem.text)
 
-    self.kstext = self.kstext.replace('$id', self.distributionid)
+    self.kstext = self.kstext.replace('$id', self.systemid)
     self.DATA['variables'].append('kstext')
 
   def run(self):
@@ -78,5 +78,5 @@ class KickstartEventMixin:
 
     self.DATA['output'].append(self.ksfile)
 
-class KickstartValidationError(SystemStudioError):
+class KickstartValidationError(OpenProvisionError):
   message = ( "%(message)s" ) 

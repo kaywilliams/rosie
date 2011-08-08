@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -78,8 +78,8 @@ class PkgorderEvent(Event):
 
     # create yum config needed by pkgorder
     cfg = self.TEMP_DIR/'pkgorder'
-    repoid = self.distributionid
-    cfg.write_lines([ YUMCONF % (self.distributionid, self.distributionid, self.cvars['os-dir']) ])
+    repoid = self.systemid
+    cfg.write_lines([ YUMCONF % (self.systemid, self.systemid, self.cvars['os-dir']) ])
 
     # create pkgorder
     pkgtups = pkgorder.order(config=cfg,

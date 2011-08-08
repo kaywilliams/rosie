@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ import fnmatch
 from openprovision.util import magic
 
 from openprovision.constants import KERNELS
-from openprovision.errors    import assert_file_has_content, SystemStudioError
+from openprovision.errors    import assert_file_has_content, OpenProvisionError
 from openprovision.event     import Event
 from openprovision.sslogging   import L1
 
@@ -30,7 +30,7 @@ from openprovision.modules.shared import comps
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PackagesEvent'],
-  description = 'defines the required packages and groups for the system distribution',
+  description = 'defines the required packages and groups for the system repositories',
   group       = 'repocreate',
 )
 
@@ -268,7 +268,7 @@ class PackagesEvent(Event):
 
 
 #------ ERRORS ------#
-class CompsError(SystemStudioError): pass
+class CompsError(OpenProvisionError): pass
 
 class GroupNotFoundError(CompsError):
   message = "Group '%(group)s' not found in any groupfile"

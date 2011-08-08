@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import struct
 
 from openprovision.util import pps
 
-from openprovision.errors    import SystemStudioError
+from openprovision.errors    import OpenProvisionError
 from openprovision.event     import Event
 from openprovision.sslogging   import L1
 
@@ -33,7 +33,7 @@ from openprovision.modules.shared.publish import PublishEventMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PublishSetupEvent', 'PublishEvent' ],
-  description = 'publish distribution to a web accessible location',
+  description = 'publish system repository to a web accessible location',
 )
 
 TYPE_DIR = pps.constants.TYPE_DIR
@@ -50,15 +50,15 @@ class PublishSetupEvent(PublishEventMixin, Event):
     )
 
     self.DATA = {
-      'variables': ['distributionid'],
+      'variables': ['systemid'],
       'config': ['.'],
     }
 
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.localpath = self.get_local('/var/www/html/distributions')
-    self.webpath   = self.get_remote('distributions')
+    self.localpath = self.get_local('/var/www/html/system_repos')
+    self.webpath   = self.get_remote('system_repos')
 
   def apply(self):
     self.cvars['publish-content'] = set()
@@ -72,7 +72,7 @@ class PublishEvent(PublishEventMixin, Event):
       id = 'publish',
       parentid = 'all',
       requires = ['web-path', 'publish-path', 'publish-content'],
-      provides = ['published-distribution']
+      provides = ['published-repository']
     )
 
     self.DATA =  {
@@ -114,11 +114,11 @@ class PublishEvent(PublishEventMixin, Event):
       dir.removedirs()
 
 
-class InterfaceIOError(SystemStudioError):
+class InterfaceIOError(OpenProvisionError):
   message = ( "Error looking up information for interface '%(interface)s': "
               "%(message)s" )
 
-class FQDNNotFoundError(SystemStudioError):
+class FQDNNotFoundError(OpenProvisionError):
   message = ( "Unable to locate a fully-qualified domain name (FQDN) for "
               "IP address '%(ipaddr)s' on interface '%(interface)s'. "
               "Valid FQDNs must contain at least one '.' to separate host "
@@ -127,4 +127,4 @@ class FQDNNotFoundError(SystemStudioError):
               "check with your network administrator to ensure the DNS reverse "
               "record is correctly configured. Otherwise, please specify an "
               "alternative interface for obtaining the IP address. See the "
-              "SystemStudio documentation on 'Publish' for more information.") 
+              "OpenProvision documentation on 'Publish' for more information.") 

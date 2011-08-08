@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -126,7 +126,7 @@ class EventTestCase(unittest.TestCase):
                                            version=self.version,
                                            arch=self.arch,
                                            include_baseurl=True,
-                                           baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
+                                           baseurl='http://www.openprovision.com/mirrors/%s' % self.distro)
     base.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
 
     repos.append(base.toxml())

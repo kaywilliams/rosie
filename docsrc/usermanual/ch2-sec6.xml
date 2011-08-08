@@ -4,7 +4,7 @@
 <section>
   <title>Glossary of Terms</title>
 
-  <para>These terms are specific to the SystemStudio environment, not to Linux or
+  <para>These terms are specific to the OpenProvision environment, not to Linux or
   applications that run on Linux. They are arranged in alphabetical order.</para>
 
   <para><variablelist>
@@ -14,10 +14,10 @@
         role="strong"><varname>$ID</varname></emphasis></term>
 
         <listitem>
-          <para>The id for a system distribution. The default value consists of the
+          <para>The id for a system repository. The default value consists of the
           <emphasis>/name</emphasis>, <emphasis>/version</emphasis> and
           <emphasis>/arch</emphasis> child elements of the
-          <emphasis>main</emphasis> element in the system distribution definition in the format
+          <emphasis>main</emphasis> element in the system repository definition in the format
           <varname>$NAME</varname>-<varname>$VERSION</varname>-<varname>$ARCH</varname>.</para>
         </listitem>
       </varlistentry>
@@ -27,7 +27,7 @@
 
         <listitem>
           <para>The server on which <application
-          class="software">SystemStudio</application> is installed.</para>
+          class="software">OpenProvision</application> is installed.</para>
         </listitem>
       </varlistentry>
 
@@ -35,7 +35,7 @@
         <term><emphasis role="strong">client machine</emphasis></term>
 
         <listitem>
-          <para>The target system on which system distribution content is 
+          <para>The target system on which system repository content is 
           installed.
           </para>
         </listitem>
@@ -45,13 +45,13 @@
         <term><emphasis role="strong">configuration package</emphasis></term>
 
         <listitem>
-	  <para>An RPM package created by SystemStudio during the build
+	  <para>An RPM package created by OpenProvision during the build
 	  process. This package contains the <application
-	  class="software">YUM</application> sync plugin, SystemStudio created
+	  class="software">YUM</application> sync plugin, OpenProvision created
 	  YUM configuration, and user-specified configuration files and
 	  scripts. The name of the configuration package is in the following
 	  format, where $VERSION is taken from the <emphasis>version</emphasis>
-	  element in the system distribution definition and $RELEASE is taken
+	  element in the system repository definition and $RELEASE is taken
 	  from the <xref linkend="system-data-file" />.
           </para>
 
@@ -59,67 +59,67 @@
           <filename>system-config-$VERSION-$RELEASE.noarch.rpm</filename></informalexample>
           </para>
 
-          <para>For example, given a system distribution with the name "samba-server" and version "5", the first time SystemStudio creates the system distribution, the configuration package will be named as follows:</para>
+          <para>For example, given a system repository with the name "samba-server" and version "5", the first time OpenProvision creates the system repository, the configuration package will be named as follows:</para>
 
           <para><informalexample>
           <filename>system-config-5-1.noarch.rpm</filename></informalexample>
           </para>
 
 	  <para>The release number "1" will be written to the system
-	  distribution data file. When configuration changes in the future,
+	  system data file. When configuration changes in the future,
 	  e.g. when files or scripts are added, deleted or modified,
-	  SystemStudio will increment the release number by 1, create a new
+	  OpenProvision will increment the release number by 1, create a new
 	  configuration package (in this case
 	  samba-server-config-5-2.noarch.rpm), and store the new release number
-	  ("2") in the system distribution data file. The incremented version
+	  ("2") in the system repository data file. The incremented version
 	  number allows installed client machines to determine that a new
 	  configuration package is available for download and
 	  installation.</para>
 
           <para>For more information on what the configuration package contains
           and how to customize its contents, see the section on 
-          <emphasis>config</emphasis> in the Distribution Definition File 
+          <emphasis>config</emphasis> in the System Definition File 
           Reference.</para>
 
         </listitem>
       </varlistentry>
 
-      <varlistentry id="ddfr" xreflabel="DDFR">
-        <term><emphasis role="strong">DDFR</emphasis></term>
+      <varlistentry id="ddfr" xreflabel="SDFR">
+        <term><emphasis role="strong">SDFR</emphasis></term>
 
         <listitem>
-	  <para>"Distribution Definition File Reference," the rules of syntax
-	  for the system distribution definition.</para>
+	  <para>"System Definition File Reference," the rules of syntax
+	  for the system repository definition.</para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="system_definition" xreflabel="distribution definition">
-        <term><emphasis role="strong">distribution definition</emphasis></term>
+      <varlistentry id="system_definition" xreflabel="system definition">
+        <term><emphasis role="strong">system definition</emphasis></term>
 
         <listitem>
-          <para>The information SystemStudio uses to build, configure and store
-          a system distribution. By convention the text file uses the <filename
+          <para>The information OpenProvision uses to build, configure and store
+          a system repository. By convention the text file uses the <filename
           class="extension">.definition</filename> extension. The file uses XML
-          tagging as defined in the DDFR.</para>
+          tagging as defined in the SDFR.</para>
         </listitem>
       </varlistentry>
 
       <varlistentry id="system-data-file" xreflabel="system data file">
-        <term><emphasis role="strong">system distribution data file</emphasis></term>
+        <term><emphasis role="strong">system repository data file</emphasis></term>
 
         <listitem>
-	  <para>A file SystemStudio creates to track and increment the release
-	  number of the system distribution's <xref
+	  <para>A file OpenProvision creates to track and increment the release
+	  number of the system repository's <xref
 	  linkend="configuration-package" />. This file is created in the same
-	  folder as the system distribution definition, using the same
+	  folder as the system repository definition, using the same
 	  filename, with a <filename>.dat</filename> file extension. For
-	  example, given the full path to a distribution definition:</para>
+	  example, given the full path to a system definition:</para>
 
           <para><informalexample>
           <filename>/~/samba-server.definition</filename></informalexample>
           </para>
 
-          <para>SystemStudio will create the data file as follows:</para>
+          <para>OpenProvision will create the data file as follows:</para>
 
           <para><informalexample>
           <filename>/~/samba-server.definition.dat</filename></informalexample>
@@ -137,29 +137,29 @@
         <term><emphasis role="strong">download location</emphasis></term>
 
         <listitem>
-	  <para>The web location (URL) for downloading system distribution
-	  content. SystemStudio uses this location during the build process for
+	  <para>The web location (URL) for downloading system repository
+	  content. OpenProvision uses this location during the build process for
 	  two purposes, for creating YUM client configuration (included in the
 	  <xref linkend="configuration-package"/>), and for customizing network
 	  install images. By default the download location is as follows, where
 	  $IP_ADDRESS is the address of the build machine, and $ID is the
-	  system distribution id.</para>
+	  system repository id.</para>
 
           <para><informalexample>
-	    <filename>http://$IP_ADDRESS/distributions/$ID</filename></informalexample></para>
+	    <filename>http://$IP_ADDRESS/system_repos/$ID</filename></informalexample></para>
 
 	  <para>For example, if the IP Address for the build machine is
-	  <filename>192.168.1.5</filename> and the system distribution id is
+	  <filename>192.168.1.5</filename> and the system repository id is
 	  <emphasis>samba-server-5-i386</emphasis> the download location is as
 	  follows:</para>
 
           <para><informalexample>
-              <filename>http://192.168.1.5/distributions/samba-server-5-i386</filename>
+              <filename>http://192.168.1.5/system_repos/samba-server-5-i386</filename>
             </informalexample></para>
 
 	  <para>The download location is configurable using the
-	  <emphasis>publish</emphasis> element of the system distribution
-	  definition. See the DDFR for information on the publish element. See
+	  <emphasis>publish</emphasis> element of the system repository
+	  definition. See the SDFR for information on the publish element. See
 	  also <xref linkend="production-definitions"/> for a discussion on
 	  using download locations in a production environment.</para>
         </listitem>
@@ -169,7 +169,7 @@
         <term><emphasis role="strong">system repository</emphasis></term>
 
         <listitem>
-	  <para>RPM package repository created during the system distribution
+	  <para>RPM package repository created during the system repository
 	  build process. Provides packages for use during client machine
 	  installations and updates. Can be accessed over the network from the
 	  <filename type="directory">os</filename> folder of the <xref
@@ -182,9 +182,9 @@
 
         <listitem>
 	  <para>Within a <application
-	  class="software">SystemStudio</application> development - staging -
+	  class="software">OpenProvision</application> development - staging -
 	  production environment, it serves as the download server from which
-	  clients retrieve the system distribution contents to install.</para>
+	  clients retrieve the system repository contents to install.</para>
         </listitem>
       </varlistentry>
 
@@ -194,8 +194,8 @@
         <listitem>
           <para>The server within a development - staging - production
           environment that uses <application
-          class="software">SystemStudio</application> to build production-ready
-          system distributions for migration to the production, or
+          class="software">OpenProvision</application> to build production-ready
+          system repositories for migration to the production, or
           download, server.</para>
         </listitem>
       </varlistentry>
@@ -205,18 +205,18 @@
 
         <listitem>
 	  <para>A <application class="software">YUM</application> plugin
-	  provided by SystemStudio that allows synchronizing packages on client
+	  provided by OpenProvision that allows synchronizing packages on client
 	  machines with packages in the <xref linkend="system-repository"/>.
 	  The plugin is included by default in the <xref
 	  linkend="configuration-package" />, which serves as the mechanism for
 	  installing it on client machines. The plugin establishes the system
-	  distribution repository as the <emphasis>master
+	  system repository as the <emphasis>master
 	  repository</emphasis>, disables all other repositories, and provides
 	  a new argument, <emphasis>sync</emphasis>, to YUM. Help for the
 	  <emphasis>sync</emphasis> argument is available on client machines
 	  using the <command>yum help</command> command. Running <command>yum
 	  sync</command> allows YUM to calculate package additions and removals
-	  based on packages available in the system distribution repository.
+	  based on packages available in the system repository.
 	  For more information, see the section on <xref
 	  linkend="updating-client-machines"/>.</para>
         </listitem>

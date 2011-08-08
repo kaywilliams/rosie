@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ from openprovision.modules.shared import DeployEventMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['DeployEvent'],
-  description = 'installs and updates a client using the published distribution',
+  description = 'installs and updates a client using the published repository',
 )
 
 
@@ -32,7 +32,7 @@ class DeployEvent(DeployEventMixin, Event):
     Event.__init__(self,
       id = 'deploy',
       parentid = 'all',
-      requires = ['web-path', 'repomd-file', 'published-distribution'],
+      requires = ['web-path', 'repomd-file', 'published-repository'],
     )
 
     self.DATA =  {

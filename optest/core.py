@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2011
-# Rendition Software, Inc. All rights reserved.
+# OpenProvision, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@ import unittest
 
 from optest import EventTestCaseDummy, decorate
 
-from openprovision.errors import SystemStudioError
+from openprovision.errors import OpenProvisionError
 
 class EventTestCaseHeader(EventTestCaseDummy):
   separator1 = '=' * 70
@@ -88,7 +88,7 @@ def CoreEventTestCase00(self):
     self.execute_predecessors(self.event)
     try:
       self.failIfRuns(self.event)
-    except (AssertionError, RuntimeError, SystemStudioError), e:
+    except (AssertionError, RuntimeError, OpenProvisionError), e:
       pass
     if self.event.diff.handlers.has_key('output'):
       self.failIf(self.event.verifier.unittest().wasSuccessful())
