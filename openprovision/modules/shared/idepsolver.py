@@ -317,10 +317,12 @@ class IDepsolver(Depsolver):
     else:           inscb = None
 
     if inscb: inscb.start("checking for package changes")
-    self.iremove()
-    self.iinstall()
-    self.iupdate()
-    if inscb: inscb.end()
+    try:
+      self.iremove()
+      self.iinstall()
+      self.iupdate()
+    finally:
+      if inscb: inscb.end() # end progress bar before exiting if errors occur
 
     if self.logger: self.logger.log(1, L1("resolving package dependencies"))
     for po in self.installed_packages.values():

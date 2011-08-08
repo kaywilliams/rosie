@@ -185,7 +185,6 @@ class SyncCallbackCompressed(SyncCallback):
     if self.logger.test(2):
       self.bar = ProgressBar(size=count, title=L2(''), layout=LAYOUT_GPG)
       self.bar.start()
-      self.bar.join()
 
   def _cp_start(self, size, text, seek=0.0):
     """
@@ -244,7 +243,6 @@ class BuildDepsolveCallback(object):
                              layout=LAYOUT_TIMER,
                              throttle=10)
       self.bar.start()
-      self.bar.join()
 
   def setupEnd(self):
     if self.logger.test(2):
@@ -277,7 +275,6 @@ class BuildDepsolveCallback(object):
                              layout=LAYOUT_DEPSOLVE,
                              throttle=10)
       self.bar.start()
-      self.bar.join()
 
   def pkgAdded(self, pkgtup=None, state=None):
     if self.logger.test(2):
@@ -331,7 +328,6 @@ class TimerCallback(object):
     if self.logger.test(2):
       self.bar = ProgressBar(layout=LAYOUT_TIMER, title=L1(message))
       self.bar.start()
-      self.bar.join()
 
   def end(self):
     if self.logger.test(2):

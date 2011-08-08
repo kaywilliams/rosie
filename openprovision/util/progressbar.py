@@ -449,4 +449,3 @@ def simulate(bar=None, step=1, sleep=0.05):
     time.sleep(sleep)
     bar.status.position += step
 
-  bar.join()

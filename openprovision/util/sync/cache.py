@@ -218,7 +218,6 @@ class CachedSyncCallback(SyncCallbackMetered):
     if not self.enabled: self.bar._fo = None
 
     self.bar.start()
-    self.bar.join()
 
   def _notify_cache(self):
     self.mode = MODE_CACHE

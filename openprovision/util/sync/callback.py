@@ -127,7 +127,6 @@ class SyncCallbackMetered(SyncCallback):
     self.bar.tags.get('curvalue').update(condense=True, ftype=str)
     self.bar.tags.get('maxvalue').update(condense=True, ftype=str)
     self.bar.start()
-    self.bar.join()
 
   def _cp_update(self, amount_read):
     self.bar.update(amount_read)
