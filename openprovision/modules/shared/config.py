@@ -21,11 +21,14 @@ from openprovision.util import pps
 from openprovision.util.repo import YumRepo
 
 from openprovision.event        import Event
-from openprovision.event.fileio import MissingXpathInputFileError
+from openprovision.event.fileio import MissingXpathInputFileError 
 from openprovision.validate     import InvalidConfigError
 
-from openprovision.modules.shared import RpmBuildMixin, Trigger, TriggerContainer
-from openprovision.errors         import assert_file_readable
+from openprovision.modules.shared import (RpmBuildMixin, 
+                                          Trigger, 
+                                          TriggerContainer)
+from openprovision.errors         import (assert_file_readable, 
+                                          OpenProvisionError)
 
 import cPickle
 import hashlib
@@ -121,12 +124,15 @@ class ConfigEventMixin(RpmBuildMixin):
                  # using a dummy repo since rpmbuild repo not yet created
                  [YumRepo(id='dummy', gpgkey=self.cvars['pubkey'])]):
       for url in repo.gpgkey:
-        self.io.add_fpath(url,
-          self.gpgkey_dir,
-          destname='RPM-GPG-KEY-%s' % \
-            yum.YumBase()._retrievePublicKey(url, yum.yumRepo.YumRepository(
-            str(repo)))[0]['hexkeyid'].lower(),
-          id='gpgkeys')
+        try:
+          self.io.add_fpath(url,
+            self.gpgkey_dir,
+            destname='RPM-GPG-KEY-%s' % \
+              yum.YumBase()._retrievePublicKey(url, yum.yumRepo.YumRepository(
+              str(repo)))[0]['hexkeyid'].lower(),
+            id='gpgkeys')
+        except yum.Errors.YumBaseError, e:
+          raise MissingGPGKeyError(file=url, repo=repo.id)
 
   def run(self):
     for path in [ self.pklfile, self.gpgkey_dir ]:
@@ -503,3 +509,5 @@ class ConfigEventMixin(RpmBuildMixin):
     else:
       self.cvars['gpgkeys']=[]
 
+class MissingGPGKeyError(OpenProvisionError):
+  message = "Cannot find GPG key specified for the '%(repo)s' package repository: '%(file)s'"
