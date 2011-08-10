@@ -17,6 +17,7 @@
 #
 
 import paramiko
+import select
 import signal
 import sys
 import traceback
@@ -191,13 +192,24 @@ class DeployEventMixin:
       self.log(2, L2("executing '%s' on '%s'" % (cmd, params['hostname'])))
       chan = client._transport.open_session()
       chan.exec_command(cmd)
-      stdin = chan.makefile('wb', -1)
-      stdout = chan.makefile('rb', -1)
-      stderr = chan.makefile_stderr('rb', -1)
-      for f in ['out', 'err']:
-        text = eval('std%s.read()' % f).rstrip()
-        if text:
-          self.log(0, L0(text))
+
+      while True:
+        r, w, x = select.select([chan], [], [], 0.0)
+        if len(r) > 0:
+          got_data = False
+          if chan.recv_ready():
+            data = chan.recv(1024)
+            if data:
+              got_data = True
+              self.log(0, L0(data.rstrip()))
+          if chan.recv_stderr_ready():
+            data = chan.recv_stderr(1024)
+            if data:
+              got_data = True
+              self.log(0, L0(data.rstrip()))
+          if not got_data:
+            break
+
       status = chan.recv_exit_status()
       chan.close()
       client.close()
