@@ -85,7 +85,7 @@ class EventTestCase(unittest.TestCase):
 
   # config setup
   def _make_default_config(self):
-    top = config.Element('distribution', attrs={'schema-version': '1.0'})
+    top = config.Element('system', attrs={'schema-version': '1.0'})
 
     main = self._make_main_config()
     if main is not None: top.append(main)
