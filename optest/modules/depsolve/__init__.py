@@ -78,7 +78,7 @@ class DepsolveEventTestCase(EventTestCase):
                                             version=self.version,
                                             arch=self.arch,
                                             include_baseurl=True,
-                                            baseurl='http://www.openprovision.com/mirrors/%s' % self.distro)
+                                            baseurl='http://www.renditionsoftware.com/mirrors/%s' % self.distro)
         r.update({'mirrorlist': None, 'gpgkey': None, 'gpgcheck': 'no'})
         if repoid == 'updates' and 'systemid' in r:
           # look for systemid in optest folder 
