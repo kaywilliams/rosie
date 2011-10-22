@@ -36,7 +36,7 @@ import yum
 
 class ConfigEventMixin(RpmBuildMixin):
   configxpath = '.' # path to config element
-  config_mixin_version = "1.05"
+  config_mixin_version = "1.06"
 
   def __init__(self): # call after creating self.DATA
     RpmBuildMixin.__init__(self,
