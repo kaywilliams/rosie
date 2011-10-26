@@ -4,7 +4,7 @@
 <section id="production-definitions" xreflabel="Production Definitions">
   <title>Production Definitions</title>
 
-  <para>When working with your system repository through the development - staging - 
+  <para>When working with your solution through the development - staging - 
   production cycle, you will manage two versions of it, a development 
   version and a production version. The development version, which
   specifies the Development server as the <xref linkend="download-location"/>, 
@@ -23,14 +23,14 @@
   <para>XIncludes are a convenient feature, in general, for reusing content 
   across multiple definitions. Later in this section we will discuss an additional 
   scenario for using XInclude. We will also cover important limitations in 
-  OpenProvision's XInclude support.</para>
+  CentOS Studio's XInclude support.</para>
 
   <section>
     <title>Create Development and Production Definitions</title>
 
     <para>To create a <emphasis>development</emphasis> definition for the samba-server example, begin
     with the <filename>samba-server.definition</filename> file you created in
-    <xref linkend="defining-a-system"/>. First, rename the definition:</para>
+    <xref linkend="defining-a-solution"/>. First, rename the definition:</para>
 
     <para><informalexample><programlisting>
 mv samba-server.definition samba-server-developer.definition
@@ -48,29 +48,29 @@ mv samba-server.definition samba-server-developer.definition
     </informalexample></para> 
 
 
-    <para>The next step is to create a <emphasis>production</emphasis> definition. You have three objectives when creating this file. The first is to reuse as much content from the development definition as possible.  You will do this using XInclude statements. The second is to change the name of the system repository, which will allow both the development and production system repositories to be built on the same physical machine, if desired, without overwriting each other. This objective is accomplished by changing the <emphasis>/main/name</emphasis> element. The third is to change the <xref linkend="download-location"/> for the system repository, specifying a fixed URL that is common across Staging and Production environments.  You will do this by adding a <emphasis>/publish/remote-url</emphasis> element. In our example the URL will be <filename>http://download.company.com/systems</filename>. The completed <filename>samba-server-production.definition</filename> will look as follows:</para>
+    <para>The next step is to create a <emphasis>production</emphasis> definition. You have three objectives when creating this file. The first is to reuse as much content from the development definition as possible.  You will do this using XInclude statements. The second is to change the name of the solution, which will allow both the development and production solution to be built on the same physical machine, if desired, without overwriting each other. This objective is accomplished by changing the <emphasis>/main/name</emphasis> element. The third is to change the <xref linkend="download-location"/> for the solution, specifying a fixed URL that is common across Staging and Production environments.  You will do this by adding a <emphasis>/publish/remote-url</emphasis> element. In our example the URL will be <filename>http://download.company.com/solutions</filename>. The completed <filename>samba-server-production.definition</filename> will look as follows:</para>
 
     <para><informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;system xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;solution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main&gt;
   &lt;name&gt;samba-server&lt;/name&gt;
-  &lt;!-- reuse all elements from /system/main except "name" --&gt;
+  &lt;!-- reuse all elements from /solution/main except "name" --&gt;
   &lt;xi:include href="samba-server-development.definition"
-   xpointer="xpointer(/system/main/*[name()!=&amp;quot;name&amp;quot;])"/&gt; 
+   xpointer="xpointer(/solution/main/*[name()!=&amp;quot;name&amp;quot;])"/&gt; 
 &lt;/main&gt;
 
-&lt;!-- reuse all elements from /system except "main" --&gt;
+&lt;!-- reuse all elements from /solution except "main" --&gt;
 &lt;xi:include href="samba-server-development.definition"
- xpointer="xpointer(/system/*[name()!=&amp;quot;main&amp;quot;])"/&gt;
+ xpointer="xpointer(/solution/*[name()!=&amp;quot;main&amp;quot;])"/&gt;
 
 &lt;publish&gt;
-  &lt;remote-url&gt;http://download.company.com/system_repos/&lt;/remote-url&gt;
+  &lt;remote-url&gt;http://download.company.com/solutions/&lt;/remote-url&gt;
 &lt;/publish&gt;
 
-&lt;/system&gt;
+&lt;/solution&gt;
       </programlisting>
     </informalexample></para> 
 
@@ -82,11 +82,11 @@ xmllint --xinclude --format samba-server-production.definition
       </programlisting>
     </informalexample></para> 
 
-   <para>Once you have created the files, you can ensure they are valid for use with OpenProvision using the --validate-only command as follows, where $filename is the name of the file to validate:</para>
+   <para>Once you have created the files, you can ensure they are valid for use with CentOS Studio using the --validate-only command as follows, where $filename is the name of the file to validate:</para>
 
     <para><informalexample>
       <programlisting>
-# openprovision --validate-only $filename
+# centosstudio --validate-only $filename
       </programlisting>
     </informalexample></para> 
  
@@ -96,31 +96,31 @@ xmllint --xinclude --format samba-server-production.definition
   <title>Strategies for Content Reuse with XInclude</title>
 
   <para>To ease the organization and reuse of information, the software development community
-  commonly uses substitution methods. In the case of OpenProvision, you can create and
+  commonly uses substitution methods. In the case of CentOS Studio, you can create and
   store content in one location and use XML Inclusions (XInclude) and XPaths 
-  to reuse content across system definitions and condense large definition
+  to reuse content across solution definitions and condense large definition
   files into more manageable and readable sections using an object-oriented
-  tree. Within that context, some components of a system definition are
+  tree. Within that context, some components of a solution definition are
   prime candidates for substitution and reuse.</para>
 
   <para>Using XInclude instructions within your definitions has a number of
   advantages. XInclude processing is recursive. You can have multiple layers of 
-  XIncluded documents within one collective system definition. By using 
+  XIncluded documents within one collective solution definition. By using 
   XPointer you can target one portion of a document. From a time management 
   standpoint, you spend time creating static sections once, then reuse them. 
   If your network topology changes, for example, then you have one file to 
   change, not ten, and the inherent risk of inaccuracies or inconsistencies 
   among the definitions and within your network.</para>
 
-  <para>Using XIncludes with OpenProvision does have one significant limitation, and this has to do with relative path resolution. Specifically, while paths within <emphasis>http</emphasis> attributes of <emphasis>include</emphasis> elements are resolved relative to the <emphasis>including document's location</emphasis>, OpenProvision resolves all other paths, as noted in <xref linkend="defining-a-system"/>, relative to the <emphasis>location of the definition</emphasis>. Because of this limitation, you will need to exercise care when planning the file system structure for your definitions and shared content.</para>
+  <para>Using XIncludes with CentOS Studio does have one significant limitation, and this has to do with relative path resolution. Specifically, while paths within <emphasis>http</emphasis> attributes of <emphasis>include</emphasis> elements are resolved relative to the <emphasis>including document's location</emphasis>, CentOS Studio resolves all other paths, as noted in <xref linkend="defining-a-solution"/>, relative to the <emphasis>location of the definition</emphasis>. Because of this limitation, you will need to exercise care when planning the file system structure for your definitions and shared content.</para>
  
-  <para>Within the context of OpenProvision, a two-part structure on the <application
-  class="software">OpenProvision</application> build machine will suffice for
+  <para>Within the context of CentOS Studio, a two-part structure on the <application
+  class="software">CentOS Studio</application> build machine will suffice for
   managing the common versus unique definition components. As in the diagram
-  below, under the subdirectory <filename class="directory">system repositories/
+  below, under the subdirectory <filename class="directory">solutions/
   </filename>, the <filename class="directory">common/</filename> branch
   contains reusable components while the other branches each contain files
-  unique to a single system.</para>
+  unique to a single solution.</para>
 
   <para><mediaobject>
       <imageobject>
@@ -131,20 +131,20 @@ xmllint --xinclude --format samba-server-production.definition
 
   <para>To properly use the XInclude and XPointer structures, the directory
   tree must represent the tiered structure above. In other words, the common
-  files to be included must exist at the same tier as any system definitions that
+  files to be included must exist at the same tier as any solution definitions that
   references them.</para>
 
-  <para>In the <filename class="directory">system repositories/common/</filename>
+  <para>In the <filename class="directory">solutions/common/</filename>
   directory above, there are several reusable files.
   <filename>Repos.xml</filename> contains several repository mirror lists and
   base URLs from which to download the Linux operating system based upon brand,
   architecture and whether they are "base" or "updates." The
   <filename>groups-packages.xml</filename> file contains common application
-  groups and packages that would be included in systems using any operating 
-  system, such as "admin" or "editors."</para>
+  groups and packages that would be included in solutions using any operating 
+  solution, such as "admin" or "editors."</para>
 
   <para>For the Samba Server, the directory <filename
-  class="directory">system repositories/samba-server/</filename> in the drawing above
+  class="directory">solutions/samba-server/</filename> in the drawing above
   contains the <filename>samba-server.definition</filename> file, the Samba
   server configuration file, a kickstart file and a validation script. The
   system definition would XInclude
@@ -156,21 +156,21 @@ xmllint --xinclude --format samba-server-production.definition
   that you will create a separate repository file,
   <filename>repos.xml.</filename></para>
 
-  <para>First, create your <filename class="directory">system repositories/</filename>
+  <para>First, create your <filename class="directory">solutions/</filename>
   subdirectory with the two subdirectories <filename
   class="directory">common/</filename> and <filename
   class="directory">samba-server/</filename> as above. Place your
   <filename>samba-server.definition</filename> and
   <filename>smb.conf</filename> files in the latter.</para>
 
-  <para>Next, create the <filename>system repositories/common/repos.xml</filename>
+  <para>Next, create the <filename>solutions/common/repos.xml</filename>
   using the example below. The separate repository file includes the URLs for
   several operating system brands, architectures and statuses, e.g. "base" and
   "updates."</para>
 
   <para><informalexample>
       <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;system xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;solution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;!-- reposistories for centos --&gt;
 &lt;repos-centos&gt;
@@ -192,13 +192,13 @@ xmllint --xinclude --format samba-server-production.definition
 
 &lt;/repos-centos&gt;
 
-&lt;/system&gt;</programlisting>
+&lt;/solution&gt;</programlisting>
     </informalexample></para>
 
   <para>The final step is to modify the
   <filename>samba-server.definition</filename> file, removing the
   <emphasis>repos</emphasis> details and using XInclude and XPointer to reuse
-  common content. You may want to rename the system repository definition or include it in 
+  common content. You may want to rename the solution definition or include it in 
   a version control system.</para>
 
   <para><informalexample>
@@ -206,16 +206,16 @@ xmllint --xinclude --format samba-server-production.definition
 
     &lt;!-- use global repos for CentOS --&gt;
     &lt;xi:include href="../common/repos.xml" 
-                xpointer="xpointer(/system_repos/repos-centos/*)" /&gt;
+                xpointer="xpointer(/solutions/repos-centos/*)" /&gt;
 
   &lt;/repos&gt;</programlisting>
     </informalexample></para>
 
-  <para>To build the system repository definition,
+  <para>To build the solution definition,
   you will also have to change the path to the <filename>smb.conf</filename>
   file in <emphasis>config/file</emphasis>.</para>
 
-  <para>The result is an object-oriented system definition that will
+  <para>The result is an object-oriented solution definition that will
   reduce your maintenance overhead.</para>
   </section>
 

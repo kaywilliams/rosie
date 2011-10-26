@@ -16,9 +16,9 @@
     The kickstart element specifies either the
     <varname>PATH</varname> to a kickstart file, or the text of a file to be 
     created. The resulting file is named <filename>ks.cfg</filename> and 
-    included in the <filename>os</filename> folder of the system repository,
+    included in the <filename>os</filename> folder of the solution,
     e.g.
-    <filename>http://server.company.com/system_repos/samba-server-5-i386/os/ks.cfg</filename>.
+    <filename>http://server.company.com/solutions/samba-server-5-i386/os/ks.cfg</filename>.
     It is also included in the <emphasis role="strong"><xref
     linkend="bootiso" /></emphasis> and <emphasis role="strong"><xref
     linkend="diskboot-image" /></emphasis> images, and in all <emphasis
@@ -26,12 +26,12 @@
     </para>
 
     <para>For more information on creating and using kickstart files, see the
-    <emphasis>OpenProvision User Manual</emphasis>.
+    <emphasis>CentOS Studio User Manual</emphasis>.
     </para> 
 
     <note>It is not necessary to specify a '%packages' section in the kickstart
-    file. OpenProvision automatically configures the installer to install all
-    packages in the system repository. If a '%packages' section is
+    file. CentOS Studio automatically configures the installer to install all
+    packages in the solution. If a '%packages' section is
     provided, it is ignored.</note>
 
   </section>

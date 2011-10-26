@@ -73,7 +73,7 @@
         <para>
         This macro will be replaced by the string
         <constant>method=$path</constant>, where <varname>$path</varname>
-        is the remote URL to the system repository's published output directory,
+        is the remote URL to the solution's published output directory,
         as determined by the
         <emphasis role="strong"><xref linkend="publish"/></emphasis>
         module.
@@ -126,7 +126,7 @@
 
       <para>
       In the following examples, the default set of kernel arguments
-      is <constant>method=http://server/system_repos/mysystemos</constant> 
+      is <constant>method=http://server/solutions/mysystemos</constant> 
       and <constant>ks=ks.cfg</constant>.
       </para>
 
@@ -148,7 +148,7 @@
 
         The final set of kernel append arguments is
 
-        <literallayout>method=http://server/system_repos/mysystemos ks=ks.cfg noipv6</literallayout>
+        <literallayout>method=http://server/solutions/mysystemos ks=ks.cfg noipv6</literallayout>
         </para>
       </section>
 
@@ -171,7 +171,7 @@
 
       The final set of kernel append arguments is
 
-        <literallayout>method=http://server/system_repos/mysystemos noipv6</literallayout>
+        <literallayout>method=http://server/solutions/mysystemos noipv6</literallayout>
         </para>
       </section>
 
@@ -202,7 +202,7 @@
       </title>
       <para>
       A <varname>CAPABILITY</varname> to add to a top-level element RPM's
-      obsoletes list. Each RPM OpenProvision builds has a pre-determined set of
+      obsoletes list. Each RPM CentOS Studio builds has a pre-determined set of
       capabilities it uses if the top-level element's
       <emphasis>@use-default-obsoletes</emphasis> attribute
       is <constant>TRUE</constant>. The default set of obsoletes can be 
@@ -263,7 +263,7 @@
       <varname>PATH</varname>-like elements generally are used to copy an
       input file or folder to some other location, such as within a disk image,
       into a RPM in order to be installed to a specific location on client
-      systems, or into a folder within the system repository tree itself.
+      systems, or into a folder within the solution tree itself.
       A <varname>PATH</varname>-like element's text value is the
       <varname>PATH</varname> to some file or folder <varname>$input</varname>
       to use, while the <emphasis>@destdir</emphasis>,
@@ -274,12 +274,12 @@
       </para>
 
       <para>
-      <application class="software">OpenProvision</application> supports reading
+      <application class="software">CentOS Studio</application> supports reading
       from <varname>$input</varname>s for file, http, and https locations,
       and writing to file locations. Unless otherwise specified,
       <varname>$input</varname> may refer to both file and folder locations.
       If the <varname>$input</varname> does not exist or is otherwise
-      unreadable, <application class="software">OpenProvision</application> typically
+      unreadable, <application class="software">CentOS Studio</application> typically
       will raise an error and exit.
       </para>
       

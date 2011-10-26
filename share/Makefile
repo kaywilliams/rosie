@@ -1,4 +1,4 @@
-SUBDIRS = openprovision
+SUBDIRS = centosstudio
 
 .PHONY: all clean install
 

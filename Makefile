@@ -1,9 +1,9 @@
-PKGNAME := openprovision
+PKGNAME := centosstudio
 SPECFILE := $(PKGNAME).spec
 VERSION := $(shell awk '/Version:/ { print $$2 }' $(SPECFILE))
 RELEASE := $(shell awk '/Release:/ { print $$2 }' $(SPECFILE) | sed -e 's|%{?dist}||g')
 
-SUBDIRS = bin docsrc/man etc share openprovision
+SUBDIRS = bin docsrc/man etc share centosstudio
 
 BUILDARGS =
 
@@ -59,7 +59,7 @@ srpm: archive
 bumpver:
 	@NEWSUBVER=$$((`echo $(VERSION) | cut -d . -f 3` + 1)) ; \
 	NEWVERSION=`echo $(VERSION).$$NEWSUBVER |cut -d . -f 1-2,4` ; \
-	changelog="`hg log --exclude .hgtags --exclude openprovision.spec --exclude ChangeLog --exclude Makefile -r tip:$(PKGNAME)-$(VERSION)-$(RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
+	changelog="`hg log --exclude .hgtags --exclude centosstudio.spec --exclude ChangeLog --exclude Makefile -r tip:$(PKGNAME)-$(VERSION)-$(RELEASE) --template "- {desc|strip|firstline} ({author})\n" 2> /dev/null || echo "- Initial Build"`"; \
 	rpmlog="`echo "$$changelog" | sed -e 's/@.*>)/)/' -e 's/(.*</(/'`"; \
 	DATELINE="* `date "+%a %b %d %Y"` `hg showconfig ui.username` - $$NEWVERSION-$(RELEASE)" ; \
 	cl=`grep -n %changelog $(SPECFILE) | cut -d : -f 1` ; \

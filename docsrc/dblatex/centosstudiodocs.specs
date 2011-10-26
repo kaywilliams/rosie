@@ -1,0 +1,3 @@
+TexInputs: latex/
+TexStyle:  centosstudiodocs
+XslParam:  xsl/param.xsl

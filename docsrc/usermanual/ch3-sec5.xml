@@ -6,8 +6,8 @@
   <title>Installing Physical and Virtual Clients</title>
 
   <para>Deployment to a client machine is the next step. Because 
-  <application class="software">OpenProvision</application> creates
-  system repositories in a standard operating system format, client machines
+  <application class="software">CentOS Studio</application> creates
+  solutions in a standard operating system format, client machines
   can be deployed using the same tools and methods as used for 
   <application class="software">Red Hat Enterprise Linux</application> and
   <application class="software">CentOS</application>.</para> 
@@ -15,7 +15,7 @@
   <para>For the samba-server example, we will discuss two installation methods. In the first method, you will install to a physical machine using a bootable CD or DVD. In the second, you will install to a virtual machine.</para>
 
   <para>The methods discussed below are only two of several possible methods for
-  installing your system repository to physical or virtual client machines. See the   
+  installing your solution to physical or virtual client machines. See the   
   <emphasis>Red Hat Enterprise Linux 5 Installation Guide</emphasis> and 
   <emphasis>Red Hat Enterprise Linux 5 Virtualization Guide</emphasis> for 
   additional methods and complete information.</para> 
@@ -25,24 +25,24 @@
   <para>In this method, you will use a network install image (<filename>boot.iso</filename>)
   to create an installation CD or DVD. To start the installation, you will boot
   the client machine using the CD/DVD. The installer program contained on the
-  CD/DVD will then use the network to download files from the system repository URL
+  CD/DVD will then use the network to download files from the solution URL
   to complete the installation. To complete this example, you must have
   configured the build machine as a web server, as described in 
   <xref linkend="configuring-a-build-machine"/> </para>
 
     <section>
       <title>Creating boot media</title>
-      <para>After <application class="software">OpenProvision</application>
-      completes the build, you  will find your system repository in a folder beneath
-      the <filename class="directory">/var/www/html/system_repos</filename> 
+      <para>After <application class="software">CentOS Studio</application>
+      completes the build, you  will find your solution in a folder beneath
+      the <filename class="directory">/var/www/html/solutions</filename> 
       default directory on the download server. The folder name will be
-      the system repository <varname>$ID</varname>, e.g.
+      the solution <varname>$ID</varname>, e.g.
       <filename>samba-server-5-i386</filename>.</para>
 
       <para>To install to a client machine, you burn a boot image to a separate
       media. For this example, burn the <filename>boot.iso</filename> image 
       (found in the <filename class="directory">/os/images</filename> folder 
-      below the <filename class="directory">/system_repos/samba-server-5-i386
+      below the <filename class="directory">/solutions/samba-server-5-i386
       </filename> folder, above) to a CD or DVD.</para>
 
       <para>To burn the image, one option is to run the
@@ -80,10 +80,10 @@
         <listitem>In the "Virtual Machine Name" panel, type <userinput>samba-server</userinput> as the machine name. Click the "Forward" button.</listitem>
         <listitem>In the "Virtualization Method" panel, ensure that the "Fully Virtualized" option is active and selected. If it is greyed out, your machine may not support kernel virtualization extensions, or it may not be configured correctly. Return to the section on <xref linkend="configuring-a-build-machine"/> for hardware and software requirements, and machine configuration instructions. Be sure to reboot the machine after following all instructions. If the "Fully Virtualized" option is active and selected, click the "Forward" button.</listitem>
         <listitem>In the "Installation Method" panel, click the "Network Install Tree" option. Click "Forward".</listitem>
-        <listitem>In the "Installation Source" panel, type "<userinput>http://$IP/system_repos/samba-server-5-i386/os</userinput>", where $IP is the IP address of the build machine, locatable by typing <userinput>ifconfig eth0</userinput> at a command prompt on the build machine.  Alternatively, if your build machine is locatable via DNS, you can enter the Fully Qualified Domain Name (FQDN) of the build machine in place of the IP address. Note, however, that you cannot enter a hostname (e.g. "myhost") that is not a FQDN (e.g. "myhost.mycompany.com"), as domain searching is not currently supported when using virtual networks. Doing so will result in an error later in the installation process ("Unable to retrieve http://myhost/system_repos/samba-server/os/images/stage2.img"). Click "Forward".</listitem>
+        <listitem>In the "Installation Source" panel, type "<userinput>http://$IP/solutions/samba-server-5-i386/os</userinput>", where $IP is the IP address of the build machine, locatable by typing <userinput>ifconfig eth0</userinput> at a command prompt on the build machine.  Alternatively, if your build machine is locatable via DNS, you can enter the Fully Qualified Domain Name (FQDN) of the build machine in place of the IP address. Note, however, that you cannot enter a hostname (e.g. "myhost") that is not a FQDN (e.g. "myhost.mycompany.com"), as domain searching is not currently supported when using virtual networks. Doing so will result in an error later in the installation process ("Unable to retrieve http://myhost/solutions/samba-server/os/images/stage2.img"). Click "Forward".</listitem>
         <listitem>In the "Storage" panel, ensure the "File (disk image)" option is selected and the value is set to <userinput>/var/lib/libvirt/images/samba-server.img</userinput>. In subsequent installations (after deleting an existing virtual machine - see <xref linkend="deleting-a-virtual-machine"/>) virt-manager will attempt to automatically increment the image name, e.g. to <userinput>/var/lib/libvirt/images/samba-server-1.img</userinput>. To preserve disk space on the build machine, you should either reset the image name to <userinput>samba-server.img</userinput>, or make it a practice to clean out the /var/lib/libvirt/images folder on a regular basis. Click "Forward".</listitem>
         <listitem>In the remaining panels, accept the default values and continue to click "Forward".</listitem>
-        <listitem>Click "Finish" to start the installation. If you get an error "Unable to retrieve http://$IP/system_repos/samba-server-5-i386/os/stage2.img" during installation, check that 1) you have typed the url correctly, 2) you have provided an IP address or FQDN in the host portion of the URL and 3) the httpd service is running on your build machine and you have allowed port 80 traffic through the machine's firewall (see <xref linkend="configuring-a-build-machine"/>).</listitem>
+        <listitem>Click "Finish" to start the installation. If you get an error "Unable to retrieve http://$IP/solutions/samba-server-5-i386/os/stage2.img" during installation, check that 1) you have typed the url correctly, 2) you have provided an IP address or FQDN in the host portion of the URL and 3) the httpd service is running on your build machine and you have allowed port 80 traffic through the machine's firewall (see <xref linkend="configuring-a-build-machine"/>).</listitem>
         <listitem>Once installation completes, choose "Reboot".</listitem>
         <listitem>In the resulting dialog, click "Run" to start the machine and test that it functions as expected.</listitem>
       </orderedlist>
@@ -98,7 +98,7 @@
 	--network network:default \
 	--name samba-server --ram=512\
 	--file=/var/lib/libvirt/images/samba-server.img \
-	--file-size=4 --vnc --location=http://$IP/system_repos/samba-server-5-i386/os
+	--file-size=4 --vnc --location=http://$IP/solutions/samba-server-5-i386/os
         </programlisting></informalexample></para>
 
       <para>The variable $IP above indicates the IP address of the build machine, locatable by typing <userinput>ipconfig eth0</userinput> at the command line.</para>
@@ -108,7 +108,7 @@
 
     <section id="deleting-a-virtual-machine" xreflabel="Deleting a virtual machine"><title>Deleting a virtual machine</title>
 
-      <para>While developing a new system repository, you may wish to reuse the same virtual-machine name for testing multiple iterations of the same system. You can do this using <command>virt-manager</command> as follows:</para>
+      <para>While developing a new solution, you may wish to reuse the same virtual-machine name for testing multiple iterations of the same system. You can do this using <command>virt-manager</command> as follows:</para>
 
       <itemizedlist>
         <listitem>From the virt-manager graphical user interface, click on the line beginning "samba-server".</listitem>
@@ -124,7 +124,7 @@
     a physical or virtual client, is
     to verify the contents of the <filename>smb.conf</filename>
     installed on the client machine. It should match the one provided in the
-    system definition.</para>
+    solution definition.</para>
 
     <para>Congratulations! You now have a Samba server installed on a CentOS 5
     client machine.</para>

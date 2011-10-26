@@ -11,7 +11,7 @@
     Definition
     </title>
 
-    <para>Contains basic information about the system repository.</para>
+    <para>Contains basic information about the solution.</para>
 
   </section>
 
@@ -89,7 +89,7 @@
 
       <listitem>
       <para>
-      A human-friendly name for the system repository. Displays during client machine
+      A human-friendly name for the solution. Displays during client machine
       installation.
       </para>
 
@@ -107,10 +107,10 @@
 
       <listitem>
       <para>
-      The unique id for the system repository. Used as the directory name
-      for the system repository in the OpenProvision publish and cache folders
-      (by default <emphasis>/var/www/html/system_repos/</emphasis> and 
-      <emphasis>/var/cache/openprovision</emphasis>, respectively).
+      The unique id for the solution. Used as the directory name
+      for the solution in the CentOS Studio publish and cache folders
+      (by default <emphasis>/var/www/html/solutions/</emphasis> and 
+      <emphasis>/var/cache/centosstudio</emphasis>, respectively).
       </para>
 
       <para>
@@ -131,11 +131,11 @@
 
       <listitem>
       <para>
-      The <varname>PATH</varname> to the system repository’s build log file.
+      The <varname>PATH</varname> to the solution’s build log file.
       </para>
 
       <para>
-      The default value is <filename>/var/log/openprovision.log</filename>.
+      The default value is <filename>/var/log/centosstudio.log</filename>.
       </para>
       </listitem>
     </varlistentry>
@@ -148,7 +148,7 @@
 
       <listitem>
       <para>
-      The name of the system repository.
+      The name of the solution.
       </para>
 
       <para>
@@ -170,7 +170,7 @@
 
       <listitem>
       <para>
-      The version of the target system repository. Displays during client 
+      The version of the target solution. Displays during client 
       machine installation.
       </para>
 
@@ -200,7 +200,7 @@
   &lt;arch&gt;i386&lt;/arch&gt;
   &lt;fullname&gt;CentOS Samba Server&lt;/fullname&gt;
   &lt;bug-url&gt;http://www.example.com/bugs&lt;/bug-url&gt;
-  &lt;log-file&gt;/home/openprovisionuser/SPIN/eg_CentOS5_main.log&lt;/log-file&gt;
+  &lt;log-file&gt;/home/centosstudiouser/SPIN/eg_CentOS5_main.log&lt;/log-file&gt;
 &lt;/main&gt;
     </programlisting>
     </informalexample>

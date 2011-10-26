@@ -4,12 +4,12 @@
 <chapter>
   <title>Production Systems</title>
 
-  <para>You can harness <application class="software">OpenProvision</application>'s
+  <para>You can harness <application class="software">CentOS Studio</application>'s
   architecture and features to create a production system development
-  environment with reusable components for the system repository definition,
+  environment with reusable components for the solution definition,
   version tracking for that and other configuration files, expedited testing
   procedures and alternate development and production locations. Using <application
-  class="software">OpenProvision</application> as part of a long-term deployment and
+  class="software">CentOS Studio</application> as part of a long-term deployment and
   shop management strategy will enable you to be more efficient and provide an
   system development and deployment history that is repeatable and
   predictable.</para>

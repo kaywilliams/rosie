@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="defining-a-system" xreflabel="Defining a System">
+<section id="defining-a-solution" xreflabel="Defining a System">
   <title>Defining a System</title>
 
-  <para>To define your Samba system, you will need to do the following:</para>
+  <para>To define your Samba solution, you will need to do the following:</para>
 
   <para><itemizedlist>
       <listitem>
-        <para>Define some basic system information;</para>
+        <para>Define some basic solution information;</para>
       </listitem>
 
       <listitem>
@@ -27,22 +27,22 @@
     </itemizedlist></para>
 
   <section>
-    <title>Creating a system definition</title>
+    <title>Creating a solution definition</title>
 
-    <para>The first step to creating a system repository is creating the
-    system definition. The system definition is a text file in XML format. It can
+    <para>The first step to creating a solution is creating the
+    solution definition. The solution definition is a text file in XML format. It can
     be created using any text editor - vi, emacs, nano, or gedit - or 
-    a dedicated XML editor, if you prefer. The tags &lt;system&gt; and 
-    &lt;/system&gt; encapsulate all additional elements and attributes.
+    a dedicated XML editor, if you prefer. The tags &lt;solution&gt; and 
+    &lt;/solution&gt; encapsulate all additional elements and attributes.
     </para>
 
     <para><informalexample>
       <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;system xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;solution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;!-- Additional elements and attributes --&gt;
 
-&lt;/system&gt;</programlisting>
+&lt;/solution&gt;</programlisting>
     </informalexample></para>
 
     <para>The first line, beginning in "&lt;?xml", identifies the file
@@ -50,7 +50,7 @@
     compatibility with future XML format changes.</para>
 
     <para>Likewise, the "xmlns:xi..." attribute is not required on the 
-    system element. It allows the use of xinclude statements within the
+    solution element. It allows the use of xinclude statements within the
     document. XIncludes, a convenient mechanism for reusing content across 
     multiple definitions, are discussed in Chapter 4, 
     "Creating a Production Environment".</para>   
@@ -58,24 +58,24 @@
   </section>
 
   <section>
-    <title>Naming a system repository</title>
+    <title>Naming a solution</title>
 
     <para>The first required element of the definition, 
-    <emphasis>main</emphasis>, includes the name of the system repository, the system
+    <emphasis>main</emphasis>, includes the name of the solution, the solution
     architecture and the version. These three items make up the default
-    system id (<varname>$ID</varname>), which OpenProvision uses to create
-    folders for storing the completed system repository (under 
-    <filename type="directory">/var/www/html/system_repos</filename>, by
-    default) and for caching system repository content (under 
-    <filename type="directory">/var/cache/openprovision</filename>, by default).
+    solution id (<varname>$ID</varname>), which CentOS Studio uses to create
+    folders for storing the completed solution (under 
+    <filename type="directory">/var/www/html/solutions</filename>, by
+    default) and for caching solution content (under 
+    <filename type="directory">/var/cache/centosstudio</filename>, by default).
     </para>
 
     <para><note>
-        <para>The elements can be in any order within a system definition
+        <para>The elements can be in any order within a solution definition
         file.</para>
       </note></para>
 
-    <para>In the example below, the system repository version will be 5, the system
+    <para>In the example below, the solution version will be 5, the solution
     architecture will be i386, and the <varname>$ID</varname> will
     be <filename>samba-server-5-i386</filename>. </para>
 
@@ -88,7 +88,7 @@
 &lt;/main&gt;</programlisting>
     </informalexample></para>
 
-    <para>You can override the default system id using an
+    <para>You can override the default solution id using an
     <emphasis>id</emphasis> element. See the SDFR for more details about the
     <emphasis>main</emphasis> element.</para>
 
@@ -96,16 +96,16 @@
     preceding.</para>
 
     <para><note>
-        <para>Each time you change a system repository's id, either implicitly by
+        <para>Each time you change a solution's id, either implicitly by
         changing the <emphasis>name</emphasis>, <emphasis>version</emphasis> or 
         <emphasis>arch</emphasis> elements, or explicitly by changing the
-        <emphasis>id</emphasis> element, OpenProvision creates new folders for
+        <emphasis>id</emphasis> element, CentOS Studio creates new folders for
         it in the publish and cache folders 
-        (<emphasis>/var/www/html/system_repos</emphasis> and 
-        <emphasis>/var/cache/openprovision</emphasis>, by default,
+        (<emphasis>/var/www/html/solutions</emphasis> and 
+        <emphasis>/var/cache/centosstudio</emphasis>, by default,
         respectively). To preserve hard drive space, you may wish to review 
         the publish and cache folders on occasion. Folders for obsolete
-        system repositories can be deleted using standard file system methods
+        solutions can be deleted using standard file system methods
         (e.g. <command>rm -rf <emphasis>obsolete_folder</emphasis></command>).
         </para>
       </note></para>
@@ -115,10 +115,10 @@
   <section id="specifying-repositories" xreflabel="Specifying Repositories">
     <title>Specifying repositories</title>
 
-    <para>OpenProvision obtains software from RPM package repositories. 
+    <para>CentOS Studio obtains software from RPM package repositories. 
     Repositories are collections of RPMs with associated metadata files. 
     Metadata files allow applications, like 
-    <application>OpenProvision</application>, to learn about packages in the
+    <application>CentOS Studio</application>, to learn about packages in the
     repository, without having to download and inspect each package
     individually. Access to package repositories may be either public or
     restricted. Common public repositories include CentOS 5 Base, CentOS 5 
@@ -128,7 +128,7 @@
     utility.</para>
 
     <para>In this section, you will define the repositories to be used for your
-    system.</para>
+    solution.</para>
 
     <itemizedlist>
 
@@ -144,7 +144,7 @@
       channel within Red Hat Network. Typically, your definition will include
       both base and updates repositories.</para></listitem>
 
-      <listitem><para>Additional Repositories. Your system repository may 
+      <listitem><para>Additional Repositories. Your solution may 
       include packages from any number of additional public or private 
       repositories.</para></listitem>
 
@@ -160,7 +160,7 @@
   	<section>
   	  <title>CentOS repositories</title>
 
-      <para>This example directs OpenProvision to use public mirrors to access
+      <para>This example directs CentOS Studio to use public mirrors to access
       the CentOS 5 base and updates repositories for the i386 architecture.
       </para>
 
@@ -186,7 +186,7 @@
     <section>
     <title>Red Hat Enterprise Linux repositories</title>
       <para>
-      Prior to using OpenProvision to access Red Hat Enterprise Linux
+      Prior to using CentOS Studio to access Red Hat Enterprise Linux
       repositories, you will need to complete the following steps:</para>
 
       <itemizedlist>
@@ -210,9 +210,9 @@
         the system has successfully registered with RHN, a systemid file will
         be created in the <filename type="directory">/etc/sysconfig/</filename>
         folder of the machine. This is the file you will use to configure
-        OpenProvision to access software from RHN. You may copy this file to the
-        OpenProvision build machine if necessary. Note, to ensure the systemid
-        has access to the software desired for your system repository, you can use
+        CentOS Studio to access software from RHN. You may copy this file to the
+        CentOS Studio build machine if necessary. Note, to ensure the systemid
+        has access to the software desired for your solution, you can use
         the Red Hat Network web user interface to locate the system, and view
         and alter it's channel subscriptions.</para></listitem>
       </itemizedlist>
@@ -245,7 +245,7 @@
         </itemizedlist>
       </para>
 
-      <para>In the following example, OpenProvision will contact the RHN server
+      <para>In the following example, CentOS Studio will contact the RHN server
       located at <filename type="directory">xmlrpc.rhn.examplecompany.com
       </filename> and request packages from the 
       <filename>rhel-i386-server-5</filename> software channel.</para>
@@ -302,7 +302,7 @@
 &lt;/packages&gt;  </programlisting>
     </informalexample></para>
 
-    <para>The system repository will include the <application
+    <para>The solution will include the <application
     class="software">GNOME</application> graphical user interface (GUI) and
     common system administration tools.</para>
   </section>
@@ -312,15 +312,15 @@
 
     <para>The final step for your samba-server definition is to specify 
     configuration for client machines. 
-    <application class="software">OpenProvision</application> allows you to deploy
+    <application class="software">CentOS Studio</application> allows you to deploy
     and update client machine configuration in the same manner as you deploy and update 
     individual software components, using an RPM package. This simplifies your 
     tasks as a system administrator by allowing you to manage software and 
     configuration using uniform tools and processes. Creating RPM packages 
     manually can be cumbersome and time consuming. 
-    <application class="software">OpenProvision</application> makes it easy by 
+    <application class="software">CentOS Studio</application> makes it easy by 
     creating the <xref linkend="configuration-package"/> automatically during the build process, based 
-    on information you provide in the system repository definition.</para>
+    on information you provide in the solution definition.</para>
    
     <para>Using the <emphasis>config</emphasis> element, you can complete the
     following:
@@ -340,22 +340,22 @@
 
     <section>
       <title>Configuring updates</title>
-      <para>OpenProvision creates a configuration package by default, even if 
+      <para>CentOS Studio creates a configuration package by default, even if 
       no <emphasis>config</emphasis> element is specified in the definition. In
       this case, the configuration package performs just two actions:
 
       <itemizedlist>
         <listitem>Installs a plugin module for YUM that allows synchronizing 
-        packages on the client machine with packages in the system repository
+        packages on the client machine with packages in the solution
         repository. See <xref linkend="updating-client-machines"/> for more
         information on the 
         <application class="software">YUM Sync Plugin</application>.</listitem>
 
         <listitem>Installs a repository definition for the 
-        <xref linkend="system-repository"/>. Use the 
+        <xref linkend="solution"/>. Use the 
         <command>man yum.conf</command> command for more information on YUM 
         repository definitions. For clients installed using the samba-server
-        system repository, the file will be installed at 
+        solution, the file will be installed at 
         <filename>/etc/yum.repos.d/samba-server.repo</filename>.
         </listitem>
       </itemizedlist>
@@ -418,9 +418,9 @@
         </programlisting>
       </informalexample></para>
 
-      <para>The example above includes two <emphasis>files</emphasis> elements. The first element directs OpenProvision to locate a file named smb.conf in the same folder as the system repository definition, download it, include it in the configuration package for installation to the <filename>/etc/samba</filename> folder with the file mode "644". The second element directs OpenProvision to create a new file named <filename>yum-sync.cron</filename>, containing the text supplied between the &lt;files&gt; and &lt;/files&gt; tags, and include it configuration package for installation to the <filename>/etc/cron.daily</filename> folder with the mode "644".</para>
+      <para>The example above includes two <emphasis>files</emphasis> elements. The first element directs CentOS Studio to locate a file named smb.conf in the same folder as the solution definition, download it, include it in the configuration package for installation to the <filename>/etc/samba</filename> folder with the file mode "644". The second element directs CentOS Studio to create a new file named <filename>yum-sync.cron</filename>, containing the text supplied between the &lt;files&gt; and &lt;/files&gt; tags, and include it configuration package for installation to the <filename>/etc/cron.daily</filename> folder with the mode "644".</para>
 
-      <note>OpenProvision resolves all paths in the definition relative to the definition's folder location.</note>
+      <note>CentOS Studio resolves all paths in the definition relative to the definition's folder location.</note>
       <note>The attribute value <emphasis>content="text"</emphasis> provides a convenient way to include short files and scripts without needing to create and manage separate files on disk. Larger files can also be created this way, however, this makes the definition more difficult to read.</note>
 
     </section>
@@ -476,12 +476,12 @@
   <section>
     <title>Validating a definition</title>
 
-    <para>Your complete samba-server system definition should now look as follows:</para>
+    <para>Your complete samba-server solution definition should now look as follows:</para>
 
     <para><informalexample>
       <programlisting>
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;system xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;solution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
 
 &lt;main&gt;
   &lt;name&gt;samba-server&lt;/name&gt;
@@ -524,22 +524,22 @@
 
 &lt;/config&gt;
 
-&lt;/system&gt;
+&lt;/solution&gt;
       </programlisting>
     </informalexample></para>
 
     <para>Once your definition is complete, you can use 
-    <application class="software">OpenProvision</application> to validate
+    <application class="software">CentOS Studio</application> to validate
     it's syntax.</para>
 
     <para>
     <informalexample>
-      <programlisting>#openprovision --validate-only samba-server.definition</programlisting>
+      <programlisting>#centosstudio --validate-only samba-server.definition</programlisting>
     </informalexample>
     </para>
 
     <para>If your definition is valid, 
-    <application class="software">OpenProvision</application> will display the 
+    <application class="software">CentOS Studio</application> will display the 
     complete definition and exit. Otherwise, it will display error information,
     allowing you to locate and correct issues.</para>
 

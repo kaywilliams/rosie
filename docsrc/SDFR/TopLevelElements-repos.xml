@@ -13,12 +13,12 @@
     </title>
 
     <para>
-    Contains a list of repositories that OpenProvision uses to download its
+    Contains a list of repositories that CentOS Studio uses to download its
     packages.
     </para>
 
     <para>
-    In order to operate, <application class="software">OpenProvision
+    In order to operate, <application class="software">CentOS Studio
     </application> requires at least one input repository.
     Repositories are specified by either defining them in XML
     (see <emphasis><xref linkend="repos-repo" /></emphasis>) or by
@@ -40,7 +40,7 @@
       repository containing installer images and isolinux files, located within
       folders called <filename>images</filename> and <filename>isolinux</filename>,
       respectively. These files are used to create installation images for the
-      system repository. For CentOS, this repository will be a public or local mirror. 
+      solution. For CentOS, this repository will be a public or local mirror. 
       For Red Hat Enterprise Linux, it will be an install tree created
       by using the <command>mount -o loop <emphasis>isofile</emphasis>
       <emphasis>mount_location</emphasis></command> command to mount an
@@ -57,13 +57,13 @@
       Red Hat Network Repositories
       </title>
       <para>
-      OpenProvision supports an extension to the standard supported schemes
+      CentOS Studio supports an extension to the standard supported schemes
       in that it can connect to and download packages from Red Hat Network (RHN)
       servers. 
       </para>
 
       <para>
-      Prior to using OpenProvision to access updates from RHN you will
+      Prior to using CentOS Studio to access updates from RHN you will
       need to create a systemid. This requires an available subscription to 
       Red Hat Enterprise Linux. See the Red Hat web site for purchase
       information. Once you have an available subscription, install Red Hat 
@@ -73,10 +73,10 @@
       <command>rhn_register</command> command. Once the system has successfully
       registered with RHN, a systemid file will be created in the 
       <filename type="directory">/etc/sysconfig/</filename> folder of the
-      machine. This is the file you will use to configure OpenProvision to
-      access software from RHN. You may copy this file to the OpenProvision
+      machine. This is the file you will use to configure CentOS Studio to
+      access software from RHN. You may copy this file to the CentOS Studio
       build machine if necessary. Note, to ensure the systemid has access to
-      the software desired for your system repository, you can use the Red Hat
+      the software desired for your solution, you can use the Red Hat
       Network web user interface to locate the system, and view and alter it's
       channel subscriptions.</para>
 
@@ -108,11 +108,11 @@
       an example.</para>
 
       <note>
-      OpenProvision requires additional software including rhnlib and 
+      CentOS Studio requires additional software including rhnlib and 
       rhn-client-tools rpm packages in order to use RHN repositories. To install
-      a complete version of OpenProvision including all available software, 
+      a complete version of CentOS Studio including all available software, 
       follow the instructions located at 
-      http://www.openprovision.com/openprovision/download.
+      http://www.centosstudio.org/centosstudio/download.
       </note>
     </section>
 
@@ -124,7 +124,7 @@
 
       <para>
       By default, all packages in all repositories are available for 
-      OpenProvision to use. Packages can be excluded from <emphasis>all 
+      CentOS Studio to use. Packages can be excluded from <emphasis>all 
       repositories</emphasis> using the <emphasis>packages/exclude</emphasis>
       element. See <varname><xref linkend="packages-definition" /></varname> for
       infomation on excluding packages from 
@@ -157,7 +157,7 @@
       packages for the repository. Any package matching one or more of
       the <varname>PACKAGE</varname> patterns specified in a
       <emphasis>repo/exclude</emphasis> element will be ignored
-      by OpenProvision.
+      by CentOS Studio.
       </para>
 
       <para>See <emphasis><xref linkend="repo-include-exclude-example" /></emphasis> for
@@ -172,9 +172,9 @@
       </title>
 
       <para>
-      OpenProvision supports standard YUM repositories; that is, folders containing
+      CentOS Studio supports standard YUM repositories; that is, folders containing
       a <filename>repodata</filename> folder with repository metadata.
-      In addition, OpenProvision supports an expanded type of repository, a
+      In addition, CentOS Studio supports an expanded type of repository, a
       "repository group". A repository group is a collection of standard
       YUM repositories within another folder. This feature allows, for 
       example, defining a Red Hat Enterprise Linux installation tree as a
@@ -198,7 +198,7 @@ baseurl=/var/repos/repoB
 baseurl=/var/repos/repoC
       </programlisting>
 
-      In OpenProvision, on the other hand, all the repos can be included by
+      In CentOS Studio, on the other hand, all the repos can be included by
       using a repo group instead:
 
       <programlisting>
@@ -274,7 +274,7 @@ baseurl=/var/repos/repoC
       <emphasis>repo/mirrorlist</emphasis> elements also have full support
       for the YUM variables <varname>$basearch</varname> and
       <varname>$releasever</varname>. However, instead of using the build
-      system's architecture and release version, OpenProvision defaults to using
+      system's architecture and release version, CentOS Studio defaults to using
       <varname>$ARCH</varname> and <varname>$VERSION</varname>,
       respectively. Top-level elements may define a
       <emphasis>releasever</emphasis> element that overrides the default
@@ -348,8 +348,8 @@ baseurl=/var/repos/repoC
         <para>
         <varname>BOOLEAN</varname> value indicating whether this
         repository should be enabled or not. Disabled repositories
-        are ignored by OpenProvision when looking for packages to include in
-        the system repository.
+        are ignored by CentOS Studio when looking for packages to include in
+        the solution.
         </para>
 
         <para>
@@ -395,7 +395,7 @@ baseurl=/var/repos/repoC
         <para>
         This element can occur zero or more times for any given repository.
         By default, however, one or more keys must be provided across all
-        repositories. OpenProvision uses GPG keys to verify that packages 
+        repositories. CentOS Studio uses GPG keys to verify that packages 
         are from trusted providers. Verification can be disabled (not 
         recommended) by setting <emphasis>config/updates@gpgcheck</emphasis>
         to <constant>FALSE</constant>.
@@ -537,7 +537,7 @@ baseurl=/var/repos/repoC
     In the following examples, line breaks have been added to the
     <emphasis>repos/repo/baseurl</emphasis> and
     <emphasis>repos/repo/mirrorlist</emphasis> to improve readability.
-    In a real system definition file, however, line breaks within
+    In a real solution definition file, however, line breaks within
     <varname>PATH</varname>-like elements are not allowed.
     </para>
 
@@ -557,7 +557,7 @@ baseurl=/var/repos/repoC
       </para>
 
       <para>
-      Additionally, OpenProvision will include any and all repositories defined
+      Additionally, CentOS Studio will include any and all repositories defined
       in the file <filename>centos-extras.repo</filename>.
       </para>
 
@@ -639,7 +639,7 @@ baseurl=/var/repos/repoC
 
       <informalexample>
       <programlisting>
-&lt;system&gt;
+&lt;solution&gt;
   &lt;main&gt;
     ...
     &lt;arch&gt;i386&lt;/arch&gt;
@@ -655,7 +655,7 @@ baseurl=/var/repos/repoC
     &lt;/repo&gt;
   &lt;/repos&gt;
   ...
-&lt;/system&gt;
+&lt;/solution&gt;
       </programlisting>
       </informalexample>
 

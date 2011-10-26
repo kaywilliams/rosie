@@ -177,11 +177,11 @@
 
     <listitem>
     <para>
-    Within this document, OpenProvision variables are presented in monospace font
+    Within this document, CentOS Studio variables are presented in monospace font
     preceded by a dollar sign, e.g. <varname>$ID</varname>.
     In the event that another application uses a variable with simliar
     syntax (YUM, for example), these variables are clearly indicated as
-    not being OpenProvision variables.
+    not being CentOS Studio variables.
     </para>
 
     <para>

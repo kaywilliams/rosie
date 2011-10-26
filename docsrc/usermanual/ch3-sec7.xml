@@ -4,7 +4,7 @@
 <section id="updating-a-client-machine" xreflabel="Updating a Client Machine">
   <title>Updating a Client Machine</title>
 
-  <para>If there are changes to the system repository, you will
+  <para>If there are changes to the solution, you will
   need to update installed client machines using the <xref linkend="yum-sync-plugin"/>. For this example build, log on to the client machine 
   as the root user and execute the following commands:</para>
 
@@ -13,9 +13,9 @@
 # yum sync
   </programlisting></informalexample></para>
 
-  <para>The first command, <userinput>yum clean metadata</userinput>, ensures that YUM is using current repository information. For improved performance, YUM caches repository metadata as a matter of course, with a default cache expiration period of 1.5 hours. While you are building and testing a new system repository, you will want to override this behavior by forcing YUM to clean the metadata cache prior to each execution of the <command>yum sync</command> command. See the <emphasis>metadata_expire</emphasis> option in <command>man yum.conf</command>, as well as <command>man yum</command> for more information on YUM's caching and cleaning options.</para>
+  <para>The first command, <userinput>yum clean metadata</userinput>, ensures that YUM is using current repository information. For improved performance, YUM caches repository metadata as a matter of course, with a default cache expiration period of 1.5 hours. While you are building and testing a new solution, you will want to override this behavior by forcing YUM to clean the metadata cache prior to each execution of the <command>yum sync</command> command. See the <emphasis>metadata_expire</emphasis> option in <command>man yum.conf</command>, as well as <command>man yum</command> for more information on YUM's caching and cleaning options.</para>
 
-  <para>The second command, <userinput>yum sync</userinput>, will update all packages on the client machine from the system repository
+  <para>The second command, <userinput>yum sync</userinput>, will update all packages on the client machine from the solution
   repository, including the system-specific <xref linkend="configuration-package"/>
   created during the build process. The <emphasis>sync</emphasis> command is provided by the  
   YUM Sync Plugin, which is included in the configuration package by default.</para>

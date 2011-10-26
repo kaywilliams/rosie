@@ -4,6 +4,6 @@ all:
 
 install:
 	mkdir -p $(DESTDIR)/etc/logrotate.d
-	install -pm 644 openprovision $(DESTDIR)/etc/logrotate.d/openprovision
+	install -pm 644 centosstudio $(DESTDIR)/etc/logrotate.d/centosstudio
 
 clean:

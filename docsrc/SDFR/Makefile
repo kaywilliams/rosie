@@ -31,7 +31,7 @@ SDFR.html:
 
 SDFR.pdf:
 	@make checkpkg BINARY=$(DBLATEX) INSTRUCTIONS="Install the dblatex package."
-	$(DBLATEX) -o SDFR.pdf -P toc.section.depth=1 -P doc.section.depth=1 -S ../dblatex/openprovisiondocs.specs --pdf Index.xml
+	$(DBLATEX) -o SDFR.pdf -P toc.section.depth=1 -P doc.section.depth=1 -S ../dblatex/centosstudiodocs.specs --pdf Index.xml
 
 checkpkg:
 	@if [ ! -e $(BINARY) ]; then \

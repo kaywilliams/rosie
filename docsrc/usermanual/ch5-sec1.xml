@@ -4,14 +4,14 @@
 <section>
   <title>Enhancing Your Samba Server</title>
 
-  <para>In this part, you will learn how to update your system repository 
+  <para>In this part, you will learn how to update your solution 
   with some common server administration components using two different methods.
   These  updates require changes to the <emphasis>config</emphasis> and
   <emphasis>packages</emphasis> elements already in place in your
   <filename>samba-server.definition</filename> file.</para>
 
   <para>Following the illustrations in this section, you can conditionally
-  configure applications in your system repository, automate installation, create
+  configure applications in your solution, automate installation, create
   various install images, add business support required by the legal and
   software development departments and secure your system. All of these
   options utilize top-level elements that you include in your system

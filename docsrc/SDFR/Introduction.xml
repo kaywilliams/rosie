@@ -8,48 +8,48 @@
   </title>
 
   <para>
-  The system definition file contains instructions for building Linux operating
-  system repositories for use in installing client machines. It defines system 
+  The solution definition file contains instructions for building Linux operating
+  solutions for use in installing client machines. It defines solution 
   content and configuration, including name, version, and architecture; package
   repository locations; which packages to include; and the locations of 
-  configuration scripts, files and custom graphics. OpenProvision uses the system repository file
-  to assemble, create and publish the system repository. Other programs, such as
+  configuration scripts, files and custom graphics. CentOS Studio uses the solution file
+  to assemble, create and publish the solution. Other programs, such as
   <application class="software">YUM</application>,
   <application class="software">Anaconda</application>, and
   <application class="software">RPM</application>
-  use files created by <application class="software">OpenProvision</application>
-  to install and update the system repository on the client system.
+  use files created by <application class="software">CentOS Studio</application>
+  to install and update the solution on the client system.
   </para>
 
   <para>
-  The system definition file is a text-based file in XML format. Within the
+  The solution definition file is a text-based file in XML format. Within the
   file are a series of top-level elements that equate to
-  modules, or steps, within the system repository build process. These elements,
+  modules, or steps, within the solution build process. These elements,
   in turn, contain their own attributes and elements. There are three
   required top-level elements:
   <emphasis role="strong"><xref linkend="main" /></emphasis>,
   <emphasis role="strong"><xref linkend="repos" /></emphasis>, and
   <emphasis role="strong"><xref linkend="packages" /></emphasis>;
   all other top-level elements are optional. Top-level elements can appear
-  in the system repository file in any order. Indentation is for readability
+  in the solution file in any order. Indentation is for readability
   purposes only.
   </para>
 
   <para>
-  The system definition file has full support of XML Inclusions (XIncludes). Please
+  The solution definition file has full support of XML Inclusions (XIncludes). Please
   refer to the <ulink url="http://www.w3.org/TR/xinclude/">XInclude Technical
   Report</ulink> for more information.
   </para>
 
   <para>
-  A system definition file can be located in any local directory and invoked 
-  from the command line using the command <command>openprovision</command> 
+  A solution definition file can be located in any local directory and invoked 
+  from the command line using the command <command>centosstudio</command> 
   followed by the full or relative pathname to the file, such as:
   </para>
 
   <informalexample>
   <programlisting>
-<command>openprovision</command> /path/to/system/file
+<command>centosstudio</command> /path/to/solution/file
   </programlisting>
   </informalexample>
 
@@ -62,12 +62,12 @@
     </title>
 
     <para>
-    Here is a basic example system definition based on CentOS 5.
+    Here is a basic example solution definition based on CentOS 5.
     </para>
 
     <informalexample>
     <programlisting>
-&lt;system repository&gt;
+&lt;solution&gt;
 
   &lt;main&gt;
     &lt;name&gt;samba&lt;/name&gt;
@@ -91,7 +91,7 @@
     &lt;group repoid="base"&gt;smb-server&lt;/group&gt;
   &lt;/packages&gt;
 
-&lt;/system&gt;
+&lt;/solution&gt;
     </programlisting>
     </informalexample>
   </section>

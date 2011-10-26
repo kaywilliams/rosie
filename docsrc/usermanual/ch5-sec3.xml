@@ -5,7 +5,7 @@
   <title>Using Scripts and Triggers</title>
 
   <para>Scripts and triggers enable you to control your client's environment
-  to a great degree. To include these in your system repository, use the
+  to a great degree. To include these in your solution, use the
   <emphasis>config</emphasis> element in your
   <filename>samba-server.definition</filename> file.</para>
 
@@ -83,7 +83,7 @@ scripts/smb.script
   Section 10.2 "Setting Triggers," in the Fedora Project's documentation,
   <ulink url="http://docs.fedoraproject.org/drafts/rpm-guide-en/">RPM
   Guide</ulink> by Eric Foster-Johnson for a discussion of the trigger options
-  and their implications. To activate these trigger options using OpenProvision,
+  and their implications. To activate these trigger options using CentOS Studio,
   include them with the <emphasis>config/trigger</emphasis> element of
   your system definition.</para>
 

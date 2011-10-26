@@ -119,7 +119,7 @@ samba
 
       <note>
       <para>
-      Be sure when defining capabilities within a system repository file to
+      Be sure when defining capabilities within a solution file to
       escape the <constant>&lt;</constant> and <constant>&gt;</constant>
       characters using <constant>&amp;lt;</constant> and
       <constant>&amp;gt;</constant>, respectively.
@@ -319,7 +319,7 @@ kernel-0:2.4.1-10.i686
 
       <para>
       An absolute or relative local or remote path. Relative paths are resolved
-      against the folder location of the system repository definition. Unless 
+      against the folder location of the solution definition. Unless 
       otherwise noted, <varname>PATH</varname> can refer to a file or a folder,
       and may or may not exist.
       </para>
@@ -328,7 +328,7 @@ kernel-0:2.4.1-10.i686
       <varname>PATH</varname>s may originate in file, http, or https
       schemes. Specifying the scheme of file paths is optional; absolute
       file paths may simply start with a forward slash ("/"). All relative
-      paths are relative to the system repository file unless otherwise specified.
+      paths are relative to the solution file unless otherwise specified.
       </para>
 
     </section>

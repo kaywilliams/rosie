@@ -3,11 +3,11 @@
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <book>
   <bookinfo>
-    <title>OpenProvision User Manual</title>
+    <title>CentOS Studio User Manual</title>
 
     <author>
       <affiliation>
-        <orgname>OpenProvision, Inc.</orgname>
+        <orgname>CentOS Studio Foundation.</orgname>
       </affiliation>
     </author>
 
@@ -16,7 +16,7 @@
     <copyright>
       <year>2011 </year>
 
-      <holder>OpenProvision, Inc. </holder>
+      <holder>CentOS Studio Foundation. </holder>
     </copyright>
 
     <legalnotice>

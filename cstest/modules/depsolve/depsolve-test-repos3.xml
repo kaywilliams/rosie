@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<build-repos>
+  <path>/tmp/cstest/</path>
+  <repo id="repo3">
+    <package>
+      <name>depsolve-test-package3</name>
+      <version>1.0</version>
+      <release>1</release>
+      <requires>depsolve-test-package4</requires>
+      <force-arch>noarch</force-arch>
+    </package>
+    <package>
+      <name>depsolve-test-package4</name>
+      <version>1.0</version>
+      <release>1</release>
+      <force-arch>noarch</force-arch>
+    </package>
+  </repo>
+</build-repos>

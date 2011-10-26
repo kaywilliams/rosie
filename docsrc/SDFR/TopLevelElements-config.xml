@@ -87,23 +87,23 @@
       <para>
       <emphasis>@sync</emphasis>: <varname>BOOLEAN</varname> value indicating
       whether to include the <application
-      class="software">OpenProvision</application>-provided <application
+      class="software">CentOS Studio</application>-provided <application
       class="software">YUM</application> sync plugin in the config RPM. The
       sync plugin overrides <application class="software">YUM</application>'s
       default behavior 1) to disable all repositories other than the
-      system repository and 2) to provide a <emphasis>sync</emphasis>
+      solution and 2) to provide a <emphasis>sync</emphasis>
       argument that allows adding <emphasis>and removing</emphasis> installed
       packages on client machines in alignment with with available packages in
-      the system repository. The default value is
+      the solution. The default value is
       <constant>TRUE</constant>. 
       </para>
 
       <para>
       <emphasis>@gpgcheck</emphasis>: <varname>BOOLEAN</varname> value
       indicating whether packages should be checked for valid GPG signatures.
-      This value controls whether OpenProvision performs gpgchecking when
-      creating the system repository. It also controls whether YUM checks
-      packages from the system repository prior to performing client machine 
+      This value controls whether CentOS Studio performs gpgchecking when
+      creating the solution. It also controls whether YUM checks
+      packages from the solution prior to performing client machine 
       updates. The default value is <constant>TRUE</constant>.
       </para>
 

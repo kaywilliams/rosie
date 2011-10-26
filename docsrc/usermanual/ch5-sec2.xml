@@ -4,7 +4,7 @@
 <section id="automating-installations" xreflabel="Section 5.2 Automating Installations">
   <title>Automating Installations</title>
 
-  <para>OpenProvision can save you time and labor by helping you automate the
+  <para>CentOS Studio can save you time and labor by helping you automate the
   client boot-up and kickstart process.</para>
 
   <section>

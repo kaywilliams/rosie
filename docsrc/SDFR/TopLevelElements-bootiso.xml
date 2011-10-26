@@ -14,7 +14,7 @@
 
     <para>
     Allows customization of the <filename>boot.iso</filename> image
-    created by <application class="software">OpenProvision</application>. This
+    created by <application class="software">CentOS Studio</application>. This
     image can be burned to a CD or DVD and used to begin a network installation
     on the client system.
     </para>

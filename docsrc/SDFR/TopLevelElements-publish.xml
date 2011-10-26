@@ -13,14 +13,14 @@
     </title>
 
     <para>
-    Publishes the system repository to a <varname>PATH</varname> on the build
+    Publishes the solution to a <varname>PATH</varname> on the build
     machine (<emphasis>publish/local-dir</emphasis>) and enables client
-    systems to obtain their updates from a system repository download server
+    systems to obtain their updates from a solution download server
     by using a URL <varname>PATH</varname>
     (<emphasis>publish/remote-url</emphasis>).
     </para>
 
-    <para>Because system repositories are intended for automatic installation
+    <para>Because solutions are intended for automatic installation
     and update to client machines, to ensure that correct content is 
     distributed, you should ensure that only trusted users and groups have
     <emphasis>write</emphasis> access to the <emphasis>local-dir</emphasis>. In
@@ -32,14 +32,14 @@
     </para>
 
     <para>
-    The web-accessible download server can be either the OpenProvision build
-    system or another machine. To utilize the OpenProvision build system's fully qualified domain name (FQDN) 
+    The web-accessible download server can be either the CentOS Studio build
+    system or another machine. To utilize the CentOS Studio build system's fully qualified domain name (FQDN) 
     instead of its IP address, set
     <emphasis>publish/remote-url/@fqdn</emphasis> to
     <constant>TRUE</constant>. Use
     <emphasis>publish/remote-url/@interface</emphasis> to
     specify the network interface from which to obtain the IP address.
-    To specify a full <varname>PATH</varname> to the system repository download
+    To specify a full <varname>PATH</varname> to the solution download
     server, use the <emphasis>publish/remote-url</emphasis> element with
     a <varname>PATH</varname> in its text value (syntax 2).
     </para>
@@ -91,15 +91,15 @@
 
       <listitem>
       <para>
-      The <varname>PATH</varname> to a folder to which OpenProvision publishes
-      the system repository. For the system repository to be accessible on
+      The <varname>PATH</varname> to a folder to which CentOS Studio publishes
+      the solution. For the solution to be accessible on
       the web, place the directory in the system’s local webroot, e.g. the 
       Apache DocumentRoot.
       </para>
 
       <para>
       The default text value for this element is
-      <filename>/var/www/html/system_repos/$ID</filename>.
+      <filename>/var/www/html/solutions/$ID</filename>.
       </para>
       </listitem>
     </varlistentry>
@@ -117,7 +117,7 @@
 
       <para>
       The default behavior is to use
-      <filename>http://$ipaddress/system_repos/$ID</filename>,
+      <filename>http://$ipaddress/solutions/$ID</filename>,
       where <varname>$ipaddress</varname> is computed using the value
       of the <emphasis>@interface</emphasis> attribute.
       </para>
@@ -131,15 +131,15 @@
       <para>
       <emphasis>@interface</emphasis>: The network interface name,
       e.g. "eth1", from which to obtain the <varname>$ipaddress</varname>
-      of the system repository's update repository. This attribute only has
+      of the solution's update repository. This attribute only has
       an effect if <emphasis>publish/remote-url/@fqdn</emphasis>
-      is <constant>FALSE</constant>. By default, OpenProvision uses the first
+      is <constant>FALSE</constant>. By default, CentOS Studio uses the first
       active, non-loopback network interface.
       </para>
 
       <para>
       <emphasis>@fqdn</emphasis>: <varname>BOOLEAN</varname>
-      that determines whether <application class="software">OpenProvision</application>
+      that determines whether <application class="software">CentOS Studio</application>
       uses the build machine's fully qualified domain name or IP address in the
       automatically-computed remote url. The default value for
       this attribute is <constant>FALSE</constant>.
@@ -159,7 +159,7 @@
     In the following examples, the build system's fully qualified domain name is
     <filename>buildserver.company.com</filename> and the IP addresses of "eth0" and
     "eth1" are 10.10.1.105 and 192.168.0.10, respectively. It is building a
-    system repository with an <varname>$ID</varname> of
+    solution with an <varname>$ID</varname> of
     "samba-server-5-i386".
     </para>
 
@@ -172,7 +172,7 @@
       In this example, the remote url is automatically computed using
       the IP address of the first active network interface ("eth0"). The
       resulting remote url is
-      <literallayout>http://10.10.1.105/system_repos/samba-server-5-i386</literallayout>
+      <literallayout>http://10.10.1.105/solutions/samba-server-5-i386</literallayout>
       In addition, it is using a different location, 
       <filename>/var/webroot/html/</filename>, rather than the default location.
       </para>
@@ -194,7 +194,7 @@
       <para>
       In this example, the remote url is automatically computed using
       the FQDN of the build system. The resulting remote url is
-      <literallayout>http://buildserver.company.com/system_repos/samba-server-5-i386</literallayout>
+      <literallayout>http://buildserver.company.com/solutions/samba-server-5-i386</literallayout>
       </para>
 
       <informalexample>
@@ -216,7 +216,7 @@
       In this example, the remote url is automatically computed using
       the IP address of the specified interface, "eth1". The resulting
       remote url is
-      <literallayout>http://192.168.0.10/system_repos/samba-server-5-i386</literallayout>
+      <literallayout>http://192.168.0.10/solutions/samba-server-5-i386</literallayout>
       </para>
 
       <informalexample>
@@ -237,13 +237,13 @@
       <para>
       In this example, the remote url is manually configured. The
       resulting remote url is
-      <literallayout>http://system_repos.company.com/pub/samba-server-5-i386</literallayout>
+      <literallayout>http://solutions.company.com/pub/samba-server-5-i386</literallayout>
       </para>
 
       <informalexample>
       <programlisting>
 &lt;publish&gt;
-  &lt;remote-url&gt;http://system_repos.company.com/pub/&lt;/remote-url&gt;
+  &lt;remote-url&gt;http://solutions.company.com/pub/&lt;/remote-url&gt;
 &lt;/publish&gt;
       </programlisting>
       </informalexample>
@@ -257,13 +257,13 @@
       <para>
       In this example, the remote url is manually configured to use an SSL web
       location. The resulting remote url is
-      <literallayout>https://system_repos.company.com/pub/samba-server-5-i386</literallayout>
+      <literallayout>https://solutions.company.com/pub/samba-server-5-i386</literallayout>
       </para>
 
       <informalexample>
       <programlisting>
 &lt;publish&gt;
-  &lt;remote-url&gt;https://system_repos.company.com/pub/&lt;/remote-url&gt;
+  &lt;remote-url&gt;https://solutions.company.com/pub/&lt;/remote-url&gt;
 &lt;/publish&gt;
       </programlisting>
       </informalexample>

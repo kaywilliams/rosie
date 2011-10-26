@@ -12,7 +12,7 @@
     </title>
 
     <para>
-    Specifies the packages to be included in the system repository.
+    Specifies the packages to be included in the solution.
     </para>
   </section>
 
@@ -52,7 +52,7 @@
 
       <listitem>
       <para>
-      The name of a package to be excluded from the system repository. 
+      The name of a package to be excluded from the solution. 
       </para>
 
       <para>
@@ -69,7 +69,7 @@
       </term>
 
       <listitem>
-      <para>The unique ID of a group to include in the system repository
+      <para>The unique ID of a group to include in the solution
       using one or more of the repository groupfiles indicated by the
       <emphasis>@repoid</emphasis> attributes as a source.
       </para>
@@ -90,7 +90,7 @@
       <emphasis>@repoid</emphasis>: The id of the repository from which
       to obtain group data.  This id corresponds to a <emphasis>repoid</emphasis>
       defined in a <emphasis role="strong">repo</emphasis> element. If not specified,
-      <application class="software">OpenProvision</application> merges all matching
+      <application class="software">CentOS Studio</application> merges all matching
       groups from all repo groupfiles.
       </para>
       </listitem>
@@ -104,7 +104,7 @@
 
       <listitem>
       <para>
-      The name of a package to be included in the system repository. All packages
+      The name of a package to be included in the solution. All packages
       included in this way are added to a new group with the name
       <constant>$NAME-packages</constant>. If the <varname>TEXT</varname>
       value contains globbing characters, all matching packages from all
@@ -129,8 +129,8 @@
     </title>
 
     <para>
-    In the following example, the system repository's <varname>$NAME</varname> is
-    "example". The system repository that OpenProvision generates will include
+    In the following example, the solution's <varname>$NAME</varname> is
+    "example". The solution that CentOS Studio generates will include
     several groups from the groupfiles of its input repositories as well as
     a few individual packages. The "base" and "core" groups  will be created
     using the "centos-base" repository as the source; all remaining groups
@@ -138,7 +138,7 @@
     the "httpd" and "createrepo" packages, as well as all packages matching
     the glob "samba*", will be added to a new group called
     "example-packages". Finally, the "system-config-soundcard" package will
-    be excluded from the system repository.
+    be excluded from the solution.
     </para>
 
     <informalexample>
@@ -161,7 +161,7 @@
   &lt;package&gt;createrepo&lt;/package&gt;
 
   &lt;!-- prevent system-config-soundcard from being included in the 
-  system repository --&gt;
+  solution --&gt;
   &lt;exclude&gt;system-config-soundcard&lt;/exclude&gt;
 &lt;/packages&gt;  
     </programlisting>

@@ -16,7 +16,7 @@
 
       <para>
       An absolute or relative <varname>DIRNAME</varname> (path) to a
-      folder where OpenProvision will place the specified file or files. OpenProvision 
+      folder where CentOS Studio will place the specified file or files. CentOS Studio 
       creates this destination folder if it does not exist. If the 
       <varname>DIRNAME</varname> is absolute,
       the final file location will ignore the <varname>PATH</varname>-like
@@ -76,7 +76,7 @@
 
       <para>
       The filename to use for the specified file or folder after it is 
-      copied to its destination. If not given, OpenProvision uses the
+      copied to its destination. If not given, CentOS Studio uses the
       basename of the specified file. Used to rename a file or folder.
       </para>
     </section>

@@ -5,24 +5,24 @@
   <title>Tying it All Together</title>
 
   <para>In summary, there are several steps to creating a successful
-  system repository.</para>
+  solution.</para>
 
   <para>First, you configure the <application
-  class="software">OpenProvision</application> build machine to accommodate the
-  size and number of system repositories you will build and store concurrently.
+  class="software">CentOS Studio</application> build machine to accommodate the
+  size and number of solutions you will build and store concurrently.
   The system should be accessible through your local network.
   After configuring the hardware, you can install one of the <application
   class="software">Linux </application>operating system versions on which 
-  <application class="software">OpenProvision</application> runs.</para>
+  <application class="software">CentOS Studio</application> runs.</para>
 
-  <para>Then you define your system repository in the <filename
+  <para>Then you define your solution in the <filename
   class="extension">samba-server.definition</filename> file using XML tags
   defined in the SDFR. Your definition includes several key pieces of
   information:</para>
 
   <para><itemizedlist>
       <listitem>
-        <para>the name of the system repository, its version and architecture;</para>
+        <para>the name of the solution, its version and architecture;</para>
       </listitem>
 
       <listitem>
@@ -40,11 +40,11 @@
       </listitem>
     </itemizedlist></para>
 
-  <para>Once the system repository definition is complete, you log on as the root user
-  and execute the command <userinput>openprovision samba-server.definition</userinput>
-  to build the system repository. Output goes to the screen and the default log file.
+  <para>Once the solution definition is complete, you log on as the root user
+  and execute the command <userinput>centosstudio samba-server.definition</userinput>
+  to build the solution. Output goes to the screen and the default log file.
   The first build may take some time, since <application
-  class="software">OpenProvision</application> needs to do everything from 
+  class="software">CentOS Studio</application> needs to do everything from 
   scratch:</para>
 
   <para><itemizedlist>
@@ -70,7 +70,7 @@
       </listitem>
 
       <listitem>
-        <para>create the system repository (and it's metadata),</para>
+        <para>create the solution (and it's metadata),</para>
       </listitem>
 
       <listitem>
@@ -78,24 +78,24 @@
       </listitem>
 
       <listitem>
-        <para>copy, or <emphasis>publish</emphasis>, system repository content to a web-accessible location.</para>
+        <para>copy, or <emphasis>publish</emphasis>, solution content to a web-accessible location.</para>
       </listitem>
     </itemizedlist>Deploying client machines requires two steps. First, you 
   create the CD or DVD boot media. And then you install the client machine by
   inserting the disk into the client machine and later verifying that the 
   contents are correct. Alternatively, you can use virt-manager or virt-install
-  to deploy new virtual machines based on the system repository.</para>
+  to deploy new virtual machines based on the solution.</para>
 
-  <para>Updating your system repository can involve simply checking for mirror 
-  repository updates. Or it can involve changing the system repository definition or
+  <para>Updating your solution can involve simply checking for mirror 
+  repository updates. Or it can involve changing the solution definition or
   configuration files and scripts. Depending upon the changes it encounters, 
-  <application class="software">OpenProvision</application> will 
-  update the system repository as necessary. After updating the
-  system repository, you will need to run <userinput>yum sync</userinput> on client
-  machines to keep them up to date with the current system repository.</para>
+  <application class="software">CentOS Studio</application> will 
+  update the solution as necessary. After updating the
+  solution, you will need to run <userinput>yum sync</userinput> on client
+  machines to keep them up to date with the current solution.</para>
 
   <para>In the Samba CentOS 5 Server example presented here, what you have
-  in the end is a system repository for a Samba server on CentOS 5 for the i386
+  in the end is a solution for a Samba server on CentOS 5 for the i386
   architecture. Your <filename>smb.conf</filename> file provides custom <application
   class="software">Samba</application> configuration instructions. The
   packages come from the repositories at <ulink
