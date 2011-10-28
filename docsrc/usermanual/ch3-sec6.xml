@@ -57,7 +57,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
       </note></para>
 
     <para>If CentOS Studio finds updated packages, it will refresh the 
-    <xref linkend="system-repository"/> to contain just the current set
+    <xref linkend="solution"/> to contain just the current set
     of packages. Specifically, when CentOS Studio determines that packages have
     changed, it calculates the list of packages needed to satisfy system 
     requirements, and then adds and removes packages as necessary to bring the 

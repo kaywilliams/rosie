@@ -250,12 +250,6 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
                                         options.skip_events):
       self._set_status(eventid, False, '--skip')
 
-    # clear cache, if requested
-    if options.clear_cache:
-      Event.logger.log(1, L0("clearing cache"))
-      Event.cache_handler.cache_dir.listdir(all=True).rm(recursive=True)
-    Event.cache_handler.cache_dir.mkdirs()
-
     # perform validation, if not specified otherwise
     if not options.no_validate:
       self.validate_configs()

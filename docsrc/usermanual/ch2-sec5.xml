@@ -76,7 +76,7 @@
 
             <entry>CentOS Studio publishes completed solutions to  
             this folder by default. An alternative location can be specified on
-            a per-system-repository basis within a system definition.
+            a per-solution basis within a system definition.
             </entry>
           </row>
         </tbody>

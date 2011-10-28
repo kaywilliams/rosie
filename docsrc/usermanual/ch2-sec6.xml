@@ -165,7 +165,7 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry id="system-repository" xreflabel="solution">
+      <varlistentry id="solution" xreflabel="solution">
         <term><emphasis role="strong">solution</emphasis></term>
 
         <listitem>
@@ -206,7 +206,7 @@
         <listitem>
 	  <para>A <application class="software">YUM</application> plugin
 	  provided by CentOS Studio that allows synchronizing packages on client
-	  machines with packages in the <xref linkend="system-repository"/>.
+	  machines with packages in the <xref linkend="solution"/>.
 	  The plugin is included by default in the <xref
 	  linkend="configuration-package" />, which serves as the mechanism for
 	  installing it on client machines. The plugin establishes the system

@@ -18,7 +18,7 @@
 
 <refnamediv>
 <refname>centosstudio</refname>
-<refpurpose>Builds and updates Linux-based solutions.</refpurpose>
+<refpurpose>Builds and maintains CentOS-based solutions.</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -28,9 +28,6 @@
 
 <cmdsynopsis>
 <command>centosstudio</command>
-<arg choice="opt">
-<option>--clear-cache </option>
-</arg>
 <arg choice="opt">
 <option>[-c | --config ] <replaceable class="parameter">PATH</replaceable></option>
 </arg>
@@ -61,18 +58,18 @@
 <arg choice="opt">
 <option>--skip <replaceable class="parameter">MODULE</replaceable></option>
 </arg>
-<filename> SYSTEM_DEFINITION</filename>
+<filename> SOLUTION_DEFINITION</filename>
 
 </cmdsynopsis>
 </refsynopsisdiv>
 
 <refsect1 id="centosstudio.1-description"><title>DESCRIPTION</title>
-<para>Builds the solution defined in the file at SYSTEM_DEFINITION. Updates the solution if it exists.</para>
+<para>Builds the solution defined in the file at SOLUTION_DEFINITION. Updates the solution if it exists.</para>
 </refsect1>
 
 <refsect1 id="centosstudio.1-usage"><title>USAGE</title>
-<para><command>centosstudio</command> [OPTIONS] SYSTEM_DEFINITION</para>
-<para>OPTIONS refers to the command-line options described below.  SYSTEM_DEFINITION refers to a system definition file, see the System Definition File Reference at <ulink url="http://www.centosstudio.org/centosstudio/docs"/> for more information.</para>
+<para><command>centosstudio</command> [OPTIONS] SOLUTION_DEFINITION</para>
+<para>OPTIONS refers to the command-line options described below.  SOLUTION_DEFINITION refers to a system definition file, see the System Definition File Reference at <ulink url="http://www.centosstudio.org/centosstudio/docs"/> for more information.</para>
 </refsect1>
 
 
@@ -81,17 +78,10 @@
 <variablelist>
 
 <varlistentry>
-  <term><option>-c; --config <replaceable class="parameter">OPENPROVISION_CONF</replaceable></option></term>
+  <term><option>-c; --config <replaceable class="parameter">CENTOSSTUDIO_CONF</replaceable></option></term>
   <listitem>
-    <para> Specifies the directory and filename <replaceable class="parameter">OPENPROVISION_CONF</replaceable> of the centosstudio configuration file.  The default value is <filename class="directory">/etc/centosstudio/centosstudio.conf</filename>.  See the <filename>centosstudio.conf(5)</filename> man page for CentOS Studio configuration options.</para>
+    <para> Specifies the directory and filename <replaceable class="parameter">CENTOSSTUDIO_CONF</replaceable> of the centosstudio configuration file.  The default value is <filename class="directory">/etc/centosstudio/centosstudio.conf</filename>.  See the <filename>centosstudio.conf(5)</filename> man page for CentOS Studio configuration options.</para>
 
-  </listitem>
-</varlistentry>
-
-<varlistentry>
-  <term><option>--clear-cache</option></term>
-  <listitem>
-    <para>Clears the shared cache of downloaded files. See <filename>centosstudio.conf(5)</filename> man page for more cache options.</para>
   </listitem>
 </varlistentry>
 
@@ -118,7 +108,7 @@
   <term><option>--list-modules</option></term>
   <listitem>
     <para> Displays a list of CentOS Studio modules including name, description, and child modules, then exits without building the solution. Note: CentOS Studio requires a system definition on the command line when using this option, for example:</para>
-<para>centosstudio --list-modules <filename>SYSTEM_DEFINITION</filename></para>
+<para>centosstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
 </varlistentry>
@@ -153,7 +143,7 @@
 <varlistentry>
   <term><option>--no-validate</option></term>
   <listitem>
-    <para>Disables validation of OPENPROVISION_CONF and SYSTEM_DEFINITION during the build process.</para>
+    <para>Disables validation of CENTOSSTUDIO_CONF and SOLUTION_DEFINITION during the build process.</para>
   </listitem>
 </varlistentry>
 
@@ -178,7 +168,7 @@
 <varlistentry>
   <term><option>--validate-only</option></term>
   <listitem>
-<para>Performs OPENPROVISION_CONF and SYSTEM_DEFINITION validation only; it does not build the solution.  The option also displays the complete SYSTEM_DEFINITION file after resolving macro and include elements.</para>
+<para>Performs CENTOSSTUDIO_CONF and SOLUTION_DEFINITION validation only; it does not build the solution.  The option also displays the complete SOLUTION_DEFINITION file after resolving macro and include elements.</para>
   </listitem>
 </varlistentry>
 
@@ -186,7 +176,7 @@
 </refsect1>
 
 <refsect1 id="centosstudio.1-variables"><title>VARIABLES</title>
-<para>CentOS Studio command options, where indicated, use three variables:  MODULE, PATH and OPENPROVISION_CONF.</para>
+<para>CentOS Studio command options, where indicated, use three variables:  MODULE, PATH and CENTOSSTUDIO_CONF.</para>
 
 <variablelist>
 <varlistentry>
@@ -204,7 +194,7 @@
 </varlistentry>
 
 <varlistentry>
-  <term>OPENPROVISION_CONF</term>
+  <term>CENTOSSTUDIO_CONF</term>
   <listitem>
     <para>The directory and filename of the CentOS Studio configuration file.</para>
   </listitem>
@@ -214,7 +204,7 @@
 
 <refsect1 id="centosstudio.1-modules"><title>MODULES</title>
 <para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the centosstudio command. Note: CentOS Studio requires a system definition on the command line when using this option, for example:</para>
-<para>centosstudio --list-modules <filename>SYSTEM_DEFINITION</filename></para>
+<para>centosstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
 <para>On subsequent builds of the same solution, CentOS Studio automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using the <command>--skip</command> and <command>--force</command> options.</para>
 <para>Developers can write custom CentOS Studio modules and direct CentOS Studio to use them via the <command>--lib-path</command> centosstudio command option.</para>
 </refsect1>

@@ -19,7 +19,7 @@
   <para><emphasis role="strong">YUM Sync Plugin.</emphasis> The CentOS Studio product provides a small extension to YUM, the <emphasis>YUM Sync Plugin</emphasis> that allows keeping installed clients up to date with changes in the solution or "master" repository. The YUM SyncPlugin is installed to client machines by default via the <xref linkend="configuration-package" />. The plugin performs two functions:</para>
 
   <itemizedlist>
-  <listitem><para>Establishes the <xref linkend="system-repository"/> as the master repository for the client system. This disables all other default package repositories, allowing the plugin to get an accurate list of what packages <emphasis>should be installed</emphasis> on the system using packages available in the solution.</para></listitem>
+  <listitem><para>Establishes the <xref linkend="solution"/> as the master repository for the client system. This disables all other default package repositories, allowing the plugin to get an accurate list of what packages <emphasis>should be installed</emphasis> on the system using packages available in the solution.</para></listitem>
 
   <listitem><para>Provides a new command line argument <emphasis>sync</emphasis> for use with YUM:</para>
   <informalexample><para><command># yum sync</command></para></informalexample>

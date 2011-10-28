@@ -41,11 +41,6 @@ def main():
                                     "SYSTEM_DEFINITION"
                         )
 
-  parser.add_option('--clear-cache',
-    dest='clear_cache',
-    action='store_true',
-    default=False,
-    help="clear cache of downloaded files before executing")
   parser.add_option('--debug',
     dest='debug',
     action='store_true',
