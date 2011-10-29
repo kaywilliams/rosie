@@ -7,40 +7,8 @@
   <section>
     <title>Audience</title>
 
-    <para>CentOS Studio is a product intended for system administrators
-    who need to build, test, deploy and maintain Red Hat Enterprise Linux or 
-    CentOS-based systems. Certain chapters in this manual assume you have a 
-    particular level of knowledge.</para>
+    <para>CentOS Studio is intended for individuals with system administrator-level knowledge of CentOS or Red Hat Enterprise Linux. This document, in particular, assumes basic experience with system installation and configuration, RPM package management, XML file creation and editing, basic web server management, system automation using BASH or other scripting languages, and a basic familiarity with version control systems.</para>
 
-    <para>For Chapter 3, "Building a System," in addition to knowing how
-    to create and edit XML files, manage a web server and create USB and CD/DVD
-    boot media, you should have an intermediate skill level with the following
-    components:</para>
-
-    <para><itemizedlist>
-        <listitem>
-          <para>Red Hat Enterprise Linux or CentOS installation, usage, 
-          system administration and configuration;</para>
-        </listitem>
-
-        <listitem>
-          <para><application class="software">RPM</application> package usage;
-          and</para>
-        </listitem>
-
-        <listitem>
-          <para><application class="software">YUM</application> usage and
-          configuration.</para>
-        </listitem>
-      </itemizedlist></para>
-
-    <para>For Chapter 4, "Creating a Production Environment," experience
-    with version control systems, local mirror hosting, XPath and XInclude.
-    </para>
-
-    <para>For Chapter 5, "Doing More with CentOS Studio," key skills
-    include understanding how to automate Anaconda installations using 
-    kickstart files and command line arguments.</para>
   </section>
 
   <section>
@@ -50,8 +18,8 @@
     class="software">CentOS Studio</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
     obtaining and installing CentOS Studio and creating a basic CentOS system
-    repository. The "System Definition File Reference" (SDFR) contains
-    the syntax for system definition elements and attributes. 
+    repository. The "Solution Definition File Reference" (SDFR) contains
+    the syntax for solution definition elements and attributes. 
     Finally, CentOS Studio has a set of 
     <emphasis role="strong">man pages</emphasis> explaining the
     <command>centosstudio</command> command, its options and the CentOS Studio
@@ -169,7 +137,7 @@
         <term><emphasis role="strong">Notes</emphasis></term>
 
         <listitem>
-          <para>Within system definition examples, the traditional XML comment
+          <para>Within solution definition examples, the traditional XML comment
           tags "&lt;!--" and "--&gt;" contain notes. See Also <xref
           linkend="example" /> .</para>
 
@@ -178,7 +146,7 @@
 
           <para><note>
               <para>The top-level elements can be in any order in the
-              system definition.</para>
+              solution definition.</para>
             </note></para>
         </listitem>
       </varlistentry>

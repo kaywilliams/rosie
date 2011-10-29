@@ -19,12 +19,12 @@
   <section>
   <title>Build Input</title>
 
-  <para><application class="software">CentOS Studio</application> uses three classes of input to create solutions: a base operating system, package repositories, and configuration files and scripts. System content is specified using a <xref linkend="system_definition">system definition</xref>.</para>
+  <para><application class="software">CentOS Studio</application> uses three classes of input to create solutions: a base operating system, package repositories, and configuration files and scripts. System content is specified using a <xref linkend="solution_definition">solution definition</xref>.</para>
 
   <itemizedlist>
   <listitem><emphasis role="strong"> Base Operating System.</emphasis> CentOS Studio requires a base operating solution as input for creating new solutions. The base operating system is defined at the level of operating system name (Red Hat Enterprise Linux or CentOS), version (5) and architecture (i386 or x86_64). The four base operating systems CentOS Studio supports are RHEL-5-i386, RHEL-5-x86_64, CentOS-5-i386 and CentOS-5-x86_64. Base operating solutions must include both network installation images and package repositories. Base operating solutions are covered in more detail under <xref linkend="specifying-repositories" />.</listitem>
 
-  <listitem><emphasis role="strong">Package Repositories.</emphasis> CentOS Studio uses RPM package repositories to locate and download software components for the solution. CentOS Studio requires at least one package repository, that of the base operating solution. A typical system definition will specify multiple input repositories, including the base operating system update repository, and repositories made available from other internal and external providers. See <xref linkend="specifying-repositories" /> for more information.</listitem>
+  <listitem><emphasis role="strong">Package Repositories.</emphasis> CentOS Studio uses RPM package repositories to locate and download software components for the solution. CentOS Studio requires at least one package repository, that of the base operating solution. A typical solution definition will specify multiple input repositories, including the base operating system update repository, and repositories made available from other internal and external providers. See <xref linkend="specifying-repositories" /> for more information.</listitem>
 
   <listitem><emphasis role="strong">Configuration Files and Scripts.</emphasis> The final category of solution content is user-provided configuration files and scripts. Files are copied, and scripts are executed, during client machine installation and updates. For more information, see <xref linkend="configuring-clients" />.</listitem>
   </itemizedlist>
@@ -33,7 +33,7 @@
   <section>
   <title>Build Process</title>
 
-  <para><application class="software">CentOS Studio</application> uses information from the <xref linkend="system_definition"/> to gather solution content. It processes this information in three primary ways.</para>
+  <para><application class="software">CentOS Studio</application> uses information from the <xref linkend="solution_definition"/> to gather solution content. It processes this information in three primary ways.</para>
 
   <itemizedlist>
   <listitem><para><emphasis role="strong">Creates a configuration package.</emphasis> CentOS Studio creates a <xref linkend="configuration-package" /> in RPM format. This package contains configuration files and scripts specified in the solution definition. It also contains CentOS Studio-generated YUM update configuration. See <xref linkend="updating-client-machines" /> for more information on CentOS Studio-generated YUM configuration.</para>

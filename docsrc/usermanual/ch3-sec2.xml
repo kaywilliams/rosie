@@ -24,7 +24,7 @@
   server solution entails several process steps. After configuring
   the <application class="software">CentOS Studio</application> build machine,
   as described in the previous chapter, you need to create a solution
-  system definition 
+  solution definition 
   (<filename class="extension">samba-server.definition</filename>). Then
   you run <command>centosstudio</command> to validate the file, retrieve
   the packages and build the solution. From there you prepare the boot

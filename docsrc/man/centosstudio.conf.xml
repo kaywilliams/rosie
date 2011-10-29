@@ -84,7 +84,7 @@
 <varlistentry>
   <term><option>path</option></term>
   <listitem>
-<para>The <literal>path</literal> child element specifies where CentOS Studio stores both shared and per system cache data.  The default is <filename>/var/cache/centosstudio</filename>.
+<para>The <literal>path</literal> child element specifies where CentOS Studio stores both shared and per-solution cache data.  The default is <filename>/var/cache/centosstudio</filename>.
 </para>
 <programlisting>
 &lt;cache&gt;
@@ -127,14 +127,14 @@
 <varlistentry>
   <term>CACHEDIR</term>
   <listitem>
-    <para>CACHEDIR is the directory location where CentOS Studio stores shared and per-system cache data.</para>
+    <para>CACHEDIR is the directory location where CentOS Studio stores shared and per-solution cache data.</para>
   </listitem>
 </varlistentry>
 
 <varlistentry>
   <term>PATH</term>
   <listitem>
-    <para>PATH is the local absolute and relative file paths that CentOS Studio supports. CentOS Studio resolves relative paths from the current working directory.</para>
+    <para>PATH is a local absolute or relative file path. CentOS Studio resolves relative paths from the current working directory.</para>
   </listitem>
 </varlistentry>
 

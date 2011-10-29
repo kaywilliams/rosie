@@ -6,7 +6,7 @@
 
   <para>Now that you have defined your solution, you use the
   <command>centosstudio</command> command to build it. The basic command validates the 
-  system definition syntax, creates the solution, and records 
+  solution definition syntax, creates the solution, and records 
   process results. The default level of screen output includes errors, build
   status and file download and creation status. CentOS Studio also
   sends this output to the log file, by default 

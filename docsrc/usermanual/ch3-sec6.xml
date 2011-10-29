@@ -7,7 +7,7 @@
   <para>CentOS Studio makes it easy to keep your solution up to date over 
   time by simply rerunning the <command>centosstudio</command> command. 
   When CentOS Studio runs, it looks for changes in build input, or in the 
-  system definition, and makes adjustments to the published
+  solution definition, and makes adjustments to the published
   solution as necessary.</para>
 
   <section>
@@ -90,7 +90,7 @@ Build complete at 2009-10-25 18:30:26</screen></para>
     elements, then you are creating a new solution with a new
     <varname>$ID</varname> and <xref linkend="download-location"/>
     matching the new parameters. To avoid confusion between the different
-    solutions, save the new system definition with a new name.</para>
+    solutions, save the new solution definition with a new name.</para>
   </section>
 
   <para>To try out system updates for the samba-server example, you can 

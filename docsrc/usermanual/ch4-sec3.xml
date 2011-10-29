@@ -21,14 +21,14 @@
   non-image files that should be. Within the <application
   class="software">CentOS Studio</application> infrastructure and system
   building process, candidates for revision control include configuration files,
-  system definitions and scripts, i.e. files that contain critical
+  solution definitions and scripts, i.e. files that contain critical
   textual information that may change over time or are commonly used to define
   aspects of multiple systems, such as common repositories or network
   configuration.</para>
 
   <para><itemizedlist>
       <listitem>
-        <para>system definitions,</para>
+        <para>solution definitions,</para>
       </listitem>
 
       <listitem>
@@ -44,7 +44,7 @@
       </listitem>
 
       <listitem>
-        <para>system definition XInclude files.</para>
+        <para>solution definition XInclude files.</para>
       </listitem>
     </itemizedlist></para>
 
@@ -52,7 +52,7 @@
   the solution definition or other key
   files every time you make a change to help you "version" your solution.
   You can also enter comments in the files. Keep in mind that changing the name
-  of system definition file does not mean <application class="software">
+  of solution definition file does not mean <application class="software">
   CentOS Studio</application> will build a new solution.
   As long as the <varname>$ID</varname> remains the same, the
   solution remains the same.</para>

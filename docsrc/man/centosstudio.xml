@@ -64,12 +64,12 @@
 </refsynopsisdiv>
 
 <refsect1 id="centosstudio.1-description"><title>DESCRIPTION</title>
-<para>Builds the solution defined in the file at SOLUTION_DEFINITION. Updates the solution if it exists.</para>
+<para>Builds and maintains the solution defined in the file at SOLUTION_DEFINITION.</para>
 </refsect1>
 
 <refsect1 id="centosstudio.1-usage"><title>USAGE</title>
 <para><command>centosstudio</command> [OPTIONS] SOLUTION_DEFINITION</para>
-<para>OPTIONS refers to the command-line options described below.  SOLUTION_DEFINITION refers to a system definition file, see the System Definition File Reference at <ulink url="http://www.centosstudio.org/centosstudio/docs"/> for more information.</para>
+<para>OPTIONS refers to the command-line options described below.  SOLUTION_DEFINITION refers to a solution definition file, see the Solution Definition File Reference at <ulink url="http://www.centosstudio.org/centosstudio/docs"/> for more information.</para>
 </refsect1>
 
 
@@ -98,7 +98,7 @@
 <varlistentry>
   <term><option>--lib-path <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para> Specifies a directory containing CentOS Studio modules <replaceable class="parameter">PATH</replaceable>.  The default path is the system path.  This option can be specified more than once; for example:</para>
+    <para> Specifies a directory <replaceable class="parameter">PATH</replaceable> containing CentOS Studio modules.  The default path is the system path.  This option can be specified more than once; for example:</para>
 <para>--lib-path <replaceable class="parameter">PATH1</replaceable> --lib-path <replaceable class="parameter">PATH2</replaceable> --lib-path <replaceable class="parameter">PATH3</replaceable></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
@@ -107,7 +107,7 @@
 <varlistentry>
   <term><option>--list-modules</option></term>
   <listitem>
-    <para> Displays a list of CentOS Studio modules including name, description, and child modules, then exits without building the solution. Note: CentOS Studio requires a system definition on the command line when using this option, for example:</para>
+    <para> Displays a list of CentOS Studio modules including name, description, and child modules, then exits without building the solution. Note: CentOS Studio requires a solution definition on the command line when using this option, for example:</para>
 <para>centosstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
@@ -203,7 +203,7 @@
 </refsect1>
 
 <refsect1 id="centosstudio.1-modules"><title>MODULES</title>
-<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the centosstudio command. Note: CentOS Studio requires a system definition on the command line when using this option, for example:</para>
+<para>A module performs an individual step in the build process, such as downloading software packages or creating ISO images. To display a list of available modules use the option <command>--list-modules</command> with the centosstudio command. Note: CentOS Studio requires a solution definition on the command line when using this option, for example:</para>
 <para>centosstudio --list-modules <filename>SOLUTION_DEFINITION</filename></para>
 <para>On subsequent builds of the same solution, CentOS Studio automatically determines whether a module can be skipped in favor of using cached data from a previous build. Users can override the default determination using the <command>--skip</command> and <command>--force</command> options.</para>
 <para>Developers can write custom CentOS Studio modules and direct CentOS Studio to use them via the <command>--lib-path</command> centosstudio command option.</para>

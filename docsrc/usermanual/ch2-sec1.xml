@@ -61,7 +61,7 @@
   </mediaobject>
 
   <para><application class="software">CentOS Studio</application> reads 
-  a system definition, gathers various inputs (operating system, applications, 
+  a solution definition, gathers various inputs (operating system, applications, 
   and configuration files), and creates a solution 
   with installation images and a package repository. Using the installation
   images, you can deploy the solution to one or more client machines. You can 

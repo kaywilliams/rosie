@@ -78,7 +78,7 @@
 
           <para>For more information on what the configuration package contains
           and how to customize its contents, see the section on 
-          <emphasis>config</emphasis> in the System Definition File 
+          <emphasis>config</emphasis> in the Solution Definition File 
           Reference.</para>
 
         </listitem>
@@ -88,13 +88,13 @@
         <term><emphasis role="strong">SDFR</emphasis></term>
 
         <listitem>
-	  <para>"System Definition File Reference," the rules of syntax
+	  <para>"Solution Definition File Reference," the rules of syntax
 	  for the solution definition.</para>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="system_definition" xreflabel="system definition">
-        <term><emphasis role="strong">system definition</emphasis></term>
+      <varlistentry id="solution_definition" xreflabel="solution definition">
+        <term><emphasis role="strong">solution definition</emphasis></term>
 
         <listitem>
           <para>The information CentOS Studio uses to build, configure and store
@@ -113,7 +113,7 @@
 	  linkend="configuration-package" />. This file is created in the same
 	  folder as the solution definition, using the same
 	  filename, with a <filename>.dat</filename> file extension. For
-	  example, given the full path to a system definition:</para>
+	  example, given the full path to a solution definition:</para>
 
           <para><informalexample>
           <filename>/~/samba-server.definition</filename></informalexample>

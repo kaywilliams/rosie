@@ -126,7 +126,7 @@ xmllint --xinclude --format samba-server-production.definition
       <imageobject>
         <imagedata fileref="definition_reuse.png" />
       </imageobject>
-      <caption><para>System Definition File Reuse</para></caption>
+      <caption><para>Solution Definition File Reuse</para></caption>
     </mediaobject></para>
 
   <para>To properly use the XInclude and XPointer structures, the directory
@@ -147,7 +147,7 @@ xmllint --xinclude --format samba-server-production.definition
   class="directory">solutions/samba-server/</filename> in the drawing above
   contains the <filename>samba-server.definition</filename> file, the Samba
   server configuration file, a kickstart file and a validation script. The
-  system definition would XInclude
+  solution definition would XInclude
   components from the repositories, common groups and packages. The same logic holds true for the web and DNS servers.</para>
 
   <para>To see the differences between one large versus several small files,

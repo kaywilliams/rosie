@@ -132,7 +132,7 @@
             you will set up your Version Control repository (V) and check in 
             definition and configuration files prior to creating the production 
             solution. From this point forward, if you need to adjust
-            your system definition or configuration files in any way, you 
+            your solution definition or configuration files in any way, you 
             should return to Step 1, checking out and altering these files
             using the Development system. See 
             <xref linkend="versioning-definitions"/> for
