@@ -7,7 +7,7 @@
   <section>
     <title>Audience</title>
 
-    <para>CentOS Studio is intended for individuals with system administrator-level knowledge of CentOS or Red Hat Enterprise Linux. This document, in particular, assumes basic experience with system installation and configuration, RPM package management, XML file creation and editing, basic web server management, system automation using BASH or other scripting languages, and a basic familiarity with version control systems.</para>
+    <para>This document is intended for individuals with system administrator-level knowledge of CentOS or Red Hat Enterprise Linux. In particular, it assumes basic experience with system installation and configuration, RPM package management, XML file creation and editing, basic web server management, system automation using BASH or other scripting languages, and a basic familiarity with version control systems.</para>
 
   </section>
 

@@ -29,7 +29,7 @@ from centosstudio.sslogging   import L1, L2
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['DownloadEvent'],
-  description = 'downloads pkglist RPMs',
+  description = 'downloads package list RPMs',
   group       = 'repocreate',
 )
 

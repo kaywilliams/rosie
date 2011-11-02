@@ -38,7 +38,7 @@ YUMCONF_HEADER = [
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['GpgCheckEvent'],
-  description = 'gpgchecks pkglist RPMs',
+  description = 'gpgchecks package list RPMs',
   group       = 'repocreate',
 )
 

@@ -32,7 +32,7 @@ P = pps.path
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['TestUpdateEvent'],
-  description = 'updates a test client system',
+  description = 'performs test updates on client systems',
 )
 
 

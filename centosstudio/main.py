@@ -258,7 +258,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
         sys.exit()
 
     # set up locking
-    self._lock = lock.Lock(Event.cache_handler.cache_dir/'centosstudio.pid')
+    self._lock = lock.Lock('centosstudio.pid')
 
   def main(self):
     "Build a solution"

@@ -23,7 +23,7 @@ from centosstudio.modules.shared import RepomdMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['RepomdEvent'],
-  description = 'creates repository metadata for pkglist RPMS',
+  description = 'creates repository metadata for package list RPMS',
   group       = 'repocreate',
 )
 

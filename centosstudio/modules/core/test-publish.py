@@ -28,7 +28,7 @@ from centosstudio.modules.shared.publish import PublishEventMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['TestPublishEvent',],
-  description = 'creates a test solution if requested',
+  description = 'publishes a test solution to a web-accessible location ',
 )
 
 class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin, 

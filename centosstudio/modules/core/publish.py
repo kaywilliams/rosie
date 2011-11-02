@@ -33,7 +33,7 @@ from centosstudio.modules.shared.publish import PublishEventMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PublishSetupEvent', 'PublishEvent' ],
-  description = 'publish solution to a web accessible location',
+  description = 'publishes solution to a web accessible location',
 )
 
 TYPE_DIR = pps.constants.TYPE_DIR

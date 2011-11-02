@@ -32,7 +32,7 @@ P = pps.path
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['TestInstallEvent'],
-  description = 'performs test installations on a client system',
+  description = 'performs test installations on client systems',
 )
 
 class TestInstallEvent(DeployEventMixin, Event):

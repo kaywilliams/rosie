@@ -98,7 +98,7 @@
 <varlistentry>
   <term><option>--lib-path <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para> Specifies a directory <replaceable class="parameter">PATH</replaceable> containing CentOS Studio modules.  The default path is the system path.  This option can be specified more than once; for example:</para>
+    <para>By default, CentOS Studio searches directories listed on the system path to locate CentOS Studio modules.  The --lib-path option allows specifing additional directory <replaceable class="parameter">PATHs</replaceable> to search.  This option can be specified more than once; for example:</para>
 <para>--lib-path <replaceable class="parameter">PATH1</replaceable> --lib-path <replaceable class="parameter">PATH2</replaceable> --lib-path <replaceable class="parameter">PATH3</replaceable></para>
 <para>See the MODULES section below for more information.</para>
   </listitem>
@@ -116,7 +116,7 @@
 <varlistentry>
   <term><option>--log-file <replaceable class="parameter">PATH</replaceable></option></term>
   <listitem>
-    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which CentOS Studio writes logging information of Level 5 detail.  The default path is <filename>/var/log/centosstudio.log</filename>.  See the command option <command>--log-level</command>.</para>
+    <para>Specifies the directory and filename <replaceable class="parameter">PATH</replaceable> to which CentOS Studio writes logging information.  The default path is <filename>/var/log/centosstudio.log</filename>.  See the command option <command>--log-level</command>.</para>
 <para>--log-file <replaceable class="parameter">PATH</replaceable></para>
   </listitem>
 </varlistentry>
@@ -124,7 +124,7 @@
 <varlistentry>
   <term><option>-l; --log-level <replaceable class="parameter">N</replaceable></option></term>
   <listitem>
-    <para> Specifies the level of detail logged to the console during a build.  There are six levels <replaceable class="parameter">N</replaceable> (0 to 5) with Level 3 being CentOS Studio's default level.</para>
+    <para> Specifies the level of detail displayed on the console during a build.  There are six levels <replaceable class="parameter">N</replaceable> (0 to 5) with Level 3 being CentOS Studio's default level.</para>
 <para>LEVELS
 <programlisting>
 * Level 0: Displays errors only.
@@ -136,6 +136,8 @@
 </programlisting>
 </para>
 <para>Setting the log level to 0 will prevent all logging except errors to the screen, while levels 1 to 5 have increasingly more detail about the build process.
+</para>
+<para>This setting controls the level of detail displayed on the console only, and not the log file. Level 5 detail is always written to the log file.
 </para>
 </listitem>
 </varlistentry>

@@ -23,7 +23,7 @@ from centosstudio.modules.shared import DeployEventMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['DeployEvent'],
-  description = 'installs and updates a client using the published repository',
+  description = 'installs and updates client systems',
 )
 
 

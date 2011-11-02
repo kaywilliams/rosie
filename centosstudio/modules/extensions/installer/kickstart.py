@@ -24,7 +24,7 @@ from centosstudio.modules.shared.kickstart import KickstartEventMixin
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['KickstartEvent'],
-  description = 'downloads a default kickstart file',
+  description = 'includes a kickstart file',
   group       = 'installer',
 )
 
