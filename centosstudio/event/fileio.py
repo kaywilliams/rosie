@@ -268,7 +268,7 @@ class IOObject(object):
     """
     Return a list of output files, or a subset based on the ids specified in what
     """
-    return sorted([ item.dst for item in self._filter_data(what=what) ])
+    return sorted(set([ item.dst for item in self._filter_data(what=what) ]))
 
   def list_input(self, what=None):
     """

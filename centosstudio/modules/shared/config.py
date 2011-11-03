@@ -36,7 +36,7 @@ import yum
 
 class ConfigEventMixin(RpmBuildMixin):
   configxpath = '.' # path to config element
-  config_mixin_version = "1.06"
+  config_mixin_version = "1.07"
 
   def __init__(self): # call after creating self.DATA
     RpmBuildMixin.__init__(self,
@@ -159,10 +159,11 @@ class ConfigEventMixin(RpmBuildMixin):
     lines = []
 
     # compute checksums
+    strip = len(self.rpm.source_folder // self.filerelpath)
 
     for file in self.io.list_output(what='files'):
       md5sum = file.checksum(type='md5')
-      lines.append('%s %s' % (md5sum, file[len(self.rpm.source_folder):]))
+      lines.append('%s %s' % (md5sum, file[strip:]))
 
     md5file.dirname.mkdirs()
     md5file.write_lines(lines)
@@ -308,8 +309,8 @@ class ConfigEventMixin(RpmBuildMixin):
       '  # create .rpmsave and add file to changed variable, if needed',
       '  if [ -e $f ]; then',
       '    curr=`md5sum $f | sed -e "s/ .*//"`',
-      '    new=`grep $f $md5file | sed -e "s/ .*//"`',
-      '    prev=`grep $f $md5file.prev | sed -e "s/ .*//"`',
+      '    new=`grep " $f$" $md5file | sed -e "s/ .*//"`',
+      '    prev=`grep " $f$" $md5file.prev | sed -e "s/ .*//"`',
       '    if [[ $curr != $new ]]; then',
       '      if [[ $curr != $prev ]]; then',
       '        # file changed by user',
