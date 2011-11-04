@@ -48,23 +48,23 @@ class DeployEventMixin:
 
     self.scripts = {
              'activate-script': dict(ssh=False, 
-                              arguments=[self.systemid]),
+                              arguments=[self.solutionid]),
              'clean-script': dict(message='running clean script',
                               ssh=False,
-                              arguments=[self.systemid]),
+                              arguments=[self.solutionid]),
              'install-script': dict(message='running install script',
                               ssh=False,
-                              arguments=[self.systemid, self.webpath]),
+                              arguments=[self.solutionid, self.webpath]),
              'verify-install-script': 
                               dict(message='running verify-install script',
                               ssh=True,
-                              arguments=[self.systemid]),
+                              arguments=[self.solutionid]),
              'update-script': dict(message='running update script',
                               ssh=True,
-                              arguments=[self.systemid]),
+                              arguments=[self.solutionid]),
              'post-script':   dict(message='running post script',
                               ssh=True,
-                              arguments=[self.systemid])}
+                              arguments=[self.solutionid])}
 
     for script in self.scripts:
       if self.config.get(script, None) is not None:
@@ -73,9 +73,9 @@ class DeployEventMixin:
         self.DATA['config'].append(script)
 
     #setup ssh default values
-    _hostname = self.config.get('@hostname', self.systemid)
+    _hostname = self.config.get('@hostname', self.solutionid)
     self.ssh_defaults = dict(
-      hostname = _hostname.replace('$id', self.systemid),
+      hostname = _hostname.replace('$id', self.solutionid),
       port     = self.config.get('@port', 22),
       username = self.config.get('@username', 'root'),
       password = self.config.get('@password', None),
@@ -227,7 +227,7 @@ class SSHParameters(DictMixin):
     for param,value in ptr.ssh_defaults.items():
       self.params[param] = ptr.config.get('%s/@%s' % (script, param), value)
     self.params['hostname'] = self.params['hostname'].replace('$id',
-                              ptr.systemid)
+                              ptr.solutionid)
 
   def __getitem__(self, key):
     return self.params[key]

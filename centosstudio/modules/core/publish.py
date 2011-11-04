@@ -50,7 +50,7 @@ class PublishSetupEvent(PublishEventMixin, Event):
     )
 
     self.DATA = {
-      'variables': ['systemid'],
+      'variables': ['solutionid'],
       'config': ['.'],
     }
 

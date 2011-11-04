@@ -8,6 +8,9 @@
           <element name="version"><text/></element>
           <ref name="element-arch"/>
           <optional>
+          <element name="edition"><text/></element>
+          </optional>
+          <optional>
           <element name="id"><text/></element>
           </optional>
           <optional>

@@ -27,14 +27,14 @@ class PublishEventMixin:
   def get_local(self, default):
     local = self.config.getpath('/solution/%s/local-dir/text()' % 
                                 self.moduleid, default)
-    return local / self.systemid
+    return local / self.solutionid
   
   def get_remote(self, default): 
     remote = pps.path(self.config.getpath('/solution/%s/remote-url/text()'
                       % self.moduleid, 
                       self._get_host(default, 'remote-url', ifname =
                         self.config.get('remote-url/@interface', None))))
-    return remote / self.systemid
+    return remote / self.solutionid
   
   def _get_host(self, default, xpath, ifname=None):
     if not ifname:

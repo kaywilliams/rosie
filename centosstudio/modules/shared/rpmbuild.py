@@ -198,7 +198,7 @@ class RpmBuildObject:
     self.arch     = kwargs.get('arch',     'noarch')
     self.author   = kwargs.get('author',   'centosstudio')
     self.fullname = kwargs.get('fullname', self.ptr.fullname)
-    self.version  = kwargs.get('version',  self.ptr.basever)
+    self.version  = kwargs.get('version',  self.ptr.version)
 
     self.ptr.DATA['variables'].extend(['rpm.arch', 'rpm.author', 'rpm.fullname',
                                        'rpm.version'])

@@ -53,7 +53,7 @@ class ConfigEvent(ConfigEventMixin, Event):
     ConfigEventMixin.__init__(self) 
 
     self.DATA = {
-      'variables': ['name', 'fullname', 'systemid', 'rpm.release',
+      'variables': ['name', 'fullname', 'solutionid', 'rpm.release',
                     'cvars[\'web-path\']'],
       'config':    ['.'],
       'input':     [],

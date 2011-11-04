@@ -132,31 +132,27 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     try:
       self.name     = self.definition.get(qstr % 'name')
       self.version  = self.definition.get(qstr % 'version')
+      self.edition  = self.definition.get(qstr % 'edition', '')
       self.arch     = ARCH_MAP[self.definition.get(qstr % 'arch', 'i386')]
     except rxml.errors.XmlPathError, e:
       self.logger.log(0, L0("Validation of %s failed. %s" % 
                             (self.definition.getroot().file, e)))
       if self.debug: raise
       sys.exit(1)
-    
-    # set basever to first digit in version string, e.g. '5Server' becomes '5'
-    self.basever = ''
-    for char in self.version:
-      if char.isdigit(): self.basever = char
-      break
       
     self.basearch        = getBaseArch(self.arch)
-    self.systemid  = self.definition.get(qstr % 'id',
-                          '%s-%s-%s' % (self.name,
-                                        self.version,
-                                        self.basearch))
+    self.solutionid  = self.definition.get(qstr % 'id',
+                          '%s-%s%s-%s' % (self.name,
+                                          self.version,
+                                          self.edition,
+                                          self.basearch))
 
     # expand variables in definition file
     map = {'$name':    self.name,
            '$version': self.version,
-           '$basever': self.basever,
+           '$edition': self.edition,
            '$arch':    self.basearch,
-           '$id':      self.systemid}
+           '$id':      self.solutionid}
 
     for item in self.definition.xpath('//macro', []):
       name = '$%s' % item.attrib['id']
@@ -423,10 +419,10 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
 
     di['name']         = self.name 
     di['version']      = self.version
-    di['basever']      = self.basever # first digit in self.version
+    di['edition']      = self.edition
     di['arch']         = self.arch
     di['basearch']     = self.basearch
-    di['systemid']  = self.systemid
+    di['solutionid']   = self.solutionid
     di['anaconda-version'] = None
     di['fullname']     = Event._config.get(qstr % 'fullname', di['name'])
     di['packagepath']  = 'Packages'
@@ -435,23 +431,23 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     for k,v in di.items():
       setattr(Event, k, v)
 
-    # validate name, version, and systemid to ensure they don't have
+    # validate name, version, and solutionid to ensure they don't have
     # invalid characters
-    for check in ['name', 'version', 'systemid']:
+    for check in ['name', 'version', 'solutionid']:
       if not FILENAME_REGEX.match(di[check]):
         raise RuntimeError("Invalid value '%s' for <%s> element in <main>; "
           "accepted characters are a-z, A-Z, 0-9, _, ., and -."
           % (di[check], check))
 
-    # make systemid available to external programs via the Build object
-    Build.systemid = di['systemid']
+    # make solutionid available to external programs via the Build object
+    Build.solutionid = di['solutionid']
 
     # set up other directories
     Event.CACHE_DIR    = self.mainconfig.getpath(
                            '/centosstudio/cache/path/text()',
                            DEFAULT_CACHE_DIR).expand().abspath()
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
-    Event.METADATA_DIR = Event.CACHE_DIR  / di['systemid']
+    Event.METADATA_DIR = Event.CACHE_DIR  / di['solutionid']
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed([ x.expand().abspath()
@@ -550,7 +546,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
 
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
-    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.systemid, time.strftime('%Y-%m-%d %X')))
+    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.solutionid, time.strftime('%Y-%m-%d %X')))
     Event.logger.log(4, "Loaded modules: %s" % Event.cvars['loaded-modules'])
     Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):
