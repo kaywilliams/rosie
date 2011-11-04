@@ -77,11 +77,11 @@
 
   &lt;repos&gt;
     &lt;repo id="base"&gt;
-      &lt;name&gt;CentOS-$releasever - Base&lt;/name&gt;
+      &lt;name&gt;CentOS-$version - Base&lt;/name&gt;
       &lt;baseurl&gt;http://mirror.centos.org/centos/5/os/i386/&lt;/baseurl&gt;
     &lt;/repo&gt;
     &lt;repo id="updates"&gt;
-      &lt;name&gt;CentOS-$releasever - Updates&lt;/name&gt;
+      &lt;name&gt;CentOS-$version - Updates&lt;/name&gt;
       &lt;baseurl&gt;http://mirror.centos.org/centos/5/updates/i386/&lt;/baseurl&gt;
     &lt;/repo&gt;
   &lt;/repos&gt;

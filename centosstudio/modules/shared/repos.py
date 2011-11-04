@@ -229,10 +229,10 @@ class RepoEventMixin:
     self.repos = RepoContainer()
 
   def validate(self):
-    # repos config must contain at least one repo or repofile
-    if not self.config.xpath('repo', []) and not self.config.xpath('repofile', []):
+    # repos config must contain at least one repo
+    if not self.config.xpath('repo', []):
       raise InvalidConfigError(self.config.getroot().file,
-        "<%s> must contain at least one <repo> or <repofile> element" % self.id)
+        "<%s> must contain at least one <repo> element" % self.id)
 
   def setup_repos(self, repos=None):
     """
@@ -257,10 +257,6 @@ class RepoEventMixin:
         self.log(5, L1("Removing disabled repo '%s'" % repo.id))
         del self.repos[repo.id]
         continue
-
-      # set $yumvars
-      repo.vars['$releasever'] = self.config.get('releasever/text()', self.version)
-      repo.vars['$basearch']   = self.basearch
 
     # make sure we got at least one repo out of that mess
     if not len(self.repos) > 0:

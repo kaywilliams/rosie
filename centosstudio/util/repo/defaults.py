@@ -57,12 +57,6 @@ def _makeRepos(distro, version, type,
       if repo.mirrorlist and not include_baseurl:
         del repo['baseurl']
 
-    # set up replacement vars for repo
-    vars = {'$releasever': version}
-    if arch: vars['$basearch'] = arch
-    for repo in repos.values():
-      repo.vars = vars
-
     return repos
   else:
     return None
