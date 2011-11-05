@@ -61,6 +61,13 @@ class ReposEvent(RepoEventMixin, Event):
     updates  = RepoContainer()
     if self.config.pathexists('.'):
       updates.add_repos(ReposFromXml(self.config.get('.'), cls=CentOSStudioRepoGroup))
+    for filexml in self.config.xpath('repofile/text()', []):
+      fn = self.io.abspath(filexml)
+      assert_file_has_content(fn)
+      try:
+        updates.add_repos(ReposFromFile(fn, cls=CentOSStudioRepoGroup))
+      except RepoFileParseError, e:
+        raise CentOSStudioRepoFileParseError(e.args[0])
 
     self.setup_repos(updates)
     self.read_repodata()

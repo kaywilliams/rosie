@@ -50,6 +50,11 @@
     </element>
   </define>
 
+  <!-- a repofile element -->
+  <define name="element-repofile">
+    <element name="repofile"><text/></element>
+  </define>
+
   <!-- boolean values -->
   <define name="value-boolean">
     <choice>

@@ -48,8 +48,9 @@
       <listitem>
       <para>
       The microprocessor architecture label for the target client
-      machines. Used to resolve the $arch macro. Accepts either "i386" or 
-      "x86_64".</para>
+      machines. Used to resolve $releasever variables used in repository
+      definitions. See the <emphasis>repos</emphasis> element for more
+      information. Accepts either "i386" or "x86_64".</para>
 
       <para>
       Throughout this document, the text value of this element is
