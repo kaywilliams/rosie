@@ -132,7 +132,6 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     try:
       self.name     = self.definition.get(qstr % 'name')
       self.version  = self.definition.get(qstr % 'version')
-      self.edition  = self.definition.get(qstr % 'edition', '')
       self.arch     = ARCH_MAP[self.definition.get(qstr % 'arch', 'i386')]
     except rxml.errors.XmlPathError, e:
       self.logger.log(0, L0("Validation of %s failed. %s" % 
@@ -142,15 +141,13 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
       
     self.basearch        = getBaseArch(self.arch)
     self.solutionid  = self.definition.get(qstr % 'id',
-                          '%s-%s%s-%s' % (self.name,
+                          '%s-%s-%s' % (self.name,
                                           self.version,
-                                          self.edition,
                                           self.basearch))
 
     # expand variables in definition file
     map = {'$name':    self.name,
            '$version': self.version,
-           '$edition': self.edition,
            '$arch':    self.basearch,
            '$id':      self.solutionid}
 
@@ -419,7 +416,6 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
 
     di['name']         = self.name 
     di['version']      = self.version
-    di['edition']      = self.edition
     di['arch']         = self.arch
     di['basearch']     = self.basearch
     di['solutionid']   = self.solutionid
