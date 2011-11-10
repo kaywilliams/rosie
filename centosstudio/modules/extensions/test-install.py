@@ -40,7 +40,7 @@ class TestInstallEvent(DeployEventMixin, Event):
     Event.__init__(self,
       id = 'test-install',
       parentid = 'all',
-      requires = ['test-webpath', ], 
+      requires = ['test-webpath', 'test-kstext', 'treeinfo-text'], 
     )
 
     self.DATA =  {
@@ -54,12 +54,14 @@ class TestInstallEvent(DeployEventMixin, Event):
     self.diff.setup(self.DATA)
     self.webpath = self.cvars['test-webpath'] 
     self.kstext = self.cvars['test-kstext']
+    self.titext = self.cvars['treeinfo-text']
     self.repomdfile = self.cvars['test-repomdfile']
-    self.DATA['variables'].extend(['webpath', 'kstext', 'repomdfile'])
+    self.DATA['variables'].extend(['webpath', 'kstext', 'titext', 'repomdfile'])
     DeployEventMixin.setup(self)
 
   def run(self):
-    self.install_triggers = [ 'install-script', 'kickstart', 'activate' ]
+    self.install_triggers = [ 'install-script', 'kickstart', 'treeinfo',
+                              'activate' ]
     DeployEventMixin.run(self)
 
   def apply(self):

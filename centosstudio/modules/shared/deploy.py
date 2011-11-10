@@ -114,7 +114,7 @@ class DeployEventMixin:
     '''
     Tests specified install triggers and returns true if the install script 
     should be executed. The triggers parameter accepts a list of values 
-    including 'install-script', 'kickstart' and 'activate'.
+    including 'install-script', 'treeinfo', 'kickstart' and 'activate'.
     '''
   
     if 'install-script' in triggers:
@@ -131,6 +131,12 @@ class DeployEventMixin:
       if 'kstext' in self.diff.variables.diffdict:
         self.log(1, L1("kickstart changed, reinstalling...")) 
         return True # reinstall
+
+    if 'treeinfo' in triggers:
+      if 'titext' in self.diff.variables.diffdict:
+        self.log(1, L1("'.treeinfo' changed, reinstalling...")) 
+        return True # reinstall
+      pass
 
     if 'activate' in triggers:
       # is there an existing system that can be activated?
@@ -220,6 +226,8 @@ class DeployEventMixin:
       if 'client' in locals():
         client.close()
       raise
+
+    self.log(2, L2("'%s' completed successfully" % script))
 
 class SSHParameters(DictMixin):
   def __init__(self, ptr, script):

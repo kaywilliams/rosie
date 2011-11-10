@@ -109,7 +109,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
       parentid = 'all',
       provides = ['iso-dir', 'publish-content'],
       requires = ['anaconda-version', 'pkgorder-file', 
-                  'boot-config-file', 'treeinfo-file'],
+                  'boot-config-file', 'treeinfo-text'],
       conditionally_requires = ['srpms-dir', 'ks-path', 'boot-args'],
     )
     ListCompareMixin.__init__(self)
@@ -132,8 +132,8 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     self.diff.setup(self.DATA)
     self.isodir = self.mddir/'iso'
 
-    self.DATA['input'].extend([self.cvars['pkgorder-file'],
-                               self.cvars['treeinfo-file']])
+    self.DATA['variables'].append(self.cvars['treeinfo-text'])
+    self.DATA['input'].append(self.cvars['pkgorder-file'])
 
     self.bootconfig.setup(defaults=['method=cdrom'], include_ks=True)
 
