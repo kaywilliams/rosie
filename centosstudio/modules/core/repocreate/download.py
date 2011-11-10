@@ -24,7 +24,7 @@ from centosstudio.util.repo import RPM_PNVRA_REGEX
 
 from centosstudio.errors    import CentOSStudioError
 from centosstudio.event     import Event
-from centosstudio.sslogging   import L1, L2
+from centosstudio.cslogging   import L1, L2
 
 MODULE_INFO = dict(
   api         = 5.0,

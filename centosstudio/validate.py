@@ -26,7 +26,7 @@ from centosstudio.util import rxml
 
 XmlTreeElement = rxml.tree.XmlTreeElement
 
-from centosstudio.sslogging import L0, L1
+from centosstudio.cslogging import L0, L1
 
 NSMAP = {'rng': 'http://relaxng.org/ns/structure/1.0'}
 

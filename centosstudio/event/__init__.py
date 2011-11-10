@@ -25,7 +25,7 @@ from centosstudio.util import pps
 from centosstudio.util import rxml
 from centosstudio.util import sync
 
-from centosstudio.sslogging import L0, L1
+from centosstudio.cslogging import L0, L1
 
 from centosstudio.errors import CentOSStudioError
 

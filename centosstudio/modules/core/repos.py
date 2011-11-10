@@ -23,7 +23,7 @@ from centosstudio.util.versort import Version
 
 from centosstudio.errors   import assert_file_has_content, assert_file_readable, CentOSStudioError
 from centosstudio.event    import Event
-from centosstudio.sslogging  import L1, L2
+from centosstudio.cslogging  import L1, L2
 from centosstudio.validate import InvalidConfigError
 
 from centosstudio.modules.shared import RepoEventMixin, CentOSStudioRepoGroup, CentOSStudioRepoFileParseError

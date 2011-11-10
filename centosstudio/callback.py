@@ -29,7 +29,7 @@ from centosstudio.util.progressbar   import ProgressBar
 from centosstudio.util.sync.cache    import CachedSyncCallback  as _CachedSyncCallback
 from centosstudio.util.sync.callback import SyncCallbackMetered as _SyncCallbackMetered
 
-from centosstudio.sslogging import L1, L2
+from centosstudio.cslogging import L1, L2
 
 # progressbar layouts - see progressbar.py for other tags
 LAYOUT_TIMER     = '%(title)-67.67s (%(time-elapsed)s)'

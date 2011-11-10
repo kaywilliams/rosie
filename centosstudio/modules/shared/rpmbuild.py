@@ -26,7 +26,7 @@ from centosstudio.util import rxml
 
 from centosstudio.errors    import CentOSStudioError
 from centosstudio.event     import Event
-from centosstudio.sslogging import L1
+from centosstudio.cslogging import L1
 
 __all__ = ['RpmBuildMixin', 'Trigger', 'TriggerContainer']
 

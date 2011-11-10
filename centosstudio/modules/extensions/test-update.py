@@ -19,7 +19,7 @@ import os
 
 from centosstudio.callback  import BuildDepsolveCallback
 from centosstudio.event     import Event, CLASS_META
-from centosstudio.sslogging import L1, L2, L3
+from centosstudio.cslogging import L1, L2, L3
 from centosstudio.util      import pps
 
 from centosstudio.modules.shared import RepomdMixin, DeployEventMixin

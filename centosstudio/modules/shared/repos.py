@@ -33,7 +33,7 @@ from centosstudio.util.pps.constants import TYPE_DIR
 
 from centosstudio.errors    import (CentOSStudioError, CentOSStudioIOError, RhnSupportError,
                             assert_file_readable, assert_file_has_content)
-from centosstudio.sslogging   import L1, L2
+from centosstudio.cslogging   import L1, L2
 from centosstudio.constants import BOOLEANS_TRUE, BOOLEANS_FALSE
 from centosstudio.validate  import InvalidConfigError
 

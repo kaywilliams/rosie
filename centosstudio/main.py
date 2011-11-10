@@ -52,7 +52,7 @@ from centosstudio.callback  import (SyncCallback, CachedSyncCallback,
 from centosstudio.constants import *
 from centosstudio.errors    import CentOSStudioErrorHandler, CentOSStudioError
 from centosstudio.event     import Event, CLASS_META
-from centosstudio.sslogging import make_log, L0, L1, L2
+from centosstudio.cslogging import make_log, L0, L1, L2
 from centosstudio.validate  import (CentOSStudioValidationHandler, 
                                     InvalidXmlError)
 

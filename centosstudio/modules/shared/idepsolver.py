@@ -25,7 +25,7 @@ from centosstudio.util import pps
 from centosstudio.util.depsolver import Depsolver
 
 from centosstudio.callback import PkglistCallback, TimerCallback
-from centosstudio.sslogging  import L1
+from centosstudio.cslogging  import L1
 
 YUMCONF_HEADER = [
   '[main]',

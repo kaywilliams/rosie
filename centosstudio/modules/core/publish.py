@@ -25,7 +25,7 @@ from centosstudio.util import pps
 
 from centosstudio.errors    import CentOSStudioError
 from centosstudio.event     import Event
-from centosstudio.sslogging   import L1
+from centosstudio.cslogging   import L1
 
 from centosstudio.modules.shared import DeployEventMixin
 from centosstudio.modules.shared.publish import PublishEventMixin 

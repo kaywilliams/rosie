@@ -25,7 +25,7 @@ from centosstudio import splittree
 
 from centosstudio.callback import BuildDepsolveCallback
 from centosstudio.event    import Event, CLASS_META
-from centosstudio.sslogging  import L1, L2, L3
+from centosstudio.cslogging  import L1, L2, L3
 
 from centosstudio.modules.shared import ListCompareMixin, BootConfigMixin
 

@@ -22,7 +22,7 @@ from centosstudio.util import shlib
 from centosstudio.util import repo
 
 from centosstudio.event   import Event
-from centosstudio.sslogging import L1, L2
+from centosstudio.cslogging import L1, L2
 
 from centosstudio.modules.shared import CentOSStudioRepoGroup
 

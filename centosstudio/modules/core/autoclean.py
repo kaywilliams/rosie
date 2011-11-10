@@ -20,7 +20,7 @@ from centosstudio.util import rxml
 from centosstudio.util.difftest.handlers import DiffHandler
 
 from centosstudio.event   import Event
-from centosstudio.sslogging import L1, L2
+from centosstudio.cslogging import L1, L2
 
 MODULE_INFO = dict(
   api         = 5.0,

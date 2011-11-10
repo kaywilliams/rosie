@@ -20,7 +20,7 @@ import yum
 
 from centosstudio.errors   import CentOSStudioError, CentOSStudioIOError, assert_file_has_content
 from centosstudio.event    import Event
-from centosstudio.sslogging  import L1
+from centosstudio.cslogging  import L1
 
 YUMCONF_HEADER = [
   '[main]',

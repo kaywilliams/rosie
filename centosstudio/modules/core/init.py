@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 from centosstudio.event   import Event, CLASS_META
-from centosstudio.sslogging import L1
+from centosstudio.cslogging import L1
 
 MODULE_INFO = dict(
   api         = 5.0,

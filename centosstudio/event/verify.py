@@ -21,7 +21,7 @@ import unittest
 
 from centosstudio.util import pps
 
-from centosstudio.sslogging import L1, L2
+from centosstudio.cslogging import L1, L2
 from centosstudio.verify  import BuildTestResult
 
 class VerifyMixin:

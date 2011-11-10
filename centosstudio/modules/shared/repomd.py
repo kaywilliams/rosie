@@ -24,7 +24,7 @@ from centosstudio.util import shlib
 from centosstudio.util.versort import Version
 
 from centosstudio.callback import TimerCallback
-from centosstudio.sslogging  import L1
+from centosstudio.cslogging  import L1
 
 __all__ = ['RepomdMixin']
 

@@ -24,7 +24,7 @@ import traceback
 
 import subprocess as sub
 
-from centosstudio.sslogging import L0, L1, L2
+from centosstudio.cslogging import L0, L1, L2
 from centosstudio.errors import CentOSStudioError
 from centosstudio.util import sshlib
 

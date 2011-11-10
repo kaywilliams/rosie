@@ -17,7 +17,7 @@
 #
 import unittest
 
-from centosstudio.sslogging import L3
+from centosstudio.cslogging import L3
 
 class BuildTestResult(unittest.TestResult):
 

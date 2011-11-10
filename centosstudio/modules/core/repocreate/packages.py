@@ -23,7 +23,7 @@ from centosstudio.util import magic
 from centosstudio.constants import KERNELS
 from centosstudio.errors    import assert_file_has_content, CentOSStudioError
 from centosstudio.event     import Event
-from centosstudio.sslogging   import L1
+from centosstudio.cslogging   import L1
 
 from centosstudio.modules.shared import comps
 

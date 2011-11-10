@@ -27,7 +27,7 @@ from centosstudio.util import versort
 
 from centosstudio.errors  import assert_file_has_content
 from centosstudio.event   import Event
-from centosstudio.sslogging import L1
+from centosstudio.cslogging import L1
 
 MODULE_INFO = dict(
   api         = 5.0,

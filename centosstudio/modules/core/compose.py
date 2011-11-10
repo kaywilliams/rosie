@@ -19,7 +19,7 @@
 from centosstudio.util.pps.constants import TYPE_NOT_DIR
 
 from centosstudio.event   import Event
-from centosstudio.sslogging import L1
+from centosstudio.cslogging import L1
 
 MODULE_INFO = dict(
   api         = 5.0,

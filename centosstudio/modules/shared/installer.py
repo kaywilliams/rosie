@@ -21,7 +21,7 @@ from centosstudio.util import img
 from centosstudio.util import magic
 from centosstudio.util import pps
 
-from centosstudio.sslogging      import L1
+from centosstudio.cslogging      import L1
 from centosstudio.event.fileio import MissingInputFileError
 
 __all__ = ['ImageModifyMixin', 'FileDownloadMixin']
