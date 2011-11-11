@@ -354,14 +354,14 @@ class Resolver(graph.DirectedGraph):
       for requires in [ event.requires for event in top ]:
         all_requires.extend(requires)
 
-      keep = False
       for event in [ event for event in top if event.conditional ]:
+        keep = False
         for provides in event.provides:
           if provides in all_requires:
             keep = True
 
-      if keep == False:
-        event.disable()
+        if keep == False:
+          event.disable()
 
 
 class BaseRelationship(tuple):
