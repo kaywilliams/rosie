@@ -22,18 +22,44 @@ from centosstudio.event     import Event, CLASS_META
 from centosstudio.cslogging import L1, L2, L3
 from centosstudio.util      import pps
 
-from centosstudio.modules.shared import RepomdMixin, DeployEventMixin
-from centosstudio.modules.shared.config import ConfigEventMixin
-from centosstudio.modules.shared.kickstart import KickstartEventMixin
-from centosstudio.modules.shared.publish import PublishEventMixin
+from centosstudio.modules.shared import DeployEventMixin
+from centosstudio.modules.shared.testpublish import TestPublishEventMixin
 
 P = pps.path
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['TestInstallEvent'],
+  events      = ['TestInstallPublishEvent', 'TestInstallEvent'],
   description = 'performs test installations on client systems',
 )
+
+class TestInstallPublishEvent(TestPublishEventMixin, Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'test-install-publish',
+      parentid = 'all',
+      version = 1.0,
+      requires = ['os-dir'],
+      conditionally_requires = [ 'kickstart-file', 'config-release'],
+      provides = ['test-webpath', 'test-repomdfile', 'test-kstext']
+    ) 
+
+    self.localpath = self.get_local('/var/www/html/solutions/test-install')
+    self.webpath = self.get_remote('solutions/test-install')
+
+    TestPublishEventMixin.__init__(self)
+
+  def clean(self):
+    TestPublishEventMixin.clean(self)
+
+  def setup(self):
+    TestPublishEventMixin.setup(self)
+
+  def run(self):
+    TestPublishEventMixin.run(self)
+
+  def apply(self):
+    TestPublishEventMixin.apply(self)
 
 class TestInstallEvent(DeployEventMixin, Event):
   def __init__(self):

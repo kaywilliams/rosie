@@ -16,7 +16,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
-from centosstudio.event     import Event, CLASS_META
 from centosstudio.cslogging import L1, L2
 from centosstudio.util      import pps
 
@@ -25,32 +24,19 @@ from centosstudio.modules.shared.config import ConfigEventMixin
 from centosstudio.modules.shared.kickstart import KickstartEventMixin
 from centosstudio.modules.shared.publish import PublishEventMixin
 
-MODULE_INFO = dict(
-  api         = 5.0,
-  events      = ['TestPublishEvent',],
-  description = 'publishes a test solution to a web-accessible location ',
-)
-
-class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin, 
-                       PublishEventMixin, Event):
+class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin, 
+                            PublishEventMixin):
   def __init__(self):
-    Event.__init__(self,
-      id = 'test-publish',
-      parentid = 'all',
-      version = 1.01,
-      requires = ['os-dir'], 
-      conditionally_requires = [ 'kickstart-file', 'config-release'],
-      provides = ['test-webpath', 'test-repomdfile', 'test-kstext'],
-      conditional = True
-    )
 
     self.configxpath = 'config'
     ConfigEventMixin.__init__(self)
     RepomdMixin.__init__(self)
     KickstartEventMixin.__init__(self)
 
-    self.localpath = self.get_local('/var/www/html/solutions/test')
-    self.webpath = self.get_remote('solutions/test')
+    # requires self.localpath and self.webpath to be set by containing event,
+    # e.g.,
+    # self.localpath = self.get_local('/var/www/html/solutions/test-install')
+    # self.webpath = self.get_remote('solutions/test-install')
 
     self.DATA =  {
       'config':    ['local-dir', 'remote-url', 'kickstart'],
@@ -61,7 +47,7 @@ class TestPublishEvent(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     }
 
   def clean(self):
-    Event.clean(self)
+    self.Event.clean(self)
     self.localpath.rm(recursive=True, force=True) #publish path
 
   def setup(self):

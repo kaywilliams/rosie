@@ -22,10 +22,8 @@ from centosstudio.event     import Event, CLASS_META
 from centosstudio.cslogging import L1, L2, L3
 from centosstudio.util      import pps
 
-from centosstudio.modules.shared import RepomdMixin, DeployEventMixin
-from centosstudio.modules.shared.config import ConfigEventMixin
-from centosstudio.modules.shared.kickstart import KickstartEventMixin
-from centosstudio.modules.shared.publish import PublishEventMixin
+from centosstudio.modules.shared import DeployEventMixin
+from centosstudio.modules.shared.publish import TestPublishEventMixin
 
 P = pps.path
 
@@ -35,11 +33,39 @@ MODULE_INFO = dict(
   description = 'performs test updates on client systems',
 )
 
+class TestUpdatePublishEvent(TestPublishEventMixin, Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'test-update-publish',
+      parentid = 'all',
+      version = 1.0,
+      requires = ['os-dir'],
+      conditionally_requires = [ 'kickstart-file', 'config-release'],
+      provides = ['test-webpath', 'test-repomdfile', 'test-kstext']
+    )
+
+    self.localpath = self.get_local('/var/www/html/solutions/test-update')
+    self.webpath = self.get_remote('solutions/test-update')
+
+    TestPublishEventMixin.__init__(self)
+
+  def clean(self):
+    TestPublishEventMixin.clean(self)
+
+  def setup(self):
+    TestPublishEventMixin.setup(self)
+
+  def run(self):
+    TestPublishEventMixin.run(self)
+
+  def apply(self):
+    TestPublishEventMixin.apply(self)
+
 
 class TestUpdateEvent(DeployEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'test-install',
+      id = 'test-update',
       parentid = 'all',
       requires = ['test-webpath', ], 
     )
