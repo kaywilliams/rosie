@@ -67,6 +67,7 @@ class TestInstallEvent(DeployEventMixin, Event):
       id = 'test-install',
       parentid = 'all',
       requires = ['test-webpath', 'test-kstext', 'treeinfo-text'], 
+      conditionally_requires = [ 'config-release'],
     )
 
     self.DATA =  {
@@ -82,12 +83,17 @@ class TestInstallEvent(DeployEventMixin, Event):
     self.kstext = self.cvars['test-kstext']
     self.titext = self.cvars['treeinfo-text']
     self.repomdfile = self.cvars['test-repomdfile']
-    self.DATA['variables'].extend(['webpath', 'kstext', 'titext', 'repomdfile'])
+    if 'config-release' in self.cvars:
+      self.config_release = self.cvars['config-release']
+    else:
+      self.config_release = None
+    self.DATA['variables'].extend(['webpath', 'kstext', 'titext', 
+                                   'repomdfile', 'config_release'])
     DeployEventMixin.setup(self)
 
   def run(self):
     self.install_triggers = [ 'install-script', 'kickstart', 'treeinfo',
-                              'activate' ]
+                              'config-release', 'activate' ]
     DeployEventMixin.run(self)
 
   def apply(self):

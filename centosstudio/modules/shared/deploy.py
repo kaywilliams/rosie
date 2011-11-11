@@ -116,7 +116,13 @@ class DeployEventMixin:
     should be executed. The triggers parameter accepts a list of values 
     including 'install-script', 'treeinfo', 'kickstart' and 'activate'.
     '''
-  
+
+    if 'config-release' in triggers:
+      # has the system_config packaged changed?
+      if 'config_release' in self.diff.variables.diffdict:
+        self.log(1, L1("system-config package changed, reinstalling"))
+        return True # reinstall
+
     if 'install-script' in triggers:
       # did install script change (either file or text)?
       script_file = self.io.list_input(what='install-script')
