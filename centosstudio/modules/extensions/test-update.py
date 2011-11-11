@@ -23,7 +23,7 @@ from centosstudio.cslogging import L1, L2, L3
 from centosstudio.util      import pps
 
 from centosstudio.modules.shared import DeployEventMixin
-from centosstudio.modules.shared.publish import TestPublishEventMixin
+from centosstudio.modules.shared.testpublish import TestPublishEventMixin
 
 P = pps.path
 
