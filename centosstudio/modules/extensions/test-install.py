@@ -41,7 +41,8 @@ class TestInstallPublishEvent(TestPublishEventMixin, Event):
       version = 1.0,
       requires = ['os-dir'],
       conditionally_requires = [ 'kickstart-file', 'config-release'],
-      provides = ['test-webpath', 'test-repomdfile', 'test-kstext']
+      provides = ['test-webpath', 'test-repomdfile', 'test-kstext'],
+      conditionally_comes_before = [ 'publish' ],
     ) 
 
     self.localpath = self.get_local('/var/www/html/solutions/test-install')
