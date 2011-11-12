@@ -216,44 +216,40 @@
   </define>
 
   <!-- deploy elements -->
-  <define name="content-deploy-elements">
-    <interleave>
-    <optional>
+  <define name="content-activate-script-elements">
     <element name="activate-script">
     <ref name="content-deploy-element"/>
     </element>
-    </optional>
+  </define>
 
-    <optional>
+  <define name="content-clean-script-elements">
     <element name="clean-script">
     <ref name="content-deploy-element"/>
     </element>
-    </optional>
+  </define>
 
-    <optional>
+  <define name="content-install-script-elements">
     <element name="install-script">
     <ref name="content-deploy-element"/>
     </element>
-    </optional>
+  </define>
 
-    <optional>
+  <define name="content-verify-install-script-elements">
     <element name="verify-install-script">
     <ref name="content-deploy-element"/>
     </element>
-    </optional>
+  </define>
 
-    <optional>
+  <define name="content-update-script-elements">
     <element name="update-script">
     <ref name="content-deploy-element"/>
     </element>
-    </optional>
+  </define>
 
-    <optional>
+  <define name="content-post-script-elements">
     <element name="post-script">
     <ref name="content-deploy-element"/>
     </element>
-    </optional>
-    </interleave>
-
   </define>
+
 </grammar>

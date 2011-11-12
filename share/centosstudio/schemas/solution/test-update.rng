@@ -4,11 +4,12 @@
     <element name="solution">
 
       <optional>
-      <element name="test">
+      <element name="test-update">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
         <ref name='content-ssh-attributes'/>
+
         <interleave>
         <optional>
         <element name="kickstart">
@@ -17,8 +18,13 @@
         </element>
         </optional>
         <ref name="content-publish-elements"/>
-        <ref name="content-deploy-elements"/>
+        <ref name="content-activate-script-elements"/>
+        <ref name="content-clean-script-elements"/>
+        <ref name="content-install-script-elements"/>
+        <ref name="content-verify-install-script-elements"/>
+        <optional><ref name="content-post-script-elements"/></optional>
         </interleave>
+
       </element>
       </optional>
 

@@ -4,21 +4,26 @@
     <element name="solution">
 
       <optional>
-      <element name="deploy">
+      <element name="test-install">
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
         <ref name='content-ssh-attributes'/>
 
         <interleave>
-        <optional><ref name="content-activate-script-elements"/></optional>
-        <optional><ref name="content-clean-script-elements"/></optional>
-        <optional><ref name="content-install-script-elements"/></optional>
-        <optional><ref name="content-verify-install-script-elements"/></optional>
-        <optional><ref name="content-update-script-elements"/></optional>
+        <optional>
+        <element name="kickstart">
+        <ref name="attribute-content"/>
+        <text/>
+        </element>
+        </optional>
+        <ref name="content-publish-elements"/>
+        <ref name="content-activate-script-elements"/>
+        <ref name="content-clean-script-elements"/>
+        <ref name="content-install-script-elements"/>
+        <ref name="content-verify-install-script-elements"/>
         <optional><ref name="content-post-script-elements"/></optional>
         </interleave>
-
       </element>
       </optional>
 
