@@ -20,7 +20,7 @@ from centosstudio.cslogging import L1
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['InitEvent', 'SetupEvent', 'OSMetaEvent'],
+  events      = ['InitEvent', 'SetupEvent', 'OSMetaEvent', 'TestEvent'],
   description = 'creates temporary and cache folders',
 )
 
@@ -67,5 +67,15 @@ class OSMetaEvent(Event):
       parentid = 'all',
       properties = CLASS_META,
       comes_after = ['setup'],
+      suppress_run_message = True
+    )
+
+class TestEvent(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'test',
+      parentid = 'all',
+      properties = CLASS_META,
+      conditionally_comes_before = [ 'iso', 'publish' ],
       suppress_run_message = True
     )

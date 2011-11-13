@@ -37,12 +37,11 @@ class TestInstallPublishEvent(TestPublishEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'test-install-publish',
-      parentid = 'all',
+      parentid = 'test',
       version = 1.0,
       requires = ['os-dir'],
       conditionally_requires = [ 'kickstart-file', 'config-release'],
       provides = ['test-webpath', 'test-repomdfile', 'test-kstext'],
-      conditionally_comes_before = [ 'publish' ],
     ) 
 
     self.localpath = self.get_local('/var/www/html/solutions/test-install')
@@ -66,7 +65,7 @@ class TestInstallEvent(DeployEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'test-install',
-      parentid = 'all',
+      parentid = 'test',
       requires = ['test-webpath', 'test-kstext', 'treeinfo-text'], 
       conditionally_requires = [ 'config-release'],
     )
