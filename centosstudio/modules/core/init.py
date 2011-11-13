@@ -20,7 +20,8 @@ from centosstudio.cslogging import L1
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['InitEvent', 'SetupEvent', 'OSMetaEvent', 'TestEvent'],
+  events      = ['InitEvent', 'SetupEvents', 'OSEvents', 
+                 'TestEvents', 'PublishEvents'],
   description = 'creates temporary and cache folders',
 )
 
@@ -49,10 +50,10 @@ class InitEvent(Event):
     for folder in [self.TEMP_DIR, self.METADATA_DIR]:
       self.verifier.failUnless(folder.exists(), "folder '%s' does not exist" % folder)
 
-class SetupEvent(Event):
+class SetupEvents(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'setup',
+      id = 'setup-events',
       parentid = 'all',
       properties = CLASS_META,
       comes_after = ['init'],
@@ -60,22 +61,32 @@ class SetupEvent(Event):
       suppress_run_message = True
     )
 
-class OSMetaEvent(Event):
+class OSEvents(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'os',
+      id = 'os-events',
       parentid = 'all',
       properties = CLASS_META,
-      comes_after = ['setup'],
+      comes_after = ['setup-events'],
       suppress_run_message = True
     )
 
-class TestEvent(Event):
+class TestEvents(Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'test',
+      id = 'test-events',
       parentid = 'all',
       properties = CLASS_META,
-      conditionally_comes_before = [ 'iso', 'publish' ],
+      comes_before = [ 'publish-events' ],
+      suppress_run_message = True
+    )
+
+class PublishEvents(Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'publish-events',
+      parentid = 'all',
+      properties = CLASS_META,
+      comes_after = [ 'test-events' ],
       suppress_run_message = True
     )

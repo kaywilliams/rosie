@@ -31,7 +31,7 @@ class DeployEvent(DeployEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'deploy',
-      parentid = 'all',
+      parentid = 'publish-events',
       requires = ['web-path', 'repomd-file', 'published-repository'],
     )
 

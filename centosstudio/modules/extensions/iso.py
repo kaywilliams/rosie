@@ -51,7 +51,7 @@ class PkgorderEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'pkgorder',
-      parentid = 'all',
+      parentid = 'publish-events',
       provides = ['pkgorder-file'],
       requires = ['repomd-file', 'os-dir'],
     )
@@ -106,7 +106,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     Event.__init__(self,
       id = 'iso',
       version = '0.1',
-      parentid = 'all',
+      parentid = 'publish-events',
       provides = ['iso-dir', 'publish-content'],
       requires = ['anaconda-version', 'pkgorder-file', 
                   'boot-config-file', 'treeinfo-text'],

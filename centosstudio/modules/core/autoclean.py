@@ -34,7 +34,7 @@ class AutocleanEvent(Event):
       id = 'autoclean',
       parentid = 'all',
       comes_after  = ['init'],
-      comes_before = ['setup'],
+      comes_before = ['setup-events'],
     )
 
     self.DATA = {'events': {}}

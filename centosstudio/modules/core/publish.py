@@ -43,7 +43,7 @@ class PublishSetupEvent(PublishEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish-setup',
-      parentid = 'setup',
+      parentid = 'setup-events',
       version = 1.00,
       provides = ['publish-content', 'publish-path', 'web-path'],
       suppress_run_message=True,
@@ -70,7 +70,7 @@ class PublishEvent(PublishEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish',
-      parentid = 'all',
+      parentid = 'publish-events',
       requires = ['web-path', 'publish-path', 'publish-content'],
       provides = ['published-repository']
     )

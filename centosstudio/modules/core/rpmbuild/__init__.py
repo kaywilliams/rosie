@@ -27,7 +27,7 @@ class RpmbuildEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'rpmbuild',
-      parentid = 'os',
+      parentid = 'os-events',
       properties = CLASS_META,
       provides = ['rpmbuild-data', 'seckey', 'pubkey'],
       suppress_run_message = True

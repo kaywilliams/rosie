@@ -37,7 +37,7 @@ class TestUpdatePublishEvent(TestPublishEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'test-update-publish',
-      parentid = 'test',
+      parentid = 'test-events',
       version = 1.0,
       requires = ['os-dir'],
       conditionally_requires = [ 'kickstart-file', 'config-release'],
@@ -66,7 +66,7 @@ class TestUpdateEvent(DeployEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'test-update',
-      parentid = 'test',
+      parentid = 'test-events',
       requires = ['test-webpath', ], 
     )
 

@@ -27,7 +27,7 @@ class RepocreateMetaEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'repocreate',
-      parentid = 'os',
+      parentid = 'os-events',
       properties = CLASS_META,
       suppress_run_message = True
     )

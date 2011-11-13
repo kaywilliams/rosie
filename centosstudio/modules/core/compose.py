@@ -31,7 +31,7 @@ class ComposeEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'compose',
-      parentid = 'os',
+      parentid = 'os-events',
       provides = ['os-dir', 'publish-content',],
       requires = ['os-content'],
     )

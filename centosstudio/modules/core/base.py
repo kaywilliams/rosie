@@ -39,7 +39,7 @@ class BaseInfoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'base-info',
-      parentid = 'setup',
+      parentid = 'setup-events',
       requires = ['anaconda-version', 'installer-repo'],
       provides = ['base-info'],
     )

@@ -38,7 +38,7 @@ class ReposEvent(RepoEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'repos',
-      parentid = 'setup',
+      parentid = 'setup-events',
       version = 1.3,
       provides = ['anaconda-version',
                   'repos', 'installer-repo',
