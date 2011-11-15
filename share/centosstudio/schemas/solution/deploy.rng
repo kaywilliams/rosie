@@ -11,12 +11,12 @@
         <ref name='content-ssh-attributes'/>
 
         <interleave>
-        <optional><ref name="content-activate-script-elements"/></optional>
-        <optional><ref name="content-clean-script-elements"/></optional>
-        <optional><ref name="content-install-script-elements"/></optional>
-        <optional><ref name="content-verify-install-script-elements"/></optional>
-        <optional><ref name="content-update-script-elements"/></optional>
-        <optional><ref name="content-post-script-elements"/></optional>
+        <optional><ref name="content-activate-script-element"/></optional>
+        <optional><ref name="content-clean-script-element"/></optional>
+        <optional><ref name="content-install-script-element"/></optional>
+        <optional><ref name="content-verify-install-script-element"/></optional>
+        <optional><ref name="content-update-script-element"/></optional>
+        <optional><ref name="content-post-script-element"/></optional>
         </interleave>
 
       </element>

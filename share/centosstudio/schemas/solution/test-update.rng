@@ -18,11 +18,11 @@
         </element>
         </optional>
         <ref name="content-publish-elements"/>
-        <ref name="content-activate-script-elements"/>
-        <ref name="content-clean-script-elements"/>
-        <ref name="content-install-script-elements"/>
-        <ref name="content-verify-install-script-elements"/>
-        <optional><ref name="content-post-script-elements"/></optional>
+        <ref name="content-activate-script-element"/>
+        <ref name="content-clean-script-element"/>
+        <ref name="content-install-script-element"/>
+        <ref name="content-verify-install-script-element"/>
+        <optional><ref name="content-post-script-element"/></optional>
         </interleave>
 
       </element>

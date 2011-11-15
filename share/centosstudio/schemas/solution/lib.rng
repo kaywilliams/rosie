@@ -205,43 +205,46 @@
     <attribute name="ssh">
       <ref name="value-boolean"/>
     </attribute>
+    </optional>
+
+    <optional>
     <ref name="attribute-content"/>
     </optional>
     <text/>
   </define>
 
   <!-- deploy elements -->
-  <define name="content-activate-script-elements">
+  <define name="content-activate-script-element">
     <element name="activate-script">
     <ref name="content-deploy-element"/>
     </element>
   </define>
 
-  <define name="content-clean-script-elements">
+  <define name="content-clean-script-element">
     <element name="clean-script">
     <ref name="content-deploy-element"/>
     </element>
   </define>
 
-  <define name="content-install-script-elements">
+  <define name="content-install-script-element">
     <element name="install-script">
     <ref name="content-deploy-element"/>
     </element>
   </define>
 
-  <define name="content-verify-install-script-elements">
+  <define name="content-verify-install-script-element">
     <element name="verify-install-script">
     <ref name="content-deploy-element"/>
     </element>
   </define>
 
-  <define name="content-update-script-elements">
+  <define name="content-update-script-element">
     <element name="update-script">
     <ref name="content-deploy-element"/>
     </element>
   </define>
 
-  <define name="content-post-script-elements">
+  <define name="content-post-script-element">
     <element name="post-script">
     <ref name="content-deploy-element"/>
     </element>
