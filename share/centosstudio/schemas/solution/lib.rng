@@ -190,14 +190,12 @@
   <!-- ssh attributes -->
   <define name="content-ssh-attributes">
     <optional>
-    <attribute name="password"/>
     <optional><attribute name="hostname"/></optional>
     <optional><attribute name="port"/></optional>
-    <optional><attribute name="username"/></optional>
-    <optional><attribute name="pkey"/></optional>
-    <optional><attribute name="key-filename"/></optional>
+    <optional><attribute name="password"/></optional>
+    <optional><attribute name="public-key"/></optional>
+    <optional><attribute name="private-key"/></optional>
     <optional><attribute name="timeout"/></optional>
-    <optional><attribute name="look-for-keys"/></optional>
     </optional>
   </define>
 
@@ -207,9 +205,6 @@
     <attribute name="ssh">
       <ref name="value-boolean"/>
     </attribute>
-    </optional>
-    <ref name="content-ssh-attributes"/>
-    <optional>
     <ref name="attribute-content"/>
     </optional>
     <text/>
