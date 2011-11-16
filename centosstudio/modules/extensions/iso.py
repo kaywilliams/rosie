@@ -132,7 +132,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     self.diff.setup(self.DATA)
     self.isodir = self.mddir/'iso'
 
-    self.DATA['variables'].append(self.cvars['treeinfo-text'])
+    self.DATA['variables'].append('cvars[\'treeinfo-text\']')
     self.DATA['input'].append(self.cvars['pkgorder-file'])
 
     self.bootconfig.setup(defaults=['method=cdrom'], include_ks=True)

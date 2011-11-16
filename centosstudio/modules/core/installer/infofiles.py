@@ -138,7 +138,8 @@ class TreeinfoEvent(Event):
 
   def apply(self):
     self.io.clean_eventcache()
-    self.cvars['treeinfo-text'] = self.tifile.read_text().strip()
+    if self.tifile.exists():
+      self.cvars['treeinfo-text'] = self.tifile.read_text().strip()
 
   def verify_treeinfo_file_exists(self):
     ".treeinfo file exists"
