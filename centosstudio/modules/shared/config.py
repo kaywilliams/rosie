@@ -40,7 +40,7 @@ class ConfigEventMixin(RpmBuildMixin):
 
   def __init__(self): # call after creating self.DATA
     RpmBuildMixin.__init__(self,
-      'system-config',
+      'system-config', #if you change this, you must also change core/repos.py
       "The system-config package provides scripts and supporting files for "
 		  "configuring %s systems." % self.fullname,
       "%s configuration scripts and supporting files" % self.fullname,

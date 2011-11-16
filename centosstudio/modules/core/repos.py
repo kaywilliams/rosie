@@ -40,8 +40,8 @@ class ReposEvent(RepoEventMixin, Event):
       id = 'repos',
       parentid = 'setup-events',
       version = 1.3,
-      provides = ['anaconda-version',
-                  'repos', 'installer-repo',
+      provides = ['anaconda-version', 
+                  'repos', 'installer-repo', 'base-treeinfo',
                   'input-repos', # ugly solution to cycle in rpmbuild-repo
                   ],
     )
@@ -71,6 +71,9 @@ class ReposEvent(RepoEventMixin, Event):
 
     self.setup_repos(updates)
     self.read_repodata()
+    # exclude config rpms in input repos as they will conflict with ours
+    for repo in self.repos.values():
+      repo.exclude.append('system-config') #fragile - see core/rpmbuild/config
 
   def run(self):
     self.sync_repodata()
@@ -104,6 +107,9 @@ class ReposEvent(RepoEventMixin, Event):
                   family=df, 
                   version=treeinfo.get('general', 'version'), 
                   repourl=repo.url.realm)
+
+          # set base-treeinfo control variable
+          self.cvars['base-treeinfo'] = treeinfo
 
           # map distribution version to anaconda version
           map = {'5':'11.1.2',

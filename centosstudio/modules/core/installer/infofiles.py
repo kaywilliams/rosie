@@ -84,7 +84,7 @@ class TreeinfoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'treeinfo',
-      version = '1.1',
+      version = '1.01',
       parentid = 'installer',
       provides = ['treeinfo-text', 'os-content'],
       requires = ['anaconda-version', 'treeinfo-checksums'],
@@ -109,7 +109,9 @@ class TreeinfoEvent(Event):
 
     # add timestamp to base vars (doesn't have to match .discinfo's timestamp)
     vars = copy.deepcopy(self.cvars['distribution-info'])
-    vars.update({'timestamp': str(time.time())})
+    vars.update({'timestamp': str(time.time()),
+                 'family':    self.cvars['base-treeinfo'].get(
+                              'general', 'family')})
 
     # generate .treeinfo lines
     for section in sort_keys(self.locals.L_TREEINFO_FORMAT):

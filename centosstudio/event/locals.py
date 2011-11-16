@@ -27,8 +27,10 @@ class LocalsObject:
   def __init__(self, ptr):
     self.ptr = ptr
 
-  base_name = property(lambda self: self.ptr.cvars['base-info']['fullname'])
-  base_ver  = property(lambda self: self.ptr.cvars['base-info']['version'])
+  base_name = property(lambda self: self.ptr.cvars['base-treeinfo'].get(
+                                    'general', 'family'))
+  base_ver  = property(lambda self: self.ptr.cvars['base-treeinfo'].get(
+                                    'general', 'version'))
 
   anaconda_ver    = property(lambda self: 'anaconda-%s'   % self.ptr.cvars['anaconda-version'])
   createrepo_ver  = property(lambda self: 'createrepo-%s' % self.ptr.cvars['createrepo-version'])

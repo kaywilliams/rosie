@@ -7,7 +7,7 @@ L_TREEINFO_FORMAT = LocalsDict({
     'general': { # general section
       'index': 0,
       'content': {
-        'family':       dict(index=0, value='%(name)s'),
+        'family':       dict(index=0, value='%(family)s'),
         'timestamp':    dict(index=1, value='%(timestamp)s'),
         'variant':      dict(index=2, value='%(name)s'),
         'totaldiscs':   dict(index=3, value='1'),
