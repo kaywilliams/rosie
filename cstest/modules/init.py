@@ -26,12 +26,12 @@ class InitEventTestCase(EventTestCase):
 #------ setup ------#
 class SetupEventTestCase(EventTestCase):
   moduleid = 'init'
-  eventid  = 'setup'
+  eventid  = 'setup-events'
 
 #------ os ------#
 class OSEventTestCase(EventTestCase):
   moduleid = 'init'
-  eventid  = 'os'
+  eventid  = 'os-events'
 
 
 def make_suite(distro, version, arch):

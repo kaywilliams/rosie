@@ -19,7 +19,7 @@ from cstest      import EventTestCase, ModuleTestSuite
 from cstest.core import make_core_suite
 
 non_meta_event = 'packages'
-meta_event = 'setup'
+meta_event = 'setup-events'
 
 class AutocleanEventTestCase(EventTestCase):
   moduleid = 'autoclean'

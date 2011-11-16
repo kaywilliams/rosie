@@ -37,20 +37,12 @@ class KickstartEventMixin:
     self.ksfile = self.SOFTWARE_STORE/self.ksname
 
     # read the text or file specified in the kickstart element
-    # note: we download the existing file here rather than use add_fpath as
-    # the file is small and processing is cleaner 
     elem = self.config.get(self.ksxpath)
     self.ks_source = '' # track source for use in error messages
-    if elem.get('@content', 'file') == 'text':
-      self.kstext = (elem.text or '')
-      self.kssource = ('<kickstart content="text">\n  %s\n</kickstart>' %
-                      ('\n  ').join([ l.strip() for l in self.kstext.split('\n')]))
-    else:
-      self.io.validate_input_file(elem.text, self._configtree.getpath(elem))
-      self.kstext = self.io.abspath(elem.text).read_text().strip()
-      self.kssource = 'kickstart file: %s' % self.io.abspath(elem.text)
+    self.kstext = (elem.text or '')
+    self.kssource = ('<kickstart>\n  %s\n</kickstart>' %
+                    ('\n  ').join([ l.strip() for l in self.kstext.split('\n')]))
 
-    self.kstext = self.kstext.replace('$id', self.solutionid)
     self.DATA['variables'].append('kstext')
 
   def run(self):

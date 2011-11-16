@@ -8,7 +8,6 @@
         <optional>
         <attribute name="enabled"><ref name="value-boolean"/></attribute>
         </optional>
-        <ref name="attribute-content"/>
         <text/>
       </element>
       </optional>

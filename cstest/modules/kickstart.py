@@ -24,35 +24,17 @@ from cstest.mixins import touch_input_files, remove_input_files
 class KickstartEventTestCase(EventTestCase):
   moduleid = 'kickstart'
   eventid  = 'kickstart'
-  _conf = """<kickstart>/tmp/cstest/infile</kickstart>"""
+  _conf = """<kickstart></kickstart>"""
 
   def setUp(self):
     EventTestCase.setUp(self)
-    if self.event:
-      touch_input_files(self.buildroot)
-
-  def tearDown(self):
-    if self.event:
-      remove_input_files(self.buildroot)
-    EventTestCase.tearDown(self)
-
-class Test_KickstartFromText(KickstartEventTestCase):
-  "kickstart created from text input"
-  _conf = """<kickstart content='text'></kickstart>"""
-
-  def setUp(self):
-    EventTestCase.setUp(self)
-
-  def runTest(self):
-    self.tb.dispatch.execute(until=self.event)
-    self.failUnlessExists(self.event.ksfile)
 
   def tearDown(self):
     EventTestCase.tearDown(self)
 
 class Test_KickstartIncludesAdditions(KickstartEventTestCase):
   "kickstart includes additional items"
-  _conf = """<kickstart content='text'></kickstart>"""
+  _conf = """<kickstart></kickstart>"""
 
   def setUp(self):
     EventTestCase.setUp(self)
@@ -69,7 +51,7 @@ class Test_KickstartIncludesAdditions(KickstartEventTestCase):
 
 class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
   "kickstart fails on invalid input"
-  _conf = """<kickstart content='text'>invalid</kickstart>"""
+  _conf = """<kickstart>invalid</kickstart>"""
 
   def runTest(self):
    self.execute_predecessors(self.event)
@@ -85,7 +67,6 @@ def make_suite(distro, version, arch):
   suite = ModuleTestSuite('kickstart')
 
   suite.addTest(make_extension_suite(KickstartEventTestCase, distro, version, arch))
-  suite.addTest(Test_KickstartFromText(distro, version, arch))
   suite.addTest(Test_KickstartIncludesAdditions(distro, version, arch))
   suite.addTest(Test_KickstartFailsOnInvalidInput(distro, version, arch))
 
