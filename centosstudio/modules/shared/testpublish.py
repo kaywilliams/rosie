@@ -16,6 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
 
+from centosstudio.event     import Event
 from centosstudio.cslogging import L1, L2
 from centosstudio.util      import pps
 
@@ -47,7 +48,7 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     }
 
   def clean(self):
-    self.Event.clean(self)
+    Event.clean(self)
     self.localpath.rm(recursive=True, force=True) #publish path
 
   def setup(self):
