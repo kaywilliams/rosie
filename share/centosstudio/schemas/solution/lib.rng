@@ -195,17 +195,24 @@
     </optional>
   </define>
 
-  <!-- deploy element content -->
-  <define name="content-deploy-element">
+  <!-- ssh attribute -->
+  <define name="content-ssh-attribute">
     <optional>
     <attribute name="ssh">
       <ref name="value-boolean"/>
     </attribute>
     </optional>
+  </define>
 
-    <optional>
-    <ref name="attribute-content"/>
-    </optional>
+  <!-- deploy element content -->
+  <define name="content-deploy-element">
+    <optional><ref name="attribute-content"/></optional>
+    <text/>
+  </define>
+
+  <define name="content-deploy-element-with-ssh">
+    <ref name="content-ssh-attribute"/>
+    <optional><ref name="attribute-content"/></optional>
     <text/>
   </define>
 
@@ -230,19 +237,19 @@
 
   <define name="content-verify-install-script-element">
     <element name="verify-install-script">
-    <ref name="content-deploy-element"/>
+    <ref name="content-deploy-element-with-ssh"/>
     </element>
   </define>
 
   <define name="content-update-script-element">
     <element name="update-script">
-    <ref name="content-deploy-element"/>
+    <ref name="content-deploy-element-with-ssh"/>
     </element>
   </define>
 
   <define name="content-post-script-element">
     <element name="post-script">
-    <ref name="content-deploy-element"/>
+    <ref name="content-deploy-element-with-ssh"/>
     </element>
   </define>
 
