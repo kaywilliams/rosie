@@ -191,11 +191,7 @@
   <define name="content-ssh-attributes">
     <optional>
     <optional><attribute name="hostname"/></optional>
-    <optional><attribute name="port"/></optional>
     <optional><attribute name="password"/></optional>
-    <optional><attribute name="public-key"/></optional>
-    <optional><attribute name="private-key"/></optional>
-    <optional><attribute name="timeout"/></optional>
     </optional>
   </define>
 

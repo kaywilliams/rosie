@@ -76,10 +76,9 @@ class DeployEventMixin:
     _hostname = self.config.get('@hostname', self.solutionid)
     self.ssh_defaults = dict(
       hostname = _hostname.replace('$id', self.solutionid),
-      port     = self.config.get('@port', 22),
-      username = self.config.get('@username', 'root'),
+      port     = 22,
+      username = 'root',
       password = self.config.get('@password', None),
-      #TODO - add remaining ssh parameters
       )
 
     for key in self.ssh_defaults:
