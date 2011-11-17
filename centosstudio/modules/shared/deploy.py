@@ -48,23 +48,23 @@ class DeployEventMixin:
 
     self.scripts = {
              'activate-script': dict(ssh=False, 
-                              arguments=[self.solutionid]),
+                              arguments=[]),
              'clean-script': dict(message='running clean script',
                               ssh=False,
-                              arguments=[self.solutionid]),
+                              arguments=[]),
              'install-script': dict(message='running install script',
                               ssh=False,
-                              arguments=[self.solutionid, self.webpath]),
+                              arguments=[self.webpath]),
              'verify-install-script': 
                               dict(message='running verify-install script',
                               ssh=True,
-                              arguments=[self.solutionid]),
+                              arguments=[]),
              'update-script': dict(message='running update script',
                               ssh=True,
-                              arguments=[self.solutionid]),
+                              arguments=[]),
              'post-script':   dict(message='running post script',
                               ssh=True,
-                              arguments=[self.solutionid])}
+                              arguments=[ ])}
 
     for script in self.scripts:
       if self.config.get(script, None) is not None:
