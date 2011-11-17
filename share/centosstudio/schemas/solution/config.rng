@@ -38,7 +38,6 @@
         <zeroOrMore>
         <element name="script">
           <attribute name="type"><ref name="value-script-types"/></attribute>
-          <ref name="attribute-content"/>
           <text/>
         </element>
         </zeroOrMore>
@@ -48,7 +47,6 @@
           <attribute name="type"><ref name="value-trigger-types"/></attribute>
           <attribute name="trigger"/>
           <optional><attribute name="interpreter"/></optional>
-          <ref name="attribute-content"/>
           <text/>
         </element>
         </zeroOrMore>

@@ -73,19 +73,12 @@ class ConfigEventMixin(RpmBuildMixin):
                       destdir_fallback = self.filerelpath, 
                       id = 'files')
 
-    # add scripts as input so if they change, we rerun
-    for script in self.config.xpath(self.configxpath + '/script',  []):
-      if script.get('@content', 'file') == 'file':
-        assert_file_readable(script.text, 
-                             xpath=self._configtree.getpath(script),
-                             cls=MissingXpathInputFileError)
-        self.DATA['input'].append(script.text)
-
     # add triggers for synchronization to scripts folder
     for script in self.config.xpath(self.configxpath + '/trigger', []):
       self.io.add_xpath(self._configtree.getpath(script),
                         self.scriptdir, destname='%s-%s' % (
                         script.get('@type'), script.get('@trigger')), 
+                        content='text',
                         id='triggers')
 
     # copies of user-provided scripts and triggers go here for easier 
@@ -438,10 +431,7 @@ class ConfigEventMixin(RpmBuildMixin):
     scripts = []
     for elem in self.config.xpath(self.configxpath + '/script[@type="%s"]' 
                                   % script_type, []):
-      if elem.get('@content', 'file') == 'text':
-        scripts.append(elem.text)
-      else:
-        scripts.append(self.io.abspath(elem.text).read_text())
+      scripts.append(elem.text)
 
     if scripts:
       #write file for inclusion in rpm for end user debugging

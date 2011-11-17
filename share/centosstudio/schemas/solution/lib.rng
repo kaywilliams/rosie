@@ -206,13 +206,11 @@
 
   <!-- deploy element content -->
   <define name="content-deploy-element">
-    <optional><ref name="attribute-content"/></optional>
     <text/>
   </define>
 
   <define name="content-deploy-element-with-ssh">
     <ref name="content-ssh-attribute"/>
-    <optional><ref name="attribute-content"/></optional>
     <text/>
   </define>
 

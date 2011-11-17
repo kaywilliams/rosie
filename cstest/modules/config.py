@@ -57,8 +57,6 @@ class Test_ConfigRpmInputs(ConfigEventTestCase):
     self.file2 = pps.path('%s/file2' % self.working_dir)
     self.dir1  = pps.path('%s/dir1'  % self.working_dir)
     self.file3 = pps.path('%s/file3' % self.dir1)
-    self.script1 = pps.path('%s/script1' % self.working_dir)
-    self.script2 = pps.path('%s/script2' % self.working_dir)
 
     self._add_config(
       """
@@ -68,22 +66,14 @@ class Test_ConfigRpmInputs(ConfigEventTestCase):
         <files destdir="/etc/testdir" destname="file5" content="text">here is some text</files>
         <files destdir="/etc/testdir">%(working-dir)s/dir1</files>
         <!--<files destdir="/etc/testdir" destname="dir2" content="text">-->
-        <script type="post">%(working-dir)s/script1</script>
-        <script type="pre">%(working-dir)s/script1</script>
-        <script type="preun">%(working-dir)s/script1</script>
-        <script type="postun">%(working-dir)s/script1</script>
-        <script type="verifyscript">%(working-dir)s/script1</script>
-        <script type="post" content="text">echo post</script>
-        <script type="pre" content="text">echo pre</script>
-        <script type="preun" content="text">echo preun</script>
-        <script type="postun" content="text">echo postun</script>
-        <script type="verifyscript" content="text">echo verifyscript</script>
-        <trigger trigger="bash" type="triggerin">%(working-dir)s/script1</trigger>
-        <trigger trigger="bash" type="triggerun">%(working-dir)s/script1</trigger>
-        <trigger trigger="python" type="triggerpostun" interpreter="/bin/python">%(working-dir)s/script1</trigger>
-        <trigger trigger="bash" type="triggerin" content="text">echo triggerin</trigger>
-        <trigger trigger="bash" type="triggerun" content="text">echo triggerun</trigger>
-        <trigger trigger="python" type="triggerpostun" interpreter="/bin/python" content="text">print triggerpostun</trigger>
+        <script type="post">echo post</script>
+        <script type="pre">echo pre</script>
+        <script type="preun">echo preun</script>
+        <script type="postun">echo postun</script>
+        <script type="verifyscript">echo verifyscript</script>
+        <trigger trigger="bash" type="triggerin">echo triggerin</trigger>
+        <trigger trigger="bash" type="triggerun">echo triggerun</trigger>
+        <trigger trigger="python" type="triggerpostun" interpreter="/bin/python">print triggerpostun</trigger>
       </config>
       """ % {'working-dir': self.working_dir})
 
@@ -93,8 +83,6 @@ class Test_ConfigRpmInputs(ConfigEventTestCase):
     self.file2.touch()
     self.dir1.mkdir()
     self.file3.touch()
-    self.script1.touch()
-    self.script2.touch()
     self.clean_event_md()
     self.event.status = True
 
@@ -104,8 +92,6 @@ class Test_ConfigRpmInputs(ConfigEventTestCase):
     ConfigEventTestCase.tearDown(self)
     self.file1.rm(force=True)
     self.file2.rm(force=True)
-    self.script1.rm(force=True)
-    self.script2.rm(force=True)
 
   def runTest(self):
     self.tb.dispatch.execute(until='config')

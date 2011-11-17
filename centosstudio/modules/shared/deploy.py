@@ -69,7 +69,7 @@ class DeployEventMixin:
     for script in self.scripts:
       if self.config.get(script, None) is not None:
         self.io.add_xpath(script, self.mddir, destname=script, id=script, 
-                          mode='750')
+                          mode='750', content='text')
         self.DATA['config'].append(script)
 
     #setup ssh default values
