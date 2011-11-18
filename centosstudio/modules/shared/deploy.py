@@ -27,6 +27,7 @@ import subprocess as sub
 from centosstudio.cslogging import L0, L1, L2
 from centosstudio.errors import CentOSStudioError
 from centosstudio.util import sshlib
+from centosstudio.validate import InvalidConfigError
 
 from UserDict import DictMixin
 
@@ -34,6 +35,64 @@ SSH_RETRIES = 24
 SSH_SLEEP = 5
 
 class DeployEventMixin:
+  def validate(self):
+    # setup ssh  values
+    self.ssh = dict(
+      hostname = self.config.get('@hostname', ''),
+      port     = 22,
+      username = 'root',
+      password = self.config.get('@password', ''),
+      )
+
+    # set up script default parameters
+    self.scripts = {
+             'activate-script': dict(ssh=False,
+                              enabled = False,
+                              arguments=[]),
+             'clean-script': dict(message='running clean script',
+                              enabled = False,
+                              ssh=False,
+                              arguments=[]),
+             'install-script': dict(message='running install script',
+                              enabled = False,
+                              ssh=False,
+                              arguments=[]),
+             'verify-install-script': 
+                              dict(message='running verify-install script',
+                              enabled = False,
+                              ssh=True,
+                              arguments=[]),
+             'update-script': dict(message='running update script',
+                              enabled = False,
+                              ssh=True,
+                              arguments=[]),
+             'post-script':   dict(message='running post script',
+                              enabled = False,
+                              ssh=True,
+                              arguments=[])}
+
+
+    # update scripts dict using config and validate script attributes
+    for script in self.scripts:
+      if self.config.get(script, None) is not None:
+        # update enabled attribute
+        self.scripts[script]['enabled'] = True
+
+        # update ssh attribute
+        if self.config.get('%s/@ssh' % script, []):
+          self.scripts[script]['ssh'] = self.config.get('%s/@ssh' % script)
+
+        # validate that hostname and password have been provided
+        if self.scripts[script]['ssh'] and not self.ssh['hostname']:
+          raise(InvalidConfigError)(self.config.getroot().file,
+                ("[%(id)s] Validation Error: '%(script)s' requires the 'hostname' attribute to be set on the '%(id)s' element. Else, set 'ssh' to false on the '%(script)s' element."
+                 % dict(id = self.id, script = script)))
+        if self.scripts[script]['ssh'] and not self.ssh['password']:
+          raise(InvalidConfigError)(self.config.getroot().file,
+                ("[%(id)s] Validation Error: '%(script)s' requires the 'password' attribute to be set on the '%(id)s' element. Else, set 'ssh' to false on the '%(script)s' element."
+                 % dict(id = self.id, script = script)))
+
+
   def setup(self): 
     # needs to be called after self.webpath, self.repomdfile and self.kstext
     # are set
@@ -46,42 +105,16 @@ class DeployEventMixin:
     self.DATA['variables'].extend(['webpath', 'kstext'])
     self.DATA['input'].append(self.repomdfile)
 
-    self.scripts = {
-             'activate-script': dict(ssh=False, 
-                              arguments=[]),
-             'clean-script': dict(message='running clean script',
-                              ssh=False,
-                              arguments=[]),
-             'install-script': dict(message='running install script',
-                              ssh=False,
-                              arguments=[self.webpath]),
-             'verify-install-script': 
-                              dict(message='running verify-install script',
-                              ssh=True,
-                              arguments=[]),
-             'update-script': dict(message='running update script',
-                              ssh=True,
-                              arguments=[]),
-             'post-script':   dict(message='running post script',
-                              ssh=True,
-                              arguments=[ ])}
+    # set webpath argument on install script
+    self.scripts['install-script']['arguments'] = [self.webpath]
 
     for script in self.scripts:
-      if self.config.get(script, None) is not None:
+      if self.scripts[script]['enabled']:
         self.io.add_xpath(script, self.mddir, destname=script, id=script, 
                           mode='750', content='text')
         self.DATA['config'].append(script)
 
-    #setup ssh default values
-    _hostname = self.config.get('@hostname', self.solutionid)
-    self.ssh_defaults = dict(
-      hostname = _hostname.replace('$id', self.solutionid),
-      port     = 22,
-      username = 'root',
-      password = self.config.get('@password', None),
-      )
-
-    for key in self.ssh_defaults:
+    for key in self.ssh:
       self.DATA['config'].append('@%s' % key)
 
   def run(self):
@@ -161,7 +194,7 @@ class DeployEventMixin:
       self.log(1, L1(self.scripts[script]['message']))
     cmd = '%s %s' % (self.io.list_output(what=script)[0], 
                      ' '.join(self.scripts[script]['arguments']))
-    if not self.config.get('%s/@ssh' % script, self.scripts[script]['ssh']): 
+    if not self.scripts[script]['ssh']: 
     # run cmd on the local machine
       r = sub.call(cmd, shell=True)
       if r != 0:
@@ -237,7 +270,7 @@ class DeployEventMixin:
 class SSHParameters(DictMixin):
   def __init__(self, ptr, script):
     self.params = {}
-    for param,value in ptr.ssh_defaults.items():
+    for param,value in ptr.ssh.items():
       self.params[param] = ptr.config.get('%s/@%s' % (script, param), value)
     self.params['hostname'] = self.params['hostname'].replace('$id',
                               ptr.solutionid)
