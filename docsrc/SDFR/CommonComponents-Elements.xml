@@ -15,11 +15,9 @@
       </title>
 
       <para>
-      Modifies the behavior of the various boot media 
-      (<emphasis role="strong">bootiso</emphasis>,
-      <emphasis role="strong">diskboot-image</emphasis>, and
-      <emphasis role="strong">iso</emphasis>) by supplying supplemental or
-      alternate kernel boot arguments.
+      Modifies the behavior of the  <emphasis role="strong">bootiso</emphasis>,
+      and <emphasis role="strong">iso</emphasis> boot media by supplying
+      supplemental or alternate kernel boot arguments.
       </para>
 
       <para>
@@ -28,7 +26,7 @@
       "append" line in the syslinux configuration file. If
       <emphasis>boot-args/@use-defaults</emphasis> is
       <constant>TRUE</constant>, the default set of kernel arguments, 
-      defined by the parent bootiso, diskboot-image or iso element,
+      defined by the parent bootiso or iso element,
       are appended as well.
       </para>
 
@@ -55,7 +53,7 @@
         <listitem>
         <para>
         If the <emphasis role="strong">kickstart</emphasis> top-level element
-        is present in this definition file, this macro will be replaced by
+        is present in the definition, this macro will be replaced by
         the string <constant>ks=$path</constant>, where
         <varname>$path</varname> is the path to the kickstart file on the
         installation image. If the <emphasis role="strong">kickstart</emphasis>

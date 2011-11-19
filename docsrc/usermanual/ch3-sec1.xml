@@ -4,15 +4,22 @@
 <section id="configuring-a-build-machine" xreflabel="Configuring a Build Machine">
   <title>Configuring a Build Machine</title>
 
-  <para><application class="software">CentOS Studio</application> is designed to work
-  in a networked environment. You can install <application
+  <para><application class="software">CentOS Studio</application> is designed
+  to work in a networked environment. You can install <application
   class="software">CentOS Studio</application> on a <application
   class="software">Linux</application> system operating with <application
-  class="software">CentOS</application> 5 or <application class="software">Red
-  Hat Enterprise Linux</application> 5.</para>
+  class="software">CentOS</application> or <application class="software">Red
+  Hat Enterprise Linux</application> version 5 or 6.</para> Version 6 is
+  recommended given significant performance enhancements in several underlying
+  components used by CentOS Studio.
 
-  <para>Recent advances in virtualization, including the introduction of a Kernel-based Virtual Machine solution (KVM), have made it both easy and compelling to use virtual machines for testing client installation and updates. For this reason, we recommend installing CentOS Studio on a system installed with the x86_64 version <application class="software">Red Hat Enterprise Linux</application> 5.4 or <application
-  class="software">CentOS</application> 5.4, using one of the following architectures:</para>
+  <para>Recent advances in virtualization, including the introduction of a
+  Kernel-based Virtual Machine solution (KVM), have made it both easy and
+  compelling to use virtual machines for testing client installation and
+  updates. For this reason, we recommend installing CentOS Studio on a system
+  installed with the x86_64 version <application
+  class="software">CentOS</application> and one of the following
+  architectures:</para>
 
   <itemizedlist>
     <listitem>an Intel processor with the Intel VT and the Intel 64 extensions, or</listitem>
@@ -30,13 +37,15 @@
   solution content and the <filename 
   class="directory">/var/www/html/solutions</filename> folder for storing
   completed solutions. The recommended minimum drive space allocated for
-  each of these folders is 15GB (30GB total). Depending upon the number and size
+  each of these folders is 15GB (30GB total). Depending on the number and size
   of solutions created, you may need more disk space.</para>
 
   <para>Disk access is another consideration. Due to the size of the files
   handled, fast disk access is preferable. To accommodate the speed
   requirements, it is best to use hard disk drives with Serial Advanced
   Technology Attachment (SATA) interfaces.</para>
+
+  <para>To install Centos Studio, follow the instructions on the download page at <ulink url="http://www.centosstudio.org/centosstudio">http://www.centosstudio.org/centosstudio</ulink>.</para>
 
   <para>CentOS Studio makes it easy to test client machine installations and
   updates over the network directly from the build machine. To make use of this
@@ -61,22 +70,31 @@
   <para>First, install the kvm package group.</para>
 
   <para><informalexample><programlisting>
+# # CentOS 5
 # yum groupinstall kvm
+
+# # CentOS 6
+# yum groupinstall virtualization virtualization-platform virtualization-client 
   </programlisting></informalexample></para>
 
-  <para>Next, using a text editor, modify <filename>/etc/libvirt/qemu/networks/default.xml</filename> to add &lt;forward mode='nat'/&gt; above &lt;bridge name='virbr0'/&gt; as follows:</para>
+  <para>Next, using a text editor, modify
+  <filename>/etc/libvirt/qemu/networks/default.xml</filename> to add
+  &lt;forward mode='nat'/&gt; at the same level as &lt;bridge
+  name='virbr0'/&gt;, for example:</para>
 
   <para><informalexample><programlisting>
-====
-&lt;forward mode='nat'/&gt;
-&lt;bridge name='virbr0'/&gt;
-=====
+&lt;network&gt;
+...
+  &lt;forward mode='nat'/&gt; &lt;!-- or &lt;forward/&gt; --&gt;
+  &lt;bridge name='virbr0'/&gt;
+...
+&lt;/network&gt;
   </programlisting></informalexample></para>
 
   <para>Finally, restart your system.</para>
 
   <para><informalexample><programlisting>
-# shutdown -r now
+# reboot 
   </programlisting></informalexample></para>
 
   <para>Now you are ready to begin defining your solution!</para>

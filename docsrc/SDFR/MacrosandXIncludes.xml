@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="Macros-and-XIncludes"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <title>
+  Macros and XIncludes
+  </title>
+
+  <para>
+  To ease the organization and reuse of information, the software development
+  community commonly uses substitution methods. In the case of CentOS Studio,
+  two such methods are supported, macros and XIncludes.
+  </para>
+
+  <section id="macros" xreflabel="Macros">
+    <title>
+    Macros 
+    </title>
+  
+    <para>
+    Macros can be used to replace text values in the content of elements and
+    attributes. CentOS Studio supports two types of macros, user-defined and
+    builtin.
+    </para>
+
+    <para>
+    User-defined macros are specified using macro elements, located anywhere
+    within the definition or included content. Macro elements take a single
+    attribute, "id", which identifies the name of the macro. The text of the
+    macro element identifies text to substitute in place of the macro. For
+    example, <varname>&lt;macro id="mymacro"&gt;my text&lt;/macro&gt;</varname>.
+    </para>
+    
+    <para>
+    Builtin macros are <xref linkend="main-name"/>, <xref
+    linkend="main-version"/>, <xref linkend="main-arch"/> and <xref
+    linkend="main-id"/>. The values of these macros correspond to elements in
+    the <varname>/main</varname> element. See <xref linkend="main"/> for more
+    information.
+    </para>
+
+    <para>
+    Macro variables are identified using the dollar sign character preceding a
+    macro name. These variables can be used anywhere within element and
+    attribute text, with one exception. Macro variables
+    <emphasis>cannot</emphasis> be used with attribute values of XInclude
+    elements. This is because CentOS studio resolves macros after reading and
+    processing all XIncluded content. See <xref linkend="xincludes"/> for more
+    information.
+    </para>
+
+    <section>
+      <title>
+      Examples
+      </title>
+ 
+      <section>
+      <title>
+      Example 1 - Using Builtin Macros
+      </title>
+      <para>
+      In this example the variables <varname>$version</varname> and
+      <varname>$arch</varname>, used within the <varname>repos</varname> 
+      element, will be substituted with the values "5" and "i386" respectively.
+      </para>
+
+      <informalexample>
+      <programlisting>
+&lt;main&gt;
+  &lt;name&gt;samba-server&lt;/name&gt;
+  &lt;version&gt;5&lt;/version&gt;
+  &lt;arch&gt;i386&lt;/arch&gt;
+&lt;/main&gt;
+
+&lt;repos&gt;
+  &lt;repo id="base-$version"&gt;
+    &lt;name&gt;CentOS-$version-$arch&lt;/name&gt;
+    &lt;baseurl&gt;http://mirror.centos.org/centos/$version/os/$arch/&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://mirror.centos.org/centos/$version/os/$arch/RPM-GPG-KEY-CentOS-$version&lt;/gpgkey&gt;
+  &lt;/repo&gt;
+&lt;/repos&gt;
+      </programlisting>
+      </informalexample>
+      </section>
+ 
+      <section>
+      <title>
+      Example 2 - Using User-Defined Macros
+      </title>
+      <para>
+      In this example the variable <varname>$mirror</varname> will be
+      substituted with the value specified in the corresponding macro element.
+      The macro element can be located anywhere within the definition.</para>
+
+      <informalexample>
+      <programlisting>
+&lt;repos&gt;
+  &lt;macro id="mirror"&gt;http://mirror.centos.org/centos/$version&lt;/macro&gt;
+  &lt;repo id="base-$version"&gt;
+    &lt;name&gt;CentOS-$version-$arch&lt;/name&gt;
+    &lt;baseurl&gt;$mirror/os/$arch/&lt;/baseurl&gt;
+    &lt;gpgkey&gt;$mirror/os/$arch/RPM-GPG-KEY-CentOS-$version&lt;/gpgkey&gt;
+  &lt;/repo&gt;
+&lt;/repos&gt;
+      </programlisting>
+      </informalexample>
+      </section>
+
+      <section>
+      <title>
+      Example 3 - Macros <emphasis>cannot</emphasis> be used in XInclude
+      attributes.
+      </title>
+      <para>
+      In this example CentOS Studio will fail while reading the definition
+      because it will attempt to perform the XInclude before the
+      <varname>$version</varname> and <varname>$arch</varname> macros been
+      resolved. See the following section
+      for more information on using XIncludes.</para>
+
+      <informalexample>
+      <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;solution schema-version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+      
+...
+
+&lt;repos&gt;
+  &lt;xi:include href="centos-$version-$arch.xml"
+              xpointer="xpointer(element(/1)" /&gt;
+&lt;/repos&gt;
+
+&lt;/solution&gt;
+      </programlisting>
+      </informalexample>
+      </section>
+    </section>
+  
+  </section>
+  
+  <section id="xincludes" xreflabel="XIncludes">
+    <title>
+    XIncludes 
+    </title>
+  
+    <para>
+    XML Inclusions (XIncludes) are an industry standard sponsored by the World
+    Wide Web Consortium (W3C). This section provides a brief overview and an
+    example of using XIncludes in solution definitions. More information on
+    XInclude is available from  <ulink url="http://www.w3.org/TR/xinclude/"/>
+    </para>
+    
+    <para>
+    Similar to macros, XIncludes allow content reuse in solution definitions.
+    There are several important differences between the two mechanisms,
+    however:
+    </para>
+
+    <itemizedlist>
+
+      <listitem>XIncludes allow including content from external files. Macros
+      do not.</listitem>
+
+      <listitem>Macros can be used within attribute text, e.g.
+      <varname>&lt;repo id="centos-$version-$arch"&gt;</varname>. XIncludes
+      cannot.</listitem>
+
+    </itemizedlist>
+
+    <para>
+    XIncludes require the use of an XML namespace declaration in the containing
+    document. This is commonly accomplished by adding an xmlns attribute within
+    the solution element as follows: 
+    </para>
+    
+    <informalexample>
+    &lt;solution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+    </informalexample> 
+    
+    <para>
+    As a matter of practice, you may wish to include this namespace declaration
+    in every XML file you create for use with CentOS studio. This will allow
+    the addition of XIncludes at any time, without causing potentially confusing
+    errors in definition processing.
+    </para>
+
+    <para>
+    XIncludes can be nested, e.g. <filename>solution1.definition</filename> can
+    include content from <filename>document2.xml</filename>, which can further
+    include content from <filename>document3.xml</filename>. Each document that
+    contains an XInclude, e.g. <filename>solution1.definition</filename> and
+    <filename>document2.xml</filename>, must also include the namespace
+    definition. 
+    </para>
+
+    <section>
+      <title>
+      Example - Including repos from an external document.
+      </title>
+      <para>
+      This example shows two documents, <filename>repos.xml</filename> and
+      <filename>solution.definition</filename>. The
+      <filename>repos.xml</filename> document contains definitions for three
+      repos. Two of these repos will be included in the
+      <filename>solution.definition </filename> using an element
+      <varname>&lt;xi:include ...&gt;</varname>.
+      </para>
+
+      <section>
+      <title>repos.xml</title>
+       <informalexample>
+      <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;solution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+      
+&lt;repos&gt;
+
+  &lt;repo id="base"&gt;
+    &lt;name&gt;CentOS Base&lt;/name&gt;
+    &lt;baseurl&gt;http://mirror.centos.org/centos/$version/os/$arch/&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://mirror.centos.org/centos/$version/os/$arch/RPM-GPG-KEY-CentOS-$version&lt;/gpgkey&gt;
+  &lt;/repo&gt;
+
+  &lt;repo id="updates"&gt;
+    &lt;name&gt;CentOS Updates&lt;/name&gt;
+    &lt;baseurl&gt;http://mirror.centos.org/cento/$version/os/$arch/&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://mirror.centos.org/centos/$version/os/$arch/RPM-GPG-KEY-CentOS-$version&lt;/gpgkey&gt;
+  &lt;/repo&gt;
+
+  &lt;repo id="epel"&gt;
+    &lt;name&gt;Extra Packages for Enterprise Linux&lt;/name&gt;
+    &lt;baseurl&gt;http://download.fedora.redhat.com/pub/epel/$version/$arch/&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://download.fedora.redhat.com/pub/epel/RPM-GPG-KEY-EPEL&lt;/gpgkey&gt;
+  &lt;/repo&gt;
+
+&lt;/repos&gt;
+
+&lt;/solution&gt;
+      </programlisting>
+      </informalexample>
+      </section>
+
+      <section>
+      <title>solution.definition</title>
+       <informalexample>
+      <programlisting>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;solution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+
+...
+      
+&lt;repos&gt;
+  &lt;xi:include href="repos.xml"
+              xpointer="xpointer(
+                /solution/repos/repo[@id='base']/* |
+                /solution/repos/repo[@id='updates']/*)" /&gt;
+&lt;/repos&gt;
+
+&lt;/solution&gt;
+      </programlisting>
+      </informalexample>
+      </section>
+    </section>
+ 
+  </section>
+
+</chapter>

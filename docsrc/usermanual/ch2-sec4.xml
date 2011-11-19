@@ -1,32 +1,203 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="updating-client-machines" xreflabel="Updating Client Machines">
-  <title>Updating Client Machines</title>
+<section>
+  <title>Glossary of Terms</title>
 
-  <para>CentOS Studio makes it easy to keep installed client machines up to date with changes to the solution. This is done using automated builds and the <application class="software">YUM Sync Plugin</application>.</para> 
+  <para>Following are terms specific to the CentOS Studio environment. They are arranged in alphabetical order.</para>
 
-  <para><emphasis role="strong">Automated Builds.</emphasis> CentOS Studio runs from the command line with no need for manual intervention. Because of this, CentOS Studio can be automated to refresh solutions on a periodic basis, e.g. nightly, using job scheduling programs such as <command>cron</command>. Doing so has two benefits. First, it ensures that your solutions are current and ready to install or reinstall new clients, whenever the need occurs. Second, it allows your solutions to serve as "master repositories", providing ongoing updates to client machines via the YUM Sync Plugin tool. More information on using <command>cron</command> to automate CentOS Studio builds is available in Chapter 4, Creating a Production Environment.</para>
+  <para><variablelist>
 
-  <mediaobject>
-    <imageobject>
-      <imagedata fileref="updates.png" />
-    </imageobject>
+      <varlistentry id="id" xreflabel="ID">
+        <term><emphasis
+        role="strong"><varname>$ID</varname></emphasis></term>
 
-    <caption><para>CentOS Studio Update Model</para></caption>
-  </mediaobject>
+        <listitem>
+          <para>The id for a solution. The default value consists of the
+          <emphasis>/name</emphasis>, <emphasis>/version</emphasis> and
+          <emphasis>/arch</emphasis> child elements of the
+          <emphasis>main</emphasis> element in the solution definition in the format
+          <varname>$NAME</varname>-<varname>$VERSION</varname>-<varname>$ARCH</varname>.</para>
+        </listitem>
+      </varlistentry>
 
-  <para><emphasis role="strong">YUM Sync Plugin.</emphasis> The CentOS Studio product provides a small extension to YUM, the <emphasis>YUM Sync Plugin</emphasis> that allows keeping installed clients up to date with changes in the solution or "master" repository. The YUM SyncPlugin is installed to client machines by default via the <xref linkend="configuration-package" />. The plugin performs two functions:</para>
+      <varlistentry id="build-system" xreflabel="build machine">
+        <term><emphasis role="strong">build machine</emphasis></term>
 
-  <itemizedlist>
-  <listitem><para>Establishes the <xref linkend="solution"/> as the master repository for the client system. This disables all other default package repositories, allowing the plugin to get an accurate list of what packages <emphasis>should be installed</emphasis> on the system using packages available in the solution.</para></listitem>
+        <listitem>
+          <para>The server on which <application
+          class="software">CentOS Studio</application> is installed.</para>
+        </listitem>
+      </varlistentry>
 
-  <listitem><para>Provides a new command line argument <emphasis>sync</emphasis> for use with YUM:</para>
-  <informalexample><para><command># yum sync</command></para></informalexample>
-	<para>The <emphasis>sync</emphasis> argument behaves similarly to the YUM <emphasis>update</emphasis> argument, with two additions: 1) it adds packages from the solution that are not installed on the client, and 2) it removes packages from the client that do not exist in the repository.</para> 
-  </listitem>
-  </itemizedlist>
+      <varlistentry id="client-system" xreflabel="client machine">
+        <term><emphasis role="strong">client machine</emphasis></term>
 
-  <para>See the section on <xref linkend="updating-a-client-machine"/> for details and an example of YUM Sync Plugin usage.</para>
+        <listitem>
+          <para>The target system on which a solution is installed.
+          </para>
+        </listitem>
+      </varlistentry>
 
+      <varlistentry id="configuration-package" xreflabel="configuration package">
+        <term><emphasis role="strong">configuration package</emphasis></term>
+
+        <listitem>
+	  <para>An RPM package created by CentOS Studio during the build
+	  process. This package contains the <application
+	  class="software">YUM</application> sync plugin, 
+	  YUM configuration, and user-specified configuration files and
+	  scripts. The name of the configuration package is in the following
+	  format, where $VERSION is taken from the <emphasis>version</emphasis>
+	  element in the solution definition and $RELEASE is taken
+	  from the <xref linkend="solution-data-file" />.
+          </para>
+
+          <para><informalexample>
+          <filename>system-config-$VERSION-$RELEASE.noarch.rpm</filename></informalexample>
+          </para>
+
+          <para>For example, given a solution with the name "samba-server" and version "5", the first time CentOS Studio creates the solution, the configuration package will be named as follows:</para>
+
+          <para><informalexample>
+          <filename>system-config-5-1.noarch.rpm</filename></informalexample>
+          </para>
+
+	  <para>The release number "1" will be written to the system
+	  solution data file. When configuration changes in the future,
+	  e.g. when files or scripts are added, deleted or modified,
+	  CentOS Studio will increment the release number by 1, create a new
+	  configuration package (in this case
+	  samba-server-config-5-2.noarch.rpm), and store the new release number
+	  ("2") in the solution data file. The incremented version
+	  number allows installed client machines to determine that a new
+	  configuration package is available for download and
+	  installation.</para>
+
+          <para>For more information on what the configuration package contains
+          and how to customize its contents, see the section on 
+          <emphasis>config</emphasis> in the Solution Definition File 
+          Reference.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="download-location" xreflabel="download location">
+        <term><emphasis role="strong">download location</emphasis></term>
+
+        <listitem>
+	  <para>The web location (URL) for downloading solution
+	  content. CentOS Studio uses this location during the build process for
+	  two purposes, for creating YUM client configuration (included in the
+	  <xref linkend="configuration-package"/>), and for customizing network
+	  install images. By default the download location is as follows, where
+	  $IP_ADDRESS is the address of the build machine, and $ID is the
+	  solution id.</para>
+
+          <para><informalexample>
+	    <filename>http://$IP_ADDRESS/solutions/$ID</filename></informalexample></para>
+
+	  <para>For example, if the IP Address for the build machine is
+	  <filename>192.168.1.5</filename> and the solution id is
+	  <emphasis>samba-server-5-i386</emphasis> the download location is as
+	  follows:</para>
+
+          <para><informalexample>
+              <filename>http://192.168.1.5/solutions/samba-server-5-i386</filename>
+            </informalexample></para>
+
+	  <para>The download location is configurable using the
+	  <emphasis>publish</emphasis> element of the solution
+	  definition.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="sdfr" xreflabel="SDFR">
+        <term><emphasis role="strong">SDFR</emphasis></term>
+
+        <listitem>
+	  <para>"Solution Definition File Reference," the rules of syntax
+	  for the solution definition. See the separate document at 
+          <ulink url="http://www.centosstudio.org/centosstudio/docs/"> 
+          http://www.centosstudio.org/centosstudio/docs/ </ulink>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="solution" xreflabel="solution">
+        <term><emphasis role="strong">solution</emphasis></term>
+
+        <listitem>
+	  <para>An installation tree created during the solution
+	  build process. Provides packages and installation images for use 
+          during client machine installations and updates. Can be accessed 
+          over the network from the
+	  <filename type="directory">os</filename> folder of the <xref
+	  linkend="download-location"/>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="solution_definition" xreflabel="solution definition">
+        <term><emphasis role="strong">solution definition</emphasis></term>
+
+        <listitem>
+          <para>A file that defines how CentOS Studio should build, configure
+          and store a solution. By convention the file uses the <filename
+          class="extension">.definition</filename> extension. The file is in
+          XML format as defined in the <xref linkend="sdfr"/>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="solution-data-file" xreflabel="solution data file">
+        <term><emphasis role="strong">solution data file</emphasis></term>
+
+        <listitem>
+	  <para>A file CentOS Studio creates to track and increment the release
+	  number of the solution's <xref
+	  linkend="configuration-package" />. This file is created in the same
+	  folder as the solution definition, using the same
+	  filename, with a <filename>.dat</filename> file extension. For
+	  example, given the full path to a solution definition:</para>
+
+          <para><informalexample>
+          <filename>/~/samba-server.definition</filename></informalexample>
+          </para>
+
+          <para>CentOS Studio will create the data file as follows:</para>
+
+          <para><informalexample>
+          <filename>/~/samba-server.definition.dat</filename></informalexample>
+          </para>
+
+	  <para>Care should be taken not to delete this file. Doing so will
+	  cause the release number of the configuration package to restart at
+	  "1". As a result, updated configuration packages will fail to be
+	  downloaded and installed during client machine updates.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="yum-sync-plugin" xreflabel="YUM Sync Plugin">
+        <term><emphasis role="strong">YUM Sync Plugin</emphasis></term>
+
+        <listitem>
+	  <para>A <application class="software">YUM</application> plugin
+	  provided by CentOS Studio that allows synchronizing packages on client
+	  machines with packages in the <xref linkend="solution"/>.
+	  The plugin is included by default in the <xref
+	  linkend="configuration-package" />, which serves as the mechanism for
+	  installing it on client machines. The plugin establishes the 
+	  solution as the <emphasis>master
+	  repository</emphasis>, disables all other repositories, and provides
+	  a new argument, <emphasis>sync</emphasis>, to YUM. Help for the
+	  <emphasis>sync</emphasis> argument is available on client machines
+	  using the <command>yum help</command> command. Running <command>yum
+	  sync</command> allows YUM to calculate package additions and removals
+	  based on packages available in the solution.
+	  For more information, see the section on <xref
+	  linkend="updating-client-machines"/>.</para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist></para>
 </section>

@@ -2,11 +2,11 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section>
-  <title>Building Systems</title>
+  <title>Building Solutions</title>
 
   <para>Running 
-  <application class="software">CentOS Studio</application> gathers system
-  content, processes it, and creates a complete solution.</para>
+  <application class="software">CentOS Studio</application> gathers 
+  content, processes it, and creates a final solution.</para>
 
     <mediaobject>
       <imageobject>
@@ -19,33 +19,33 @@
   <section>
   <title>Build Input</title>
 
-  <para><application class="software">CentOS Studio</application> uses three classes of input to create solutions: a base operating system, package repositories, and configuration files and scripts. System content is specified using a <xref linkend="solution_definition">solution definition</xref>.</para>
+  <para><application class="software">CentOS Studio</application> uses three classes of input: a CentOS-compatible repository, additional package repositories, and configuration files and scripts.</para>
 
   <itemizedlist>
-  <listitem><emphasis role="strong"> Base Operating System.</emphasis> CentOS Studio requires a base operating solution as input for creating new solutions. The base operating system is defined at the level of operating system name (Red Hat Enterprise Linux or CentOS), version (5) and architecture (i386 or x86_64). The four base operating systems CentOS Studio supports are RHEL-5-i386, RHEL-5-x86_64, CentOS-5-i386 and CentOS-5-x86_64. Base operating solutions must include both network installation images and package repositories. Base operating solutions are covered in more detail under <xref linkend="specifying-repositories" />.</listitem>
+  <listitem><emphasis role="strong"> CentOS-compatible repository.</emphasis> CentOS Studio requires a CentOS-compatible operating system repository as input for creating new solutions. Currently suppoted operating system repositories include CentOS and Red Hat Enterprise Linux, versions 5 and 6 for i386 and x86_64 architectures. See <xref linkend="specifying-repositories" /> for more information.</listitem>
 
-  <listitem><emphasis role="strong">Package Repositories.</emphasis> CentOS Studio uses RPM package repositories to locate and download software components for the solution. CentOS Studio requires at least one package repository, that of the base operating solution. A typical solution definition will specify multiple input repositories, including the base operating system update repository, and repositories made available from other internal and external providers. See <xref linkend="specifying-repositories" /> for more information.</listitem>
+  <listitem><emphasis role="strong">Additional Package Repositories.</emphasis> CentOS Studio uses RPM package repositories to locate and download additional software components for the solution. A typical solution definition will specify multiple additional repositories, including a CentOS-compatible update repository, and repositories made available from other internal and external providers. See <xref linkend="specifying-repositories" /> for more information.</listitem>
 
-  <listitem><emphasis role="strong">Configuration Files and Scripts.</emphasis> The final category of solution content is user-provided configuration files and scripts. Files are copied, and scripts are executed, during client machine installation and updates. For more information, see <xref linkend="configuring-clients" />.</listitem>
+  <listitem><emphasis role="strong">Configuration Files and Scripts.</emphasis> The final category of solution content is admin-provided configuration files and scripts. Files are copied and scripts are executed during client machine installation and updates. For more information, see <xref linkend="configuring-solutions" />.</listitem>
   </itemizedlist>
   </section>
 
   <section>
   <title>Build Process</title>
 
-  <para><application class="software">CentOS Studio</application> uses information from the <xref linkend="solution_definition"/> to gather solution content. It processes this information in three primary ways.</para>
+  <para><application class="software">CentOS Studio</application> uses information from the <xref linkend="solution_definition"/> to gather solution content. It uses this information to complete three primary steps.</para>
 
   <itemizedlist>
-  <listitem><para><emphasis role="strong">Creates a configuration package.</emphasis> CentOS Studio creates a <xref linkend="configuration-package" /> in RPM format. This package contains configuration files and scripts specified in the solution definition. It also contains CentOS Studio-generated YUM update configuration. See <xref linkend="updating-client-machines" /> for more information on CentOS Studio-generated YUM configuration.</para>
+  <listitem><para><emphasis role="strong">Create a configuration package.</emphasis> CentOS Studio creates a <xref linkend="configuration-package" /> in RPM format. This package contains the configuration files and scripts specified in the solution definition. It also contains CentOS Studio-generated YUM update configuration, as discussed later under <xref linkend="updating-client-machines" />.</para>
 
-  <para>During this step, CentOS Studio also creates a <xref linkend="system-data-file"/>, if one does not exist, in the same folder as the solution definition. The file has a <filename>.dat</filename> extension. CentOS Studio uses the data file to track and increment the configuration package release number.</para></listitem>
+  <para>During this step, CentOS Studio also creates a <xref linkend="solution-data-file"/>, if one does not exist, in the same folder as the solution definition. The file has a <filename>.dat</filename> extension. CentOS Studio uses the data file to track and increment the configuration package release number.</para></listitem>
 
-  <listitem><emphasis role="strong">Assembles a package repository.</emphasis> Using the solution definition, CentOS Studio compiles a list of required packages. It then resolves package dependencies, downloads packages, adds the configuration package (mentioned in the previous item) and creates a complete, self-contained package repository. The package repository is used during network installations to client machines. It is also used during client machine updates.</listitem>
+  <listitem><emphasis role="strong">Assemble a package repository.</emphasis> Using the solution definition, CentOS Studio compiles a list of required packages. It then resolves package dependencies, downloads packages and creates a complete, self-contained package repository. The package repository is used during network installations to client machines. It is also used during client machine updates.</listitem>
 
-  <listitem><emphasis role="strong">Customizes network install images.</emphasis> CentOS Studio downloads network installation images from the base operating system and modifies them to include system-specific information. By default, CentOS Studio configures the installer program contained within the images to access content from the solution's <xref linkend="download-location"/>. This allows client machines to be installed over the network without needing to provide the download location manually at installation time. CentOS Studio can also be used to completely automate client installations. See <xref linkend="automating-installations"/> for more information.</listitem>
+  <listitem><emphasis role="strong">Customize network install images.</emphasis> CentOS Studio downloads network installation images from the CentOS-compatible repository and modifies them to include solution-specific information. CentOS Studio can also be used to completely automate client installations. <xref linkend="automating-installations"/> describes this in detail.</listitem>
   </itemizedlist>
 
-  <para><application class="software">CentOS Studio</application> stores system content, both input and generated, in the cache folder, by default <filename type="directory">/var/cache/centosstudio/</filename>. It reuses information from the cache on subsequent runs, where possible, to improve build performance.</para>
+  <para><application class="software">CentOS Studio</application> stores solution content, both input and generated, in the cache folder, by default <filename type="directory">/var/cache/centosstudio/</filename>. It reuses information from the cache on subsequent runs, where possible, to improve build performance.</para>
   </section>
 
   <section>
@@ -54,17 +54,13 @@
   <para>CentOS Studio outputs a complete solution, a solution data file and a log file.</para>
 
   <itemizedlist>
-  <listitem><emphasis role="strong">System.</emphasis> The primary output of the build process is a complete solution containing system-specific network installation images and a package repository. Using network installation images you can deploy the solution to one or more physical or virtual client machines. See <xref linkend="installing-client-machines" /> for more information. The system package repository supports client machine updates using YUM. The section <xref linkend="updating-client-machines" /> provides an overview of CentOS Studio's client machine update features.</listitem>
+  <listitem><emphasis role="strong">Solution.</emphasis> The primary output of the build process is a complete solution containing solution-specific network installation images and a package repository. Using network installation images you can deploy the solution to one or more physical, virtual or cloud client machines. See <xref linkend="installing-client-machines" /> for more information. The solution package repository also supports client machine updates using YUM. The section <xref linkend="updating-client-machines" /> provides an overview of CentOS Studio's client machine update features.</listitem>
 
-  <listitem><emphasis role="strong">System Data File.</emphasis> As mentioned above, CentOS Studio creates a <xref linkend="system-data-file"/> during the build process. This file is used to track and increment the release number of the configuration package.</listitem>
+  <listitem><emphasis role="strong">Solution Data File.</emphasis> As mentioned above, CentOS Studio creates a <xref linkend="solution-data-file"/> during the build process. This file is used to track and increment the release number of the configuration package.</listitem>
 
   <listitem><emphasis role="strong">CentOS Studio Log File.</emphasis> CentOS Studio sends output both to the screen and to a log file, located by default at <filename>/var/log/centosstudio.log.</filename></listitem>
   </itemizedlist>
 
   </section>
 
-  <para>In summary, CentOS Studio is a production system life cycle manager
-  for use in defining, building and maintaining solution that can
-  be easily installed and updated on physical and virtual machines using
-  industry standard deployment and update tools.</para>
 </section>

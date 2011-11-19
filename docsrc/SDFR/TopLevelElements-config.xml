@@ -2,7 +2,8 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="config"
-         xreflabel="config">
+         xreflabel="config"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>
   Config
   </title>
@@ -23,10 +24,6 @@
     <emphasis>config/trigger</emphasis> elements.
     </para>
 
-    <para>
-    This module is a member of the <emphasis role="strong">rpmbuild</emphasis>
-    module group.
-    </para>
   </section>
 
   <section>
@@ -43,17 +40,16 @@
     (PATH|TEXT)
    &lt;/files&gt;]*
 
-  [&lt;script type=("post"|"pre"|"preun"|"postun"|"verifyscript")
-          [content=("file"|"text")]&gt;
-    (PATH|TEXT)
+  [&lt;script type=("post"|"pre"|"preun"|"postun"|"verifyscript")&gt;
+    TEXT
    &lt;/script&gt;]*
 
   [&lt;obsoletes&gt;CAPABILITY&lt;/obsoletes&gt;]*
   [&lt;requires&gt;CAPABILITY&lt;/requires&gt;]*
 
   [&lt;trigger package=CAPABILITY type=("triggerin"|"triggerun"|"triggerpostun")
-           [content=("file"|"text")] [interpreter=PATH]&gt;
-    (PATH|TEXT)
+           [interpreter=PATH]&gt;
+    TEXT
    &lt;/trigger&gt;]*
 &lt;/config&gt;
     </programlisting>
@@ -174,17 +170,8 @@
       </para>
 
       <para>
-      Accepts two attributes,
-      <emphasis>@content</emphasis> and
+      Accepts one attribute,
       <emphasis>@type</emphasis>.
-      </para>
-
-      <para>
-      <emphasis>@content</emphasis>: Accepts either "file" or "text".  
-      When <emphasis>content</emphasis> is "file", the element's text value
-      is treated as a <varname>PATH</varname> to a file, whereas when it is
-      "text", the element's text value is interpreted as the raw text of the
-      script to execute. The default value is "file".
       </para>
 
       <para>
@@ -194,6 +181,27 @@
       RPM spec files, see the Fedora project's <emphasis>"RPM Guide"</emphasis>
       by Eric Foster-Johnson.
       </para>
+
+      <para>Provides a runtime variable <emphasis>$changed</emphasis> for use
+      by user-provided scripts. The <emphasis>$changed</emphasis> variable
+      contains a string-separated list of files, currently or previously
+      installed by the configuration package, that meet one or more of the
+      following criteria:
+
+      <itemizedlist>
+      <listitem>added since the last configuration package update</listitem>
+      <listitem>modified since the last configuration package update</listitem>
+      <listitem>differs from the the file on disk</listitem>
+      <listitem>removed since the last configuration package update</listitem>
+      </itemizedlist>
+
+      The space-separated list of files within the
+      <emphasis>$changed</emphasis> variable also has leading and following
+      space characters, for easier pattern matching. See the examples section
+      for a script that makes use of the <emphasis>$changed</emphasis>
+      variable.
+      </para>
+
       </listitem>
     </varlistentry>
 
@@ -239,19 +247,10 @@
       </para>
 
       <para>
-      Accepts four attributes:
-      <emphasis>@content</emphasis>,
+      Accepts three attributes:
       <emphasis>@interpreter</emphasis>,
       <emphasis>@package</emphasis>, and
       <emphasis>@type</emphasis>.
-      </para>
-
-      <para>
-      <emphasis>@content</emphasis>: Accepts either "file" or "text".  
-      When <emphasis>content</emphasis> is "file", the element's text value
-      is treated as a <varname>PATH</varname> to a file, whereas when it is
-      "text", the element's text value is interpreted as the raw text of the
-      script to execute. The default value is "file".
       </para>
 
       <para>
@@ -317,8 +316,11 @@
   &lt;requires&gt;samba-common&lt;/requires&gt;
 
   &lt;!-- add a RPM %post script --&gt;
-  &lt;script type="post" content="text"&gt;
-/sbin/chkconfig samba on
+  &lt;script type="post"&gt;
+if [[ $changed = *\ /etc/samba/smb.conf\ * ]] ; then
+      service smb restart
+fi
+chkconfig smb on
   &lt;/script&gt;
 
   &lt;!-- add a RPM %triggerin script that triggers on samba --&gt;
@@ -336,7 +338,6 @@
     </title>
 
     <para>
-    <varname><xref linkend="variable-name" /></varname>,
     <varname><xref linkend="content-basename" /></varname>,
     <varname><xref linkend="content-package" /></varname>,
     <varname><xref linkend="content-path" /></varname>,

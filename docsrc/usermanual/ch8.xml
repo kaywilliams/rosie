@@ -2,7 +2,7 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <chapter>
-  <title>Production Systems</title>
+  <title>Production Solutions</title>
 
   <para>You can harness <application class="software">CentOS Studio</application>'s
   architecture and features to create a production system development
@@ -22,20 +22,18 @@
   for your solution definition has several options, which are covered in
   the last section.</para>
 
-  <xi:include href="ch4-sec1.xml" xpointer="element(/1)"
+  <xi:include href="ch8-sec1.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
-  <xi:include href="ch4-sec2.xml" xpointer="element(/1)"
+  <xi:include href="ch8-sec2.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
-  <xi:include href="ch4-sec3.xml" xpointer="element(/1)"
+  <xi:include href="ch8-sec3.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
-  <xi:include href="ch4-sec4.xml" xpointer="element(/1)"
+  <xi:include href="ch8-sec4.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
-  <xi:include href="ch4-sec5.xml" xpointer="element(/1)"
+  <xi:include href="ch8-sec5.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
-  <xi:include href="ch4-sec6.xml" xpointer="element(/1)"
+  <xi:include href="ch8-sec6.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
-  <xi:include href="ch4-sec7.xml" xpointer="element(/1)"
-              xmlns:xi="http://www.w3.org/2001/XInclude" />
-  <xi:include href="ch4-sec8.xml" xpointer="element(/1)"
+  <xi:include href="ch8-sec7.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 </chapter>

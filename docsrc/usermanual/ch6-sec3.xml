@@ -8,7 +8,7 @@
   client boot-up and kickstart process.</para>
 
   <section>
-    <title>Kickstarting Client Systems</title>
+    <title>Kickstarting Client Solutions</title>
 
     <para>Kickstart files let you automate system installations by 
     providing answers to install-time questions such as selection of language,

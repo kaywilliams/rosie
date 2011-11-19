@@ -7,7 +7,7 @@
 
   <bookinfo id="bookinfo">
 
-    <pubdate>August 2011</pubdate>
+    <pubdate>November 2011</pubdate>
 
     <copyright id="copyright">
       <year>2011</year>
@@ -59,10 +59,16 @@
   <xi:include href="Introduction.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="RequiredElements.xml"
+  <xi:include href="MacrosandXIncludes.xml"
               xpointer="element(/1)" />
 
-  <xi:include href="OptionalElements.xml"
+  <xi:include href="CoreElements.xml"
+              xpointer="element(/1)" />
+
+  <xi:include href="TestElements.xml"
+              xpointer="element(/1)" />
+
+  <xi:include href="PublishElements.xml"
               xpointer="element(/1)" />
 
   <xi:include href="CommonComponents.xml"

@@ -16,10 +16,4 @@
   <xi:include href="ch2-sec4.xml" xpointer="element(/1)"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-  <xi:include href="ch2-sec5.xml" xpointer="element(/1)"
-              xmlns:xi="http://www.w3.org/2001/XInclude" />
-
-  <xi:include href="ch2-sec6.xml" xpointer="element(/1)"
-              xmlns:xi="http://www.w3.org/2001/XInclude" />
-
 </chapter>

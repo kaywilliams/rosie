@@ -5,42 +5,43 @@
   <title><application class="software">CentOS Studio</application> Overview
   </title>
 
-  <para>Automating customization, installation and maintenance of Red Hat 
-  Enterprise Linux and CentOS systems today requires costly and complex management
-  solutions. <application class="software">CentOS Studio</application> provides
-  a simple, standard, reliable alternative. CentOS Studio packages 
-  user-specified content into standard operating system deployment bundles, or 
-  <emphasis>solutions</emphasis>. System repositoriess can be used to
-  deploy and maintain client machines, physical and virtual, in a wide range of
-  IT environments.</para>
+  <para><application class="software">CentOS Studio</application> provides a
+  standard platform for building desktop and server solutions based on CentOS,
+  a stable, free and widely adopted version of Linux. CentOS Studio packages
+  installation images, software and configuration into standard deployment
+  bundles, called <emphasis>solutions</emphasis>. Solutions can be used to
+  test, install and maintain client machines in a wide range of IT environments
+  - physical, virtual and cloud.</para>
 
-  <para>A solution is a set of operating system components,
-  applications and configuration, packaged for deployment in a standard format.
-  Using CentOS Studio you can create and maintain solutions:</para>
+  <para>Using CentOS Studio you can create and maintain solutions:</para>
 
   <para><itemizedlist>
       <listitem>
-        <para>select an operating system,</para>
+        <para>select a CentOS-compatible repository and additional package repositories,</para>
       </listitem>
 
       <listitem>
-        <para>combine it with one or more applications,</para>
+        <para>select packages to install,</para>
       </listitem>
 
       <listitem>
-        <para>set operating system and application configuration parameters,</para>
+        <para>specify system and application configuration,</para>
       </listitem>
 
       <listitem>
-        <para>build the solution,</para>
+        <para>build a solution,</para>
       </listitem>
 
       <listitem>
-        <para>deploy it to clients using standard tools and methods,</para>
+        <para>test it on client machines,</para>
       </listitem>
 
       <listitem>
-        <para>change components and configuration,</para>
+        <para>deploy it to client machines,</para>
+      </listitem>
+
+      <listitem>
+        <para>change repositories, packages and configuration,</para>
       </listitem>
 
       <listitem>
@@ -48,7 +49,7 @@
       </listitem>
 
       <listitem>
-        <para>update existing clients using standard update tools.</para>
+        <para>update client machines.</para>
       </listitem>
     </itemizedlist></para>
 
@@ -60,16 +61,11 @@
     <caption><para>CentOS Studio Overview</para></caption>
   </mediaobject>
 
-  <para><application class="software">CentOS Studio</application> reads 
-  a solution definition, gathers various inputs (operating system, applications, 
-  and configuration files), and creates a solution 
-  with installation images and a package repository. Using the installation
-  images, you can deploy the solution to one or more client machines. You can 
-  also update existing clients from the solution package repository.
+  <para><application class="software">CentOS Studio</application> reads a solution definition, gathers input (installation images, software packages, and configuration files), and creates a solution. Using the solution, you can test, deploy and update client machines.
   </para>
 
-  <para>In summary, CentOS Studio is a production system life cycle manager
-  for use in defining, building and maintaining solutions that can
-  be easily installed and updated on physical, virtual and cloud machines using
-  industry standard deployment and update tools.</para>
+  <para>In summary, CentOS Studio is a production life cycle manager
+  for use in defining, building, testing, deploying and maintaining solutions
+  that can be easily installed and updated on physical, virtual and cloud 
+  machines.</para>
 </section>

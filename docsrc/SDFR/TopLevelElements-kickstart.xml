@@ -2,7 +2,8 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="kickstart"
-         xreflabel="kickstart">
+         xreflabel="kickstart"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>
   Kickstart
   </title>
@@ -13,26 +14,19 @@
     </title>
 
     <para>
-    The kickstart element specifies either the
-    <varname>PATH</varname> to a kickstart file, or the text of a file to be 
-    created. The resulting file is named <filename>ks.cfg</filename> and 
-    included in the <filename>os</filename> folder of the solution,
-    e.g.
+    The kickstart element specifies the text of a kickstart file.  CentOS
+    Studio makes the kickstart available as a file named named
+    <filename>ks.cfg</filename> included in the <filename>os</filename> folder
+    of the solution, e.g.
     <filename>http://server.company.com/solutions/samba-server-5-i386/os/ks.cfg</filename>.
-    It is also included in the <emphasis role="strong"><xref
-    linkend="bootiso" /></emphasis> and <emphasis role="strong"><xref
-    linkend="diskboot-image" /></emphasis> images, and in all <emphasis
-    role="strong"><xref linkend="iso" /></emphasis>. 
+    It is also included in the <emphasis role="strong"><xref linkend="bootiso"
+    /></emphasis> image, and in all <emphasis role="strong"><xref linkend="iso"
+    /></emphasis> images.
     </para>
 
-    <para>For more information on creating and using kickstart files, see the
-    <emphasis>CentOS Studio User Manual</emphasis>.
-    </para> 
+    <xi:include href="common.xml"
+                xpointer="xpointer(//*[@id='element-kickstart']/*)"/>
 
-    <note>It is not necessary to specify a '%packages' section in the kickstart
-    file. CentOS Studio automatically configures the installer to install all
-    packages in the solution. If a '%packages' section is
-    provided, it is ignored.</note>
 
   </section>
 
@@ -42,7 +36,8 @@
     </title>
 
     <programlisting>
-[&lt;kickstart [content=("text"|"file")]&gt;PATH&lt;/kickstart&gt;]
+ <xi:include href="common.xml"
+             xpointer="xpointer(//*[@id='syntax-kickstart-element']/text())"/>
     </programlisting>
   </section>
 
@@ -51,23 +46,8 @@
     Attributes
     </title>
 
-    <variablelist>
-    <varlistentry>
-    <term>
-    content
-    </term>
-
-    <listitem>
-    <para>
-    Accepts either "file" or "text".  When
-    <emphasis>content</emphasis> is "file", the element's text value is treated
-    as a <varname>PATH</varname> to a file, whereas when it is "text", the
-    element's text value is interpreted as the raw text to use for creating a
-    file. The default value is "file".
-    </para>
-    </listitem>
-    </varlistentry>
-    </variablelist>
+    <xi:include href="common.xml"
+                xpointer="xpointer(//*[@id='attribute-content']/*)"/>
 
   </section>
 
@@ -78,22 +58,11 @@
 
     <section>
     <title>
-    Example 1 - including a kickstart file
-    </title>   
-    <informalexample>
-    <programlisting>
-&lt;kickstart&gt;ks.cfg&lt;/kickstart&gt;
-    </programlisting>
-    </informalexample>
-    </section>
-
-    <section>
-    <title>
-    Example 2 - including kickstart text
+    Example 1 - including kickstart text
     </title>
     <informalexample>
     <programlisting>
-&lt;kickstart content="text"&gt;
+&lt;kickstart&gt;
 install
 lang en_US
 network bootproto=dhcp 
@@ -109,20 +78,17 @@ reboot
     </programlisting>
     </informalexample>
     </section>
-  </section>
 
-  <section>
+    <section>
     <title>
-    See Also
+    Example 2 - including an external kickstart file using XInclude
     </title>
-
-    <para>
-    <varname><xref linkend="content-path" /></varname>,
-    <varname><xref linkend="content-basename" /></varname>,
-    <xref linkend="bootiso" />, 
-    <xref linkend="diskboot-image" />,
-    <xref linkend="iso" />,
-    <xref linkend="boot-args-macros" />
-    </para>
+    <informalexample>
+    <programlisting>
+&lt;kickstart&gt;&lt;xi:include href="ks.cfg" parse="text"/&gt;&lt;/kickstart&gt;
+    </programlisting>
+    </informalexample>
+    </section>
   </section>
+
 </section>

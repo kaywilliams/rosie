@@ -1,119 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="defining-a-solution" xreflabel="Defining a System">
-  <title>Defining a System</title>
-
-  <para>To define your Samba solution, you will need to do the following:</para>
-
-  <para><itemizedlist>
-      <listitem>
-        <para>Define some basic solution information;</para>
-      </listitem>
-
-      <listitem>
-        <para>Select the repositories from which to download the operating
-        system, the Samba RPMs and any dependency files;</para>
-      </listitem>
-
-      <listitem>
-        <para>Define the application groups and packages to include with the
-        operating system; and</para>
-      </listitem>
-
-      <listitem>
-        <para>Provide configuration information.</para>
-      </listitem>
-    </itemizedlist></para>
-
-  <section>
-    <title>Creating a solution definition</title>
-
-    <para>The first step to creating a solution is creating the
-    solution definition. The solution definition is a text file in XML format. It can
-    be created using any text editor - vi, emacs, nano, or gedit - or 
-    a dedicated XML editor, if you prefer. The tags &lt;solution&gt; and 
-    &lt;/solution&gt; encapsulate all additional elements and attributes.
-    </para>
-
-    <para><informalexample>
-      <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;solution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
-
-&lt;!-- Additional elements and attributes --&gt;
-
-&lt;/solution&gt;</programlisting>
-    </informalexample></para>
-
-    <para>The first line, beginning in "&lt;?xml", identifies the file
-    as an XML file. This line is not required, but is a good practice for
-    compatibility with future XML format changes.</para>
-
-    <para>Likewise, the "xmlns:xi..." attribute is not required on the 
-    solution element. It allows the use of xinclude statements within the
-    document. XIncludes, a convenient mechanism for reusing content across 
-    multiple definitions, are discussed in Chapter 4, 
-    "Creating a Production Environment".</para>   
-
-  </section>
-
-  <section>
-    <title>Naming a solution</title>
-
-    <para>The first required element of the definition, 
-    <emphasis>main</emphasis>, includes the name of the solution, the solution
-    architecture and the version. These three items make up the default
-    solution id (<varname>$ID</varname>), which CentOS Studio uses to create
-    folders for storing the completed solution (under 
-    <filename type="directory">/var/www/html/solutions</filename>, by
-    default) and for caching solution content (under 
-    <filename type="directory">/var/cache/centosstudio</filename>, by default).
-    </para>
-
-    <para><note>
-        <para>The elements can be in any order within a solution definition
-        file.</para>
-      </note></para>
-
-    <para>In the example below, the solution version will be 5, the solution
-    architecture will be i386, and the <varname>$ID</varname> will
-    be <filename>samba-server-5-i386</filename>. </para>
-
-    <para><informalexample>
-      <programlisting>
-&lt;main&gt;
-  &lt;name&gt;samba-server&lt;/name&gt;
-  &lt;version&gt;5&lt;/version&gt;
-  &lt;arch&gt;i386&lt;/arch&gt;
-&lt;/main&gt;</programlisting>
-    </informalexample></para>
-
-    <para>You can override the default solution id using an
-    <emphasis>id</emphasis> element. See the SDFR for more details about the
-    <emphasis>main</emphasis> element.</para>
-
-    <para>Save the file as <filename>samba-server.definition</filename> before
-    preceding.</para>
-
-    <para><note>
-        <para>Each time you change a solution's id, either implicitly by
-        changing the <emphasis>name</emphasis>, <emphasis>version</emphasis> or 
-        <emphasis>arch</emphasis> elements, or explicitly by changing the
-        <emphasis>id</emphasis> element, CentOS Studio creates new folders for
-        it in the publish and cache folders 
-        (<emphasis>/var/www/html/solutions</emphasis> and 
-        <emphasis>/var/cache/centosstudio</emphasis>, by default,
-        respectively). To preserve hard drive space, you may wish to review 
-        the publish and cache folders on occasion. Folders for obsolete
-        solutions can be deleted using standard file system methods
-        (e.g. <command>rm -rf <emphasis>obsolete_folder</emphasis></command>).
-        </para>
-      </note></para>
-
-  </section>
-
-  <section id="specifying-repositories" xreflabel="Specifying Repositories">
-    <title>Specifying repositories</title>
+<section id="specifying-repositories" xreflabel="Specifying Repositories">
+  <title>Specifying Repositories</title>
 
     <para>CentOS Studio obtains software from RPM package repositories. 
     Repositories are collections of RPMs with associated metadata files. 
@@ -132,14 +21,14 @@
 
     <itemizedlist>
 
-      <listitem><para>Operating System Base Repository. For CentOS, this will be
+      <listitem><para>Operating Solution Base Repository. For CentOS, this will be
       a public or local mirror. For Red Hat Enterprise Linux, an install tree
       created using an ISO image file. This repository is unique in that it also
       contains <filename class="directory">isolinux</filename> and 
       <filename class="directory">images</filename> folders. Your definition
       must include an operating system base repository.</para></listitem>
 
-      <listitem><para>Operating System Update Repositories. For CentOS, again
+      <listitem><para>Operating Solution Update Repositories. For CentOS, again
       this will be a public or local mirror. For Red Hat Enterprise Network, a
       channel within Red Hat Network. Typically, your definition will include
       both base and updates repositories.</para></listitem>
@@ -169,13 +58,15 @@
 &lt;repos&gt;
 
   &lt;repo id="base"&gt;
-    &lt;name&gt;CentOS-5-Base&lt;/name&gt;
-    &lt;baseurl&gt;http://mirror.centos.org/centos/5/os/i386/&lt;/baseurl&gt;
+    &lt;name&gt;CentOS-$version-Base&lt;/name&gt;
+    &lt;baseurl&gt;http://mirror.centos.org/centos/$version/os/$arch/&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://mirror.centos.org/centos/$version/os/$arch/RPM-GPG-KEY-CentOS-$version&lt;/gpgkey&gt;
   &lt;/repo&gt;
 
   &lt;repo id="updates"&gt;
-    &lt;name&gt;CentOS-5-Updates&lt;/name&gt;
-    &lt;baseurl&gt;http://mirror.centos.org/centos/5/updates/i386/&lt;/baseurl&gt;
+    &lt;name&gt;CentOS-$version-Updates&lt;/name&gt;
+    &lt;baseurl&gt;http://mirror.centos.org/centos/$version/updates/$arch/&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://mirror.centos.org/centos/$version/os/$arch/RPM-GPG-KEY-CentOS-$version&lt;/gpgkey&gt;
   &lt;/repo&gt;
 
 &lt;/repos&gt;</programlisting>
@@ -257,14 +148,16 @@
 
   &lt;repo id="base"&gt;
     &lt;name&gt;Red Hat Enterprise Linux - Base&lt;/name&gt;
-    &lt;baseurl&gt;http://www.examplecompany.com/install_server/redhat/enterprise/
-            5/en/os/i386&lt;/baseurl&gt;
+    &lt;baseurl&gt;http://www.examplecompany.com/install_server/redhat/enterprise/$versionServer/en/os/$arch&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/$versionServer/en/os/$arch/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
+
   &lt;/repo&gt;
 
   &lt;repo id="updates"&gt;
     &lt;name&gt;Red Hat Enterprise Linux - Updates&lt;/name&gt;
-    &lt;baseurl&gt;rhn://xmlrpc.rhn.examplecompany.com/rhel-i386-server-5&lt;/baseurl&gt;
-    &lt;systemid&gt;systemid-5Server-i386&lt;/systemid&gt;
+    &lt;baseurl&gt;rhn://xmlrpc.rhn.examplecompany.com/rhel-$arch-server-$version&lt;/baseurl&gt;
+    &lt;gpgkey&gt;http://www.examplecompany.com/install_server/redhat/enterprise/$versionServer/en/os/$arch/RPM-GPG-KEY-redhat-release&lt;/gpgkey&gt;
+    &lt;systemid&gt;systemid-$versionServer-$arch&lt;/systemid&gt;
   &lt;/repo&gt;
 
 &lt;/repos&gt; 
@@ -277,272 +170,5 @@
     <para>Now that you've identified package repositories, you are ready
     to start including packages.</para>
 
-  </section>
-
-  <section>
-    <title>Specifying packages</title>
-
-    <para>Once you have defined your repositories, you specify the software
-    packages and groups to include. Use the <emphasis>packages</emphasis>
-    top-level element to accomplish this.</para>
-
-    <para>The example below includes package groups for the <application
-    class="software">Samba</application> application and related tools plus an
-    X Window System.</para>
-
-    <para><informalexample>
-      <programlisting>
-&lt;packages&gt;
-  &lt;group&gt;core&lt;/group&gt;
-  &lt;group&gt;base&lt;/group&gt;
-  &lt;group&gt;base-x&lt;/group&gt;
-  &lt;group&gt;gnome-desktop&lt;/group&gt;
-  &lt;group&gt;admin-tools&lt;/group&gt;
-  &lt;group&gt;smb-server&lt;/group&gt;
-&lt;/packages&gt;  </programlisting>
-    </informalexample></para>
-
-    <para>The solution will include the <application
-    class="software">GNOME</application> graphical user interface (GUI) and
-    common system administration tools.</para>
-  </section>
-
-  <section id="configuring-clients" xreflabel="Configuring Client Machines">
-    <title>Configuring client machines</title>
-
-    <para>The final step for your samba-server definition is to specify 
-    configuration for client machines. 
-    <application class="software">CentOS Studio</application> allows you to deploy
-    and update client machine configuration in the same manner as you deploy and update 
-    individual software components, using an RPM package. This simplifies your 
-    tasks as a system administrator by allowing you to manage software and 
-    configuration using uniform tools and processes. Creating RPM packages 
-    manually can be cumbersome and time consuming. 
-    <application class="software">CentOS Studio</application> makes it easy by 
-    creating the <xref linkend="configuration-package"/> automatically during the build process, based 
-    on information you provide in the solution definition.</para>
-   
-    <para>Using the <emphasis>config</emphasis> element, you can complete the
-    following:
-
-    <itemizedlist>
-      <listitem>Configure <application class="software">YUM</application>.
-      </listitem>
-
-      <listitem>Install files and folders, either as new files or to replace files installed by other packages.</listitem>
-
-      <listitem>Run scripts that perform actions when RPM packages are installed
-      or uninstalled.</listitem>
-
-      <listitem>Require packages to be installed prior to installing the configuration package. This prevents your files from being overwritten, and ensures that your scripts operate as expected.</listitem>
-
-    </itemizedlist></para>
-
-    <section>
-      <title>Configuring updates</title>
-      <para>CentOS Studio creates a configuration package by default, even if 
-      no <emphasis>config</emphasis> element is specified in the definition. In
-      this case, the configuration package performs just two actions:
-
-      <itemizedlist>
-        <listitem>Installs a plugin module for YUM that allows synchronizing 
-        packages on the client machine with packages in the solution
-        repository. See <xref linkend="updating-client-machines"/> for more
-        information on the 
-        <application class="software">YUM Sync Plugin</application>.</listitem>
-
-        <listitem>Installs a repository definition for the 
-        <xref linkend="solution"/>. Use the 
-        <command>man yum.conf</command> command for more information on YUM 
-        repository definitions. For clients installed using the samba-server
-        solution, the file will be installed at 
-        <filename>/etc/yum.repos.d/samba-server.repo</filename>.
-        </listitem>
-      </itemizedlist>
-      </para>
-
-      <para>The sync plugin can be disabled on individual client machines using 
-      the <filename>/etc/yum/yumplugin.d/sync.conf</filename> file. The sync 
-      plugin can be excluded from the configuration package altogether using
-      the <emphasis>config/updates</emphasis> element. See the SDFR for more 
-      information on <application class="software">YUM</application> update 
-      configuration using the <emphasis>/config/updates</emphasis> element.
-      </para>
-
-      <para>For the samba-server example, you will use the default update
-       settings.</para>
-
-    </section>
-
-    <section>
-      <title>Installing files</title>
-
-      <para>The <emphasis>config</emphasis> element allows you to specify files to be installed at certain locations on the client system. For the samba-server system, you will install two files, a <filename>smb.conf</filename> file for configuring the samba server, and a <filename>yum-sync.sh</filename> cron script file for executing the <command>yum sync</command> command, provided by the YUM Sync Plugin, on a daily basis.</para>
-
-      <para>First, create a basic smb.conf file containing the following content. For this example we are configuring the samba server to provide anonymous, read-only access to content in the client machine's <filename>/public</filename> folder. </para>
-
-      <para><informalexample>
-        <programlisting>
-[global]
-  workgroup = WORKGROUP
-  netbios name = SAMBA
-  security = share
-
-[public]
-  comment = Public
-  path = /public
-  read only = no
-  guest only = yes
-        </programlisting>
-      </informalexample></para>
-
-      <para>Save the smb.conf file in the same folder as the <filename>samba-server.definition.</filename></para>
-
-      <para>Next, add the following section to your samba-server.definition file:</para>
-
-      <para><informalexample>
-        <programlisting>
-&lt;config&gt;
-
-  &lt;!-- samba configuration --&gt;
-  &lt;files destdir="/etc/samba" mode="644"&gt;smb.conf&lt;/files&gt;
-
-  &lt;!-- yum configuration --&gt;
-  &lt;files destname="yum-sync.cron" destdir="/etc/cron.daily" mode="644"
-  content="text"&gt;
-#!/bin/sh
-/usr/bin/yum sync
-  &lt;/files&gt;
-
-&lt;/config&gt;
-        </programlisting>
-      </informalexample></para>
-
-      <para>The example above includes two <emphasis>files</emphasis> elements. The first element directs CentOS Studio to locate a file named smb.conf in the same folder as the solution definition, download it, include it in the configuration package for installation to the <filename>/etc/samba</filename> folder with the file mode "644". The second element directs CentOS Studio to create a new file named <filename>yum-sync.cron</filename>, containing the text supplied between the &lt;files&gt; and &lt;/files&gt; tags, and include it configuration package for installation to the <filename>/etc/cron.daily</filename> folder with the mode "644".</para>
-
-      <note>CentOS Studio resolves all paths in the definition relative to the definition's folder location.</note>
-      <note>The attribute value <emphasis>content="text"</emphasis> provides a convenient way to include short files and scripts without needing to create and manage separate files on disk. Larger files can also be created this way, however, this makes the definition more difficult to read.</note>
-
-    </section>
-
-    <section>
-      <title>Executing scripts</title>
-
-      <para>The <emphasis>config</emphasis> element also allows you to run scripts when packages are installed and uninstalled.</para>
-
-      <para>For the samba-server example, let's include a script to restart the samba daemon each time the configuration package is installed or updated.</para>
-
-      <para><informalexample>
-        <programlisting>
-&lt;config&gt;
-
-  ...
-
-  &lt;script type="post" content="text"&gt;service smb restart&lt;/script&gt;
-
-&lt;/config&gt;
-        </programlisting>
-      </informalexample></para>
-
-      <para>Scripts are discussed in more detail under <xref linkend="using-scripts-and-triggers"/>.</para>
-
-    </section>
-
-    <section>
-      <title>Requiring Packages</title>
-
-      <para>Using the <emphasis>requires</emphasis> element you can specify packages that must be installed prior to installing the configuration package, for example, so that your scripts will execute as expected.</para>
-
-      <para>For the samba-server example, the <emphasis>samba</emphasis> package is required to enable the command <command>service smb restart</command> used in the <emphasis>script</emphasis> element above.</para>
-
-      <para><informalexample>
-        <programlisting>
-&lt;config&gt;
-  ...
-
-  &lt;requires&gt;samba&lt;/requires&gt;
-
-&lt;/config&gt;
-        </programlisting>
-      </informalexample></para>
-
-    </section>
-
-    <para>For more information on child elements of <emphasis>config</emphasis>,
-    see the <emphasis>config</emphasis> element in the SDFR.</para>
-
-  </section>
-
-  <section>
-    <title>Validating a definition</title>
-
-    <para>Your complete samba-server solution definition should now look as follows:</para>
-
-    <para><informalexample>
-      <programlisting>
-&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;solution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
-
-&lt;main&gt;
-  &lt;name&gt;samba-server&lt;/name&gt;
-  &lt;version&gt;5&lt;/version&gt;
-  &lt;arch&gt;i386&lt;/arch&gt;
-&lt;/main&gt;
-
-&lt;repos&gt;
-  &lt;repo id="base"&gt;
-    &lt;name&gt;CentOS-5-Base&lt;/name&gt;
-    &lt;baseurl&gt;http://mirror.centos.org/centos/5/os/i386/&lt;/baseurl&gt;
-  &lt;/repo&gt;
-  &lt;repo id="updates"&gt;
-    &lt;name&gt;CentOS-5-Updates&lt;/name&gt;
-    &lt;baseurl&gt;http://mirror.centos.org/centos/5/updates/i386/&lt;/baseurl&gt;
-  &lt;/repo&gt;
-&lt;/repos&gt;
-
-&lt;packages&gt;
-  &lt;group&gt;core&lt;/group&gt;
-  &lt;group&gt;base&lt;/group&gt;
-  &lt;group&gt;base-x&lt;/group&gt;
-  &lt;group&gt;gnome-desktop&lt;/group&gt;
-  &lt;group&gt;admin-tools&lt;/group&gt;
-  &lt;group&gt;smb-server&lt;/group&gt;
-&lt;/packages&gt;  
-
-&lt;config&gt;
-  &lt;!-- samba configuration --&gt;
-  &lt;files destdir="/etc/samba" mode="644"&gt;smb.conf&lt;/files&gt;
-  &lt;script type="post" content="text"&gt;service smb restart&lt;/script&gt;
-  &lt;requires&gt;samba&lt;/requires&gt;
-
-  &lt;!-- yum configuration --&gt;
-  &lt;files destname="yum-sync.cron" destdir="/etc/cron.daily" mode="644"
-  content="text"&gt;
-#!/bin/sh
-/usr/bin/yum sync
-  &lt;/files&gt;
-
-&lt;/config&gt;
-
-&lt;/solution&gt;
-      </programlisting>
-    </informalexample></para>
-
-    <para>Once your definition is complete, you can use 
-    <application class="software">CentOS Studio</application> to validate
-    it's syntax.</para>
-
-    <para>
-    <informalexample>
-      <programlisting>#centosstudio --validate-only samba-server.definition</programlisting>
-    </informalexample>
-    </para>
-
-    <para>If your definition is valid, 
-    <application class="software">CentOS Studio</application> will display the 
-    complete definition and exit. Otherwise, it will display error information,
-    allowing you to locate and correct issues.</para>
-
-  </section>
-
 </section>
+

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="updating-client-machines" xreflabel="Updating Client Machines">
+  <title>Updating Client Machines</title>
+
+  <para>
+  a <filename>yum-sync.sh</filename> cron script file for executing the
+  <command>yum sync</command> command, provided by the YUM Sync Plugin, on
+  a dailiy basis.</para>
+
+  <para>The
+  second element directs CentOS Studio to create a new file named
+  <filename>yum-sync.cron</filename>, containing the text supplied between
+  the &lt;files&gt; and &lt;/files&gt; tags, and include it configuration
+  package for installation to the <filename>/etc/cron.daily</filename>
+  folder with the mode "644".</para>
+
+  <para><informalexample>
+    <programlisting>
+&lt;config&gt;
+
+...
+
+  &lt;!-- yum configuration --&gt;
+  &lt;files destname="yum-sync.cron" destdir="/etc/cron.daily" mode="644"
+  content="text"&gt;
+#!/bin/sh
+/usr/bin/yum sync
+  &lt;/files&gt;
+
+&lt;/config&gt;
+    </programlisting>
+  </informalexample></para>
+
+
+
+  <para>CentOS Studio makes it easy to keep installed client machines up to date with changes. This is done using automated builds and the <application class="software">YUM Sync Plugin</application>.</para> 
+
+  <para><emphasis role="strong">Automated Builds.</emphasis> CentOS Studio runs from the command line with no need for manual intervention. Because of this, CentOS Studio can be automated to refresh solutions on a periodic basis, e.g. nightly, using job scheduling programs such as <command>cron</command>. Doing so has two benefits. First, it ensures that your solutions are current and ready to install or reinstall new clients. Second, it allows solutions to serve as "master repositories", providing ongoing updates to client machines via the YUM Sync Plugin tool. More information on using <command>cron</command> to automate CentOS Studio builds is available in Chapter 4, Creating a Production Environment.</para>
+
+  <mediaobject>
+    <imageobject>
+      <imagedata fileref="updates.png" />
+    </imageobject>
+
+    <caption><para>CentOS Studio Update Model</para></caption>
+  </mediaobject>
+
+  <para><emphasis role="strong">YUM Sync Plugin.</emphasis> The CentOS Studio product provides a small extension to YUM, the <emphasis>YUM Sync Plugin</emphasis> that allows keeping installed clients up to date with changes in the solution or "master" repository. The YUM SyncPlugin is installed to client machines by default via the <xref linkend="configuration-package" />. The plugin performs two functions:</para>
+
+  <itemizedlist>
+  <listitem><para>Establishes the <xref linkend="solution"/> as the master repository for the client system. This disables all other default package repositories, allowing the plugin to get an accurate list of what packages <emphasis>should be installed</emphasis> on the system using packages available in the solution.</para></listitem>
+
+  <listitem><para>Provides a new command line argument <emphasis>sync</emphasis> for use with YUM:</para>
+  <informalexample><para><command># yum sync</command></para></informalexample>
+	<para>The <emphasis>sync</emphasis> argument behaves similarly to the YUM <emphasis>update</emphasis> argument, with two additions: 1) it adds packages from the solution that are not installed on the client, and 2) it removes packages from the client that do not exist in the repository.</para> 
+  </listitem>
+  </itemizedlist>
+
+  <para>See the section on <xref linkend="updating-a-client-machine"/> for details and an example of YUM Sync Plugin usage.</para>
+
+</section>

@@ -9,7 +9,7 @@
   </title>
 
   <para>
-  Common attributes and elements, constants and variables are used
+  Common attributes, elements and constants are used
   throughout this reference document and have been included here to be concise.
   The descriptions provide a general overview of the item with more detail
   about values and behavior. Documentation for each top-level element may
@@ -23,9 +23,6 @@
               xpointer="xpointer(/*/*)" />
 
   <xi:include href="CommonComponents-Content.xml"
-              xpointer="xpointer(/*/*)" />
-
-  <xi:include href="CommonComponents-Variables.xml"
               xpointer="xpointer(/*/*)" />
 
 </chapter>

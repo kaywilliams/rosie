@@ -3,7 +3,7 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="packages" xreflabel="packages">
   <title>
-  Packages
+  Packages (required)
   </title>
 
   <section id="packages-definition">
@@ -104,11 +104,9 @@
 
       <listitem>
       <para>
-      The name of a package to be included in the solution. All packages
-      included in this way are added to a new group with the name
-      <constant>$NAME-packages</constant>. If the <varname>TEXT</varname>
-      value contains globbing characters, all matching packages from all
-      repositories will be included.
+      The name of a package to be included in the solution. If the
+      <varname>TEXT</varname> value contains globbing characters, all matching
+      packages from all repositories will be included.
       </para>
 
       <para>
@@ -129,39 +127,36 @@
     </title>
 
     <para>
-    In the following example, the solution's <varname>$NAME</varname> is
-    "example". The solution that CentOS Studio generates will include
-    several groups from the groupfiles of its input repositories as well as
-    a few individual packages. The "base" and "core" groups  will be created
-    using the "centos-base" repository as the source; all remaining groups
-    will merge the contents of all repositories' groupfiles. Additionally,
-    the "httpd" and "createrepo" packages, as well as all packages matching
-    the glob "samba*", will be added to a new group called
-    "example-packages". Finally, the "system-config-soundcard" package will
-    be excluded from the solution.
+    The solution that CentOS Studio generates will include packages from
+    several groups as well as a few individual packages. Packages from the
+    "base" and "core" groups of the "centos-base" repository will be included.
+    Packages from the remaining groups will be included, irrespective of the
+    repository in which they are defined. Additionally, the "httpd" and
+    "createrepo" packages, as well as all packages matching the glob "samba*"
+    will be included. Finally, the "system-config-soundcard" package will be
+    excluded from the solution.
     </para>
 
     <informalexample>
     <programlisting>
 &lt;packages&gt;
-  &lt;!-- only look at the groupfiles in "centos-base" for these groups --&gt;
+  &lt;!-- include packages from these groups in the "centos-base" repo --&gt;
   &lt;group id="centos-base"&gt;core&lt;/group&gt;
   &lt;group id="centos-base"&gt;base&lt;/group&gt;
 
-  &lt;!-- use all available groupfiles for these groups --&gt;
+  &lt;!-- include packages from these groups defined in any repo --&gt;
   &lt;group&gt;base-x&lt;/group&gt;
   &lt;group&gt;gnome-desktop&lt;/group&gt;
   &lt;group&gt;smb-server&lt;/group&gt;
   &lt;group&gt;admin-tools&lt;/group&gt;
   &lt;group&gt;web-server&lt;/group&gt;
 
-  &lt;!-- include these package in "$NAME-packages" group --&gt;
+  &lt;!-- include these packages --&gt;
   &lt;package&gt;httpd&lt;/package&gt;
   &lt;package&gt;samba*&lt;/package&gt;
   &lt;package&gt;createrepo&lt;/package&gt;
 
-  &lt;!-- prevent system-config-soundcard from being included in the 
-  solution --&gt;
+  &lt;!-- exclude system-config-soundcard from the solution --&gt;
   &lt;exclude&gt;system-config-soundcard&lt;/exclude&gt;
 &lt;/packages&gt;  
     </programlisting>

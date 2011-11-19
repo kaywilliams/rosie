@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section>
-  <title>Choosing a Use Case: A Samba Server</title>
+
+<section id="creating-a-solution-definition" xreflabel="Creating a Solution Definition">
+  <title>Creating a Solution Definition</title>
 
   <para>For the purpose of this user guide, examples, processes and
   illustrations will focus on defining, building, deploying and updating a
@@ -10,9 +11,9 @@
   <application class="software">CentOS 5</application>. Samba is a project of
   the <ulink url="http://conservancy.softwarefreedom.org/">Software Freedom
   Conservancy</ulink>. Samba is a key interoperability component in a blended
-  operating system environment. When installed on a Linux or Unix operating system, it enables that system
-  to act like a Windows file or print server, enabling Windows users to print
-  to or save files using it.</para>
+  operating system environment. When installed on a Linux or Unix operating
+  system, it enables that system to act like a Windows file or print server,
+  enabling Windows users to print to or save files using it.</para>
 
   <para>The discussions and code examples in this chapter and subsequent parts
   focus on a Samba server based on CentOS 5 that enables print and file
@@ -20,17 +21,99 @@
   installed via the network directly from the build machine. The SDFR provides
   the syntax for all parent and child elements and their attributes.</para>
 
-  <para>Creating the <application class="software">Samba</application>
-  server solution entails several process steps. After configuring
-  the <application class="software">CentOS Studio</application> build machine,
-  as described in the previous chapter, you need to create a solution
-  solution definition 
-  (<filename class="extension">samba-server.definition</filename>). Then
-  you run <command>centosstudio</command> to validate the file, retrieve
-  the packages and build the solution. From there you prepare the boot
-  media.</para>
+  <para>Creating the Samba server solution entails several steps. After
+  configuring the <application class="software">CentOS Studio</application>
+  build machine, as described in the previous chapter, you need to create a
+  solution definition (<filename
+  class="extension">samba-server.definition</filename>). Then you run
+  <command>centosstudio</command> to validate the file and and build the
+  solution.</para>
 
-  <para>The next section will explain how to define the system
-  before you build it and prepare for deployment to a client
-  system.</para>
+  <para>The next section will explain how to define the solution.</para>
+
+ <section>
+    <title>Creating a solution definition</title>
+
+    <para>A solution definition is a text file in XML format. It can
+    be created using any text editor - vi, emacs, nano, or gedit - or 
+    a dedicated XML editor, if you prefer. The tags &lt;solution&gt; and 
+    &lt;/solution&gt; encapsulate all additional elements and attributes.
+    </para>
+
+    <para><informalexample>
+      <programlisting>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;solution xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+
+&lt;!-- Additional elements and attributes --&gt;
+
+&lt;/solution&gt;</programlisting>
+    </informalexample></para>
+
+    <para>The first line, beginning in "&lt;?xml", identifies the file
+    as an XML file. This line is not required, but it is a good practice to
+    includ it for compatibility with future XML format changes.</para>
+
+    <para>Likewise, the "xmlns:xi..." attribute is not required on the 
+    solution element. It allows the use of XIncludes within the
+    document. XIncludes, a convenient mechanism for reusing content across 
+    multiple definitions, are discussed in the Solution Definition File
+    Reference (SDFR).</para>   
+
+  </section>
+
+  <section>
+    <title>Naming a solution</title>
+
+    <para>The first required element of the definition, 
+    <emphasis>main</emphasis>, includes the name of the solution, the solution
+    architecture and the version. These three items make up the default
+    solution id (<varname>$ID</varname>), which CentOS Studio uses to create
+    folders for storing the completed solution (under 
+    <filename type="directory">/var/www/html/solutions</filename>, by
+    default) and for caching solution content (under 
+    <filename type="directory">/var/cache/centosstudio</filename>, by default).
+    </para>
+
+    <para><note>
+        <para>The elements can be in any order within a solution definition.
+        </para>
+      </note></para>
+
+    <para>In the example below, the solution version will be 5, the solution
+    architecture will be i386, and the <varname>$ID</varname> will
+    be <filename>samba-server-5-i386</filename>. </para>
+
+    <para><informalexample>
+      <programlisting>
+&lt;main&gt;
+  &lt;name&gt;samba-server&lt;/name&gt;
+  &lt;version&gt;5&lt;/version&gt;
+  &lt;arch&gt;i386&lt;/arch&gt;
+&lt;/main&gt;</programlisting>
+    </informalexample></para>
+
+    <para>You can override the default solution id using an
+    <emphasis>id</emphasis> element. See the SDFR for more details about the
+    <emphasis>main</emphasis> element.</para>
+
+    <para>Save the file as <filename>samba-server.definition</filename> before
+    preceding.</para>
+
+    <para><note>
+        <para>Each time you change a solution's id, either implicitly by
+        changing the <emphasis>name</emphasis>, <emphasis>version</emphasis> or 
+        <emphasis>arch</emphasis> elements, or explicitly by changing the
+        <emphasis>id</emphasis> element, CentOS Studio creates new folders for
+        it in the publish and cache folders 
+        (<emphasis>/var/www/html/solutions</emphasis> and 
+        <emphasis>/var/cache/centosstudio</emphasis>, by default,
+        respectively). To preserve hard drive space, you may wish to review 
+        the publish and cache folders on occasion. Folders for obsolete
+        solutions can be deleted using standard file system methods
+        (e.g. <command>rm -rf <emphasis>obsolete_folder</emphasis></command>).
+        </para>
+      </note></para>
+
+  </section>
+
 </section>

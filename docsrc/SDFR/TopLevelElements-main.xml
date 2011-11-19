@@ -3,7 +3,7 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="main" xreflabel="main">
   <title>
-  Main
+  Main (required)
   </title>
 
   <section>
@@ -22,12 +22,12 @@
 
     <programlisting>
 &lt;main&gt;
-  &lt;arch&gt;("i386"|"x86_64")&lt;/arch&gt;
   &lt;name&gt;TEXT&lt;/name&gt;
-  &lt;version&gt;TEXT&lt;/version&gt;
- [&lt;bug-url&gt;TEXT&lt;/bug-url&gt;]
+  &lt;version&gt;("5"|"6")&lt;/version&gt;
+  &lt;arch&gt;("i386"|"x86_64")&lt;/arch&gt;
  [&lt;fullname&gt;TEXT&lt;/fullname&gt;]
  [&lt;id&gt;TEXT&lt;/id&gt;]
+ [&lt;bug-url&gt;TEXT&lt;/bug-url&gt;]
  [&lt;log-file&gt;PATH&lt;/log-file&gt;]
 &lt;/main&gt;
     </programlisting>
@@ -39,22 +39,68 @@
     </title>
 
     <variablelist>
+    <varlistentry id="main-name"
+                  xreflabel="\$name">
+      <term>
+      name
+      </term>
+
+      <listitem>
+      <para>
+      The name of the solution.
+      </para>
+
+      <para>
+      The text value of this element can be accessed within other elements 
+      and attributes of the definition using the builtin macro 
+      <varname>$name</varname>.
+      </para>
+
+      <para>
+      This element is required.
+      </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry id="main-version"
+                  xreflabel="\$version">
+      <term>
+      version
+      </term>
+
+      <listitem>
+      <para>
+      The version of the base operating system for the solution. Valid values
+      are "5" and "6". 
+      </para>
+
+      <para>
+      The text value of this element can be accessed within other elements 
+      and attributes of the definition using the builtin macro 
+      <varname>$version</varname>.
+      </para>
+
+      <para>
+      This element is required.
+      </para>
+      </listitem>
+    </varlistentry>
+
     <varlistentry id="main-arch"
-                  xreflabel="main/arch">
+                  xreflabel="\$arch">
       <term>
       arch
       </term>
 
       <listitem>
       <para>
-      The microprocessor architecture label for the target client
-      machines. Used to resolve $releasever variables used in repository
-      definitions. See the <emphasis>repos</emphasis> element for more
-      information. Accepts either "i386" or "x86_64".</para>
+      The architecture of the base operating system for the solution.
+      Accepts either "i386" or "x86_64".</para>
 
       <para>
-      Throughout this document, the text value of this element is
-      referred to by <varname>$ARCH</varname>.
+      The text value of this element can be accessed within other elements 
+      and attributes of the definition using the builtin macro 
+      <varname>$arch</varname>.
       </para>
 
       <para>
@@ -64,25 +110,6 @@
     </varlistentry>
 
     <varlistentry>
-      <term>
-      bug-url
-      </term>
-
-      <listitem>
-      <para>
-      <varname>TEXT</varname> specifying a way for client system
-      users to report system installation bugs. Displays when bugs are
-      encountered during during client machine installation.
-      </para>
-
-      <para>
-      The default value is "No bug url provided".
-      </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry id="main-fullname"
-                  xreflabel="main/fullname">
       <term>
       fullname
       </term>
@@ -94,13 +121,13 @@
       </para>
 
       <para>
-      The default value is <varname>$NAME</varname>.
+      The default value is <xref linkend="main-name"/>.
       </para>
       </listitem>
     </varlistentry>
 
     <varlistentry id="main-id"
-                  xreflabel="main/id">
+                  xreflabel="\$id">
       <term>
       id
       </term>
@@ -114,13 +141,16 @@
       </para>
 
       <para>
-      The default value is <varname>$NAME-$VERSION-$ARCH</varname>.
+      The default value is <xref linkend="main-name"/>-<xref
+      linkend="main-version"/>-<xref linkend="main-arch"/>.
       </para>
 
       <para>
-      Throughout this document, the text value of this element is referred
-      to by <varname>$ID</varname>.
+      The text value of this element can be accessed within other elements and
+      attributed of the definition using the builtin macro 
+      <varname>$id</varname>.
       </para>
+
       </listitem>
     </varlistentry>
 
@@ -140,50 +170,6 @@
       </listitem>
     </varlistentry>
 
-    <varlistentry id="main-name"
-                  xreflabel="main/name">
-      <term>
-      name
-      </term>
-
-      <listitem>
-      <para>
-      The name of the solution.
-      </para>
-
-      <para>
-      Throughout this document, the text value of this element is referred
-      to by <varname>$NAME</varname>.
-      </para>
-
-      <para>
-      This element is required.
-      </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry id="main-version"
-                  xreflabel="main/version">
-      <term>
-      version
-      </term>
-
-      <listitem>
-      <para>
-      The version of the target solution. Displays during client 
-      machine installation.
-      </para>
-
-      <para>
-      Throughout this document, the text value of this element is referred
-      to by <varname>$VERSION</varname>.
-      </para>
-
-      <para>
-      This element is required.
-      </para>
-      </listitem>
-    </varlistentry>
     </variablelist>
   </section>
 
@@ -212,10 +198,6 @@
     </title>
 
     <para>
-    <varname><xref linkend="variable-system-id" /></varname>,
-    <varname><xref linkend="variable-arch" /></varname>,
-    <varname><xref linkend="variable-name" /></varname>,
-    <varname><xref linkend="variable-version" /></varname>,
     <varname><xref linkend="content-dirname" /></varname>,
     <varname><xref linkend="content-path" /></varname>,
     <varname><xref linkend="content-text" /></varname>

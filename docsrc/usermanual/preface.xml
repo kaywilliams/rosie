@@ -17,8 +17,8 @@
     <para>This manual complements several <application
     class="software">CentOS Studio</application> documents. The "Installation
     Instructions" and "Getting Started Guide" provide basic information about
-    obtaining and installing CentOS Studio and creating a basic CentOS system
-    repository. The "Solution Definition File Reference" (SDFR) contains
+    obtaining and installing CentOS Studio and creating a basic CentOS solution.
+    The "Solution Definition File Reference" (SDFR) contains
     the syntax for solution definition elements and attributes. 
     Finally, CentOS Studio has a set of 
     <emphasis role="strong">man pages</emphasis> explaining the
@@ -44,8 +44,8 @@
     to build and maintain solutions, and to use solutions
     to install and update client machines. This manual takes a top-down
     approach, explaining the concepts before giving steps, commands and code 
-    examples that you can use to build, deploy and enhance your own system
-    repositories.</para>
+    examples that you can use to build, deploy and enhance your own solutions.
+    </para>
   </section>
 
   <section>
@@ -84,12 +84,12 @@
         <listitem>
           <para>Elements and attributes in XML are referred to by their XPath
           equivalents. The active node is always considered to be the root,
-          system; thus, the first element in the XPath expression is the
+          solution; thus, the first element in the XPath expression is the
           top-level element, while subsequent elements/attributes are its
           children. Top-level elements in the SDFR and their child elements
           use the <emphasis>parent/child/child</emphasis> format, while
           <emphasis>@attribute-names</emphasis> are preceded by an @ symbol.
-          The assumed parent element is <emphasis>system</emphasis>. For
+          The assumed parent element is <emphasis>solution</emphasis>. For
           more details on XPath syntax, see <ulink
           url="http://www.w3.org/TR/xpath.html">XML Path Language</ulink>.
           </para>
@@ -184,10 +184,8 @@ $ precedes lines entered as a normal user</programlisting>
         <term><emphasis role="strong">Variables</emphasis></term>
 
         <listitem>
-          <para>CentOS Studio variables are presented in monospace font preceded by a
-          dollar sign, e.g. <varname>$ID</varname>. Variables outside
-          the CentOS Studio realm appear in lowercase in monospace font preceded by a
-          dollar sign, e.g. <varname>$releasever</varname>.</para>
+          <para>CentOS Studio variables are presented in monospace font
+          preceded by a dollar sign, e.g. <varname>$ID</varname>.</para>
         </listitem>
       </varlistentry>
     </variablelist>
@@ -210,7 +208,7 @@ $ precedes lines entered as a normal user</programlisting>
         <listitem>
           <para>Chapter 2, "Introduction" explains what a solution
           is, how <application class="software">CentOS Studio
-          </application> helps you build one in an efficient timely manner
+          </application> helps you build one in an efficient and timely manner
           and the underlying architecture that makes this improved performance
           possible. The section also includes a "Glossary of Terms" explaining
           terms used within the <application
@@ -218,31 +216,30 @@ $ precedes lines entered as a normal user</programlisting>
         </listitem>
 
         <listitem>
-          <para>Chapter 3, "Building a System," covers the basic
+          <para>Chapter 3, "Building a Solution," covers the basic
           concepts for configuring the <application
           class="software">CentOS Studio</application> build machine,
-          defining and deploying a solution, running <application
-          class="software">CentOS Studio</application> and updating a
+          defining and deploying a solution, and running <application
+          class="software">CentOS Studio</application> to update a
           solution. As a use case model, these sections will help you
-          create a basic <application class="software">Samba</application>
-          server repository based on CentOS 5.</para>
+          create a basic web server solution based on CentOS 6.</para>
         </listitem>
 
         <listitem>
           <para>Chapter 4, "Creating a Production Environment," will help you
-          set up a managed development and deployment environment using
+          set up a managed development, test and deployment environment using
           CentOS Studio as its cornerstone. It explains implementing the 
-          development - staging - production environment within the context of 
+          development - test - production environment within the context of 
           <application class="software">CentOS Studio</application>. The 
-          Samba server solution you created in Part I will have new 
+          web server solution you created in Part I will have new 
           feature requirements to implement in Part II.</para>
 
           <para>Chapter 4 also discusses how CentOS Studio makes your life
-          easier as a system or build administrator. Versioning system 
-          files and utilizing an object-oriented model through the XInclude
-          mechanism for the solution definitions are important usability
-          features. Choosing the best location for storing and downloading
-          a solution via the web is another key concept.</para>
+          easier as a solution administrator. Versioning solution files 
+          files and utilizing an object-oriented model through the macros and 
+          XInclude mechanisms for the solution definitions are important 
+          usability features. Choosing the best location for storing and 
+          downloading a solution via the web is another key concept.</para>
         </listitem>
 
         <listitem>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<!-- scripts for deploying to a local virtual machine - these can be used
+     across test-install, test-update and deploy elements -->
+
+<activate-script>
+#!/usr/bin/python
+import libvirt
+import sys
+connection = libvirt.open('qemu:///system')
+try: #vm exists?
+  vm = connection.lookupByName('$hostname')
+except libvirt.libvirtError:
+  sys.exit(1) # vm does not exist
+if vm.isActive() ==1:
+  sys.exit(0) # vm is active
+elif vm.create() != 0:
+  sys.exit(1) # vm inactive, and failed to start
+</activate-script>
+
+<clean-script>
+#!/bin/bash
+set -e
+if [[ `virsh list` = *$hostname* ]]; then virsh destroy $hostname; fi
+if [[ `virsh list --all` = *$hostname* ]]; then virsh undefine $hostname; fi
+</clean-script>
+
+<install-script>
+#!/bin/bash
+virt-install --name $hostname --ram 1000 \
+             --file /var/lib/libvirt/images/$hostname.img \
+             --file-size 30 \
+             --location $1 \
+             --extra-args "lang=en_US keymap=us ip=dhcp ks=$1/ks.cfg"\
+             --noreboot
+</install-script>
+
+<verify-install-script>
+#!/bin/bash
+if grep "scriptlet failed" /root/install.log 1>/dev/null ; then
+  grep -v "NOKEY$" /root/install.log | \
+  grep -v "*** FINISHED INSTALLING PACKAGES ***" | \
+  grep -v "^Installing "
+  exit 1
+else
+  exit 0
+fi
+</verify-install-script>
+
+<update-script>
+#!/bin/bash
+yum sync -y
+if [[ `uname -r` != `rpm -q kernel | sed s/kernel-//` ]] ; then
+  echo "running kernel differs from installed - restarting machine"
+  shutdown -r now
+fi
+</update-script>
+
+</root>

@@ -2,7 +2,8 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <section id="publish"
-         xreflabel="publish">
+         xreflabel="publish"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>
   Publish
   </title>
@@ -41,7 +42,7 @@
     specify the network interface from which to obtain the IP address.
     To specify a full <varname>PATH</varname> to the solution download
     server, use the <emphasis>publish/remote-url</emphasis> element with
-    a <varname>PATH</varname> in its text value (syntax 2).
+    a <varname>PATH</varname> in its text value.
     </para>
   </section>
 
@@ -50,32 +51,12 @@
     Syntax
     </title>
 
-    <section>
-      <title>
-      Syntax 1 - automatic remote url computation
-      </title>
-
     <programlisting>
 [&lt;publish&gt;
-  [&lt;local-dir&gt;PATH&lt;/local-dir&gt;]
-  [( &lt;remote-url fqdn=TRUE [interface=TEXT]/&gt; |
-     &lt;remote-url [fqdn=FALSE]/&gt; )]
- &lt;/publish&gt;]
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-local-dir-element']/node())"/>
+  <xi:include href="common.xml" xpointer="xpointer(//*[@id='syntax-remote-url-element']/node())"/>
+&lt;/publish&gt;]
     </programlisting>
-    </section>
-
-    <section>
-      <title>
-      Syntax 2 - manual remote url specification
-      </title>
-
-    <programlisting>
-[&lt;publish&gt;
-  [&lt;local-dir&gt;PATH&lt;/local-dir&gt;]
-  [&lt;remote-url&gt;PATH&lt;/remote-url&gt;]
- &lt;/publish&gt;]
-    </programlisting>
-    </section>
   </section>
 
   <section>
@@ -91,15 +72,19 @@
 
       <listitem>
       <para>
-      The <varname>PATH</varname> to a folder to which CentOS Studio publishes
-      the solution. For the solution to be accessible on
-      the web, place the directory in the system’s local webroot, e.g. the 
-      Apache DocumentRoot.
+      The <varname>PATH</varname> to a directory where CentOS Studio will
+      publish this, and potentially other solution repositories. For solution
+      repositories to be accessible on the web, the directory must be in the
+      system’s local webroot, e.g. the Apache <varname>DocumentRoot</varname>.
       </para>
 
       <para>
-      The default text value for this element is
-      <filename>/var/www/html/solutions/$ID</filename>.
+      The default value is
+      <filename>/var/www/html/solutions/<xref linkend="main-id"/></filename>.
+      </para>
+
+      <para>
+      This element is optional.
       </para>
       </listitem>
     </varlistentry>
@@ -111,15 +96,19 @@
 
       <listitem>
       <para>
-      The URL <varname>PATH</varname> to a folder from which client systems
-      can obtain system updates.
+      The URL <varname>PATH</varname> to a directory from which client
+      systems can access this, and potentially other, solution repositories.
       </para>
 
       <para>
       The default behavior is to use
-      <filename>http://$ipaddress/solutions/$ID</filename>,
+      <filename>http://$ipaddress/solutions/<xref linkend="main-id"/></filename>,
       where <varname>$ipaddress</varname> is computed using the value
       of the <emphasis>@interface</emphasis> attribute.
+      </para>
+
+      <para>
+      This element is optional.
       </para>
 
       <para>
@@ -159,7 +148,7 @@
     In the following examples, the build system's fully qualified domain name is
     <filename>buildserver.company.com</filename> and the IP addresses of "eth0" and
     "eth1" are 10.10.1.105 and 192.168.0.10, respectively. It is building a
-    solution with an <varname>$ID</varname> of
+    solution with an <xref linkend="main-id"/> of
     "samba-server-5-i386".
     </para>
 
@@ -173,14 +162,15 @@
       the IP address of the first active network interface ("eth0"). The
       resulting remote url is
       <literallayout>http://10.10.1.105/solutions/samba-server-5-i386</literallayout>
-      In addition, it is using a different location, 
-      <filename>/var/webroot/html/</filename>, rather than the default location.
+      In addition, it is using a different file system location, 
+      <filename>/var/webroot/html/solutions/</filename>, rather than the 
+      default location.
       </para>
 
       <informalexample>
       <programlisting>
 &lt;publish&gt;
-  &lt;local-dir&gt;/var/webroot/html/&lt;/local-dir&gt;
+  &lt;local-dir&gt;/var/webroot/html/solutions/&lt;/local-dir&gt;
 &lt;/publish&gt;
       </programlisting>
       </informalexample>
@@ -235,18 +225,21 @@
       </title>
 
       <para>
-      In this example, the remote url is manually configured. The
-      resulting remote url is
-      <literallayout>http://solutions.company.com/pub/samba-server-5-i386</literallayout>
+      In this example, the solution is created on the build machine, but later
+      moved to a web server, or web server farm, for final publication. In this
+      case, the remote url must be  manually specified. The resulting remote
+      url is
+      <literallayout>http://solutions.company.com/samba-server-5-i386</literallayout>
       </para>
 
       <informalexample>
       <programlisting>
 &lt;publish&gt;
-  &lt;remote-url&gt;http://solutions.company.com/pub/&lt;/remote-url&gt;
+  &lt;remote-url&gt;http://solutions.company.com/&lt;/remote-url&gt;
 &lt;/publish&gt;
       </programlisting>
       </informalexample>
+
     </section>
  
     <section>
@@ -255,15 +248,16 @@
       </title>
 
       <para>
-      In this example, the remote url is manually configured to use an SSL web
-      location. The resulting remote url is
-      <literallayout>https://solutions.company.com/pub/samba-server-5-i386</literallayout>
+      This example is similar to Example 4, except that the remote url is
+      manually configured to use an SSL web location. The resulting remote url
+      is
+      <literallayout>https://solutions.company.com/samba-server-5-i386</literallayout>
       </para>
 
       <informalexample>
       <programlisting>
 &lt;publish&gt;
-  &lt;remote-url&gt;https://solutions.company.com/pub/&lt;/remote-url&gt;
+  &lt;remote-url&gt;https://solutions.company.com/&lt;/remote-url&gt;
 &lt;/publish&gt;
       </programlisting>
       </informalexample>
@@ -276,7 +270,6 @@
     </title>
 
     <para>
-    <varname><xref linkend="variable-system-id" /></varname>,
     <varname><xref linkend="content-boolean" /></varname>,
     <varname><xref linkend="content-path" /></varname>
     </para>

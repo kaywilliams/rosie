@@ -4,7 +4,7 @@
 <section id="repos"
          xreflabel="repos">
   <title>
-  Repos
+  Repos (required)
   </title>
 
   <section>
@@ -186,6 +186,7 @@
       <filename>repoC</filename> in a folder <filename>/var/repos</filename>,
       in order to include all three repos in YUM, a repofile must contain
       three repo entries:
+      </para>
 
       <programlisting>
 [repoA]
@@ -207,6 +208,7 @@ baseurl=/var/repos/repoC
 &lt;/repo&gt;
       </programlisting>
 
+      <para>
       This repository contains all the packages available in each
       of the individual repositories <filename>repoA</filename>,
       <filename>repoB</filename>, and <filename>repoC</filename>.
@@ -230,7 +232,7 @@ baseurl=/var/repos/repoC
       <para>
       The value to use to replace the <varname>$releasever</varname> YUM
       variable in all repository baseurls and/or mirrorlists instead of
-      the default value, <varname>$VERSION</varname>.
+      the default value, <xref linkend="main-version"/>.
       </para>
       </listitem>
     </varlistentry>
@@ -275,7 +277,7 @@ baseurl=/var/repos/repoC
       for the YUM variables <varname>$basearch</varname> and
       <varname>$releasever</varname>. However, instead of using the build
       system's architecture and release version, CentOS Studio defaults to using
-      <varname>$ARCH</varname> and <varname>$VERSION</varname>,
+      <xref linkend="main-arch"/> and <xref linkend="main-version"/>,
       respectively. Top-level elements may define a
       <emphasis>releasever</emphasis> element that overrides the default
       replacement value for <varname>$releasever</varname>.
@@ -537,7 +539,7 @@ baseurl=/var/repos/repoC
     In the following examples, line breaks have been added to the
     <emphasis>repos/repo/baseurl</emphasis> and
     <emphasis>repos/repo/mirrorlist</emphasis> to improve readability.
-    In a real solution definition file, however, line breaks within
+    In a real solution definition, however, line breaks within
     <varname>PATH</varname>-like elements are not allowed.
     </para>
 
@@ -567,20 +569,19 @@ baseurl=/var/repos/repoC
 
   &lt;repo id="base"&gt;
 
-    &lt;!-- $basearch will be replaced by $ARCH, $releasever by $VERSION --&gt;
-    &lt;baseurl&gt;http://mirror.centos.org/centos/$releasever/os/
-          $basearch/&lt;/baseurl&gt;
+    &lt;baseurl&gt;http://mirror.centos.org/centos/$version/os/
+          $base/&lt;/baseurl&gt;
 
     &lt;!-- include a mirrorlist as backup in case baseurl fails --&gt;
-    &lt;mirrorlist&gt;http://mirrorlist.centos.org/?release=$releasever&amp;amp;
-          arch=$basearch&amp;amp;repo=os&amp;amp;country=us&lt;/mirrorlist&gt;
+    &lt;mirrorlist&gt;http://mirrorlist.centos.org/?release=$version&amp;amp;
+          arch=$arch&amp;amp;repo=os&amp;amp;country=us&lt;/mirrorlist&gt;
 
     &lt;!-- exclude all xorg-x11-drv packages --&gt;
     &lt;exclude&gt;xorg-x11-drv*&lt;/exclude&gt;
   &lt;/repo&gt;
 
   &lt;repo id="livna-drivers"&gt;
-    &lt;baseurl&gt;http://rpm.livna.org/repo/$releasever/$basearch/&lt;baseurl&gt;
+    &lt;baseurl&gt;http://rpm.livna.org/repo/$version/$arch/&lt;baseurl&gt;
 
     &lt;!-- include only xorg-x11-drv packages --&gt;
     &lt;includepkgs&gt;xorg-x11-drv*&lt;/includepkgs&gt;
@@ -611,7 +612,7 @@ baseurl=/var/repos/repoC
 &lt;repos&gt;
   &lt;repo id="base"&gt;
     &lt;baseurl&gt;http://example.company.com/install_server/redhat/enterprise/
-             $releasever/en/os/i386&lt;/baseurl&gt;
+             $version/en/os/i386&lt;/baseurl&gt;
   &lt;/repo&gt;
 
   &lt;repo id="updates"&gt;
@@ -678,7 +679,6 @@ baseurl=/var/repos/repoC
 
     <para>
 
-    <varname><xref linkend="variable-arch" /></varname>,
     <varname><xref linkend="content-boolean" /></varname>,
     <varname><xref linkend="content-package" /></varname>,
     <varname><xref linkend="content-path" /></varname>,
