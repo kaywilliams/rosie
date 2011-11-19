@@ -68,6 +68,12 @@ class CentOSStudioValidationHandler:
 
     # validate all top-level sections
     tle_elements = set() # list of already-validated modules (so we don't revalidate)
+    tle_elements.add('macro') # allow macros as top level elements
+    # note - a cleaner approach, presumably, would be to perform _scrub_tree, 
+    # which removes macros, at the document level just after macro replacement
+    # in main.py, rather than in module config validation as we do now. But
+    # this is a bigger change than we want to make at the moment.
+
     for event in self.dispatch:
       eid = event.__module__.split('.')[-1]
       if eid in tle_elements: continue # don't re-validate
@@ -89,7 +95,7 @@ class CentOSStudioValidationHandler:
         raise InvalidConfigError(self.definition.getroot().file,
           " unknown element '%s' found:\n%s"
             % (child.tag, XmlTreeElement.tostring(child, lineno=True)))
-      if child.tag in processed:
+      if child.tag in processed and not child.tag == 'macro':
         raise InvalidConfigError(self.definition.getroot().file,
                                  " multiple instances of the '%s' element "
                                  "found " % child.tag)
