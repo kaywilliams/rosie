@@ -146,13 +146,13 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
                                           self.basearch))
 
     # expand variables in definition file
-    map = {'$name':    self.name,
-           '$version': self.version,
-           '$arch':    self.basearch,
-           '$id':      self.solutionid}
+    map = {'%{name}':    self.name,
+           '%{version}': self.version,
+           '%{arch}':    self.basearch,
+           '%{id}':      self.solutionid}
 
     for item in self.definition.xpath('//macro', []):
-      name = '$%s' % item.attrib['id']
+      name = '%%{%s}' % item.attrib['id']
       if name not in map:
         map[name] = item.text
       else:
