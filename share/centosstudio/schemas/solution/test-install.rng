@@ -19,7 +19,7 @@
         </optional>
         <ref name="content-publish-elements"/>
         <ref name="content-activate-script-element"/>
-        <ref name="content-clean-script-element"/>
+        <ref name="content-delete-script-element"/>
         <ref name="content-install-script-element"/>
         <ref name="content-verify-install-script-element"/>
         <optional><ref name="content-post-script-element"/></optional>

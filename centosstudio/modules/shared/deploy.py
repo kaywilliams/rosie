@@ -49,7 +49,7 @@ class DeployEventMixin:
              'activate-script': dict(ssh=False,
                               enabled = False,
                               arguments=[]),
-             'clean-script': dict(message='running clean script',
+             'delete-script': dict(message='running clean script',
                               enabled = False,
                               ssh=False,
                               arguments=[]),
@@ -129,7 +129,7 @@ class DeployEventMixin:
       install_triggers = [ 'activate' ]
 
     if self._reinstall(triggers = install_triggers):
-      self._execute('clean-script')
+      self._execute('delete-script')
       self._execute('install-script')
       self._execute('activate-script')
       self._execute('verify-install-script')

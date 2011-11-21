@@ -19,12 +19,12 @@ elif vm.create() != 0:
   sys.exit(1) # vm inactive, and failed to start
 </activate-script>
 
-<clean-script>
+<delete-script>
 #!/bin/bash
 set -e
 if [[ `virsh list` = *$hostname* ]]; then virsh destroy $hostname; fi
 if [[ `virsh list --all` = *$hostname* ]]; then virsh undefine $hostname; fi
-</clean-script>
+</delete-script>
 
 <install-script>
 #!/bin/bash

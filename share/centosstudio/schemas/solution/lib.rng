@@ -221,8 +221,8 @@
     </element>
   </define>
 
-  <define name="content-clean-script-element">
-    <element name="clean-script">
+  <define name="content-delete-script-element">
+    <element name="delete-script">
     <ref name="content-deploy-element"/>
     </element>
   </define>

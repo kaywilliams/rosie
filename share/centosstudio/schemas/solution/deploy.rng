@@ -12,7 +12,7 @@
 
         <interleave>
         <optional><ref name="content-activate-script-element"/></optional>
-        <optional><ref name="content-clean-script-element"/></optional>
+        <optional><ref name="content-delete-script-element"/></optional>
         <optional><ref name="content-install-script-element"/></optional>
         <optional><ref name="content-verify-install-script-element"/></optional>
         <optional><ref name="content-update-script-element"/></optional>
