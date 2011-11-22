@@ -87,6 +87,6 @@ class PublishEvents(Event):
       id = 'publish-events',
       parentid = 'all',
       properties = CLASS_META,
-      comes_after = [ 'test-events' ],
+      comes_after = [ 'os-events', 'test-events' ],
       suppress_run_message = True
     )

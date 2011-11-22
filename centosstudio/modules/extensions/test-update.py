@@ -82,7 +82,7 @@ class TestUpdateEvent(DeployEventMixin, Event):
     self.webpath = self.cvars['test-webpath'] 
     self.kstext = self.cvars['test-kstext']
     self.repomdfile = self.cvars['test-repomdfile']
-    self.DATA['variables'].append('webpath', 'kstext', 'repomdfile')
+    self.DATA['variables'].extend(['webpath', 'kstext', 'repomdfile'])
     DeployEventMixin.setup(self)
 
   def run(self):

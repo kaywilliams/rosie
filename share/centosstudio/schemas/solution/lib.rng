@@ -1,6 +1,15 @@
 <grammar xmlns="http://relaxng.org/ns/structure/1.0"
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
 
+  <!-- a kickstart element -->
+  <define name="element-kickstart">
+    <optional>
+    <element name="kickstart">
+      <text/>
+    </element>
+    </optional>
+  </define>
+
   <!-- a repo element -->
   <define name="element-repo">
     <element name="repo">

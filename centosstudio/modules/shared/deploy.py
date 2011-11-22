@@ -73,10 +73,12 @@ class DeployEventMixin:
 
 
     # update scripts dict using config and validate script attributes
+    self.scripts_provided = False
     for script in self.scripts:
       if self.config.get(script, None) is not None:
         # update enabled attribute
         self.scripts[script]['enabled'] = True
+        self.scripts_provided = True
 
         # update ssh attribute
         if self.config.get('%s/@ssh' % script, []):
@@ -100,7 +102,10 @@ class DeployEventMixin:
     # strip trailing whitespace from kstext so that diff testing works
     # as expected. using shelve for metadata storage (someday) will 
     # eliminate this issue
-    self.kstext = self.kstext.rstrip()
+    try:
+      self.kstext = self.kstext.rstrip()
+    except:
+      self.kstext = ''
 
     self.DATA['variables'].extend(['webpath', 'kstext'])
     self.DATA['input'].append(self.repomdfile)

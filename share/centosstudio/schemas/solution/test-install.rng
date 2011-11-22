@@ -11,12 +11,7 @@
         <ref name='content-ssh-attributes'/>
 
         <interleave>
-        <optional>
-        <element name="kickstart">
-        <ref name="attribute-content"/>
-        <text/>
-        </element>
-        </optional>
+        <ref name="element-kickstart"/>
         <ref name="content-publish-elements"/>
         <ref name="content-activate-script-element"/>
         <ref name="content-delete-script-element"/>

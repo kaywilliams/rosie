@@ -28,11 +28,13 @@ from centosstudio.event     import Event
 from centosstudio.cslogging   import L1
 
 from centosstudio.modules.shared import DeployEventMixin
+from centosstudio.modules.shared.kickstart import KickstartEventMixin
 from centosstudio.modules.shared.publish import PublishEventMixin 
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['PublishSetupEvent', 'PublishEvent' ],
+  events      = ['PublishSetupEvent', 'KickstartEvent', 'PublishEvent', 
+                 'DeployEvent'],
   description = 'publishes solution to a web accessible location',
 )
 
@@ -51,7 +53,7 @@ class PublishSetupEvent(PublishEventMixin, Event):
 
     self.DATA = {
       'variables': ['solutionid'],
-      'config': ['.'],
+      'config': ['local-dir', 'remote-url'],
     }
 
   def setup(self):
@@ -66,12 +68,60 @@ class PublishSetupEvent(PublishEventMixin, Event):
     self.cvars['web-path'] = self.webpath 
 
 
+class KickstartEvent(KickstartEventMixin, Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'kickstart',
+      parentid = 'installer',
+      version = 1.02,
+      provides = ['kickstart-file', 'ks-path', 'initrd-image-content', 
+                  'os-content'],
+    )
+
+    KickstartEventMixin.__init__(self)
+
+    self.DATA = {
+      'config':    ['kickstart'],
+      'variables': ['kickstart_mixin_version'],
+      'output':    [],
+    }
+
+  def setup(self):
+    self.diff.setup(self.DATA)
+    self.kickstart_provided = self.config.get('kickstart', False)
+    if self.kickstart_provided is False: return
+
+    self.ksxpath = 'kickstart'
+    KickstartEventMixin.setup(self)
+
+  def check(self):
+    if self.kickstart_provided is False: 
+      return False
+    else:
+      return self.diff.test_diffs()
+
+  def run(self):
+    KickstartEventMixin.run(self)
+
+  def apply(self):
+    if self.kickstart_provided is False: return
+
+    self.cvars['kickstart-file'] = self.ksfile
+    self.cvars['ks-path'] = pps.path('/%s' % self.cvars['kickstart-file'].basename)
+
+  def verify_cvars(self):
+    "kickstart file exists"
+
+    if self.kickstart_provided is False: return
+    self.verifier.failUnlessExists(self.cvars['kickstart-file'])
+
+
 class PublishEvent(PublishEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish',
       parentid = 'publish-events',
-      requires = ['web-path', 'publish-path', 'publish-content'],
+      requires = ['publish-path', 'publish-content'],
       provides = ['published-repository']
     )
 
@@ -79,7 +129,6 @@ class PublishEvent(PublishEventMixin, Event):
       'variables': ['cvars[\'publish-path\']',
                     'cvars[\'publish-content\']',
                     'cvars[\'selinux-enabled\']'],
-      'config':    ['.'],
       'input':     [],
       'output':    [],
     }
@@ -113,6 +162,47 @@ class PublishEvent(PublishEventMixin, Event):
                  if not d.listdir(all=True) ]:
       dir.removedirs()
 
+
+class DeployEvent(DeployEventMixin, Event):
+  def __init__(self):
+    Event.__init__(self,
+      id = 'deploy',
+      parentid = 'publish-events',
+      requires = ['web-path', 'repomd-file', 'published-repository'],
+    )
+
+    self.DATA =  {
+      'variables': [],
+      'config':    ['.'],
+      'input':     [],
+      'output':    [],
+    }
+
+  def setup(self):
+    self.diff.setup(self.DATA)
+    if self.scripts_provided is False: return
+
+    self.webpath = self.cvars['web-path'] / 'os'
+    self.repomdfile = self.cvars['repomd-file']
+    # not setting kstext since kickstart is not a trigger for this event
+
+    self.DATA['variables'].extend(['webpath', 'repomdfile'])
+    DeployEventMixin.setup(self)
+
+  def check(self):
+    if self.scripts_provided is False: 
+      return False
+    else:
+      return self.diff.test_diffs()
+
+  def run(self):
+    DeployEventMixin.run(self)
+
+  def apply(self):
+    self.io.clean_eventcache()
+
+
+##### Error Classes #####
 
 class InterfaceIOError(CentOSStudioError):
   message = ( "Error looking up information for interface '%(interface)s': "
