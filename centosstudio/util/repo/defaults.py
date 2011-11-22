@@ -426,8 +426,8 @@ REDHAT_GPGKEYS  = None
 REDHAT_PACKAGES = \
 """[base]
 name       = base
-baseurl    = %(baseurl)s/enterprise/$releasever/en/os/$basearch/
-gpgkey     = %(baseurl)s/enterprise/$releasever/en/os/$basearch/RPM-GPG-KEY-redhat-release
+baseurl    = %(baseurl)s/enterprise/$releaseverServer/en/os/$basearch/
+gpgkey     = %(baseurl)s/enterprise/$releaseverServer/en/os/$basearch/RPM-GPG-KEY-redhat-release
 gpgcheck   = yes
 
 [everything]
@@ -440,15 +440,15 @@ gpgcheck   = yes
 [updates]
 name       = updates
 baseurl    = rhn:///rhel-$basearch-server-5/
-systemid   = /etc/sysconfig/rhn/systemid-$releasever-$basearch
-gpgkey     = %(baseurl)s/enterprise/$releasever/en/os/$basearch/RPM-GPG-KEY-redhat-release
+systemid   = /etc/sysconfig/rhn/systemid-$releaseverServer-$basearch
+gpgkey     = %(baseurl)s/enterprise/$releaseverServer/en/os/$basearch/RPM-GPG-KEY-redhat-release
 gpgcheck   = yes
 """
 REDHAT_SOURCE = \
 """[base-source]
 name       = base-source
-#mirrorlist = %(mirrorlist)s/enterprise/$releasever/en/os/SRPMS/
-baseurl    = %(baseurl)s/enterprise/$releasever/en/os/SRPMS/
+#mirrorlist = %(mirrorlist)s/enterprise/$releaseverServer/en/os/SRPMS/
+baseurl    = %(baseurl)s/enterprise/$releaseverServer/en/os/SRPMS/
 #gpgkey     = %(gpgkey)s
 gpgcheck   = no
 
