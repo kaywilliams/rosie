@@ -35,7 +35,13 @@ SSH_RETRIES = 24
 SSH_SLEEP = 5
 
 class DeployEventMixin:
-  def validate(self):
+  deploy_mixin_version = "1.00"
+
+  def __init__(self):
+    # messy - we're doing this in init rather than in validate (where it 
+    # should technically be) be so that if no scripts are present
+    # (i.e. scripts_provided is False) parent events can disable themselves.
+
     # setup ssh  values
     self.ssh = dict(
       hostname = self.config.get('@hostname', ''),

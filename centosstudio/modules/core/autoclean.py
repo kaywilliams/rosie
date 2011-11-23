@@ -41,19 +41,22 @@ class AutocleanEvent(Event):
 
   def setup(self):
     for event in self._getroot():
-      self.DATA['events'].update({event.id: str(event.event_version)})
+      if event.enabled:
+        self.DATA['events'].update({event.id: str(event.event_version)})
 
     self.diff.setup(self.DATA)
     self.diff.add_handler(EventHandler(self.DATA['events']))
 
     # delete all the folders in the metadata directory that are from events
     # that aren't running this pass
+    # TODO - move this into run method
     mdfolders = self.METADATA_DIR.listdir()
     for event in self._getroot():
-      try:
-        mdfolders.remove(self.METADATA_DIR/event.id)
-      except:
-        pass
+      if event.enabled:
+        try:
+          mdfolders.remove(self.METADATA_DIR/event.id)
+        except:
+          pass
 
     for mdfolder in mdfolders:
       self.log(4, L2("removing unused event metadata directory '%s'" % mdfolder.basename))

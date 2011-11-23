@@ -78,6 +78,10 @@ class KickstartEvent(KickstartEventMixin, Event):
                   'os-content'],
     )
 
+    if self.config.get('kickstart', False) is False: 
+      self.disable()
+      return
+      
     KickstartEventMixin.__init__(self)
 
     self.DATA = {
@@ -88,31 +92,19 @@ class KickstartEvent(KickstartEventMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.kickstart_provided = self.config.get('kickstart', False)
-    if self.kickstart_provided is False: return
 
     self.ksxpath = 'kickstart'
     KickstartEventMixin.setup(self)
-
-  def check(self):
-    if self.kickstart_provided is False: 
-      return False
-    else:
-      return self.diff.test_diffs()
 
   def run(self):
     KickstartEventMixin.run(self)
 
   def apply(self):
-    if self.kickstart_provided is False: return
-
     self.cvars['kickstart-file'] = self.ksfile
     self.cvars['ks-path'] = pps.path('/%s' % self.cvars['kickstart-file'].basename)
 
   def verify_cvars(self):
     "kickstart file exists"
-
-    if self.kickstart_provided is False: return
     self.verifier.failUnlessExists(self.cvars['kickstart-file'])
 
 
@@ -168,8 +160,12 @@ class DeployEvent(DeployEventMixin, Event):
     Event.__init__(self,
       id = 'deploy',
       parentid = 'publish-events',
-      requires = ['web-path', 'repomd-file', 'published-repository'],
+      conditionally_requires = ['repomd-file'],
+      requires = ['web-path', 'published-repository'],
     )
+
+    DeployEventMixin.__init__(self)
+    if self.scripts_provided is False: self.disable()
 
     self.DATA =  {
       'variables': [],
@@ -180,20 +176,18 @@ class DeployEvent(DeployEventMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    if self.scripts_provided is False: return
 
     self.webpath = self.cvars['web-path'] / 'os'
-    self.repomdfile = self.cvars['repomd-file']
+    # allowing deploy event to run when the repocreate is disabled for 
+    # improved testing performance
+    if 'repomd-file' in self.cvars:
+      self.repomdfile = self.cvars['repomd-file']
+    else:
+      self.repomdfile = ''
     # not setting kstext since kickstart is not a trigger for this event
 
     self.DATA['variables'].extend(['webpath', 'repomdfile'])
     DeployEventMixin.setup(self)
-
-  def check(self):
-    if self.scripts_provided is False: 
-      return False
-    else:
-      return self.diff.test_diffs()
 
   def run(self):
     DeployEventMixin.run(self)
