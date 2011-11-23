@@ -153,7 +153,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
 
     try: 
       # top-level macros
-      self.definition.resolve_macros(xpaths=['/*', '*/main/'], map=map)
+      self.definition.resolve_macros(xpaths=['/*', '/*/main/'], map=map)
       # module-specific macros
       for elem in self.definition.xpath('/*/*'):
         elem.resolve_macros(xpaths=['/*/%s/' % elem.tag])

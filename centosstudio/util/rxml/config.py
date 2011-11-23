@@ -240,6 +240,7 @@ class ConfigElement(tree.XmlTreeElement):
     """
     xpaths = xpaths or ['/*']
     map = map or {}
+
     for item in xpaths:
       for elem in self.xpath('%s/macro' % item, []):
         name = '%%{%s}' % elem.attrib['id']
