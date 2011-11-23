@@ -210,13 +210,48 @@ class ConfigElement(tree.XmlTreeElement):
   def replace(self, map):
     "performs string replacement across all attributes and text elements"
     for key in map:
-      for elem in self.getroot().iterdescendants():
+      for elem in self.iter():
         for attr in elem.attrib.keys():
           if key in elem.attrib[attr]:
             elem.attrib[attr] = elem.attrib[attr].replace(key, map[key])
         if elem.text is not None:
           if key in elem.text:
             elem.text = elem.text.replace(key, map[key])
+
+  def resolve_macros(self, xpaths=None, map=None):
+    """
+    Processes macro elements (reads and removes) and resolves macro variables.
+    Macro elements take the format '<macro id='name'>value</macro>'. They can
+    be defined at any level of the element. Macro variables use the syntax
+    '%{name}'. Macro variables can occur in element nodes and attributes.
+
+    Keyword arguments: 
+    xpaths -- a list of xpath queries to be searched for macros. The
+    provided queries must return element nodes. The default value is '['/*']',
+    meaning that resolve_macros will search for macros only at the top-level
+    of the element. To search for macros at any level, provide a forward slash,
+    in the xpath string, e.g. ['/'].
+    
+    map -- a dictionary containing existing macro definitions to use in
+    addition to any discovered macros, e.g.
+
+        map = {'%{name1}: 'value1'
+                %{name2}: 'value2'}
+    """
+    xpaths = xpaths or ['/*']
+    map = map or {}
+    for item in xpaths:
+      for elem in self.xpath('%s/macro' % item, []):
+        name = '%%{%s}' % elem.attrib['id']
+        if name not in map:
+          map[name] = elem.text
+        else:
+          message = ("Error: duplicate macros with the id '%s' found while processing the file '%s'" % (elem.attrib['id'], self.getroot().file))
+          raise errors.ConfigError(message)
+
+        elem.getparent().remove(elem)
+
+    self.replace(map)
 
 
 class ConfigTreeSaxHandler(tree.XmlTreeSaxHandler):

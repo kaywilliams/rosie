@@ -151,19 +151,17 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
            '%{arch}':    self.basearch,
            '%{id}':      self.solutionid}
 
-    for item in self.definition.xpath('//macro', []):
-      name = '%%{%s}' % item.attrib['id']
-      if name not in map:
-        map[name] = item.text
-      else:
-        message = ("Error: duplicate macros with the id '%s' found while processing the definition file '%s'" % (item.attrib['id'], self.definition.file))
-        if self.debug:
-          raise RuntimeError(message)
-        else: 
-          print message
-          sys.exit(1)
-     
-    self.definition.replace(map)
+    try: 
+      # top-level macros
+      self.definition.resolve_macros(xpaths=['/*', '*/main/'], map=map)
+      # module-specific macros
+      for elem in self.definition.xpath('/*/*'):
+        elem.resolve_macros(xpaths=['/*/%s/' % elem.tag])
+    except rxml.errors.ConfigError, e:
+      if self.debug: raise 
+      else: 
+        self.logger.log(0, L0(e))
+        sys.exit(1)
 
     # set up real logger - console and file
     self.logfile = ( pps.path(options.logfile)

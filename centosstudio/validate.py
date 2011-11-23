@@ -63,16 +63,11 @@ class CentOSStudioValidationHandler:
 
     # validate individual sections of the solution definition
     self.logger.log(4, L0("Validating '%s'" % pps.path(self.definition.file)))
-    v = AppConfigValidator([ x/'schemas/solution' for x in self.sharedirs ],
+    v = DefinitionValidator([ x/'schemas/solution' for x in self.sharedirs ],
                            self.definition)
 
     # validate all top-level sections
     tle_elements = set() # list of already-validated modules (so we don't revalidate)
-    tle_elements.add('macro') # allow macros as top level elements
-    # note - a cleaner approach, presumably, would be to perform _scrub_tree, 
-    # which removes macros, at the document level just after macro replacement
-    # in main.py, rather than in module config validation as we do now. But
-    # this is a bigger change than we want to make at the moment.
 
     for event in self.dispatch:
       eid = event.__module__.split('.')[-1]
@@ -95,7 +90,7 @@ class CentOSStudioValidationHandler:
         raise InvalidConfigError(self.definition.getroot().file,
           " unknown element '%s' found:\n%s"
             % (child.tag, XmlTreeElement.tostring(child, lineno=True)))
-      if child.tag in processed and not child.tag == 'macro':
+      if child.tag in processed:
         raise InvalidConfigError(self.definition.getroot().file,
                                  " multiple instances of the '%s' element "
                                  "found " % child.tag)
@@ -132,17 +127,11 @@ class BaseConfigValidator:
       if t.attrib.has_key(xmlbase):
         del t.attrib[xmlbase]
 
-    def remove_macros(t):
-      for macro in t.xpath('macro', fallback=[]):
-        macro.getparent().remove(macro)
-
     # copy and remove xml:base attributes from tree
     tree = copy.deepcopy(tree)
     remove_xmlbase(tree)
-    remove_macros(tree)
     for c in tree.iterdescendants():
       remove_xmlbase(c)
-      remove_macros(c)
     return tree
 
   def validate_with_string(self, schema_contents, tree, tag):
@@ -214,7 +203,7 @@ class MainConfigValidator(BaseConfigValidator):
   pass
 
 
-class AppConfigValidator(BaseConfigValidator):
+class DefinitionValidator(BaseConfigValidator):
   def __init__(self, schema_paths, config):
     BaseConfigValidator.__init__(self, schema_paths, config)
 
