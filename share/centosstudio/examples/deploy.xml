@@ -10,7 +10,7 @@ import libvirt
 import sys
 connection = libvirt.open('qemu:///system')
 try: #vm exists?
-  vm = connection.lookupByName('$hostname')
+  vm = connection.lookupByName('%{hostname}')
 except libvirt.libvirtError:
   sys.exit(1) # vm does not exist
 if vm.isActive() ==1:
@@ -22,14 +22,14 @@ elif vm.create() != 0:
 <delete-script>
 #!/bin/bash
 set -e
-if [[ `virsh list` = *$hostname* ]]; then virsh destroy $hostname; fi
-if [[ `virsh list --all` = *$hostname* ]]; then virsh undefine $hostname; fi
+if [[ `virsh list` = *%{hostname}* ]]; then virsh destroy %{hostname}; fi
+if [[ `virsh list --all` = *%{hostname}* ]]; then virsh undefine %{hostname}; fi
 </delete-script>
 
 <install-script>
 #!/bin/bash
-virt-install --name $hostname --ram 1000 \
-             --file /var/lib/libvirt/images/$hostname.img \
+virt-install --name %{hostname} --ram 1000 \
+             --file /var/lib/libvirt/images/%{hostname}.img \
              --file-size 30 \
              --location $1 \
              --extra-args "lang=en_US keymap=us ip=dhcp ks=$1/ks.cfg"\
