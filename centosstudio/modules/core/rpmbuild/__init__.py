@@ -57,8 +57,6 @@ class RpmbuildEvent(Event):
     self.DATA['output'].extend([self.pubkey, self.seckey])
 
   def apply(self):
-    self.io.clean_eventcache()
-
     self.cvars['pubkey'] = self.pubkey
     self.cvars['seckey'] = self.seckey
 

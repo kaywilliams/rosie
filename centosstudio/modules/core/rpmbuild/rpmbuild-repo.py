@@ -107,7 +107,6 @@ class RpmbuildRepoEvent(Event):
         self.DATA['output'].append(repo.localurl/'repodata')
 
   def apply(self):
-    self.io.clean_eventcache()
     self._populate()
     if self.cvars['rpmbuild-data']:
       self.cvars['repos'].add_repo(self.repos[self.cid])

@@ -112,7 +112,6 @@ class DepsolveEvent(Event, DepsolverMixin):
                                 self.depsolve_repo])
 
   def apply(self):
-    self.io.clean_eventcache()
     assert_file_has_content(self.pkglistfile)
     pklfile = open(self.pkglistfile, 'rb')
     self.cvars['pkglist'] = cPickle.load(pklfile)

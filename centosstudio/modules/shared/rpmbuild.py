@@ -339,8 +339,6 @@ class RpmBuildObject:
                    passphrase='', working_dir=self.ptr.TEMP_DIR)
 
   def _apply(self):
-    self.ptr.io.clean_eventcache()
-
     rpmbuild_data = {}
 
     rpmbuild_data['packagereq-default']  = self.packagereq_default

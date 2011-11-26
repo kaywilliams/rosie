@@ -139,9 +139,7 @@ class PublishEvent(PublishEventMixin, Event):
                        callback=Event.link_callback)
     self.chcon(self.cvars['publish-path'])
 
-  def apply(self):
-    self.io.clean_eventcache()
-
+  def clean_eventcache(self):
     expected = set(self.diff.output.oldoutput.keys())
     existing = set(self.cvars['publish-path'].findpaths(
                  mindepth=1, type=TYPE_NOT_DIR))
@@ -192,9 +190,6 @@ class DeployEvent(DeployEventMixin, Event):
 
   def run(self):
     DeployEventMixin.run(self)
-
-  def apply(self):
-    self.io.clean_eventcache()
 
 
 ##### Error Classes #####

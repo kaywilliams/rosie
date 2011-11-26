@@ -50,17 +50,6 @@ class TestInstallPublishEvent(TestPublishEventMixin, Event):
 
     TestPublishEventMixin.__init__(self)
 
-  def clean(self):
-    TestPublishEventMixin.clean(self)
-
-  def setup(self):
-    TestPublishEventMixin.setup(self)
-
-  def run(self):
-    TestPublishEventMixin.run(self)
-
-  def apply(self):
-    TestPublishEventMixin.apply(self)
 
 class TestInstallEvent(DeployEventMixin, Event):
   def __init__(self):
@@ -100,5 +89,3 @@ class TestInstallEvent(DeployEventMixin, Event):
                               'config-release', 'activate' ]
     DeployEventMixin.run(self)
 
-  def apply(self):
-    self.io.clean_eventcache()

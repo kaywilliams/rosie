@@ -88,7 +88,6 @@ class PackagesEvent(Event):
     self.DATA['output'].append(self.comps_out)
 
   def apply(self):
-    self.io.clean_eventcache()
     # set groupfile control variable
     self.cvars['groupfile'] = self.comps_out
 

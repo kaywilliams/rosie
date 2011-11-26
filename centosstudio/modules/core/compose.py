@@ -61,7 +61,6 @@ class ComposeEvent(Event):
       self.io.process_files(link=True, what=event, text=None)
 
   def apply(self):
-    self.io.clean_eventcache()
     self.cvars['os-dir'] = self.SOFTWARE_STORE
     self.cvars.setdefault('publish-content', set()).add(self.SOFTWARE_STORE)
 

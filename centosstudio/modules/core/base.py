@@ -84,8 +84,6 @@ class BaseInfoEvent(Event):
     img.cleanup()
 
   def apply(self):
-    self.io.clean_eventcache()
-
     # parse buildstamp
     buildstamp = ffile.DictToFormattedFile(self.locals.L_BUILDSTAMP_FORMAT)
 

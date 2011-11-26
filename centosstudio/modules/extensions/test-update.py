@@ -50,18 +50,6 @@ class TestUpdatePublishEvent(TestPublishEventMixin, Event):
 
     TestPublishEventMixin.__init__(self)
 
-  def clean(self):
-    TestPublishEventMixin.clean(self)
-
-  def setup(self):
-    TestPublishEventMixin.setup(self)
-
-  def run(self):
-    TestPublishEventMixin.run(self)
-
-  def apply(self):
-    TestPublishEventMixin.apply(self)
-
 
 class TestUpdateEvent(DeployEventMixin, Event):
   def __init__(self):
@@ -89,8 +77,4 @@ class TestUpdateEvent(DeployEventMixin, Event):
     self.DATA['variables'].extend(['webpath', 'kstext', 'repomdfile'])
     DeployEventMixin.setup(self)
 
-  def run(self):
-    DeployEventMixin.run(self)
 
-  def apply(self):
-    self.io.clean_eventcache()

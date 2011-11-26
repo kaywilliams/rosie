@@ -40,7 +40,7 @@ class DiscinfoEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'discinfo',
-      version = '1',
+      version = '1.01',
       parentid = 'installer',
       provides = ['.discinfo', 'os-content'],
       requires = ['anaconda-version'],
@@ -71,9 +71,7 @@ class DiscinfoEvent(Event):
     self.difile.dirname.mkdirs()
     discinfo.write(self.difile, **app_vars)
     self.difile.chmod(0644)
-
-  def apply(self):
-    self.io.clean_eventcache()
+    self.DATA['output'].append(self.difile)
 
   def verify_discinfo_file_exists(self):
     ".discinfo file exists"
@@ -137,7 +135,6 @@ class TreeinfoEvent(Event):
     self.tifile.chmod(0644)
 
   def apply(self):
-    self.io.clean_eventcache()
     if self.tifile.exists():
       self.cvars['treeinfo-text'] = self.tifile.read_text().strip()
 

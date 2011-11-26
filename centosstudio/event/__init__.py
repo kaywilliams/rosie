@@ -142,6 +142,8 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   #def check(self) defined in mixins
   def run(self): pass
   #def postrun(self) defined in DiffMixin
+  def clean_eventcache(self):
+    IOMixin.clean_eventcache() # cleans session-specific files from cache
   def apply(self): pass
   #def error(self, e) defined IOMixin
 

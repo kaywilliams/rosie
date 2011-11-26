@@ -113,8 +113,6 @@ class GpgCheckEvent(Event):
                                           repos[x[0].basename]) 
                                         for x in invalids ]))
 
-  def apply(self):
-    self.io.clean_eventcache()
 
   def _get_tochecks(self):
     difftup = self.diff.variables.difference('rpms')

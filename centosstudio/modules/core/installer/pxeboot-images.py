@@ -51,7 +51,6 @@ class PxebootImagesEvent(Event):
     self.io.process_files(cache=True)
 
   def apply(self):
-    self.io.clean_eventcache()
     cvar = self.cvars.setdefault('treeinfo-checksums', set())
     for f in self.SOFTWARE_STORE.findpaths(type=pps.constants.TYPE_NOT_DIR):
       cvar.add((self.SOFTWARE_STORE, f.relpathfrom(self.SOFTWARE_STORE)))

@@ -93,7 +93,6 @@ class PkgorderEvent(Event):
     pkgorder.write_pkgorder(self.pkgorderfile, pkgtups)
 
   def apply(self):
-    self.io.clean_eventcache()
     self.cvars['pkgorder-file'] = self.pkgorderfile
 
   def verify_pkgorder_exists(self):

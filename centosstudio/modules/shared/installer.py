@@ -87,7 +87,7 @@ class ImageModifyMixin:
     return self.diff.test_diffs()
 
   def apply(self):
-    self.io.clean_eventcache()
+    pass 
 
   def _open(self):
     self.path.dirname.mkdirs()
@@ -158,7 +158,7 @@ class FileDownloadMixin:
                         id='FileDownloadMixin')
 
   def apply(self):
-    self.io.clean_eventcache()
+    pass
 
   def _download(self):
     self.io.process_files(what='FileDownloadMixin', cache=True)

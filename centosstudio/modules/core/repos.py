@@ -79,7 +79,6 @@ class ReposEvent(RepoEventMixin, Event):
     self.sync_repodata()
 
   def apply(self):
-    self.io.clean_eventcache()
 
     # set up installer repo
     for repo in self.repos.values():

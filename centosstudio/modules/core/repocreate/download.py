@@ -81,8 +81,6 @@ class DownloadEvent(Event):
                          text=("downloading packages - '%s'" % subrepo))
 
   def apply(self):
-    self.io.clean_eventcache()
-
     self.cvars['rpms'] = {}
     for subrepo in self.cvars['pkglist'].keys():
       for rpm in self.io.list_output(what=subrepo):

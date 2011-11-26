@@ -111,7 +111,6 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     self.chcon(self.localpath)
 
   def apply(self):
-    self.io.clean_eventcache()
     self.cvars['%s-webpath' % self.moduleid ] = self.webpath
     self.cvars['%s-kstext' % self.moduleid] = self.kstext # provided by ks mixin
     self.cvars['%s-repomdfile' % self.moduleid] = self.repomdfile # provided by repomdmixin

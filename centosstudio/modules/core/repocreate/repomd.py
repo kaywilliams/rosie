@@ -66,7 +66,6 @@ class RepomdEvent(Event, RepomdMixin):
     self.DATA['output'].extend(repo_files)
 
   def apply(self):
-    self.io.clean_eventcache()
     self.cvars['repomd-file'] = self.repomdfile
     self.cvars.setdefault('treeinfo-checksums', set()).add(
       (self.SOFTWARE_STORE, 'repodata/repomd.xml'))
