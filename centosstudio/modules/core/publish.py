@@ -165,6 +165,7 @@ class DeployEvent(DeployEventMixin, Event):
     )
 
     DeployEventMixin.__init__(self)
+
     if self.scripts_provided is False: self.disable()
 
     self.DATA =  {

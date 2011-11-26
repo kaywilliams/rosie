@@ -41,7 +41,8 @@ class TestInstallPublishEvent(TestPublishEventMixin, Event):
       version = 1.0,
       requires = ['os-dir'],
       conditionally_requires = [ 'kickstart-file', 'config-release'],
-      provides = ['test-webpath', 'test-repomdfile', 'test-kstext'],
+      provides = ['test-install-webpath', 'test-install-repomdfile', 
+                  'test-install-kstext'],
     ) 
 
     self.localpath = self.get_local('/var/www/html/solutions/test-install')
@@ -66,9 +67,12 @@ class TestInstallEvent(DeployEventMixin, Event):
     Event.__init__(self,
       id = 'test-install',
       parentid = 'test-events',
-      requires = ['test-webpath', 'test-kstext', 'treeinfo-text'], 
-      conditionally_requires = [ 'config-release'],
+      requires = ['test-install-webpath', 'test-install-kstext', 
+                  'treeinfo-text'], 
+      conditionally_requires = [ 'test-install-repomdfile', 'config-release'],
     )
+
+    DeployEventMixin.__init__(self)
 
     self.DATA =  {
       'config':    [], # populated by mixin
@@ -79,10 +83,10 @@ class TestInstallEvent(DeployEventMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.webpath = self.cvars['test-webpath'] 
-    self.kstext = self.cvars['test-kstext']
+    self.webpath = self.cvars['test-install-webpath'] 
+    self.kstext = self.cvars['test-install-kstext']
     self.titext = self.cvars['treeinfo-text']
-    self.repomdfile = self.cvars['test-repomdfile']
+    self.repomdfile = self.cvars['test-install-repomdfile']
     if 'config-release' in self.cvars:
       self.config_release = self.cvars['config-release']
     else:

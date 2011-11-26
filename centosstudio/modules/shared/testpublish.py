@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 #
-
 from centosstudio.event     import Event
 from centosstudio.cslogging import L1, L2
 from centosstudio.util      import pps
@@ -73,7 +72,7 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
 
     # kickstart 
     self.ksxpath = 'kickstart'
-    if self.config.get('kickstart', False): # test ks provided
+    if self.config.get('kickstart', None) is not None: # test ks provided
       KickstartEventMixin.setup(self)
     elif 'ks-path' in self.cvars:
       self.kstext = self.cvars['kickstart-file'].read_text() # production ks provided
@@ -113,7 +112,16 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
 
   def apply(self):
     self.io.clean_eventcache()
-    self.cvars['test-webpath'] = self.webpath
-    self.cvars['test-kstext'] = self.kstext # provided by kickstart mixin
-    self.cvars['test-repomdfile'] = self.repomdfile # provided by repomdmixin
+    self.cvars['%s-webpath' % self.moduleid ] = self.webpath
+    self.cvars['%s-kstext' % self.moduleid] = self.kstext # provided by ks mixin
+    self.cvars['%s-repomdfile' % self.moduleid] = self.repomdfile # provided by repomdmixin
 
+  def verify_repomdfile(self):
+    "verify repomd file exists"
+    self.verifier.failUnlessExists(self.repomdfile)
+
+  def verify_cvars(self):
+    "verify cvars exist"
+    self.verifier.failUnlessSet('%s-webpath' % self.moduleid)
+    self.verifier.failUnlessSet('%s-kstext' % self.moduleid)
+    self.verifier.failUnlessSet('%s-repomdfile' % self.moduleid)

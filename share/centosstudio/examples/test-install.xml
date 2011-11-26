@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <solution xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<macro id="hostname">samba-server.local</macro>
-<macro id="password">password</macro>
-
 <!-- test-install element -->
 <test-install hostname="%{hostname}" password="%{password}">
+<macro id="hostname">samba-server-test-install.local</macro>
+<macro id="password">password</macro>
 
 <kickstart>
 <xi:include href="ks.cfg" parse="text"/>
@@ -17,7 +16,7 @@
                                /root/install-script |
                                /root/verify-install-script)"/>
 
-<post-script>
+<post-script ssh="false">
 <xi:include href="deploy.xml"
             xpointer="xpointer(/root/delete-script/node())"/>
 </post-script>

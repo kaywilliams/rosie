@@ -88,7 +88,7 @@ class DeployEventMixin:
 
         # update ssh attribute
         if self.config.get('%s/@ssh' % script, []):
-          self.scripts[script]['ssh'] = self.config.get('%s/@ssh' % script)
+          self.scripts[script]['ssh'] = self.config.getbool('%s/@ssh' % script)
 
         # validate that hostname and password have been provided
         if self.scripts[script]['ssh'] and not self.ssh['hostname']:
@@ -115,7 +115,6 @@ class DeployEventMixin:
 
     self.DATA['variables'].extend(['webpath', 'kstext'])
     self.DATA['input'].append(self.repomdfile)
-
     # set webpath argument on install script
     self.scripts['install-script']['arguments'] = [self.webpath]
 
@@ -123,7 +122,6 @@ class DeployEventMixin:
       if self.scripts[script]['enabled']:
         self.io.add_xpath(script, self.mddir, destname=script, id=script, 
                           mode='750', content='text')
-        self.DATA['config'].append(script)
 
     for key in self.ssh:
       self.DATA['config'].append('@%s' % key)

@@ -29,7 +29,7 @@ P = pps.path
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['TestUpdateEvent'],
+  events      = ['TestUpdatePublishEvent', 'TestUpdateEvent'],
   description = 'performs test updates on client systems',
 )
 
@@ -41,7 +41,8 @@ class TestUpdatePublishEvent(TestPublishEventMixin, Event):
       version = 1.0,
       requires = ['os-dir'],
       conditionally_requires = [ 'kickstart-file', 'config-release'],
-      provides = ['test-webpath', 'test-repomdfile', 'test-kstext'],
+      provides = ['test-update-webpath', 'test-update-repomdfile', 
+                  'test-update-kstext'],
     )
 
     self.localpath = self.get_local('/var/www/html/solutions/test-update')
@@ -67,8 +68,11 @@ class TestUpdateEvent(DeployEventMixin, Event):
     Event.__init__(self,
       id = 'test-update',
       parentid = 'test-events',
-      requires = ['test-webpath', ], 
+      requires = ['test-update-webpath', 'test-update-repomdfile',
+                  'test-update-kstext'], 
     )
+
+    DeployEventMixin.__init__(self)
 
     self.DATA =  {
       'config':    [], # populated by mixin
@@ -79,9 +83,9 @@ class TestUpdateEvent(DeployEventMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.webpath = self.cvars['test-webpath'] 
-    self.kstext = self.cvars['test-kstext']
-    self.repomdfile = self.cvars['test-repomdfile']
+    self.webpath = self.cvars['test-update-webpath'] 
+    self.kstext = self.cvars['test-update-kstext']
+    self.repomdfile = self.cvars['test-update-repomdfile']
     self.DATA['variables'].extend(['webpath', 'kstext', 'repomdfile'])
     DeployEventMixin.setup(self)
 
