@@ -247,7 +247,7 @@ class ConfigElement(tree.XmlTreeElement):
         if name not in map:
           map[name] = elem.text
         else:
-          message = ("Error: duplicate macros with the id '%s' found while processing the file '%s'" % (elem.attrib['id'], self.getroot().file))
+          message = ("\nError while reading \"%s\"\n  duplicate macros found with the id '%s'" % (self.getroot().file, elem.attrib['id']))
           raise errors.ConfigError(message)
 
         elem.getparent().remove(elem)

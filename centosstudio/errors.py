@@ -5,7 +5,6 @@ import traceback
 
 from centosstudio.util     import shlib
 from centosstudio.util     import pps
-from centosstudio.validate import InvalidXmlError
 
 REGEX_KWPARSE = re.compile('%\(([^\)]+)\).')
 
@@ -110,7 +109,6 @@ class CentOSStudioErrorHandler:
         self.logger.log(0, "CentOS Studio halted on user input")
       else:
         if (not isinstance(e, CentOSStudioError) and 
-            not isinstance(e, InvalidXmlError) and
             not isinstance(e, KeyboardInterrupt)):
           self.logger.write(0,
             "An unhandled exception has been generated while processing "

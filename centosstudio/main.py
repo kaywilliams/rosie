@@ -53,8 +53,7 @@ from centosstudio.constants import *
 from centosstudio.errors    import CentOSStudioErrorHandler, CentOSStudioError
 from centosstudio.event     import Event, CLASS_META
 from centosstudio.cslogging import make_log, L0, L1, L2
-from centosstudio.validate  import (CentOSStudioValidationHandler, 
-                                    InvalidXmlError)
+from centosstudio.validate  import (CentOSStudioValidationHandler)
 
 from centosstudio.event.loader import Loader
 
@@ -145,7 +144,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
                                           self.version,
                                           self.basearch))
 
-    # expand variables in definition file
+    # expand global macros, module macros handled during validation
     map = {'%{name}':    self.name,
            '%{version}': self.version,
            '%{arch}':    self.basearch,
@@ -154,9 +153,6 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     try: 
       # top-level macros
       self.definition.resolve_macros(xpaths=['/*', '/*/main/'], map=map)
-      # module-specific macros
-      for elem in self.definition.xpath('/*/*'):
-        elem.resolve_macros(xpaths=['/*/%s/' % elem.tag])
     except rxml.errors.ConfigError, e:
       if self.debug: raise 
       else: 
@@ -258,8 +254,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
       try:
         try:
           self.dispatch.execute(until=None)
-        except (CentOSStudioError, InvalidXmlError, Exception, 
-                KeyboardInterrupt), e:
+        except (CentOSStudioError, Exception, KeyboardInterrupt), e:
           self._handle_Exception(e)
       finally:
         self._lock.release()

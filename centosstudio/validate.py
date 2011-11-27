@@ -21,6 +21,8 @@ import copy
 import os
 import sys
 
+from centosstudio.errors import CentOSStudioError
+
 from centosstudio.util import pps
 from centosstudio.util import rxml
 
@@ -41,6 +43,10 @@ class CentOSStudioValidationHandler:
       sys.exit(1)
     except InvalidConfigError, e:
       self.logger.log(0, L0("Validation against schema failed"))
+      self.logger.log(0, L0(e))
+      if self.debug: raise
+      sys.exit(1)
+    except (InvalidXmlError, rxml.errors.ConfigError), e:
       self.logger.log(0, L0(e))
       if self.debug: raise
       sys.exit(1)
@@ -112,6 +118,8 @@ class BaseConfigValidator:
       raise AttributeError("Either 'schema_file' or 'schema_contents' "
                            "must be provided.")
     element = xpath_query.lstrip('/')
+
+    self.config.resolve_macros(xpaths=['/*/%s/' % element])
     tree = self._scrub_tree(self.config.get(xpath_query, None))
     if schema_contents:
       self.validate_with_string(schema_contents, tree, element)
