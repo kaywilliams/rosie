@@ -114,6 +114,8 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
           self.postrun() ## FIXME: this is ugly
         else:
           t_run = t_setup # we didn't run run()
+      self.clean_eventcache()
+      t_clean_eventcache = time.time()
       self.apply()
       t_apply = time.time()
       self.verify()
@@ -143,7 +145,7 @@ class Event(dispatch.Event, IOMixin, DiffMixin, LocalsMixin, VerifyMixin):
   def run(self): pass
   #def postrun(self) defined in DiffMixin
   def clean_eventcache(self):
-    IOMixin.clean_eventcache() # cleans session-specific files from cache
+    IOMixin.clean_eventcache(self) # cleans session-specific files from cache
   def apply(self): pass
   #def error(self, e) defined IOMixin
 

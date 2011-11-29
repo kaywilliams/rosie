@@ -30,6 +30,9 @@ class IOMixin:
   def clean(self):
     self.io.clean_eventcache(all=True)
 
+  def clean_eventcache(self):
+    self.io.clean_eventcache()
+
   def error(self, e):
     debugdir = self.mddir + '.debug'
     self.mddir.rename(debugdir)

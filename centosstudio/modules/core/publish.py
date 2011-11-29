@@ -140,6 +140,7 @@ class PublishEvent(PublishEventMixin, Event):
     self.chcon(self.cvars['publish-path'])
 
   def clean_eventcache(self):
+    self.io.clean_eventcache()
     expected = set(self.diff.output.oldoutput.keys())
     existing = set(self.cvars['publish-path'].findpaths(
                  mindepth=1, type=TYPE_NOT_DIR))
