@@ -25,14 +25,16 @@ class BootConfigDummy(object):
   def __init__(self, ptr):
     self.ptr = ptr
     self.boot_args = None
+    self.ptr.boot_config_mixin_version = '1.00'
 
   def setup(self, defaults=None, include_method=False, include_ks=False):
+    self.ptr.DATA['variables'].append('boot_config_mixin_version')
     self.boot_args = self.ptr.config.get('boot-args/text()', '').split()
 
     args = defaults or []
 
     if include_method: self._process_method(args)
-    if include_ks:     self._process_ks(args)
+    if include_ks:     self._process_ks(include_ks, args)
 
     self.boot_args.extend(args)
 
@@ -69,8 +71,14 @@ class BootConfigDummy(object):
       args.append('%s=%s/os' % (self.ptr.locals.L_BOOTCFG['options']['method'],
                                 self.ptr.cvars['web-path']))
 
-  def _process_ks(self, args):
+  def _process_ks(self, include_ks, args):
     self.ptr.DATA['variables'].append('cvars[\'ks-path\']')
     if self.ptr.cvars['ks-path'] is not None:
-      args.append('%s=file:%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],
-                                  self.ptr.cvars['ks-path']))
+      if include_ks == 'local':
+        args.append('%s=file:%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],
+                                    self.ptr.cvars['ks-path']))
+      if include_ks == 'web':
+        self.ptr.DATA['variables'].append('cvars[\'web-path\']')
+        args.append('%s=%s/os%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],
+                                    self.ptr.cvars['web-path'],
+                                    self.ptr.cvars['ks-path']))

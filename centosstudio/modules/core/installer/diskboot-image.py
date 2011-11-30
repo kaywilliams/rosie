@@ -36,7 +36,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'diskboot-image',
-      version = '0.1',
+      version = '1.01',
       parentid = 'installer',
       provides = ['diskboot.img', 'treeinfo-checksums', 'os-content'],
       requires = ['buildstamp-file', 'installer-repo', 'isolinux-files'],
@@ -70,7 +70,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
 
     # BootConfigMixin setup
     self.bootconfig.setup(defaults=['nousbstorage'],
-                          include_method=True, include_ks=True)
+                          include_method=True, include_ks='web')
 
     # ImageModifyMixin setup
     self.image_locals = self.locals.L_FILES['installer']['diskboot.img']

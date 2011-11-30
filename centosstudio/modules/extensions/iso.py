@@ -104,7 +104,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'iso',
-      version = '0.1',
+      version = '1.01',
       parentid = 'publish-events',
       provides = ['iso-dir', 'publish-content'],
       requires = ['anaconda-version', 'pkgorder-file', 
@@ -134,7 +134,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     self.DATA['variables'].append('cvars[\'treeinfo-text\']')
     self.DATA['input'].append(self.cvars['pkgorder-file'])
 
-    self.bootconfig.setup(defaults=['method=cdrom'], include_ks=True)
+    self.bootconfig.setup(defaults=['method=cdrom'], include_ks='local')
 
   def run(self):
     oldsets = None
