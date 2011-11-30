@@ -25,7 +25,6 @@ class BootConfigDummy(object):
   def __init__(self, ptr):
     self.ptr = ptr
     self.boot_args = None
-    self._macros = {}
 
   def setup(self, defaults=None, include_method=False, include_ks=False):
     self.boot_args = self.ptr.config.get('boot-args/text()', '').split()
@@ -35,22 +34,14 @@ class BootConfigDummy(object):
     if include_method: self._process_method(args)
     if include_ks:     self._process_ks(args)
 
-    for karg in args:
-      self._macros['%%{%s}' % karg.split('=')[0]] = karg
-
-    if self.ptr.config.getbool('boot-args/@use-defaults', 'True'):
-      self.boot_args.extend(args)
+    self.boot_args.extend(args)
 
     if self.ptr.cvars['boot-args']:
       self.boot_args.append(self.cvars['boot-args'].split())
 
-    self.boot_args = [ self._expand_macros(x) for x in self.boot_args ]
-
   def modify(self, dst, cfgfile=None):
 
     #FIXME: Also need to remove arguments on on diffs
-
-    boot_args = [ self._expand_macros(x) for x in self.boot_args ]
 
     config = cfgfile or self.ptr.cvars['boot-config-file']
     lines  = config.read_lines()
@@ -61,21 +52,16 @@ class BootConfigDummy(object):
       if not tokens: continue
       if tokens[0] == 'menu' and tokens[1] == 'title':
         lines[i] = 'menu title Welcome to %s!' % self.ptr.fullname
-      if not boot_args: continue
+      if not self.boot_args: continue
       if   tokens[0] == 'label': _label = True
       elif tokens[0] == 'append':
         if   not _label: continue
         elif len(tokens) < 2: continue
         elif tokens[1] == '-': continue
-        lines[i] = '%s %s' % (lines[i].rstrip(), ' '.join(boot_args))
+        lines[i] = '%s %s' % (lines[i].rstrip(), ' '.join(self.boot_args))
 
     dst.rm(force=True)
     dst.write_lines(lines)
-
-  def _expand_macros(self, s):
-    for k,v in self._macros.items():
-      s = s.replace(k, v)
-    return s
 
   def _process_method(self, args):
     self.ptr.DATA['variables'].append('cvars[\'web-path\']')

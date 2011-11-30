@@ -144,8 +144,8 @@ class BootConfigMixinTestCase:
       labels = self._get_boot_args(image.list().fnmatch(filename)[0])
       if defaults:
         self._check_boot_args(labels, self.default_args)
-      self._check_boot_args(labels, self.event.bootconfig._expand_macros(
-        self.event.config.get('boot-args/text()', '')).split())
+      self._check_boot_args(labels, 
+                      self.event.config.get('boot-args/text()', '').split())
     finally:
       image.close()
 

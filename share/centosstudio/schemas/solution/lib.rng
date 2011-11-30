@@ -163,13 +163,7 @@
   <!-- boot-args element -->
   <define name="element-boot-args">
     <element name="boot-args">
-      <optional>
-      <attribute name="use-defaults">
-        <ref name="value-boolean"/>
-      </attribute>
-      </optional>
-
-      <optional><text/></optional>
+      <text/>
     </element>
   </define>
 

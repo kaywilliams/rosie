@@ -556,7 +556,7 @@ class AllEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'all',
-      version = 1,
+      version = 1.01,
       properties = CLASS_META,
       suppress_run_message = True
     )

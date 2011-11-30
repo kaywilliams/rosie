@@ -83,31 +83,6 @@ class Test_BootArgsDefault(_DiskbootImageEventTestCase):
     _DiskbootImageEventTestCase.setUp(self)
     self.do_defaults = True
 
-class Test_BootArgsNoDefault(_DiskbootImageEventTestCase):
-  "default boot args not included"
-  _conf =  _DiskbootImageEventTestCase._conf + [
-    "<diskboot-image>"
-    "  <boot-args use-defaults='false'>ro root=LABEL=/</boot-args>"
-    "</diskboot-image>",
-  ]
-
-  def setUp(self):
-    _DiskbootImageEventTestCase.setUp(self)
-    self.do_defaults = False
-
-class Test_BootArgsMacros(_DiskbootImageEventTestCase):
-  "macro usage with non-default boot args"
-  _conf = _DiskbootImageEventTestCase._conf + [
-    "<diskboot-image>"
-    "  <boot-args use-defaults='false'>ro root=LABEL=/ %{method} %{ks}</boot-args>"
-    "</diskboot-image>",
-  ]
-
-  def setUp(self):
-    _DiskbootImageEventTestCase.setUp(self)
-    self.do_defaults = False
-
-
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('diskboot-image')
 
@@ -115,7 +90,5 @@ def make_suite(distro, version, arch):
   suite.addTest(imm_make_suite(_DiskbootImageEventTestCase, distro, version, arch, xpath='files'))
   suite.addTest(Test_CvarContent(distro, version, arch))
   suite.addTest(Test_BootArgsDefault(distro, version, arch))
-  suite.addTest(Test_BootArgsNoDefault(distro, version, arch))
-  suite.addTest(Test_BootArgsMacros(distro, version, arch))
 
   return suite
