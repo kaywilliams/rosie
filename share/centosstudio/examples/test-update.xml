@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <solution xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<!-- test-install element -->
-<test-install domain="local">
+<!-- test-update element -->
+<test-update domain="local">
 
 <kickstart>
 <xi:include href="ks.cfg" parse="text"/>
@@ -12,13 +12,9 @@
             xpointer="xpointer(/root/activate-script |
                                /root/delete-script |
                                /root/install-script |
-                               /root/verify-install-script)"/>
+                               /root/verify-install-script |
+                               /root/update-script)"/>
 
-<post-script ssh="false">
-<xi:include href="deploy.xml"
-            xpointer="xpointer(/root/delete-script/node())"/>
-</post-script>
-
-</test-install>
+</test-update>
 
 </solution>

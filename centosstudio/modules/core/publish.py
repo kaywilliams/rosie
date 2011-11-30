@@ -51,6 +51,8 @@ class PublishSetupEvent(PublishEventMixin, Event):
       suppress_run_message=True,
     )
 
+    PublishEventMixin.__init__(self)
+
     self.DATA = {
       'variables': ['solutionid'],
       'config': ['local-dir', 'remote-url'],
@@ -163,16 +165,15 @@ class DeployEvent(DeployEventMixin, Event):
       requires = ['web-path', 'published-repository'],
     )
 
-    DeployEventMixin.__init__(self)
-
-    if self.scripts_provided is False: self.disable()
-
     self.DATA =  {
       'variables': [],
       'config':    ['.'],
       'input':     [],
       'output':    [],
     }
+
+    DeployEventMixin.__init__(self)
+    if self.scripts_provided is False: self.disable()
 
   def setup(self):
     self.diff.setup(self.DATA)

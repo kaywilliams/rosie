@@ -65,7 +65,7 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     # config-rpm
     if 'config-release' in self.cvars:
       ConfigEventMixin.setup(self, webpath=self.webpath, 
-                         release=self.cvars['config-release'] + '.test',
+                         release=self.cvars['config-release'],
                          files_cb=self.link_callback, 
                          files_text=self.log(4, L2("gathering config content")))
       self.DATA['variables'].append('cvars[\'config-release\']')

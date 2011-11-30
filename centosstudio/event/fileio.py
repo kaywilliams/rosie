@@ -35,6 +35,7 @@ class IOMixin:
 
   def error(self, e):
     debugdir = self.mddir + '.debug'
+    debugdir.rm(recursive=True, force=True)
     self.mddir.rename(debugdir)
 
   def verify_output_exists(self):

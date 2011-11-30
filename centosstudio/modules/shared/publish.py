@@ -19,11 +19,45 @@ import array
 import fcntl
 import platform
 import socket
+import string
 import struct
+
+from crypt import crypt
+from random import choice
+
+from centosstudio.modules.shared import datfile 
 
 from centosstudio.util import pps, shlib
 
-class PublishEventMixin:
+# Include this mixin in any event that requires hostname and password 
+class PublishEventMixin(datfile.DatfileMixin):
+  def __init__(self):
+    datfile.DatfileMixin.__init__(self)
+
+    # default hostname
+    if 'publish' in self.moduleid: 
+      hostname = self.solutionid
+    else:
+      hostname = '%s-%s' % (self.solutionid, self.moduleid)
+
+    # final values
+    self.hostname = self.config.get('@hostname', hostname)
+    self.domain   = self.config.get('@domain', None)
+    self.password = self.config.get('@password', self.datfile.get(
+                    '/*/%s/password/text()' % self.moduleid, 
+                    self.gen_password()))
+    self.crypt_password = self.datfile.get(
+                          '/*/%s/crypt-password/text()' % self.moduleid,
+                          self.encrypt_password(self.password))
+    self.write_datfile(self.password, self.crypt_password)
+
+    # set macros
+    self.macros = {}
+    for macro in ['hostname', 'domain', 'password', 'crypt_password']:
+      if eval('self.%s' % macro) is not None:
+        self.macros[('%%{%s}' % macro).replace('_','-')] = eval(
+                                                           'self.%s' % macro)
+
   def get_local(self, default):
     local = self.config.getpath('/solution/%s/local-dir/text()' % 
                                 self.moduleid, default)
@@ -60,6 +94,26 @@ class PublishEventMixin:
     if self.cvars['selinux-enabled']:
       shlib.execute('chcon -R --type=httpd_sys_content_t %s' % path)
 
+  def gen_password(self):
+   size = 8 
+   return ''.join([choice(string.letters + string.digits) for i in range(size)])
+
+  def encrypt_password(self, password):
+    salt_pop = string.letters + string.digits + '.' + '/'
+    salt = ''
+    for i in range(8):
+      salt = salt + choice(salt_pop)
+    salt = '$6$' + salt
+    return crypt(password, salt)
+
+  def write_datfile(self, password, crypt_password):
+    root = self.datfile.get('/solution')
+    parent   = datfile.uElement(self.moduleid, parent=root)
+    password = datfile.uElement('password', parent=parent, text=password)
+    crypt_password = datfile.uElement('crypt-password', parent=parent, 
+                     text=crypt_password)
+    root.write(self.datfn, self._config.file)
+
 # TODO - improve these, they're pretty vulnerable to changes in offsets and
 # the like
 def get_ipaddr(ifname='eth0'):
@@ -95,6 +149,4 @@ def get_interfaces():
   return ( [ ( namestr[i:i+noffset].split('\0', 1)[0],
                socket.inet_ntoa(namestr[i+20:i+24]) )
              for i in range(0, outbytes, roffset) ] )
-
-
 

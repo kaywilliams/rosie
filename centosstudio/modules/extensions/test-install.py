@@ -81,11 +81,11 @@ class TestInstallEvent(DeployEventMixin, Event):
     else:
       self.config_release = None
     self.DATA['variables'].extend(['webpath', 'kstext', 'titext', 
-                                   'repomdfile', 'config_release'])
+                                   'config_release'])
     DeployEventMixin.setup(self)
 
   def run(self):
     self.install_triggers = [ 'install-script', 'kickstart', 'treeinfo',
-                              'config-release', 'activate' ]
+                              'config-release', ]
     DeployEventMixin.run(self)
 

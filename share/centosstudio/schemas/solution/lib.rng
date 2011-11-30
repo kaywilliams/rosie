@@ -201,6 +201,7 @@
     <optional>
     <optional><attribute name="hostname"/></optional>
     <optional><attribute name="password"/></optional>
+    <optional><attribute name="domain"/></optional>
     </optional>
   </define>
 

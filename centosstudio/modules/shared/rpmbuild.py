@@ -22,22 +22,19 @@ import lxml
 
 from centosstudio.util import mkrpm
 from centosstudio.util import pps
-from centosstudio.util import rxml
 
 from centosstudio.errors    import CentOSStudioError
 from centosstudio.event     import Event
 from centosstudio.cslogging import L1
 
+from centosstudio.modules.shared import datfile
+
 __all__ = ['RpmBuildMixin', 'Trigger', 'TriggerContainer']
 
-class RpmBuildMixin:
+class RpmBuildMixin(datfile.DatfileMixin):
   def __init__(self, *args, **kwargs):
     self.rpm = RpmBuildObject(self, *args,**kwargs)
-
-  def check(self):
-    return self.rpm.release == '0' or \
-           not self.rpm.autofile.exists() or \
-           self.diff.test_diffs()
+    datfile.DatfileMixin.__init__(self)
 
   def setup(self):
     self.rpm.setup_build()
@@ -134,12 +131,6 @@ class RpmBuildObject:
     self.packagereq_default  = packagereq_default
     self.packagereq_requires = packagereq_requires
 
-    self.autofile = (self.ptr._config.getpath(
-                     '/solution/config/@datafile-dir', 
-                     self.ptr._config.file.dirname) / 
-                     self.ptr._config.file.basename + '.dat')
-    self.autofile.dirname.mkdirs()
-
     # RPM build variables
     self.build_folder  = self.ptr.mddir / 'build'
     self.bdist_base    = self.build_folder / 'rpm-base'
@@ -173,12 +164,8 @@ class RpmBuildObject:
   def setup_build(self, release=None, **kwargs):
     self.force_release = release
 
-    if self.autofile.exists():
-      self.release = rxml.config.parse(self.autofile).getroot().get(
-       '/solution/rpms/%s/release/text()' %
-       (self.ptr.id), '0')
-    else:
-      self.release = '0'
+    self.release = self.ptr.datfile.get('/solution/rpms/%s/release/text()' %
+                                   (self.ptr.id), '0')
 
     self.obsoletes.extend(self.ptr.config.xpath('obsoletes/text()', []))
     self.obsoletes.extend(kwargs.get('obsoletes', []))
@@ -204,26 +191,16 @@ class RpmBuildObject:
                                        'rpm.version'])
 
   def save_release(self):
-    if self.autofile.exists():
-      root = rxml.config.parse(self.autofile).getroot().get('/solution')
-    else:
-      root = rxml.config.Element('solution')
+    root = self.ptr.datfile.get('/solution')
 
-    rpms     = rxml.config.uElement('rpms', parent=root)
-    parent   = rxml.config.uElement(self.ptr.id, parent=rpms)
-    release  = rxml.config.uElement('release', parent=parent, text=self.release)
+    rpms     = datfile.uElement('rpms', parent=root)
+    parent   = datfile.uElement(self.ptr.id, parent=rpms)
+    release  = datfile.uElement('release', parent=parent, text=self.release)
 
-    root.write(self.autofile)
-
-    if self.ptr._config.file.exists():
-      # set the mode and ownership of .dat file to match definition file.
-      st = self.ptr._config.file.stat()
-      self.autofile.chown(st.st_uid, st.st_gid)
-      self.autofile.chmod(st.st_mode)
+    root.write(self.ptr.datfn, self.ptr._config.file)
 
   def check_release(self):
     if ( self.release == '0' or
-         not self.autofile.exists() or
          not self.ptr.mdfile.exists() or
          self.ptr.diff.input.difference() or
          self.ptr.diff.variables.difference() or

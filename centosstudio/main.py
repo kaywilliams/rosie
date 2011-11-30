@@ -138,17 +138,18 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
       if self.debug: raise
       sys.exit(1)
       
-    self.basearch        = getBaseArch(self.arch)
+    self.basearch    = getBaseArch(self.arch)
     self.solutionid  = self.definition.get(qstr % 'id',
                           '%s-%s-%s' % (self.name,
                                           self.version,
                                           self.basearch))
 
     # expand global macros, module macros handled during validation
-    map = {'%{name}':    self.name,
-           '%{version}': self.version,
-           '%{arch}':    self.basearch,
-           '%{id}':      self.solutionid}
+    map = {'%{name}':     self.name,
+           '%{version}':  self.version,
+           '%{arch}':     self.basearch,
+           '%{id}':       self.solutionid,
+           }
 
     try: 
       # top-level macros
@@ -407,15 +408,16 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     di = Event.cvars['distribution-info'] = {}
     qstr = '/solution/main/%s/text()'
 
-    di['name']         = self.name 
-    di['version']      = self.version
-    di['arch']         = self.arch
-    di['basearch']     = self.basearch
-    di['solutionid']   = self.solutionid
-    di['anaconda-version'] = None
-    di['fullname']     = Event._config.get(qstr % 'fullname', di['name'])
-    di['packagepath']  = 'Packages'
-    di['webloc']       = Event._config.get(qstr % 'bug-url', 'No bug url provided')
+    di['name']              = self.name 
+    di['version']           = self.version
+    di['arch']              = self.arch
+    di['basearch']          = self.basearch
+    di['solutionid']        = self.solutionid
+    di['anaconda-version']  = None
+    di['fullname']          = Event._config.get(qstr % 'fullname', di['name'])
+    di['packagepath']       = 'Packages'
+    di['webloc']            = Event._config.get(qstr % 'bug-url', 
+                                                'No bug url provided')
 
     for k,v in di.items():
       setattr(Event, k, v)

@@ -20,7 +20,9 @@ import rpm
 from centosstudio.errors import CentOSStudioError
 from centosstudio.util.versort import Version
 
-class KickstartEventMixin:
+from centosstudio.modules.shared.publish import PublishEventMixin
+
+class KickstartEventMixin(PublishEventMixin):
   kickstart_mixin_version = "1.02"
 
   def __init__(self):
@@ -32,6 +34,8 @@ class KickstartEventMixin:
     h = list(ts.dbMatch('name', 'pykickstart'))[0]
     self.cvars['pykickstart-version'] = Version("%s-%s" % 
                                                 (h['version'], h['release']))
+
+    PublishEventMixin.__init__(self) # provides password and hostname
 
   def setup(self):
     self.ksfile = self.SOFTWARE_STORE/self.ksname

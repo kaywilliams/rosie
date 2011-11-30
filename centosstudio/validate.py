@@ -78,6 +78,7 @@ class CentOSStudioValidationHandler:
     for event in self.dispatch:
       eid = event.__module__.split('.')[-1]
       if eid in tle_elements: continue # don't re-validate
+      v.resolve_macros(tree=self, moduleid=eid, event=event)
       v.validate(eid, schema_file='%s.rng' % eid)
       if self.definition.pathexists(eid):
         tle_elements.add(eid)
@@ -110,6 +111,10 @@ class BaseConfigValidator:
 
     self.curr_schema = None
 
+  def resolve_macros(self, moduleid, event, tree, map=None):
+    tree.definition.resolve_macros(xpaths=['/*/%s/' % moduleid], 
+                                   map=getattr(event, 'macros', {}))
+
   def validate(self, xpath_query, schema_file=None, schema_contents=None):
     if schema_file and schema_contents:
       raise AttributeError("'schema_file' and 'schema_contents' "
@@ -118,8 +123,6 @@ class BaseConfigValidator:
       raise AttributeError("Either 'schema_file' or 'schema_contents' "
                            "must be provided.")
     element = xpath_query.lstrip('/')
-
-    self.config.resolve_macros(xpaths=['/*/%s/' % element])
     tree = self._scrub_tree(self.config.get(xpath_query, None))
     if schema_contents:
       self.validate_with_string(schema_contents, tree, element)

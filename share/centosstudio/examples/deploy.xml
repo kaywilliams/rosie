@@ -22,8 +22,8 @@ elif vm.create() != 0:
 <delete-script>
 #!/bin/bash
 set -e
-if [[ `virsh list` = *%{hostname}* ]]; then virsh destroy %{hostname}; fi
-if [[ `virsh list --all` = *%{hostname}* ]]; then virsh undefine %{hostname}; fi
+if [[ `virsh list` = *\ %{hostname}\ * ]]; then virsh destroy %{hostname}; fi
+if [[ `virsh list --all` = *\ %{hostname}\ * ]]; then virsh undefine %{hostname}; fi
 </delete-script>
 
 <install-script>

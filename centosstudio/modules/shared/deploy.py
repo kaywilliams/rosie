@@ -27,27 +27,31 @@ import subprocess as sub
 from centosstudio.cslogging import L0, L1, L2
 from centosstudio.errors import CentOSStudioError
 from centosstudio.util import sshlib
-from centosstudio.validate import InvalidConfigError
+
+from centosstudio.modules.shared.publish import PublishEventMixin
 
 from UserDict import DictMixin
 
 SSH_RETRIES = 24
 SSH_SLEEP = 5
 
-class DeployEventMixin:
+class DeployEventMixin(PublishEventMixin):
   deploy_mixin_version = "1.00"
 
   def __init__(self):
-    # messy - we're doing this in init rather than in validate (where it 
-    # should technically be) be so that if no scripts are present
+    # we're doing this in init rather than in validate (where it 
+    # should technically be) so that if no scripts are present
     # (i.e. scripts_provided is False) parent events can disable themselves.
+
+    PublishEventMixin.__init__(self)
 
     # setup ssh  values
     self.ssh = dict(
-      hostname = self.config.get('@hostname', ''),
+      hostname = ((self.domain and '%s.%s' % (self.hostname, self.domain)) 
+                  or self.hostname),
       port     = 22,
       username = 'root',
-      password = self.config.get('@password', ''),
+      password = self.password,
       )
 
     # set up script default parameters
@@ -90,16 +94,13 @@ class DeployEventMixin:
         if self.config.get('%s/@ssh' % script, []):
           self.scripts[script]['ssh'] = self.config.getbool('%s/@ssh' % script)
 
-        # validate that hostname and password have been provided
-        if self.scripts[script]['ssh'] and not self.ssh['hostname']:
-          raise(InvalidConfigError)(self.config.getroot().file,
-                ("[%(id)s] Validation Error: '%(script)s' requires the 'hostname' attribute to be set on the '%(id)s' element. Else, set 'ssh' to false on the '%(script)s' element."
-                 % dict(id = self.id, script = script)))
-        if self.scripts[script]['ssh'] and not self.ssh['password']:
-          raise(InvalidConfigError)(self.config.getroot().file,
-                ("[%(id)s] Validation Error: '%(script)s' requires the 'password' attribute to be set on the '%(id)s' element. Else, set 'ssh' to false on the '%(script)s' element."
-                 % dict(id = self.id, script = script)))
-
+  def validate(self):
+    # validate that hostname and password have been provided
+    for script in self.scripts:
+      for attribute in ['hostname', 'password']:
+        if self.scripts[script]['ssh'] and not self.ssh[attribute]:
+          raise DeployValidationError(id = self.id, script = script, 
+                                      attribute = attribute)
 
   def setup(self): 
     # needs to be called after self.webpath, self.repomdfile and self.kstext
@@ -125,6 +126,9 @@ class DeployEventMixin:
 
     for key in self.ssh:
       self.DATA['config'].append('@%s' % key)
+
+  def check(self):
+    return self.diff.test_diffs(debug=True)
 
   def run(self):
     for script in self.scripts:
@@ -307,7 +311,15 @@ class SSHFailedError(ScriptFailedError):
 Error message: '%(message)s'
 SSH parameters: '%(params)s"""
 
+class DeployValidationError(CentOSStudioError):
+  message = """\n
+[%(id)s] Validation Error: %(script)s requires a %(attribute)s for
+SSH execution. Please correct using one of the following methods: 
+* Set the '%(attribute)s' attribute on the '%(id)s' element. 
+* Set the 'ssh' attribute to false on the '%(script)s' element.
+"""
 
+##### Callbacks #####
 class SSHConnectCallback:
   def __init__(self, logger):
     self.logger = logger
@@ -317,4 +329,3 @@ class SSHConnectCallback:
 
   def retry(self, message, *args, **kwargs):
     self.logger.log(2, L2(message))
-

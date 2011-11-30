@@ -241,18 +241,22 @@ class ConfigElement(tree.XmlTreeElement):
     xpaths = xpaths or ['/*']
     map = map or {}
 
+    # locate and remove macro definitions
     for item in xpaths:
       for elem in self.xpath('%s/macro' % item, []):
         name = '%%{%s}' % elem.attrib['id']
         if name not in map:
           map[name] = elem.text
         else:
-          message = ("\nError while reading \"%s\"\n  duplicate macros found with the id '%s'" % (self.getroot().file, elem.attrib['id']))
+          message = ("\nError resolving macros in '%s'\n  Duplicate macros found with the id '%s'. The invalid section is:\n%s\n" % (self.getroot().file, elem.attrib['id'], tree.XmlTreeElement.tostring(elem, lineno=True)))
           raise errors.ConfigError(message)
 
         elem.getparent().remove(elem)
 
-    self.replace(map)
+    # expand macros
+    for item in xpaths:
+      for elem in self.xpath(item.rstrip('/'), []):
+        elem.replace(map)
 
 
 class ConfigTreeSaxHandler(tree.XmlTreeSaxHandler):

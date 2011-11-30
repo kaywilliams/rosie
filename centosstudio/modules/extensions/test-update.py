@@ -41,6 +41,7 @@ class TestUpdatePublishEvent(TestPublishEventMixin, Event):
       version = 1.0,
       requires = ['os-dir'],
       conditionally_requires = [ 'kickstart-file', 'config-release'],
+      conditionally_comes_after = [ 'test-install' ],
       provides = ['test-update-webpath', 'test-update-repomdfile', 
                   'test-update-kstext'],
     )
