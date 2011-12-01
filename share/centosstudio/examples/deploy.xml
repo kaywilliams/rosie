@@ -31,8 +31,8 @@ if [[ `virsh list --all` = *\ %{hostname}\ * ]]; then virsh undefine %{hostname}
 virt-install --name %{hostname} --ram 1000 \
              --file /var/lib/libvirt/images/%{hostname}.img \
              --file-size 30 \
-             --location $1 \
-             --extra-args "lang=en_US keymap=us ip=dhcp ks=$1/ks.cfg"\
+             --location %{url} \
+             --extra-args "%{bootargs} ks=%{url}/ks.cfg"\
              --noreboot
 </install-script>
 

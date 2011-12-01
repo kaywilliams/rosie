@@ -45,9 +45,6 @@ class TestInstallPublishEvent(TestPublishEventMixin, Event):
                   'test-install-kstext'],
     ) 
 
-    self.localpath = self.get_local('/var/www/html/solutions/test-install')
-    self.webpath = self.get_remote('solutions/test-install')
-
     TestPublishEventMixin.__init__(self)
 
 
@@ -61,14 +58,14 @@ class TestInstallEvent(DeployEventMixin, Event):
       conditionally_requires = [ 'test-install-repomdfile', 'config-release'],
     )
 
-    DeployEventMixin.__init__(self)
-
     self.DATA =  {
       'config':    [], # populated by mixin
       'input':     [], # ditto
       'output':    [], # ditto
       'variables': [], # populated in setup
     }
+
+    DeployEventMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)

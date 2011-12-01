@@ -57,29 +57,23 @@ class DeployEventMixin(PublishEventMixin):
     # set up script default parameters
     self.scripts = {
              'activate-script': dict(ssh=False,
-                              enabled = False,
-                              arguments=[]),
+                              enabled = False),
              'delete-script': dict(message='running clean script',
                               enabled = False,
-                              ssh=False,
-                              arguments=[]),
+                              ssh=False),
              'install-script': dict(message='running install script',
                               enabled = False,
-                              ssh=False,
-                              arguments=[]),
+                              ssh=False),
              'verify-install-script': 
                               dict(message='running verify-install script',
                               enabled = False,
-                              ssh=True,
-                              arguments=[]),
+                              ssh=True),
              'update-script': dict(message='running update script',
                               enabled = False,
-                              ssh=True,
-                              arguments=[]),
+                              ssh=True),
              'post-script':   dict(message='running post script',
                               enabled = False,
-                              ssh=True,
-                              arguments=[])}
+                              ssh=True)}
 
 
     # update scripts dict using config and validate script attributes
@@ -116,8 +110,6 @@ class DeployEventMixin(PublishEventMixin):
 
     self.DATA['variables'].extend(['webpath', 'kstext'])
     self.DATA['input'].append(self.repomdfile)
-    # set webpath argument on install script
-    self.scripts['install-script']['arguments'] = [self.webpath]
 
     for script in self.scripts:
       if self.scripts[script]['enabled']:
@@ -126,9 +118,6 @@ class DeployEventMixin(PublishEventMixin):
 
     for key in self.ssh:
       self.DATA['config'].append('@%s' % key)
-
-  def check(self):
-    return self.diff.test_diffs(debug=True)
 
   def run(self):
     for script in self.scripts:
@@ -205,8 +194,7 @@ class DeployEventMixin(PublishEventMixin):
     if not self.io.list_output(script): return
     if 'message' in self.scripts[script]:
       self.log(1, L1(self.scripts[script]['message']))
-    cmd = '%s %s' % (self.io.list_output(what=script)[0], 
-                     ' '.join(self.scripts[script]['arguments']))
+    cmd = self.io.list_output(what=script)[0]
     if not self.scripts[script]['ssh']: 
     # run cmd on the local machine
       r = sub.call(cmd, shell=True)
@@ -244,8 +232,7 @@ class DeployEventMixin(PublishEventMixin):
       sftp.chmod('.centosstudio/%s' % script, mode=0750)
   
       # execute script
-      cmd = './.centosstudio/%s %s' % (script, 
-            ' '.join(self.scripts[script]['arguments']))
+      cmd = './.centosstudio/%s' % script
       self.log(2, L2("executing '%s' on '%s'" % (cmd, params['hostname'])))
       chan = client._transport.open_session()
       chan.exec_command(cmd)

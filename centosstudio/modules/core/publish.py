@@ -51,18 +51,15 @@ class PublishSetupEvent(PublishEventMixin, Event):
       suppress_run_message=True,
     )
 
-    PublishEventMixin.__init__(self)
-
     self.DATA = {
-      'variables': ['solutionid'],
-      'config': ['local-dir', 'remote-url'],
+      'variables': [],
+      'config': [],
     }
+
+    PublishEventMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)
-
-    self.localpath = self.get_local('/var/www/html/solutions')
-    self.webpath   = self.get_remote('solutions')
 
   def apply(self):
     self.cvars['publish-content'] = set()
@@ -83,14 +80,14 @@ class KickstartEvent(KickstartEventMixin, Event):
     if self.config.get('kickstart', False) is False: 
       self.disable()
       return
-      
-    KickstartEventMixin.__init__(self)
 
     self.DATA = {
-      'config':    ['kickstart'],
-      'variables': ['kickstart_mixin_version'],
+      'config':    [],
+      'variables': [],
       'output':    [],
     }
+
+    KickstartEventMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)
@@ -110,7 +107,7 @@ class KickstartEvent(KickstartEventMixin, Event):
     self.verifier.failUnlessExists(self.cvars['kickstart-file'])
 
 
-class PublishEvent(PublishEventMixin, Event):
+class PublishEvent(Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish',
@@ -139,7 +136,7 @@ class PublishEvent(PublishEventMixin, Event):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
     self.io.process_files(text="publishing to '%s'" % self.cvars['publish-path'],
                        callback=Event.link_callback)
-    self.chcon(self.cvars['publish-path'])
+    self.io.chcon(self.cvars['publish-path'])
 
   def clean_eventcache(self):
     self.io.clean_eventcache()

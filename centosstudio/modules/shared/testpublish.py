@@ -29,22 +29,18 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
   def __init__(self):
 
     self.configxpath = 'config'
+
+    self.DATA =  {
+      'config':    [],
+      'input':     [],
+      'output':    [],
+      'variables': [],
+    }
+
     ConfigEventMixin.__init__(self)
     RepomdMixin.__init__(self)
     KickstartEventMixin.__init__(self)
-
-    # requires self.localpath and self.webpath to be set by containing event,
-    # e.g.,
-    # self.localpath = self.get_local('/var/www/html/solutions/test-install')
-    # self.webpath = self.get_remote('solutions/test-install')
-
-    self.DATA =  {
-      'config':    ['local-dir', 'remote-url', 'kickstart'],
-      'input':     [],
-      'output':    [],
-      'variables': ['localpath', 'webpath', 'config_mixin_version', 
-                    'kickstart_mixin_version'],
-    }
+    PublishEventMixin.__init__(self)
 
   def clean(self):
     Event.clean(self)
@@ -108,7 +104,7 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     self.log(0, L1('publishing to %s' % self.localpath))
     self.localpath.rm(force=True)
     self.link(self.SOFTWARE_STORE, self.localpath) 
-    self.chcon(self.localpath)
+    self.io.chcon(self.localpath)
 
   def apply(self):
     self.cvars['%s-webpath' % self.moduleid ] = self.webpath

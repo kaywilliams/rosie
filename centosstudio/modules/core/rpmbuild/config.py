@@ -50,15 +50,15 @@ class ConfigEvent(ConfigEventMixin, Event):
       requires = ['input-repos', 'pubkey', 'web-path'],
     )
 
-    ConfigEventMixin.__init__(self) 
-
     self.DATA = {
-      'variables': ['name', 'fullname', 'solutionid', 'rpm.release',
-                    'cvars[\'web-path\']'],
+      'variables': ['name', 'fullname', 'rpm.release', 'cvars[\'web-path\']'],
       'config':    ['.'],
       'input':     [],
       'output':    [],
     }
+
+    ConfigEventMixin.__init__(self) 
+
   def setup(self):
     ConfigEventMixin.setup(self, webpath=self.cvars['web-path']/'os')
 

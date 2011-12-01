@@ -36,8 +36,9 @@ class RpmBuildMixin(datfile.DatfileMixin):
     self.rpm = RpmBuildObject(self, *args,**kwargs)
     datfile.DatfileMixin.__init__(self)
 
-  def setup(self):
-    self.rpm.setup_build()
+  def setup(self, **kwargs):
+    datfile.DatfileMixin.parse(self)
+    self.rpm.setup_build(**kwargs)
 
   def run(self):
     R = self.rpm

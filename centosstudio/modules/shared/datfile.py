@@ -28,11 +28,11 @@ class DatfileMixin:
                         self._config.file.basename + '.dat')
     self.datfn.dirname.mkdirs()
 
+  def parse(self):
     if self.datfn.exists():
       self.datfile = parse(self.datfn).getroot().get('/solution')
     else:
       self.datfile = Element('solution')
-
 
 class DatfileElement(rxml.config.ConfigElement):
   "An element in a Datfile XML tree."

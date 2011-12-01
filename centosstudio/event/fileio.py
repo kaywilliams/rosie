@@ -17,6 +17,7 @@
 #
 from centosstudio.util import pps
 from centosstudio.util import rxml
+from centosstudio.util import shlib 
 
 from centosstudio.util.pps.constants import *
 
@@ -55,6 +56,10 @@ class IOObject(object):
   def abspath(self, f):
     "Transform a path, f, to an absolute path"
     return self.ptr._config.file.dirname / f
+
+  def chcon(self, path):
+    if self.ptr.cvars['selinux-enabled']:
+      shlib.execute('chcon -R --type=httpd_sys_content_t %s' % path)
 
   def compute_mode(self, src, mode, content):
     if content == 'text':

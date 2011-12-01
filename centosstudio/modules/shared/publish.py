@@ -27,21 +27,21 @@ from random import choice
 
 from centosstudio.modules.shared import datfile 
 
-from centosstudio.util import pps, shlib
+from centosstudio.util import pps
 
 # Include this mixin in any event that requires hostname and password 
 class PublishEventMixin(datfile.DatfileMixin):
+  publish_mixin_version = "1.00"
+
   def __init__(self):
     datfile.DatfileMixin.__init__(self)
+    datfile.DatfileMixin.parse(self)
 
-    # default hostname
-    if 'publish' in self.moduleid: 
-      hostname = self.solutionid
-    else:
-      hostname = '%s-%s' % (self.solutionid, self.moduleid)
+    self.DATA['variables'].append('publish_mixin_version')
 
-    # final values
-    self.hostname = self.config.get('@hostname', hostname)
+    self.localpath= self.get_local()
+    self.webpath  = self.get_remote()
+    self.hostname = self.get_hostname()
     self.domain   = self.config.get('@domain', None)
     self.password = self.config.get('@password', self.datfile.get(
                     '/*/%s/password/text()' % self.moduleid, 
@@ -52,18 +52,33 @@ class PublishEventMixin(datfile.DatfileMixin):
     self.write_datfile(self.password, self.crypt_password)
 
     # set macros
-    self.macros = {}
-    for macro in ['hostname', 'domain', 'password', 'crypt_password']:
-      if eval('self.%s' % macro) is not None:
-        self.macros[('%%{%s}' % macro).replace('_','-')] = eval(
-                                                           'self.%s' % macro)
+    self.macros = {'%{url}':  str(self.webpath),
+                   '%{hostname}': self.hostname,
+                   '%{password}': self.password,
+                   '%{crypt-password}': self.crypt_password}
+    if self.domain is not None:
+      self.macros['%{domain}'] = self.domain 
 
-  def get_local(self, default):
+  def get_local(self):
+    self.DATA['config'].append('local-dir')
+    self.DATA['variables'].append('localpath')
+    if self.moduleid == 'publish':
+      default = '/var/www/html/solutions'
+    else:
+      default = '/var/www/html/solutions/%s' % self.moduleid
+
     local = self.config.getpath('/solution/%s/local-dir/text()' % 
                                 self.moduleid, default)
     return local / self.solutionid
   
-  def get_remote(self, default): 
+  def get_remote(self): 
+    self.DATA['config'].append('remote-url')
+    self.DATA['variables'].append('webpath')
+    if self.moduleid == 'publish':
+      default = 'solutions'
+    else:
+      default = 'solutions/%s' % self.moduleid
+
     remote = pps.path(self.config.getpath('/solution/%s/remote-url/text()'
                       % self.moduleid, 
                       self._get_host(default, 'remote-url', ifname =
@@ -90,9 +105,13 @@ class PublishEventMixin(datfile.DatfileMixin):
         raise FQDNNotFoundError(realm, ifname, names)
     return 'http://'+realm+'/'+default
 
-  def chcon(self, path):
-    if self.cvars['selinux-enabled']:
-      shlib.execute('chcon -R --type=httpd_sys_content_t %s' % path)
+  def get_hostname(self):
+    if self.moduleid == 'publish':
+      default = self.solutionid
+    else:
+      default = '%s-%s' % (self.solutionid, self.moduleid)
+
+    return self.config.get('@hostname', default)
 
   def gen_password(self):
    size = 8 

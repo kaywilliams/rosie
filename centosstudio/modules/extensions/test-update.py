@@ -46,9 +46,6 @@ class TestUpdatePublishEvent(TestPublishEventMixin, Event):
                   'test-update-kstext'],
     )
 
-    self.localpath = self.get_local('/var/www/html/solutions/test-update')
-    self.webpath = self.get_remote('solutions/test-update')
-
     TestPublishEventMixin.__init__(self)
 
 
@@ -61,14 +58,14 @@ class TestUpdateEvent(DeployEventMixin, Event):
                   'test-update-kstext'], 
     )
 
-    DeployEventMixin.__init__(self)
-
     self.DATA =  {
       'config':    [], # populated by mixin
       'input':     [], # ditto
       'output':    [], # ditto
       'variables': [], # populated in setup
     }
+
+    DeployEventMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)

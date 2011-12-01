@@ -39,6 +39,7 @@ class ConfigEventMixin(RpmBuildMixin):
   config_mixin_version = "1.07"
 
   def __init__(self): # call after creating self.DATA
+    self.DATA['variables'].append('config_mixin_version')
     RpmBuildMixin.__init__(self,
       'system-config', #if you change this, you must also change core/repos.py
       "The system-config package provides scripts and supporting files for "
@@ -60,7 +61,7 @@ class ConfigEventMixin(RpmBuildMixin):
                       hashlib.md5(self.solutionid).hexdigest()[-6:])
     self.files_cb = files_cb
     self.files_text = files_text
-    self.rpm.setup_build(**kwargs)
+    RpmBuildMixin.setup(self, **kwargs)
 
     self.scriptdir   = self.rpm.build_folder/'scripts'
     self.installdir  = pps.path('/usr/local/system-config')
