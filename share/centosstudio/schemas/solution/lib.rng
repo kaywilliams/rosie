@@ -164,6 +164,7 @@
   <!-- publish elements -->
   <define name="content-publish-elements">
 
+    <interleave>
     <optional>
     <element name="remote-url">
       <optional>
@@ -185,6 +186,7 @@
     <optional>
       <element name="boot-options"><text/></element>
     </optional>
+    </interleave>
 
   </define>
 
