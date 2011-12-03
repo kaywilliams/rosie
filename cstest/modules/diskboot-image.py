@@ -18,7 +18,7 @@
 from centosstudio.util import pps
 
 from cstest        import EventTestCase, ModuleTestSuite
-from cstest.core   import make_core_suite
+from cstest.core   import make_extension_suite
 from cstest.mixins import (ImageModifyMixinTestCase, imm_make_suite,
                              BootOptionsMixinTestCase)
 
@@ -86,7 +86,7 @@ class Test_BootOptionsDefault(_DiskbootImageEventTestCase):
 def make_suite(distro, version, arch):
   suite = ModuleTestSuite('diskboot-image')
 
-  suite.addTest(make_core_suite(DiskbootImageEventTestCase, distro, version, arch))
+  suite.addTest(make_extension_suite(DiskbootImageEventTestCase, distro, version, arch))
   suite.addTest(imm_make_suite(_DiskbootImageEventTestCase, distro, version, arch, xpath='files'))
   suite.addTest(Test_CvarContent(distro, version, arch))
   suite.addTest(Test_BootOptionsDefault(distro, version, arch))

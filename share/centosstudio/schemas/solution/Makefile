@@ -4,11 +4,7 @@ all:
 
 install:
 	mkdir -p $(DESTDIR)/usr/share/centosstudio/schemas/solution
-	install -pm 644 bootiso.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/bootiso.rng
-	install -pm 644 chroot.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/chroot.rng
 	install -pm 644 config.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/config.rng
-	install -pm 644 deploy.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/deploy.rng
-	install -pm 644 diskboot-image.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/diskboot-image.rng
 	install -pm 644 iso.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/iso.rng
 	install -pm 644 kickstart.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/kickstart.rng
 	install -pm 644 lib.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/lib.rng
@@ -17,6 +13,7 @@ install:
 	install -pm 644 publish.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/publish.rng
 	install -pm 644 repos.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/repos.rng
 	install -pm 644 rpmbuild.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/rpmbuild.rng
-	install -pm 644 test.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/test.rng
+	install -pm 644 test-install.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/test-install.rng
+	install -pm 644 test-update.rng $(DESTDIR)/usr/share/centosstudio/schemas/solution/test-update.rng
 
 clean:
