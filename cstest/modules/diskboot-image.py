@@ -20,7 +20,7 @@ from centosstudio.util import pps
 from cstest        import EventTestCase, ModuleTestSuite
 from cstest.core   import make_core_suite
 from cstest.mixins import (ImageModifyMixinTestCase, imm_make_suite,
-                             BootConfigMixinTestCase)
+                             BootOptionsMixinTestCase)
 
 class DiskbootImageEventTestCase(EventTestCase):
   moduleid = 'diskboot-image'
@@ -31,7 +31,7 @@ class DiskbootImageEventTestCase(EventTestCase):
   ]
 
 class _DiskbootImageEventTestCase(ImageModifyMixinTestCase,
-                                  BootConfigMixinTestCase,
+                                  BootOptionsMixinTestCase,
                                   DiskbootImageEventTestCase):
   def __init__(self, distro, version, arch, conf=None):
     DiskbootImageEventTestCase.__init__(self, distro, version, arch, conf)
@@ -59,9 +59,9 @@ class _DiskbootImageEventTestCase(ImageModifyMixinTestCase,
 class Test_CvarContent(_DiskbootImageEventTestCase):
   "cvars['isolinux-files'] included"
   _conf = _DiskbootImageEventTestCase._conf + [
-    "<diskboot-image>"
-    "   <boot-args>ro root=LABEL=/</boot-args>"
-    " </diskboot-image>",
+    "<publish>"
+    "   <boot-options>ro root=LABEL=/</boot-options>"
+    " </publish>",
   ]
 
   def runTest(self):
@@ -71,12 +71,12 @@ class Test_CvarContent(_DiskbootImageEventTestCase):
       self.check_file_in_image(self.event.cvars['installer-splash'].basename)
     self.check_file_in_image(self.event.cvars['isolinux-files']['initrd.img'].basename)
 
-class Test_BootArgsDefault(_DiskbootImageEventTestCase):
+class Test_BootOptionsDefault(_DiskbootImageEventTestCase):
   "default boot args and config-specified args in syslinux.cfg"
   _conf = _DiskbootImageEventTestCase._conf + [
-    "<diskboot-image>"
-    "  <boot-args use-defaults='true'>ro root=LABEL=/</boot-args>"
-    "</diskboot-image>",
+    "<publish>"
+    "  <boot-options>ro root=LABEL=/</boot-options>"
+    "</publish>",
   ]
 
   def setUp(self):
@@ -89,6 +89,6 @@ def make_suite(distro, version, arch):
   suite.addTest(make_core_suite(DiskbootImageEventTestCase, distro, version, arch))
   suite.addTest(imm_make_suite(_DiskbootImageEventTestCase, distro, version, arch, xpath='files'))
   suite.addTest(Test_CvarContent(distro, version, arch))
-  suite.addTest(Test_BootArgsDefault(distro, version, arch))
+  suite.addTest(Test_BootOptionsDefault(distro, version, arch))
 
   return suite

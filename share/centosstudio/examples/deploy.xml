@@ -32,7 +32,7 @@ virt-install --name %{hostname} --ram 1000 \
              --file /var/lib/libvirt/images/%{hostname}.img \
              --file-size 30 \
              --location %{url} \
-             --extra-args "%{bootargs} ks=%{url}/ks.cfg"\
+             --extra-args "%{boot-options} ks=%{url}/ks.cfg"\
              --noreboot
 </install-script>
 

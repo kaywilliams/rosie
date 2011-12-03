@@ -47,11 +47,11 @@ class ConfigEvent(ConfigEventMixin, Event):
       version = '1.25',
       provides = ['rpmbuild-data', 'config-release', 'gpgkeys', 
                   'gpgcheck-enabled', 'os-content'],
-      requires = ['input-repos', 'pubkey', 'web-path'],
+      requires = ['input-repos', 'pubkey', 'publish-setup-options'],
     )
 
     self.DATA = {
-      'variables': ['name', 'fullname', 'rpm.release', 'cvars[\'web-path\']'],
+      'variables': ['name', 'fullname', 'rpm.release',],
       'config':    ['.'],
       'input':     [],
       'output':    [],
@@ -60,7 +60,8 @@ class ConfigEvent(ConfigEventMixin, Event):
     ConfigEventMixin.__init__(self) 
 
   def setup(self):
-    ConfigEventMixin.setup(self, webpath=self.cvars['web-path']/'os')
+    ConfigEventMixin.setup(self, 
+      webpath=self.cvars['publish-setup-options']['webpath']/'os')
 
   def apply(self):
     self.rpm._apply()

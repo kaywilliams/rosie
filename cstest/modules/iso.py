@@ -26,7 +26,7 @@ from centosstudio.splittree import parse_size
 
 from cstest        import EventTestCase, ModuleTestSuite
 from cstest.core   import make_core_suite, make_extension_suite
-from cstest.mixins import BootConfigMixinTestCase
+from cstest.mixins import BootOptionsMixinTestCase
 
 #------ pkgorder ------#
 class PkgorderEventTestCase(EventTestCase):
@@ -38,14 +38,20 @@ class PkgorderEventTestCase(EventTestCase):
 class IsoEventTestCase(EventTestCase):
   moduleid = 'iso'
   eventid  = 'iso'
-  _conf = """<iso>
-    <boot-args>ro root=LABEL=/</boot-args>
+  _conf = ["""
+  <iso>
     <set>CD</set>
     <set>400 MB</set>
-  </iso>"""
+  </iso>
+  """, 
+  """
+  <publish>
+    <boot-options>ro root=LABEL=/</boot-options>
+  </publish>
+  """]
 
 
-class IsoEventBootConfigTestCase(BootConfigMixinTestCase, IsoEventTestCase):
+class IsoEventBootOptionsTestCase(BootOptionsMixinTestCase, IsoEventTestCase):
   def __init__(self, distro, version, arch, conf=None):
     IsoEventTestCase.__init__(self, distro, version, arch, conf)
     self.default_args = ['method=cdrom']
@@ -87,12 +93,14 @@ class Test_SizeParser(unittest.TestCase):
 
 class Test_IsoContent(IsoEventTestCase):
   "iso content matches split tree content"
-  _conf = \
+  _conf = [
   """<iso>
-    <boot-args>ro root=LABEL=/</boot-args>
     <set>CD</set>
     <set>400 MB</set>
-  </iso>"""
+  </iso>""",
+  """<publish>
+    <boot-options>ro root=LABEL=/</boot-options>
+  </publish>"""]
 
   def runTest(self):
     self.tb.dispatch.execute(until='iso')
@@ -114,26 +122,31 @@ class Test_IsoContent(IsoEventTestCase):
         self.failIf(not split_set.issubset(image_set), # ignore TRANS.TBL, etc
                     split_set.difference(image_set))
 
-class Test_SetsChanged(IsoEventBootConfigTestCase):
+class Test_SetsChanged(IsoEventBootOptionsTestCase):
   "iso sets change"
-  _conf = \
+  _conf = [
   """<iso>
-    <boot-args>ro root=LABEL=/</boot-args>
+    <boot-options>ro root=LABEL=/</boot-options>
     <set>640MB</set>
     <set>101 MiB</set>
-  </iso>"""
+  </iso>""",
+  """<publish>
+    <boot-options>ro root=LABEL=/</boot-options>
+  </publish>"""]
 
-class Test_BootArgsDefault(IsoEventBootConfigTestCase):
+class Test_BootOptionsDefault(IsoEventBootOptionsTestCase):
   "default boot args and config-specified args in isolinux.cfg"
-  _conf = \
+  _conf = [
   """<iso>
-    <boot-args use-defaults="true">ro root=LABEL=/</boot-args>
     <set>CD</set>
     <set>400 MB</set>
-  </iso>"""
+  </iso>""",
+  """<publish>
+    <boot-options>ro root=LABEL=/</boot-options>
+  </publish>"""]
 
   def setUp(self):
-    IsoEventBootConfigTestCase.setUp(self)
+    IsoEventBootOptionsTestCase.setUp(self)
     self.do_defaults = True
 
 
@@ -148,5 +161,5 @@ def make_suite(distro, version, arch):
   suite.addTest(Test_SizeParser())
   suite.addTest(Test_IsoContent(distro, version, arch))
   suite.addTest(Test_SetsChanged(distro, version, arch))
-  suite.addTest(Test_BootArgsDefault(distro, version, arch))
+  suite.addTest(Test_BootOptionsDefault(distro, version, arch))
   return suite

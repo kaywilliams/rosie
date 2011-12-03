@@ -15,10 +15,6 @@
         <element name="set"><text/></element>
         </oneOrMore>
 
-        <optional>
-        <ref name="element-boot-args"/>
-        </optional>
-
         </interleave>
 
       </element>

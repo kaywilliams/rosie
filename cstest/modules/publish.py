@@ -20,6 +20,8 @@ from centosstudio.errors import CentOSStudioError
 from cstest      import EventTestCase, ModuleTestSuite
 from cstest.core import make_core_suite
 
+from cstest.mixins import psm_make_suite
+
 class PublishSetupEventTestCase(EventTestCase):
   moduleid = 'publish'
   eventid  = 'publish-setup'
@@ -27,7 +29,7 @@ class PublishSetupEventTestCase(EventTestCase):
 class KickstartEventTestCase(EventTestCase):
   moduleid = 'publish'
   eventid  = 'kickstart'
-  _conf = """<publish><kickstart></kickstart></publish>"""
+  _conf = "<publish><kickstart></kickstart></publish>"
 
   def setUp(self):
     EventTestCase.setUp(self)
@@ -37,7 +39,7 @@ class KickstartEventTestCase(EventTestCase):
 
 class Test_KickstartIncludesAdditions(KickstartEventTestCase):
   "kickstart includes additional items"
-  _conf = """<publish><kickstart></kickstart></publish>"""
+  _conf = "<publish><kickstart></kickstart></publish>"
 
   def setUp(self):
     EventTestCase.setUp(self)
@@ -55,7 +57,7 @@ class Test_KickstartIncludesAdditions(KickstartEventTestCase):
 
 class Test_KickstartFailsOnInvalidInput(KickstartEventTestCase):
   "kickstart fails on invalid input"
-  _conf = """<publish><kickstart>invalid</kickstart></publish>"""
+  _conf = "<publish><kickstart>invalid</kickstart></publish>"
 
   def runTest(self):
    self.execute_predecessors(self.event)
@@ -74,7 +76,8 @@ class PublishEventTestCase(EventTestCase):
 
   def tearDown(self):
     # 'register' publish_path for deletion upon test completion
-    self.output.append(self.event.cvars['publish-path'])
+    self.output.append(self.event.cvars['%s-setup-options' % self.moduleid]
+                                       ['localpath'])
     EventTestCase.tearDown(self)
 
 def make_suite(distro, version, arch):
@@ -82,6 +85,7 @@ def make_suite(distro, version, arch):
 
   # publish-setup
   suite.addTest(make_core_suite(PublishSetupEventTestCase, distro, version, arch))
+  suite.addTest(psm_make_suite(PublishSetupEventTestCase, distro, version, arch))
 
   # kickstart
   suite.addTest(make_core_suite(KickstartEventTestCase, distro, version, arch))

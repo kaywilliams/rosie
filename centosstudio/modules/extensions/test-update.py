@@ -23,27 +23,28 @@ from centosstudio.cslogging import L1, L2, L3
 from centosstudio.util      import pps
 
 from centosstudio.modules.shared import DeployEventMixin
-from centosstudio.modules.shared.testpublish import TestPublishEventMixin
+from centosstudio.modules.shared import TestPublishEventMixin
 
 P = pps.path
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['TestUpdatePublishEvent', 'TestUpdateEvent'],
+  events      = ['TestUpdateSetupEvent', 'TestUpdateEvent'],
   description = 'performs test updates on client systems',
 )
 
-class TestUpdatePublishEvent(TestPublishEventMixin, Event):
+
+class TestUpdateSetupEvent(TestPublishEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'test-update-publish',
+      id = 'test-update-setup',
       parentid = 'test-events',
       version = 1.0,
       requires = ['os-dir'],
       conditionally_requires = [ 'kickstart-file', 'config-release'],
+      # don't run if test-install event fails
       conditionally_comes_after = [ 'test-install' ],
-      provides = ['test-update-webpath', 'test-update-repomdfile', 
-                  'test-update-kstext'],
+      provides = ['test-update-repomdfile', 'test-update-kstext'],
     )
 
     TestPublishEventMixin.__init__(self)
@@ -54,8 +55,7 @@ class TestUpdateEvent(DeployEventMixin, Event):
     Event.__init__(self,
       id = 'test-update',
       parentid = 'test-events',
-      requires = ['test-update-webpath', 'test-update-repomdfile',
-                  'test-update-kstext'], 
+      requires = ['test-update-repomdfile', 'test-update-kstext'], 
     )
 
     self.DATA =  {
@@ -69,10 +69,9 @@ class TestUpdateEvent(DeployEventMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.webpath = self.cvars['test-update-webpath'] 
     self.kstext = self.cvars['test-update-kstext']
     self.repomdfile = self.cvars['test-update-repomdfile']
-    self.DATA['variables'].extend(['webpath', 'kstext', 'repomdfile'])
+    self.DATA['variables'].extend(['kstext', 'repomdfile'])
     DeployEventMixin.setup(self)
 
 

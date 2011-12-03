@@ -19,7 +19,7 @@ from centosstudio.util import shlib
 
 from centosstudio.event import Event
 
-from centosstudio.modules.shared import BootConfigMixin
+from centosstudio.modules.shared import BootOptionsMixin
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -28,14 +28,13 @@ MODULE_INFO = dict(
   group       = 'installer',
 )
 
-class BootisoEvent(Event, BootConfigMixin):
+class BootisoEvent(Event, BootOptionsMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'bootiso',
       parentid = 'installer',
       version = '1.03',
       requires = ['isolinux-files', 'boot-config-file'],
-      conditionally_requires = ['web-path', 'boot-args'],
       provides = ['treeinfo-checksums', 'os-content'],
     )
 
@@ -48,12 +47,12 @@ class BootisoEvent(Event, BootConfigMixin):
       'variables': ['cvars[\'anaconda-version\']'],
     }
 
-    BootConfigMixin.__init__(self)
+    BootOptionsMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)
     self.DATA['input'].extend(self.cvars['isolinux-files'].values())
-    self.bootconfig.setup(include_method=True, include_ks='web')
+    self.bootoptions.setup(include_method=True, include_ks='web')
 
   def run(self):
     isodir = self.SOFTWARE_STORE/'images/isopath'
@@ -64,7 +63,7 @@ class BootisoEvent(Event, BootConfigMixin):
       if fn.basename == 'isolinux.cfg':
         # copy and modify isolinux.cfg
         self.copy(fn, isolinuxdir)
-        self.bootconfig.modify(isolinuxdir/fn.basename)
+        self.bootoptions.modify(isolinuxdir/fn.basename)
       else:
         # link other files
         self.link(fn, isolinuxdir)

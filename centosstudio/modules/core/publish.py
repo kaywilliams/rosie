@@ -28,8 +28,8 @@ from centosstudio.event     import Event
 from centosstudio.cslogging   import L1
 
 from centosstudio.modules.shared import DeployEventMixin
-from centosstudio.modules.shared.kickstart import KickstartEventMixin
-from centosstudio.modules.shared.publish import PublishEventMixin 
+from centosstudio.modules.shared import KickstartEventMixin
+from centosstudio.modules.shared import PublishSetupEventMixin 
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -41,13 +41,13 @@ MODULE_INFO = dict(
 TYPE_DIR = pps.constants.TYPE_DIR
 TYPE_NOT_DIR = pps.constants.TYPE_NOT_DIR
 
-class PublishSetupEvent(PublishEventMixin, Event):
+class PublishSetupEvent(PublishSetupEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
       id = 'publish-setup',
       parentid = 'setup-events',
       version = 1.00,
-      provides = ['publish-content', 'publish-path', 'web-path'],
+      provides = ['publish-content' ],
       suppress_run_message=True,
     )
 
@@ -56,15 +56,13 @@ class PublishSetupEvent(PublishEventMixin, Event):
       'config': [],
     }
 
-    PublishEventMixin.__init__(self)
+    PublishSetupEventMixin.__init__(self)
 
   def setup(self):
     self.diff.setup(self.DATA)
 
   def apply(self):
     self.cvars['publish-content'] = set()
-    self.cvars['publish-path'] = self.localpath
-    self.cvars['web-path'] = self.webpath 
 
 
 class KickstartEvent(KickstartEventMixin, Event):
@@ -112,12 +110,12 @@ class PublishEvent(Event):
     Event.__init__(self,
       id = 'publish',
       parentid = 'publish-events',
-      requires = ['publish-path', 'publish-content'],
+      requires = ['publish-content', 'publish-setup-options'],
       provides = ['published-repository']
     )
 
     self.DATA =  {
-      'variables': ['cvars[\'publish-path\']',
+      'variables': ['cvars[\'publish-setup-options\'][\'localpath\']',
                     'cvars[\'publish-content\']',
                     'cvars[\'selinux-enabled\']'],
       'input':     [],
@@ -126,29 +124,33 @@ class PublishEvent(Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.io.add_fpaths(self.cvars['publish-content'], self.cvars['publish-path'])
+    self.io.add_fpaths(self.cvars['publish-content'], 
+                       self.cvars['publish-setup-options']['localpath'])
 
   def clean(self):
     Event.clean(self)
-    self.cvars['publish-path'].rm(recursive=True, force=True)
+    self.cvars['publish-setup-options']['localpath'].rm(
+                                        recursive=True, force=True)
 
   def run(self):
     "Publish the contents of SOFTWARE_STORE to PUBLISH_STORE"
-    self.io.process_files(text="publishing to '%s'" % self.cvars['publish-path'],
+    self.io.process_files(text="publishing to '%s'" % 
+                          self.cvars['publish-setup-options']['localpath'],
                        callback=Event.link_callback)
-    self.io.chcon(self.cvars['publish-path'])
+    self.io.chcon(self.cvars['publish-setup-options']['localpath'])
 
   def clean_eventcache(self):
     self.io.clean_eventcache()
     expected = set(self.diff.output.oldoutput.keys())
-    existing = set(self.cvars['publish-path'].findpaths(
+    existing = set(self.cvars['publish-setup-options']['localpath'].findpaths(
                  mindepth=1, type=TYPE_NOT_DIR))
     # delete files in publish path no longer needed
     for path in existing.difference(expected):
       path.rm()
     # delete empty directories in publish path
     for dir in [ d for d in
-                 self.cvars['publish-path'].findpaths(mindepth=1, type=TYPE_DIR)
+                 self.cvars['publish-setup-options']['localpath'].findpaths(
+                 mindepth=1, type=TYPE_DIR)
                  if not d.listdir(all=True) ]:
       dir.removedirs()
 
@@ -159,7 +161,7 @@ class DeployEvent(DeployEventMixin, Event):
       id = 'deploy',
       parentid = 'publish-events',
       conditionally_requires = ['repomd-file'],
-      requires = ['web-path', 'published-repository'],
+      requires = ['published-repository'],
     )
 
     self.DATA =  {
@@ -175,7 +177,7 @@ class DeployEvent(DeployEventMixin, Event):
   def setup(self):
     self.diff.setup(self.DATA)
 
-    self.webpath = self.cvars['web-path'] / 'os'
+    self.webpath = self.cvars['publish-setup-options']['webpath'] / 'os'
     # allowing deploy event to run when the repocreate is disabled for 
     # improved testing performance
     if 'repomd-file' in self.cvars:
@@ -191,8 +193,7 @@ class DeployEvent(DeployEventMixin, Event):
     DeployEventMixin.run(self)
 
 
-##### Error Classes #####
-
+#------ Error Classes ------#
 class InterfaceIOError(CentOSStudioError):
   message = ( "Error looking up information for interface '%(interface)s': "
               "%(message)s" )

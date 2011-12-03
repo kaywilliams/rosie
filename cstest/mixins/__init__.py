@@ -21,6 +21,8 @@ from centosstudio.util.rxml.config import Element
 from cstest import decorate
 from cstest.core import CoreTestSuite
 
+from cstest.mixins.publishsetup import *
+
 #------ FileDownloadMixin ------#
 class FDMTest_Files:
   "all files downloaded successfully"
@@ -124,8 +126,8 @@ def imm_make_suite(TestCase, distro, version, arch, conf=None, xpath=None):
   return suite
 
 
-#------ BootConfigMixin ------#
-class BootConfigMixinTestCase:
+#------ BootOptionsMixin ------#
+class BootOptionsMixinTestCase:
   def _append_method_arg(self, args):
     if self.event.cvars['web-path']:
       args.append('method=%s/os' % self.event.cvars['web-path'])
@@ -135,8 +137,8 @@ class BootConfigMixinTestCase:
       args.append('ks=file:%s' % self.event.cvars['ks-path'])
 
   def _append_config_args(self, args):
-    if self.event.cvars['boot-args']:
-      args.extend(self.cvars['boot-args'].split())
+    if self.event.cvars['boot-options']:
+      args.extend(self.cvars['boot-options'].split())
 
   def testArgs(self, image, filename='isolinux.cfg', defaults=True):
     image.open('r')
@@ -145,7 +147,7 @@ class BootConfigMixinTestCase:
       if defaults:
         self._check_boot_args(labels, self.default_args)
       self._check_boot_args(labels, 
-                      self.event.config.get('boot-args/text()', '').split())
+                      self.event.config.get('boot-options/text()', '').split())
     finally:
       image.close()
 

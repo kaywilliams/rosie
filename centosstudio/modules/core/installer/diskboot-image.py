@@ -17,7 +17,7 @@
 #
 from centosstudio.event import Event
 
-from centosstudio.modules.shared import ImageModifyMixin, BootConfigMixin
+from centosstudio.modules.shared import ImageModifyMixin, BootOptionsMixin
 
 from centosstudio.util import pps
 from centosstudio.util import shlib
@@ -32,7 +32,7 @@ MODULE_INFO = dict(
 MBR_FILES = [ pps.path('/usr/lib/syslinux/mbr.bin'),
               pps.path('/usr/share/syslinux/mbr.bin'), ]
 
-class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
+class DiskbootImageEvent(Event, ImageModifyMixin, BootOptionsMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'diskboot-image',
@@ -40,8 +40,8 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
       parentid = 'installer',
       provides = ['diskboot.img', 'treeinfo-checksums', 'os-content'],
       requires = ['buildstamp-file', 'installer-repo', 'isolinux-files'],
-      conditionally_requires = ['diskboot-image-content', 'web-path',
-                                'boot-args', 'ks-path', 'installer-splash'],
+      conditionally_requires = ['diskboot-image-content', 'ks-path', 
+                                'installer-splash'],
     )
 
     self.DATA = {
@@ -52,7 +52,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     }
 
     ImageModifyMixin.__init__(self, 'diskboot.img')
-    BootConfigMixin.__init__(self)
+    BootOptionsMixin.__init__(self)
 
   def error(self, e):
     try:
@@ -68,8 +68,8 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
          self.cvars['installer-splash'].exists() ):
       self.DATA['input'].append(self.cvars['installer-splash'])
 
-    # BootConfigMixin setup
-    self.bootconfig.setup(defaults=['nousbstorage'],
+    # BootOptionsMixin setup
+    self.bootoptions.setup(defaults=['nousbstorage'],
                           include_method=True, include_ks='web')
 
     # ImageModifyMixin setup
@@ -99,7 +99,7 @@ class DiskbootImageEvent(Event, ImageModifyMixin, BootConfigMixin):
     # modify boot args
     isolinuxcfg = self.image.handler._mount/'isolinux.cfg'
     syslinuxcfg = self.image.handler._mount/'syslinux.cfg'
-    self.bootconfig.modify(syslinuxcfg, cfgfile=isolinuxcfg)
+    self.bootoptions.modify(syslinuxcfg, cfgfile=isolinuxcfg)
     isolinuxcfg.remove()
     # remove local lines (essentially grep -v 'local')
     syslinuxcfg.write_lines([ x for x in syslinuxcfg.read_lines()

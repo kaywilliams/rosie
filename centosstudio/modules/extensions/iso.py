@@ -27,7 +27,7 @@ from centosstudio.callback import BuildDepsolveCallback
 from centosstudio.event    import Event, CLASS_META
 from centosstudio.cslogging  import L1, L2, L3
 
-from centosstudio.modules.shared import ListCompareMixin, BootConfigMixin
+from centosstudio.modules.shared import ListCompareMixin, BootOptionsMixin
 
 MODULE_INFO = dict(
   api         = 5.0,
@@ -100,7 +100,7 @@ class PkgorderEvent(Event):
     self.verifier.failUnlessExists(self.pkgorderfile)
 
 
-class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
+class IsoEvent(Event, ListCompareMixin, BootOptionsMixin):
   def __init__(self):
     Event.__init__(self,
       id = 'iso',
@@ -109,10 +109,9 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
       provides = ['iso-dir', 'publish-content'],
       requires = ['anaconda-version', 'pkgorder-file', 
                   'boot-config-file', 'treeinfo-text'],
-      conditionally_requires = ['srpms-dir', 'ks-path', 'boot-args'],
+      conditionally_requires = ['srpms-dir', 'ks-path', 'boot-options'],
     )
     ListCompareMixin.__init__(self)
-    BootConfigMixin.__init__(self)
 
     self.lfn = self._delete_isotree
     self.rfn = self._generate_isotree
@@ -127,6 +126,8 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
       'output':    [],
     }
 
+    BootOptionsMixin.__init__(self) # requires DATA
+
   def setup(self):
     self.diff.setup(self.DATA)
     self.isodir = self.mddir/'iso'
@@ -134,7 +135,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     self.DATA['variables'].append('cvars[\'treeinfo-text\']')
     self.DATA['input'].append(self.cvars['pkgorder-file'])
 
-    self.bootconfig.setup(defaults=['method=cdrom'], include_ks='local')
+    self.bootoptions.setup(defaults=['method=cdrom'], include_ks='local')
 
   def run(self):
     oldsets = None
@@ -218,7 +219,7 @@ class IsoEvent(Event, ListCompareMixin, BootConfigMixin):
     splitter.split_trees()
     # modify boot args on isolinux.cfg file(s)
     for cfg in splitter.s_tree.findpaths(glob='isolinux.cfg'):
-      self.bootconfig.modify(cfg)
+      self.bootoptions.modify(cfg)
     self.log(4, L3("splitting rpms"))
     splitter.split_rpms()
     self.log(4, L3("splitting srpms"))

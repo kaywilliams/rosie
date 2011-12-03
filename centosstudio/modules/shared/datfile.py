@@ -21,14 +21,16 @@ import lxml
 from centosstudio.util import rxml
 
 class DatfileMixin:
-  def __init__(self):
+  datfile_mixin_version = "1.00"
+
+  def datfile_setup(self):
+    self.DATA['variables'].append('datfile_mixin_version')
     self.datfn = (self._config.getpath(
                         '/solution/config/@datafile-dir', 
                         self._config.file.dirname) / 
                         self._config.file.basename + '.dat')
     self.datfn.dirname.mkdirs()
 
-  def parse(self):
     if self.datfn.exists():
       self.datfile = parse(self.datfn).getroot().get('/solution')
     else:

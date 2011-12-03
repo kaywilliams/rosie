@@ -17,13 +17,18 @@
 #
 from centosstudio.util import listcompare
 
-from centosstudio.modules.shared.bootcfg    import *
-from centosstudio.modules.shared.deploy     import *
-from centosstudio.modules.shared.repomd     import *
-from centosstudio.modules.shared.installer  import *
-from centosstudio.modules.shared.idepsolver import *
-from centosstudio.modules.shared.repos      import *
-from centosstudio.modules.shared.rpmbuild   import *
+from centosstudio.modules.shared.bootoptions  import *
+from centosstudio.modules.shared.datfile      import *
+from centosstudio.modules.shared.deploy       import *
+from centosstudio.modules.shared.installer    import *
+from centosstudio.modules.shared.idepsolver   import *
+from centosstudio.modules.shared.kickstart    import *
+from centosstudio.modules.shared.publishsetup import *
+from centosstudio.modules.shared.repomd       import *
+from centosstudio.modules.shared.repos        import *
+from centosstudio.modules.shared.rpmbuild     import *
+from centosstudio.modules.shared.config       import * # requires rpmbuild
+from centosstudio.modules.shared.testpublish  import * # requires config
 
 class ListCompareMixin:
   def __init__(self, lfn=None, rfn=None, bfn=None, cb=None):

@@ -25,40 +25,52 @@ import struct
 from crypt import crypt
 from random import choice
 
-from centosstudio.modules.shared import datfile 
+from centosstudio.modules.shared import DatfileMixin, uElement
 
 from centosstudio.util import pps
 
 # Include this mixin in any event that requires hostname and password 
-class PublishEventMixin(datfile.DatfileMixin):
+class PublishSetupEventMixin(DatfileMixin):
   publish_mixin_version = "1.00"
 
   def __init__(self):
-    datfile.DatfileMixin.__init__(self)
-    datfile.DatfileMixin.parse(self)
+    self.provides.add('%s-setup-options' % self.moduleid)
+    self.conditionally_requires.add('publish-setup-options')
+
+    # doing everything in init so that we can define macros
+    # prior to validation
+    DatfileMixin.datfile_setup(self)
 
     self.DATA['variables'].append('publish_mixin_version')
 
+    # set attributes
     self.localpath= self.get_local()
     self.webpath  = self.get_remote()
     self.hostname = self.get_hostname()
-    self.domain   = self.config.get('@domain', None)
-    self.password = self.config.get('@password', self.datfile.get(
-                    '/*/%s/password/text()' % self.moduleid, 
-                    self.gen_password()))
-    self.crypt_password = self.datfile.get(
-                          '/*/%s/crypt-password/text()' % self.moduleid,
-                          self.encrypt_password(self.password))
-    self.write_datfile(self.password, self.crypt_password)
+    self.domain   = self.config.get('@domain', '')
+    self.password, self.crypt_password  = self.get_password()
+    self.boot_options = self.config.get('boot-options/text()', '')
+    self.write_datfile()
 
     # set macros
     self.macros = {'%{url}':  str(self.webpath),
                    '%{hostname}': self.hostname,
                    '%{password}': self.password,
                    '%{crypt-password}': self.crypt_password}
-    if self.domain is not None:
-      self.macros['%{domain}'] = self.domain 
+    for attribute in ['domain', 'boot_options']:
+      if len(eval('self.%s' % attribute)) > 0:
+        self.macros['%%{%s}' % attribute.replace('_','-')] = \
+                    eval('self.%s' % attribute)
 
+    cvars_root = '%s-setup-options' % self.moduleid
+    self.cvars[cvars_root] = {}
+    for attribute in ['hostname', 'domain', 'password', 'webpath', 'localpath', 
+                      'boot_options']:
+      self.cvars[cvars_root][attribute.replace('_','-')] = \
+                      eval('self.%s' % attribute)
+
+
+  #------ Helper Methods ------#
   def get_local(self):
     self.DATA['config'].append('local-dir')
     self.DATA['variables'].append('localpath')
@@ -113,24 +125,78 @@ class PublishEventMixin(datfile.DatfileMixin):
 
     return self.config.get('@hostname', default)
 
-  def gen_password(self):
-   size = 8 
-   return ''.join([choice(string.letters + string.digits) for i in range(size)])
+  def get_password(self):
+    #print "\nmodule: ", self.moduleid
+    #print "saved password: ", self.datfile.get('/*/%s/password/text()' % self.moduleid, None) 
+    #print "saved cryptpw: ", self.datfile.get('/*/%s/crypt-password/text()' % self.moduleid, None)
+    if self.moduleid == 'publish':
+      password = (self.config.get('@password', '') or 
+                  self.datfile.get('/*/%s/password/text()' % self.moduleid, '') 
+                  or self.gen_password())
+    else:
+      password = (self.config.get('@password', '') or 
+                  self.cvars['publish-setup-options']['password'])
 
-  def encrypt_password(self, password):
-    salt_pop = string.letters + string.digits + '.' + '/'
-    salt = ''
-    for i in range(8):
-      salt = salt + choice(salt_pop)
-    salt = '$6$' + salt
+    crypt_password = self.get_cryptpw(password)
+
+    #print "final password: ", password
+    #print "final crypt_password: ", crypt_password
+    return (password, crypt_password)
+
+  def gen_password(self):
+    size = 8 
+    return ''.join([choice(
+                    string.letters + string.digits) for i in range(size)])
+
+  def get_cryptpw(self, password):
+    cryptpw=self.datfile.get('/*/publish/crypt-password/text()', '')
+
+    if self.moduleid != 'publish':
+      cryptpw = self.datfile.get('/*/%s/crypt-password/text()' % self.moduleid,
+                                 cryptpw) 
+
+    if len(cryptpw) > 0:
+      # discard saved cryptpw if it is no longer valid
+      salt = cryptpw[:11]
+      if cryptpw != self.encrypt_password(password, salt):
+        cryptpw = ''
+
+    return cryptpw or self.encrypt_password(password)
+
+  def encrypt_password(self, password, salt=None):
+    if salt is None:
+      salt_pop = string.letters + string.digits + '.' + '/'
+      salt = ''
+      for i in range(8):
+        salt = salt + choice(salt_pop)
+      salt = '$6$' + salt
     return crypt(password, salt)
 
-  def write_datfile(self, password, crypt_password):
+  def write_datfile(self):
     root = self.datfile.get('/solution')
-    parent   = datfile.uElement(self.moduleid, parent=root)
-    password = datfile.uElement('password', parent=parent, text=password)
-    crypt_password = datfile.uElement('crypt-password', parent=parent, 
-                     text=crypt_password)
+    parent   = uElement(self.moduleid, parent=root)
+
+    # set password
+    if (len(self.config.get('/*/%s/@password' % self.moduleid, '')) == 0 and 
+        self.moduleid == 'publish'):
+      password = uElement('password', parent=parent, text=self.password)
+    else:
+      password = uElement('password', parent=parent, text=None)
+
+    # set crypt_password
+    if self.password != self.cvars.setdefault(
+                        'publish-setup-options', {}).setdefault(
+                        'password', ''):
+      crypt_password = uElement('crypt-password', parent=parent, 
+                       text=self.crypt_password)
+    else:
+      crypt_password = uElement('crypt-password', parent=parent, text=None)
+
+    #cleanup empty nodes
+    for elem in [ password, crypt_password ]:
+      if elem.text == None: elem.getparent().remove(elem)
+    if len(parent) == 0: parent.getparent().remove(parent)
+
     root.write(self.datfn, self._config.file)
 
 # TODO - improve these, they're pretty vulnerable to changes in offsets and

@@ -28,30 +28,31 @@ from centosstudio.cslogging import L0, L1, L2
 from centosstudio.errors import CentOSStudioError
 from centosstudio.util import sshlib
 
-from centosstudio.modules.shared.publish import PublishEventMixin
-
 from UserDict import DictMixin
 
 SSH_RETRIES = 24
 SSH_SLEEP = 5
 
-class DeployEventMixin(PublishEventMixin):
+class DeployEventMixin:
   deploy_mixin_version = "1.00"
 
   def __init__(self):
+    self.requires.add('%s-setup-options' % self.moduleid)
+
     # we're doing this in init rather than in validate (where it 
     # should technically be) so that if no scripts are present
     # (i.e. scripts_provided is False) parent events can disable themselves.
 
-    PublishEventMixin.__init__(self)
-
     # setup ssh  values
+    self.cvar_root = '%s-setup-options' % self.moduleid
     self.ssh = dict(
-      hostname = ((self.domain and '%s.%s' % (self.hostname, self.domain)) 
-                  or self.hostname),
+      hostname = ((self.cvars[self.cvar_root]['domain'] and '%s.%s' % 
+                  (self.cvars[self.cvar_root]['hostname'],
+                   self.cvars[self.cvar_root]['domain'])) 
+                  or self.cvars[self.cvar_root]['hostname']),
       port     = 22,
       username = 'root',
-      password = self.password,
+      password = self.cvars[self.cvar_root]['password'],
       )
 
     # set up script default parameters
@@ -97,8 +98,7 @@ class DeployEventMixin(PublishEventMixin):
                                       attribute = attribute)
 
   def setup(self): 
-    # needs to be called after self.webpath, self.repomdfile and self.kstext
-    # are set
+    # needs to be called after self.repomdfile and self.kstext are set
 
     # strip trailing whitespace from kstext so that diff testing works
     # as expected. using shelve for metadata storage (someday) will 
@@ -107,6 +107,8 @@ class DeployEventMixin(PublishEventMixin):
       self.kstext = self.kstext.rstrip()
     except:
       self.kstext = ''
+
+    self.webpath = self.cvars[self.cvar_root]['webpath']
 
     self.DATA['variables'].extend(['webpath', 'kstext'])
     self.DATA['input'].append(self.repomdfile)
@@ -142,8 +144,7 @@ class DeployEventMixin(PublishEventMixin):
     self._execute('post-script')
  
  
-  ##### Helper Functions #####
-  
+  #------ Helper Functions ------#
   def _reinstall(self, triggers = []):
     '''
     Tests specified install triggers and returns true if the install script 
@@ -306,7 +307,7 @@ SSH execution. Please correct using one of the following methods:
 * Set the 'ssh' attribute to false on the '%(script)s' element.
 """
 
-##### Callbacks #####
+#------ Callbacks ------#
 class SSHConnectCallback:
   def __init__(self, logger):
     self.logger = logger

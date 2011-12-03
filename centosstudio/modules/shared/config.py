@@ -103,7 +103,7 @@ class ConfigEventMixin(RpmBuildMixin):
       except AttributeError:
         pass
 
-    self.DATA['variables'].extend(['input_repos_text', 'masterrepo'])
+    self.DATA['variables'].extend(['input_repos_text', 'masterrepo', 'webpath'])
 
     # setup gpgkeys
     self.cvars['gpgcheck-enabled'] = self.config.getbool(
@@ -345,7 +345,7 @@ class ConfigEventMixin(RpmBuildMixin):
     script += '# remove md5sum file if script fails\n'
     script += 'trap "rm -f $md5file" INT TERM EXIT\n'
     script += '\n'
-    script += '\n##### Start of User Scripts #####\n'
+    script += '\n#------ Start of User Scripts ------#\n'
     return script
 
   def _mk_postun(self):

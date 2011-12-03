@@ -27,17 +27,16 @@ from centosstudio.errors    import CentOSStudioError
 from centosstudio.event     import Event
 from centosstudio.cslogging import L1
 
-from centosstudio.modules.shared import datfile
+from centosstudio.modules.shared import DatfileMixin, uElement 
 
 __all__ = ['RpmBuildMixin', 'Trigger', 'TriggerContainer']
 
-class RpmBuildMixin(datfile.DatfileMixin):
+class RpmBuildMixin(DatfileMixin):
   def __init__(self, *args, **kwargs):
     self.rpm = RpmBuildObject(self, *args,**kwargs)
-    datfile.DatfileMixin.__init__(self)
 
   def setup(self, **kwargs):
-    datfile.DatfileMixin.parse(self)
+    DatfileMixin.datfile_setup(self)
     self.rpm.setup_build(**kwargs)
 
   def run(self):
@@ -194,9 +193,9 @@ class RpmBuildObject:
   def save_release(self):
     root = self.ptr.datfile.get('/solution')
 
-    rpms     = datfile.uElement('rpms', parent=root)
-    parent   = datfile.uElement(self.ptr.id, parent=rpms)
-    release  = datfile.uElement('release', parent=parent, text=self.release)
+    rpms     = uElement('rpms', parent=root)
+    parent   = uElement(self.ptr.id, parent=rpms)
+    release  = uElement('release', parent=parent, text=self.release)
 
     root.write(self.ptr.datfn, self.ptr._config.file)
 

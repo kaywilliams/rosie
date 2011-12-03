@@ -160,12 +160,6 @@
     <ref name="attribute-content"/>
   </define>
 
-  <!-- boot-args element -->
-  <define name="element-boot-args">
-    <element name="boot-args">
-      <text/>
-    </element>
-  </define>
 
   <!-- publish elements -->
   <define name="content-publish-elements">
@@ -186,6 +180,10 @@
 
     <optional>
       <element name="local-dir"><text/></element>
+    </optional>
+
+    <optional>
+      <element name="boot-options"><text/></element>
     </optional>
 
   </define>

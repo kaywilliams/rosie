@@ -61,7 +61,6 @@ class EventTestCase(unittest.TestCase):
     self.distro = distro
     self.version = version
     self.arch = arch
-
     self.conf = conf or self._make_default_config()
     self.buildroot = BUILD_ROOT
 
@@ -97,7 +96,6 @@ class EventTestCase(unittest.TestCase):
     if gpgcheck is not None: top.append(gpgcheck)
 
     self.conf = top
-
     if hasattr(self, '_conf'): # string or list of strings
       if isinstance(self._conf, basestring):
         self._conf = [self._conf]

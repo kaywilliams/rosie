@@ -23,26 +23,26 @@ from centosstudio.cslogging import L1, L2, L3
 from centosstudio.util      import pps
 
 from centosstudio.modules.shared import DeployEventMixin
-from centosstudio.modules.shared.testpublish import TestPublishEventMixin
+from centosstudio.modules.shared import TestPublishEventMixin
 
 P = pps.path
 
 MODULE_INFO = dict(
   api         = 5.0,
-  events      = ['TestInstallPublishEvent', 'TestInstallEvent'],
+  events      = ['TestInstallSetupEvent', 'TestInstallEvent'],
   description = 'performs test installations on client systems',
 )
 
-class TestInstallPublishEvent(TestPublishEventMixin, Event):
+
+class TestInstallSetupEvent(TestPublishEventMixin, Event):
   def __init__(self):
     Event.__init__(self,
-      id = 'test-install-publish',
+      id = 'test-install-setup',
       parentid = 'test-events',
       version = 1.0,
       requires = ['os-dir'],
       conditionally_requires = [ 'kickstart-file', 'config-release'],
-      provides = ['test-install-webpath', 'test-install-repomdfile', 
-                  'test-install-kstext'],
+      provides = [ 'test-install-repomdfile', 'test-install-kstext'],
     ) 
 
     TestPublishEventMixin.__init__(self)
@@ -53,8 +53,7 @@ class TestInstallEvent(DeployEventMixin, Event):
     Event.__init__(self,
       id = 'test-install',
       parentid = 'test-events',
-      requires = ['test-install-webpath', 'test-install-kstext', 
-                  'treeinfo-text'], 
+      requires = [ 'test-install-kstext', 'treeinfo-text'], 
       conditionally_requires = [ 'test-install-repomdfile', 'config-release'],
     )
 
@@ -69,7 +68,6 @@ class TestInstallEvent(DeployEventMixin, Event):
 
   def setup(self):
     self.diff.setup(self.DATA)
-    self.webpath = self.cvars['test-install-webpath'] 
     self.kstext = self.cvars['test-install-kstext']
     self.titext = self.cvars['treeinfo-text']
     self.repomdfile = self.cvars['test-install-repomdfile']
@@ -77,8 +75,7 @@ class TestInstallEvent(DeployEventMixin, Event):
       self.config_release = self.cvars['config-release']
     else:
       self.config_release = None
-    self.DATA['variables'].extend(['webpath', 'kstext', 'titext', 
-                                   'config_release'])
+    self.DATA['variables'].extend([ 'kstext', 'titext', 'config_release'])
     DeployEventMixin.setup(self)
 
   def run(self):

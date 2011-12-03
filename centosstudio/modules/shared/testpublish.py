@@ -20,12 +20,12 @@ from centosstudio.cslogging import L1, L2
 from centosstudio.util      import pps
 
 from centosstudio.modules.shared import RepomdMixin
-from centosstudio.modules.shared.config import ConfigEventMixin
-from centosstudio.modules.shared.kickstart import KickstartEventMixin
-from centosstudio.modules.shared.publish import PublishEventMixin
+from centosstudio.modules.shared import PublishSetupEventMixin
+from centosstudio.modules.shared import ConfigEventMixin
+from centosstudio.modules.shared import KickstartEventMixin
 
 class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin, 
-                            PublishEventMixin):
+                            PublishSetupEventMixin):
   def __init__(self):
 
     self.configxpath = 'config'
@@ -40,7 +40,7 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
     ConfigEventMixin.__init__(self)
     RepomdMixin.__init__(self)
     KickstartEventMixin.__init__(self)
-    PublishEventMixin.__init__(self)
+    PublishSetupEventMixin.__init__(self)
 
   def clean(self):
     Event.clean(self)
@@ -101,13 +101,12 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
       KickstartEventMixin.run(self) 
 
     # publish to test folder
-    self.log(0, L1('publishing to %s' % self.localpath))
+    self.log(2, L1('publishing to %s' % self.localpath))
     self.localpath.rm(force=True)
     self.link(self.SOFTWARE_STORE, self.localpath) 
     self.io.chcon(self.localpath)
 
   def apply(self):
-    self.cvars['%s-webpath' % self.moduleid ] = self.webpath
     self.cvars['%s-kstext' % self.moduleid] = self.kstext # provided by ks mixin
     self.cvars['%s-repomdfile' % self.moduleid] = self.repomdfile # provided by repomdmixin
 
@@ -117,6 +116,5 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
 
   def verify_cvars(self):
     "verify cvars exist"
-    self.verifier.failUnlessSet('%s-webpath' % self.moduleid)
     self.verifier.failUnlessSet('%s-kstext' % self.moduleid)
     self.verifier.failUnlessSet('%s-repomdfile' % self.moduleid)

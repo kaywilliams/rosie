@@ -17,19 +17,22 @@
 #
 from centosstudio.util import pps
 
-class BootConfigMixin(object):
+class BootOptionsMixin(object):
   def __init__(self):
-    self.bootconfig = BootConfigDummy(self)
+    self.conditionally_requires.add('publish-setup-options')
+    self.bootoptions = BootOptionsDummy(self)
+    self.boot_options_mixin_version = '1.00'
+    self.DATA['variables'].append('boot_options_mixin_version')
 
-class BootConfigDummy(object):
+class BootOptionsDummy(object):
   def __init__(self, ptr):
     self.ptr = ptr
     self.boot_args = None
-    self.ptr.boot_config_mixin_version = '1.00'
 
   def setup(self, defaults=None, include_method=False, include_ks=False):
-    self.ptr.DATA['variables'].append('boot_config_mixin_version')
-    self.boot_args = self.ptr.config.get('boot-args/text()', '').split()
+    self.boot_args = \
+      self.ptr.cvars['publish-setup-options']['boot-options'].split()
+    self.ptr.webpath = self.ptr.cvars['publish-setup-options']['webpath']
 
     args = defaults or []
 
@@ -37,9 +40,6 @@ class BootConfigDummy(object):
     if include_ks:     self._process_ks(include_ks, args)
 
     self.boot_args.extend(args)
-
-    if self.ptr.cvars['boot-args']:
-      self.boot_args.append(self.cvars['boot-args'].split())
 
   def modify(self, dst, cfgfile=None):
 
@@ -66,10 +66,10 @@ class BootConfigDummy(object):
     dst.write_lines(lines)
 
   def _process_method(self, args):
-    self.ptr.DATA['variables'].append('cvars[\'web-path\']')
-    if self.ptr.cvars['web-path'] is not None:
+    self.ptr.DATA['variables'].append('webpath')
+    if self.ptr.webpath is not None:
       args.append('%s=%s/os' % (self.ptr.locals.L_BOOTCFG['options']['method'],
-                                self.ptr.cvars['web-path']))
+                                self.ptr.webpath))
 
   def _process_ks(self, include_ks, args):
     self.ptr.DATA['variables'].append('cvars[\'ks-path\']')
@@ -78,7 +78,6 @@ class BootConfigDummy(object):
         args.append('%s=file:%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],
                                     self.ptr.cvars['ks-path']))
       if include_ks == 'web':
-        self.ptr.DATA['variables'].append('cvars[\'web-path\']')
+        self.ptr.DATA['variables'].append('webpath')
         args.append('%s=%s/os%s' % (self.ptr.locals.L_BOOTCFG['options']['ks'],
-                                    self.ptr.cvars['web-path'],
-                                    self.ptr.cvars['ks-path']))
+                                    self.ptr.webpath, self.ptr.cvars['ks-path']))

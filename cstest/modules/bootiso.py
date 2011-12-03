@@ -20,7 +20,7 @@ from centosstudio.util.img import MakeImage
 
 from cstest        import EventTestCase, ModuleTestSuite
 from cstest.core   import make_core_suite
-from cstest.mixins import BootConfigMixinTestCase
+from cstest.mixins import BootOptionsMixinTestCase
 
 class BootisoEventTestCase(EventTestCase):
   moduleid = 'bootiso'
@@ -31,7 +31,7 @@ class BootisoEventTestCase(EventTestCase):
     "<rpmbuild enabled='false'/>",
   ]
 
-class _BootisoEventTestCase(BootConfigMixinTestCase, BootisoEventTestCase):
+class _BootisoEventTestCase(BootOptionsMixinTestCase, BootisoEventTestCase):
   def __init__(self, distro, version, arch, conf=None):
     EventTestCase.__init__(self, distro, version, arch, conf)
     self.default_args = []
@@ -51,12 +51,12 @@ class _BootisoEventTestCase(BootConfigMixinTestCase, BootisoEventTestCase):
     self.testArgs(self.image, filename='isolinux.cfg', defaults=self.do_defaults)
 
 
-class Test_BootArgsDefault(_BootisoEventTestCase):
+class Test_BootOptionsDefault(_BootisoEventTestCase):
   "default boot args and config-specified args in isolinux.cfg"
   _conf = _BootisoEventTestCase._conf + [
-    "<bootiso>"
-    "  <boot-args use-defaults='true'>ro root=LABEL=/</boot-args>"
-    "</bootiso>",
+    "<publish>"
+    "  <boot-options>ro root=LABEL=/</boot-options>"
+    "</publish>",
   ]
 
   def setUp(self):
@@ -69,6 +69,6 @@ def make_suite(distro, version, arch):
 
   # bootiso
   suite.addTest(make_core_suite(BootisoEventTestCase, distro, version, arch))
-  suite.addTest(Test_BootArgsDefault(distro, version, arch))
+  suite.addTest(Test_BootOptionsDefault(distro, version, arch))
 
   return suite
