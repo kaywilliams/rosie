@@ -1,4 +1,4 @@
-SUBDIRS = solution 
+SUBDIRS = system 
 
 .PHONY: all clean install
 

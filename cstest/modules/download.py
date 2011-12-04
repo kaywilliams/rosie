@@ -93,7 +93,7 @@ class Test_ArchChanges(DownloadEventTestCase):
   "Test arch changes in <main/>"
   def __init__(self, distro, version, arch):
     DownloadEventTestCase.__init__(self, distro, version, arch)
-    rxml.tree.uElement('arch', self.conf.get('/solution/main'), text='i386')
+    rxml.tree.uElement('arch', self.conf.get('/*/main'), text='i386')
 
 class Test_MultipleReposWithSamePackage(DownloadEventTestCase):
   "Test multiple repos with the same package."

@@ -30,7 +30,7 @@ from centosstudio.modules.shared import comps
 MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PackagesEvent'],
-  description = 'defines the required packages and groups for the solution',
+  description = 'defines the required packages and groups for the system',
   group       = 'repocreate',
 )
 

@@ -148,7 +148,6 @@ class Test_OutputsGpgkeys(ConfigEventTestCase):
 
 class Test_RemovesGpgkeys(ConfigEventTestCase):
   "removes output when gpgcheck disabled"
-  # disable gpgcheck via /solution/config/updates@gpgcheck
   _conf = """<config>
     <updates gpgcheck='false'/>
   </config>"""

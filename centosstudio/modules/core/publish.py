@@ -35,7 +35,7 @@ MODULE_INFO = dict(
   api         = 5.0,
   events      = ['PublishSetupEvent', 'KickstartEvent', 'PublishEvent', 
                  'DeployEvent'],
-  description = 'publishes solution to a web accessible location',
+  description = 'publishes system repository to a web accessible location',
 )
 
 TYPE_DIR = pps.constants.TYPE_DIR

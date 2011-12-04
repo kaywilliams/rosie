@@ -237,7 +237,7 @@ class IDepsolver(Depsolver):
       if po not in satisfiers:
         satisfiers.add(po)
 
-    # Minimize packages in the solution by giving preference to 
+    # Minimize packages in the system repository by giving preference to 
     # satisfiers listed as comps packages
     comps_satisfiers = [ po for po in satisfiers \
                          if po in self.comps_pkgs ]

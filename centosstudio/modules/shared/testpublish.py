@@ -79,8 +79,8 @@ class TestPublishEventMixin(ConfigEventMixin, RepomdMixin, KickstartEventMixin,
   def run(self):
     # sync files from compose (os-dir) folder
     self.SOFTWARE_STORE.rm(force=True)
-    self.io.process_files(link=True, text="preparing test solution", 
-                          what='os-dir')
+    self.io.process_files(link=True, text="preparing %s repository" 
+                          % self.moduleid, what='os-dir')
 
     # modify config-rpm
     if 'config-release' in self.cvars:

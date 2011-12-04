@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<solution xmlns:xi="http://www.w3.org/2001/XInclude">
+<system xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <!-- test-update element -->
 <test-update domain="local">
@@ -17,4 +17,4 @@
 
 </test-update>
 
-</solution>
+</system>

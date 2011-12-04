@@ -139,7 +139,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
       sys.exit(1)
       
     self.basearch    = getBaseArch(self.arch)
-    self.solutionid  = self.definition.get(qstr % 'id',
+    self.systemid  = self.definition.get(qstr % 'id',
                           '%s-%s-%s' % (self.name,
                                           self.version,
                                           self.basearch))
@@ -148,7 +148,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     map = {'%{name}':     self.name,
            '%{version}':  self.version,
            '%{arch}':     self.basearch,
-           '%{id}':       self.solutionid,
+           '%{id}':       self.systemid,
            }
 
     try: 
@@ -249,7 +249,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     self._lock = lock.Lock('centosstudio.pid')
 
   def main(self):
-    "Build a solution"
+    "Build a system repository"
     if self._lock.acquire():
       self._log_header()
       try:
@@ -412,7 +412,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     di['version']           = self.version
     di['arch']              = self.arch
     di['basearch']          = self.basearch
-    di['solutionid']        = self.solutionid
+    di['systemid']        = self.systemid
     di['anaconda-version']  = None
     di['fullname']          = Event._config.get(qstr % 'fullname', di['name'])
     di['packagepath']       = 'Packages'
@@ -422,23 +422,23 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     for k,v in di.items():
       setattr(Event, k, v)
 
-    # validate name, version, and solutionid to ensure they don't have
+    # validate name, version, and systemid to ensure they don't have
     # invalid characters
-    for check in ['name', 'version', 'solutionid']:
+    for check in ['name', 'version', 'systemid']:
       if not FILENAME_REGEX.match(di[check]):
         raise RuntimeError("Invalid value '%s' for <%s> element in <main>; "
           "accepted characters are a-z, A-Z, 0-9, _, ., and -."
           % (di[check], check))
 
-    # make solutionid available to external programs via the Build object
-    Build.solutionid = di['solutionid']
+    # make systemid available to external programs via the Build object
+    Build.systemid = di['systemid']
 
     # set up other directories
     Event.CACHE_DIR    = self.mainconfig.getpath(
                            '/centosstudio/cache/path/text()',
                            DEFAULT_CACHE_DIR).expand().abspath()
     Event.TEMP_DIR     = DEFAULT_TEMP_DIR
-    Event.METADATA_DIR = Event.CACHE_DIR  / di['solutionid']
+    Event.METADATA_DIR = Event.CACHE_DIR  / di['systemid']
 
     sharedirs = [ DEFAULT_SHARE_DIR ]
     sharedirs.extend(reversed([ x.expand().abspath()
@@ -537,7 +537,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
 
   def _log_header(self):
     Event.logger.logfile.write(0, "\n\n\n")
-    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.solutionid, time.strftime('%Y-%m-%d %X')))
+    Event.logger.log(1, "Starting build of '%s' at %s" % (Event.systemid, time.strftime('%Y-%m-%d %X')))
     Event.logger.log(4, "Loaded modules: %s" % Event.cvars['loaded-modules'])
     Event.logger.log(4, "Event list: %s" % [ e.id for e in self.dispatch._top ])
   def _log_footer(self):

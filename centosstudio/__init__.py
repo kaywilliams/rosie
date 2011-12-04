@@ -19,7 +19,7 @@
 centosstudio
 
 A modular, extensible program framework for building customized anaconda-based
-Linux solutions.
+Linux system repositories.
 
 Highly optimized execution engine attempts to minimize build times by tracking
 data on various parts of the build process and only executing stages that have
@@ -30,17 +30,17 @@ that the output is consistenly valid and up-to-date with the available input.
 Modular-style system allows easy customization of the build process.  It is
 simple to enable or disable entire modules by adding or removing them from a
 modules/ directory, or by making an entry in the configuration file.  It is
-also easy to extend the basic centosstudio system by writing your own modules that
-implement the centosstudio module interface.
+also easy to extend the basic centosstudio system by writing your own modules
+that implement the centosstudio module interface.
 
 Support for multiple platform builds - centosstudio is capable of building a
-solution based on any version of anaconda from 10.x onward depending
+system repositories based on any version of anaconda from 10.x onward depending
 on the software installed on the build machine.  Through the use of multiple
-configuration files, one machine can build a variety of solutions 
-based on many different base distributions with no difficulty.  Careful use
-of a cache management system ensures that build data files don't take up too
-much space on the machine's drive while attempting to minimize cache misses
-that eat up valuable time.
+configuration files, one machine can build a variety of system repositories
+based on many different base distributions with no difficulty.  Careful use of
+a cache management system ensures that build data files don't take up too much
+space on the machine's drive while attempting to minimize cache misses that eat
+up valuable time.
 
 See main.py for information on more specific implementation details.
 """

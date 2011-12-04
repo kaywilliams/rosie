@@ -75,26 +75,26 @@ class PublishSetupEventMixin(DatfileMixin):
     self.DATA['config'].append('local-dir')
     self.DATA['variables'].append('localpath')
     if self.moduleid == 'publish':
-      default = '/var/www/html/solutions'
+      default = '/var/www/html/systems'
     else:
-      default = '/var/www/html/solutions/%s' % self.moduleid
+      default = '/var/www/html/systems/%s' % self.moduleid
 
     local = self.config.getpath('local-dir/text()', default)
-    return local / self.solutionid
+    return local / self.systemid
   
   def get_remote(self): 
     self.DATA['config'].append('remote-url')
     self.DATA['variables'].append('webpath')
     if self.moduleid == 'publish':
-      default = 'solutions'
+      default = 'systems'
     else:
-      default = 'solutions/%s' % self.moduleid
+      default = 'systems/%s' % self.moduleid
 
     remote = pps.path(self.config.getpath('/*/%s/remote-url/text()'
                       % self.moduleid, 
                       self._get_host(default, 'remote-url', ifname =
                         self.config.get('remote-url/@interface', None))))
-    return remote / self.solutionid
+    return remote / self.systemid
   
   def _get_host(self, default, xpath, ifname=None):
     if not ifname:
@@ -119,9 +119,9 @@ class PublishSetupEventMixin(DatfileMixin):
   def get_hostname(self):
     self.DATA['config'].append('@hostname')
     if self.moduleid == 'publish':
-      default = self.solutionid
+      default = self.systemid
     else:
-      default = '%s-%s' % (self.solutionid, self.moduleid)
+      default = '%s-%s' % (self.systemid, self.moduleid)
 
     return self.config.get('@hostname', default)
 

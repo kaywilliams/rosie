@@ -274,7 +274,7 @@ class SSHParameters(DictMixin):
     for param,value in ptr.ssh.items():
       self.params[param] = ptr.config.get('%s/@%s' % (script, param), value)
     self.params['hostname'] = self.params['hostname'].replace('$id',
-                              ptr.solutionid)
+                              ptr.systemid)
 
   def __getitem__(self, key):
     return self.params[key]

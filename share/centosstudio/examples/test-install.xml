@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<solution xmlns:xi="http://www.w3.org/2001/XInclude">
+<system xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <!-- test-install element -->
 <test-install domain="local">
@@ -14,11 +14,6 @@
                                /root/install-script |
                                /root/verify-install-script)"/>
 
-<post-script ssh="false">
-<xi:include href="deploy.xml"
-            xpointer="xpointer(/root/delete-script/node())"/>
-</post-script>
-
 </test-install>
 
-</solution>
+</system>
