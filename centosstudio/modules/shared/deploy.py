@@ -162,7 +162,7 @@ class DeployEventMixin:
       # did install script change (either file or text)?
       script_file = self.io.list_input(what='install-script')
       if (( script_file and script_file[0] in self.diff.input.diffdict) 
-           or '/solution/%s/install-script' % self.id 
+           or '/*/%s/install-script' % self.id 
            in self.diff.config.diffdict):
         self.log(1, L1("'install-script' changed, reinstalling...")) 
         return True # reinstall

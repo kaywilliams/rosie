@@ -26,15 +26,15 @@ class DatfileMixin:
   def datfile_setup(self):
     self.DATA['variables'].append('datfile_mixin_version')
     self.datfn = (self._config.getpath(
-                        '/solution/config/@datafile-dir', 
+                        '/*/config/@datafile-dir', 
                         self._config.file.dirname) / 
                         self._config.file.basename + '.dat')
     self.datfn.dirname.mkdirs()
 
     if self.datfn.exists():
-      self.datfile = parse(self.datfn).getroot().get('/solution')
+      self.datfile = parse(self.datfn).getroot().get('/*')
     else:
-      self.datfile = Element('solution')
+      self.datfile = Element('data')
 
 class DatfileElement(rxml.config.ConfigElement):
   "An element in a Datfile XML tree."

@@ -1,4 +1,4 @@
-#
+
 # Copyright (c) 2011
 # CentOS Studio Foundation. All rights reserved.
 #
@@ -127,7 +127,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
       self.debug = False
 
     # set up initial variables
-    qstr = '/solution/main/%s/text()'
+    qstr = '/*/main/%s/text()'
     try:
       self.name     = self.definition.get(qstr % 'name')
       self.version  = self.definition.get(qstr % 'version')
@@ -163,7 +163,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     # set up real logger - console and file
     self.logfile = ( pps.path(options.logfile)
                      or self.definition.getpath(
-                        '/solution/main/log-file/text()', None)
+                        '/*/main/log-file/text()', None)
                      or self.mainconfig.getpath(
                         '/centosstudio/log-file/text()', None)
                      or DEFAULT_LOG_FILE ).expand().abspath()
@@ -367,7 +367,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
     disabled = set(options.disabled_modules)
 
     # enable/disable modules from app config
-    for module in self.definition.xpath('/solution/*'):
+    for module in self.definition.xpath('/*/*'):
       if module.tag == 'main': continue # main isn't a module
       if not module.getbool('@enabled', 'True'):
         disabled.add(module.tag)
@@ -406,7 +406,7 @@ class Build(CentOSStudioErrorHandler, CentOSStudioValidationHandler, object):
 
     # set up base variables
     di = Event.cvars['distribution-info'] = {}
-    qstr = '/solution/main/%s/text()'
+    qstr = '/*/main/%s/text()'
 
     di['name']              = self.name 
     di['version']           = self.version

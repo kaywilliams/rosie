@@ -47,9 +47,9 @@ class PublishSetupEventMixin(DatfileMixin):
     self.localpath= self.get_local()
     self.webpath  = self.get_remote()
     self.hostname = self.get_hostname()
-    self.domain   = self.config.get('@domain', '')
+    self.domain   = self.get_domain()
     self.password, self.crypt_password  = self.get_password()
-    self.boot_options = self.config.get('boot-options/text()', '')
+    self.boot_options = self.get_bootoptions()
     self.write_datfile()
 
     # set macros
@@ -79,8 +79,7 @@ class PublishSetupEventMixin(DatfileMixin):
     else:
       default = '/var/www/html/solutions/%s' % self.moduleid
 
-    local = self.config.getpath('/solution/%s/local-dir/text()' % 
-                                self.moduleid, default)
+    local = self.config.getpath('local-dir/text()', default)
     return local / self.solutionid
   
   def get_remote(self): 
@@ -91,7 +90,7 @@ class PublishSetupEventMixin(DatfileMixin):
     else:
       default = 'solutions/%s' % self.moduleid
 
-    remote = pps.path(self.config.getpath('/solution/%s/remote-url/text()'
+    remote = pps.path(self.config.getpath('/*/%s/remote-url/text()'
                       % self.moduleid, 
                       self._get_host(default, 'remote-url', ifname =
                         self.config.get('remote-url/@interface', None))))
@@ -118,12 +117,31 @@ class PublishSetupEventMixin(DatfileMixin):
     return 'http://'+realm+'/'+default
 
   def get_hostname(self):
+    self.DATA['config'].append('@hostname')
     if self.moduleid == 'publish':
       default = self.solutionid
     else:
       default = '%s-%s' % (self.solutionid, self.moduleid)
 
     return self.config.get('@hostname', default)
+
+  def get_domain(self):
+    self.DATA['config'].append('@domain')
+    if self.moduleid == 'publish':
+      default = ''
+    else:
+      default = self.cvars['publish-setup-options']['domain']
+
+    return self.config.get('@domain', default)
+
+  def get_bootoptions(self):
+    self.DATA['config'].append('boot-options')
+    if self.moduleid == 'publish':
+      default = ''
+    else:
+      default = self.cvars['publish-setup-options']['boot-options']
+
+    return self.config.get('boot-options/text()', default)
 
   def get_password(self):
     #print "\nmodule: ", self.moduleid
@@ -173,7 +191,7 @@ class PublishSetupEventMixin(DatfileMixin):
     return crypt(password, salt)
 
   def write_datfile(self):
-    root = self.datfile.get('/solution')
+    root = self.datfile.get('/*')
     parent   = uElement(self.moduleid, parent=root)
 
     # set password
