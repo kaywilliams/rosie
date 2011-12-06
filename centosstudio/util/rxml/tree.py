@@ -312,6 +312,6 @@ def parse(file, handler=None, parser=PARSER):
   return handler.etree
 
 def fromstring(s, **kwargs):
-  root = read(StringIO(s), **kwargs)
+  root = parse(StringIO(s), **kwargs).getroot()
   root.file = None
   return root
